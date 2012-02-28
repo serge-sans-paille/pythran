@@ -5,19 +5,8 @@ from codepy.bpl import BoostPythonModule
 import re
 from subprocess import check_call, check_output
 
-operator_to_lambda = {
-        ast.Add     : lambda l,r: l+"+"+r,
-        ast.Sub     : lambda l,r: l+"-"+r,
-        ast.Mult    : lambda l,r: l+"*"+r,
-        ast.Div     : lambda l,r: l+"/"+r,
-        ast.Lt      : lambda l,r: l+"<"+r,
-        ast.Gt      : lambda l,r: l+">"+r,
-        }
-
-type_to_str = {
-        int     : "long",
-        float   : "double",
-        }
+from passes import referenced_ids, forward_declarations, type_substitution
+from tables import type_to_str, operator_to_lambda
 
 # the value, if not None, is used to deduce the return type of the intrinsics if the default behavior is not satisfying (i.e. if lambdas are involved)
 intrinsics = {
@@ -38,92 +27,6 @@ intrinsics = {
 
 templatize = lambda node, types: Template([ "typename " + t for t in types ], node ) if types else node 
 
-class ForwardDeclarations(ast.NodeVisitor):
-    """ Gather declared function names """
-    def __init__(self):
-        self.declarations=dict()
-    def visit_FunctionDef(self, node):
-        self.deps=set()
-        self.name=node.name
-        [self.visit(n) for n in node.body]
-        self.declarations[node.name]=self.deps
-
-    def visit_Name(self, node):
-        if self.name != node.id:
-            self.deps.add(node.id)
-
-class ReorderModule(ast.NodeVisitor):
-    """ reorder the function declarations in a module"""
-    def __init__(self, ordering):
-        self.ordering= { v:k for k,v in enumerate(ordering) }
-
-    def visit_Module(self, node):
-        nbody = list()
-        fdef = [ None for x in xrange(len(self.ordering)) ]
-        for n in node.body:
-            if not isinstance(n, ast.FunctionDef):
-                nbody.append(n)
-            else:
-                fdef[self.ordering[n.name]]=n
-        node.body = nbody + fdef
-
-def forward_declarations(node):
-    fd = ForwardDeclarations()
-    fd.visit(node)
-    for f,deps in fd.declarations.iteritems():
-        deps.intersection_update(set(fd.declarations.iterkeys()))
-    declarations = list()
-    prev=len(fd.declarations)
-    while fd.declarations:
-        for f,deps in fd.declarations.items():
-            if not deps.difference(declarations):
-                declarations.append(f)
-                fd.declarations.pop(f)
-                break
-        assert prev > len(fd.declarations)
-        prev=len(fd.declarations)
-
-    ReorderModule(declarations).visit(node)
-
-    return set(declarations)
-
-class ReferencedIds(ast.NodeVisitor):
-    """ Gather ids referenced by a node """
-    def __init__(self):
-        self.references=set()
-
-    def visit_Name(self, node):
-        self.references.add(node.id)
-def referenced_ids(node):
-    r = ReferencedIds()
-    r.visit(node)
-    return r.references
-
-class NameSubstitution(ast.NodeVisitor):
-    """ Generate an expression with some Name renamed"""
-    def __init__(self, renamings):
-        self.renamings=renamings
-
-    def visit_Name(self, node):
-        if node.id in self.renamings: node.id = self.renamings[node.id]
-
-class TypeSubstitution(ast.NodeVisitor):
-    """ Generate a typed expression suitable for declval call from an expression """
-    def __init__(self, typedefs):
-        self.typedefs=typedefs
-
-    def visit_Name(self, node):
-        assert node.id in self.typedefs
-        return "std::declval< {0} >()".format(self.typedefs[node][1])
-
-    def visit_Num(self, node):
-        return str(node.n)
-
-    def visit_BinOp(self, node):
-        left = self.visit(node.left)
-        right= self.visit(node.right)
-        op = operator_to_lambda[type(node.op)]
-        return op(left,right)
 
 class CgenVisitor(ast.NodeVisitor):
     """Generate Cgen tree from an ast tree"""
@@ -342,7 +245,7 @@ class CgenVisitor(ast.NodeVisitor):
                     [ FunctionBody(
                         templatize(
                             FunctionDeclaration(
-                                Value("decltype( {0} )".format(TypeSubstitution(cgv.typedefs).visit(node.body)), "operator()"),
+                                Value("decltype( {0} )".format(type_substitution(node.body, cgv.typedefs)), "operator()"),
                                 [ Value(t, n)  for t,n in zip(formal_types, formal_arguments) ]
                                 ),
                             formal_types),

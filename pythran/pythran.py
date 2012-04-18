@@ -5,7 +5,7 @@ from codepy.bpl import BoostPythonModule
 import re
 from subprocess import check_call, check_output
 
-from passes import referenced_ids, forward_declarations, type_substitution
+from passes import referenced_ids, forward_declarations, type_substitution, normalize_tuples
 from tables import type_to_str, operator_to_lambda
 
 # the value, if not None, is used to deduce the return type of the intrinsics if the default behavior is not satisfying (i.e. if lambdas are involved)
@@ -306,6 +306,27 @@ class CgenVisitor(ast.NodeVisitor):
         self.add_typedef(node, type_to_str[type(node.n)])
         return str(node.n)
 
+    def visit_Index(self, node):
+        value = self.visit(node.value)
+        self.add_typedef(node, self.typedefs[node.value][1], self.typedefs[node.value][1])
+        return value
+
+    def visit_Slice(self, node):
+        raise NotImplementedError
+
+
+    def visit_Subscript(self, node):
+        value = self.visit(node.value)
+        slice = self.visit(node.slice)
+        is_constant_expression = lambda s: re.sub(r'[a-zA-Z_ \t]','',s)
+        if is_constant_expression(slice):
+            self.add_typedef(node, "typename std::tuple_element<{0}, {1}>::type".format(slice, self.typedefs[node.value][1]), self.typedefs[node.value][1])
+            return "std::get<{0}>({1})".format(slice, value)
+        else:
+            self.add_typedef(node, "typename {1}::value_type".format(self.typedefs[node.value][1]), self.typedefs[node.value][1])
+            return "{1}[{0}]".format(slice, value)
+
+
     def visit_BinOp(self, node):
         left = self.visit(node.left)
         right= self.visit(node.right)
@@ -333,19 +354,24 @@ class CgenVisitor(ast.NodeVisitor):
         self.add_typedef(node, "sequence< {0} >".format( self.typedefs[node.elt][1] ), self.typedefs[node.elt][1])
         lambda_expr = "[&] ( {0} ) {{ return {1} ; }}".format( ", ".join( [ "typename "+self.typer+self.typedefs[g.target][1] + " const & " + g.target for g in generators ] ), elt)
         return "map({0}, {1})".format(lambda_expr, ", ".join(g.iter for g in generators))
-
-pytype_to_ctype = {
+pytype_to_ctype_table = {
         'bool'          : 'bool',
         'int'           : 'long',
         'float'         : 'double',
         'string'        : 'std::string',
         'None'          : 'void',
-        'bool list'     : 'sequence<bool>',
-        'int list'      : 'sequence<int>',
-        'float list'    : 'sequence<double>',
-        'string list'   : 'sequence<std::string>',
         }
 
+def pytype_to_ctype(t):
+    if t in pytype_to_ctype_table: return pytype_to_ctype_table[t]
+    else:
+        tokens = t.split()
+        if tokens[-1] == "list":
+            return 'sequence<{0}>'.format(pytype_to_ctype(" ".join(tokens[:-1])))
+        elif tokens[-1] == "tuple":
+            return 'std::tuple<{0}>'.format(", ".join(pytype_to_ctype(t) for t in tokens[:-1])) # fragile
+        else:
+            raise NotImplementedError
 
 ######
 
@@ -362,7 +388,9 @@ def python_interface(module_name, code, **specializations):
     tc.cflags.append(cflags)
 
     ir=ast.parse(code)
-    CgenVisitor(module_name, forward_declarations(ir)).visit(ir)
+    normalize_tuples(ir)
+    fwd_decl =  forward_declarations(ir)
+    CgenVisitor(module_name, fwd_decl).visit(ir)
 
 
     mod=BoostPythonModule()
@@ -371,10 +399,14 @@ def python_interface(module_name, code, **specializations):
     mod.add_to_preamble([Include(header)])
     for k,v in specializations.iteritems():
         vl = v if isinstance(v, tuple) else [v,]
-        arguments_types = [pytype_to_ctype[t] for t in vl ]
+        arguments_types = [pytype_to_ctype(t) for t in vl ]
         arguments = ["a"+str(i) for i in xrange(len(arguments_types))]
-        boost_arguments_types = [ "boost::python::list" if at.startswith("sequence<") else at for at in arguments_types ]
-        boost_arguments = [ "to_sequence<{0}>({1})".format(at,a) if at.startswith("sequence<") else a for (a,at) in zip(arguments, arguments_types) ]
+        boost_arguments_types = [ "boost::python::list" if at.startswith("sequence<") else 
+                "boost::python::tuple" if at .startswith("std::tuple<") else at
+                for at in arguments_types ]
+        boost_arguments = [ "to_sequence<{0}>({1})".format(at,a) if at.startswith("sequence<") else 
+            "to_tuple<{0}>({1})".format(at,a) if at.startswith("std::tuple<") else a
+            for (a,at) in zip(arguments, arguments_types) ]
         specialized_fname = "{0}::{1}::type{2}".format(module_name, 
                 k,
                 ("<"+", ".join(arguments_types)+">") if arguments_types else ""

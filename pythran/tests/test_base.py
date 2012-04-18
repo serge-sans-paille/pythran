@@ -35,6 +35,9 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
     def test_list_comprehension(self):
         self.run_test("def list_comprehension(l): return [ x*x for x in l ]", [1,2,3], list_comprehension=("int list"))
 
+    def test_zipped_list_comprehension(self):
+        self.run_test("def zipped_list_comprehension(l): return [ x*y for x,y in zip(l,l) ]", [1,2,3], zipped_list_comprehension=("int list"))
+
     def test_zip(self):
         self.run_test("def zip_(l0,l1): return zip(l0,l1)", [1,2,3],["one", "two", "three"], zip_=("int list", "string list"))
 
@@ -146,6 +149,8 @@ def lambda_():
     def test_multidef4(self):
         self.run_test("def def41(): return def40()\ndef def40(): return 1", def41=())
         
+    def test_tuple(self):
+        self.run_test("def tuple_(t): return t[0]+t[1]", (0,1), tuple_=("int int tuple"))
 
 if __name__ == '__main__':
         unittest.main()

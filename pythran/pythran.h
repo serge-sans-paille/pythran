@@ -58,11 +58,20 @@ struct fwd< xrange >  {
 };
 
 template< class T >
-typename sequence<typename T::value_type> to_sequence(boost::python::list const & l) {
-    sequence<typename T::value_type> s;
+T to_sequence(boost::python::list const & l) {
+    T s;
     boost::python::stl_input_iterator<typename T::value_type> begin(l), end;
     std::copy(begin, end, std::back_inserter(s));
     return s;
+}
+
+template<class T, int ...S>
+T _to_tuple(boost::python::tuple const & bt, seq<S...>) {
+     return std::make_tuple( fwd< typename std::tuple_element<S,T>::type>()(boost::python::extract< typename std::tuple_element<S,T>::type >(bt[S]))...);
+}
+template< class T >
+T to_tuple(boost::python::tuple const & t) {
+    return _to_tuple<T>(t, typename gens< std::tuple_size<T>::value >::type());
 }
 
 template <class T, class R = typename T::return_type >

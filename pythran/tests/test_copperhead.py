@@ -20,30 +20,33 @@ class TestBase(unittest.TestCase):
 #    
 #    def saxpy3(a, x, y):
 #        def triad(xi, yi):
-#                return a * xi + yi
-#                    return map(triad, x, y)
+#            return a * xi + yi
+#        return map(triad, x, y)
 #    
 #    def sxpy(x, y):
 #        def duad(xi, yi):
-#                return xi + yi
-#                    return map(duad, x, y)
+#            return xi + yi
+#        return map(duad, x, y)
 #    
-#    def incr(x):
-#        return map(lambda xi: xi + 1, x)
-#    
-#    def as_ones(x):
-#        return map(lambda xi: 1, x)
-#    
-#    def idm(x):
-#        return map(lambda b: b, x)
+    def test_incr(self):
+        self.run_test("def incr(x): return map(lambda xi: xi + 1, x)", [0., 0., 0.], incr=("float list"))
+
+    def test_as_ones(self):
+        self.run_test("def as_ones(x): return map(lambda xi: 1, x)", [0., 0., 0.], as_ones=("float list"))
+
+    def test_idm(self):
+        self.run_test("def idm(x): return map(lambda b: b, x)", [1, 2, 3], idm=("int list"))
+    
+    def test_incr_list(self):
+        self.run_test("def incr_list(x): return [xi + 1 for xi in x]", [1., 2., 3.], incr_list=("float list"))
+
+
 #    
 #    def idx(x):
 #        def id(xi):
-#                return xi
-#                    return map(id, x)
+#            return xi
+#        return map(id, x)
 #    
-#    def incr_list(x):
-#        return [xi + 1 for xi in x]
 #
 #    def norm2_diff(x, y):
 #       def el(xi, yi):

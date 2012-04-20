@@ -18,25 +18,14 @@ from __future__ import division
 
 __copyright__ = "Copyright (C) 2008 Andreas Kloeckner"
 
-try:
-    import pycuda._pvt_struct as _struct
-except ImportError:
-    import struct as _struct
-
-
+import struct as _struct
 
 import numpy
-from pytools import memoize_method, memoize
-
-
-
+from pytools import memoize
 
 @memoize
 def is_64_bit_platform():
     return _struct.calcsize('l') == 8
-
-
-
 
 def dtype_to_ctype(dtype):
     if dtype is None:
@@ -311,6 +300,16 @@ class FunctionDeclaration(NestedDeclarator):
     def struct_format(self):
         raise RuntimeError, "function pointers have no struct format"
 
+class ConstructorDeclaration(FunctionDeclaration):
+
+    def __init__(self, subdecl, arg_decls, initialization_list):
+        FunctionDeclaration.__init__(self, subdecl, arg_decls)
+        self.initialization_list = initialization_list
+
+    def get_decl_pair(self):
+        sub_tp, sub_decl =  FunctionDeclaration.get_decl_pair(self)
+        return sub_tp, sub_decl + (": {0}".format(", ".join(self.initialization_list)) if self.initialization_list else "")
+
 class AutoFunctionDeclaration(FunctionDeclaration):
 
     def __init__(self, subdecl, arg_decls, late_return):
@@ -358,112 +357,6 @@ class Struct(Declarator):
 
     def struct_attributes(self):
         return ""
-
-
-
-
-
-
-class GenerableStruct(Struct):
-    def __init__(self, tpname, fields, declname=None,
-            align_bytes=None, aligned_prime_to=[]):
-        """Initialize a structure declarator.
-        *tpname* is the name of the structure, while *declname* is the
-        name used for the declarator. *pad_bytes* is the number of
-        padding bytes added at the end of the structure.
-        *fields* is a list of :class:`Declarator` instances.
-
-        *align_bytes* is an integer that causes the structure to be
-        padded to an integer multiple of itself.
-        *aligned_prime_to* is a list of integers.
-        If the resulting structure's size
-        is ``s``, then ``s//align_bytes`` will be made prime to all
-        numbers in *aligned_prime_to*. (Sounds obscure? It's needed
-        for avoiding bank conflicts in CUDA programming.)
-        """
-
-        format = "".join(f.struct_format() for f in fields)
-        bytes = _struct.calcsize(format)
-
-        natural_align_bytes = max(f.alignment_requirement() for f in fields)
-        if align_bytes is None:
-            align_bytes = natural_align_bytes
-        elif align_bytes < natural_align_bytes:
-            from warnings import warn
-            warn("requested struct alignment smaller than natural alignment")
-
-        self.align_bytes = align_bytes
-
-        padded_bytes = ((bytes + align_bytes - 1) // align_bytes) * align_bytes
-
-        def satisfies_primality(n):
-            from pymbolic.algorithm import gcd
-            for p in aligned_prime_to:
-                if gcd(n, p) != 1:
-                    return False
-            return True
-
-        while not satisfies_primality(padded_bytes // align_bytes):
-            padded_bytes += align_bytes
-
-        Struct.__init__(self, tpname, fields, declname, padded_bytes - bytes)
-
-        if self.pad_bytes:
-            self.format = format + "%dx" % self.pad_bytes
-            self.bytes = padded_bytes
-        else:
-            self.format = format
-            self.bytes = bytes
-
-        assert _struct.calcsize(self.format) == self.bytes
-
-    # until nvcc bug is fixed
-    #def struct_attributes(self):
-        #return "__attribute__ ((packed))"
-
-    def alignment_requirement(self):
-        return self.align_bytes
-
-    def make(self, **kwargs):
-        """Build a binary, packed representation of *self* in a
-        :class:`str` instance with members set to the values specified
-        in *kwargs*.
-        """
-        return self._maker()(_struct.pack, **kwargs)
-
-    def make_with_defaults(self, **kwargs):
-        """Build a binary, packed representation of *self* in a
-        :class:`str` instance with members set to the values specified
-        in *kwargs*.
-
-        Unlike :meth:`make`, not all members have to occur in *kwargs*.
-        """
-        return self._maker(with_defaults=True)(_struct.pack, **kwargs)
-
-    @memoize_method
-    def _maker(self, with_defaults=False):
-        def format_arg(f):
-            if with_defaults:
-                return "%s=%s" % (f.name, repr(f.default_value()))
-            else:
-                return f.name
-
-        code = "lambda pack, %s: pack(%s, %s)" % (
-                ", ".join(format_arg(f) for f in self.fields),
-                repr(self.struct_format()),
-                ", ".join(f.struct_maker_code(f.name) for f in self.fields))
-        return eval(code)
-
-    def struct_format(self):
-        """Return the format of the struct as digested by the :mod:`struct` module."""
-        return self.format
-
-    def __len__(self):
-        """Return the number of bytes occupied by this struct."""
-        return self.bytes
-
-
-
 
 # template --------------------------------------------------------------------
 class Template(NestedDeclarator):
@@ -824,49 +717,3 @@ class PrivateNamespace(Block):
         yield ""
         yield "using namespace %s;" % self.get_namespace_name()
 
-def _test():
-    s = Struct("yuck", [
-        POD(numpy.float32, "h", ),
-        POD(numpy.float32, "order"),
-        POD(numpy.float32, "face_jacobian"),
-        ArrayOf(POD(numpy.float32, "normal"), 17),
-        POD(numpy.uint16, "a_base"),
-        POD(numpy.uint16, "b_base"),
-        #CudaGlobal(POD(numpy.uint8, "a_ilist_number")),
-        POD(numpy.uint8, "b_ilist_number"),
-        POD(numpy.uint8, "bdry_flux_number"), # 0 if not on boundary
-        POD(numpy.uint8, "reserved"),
-        POD(numpy.uint32, "b_global_base"),
-        ])
-    f_decl = FunctionDeclaration(POD(numpy.uint16, "get_num"), [
-        POD(numpy.uint8, "reserved"),
-        POD(numpy.uint32, "b_global_base"),
-        ])
-    f_body = FunctionBody(f_decl, Block([
-        POD(numpy.uint32, "i"),
-        For("i = 0", "i < 17", "++i",
-            If("a > b",
-                Assign("a", "b"),
-                Block([
-                    Assign("a", "b-1"),
-                    #Break(),
-                    ])
-                ),
-            ),
-        #BlankLine(),
-        Comment("all done"),
-        ]))
-    t_decl = Template('typename T',
-                      FunctionDeclaration(Value('CUdeviceptr', 'scan'),
-                                          [Value('CUdeviceptr', 'inputPtr'),
-                                           Value('int', 'length')]))
-
-                                    
-    print s
-    print f_body
-    print t_decl
-
-
-
-if __name__ == "__main__":
-    _test()

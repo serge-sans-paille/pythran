@@ -311,6 +311,15 @@ class FunctionDeclaration(NestedDeclarator):
     def struct_format(self):
         raise RuntimeError, "function pointers have no struct format"
 
+class AutoFunctionDeclaration(FunctionDeclaration):
+
+    def __init__(self, subdecl, arg_decls, late_return):
+        FunctionDeclaration.__init__(self, subdecl, arg_decls)
+        self.late_return = late_return
+
+    def get_decl_pair(self):
+        sub_tp, sub_decl =  FunctionDeclaration.get_decl_pair(self)
+        return sub_tp, sub_decl + "-> decltype({0})".format(self.late_return)
 
 
 

@@ -1,20 +1,24 @@
-from tables import operator_to_lambda
+from tables import operator_to_lambda, intrinsics
 import ast
 
 ##
+class DeclarationDependencies(ast.NodeVisitor):
+    """ Gather name dependencies froma  function """
+    def __init__(self, name):
+        self.deps=set()
+        self.name=name
+    def visit_Name(self, node):
+        if self.name != node.id:
+            self.deps.add(node.id)
+
 class ForwardDeclarations(ast.NodeVisitor):
     """ Gather declared function names """
     def __init__(self):
         self.declarations=dict()
     def visit_FunctionDef(self, node):
-        self.deps=set()
-        self.name=node.name
-        [self.visit(n) for n in node.body]
-        self.declarations[node.name]=self.deps
-
-    def visit_Name(self, node):
-        if self.name != node.id:
-            self.deps.add(node.id)
+        dd=DeclarationDependencies(node.name)
+        [dd.visit(n) for n in node.body]
+        self.declarations[node.name]=dd.deps
 
 class ReorderModule(ast.NodeVisitor):
     """ reorder the function declarations in a module"""
@@ -52,17 +56,42 @@ def forward_declarations(node):
     return set(declarations)
 
 ##
-class ReferencedIds(ast.NodeVisitor):
+class ImportedIds(ast.NodeVisitor):
     """ Gather ids referenced by a node """
-    def __init__(self):
+    def __init__(self, global_declarations):
         self.references=set()
+        self.global_declarations=set(global_declarations)
+        self.skip=set()
 
     def visit_Name(self, node):
-        self.references.add(node.id)
-def referenced_ids(node):
-    r = ReferencedIds()
+        if isinstance(node.ctx, ast.Store):
+            self.skip.add(node.id)
+        elif node.id not in self.skip and node.id not in self.global_declarations:
+            self.references.add(node.id)
+
+    def visit_FunctionDef(self, node):
+        local = ImportedIds(self.global_declarations)
+        [local.visit(n) for n in node.body]
+        local.references -= { arg.id for arg in node.args.args }
+        self.global_declarations.add(node.name)
+        self.references.update(local.references)
+
+    def visit_ListComp(self, node):
+        local = ImportedIds(self.global_declarations)
+        [ local.visit(n) for n in node.generators ]
+        local.visit(node.elt)
+        self.references.update(local.references)
+
+    def visit_Lambda(self, node):
+        local = ImportedIds(self.global_declarations)
+        local.visit(node.body)
+        local.references -= { arg.id for arg in node.args.args }
+        self.references.update(local.references)
+
+def imported_ids(node, global_declarations):
+    r = ImportedIds(global_declarations)
     r.visit(node)
-    return r.references
+    return r.references - set(intrinsics.keys()+[ "True", "False" ])
 
 ##
 class TypeSubstitution(ast.NodeVisitor):

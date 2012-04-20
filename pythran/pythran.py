@@ -80,6 +80,19 @@ class CgenVisitor(ast.NodeVisitor):
     def visit_Suite(self, node):
         raise NotImplementedError
 
+    def visit_Delete(self, node):
+        return Statement("")
+
+    def visit_Break(self, node):
+        return Statement("break")
+
+    def visit_Assert(self, node):
+        params = [ self.visit(node.msg) if node.msg else None, self.visit(node.test) ]
+        return Statement("assert(({0}))".format(", ".join(p for p in params if p)))
+
+    def visit_Continue(self, node):
+        return Statement("continue")
+
     def visit_FunctionDef(self, node):
         fargs = node.args.args
         nargs = [ arg.id for arg in fargs ]

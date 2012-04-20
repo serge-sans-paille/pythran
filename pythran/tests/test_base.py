@@ -152,5 +152,24 @@ def lambda_():
     def test_tuple(self):
         self.run_test("def tuple_(t): return t[0]+t[1]", (0,1), tuple_=("int int tuple"))
 
+    def test_shadow(self):
+        self.run_test("def shadow(l): return [l*l for l in l]", [1], shadow=("int list"))
+
+    def test_delete(self):
+        self.run_test("def delete_(v): del v", 1, delete_=("int"))
+
+    def test_continue(self):
+        self.run_test("def continue_():\n for i in xrange(3):continue", continue_=())
+
+    def test_break(self):
+        self.run_test("def break_():\n for i in xrange(3):break", break_=())
+
+    def test_assert(self):
+        self.run_test("def assert_(i): assert i > 0", 1, assert_=("int"))
+
+    def test_assert_with_msg(self):
+        self.run_test("def assert_with_msg(i): assert i > 0, 'hell yeah'", 1, assert_with_msg=("int"))
+
+
 if __name__ == '__main__':
         unittest.main()

@@ -238,15 +238,16 @@ class CgenVisitor(ast.NodeVisitor):
                     [ FunctionBody(
                         FunctionDeclaration(
                             Value("", lambda_name),
-                            [Value(t, n)  for t,n in zip(parameter_types, parameter_arguments)]
+                            [Value("{0} const &".format(t), n)  for t,n in zip(parameter_types, parameter_arguments)]
                             ),
                         Block([Statement("this->{0} = {0}".format(n)) for n in parameter_arguments ])
                         ) ] +
                     [ FunctionBody(
                         templatize(
-                            FunctionDeclaration(
-                                Value("decltype( {0} )".format(type_substitution(node.body, cgv.typedefs)), "operator()"),
-                                [ Value(t, n)  for t,n in zip(formal_types, formal_arguments) ]
+                            AutoFunctionDeclaration(
+                                Value("auto", "operator()"),
+                                [ Value("{0} const &".format(t), n)  for t,n in zip(formal_types, formal_arguments) ],
+                                body
                                 ),
                             formal_types),
                         Block([Statement("return {0}".format(body))])
@@ -351,7 +352,7 @@ class CgenVisitor(ast.NodeVisitor):
     def visit_ListComp(self, node):
         generators = [ self.visit(n) for n in node.generators ]
         elt = self.visit(node.elt)
-        self.add_typedef(node, "sequence< {0} >".format( self.typedefs[node.elt][1] ), self.typedefs[node.elt][1])
+        self.add_typedef(node, "sequence<{0}>".format( self.typedefs[node.elt][1] ), self.typedefs[node.elt][1])
         lambda_expr = "[&] ( {0} ) {{ return {1} ; }}".format( ", ".join( [ "typename "+self.typer+self.typedefs[g.target][1] + " const & " + g.target for g in generators ] ), elt)
         return "map({0}, {1})".format(lambda_expr, ", ".join(g.iter for g in generators))
 pytype_to_ctype_table = {

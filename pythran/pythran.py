@@ -138,38 +138,36 @@ class CgenVisitor(ast.NodeVisitor):
 
 
 
-        if imported_types: # declare everything inside the struct, and create a maker facility, in the spirit of make_tuple
-            declarations = [ Statement("typename {0}{1} {2}".format(fscope, cgv.typedefs[k][1], k)) for k in cgv.declarations if k not in nargs if k not in self.declarations]
-            inner_fdeclaration = FunctionBody(
-                    inner_fdeclaration,
-                    Block( declarations + body)
-                    )
+        declarations = [ Statement("typename {0}{1} {2}".format(fscope, cgv.typedefs[k][1], k)) for k in cgv.declarations if k not in nargs if k not in self.declarations]
+        fully_qualified_name = "{0}<{1}>".format(cgv.name, ", ".join(self.typedefs[k][1] for k in imported_args)) if imported_args else cgv.name
+        fully_qualified_inner_name = "{0}<{1}>".format(cgv.name, ", ".join(imported_types)) if imported_types else cgv.name
+        ffscope = fully_qualified_inner_name + "::{0}".format("template " if imported_types else "") + fscope
+        declarations = [ Statement("typename {0}{1} {2}".format(ffscope, cgv.typedefs[k][1], k)) for k in cgv.declarations if k not in nargs if k not in self.declarations]
 
-            self.add_typedef(cgv.name, "{0}<{1}>".format(cgv.name, ", ".join(self.typedefs[k][1] for k in imported_args)), *[self.typedefs[k][1] for k in imported_args])
+        inner_members = [ Statement( "{0} const & {1}".format(n, t) ) for n, t in zip(imported_types, imported_args) ] + (
+                [ FunctionBody(
+                    ConstructorDeclaration(
+                        Value("", cgv.name),
+                        [Value("{0} const &".format(t), n)  for t,n in zip(imported_types, imported_args)],
+                        ["{0}({0})".format(n) for n in imported_args ]
+                        ),
+                    Block([])
+                    ) ] if imported_types else list() )
 
-            inner_members = [ Statement( "{0} const & {1}".format(n, t) ) for n, t in zip(imported_types, imported_args) ] + \
-                     [ FunctionBody(
-                        ConstructorDeclaration(
-                            Value("", cgv.name),
-                            [Value("{0} const &".format(t), n)  for t,n in zip(imported_types, imported_args)],
-                            ["{0}({0})".format(n) for n in imported_args ]
-                            ),
-                        Block([])
-                        ) ]
+
+        fdeclaration =  FunctionDeclaration(
+                Value("typename "+ffscope+CgenVisitor.return_type, "{0}{1}::operator()".format(cgv.name,"<{0}>".format(", ".join(imported_types)) if imported_types else "")),
+                [ Value( t, n ) for t,n in zip(generic_types, nargs ) ] )
+        fdeclaration = templatize(templatize(fdeclaration, generic_types), imported_types)
+        definition = FunctionBody(
+                fdeclaration,
+                Block( declarations + body)
+                )
+        self.structure_definitions.append(definition)
+        if imported_args:
+            self.add_typedef(cgv.name, fully_qualified_name, *[self.typedefs[k][1] for k in imported_args])
         else:
-            ffscope = cgv.name + "::" + fscope
-            declarations = [ Statement("typename {0}{1} {2}".format(ffscope, cgv.typedefs[k][1], k)) for k in cgv.declarations if k not in nargs if k not in self.declarations]
-            fdeclaration =  FunctionDeclaration(
-                    Value("typename "+ffscope+CgenVisitor.return_type, cgv.name+"::operator()"),
-                    [ Value( t, n ) for t,n in zip(generic_types, nargs ) ] )
-            fdeclaration = templatize(fdeclaration, generic_types)
-            definition = FunctionBody(
-                    fdeclaration,
-                    Block( declarations + body)
-                    )
-            self.structure_definitions.append(definition)
-            self.add_typedef(cgv.name, cgv.name)
-            inner_members=list()
+            self.add_typedef(cgv.name,  cgv.name)
 
         topstruct = templatize(Struct(cgv.name, inner_members + [ templatize(struct, generic_types), inner_fdeclaration, Statement("") ] ), imported_types)
         self.structure_declarations.append(topstruct)
@@ -186,6 +184,7 @@ class CgenVisitor(ast.NodeVisitor):
                         Block([Statement("return "+make_body)]))
             self.structure_declarations.append(make_declaration)
             self.renamings[cgv.name]=(make_name, imported_args)
+
         return Statement("") # no inner function declaration, not much compatible with templates
 
 

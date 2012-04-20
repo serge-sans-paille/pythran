@@ -1,5 +1,5 @@
 """Generator for C/C++."""
-# serge guelton:
+# Serge Guelton:
 # The licensing terms are not set in the source package,
 # but pypi[1] says the software is under the MIT license,
 # so I reproduce it here
@@ -368,7 +368,7 @@ class Template(NestedDeclarator):
         yield "template <%s>" % ", ".join(self.template_spec)
         for i in self.subdecl.generate(with_semicolon):
             yield i
-        if not isinstance(self.subdecl, FunctionDeclaration):
+        if not isinstance(self.subdecl, FunctionDeclaration) and not isinstance(self.subdecl, Template):
             yield ";"
 
 

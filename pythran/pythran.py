@@ -5,7 +5,7 @@ from codepy.bpl import BoostPythonModule
 import re
 from subprocess import check_call, check_output
 
-from passes import referenced_ids, forward_declarations, type_substitution, normalize_tuples
+from passes import imported_ids, forward_declarations, normalize_tuples
 from tables import type_to_str, operator_to_lambda
 
 # the value, if not None, is used to deduce the return type of the intrinsics if the default behavior is not satisfying (i.e. if lambdas are involved)
@@ -33,14 +33,16 @@ class CgenVisitor(ast.NodeVisitor):
 
     return_type="return_type"
 
-    def __init__(self, name, forward_declarations=set()):
+    def __init__(self, name, forward_declarations, structure_declarations, structure_definitions):
         self.name=name
         self.typedefs=dict()
         self.typedeps=dict()
         self.counter=0
         self.declarations=set()
         self.gdeclarations=forward_declarations
-        self.structures=list()
+        self.structure_declarations=structure_declarations
+        self.structure_definitions=structure_definitions
+        self.renamings=dict()
 
     def add_typedef(self, k, v, *deps):
         typename = "expression_type{0}".format(self.counter)
@@ -59,8 +61,8 @@ class CgenVisitor(ast.NodeVisitor):
         mod.use_private_namespace=False
         headers= [ "pythran/pythran.h", "utility", "boost/python/module.hpp", "boost/python/tuple.hpp", "boost/python/def.hpp" ]
         mod.add_to_preamble([Include(h) for h in headers])
-        functions = [ self.visit(n) for n in node.body ]
-        mod.add_to_module( self.structures + functions ) 
+        [ self.visit(n) for n in node.body ]
+        mod.add_to_module( self.structure_declarations + self.structure_definitions ) 
         header_name = self.name+".h"
         with file(header_name,"w") as module_header:
             m = mod.generate()
@@ -97,7 +99,7 @@ class CgenVisitor(ast.NodeVisitor):
         fargs = node.args.args
         nargs = [ arg.id for arg in fargs ]
 
-        cgv = CgenVisitor("<anonymous>", self.gdeclarations)
+        cgv = CgenVisitor("<anonymous>", self.gdeclarations, self.structure_declarations, self.structure_definitions)
         cgv.name = node.name
 
         generic_types= [ "argument_type"+str(i) for i in xrange(len(fargs)) ]
@@ -107,15 +109,20 @@ class CgenVisitor(ast.NodeVisitor):
         cgv.typedeps = { k:set() for k in generic_types }
         cgv.declarations=set(nargs)
 
+        imported_args = sorted(imported_ids(node, self.gdeclarations))
+        imported_types = [ "imported_type{0}".format(i) for i in xrange(len(imported_args)) ]
+        cgv.typedefs.update( { k:(k,v) for (k,v) in zip(imported_args, imported_types ) } )
+
+
         cgv.typer = "type{0}::".format("<" + ", ".join(generic_types) +">" if generic_types else "")
-        body = [ cgv.visit(n) for n in node.body ]
+        body = [ cgv.visit(n) for n in node.body ] 
 
         if CgenVisitor.return_type not in cgv.typedefs:
             cgv.typedefs[CgenVisitor.return_type]= ("void",  CgenVisitor.return_type)
 
         convert = lambda text: int(text) if text.isdigit() else text 
         alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', key[1]) ] 
-        valid_typedefs = [ v for k,v in cgv.typedefs.iteritems() if not isinstance(k,str) or k == CgenVisitor.return_type if v if v[0] not in nargs]
+        valid_typedefs = [ v for k,v in cgv.typedefs.iteritems() if not isinstance(k,str) or k == CgenVisitor.return_type if v if v[0] not in nargs and v[0] not in imported_args]
         unique_typedefs = { k:v for k,v in valid_typedefs }.items()
         typedefs= sorted( unique_typedefs, key=alphanum_key)
 
@@ -126,24 +133,60 @@ class CgenVisitor(ast.NodeVisitor):
 
 
         struct = Struct("type", [Typedef(Value(n,t)) for n,t in typedefs] )
-        fdeclaration =  FunctionDeclaration( Value("typename "+fscope+CgenVisitor.return_type, "operator()"), 
-                                    [ Value( t, "" ) for t in generic_types ] )
+        inner_fdeclaration =  templatize(FunctionDeclaration( Value("typename "+fscope+CgenVisitor.return_type, "operator()"), 
+                                    [ Value( t, n ) for t,n in zip(generic_types, nargs) ] ), generic_types)
 
-        topstruct = Struct(cgv.name, [ templatize(struct, generic_types), templatize(fdeclaration, generic_types), Statement("") ] )
 
-        self.structures+= cgv.structures
-        self.structures.append( topstruct )
 
-        ffscope = cgv.name + "::" + fscope
-        fdeclaration =  FunctionDeclaration(
-                Value("typename "+ffscope+CgenVisitor.return_type, cgv.name+"::operator()"),
-                [ Value( t, n ) for t,n in zip(generic_types, [ arg.id for arg in fargs ] ) ] )
-        declarations = [ Statement("typename {0}{1} {2}".format(ffscope, cgv.typedefs[k][1], k)) for k in cgv.declarations if k not in nargs if k not in self.declarations]
-        operator = FunctionBody(
-                Template([ "typename " + t for t in generic_types ], fdeclaration ) if generic_types else fdeclaration,
-                Block( declarations + body)
-                )
-        return operator 
+        if imported_types: # declare everything inside the struct, and create a maker facility, in the spirit of make_tuple
+            declarations = [ Statement("typename {0}{1} {2}".format(fscope, cgv.typedefs[k][1], k)) for k in cgv.declarations if k not in nargs if k not in self.declarations]
+            inner_fdeclaration = FunctionBody(
+                    inner_fdeclaration,
+                    Block( declarations + body)
+                    )
+
+            self.add_typedef(cgv.name, "{0}<{1}>".format(cgv.name, ", ".join(self.typedefs[k][1] for k in imported_args)), *[self.typedefs[k][1] for k in imported_args])
+
+            inner_members = [ Statement( "{0} const & {1}".format(n, t) ) for n, t in zip(imported_types, imported_args) ] + \
+                     [ FunctionBody(
+                        ConstructorDeclaration(
+                            Value("", cgv.name),
+                            [Value("{0} const &".format(t), n)  for t,n in zip(imported_types, imported_args)],
+                            ["{0}({0})".format(n) for n in imported_args ]
+                            ),
+                        Block([])
+                        ) ]
+        else:
+            ffscope = cgv.name + "::" + fscope
+            declarations = [ Statement("typename {0}{1} {2}".format(ffscope, cgv.typedefs[k][1], k)) for k in cgv.declarations if k not in nargs if k not in self.declarations]
+            fdeclaration =  FunctionDeclaration(
+                    Value("typename "+ffscope+CgenVisitor.return_type, cgv.name+"::operator()"),
+                    [ Value( t, n ) for t,n in zip(generic_types, nargs ) ] )
+            fdeclaration = templatize(fdeclaration, generic_types)
+            definition = FunctionBody(
+                    fdeclaration,
+                    Block( declarations + body)
+                    )
+            self.structure_definitions.append(definition)
+            self.add_typedef(cgv.name, cgv.name)
+            inner_members=list()
+
+        topstruct = templatize(Struct(cgv.name, inner_members + [ templatize(struct, generic_types), inner_fdeclaration, Statement("") ] ), imported_types)
+        self.structure_declarations.append(topstruct)
+
+        if imported_types: # create a maker facility, in the spirit of make_tuple
+            make_name = "make_{0}".format(cgv.name)
+            make_body = "{0}<{1}>({2})".format(cgv.name, ", ".join(imported_types), ", ".join(imported_args))
+            make_declaration = FunctionBody(
+                    Template(["typename {0}".format(t) for t in imported_types], 
+                        AutoFunctionDeclaration(
+                                Value("auto", make_name),
+                                [ Value("{0} const &".format(t), n)  for t,n in zip(imported_types, imported_args) ],
+                                make_body)),
+                        Block([Statement("return "+make_body)]))
+            self.structure_declarations.append(make_declaration)
+            self.renamings[cgv.name]=(make_name, imported_args)
+        return Statement("") # no inner function declaration, not much compatible with templates
 
 
     def visit_Pass(self, node):
@@ -228,32 +271,35 @@ class CgenVisitor(ast.NodeVisitor):
         else:
             print self.name, ":", node.id, self.typedefs
             raise NotImplementedError
-        return node.id
+        if node.id in self.renamings:
+            return "{0}({1})".format(self.renamings[node.id][0], ", ".join(self.renamings[node.id][1]))
+        else:
+            return node.id
 
     def visit_Lambda(self, node):
-        lambda_name = "lambda{0}".format(len(self.structures))
+        lambda_name = "lambda{0}".format(len(self.structure_definitions))
+        self.structure_definitions.append(Statement("")) # *** ugly
 
-        parameter_arguments = referenced_ids(node)
-        [ parameter_arguments.difference_update( referenced_ids(n) ) for n in node.args.args  ]
-        parameter_arguments = sorted(parameter_arguments)
+        parameter_arguments = sorted(imported_ids(node, self.gdeclarations))
 
         formal_arguments = [n.id for n in node.args.args]
         formal_types =  [ "argument_type{0}".format(n) for n in xrange(len(formal_arguments)) ]
         parameter_types = [ "parameter_type{0}".format(n) for n in xrange(len(parameter_arguments)) ]
 
-        cgv = CgenVisitor("<lambda>", self.declarations)
+        cgv = CgenVisitor("<lambda>", self.declarations, self.structure_declarations, self.structure_definitions)
         cgv.name = lambda_name
         cgv.typedefs = { k:(k,v) for (k,v) in zip(formal_arguments + parameter_arguments, formal_types + parameter_types) }
         body = cgv.visit(node.body)
         holder = templatize(
                 Struct(lambda_name,
-                    [ Statement( "{0} {1}".format(n, t) ) for n, t in zip(parameter_types, parameter_arguments) ] +
+                    [ Statement( "{0} const & {1}".format(n, t) ) for n, t in zip(parameter_types, parameter_arguments) ] +
                     [ FunctionBody(
-                        FunctionDeclaration(
+                        ConstructorDeclaration(
                             Value("", lambda_name),
-                            [Value("{0} const &".format(t), n)  for t,n in zip(parameter_types, parameter_arguments)]
+                            [Value("{0} const &".format(t), n)  for t,n in zip(parameter_types, parameter_arguments)],
+                            ["{0}({0})".format(n) for n in parameter_arguments ]
                             ),
-                        Block([Statement("this->{0} = {0}".format(n)) for n in parameter_arguments ])
+                        Block([])
                         ) ] +
                     [ FunctionBody(
                         templatize(
@@ -267,7 +313,7 @@ class CgenVisitor(ast.NodeVisitor):
                         ) ]
                     ),
                 parameter_types)
-        self.structures.append(holder)
+        self.structure_declarations.append(holder)
 
         fully_qualified_lambda_name = "{0}{1}".format(lambda_name,
                 "<"+", ".join(self.typedefs[p][1] for p in parameter_arguments)+">" if parameter_arguments else "")
@@ -404,7 +450,7 @@ def python_interface(module_name, code, **specializations):
     ir=ast.parse(code)
     normalize_tuples(ir)
     fwd_decl =  forward_declarations(ir)
-    CgenVisitor(module_name, fwd_decl).visit(ir)
+    CgenVisitor(module_name, fwd_decl, list(), list()).visit(ir)
 
 
     mod=BoostPythonModule()

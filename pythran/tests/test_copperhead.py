@@ -17,12 +17,14 @@ class TestBase(unittest.TestCase):
     def test_saxpy2(self):
         self.run_test("def saxpy2(a, x, y): return [a*xi+yi for xi,yi in zip(x,y)]", 1.5, [1,2,3], [0.,2.,4.], saxpy2=("float","int list", "float list"))
 
-#    
-#    def saxpy3(a, x, y):
-#        def triad(xi, yi):
-#            return a * xi + yi
-#        return map(triad, x, y)
-#    
+    def test_saxpy3(self):
+        code="""
+def saxpy3(a, x, y):
+    def triad(xi, yi): return a * xi + yi
+    return map(triad, x, y)
+"""
+        self.run_test(code,  1.5, [1,2,3], [0.,2.,4.], saxpy3=("float","int list", "float list"))
+    
 #    def sxpy(x, y):
 #        def duad(xi, yi):
 #            return xi + yi

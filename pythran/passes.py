@@ -1,4 +1,4 @@
-from tables import operator_to_lambda, intrinsics
+from tables import operator_to_lambda, modules
 import ast
 
 ##
@@ -91,7 +91,8 @@ class ImportedIds(ast.NodeVisitor):
 def imported_ids(node, global_declarations):
     r = ImportedIds(global_declarations)
     r.visit(node)
-    return r.references - set(intrinsics.keys()+[ "True", "False" ])
+    #*** expand all modules here
+    return r.references - set(modules["__builtins__"].keys()+[ "True", "False" ])
 
 ##
 class TypeSubstitution(ast.NodeVisitor):

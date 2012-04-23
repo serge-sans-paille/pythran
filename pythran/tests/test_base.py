@@ -147,7 +147,7 @@ def lambda_():
         self.run_test("def def31(): return 1\ndef def30(): return def31()", def31=())
         
     def test_multidef4(self):
-        self.run_test("def def41(): return def40()\ndef def40(): return 1", def41=())
+       self.run_test("def def41(): return def40()\ndef def40(): return 1", def41=())
         
     def test_tuple(self):
         self.run_test("def tuple_(t): return t[0]+t[1]", (0,1), tuple_=("int int tuple"))
@@ -169,6 +169,9 @@ def lambda_():
 
     def test_assert_with_msg(self):
         self.run_test("def assert_with_msg(i): assert i > 0, 'hell yeah'", 1, assert_with_msg=("int"))
+
+    def test_import_from(self):
+        self.run_test("def import_from(): from math import cos", import_from=())
 
 
 if __name__ == '__main__':

@@ -24,12 +24,15 @@ def saxpy3(a, x, y):
     return map(triad, x, y)
 """
         self.run_test(code,  1.5, [1,2,3], [0.,2.,4.], saxpy3=("float","int list", "float list"))
+
+    def test_sxpy(self):
+        code="""
+def sxpy(x, y):
+    def duad(xi, yi): return xi + yi
+    return map(duad, x, y)
+"""
+        self.run_test(code,  [1,2,3], [0.,2.,4.], sxpy=("int list", "float list"))
     
-#    def sxpy(x, y):
-#        def duad(xi, yi):
-#            return xi + yi
-#        return map(duad, x, y)
-#    
     def test_incr(self):
         self.run_test("def incr(x): return map(lambda xi: xi + 1, x)", [0., 0., 0.], incr=("float list"))
 
@@ -43,21 +46,25 @@ def saxpy3(a, x, y):
         self.run_test("def incr_list(x): return [xi + 1 for xi in x]", [1., 2., 3.], incr_list=("float list"))
 
 
-#    
-#    def idx(x):
-#        def id(xi):
-#            return xi
-#        return map(id, x)
-#    
-#
-#    def norm2_diff(x, y):
-#       def el(xi, yi):
-#           diff = xi - yi
-#           return diff * diff
-#       return sum(map(el, x, y))
-#
-#    def rbf(ngamma, x, y):
-#       return exp(ngamma * norm2_diff(x,y))
+    def test_idx(self):
+        code=""" 
+def idx(x):
+    def id(xi): return xi
+    return map(id, x)"""
+        self.run_test(code, [1,2,3], idx=("int list"))
+    
+    def test_rbf(self):
+        code="""
+from math import exp
+def norm2_diff(x, y):
+   def el(xi, yi):
+       diff = xi - yi
+       return diff * diff
+   return sum(map(el, x, y))
+
+def rbf(ngamma, x, y):
+   return exp(ngamma * norm2_diff(x,y))"""
+        self.run_test(code, 2.3, [1,2,3], [1.1,1.2,1.3], rbf=("float","float list", "float list"))
 
 
 # from Copperhead: Compiling an Embedded Data Parallel Language

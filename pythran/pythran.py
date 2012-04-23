@@ -6,24 +6,7 @@ import re
 from subprocess import check_call, check_output
 
 from passes import imported_ids, forward_declarations, normalize_tuples
-from tables import type_to_str, operator_to_lambda
-
-# the value, if not None, is used to deduce the return type of the intrinsics if the default behavior is not satisfying (i.e. if lambdas are involved)
-intrinsics = {
-    "zip":None,
-    "reduce": lambda self, node: self.add_typedef(node, "decltype(std::declval<{0}>()({1}))".format(
-        self.typedefs[node.args[0]][1],
-        ", ".join(["std::declval<typename {0}::value_type>()".format(self.typedefs[node.args[1]][1])]*2))),
-    "max":None,
-    "min":None,
-    "sum":None,
-    "map": lambda self, node: self.add_typedef(node, "sequence< decltype(std::declval<{0}>()({1})) >".format(
-        self.typedefs[node.args[0]][1],
-        ", ".join("std::declval<typename {0}::value_type>()".format(self.typedefs[n][1]) for n in node.args[1:]))
-        ),
-    "range":None,
-    "xrange":None,
-    }
+from tables import type_to_str, operator_to_lambda, modules
 
 templatize = lambda node, types: Template([ "typename " + t for t in types ], node ) if types else node 
 
@@ -33,13 +16,13 @@ class CgenVisitor(ast.NodeVisitor):
 
     return_type="return_type"
 
-    def __init__(self, name, forward_declarations, structure_declarations, structure_definitions):
+    def __init__(self, name, external_symbols, structure_declarations, structure_definitions):
         self.name=name
-        self.typedefs=dict()
+        self.external_symbols= external_symbols
+        self.typedefs = { k:None for k in external_symbols }
         self.typedeps=dict()
         self.counter=0
         self.declarations=set()
-        self.gdeclarations=forward_declarations
         self.structure_declarations=structure_declarations
         self.structure_definitions=structure_definitions
         self.renamings=dict()
@@ -61,8 +44,8 @@ class CgenVisitor(ast.NodeVisitor):
         mod.use_private_namespace=False
         headers= [ "pythran/pythran.h", "utility", "boost/python/module.hpp", "boost/python/tuple.hpp", "boost/python/def.hpp" ]
         mod.add_to_preamble([Include(h) for h in headers])
-        [ self.visit(n) for n in node.body ]
-        mod.add_to_module( self.structure_declarations + self.structure_definitions ) 
+        body = [ self.visit(n) for n in node.body ]
+        mod.add_to_module( body + self.structure_declarations + self.structure_definitions ) 
         header_name = self.name+".h"
         with file(header_name,"w") as module_header:
             m = mod.generate()
@@ -85,6 +68,20 @@ class CgenVisitor(ast.NodeVisitor):
     def visit_Delete(self, node):
         return Statement("")
 
+    def visit_ImportFrom(self, node):
+        if node.level != 0: raise NotImplementedError
+        if not node.module: raise NotImplementedError
+        module = node.module
+        if module not in modules: raise NotImplementedError
+
+        names = node.names
+        if [ alias for alias in names if alias.asname ]: raise NotImplementedError
+
+        for alias in names:
+            self.typedefs[alias.name]=(alias.name, None)
+
+        return Statement("; ".join(["using {0}::proxy::{1} ".format(module, alias.name) for alias in names]))
+
     def visit_Break(self, node):
         return Statement("break")
 
@@ -99,17 +96,17 @@ class CgenVisitor(ast.NodeVisitor):
         fargs = node.args.args
         nargs = [ arg.id for arg in fargs ]
 
-        cgv = CgenVisitor("<anonymous>", self.gdeclarations, self.structure_declarations, self.structure_definitions)
+        cgv = CgenVisitor("<anonymous>", self.external_symbols.union({ k for k,v in self.typedefs.iteritems() if not v or not v[1] }),
+                self.structure_declarations, self.structure_definitions)
         cgv.name = node.name
 
         generic_types= [ "argument_type"+str(i) for i in xrange(len(fargs)) ]
 
-        cgv.typedefs = { k:(k,v) for (k,v) in zip(nargs, generic_types ) }
-        cgv.typedefs.update({ k:None for k in self.gdeclarations })
+        cgv.typedefs.update({ k:(k,v) for (k,v) in zip(nargs, generic_types ) })
         cgv.typedeps = { k:set() for k in generic_types }
         cgv.declarations=set(nargs)
 
-        imported_args = sorted(imported_ids(node, self.gdeclarations))
+        imported_args = sorted(imported_ids(node, cgv.external_symbols))
         imported_types = [ "imported_type{0}".format(i) for i in xrange(len(imported_args)) ]
         cgv.typedefs.update( { k:(k,v) for (k,v) in zip(imported_args, imported_types ) } )
 
@@ -184,6 +181,8 @@ class CgenVisitor(ast.NodeVisitor):
                         Block([Statement("return "+make_body)]))
             self.structure_declarations.append(make_declaration)
             self.renamings[cgv.name]=(make_name, imported_args)
+        else:
+            self.renamings[cgv.name]=(cgv.name, [])
 
         return Statement("") # no inner function declaration, not much compatible with templates
 
@@ -263,8 +262,8 @@ class CgenVisitor(ast.NodeVisitor):
                 self.add_typedef(node, self.typedefs[CgenVisitor.return_type], self.typedefs[CgenVisitor.return_type][1])
             else:
                 self.typedefs[node]=None
-        elif node.id in intrinsics:
-            pass #should be ok, as intrinsics are handled differently
+        elif node.id in modules["__builtins__"]:
+            pass #should be ok, as builtins are handled differently
         elif node.id in ["True", "False"]:
             self.add_typedef(node.id,"bool")
         else:
@@ -272,6 +271,8 @@ class CgenVisitor(ast.NodeVisitor):
             raise NotImplementedError
         if node.id in self.renamings:
             return "{0}({1})".format(self.renamings[node.id][0], ", ".join(self.renamings[node.id][1]))
+        elif node.id in self.typedefs and ( not self.typedefs[node.id] or not self.typedefs[node.id][1] ):
+            return node.id+"()"
         else:
             return node.id
 
@@ -279,7 +280,7 @@ class CgenVisitor(ast.NodeVisitor):
         lambda_name = "lambda{0}".format(len(self.structure_definitions))
         self.structure_definitions.append(Statement("")) # *** ugly
 
-        parameter_arguments = sorted(imported_ids(node, self.gdeclarations))
+        parameter_arguments = sorted(imported_ids(node, { k for k,v in self.typedefs.iteritems() if not v or not v[1]}))
 
         formal_arguments = [n.id for n in node.args.args]
         formal_types =  [ "argument_type{0}".format(n) for n in xrange(len(formal_arguments)) ]
@@ -322,21 +323,21 @@ class CgenVisitor(ast.NodeVisitor):
                 ", ".join(parameter_arguments))
 
     def visit_Call(self, node):
-        args = [ self.visit(n) for n in node.args[::-1] ][::-1] # reverse order to handle lambda calls
+        args = [ self.visit(n) for n in node.args ]
         func = self.visit(node.func)
-        if func == self.name:
+        if func == "{0}()".format(self.name): # *** recursive call
             if CgenVisitor.return_type in self.typedefs:
                 self.add_typedef(node, self.typedefs[CgenVisitor.return_type], self.typedefs[CgenVisitor.return_type][1])
             else:
                 self.typedefs[node]=None
-        elif func in intrinsics and intrinsics[func]:
-            intrinsics[func](self, node)
+            func = "(*this)"
+        elif func in modules["__builtins__"] and modules["__builtins__"][func]:
+            modules["__builtins__"][func](self, node)
         else:
-             self.add_typedef(node, "decltype({0}{1}({2}))".format(
+            self.add_typedef(node, "decltype({0}({1}))".format(
                  "std::declval<{0}>()".format(self.typedefs[func][1]) if func in self.declarations else func,
-                 "" if func in intrinsics or func in self.declarations else "()",
                  ", ".join([ "std::declval<{0}>()".format(self.typedefs[n][1]) for n in node.args] )), *[self.typedefs[n][1] for n in node.args])
-        return "{0}{1}({2})".format(func, "" if func in intrinsics or func in self.declarations else "()", ", ".join(args))
+        return "{0}({1})".format(func, ", ".join(args))
 
     def visit_Compare(self, node):
         left = self.visit(node.left)

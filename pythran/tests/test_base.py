@@ -173,6 +173,14 @@ def lambda_():
     def test_import_from(self):
         self.run_test("def import_from(): from math import cos", import_from=())
 
+    def test_len(self):
+        self.run_test("def len_(i,j,k): return len(i)+len(j)+len(k)", 1, [1,2],[], len_=("float","int list", "float list"))
+
+    def test_subscript(self):
+        self.run_test("def subscript(l,i): l[0]=l[0]+l[i]", [1], 0, subscript=("int list", "int"))
+
+
+
 
 if __name__ == '__main__':
         unittest.main()

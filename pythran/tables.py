@@ -7,6 +7,7 @@ operator_to_lambda = {
         ast.Div     : lambda l,r: l+"/"+r,
         ast.Lt      : lambda l,r: l+"<"+r,
         ast.Gt      : lambda l,r: l+">"+r,
+        ast.Eq      : lambda l,r: l+"=="+r,
         }
 
 type_to_str = {
@@ -17,6 +18,8 @@ type_to_str = {
 # the value, if not None, is used to deduce the return type of the builtins if the default behavior is not satisfying 
 modules = {
         "__builtins__": {
+            "list":None,
+            "len":None,
             "zip":None,
             "reduce": lambda self, node: self.add_typedef(node, "decltype(std::declval<{0}>()({1}))".format(
                 self.typedefs[node.args[0]][1],

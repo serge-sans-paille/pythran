@@ -236,9 +236,9 @@ class CgenVisitor(ast.NodeVisitor):
 
     def visit_Assign(self, node):
         if len(node.targets) != 1: raise NotImplementedError
-        if not isinstance(node.targets[0], ast.Name): raise NotImplementedError
+        if not isinstance(node.targets[0], ast.Name) and not isinstance(node.targets[0], ast.Subscript): raise NotImplementedError
         value = self.visit(node.value)
-        if node.targets[0].id not in self.declarations:
+        if isinstance(node.targets[0], ast.Name) and node.targets[0].id not in self.declarations:
             self.add_typedef(node.targets[0].id, self.typedefs[node.value][1], self.typedefs[node.value][1])
             self.declarations.add(node.targets[0].id)
         targets=[self.visit(n) for n in node.targets]
@@ -378,12 +378,12 @@ class CgenVisitor(ast.NodeVisitor):
     def visit_Subscript(self, node):
         value = self.visit(node.value)
         slice = self.visit(node.slice)
-        is_constant_expression = lambda s: re.sub(r'[a-zA-Z_ \t]','',s)
+        is_constant_expression = lambda s: not re.sub(r'[+*/\-0-9]','',s)
         if is_constant_expression(slice):
             self.add_typedef(node, "typename std::tuple_element<{0}, {1}>::type".format(slice, self.typedefs[node.value][1]), self.typedefs[node.value][1])
             return "std::get<{0}>({1})".format(slice, value)
         else:
-            self.add_typedef(node, "typename {1}::value_type".format(self.typedefs[node.value][1]), self.typedefs[node.value][1])
+            self.add_typedef(node, "typename {0}::value_type".format(self.typedefs[node.value][1]), self.typedefs[node.value][1])
             return "{1}[{0}]".format(slice, value)
 
 

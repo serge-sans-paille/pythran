@@ -66,14 +66,63 @@ def rbf(ngamma, x, y):
    return exp(ngamma * norm2_diff(x,y))"""
         self.run_test(code, 2.3, [1,2,3], [1.1,1.2,1.3], rbf=("float","float list", "float list"))
 
+# from copperhead-new/copperhead/prelude.py
+    def test_indices(self):
+        self.run_test("def indices(A):return range(len(A))",[1,2], indices=("int list"))
+
+    def test_gather(self):
+        self.run_test("def gather(x, indices): return [x[i] for i in indices]", [1,2,3,4,5],[0,2,4], gather=("int list", "int list"))
+
+    def test_scatter(self):
+        code="""
+def indices(x): return xrange(len(x))
+def scatter(src, indices_, dst):
+    assert len(src)==len(indices_)
+    result = list(dst)
+    for i in xrange(len(src)):
+        result[indices_[i]] = src[i]
+    return result
+"""
+        self.run_test(code, [0.0,1.0,2.,3,4,5,6,7,8,9],[5,6,7,8,9,0,1,2,3,4],[0,0,0,0,0,0,0,0,0,0,18], scatter=("float list", "int list", "float list"))
+
+    def test_scan(self):
+        code="""
+def prefix(A): return scan(lambda x,y:x+y, A)
+def scan(f, A):
+    B = list(A)
+    for i in xrange(1, len(B)):
+        B[i] = f(B[i-1], B[i])
+    return B
+"""
+        self.run_test(code, [1,2,3], prefix=("float list"))
+        
+
 
 # from Copperhead: Compiling an Embedded Data Parallel Language
 # by Bryan Catanzaro, Michael Garland and Kurt Keutzer
 # http://www.eecs.berkeley.edu/Pubs/TechRpts/2010/EECS-2010-124.html
-#    def spmv_csr(A_values, A_columns, x):
-#       def spvv(Ai, j):
-#           z = gather(x, j)
-#       return sum(map(lambda Aij, xj: Aij*xj, Ai, z))
+#def spvv_csr(x, cols, y):
+#    """
+#    Multiply a sparse row vector x -- whose non-zero values are in the
+#    specified columns -- with a dense column vector y.
+#    """
+#    z = gather(y, cols)
+#    return sum(map(lambda a, b: a * b, x, z))
+# 
+#def spmv_csr(Ax, Aj, x):
+#    """
+#    Compute y = Ax for CSR matrix A and dense vector x.
+# 
+#    Ax and Aj are nested sequences where Ax[i] are the non-zero entries
+#    for row i and Aj[i] are the corresponding column indices.
+#    """
+#    return map(lambda y, cols: spvv_csr(y, cols, x), Ax, Aj)
+#
+#def spmv_ell(data, idx, x):
+#    def kernel(i):
+#        return sum(map(lambda Aj, J: Aj[i] * x[J[i]], data, idx))
+#    return map(kernel, indices(x))
+#
 #    @cu
 #    def vadd(x, y):
 #    return map(lambda a, b: return a + b, x, y)

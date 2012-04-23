@@ -3,6 +3,17 @@
 
 #include <pythonic++.h>
 
+/* some overloads */
+namespace std {
+    template <size_t I, class T>
+        auto get( sequence<T>& t) -> decltype(t[I]) { return t[I]; }
+
+    template <size_t I, class T>
+        struct tuple_element<I, sequence<T> > {
+            typedef typename sequence<T>::value_type type;
+        };
+}
+
 /* boost::python converters */
 #include <boost/python/list.hpp>
 #include <boost/python/tuple.hpp>

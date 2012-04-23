@@ -1,6 +1,7 @@
 import ast
 
 operator_to_lambda = {
+        ast.USub  : lambda o: "-"+o,
         ast.Add     : lambda l,r: l+"+"+r,
         ast.Sub     : lambda l,r: l+"-"+r,
         ast.Mult    : lambda l,r: l+"*"+r,

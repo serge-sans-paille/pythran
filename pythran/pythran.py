@@ -386,6 +386,22 @@ class CgenVisitor(ast.NodeVisitor):
             self.add_typedef(node, "typename {0}::value_type".format(self.typedefs[node.value][1]), self.typedefs[node.value][1])
             return "{1}[{0}]".format(slice, value)
 
+    def visit_Tuple(self, node):
+        if not node.elts: # empty tuple
+            raise NotImplementedError
+        elts = [ self.visit(n) for n in node.elts ]
+        self.add_typedef(node, "std::tuple<{0}>".format(", ".join( self.typedefs[n][1] for n in node.elts )), *[self.typedefs[n][1] for n in node.elts])
+        return "std::make_tuple({0})".format(", ".join(elts))
+
+    def visit_UnaryOp(self, node):
+        operand = self.visit(node.operand)
+        op = operator_to_lambda[type(node.op)]
+        if not self.typedefs[node.operand]:
+            self.typedefs[node]=None
+        else:
+            self.add_typedef(node, "decltype({0})".format(op("std::declval<{0}>()".format(self.typedefs[node.operand][1]))), self.typedefs[node.operand][1])
+        return op(operand)
+
 
     def visit_BinOp(self, node):
         left = self.visit(node.left)

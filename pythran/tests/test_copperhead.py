@@ -101,14 +101,15 @@ def scan(f, A):
 # from Copperhead: Compiling an Embedded Data Parallel Language
 # by Bryan Catanzaro, Michael Garland and Kurt Keutzer
 # http://www.eecs.berkeley.edu/Pubs/TechRpts/2010/EECS-2010-124.html
-#def spvv_csr(x, cols, y):
-#    """
-#    Multiply a sparse row vector x -- whose non-zero values are in the
-#    specified columns -- with a dense column vector y.
-#    """
-#    z = gather(y, cols)
-#    return sum(map(lambda a, b: a * b, x, z))
-# 
+    def test_spvv_csr(self):
+        code="""
+def spvv_csr(x, cols, y):
+    def gather(x, indices): return [x[i] for i in indices]
+    z = gather(y, cols)
+    return sum(map(lambda a, b: a * b, x, z))
+"""
+        self.run_test(code, [1,2,3],[0,1,2],[5.5,6.6,7.7], spvv_csr=("int list", "int list", "float list"))
+ 
 #def spmv_csr(Ax, Aj, x):
 #    """
 #    Compute y = Ax for CSR matrix A and dense vector x.
@@ -123,21 +124,26 @@ def scan(f, A):
 #        return sum(map(lambda Aj, J: Aj[i] * x[J[i]], data, idx))
 #    return map(kernel, indices(x))
 #
-#    @cu
-#    def vadd(x, y):
-#    return map(lambda a, b: return a + b, x, y)
-#    @cu
-#    def vmul(x, y):
-#    return map(lambda a, b: return a * b, x, y)
-#    @cu
-#    def form_preconditioner(a, b, c):
-#    def det_inverse(ai, bi, ci):
-#    return 1.0/(ai * ci - bi * bi)
-#    indets = map(det_inverse, a, b, c)
-#    p_a = vmul(indets, c)
-#    p_b = map(lambda a, b: -a * b, indets, b)
-#    p_c = vmul(indets, a)
-#    return p_a, p_b, p_c
+    def test_vadd(self):
+        self.run_test("def vadd(x, y): return map(lambda a, b: a + b, x, y)", [0.,1.,2.],[5.,6.,7.], vadd=("float list", "float list"))
+
+    def test_vmul(self):
+        self.run_test("def vmul(x, y): return map(lambda a, b: a * b, x, y)", [0.,1.,2.],[5.,6.,7.], vmul=("float list", "float list"))
+
+    def test_form_preconditioner(self):
+        code="""
+def vadd(x, y): return map(lambda a, b: a + b, x, y)
+def vmul(x, y): return map(lambda a, b: a * b, x, y)
+def form_preconditioner(a, b, c):
+    def det_inverse(ai, bi, ci):
+        return 1.0/(ai * ci - bi * bi)
+    indets = map(det_inverse, a, b, c)
+    p_a = vmul(indets, c)
+    p_b = map(lambda a, b: -a * b, indets, b)
+    p_c = vmul(indets, a)
+    return p_a, p_b, p_c
+"""
+        self.run_test(code, [1,2,3],[0,1,2],[5.5,6.6,7.7],form_preconditioner=("int list", "int list", "float list"))
 #    @cu
 #    def precondition(u, v, p_a, p_b, p_c):
 #    e = vadd(vmul(p_a, u), vmul(p_b, v))

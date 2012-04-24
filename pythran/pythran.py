@@ -30,10 +30,8 @@ class CgenVisitor(ast.NodeVisitor):
 
     def add_typedef(self, k, v, *deps):
         typename = "expression_type{0}".format(self.counter)
-        #existing = [ value for value in self.typedefs.itervalues() if value if value[0] == v ]
-        #if False and existing:
-        #    self.typedefs[k]=( v, existing[0][1] )
-        #else:
+        assert not isinstance(k,tuple)
+        assert not isinstance(v,tuple)
         self.typedefs[k]=( v, typename)
         self.typedeps[typename]=set(deps)
         for d in deps:
@@ -331,7 +329,7 @@ class CgenVisitor(ast.NodeVisitor):
         func = self.visit(node.func)
         if func == "{0}()".format(self.name): # *** recursive call
             if CgenVisitor.return_type in self.typedefs:
-                self.add_typedef(node, self.typedefs[CgenVisitor.return_type], self.typedefs[CgenVisitor.return_type])
+                self.add_typedef(node, self.typedefs[CgenVisitor.return_type][0], self.typedefs[CgenVisitor.return_type][0])
             else:
                 self.typedefs[node]=None
             func = "(*this)"

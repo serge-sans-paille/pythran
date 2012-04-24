@@ -14,6 +14,7 @@ namespace std {
         };
 }
 
+
 /* boost::python converters */
 #include <boost/python/list.hpp>
 #include <boost/python/tuple.hpp>
@@ -58,9 +59,9 @@ struct to_python< sequence<E> >  {
     }
 };
 template <>
-struct to_python< empty_list >  {
+struct to_python< empty_sequence >  {
     typedef boost::python::list type;
-    type operator()(empty_list s) {
+    type operator()(empty_sequence const& s) {
         return boost::python::list();
     }
 };

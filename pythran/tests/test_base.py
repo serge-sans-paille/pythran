@@ -188,5 +188,18 @@ def lambda_():
     def test_return_empty_list(self):
         self.run_test("def return_empty_list(): return list()", return_empty_list=())
 
+    def test_augmented_assign(self):
+        self.run_test("def augmented_assign():\n a=0\n a+=1.5\n return a", augmented_assign=())
+
+    def test_augmented_list_assign(self):
+        self.run_test("def augmented_list_assign(l):\n a=list()\n a+=l\n return a", [1,2], augmented_list_assign=("int list"))
+
+    def test_initialization_list(self):
+        self.run_test("def initialization_list(): return [1, 2.3]", initialization_list=())
+
+    def test_multiple_assign(self):
+        self.run_test("def multiple_assign():\n a=0\n a=1.5\n return a", multiple_assign=())
+
+
 if __name__ == '__main__':
         unittest.main()

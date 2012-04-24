@@ -238,9 +238,12 @@ class CgenVisitor(ast.NodeVisitor):
         if len(node.targets) != 1: raise NotImplementedError
         if not isinstance(node.targets[0], ast.Name) and not isinstance(node.targets[0], ast.Subscript): raise NotImplementedError
         value = self.visit(node.value)
-        if isinstance(node.targets[0], ast.Name) and node.targets[0].id not in self.declarations:
-            self.add_typedef(node.targets[0].id, self.typedefs[node.value][1], self.typedefs[node.value][1])
-            self.declarations.add(node.targets[0].id)
+        if isinstance(node.targets[0], ast.Name):
+            if node.targets[0].id not in self.declarations:
+                self.declarations.add(node.targets[0].id)
+                self.add_typedef(node.targets[0].id, self.typedefs[node.value][1], self.typedefs[node.value][1])
+            else:
+                self.add_typedef(node.targets[0].id, "decltype(std::declval<{0}>() + std::declval<{1}>())".format(self.typedefs[node.value][1], self.typedefs[node.targets[0].id][1]), *[self.typedefs[node.value][1], self.typedefs[node.targets[0].id][1]])
         targets=[self.visit(n) for n in node.targets]
         return Statement("{0} = {1}".format(targets[0], value))
 
@@ -248,8 +251,8 @@ class CgenVisitor(ast.NodeVisitor):
         value = self.visit(node.value)
         if not isinstance(node.target, ast.Name): raise NotImplementedError
         if node.target.id not in self.declarations:
-            self.add_typedef(node.target.id, self.typedefs[node.value][1], self.typedefs[node.value][1])
             self.declarations.add(node.target.id)
+        self.add_typedef(node.target.id, self.typedefs[node.value][1], self.typedefs[node.value][1])
         target=self.visit(node.target)
         op = operator_to_lambda[type(node.op)](target, value)
         return Statement("{0} = {1}".format(target, op))
@@ -388,10 +391,21 @@ class CgenVisitor(ast.NodeVisitor):
 
     def visit_Tuple(self, node):
         if not node.elts: # empty tuple
-            raise NotImplementedError
-        elts = [ self.visit(n) for n in node.elts ]
-        self.add_typedef(node, "std::tuple<{0}>".format(", ".join( self.typedefs[n][1] for n in node.elts )), *[self.typedefs[n][1] for n in node.elts])
-        return "std::make_tuple({0})".format(", ".join(elts))
+            self.add_typedef(node,"decltype(std::make_tuple())")
+            return "std::make_tuple()"
+        else:
+            elts = [ self.visit(n) for n in node.elts ]
+            self.add_typedef(node, "std::tuple<{0}>".format(", ".join( self.typedefs[n][1] for n in node.elts )), *[self.typedefs[n][1] for n in node.elts])
+            return "std::make_tuple({0})".format(", ".join(elts))
+
+    def visit_List(self, node):
+        if not node.elts: # empty list
+            self.add_typedef(node, "decltype(list())")
+            return "list()"
+        else:
+            elts = [ self.visit(n) for n in node.elts ]
+            self.add_typedef(node, "sequence<decltype({0})>".format(" + ".join("std::declval<{0}>()".format(self.typedefs[n][1]) for n in node.elts)), *[self.typedefs[n][1] for n in node.elts])
+            return "sequence< decltype({0})>({{ {1} }})".format(" + ".join(elts), ", ".join(elts))
 
     def visit_UnaryOp(self, node):
         operand = self.visit(node.operand)

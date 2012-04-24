@@ -480,18 +480,17 @@ def python_interface(module_name, code, **specializations):
         boost_arguments_types = [ "boost::python::list" if at.startswith("sequence<") else 
                 "boost::python::tuple" if at .startswith("std::tuple<") else at
                 for at in arguments_types ]
-        boost_arguments = [ "to_sequence<{0}>({1})".format(at,a) if at.startswith("sequence<") else 
-            "to_tuple<{0}>({1})".format(at,a) if at.startswith("std::tuple<") else a
+        boost_arguments = [ "from_python<{0}>()({1})".format(at,a) if at.startswith("sequence<") or at.startswith("std::tuple<") else a
             for (a,at) in zip(arguments, arguments_types) ]
         specialized_fname = "{0}::{1}::type{2}".format(module_name, 
                 k,
                 ("<"+", ".join(arguments_types)+">") if arguments_types else ""
                 )
-        return_type = "typename fwd<typename {0}::return_type>::type".format(specialized_fname)
+        return_type = "typename to_python<typename {0}::return_type>::type".format(specialized_fname)
         mod.add_function(
                 FunctionBody(
                     FunctionDeclaration( Value(return_type, k), [ Value( t, "a"+str(i) ) for i,t in enumerate(boost_arguments_types) ]),
-                    Block([ Statement("return Fwd< {0}, typename {1}::return_type>()({2})".format(
+                    Block([ Statement("return ToPython< {0}, typename {1}::return_type>()({2})".format(
                         module_name+"::"+k,
                         specialized_fname,
                         ', '.join(boost_arguments) ) ) ] )

@@ -25,21 +25,21 @@ template<int N, int ...S> struct gens : gens<N-1, N-1, S...> {};
 template<int ...S> struct gens<0, S...>{ typedef seq<S...> type; };
 
 template <class T>
-struct fwd {
+struct to_python {
     typedef T type;
     type operator()(T t) { return t; }
 };
 template <>
-struct fwd<void> {
+struct to_python<void> {
     typedef void type;
 };
 
 template <class... Types >
-struct fwd< std::tuple<Types...> > {
+struct to_python< std::tuple<Types...> > {
     typedef boost::python::tuple type; 
     template<int ...S>
         type dispatch( std::tuple<Types...> const & t, seq<S...>) {
-            return boost::python::make_tuple( fwd<Types>()(std::get<S>(t)) ...);
+            return boost::python::make_tuple( to_python<Types>()(std::get<S>(t)) ...);
         }
 
     type operator()( std::tuple<Types...> const & t) {
@@ -48,18 +48,25 @@ struct fwd< std::tuple<Types...> > {
 };
 
 template <class E>
-struct fwd< sequence<E> >  {
+struct to_python< sequence<E> >  {
     typedef boost::python::list type;
     type operator()(sequence<E> s) {
         boost::python::list l;
-        fwd<E> f;
+        to_python<E> f;
         for(auto & e: s) l.append(f(e));
         return l;
     }
 };
+template <>
+struct to_python< empty_list >  {
+    typedef boost::python::list type;
+    type operator()(empty_list s) {
+        return boost::python::list();
+    }
+};
 
 template <>
-struct fwd< xrange >  {
+struct to_python< xrange >  {
     typedef boost::python::list type;
     type operator()(xrange xr) {
         boost::python::list l;
@@ -68,31 +75,57 @@ struct fwd< xrange >  {
     }
 };
 
-template< class T >
-T to_sequence(boost::python::list const & l) {
-    T s;
-    boost::python::stl_input_iterator<typename T::value_type> begin(l), end;
-    std::copy(begin, end, std::back_inserter(s));
-    return s;
-}
-
-template<class T, int ...S>
-T _to_tuple(boost::python::tuple const & bt, seq<S...>) {
-     return std::make_tuple( fwd< typename std::tuple_element<S,T>::type>()(boost::python::extract< typename std::tuple_element<S,T>::type >(bt[S]))...);
-}
-template< class T >
-T to_tuple(boost::python::tuple const & t) {
-    return _to_tuple<T>(t, typename gens< std::tuple_size<T>::value >::type());
-}
-
-template <class T, class R = typename T::return_type >
-struct Fwd : T {
-    template<class... Types>
-    typename fwd<R>::type operator()(Types... arguments) { return fwd<R>()(T::operator()(arguments...)); }
+template <class T>
+struct from_python_type {
+    typedef T type;
 };
 
 template <class T>
-struct Fwd<T,void> : T {
+struct from_python_type<sequence<T>> {
+    typedef T type;
+};
+
+template <class... Types>
+struct from_python_type<sequence<std::tuple<Types...>>> {
+    typedef boost::python::tuple type;
+};
+
+template <class T>
+struct from_python_type<sequence<sequence<T>>> {
+    typedef boost::python::list type;
+};
+
+template <class T>
+struct from_python {
+    typedef typename from_python_type<T>::type type;
+    auto operator()(T const & t) ->decltype(t) { return t; }
+
+    T operator()(boost::python::list const & l) {
+        T s;
+        boost::python::stl_input_iterator<type> begin(l), end;
+        for(auto iter = begin; iter!=end; ++iter)
+            s.push_back( from_python< typename T::value_type > () (*iter) );
+        return s;
+    }
+
+    template<int ...S>
+        T operator()(boost::python::tuple const & bt, seq<S...>) {
+            return std::make_tuple( from_python< typename std::tuple_element<S,T>::type>()(boost::python::extract< typename std::tuple_element<S,T>::type >(bt[S]))...);
+        }
+
+    T operator()(boost::python::tuple const & t) {
+        return operator()(t, typename gens< std::tuple_size<T>::value >::type());
+    }
+};
+
+template <class T, class R = typename T::return_type >
+struct ToPython : T {
+    template<class... Types>
+    typename to_python<R>::type operator()(Types... arguments) { return to_python<R>()(T::operator()(arguments...)); }
+};
+
+template <class T>
+struct ToPython<T,void> : T {
     template<class... Types>
     void operator()(Types... arguments) { T::operator()(arguments...); }
 };

@@ -179,8 +179,14 @@ def lambda_():
     def test_subscript(self):
         self.run_test("def subscript(l,i): l[0]=l[0]+l[i]", [1], 0, subscript=("int list", "int"))
 
+    def test_nested_sequences(self):
+        self.run_test("def nested_sequences(l,i): return l[0][i]", [[1]], 0, nested_sequences=("int list list","int"))
 
+    def test_nested_tuples(self):
+        self.run_test("def nested_tuples(l,i): return l[i][1]", [(0.1,1,)], 0, nested_tuples=("float int tuple list ","int"))
 
+    def test_return_empty_list(self):
+        self.run_test("def return_empty_list(): return list()", return_empty_list=())
 
 if __name__ == '__main__':
         unittest.main()

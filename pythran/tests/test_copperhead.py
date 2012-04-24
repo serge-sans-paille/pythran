@@ -1,13 +1,6 @@
-from pythran import python_interface
-import unittest
+from test_env import TestEnv
 
-class TestBase(unittest.TestCase):
-
-    def run_test(self, code, *params, **interface):
-        for name in sorted(interface.keys()):
-            mod = python_interface("test_"+name, code, **interface)
-            res = getattr(mod,name)(*params)
-            print res
+class TestCopperhead(TestEnv):
 
 # from copperhead test suite
 # https://github.com/copperhead
@@ -164,8 +157,3 @@ def precondition(u, v, p_a, p_b, p_c):
 """
         self.run_test(code, [1,2,3], [5.5,6.6,7.7],[1,2,3], [5.5,6.6,7.7],[8.8,9.9,10.10], precondition=("int list", "float list", "int list", "float list", "float list"))
 
-
-        
-
-if __name__ == '__main__':
-        unittest.main()

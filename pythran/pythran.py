@@ -30,15 +30,15 @@ class CgenVisitor(ast.NodeVisitor):
 
     def add_typedef(self, k, v, *deps):
         typename = "expression_type{0}".format(self.counter)
-        existing = [ value for value in self.typedefs.itervalues() if value if value[0] == v ]
-        if existing:
-            self.typedefs[k]=( v, existing[0][1] )
-        else:
-            self.typedefs[k]=( v, typename)
-            self.typedeps[typename]=set(deps)
-            for d in deps:
-                self.typedeps[typename].update(self.typedeps.get(d,set()))
-            self.counter+=1
+        #existing = [ value for value in self.typedefs.itervalues() if value if value[0] == v ]
+        #if False and existing:
+        #    self.typedefs[k]=( v, existing[0][1] )
+        #else:
+        self.typedefs[k]=( v, typename)
+        self.typedeps[typename]=set(deps)
+        for d in deps:
+            self.typedeps[typename].update(self.typedeps.get(d,set()))
+        self.counter+=1
 
     def visit_Module(self, node):
         mod = BoostPythonModule()
@@ -119,8 +119,9 @@ class CgenVisitor(ast.NodeVisitor):
 
         convert = lambda text: int(text) if text.isdigit() else text 
         alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', key[1]) ] 
-        valid_typedefs = [ v for k,v in cgv.typedefs.iteritems() if not isinstance(k,str) or k == CgenVisitor.return_type if v if v[0] not in nargs and v[0] not in imported_args]
-        unique_typedefs = { k:v for k,v in valid_typedefs }.items()
+        valid_typedefs = [ v for k,v in cgv.typedefs.iteritems() if v and v[1] and v[1].startswith("expression_type") ]
+        valid_typedefs.append(cgv.typedefs[CgenVisitor.return_type])
+        unique_typedefs = [ (k,v) for v,k in { v:k for (k,v) in valid_typedefs }.iteritems() ] # we want unique keys, not unique values ...
         typedefs= sorted( unique_typedefs, key=alphanum_key)
 
         fscope = "type{0}::".format(
@@ -235,17 +236,17 @@ class CgenVisitor(ast.NodeVisitor):
         return If(iter, stmt, Block(orelse)) if orelse else stmt
 
     def visit_Assign(self, node):
-        if len(node.targets) != 1: raise NotImplementedError
-        if not isinstance(node.targets[0], ast.Name) and not isinstance(node.targets[0], ast.Subscript): raise NotImplementedError
+        if not all([isinstance(n, ast.Name) or isinstance(n, ast.Subscript) for n in node.targets]) : raise NotImplementedError
         value = self.visit(node.value)
-        if isinstance(node.targets[0], ast.Name):
-            if node.targets[0].id not in self.declarations:
-                self.declarations.add(node.targets[0].id)
-                self.add_typedef(node.targets[0].id, self.typedefs[node.value][1], self.typedefs[node.value][1])
-            else:
-                self.add_typedef(node.targets[0].id, "decltype(std::declval<{0}>() + std::declval<{1}>())".format(self.typedefs[node.value][1], self.typedefs[node.targets[0].id][1]), *[self.typedefs[node.value][1], self.typedefs[node.targets[0].id][1]])
-        targets=[self.visit(n) for n in node.targets]
-        return Statement("{0} = {1}".format(targets[0], value))
+        for t in node.targets:
+            if isinstance(t, ast.Name):
+                if t.id not in self.declarations:
+                    self.declarations.add(t.id)
+                    self.add_typedef(t.id, self.typedefs[node.value][1], self.typedefs[node.value][1])
+                #elif self.typedefs[node.value][1] != CgenVisitor.return_type and self.typedefs[t.id][1] != CgenVisitor.return_type:
+                #    self.add_typedef(t.id, "decltype(std::declval<{0}>() + std::declval<{1}>())".format(self.typedefs[node.value][1], self.typedefs[t.id][1]), *[self.typedefs[node.value][1], self.typedefs[t.id][1]])
+        targets=[self.visit(t) for t in node.targets]
+        return Statement("{0} = {1}".format("= ".join(targets), value))
 
     def visit_AugAssign(self, node):
         value = self.visit(node.value)
@@ -262,7 +263,7 @@ class CgenVisitor(ast.NodeVisitor):
             self.typedefs[node] = self.typedefs[node.id]
         elif node.id == self.name:
             if CgenVisitor.return_type in self.typedefs:
-                self.add_typedef(node, self.typedefs[CgenVisitor.return_type], self.typedefs[CgenVisitor.return_type][1])
+                self.add_typedef(node, self.typedefs[CgenVisitor.return_type], self.typedefs[CgenVisitor.return_type])
             else:
                 self.typedefs[node]=None
         elif node.id in modules["__builtins__"]:
@@ -330,7 +331,7 @@ class CgenVisitor(ast.NodeVisitor):
         func = self.visit(node.func)
         if func == "{0}()".format(self.name): # *** recursive call
             if CgenVisitor.return_type in self.typedefs:
-                self.add_typedef(node, self.typedefs[CgenVisitor.return_type], self.typedefs[CgenVisitor.return_type][1])
+                self.add_typedef(node, self.typedefs[CgenVisitor.return_type], self.typedefs[CgenVisitor.return_type])
             else:
                 self.typedefs[node]=None
             func = "(*this)"

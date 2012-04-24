@@ -7,8 +7,11 @@ operator_to_lambda = {
         ast.Mult    : lambda l,r: l+"*"+r,
         ast.Div     : lambda l,r: l+"/"+r,
         ast.Lt      : lambda l,r: l+"<"+r,
+        ast.LtE     : lambda l,r: l+"<="+r,
         ast.Gt      : lambda l,r: l+">"+r,
+        ast.GtE     : lambda l,r: l+">="+r,
         ast.Eq      : lambda l,r: l+"=="+r,
+        ast.Pow     : lambda l,r: "pow({0},{1})".format(l,r)
         }
 
 type_to_str = {

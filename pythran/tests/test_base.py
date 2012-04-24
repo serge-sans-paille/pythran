@@ -1,13 +1,6 @@
-from pythran import python_interface
-import unittest
+from test_env import TestEnv
 
-class TestBase(unittest.TestCase):
-
-    def run_test(self, code, *params, **interface):
-        for name in sorted(interface.keys()):
-            mod = python_interface("test_"+name, code, **interface)
-            res = getattr(mod,name)(*params)
-            print res
+class TestBase(TestEnv):
 
     def test_pass(self):
         self.run_test("def pass_(a):pass", 1, pass_=("int"))
@@ -199,7 +192,12 @@ def lambda_():
 
     def test_multiple_assign(self):
         self.run_test("def multiple_assign():\n a=0\n a=1.5\n return a", multiple_assign=())
+    def test_multiple_return1(self):
+        self.run_test("def multiple_return1(a):\n if True:return 1\n else:\n  return a", 2,  multiple_return1=("int"))
 
+    def test_multiple_return2(self):
+        self.run_test("def multiple_return2(a):\n if True:return 1\n else:\n  b=a\n  return b", 2,  multiple_return2=("int"))
 
-if __name__ == '__main__':
-        unittest.main()
+    def test_multiple_return3(self):
+        self.run_test("def multiple_return3(a):\n if True:return 1\n else:\n  b=a\n  return a", 2,  multiple_return3=("int"))
+

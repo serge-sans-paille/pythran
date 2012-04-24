@@ -16,15 +16,16 @@ class CgenVisitor(ast.NodeVisitor):
 
     return_type="return_type"
 
-    def __init__(self, name, external_symbols, structure_declarations, structure_definitions):
+    def __init__(self, name, parent):
         self.name=name
-        self.external_symbols= external_symbols
-        self.typedefs = { k:None for k in external_symbols }
+        self.external_symbols= parent.external_symbols
+        self.typedefs = { k:None for k in parent.external_symbols }
+        self.typedefs.update({k:None for k in { n for n,v in parent.typedefs.iteritems() if not v or not v[1] } })
         self.typedeps=dict()
         self.counter=0
         self.declarations=set()
-        self.structure_declarations=structure_declarations
-        self.structure_definitions=structure_definitions
+        self.structure_declarations=parent.structure_declarations
+        self.structure_definitions=parent.structure_definitions
         self.renamings=dict()
 
     def add_typedef(self, k, v, *deps):
@@ -96,8 +97,7 @@ class CgenVisitor(ast.NodeVisitor):
         fargs = node.args.args
         nargs = [ arg.id for arg in fargs ]
 
-        cgv = CgenVisitor("<anonymous>", self.external_symbols.union({ k for k,v in self.typedefs.iteritems() if not v or not v[1] }),
-                self.structure_declarations, self.structure_definitions)
+        cgv = CgenVisitor("<anonymous>", self)
         cgv.name = node.name
 
         generic_types= [ "argument_type"+str(i) for i in xrange(len(fargs)) ]
@@ -106,7 +106,7 @@ class CgenVisitor(ast.NodeVisitor):
         cgv.typedeps = { k:set() for k in generic_types }
         cgv.declarations=set(nargs)
 
-        imported_args = sorted(imported_ids(node, cgv.external_symbols))
+        imported_args = sorted(imported_ids(node, { k for k,v in cgv.typedefs.iteritems() if not v}))#cgv.external_symbols))
         imported_types = [ "imported_type{0}".format(i) for i in xrange(len(imported_args)) ]
         cgv.typedefs.update( { k:(k,v) for (k,v) in zip(imported_args, imported_types ) } )
 
@@ -289,9 +289,9 @@ class CgenVisitor(ast.NodeVisitor):
         formal_types =  [ "argument_type{0}".format(n) for n in xrange(len(formal_arguments)) ]
         parameter_types = [ "parameter_type{0}".format(n) for n in xrange(len(parameter_arguments)) ]
 
-        cgv = CgenVisitor("<lambda>", self.declarations, self.structure_declarations, self.structure_definitions)
+        cgv = CgenVisitor("<lambda>", self)
         cgv.name = lambda_name
-        cgv.typedefs = { k:(k,v) for (k,v) in zip(formal_arguments + parameter_arguments, formal_types + parameter_types) }
+        cgv.typedefs.update({ k:(k,v) for (k,v) in zip(formal_arguments + parameter_arguments, formal_types + parameter_types) })
         body = cgv.visit(node.body)
         holder = templatize(
                 Struct(lambda_name,
@@ -480,7 +480,13 @@ def python_interface(module_name, code, **specializations):
     ir=ast.parse(code)
     normalize_tuples(ir)
     fwd_decl =  forward_declarations(ir)
-    CgenVisitor(module_name, fwd_decl, list(), list()).visit(ir)
+    class FatherOfAllThings:
+        def __init__(self, fwd_decl):
+            self.external_symbols=fwd_decl
+            self.typedefs=dict()
+            self.structure_declarations=list()
+            self.structure_definitions=list()
+    CgenVisitor(module_name, FatherOfAllThings(fwd_decl)).visit(ir)
 
 
     mod=BoostPythonModule()

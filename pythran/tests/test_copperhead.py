@@ -101,6 +101,7 @@ def scan(f, A):
 # from Copperhead: Compiling an Embedded Data Parallel Language
 # by Bryan Catanzaro, Michael Garland and Kurt Keutzer
 # http://www.eecs.berkeley.edu/Pubs/TechRpts/2010/EECS-2010-124.html
+
     def test_spvv_csr(self):
         code="""
 def spvv_csr(x, cols, y):
@@ -109,25 +110,27 @@ def spvv_csr(x, cols, y):
     return sum(map(lambda a, b: a * b, x, z))
 """
         self.run_test(code, [1,2,3],[0,1,2],[5.5,6.6,7.7], spvv_csr=("int list", "int list", "float list"))
- 
-#def spmv_csr(Ax, Aj, x):
-#    """
-#    Compute y = Ax for CSR matrix A and dense vector x.
-# 
-#    Ax and Aj are nested sequences where Ax[i] are the non-zero entries
-#    for row i and Aj[i] are the corresponding column indices.
-#    """
-#    return map(lambda y, cols: spvv_csr(y, cols, x), Ax, Aj)
-#
-#    def test_spmv_ell(self):
-#        code="""
-#def indices(x): return xrange(len(x))
-#def spmv_ell(data, idx, x):
-#    def kernel(i):
-#        return sum(map(lambda Aj, J: Aj[i] * x[J[i]], data, idx))
-#    return map(kernel, indices(x))
-#"""
-#        self.run_test(code, [1,2,3],[0,1,2],[5.5,6.6,7.7], spmv_ell=("int list", "int list", "float list"))
+
+    def test_spmv_csr(self):
+        code="""
+def spvv_csr(x, cols, y):
+    def gather(x, indices): return [x[i] for i in indices]
+    z = gather(y, cols)
+    return sum(map(lambda a, b: a * b, x, z))
+def spmv_csr(Ax, Aj, x):
+    return map(lambda y, cols: spvv_csr(y, cols, x), Ax, Aj)
+"""
+        self.run_test(code, [[0,1,2],[0,1,2],[0,1,2]],[[0,1,2],[0,1,2],[0,1,2]],[0,1,2], spmv_csr=("int list list", "int list list ", "int list"))
+
+    def test_spmv_ell(self):
+        code="""
+def indices(x): return xrange(len(x))
+def spmv_ell(data, idx, x):
+    def kernel(i):
+        return sum(map(lambda Aj, J: Aj[i] * x[J[i]], data, idx))
+    return map(kernel, indices(x))
+"""
+        self.run_test(code, [[0,1,2],[0,1,2],[0,1,2]],[[0,1,2],[0,1,2],[0,1,2]],[0,1,2], spmv_ell=("int list list", "int list list ", "int list"))
 
     def test_vadd(self):
         self.run_test("def vadd(x, y): return map(lambda a, b: a + b, x, y)", [0.,1.,2.],[5.,6.,7.], vadd=("float list", "float list"))

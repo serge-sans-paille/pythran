@@ -145,8 +145,8 @@ def lambda_():
     def test_tuple(self):
         self.run_test("def tuple_(t): return t[0]+t[1]", (0,1), tuple_=("int int tuple"))
 
-    def test_shadow(self):
-        self.run_test("def shadow(l): return [l*l for l in l]", [1], shadow=("int list"))
+    def test_nested_list_comprehension(self):
+        self.run_test("def nested_list_comprehension(): return [ [ 0 for x in xrange(10) ] for y in xrange(20) ]", nested_list_comprehension=())
 
     def test_delete(self):
         self.run_test("def delete_(v): del v", 1, delete_=("int"))

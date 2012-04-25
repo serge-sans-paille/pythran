@@ -5,7 +5,7 @@ from codepy.bpl import BoostPythonModule
 import re
 from subprocess import check_call, check_output
 
-from passes import imported_ids, forward_declarations, normalize_tuples
+from passes import imported_ids, forward_declarations, normalize_tuples, purity_test, type_substitution
 from tables import type_to_str, operator_to_lambda, modules
 
 templatize = lambda node, types: Template([ "typename " + t for t in types ], node ) if types else node 
@@ -237,7 +237,7 @@ class CgenVisitor(ast.NodeVisitor):
         target = self.visit(node.target)
         body = [ self.visit(n) for n in node.body ]
         orelse = [ self.visit(n) for n in node.orelse ]
-        stmt = Statement("for(auto& {0}: {1}) {2}".format(target, iter, "".join([l for l in Block(body).generate()])))
+        stmt = AutoFor(target, iter, Block(body))
         return If(iter, stmt, Block(orelse)) if orelse else stmt
 
     def visit_Assign(self, node):
@@ -446,11 +446,78 @@ class CgenVisitor(ast.NodeVisitor):
         return ast.comprehension(target, iter, ifs )
 
     def visit_ListComp(self, node):
-        generators = [ self.visit(n) for n in node.generators ]
-        elt = self.visit(node.elt)
-        self.add_typedef(node, "sequence<{0}>".format( self.typedefs[node.elt][1] ), self.typedefs[node.elt][1])
-        lambda_expr = "[&] ( {0} ) {{ return {1} ; }}".format( ", ".join( [ "typename "+self.typer+self.typedefs[g.target][1] + " const & " + g.target for g in generators ] ), elt)
-        return "map({0}, {1})".format(lambda_expr, ", ".join(g.iter for g in generators))
+
+        list_comp_name = "list_comp{0}".format(len(self.structure_definitions))
+        self.structure_definitions.append(Statement("")) # *** ugly
+
+        effective_arguments = [g.iter for g in [ self.visit(n) for n in node.generators ] ]
+        formal_arguments = [ "argument{0}".format(n) for n in xrange(len(effective_arguments)) ]
+        formal_types =  [ "argument_type{0}".format(n) for n in xrange(len(formal_arguments)) ]
+
+        parameter_arguments = sorted( n for n in imported_ids(node, { k for k,v in self.typedefs.iteritems() if not v or not v[1]}) if n not in formal_arguments )
+        parameter_types = [ "parameter_type{0}".format(n) for n in xrange(len(parameter_arguments)) ]
+
+        cgv = CgenVisitor("<list_comp>", self)
+        cgv.name = list_comp_name
+        cgv.typedefs.update({ k:(k,v) for (k,v) in zip(formal_arguments + parameter_arguments, formal_types + parameter_types) })
+        generators = [ cgv.visit(n) for n in node.generators ]
+
+        elt = cgv.visit(node.elt)
+
+        cgv.typedefs[CgenVisitor.return_type]= ("sequence<{0}>".format(cgv.typedefs[node.elt][1]),  CgenVisitor.return_type)
+
+        convert = lambda text: int(text) if text.isdigit() else text 
+        alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', key[1]) ] 
+        valid_typedefs = [ v for k,v in cgv.typedefs.iteritems() if v and v[1] and v[1].startswith("expression_type") ]
+        valid_typedefs.append(cgv.typedefs[CgenVisitor.return_type])
+        unique_typedefs = [ (k,v) for v,k in { v:k for (k,v) in valid_typedefs }.iteritems() ] # we want unique keys, not unique values ...
+        typedefs= sorted( unique_typedefs, key=alphanum_key)
+
+        struct = templatize(Struct("type", [Typedef(Value(n,t)) for n,t in typedefs] ), formal_types)
+
+        fscope = "typename type{0}::".format(
+                "<{0}>".format(", ".join(formal_types)) if formal_types else ""
+                )
+
+        seq_name = "__s"
+        holder = templatize(
+                Struct(list_comp_name,
+                    [ Statement( "{0} const & {1}".format(n, t) ) for n, t in zip(parameter_types, parameter_arguments) ] +
+                    [ struct ] +
+                    [ FunctionBody(
+                        ConstructorDeclaration(
+                            Value("", list_comp_name),
+                            [Value("{0} const &".format(t), n)  for t,n in zip(parameter_types, parameter_arguments)],
+                            ["{0}({0})".format(n) for n in parameter_arguments ]
+                            ),
+                        Block([])
+                        ) ] +
+                    [ FunctionBody(
+                        templatize(
+                            FunctionDeclaration(
+                                Value(fscope+CgenVisitor.return_type, "operator()"),
+                                [ Value("{0} const &".format(t), n)  for t,n in zip(formal_types, formal_arguments) ]
+                                ),
+                            formal_types),
+                        Block([
+                            Statement("{0} {1}".format(fscope+CgenVisitor.return_type, seq_name)),
+                            reduce(lambda x,g:AutoFor(g.target, g.iter, x), generators, Statement("{0}.push_back({1})".format(seq_name, elt))),
+                            Statement("return {0}".format(seq_name))
+                            ])
+                        ) ]
+                    ),
+                parameter_types)
+        self.structure_declarations.append(holder)
+
+        fully_qualified_list_comp_name = "{0}{1}".format(list_comp_name,
+                "<"+", ".join(self.typedefs[p][1] for p in parameter_arguments)+">" if parameter_arguments else "")
+        self.add_typedef(node, "decltype(std::declval<{0}>()({1}))".format(
+            fully_qualified_list_comp_name,
+            ", ".join( "std::declval<{0}>()".format(self.typedefs[g.iter][1]) for g in node.generators)
+            ),
+            *[self.typedefs[a] for a in parameter_arguments])
+
+        return "{0}({1})({2})".format(fully_qualified_list_comp_name, ", ".join(parameter_arguments), ", ".join(effective_arguments))
 
 
 
@@ -489,15 +556,18 @@ def python_interface(module_name, code, **specializations):
 
     ir=ast.parse(code)
     normalize_tuples(ir)
-    fwd_decl =  forward_declarations(ir)
+
     class FatherOfAllThings:
-        def __init__(self, fwd_decl):
-            self.external_symbols=fwd_decl
+        def __init__(self, ir):
+            self.external_symbols=forward_declarations(ir)
             self.typedefs=dict()
             self.structure_declarations=list()
             self.structure_definitions=list()
 
-    CgenVisitor(module_name, FatherOfAllThings(fwd_decl)).visit(ir)
+    purity = purity_test(ir)
+    impure_functions = { k.name:v for k,v in purity.iteritems() if isinstance(k,ast.FunctionDef) and v}
+
+    CgenVisitor(module_name, FatherOfAllThings(ir)).visit(ir)
 
 
     mod=BoostPythonModule()
@@ -505,6 +575,11 @@ def python_interface(module_name, code, **specializations):
     mod.use_private_namespace=False
     mod.add_to_preamble([Include(header)])
     for k,v in specializations.iteritems():
+        if k in impure_functions:
+            print >> sys.stderr, "Warning: exporting function '{0}' that writes into its parameters {1}".format(
+                    k,
+                    ", ".join(["'{0}'".format(n) for n in impure_functions[k] ])
+                    )
         vl = v if isinstance(v, tuple) else [v,]
         arguments_types = [pytype_to_ctype(t) for t in vl ]
         arguments = ["a"+str(i) for i in xrange(len(arguments_types))]

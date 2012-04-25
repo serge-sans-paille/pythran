@@ -465,6 +465,17 @@ class For(Loop):
     def intro_line(self):
         return "for (%s; %s; %s)" % (self.start, self.condition, self.update)
 
+class AutoFor(Loop):
+    def __init__(self, var, iterable, body):
+        self.var = var
+        self.iterable = iterable
+
+        assert isinstance(body, Generable)
+        self.body = body
+
+    def intro_line(self):
+        return "for(auto & %s : %s)" % (self.var, self.iterable)
+
 class DoWhile(Loop):
     def __init__(self, condition, body):
         self.condition = condition

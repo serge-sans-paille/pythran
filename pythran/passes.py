@@ -1,5 +1,6 @@
 from tables import operator_to_lambda, modules
 import ast
+import re
 
 ##
 class DeclarationDependencies(ast.NodeVisitor):
@@ -55,6 +56,7 @@ def forward_declarations(node):
 
     return set(declarations)
 
+
 ##
 class ImportedIds(ast.NodeVisitor):
     """ Gather ids referenced by a node """
@@ -90,9 +92,53 @@ class ImportedIds(ast.NodeVisitor):
 
 def imported_ids(node, global_declarations):
     r = ImportedIds(global_declarations)
+    if isinstance(node,list):
+        node=ast.If(ast.Num(1),node,None)
     r.visit(node)
     #*** expand all modules here
     return r.references - set(modules["__builtins__"].keys()+[ "True", "False" ])
+
+##
+class WrittenAreas(ast.NodeVisitor):
+    def __init__(self):
+        self.written_areas=set()
+    def visit_Name(self, node):
+        if isinstance(node.ctx, ast.Store):
+            self.written_areas.add(node.id)
+
+    def visit_Subscript(self, node):
+        if isinstance(node.ctx, ast.Store):
+            tmp = node.value
+            while isinstance(tmp, ast.Subscript):
+                tmp=tmp.value
+            if not isinstance(tmp, ast.Name):
+                raise NotImplementedError("assigning to a subscript whose value is not an identifier but an '{0}'".format(type(tmp)))
+            self.written_areas.add(tmp.id)
+
+def written_areas(node):
+    wv = WrittenAreas()
+    wv.visit(node)
+    return wv.written_areas
+
+class PurityTest(ast.NodeVisitor):
+    """ Gathers function purity information """
+    def __init__(self):
+        self.pure=dict()
+
+    def visit_Lambda(self, node):
+        self.visit_FunctionDef(self,node)
+
+    def visit_FunctionDef(self, node):
+        weffects = written_areas(node)
+        imported_areas = imported_ids(node.body,dict())
+        written_imported_areas= imported_areas.intersection(weffects)
+        self.pure[node]=written_imported_areas
+
+
+def purity_test(node):
+    pt=PurityTest()
+    pt.visit(node)
+    return pt.pure
 
 ##
 class TypeSubstitution(ast.NodeVisitor):
@@ -102,7 +148,19 @@ class TypeSubstitution(ast.NodeVisitor):
 
     def visit_Name(self, node):
         assert node.id in self.typedefs
-        return "std::declval< {0} >()".format(self.typedefs[node][1])
+        return "std::declval< {0} >()".format(self.typedefs[node][ 0 if self.typedefs[node][1].startswith("expression_type") else 1 ])
+
+    def visit_Index(self, node):
+        return self.visit(node.value)
+
+    def visit_Subscript(self, node):
+        value = self.visit(node.value)
+        slice = self.visit(node.slice)
+        is_constant_expression = lambda s: not re.sub(r'[+*/\-0-9]','',s)
+        if is_constant_expression(slice):
+            return "std::get<{0}>({1})".format(slice, value)
+        else:
+            return "{1}[{0}]".format(slice, value)
 
     def visit_Num(self, node):
         return str(node.n)

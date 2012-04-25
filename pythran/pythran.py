@@ -10,6 +10,12 @@ from tables import type_to_str, operator_to_lambda, modules
 
 templatize = lambda node, types: Template([ "typename " + t for t in types ], node ) if types else node 
 
+class PythranSyntaxError(SyntaxError):
+    def __init__(self, msg, node):
+        SyntaxError.__init__(self,msg)
+        self.lineno=node.lineno
+        self.offset=node.col_offset
+
 
 class CgenVisitor(ast.NodeVisitor):
     """Generate Cgen tree from an ast tree"""
@@ -56,25 +62,25 @@ class CgenVisitor(ast.NodeVisitor):
         return header_name
 
     def visit_Interactive(self, node):
-        raise NotImplementedError
+        raise PythranSyntaxError("Interactive session are not supported", node)
 
     def visit_Expression(self, node):
-        raise NotImplementedError
+        raise PythranSyntaxError("Top-Level expressions are not supported", node)
 
     def visit_Suite(self, node):
-        raise NotImplementedError
+        raise PythranSyntaxError("Suite are specific to Jython and not supported", node)
 
     def visit_Delete(self, node):
         return Statement("")
 
     def visit_ImportFrom(self, node):
-        if node.level != 0: raise NotImplementedError
-        if not node.module: raise NotImplementedError
+        if node.level != 0: raise PythranSyntaxError("Specifying a level in an import", node)
+        if not node.module: raise PythranSyntaxError("The import from syntax without module", node)
         module = node.module
-        if module not in modules: raise NotImplementedError
+        if module not in modules: raise PythranSyntaxError("Module '{0}'".format(module), node)
 
         names = node.names
-        if [ alias for alias in names if alias.asname ]: raise NotImplementedError
+        if [ alias for alias in names if alias.asname ]: raise PythranSyntaxError("Renaming using the 'as' keyword in an import", node)
 
         for alias in names:
             self.typedefs[alias.name]=(alias.name, None)
@@ -203,7 +209,7 @@ class CgenVisitor(ast.NodeVisitor):
             return Statement("return")
 
     def visit_Print(self, node):
-        if node.dest: raise NotImplementedError
+        if node.dest: raise PythranSyntaxError("Printing to a specific stream", node.dest)
         values = [ self.visit(n) for n in node.values]
         return Statement("print{0}({1})".format(
                 "" if node.nl else "_nonl",
@@ -224,7 +230,8 @@ class CgenVisitor(ast.NodeVisitor):
         return If(test, Block( body + [stmt]), Block(orelse)) if orelse else stmt 
 
     def visit_For(self, node):
-        if not isinstance(node.target, ast.Name): raise NotImplementedError
+        if not isinstance(node.target, ast.Name):
+            raise PythranSyntaxError("Using something other than an identifier as loop target", node.target)
         iter = self.visit(node.iter)
         self.add_typedef(node.target.id, "typename {0}::value_type".format(self.typedefs[node.iter][1]), self.typedefs[node.iter][1])
         target = self.visit(node.target)
@@ -234,7 +241,8 @@ class CgenVisitor(ast.NodeVisitor):
         return If(iter, stmt, Block(orelse)) if orelse else stmt
 
     def visit_Assign(self, node):
-        if not all([isinstance(n, ast.Name) or isinstance(n, ast.Subscript) for n in node.targets]) : raise NotImplementedError
+        if not all([isinstance(n, ast.Name) or isinstance(n, ast.Subscript) for n in node.targets]) :
+            raise PythranSyntaxError("Assigning to something other than an identifier or a subscript", node)
         value = self.visit(node.value)
         for t in node.targets:
             if isinstance(t, ast.Name):
@@ -248,7 +256,8 @@ class CgenVisitor(ast.NodeVisitor):
 
     def visit_AugAssign(self, node):
         value = self.visit(node.value)
-        if not isinstance(node.target, ast.Name): raise NotImplementedError
+        if not isinstance(node.target, ast.Name):
+            raise PythranSyntaxError("Assigning to something other than an identifier", node)
         if node.target.id not in self.declarations:
             self.declarations.add(node.target.id)
         self.add_typedef(node.target.id, self.typedefs[node.value][1], self.typedefs[node.value][1])
@@ -269,8 +278,7 @@ class CgenVisitor(ast.NodeVisitor):
         elif node.id in ["True", "False"]:
             self.add_typedef(node.id,"bool")
         else:
-            print self.name, ":", node.id, self.typedefs
-            raise NotImplementedError
+            raise RuntimeError("I did not manage to construct a type for identifier {0}".format(node.id))
         if node.id in self.renamings:
             return "{0}({1})".format(self.renamings[node.id][0], ", ".join(self.renamings[node.id][1]))
         elif node.id in self.typedefs and ( not self.typedefs[node.id] or not self.typedefs[node.id][1] ):
@@ -357,7 +365,7 @@ class CgenVisitor(ast.NodeVisitor):
         elif self.typedefs[node.orelse] and self.typedefs[node.orelse][1] not in self.typedeps[ self.typedefs[node.orelse][1] ] :
             self.add_typedef( node, self.typedefs[node.orelse][1], self.typedefs[node.orelse][1] )
         else:
-            raise RuntimeError
+            raise RuntimeError("I did not manage to find a type for '{0}'".format(ast.dump(node.body)))
         return "{0} ? {1} : {2}".format(test, body, orelse)
 
     def visit_Str(self, node):
@@ -374,8 +382,7 @@ class CgenVisitor(ast.NodeVisitor):
         return value
 
     def visit_Slice(self, node):
-        raise NotImplementedError
-
+        raise PythranSyntaxError("Using slices as subscript", node)
 
     def visit_Subscript(self, node):
         value = self.visit(node.value)
@@ -427,13 +434,14 @@ class CgenVisitor(ast.NodeVisitor):
         return op(left,right)
 
     def visit_comprehension(self, node):
-        #(expr target, expr iter, expr* ifs)
         ifs = [ self.visit(n) for n in node.ifs ]
-        if ifs : raise NotImplementedError
+        if ifs :
+            raise PythranSyntaxError("Using filters in list comprehension", node)
         iter = self.visit(node.iter)
         if isinstance(node.target, ast.Name):
             self.add_typedef(node.target.id, "typename {0}::value_type".format(self.typedefs[node.iter][1]), self.typedefs[node.iter][1])
-        else: raise NotImplementedError
+        else:
+            raise PythranSyntaxError("Using something other than an identifier as list comprehension target", node)
         target = self.visit(node.target)
         return ast.comprehension(target, iter, ifs )
 
@@ -443,6 +451,9 @@ class CgenVisitor(ast.NodeVisitor):
         self.add_typedef(node, "sequence<{0}>".format( self.typedefs[node.elt][1] ), self.typedefs[node.elt][1])
         lambda_expr = "[&] ( {0} ) {{ return {1} ; }}".format( ", ".join( [ "typename "+self.typer+self.typedefs[g.target][1] + " const & " + g.target for g in generators ] ), elt)
         return "map({0}, {1})".format(lambda_expr, ", ".join(g.iter for g in generators))
+
+
+
 pytype_to_ctype_table = {
         'bool'          : 'bool',
         'int'           : 'long',
@@ -485,6 +496,7 @@ def python_interface(module_name, code, **specializations):
             self.typedefs=dict()
             self.structure_declarations=list()
             self.structure_definitions=list()
+
     CgenVisitor(module_name, FatherOfAllThings(fwd_decl)).visit(ir)
 
 

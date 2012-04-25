@@ -124,7 +124,7 @@ class ConvertToTuple(ast.NodeTransformer):
 
     def visit_Name(self, node):
         if node.id in self.renamings:
-            nnode=reduce(lambda x,y: ast.Subscript(x, ast.Index(ast.Num(y)), ast.Load), self.renamings[node.id], ast.Name(self.tuple_id, ast.Load))
+            nnode=reduce(lambda x,y: ast.Subscript(x, ast.Index(ast.Num(y)), ast.Load()), self.renamings[node.id], ast.Name(self.tuple_id, ast.Load()))
             nnode.ctx=node.ctx
             return nnode
         return node
@@ -132,19 +132,28 @@ class ConvertToTuple(ast.NodeTransformer):
 def convert_to_tuple(node, tuple_id, renamings):
     return ConvertToTuple(tuple_id, renamings).visit(node)
 
-class NormalizeTuples(ast.NodeVisitor):
+class NormalizeTuples(ast.NodeTransformer):
+    tuple_name = "__tuple"
+    def __init__(self):
+        self.counter=0
+
+    def traverse_tuples(self, node, state, renamings):
+        if isinstance(node, ast.Name):
+            if state: renamings[node.id] = state
+        elif isinstance(node, ast.Tuple):
+            [self.traverse_tuples(n, state + (i,), renamings) for i,n in enumerate(node.elts)]
+        else:
+            raise NotImplementedError
+
     """ Remove implicit tuple -> variable conversion."""
     def visit_comprehension(self, node):
-        def traverse_tuples(node, state, renamings):
-            if isinstance(node, ast.Name):
-                if state: renamings[node.id] = state
-            elif isinstance(node, ast.Tuple):
-                [traverse_tuples(n, state + (i,), renamings) for i,n in enumerate(node.elts)]
-            else:
-                raise NotImplementedError
         renamings=dict()
-        traverse_tuples(node.target,(), renamings)
-        return ("__tuple", renamings ) if renamings else None
+        self.traverse_tuples(node.target,(), renamings)
+        if renamings:
+            self.counter+=1
+            return "{0}{1}".format(NormalizeTuples.tuple_name, self.counter), renamings
+        else:
+            return None
 
     def visit_ListComp(self, node):
         generators = [ self.visit(n) for n in node.generators ]
@@ -156,7 +165,22 @@ class NormalizeTuples(ast.NodeVisitor):
                 nnode = convert_to_tuple(nnode, gtarget, g[1])
         node.elt=nnode.elt
         node.generators=nnode.generators
+        return node
 
+    def visit_Assign(self, node):
+        extra_assign = [node]
+        for i,t in enumerate(node.targets):
+            if isinstance(t, ast.Tuple):
+                renamings=dict()
+                self.traverse_tuples(t,(), renamings)
+                if renamings:
+                    self.counter+=1
+                    gtarget = "{0}{1}{2}".format(NormalizeTuples.tuple_name, self.counter, i)
+                    node.targets[i]=ast.Name(gtarget, node.targets[i].ctx)
+                    for rename,state in sorted(renamings.iteritems()):
+                        nnode=reduce(lambda x,y: ast.Subscript(x, ast.Index(ast.Num(y)), ast.Load()), state, ast.Name(gtarget, ast.Load()))
+                        extra_assign.append(ast.Assign([ast.Name(rename,ast.Store())], nnode))
+        return extra_assign
 
 def normalize_tuples(node):
     NormalizeTuples().visit(node)

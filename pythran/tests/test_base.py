@@ -28,6 +28,9 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
     def test_list_comprehension(self):
         self.run_test("def list_comprehension(l): return [ x*x for x in l ]", [1,2,3], list_comprehension=("int list"))
 
+    def test_multilist_comprehension(self):
+        self.run_test("def multilist_comprehension(l): return [ x*y for x in l for y in l]", [1,2,3], multilist_comprehension=("int list"))
+
     def test_zipped_list_comprehension(self):
         self.run_test("def zipped_list_comprehension(l): return [ x*y for x,y in zip(l,l) ]", [1,2,3], zipped_list_comprehension=("int list"))
 

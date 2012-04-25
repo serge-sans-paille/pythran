@@ -241,8 +241,8 @@ class CgenVisitor(ast.NodeVisitor):
                 if t.id not in self.declarations:
                     self.declarations.add(t.id)
                     self.add_typedef(t.id, self.typedefs[node.value][1], self.typedefs[node.value][1])
-                #elif self.typedefs[node.value][1] != CgenVisitor.return_type and self.typedefs[t.id][1] != CgenVisitor.return_type:
-                #    self.add_typedef(t.id, "decltype(std::declval<{0}>() + std::declval<{1}>())".format(self.typedefs[node.value][1], self.typedefs[t.id][1]), *[self.typedefs[node.value][1], self.typedefs[t.id][1]])
+                else:
+                    self.add_typedef(t.id, "decltype(std::declval<{0}>() + std::declval<{1}>())".format(self.typedefs[node.value][1], self.typedefs[t.id][1]), *[self.typedefs[node.value][1], self.typedefs[t.id][1]])
         targets=[self.visit(t) for t in node.targets]
         return Statement("{0} = {1}".format("= ".join(targets), value))
 

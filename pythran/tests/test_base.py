@@ -181,6 +181,18 @@ def lambda_():
     def test_return_empty_list(self):
         self.run_test("def return_empty_list(): return list()", return_empty_list=())
 
+    def test_empty_list(self):
+        self.run_test("def empty_list(): a=[]", empty_list=())
+
+    def test_multi_list(self):
+        self.run_test("def multi_list(): return [[[2.0],[1,2,3]],[[2.0],[1,2,3]]]", multi_list=())
+
+    def test_empty_tuple(self):
+        self.run_test("def empty_tuple(): a=()", empty_tuple=())
+
+    def test_multi_tuple(self):
+        self.run_test("def multi_tuple(): return (1,('e',2.0),[1,2,3])", multi_tuple=())
+
     def test_augmented_assign(self):
         self.run_test("def augmented_assign():\n a=0\n a+=1.5\n return a", augmented_assign=())
 

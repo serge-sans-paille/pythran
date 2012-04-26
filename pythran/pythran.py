@@ -274,7 +274,8 @@ class CgenVisitor(ast.NodeVisitor):
             else:
                 self.typedefs[node]=None
         elif node.id in modules["__builtins__"]:
-            pass #should be ok, as builtins are handled differently
+            self.add_typedef(node, "proxy::{0}".format(node.id))
+            return "proxy::"+node.id+"()"
         elif node.id in ["True", "False"]:
             self.add_typedef(node.id,"bool")
         else:
@@ -334,7 +335,10 @@ class CgenVisitor(ast.NodeVisitor):
 
     def visit_Call(self, node):
         args = [ self.visit(n) for n in node.args ]
-        func = self.visit(node.func)
+        if isinstance(node.func,ast.Name) and node.func.id not in self.declarations and node.func.id in modules["__builtins__"]:
+            func = node.func.id
+        else:
+            func = self.visit(node.func)
         if func == "{0}()".format(self.name): # *** recursive call
             if CgenVisitor.return_type in self.typedefs:
                 self.add_typedef(node, self.typedefs[CgenVisitor.return_type][0], self.typedefs[CgenVisitor.return_type][0])
@@ -533,7 +537,7 @@ pytype_to_ctype_table = {
         'bool'          : 'bool',
         'int'           : 'long',
         'float'         : 'double',
-        'string'        : 'std::string',
+        'str'           : 'std::string',
         'None'          : 'void',
         }
 
@@ -546,7 +550,7 @@ def pytype_to_ctype(t):
         elif tokens[-1] == "tuple":
             return 'std::tuple<{0}>'.format(", ".join(pytype_to_ctype(t) for t in tokens[:-1])) # fragile
         else:
-            raise NotImplementedError
+            raise NotImplementedError(tokens)
 
 ######
 

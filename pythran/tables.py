@@ -43,6 +43,7 @@ type_to_str = {
 # the value, if not None, is used to deduce the return type of the builtins if the default behavior is not satisfying 
 modules = {
         "__builtins__": {
+            "id":None,
             "list":None,
             "len":None,
             "zip":None,

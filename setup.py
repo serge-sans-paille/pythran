@@ -24,6 +24,6 @@ setup(  name='pythran',
         url="http://serge.liyun.free.fr/serge",
         packages=['pythran'],
         package_data= { 'pythran' : ['pythran.h'] },
-        requires=["codepy (>=2012.1.2)"],
+        requires=["codepy (>=2012.1.2)", "ply (>=3.4)"],
         cmdclass= { 'test' : TestCommand }
      )

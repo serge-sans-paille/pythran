@@ -49,10 +49,10 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
         self.run_test("def zipped_list_comprehension(l): return [ x*y for x,y in zip(l,l) ]", [1,2,3], zipped_list_comprehension=("int list"))
 
     def test_zip(self):
-        self.run_test("def zip_(l0,l1): return zip(l0,l1)", [1,2,3],["one", "two", "three"], zip_=("int list", "string list"))
+        self.run_test("def zip_(l0,l1): return zip(l0,l1)", [1,2,3],["one", "two", "three"], zip_=("int list", "str list"))
 
     def test_multizip(self):
-        self.run_test("def multizip(l0,l1): return zip(l0,zip(l0,l1))", [1,2,3],["one", "two", "three"], multizip=("int list", "string list"))
+        self.run_test("def multizip(l0,l1): return zip(l0,zip(l0,l1))", [1,2,3],["one", "two", "three"], multizip=("int list", "str list"))
 
     def test_reduce(self):
         self.run_test("def reduce_(l): return reduce(lambda x,y:x+y, l)", [0,1.1,2.2,3.3], reduce_=("float list"))
@@ -112,7 +112,7 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
         self.run_test("def multixrange(i): return map(lambda x,y:y*x/2, xrange(1,i), xrange(i,1,-1))", 3, multixrange=("int"))
     
     def test_print(self):
-        self.run_test("def print_(a,b,c,d): print a,b,c,d,'e',1.5,", [1,2,3.1],3,True, "d", print_=("float list", "int", "bool", "string"))
+        self.run_test("def print_(a,b,c,d): print a,b,c,d,'e',1.5,", [1,2,3.1],3,True, "d", print_=("float list", "int", "bool", "str"))
 
     def test_sequence(self):
         self.run_test("def sequence_(a): b=2*a;c=b/2;return max(c,b)", 1, sequence_=("int"))
@@ -184,13 +184,13 @@ def lambda_():
         self.run_test("def import_from(): from math import cos", import_from=())
 
     def test_len(self):
-        self.run_test("def len_(i,j,k): return len(i)+len(j)+len(k)", "youpi", [1,2],[], len_=("string","int list", "float list"))
+        self.run_test("def len_(i,j,k): return len(i)+len(j)+len(k)", "youpi", [1,2],[], len_=("str","int list", "float list"))
 
     def test_in_string(self):
-        self.run_test("def in_string(i,j): return i in j", "yo", "youpi", in_string=("string","string"))
+        self.run_test("def in_string(i,j): return i in j", "yo", "youpi", in_string=("str","str"))
 
     def test_not_in_string(self):
-        self.run_test("def not_in_string(i,j): return i not in j", "yo", "youpi", not_in_string=("string","string"))
+        self.run_test("def not_in_string(i,j): return i not in j", "yo", "youpi", not_in_string=("str","str"))
 
     def test_in_sequence(self):
         self.run_test("def in_sequence(i,j): return i in j", 1, [1,2,3], in_sequence=("int","int list"))
@@ -241,4 +241,10 @@ def lambda_():
 
     def test_multiple_return3(self):
         self.run_test("def multiple_return3(a):\n if True:return 1\n else:\n  b=a\n  return a", 2,  multiple_return3=("int"))
+
+    def test_id(self):
+        self.run_test("def id_(a,b):\n c=a\n d=b\n return id(a)==id(c), id(b)==id(d)", [1,2,3], "ert", id_=("int list", "str"))
+
+    def test_delayed_max(self):
+        self.run_test("def delayed_max(a,b,c):\n m=max\n return m(a,b) + m(b,c)", 1, 2, 3.5, delayed_max=("int", "int", "float"))
 

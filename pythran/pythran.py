@@ -423,6 +423,12 @@ class CgenVisitor(ast.NodeVisitor):
             self.add_typedef(node, "decltype({0})".format(op("std::declval<{0}>()".format(self.typedefs[node.operand][1]))), self.typedefs[node.operand][1])
         return op(operand)
 
+    def visit_BoolOp(self, node):
+        assert len(node.values) == 2
+        fake_node = ast.BinOp(node.values[0], node.op, node.values[1])
+        r = self.visit_BinOp(fake_node)
+        self.typedefs[node]=self.typedefs[fake_node]
+        return r
 
     def visit_BinOp(self, node):
         left = self.visit(node.left)

@@ -17,6 +17,15 @@ class TestBase(TestEnv):
     def test_arithmetic(self):
         self.run_test("def arithmetic(a,b,c): return a+b*c", 1,2,3.3, arithmetic=('int','int', 'float'))
 
+    def test_boolop(self):
+        self.run_test("def boolop(a,b,c): return a and b or c", True, True, False, boolop=('bool','bool', 'bool'))
+
+    def test_operator(self):
+        self.run_test("def operator_(a,b,c): return (a+b-b*a/(a%b)**(a<<a>>b|b^a&a/b)//c)",1,2,1.5, operator_=('int','int', 'float'))
+
+    def test_unaryop(self):
+        self.run_test("def unaryop(a): return not(~(+(-a)))", 1, unaryop=("int"))
+
     def test_expression(self):
         self.run_test("def expression(a,b,c): a+b*c", 1,2,3.3, expression=('int','int', 'float'))
 
@@ -175,7 +184,19 @@ def lambda_():
         self.run_test("def import_from(): from math import cos", import_from=())
 
     def test_len(self):
-        self.run_test("def len_(i,j,k): return len(i)+len(j)+len(k)", 1, [1,2],[], len_=("float","int list", "float list"))
+        self.run_test("def len_(i,j,k): return len(i)+len(j)+len(k)", "youpi", [1,2],[], len_=("string","int list", "float list"))
+
+    def test_in_string(self):
+        self.run_test("def in_string(i,j): return i in j", "yo", "youpi", in_string=("string","string"))
+
+    def test_not_in_string(self):
+        self.run_test("def not_in_string(i,j): return i not in j", "yo", "youpi", not_in_string=("string","string"))
+
+    def test_in_sequence(self):
+        self.run_test("def in_sequence(i,j): return i in j", 1, [1,2,3], in_sequence=("int","int list"))
+
+    def test_not_in_sequence(self):
+        self.run_test("def not_in_sequence(i,j): return i not in j", False, [True, True, True], not_in_sequence=("bool","bool list"))
 
     def test_subscript(self):
         self.run_test("def subscript(l,i): l[0]=l[0]+l[i]", [1], 0, subscript=("int list", "int"))

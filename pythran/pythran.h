@@ -2,6 +2,7 @@
 #define PYTHRAN_H
 
 #include <pythonic++.h>
+using namespace pythonic;
 
 /* some overloads */
 namespace std {

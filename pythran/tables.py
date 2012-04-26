@@ -11,6 +11,7 @@ operator_to_lambda = {
         ast.Gt      : lambda l,r: l+">"+r,
         ast.GtE     : lambda l,r: l+">="+r,
         ast.Eq      : lambda l,r: l+"=="+r,
+        ast.NotEq   : lambda l,r: l+"!="+r,
         ast.Pow     : lambda l,r: "pow({0},{1})".format(l,r)
         }
 

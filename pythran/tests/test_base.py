@@ -11,6 +11,8 @@ class TestBase(TestEnv):
     def test_identity(self):
         self.run_test("def identity(a): return a", 1.5, identity=('float'))
 
+    def test_compare(self):
+        self.run_test("def compare(a,b,c):\n if a <b < c: return a\n else: return b != c", 1,2,3, compare=("int", "int", "int"))
 
     def test_arithmetic(self):
         self.run_test("def arithmetic(a,b,c): return a+b*c", 1,2,3.3, arithmetic=('int','int', 'float'))
@@ -27,6 +29,9 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
 
     def test_list_comprehension(self):
         self.run_test("def list_comprehension(l): return [ x*x for x in l ]", [1,2,3], list_comprehension=("int list"))
+
+    def test_filtered_list_comprehension(self):
+        self.run_test("def filtered_list_comprehension(l): return [ x*x for x in l if x > 1 if x <10]", [1,2,3], filtered_list_comprehension=("int list"))
 
     def test_multilist_comprehension(self):
         self.run_test("def multilist_comprehension(l): return [ x*y for x in l for y in l]", [1,2,3], multilist_comprehension=("int list"))

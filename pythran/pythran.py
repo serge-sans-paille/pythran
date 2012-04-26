@@ -354,7 +354,8 @@ class CgenVisitor(ast.NodeVisitor):
         ops = [ operator_to_lambda[type(n)] for n in node.ops ]
         comparators = [ self.visit(n) for n in node.comparators ]
         self.add_typedef(node, "bool")
-        return reduce(lambda v,o: o[0](v,o[1]), zip( ops, comparators ), left)
+        all_compare = zip( [left]+comparators[:-1], ops, comparators )
+        return " and ".join(op(l,r) for l,op,r in all_compare)
 
     def visit_IfExp(self, node):
         test = self.visit(node.test)
@@ -434,15 +435,13 @@ class CgenVisitor(ast.NodeVisitor):
         return op(left,right)
 
     def visit_comprehension(self, node):
-        ifs = [ self.visit(n) for n in node.ifs ]
-        if ifs :
-            raise PythranSyntaxError("Using filters in list comprehension", node)
         iter = self.visit(node.iter)
         if isinstance(node.target, ast.Name):
             self.add_typedef(node.target.id, "typename {0}::value_type".format(self.typedefs[node.iter][1]), self.typedefs[node.iter][1])
         else:
             raise PythranSyntaxError("Using something other than an identifier as list comprehension target", node)
         target = self.visit(node.target)
+        ifs = [ self.visit(n) for n in node.ifs ]
         return ast.comprehension(target, iter, ifs )
 
     def visit_ListComp(self, node):
@@ -479,6 +478,9 @@ class CgenVisitor(ast.NodeVisitor):
                 "<{0}>".format(", ".join(formal_types)) if formal_types else ""
                 )
 
+        def wrap_in_ifs(node, ifs):
+            return reduce(lambda n,if_: If(if_,n,None), ifs, node)
+
         seq_name = "__s"
         holder = templatize(
                 Struct(list_comp_name,
@@ -501,7 +503,7 @@ class CgenVisitor(ast.NodeVisitor):
                             formal_types),
                         Block([
                             Statement("{0} {1}".format(fscope+CgenVisitor.return_type, seq_name)),
-                            reduce(lambda x,g:AutoFor(g.target, g.iter, x), generators, Statement("{0}.push_back({1})".format(seq_name, elt))),
+                            reduce(lambda x,g:AutoFor(g.target, g.iter, wrap_in_ifs(x, g.ifs)), generators, Statement("{0}.push_back({1})".format(seq_name, elt))),
                             Statement("return {0}".format(seq_name))
                             ])
                         ) ]

@@ -141,40 +141,6 @@ def purity_test(node):
     return pt.pure
 
 ##
-class TypeSubstitution(ast.NodeVisitor):
-    """ Generate a typed expression suitable for declval call from an expression """
-    def __init__(self, typedefs):
-        self.typedefs=typedefs
-
-    def visit_Name(self, node):
-        assert node.id in self.typedefs
-        return "std::declval< {0} >()".format(self.typedefs[node][ 0 if self.typedefs[node][1].startswith("expression_type") else 1 ])
-
-    def visit_Index(self, node):
-        return self.visit(node.value)
-
-    def visit_Subscript(self, node):
-        value = self.visit(node.value)
-        slice = self.visit(node.slice)
-        is_constant_expression = lambda s: not re.sub(r'[+*/\-0-9]','',s)
-        if is_constant_expression(slice):
-            return "std::get<{0}>({1})".format(slice, value)
-        else:
-            return "{1}[{0}]".format(slice, value)
-
-    def visit_Num(self, node):
-        return str(node.n)
-
-    def visit_BinOp(self, node):
-        left = self.visit(node.left)
-        right= self.visit(node.right)
-        op = operator_to_lambda[type(node.op)]
-        return op(left,right)
-
-def type_substitution(node, typedefs):
-    return TypeSubstitution(typedefs).visit(node)
-
-##
 class ConvertToTuple(ast.NodeTransformer):
     def __init__(self, tuple_id, renamings):
         self.tuple_id=tuple_id

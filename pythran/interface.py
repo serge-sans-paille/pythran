@@ -24,7 +24,7 @@ def pytype_to_ctype(t):
     elif t in pytype_to_ctype_table:
         return pytype_to_ctype_table[t]
     else:
-        raise NotImplementedError(t)
+        raise NotImplementedError("{0}:{1}".format(type(t),t))
 
 def cxx_generator(module_name, code, specs):
 
@@ -43,7 +43,7 @@ def cxx_generator(module_name, code, specs):
 
     content = CgenVisitor(module_name, FatherOfAllThings(ir)).visit(ir)
 
-    mod=BoostPythonModule()
+    mod=BoostPythonModule(module_name)
     mod.use_private_namespace=False
     mod.add_to_preamble(content)
     for k,v in specs.iteritems():

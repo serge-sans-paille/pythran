@@ -18,7 +18,7 @@ try:
     specs = pythran.spec_parser(args.input_file)
     module = pythran.cxx_generator(module_name, file(args.input_file).read(), specs)
     if args.translate_only:
-        file(args.output_file,"w").write(module.generate)
+        file(args.output_file,"w").write(str(module.generate()))
     else:
         pythran.compile(module, args.output_file)
 

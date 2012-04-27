@@ -18,7 +18,7 @@ class SpecParser:
             'bool' : 'BOOL',
             'int': 'INT',
             'long': 'LONG',
-            'float': 'FLOAT', 'double': 'DOUBLE',
+            'float': 'FLOAT',
             }
     tokens = [ 'IDENTIFIER', 'SHARP', 'COMMA', 'LPAREN', 'RPAREN' ] + list(reserved.values())
     
@@ -77,9 +77,8 @@ class SpecParser:
                 | BOOL
                 | INT
                 | LONG
-                | FLOAT
-                | DOUBLE'''
-        p[0]=p[1]
+                | FLOAT'''
+        p[0]=eval(p[1])
 
     def p_error(self, p):
         if p:

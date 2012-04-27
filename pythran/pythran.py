@@ -1,11 +1,8 @@
 import ast
-import sys, os.path
 from cgen import *
-from codepy.bpl import BoostPythonModule
 import re
-from subprocess import check_call, check_output
 
-from passes import imported_ids, forward_declarations, normalize_tuples, purity_test, type_substitution
+from passes import imported_ids
 from tables import type_to_str, operator_to_lambda, modules
 
 templatize = lambda node, types: Template([ "typename " + t for t in types ], node ) if types else node 
@@ -45,21 +42,9 @@ class CgenVisitor(ast.NodeVisitor):
         self.counter+=1
 
     def visit_Module(self, node):
-        mod = BoostPythonModule()
-        mod.use_private_namespace=False
-        headers= [ "pythran/pythran.h", "utility", "boost/python/module.hpp", "boost/python/tuple.hpp", "boost/python/def.hpp" ]
-        mod.add_to_preamble([Include(h) for h in headers])
+        headers= [ Include(h) for h in [ "pythran/pythran.h", "utility", "boost/python/module.hpp", "boost/python/tuple.hpp", "boost/python/def.hpp" ] ]
         body = [ self.visit(n) for n in node.body ]
-        mod.add_to_module( body + self.structure_declarations + self.structure_definitions ) 
-        header_name = self.name+".h"
-        with file(header_name,"w") as module_header:
-            m = mod.generate()
-            m.contents.pop() # remove the boost part
-            m.contents.pop() # remove the boost part
-            m.contents.insert(1+len(headers), Statement("namespace {0} {{".format(self.name)))
-            print >> module_header, m
-            print >> module_header, '}'
-        return header_name
+        return headers +  [Namespace(self.name, body + self.structure_declarations + self.structure_definitions) ]
 
     def visit_Interactive(self, node):
         raise PythranSyntaxError("Interactive session are not supported", node)
@@ -533,89 +518,4 @@ class CgenVisitor(ast.NodeVisitor):
 
 
 
-pytype_to_ctype_table = {
-        'bool'          : 'bool',
-        'int'           : 'long',
-        'float'         : 'double',
-        'str'           : 'std::string',
-        'None'          : 'void',
-        }
 
-def pytype_to_ctype(t):
-    if t in pytype_to_ctype_table: return pytype_to_ctype_table[t]
-    else:
-        tokens = t.split()
-        if tokens[-1] == "list":
-            return 'sequence<{0}>'.format(pytype_to_ctype(" ".join(tokens[:-1])))
-        elif tokens[-1] == "tuple":
-            return 'std::tuple<{0}>'.format(", ".join(pytype_to_ctype(t) for t in tokens[:-1])) # fragile
-        else:
-            raise NotImplementedError(tokens)
-
-######
-
-def python_interface(module_name, code, **specializations):
-
-    from codepy.jit import guess_toolchain
-    tc = guess_toolchain()
-    tc.include_dirs.append(".")
-    tc.cflags.append("-std=c++0x")
-    tc.include_dirs+=[ p for p in sys.path if os.path.exists(os.path.join(p,"pythran.h")) ]
-
-    check_call(["pkg-config", "pythonic++", "--exists"])
-    cflags = check_output(["pkg-config", "pythonic++", "--cflags"]).strip()
-    tc.cflags.append(cflags)
-
-    ir=ast.parse(code)
-    normalize_tuples(ir)
-
-    class FatherOfAllThings:
-        def __init__(self, ir):
-            self.external_symbols=forward_declarations(ir)
-            self.typedefs=dict()
-            self.structure_declarations=list()
-            self.structure_definitions=list()
-
-    purity = purity_test(ir)
-    impure_functions = { k.name:v for k,v in purity.iteritems() if isinstance(k,ast.FunctionDef) and v}
-
-    CgenVisitor(module_name, FatherOfAllThings(ir)).visit(ir)
-
-
-    mod=BoostPythonModule()
-    header = module_name + ".h"
-    mod.use_private_namespace=False
-    mod.add_to_preamble([Include(header)])
-    for k,v in specializations.iteritems():
-        if k in impure_functions:
-            print >> sys.stderr, "Warning: exporting function '{0}' that writes into its parameters {1}".format(
-                    k,
-                    ", ".join(["'{0}'".format(n) for n in impure_functions[k] ])
-                    )
-        vl = v if isinstance(v, tuple) else [v,]
-        arguments_types = [pytype_to_ctype(t) for t in vl ]
-        arguments = ["a"+str(i) for i in xrange(len(arguments_types))]
-        boost_arguments_types = [ "boost::python::list" if at.startswith("sequence<") else 
-                "boost::python::tuple" if at .startswith("std::tuple<") else at
-                for at in arguments_types ]
-        boost_arguments = [ "from_python<{0}>()({1})".format(at,a) if at.startswith("sequence<") or at.startswith("std::tuple<") else a
-            for (a,at) in zip(arguments, arguments_types) ]
-        specialized_fname = "{0}::{1}::type{2}".format(module_name, 
-                k,
-                ("<"+", ".join(arguments_types)+">") if arguments_types else ""
-                )
-        return_type = "typename to_python<typename {0}::return_type>::type".format(specialized_fname)
-        mod.add_function(
-                FunctionBody(
-                    FunctionDeclaration( Value(return_type, k), [ Value( t, "a"+str(i) ) for i,t in enumerate(boost_arguments_types) ]),
-                    Block([ Statement("return ToPython< {0}, typename {1}::return_type>()({2})".format(
-                        module_name+"::"+k,
-                        specialized_fname,
-                        ', '.join(boost_arguments) ) ) ] )
-                    )
-                )
-
-    #print mod.generate()
-
-    pymod = mod.compile(tc, wait_on_error=True)
-    return pymod

@@ -1,2 +1,2 @@
-from pythran import python_interface
+from interface import python_interface
 from spec import SpecParser

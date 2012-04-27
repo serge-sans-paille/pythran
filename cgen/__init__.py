@@ -702,8 +702,22 @@ class Module(Block):
             for line in c.generate():
                 yield line
 
-class PrivateNamespace(Block):
-    def get_namespace_name(self):
+class Namespace(Block):
+    def __init__(self, name, contents=[]):
+        Block.__init__(self, contents)
+        self.name = name
+
+    def generate(self):
+        yield "namespace "+self.name
+        yield "{"
+        for item in self.contents:
+            for item_line in item.generate():
+                yield "  " + item_line
+        yield "}"
+        yield ""
+
+class PrivateNamespace(Namespace):
+    def generate_namespace_name(self, contents):
         try:
             import hashlib
             checksum = hashlib.md5()
@@ -712,19 +726,13 @@ class PrivateNamespace(Block):
             import md5
             checksum = md5.new()
 
-        for c in self.contents:
+        for c in contents:
             for line in c.generate():
                 checksum.update(line)
 
         return "private_namespace_"+checksum.hexdigest()
 
-    def generate(self):
-        yield "namespace "+self.get_namespace_name()
-        yield "{"
-        for item in self.contents:
-            for item_line in item.generate():
-                yield "  " + item_line
-        yield "}"
-        yield ""
-        yield "using namespace %s;" % self.get_namespace_name()
+    def __init__(self, contents=[]):
+        name = self.generate_namespace_name(contents)
+        Namespace.__init__(self, name, contents)
 

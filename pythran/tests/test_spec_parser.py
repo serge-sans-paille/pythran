@@ -1,5 +1,5 @@
 import unittest
-from pythran import SpecParser
+from pythran import spec_parser
 import os.path
 
 #pythran export a((float,(int,long),str list) list list)
@@ -9,5 +9,5 @@ import os.path
 class TestSpecParser(unittest.TestCase):
 
     def test_parser(self):
-        sp = SpecParser()
-        print sp(os.path.realpath(__file__))
+        real_path = os.path.splitext(os.path.realpath(__file__))[0]+".py"
+        print spec_parser(real_path)

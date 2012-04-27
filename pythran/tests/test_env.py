@@ -1,11 +1,12 @@
-from pythran import python_interface
+from pythran import cxx_generator, compile
 import unittest
 
 class TestEnv(unittest.TestCase):
 
     def run_test(self, code, *params, **interface):
         for name in sorted(interface.keys()):
-            mod = python_interface("test_"+name, code, **interface)
-            res = getattr(mod,name)(*params)
+            mod = cxx_generator("test_"+name, code, interface)
+            pymod = compile(mod)
+            res = getattr(pymod,name)(*params)
             print res
 

@@ -12,7 +12,7 @@ def laplace(u,dx, dy):
             u[i][j] = ((u[i-1][j] + u[i+1][j])*dy**2 +
                       (u[i][j-1] + u[i][j+1])*dx**2)/(2.0*(dx**2 + dy**2))
 """
-        self.run_test(code, [[0.1,0.2,0.3],[0.1,0.2,0.3],[0.1,0.2,0.3]], 0.01, 0.02, laplace=("float list list", "float", "float"))
+        self.run_test(code, [[0.1,0.2,0.3],[0.1,0.2,0.3],[0.1,0.2,0.3]], 0.01, 0.02, laplace=[[[float]], float, float])
 
     def test_recursive_fibonnaci(self):
         code="""
@@ -22,7 +22,7 @@ def recursive_fibonnaci(a):
     else:
         return recursive_fibonnaci(a-2) + recursive_fibonnaci(a-1)
         """
-        self.run_test(code, 5, recursive_fibonnaci=('int'))
+        self.run_test(code, 5, recursive_fibonnaci=[int])
 
     def test_iterative_fibonnaci(self):
         code="""
@@ -36,7 +36,7 @@ def iterative_fibonnaci(a):
         last = result
     return result;
 """
-        self.run_test(code, 5, iterative_fibonnaci=('int'))
+        self.run_test(code, 5, iterative_fibonnaci=[int])
 
     def test_binary_search(self):
         code="""
@@ -53,7 +53,7 @@ def binary_search(seq, t):
         else:
             return m
 """
-        self.run_test(code,[1,2,3,4,5,6,7,8,9], 4, binary_search=("int list", "int"))
+        self.run_test(code,[1,2,3,4,5,6,7,8,9], 4, binary_search=[[int], int])
 
     def test_ramp(self):
         code="""
@@ -64,4 +64,4 @@ def ramp(result, start, end):
     for i in xrange(size):
         result[i] = start + step*i
 """
-        self.run_test(code,[0 for x in xrange(10)], 1.5, 9.5, ramp=("float list", "float", "float"))
+        self.run_test(code,[0 for x in xrange(10)], 1.5, 9.5, ramp=[[float], float, float])

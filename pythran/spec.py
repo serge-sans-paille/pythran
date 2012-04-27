@@ -15,7 +15,9 @@ class SpecParser:
             'export' : 'EXPORT',
             'list' : 'LIST',
             'str' : 'STR',
-            'int': 'INT', 'long': 'LONG',
+            'bool' : 'BOOL',
+            'int': 'INT',
+            'long': 'LONG',
             'float': 'FLOAT', 'double': 'DOUBLE',
             }
     tokens = [ 'IDENTIFIER', 'SHARP', 'COMMA', 'LPAREN', 'RPAREN' ] + list(reserved.values())
@@ -40,10 +42,6 @@ class SpecParser:
 
     ## yacc part 
 
-    precedence = ( 
-            ( 'left', 'STR', 'INT', 'LONG', 'FLOAT', 'DOUBLE' ),
-            ( 'left', 'LIST' ),
-            )
     def p_exports(self,p):
         '''exports : 
                    | export exports'''
@@ -51,8 +49,7 @@ class SpecParser:
 
     def p_export(self,p):
         'export : SHARP PYTHRAN EXPORT IDENTIFIER LPAREN opt_types RPAREN'
-        export = (p[4], p[6])
-        self.exports.append(export)
+        self.exports[p[4]]=p[6]
 
     def p_opt_types(self,p):
         '''opt_types :
@@ -77,6 +74,7 @@ class SpecParser:
 
     def p_term(self,p):
         '''term : STR
+                | BOOL
                 | INT
                 | LONG
                 | FLOAT
@@ -92,11 +90,20 @@ class SpecParser:
         self.parser=yacc.yacc(module=self)
 
     def __call__(self, path):
-        self.exports=list()
+        self.exports=dict()
+        input_file=None
         if os.path.isfile(path):
+            input_file=path
             with file(path) as fd:
                 data = fd.read()
         else:
             data=path
         self.parser.parse(data, lexer=self.lexer)
+        if not self.exports:
+            err = SyntaxError("Pythran spec error: no pythran specification")
+            if input_file: err.filename=input_file
+            raise err
         return self.exports
+
+def spec_parser(input):
+    return SpecParser()(input)

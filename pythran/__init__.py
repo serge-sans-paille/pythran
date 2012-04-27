@@ -1,2 +1,2 @@
-from interface import python_interface
-from spec import SpecParser
+from interface import cxx_generator, compile
+from spec import spec_parser

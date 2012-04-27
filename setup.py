@@ -1,6 +1,18 @@
 from distutils.core import setup, Command
+from distutils.command.build import build
+
 from unittest import TextTestRunner, TestLoader
 import os
+
+class build_with_ply(build):
+    '''Use ply to generate parsetab and lextab modules.'''
+
+    def run(self, *args, **kwargs):
+        if not self.dry_run:
+            from  pythran.spec import SpecParser
+            SpecParser() # this forces the generation of the parsetab file
+            [os.rename(p,os.path.join(self.build_lib,"pythran",p)) for p in ("parser.out", "parsetab.py") ]
+        build.run(self, *args, **kwargs)
 
 class TestCommand(Command):
     description = "run the test suite for the package"
@@ -25,5 +37,5 @@ setup(  name='pythran',
         packages=['pythran'],
         package_data= { 'pythran' : ['pythran.h'] },
         requires=["codepy (>=2012.1.2)", "ply (>=3.4)"],
-        cmdclass= { 'test' : TestCommand }
+        cmdclass= { 'build' : build_with_ply, 'test' : TestCommand }
      )

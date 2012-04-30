@@ -6,6 +6,7 @@ from passes import imported_ids
 from tables import type_to_str, operator_to_lambda, modules
 
 templatize = lambda node, types: Template([ "typename " + t for t in types ], node ) if types else node 
+is_constant_expression = lambda s: not re.sub(r'[+*/\-0-9]','',s)
 
 class PythranSyntaxError(SyntaxError):
     def __init__(self, msg, node):
@@ -372,12 +373,21 @@ class CgenVisitor(ast.NodeVisitor):
         return value
 
     def visit_Slice(self, node):
-        raise PythranSyntaxError("Using slices as subscript", node)
+        lower = self.visit(node.lower) if node.lower else None
+        upper = self.visit(node.upper) if node.upper else None
+        step = self.visit(node.step) if node.step else None
+        if not upper and not lower and step: # special case
+            raise NotImplementedError
+        if step:
+            if not upper: upper = "std::numeric_limits<long>::max()"
+        if upper:
+            if not lower: lower = "0"
+        self.add_typedef(node, "slice")
+        return "slice({0})".format(", ".join( l for l in [ lower, upper, step ] if l ))
 
     def visit_Subscript(self, node):
         value = self.visit(node.value)
         slice = self.visit(node.slice)
-        is_constant_expression = lambda s: not re.sub(r'[+*/\-0-9]','',s)
         if is_constant_expression(slice):
             self.add_typedef(node, "typename std::tuple_element<{0}, {1}>::type".format(slice, self.typedefs[node.value][1]), self.typedefs[node.value][1])
             return "std::get<{0}>({1})".format(slice, value)

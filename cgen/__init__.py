@@ -533,6 +533,10 @@ class Statement(Generable):
     def generate(self):
         yield self.text+";"
 
+class EmptyStatement(Statement):
+    def __init__(self):
+        Statement.__init__(self, "")
+
 class Assign(Generable):
     def __init__(self, lvalue, rvalue):
         self.lvalue = lvalue

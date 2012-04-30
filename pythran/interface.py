@@ -86,7 +86,10 @@ def compile(module, output_filename=None):
     cflags = check_output(["pkg-config", "pythonic++", "--cflags"]).strip()
     tc.cflags.append(cflags)
 
-    pymod = module.compile(tc, wait_on_error=True)
+    try: pymod = module.compile(tc, wait_on_error=True)
+    except:
+        print module.generate()
+        raise
     if output_filename:
         shutil.copyfile(pymod.__file__, output_filename)
     return pymod

@@ -29,12 +29,12 @@ class TestBase(TestEnv):
     def test_expression(self):
         self.run_test("def expression(a,b,c): a+b*c", 1,2,3.3, expression=[int,int, float])
 
-    def test_recursion(self):
-        code="""
-def fibo(n): return n if n <2 else fibo(n-1) + fibo(n-2)
-def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
-"""
-        self.run_test(code, 4, fibo=[int], fibo2=[float])
+#   def test_recursion(self):
+#       code="""
+#ef fibo(n): return n if n <2 else fibo(n-1) + fibo(n-2)
+#ef fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
+#""
+#       self.run_test(code, 4, fibo=[int], fibo2=[float])
 
     def test_list_comprehension(self):
         self.run_test("def list_comprehension(l): return [ x*x for x in l ]", [1,2,3], list_comprehension=[[int]])
@@ -248,3 +248,22 @@ def lambda_():
     def test_delayed_max(self):
         self.run_test("def delayed_max(a,b,c):\n m=max\n return m(a,b) + m(b,c)", 1, 2, 3.5, delayed_max=[int, int, float])
 
+    def test_slicing(self):
+        self.run_test("def slicing(l): return l[0:1] + l[:-1]",[1,2,3,4], slicing=[[int]])
+
+#    def test_not_so_deep_recursive_calls(self):
+#        code="""
+#def a(i): return b(i)
+#def b(i): return b(i-1)+a(i-1) if i else c(i-1) if i+1 else i
+#def c(i): return c(i-1) if i else 1
+#def not_so_deep_recursive_calls(i):a(i)+b(i) +c(i)"""
+#        self.run_test(code,3, not_so_deep_recursive_calls=[int])
+#
+#    def test_deep_recursive_calls(self):
+#        code="""
+#def a(i): return a(i-1) + b(i) if i else i
+#def b(i): return b(i-1)+a(i-1) if i else c(i-1) if i+1 else i
+#def c(i): return c(i-1) if i else 1
+#def deep_recursive_calls(i):a(i)+b(i) +c(i)"""
+#        self.run_test(code,3, deep_recursive_calls=[int])
+#

@@ -25,21 +25,17 @@ class CgenVisitor(ast.NodeVisitor):
         self.external_symbols= parent.external_symbols
         self.typedefs = { k:None for k in parent.external_symbols }
         self.typedefs.update({k:None for k in { n for n,v in parent.typedefs.iteritems() if not v or not v[1] } })
-        self.typedeps=dict()
         self.counter=0
         self.declarations=set()
         self.structure_declarations=parent.structure_declarations
         self.structure_definitions=parent.structure_definitions
         self.renamings=dict()
 
-    def add_typedef(self, k, v, *deps):
+    def add_typedef(self, k, v):
         typename = "expression_type{0}".format(self.counter)
         assert not isinstance(k,tuple)
         assert not isinstance(v,tuple)
         self.typedefs[k]=( v, typename)
-        self.typedeps[typename]=set(deps)
-        for d in deps:
-            self.typedeps[typename].update(self.typedeps.get(d,set()))
         self.counter+=1
 
     def visit_Module(self, node):
@@ -57,7 +53,7 @@ class CgenVisitor(ast.NodeVisitor):
         raise PythranSyntaxError("Suite are specific to Jython and not supported", node)
 
     def visit_Delete(self, node):
-        return Statement("")
+        return EmptyStatement()
 
     def visit_ImportFrom(self, node):
         if node.level != 0: raise PythranSyntaxError("Specifying a level in an import", node)
@@ -93,7 +89,6 @@ class CgenVisitor(ast.NodeVisitor):
         generic_types= [ "argument_type"+str(i) for i in xrange(len(fargs)) ]
 
         cgv.typedefs.update({ k:(k,v) for (k,v) in zip(nargs, generic_types ) })
-        cgv.typedeps = { k:set() for k in generic_types }
         cgv.declarations=set(nargs)
 
         imported_args = sorted(imported_ids(node, { k for k,v in cgv.typedefs.iteritems() if not v}))#cgv.external_symbols))
@@ -106,6 +101,8 @@ class CgenVisitor(ast.NodeVisitor):
 
         if CgenVisitor.return_type not in cgv.typedefs:
             cgv.typedefs[CgenVisitor.return_type]= ("void",  CgenVisitor.return_type)
+
+        local_declarations = [ k for k in cgv.declarations if k not in nargs if k not in self.declarations ]
 
         convert = lambda text: int(text) if text.isdigit() else text 
         alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', key[1]) ] 
@@ -126,11 +123,11 @@ class CgenVisitor(ast.NodeVisitor):
 
 
 
-        declarations = [ Statement("typename {0}{1} {2}".format(fscope, cgv.typedefs[k][1], k)) for k in cgv.declarations if k not in nargs if k not in self.declarations]
+        declarations = [ Statement("typename {0}{1} {2}".format(fscope, cgv.typedefs[k][1], k)) for k in local_declarations]
         fully_qualified_name = "{0}<{1}>".format(cgv.name, ", ".join(self.typedefs[k][1] for k in imported_args)) if imported_args else cgv.name
         fully_qualified_inner_name = "{0}<{1}>".format(cgv.name, ", ".join(imported_types)) if imported_types else cgv.name
         ffscope = fully_qualified_inner_name + "::{0}".format("template " if imported_types else "") + fscope
-        declarations = [ Statement("typename {0}{1} {2}".format(ffscope, cgv.typedefs[k][1], k)) for k in cgv.declarations if k not in nargs if k not in self.declarations]
+        declarations = [ Statement("typename {0}{1} {2}".format(ffscope, cgv.typedefs[k][1], k)) for k in local_declarations]
 
         inner_members = [ Statement( "{0} const & {1}".format(n, t) ) for n, t in zip(imported_types, imported_args) ] + (
                 [ FunctionBody(
@@ -153,11 +150,11 @@ class CgenVisitor(ast.NodeVisitor):
                 )
         self.structure_definitions.append(definition)
         if imported_args:
-            self.add_typedef(cgv.name, fully_qualified_name, *[self.typedefs[k][1] for k in imported_args])
+            self.add_typedef(cgv.name, fully_qualified_name)
         else:
             self.add_typedef(cgv.name,  cgv.name)
 
-        topstruct = templatize(Struct(cgv.name, inner_members + [ templatize(struct, generic_types), inner_fdeclaration, Statement("") ] ), imported_types)
+        topstruct = templatize(Struct(cgv.name, inner_members + [ templatize(struct, generic_types), inner_fdeclaration, EmptyStatement() ] ), imported_types)
         self.structure_declarations.append(topstruct)
 
         if imported_types: # create a maker facility, in the spirit of make_tuple
@@ -175,11 +172,11 @@ class CgenVisitor(ast.NodeVisitor):
         else:
             self.renamings[cgv.name]=(cgv.name, [])
 
-        return Statement("") # no inner function declaration, not much compatible with templates
+        return EmptyStatement() # no inner function declaration, not much compatible with templates
 
 
     def visit_Pass(self, node):
-        return Statement("")
+        return EmptyStatement()
 
     def visit_Expr(self, node):
         return Statement(self.visit(node.value))
@@ -219,7 +216,7 @@ class CgenVisitor(ast.NodeVisitor):
         if not isinstance(node.target, ast.Name):
             raise PythranSyntaxError("Using something other than an identifier as loop target", node.target)
         iter = self.visit(node.iter)
-        self.add_typedef(node.target.id, "typename {0}::value_type".format(self.typedefs[node.iter][1]), self.typedefs[node.iter][1])
+        self.add_typedef(node.target.id, "typename {0}::value_type".format(self.typedefs[node.iter][1]))
         target = self.visit(node.target)
         body = [ self.visit(n) for n in node.body ]
         orelse = [ self.visit(n) for n in node.orelse ]
@@ -234,9 +231,10 @@ class CgenVisitor(ast.NodeVisitor):
             if isinstance(t, ast.Name):
                 if t.id not in self.declarations:
                     self.declarations.add(t.id)
-                    self.add_typedef(t.id, self.typedefs[node.value][1], self.typedefs[node.value][1])
+                    self.add_typedef(t.id, self.typedefs[node.value][1])
                 else:
-                    self.add_typedef(t.id, "decltype(std::declval<{0}>() + std::declval<{1}>())".format(self.typedefs[node.value][1], self.typedefs[t.id][1]), *[self.typedefs[node.value][1], self.typedefs[t.id][1]])
+                    self.add_typedef(t.id, "decltype(std::declval<{0}>() + std::declval<{1}>())".format(self.typedefs[node.value][1], self.typedefs[t.id][1]))
+
         targets=[self.visit(t) for t in node.targets]
         return Statement("{0} = {1}".format("= ".join(targets), value))
 
@@ -246,19 +244,16 @@ class CgenVisitor(ast.NodeVisitor):
             raise PythranSyntaxError("Assigning to something other than an identifier", node)
         if node.target.id not in self.declarations:
             self.declarations.add(node.target.id)
-        self.add_typedef(node.target.id, self.typedefs[node.value][1], self.typedefs[node.value][1])
+        self.add_typedef(node.target.id, self.typedefs[node.value][1])
         target=self.visit(node.target)
         op = operator_to_lambda[type(node.op)](target, value)
         return Statement("{0} = {1}".format(target, op))
 
     def visit_Name(self, node):
-        if node.id in self.typedefs:
+        if node.id in self.external_symbols:
+            self.add_typedef(node, node.id)
+        elif node.id in self.typedefs:
             self.typedefs[node] = self.typedefs[node.id]
-        elif node.id == self.name:
-            if CgenVisitor.return_type in self.typedefs:
-                self.add_typedef(node, self.typedefs[CgenVisitor.return_type], self.typedefs[CgenVisitor.return_type])
-            else:
-                self.typedefs[node]=None
         elif node.id in modules["__builtins__"]:
             self.add_typedef(node, "proxy::{0}".format(node.id))
             return "proxy::"+node.id+"()"
@@ -275,7 +270,7 @@ class CgenVisitor(ast.NodeVisitor):
 
     def visit_Lambda(self, node):
         lambda_name = "lambda{0}".format(len(self.structure_definitions))
-        self.structure_definitions.append(Statement("")) # *** ugly
+        self.structure_definitions.append(EmptyStatement()) # *** ugly
 
         parameter_arguments = sorted(imported_ids(node, { k for k,v in self.typedefs.iteritems() if not v or not v[1]}))
 
@@ -314,7 +309,7 @@ class CgenVisitor(ast.NodeVisitor):
 
         fully_qualified_lambda_name = "{0}{1}".format(lambda_name,
                 "<"+", ".join(self.typedefs[p][1] for p in parameter_arguments)+">" if parameter_arguments else "")
-        self.add_typedef(node, fully_qualified_lambda_name, *[self.typedefs[a] for a in parameter_arguments])
+        self.add_typedef(node, fully_qualified_lambda_name)
 
         return "{0}({1})".format(fully_qualified_lambda_name,
                 ", ".join(parameter_arguments))
@@ -325,18 +320,9 @@ class CgenVisitor(ast.NodeVisitor):
             func = node.func.id
         else:
             func = self.visit(node.func)
-        if func == "{0}()".format(self.name): # *** recursive call
-            if CgenVisitor.return_type in self.typedefs:
-                self.add_typedef(node, self.typedefs[CgenVisitor.return_type][0], self.typedefs[CgenVisitor.return_type][0])
-            else:
-                self.typedefs[node]=None
-            func = "(*this)"
-        elif func in modules["__builtins__"] and modules["__builtins__"][func]:
-            modules["__builtins__"][func](self, node)
-        else:
-            self.add_typedef(node, "decltype({0}({1}))".format(
-                 "std::declval<{0}>()".format(self.typedefs[func][1]) if func in self.declarations else func,
-                 ", ".join([ "std::declval<{0}>()".format(self.typedefs[n][1]) for n in node.args] )), *[self.typedefs[n][1] for n in node.args])
+        self.add_typedef(node, "decltype({0}({1}))".format(
+            "std::declval<{0}>()".format(self.typedefs[func][1]) if func in self.declarations else func,
+            ", ".join([ "std::declval<{0}>()".format(self.typedefs[n][1]) for n in node.args] )))
         return "{0}({1})".format(func, ", ".join(args))
 
     def visit_Compare(self, node):
@@ -351,12 +337,7 @@ class CgenVisitor(ast.NodeVisitor):
         test = self.visit(node.test)
         body = self.visit(node.body)
         orelse = self.visit(node.orelse)
-        if self.typedefs[node.body] and self.typedefs[node.body][1] not in self.typedeps[ self.typedefs[node.body][1] ] :
-            self.add_typedef( node, self.typedefs[node.body][1], self.typedefs[node.body][1] )
-        elif self.typedefs[node.orelse] and self.typedefs[node.orelse][1] not in self.typedeps[ self.typedefs[node.orelse][1] ] :
-            self.add_typedef( node, self.typedefs[node.orelse][1], self.typedefs[node.orelse][1] )
-        else:
-            raise RuntimeError("I did not manage to find a type for '{0}'".format(ast.dump(node.body)))
+        self.add_typedef( node, "decltype(std::declval<{0}>()+std::declval<{1}>())",self.typedefs[node.body][1], self.typedefs[node.orelse])
         return "{0} ? {1} : {2}".format(test, body, orelse)
 
     def visit_Str(self, node):
@@ -369,7 +350,7 @@ class CgenVisitor(ast.NodeVisitor):
 
     def visit_Index(self, node):
         value = self.visit(node.value)
-        self.add_typedef(node, self.typedefs[node.value][1], self.typedefs[node.value][1])
+        self.add_typedef(node, self.typedefs[node.value][1])
         return value
 
     def visit_Slice(self, node):
@@ -389,10 +370,10 @@ class CgenVisitor(ast.NodeVisitor):
         value = self.visit(node.value)
         slice = self.visit(node.slice)
         if is_constant_expression(slice):
-            self.add_typedef(node, "typename std::tuple_element<{0}, {1}>::type".format(slice, self.typedefs[node.value][1]), self.typedefs[node.value][1])
+            self.add_typedef(node, "typename std::tuple_element<{0}, {1}>::type".format(slice, self.typedefs[node.value][1]))
             return "std::get<{0}>({1})".format(slice, value)
         else:
-            self.add_typedef(node, "typename {0}::value_type".format(self.typedefs[node.value][1]), self.typedefs[node.value][1])
+            self.add_typedef(node, "typename {0}::value_type".format(self.typedefs[node.value][1]))
             return "{1}[{0}]".format(slice, value)
 
     def visit_Tuple(self, node):
@@ -401,7 +382,7 @@ class CgenVisitor(ast.NodeVisitor):
             return "std::make_tuple()"
         else:
             elts = [ self.visit(n) for n in node.elts ]
-            self.add_typedef(node, "std::tuple<{0}>".format(", ".join( self.typedefs[n][1] for n in node.elts )), *[self.typedefs[n][1] for n in node.elts])
+            self.add_typedef(node, "std::tuple<{0}>".format(", ".join( self.typedefs[n][1] for n in node.elts )))
             return "std::make_tuple({0})".format(", ".join(elts))
 
     def visit_List(self, node):
@@ -410,16 +391,13 @@ class CgenVisitor(ast.NodeVisitor):
             return "list()"
         else:
             elts = [ self.visit(n) for n in node.elts ]
-            self.add_typedef(node, "sequence<decltype({0})>".format(" + ".join("std::declval<{0}>()".format(self.typedefs[n][1]) for n in node.elts)), *[self.typedefs[n][1] for n in node.elts])
+            self.add_typedef(node, "sequence<decltype({0})>".format(" + ".join("std::declval<{0}>()".format(self.typedefs[n][1]) for n in node.elts)))
             return "sequence< decltype({0})>({{ {1} }})".format(" + ".join(elts), ", ".join(elts))
 
     def visit_UnaryOp(self, node):
         operand = self.visit(node.operand)
         op = operator_to_lambda[type(node.op)]
-        if not self.typedefs[node.operand]:
-            self.typedefs[node]=None
-        else:
-            self.add_typedef(node, "decltype({0})".format(op("std::declval<{0}>()".format(self.typedefs[node.operand][1]))), self.typedefs[node.operand][1])
+        self.add_typedef(node, "decltype({0})".format(op("std::declval<{0}>()".format(self.typedefs[node.operand][1]))))
         return op(operand)
 
     def visit_BoolOp(self, node):
@@ -433,16 +411,13 @@ class CgenVisitor(ast.NodeVisitor):
         left = self.visit(node.left)
         right= self.visit(node.right)
         op = operator_to_lambda[type(node.op)]
-        if not self.typedefs[node.left] or not self.typedefs[node.right]:
-            self.typedefs[node]=None
-        else:
-            self.add_typedef(node, "decltype({0})".format(op("std::declval<{0}>()".format(self.typedefs[node.left][1]) , "std::declval<{0}>()".format(self.typedefs[node.right][1]))), *[self.typedefs[node.left][1], self.typedefs[node.right][1]] )
+        self.add_typedef(node, "decltype({0})".format(op("std::declval<{0}>()".format(self.typedefs[node.left][1]) , "std::declval<{0}>()".format(self.typedefs[node.right][1]))))
         return op(left,right)
 
     def visit_comprehension(self, node):
         iter = self.visit(node.iter)
         if isinstance(node.target, ast.Name):
-            self.add_typedef(node.target.id, "typename {0}::value_type".format(self.typedefs[node.iter][1]), self.typedefs[node.iter][1])
+            self.add_typedef(node.target.id, "typename {0}::value_type".format(self.typedefs[node.iter][1]))
         else:
             raise PythranSyntaxError("Using something other than an identifier as list comprehension target", node)
         target = self.visit(node.target)
@@ -452,7 +427,7 @@ class CgenVisitor(ast.NodeVisitor):
     def visit_ListComp(self, node):
 
         list_comp_name = "list_comp{0}".format(len(self.structure_definitions))
-        self.structure_definitions.append(Statement("")) # *** ugly
+        self.structure_definitions.append(EmptyStatement()) # *** ugly
 
         effective_arguments = [g.iter for g in [ self.visit(n) for n in node.generators ] ]
         formal_arguments = [ "argument{0}".format(n) for n in xrange(len(effective_arguments)) ]
@@ -521,8 +496,7 @@ class CgenVisitor(ast.NodeVisitor):
         self.add_typedef(node, "decltype(std::declval<{0}>()({1}))".format(
             fully_qualified_list_comp_name,
             ", ".join( "std::declval<{0}>()".format(self.typedefs[g.iter][1]) for g in node.generators)
-            ),
-            *[self.typedefs[a] for a in parameter_arguments])
+            ))
 
         return "{0}({1})({2})".format(fully_qualified_list_comp_name, ", ".join(parameter_arguments), ", ".join(effective_arguments))
 

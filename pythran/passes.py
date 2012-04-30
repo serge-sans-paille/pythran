@@ -1,6 +1,5 @@
-from tables import operator_to_lambda, modules
+from tables import modules
 import ast
-import re
 
 ##
 class DeclarationDependencies(ast.NodeVisitor):

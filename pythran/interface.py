@@ -2,7 +2,7 @@ import sys
 import os.path
 import shutil
 from subprocess import check_call, check_output
-from passes import purity_test, normalize_tuples
+from passes import normalize_tuples
 from cgen import *
 from codepy.bpl import BoostPythonModule
 import ast
@@ -29,10 +29,9 @@ def pytype_to_ctype(t):
 def cxx_generator(module_name, code, specs):
 
     ir=ast.parse(code)
-    normalize_tuples(ir)
 
-    purity = purity_test(ir)
-    impure_functions = { k.name:v for k,v in purity.iteritems() if isinstance(k,ast.FunctionDef) and v}
+    #purity = purity_test(ir)
+    #impure_functions = { k.name:v for k,v in purity.iteritems() if isinstance(k,ast.FunctionDef) and v}
 
     content = CgenVisitor(module_name).visit(ir)
 
@@ -40,11 +39,11 @@ def cxx_generator(module_name, code, specs):
     mod.use_private_namespace=False
     mod.add_to_preamble(content)
     for k,v in specs.iteritems():
-        if k in impure_functions:
-            print >> sys.stderr, "Warning: exporting function '{0}' that writes into its parameters {1}".format(
-                    k,
-                    ", ".join(["'{0}'".format(n) for n in impure_functions[k] ])
-                    )
+        #if k in impure_functions:
+        #    print >> sys.stderr, "Warning: exporting function '{0}' that writes into its parameters {1}".format(
+        #            k,
+        #            ", ".join(["'{0}'".format(n) for n in impure_functions[k] ])
+        #            )
         arguments_types = [pytype_to_ctype(t) for t in v ]
         arguments = ["a"+str(i) for i in xrange(len(arguments_types))]
         boost_arguments_types = [ "boost::python::list" if at.startswith("sequence<") else 

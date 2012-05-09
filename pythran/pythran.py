@@ -159,10 +159,15 @@ class CgenVisitor(ast.NodeVisitor):
         names = node.names
         if [ alias for alias in names if alias.asname ]: raise PythranSyntaxError("Renaming using the 'as' keyword in an import", node)
 
+        usings=list()
         for alias in names:
-            self.local_functions.add(alias.name)
+            if modules[node.module][alias.name]:
+                usings.append("using {0}::{1}".format(module, alias.name))
+            else:
+                self.local_functions.add(alias.name)
+                usings.append("using proxy::{0}".format(alias.name))
 
-        return Statement("; ".join(["using proxy::{1} ".format(module, alias.name) for alias in names]))
+        return Statement("; ".join(usings))
 
     def visit_Expr(self, node):
         return Statement(self.visit(node.value))

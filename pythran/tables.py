@@ -51,21 +51,22 @@ modules = {
             "list":None,
             "len":None,
             "zip":None,
-            "reduce": lambda self, node: self.add_typedef(node, "decltype(std::declval<{0}>()({1}))".format(
-                self.typedefs[node.args[0]][1],
-                ", ".join(["std::declval<typename {0}::value_type>()".format(self.typedefs[node.args[1]][1])]*2))),
+            "reduce":None,
             "max":None,
             "min":None,
             "sum":None,
-            "map": lambda self, node: self.add_typedef(node, "sequence< decltype(std::declval<{0}>()({1})) >".format(
-                self.typedefs[node.args[0]][1],
-                ", ".join("std::declval<typename {0}::value_type>()".format(self.typedefs[n][1]) for n in node.args[1:]))
-                ),
+            "map": None,
             "range":None,
             "xrange":None,
             "__append":None,
             },
         "math" : {
+            "cos" : None,
             "exp" : None,
+            "sqrt" : None,
+            "log10" : None,
+            "isnan" : None,
+            "pi" : "something",
+            "e" : "yeah",
             },
         }

@@ -217,7 +217,7 @@ class Typing(ast.NodeVisitor):
         for alias in node.names:
             if self.current:self.name_to_nodes[alias.name]={alias}
             else: self.global_declarations[alias.name]=alias
-            self.types[alias]="proxy::{0}".format(alias.name)
+            self.types[alias]="proxy::{0}".format(alias.name) if not modules[node.module][alias.name] else "decltype({0}::{1})".format(node.module,alias.name)
 
     def visit_BoolOp(self, node):
         [ self.visit(value) for value in node.values]

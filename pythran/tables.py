@@ -43,6 +43,10 @@ type_to_str = {
 # the value, if not None, is used to deduce the return type of the builtins if the default behavior is not satisfying 
 modules = {
         "__builtins__": {
+            "bind0":None,
+            "bind1":None,
+            "bind2":None,
+            "bind3":None,
             "id":None,
             "list":None,
             "len":None,
@@ -59,6 +63,7 @@ modules = {
                 ),
             "range":None,
             "xrange":None,
+            "__append":None,
             },
         "math" : {
             "exp" : None,

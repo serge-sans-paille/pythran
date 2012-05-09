@@ -2,7 +2,7 @@ import sys
 import os.path
 import shutil
 from subprocess import check_call, check_output
-from passes import purity_test, normalize_tuples, forward_declarations
+from passes import purity_test, normalize_tuples
 from cgen import *
 from codepy.bpl import BoostPythonModule
 import ast
@@ -31,17 +31,10 @@ def cxx_generator(module_name, code, specs):
     ir=ast.parse(code)
     normalize_tuples(ir)
 
-    class FatherOfAllThings:
-        def __init__(self, ir):
-            self.external_symbols=forward_declarations(ir)
-            self.typedefs=dict()
-            self.structure_declarations=list()
-            self.structure_definitions=list()
-
     purity = purity_test(ir)
     impure_functions = { k.name:v for k,v in purity.iteritems() if isinstance(k,ast.FunctionDef) and v}
 
-    content = CgenVisitor(module_name, FatherOfAllThings(ir)).visit(ir)
+    content = CgenVisitor(module_name).visit(ir)
 
     mod=BoostPythonModule(module_name)
     mod.use_private_namespace=False
@@ -85,6 +78,8 @@ def compile(module, output_filename=None):
     check_call(["pkg-config", "pythonic++", "--exists"])
     cflags = check_output(["pkg-config", "pythonic++", "--cflags"]).strip()
     tc.cflags.append(cflags)
+
+    #print module.generate()
 
     try: pymod = module.compile(tc, wait_on_error=True)
     except:

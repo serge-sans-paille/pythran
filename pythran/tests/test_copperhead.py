@@ -4,6 +4,7 @@ class TestCopperhead(TestEnv):
 
 # from copperhead test suite
 # https://github.com/copperhead
+
     def test_saxpy(self):
         self.run_test("def saxpy(a, x, y): return map(lambda xi, yi: a * xi + yi, x, y)", 1.5, [1,2,3], [0.,2.,4.], saxpy=[float,[int], [float]])
     
@@ -17,6 +18,18 @@ def saxpy3(a, x, y):
     return map(triad, x, y)
 """
         self.run_test(code,  1.5, [1,2,3], [0.,2.,4.], saxpy3=[float,[int], [float]])
+
+    def test_saxpy4(self):
+        code="""
+def saxpy4(a, x, y):
+    return manual(y,x,a)
+def manual(y,x,a):
+    __list=list()
+    for __tuple in zip(y,x):
+        __list+=[__tuple[0]*a+__tuple[1]]
+    return __list
+"""
+        self.run_test(code,  1.5, [1,2,3], [0.,2.,4.], saxpy4=[float,[int], [float]])
 
     def test_sxpy(self):
         code="""

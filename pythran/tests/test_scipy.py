@@ -14,15 +14,15 @@ def laplace(u,dx, dy):
 """
         self.run_test(code, [[0.1,0.2,0.3],[0.1,0.2,0.3],[0.1,0.2,0.3]], 0.01, 0.02, laplace=[[[float]], float, float])
 
-#    def test_recursive_fibonnaci(self):
-#        code="""
-#def recursive_fibonnaci(a):
-#    if a <= 2:
-#        return 1
-#    else:
-#        return recursive_fibonnaci(a-2) + recursive_fibonnaci(a-1)
-#        """
-#        self.run_test(code, 5, recursive_fibonnaci=[int])
+    def test_recursive_fibonnaci(self):
+        code="""
+def recursive_fibonnaci(a):
+    if a <= 2:
+        return 1
+    else:
+        return recursive_fibonnaci(a-2) + recursive_fibonnaci(a-1)
+        """
+        self.run_test(code, 5, recursive_fibonnaci=[int])
 
     def test_iterative_fibonnaci(self):
         code="""

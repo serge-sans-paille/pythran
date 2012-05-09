@@ -1,60 +1,41 @@
 from tables import modules
-import ast
+import ast, re
+
+class LocalDeclarations(ast.NodeVisitor):
+    """ gathers all local symbols """
+    def __init__(self):
+        self.local_symbols=set()
+        self.first=True
+    def visit_FunctionDef(self, node):
+        if self.first:
+            self.first=False
+            [ self.visit(n) for n in node.body ]
+            args = { arg.id for arg in node.args.args }
+            self.local_symbols = { sym for sym in self.local_symbols if sym.id not in args }
+        else:
+            pass
+    def visit_Assign(self, node):
+        for t in node.targets:
+            if isinstance(t, ast.Name):
+                self.local_symbols.add(t)
+def local_declarations(node):
+    assert isinstance(node, ast.FunctionDef)
+    ld = LocalDeclarations()
+    ld.visit(node)
+    return ld.local_symbols
 
 ##
-class DeclarationDependencies(ast.NodeVisitor):
-    """ Gather name dependencies froma  function """
-    def __init__(self, name):
-        self.deps=set()
-        self.name=name
-    def visit_Name(self, node):
-        if self.name != node.id:
-            self.deps.add(node.id)
-
-class ForwardDeclarations(ast.NodeVisitor):
-    """ Gather declared function names """
+class GlobalDeclarations(ast.NodeVisitor):
     def __init__(self):
-        self.declarations=dict()
+        self.bindings=dict()
+
     def visit_FunctionDef(self, node):
-        dd=DeclarationDependencies(node.name)
-        [dd.visit(n) for n in node.body]
-        self.declarations[node.name]=dd.deps
+        self.bindings[node.name]=node
 
-class ReorderModule(ast.NodeVisitor):
-    """ reorder the function declarations in a module"""
-    def __init__(self, ordering):
-        self.ordering= { v:k for k,v in enumerate(ordering) }
-
-    def visit_Module(self, node):
-        nbody = list()
-        fdef = [ None for x in xrange(len(self.ordering)) ]
-        for n in node.body:
-            if not isinstance(n, ast.FunctionDef):
-                nbody.append(n)
-            else:
-                fdef[self.ordering[n.name]]=n
-        node.body = nbody + fdef
-
-def forward_declarations(node):
-    fd = ForwardDeclarations()
-    fd.visit(node)
-    for f,deps in fd.declarations.iteritems():
-        deps.intersection_update(set(fd.declarations.iterkeys()))
-    declarations = list()
-    prev=len(fd.declarations)
-    while fd.declarations:
-        for f,deps in fd.declarations.items():
-            if not deps.difference(declarations):
-                declarations.append(f)
-                fd.declarations.pop(f)
-                break
-        assert prev > len(fd.declarations)
-        prev=len(fd.declarations)
-
-    ReorderModule(declarations).visit(node)
-
-    return set(declarations)
-
+def global_declarations(node):
+    gd = GlobalDeclarations()
+    gd.visit(node)
+    return gd.bindings
 
 ##
 class ImportedIds(ast.NodeVisitor):
@@ -89,13 +70,16 @@ class ImportedIds(ast.NodeVisitor):
         local.references -= { arg.id for arg in node.args.args }
         self.references.update(local.references)
 
+    def visit_ImportFrom(self, node):
+        self.global_declarations.update({ alias.name:None for alias in node.names})
+
 def imported_ids(node, global_declarations):
     r = ImportedIds(global_declarations)
     if isinstance(node,list):
         node=ast.If(ast.Num(1),node,None)
     r.visit(node)
     #*** expand all modules here
-    return r.references - set(modules["__builtins__"].keys()+[ "True", "False" ])
+    return { ref for ref in r.references if not re.match(r"^_[0-9]+$", ref) } - set(modules["__builtins__"].keys()+[ "True", "False" ])
 
 ##
 class WrittenAreas(ast.NodeVisitor):
@@ -207,3 +191,132 @@ class NormalizeTuples(ast.NodeTransformer):
 
 def normalize_tuples(node):
     NormalizeTuples().visit(node)
+
+##
+class RemoveComprehension(ast.NodeTransformer):
+    def __init__(self):
+        self.functions=list()
+        self.count=0
+
+    def visit_Module(self, node):
+        self.global_declarations = global_declarations(node)
+        [ self.visit(n) for n in node.body ]
+        node.body = self.functions + node.body
+
+
+    def visit_ListComp(self, node):
+        node.elt=self.visit(node.elt)
+        name = "list_comprehension{0}".format(self.count)
+        self.global_declarations.update({name:None})
+        self.count+=1
+        args = imported_ids(node,self.global_declarations)
+        for generator in node.generators:
+            args.difference_update(imported_ids(generator.target, self.global_declarations))
+        def wrap_in_ifs(node, ifs):
+            return reduce(lambda n,if_: ast.If(if_,[n],[]), ifs, node)
+        self.count_iter=0
+        def nest_reducer(x,g):
+            return ast.For(g.target, g.iter, [ wrap_in_ifs(x, g.ifs) ], [])
+        body = reduce( nest_reducer,
+                node.generators,
+                ast.AugAssign(ast.Name("__list",ast.Load()), ast.Add(), ast.List([node.elt],ast.Load()))
+                )
+        init = ast.Assign(
+                [ast.Name("__list",ast.Store())],
+                ast.Call(ast.Name("list",ast.Load()), [],[], None, None )
+                )
+        result = ast.Return(ast.Name("__list",ast.Store()))
+        sargs=sorted([ast.Name(arg, ast.Load()) for arg in args])
+        fd = ast.FunctionDef(name,
+                ast.arguments(sargs,None, None,[]),
+                [init, body, result ],
+                [])
+        self.functions.append(fd)
+        return ast.Call(ast.Name(name,ast.Load()),[ast.Name(arg.id, ast.Load()) for arg in sargs],[], None, None) # no sharing !
+
+def remove_comprehension(node):
+    RemoveComprehension().visit(node)
+    return node
+
+##
+class ConstantValue(ast.NodeVisitor):
+    def visit_Num(self, node):
+        return node.n
+    def visit_Name(self, node):
+        raise RuntimeError()
+    def visit_Index(self, node):
+        return self.visit(node.value)
+
+def constant_value(node):
+    cv= ConstantValue().visit(node)
+    if cv!=None : return cv 
+    else: raise RuntimeError()
+
+##
+class NestedFunctionRemover(ast.NodeTransformer):
+    def __init__(self, gd):
+         self.nested_functions=list()
+         self.global_declarations=gd
+
+    def visit_FunctionDef(self, node):
+        [self.visit(n) for n in node.body ]
+        self.nested_functions.append(node)
+        former_name=node.name
+        former_nbargs=len(node.args.args)
+        node.name="pythran_{0}".format(former_name)
+        ii=imported_ids(node, self.global_declarations)
+        binded_args=[ast.Name(iin,ast.Load()) for iin in sorted(ii)]
+        node.args.args= [ast.Name(iin,ast.Param()) for iin in sorted(ii)] + node.args.args
+        proxy_call=ast.Name(node.name,ast.Load())
+        return ast.Assign([ast.Name(former_name, ast.Store())], ast.Call(ast.Name("bind{0}".format(former_nbargs),ast.Load()), [proxy_call]+binded_args, [], None, None))
+
+class RemoveNestedFunctions(ast.NodeVisitor):
+
+    def visit_Module(self, node):
+        self.nested_functions=list()
+        self.global_declarations = global_declarations(node)
+        [ self.visit(n) for n in node.body ]
+        node.body+=self.nested_functions
+
+    def visit_FunctionDef(self, node):
+        nfr = NestedFunctionRemover(self.global_declarations)
+        node.body=[nfr.visit(n) for n in node.body]
+        self.nested_functions+=nfr.nested_functions
+
+def remove_nested_functions(node):
+    RemoveNestedFunctions().visit(node)
+
+##
+class LambdaRemover(ast.NodeTransformer):
+    def __init__(self, name, gd):
+        self.prefix=name
+        self.lambda_functions=list()
+        self.global_declarations=gd
+
+    def visit_Lambda(self, node):
+        node.body=self.visit(node.body)
+        forged_name="{0}_lambda{1}".format(self.prefix, len(self.lambda_functions))
+        ii=imported_ids(node, self.global_declarations)
+        binded_args=[ast.Name(iin,ast.Load()) for iin in sorted(ii)]
+        former_nbargs=len(node.args.args)
+        node.args.args = [ast.Name(iin,ast.Param()) for iin in sorted(ii)] + node.args.args
+        forged_fdef = ast.FunctionDef(forged_name, node.args, [ ast.Return(node.body) ], [])
+        self.lambda_functions.append(forged_fdef)
+        proxy_call=ast.Name(forged_name, ast.Load())
+        return ast.Call(ast.Name("bind{0}".format(former_nbargs),ast.Load()), [proxy_call]+binded_args, [], None, None)
+
+class RemoveLambdas(ast.NodeVisitor):
+
+    def visit_Module(self, node):
+        self.lambda_functions=list()
+        self.global_declarations = global_declarations(node)
+        [ self.visit(n) for n in node.body ]
+        node.body+=self.lambda_functions
+
+    def visit_FunctionDef(self, node):
+        lr = LambdaRemover(node.name, self.global_declarations)
+        node.body=[lr.visit(n) for n in node.body]
+        self.lambda_functions+=lr.lambda_functions
+
+def remove_lambdas(node):
+    RemoveLambdas().visit(node)

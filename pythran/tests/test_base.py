@@ -29,16 +29,19 @@ class TestBase(TestEnv):
     def test_expression(self):
         self.run_test("def expression(a,b,c): a+b*c", 1,2,3.3, expression=[int,int, float])
 
-#   def test_recursion(self):
-#       code="""
-#ef fibo(n): return n if n <2 else fibo(n-1) + fibo(n-2)
-#ef fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
-#""
-#       self.run_test(code, 4, fibo=[int], fibo2=[float])
+    def test_recursion(self):
+        code="""
+def fibo(n): return n if n <2 else fibo(n-1) + fibo(n-2)
+def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
+"""
+        self.run_test(code, 4, fibo=[int], fibo2=[float])
 
+    def test_manual_list_comprehension(self):
+        self.run_test("def f(l):\n ll=list()\n for k in l:\n  ll+=[k]\n return ll\ndef manual_list_comprehension(l): return f(l)", [1,2,3], manual_list_comprehension=[[int]])
+ 
     def test_list_comprehension(self):
         self.run_test("def list_comprehension(l): return [ x*x for x in l ]", [1,2,3], list_comprehension=[[int]])
-
+ 
     def test_filtered_list_comprehension(self):
         self.run_test("def filtered_list_comprehension(l): return [ x*x for x in l if x > 1 if x <10]", [1,2,3], filtered_list_comprehension=[[int]])
 
@@ -81,6 +84,9 @@ class TestBase(TestEnv):
     def test_multimap(self):
         self.run_test("def multimap(l0, l1,v): return map(lambda x,y:x*v+y, l0, map(lambda z:z+1,l1))", [0,1,2], [0,1.1,2.2], 2, multimap=[[int], [float], int])
 
+    def test_intrinsic_map(self):
+        self.run_test("def intrinsic_map(l): return map(max,l)",[[0,1,2],[2,0,1]], intrinsic_map=[[[int]]])
+
     def test_range1(self):
         self.run_test("def range1_(e): return range(e)", 3, range1_=[int])
     
@@ -114,6 +120,12 @@ class TestBase(TestEnv):
     def test_print(self):
         self.run_test("def print_(a,b,c,d): print a,b,c,d,'e',1.5,", [1,2,3.1],3,True, "d", print_=[[float], int, bool, str])
 
+    def test_assign(self):
+        self.run_test("def assign(a): b=2*a", 1, assign=[int])
+
+    def test_multiassign(self):
+        self.run_test("def multiassign(a):\n c=b=a\n return c", [1], multiassign=[[int]])
+
     def test_sequence(self):
         self.run_test("def sequence_(a): b=2*a;c=b/2;return max(c,b)", 1, sequence_=[int])
 
@@ -139,6 +151,7 @@ def declarations():
     return a + b
 """
         self.run_test(code, declarations=[])
+
     def test_lambda(self):
         code = """
 def lambda_():
@@ -181,7 +194,7 @@ def lambda_():
         self.run_test("def assert_with_msg(i): assert i > 0, 'hell yeah'", 1, assert_with_msg=[int])
 
     def test_import_from(self):
-        self.run_test("def import_from(): from math import cos", import_from=[])
+        self.run_test("def import_from(): from math import cos ; cos(1.)", import_from=[])
 
     def test_len(self):
         self.run_test("def len_(i,j,k): return len(i)+len(j)+len(k)", "youpi", [1,2],[], len_=[str,[int], [float]])
@@ -233,6 +246,7 @@ def lambda_():
 
     def test_multiple_assign(self):
         self.run_test("def multiple_assign():\n a=0\n a=1.5\n return a", multiple_assign=[])
+
     def test_multiple_return1(self):
         self.run_test("def multiple_return1(a):\n if True:return 1\n else:\n  return a", 2,  multiple_return1=[int])
 
@@ -251,19 +265,31 @@ def lambda_():
     def test_slicing(self):
         self.run_test("def slicing(l): return l[0:1] + l[:-1]",[1,2,3,4], slicing=[[int]])
 
-#    def test_not_so_deep_recursive_calls(self):
-#        code="""
-#def a(i): return b(i)
-#def b(i): return b(i-1)+a(i-1) if i else c(i-1) if i+1 else i
-#def c(i): return c(i-1) if i else 1
-#def not_so_deep_recursive_calls(i):a(i)+b(i) +c(i)"""
-#        self.run_test(code,3, not_so_deep_recursive_calls=[int])
-#
-#    def test_deep_recursive_calls(self):
-#        code="""
-#def a(i): return a(i-1) + b(i) if i else i
-#def b(i): return b(i-1)+a(i-1) if i else c(i-1) if i+1 else i
-#def c(i): return c(i-1) if i else 1
-#def deep_recursive_calls(i):a(i)+b(i) +c(i)"""
-#        self.run_test(code,3, deep_recursive_calls=[int])
-#
+    def test_not_so_deep_recursive_calls(self):
+        code="""
+def a(i): return b(i)
+def b(i): return b(a(i-1)) if i else i
+def not_so_deep_recursive_calls(i):return b(i)"""
+        self.run_test(code,3, not_so_deep_recursive_calls=[int])
+
+    def test_deep_recursive_calls(self):
+        code="""
+def a(i): return a(i-1) + b(i) if i else i
+def b(i): return b(i-1)+a(i-1) if i else c(i-1) if i+1 else i
+def c(i): return c(i-1) if i else 1
+def deep_recursive_calls(i):a(i)+b(i) +c(i)"""
+        self.run_test(code,3, deep_recursive_calls=[int])
+
+    def test_dummy_nested_def(self):
+        code="""
+def dummy_nested_def(a):
+    def the_dummy_nested_def(b):return b
+    return the_dummy_nested_def(a)"""
+        self.run_test(code,3, dummy_nested_def=[int])
+
+    def test_nested_def(self):
+        code="""
+def nested_def(a):
+    def the_nested_def(b):return a+b
+    return the_nested_def(3)"""
+        self.run_test(code,3, nested_def=[int])

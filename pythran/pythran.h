@@ -14,7 +14,44 @@ namespace std {
             typedef typename sequence<T>::value_type type;
         };
 }
+namespace pythonic {
+    namespace proxy {
+        struct bind0 {
+            template<typename Operator, typename... Types>
+                auto operator()(Operator const& op, Types &&... types) -> decltype(std::bind(op, types...)) {
+                    return std::bind(op, types...); 
+                }
+        };
+        struct bind1 {
+            template<typename Operator, typename... Types>
+                auto operator()(Operator const& op, Types &&... types) -> decltype(std::bind(op, types..., std::placeholders::_1)) {
+                    return std::bind(op, types..., std::placeholders::_1); 
+                }
+        };
+        struct bind2 {
+            template<typename Operator, typename... Types>
+                auto operator()(Operator const& op, Types &&... types) -> decltype(std::bind(op, types..., std::placeholders::_1, std::placeholders::_2)) {
+                    return std::bind(op, types..., std::placeholders::_1, std::placeholders::_2); 
+                }
+        };
+        struct bind3 {
+            template<typename Operator, typename... Types>
+                auto operator()(Operator const& op, Types &&... types) -> decltype(std::bind(op, types..., std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)) {
+                    return std::bind(op, types..., std::placeholders::_1, std::placeholders::_2, std::placeholders::_3); 
+                }
+        };
+    }
+}
 
+template <class T>
+void __append(sequence<T>& s, T const & value) {
+    s.push_back(value);
+}
+
+template<class T>
+struct content_of {
+    typedef typename T::value_type type;
+};
 
 /* boost::python converters */
 #include <boost/python/list.hpp>

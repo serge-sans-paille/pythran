@@ -4,6 +4,15 @@ import operator
 from tables import type_to_str, operator_to_lambda, modules
 from passes import global_declarations, constant_value
 
+if not "has_path" in nx.__dict__:
+	def has_path(G,source,target):
+		try:
+			sp = nx.shortest_path(G, source, target)
+		except nx.NetworkXNoPath:
+			return False
+		return True
+	nx.has_path=has_path
+
 class Reorder(ast.NodeVisitor):
     def __init__(self, typedeps):
         self.typedeps=typedeps

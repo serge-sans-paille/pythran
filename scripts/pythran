@@ -2,28 +2,40 @@
 import sys,os
 import argparse
 import pythran
+from subprocess import CalledProcessError
 
-parser = argparse.ArgumentParser(description='pythran: python to c++ compiler')
+parser = argparse.ArgumentParser(prog='pythran',
+        description='pythran: a python to C++ compiler',
+        epilog="It's a megablast!")
 parser.add_argument('input_file', type=str, help='the python module to compile')
 parser.add_argument('-o', dest='output_file', type=str, help='path to generated file')
 parser.add_argument('-E', dest='translate_only', action='store_true', help='only run the translator, do not compile it')
+parser.add_argument('-f', dest='extra_fflags', metavar='flag', action='append', help='any compiler switch relevant to the underlying C++ compiler', default=list())
+parser.add_argument('-O', dest='extra_Oflags', metavar='level', action='append', help='any optimization level relevant to the underlying C++ compiler', default=list())
 
 args = parser.parse_args()
+
 
 try:
     module_name = os.path.splitext(os.path.basename(args.input_file))[0]
     if not args.output_file:
-        args.output_file = "{0}.{1}".format(module_name, "cpp" if args.translate_only else "so")
+        args.output_file = '{0}.{1}'.format(module_name, 'cpp' if args.translate_only else 'so')
 
     specs = pythran.spec_parser(args.input_file)
     module = pythran.cxx_generator(module_name, file(args.input_file).read(), specs)
     if args.translate_only:
-        file(args.output_file,"w").write(str(module.generate()))
+        file(args.output_file,'w').write(str(module.generate()))
     else:
-        pythran.compile(module, args.output_file)
+        extra_cxxflags=['-f{0}'.format(n) for n in args.extra_fflags]\
+                + ['-O{0}'.format(n) for n in args.extra_Oflags]
+        pythran.compile(module, args.output_file,cxxflags=extra_cxxflags)
 
 except IOError as e:
     print >> sys.stderr, e
+    sys.exit(1)
+except CalledProcessError as e:
+    print >> sys.stderr, e
+    print >> sys.stderr, "try to set PKG_CONFIG_PATH to your pythonic++ installation dir"
     sys.exit(1)
 except SyntaxError as e:
     print >> sys.stderr, e

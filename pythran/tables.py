@@ -58,7 +58,7 @@ modules = {
             "map": None,
             "range":None,
             "xrange":None,
-            "__append":None,
+            "pmap": None,
             },
         "math" : {
             "cos" : None,

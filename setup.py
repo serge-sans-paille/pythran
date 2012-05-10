@@ -36,6 +36,6 @@ setup(  name='pythran',
         url="http://serge.liyun.free.fr/serge",
         packages=['pythran'],
         package_data= { 'pythran' : ['pythran.h'] },
-        requires=["codepy (>=2012.1.2)", "ply (>=3.4)"],
+        requires=["codepy (>=2012.1.2)", "ply (>=3.4)", "numpy", "networkx (>=1.5)"],
         cmdclass= { 'build' : build_with_ply, 'test' : TestCommand }
      )

@@ -2,7 +2,6 @@ import sys
 import os.path
 import shutil
 from subprocess import check_call, check_output
-from passes import normalize_tuples
 from cgen import *
 from codepy.bpl import BoostPythonModule
 import ast
@@ -67,16 +66,18 @@ def cxx_generator(module_name, code, specs):
 
     return mod
 
-def compile(module, output_filename=None):
+def compile(module, output_filename=None, cppflags=list(), cxxflags=list()):
     from codepy.jit import guess_toolchain
     tc = guess_toolchain()
     tc.include_dirs.append(".")
     tc.cflags.append("-std=c++0x")
+    tc.cflags+=cppflags
     tc.include_dirs+=[ p for p in sys.path if os.path.exists(os.path.join(p,"pythran.h")) ]
 
     check_call(["pkg-config", "pythonic++", "--exists"])
     cflags = check_output(["pkg-config", "pythonic++", "--cflags"]).strip()
     tc.cflags.append(cflags)
+    tc.cflags+=cxxflags
 
     #print module.generate()
 

@@ -1,7 +1,7 @@
 import ast
 from cgen import *
 
-from passes import local_declarations, global_declarations, remove_comprehension, constant_value, remove_nested_functions, remove_lambdas, normalize_tuples
+from passes import local_declarations, global_declarations, remove_comprehension, constant_value, remove_nested_functions, remove_lambdas, normalize_tuples, parallelize_maps
 from tables import operator_to_lambda, modules
 from typing import type_all
 
@@ -28,6 +28,10 @@ class CgenVisitor(ast.NodeVisitor):
         remove_comprehension(node)
         remove_nested_functions(node)
         remove_lambdas(node)
+
+        # some optimizations
+        parallelize_maps(node)
+
         # build all types
         self.global_declarations = global_declarations(node)
         self.local_functions=set()

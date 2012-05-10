@@ -1,5 +1,6 @@
-from tables import modules
-import ast, re
+from analysis import imported_ids, purity_test
+import ast
+import re
 
 class LocalDeclarations(ast.NodeVisitor):
     """ gathers all local symbols """
@@ -37,91 +38,7 @@ def global_declarations(node):
     gd.visit(node)
     return gd.bindings
 
-##
-class ImportedIds(ast.NodeVisitor):
-    """ Gather ids referenced by a node """
-    def __init__(self, global_declarations):
-        self.references=set()
-        self.global_declarations=set(global_declarations)
-        self.skip=set()
 
-    def visit_Name(self, node):
-        if isinstance(node.ctx, ast.Store):
-            self.skip.add(node.id)
-        elif node.id not in self.skip and node.id not in self.global_declarations:
-            self.references.add(node.id)
-
-    def visit_FunctionDef(self, node):
-        local = ImportedIds(self.global_declarations)
-        [local.visit(n) for n in node.body]
-        local.references -= { arg.id for arg in node.args.args }
-        self.global_declarations.add(node.name)
-        self.references.update(local.references)
-
-    def visit_ListComp(self, node):
-        local = ImportedIds(self.global_declarations)
-        [ local.visit(n) for n in node.generators ]
-        local.visit(node.elt)
-        self.references.update(local.references)
-
-    def visit_Lambda(self, node):
-        local = ImportedIds(self.global_declarations)
-        local.visit(node.body)
-        local.references -= { arg.id for arg in node.args.args }
-        self.references.update(local.references)
-
-    def visit_ImportFrom(self, node):
-        self.global_declarations.update({ alias.name:None for alias in node.names})
-
-def imported_ids(node, global_declarations):
-    r = ImportedIds(global_declarations)
-    if isinstance(node,list):
-        node=ast.If(ast.Num(1),node,None)
-    r.visit(node)
-    #*** expand all modules here
-    return { ref for ref in r.references if not re.match(r"^_[0-9]+$", ref) } - set(modules["__builtins__"].keys()+[ "True", "False" ])
-
-##
-class WrittenAreas(ast.NodeVisitor):
-    def __init__(self):
-        self.written_areas=set()
-    def visit_Name(self, node):
-        if isinstance(node.ctx, ast.Store):
-            self.written_areas.add(node.id)
-
-    def visit_Subscript(self, node):
-        if isinstance(node.ctx, ast.Store):
-            tmp = node.value
-            while isinstance(tmp, ast.Subscript):
-                tmp=tmp.value
-            if not isinstance(tmp, ast.Name):
-                raise NotImplementedError("assigning to a subscript whose value is not an identifier but an '{0}'".format(type(tmp)))
-            self.written_areas.add(tmp.id)
-
-def written_areas(node):
-    wv = WrittenAreas()
-    wv.visit(node)
-    return wv.written_areas
-
-class PurityTest(ast.NodeVisitor):
-    """ Gathers function purity information """
-    def __init__(self):
-        self.pure=dict()
-
-    def visit_Lambda(self, node):
-        self.visit_FunctionDef(self,node)
-
-    def visit_FunctionDef(self, node):
-        weffects = written_areas(node)
-        imported_areas = imported_ids(node.body,dict())
-        written_imported_areas= imported_areas.intersection(weffects)
-        self.pure[node]=written_imported_areas
-
-
-def purity_test(node):
-    pt=PurityTest()
-    pt.visit(node)
-    return pt.pure
 
 ##
 class ConvertToTuple(ast.NodeTransformer):
@@ -320,3 +237,24 @@ class RemoveLambdas(ast.NodeVisitor):
 
 def remove_lambdas(node):
     RemoveLambdas().visit(node)
+
+##
+
+class ParallelizeMaps(ast.NodeVisitor):
+
+    def __init__(self, pure):
+        self.pure=pure
+
+    def visit_Call(self, node):
+        if isinstance(node.func, ast.Name) and node.func.id == "map":
+            if isinstance(node.args[0], ast.Name) and node.args[0].id in self.pure:
+                node.func.id="pmap"
+            elif isinstance(node.args[0], ast.Call) and re.match(r"^bind[0-9]+$",node.args[0].func.id) and node.args[0].args[0].id in self.pure:
+                node.func.id="pmap"
+
+
+
+def parallelize_maps(node):
+    pure=purity_test(node)
+    ParallelizeMaps(pure).visit(node)
+

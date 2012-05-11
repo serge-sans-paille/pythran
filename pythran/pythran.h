@@ -89,7 +89,7 @@ struct to_python< std::tuple<Types...> > {
 template <class E>
 struct to_python< sequence<E> >  {
     typedef boost::python::list type;
-    type operator()(sequence<E> s) {
+    type operator()(sequence<E> const& s) {
         boost::python::list l;
         to_python<E> f;
         for(auto & e: s) l.append(f(e));
@@ -107,7 +107,7 @@ struct to_python< empty_sequence >  {
 template <>
 struct to_python< xrange >  {
     typedef boost::python::list type;
-    type operator()(xrange xr) {
+    type operator()(xrange const &xr) {
         boost::python::list l;
         for(auto & e: xr) l.append(e);
         return l;
@@ -117,7 +117,7 @@ struct to_python< xrange >  {
 template <class T>
 struct to_python< none<T> >  {
     typedef boost::python::object type;
-    type operator()(none<T> n) {
+    type operator()(none<T> const& n) {
         if(n.is_none) return type(); // this is the way boost python encodes Py_None
         else return to_python<T>()(n.data);
     }
@@ -125,7 +125,7 @@ struct to_python< none<T> >  {
 template <>
 struct to_python< none_type >  {
     typedef boost::python::object type;
-    type operator()(none_type) {
+    type operator()(none_type const &) {
         return type(); // this is the way boost python encodes Py_None
     }
 };
@@ -176,13 +176,13 @@ struct from_python {
 template <class T, class R = typename T::return_type >
 struct ToPython : T {
     template<class... Types>
-    typename to_python<R>::type operator()(Types... arguments) { return to_python<R>()(T::operator()(arguments...)); }
+    typename to_python<R>::type operator()(Types const& ... arguments) { return to_python<R>()(T::operator()(arguments...)); }
 };
 
 template <class T>
 struct ToPython<T,void> : T {
     template<class... Types>
-    void operator()(Types... arguments) { T::operator()(arguments...); }
+    void operator()(Types const& ... arguments) { T::operator()(arguments...); }
 };
 
 #endif

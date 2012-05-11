@@ -60,6 +60,9 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
     def test_reduce(self):
         self.run_test("def reduce_(l): return reduce(lambda x,y:x+y, l)", [0,1.1,2.2,3.3], reduce_=[[float]])
 
+    def test_another_reduce(self):
+        self.run_test("def another_reduce(l0,l1): return reduce(lambda x,(y,z):x+y+z, zip(l0, l1),0)", [0.4,1.4,2.4,3.4], [0,1.1,2.2,3.3], another_reduce=[[float],[float]])
+
     def test_sum(self):
         self.run_test("def sum_(l): return sum( l)", [0,1.1,2.2,3.3], sum_=[[float]])
 

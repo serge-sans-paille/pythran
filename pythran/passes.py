@@ -91,6 +91,18 @@ class NormalizeTuples(ast.NodeTransformer):
         node.generators=nnode.generators
         return node
 
+    def visit_Lambda(self, node):
+        for i,arg in enumerate(node.args.args):
+            renamings=dict()
+            self.traverse_tuples(arg, (), renamings)
+            if renamings:
+                self.counter+=1
+                newname="{0}{1}".format(NormalizeTuples.tuple_name, self.counter)
+                node.args.args[i]=ast.Name(newname, ast.Param())
+                node.body=convert_to_tuple(node.body, newname, renamings)
+        return node
+
+
     def visit_Assign(self, node):
         extra_assign = [node]
         for i,t in enumerate(node.targets):

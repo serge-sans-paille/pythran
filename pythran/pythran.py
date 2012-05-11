@@ -1,7 +1,9 @@
 import ast
 from cgen import *
 
-from passes import local_declarations, global_declarations, remove_comprehension, constant_value, remove_nested_functions, remove_lambdas, normalize_tuples, parallelize_maps
+from passes import local_declarations, global_declarations
+from passes import remove_comprehension, constant_value, remove_nested_functions, remove_lambdas, normalize_tuples, parallelize_maps, normalize_return
+
 from tables import operator_to_lambda, modules
 from typing import type_all
 
@@ -24,6 +26,7 @@ class CgenVisitor(ast.NodeVisitor):
     # mod
     def visit_Module(self, node):
         # sanitize input
+        normalize_return(node)
         normalize_tuples(node)
         remove_comprehension(node)
         remove_nested_functions(node)
@@ -99,7 +102,7 @@ class CgenVisitor(ast.NodeVisitor):
         raise PythranSyntaxError("Classes not supported")
 
     def visit_Return(self, node):
-        return ReturnStatement(self.visit(node.value) if node.value else "")
+        return ReturnStatement(self.visit(node.value))
 
     def visit_Delete(self, node):
         return EmptyStatement()

@@ -115,6 +115,22 @@ struct to_python< xrange >  {
 };
 
 template <class T>
+struct to_python< none<T> >  {
+    typedef boost::python::object type;
+    type operator()(none<T> n) {
+        if(n.is_none) return type(); // this is the way boost python encodes Py_None
+        else return to_python<T>()(n.data);
+    }
+};
+template <>
+struct to_python< none_type >  {
+    typedef boost::python::object type;
+    type operator()(none_type) {
+        return type(); // this is the way boost python encodes Py_None
+    }
+};
+
+template <class T>
 struct from_python_type {
     typedef T type;
 };

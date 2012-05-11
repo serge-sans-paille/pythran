@@ -74,6 +74,8 @@ def compile(module, output_filename=None, cppflags=list(), cxxflags=list()):
     tc.cflags+=cppflags
     tc.include_dirs+=[ p for p in sys.path if os.path.exists(os.path.join(p,"pythran.h")) ]
 
+    tc.add_library('boost-python',[],[], ['boost_python'])
+
     check_call(["pkg-config", "pythonic++", "--exists"])
     cflags = check_output(["pkg-config", "pythonic++", "--cflags"]).strip()
     tc.cflags.append(cflags)

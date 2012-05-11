@@ -293,3 +293,6 @@ def nested_def(a):
     def the_nested_def(b):return a+b
     return the_nested_def(3)"""
         self.run_test(code,3, nested_def=[int])
+
+    def test_none_(self):
+        self.run_test("def none_(l):\n if len(l)==0: return\n else: return l", [], none_=[[int]])

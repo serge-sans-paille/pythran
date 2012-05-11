@@ -258,3 +258,16 @@ def parallelize_maps(node):
     pure=purity_test(node)
     ParallelizeMaps(pure).visit(node)
 
+##
+class NormalizeReturn(ast.NodeVisitor):
+    def visit_FunctionDef(self, node):
+        self.has_return=False
+        [ self.visit(n) for n in node.body ]
+        if not self.has_return: node.body.append(ast.Return(ast.Name("None",ast.Load())))
+    def visit_Return(self, node):
+        self.has_return=True
+        if not node.value:
+            node.value=ast.Name("None",ast.Load())
+
+def normalize_return(node):
+    NormalizeReturn().visit(node)

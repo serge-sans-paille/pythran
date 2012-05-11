@@ -1,5 +1,7 @@
 import ast
 
+builtin_constants = { "True":"bool", "False":"bool", "None":"none_type"}
+
 operator_to_lambda = {
         # boolop
         ast.And     : lambda l,r: "({0} and {1})".format(l,r),
@@ -58,6 +60,7 @@ modules = {
             "map": None,
             "range":None,
             "xrange":None,
+            # pythran extensions
             "pmap": None,
             },
         "math" : {

@@ -117,8 +117,6 @@ class CgenVisitor(ast.NodeVisitor):
         else: return Statement("{0} = {1}".format(alltargets, value))
 
     def visit_AugAssign(self, node):
-        if not isinstance(node.target, ast.Name):
-            raise PythranSyntaxError("Assigning to something other than an identifier", node)
         value = self.visit(node.value)
         target=self.visit(node.target)
         return Statement(operator_to_lambda[type(node.op)](target, "="+value))

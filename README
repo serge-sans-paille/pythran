@@ -45,9 +45,18 @@ That will generate a native dprod.so that can be imported just like the former
 module.
 
 Documentation
--------------
+----------
 
-To come soon
+The CLI documentation is available from the pythran help command.
+
+	$> pythran --help
+
+The developper documentation is also available using pydoc, but is somehow
+minimalistic.
+
+	$> pydoc pythran
+	$> pydoc pythran.typing
+	
 
 License
 -------

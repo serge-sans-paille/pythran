@@ -5,7 +5,7 @@ from unittest import TextTestRunner, TestLoader
 import os
 
 class build_with_ply(build):
-    '''Use ply to generate parsetab module.'''
+    '''Use ply to generate parsetab before building module.'''
 
     def run(self, *args, **kwargs):
         if not self.dry_run:
@@ -20,6 +20,8 @@ class build_with_ply(build):
         build.run(self, *args, **kwargs)
 
 class TestCommand(Command):
+    '''Scan the test directory for any tests, and run them'''
+
     description = 'run the test suite for the package'
     user_options = []
 

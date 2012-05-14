@@ -1,3 +1,4 @@
+'''This modules provides the translation tables from python to c++'''
 import ast
 
 builtin_constants = { "True":"bool", "False":"bool", "None":"none_type"}
@@ -42,7 +43,7 @@ type_to_str = {
         float   : "double",
         }
 
-# the value, if not None, is used to deduce the return type of the builtins if the default behavior is not satisfying 
+# the value, if not None, means that decltype must be used
 modules = {
         "__builtins__": {
             "bind0":None,

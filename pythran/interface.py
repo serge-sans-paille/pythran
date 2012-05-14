@@ -1,3 +1,7 @@
+'''This module contains all the stuff to make your way from python code to a dynamic library
+    * cxx_generator transforms a python module to c++ code
+    * compile transforms c++ code into a native module
+'''
 import sys 
 import os.path
 import shutil
@@ -15,6 +19,7 @@ pytype_to_ctype_table = {
         }
 
 def pytype_to_ctype(t):
+    '''python -> c++ type binding'''
     if isinstance(t,list):
         return 'sequence<{0}>'.format(pytype_to_ctype(t[0]))
     elif isinstance(t,tuple):
@@ -25,7 +30,7 @@ def pytype_to_ctype(t):
         raise NotImplementedError("{0}:{1}".format(type(t),t))
 
 def cxx_generator(module_name, code, specs):
-
+    '''python + pythran spec -> c++ code'''
     ir=ast.parse(code)
 
     #purity = purity_test(ir)
@@ -66,6 +71,7 @@ def cxx_generator(module_name, code, specs):
     return mod
 
 def compile(module, output_filename=None, cppflags=list(), cxxflags=list()):
+    '''c++ code + compiler flags -> native module'''
     from codepy.jit import guess_toolchain
     tc = guess_toolchain()
     tc.include_dirs.append(".")

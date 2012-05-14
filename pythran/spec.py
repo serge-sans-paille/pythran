@@ -1,3 +1,6 @@
+'''This module provides a dummy parser for pythran annotations, aka pythran specs.
+    * spec_parser reads the specification from a python module and returns them
+'''
 import ply.lex as lex
 import ply.yacc as yacc
 import os.path

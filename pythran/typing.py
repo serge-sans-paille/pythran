@@ -1,8 +1,12 @@
+'''This module performs the return type inference, according to symbolic types, and reorder function declarations according to the return type dependencies.
+    * type_all generates a node -> type binding
+'''
+
 import ast
 import networkx as nx
 import operator
 from tables import type_to_str, operator_to_lambda, modules, builtin_constants
-from passes import global_declarations, constant_value
+from analysis import global_declarations, constant_value
 
 # networkx backward compatibility
 if not "has_path" in nx.__dict__:
@@ -18,12 +22,10 @@ class Reorder(ast.NodeVisitor):
     def __init__(self, typedeps):
         self.typedeps=typedeps
         none_successors = self.typedeps.successors(TypeDependencies.NoDeps)
-        for n in sorted(none_successors):
+        for n in sorted(none_successors): # remove edges that implies a circular dependency
             for p in sorted(self.typedeps.predecessors(n)):
                 if nx.has_path(self.typedeps,n,p):
-                    #print "found path between", n.name, "and", p.name
                     self.typedeps.remove_edge(p,n)
-                    #print "deleting", p.name, "->", n.name
         #nx.write_dot(self.typedeps,"b.dot")
 
     def visit_Module(self, node):

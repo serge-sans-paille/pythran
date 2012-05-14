@@ -12,6 +12,7 @@ parser.add_argument('-o', dest='output_file', type=str, help='path to generated 
 parser.add_argument('-E', dest='translate_only', action='store_true', help='only run the translator, do not compile it')
 parser.add_argument('-f', dest='extra_fflags', metavar='flag', action='append', help='any compiler switch relevant to the underlying C++ compiler', default=list())
 parser.add_argument('-m', dest='extra_mflags', metavar='machine', action='append', help='any machine flag relevant to the underlying C++ compiler', default=list())
+parser.add_argument('-I', dest='extra_Iflags', metavar='include_dir', action='append', help='any include dir relevant to the underlying C++ compiler', default=list())
 parser.add_argument('-O', dest='extra_Oflags', metavar='level', action='append', help='any optimization level relevant to the underlying C++ compiler', default=list())
 
 args = parser.parse_args()
@@ -19,30 +20,28 @@ args = parser.parse_args()
 
 try:
     module_name = os.path.splitext(os.path.basename(args.input_file))[0]
-    if not args.output_file:
+    if not args.output_file: # build the output file from the input name
         args.output_file = '{0}.{1}'.format(module_name, 'cpp' if args.translate_only else 'so')
 
     specs = pythran.spec_parser(args.input_file)
     module = pythran.cxx_generator(module_name, file(args.input_file).read(), specs)
-    if args.translate_only:
+    if args.translate_only: # eventually only generate cpp file
         file(args.output_file,'w').write(str(module.generate()))
     else:
+        # build using the forwarded compiler options
         extra_cxxflags=['-f{0}'.format(n) for n in args.extra_fflags]\
                 + ['-m{0}'.format(n) for n in args.extra_mflags]\
+                + ['-I{0}'.format(n) for n in args.extra_Iflags]\
                 + ['-O{0}'.format(n) for n in args.extra_Oflags]
         pythran.compile(module, args.output_file,cxxflags=extra_cxxflags)
 
 except IOError as e:
     print >> sys.stderr, e
     sys.exit(1)
-except CalledProcessError as e:
-    print >> sys.stderr, e
-    print >> sys.stderr, "try to set PKG_CONFIG_PATH to your pythonic++ installation dir"
-    sys.exit(1)
 except SyntaxError as e:
     print >> sys.stderr, e
     sys.exit(1)
 
 
-
+# what a great editor!
 # vim: ft=python

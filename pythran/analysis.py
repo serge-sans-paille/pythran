@@ -1,10 +1,56 @@
+'''This module provides a few code analysis for the pythran language.
+    * local_declarations gathers declarations local to a node
+    * global_declarations gathers top-level declarations
+    * imported_ids gathers identifiers imported by a node
+    * purity_test computes whether functions write their parameters or not
+    * constant_value evaluates a constant expression
+'''
+
 from tables import modules, builtin_constants
 import ast
 import networkx as nx
 
+class LocalDeclarations(ast.NodeVisitor):
+    def __init__(self):
+        self.local_symbols=set()
+        self.first=True
+    def visit_FunctionDef(self, node):
+        if self.first:
+            self.first=False
+            [ self.visit(n) for n in node.body ]
+            args = { arg.id for arg in node.args.args }
+            self.local_symbols = { sym for sym in self.local_symbols if sym.id not in args }
+        else:
+            pass
+    def visit_Assign(self, node):
+        for t in node.targets:
+            if isinstance(t, ast.Name):
+                self.local_symbols.add(t)
+def local_declarations(node):
+    """Gathers all local symbols from a function"""
+    assert isinstance(node, ast.FunctionDef)
+    ld = LocalDeclarations()
+    ld.visit(node)
+    return ld.local_symbols
+
+##
+class GlobalDeclarations(ast.NodeVisitor):
+    def __init__(self):
+        self.bindings=dict()
+
+    def visit_FunctionDef(self, node):
+        self.bindings[node.name]=node
+
+def global_declarations(node):
+    """Generates a function name -> function node binding"""
+    gd = GlobalDeclarations()
+    gd.visit(node)
+    return gd.bindings
+
+
+
 ##
 class ImportedIds(ast.NodeVisitor):
-    """ Gather ids referenced by a node """
     def __init__(self, global_declarations):
         self.references=set()
         self.global_declarations=set(global_declarations)
@@ -39,6 +85,7 @@ class ImportedIds(ast.NodeVisitor):
         self.global_declarations.update({ alias.name:None for alias in node.names})
 
 def imported_ids(node, global_declarations):
+    """Gather ids referenced by a node and not declared locally"""
     r = ImportedIds(global_declarations)
     if isinstance(node,list):
         node=ast.If(ast.Num(1),node,None)
@@ -113,7 +160,6 @@ def written_areas(node):
     return wv.written_areas, wv.deps
 
 class PurityTest(ast.NodeVisitor):
-    """ Gathers function purity information """
     def __init__(self):
         self.pure=nx.DiGraph()
 
@@ -139,9 +185,25 @@ class PurityTest(ast.NodeVisitor):
         [ self.pure.add_edge(node.name, wd) for wd in wdeps ]
 
 def purity_test(node):
+    """Returns a function_name -> Bool mapping where True means that the function does not write any of its parameter."""
     pt=PurityTest()
     pt.visit(node)
     #nx.write_dot(pt.pure,"pure.dot")
     #for p in pt.pure:
     #    print p, "is pure?", pt.pure.node[p]["pure"] 
     return { p for p in pt.pure if pt.pure.node[p]["pure"] }
+
+##
+class ConstantValue(ast.NodeVisitor):
+    def visit_Num(self, node):
+        return node.n
+    def visit_Name(self, node):
+        raise RuntimeError()
+    def visit_Index(self, node):
+        return self.visit(node.value)
+
+def constant_value(node):
+    """returns the numerical value of a constant expression."""
+    cv= ConstantValue().visit(node)
+    if cv!=None : return cv 
+    else: raise RuntimeError()

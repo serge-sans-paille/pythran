@@ -1,44 +1,15 @@
-from analysis import imported_ids, purity_test
+'''This modules contains code transformation to make your way from python code to pythran code
+    * convert_to_tuple removes implicite variable -> tuple conversion
+    * remove_comprehension turns list comprehension into function calls
+    * remove_nested_functions turns nested function into top-level functions
+    * remove_lambdas turns lambda into regular functions
+    * parallelize_maps make some map calls parallel
+    * normalize_return adds return statement where relevant
+'''
+
+from analysis import imported_ids, purity_test, global_declarations
 import ast
 import re
-
-class LocalDeclarations(ast.NodeVisitor):
-    """ gathers all local symbols """
-    def __init__(self):
-        self.local_symbols=set()
-        self.first=True
-    def visit_FunctionDef(self, node):
-        if self.first:
-            self.first=False
-            [ self.visit(n) for n in node.body ]
-            args = { arg.id for arg in node.args.args }
-            self.local_symbols = { sym for sym in self.local_symbols if sym.id not in args }
-        else:
-            pass
-    def visit_Assign(self, node):
-        for t in node.targets:
-            if isinstance(t, ast.Name):
-                self.local_symbols.add(t)
-def local_declarations(node):
-    assert isinstance(node, ast.FunctionDef)
-    ld = LocalDeclarations()
-    ld.visit(node)
-    return ld.local_symbols
-
-##
-class GlobalDeclarations(ast.NodeVisitor):
-    def __init__(self):
-        self.bindings=dict()
-
-    def visit_FunctionDef(self, node):
-        self.bindings[node.name]=node
-
-def global_declarations(node):
-    gd = GlobalDeclarations()
-    gd.visit(node)
-    return gd.bindings
-
-
 
 ##
 class ConvertToTuple(ast.NodeTransformer):
@@ -119,6 +90,7 @@ class NormalizeTuples(ast.NodeTransformer):
         return extra_assign
 
 def normalize_tuples(node):
+    """Prune a node from implicit tuples, replacing them by real ones."""
     NormalizeTuples().visit(node)
 
 ##
@@ -164,22 +136,10 @@ class RemoveComprehension(ast.NodeTransformer):
         return ast.Call(ast.Name(name,ast.Load()),[ast.Name(arg.id, ast.Load()) for arg in sargs],[], None, None) # no sharing !
 
 def remove_comprehension(node):
+    """Turns all list comprehension from a node into new function calls."""
     RemoveComprehension().visit(node)
     return node
 
-##
-class ConstantValue(ast.NodeVisitor):
-    def visit_Num(self, node):
-        return node.n
-    def visit_Name(self, node):
-        raise RuntimeError()
-    def visit_Index(self, node):
-        return self.visit(node.value)
-
-def constant_value(node):
-    cv= ConstantValue().visit(node)
-    if cv!=None : return cv 
-    else: raise RuntimeError()
 
 ##
 class NestedFunctionRemover(ast.NodeTransformer):
@@ -213,6 +173,7 @@ class RemoveNestedFunctions(ast.NodeVisitor):
         self.nested_functions+=nfr.nested_functions
 
 def remove_nested_functions(node):
+    '''replace nested function by top-level functions and a call to a bind intrinsic that generates a local function with some arguments binded'''
     RemoveNestedFunctions().visit(node)
 
 ##
@@ -248,6 +209,7 @@ class RemoveLambdas(ast.NodeVisitor):
         self.lambda_functions+=lr.lambda_functions
 
 def remove_lambdas(node):
+    '''turns lambda into top-level functions'''
     RemoveLambdas().visit(node)
 
 ##
@@ -267,6 +229,7 @@ class ParallelizeMaps(ast.NodeVisitor):
 
 
 def parallelize_maps(node):
+    '''Turns map calls to p(arallel)map calls when the first argument is pure.'''
     pure=purity_test(node)
     ParallelizeMaps(pure).visit(node)
 
@@ -282,4 +245,5 @@ class NormalizeReturn(ast.NodeVisitor):
             node.value=ast.Name("None",ast.Load())
 
 def normalize_return(node):
+    '''Adds Return statement when they are implicit, and adds the None return value when not set'''
     NormalizeReturn().visit(node)

@@ -3,7 +3,7 @@ import ply.yacc as yacc
 import os.path
 
 class SpecParser:
-    """ A parser that scans a file lurking for lies such as the following to generate a function signature
+    """ A parser that scans a file lurking for lines such as the following to generate a function signature
 #pythran export a((float,(int,long),str list) list list)
 #pythran export a(str)
 #pythran export a( (str,str), int, long list list)
@@ -85,8 +85,8 @@ class SpecParser:
             self.parser.errok()
 
     def __init__(self, **kwargs):
-        self.lexer=lex.lex(module=self)
-        self.parser=yacc.yacc(module=self)
+        self.lexer=lex.lex(module=self, debug=0)
+        self.parser=yacc.yacc(module=self, debug=0, tabmodule='pythran.parsetab')
 
     def __call__(self, path):
         self.exports=dict()

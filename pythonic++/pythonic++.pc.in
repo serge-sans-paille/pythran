@@ -1,8 +1,0 @@
-prefix=@prefix@
-includedir=@includedir@
-
-Name: pythonic++
-Description: python-like intrinsics for c++
-Version: @VERSION@
-#URL: http://...
-Cflags: -I${includedir}

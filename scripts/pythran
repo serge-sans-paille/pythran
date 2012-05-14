@@ -11,6 +11,7 @@ parser.add_argument('input_file', type=str, help='the python module to compile')
 parser.add_argument('-o', dest='output_file', type=str, help='path to generated file')
 parser.add_argument('-E', dest='translate_only', action='store_true', help='only run the translator, do not compile it')
 parser.add_argument('-f', dest='extra_fflags', metavar='flag', action='append', help='any compiler switch relevant to the underlying C++ compiler', default=list())
+parser.add_argument('-m', dest='extra_mflags', metavar='machine', action='append', help='any machine flag relevant to the underlying C++ compiler', default=list())
 parser.add_argument('-O', dest='extra_Oflags', metavar='level', action='append', help='any optimization level relevant to the underlying C++ compiler', default=list())
 
 args = parser.parse_args()
@@ -27,6 +28,7 @@ try:
         file(args.output_file,'w').write(str(module.generate()))
     else:
         extra_cxxflags=['-f{0}'.format(n) for n in args.extra_fflags]\
+                + ['-m{0}'.format(n) for n in args.extra_mflags]\
                 + ['-O{0}'.format(n) for n in args.extra_Oflags]
         pythran.compile(module, args.output_file,cxxflags=extra_cxxflags)
 

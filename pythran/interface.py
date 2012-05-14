@@ -1,7 +1,6 @@
 import sys 
 import os.path
 import shutil
-from subprocess import check_call, check_output
 from cgen import *
 from codepy.bpl import BoostPythonModule
 import ast
@@ -72,16 +71,13 @@ def compile(module, output_filename=None, cppflags=list(), cxxflags=list()):
     tc.include_dirs.append(".")
     tc.cflags.append("-std=c++0x")
     tc.cflags+=cppflags
-    tc.include_dirs+=[ p for p in sys.path if os.path.exists(os.path.join(p,"pythran.h")) ]
+
+    tc.include_dirs+=[ os.path.join(p,"pythran", "pythonic++") for p in sys.path if os.path.exists(os.path.join(p,"pythran","pythonic++","pythonic++.h")) ]
+    tc.include_dirs+=[ p for p in sys.path if os.path.exists(os.path.join(p,"pythran","pythran.h")) ]
 
     tc.add_library('boost-python',[],[], ['boost_python'])
 
-    check_call(["pkg-config", "pythonic++", "--exists"])
-    cflags = check_output(["pkg-config", "pythonic++", "--cflags"]).strip()
-    tc.cflags.append(cflags)
     tc.cflags+=cxxflags
-
-    #print module.generate()
 
     try: pymod = module.compile(tc, wait_on_error=True)
     except:

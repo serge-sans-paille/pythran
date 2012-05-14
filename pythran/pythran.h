@@ -156,10 +156,11 @@ struct from_python {
     auto operator()(T const & t) ->decltype(t) { return t; }
 
     T operator()(boost::python::list const & l) {
-        T s;
+        size_t i=0,n = boost::python::len(l);
+        T s(n);
         boost::python::stl_input_iterator<type> begin(l), end;
         for(auto iter = begin; iter!=end; ++iter)
-            s.push_back( from_python< typename T::value_type > () (*iter) );
+            s[i++]=from_python< typename T::value_type > () (*iter);
         return s;
     }
 

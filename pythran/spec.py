@@ -57,7 +57,7 @@ class SpecParser:
     def p_opt_types(self,p):
         '''opt_types :
                      | types'''
-        p[0] = p[1] if p[1] else []
+        p[0] = p[1] if len(p)==2 else []
 
     def p_types(self,p):
         '''types : type

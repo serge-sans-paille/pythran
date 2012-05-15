@@ -53,11 +53,6 @@ class TypeDependencies(ast.NodeVisitor):
         self.current_function=list()
 
 
-    def visit_Module(self, node):
-        # first build all def instances
-        [ self.visit(n) for n in node.body ]
-        
-
     def visit_FunctionDef(self, node):
         self.current_function.append(node)
         self.types.add_node(node)
@@ -120,6 +115,9 @@ class TypeDependencies(ast.NodeVisitor):
         return [set()]
 
     def visit_Str(self, node):
+        return [set()]
+
+    def visit_Attribute(self, node):
         return [set()]
 
     def visit_Subscript(self, node):
@@ -233,7 +231,7 @@ class Typing(ast.NodeVisitor):
         for alias in node.names:
             if self.current:self.name_to_nodes[alias.name]={alias}
             else: self.global_declarations[alias.name]=alias
-            self.types[alias]="proxy::{0}".format(alias.name) if not modules[node.module][alias.name] else "decltype({0}::{1})".format(node.module,alias.name)
+            self.types[alias]="{0}::proxy::{1}".format(node.module, alias.name) if not modules[node.module][alias.name] else "decltype({0}::{1})".format(node.module,alias.name)
 
     def visit_BoolOp(self, node):
         [ self.visit(value) for value in node.values]
@@ -273,6 +271,12 @@ class Typing(ast.NodeVisitor):
 
     def visit_Str(self, node):
         self.types[node]="std::string"
+
+    def visit_Attribute(self, node):
+        value, attr = (node.value, node.attr)
+        if value.id in modules and attr in modules[value.id]:
+            if modules[value.id][attr]: self.types[node]="decltype({0}::{1})".format(value.id, attr)
+            else: self.types[node]="decltype({0}::proxy::{1}())".format(value.id, attr)
 
     def visit_Subscript(self, node):
         self.visit(node.value)

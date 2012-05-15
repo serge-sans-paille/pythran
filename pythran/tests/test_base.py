@@ -299,3 +299,9 @@ def nested_def(a):
 
     def test_none_(self):
         self.run_test("def none_(l):\n if len(l)==0: return\n else: return l", [], none_=[[int]])
+
+    def test_import_(self):
+        self.run_test("import math\ndef import_(): return math.cos(1)", import_=[])
+
+    def test_local_import_(self):
+        self.run_test("def local_import_(): import math;return math.cos(1)", local_import_=[])

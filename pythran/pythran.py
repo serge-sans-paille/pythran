@@ -157,6 +157,16 @@ class CgenVisitor(ast.NodeVisitor):
         params = [ self.visit(node.msg) if node.msg else None, self.visit(node.test) ]
         return Statement("assert(({0}))".format(", ".join(p for p in params if p)))
 
+    def visit_Import(self, node):
+        for alias in node.names:
+            name, asname=(alias.name, alias.asname)
+            if asname:
+                PythranSyntaxError("Renaming using the 'as' keyword in an import", node)
+            elif name not in modules:
+                PythranSyntaxError("Module '{0}'".format(name), node)
+
+        return EmptyStatement()
+
     def visit_ImportFrom(self, node):
         if node.level != 0: raise PythranSyntaxError("Specifying a level in an import", node)
         if not node.module: raise PythranSyntaxError("The import from syntax without module", node)
@@ -172,7 +182,7 @@ class CgenVisitor(ast.NodeVisitor):
                 usings.append("using {0}::{1}".format(module, alias.name))
             else:
                 self.local_functions.add(alias.name)
-                usings.append("using proxy::{0}".format(alias.name))
+                usings.append("using {0}::proxy::{1}".format(module, alias.name))
 
         return Statement("; ".join(usings))
 
@@ -260,7 +270,11 @@ class CgenVisitor(ast.NodeVisitor):
         return '"{0}"'.format(node.s)
 
     def visit_Attribute(self, node):
-        raise PythranSyntaxError("Attributes are not supported", node)
+        value, attr = (node.value, node.attr)
+        if isinstance(value, ast.Name) and value.id in modules and attr in modules[value.id]:
+            if modules[value.id][attr]: return "{0}::{1}".format(value.id, attr)
+            else: return "{0}::proxy::{1}()".format(value.id, attr)
+        raise PythranSyntaxError("Attributes are only supported for namespaces", node)
 
     def visit_Subscript(self, node):
         value = self.visit(node.value)

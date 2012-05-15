@@ -10,12 +10,13 @@ namespace pythonic {
         using std::isnan;
         double const pi = std::atan(1)*4;
         double const e = std::exp(1);
+
+        PROXY(pythonic::math,cos);
+        PROXY(pythonic::math,exp);
+        PROXY(pythonic::math,sqrt);
+        PROXY(pythonic::math,log10);
+        PROXY(pythonic::math,isnan);
     }
-    PROXY(pythonic::math,cos);
-    PROXY(pythonic::math,exp);
-    PROXY(pythonic::math,sqrt);
-    PROXY(pythonic::math,log10);
-    PROXY(pythonic::math,isnan);
 }
 
 #endif

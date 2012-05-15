@@ -145,13 +145,22 @@ class WrittenAreas(ast.NodeVisitor):
                     self.written_areas.update(aliases)
 
     def visit_Call(self, node):
-        assert isinstance(node.func, ast.Name)
+        def call_to_id(n):
+            '''extension for imported functions'''
+            if isinstance(n, ast.Name):
+                return n.id
+            elif isinstance(n, ast.Attribute) and isinstance(n.value, ast.Name):
+                return "{0}::{1}".format(n.value.id, n.attr)
+            else:
+                print ast.dump(node)
+                assert False
+        call_id = call_to_id(node.func)
         [self.visit(arg) for arg in node.args]
         imported_areas=imported_ids(node, dict())
-        imported_areas.difference_update({ node.func.id })
+        imported_areas.difference_update({ call_id })
         all_parameters=reduce(set.union, [ s for s in self.aliases.itervalues() ], set() )
         if not imported_areas.isdisjoint(all_parameters):
-            self.deps.add(node.func.id)
+            self.deps.add(call_id)
 
 
 def written_areas(node):

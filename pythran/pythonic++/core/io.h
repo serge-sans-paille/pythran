@@ -40,8 +40,30 @@ namespace pythonic {
             else return os << v.data;
         }
 
-        std::ostream& operator<<(std::ostream& os, none_type const &) {
-            return os << "None";
+    std::ostream& operator<<(std::ostream& os, none_type const &) {
+        return os << "None";
+    }
+
+    template<std::size_t> struct int_{}; // compile-time counter
+
+    template<class Ch, class Tr, class Tuple, std::size_t I>
+        void print_tuple(std::basic_ostream<Ch,Tr>& os, Tuple const& t, int_<I>){
+            print_tuple(os, t, int_<I-1>());
+            os << ", " << std::get<I>(t);
+        }
+
+    template<class Ch, class Tr, class Tuple>
+        void print_tuple(std::basic_ostream<Ch,Tr>& os, Tuple const& t, int_<0>){
+            os << std::get<0>(t);
+        }
+
+    template<class Ch, class Traits, class... Args>
+        std::ostream& operator<<(std::basic_ostream<Ch,Traits>& os,
+                std::tuple<Args...> const& t)
+        {
+            os << '(';
+            print_tuple(os, t, int_<sizeof...(Args)-1>());
+            return os << ')';
         }
 }
 #endif

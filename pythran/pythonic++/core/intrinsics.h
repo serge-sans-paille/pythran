@@ -2,8 +2,147 @@
 #define PYTHONIC_INTRINSICS_H
 
 #include <tuple>
+#include <sstream>
+#include <complex>
 
 namespace pythonic {
+    /* abs */
+    using std::abs;
+    PROXY(pythonic, abs);
+
+    /* all */
+    template <class T>
+        bool all( sequence<T> const& s) {
+            return s.end() == std::find_if(s.begin(), s.end(), [](T const&t) { return not bool(t); });
+        }
+    PROXY(pythonic, all);
+
+    /* any */
+    template <class T>
+        bool any( sequence<T> const& s) {
+            return s.end() != std::find_if(s.begin(), s.end(), [](T const&t) { return bool(t); });
+        }
+    PROXY(pythonic, any);
+
+    /* bin */
+    template<class T>
+        std::string bin(T const &v) {
+            std::ostringstream oss("0b");
+            for(size_t i=1 << (8*sizeof(T)-1); i ; i>>=1)
+                if(v & i) oss << "1";
+                else oss << "0";
+            return oss.str();
+        }
+    PROXY(pythonic, bin);
+
+    /* chr */
+    template<class T>
+        std::string chr(T const &v) { return std::string(1,(char)v); }
+    PROXY(pythonic, chr);
+
+    /* cmp */
+    template<class T0, class T1>
+        bool cmp(T0 const& v0, T1 const& v1) {
+            return v0 == v1 ? 0 : ( v0 < v1 ? -1 : 1 );
+        }
+    PROXY(pythonic, cmp);
+
+    /* complex */
+    template<class T0, class T1=double> // do not handle string as first argument
+    std::complex<double> complex(T0 const& v0, T1 const& v1 = 0.) {
+        return std::complex<double>(v0,v1);
+    }
+    PROXY(pythonic, complex);
+
+    /* divmod */
+    template<class T0, class T1>
+        auto divmod(T0 const& t0, T1 const& t1) // other types are left over
+            -> decltype(std::make_tuple(t0/t1, t0%t1)) {
+                return std::make_tuple(t0/t1, t0%t1);
+            }
+    PROXY(pythonic, divmod);
+
+    /* enumerate */
+    template<class T>
+    struct enumerate_iterator : std::iterator< std::forward_iterator_tag, long >{
+        long value;
+        typename sequence<T>::const_iterator iter;
+        enumerate_iterator(long value, typename sequence<T>::const_iterator iter) : value(value), iter(iter) {}
+        std::tuple<long,T>  operator*() { return std::make_tuple(value, *iter); }
+        enumerate_iterator& operator++() { ++value,++iter; return *this; }
+        enumerate_iterator operator++(int) { enumerate_iterator self(*this); ++value, ++iter; return self; }
+        bool operator!=(enumerate_iterator const& other) { return value != other.value; }
+    };
+
+    template <class T>
+    struct _enumerate {
+        sequence<T> const& seq;
+        typedef std::tuple<long, T> value_type;
+        _enumerate( sequence<T> const& seq ) : seq(seq) {}
+        enumerate_iterator<T> begin() const { return enumerate_iterator<T>(0L,seq.begin()); }
+        enumerate_iterator<T> end() const { return enumerate_iterator<T>(seq.end()-seq.begin(), seq.end()); }
+    };
+    template <class T>
+    _enumerate<T> enumerate(sequence<T> const& seq) { return _enumerate<T>(seq); }
+    PROXY(pythonic,enumerate);
+
+    /* filter */
+    template<class F, class T>
+        sequence<T> filter(F const& f, sequence<T> const& seq) { /* does not implement the full standard */
+            sequence<T> out;
+            std::copy_if(seq.begin(), seq.end(), std::back_inserter(out), f);
+            return out;
+        }
+    PROXY(pythonic, filter);
+
+    /* hex */
+    template <class T>
+        std::string hex(T const & v) {
+            std::ostringstream oss("0x");
+            oss << std::hex << v;
+            return oss.str();
+        }
+    PROXY(pythonic, hex);
+
+    /* id */
+    template <class T>
+        struct _id {
+            intptr_t operator()(T const &t) {
+                return reinterpret_cast<intptr_t>(&t);
+            }
+        };
+    template <class T>
+        struct _id< sequence<T> > {
+            intptr_t operator()(sequence<T> const &t) {
+                return reinterpret_cast<intptr_t>(&(*t.data));
+            }
+        };
+
+    template <class T>
+        intptr_t id(T const & t) {
+            return _id<T>()(t);
+        }
+    PROXY(pythonic,id);
+
+    /* in */
+    template <class T, class V>
+        bool in(T const &t, V const &v) {
+            return std::find(t.begin(), t.end(), v) == t.end();
+        }
+    template <>
+        bool in<std::string, std::string>(std::string const &t, std::string const &v) {
+            return t.find(v) != std::string::npos;
+        }
+    PROXY(pythonic,in);
+
+
+    /* len */
+    template <class T>
+        size_t len(T const &t ) {
+            return std::distance(t.begin(), t.end());
+        }
+    PROXY(pythonic,len);
+
     /* list */
     empty_sequence list() {
         return empty_sequence();
@@ -33,43 +172,6 @@ namespace pythonic {
         } 
     PROXY(pythonic,list);
 
-    /* in */
-    template <class T, class V>
-        bool in(T const &t, V const &v) {
-            return std::find(t.begin(), t.end(), v) == t.end();
-        }
-    template <>
-        bool in<std::string, std::string>(std::string const &t, std::string const &v) {
-            return t.find(v) != std::string::npos;
-        }
-    PROXY(pythonic,in);
-
-    /* len */
-    template <class T>
-        size_t len(T const &t ) {
-            return std::distance(t.begin(), t.end());
-        }
-    PROXY(pythonic,len);
-
-    /* id */
-    template <class T>
-        struct _id {
-            intptr_t operator()(T const &t) {
-                return reinterpret_cast<intptr_t>(&t);
-            }
-        };
-    template <class T>
-        struct _id< sequence<T> > {
-            intptr_t operator()(sequence<T> const &t) {
-                return reinterpret_cast<intptr_t>(&(*t.data));
-            }
-        };
-
-    template <class T>
-        intptr_t id(T const & t) {
-            return _id<T>()(t);
-        }
-    PROXY(pythonic,id);
 
     /* map */
     template <typename Operator, typename Sequence0, typename... Iterators>
@@ -91,34 +193,6 @@ namespace pythonic {
         }
 
     PROXY(pythonic,map);
-
-    /* reduce */
-
-    template<class Sequence, class Operator>
-        auto reduce(Operator op, Sequence const& s)
-        -> decltype( op( std::declval< typename Sequence::value_type >(), std::declval< typename Sequence::value_type >() ) )
-        {
-            decltype( op( std::declval< typename Sequence::value_type >(), std::declval< typename Sequence::value_type >() ) ) res = op( s[0], s[1] );
-            return std::accumulate(s.begin() + 2, s.end(), res, op);
-        }
-    template<class Sequence, class Operator, class T>
-        auto reduce(Operator op, Sequence const& s, T const & init)
-        -> decltype( std::accumulate(s.begin(), s.end(), init, op) )
-        {
-            return std::accumulate(s.begin(), s.end(), init, op);
-        }
-    PROXY(pythonic,reduce);
-
-    /* sum */
-    template<class Sequence>
-        auto sum(Sequence const& s, size_t start=0)
-        -> decltype( std::declval< typename Sequence::value_type >() + std::declval< typename Sequence::value_type >() )
-        {
-            auto iter = s.begin()+start;
-            decltype( std::declval< typename Sequence::value_type >() + std::declval< typename Sequence::value_type >() ) res = *(iter++);
-            return std::accumulate(iter, s.end(), res);
-        }
-    PROXY(pythonic,sum);
 
     /* max */
     template <class... Types> struct Max;
@@ -211,26 +285,18 @@ namespace pythonic {
         }
     PROXY(pythonic,min);
 
-    /* zip */
-    template<class Iterator0, class... Iterators>
-        sequence< std::tuple<typename Iterator0::value_type, typename Iterators::value_type... > > _zip(Iterator0 first, Iterator0 last, Iterators...  iters) {
-            sequence< std::tuple< typename Iterator0::value_type, typename Iterators::value_type... > > out;
-            auto biter = std::back_inserter(out);
-            while(first!=last)
-                *biter++= std::make_tuple( *first++, *iters++... );
-            return out;
+    /* oct */
+    template <class T>
+        std::string oct(T const & v) {
+            std::ostringstream oss("0");
+            oss << std::oct << v;
+            return oss.str();
         }
+    PROXY(pythonic, oct);
 
-    template<class Sequence0, class... Sequences>
-        sequence< std::tuple<typename Sequence0::value_type, typename Sequences::value_type... > > zip(Sequence0 const& s0, Sequences const&...  sequences) {
-            return _zip(s0.begin(), s0.end(), sequences.begin()...);
-        }
-
-    empty_sequence zip() {
-        return empty_sequence();
-    }
-
-    PROXY(pythonic,zip);
+    /* pow */
+    using std::pow;
+    PROXY(pythonic, pow);
 
     /* xrange */
     struct xrange_iterator : std::iterator< std::forward_iterator_tag, long >{
@@ -271,5 +337,107 @@ namespace pythonic {
         return _range(xr);
     }
     PROXY(pythonic,range);
+
+    /* reduce */
+
+    template<class Sequence, class Operator>
+        auto reduce(Operator op, Sequence const& s)
+        -> decltype( op( std::declval< typename Sequence::value_type >(), std::declval< typename Sequence::value_type >() ) )
+        {
+            decltype( op( std::declval< typename Sequence::value_type >(), std::declval< typename Sequence::value_type >() ) ) res = op( s[0], s[1] );
+            return std::accumulate(s.begin() + 2, s.end(), res, op);
+        }
+    template<class Sequence, class Operator, class T>
+        auto reduce(Operator op, Sequence const& s, T const & init)
+        -> decltype( std::accumulate(s.begin(), s.end(), init, op) )
+        {
+            return std::accumulate(s.begin(), s.end(), init, op);
+        }
+    PROXY(pythonic,reduce);
+
+    /* reversed */
+    template <class T>
+        struct _reversed {
+            sequence<T> const& seq;
+            _reversed(sequence<T> const& seq) : seq(seq) {}
+            typedef typename sequence<T>::value_type value_type;
+            auto begin() -> decltype(seq.rbegin()) { return seq.rbegin(); }
+            auto end() -> decltype(seq.rend()) { return seq.rend(); }
+        };
+
+
+    template <class T>
+        _reversed<T> reversed(sequence<T> const& seq) {
+            return _reversed<T>(seq);
+        }
+    PROXY(pythonic, reversed);
+
+
+    /* round */
+    template <class T>
+        T round(T const & v, size_t n=0) {
+            T p = std::pow(10,n);
+            return std::floor(v * p)/p;
+        }
+    PROXY(pythonic, round);
+
+    /* sorted */
+    template <class T>
+        sequence<T> sorted(sequence<T> const& seq) {
+            sequence<T> out(seq);
+            std::sort(out.begin(), out.end());
+            return out;
+        }
+    template <class T, class C>
+        sequence<T> sorted(sequence<T> const& seq, C const& cmp) {
+            sequence<T> out(seq);
+            std::sort(seq.bein(), seq.end(), cmp);
+            return out;
+        }
+    PROXY(pythonic, sorted);
+
+    /* str */
+    template <class T>
+        std::string str(T const & t) {
+            std::ostringstream oss;
+            oss << t;
+            return oss.str();
+        }
+    PROXY(pythonic, str);
+
+    /* sum */
+    template<class Sequence>
+        auto sum(Sequence const& s, size_t start=0)
+        -> decltype( std::declval< typename Sequence::value_type >() + std::declval< typename Sequence::value_type >() )
+        {
+            auto iter = s.begin()+start;
+            decltype( std::declval< typename Sequence::value_type >() + std::declval< typename Sequence::value_type >() ) res = *(iter++);
+            return std::accumulate(iter, s.end(), res);
+        }
+    PROXY(pythonic,sum);
+
+    /* xrange -> forward declared */
+
+    /* zip */
+    template<class Iterator0, class... Iterators>
+        sequence< std::tuple<typename Iterator0::value_type, typename Iterators::value_type... > > _zip(Iterator0 first, Iterator0 last, Iterators...  iters) {
+            sequence< std::tuple< typename Iterator0::value_type, typename Iterators::value_type... > > out;
+            auto biter = std::back_inserter(out);
+            while(first!=last)
+                *biter++= std::make_tuple( *first++, *iters++... );
+            return out;
+        }
+
+    template<class Sequence0, class... Sequences>
+        sequence< std::tuple<typename Sequence0::value_type, typename Sequences::value_type... > > zip(Sequence0 const& s0, Sequences const&...  sequences) {
+            return _zip(s0.begin(), s0.end(), sequences.begin()...);
+        }
+
+    empty_sequence zip() {
+        return empty_sequence();
+    }
+
+    PROXY(pythonic,zip);
+
 }
 #endif

@@ -474,7 +474,7 @@ class AutoFor(Loop):
         self.body = body
 
     def intro_line(self):
-        return "for(auto & %s : %s)" % (self.var, self.iterable)
+        return "for(auto %s : %s)" % (self.var, self.iterable)
 
 class DoWhile(Loop):
     def __init__(self, condition, body):

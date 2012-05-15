@@ -297,11 +297,62 @@ def nested_def(a):
     return the_nested_def(3)"""
         self.run_test(code,3, nested_def=[int])
 
-    def test_none_(self):
+    def test_none(self):
         self.run_test("def none_(l):\n if len(l)==0: return\n else: return l", [], none_=[[int]])
 
-    def test_import_(self):
+    def test_import(self):
         self.run_test("import math\ndef import_(): return math.cos(1)", import_=[])
 
-    def test_local_import_(self):
+    def test_local_import(self):
         self.run_test("def local_import_(): import math;return math.cos(1)", local_import_=[])
+
+    def test_abs(self):
+        self.run_test("def abs_(a): return abs(a)", -1.3, abs_=[float])
+
+    def test_all(self):
+        self.run_test("def all_(a): return all(a)", [True, False, True], all_=[[bool]])
+
+    def test_any(self):
+        self.run_test("def any_(a): return any(a)", [0, 1, 2], any_=[[int]])
+
+    def test_bin(self):
+        self.run_test("def bin_(a): return bin(a)", 54321, bin_=[int])
+
+    def test_chr(self):
+        self.run_test("def chr_(a): return chr(a)", 42, chr_=[int])
+
+    def test_cmp(self):
+        self.run_test("def cmp_(a,b): return cmp(a,b)", 1, 4.5, cmp_=[int, float])
+
+    def test_complex(self):
+        self.run_test("def complex_(a): return complex(a)", 1, complex_=[int])
+
+    def test_divmod(self):
+        self.run_test("def divmod_(a,b): return divmod(a,b)", 5, 2, divmod_=[int,int])
+
+    def test_enumerate(self):
+        self.run_test("def enumerate_(l): return [ x for x in enumerate(l) ]", ["a","b","c"], enumerate_=[[str]])
+
+    def test_filter(self):
+        self.run_test("def filter_(l): return filter(lambda x:x%2, l)", [1,2,3], filter_=[[int]])
+
+    def test_hex(self):
+        self.run_test("def hex_(a): return hex(a)", 18, hex_=[int])
+
+    def test_oct(self):
+        self.run_test("def oct_(a): return oct(a)", 18, oct_=[int])
+
+    def test_pow(self):
+        self.run_test("def pow_(a): return pow(a,15)", 18, pow_=[int])
+
+    def test_reversed(self):
+        self.run_test("def reversed_(l): return [x for x in reversed(l)]", [1,2,3], reversed_=[[int]])
+
+    def test_round(self):
+        self.run_test("def round_(v): return round(v) + round(v,2)", 0.1234, round_=[float])
+
+    def test_sorted(self):
+        self.run_test("def sorted_(l): return [x for x in sorted(l)]", [1,2,3], sorted_=[[int]])
+
+    def test_str(self):
+        self.run_test("def str_(l): return str(l)", [1,2,3.5], str_=[[float]])

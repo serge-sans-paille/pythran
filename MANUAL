@@ -7,8 +7,8 @@ pythran is a python-to-c++ translator that turns python module into native c++
 module. From a user point of view, you still ``import`` your module, but under
 the hood... there is much more happening!
 
-Dislaimer
----------
+Disclaimer
+----------
 
 Pythran is *not* a full python-to-c++ converter, as in _shedskin_. Instead it
 takes a subset of the python language and turns it into heavily templatized c++
@@ -26,8 +26,12 @@ Say bye bye to:
 * classes
 * set
 * dictionnaries
-* exception
+* exceptions
 * dynamic typing
+* file handling
+
+In a nutshell, pythran makes it possible to write numerical algorithms in
+python and to have them run faster. Nuff said.
 
 Installation
 ------------
@@ -35,7 +39,8 @@ Installation
 Let us assume you're running a Debian/Ubuntu distrib. In that case, all you have to do is
 
 	$> sudo apt-get install libboost-python-dev
-	$> easy_install --prefix <my_prefix> codeply ply numpy networkx
+	$>  PYTHONPATH=<my_prefix>/lib/python<my_version>/site-packages \
+			easy_install --prefix <my_prefix> codepy ply numpy networkx
 
 Alternatively, ``ply`` is available though ``python-ply``, ``numpy`` from ``python-numpy`` and
 ``networkx`` from ``python-networkx``. Then set your ``PYTHONPATH`` appropriately,

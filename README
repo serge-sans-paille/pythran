@@ -27,6 +27,7 @@ Installation
 		$> export PATH=<my_prefix>/bin:$PATH
 
 
+
 Basic Usage
 -----------
 
@@ -47,14 +48,14 @@ module.
 Documentation
 ----------
 
-The User documentation is available in the MANUAL file.
+The user documentation is available in the MANUAL file.
 
 The CLI documentation is available from the pythran help command.
 
 	$> pythran --help
 
-The developper documentation is also available using pydoc, but is somehow
-minimalistic.
+The developper documentation is also available using pydoc. Beware, this is the
+computer science incarnation fo the famous Where's Wally? game.
 
 	$> pydoc pythran
 	$> pydoc pythran.typing

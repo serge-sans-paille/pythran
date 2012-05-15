@@ -11,6 +11,7 @@ class build_with_ply(build):
         if not self.dry_run:
             from  pythran.spec import SpecParser
             SpecParser() # this forces the generation of the parsetab file
+            self.mkpath(self.build_lib)
             for p in ['parsetab.py']:
                 target = os.path.join(self.build_lib,'pythran',p)
                 if os.path.exists(p):

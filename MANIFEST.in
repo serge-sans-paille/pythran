@@ -1,1 +1,2 @@
-# default distutils behavior is fine
+include LICENSE
+include MANUAL

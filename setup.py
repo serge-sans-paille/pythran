@@ -34,7 +34,6 @@ class TestCommand(Command):
         t = TextTestRunner()
         t.run(loader.discover(os.path.join('pythran','tests')))
 
-
 setup(  name='pythran',
         version='0.1.0',
         description='a claimless python to c++ converter',

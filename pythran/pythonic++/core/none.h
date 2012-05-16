@@ -3,9 +3,9 @@
 
 namespace pythonic {
 
-struct none_type {};
+struct none_type { none_type(){} };
 
-static const none_type None = {};
+static const none_type None;
 
 template<class T>
 struct none {

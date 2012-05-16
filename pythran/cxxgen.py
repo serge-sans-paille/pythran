@@ -773,15 +773,6 @@ class BoostPythonModule(object):
 
         self.mod_body.extend(body)
 
-    def add_codepy_include(self):
-        if self.has_codepy_include:
-            return
-
-        self.add_to_preamble([
-            Include("codepy/bpl.hpp")
-            ])
-        self.has_codepy_include = True
-
     def add_raw_function_include(self):
         if self.has_raw_function_include:
             return
@@ -790,21 +781,6 @@ class BoostPythonModule(object):
             Include("boost/python/raw_function.hpp")
             ])
         self.has_raw_function_include = True                        
-
-    def expose_vector_type(self, name, py_name=None):
-        self.add_codepy_include()
-
-        if py_name is None:
-            py_name = name
-
-        self.init_body.append(
-            Block([
-                Typedef(Value(name, "cl")),
-                Line(),
-                Statement(
-                    "boost::python::class_<cl>(\"%s\")"
-                    ".def(codepy::no_compare_indexing_suite<cl>())" % py_name),
-                ]))
 
     def add_function(self, func):
         """Add a function to be exposed. *func* is expected to be a

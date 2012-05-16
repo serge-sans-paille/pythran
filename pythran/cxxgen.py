@@ -21,9 +21,7 @@ __copyright__ = "Copyright (C) 2008 Andreas Kloeckner"
 import struct as _struct
 
 import numpy
-from pytools import memoize
 
-@memoize
 def is_64_bit_platform():
     return _struct.calcsize('l') == 8
 

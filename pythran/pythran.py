@@ -45,7 +45,7 @@ class CgenVisitor(ast.NodeVisitor):
         body = [ self.visit(n) for n in node.body ]
 
         assert not self.local_declarations
-        return headers +  [Namespace(self.name, body + self.declarations + self.definitions) ]
+        return headers +  [Namespace("__{0}".format(self.name), body + self.declarations + self.definitions) ]
 
     def visit_Interactive(self, node):
         raise PythranSyntaxError("Interactive session are not supported", node)

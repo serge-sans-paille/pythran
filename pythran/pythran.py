@@ -1,6 +1,6 @@
 '''This module turns a pythran file into a (hopefully) equivalent c++ file'''
 import ast
-from cgen import *
+from cxxgen import *
 
 from analysis import local_declarations, global_declarations, constant_value
 from passes import remove_comprehension, remove_nested_functions, remove_lambdas, normalize_tuples, parallelize_maps, normalize_return

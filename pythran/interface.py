@@ -4,11 +4,12 @@
 '''
 import sys 
 import os.path
-import shutil
-from cgen import *
-from codepy.bpl import BoostPythonModule
+import distutils.sysconfig
+from cxxgen import *
 import ast
 from pythran import CgenVisitor
+from subprocess import check_call
+from tempfile import mkstemp
 
 pytype_to_ctype_table = {
         bool          : 'bool',
@@ -70,25 +71,47 @@ def cxx_generator(module_name, code, specs):
 
     return mod
 
+class ToolChain(object):
+
+    def __init__(self):
+        self.compiler="g++"
+        self.include_dirs=list()
+        self.cppflags=list()
+        self.cxxflags=list()
+        self.ldflags=list()
+
+    def compile(self, module, output_filename=None):
+        fd, fdpath=mkstemp(suffix=".cpp")
+        with os.fdopen(fd,"w") as cpp:
+            content=str(module.generate())
+            cpp.write(content)
+        module_cpp=fdpath
+        module_so = output_filename if output_filename else "{0}.so".format(module.name) 
+        check_call([self.compiler, module_cpp] + self.cxxflags + [  "-shared", "-o", module_so ] + [ "-I{0}".format(d) for d in self.include_dirs ]  + self.cppflags + self.ldflags)
+        os.remove(fdpath)
+        return module_so
+
+
+
 def compile(module, output_filename=None, cppflags=list(), cxxflags=list()):
     '''c++ code + compiler flags -> native module'''
-    from codepy.jit import guess_toolchain
-    tc = guess_toolchain()
+    tc = ToolChain()
     tc.include_dirs.append(".")
-    tc.cflags.append("-std=c++0x")
-    tc.cflags+=cppflags
+    tc.include_dirs.append(distutils.sysconfig.get_python_inc())
+    tc.cppflags=cppflags
 
     tc.include_dirs+=[ os.path.join(p,"pythran", "pythonic++") for p in sys.path if os.path.exists(os.path.join(p,"pythran","pythonic++","pythonic++.h")) ]
     tc.include_dirs+=[ p for p in sys.path if os.path.exists(os.path.join(p,"pythran","pythran.h")) ]
 
-    tc.add_library('boost-python',[],[], ['boost_python'])
+    tc.ldflags.append('-L{0}/config'.format(distutils.sysconfig.get_python_lib(0,1)))
+    tc.ldflags.append('-lpython{0}'.format(sys.version[:3]))
+    tc.ldflags.append('-lboost_python')
 
-    tc.cflags+=cxxflags
+    tc.cxxflags.append("-std=c++0x")
+    tc.cxxflags+=cxxflags
 
-    try: pymod = module.compile(tc, wait_on_error=True)
+    try: pymod = tc.compile(module, output_filename=output_filename)
     except:
         print module.generate()
         raise
-    if output_filename:
-        shutil.copyfile(pymod.__file__, output_filename)
     return pymod

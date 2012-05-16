@@ -41,9 +41,9 @@ setup(  name='pythran',
         author='Serge Guelton',
         author_email='serge.guelton@telecom-bretagne.eu',
         url="http://serge.liyun.free.fr/serge",
-        packages=['pythran', 'pythran/pythonic++', 'cgen'],
+        packages=['pythran', 'pythran/pythonic++'],
         package_data = { 'pythran': ['pythran.h'], 'pythran/pythonic++': ['pythonic++.h', 'core/*.h', 'modules/*.h'] },
         scripts= ['scripts/pythran'],
-        requires=['codepy (>=2012.1.2)', 'ply (>=3.4)', 'numpy', 'networkx (>=1.5)'],
+        requires=['ply (>=3.4)', 'numpy', 'networkx (>=1.5)'],
         cmdclass= { 'build' : build_with_ply, 'test' : TestCommand }
      )

@@ -279,7 +279,7 @@ def not_so_deep_recursive_calls(i):return b(i)"""
         code="""
 def a(i): return a(i-1) + b(i) if i else i
 def b(i): return b(i-1)+a(i-1) if i else c(i-1) if i+1 else i
-def c(i): return c(i-1) if i else 1
+def c(i): return c(i-1) if i>0 else 1
 def deep_recursive_calls(i):a(i)+b(i) +c(i)"""
         self.run_test(code,3, deep_recursive_calls=[int])
 

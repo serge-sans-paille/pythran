@@ -10,6 +10,13 @@ from tables import modules, builtin_constants
 import ast
 import networkx as nx
 
+class PythranSyntaxError(SyntaxError):
+    def __init__(self, msg, node):
+        SyntaxError.__init__(self,msg)
+        self.lineno=node.lineno
+        self.offset=node.col_offset
+
+
 class LocalDeclarations(ast.NodeVisitor):
     def __init__(self):
         self.local_symbols=set()
@@ -216,3 +223,32 @@ def constant_value(node):
     cv= ConstantValue().visit(node)
     if cv!=None : return cv 
     else: raise RuntimeError()
+
+##
+class Callees(ast.NodeVisitor):
+    def __init__(self, name_to_node):
+        self.name_to_node=name_to_node
+        self.callees={ n:set() for n in name_to_node.itervalues() }
+
+    def visit_FunctionDef(self,node):
+        self.curr=node
+        [ self.visit(n) for n in node.body ]
+
+    def visit_Call(self,node):
+        [self.visit(n) for n in node.args]
+        if isinstance(node.func, ast.Name) and node.func.id in self.name_to_node:
+            self.callees[self.curr].add(self.name_to_node[node.func.id])
+
+def ordered_global_declarations(node):
+    '''order all global functions according to their callgraph depth'''
+    c=Callees(global_declarations(node))
+    c.visit(node)
+    old_count=-1
+    new_count=0
+    while new_count != old_count:
+        for k,v in c.callees.iteritems():
+            for f in list(v):
+                v.update(c.callees[f])
+        old_count=new_count
+        new_count=reduce(lambda acc,s:acc+len(s),c.callees.itervalues(),0)
+    return sorted(c.callees.iterkeys(), key=lambda s: len(c.callees[s]), reverse=True)

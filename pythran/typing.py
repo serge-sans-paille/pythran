@@ -5,8 +5,9 @@
 import ast
 import networkx as nx
 import operator
+import re
 from tables import type_to_str, operator_to_lambda, modules, builtin_constants
-from analysis import global_declarations, constant_value
+from analysis import global_declarations, constant_value, ordered_global_declarations, PythranSyntaxError
 
 # networkx backward compatibility
 if not "has_path" in nx.__dict__:
@@ -35,7 +36,7 @@ class Reorder(ast.NodeVisitor):
             if isinstance(stmt, ast.FunctionDef):
                 olddef.append(stmt)
             else: newbody.append(stmt)
-        newdef = [ f for f in nx.topological_sort(self.typedeps) if isinstance(f, ast.FunctionDef) ]
+        newdef = [ f for f in nx.topological_sort(self.typedeps, ordered_global_declarations(node)) if isinstance(f, ast.FunctionDef) ]
         assert set(newdef) == set(olddef)
         node.body=newbody + newdef
 
@@ -54,6 +55,7 @@ class TypeDependencies(ast.NodeVisitor):
 
 
     def visit_FunctionDef(self, node):
+        modules['__user__'][node.name]=dict()
         self.current_function.append(node)
         self.types.add_node(node)
         self.naming=dict()
@@ -159,14 +161,29 @@ class Typing(ast.NodeVisitor):
                     self.types[node]=new_type
             else:
                 f=lambda x: "std::declval<{0}>()".format(x)
-                new_type = unary_op( self.types[othernode] ) 
-                if node not in self.types or (isinstance(node,ast.FunctionDef) and self.types[node] in self.global_declarations):
-                    self.types[node]=new_type
-                elif self.types[node] != new_type :
-                    if "/*weak*/" not in new_type and "/*weak*/" not in self.types[node]:
-                        self.types[node]="decltype({0})".format(op(f(self.types[node]), f(new_type)))
-                    elif "/*weak*/" not in new_type:
+                if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Param): # defer combination for parameters
+                    def translator_generator(args):
+                        ''' capture args for transtor generation'''
+                        def interprocedural_type_translator(s,n):
+                            translated_othernode=ast.Name('__fake__', ast.Load())
+                            s.types[translated_othernode]=s.types[othernode]
+                            # build translated type for fake_node
+                            for p,v in enumerate(args):
+                                if v == node: # this one will replace `node'
+                                    translated_node=n.args[p]
+                                s.types[translated_othernode]=re.sub(r'argument_type{0}'.format(p),s.types[n.args[p]], s.types[translated_othernode])
+                            s.combine(translated_node, translated_othernode, op, unary_op)
+                        return interprocedural_type_translator
+                    modules['__user__'][self.current[-1].name]['combiner']=translator_generator(self.current[-1].args.args) # deferred combination
+                else:
+                    new_type = unary_op( self.types[othernode] ) 
+                    if node not in self.types or (isinstance(node,ast.FunctionDef) and self.types[node] in self.global_declarations):
                         self.types[node]=new_type
+                    elif self.types[node] != new_type :
+                        if "/*weak*/" not in new_type and "/*weak*/" not in self.types[node]:
+                            self.types[node]="decltype({0})".format(op(f(self.types[node]), f(new_type)))
+                        elif "/*weak*/" not in new_type:
+                            self.types[node]=new_type
         except:
             print ast.dump(othernode)
             raise
@@ -231,7 +248,7 @@ class Typing(ast.NodeVisitor):
         for alias in node.names:
             if self.current:self.name_to_nodes[alias.name]={alias}
             else: self.global_declarations[alias.name]=alias
-            self.types[alias]="{0}::proxy::{1}".format(node.module, alias.name) if not modules[node.module][alias.name] else "decltype({0}::{1})".format(node.module,alias.name)
+            self.types[alias]="decltype({0}::{1})".format(node.module,alias.name) if "scalar" in modules[node.module][alias.name] else "{0}::proxy::{1}".format(node.module, alias.name)
 
     def visit_BoolOp(self, node):
         [ self.visit(value) for value in node.values]
@@ -263,6 +280,18 @@ class Typing(ast.NodeVisitor):
     def visit_Call(self, node):
         self.visit(node.func)
         [self.visit(n) for n in node.args]
+        # handle backward type dependencies from method calls
+        if isinstance(node.func, ast.Attribute):
+            if isinstance(node.func.value, ast.Name):
+                if node.func.value.id in modules and node.func.attr in modules[node.func.value.id]:
+                    if 'combiner' in modules[node.func.value.id][node.func.attr]:
+                        modules[node.func.value.id][node.func.attr]['combiner'](self, node)
+            else:
+                raise PythranSyntaxError('Unknown Attribute: {0}'.format(node.func.attr), node)
+        # handle backward type dependencies from user calls
+        elif isinstance(node.func, ast.Name):
+            if node.func.id in modules['__user__'] and 'combiner' in modules['__user__'][node.func.id]:
+                modules['__user__'][node.func.id]['combiner'](self, node)
         F=lambda f: "decltype(std::declval<{0}>()({1}))".format( f, ", ".join("std::declval<{0}>()".format(self.types[arg]) for arg in node.args))
         self.combine(node, node.func, op=lambda x,y:y, unary_op=F)
 
@@ -277,6 +306,8 @@ class Typing(ast.NodeVisitor):
         if value.id in modules and attr in modules[value.id]:
             if modules[value.id][attr]: self.types[node]="decltype({0}::{1})".format(value.id, attr)
             else: self.types[node]="decltype({0}::proxy::{1}())".format(value.id, attr)
+        else:
+            raise PythranSyntaxError('Unknown Attribute: {0}'.format(node.attr), node)
 
     def visit_Subscript(self, node):
         self.visit(node.value)

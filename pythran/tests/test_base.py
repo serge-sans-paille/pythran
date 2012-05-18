@@ -356,3 +356,9 @@ def nested_def(a):
 
     def test_str(self):
         self.run_test("def str_(l): return str(l)", [1,2,3.5], str_=[[float]])
+
+    def test_append(self):
+        self.run_test("def append(): l=[] ; l.append(1) ; print l", append=[])
+
+    def test_append_in_call(self):
+        self.run_test("def call(l):l.append(1.)\ndef append_in_call(): l=[] ; call(l) ; l.append(1) ; print l", append_in_call=[])

@@ -75,12 +75,13 @@ namespace  pythonic {
                 long upper = s.upper >= 0L ? s.upper : ( s.upper + data->size());
                 upper = std::min(upper, (long)data->size());
                 for(long iter = lower; iter < upper ; iter+=s.step)
-                    out.push_back((*data)[iter]);
+                    out.append((*data)[iter]);
                 return out;
             }
 
             // modifiers
             void push_back( const T& x) { data->push_back(x); }
+            void insert(size_t i, const T& x) { data->insert(data->begin()+i, x); }
 
             // list interface
             operator bool() { return not data->empty(); }

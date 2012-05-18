@@ -8,6 +8,7 @@
 '''
 
 from analysis import imported_ids, purity_test, global_declarations
+from tables import methods
 import ast
 import re
 
@@ -247,3 +248,15 @@ class NormalizeReturn(ast.NodeVisitor):
 def normalize_return(node):
     '''Adds Return statement when they are implicit, and adds the None return value when not set'''
     NormalizeReturn().visit(node)
+
+##
+class NormalizeMethodCalls(ast.NodeVisitor):
+    def visit_Call(self, node):
+        if isinstance(node.func, ast.Attribute) and node.func.attr in methods:
+            node.args.insert(0,  node.func.value)
+            node.func=ast.Attribute(ast.Name(methods[node.func.attr][0],ast.Load()), node.func.attr, ast.Load())
+
+def normalize_method_calls(node):
+    '''Turns built in method calls into function calls'''
+    NormalizeMethodCalls().visit(node)
+

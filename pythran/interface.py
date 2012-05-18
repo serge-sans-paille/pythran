@@ -9,7 +9,7 @@ from cxxgen import *
 import ast
 from pythran import CgenVisitor
 from subprocess import check_call
-from tempfile import mkstemp
+from tempfile import mkstemp, TemporaryFile
 
 pytype_to_ctype_table = {
         bool          : 'bool',
@@ -82,12 +82,13 @@ class ToolChain(object):
 
     def compile(self, module, output_filename=None):
         fd, fdpath=mkstemp(suffix=".cpp")
+        tmperr=TemporaryFile()
         with os.fdopen(fd,"w") as cpp:
             content=str(module.generate())
             cpp.write(content)
         module_cpp=fdpath
         module_so = output_filename if output_filename else "{0}.so".format(module.name) 
-        check_call([self.compiler, module_cpp] + self.cxxflags + [  "-shared", "-o", module_so ] + [ "-I{0}".format(d) for d in self.include_dirs ]  + self.cppflags + self.ldflags)
+        check_call([self.compiler, module_cpp] + self.cxxflags + [  "-shared", "-o", module_so ] + [ "-I{0}".format(d) for d in self.include_dirs ]  + self.cppflags + self.ldflags, stderr=tmperr)
         os.remove(fdpath)
         return module_so
 
@@ -110,8 +111,4 @@ def compile(module, output_filename=None, cppflags=list(), cxxflags=list()):
     tc.cxxflags.append("-std=c++0x")
     tc.cxxflags+=cxxflags
 
-    try: pymod = tc.compile(module, output_filename=output_filename)
-    except:
-        print module.generate()
-        raise
-    return pymod
+    return tc.compile(module, output_filename=output_filename)

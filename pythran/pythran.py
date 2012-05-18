@@ -2,23 +2,17 @@
 import ast
 from cxxgen import *
 
-from analysis import local_declarations, global_declarations, constant_value
-from passes import remove_comprehension, remove_nested_functions, remove_lambdas, normalize_tuples, parallelize_maps, normalize_return
+from analysis import local_declarations, global_declarations, constant_value, PythranSyntaxError
+from passes import remove_comprehension, remove_nested_functions, remove_lambdas, normalize_tuples, parallelize_maps, normalize_return, normalize_method_calls
 
 from tables import operator_to_lambda, modules
 from typing import type_all
 
 templatize = lambda node, types: Template([ "typename " + t for t in types ], node ) if types else node 
 
-class PythranSyntaxError(SyntaxError):
-    def __init__(self, msg, node):
-        SyntaxError.__init__(self,msg)
-        self.lineno=node.lineno
-        self.offset=node.col_offset
-
-
 class CgenVisitor(ast.NodeVisitor):
     def __init__(self, name):
+        modules['__user__']=dict()
         self.name=name
         self.types=None
         self.declarations=list()
@@ -27,6 +21,7 @@ class CgenVisitor(ast.NodeVisitor):
     # mod
     def visit_Module(self, node):
         # sanitize input
+        normalize_method_calls(node)
         normalize_return(node)
         normalize_tuples(node)
         remove_comprehension(node)

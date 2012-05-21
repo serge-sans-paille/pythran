@@ -43,11 +43,6 @@ namespace pythonic {
     }
 }
 
-template <class T>
-void __append(sequence<T>& s, T const & value) {
-    s.push_back(value);
-}
-
 template<class T>
 struct content_of {
     typedef typename T::value_type type;
@@ -56,134 +51,172 @@ struct content_of {
 /* boost::python converters */
 #include <boost/python/list.hpp>
 #include <boost/python/tuple.hpp>
-#include <boost/python/stl_iterator.hpp>
 template<int ...> struct seq {};
 
 template<int N, int ...S> struct gens : gens<N-1, N-1, S...> {};
 
 template<int ...S> struct gens<0, S...>{ typedef seq<S...> type; };
 
-template <class T>
-struct to_python {
-    typedef T type;
-    type operator()(T t) { return t; }
-};
-template <>
-struct to_python<void> {
-    typedef void type;
-};
+template<typename... Types>
+void fwd(Types const&... types) {
+}
 
-template <class... Types >
-struct to_python< std::tuple<Types...> > {
-    typedef boost::python::tuple type; 
-    template<int ...S>
-        type dispatch( std::tuple<Types...> const & t, seq<S...>) {
-            return boost::python::make_tuple( to_python<Types>()(std::get<S>(t)) ...);
+template <typename T>
+struct python_to_pythran {};
+
+template<typename T>
+struct python_to_pythran< sequence<T> >{
+	python_to_pythran(){
+        python_to_pythran<T>();
+        static bool registered =false;
+        if(not registered) {
+            registered=true;
+            boost::python::converter::registry::push_back(&convertible,&construct,boost::python::type_id<sequence<T> >());
         }
-
-    type operator()( std::tuple<Types...> const & t) {
-        return this->dispatch(t, typename gens< sizeof...(Types) >::type());
     }
+	static void* convertible(PyObject* obj_ptr){
+		// the second condition is important, for some reason otherwise there were attempted conversions of Body to list which failed afterwards.
+		if(!PySequence_Check(obj_ptr) || !PyObject_HasAttrString(obj_ptr,"__len__")) return 0;
+		return obj_ptr;
+	}
+	static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
+		 void* storage=((boost::python::converter::rvalue_from_python_storage<sequence<T> >*)(data))->storage.bytes;
+		 Py_ssize_t l=PySequence_Fast_GET_SIZE(obj_ptr);
+		 new (storage) sequence<T>();
+		 sequence<T>& v=*(sequence<T>*)(storage);
+         v.reserve(l);
+         PyObject** core = PySequence_Fast_ITEMS(obj_ptr);
+         for(Py_ssize_t i=0; i<l; i++)
+             v.push_back(boost::python::extract<T>(*core++));
+		 data->convertible=storage;
+	}
 };
 
-template <class E>
-struct to_python< sequence<E> >  {
-    typedef boost::python::list type;
-    type operator()(sequence<E> const& s) {
-        boost::python::list l;
-        to_python<E> f;
-        for(auto & e: s) l.append(f(e));
-        return l;
+template<typename... Types>
+struct python_to_pythran< std::tuple<Types...> >{
+	python_to_pythran(){
+        static bool registered=false;
+        fwd(python_to_pythran<Types>()...);
+        if(not registered) {
+            registered=true;
+            boost::python::converter::registry::push_back(&convertible,&construct,boost::python::type_id< std::tuple<Types...> >());
+        }
     }
-};
-template <>
-struct to_python< empty_sequence >  {
-    typedef boost::python::list type;
-    type operator()(empty_sequence const& s) {
-        return boost::python::list();
-    }
-};
-
-template <>
-struct to_python< xrange >  {
-    typedef boost::python::list type;
-    type operator()(xrange const &xr) {
-        boost::python::list l;
-        for(auto & e: xr) l.append(e);
-        return l;
-    }
-};
-
-template <class T>
-struct to_python< none<T> >  {
-    typedef boost::python::object type;
-    type operator()(none<T> const& n) {
-        if(n.is_none) return type(); // this is the way boost python encodes Py_None
-        else return to_python<T>()(n.data);
-    }
-};
-template <>
-struct to_python< none_type >  {
-    typedef boost::python::object type;
-    type operator()(none_type const &) {
-        return type(); // this is the way boost python encodes Py_None
-    }
-};
-
-template <class T>
-struct from_python_type {
-    typedef T type;
-};
-
-template <class T>
-struct from_python_type<sequence<T>> {
-    typedef T type;
-};
-
-template <class... Types>
-struct from_python_type<sequence<std::tuple<Types...>>> {
-    typedef boost::python::tuple type;
-};
-
-template <class T>
-struct from_python_type<sequence<sequence<T>>> {
-    typedef boost::python::list type;
-};
-
-template <class T>
-struct from_python {
-    typedef typename from_python_type<T>::type type;
-    auto operator()(T const & t) ->decltype(t) { return t; }
-
-    T operator()(boost::python::list const & l) {
-        size_t i=0,n = boost::python::len(l);
-        T s(n);
-        boost::python::stl_input_iterator<type> begin(l), end;
-        for(auto iter = begin; iter!=end; ++iter)
-            s[i++]=from_python< typename T::value_type > () (*iter);
-        return s;
-    }
+	static void* convertible(PyObject* obj_ptr){
+		if(!PyTuple_Check(obj_ptr) || !PyObject_HasAttrString(obj_ptr,"__len__")) return 0;
+		return obj_ptr;
+	}
 
     template<int ...S>
-        T operator()(boost::python::tuple const & bt, seq<S...>) {
-            return std::make_tuple( from_python< typename std::tuple_element<S,T>::type>()(boost::python::extract< typename std::tuple_element<S,T>::type >(bt[S]))...);
+        static void do_construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data, seq<S...>){
+		 void* storage=((boost::python::converter::rvalue_from_python_storage<std::tuple<Types...>>*)(data))->storage.bytes;
+		 new (storage) std::tuple<Types...>( boost::python::extract< typename std::tuple_element<S, std::tuple<Types...> >::type >(PyTuple_GetItem(obj_ptr,S))...);
+		 data->convertible=storage;
         }
 
-    T operator()(boost::python::tuple const & t) {
-        return operator()(t, typename gens< std::tuple_size<T>::value >::type());
+	static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
+        do_construct(obj_ptr, data, typename gens< std::tuple_size<std::tuple<Types...>>::value >::type());
+	}
+};
+
+template<typename T>
+struct pythran_to_python {
+};
+
+template<class Type, class Converter>
+static void register_once() {
+    static bool registered=false;
+    if(not registered) {
+        registered=true;
+        boost::python::to_python_converter< Type, Converter >();
+    }
+}
+
+struct custom_none_type_to_none {
+    static PyObject* convert( none_type const&) {
+        return boost::python::incref(boost::python::object().ptr());
     }
 };
 
-template <class T, class R = typename T::return_type >
-struct ToPython : T {
-    template<class... Types>
-    typename to_python<R>::type operator()(Types const& ... arguments) { return to_python<R>()(T::operator()(arguments...)); }
+template<>
+struct pythran_to_python<none_type> {
+    pythran_to_python() {
+        register_once< none_type, custom_none_type_to_none >();
+    }
 };
 
-template <class T>
-struct ToPython<T,void> : T {
-    template<class... Types>
-    void operator()(Types const& ... arguments) { T::operator()(arguments...); }
+template<typename T>
+struct custom_sequence_to_list{
+    static PyObject* convert(const sequence<T>& v){
+        boost::python::list ret;
+        for(const T& e:v) ret.append(e);
+        return boost::python::incref(ret.ptr());
+    }
+};
+
+template<typename T>
+struct pythran_to_python< sequence<T> > {
+    pythran_to_python() {
+        pythran_to_python<T>();
+        register_once< sequence<T>, custom_sequence_to_list<T> >();
+    }
+};
+
+template<typename... Types>
+struct custom_tuple_to_list {
+    template<int ...S>
+        static PyObject* do_convert( std::tuple<Types...> const & t, seq<S...>) {
+            return boost::python::incref(boost::python::make_tuple( std::get<S>(t)...).ptr());
+        }
+    static PyObject* convert(std::tuple<Types...> const & t) {
+        return do_convert(t, typename gens< sizeof...(Types) >::type());
+    }
+};
+
+template<typename... Types>
+struct pythran_to_python< std::tuple<Types...> > {
+    pythran_to_python() {
+        fwd(pythran_to_python<Types>()...);
+        register_once<std::tuple<Types...>, custom_tuple_to_list<Types...>>();
+    }
+};
+
+struct custom_xrange_to_list {
+    static PyObject* convert(xrange const &xr) {
+        boost::python::list ret;
+        for(const long& e:xr) ret.append(e);
+        return boost::python::incref(ret.ptr());
+    }
+};
+
+template<>
+struct pythran_to_python< xrange > {
+    pythran_to_python() { register_once<xrange, custom_xrange_to_list >(); }
+};
+
+struct custom_empty_sequence_to_list {
+    static PyObject* convert(empty_sequence const &) {
+        boost::python::list ret;
+        return boost::python::incref(ret.ptr());
+    }
+};
+
+template<>
+struct pythran_to_python< empty_sequence > {
+    pythran_to_python() { register_once< empty_sequence, custom_empty_sequence_to_list >(); }
+};
+
+template <typename T>
+struct custom_none_to_any {
+    static PyObject* convert( none<T> const& n) {
+        if(n.is_none) return boost::python::incref(boost::python::object().ptr());
+        else return boost::python::incref(boost::python::object(n.data).ptr());
+    }
+};
+
+template<typename T>
+struct pythran_to_python< none<T> > {
+    pythran_to_python() { register_once<none<T>, custom_none_to_any<T>>(); }
 };
 
 #endif

@@ -287,7 +287,7 @@ class Typing(ast.NodeVisitor):
                     if 'combiner' in modules[node.func.value.id][node.func.attr]:
                         modules[node.func.value.id][node.func.attr]['combiner'](self, node)
             else:
-                raise PythranSyntaxError('Unknown Attribute: {0}'.format(node.func.attr), node)
+                raise PythranSyntaxError("Unknown Attribute: `{0}'".format(node.func.attr), node)
         # handle backward type dependencies from user calls
         elif isinstance(node.func, ast.Name):
             if node.func.id in modules['__user__'] and 'combiner' in modules['__user__'][node.func.id]:
@@ -307,7 +307,7 @@ class Typing(ast.NodeVisitor):
             if modules[value.id][attr]: self.types[node]="decltype({0}::{1})".format(value.id, attr)
             else: self.types[node]="decltype({0}::proxy::{1}())".format(value.id, attr)
         else:
-            raise PythranSyntaxError('Unknown Attribute: {0}'.format(node.attr), node)
+            raise PythranSyntaxError("Unknown Attribute: `{0}'".format(node.attr), node)
 
     def visit_Subscript(self, node):
         self.visit(node.value)

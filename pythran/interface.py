@@ -30,42 +30,40 @@ def pytype_to_ctype(t):
     else:
         raise NotImplementedError("{0}:{1}".format(type(t),t))
 
+def extract_constructed_types(t):
+    if isinstance(t, list):
+        return [ pytype_to_ctype(t) ] + extract_constructed_types(t[0])
+    elif isinstance(t,tuple):
+        return [ pytype_to_ctype(t) ] + reduce(lambda x,y:x+y, (extract_constructed_types(e) for e in t))
+    else:
+        return []
+
+def extract_all_constructed_types(v):
+    return sorted(set(reduce(lambda x,y:x+y,(extract_constructed_types(t) for t in v),[])),key=len)
+
 def cxx_generator(module_name, code, specs):
     '''python + pythran spec -> c++ code'''
     ir=ast.parse(code)
-
-    #purity = purity_test(ir)
-    #impure_functions = { k.name:v for k,v in purity.iteritems() if isinstance(k,ast.FunctionDef) and v}
 
     content = CgenVisitor(module_name).visit(ir)
 
     mod=BoostPythonModule(module_name)
     mod.use_private_namespace=False
     mod.add_to_preamble(content)
+
     for k,v in specs.iteritems():
-        #if k in impure_functions:
-        #    print >> sys.stderr, "Warning: exporting function '{0}' that writes into its parameters {1}".format(
-        #            k,
-        #            ", ".join(["'{0}'".format(n) for n in impure_functions[k] ])
-        #            )
         arguments_types = [pytype_to_ctype(t) for t in v ]
         arguments = ["a"+str(i) for i in xrange(len(arguments_types))]
-        boost_arguments_types = [ "boost::python::list" if at.startswith("sequence<") else 
-                "boost::python::tuple" if at .startswith("std::tuple<") else at
-                for at in arguments_types ]
-        boost_arguments = [ "from_python<{0}>()({1})".format(at,a) if at.startswith("sequence<") or at.startswith("std::tuple<") else a
-            for (a,at) in zip(arguments, arguments_types) ]
-        specialized_fname = "__{0}::{1}::type{2}".format( module_name, k,
-                ("<"+", ".join(arguments_types)+">") if arguments_types else ""
-                )
-        return_type = "typename to_python<typename {0}::return_type>::type".format(specialized_fname)
+        specialized_fname = "__{0}::{1}::type{2}".format( module_name, k, "<{0}>".format(", ".join(arguments_types)) if  arguments_types else "")
+        return_type = "typename {0}::return_type".format(specialized_fname)
+        mod.add_to_init([Statement("python_to_pythran<{0}>()".format(t)) for t in extract_all_constructed_types(v)])
+        mod.add_to_init([Statement("pythran_to_python<{0}>()".format(return_type))])
         mod.add_function(
                 FunctionBody(
-                    FunctionDeclaration( Value(return_type, k), [ Value( t, "a"+str(i) ) for i,t in enumerate(boost_arguments_types) ]),
-                    Block([ Statement("return ToPython< {0}, typename {1}::return_type>()({2})".format(
+                    FunctionDeclaration( Value(return_type, k), [ Value( t, "a"+str(i) ) for i,t in enumerate(arguments_types) ]),
+                    Block([ Statement("return {0}()({1})".format(
                         '__{0}::{1}'.format(module_name,k),
-                        specialized_fname,
-                        ', '.join(boost_arguments) ) ) ] )
+                        ', '.join(arguments) ) ) ] )
                     )
                 )
 

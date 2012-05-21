@@ -49,8 +49,8 @@ struct content_of {
 };
 
 /* boost::python converters */
-#include <boost/python/list.hpp>
-#include <boost/python/tuple.hpp>
+#include <boost/python/numeric.hpp>
+
 template<int ...> struct seq {};
 
 template<int N, int ...S> struct gens : gens<N-1, N-1, S...> {};

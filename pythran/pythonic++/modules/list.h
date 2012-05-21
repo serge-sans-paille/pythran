@@ -7,6 +7,10 @@ namespace pythonic {
                 seq.push_back(value);
             }
         template<class T, class F>
+            void append(sequence<T> &seq, F&& value) {
+                seq.push_back(value);
+            }
+        template<class T, class F>
             void insert(sequence<T> &seq, size_t n, F const& value) {
                 seq.insert(n, value);
             }

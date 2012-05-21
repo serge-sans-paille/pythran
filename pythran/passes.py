@@ -121,7 +121,7 @@ class RemoveComprehension(ast.NodeTransformer):
             return ast.For(g.target, g.iter, [ wrap_in_ifs(x, g.ifs) ], [])
         body = reduce( nest_reducer,
                 node.generators,
-                ast.AugAssign(ast.Name("__list",ast.Load()), ast.Add(), ast.List([node.elt],ast.Load()))
+                ast.Expr(ast.Call(ast.Attribute(ast.Name("__list__",ast.Load()),"append",ast.Load()),[ast.Name("__list",ast.Load()),node.elt],[], None, None))
                 )
         init = ast.Assign(
                 [ast.Name("__list",ast.Store())],

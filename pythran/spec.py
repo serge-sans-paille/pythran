@@ -4,6 +4,7 @@
 import ply.lex as lex
 import ply.yacc as yacc
 import os.path
+import re
 
 class SpecParser:
     """ A parser that scans a file lurking for lines such as the following to generate a function signature
@@ -84,8 +85,7 @@ class SpecParser:
         p[0]=eval(p[1])
 
     def p_error(self, p):
-        if p:
-            self.parser.errok()
+        raise SyntaxError("Invalid Pythran spec")
 
     def __init__(self, **kwargs):
         self.lexer=lex.lex(module=self, debug=0)
@@ -100,7 +100,10 @@ class SpecParser:
                 data = fd.read()
         else:
             data=path
-        self.parser.parse(data, lexer=self.lexer)
+        # filter out everything that does not start with a #pythran
+        # this is not as elegant as it could be...
+        pythran_data=reduce(str.__add__, (line for line in data.split('\n') if re.match(r'^#pythran.*$',line) ),"")
+        self.parser.parse(pythran_data, lexer=self.lexer)
         if not self.exports:
             err = SyntaxError("Pythran spec error: no pythran specification")
             if input_file: err.filename=input_file

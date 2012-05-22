@@ -10,6 +10,7 @@ import ast
 from pythran import CgenVisitor
 from subprocess import check_call
 from tempfile import mkstemp, TemporaryFile
+from syntax import SyntaxChecker
 
 pytype_to_ctype_table = {
         bool          : 'bool',
@@ -45,6 +46,7 @@ def cxx_generator(module_name, code, specs):
     '''python + pythran spec -> c++ code'''
     ir=ast.parse(code)
 
+    SyntaxChecker().visit(ir)
     content = CgenVisitor(module_name).visit(ir)
 
     mod=BoostPythonModule(module_name)

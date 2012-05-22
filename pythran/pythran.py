@@ -2,11 +2,12 @@
 import ast
 from cxxgen import *
 
-from analysis import local_declarations, global_declarations, constant_value, PythranSyntaxError
+from analysis import local_declarations, global_declarations, constant_value
 from passes import remove_comprehension, remove_nested_functions, remove_lambdas, normalize_tuples, parallelize_maps, normalize_return, normalize_method_calls
 
 from tables import operator_to_lambda, modules
 from typing import type_all
+from syntax import PythranSyntaxError
 
 templatize = lambda node, types: Template([ "typename " + t for t in types ], node ) if types else node 
 
@@ -41,15 +42,6 @@ class CgenVisitor(ast.NodeVisitor):
 
         assert not self.local_declarations
         return headers +  [Namespace("__{0}".format(self.name), body + self.declarations + self.definitions) ]
-
-    def visit_Interactive(self, node):
-        raise PythranSyntaxError("Interactive session are not supported", node)
-
-    def visit_Expression(self, node):
-        raise PythranSyntaxError("Top-Level expressions are not supported", node)
-
-    def visit_Suite(self, node):
-        raise PythranSyntaxError("Suite are specific to Jython and not supported", node)
 
     # stmt
     def visit_FunctionDef(self, node):
@@ -94,9 +86,6 @@ class CgenVisitor(ast.NodeVisitor):
         self.local_functions=local_functions
         return EmptyStatement()
 
-    def visit_ClassDef(self, node):
-        raise PythranSyntaxError("Classes not supported")
-
     def visit_Return(self, node):
         return ReturnStatement(self.visit(node.value))
 
@@ -118,7 +107,6 @@ class CgenVisitor(ast.NodeVisitor):
         return Statement(operator_to_lambda[type(node.op)](target, "="+value))
 
     def visit_Print(self, node):
-        if node.dest: raise PythranSyntaxError("Printing to a specific stream", node.dest)
         values = [ self.visit(n) for n in node.values]
         return Statement("print{0}({1})".format(
                 "" if node.nl else "_nonl",
@@ -214,30 +202,12 @@ class CgenVisitor(ast.NodeVisitor):
         orelse = self.visit(node.orelse)
         return "({0} ? {1} : {2})".format(test, body, orelse)
 
-    def visit_Dict(self, node):
-        raise PythranSyntaxError("Dictionaries are not supported", node)
-
-    def visit_Set(self, node):
-        raise PythranSyntaxError("Sets are not supported", node)
-
     def visit_List(self, node):
         if not node.elts: # empty list
             return "list()"
         else:
             elts = [ self.visit(n) for n in node.elts ]
             return "sequence< decltype({0})>({{ {1} }})".format(" + ".join(elts), ", ".join(elts))
-
-    def visit_SetComp(self, node):
-        raise PythranSyntaxError("Set comprehension are not supported", node)
-
-    def visit_DictComp(self, node):
-        raise PythranSyntaxError("Dictionary comprehension are not supported", node)
-
-    def visit_GeneratorExp(self, node):
-        raise PythranSyntaxError("Generator expression are not supported", node)
-
-    def visit_Yield(self, node):
-        raise PythranSyntaxError("yield keyword is not supported", node)
 
     def visit_Tuple(self, node):
         if not node.elts: # empty tuple

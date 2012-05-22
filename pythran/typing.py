@@ -7,7 +7,8 @@ import networkx as nx
 import operator
 import re
 from tables import type_to_str, operator_to_lambda, modules, builtin_constants
-from analysis import global_declarations, constant_value, ordered_global_declarations, PythranSyntaxError
+from analysis import global_declarations, constant_value, ordered_global_declarations
+from syntax import PythranSyntaxError
 
 # networkx backward compatibility
 if not "has_path" in nx.__dict__:

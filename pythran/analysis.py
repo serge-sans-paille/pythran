@@ -10,11 +10,6 @@ from tables import modules, builtin_constants
 import ast
 import networkx as nx
 
-class PythranSyntaxError(SyntaxError):
-    def __init__(self, msg, node):
-        SyntaxError.__init__(self,msg)
-        self.lineno=node.lineno
-        self.offset=node.col_offset
 
 
 class LocalDeclarations(ast.NodeVisitor):

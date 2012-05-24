@@ -26,7 +26,7 @@ def saxpy4(a, x, y):
 def manual(y,x,a):
     __list=list()
     for __tuple in zip(y,x):
-        __list+=[__tuple[0]*a+__tuple[1]]
+        __list.append(__tuple[0]*a+__tuple[1])
     return __list
 """
         self.run_test(code,  1.5, [1,2,3], [0.,2.,4.], saxpy4=[float,[int], [float]])

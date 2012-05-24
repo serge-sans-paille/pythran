@@ -362,3 +362,16 @@ def nested_def(a):
 
     def test_append_in_call(self):
         self.run_test("def call(l):l.append(1.)\ndef append_in_call(): l=[] ; call(l) ; l.append(1) ; print l", append_in_call=[])
+
+    def test_complex_append_in_call(self):
+        code="""
+def foo(a,b):
+	i = 3*b
+	if not i in a:
+		a.append(i)
+def complex_append_in_call(l1,l2):
+	b = []
+	for x in l1:
+		if not x in l2:
+			foo(b,x)"""
+        self.run_test(code, [1,2,3],[2],complex_append_in_call=[[int],[int]])

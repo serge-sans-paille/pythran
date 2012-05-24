@@ -6,6 +6,7 @@ import ast
 import networkx as nx
 import operator
 import re
+from copy import deepcopy
 from tables import type_to_str, operator_to_lambda, modules, builtin_constants
 from analysis import global_declarations, constant_value, ordered_global_declarations
 from syntax import PythranSyntaxError
@@ -169,13 +170,22 @@ class Typing(ast.NodeVisitor):
                             translated_othernode=ast.Name('__fake__', ast.Load())
                             s.types[translated_othernode]=s.types[othernode]
                             # build translated type for fake_node
+                            # kind of a hack: a temporary id is created int he form of #id
+                            # and it is the substituted
                             for p,v in enumerate(args):
                                 if v == node: # this one will replace `node'
                                     translated_node=n.args[p]
-                                s.types[translated_othernode]=re.sub(r'argument_type{0}'.format(p),s.types[n.args[p]], s.types[translated_othernode])
+                                s.types[translated_othernode]=re.sub(r'argument_type{0}'.format(p),"#{0}".format(p), s.types[translated_othernode])
+                            for p in xrange(len(args)):
+                                s.types[translated_othernode]=re.sub(r"#{0}".format(p),s.types[n.args[p]], s.types[translated_othernode])
                             s.combine(translated_node, translated_othernode, op, unary_op)
                         return interprocedural_type_translator
-                    modules['__user__'][self.current[-1].name]['combiner']=translator_generator(self.current[-1].args.args) # deferred combination
+                    translator = translator_generator(self.current[-1].args.args) # deferred combination
+                    if 'combiner' in modules['__user__'][self.current[-1].name]:
+                        orig = deepcopy(modules['__user__'][self.current[-1].name]['combiner'])
+                        modules['__user__'][self.current[-1].name]['combiner']=lambda s,n: (orig(s,n), translator(s,n))
+                    else:
+                        modules['__user__'][self.current[-1].name]['combiner']=translator
                 else:
                     new_type = unary_op( self.types[othernode] ) 
                     if node not in self.types or (isinstance(node,ast.FunctionDef) and self.types[node] in self.global_declarations):

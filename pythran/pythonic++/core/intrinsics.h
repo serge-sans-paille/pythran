@@ -127,7 +127,7 @@ namespace pythonic {
     /* in */
     template <class T, class V>
         bool in(T const &t, V const &v) {
-            return std::find(t.begin(), t.end(), v) == t.end();
+            return std::find(t.begin(), t.end(), v) != t.end();
         }
     template <>
         bool in<std::string, std::string>(std::string const &t, std::string const &v) {

@@ -20,43 +20,8 @@ __copyright__ = "Copyright (C) 2008 Andreas Kloeckner"
 
 import struct as _struct
 
-import numpy
-
 def is_64_bit_platform():
     return _struct.calcsize('l') == 8
-
-def dtype_to_ctype(dtype):
-    if dtype is None:
-        raise ValueError("dtype may not be None")
-
-    dtype = numpy.dtype(dtype)
-    if dtype == numpy.int64 and is_64_bit_platform():
-        return "long"
-    elif dtype == numpy.uint64 and is_64_bit_platform():
-        return "unsigned long"
-    elif dtype == numpy.int32:
-        return "int"
-    elif dtype == numpy.uint32:
-        return "unsigned int"
-    elif dtype == numpy.int16:
-        return "short int"
-    elif dtype == numpy.uint16:
-        return "short unsigned int"
-    elif dtype == numpy.int8:
-        return "signed char"
-    elif dtype == numpy.uint8:
-        return "unsigned char"
-    elif dtype == numpy.float32:
-        return "float"
-    elif dtype == numpy.float64:
-        return "double"
-    elif dtype == numpy.complex64:
-        return "std::complex<float>"
-    elif dtype == numpy.complex128:
-        return "std::complex<double>"
-    else:
-        raise ValueError, "unable to map dtype '%s'" % dtype
-
 
 
 
@@ -103,30 +68,6 @@ class Declarator(Generable):
             return tp_lines
         else:
             return "%s %s" % (tp_lines, tp_decl)
-
-class POD(Declarator):
-    """A simple declarator: The type is given as a :class:`numpy.dtype`
-    and the *name* is given as a string.
-    """
-
-    def __init__(self, dtype, name):
-        self.dtype = numpy.dtype(dtype)
-        self.name = name
-
-    def get_decl_pair(self):
-        return [dtype_to_ctype(self.dtype)], self.name
-
-    def struct_maker_code(self, name):
-        return name
-
-    def struct_format(self):
-        return self.dtype.char
-
-    def alignment_requirement(self):
-        return _struct.calcsize(self.struct_format())
-
-    def default_value(self):
-        return 0
 
 class Value(Declarator):
     """A simple declarator: *typename* and *name* are given as strings."""
@@ -368,9 +309,6 @@ class Template(NestedDeclarator):
             yield i
         if not isinstance(self.subdecl, FunctionDeclaration) and not isinstance(self.subdecl, Template):
             yield ";"
-
-
-
 
 # control flow/statement stuff ------------------------------------------------
 class If(Generable):

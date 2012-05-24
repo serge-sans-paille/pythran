@@ -14,7 +14,7 @@ Installation
 	o Gather dependencies:
 
 		$> PYTHONPATH=<my_prefix>/lib/python<my_version>/site-packages \
-				easy_install --prefix=<my_prefix> ply numpy networkx
+				easy_install --prefix=<my_prefix> ply networkx
 		$> sudo apt-get install libboost-python-dev
 
 	o Use the install target from setup script, in source driectory

@@ -44,6 +44,6 @@ setup(  name='pythran',
         packages=['pythran', 'pythran/pythonic++'],
         package_data = { 'pythran': ['pythran.h'], 'pythran/pythonic++': ['pythonic++.h', 'core/*.h', 'modules/*.h'] },
         scripts= ['scripts/pythran'],
-        requires=['ply (>=3.4)', 'numpy', 'networkx (>=1.5)'],
+        requires=['ply (>=3.4)', 'networkx (>=1.5)'],
         cmdclass= { 'build' : build_with_ply, 'test' : TestCommand }
      )

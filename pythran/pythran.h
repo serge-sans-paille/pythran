@@ -216,7 +216,10 @@ struct custom_none_to_any {
 
 template<typename T>
 struct pythran_to_python< none<T> > {
-    pythran_to_python() { register_once<none<T>, custom_none_to_any<T>>(); }
+    pythran_to_python() {
+        pythran_to_python<T>();
+        register_once<none<T>, custom_none_to_any<T>>();
+    }
 };
 
 #endif

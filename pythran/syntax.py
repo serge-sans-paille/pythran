@@ -7,6 +7,11 @@ class PythranSyntaxError(SyntaxError):
         self.offset=node.col_offset
 
 class SyntaxChecker(ast.NodeVisitor):
+    def visit_Module(self, node):
+        for n in node.body:
+            if not any(map(lambda t:isinstance(n,t),(ast.FunctionDef, ast.Import, ast.ImportFrom))):
+                raise PythranSyntaxError("Top level statements can only be functions or imports", n)
+
     def visit_Interactive(self, node):
         raise PythranSyntaxError("Interactive session are not supported", node)
 

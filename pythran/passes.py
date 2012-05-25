@@ -38,6 +38,9 @@ class NormalizeTuples(ast.NodeTransformer):
             if state: renamings[node.id] = state
         elif isinstance(node, ast.Tuple):
             [self.traverse_tuples(n, state + (i,), renamings) for i,n in enumerate(node.elts)]
+        elif isinstance(node, ast.Subscript):
+            if state:
+                renamings[node] = state
         else:
             raise NotImplementedError
 
@@ -52,6 +55,7 @@ class NormalizeTuples(ast.NodeTransformer):
             return None
 
     def visit_ListComp(self, node):
+        self.generic_visit(node.elt)
         generators = [ self.visit(n) for n in node.generators ]
         nnode = node
         for i, g in enumerate(generators):
@@ -64,6 +68,7 @@ class NormalizeTuples(ast.NodeTransformer):
         return node
 
     def visit_Lambda(self, node):
+        self.generic_visit(node)
         for i,arg in enumerate(node.args.args):
             renamings=dict()
             self.traverse_tuples(arg, (), renamings)
@@ -76,6 +81,7 @@ class NormalizeTuples(ast.NodeTransformer):
 
 
     def visit_Assign(self, node):
+        self.generic_visit(node)
         extra_assign = [node]
         for i,t in enumerate(node.targets):
             if isinstance(t, ast.Tuple):
@@ -87,10 +93,14 @@ class NormalizeTuples(ast.NodeTransformer):
                     node.targets[i]=ast.Name(gtarget, node.targets[i].ctx)
                     for rename,state in sorted(renamings.iteritems()):
                         nnode=reduce(lambda x,y: ast.Subscript(x, ast.Index(ast.Num(y)), ast.Load()), state, ast.Name(gtarget, ast.Load()))
-                        extra_assign.append(ast.Assign([ast.Name(rename,ast.Store())], nnode))
+                        if isinstance(rename, str):
+                            extra_assign.append(ast.Assign([ast.Name(rename,ast.Store())], nnode))
+                        else:
+                            extra_assign.append(ast.Assign([rename], nnode))
         return extra_assign
 
     def visit_For(self, node):
+        self.generic_visit(node)
         target = node.target
         if isinstance(target,  ast.Tuple):
                 renamings=dict()

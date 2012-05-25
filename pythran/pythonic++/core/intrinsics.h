@@ -317,7 +317,10 @@ namespace pythonic {
         xrange( long b, long e , long s=1) : _begin(b), _end(e), _step(s) {}
         xrange( long e ) : _begin(0), _end(e), _step(1) {}
         xrange_iterator begin() const { return xrange_iterator(_begin, _step); }
-        xrange_iterator end() const { return xrange_iterator(_begin + _step * ( (_end - _begin)/ _step) , _step); }
+        xrange_iterator end() const {
+            if(_step>0) return xrange_iterator(_begin + std::max(0L,_step * ( (_end - _begin)/ _step)) , _step);
+            else return xrange_iterator(_begin + std::min(0L,_step * ( (_end - _begin)/ _step)) , _step);
+        }
     };
     PROXY(pythonic,xrange);
 

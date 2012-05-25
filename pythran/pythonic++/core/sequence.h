@@ -97,6 +97,15 @@ namespace  pythonic {
             sequence<T> operator+(empty_sequence const &) const {
                 return *this;
             }
+            template<class F>
+            sequence<T> operator*(F const& t) const {
+                sequence<T> r;
+                size_t n = t;
+                r.data->reserve(r.data->size()*n);
+                for(size_t i=0;i<n;i++)
+                    std::copy(this->begin(), this->end(),std::back_inserter((*r.data)));
+                return r;
+            }
 
             template <class F>
                 sequence<T>& operator+=(sequence<F> const & s) {

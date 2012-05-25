@@ -90,6 +90,19 @@ class NormalizeTuples(ast.NodeTransformer):
                         extra_assign.append(ast.Assign([ast.Name(rename,ast.Store())], nnode))
         return extra_assign
 
+    def visit_For(self, node):
+        target = node.target
+        if isinstance(target,  ast.Tuple):
+                renamings=dict()
+                self.traverse_tuples(target,(), renamings)
+                if renamings:
+                    self.counter+=1
+                    newname = "{0}{1}".format(NormalizeTuples.tuple_name, self.counter)
+                    node.target=ast.Name(newname, node.target.ctx)
+                    node.body=[convert_to_tuple(n, newname, renamings) for n in node.body ]
+        return node
+
+
 def normalize_tuples(node):
     """Prune a node from implicit tuples, replacing them by real ones."""
     NormalizeTuples().visit(node)

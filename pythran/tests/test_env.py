@@ -11,5 +11,5 @@ class TestEnv(unittest.TestCase):
             mod = cxx_generator(modname, code, interface)
             pymod = load_dynamic(modname,compile(mod))
             res = getattr(pymod,name)(*params)
-            print res
+            #print res
 

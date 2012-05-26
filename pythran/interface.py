@@ -53,21 +53,25 @@ def cxx_generator(module_name, code, specs):
     mod.use_private_namespace=False
     mod.add_to_preamble(content)
 
-    for k,v in specs.iteritems():
-        arguments_types = [pytype_to_ctype(t) for t in v ]
-        arguments = ["a"+str(i) for i in xrange(len(arguments_types))]
-        specialized_fname = "__{0}::{1}::type{2}".format( module_name, k, "<{0}>".format(", ".join(arguments_types)) if  arguments_types else "")
-        return_type = "typename {0}::return_type".format(specialized_fname)
-        mod.add_to_init([Statement("python_to_pythran<{0}>()".format(t)) for t in extract_all_constructed_types(v)])
-        mod.add_to_init([Statement("pythran_to_python<{0}>()".format(return_type))])
-        mod.add_function(
-                FunctionBody(
-                    FunctionDeclaration( Value(return_type, k), [ Value( t, "a"+str(i) ) for i,t in enumerate(arguments_types) ]),
-                    Block([ Statement("return {0}()({1})".format(
-                        '__{0}::{1}'.format(module_name,k),
-                        ', '.join(arguments) ) ) ] )
+    for function_name,signatures in specs.iteritems():
+        if not isinstance(signatures, tuple): signatures = (signatures,)
+        for sigid,signature in enumerate(signatures):
+            numbered_function_name="{0}{1}".format(function_name,sigid)
+            arguments_types = [pytype_to_ctype(t) for t in signature ]
+            arguments = ["a{0}".format(i) for i in xrange(len(arguments_types))]
+            specialized_fname = "__{0}::{1}::type{2}".format( module_name, function_name, "<{0}>".format(", ".join(arguments_types)) if  arguments_types else "")
+            return_type = "typename {0}::return_type".format(specialized_fname)
+            mod.add_to_init([Statement("python_to_pythran<{0}>()".format(t)) for t in extract_all_constructed_types(signature)])
+            mod.add_to_init([Statement("pythran_to_python<{0}>()".format(return_type))])
+            mod.add_function(
+                    FunctionBody(
+                        FunctionDeclaration( Value(return_type, numbered_function_name), [ Value( t, "a"+str(i) ) for i,t in enumerate(arguments_types) ]),
+                        Block([ Statement("return {0}()({1})".format(
+                            '__{0}::{1}'.format(module_name,function_name),
+                            ', '.join(arguments) ) ) ] )
+                        ),
+                    function_name
                     )
-                )
 
     return mod
 

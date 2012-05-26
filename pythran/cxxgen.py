@@ -720,16 +720,17 @@ class BoostPythonModule(object):
             ])
         self.has_raw_function_include = True                        
 
-    def add_function(self, func):
+    def add_function(self, func, name=None):
         """Add a function to be exposed. *func* is expected to be a
         :class:`cgen.FunctionBody`.
         """
+        if not name:name=func.fdecl.name
 
         self.mod_body.append(func)
         self.init_body.append(
                 Statement(
                     "boost::python::def(\"%s\", &%s)" % (
-                        func.fdecl.name, func.fdecl.name)))
+                        name, func.fdecl.name)))
 
     def add_raw_function(self, func):
         """Add a function to be exposed using boost::python::raw_function.

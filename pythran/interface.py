@@ -7,10 +7,11 @@ import os.path
 import distutils.sysconfig
 from cxxgen import *
 import ast
-from pythran import CgenVisitor
+from middlend import refine
+from backend import cxx_backend
 from subprocess import check_call
 from tempfile import mkstemp, TemporaryFile
-from syntax import SyntaxChecker
+from syntax import check_syntax
 
 pytype_to_ctype_table = {
         bool          : 'bool',
@@ -44,10 +45,13 @@ def extract_all_constructed_types(v):
 
 def cxx_generator(module_name, code, specs):
     '''python + pythran spec -> c++ code'''
+    # font end
     ir=ast.parse(code)
-
-    SyntaxChecker().visit(ir)
-    content = CgenVisitor(module_name).visit(ir)
+    check_syntax(ir)
+    # middle-end
+    refine(ir)
+    # backend
+    content = cxx_backend(module_name,ir)
 
     mod=BoostPythonModule(module_name)
     mod.use_private_namespace=False

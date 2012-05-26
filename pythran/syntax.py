@@ -1,3 +1,4 @@
+'''This module performs a few early syntax check on the input AST.'''
 import ast
 
 class PythranSyntaxError(SyntaxError):
@@ -45,3 +46,7 @@ class SyntaxChecker(ast.NodeVisitor):
     def visit_Yield(self, node):
         raise PythranSyntaxError("yield keyword is not supported", node)
 
+
+def check_syntax(node):
+    '''Does nothing but raising exception when pythran syntax is not respected'''
+    SyntaxChecker().visit(node)

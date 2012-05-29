@@ -16,10 +16,13 @@ parser.add_argument('-I', dest='extra_Iflags', metavar='include_dir', action='ap
 parser.add_argument('-O', dest='extra_Oflags', metavar='level', action='append', help='any optimization level relevant to the underlying C++ compiler', default=list())
 parser.add_argument('-g', dest='debug_flag', action='store_true', help='any debug level relevant to the underlying C++ compiler', default=list())
 
+
 args = parser.parse_args()
 
-
 try:
+    if not os.path.exists(args.input_file):
+        raise ValueError("input file `{0}' not found".format(args.input_file))
+
     module_name = os.path.splitext(os.path.basename(args.input_file))[0]
     if not args.output_file: # build the output file from the input name
         args.output_file = '{0}.{1}'.format(module_name, 'cpp' if args.translate_only else 'so')
@@ -38,7 +41,12 @@ try:
         pythran.compile(module, args.output_file,cxxflags=extra_cxxflags)
 
 except IOError as e:
-    print >> sys.stderr, e
+    print >> sys.stderr, "I've got a bad feeling about this..."
+    print >> sys.stderr, "E:", e
+    sys.exit(1)
+except ValueError as e:
+    print >> sys.stderr, "Chair to keyboard interface error"
+    print >> sys.stderr, "E:", e
     sys.exit(1)
 except SyntaxError as e:
     print >> sys.stderr, "I am in trouble. Your input file does not seem to match Pythran's constraints..."

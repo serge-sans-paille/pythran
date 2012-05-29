@@ -108,16 +108,16 @@ class CxxBackend(ast.NodeVisitor):
         iter = self.visit(node.iter)
         target = self.visit(node.target)
         body = [ self.visit(n) for n in node.body ]
-        orelse = [ self.visit(n) for n in node.orelse ]
-        stmt = AutoFor(target, iter, Block(body))
-        return If(iter, stmt, Block(orelse)) if orelse else stmt
+        if node.orelse:
+            raise PythranSyntaxError("else statement after for loop", node)
+        return AutoFor(target, iter, Block(body))
 
     def visit_While(self, node):
         test = self.visit(node.test)
         body = [ self.visit(n) for n in node.body ]
-        orelse = [ self.visit(n) for n in node.orelse ]
-        stmt = While(test, Block(body))
-        return If(test, Block( body + [stmt]), Block(orelse)) if orelse else stmt 
+        if node.orelse:
+            raise PythranSyntaxError("else statement after while loop", node)
+        return While(test, Block(body))
 
     def visit_If(self, node):
         test = self.visit(node.test)
@@ -130,31 +130,16 @@ class CxxBackend(ast.NodeVisitor):
         return Statement("assert(({0}))".format(", ".join(p for p in params if p)))
 
     def visit_Import(self, node):
-        for alias in node.names:
-            name, asname=(alias.name, alias.asname)
-            if asname:
-                PythranSyntaxError("Renaming using the 'as' keyword in an import", node)
-            elif name not in modules:
-                PythranSyntaxError("Module '{0}'".format(name), node)
-
-        return EmptyStatement()
+        return EmptyStatement() # everything is already #included
 
     def visit_ImportFrom(self, node):
-        if node.level != 0: raise PythranSyntaxError("Specifying a level in an import", node)
-        if not node.module: raise PythranSyntaxError("The import from syntax without module", node)
-        module = node.module
-        if module not in modules: raise PythranSyntaxError("Module '{0}'".format(module), node)
-
-        names = node.names
-        if [ alias for alias in names if alias.asname ]: raise PythranSyntaxError("Renaming using the 'as' keyword in an import", node)
-
         usings=list()
-        for alias in names:
+        for alias in node.names:
             if modules[node.module][alias.name]:
-                usings.append("using {0}::{1}".format(module, alias.name))
+                usings.append("using {0}::{1}".format(node.module, alias.name))
             else:
                 self.local_functions.add(alias.name)
-                usings.append("using {0}::proxy::{1}".format(module, alias.name))
+                usings.append("using {0}::proxy::{1}".format(node.module, alias.name))
 
         return Statement("; ".join(usings))
 

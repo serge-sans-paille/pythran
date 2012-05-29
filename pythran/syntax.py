@@ -1,5 +1,6 @@
 '''This module performs a few early syntax check on the input AST.'''
 import ast
+import tables
 
 class PythranSyntaxError(SyntaxError):
     def __init__(self, msg, node):
@@ -27,6 +28,23 @@ class SyntaxChecker(ast.NodeVisitor):
 
     def visit_Print(self, node):
         if node.dest: raise PythranSyntaxError("Printing to a specific stream", node.dest)
+
+    def visit_Import(self, node):
+        for alias in node.names:
+            name, asname=(alias.name, alias.asname)
+            if asname:
+                PythranSyntaxError("Renaming using the 'as' keyword in an import", node)
+            elif name not in modules:
+                PythranSyntaxError("Module '{0}'".format(name), node)
+
+    def visit_ImportFrom(self, node):
+        if node.level != 0: raise PythranSyntaxError("Specifying a level in an import", node)
+        if not node.module: raise PythranSyntaxError("The import from syntax without module", node)
+        module = node.module
+        if module not in tables.modules: raise PythranSyntaxError("Module '{0}'".format(module), node)
+
+        names = node.names
+        if [ alias for alias in names if alias.asname ]: raise PythranSyntaxError("Renaming using the 'as' keyword in an import", node)
 
     def visit_Dict(self, node):
         raise PythranSyntaxError("Dictionaries are not supported", node)

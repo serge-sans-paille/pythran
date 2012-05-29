@@ -136,7 +136,7 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
         self.run_test("def if_(a,b):\n if a>b: return a\n else: return b", 1, 1.1, if_=[int, float])
 
     def test_while(self):
-        self.run_test("def while_(a):\n while(a>0): a-=1\n else: a=0\n return a", 8, while_=[int])
+        self.run_test("def while_(a):\n while(a>0): a-=1\n return a", 8, while_=[int])
 
     def test_for(self):
         self.run_test("def for_(l):\n s=0\n for i in l:\n  s+=i\n return s", [0,1,2], for_=[[float]])

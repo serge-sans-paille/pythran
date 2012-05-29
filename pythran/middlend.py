@@ -1,4 +1,4 @@
-'''This module turns a python AST nto an optimized, pythran compatible ast'''
+'''This module turns a python AST into an optimized, pythran compatible ast'''
 from passes import remove_comprehension, remove_nested_functions, remove_lambdas, normalize_tuples, parallelize_maps, normalize_return, normalize_method_calls
 
 def refine(node):

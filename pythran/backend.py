@@ -1,4 +1,6 @@
-'''This module turns a pythran file into a (hopefully) equivalent c++ file'''
+'''This module turns a pythran AST into C++ code
+    *  cxx_backend generates a string holding the c++ code
+'''
 import ast
 from cxxgen import *
 

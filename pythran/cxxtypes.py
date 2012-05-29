@@ -1,3 +1,5 @@
+'''This module defines all the types needed to maniuplate c++ types used by pythran'''
+
 class weak:pass
 class auto:pass
 

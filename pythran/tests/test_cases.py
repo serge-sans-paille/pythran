@@ -14,6 +14,7 @@ class TestCase(unittest.TestCase):
 TestCase.test_bubble_sort=lambda self:compile_test(self,"bubble_sort")
 TestCase.test_insertion_sort=lambda self:compile_test(self,"insertion_sort")
 TestCase.test_multi_export=lambda self:compile_test(self,"multi_export")
-TestCase.test_multi_export=lambda self:compile_test(self,"primes_sieve")
+TestCase.test_primes_sieve=lambda self:compile_test(self,"primes_sieve")
+TestCase.test_zero=lambda self:compile_test(self,"zero")
 if __name__ == '__main__':
     unittest.main()

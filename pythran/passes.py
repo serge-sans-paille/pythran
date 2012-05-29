@@ -52,14 +52,14 @@ class NormalizeTuples(ast.NodeTransformer):
             self.counter+=1
             return "{0}{1}".format(NormalizeTuples.tuple_name, self.counter), renamings
         else:
-            return None
+            return node
 
     def visit_ListComp(self, node):
         self.generic_visit(node.elt)
         generators = [ self.visit(n) for n in node.generators ]
         nnode = node
         for i, g in enumerate(generators):
-            if g:
+            if isinstance(g,tuple):
                 gtarget = "{0}{1}".format(g[0], i)
                 nnode.generators[i].target=ast.Name(gtarget, nnode.generators[i].target.ctx)
                 nnode = convert_to_tuple(nnode, gtarget, g[1])

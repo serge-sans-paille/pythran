@@ -3,6 +3,7 @@
 
 /* core */
 #include "core/utils.h"
+#include "core/functional.h"
 #include "core/sequence.h"
 #include "core/intrinsics.h"
 #include "core/none.h"

@@ -1,7 +1,6 @@
 '''This module defines all the types needed to maniuplate c++ types used by pythran'''
 
 class weak:pass
-class auto:pass
 
 def walk_type(obj, cond, op):
     if isinstance(obj,list): return [ walk_type(o, cond, op) for o in obj ]

@@ -333,8 +333,6 @@ class Typing(ast.NodeVisitor):
             self.types[node]=Type("proxy::{0}".format(node.id))
         else:
             self.types[node]=Type(node.id,[weak])
-        if "proxy::bind" in self.types[node].generate():
-            self.types[node].qualifiers.add(auto)
             
 
     def visit_List(self, node):

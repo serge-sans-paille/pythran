@@ -18,26 +18,26 @@ namespace pythonic {
     namespace proxy {
         struct bind0 {
             template<typename Operator, typename... Types>
-                auto operator()(Operator const& op, Types &&... types) -> decltype(std::bind(op, types...)) {
-                    return std::bind(op, types...); 
+                auto operator()(Operator const& op, Types &&... types) -> function<decltype(std::bind(op, types...))> {
+                    return function<decltype(std::bind(op, types...))>(std::bind(op, types...)); 
                 }
         };
         struct bind1 {
             template<typename Operator, typename... Types>
-                auto operator()(Operator const& op, Types &&... types) -> decltype(std::bind(op, types..., std::placeholders::_1)) {
-                    return std::bind(op, types..., std::placeholders::_1); 
+                auto operator()(Operator const& op, Types &&... types) -> function<decltype(std::bind(op, types..., std::placeholders::_1))> {
+                    return function<decltype(std::bind(op, types..., std::placeholders::_1))>(std::bind(op, types..., std::placeholders::_1)); 
                 }
         };
         struct bind2 {
             template<typename Operator, typename... Types>
-                auto operator()(Operator const& op, Types &&... types) -> decltype(std::bind(op, types..., std::placeholders::_1, std::placeholders::_2)) {
-                    return std::bind(op, types..., std::placeholders::_1, std::placeholders::_2); 
+                auto operator()(Operator const& op, Types &&... types) -> function<decltype(std::bind(op, types..., std::placeholders::_1, std::placeholders::_2))> {
+                    return function<decltype(std::bind(op, types..., std::placeholders::_1, std::placeholders::_2))>(std::bind(op, types..., std::placeholders::_1, std::placeholders::_2));
                 }
         };
         struct bind3 {
             template<typename Operator, typename... Types>
-                auto operator()(Operator const& op, Types &&... types) -> decltype(std::bind(op, types..., std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)) {
-                    return std::bind(op, types..., std::placeholders::_1, std::placeholders::_2, std::placeholders::_3); 
+                auto operator()(Operator const& op, Types &&... types) -> function<decltype(std::bind(op, types..., std::placeholders::_1, std::placeholders::_2, std::placeholders::_3))> {
+                    return function<decltype(std::bind(op, types..., std::placeholders::_1, std::placeholders::_2, std::placeholders::_3))>(std::bind(op, types..., std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)); 
                 }
         };
     }

@@ -82,7 +82,9 @@ Afterwards, frenetically type
 
 \o/ a ``dprod.so`` native module has been created and you can play with it
 right *now*. The speedup will not be terrible because of the conversion cost
-from python to C++. So let's try again with a well-known example. Let me
+from python to C++.
+
+So let's try again with a well-known example. Let me
 introduce the almighty __matrix multiply__!
 
 	<<mm.py>>
@@ -111,8 +113,16 @@ Enough talk, run
 
 	$> pythran mm.py
 
+One touch of magic wand and you have your native binary. Note however that this
+binary will not run directly at godlike speed, because it does not call any of
+g++ optimization setps. What you really wanted to do was
+
+	$> pythran mm.py -Ofast -march=native
+
 And be amazed by the generation of a ``mm.so`` native module that run around
 20x faster than the original one. ``timeit`` approved!
+
+
 
 Concerning Pythran specifications
 ---------------------------------

@@ -7,6 +7,7 @@ from analysis import local_declarations, global_declarations, constant_value
 from tables import operator_to_lambda, modules
 from typing import type_all
 from syntax import PythranSyntaxError
+import cxxtypes
 
 templatize = lambda node, types: Template([ "typename " + t for t in types ], node ) if types else node 
 
@@ -51,7 +52,7 @@ class CxxBackend(ast.NodeVisitor):
 
         self.local_declarations.pop()
 
-        return_declaration = [templatize(Struct("type",[Typedef(Value(self.types[node], "return_type"))]), formal_types)]
+        return_declaration = [templatize(Struct("type",[Typedef(Value(self.types[node].generate(), "return_type"))]), formal_types)]
 
         fscope = "type{0}::".format( "<{0}>".format(", ".join(formal_types)) if formal_types else ""  )
         operator_declaration = [templatize(FunctionDeclaration( Value("typename "+fscope+"return_type", "operator()"),
@@ -64,7 +65,7 @@ class CxxBackend(ast.NodeVisitor):
         operator_signature = FunctionDeclaration(
                 Value("typename {0}return_type".format(ffscope), "{0}::operator()".format(node.name)),
                 [ Value( t, a ) for t,a in zip(formal_types, formal_args ) ] )
-        operator_local_declarations = [ Statement("{0} {1}".format(self.types[k], k.id)) for k in ldecls if "/*auto*/" not in self.types[k]]
+        operator_local_declarations = [ Statement("{0} {1}".format(self.types[k].generate(), k.id)) for k in ldecls if cxxtypes.auto not in self.types[k].qualifiers]
         operator_definition = FunctionBody(
                 templatize(operator_signature, formal_types),
                 Block( operator_local_declarations + operator_body )
@@ -86,7 +87,7 @@ class CxxBackend(ast.NodeVisitor):
         value = self.visit(node.value)
         targets=[self.visit(t) for t in node.targets]
         alltargets="= ".join(targets)
-        if "/*auto*/" in self.types[node.value]: return Statement("auto {0} = {1}".format(alltargets, value))
+        if cxxtypes.auto in self.types[node.value].qualifiers: return Statement("auto {0} = {1}".format(alltargets, value))
         else: return Statement("{0} = {1}".format(alltargets, value))
 
     def visit_AugAssign(self, node):

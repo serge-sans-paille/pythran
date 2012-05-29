@@ -5,11 +5,11 @@
 import ast
 import networkx as nx
 import operator
-import re
 from copy import deepcopy
 from tables import type_to_str, operator_to_lambda, modules, builtin_constants
 from analysis import global_declarations, constant_value, ordered_global_declarations
 from syntax import PythranSyntaxError
+from cxxtypes import *
 
 # networkx backward compatibility
 if not "has_path" in nx.__dict__:
@@ -148,39 +148,35 @@ class Typing(ast.NodeVisitor):
 
     def __init__(self, name_to_node):
         self.types=dict()
-        self.types["bool"]="bool"
+        self.types["bool"]=Type("bool")
         self.current=list()
         self.global_declarations = dict()
 
-    def combine(self, node, othernode, op=lambda x, y: "{0}+{1}".format(x,y), unary_op=lambda x:x):
-        self.merge(node, othernode, op, unary_op)
-
-    def merge(self, node, othernode, op, unary_op):
+    def combine(self, node, othernode, op=lambda x, y: x+y, unary_op=lambda x:x):
         try:
             if isinstance(othernode, ast.FunctionDef):
-                new_type=othernode.name
+                new_type=Type(othernode.name)
                 if node not in self.types:
                     self.types[node]=new_type
             else:
-                f=lambda x: "std::declval<{0}>()".format(x)
-                if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Param): # defer combination for parameters
-                    def translator_generator(args):
-                        ''' capture args for transtor generation'''
+                if isinstance(node, ast.Name) and node.id in self.name_to_nodes and any([isinstance(n,ast.Name) and isinstance(n.ctx, ast.Param) for n in self.name_to_nodes[node.id]]):
+                    self.types[node]=self.types[list(self.name_to_nodes[node.id])[0]]
+                    def translator_generator(args, op, unary_op):
+                        ''' capture args for translator generation'''
                         def interprocedural_type_translator(s,n):
                             translated_othernode=ast.Name('__fake__', ast.Load())
-                            s.types[translated_othernode]=s.types[othernode]
+                            translated_type=s.types[othernode]
                             # build translated type for fake_node
-                            # kind of a hack: a temporary id is created int he form of #id
-                            # and it is the substituted
-                            for p,v in enumerate(args):
-                                if v == node: # this one will replace `node'
-                                    translated_node=n.args[p]
-                                s.types[translated_othernode]=re.sub(r'argument_type{0}'.format(p),"#{0}".format(p), s.types[translated_othernode])
-                            for p in xrange(len(args)):
-                                s.types[translated_othernode]=re.sub(r"#{0}".format(p),s.types[n.args[p]], s.types[translated_othernode])
+                            for p,formal_arg in enumerate(args):
+                                effective_arg = n.args[p]
+                                if formal_arg.id == node.id: # this one will replace `node'
+                                    translated_node=effective_arg
+                                translated_type = walk_type(translated_type, lambda x: x == s.types[formal_arg], lambda y:s.types[effective_arg])
+                            s.types[translated_othernode]=translated_type
                             s.combine(translated_node, translated_othernode, op, unary_op)
                         return interprocedural_type_translator
-                    translator = translator_generator(self.current[-1].args.args) # deferred combination
+
+                    translator = translator_generator(self.current[-1].args.args, op, unary_op) # deferred combination
                     if 'combiner' in modules['__user__'][self.current[-1].name]:
                         orig = deepcopy(modules['__user__'][self.current[-1].name]['combiner'])
                         modules['__user__'][self.current[-1].name]['combiner']=lambda s,n: (orig(s,n), translator(s,n))
@@ -188,13 +184,10 @@ class Typing(ast.NodeVisitor):
                         modules['__user__'][self.current[-1].name]['combiner']=translator
                 else:
                     new_type = unary_op( self.types[othernode] ) 
-                    if node not in self.types or (isinstance(node,ast.FunctionDef) and self.types[node] in self.global_declarations):
+                    if node not in self.types or (isinstance(node,ast.FunctionDef) and self.types[node].generate() in self.global_declarations):
                         self.types[node]=new_type
-                    elif self.types[node] != new_type :
-                        if "/*weak*/" not in new_type and "/*weak*/" not in self.types[node]:
-                            self.types[node]="decltype({0})".format(op(f(self.types[node]), f(new_type)))
-                        elif "/*weak*/" not in new_type:
-                            self.types[node]=new_type
+                    elif not isinstance(self.types[node],ArgumentType):
+                        self.types[node]=op(self.types[node], new_type)
         except:
             print ast.dump(othernode)
             raise
@@ -209,13 +202,13 @@ class Typing(ast.NodeVisitor):
         for k,v in builtin_constants.iteritems():
             fake_node=ast.Name(k,ast.Load())
             self.name_to_nodes.update({ k:{fake_node}}) 
-            self.types[fake_node]=v
+            self.types[fake_node]=Type(v)
         self.visit(node.args) ; [ self.visit(n) for n in node.body ]
         # propagate type information through all aliases
         for name,nodes in self.name_to_nodes.iteritems():
             relevant_types= [self.types[n] for n in nodes if n in self.types]
             if relevant_types:
-                max_type = max(relevant_types, key=len)
+                max_type = max(relevant_types, key=lambda t:len(t.generate()))
                 for n in nodes:
                     self.types[n]=max_type
         self.global_declarations[node.name]=node
@@ -226,7 +219,7 @@ class Typing(ast.NodeVisitor):
             self.visit(node.value)
             self.combine(self.current[-1], node.value)
         else:
-            self.types[self.current[-1]]="none_type"
+            self.types[self.current[-1]]=Type("none_type")
 
     def visit_Assign(self, node):
         self.visit(node.value)
@@ -241,14 +234,14 @@ class Typing(ast.NodeVisitor):
     def visit_AugAssign(self, node):
         self.visit(node.value)
         self.visit(node.target)
-        self.combine(node.target, node.value, operator_to_lambda[type(node.op)])
+        self.combine(node.target, node.value, lambda x,y:ExpressionType(operator_to_lambda[type(node.op)],[x,y]))
 
     def visit_For(self, node):
         if isinstance(node.target, ast.Name):
             if not node.target.id in self.name_to_nodes: self.name_to_nodes[node.target.id]=set()
             self.name_to_nodes[node.target.id].add(node.target)
         self.visit(node.iter)
-        self.combine(node.target, node.iter, unary_op=lambda x:"typename content_of<{0}>::type".format(x))
+        self.combine(node.target, node.iter, unary_op=lambda x:ContentType(x))
         self.visit(node.target)
         if node.body:
             [self.visit(n) for n in node.body]
@@ -259,34 +252,32 @@ class Typing(ast.NodeVisitor):
         for alias in node.names:
             if self.current:self.name_to_nodes[alias.name]={alias}
             else: self.global_declarations[alias.name]=alias
-            self.types[alias]="decltype({0}::{1})".format(node.module,alias.name) if "scalar" in modules[node.module][alias.name] else "{0}::proxy::{1}".format(node.module, alias.name)
+            self.types[alias]=(Type('{0}::{1}'.format(node.module,alias.name)))
+            self.types[alias]=DeclType(Val('{0}::{1}'.format(node.module,alias.name) )) if "scalar" in modules[node.module][alias.name] else Type("{0}::proxy::{1}".format(node.module, alias.name))
 
     def visit_BoolOp(self, node):
         [ self.visit(value) for value in node.values]
-        [ self.combine(node, value,  operator_to_lambda[type(node.op)]) for value in node.values]
+        [ self.combine(node, value,  lambda x,y:ExpressionType(operator_to_lambda[type(node.op)],[x,y])) for value in node.values]
 
     def visit_BinOp(self, node):
         [ self.visit(value) for value in (node.left, node.right)]
-        self.combine(node, node.left,  operator_to_lambda[type(node.op)])
-        self.combine(node, node.right,  operator_to_lambda[type(node.op)])
+        self.combine(node, node.left,  lambda x,y:ExpressionType(operator_to_lambda[type(node.op)],[x,y]))
+        self.combine(node, node.right,  lambda x,y:ExpressionType(operator_to_lambda[type(node.op)],[x,y]))
 
     def visit_UnaryOp(self, node):
         self.visit(node.operand)
-        f=lambda x: "decltype({0})".format(
-                operator_to_lambda[type(node.op)](
-                    "std::declval<{0}>()".format(x)))
+        f=lambda x: ExpressionType(operator_to_lambda[type(node.op)],[x])
         self.combine(node,node.operand, unary_op=f)
 
     def visit_Lambda(self, node):
         assert False
-        self.visit(node.body)
 
     def visit_IfExp(self, node):
         [ self.visit(n) for n in (node.body, node.orelse) ]
         [ self.combine(node,n) for n in (node.body, node.orelse) ]
 
     def visit_Compare(self, node):
-        self.types[node]="bool"
+        self.types[node]=Type("bool")
 
     def visit_Call(self, node):
         self.visit(node.func)
@@ -303,20 +294,20 @@ class Typing(ast.NodeVisitor):
         elif isinstance(node.func, ast.Name):
             if node.func.id in modules['__user__'] and 'combiner' in modules['__user__'][node.func.id]:
                 modules['__user__'][node.func.id]['combiner'](self, node)
-        F=lambda f: "decltype(std::declval<{0}>()({1}))".format( f, ", ".join("std::declval<{0}>()".format(self.types[arg]) for arg in node.args))
+        F=lambda f: ReturnType(f, [self.types[arg] for arg in node.args])
         self.combine(node, node.func, op=lambda x,y:y, unary_op=F)
 
     def visit_Num(self, node):
-        self.types[node]=type_to_str[type(node.n)]
+        self.types[node]=Type(type_to_str[type(node.n)])
 
     def visit_Str(self, node):
-        self.types[node]="std::string"
+        self.types[node]=Type("std::string")
 
     def visit_Attribute(self, node):
         value, attr = (node.value, node.attr)
         if value.id in modules and attr in modules[value.id]:
-            if modules[value.id][attr]: self.types[node]="decltype({0}::{1})".format(value.id, attr)
-            else: self.types[node]="decltype({0}::proxy::{1}())".format(value.id, attr)
+            if modules[value.id][attr]: self.types[node]= DeclType(Val("{0}::{1}".format(value.id, attr)))
+            else: self.types[node]=DeclType(Val("{0}::proxy::{1}()".format(value.id, attr)))
         else:
             raise PythranSyntaxError("Unknown Attribute: `{0}'".format(node.attr), node)
 
@@ -324,9 +315,9 @@ class Typing(ast.NodeVisitor):
         self.visit(node.value)
         try:
             v=constant_value(node.slice)
-            f=lambda t: "typename std::tuple_element<{0},{1}>::type".format(v, t)
+            f=lambda t: ElementType(v,t)
         except:
-            f=lambda t: "typename content_of<{0}>::type".format(t)
+            f=lambda t: ContentType(t)
         self.combine(node, node.value, unary_op=f)
 
     def visit_Name(self, node):
@@ -337,31 +328,28 @@ class Typing(ast.NodeVisitor):
         elif node.id in self.global_declarations:
             self.combine(node, self.global_declarations[node.id])
         elif node.id in builtin_constants:
-            self.types[node]=builtin_constants[node.id]
+            self.types[node]=Type(builtin_constants[node.id])
         elif node.id in modules["__builtins__"]:
-            self.types[node]="proxy::{0}".format(node.id)
+            self.types[node]=Type("proxy::{0}".format(node.id))
         else:
-            self.types[node]="/*weak*/{0}".format(node.id)
-        if "proxy::bind" in self.types[node] and "/*auto*/" not in self.types[node]:
-            self.types[node]+="/*auto*/"
+            self.types[node]=Type(node.id,[weak])
+        if "proxy::bind" in self.types[node].generate():
+            self.types[node].qualifiers.add(auto)
             
 
     def visit_List(self, node):
         if node.elts:
             [self.visit(elt) for elt in node.elts]
-            [self.combine(node, elt, unary_op=lambda x:"sequence<{0}>".format(x)) for elt in node.elts]
+            [self.combine(node, elt, unary_op=lambda x:SequenceType(x)) for elt in node.elts]
         else:
-            self.types[node]="empty_sequence"
+            self.types[node]=Type("empty_sequence")
 
     def visit_Tuple(self, node):
-        if node.elts:
-            [self.visit(elt) for elt in node.elts]
-            try:
-                types=[ self.types[elt] for elt in node.elts]
-                self.types[node]="std::tuple<{0}>".format(",".join(types))
-            except: pass # not very harmonious with the combine method ...
-        else:
-            self.types[node]="decltype(std::make_tuple())"
+        [self.visit(elt) for elt in node.elts]
+        try:
+            types=[ self.types[elt] for elt in node.elts]
+            self.types[node]=TupleType(types)
+        except: pass # not very harmonious with the combine method ...
 
     def visit_Index(self, node):
         self.visit(node.value)
@@ -369,8 +357,7 @@ class Typing(ast.NodeVisitor):
 
     def visit_arguments(self, node):
         for i,arg in enumerate(node.args):
-            self.types[arg]= "argument_type{0}".format(i)
-        [self.visit(arg) for arg in node.args]
+            self.types[arg]= ArgumentType(i)
 
 def type_all(node):
     gd=global_declarations(node)

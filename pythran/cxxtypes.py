@@ -24,6 +24,14 @@ class Type(object):
         return CombinedTypes(self, other)
     def __repr__(self): return self.generate()
 
+class FunctionType(Type):
+    def __init__(self, repr,qualifiers=None):
+        Type.__init__(self, repr, qualifiers)
+    def __add__(self, other):
+        if self.generate() == other.generate(): return self
+        if isinstance(other, CombinedFunctionTypes) and self in other.types: return other
+        return CombinedFunctionTypes([self, other])
+
 class Val(Type):
     """A generic val object, to hold scalars and such"""
     def __init__(self, repr,qualifiers=None):

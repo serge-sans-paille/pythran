@@ -18,5 +18,41 @@ namespace pythonic {
             template<class F>
                 function<T>& operator=(F&& f) { ptr = new(mem) F(f); }
         };
+
+    template <class... Types>
+        struct variant {};
+
+    template <class Type>
+        struct variant<Type> {
+            char mem[sizeof(Type)];
+            Type* t;
+
+            variant() : t(nullptr) {}
+            variant(Type const& t) : t(new (mem) Type(t)) {}
+
+            template <class... Args>
+                auto operator()(Args&&... args) -> decltype( std::declval<Type>()(args...)){
+                    return (*t)(args...);
+                }
+
+        };
+
+    template<class Type, class... Types>
+        struct variant<Type, Types...> {
+            char mem[sizeof(Type)];
+            Type* t;
+            variant<Types...> ot;
+
+            variant() : t(nullptr), ot() {}
+            variant(Type const& t) : t(new (mem) Type(t)), ot() {}
+            template<class T>
+                variant(T const& t) : t(nullptr), ot(t) {}
+
+            template <class... Args>
+                auto operator()(Args&&... args) -> decltype( std::declval<Type>()(args...)){
+                    if(t) return (*t)(args...);
+                    else return ot(args...);
+                }
+        };
 }
 #endif

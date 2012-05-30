@@ -16,5 +16,6 @@ TestCase.test_insertion_sort=lambda self:compile_test(self,"insertion_sort")
 TestCase.test_multi_export=lambda self:compile_test(self,"multi_export")
 TestCase.test_primes_sieve=lambda self:compile_test(self,"primes_sieve")
 TestCase.test_zero=lambda self:compile_test(self,"zero")
+TestCase.test_select=lambda self:compile_test(self,"select")
 if __name__ == '__main__':
     unittest.main()

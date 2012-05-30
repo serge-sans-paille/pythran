@@ -4,6 +4,10 @@
 #include <pythonic++.h>
 using namespace pythonic;
 
+/* for type inference only,  a bit dangerous ? */
+template <class A, class B>
+variant<A,B> operator+(A const&, B const&);
+
 /* some overloads */
 namespace std {
     template <size_t I, class T>

@@ -184,7 +184,7 @@ class Typing(ast.NodeVisitor):
                         modules['__user__'][self.current[-1].name]['combiner']=translator
                 else:
                     new_type = unary_op( self.types[othernode] ) 
-                    if node not in self.types or (isinstance(node,ast.FunctionDef) and self.types[node].generate() in self.global_declarations):
+                    if node not in self.types:
                         self.types[node]=new_type
                     elif not isinstance(self.types[node],ArgumentType):
                         self.types[node]=op(self.types[node], new_type)

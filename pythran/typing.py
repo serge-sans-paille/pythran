@@ -146,7 +146,7 @@ class TypeDependencies(ast.NodeVisitor):
 
 class Typing(ast.NodeVisitor):
 
-    def __init__(self, name_to_node):
+    def __init__(self):
         self.types=dict()
         self.types["bool"]=Type("bool")
         self.current=list()
@@ -365,7 +365,7 @@ def type_all(node):
 
     Reorder(t.types).visit(node)
 
-    ty = Typing(gd)
+    ty = Typing()
     ty.visit(node)
 
     final_types = { k: ty.types[k] if k in ty.types else v for k,v in ty.types.iteritems() }

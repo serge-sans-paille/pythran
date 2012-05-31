@@ -21,16 +21,8 @@ class Type(object):
         if self.generate() == other.generate(): return self
         if weak in self.qualifiers and weak not in other.qualifiers: return other
         if weak in other.qualifiers and weak not in self.qualifiers: return self
-        return CombinedTypes(self, other)
+        return CombinedTypes([self, other])
     def __repr__(self): return self.generate()
-
-class FunctionType(Type):
-    def __init__(self, repr,qualifiers=None):
-        Type.__init__(self, repr, qualifiers)
-    def __add__(self, other):
-        if self.generate() == other.generate(): return self
-        if isinstance(other, CombinedFunctionTypes) and self in other.types: return other
-        return CombinedFunctionTypes([self, other])
 
 class Val(Type):
     """A generic val object, to hold scalars and such"""
@@ -40,14 +32,19 @@ class Val(Type):
 
 
 class CombinedTypes(Type):
-    def __init__(self, type0, type1):
-        self.type0=type0
-        self.type1=type1
-        self.qualifiers=type0.qualifiers.union(type1.qualifiers)
-        self.fields=("type0", "type1")
+    def __init__(self, types):
+        self.types=types
+        self.qualifiers=reduce(set.union, [ t.qualifiers for t in types ], set())
+        self.fields=("types",)
+
+    def __add__(self, other):
+        if self.generate() == other.generate(): return self
+        if other in self.types: return self
+        if weak in other.qualifiers and weak not in self.qualifiers: return self
+        return CombinedTypes(self.types+[other])
 
     def generate(self):
-        return 'decltype(std::declval<{0}>()+std::declval<{1}>())'.format(self.type0.generate(),self.type1.generate())
+        return 'decltype({0})'.format(" + ".join('std::declval<{0}>()'.format(t.generate()) for t in self.types ))
 
 class ArgumentType(Type):
     """A type to hold function arguments"""

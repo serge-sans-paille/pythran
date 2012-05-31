@@ -10,6 +10,7 @@ variant<A,B> operator+(A const&, B const&);
 
 /* some overloads */
 namespace std {
+    /* for sequences */
     template <size_t I, class T>
         auto get( sequence<T>& t) -> decltype(t[I]) { return t[I]; }
 
@@ -17,6 +18,18 @@ namespace std {
         struct tuple_element<I, sequence<T> > {
             typedef typename sequence<T>::value_type type;
         };
+
+    /* for complex numbers */
+#define GET_COMPLEX(T)\
+    template <size_t I>\
+        T& get( std::complex<T>& );\
+    template <>\
+        T& get<0>( std::complex<T>& t) { return reinterpret_cast<T*>(&t)[0]; }\
+    template <>\
+        T& get<1>( std::complex<T>& t) { return reinterpret_cast<T*>(&t)[1]; }\
+
+    GET_COMPLEX(double)
+
 }
 namespace pythonic {
     namespace proxy {

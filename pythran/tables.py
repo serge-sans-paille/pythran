@@ -95,6 +95,10 @@ modules = {
             "append" : { 'method':True, 'combiner': lambda self, node: self.combine(node.args[0], node.args[1], unary_op=lambda f: cxxtypes.SequenceType(f))},
             "insert" : { 'method':True, 'combiner': lambda self, node: self.combine(node.args[0], node.args[2], unary_op=lambda f: cxxtypes.SequenceType(f))},
             },
+        "__complex__" : {
+                "real": { 'attribute':0 },
+                "imag": { 'attribute':1 },
+                },
         "__user__" : {},
         }
 
@@ -103,5 +107,13 @@ methods ={}
 for module, elems in modules.iteritems():
     for elem, signature in elems.iteritems():
         if 'method' in signature:
-            assert elem not in methods
+            assert elem not in methods # we need unicity
             methods[elem]= ( module, signature )
+
+# a attribute name to module binding
+attributes={}
+for module, elems in modules.iteritems():
+    for elem, signature in elems.iteritems():
+        if 'attribute' in signature:
+            assert elem not in attributes # we need unicity
+            attributes[elem]= ( module, signature )

@@ -375,3 +375,11 @@ def complex_append_in_call(l1,l2):
 		if not x in l2:
 			foo(b,x)"""
         self.run_test(code, [1,2,3],[2],complex_append_in_call=[[int],[int]])
+
+    def test_complex_number(self):
+        code="""
+def complex_number():
+    c=complex(0,1)
+    c.real=c.imag
+    print c"""
+        self.run_test(code, complex_number=[])

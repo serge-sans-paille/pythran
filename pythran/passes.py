@@ -8,7 +8,7 @@
 '''
 
 from analysis import imported_ids, purity_test, global_declarations
-from tables import methods
+from tables import methods, attributes
 import ast
 import re
 
@@ -282,4 +282,16 @@ class NormalizeMethodCalls(ast.NodeVisitor):
 def normalize_method_calls(node):
     '''Turns built in method calls into function calls'''
     NormalizeMethodCalls().visit(node)
+
+##
+class NormalizeAttributes(ast.NodeTransformer):
+    def visit_Attribute(self, node):
+        if node.attr in attributes:
+            return ast.Subscript(node.value, ast.Index(ast.Num(attributes[node.attr][1]["attribute"])), node.ctx)
+        else:
+            return node
+
+def normalize_attributes(node):
+    '''Turns built in attributes into tuple subscript'''
+    NormalizeAttributes().visit(node)
 

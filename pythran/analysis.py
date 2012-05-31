@@ -224,15 +224,27 @@ class Callees(ast.NodeVisitor):
     def __init__(self, name_to_node):
         self.name_to_node=name_to_node
         self.callees={ n:set() for n in name_to_node.itervalues() }
+        self.aliases={}
 
     def visit_FunctionDef(self,node):
         self.curr=node
         [ self.visit(n) for n in node.body ]
 
+    def visit_Assign(self, node):
+        if isinstance(node.value, ast.Name) and node.value.id in self.name_to_node:
+            for t in node.targets: # aliasing handling is not that good :(
+                if isinstance(t, ast.Name):
+                    if not t.id in self.aliases: self.aliases[t.id]=set()
+                    self.aliases[t.id].add(node.value.id)
+
     def visit_Call(self,node):
         [self.visit(n) for n in node.args]
-        if isinstance(node.func, ast.Name) and node.func.id in self.name_to_node:
-            self.callees[self.curr].add(self.name_to_node[node.func.id])
+        if isinstance(node.func, ast.Name):
+            if node.func.id in self.name_to_node:
+                self.callees[self.curr].add(self.name_to_node[node.func.id])
+            elif node.func.id in self.aliases:
+                for alias in self.aliases[node.func.id]:
+                    self.callees[self.curr].add(self.name_to_node[alias])
 
 def ordered_global_declarations(node):
     '''order all global functions according to their callgraph depth'''

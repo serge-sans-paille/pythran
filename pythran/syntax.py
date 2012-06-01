@@ -29,12 +29,24 @@ class SyntaxChecker(ast.NodeVisitor):
     def visit_Print(self, node):
         if node.dest: raise PythranSyntaxError("Printing to a specific stream", node.dest)
 
+    def visit_With(self, node):
+        raise PythranSyntaxError("With statements are not supported")
+
+    def visit_Raise(self, node):
+        if node.tback: raise PythranSyntaxError("Traceback in raise statements are not supported")
+
+    def visit_TryExcept(self, node):
+        raise PythranSyntaxError("Try blocks are not supported", node)
+
+    def visit_TryFinally(self, node):
+        raise PythranSyntaxError("Try blocks are not supported", node)
+
     def visit_Import(self, node):
         for alias in node.names:
             name, asname=(alias.name, alias.asname)
             if asname:
                 PythranSyntaxError("Renaming using the 'as' keyword in an import", node)
-            elif name not in modules:
+            elif name not in tables.modules:
                 PythranSyntaxError("Module '{0}'".format(name), node)
 
     def visit_ImportFrom(self, node):
@@ -45,6 +57,12 @@ class SyntaxChecker(ast.NodeVisitor):
 
         names = node.names
         if [ alias for alias in names if alias.asname ]: raise PythranSyntaxError("Renaming using the 'as' keyword in an import", node)
+
+    def visit_Exec(self, node):
+        raise PythranSyntaxError("Exec statement are not supported", node)
+
+    def visit_Global(self, node):
+        raise PythranSyntaxError("Global variables are not supported", node)
 
     def visit_Dict(self, node):
         raise PythranSyntaxError("Dictionaries are not supported", node)

@@ -125,6 +125,13 @@ class CxxBackend(ast.NodeVisitor):
         orelse = [ self.visit(n) for n in node.orelse ]
         return If(test, Block(body), Block(orelse) if orelse else None )
 
+    def visit_Raise(self, node):
+        type=self.visit(node.type)
+        inst=self.visit(node.inst) if node.inst else None
+        if inst: return Statement("throw {0}({1})".format(type, inst))
+        else: return Statement("throw {0}".format(type))
+            
+
     def visit_Assert(self, node):
         params = [ self.visit(node.msg) if node.msg else None, self.visit(node.test) ]
         return Statement("assert(({0}))".format(", ".join(p for p in params if p)))

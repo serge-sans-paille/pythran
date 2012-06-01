@@ -8,6 +8,7 @@
 #include "core/intrinsics.h"
 #include "core/none.h"
 #include "core/io.h"
+#include "core/exceptions.h"
 
 /* additional modules */
 #include "modules/list.h"

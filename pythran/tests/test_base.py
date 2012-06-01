@@ -383,3 +383,10 @@ def complex_number():
     c.real=c.imag
     print c"""
         self.run_test(code, complex_number=[])
+
+    def test_raise(self):
+        try:
+            self.run_test("def raise_(): raise RuntimeError('pof')", raise_=[])
+        except RuntimeError as e:
+            if e.message == 'pof': pass
+            else: raise

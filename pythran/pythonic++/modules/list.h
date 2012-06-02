@@ -10,10 +10,12 @@ namespace pythonic {
             void append(sequence<T> &seq, F&& value) {
                 seq.push_back(value);
             }
+        PROXY(pythonic::__list__, append);
         template<class T, class F>
             void insert(sequence<T> &seq, size_t n, F const& value) {
                 seq.insert(n, value);
             }
+        PROXY(pythonic::__list__, insert);
     }
 }
 #endif

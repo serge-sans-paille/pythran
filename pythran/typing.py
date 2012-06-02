@@ -160,7 +160,10 @@ class Typing(ast.NodeVisitor):
                     self.types[node]=new_type
             else:
                 if isinstance(node, ast.Name) and node.id in self.name_to_nodes and any([isinstance(n,ast.Name) and isinstance(n.ctx, ast.Param) for n in self.name_to_nodes[node.id]]):
-                    self.types[node]=self.types[list(self.name_to_nodes[node.id])[0]]
+                    for n in self.name_to_nodes[node.id]:
+                        if n in self.types:
+                            self.types[node]=self.types[n]
+                    assert self.types[node], "found an alias with a type"
                     def translator_generator(args, op, unary_op):
                         ''' capture args for translator generation'''
                         def interprocedural_type_translator(s,n):
@@ -306,8 +309,9 @@ class Typing(ast.NodeVisitor):
     def visit_Attribute(self, node):
         value, attr = (node.value, node.attr)
         if value.id in modules and attr in modules[value.id]:
-            if modules[value.id][attr]: self.types[node]= DeclType(Val("{0}::{1}".format(value.id, attr)))
-            else: self.types[node]=DeclType(Val("{0}::proxy::{1}()".format(value.id, attr)))
+            #if modules[value.id][attr]: self.types[node]= DeclType(Val("{0}::{1}".format(value.id, attr)))
+            #else: self.types[node]=DeclType(Val("{0}::proxy::{1}()".format(value.id, attr)))
+            self.types[node]=DeclType(Val("{0}::proxy::{1}()".format(value.id, attr)))
         else:
             raise PythranSyntaxError("Unknown Attribute: `{0}'".format(node.attr), node)
 

@@ -95,9 +95,10 @@ modules = {
             "append" : { 'method':True, 'combiner': lambda self, node: self.combine(node.args[0], node.args[1], unary_op=lambda f: cxxtypes.SequenceType(f))},
             "insert" : { 'method':True, 'combiner': lambda self, node: self.combine(node.args[0], node.args[2], unary_op=lambda f: cxxtypes.SequenceType(f))},
             },
-        "__complex__" : {
+        "_complex_" : {
                 "real": { 'attribute':0 },
                 "imag": { 'attribute':1 },
+                "conjugate" : { 'method':True },
                 },
         "__user__" : {},
         }

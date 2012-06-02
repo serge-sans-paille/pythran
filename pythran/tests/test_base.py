@@ -390,3 +390,6 @@ def complex_number():
         except RuntimeError as e:
             if e.message == 'pof': pass
             else: raise
+
+    def test_complex_number_serialization(self):
+        self.run_test("def complex_number_serialization(l): return [x+y for x in l for y in l]", [complex(1,0), complex(1,0)], complex_number_serialization=[[complex]])

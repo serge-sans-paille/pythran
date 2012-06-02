@@ -15,14 +15,15 @@ class SpecParser:
 
     ## lex part 
     reserved = {
-            'pythran' : 'PYTHRAN',
-            'export' : 'EXPORT',
-            'list' : 'LIST',
-            'str' : 'STR',
-            'bool' : 'BOOL',
-            'int': 'INT',
-            'long': 'LONG',
-            'float': 'FLOAT',
+            'pythran'   : 'PYTHRAN',
+            'export'    : 'EXPORT',
+            'list'      : 'LIST',
+            'str'       : 'STR',
+            'bool'      : 'BOOL',
+            'complex'   : 'COMPLEX',
+            'int'       : 'INT',
+            'long'      : 'LONG',
+            'float'     : 'FLOAT',
             }
     tokens = [ 'IDENTIFIER', 'SHARP', 'COMMA', 'LPAREN', 'RPAREN' ] + list(reserved.values())
     
@@ -79,6 +80,7 @@ class SpecParser:
     def p_term(self,p):
         '''term : STR
                 | BOOL
+                | COMPLEX
                 | INT
                 | LONG
                 | FLOAT'''

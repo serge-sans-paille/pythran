@@ -14,6 +14,7 @@ from tempfile import mkstemp, TemporaryFile
 from syntax import check_syntax
 
 pytype_to_ctype_table = {
+        complex       : 'std::complex<double>',
         bool          : 'bool',
         int           : 'long',
         float         : 'double',

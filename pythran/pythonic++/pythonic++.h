@@ -12,8 +12,9 @@
 
 /* additional modules */
 #include "modules/list.h"
-#include "modules/math.h"
 #include "modules/complex.h"
+#include "modules/math.h"
+#include "modules/cmath.h"
 
 /* extensions */
 #include "core/parallel.h"

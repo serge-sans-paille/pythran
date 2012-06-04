@@ -91,6 +91,15 @@ modules = {
             "pi" : {'scalar':True},
             "e" : {'scalar':True},
             },
+        "cmath" : {
+            "cos" : {},
+            "exp" : {},
+            "sqrt" : {},
+            "log10" : {},
+            "isnan" : {},
+            "pi" : {'scalar':True},
+            "e" : {'scalar':True},
+            },
         "__list__" : {
             "append" : { 'method':True, 'combiner': lambda self, node: self.combine(node.args[0], node.args[1], unary_op=lambda f: cxxtypes.SequenceType(f))},
             "insert" : { 'method':True, 'combiner': lambda self, node: self.combine(node.args[0], node.args[2], unary_op=lambda f: cxxtypes.SequenceType(f))},

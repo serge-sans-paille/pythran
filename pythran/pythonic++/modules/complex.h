@@ -9,5 +9,21 @@ namespace pythonic {
             }
         PROXY(pythonic::_complex_, conjugate);
     }
+#define COMPLEX_OPERATOR(type, lop, op)\
+    std::complex<double> lop(type self, std::complex<double> const& other) {\
+        return std::complex<double>(self,0.) op other  ;\
+    }
+
+    COMPLEX_OPERATOR(long,operator+,+)
+    COMPLEX_OPERATOR(long,operator-,-)
+    COMPLEX_OPERATOR(long,operator*,*)
+    COMPLEX_OPERATOR(long,operator/,/)
+
+    COMPLEX_OPERATOR(double,operator+,+)
+    COMPLEX_OPERATOR(double,operator-,-)
+    COMPLEX_OPERATOR(double,operator*,*)
+    COMPLEX_OPERATOR(double,operator/,/)
+
+#undef COMPLEX_OPERATOR
 }
 #endif

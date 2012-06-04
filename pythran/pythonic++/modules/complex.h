@@ -12,6 +12,9 @@ namespace pythonic {
 #define COMPLEX_OPERATOR(type, lop, op)\
     std::complex<double> lop(type self, std::complex<double> const& other) {\
         return std::complex<double>(self,0.) op other  ;\
+    }\
+    std::complex<double> lop(std::complex<double> const& other, type self) {\
+        return other op std::complex<double>(self,0.)  ;\
     }
 
     COMPLEX_OPERATOR(long,operator+,+)

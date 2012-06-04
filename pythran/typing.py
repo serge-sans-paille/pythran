@@ -6,7 +6,7 @@ import ast
 import networkx as nx
 import operator
 from copy import deepcopy
-from tables import type_to_str, operator_to_lambda, modules, builtin_constants
+from tables import type_to_str, operator_to_lambda, modules, builtin_constants, builtin_constructors
 from analysis import global_declarations, constant_value, ordered_global_declarations
 from syntax import PythranSyntaxError
 from cxxtypes import *
@@ -335,6 +335,8 @@ class Typing(ast.NodeVisitor):
             self.types[node]=Type(builtin_constants[node.id])
         elif node.id in modules["__builtins__"]:
             self.types[node]=Type("proxy::{0}".format(node.id))
+        elif node.id in builtin_constructors:
+            self.types[node]=Type(builtin_constructors[node.id])
         else:
             self.types[node]=Type(node.id,[weak])
             

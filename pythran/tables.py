@@ -4,6 +4,8 @@ import cxxtypes
 
 builtin_constants = { "True":"bool", "False":"bool", "None":"none_type"}
 
+builtin_constructors = {'int':'int', 'float':'double', 'bool':'bool', 'long':'long'  }
+
 operator_to_lambda = {
         # boolop
         ast.And     : lambda l,r: "({0} and {1})".format(l,r),

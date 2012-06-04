@@ -1,4 +1,5 @@
 '''This module defines all the types needed to maniuplate c++ types used by pythran'''
+import tables
 
 class weak:pass
 
@@ -87,7 +88,9 @@ class ReturnType(Type):
         self.qualifiers=reduce(set.union, [ arg.qualifiers for arg in args ], call.qualifiers)
         self.fields=("call", "args",)
     def generate(self):
-        return 'decltype(std::declval<{0}>()({1}))'.format(self.call.generate(), ", ".join("std::declval<{0}>()".format( arg.generate() ) for arg in self.args))
+        cg = self.call.generate()
+        if cg not in tables.builtin_constructors.itervalues(): cg = 'std::declval<{0}>()'.format(cg)
+        return 'decltype({0}({1}))'.format(cg, ", ".join("std::declval<{0}>()".format( arg.generate() ) for arg in self.args))
 
 class ElementType(Type):
     def __init__(self, index, of):

@@ -396,3 +396,6 @@ def complex_number():
 
     def test_complex_conj(self):
         self.run_test("def complex_conjugate(c): return c.conjugate()", complex(0,1), complex_conjugate=[complex])
+
+    def test_cast(self):
+        self.run_test("def cast(i,f): return float(i)+int(f)", 1,1.5, cast=[int, float])

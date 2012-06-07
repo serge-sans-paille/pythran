@@ -399,3 +399,13 @@ def complex_number():
 
     def test_cast(self):
         self.run_test("def cast(i,f): return float(i)+int(f)", 1,1.5, cast=[int, float])
+
+    def test_subscript_assignment(self):
+        code="""
+def foo(A):
+    A[0]=1.5
+def subscript_assignment ():
+    a=range(1)
+    foo(a)
+    return a[0]"""
+        self.run_test(code,subscript_assignment=[])

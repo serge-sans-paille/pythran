@@ -172,7 +172,7 @@ class Typing(ast.NodeVisitor):
         self.combine_(node, othernode, op if op else lambda x, y: x+y, unary_op if unary_op else lambda x:x, register)
 
     def combine_(self, node, othernode, op, unary_op, register):
-        if register and isinstance(node, ast.Name): # this comes from an assignment, so we must check where the value is assigned
+        if register: # this comes from an assignment, so we must check where the value is assigned
             node_id, depth = node_to_id(node)
             if node_id not in self.name_to_nodes: self.name_to_nodes[node_id]=set()
             self.name_to_nodes[node_id].add(node)

@@ -8,6 +8,33 @@ using namespace pythonic;
 template <class A, class B>
 variant<A,B> operator+(A , B );
 
+/* for type inference too */
+template<class T>
+class container {
+    public:
+        typedef typename std::remove_cv< typename std::remove_reference<T>::type>::type value_type;
+    private:
+        container();
+};
+
+template <class A, class B>
+B operator+(container<A>&& , B );
+template <class A, class B>
+B operator+(B , container<A>&& );
+
+template <class A, class B>
+sequence<decltype(std::declval<A>()+std::declval<B>())> operator+(container<A> , sequence<B> );
+template <class A, class B>
+sequence<decltype(std::declval<A>()+std::declval<B>())> operator+(sequence<B> , container<A> );
+#if 0
+template <class A>
+decltype(std::declval<sequence<A>>() + none_type()) operator+(container<A> , none_type );
+template <class A>
+decltype(std::declval<sequence<A>>() + none_type()) operator+(none_type , container<A> );
+#endif
+template <class A, class B>
+container<decltype(std::declval<A>()+std::declval<B>())> operator+(container<A> , container<B> );
+
 /* some overloads */
 namespace std {
     /* for sequences */

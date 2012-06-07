@@ -54,10 +54,10 @@ class CombinedTypes(Type):
         self.fields=("types",)
 
     def __add__(self, other):
-        if len(self.types) > 10: return self
+        if len(self.types) > 10: return self # this is a ward: the grater the value the longer the compilation time...
         if isinstance(other, CombinedTypes):
             return CombinedTypes(self.types + [ t for t in other.types if t not in self.types ])
-        if other.generate() in [t.generate() for t in self.types]: return self
+        if other in self.types: return self
         if weak in other.qualifiers and weak not in self.qualifiers: return self
         if self == other: return self
         return CombinedTypes(self.types+[other])
@@ -126,6 +126,14 @@ class SequenceType(Type):
         self.fields=("of",)
     def generate(self):
         return 'sequence<{0}>'.format(self.of.generate())
+
+class ContainerType(Type):
+    def __init__(self, of):
+        self.of=of
+        self.qualifiers=of.qualifiers
+        self.fields=("of",)
+    def generate(self):
+        return 'container<{0}>'.format(self.of.generate())
 
 class TupleType(Type):
     def __init__(self, ofs):

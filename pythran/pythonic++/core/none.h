@@ -28,9 +28,9 @@ T0 operator+(none<T0> const& self, T1 const& other) { return self.data + other; 
 
 /* for type inference only */
 template <class T>
-none<T> operator+(T const& ,none_type const&); 
+none<T> operator+(T ,none_type ); 
 template <class T>
-none<T> operator+(none_type const&, T const&); 
+none<T> operator+(none_type , T ); 
 }
 
 #endif

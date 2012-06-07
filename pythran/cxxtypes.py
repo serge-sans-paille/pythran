@@ -6,7 +6,16 @@ class weak:pass
 def walk_type(obj, cond, op):
     if isinstance(obj,list): return [ walk_type(o, cond, op) for o in obj ]
     elif cond(obj): return op(obj)
-    elif isinstance(obj, Type): return type(obj)(*[walk_type(getattr(obj,attr), cond, op) for attr in obj.fields])
+    elif isinstance(obj, Type):
+        new=False # constructs a new object only if necessary, important for type comparison, as they are based on id()
+        new_attrs=list()
+        for attr in obj.fields:
+            new_attr = walk_type(getattr(obj,attr), cond, op)
+            new= id(getattr(obj,attr)) != id(new_attr)
+            new_attrs.append(new_attr)
+        if new:
+            return type(obj)(*new_attrs)
+        else: return obj
     else: return obj
 
 class Type(object):
@@ -18,12 +27,18 @@ class Type(object):
 
     def generate(self): return self.repr
 
+    def __eq__(self, other):
+        return self.__class__==other.__class__ and all( [ getattr(self,x)==getattr(other,y) for x,y in zip(self.fields, other.fields) ])
+
     def __add__(self, other):
-        if self.generate() == other.generate(): return self
+        if isinstance(other, CombinedTypes) and self in other.types: return other
         if weak in self.qualifiers and weak not in other.qualifiers: return other
         if weak in other.qualifiers and weak not in self.qualifiers: return self
+        if self == other: return self
         return CombinedTypes([self, other])
+
     def __repr__(self): return self.generate()
+
 
 class Val(Type):
     """A generic val object, to hold scalars and such"""
@@ -39,9 +54,12 @@ class CombinedTypes(Type):
         self.fields=("types",)
 
     def __add__(self, other):
-        if self.generate() == other.generate(): return self
-        if other in self.types: return self
+        if len(self.types) > 10: return self
+        if isinstance(other, CombinedTypes):
+            return CombinedTypes(self.types + [ t for t in other.types if t not in self.types ])
+        if other.generate() in [t.generate() for t in self.types]: return self
         if weak in other.qualifiers and weak not in self.qualifiers: return self
+        if self == other: return self
         return CombinedTypes(self.types+[other])
 
     def generate(self):
@@ -125,3 +143,4 @@ class ExpressionType(Type):
         self.fields=("op", "exprs",)
     def generate(self):
         return 'decltype({0})'.format(self.op(*["std::declval<{0}>()".format(expr.generate()) for expr in self.exprs]))
+

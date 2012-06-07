@@ -6,7 +6,7 @@ using namespace pythonic;
 
 /* for type inference only,  a bit dangerous ? */
 template <class A, class B>
-variant<A,B> operator+(A const&, B const&);
+variant<A,B> operator+(A , B );
 
 /* some overloads */
 namespace std {
@@ -19,7 +19,12 @@ namespace std {
             typedef typename sequence<T>::value_type type;
         };
 
+
     /* for complex numbers */
+    template <size_t I, class T>
+        struct tuple_element<I, complex<T> > {
+            typedef T type;
+        };
 #define GET_COMPLEX(T)\
     template <size_t I>\
         T& get( std::complex<T>& );\

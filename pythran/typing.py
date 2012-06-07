@@ -5,11 +5,15 @@
 import ast
 import networkx as nx
 import operator
-from copy import deepcopy
 from tables import type_to_str, operator_to_lambda, modules, builtin_constants, builtin_constructors
 from analysis import global_declarations, constant_value, ordered_global_declarations
 from syntax import PythranSyntaxError
 from cxxtypes import *
+
+import types
+def copy_func(f, name=None):
+    return types.FunctionType(f.func_code, f.func_globals, name or f.func_name,
+        f.func_defaults, f.func_closure)
 
 # networkx backward compatibility
 if not "has_path" in nx.__dict__:
@@ -144,6 +148,12 @@ class TypeDependencies(ast.NodeVisitor):
     def visit_Index(self, node):
         return [set()]
 
+def node_to_id(n,depth=0):
+    if isinstance(n, ast.Name): return (n.id,depth)
+    elif isinstance(n, ast.Subscript): return node_to_id(n.value, 1+depth)
+    else:
+        raise NotImplementedError("assigning to something that is neither a Name nor a subscript of a name")
+
 class Typing(ast.NodeVisitor):
 
     def __init__(self):
@@ -153,9 +163,22 @@ class Typing(ast.NodeVisitor):
         self.global_declarations = dict()
 
     def isargument(self,node):
-        return isinstance(node, ast.Name) and node.id in self.name_to_nodes and any([isinstance(n,ast.Name) and isinstance(n.ctx, ast.Param) for n in self.name_to_nodes[node.id]])
+        try:
+            node_id,_ = node_to_id(node)
+            return node_id in self.name_to_nodes and any([isinstance(n,ast.Name) and isinstance(n.ctx, ast.Param) for n in self.name_to_nodes[node_id]])
+        except NotImplementedError:return False
 
-    def combine(self, node, othernode, op=lambda x, y: x+y, unary_op=lambda x:x, register=False):
+    def combine(self, node, othernode, op=None, unary_op=None, register=False):
+        self.combine_(node, othernode, op if op else lambda x, y: x+y, unary_op if unary_op else lambda x:x, register)
+
+    def combine_(self, node, othernode, op, unary_op, register):
+        if register and isinstance(node, ast.Name): # this comes from an assignment, so we must check where the value is assigned
+            node_id, depth = node_to_id(node)
+            if node_id not in self.name_to_nodes: self.name_to_nodes[node_id]=set()
+            self.name_to_nodes[node_id].add(node)
+            former_unary_op=copy_func(unary_op)
+            #use ContainerType instead of SequenceType because it can be a tuple
+            unary_op = lambda x: reduce(lambda t,n: ContainerType(t), xrange(depth), former_unary_op(x)) # update the type to reflect container nesting
         try:
             if isinstance(othernode, ast.FunctionDef):
                 new_type=Type(othernode.name)
@@ -163,9 +186,9 @@ class Typing(ast.NodeVisitor):
                     self.types[node]=new_type
             else:
                 if self.isargument(node):
-                    for n in self.name_to_nodes[node.id]:
-                        if n in self.types:
-                            self.types[node]=self.types[n]
+                    node_id,_ = node_to_id(node)
+                    if node not in self.types: self.types[node]=unary_op(self.types[othernode])
+                    else: self.types[node]=op(self.types[node], unary_op(self.types[othernode]))
                     assert self.types[node], "found an alias with a type"
                     def translator_generator(args, op, unary_op):
                         ''' capture args for translator generation'''
@@ -175,16 +198,17 @@ class Typing(ast.NodeVisitor):
                             # build translated type for fake_node
                             for p,formal_arg in enumerate(args):
                                 effective_arg = n.args[p]
-                                if formal_arg.id == node.id: # this one will replace `node'
+                                if formal_arg.id == node_id: # this one will replace `node'
                                     translated_node=effective_arg
-                                translated_type = walk_type(translated_type, lambda x: x == s.types[formal_arg], lambda y:s.types[effective_arg])
+                                translated_type = walk_type(translated_type, lambda x: id(x) == id(s.types[formal_arg]), lambda y:s.types[effective_arg])
                             s.types[translated_othernode]=translated_type
-                            s.combine(translated_node, translated_othernode, op, unary_op, register=True)
+                            try: s.combine(translated_node, translated_othernode, op, unary_op, register=True)
+                            except NotImplementedError:pass # this may fail when the effective parameter is an expression
                         return interprocedural_type_translator
 
                     translator = translator_generator(self.current[-1].args.args, op, unary_op) # deferred combination
                     if 'combiner' in modules['__user__'][self.current[-1].name]:
-                        orig = deepcopy(modules['__user__'][self.current[-1].name]['combiner'])
+                        orig = copy_func(modules['__user__'][self.current[-1].name]['combiner'])
                         modules['__user__'][self.current[-1].name]['combiner']=lambda s,n: (orig(s,n), translator(s,n))
                     else:
                         modules['__user__'][self.current[-1].name]['combiner']=translator
@@ -198,9 +222,6 @@ class Typing(ast.NodeVisitor):
         except:
             print ast.dump(othernode)
             raise
-        if register and isinstance(node, ast.Name):
-            if node.id not in self.name_to_nodes: self.name_to_nodes[node.id]=set()
-            self.name_to_nodes[node.id].add(node)
 
     def visit_Module(self, node):
         [ self.visit(n) for n in node.body ]

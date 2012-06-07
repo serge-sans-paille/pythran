@@ -22,5 +22,6 @@ TestCase.test_ccopy=lambda self:compile_test(self,"ccopy")
 TestCase.test_cdotc=lambda self:compile_test(self,"cdotc")
 TestCase.test_cdotu=lambda self:compile_test(self,"cdotu")
 TestCase.test_crotg=lambda self:compile_test(self,"crotg")
+#TestCase.test_ramsurf=lambda self:compile_test(self,"ramsurf")
 if __name__ == '__main__':
     unittest.main()

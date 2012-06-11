@@ -237,6 +237,8 @@ class Callees(ast.NodeVisitor):
                 if isinstance(t, ast.Name):
                     if not t.id in self.aliases: self.aliases[t.id]=set()
                     self.aliases[t.id].add(node.value.id)
+        [self.visit(t) for t in node.targets]
+        self.visit(node.value)
 
     def visit_Call(self,node):
         [self.visit(n) for n in node.args]

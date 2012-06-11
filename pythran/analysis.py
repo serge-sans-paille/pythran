@@ -4,6 +4,7 @@
     * imported_ids gathers identifiers imported by a node
     * purity_test computes whether functions write their parameters or not
     * constant_value evaluates a constant expression
+    * type_aliasing gather aliasing informations
 '''
 
 from tables import modules, builtin_constants
@@ -259,3 +260,27 @@ def ordered_global_declarations(node):
         old_count=new_count
         new_count=reduce(lambda acc,s:acc+len(s),c.callees.itervalues(),0)
     return sorted(c.callees.iterkeys(), key=lambda s: len(c.callees[s]), reverse=True)
+
+##
+class Aliasing(ast.NodeVisitor):
+    def __init__(self):
+        self.aliases=dict()
+    def visit_FunctionDef(self, node):
+        self.aliases[node]=dict()
+        self.curr=self.aliases[node]
+        for arg in node.args.args:
+            self.curr[arg.id]={arg.id}
+        [ self.visit(n) for n in node.body ]
+
+    def visit_Assign(self, node):
+        if isinstance(node.value, ast.Name):
+            for t in node.targets:
+                if isinstance(t, ast.Name):
+                    if t.id not in self.curr: self.curr[t.id]=self.curr[node.value.id] if node.value.id in self.curr else {node.value.id}
+                    else: self.curr[t.id].add(node.value.id)
+
+def type_aliasing(node):
+    """Gather aliasing informations across nodes"""
+    a=Aliasing()
+    a.visit(node)
+    return a.aliases

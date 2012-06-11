@@ -6,7 +6,7 @@ import ast
 import networkx as nx
 import operator
 from tables import type_to_str, operator_to_lambda, modules, builtin_constants, builtin_constructors
-from analysis import global_declarations, constant_value, ordered_global_declarations
+from analysis import global_declarations, constant_value, ordered_global_declarations, type_aliasing
 from syntax import PythranSyntaxError
 from cxxtypes import *
 
@@ -156,11 +156,12 @@ def node_to_id(n,depth=0):
 
 class Typing(ast.NodeVisitor):
 
-    def __init__(self):
+    def __init__(self, aliases):
         self.types=dict()
         self.types["bool"]=Type("bool")
         self.current=list()
         self.global_declarations = dict()
+        self.aliases=aliases
 
     def isargument(self,node):
         try:
@@ -216,7 +217,7 @@ class Typing(ast.NodeVisitor):
                     new_type = unary_op( self.types[othernode] ) 
                     if node not in self.types:
                         self.types[node]=new_type
-                    elif not self.isargument(node):
+                    else:
                         self.types[node]=op(self.types[node], new_type)
 
         except:
@@ -312,8 +313,10 @@ class Typing(ast.NodeVisitor):
                 raise PythranSyntaxError("Unknown Attribute: `{0}'".format(node.func.attr), node)
         # handle backward type dependencies from user calls
         elif isinstance(node.func, ast.Name):
-            if node.func.id in modules['__user__'] and 'combiner' in modules['__user__'][node.func.id]:
-                modules['__user__'][node.func.id]['combiner'](self, node)
+            faliases=self.aliases[self.current[-1]].get(node.func.id,{node.func.id})
+            for fid in faliases:
+                if fid in modules['__user__'] and 'combiner' in modules['__user__'][fid]:
+                    modules['__user__'][fid]['combiner'](self, node)
         F=lambda f: ReturnType(f, [self.types[arg] for arg in node.args])
         self.combine(node, node.func, op=lambda x,y:y, unary_op=F)
 
@@ -385,7 +388,8 @@ def type_all(node):
 
     Reorder(t.types).visit(node)
 
-    ty = Typing()
+    aliases=type_aliasing(node)
+    ty = Typing(aliases)
     ty.visit(node)
 
     final_types = { k: ty.types[k] if k in ty.types else v for k,v in ty.types.iteritems() }

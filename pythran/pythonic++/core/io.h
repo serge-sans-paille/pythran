@@ -34,6 +34,10 @@ namespace pythonic {
             return os << ']';
         }
 
+    std::ostream& operator<<(std::ostream& os, empty_sequence const & ) {
+        return os << "[]";
+    }
+
     template<class T>
         std::ostream& operator<<(std::ostream& os, none<T> const & v) {
             if(v == None) return os << "None";

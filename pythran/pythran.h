@@ -26,12 +26,12 @@ template <class A, class B>
 sequence<decltype(std::declval<A>()+std::declval<B>())> operator+(container<A> , sequence<B> );
 template <class A, class B>
 sequence<decltype(std::declval<A>()+std::declval<B>())> operator+(sequence<B> , container<A> );
-#if 0
+
 template <class A>
 decltype(std::declval<sequence<A>>() + none_type()) operator+(container<A> , none_type );
 template <class A>
 decltype(std::declval<sequence<A>>() + none_type()) operator+(none_type , container<A> );
-#endif
+
 template <class A, class B>
 container<decltype(std::declval<A>()+std::declval<B>())> operator+(container<A> , container<B> );
 
@@ -46,6 +46,11 @@ namespace std {
             typedef typename sequence<T>::value_type type;
         };
 
+    /* for containers */
+    template <size_t I, class T>
+        struct tuple_element<I, container<T> > {
+            typedef typename container<T>::value_type type;
+        };
 
     /* for complex numbers */
     template <size_t I, class T>

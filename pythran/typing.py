@@ -158,12 +158,18 @@ class Typing(ast.NodeVisitor):
 
     def __init__(self, aliases):
         self.types=dict()
-        self.types["bool"]=Type("bool")
+        self.types["bool"]=NamedType("bool")
         self.current=list()
         self.global_declarations = dict()
         self.aliases=aliases
 
+    def register(self, ptype):
+        """register ptype as a local typedef"""
+        self.typedefs.append(ptype)
+
+
     def isargument(self,node):
+        """ checks wether node aliases to a parameter"""
         try:
             node_id,_ = node_to_id(node)
             return node_id in self.name_to_nodes and any([isinstance(n,ast.Name) and isinstance(n.ctx, ast.Param) for n in self.name_to_nodes[node_id]])
@@ -179,40 +185,38 @@ class Typing(ast.NodeVisitor):
             self.name_to_nodes[node_id].add(node)
             former_unary_op=copy_func(unary_op)
             #use ContainerType instead of SequenceType because it can be a tuple
-            unary_op = lambda x: reduce(lambda t,n: ContainerType(t), xrange(depth), former_unary_op(x)) # update the type to reflect container nesting
+            unary_op = lambda x: former_unary_op(reduce(lambda t,n: ContainerType(t), xrange(depth),x)) # update the type to reflect container nesting
         try:
             if isinstance(othernode, ast.FunctionDef):
-                new_type=Type(othernode.name)
+                new_type=NamedType(othernode.name)
                 if node not in self.types:
                     self.types[node]=new_type
             else:
                 if self.isargument(node):
                     node_id,_ = node_to_id(node)
                     if node not in self.types: self.types[node]=unary_op(self.types[othernode])
-                    else: self.types[node]=op(self.types[node], unary_op(self.types[othernode]))
+                    #else: print self.types[node], unary_op(self.types[othernode])
+                    #else: self.types[node]=op(self.types[node], unary_op(self.types[othernode]))
                     assert self.types[node], "found an alias with a type"
+
+                    parametric_type= PType(self.current[-1], self.types[othernode])
+                    self.register(parametric_type)
                     def translator_generator(args, op, unary_op):
                         ''' capture args for translator generation'''
                         def interprocedural_type_translator(s,n):
                             translated_othernode=ast.Name('__fake__', ast.Load())
-                            translated_type=s.types[othernode]
-                            # build translated type for fake_node
+                            s.types[translated_othernode]=parametric_type.instanciate([s.types[arg] for arg in n.args])
+                            # look for modified argument
                             for p,formal_arg in enumerate(args):
                                 effective_arg = n.args[p]
-                                if formal_arg.id == node_id: # this one will replace `node'
+                                if formal_arg.id == node_id: 
                                     translated_node=effective_arg
-                                translated_type = walk_type(translated_type, lambda x: id(x) == id(s.types[formal_arg]), lambda y:s.types[effective_arg])
-                            s.types[translated_othernode]=translated_type
+                                    break
                             try: s.combine(translated_node, translated_othernode, op, unary_op, register=True)
                             except NotImplementedError:pass # this may fail when the effective parameter is an expression
                         return interprocedural_type_translator
-
                     translator = translator_generator(self.current[-1].args.args, op, unary_op) # deferred combination
-                    if 'combiner' in modules['__user__'][self.current[-1].name]:
-                        orig = copy_func(modules['__user__'][self.current[-1].name]['combiner'])
-                        modules['__user__'][self.current[-1].name]['combiner']=lambda s,n: (orig(s,n), translator(s,n))
-                    else:
-                        modules['__user__'][self.current[-1].name]['combiner']=translator
+                    modules['__user__'][self.current[-1].name]['combiner']=modules['__user__'][self.current[-1].name].get('combiner',list()) + [ translator ]
                 else:
                     new_type = unary_op( self.types[othernode] ) 
                     if node not in self.types:
@@ -230,11 +234,12 @@ class Typing(ast.NodeVisitor):
 
     def visit_FunctionDef(self, node):
         self.current.append(node)
+        self.typedefs=list()
         self.name_to_nodes = {arg.id:{arg} for arg in node.args.args }
         for k,v in builtin_constants.iteritems():
             fake_node=ast.Name(k,ast.Load())
             self.name_to_nodes.update({ k:{fake_node}}) 
-            self.types[fake_node]=Type(v)
+            self.types[fake_node]=NamedType(v)
         self.visit(node.args) ; [ self.visit(n) for n in node.body ]
         # propagate type information through all aliases
         for name,nodes in self.name_to_nodes.iteritems():
@@ -242,6 +247,7 @@ class Typing(ast.NodeVisitor):
             for n in nodes: self.combine(final_node, n)
             for n in nodes: self.types[n]=self.types[final_node]
         self.global_declarations[node.name]=node
+        self.types[node]=(self.types[node], self.typedefs)
         self.current.pop()
 
     def visit_Return(self, node):
@@ -249,7 +255,7 @@ class Typing(ast.NodeVisitor):
             self.visit(node.value)
             self.combine(self.current[-1], node.value)
         else:
-            self.types[self.current[-1]]=Type("none_type")
+            self.types[self.current[-1]]=NamedType("none_type")
 
     def visit_Assign(self, node):
         self.visit(node.value)
@@ -273,8 +279,8 @@ class Typing(ast.NodeVisitor):
         for alias in node.names:
             if self.current:self.name_to_nodes[alias.name]={alias}
             else: self.global_declarations[alias.name]=alias
-            self.types[alias]=(Type('{0}::{1}'.format(node.module,alias.name)))
-            self.types[alias]=DeclType(Val('{0}::{1}'.format(node.module,alias.name) )) if "scalar" in modules[node.module][alias.name] else Type("{0}::proxy::{1}".format(node.module, alias.name))
+            self.types[alias]=(NamedType('{0}::{1}'.format(node.module,alias.name)))
+            self.types[alias]=DeclType(Val('{0}::{1}'.format(node.module,alias.name) )) if "scalar" in modules[node.module][alias.name] else NamedType("{0}::proxy::{1}".format(node.module, alias.name))
 
     def visit_BoolOp(self, node):
         [ self.visit(value) for value in node.values]
@@ -298,7 +304,7 @@ class Typing(ast.NodeVisitor):
         [ self.combine(node,n) for n in (node.body, node.orelse) ]
 
     def visit_Compare(self, node):
-        self.types[node]=Type("bool")
+        self.types[node]=NamedType("bool")
 
     def visit_Call(self, node):
         self.visit(node.func)
@@ -316,15 +322,15 @@ class Typing(ast.NodeVisitor):
             faliases=self.aliases[self.current[-1]].get(node.func.id,{node.func.id})
             for fid in faliases:
                 if fid in modules['__user__'] and 'combiner' in modules['__user__'][fid]:
-                    modules['__user__'][fid]['combiner'](self, node)
+                    for combiner in modules['__user__'][fid]['combiner']: combiner(self, node)
         F=lambda f: ReturnType(f, [self.types[arg] for arg in node.args])
         self.combine(node, node.func, op=lambda x,y:y, unary_op=F)
 
     def visit_Num(self, node):
-        self.types[node]=Type(type_to_str[type(node.n)])
+        self.types[node]=NamedType(type_to_str[type(node.n)])
 
     def visit_Str(self, node):
-        self.types[node]=Type("std::string")
+        self.types[node]=NamedType("std::string")
 
     def visit_Attribute(self, node):
         value, attr = (node.value, node.attr)
@@ -349,13 +355,13 @@ class Typing(ast.NodeVisitor):
         elif node.id in self.global_declarations:
             self.combine(node, self.global_declarations[node.id])
         elif node.id in builtin_constants:
-            self.types[node]=Type(builtin_constants[node.id])
+            self.types[node]=NamedType(builtin_constants[node.id])
         elif node.id in modules["__builtins__"]:
-            self.types[node]=Type("proxy::{0}".format(node.id))
+            self.types[node]=NamedType("proxy::{0}".format(node.id))
         elif node.id in builtin_constructors:
-            self.types[node]=Type(builtin_constructors[node.id])
+            self.types[node]=NamedType(builtin_constructors[node.id])
         else:
-            self.types[node]=Type(node.id,[weak])
+            self.types[node]=NamedType(node.id,[weak])
             
 
     def visit_List(self, node):
@@ -363,7 +369,7 @@ class Typing(ast.NodeVisitor):
             [self.visit(elt) for elt in node.elts]
             [self.combine(node, elt, unary_op=lambda x:SequenceType(x)) for elt in node.elts]
         else:
-            self.types[node]=Type("empty_sequence")
+            self.types[node]=NamedType("empty_sequence")
 
     def visit_Tuple(self, node):
         [self.visit(elt) for elt in node.elts]

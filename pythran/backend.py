@@ -35,6 +35,29 @@ class CxxBackend(ast.NodeVisitor):
 
     # stmt
     def visit_FunctionDef(self, node):
+        class CachedTypeVisitor:
+            class CachedType:
+                def __init__(self,s):self.s=s
+                def generate(self,ctx): return self.s
+            def __init__(self):
+                self.cache=dict()
+                self.mapping=dict()
+            def __call__(self, node):
+                if node not in self.mapping:
+                    t=node.generate(self)
+                    self.mapping[node]=len(self.mapping)
+                    self.cache[node]=t
+                return CachedTypeVisitor.CachedType("__type{0}".format(self.mapping[node]))
+            def typedefs(self):
+                l=sorted(self.mapping.items(),key=lambda x:x[1])
+                L=list()
+                for k,v in l:
+                    #print "__type{0}".format(v), "->", k, ":", self.cache[k]
+                    L.append( Typedef(Value(self.cache[k],"__type{0}".format(v))) )
+                return L
+
+        #ctx=lambda x:x
+        ctx=CachedTypeVisitor()
         fargs = node.args.args
 
         local_functions={k for k in self.local_functions}
@@ -53,25 +76,30 @@ class CxxBackend(ast.NodeVisitor):
 
         self.local_declarations.pop()
 
-        return_declaration = [templatize(Struct("type",[Typedef(Value(self.types[node].generate(), "return_type"))]), formal_types)]
+        return_type = self.types[node][0]
 
         fscope = "type{0}::".format( "<{0}>".format(", ".join(formal_types)) if formal_types else ""  )
         operator_declaration = [templatize(FunctionDeclaration( Value("typename "+fscope+"return_type", "operator()"),
             [ Value( t, a ) for t,a in zip(formal_types, formal_args) ] ), formal_types), EmptyStatement()] #*** empty statement to force a comma ...
 
-        topstruct = Struct(node.name, return_declaration + operator_declaration)
-        self.declarations.append(topstruct)
 
         ffscope = "{0}::{1}".format(node.name, fscope)
         operator_signature = FunctionDeclaration(
                 Value("typename {0}return_type".format(ffscope), "{0}::operator()".format(node.name)),
                 [ Value( t, a ) for t,a in zip(formal_types, formal_args ) ] )
-        operator_local_declarations = [ Statement("{0} {1}".format(self.types[k].generate(), k.id)) for k in ldecls ]
+        operator_local_declarations = [ Statement("{0} {1}".format(self.types[k].generate(ctx), k.id)) for k in ldecls ]
+        dependent_typedefs = ctx.typedefs()
         operator_definition = FunctionBody(
                 templatize(operator_signature, formal_types),
-                Block( operator_local_declarations + operator_body )
+                Block( dependent_typedefs + operator_local_declarations + operator_body )
                 )
 
+        extra_typedefs = [Typedef(Value(t.generate(ctx), t.name)) for t in self.types[node][1]]
+        extra_typedefs +=[Typedef(Value(return_type.generate(ctx), "return_type"))]
+        extra_typedefs = ctx.typedefs() + extra_typedefs
+        return_declaration = [templatize(Struct("type",extra_typedefs), formal_types)]
+        topstruct = Struct(node.name, return_declaration + operator_declaration)
+        self.declarations.append(topstruct)
         self.definitions.append(operator_definition)
         self.local_functions=local_functions
         return EmptyStatement()

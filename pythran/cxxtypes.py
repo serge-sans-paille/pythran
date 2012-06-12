@@ -25,7 +25,7 @@ class Type(object):
         self.qualifiers=set(qualifiers) if qualifiers else set()
         self.fields=("repr","qualifiers")
 
-    def generate(self): return self.repr
+    def generate(self,ctx): return self.repr
 
     def __eq__(self, other):
         return self.__class__==other.__class__ and all( [ getattr(self,x)==getattr(other,y) for x,y in zip(self.fields, other.fields) ])
@@ -37,7 +37,50 @@ class Type(object):
         if self == other: return self
         return CombinedTypes([self, other])
 
-    def __repr__(self): return self.generate()
+    def __repr__(self): return self.generate(lambda x:x)
+
+class NamedType(Type):
+    """A generic type object, to hold scalars and such"""
+    def __init__(self, repr,qualifiers=None):
+        self.repr=repr
+        self.qualifiers=set(qualifiers) if qualifiers else set()
+        self.fields=("repr","qualifiers")
+
+    def generate(self,ctx): return self.repr
+
+class PType(Type):
+    prefix="__ptype{0}"
+    count=0
+
+    """A generic parametric type"""
+    def __init__(self, fun, type):
+        self.fun=fun
+        self.type=type
+        self.name=PType.prefix.format(PType.count)
+        PType.count+=1
+        self.qualifiers=set(type.qualifiers)
+        self.fields=("fun", "type", "name",)
+
+    def generate(self,ctx):
+        return ctx(self.type).generate(ctx)
+
+    def instanciate(self, arguments):
+        return InstanciatedType(self.fun, self.name, arguments)
+
+class InstanciatedType(Type):
+    def __init__(self, fun, name, arguments):
+        self.fun=fun
+        self.name=name
+        self.arguments=arguments
+        self.qualifiers=set()
+        self.fields=("fun", "name", "arguments",)
+
+    def generate(self,ctx):
+        return "typename {0}::type{1}::{2}".format(
+                self.fun.name,
+                "<{0}>".format(", ".join(ctx(arg).generate(ctx) for arg in self.arguments)) if self.arguments else "",
+                self.name
+                )
 
 
 class Val(Type):
@@ -54,7 +97,7 @@ class CombinedTypes(Type):
         self.fields=("types",)
 
     def __add__(self, other):
-        if len(self.types) > 10: return self # this is a ward: the grater the value the longer the compilation time...
+        #if len(self.types) > 10: return self # this is a ward: the greater the value the longer the compilation time...
         if isinstance(other, CombinedTypes):
             return CombinedTypes(self.types + [ t for t in other.types if t not in self.types ])
         if other in self.types: return self
@@ -62,8 +105,8 @@ class CombinedTypes(Type):
         if self == other: return self
         return CombinedTypes(self.types+[other])
 
-    def generate(self):
-        return 'decltype({0})'.format(" + ".join('std::declval<{0}>()'.format(t.generate()) for t in self.types ))
+    def generate(self,ctx):
+        return 'decltype({0})'.format(" + ".join('std::declval<{0}>()'.format(ctx(t).generate(ctx)) for t in self.types ))
 
 class ArgumentType(Type):
     """A type to hold function arguments"""
@@ -72,15 +115,15 @@ class ArgumentType(Type):
         self.qualifiers=set(qualifiers) if qualifiers else set()
         self.fields=("num","qualifiers")
 
-    def generate(self): return "argument_type{0}".format(self.num)
+    def generate(self,ctx): return "argument_type{0}".format(self.num)
 
 class DeclVal(Type):
     def __init__(self, of):
         self.of=of
         self.qualifiers=of.qualifiers
         self.fields=("of",)
-    def generate(self):
-        return 'std::declval<{0}>()'.format(self.of.generate())
+    def generate(self,ctx):
+        return 'std::declval<{0}>()'.format(ctx(self.of).generate(ctx))
 
 class DeclType(Type):
     """Gather the type of a Typed variable"""
@@ -88,16 +131,16 @@ class DeclType(Type):
         self.of=of
         self.qualifiers=of.qualifiers
         self.fields=("of",)
-    def generate(self):
-        return 'decltype({0})'.format(self.of.generate())
+    def generate(self,ctx):
+        return 'decltype({0})'.format(self.of.generate(ctx))
 
 class ContentType(Type):
     def __init__(self, of):
         self.of=of
         self.qualifiers=of.qualifiers
         self.fields=("of",)
-    def generate(self):
-        return 'typename content_of<{0}>::type'.format(self.of.generate())
+    def generate(self,ctx):
+        return 'typename content_of<{0}>::type'.format(ctx(self.of).generate(ctx))
 
 class ReturnType(Type):
     def __init__(self, call, args):
@@ -105,10 +148,10 @@ class ReturnType(Type):
         self.args=args
         self.qualifiers=reduce(set.union, [ arg.qualifiers for arg in args ], call.qualifiers)
         self.fields=("call", "args",)
-    def generate(self):
-        cg = self.call.generate()
+    def generate(self,ctx):
+        cg = self.call.generate(ctx)
         if cg not in tables.builtin_constructors.itervalues(): cg = 'std::declval<{0}>()'.format(cg)
-        return 'decltype({0}({1}))'.format(cg, ", ".join("std::declval<{0}>()".format( arg.generate() ) for arg in self.args))
+        return 'decltype({0}({1}))'.format(cg, ", ".join("std::declval<{0}>()".format( ctx(arg).generate(ctx) ) for arg in self.args))
 
 class ElementType(Type):
     def __init__(self, index, of):
@@ -116,32 +159,32 @@ class ElementType(Type):
         self.of=of
         self.qualifiers=of.qualifiers
         self.fields=("index", "of",)
-    def generate(self):
-        return 'typename std::tuple_element<{0},{1}>::type'.format(self.index, self.of.generate())
+    def generate(self, ctx):
+        return 'typename std::tuple_element<{0},{1}>::type'.format(self.index, ctx(self.of).generate(ctx))
 
 class SequenceType(Type):
     def __init__(self, of):
         self.of=of
         self.qualifiers=of.qualifiers
         self.fields=("of",)
-    def generate(self):
-        return 'sequence<{0}>'.format(self.of.generate())
+    def generate(self, ctx):
+        return 'sequence<{0}>'.format(ctx(self.of).generate(ctx))
 
 class ContainerType(Type):
     def __init__(self, of):
         self.of=of
         self.qualifiers=of.qualifiers
         self.fields=("of",)
-    def generate(self):
-        return 'container<{0}>'.format(self.of.generate())
+    def generate(self,ctx):
+        return 'container<{0}>'.format(ctx(self.of).generate(ctx))
 
 class TupleType(Type):
     def __init__(self, ofs):
         self.ofs=ofs
         self.qualifiers=reduce(set.union, [ of.qualifiers for of in ofs ], set())
         self.fields=("ofs",)
-    def generate(self):
-        return 'std::tuple<{0}>'.format(", ".join(of.generate() for of in self.ofs)) if self.ofs else 'decltype(std::make_tuple())'
+    def generate(self,ctx):
+        return 'std::tuple<{0}>'.format(", ".join(ctx(of).generate(ctx) for of in self.ofs)) if self.ofs else 'decltype(std::make_tuple())'
 
 class ExpressionType(Type):
     def __init__(self, op, exprs):
@@ -149,6 +192,6 @@ class ExpressionType(Type):
         self.exprs=exprs
         self.qualifiers=reduce(set.union, [ expr.qualifiers for expr in exprs ], set())
         self.fields=("op", "exprs",)
-    def generate(self):
-        return 'decltype({0})'.format(self.op(*["std::declval<{0}>()".format(expr.generate()) for expr in self.exprs]))
+    def generate(self,ctx):
+        return 'decltype({0})'.format(self.op(*["std::declval<{0}>()".format(ctx(expr).generate(ctx)) for expr in self.exprs]))
 

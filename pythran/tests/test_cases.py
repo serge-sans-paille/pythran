@@ -28,5 +28,6 @@ TestCase.test_pivot=lambda self:compile_test(self,"pivot")
 TestCase.test_guerre=lambda self:compile_test(self,"guerre")
 TestCase.test_deriv=lambda self:compile_test(self,"deriv")
 TestCase.test_ramsurf=lambda self:compile_test(self,"ramsurf")
+TestCase.test_hyantes_core=lambda self:compile_test(self,"hyantes_core")
 if __name__ == '__main__':
     unittest.main()

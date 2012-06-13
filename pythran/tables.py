@@ -85,7 +85,9 @@ modules = {
             "pmap": {},
             },
         "math" : {
+            "acos" : {},
             "cos" : {},
+            "sin" : {},
             "exp" : {},
             "sqrt" : {},
             "log10" : {},
@@ -95,6 +97,7 @@ modules = {
             },
         "cmath" : {
             "cos" : {},
+            "sin" : {},
             "exp" : {},
             "sqrt" : {},
             "log10" : {},

@@ -279,7 +279,6 @@ class Typing(ast.NodeVisitor):
         for alias in node.names:
             if self.current:self.name_to_nodes[alias.name]={alias}
             else: self.global_declarations[alias.name]=alias
-            self.types[alias]=(NamedType('{0}::{1}'.format(node.module,alias.name)))
             self.types[alias]=DeclType(Val('{0}::{1}'.format(node.module,alias.name) )) if "scalar" in modules[node.module][alias.name] else NamedType("{0}::proxy::{1}".format(node.module, alias.name))
 
     def visit_BoolOp(self, node):
@@ -335,7 +334,7 @@ class Typing(ast.NodeVisitor):
     def visit_Attribute(self, node):
         value, attr = (node.value, node.attr)
         if value.id in modules and attr in modules[value.id]:
-            self.types[node]=DeclType(Val("{0}::proxy::{1}()".format(value.id, attr)))
+            self.types[node]=DeclType(Val('{0}::{1}'.format(value.id,attr) )) if "scalar" in modules[value.id][attr] else DeclType(Val("{0}::proxy::{1}()".format(value.id, attr)))
         else:
             raise PythranSyntaxError("Unknown Attribute: `{0}'".format(node.attr), node)
 

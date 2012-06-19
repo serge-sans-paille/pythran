@@ -31,7 +31,7 @@ class CxxBackend(ast.NodeVisitor):
         body = [ self.visit(n) for n in node.body ]
 
         assert not self.local_declarations
-        return headers +  [Namespace("__{0}".format(self.name), body + self.declarations + self.definitions) ]
+        return headers +  [ Namespace("__{0}".format(self.name), body + self.declarations + self.definitions) ]
 
     # stmt
     def visit_FunctionDef(self, node):
@@ -73,6 +73,9 @@ class CxxBackend(ast.NodeVisitor):
         ldecls= set(ldecls.itervalues())
 
         operator_body = [ self.visit(n) for n in node.body ] 
+        # add preprocessor line information
+        if hasattr(node,"lineno"):
+            operator_body.insert(0,Line('#line {0} "{1}.py"'.format(node.lineno, self.name)))
 
         self.local_declarations.pop()
 

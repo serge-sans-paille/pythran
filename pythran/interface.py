@@ -116,6 +116,7 @@ def compile(module, output_filename=None, cppflags=list(), cxxflags=list()):
     tc.ldflags.append('-L{0}/config'.format(distutils.sysconfig.get_python_lib(0,1)))
     tc.ldflags.append('-lpython{0}'.format(sys.version[:3]))
     tc.ldflags.append('-lboost_python')
+    tc.ldflags.append('-fPIC')
 
     tc.cxxflags.append("-std=c++0x")
     tc.cxxflags+=cxxflags

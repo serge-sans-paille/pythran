@@ -162,13 +162,21 @@ class ElementType(Type):
     def generate(self, ctx):
         return 'typename std::tuple_element<{0},{1}>::type'.format(self.index, ctx(self.of).generate(ctx))
 
-class SequenceType(Type):
+class ListType(Type):
     def __init__(self, of):
         self.of=of
         self.qualifiers=of.qualifiers
         self.fields=("of",)
     def generate(self, ctx):
-        return 'sequence<{0}>'.format(ctx(self.of).generate(ctx))
+        return 'core::list<{0}>'.format(ctx(self.of).generate(ctx))
+
+class SetType(Type):
+    def __init__(self, of):
+        self.of=of
+        self.qualifiers=of.qualifiers
+        self.fields=("of",)
+    def generate(self, ctx):
+        return 'core::set<{0}>'.format(ctx(self.of).generate(ctx))
 
 class ContainerType(Type):
     def __init__(self, of):

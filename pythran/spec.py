@@ -18,6 +18,7 @@ class SpecParser:
             'pythran'   : 'PYTHRAN',
             'export'    : 'EXPORT',
             'list'      : 'LIST',
+            'set'       : 'SET',
             'str'       : 'STR',
             'bool'      : 'BOOL',
             'complex'   : 'COMPLEX',
@@ -69,11 +70,14 @@ class SpecParser:
     def p_type(self,p):
         '''type : term
                 | type LIST
+                | type SET
                 | LPAREN types RPAREN'''
         if len(p) == 2:
             p[0] = p[1]
-        elif len(p) == 3:
+        elif len(p) == 3 and p[2]=='list':
             p[0] = [p[1]]
+        elif len(p) == 3 and p[2]=='set':
+            p[0] = {p[1]}
         else:
             p[0] = tuple(p[2])
 

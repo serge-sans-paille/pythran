@@ -25,7 +25,9 @@ pytype_to_ctype_table = {
 def pytype_to_ctype(t):
     '''python -> c++ type binding'''
     if isinstance(t,list):
-        return 'sequence<{0}>'.format(pytype_to_ctype(t[0]))
+        return 'core::list<{0}>'.format(pytype_to_ctype(t[0]))
+    if isinstance(t,set):
+        return 'core::set<{0}>'.format(pytype_to_ctype(list(t)[0]))
     elif isinstance(t,tuple):
         return 'std::tuple<{0}>'.format(", ".join(pytype_to_ctype(_) for _ in t))
     elif t in pytype_to_ctype_table:
@@ -36,6 +38,8 @@ def pytype_to_ctype(t):
 def extract_constructed_types(t):
     if isinstance(t, list):
         return [ pytype_to_ctype(t) ] + extract_constructed_types(t[0])
+    if isinstance(t, set):
+        return [ pytype_to_ctype(t) ] + extract_constructed_types(list(t)[0])
     elif isinstance(t,tuple):
         return [ pytype_to_ctype(t) ] + reduce(lambda x,y:x+y, (extract_constructed_types(e) for e in t))
     else:

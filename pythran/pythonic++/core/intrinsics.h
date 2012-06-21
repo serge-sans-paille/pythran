@@ -12,14 +12,14 @@ namespace pythonic {
 
     /* all */
     template <class T>
-        bool all( sequence<T> const& s) {
+        bool all( core::list<T> const& s) {
             return s.end() == std::find_if(s.begin(), s.end(), [](T const&t) { return not bool(t); });
         }
     PROXY(pythonic, all);
 
     /* any */
     template <class T>
-        bool any( sequence<T> const& s) {
+        bool any( core::list<T> const& s) {
             return s.end() != std::find_if(s.begin(), s.end(), [](T const&t) { return bool(t); });
         }
     PROXY(pythonic, any);
@@ -66,8 +66,8 @@ namespace pythonic {
     template<class T>
     struct enumerate_iterator : std::iterator< std::forward_iterator_tag, long >{
         long value;
-        typename sequence<T>::const_iterator iter;
-        enumerate_iterator(long value, typename sequence<T>::const_iterator iter) : value(value), iter(iter) {}
+        typename core::list<T>::const_iterator iter;
+        enumerate_iterator(long value, typename core::list<T>::const_iterator iter) : value(value), iter(iter) {}
         std::tuple<long,T>  operator*() { return std::make_tuple(value, *iter); }
         enumerate_iterator& operator++() { ++value,++iter; return *this; }
         enumerate_iterator operator++(int) { enumerate_iterator self(*this); ++value, ++iter; return self; }
@@ -76,20 +76,20 @@ namespace pythonic {
 
     template <class T>
     struct _enumerate {
-        sequence<T> const& seq;
+        core::list<T> const& seq;
         typedef std::tuple<long, T> value_type;
-        _enumerate( sequence<T> const& seq ) : seq(seq) {}
+        _enumerate( core::list<T> const& seq ) : seq(seq) {}
         enumerate_iterator<T> begin() const { return enumerate_iterator<T>(0L,seq.begin()); }
         enumerate_iterator<T> end() const { return enumerate_iterator<T>(seq.end()-seq.begin(), seq.end()); }
     };
     template <class T>
-    _enumerate<T> enumerate(sequence<T> const& seq) { return _enumerate<T>(seq); }
+    _enumerate<T> enumerate(core::list<T> const& seq) { return _enumerate<T>(seq); }
     PROXY(pythonic,enumerate);
 
     /* filter */
     template<class F, class T>
-        sequence<T> filter(F const& f, sequence<T> const& seq) { /* does not implement the full standard */
-            sequence<T> out;
+        core::list<T> filter(F const& f, core::list<T> const& seq) { /* does not implement the full standard */
+            core::list<T> out;
             std::copy_if(seq.begin(), seq.end(), std::back_inserter(out), f);
             return out;
         }
@@ -112,8 +112,8 @@ namespace pythonic {
             }
         };
     template <class T>
-        struct _id< sequence<T> > {
-            intptr_t operator()(sequence<T> const &t) {
+        struct _id< core::list<T> > {
+            intptr_t operator()(core::list<T> const &t) {
                 return reinterpret_cast<intptr_t>(&(*t.data));
             }
         };
@@ -144,8 +144,8 @@ namespace pythonic {
     PROXY(pythonic,len);
 
     /* list */
-    empty_sequence list() {
-        return empty_sequence();
+    core::empty_list list() {
+        return core::empty_list();
     }
 
     template <class T, int V>
@@ -157,7 +157,7 @@ namespace pythonic {
 
     template <class T>
         struct _list<T,1> {
-            typedef sequence<typename T::value_type> type;
+            typedef core::list<typename T::value_type> type;
             type operator()(T const &t) {
                 type r;
                 auto inserter = std::back_inserter(r);
@@ -172,11 +172,41 @@ namespace pythonic {
         } 
     PROXY(pythonic,list);
 
+    /* set */
+    core::empty_set set() {
+        return core::empty_set();
+    }
+
+    template <class T, int V>
+        struct _set {
+        };
+    template <class T>
+        struct _set<T,0> {
+        };
+
+    template <class T>
+        struct _set<T,1> {
+            typedef core::set<typename T::value_type> type;
+            type operator()(T const &t) {
+                type r;
+                auto inserter = std::back_inserter(r);
+                for(auto &i : t) *inserter++=i;
+                return r;
+            }
+        };
+
+    template <class T, int V = is_container<T>::value>
+        typename _set<T,V>::type set(T const & t) {
+            return _set<T,V>()(t);
+        } 
+    PROXY(pythonic,set);
+
+
 
     /* map */
-    template <typename Operator, typename Sequence0, typename... Iterators>
-        auto _map(Operator& op, Sequence0 const& seq, Iterators... iterators)
-        -> sequence< decltype(op(*seq.begin(), *iterators...)) >
+    template <typename Operator, typename List0, typename... Iterators>
+        auto _map(Operator& op, List0 const& seq, Iterators... iterators)
+        -> core::list< decltype(op(*seq.begin(), *iterators...)) >
         {
             decltype(_map(op,seq, iterators...)) s;
             auto iter = std::back_inserter(s);
@@ -185,11 +215,11 @@ namespace pythonic {
             return s;
         }
 
-    template <typename Operator, typename Sequence0, typename... SequenceN>
-        auto map(Operator op, Sequence0 const& seq, SequenceN const &... sequences)
-        -> decltype( _map(op, seq, sequences.begin()...) )
+    template <typename Operator, typename List0, typename... ListN>
+        auto map(Operator op, List0 const& seq, ListN const &... lists)
+        -> decltype( _map(op, seq, lists.begin()...) )
         {
-            return _map(op, seq, sequences.begin()...);
+            return _map(op, seq, lists.begin()...);
         }
 
     PROXY(pythonic,map);
@@ -225,10 +255,10 @@ namespace pythonic {
             }
         };
     template<class T>
-        struct Max<sequence<T>> {
-            typedef typename sequence<T>::value_type return_type;
+        struct Max<core::list<T>> {
+            typedef typename core::list<T>::value_type return_type;
 
-            return_type operator()( sequence<T> const & s ) {
+            return_type operator()( core::list<T> const & s ) {
                 return *std::max_element(s.begin(), s.end());
             }
         };
@@ -271,10 +301,10 @@ namespace pythonic {
         };
 
     template<class T>
-        struct Min<sequence<T>> {
-            typedef typename sequence<T>::value_type return_type;
+        struct Min<core::list<T>> {
+            typedef typename core::list<T>::value_type return_type;
 
-            return_type operator()( sequence<T> const & s ) {
+            return_type operator()( core::list<T> const & s ) {
                 return *std::min_element(s.begin(), s.end());
             }
         };
@@ -325,17 +355,17 @@ namespace pythonic {
     PROXY(pythonic,xrange);
 
     /* range */
-    sequence<long> _range(xrange & xr) {
-        sequence<long> s;
+    core::list<long> _range(xrange & xr) {
+        core::list<long> s;
         std::copy(xr.begin(), xr.end(), std::back_inserter(s));
         return s;
     }
 
-    sequence<long> range(long e) {
+    core::list<long> range(long e) {
         xrange xr(e);
         return _range(xr);
     }
-    sequence<long> range(long b, long e, long s=1) {
+    core::list<long> range(long b, long e, long s=1) {
         xrange xr(b, e, s);
         return _range(xr);
     }
@@ -343,15 +373,15 @@ namespace pythonic {
 
     /* reduce */
 
-    template<class Sequence, class Operator>
-        auto reduce(Operator op, Sequence const& s)
-        -> decltype( op( std::declval< typename Sequence::value_type >(), std::declval< typename Sequence::value_type >() ) )
+    template<class List, class Operator>
+        auto reduce(Operator op, List const& s)
+        -> decltype( op( std::declval< typename List::value_type >(), std::declval< typename List::value_type >() ) )
         {
-            decltype( op( std::declval< typename Sequence::value_type >(), std::declval< typename Sequence::value_type >() ) ) res = op( s[0], s[1] );
+            decltype( op( std::declval< typename List::value_type >(), std::declval< typename List::value_type >() ) ) res = op( s[0], s[1] );
             return std::accumulate(s.begin() + 2, s.end(), res, op);
         }
-    template<class Sequence, class Operator, class T>
-        auto reduce(Operator op, Sequence const& s, T const & init)
+    template<class List, class Operator, class T>
+        auto reduce(Operator op, List const& s, T const & init)
         -> decltype( std::accumulate(s.begin(), s.end(), init, op) )
         {
             return std::accumulate(s.begin(), s.end(), init, op);
@@ -361,16 +391,16 @@ namespace pythonic {
     /* reversed */
     template <class T>
         struct _reversed {
-            sequence<T> const& seq;
-            _reversed(sequence<T> const& seq) : seq(seq) {}
-            typedef typename sequence<T>::value_type value_type;
+            core::list<T> const& seq;
+            _reversed(core::list<T> const& seq) : seq(seq) {}
+            typedef typename core::list<T>::value_type value_type;
             auto begin() -> decltype(seq.rbegin()) { return seq.rbegin(); }
             auto end() -> decltype(seq.rend()) { return seq.rend(); }
         };
 
 
     template <class T>
-        _reversed<T> reversed(sequence<T> const& seq) {
+        _reversed<T> reversed(core::list<T> const& seq) {
             return _reversed<T>(seq);
         }
     PROXY(pythonic, reversed);
@@ -386,14 +416,14 @@ namespace pythonic {
 
     /* sorted */
     template <class T>
-        sequence<T> sorted(sequence<T> const& seq) {
-            sequence<T> out(seq);
+        core::list<T> sorted(core::list<T> const& seq) {
+            core::list<T> out(seq);
             std::sort(out.begin(), out.end());
             return out;
         }
     template <class T, class C>
-        sequence<T> sorted(sequence<T> const& seq, C const& cmp) {
-            sequence<T> out(seq);
+        core::list<T> sorted(core::list<T> const& seq, C const& cmp) {
+            core::list<T> out(seq);
             std::sort(seq.bein(), seq.end(), cmp);
             return out;
         }
@@ -409,12 +439,12 @@ namespace pythonic {
     PROXY(pythonic, str);
 
     /* sum */
-    template<class Sequence>
-        auto sum(Sequence const& s, size_t start=0)
-        -> decltype( std::declval< typename Sequence::value_type >() + std::declval< typename Sequence::value_type >() )
+    template<class List>
+        auto sum(List const& s, size_t start=0)
+        -> decltype( std::declval< typename List::value_type >() + std::declval< typename List::value_type >() )
         {
             auto iter = s.begin()+start;
-            decltype( std::declval< typename Sequence::value_type >() + std::declval< typename Sequence::value_type >() ) res = *(iter++);
+            decltype( std::declval< typename List::value_type >() + std::declval< typename List::value_type >() ) res = *(iter++);
             return std::accumulate(iter, s.end(), res);
         }
     PROXY(pythonic,sum);
@@ -423,21 +453,21 @@ namespace pythonic {
 
     /* zip */
     template<class Iterator0, class... Iterators>
-        sequence< std::tuple<typename Iterator0::value_type, typename Iterators::value_type... > > _zip(Iterator0 first, Iterator0 last, Iterators...  iters) {
-            sequence< std::tuple< typename Iterator0::value_type, typename Iterators::value_type... > > out;
+        core::list< std::tuple<typename Iterator0::value_type, typename Iterators::value_type... > > _zip(Iterator0 first, Iterator0 last, Iterators...  iters) {
+            core::list< std::tuple< typename Iterator0::value_type, typename Iterators::value_type... > > out;
             auto biter = std::back_inserter(out);
             while(first!=last)
                 *biter++= std::make_tuple( *first++, *iters++... );
             return out;
         }
 
-    template<class Sequence0, class... Sequences>
-        sequence< std::tuple<typename Sequence0::value_type, typename Sequences::value_type... > > zip(Sequence0 const& s0, Sequences const&...  sequences) {
-            return _zip(s0.begin(), s0.end(), sequences.begin()...);
+    template<class List0, class... Lists>
+        core::list< std::tuple<typename List0::value_type, typename Lists::value_type... > > zip(List0 const& s0, Lists const&...  lists) {
+            return _zip(s0.begin(), s0.end(), lists.begin()...);
         }
 
-    empty_sequence zip() {
-        return empty_sequence();
+    core::empty_list zip() {
+        return core::empty_list();
     }
 
     PROXY(pythonic,zip);

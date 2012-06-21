@@ -219,7 +219,14 @@ class CxxBackend(ast.NodeVisitor):
             return "list()"
         else:
             elts = [ self.visit(n) for n in node.elts ]
-            return "sequence< decltype({0})>({{ {1} }})".format(" + ".join(elts), ", ".join(elts))
+            return "core::list< decltype({0})>({{ {1} }})".format(" + ".join(elts), ", ".join(elts))
+
+    def visit_Set(self, node):
+        if not node.elts: # empty set
+            return "set()"
+        else:
+            elts = [ self.visit(n) for n in node.elts ]
+            return "core::set< decltype({0})>({{ {1} }})".format(" + ".join(elts), ", ".join(elts))
 
     def visit_Tuple(self, node):
         if not node.elts: # empty tuple
@@ -285,7 +292,7 @@ class CxxBackend(ast.NodeVisitor):
             if not upper: upper = "std::numeric_limits<long>::max()"
         if upper:
             if not lower: lower = "0"
-        return "slice({0})".format(", ".join( l for l in [ lower, upper, step ] if l ))
+        return "core::slice({0})".format(", ".join( l for l in [ lower, upper, step ] if l ))
 
     def visit_Index(self, node):
         value = self.visit(node.value)

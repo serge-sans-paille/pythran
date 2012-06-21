@@ -67,9 +67,6 @@ class SyntaxChecker(ast.NodeVisitor):
     def visit_Dict(self, node):
         raise PythranSyntaxError("Dictionaries are not supported", node)
 
-    def visit_Set(self, node):
-        raise PythranSyntaxError("Sets are not supported", node)
-
     def visit_SetComp(self, node):
         raise PythranSyntaxError("Set comprehension are not supported", node)
 

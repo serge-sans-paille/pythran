@@ -139,6 +139,9 @@ class TypeDependencies(ast.NodeVisitor):
     def visit_List(self, node):
         return reduce(operator.add, map(self.visit,node.elts), [set()])
 
+    def visit_Set(self, node):
+        return reduce(operator.add, map(self.visit,node.elts), [set()])
+
     def visit_Tuple(self, node):
         return reduce(operator.add, map(self.visit,node.elts), [set()])
 
@@ -184,7 +187,7 @@ class Typing(ast.NodeVisitor):
             if node_id not in self.name_to_nodes: self.name_to_nodes[node_id]=set()
             self.name_to_nodes[node_id].add(node)
             former_unary_op=copy_func(unary_op)
-            #use ContainerType instead of SequenceType because it can be a tuple
+            #use ContainerType instead of ListType because it can be a tuple
             unary_op = lambda x: former_unary_op(reduce(lambda t,n: ContainerType(t), xrange(depth),x)) # update the type to reflect container nesting
         try:
             if isinstance(othernode, ast.FunctionDef):
@@ -366,9 +369,16 @@ class Typing(ast.NodeVisitor):
     def visit_List(self, node):
         if node.elts:
             [self.visit(elt) for elt in node.elts]
-            [self.combine(node, elt, unary_op=lambda x:SequenceType(x)) for elt in node.elts]
+            [self.combine(node, elt, unary_op=lambda x:ListType(x)) for elt in node.elts]
         else:
-            self.types[node]=NamedType("empty_sequence")
+            self.types[node]=NamedType("core::empty_list")
+
+    def visit_Set(self, node):
+        if node.elts:
+            [self.visit(elt) for elt in node.elts]
+            [self.combine(node, elt, unary_op=lambda x:SetType(x)) for elt in node.elts]
+        else:
+            self.types[node]=NamedType("core::empty_set")
 
     def visit_Tuple(self, node):
         [self.visit(elt) for elt in node.elts]

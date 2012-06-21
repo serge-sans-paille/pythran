@@ -1,5 +1,5 @@
-#ifndef PYTHONIC_PP_CMATH_H
-#define PYTHONIC_PP_CMATH_H
+#ifndef PYTHONIC_MODULE_CMATH_H
+#define PYTHONIC_MODULE_CMATH_H
 
 namespace pythonic {
     namespace cmath {

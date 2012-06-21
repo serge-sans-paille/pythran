@@ -129,8 +129,8 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
     def test_multiassign(self):
         self.run_test("def multiassign(a):\n c=b=a\n return c", [1], multiassign=[[int]])
 
-    def test_sequence(self):
-        self.run_test("def sequence_(a): b=2*a;c=b/2;return max(c,b)", 1, sequence_=[int])
+    def test_list(self):
+        self.run_test("def list_(a): b=2*a;c=b/2;return max(c,b)", 1, list_=[int])
 
     def test_if(self):
         self.run_test("def if_(a,b):\n if a>b: return a\n else: return b", 1, 1.1, if_=[int, float])
@@ -208,17 +208,17 @@ def lambda_():
     def test_not_in_string(self):
         self.run_test("def not_in_string(i,j): return i not in j", "yo", "youpi", not_in_string=[str,str])
 
-    def test_in_sequence(self):
-        self.run_test("def in_sequence(i,j): return i in j", 1, [1,2,3], in_sequence=[int,[int]])
+    def test_in_list(self):
+        self.run_test("def in_list(i,j): return i in j", 1, [1,2,3], in_list=[int,[int]])
 
-    def test_not_in_sequence(self):
-        self.run_test("def not_in_sequence(i,j): return i not in j", False, [True, True, True], not_in_sequence=[bool,[bool]])
+    def test_not_in_list(self):
+        self.run_test("def not_in_list(i,j): return i not in j", False, [True, True, True], not_in_list=[bool,[bool]])
 
     def test_subscript(self):
         self.run_test("def subscript(l,i): l[0]=l[0]+l[i]", [1], 0, subscript=[[int], int])
 
-    def test_nested_sequences(self):
-        self.run_test("def nested_sequences(l,i): return l[0][i]", [[1]], 0, nested_sequences=[[[int]],int])
+    def test_nested_lists(self):
+        self.run_test("def nested_lists(l,i): return l[0][i]", [[1]], 0, nested_lists=[[[int]],int])
 
     def test_nested_tuples(self):
         self.run_test("def nested_tuples(l,i): return l[i][1]", [(0.1,1,)], 0, nested_tuples=[[(float,int)],int])
@@ -409,3 +409,34 @@ def subscript_assignment ():
     foo(a)
     return a[0]"""
         self.run_test(code,subscript_assignment=[])
+
+    def test_set(self):
+        code="""
+def set_(a,b):
+    S=set()
+    S.add(a)
+    S.add(b)
+    return len(S)"""
+        self.run_test(code, 1,2,set_=[int, int])
+    def test_in_set(self):
+        code="""
+def in_set(a):
+    S=set()
+    S.add(a)
+    return a in S"""
+        self.run_test(code, 1.5, in_set=[float])
+
+    def test_return_set(self):
+        self.run_test("def return_set(l): return set(l)", [1,2,3,3], return_set=[[int]])
+
+    def test_import_set(self):
+        self.run_test("def import_set(l): l.add(1) ; return l", {0,2}, import_set=[{int}])
+
+    def test_raw_set(self):
+        self.run_test("def raw_set(): return { 1, 1., 2 }", raw_set=[])
+
+    def test_iter_set(self):
+        self.run_test("def iter_set(s):\n l=\"\"\n for k in s: l+=k\n return l", { "a", "b", "c" } , iter_set=[{str}])
+
+    def test_set_comprehension(self):
+        self.run_test("def set_comprehension(l): return { i*i for i in l }", [1 , 2, 1, 3], set_comprehension=[[int]])

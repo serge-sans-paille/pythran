@@ -23,27 +23,27 @@ template <class A, class B>
 B operator+(B , container<A>&& );
 
 template <class A, class B>
-sequence<decltype(std::declval<A>()+std::declval<B>())> operator+(container<A> , sequence<B> );
+core::list<decltype(std::declval<A>()+std::declval<B>())> operator+(container<A> , core::list<B> );
 template <class A, class B>
-sequence<decltype(std::declval<A>()+std::declval<B>())> operator+(sequence<B> , container<A> );
+core::list<decltype(std::declval<A>()+std::declval<B>())> operator+(core::list<B> , container<A> );
 
 template <class A>
-decltype(std::declval<sequence<A>>() + none_type()) operator+(container<A> , none_type );
+decltype(std::declval<core::list<A>>() + none_type()) operator+(container<A> , none_type );
 template <class A>
-decltype(std::declval<sequence<A>>() + none_type()) operator+(none_type , container<A> );
+decltype(std::declval<core::list<A>>() + none_type()) operator+(none_type , container<A> );
 
 template <class A, class B>
 container<decltype(std::declval<A>()+std::declval<B>())> operator+(container<A> , container<B> );
 
 /* some overloads */
 namespace std {
-    /* for sequences */
+    /* for core::list */
     template <size_t I, class T>
-        auto get( sequence<T>& t) -> decltype(t[I]) { return t[I]; }
+        auto get( core::list<T>& t) -> decltype(t[I]) { return t[I]; }
 
     template <size_t I, class T>
-        struct tuple_element<I, sequence<T> > {
-            typedef typename sequence<T>::value_type type;
+        struct tuple_element<I, core::list<T> > {
+            typedef typename core::list<T>::value_type type;
         };
 
     /* for containers */
@@ -119,13 +119,13 @@ template <typename T>
 struct python_to_pythran {};
 
 template<typename T>
-struct python_to_pythran< sequence<T> >{
+struct python_to_pythran< core::list<T> >{
 	python_to_pythran(){
         python_to_pythran<T>();
         static bool registered =false;
         if(not registered) {
             registered=true;
-            boost::python::converter::registry::push_back(&convertible,&construct,boost::python::type_id<sequence<T> >());
+            boost::python::converter::registry::push_back(&convertible,&construct,boost::python::type_id<core::list<T> >());
         }
     }
 	static void* convertible(PyObject* obj_ptr){
@@ -134,14 +134,46 @@ struct python_to_pythran< sequence<T> >{
 		return obj_ptr;
 	}
 	static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
-		 void* storage=((boost::python::converter::rvalue_from_python_storage<sequence<T> >*)(data))->storage.bytes;
+		 void* storage=((boost::python::converter::rvalue_from_python_storage<core::list<T> >*)(data))->storage.bytes;
 		 Py_ssize_t l=PySequence_Fast_GET_SIZE(obj_ptr);
-		 new (storage) sequence<T>();
-		 sequence<T>& v=*(sequence<T>*)(storage);
+		 new (storage) core::list<T>();
+         core::list<T>& v=*(core::list<T>*)(storage);
          v.reserve(l);
          PyObject** core = PySequence_Fast_ITEMS(obj_ptr);
          for(Py_ssize_t i=0; i<l; i++)
              v.push_back(boost::python::extract<T>(*core++));
+		 data->convertible=storage;
+	}
+};
+
+template<typename T>
+struct python_to_pythran< core::set<T> >{
+	python_to_pythran(){
+        python_to_pythran<T>();
+        static bool registered =false;
+        if(not registered) {
+            registered=true;
+            boost::python::converter::registry::push_back(&convertible,&construct,boost::python::type_id<core::set<T> >());
+        }
+    }
+	static void* convertible(PyObject* obj_ptr){
+		// the second condition is important, for some reason otherwise there were attempted conversions of Body to list which failed afterwards.
+		if(!PySet_Check(obj_ptr) || !PyObject_HasAttrString(obj_ptr,"__len__")) return 0;
+		return obj_ptr;
+	}
+	static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
+		 void* storage=((boost::python::converter::rvalue_from_python_storage<core::set<T> >*)(data))->storage.bytes;
+		 Py_ssize_t l=PySet_GET_SIZE(obj_ptr);
+		 new (storage) core::set<T>();
+         core::set<T>& v=*(core::set<T>*)(storage);
+         // may be useful to reserve more space ?
+         PyObject *iterator = PyObject_GetIter(obj_ptr);
+         PyObject *item;
+         while(item = PyIter_Next(iterator)) {
+             v.add(boost::python::extract<T>(item));
+             Py_DECREF(item);
+         }
+         Py_DECREF(iterator);
 		 data->convertible=storage;
 	}
 };
@@ -200,8 +232,8 @@ struct pythran_to_python<none_type> {
 };
 
 template<typename T>
-struct custom_sequence_to_list{
-    static PyObject* convert(const sequence<T>& v){
+struct custom_core_list_to_list{
+    static PyObject* convert(const core::list<T>& v){
         boost::python::list ret;
         for(const T& e:v) ret.append(e);
         return boost::python::incref(ret.ptr());
@@ -209,10 +241,28 @@ struct custom_sequence_to_list{
 };
 
 template<typename T>
-struct pythran_to_python< sequence<T> > {
+struct pythran_to_python< core::list<T> > {
     pythran_to_python() {
         pythran_to_python<T>();
-        register_once< sequence<T>, custom_sequence_to_list<T> >();
+        register_once< core::list<T>, custom_core_list_to_list<T> >();
+    }
+};
+
+template<typename T>
+struct custom_core_set_to_set{
+    static PyObject* convert(const core::set<T>& v){
+        PyObject* obj = PySet_New(nullptr);
+        for(const T& e:v)
+            PySet_Add(obj, boost::python::incref(boost::python::object(e).ptr()));
+        return obj;
+    }
+};
+
+template<typename T>
+struct pythran_to_python< core::set<T> > {
+    pythran_to_python() {
+        pythran_to_python<T>();
+        register_once< core::set<T>, custom_core_set_to_set<T> >();
     }
 };
 
@@ -248,16 +298,16 @@ struct pythran_to_python< xrange > {
     pythran_to_python() { register_once<xrange, custom_xrange_to_list >(); }
 };
 
-struct custom_empty_sequence_to_list {
-    static PyObject* convert(empty_sequence const &) {
+struct custom_empty_list_to_list {
+    static PyObject* convert(core::empty_list const &) {
         boost::python::list ret;
         return boost::python::incref(ret.ptr());
     }
 };
 
 template<>
-struct pythran_to_python< empty_sequence > {
-    pythran_to_python() { register_once< empty_sequence, custom_empty_sequence_to_list >(); }
+struct pythran_to_python< core::empty_list > {
+    pythran_to_python() { register_once< core::empty_list, custom_empty_list_to_list >(); }
 };
 
 template <typename T>

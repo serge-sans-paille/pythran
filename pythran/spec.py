@@ -53,7 +53,9 @@ class SpecParser:
         p[0]=self.exports
 
     def p_export(self,p):
-        'export : SHARP PYTHRAN EXPORT IDENTIFIER LPAREN opt_types RPAREN'
+        '''export : SHARP PYTHRAN EXPORT IDENTIFIER LPAREN opt_types RPAREN
+                  | SHARP PYTHRAN EXPORT EXPORT LPAREN opt_types RPAREN'''
+        # handle the unlikely case where a function name is ... export :-)
         self.exports[p[4]]=self.exports.get(p[4],())+(p[6],)
 
     def p_opt_types(self,p):

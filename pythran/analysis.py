@@ -5,6 +5,7 @@
     * purity_test computes whether functions write their parameters or not
     * constant_value evaluates a constant expression
     * type_aliasing gather aliasing informations
+    * identifiers gathers all identifiers used in a module
 '''
 
 from tables import modules, builtin_constants
@@ -290,3 +291,23 @@ def type_aliasing(node):
     a=Aliasing()
     a.visit(node)
     return a.aliases
+
+##
+class Identifiers(ast.NodeVisitor):
+    def __init__(self):
+        self.identifiers=set()
+    def visit_Name(self, node):
+        self.identifiers.add(node.id)
+    def visit_FunctionDef(self, node):
+        self.identifiers.add(node.name)
+        self.visit(node.args)
+        [ self.visit(n) for n in node.body ]
+    def visit_alias(self, node):
+        if node.asname:
+            self.identifiers.add(node.asname)
+
+def identifiers(node):
+    """Gathers all identifiers used throughout the node."""
+    ids=Identifiers()
+    ids.visit(node)
+    return ids.identifiers

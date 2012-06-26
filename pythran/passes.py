@@ -5,10 +5,11 @@
     * remove_lambdas turns lambda into regular functions
     * parallelize_maps make some map calls parallel
     * normalize_return adds return statement where relevant
+    * normalize_identifiers prevents conflicts with c++ keywords
 '''
 
-from analysis import imported_ids, purity_test, global_declarations
-from tables import methods, attributes
+from analysis import imported_ids, purity_test, global_declarations, identifiers
+from tables import methods, attributes, cxx_keywords
 import ast
 import re
 
@@ -295,3 +296,36 @@ def normalize_attributes(node):
     '''Turns built in attributes into tuple subscript'''
     NormalizeAttributes().visit(node)
 
+##
+class NormalizeIdentifiers(ast.NodeVisitor):
+    def __init__(self, identifiers,renamings):
+        self.identifiers=identifiers
+        self.renamings=renamings
+
+    def rename(self, name):
+        if name not in self.renamings: 
+            new_name=name
+            while new_name in self.identifiers:
+                new_name+="_"
+            self.renamings[name]=new_name
+        return self.renamings[name]
+
+    def visit_Name(self, node):
+        if node.id in cxx_keywords:
+            node.id=self.rename(node.id)
+
+    def visit_FunctionDef(self, node):
+        if node.name in cxx_keywords:
+            node.name=self.rename(node.name)
+        self.visit(node.args)
+        [ self.visit(n) for n in node.body ]
+    def visit_alias(self, node):
+        if node.asname:
+            if node.asname in cxx_keywords:
+                node.asname=self.rename(node.name)
+
+def normalize_identifiers(node):
+    '''Prevents naming conflict with c++ keywords by appending extra '_' to conflicting names.'''
+    ni=NormalizeIdentifiers(identifiers(node), dict())
+    ni.visit(node)
+    return (node, ni.renamings)

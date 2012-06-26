@@ -12,6 +12,7 @@ from backend import cxx_backend
 from subprocess import check_call
 from tempfile import mkstemp, TemporaryFile
 from syntax import check_syntax
+from passes import normalize_identifiers
 
 pytype_to_ctype_table = {
         complex       : 'std::complex<double>',
@@ -49,9 +50,11 @@ def cxx_generator(module_name, code, specs):
     # font end
     ir=ast.parse(code)
     check_syntax(ir)
+    (_,renamings) = normalize_identifiers(ir)
+
     # middle-end
     refine(ir)
-    # backend
+    # back-end
     content = cxx_backend(module_name,ir)
 
     mod=BoostPythonModule(module_name)
@@ -59,12 +62,13 @@ def cxx_generator(module_name, code, specs):
     mod.add_to_preamble(content)
 
     for function_name,signatures in specs.iteritems():
+        internal_function_name=renamings.get(function_name,function_name)
         if not isinstance(signatures, tuple): signatures = (signatures,)
         for sigid,signature in enumerate(signatures):
-            numbered_function_name="{0}{1}".format(function_name,sigid)
+            numbered_function_name="{0}{1}".format(internal_function_name,sigid)
             arguments_types = [pytype_to_ctype(t) for t in signature ]
             arguments = ["a{0}".format(i) for i in xrange(len(arguments_types))]
-            specialized_fname = "__{0}::{1}::type{2}".format( module_name, function_name, "<{0}>".format(", ".join(arguments_types)) if  arguments_types else "")
+            specialized_fname = "__{0}::{1}::type{2}".format( module_name, internal_function_name, "<{0}>".format(", ".join(arguments_types)) if  arguments_types else "")
             return_type = "typename {0}::return_type".format(specialized_fname)
             mod.add_to_init([Statement("python_to_pythran<{0}>()".format(t)) for t in extract_all_constructed_types(signature)])
             mod.add_to_init([Statement("pythran_to_python<{0}>()".format(return_type))])
@@ -72,7 +76,7 @@ def cxx_generator(module_name, code, specs):
                     FunctionBody(
                         FunctionDeclaration( Value(return_type, numbered_function_name), [ Value( t, "a"+str(i) ) for i,t in enumerate(arguments_types) ]),
                         Block([ Statement("return {0}()({1})".format(
-                            '__{0}::{1}'.format(module_name,function_name),
+                            '__{0}::{1}'.format(module_name,internal_function_name),
                             ', '.join(arguments) ) ) ] )
                         ),
                     function_name

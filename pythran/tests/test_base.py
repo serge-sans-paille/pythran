@@ -409,3 +409,9 @@ def subscript_assignment ():
     foo(a)
     return a[0]"""
         self.run_test(code,subscript_assignment=[])
+
+    def test_conflicting_keywords(self):
+        code="""
+def export(template):
+    return [ new*new for new in template ]"""
+        self.run_test(code, [1], export=[[int]])

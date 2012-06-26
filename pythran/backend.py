@@ -244,7 +244,7 @@ class CxxBackend(ast.NodeVisitor):
         return str(node.n)
 
     def visit_Str(self, node):
-        return '"{0}"'.format(node.s)
+        return '"{0}"'.format(node.s.replace("\n","\\n"))
 
     def visit_Attribute(self, node):
         value, attr = (node.value, node.attr)

@@ -415,3 +415,12 @@ def subscript_assignment ():
 def export(template):
     return [ new*new for new in template ]"""
         self.run_test(code, [1], export=[[int]])
+
+    def test_random_(self):
+        code="""
+import random
+def random_():
+    random.seed()
+    random.seed(0)
+    return random.random()"""
+        self.run_test(code, random_=[])

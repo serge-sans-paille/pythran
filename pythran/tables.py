@@ -65,7 +65,12 @@ type_to_str = {
         float   : "double",
         }
 
-# the value, if not None, means that decltype must be used
+# each module consist in a module_name <> set of symbols with optional attributes
+# the attributes can be
+#   scalar when the symbol is *not* a function
+#   attribute when the symbol is a *method*
+#   combiner when the symbol has some side effects, in which case the side effect is described using a function
+#
 modules = {
         "__builtins__": {
             "abs":{},
@@ -124,10 +129,14 @@ modules = {
             "pi" : {'scalar':True},
             "e" : {'scalar':True},
             },
+        "random" : {
+                "seed": {},
+                "random" :{},
+                },
         "__list__" : {
-            "append" : { 'method':True, 'combiner': lambda self, node: self.combine(node.args[0], node.args[1], unary_op=lambda f: cxxtypes.SequenceType(f), register=True)},
-            "insert" : { 'method':True, 'combiner': lambda self, node: self.combine(node.args[0], node.args[2], unary_op=lambda f: cxxtypes.SequenceType(f), register=True)},
-            },
+                "append" : { 'method':True, 'combiner': lambda self, node: self.combine(node.args[0], node.args[1], unary_op=lambda f: cxxtypes.SequenceType(f), register=True)},
+                "insert" : { 'method':True, 'combiner': lambda self, node: self.combine(node.args[0], node.args[2], unary_op=lambda f: cxxtypes.SequenceType(f), register=True)},
+                },
         "_complex_" : {
                 "real": { 'attribute':0 },
                 "imag": { 'attribute':1 },

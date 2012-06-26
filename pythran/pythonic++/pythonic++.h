@@ -15,6 +15,7 @@
 #include "modules/complex.h"
 #include "modules/math.h"
 #include "modules/cmath.h"
+#include "modules/random.h"
 
 /* extensions */
 #include "core/parallel.h"

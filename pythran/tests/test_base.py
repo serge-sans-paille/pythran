@@ -424,3 +424,19 @@ def random_():
     random.seed(0)
     return random.random()"""
         self.run_test(code, random_=[])
+
+    def test_forelse(self):
+        code="""
+def forelse():
+    l=0
+    for i in range(10):
+        if i > 3:break
+        for j in range(10):
+            if j > 5:break
+            l+=1
+        else:
+            l*=2
+    else:
+        l*=3
+    return l"""
+        self.run_test(code, forelse=[])

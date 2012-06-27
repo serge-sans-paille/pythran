@@ -19,6 +19,7 @@ class CxxBackend(ast.NodeVisitor):
         self.types=None
         self.declarations=list()
         self.definitions=list()
+        self.break_handler=list()
 
     # mod
     def visit_Module(self, node):
@@ -138,16 +139,16 @@ class CxxBackend(ast.NodeVisitor):
             raise PythranSyntaxError("Using something other than an identifier as loop target", node.target)
         iter = self.visit(node.iter)
         target = self.visit(node.target)
+        self.break_handler.append(Block([self.visit(n) for n in node.orelse]) if node.orelse else None)
         body = [ self.visit(n) for n in node.body ]
-        if node.orelse:
-            raise PythranSyntaxError("else statement after for loop", node)
+        self.break_handler.pop()
         return AutoFor(target, iter, Block(body))
 
     def visit_While(self, node):
         test = self.visit(node.test)
+        self.break_handler.append(Block([self.visit(n) for n in node.orelse]) if node.orelse else None)
         body = [ self.visit(n) for n in node.body ]
-        if node.orelse:
-            raise PythranSyntaxError("else statement after while loop", node)
+        self.break_handler.pop()
         return While(test, Block(body))
 
     def visit_If(self, node):
@@ -188,7 +189,10 @@ class CxxBackend(ast.NodeVisitor):
         return EmptyStatement()
 
     def visit_Break(self, node):
-        return Statement("break")
+        out=Statement("break")
+        if self.break_handler[-1]:
+            out = Block( [ self.break_handler[-1] , out ] )
+        return out
 
     def visit_Continue(self, node):
         return Statement("continue")

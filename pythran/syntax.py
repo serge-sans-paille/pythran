@@ -13,6 +13,7 @@ class SyntaxChecker(ast.NodeVisitor):
         for n in node.body:
             if not any(map(lambda t:isinstance(n,t),(ast.FunctionDef, ast.Import, ast.ImportFrom))):
                 raise PythranSyntaxError("Top level statements can only be functions or imports", n)
+        [ self.visit(n) for n in node.body ]
 
     def visit_Interactive(self, node):
         raise PythranSyntaxError("Interactive session are not supported", node)

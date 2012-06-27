@@ -99,6 +99,7 @@ modules = {
             "sorted":{},
             "str":{},
             "sum":{},
+            "tuple":{},
             "xrange":{},
             "zip":{},
             # pythran extensions

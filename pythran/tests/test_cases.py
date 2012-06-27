@@ -1,3 +1,4 @@
+# todo: check http://code.google.com/p/unladen-swallow/wiki/Benchmarks
 import unittest
 import pythran
 import os

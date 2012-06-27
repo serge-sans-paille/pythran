@@ -172,6 +172,15 @@ namespace pythonic {
         } 
     PROXY(pythonic,list);
 
+    /* tuple */
+    template <class... Types>
+        auto tuple(Types const &... types) -> decltype(std::make_tuple(types...)) {
+            return std::make_tuple(types...);
+        }
+    template <class Iterable> /* this is far from perfect, but how to cope with the difference between python tuples and c++ ones ? */
+        Iterable tuple(Iterable const& i, typename Iterable::const_iterator *v=nullptr) { return i ; }
+    PROXY(pythonic, tuple);
+
 
     /* map */
     template <typename Operator, typename Sequence0, typename... Iterators>

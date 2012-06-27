@@ -441,5 +441,8 @@ def forelse():
     return l"""
         self.run_test(code, forelse=[])
 
+    def test_tuples(self):
+        self.run_test("def tuples(): return (tuple(1,2.,'e') , tuple([1,2,3]))", tuples=[])
+
     def test_reversed_slice(self):
         self.run_test("def reversed_slice(l): return l[::-2]", [0,1,2,3,4], reversed_slice=[[int]])

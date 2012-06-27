@@ -440,3 +440,6 @@ def forelse():
         l*=3
     return l"""
         self.run_test(code, forelse=[])
+
+    def test_reversed_slice(self):
+        self.run_test("def reversed_slice(l): return l[::-2]", [0,1,2,3,4], reversed_slice=[[int]])

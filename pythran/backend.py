@@ -283,12 +283,16 @@ class CxxBackend(ast.NodeVisitor):
         lower = self.visit(node.lower) if node.lower else None
         upper = self.visit(node.upper) if node.upper else None
         step = self.visit(node.step) if node.step else None
+        cv=None
         if not upper and not lower and step: # special case
-            raise NotImplementedError
+            try: cv=constant_value(node.step)
+            except: raise NotImplementedError("non constant step with undefined upper and lower bound in slice")
         if step:
             if not upper: upper = "std::numeric_limits<long>::max()"
         if upper:
             if not lower: lower = "0"
+        if cv and cv <0: upper,lower=lower,upper
+
         return "slice({0})".format(", ".join( l for l in [ lower, upper, step ] if l ))
 
     def visit_Index(self, node):

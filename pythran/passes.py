@@ -6,6 +6,7 @@
     * parallelize_maps make some map calls parallel
     * normalize_return adds return statement where relevant
     * normalize_identifiers prevents conflicts with c++ keywords
+    * unshadow_parameters prevents the shadow parameter phenomenon
 '''
 
 from analysis import imported_ids, purity_test, global_declarations, identifiers
@@ -329,3 +330,33 @@ def normalize_identifiers(node):
     ni=NormalizeIdentifiers(identifiers(node), dict())
     ni.visit(node)
     return (node, ni.renamings)
+
+##
+class UnshadowParameters(ast.NodeVisitor):
+    def __init__(self, identifiers):
+        self.identifiers=identifiers
+
+    def visit_FunctionDef(self, node):
+        self.argsid={ arg.id for arg in node.args.args }
+        self.renaming={}
+        [ self.visit(n) for n in node.body ]
+        for k,v in self.renaming.iteritems():
+            node.body.insert(0,ast.Assign([ast.Name(v,ast.Store())],ast.Name(k,ast.Load())))
+
+    def visit_Assign(self, node):
+        for t in node.targets:
+            if isinstance(t, ast.Name) and t.id in self.argsid:
+                if t.id not in self.renaming:
+                    new_name=t.id
+                    while new_name in self.identifiers:
+                        new_name=new_name+"_"
+                    self.renaming[t.id]=new_name
+        [self.visit(t) for t in node.targets]
+        self.visit(node.value)
+
+    def visit_Name(self, node):
+        if node.id in self.renaming: node.id=self.renaming[node.id]
+
+def unshadow_parameters(node):
+    '''Prevents parameter shadowing by creating new variable'''
+    UnshadowParameters(identifiers(node)).visit(node)

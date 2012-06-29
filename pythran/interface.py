@@ -3,6 +3,7 @@
     * compile transforms c++ code into a native module
 '''
 import sys 
+import errno
 import os.path
 import distutils.sysconfig
 from cxxgen import *
@@ -10,7 +11,7 @@ import ast
 from middlend import refine
 from backend import cxx_backend
 from subprocess import check_call
-from tempfile import mkstemp, TemporaryFile
+from tempfile import mkstemp, TemporaryFile, NamedTemporaryFile
 from syntax import check_syntax
 from passes import normalize_identifiers
 
@@ -86,12 +87,15 @@ def cxx_generator(module_name, code, specs):
 
 class ToolChain(object):
 
-    def __init__(self):
-        self.compiler="g++"
+    def __init__(self, compiler):
+        self.compiler=compiler
         self.include_dirs=list()
         self.cppflags=list()
         self.cxxflags=list()
         self.ldflags=list()
+
+    def get_include_flags(self):
+        return [ "-I{0}".format(d) for d in self.include_dirs ]
 
     def compile(self, module, output_filename=None):
         fd, fdpath=mkstemp(suffix=".cpp")
@@ -101,15 +105,51 @@ class ToolChain(object):
             cpp.write(content)
         module_cpp=fdpath
         module_so = output_filename if output_filename else "{0}.so".format(module.name) 
-        check_call([self.compiler, module_cpp] + self.cxxflags + [  "-shared", "-o", module_so ] + [ "-I{0}".format(d) for d in self.include_dirs ]  + self.cppflags + self.ldflags, stderr=tmperr)
+        check_call([self.compiler, module_cpp] + self.cxxflags + [  "-shared", "-o", module_so ] + self.get_include_flags() + self.cppflags + self.ldflags, stderr=tmperr)
         os.remove(fdpath)
         return module_so
 
+    def check(self):
+        def check_compile(msg, code):
+            try:
+                tmpfile=NamedTemporaryFile(suffix=".cpp")
+                tmpfile.write(code)
+                tmpfile.flush()
+                check_call([self.compiler] + self.cxxflags + [ tmpfile.name, "-o" , "/dev/null"] + self.get_include_flags() + self.cppflags + self.ldflags)
+            except:
+                raise EnvironmentError(errno.ENOPKG, msg)
+
+        check_compile("no valid c++ compiler found","""
+#include <iostream>
+int main(int argc, char *argv[]) {
+    std::cout << "hello " << (argc>1?argv[1]:"world") << std::endl;
+    return 0;
+}""")
+
+        check_compile("no c++ 2011 support found, try to add compiler specific flags?","""
+#include <utility>
+decltype(std::declval<int>() + 1) main() {
+    void * p = nullptr;
+    return 0;
+}""")
+
+        check_compile("no python development environment found, try to add -I or -L flags?","""
+#include <Python.h>
+int main() {
+    return 0;
+}""")
+
+        check_compile("no boost python environment found, try to add -I or -L flags?","""
+#include <boost/python.hpp>
+int main() {
+    return 0;
+}
+""")
 
 
-def compile(module, output_filename=None, cppflags=list(), cxxflags=list()):
+def compile(compiler, module, output_filename=None, cppflags=list(), cxxflags=list()):
     '''c++ code + compiler flags -> native module'''
-    tc = ToolChain()
+    tc = ToolChain(compiler)
     tc.include_dirs.append(".")
     tc.include_dirs.append(distutils.sysconfig.get_python_inc())
     tc.cppflags=cppflags
@@ -124,5 +164,7 @@ def compile(module, output_filename=None, cppflags=list(), cxxflags=list()):
 
     tc.cxxflags.append("-std=c++0x")
     tc.cxxflags+=cxxflags
+
+    tc.check()
 
     return tc.compile(module, output_filename=output_filename)

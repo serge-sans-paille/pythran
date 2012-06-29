@@ -8,7 +8,7 @@ def compile_test(self, module_name):
     specs = pythran.spec_parser(module_path)
     print module_name
     module= pythran.cxx_generator(module_name, file(module_path).read(), specs)
-    pythran.compile(module)
+    pythran.compile(os.environ.get("CXX","c++"), module)
 
 class TestCase(unittest.TestCase):
     pass

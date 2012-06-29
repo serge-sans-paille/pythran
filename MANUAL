@@ -160,6 +160,8 @@ that you can inspect it.
 Want more performance? Big fan of ``-Ofast -march=native``? pythran
 automagically forwards these switches to the underlying compiler!
 
+Wants to try your own compiler? Pythran uses ``c++'' by default, and this
+behavior can be overriden using ``CXX'' or ``CXXFLAGS'' environment variables.
 
 Troubleshooting
 ---------------

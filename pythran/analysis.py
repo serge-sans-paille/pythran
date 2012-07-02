@@ -245,14 +245,12 @@ class Callees(ast.NodeVisitor):
         [self.visit(t) for t in node.targets]
         self.visit(node.value)
 
-    def visit_Call(self,node):
-        [self.visit(n) for n in node.args]
-        if isinstance(node.func, ast.Name):
-            if node.func.id in self.name_to_node:
-                self.callees[self.curr].add(self.name_to_node[node.func.id])
-            elif node.func.id in self.aliases:
-                for alias in self.aliases[node.func.id]:
-                    self.callees[self.curr].add(self.name_to_node[alias])
+    def visit_Name(self,node):
+        if node.id in self.name_to_node:
+            self.callees[self.curr].add(self.name_to_node[node.id])
+        elif node.id in self.aliases:
+            for alias in self.aliases[node.id]:
+                self.callees[self.curr].add(self.name_to_node[alias])
 
 def ordered_global_declarations(node):
     '''order all global functions according to their callgraph depth'''

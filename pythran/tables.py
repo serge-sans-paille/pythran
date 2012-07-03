@@ -4,7 +4,7 @@ import cxxtypes
 
 builtin_constants = { "True":"bool", "False":"bool", "None":"none_type"}
 
-builtin_constructors = {'int':'int', 'float':'double', 'bool':'bool', 'long':'long'  }
+builtin_constructors = {'int':'long', 'float':'double', 'bool':'bool', 'long':'long long'  }
 
 cxx_keywords = {'and', 'and_eq', 'asm', 'auto', 'bitand', 'bitor',
         'break', 'case', 'catch', 'char', 'class',
@@ -62,6 +62,7 @@ operator_to_lambda = {
 
 type_to_str = {
         int     : "long",
+        long    : "long long",
         float   : "double",
         }
 

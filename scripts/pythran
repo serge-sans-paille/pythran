@@ -63,6 +63,7 @@ except CalledProcessError as e:
 except NotImplementedError as e:
     print >> sys.stderr, "MAYDAY, MAYDAY, MAYDAY; pythran compiler; code area out of control"
     print >> sys.stderr, "E: not implemented feature needed, bash the developers"
+    raise
 except EnvironmentError as e:
     print >> sys.stderr, "By Jove! Your environment does not seem to provide all what we need"
     print >> sys.stderr, "E:", e

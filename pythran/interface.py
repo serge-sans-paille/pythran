@@ -19,6 +19,7 @@ pytype_to_ctype_table = {
         complex       : 'std::complex<double>',
         bool          : 'bool',
         int           : 'long',
+        long          : 'long long',
         float         : 'double',
         str           : 'std::string',
         None          : 'void',

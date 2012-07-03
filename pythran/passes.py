@@ -340,6 +340,7 @@ class UnshadowParameters(ast.NodeVisitor):
         self.argsid={ arg.id for arg in node.args.args }
         self.renaming={}
         [ self.visit(n) for n in node.body ]
+        [ self.visit(n) for n in node.body ] # do it twice to make sure all renamings are done
         for k,v in self.renaming.iteritems():
             node.body.insert(0,ast.Assign([ast.Name(v,ast.Store())],ast.Name(k,ast.Load())))
 

@@ -33,5 +33,6 @@ TestCase.test_ramsurf=lambda self:compile_test(self,"ramsurf")
 TestCase.test_hyantes_core=lambda self:compile_test(self,"hyantes_core")
 TestCase.test_mandel=lambda self:compile_test(self,"mandel")
 TestCase.test_approximated_callgraph=lambda self:compile_test(self,"approximated_callgraph")
+TestCase.test_sum_primes=lambda self:compile_test(self,"sum_primes")
 if __name__ == '__main__':
     unittest.main()

@@ -117,6 +117,8 @@ modules = {
             "sqrt" : {},
             "log10" : {},
             "isnan" : {},
+            "ceil" : {},
+            "floor" : {},
             "pi" : {'scalar':True},
             "e" : {'scalar':True},
             },

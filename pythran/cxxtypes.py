@@ -1,7 +1,7 @@
 '''This module defines all the types needed to maniuplate c++ types used by pythran'''
 import tables
 
-class weak:pass
+class Weak:pass
 
 def walk_type(obj, cond, op):
     if isinstance(obj,list): return [ walk_type(o, cond, op) for o in obj ]
@@ -25,6 +25,8 @@ class Type(object):
         self.qualifiers=set(qualifiers) if qualifiers else set()
         self.fields=("repr","qualifiers")
 
+    def isweak(self): return Weak in self.qualifiers
+
     def generate(self,ctx): return self.repr
 
     def __eq__(self, other):
@@ -32,8 +34,8 @@ class Type(object):
 
     def __add__(self, other):
         if isinstance(other, CombinedTypes) and self in other.types: return other
-        if weak in self.qualifiers and weak not in other.qualifiers: return other
-        if weak in other.qualifiers and weak not in self.qualifiers: return self
+        if self.isweak() and not other.isweak(): return other
+        if other.isweak() and not self.isweak(): return self
         if self == other: return self
         return CombinedTypes([self, other])
 
@@ -64,15 +66,16 @@ class PType(Type):
     def generate(self,ctx):
         return ctx(self.type).generate(ctx)
 
-    def instanciate(self, arguments):
-        return InstanciatedType(self.fun, self.name, arguments)
+    def instanciate(self, caller, arguments):
+        return InstanciatedType(self.fun, self.name, arguments, caller)
 
 class InstanciatedType(Type):
-    def __init__(self, fun, name, arguments):
+    def __init__(self, fun, name, arguments, caller):
         self.fun=fun
         self.name=name
         self.arguments=arguments
         self.qualifiers=set()
+        if fun == caller: self.qualifiers.add(Weak)
         self.fields=("fun", "name", "arguments",)
 
     def generate(self,ctx):
@@ -101,7 +104,7 @@ class CombinedTypes(Type):
         if isinstance(other, CombinedTypes):
             return CombinedTypes(self.types + [ t for t in other.types if t not in self.types ])
         if other in self.types: return self
-        if weak in other.qualifiers and weak not in self.qualifiers: return self
+        if other.isweak() and not self.isweak(): return self
         if self == other: return self
         return CombinedTypes(self.types+[other])
 

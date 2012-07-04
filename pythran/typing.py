@@ -205,7 +205,7 @@ class Typing(ast.NodeVisitor):
                         ''' capture args for translator generation'''
                         def interprocedural_type_translator(s,n):
                             translated_othernode=ast.Name('__fake__', ast.Load())
-                            s.types[translated_othernode]=parametric_type.instanciate([s.types[arg] for arg in n.args])
+                            s.types[translated_othernode]=parametric_type.instanciate(s.current[-1], [s.types[arg] for arg in n.args])
                             # look for modified argument
                             for p,formal_arg in enumerate(args):
                                 effective_arg = n.args[p]
@@ -360,7 +360,7 @@ class Typing(ast.NodeVisitor):
         elif node.id in builtin_constructors:
             self.types[node]=NamedType(builtin_constructors[node.id])
         else:
-            self.types[node]=NamedType(node.id,[weak])
+            self.types[node]=NamedType(node.id,[Weak])
             
 
     def visit_List(self, node):

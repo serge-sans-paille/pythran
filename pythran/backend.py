@@ -57,8 +57,6 @@ class CxxBackend(ast.NodeVisitor):
                     L.append( Typedef(Value(self.cache[k],"__type{0}".format(v))) )
                 return L
 
-        #ctx=lambda x:x
-        ctx=CachedTypeVisitor()
         fargs = node.args.args
 
         local_functions={k for k in self.local_functions}
@@ -91,6 +89,7 @@ class CxxBackend(ast.NodeVisitor):
         operator_signature = FunctionDeclaration(
                 Value("typename {0}return_type".format(ffscope), "{0}::operator()".format(node.name)),
                 [ Value( t, a ) for t,a in zip(formal_types, formal_args ) ] )
+        ctx=CachedTypeVisitor()
         operator_local_declarations = [ Statement("{0} {1}".format(self.types[k].generate(ctx), k.id)) for k in ldecls ]
         dependent_typedefs = ctx.typedefs()
         operator_definition = FunctionBody(
@@ -98,8 +97,9 @@ class CxxBackend(ast.NodeVisitor):
                 Block( dependent_typedefs + operator_local_declarations + operator_body )
                 )
 
-        extra_typedefs = [Typedef(Value(t.generate(ctx), t.name)) for t in self.types[node][1]]
-        extra_typedefs +=[Typedef(Value(return_type.generate(ctx), "return_type"))]
+        ctx=CachedTypeVisitor()
+        extra_typedefs = [Typedef(Value(t.generate(ctx), t.name)) for t in self.types[node][1] if not t.isweak()]\
+                       + [Typedef(Value(return_type.generate(ctx), "return_type"))]
         extra_typedefs = ctx.typedefs() + extra_typedefs
         return_declaration = [templatize(Struct("type",extra_typedefs), formal_types)]
         topstruct = Struct(node.name, return_declaration + operator_declaration)

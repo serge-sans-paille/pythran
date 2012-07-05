@@ -142,7 +142,14 @@ class CxxBackend(ast.NodeVisitor):
         self.break_handler.append(Block([self.visit(n) for n in node.orelse]) if node.orelse else None)
         body = [ self.visit(n) for n in node.body ]
         self.break_handler.pop()
-        return AutoFor(target, iter, Block(body))
+        #return AutoFor(target, iter, Block(body)) # no local scope for variable indices in python
+        return Block([
+            Statement("auto __iter = {0}".format(iter)),
+            For("auto __target = __iter.begin()",
+                "__target != __iter.end()",
+                "++__target",
+                Block([Statement("{0} = *__target".format(target))] + body ) )
+            ])
 
     def visit_While(self, node):
         test = self.visit(node.test)

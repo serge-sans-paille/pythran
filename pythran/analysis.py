@@ -30,6 +30,12 @@ class LocalDeclarations(ast.NodeVisitor):
         for t in node.targets:
             if isinstance(t, ast.Name):
                 self.local_symbols.add(t)
+
+    def visit_For(self, node):
+        if isinstance(node.target, ast.Name):
+            self.local_symbols.add(node.target)
+        [ self.visit(n) for n in node.body ]
+
 def local_declarations(node):
     """Gathers all local symbols from a function"""
     assert isinstance(node, ast.FunctionDef)

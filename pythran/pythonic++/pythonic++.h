@@ -16,6 +16,7 @@
 #include "modules/math.h"
 #include "modules/cmath.h"
 #include "modules/random.h"
+#include "modules/iterator.h"
 
 /* extensions */
 #include "core/parallel.h"

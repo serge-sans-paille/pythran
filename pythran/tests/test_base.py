@@ -453,3 +453,16 @@ def shadow_parameters(l):
     if False:l=None
     return l"""
         self.run_test(code, [1], shadow_parameters=[[int]])
+
+    def test_yielder(self):
+        code="""
+def iyielder(i):
+    for k in xrange(18):
+        yield k
+    return
+
+def yielder():
+    f=iyielder(1)
+    b=f.next()
+    return [i*i for i in f]"""
+        self.run_test(code, yielder=[])

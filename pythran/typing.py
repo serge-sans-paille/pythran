@@ -6,7 +6,7 @@ import ast
 import networkx as nx
 import operator
 from tables import type_to_str, operator_to_lambda, modules, builtin_constants, builtin_constructors
-from analysis import global_declarations, constant_value, ordered_global_declarations, type_aliasing
+from analysis import global_declarations, constant_value, ordered_global_declarations, type_aliasing, yields
 from syntax import PythranSyntaxError
 from cxxtypes import *
 
@@ -74,6 +74,9 @@ class TypeDependencies(ast.NodeVisitor):
             for dep_set in v:
                 if dep_set: [self.types.add_edge(dep,self.current_function[-1]) for dep in dep_set]
                 else: self.types.add_edge(TypeDependencies.NoDeps,self.current_function[-1])
+
+    def visit_Yield(self, node):
+        self.visit_Return(node)
 
     def visit_Assign(self, node):
         v=self.visit(node.value)
@@ -236,6 +239,8 @@ class Typing(ast.NodeVisitor):
         self.current.append(node)
         self.typedefs=list()
         self.name_to_nodes = {arg.id:{arg} for arg in node.args.args }
+        self.yields=yields(node)
+
         for k,v in builtin_constants.iteritems():
             fake_node=ast.Name(k,ast.Load())
             self.name_to_nodes.update({ k:{fake_node}}) 
@@ -251,11 +256,16 @@ class Typing(ast.NodeVisitor):
         self.current.pop()
 
     def visit_Return(self, node):
-        if node.value:
-            self.visit(node.value)
-            self.combine(self.current[-1], node.value)
-        else:
-            self.types[self.current[-1]]=NamedType("none_type")
+        if not self.yields:
+            if node.value:
+                self.visit(node.value)
+                self.combine(self.current[-1], node.value)
+            else:
+                self.types[self.current[-1]]=NamedType("none_type")
+
+    def visit_Yield(self, node):
+        self.visit(node.value)
+        self.combine(self.current[-1], node.value)
 
     def visit_Assign(self, node):
         self.visit(node.value)

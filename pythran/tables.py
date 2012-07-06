@@ -66,6 +66,11 @@ type_to_str = {
         float   : "double",
         }
 
+type_to_suffix = {
+        int     : "L",
+        long    : "LL",
+        }
+
 # each module consist in a module_name <> set of symbols with optional attributes
 # the attributes can be
 #   scalar when the symbol is *not* a function
@@ -146,6 +151,9 @@ modules = {
                 "imag": { 'attribute':1 },
                 "conjugate" : { 'method':True },
                 },
+        "__iterator__" : {
+            "next": { 'method': True },
+            },
         "__user__" : {},
         }
 

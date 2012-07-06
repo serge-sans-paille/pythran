@@ -12,6 +12,15 @@
                 }\
         };\
     }
+#define VPROXY(ns,f) \
+    namespace proxy {\
+        struct f {\
+            template<typename... Types>\
+                auto operator()(Types &&... types) -> decltype(ns::f(types...)) {\
+                    return ns::f(types...); \
+                }\
+        };\
+    }
 
 namespace pythonic {
 

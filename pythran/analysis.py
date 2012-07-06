@@ -6,6 +6,7 @@
     * constant_value evaluates a constant expression
     * type_aliasing gather aliasing informations
     * identifiers gathers all identifiers used in a module
+    * yields gathers all yield points from a node
 '''
 
 from tables import modules, builtin_constants
@@ -315,3 +316,18 @@ def identifiers(node):
     ids=Identifiers()
     ids.visit(node)
     return ids.identifiers
+
+##
+class Yields(ast.NodeVisitor):
+    def __init__(self):
+        self.yields=list() 
+
+    def visit_Yield(self, node):
+        self.yields.append(node)
+
+def yields(node):
+    '''Gathers all yield points of a generator, if any'''
+    assert isinstance(node, ast.FunctionDef)
+    ylds=Yields()
+    ylds.visit(node)
+    return ylds.yields

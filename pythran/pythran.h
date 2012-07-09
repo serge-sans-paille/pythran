@@ -130,20 +130,30 @@ struct python_to_pythran< sequence<T> >{
     }
 	static void* convertible(PyObject* obj_ptr){
 		// the second condition is important, for some reason otherwise there were attempted conversions of Body to list which failed afterwards.
-		if(!PySequence_Check(obj_ptr) || !PyObject_HasAttrString(obj_ptr,"__len__")) return 0;
+		if( !PySequence_Check(obj_ptr) || !PyObject_HasAttrString(obj_ptr,"__len__")) return 0;
 		return obj_ptr;
 	}
-	static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
-		 void* storage=((boost::python::converter::rvalue_from_python_storage<sequence<T> >*)(data))->storage.bytes;
-		 Py_ssize_t l=PySequence_Fast_GET_SIZE(obj_ptr);
-		 new (storage) sequence<T>();
-		 sequence<T>& v=*(sequence<T>*)(storage);
-         v.reserve(l);
-         PyObject** core = PySequence_Fast_ITEMS(obj_ptr);
-         for(Py_ssize_t i=0; i<l; i++)
-             v.push_back(boost::python::extract<T>(*core++));
-		 data->convertible=storage;
-	}
+    static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
+        void* storage=((boost::python::converter::rvalue_from_python_storage<sequence<T> >*)(data))->storage.bytes;
+        new (storage) sequence<T>();
+        sequence<T>& v=*(sequence<T>*)(storage);
+        boost::python::extract<boost::python::numeric::array> extractor(obj_ptr);
+        if(extractor.check()) {
+            Py_ssize_t l=PySequence_Size(obj_ptr);
+            v.reserve(l);
+            boost::python::numeric::array data = extractor;
+            for(Py_ssize_t i=0; i<l; i++)
+                v.push_back(boost::python::extract<T>(data[i]));
+        }
+        else {
+            Py_ssize_t l=PySequence_Fast_GET_SIZE(obj_ptr);
+            v.reserve(l);
+            PyObject** core = PySequence_Fast_ITEMS(obj_ptr);
+            for(Py_ssize_t i=0; i<l; i++)
+                v.push_back(boost::python::extract<T>(*core++));
+        }
+        data->convertible=storage;
+    }
 };
 
 template<typename... Types>

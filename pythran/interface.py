@@ -62,6 +62,7 @@ def cxx_generator(module_name, code, specs):
     mod=BoostPythonModule(module_name)
     mod.use_private_namespace=False
     mod.add_to_preamble(content)
+    mod.add_to_init([Statement('boost::python::numeric::array::set_module_and_type("numpy", "ndarray")')]);
 
     for function_name,signatures in specs.iteritems():
         internal_function_name=renamings.get(function_name,function_name)

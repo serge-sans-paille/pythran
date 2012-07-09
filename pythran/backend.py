@@ -98,9 +98,9 @@ class CxxBackend(ast.NodeVisitor):
                 )
 
         ctx=CachedTypeVisitor()
-        extra_typedefs = [Typedef(Value(t.generate(ctx), t.name)) for t in self.types[node][1] if not t.isweak()]\
-                       + [Typedef(Value(return_type.generate(ctx), "return_type"))]
-        extra_typedefs = ctx.typedefs() + extra_typedefs
+        extern_typedefs = [Typedef(Value(t.generate(ctx), t.name)) for t in self.types[node][1] if not t.isweak()]
+        return_typedef  = [Typedef(Value(return_type.generate(ctx), "return_type"))]
+        extra_typedefs = ctx.typedefs() + extern_typedefs + return_typedef
         return_declaration = [templatize(Struct("type",extra_typedefs), formal_types)]
         topstruct = Struct(node.name, return_declaration + operator_declaration)
         self.declarations.append(topstruct)

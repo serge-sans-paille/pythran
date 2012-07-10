@@ -68,6 +68,7 @@ class CxxBackend(ast.NodeVisitor):
 
         self.local_declarations.append(set(ldecls.iterkeys()))
         self.local_declarations[-1].update(formal_args)
+        self.extra_declarations={}
 
         ldecls= set(ldecls.itervalues())
 
@@ -90,7 +91,7 @@ class CxxBackend(ast.NodeVisitor):
                 Value("typename {0}return_type".format(ffscope), "{0}::operator()".format(node.name)),
                 [ Value( t, a ) for t,a in zip(formal_types, formal_args ) ] )
         ctx=CachedTypeVisitor()
-        operator_local_declarations = [ Statement("{0} {1}".format(self.types[k].generate(ctx), k.id)) for k in ldecls ]
+        operator_local_declarations = [ Statement("{0} {1}".format(self.types[k].generate(ctx), k.id)) for k in ldecls ] + [ Statement("{0} {1}".format(v,k)) for k,v in self.extra_declarations.iteritems() ]
         dependent_typedefs = ctx.typedefs()
         operator_definition = FunctionBody(
                 templatize(operator_signature, formal_types),
@@ -142,13 +143,16 @@ class CxxBackend(ast.NodeVisitor):
         self.break_handler.append(Block([self.visit(n) for n in node.orelse]) if node.orelse else None)
         body = [ self.visit(n) for n in node.body ]
         self.break_handler.pop()
-        #return AutoFor(target, iter, Block(body)) # no local scope for variable indices in python
+        local_iter= "__iter{0}".format(len(self.extra_declarations))
+        local_target= "__target{0}".format(len(self.extra_declarations))
+        self.extra_declarations[local_iter]="decltype({0})".format(iter)
+        self.extra_declarations[local_target]="decltype({0}.begin())".format(iter)
         return Block([
-            Statement("auto __iter = {0}".format(iter)),
-            For("auto __target = __iter.begin()",
-                "__target != __iter.end()",
-                "++__target",
-                Block([Statement("{0} = *__target".format(target))] + body ) )
+            Statement("{0} = {1}".format(local_iter, iter)),
+            For("{0} = {1}.begin()".format(local_target, local_iter),
+                "{0} != {1}.end()".format(local_target, local_iter),
+                "++{0}".format(local_target),
+                Block([Statement("{0} = *{1}".format(target, local_target))] + body ) )
             ])
 
     def visit_While(self, node):

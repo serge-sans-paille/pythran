@@ -67,6 +67,7 @@ namespace pythonic {
     struct enumerate_iterator : std::iterator< std::forward_iterator_tag, long >{
         long value;
         typename sequence<T>::const_iterator iter;
+        enumerate_iterator(){}
         enumerate_iterator(long value, typename sequence<T>::const_iterator iter) : value(value), iter(iter) {}
         std::tuple<long,T>  operator*() { return std::make_tuple(value, *iter); }
         enumerate_iterator& operator++() { ++value,++iter; return *this; }
@@ -76,8 +77,9 @@ namespace pythonic {
 
     template <class T>
     struct _enumerate {
-        sequence<T> const& seq;
+        sequence<T> seq;
         typedef std::tuple<long, T> value_type;
+        _enumerate() {}
         _enumerate( sequence<T> const& seq ) : seq(seq) {}
         enumerate_iterator<T> begin() const { return enumerate_iterator<T>(0L,seq.begin()); }
         enumerate_iterator<T> end() const { return enumerate_iterator<T>(seq.end()-seq.begin(), seq.end()); }
@@ -311,6 +313,7 @@ namespace pythonic {
     struct xrange_iterator : std::iterator< std::forward_iterator_tag, long >{
         long value;
         long step;
+        xrange_iterator() {}
         xrange_iterator(long v, long s) : value(v), step(s) {}
         long& operator*() { return value; }
         xrange_iterator& operator++() { value+=step; return *this; }
@@ -323,6 +326,7 @@ namespace pythonic {
         long _end;
         long _step;
         typedef long value_type;
+        xrange(){}
         xrange( long b, long e , long s=1) : _begin(b), _end(e), _step(s) {}
         xrange( long e ) : _begin(0), _end(e), _step(1) {}
         xrange_iterator begin() const { return xrange_iterator(_begin, _step); }
@@ -370,7 +374,8 @@ namespace pythonic {
     /* reversed */
     template <class T>
         struct _reversed {
-            sequence<T> const& seq;
+            sequence<T> seq;
+            _reversed() {}
             _reversed(sequence<T> const& seq) : seq(seq) {}
             typedef typename sequence<T>::value_type value_type;
             auto begin() -> decltype(seq.rbegin()) { return seq.rbegin(); }

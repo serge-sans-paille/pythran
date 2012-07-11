@@ -32,6 +32,8 @@ decltype(std::declval<sequence<A>>() + none_type()) operator+(container<A> , non
 template <class A>
 decltype(std::declval<sequence<A>>() + none_type()) operator+(none_type , container<A> );
 
+none_type operator+(none_type , none_type );
+
 template <class A, class B>
 container<decltype(std::declval<A>()+std::declval<B>())> operator+(container<A> , container<B> );
 

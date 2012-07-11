@@ -340,11 +340,14 @@ class Typing(ast.NodeVisitor):
 
     def visit_Subscript(self, node):
         self.visit(node.value)
-        try:
-            v=constant_value(node.slice)
-            f=lambda t: ElementType(v,t)
-        except:
-            f=lambda t: ContentType(t)
+        if isinstance(node.slice, ast.Slice):
+            f=lambda t:t
+        else:
+            try:
+                v=constant_value(node.slice)
+                f=lambda t: ElementType(v,t)
+            except:
+                f=lambda t: ContentType(t)
         self.combine(node, node.value, unary_op=f)
 
     def visit_Name(self, node):

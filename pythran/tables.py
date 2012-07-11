@@ -102,6 +102,7 @@ modules = {
             "reduce":{},
             "reversed":{},
             "round":{},
+            "set":{},
             "sorted":{},
             "str":{},
             "sum":{},
@@ -143,9 +144,12 @@ modules = {
                 "random" :{},
                 },
         "__list__" : {
-                "append" : { 'method':True, 'combiner': lambda self, node: self.combine(node.args[0], node.args[1], unary_op=lambda f: cxxtypes.SequenceType(f), register=True)},
-                "insert" : { 'method':True, 'combiner': lambda self, node: self.combine(node.args[0], node.args[2], unary_op=lambda f: cxxtypes.SequenceType(f), register=True)},
-                },
+            "append" : { 'method':True, 'combiner': lambda self, node: self.combine(node.args[0], node.args[1], unary_op=lambda f: cxxtypes.ListType(f), register=True)},
+            "insert" : { 'method':True, 'combiner': lambda self, node: self.combine(node.args[0], node.args[2], unary_op=lambda f: cxxtypes.ListType(f), register=True)},
+            },
+        "__set__" : {
+            "add" : { 'method':True, 'combiner': lambda self, node: self.combine(node.args[0], node.args[1], unary_op=lambda f: cxxtypes.SetType(f), register=True)},
+            },
         "_complex_" : {
                 "real": { 'attribute':0 },
                 "imag": { 'attribute':1 },

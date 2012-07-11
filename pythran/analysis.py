@@ -84,11 +84,15 @@ class ImportedIds(ast.NodeVisitor):
         self.global_declarations.add(node.name)
         self.references.update(local.references)
 
-    def visit_ListComp(self, node):
+    def visit_AnyComp(self, node):
         local = ImportedIds(self.global_declarations)
         [ local.visit(n) for n in node.generators ]
         local.visit(node.elt)
         self.references.update(local.references)
+
+    def visit_ListComp(self, node): self.visit_AnyComp(node)
+
+    def visit_SetComp(self, node): self.visit_AnyComp(node)
 
     def visit_Lambda(self, node):
         local = ImportedIds(self.global_declarations)

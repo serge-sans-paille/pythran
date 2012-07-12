@@ -150,7 +150,11 @@ class TypeDependencies(ast.NodeVisitor):
 
 def node_to_id(n,depth=0):
     if isinstance(n, ast.Name): return (n.id,depth)
-    elif isinstance(n, ast.Subscript): return node_to_id(n.value, 1+depth)
+    elif isinstance(n, ast.Subscript):
+        if isinstance(n.slice, ast.Slice):
+            return node_to_id(n.value, depth)
+        else:
+            return node_to_id(n.value, 1+depth)
     else:
         raise NotImplementedError("assigning to something that is neither a Name nor a subscript of a name")
 

@@ -9,6 +9,7 @@ from analysis import local_declarations, global_declarations, constant_value
 from tables import operator_to_lambda, modules
 from typing import type_all
 from syntax import PythranSyntaxError
+import metadata
 
 templatize = lambda node, types: Template([ "typename " + t for t in types ], node ) if types else node 
 
@@ -140,20 +141,38 @@ class CxxBackend(ast.NodeVisitor):
             raise PythranSyntaxError("Using something other than an identifier as loop target", node.target)
         iter = self.visit(node.iter)
         target = self.visit(node.target)
-        self.break_handler.append(Block([self.visit(n) for n in node.orelse]) if node.orelse else None)
-        body = [ self.visit(n) for n in node.body ]
-        self.break_handler.pop()
+
+        if node.orelse:
+            break_handler="__no_breaking{0}".format(len(self.extra_declarations))
+        else:
+            break_handler=None
+        self.break_handler.append(break_handler)
+
         local_iter= "__iter{0}".format(len(self.extra_declarations))
         local_target= "__target{0}".format(len(self.extra_declarations))
         self.extra_declarations[local_iter]="decltype({0})".format(iter)
         self.extra_declarations[local_target]="decltype({0}.begin())".format(iter)
-        return Block([
-            Statement("{0} = {1}".format(local_iter, iter)),
-            For("{0} = {1}.begin()".format(local_target, local_iter),
-                "{0} != {1}.end()".format(local_target, local_iter),
-                "++{0}".format(local_target),
-                Block([Statement("{0} = *{1}".format(target, local_target))] + body ) )
-            ])
+
+        body = [ self.visit(n) for n in node.body ]
+
+        self.break_handler.pop()
+
+
+        stmts=[
+                Statement("{0} = {1}".format(local_iter, iter)),
+                For("{0} = {1}.begin()".format(local_target, local_iter),
+                    "{0} != {1}.end()".format(local_target, local_iter),
+                    "++{0}".format(local_target),
+                    Block([Statement("{0} = *{1}".format(target, local_target))] + body ) )           
+                ]
+
+        for comp in metadata.get(node, metadata.comprehension):# in that case when can proceed to a reserve
+            stmts.insert(1, Statement("{0}.reserve(len({1}))".format(comp.target, local_iter)))
+
+        if break_handler:
+            stmts.append(Block([ self.visit(n) for n in node.orelse ] + [ Statement("{0}:".format(break_handler))]))
+
+        return Block(stmts)
 
     def visit_While(self, node):
         test = self.visit(node.test)
@@ -200,10 +219,10 @@ class CxxBackend(ast.NodeVisitor):
         return EmptyStatement()
 
     def visit_Break(self, node):
-        out=Statement("break")
         if self.break_handler[-1]:
-            out = Block( [ self.break_handler[-1] , out ] )
-        return out
+            return Statement("goto {0}".format(self.break_handler[-1]))
+        else:
+             return Statement("break")
 
     def visit_Continue(self, node):
         return Statement("continue")

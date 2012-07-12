@@ -10,6 +10,8 @@
 namespace  pythonic {
 
     struct empty_sequence;
+    template <class T> class sequence;
+
 
     struct slice {
         long lower, upper, step;
@@ -17,16 +19,71 @@ namespace  pythonic {
             : lower(lower), upper(upper), step(step) {}
     };
 
+    template<class T>
+        class sequence_view {
+
+            // data holder
+            typedef std::vector< typename std::remove_cv< typename std::remove_reference<T>::type>::type > container_type;
+            size_t* refcount;
+            container_type* data; 
+            typedef char memory_size[sizeof(*refcount)+sizeof(*data)];
+
+            template<class U>
+                friend class sequence;
+
+            slice slicing;
+
+            public:
+            //  types
+            typedef typename container_type::reference reference;
+            typedef typename container_type::const_reference const_reference;
+            typedef typename container_type::iterator iterator;
+            typedef typename container_type::const_iterator const_iterator;
+            typedef typename container_type::size_type size_type;
+            typedef typename container_type::difference_type difference_type;
+            typedef typename container_type::value_type value_type;
+            typedef typename container_type::allocator_type allocator_type;
+            typedef typename container_type::pointer pointer;
+            typedef typename container_type::const_pointer const_pointer;
+            typedef typename container_type::reverse_iterator reverse_iterator;
+            typedef typename container_type::const_reverse_iterator const_reverse_iterator;
+
+            // constructor
+            sequence_view(): data(nullptr),refcount(nullptr) {}
+            sequence_view(sequence<T> & , slice const &);
+            ~sequence_view() {
+                if(refcount and not --*refcount) { delete refcount; }
+            }
+
+            // assignment
+            sequence_view& operator=(sequence<T> const & );
+
+            // iterators
+            iterator begin() { assert(slicing.step==1) ; return data->begin()+slicing.lower; }
+            const_iterator begin() const { assert(slicing.step==1) ; return data->begin()+slicing.lower; }
+            iterator end() { assert(slicing.step==1) ; return data->begin()+slicing.upper; }
+            const_iterator end() const { assert(slicing.step==1) ; return data->begin()+slicing.upper; }
+
+
+        };
+
     /* the container type */
     template<class T>
         class sequence {
 
             // data holder
             typedef std::vector< typename std::remove_cv< typename std::remove_reference<T>::type>::type > container_type;
-            std::shared_ptr<container_type> data; 
+            size_t* refcount;
+            container_type* data; 
+
+            typedef char memory_size[sizeof(*refcount)+sizeof(*data)];
+
 
             template<class U>
                 friend struct _id;
+
+            template<class U>
+                friend class sequence_view;
 
 
             public:
@@ -45,15 +102,48 @@ namespace  pythonic {
             typedef typename container_type::reverse_iterator reverse_iterator;
             typedef typename container_type::const_reverse_iterator const_reverse_iterator;
 
+
             // constructors
-            sequence() : data(new container_type()) {}
-            sequence(empty_sequence const &) : data(new container_type()) {}
-            sequence(size_type sz) : data( new container_type(sz) ) {}
-            sequence(std::initializer_list<value_type> l) : data(new container_type(l)) {}
-            sequence(sequence<T> const & other) : data(const_cast<sequence<T>*>(&other)->data) {}
+            sequence() :
+                data(nullptr),refcount(nullptr) {}
+            sequence(empty_sequence const &) :
+                refcount((size_t*)new memory_size()), data(new (refcount+1) container_type()) { *refcount=1; }
+            sequence(size_type sz) :
+                refcount((size_t*)new memory_size()), data(new (refcount+1) container_type(sz)) { *refcount=1; }
+            sequence(std::initializer_list<value_type> l) :
+                refcount((size_t*)new memory_size()), data(new (refcount+1) container_type(l)) { *refcount=1; }
+            sequence(sequence<T> const & other) :
+                data(const_cast<sequence<T>*>(&other)->data), refcount(const_cast<sequence<T>*>(&other)->refcount) { ++*refcount; }
             template<class F>
-                sequence(sequence<F> const & other) : data(new container_type()) { std::copy(other.begin(), other.end(), std::back_inserter(*data)); }
-            sequence<T>& operator=(sequence<T> const & other) { data=other.data; return *this; }
+                sequence(sequence<F> const & other) :
+                    refcount((size_t*)new memory_size()), data(new (refcount+1) container_type()) { *refcount=1; std::copy(other.begin(), other.end(), std::back_inserter(*data)); }
+            ~sequence() {
+                if(refcount and not --*refcount) { delete refcount; }
+            }
+
+            sequence<T>& operator=(sequence<T> const & other) {
+                if(other.data != data) {
+                    if(refcount and not --*refcount) { delete refcount; }
+                    data=const_cast<sequence<T>*>(&other)->data;
+                    refcount=const_cast<sequence<T>*>(&other)->refcount;
+                    ++*refcount;
+                }
+                return *this;
+
+            }
+            sequence<T>& operator=(sequence_view<T> const & other) {
+                if(other.data == data ) {
+                    auto it = std::copy(other.begin(), other.end(), data->begin());
+                    data->resize(it - data->begin());
+                }
+                else {
+                    if(refcount and not --*refcount) { delete refcount; }
+                    refcount=(size_t*)new memory_size();
+                    data=new (refcount+1) container_type(other.end() - other.begin());
+                    std::copy(other.begin(), other.end(), data->begin());
+                }
+                return *this;
+            }
 
             // iterators
             iterator begin() { return data->begin(); }
@@ -66,31 +156,63 @@ namespace  pythonic {
             const_reverse_iterator rend() const { return data->rend(); }
 
             // element access
-            reference operator[]( size_type n ) { return (*data)[n]; }
-            const_reference operator[]( size_type n ) const { return (*data)[n]; }
-            sequence<T> operator[]( slice const &s ) const {
-                sequence<T> out;
-                long lower = s.lower >= 0L ? s.lower : ( s.lower + data->size());
-                lower = std::max(0L,lower);
-                long upper = s.upper >= 0L ? s.upper : ( s.upper + data->size());
-                upper = std::min(upper, (long)data->size());
-                for(long iter = lower; iter < upper ; iter+=s.step)
-                    out.push_back((*data)[iter]);
+            reference operator[]( long n ) {
+#ifndef NDEBUG
+                return (*data)[(n>=0)?n : (data->size() + n)];
+#else
+                return (*data).at((n>=0)?n : (data->size() + n));
+#endif
+            }
+            const_reference operator[]( long n ) const {
+#ifndef NDEBUG
+                return (*data)[(n>=0)?n : (data->size() + n)];
+#else
+                return (*data).at((n>=0)?n : (data->size() + n));
+#endif
+            }
+
+            sequence<T> operator[]( slice const &s ) {
+                sequence<T> out(0);
+                long lower, upper;
+                if(s.step<0) {
+                    if( s.lower == std::numeric_limits<long>::max() )
+                        lower = data->size();
+                    else
+                        lower = s.lower >= 0L ? s.lower : ( s.lower + data->size());
+                    lower = std::max(0L,lower);
+                    upper = s.upper >= 0L ? s.upper : ( s.upper + data->size());
+                    upper = std::min(upper, (long)data->size());
+                    for(long iter = lower+s.step; iter >= upper ; iter+=s.step)
+                        out.push_back((*data)[iter]);
+                }
+                else {
+                    lower = s.lower >= 0L ? s.lower : ( s.lower + data->size());
+                    lower = std::max(0L,lower);
+                    upper = s.upper >= 0L ? s.upper : ( s.upper + data->size());
+                    upper = std::min(upper, (long)data->size());
+                    for(long iter = lower; iter < upper ; iter+=s.step)
+                        out.push_back((*data)[iter]);
+                }
                 return out;
+            }
+
+            sequence_view<T> operator()( slice const &s) {
+                return sequence_view<T>(*this, s);
             }
 
             // modifiers
             void push_back( const T& x) { data->push_back(x); }
             void insert(size_t i, const T& x) { data->insert(data->begin()+i, x); }
             void reserve(size_t n) { data->reserve(n); }
+            void resize(size_t n) { data->resize(n); }
 
             // list interface
             operator bool() { return not data->empty(); }
 
             template <class F>
                 sequence<decltype(std::declval<T>()+std::declval<typename sequence<F>::value_type>())> operator+(sequence<F> const & s) const {
-                    sequence<decltype(std::declval<T>()+std::declval<typename sequence<F>::value_type>())> clone;
-                    std::transform(this->begin(), this->end(), s.begin(), std::back_inserter(clone), [] (T const & t, typename sequence<F>::value_type const & f) { return t+f ; });
+                    sequence<decltype(std::declval<T>()+std::declval<typename sequence<F>::value_type>())> clone(*this);
+                    std::copy(s.begin(), s.end(), std::back_inserter(clone));
                     return clone;
                 }
 
@@ -115,10 +237,37 @@ namespace  pythonic {
 
         };
 
+
+    /* empty sequence implementation */
     struct empty_sequence {
         template<class T> // just for type inference, should never been instantiated
             sequence<T> operator+(sequence<T> const & s) { return s; }
         empty_sequence operator+(empty_sequence const &) { return empty_sequence(); }
     };
+
+    /* sequence_view implementation */
+    template<class T>
+        sequence_view<T>::sequence_view(sequence<T> & other, slice const &s):
+            refcount(other.refcount), data(other.data), slicing(s) { ++*refcount;}
+
+    template<class T>
+        sequence_view<T>& sequence_view<T>::operator=(sequence<T> const & seq) {
+                sequence<T> out;
+                long lower = slicing.lower >= 0L ? slicing.lower : ( slicing.lower + data->size());
+                lower = std::max(0L,lower);
+                long upper = slicing.upper >= 0L ? slicing.upper : ( slicing.upper + data->size());
+                upper = std::min(upper, (long)data->size());
+                typename sequence<T>::iterator it = data->begin(); 
+                if( slicing.step == 1) {
+                    data->erase(it+lower, it + upper);
+                    data->insert(it+lower, seq.begin(), seq.end());
+                }
+                else {
+                    assert("not implemented yet");
+                }
+                if( data!= seq.data ) ++*refcount;
+                return *this;
+        }
+
 }
 #endif

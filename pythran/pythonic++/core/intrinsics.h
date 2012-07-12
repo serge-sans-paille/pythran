@@ -91,7 +91,8 @@ namespace pythonic {
     /* filter */
     template<class F, class T>
         sequence<T> filter(F const& f, sequence<T> const& seq) { /* does not implement the full standard */
-            sequence<T> out;
+            sequence<T> out(0);
+            out.reserve(len(seq));
             std::copy_if(seq.begin(), seq.end(), std::back_inserter(out), f);
             return out;
         }
@@ -119,6 +120,7 @@ namespace pythonic {
                 return reinterpret_cast<intptr_t>(&(*t.data));
             }
         };
+
 
     template <class T>
         intptr_t id(T const & t) {
@@ -161,9 +163,8 @@ namespace pythonic {
         struct _list<T,1> {
             typedef sequence<typename T::value_type> type;
             type operator()(T const &t) {
-                type r;
-                auto inserter = std::back_inserter(r);
-                for(auto &i : t) *inserter++=i;
+                type r(len(t));
+                std::copy(t.begin(), t.end(), r.begin());
                 return r;
             }
         };
@@ -189,8 +190,8 @@ namespace pythonic {
         auto _map(Operator& op, Sequence0 const& seq, Iterators... iterators)
         -> sequence< decltype(op(*seq.begin(), *iterators...)) >
         {
-            decltype(_map(op,seq, iterators...)) s;
-            auto iter = std::back_inserter(s);
+            decltype(_map(op,seq, iterators...)) s(len(seq));
+            auto iter = s.begin();
             for(auto & iseq : seq)
                 *iter++= op(iseq, *iterators++...);
             return s;
@@ -316,6 +317,7 @@ namespace pythonic {
         xrange_iterator() {}
         xrange_iterator(long v, long s) : value(v), step(s) {}
         long& operator*() { return value; }
+        long operator-(xrange_iterator const& other) { return (value - other.value)/step; }
         xrange_iterator& operator++() { value+=step; return *this; }
         xrange_iterator operator++(int) { xrange_iterator self(*this); value+=step; return self; }
         bool operator!=(xrange_iterator const& other) { return value != other.value; }
@@ -326,6 +328,10 @@ namespace pythonic {
         long _end;
         long _step;
         typedef long value_type;
+        typedef xrange_iterator iterator;
+        typedef xrange_iterator const_iterator;
+        typedef xrange_iterator reverse_iterator;
+        typedef xrange_iterator const_reverse_iterator;
         xrange(){}
         xrange( long b, long e , long s=1) : _begin(b), _end(e), _step(s) {}
         xrange( long e ) : _begin(0), _end(e), _step(1) {}
@@ -334,13 +340,18 @@ namespace pythonic {
             if(_step>0) return xrange_iterator(_begin + std::max(0L,_step * ( (_end - _begin)/ _step)) , _step);
             else return xrange_iterator(_begin + std::min(0L,_step * ( (_end - _begin)/ _step)) , _step);
         }
+        xrange_iterator rbegin() const { return xrange_iterator(_end-_step, -_step); }
+        xrange_iterator rend() const {
+            if(_step>0) return xrange_iterator(_end - std::max(0L,_step * ( 1 + (_end - _begin)/ _step)) , -_step);
+            else return xrange_iterator(_end - std::min(0L,_step * ( 1 + (_end - _begin)/ _step)) , -_step);
+        }
     };
     PROXY(pythonic,xrange);
 
     /* range */
     sequence<long> _range(xrange & xr) {
-        sequence<long> s;
-        std::copy(xr.begin(), xr.end(), std::back_inserter(s));
+        sequence<long> s(xr.end()-xr.begin());
+        std::copy(xr.begin(), xr.end(), s.begin());
         return s;
     }
 
@@ -372,20 +383,22 @@ namespace pythonic {
     PROXY(pythonic,reduce);
 
     /* reversed */
-    template <class T>
+    template <class Iterable>
         struct _reversed {
-            sequence<T> seq;
+            Iterable iterable;
             _reversed() {}
-            _reversed(sequence<T> const& seq) : seq(seq) {}
-            typedef typename sequence<T>::value_type value_type;
-            auto begin() -> decltype(seq.rbegin()) { return seq.rbegin(); }
-            auto end() -> decltype(seq.rend()) { return seq.rend(); }
+            _reversed(Iterable const& iterable) : iterable(iterable) {}
+            typedef typename Iterable::value_type value_type;
+            typename Iterable::reverse_iterator begin() { return iterable.rbegin(); }
+            typename Iterable::reverse_iterator end() { return iterable.rend(); }
+            typename Iterable::const_reverse_iterator begin() const { return iterable.rbegin(); }
+            typename Iterable::const_reverse_iterator end() const { return iterable.rend(); }
         };
 
 
-    template <class T>
-        _reversed<T> reversed(sequence<T> const& seq) {
-            return _reversed<T>(seq);
+    template <class Iterable>
+        _reversed<Iterable> reversed(Iterable const& iterable) {
+            return _reversed<Iterable>(iterable);
         }
     PROXY(pythonic, reversed);
 
@@ -438,10 +451,10 @@ namespace pythonic {
     /* zip */
     template<class Iterator0, class... Iterators>
         sequence< std::tuple<typename Iterator0::value_type, typename Iterators::value_type... > > _zip(Iterator0 first, Iterator0 last, Iterators...  iters) {
-            sequence< std::tuple< typename Iterator0::value_type, typename Iterators::value_type... > > out;
-            auto biter = std::back_inserter(out);
+            sequence< std::tuple< typename Iterator0::value_type, typename Iterators::value_type... > > out(last-first);
+            auto iter = out.begin();
             while(first!=last)
-                *biter++= std::make_tuple( *first++, *iters++... );
+                *iter++= std::make_tuple( *first++, *iters++... );
             return out;
         }
 

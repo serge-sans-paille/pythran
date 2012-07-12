@@ -294,7 +294,10 @@ class CxxBackend(ast.NodeVisitor):
             v = constant_value(node.slice)
             return "std::get<{0}>({1})".format(v, value)
         except:
-            return "{1}[{0}]".format(slice, value)
+            if isinstance(node.slice, ast.Slice) and isinstance(node.ctx, ast.Store):
+                return "{1}({0})".format(slice, value)
+            else:
+                return "{1}[{0}]".format(slice, value)
 
     def visit_Name(self, node):
         if node.id in self.local_declarations[-1]:

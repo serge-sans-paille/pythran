@@ -453,3 +453,11 @@ def shadow_parameters(l):
     if False:l=None
     return l"""
         self.run_test(code, [1], shadow_parameters=[[int]])
+
+    def test_slicer(self):
+        code="""
+def slicer(l):
+    l[2:5]=[1,2]
+    return l"""
+        self.run_test(code,[1,2,3,4,5,6,7,8,9], slicer=[[int]])
+

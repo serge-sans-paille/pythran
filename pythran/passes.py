@@ -11,6 +11,7 @@
 
 from analysis import imported_ids, purity_test, global_declarations, identifiers
 from tables import methods, attributes, cxx_keywords
+import metadata
 import ast
 import re
 
@@ -148,6 +149,8 @@ class RemoveComprehension(ast.NodeTransformer):
                 node.generators,
                 ast.Expr(ast.Call(ast.Attribute(ast.Name("__list__",ast.Load()),"append",ast.Load()),[ast.Name("__list",ast.Load()),node.elt],[], None, None))
                 )
+        # add extra metadata to this node
+        metadata.add(body, metadata.comprehension("__list"))
         init = ast.Assign(
                 [ast.Name("__list",ast.Store())],
                 ast.Call(ast.Name("list",ast.Load()), [],[], None, None )

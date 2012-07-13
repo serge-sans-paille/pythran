@@ -243,9 +243,11 @@ struct pythran_to_python<none_type> {
 template<typename T>
 struct custom_core_list_to_list{
     static PyObject* convert(const core::list<T>& v){
-        boost::python::list ret;
-        for(const T& e:v) ret.append(e);
-        return boost::python::incref(ret.ptr());
+        Py_ssize_t n = len(v);
+        PyObject* ret = PyList_New(n);
+        for(Py_ssize_t i=0;i<n;i++)
+            PyList_SET_ITEM(ret, i, boost::python::incref(boost::python::object(v[i]).ptr()));
+        return ret;
     }
 };
 

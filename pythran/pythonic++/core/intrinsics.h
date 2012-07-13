@@ -405,9 +405,9 @@ namespace pythonic {
 
     /* round */
     template <class T>
-        T round(T const & v, size_t n=0) {
+        double round(T const & v, size_t n=0) {
             T p = std::pow(10,n);
-            return std::floor(v * p)/p;
+            return std::lround(v * p)/p;
         }
     PROXY(pythonic, round);
 

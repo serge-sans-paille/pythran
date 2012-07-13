@@ -3,9 +3,12 @@
     * get retrieves all metadat from a particular class attached to a node
 '''
 
-class comprehension(object):
+class Comprehension(object):
     def __init__(self, target):
         self.target=target
+
+class NotTemporary(object):
+    pass
 
 
 def add(node, data):

@@ -166,7 +166,7 @@ class CxxBackend(ast.NodeVisitor):
                     Block([Statement("{0} = *{1}".format(target, local_target))] + body ) )           
                 ]
 
-        for comp in metadata.get(node, metadata.comprehension):# in that case when can proceed to a reserve
+        for comp in metadata.get(node, metadata.Comprehension):# in that case when can proceed to a reserve
             stmts.insert(1, Statement("{0}.reserve(len({1}))".format(comp.target, local_iter)))
 
         if break_handler:
@@ -294,7 +294,8 @@ class CxxBackend(ast.NodeVisitor):
             v = constant_value(node.slice)
             return "std::get<{0}>({1})".format(v, value)
         except:
-            if isinstance(node.slice, ast.Slice) and isinstance(node.ctx, ast.Store):
+            if isinstance(node.slice, ast.Slice) and (
+                    isinstance(node.ctx, ast.Store) or not metadata.get(node, metadata.NotTemporary)):
                 return "{1}({0})".format(slice, value)
             else:
                 return "{1}[{0}]".format(slice, value)

@@ -150,7 +150,7 @@ class RemoveComprehension(ast.NodeTransformer):
                 ast.Expr(ast.Call(ast.Attribute(ast.Name("__list__",ast.Load()),"append",ast.Load()),[ast.Name("__list",ast.Load()),node.elt],[], None, None))
                 )
         # add extra metadata to this node
-        metadata.add(body, metadata.comprehension("__list"))
+        metadata.add(body, metadata.Comprehension("__list"))
         init = ast.Assign(
                 [ast.Name("__list",ast.Store())],
                 ast.Call(ast.Name("list",ast.Load()), [],[], None, None )

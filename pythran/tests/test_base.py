@@ -496,3 +496,10 @@ def in_set(a):
 
     def test_set_comprehension(self):
         self.run_test("def set_comprehension(l): return { i*i for i in l }", [1 , 2, 1, 3], set_comprehension=[[int]])
+    def test_slicer(self):
+        code="""
+def slicer(l):
+    l[2:5]=[1,2]
+    return l"""
+        self.run_test(code,[1,2,3,4,5,6,7,8,9], slicer=[[int]])
+

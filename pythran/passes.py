@@ -11,6 +11,7 @@
 
 from analysis import imported_ids, purity_test, global_declarations, identifiers
 from tables import methods, attributes, cxx_keywords
+import metadata
 import ast
 import re
 
@@ -148,15 +149,18 @@ class RemoveComprehension(ast.NodeTransformer):
         self.count_iter=0
         def nest_reducer(x,g):
             return ast.For(g.target, g.iter, [ wrap_in_ifs(x, g.ifs) ], [])
+        starget="__target"
         body = reduce( nest_reducer,
                 node.generators,
-                ast.Expr(ast.Call(ast.Attribute(ast.Name("__{0}__".format(comp_type),ast.Load()), comp_method, ast.Load()),[ast.Name("__target",ast.Load()),node.elt],[], None, None))
+                ast.Expr(ast.Call(ast.Attribute(ast.Name("__{0}__".format(comp_type),ast.Load()), comp_method, ast.Load()),[ast.Name(starget,ast.Load()),node.elt],[], None, None))
                 )
+        # add extra metadata to this node
+        metadata.add(body, metadata.Comprehension(starget))
         init = ast.Assign(
-                [ast.Name("__target",ast.Store())],
+                [ast.Name(starget,ast.Store())],
                 ast.Call(ast.Name(comp_type, ast.Load()), [],[], None, None )
                 )
-        result = ast.Return(ast.Name("__target",ast.Store()))
+        result = ast.Return(ast.Name(starget,ast.Store()))
         sargs=sorted([ast.Name(arg, ast.Load()) for arg in args])
         fd = ast.FunctionDef(name,
                 ast.arguments(sargs,None, None,[]),

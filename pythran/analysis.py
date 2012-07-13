@@ -7,11 +7,13 @@
     * type_aliasing gather aliasing informations
     * identifiers gathers all identifiers used in a module
     * yields gathers all yield points from a node
+    * mark_temporaries flags temporary objects for further optimization
 '''
 
 from tables import modules, builtin_constants
 import ast
 import networkx as nx
+import metadata
 
 
 
@@ -335,3 +337,21 @@ def yields(node):
     ylds=Yields()
     ylds.visit(node)
     return ylds.yields
+##
+class FlagTemporaries(ast.NodeVisitor):
+    def visit_Assign(self, node):
+        metadata.add(node.value, metadata.NotTemporary())
+        if isinstance(node.value, ast.Subscript):
+            metadata.add(node.value.slice, metadata.NotTemporary())
+        self.visit(node.value)
+        [self.visit(n) for n in node.targets]
+
+    def visit_Return(self, node):
+        self.visit(node.value)
+        if node.value:
+            metadata.add(node.value, metadata.NotTemporary())
+            if isinstance(node.value, ast.Subscript):
+                metadata.add(node.value.slice, metadata.NotTemporary())
+
+def flag_temporaries(node):
+    FlagTemporaries().visit(node)

@@ -32,8 +32,6 @@ decltype(std::declval<core::list<A>>() + none_type()) operator+(container<A> , n
 template <class A>
 decltype(std::declval<core::list<A>>() + none_type()) operator+(none_type , container<A> );
 
-none_type operator+(none_type , none_type );
-
 template <class A, class B>
 container<decltype(std::declval<A>()+std::declval<B>())> operator+(container<A> , container<B> );
 
@@ -137,22 +135,21 @@ struct python_to_pythran< core::list<T> >{
 	}
     static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
         void* storage=((boost::python::converter::rvalue_from_python_storage<core::list<T> >*)(data))->storage.bytes;
-        new (storage) core::list<T>();
-        core::list<T>& v=*(core::list<T>*)(storage);
         boost::python::extract<boost::python::numeric::array> extractor(obj_ptr);
+        core::list<T>& v=*(core::list<T>*)(storage);
         if(extractor.check()) {
             Py_ssize_t l=PySequence_Size(obj_ptr);
-            v.reserve(l);
+            new (storage) core::list<T>(l);
             boost::python::numeric::array data = extractor;
             for(Py_ssize_t i=0; i<l; i++)
-                v.push_back(boost::python::extract<T>(data[i]));
+                v[i]=boost::python::extract<T>(data[i]);
         }
         else {
             Py_ssize_t l=PySequence_Fast_GET_SIZE(obj_ptr);
-            v.reserve(l);
+            new (storage) core::list<T>(l);
             PyObject** core = PySequence_Fast_ITEMS(obj_ptr);
             for(Py_ssize_t i=0; i<l; i++)
-                v.push_back(boost::python::extract<T>(*core++));
+                v[i]=boost::python::extract<T>(*core++);
         }
         data->convertible=storage;
     }

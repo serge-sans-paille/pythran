@@ -6,6 +6,7 @@
 #include <limits>
 #include <algorithm>
 #include <iterator>
+#include <boost/pool/object_pool.hpp>
 
 namespace  pythonic {
 
@@ -26,7 +27,6 @@ namespace  pythonic {
             typedef std::vector< typename std::remove_cv< typename std::remove_reference<T>::type>::type > container_type;
             size_t* refcount;
             container_type* data; 
-            typedef char memory_size[sizeof(*refcount)+sizeof(*data)];
 
             template<class U>
                 friend class sequence;
@@ -52,18 +52,22 @@ namespace  pythonic {
             sequence_view(): data(nullptr),refcount(nullptr) {}
             sequence_view(sequence<T> & , slice const &);
             ~sequence_view() {
-                if(refcount and not --*refcount) { delete refcount; }
+                if(refcount) {
+                    --*refcount;
+                    assert(*refcount);
+                }
             }
 
             // assignment
             sequence_view& operator=(sequence<T> const & );
+            sequence_view& operator=(sequence_view<T> const & );
+            sequence<T> operator+(sequence_view<T> const & );
 
             // iterators
             iterator begin() { assert(slicing.step==1) ; return data->begin()+slicing.lower; }
             const_iterator begin() const { assert(slicing.step==1) ; return data->begin()+slicing.lower; }
             iterator end() { assert(slicing.step==1) ; return data->begin()+slicing.upper; }
             const_iterator end() const { assert(slicing.step==1) ; return data->begin()+slicing.upper; }
-
 
         };
 
@@ -76,7 +80,7 @@ namespace  pythonic {
             size_t* refcount;
             container_type* data; 
 
-            typedef char memory_size[sizeof(*refcount)+sizeof(*data)];
+            struct memory_size { size_t refcount; container_type data; };
 
 
             template<class U>
@@ -85,6 +89,7 @@ namespace  pythonic {
             template<class U>
                 friend class sequence_view;
 
+            static boost::object_pool<memory_size> pool;
 
             public:
 
@@ -107,23 +112,23 @@ namespace  pythonic {
             sequence() :
                 data(nullptr),refcount(nullptr) {}
             sequence(empty_sequence const &) :
-                refcount((size_t*)new memory_size()), data(new (refcount+1) container_type()) { *refcount=1; }
+                refcount(reinterpret_cast<size_t*>(pool.malloc())), data(new (refcount+1) container_type()) { *refcount=1; }
             sequence(size_type sz) :
-                refcount((size_t*)new memory_size()), data(new (refcount+1) container_type(sz)) { *refcount=1; }
+                refcount(reinterpret_cast<size_t*>(pool.malloc())), data(new (refcount+1) container_type(sz)) { *refcount=1; }
             sequence(std::initializer_list<value_type> l) :
-                refcount((size_t*)new memory_size()), data(new (refcount+1) container_type(l)) { *refcount=1; }
+                refcount(reinterpret_cast<size_t*>(pool.malloc())), data(new (refcount+1) container_type(l)) { *refcount=1; }
             sequence(sequence<T> const & other) :
                 data(const_cast<sequence<T>*>(&other)->data), refcount(const_cast<sequence<T>*>(&other)->refcount) { ++*refcount; }
             template<class F>
                 sequence(sequence<F> const & other) :
-                    refcount((size_t*)new memory_size()), data(new (refcount+1) container_type()) { *refcount=1; std::copy(other.begin(), other.end(), std::back_inserter(*data)); }
+                    refcount(reinterpret_cast<size_t*>(pool.malloc())), data(new (refcount+1) container_type()) { *refcount=1; std::copy(other.begin(), other.end(), std::back_inserter(*data)); }
             ~sequence() {
-                if(refcount and not --*refcount) { delete refcount; }
+                if(refcount and not --*refcount) { pool.free( reinterpret_cast<memory_size*>(refcount)); }
             }
 
             sequence<T>& operator=(sequence<T> const & other) {
                 if(other.data != data) {
-                    if(refcount and not --*refcount) { delete refcount; }
+                    if(refcount and not --*refcount) { pool.free( reinterpret_cast<memory_size*>(refcount) ); }
                     data=const_cast<sequence<T>*>(&other)->data;
                     refcount=const_cast<sequence<T>*>(&other)->refcount;
                     ++*refcount;
@@ -137,11 +142,19 @@ namespace  pythonic {
                     data->resize(it - data->begin());
                 }
                 else {
-                    if(refcount and not --*refcount) { delete refcount; }
-                    refcount=(size_t*)new memory_size();
-                    data=new (refcount+1) container_type(other.end() - other.begin());
+                    if(refcount and not --*refcount) {
+                        /* should free the memory then reallocate it, so do nothing */
+                    }
+                    else {
+                        refcount=reinterpret_cast<size_t*>(pool.malloc());
+                        data=new (refcount+1) container_type(other.end() - other.begin());
+                    }
                     std::copy(other.begin(), other.end(), data->begin());
                 }
+                return *this;
+            }
+            sequence<T>& operator+=(sequence_view<T> const & other) {
+                std::copy(other.begin(), other.end(), std::back_inserter(*data));
                 return *this;
             }
 
@@ -216,16 +229,22 @@ namespace  pythonic {
                     return clone;
                 }
 
+            template <class F>
+                sequence<decltype(std::declval<T>()+std::declval<typename sequence_view<F>::value_type>())> operator+(sequence_view<F> const & s) const {
+                    sequence<decltype(std::declval<T>()+std::declval<typename sequence_view<F>::value_type>())> clone(*this);
+                    std::copy(s.begin(), s.end(), std::back_inserter(clone));
+                    return clone;
+                }
+
             sequence<T> operator+(empty_sequence const &) const {
                 return *this;
             }
             template<class F>
             sequence<T> operator*(F const& t) const {
-                sequence<T> r;
                 size_t n = t;
-                r.data->reserve(r.data->size()*n);
+                sequence<T> r(r.data->size()*n);
                 for(size_t i=0;i<n;i++)
-                    std::copy(this->begin(), this->end(),std::back_inserter((*r.data)));
+                    std::copy(this->begin(), this->end(),r.begin());
                 return r;
             }
 
@@ -236,6 +255,8 @@ namespace  pythonic {
                 }
 
         };
+    template<class T>
+        boost::object_pool<typename sequence<T>::memory_size> sequence<T>::pool;
 
 
     /* empty sequence implementation */
@@ -248,7 +269,35 @@ namespace  pythonic {
     /* sequence_view implementation */
     template<class T>
         sequence_view<T>::sequence_view(sequence<T> & other, slice const &s):
-            refcount(other.refcount), data(other.data), slicing(s) { ++*refcount;}
+            refcount(other.refcount), data(other.data), slicing(s) {
+                ++*refcount;
+                long lower, upper;
+                if(slicing.step<0) {
+                    if( slicing.lower == std::numeric_limits<long>::max() )
+                        lower = data->size();
+                    else
+                        lower = s.lower >= 0L ? s.lower : ( s.lower + data->size());
+                    slicing.lower = std::max(0L,lower);
+                    upper = slicing.upper >= 0L ? slicing.upper : ( slicing.upper + data->size());
+                    slicing.upper = std::min(upper, (long)data->size());
+                }
+                else {
+                    lower = slicing.lower >= 0L ? slicing.lower : ( slicing.lower + data->size());
+                    slicing.lower = std::max(0L,lower);
+                    upper = slicing.upper >= 0L ? slicing.upper : ( slicing.upper + data->size());
+                    slicing.upper = std::min(upper, (long)data->size());
+                }
+            }
+    template<class T>
+        sequence_view<T>& sequence_view<T>::operator=(sequence_view<T> const & s) {
+                slicing=s.slicing;
+                if(data != s.data) {
+                    refcount=s.refcount;
+                    data=s.data;
+                    ++*refcount;
+                }
+                return *this;
+        }
 
     template<class T>
         sequence_view<T>& sequence_view<T>::operator=(sequence<T> const & seq) {
@@ -267,6 +316,13 @@ namespace  pythonic {
                 }
                 if( data!= seq.data ) ++*refcount;
                 return *this;
+        }
+    template<class T>
+        sequence<T> sequence_view<T>::operator+(sequence_view<T> const & s) {
+            sequence<T> out;
+            out=*this;
+            out+=s;
+            return out;
         }
 
 }

@@ -120,7 +120,7 @@ namespace  pythonic {
                 list(std::initializer_list<value_type> l) :
                     refcount(reinterpret_cast<size_t*>(pool.malloc())), data(new (refcount+1) container_type(l)) { *refcount=1; }
                 list(list<T> const & other) :
-                    data(const_cast<list<T>*>(&other)->data), refcount(const_cast<list<T>*>(&other)->refcount) { ++*refcount; }
+                    data(const_cast<list<T>*>(&other)->data), refcount(const_cast<list<T>*>(&other)->refcount) { if(refcount) ++*refcount; } //SG: seems dangerous to me
                 template<class F>
                     list(list<F> const & other) :
                         refcount(reinterpret_cast<size_t*>(pool.malloc())), data(new (refcount+1) container_type()) { *refcount=1; std::copy(other.begin(), other.end(), std::back_inserter(*data)); }

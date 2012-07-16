@@ -1,5 +1,5 @@
-#ifndef PYTHONIC_PP_MATH_H
-#define PYTHONIC_PP_MATH_H
+#ifndef PYTHONIC_MODULE_MATH_H
+#define PYTHONIC_MODULE_MATH_H
 
 namespace pythonic {
     namespace math {

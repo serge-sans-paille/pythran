@@ -68,21 +68,11 @@ class SyntaxChecker(ast.NodeVisitor):
     def visit_Dict(self, node):
         raise PythranSyntaxError("Dictionaries are not supported", node)
 
-    def visit_Set(self, node):
-        raise PythranSyntaxError("Sets are not supported", node)
-
-    def visit_SetComp(self, node):
-        raise PythranSyntaxError("Set comprehension are not supported", node)
-
     def visit_DictComp(self, node):
         raise PythranSyntaxError("Dictionary comprehension are not supported", node)
 
     def visit_GeneratorExp(self, node):
         raise PythranSyntaxError("Generator expression are not supported", node)
-
-    def visit_Yield(self, node):
-        raise PythranSyntaxError("yield keyword is not supported", node)
-
 
 def check_syntax(node):
     '''Does nothing but raising exception when pythran syntax is not respected'''

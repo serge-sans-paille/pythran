@@ -57,7 +57,7 @@ class NormalizeTuples(ast.NodeTransformer):
         else:
             return node
 
-    def visit_ListComp(self, node):
+    def visit_AnyComp(self, node):
         self.generic_visit(node.elt)
         generators = [ self.visit(n) for n in node.generators ]
         nnode = node
@@ -69,6 +69,10 @@ class NormalizeTuples(ast.NodeTransformer):
         node.elt=nnode.elt
         node.generators=nnode.generators
         return node
+
+    def visit_ListComp(self, node): return self.visit_AnyComp(node)
+
+    def visit_SetComp(self, node): return self.visit_AnyComp(node)
 
     def visit_Lambda(self, node):
         self.generic_visit(node)
@@ -132,9 +136,9 @@ class RemoveComprehension(ast.NodeTransformer):
         node.body = self.functions + node.body
 
 
-    def visit_ListComp(self, node):
+    def visit_AnyComp(self, node, comp_type, comp_method):
         node.elt=self.visit(node.elt)
-        name = "list_comprehension{0}".format(self.count)
+        name = "{0}_comprehension{1}".format(comp_type, self.count)
         self.global_declarations.update({name:None})
         self.count+=1
         args = imported_ids(node,self.global_declarations)
@@ -145,17 +149,18 @@ class RemoveComprehension(ast.NodeTransformer):
         self.count_iter=0
         def nest_reducer(x,g):
             return ast.For(g.target, g.iter, [ wrap_in_ifs(x, g.ifs) ], [])
+        starget="__target"
         body = reduce( nest_reducer,
                 node.generators,
-                ast.Expr(ast.Call(ast.Attribute(ast.Name("__list__",ast.Load()),"append",ast.Load()),[ast.Name("__list",ast.Load()),node.elt],[], None, None))
+                ast.Expr(ast.Call(ast.Attribute(ast.Name("__{0}__".format(comp_type),ast.Load()), comp_method, ast.Load()),[ast.Name(starget,ast.Load()),node.elt],[], None, None))
                 )
         # add extra metadata to this node
-        metadata.add(body, metadata.Comprehension("__list"))
+        metadata.add(body, metadata.Comprehension(starget))
         init = ast.Assign(
-                [ast.Name("__list",ast.Store())],
-                ast.Call(ast.Name("list",ast.Load()), [],[], None, None )
+                [ast.Name(starget,ast.Store())],
+                ast.Call(ast.Name(comp_type, ast.Load()), [],[], None, None )
                 )
-        result = ast.Return(ast.Name("__list",ast.Store()))
+        result = ast.Return(ast.Name(starget,ast.Store()))
         sargs=sorted([ast.Name(arg, ast.Load()) for arg in args])
         fd = ast.FunctionDef(name,
                 ast.arguments(sargs,None, None,[]),
@@ -163,6 +168,10 @@ class RemoveComprehension(ast.NodeTransformer):
                 [])
         self.functions.append(fd)
         return ast.Call(ast.Name(name,ast.Load()),[ast.Name(arg.id, ast.Load()) for arg in sargs],[], None, None) # no sharing !
+
+    def visit_ListComp(self, node): return self.visit_AnyComp(node, "list", "append")
+
+    def visit_SetComp(self, node): return self.visit_AnyComp(node, "set", "add")
 
 def remove_comprehension(node):
     """Turns all list comprehension from a node into new function calls."""

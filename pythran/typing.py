@@ -6,7 +6,7 @@ import ast
 import networkx as nx
 import operator
 from tables import type_to_str, operator_to_lambda, modules, builtin_constants, builtin_constructors
-from analysis import global_declarations, constant_value, ordered_global_declarations, type_aliasing
+from analysis import global_declarations, constant_value, ordered_global_declarations, type_aliasing, yields
 from syntax import PythranSyntaxError
 from cxxtypes import *
 
@@ -75,6 +75,9 @@ class TypeDependencies(ast.NodeVisitor):
                 if dep_set: [self.types.add_edge(dep,self.current_function[-1]) for dep in dep_set]
                 else: self.types.add_edge(TypeDependencies.NoDeps,self.current_function[-1])
 
+    def visit_Yield(self, node):
+        self.visit_Return(node)
+
     def visit_Assign(self, node):
         v=self.visit(node.value)
         self.naming.update({ t.id:v for t in node.targets if isinstance(t, ast.Name) }) # need to handle subscript too ...
@@ -139,6 +142,9 @@ class TypeDependencies(ast.NodeVisitor):
     def visit_List(self, node):
         return reduce(operator.add, map(self.visit,node.elts), [set()])
 
+    def visit_Set(self, node):
+        return reduce(operator.add, map(self.visit,node.elts), [set()])
+
     def visit_Tuple(self, node):
         return reduce(operator.add, map(self.visit,node.elts), [set()])
 
@@ -188,7 +194,7 @@ class Typing(ast.NodeVisitor):
             if node_id not in self.name_to_nodes: self.name_to_nodes[node_id]=set()
             self.name_to_nodes[node_id].add(node)
             former_unary_op=copy_func(unary_op)
-            #use ContainerType instead of SequenceType because it can be a tuple
+            #use ContainerType instead of ListType because it can be a tuple
             unary_op = lambda x: former_unary_op(reduce(lambda t,n: ContainerType(t), xrange(depth),x)) # update the type to reflect container nesting
         try:
             if isinstance(othernode, ast.FunctionDef):
@@ -240,6 +246,8 @@ class Typing(ast.NodeVisitor):
         self.current.append(node)
         self.typedefs=list()
         self.name_to_nodes = {arg.id:{arg} for arg in node.args.args }
+        self.yields=yields(node)
+
         for k,v in builtin_constants.iteritems():
             fake_node=ast.Name(k,ast.Load())
             self.name_to_nodes.update({ k:{fake_node}}) 
@@ -255,11 +263,16 @@ class Typing(ast.NodeVisitor):
         self.current.pop()
 
     def visit_Return(self, node):
-        if node.value:
-            self.visit(node.value)
-            self.combine(self.current[-1], node.value)
-        else:
-            self.types[self.current[-1]]=NamedType("none_type")
+        if not self.yields:
+            if node.value:
+                self.visit(node.value)
+                self.combine(self.current[-1], node.value)
+            else:
+                self.types[self.current[-1]]=NamedType("none_type")
+
+    def visit_Yield(self, node):
+        self.visit(node.value)
+        self.combine(self.current[-1], node.value)
 
     def visit_Assign(self, node):
         self.visit(node.value)
@@ -373,9 +386,16 @@ class Typing(ast.NodeVisitor):
     def visit_List(self, node):
         if node.elts:
             [self.visit(elt) for elt in node.elts]
-            [self.combine(node, elt, unary_op=lambda x:SequenceType(x)) for elt in node.elts]
+            [self.combine(node, elt, unary_op=lambda x:ListType(x)) for elt in node.elts]
         else:
-            self.types[node]=NamedType("empty_sequence")
+            self.types[node]=NamedType("core::empty_list")
+
+    def visit_Set(self, node):
+        if node.elts:
+            [self.visit(elt) for elt in node.elts]
+            [self.combine(node, elt, unary_op=lambda x:SetType(x)) for elt in node.elts]
+        else:
+            self.types[node]=NamedType("core::empty_set")
 
     def visit_Tuple(self, node):
         [self.visit(elt) for elt in node.elts]

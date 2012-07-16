@@ -22,8 +22,10 @@ namespace pythonic {
             print(values...);
         }
 
+    /* list */
+
     template<class T>
-        std::ostream& operator<<(std::ostream& os, sequence<T> const & v) {
+        std::ostream& operator<<(std::ostream& os, core::list<T> const & v) {
             os << '[';
             auto iter = v.begin();
             if(iter != v.end()) {
@@ -34,9 +36,30 @@ namespace pythonic {
             return os << ']';
         }
 
-    std::ostream& operator<<(std::ostream& os, empty_sequence const & ) {
+    std::ostream& operator<<(std::ostream& os, core::empty_list const & ) {
         return os << "[]";
     }
+
+    /* set */
+
+    template<class T>
+        std::ostream& operator<<(std::ostream& os, core::set<T> const & v) {
+            os << '{';
+            auto iter = v.begin();
+            if(iter != v.end()) {
+                auto niter = iter ; ++niter;
+                while(niter++ != v.end())
+                    os << *iter++ << ", ";
+                os << *iter;
+            }
+            return os << '}';
+        }
+
+    std::ostream& operator<<(std::ostream& os, core::empty_set const & ) {
+        return os << "{}";
+    }
+
+    /* none */
 
     template<class T>
         std::ostream& operator<<(std::ostream& os, none<T> const & v) {
@@ -47,6 +70,8 @@ namespace pythonic {
     std::ostream& operator<<(std::ostream& os, none_type const &) {
         return os << "None";
     }
+
+    /* tuple */
 
     template<std::size_t> struct int_{}; // compile-time counter
 

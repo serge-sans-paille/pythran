@@ -6,6 +6,7 @@
     * constant_value evaluates a constant expression
     * type_aliasing gather aliasing informations
     * identifiers gathers all identifiers used in a module
+    * yields gathers all yield points from a node
     * mark_temporaries flags temporary objects for further optimization
 '''
 
@@ -85,11 +86,15 @@ class ImportedIds(ast.NodeVisitor):
         self.global_declarations.add(node.name)
         self.references.update(local.references)
 
-    def visit_ListComp(self, node):
+    def visit_AnyComp(self, node):
         local = ImportedIds(self.global_declarations)
         [ local.visit(n) for n in node.generators ]
         local.visit(node.elt)
         self.references.update(local.references)
+
+    def visit_ListComp(self, node): self.visit_AnyComp(node)
+
+    def visit_SetComp(self, node): self.visit_AnyComp(node)
 
     def visit_Lambda(self, node):
         local = ImportedIds(self.global_declarations)
@@ -318,6 +323,20 @@ def identifiers(node):
     ids.visit(node)
     return ids.identifiers
 
+##
+class Yields(ast.NodeVisitor):
+    def __init__(self):
+        self.yields=list() 
+
+    def visit_Yield(self, node):
+        self.yields.append(node)
+
+def yields(node):
+    '''Gathers all yield points of a generator, if any'''
+    assert isinstance(node, ast.FunctionDef)
+    ylds=Yields()
+    ylds.visit(node)
+    return ylds.yields
 ##
 class FlagTemporaries(ast.NodeVisitor):
     def visit_Assign(self, node):

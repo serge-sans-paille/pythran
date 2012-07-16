@@ -16,6 +16,7 @@ templatize = lambda node, types: Template([ "typename " + t for t in types ], no
 class CxxBackend(ast.NodeVisitor):
 
     generator_state_holder = "__generator_state" # used to recover previous generator state
+    final_statement = "that_is_all_folks" # flags the last statement
 
     def __init__(self, name):
         modules['__user__']=dict()
@@ -95,6 +96,8 @@ class CxxBackend(ast.NodeVisitor):
             next_name = "__generator__"+node.name
             instanciated_next_name = "{0}{1}".format(next_name, "<{0}>".format(", ".join(formal_types)) if formal_types else "")
 
+            operator_body.append(Statement("{0}:;".format(CxxBackend.final_statement)))
+
             next_declaration = [FunctionDeclaration( Value("return_type", "next"),
                 [] ) , EmptyStatement()] #*** empty statement to force a comma ...
             next_constructors = [
@@ -103,7 +106,7 @@ class CxxBackend(ast.NodeVisitor):
                         ),
                     FunctionBody(
                         FunctionDeclaration( Value("", next_name), [ Value( t, a ) for t,a in zip(formal_types, formal_args) ]),
-                        Line("{0} {{ }}".format( ": {0}".format(", ".join("{0}({0})".format(fa) for fa in formal_args)) if formal_args else ""))
+                        Line("{0} {{ }}".format( ": {0}".format(", ".join(["{0}({0})".format(fa) for fa in formal_args]+["{0}(0)".format(CxxBackend.generator_state_holder)]))))
                         )
                     ]
             next_last_value = CxxBackend.generator_state_holder + "_value"
@@ -153,7 +156,8 @@ class CxxBackend(ast.NodeVisitor):
                     Block( [ Statement("return {0}({1})".format(instanciated_next_name, ", ".join(formal_args))) ])
                     )
 
-            topstruct = Struct(node.name, operator_declaration)
+            topstruct_type = templatize(Struct("type", extra_typedefs), formal_types)
+            topstruct = Struct(node.name, [topstruct_type] + operator_declaration)
 
             self.declarations.append(next_struct)
             self.definitions.append(next_definition)
@@ -192,7 +196,7 @@ class CxxBackend(ast.NodeVisitor):
         return EmptyStatement()
 
     def visit_Return(self, node):
-        if self.yields: return Statement("{0} = -1".format(CxxBackend.generator_state_holder))
+        if self.yields: return Block([Statement("{0} = -1".format(CxxBackend.generator_state_holder)), Statement("goto "+CxxBackend.final_statement)])
         else: return ReturnStatement(self.visit(node.value))
 
     def visit_Delete(self, node):

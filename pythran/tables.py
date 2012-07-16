@@ -117,6 +117,7 @@ modules = {
             "pmap": {},
             },
         "math" : {
+            "isinf" : {},
             "modf" : {},
             "frexp" : {},
             "factorial" : {},

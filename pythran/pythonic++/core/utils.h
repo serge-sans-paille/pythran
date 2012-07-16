@@ -1,6 +1,11 @@
 #ifndef PYTHONIC_UTILS_H
 #define PYTHONIC_UTILS_H
 
+//Use when the C/C++ function do not have the same name
+//than in python
+#define WRAP(type,name,cname,argType)\
+    type name(argType x){ return cname(x); }
+
 // Use this to create a proxy on a specific intrinsic
 // should check out perfect forwarding too ...
 #define PROXY(ns,f) \

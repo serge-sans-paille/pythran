@@ -34,6 +34,7 @@ namespace pythonic {
         using std::copysign;
         using std::hypot;
         using std::log;
+        using std::isinf;
         
         double const pi = std::atan(1)*4;
         double const e = std::exp(1);
@@ -71,6 +72,7 @@ namespace pythonic {
         template<class T>
         double radians(T x) { return (x * 2. * pi) / 360.; }
         
+	PROXY(pythonic::math,isinf);
         PROXY(pythonic::math,modf);
         PROXY(pythonic::math,frexp);
         PROXY(pythonic::math,factorial);

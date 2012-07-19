@@ -6,6 +6,7 @@
 #include <limits>
 #include <algorithm>
 #include <iterator>
+#include <boost/pool/object_pool.hpp>
 
 namespace  pythonic {
 
@@ -19,12 +20,16 @@ namespace  pythonic {
             class set {
 
                 // data holder
-                typedef std::set< typename std::remove_cv< typename std::remove_reference<T>::type>::type > container_type;
-                std::shared_ptr<container_type> data; 
+                typedef  typename std::remove_cv< typename std::remove_reference<T>::type>::type  _type;
+                typedef std::set< _type > container_type;
+                size_t* refcount;
+                container_type* data; 
 
                 template<class U>
                     friend struct _id;
 
+                struct memory_size { size_t refcount; container_type data; };
+                static boost::object_pool<memory_size> pool;
 
                 public:
 
@@ -43,18 +48,39 @@ namespace  pythonic {
                 typedef typename container_type::const_reverse_iterator const_reverse_iterator;
 
                 // constructors
-                set() : data(new container_type()) {}
+                set() :
+                    refcount(reinterpret_cast<size_t*>(pool.malloc())), data(new (refcount+1) container_type()) { *refcount=1; }
                 template<class InputIterator>
-                    set(InputIterator start, InputIterator stop) : data(new container_type()) {
+                    set(InputIterator start, InputIterator stop) : 
+                        refcount(reinterpret_cast<size_t*>(pool.malloc())), data(new (refcount+1) container_type()) {
                             std::copy(start, stop, std::back_inserter(*this));
+                            *refcount=1;
                         }
-                set(empty_set const &) : data(new container_type()) {}
-                set(size_type sz) : data( new container_type(sz) ) {}
-                set(std::initializer_list<value_type> l) : data(new container_type(l)) {}
-                set(set<T> const & other) : data(const_cast<set<T>*>(&other)->data) {}
+                set(empty_set const &) : 
+                    refcount(reinterpret_cast<size_t*>(pool.malloc())), data(new (refcount+1) container_type()) { *refcount=1; }
+                set(std::initializer_list<value_type> l) : 
+                    refcount(reinterpret_cast<size_t*>(pool.malloc())), data(new (refcount+1) container_type(l)) { *refcount=1; }
+                set(set<T> const & other) :
+                    data(const_cast<set<T>*>(&other)->data), refcount(const_cast<set<T>*>(&other)->refcount) { ++*refcount; }
                 template<class F>
-                    set(set<F> const & other) : data(new container_type()) { std::copy(other.begin(), other.end(), std::back_inserter(*data)); }
-                set<T>& operator=(set<T> const & other) { data=other.data; return *this; }
+                    set(set<F> const & other) : 
+                        refcount(reinterpret_cast<size_t*>(pool.malloc())), data(new (refcount+1) container_type()){
+                            std::copy(other.begin(), other.end(), std::back_inserter(*data));
+                        }
+                ~set() {
+                    assert(*refcount>0);
+                    if(not --*refcount) { pool.free( reinterpret_cast<memory_size*>(refcount)); }
+                }
+                set<T>& operator=(set<T> const & other) {
+                    assert(*refcount>0);
+                    if(other.data != data) {
+                        if(not --*refcount) {  pool.free( reinterpret_cast<memory_size*>(refcount) ); }
+                        data=const_cast<set<T>*>(&other)->data;
+                        refcount=const_cast<set<T>*>(&other)->refcount;
+                        ++*refcount;
+                    }
+                    return *this;
+                }
 
                 // iterators
                 iterator begin() { return data->begin(); }
@@ -73,15 +99,11 @@ namespace  pythonic {
                 // set interface
                 operator bool() { return not data->empty(); }
 
-                set<T> operator+(empty_set const &) const {
-                    return *this;
-                }
-                template <class F>
-                    set<decltype(std::declval<T>()+std::declval<typename set<F>::value_type>())> operator+(set<F> const & s) const;
-
                 long size() const { return data->size(); }
 
             };
+        template<class T>
+            boost::object_pool<typename set<T>::memory_size> set<T>::pool;
 
         struct empty_set {
             template<class T> // just for type inference, should never been instantiated

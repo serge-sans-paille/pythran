@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <iterator>
 #include <boost/pool/object_pool.hpp>
+#define DEFAULT_LIST_CAPACITY 16
 
 namespace  pythonic {
 
@@ -26,7 +27,8 @@ namespace  pythonic {
             class list_view {
 
                 // data holder
-                typedef std::vector< typename std::remove_cv< typename std::remove_reference<T>::type>::type > container_type;
+                typedef  typename std::remove_cv< typename std::remove_reference<T>::type>::type  _type;
+                typedef std::vector< _type > container_type;
                 size_t* refcount;
                 container_type* data; 
 
@@ -52,11 +54,16 @@ namespace  pythonic {
 
                 // constructor
                 list_view(): data(nullptr),refcount(nullptr) {}
+                list_view(list_view<T> const & s): data(s.data),refcount(s.refcount), slicing(s.slicing) { 
+                    if(refcount)
+                        ++*refcount;
+                }
                 list_view(list<T> & , slice const &);
                 ~list_view() {
                     if(refcount) {
+                        assert(*refcount>0);
                         --*refcount;
-                        assert(*refcount);
+                        //sg ! maybe leak
                     }
                 }
 
@@ -71,6 +78,9 @@ namespace  pythonic {
                 iterator end() { assert(slicing.step==1) ; return data->begin()+slicing.upper; }
                 const_iterator end() const { assert(slicing.step==1) ; return data->begin()+slicing.upper; }
 
+                // size
+                size_type size() const { assert(slicing.step==1); return slicing.upper - slicing.lower ; }
+
             };
 
         /* the container type */
@@ -78,7 +88,8 @@ namespace  pythonic {
             class list {
 
                 // data holder
-                typedef std::vector< typename std::remove_cv< typename std::remove_reference<T>::type>::type > container_type;
+                typedef  typename std::remove_cv< typename std::remove_reference<T>::type>::type  _type;
+                typedef std::vector< _type > container_type;
                 size_t* refcount;
                 container_type* data; 
 
@@ -90,6 +101,9 @@ namespace  pythonic {
 
                 template<class U>
                     friend class list_view;
+
+                template<class U>
+                    friend class list;
 
                 static boost::object_pool<memory_size> pool;
 
@@ -112,7 +126,14 @@ namespace  pythonic {
 
                 // constructors
                 list() :
-                    data(nullptr),refcount(nullptr) {}
+                    refcount(reinterpret_cast<size_t*>(pool.malloc())), data(new (refcount+1) container_type()) { *refcount=1; }
+                template<class InputIterator>
+                    list(InputIterator start, InputIterator stop) :
+                        refcount(reinterpret_cast<size_t*>(pool.malloc())), data(new (refcount+1) container_type()) {
+                            data->reserve(DEFAULT_LIST_CAPACITY);
+                            std::copy(start, stop, std::back_inserter(*data));
+                            *refcount=1;
+                        }
                 list(empty_list const &) :
                     refcount(reinterpret_cast<size_t*>(pool.malloc())), data(new (refcount+1) container_type()) { *refcount=1; }
                 list(size_type sz) :
@@ -120,43 +141,51 @@ namespace  pythonic {
                 list(std::initializer_list<value_type> l) :
                     refcount(reinterpret_cast<size_t*>(pool.malloc())), data(new (refcount+1) container_type(l)) { *refcount=1; }
                 list(list<T> const & other) :
-                    data(const_cast<list<T>*>(&other)->data), refcount(const_cast<list<T>*>(&other)->refcount) { if(refcount) ++*refcount; } //SG: seems dangerous to me
+                    data(const_cast<list<T>*>(&other)->data), refcount(const_cast<list<T>*>(&other)->refcount) { ++*refcount; }
                 template<class F>
                     list(list<F> const & other) :
-                        refcount(reinterpret_cast<size_t*>(pool.malloc())), data(new (refcount+1) container_type()) { *refcount=1; std::copy(other.begin(), other.end(), std::back_inserter(*data)); }
+                        refcount(reinterpret_cast<size_t*>(pool.malloc())), data(new (refcount+1) container_type(other.data->size())) {
+                            *refcount=1; 
+                            std::copy(other.begin(), other.end(), begin());
+                        }
                 ~list() {
-                    if(refcount and not --*refcount) { pool.free( reinterpret_cast<memory_size*>(refcount)); }
+                    assert(*refcount>0);
+                    if(not --*refcount) { pool.free( reinterpret_cast<memory_size*>(refcount)); }
                 }
 
                 list<T>& operator=(list<T> const & other) {
+                    assert(*refcount>0);
                     if(other.data != data) {
-                        if(refcount and not --*refcount) { pool.free( reinterpret_cast<memory_size*>(refcount) ); }
+                        if(not --*refcount) {  pool.free( reinterpret_cast<memory_size*>(refcount) ); }
                         data=const_cast<list<T>*>(&other)->data;
                         refcount=const_cast<list<T>*>(&other)->refcount;
                         ++*refcount;
                     }
                     return *this;
-
                 }
                 list<T>& operator=(list_view<T> const & other) {
+                    assert(*refcount >0) ;
                     if(other.data == data ) {
                         auto it = std::copy(other.begin(), other.end(), data->begin());
                         data->resize(it - data->begin());
                     }
                     else {
-                        if(refcount and not --*refcount) {
+                        if(not --*refcount) {
                             /* should free the memory then reallocate it, so do nothing */
+                            /* HERE */
                         }
                         else {
                             refcount=reinterpret_cast<size_t*>(pool.malloc());
                             data=new (refcount+1) container_type(other.end() - other.begin());
                         }
+                        *refcount=1;
                         std::copy(other.begin(), other.end(), data->begin());
                     }
                     return *this;
                 }
                 list<T>& operator+=(list_view<T> const & other) {
-                    std::copy(other.begin(), other.end(), std::back_inserter(*data));
+                    data->resize(data->size() + len(other));
+                    std::copy(other.begin(), other.end(), data->begin());
                     return *this;
                 }
 
@@ -226,20 +255,20 @@ namespace  pythonic {
 
                 template <class F>
                     list<decltype(std::declval<T>()+std::declval<typename list<F>::value_type>())> operator+(list<F> const & s) const {
-                        list<decltype(std::declval<T>()+std::declval<typename list<F>::value_type>())> clone(*this);
-                        std::copy(s.begin(), s.end(), std::back_inserter(clone));
+                        list<decltype(std::declval<T>()+std::declval<typename list<F>::value_type>())> clone(data->size()+s.data->size());
+                        std::copy(s.begin(), s.end(), std::copy(begin(), end(), clone.begin()));
                         return clone;
                     }
 
                 template <class F>
                     list<decltype(std::declval<T>()+std::declval<typename list_view<F>::value_type>())> operator+(list_view<F> const & s) const {
-                        list<decltype(std::declval<T>()+std::declval<typename list_view<F>::value_type>())> clone(*this);
-                        std::copy(s.begin(), s.end(), std::back_inserter(clone));
+                        list<decltype(std::declval<T>()+std::declval<typename list_view<F>::value_type>())> clone(data->size()+len(s));
+                        std::copy(s.begin(), s.end(), std::copy(begin(), end(), clone.begin()));
                         return clone;
                     }
 
                 list<T> operator+(empty_list const &) const {
-                    return *this;
+                    return list<T>(begin(), end());
                 }
                 template<class F>
                     list<T> operator*(F const& t) const {
@@ -252,9 +281,11 @@ namespace  pythonic {
 
                 template <class F>
                     list<T>& operator+=(list<F> const & s) {
+                        reserve(size()+s.size());
                         std::copy(s.begin(), s.end(), std::back_inserter(*this));
                         return *this;
                     }
+                long size() const { return data->size(); }
 
             };
         template<class T>
@@ -321,9 +352,10 @@ namespace  pythonic {
             }
         template<class T>
             list<T> list_view<T>::operator+(list_view<T> const & s) {
-                list<T> out;
-                out=*this;
-                out+=s;
+                assert(s.data);
+                assert(data);
+                list<T> out(size() + s.size());
+                std::copy(s.begin(), s.end(), std::copy(begin(), end(), out.begin()));
                 return out;
             }
 

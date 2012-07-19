@@ -10,6 +10,7 @@
 #include "core/none.h"
 #include "core/io.h"
 #include "core/exceptions.h"
+#include "core/generator.h"
 
 /* additional modules */
 #include "modules/list.h"

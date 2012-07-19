@@ -8,10 +8,12 @@ namespace pythonic {
          */
         class function {
             char mem[sizeof(T)];
-            T* ptr;
             public:
+            T* ptr; //SG: I fail to understand why gcc requires this to be public
+
             function() : ptr(nullptr) {}
             function(T const & t) : ptr(new (mem) T(t)) {}
+
             template<class... Types>
                 auto operator()(Types&&... args) -> decltype((*ptr)(args...)) { return (*ptr)(args...); }
 

@@ -130,6 +130,12 @@ class RemoveComprehension(ast.NodeTransformer):
         self.functions=list()
         self.count=0
 
+
+    def nest_reducer(self, x,g):
+        def wrap_in_ifs(node, ifs):
+            return reduce(lambda n,if_: ast.If(if_,[n],[]), ifs, node)
+        return ast.For(g.target, g.iter, [ wrap_in_ifs(x, g.ifs) ], [])
+
     def visit_Module(self, node):
         self.global_declarations = global_declarations(node)
         [ self.visit(n) for n in node.body ]
@@ -144,13 +150,10 @@ class RemoveComprehension(ast.NodeTransformer):
         args = imported_ids(node,self.global_declarations)
         for generator in node.generators:
             args.difference_update(imported_ids(generator.target, self.global_declarations))
-        def wrap_in_ifs(node, ifs):
-            return reduce(lambda n,if_: ast.If(if_,[n],[]), ifs, node)
         self.count_iter=0
-        def nest_reducer(x,g):
-            return ast.For(g.target, g.iter, [ wrap_in_ifs(x, g.ifs) ], [])
+
         starget="__target"
-        body = reduce( nest_reducer,
+        body = reduce( self.nest_reducer,
                 node.generators,
                 ast.Expr(ast.Call(ast.Attribute(ast.Name("__{0}__".format(comp_type),ast.Load()), comp_method, ast.Load()),[ast.Name(starget,ast.Load()),node.elt],[], None, None))
                 )
@@ -172,6 +175,29 @@ class RemoveComprehension(ast.NodeTransformer):
     def visit_ListComp(self, node): return self.visit_AnyComp(node, "list", "append")
 
     def visit_SetComp(self, node): return self.visit_AnyComp(node, "set", "add")
+
+    def visit_GeneratorExp(self, node):
+        node.elt=self.visit(node.elt)
+        name = "generator_expression{0}".format(self.count)
+        self.global_declarations.update({name:None})
+        self.count+=1
+        args = imported_ids(node,self.global_declarations)
+        for generator in node.generators:
+            args.difference_update(imported_ids(generator.target, self.global_declarations))
+        self.count_iter=0
+
+        body = reduce( self.nest_reducer,
+                node.generators,
+                ast.Expr(ast.Yield(node.elt))
+                )
+
+        sargs=sorted([ast.Name(arg, ast.Load()) for arg in args])
+        fd = ast.FunctionDef(name,
+                ast.arguments(sargs,None, None,[]),
+                [body],
+                [])
+        self.functions.append(fd)
+        return ast.Call(ast.Name(name,ast.Load()),[ast.Name(arg.id, ast.Load()) for arg in sargs],[], None, None) # no sharing !
 
 def remove_comprehension(node):
     """Turns all list comprehension from a node into new function calls."""
@@ -281,6 +307,7 @@ class NormalizeReturn(ast.NodeVisitor):
         self.has_return=True
         if not node.value:
             node.value=ast.Name("None",ast.Load())
+
 
 def normalize_return(node):
     '''Adds Return statement when they are implicit, and adds the None return value when not set'''

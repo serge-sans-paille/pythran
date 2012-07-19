@@ -96,6 +96,8 @@ class ImportedIds(ast.NodeVisitor):
 
     def visit_SetComp(self, node): self.visit_AnyComp(node)
 
+    def visit_GeneratorExp(self, node): self.visit_AnyComp(node)
+
     def visit_Lambda(self, node):
         local = ImportedIds(self.global_declarations)
         local.visit(node.body)

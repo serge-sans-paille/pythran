@@ -16,6 +16,7 @@ templatize = lambda node, types: Template([ "typename " + t for t in types ], no
 class CxxBackend(ast.NodeVisitor):
 
     generator_state_holder = "__generator_state" # used to recover previous generator state
+    generator_state_value = "__generator_value" # used to recover previous generator state
     final_statement = "that_is_all_folks" # flags the last statement
 
     def __init__(self, name):
@@ -96,7 +97,7 @@ class CxxBackend(ast.NodeVisitor):
             next_name = "__generator__"+node.name
             instanciated_next_name = "{0}{1}".format(next_name, "<{0}>".format(", ".join(formal_types)) if formal_types else "")
 
-            operator_body.append(Statement("{0}:;".format(CxxBackend.final_statement)))
+            operator_body.append(Statement("{0}: return return_type();".format(CxxBackend.final_statement )))
 
             next_declaration = [FunctionDeclaration( Value("return_type", "next"),
                 [] ) , EmptyStatement()] #*** empty statement to force a comma ...
@@ -109,18 +110,19 @@ class CxxBackend(ast.NodeVisitor):
                         Line("{0} {{ }}".format( ": {0}".format(", ".join(["{0}({0})".format(fa) for fa in formal_args]+["{0}(0)".format(CxxBackend.generator_state_holder)]))))
                         )
                     ]
-            next_last_value = CxxBackend.generator_state_holder + "_value"
             next_iterator = [
                     FunctionBody(
-                        FunctionDeclaration( Value("void", "operator++"), []), Block([Statement("{0} = next()".format(next_last_value))])),
+                        FunctionDeclaration( Value("void", "operator++"), []), Block([Statement("next()")])),
                     FunctionBody(
-                        FunctionDeclaration( Value("typename {0}::return_type".format(instanciated_next_name), "operator*"), []), Block([Statement("return {0}".format(next_last_value))])),
+                        FunctionDeclaration( Value("typename {0}::return_type".format(instanciated_next_name), "operator*"), []), Block([Statement("return {0}".format(CxxBackend.generator_state_value))])),
                     FunctionBody(
-                        FunctionDeclaration( Value("{0}".format(next_name), "begin"), []), Block([Statement("++(*this) ; return *this")])),
+                        FunctionDeclaration( Value("pythonic::generator_iterator<{0}>".format(next_name), "begin"), []),
+                        Block([Statement("next() ; return generator_iterator<{0}>(this)".format(next_name))])),
                     FunctionBody(
-                        FunctionDeclaration( Value("long", "end"), []), Block([Statement("return -1")])),
+                        FunctionDeclaration( Value("pythonic::generator_iterator<{0}>".format(next_name), "end"), []),
+                        Block([Statement("return generator_iterator<{0}>()".format(next_name))])),
                     FunctionBody(
-                        FunctionDeclaration( Value("bool", "operator!="), [Value("long","other")]), Block([Statement("return {0}!=other".format(CxxBackend.generator_state_holder))]))
+                        FunctionDeclaration( Value("bool", "operator!="), [Value("{0} const &".format(next_name),"other")]), Block([Statement("return {0}!=other.{0}".format(CxxBackend.generator_state_holder))]))
                     ]
             next_signature = templatize(FunctionDeclaration(
                 Value("typename {0}::return_type".format(instanciated_next_name), "{0}::next".format(instanciated_next_name)), [] ), formal_types)
@@ -135,13 +137,13 @@ class CxxBackend(ast.NodeVisitor):
                          + [ Statement("{0} {1}".format(self.types[k].generate(ctx), k.id)) for k in ldecls ]\
                          + [ Statement("{0} {1}".format(v,k)) for k,v in self.extra_declarations.iteritems() ]\
                          + [Statement("{0} {1}".format("long", CxxBackend.generator_state_holder))]\
-                         + [Statement("typename {0}::return_type {1}".format(instanciated_next_name, next_last_value))]
+                         + [Statement("typename {0}::return_type {1}".format(instanciated_next_name, CxxBackend.generator_state_value))]
             next_members = next_members
 
             extern_typedefs = [Typedef(Value(t.generate(ctx), t.name)) for t in self.types[node][1] if not t.isweak()]
-            value_typedef   = [Typedef(Value(return_type.generate(ctx), "value_type"))]
+            iterator_typedef= [Typedef(Value("pythonic::generator_iterator<{0}>".format("{0}<{1}>".format(next_name, ", ".join(str(t) for t in formal_types) ) if formal_types else next_name), "iterator")), Typedef(Value(return_type.generate(ctx), "value_type"))]
             return_typedef  = [Typedef(Value(return_type.generate(ctx), "return_type"))]
-            extra_typedefs  =  ctx.typedefs() + extern_typedefs + value_typedef + return_typedef
+            extra_typedefs  =  ctx.typedefs() + extern_typedefs + iterator_typedef + return_typedef
 
             next_struct = templatize(Struct(next_name, extra_typedefs + next_members + next_constructors + next_iterator + next_declaration), formal_types)
             next_definition = FunctionBody(next_signature, Block( next_body ))
@@ -206,7 +208,7 @@ class CxxBackend(ast.NodeVisitor):
         num, label = self.yields[node]
         return "".join(n for n in Block([
             Statement("{0} = {1}".format(CxxBackend.generator_state_holder,num)),
-            ReturnStatement(self.visit(node.value)),
+            ReturnStatement("{0} = {1}".format(CxxBackend.generator_state_value,self.visit(node.value))),
             Statement("{0}:".format(label))
             ]).generate())
 
@@ -367,8 +369,8 @@ class CxxBackend(ast.NodeVisitor):
         left = self.visit(node.left)
         ops = [ operator_to_lambda[type(n)] for n in node.ops ]
         comparators = [ self.visit(n) for n in node.comparators ]
-        all_compare = zip( [left]+comparators[:-1], ops, comparators )
-        return " and ".join(op(l,r) for l,op,r in all_compare)
+        all_compare = zip( ops, comparators )
+        return " and ".join(op(left,r) for op,r in all_compare)
 
     def visit_Call(self, node):
         args = [ self.visit(n) for n in node.args ]

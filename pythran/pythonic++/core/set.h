@@ -44,6 +44,10 @@ namespace  pythonic {
 
                 // constructors
                 set() : data(new container_type()) {}
+                template<class InputIterator>
+                    set(InputIterator start, InputIterator stop) : data(new container_type()) {
+                            std::copy(start, stop, std::back_inserter(*this));
+                        }
                 set(empty_set const &) : data(new container_type()) {}
                 set(size_type sz) : data( new container_type(sz) ) {}
                 set(std::initializer_list<value_type> l) : data(new container_type(l)) {}
@@ -74,6 +78,8 @@ namespace  pythonic {
                 }
                 template <class F>
                     set<decltype(std::declval<T>()+std::declval<typename set<F>::value_type>())> operator+(set<F> const & s) const;
+
+                long size() const { return data->size(); }
 
             };
 

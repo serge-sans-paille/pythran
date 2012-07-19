@@ -6,6 +6,7 @@
 #include <complex>
 
 namespace pythonic {
+
     /* abs */
     using std::abs;
     PROXY(pythonic, abs);
@@ -64,7 +65,7 @@ namespace pythonic {
 
     /* enumerate */
     template<class T>
-    struct enumerate_iterator : std::iterator< std::forward_iterator_tag, long >{
+    struct enumerate_iterator : std::iterator< std::random_access_iterator_tag, long >{
         long value;
         typename core::list<T>::const_iterator iter;
         enumerate_iterator(){}
@@ -73,6 +74,7 @@ namespace pythonic {
         enumerate_iterator& operator++() { ++value,++iter; return *this; }
         enumerate_iterator operator++(int) { enumerate_iterator self(*this); ++value, ++iter; return self; }
         bool operator!=(enumerate_iterator const& other) { return value != other.value; }
+        long operator-(enumerate_iterator const& other) { return value - other.value; }
     };
 
     template <class T>
@@ -91,7 +93,7 @@ namespace pythonic {
     /* filter */
     template<class F, class T>
         core::list<T> filter(F const& f, core::list<T> const& seq) { /* does not implement the full standard */
-            core::list<T> out(len(seq));
+            core::list<T> out(seq.size());
             std::copy_if(seq.begin(), seq.end(), out.begin(), f);
             return out;
         }
@@ -140,9 +142,35 @@ namespace pythonic {
 
 
     /* len */
+
+    template <class T, class category>
+        struct _len {
+        };
     template <class T>
-        size_t len(T const &t ) {
-            return std::distance(t.begin(), t.end());
+        struct _len<T,std::random_access_iterator_tag> {
+            long operator()(T const &t) {
+                return t.end() - t.begin();
+            }
+        };
+    template <class T>
+        struct _len<T,std::forward_iterator_tag> {
+            long operator()(T const &t) {
+#ifndef NDEBUG
+                std::cout << "bad:" << __PRETTY_FUNCTION__ << std::endl;
+#endif
+                return std::distance(t.begin(), t.end());
+            }
+        };
+
+    template <class T>
+        struct _len<core::set<T>, std::bidirectional_iterator_tag> {
+            long operator()(core::set<T> const &t) {
+                return t.size();
+            }
+        };
+    template <class T>
+        long len(T const &t) {
+            return _len<T, typename std::iterator_traits<decltype(const_cast<T*>(&t)->begin())>::iterator_category >()(t);
         }
     PROXY(pythonic,len);
 
@@ -179,8 +207,24 @@ namespace pythonic {
         auto tuple(Types const &... types) -> decltype(std::make_tuple(types...)) {
             return std::make_tuple(types...);
         }
+
+    template <class Iterable>
+        struct _tuple {
+            core::list<typename Iterable::value_type> operator()(Iterable i) {
+                return core::list<typename Iterable::value_type>(i.begin(), i.end());
+            }
+        };
+
+    template <class T>
+        struct _tuple<core::list<T>> {
+            core::list<T> operator()(core::list<T> i) {
+                return core::list<T>(i.begin(), i.end());
+            }
+        };
     template <class Iterable> /* this is far from perfect, but how to cope with the difference between python tuples and c++ ones ? */
-        Iterable tuple(Iterable const& i, typename Iterable::const_iterator *v=nullptr) { return i ; }
+        core::list<typename Iterable::iterator::value_type> tuple(Iterable i, typename Iterable::iterator* dummy=nullptr) {
+            return _tuple<Iterable>()(i);
+        }
     PROXY(pythonic, tuple);
 
     /* set */
@@ -188,27 +232,17 @@ namespace pythonic {
         return core::empty_set();
     }
 
-    template <class T, int V>
+    template <class Iterable>
         struct _set {
-        };
-    template <class T>
-        struct _set<T,0> {
-        };
-
-    template <class T>
-        struct _set<T,1> {
-            typedef core::set<typename T::value_type> type;
-            type operator()(T const &t) {
-                type r;
-                auto inserter = std::back_inserter(r);
-                for(auto &i : t) *inserter++=i;
-                return r;
+            typedef core::set<typename Iterable::value_type> type;
+            type operator()(Iterable &t) {
+                return type(t.begin(), t.end());
             }
         };
 
-    template <class T, int V = is_container<T>::value>
-        typename _set<T,V>::type set(T const & t) {
-            return _set<T,V>()(t);
+    template <class Iterable>
+        typename _set<Iterable>::type set(Iterable t) {
+            return _set<Iterable>()(t);
         } 
     PROXY(pythonic,set);
 
@@ -340,7 +374,7 @@ namespace pythonic {
     PROXY(pythonic, pow);
 
     /* xrange */
-    struct xrange_iterator : std::iterator< std::forward_iterator_tag, long >{
+    struct xrange_iterator : std::iterator< std::random_access_iterator_tag, long >{
         long value;
         long step;
         xrange_iterator() {}

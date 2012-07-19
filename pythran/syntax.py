@@ -71,9 +71,6 @@ class SyntaxChecker(ast.NodeVisitor):
     def visit_DictComp(self, node):
         raise PythranSyntaxError("Dictionary comprehension are not supported", node)
 
-    def visit_GeneratorExp(self, node):
-        raise PythranSyntaxError("Generator expression are not supported", node)
-
 def check_syntax(node):
     '''Does nothing but raising exception when pythran syntax is not respected'''
     SyntaxChecker().visit(node)

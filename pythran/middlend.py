@@ -7,9 +7,9 @@ def refine(node):
     # sanitize input
     normalize_method_calls(node)
     normalize_attributes(node)
-    normalize_return(node)
     normalize_tuples(node)
     remove_comprehension(node)
+    normalize_return(node)
     remove_nested_functions(node)
     remove_lambdas(node)
     unshadow_parameters(node)

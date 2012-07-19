@@ -1,5 +1,6 @@
 #ifndef PYTHRAN_H
 #define PYTHRAN_H
+#include <boost/python.hpp>
 
 #include <pythonic++.h>
 using namespace pythonic;
@@ -180,7 +181,7 @@ struct python_to_pythran< core::set<T> >{
          // may be useful to reserve more space ?
          PyObject *iterator = PyObject_GetIter(obj_ptr);
          PyObject *item;
-         while(item = PyIter_Next(iterator)) {
+         while((item = PyIter_Next(iterator))) {
              v.add(boost::python::extract<T>(item));
              Py_DECREF(item);
          }

@@ -101,12 +101,14 @@ namespace  pythonic {
 
                 long size() const { return data->size(); }
 
+                template<class U> // just for type inference, should never been instantiated
+                    set<decltype(std::declval<T>()+std::declval<U>())> operator+(set<U> const &);
             };
         template<class T>
             boost::object_pool<typename set<T>::memory_size> set<T>::pool;
 
         struct empty_set {
-            template<class T> // just for type inference, should never been instantiated
+            template<class T> 
                 set<T> operator+(set<T> const & s) { return s; }
             empty_set operator+(empty_set const &) { return empty_set(); }
         };

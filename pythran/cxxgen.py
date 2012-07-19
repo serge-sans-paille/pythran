@@ -759,8 +759,7 @@ class BoostPythonModule(object):
         else:
             mod_body = self.mod_body
 
-        body += ([Include("boost/python.hpp")]
-                + self.preamble + [Line()]
+        body += (self.preamble + [Line()]
                 + mod_body
                 + [Line(), Line("BOOST_PYTHON_MODULE(%s)" % self.name)]
                 + [Block(self.init_body)])

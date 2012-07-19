@@ -66,10 +66,10 @@ namespace pythonic {
         double log(double x, double base) { return log(x)/log(base); }
 
         template<class T>
-        T degrees(T x) { return (x * 360) / (2 * pi); }
+        double degrees(T x) { return (x * 360.) / (2. * pi); }
 
         template<class T>
-        T radians(T x) { return (x * 2 * pi) / 360; }
+        double radians(T x) { return (x * 2. * pi) / 360.; }
         
         PROXY(pythonic::math,modf);
         PROXY(pythonic::math,frexp);

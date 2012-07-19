@@ -4,8 +4,8 @@
 
 namespace pythonic {
     namespace random {
-        none_type seed(long s) { srand48(s);}
-        none_type seed() { srand48(time(nullptr));}
+        none_type seed(long s) { srand48(s); return None; }
+        none_type seed() { srand48(time(nullptr)); return None; }
 
         double random() { return drand48(); }
 

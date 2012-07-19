@@ -220,13 +220,13 @@ namespace  pythonic {
                     long lower, upper;
                     if(s.step<0) {
                         if( s.lower == std::numeric_limits<long>::max() )
-                            lower = data->size();
+                            lower = data->size()-1;
                         else
                             lower = s.lower >= 0L ? s.lower : ( s.lower + data->size());
                         lower = std::max(0L,lower);
                         upper = s.upper >= 0L ? s.upper : ( s.upper + data->size());
                         upper = std::min(upper, (long)data->size());
-                        for(long iter = lower+s.step; iter >= upper ; iter+=s.step)
+                        for(long iter = lower; iter >= upper ; iter+=s.step)
                             out.push_back((*data)[iter]);
                     }
                     else {

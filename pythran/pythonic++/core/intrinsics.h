@@ -28,11 +28,17 @@ namespace pythonic {
     /* bin */
     template<class T>
         std::string bin(T const &v) {
-            std::ostringstream oss("0b");
-            for(size_t i=1 << (8*sizeof(T)-1); i ; i>>=1)
-                if(v & i) oss << "1";
-                else oss << "0";
-            return oss.str();
+            size_t i = 1 << (8*sizeof(T)-1);
+            while(i and not (v&i)) i>>=1;
+            if(not i) return "0b0";
+            else {
+                std::ostringstream oss;
+                oss << "0b";
+                for(; i ; i>>=1)
+                    if(v & i) oss << "1";
+                    else oss << "0";
+                return oss.str();
+            }
         }
     PROXY(pythonic, bin);
 
@@ -43,7 +49,7 @@ namespace pythonic {
 
     /* cmp */
     template<class T0, class T1>
-        bool cmp(T0 const& v0, T1 const& v1) {
+        long cmp(T0 const& v0, T1 const& v1) {
             return v0 == v1 ? 0 : ( v0 < v1 ? -1 : 1 );
         }
     PROXY(pythonic, cmp);
@@ -91,19 +97,20 @@ namespace pythonic {
     PROXY(pythonic,enumerate);
 
     /* filter */
-    template<class F, class T>
-        core::list<T> filter(F const& f, core::list<T> const& seq) { /* does not implement the full standard */
-            core::list<T> out(seq.size());
-            std::copy_if(seq.begin(), seq.end(), out.begin(), f);
+    template<class F, class Iterable>
+        core::list<typename Iterable::iterator::value_type> filter(F const& f, Iterable const& iterable) { /* does not implement the full standard */
+            core::list<typename Iterable::iterator::value_type> out;
+            std::copy_if(iterable.begin(), iterable.end(), std::back_inserter(out), f);
             return out;
         }
+
     PROXY(pythonic, filter);
 
     /* hex */
     template <class T>
         std::string hex(T const & v) {
-            std::ostringstream oss("0x");
-            oss << std::hex << v;
+            std::ostringstream oss;
+            oss << "0x" << std::hex << v;
             return oss.str();
         }
     PROXY(pythonic, hex);
@@ -118,10 +125,9 @@ namespace pythonic {
     template <class T>
         struct _id< core::list<T> > {
             intptr_t operator()(core::list<T> const &t) {
-                return reinterpret_cast<intptr_t>(&(*t.data));
+                return reinterpret_cast<intptr_t>(t.data);
             }
         };
-
 
     template <class T>
         intptr_t id(T const & t) {
@@ -179,35 +185,13 @@ namespace pythonic {
         return core::empty_list();
     }
 
-    template <class T, int V>
-        struct _list {
-        };
-    template <class T>
-        struct _list<T,0> {
-        };
-
-    template <class T>
-        struct _list<T,1> {
-            typedef core::list<typename T::value_type> type;
-            type operator()(T const &t) {
-                type r(len(t));
-                std::copy(t.begin(), t.end(), r.begin());
-                return r;
-            }
-        };
-
-    template <class T, int V = is_container<T>::value>
-        typename _list<T,V>::type list(T const & t) {
-            return _list<T,V>()(t);
+    template <class Iterable>
+        core ::list<typename Iterable::iterator::value_type> list(Iterable const & t) {
+            return core::list<typename Iterable::iterator::value_type>(t.begin(), t.end());
         } 
     PROXY(pythonic,list);
 
     /* tuple */
-    template <class... Types>
-        auto tuple(Types const &... types) -> decltype(std::make_tuple(types...)) {
-            return std::make_tuple(types...);
-        }
-
     template <class Iterable>
         struct _tuple {
             core::list<typename Iterable::value_type> operator()(Iterable i) {
@@ -222,7 +206,7 @@ namespace pythonic {
             }
         };
     template <class Iterable> /* this is far from perfect, but how to cope with the difference between python tuples and c++ ones ? */
-        core::list<typename Iterable::iterator::value_type> tuple(Iterable i, typename Iterable::iterator* dummy=nullptr) {
+        core::list<typename Iterable::iterator::value_type> tuple(Iterable i) {
             return _tuple<Iterable>()(i);
         }
     PROXY(pythonic, tuple);
@@ -328,7 +312,7 @@ namespace pythonic {
         struct Min<T0, T1> {
             typedef decltype(std::declval<T0>() + std::declval<T1>()) return_type;
             return_type operator()(T0 const & t0, T1 const& t1) {
-                return t0>t1? t0: t1;
+                return t0>t1? t1: t0;
             }
 
         };
@@ -363,8 +347,8 @@ namespace pythonic {
     /* oct */
     template <class T>
         std::string oct(T const & v) {
-            std::ostringstream oss("0");
-            oss << std::oct << v;
+            std::ostringstream oss;
+            oss << '0' << std::oct << v;
             return oss.str();
         }
     PROXY(pythonic, oct);
@@ -400,8 +384,8 @@ namespace pythonic {
         xrange( long e ) : _begin(0), _end(e), _step(1) {}
         xrange_iterator begin() const { return xrange_iterator(_begin, _step); }
         xrange_iterator end() const {
-            if(_step>0) return xrange_iterator(_begin + std::max(0L,_step * ( (_end - _begin)/ _step)) , _step);
-            else return xrange_iterator(_begin + std::min(0L,_step * ( (_end - _begin)/ _step)) , _step);
+            if(_step>0) return xrange_iterator(_begin + std::max(0L,_step * ( (_end - _begin + _step -1)/ _step)) , _step);
+            else return xrange_iterator(_begin + std::min(0L,_step * ( (_end - _begin + _step +1)/ _step)) , _step);
         }
         xrange_iterator rbegin() const { return xrange_iterator(_end-_step, -_step); }
         xrange_iterator rend() const {
@@ -430,18 +414,23 @@ namespace pythonic {
 
     /* reduce */
 
-    template<class List, class Operator>
-        auto reduce(Operator op, List const& s)
-        -> decltype( op( std::declval< typename List::value_type >(), std::declval< typename List::value_type >() ) )
+    template<class Iterable, class Operator>
+        auto reduce(Operator op, Iterable s)
+        -> decltype( op( std::declval< typename Iterable::iterator::value_type >(), std::declval< typename Iterable::iterator::value_type >() ) )
         {
-            decltype( op( std::declval< typename List::value_type >(), std::declval< typename List::value_type >() ) ) res = op( s[0], s[1] );
-            return std::accumulate(s.begin() + 2, s.end(), res, op);
+            auto iter = s.begin();
+            auto r = *iter;
+            ++iter;
+            if(iter!=s.end())
+                return  std::accumulate(iter, s.end(), r, op);
+            else
+                return r;
         }
-    template<class List, class Operator, class T>
-        auto reduce(Operator op, List const& s, T const & init)
-        -> decltype( std::accumulate(s.begin(), s.end(), init, op) )
+    template<class Iterable, class Operator, class T>
+        auto reduce(Operator op, Iterable s, T const & init)
+        -> decltype( std::accumulate(s.begin(), s.end(), static_cast<decltype(op(init,std::declval<typename Iterable::iterator::value_type>()))>(init), op) )
         {
-            return std::accumulate(s.begin(), s.end(), init, op);
+            return std::accumulate(s.begin(), s.end(), static_cast<decltype(op(init,std::declval<typename Iterable::iterator::value_type>()))>(init), op);
         }
     PROXY(pythonic,reduce);
 
@@ -452,10 +441,12 @@ namespace pythonic {
             _reversed() {}
             _reversed(Iterable const& iterable) : iterable(iterable) {}
             typedef typename Iterable::value_type value_type;
-            typename Iterable::reverse_iterator begin() { return iterable.rbegin(); }
-            typename Iterable::reverse_iterator end() { return iterable.rend(); }
-            typename Iterable::const_reverse_iterator begin() const { return iterable.rbegin(); }
-            typename Iterable::const_reverse_iterator end() const { return iterable.rend(); }
+            typedef typename Iterable::reverse_iterator iterator;
+            typedef typename Iterable::const_reverse_iterator const_iterator;
+            iterator begin() { return iterable.rbegin(); }
+            iterator end() { return iterable.rend(); }
+            const_iterator begin() const { return iterable.rbegin(); }
+            const_iterator end() const { return iterable.rend(); }
         };
 
 
@@ -499,13 +490,15 @@ namespace pythonic {
     PROXY(pythonic, str);
 
     /* sum */
-    template<class List>
-        auto sum(List const& s, size_t start=0)
-        -> decltype( std::declval< typename List::value_type >() + std::declval< typename List::value_type >() )
+    template<class Iterable, class T>
+        auto sum(Iterable s, T start) -> decltype(start+std::declval<typename Iterable::iterator::value_type>())
         {
-            auto iter = s.begin()+start;
-            decltype( std::declval< typename List::value_type >() + std::declval< typename List::value_type >() ) res = *(iter++);
-            return std::accumulate(iter, s.end(), res);
+            return std::accumulate(s.begin(), s.end(), (decltype(start+*s.begin()))start);
+        }
+    template<class Iterable>
+        typename Iterable::iterator::value_type sum(Iterable s)
+        {
+            return sum(s,0L);
         }
     PROXY(pythonic,sum);
 

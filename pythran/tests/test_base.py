@@ -67,7 +67,7 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
         self.run_test("def sum_(l): return sum( l)", [0,1.1,2.2,3.3], sum_=[[float]])
 
     def test_multisum(self):
-        self.run_test("def multisum(l0,l1): return sum(l0)+sum(l1)", [0,1.1,2.2,3.3],[True,False,True], multisum=[[float],[bool]])
+        self.run_test("def multisum(l0,l1): return sum(l0)+sum(l1)", [0,1.1,2.2,3.3],[1,2,3], multisum=[[float],[int]])
 
     def test_max(self):
         self.run_test("def max_(l):return max(l)", [ 1.1, 2.2 ], max_=[[float]])
@@ -100,22 +100,52 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
         self.run_test("def range3_(b,e,s): return range(b,e,s)", 8,3,-2, range3_=[int,int,int])
     
     def test_range4(self):
-        self.run_test("def range4_(b,e,s): return range(b,e,s)", 3,8,1, range4_=[int,int,int])
+        self.run_test("def range4_(b,e,s): return range(b,e,s)", 8,2,-2, range4_=[int,int,int])
+    
+    def test_range5(self):
+        self.run_test("def range5_(b,e,s): return range(b,e,s)", 3,8,1, range5_=[int,int,int])
+
+    def test_range6(self):
+        self.run_test("def range6_(b,e,s): return range(b,e,s)", 3,8,3, range6_=[int,int,int])
+
+    def test_range7(self):
+        self.run_test("def range7_(b,e,s): return range(b,e,s)", 3,9,3, range7_=[int,int,int])
+
+    def test_rrange1(self):
+        self.run_test("def rrange1_(e): return list(reversed(range(e)))", 3, rrange1_=[int])
+    
+    def test_rrange2(self):
+        self.run_test("def rrange2_(b,e): return set(reversed(range(b,e)))", 1, 3, rrange2_=[int,int])
+    
+    def test_rrange3(self):
+        self.run_test("def rrange3_(b,e,s): return list(reversed(range(b,e,s)))", 8,3,-2, rrange3_=[int,int,int])
+    
+    def test_rrange4(self):
+        self.run_test("def rrange4_(b,e,s): return set(reversed(range(b,e,s)))", 8,2,-2, rrange4_=[int,int,int])
+    
+    def test_rrange5(self):
+        self.run_test("def rrange5_(b,e,s): return list(reversed(range(b,e,s)))", 3,8,1, rrange5_=[int,int,int])
+
+    def test_rrange6(self):
+        self.run_test("def rrange6_(b,e,s): return set(reversed(range(b,e,s)))", 3,8,3, rrange6_=[int,int,int])
+
+    def test_rrange7(self):
+        self.run_test("def rrange7_(b,e,s): return list(reversed(range(b,e,s)))", 3,9,3, rrange7_=[int,int,int])
 
     def test_multirange(self):
         self.run_test("def multirange(i): return map(lambda x,y:y*x/2, range(1,i), range(i,1,-1))", 3, multirange=[int])
     
     def test_xrange1(self):
-        self.run_test("def xrange1_(e): return xrange(e)", 3, xrange1_=[int])
+        self.run_test("def xrange1_(e): return list(xrange(e))", 3, xrange1_=[int])
     
     def test_xrange2(self):
-        self.run_test("def xrange2_(b,e): return xrange(b,e)", 1, 3, xrange2_=[int,int])
+        self.run_test("def xrange2_(b,e): return list(xrange(b,e))", 1, 3, xrange2_=[int,int])
     
     def test_xrange3(self):
-        self.run_test("def xrange3_(b,e,s): return xrange(b,e,s)", 8,3,-2, xrange3_=[int,int,int])
+        self.run_test("def xrange3_(b,e,s): return list(xrange(b,e,s))", 8,3,-2, xrange3_=[int,int,int])
     
     def test_xrange4(self):
-        self.run_test("def xrange4_(b,e,s): return xrange(b,e,s)", 3,8,1, xrange4_=[int,int,int])
+        self.run_test("def xrange4_(b,e,s): return list(xrange(b,e,s))", 3,8,1, xrange4_=[int,int,int])
 
     def test_multixrange(self):
         self.run_test("def multixrange(i): return map(lambda x,y:y*x/2, xrange(1,i), xrange(i,1,-1))", 3, multixrange=[int])
@@ -260,7 +290,7 @@ def lambda_():
         self.run_test("def multiple_return3(a):\n if True:return 1\n else:\n  b=a\n  return a", 2,  multiple_return3=[int])
 
     def test_id(self):
-        self.run_test("def id_(a,b):\n c=a\n d=b\n return id(a)==id(c), id(b)==id(d)", [1,2,3], "ert", id_=[[int], str])
+        self.run_test("def id_(a):\n c=a\n return id(a)==id(c)", [1,2,3], id_=[[int]])
 
     def test_delayed_max(self):
         self.run_test("def delayed_max(a,b,c):\n m=max\n return m(a,b) + m(b,c)", 1, 2, 3.5, delayed_max=[int, int, float])
@@ -358,10 +388,10 @@ def nested_def(a):
         self.run_test("def str_(l): return str(l)", [1,2,3.5], str_=[[float]])
 
     def test_append(self):
-        self.run_test("def append(): l=[] ; l.append(1) ; print l", append=[])
+        self.run_test("def append(): l=[] ; l.append(1) ; return l", append=[])
 
     def test_append_in_call(self):
-        self.run_test("def call(l):l.append(1.)\ndef append_in_call(): l=[] ; call(l) ; l.append(1) ; print l", append_in_call=[])
+        self.run_test("def call(l):l.append(1.)\ndef append_in_call(): l=[] ; call(l) ; l.append(1) ; return l", append_in_call=[])
 
     def test_complex_append_in_call(self):
         code="""
@@ -380,8 +410,7 @@ def complex_append_in_call(l1,l2):
         code="""
 def complex_number():
     c=complex(0,1)
-    c.real=c.imag
-    print c"""
+    return c.real + c.imag"""
         self.run_test(code, complex_number=[])
 
     def test_raise(self):
@@ -422,7 +451,7 @@ import random
 def random_():
     random.seed()
     random.seed(0)
-    return random.random()"""
+    random.random()"""
         self.run_test(code, random_=[])
 
     def test_forelse(self):
@@ -442,7 +471,7 @@ def forelse():
         self.run_test(code, forelse=[])
 
     def test_tuples(self):
-        self.run_test("def tuples(): return (tuple(1,2.,'e') , tuple([1,2,3]))", tuples=[])
+        self.run_test("def tuples(): return ((1,2.,'e') , [ x for x in tuple([1,2,3])] )", tuples=[])
 
     def test_reversed_slice(self):
         self.run_test("def reversed_slice(l): return l[::-2]", [0,1,2,3,4], reversed_slice=[[int]])
@@ -492,7 +521,7 @@ def in_set(a):
         self.run_test("def raw_set(): return { 1, 1., 2 }", raw_set=[])
 
     def test_iter_set(self):
-        self.run_test("def iter_set(s):\n l=\"\"\n for k in s: l+=k\n return l", { "a", "b", "c" } , iter_set=[{str}])
+        self.run_test("def iter_set(s):\n l=0\n for k in s: l+=1\n return l", { "a", "b", "c" } , iter_set=[{str}])
 
     def test_set_comprehension(self):
         self.run_test("def set_comprehension(l): return { i*i for i in l }", [1 , 2, 1, 3], set_comprehension=[[int]])
@@ -503,3 +532,8 @@ def slicer(l):
     return l"""
         self.run_test(code,[1,2,3,4,5,6,7,8,9], slicer=[[int]])
 
+    def test_generator_expression(self):
+        code="""
+def generator_expression(l):
+    return sum(x for x in l if x == 1)"""
+        self.run_test(code,[1,1,1,2], generator_expression=[[int]])

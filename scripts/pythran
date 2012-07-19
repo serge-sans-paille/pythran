@@ -13,6 +13,7 @@ parser.add_argument('-E', dest='translate_only', action='store_true', help='only
 parser.add_argument('-f', dest='extra_fflags', metavar='flag', action='append', help='any compiler switch relevant to the underlying C++ compiler', default=list())
 parser.add_argument('-m', dest='extra_mflags', metavar='machine', action='append', help='any machine flag relevant to the underlying C++ compiler', default=list())
 parser.add_argument('-I', dest='extra_Iflags', metavar='include_dir', action='append', help='any include dir relevant to the underlying C++ compiler', default=list())
+parser.add_argument('-D', dest='extra_Dflags', metavar='macro_definition', action='append', help='any macro definition relevant to the underlying C++ compiler', default=list())
 parser.add_argument('-O', dest='extra_Oflags', metavar='level', action='append', help='any optimization level relevant to the underlying C++ compiler', default=list())
 parser.add_argument('-g', dest='debug_flag', action='store_true', help='any debug level relevant to the underlying C++ compiler', default=list())
 
@@ -39,6 +40,7 @@ try:
                 + ['-f{0}'.format(n) for n in args.extra_fflags]\
                 + ['-m{0}'.format(n) for n in args.extra_mflags]\
                 + ['-I{0}'.format(n) for n in args.extra_Iflags]\
+                + ['-D{0}'.format(n) for n in args.extra_Dflags]\
                 + ['-O{0}'.format(n) for n in args.extra_Oflags]\
                 + (['-g'] if args.debug_flag else [])
 

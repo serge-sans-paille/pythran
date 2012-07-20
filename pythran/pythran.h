@@ -5,9 +5,30 @@
 #include <pythonic++.h>
 using namespace pythonic;
 
+template<class Type, class... Types>
+    struct __combined {
+        typedef typename __combined< Type, typename __combined<Types...>::type >::type type;
+    };
+
+template<class T>
+    struct __combined<T> {
+        typedef T type;
+    };
+template<class T0, class T1>
+    struct __combined<T0,T1> {
+        typedef decltype(std::declval<T0>()+std::declval<T1>()) type;
+    };
+
+template<class T>
+    struct __combined<T,T> {
+        typedef T type;
+    };
+
+
+
 /* for type inference only,  a bit dangerous ? */
-template <class A, class B>
-variant<A,B> operator+(A , B );
+template <class T0, class T1>
+variant<T0,T1> operator+(T0 , T1 );
 
 /* for type inference too */
 template<class T>
@@ -32,8 +53,6 @@ template <class A>
 decltype(std::declval<core::list<A>>() + none_type()) operator+(container<A> , none_type );
 template <class A>
 decltype(std::declval<core::list<A>>() + none_type()) operator+(none_type , container<A> );
-
-none_type operator+(none_type , none_type );
 
 template <class A, class B>
 container<decltype(std::declval<A>()+std::declval<B>())> operator+(container<A> , container<B> );

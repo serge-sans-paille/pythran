@@ -100,7 +100,6 @@ class CombinedTypes(Type):
         self.fields=("types",)
 
     def __add__(self, other):
-        #if len(self.types) > 10: return self # this is a ward: the greater the value the longer the compilation time...
         if isinstance(other, CombinedTypes):
             return CombinedTypes(self.types + [ t for t in other.types if t not in self.types ])
         if other in self.types: return self
@@ -109,7 +108,7 @@ class CombinedTypes(Type):
         return CombinedTypes(self.types+[other])
 
     def generate(self,ctx):
-        return 'decltype({0})'.format(" + ".join('std::declval<{0}>()'.format(ctx(t).generate(ctx)) for t in self.types ))
+        return 'typename __combined<{0}>::type'.format(" , ".join(ctx(t).generate(ctx) for t in self.types ))
 
 class ArgumentType(Type):
     """A type to hold function arguments"""

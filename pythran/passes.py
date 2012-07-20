@@ -138,18 +138,26 @@ class RemoveComprehension(ast.NodeTransformer):
 
     def visit_Module(self, node):
         self.global_declarations = global_declarations(node)
+        self.local_declarations=self.global_declarations
         [ self.visit(n) for n in node.body ]
         node.body = self.functions + node.body
 
+    def visit_FunctionDef(self, node):
+        self.local_declarations=dict() ; self.local_declarations.update(self.global_declarations)
+        [self.visit(n) for n in node.body]
+        self.local_declarations=self.global_declarations
+
+    def visit_Import(self, node):
+        self.local_declarations.update({ alias.name:None for alias in node.names})
 
     def visit_AnyComp(self, node, comp_type, comp_method):
         node.elt=self.visit(node.elt)
         name = "{0}_comprehension{1}".format(comp_type, self.count)
         self.global_declarations.update({name:None})
         self.count+=1
-        args = imported_ids(node,self.global_declarations)
+        args = imported_ids(node,self.local_declarations)
         for generator in node.generators:
-            args.difference_update(imported_ids(generator.target, self.global_declarations))
+            args.difference_update(imported_ids(generator.target, self.local_declarations))
         self.count_iter=0
 
         starget="__target"
@@ -179,11 +187,11 @@ class RemoveComprehension(ast.NodeTransformer):
     def visit_GeneratorExp(self, node):
         node.elt=self.visit(node.elt)
         name = "generator_expression{0}".format(self.count)
-        self.global_declarations.update({name:None})
+        self.local_declarations.update({name:None})
         self.count+=1
-        args = imported_ids(node,self.global_declarations)
+        args = imported_ids(node,self.local_declarations)
         for generator in node.generators:
-            args.difference_update(imported_ids(generator.target, self.global_declarations))
+            args.difference_update(imported_ids(generator.target, self.local_declarations))
         self.count_iter=0
 
         body = reduce( self.nest_reducer,

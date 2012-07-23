@@ -11,6 +11,8 @@
 
 namespace  pythonic {
 
+    template <class T> struct _id;
+
     namespace core {
 
         struct empty_list;
@@ -97,7 +99,7 @@ namespace  pythonic {
 
 
                 template<class U>
-                    friend struct _id;
+                    friend struct pythonic::_id;
 
                 template<class U>
                     friend class list_view;

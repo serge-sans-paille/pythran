@@ -104,6 +104,9 @@ class ImportedIds(ast.NodeVisitor):
         local.references -= { arg.id for arg in node.args.args }
         self.references.update(local.references)
 
+    def visit_Import(self, node):
+        self.global_declarations.update({ alias.name:None for alias in node.names})
+
     def visit_ImportFrom(self, node):
         self.global_declarations.update({ alias.name:None for alias in node.names})
 

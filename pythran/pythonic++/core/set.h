@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <iterator>
 #include <boost/pool/object_pool.hpp>
+#include "fsb_allocator.h"
 
 namespace  pythonic {
 
@@ -21,7 +22,7 @@ namespace  pythonic {
 
                 // data holder
                 typedef  typename std::remove_cv< typename std::remove_reference<T>::type>::type  _type;
-                typedef std::set< _type > container_type;
+                typedef std::set< _type, std::less<_type>, FSBAllocator<_type> > container_type;
                 size_t* refcount;
                 container_type* data; 
 

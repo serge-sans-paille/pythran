@@ -251,6 +251,7 @@ namespace  pythonic {
                 void insert(size_t i, const T& x) { data->insert(data->begin()+i, x); }
                 void reserve(size_t n) { data->reserve(n); }
                 void resize(size_t n) { data->resize(n); }
+                iterator erase(size_t n) { return data->erase(data->begin()+n); }
 
                 // list interface
                 operator bool() { return not data->empty(); }

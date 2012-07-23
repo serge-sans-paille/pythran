@@ -174,6 +174,13 @@ modules = {
                 },
         "__list__" : {
             "append" : { 'method':True, 'combiner': lambda self, node: self.combine(node.args[0], node.args[1], unary_op=lambda f: cxxtypes.ListType(f), register=True)},
+            "extend" : { 'method':True, 'combiner': lambda self, node: self.combine(node.args[0], node.args[1], register=True)},
+            "remove" : { 'method':True },
+            "index" : { 'method':True },
+            "pop" : { 'method':True },
+            "reverse" : { 'method':True },
+            "sort" : { 'method':True },
+            "count" : { 'method':True },
             "insert" : { 'method':True, 'combiner': lambda self, node: self.combine(node.args[0], node.args[2], unary_op=lambda f: cxxtypes.ListType(f), register=True)},
             },
         "__set__" : {

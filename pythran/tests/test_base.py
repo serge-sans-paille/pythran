@@ -537,3 +537,15 @@ def slicer(l):
 def generator_expression(l):
     return sum(x for x in l if x == 1)"""
         self.run_test(code,[1,1,1,2], generator_expression=[[int]])
+
+    def test_default_parameters(self):
+        code="""
+def dp(b,a=1.2):
+    return a
+
+def default_parameters():
+    a=1
+    c=dp(a)
+    d=dp(5,"yeah")
+    return str(c)+d"""
+        self.run_test(code, default_parameters=[])

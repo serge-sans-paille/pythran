@@ -11,7 +11,10 @@ from typing import type_all
 from syntax import PythranSyntaxError
 import metadata
 
-templatize = lambda node, types: Template([ "typename " + t for t in types ], node ) if types else node 
+def templatize(node, types, default_types=None):
+    if not default_types:
+        default_types=[None]*len(types)
+    return Template([ "typename " + t + ("= const {0}".format(d) if d else "") for t,d in zip(types, default_types) ], node ) if types else node
 
 class CxxBackend(ast.NodeVisitor):
 
@@ -82,6 +85,8 @@ class CxxBackend(ast.NodeVisitor):
         self.yields = { k:(1+v,"yield_point{0}".format(1+v)) for (v,k) in enumerate(yields(node)) } # 0 is used as initial_state, thus the +1
 
         operator_body = [ self.visit(n) for n in node.body ] 
+        default_arg_values = [None]*(len(node.args.args) - len(node.args.defaults)) + [ self.visit(n) for n in node.args.defaults ]
+        default_arg_types  = [None]*(len(node.args.args) - len(node.args.defaults)) + [ self.types[n] for n in node.args.defaults ]
 
         self.local_declarations.pop()
 
@@ -90,6 +95,9 @@ class CxxBackend(ast.NodeVisitor):
             operator_body.insert(0,Line('#line {0} "{1}.py"'.format(node.lineno, self.name)))
 
         return_type = self.types[node][0]
+
+        def make_function_declaration(rtype, name, ftypes, fargs, defaults):
+            return FunctionDeclaration( Value(rtype, name), [ Value( t, "{0}{1}".format(a,"= {0}".format(d) if d else "") ) for t,a,d in zip(ftypes, fargs, defaults) ])
 
         if self.yields: # generator case
             # a generator has a call operator that returns the generator itself, that then behave like a regular iterator
@@ -106,7 +114,7 @@ class CxxBackend(ast.NodeVisitor):
                         FunctionDeclaration( Value("", next_name), []), Block([])
                         ),
                     FunctionBody(
-                        FunctionDeclaration( Value("", next_name), [ Value( t, a ) for t,a in zip(formal_types, formal_args) ]),
+                        make_function_declaration("",next_name, formal_types, formal_args, default_arg_values),
                         Line("{0} {{ }}".format( ": {0}".format(", ".join(["{0}({0})".format(fa) for fa in formal_args]+["{0}(0)".format(CxxBackend.generator_state_holder)]))))
                         )
                     ]
@@ -148,8 +156,7 @@ class CxxBackend(ast.NodeVisitor):
             next_struct = templatize(Struct(next_name, extra_typedefs + next_members + next_constructors + next_iterator + next_declaration), formal_types)
             next_definition = FunctionBody(next_signature, Block( next_body ))
 
-            operator_declaration = [templatize(FunctionDeclaration( Value(instanciated_next_name, "operator()"),
-                [ Value( t, a ) for t,a in zip(formal_types, formal_args) ] ), formal_types), EmptyStatement()] #*** empty statement to force a comma ...
+            operator_declaration = [templatize(make_function_declaration(instanciated_next_name, "operator()", formal_types, formal_args, default_arg_values) , formal_types, default_arg_types), EmptyStatement()] #*** empty statement to force a comma ...
             operator_signature = FunctionDeclaration(
                     Value(instanciated_next_name, "{0}::operator()".format(node.name)),
                     [ Value( t, a ) for t,a in zip(formal_types, formal_args ) ] )
@@ -170,8 +177,9 @@ class CxxBackend(ast.NodeVisitor):
             fscope = "type{0}::".format( "<{0}>".format(", ".join(formal_types)) if formal_types else ""  )
             ffscope = "{0}::{1}".format(node.name, fscope)
 
-            operator_declaration = [templatize(FunctionDeclaration( Value("typename "+fscope+"return_type", "operator()"),
-                [ Value( t, a ) for t,a in zip(formal_types, formal_args) ] ), formal_types), EmptyStatement()] #*** empty statement to force a comma ...
+            operator_declaration = [templatize(
+                make_function_declaration("typename "+fscope+"return_type", "operator()",
+                    formal_types, formal_args, default_arg_values) , formal_types, default_arg_types), EmptyStatement()] #*** empty statement to force a comma ...
             operator_signature = FunctionDeclaration(
                     Value("typename {0}return_type".format(ffscope), "{0}::operator()".format(node.name)),
                     [ Value( t, a ) for t,a in zip(formal_types, formal_args ) ] )

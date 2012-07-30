@@ -38,5 +38,6 @@ TestCase.test_factorize_naive=lambda self:compile_test(self,"factorize_naive")
 TestCase.test_quicksort=lambda self:compile_test(self,"quicksort")
 TestCase.test_another_quicksort=lambda self:compile_test(self,"another_quicksort")
 TestCase.test_perm=lambda self:compile_test(self,"perm")
+TestCase.test_nqueens=lambda self:compile_test(self,"nqueens")
 if __name__ == '__main__':
     unittest.main()

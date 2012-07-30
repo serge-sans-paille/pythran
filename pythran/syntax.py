@@ -33,6 +33,17 @@ class SyntaxChecker(ast.NodeVisitor):
     def visit_With(self, node):
         raise PythranSyntaxError("With statements are not supported")
 
+    def visit_Call(self, node):
+        if node.keywords:raise PythranSyntaxError("Call with keywords are not supported", node)
+        if node.starargs: raise PythranSyntaxError("Call with star arguments are not supported", node)
+        if node.kwargs: raise PythranSyntaxError("Call with kwargs are not supported", node)
+
+    def visit_FunctionDef(self, node):
+        if node.args.vararg: raise PythranSyntaxError("Varargs are not supported", node)
+        if node.args.kwarg: raise PythranSyntaxError("Keyword arguments are not supported", node)
+        self.visit(node.args)
+        [ self.visit(n) for n in node.body ]
+
     def visit_Raise(self, node):
         if node.tback: raise PythranSyntaxError("Traceback in raise statements are not supported")
 
@@ -70,6 +81,7 @@ class SyntaxChecker(ast.NodeVisitor):
 
     def visit_DictComp(self, node):
         raise PythranSyntaxError("Dictionary comprehension are not supported", node)
+
 
 def check_syntax(node):
     '''Does nothing but raising exception when pythran syntax is not respected'''

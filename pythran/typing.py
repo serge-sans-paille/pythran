@@ -65,6 +65,7 @@ class TypeDependencies(ast.NodeVisitor):
         self.current_function.append(node)
         self.types.add_node(node)
         self.naming=dict()
+        [ self.visit(n) for n in node.args.defaults ]
         [ self.visit(n) for n in node.body ]
         self.current_function.pop()
 
@@ -217,13 +218,14 @@ class Typing(ast.NodeVisitor):
                             translated_othernode=ast.Name('__fake__', ast.Load())
                             s.types[translated_othernode]=parametric_type.instanciate(s.current[-1], [s.types[arg] for arg in n.args])
                             # look for modified argument
-                            for p,formal_arg in enumerate(args):
-                                effective_arg = n.args[p]
+                            for p,effective_arg in enumerate(n.args):
+                                formal_arg = args[p]
                                 if formal_arg.id == node_id: 
                                     translated_node=effective_arg
                                     break
                             try: s.combine(translated_node, translated_othernode, op, unary_op, register=True)
                             except NotImplementedError:pass # this may fail when the effective parameter is an expression
+                            except UnboundLocalError: pass # this may fail when translated_node is a default parameter
                         return interprocedural_type_translator
                     translator = translator_generator(self.current[-1].args.args, op, unary_op) # deferred combination
                     modules['__user__'][self.current[-1].name]['combiner']=modules['__user__'][self.current[-1].name].get('combiner',list()) + [ translator ]
@@ -411,6 +413,7 @@ class Typing(ast.NodeVisitor):
     def visit_arguments(self, node):
         for i,arg in enumerate(node.args):
             self.types[arg]= ArgumentType(i)
+        [ self.visit(n) for n in node.defaults ]
 
 def type_all(node):
     gd=global_declarations(node)

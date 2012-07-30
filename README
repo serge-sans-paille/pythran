@@ -1,5 +1,6 @@
-﻿
-								Pythran
+﻿=======
+Pythran
+=======
 
 What is it?
 -----------
@@ -11,34 +12,38 @@ into a native python module with the same interface, but (hopefully) faster.
 Installation
 ------------
 
-	o Gather dependencies:
+1. Gather dependencies:
 
+	- Following the easy install way::
+	
 		$> PYTHONPATH=<my_prefix>/lib/python<my_version>/site-packages \
 				easy_install --prefix=<my_prefix> ply networkx
 		$> sudo apt-get install libboost-python-dev
 
-	o Use the install target from setup script, in source driectory
+	- Following the debian way::
+
+		$> sudo apt-get install libboost-python-dev python-ply python-networkx
+
+2. Use the install target from setup script, in source driectory::
 
 		$> python setup.py install --prefix=<my_prefix>
 
-	o Write your environment in stone
+3. Write your environment in stone::
 		
 		$> export PYTHONPATH=<my_prefix>/lib/python<my_version>/site-packages
 		$> export PATH=<my_prefix>/bin:$PATH
 
 
-
 Basic Usage
 -----------
 
-A simple pythran input could be
+A simple pythran input could be ``dprod.py``::
 
-	<< dprod.py >>
 	#pythran export dprod(int list, int list)
 	def dprod(l0,l1):
 		return sum([x*y for x,y in zip(l0,l1)])
 
-To turn it into a native module, run
+To turn it into a native module, run::
 
 	$> pythran dprod.py
 
@@ -46,16 +51,16 @@ That will generate a native dprod.so that can be imported just like the former
 module.
 
 Documentation
-----------
+-------------
 
 The user documentation is available in the MANUAL file.
 
-The CLI documentation is available from the pythran help command.
+The CLI documentation is available from the pythran help command::
 
 	$> pythran --help
 
 The developper documentation is also available using pydoc. Beware, this is the
-computer science incarnation fo the famous Where's Wally? game.
+computer science incarnation fo the famous Where's Wally? game::
 
 	$> pydoc pythran
 	$> pydoc pythran.typing
@@ -71,9 +76,9 @@ Contact
 
 Praise, flame and cookies:
 
-	o #pythran on FreeNode
+- #pythran on FreeNode
 
-	o serge.guelton@telecom-bretagne.eu
+- serge.guelton@telecom-bretagne.eu
 
-	o pythran@googlegroups.com
+- pythran@googlegroups.com
 

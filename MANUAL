@@ -1,8 +1,9 @@
+===================
 Pythran User Manual
 ===================
 
-So you want to write algorithms that are eas*y* to maintain as in p*y*thon and
-you want per*for*man*c*e as in *for*tran or *c*++? Let give a try to pythran!
+So you want to write algorithms that are easy to maintain as in python and
+you want performance as in fortran or c++? Let give a try to pythran!
 pythran is a python-to-c++ translator that turns python module into native c++
 module. From a user point of view, you still ``import`` your module, but under
 the hood... there is much more happening!
@@ -10,24 +11,24 @@ the hood... there is much more happening!
 Disclaimer
 ----------
 
-Pythran is *not* a full python-to-c++ converter, as in _shedskin_. Instead it
+Pythran is *not* a full python-to-c++ converter, as in *shedskin*. Instead it
 takes a subset of the python language and turns it into heavily templatized c++
 code instantiated for your particular types.
 
 Say hello to:
 
-* polymorphic functions (!)
-* lambdas
-* list comprehension
-* map, reduce and the like
+- polymorphic functions (!)
+- lambdas
+- list comprehension
+- map, reduce and the like
 
 Say bye bye to:
 
-* classes
-* dictionnaries
-* exceptions
-* polymorphic variables [ but not all of them :-) ]
-* file handling
+- classes
+- dictionnaries
+- exceptions
+- polymorphic variables [ but not all of them :-) ]
+- file handling
 
 In a nutshell, pythran makes it possible to write numerical algorithms in
 python and to have them run faster. Nuff said.
@@ -35,25 +36,25 @@ python and to have them run faster. Nuff said.
 Installation
 ------------
 
-Let us assume you're running a Debian/Ubuntu distrib. In that case, all you have to do is
+Let us assume you're running a Debian/Ubuntu distrib. In that case, all you have to do is::
 
 	$> sudo apt-get install libboost-python-dev python-ply python-networkx
 
 If you prefer the ``easy_install`` way, from ``setuptools``
-(``python-setuptools`` package under Debian), the way to go is
+(``python-setuptools`` package under Debian), the way to go is::
 
 	$>  PYTHONPATH=<my_prefix>/lib/python<my_version>/site-packages \
 			easy_install --prefix <my_prefix> ply networkx
 
-and set your ``PYTHONPATH`` appropriately, something like
+and set your ``PYTHONPATH`` appropriately, something like::
 
 	$> export  PYTHONPATH=<my_prefix>/lib/python<my_version>/site-packages
 
-And you're almost done! From the source directory, run
+And you're almost done! From the source directory, run::
 
 	$> python setup.py install --prefix=<my_prefix>
 
-And set your path to 
+And set your path to::
 
 	$> export PATH=$PATH:<my_prefix>/bin
 
@@ -62,7 +63,7 @@ It makes the ``pythran`` command available to you.
 First Steps
 -----------
 
-To begin with, you need... a python function in a module. Something like
+To begin with, you need... a python function in a module. Something like::
 
 	<<dprod.py>>
 	def dprod(l0,l1):
@@ -70,14 +71,14 @@ To begin with, you need... a python function in a module. Something like
 
 will be perfect. But due to \_o< typing, ``l0`` and ``l1`` can be of any type,
 so pythran needs a small hint there. Add the following line somewhere in your
-file, say at the top head, or right before the function definition.
+file, say at the top head, or right before the function definition::
 
 	#pythran export dprod(int list, int list)
 
 This basically tells pythran the type of the forthcoming arguments.
 
 
-Afterwards, frenetically type
+Afterwards, frenetically type::
 
 	$> pythran dprod.py
 
@@ -86,7 +87,7 @@ right *now*. The speedup will not be terrible because of the conversion cost
 from python to C++.
 
 So let's try again with a well-known example. Let me
-introduce the almighty __matrix multiply__!
+introduce the almighty *matrix multiply*!::
 
 	<<mm.py>>
 	def zero(n,m): return [[0 for row in xrange(n)] for col in xrange(m)]
@@ -102,7 +103,7 @@ This a slightly more complex example, as a few intrinsics such as ``xrange`` or
 ``len`` are used, with a function call and even nested list comprehension. But
 pythran can make its way through this. As you only want to export the
 ``matrix_multiply`` function, you can safely ignore the ``zero`` function and
-just add
+just add::
 
 	#pythran export matrix_multiply(float list list, float list list)
 
@@ -110,15 +111,15 @@ to the source file. Note how pythran can combine different types and infers the
 resulting type. It also respects the nested list structure of python, so you
 are not limited to matrices...
 
-Enough talk, run 
+Enough talk, run::
 
 	$> pythran mm.py
 
 One touch of magic wand and you have your native binary. Note however that this
 binary will not run directly at godlike speed, because it does not call any of
-g++ optimization setps. What you really wanted to do was
+g++ optimization setps. What you really wanted to do was::
 
-	$> pythran mm.py -Ofast -march=native
+	$> pythran mm.py -Ofast -march=native -DNDEBUG
 
 And be amazed by the generation of a ``mm.so`` native module that run around
 20x faster than the original one. ``timeit`` approved!
@@ -132,7 +133,7 @@ The ``#pythran export`` commands are critical to pythran. In fact if they are
 missing, pythran will complain loudly (and fail miserably). So let us dive into
 these complex language!
 
-There is currently only one pythran command, the ``export`` command. Its syntax is
+There is currently only one pythran command, the ``export`` command. Its syntax is::
 
 	#pythran export function_name(argument_type*)
 
@@ -141,7 +142,7 @@ where ``function_name`` is the name of a function defined in the module, and
 combination of basic types and constructed types. What is a basic type?
 Anything that looks like a python basic type! Constructed types are either
 tuples, introduced by parenthesis, like ``(int, (float, str))`` or lists,
-introduced by the ``list`` keyword.
+introduced by the ``list`` keyword::
 
 	argument_type = basic_type
 				  | (argument_type*)	# this is a tuple
@@ -161,8 +162,8 @@ that you can inspect it.
 Want more performance? Big fan of ``-Ofast -march=native``? pythran
 automagically forwards these switches to the underlying compiler!
 
-Wants to try your own compiler? Pythran uses ``c++'' by default, and this
-behavior can be overridden using ``CXX'' or ``CXXFLAGS'' environment variables.
+Wants to try your own compiler? Pythran uses ``c++`` by default, and this
+behavior can be overridden using ``CXX`` or ``CXXFLAGS`` environment variables.
 
 Troubleshooting
 ---------------
@@ -170,6 +171,6 @@ Troubleshooting
 Plenty of them! Seriously, pythran is pre-alpha software, so it will crash. You
 must make it abort in unusual ways! And more important, you must provide
 feedback to serge_sans_paille using its email serge.guelton@telecom-bretagne.eu
-or the IRC channel #pythran or FreeNode.
+or the IRC channel #pythran on FreeNode.
 
 **glhf!**

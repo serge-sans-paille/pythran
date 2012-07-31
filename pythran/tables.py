@@ -2,6 +2,8 @@
 import ast
 import cxxtypes
 
+namespace = "pythonic"
+
 builtin_constants = { "True":"bool", "False":"bool", "None":"none_type"}
 
 builtin_constructors = {'int':'long', 'float':'double', 'bool':'bool', 'long':'long long'  }
@@ -150,6 +152,7 @@ modules = {
             "cos" : {},
             "sin" : {},
             "exp" : {},
+            "pow" : {},
             "sqrt" : {},
             "log10" : {},
             "isnan" : {},

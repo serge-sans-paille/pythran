@@ -39,5 +39,7 @@ TestCase.test_quicksort=lambda self:compile_test(self,"quicksort")
 TestCase.test_another_quicksort=lambda self:compile_test(self,"another_quicksort")
 TestCase.test_perm=lambda self:compile_test(self,"perm")
 TestCase.test_nqueens=lambda self:compile_test(self,"nqueens")
+TestCase.test_monte_carlo=lambda self:compile_test(self,"monte_carlo")
+TestCase.test_pi_buffon=lambda self:compile_test(self,"pi_buffon")
 if __name__ == '__main__':
     unittest.main()

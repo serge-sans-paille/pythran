@@ -7,10 +7,11 @@
     * normalize_return adds return statement where relevant
     * normalize_identifiers prevents conflicts with c++ keywords
     * unshadow_parameters prevents the shadow parameter phenomenon
+    * expand_imports replaces imports by their full paths
 '''
 
 from analysis import imported_ids, purity_test, global_declarations, identifiers
-from tables import methods, attributes, cxx_keywords
+from tables import methods, attributes, cxx_keywords, namespace
 import metadata
 import ast
 import re
@@ -408,3 +409,55 @@ class UnshadowParameters(ast.NodeVisitor):
 def unshadow_parameters(node):
     '''Prevents parameter shadowing by creating new variable'''
     UnshadowParameters(identifiers(node)).visit(node)
+
+##
+class ExpandImports(ast.NodeTransformer):
+
+    def __init__(self):
+        self.imports=set()
+        self.symbols=dict()
+
+    def visit_Module(self, node):
+        node.body = [ k for k in ( self.visit(n) for n in node.body ) if k ]
+        imports = [ ast.Import([ast.alias(i, namespace + "::" + i)]) for i in self.imports ]
+        node.body = imports + node.body
+        return node
+
+    def visit_Import(self, node):
+        for alias in node.names:
+            self.imports.add(alias.name)
+            self.symbols[alias.asname if alias.asname else alias.name]=(alias.name,)
+        return None
+
+    def visit_ImportFrom(self, node):
+        self.imports.add(node.module)
+        for alias in node.names:
+            self.symbols[alias.asname if alias.asname else alias.name ]=(node.module,alias.name)
+        return None
+
+    def visit_FunctionDef(self, node):
+        self.symbols.pop(node.name, None)
+        gsymbols=self.symbols.copy()
+        self.visit(node.args)
+        node.body = [ k for k in ( self.visit(n) for n in node.body ) if k ]
+        self.symbols=gsymbols
+        return node
+
+    def visit_Assign(self, node):
+        self.visit(node.value)
+        [ self.visit(n) for n in node.targets ]
+        [ self.symbols.pop(t.id, None) for t in node.targets if isinstance(t, ast.Name)]
+        return node
+
+    def visit_Name(self, node):
+        if node.id in self.symbols:
+            new_node= reduce(lambda v,o:ast.Attribute(v,o, ast.Load()), self.symbols[node.id][1:], ast.Name(self.symbols[node.id][0], ast.Load())) 
+            new_node.ctx=node.ctx
+            return new_node
+        return node
+
+def expand_imports(module):
+    '''Expands all imports into full paths'''
+    assert isinstance(module, ast.Module)
+    ExpandImports().visit(module)
+

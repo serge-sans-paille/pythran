@@ -294,12 +294,6 @@ class Typing(ast.NodeVisitor):
         if node.orelse:
             [self.visit(n) for n in node.orelse]
 
-    def visit_ImportFrom(self, node):
-        for alias in node.names:
-            if self.current:self.name_to_nodes[alias.name]={alias}
-            else: self.global_declarations[alias.name]=alias
-            self.types[alias]=DeclType(Val('{0}::{1}'.format(node.module,alias.name) )) if "scalar" in modules[node.module][alias.name] else NamedType("{0}::proxy::{1}".format(node.module, alias.name))
-
     def visit_BoolOp(self, node):
         [ self.visit(value) for value in node.values]
         [ self.combine(node, value,  lambda x,y:ExpressionType(operator_to_lambda[type(node.op)],[x,y])) for value in node.values]

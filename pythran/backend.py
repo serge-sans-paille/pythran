@@ -306,15 +306,7 @@ class CxxBackend(ast.NodeVisitor):
         return EmptyStatement() # everything is already #included
 
     def visit_ImportFrom(self, node):
-        usings=list()
-        for alias in node.names:
-            if modules[node.module][alias.name]:
-                usings.append("using {0}::{1}".format(node.module, alias.name))
-            else:
-                self.local_functions.add(alias.name)
-                usings.append("using {0}::proxy::{1}".format(node.module, alias.name))
-
-        return Statement("; ".join(usings))
+        assert False, "this case should be filtered out by the expand_import pass"
 
     def visit_Expr(self, node):
         return Statement(self.visit(node.value))

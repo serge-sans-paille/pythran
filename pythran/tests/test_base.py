@@ -549,3 +549,12 @@ def default_parameters():
     d=dp(5,"yeah")
     return str(c)+d"""
         self.run_test(code, default_parameters=[])
+
+    def test_import_as(self):
+        code="""
+from math import cos as COS
+def import_as():
+    x=.42
+    import math as MATH
+    return MATH.sin(x)**2 + COS(x)**2"""
+        self.run_test(code, import_as=[])

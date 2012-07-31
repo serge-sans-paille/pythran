@@ -55,10 +55,7 @@ class SyntaxChecker(ast.NodeVisitor):
 
     def visit_Import(self, node):
         for alias in node.names:
-            name, asname=(alias.name, alias.asname)
-            if asname:
-                PythranSyntaxError("Renaming using the 'as' keyword in an import", node)
-            elif name not in tables.modules:
+            if alias.name not in tables.modules:
                 PythranSyntaxError("Module '{0}'".format(name), node)
 
     def visit_ImportFrom(self, node):
@@ -66,9 +63,6 @@ class SyntaxChecker(ast.NodeVisitor):
         if not node.module: raise PythranSyntaxError("The import from syntax without module", node)
         module = node.module
         if module not in tables.modules: raise PythranSyntaxError("Module '{0}'".format(module), node)
-
-        names = node.names
-        if [ alias for alias in names if alias.asname ]: raise PythranSyntaxError("Renaming using the 'as' keyword in an import", node)
 
     def visit_Exec(self, node):
         raise PythranSyntaxError("Exec statement are not supported", node)

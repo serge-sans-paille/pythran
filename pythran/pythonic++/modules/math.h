@@ -35,6 +35,7 @@ namespace pythonic {
         using std::hypot;
         using std::log;
         using std::isinf;
+        using std::pow;
         
         double const pi = std::atan(1)*4;
         double const e = std::exp(1);
@@ -110,6 +111,7 @@ namespace pythonic {
         PROXY(pythonic::math,isnan);
         PROXY(pythonic::math,ceil);
         PROXY(pythonic::math,floor);
+        PROXY(pythonic::math,pow);
     }
 }
 

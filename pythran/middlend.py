@@ -1,5 +1,5 @@
 '''This module turns a python AST into an optimized, pythran compatible ast'''
-from passes import remove_comprehension, remove_nested_functions, remove_lambdas, normalize_tuples, normalize_return, normalize_method_calls, normalize_attributes, unshadow_parameters
+from passes import remove_comprehension, remove_nested_functions, remove_lambdas, normalize_tuples, normalize_return, normalize_method_calls, normalize_attributes, unshadow_parameters, expand_imports
 from analysis import flag_temporaries
 
 def refine(node):
@@ -12,6 +12,7 @@ def refine(node):
     normalize_return(node)
     remove_nested_functions(node)
     remove_lambdas(node)
+    expand_imports(node)
     unshadow_parameters(node)
 
     # some optimizations

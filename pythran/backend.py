@@ -91,8 +91,8 @@ class CxxBackend(ast.NodeVisitor):
         self.local_declarations.pop()
 
         # add preprocessor line information
-        if hasattr(node,"lineno"):
-            operator_body.insert(0,Line('#line {0} "{1}.py"'.format(node.lineno, self.name)))
+        #if hasattr(node,"lineno"):
+        #    operator_body.insert(0,Line('#line {0} "{1}.py"'.format(node.lineno, self.name)))
 
         return_type = self.types[node][0]
 

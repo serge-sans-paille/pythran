@@ -180,7 +180,7 @@ class Typing(ast.NodeVisitor):
 
 
     def isargument(self,node):
-        """ checks wether node aliases to a parameter"""
+        """ checks whether node aliases to a parameter"""
         try:
             node_id,_ = node_to_id(node)
             return node_id in self.name_to_nodes and any([isinstance(n,ast.Name) and isinstance(n.ctx, ast.Param) for n in self.name_to_nodes[node_id]])
@@ -203,7 +203,7 @@ class Typing(ast.NodeVisitor):
                 if node not in self.types:
                     self.types[node]=new_type
             else:
-                if self.isargument(node):
+                if register and self.isargument(node):
                     node_id,_ = node_to_id(node)
                     if node not in self.types: self.types[node]=unary_op(self.types[othernode])
                     #else: print self.types[node], unary_op(self.types[othernode])

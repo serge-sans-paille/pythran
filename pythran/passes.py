@@ -421,6 +421,7 @@ class ExpandImports(ast.NodeTransformer):
         node.body = [ k for k in ( self.visit(n) for n in node.body ) if k ]
         imports = [ ast.Import([ast.alias(i, namespace + "::" + i)]) for i in self.imports ]
         node.body = imports + node.body
+        ast.fix_missing_locations(node)
         return node
 
     def visit_Import(self, node):
@@ -453,6 +454,7 @@ class ExpandImports(ast.NodeTransformer):
         if node.id in self.symbols:
             new_node= reduce(lambda v,o:ast.Attribute(v,o, ast.Load()), self.symbols[node.id][1:], ast.Name(self.symbols[node.id][0], ast.Load())) 
             new_node.ctx=node.ctx
+            ast.copy_location(new_node,node)
             return new_node
         return node
 

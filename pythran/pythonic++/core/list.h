@@ -276,7 +276,7 @@ namespace  pythonic {
                 template<class F>
                     list<T> operator*(F const& t) const {
                         size_t n = t;
-                        list<T> r(r.data->size()*n);
+                        list<T> r(data->size()*n);
                         for(size_t i=0;i<n;i++)
                             std::copy(this->begin(), this->end(),r.begin());
                         return r;

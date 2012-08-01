@@ -116,6 +116,8 @@ modules = {
             "bind1":{},
             "bind2":{},
             "bind3":{},
+            "bind4":{},
+            "bind5":{},
             "pmap": {},
             },
         "math" : {

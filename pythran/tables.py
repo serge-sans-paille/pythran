@@ -174,6 +174,7 @@ modules = {
         "random" : {
                 "seed": {},
                 "random" :{},
+                "gauss":{}
                 },
         "__list__" : {
             "append" : { 'method':True, 'combiner': lambda self, node: self.combine(node.args[0], node.args[1], unary_op=lambda f: cxxtypes.ListType(f), register=True)},

@@ -337,7 +337,7 @@ def normalize_method_calls(node):
 class NormalizeAttributes(ast.NodeTransformer):
     def visit_Attribute(self, node):
         if node.attr in attributes:
-            return ast.Subscript(node.value, ast.Index(ast.Num(attributes[node.attr][1]["attribute"])), node.ctx)
+            return ast.Subscript(node.value, ast.Index(ast.Num(attributes[node.attr][1].val)), node.ctx)
         else:
             return node
 

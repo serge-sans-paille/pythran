@@ -9,6 +9,7 @@ from tables import type_to_str, operator_to_lambda, modules, builtin_constants, 
 from analysis import global_declarations, constant_value, ordered_global_declarations, type_aliasing, yields
 from syntax import PythranSyntaxError
 from cxxtypes import *
+from intrinsic import ScalarIntr, MethodWithSideEffectIntr, MethodIntr
 
 import types
 def copy_func(f, name=None):
@@ -61,7 +62,7 @@ class TypeDependencies(ast.NodeVisitor):
 
 
     def visit_FunctionDef(self, node):
-        modules['__user__'][node.name]=dict()
+        modules['__user__'][node.name]=MethodWithSideEffectIntr()
         self.current_function.append(node)
         self.types.add_node(node)
         self.naming=dict()
@@ -228,7 +229,7 @@ class Typing(ast.NodeVisitor):
                             except UnboundLocalError: pass # this may fail when translated_node is a default parameter
                         return interprocedural_type_translator
                     translator = translator_generator(self.current[-1].args.args, op, unary_op) # deferred combination
-                    modules['__user__'][self.current[-1].name]['combiner']=modules['__user__'][self.current[-1].name].get('combiner',list()) + [ translator ]
+                    modules['__user__'][self.current[-1].name].addCombiner([ translator ])
                 else:
                     new_type = unary_op( self.types[othernode] ) 
                     if node not in self.types:
@@ -325,16 +326,16 @@ class Typing(ast.NodeVisitor):
         if isinstance(node.func, ast.Attribute):
             if isinstance(node.func.value, ast.Name):
                 if node.func.value.id in modules and node.func.attr in modules[node.func.value.id]:
-                    if 'combiner' in modules[node.func.value.id][node.func.attr]:
-                        modules[node.func.value.id][node.func.attr]['combiner'](self, node)
+                    if modules[node.func.value.id][node.func.attr].ismethodwithsideeffect():
+                        modules[node.func.value.id][node.func.attr].combiner(self, node)
             else:
                 raise PythranSyntaxError("Unknown Attribute: `{0}'".format(node.func.attr), node)
         # handle backward type dependencies from user calls
         elif isinstance(node.func, ast.Name):
             faliases=self.aliases[self.current[-1]].get(node.func.id,{node.func.id})
             for fid in faliases:
-                if fid in modules['__user__'] and 'combiner' in modules['__user__'][fid]:
-                    for combiner in modules['__user__'][fid]['combiner']: combiner(self, node)
+                if fid in modules['__user__'] and modules['__user__'][fid].ismethodwithsideeffect():
+                    modules['__user__'][fid].combiner(self, node)
         F=lambda f: ReturnType(f, [self.types[arg] for arg in node.args])
         self.combine(node, node.func, op=lambda x,y:y, unary_op=F)
 
@@ -347,7 +348,7 @@ class Typing(ast.NodeVisitor):
     def visit_Attribute(self, node):
         value, attr = (node.value, node.attr)
         if value.id in modules and attr in modules[value.id]:
-            self.types[node]=DeclType(Val('{0}::{1}'.format(value.id,attr) )) if "scalar" in modules[value.id][attr] else DeclType(Val("{0}::proxy::{1}()".format(value.id, attr)))
+            self.types[node]=DeclType(Val('{0}::{1}'.format(value.id,attr) )) if modules[value.id][attr].isscalar() else DeclType(Val("{0}::proxy::{1}()".format(value.id, attr)))
         else:
             raise PythranSyntaxError("Unknown Attribute: `{0}'".format(node.attr), node)
 

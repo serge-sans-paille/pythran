@@ -3,6 +3,7 @@
 '''
 import ast
 from cxxgen import *
+from cxxtypes import *
 
 from analysis import local_declarations, global_declarations, constant_value, yields
 
@@ -107,8 +108,10 @@ class CxxBackend(ast.NodeVisitor):
 
         result_type = self.types[node][0]
 
-        def make_function_declaration(rtype, name, ftypes, fargs, defaults):
-            return FunctionDeclaration( Value(rtype, name), [ Value( t, "{0}{1}".format(a,"= {0}".format(d) if d else "") ) for t,a,d in zip(ftypes, fargs, defaults) ])
+        def make_function_declaration(rtype, name, ftypes, fargs, defaults=None):
+            if defaults is None : defaults = [None]*len(ftypes)
+            rvalue_ref = "" if self.yields else "&&" # this prevents a few extra by-copy argument passing
+            return FunctionDeclaration( Value(rtype, name), [ Value( t+rvalue_ref , "{0}{1}".format(a,"= {0}".format(d) if d else "") ) for t,a,d in zip(ftypes, fargs, defaults) ])
 
         if self.yields: # generator case
             # a generator has a call operator that returns the generator itself, that then behave like a regular iterator
@@ -168,9 +171,7 @@ class CxxBackend(ast.NodeVisitor):
             next_definition = FunctionBody(next_signature, Block( next_body ))
 
             operator_declaration = [templatize(make_function_declaration(instanciated_next_name, "operator()", formal_types, formal_args, default_arg_values) , formal_types, default_arg_types), EmptyStatement()] #*** empty statement to force a comma ...
-            operator_signature = FunctionDeclaration(
-                    Value(instanciated_next_name, "{0}::operator()".format(node.name)),
-                    [ Value( t, a ) for t,a in zip(formal_types, formal_args ) ] )
+            operator_signature = make_function_declaration(instanciated_next_name, "{0}::operator()".format(node.name), formal_types, formal_args)
             operator_definition = FunctionBody(
                     templatize(operator_signature, formal_types),
                     Block( [ Statement("return {0}({1})".format(instanciated_next_name, ", ".join(formal_args))) ])
@@ -191,9 +192,8 @@ class CxxBackend(ast.NodeVisitor):
             operator_declaration = [templatize(
                 make_function_declaration("typename "+fscope+"result_type", "operator()",
                     formal_types, formal_args, default_arg_values) , formal_types, default_arg_types), EmptyStatement()] #*** empty statement to force a comma ...
-            operator_signature = FunctionDeclaration(
-                    Value("typename {0}result_type".format(ffscope), "{0}::operator()".format(node.name)),
-                    [ Value( t, a ) for t,a in zip(formal_types, formal_args ) ] )
+            operator_signature = make_function_declaration("typename {0}result_type".format(ffscope), "{0}::operator()".format(node.name),
+                    formal_types, formal_args)
             ctx=CachedTypeVisitor()
             operator_local_declarations = [ Statement("{0} {1}".format(self.types[k].generate(ctx), k.id)) for k in ldecls ]\
                     + [ Statement("{0} {1}".format(v,k)) for k,v in self.extra_declarations.iteritems() ]
@@ -270,8 +270,8 @@ class CxxBackend(ast.NodeVisitor):
         local_iter= "__iter{0}".format(len(self.break_handler))
         local_target= "__target{0}".format(len(self.break_handler))
 
-        local_iter_decl="decltype({0})".format(iter)
-        local_target_decl="decltype({0}.begin())".format(iter)
+        local_iter_decl=RemoveQualifier(DeclType(Val(iter)))
+        local_target_decl=DeclType(Val("{0}.begin()".format(iter)))
         if self.yields:
             self.extra_declarations[local_iter]=local_iter_decl
             self.extra_declarations[local_target]=local_target_decl

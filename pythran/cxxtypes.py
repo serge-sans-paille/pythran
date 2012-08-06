@@ -110,6 +110,15 @@ class CombinedTypes(Type):
     def generate(self,ctx):
         return 'typename __combined<{0}>::type'.format(" , ".join(ctx(t).generate(ctx) for t in self.types ))
 
+class RemoveQualifier(Type):
+    '''A type without const or reference qualifier'''
+    def __init__(self, type_):
+        self.type_=type_
+        self.qualifiers=type_.qualifiers.copy()
+        self.fields=("type_", "qualifiers",)
+    def generate(self,ctx):
+        return "typename std::remove_cv<typename std::remove_reference<{0}>::type>::type".format(self.type_.generate(ctx))
+
 class ArgumentType(Type):
     """A type to hold function arguments"""
     def __init__(self,num,qualifiers=None):
@@ -117,7 +126,8 @@ class ArgumentType(Type):
         self.qualifiers=set(qualifiers) if qualifiers else set()
         self.fields=("num","qualifiers")
 
-    def generate(self,ctx): return "argument_type{0}".format(self.num)
+    def generate(self,ctx):
+        return "typename std::remove_cv<typename std::remove_reference<argument_type{0}>::type>::type".format(self.num)
 
 class DeclVal(Type):
     def __init__(self, of):

@@ -79,7 +79,9 @@ namespace pythonic {
         std::tuple<long,T>  operator*() { return std::make_tuple(value, *iter); }
         enumerate_iterator& operator++() { ++value,++iter; return *this; }
         enumerate_iterator operator++(int) { enumerate_iterator self(*this); ++value, ++iter; return self; }
+        enumerate_iterator& operator+=(long n) { value+=n,iter+=n; return *this; }
         bool operator!=(enumerate_iterator const& other) { return value != other.value; }
+        bool operator<(enumerate_iterator const& other) { return value < other.value; }
         long operator-(enumerate_iterator const& other) { return value - other.value; }
     };
 
@@ -364,10 +366,12 @@ namespace pythonic {
         xrange_iterator() {}
         xrange_iterator(long v, long s) : value(v), step(s) {}
         long& operator*() { return value; }
-        long operator-(xrange_iterator const& other) { return (value - other.value)/step; }
         xrange_iterator& operator++() { value+=step; return *this; }
         xrange_iterator operator++(int) { xrange_iterator self(*this); value+=step; return self; }
+        xrange_iterator& operator+=(long n) { value+=step*n; return *this; }
         bool operator!=(xrange_iterator const& other) { return value != other.value; }
+        bool operator<(xrange_iterator const& other) { return value < other.value; }
+        long operator-(xrange_iterator const& other) { return (value - other.value)/step; }
     };
 
     struct xrange {

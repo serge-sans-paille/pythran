@@ -401,6 +401,8 @@ class UnshadowParameters(ast.NodeVisitor):
                         new_name=new_name+"_"
                     self.renaming[t.id]=new_name
         [self.visit(t) for t in node.targets]
+        try: self.visit(node.metadata)
+        except AttributeError:pass 
         self.visit(node.value)
 
     def visit_Name(self, node):
@@ -463,3 +465,28 @@ def expand_imports(module):
     assert isinstance(module, ast.Module)
     ExpandImports().visit(module)
 
+##
+class GatherOpenMPData(ast.NodeTransformer):
+    statements= ("Return", "Delete", "Assign", "AugAssign", "Print", "For", "While", "If", "Raise", "Assert", "Pass",)
+    def __init__(self):
+        for s in GatherOpenMPData.statements:
+            setattr(self, "visit_"+s, lambda node_: self.attach_data(node_))
+        self.current=list()
+
+    def visit_Expr(self, node):
+        if isinstance(node.value, ast.Str) and node.value.s.startswith("omp"):
+            self.current.append(node.value.s)
+            return None
+        else:
+            self.attach_data(self,node)
+        return node
+
+    def attach_data(self, node):
+        if self.current:
+            [metadata.add(node, metadata.OpenMPDirective(curr)) for curr in self.current]
+            self.current=list()
+        return node
+
+def gather_openmp_data(node):
+    '''walks node and collect string comment looking for openMP directives'''
+    return GatherOpenMPData().visit(node)

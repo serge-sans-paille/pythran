@@ -1,2 +1,2 @@
 include LICENSE
-include MANUAL
+include doc/*

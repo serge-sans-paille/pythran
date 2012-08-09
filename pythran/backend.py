@@ -37,7 +37,7 @@ class CxxBackend(ast.NodeVisitor):
         self.local_functions=set()
         self.local_declarations=list()
         self.types=type_all(node)
-        headers= [ Include(h) for h in [ "pythran/pythran.h", "boost/python/module.hpp" ] ]
+        headers= [ Include(h) for h in [ "pythran/pythran.h" ] ]
         body = [ self.visit(n) for n in node.body ]
 
         assert not self.local_declarations

@@ -1,6 +1,6 @@
 #ifndef PYTHRAN_H
 #define PYTHRAN_H
-#include <boost/python.hpp>
+
 
 #include <pythonic++.h>
 using namespace pythonic;
@@ -141,6 +141,11 @@ template<class T>
 struct content_of {
     typedef typename T::value_type type;
 };
+
+#ifdef ENABLE_PYTHON_MODULE
+
+#include <boost/python.hpp>
+#include <boost/python/module.hpp>
 
 /* boost::python converters */
 #include <boost/python/numeric.hpp>
@@ -376,5 +381,6 @@ struct pythran_to_python< none<T> > {
         register_once<none<T>, custom_none_to_any<T>>();
     }
 };
+#endif
 
 #endif

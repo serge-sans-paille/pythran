@@ -141,12 +141,13 @@ where ``function_name`` is the name of a function defined in the module, and
 ``argument_type*`` is a comma separated list of argument types, composed of any
 combination of basic types and constructed types. What is a basic type?
 Anything that looks like a python basic type! Constructed types are either
-tuples, introduced by parenthesis, like ``(int, (float, str))`` or lists,
-introduced by the ``list`` keyword::
+tuples, introduced by parenthesis, like ``(int, (float, str))`` or lists (resp.
+set), introduced by the ``list`` (resp. ``set``) keyword::
 
 	argument_type = basic_type
 				  | (argument_type*)	# this is a tuple
 				  | argument_type list	# this is a list
+				  | argument_type set	# this is a set
 
 	basic_type = bool | int | long | float | str
 
@@ -160,10 +161,19 @@ switch that stops the compilation process right after c++ code generation, so
 that you can inspect it.
 
 Want more performance? Big fan of ``-Ofast -march=native``? pythran
-automagically forwards these switches to the underlying compiler!
+automagically forwards these switches to the underlying compiler! pythran is
+sensible to the ``-DNDEBUG`` switch too.
 
 Wants to try your own compiler? Pythran uses ``c++`` by default, and this
 behavior can be overridden using ``CXX`` or ``CXXFLAGS`` environment variables.
+
+Getting Pure C++
+----------------
+
+Pythran can be used to generate raw templated C++ code, without any python
+glue. To do so use the ``-e`` switch. It will turn the python code into c++
+code you can call from a C++ code. In that case there is **no** need for a
+particular Pythran specification.
 
 Troubleshooting
 ---------------
@@ -171,6 +181,6 @@ Troubleshooting
 Plenty of them! Seriously, pythran is pre-alpha software, so it will crash. You
 must make it abort in unusual ways! And more important, you must provide
 feedback to serge_sans_paille using its email serge.guelton@telecom-bretagne.eu
-or the IRC channel #pythran on FreeNode.
+or the IRC channel ``#pythran`` on FreeNode.
 
 **glhf!**

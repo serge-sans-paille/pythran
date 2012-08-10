@@ -5,6 +5,7 @@ import os.path
 #pythran export a((float,(int,long),str list) list list)
 #pythran export a(str)
 #pythran export a( (str,str), int, long list list)
+#pythran export a( long set )
 
 class TestSpecParser(unittest.TestCase):
 

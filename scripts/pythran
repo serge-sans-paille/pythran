@@ -9,7 +9,8 @@ parser = argparse.ArgumentParser(prog='pythran',
         epilog="It's a megablast!")
 parser.add_argument('input_file', type=str, help='the python module to compile')
 parser.add_argument('-o', dest='output_file', type=str, help='path to generated file')
-parser.add_argument('-E', dest='translate_only', action='store_true', help='only run the translator, do not compile it')
+parser.add_argument('-E', dest='translate_only', action='store_true', help='only run the translator, do not compile')
+parser.add_argument('-e', dest='raw_translate_only', action='store_true', help='only run the translator, do not generate python glue, do not compile')
 parser.add_argument('-f', dest='extra_fflags', metavar='flag', action='append', help='any compiler switch relevant to the underlying C++ compiler', default=list())
 parser.add_argument('-m', dest='extra_mflags', metavar='machine', action='append', help='any machine flag relevant to the underlying C++ compiler', default=list())
 parser.add_argument('-I', dest='extra_Iflags', metavar='include_dir', action='append', help='any include dir relevant to the underlying C++ compiler', default=list())
@@ -19,6 +20,8 @@ parser.add_argument('-g', dest='debug_flag', action='store_true', help='any debu
 
 
 args = parser.parse_args()
+if args.raw_translate_only:
+    args.translate_only=True
 
 
 try:
@@ -29,9 +32,9 @@ try:
     if not args.output_file: # build the output file from the input name
         args.output_file = '{0}.{1}'.format(module_name, 'cpp' if args.translate_only else 'so')
 
-    specs = pythran.spec_parser(args.input_file)
+    specs = None if args.raw_translate_only else pythran.spec_parser(args.input_file)
     module = pythran.cxx_generator(module_name, file(args.input_file).read(), specs)
-    if args.translate_only: # eventually only generate cpp file
+    if args.translate_only : # eventually only generate cpp file
         file(args.output_file,'w').write(str(module.generate()))
     else:
         # build using the forwarded compiler options

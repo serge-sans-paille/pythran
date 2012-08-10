@@ -38,7 +38,7 @@ class CxxBackend(ast.NodeVisitor):
         self.local_declarations=list()
         self.types=type_all(node)
         headers= [ Include(h) for h in [ "pythran/pythran.h" ] ]
-        body = [ self.visit(n) for n in node.body ]
+        body = [ self.visit(n) for n in node.body if not isinstance(n, ast.Expr)] # remove top-level strings
 
         assert not self.local_declarations
         return headers +  [ Namespace("__{0}".format(self.name), body + self.declarations + self.definitions) ]

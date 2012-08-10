@@ -478,7 +478,7 @@ class GatherOpenMPData(ast.NodeTransformer):
             self.current.append(node.value.s)
             return None
         else:
-            self.attach_data(self,node)
+            self.attach_data(node)
         return node
 
     def attach_data(self, node):

@@ -28,7 +28,7 @@ namespace pythonic {
     /* bin */
     template<class T>
         std::string bin(T const &v) {
-            size_t i = (size_t)1 << (8*sizeof(T)-1);
+            long long unsigned int i = 1LL << (8*sizeof(T)-1);
             while(i and not (v&i)) i>>=1;
             if(not i) return "0b0";
             else {

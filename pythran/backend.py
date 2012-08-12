@@ -254,18 +254,18 @@ class CxxBackend(ast.NodeVisitor):
         target = self.visit(node.target)
 
         if node.orelse:
-            break_handler="__no_breaking{0}".format(len(self.extra_declarations))
+            break_handler="__no_breaking{0}".format(len(self.break_handler))
         else:
             break_handler=None
         self.break_handler.append(break_handler)
 
-        local_iter= "__iter{0}".format(len(self.extra_declarations))
-        local_target= "__target{0}".format(len(self.extra_declarations))
+        local_iter= "__iter{0}".format(len(self.break_handler))
+        local_target= "__target{0}".format(len(self.break_handler))
 
         local_iter_decl="decltype({0})".format(iter)
         local_target_decl="decltype({0}.begin())".format(iter)
         if self.yields:
-            self.extra_declarations[local_iter]="decltype({0})".format(iter)
+            self.extra_declarations[local_iter]=local_iter_decl
             self.extra_declarations[local_target]=local_target_decl
             local_target_decl=""
             local_iter_decl=""

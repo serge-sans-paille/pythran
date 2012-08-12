@@ -28,7 +28,7 @@ namespace pythonic {
     /* bin */
     template<class T>
         std::string bin(T const &v) {
-            size_t i = 1 << (8*sizeof(T)-1);
+            size_t i = (size_t)1 << (8*sizeof(T)-1);
             while(i and not (v&i)) i>>=1;
             if(not i) return "0b0";
             else {

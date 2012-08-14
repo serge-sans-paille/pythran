@@ -15,6 +15,15 @@ namespace  pythonic {
     /* the container type */
     namespace core {
 
+        template<class T>
+        struct comparable_iterator:T {
+            comparable_iterator(const T& t) : T(t) {}
+            bool operator<(comparable_iterator<T> other) {
+                return (*this)!= other;
+            }
+        };
+
+
         struct empty_set;
 
         template<class T>
@@ -34,8 +43,8 @@ namespace  pythonic {
                 // types
                 typedef typename container_type::reference reference;
                 typedef typename container_type::const_reference const_reference;
-                typedef typename container_type::iterator iterator;
-                typedef typename container_type::const_iterator const_iterator;
+                typedef comparable_iterator<typename container_type::iterator> iterator;
+                typedef comparable_iterator<typename container_type::const_iterator> const_iterator;
                 typedef typename container_type::size_type size_type;
                 typedef typename container_type::difference_type difference_type;
                 typedef typename container_type::value_type value_type;
@@ -170,7 +179,6 @@ namespace  pythonic {
 		// const getter
 		container_type const & get_data() const { return *data; }
             };
-
 
         template<class T>
             boost::object_pool<typename set<T>::memory_size> set<T>::pool;

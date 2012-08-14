@@ -167,6 +167,24 @@ sensible to the ``-DNDEBUG`` switch too.
 Wants to try your own compiler? Pythran uses ``c++`` by default, and this
 behavior can be overridden using ``CXX`` or ``CXXFLAGS`` environment variables.
 
+Adding OpenMP directives
+------------------------
+
+OpenMP is a standard set of directives for C, C++ and FORTRAN that makes it
+somehow easier to turn a sequential program into a multithreaed one. Pythran
+translates OpenMP-like code annotation into OpenMP directives::
+
+    r=0
+    "omp parallel for reduction(+:r) private(x,y)"
+    for x,y in zip(l1,l2):
+        r+=x*y
+
+Note that as in python, all variables have function-level scope, ``x`` and
+``y`` must be explicitely listed as private variables.
+
+OpenMP directive parsing is enabled by ``-fopenmp`` when using ``g++`` as the
+abckend compiler.
+
 Getting Pure C++
 ----------------
 

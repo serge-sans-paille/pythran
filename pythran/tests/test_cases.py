@@ -42,5 +42,6 @@ TestCase.test_nqueens=lambda self:compile_test(self,"nqueens")
 TestCase.test_monte_carlo=lambda self:compile_test(self,"monte_carlo")
 TestCase.test_pi_buffon=lambda self:compile_test(self,"pi_buffon")
 TestCase.test_brownian=lambda self:compile_test(self,"brownian")
+TestCase.test_stone=lambda self:compile_test(self,"stone")
 if __name__ == '__main__':
     unittest.main()

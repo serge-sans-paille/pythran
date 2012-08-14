@@ -11,8 +11,11 @@ class PythranSyntaxError(SyntaxError):
 class SyntaxChecker(ast.NodeVisitor):
     def visit_Module(self, node):
         for n in node.body:
-            if not any(map(lambda t:isinstance(n,t),(ast.FunctionDef, ast.Import, ast.ImportFrom))):
-                raise PythranSyntaxError("Top level statements can only be functions or imports", n)
+            if isinstance(n, ast.Expr) and isinstance(n.value, ast.Str):
+                continue
+            else:
+                if not any(map(lambda t:isinstance(n,t),(ast.FunctionDef, ast.Import, ast.ImportFrom,))):
+                    raise PythranSyntaxError("Top level statements can only be functions, comments or imports", n)
         [ self.visit(n) for n in node.body ]
 
     def visit_Interactive(self, node):

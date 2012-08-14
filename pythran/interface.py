@@ -51,7 +51,7 @@ def extract_constructed_types(t):
 def extract_all_constructed_types(v):
     return sorted(set(reduce(lambda x,y:x+y,(extract_constructed_types(t) for t in v),[])),key=len)
 
-def cxx_generator(module_name, code, specs):
+def cxx_generator(module_name, code, specs=None):
     '''python + pythran spec -> c++ code'''
     # font end
     ir=ast.parse(code)
@@ -63,32 +63,37 @@ def cxx_generator(module_name, code, specs):
     # back-end
     content = cxx_backend(module_name,ir)
 
-    mod=BoostPythonModule(module_name)
-    mod.use_private_namespace=False
-    mod.add_to_preamble(content)
-    mod.add_to_init([Statement('boost::python::numeric::array::set_module_and_type("numpy", "ndarray")')]);
+    if specs is None:
+        class Generable:
+            def __init__(self, content): self.content=content
+            def generate(self): return "\n".join("\n".join(l for l in s.generate()) for s in self.content)
+        mod=Generable(content)
+    else:
+        mod=BoostPythonModule(module_name)
+        mod.use_private_namespace=False
+        mod.add_to_preamble(content)
+        mod.add_to_init([Statement('boost::python::numeric::array::set_module_and_type("numpy", "ndarray")')]);
 
-    for function_name,signatures in specs.iteritems():
-        internal_function_name=renamings.get(function_name,function_name)
-        if not isinstance(signatures, tuple): signatures = (signatures,)
-        for sigid,signature in enumerate(signatures):
-            numbered_function_name="{0}{1}".format(internal_function_name,sigid)
-            arguments_types = [pytype_to_ctype(t) for t in signature ]
-            arguments = ["a{0}".format(i) for i in xrange(len(arguments_types))]
-            specialized_fname = "__{0}::{1}::type{2}".format( module_name, internal_function_name, "<{0}>".format(", ".join(arguments_types)) if  arguments_types else "")
-            return_type = "typename {0}::return_type".format(specialized_fname)
-            mod.add_to_init([Statement("python_to_pythran<{0}>()".format(t)) for t in extract_all_constructed_types(signature)])
-            mod.add_to_init([Statement("pythran_to_python<{0}>()".format(return_type))])
-            mod.add_function(
-                    FunctionBody(
-                        FunctionDeclaration( Value(return_type, numbered_function_name), [ Value( t, "a"+str(i) ) for i,t in enumerate(arguments_types) ]),
-                        Block([ Statement("return {0}()({1})".format(
-                            '__{0}::{1}'.format(module_name,internal_function_name),
-                            ', '.join(arguments) ) ) ] )
-                        ),
-                    function_name
-                    )
-
+        for function_name,signatures in specs.iteritems():
+            internal_function_name=renamings.get(function_name,function_name)
+            if not isinstance(signatures, tuple): signatures = (signatures,)
+            for sigid,signature in enumerate(signatures):
+                numbered_function_name="{0}{1}".format(internal_function_name,sigid)
+                arguments_types = [pytype_to_ctype(t) for t in signature ]
+                arguments = ["a{0}".format(i) for i in xrange(len(arguments_types))]
+                specialized_fname = "__{0}::{1}::type{2}".format( module_name, internal_function_name, "<{0}>".format(", ".join(arguments_types)) if  arguments_types else "")
+                return_type = "typename {0}::return_type".format(specialized_fname)
+                mod.add_to_init([Statement("python_to_pythran<{0}>()".format(t)) for t in extract_all_constructed_types(signature)])
+                mod.add_to_init([Statement("pythran_to_python<{0}>()".format(return_type))])
+                mod.add_function(
+                        FunctionBody(
+                            FunctionDeclaration( Value(return_type, numbered_function_name), [ Value( t, "a"+str(i) ) for i,t in enumerate(arguments_types) ]),
+                            Block([ Statement("return {0}()({1})".format(
+                                '__{0}::{1}'.format(module_name,internal_function_name),
+                                ', '.join(arguments) ) ) ] )
+                            ),
+                        function_name
+                        )
     return mod
 
 class ToolChain(object):
@@ -158,7 +163,7 @@ def compile(compiler, module, output_filename=None, cppflags=list(), cxxflags=li
     tc = ToolChain(compiler)
     tc.include_dirs.append(".")
     tc.include_dirs.append(distutils.sysconfig.get_python_inc())
-    tc.cppflags=cppflags
+    tc.cppflags=cppflags + [ "-DENABLE_PYTHON_MODULE" ]
 
     tc.include_dirs+=[ os.path.join(p,"pythran", "pythonic++") for p in sys.path if os.path.exists(os.path.join(p,"pythran","pythonic++","pythonic++.h")) ]
     tc.include_dirs+=[ p for p in sys.path if os.path.exists(os.path.join(p,"pythran","pythran.h")) ]

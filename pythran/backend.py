@@ -37,11 +37,17 @@ class CxxBackend(ast.NodeVisitor):
         self.local_functions=set()
         self.local_declarations=list()
         self.types=type_all(node)
-        headers= [ Include(h) for h in [ "pythran/pythran.h", "boost/python/module.hpp" ] ]
-        body = [ self.visit(n) for n in node.body ]
+        headers= [ Include(h) for h in [ "pythran/pythran.h" ] ]
+        body = [ self.visit(n) for n in node.body if not isinstance(n, ast.Expr)] # remove top-level strings
 
         assert not self.local_declarations
         return headers +  [ Namespace("__{0}".format(self.name), body + self.declarations + self.definitions) ]
+
+    # openmp processing
+    def process_openmp_attachements(self, node):
+        l = metadata.get(node, metadata.OpenMPDirective)
+        return l
+
 
     # stmt
     def visit_FunctionDef(self, node):
@@ -243,19 +249,26 @@ class CxxBackend(ast.NodeVisitor):
     def visit_For(self, node):
         if not isinstance(node.target, ast.Name):
             raise PythranSyntaxError("Using something other than an identifier as loop target", node.target)
+        directives = self.process_openmp_attachements(node)
         iter = self.visit(node.iter)
         target = self.visit(node.target)
 
         if node.orelse:
-            break_handler="__no_breaking{0}".format(len(self.extra_declarations))
+            break_handler="__no_breaking{0}".format(len(self.break_handler))
         else:
             break_handler=None
         self.break_handler.append(break_handler)
 
-        local_iter= "__iter{0}".format(len(self.extra_declarations))
-        local_target= "__target{0}".format(len(self.extra_declarations))
-        self.extra_declarations[local_iter]="decltype({0})".format(iter)
-        self.extra_declarations[local_target]="decltype({0}.begin())".format(iter)
+        local_iter= "__iter{0}".format(len(self.break_handler))
+        local_target= "__target{0}".format(len(self.break_handler))
+
+        local_iter_decl="decltype({0})".format(iter)
+        local_target_decl="decltype({0}.begin())".format(iter)
+        if self.yields:
+            self.extra_declarations[local_iter]=local_iter_decl
+            self.extra_declarations[local_target]=local_target_decl
+            local_target_decl=""
+            local_iter_decl=""
 
         body = [ self.visit(n) for n in node.body ]
 
@@ -263,12 +276,15 @@ class CxxBackend(ast.NodeVisitor):
 
 
         stmts=[
-                Statement("{0} = {1}".format(local_iter, iter)),
-                For("{0} = {1}.begin()".format(local_target, local_iter),
-                    "{0} != {1}.end()".format(local_target, local_iter),
+                Statement("{0} {1} = {2}".format(local_iter_decl, local_iter, iter)),
+                For("{0} {1} = {2}.begin()".format(local_target_decl, local_target, local_iter),
+                    "{0} < {1}.end()".format(local_target, local_iter),
                     "++{0}".format(local_target),
                     Block([Statement("{0} = *{1}".format(target, local_target))] + body ) )           
                 ]
+
+        for directive in reversed(directives):
+            stmts.insert(1, Line("#pragma {0}".format(directive) ))
 
         for comp in metadata.get(node, metadata.Comprehension):# in that case when can proceed to a reserve
             stmts.insert(1, Statement("pythonic::reserve({0},{1})".format(comp.target, local_iter)))

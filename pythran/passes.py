@@ -368,10 +368,17 @@ class NormalizeIdentifiers(ast.NodeVisitor):
             node.name=self.rename(node.name)
         self.visit(node.args)
         [ self.visit(n) for n in node.body ]
+
     def visit_alias(self, node):
         if node.asname:
             if node.asname in cxx_keywords:
                 node.asname=self.rename(node.name)
+
+    def visit_Attribute(self, node):
+	    self.visit(node.value)
+	    if node.attr in cxx_keywords:
+		    node.attr += "_" # let us only hope the considered class does not have this attribute
+		    # Always true as long as we don't have custom classes.
 
 def normalize_identifiers(node):
     '''Prevents naming conflict with c++ keywords by appending extra '_' to conflicting names.'''

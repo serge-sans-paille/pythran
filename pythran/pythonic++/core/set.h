@@ -26,9 +26,6 @@ namespace  pythonic {
                 size_t* refcount;
                 container_type* data; 
 
-                template<class U>
-                    friend struct _id;
-
                 struct memory_size { size_t refcount; container_type data; };
                 static boost::object_pool<memory_size> pool;
 
@@ -93,9 +90,34 @@ namespace  pythonic {
                 reverse_iterator rend() { return data->rend(); }
                 const_reverse_iterator rend() const { return data->rend(); }
 
+
                 // modifiers
+		T pop() {
+			if(size()<=0)
+				throw std::out_of_range("Trying to pop() an empty set.");
+
+			T tmp=*begin();
+			data->erase(begin());
+			return tmp;
+		}
                 void add( const T& x) { data->insert(x); }
                 void push_back( const T& x) { data->insert(x); }
+		void clear() { data->clear(); };
+
+		template<class U>
+		void discard(U const& elem){
+			//Remove element elem from the set if it is present.
+			data->erase(elem);
+		}
+
+		template<class U>
+		void delete_(U const& elem){
+			//Remove element elem from the set. Raises KeyError if elem is not contained in the set.
+			iterator it;
+			if((it=data->find(elem)) != end())
+				throw std::runtime_error("set.delete() : couldn't delete element not in the set.");
+			data->erase(it);
+		}
 
                 // set interface
                 operator bool() { return not data->empty(); }
@@ -104,7 +126,52 @@ namespace  pythonic {
 
                 template<class U> // just for type inference, should never been instantiated
                     set<decltype(std::declval<T>()+std::declval<U>())> operator+(set<U> const &);
+
+		// Misc
+		template<class U>
+		bool isdisjoint(set<U> const & other) const {
+			//Return true if the this has no elements in common with other.
+			for(iterator i=begin(); i!=end(); ++i){
+				if(other.get_data().find(*i)!=other.end())
+					return false;
+			}
+			return true;
+		}
+		
+		// Operators
+		template<class U>
+		bool operator<=(set<U> const& other) const {
+			// Every element in this is in other
+			for(iterator i=begin(); i!=end(); ++i){
+				if(other.get_data().find(*i)==other.end())
+					return false;
+			}
+			return true;
+		}
+
+		template<class U>
+		bool operator<(set<U> const& other) const {
+			// Every element in this is in other and this != other
+			return (*this <= other) && (this->size() != other.size());
+		}
+
+		template<class U>
+		bool operator>=(set<U> const& other) const {
+			// Every element in other is in set
+			return other <= *this;
+		}
+
+		template<class U>
+		bool operator>(set<U> const& other) const {
+			// Every element in other is in set and this != other
+			return other < *this;
+		}
+
+		// const getter
+		container_type const & get_data() const { return *data; }
             };
+
+
         template<class T>
             boost::object_pool<typename set<T>::memory_size> set<T>::pool;
 

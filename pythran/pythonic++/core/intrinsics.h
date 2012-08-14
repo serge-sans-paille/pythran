@@ -125,7 +125,13 @@ namespace pythonic {
     template <class T>
         struct _id< core::list<T> > {
             intptr_t operator()(core::list<T> const &t) {
-                return reinterpret_cast<intptr_t>(t.data);
+                return reinterpret_cast<intptr_t>(&t.get_data());
+            }
+        };
+    template <class T>
+        struct _id< core::set<T> > {
+            intptr_t operator()(core::set<T> const &t) {
+                return reinterpret_cast<intptr_t>(&t.get_data());
             }
         };
 
@@ -139,6 +145,10 @@ namespace pythonic {
     template <class T, class V>
         bool in(T const &t, V const &v) {
             return std::find(t.begin(), t.end(), v) != t.end();
+        }
+    template <class T, class V>
+        bool in(core::set<T> const &t, V const &v) {
+            return t.get_data().find(v) != t.end();
         }
     template <>
         bool in<std::string, std::string>(std::string const &t, std::string const &v) {

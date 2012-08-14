@@ -20,6 +20,7 @@
 #include "modules/cmath.h"
 #include "modules/random.h"
 #include "modules/iterator.h"
+#include "modules/forward.h"
 
 /* extensions */
 #include "core/parallel.h"

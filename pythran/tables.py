@@ -119,6 +119,7 @@ modules = {
             "bind4":{},
             "bind5":{},
             "pmap": {},
+	    "forward": {},
             },
         "math" : {
             "isinf" : {},
@@ -183,7 +184,6 @@ modules = {
             "extend" : { 'method':True, 'combiner': lambda self, node: self.combine(node.args[0], node.args[1], register=True)},
             "remove" : { 'method':True },
             "index" : { 'method':True },
-            "pop" : { 'method':True },
             "reverse" : { 'method':True },
             "sort" : { 'method':True },
             "count" : { 'method':True },
@@ -191,7 +191,14 @@ modules = {
             },
         "__set__" : {
             "add" : { 'method':True, 'combiner': lambda self, node: self.combine(node.args[0], node.args[1], unary_op=lambda f: cxxtypes.SetType(f), register=True)},
+	    "clear" : { 'method':True },
+	    "discard" : { 'method':True },
+	    "delete_" : { 'method':True },
+	    "isdisjoint" : { 'method':True },
             },
+	"__forward__" : {
+	    "pop" : { 'method':True },
+	    },
         "_complex_" : {
                 "real": { 'attribute':0 },
                 "imag": { 'attribute':1 },
@@ -208,7 +215,7 @@ methods ={}
 for module, elems in modules.iteritems():
     for elem, signature in elems.iteritems():
         if 'method' in signature:
-            assert elem not in methods # we need unicity
+	    assert elem not in methods # we need unicity
             methods[elem]= ( module, signature )
 
 # a attribute name to module binding

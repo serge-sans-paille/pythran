@@ -9,7 +9,7 @@ from tables import type_to_str, operator_to_lambda, modules, builtin_constants, 
 from analysis import global_declarations, constant_value, ordered_global_declarations, type_aliasing, yields
 from syntax import PythranSyntaxError
 from cxxtypes import *
-from intrinsic import ScalarIntr, MethodWithSideEffectIntr, MethodIntr
+from intrinsic import ScalarIntr, MethodIntr
 
 import types
 def copy_func(f, name=None):
@@ -62,7 +62,7 @@ class TypeDependencies(ast.NodeVisitor):
 
 
     def visit_FunctionDef(self, node):
-        modules['__user__'][node.name]=MethodWithSideEffectIntr()
+        modules['__user__'][node.name]=MethodIntr()
         self.current_function.append(node)
         self.types.add_node(node)
         self.naming=dict()
@@ -326,7 +326,7 @@ class Typing(ast.NodeVisitor):
         if isinstance(node.func, ast.Attribute):
             if isinstance(node.func.value, ast.Name):
                 if node.func.value.id in modules and node.func.attr in modules[node.func.value.id]:
-                    if modules[node.func.value.id][node.func.attr].ismethodwithsideeffect():
+                    if modules[node.func.value.id][node.func.attr].ismethod():
                         modules[node.func.value.id][node.func.attr].combiner(self, node)
             else:
                 raise PythranSyntaxError("Unknown Attribute: `{0}'".format(node.func.attr), node)
@@ -334,7 +334,7 @@ class Typing(ast.NodeVisitor):
         elif isinstance(node.func, ast.Name):
             faliases=self.aliases[self.current[-1]].get(node.func.id,{node.func.id})
             for fid in faliases:
-                if fid in modules['__user__'] and modules['__user__'][fid].ismethodwithsideeffect():
+                if fid in modules['__user__'] and modules['__user__'][fid].ismethod():
                     modules['__user__'][fid].combiner(self, node)
         F=lambda f: ReturnType(f, [self.types[arg] for arg in node.args])
         self.combine(node, node.func, op=lambda x,y:y, unary_op=F)

@@ -5,16 +5,23 @@ class Intrinsic:
     def isscalar(self):
         return False
 
-    def ismethod(self):
+    def isfunction(self):
         return False
 
-    def ismethodwithsideeffect(self):
+    def ismethod(self):
         return False
 
     def isattribute(self):
         return False
 
-class MethodWithSideEffectIntr(Intrinsic):
+class FunctionIntr(Intrinsic):
+    def __init__(self):
+        pass
+
+    def isfunction(self):
+        return True
+
+class MethodIntr(FunctionIntr):
     def __init__(self,_combiner = []):
         self.combinerList = _combiner
 
@@ -26,7 +33,7 @@ class MethodWithSideEffectIntr(Intrinsic):
         for comb in self.combinerList:
             comb(s,node)
 
-    def ismethodwithsideeffect(self):
+    def ismethod(self):
         return True
 
 class AttributeIntr(Intrinsic):
@@ -41,11 +48,4 @@ class ScalarIntr(Intrinsic):
         pass
 
     def isscalar(self):
-        return True
-
-class MethodIntr(Intrinsic):
-    def __init__(self):
-        pass
-
-    def ismethod(self):
         return True

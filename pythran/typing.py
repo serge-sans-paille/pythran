@@ -281,6 +281,10 @@ class Typing(ast.NodeVisitor):
         self.visit(node.value)
         self.combine(self.current[-1], node.value)
 
+    def visit_TryExcept(self, node):
+        [ self.visit(n) for n in node.body ]
+        [ self.visit(n) for n in node.handlers]
+
     def visit_Assign(self, node):
         self.visit(node.value)
         for t in node.targets:
@@ -414,6 +418,13 @@ class Typing(ast.NodeVisitor):
             [self.combine(node, key, unary_op=lambda x:DictType(x,self.types[value])) for key,value in zip(node.keys, node.values)]
         else:
             self.types[node]=NamedType("core::empty_dict")
+
+    def visit_ExceptHandler(self, node):
+        if node.type and node.name:
+            if not isinstance(node.type,ast.Tuple):
+                self.types[node.type]=NamedType("core::{0}".format(node.type.id))
+                self.combine(node.name,node.type,register=True)
+        [self.visit(n) for n in node.body]
 
     def visit_Tuple(self, node):
         [self.visit(elt) for elt in node.elts]

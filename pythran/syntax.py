@@ -51,12 +51,6 @@ class SyntaxChecker(ast.NodeVisitor):
     def visit_Raise(self, node):
         if node.tback: raise PythranSyntaxError("Traceback in raise statements are not supported")
 
-    def visit_TryExcept(self, node):
-        raise PythranSyntaxError("Try blocks are not supported", node)
-
-    def visit_TryFinally(self, node):
-        raise PythranSyntaxError("Try blocks are not supported", node)
-
     def visit_Import(self, node):
         for alias in node.names:
             if alias.name not in tables.modules:

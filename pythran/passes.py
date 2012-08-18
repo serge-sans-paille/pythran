@@ -509,3 +509,20 @@ class GatherOpenMPData(ast.NodeTransformer):
 def gather_openmp_data(node):
     '''walks node and collect string comment looking for openMP directives'''
     return GatherOpenMPData().visit(node)
+
+##
+class NormalizeException(ast.NodeTransformer):
+    def visit_TryExcept(self,node):
+        if node.orelse:
+            node.body.append(ast.TryExcept(node.orelse,[ast.ExceptHandler(None,None,[])],[]))
+            node.orelse=None
+        return node
+
+    def visit_TryFinally(self,node):
+        node.body.extend(node.finalbody)
+        node.finalbody.append(ast.Raise(None,None,None))
+        return ast.TryExcept(node.body,[ast.ExceptHandler(None,None,node.finalbody)],[])
+
+def normalize_exception(node):
+    '''Transform else statement in try except block in nested try except'''
+    return NormalizeException().visit(node)

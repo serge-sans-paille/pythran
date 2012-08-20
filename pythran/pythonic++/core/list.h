@@ -1,5 +1,7 @@
 #ifndef PYTHONIC_SEQUENCE_H
 #define PYTHONIC_SEQUENCE_H
+#include <cassert>
+#include <iostream>
 #include <vector>
 #include <memory>
 #include <utility>

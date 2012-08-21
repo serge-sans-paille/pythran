@@ -14,7 +14,8 @@ namespace pythonic {
                     or the_generator->__generator_state != -1 ;
             }
             bool operator<(generator_iterator<T> const & other) {
-                return (*this) != other; // kind of a hack.
+                assert(not other.the_generator);
+                return the_generator-> __generator_state != -1; // kind of a hack.
             }
         };
 }

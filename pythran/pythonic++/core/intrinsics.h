@@ -373,6 +373,19 @@ namespace pythonic {
         bool operator<(xrange_iterator const& other) { return value < other.value; }
         long operator-(xrange_iterator const& other) { return (value - other.value)/step; }
     };
+    struct xrange_riterator : std::iterator< std::random_access_iterator_tag, long >{
+        long value;
+        long step;
+        xrange_riterator() {}
+        xrange_riterator(long v, long s) : value(v), step(s) {}
+        long& operator*() { return value; }
+        xrange_riterator& operator++() { value+=step; return *this; }
+        xrange_riterator operator++(int) { xrange_riterator self(*this); value+=step; return self; }
+        xrange_riterator& operator+=(long n) { value+=step*n; return *this; }
+        bool operator!=(xrange_riterator const& other) { return value != other.value; }
+        bool operator<(xrange_riterator const& other) { return value > other.value; }
+        long operator-(xrange_riterator const& other) { return (value - other.value)/step; }
+    };
 
     struct xrange {
         long _begin;
@@ -381,8 +394,8 @@ namespace pythonic {
         typedef long value_type;
         typedef xrange_iterator iterator;
         typedef xrange_iterator const_iterator;
-        typedef xrange_iterator reverse_iterator;
-        typedef xrange_iterator const_reverse_iterator;
+        typedef xrange_riterator reverse_iterator;
+        typedef xrange_riterator const_reverse_iterator;
         xrange(){}
         xrange( long b, long e , long s=1) : _begin(b), _end(e), _step(s) {}
         xrange( long e ) : _begin(0), _end(e), _step(1) {}
@@ -391,10 +404,10 @@ namespace pythonic {
             if(_step>0) return xrange_iterator(_begin + std::max(0L,_step * ( (_end - _begin + _step -1)/ _step)) , _step);
             else return xrange_iterator(_begin + std::min(0L,_step * ( (_end - _begin + _step +1)/ _step)) , _step);
         }
-        xrange_iterator rbegin() const { return xrange_iterator(_end-_step, -_step); }
-        xrange_iterator rend() const {
-            if(_step>0) return xrange_iterator(_end - std::max(0L,_step * ( 1 + (_end - _begin)/ _step)) , -_step);
-            else return xrange_iterator(_end - std::min(0L,_step * ( 1 + (_end - _begin)/ _step)) , -_step);
+        reverse_iterator rbegin() const { return reverse_iterator(_end-_step, -_step); }
+        reverse_iterator rend() const {
+            if(_step>0) return reverse_iterator(_end - std::max(0L,_step * ( 1 + (_end - _begin)/ _step)) , -_step);
+            else return reverse_iterator(_end - std::min(0L,_step * ( 1 + (_end - _begin)/ _step)) , -_step);
         }
     };
     PROXY(pythonic,xrange);

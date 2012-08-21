@@ -158,6 +158,7 @@ modules = {
             "isnan" : FunctionIntr(),
             "ceil" : FunctionIntr(),
             "floor" : FunctionIntr(),
+            "pow" : FunctionIntr(),
             "pi" : ScalarIntr(),
             "e" : ScalarIntr(),
             },

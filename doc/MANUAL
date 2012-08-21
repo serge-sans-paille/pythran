@@ -60,6 +60,19 @@ And set your path to::
 
 It makes the ``pythran`` command available to you.
 
+Making Sure Everything is working
+---------------------------------
+
+The ``setup.py`` scripts automates this. The ``test`` target, as in::
+
+    python setup.py test
+
+runs a whole (and long) validation suite. The ``bench`` target, as in::
+
+    python setup.py bench
+
+compares the performance of pythran-generated code with cpython.
+
 First Steps
 -----------
 

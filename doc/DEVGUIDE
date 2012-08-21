@@ -95,6 +95,16 @@ Each extra module defines a new namespace, like ``pythonic::math`` or
 functions into functors, the difference between the two being that ``VPROXY``
 allows its argument to be modified.
 
+Benchmarking and Testing
+------------------------
+
+Stand-alone algorithms are put into ``pythran/tests/cases``. They must be valid
+pythran input (including spec annotations). To be taken into account by the
+validation suite, they must be listed in ``pythran/tests/test_cases.py``. To be
+taken into account by the benchmarking suite, they must have a line starting
+with the ``#runas`` directive. Check ``pythran/tests/matmul.py`` for a complete
+example.
+
 How to
 ------
 

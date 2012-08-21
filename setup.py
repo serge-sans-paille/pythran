@@ -2,7 +2,7 @@ from distutils.core import setup, Command
 from distutils.command.build import build
 
 from unittest import TextTestRunner, TestLoader
-import os
+import os, sys
 
 class build_with_ply(build):
     '''Use ply to generate parsetab before building module.'''
@@ -21,7 +21,7 @@ class build_with_ply(build):
         build.run(self, *args, **kwargs)
 
 class TestCommand(Command):
-    '''Scan the test directory for any tests, and run them'''
+    '''Scan the test directory for any tests, and run them.'''
 
     description = 'run the test suite for the package'
     user_options = []
@@ -34,6 +34,54 @@ class TestCommand(Command):
         loader = TestLoader()
         t = TextTestRunner()
         t.run(loader.discover(os.path.join('pythran','tests')))
+
+class BenchmarkCommand(Command):
+    '''Scan the test directory for any runnable test, and benchmark them.'''
+
+    description = 'run the benchmark suite for the package'
+    user_options=[]
+
+    runas_marker = '#runas '
+    nb_iter=11
+
+    def initialize_options(self):
+        pass
+    def finalize_options(self):
+        pass
+    def run(self):
+        import glob, timeit
+        from pythran import cxx_generator, spec_parser
+        from pythran import compile as pythran_compile
+        candidates=glob.glob("pythran/tests/cases/*.py")
+        sys.path.append("pythran/tests/cases")
+        median = lambda x: sorted(x)[len(x)/2]
+        for candidate in candidates:
+            with file(candidate) as content:
+                runas = [ line for line in content.readlines() if line.startswith(BenchmarkCommand.runas_marker) ]
+                if len(runas) == 1 :
+                    module_name,_= os.path.splitext(os.path.basename(candidate))
+                    runas_commands= runas[0].replace(BenchmarkCommand.runas_marker,'').split(";")
+                    runas_context = ";".join( ["import {0}".format(module_name)] + runas_commands[:-1]  )
+                    runas_command = "{0}.{1}".format(module_name, runas_commands[-1])
+
+                    # cleaning
+                    sopath=module_name+".so"
+                    if os.path.exists(sopath): os.remove(sopath)
+
+                    # python part
+                    ti=timeit.Timer(runas_command, runas_context)
+                    print module_name, median(ti.repeat(BenchmarkCommand.nb_iter,number=1)),
+
+                    # force module reloading
+                    del sys.modules[module_name]
+
+                    # pythran part
+                    specs = spec_parser(candidate)
+                    mod = cxx_generator(module_name, file(candidate).read(), specs)
+                    pythran_compile(os.environ.get("CXX","c++"), mod, cxxflags=["-O3", "-DNDEBUG"])
+                    ti=timeit.Timer(runas_command, runas_context)
+                    print median(ti.repeat(BenchmarkCommand.nb_iter,number=1))
+
 
 setup(  name='pythran',
         version='0.1.0',
@@ -58,5 +106,5 @@ setup(  name='pythran',
             ],
         license="BSD 3-Clause",
         requires=['ply (>=3.4)', 'networkx (>=1.5)'],
-        cmdclass= { 'build' : build_with_ply, 'test' : TestCommand }
+        cmdclass= { 'build' : build_with_ply, 'test' : TestCommand, 'bench' : BenchmarkCommand }
      )

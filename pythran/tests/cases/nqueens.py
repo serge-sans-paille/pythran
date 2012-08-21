@@ -1,3 +1,4 @@
+#runas n_queens(9)
 #pythran export n_queens(int)
 
 # Pure-Python implementation of itertools.permutations().

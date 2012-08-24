@@ -116,7 +116,7 @@ class ToolChain(object):
             cpp.write(content)
         module_cpp=fdpath
         module_so = output_filename if output_filename else "{0}.so".format(module.name) 
-        check_call([self.compiler, module_cpp] + self.cxxflags + [  "-shared", "-o", module_so ] + self.get_include_flags() + self.cppflags + self.ldflags, stderr=tmperr)
+        check_call([self.compiler, module_cpp] + self.cppflags + self.cxxflags + [  "-shared", "-o", module_so ] + self.get_include_flags() + self.ldflags, stderr=tmperr)
         os.remove(fdpath)
         return module_so
 
@@ -126,7 +126,7 @@ class ToolChain(object):
                 tmpfile=NamedTemporaryFile(suffix=".cpp")
                 tmpfile.write(code)
                 tmpfile.flush()
-                check_call([self.compiler] + self.cxxflags + [ tmpfile.name, "-o" , "/dev/null"] + self.get_include_flags() + self.cppflags + self.ldflags)
+                check_call([self.compiler] + self.cppflags + self.cxxflags + [ tmpfile.name, "-o" , "/dev/null"] + self.get_include_flags() + self.ldflags)
             except:
                 raise EnvironmentError(errno.ENOPKG, msg)
 

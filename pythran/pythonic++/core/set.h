@@ -15,13 +15,6 @@ namespace  pythonic {
     /* the container type */
     namespace core {
 
-        template<class T>
-        struct comparable_iterator:T {
-            comparable_iterator(const T& t) : T(t) {}
-            bool operator<(comparable_iterator<T> other) {
-                return (*this)!= other;
-            }
-        };
 
 
         struct empty_set;

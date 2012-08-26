@@ -42,16 +42,6 @@ namespace pythonic {
         PROXY(pythonic::__list__, remove);
 
         template<class T>
-            T pop(core::list<T> &seq, long x = -1) {
-                x = x%seq.size();
-                if (x<0) x+=seq.size();
-                T res = seq[x];
-                seq.erase(x);
-                return res;
-            }
-        VPROXY(pythonic::__list__, pop);
-
-        template<class T>
             long count(core::list<T> &seq, T const& x) {
                 return std::count(seq.begin(),seq.end(),x);
             }

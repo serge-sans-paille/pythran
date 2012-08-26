@@ -374,6 +374,14 @@ class CxxBackend(ast.NodeVisitor):
             elts = [ self.visit(n) for n in node.elts ]
             return "core::set< decltype({0})>({{ {1} }})".format(" + ".join(elts), ", ".join(elts))
 
+    def visit_Dict(self, node):
+        if not node.keys: # empty dict
+            return "dict()"
+        else:
+            keys = [ self.visit(n) for n in node.keys ]
+            values = [ self.visit(n) for n in node.values ]
+            return "core::dict< decltype({0}),  decltype({1})>({{ {2} }})".format(" + ".join(keys), " + ".join(values),  ", ".join("{{ {0}, {1} }}".format(k,v) for k,v in zip(keys,values)))
+
     def visit_Tuple(self, node):
         if not node.elts: # empty tuple
             return "std::make_tuple()"
@@ -397,7 +405,7 @@ class CxxBackend(ast.NodeVisitor):
         return str(node.n) + type_to_suffix.get(type(node.n),"")
 
     def visit_Str(self, node):
-        return '"{0}"'.format(node.s.replace("\n",'\\n"\n"'))
+        return 'core::string("{0}")'.format(node.s.replace("\n",'\\n"\n"'))
 
     def visit_Attribute(self, node):
         value, attr = (node.value, node.attr)
@@ -411,7 +419,10 @@ class CxxBackend(ast.NodeVisitor):
         slice = self.visit(node.slice)
         try:
             v = constant_value(node.slice)
-            return "std::get<{0}>({1})".format(v, value)
+            if isinstance(v,int) or isinstance(v,long) or isinstance(v,bool):
+                return "std::get<{0}>({1})".format(v, value)
+            else:
+                raise RuntimeError()
         except:
             if isinstance(node.slice, ast.Slice) and (
                     isinstance(node.ctx, ast.Store) or not metadata.get(node, metadata.NotTemporary)):

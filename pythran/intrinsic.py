@@ -8,6 +8,9 @@ class Intrinsic:
     def isfunction(self):
         return False
 
+    def isstaticfunction(self):
+        return False
+
     def ismethod(self):
         return False
 
@@ -19,6 +22,9 @@ class FunctionIntr(Intrinsic):
         pass
 
     def isfunction(self):
+        return True
+
+    def isstaticfunction(self):
         return True
 
 class MethodIntr(FunctionIntr):
@@ -35,6 +41,9 @@ class MethodIntr(FunctionIntr):
 
     def ismethod(self):
         return True
+
+    def isstaticfunction(self):
+        return False
 
 class AttributeIntr(Intrinsic):
     def __init__(self,_val):

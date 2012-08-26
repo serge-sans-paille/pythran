@@ -20,6 +20,7 @@ class SpecParser:
             'export'    : 'EXPORT',
             'list'      : 'LIST',
             'set'       : 'SET',
+            'dict'      : 'DICT',
             'str'       : 'STR',
             'bool'      : 'BOOL',
             'complex'   : 'COMPLEX',
@@ -27,11 +28,12 @@ class SpecParser:
             'long'      : 'LONG',
             'float'     : 'FLOAT',
             }
-    tokens = [ 'IDENTIFIER', 'SHARP', 'COMMA', 'LPAREN', 'RPAREN' ] + list(reserved.values())
+    tokens = [ 'IDENTIFIER', 'SHARP', 'COMMA', 'COLUMN', 'LPAREN', 'RPAREN' ] + list(reserved.values())
     
     # token <> regexp binding
     t_SHARP     = r'\#'
     t_COMMA     = r','
+    t_COLUMN    = r':'
     t_LPAREN    = r'\('
     t_RPAREN    = r'\)'
 
@@ -74,6 +76,7 @@ class SpecParser:
         '''type : term
                 | type LIST
                 | type SET
+                | type COLUMN type DICT
                 | LPAREN types RPAREN'''
         if len(p) == 2:
             p[0] = p[1]
@@ -81,6 +84,8 @@ class SpecParser:
             p[0] = [p[1]]
         elif len(p) == 3 and p[2]=='set':
             p[0] = {p[1]}
+        elif len(p) == 5:
+            p[0] = {p[1] : p[3]}
         else:
             p[0] = tuple(p[2])
 

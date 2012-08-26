@@ -11,7 +11,8 @@
 '''
 
 from analysis import imported_ids, purity_test, global_declarations, identifiers
-from tables import methods, attributes, cxx_keywords, namespace
+from tables import modules, methods, attributes, functions, cxx_keywords, namespace
+from syntax import PythranSyntaxError
 import metadata
 import ast
 import re
@@ -325,6 +326,7 @@ def normalize_return(node):
 ##
 class NormalizeMethodCalls(ast.NodeVisitor):
     def visit_Call(self, node):
+        [self.visit(n) for n in node.args ]
         if isinstance(node.func, ast.Attribute) and node.func.attr in methods:
             node.args.insert(0,  node.func.value)
             node.func=ast.Attribute(ast.Name(methods[node.func.attr][0],ast.Load()), node.func.attr, ast.Load())
@@ -338,6 +340,16 @@ class NormalizeAttributes(ast.NodeTransformer):
     def visit_Attribute(self, node):
         if node.attr in attributes:
             return ast.Subscript(node.value, ast.Index(ast.Num(attributes[node.attr][1].val)), node.ctx)
+        elif node.attr in functions:
+            if len(functions[node.attr]) > 1:
+                return node
+            else:
+                [(module,_)] = functions[node.attr]
+                if not isinstance(node.value, ast.Name) or (node.value.id != module and node.value.id != module[2:-2]) :
+                    raise PythranSyntaxError("Calling the static function '{0}' without its module name".format(node.value.id))
+                else:
+                    node.value.id=module
+                    return node
         else:
             return node
 

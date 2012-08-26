@@ -6,6 +6,7 @@ import os.path
 #pythran export a(str)
 #pythran export a( (str,str), int, long list list)
 #pythran export a( long set )
+#pythran export a( long:str dict )
 
 class TestSpecParser(unittest.TestCase):
 

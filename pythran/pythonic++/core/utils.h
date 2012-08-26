@@ -43,5 +43,14 @@ namespace pythonic {
         enum { value = (1 == sizeof test<T>(0)) };
     };
 
+    template<class T>
+        struct comparable_iterator:T {
+            comparable_iterator() : T() {}
+            comparable_iterator(T const & t) : T(t) {}
+            bool operator<(comparable_iterator<T> other) {
+                return (*this)!= other;
+            }
+        };
+
 }
 #endif

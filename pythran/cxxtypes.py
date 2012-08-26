@@ -144,6 +144,14 @@ class ContentType(Type):
     def generate(self,ctx):
         return 'typename content_of<{0}>::type'.format(ctx(self.of).generate(ctx))
 
+class IteratorContentType(Type):
+    def __init__(self, of):
+        self.of=of
+        self.qualifiers=of.qualifiers
+        self.fields=("of",)
+    def generate(self,ctx):
+        return 'typename std::remove_cv<typename {0}::iterator::value_type>::type'.format(ctx(self.of).generate(ctx))
+
 class ReturnType(Type):
     def __init__(self, call, args):
         self.call=call
@@ -180,6 +188,15 @@ class SetType(Type):
     def generate(self, ctx):
         return 'core::set<{0}>'.format(ctx(self.of).generate(ctx))
 
+class DictType(Type):
+    def __init__(self, of_key, of_value):
+        self.of_key=of_key
+        self.of_value=of_value
+        self.qualifiers=of_key.qualifiers.union(of_value.qualifiers)
+        self.fields=("of_key","of_value",)
+    def generate(self, ctx):
+        return 'core::dict<{0},{1}>'.format(ctx(self.of_key).generate(ctx), ctx(self.of_value).generate(ctx))
+
 class ContainerType(Type):
     def __init__(self, of):
         self.of=of
@@ -187,6 +204,14 @@ class ContainerType(Type):
         self.fields=("of",)
     def generate(self,ctx):
         return 'container<{0}>'.format(ctx(self.of).generate(ctx))
+
+class IndexableType(Type):
+    def __init__(self, of):
+        self.of=of
+        self.qualifiers=of.qualifiers
+        self.fields=("of",)
+    def generate(self,ctx):
+        return 'indexable<{0}>'.format(ctx(self.of).generate(ctx))
 
 class TupleType(Type):
     def __init__(self, ofs):

@@ -3,10 +3,11 @@ import ast
 import tables
 
 class PythranSyntaxError(SyntaxError):
-    def __init__(self, msg, node):
+    def __init__(self, msg, node=None):
         SyntaxError.__init__(self,msg)
-        self.lineno=node.lineno
-        self.offset=node.col_offset
+        if node:
+            self.lineno=node.lineno
+            self.offset=node.col_offset
 
 class SyntaxChecker(ast.NodeVisitor):
     def visit_Module(self, node):
@@ -72,9 +73,6 @@ class SyntaxChecker(ast.NodeVisitor):
 
     def visit_Global(self, node):
         raise PythranSyntaxError("Global variables are not supported", node)
-
-    def visit_Dict(self, node):
-        raise PythranSyntaxError("Dictionaries are not supported", node)
 
     def visit_DictComp(self, node):
         raise PythranSyntaxError("Dictionary comprehension are not supported", node)

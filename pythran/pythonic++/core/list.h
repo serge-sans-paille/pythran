@@ -279,8 +279,9 @@ namespace  pythonic {
                     list<T> operator*(F const& t) const {
                         size_t n = t;
                         list<T> r(data->size()*n);
-                        for(size_t i=0;i<n;i++)
-                            std::copy(this->begin(), this->end(),r.begin());
+                        auto start = r.begin();
+                        for(size_t i=0;i<n;i++, start+=data->size()) 
+                            std::copy(this->begin(), this->end(),start);
                         return r;
                     }
 
@@ -291,6 +292,15 @@ namespace  pythonic {
                         return *this;
                     }
                 long size() const { return data->size(); }
+
+                T pop(long x = -1) {
+                    x = x%size();
+                    if (x<0) x+=size();
+                    T res = (*data)[x];
+                    erase(x);
+                    return res;
+                }   
+
 
             };
         template<class T>

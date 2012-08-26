@@ -5,6 +5,8 @@
 #include <pythonic++.h>
 using namespace pythonic;
 
+/* type inference stuff {*/
+
 template<class Type, class... Types>
     struct __combined {
         typedef typename __combined< Type, typename __combined<Types...>::type >::type type;
@@ -25,6 +27,16 @@ template<class T>
     };
 
 
+template<class T>
+struct content_of {
+    typedef typename T::value_type type;
+};
+
+template<class K, class V>
+struct content_of< core::dict<K,V> > {
+    typedef V type;
+};
+
 
 /* for type inference only,  a bit dangerous ? */
 template <class T0, class T1>
@@ -38,16 +50,33 @@ class container {
     private:
         container();
 };
+template<class T>
+class dict_container {
+    public:
+        typedef typename std::remove_cv< typename std::remove_reference<T>::type>::type value_type;
+    private:
+        dict_container();
+};
 
 template <class A, class B>
-B operator+(container<A>&& , B );
+B operator+(container<A> , B );
 template <class A, class B>
-B operator+(B , container<A>&& );
+B operator+(B , container<A> );
 
 template <class A, class B>
 core::list<decltype(std::declval<A>()+std::declval<B>())> operator+(container<A> , core::list<B> );
 template <class A, class B>
 core::list<decltype(std::declval<A>()+std::declval<B>())> operator+(core::list<B> , container<A> );
+
+template <class A, class B>
+core::set<decltype(std::declval<A>()+std::declval<B>())> operator+(container<A> , core::set<B> );
+template <class A, class B>
+core::set<decltype(std::declval<A>()+std::declval<B>())> operator+(core::set<B> , container<A> );
+
+template <class A>
+dict_container<A> operator+(container<A> , core::empty_dict );
+template <class A>
+dict_container<A> operator+(core::empty_dict , container<A> );
 
 template <class A>
 decltype(std::declval<core::list<A>>() + none_type()) operator+(container<A> , none_type );
@@ -57,8 +86,107 @@ decltype(std::declval<core::list<A>>() + none_type()) operator+(none_type , cont
 template <class A, class B>
 container<decltype(std::declval<A>()+std::declval<B>())> operator+(container<A> , container<B> );
 
+template<class T>
+class indexable {
+    public:
+        typedef typename std::remove_cv< typename std::remove_reference<T>::type>::type type;
+    private:
+        indexable();
+};
+template<class T>
+class indexable_dict {
+    public:
+        typedef typename std::remove_cv< typename std::remove_reference<T>::type>::type type;
+    private:
+        indexable_dict();
+};
+
+template<class K1, class K2>
+indexable<decltype(std::declval<K1>()+std::declval<K2>())> operator+(indexable<K1>, indexable<K2>);
+template<class K>
+indexable<K> operator+(indexable<K>, core::empty_list);
+template<class K>
+indexable<K> operator+(core::empty_list, indexable<K>);
+template<class K>
+indexable<K> operator+(indexable<K>, core::empty_set);
+template<class K>
+indexable<K> operator+(core::empty_set, indexable<K>);
+template<class K>
+indexable_dict<K> operator+(indexable<K>, core::empty_dict);
+template<class K>
+indexable_dict<K> operator+(core::empty_dict, indexable<K>);
+template<class K, class... Types>
+std::tuple<Types...> operator+(indexable<K>, std::tuple<Types...>);
+template<class K, class... Types>
+std::tuple<Types...> operator+(std::tuple<Types...>, indexable<K>);
+template<class K>
+std::complex<double> operator+(indexable<K>, std::complex<double>);
+template<class K>
+std::complex<double> operator+(std::complex<double>, indexable<K>);
+
+template<class K, class V>
+class indexable_container {
+    public:
+        typedef typename std::remove_cv< typename std::remove_reference<K>::type>::type key_type;
+        typedef typename std::remove_cv< typename std::remove_reference<V>::type>::type value_type;
+    private:
+        indexable_container();
+};
+template<class K1, class V1, class K2, class V2>
+indexable_container<decltype(std::declval<K1>()+std::declval<K2>()), decltype(std::declval<V1>()+std::declval<V2>())> operator+(indexable_container<K1,V1>, indexable_container<K2,V2>);
+
+template <class K, class V>
+indexable_container<K,V> operator+(indexable<K>, container<V>);
+template <class V, class K>
+indexable_container<K,V> operator+(container<V>, indexable<K>);
+
+template <class K, class V>
+core::list<V> operator+(indexable<K>, core::list<V>);
+template <class V, class K>
+core::list<V> operator+(core::list<V>, indexable<K>);
+
+template <class K, class V>
+core::set<V> operator+(indexable<K>, core::set<V>);
+template <class K, class V>
+core::set<V> operator+(core::set<V>, indexable<K>);
+
+template <class K1, class V1, class K2>
+indexable_container<typename __combined<K1,K2>::type,V1> operator+(indexable_container<K1,V1>, indexable<K2>);
+template <class K1, class V1, class K2>
+indexable_container<typename __combined<K1,K2>::type,V1> operator+(indexable<K2>, indexable_container<K1,V1>);
+
+template <class K, class V1, class V2>
+core::list<decltype(std::declval<V1>()+std::declval<V2>())> operator+(indexable_container<K,V1>, core::list<V2>);
+template <class K, class V1, class V2>
+core::list<decltype(std::declval<V1>()+std::declval<V2>())> operator+(core::list<V2>, indexable_container<K,V1>);
+
+template <class K, class V1, class V2>
+core::set<decltype(std::declval<V1>()+std::declval<V2>())> operator+(indexable_container<K,V1>, core::set<V2>);
+template <class K, class V1, class V2>
+core::set<decltype(std::declval<V1>()+std::declval<V2>())> operator+(core::set<V2>, indexable_container<K,V1>);
+
+template< class K, class V>
+core::dict<K,V> operator+(core::empty_dict, indexable_container<K,V>);
+template< class K, class V>
+core::dict<K,V> operator+(indexable_container<K,V>, core::empty_dict);
+
+template <class K, class V>
+core::dict<K,V> operator+(indexable<K>, dict_container<V>);
+template <class V, class K>
+core::dict<K,V> operator+(dict_container<V>, indexable<K>);
+
+template <class K, class V>
+core::dict<K,V> operator+(indexable_dict<K>, container<V>);
+template <class V, class K>
+core::dict<K,V> operator+(container<V>, indexable_dict<K>);
+
 /* some overloads */
 namespace std {
+    /* for remove_cv */
+    template <class K, class V>
+        struct remove_cv< std::pair<const K, V> > {
+            typedef std::pair<K, V> type;
+        };
     /* for core::list */
     template <size_t I, class T>
         auto get( core::list<T>& t) -> decltype(t[I]) { return t[I]; }
@@ -66,6 +194,14 @@ namespace std {
     template <size_t I, class T>
         struct tuple_element<I, core::list<T> > {
             typedef typename core::list<T>::value_type type;
+        };
+    /* for core::dict */
+    template <size_t I, class K, class V>
+        auto get( core::dict<K,V>& d) -> decltype(d[I]) { return d[I]; }
+
+    template <size_t I, class K, class V>
+        struct tuple_element<I, core::dict<K,V> > {
+            typedef typename core::dict<K,V>::value_type type;
         };
 
     /* for containers */
@@ -90,6 +226,9 @@ namespace std {
     GET_COMPLEX(double)
 
 }
+/* } */
+
+/* wrapper used by generated code to simulate closures { */
 namespace pythonic {
     namespace proxy {
         struct bind0 {
@@ -136,13 +275,10 @@ namespace pythonic {
         };
     }
 }
-
-template<class T>
-struct content_of {
-    typedef typename T::value_type type;
-};
+/* } */
 
 #ifdef ENABLE_PYTHON_MODULE
+/* python <-> c++ conversion stuff { */
 
 #include <boost/python.hpp>
 #include <boost/python/module.hpp>
@@ -228,6 +364,36 @@ struct python_to_pythran< core::set<T> >{
              Py_DECREF(item);
          }
          Py_DECREF(iterator);
+		 data->convertible=storage;
+	}
+};
+
+template<typename K, typename V>
+struct python_to_pythran< core::dict<K,V> >{
+	python_to_pythran(){
+        python_to_pythran<K>();
+        python_to_pythran<V>();
+        static bool registered =false;
+        if(not registered) {
+            registered=true;
+            boost::python::converter::registry::push_back(&convertible,&construct,boost::python::type_id<core::dict<K,V> >());
+        }
+    }
+	static void* convertible(PyObject* obj_ptr){
+		// the second condition is important, for some reason otherwise there were attempted conversions of Body to list which failed afterwards.
+		if(!PyDict_Check(obj_ptr) || !PyObject_HasAttrString(obj_ptr,"__len__")) return 0;
+		return obj_ptr;
+	}
+	static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
+		 void* storage=((boost::python::converter::rvalue_from_python_storage<core::dict<K,V> >*)(data))->storage.bytes;
+		 new (storage) core::dict<K,V>();
+         core::dict<K,V>& v=*(core::dict<K,V>*)(storage);
+
+         PyObject *key, *value;
+         Py_ssize_t pos = 0;
+         while(PyDict_Next(obj_ptr, &pos, &key, &value)) {
+             v[boost::python::extract<K>(key)]=boost::python::extract<V>(value);
+         }
 		 data->convertible=storage;
 	}
 };
@@ -322,8 +488,43 @@ struct pythran_to_python< core::set<T> > {
     }
 };
 
+template<typename K, typename V>
+struct custom_core_dict_to_dict{
+    static PyObject* convert(const core::dict<K,V>& v){
+        PyObject* ret = PyDict_New();
+        for(auto kv=v.item_begin(); kv != v.item_end(); ++kv)
+            PyDict_SetItem(ret, boost::python::incref(boost::python::object(kv->first).ptr()), boost::python::incref(boost::python::object(kv->second).ptr()));
+        return ret;
+    }
+};
+
+template<typename K, typename V>
+struct pythran_to_python< core::dict<K,V> > {
+    pythran_to_python() {
+        pythran_to_python<K>();
+        pythran_to_python<V>();
+        register_once< core::dict<K,V>, custom_core_dict_to_dict<K,V> >();
+    }
+};
+
+template<typename K, typename V>
+struct custom_pair_to_tuple {
+    static PyObject* convert(std::pair<K,V> const & t) {
+        return boost::python::incref(boost::python::make_tuple( t.first, t.second ).ptr());
+    }
+};
+
+template<typename K, typename V>
+struct pythran_to_python< std::pair<K,V> > {
+    pythran_to_python() {
+        pythran_to_python<K>();
+        pythran_to_python<V>();
+        register_once<std::pair<K,V>, custom_pair_to_tuple<K,V>>();
+    }
+};
+
 template<typename... Types>
-struct custom_tuple_to_list {
+struct custom_tuple_to_tuple {
     template<int ...S>
         static PyObject* do_convert( std::tuple<Types...> const & t, seq<S...>) {
             return boost::python::incref(boost::python::make_tuple( std::get<S>(t)...).ptr());
@@ -337,7 +538,7 @@ template<typename... Types>
 struct pythran_to_python< std::tuple<Types...> > {
     pythran_to_python() {
         fwd(pythran_to_python<Types>()...);
-        register_once<std::tuple<Types...>, custom_tuple_to_list<Types...>>();
+        register_once<std::tuple<Types...>, custom_tuple_to_tuple<Types...>>();
     }
 };
 
@@ -360,10 +561,20 @@ struct custom_empty_list_to_list {
         return boost::python::incref(ret.ptr());
     }
 };
-
 template<>
 struct pythran_to_python< core::empty_list > {
     pythran_to_python() { register_once< core::empty_list, custom_empty_list_to_list >(); }
+};
+
+struct custom_empty_dict_to_dict {
+    static PyObject* convert(core::empty_dict const &) {
+        boost::python::dict ret;
+        return boost::python::incref(ret.ptr());
+    }
+};
+template<>
+struct pythran_to_python< core::empty_dict > {
+    pythran_to_python() { register_once< core::empty_dict, custom_empty_dict_to_dict >(); }
 };
 
 template <typename T>
@@ -381,6 +592,7 @@ struct pythran_to_python< none<T> > {
         register_once<none<T>, custom_none_to_any<T>>();
     }
 };
+/* } */
 #endif
 
 #endif

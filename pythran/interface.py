@@ -21,7 +21,7 @@ pytype_to_ctype_table = {
         int           : 'long',
         long          : 'long long',
         float         : 'double',
-        str           : 'std::string',
+        str           : 'core::string',
         None          : 'void',
         }
 
@@ -31,6 +31,9 @@ def pytype_to_ctype(t):
         return 'core::list<{0}>'.format(pytype_to_ctype(t[0]))
     if isinstance(t,set):
         return 'core::set<{0}>'.format(pytype_to_ctype(list(t)[0]))
+    elif isinstance(t,dict):
+        tkey, tvalue = t.items()[0]
+        return 'core::dict<{0},{1}>'.format(pytype_to_ctype(tkey), pytype_to_ctype(tvalue))
     elif isinstance(t,tuple):
         return 'std::tuple<{0}>'.format(", ".join(pytype_to_ctype(_) for _ in t))
     elif t in pytype_to_ctype_table:
@@ -41,8 +44,11 @@ def pytype_to_ctype(t):
 def extract_constructed_types(t):
     if isinstance(t, list):
         return [ pytype_to_ctype(t) ] + extract_constructed_types(t[0])
-    if isinstance(t, set):
+    elif isinstance(t, set):
         return [ pytype_to_ctype(t) ] + extract_constructed_types(list(t)[0])
+    elif isinstance(t, dict):
+        tkey, tvalue = t.items()[0]
+        return [ pytype_to_ctype(t) ] + extract_constructed_types(tkey) + extract_constructed_types(tvalue)
     elif isinstance(t,tuple):
         return [ pytype_to_ctype(t) ] + reduce(lambda x,y:x+y, (extract_constructed_types(e) for e in t))
     else:

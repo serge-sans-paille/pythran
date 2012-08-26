@@ -10,7 +10,7 @@
     * mark_temporaries flags temporary objects for further optimization
 '''
 
-from tables import modules, builtin_constants
+from tables import modules, functions, builtin_constants
 import ast
 import networkx as nx
 import metadata
@@ -91,6 +91,11 @@ class ImportedIds(ast.NodeVisitor):
         [ local.visit(n) for n in node.generators ]
         local.visit(node.elt)
         self.references.update(local.references)
+
+    def visit_Attribute(self, node):
+        assert isinstance(node.value, ast.Name)
+        assert node.value.id in modules
+        pass
 
     def visit_ListComp(self, node): self.visit_AnyComp(node)
 

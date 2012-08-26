@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NONE_H
 #define PYTHONIC_NONE_H
 
+#include <iterator>
+
 namespace pythonic {
 
 struct none_type { none_type(){} };
@@ -51,12 +53,6 @@ SPECIALIZE_NONE(long long)
 SPECIALIZE_NONE(double)
 
 
-template <class T>
-    struct _id< none<T> > {
-        intptr_t operator()(none<T> const &t) {
-            return t ? reinterpret_cast<intptr_t>(&t.data): reinterpret_cast<intptr_t>(&None);
-        }
-    };
 
 
 template <class T0, class T1>

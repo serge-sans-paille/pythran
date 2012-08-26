@@ -27,7 +27,7 @@ namespace pythonic {
 
     /* bin */
     template<class T>
-        std::string bin(T const &v) {
+        core::string bin(T const &v) {
             long long unsigned int i = 1LL << (8*sizeof(T)-1);
             while(i and not (v&i)) i>>=1;
             if(not i) return "0b0";
@@ -44,7 +44,7 @@ namespace pythonic {
 
     /* chr */
     template<class T>
-        std::string chr(T const &v) { return std::string(1,(char)v); }
+        core::string chr(T const &v) { return core::string(1,(char)v); }
     PROXY(pythonic, chr);
 
     /* cmp */
@@ -61,6 +61,12 @@ namespace pythonic {
     }
     PROXY(pythonic, complex);
 
+    /* dict */
+    core::empty_dict dict() {
+        return core::empty_dict();
+    }
+    PROXY(pythonic,dict);
+
     /* divmod */
     template<class T0, class T1>
         auto divmod(T0 const& t0, T1 const& t1) // other types are left over
@@ -71,7 +77,7 @@ namespace pythonic {
 
     /* enumerate */
     template<class T>
-    struct enumerate_iterator : std::iterator< std::random_access_iterator_tag, long >{
+    struct enumerate_iterator : std::iterator< std::random_access_iterator_tag, std::tuple<long, T> >{
         long value;
         typename core::list<T>::const_iterator iter;
         enumerate_iterator(){}
@@ -90,6 +96,7 @@ namespace pythonic {
         core::list<T> seq;
         _enumerate() {}
         typedef std::tuple<long, T> value_type;
+        typedef enumerate_iterator<T> iterator;
         _enumerate( core::list<T> const& seq ) : seq(seq) {}
         enumerate_iterator<T> begin() const { return enumerate_iterator<T>(0L,seq.begin()); }
         enumerate_iterator<T> end() const { return enumerate_iterator<T>(seq.end()-seq.begin(), seq.end()); }
@@ -110,7 +117,7 @@ namespace pythonic {
 
     /* hex */
     template <class T>
-        std::string hex(T const & v) {
+        core::string hex(T const & v) {
             std::ostringstream oss;
             oss << "0x" << std::hex << v;
             return oss.str();
@@ -122,6 +129,12 @@ namespace pythonic {
         struct _id {
             intptr_t operator()(T const &t) {
                 return reinterpret_cast<intptr_t>(&t);
+            }
+        };
+    template <class T>
+        struct _id< none<T> > {
+            intptr_t operator()(none<T> const &t) {
+                return t ? reinterpret_cast<intptr_t>(&t.data): reinterpret_cast<intptr_t>(&None);
             }
         };
     template <class T>
@@ -139,12 +152,31 @@ namespace pythonic {
 
     /* in */
     template <class T, class V>
+        struct _in {
+            bool operator()(T const &t, V const &v) {
+                return std::find(t.begin(), t.end(), v) != t.end();
+            }
+        };
+    template <class K, class V>
+        struct _in<core::dict<K,V>,K> {
+            bool operator()(core::dict<K,V> const &t, K const &v) {
+                return t.find(v) != t.item_end();
+            }
+        };
+    template <class D, class I>
+        struct _in<core::dict_items<D>,I> {
+            bool operator()(core::dict_items<D> const &t, I const &v) {
+                auto found = t.data.find(std::get<0>(v));
+                return found != t.data.item_end() and std::get<1>(*found) == std::get<1>(v);
+            }
+        };
+    template <class T, class V>
         bool in(T const &t, V const &v) {
-            return std::find(t.begin(), t.end(), v) != t.end();
+            return _in<T,V>()(t,v);
         }
     template <>
-        bool in<std::string, std::string>(std::string const &t, std::string const &v) {
-            return t.find(v) != std::string::npos;
+        bool in<core::string, core::string>(core::string const &t, core::string const &v) {
+            return t.find(v) != core::string::npos;
         }
     PROXY(pythonic,in);
 
@@ -176,6 +208,14 @@ namespace pythonic {
                 return t.size();
             }
         };
+
+    template <class K, class V>
+        struct _len<core::dict<K,V>, std::bidirectional_iterator_tag> {
+            long operator()(core::dict<K,V> const &t) {
+                return t.size();
+            }
+        };
+
     template <class T>
         long len(T const &t) {
             return _len<T, typename std::iterator_traits<decltype(const_cast<T*>(&t)->begin())>::iterator_category >()(t);
@@ -348,7 +388,7 @@ namespace pythonic {
 
     /* oct */
     template <class T>
-        std::string oct(T const & v) {
+        core::string oct(T const & v) {
             std::ostringstream oss;
             oss << '0' << std::oct << v;
             return oss.str();
@@ -483,23 +523,23 @@ namespace pythonic {
     PROXY(pythonic, round);
 
     /* sorted */
-    template <class T>
-        core::list<T> sorted(core::list<T> const& seq) {
-            core::list<T> out(seq);
+    template <class Iterable>
+        core::list<typename std::remove_cv<typename Iterable::iterator::value_type>::type> sorted(Iterable const& seq) {
+            core::list<typename std::remove_cv<typename Iterable::iterator::value_type>::type> out(seq.begin(), seq.end());
             std::sort(out.begin(), out.end());
             return out;
         }
-    template <class T, class C>
-        core::list<T> sorted(core::list<T> const& seq, C const& cmp) {
-            core::list<T> out(seq);
-            std::sort(seq.bein(), seq.end(), cmp);
+    template <class Iterable, class C>
+        core::list<typename std::remove_cv<typename Iterable::iterator::value_type>::type> sorted(Iterable const& seq, C const& cmp) {
+            core::list<typename std::remove_cv<typename Iterable::iterator::value_type>::type> out(seq.begin(), seq.end());
+            std::sort(out.begin(), out.end(), cmp);
             return out;
         }
     PROXY(pythonic, sorted);
 
     /* str */
     template <class T>
-        std::string str(T const & t) {
+        core::string str(T const & t) {
             std::ostringstream oss;
             oss << t;
             return oss.str();

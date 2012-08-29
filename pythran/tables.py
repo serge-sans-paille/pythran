@@ -182,7 +182,6 @@ modules = {
         "__list__" : {
             "append" : { 'method':True, 'combiner': lambda self, node: self.combine(node.args[0], node.args[1], unary_op=lambda f: cxxtypes.ListType(f), register=True)},
             "extend" : { 'method':True, 'combiner': lambda self, node: self.combine(node.args[0], node.args[1], register=True)},
-            "remove" : { 'method':True },
             "index" : { 'method':True },
             "reverse" : { 'method':True },
             "sort" : { 'method':True },
@@ -192,12 +191,19 @@ modules = {
         "__set__" : {
             "add" : { 'method':True, 'combiner': lambda self, node: self.combine(node.args[0], node.args[1], unary_op=lambda f: cxxtypes.SetType(f), register=True)},
 	    "clear" : { 'method':True },
+	    "copy" : { 'method':True },
 	    "discard" : { 'method':True },
-	    "delete_" : { 'method':True },
 	    "isdisjoint" : { 'method':True },
+	    "union_" : { 'method':True },
+	    "intersection" : { 'method':True },
+	    "difference" : { 'method':True },
+	    "symmetric_difference" : { 'method':True },
+	    "issuperset" : { 'method':True },
+	    "issubset" : { 'method':True },
             },
 	"__forward__" : {
 	    "pop" : { 'method':True },
+            "remove" : { 'method':True },
 	    },
         "_complex_" : {
                 "real": { 'attribute':0 },

@@ -120,12 +120,10 @@ namespace  pythonic {
 		}
 
 		template<class U>
-		void delete_(U const& elem){
+		void remove(U const& elem){
 			//Remove element elem from the set. Raises KeyError if elem is not contained in the set.
-			iterator it;
-			if((it=data->find(elem)) != end())
+			if(not data->erase(elem))
 				throw std::runtime_error("set.delete() : couldn't delete element not in the set.");
-			data->erase(it);
 		}
 
                 // set interface
@@ -137,6 +135,12 @@ namespace  pythonic {
                     set<decltype(std::declval<T>()+std::declval<U>())> operator+(set<U> const &);
 
 		// Misc
+
+		set<T> copy() const{
+			return set<T>(*this);
+		}
+
+
 		template<class U>
 		bool isdisjoint(set<U> const & other) const {
 			//Return true if the this has no elements in common with other.
@@ -146,16 +150,106 @@ namespace  pythonic {
 			}
 			return true;
 		}
-		
-		// Operators
+
 		template<class U>
-		bool operator<=(set<U> const& other) const {
-			// Every element in this is in other
+		bool issubset(set<U> const& other) const{
+			//Test whether every element in the set is in other.
 			for(iterator i=begin(); i!=end(); ++i){
 				if(other.get_data().find(*i)==other.end())
 					return false;
 			}
 			return true;
+		}
+
+		template<class U>
+		bool issuperset(set<U> const& other) const{
+			//    Test whether every element in other is in the set.
+			return other.issubset(*this);
+		}
+
+		set<T> union_() const{
+			return set<T>(begin(), end());
+		}
+
+		template<typename U, typename... Types> 
+		set<T> union_(U const& other, Types const&... others) const{
+			set<T> tmp = union_(others...);
+			tmp.data->insert(other.begin(), other.end());
+			return tmp;
+		}
+		
+		template<typename U, typename... Types> 
+		void update(Types const&... others) const{
+			*this=union_(others...);
+		}
+
+		set<T> intersection() const{
+			return set<T>(begin(), end());
+		}
+
+		template<typename U, typename... Types> 
+		set<T> intersection(set<U> const& other, set<Types> const&... others) const{
+			//Return a new set with elements common to the set and all others.
+			//
+			//Should accept any iterable object but due to use of find, can't be done yet
+			//
+			set<T> tmp = intersection(others...);
+			for(iterator it=tmp.begin(); it!=tmp.end();++it){
+				if(other.get_data().find(*it)==other.end())
+					tmp.discard(*it); //faster than remove() but not direct interaction with data
+			}
+			return tmp;
+		}
+		
+
+		template<typename U, typename... Types> 
+		void intersection_update(set<Types> const&... others) const{
+			*this=intersection(others...);
+		}
+
+		set<T> difference() const{
+			return set<T>(begin(), end());
+		}
+
+		template<typename U, typename... Types> 
+		set<T> difference(U const& other, Types const&... others) const{
+			//Return a new set with elements in the set that are not in the others.
+			set<T> tmp = difference(others...);
+			/*
+			for(iterator it=tmp.begin(); it!=tmp.end();++it){
+				if(other.get_data().find(*it)!=other.end())
+					tmp.discard(*it);
+			}
+			*///This algo will do several times the same find(), because std::set::erase() calls find. Lame!
+			for(typename U::iterator it=other.begin(); it!=other.end();++it){
+				tmp.discard(*it);
+			}
+			return tmp;
+		}
+
+		template<typename U> 
+		set<T> symmetric_difference(U const& other) const{
+			//Return a new set with elements in either the set or other but not both.
+			//return ((*this-other) | (other-*this));
+			
+			//We must use fcts and not operators because fcts have to handle any itarable objects and operators only sets (cf pyhton ref)
+			return (this->difference(other)).union_(other.defference(*this));
+		}
+
+		template<class U>
+		void print_debug(set<U> const& s)const{
+			//Debug fct
+			std::cerr<< "Debug : " ;
+			for(typename set<U>::iterator it=s.begin(); it!=s.end(); ++it)
+				std::cerr << *it << " ";
+			std::cerr<<std::endl;
+		}
+
+		// Operators
+		template<class U>
+		bool operator<=(set<U> const& other) const {
+			// Every element in *this is in other
+			return issubset(other);
 		}
 
 		template<class U>
@@ -176,17 +270,68 @@ namespace  pythonic {
 			return other < *this;
 		}
 
+		template<class U>
+		set<T> operator|(set<U> const& other) const {
+			return union_(other);
+		}
+
+		template<class U>
+		void operator|=(set<U> const& other) const {
+			*this=union_(other);
+		}
+
+		template<class U>
+		set<T> operator&(set<U> const& other) const {
+			return intersection(other);
+		}
+
+		template<class U>
+		void operator&=(set<U> const& other) const {
+			*this=intersection(other);
+		}
+
+		template<class U>
+		set<T> operator-(set<U> const& other) const {
+			return difference(other);
+		}
+
+		template<class U>
+		void operator-=(set<U> const& other) const {
+			*this=difference(other);
+		}
+
+		template<class U>
+		set<T> operator^(set<U> const& other) const {
+			return symmetric_difference(other);
+		}
+
+		template<class U>
+		void operator^=(set<U> const& other) const {
+			*this=symmetric_difference(other);
+		}
+
 		// const getter
-		container_type const & get_data() const { return *data; }
+		container_type const& get_data() const { return *data; }
             };
 
         template<class T>
             boost::object_pool<typename set<T>::memory_size> set<T>::pool;
 
+
         struct empty_set {
+		
+	typedef typename pythonic::empty_iterator empty_iterator;
+
             template<class T> 
                 set<T> operator+(set<T> const & s) { return s; }
             empty_set operator+(empty_set const &) { return empty_set(); }
+	    empty_iterator begin(){
+		    return empty_iterator();
+	    }
+	    empty_iterator end(){
+		    return empty_iterator();
+	    }
+
         };
     }
 }

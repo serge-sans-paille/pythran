@@ -5,12 +5,12 @@
 #include "core/utils.h"
 #include "core/functional.h"
 #include "core/list.h"
+#include "core/iterator.h"
 #include "core/set.h"
 #include "core/intrinsics.h"
 #include "core/none.h"
 #include "core/io.h"
 #include "core/exceptions.h"
-#include "core/generator.h"
 
 /* additional modules */
 #include "modules/list.h"

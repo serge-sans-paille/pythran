@@ -261,6 +261,17 @@ namespace  pythonic {
 	                return res;
 		}
 
+        	//TODO: have to raise a valueError
+                void remove(T const& x) {
+                        erase(index(x));
+             	}
+
+
+		//Misc
+        	//TODO: have to raise a valueError
+		long index(T const& x) {
+               		return std::find(begin(),end(),x)-begin();
+            	}	
 
                 // list interface
                 operator bool() { return not data->empty(); }

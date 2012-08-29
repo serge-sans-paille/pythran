@@ -29,17 +29,10 @@ namespace pythonic {
         //TODO: have to raise a valueError
         template<class T>
             long index(core::list<T> &seq, T& x) {
-                return std::find(seq.begin(),seq.end(),x)-seq.begin();
+                //return std::find(seq.begin(),seq.end(),x)-seq.begin();
+		return seq.index(x);
             }
         VPROXY(pythonic::__list__, index);
-
-        //TODO: have to raise a valueError
-        template<class T>
-            none_type remove(core::list<T> &seq, T& x) {
-                seq.erase(index(seq,x));
-                return None;
-            }
-        PROXY(pythonic::__list__, remove);
 
 
         template<class T>

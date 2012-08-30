@@ -70,7 +70,8 @@ class BenchmarkCommand(Command):
 
                     # python part
                     ti=timeit.Timer(runas_command, runas_context)
-                    print module_name, median(ti.repeat(BenchmarkCommand.nb_iter,number=1)),
+                    python_tps = median(ti.repeat(BenchmarkCommand.nb_iter,number=1))
+                    print module_name, python_tps,
 
                     # force module reloading
                     del sys.modules[module_name]
@@ -80,7 +81,8 @@ class BenchmarkCommand(Command):
                     mod = cxx_generator(module_name, file(candidate).read(), specs)
                     pythran_compile(os.environ.get("CXX","c++"), mod, cxxflags=["-O3", "-DNDEBUG"])
                     ti=timeit.Timer(runas_command, runas_context)
-                    print median(ti.repeat(BenchmarkCommand.nb_iter,number=1))
+                    pythran_tps = median(ti.repeat(BenchmarkCommand.nb_iter,number=1))
+                    print pythran_tps, "x",(python_tps/pythran_tps)
 
 
 setup(  name='pythran',

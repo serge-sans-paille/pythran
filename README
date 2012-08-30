@@ -12,6 +12,18 @@ into a native python module with the same interface, but (hopefully) faster.
 Installation
 ------------
 
+1. The debway:
+
+	- Add serge_sans_paille's debian server to your `source.list`, following
+	  the instruction given in http://serge.liyun.free.fr/serge/debian.html
+
+	- Run the classical::
+
+		$> sudo apt-get update
+		$> sudo apt-get install pythran
+
+**or**
+
 1. Gather dependencies:
 
 	- Following the easy install way::

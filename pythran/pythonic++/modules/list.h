@@ -29,7 +29,8 @@ namespace pythonic {
         //TODO: have to raise a valueError
         template<class T>
             long index(core::list<T> &seq, T& x) {
-                return std::find(seq.begin(),seq.end(),x)-seq.begin();
+                //return std::find(seq.begin(),seq.end(),x)-seq.begin();
+		return seq.index(x);
             }
         VPROXY(pythonic::__list__, index);
 

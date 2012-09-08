@@ -6,6 +6,7 @@
 #include "core/functional.h"
 #include "core/none.h"
 #include "core/list.h"
+#include "core/iterator.h"
 #include "core/set.h"
 #include "core/exceptions.h"
 #include "core/dict.h"
@@ -13,7 +14,7 @@
 #include "core/tuple.h"
 #include "core/intrinsics.h"
 #include "core/io.h"
-#include "core/generator.h"
+#include "core/exceptions.h"
 
 /* additional modules */
 #include "modules/dispatch.h"

@@ -1,5 +1,5 @@
-#ifndef PYTHONIC_GENERATOR_H
-#define PYTHONIC_GENERATOR_H
+#ifndef PYTHONIC_ITERATOR_H
+#define PYTHONIC_ITERATOR_H
 namespace pythonic {
 
     template <class T>
@@ -18,5 +18,34 @@ namespace pythonic {
                 return the_generator-> __generator_state != -1; // kind of a hack.
             }
         };
+
+//    typedef struct empty_iterator empty_iterator;
+    struct empty_iterator : std::iterator< std::forward_iterator_tag, int > {
+	    // Empty iterator used, among other things, by empty_set
+	    empty_iterator() {};
+	    empty_iterator(empty_iterator const&) {};
+	    bool operator==(empty_iterator const&) const{
+		    return true;
+	    }
+	    bool operator!=(empty_iterator const&) const{
+		    return false;
+	    }
+	    bool operator<(empty_iterator const&) const{
+		    return false;
+	    }
+	    empty_iterator& operator++(){
+		    return *this;
+	    }
+	    empty_iterator& operator++(int){
+		    return *this;
+	    }
+	    void operator*() const{
+		    return;
+	    }
+    	    void operator->() const{
+		    return;
+	    }
+    };
+
 }
 #endif

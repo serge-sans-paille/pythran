@@ -11,6 +11,8 @@
 
 namespace  pythonic {
 
+    template <class T, class V>
+        bool in(T const &t, V const &v);
 
     /* the container type */
     namespace core {
@@ -72,7 +74,7 @@ namespace  pythonic {
                 template<class F>
                     set(set<F> const & other) : 
                         refcount(reinterpret_cast<size_t*>(pool.malloc())), data(new (refcount+1) container_type()){
-                            std::copy(other.begin(), other.end(), std::back_inserter(*data));
+                            std::copy(other.begin(), other.end(), std::inserter(*data, data->begin()));
                         }
                 ~set() {
                     assert(*refcount>0);
@@ -144,8 +146,8 @@ namespace  pythonic {
 		template<class U>
 		bool isdisjoint(set<U> const & other) const {
 			//Return true if the this has no elements in common with other.
-			for(iterator i=begin(); i!=end(); ++i){
-				if(other.get_data().find(*i)!=other.end())
+			for(iterator it=begin(); it!=end(); ++it){
+				if(other.get_data().find(*it)!=other.end())
 					return false;
 			}
 			return true;
@@ -154,8 +156,8 @@ namespace  pythonic {
 		template<class U>
 		bool issubset(set<U> const& other) const{
 			//Test whether every element in the set is in other.
-			for(iterator i=begin(); i!=end(); ++i){
-				if(other.get_data().find(*i)==other.end())
+			for(iterator it=begin(); it!=end(); ++it){
+				if(not in(other, *it))
 					return false;
 			}
 			return true;
@@ -178,8 +180,8 @@ namespace  pythonic {
 			return tmp;
 		}
 		
-		template<typename U, typename... Types> 
-		void update(Types const&... others) const{
+		template<typename... Types> 
+		void update(Types const&... others) {
 			*this=union_(others...);
 		}
 
@@ -188,22 +190,22 @@ namespace  pythonic {
 		}
 
 		template<typename U, typename... Types> 
-		set<T> intersection(set<U> const& other, set<Types> const&... others) const{
+		set<T> intersection(U const& other, Types const&... others) const{
 			//Return a new set with elements common to the set and all others.
 			//
 			//Should accept any iterable object but due to use of find, can't be done yet
 			//
 			set<T> tmp = intersection(others...);
 			for(iterator it=tmp.begin(); it!=tmp.end();++it){
-				if(other.get_data().find(*it)==other.end())
+				if(not in(other, *it))
 					tmp.discard(*it); //faster than remove() but not direct interaction with data
 			}
 			return tmp;
 		}
 		
 
-		template<typename U, typename... Types> 
-		void intersection_update(set<Types> const&... others) const{
+		template<typename... Types> 
+		void intersection_update(Types const&... others) {
 			*this=intersection(others...);
 		}
 
@@ -221,19 +223,38 @@ namespace  pythonic {
 					tmp.discard(*it);
 			}
 			*///This algo will do several times the same find(), because std::set::erase() calls find. Lame!
-			for(typename U::iterator it=other.begin(); it!=other.end();++it){
+			for(typename U::const_iterator it=other.begin(); it!=other.end();++it){
 				tmp.discard(*it);
 			}
 			return tmp;
 		}
 
+		template<typename... Types> 
+		void difference_update(Types const&... others) {
+			*this=difference(others...);
+		}
+
 		template<typename U> 
-		set<T> symmetric_difference(U const& other) const{
+		set<T> symmetric_difference(set<U> const& other) const{
 			//Return a new set with elements in either the set or other but not both.
 			//return ((*this-other) | (other-*this));
 			
 			//We must use fcts and not operators because fcts have to handle any itarable objects and operators only sets (cf pyhton ref)
-			return (this->difference(other)).union_(other.defference(*this));
+			return (this->difference(other)).union_(other.difference(*this));
+		}
+
+		template<typename U> 
+		set<T> symmetric_difference(U const& other) const{
+			//Return a new set with elements in either the set or other but not both.
+			set<typename U::iterator::value_type> tmp(other.begin(), other.end());
+			
+			//We must use fcts and not operators because fcts have to handle any itarable objects and operators only sets (cf pyhton ref)
+			return (this->difference(other)).union_(tmp.difference(*this));
+		}
+
+		template<typename U> 
+		void symmetric_difference_update(U const& other) {
+			*this=symmetric_difference(other);
 		}
 
 		template<class U>
@@ -276,8 +297,8 @@ namespace  pythonic {
 		}
 
 		template<class U>
-		void operator|=(set<U> const& other) const {
-			*this=union_(other);
+		void operator|=(set<U> const& other) {
+			return update(other);
 		}
 
 		template<class U>
@@ -286,8 +307,8 @@ namespace  pythonic {
 		}
 
 		template<class U>
-		void operator&=(set<U> const& other) const {
-			*this=intersection(other);
+		void operator&=(set<U> const& other) {
+			return intersection_update(other);
 		}
 
 		template<class U>
@@ -296,8 +317,8 @@ namespace  pythonic {
 		}
 
 		template<class U>
-		void operator-=(set<U> const& other) const {
-			*this=difference(other);
+		void operator-=(set<U> const& other) {
+			return difference_update(other);
 		}
 
 		template<class U>
@@ -306,8 +327,8 @@ namespace  pythonic {
 		}
 
 		template<class U>
-		void operator^=(set<U> const& other) const {
-			*this=symmetric_difference(other);
+		void operator^=(set<U> const& other) {
+			return symmetric_difference_update(other);
 		}
 
 		// const getter
@@ -320,17 +341,26 @@ namespace  pythonic {
 
         struct empty_set {
 		
-	typedef typename pythonic::empty_iterator empty_iterator;
+	typedef typename pythonic::empty_iterator iterator;
+	typedef typename pythonic::empty_iterator const_iterator;
 
             template<class T> 
                 set<T> operator+(set<T> const & s) { return s; }
             empty_set operator+(empty_set const &) { return empty_set(); }
-	    empty_iterator begin(){
+	    iterator begin() const {
 		    return empty_iterator();
 	    }
-	    empty_iterator end(){
+	    iterator end() const{
 		    return empty_iterator();
 	    }
+	    /*
+	    const_iterator begin() const{
+		    return empty_iterator();
+	    }
+	    const_iterator end() const{
+		    return empty_iterator();
+	    }
+	    */
 
         };
     }

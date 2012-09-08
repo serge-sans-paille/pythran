@@ -39,10 +39,22 @@ namespace pythonic {
         PROXY(pythonic::__set__, union_);
 
 	template<typename T, typename... Types> 
-	core::set<T> intersection(core::set<T> const& set, core::set<Types> const&... others){
+	void update(core::set<T> & set, Types const&... others){
+		return set.update(others...);
+	}
+        VPROXY(pythonic::__set__, update);
+
+	template<typename T, typename... Types> 
+	core::set<T> intersection(core::set<T> const& set, Types const&... others){
 		return set.intersection(others...);
 	}
         PROXY(pythonic::__set__, intersection);
+
+	template<typename T, typename... Types> 
+	void intersection_update(core::set<T> & set, Types const&... others){
+		return set.intersection_update(others...);
+	}
+        VPROXY(pythonic::__set__, intersection_update);
 
 	template<typename T, typename... Types> 
 	core::set<T> difference(core::set<T> const& set, Types const&... others){
@@ -50,11 +62,23 @@ namespace pythonic {
 	}
         PROXY(pythonic::__set__, difference);
 
+	template<typename T, typename... Types> 
+	void difference_update(core::set<T> & set, Types const&... others){
+		return set.difference_update(others...);
+	}
+        VPROXY(pythonic::__set__, difference_update);
+
 	template<typename T, typename U> 
 	core::set<T> symmetric_difference(core::set<T> const& set, U const& other){
 		return set.symmetric_difference(other);
 	}
         PROXY(pythonic::__set__, symmetric_difference);
+
+	template<typename T, typename U> 
+	void symmetric_difference_update(core::set<T> & set, U const& other){
+		return set.symmetric_difference_update(other);
+	}
+        VPROXY(pythonic::__set__, symmetric_difference_update);
 
 	template<class T, class U>
 	bool issuperset(core::set<T> const& set, core::set<U> const& other){

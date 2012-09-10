@@ -71,6 +71,9 @@ namespace  pythonic {
                     }
                 }
 
+		// const getter
+		container_type const & get_data() const { return *data; }
+
                 // assignment
                 list_view& operator=(list<T> const & );
                 list_view& operator=(list_view<T> const & );
@@ -99,9 +102,6 @@ namespace  pythonic {
 
                 struct memory_size { size_t refcount; container_type data; };
 
-
-                template<class U>
-                    friend struct pythonic::_id;
 
                 template<class U>
                     friend class list_view;
@@ -255,6 +255,26 @@ namespace  pythonic {
                 void resize(size_t n) { data->resize(n); }
                 iterator erase(size_t n) { return data->erase(data->begin()+n); }
 
+		T pop(long x = -1) {
+			x = x%size();
+			if (x<0) x+=size();
+			T res = (*this)[x];
+			erase(x);
+			return res;
+		}
+
+        	//TODO: have to raise a valueError
+                void remove(T const& x) {
+                        erase(index(x));
+             	}
+
+
+		//Misc
+        	//TODO: have to raise a valueError
+		long index(T const& x) {
+               		return std::find(begin(),end(),x)-begin();
+            	}	
+
                 // list interface
                 operator bool() { return not data->empty(); }
 
@@ -293,13 +313,6 @@ namespace  pythonic {
                     }
                 long size() const { return data->size(); }
 
-                T pop(long x = -1) {
-                    x = x%size();
-                    if (x<0) x+=size();
-                    T res = (*data)[x];
-                    erase(x);
-                    return res;
-                }   
 
 
             };

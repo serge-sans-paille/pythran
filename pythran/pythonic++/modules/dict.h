@@ -9,12 +9,6 @@ namespace pythonic {
             }
         PROXY(pythonic::__dict__, clear);
 
-        template<class K, class V>
-            core::dict<K,V> copy(core::dict<K,V> const &d) {
-                return core::dict<K,V>(d.item_begin(), d.item_end());
-            }
-        PROXY(pythonic::__dict__, copy);
-
         template<class Iterable, class V=none_type>
             core::dict<typename Iterable::value_type, V> fromkeys(Iterable const& iter, V const & v = None) {
                 core::dict<typename Iterable::value_type,V> D;

@@ -181,7 +181,6 @@ modules = {
         "__list__" : {
             "append" : MethodIntr([lambda self, node: self.combine(node.args[0], node.args[1], unary_op=lambda f: cxxtypes.ListType(f), register=True)]),
             "extend" : MethodIntr([lambda self, node: self.combine(node.args[0], node.args[1], register=True)]),
-            "remove" : MethodIntr(),
             "index" : MethodIntr(),
             #"pop" : MethodIntr(), forwarded
             "reverse" : MethodIntr(),
@@ -191,6 +190,17 @@ modules = {
             },
         "__set__" : {
             "add" : MethodIntr([lambda self, node: self.combine(node.args[0], node.args[1], unary_op=lambda f: cxxtypes.SetType(f), register=True)]),
+	    "discard" : MethodIntr(),
+	    "isdisjoint" : MethodIntr(),
+	    "union_" : MethodIntr([ lambda self, node: [ self.combine(node.args[0], node_args_k, unary_op=lambda f: cxxtypes.SetType(cxxtypes.ContentType(f)), register=True) for node_args_k in node.args[1:] ]]),
+	    "intersection" : MethodIntr([ lambda self, node: [ self.combine(node.args[0], node_args_k, unary_op=lambda f: cxxtypes.SetType(cxxtypes.ContentType(f)), register=True) for node_args_k in node.args[1:] ]]),
+	    "intersection_update" : MethodIntr([ lambda self, node: [ self.combine(node.args[0], node_args_k, unary_op=lambda f: cxxtypes.SetType(cxxtypes.ContentType(f)), register=True) for node_args_k in node.args[1:] ]]),
+	    "difference" : MethodIntr([ lambda self, node: [ self.combine(node.args[0], node_args_k, unary_op=lambda f: cxxtypes.SetType(cxxtypes.ContentType(f)), register=True) for node_args_k in node.args[1:] ]]),
+	    "difference_update" : MethodIntr([ lambda self, node: [ self.combine(node.args[0], node_args_k, unary_op=lambda f: cxxtypes.SetType(cxxtypes.ContentType(f)), register=True) for node_args_k in node.args[1:] ]]),
+	    "symmetric_difference" : MethodIntr([ lambda self, node: [ self.combine(node.args[0], node_args_k, unary_op=lambda f: cxxtypes.SetType(cxxtypes.ContentType(f)), register=True) for node_args_k in node.args[1:] ]]),
+	    "symmetric_difference_update" : MethodIntr([ lambda self, node: [ self.combine(node.args[0], node_args_k, unary_op=lambda f: cxxtypes.SetType(cxxtypes.ContentType(f)), register=True) for node_args_k in node.args[1:] ]]),
+	    "issuperset" : MethodIntr(),
+	    "issubset" : MethodIntr(),
             },
         "_complex_" : {
                 "real": AttributeIntr(0),
@@ -198,8 +208,6 @@ modules = {
                 "conjugate" : MethodIntr(),
                 },
         "__dict__" :  {
-                "clear" : MethodIntr(),
-                "copy" : MethodIntr(),
                 "fromkeys" : FunctionIntr(),
                 "get" : MethodIntr(),
                 "has_key" : MethodIntr(),
@@ -211,7 +219,6 @@ modules = {
                 #"pop" : MethodIntr(), forwarded
                 "popitem" : MethodIntr(),
                 "setdefault": MethodIntr([lambda self, node: self.combine(node.args[0], node.args[1], unary_op=lambda x:cxxtypes.DictType(x, self.types[node.args[2]]), register=True) if len(node.args) == 3 else () ]),
-                "update": MethodIntr([lambda self, node: self.combine(node.args[0], node.args[1], register=True)]),
                 "values" : MethodIntr(),
                 "viewitems" : MethodIntr(),
                 "viewkeys" : MethodIntr(),
@@ -222,7 +229,11 @@ modules = {
             },
         # conflicting method names must be listed here
         "__dispatch__" : {
+	    	"clear" : MethodIntr(),
+	    	"copy" : MethodIntr(),
                 "pop": MethodIntr(),
+            	"remove" :MethodIntr(),
+	    	"update" : MethodIntr([ lambda self, node: [ self.combine(node.args[0], node_args_k, unary_op=lambda f: cxxtypes.SetType(cxxtypes.ContentType(f)), register=True) for node_args_k in node.args[1:] ]]),
             },
         "__user__" : {},
         }

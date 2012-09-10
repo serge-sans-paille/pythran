@@ -2,6 +2,7 @@
     *  cxx_backend generates a string holding the c++ code
 '''
 import ast
+import cxx_header_generator
 from cxxgen import *
 
 from analysis import local_declarations, global_declarations, constant_value, yields
@@ -464,4 +465,4 @@ class CxxBackend(ast.NodeVisitor):
         return value
 
 def cxx_backend(module_name,node):
-    return CxxBackend(module_name).visit(node)
+    return cxx_header_generator.generate_all() + CxxBackend(module_name).visit(node)

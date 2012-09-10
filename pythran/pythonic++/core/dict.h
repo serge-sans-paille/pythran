@@ -162,6 +162,10 @@ namespace  pythonic {
 
                 void clear() { return data->clear(); }
 
+            	dict<K,V> copy() const{
+                	return core::dict<K,V>(this->item_begin(), this->item_end());
+            	}
+
                 template <class W>
                 decltype(std::declval<V>()+std::declval<W>()) get(K const& key, W d) const {
                     auto ivalue = data->find(key);

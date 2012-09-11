@@ -67,14 +67,14 @@ class PType(Type):
         return ctx(self.type).generate(ctx)
 
     def instanciate(self, caller, arguments):
-        return InstanciatedType(self.fun, self.name, arguments, caller)
+        return InstanciatedType(self.fun, self.name, arguments, caller, self.qualifiers)
 
 class InstanciatedType(Type):
-    def __init__(self, fun, name, arguments, caller):
+    def __init__(self, fun, name, arguments, caller, qualifiers):
         self.fun=fun
         self.name=name
         self.arguments=arguments
-        self.qualifiers=set()
+        self.qualifiers=qualifiers.copy()
         if fun == caller: self.qualifiers.add(Weak)
         self.fields=("fun", "name", "arguments",)
 

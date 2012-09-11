@@ -1,5 +1,5 @@
-#ifndef PYTHONIC_ITERATOR_H
-#define PYTHONIC_ITERATOR_H
+#ifndef PYTHONIC_MODULE_ITERATOR_H
+#define PYTHONIC_MODULE_ITERATOR_H
 namespace pythonic {
     namespace __iterator__ {
         template <class T>

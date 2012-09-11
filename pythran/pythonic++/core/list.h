@@ -71,8 +71,8 @@ namespace  pythonic {
                     }
                 }
 
-		// const getter
-		container_type const & get_data() const { return *data; }
+                // const getter
+                container_type const & get_data() const { return *data; }
 
                 // assignment
                 list_view& operator=(list<T> const & );
@@ -255,25 +255,29 @@ namespace  pythonic {
                 void resize(size_t n) { data->resize(n); }
                 iterator erase(size_t n) { return data->erase(data->begin()+n); }
 
-		T pop(long x = -1) {
-			x = x%size();
-			if (x<0) x+=size();
-			T res = (*this)[x];
-			erase(x);
-			return res;
-		}
+                // const getter
+                container_type const & get_data() const { return *data; }
 
-        	//TODO: have to raise a valueError
+
+                T pop(long x = -1) {
+                    x = x%size();
+                    if (x<0) x+=size();
+                    T res = (*this)[x];
+                    erase(x);
+                    return res;
+                }
+
+                //TODO: have to raise a valueError
                 void remove(T const& x) {
-                        erase(index(x));
-             	}
+                    erase(index(x));
+                }
 
 
-		//Misc
-        	//TODO: have to raise a valueError
-		long index(T const& x) {
-               		return std::find(begin(),end(),x)-begin();
-            	}	
+                //Misc
+                //TODO: have to raise a valueError
+                long index(T const& x) {
+                    return std::find(begin(),end(),x)-begin();
+                }	
 
                 // list interface
                 operator bool() { return not data->empty(); }

@@ -121,13 +121,15 @@ namespace  pythonic {
 				throw std::runtime_error("set.delete() : couldn't delete element not in the set.");
 		}
 
-                // set interface
-                operator bool() { return not data->empty(); }
+        // set interface
+        operator bool() { return not data->empty(); }
 
-                long size() const { return data->size(); }
+        long size() const { return data->size(); }
 
-                template<class U> // just for type inference, should never been instantiated
-                    set<decltype(std::declval<T>()+std::declval<U>())> operator+(set<U> const &);
+        template<class U> // just for type inference, should never been instantiated
+            set<decltype(std::declval<T>()+std::declval<U>())> operator+(set<U> const &);
+        template<class U> // just for type inference, should never been instantiated
+            set<decltype(std::declval<T>()+std::declval<U>())> operator+(list<U> const &);
 
 		// Misc
 

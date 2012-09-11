@@ -233,7 +233,7 @@ modules = {
 	    	"copy" : MethodIntr(),
                 "pop": MethodIntr(),
             	"remove" :MethodIntr(),
-	    	"update" : MethodIntr([ lambda self, node: [ self.combine(node.args[0], node_args_k, unary_op=lambda f: cxxtypes.SetType(cxxtypes.ContentType(f)), register=True) for node_args_k in node.args[1:] ]]),
+	    	"update" : MethodIntr([ lambda self, node: [ self.combine(node.args[0], node_args_k, register=True) for node_args_k in node.args[1:] ]]),
             },
         "__user__" : {},
         }

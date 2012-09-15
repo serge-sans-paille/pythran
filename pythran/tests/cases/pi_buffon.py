@@ -6,6 +6,7 @@ from random import random
 def pi_estimate(DARTS):
     hits = 0
     throws = 0
+    "omp parallel for private(i,x,y,dist) reduction(+:hits) reduction(+:throws)"
     for i in range (1, DARTS):
     	throws += 1
     	x = random()

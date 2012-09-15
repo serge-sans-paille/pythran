@@ -11,7 +11,7 @@
 '''
 
 from analysis import imported_ids, purity_test, global_declarations, identifiers
-from tables import modules, methods, attributes, functions, cxx_keywords, namespace
+from tables import methods, attributes, functions, cxx_keywords, namespace
 from syntax import PythranSyntaxError
 import metadata
 import ast
@@ -485,10 +485,10 @@ def expand_imports(module):
     ExpandImports().visit(module)
 
 ##
-class GatherOpenMPData(ast.NodeTransformer):
-    statements= ("Return", "Delete", "Assign", "AugAssign", "Print", "For", "While", "If", "Raise", "Assert", "Pass",)
+class GatherOMPData(ast.NodeTransformer):
+    statements= ("Call", "Return", "Delete", "Assign", "AugAssign", "Print", "For", "While", "If", "Raise", "Assert", "Pass",)
     def __init__(self):
-        for s in GatherOpenMPData.statements:
+        for s in GatherOMPData.statements:
             setattr(self, "visit_"+s, lambda node_: self.attach_data(node_))
         self.current=list()
 
@@ -502,10 +502,11 @@ class GatherOpenMPData(ast.NodeTransformer):
 
     def attach_data(self, node):
         if self.current:
-            [metadata.add(node, metadata.OpenMPDirective(curr)) for curr in self.current]
+            [metadata.add(node, metadata.OMPDirective(curr)) for curr in self.current]
             self.current=list()
+        self.generic_visit(node)
         return node
 
-def gather_openmp_data(node):
-    '''walks node and collect string comment looking for openMP directives'''
-    return GatherOpenMPData().visit(node)
+def gather_omp_data(node):
+    '''walks node and collect string comment looking for OpenMP directives'''
+    return GatherOMPData().visit(node)

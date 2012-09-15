@@ -580,7 +580,7 @@ class Block(Generable):
         self.contents = contents[:]
 
         for item in contents:
-            assert isinstance(item, Generable)
+            assert isinstance(item, Generable), item
 
     def generate(self):
         yield "{"

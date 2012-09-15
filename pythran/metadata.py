@@ -18,15 +18,16 @@ class Comprehension(AST):
 class NotTemporary(AST):
     pass
 
-class OpenMPDirective(AST):
+class OMPDirective(AST):
     default_mode=' default(none)'
-    keywords=('omp', 'parallel', 'for', 'shared', 'private', 'reduction', 'default')
+    keywords=('omp', 'parallel', 'for', 'shared', 'private', 'reduction', 'default', 'single', 'nowait', 'task', 'if')
     def __init__(self, s):
         class Matcher:
             def __init__(self):
                 self.data=list()
             def __call__(self,match):
-               if match.group(0) in OpenMPDirective.keywords: return match.group(0)
+               if match.group(0) in OMPDirective.keywords:
+                   return match.group(0)
                else:
                    import ast
                    s= "{"+str(len(self.data))+"}"

@@ -10,7 +10,7 @@
     * mark_temporaries flags temporary objects for further optimization
 '''
 
-from tables import modules, functions, builtin_constants
+from tables import modules, builtin_constants
 import ast
 import networkx as nx
 import metadata

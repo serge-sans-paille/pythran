@@ -38,16 +38,23 @@ class TestCommand(Command):
 class BenchmarkCommand(Command):
     '''Scan the test directory for any runnable test, and benchmark them.'''
 
+    default_nb_iter=11
     description = 'run the benchmark suite for the package'
-    user_options=[]
+    user_options=[ ('nb-iter=', None, 'number of times the benchmark is run (default={0})'.format(default_nb_iter)), ('parallel', None, 'use OpenMP')]
 
     runas_marker = '#runas '
-    nb_iter=11
+
+
+    def __init__(self, *args, **kwargs):
+        Command.__init__(self, *args, **kwargs)
 
     def initialize_options(self):
-        pass
+        self.nb_iter=BenchmarkCommand.default_nb_iter
+        self.parallel=False
+
     def finalize_options(self):
-        pass
+        self.nb_iter=int(self.nb_iter)
+
     def run(self):
         import glob, timeit
         from pythran import cxx_generator, spec_parser
@@ -70,7 +77,7 @@ class BenchmarkCommand(Command):
 
                     # python part
                     ti=timeit.Timer(runas_command, runas_context)
-                    python_tps = median(ti.repeat(BenchmarkCommand.nb_iter,number=1))
+                    python_tps = median(ti.repeat(self.nb_iter,number=1))
                     print module_name, python_tps,
 
                     # force module reloading
@@ -79,10 +86,10 @@ class BenchmarkCommand(Command):
                     # pythran part
                     specs = spec_parser(candidate)
                     mod = cxx_generator(module_name, file(candidate).read(), specs)
-                    pythran_compile(os.environ.get("CXX","c++"), mod, cxxflags=["-O3", "-DNDEBUG"])
+                    pythran_compile(os.environ.get("CXX","c++"), mod, cxxflags=["-O3", "-DNDEBUG" ] + ( ["-fopenmp"] if self.parallel else [] ) )
                     ti=timeit.Timer(runas_command, runas_context)
-                    pythran_tps = median(ti.repeat(BenchmarkCommand.nb_iter,number=1))
-                    print pythran_tps, "x",(python_tps/pythran_tps)
+                    pythran_tps = median(ti.repeat(self.nb_iter,number=1))
+                    print pythran_tps, "x{0}".format(python_tps/pythran_tps)
 
 
 setup(  name='pythran',

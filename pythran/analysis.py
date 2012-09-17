@@ -31,7 +31,7 @@ class LocalDeclarations(ast.NodeVisitor):
             pass
     def visit_Assign(self, node):
         for t in node.targets:
-            if isinstance(t, ast.Name):
+            if isinstance(t, ast.Name) and not metadata.get(t, metadata.LocalVariable):
                 self.local_symbols.add(t)
 
     def visit_For(self, node):

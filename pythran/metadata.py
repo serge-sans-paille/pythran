@@ -11,6 +11,9 @@ class Metadata(AST):
     def __iter__(self): return iter(self.data)
     def append(self, data):self.data.append(data)
 
+class LocalVariable(AST):
+    pass
+
 class Comprehension(AST):
     def __init__(self, target):
         self.target=target
@@ -20,7 +23,7 @@ class NotTemporary(AST):
 
 class OMPDirective(AST):
     default_mode=' default(none)'
-    keywords=('omp', 'parallel', 'for', 'shared', 'private', 'reduction', 'default', 'single', 'nowait', 'task', 'if')
+    keywords=('omp', 'parallel', 'for', 'shared', 'private', 'reduction', 'default', 'single', 'nowait', 'task', 'if', 'atomic')
     def __init__(self, s):
         class Matcher:
             def __init__(self):

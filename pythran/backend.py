@@ -237,12 +237,16 @@ class CxxBackend(ast.NodeVisitor):
         value = self.visit(node.value)
         targets=[self.visit(t) for t in node.targets]
         alltargets="= ".join(targets)
-        return Statement("{0} = {1}".format(alltargets, value))
+        if any( metadata.get(t, metadata.LocalVariable) for t in node.targets):
+            alltargets="auto "+alltargets
+        stmt= Statement("{0} = {1}".format(alltargets, value))
+        return self.process_omp_attachements(node, stmt)
 
     def visit_AugAssign(self, node):
         value = self.visit(node.value)
         target=self.visit(node.target)
-        return Statement(operator_to_lambda[type(node.op)](target, "="+value))
+        stmt= Statement(operator_to_lambda[type(node.op)](target, "="+value)[1:-1])
+        return self.process_omp_attachements(node, stmt)
 
     def visit_Print(self, node):
         values = [ self.visit(n) for n in node.values]
@@ -294,7 +298,7 @@ class CxxBackend(ast.NodeVisitor):
         if break_handler:
             stmts.append(Block([ self.visit(n) for n in node.orelse ] + [ Statement("{0}:".format(break_handler))]))
 
-        return self.process_omp_attachements(node,stmts,1)
+        return self.process_omp_attachements(node, stmts, 1)
 
     def visit_While(self, node):
         test = self.visit(node.test)

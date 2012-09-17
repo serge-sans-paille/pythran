@@ -86,7 +86,7 @@ class BenchmarkCommand(Command):
                     # pythran part
                     specs = spec_parser(candidate)
                     mod = cxx_generator(module_name, file(candidate).read(), specs)
-                    pythran_compile(os.environ.get("CXX","c++"), mod, cxxflags=["-O3", "-DNDEBUG" ] + ( ["-fopenmp"] if self.parallel else [] ) )
+                    pythran_compile(os.environ.get("CXX","c++"), mod, cxxflags=["-Ofast", "-DNDEBUG" ] + ( ["-fopenmp"] if self.parallel else [] ) )
                     ti=timeit.Timer(runas_command, runas_context)
                     pythran_tps = median(ti.repeat(self.nb_iter,number=1))
                     print pythran_tps, "x{0}".format(python_tps/pythran_tps)

@@ -561,8 +561,9 @@ itérations. Les mesures \emph{incluent} le coût de conversion entre les
 structures de données Python et leur représentation native.
 
 Les évaluations de performances sont effectuées sur une machine comportant
-$X$ processeurs de type $Y$, avec $Z$G de RAM et tournant un noyau $X.Y$.
-Les modules Pythran sont compilés avec g++-X-Y et les drapeaux
+4 processeurs de type Intel Core i7 avec l'\emph{hypethreading}, avec 8G
+de RAM et tournant un noyau 3.0.0.
+Les modules Pythran sont compilés avec g++-4.7.1 et les drapeaux
 \texttt{-Ofast -DNDEBUG}.
 Les temps reproduits ici sont obtenus à l'aides des commandes
 \texttt{python setup.py bench} et \texttt{python setup.py bench
@@ -573,7 +574,25 @@ Pythran par rapport à CPython, en prenant en compte ou non les directives
 OpenMP. Il permet d'observer des gains importants dus au changement de
 langage. On observe aussi que les directives OpenMP sont bien prises en
 compte et permettent d'obtenir des facteurs d'accélération du module natif
-entre X.Y et Z.W.
+parallèle allant jusqu'à $\times300$ par rapport à CPython et $\time8$ par
+rapport à PyPy.
+
+\begin{table}
+  \begin{tabular}{|l|c|c|c|c|}
+				&CPython	&	PyPy	&	Pythran	&	Pythran+OpenMP\\
+	nqueens		&1.754		&	0.603	&	0.228	&	0.231		  \\
+	pi\_buffon	&47.083		&	12.08	&	2.676	&	0.561		\\
+	extrema		&0.386		&	0.564	&	0.033	&	0.033\\
+	stone		&6.956		&	0.204	&	0.023	&	0.023\\
+	mandel		&976.81		&	6.304	&	5.563	&	2.565\\
+	caxpy		&0.588		&	0.204	&	0.340	&	0.340\\
+	matmul		&153.91		&	9.061	&	7.314	&	2.263\\
+	quicksort	&3.331		&	0.087	&	0.040	&	0.041\\
+  \end{tabular}
+
+  \caption{Comparaison de CPython, PyPy et Pythran, avec ou sans OpenMP.}
+  \label{tbl:pythran-vs-cpython}
+\end{table}
 
 %=========================================================
 \section{Conclusion}

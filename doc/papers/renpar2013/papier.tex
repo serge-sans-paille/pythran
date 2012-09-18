@@ -119,8 +119,8 @@ ce qui conduit à l'écriture d'une quantité non négligeable de code
 d'encapsulation. Des outils ont été développé pour réduire ce coût de
 développement, notamment Swig~\cite{swig2003} qui utilise un fichier
 d'interface spécifique pour guider la traduction, et
-\texttt{boost::python}~\cite{boostpython2007} qui se base lui sur une
-le langage C++ pour guider la traduction.
+\texttt{boost::python}~\cite{boostpython2007} qui se base lui sur le
+langage C++ pour guider la traduction.
 
 Une approche concurrente est de se baser sur le langage hôte --- ici
 Python --- pour décrire les deux parties du système, et de laisser un
@@ -194,7 +194,7 @@ La parallélisation de langage de scripts est une approche naturelle pour
 compenser leur manque relatif de performance. L'étude menée
 dans~\cite{choy05} montre les nombreuses approches explorées autour du
 langage MATLAB. Une approche purement automatique pour le langage R est
-décrite dans~\cite{mals07}. Peux de travaux traitent du langage Python et
+décrite dans~\cite{mals07}. Peu de travaux traitent du langage Python et
 de ses spécificités.
 
 \subsection{Python et processus lourds}
@@ -431,7 +431,7 @@ foo(l)
   \item Les valeurs de retour implicites sont rendus
 	explicites~\footnote{Toute fonction Python a une valeur de retour, qui
 	se trouve être \texttt{None} par défaut.}:\texttt{def foo(): print
-	"bar"} devient texttt{def foo(): print "bar" ; return None}.
+	"bar"} devient \texttt{def foo(): print "bar" ; return None}.
 
   \item Tous les symboles importés de manière relative sont remplacés par
 	leur chemin absolus~: \texttt{from math import cos as COS ; COS(3)}
@@ -473,6 +473,18 @@ Hindley--Milner~\cite{milner78}. À l'issu de son application, tous les
 nœuds de la représentation interne se voient dotés d'un type paramétrique,
 dépendant du type symbolique de ses paramètres.
 
+L'instanciation des types paramétriques est déclenchée par une annotation
+fournie par l'utilisateur, qui spécifie la signature des fonctions
+exportées par le module sous la forme~:
+%
+\begin{lstlisting}[language=python]
+#pythran export matrix_multiply(int list list, int list list)
+#pythran export matrix_multiply(float list list, float list list)
+\end{lstlisting}
+%
+Plusieurs annotations pour la même fonction peuvent coexister~: plusieurs
+fonctions sont alors générées.
+
 Cet article ne vise pas à expliquer en détail le fonctionnement de cette
 étape. On admettra donc que cette analyse permet à Pythran d'accepter des
 fonctions polymorphes, mais uniquement des variables monomorphes.
@@ -481,6 +493,7 @@ Pour faciliter la gestion de la mémoire, on ajoute une nouvelle
 contrainte~: il ne peut y avoir de dépendance circulaire dans la
 définition des types des objets. Ce genre de dépendance ne pause aucun
 problème en Python, et demande l'utilisation de pointeurs en C/C++.
+
 
 \subsubsection{Gestion de la mémoire}
 

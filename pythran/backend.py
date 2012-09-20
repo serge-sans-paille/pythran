@@ -44,10 +44,15 @@ class CxxBackend(ast.NodeVisitor):
         return headers +  [ Namespace("__{0}".format(self.name), body + self.declarations + self.definitions) ]
 
     # openmp processing
-    def process_openmp_attachements(self, node):
-        l = metadata.get(node, metadata.OpenMPDirective)
-        return l
-
+    def process_omp_attachements(self, node, stmt, index=None):
+        l = metadata.get(node, metadata.OMPDirective)
+        if l:
+            if index == None:
+                stmt=[stmt]
+                index=0
+            for directive in reversed(l):
+                stmt.insert(index, Line("#pragma {0}".format(directive) ))
+        return Block(stmt) if isinstance(stmt,list) else stmt
 
     # stmt
     def visit_FunctionDef(self, node):
@@ -232,12 +237,16 @@ class CxxBackend(ast.NodeVisitor):
         value = self.visit(node.value)
         targets=[self.visit(t) for t in node.targets]
         alltargets="= ".join(targets)
-        return Statement("{0} = {1}".format(alltargets, value))
+        if any( metadata.get(t, metadata.LocalVariable) for t in node.targets):
+            alltargets="auto "+alltargets
+        stmt= Statement("{0} = {1}".format(alltargets, value))
+        return self.process_omp_attachements(node, stmt)
 
     def visit_AugAssign(self, node):
         value = self.visit(node.value)
         target=self.visit(node.target)
-        return Statement(operator_to_lambda[type(node.op)](target, "="+value))
+        stmt= Statement(operator_to_lambda[type(node.op)](target, "="+value)[1:-1])
+        return self.process_omp_attachements(node, stmt)
 
     def visit_Print(self, node):
         values = [ self.visit(n) for n in node.values]
@@ -249,7 +258,6 @@ class CxxBackend(ast.NodeVisitor):
     def visit_For(self, node):
         if not isinstance(node.target, ast.Name):
             raise PythranSyntaxError("Using something other than an identifier as loop target", node.target)
-        directives = self.process_openmp_attachements(node)
         iter = self.visit(node.iter)
         target = self.visit(node.target)
 
@@ -283,8 +291,6 @@ class CxxBackend(ast.NodeVisitor):
                     Block([Statement("{0} = *{1}".format(target, local_target))] + body ) )           
                 ]
 
-        for directive in reversed(directives):
-            stmts.insert(1, Line("#pragma {0}".format(directive) ))
 
         for comp in metadata.get(node, metadata.Comprehension):# in that case when can proceed to a reserve
             stmts.insert(1, Statement("pythonic::reserve({0},{1})".format(comp.target, local_iter)))
@@ -292,7 +298,7 @@ class CxxBackend(ast.NodeVisitor):
         if break_handler:
             stmts.append(Block([ self.visit(n) for n in node.orelse ] + [ Statement("{0}:".format(break_handler))]))
 
-        return Block(stmts)
+        return self.process_omp_attachements(node, stmts, 1)
 
     def visit_While(self, node):
         test = self.visit(node.test)
@@ -325,7 +331,9 @@ class CxxBackend(ast.NodeVisitor):
         assert False, "this case should be filtered out by the expand_import pass"
 
     def visit_Expr(self, node):
-        return Statement(self.visit(node.value))
+        stmt = Statement(self.visit(node.value))
+        return self.process_omp_attachements(node, stmt)
+
 
     def visit_Pass(self, node):
         return EmptyStatement()

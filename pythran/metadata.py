@@ -11,6 +11,9 @@ class Metadata(AST):
     def __iter__(self): return iter(self.data)
     def append(self, data):self.data.append(data)
 
+class LocalVariable(AST):
+    pass
+
 class Comprehension(AST):
     def __init__(self, target):
         self.target=target
@@ -18,15 +21,16 @@ class Comprehension(AST):
 class NotTemporary(AST):
     pass
 
-class OpenMPDirective(AST):
+class OMPDirective(AST):
     default_mode=' default(none)'
-    keywords=('omp', 'parallel', 'for', 'shared', 'private', 'reduction', 'default')
+    keywords=('omp', 'parallel', 'for', 'shared', 'private', 'reduction', 'default', 'single', 'nowait', 'task', 'if', 'atomic')
     def __init__(self, s):
         class Matcher:
             def __init__(self):
                 self.data=list()
             def __call__(self,match):
-               if match.group(0) in OpenMPDirective.keywords: return match.group(0)
+               if match.group(0) in OMPDirective.keywords:
+                   return match.group(0)
                else:
                    import ast
                    s= "{"+str(len(self.data))+"}"

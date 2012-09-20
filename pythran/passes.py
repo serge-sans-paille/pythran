@@ -11,7 +11,7 @@
 '''
 
 from analysis import imported_ids, purity_test, global_declarations, identifiers
-from tables import modules, methods, attributes, functions, cxx_keywords, namespace
+from tables import methods, attributes, functions, cxx_keywords, namespace
 from syntax import PythranSyntaxError
 import metadata
 import ast
@@ -34,6 +34,7 @@ def convert_to_tuple(node, tuple_id, renamings):
     return ConvertToTuple(tuple_id, renamings).visit(node)
 
 class NormalizeTuples(ast.NodeTransformer):
+    """ Remove implicit tuple -> variable conversion."""
     tuple_name = "__tuple"
     def __init__(self):
         self.counter=0
@@ -49,7 +50,6 @@ class NormalizeTuples(ast.NodeTransformer):
         else:
             raise NotImplementedError
 
-    """ Remove implicit tuple -> variable conversion."""
     def visit_comprehension(self, node):
         renamings=dict()
         self.traverse_tuples(node.target,(), renamings)
@@ -67,6 +67,7 @@ class NormalizeTuples(ast.NodeTransformer):
             if isinstance(g,tuple):
                 gtarget = "{0}{1}".format(g[0], i)
                 nnode.generators[i].target=ast.Name(gtarget, nnode.generators[i].target.ctx)
+                metadata.add(nnode.generators[i].target, metadata.LocalVariable())
                 nnode = convert_to_tuple(nnode, gtarget, g[1])
         node.elt=nnode.elt
         node.generators=nnode.generators
@@ -100,13 +101,14 @@ class NormalizeTuples(ast.NodeTransformer):
                     self.counter+=1
                     gtarget = "{0}{1}{2}".format(NormalizeTuples.tuple_name, self.counter, i)
                     node.targets[i]=ast.Name(gtarget, node.targets[i].ctx)
+                    metadata.add(node.targets[i], metadata.LocalVariable())
                     for rename,state in sorted(renamings.iteritems()):
                         nnode=reduce(lambda x,y: ast.Subscript(x, ast.Index(ast.Num(y)), ast.Load()), state, ast.Name(gtarget, ast.Load()))
                         if isinstance(rename, str):
                             extra_assign.append(ast.Assign([ast.Name(rename,ast.Store())], nnode))
                         else:
                             extra_assign.append(ast.Assign([rename], nnode))
-        return extra_assign
+        return ast.If(ast.Num(1), extra_assign, []) if len(extra_assign) > 1 else extra_assign
 
     def visit_For(self, node):
         self.generic_visit(node)
@@ -485,10 +487,10 @@ def expand_imports(module):
     ExpandImports().visit(module)
 
 ##
-class GatherOpenMPData(ast.NodeTransformer):
-    statements= ("Return", "Delete", "Assign", "AugAssign", "Print", "For", "While", "If", "Raise", "Assert", "Pass",)
+class GatherOMPData(ast.NodeTransformer):
+    statements= ("Call", "Return", "Delete", "Assign", "AugAssign", "Print", "For", "While", "If", "Raise", "Assert", "Pass",)
     def __init__(self):
-        for s in GatherOpenMPData.statements:
+        for s in GatherOMPData.statements:
             setattr(self, "visit_"+s, lambda node_: self.attach_data(node_))
         self.current=list()
 
@@ -502,10 +504,11 @@ class GatherOpenMPData(ast.NodeTransformer):
 
     def attach_data(self, node):
         if self.current:
-            [metadata.add(node, metadata.OpenMPDirective(curr)) for curr in self.current]
+            [metadata.add(node, metadata.OMPDirective(curr)) for curr in self.current]
             self.current=list()
+        self.generic_visit(node)
         return node
 
-def gather_openmp_data(node):
-    '''walks node and collect string comment looking for openMP directives'''
-    return GatherOpenMPData().visit(node)
+def gather_omp_data(node):
+    '''walks node and collect string comment looking for OpenMP directives'''
+    return GatherOMPData().visit(node)

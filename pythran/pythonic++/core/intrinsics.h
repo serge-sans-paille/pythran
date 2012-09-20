@@ -243,6 +243,61 @@ namespace pythonic {
         } 
     PROXY(pythonic,list);
 
+    /* exception */
+#define PYTHONIC_EXCEPTION(name)\
+    template<typename ... Types>\
+    core::name name(Types ... args) {\
+        return core::name(args ...);\
+    }\
+\
+    PROXY(pythonic,name);\
+
+PYTHONIC_EXCEPTION(BaseException);
+PYTHONIC_EXCEPTION(SystemExit);
+PYTHONIC_EXCEPTION(KeyboardInterrupt);
+PYTHONIC_EXCEPTION(GeneratorExit);
+PYTHONIC_EXCEPTION(Exception);
+PYTHONIC_EXCEPTION(StopIteration);
+PYTHONIC_EXCEPTION(StandardError);
+PYTHONIC_EXCEPTION(Warning);
+PYTHONIC_EXCEPTION(BytesWarning);
+PYTHONIC_EXCEPTION(UnicodeWarning);
+PYTHONIC_EXCEPTION(ImportWarning);
+PYTHONIC_EXCEPTION(FutureWarning);
+PYTHONIC_EXCEPTION(UserWarning);
+PYTHONIC_EXCEPTION(SyntaxWarning);
+PYTHONIC_EXCEPTION(RuntimeWarning);
+PYTHONIC_EXCEPTION(PendingDeprecationWarning);
+PYTHONIC_EXCEPTION(DeprecationWarning);
+PYTHONIC_EXCEPTION(BufferError);
+PYTHONIC_EXCEPTION(ArithmeticError);
+PYTHONIC_EXCEPTION(AssertionError);
+PYTHONIC_EXCEPTION(AttributeError);
+PYTHONIC_EXCEPTION(EOFError);
+PYTHONIC_EXCEPTION(ImportError);
+PYTHONIC_EXCEPTION(LookupError);
+PYTHONIC_EXCEPTION(MemoryError);
+PYTHONIC_EXCEPTION(NameError);
+PYTHONIC_EXCEPTION(ReferenceError);
+PYTHONIC_EXCEPTION(RuntimeError);
+PYTHONIC_EXCEPTION(SyntaxError);
+PYTHONIC_EXCEPTION(SystemError);
+PYTHONIC_EXCEPTION(TypeError);
+PYTHONIC_EXCEPTION(ValueError);
+PYTHONIC_EXCEPTION(FloatingPointError);
+PYTHONIC_EXCEPTION(OverflowError);
+PYTHONIC_EXCEPTION(ZeroDivisionError);
+PYTHONIC_EXCEPTION(IndexError);
+PYTHONIC_EXCEPTION(KeyError);
+PYTHONIC_EXCEPTION(UnboundLocalError);
+PYTHONIC_EXCEPTION(NotImplementedError);
+PYTHONIC_EXCEPTION(IndentationError);
+PYTHONIC_EXCEPTION(TabError);
+PYTHONIC_EXCEPTION(UnicodeError);
+PYTHONIC_EXCEPTION(EnvironmentError);
+PYTHONIC_EXCEPTION(IOError);
+PYTHONIC_EXCEPTION(OSError);
+
     /* tuple */
     template <class Iterable>
         struct _tuple {

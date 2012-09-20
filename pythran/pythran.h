@@ -225,6 +225,88 @@ namespace std {
 
     GET_COMPLEX(double)
 
+    /* for exception */
+
+#define ACCESS_EXCEPTION(name) \
+    template <size_t I> \
+        struct tuple_element<I, core::name> { \
+            typedef none<typename core::BaseError::Type<I>::type> type; \
+        }; \
+\
+    template <size_t I> \
+        none<typename core::BaseError::Type<I>::type> get( const core::name& t ); \
+    template <> \
+        none<typename core::BaseError::Type<0>::type> get<0>( const core::name& t) { return t.args; } \
+
+ACCESS_EXCEPTION(BaseException);
+ACCESS_EXCEPTION(SystemExit);
+ACCESS_EXCEPTION(KeyboardInterrupt);
+ACCESS_EXCEPTION(GeneratorExit);
+ACCESS_EXCEPTION(Exception);
+ACCESS_EXCEPTION(StopIteration);
+ACCESS_EXCEPTION(StandardError);
+ACCESS_EXCEPTION(Warning);
+ACCESS_EXCEPTION(BytesWarning);
+ACCESS_EXCEPTION(UnicodeWarning);
+ACCESS_EXCEPTION(ImportWarning);
+ACCESS_EXCEPTION(FutureWarning);
+ACCESS_EXCEPTION(UserWarning);
+ACCESS_EXCEPTION(SyntaxWarning);
+ACCESS_EXCEPTION(RuntimeWarning);
+ACCESS_EXCEPTION(PendingDeprecationWarning);
+ACCESS_EXCEPTION(DeprecationWarning);
+ACCESS_EXCEPTION(BufferError);
+ACCESS_EXCEPTION(ArithmeticError);
+ACCESS_EXCEPTION(AssertionError);
+ACCESS_EXCEPTION(AttributeError);
+ACCESS_EXCEPTION(EOFError);
+ACCESS_EXCEPTION(ImportError);
+ACCESS_EXCEPTION(LookupError);
+ACCESS_EXCEPTION(MemoryError);
+ACCESS_EXCEPTION(NameError);
+ACCESS_EXCEPTION(ReferenceError);
+ACCESS_EXCEPTION(RuntimeError);
+ACCESS_EXCEPTION(SyntaxError);
+ACCESS_EXCEPTION(SystemError);
+ACCESS_EXCEPTION(TypeError);
+ACCESS_EXCEPTION(ValueError);
+ACCESS_EXCEPTION(FloatingPointError);
+ACCESS_EXCEPTION(OverflowError);
+ACCESS_EXCEPTION(ZeroDivisionError);
+ACCESS_EXCEPTION(IndexError);
+ACCESS_EXCEPTION(KeyError);
+ACCESS_EXCEPTION(UnboundLocalError);
+ACCESS_EXCEPTION(NotImplementedError);
+ACCESS_EXCEPTION(IndentationError);
+ACCESS_EXCEPTION(TabError);
+ACCESS_EXCEPTION(UnicodeError);
+
+#define ENVIRONMENTERROR_EXCEPTION(name)\
+    template <size_t I> \
+        struct tuple_element<I, core::name> { \
+            typedef none<typename core::BaseError::Type<I>::type> type; \
+        }; \
+\
+    template <size_t I> \
+        none<typename core::BaseError::Type<I>::type> get( const core::name& t ); \
+    template <> \
+        none<typename core::BaseError::Type<0>::type> get<0>( const core::name& t ){\
+            if (t.args.size()>3 || t.args.size()<2)\
+                return t.args;\
+            else\
+                return core::list<std::string>(t.args.begin(), t.args.begin()+2);\
+            }\
+    template <>\
+        none<typename core::BaseError::Type<1>::type> get<1>( const core::name& t ){ if(t.args.size()>3 || t.args.size()<2) return (None); else return t.args[0];}\
+    template <>\
+        none<typename core::BaseError::Type<2>::type> get<2>( const core::name& t ){ if(t.args.size()>3 || t.args.size()<2) return None; else return t.args[1];}\
+    template <>\
+        none<typename core::BaseError::Type<3>::type> get<3>( const core::name& t ){ if(t.args.size()==3) return t.args[2]; else return None; }\
+
+ENVIRONMENTERROR_EXCEPTION(EnvironmentError)
+ENVIRONMENTERROR_EXCEPTION(IOError)
+ENVIRONMENTERROR_EXCEPTION(OSError)
+
 }
 /* } */
 

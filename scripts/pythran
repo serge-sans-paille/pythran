@@ -4,6 +4,17 @@ import argparse
 import pythran
 from subprocess import CalledProcessError
 
+def pyflakes_check(filename, filecontent):
+    'Use PyFlakes to handle a few common errors'
+    from pyflakes import checker, messages
+    import ast
+    tree=ast.parse(filecontent, filename)
+    chk = checker.Checker(tree, filename)
+    error_message_types=(messages.RedefinedFunction, messages.UndefinedExport, messages.UndefinedLocal, messages.UndefinedName, )
+    for message in chk.messages:
+        if type(message) in error_message_types:
+            raise SyntaxError(str(message))
+
 parser = argparse.ArgumentParser(prog='pythran',
         description='pythran: a python to C++ compiler',
         epilog="It's a megablast!")
@@ -33,7 +44,9 @@ try:
         args.output_file = '{0}.{1}'.format(module_name, 'cpp' if args.translate_only else 'so')
 
     specs = None if args.raw_translate_only else pythran.spec_parser(args.input_file)
-    module = pythran.cxx_generator(module_name, file(args.input_file).read(), specs)
+    contents = file(args.input_file).read()
+    pyflakes_check(args.input_file, contents)
+    module = pythran.cxx_generator(module_name, contents, specs)
     if args.translate_only : # eventually only generate cpp file
         file(args.output_file,'w').write(str(module.generate()))
     else:

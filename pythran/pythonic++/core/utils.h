@@ -17,6 +17,7 @@
                 }\
         };\
     }
+
 #define VPROXY(ns,f) \
     namespace proxy {\
         struct f {\

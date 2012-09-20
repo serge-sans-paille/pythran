@@ -43,7 +43,8 @@ class Reorder(ast.NodeVisitor):
             if isinstance(stmt, ast.FunctionDef):
                 olddef.append(stmt)
             else: newbody.append(stmt)
-        newdef = [ f for f in nx.topological_sort(self.typedeps, ordered_global_declarations(node)) if isinstance(f, ast.FunctionDef) ]
+            try: newdef = [ f for f in nx.topological_sort(self.typedeps, ordered_global_declarations(node)) if isinstance(f, ast.FunctionDef) ]
+            except nx.exception.NetworkXUnfeasible: raise PythranSyntaxError("Infinite function recursion",stmt)
         assert set(newdef) == set(olddef)
         node.body=newbody + newdef
 

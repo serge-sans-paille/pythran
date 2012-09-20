@@ -40,7 +40,7 @@ class BenchmarkCommand(Command):
 
     default_nb_iter=11
     description = 'run the benchmark suite for the package'
-    user_options=[ ('nb-iter=', None, 'number of times the benchmark is run (default={0})'.format(default_nb_iter)), ('parallel', None, 'use OpenMP')]
+    user_options=[ ('nb-iter=', None, 'number of times the benchmark is run (default={0})'.format(default_nb_iter)), ('mode=', None, 'mode to use (cpython, pythran, pythran+omp)')]
 
     runas_marker = '#runas '
 
@@ -51,6 +51,7 @@ class BenchmarkCommand(Command):
     def initialize_options(self):
         self.nb_iter=BenchmarkCommand.default_nb_iter
         self.parallel=False
+        self.mode="pythran"
 
     def finalize_options(self):
         self.nb_iter=int(self.nb_iter)
@@ -75,21 +76,16 @@ class BenchmarkCommand(Command):
                     sopath=module_name+".so"
                     if os.path.exists(sopath): os.remove(sopath)
 
-                    # python part
                     ti=timeit.Timer(runas_command, runas_context)
-                    python_tps = median(ti.repeat(self.nb_iter,number=1))
-                    print module_name, python_tps,
-
-                    # force module reloading
-                    del sys.modules[module_name]
 
                     # pythran part
-                    specs = spec_parser(candidate)
-                    mod = cxx_generator(module_name, file(candidate).read(), specs)
-                    pythran_compile(os.environ.get("CXX","c++"), mod, cxxflags=["-Ofast", "-DNDEBUG" ] + ( ["-fopenmp"] if self.parallel else [] ) )
-                    ti=timeit.Timer(runas_command, runas_context)
-                    pythran_tps = median(ti.repeat(self.nb_iter,number=1))
-                    print pythran_tps, "x{0}".format(python_tps/pythran_tps)
+                    if self.mode == 'pythran'or self.mode == 'pythran+omp':
+                        specs = spec_parser(candidate)
+                        mod = cxx_generator(module_name, file(candidate).read(), specs)
+                        pythran_compile(os.environ.get("CXX","c++"), mod, cxxflags=["-Ofast", "-DNDEBUG" ] + ( ["-fopenmp"] if self.mode == "pythran+omp" else [] ) )
+
+                    timing = median(ti.repeat(self.nb_iter,number=1))
+                    print module_name, timing
 
 
 setup(  name='pythran',

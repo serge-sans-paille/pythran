@@ -24,10 +24,11 @@
 
 \begin{document}
 
-\title{Pythran~: Génération automatique de modules natifs parallèles à
-partir de modules Python avec annotations OpenMP}
-\shorttitle{Génération automatique de modules natifs parallèles pour
-Python}
+\title{Pythran~: Génération automatique de modules natifs parallèles pour
+Python avec annotations OpenMP}
+
+\shorttitle{Génération automatique de
+modules natifs parallèles pour Python}
 
 \author{Serge \textsc{Guelton}}%\thanks{Le texte a été relu par Thierry Gautier.}%
 
@@ -53,8 +54,8 @@ serge.guelton@telecom-bretagne.eu}
   statiquement typé du langage Python et annoté de directives OpenMP en un
   module natif dont certaines sections de code s'exécutent en parallèle. 
 
-  On peut ainsi générer des modules dont les temps d'exécutions sont 100
-  fois inférieurs à ceux du module d'origine, grâce à la compilation
+  On peut ainsi générer des modules dont les temps d'exécutions sont
+  jusqu'à 300 fois inférieurs à ceux du module d'origine, grâce à la compilation
   statique et à l'utilisation du parallélisme.
   
   \MotsCles{Python, OpenMP, C++}
@@ -69,40 +70,40 @@ Le langage Python~\cite{rossum97} est né en décembre 1989. Depuis, son
 caractère extrêmement dynamique, sa bibliothèque standard riche, son large
 écosystème et sa syntaxe concise lui ont permis de toucher de nombreux
 domaines d'applications, dont par exemple l'administration système ou les
-services webs.  Python a également percé dans le monde du calcul
+services web.  Python a également percé dans le monde du calcul
 scientifique~\cite{Oliphant2007}, notamment grâce au paquet
 SciPy~\cite{scipy}. Le surcout d'interprétation du langage Python étant
 rédhibitoire pour une utilisation dans un contexte de calcul intensif,
 SciPy repose sur deux concepts pour atteindre un bon niveau de
-performance~: les noyaux de calculs intensifs sont écrits dans des
-langages de bas niveau, C et Fortran, dont les appels sont encapsulés par
-un module dit \emph{natif}~; et la structure de données de base, le
-tableau multidimensionnel~\cite{numpyarray2011} a été conçue pour être
-accessible à la fois par les modules natifs et l'interpréteur Python sans
-surcout de conversion.
+performance. D'une part, les noyaux de calculs intensifs sont écrits dans
+des langages de bas niveau, C et Fortran, dont les appels sont encapsulés
+par un module dit \emph{natif}. D'autre part, la structure de données de
+base, le tableau multidimensionnel~\cite{numpyarray2011} a été conçue pour
+être accessible à la fois par les modules natifs et l'interpréteur Python
+sans surcout de conversion.
 
-Pour faciliter l'écriture par l'utilisateur de modules natifs, c'est à
-dire sans avoir à écrire soi-même le code permettant de traduire des
-objets Python en structures natives et d'appeler une fonction C depuis
-l'interpréteur, le paquet SciPy fournit le module \texttt{weave} qui
+Pour faciliter l'écriture par l'utilisateur de modules natifs, \emph{i.e.\
+} sans avoir à écrire soi-même le code permettant de traduire des objets
+Python en structures natives et d'appeler une fonction C depuis
+l'interpréteur, le paquet SciPy fournit le module \texttt{weave}. Il
 permet d'intégrer de petits fragments de code C à un module python, ce
 code étant par la suite compilé et chargé dynamiquement à l'exécution,
 pour des temps d'exécution moindres.
 
 Cette approche hybride, consistant à mélanger code interprété et code
 compilé dans un même flot d'exécution, est présente sous de nombreuses
-formes dans le paysage Python. La Section~\ref{sec:python-hybrid} étude
+formes dans le paysage Python. La Section~\ref{sec:python-hybrid} étudie
 les différentes approches qui ont été explorées et montre le manque de
 support du parallélisme dans ces approches. La
-Section~\ref{sec:python-parallelism} fournit des éléments d'explications à
-ce phénomène et propose l'ajout du support des directives OpenMP au langage
-dans le cadre d'un \emph{domain specific language} embarqué dans Python et
-compilable statiquement, Pythran. Ce langage et les contraintes qu'il doit
-respecter pour être compilable statiquement et compatible avec la norme
-OpenMP sont exposés à la Section~\ref{sec:pythran}. Un compilateur pour ce
-langage a été écrit et a permis de mesurer des temps d'exécutions
-significativement inférieur à ceux obtenus avec l'implémentation de
-référence de l'interpréteur Python, comme présenté en
+Section~\ref{sec:python-parallelism} fournit des éléments d'explication à
+ce phénomène et propose l'ajout du support des directives OpenMP au
+langage dans le cadre d'un \emph{domain specific language} embarqué dans
+Python et compilé statiquement, Pythran. Ce langage et les contraintes
+qu'il doit respecter pour être compatible avec
+la norme OpenMP sont exposés à la Section~\ref{sec:pythran}. Un
+compilateur pour ce langage a été écrit et a permis de mesurer des temps
+d'exécutions significativement inférieurs à ceux obtenus avec
+l'implémentation de référence de l'interpréteur Python, comme présenté en
 Section~\ref{sec:validation}.
 
 %=========================================================
@@ -125,7 +126,7 @@ langage C++ pour guider la traduction.
 Une approche concurrente est de se baser sur le langage hôte --- ici
 Python --- pour décrire les deux parties du système, et de laisser un
 outil tierce convertir une partie de l'application en code natif,
-généralement la partie la plus demandeuse en ressources de calcul.
+généralement la partie la plus gourmande en ressources de calcul.
 L'avantage est de permettre à des développeurs qui ne seraient pas
 familiers avec les langages C/C++ ou qui n'auraient pas de temps à
 consacrer à écrire une partie de leur application dans ces langages,
@@ -149,16 +150,17 @@ de fonctions natives. plw~\cite{dongara2007} propose une approche
 similaire, en limitant la conversion à des portions de code délimitées par
 des annotations, et en générant du C++. Le projet
 numba~\footnote{\emph{cf}.\ \texttt{https://github.com/numba/numba}}
-fonctionne sur le même principe, mais en générant du code LLVM.
+fonctionne sur le même principe, mais en générant du code LLVM.  Le
+problème des approches intrusives et qu'elles impliquent de modifier du
+code existant de façon non triviale, et demandent l'investissement dans un
+nouveau langage, investissement dont la pérennité n'est pas toujours
+garantie.
 
 \subsection{Approches non-intrusives}
 
-Le problème des approches intrusives et qu'elles impliquent de modifier du
-code existant de façon non bénigne, et demandent l'investissement dans un
-nouveau langage, investissement dont la pérennité n'est pas toujours
-garantie. \emph{A contrario} les approches non-intrusives, si elles
-contraignent éventuellement le langage d'entrée, n'ajoutent pas de
-nouvelles constructions et restent compatibles avec l'interpréteur 
+Les approches non-intrusives, si elles contraignent éventuellement le
+langage d'entrée, n'ajoutent pas de nouvelles constructions et restent
+compatibles avec l'interpréteur standard.
 
 L'interpréteur PyPy~\cite{pypy2009}, lui-même écrit en Python, vise à
 supporter la totalité du langage Python. Il utilise un JIT traceur qui
@@ -201,11 +203,11 @@ de ses spécificités.
 
 La parallélisation de calculs est supportée en Python à travers le module
 \texttt{multiprocessing} fourni dans la bibliothèque standard.  Il permet
-de piloter différent processus fils en mode client-serveur. La
+de piloter différents processus fils en mode client-serveur. La
 communication entre processus se fait par queue ou pile en utilisant la
 sérialisation native des objets. Il est également possible de partager des
-segments mémoire. Cette approche est adaptée pour du parallélisme gros
-grains, mais est moins importante qu'une approche basée sur des processus
+segments mémoires. Cette approche est adaptée pour du parallélisme gros
+grains, mais est moins utile qu'une approche basée sur des processus
 légers communiquant par mémoire partagée pour du parallélisme à grain fin.
 
 \subsection{Python et processus légers}
@@ -216,7 +218,7 @@ adapté au calcul intensif en raison d'un mécanisme propre à CPython,
 l'implémentation de référence de l'interpréteur: le \emph{Global
 Interpreter Lock}~\cite{gil2012}~\footnote{D'autres implémentations, comme
 IronPython et Jython, ne souffrent pas de cette limitation.}. Ce verrou
-est utilisé, entre autres, par le ramasse-miette et il est pris à chaque
+est utilisé, entre autre, par le ramasse-miette et il est pris à chaque
 appel de méthode d'un objet.  Certains modules reposent également sur ce
 verrou pour garantir certains invariants. Ce verrou rend impossible
 l'utilisation de processus légers pour du calcul scientifique.
@@ -241,21 +243,24 @@ Cet article propose d'automatiser cette approche en~:
 \section{Pythran}\label{sec:pythran}
 %=========================================================
 
+Pythran est un traducteur d'un sous-ensemble du langage Python vers le
+langage C++. Cette section étudie la chaine de compilation utilisée.
+
 \subsection{Support d'OpenMP en Python}
 \label{sec:python-openmp}
 
 \subsubsection{Ajout des annotations}
 
-Le langage Python permet de faire porter des annotations par des
-fonctions, sous la forme de décorateurs. Aucun mécanisme n'est prévu pour
-décorer des instructions. Une approche possible est d'utiliser des
-commentaires, à la manière de l'intégration d'OpenMP dans le langage
-FORTRAN. Cependant, le module \texttt{ast} de la bibliothèque standard,
-qui fournit une API pour l'analyse lexicale et syntaxique du langage, ne
-conserve pas les commentaires. Une alternative satisfaisante consiste
-alors à interpréter les instructions ne comprenant qu'une expression de type
-chaîne de caractères comme une annotation portant sur l'instruction
-suivant directement. Par exemple, on pourra écrire~:
+Le langage Python permet d'ajouter des annotations par des fonctions, sous
+la forme de décorateurs. Aucun mécanisme n'est prévu pour décorer des
+instructions. Une approche possible est d'utiliser des commentaires, à la
+manière de l'intégration d'OpenMP dans le langage FORTRAN. Cependant, le
+module \texttt{ast} de la bibliothèque standard, qui fournit une API pour
+l'analyse lexicale et syntaxique du langage, ne conserve pas les
+commentaires. Une alternative satisfaisante consiste alors à interpréter
+les instructions ne comprenant qu'une expression de type chaîne de
+caractères comme une annotation portant sur l'instruction suivant
+directement. Par exemple, on pourra écrire~:
 
 \begin{lstlisting}[language=python]
 "omp parallel for reduction(r), private(auto)"
@@ -265,7 +270,7 @@ for auto in mon_conteneur:
 
 Il est dangereux de représenter les annotations sous forme de chaîne de
 caractères, car elles font éventuellement référence à des variables du
-programme, par exemple \texttt{auto} dans l'exemple précédent, qui peuvent
+programme, par exemple \texttt{auto} et \texttt{r} dans l'exemple précédent, qui peuvent
 être amenés à être renommée dans le flot de compilation.
 
 L'arbre de syntaxe abstrait fourni par le module \texttt{ast} est alors
@@ -305,18 +310,18 @@ for x in mon_conteneur:
 
 \noindent l'instruction \texttt{for} référence les variables \texttt{x},
 \texttt{mon\_conteneur}, \texttt{f}, \texttt{b} et \texttt{r} en plus des
-appels de fonction. Le mode de partage par défaut de ses variables est
-\texttt{shared}, il faut donc lister \emph{toutes} les variables privées
-dans une clause \texttt{private} pour obtenir un bon degré de parallélisme.
-
-À titre d'exemple, le Listing~\ref{lst:pythran-mat-mul} illustre une
-multiplication de matrices annotées par des directives OpenMP.
+appels de fonction. La visibilité par défaut de ses variables est
+partagée, ou \texttt{shared}. Pour permettre une exécution concurrente
+valide, Il faut donc lister \emph{toutes} les variables locales
+dans une clause \texttt{private} pour obtenir un bon degré de
+parallélisme.  À titre d'exemple, le Listing~\ref{lst:pythran-mat-mul}
+illustre une multiplication de matrices annotées par des directives
+OpenMP.
 
 \begin{lstlisting}[language=python, label={lst:pythran-mat-mul},caption={multiplication de matrice avec
   annotations OpenMP}]
-def zero(n,m): return [[0 for row in xrange(n)] for col in xrange(m)]
 def matrix_multiply(m0, m1):
-  new_matrix = zero(len(m0),len(m1[0]))
+  new_matrix = [[0 for row in xrange(n)] for col in xrange(m)]
   "omp parallel for private(i,j,k)"
   for i in xrange(len(m0)):
     for j in xrange(len(m1[0])):
@@ -338,6 +343,7 @@ conduit à un module natif.
 
 \begin{figure}
   \centering
+  \scalebox{.8}{
   \begin{tikzpicture}[
 	file/.style={draw=black!50,fill=black!10,rectangle, drop shadow, align=center},
 	tool/.style={draw=black!50,fill=black!10,circle, align=center}]
@@ -360,6 +366,7 @@ conduit à un module natif.
 	\draw[very thick, ->] (pythonic) -- (gxx);
 	\draw[very thick, ->] (gxx) -- (so);
   \end{tikzpicture}
+  }
 
   \caption{Fonctionnement schématique du compilateur Pythran}
   \label{fig:pythran}
@@ -385,7 +392,7 @@ Section~\ref{sec:python-openmp}.
 
 \subsubsection{Simplification de la grammaire}
 
-Le langage Pythran supporte un sous ensemble de la grammaire du langage
+Le langage Pythran supporte un sous-ensemble de la grammaire du langage
 Python. Les mots clés \texttt{class} et \texttt{exec} ne sont pas
 supportés~\footnote{D'autres constructions, telles les variables globales
 ou les gestionnaires de contexte à l'aide du mot-clé \texttt{with} ne sont
@@ -393,11 +400,11 @@ pas supportés, mais cela est plus lié à des priorités de développement
 qu'à des problèmes fondamentaux.}. L'absence de classe utilisateur
 simplifie l'inférence de type et la gestion de la mémoire. Plusieurs
 classes natives, notamment tous les conteneurs, sont supportées.
-L'évaluation dynamique de chaîne de caractère comme code source ne rentre
-pas dans les possibilités du langage cible. De même, certaines fonction
+L'évaluation dynamique de chaînes de caractère comme code source ne rentre
+pas dans les possibilités du langage cible. De même, certaines fonctions
 intrinsèques telles \texttt{eval} ne sont pas supportées. Le langage
 intermédiaire utilisé par PyPy, RPython~\cite{rpython2007}, est soumis à
-des contraintes de staticité similaires.
+des contraintes similaires.
 
 Une fois que la validité de la syntaxe est assurée, l'arbre de syntaxe
 abstrait est transformé en un nouvel arbre.
@@ -422,7 +429,7 @@ def foo(y):
 foo(l)
 \end{lstlisting}
 
-  \item Les attributs de classe sont transformés en indices constants~:
+  \item Les classe sont transformés en $n$-uplets~:
 	\texttt{c.real+c.imag} devient \texttt{c[0]+c[1]}.
 
   \item Les appels de méthodes sont transformés en appels de fonctions~:
@@ -430,11 +437,11 @@ foo(l)
 
   \item Les valeurs de retour implicites sont rendus
 	explicites~\footnote{Toute fonction Python a une valeur de retour, qui
-	se trouve être \texttt{None} par défaut.}:\texttt{def foo(): print
+	se trouve être \texttt{None} par défaut.}: \texttt{def foo(): print
 	"bar"} devient \texttt{def foo(): print "bar" ; return None}.
 
   \item Tous les symboles importés de manière relative sont remplacés par
-	leur chemin absolus~: \texttt{from math import cos as COS ; COS(3)}
+	leur chemin absolu~: \texttt{from math import cos as COS ; COS(3)}
 	devient \texttt{import math ; math.cos(3)}.
 
 \end{enumerate}
@@ -449,14 +456,14 @@ OpenMP portées par les instructions. Comme le compilateur Pythran n'a pas
 de compréhension directe du sens de l'annotation, il garantit qu'une
 annotation est toujours attachée à la même instruction, et qu'au cas où
 une instruction devait être transformée en plusieurs, l'annotation serait
-portée par le bloc d'instructions crée. Par exemple~:
+portée par le bloc d'instructions créé. Par exemple~:
 %
 \begin{lstlisting}[language=python]
 "omp critical"
 a,b=make_tuple()
 \end{lstlisting}
 %
-\noindent peut être transformé en
+\noindent peut être transformé, afin de conserver l'annotation,  en~:
 \begin{lstlisting}[language=python]
 "omp critical"
 if 1:
@@ -464,11 +471,10 @@ if 1:
 	a=t[0] ; b=t[1]
 \end{lstlisting}
 %
-\noindent afin de conserver l'annotation.
 
 \subsubsection{Typage}
 
-Pythran utilise une variante de l'algorithme d'inférence de type de
+Pythran utilise une variante de l'algorithme d'inférence de
 Hindley--Milner~\cite{milner78}. À l'issu de son application, tous les
 nœuds de la représentation interne se voient dotés d'un type paramétrique,
 dépendant du type symbolique de ses paramètres.
@@ -491,7 +497,7 @@ fonctions polymorphes, mais uniquement des variables monomorphes.
 
 Pour faciliter la gestion de la mémoire, on ajoute une nouvelle
 contrainte~: il ne peut y avoir de dépendance circulaire dans la
-définition des types des objets. Ce genre de dépendance ne pause aucun
+définition des types des objets. Ce genre de dépendance ne pose aucun
 problème en Python, et demande l'utilisation de pointeurs en C/C++.
 
 
@@ -500,12 +506,12 @@ problème en Python, et demande l'utilisation de pointeurs en C/C++.
 En Python, une instance de classe est accessible via sa référence. Une
 affectation est une copie de référence, et non pas de l'objet lui-même.
 L'implémentation de référence, CPython, gère la mémoire en utilisant deux
-stratégies~:compteurs de référence et ramasse-miette.
+stratégies~: compteurs de références et ramasse-miette.
 
 La première stratégie peut être employée --- avec un certain coût --- en
 C++ par l'utilisation de pointeurs partagés, les \texttt{std::shared\_ptr}
-disponible dans la bibliothèque standards.  Grâce à la contrainte sur
-l'absence de dépendances de type circulaires, le comptage de référence est
+disponible dans la bibliothèque standard.  Grâce à la contrainte sur
+l'absence de dépendances de type circulaires, le comptage de références est
 un mécanisme suffisant pour garantir l'absence de fuites de mémoires. De
 plus, il garantit une libération «~au plus tôt~» des ressources.
 
@@ -521,9 +527,9 @@ développées par ailleurs~\cite{Levanoni2006}.
 \subsection{Validation}
 
 La vérification de la validité de la traduction effectuée par Pythran
-repose sur des test unitaires, constitués d'une fonction et de ses
+repose sur plus de 400 tests unitaires, constitués d'une fonction et de ses
 arguments.  Cette fonction est généralement courte, elle retourne une
-valeur servant de trace et est déterministe.
+valeur servant de trace et doit être déterministe.
 
 Pour chaque test unitaire, la fonction correspondante est exécutée par
 l'interpréteur avec les arguments fournis et sa valeur de retour est
@@ -547,7 +553,7 @@ Les codes utilisés sont tirés des bases de tests du défunt projet
 modification faite est l'ajout de la signature typée de la fonction
 appelée. Quand cela était possible, des annotations OpenMP ont été
 ajoutée. \texttt{extrema} recherche les valeurs extrêmes d'une liste,
-\texttt{matmul} effectue une produit matriciel entre deux matrices
+\texttt{matmul} effectue le produit de deux matrices
 carrées, \texttt{mandel} fait un calcul de fractal, \texttt{nqueens}
 résout une instance du problème des n-reines, \texttt{pi\_buffon} utilise
 une méthode de monte-carlo pour calculer les décimales de $\pi$,
@@ -562,32 +568,37 @@ structures de données Python et leur représentation native.
 
 Les évaluations de performances sont effectuées sur une machine comportant
 4 processeurs de type Intel Core i7 avec l'\emph{hypethreading}, avec 8G
-de RAM et tournant un noyau 3.0.0.
+de RAM et un noyau Linux 3.0.0.
 Les modules Pythran sont compilés avec g++-4.7.1 et les drapeaux
 \texttt{-Ofast -DNDEBUG}.
-Les temps reproduits ici sont obtenus à l'aides des commandes
-\texttt{python setup.py bench} et \texttt{python setup.py bench
---parallel} fournie avec l'installation de Pythran.
+Les temps reproduits ici sont obtenus à l'aide de la commande
+\texttt{python setup.py bench} fournie avec l'installation de Pythran.
 
 Le tableau~\ref{tbl:pythran-vs-cpython} illustre les performances de
 Pythran par rapport à CPython, en prenant en compte ou non les directives
 OpenMP. Il permet d'observer des gains importants dus au changement de
 langage. On observe aussi que les directives OpenMP sont bien prises en
 compte et permettent d'obtenir des facteurs d'accélération du module natif
-parallèle allant jusqu'à $\times300$ par rapport à CPython et $\time8$ par
-rapport à PyPy.
+généralement de l'ordre de $\times20$ par rapport à CPython et de l'ordre
+de $\times3$ par rapport à PyPy. Les gains liés à OpenMP permettent
+d'apporter un facteur $\times2$ à $\times4$ suivant l'application. Les
+gains importants pour \texttt{matmul} et \texttt{mandel} s'expliquent par
+l'utilisation de types natifs au lieu d'objets Python pour les opérations
+de base. Le cas de \texttt{quicksort} est à relier au coût prohibitif d'un
+appel de fonction en Python. Le cas d'\texttt{extrema}, implémenté à
+l'aide des intrinsèques \texttt{zip} et \texttt{map}, montrent des
+possibilités d'améliorations non exploitées.
 
 \begin{table}
   \begin{tabular}{|l|c|c|c|c|}
 				&CPython	&	PyPy	&	Pythran	&	Pythran+OpenMP\\
-	nqueens		&1.754		&	0.603	&	0.228	&	0.231		  \\
+	nqueens		&1.754		&	0.603	&	0.228	&	-		  \\
 	pi\_buffon	&47.083		&	12.08	&	2.676	&	0.561		\\
-	extrema		&0.386		&	0.564	&	0.033	&	0.033\\
-	stone		&6.956		&	0.204	&	0.023	&	0.023\\
+	extrema		&0.386		&	0.564	&	0.033	&	-\\
+	stone		&6.956		&	0.204	&	0.023	&	-\\
 	mandel		&976.81		&	6.304	&	5.563	&	2.565\\
-	caxpy		&0.588		&	0.204	&	0.340	&	0.340\\
 	matmul		&153.91		&	9.061	&	7.314	&	2.263\\
-	quicksort	&3.331		&	0.087	&	0.040	&	0.041\\
+	quicksort	&3.331		&	0.087	&	0.040	&	-\\
   \end{tabular}
 
   \caption{Comparaison de CPython, PyPy et Pythran, avec ou sans OpenMP.}
@@ -627,7 +638,7 @@ sont pas étrangères aux idées exposées dans cet article.
 Les nombreux conseils de Fabien \textsc{Dagnat} ont fortement contribué à
 la réflexion sur le typage statique de code Python. Deux élèves de Télécom
 Bretagne, Adrien \textsc{Merlini} et Pierrick \textsc{Brunet}, ont apporté
-une aide inestimables pour le support des listes, des exceptions et des
+une aide inestimable pour le support des listes, des exceptions et des
 ensembles.
 
 \bibliography{biblio}

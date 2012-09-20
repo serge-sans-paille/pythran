@@ -13,14 +13,18 @@ namespace pythonic {
 
         double random() { return drand48(); }
 
-
         double gauss(double mu, double sigma) {
             return std::normal_distribution<>(mu, sigma)(__random_generator);
+        }
+
+        double uniform(double a, double b) {
+            return a + (b-a)*random();
         }
 
         PROXY(pythonic::random, seed);
         PROXY(pythonic::random, random);
         PROXY(pythonic::random, gauss);
+        PROXY(pythonic::random, uniform);
     }
 }
 

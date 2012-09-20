@@ -176,7 +176,8 @@ modules = {
         "random" : {
                 "seed": FunctionIntr(),
                 "random" :FunctionIntr(),
-                "gauss": FunctionIntr()
+                "gauss": FunctionIntr(),
+                "uniform": FunctionIntr(),
             },
         "__list__" : {
             "append" : MethodIntr([lambda self, node: self.combine(node.args[0], node.args[1], unary_op=lambda f: cxxtypes.ListType(f), register=True)]),

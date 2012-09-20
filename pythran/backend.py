@@ -100,7 +100,7 @@ class CxxBackend(ast.NodeVisitor):
         #if hasattr(node,"lineno"):
         #    operator_body.insert(0,Line('#line {0} "{1}.py"'.format(node.lineno, self.name)))
 
-        return_type = self.types[node][0]
+        result_type = self.types[node][0]
 
         def make_function_declaration(rtype, name, ftypes, fargs, defaults):
             return FunctionDeclaration( Value(rtype, name), [ Value( t, "{0}{1}".format(a,"= {0}".format(d) if d else "") ) for t,a,d in zip(ftypes, fargs, defaults) ])
@@ -111,9 +111,9 @@ class CxxBackend(ast.NodeVisitor):
             next_name = "__generator__"+node.name
             instanciated_next_name = "{0}{1}".format(next_name, "<{0}>".format(", ".join(formal_types)) if formal_types else "")
 
-            operator_body.append(Statement("{0}: return return_type();".format(CxxBackend.final_statement )))
+            operator_body.append(Statement("{0}: return result_type();".format(CxxBackend.final_statement )))
 
-            next_declaration = [FunctionDeclaration( Value("return_type", "next"),
+            next_declaration = [FunctionDeclaration( Value("result_type", "next"),
                 [] ) , EmptyStatement()] #*** empty statement to force a comma ...
             next_constructors = [
                     FunctionBody(
@@ -128,7 +128,7 @@ class CxxBackend(ast.NodeVisitor):
                     FunctionBody(
                         FunctionDeclaration( Value("void", "operator++"), []), Block([Statement("next()")])),
                     FunctionBody(
-                        FunctionDeclaration( Value("typename {0}::return_type".format(instanciated_next_name), "operator*"), []), Block([Statement("return {0}".format(CxxBackend.generator_state_value))])),
+                        FunctionDeclaration( Value("typename {0}::result_type".format(instanciated_next_name), "operator*"), []), Block([Statement("return {0}".format(CxxBackend.generator_state_value))])),
                     FunctionBody(
                         FunctionDeclaration( Value("pythonic::generator_iterator<{0}>".format(next_name), "begin"), []),
                         Block([Statement("next() ; return generator_iterator<{0}>(this)".format(next_name))])),
@@ -139,7 +139,7 @@ class CxxBackend(ast.NodeVisitor):
                         FunctionDeclaration( Value("bool", "operator!="), [Value("{0} const &".format(next_name),"other")]), Block([Statement("return {0}!=other.{0}".format(CxxBackend.generator_state_holder))]))
                     ]
             next_signature = templatize(FunctionDeclaration(
-                Value("typename {0}::return_type".format(instanciated_next_name), "{0}::next".format(instanciated_next_name)), [] ), formal_types)
+                Value("typename {0}::result_type".format(instanciated_next_name), "{0}::next".format(instanciated_next_name)), [] ), formal_types)
 
             next_body = operator_body
             next_body.insert(0,Statement("switch({0}) {{ {1} }}".format( # the dispatch table at the entry point
@@ -151,13 +151,13 @@ class CxxBackend(ast.NodeVisitor):
                          + [ Statement("{0} {1}".format(self.types[k].generate(ctx), k.id)) for k in ldecls ]\
                          + [ Statement("{0} {1}".format(v,k)) for k,v in self.extra_declarations.iteritems() ]\
                          + [Statement("{0} {1}".format("long", CxxBackend.generator_state_holder))]\
-                         + [Statement("typename {0}::return_type {1}".format(instanciated_next_name, CxxBackend.generator_state_value))]
+                         + [Statement("typename {0}::result_type {1}".format(instanciated_next_name, CxxBackend.generator_state_value))]
             next_members = next_members
 
             extern_typedefs = [Typedef(Value(t.generate(ctx), t.name)) for t in self.types[node][1] if not t.isweak()]
-            iterator_typedef= [Typedef(Value("pythonic::generator_iterator<{0}>".format("{0}<{1}>".format(next_name, ", ".join(str(t) for t in formal_types) ) if formal_types else next_name), "iterator")), Typedef(Value(return_type.generate(ctx), "value_type"))]
-            return_typedef  = [Typedef(Value(return_type.generate(ctx), "return_type"))]
-            extra_typedefs  =  ctx.typedefs() + extern_typedefs + iterator_typedef + return_typedef
+            iterator_typedef= [Typedef(Value("pythonic::generator_iterator<{0}>".format("{0}<{1}>".format(next_name, ", ".join(str(t) for t in formal_types) ) if formal_types else next_name), "iterator")), Typedef(Value(result_type.generate(ctx), "value_type"))]
+            result_typedef  = [Typedef(Value(result_type.generate(ctx), "result_type"))]
+            extra_typedefs  =  ctx.typedefs() + extern_typedefs + iterator_typedef + result_typedef
 
             next_struct = templatize(Struct(next_name, extra_typedefs + next_members + next_constructors + next_iterator + next_declaration), formal_types)
             next_definition = FunctionBody(next_signature, Block( next_body ))
@@ -184,10 +184,10 @@ class CxxBackend(ast.NodeVisitor):
             ffscope = "{0}::{1}".format(node.name, fscope)
 
             operator_declaration = [templatize(
-                make_function_declaration("typename "+fscope+"return_type", "operator()",
+                make_function_declaration("typename "+fscope+"result_type", "operator()",
                     formal_types, formal_args, default_arg_values) , formal_types, default_arg_types), EmptyStatement()] #*** empty statement to force a comma ...
             operator_signature = FunctionDeclaration(
-                    Value("typename {0}return_type".format(ffscope), "{0}::operator()".format(node.name)),
+                    Value("typename {0}result_type".format(ffscope), "{0}::operator()".format(node.name)),
                     [ Value( t, a ) for t,a in zip(formal_types, formal_args ) ] )
             ctx=CachedTypeVisitor()
             operator_local_declarations = [ Statement("{0} {1}".format(self.types[k].generate(ctx), k.id)) for k in ldecls ]\
@@ -200,7 +200,7 @@ class CxxBackend(ast.NodeVisitor):
 
             ctx=CachedTypeVisitor()
             extra_typedefs = [Typedef(Value(t.generate(ctx), t.name)) for t in self.types[node][1] if not t.isweak()]\
-                           + [Typedef(Value(return_type.generate(ctx), "return_type"))]
+                           + [Typedef(Value(result_type.generate(ctx), "result_type"))]
             extra_typedefs = ctx.typedefs() + extra_typedefs
             return_declaration = [templatize(Struct("type",extra_typedefs), formal_types)]
             topstruct = Struct(node.name, return_declaration + operator_declaration)

@@ -310,15 +310,15 @@ namespace pythonic {
 
     template <class T0>
         struct Max<T0> {
-            typedef T0 return_type;
-            return_type operator()(T0 const & t) {
+            typedef T0 result_type;
+            result_type operator()(T0 const & t) {
                 return t;
             }
         };
     template <class T0, class T1>
         struct Max<T0, T1> {
-            typedef decltype(std::declval<T0>() + std::declval<T1>()) return_type;
-            return_type operator()(T0 const & t0, T1 const& t1) {
+            typedef decltype(std::declval<T0>() + std::declval<T1>()) result_type;
+            result_type operator()(T0 const & t0, T1 const& t1) {
                 return t0>t1? t0: t1;
             }
 
@@ -326,10 +326,10 @@ namespace pythonic {
 
     template <class T0, class... Types>
         struct Max<T0, Types...> {
-            typedef decltype( Max<T0, typename Max<Types...>::return_type >::return_type) return_type;
+            typedef decltype( Max<T0, typename Max<Types...>::result_type >::result_type) result_type;
 
 
-            return_type operator()(T0 const & t0, Types const&... values)
+            result_type operator()(T0 const & t0, Types const&... values)
             {
                 auto t1 = (*this)(values...);
                 return t0 > t1 ? t0 : t1;
@@ -337,15 +337,15 @@ namespace pythonic {
         };
     template<class T>
         struct Max<core::list<T>> {
-            typedef typename core::list<T>::value_type return_type;
+            typedef typename core::list<T>::value_type result_type;
 
-            return_type operator()( core::list<T> const & s ) {
+            result_type operator()( core::list<T> const & s ) {
                 return *std::max_element(s.begin(), s.end());
             }
         };
 
     template <class... Types>
-        typename Max<Types...>::return_type max(Types const&... values) {
+        typename Max<Types...>::result_type max(Types const&... values) {
             return Max<Types...>()(values...);
         }
     PROXY(pythonic,max);
@@ -355,15 +355,15 @@ namespace pythonic {
 
     template <class T0>
         struct Min<T0> {
-            typedef T0 return_type;
-            return_type operator()(T0 const & t) {
+            typedef T0 result_type;
+            result_type operator()(T0 const & t) {
                 return t;
             }
         };
     template <class T0, class T1>
         struct Min<T0, T1> {
-            typedef decltype(std::declval<T0>() + std::declval<T1>()) return_type;
-            return_type operator()(T0 const & t0, T1 const& t1) {
+            typedef decltype(std::declval<T0>() + std::declval<T1>()) result_type;
+            result_type operator()(T0 const & t0, T1 const& t1) {
                 return t0>t1? t1: t0;
             }
 
@@ -371,10 +371,10 @@ namespace pythonic {
 
     template <class T0, class... Types>
         struct Min<T0, Types...> {
-            typedef decltype( Min<T0, typename Min<Types...>::return_type >::return_type) return_type;
+            typedef decltype( Min<T0, typename Min<Types...>::result_type >::result_type) result_type;
 
 
-            return_type operator()(T0 const & t0, Types const&... values)
+            result_type operator()(T0 const & t0, Types const&... values)
             {
                 auto t1 = (*this)(values...);
                 return t0 > t1 ? t0 : t1;
@@ -383,15 +383,15 @@ namespace pythonic {
 
     template<class T>
         struct Min<core::list<T>> {
-            typedef typename core::list<T>::value_type return_type;
+            typedef typename core::list<T>::value_type result_type;
 
-            return_type operator()( core::list<T> const & s ) {
+            result_type operator()( core::list<T> const & s ) {
                 return *std::min_element(s.begin(), s.end());
             }
         };
 
     template <class... Types>
-        typename Min<Types...>::return_type min(Types const&... values) {
+        typename Min<Types...>::result_type min(Types const&... values) {
             return Min<Types...>()(values...);
         }
     PROXY(pythonic,min);

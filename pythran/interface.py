@@ -88,12 +88,12 @@ def cxx_generator(module_name, code, specs=None):
                 arguments_types = [pytype_to_ctype(t) for t in signature ]
                 arguments = ["a{0}".format(i) for i in xrange(len(arguments_types))]
                 specialized_fname = "__{0}::{1}::type{2}".format( module_name, internal_function_name, "<{0}>".format(", ".join(arguments_types)) if  arguments_types else "")
-                return_type = "typename {0}::return_type".format(specialized_fname)
+                result_type = "typename {0}::result_type".format(specialized_fname)
                 mod.add_to_init([Statement("python_to_pythran<{0}>()".format(t)) for t in extract_all_constructed_types(signature)])
-                mod.add_to_init([Statement("pythran_to_python<{0}>()".format(return_type))])
+                mod.add_to_init([Statement("pythran_to_python<{0}>()".format(result_type))])
                 mod.add_function(
                         FunctionBody(
-                            FunctionDeclaration( Value(return_type, numbered_function_name), [ Value( t, "a"+str(i) ) for i,t in enumerate(arguments_types) ]),
+                            FunctionDeclaration( Value(result_type, numbered_function_name), [ Value( t, "a"+str(i) ) for i,t in enumerate(arguments_types) ]),
                             Block([ Statement("return {0}()({1})".format(
                                 '__{0}::{1}'.format(module_name,internal_function_name),
                                 ', '.join(arguments) ) ) ] )

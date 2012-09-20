@@ -10,7 +10,7 @@
     * mark_temporaries flags temporary objects for further optimization
 '''
 
-from tables import modules, functions, builtin_constants
+from tables import modules, builtin_constants, builtin_constructors
 import ast
 import networkx as nx
 import metadata
@@ -122,7 +122,7 @@ def imported_ids(node, global_declarations):
         node=ast.If(ast.Num(1),node,None)
     r.visit(node)
     #*** expand all modules here
-    return { ref for ref in r.references } - set(modules["__builtins__"].keys()+builtin_constants.keys())
+    return { ref for ref in r.references } - set(modules["__builtins__"].keys()+builtin_constants.keys()+builtin_constructors.keys())
 
 ##
 class WrittenAreas(ast.NodeVisitor):

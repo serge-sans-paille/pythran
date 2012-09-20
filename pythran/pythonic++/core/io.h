@@ -47,6 +47,23 @@ namespace pythonic {
         return os << "[]";
     }
 
+    /* exception */
+
+    std::ostream& operator<<(std::ostream& o, core::BaseException const & e)
+    {
+        return o << e.args;
+    }
+
+    std::ostream& operator<<(std::ostream& o, core::EnvironmentError const & e)
+    {
+        if(e.args.size()==2)
+            return o << "[Errno " << e.args[0] << "] " << e.args[1];
+        else if(e.args.size()==3)
+            return o << "[Errno " << e.args[0] << "] " << e.args[1] << ": '" << e.args[2] << "'";
+        else
+            return o << e.args;
+    }
+
     /* set */
 
     template<class T>

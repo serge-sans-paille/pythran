@@ -311,6 +311,50 @@ class Template(NestedDeclarator):
             yield ";"
 
 # control flow/statement stuff ------------------------------------------------
+class ExceptHandler(Generable):
+    def __init__(self, name, body, alias=None):
+        self.name=name
+        assert isinstance(body,Generable)
+        self.body=body
+        self.alias=alias
+
+    def generate(self):
+        if self.name==None:
+            yield "catch(...)"
+        else:
+            yield "catch (core::%s const& %s)" % (self.name,self.alias if self.alias else 'e')
+        if isinstance(self.body, Block):
+            for line in self.body.generate():
+                yield line
+        else:
+            for line in self.body.generate():
+                yield "  "+line
+
+
+class TryExcept(Generable):
+    def __init__(self, try_, except_, else_=None):
+        self.try_ = try_
+        assert isinstance(try_, Generable)
+        self.except_ = except_
+
+    def generate(self):
+        yield "try"
+
+        if isinstance(self.try_, Block):
+            for line in self.try_.generate():
+                yield line
+        else:
+            for line in self.try_.generate():
+                yield "  "+line
+
+        for exception in self.except_:
+            if isinstance(exception, Block):
+                for line in exception.generate():
+                    yield line
+            else:
+                for line in exception.generate():
+                    yield "  "+line
+
 class If(Generable):
     def __init__(self, condition, then_, else_=None):
         self.condition = condition

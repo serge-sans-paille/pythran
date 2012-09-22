@@ -88,6 +88,10 @@ namespace  pythonic {
                 // size
                 size_type size() const { assert(slicing.step==1); return slicing.upper - slicing.lower ; }
 
+                // accessor
+                T const & operator[](long i) const { return (*data)[slicing.lower + i*slicing.step];}
+                T & operator[](long i) { return (*data)[slicing.lower + i*slicing.step];}
+
             };
 
         /* the container type */
@@ -152,6 +156,9 @@ namespace  pythonic {
                             *refcount=1; 
                             std::copy(other.begin(), other.end(), begin());
                         }
+                list(list_view<T> const & other) :
+                    refcount(reinterpret_cast<size_t*>(pool.malloc())), data(new (refcount+1) container_type(other.begin(), other.end())) { *refcount=1; }
+
                 ~list() {
                     assert(*refcount>0);
                     if(not --*refcount) { pool.free( reinterpret_cast<memory_size*>(refcount)); }
@@ -203,6 +210,19 @@ namespace  pythonic {
                 reverse_iterator rend() { return data->rend(); }
                 const_reverse_iterator rend() const { return data->rend(); }
 
+                // comparison
+                int operator<(list<T> const& other) const {
+                    auto other_iter = other.begin();
+                    auto self_iter = begin();
+                    for(; other_iter != other.end() and self_iter != end(); ++other_iter, ++self_iter) {
+                        if( *other_iter < *self_iter ) return 1;
+                        if( *other_iter > *self_iter ) return -1;
+                    }
+                    if(other_iter !=other.end() and self_iter == end()) return 1;
+                    if(other_iter ==other.end() and self_iter != end()) return -1;
+                    return 0;
+                }
+
                 // element access
                 reference operator[]( long n ) {
 #ifndef NDEBUG
@@ -249,8 +269,8 @@ namespace  pythonic {
                 }
 
                 // modifiers
-                void push_back( const T& x) { data->push_back(x); }
-                void insert(size_t i, const T& x) { data->insert(data->begin()+i, x); }
+                void push_back( T const & x) { data->push_back(x); }
+                void insert(size_t i, T const & x) { data->insert(data->begin()+i, x); }
                 void reserve(size_t n) { data->reserve(n); }
                 void resize(size_t n) { data->resize(n); }
                 iterator erase(size_t n) { return data->erase(data->begin()+n); }

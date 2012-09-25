@@ -196,7 +196,7 @@ Note that as in python, all variables have function-level scope, ``x`` and
 ``y`` must be explicitely listed as private variables.
 
 OpenMP directive parsing is enabled by ``-fopenmp`` when using ``g++`` as the
-abckend compiler.
+backend compiler.
 
 Getting Pure C++
 ----------------

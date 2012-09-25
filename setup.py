@@ -31,9 +31,16 @@ class TestCommand(Command):
     def finalize_options(self):
         pass
     def run(self):
-        loader = TestLoader()
-        t = TextTestRunner()
-        t.run(loader.discover(os.path.join('pythran','tests')))
+		where=os.path.join('pythran','tests')
+		try:
+			import py
+			import multiprocessing
+			cpu_count=multiprocessing.cpu_count()
+			py.test.cmdline.main(["-n", str(cpu_count), where])
+		except ImportError:
+			loader = TestLoader()
+			t = TextTestRunner()
+			t.run(loader.discover(where))
 
 class BenchmarkCommand(Command):
     '''Scan the test directory for any runnable test, and benchmark them.'''

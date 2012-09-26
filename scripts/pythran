@@ -6,14 +6,17 @@ from subprocess import CalledProcessError
 
 def pyflakes_check(filename, filecontent):
     'Use PyFlakes to handle a few common errors'
-    from pyflakes import checker, messages
-    import ast
-    tree=ast.parse(filecontent, filename)
-    chk = checker.Checker(tree, filename)
-    error_message_types=(messages.RedefinedFunction, messages.UndefinedExport, messages.UndefinedLocal, messages.UndefinedName, )
-    for message in chk.messages:
-        if type(message) in error_message_types:
-            raise SyntaxError(str(message))
+    try:
+        from pyflakes import checker, messages
+        import ast
+        tree=ast.parse(filecontent, filename)
+        chk = checker.Checker(tree, filename)
+        error_message_types=(messages.RedefinedFunction, messages.UndefinedExport, messages.UndefinedLocal, messages.UndefinedName, )
+        for message in chk.messages:
+            if type(message) in error_message_types:
+                raise SyntaxError(str(message))
+    except ImportError:
+        pass
 
 parser = argparse.ArgumentParser(prog='pythran',
         description='pythran: a python to C++ compiler',

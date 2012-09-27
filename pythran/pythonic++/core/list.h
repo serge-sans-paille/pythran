@@ -8,7 +8,8 @@
 #include <limits>
 #include <algorithm>
 #include <iterator>
-#include <boost/pool/object_pool.hpp>
+#include "shared_ref.h"
+
 #define DEFAULT_LIST_CAPACITY 16
 
 namespace  pythonic {
@@ -33,8 +34,7 @@ namespace  pythonic {
                 // data holder
                 typedef  typename std::remove_cv< typename std::remove_reference<T>::type>::type  _type;
                 typedef std::vector< _type > container_type;
-                size_t* refcount;
-                container_type* data; 
+				impl::shared_ref<container_type> data; 
 
                 template<class U>
                     friend class list;
@@ -57,19 +57,9 @@ namespace  pythonic {
                 typedef typename container_type::const_reverse_iterator const_reverse_iterator;
 
                 // constructor
-                list_view(): data(nullptr),refcount(nullptr) {}
-                list_view(list_view<T> const & s): data(s.data),refcount(s.refcount), slicing(s.slicing) { 
-                    if(refcount)
-                        ++*refcount;
-                }
+                list_view(): data(impl::no_memory()) {}
+                list_view(list_view<T> const & s): data(s.data), slicing(s.slicing) {}
                 list_view(list<T> & , slice const &);
-                ~list_view() {
-                    if(refcount) {
-                        assert(*refcount>0);
-                        --*refcount;
-                        //sg ! maybe leak
-                    }
-                }
 
                 // const getter
                 container_type const & get_data() const { return *data; }
@@ -101,19 +91,13 @@ namespace  pythonic {
                 // data holder
                 typedef  typename std::remove_cv< typename std::remove_reference<T>::type>::type  _type;
                 typedef std::vector< _type > container_type;
-                size_t* refcount;
-                container_type* data; 
-
-                struct memory_size { size_t refcount; container_type data; };
-
+				impl::shared_ref<container_type> data; 
 
                 template<class U>
                     friend class list_view;
 
                 template<class U>
                     friend class list;
-
-                static boost::object_pool<memory_size> pool;
 
                 public:
 
@@ -133,64 +117,43 @@ namespace  pythonic {
 
 
                 // constructors
-                list() :
-                    refcount(reinterpret_cast<size_t*>(pool.malloc())), data(new (refcount+1) container_type()) { *refcount=1; }
+                list() : data(impl::no_memory()) {}
                 template<class InputIterator>
-                    list(InputIterator start, InputIterator stop) :
-                        refcount(reinterpret_cast<size_t*>(pool.malloc())), data(new (refcount+1) container_type()) {
+                    list(InputIterator start, InputIterator stop) : data() {
                             data->reserve(DEFAULT_LIST_CAPACITY);
                             std::copy(start, stop, std::back_inserter(*data));
-                            *refcount=1;
                         }
-                list(empty_list const &) :
-                    refcount(reinterpret_cast<size_t*>(pool.malloc())), data(new (refcount+1) container_type()) { *refcount=1; }
-                list(size_type sz) :
-                    refcount(reinterpret_cast<size_t*>(pool.malloc())), data(new (refcount+1) container_type(sz)) { *refcount=1; }
-                list(std::initializer_list<value_type> l) :
-                    refcount(reinterpret_cast<size_t*>(pool.malloc())), data(new (refcount+1) container_type(l)) { *refcount=1; }
-                list(list<T> const & other) :
-                    data(const_cast<list<T>*>(&other)->data), refcount(const_cast<list<T>*>(&other)->refcount) { ++*refcount; }
+                list(empty_list const &) : data() {}
+                list(size_type sz) :data(sz) {}
+                list(std::initializer_list<value_type> l) : data(l) {}
+                list(list<T> && other) : data(std::move(other.data)) {}
+                list(list<T> const & other) : data(other.data) {}
                 template<class F>
-                    list(list<F> const & other) :
-                        refcount(reinterpret_cast<size_t*>(pool.malloc())), data(new (refcount+1) container_type(other.data->size())) {
-                            *refcount=1; 
+                    list(list<F> const & other) : data(other.size()) {
                             std::copy(other.begin(), other.end(), begin());
                         }
-                list(list_view<T> const & other) :
-                    refcount(reinterpret_cast<size_t*>(pool.malloc())), data(new (refcount+1) container_type(other.begin(), other.end())) { *refcount=1; }
+                list(list_view<T> const & other) : data( other.begin(), other.end()) {}
 
-                ~list() {
-                    assert(*refcount>0);
-                    if(not --*refcount) { pool.free( reinterpret_cast<memory_size*>(refcount)); }
-                }
-
-                list<T>& operator=(list<T> const & other) {
-                    assert(*refcount>0);
-                    if(other.data != data) {
-                        if(not --*refcount) {  pool.free( reinterpret_cast<memory_size*>(refcount) ); }
-                        data=const_cast<list<T>*>(&other)->data;
-                        refcount=const_cast<list<T>*>(&other)->refcount;
-                        ++*refcount;
-                    }
+                list<T>& operator=(list<T> && other) {
+					data=std::move(other.data);
                     return *this;
                 }
+                list<T>& operator=(list<T> const & other) {
+					data=other.data;
+                    return *this;
+                }
+                list<T>& operator=(empty_list const & ) {
+					data=impl::shared_ref<container_type>();
+                    return *this;
+                }
+
                 list<T>& operator=(list_view<T> const & other) {
-                    assert(*refcount >0) ;
                     if(other.data == data ) {
                         auto it = std::copy(other.begin(), other.end(), data->begin());
                         data->resize(it - data->begin());
                     }
                     else {
-                        if(not --*refcount) {
-                            /* should free the memory then reallocate it, so do nothing */
-                            /* HERE */
-                        }
-                        else {
-                            refcount=reinterpret_cast<size_t*>(pool.malloc());
-                            data=new (refcount+1) container_type(other.end() - other.begin());
-                        }
-                        *refcount=1;
-                        std::copy(other.begin(), other.end(), data->begin());
+						data=impl::shared_ref<T>(other.begin(),other.end());
                     }
                     return *this;
                 }
@@ -225,14 +188,14 @@ namespace  pythonic {
 
                 // element access
                 reference operator[]( long n ) {
-#ifndef NDEBUG
+#ifdef NDEBUG
                     return (*data)[(n>=0)?n : (data->size() + n)];
 #else
                     return (*data).at((n>=0)?n : (data->size() + n));
 #endif
                 }
                 const_reference operator[]( long n ) const {
-#ifndef NDEBUG
+#ifdef NDEBUG
                     return (*data)[(n>=0)?n : (data->size() + n)];
 #else
                     return (*data).at((n>=0)?n : (data->size() + n));
@@ -241,6 +204,7 @@ namespace  pythonic {
 
                 list<T> operator[]( slice const &s ) {
                     list<T> out(0);
+					out.reserve(size());
                     long lower, upper;
                     if(s.step<0) {
                         if( s.lower == std::numeric_limits<long>::max() )
@@ -340,8 +304,6 @@ namespace  pythonic {
 
 
             };
-        template<class T>
-            boost::object_pool<typename list<T>::memory_size> list<T>::pool;
 
 
         /* empty list implementation */
@@ -354,8 +316,7 @@ namespace  pythonic {
         /* list_view implementation */
         template<class T>
             list_view<T>::list_view(list<T> & other, slice const &s):
-                refcount(other.refcount), data(other.data), slicing(s) {
-                    ++*refcount;
+                data(other.data), slicing(s) {
                     long lower, upper;
                     if(slicing.step<0) {
                         if( slicing.lower == std::numeric_limits<long>::max() )
@@ -377,9 +338,7 @@ namespace  pythonic {
             list_view<T>& list_view<T>::operator=(list_view<T> const & s) {
                 slicing=s.slicing;
                 if(data != s.data) {
-                    refcount=s.refcount;
                     data=s.data;
-                    ++*refcount;
                 }
                 return *this;
             }
@@ -399,13 +358,10 @@ namespace  pythonic {
                 else {
                     assert("not implemented yet");
                 }
-                if( data!= seq.data ) ++*refcount;
                 return *this;
             }
         template<class T>
             list<T> list_view<T>::operator+(list_view<T> const & s) {
-                assert(s.data);
-                assert(data);
                 list<T> out(size() + s.size());
                 std::copy(s.begin(), s.end(), std::copy(begin(), end(), out.begin()));
                 return out;

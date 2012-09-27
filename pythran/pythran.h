@@ -436,7 +436,7 @@ struct python_to_pythran< core::set<T> >{
 	static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
 		 void* storage=((boost::python::converter::rvalue_from_python_storage<core::set<T> >*)(data))->storage.bytes;
 		 Py_ssize_t l=PySet_GET_SIZE(obj_ptr);
-		 new (storage) core::set<T>();
+		 new (storage) core::set<T>(core::empty_set());
          core::set<T>& v=*(core::set<T>*)(storage);
          // may be useful to reserve more space ?
          PyObject *iterator = PyObject_GetIter(obj_ptr);
@@ -468,7 +468,7 @@ struct python_to_pythran< core::dict<K,V> >{
 	}
 	static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
 		 void* storage=((boost::python::converter::rvalue_from_python_storage<core::dict<K,V> >*)(data))->storage.bytes;
-		 new (storage) core::dict<K,V>();
+		 new (storage) core::dict<K,V>(core::empty_dict());
          core::dict<K,V>& v=*(core::dict<K,V>*)(storage);
 
          PyObject *key, *value;

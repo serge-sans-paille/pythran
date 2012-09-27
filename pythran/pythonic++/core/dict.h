@@ -6,8 +6,7 @@
 #include <limits>
 #include <algorithm>
 #include <iterator>
-#include <boost/pool/object_pool.hpp>
-#include "fsb_allocator.h"
+#include "shared_ref.h"
 
 namespace  pythonic {
 
@@ -81,12 +80,9 @@ namespace  pythonic {
                 // data holder
                 typedef  typename std::remove_cv< typename std::remove_reference<K>::type>::type  _key_type;
                 typedef  typename std::remove_cv< typename std::remove_reference<V>::type>::type  _value_type;
-                typedef std::map< _key_type, _value_type, std::less<_key_type>, FSBAllocator<std::pair<_key_type, _value_type> > > container_type;
-                size_t* refcount;
-                container_type* data; 
+                typedef std::map< _key_type, _value_type > container_type;
+				impl::shared_ref<container_type> data; 
 
-                struct memory_size { size_t refcount; container_type data; };
-                static boost::object_pool<memory_size> pool;
 
                 public:
 
@@ -109,31 +105,12 @@ namespace  pythonic {
                 typedef typename container_type::const_pointer const_pointer;
 
                 // constructors
-                dict() :
-                    refcount(reinterpret_cast<size_t*>(pool.malloc())), data(new (refcount+1) container_type()) { *refcount=1; }
-                dict(empty_dict const &) : 
-                    refcount(reinterpret_cast<size_t*>(pool.malloc())), data(new (refcount+1) container_type()) { *refcount=1; }
-                dict(std::initializer_list<value_type> l) : 
-                    refcount(reinterpret_cast<size_t*>(pool.malloc())), data(new (refcount+1) container_type(l)) { *refcount=1; }
-                dict(dict<K,V> const & other) :
-                    data(const_cast<dict<K,V>*>(&other)->data), refcount(const_cast<dict<K,V>*>(&other)->refcount) { ++*refcount; }
+                dict() : data(impl::no_memory()) {}
+                dict(empty_dict const &) : data() {}
+                dict(std::initializer_list<value_type> l) : data(l) {}
+                dict(dict<K,V> const & other) : data(other.data) {}
                 template<class B, class E>
-                dict(B begin, E end) :
-                    refcount(reinterpret_cast<size_t*>(pool.malloc())), data(new (refcount+1) container_type(begin, end)) { *refcount=1; }
-                ~dict() {
-                    assert(*refcount>0);
-                    if(not --*refcount) { pool.free( reinterpret_cast<memory_size*>(refcount)); }
-                }
-                dict<K,V>& operator=(dict<K,V> const & other) {
-                    assert(*refcount>0);
-                    if(other.data != data) {
-                        if(not --*refcount) {  pool.free( reinterpret_cast<memory_size*>(refcount) ); }
-                        data=const_cast<dict<K,V>*>(&other)->data;
-                        refcount=const_cast<dict<K,V>*>(&other)->refcount;
-                        ++*refcount;
-                    }
-                    return *this;
-                }
+                dict(B begin, E end) : data(begin, end) {}
 
                 // iterators
                 iterator begin() { return iterator(data->begin()); }
@@ -254,9 +231,6 @@ namespace  pythonic {
                 template<class K_, class V_> 
                     dict<decltype(std::declval<K>()+std::declval<K_>()),decltype(std::declval<V>()+std::declval<V_>())> operator+(dict<K_,V_> const & ); 
             };
-
-        template<class K, class V>
-            boost::object_pool<typename dict<K,V>::memory_size> dict<K,V>::pool;
 
         struct empty_dict {
             template<class K, class V> 

@@ -88,12 +88,12 @@ def cxx_generator(module_name, code, specs=None):
                 arguments_types = [pytype_to_ctype(t) for t in signature ]
                 arguments = ["a{0}".format(i) for i in xrange(len(arguments_types))]
                 specialized_fname = "__{0}::{1}::type{2}".format( module_name, internal_function_name, "<{0}>".format(", ".join(arguments_types)) if  arguments_types else "")
-                result_type = "typename {0}::result_type".format(specialized_fname)
+                result_type = "typename std::remove_reference<typename {0}::result_type>::type".format(specialized_fname)
                 mod.add_to_init([Statement("python_to_pythran<{0}>()".format(t)) for t in extract_all_constructed_types(signature)])
                 mod.add_to_init([Statement("pythran_to_python<{0}>()".format(result_type))])
                 mod.add_function(
                         FunctionBody(
-                            FunctionDeclaration( Value(result_type, numbered_function_name), [ Value( t, "a"+str(i) ) for i,t in enumerate(arguments_types) ]),
+                            FunctionDeclaration( Value(result_type, numbered_function_name), [ Value( t, a ) for t,a in zip(arguments_types, arguments) ]),
                             Block([ Statement("return {0}()({1})".format(
                                 '__{0}::{1}'.format(module_name,internal_function_name),
                                 ', '.join(arguments) ) ) ] )
@@ -125,38 +125,38 @@ class ToolChain(object):
         check_call([self.compiler, module_cpp] + self.cppflags + self.cxxflags + [  "-shared", "-o", module_so ] + self.get_include_flags() + self.ldflags, stderr=tmperr)
         os.remove(fdpath)
         return module_so
+    def check_compile(self, msg, code):
+        try:
+            tmpfile=NamedTemporaryFile(suffix=".cpp")
+            tmpfile.write(code)
+            tmpfile.flush()
+            check_call([self.compiler] + self.cppflags + self.cxxflags + [ tmpfile.name, "-o" , "/dev/null"] + self.get_include_flags() + self.ldflags)
+        except:
+            raise EnvironmentError(errno.ENOPKG, msg)
 
     def check(self):
-        def check_compile(msg, code):
-            try:
-                tmpfile=NamedTemporaryFile(suffix=".cpp")
-                tmpfile.write(code)
-                tmpfile.flush()
-                check_call([self.compiler] + self.cppflags + self.cxxflags + [ tmpfile.name, "-o" , "/dev/null"] + self.get_include_flags() + self.ldflags)
-            except:
-                raise EnvironmentError(errno.ENOPKG, msg)
 
-        check_compile("no valid c++ compiler found","""
+        self.check_compile("no valid c++ compiler found","""
 #include <iostream>
 int main(int argc, char *argv[]) {
     std::cout << "hello " << (argc>1?argv[1]:"world") << std::endl;
     return 0;
 }""")
 
-        check_compile("no c++ 2011 support found, try to add compiler specific flags?","""
+        self.check_compile("no c++ 2011 support found, try to add compiler specific flags?","""
 #include <utility>
 decltype(std::declval<int>() + 1) main() {
     void * p = nullptr;
     return 0;
 }""")
 
-        check_compile("no python development environment found, try to add -I or -L flags?","""
+        self.check_compile("no python development environment found, try to add -I or -L flags?","""
 #include <Python.h>
 int main() {
     return 0;
 }""")
 
-        check_compile("no boost python environment found, try to add -I or -L flags?","""
+        self.check_compile("no boost python environment found, try to add -I or -L flags?","""
 #include <boost/python.hpp>
 int main() {
     return 0;
@@ -167,6 +167,12 @@ int main() {
 def compile(compiler, module, output_filename=None, cppflags=list(), cxxflags=list()):
     '''c++ code + compiler flags -> native module'''
     tc = ToolChain(compiler)
+
+    # use tcmalloc only if available
+    tc.ldflags.append('-ltcmalloc_minimal')
+    try: tc.check_compile("has tcmalloc",  "int main() { return 0; }")
+    except EnvironmentError: tc.ldflags.pop()
+
     tc.include_dirs.append(".")
     tc.include_dirs.append(distutils.sysconfig.get_python_inc())
     tc.cppflags=cppflags + [ "-DENABLE_PYTHON_MODULE" ]

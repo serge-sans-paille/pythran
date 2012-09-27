@@ -413,7 +413,7 @@ class CxxBackend(ast.NodeVisitor):
 
     def visit_Tuple(self, node):
         if not node.elts: # empty tuple
-            return "std::make_tuple()"
+            return "std::tuple<>()"
         else:
             elts = [ self.visit(n) for n in node.elts ]
             return "std::make_tuple({0})".format(", ".join(elts))

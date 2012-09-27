@@ -109,6 +109,7 @@ namespace pythonic {
     template<class F, class Iterable>
         core::list<typename Iterable::iterator::value_type> filter(F const& f, Iterable const& iterable) { /* does not implement the full standard */
             core::list<typename Iterable::iterator::value_type> out;
+			out=core::empty_list();
             std::copy_if(iterable.begin(), iterable.end(), std::back_inserter(out), f);
             return out;
         }
@@ -653,7 +654,7 @@ PYTHONIC_EXCEPTION(OSError);
         {
         }
     template <class T, class From>
-        void reserve(core::list<T> & l, From &f, typename From::const_iterator p=typename From::const_iterator())
+        void reserve(core::list<T> & l, From const &f, typename From::const_iterator p=typename From::const_iterator())
         {
             l.reserve(len(f));
         }

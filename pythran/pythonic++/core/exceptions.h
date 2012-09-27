@@ -20,9 +20,9 @@ namespace pythonic {
         class BaseException: public std::exception
         {
             public:
-                    BaseException(const BaseException &e){args = e.args;}
+                    BaseException(const BaseException &e) : args(e.args){}
                     template<typename ... Types>
-                    BaseException(core::string first,Types ... types){init(first, types ...);}
+						BaseException(core::string first,Types ... types) { args = core::empty_list() ; init(first, types ...);}
                     virtual ~BaseException() throw(){}
                     core::list<core::string> args;
             protected:

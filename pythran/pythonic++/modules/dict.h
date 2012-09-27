@@ -12,6 +12,7 @@ namespace pythonic {
         template<class Iterable, class V=none_type>
             core::dict<typename Iterable::value_type, V> fromkeys(Iterable const& iter, V const & v = None) {
                 core::dict<typename Iterable::value_type,V> D;
+				D=core::empty_dict();
                 for(auto i: iter) D[i]=v;
                 return D;
             }

@@ -361,6 +361,11 @@ class FlagTemporaries(ast.NodeVisitor):
         self.visit(node.value)
         [self.visit(n) for n in node.targets]
 
+    def visit_Call(self, node):
+        for n in node.args:
+            if isinstance(n, ast.Subscript):
+                metadata.add(n, metadata.NotTemporary())
+
     def visit_Return(self, node):
         self.visit(node.value)
         if node.value:

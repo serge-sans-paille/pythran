@@ -1,4 +1,4 @@
-#runas pi_estimate(100000000)
+#runas pi_estimate(20000000)
 #pythran export pi_estimate(int)
 from math import sqrt, pow
 from random import random

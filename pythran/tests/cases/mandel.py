@@ -1,4 +1,4 @@
-#runas mandel(400,0,0, 400)
+#runas mandel(800,0,0, 800)
 #pythran export mandel(int, float, float, int)
 def mandel(size, x_center, y_center, max_iteration):
     out= [ [ 0 for i in xrange(size) ] for j in xrange(size) ]

@@ -1,4 +1,4 @@
-#runas run_extrema(10**6)
+#runas run_extrema(2*10**7)
 #pythran export run_extrema(int)
 def extrema_op(a, b):
     a_min_idx, a_min_val, a_max_idx, a_max_val = a

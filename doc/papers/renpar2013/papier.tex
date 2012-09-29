@@ -110,8 +110,8 @@ Section~\ref{sec:validation}.
 \section{Systèmes hybrides en Python}\label{sec:python-hybrid}
 %=========================================================
 
-Dans le cadre qui nous intéresse, un système hybride où une partie du code
-spécifié par l'utilisateur est exécutée par l'interpréteur Python et une
+Dans le cadre qui nous intéresse, un système est hybride quand une partie du
+code spécifié par l'utilisateur est exécutée par l'interpréteur Python et une
 partie est exécutée nativement, comme introduit dans~\cite{dongara2007}.
 
 Il est possible d'écrire des modules natifs directement en langage C/C++.
@@ -268,10 +268,9 @@ for auto in mon_conteneur:
   r+=x
 \end{lstlisting}
 
-Il est dangereux de représenter les annotations sous forme de chaîne de
-caractères, car elles font éventuellement référence à des variables du
-programme, par exemple \texttt{auto} et \texttt{r} dans l'exemple précédent, qui peuvent
-être amenés à être renommée dans le flot de compilation.
+Comme l'annotation fait référence à des variables du programme, par exemple
+\texttt{auto} et \texttt{r} dans l'exemple précédent, qui peuvent être amenés à
+être renommée dans le flot de compilation, il faut en extraire les informations contextuelles.
 
 L'arbre de syntaxe abstrait fourni par le module \texttt{ast} est alors
 étendu en ajoutant un attribut \texttt{annotation} à toutes les
@@ -282,11 +281,12 @@ annotation(str description, Name* identifiers)
 \end{lstlisting}
 
 \noindent où \texttt{description} est une chaîne de caractère décrivant
-l'annotation et paramétrée par la liste d'indentifiants
-\texttt{identifiers}. Le type \texttt{Name} est la façon canonique de
-représenter un identifiant dans le module \texttt{ast}.  En opérant de la
-sorte, toutes les opérations de renommage pourront utiliser un visiteur
-générique spécialisé pour le type \texttt{Name}.
+l'annotation et paramétrée par la liste d'indentifiants \texttt{identifiers}.
+Le type \texttt{Name} est la façon canonique de représenter un identifiant dans
+le module \texttt{ast}.  En opérant de la sorte, toutes les opérations de
+renommage pourront utiliser un visiteur générique spécialisé pour le type
+\texttt{Name}. L'exemple précédent sera alors représenté par un 2-uplet
+\texttt{("omp parallel for reduction(\{0\}), private(\{1\}", [r, auto])}.
 
 \subsubsection{Spécificités liées à Python}
 

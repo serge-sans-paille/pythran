@@ -55,6 +55,11 @@ class GlobalDeclarations(ast.NodeVisitor):
         for alias in node.names:
             self.bindings[alias.name]=alias
 
+    def visit_ImportFrom(self, node):
+        for alias in node.names:
+            self.bindings[alias.asname if alias.asname else alias.name ]=alias
+        return None
+
     def visit_FunctionDef(self, node):
         self.bindings[node.name]=node
 

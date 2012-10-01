@@ -343,7 +343,7 @@ PYTHONIC_EXCEPTION(OSError);
     /* map */
     template <typename Operator, typename List0, typename... Iterators>
         auto _map(Operator& op, List0 && seq, Iterators... iterators)
-        -> core::list< decltype(op(*seq.begin(), *iterators...)) >
+        -> core::list< decltype(op(*seq.begin(), *iterators...)) > 
         {
             decltype(_map(op,seq, iterators...)) s(len(seq));
             auto iter = s.begin();

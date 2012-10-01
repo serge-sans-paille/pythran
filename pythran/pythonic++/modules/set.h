@@ -30,7 +30,7 @@ namespace pythonic {
 	void update(core::set<T> & set, Types const&... others){
 		return set.update(others...);
 	}
-        VPROXY(pythonic::__set__, update);
+        PROXY(pythonic::__set__, update);
 
 	template<typename T, typename... Types> 
 	core::set<T> intersection(core::set<T> const& set, Types const&... others){
@@ -42,7 +42,7 @@ namespace pythonic {
 	void intersection_update(core::set<T> & set, Types const&... others){
 		return set.intersection_update(others...);
 	}
-        VPROXY(pythonic::__set__, intersection_update);
+        PROXY(pythonic::__set__, intersection_update);
 
 	template<typename T, typename... Types> 
 	core::set<T> difference(core::set<T> const& set, Types const&... others){
@@ -54,7 +54,7 @@ namespace pythonic {
 	void difference_update(core::set<T> & set, Types const&... others){
 		return set.difference_update(others...);
 	}
-        VPROXY(pythonic::__set__, difference_update);
+        PROXY(pythonic::__set__, difference_update);
 
 	template<typename T, typename U> 
 	core::set<T> symmetric_difference(core::set<T> const& set, U const& other){
@@ -66,7 +66,7 @@ namespace pythonic {
 	void symmetric_difference_update(core::set<T> & set, U const& other){
 		return set.symmetric_difference_update(other);
 	}
-        VPROXY(pythonic::__set__, symmetric_difference_update);
+        PROXY(pythonic::__set__, symmetric_difference_update);
 
 	template<class T, class U>
 	bool issuperset(core::set<T> const& set, core::set<U> const& other){

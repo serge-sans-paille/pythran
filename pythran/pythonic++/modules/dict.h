@@ -94,32 +94,32 @@ namespace pythonic {
             V setdefault(core::dict<K,V> &d, W const & k) {
                 return d.get(k);
             }
-        VPROXY(pythonic::__dict__, setdefault);
+        PROXY(pythonic::__dict__, setdefault);
 
         template<class K, class V, class Iterable>
             none_type update(core::dict<K,V> d, Iterable const & k) {
                 d.update(k);
                 return None;
             }
-        VPROXY(pythonic::__dict__, update);
+        PROXY(pythonic::__dict__, update);
 
         template<class K, class V>
             core::dict_items<core::dict<K,V>> viewitems(core::dict<K,V> const &d) {
                 return d.viewitems();
             }
-        VPROXY(pythonic::__dict__, viewitems);
+        PROXY(pythonic::__dict__, viewitems);
 
         template<class K, class V>
             core::dict_keys<core::dict<K,V>> viewkeys(core::dict<K,V> const &d) {
                 return d.viewkeys();
             }
-        VPROXY(pythonic::__dict__, viewkeys);
+        PROXY(pythonic::__dict__, viewkeys);
 
         template<class K, class V>
             core::dict_values<core::dict<K,V>> viewvalues(core::dict<K,V> const &d) {
                 return d.viewvalues();
             }
-        VPROXY(pythonic::__dict__, viewvalues);
+        PROXY(pythonic::__dict__, viewvalues);
     }
 }
 #endif

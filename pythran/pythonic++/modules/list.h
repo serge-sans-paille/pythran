@@ -31,7 +31,7 @@ namespace pythonic {
             long index(core::list<T> &seq, T& x) {
 		return seq.index(x);
             }
-        VPROXY(pythonic::__list__, index);
+        PROXY(pythonic::__list__, index);
 
         //TODO: have to raise a valueError
         template<class T>
@@ -51,7 +51,7 @@ namespace pythonic {
                 return std::count(seq.begin(),seq.end(),x);
             }
 
-        VPROXY(pythonic::__list__,count);
+        PROXY(pythonic::__list__,count);
 
         template<class T>
             none_type reverse(core::list<T> &seq) {

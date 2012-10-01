@@ -7,23 +7,12 @@
     type name(argType x){ return cname(x); }
 
 // Use this to create a proxy on a specific intrinsic
-// should check out perfect forwarding too ...
 #define PROXY(ns,f) \
     namespace proxy {\
         struct f {\
             template<typename... Types>\
-                auto operator()(Types const &... types) -> decltype(ns::f(types...)) {\
-                    return ns::f(types...); \
-                }\
-        };\
-    }
-
-#define VPROXY(ns,f) \
-    namespace proxy {\
-        struct f {\
-            template<typename... Types>\
                 auto operator()(Types &&... types) -> decltype(ns::f(types...)) {\
-                    return ns::f(types...); \
+                    return ns::f(std::forward<Types>(types)...); \
                 }\
         };\
     }

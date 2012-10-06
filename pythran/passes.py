@@ -332,6 +332,8 @@ class NormalizeMethodCalls(ast.NodeVisitor):
         if isinstance(node.func, ast.Attribute) and node.func.attr in methods:
             node.args.insert(0,  node.func.value)
             node.func=ast.Attribute(ast.Name(methods[node.func.attr][0],ast.Load()), node.func.attr, ast.Load())
+        if isinstance(node.func, ast.Name) and metadata.get(node,metadata.IsXrange):
+            node.func.id = "xrange"
 
 def normalize_method_calls(node):
     '''Turns built in method calls into function calls'''

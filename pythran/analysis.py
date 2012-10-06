@@ -365,3 +365,15 @@ class FlagTemporaries(ast.NodeVisitor):
 
 def flag_temporaries(node):
     FlagTemporaries().visit(node)
+##
+class FlagRange(ast.NodeVisitor):
+    def visit_For(self, node):
+        self.visit(node.target)
+        [self.visit(n) for n in node.body]
+        [self.visit(n) for n in node.orelse]
+        self.visit(node.iter)
+        if isinstance(node.iter,ast.Call) and isinstance(node.iter.func,ast.Name) and node.iter.func.id == "range":
+            metadata.add(node.iter, metadata.IsXrange())
+            
+def flag_range(node):
+    FlagRange().visit(node)

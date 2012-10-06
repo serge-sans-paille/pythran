@@ -21,6 +21,9 @@ class Comprehension(AST):
 class NotTemporary(AST):
     pass
 
+class IsXrange(AST):
+    pass
+
 class OMPDirective(AST):
     default_mode=' default(none)'
     keywords=('omp', 'parallel', 'for', 'shared', 'private', 'reduction', 'default', 'single', 'nowait', 'task', 'if', 'atomic')

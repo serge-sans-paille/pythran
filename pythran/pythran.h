@@ -189,7 +189,9 @@ namespace std {
         };
     /* for core::list */
     template <size_t I, class T>
-        auto get( core::list<T>& t) -> decltype(t[I]) { return t[I]; }
+        typename core::list<T>::reference get( core::list<T>& t) { return t[I]; }
+    template <size_t I, class T>
+        typename core::list<T>::const_reference get( core::list<T> const & t) { return t[I]; }
 
     template <size_t I, class T>
         struct tuple_element<I, core::list<T> > {
@@ -198,6 +200,8 @@ namespace std {
     /* for core::dict */
     template <size_t I, class K, class V>
         auto get( core::dict<K,V>& d) -> decltype(d[I]) { return d[I]; }
+    template <size_t I, class K, class V>
+        auto get( core::dict<K,V> const & d) -> decltype(d[I]) { return d[I]; }
 
     template <size_t I, class K, class V>
         struct tuple_element<I, core::dict<K,V> > {
@@ -222,6 +226,13 @@ namespace std {
         T& get<0>( std::complex<T>& t) { return reinterpret_cast<T*>(&t)[0]; }\
     template <>\
         T& get<1>( std::complex<T>& t) { return reinterpret_cast<T*>(&t)[1]; }\
+	\
+    template <size_t I>\
+        T const & get( std::complex<T> const & );\
+    template <>\
+        T const & get<0>( std::complex<T> const & t) { return reinterpret_cast<T const *>(&t)[0]; }\
+    template <>\
+        T const & get<1>( std::complex<T> const & t) { return reinterpret_cast<T const *>(&t)[1]; }\
 
     GET_COMPLEX(double)
 

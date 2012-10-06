@@ -202,7 +202,7 @@ namespace  pythonic {
 #endif
                 }
 
-                list<T> operator[]( slice const &s ) {
+                list<T> operator[]( slice const &s ) const {
                     list<T> out(0);
 					out.reserve(size());
                     long lower, upper;

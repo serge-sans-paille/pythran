@@ -19,23 +19,18 @@ namespace pythonic {
                 seq+=add;
                 return None;
             }
-        template<class T, class F>
-            none_type extend(core::list<T> &seq, core::list<F> &add) {
-                seq+=add;
-                return None;
-            }
         PROXY(pythonic::__list__, extend);
 
         //TODO: have to raise a valueError
         template<class T>
-            long index(core::list<T> &seq, T& x) {
+            long index(core::list<T> &seq, T const& x) {
 		return seq.index(x);
             }
         PROXY(pythonic::__list__, index);
 
         //TODO: have to raise a valueError
         template<class T>
-            none_type remove(core::list<T> &seq, T& x) {
+            none_type remove(core::list<T> &seq, T const & x) {
                 seq.erase(index(seq,x));
                 return None;
             }

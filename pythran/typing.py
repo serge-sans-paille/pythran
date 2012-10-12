@@ -6,15 +6,14 @@ import ast
 import networkx as nx
 import operator
 from tables import pytype_to_ctype_table, operator_to_lambda, modules, builtin_constants, builtin_constructors
-from analysis import global_declarations, constant_value, ordered_global_declarations, type_aliasing, yields
+from analysis import  GlobalDeclarations, YieldPoints, ConstantExpressions, OrderedGlobalDeclarations, Aliases, ModuleAnalysis
+from passes import Transformation
+from passmanager import gather, apply
 from syntax import PythranSyntaxError
 from cxxtypes import *
 from intrinsic import MethodIntr
 
 import types
-def copy_func(f, name=None):
-    return types.FunctionType(f.func_code, f.func_globals, name or f.func_name,
-        f.func_defaults, f.func_closure)
 
 # networkx backward compatibility
 if not "has_path" in nx.__dict__:
@@ -26,57 +25,39 @@ if not "has_path" in nx.__dict__:
 		return True
 	nx.has_path=has_path
 
-class Reorder(ast.NodeVisitor):
-    def __init__(self, typedeps):
-        self.typedeps=typedeps
-        none_successors = self.typedeps.successors(TypeDependencies.NoDeps)
-        for n in sorted(none_successors): # remove edges that implies a circular dependency
-            for p in sorted(self.typedeps.predecessors(n)):
-                if nx.has_path(self.typedeps,n,p):
-                    self.typedeps.remove_edge(p,n)
-        #nx.write_dot(self.typedeps,"b.dot")
-
-    def visit_Module(self, node):
-        newbody=list()
-        olddef=list()
-        for stmt in node.body:
-            if isinstance(stmt, ast.FunctionDef):
-                olddef.append(stmt)
-            else: newbody.append(stmt)
-            try: newdef = [ f for f in nx.topological_sort(self.typedeps, ordered_global_declarations(node)) if isinstance(f, ast.FunctionDef) ]
-            except nx.exception.NetworkXUnfeasible: raise PythranSyntaxError("Infinite function recursion",stmt)
-        assert set(newdef) == set(olddef)
-        node.body=newbody + newdef
-
-
-class TypeDependencies(ast.NodeVisitor):
+##
+class TypeDependencies(ModuleAnalysis):
 
     NoDeps="None"
 
-    def __init__(self, name_to_node):
-        self.types=nx.DiGraph()
-        for k,v in name_to_node.iteritems():
-            self.types.add_node(v)
-        self.types.add_node(TypeDependencies.NoDeps)
-        self.name_to_node=name_to_node
-        self.current_function=list()
+    def __init__(self):
+        self.result=nx.DiGraph()
+        self.current_function=None
+        ModuleAnalysis.__init__(self, GlobalDeclarations)
+
+    def run_visit(self, node):
+        for k,v in self.global_declarations.iteritems():
+            self.result.add_node(v)
+        self.result.add_node(TypeDependencies.NoDeps)
+        return ModuleAnalysis.run_visit(self, node)
 
 
     def visit_FunctionDef(self, node):
+        assert self.current_function is None
         modules['__user__'][node.name]=MethodIntr()
-        self.current_function.append(node)
-        self.types.add_node(node)
+        self.current_function=node
+        self.result.add_node(node)
         self.naming=dict()
         [ self.visit(n) for n in node.args.defaults ]
         [ self.visit(n) for n in node.body ]
-        self.current_function.pop()
+        self.current_function=None
 
     def visit_Return(self, node):
         if node.value:
             v=self.visit(node.value)
             for dep_set in v:
-                if dep_set: [self.types.add_edge(dep,self.current_function[-1]) for dep in dep_set]
-                else: self.types.add_edge(TypeDependencies.NoDeps,self.current_function[-1])
+                if dep_set: [self.result.add_edge(dep,self.current_function) for dep in dep_set]
+                else: self.result.add_edge(TypeDependencies.NoDeps,self.current_function)
 
     def visit_Yield(self, node):
         self.visit_Return(node)
@@ -139,7 +120,7 @@ class TypeDependencies(ast.NodeVisitor):
 
     def visit_Name(self, node):
         if node.id in self.naming: return self.naming[node.id]
-        elif node.id in self.name_to_node: return [{self.name_to_node[node.id]}]
+        elif node.id in self.global_declarations: return [{self.global_declarations[node.id]}]
         else: return [set()]
 
     def visit_List(self, node):
@@ -160,6 +141,34 @@ class TypeDependencies(ast.NodeVisitor):
     def visit_Index(self, node):
         return [set()]
 
+class Reorder(Transformation):
+    def __init__(self):
+        Transformation.__init__(self, TypeDependencies, OrderedGlobalDeclarations)
+
+    def run_visit(self, node):
+        none_successors = self.type_dependencies.successors(TypeDependencies.NoDeps)
+        for n in sorted(none_successors): # remove edges that implies a circular dependency
+            for p in sorted(self.type_dependencies.predecessors(n)):
+                if nx.has_path(self.type_dependencies,n,p):
+                    self.type_dependencies.remove_edge(p,n)
+        #nx.write_dot(self.type_dependencies,"b.dot")
+        Transformation.run_visit(self, node)
+
+    def visit_Module(self, node):
+        newbody=list()
+        olddef=list()
+        for stmt in node.body:
+            if isinstance(stmt, ast.FunctionDef):
+                olddef.append(stmt)
+            else: newbody.append(stmt)
+            try: newdef = [ f for f in nx.topological_sort(self.type_dependencies, self.ordered_global_declarations) if isinstance(f, ast.FunctionDef) ]
+            except nx.exception.NetworkXUnfeasible: raise PythranSyntaxError("Infinite function recursion",stmt)
+        assert set(newdef) == set(olddef)
+        node.body=newbody + newdef
+        return node
+
+##
+
 def node_to_id(n,depth=0):
     if isinstance(n, ast.Name): return (n.id,depth)
     elif isinstance(n, ast.Subscript):
@@ -170,14 +179,33 @@ def node_to_id(n,depth=0):
     else:
         raise NotImplementedError("assigning to something that is neither a Name nor a subscript of a name")
 
-class Typing(ast.NodeVisitor):
+def copy_func(f, name=None):
+    return types.FunctionType(f.func_code, f.func_globals, name or f.func_name,
+        f.func_defaults, f.func_closure)
 
-    def __init__(self, aliases):
-        self.types=dict()
-        self.types["bool"]=NamedType("bool")
+class Types(ModuleAnalysis):
+    '''Infer symbolic type for all AST node.'''
+
+    def __init__(self):
+        self.result=dict()
+        self.result["bool"]=NamedType("bool")
         self.current=list()
-        self.global_declarations = dict()
-        self.aliases=aliases
+        self.current_global_declarations = dict()
+        ModuleAnalysis.__init__(self, Aliases)
+
+    def run(self, node, ctx):
+        apply(Reorder, node, ctx)
+        return ModuleAnalysis.run(self, node, ctx)
+
+    def run_visit(self, node):
+        ModuleAnalysis.run_visit(self, node)
+        final_types = { k: self.result[k] if k in self.result else v for k,v in self.result.iteritems() }
+        for head in self.current_global_declarations.itervalues():
+            if head not in final_types:
+                final_types[head]="void"
+        #for head in n2n.bindings.itervalues():
+        #    print head.name, ":", final_types[head]
+        return final_types
 
     def register(self, ptype):
         """register ptype as a local typedef"""
@@ -205,23 +233,21 @@ class Typing(ast.NodeVisitor):
         try:
             if isinstance(othernode, ast.FunctionDef):
                 new_type=NamedType(othernode.name)
-                if node not in self.types:
-                    self.types[node]=new_type
+                if node not in self.result:
+                    self.result[node]=new_type
             else:
                 if register and self.isargument(node):
                     node_id,_ = node_to_id(node)
-                    if node not in self.types: self.types[node]=unary_op(self.types[othernode])
-                    #else: print self.types[node], unary_op(self.types[othernode])
-                    #else: self.types[node]=op(self.types[node], unary_op(self.types[othernode]))
-                    assert self.types[node], "found an alias with a type"
+                    if node not in self.result: self.result[node]=unary_op(self.result[othernode])
+                    assert self.result[node], "found an alias with a type"
 
-                    parametric_type= PType(self.current[-1], self.types[othernode])
+                    parametric_type= PType(self.current[-1], self.result[othernode])
                     self.register(parametric_type)
                     def translator_generator(args, op, unary_op):
                         ''' capture args for translator generation'''
                         def interprocedural_type_translator(s,n):
                             translated_othernode=ast.Name('__fake__', ast.Load())
-                            s.types[translated_othernode]=parametric_type.instanciate(s.current[-1], [s.types[arg] for arg in n.args])
+                            s.result[translated_othernode]=parametric_type.instanciate(s.current[-1], [s.result[arg] for arg in n.args])
                             # look for modified argument
                             for p,effective_arg in enumerate(n.args):
                                 formal_arg = args[p]
@@ -235,11 +261,11 @@ class Typing(ast.NodeVisitor):
                     translator = translator_generator(self.current[-1].args.args, op, unary_op) # deferred combination
                     modules['__user__'][self.current[-1].name].addCombiner([ translator ])
                 else:
-                    new_type = unary_op( self.types[othernode] ) 
-                    if node not in self.types:
-                        self.types[node]=new_type
+                    new_type = unary_op( self.result[othernode] ) 
+                    if node not in self.result:
+                        self.result[node]=new_type
                     else:
-                        self.types[node]=op(self.types[node], new_type)
+                        self.result[node]=op(self.result[node], new_type)
 
         except:
             print ast.dump(othernode)
@@ -253,29 +279,29 @@ class Typing(ast.NodeVisitor):
         self.current.append(node)
         self.typedefs=list()
         self.name_to_nodes = {arg.id:{arg} for arg in node.args.args }
-        self.yields=yields(node)
+        self.yield_points=gather(YieldPoints,node)
 
         for k,v in builtin_constants.iteritems():
             fake_node=ast.Name(k,ast.Load())
             self.name_to_nodes.update({ k:{fake_node}}) 
-            self.types[fake_node]=NamedType(v)
+            self.result[fake_node]=NamedType(v)
         self.visit(node.args) ; [ self.visit(n) for n in node.body ]
         # propagate type information through all aliases
         for name,nodes in self.name_to_nodes.iteritems():
             final_node = ast.Name("__fake__"+name, ast.Load())
             for n in nodes: self.combine(final_node, n)
-            for n in nodes: self.types[n]=self.types[final_node]
-        self.global_declarations[node.name]=node
-        self.types[node]=(self.types[node], self.typedefs)
+            for n in nodes: self.result[n]=self.result[final_node]
+        self.current_global_declarations[node.name]=node
+        self.result[node]=(self.result[node], self.typedefs)
         self.current.pop()
 
     def visit_Return(self, node):
-        if not self.yields:
+        if not self.yield_points:
             if node.value:
                 self.visit(node.value)
                 self.combine(self.current[-1], node.value)
             else:
-                self.types[self.current[-1]]=NamedType("none_type")
+                self.result[self.current[-1]]=NamedType("none_type")
 
     def visit_Yield(self, node):
         self.visit(node.value)
@@ -329,7 +355,7 @@ class Typing(ast.NodeVisitor):
         [ self.combine(node,n) for n in (node.body, node.orelse) ]
 
     def visit_Compare(self, node):
-        self.types[node]=NamedType("bool")
+        self.result[node]=NamedType("bool")
 
     def visit_Call(self, node):
         self.visit(node.func)
@@ -348,19 +374,19 @@ class Typing(ast.NodeVisitor):
             for fid in faliases:
                 if fid in modules['__user__'] and modules['__user__'][fid].ismethod():
                     modules['__user__'][fid].combiner(self, node)
-        F=lambda f: ReturnType(f, [self.types[arg] for arg in node.args])
+        F=lambda f: ReturnType(f, [self.result[arg] for arg in node.args])
         self.combine(node, node.func, op=lambda x,y:y, unary_op=F)
 
     def visit_Num(self, node):
-        self.types[node]=NamedType(pytype_to_ctype_table[type(node.n)])
+        self.result[node]=NamedType(pytype_to_ctype_table[type(node.n)])
 
     def visit_Str(self, node):
-        self.types[node]=NamedType(pytype_to_ctype_table[str])
+        self.result[node]=NamedType(pytype_to_ctype_table[str])
 
     def visit_Attribute(self, node):
         value, attr = (node.value, node.attr)
         if value.id in modules and attr in modules[value.id]:
-            self.types[node]=DeclType(Val('{0}::{1}'.format(value.id,attr) )) if modules[value.id][attr].isscalar() else DeclType(Val("{0}::proxy::{1}()".format(value.id, attr)))
+            self.result[node]=DeclType(Val('{0}::{1}'.format(value.id,attr) )) if modules[value.id][attr].isscalar() else DeclType(Val("{0}::proxy::{1}()".format(value.id, attr)))
         else:
             raise PythranSyntaxError("Unknown Attribute: `{0}'".format(node.attr), node)
 
@@ -369,11 +395,9 @@ class Typing(ast.NodeVisitor):
         if isinstance(node.slice, ast.Slice):
             f=lambda t:t
         else:
-            try:
-                v=constant_value(node.slice)
-                f=lambda t: ElementType(v,t)
-            except:
-                f=lambda t: ContentType(t)
+            v=gather(ConstantExpressions, node.slice).get(node.slice, None)
+            if v is None: f=lambda t: ContentType(t)
+            else: f=lambda t: ElementType(v,t)
         self.combine(node, node.value, unary_op=f)
 
     def visit_AssignedSubscript(self, node):
@@ -385,16 +409,16 @@ class Typing(ast.NodeVisitor):
         if node.id in self.name_to_nodes:
             for n in self.name_to_nodes[node.id]:
                 self.combine(node, n)
-        elif node.id in self.global_declarations:
-            self.combine(node, self.global_declarations[node.id])
+        elif node.id in self.current_global_declarations:
+            self.combine(node, self.current_global_declarations[node.id])
         elif node.id in builtin_constants:
-            self.types[node]=NamedType(builtin_constants[node.id])
+            self.result[node]=NamedType(builtin_constants[node.id])
         elif node.id in modules["__builtins__"]:
-            self.types[node]=NamedType("proxy::{0}".format(node.id))
+            self.result[node]=NamedType("proxy::{0}".format(node.id))
         elif node.id in builtin_constructors:
-            self.types[node]=NamedType(builtin_constructors[node.id])
+            self.result[node]=NamedType(builtin_constructors[node.id])
         else:
-            self.types[node]=NamedType(node.id,[Weak])
+            self.result[node]=NamedType(node.id,[Weak])
             
 
     def visit_List(self, node):
@@ -402,35 +426,35 @@ class Typing(ast.NodeVisitor):
             [self.visit(elt) for elt in node.elts]
             [self.combine(node, elt, unary_op=lambda x:ListType(x)) for elt in node.elts]
         else:
-            self.types[node]=NamedType("core::empty_list")
+            self.result[node]=NamedType("core::empty_list")
 
     def visit_Set(self, node):
         if node.elts:
             [self.visit(elt) for elt in node.elts]
             [self.combine(node, elt, unary_op=lambda x:SetType(x)) for elt in node.elts]
         else:
-            self.types[node]=NamedType("core::empty_set")
+            self.result[node]=NamedType("core::empty_set")
 
     def visit_Dict(self, node):
         if node.keys:
             [self.visit(elt) for elt in node.keys]
             [self.visit(elt) for elt in node.values]
-            [self.combine(node, key, unary_op=lambda x:DictType(x,self.types[value])) for key,value in zip(node.keys, node.values)]
+            [self.combine(node, key, unary_op=lambda x:DictType(x,self.result[value])) for key,value in zip(node.keys, node.values)]
         else:
-            self.types[node]=NamedType("core::empty_dict")
+            self.result[node]=NamedType("core::empty_dict")
 
     def visit_ExceptHandler(self, node):
         if node.type and node.name:
             if not isinstance(node.type,ast.Tuple):
-                self.types[node.type]=NamedType("core::{0}".format(node.type.id))
+                self.result[node.type]=NamedType("core::{0}".format(node.type.id))
                 self.combine(node.name,node.type,register=True)
         [self.visit(n) for n in node.body]
 
     def visit_Tuple(self, node):
         [self.visit(elt) for elt in node.elts]
         try:
-            types=[ self.types[elt] for elt in node.elts]
-            self.types[node]=TupleType(types)
+            types=[ self.result[elt] for elt in node.elts]
+            self.result[node]=TupleType(types)
         except: pass # not very harmonious with the combine method ...
 
     def visit_Index(self, node):
@@ -439,26 +463,6 @@ class Typing(ast.NodeVisitor):
 
     def visit_arguments(self, node):
         for i,arg in enumerate(node.args):
-            self.types[arg]= ArgumentType(i)
+            self.result[arg]= ArgumentType(i)
         [ self.visit(n) for n in node.defaults ]
-
-def type_all(node):
-    gd=global_declarations(node)
-    t = TypeDependencies(gd)
-    t.visit(node)
-    #nx.write_dot(t.types,"a.dot")
-
-    Reorder(t.types).visit(node)
-
-    aliases=type_aliasing(node)
-    ty = Typing(aliases)
-    ty.visit(node)
-
-    final_types = { k: ty.types[k] if k in ty.types else v for k,v in ty.types.iteritems() }
-    for head in gd.itervalues():
-        if head not in final_types:
-            final_types[head]="void"
-    #for head in n2n.bindings.itervalues():
-    #    print head.name, ":", final_types[head]
-    return final_types
 

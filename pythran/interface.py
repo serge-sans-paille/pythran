@@ -9,11 +9,12 @@ import distutils.sysconfig
 from cxxgen import *
 import ast
 from middlend import refine
-from backend import cxx_backend
+from backend import CxxBackend
 from subprocess import check_call
 from tempfile import mkstemp, TemporaryFile, NamedTemporaryFile
 from syntax import check_syntax
-from passes import normalize_identifiers
+from passes import NormalizeIdentifiers
+from passmanager import apply, dump
 from tables import pytype_to_ctype_table
 
 
@@ -54,12 +55,12 @@ def cxx_generator(module_name, code, specs=None):
     # font end
     ir=ast.parse(code)
     check_syntax(ir)
-    (_,renamings) = normalize_identifiers(ir)
+    renamings = apply(NormalizeIdentifiers,ir)
 
     # middle-end
     refine(ir)
     # back-end
-    content = cxx_backend(module_name,ir)
+    content = dump(CxxBackend, ir, module_name)
 
     if specs is None:
         class Generable:

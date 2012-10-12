@@ -1,14 +1,15 @@
-'''This module turns a pythran AST into C++ code
-    *  cxx_backend generates a string holding the c++ code
+'''This module contains all pythran backends.
+    * CxxBackend dumps the AST into C++ code
 '''
 import ast
 from cxxgen import *
 from cxxtypes import *
 
-from analysis import local_declarations, global_declarations, constant_value, yields
+from analysis import LocalDeclarations, GlobalDeclarations, ConstantExpressions, YieldPoints, BoundedExpressions
+from passmanager import gather, Backend
 
 from tables import operator_to_lambda, modules, type_to_suffix
-from typing import type_all
+from typing import Types
 from syntax import PythranSyntaxError
 import metadata
 
@@ -17,7 +18,7 @@ def templatize(node, types, default_types=None):
         default_types=[None]*len(types)
     return Template([ "typename " + t + ("= const {0}".format(d) if d else "") for t,d in zip(types, default_types) ], node ) if types else node
 
-class CxxBackend(ast.NodeVisitor):
+class CxxBackend(Backend):
 
     generator_state_holder = "__generator_state" # used to recover previous generator state
     generator_state_value = "__generator_value" # used to recover previous generator state
@@ -25,24 +26,22 @@ class CxxBackend(ast.NodeVisitor):
 
     def __init__(self, name):
         modules['__user__']=dict()
-        self.name=name
-        self.types=None
         self.declarations=list()
         self.definitions=list()
         self.break_handler=list()
+        self.result=list()
+        Backend.__init__(self, name, GlobalDeclarations, BoundedExpressions, Types)
 
     # mod
     def visit_Module(self, node):
         # build all types
-        self.global_declarations = global_declarations(node)
         self.local_functions=set()
         self.local_declarations=list()
-        self.types=type_all(node)
         headers= [ Include(h) for h in [ "pythran/pythran.h" ] ]
         body = [ self.visit(n) for n in node.body if not isinstance(n, ast.Expr)] # remove top-level strings
 
         assert not self.local_declarations
-        return headers +  [ Namespace("__{0}".format(self.name), body + self.declarations + self.definitions) ]
+        self.result= headers +  [ Namespace("__{0}".format(self.name), body + self.declarations + self.definitions) ]
 
     # openmp processing
     def process_omp_attachements(self, node, stmt, index=None):
@@ -86,7 +85,7 @@ class CxxBackend(ast.NodeVisitor):
         formal_args = [ arg.id for arg in fargs ]
         formal_types= [ "argument_type"+str(i) for i in xrange(len(formal_args)) ]
 
-        ldecls={ sym.id:sym for sym in local_declarations(node) }
+        ldecls={ sym.id:sym for sym in gather(LocalDeclarations,node) }
 
         self.local_declarations.append(set(ldecls.iterkeys()))
         self.local_declarations[-1].update(formal_args)
@@ -94,7 +93,7 @@ class CxxBackend(ast.NodeVisitor):
 
         ldecls= set(ldecls.itervalues())
 
-        self.yields = { k:(1+v,"yield_point{0}".format(1+v)) for (v,k) in enumerate(yields(node)) } # 0 is used as initial_state, thus the +1
+        self.yields = { k:(1+v,"yield_point{0}".format(1+v)) for (v,k) in enumerate(gather(YieldPoints,node)) } # 0 is used as initial_state, thus the +1
 
         operator_body = [ self.visit(n) for n in node.body ] 
         default_arg_values = [None]*(len(node.args.args) - len(node.args.defaults)) + [ self.visit(n) for n in node.args.defaults ]
@@ -446,18 +445,13 @@ class CxxBackend(ast.NodeVisitor):
     def visit_Subscript(self, node):
         value = self.visit(node.value)
         slice = self.visit(node.slice)
-        try:
-            v = constant_value(node.slice)
-            if isinstance(v,int) or isinstance(v,long) or isinstance(v,bool):
-                return "std::get<{0}>({1})".format(v, value)
-            else:
-                raise RuntimeError()
-        except:
-            if isinstance(node.slice, ast.Slice) and (
-                    isinstance(node.ctx, ast.Store) or not metadata.get(node, metadata.NotTemporary)):
-                return "{1}({0})".format(slice, value)
-            else:
-                return "{1}[{0}]".format(slice, value)
+        v = gather(ConstantExpressions,node.slice).get(node.slice, None)
+        if isinstance(v,int) or isinstance(v,long) or isinstance(v,bool):
+            return "std::get<{0}>({1})".format(v, value)
+        elif isinstance(node.slice, ast.Slice) and ( isinstance(node.ctx, ast.Store) or node not in self.bounded_expressions ):
+            return "{1}({0})".format(slice, value)
+        else:
+            return "{1}[{0}]".format(slice, value)
 
     def visit_Name(self, node):
         if node.id in self.local_declarations[-1]:
@@ -478,7 +472,7 @@ class CxxBackend(ast.NodeVisitor):
         step = self.visit(node.step) if node.step else None
         cv=None
         if not upper and not lower and step: # special case
-            try: cv=constant_value(node.step)
+            try: cv=gather(ConstantExpressions,node.step)[node.step]
             except: raise NotImplementedError("non constant step with undefined upper and lower bound in slice")
         if step:
             if not upper: upper = "std::numeric_limits<long>::max()"
@@ -491,6 +485,3 @@ class CxxBackend(ast.NodeVisitor):
     def visit_Index(self, node):
         value = self.visit(node.value)
         return value
-
-def cxx_backend(module_name,node):
-    return CxxBackend(module_name).visit(node)

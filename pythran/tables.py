@@ -286,7 +286,7 @@ modules = {
                 "keys" : MethodIntr(),
                 #"pop" : MethodIntr(), forwarded
                 "popitem" : MethodIntr(),
-                "setdefault": MethodIntr([lambda self, node: self.combine(node.args[0], node.args[1], unary_op=lambda x:cxxtypes.DictType(x, self.types[node.args[2]]), register=True) if len(node.args) == 3 else () ]),
+                "setdefault": MethodIntr([lambda self, node: self.combine(node.args[0], node.args[1], unary_op=lambda x:cxxtypes.DictType(x, self.result[node.args[2]]), register=True) if len(node.args) == 3 else () ]),
                 "values" : MethodIntr(),
                 "viewitems" : MethodIntr(),
                 "viewkeys" : MethodIntr(),

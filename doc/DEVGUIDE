@@ -131,14 +131,21 @@ How to
 ------
 
 :Add support for a new module:
-    1. provide its C++ implementation in ``pythran/pythonic++/modules``.
+    1. Provide its C++ implementation in ``pythran/pythonic++/modules``.
            ``pythran/pythonic++/modules/math.h`` and
            ``pythran/pythonic++/modules/list.h`` are good example to referer to.
-    2. provide its description in ``pythran/tables.py``. Each function, method
+    2. Provide its description in ``pythran/tables.py``. Each function, method
            or variable must be listed there with the appropriate description.
-    3. provide its test suite in ``pythran/tests/`` under the name
+    3. Provide its test suite in ``pythran/tests/`` under the name
            ``test_my_module.py``. One test case per function, method or variable
            is great.
+
+:Add a new analysis:
+    1. Subclass one of ``ModuleAnalysis``, ``FunctionAnalysis`` or ``NodeAnalysis``.
+    2. List analysis required by yours in the parent constructor, they will be built automatically and stored in the attribute with the corresponding uncameled name.
+    3. Write your analysis as a regular ``ast.NodeVisitor``. The analysis result must be stored in ``self.result``.
+    4. Use it either from another pass's constructor, or throught the ``passmanager.gather`` function.
+
 
 :Push changes into the holy trunk:
     1. Use the ``github`` interface and the pull/push requests features

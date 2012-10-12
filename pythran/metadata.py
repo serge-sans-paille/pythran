@@ -18,9 +18,6 @@ class Comprehension(AST):
     def __init__(self, target):
         self.target=target
 
-class NotTemporary(AST):
-    pass
-
 class OMPDirective(AST):
     default_mode=' default(none)'
     keywords=('omp', 'parallel', 'for', 'shared', 'private', 'reduction', 'default', 'single', 'nowait', 'task', 'if', 'atomic')

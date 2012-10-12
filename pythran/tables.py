@@ -5,9 +5,30 @@ from intrinsic import FunctionIntr, MethodIntr, AttributeIntr, ScalarIntr
 
 namespace = "pythonic"
 
+pytype_to_ctype_table = {
+        complex       : 'std::complex<double>',
+        bool          : 'bool',
+        int           : 'long',
+        long          : 'long long',
+        float         : 'double',
+        str           : 'core::string',
+        None          : 'void',
+        }
+
+type_to_suffix = {
+        int     : "L",
+        long    : "LL",
+        }
+
 builtin_constants = { "True":"bool", "False":"bool", "None":"none_type"}
 
-builtin_constructors = {'int':'long', 'float':'double', 'bool':'bool', 'long':'long long'  }
+builtin_constructors = { 
+            'int':      pytype_to_ctype_table[int],
+            'float':    pytype_to_ctype_table[float],
+            'bool':     pytype_to_ctype_table[bool],
+            'long':     pytype_to_ctype_table[long],
+            }
+
 
 cxx_keywords = {'and', 'and_eq', 'asm', 'auto', 'bitand', 'bitor',
         'break', 'case', 'catch', 'char', 'class',
@@ -63,16 +84,6 @@ operator_to_lambda = {
         ast.NotIn   : lambda l,r: "(not in({1},{0}))".format(l,r),
         }
 
-type_to_str = {
-        int     : "long",
-        long    : "long long",
-        float   : "double",
-        }
-
-type_to_suffix = {
-        int     : "L",
-        long    : "LL",
-        }
 
 # each module consist in a module_name <> set of symbols with optional attributes
 # the attributes can be

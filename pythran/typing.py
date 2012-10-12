@@ -5,7 +5,7 @@
 import ast
 import networkx as nx
 import operator
-from tables import type_to_str, operator_to_lambda, modules, builtin_constants, builtin_constructors
+from tables import pytype_to_ctype_table, operator_to_lambda, modules, builtin_constants, builtin_constructors
 from analysis import global_declarations, constant_value, ordered_global_declarations, type_aliasing, yields
 from syntax import PythranSyntaxError
 from cxxtypes import *
@@ -352,10 +352,10 @@ class Typing(ast.NodeVisitor):
         self.combine(node, node.func, op=lambda x,y:y, unary_op=F)
 
     def visit_Num(self, node):
-        self.types[node]=NamedType(type_to_str[type(node.n)])
+        self.types[node]=NamedType(pytype_to_ctype_table[type(node.n)])
 
     def visit_Str(self, node):
-        self.types[node]=NamedType("core::string")
+        self.types[node]=NamedType(pytype_to_ctype_table[str])
 
     def visit_Attribute(self, node):
         value, attr = (node.value, node.attr)

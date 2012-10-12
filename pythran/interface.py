@@ -14,16 +14,8 @@ from subprocess import check_call
 from tempfile import mkstemp, TemporaryFile, NamedTemporaryFile
 from syntax import check_syntax
 from passes import normalize_identifiers
+from tables import pytype_to_ctype_table
 
-pytype_to_ctype_table = {
-        complex       : 'std::complex<double>',
-        bool          : 'bool',
-        int           : 'long',
-        long          : 'long long',
-        float         : 'double',
-        str           : 'core::string',
-        None          : 'void',
-        }
 
 def pytype_to_ctype(t):
     '''python -> c++ type binding'''

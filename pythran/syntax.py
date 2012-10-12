@@ -54,7 +54,7 @@ class SyntaxChecker(ast.NodeVisitor):
     def visit_Import(self, node):
         for alias in node.names:
             if alias.name not in tables.modules:
-                PythranSyntaxError("Module '{0}'".format(name), node)
+                PythranSyntaxError("Module '{0}'".format(alias.name), node)
 
     def visit_ImportFrom(self, node):
         if node.level != 0: raise PythranSyntaxError("Specifying a level in an import", node)

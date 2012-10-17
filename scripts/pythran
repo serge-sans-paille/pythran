@@ -30,8 +30,7 @@ parser.add_argument('-m', dest='extra_mflags', metavar='machine', action='append
 parser.add_argument('-I', dest='extra_Iflags', metavar='include_dir', action='append', help='any include dir relevant to the underlying C++ compiler', default=list())
 parser.add_argument('-D', dest='extra_Dflags', metavar='macro_definition', action='append', help='any macro definition relevant to the underlying C++ compiler', default=list())
 parser.add_argument('-O', dest='extra_Oflags', metavar='level', action='append', help='any optimization level relevant to the underlying C++ compiler', default=list())
-parser.add_argument('-g', dest='debug_flag', action='store_true', help='any debug level relevant to the underlying C++ compiler', default=list())
-
+parser.add_argument('-g', dest='debug_flag', action='store_true', help='any debug level relevant to the underlying C++ compiler')
 
 args = parser.parse_args()
 if args.raw_translate_only:

@@ -137,6 +137,15 @@ class DeclVal(Type):
     def generate(self,ctx):
         return 'std::declval<{0}>()'.format(ctx(self.of).generate(ctx))
 
+class Assignable(Type):
+    """A type which can be assigned"""
+    def __init__(self, of):
+        self.of=of
+        self.qualifiers=of.qualifiers
+        self.fields=("of",)
+    def generate(self,ctx):
+        return 'typename assignable<{0}>::type'.format(self.of.generate(ctx))
+
 class DeclType(Type):
     """Gather the type of a Typed variable"""
     def __init__(self, of):

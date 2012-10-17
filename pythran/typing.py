@@ -6,7 +6,7 @@ import ast
 import networkx as nx
 import operator
 from tables import pytype_to_ctype_table, operator_to_lambda, modules, builtin_constants, builtin_constructors
-from analysis import  GlobalDeclarations, YieldPoints, OrderedGlobalDeclarations, StrangeAliases, ModuleAnalysis
+from analysis import  GlobalDeclarations, YieldPoints, OrderedGlobalDeclarations, StrangeAliases, ModuleAnalysis, LocalDeclarations
 from passes import Transformation
 from passmanager import gather, apply
 from syntax import PythranSyntaxError
@@ -190,7 +190,7 @@ class Types(ModuleAnalysis):
         self.result["bool"]=NamedType("bool")
         self.current=list()
         self.current_global_declarations = dict()
-        ModuleAnalysis.__init__(self, StrangeAliases)
+        ModuleAnalysis.__init__(self, StrangeAliases, LocalDeclarations)
 
     def run(self, node, ctx):
         apply(Reorder, node, ctx)
@@ -199,6 +199,8 @@ class Types(ModuleAnalysis):
     def run_visit(self, node):
         ModuleAnalysis.run_visit(self, node)
         final_types = { k: self.result[k] if k in self.result else v for k,v in self.result.iteritems() }
+        for k in self.local_declarations:
+            self.result[k]=Assignable(self.result[k])
         for head in self.current_global_declarations.itervalues():
             if head not in final_types:
                 final_types[head]="void"
@@ -291,7 +293,7 @@ class Types(ModuleAnalysis):
             for n in nodes: self.combine(final_node, n)
             for n in nodes: self.result[n]=self.result[final_node]
         self.current_global_declarations[node.name]=node
-        self.result[node]=(self.result[node], self.typedefs)
+        self.result[node]=(Assignable(self.result[node]), self.typedefs)
         self.current.pop()
 
     def visit_Return(self, node):

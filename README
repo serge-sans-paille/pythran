@@ -36,7 +36,7 @@ Installation
 
 		$> sudo apt-get install libboost-python-dev python-ply python-networkx
 
-2. Use the install target from setup script, in source driectory::
+2. Use the install target from setup script, in source directory::
 
 		$> python setup.py install --prefix=<my_prefix>
 

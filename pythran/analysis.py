@@ -77,6 +77,11 @@ class Locals(ModuleAnalysis):
         self.result[node]=self.locals.copy()
         self.generic_visit(node)
 
+    def visit_Module(self, node):
+        self.expr_parent=node
+        self.result[node]=self.locals
+        [ self.visit(n) for n in node.body]
+
     def visit_FunctionDef(self, node):
         self.expr_parent=node
         self.result[node]=self.locals.copy()

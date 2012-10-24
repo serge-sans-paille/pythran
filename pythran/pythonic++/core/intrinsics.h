@@ -12,16 +12,23 @@ namespace pythonic {
     PROXY(pythonic, abs);
 
     /* all */
-    template <class T>
-        bool all( core::list<T> const& s) {
-            return s.end() == std::find_if(s.begin(), s.end(), [](T const&t) { return not bool(t); });
+    template <class Iterable>
+        bool all( Iterable && s) {
+            //return s.end() == std::find_if(s.begin(), s.end(), [](typename Iterable::iterator::value_type const&t) { return not bool(t); });
+			auto iend = s.end();
+			for(auto iter = s.begin() ; iter != iend ; ++iter)
+				if( not *iter ) return false;
+			return true;
         }
     PROXY(pythonic, all);
 
     /* any */
-    template <class T>
-        bool any( core::list<T> const& s) {
-            return s.end() != std::find_if(s.begin(), s.end(), [](T const&t) { return bool(t); });
+    template <class Iterable>
+        bool any( Iterable && s) {
+			auto iend = s.end();
+			for(auto iter = s.begin() ; iter != iend ; ++iter)
+				if( *iter ) return true;
+			return false;
         }
     PROXY(pythonic, any);
 

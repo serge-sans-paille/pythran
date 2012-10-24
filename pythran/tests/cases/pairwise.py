@@ -1,5 +1,5 @@
 #from http://jakevdp.github.com/blog/2012/08/24/numba-vs-cython/
-#runas: import random ; X = [ [random() for i in xrange(1000) ] for j in xrange(3) ] ; pairwise(X)
+#runas import random ; X = [ [random.random() for i in xrange(1000) ] for j in xrange(3) ] ; pairwise(X)
 #pythran export pairwise(float list list)
 
 import math

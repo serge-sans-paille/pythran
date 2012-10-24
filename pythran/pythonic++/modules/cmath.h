@@ -4,6 +4,7 @@
 namespace pythonic {
     namespace cmath {
         using std::cos;
+        using std::sin;
         using std::exp;
         using std::sqrt;
         using std::log10;
@@ -12,6 +13,7 @@ namespace pythonic {
         double const e = std::exp(1);
 
         PROXY(pythonic::cmath,cos);
+        PROXY(pythonic::cmath,sin);
         PROXY(pythonic::cmath,exp);
         PROXY(pythonic::cmath,sqrt);
         PROXY(pythonic::cmath,log10);

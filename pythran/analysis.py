@@ -187,17 +187,70 @@ class ImportedIds(NodeAnalysis):
 class ConstantExpressions(NodeAnalysis):
     """Identify constant expressions (dummy implementation)"""
     def __init__(self):
-        self.result=dict()
-        NodeAnalysis.__init__(self)
+        self.result=set()
+        NodeAnalysis.__init__(self, Globals, Locals)
+
+    def add(self, node):
+        self.result.add(node)
+        return True
+
+    def visit_BoolOp(self, node):
+        return all(self.visit(n) for n in node.values) and self.add(node)
+
+    def visit_BinOp(self, node):
+        return all([self.visit(n) for n in (node.left, node.right)]) and self.add(node)
+
+    def visit_UnaryOp(self, node):
+        return self.visit(node.operand) and self.add(node)
+
+    def visit_IfExp(self, node):
+        return all([self.visit(n) for n in (node.test, node.body, node.orelse)]) and self.add(node)
+
+    def visit_Dict(self, node):
+        return all([self.visit(n) for n in (node.keys+node.values)]) and self.add(node)
+
+    def visit_Set(self, node):
+        return all([self.visit(n) for n in node.elts]) and self.add(node)
+
+    def visit_Compare(self, node):
+        return all([self.visit(n) for n in [node.left] + node.comparators]) and self.add(node)
+
+    def visit_Call(self, node):
+        return all([self.visit(n) for n in node.args + [node.func]]) and self.add(node)
 
     def visit_Num(self, node):
-        self.result[node]=node.n
+        return self.add(node)
+
+    def visit_Str(self, node):
+        return self.add(node)
+
+    def visit_Subscript(self, node):
+        return all([self.visit(n) for n in (node.value, node.slice)]) and self.add(node)
+
+    def visit_Name(self, node):
+        if node in self.locals:
+            return node.id not in self.locals[node] and node.id in modules['__builtins__'] and modules['__builtins__'][node.id].isconst()
+        else: # not in an expression
+            return False
+
+    def visit_Attribute(self, node):
+        assert isinstance(node.value, ast.Name)
+        return node.value.id in modules and modules[node.value.id][node.attr].isconst()
+
+    def visit_List(self, node):
+        return all([self.visit(n) for n in node.elts]) and self.add(node)
+
+    def visit_Tuple(self, node):
+        return all([self.visit(n) for n in node.elts]) and self.add(node)
+
+    def visit_Slice(self, node):
+        l=(self.visit(node.lower) if node.lower else True)
+        u=(self.visit(node.upper) if node.upper else True )
+        s=(self.visit(node.step) if node.step else True)
+        return False
 
     def visit_Index(self, node):
-        self.visit(node.value)
-        if node.value in self.result:
-            self.result[node]=self.result[node.value]
-
+        return self.visit(node.value) and self.add(node)
 ##
 class OrderedGlobalDeclarations(ModuleAnalysis):
     '''Order all global functions according to their callgraph depth'''

@@ -13,9 +13,9 @@
     * GatherOMPData turns OpenMP-like string annotations into metadata
 '''
 
-from analysis import ImportedIds, GlobalDeclarations, Identifiers
+from analysis import ImportedIds, GlobalDeclarations, Identifiers, ConstantExpressions
 from passmanager import gather, Transformation
-from tables import methods, attributes, functions, cxx_keywords, namespace
+from tables import methods, attributes, functions, cxx_keywords, namespace, modules
 from syntax import PythranSyntaxError
 import metadata
 import ast
@@ -298,11 +298,9 @@ class NormalizeAttributes(Transformation):
                 return node
             else:
                 [(module,_)] = functions[node.attr]
-                if not isinstance(node.value, ast.Name) or (node.value.id != module and node.value.id != module[2:-2]) :
-                    raise PythranSyntaxError("Calling the static function '{0}' without its module name".format(node.value.id))
-                else:
-                    node.value.id=module
-                    return node
+                assert isinstance(node.value, ast.Name)
+                node.value.id=module
+                return node
         else:
             return node
 
@@ -472,3 +470,43 @@ class GatherOMPData(Transformation):
         self.generic_visit(node)
         return node
 
+##
+class ConstantFolding(Transformation):
+    '''Replace constant expression by their evaluation.'''
+    def __init__(self):
+        Transformation.__init__(self, ConstantExpressions)
+        self.env= { module_name : __import__(module_name) for module_name in modules if not module_name.startswith('__') }
+
+    def to_ast(self, value):
+        if any(isinstance(value,t) for t in (int, long, bool, float)):
+            return ast.Num(value)
+        elif isinstance(value, str):
+            return ast.Str(value)
+        elif isinstance(value, list):
+            return ast.List([ self.to_ast(elt) for elt in value ], ast.Load()) #SG: unsure
+        elif isinstance(value, tuple):
+            return ast.Tuple([ self.to_ast(elt) for elt in value ], ast.Load())
+        elif isinstance(value, set):
+            return ast.Set([ self.to_ast(elt) for elt in value ], ast.Load())
+        elif isinstance(value, dict):
+            return ast.Dict([self.to_ast(elt) for elt in value.iterkeys()], [self.to_ast(elt) for elt in value.itervalues()], ast.Load())
+        else:
+            raise NotImplementedError("what the hell?")
+
+
+    def generic_visit(self, node):
+        if node in self.constant_expressions:
+            try:
+                fake_node=ast.Expression(node.value if isinstance(node, ast.Index) else node )
+                code=compile(fake_node,'<constant folding>','eval')
+                value=eval(code, self.env)
+                new_node = self.to_ast(value)
+                if isinstance(node, ast.Index):
+                    new_node=ast.Index(new_node)
+                return new_node
+            except Exception as e:
+                print ast.dump(node)
+                print 'error in constant folding: ', e
+                return node
+        else:
+            return Transformation.generic_visit(self, node)

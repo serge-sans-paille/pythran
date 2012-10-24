@@ -497,18 +497,22 @@ PYTHONIC_EXCEPTION(OSError);
         long _begin;
         long _end;
         long _step;
+		long _last;
         typedef long value_type;
         typedef xrange_iterator iterator;
         typedef xrange_iterator const_iterator;
         typedef xrange_riterator reverse_iterator;
         typedef xrange_riterator const_reverse_iterator;
+		void _init_last() {
+            if(_step>0) _last= _begin + std::max(0L,_step * ( (_end - _begin + _step -1)/ _step));
+            else _last= _begin + std::min(0L,_step * ( (_end - _begin + _step +1)/ _step)) ;
+		}
         xrange(){}
-        xrange( long b, long e , long s=1) : _begin(b), _end(e), _step(s) {}
-        xrange( long e ) : _begin(0), _end(e), _step(1) {}
+        xrange( long b, long e , long s=1) : _begin(b), _end(e), _step(s) { _init_last(); }
+        xrange( long e ) : _begin(0), _end(e), _step(1) { _init_last(); }
         xrange_iterator begin() const { return xrange_iterator(_begin, _step); }
         xrange_iterator end() const {
-            if(_step>0) return xrange_iterator(_begin + std::max(0L,_step * ( (_end - _begin + _step -1)/ _step)) , _step);
-            else return xrange_iterator(_begin + std::min(0L,_step * ( (_end - _begin + _step +1)/ _step)) , _step);
+            return xrange_iterator(_last, _step);
         }
         reverse_iterator rbegin() const { return reverse_iterator(_end-_step, -_step); }
         reverse_iterator rend() const {

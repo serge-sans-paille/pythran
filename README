@@ -36,7 +36,7 @@ Installation
 
 		$> sudo apt-get install libboost-python-dev python-ply python-networkx
 
-2. Use the install target from setup script, in source driectory::
+2. Use the install target from setup script, in source directory::
 
 		$> python setup.py install --prefix=<my_prefix>
 
@@ -65,14 +65,16 @@ module.
 Documentation
 -------------
 
-The user documentation is available in the MANUAL file.
+The user documentation is available in the MANUAL file from the doc directory.
+
+The developer documentation is available in the DEVGUIDE file from the doc directory.
 
 The CLI documentation is available from the pythran help command::
 
 	$> pythran --help
 
-The developper documentation is also available using pydoc. Beware, this is the
-computer science incarnation fo the famous Where's Wally? game::
+Some extra developer documentation is also available using pydoc. Beware, this
+is the computer science incarnation for the famous Where's Wally? game::
 
 	$> pydoc pythran
 	$> pydoc pythran.typing
@@ -88,9 +90,10 @@ Contact
 
 Praise, flame and cookies:
 
+- pythran@freelists.org -- register at http://www.freelists.org/list/pythran first!
+
 - #pythran on FreeNode
 
 - serge.guelton@telecom-bretagne.eu
 
-- pythran@googlegroups.com
 

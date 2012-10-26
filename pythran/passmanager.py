@@ -100,4 +100,6 @@ def dump(backend, node, module_name):
 
 def apply(transformation, node, ctx=None):
     '''High-level function to call a `transformation' on a `node', eventually using a `ctx'.'''
-    return transformation().run(node, ctx)
+    n = transformation().run(node, ctx)
+    ast.fix_missing_locations(node)
+    return n

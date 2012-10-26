@@ -12,16 +12,23 @@ namespace pythonic {
     PROXY(pythonic, abs);
 
     /* all */
-    template <class T>
-        bool all( core::list<T> const& s) {
-            return s.end() == std::find_if(s.begin(), s.end(), [](T const&t) { return not bool(t); });
+    template <class Iterable>
+        bool all( Iterable && s) {
+            //return s.end() == std::find_if(s.begin(), s.end(), [](typename Iterable::iterator::value_type const&t) { return not bool(t); });
+			auto iend = s.end();
+			for(auto iter = s.begin() ; iter != iend ; ++iter)
+				if( not *iter ) return false;
+			return true;
         }
     PROXY(pythonic, all);
 
     /* any */
-    template <class T>
-        bool any( core::list<T> const& s) {
-            return s.end() != std::find_if(s.begin(), s.end(), [](T const&t) { return bool(t); });
+    template <class Iterable>
+        bool any( Iterable && s) {
+			auto iend = s.end();
+			for(auto iter = s.begin() ; iter != iend ; ++iter)
+				if( *iter ) return true;
+			return false;
         }
     PROXY(pythonic, any);
 
@@ -497,18 +504,22 @@ PYTHONIC_EXCEPTION(OSError);
         long _begin;
         long _end;
         long _step;
+		long _last;
         typedef long value_type;
         typedef xrange_iterator iterator;
         typedef xrange_iterator const_iterator;
         typedef xrange_riterator reverse_iterator;
         typedef xrange_riterator const_reverse_iterator;
+		void _init_last() {
+            if(_step>0) _last= _begin + std::max(0L,_step * ( (_end - _begin + _step -1)/ _step));
+            else _last= _begin + std::min(0L,_step * ( (_end - _begin + _step +1)/ _step)) ;
+		}
         xrange(){}
-        xrange( long b, long e , long s=1) : _begin(b), _end(e), _step(s) {}
-        xrange( long e ) : _begin(0), _end(e), _step(1) {}
+        xrange( long b, long e , long s=1) : _begin(b), _end(e), _step(s) { _init_last(); }
+        xrange( long e ) : _begin(0), _end(e), _step(1) { _init_last(); }
         xrange_iterator begin() const { return xrange_iterator(_begin, _step); }
         xrange_iterator end() const {
-            if(_step>0) return xrange_iterator(_begin + std::max(0L,_step * ( (_end - _begin + _step -1)/ _step)) , _step);
-            else return xrange_iterator(_begin + std::min(0L,_step * ( (_end - _begin + _step +1)/ _step)) , _step);
+            return xrange_iterator(_last, _step);
         }
         reverse_iterator rbegin() const { return reverse_iterator(_end-_step, -_step); }
         reverse_iterator rend() const {

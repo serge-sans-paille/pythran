@@ -5,7 +5,7 @@ import ast
 from cxxgen import *
 from cxxtypes import *
 
-from analysis import LocalDeclarations, GlobalDeclarations, ConstantExpressions, YieldPoints, BoundedExpressions
+from analysis import LocalDeclarations, GlobalDeclarations, YieldPoints, BoundedExpressions
 from passmanager import gather, Backend
 
 from tables import operator_to_lambda, modules, type_to_suffix
@@ -445,9 +445,8 @@ class CxxBackend(Backend):
     def visit_Subscript(self, node):
         value = self.visit(node.value)
         slice = self.visit(node.slice)
-        v = gather(ConstantExpressions,node.slice).get(node.slice, None)
-        if isinstance(v,int) or isinstance(v,long) or isinstance(v,bool):
-            return "std::get<{0}>({1})".format(v, value)
+        if isinstance(node.slice,ast.Index) and isinstance(node.slice.value, ast.Num) and any(isinstance(node.slice.value.n, t) for t in (int, long)):
+            return "std::get<{0}>({1})".format(node.slice.value.n, value)
         elif isinstance(node.slice, ast.Slice) and ( isinstance(node.ctx, ast.Store) or node not in self.bounded_expressions ):
             return "{1}({0})".format(slice, value)
         else:
@@ -472,8 +471,10 @@ class CxxBackend(Backend):
         step = self.visit(node.step) if node.step else None
         cv=None
         if not upper and not lower and step: # special case
-            try: cv=gather(ConstantExpressions,node.step)[node.step]
-            except: raise NotImplementedError("non constant step with undefined upper and lower bound in slice")
+            if isinstance(node.step, ast.Num): cv = node.step.n
+            else:
+                print ast.dump(node.step)
+                raise NotImplementedError("non constant step with undefined upper and lower bound in slice")
         if step:
             if not upper: upper = "std::numeric_limits<long>::max()"
         if upper:

@@ -1,5 +1,5 @@
 '''This module turns a python AST into an optimized, pythran compatible ast'''
-from passes import RemoveComprehension, RemoveNestedFunctions, RemoveLambdas, NormalizeTuples, NormalizeReturn, NormalizeMethodCalls, NormalizeAttributes, UnshadowParameters, ExpandImports, GatherOMPData, NormalizeException
+from passes import RemoveComprehension, RemoveNestedFunctions, RemoveLambdas, NormalizeTuples, NormalizeReturn, NormalizeMethodCalls, NormalizeAttributes, UnshadowParameters, ExpandImports, GatherOMPData, NormalizeException, ConstantFolding
 from passmanager import apply
 
 def refine(node):
@@ -20,3 +20,4 @@ def refine(node):
     apply(UnshadowParameters,node)
 
     # some optimizations
+    apply(ConstantFolding,node)

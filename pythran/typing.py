@@ -6,7 +6,7 @@ import ast
 import networkx as nx
 import operator
 from tables import pytype_to_ctype_table, operator_to_lambda, modules, builtin_constants, builtin_constructors
-from analysis import  GlobalDeclarations, YieldPoints, ConstantExpressions, OrderedGlobalDeclarations, Aliases, ModuleAnalysis
+from analysis import  GlobalDeclarations, YieldPoints, OrderedGlobalDeclarations, Aliases, ModuleAnalysis
 from passes import Transformation
 from passmanager import gather, apply
 from syntax import PythranSyntaxError
@@ -81,8 +81,7 @@ class TypeDependencies(ModuleAnalysis):
     def visit_BoolOp(self, node):
         root=[set()]
         for value in node.values:
-            for val in self.visit(value):
-                root=[r.union(v) for r in root for v in val]
+            root=[r.union(val) for r in root for val in self.visit(value)]
         return root
 
     def visit_BinOp(self, node):
@@ -394,10 +393,10 @@ class Types(ModuleAnalysis):
         self.visit(node.value)
         if isinstance(node.slice, ast.Slice):
             f=lambda t:t
+        elif isinstance(node.slice.value, ast.Num):
+            f=lambda t: ElementType(node.slice.value.n,t)
         else:
-            v=gather(ConstantExpressions, node.slice).get(node.slice, None)
-            if v is None: f=lambda t: ContentType(t)
-            else: f=lambda t: ElementType(v,t)
+            f=lambda t: ContentType(t)
         self.combine(node, node.value, unary_op=f)
 
     def visit_AssignedSubscript(self, node):

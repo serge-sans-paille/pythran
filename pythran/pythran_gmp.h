@@ -5,10 +5,167 @@
 #define pythran_long(a) mpz_class(#a)
 #define pythran_long_def mpz_class
 
+template<class T,class U>
+struct gmp_compo;
+
+template<class T>
+struct gmp_type;
+
 template<class T, class U>
-    struct assignable<__gmp_expr<T,U> >{
-        typedef mpz_class type;
-    };
+struct assignable<__gmp_expr<T,U> >
+{
+    typedef typename gmp_compo<T,U>::type type;
+};
+
+template<class T>
+struct assignable<__gmp_expr<T,T> >
+{
+    typedef __gmp_expr<T,T> type;
+};
+
+
+//GMP_COMPO
+
+template<class T, class U>
+struct gmp_compo
+{
+    typedef typename gmp_compo<typename gmp_type<T>::type, typename gmp_type<U>::type>::type type;
+};
+
+template<>
+struct gmp_compo<long,double>
+{
+    typedef double type;
+};
+
+template<>
+struct gmp_compo<double,long>
+{
+    typedef double type;
+};
+
+template<>
+struct gmp_compo<mpz_class,long>
+{
+    typedef mpz_class type;
+};
+
+template<>
+struct gmp_compo<long,mpz_class>
+{
+    typedef mpz_class type;
+};
+
+template<>
+struct gmp_compo<double,mpz_class>
+{
+    typedef double type;
+};
+
+template<>
+struct gmp_compo<mpz_class,double>
+{
+    typedef double type;
+};
+
+template<class T>
+struct gmp_compo<double,T>
+{
+    typedef double type;
+};
+
+template<class T>
+struct gmp_compo<T,double>
+{
+    typedef double type;
+};
+
+template<class T>
+struct gmp_compo<long,T>
+{
+    typedef long type;
+};
+
+template<class T>
+struct gmp_compo<T,long>
+{
+    typedef long type;
+};
+
+template<class T>
+struct gmp_compo<mpz_class,T>
+{
+    typedef mpz_class type;
+};
+
+template<class T>
+struct gmp_compo<T,mpz_class>
+{
+    typedef mpz_class type;
+};
+
+template<class T>
+struct gmp_compo<T,T>
+{
+    typedef T type;
+};
+
+template<>
+struct gmp_compo<mpz_class, mpz_class>
+{
+    typedef mpz_class type;
+};
+
+template<>
+struct gmp_compo<long,long>
+{
+    typedef long type;
+};
+
+template<>
+struct gmp_compo<double,double>
+{
+    typedef double type;
+};
+
+//GMP_TYPE
+
+template<class T>
+struct gmp_type
+{
+    typedef T type;
+};
+
+template<class T, class U, class V>
+struct gmp_type<__gmp_binary_expr<T,U,V> >
+{
+    typedef typename gmp_compo<T,U>::type type;
+};
+
+template<class T, class V>
+struct gmp_type<__gmp_unary_expr<T,V> >
+{
+    typedef typename gmp_type<T>::type type;
+};
+
+template<class T, class U, class V>
+struct gmp_type<__gmp_unary_expr<__gmp_expr<T,U>,V> >
+{
+    typedef typename gmp_compo<T,U>::type type;
+};
+
+template<class T, class U>
+struct gmp_type<__gmp_expr<T,U> >
+{
+    typedef typename gmp_compo<T,U>::type type;
+};
+
+template<class T>
+struct gmp_type<__gmp_expr<T,T> >
+{
+    typedef __gmp_expr<T,T> type;
+};
+
 
 template<>
 struct python_to_pythran<mpz_class>{

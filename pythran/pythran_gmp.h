@@ -1,4 +1,5 @@
 #include <gmpxx.h>
+#include <type_traits>
 
 #undef pythran_long
 #undef pythran_long_def
@@ -14,6 +15,7 @@ struct gmp_type;
 template<class T, class U>
 struct assignable<__gmp_expr<T,U> >
 {
+    static_assert(!(std::is_same<T,double>::value || std::is_same<U,double>::value),"Cannot combine long and float with mpz. Use --no-gpl to permit it even if you will only have long long int instead of mpz_class");
     typedef typename gmp_compo<T,U>::type type;
 };
 

@@ -120,10 +120,11 @@ class ToolChain(object):
         return module_so
     def check_compile(self, msg, code):
         try:
+            tmperr=TemporaryFile()
             tmpfile=NamedTemporaryFile(suffix=".cpp")
             tmpfile.write(code)
             tmpfile.flush()
-            check_call([self.compiler] + self.cppflags + self.cxxflags + [ tmpfile.name, "-o" , "/dev/null"] + self.get_include_flags() + self.ldflags)
+            check_call([self.compiler] + self.cppflags + self.cxxflags + [ tmpfile.name, "-o" , "/dev/null"] + self.get_include_flags() + self.ldflags, stderr=tmperr)
         except:
             raise EnvironmentError(errno.ENOPKG, msg)
 

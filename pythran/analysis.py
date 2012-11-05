@@ -16,6 +16,7 @@ from tables import modules, builtin_constants, builtin_constructors
 import ast
 import networkx as nx
 import metadata
+import intrinsic
 from passmanager import NodeAnalysis, FunctionAnalysis, ModuleAnalysis
 
 
@@ -112,7 +113,7 @@ class Locals(ModuleAnalysis):
         self.result[node]=self.locals.copy()
         self.locals.update(alias.name for alias in node.names)
 
-    def visit_excepthandler(self, node):
+    def visit_ExceptHandler(self, node):
         self.expr_parent=node
         self.result[node]=self.locals.copy()
         if node.name: self.locals.add(node.name.id)
@@ -256,12 +257,12 @@ class OrderedGlobalDeclarations(ModuleAnalysis):
     '''Order all global functions according to their callgraph depth'''
     def __init__(self):
         self.result=dict()
-        ModuleAnalysis.__init__(self, Aliases, GlobalDeclarations)
+        ModuleAnalysis.__init__(self, StrangeAliases, GlobalDeclarations)
 
     def visit_FunctionDef(self,node):
         self.curr=node
         self.result[node]=set()
-        self.curr_aliases=self.aliases[node]
+        self.curr_aliases=self.strange_aliases[node]
         [ self.visit(n) for n in node.body ]
 
     def visit_Name(self,node):
@@ -285,8 +286,8 @@ class OrderedGlobalDeclarations(ModuleAnalysis):
         return sorted(self.result.iterkeys(), key=lambda s: len(self.result[s]), reverse=True)
 
 ##
-class Aliases(ModuleAnalysis):
-    """Gather aliasing informations across nodes."""
+class StrangeAliases(ModuleAnalysis):
+    """Gather a strange kind of aliasing informations across call sites."""
     def __init__(self):
         self.result=dict()
         ModuleAnalysis.__init__(self)
@@ -303,6 +304,131 @@ class Aliases(ModuleAnalysis):
                 if isinstance(t, ast.Name):
                     if t.id not in self.curr: self.curr[t.id]=self.curr[node.value.id] if node.value.id in self.curr else {node.value.id}
                     else: self.curr[t.id].add(node.value.id)
+
+##
+class Aliases(ModuleAnalysis):
+    """Gather aliasing informations across nodes."""
+    class AliasingInformation(object):
+        def __init__(self, state, aliases):
+            self.state =state
+            self.aliases=aliases
+
+    def __init__(self):
+        self.result=dict()
+        self.aliases=dict()
+        ModuleAnalysis.__init__(self, GlobalDeclarations)
+
+    @staticmethod
+    def access_path(node):
+        if isinstance(node, ast.Name): return (node.id,)
+        elif isinstance(node, ast.Attribute): return Aliases.access_path(node.value) + (node.attr,)
+        else: raise NotImplementedError
+
+    # aliasing created by expressions
+    def add(self, node, values=None):
+        values = values or set()
+        assert isinstance(values, set)
+        self.result[node]=Aliases.AliasingInformation(self.aliases.copy(), values)
+        return values
+
+    def visit_OMPDirective(self, node):
+        pass
+
+    def visit_BoolOp(self, node):
+        return self.add(node,reduce(set.union,(self.visit(n) for n in node.values), set()))
+
+    def visit_BinOp(self, node):
+        self.generic_visit(node)
+        return self.add(node)
+
+    def visit_UnaryOp(self, node):
+        self.generic_visit(node)
+        return self.add(node)
+
+    def visit_IfExp(self, node):
+        return self.add(node, self.visit(node.body).union(self.visit(node.orelse)))
+
+    def visit_Dict(self, node):
+        self.generic_visit(node)
+        return self.add(node) # not very accurate
+
+    def visit_Set(self, node):
+        self.generic_visit(node)
+        return self.add(node) # not very accurate
+
+    def visit_Compare(self, node):
+        self.generic_visit(node)
+        return self.add(node)
+
+    def visit_Call(self, node):
+        self.visit(node.func)
+        return self.add(node, reduce(set.union,(self.visit(n) for n in node.args), set()).union(set(self.global_declarations.itervalues()) ) ) # should include built-ins too
+
+    def visit_Num(self, node):
+        return self.add(node)
+
+    def visit_Str(self, node):
+        return self.add(node)
+
+    def visit_Attribute(self, node):
+        return self.add(node,{node})
+
+    def visit_Subscript(self, node):
+        self.generic_visit(node)
+        return self.add(node) # not very accurate, could be enhanced through better handling of sets etc
+
+    def visit_Name(self, node):
+        return self.add(node, self.aliases[(node.id,)].copy())
+
+    def visit_List(self, node):
+        self.generic_visit(node)
+        return self.add(node) # not very accurate
+
+    def visit_Tuple(self, node):
+        self.generic_visit(node)
+        return self.add(node) # not very accurate
+
+    # aliasing created by statements
+
+    def visit_FunctionDef(self, node):
+        self.aliases=dict()
+        self.aliases.update({ (k,):{v} for k,v in builtin_constants.iteritems()})
+        self.aliases.update({ (k,):{v} for k,v in builtin_constructors.iteritems()})
+        for module in modules:
+            self.aliases.update({ (k,) if module == "__builtins__" else (module,k):{v} for k,v in modules[module].iteritems() })
+        self.aliases.update({ (f.name,) : {f} for f in self.global_declarations.itervalues() })
+        self.aliases.update({ (arg.id,) : { arg } for arg in node.args.args })
+        self.generic_visit(node)
+
+    def visit_Assign(self, node):
+        value_aliases = self.visit(node.value)
+        for t in node.targets:
+            if isinstance(t, ast.Name):
+                self.aliases[(t.id,)]= value_aliases or { t }
+            else:
+                self.visit(t)
+
+    def visit_For(self, node):
+        self.aliases[(node.target.id,)] = { node.target }
+        self.generic_visit(node)
+    
+    def visit_If(self, node):
+        self.visit(node.test)
+        false_aliases=self.aliases.copy()
+        [ self.visit(n) for n in node.body ]
+        true_aliases, self.aliases=self.aliases, false_aliases
+        [ self.visit(n) for n in node.orelse ]
+        for k,v in true_aliases.iteritems():
+            if k in self.aliases:
+                self.aliases[k].update(v)
+            else:
+                assert isinstance(v,set)
+                self.aliases[k]= v
+
+    def visit_ExceptHandler(self, node):
+        if node.name:
+            self.aliases[(node.name.id,)] = { node.name }
+            self.generic_visit(node)
 
 ##
 class Identifiers(NodeAnalysis):
@@ -355,4 +481,106 @@ class BoundedExpressions(ModuleAnalysis):
             self.result.add(node.value)
             if isinstance(node.value, ast.Subscript):
                 self.result.add(node.value.slice)
+
+##
+class UpdateEffects(ModuleAnalysis):
+    '''Gathers inter-procedural update effects of functions.'''
+    class FunctionEffects(object):
+        def __init__(self, node):
+            self.func=node
+            if isinstance(node, ast.FunctionDef):
+                self.update_effects=[False]*len(node.args.args)
+            elif isinstance(node, intrinsic.Intrinsic):
+                self.update_effects= [ isinstance(x, intrinsic.UpdateEffect) for x in node.effects ]
+            elif isinstance(node, ast.alias):
+                self.update_effects=[]
+            else:
+                raise NotImplementedError
+
+    class ConstructorEffects(object):
+        def __init__(self, node):
+            self.func=node
+            self.update_effects=[False]
+
+    def __init__(self):
+        self.result=nx.DiGraph()
+        self.node_to_functioneffect=dict()
+        ModuleAnalysis.__init__(self, Aliases, GlobalDeclarations)
+
+    def run_visit(self, node):
+        for n in self.global_declarations.itervalues():
+            fe=UpdateEffects.FunctionEffects(n)
+            self.node_to_functioneffect[n]=fe
+            self.result.add_node(fe)
+        for n in builtin_constructors.itervalues():
+            fe=UpdateEffects.ConstructorEffects(n)
+            self.node_to_functioneffect[n]=fe
+            self.result.add_node(fe)
+        for m in modules:
+            for name,intrinsic in modules[m].iteritems():
+                fe=UpdateEffects.FunctionEffects(intrinsic)
+                self.node_to_functioneffect[intrinsic]=fe
+                self.result.add_node(fe)
+        self.all_functions=[ fe.func for fe in self.result ]
+        return ModuleAnalysis.run_visit(self, node)
+
+    def run(self, node, ctx):
+        ModuleAnalysis.run(self, node, ctx)
+        keep_going=True # very naive approach
+        while keep_going:
+            keep_going=False
+            for function in self.result:
+                for update_effect_index, update_effect in enumerate(function.update_effects):
+                    if update_effect:
+                        for pred in self.result.predecessors(function):
+                            for i, formal_parameter_index in enumerate(self.result.edge[pred][function]["formal_parameters"]):
+                                # propagate the impurity backward if needed. After that we may need another graph iteration cycle
+                                if formal_parameter_index == update_effect_index and not pred.update_effects[self.result.edge[pred][function]["effective_parameters"][i]]: 
+                                    pred.update_effects[self.result.edge[pred][function]["effective_parameters"][i]]=True
+                                    keep_going=True
+
+        return { f.func:f.update_effects for f in self.result }
+
+    def argument_index(self, node):
+        while isinstance(node, ast.Subscript):
+            node=node.value
+        for node_alias in self.aliases[node].aliases:
+            try: return self.current_function.func.args.args.index(node_alias)
+            except ValueError:pass
+        return -1
+
+
+    def visit_FunctionDef(self, node):
+        self.current_function= self.node_to_functioneffect[node]
+        assert self.current_function in self.result
+        self.generic_visit(node)
+
+    def visit_AugAssign(self, node):
+        n = self.argument_index(node.target)
+        if n>=0:
+            self.current_function.update_effects[n] = True
+        self.generic_visit(node)
+
+    def visit_Assign(self, node):
+        for t in node.targets:
+            if isinstance(t, ast.Subscript):
+                n = self.argument_index(t)
+                if n>=0:
+                    self.current_function.update_effects[n] = True
+        self.generic_visit(node)
+
+    def visit_Call(self, node):
+        for i, arg in enumerate(node.args):
+            n = self.argument_index(arg)
+            if n>=0:
+                func_aliases = self.aliases[node].state[Aliases.access_path(node.func)]
+                # expaand argument if any
+                func_aliases = reduce(lambda x, y : x + self.all_functions if isinstance(y, ast.Name) and self.argument_index(y)>=0 else [y], func_aliases, list())
+                for func_alias in func_aliases:
+                    func_alias = self.node_to_functioneffect[func_alias]
+                    if self.current_function not in self.result.predecessors(func_alias):
+                        self.result.add_edge(self.current_function, func_alias, effective_parameters=[], formal_parameters=[])
+                    self.result.edge[self.current_function][func_alias]["effective_parameters"].append(n)
+                    self.result.edge[self.current_function][func_alias]["formal_parameters"].append(i)
+        self.generic_visit(node)
 

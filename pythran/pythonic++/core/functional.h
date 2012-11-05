@@ -16,7 +16,7 @@ namespace pythonic {
             function(T const & t) : ptr(new (mem) T(t)) {}
 
             template<class... Types>
-                auto operator()(Types&&... args) -> decltype((*ptr)(args...)) { return (*ptr)(args...); }
+                auto operator()(Types&&... args) const -> decltype((*ptr)(args...)) { return (*ptr)(args...); }
 
             template<class F>
                 function<T>& operator=(F&& f) { ptr = new(mem) F(f); }

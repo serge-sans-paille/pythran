@@ -6,7 +6,7 @@ import ast
 import networkx as nx
 import operator
 from tables import pytype_to_ctype_table, operator_to_lambda, modules, builtin_constants, builtin_constructors
-from analysis import  GlobalDeclarations, YieldPoints, OrderedGlobalDeclarations, Aliases, ModuleAnalysis
+from analysis import  GlobalDeclarations, YieldPoints, OrderedGlobalDeclarations, StrangeAliases, ModuleAnalysis
 from passes import Transformation
 from passmanager import gather, apply
 from syntax import PythranSyntaxError
@@ -190,7 +190,7 @@ class Types(ModuleAnalysis):
         self.result["bool"]=NamedType("bool")
         self.current=list()
         self.current_global_declarations = dict()
-        ModuleAnalysis.__init__(self, Aliases)
+        ModuleAnalysis.__init__(self, StrangeAliases)
 
     def run(self, node, ctx):
         apply(Reorder, node, ctx)
@@ -369,7 +369,7 @@ class Types(ModuleAnalysis):
                 raise PythranSyntaxError("Unknown Attribute: `{0}'".format(node.func.attr), node)
         # handle backward type dependencies from user calls
         elif isinstance(node.func, ast.Name):
-            faliases=self.aliases[self.current[-1]].get(node.func.id,{node.func.id})
+            faliases=self.strange_aliases[self.current[-1]].get(node.func.id,{node.func.id})
             for fid in faliases:
                 if fid in modules['__user__'] and modules['__user__'][fid].ismethod():
                     modules['__user__'][fid].combiner(self, node)

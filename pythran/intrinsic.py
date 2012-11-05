@@ -1,9 +1,9 @@
-class WriteEffect(object):pass
 class UpdateEffect(object):pass
+class ReadEffect(object):pass
 
 class Intrinsic:
     def __init__(self, effects=None):
-        self.effects = (WriteEffect(),) if effects is None else effects 
+        self.effects = effects or ( UpdateEffect(), ) + ( ReadEffect(), ) * 11
 
     def isscalar(self):
         return False
@@ -21,7 +21,7 @@ class Intrinsic:
         return False
 
     def isconst(self):
-        return not self.effects
+        return any( isinstance(x, UpdateEffect) for x in self.effects )
 
 class FunctionIntr(Intrinsic):
     def __init__(self, effects=None):
@@ -55,6 +55,11 @@ class MethodIntr(FunctionIntr):
 
     def isstaticfunction(self):
         return False
+
+class ConstMethodIntr(MethodIntr):
+    def __init__(self,_combiner = []):
+        FunctionIntr.__init__(self, ( ReadEffect() , ) *12 )
+        self.combinerList = _combiner
 
 class AttributeIntr(Intrinsic):
     def __init__(self,_val, effects=None):

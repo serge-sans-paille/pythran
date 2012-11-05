@@ -476,15 +476,15 @@ class ConstantFolding(Transformation):
         elif isinstance(value, str):
             return ast.Str(value)
         elif isinstance(value, list):
-            return ast.List([ self.to_ast(elt) for elt in value ], ast.Load()) #SG: unsure
+            return ast.List([ self.to_ast(elt) for elt in value ], ast.Load()) #SG: unsure wether it Load or something else
         elif isinstance(value, tuple):
             return ast.Tuple([ self.to_ast(elt) for elt in value ], ast.Load())
         elif isinstance(value, set):
-            return ast.Set([ self.to_ast(elt) for elt in value ], ast.Load())
+            return ast.Set([ self.to_ast(elt) for elt in value ])
         elif isinstance(value, dict):
-            return ast.Dict([self.to_ast(elt) for elt in value.iterkeys()], [self.to_ast(elt) for elt in value.itervalues()], ast.Load())
+            return ast.Dict([self.to_ast(elt) for elt in value.iterkeys()], [self.to_ast(elt) for elt in value.itervalues()])
         else:
-            raise NotImplementedError("what the hell?")
+            return None
 
 
     def generic_visit(self, node):
@@ -493,8 +493,8 @@ class ConstantFolding(Transformation):
                 fake_node=ast.Expression(node.value if isinstance(node, ast.Index) else node )
                 code=compile(fake_node,'<constant folding>','eval')
                 value=eval(code, self.env)
-                new_node = self.to_ast(value)
-                if isinstance(node, ast.Index):
+                new_node = self.to_ast(value) or node
+                if isinstance(node, ast.Index) and not isinstance(new_node, ast.Index):
                     new_node=ast.Index(new_node)
                 return new_node
             except Exception as e:

@@ -129,15 +129,8 @@ class RemoveComprehension(Transformation):
     """Turns all list comprehension from a node into new function calls."""
 
     def __init__(self):
-        self.functions=list()
         self.count=0
         Transformation.__init__(self)
-
-    def visit_Module(self, node):
-        [ self.visit(n) for n in node.body ]
-        node.body.extend(self.functions)
-        return node
-
 
     def nest_reducer(self, x,g):
         def wrap_in_ifs(node, ifs):
@@ -168,7 +161,7 @@ class RemoveComprehension(Transformation):
                 ast.arguments(sargs,None, None,[]),
                 [init, body, result ],
                 [])
-        self.functions.append(fd)
+        self.ctx.module.body.append(fd)
         return ast.Call(ast.Name(name,ast.Load()),[ast.Name(arg.id, ast.Load()) for arg in sargs],[], None, None) # no sharing !
 
     def visit_ListComp(self, node): return self.visit_AnyComp(node, "list", "append")
@@ -192,7 +185,7 @@ class RemoveComprehension(Transformation):
                 ast.arguments(sargs,None, None,[]),
                 [body],
                 [])
-        self.functions.append(fd)
+        self.ctx.module.body.append(fd)
         return ast.Call(ast.Name(name,ast.Load()),[ast.Name(arg.id, ast.Load()) for arg in sargs],[], None, None) # no sharing !
 
 ##

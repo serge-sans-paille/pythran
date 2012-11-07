@@ -3,6 +3,7 @@
     * get retrieves all metadata from a particular class attached to a node
 '''
 from ast import AST # so that metadata are walkable as regular ast nodes
+import ast
 
 class Metadata(AST):
     def __init__(self):
@@ -31,7 +32,12 @@ class OMPDirective(AST):
                else:
                    import ast
                    s= "{"+str(len(self.data))+"}"
-                   self.data.append(ast.Name(match.group(0), None))
+                   try:
+                       v=ast.literal_eval(match.group(0))
+                       d=ast.Num(v)
+                   except:
+                       d=ast.Name(match.group(0), ast.Param())
+                   self.data.append(d)
                    return s
         import re
         m=Matcher()
@@ -40,7 +46,7 @@ class OMPDirective(AST):
         self._fields=('deps',)
 
     def __str__(self):
-        return self.s.format(*[_.id for _ in self.deps]) 
+        return self.s.format(*[_.id if isinstance(_, ast.Name) else _.n for _ in self.deps]) 
 
 def add(node, data):
     if not hasattr(node,'metadata'):

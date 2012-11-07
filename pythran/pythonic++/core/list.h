@@ -228,8 +228,8 @@ namespace  pythonic {
                     return out;
                 }
 
-                list_view<T> operator()( slice const &s) {
-                    return list_view<T>(*this, s);
+                list_view<T> operator()( slice const &s) const {
+                    return list_view<T>(*const_cast<list<T>*>(this), s); // SG: ugly !
                 }
 
                 // modifiers

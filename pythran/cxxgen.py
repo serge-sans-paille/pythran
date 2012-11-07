@@ -20,11 +20,6 @@ __copyright__ = "Copyright (C) 2008 Andreas Kloeckner"
 
 import struct as _struct
 
-def is_64_bit_platform():
-    return _struct.calcsize('l') == 8
-
-
-
 class Generable(object):
     def __str__(self):
         """Return a single string (possibly containing newlines) representing
@@ -79,18 +74,6 @@ class Value(Declarator):
     def get_decl_pair(self):
         return [self.typename], self.name
 
-    def struct_maker_code(self, data):
-        raise RuntimeError, "named-type values can't be put into structs"
-
-    def struct_format(self):
-        raise RuntimeError, "named-type values have no struct format"
-
-    def default_value(self):
-        return 0
-
-
-
-
 class NestedDeclarator(Declarator):
     def __init__(self, subdecl):
         self.subdecl = subdecl
@@ -98,15 +81,6 @@ class NestedDeclarator(Declarator):
     @property
     def name(self):
         return self.subdecl.name
-
-    def struct_format(self):
-        return self.subdecl.struct_format()
-
-    def alignment_requirement(self):
-        return self.subdecl.alignment_requirement()
-
-    def struct_maker_code(self, data):
-        return self.subdecl.struct_maker_code(data)
 
     def get_decl_pair(self):
         return self.subdecl.get_decl_pair()
@@ -157,87 +131,19 @@ class TemplateSpecializer(NestedDeclarator):
         sub_tp[-1] = sub_tp[-1] + '<%s>' % self.specializer
         return sub_tp, sub_decl
 
-
-class MaybeUnused(NestedDeclarator):
-    def get_decl_pair(self):
-        sub_tp, sub_decl = self.subdecl.get_decl_pair()
-        return sub_tp, ("%s __attribute__ ((unused))" % sub_decl)
-
-class Pointer(NestedDeclarator):
-    def __init__(self, subdecl):
-        NestedDeclarator.__init__(self, subdecl)
-
-    def get_decl_pair(self):
-        sub_tp, sub_decl = self.subdecl.get_decl_pair()
-        return sub_tp, ("*%s" % sub_decl)
-
-    def struct_maker_code(self, data):
-        raise NotImplementedError
-
-    def struct_format(self):
-        return "P"
-
-    def alignment_requirement(self):
-        return _struct.calcsize(self.struct_format())
-
-class RestrictPointer(Pointer):
-    def get_decl_pair(self):
-        sub_tp, sub_decl = self.subdecl.get_decl_pair()
-        return sub_tp, ("*restrict %s" % sub_decl)
-
-
-class Reference(Pointer):
-    def get_decl_pair(self):
-        sub_tp, sub_decl = self.subdecl.get_decl_pair()
-        return sub_tp, ("&%s" % sub_decl)
-
-class ArrayOf(NestedDeclarator):
-    def __init__(self, subdecl, count=None):
-        NestedDeclarator.__init__(self, subdecl)
-        self.count = count
-
-    def get_decl_pair(self):
-        sub_tp, sub_decl = self.subdecl.get_decl_pair()
-        if self.count is None:
-            count_str = ""
-        else:
-            count_str = str(self.count)
-        return sub_tp, ("%s[%s]" % (sub_decl, count_str))
-
-    def struct_maker_code(self, name):
-        return ", ".join("%s[%d]" % (name, i) for i in range(self.count))
-
-    def struct_format(self):
-        if self.count is None:
-            return "P"
-        else:
-            return "%d%s" % (self.count, self.subdecl.struct_format())
-
-    def alignment_requirement(self):
-        return self.subdecl.alignment_requirement()
-
-    def default_value(self):
-        return self.count*[self.subdecl.default_value()]
-
-
-
 class FunctionDeclaration(NestedDeclarator):
-    def __init__(self, subdecl, arg_decls):
+    def __init__(self, subdecl, arg_decls, *attributes):
         NestedDeclarator.__init__(self, subdecl)
         self.arg_decls = arg_decls
+        self.attributes=attributes
 
     def get_decl_pair(self):
         sub_tp, sub_decl = self.subdecl.get_decl_pair()
 
-        return sub_tp, ("%s(%s)" % (
+        return sub_tp, ("%s(%s) %s" % (
             sub_decl,
-            ", ".join(ad.inline() for ad in self.arg_decls)))
-
-    def struct_maker_code(self, data):
-        raise RuntimeError, "function pointers can't be put into structs"
-
-    def struct_format(self):
-        raise RuntimeError, "function pointers have no struct format"
+            ", ".join(ad.inline() for ad in self.arg_decls),
+            " ".join(self.attributes) ) )
 
 class ConstructorDeclaration(FunctionDeclaration):
 
@@ -249,32 +155,16 @@ class ConstructorDeclaration(FunctionDeclaration):
         sub_tp, sub_decl =  FunctionDeclaration.get_decl_pair(self)
         return sub_tp, sub_decl + (": {0}".format(", ".join(self.initialization_list)) if self.initialization_list else "")
 
-class AutoFunctionDeclaration(FunctionDeclaration):
-
-    def __init__(self, subdecl, arg_decls, late_return):
-        FunctionDeclaration.__init__(self, subdecl, arg_decls)
-        self.late_return = late_return
-
-    def get_decl_pair(self):
-        sub_tp, sub_decl =  FunctionDeclaration.get_decl_pair(self)
-        return sub_tp, sub_decl + "-> decltype({0})".format(self.late_return)
-
-
-
 class Struct(Declarator):
     """A structure declarator."""
 
-    def __init__(self, tpname, fields, declname=None, pad_bytes=0):
+    def __init__(self, tpname, fields):
         """Initialize the structure declarator.
-        *tpname* is the name of the structure, while *declname* is the
-        name used for the declarator. *pad_bytes* is the number of
-        padding bytes added at the end of the structure.
+        *tpname* is the name of the structure.
         *fields* is a list of :class:`Declarator` instances.
         """
         self.tpname = tpname
         self.fields = fields
-        self.declname = declname
-        self.pad_bytes = pad_bytes
 
     def get_decl_pair(self):
         def get_tp():
@@ -286,16 +176,8 @@ class Struct(Declarator):
             for f in self.fields:
                 for f_line in f.generate():
                     yield "  " + f_line
-            if self.pad_bytes:
-                yield "  unsigned char _cgen_pad[%d];" % self.pad_bytes
-            yield "} " + self.struct_attributes()
-        return get_tp(), self.declname
-
-    def alignment_requirement(self):
-        return max(f.alignment_requirement() for f in self.fields)
-
-    def struct_attributes(self):
-        return ""
+            yield "} "
+        return get_tp(), ""
 
 # template --------------------------------------------------------------------
 class Template(NestedDeclarator):
@@ -329,7 +211,6 @@ class ExceptHandler(Generable):
         else:
             for line in self.body.generate():
                 yield "  "+line
-
 
 class TryExcept(Generable):
     def __init__(self, try_, except_, else_=None):
@@ -413,17 +294,6 @@ class Loop(Generable):
     def outro_line(self):
         return None
 
-class CustomLoop(Loop):
-    def __init__(self, intro_line, body, outro_line=None):
-        self.intro_line_ = intro_line
-        self.body = body
-        self.outro_line_ = outro_line
-
-    def intro_line(self):
-        return self.intro_line_
-    def outro_line(self):
-        return self.outro_line_
-
 class While(Loop):
     def __init__(self, condition, body):
         self.condition = condition
@@ -444,40 +314,6 @@ class For(Loop):
 
     def intro_line(self):
         return "for (%s; %s; %s)" % (self.start, self.condition, self.update)
-
-class AutoFor(Loop):
-    def __init__(self, var, iterable, body):
-        self.var = var
-        self.iterable = iterable
-
-        assert isinstance(body, Generable)
-        self.body = body
-
-    def intro_line(self):
-        return "for(auto %s : %s)" % (self.var, self.iterable)
-
-class DoWhile(Loop):
-    def __init__(self, condition, body):
-        self.condition = condition
-        assert isinstance(body, Generable)
-        self.body = body
-
-    def intro_line(self):
-        return "do"
-    def outro_line(self):
-        yield "while (%s)" % self.condition
-
-def make_multiple_ifs(conditions_and_blocks, base=None):
-    if base == "last":
-        _, base = conditions_and_blocks[-1]
-        conditions_and_blocks = conditions_and_blocks[:-1]
-
-    for cond, block in conditions_and_blocks[::-1]:
-        base = If(cond, block, base)
-    return base
-
-
-
 
 # simple statements -----------------------------------------------------------
 class Define(Generable):
@@ -551,52 +387,7 @@ class LineComment(Generable):
     def generate(self):
         yield "// %s" % self.text
 
-def add_comment(comment, stmt):
-    if comment is None:
-        return stmt
-
-    if isinstance(stmt, Block):
-        result = Block([Comment(comment), Line()])
-        result.extend(stmt.contents)
-        return result
-    else:
-        return Block([Comment(comment), Line(), stmt])
-
-
 # initializers ----------------------------------------------------------------
-class Initializer(Generable):
-    def __init__(self, vdecl, data):
-        self.vdecl = vdecl
-        self.data = data
-
-    def generate(self):
-        tp_lines, tp_decl = self.vdecl.get_decl_pair()
-        tp_lines = list(tp_lines)
-        for line in tp_lines[:-1]:
-            yield line
-        if isinstance(self.data, str) and "\n" in self.data:
-            data_lines = self.data.split("\n")
-            yield "%s %s =" % (tp_lines[-1], tp_decl)
-            for i, l in enumerate(data_lines):
-                if i == len(data_lines)-1:
-                    yield "  %s;" % l
-                else:
-                    yield "  %s" % l
-        else:
-            yield "%s %s = %s;" % (tp_lines[-1], tp_decl, self.data)
-
-def Constant(vdecl, data):
-    return Initializer(Const(vdecl), data)
-
-class ArrayInitializer(Generable):
-    def __init__(self, vdecl, data):
-        self.vdecl = vdecl
-        self.data = data
-
-    def generate(self):
-        for v_line in self.vdecl.generate(with_semicolon=False):
-            yield v_line
-        yield "  = { %s };" % (", ".join(str(item) for item in self.data))
 
 class FunctionBody(Generable):
     def __init__(self, fdecl, body):
@@ -633,57 +424,6 @@ class Block(Generable):
                 yield "  " + item_line
         yield "}"
 
-    def append(self, data):
-        self.contents.append(data)
-
-    def extend(self, data):
-        self.contents.extend(data)
-
-    def extend_log_block(self, descr, data):
-        self.contents.append(Comment(descr))
-        self.contents.extend(data)
-        self.contents.append(Line())
-
-def block_if_necessary(contents):
-    if len(contents) == 1:
-        return contents[0]
-    else:
-        return Block(contents)
-
-class LiteralLines(Generable):
-    def __init__(self, text):
-        if not text.startswith("\n"):
-            raise ValueError("expected newline as first character "
-                    "in literal lines")
-
-        lines = text.split("\n")
-        while lines[0].strip() == "":
-            lines.pop(0)
-        while lines[-1].strip() == "":
-            lines.pop(-1)
-
-        if lines:
-            base_indent = 0
-            while lines[0][base_indent] in " \t":
-                base_indent += 1
-
-            for line in lines[1:]:
-                if line[:base_indent].strip():
-                    raise ValueError("inconsistent indentation")
-
-        self.lines = [line[base_indent:] for line in lines]
-
-    def generate(self):
-        for line in self.lines:
-            yield line
-
-class LiteralBlock(LiteralLines):
-    def generate(self):
-        yield "{"
-        for line in self.lines:
-            yield "  " + line
-        yield "}"
-
 class Module(Block):
     def generate(self):
         for c in self.contents:
@@ -704,40 +444,13 @@ class Namespace(Block):
         yield "}"
         yield ""
 
-class PrivateNamespace(Namespace):
-    def generate_namespace_name(self, contents):
-        try:
-            import hashlib
-            checksum = hashlib.md5()
-        except ImportError:
-            # for Python << 2.5
-            import md5
-            checksum = md5.new()
-
-        for c in contents:
-            for line in c.generate():
-                checksum.update(line)
-
-        return "private_namespace_"+checksum.hexdigest()
-
-    def __init__(self, contents=[]):
-        name = self.generate_namespace_name(contents)
-        Namespace.__init__(self, name, contents)
-
 # copy-pasted from codepy.bpl, which is a real mess...
-
 class BoostPythonModule(object):
-    def __init__(self, name="module", max_arity=None,
-            use_private_namespace=True):
+    def __init__(self, name="module", max_arity=None):
         self.name = name
         self.preamble = []
         self.mod_body = []
         self.init_body = []
-
-        self.has_codepy_include = False
-        self.has_raw_function_include = False
-        self.max_arity = max_arity
-        self.use_private_namespace = use_private_namespace
 
     def add_to_init(self, body):
         """Add the blocks or statements contained in the iterable *body* to the
@@ -755,15 +468,6 @@ class BoostPythonModule(object):
 
         self.mod_body.extend(body)
 
-    def add_raw_function_include(self):
-        if self.has_raw_function_include:
-            return
-
-        self.add_to_preamble([
-            Include("boost/python/raw_function.hpp")
-            ])
-        self.has_raw_function_include = True                        
-
     def add_function(self, func, name=None):
         """Add a function to be exposed. *func* is expected to be a
         :class:`cgen.FunctionBody`.
@@ -776,35 +480,12 @@ class BoostPythonModule(object):
                     "boost::python::def(\"%s\", &%s)" % (
                         name, func.fdecl.name)))
 
-    def add_raw_function(self, func):
-        """Add a function to be exposed using boost::python::raw_function.
-        *func* is expected to be a :class:`cgen.FunctionBody`.
-        """
-        self.mod_body.append(func)
-        self.add_raw_function_include()
-        raw_function = "boost::python::raw_function(&%s)" % func.fdecl.name
-        self.init_body.append(
-            Statement(
-                "boost::python::def(\"%s\", %s)" % (
-                    func.fdecl.name, raw_function)))
-        
-
     def generate(self):
         """Generate (i.e. yield) the source code of the
         module line-by-line.
         """
-        body = []
-
-        if self.max_arity is not None:
-            body.append(Define("BOOST_PYTHON_MAX_ARITY", self.max_arity))
-
-        if self.use_private_namespace:
-            mod_body = [PrivateNamespace(self.mod_body)]
-        else:
-            mod_body = self.mod_body
-
-        body += (self.preamble + [Line()]
-                + mod_body
+        body = (self.preamble + [Line()]
+                + self.mod_body
                 + [Line(), Line("BOOST_PYTHON_MODULE(%s)" % self.name)]
                 + [Block(self.init_body)])
 

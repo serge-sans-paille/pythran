@@ -129,15 +129,8 @@ class RemoveComprehension(Transformation):
     """Turns all list comprehension from a node into new function calls."""
 
     def __init__(self):
-        self.functions=list()
         self.count=0
         Transformation.__init__(self)
-
-    def visit_Module(self, node):
-        [ self.visit(n) for n in node.body ]
-        node.body.extend(self.functions)
-        return node
-
 
     def nest_reducer(self, x,g):
         def wrap_in_ifs(node, ifs):
@@ -168,7 +161,7 @@ class RemoveComprehension(Transformation):
                 ast.arguments(sargs,None, None,[]),
                 [init, body, result ],
                 [])
-        self.functions.append(fd)
+        self.ctx.module.body.append(fd)
         return ast.Call(ast.Name(name,ast.Load()),[ast.Name(arg.id, ast.Load()) for arg in sargs],[], None, None) # no sharing !
 
     def visit_ListComp(self, node): return self.visit_AnyComp(node, "list", "append")
@@ -192,7 +185,7 @@ class RemoveComprehension(Transformation):
                 ast.arguments(sargs,None, None,[]),
                 [body],
                 [])
-        self.functions.append(fd)
+        self.ctx.module.body.append(fd)
         return ast.Call(ast.Name(name,ast.Load()),[ast.Name(arg.id, ast.Load()) for arg in sargs],[], None, None) # no sharing !
 
 ##
@@ -483,15 +476,15 @@ class ConstantFolding(Transformation):
         elif isinstance(value, str):
             return ast.Str(value)
         elif isinstance(value, list):
-            return ast.List([ self.to_ast(elt) for elt in value ], ast.Load()) #SG: unsure
+            return ast.List([ self.to_ast(elt) for elt in value ], ast.Load()) #SG: unsure wether it Load or something else
         elif isinstance(value, tuple):
             return ast.Tuple([ self.to_ast(elt) for elt in value ], ast.Load())
         elif isinstance(value, set):
-            return ast.Set([ self.to_ast(elt) for elt in value ], ast.Load())
+            return ast.Set([ self.to_ast(elt) for elt in value ])
         elif isinstance(value, dict):
-            return ast.Dict([self.to_ast(elt) for elt in value.iterkeys()], [self.to_ast(elt) for elt in value.itervalues()], ast.Load())
+            return ast.Dict([self.to_ast(elt) for elt in value.iterkeys()], [self.to_ast(elt) for elt in value.itervalues()])
         else:
-            raise NotImplementedError("what the hell?")
+            return None
 
 
     def generic_visit(self, node):
@@ -500,8 +493,8 @@ class ConstantFolding(Transformation):
                 fake_node=ast.Expression(node.value if isinstance(node, ast.Index) else node )
                 code=compile(fake_node,'<constant folding>','eval')
                 value=eval(code, self.env)
-                new_node = self.to_ast(value)
-                if isinstance(node, ast.Index):
+                new_node = self.to_ast(value) or node
+                if isinstance(node, ast.Index) and not isinstance(new_node, ast.Index):
                     new_node=ast.Index(new_node)
                 return new_node
             except Exception as e:

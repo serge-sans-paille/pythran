@@ -159,7 +159,7 @@ int main() {
 """)
 
 
-def compile(compiler, module, output_filename=None, cppflags=list(), cxxflags=list()):
+def compile(compiler, module, output_filename=None, cppflags=list(), cxxflags=list(), check=True):
     '''c++ code + compiler flags -> native module'''
     tc = ToolChain(compiler)
 
@@ -192,6 +192,7 @@ def compile(compiler, module, output_filename=None, cppflags=list(), cxxflags=li
     tc.cxxflags.append("-std=c++0x")
     tc.cxxflags+=cxxflags
 
-    tc.check()
+    if check:
+        tc.check()
 
     return tc.compile(module, output_filename=output_filename)

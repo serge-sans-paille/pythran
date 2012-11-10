@@ -1,6 +1,8 @@
 #ifndef PYTHRAN_H
 #define PYTHRAN_H
 
+#define pythran_long(v) v ## LL
+#define pythran_long_def long long
 
 #include <pythonic++.h>
 using namespace pythonic;
@@ -26,6 +28,25 @@ template<class T>
         typedef T type;
     };
 
+template<class T>
+    struct assignable{
+        typedef typename std::remove_reference<typename std::remove_cv<T>::type>::type type;
+    };
+
+template<class T>
+    struct assignable<pythonic::core::set<T> >{
+        typedef pythonic::core::set<typename assignable<T>::type > type;
+    };
+
+template<class K,class V>
+    struct assignable<pythonic::core::dict<K,V> >{
+        typedef pythonic::core::dict<typename assignable<K>::type,typename assignable<V>::type > type;
+    };
+
+template<class T>
+    struct assignable<pythonic::core::list<T> >{
+        typedef pythonic::core::list<typename assignable<T>::type > type;
+    };
 
 template<class T>
 struct content_of {

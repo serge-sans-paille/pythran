@@ -24,7 +24,7 @@ class TestEnv(unittest.TestCase):
             eval(compiled_code, env)
             ref=eval("{0}({1})".format(name, ",".join(("'{0}'".format(p) if isinstance(p,str) else str(p)) for p in params)),env)
             mod = cxx_generator(modname, code, interface)
-            pymod = load_dynamic(modname,pythran_compile(os.environ.get("CXX","c++"),mod, cxxflags=["-O0","-fno-implicit-inline-templates", "-fopenmp"]))
+            pymod = load_dynamic(modname,pythran_compile(os.environ.get("CXX","c++"),mod,  cxxflags=["-O0","-fno-implicit-inline-templates", "-fopenmp"]))
             res = getattr(pymod,name)(*params)
             if ref != res:
                 print ref, res

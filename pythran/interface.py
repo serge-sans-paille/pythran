@@ -17,7 +17,6 @@ from passes import NormalizeIdentifiers
 from passmanager import apply, dump
 from tables import pytype_to_ctype_table
 
-
 def pytype_to_ctype(t):
     '''python -> c++ type binding'''
     if isinstance(t,list):
@@ -44,6 +43,8 @@ def extract_constructed_types(t):
         return [ pytype_to_ctype(t) ] + extract_constructed_types(tkey) + extract_constructed_types(tvalue)
     elif isinstance(t,tuple):
         return [ pytype_to_ctype(t) ] + reduce(lambda x,y:x+y, (extract_constructed_types(e) for e in t))
+    elif t==long:
+        return ["pythran_long_def"]
     else:
         return []
 
@@ -120,10 +121,11 @@ class ToolChain(object):
         return module_so
     def check_compile(self, msg, code):
         try:
+            tmperr=TemporaryFile()
             tmpfile=NamedTemporaryFile(suffix=".cpp")
             tmpfile.write(code)
             tmpfile.flush()
-            check_call([self.compiler] + self.cppflags + self.cxxflags + [ tmpfile.name, "-o" , "/dev/null"] + self.get_include_flags() + self.ldflags)
+            check_call([self.compiler] + self.cppflags + self.cxxflags + [ tmpfile.name, "-o" , "/dev/null"] + self.get_include_flags() + self.ldflags, stderr=tmperr)
         except:
             raise EnvironmentError(errno.ENOPKG, msg)
 
@@ -165,6 +167,15 @@ def compile(compiler, module, output_filename=None, cppflags=list(), cxxflags=li
     tc.ldflags.append('-ltcmalloc_minimal')
     try: tc.check_compile("has tcmalloc",  "int main() { return 0; }")
     except EnvironmentError: tc.ldflags.pop()
+
+    # use gmp only if available
+    tc.ldflags.append('-lgmpxx')
+    tc.ldflags.append('-lgmp')
+    try:
+        tc.check_compile("has gmp",  "int main() { return 0; }")
+    except EnvironmentError: 
+        tc.ldflags.pop()
+        tc.ldflags.pop()
 
     tc.include_dirs.append(".")
     tc.include_dirs.append(distutils.sysconfig.get_python_inc())

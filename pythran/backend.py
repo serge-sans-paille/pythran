@@ -107,6 +107,8 @@ class CxxBackend(Backend):
 
         result_type = self.types[node][0]
 
+        callable_type = Typedef(Value("void", "callable"))
+
         def make_function_declaration(rtype, name, ftypes, fargs, defaults=None, attributes=[]):
             if defaults is None : defaults = [None]*len(ftypes)
             arguments=list()
@@ -184,7 +186,7 @@ class CxxBackend(Backend):
                     )
 
             topstruct_type = templatize(Struct("type", extra_typedefs), formal_types)
-            topstruct = Struct(node.name, [topstruct_type] + operator_declaration)
+            topstruct = Struct(node.name, [topstruct_type, callable_type] + operator_declaration)
 
             self.declarations.append(next_struct)
             self.definitions.append(next_definition)
@@ -214,7 +216,7 @@ class CxxBackend(Backend):
                            + [Typedef(Value(result_type.generate(ctx), "result_type"))]
             extra_typedefs = ctx.typedefs() + extra_typedefs
             return_declaration = [templatize(Struct("type",extra_typedefs), formal_types)]
-            topstruct = Struct(node.name, return_declaration + operator_declaration)
+            topstruct = Struct(node.name, [callable_type] + return_declaration + operator_declaration)
 
         self.declarations.append(topstruct)
         self.definitions.append(operator_definition)

@@ -5,6 +5,7 @@
 #define pythran_long_def long long
 
 #include <pythonic++.h>
+#include <type_traits>
 using namespace pythonic;
 
 /* type inference stuff {*/
@@ -18,6 +19,7 @@ template<class T>
     struct __combined<T> {
         typedef T type;
     };
+
 template<class T0, class T1>
     struct __combined<T0,T1> {
         typedef decltype(std::declval<T0>()+std::declval<T1>()) type;
@@ -58,10 +60,24 @@ struct content_of< core::dict<K,V> > {
     typedef V type;
 };
 
+/* callable trait { */
+
+template<typename T>
+struct is_callable
+{
+	typedef char	yes;
+	typedef struct { char _[2]; } no;
+
+	template <class C> static yes _test(typename C::callable*);
+	template <class C> static no _test(...);
+	static const bool value = sizeof( _test<T>(nullptr)) == sizeof(yes);
+};
+
+/* } */
 
 /* for type inference only,  a bit dangerous ? */
 template <class T0, class T1>
-variant<T0,T1> operator+(T0 , T1 );
+typename std::enable_if< is_callable<T0>::value, variant<T0,T1> >::type operator+(T0 , T1 );
 
 /* for type inference too */
 template<class T>

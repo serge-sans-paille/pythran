@@ -9,7 +9,7 @@ pytype_to_ctype_table = {
         complex       : 'std::complex<double>',
         bool          : 'bool',
         int           : 'long',
-        long          : 'long long',
+        long          : 'pythran_long_def',
         float         : 'double',
         str           : 'core::string',
         None          : 'void',
@@ -28,7 +28,6 @@ builtin_constructors = {
             'bool':     pytype_to_ctype_table[bool],
             'long':     pytype_to_ctype_table[long],
             }
-
 
 cxx_keywords = {'and', 'and_eq', 'asm', 'auto', 'bitand', 'bitor',
         'break', 'case', 'catch', 'char', 'class',
@@ -83,7 +82,6 @@ operator_to_lambda = {
         ast.In      : lambda l,r: "(in({1},{0}))".format(l,r),
         ast.NotIn   : lambda l,r: "(not in({1},{0}))".format(l,r),
         }
-
 
 # each module consist in a module_name <> set of symbols with optional attributes
 # the attributes can be

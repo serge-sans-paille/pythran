@@ -102,7 +102,7 @@ setup(  name='pythran',
         author_email='serge.guelton@telecom-bretagne.eu',
         url='https://github.com/serge-sans-paille/pythran',
         packages=['pythran', 'pythran/pythonic++'],
-        package_data = { 'pythran': ['pythran.h'], 'pythran/pythonic++': ['pythonic++.h', 'core/*.h', 'modules/*.h'] },
+        package_data = { 'pythran': ['pythran.h','pythran_gmp.h'], 'pythran/pythonic++': ['pythonic++.h', 'core/*.h', 'modules/*.h'] },
         scripts= ['scripts/pythran'],
         classifiers= [
             'Development Status :: 3 - Alpha',

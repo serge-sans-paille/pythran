@@ -670,5 +670,11 @@ PYTHONIC_EXCEPTION(OSError);
             l.reserve(len(f));
         }
 
+	/* get good typing for floordiv */
+	template<class T0, class T1>
+	long floordiv(T0 a, T1 b) {
+		return T0(floor(a/b));
+	}
+
 }
 #endif

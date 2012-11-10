@@ -64,7 +64,7 @@ operator_to_lambda = {
         ast.BitOr   : lambda l,r: "({0}|{1})".format(l,r),
         ast.BitXor  : lambda l,r: "({0}^{1})".format(l,r),
         ast.BitAnd  : lambda l,r: "({0}&{1})".format(l,r),
-        ast.FloorDiv: lambda l,r: "(floor({0}/{1}))".format(l,r), # assume from __future__ import division
+        ast.FloorDiv: lambda l,r: "(floordiv({0},{1}))".format(l,r), # assume from __future__ import division
         # unaryop
         ast.Invert  : lambda o: "(~{0})".format(o),
         ast.Not     : lambda o: "(not {0})".format(o),

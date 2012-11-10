@@ -241,6 +241,9 @@ modules = {
                 "uniform": FunctionIntr(global_effects=True),
                 "expovariate": FunctionIntr(global_effects=True),
                 "sample": FunctionIntr(global_effects=True)
+            },
+        "numpy" : {
+                "polyfit": FunctionIntr(),
                 },
         "__list__": {
                 "append": MethodIntr(

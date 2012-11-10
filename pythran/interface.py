@@ -277,6 +277,27 @@ decltype(std::declval<int>() + 1) main()
                                 os.path.join(p, "pythran", "pythran.h"))]
         )
 
+        # nt2
+        self.check_package("nt2","""
+#include <iostream>
+#include <nt2/table.hpp>
+#include <nt2/include/functions/polyfit.hpp>
+
+using namespace nt2;
+
+int main()
+{
+    double a [] = {0.0, 1.0, 2.0, 3.0,  4.0,  5.0};
+    double b [] = {0.0, 0.8, 0.9, 0.1, -0.8, -1.0};
+    table<double> x(of_size(1,6), a+0, a+6);
+    table<double> y(of_size(1,6), b+0, b+6);
+    table<double> z =/* what type z =*/ polyfit(x, y, 3);
+    return z(0)*0;
+} 
+""",
+        cppflags=['-DBOOST_SIMD_NO_STRICT_ALIASING'],
+        ldflags=['-llapack'])
+
 
 def compile(compiler, module, output_filename=None, cppflags=list(),
             cxxflags=list(), check=True):

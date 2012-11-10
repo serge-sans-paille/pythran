@@ -210,15 +210,6 @@ namespace pythonic {
                 return t.end() - t.begin();
             }
         };
-    template <class T>
-        struct _len<T,std::forward_iterator_tag> {
-            long operator()(T const &t) {
-#ifndef NDEBUG
-                std::cout << "bad:" << __PRETTY_FUNCTION__ << std::endl;
-#endif
-                return std::distance(t.begin(), t.end());
-            }
-        };
 
     template <class T>
         struct _len<core::set<T>, std::bidirectional_iterator_tag> {
@@ -227,8 +218,8 @@ namespace pythonic {
             }
         };
 
-    template <class K, class V>
-        struct _len<core::dict<K,V>, std::bidirectional_iterator_tag> {
+    template <class K, class V, class T>
+        struct _len<core::dict<K,V>, T> {
             long operator()(core::dict<K,V> const &t) {
                 return t.size();
             }

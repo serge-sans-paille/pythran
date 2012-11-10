@@ -6,6 +6,7 @@
 #include <limits>
 #include <algorithm>
 #include <iterator>
+#include <unordered_map>
 #include "shared_ref.h"
 
 namespace  pythonic {
@@ -18,9 +19,9 @@ namespace  pythonic {
 
         template<class I>
             struct key_iterator_adaptator : I {
-                typedef typename std::remove_cv<typename I::value_type::first_type>::type  value_type;
-                typedef typename std::remove_cv<typename I::value_type::first_type>::type* pointer;
-                typedef typename std::remove_cv<typename I::value_type::first_type>::type& reference;
+                typedef typename I::value_type::first_type  value_type;
+                typedef typename I::value_type::first_type* pointer;
+                typedef typename I::value_type::first_type& reference;
                 key_iterator_adaptator() : I() {}
                 key_iterator_adaptator(I const &i) : I(i) {}
                 value_type operator*() { return (*this)->first; }
@@ -28,9 +29,9 @@ namespace  pythonic {
 
         template<class I>
             struct value_iterator_adaptator : I {
-                typedef typename std::remove_cv<typename I::value_type::second_type>::type  value_type;
-                typedef typename std::remove_cv<typename I::value_type::second_type>::type* pointer;
-                typedef typename std::remove_cv<typename I::value_type::second_type>::type& reference;
+                typedef typename I::value_type::second_type  value_type;
+                typedef typename I::value_type::second_type* pointer;
+                typedef typename I::value_type::second_type& reference;
                 value_iterator_adaptator() : I() {}
                 value_iterator_adaptator(I const &i) : I(i) {}
                 value_type operator*() { return (*this)->second; }
@@ -80,7 +81,7 @@ namespace  pythonic {
                 // data holder
                 typedef  typename std::remove_cv< typename std::remove_reference<K>::type>::type  _key_type;
                 typedef  typename std::remove_cv< typename std::remove_reference<V>::type>::type  _value_type;
-                typedef std::map< _key_type, _value_type > container_type;
+                typedef std::unordered_map< _key_type, _value_type > container_type;
 				impl::shared_ref<container_type> data; 
 
 
@@ -114,9 +115,9 @@ namespace  pythonic {
 
                 // iterators
                 iterator begin() { return iterator(data->begin()); }
-                const_iterator begin() const { return const_iterator(data->begin()); }
+                const_iterator begin() const { return key_iterator_adaptator<typename container_type::const_iterator>(data->begin()); }
                 iterator end() { return iterator(data->end()); }
-                const_iterator end() const { return const_iterator(data->end()); }
+                const_iterator end() const { return  key_iterator_adaptator<typename container_type::const_iterator>(data->end()); }
                 item_iterator item_begin() { return item_iterator(data->begin()); }
                 item_const_iterator item_begin() const { return item_const_iterator(data->begin()); }
                 item_iterator item_end() { return item_iterator(data->end()); }

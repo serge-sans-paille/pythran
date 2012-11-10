@@ -32,7 +32,7 @@ template<class T>
 
 template<class T>
     struct assignable{
-        typedef typename std::remove_reference<typename std::remove_cv<T>::type>::type type;
+        typedef typename std::remove_cv<typename std::remove_reference<T>::type>::type type;
     };
 
 template<class T>
@@ -152,6 +152,8 @@ template<class K>
 indexable_dict<K> operator+(indexable<K>, core::empty_dict);
 template<class K>
 indexable_dict<K> operator+(core::empty_dict, indexable<K>);
+template<class K0, class V, class K1>
+core::dict<decltype(std::declval<K0>() + std::declval<K1>()), V> operator+(core::dict<K0,V>, indexable<K1>);
 template<class K, class... Types>
 std::tuple<Types...> operator+(indexable<K>, std::tuple<Types...>);
 template<class K, class... Types>

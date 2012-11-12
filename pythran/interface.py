@@ -10,7 +10,7 @@ from cxxgen import *
 import ast
 from middlend import refine
 from backend import CxxBackend
-from subprocess import check_call
+from subprocess import check_output, STDOUT, CalledProcessError
 from tempfile import mkstemp, TemporaryFile, NamedTemporaryFile
 from syntax import check_syntax
 from passes import NormalizeIdentifiers
@@ -98,101 +98,90 @@ def cxx_generator(module_name, code, specs=None):
 
 class ToolChain(object):
 
-    def __init__(self, compiler):
+    def __init__(self, compiler, cppflags=None, cxxflags=None, ldflags=None, check=True):
         self.compiler=compiler
-        self.include_dirs=list()
-        self.cppflags=list()
-        self.cxxflags=list()
-        self.ldflags=list()
-
-    def get_include_flags(self):
-        return [ "-I{0}".format(d) for d in self.include_dirs ]
+        self.cppflags=cppflags or list()
+        self.cxxflags=cxxflags or list()
+        self.ldflags=ldflags or list()
+        self.check=check
 
     def compile(self, module, output_filename=None):
         fd, fdpath=mkstemp(suffix=".cpp")
-        tmperr=TemporaryFile()
         with os.fdopen(fd,"w") as cpp:
             content=str(module.generate())
             cpp.write(content)
         module_cpp=fdpath
-        module_so = output_filename if output_filename else "{0}.so".format(module.name) 
-        check_call([self.compiler, module_cpp] + self.cppflags + self.cxxflags + [  "-shared", "-o", module_so ] + self.get_include_flags() + self.ldflags, stderr=tmperr)
+        module_so = output_filename or "{0}.so".format(module.name) 
+        check_output([self.compiler, module_cpp] + self.cppflags + self.cxxflags + [  "-shared", "-o", module_so ] + self.ldflags, stderr=STDOUT)
         os.remove(fdpath)
         return module_so
-    def check_compile(self, msg, code):
+
+    def check_compile(self, msg, code, cppflags=list(), cxxflags=list(), ldflags=list(), optional=False):
         try:
-            tmperr=TemporaryFile()
-            tmpfile=NamedTemporaryFile(suffix=".cpp")
-            tmpfile.write(code)
-            tmpfile.flush()
-            check_call([self.compiler] + self.cppflags + self.cxxflags + [ tmpfile.name, "-o" , "/dev/null"] + self.get_include_flags() + self.ldflags, stderr=tmperr)
-        except:
-            raise EnvironmentError(errno.ENOPKG, msg)
+            if optional or self.check :
+                tmpfile=NamedTemporaryFile(suffix=".cpp")
+                tmpfile.write(code)
+                tmpfile.flush()
+                check_output([self.compiler] + self.cppflags + cppflags + self.cxxflags + cxxflags + [ tmpfile.name ] + self.ldflags + ldflags, stderr=STDOUT)
+            self.cppflags.extend(cppflags)
+            self.cxxflags.extend(cxxflags)
+            self.ldflags.extend(ldflags)
+        except CalledProcessError as e:
+            raise EnvironmentError(errno.ENOPKG, msg+'\n\n'+e.output)
 
-    def check(self):
+    def check_package(self, pkg, code, cppflags=list(), cxxflags=list(), ldflags=list(), optional=False):
+        return self.check_compile(pkg+' not found, try to add -I or -L flags?',code, cppflags, cxxflags, ldflags, optional)
 
-        self.check_compile("no valid c++ compiler found","""
-#include <iostream>
-int main(int argc, char *argv[]) {
-    std::cout << "hello " << (argc>1?argv[1]:"world") << std::endl;
-    return 0;
-}""")
 
-        self.check_compile("no c++ 2011 support found, try to add compiler specific flags?","""
-#include <utility>
-decltype(std::declval<int>() + 1) main() {
-    void * p = nullptr;
-    return 0;
-}""")
+    def configure(self):
+        """Look for the many dependencies of pythran and add them to the relevant path.
+           Raise an EnvironmentError exception otherwise"""
 
-        self.check_compile("no python development environment found, try to add -I or -L flags?","""
-#include <Python.h>
-int main() {
-    return 0;
-}""")
+        # basic c++ compiler
+        self.check_compile('no valid c++ compiler found',
+                '#include <iostream>\nint main(int argc, char *argv[]) {std::cout << "hello " << (argc>1?argv[1]:"world") << std::endl; return 0; }',
+                ldflags=['-fPIC']
+                )
+        # c++2011
+        self.check_compile('no c++ 2011 support found, try to add compiler specific flags?',
+                '#include <utility>\ndecltype(std::declval<int>() + 1) main() {void * p = nullptr; return 0;}',
+                cppflags=['-std=c++0x']
+                )
 
-        self.check_compile("no boost python environment found, try to add -I or -L flags?","""
-#include <boost/python.hpp>
-int main() {
-    return 0;
-}
-""")
+        # python-dev
+        self.check_package('python development environment',
+                '#include <Python.h>\nint main() { return 0; }',
+                cppflags=["-I{0}".format(distutils.sysconfig.get_python_inc())],
+                ldflags=['-L{0}/config'.format(distutils.sysconfig.get_python_lib(0,1)), '-lpython{0}'.format(sys.version[:3]) ]
+                )
+
+        # boost python
+        self.check_package('boost::python',
+                '#include <boost/python.hpp>\nint main() { return 0; }',
+                ldflags=['-lboost_python']
+                )
+
+        # GMP
+        self.check_package('GNU Multiprecision arithmetic library',
+                '#include <gmpxx.h>\nint main() { return 0; }',
+                ldflags=['-lgmpxx', '-lgmp']
+                )
+
+        # tcmalloc only if available
+        try: self.check_package('tcmalloc','int main() { return 0; }', ldflags=['-ltcmalloc_minimal'], optional=True)
+        except EnvironmentError: pass
+
+        # pythonic++
+        self.check_package('pythonic++',
+                '#include <pythonic++.h>\nint main() { return 0; }', 
+                cppflags=[ '-I.', '-DENABLE_PYTHON_MODULE'] +\
+                         [ '-I{0}'.format(os.path.join(p,"pythran", "pythonic++")) for p in sys.path if os.path.exists(os.path.join(p,"pythran","pythonic++","pythonic++.h")) ] + \
+                         [ '-I{0}'.format(p) for p in sys.path if p if os.path.exists(os.path.join(p,"pythran","pythran.h")) ]
+        )
 
 
 def compile(compiler, module, output_filename=None, cppflags=list(), cxxflags=list(), check=True):
     '''c++ code + compiler flags -> native module'''
-    tc = ToolChain(compiler)
-
-    # use tcmalloc only if available
-    tc.ldflags.append('-ltcmalloc_minimal')
-    try: tc.check_compile("has tcmalloc",  "int main() { return 0; }")
-    except EnvironmentError: tc.ldflags.pop()
-
-    # use gmp only if available
-    tc.ldflags.append('-lgmpxx')
-    tc.ldflags.append('-lgmp')
-    try:
-        tc.check_compile("has gmp",  "int main() { return 0; }")
-    except EnvironmentError: 
-        tc.ldflags.pop()
-        tc.ldflags.pop()
-
-    tc.include_dirs.append(".")
-    tc.include_dirs.append(distutils.sysconfig.get_python_inc())
-    tc.cppflags=cppflags + [ "-DENABLE_PYTHON_MODULE" ]
-
-    tc.include_dirs+=[ os.path.join(p,"pythran", "pythonic++") for p in sys.path if os.path.exists(os.path.join(p,"pythran","pythonic++","pythonic++.h")) ]
-    tc.include_dirs+=[ p for p in sys.path if os.path.exists(os.path.join(p,"pythran","pythran.h")) ]
-
-    tc.ldflags.append('-L{0}/config'.format(distutils.sysconfig.get_python_lib(0,1)))
-    tc.ldflags.append('-lpython{0}'.format(sys.version[:3]))
-    tc.ldflags.append('-lboost_python')
-    tc.ldflags.append('-fPIC')
-
-    tc.cxxflags.append("-std=c++0x")
-    tc.cxxflags+=cxxflags
-
-    if check:
-        tc.check()
-
+    tc = ToolChain(compiler, cppflags=cppflags, cxxflags=cxxflags, check=check)
+    tc.configure()
     return tc.compile(module, output_filename=output_filename)

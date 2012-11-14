@@ -79,10 +79,7 @@ class TypeDependencies(ModuleAnalysis):
             [self.visit(n) for n in node.orelse]
 
     def visit_BoolOp(self, node):
-        root=[set()]
-        for value in node.values:
-            root=[r.union(val) for r in root for val in self.visit(value)]
-        return root
+        return sum((self.visit(value) for value in node.values),list())
 
     def visit_BinOp(self, node):
         return [l.union(r) for l in self.visit(node.left) for r in self.visit(node.right)]
@@ -336,7 +333,7 @@ class Types(ModuleAnalysis):
 
     def visit_BoolOp(self, node):
         [ self.visit(value) for value in node.values]
-        [ self.combine(node, value,  lambda x,y:ExpressionType(operator_to_lambda[type(node.op)],[x,y])) for value in node.values]
+        [ self.combine(node, value ) for value in node.values]
 
     def visit_BinOp(self, node):
         [ self.visit(value) for value in (node.left, node.right)]

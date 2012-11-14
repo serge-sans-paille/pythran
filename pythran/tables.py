@@ -50,8 +50,8 @@ cxx_keywords = {'and', 'and_eq', 'asm', 'auto', 'bitand', 'bitor',
 
 operator_to_lambda = {
         # boolop
-        ast.And     : lambda l,r: "({0} and {1})".format(l,r),
-        ast.Or      : lambda l,r: "({0} or {1})".format(l,r),
+        ast.And     : lambda l,r: "(({0})?({1}):({0}))".format(l,r),
+        ast.Or      : lambda l,r: "(({0})?({0}):({1}))".format(l,r),
         # operator
         ast.Add     : lambda l,r: "({0}+{1})".format(l,r),
         ast.Sub     : lambda l,r: "({0}-{1})".format(l,r),

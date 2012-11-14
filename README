@@ -30,11 +30,11 @@ Installation
 	
 		$> PYTHONPATH=<my_prefix>/lib/python<my_version>/site-packages \
 				easy_install --prefix=<my_prefix> ply networkx
-		$> sudo apt-get install libboost-python-dev
+		$> sudo apt-get install libboost-python-dev libgoogle-perftools-dev libgmp-dev
 
 	- Following the debian way::
 
-		$> sudo apt-get install libboost-python-dev python-ply python-networkx
+		$> sudo apt-get install libboost-python-dev libgoogle-perftools-dev libgmp-dev python-ply python-networkx python-pytest
 
 2. Use the install target from setup script, in source directory::
 

@@ -62,25 +62,25 @@ def dict_copy(a):
         return self.run_test("def dict_for(a): return sorted([x for x in a])", { 'a':1, 'e': 2 }, dict_for=[{str:int}])
 
     def test_dict_iteritems(self):
-        return self.run_test("def dict_iteritems(a): return [ x for x in a.iteritems()]", { 'a':1, 'e': 2 }, dict_iteritems=[{str:int}])
+        return self.run_test("def dict_iteritems(a): return sorted([ x for x in a.iteritems()])", { 'a':1, 'e': 2 }, dict_iteritems=[{str:int}])
 
     def test_dict_iterkeys(self):
-        return self.run_test("def dict_iterkeys(a): return [ x*2 for x in a.iterkeys()]", { 1:'a', 2:'b' }, dict_iterkeys=[{int:str}])
+        return self.run_test("def dict_iterkeys(a): return sorted([ x*2 for x in a.iterkeys()])", { 1:'a', 2:'b' }, dict_iterkeys=[{int:str}])
 
     def test_dict_itervalues(self):
-        return self.run_test("def dict_itervalues(a): return [ x*2 for x in a.itervalues()]", { 1:'a', 2:'b' }, dict_itervalues=[{int:str}])
+        return self.run_test("def dict_itervalues(a): return sorted([ x*2 for x in a.itervalues()])", { 1:'a', 2:'b' }, dict_itervalues=[{int:str}])
 
     def test_dict_keys(self):
-        return self.run_test("def dict_keys(a): return [ x*2 for x in a.keys()]", { 1:'a', 2:'b' }, dict_keys=[{int:str}])
+        return self.run_test("def dict_keys(a): return sorted([ x*2 for x in a.keys()])", { 1:'a', 2:'b' }, dict_keys=[{int:str}])
 
     def test_dict_values(self):
-        return self.run_test("def dict_values(a): return [ x*2 for x in a.values()]", { 1:'a', 2:'b' }, dict_values=[{int:str}])
+        return self.run_test("def dict_values(a): return sorted([ x*2 for x in a.values()])", { 1:'a', 2:'b' }, dict_values=[{int:str}])
 
     def test_dict_pop(self):
         return self.run_test("def dict_pop(a): return a.pop(1), a.pop(3,'e'), a", { 1:'a', 2:'b' }, dict_pop=[{int:str}])
 
     def test_dict_popitem(self):
-        return self.run_test("def dict_popitem(a): return a.popitem(), a", { 1:'a', 2:'b' }, dict_popitem=[{int:str}])
+        return self.run_test("def dict_popitem(a): return a.popitem(), a", { 1:'a' }, dict_popitem=[{int:str}])
 
     def test_dict_setdefault(self):
         return self.run_test("def dict_setdefault():\n a={1.5:2 }\n return a.setdefault(1.5) + a.setdefault(2, 18)", dict_setdefault=[])

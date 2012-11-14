@@ -1,8 +1,11 @@
 #ifndef PYTHRAN_H
 #define PYTHRAN_H
 
+#define pythran_long(v) v ## LL
+#define pythran_long_def long long
 
 #include <pythonic++.h>
+#include <type_traits>
 using namespace pythonic;
 
 /* type inference stuff {*/
@@ -16,6 +19,7 @@ template<class T>
     struct __combined<T> {
         typedef T type;
     };
+
 template<class T0, class T1>
     struct __combined<T0,T1> {
         typedef decltype(std::declval<T0>()+std::declval<T1>()) type;
@@ -26,6 +30,25 @@ template<class T>
         typedef T type;
     };
 
+template<class T>
+    struct assignable{
+        typedef typename std::remove_cv<typename std::remove_reference<T>::type>::type type;
+    };
+
+template<class T>
+    struct assignable<pythonic::core::set<T> >{
+        typedef pythonic::core::set<typename assignable<T>::type > type;
+    };
+
+template<class K,class V>
+    struct assignable<pythonic::core::dict<K,V> >{
+        typedef pythonic::core::dict<typename assignable<K>::type,typename assignable<V>::type > type;
+    };
+
+template<class T>
+    struct assignable<pythonic::core::list<T> >{
+        typedef pythonic::core::list<typename assignable<T>::type > type;
+    };
 
 template<class T>
 struct content_of {
@@ -37,10 +60,24 @@ struct content_of< core::dict<K,V> > {
     typedef V type;
 };
 
+/* callable trait { */
+
+template<typename T>
+struct is_callable
+{
+	typedef char	yes;
+	typedef struct { char _[2]; } no;
+
+	template <class C> static yes _test(typename C::callable*);
+	template <class C> static no _test(...);
+	static const bool value = sizeof( _test<T>(nullptr)) == sizeof(yes);
+};
+
+/* } */
 
 /* for type inference only,  a bit dangerous ? */
 template <class T0, class T1>
-variant<T0,T1> operator+(T0 , T1 );
+typename std::enable_if< is_callable<T0>::value, variant<T0,T1> >::type operator+(T0 , T1 );
 
 /* for type inference too */
 template<class T>
@@ -115,6 +152,8 @@ template<class K>
 indexable_dict<K> operator+(indexable<K>, core::empty_dict);
 template<class K>
 indexable_dict<K> operator+(core::empty_dict, indexable<K>);
+template<class K0, class V, class K1>
+core::dict<decltype(std::declval<K0>() + std::declval<K1>()), V> operator+(core::dict<K0,V>, indexable<K1>);
 template<class K, class... Types>
 std::tuple<Types...> operator+(indexable<K>, std::tuple<Types...>);
 template<class K, class... Types>

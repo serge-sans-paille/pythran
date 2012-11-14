@@ -21,12 +21,12 @@ Say hello to:
 - lambdas
 - list comprehension
 - map, reduce and the like
+- dictionaries, set, list
+- exceptions
 
 Say bye bye to:
 
 - classes
-- dictionnaries
-- exceptions
 - polymorphic variables [ but not all of them :-) ]
 - file handling
 
@@ -38,7 +38,7 @@ Installation
 
 Let us assume you're running a Debian/Ubuntu distrib. In that case, all you have to do is::
 
-	$> sudo apt-get install libboost-python-dev python-ply python-networkx
+	$> sudo apt-get install libboost-python-dev libgoogle-perftools-dev libgmp-dev python-ply python-networkx python-pytest
 
 If you prefer the ``easy_install`` way, from ``setuptools``
 (``python-setuptools`` package under Debian), the way to go is::
@@ -161,6 +161,7 @@ set), introduced by the ``list`` (resp. ``set``) keyword::
 				  | (argument_type*)	# this is a tuple
 				  | argument_type list	# this is a list
 				  | argument_type set	# this is a set
+				  | argument_type:argument_type dict	# this is a dictionary
 
 	basic_type = bool | int | long | float | str
 
@@ -177,6 +178,9 @@ Want more performance? Big fan of ``-Ofast -march=native``? pythran
 automagically forwards these switches to the underlying compiler! pythran is
 sensible to the ``-DNDEBUG`` switch too.
 
+Tired of typing the same compiler switches again and again? Store them in
+``$XDG_CONFIG_HOME/.pythranrc``!
+
 Wants to try your own compiler? Pythran uses ``c++`` by default, and this
 behavior can be overridden using ``CXX`` or ``CXXFLAGS`` environment variables.
 
@@ -184,7 +188,7 @@ Adding OpenMP directives
 ------------------------
 
 OpenMP is a standard set of directives for C, C++ and FORTRAN that makes it
-somehow easier to turn a sequential program into a multithreaed one. Pythran
+somehow easier to turn a sequential program into a multithreaded one. Pythran
 translates OpenMP-like code annotation into OpenMP directives::
 
     r=0
@@ -193,7 +197,7 @@ translates OpenMP-like code annotation into OpenMP directives::
         r+=x*y
 
 Note that as in python, all variables have function-level scope, ``x`` and
-``y`` must be explicitely listed as private variables.
+``y`` must be explicitly listed as private variables.
 
 OpenMP directive parsing is enabled by ``-fopenmp`` when using ``g++`` as the
 backend compiler.
@@ -211,7 +215,7 @@ Troubleshooting
 
 Plenty of them! Seriously, pythran is pre-alpha software, so it will crash. You
 must make it abort in unusual ways! And more important, you must provide
-feedback to serge_sans_paille using its email serge.guelton@telecom-bretagne.eu
-or the IRC channel ``#pythran`` on FreeNode.
+feedback to serge_sans_paille using its email serge.guelton@telecom-bretagne.eu,
+the IRC channel ``#pythran`` on FreeNode, or the mailing list ``pythran@freelists.org``
 
 **glhf!**

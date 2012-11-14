@@ -37,7 +37,7 @@ class CxxBackend(Backend):
         # build all types
         self.local_functions=set()
         self.local_declarations=list()
-        headers= [ Include(h) for h in [ "pythran/pythran.h" ] ]
+        headers= [ Include(h) for h in [ "pythran/pythran.h","pythran/pythran_gmp.h" ] ]
         body = [ self.visit(n) for n in node.body if not isinstance(n, ast.Expr)] # remove top-level strings
 
         assert not self.local_declarations
@@ -106,6 +106,8 @@ class CxxBackend(Backend):
         #    operator_body.insert(0,Line('#line {0} "{1}.py"'.format(node.lineno, self.name)))
 
         result_type = self.types[node][0]
+
+        callable_type = Typedef(Value("void", "callable"))
 
         def make_function_declaration(rtype, name, ftypes, fargs, defaults=None, attributes=[]):
             if defaults is None : defaults = [None]*len(ftypes)
@@ -184,7 +186,7 @@ class CxxBackend(Backend):
                     )
 
             topstruct_type = templatize(Struct("type", extra_typedefs), formal_types)
-            topstruct = Struct(node.name, [topstruct_type] + operator_declaration)
+            topstruct = Struct(node.name, [topstruct_type, callable_type] + operator_declaration)
 
             self.declarations.append(next_struct)
             self.definitions.append(next_definition)
@@ -214,7 +216,7 @@ class CxxBackend(Backend):
                            + [Typedef(Value(result_type.generate(ctx), "result_type"))]
             extra_typedefs = ctx.typedefs() + extra_typedefs
             return_declaration = [templatize(Struct("type",extra_typedefs), formal_types)]
-            topstruct = Struct(node.name, return_declaration + operator_declaration)
+            topstruct = Struct(node.name, [callable_type] + return_declaration + operator_declaration)
 
         self.declarations.append(topstruct)
         self.definitions.append(operator_definition)
@@ -276,7 +278,7 @@ class CxxBackend(Backend):
         local_iter= "__iter{0}".format(len(self.break_handler))
         local_target= "__target{0}".format(len(self.break_handler))
 
-        local_iter_decl=RemoveQualifier(DeclType(Val(iter)))
+        local_iter_decl=Assignable(DeclType(Val(iter)))
         local_target_decl=DeclType(Val("{0}.begin()".format(local_iter)))
         if self.yields:
             self.extra_declarations.append( (local_iter, local_iter_decl) )
@@ -437,7 +439,10 @@ class CxxBackend(Backend):
         return "{0}({1})".format(func, ", ".join(args))
 
     def visit_Num(self, node):
-        return str(node.n) + type_to_suffix.get(type(node.n),"")
+        if type(node.n) == long:
+            return 'pythran_long({0})'.format(str(node.n))
+        else:
+            return str(node.n) + type_to_suffix.get(type(node.n),"")
 
     def visit_Str(self, node):
         return 'core::string("{0}")'.format(node.s.replace("\n",'\\n"\n"'))

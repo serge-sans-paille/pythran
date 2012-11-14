@@ -10,6 +10,7 @@
 #define PROXY(ns,f) \
     namespace proxy {\
         struct f {\
+			typedef void callable;\
             template<typename... Types>\
                 auto operator()(Types &&... types) -> decltype(ns::f(types...)) {\
                     return ns::f(std::forward<Types>(types)...); \

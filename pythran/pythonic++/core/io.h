@@ -94,8 +94,10 @@ namespace pythonic {
             auto iter = v.item_begin();
             if(iter != v.item_end()) {
                 auto niter = iter ; ++niter;
-                while(niter++ != v.item_end())
-                    detail::print(os, *iter++) << ", ";
+                while(niter != v.item_end()) {
+                    detail::print(os, *iter) << ", ";
+					++niter, ++iter;
+				}
                 detail::print(os, *iter);
             }
             return os << '}';

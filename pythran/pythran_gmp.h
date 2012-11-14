@@ -15,16 +15,15 @@ struct gmp_type;
 template<class T, class U>
 struct assignable<__gmp_expr<T,U> >
 {
-    static_assert(!(std::is_same<T,double>::value || std::is_same<U,double>::value),"Cannot combine long and float with mpz. Use --no-gpl to permit it even if you will only have long long int instead of mpz_class");
     typedef typename gmp_compo<T,U>::type type;
+    static_assert(!std::is_same<type,double>::value,"Cannot combine long and float.");
 };
 
 template<class T>
 struct assignable<__gmp_expr<T,T> >
 {
-    typedef __gmp_expr<T,T> type;
+    typedef typename gmp_type<T>::type type;
 };
-
 
 //GMP_COMPO
 
@@ -85,31 +84,31 @@ struct gmp_compo<T,double>
 template<class T>
 struct gmp_compo<long,T>
 {
-    typedef long type;
+    typedef typename gmp_type<T>::type type;
 };
 
 template<class T>
 struct gmp_compo<T,long>
 {
-    typedef long type;
+    typedef typename gmp_type<T>::type type;
 };
 
 template<class T>
 struct gmp_compo<mpz_class,T>
 {
-    typedef mpz_class type;
+    typedef typename gmp_type<T>::type type;
 };
 
 template<class T>
 struct gmp_compo<T,mpz_class>
 {
-    typedef mpz_class type;
+    typedef typename gmp_type<T>::type type;
 };
 
 template<class T>
 struct gmp_compo<T,T>
 {
-    typedef T type;
+    typedef typename gmp_type<T>::type type;
 };
 
 template<>
@@ -136,6 +135,12 @@ template<class T>
 struct gmp_type
 {
     typedef T type;
+};
+
+template<>
+struct gmp_type<__mpz_struct [1]>
+{
+    typedef mpz_class type;
 };
 
 template<class T, class U, class V>
@@ -165,7 +170,7 @@ struct gmp_type<__gmp_expr<T,U> >
 template<class T>
 struct gmp_type<__gmp_expr<T,T> >
 {
-    typedef __gmp_expr<T,T> type;
+    typedef typename gmp_type<T>::type type;
 };
 
 

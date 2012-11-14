@@ -234,6 +234,7 @@ namespace  pythonic {
             };
 
         struct empty_dict {
+
             template<class K, class V> 
                 dict<K,V> operator+(dict<K,V> const & s) { return s; }
             empty_dict operator+(empty_dict const &) { return empty_dict(); }

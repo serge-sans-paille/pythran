@@ -1,5 +1,7 @@
 #ifndef PYTHONIC_MODULE_DICT_H
 #define PYTHONIC_MODULE_DICT_H
+template<class T> class dict_container;
+
 namespace pythonic {
     namespace __dict__ { /* to avoid conflict with the dict intrinsic */
 
@@ -26,6 +28,12 @@ namespace pythonic {
             none<V> get(core::dict<K,V> const &d, W const& k) {
                 return d.get(k);
             }
+        template<class W, class X>
+            X get(core::empty_dict const &, W const& , X const &default_) {
+                return default_;
+            }
+		template<class T, class I, class J>
+			decltype(std::declval<T>()+std::declval<J>()) get(::dict_container<T>, I , J );
         PROXY(pythonic::__dict__, get);
 
         template<class K, class V, class W>

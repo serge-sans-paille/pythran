@@ -154,6 +154,8 @@ template<class K>
 indexable_dict<K> operator+(core::empty_dict, indexable<K>);
 template<class K0, class V, class K1>
 core::dict<decltype(std::declval<K0>() + std::declval<K1>()), V> operator+(core::dict<K0,V>, indexable<K1>);
+template<class K0, class V, class K1>
+core::dict<decltype(std::declval<K0>() + std::declval<K1>()), V> operator+(indexable<K1>, core::dict<K0,V>);
 template<class K, class... Types>
 std::tuple<Types...> operator+(indexable<K>, std::tuple<Types...>);
 template<class K, class... Types>
@@ -206,6 +208,8 @@ core::set<decltype(std::declval<V1>()+std::declval<V2>())> operator+(core::set<V
 
 template< class K, class V>
 core::dict<K,V> operator+(core::empty_dict, indexable_container<K,V>);
+template< class K0, class V0, class K1, class V1>
+core::dict<decltype(std::declval<K0>()+std::declval<K1>()), decltype(std::declval<V0>()+std::declval<V1>())> operator+(core::dict<K0,V0>, indexable_container<K1,V1>);
 template< class K, class V>
 core::dict<K,V> operator+(indexable_container<K,V>, core::empty_dict);
 
@@ -213,11 +217,15 @@ template <class K, class V>
 core::dict<K,V> operator+(indexable<K>, dict_container<V>);
 template <class V, class K>
 core::dict<K,V> operator+(dict_container<V>, indexable<K>);
+template <class V, class K, class W>
+core::dict<K,decltype(std::declval<V>()+std::declval<W>())> operator+(dict_container<V>, indexable_container<K,W>);
 
 template <class K, class V>
 core::dict<K,V> operator+(indexable_dict<K>, container<V>);
 template <class V, class K>
 core::dict<K,V> operator+(container<V>, indexable_dict<K>);
+template <class K, class V>
+indexable_dict<decltype(std::declval<K>()+std::declval<V>())> operator+(indexable_dict<K>, indexable<V>);
 
 /* some overloads */
 namespace std {

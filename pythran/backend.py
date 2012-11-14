@@ -6,7 +6,7 @@ from cxxgen import *
 from cxxtypes import *
 
 from analysis import LocalDeclarations, GlobalDeclarations
-from analysis import YieldPoints, BoundedExpressions, UpdateEffects
+from analysis import YieldPoints, BoundedExpressions, ArgumentEffects
 from passmanager import gather, Backend
 
 from tables import operator_to_lambda, modules, type_to_suffix
@@ -44,7 +44,7 @@ class CxxBackend(Backend):
         self.break_handler = list()
         self.result = list()
         Backend.__init__(self, name,
-                GlobalDeclarations, BoundedExpressions, Types, UpdateEffects)
+                GlobalDeclarations, BoundedExpressions, Types, ArgumentEffects)
 
     # mod
     def visit_Module(self, node):
@@ -149,7 +149,7 @@ class CxxBackend(Backend):
             for i, (t, a, d) in enumerate(zip(ftypes, fargs, defaults)):
                 if self.yields:
                     rvalue_ref = ""
-                elif self.update_effects[node][i]:
+                elif self.argument_effects[node][i]:
                     rvalue_ref = "&&"
                 else:
                     rvalue_ref = " const &"

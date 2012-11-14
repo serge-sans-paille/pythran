@@ -3,6 +3,7 @@ import ast
 import cxxtypes
 from intrinsic import ConstFunctionIntr, FunctionIntr
 from intrinsic import ConstMethodIntr, MethodIntr, AttributeIntr, ScalarIntr
+from intrinsic import ReadEffect
 
 namespace = "pythonic"
 
@@ -235,11 +236,11 @@ modules = {
                 "e": ScalarIntr(),
                 },
         "random": {
-                "seed": FunctionIntr(),
-                "random": FunctionIntr(),
-                "gauss": FunctionIntr(),
-                "uniform": FunctionIntr(),
-                "expovariate": FunctionIntr(),
+                "seed": FunctionIntr(global_effects=True),
+                "random": FunctionIntr(global_effects=True),
+                "gauss": FunctionIntr(global_effects=True),
+                "uniform": FunctionIntr(global_effects=True),
+                "expovariate": FunctionIntr(global_effects=True),
                 },
         "__list__": {
                 "append": MethodIntr(
@@ -386,7 +387,7 @@ modules = {
                 "conjugate": MethodIntr(),
                 },
         "__dict__":  {
-                "fromkeys": FunctionIntr(),
+                "fromkeys": ConstFunctionIntr(),
                 "get": ConstMethodIntr(),
                 "has_key": ConstMethodIntr(),
                 "items": MethodIntr(),

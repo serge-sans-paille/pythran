@@ -10,6 +10,8 @@ This module provides a few code analysis for the pythran language.
     * Identifiers gathers all identifiers used in a module
     * YieldPoints gathers all yield points from a node
     * BoundedExpressions gathers temporary objects
+    * ArgumentEffects computes write effect on arguments
+    * GlobalEffects computes function effect on global state
 '''
 
 from tables import modules, builtin_constants, builtin_constructors
@@ -554,8 +556,8 @@ class BoundedExpressions(ModuleAnalysis):
 
 
 ##
-class UpdateEffects(ModuleAnalysis):
-    '''Gathers inter-procedural update effects of functions.'''
+class ArgumentEffects(ModuleAnalysis):
+    '''Gathers inter-procedural effects on function arguments.'''
     class FunctionEffects(object):
         def __init__(self, node):
             self.func = node
@@ -563,7 +565,7 @@ class UpdateEffects(ModuleAnalysis):
                 self.update_effects = [False] * len(node.args.args)
             elif isinstance(node, intrinsic.Intrinsic):
                 self.update_effects = [isinstance(x, intrinsic.UpdateEffect)
-                        for x in node.effects]
+                        for x in node.argument_effects]
             elif isinstance(node, ast.alias):
                 self.update_effects = []
             else:
@@ -581,16 +583,16 @@ class UpdateEffects(ModuleAnalysis):
 
     def run_visit(self, node):
         for n in self.global_declarations.itervalues():
-            fe = UpdateEffects.FunctionEffects(n)
+            fe = ArgumentEffects.FunctionEffects(n)
             self.node_to_functioneffect[n] = fe
             self.result.add_node(fe)
         for n in builtin_constructors.itervalues():
-            fe = UpdateEffects.ConstructorEffects(n)
+            fe = ArgumentEffects.ConstructorEffects(n)
             self.node_to_functioneffect[n] = fe
             self.result.add_node(fe)
         for m in modules:
             for name, intrinsic in modules[m].iteritems():
-                fe = UpdateEffects.FunctionEffects(intrinsic)
+                fe = ArgumentEffects.FunctionEffects(intrinsic)
                 self.node_to_functioneffect[intrinsic] = fe
                 self.result.add_node(fe)
         self.all_functions = [fe.func for fe in self.result]

@@ -72,6 +72,17 @@ namespace pythonic {
     core::empty_dict dict() {
         return core::empty_dict();
     }
+
+	template<class Iterable>
+		core::dict<typename std::tuple_element<0, typename std::remove_reference<Iterable>::type::iterator::value_type>::type ,
+				   typename std::tuple_element<1, typename std::remove_reference<Iterable>::type::iterator::value_type>::type >
+					   dict( Iterable&& iterable) {
+						   core::dict<typename std::tuple_element<0, typename std::remove_reference<Iterable>::type::iterator::value_type>::type ,
+						   typename std::tuple_element<1, typename std::remove_reference<Iterable>::type::iterator::value_type>::type > out=core::empty_dict();
+						   for(auto const & i : iterable)
+							   out[std::get<0>(i)] = std::get<1>(i);
+						   return out;
+					   }
     PROXY(pythonic,dict);
 
     /* divmod */

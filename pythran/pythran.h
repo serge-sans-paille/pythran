@@ -55,6 +55,21 @@ struct content_of {
     typedef typename T::value_type type;
 };
 
+template<class T>
+struct content_of< std::tuple<T> > {
+    typedef T type;
+};
+template<class T, class... Types>
+struct content_of< std::tuple<T, Types...> > {
+    typedef typename std::enable_if<
+		std::is_same<
+			T,
+			typename content_of< std::tuple<Types...> >::type
+		>::value,
+		T
+	>::type	type;
+};
+
 template<class K, class V>
 struct content_of< core::dict<K,V> > {
     typedef V type;

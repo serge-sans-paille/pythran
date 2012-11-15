@@ -60,20 +60,7 @@ struct content_of< core::dict<K,V> > {
     typedef V type;
 };
 
-/* callable trait { */
 
-template<typename T>
-struct is_callable
-{
-	typedef char	yes;
-	typedef struct { char _[2]; } no;
-
-	template <class C> static yes _test(typename C::callable*);
-	template <class C> static no _test(...);
-	static const bool value = sizeof( _test<T>(nullptr)) == sizeof(yes);
-};
-
-/* } */
 
 /* for type inference only,  a bit dangerous ? */
 template <class T0, class T1>

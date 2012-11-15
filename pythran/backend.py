@@ -404,14 +404,14 @@ class CxxBackend(Backend):
             return "list()"
         else:
             elts = [ self.visit(n) for n in node.elts ]
-            return "core::list< decltype({0})>({{ {1} }})".format(" + ".join(elts), ", ".join(elts))
+            return "{0}({{ {1} }})".format(self.types[node], ", ".join(elts))
 
     def visit_Set(self, node):
         if not node.elts: # empty set
             return "set()"
         else:
             elts = [ self.visit(n) for n in node.elts ]
-            return "core::set< decltype({0})>({{ {1} }})".format(" + ".join(elts), ", ".join(elts))
+            return "{0}({{ {1} }})".format(self.types[node], ", ".join(elts))
 
     def visit_Dict(self, node):
         if not node.keys: # empty dict
@@ -419,7 +419,7 @@ class CxxBackend(Backend):
         else:
             keys = [ self.visit(n) for n in node.keys ]
             values = [ self.visit(n) for n in node.values ]
-            return "core::dict< decltype({0}),  decltype({1})>({{ {2} }})".format(" + ".join(keys), " + ".join(values),  ", ".join("{{ {0}, {1} }}".format(k,v) for k,v in zip(keys,values)))
+            return "{0}({{ {1} }})".format(self.types[node],  ", ".join("{{ {0}, {1} }}".format(k,v) for k,v in zip(keys,values)))
 
     def visit_Tuple(self, node):
         if not node.elts: # empty tuple

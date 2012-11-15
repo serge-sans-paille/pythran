@@ -212,33 +212,37 @@ namespace pythonic {
 
     /* len */
 
-    template <class T, class category>
-        struct _len {
-        };
     template <class T>
-        struct _len<T,std::random_access_iterator_tag> {
+        struct _len {
             long operator()(T const &t) {
                 return t.end() - t.begin();
             }
         };
 
     template <class T>
-        struct _len<core::set<T>, std::bidirectional_iterator_tag> {
+        struct _len<core::set<T>> {
             long operator()(core::set<T> const &t) {
                 return t.size();
             }
         };
 
-    template <class K, class V, class T>
-        struct _len<core::dict<K,V>, T> {
+    template <class K, class V>
+        struct _len<core::dict<K,V>> {
             long operator()(core::dict<K,V> const &t) {
                 return t.size();
             }
         };
 
+	template <class... Types>
+		struct _len<std::tuple<Types...>> {
+			long operator()(std::tuple<Types...> const&) {
+				return sizeof...(Types);
+			}
+		};
+
     template <class T>
         long len(T const &t) {
-            return _len<T, typename std::iterator_traits<decltype(const_cast<T*>(&t)->begin())>::iterator_category >()(t);
+            return _len<T>()(t);
         }
     PROXY(pythonic,len);
 
@@ -248,7 +252,7 @@ namespace pythonic {
     }
 
     template <class Iterable>
-        core ::list<typename Iterable::iterator::value_type> list(Iterable const & t) {
+        core ::list<typename std::remove_reference<Iterable>::type::iterator::value_type> list(Iterable && t) {
             return core::list<typename Iterable::iterator::value_type>(t.begin(), t.end());
         } 
     PROXY(pythonic,list);
@@ -371,17 +375,27 @@ PYTHONIC_EXCEPTION(OSError);
     PROXY(pythonic,map);
 
     /* max */
-    template <class... Types> struct Max;
+    template <int n, class... Types>
+        struct Max;
 
     template <class T0>
-        struct Max<T0> {
+        struct Max<true, T0> {
+            typedef typename std::remove_reference<T0>::type::iterator::value_type result_type;
+            result_type operator()(T0 && t) {
+                return *std::max_element(t.begin(), t.end());
+            }
+        };
+
+    template<class T0>
+        struct Max<false, T0> {
             typedef T0 result_type;
-            result_type operator()(T0 const & t) {
+            result_type operator()( T0 const & t ) {
                 return t;
             }
         };
+
     template <class T0, class T1>
-        struct Max<T0, T1> {
+        struct Max<false, T0, T1> {
             typedef decltype(std::declval<T0>() + std::declval<T1>()) result_type;
             result_type operator()(T0 const & t0, T1 const& t1) {
                 return t0>t1? t0: t1;
@@ -390,8 +404,8 @@ PYTHONIC_EXCEPTION(OSError);
         };
 
     template <class T0, class... Types>
-        struct Max<T0, Types...> {
-            typedef decltype( Max<T0, typename Max<Types...>::result_type >::result_type) result_type;
+        struct Max<false, T0, Types...> {
+            typedef decltype( Max<false, T0, typename Max<false, Types...>::result_type>::result_type) result_type;
 
 
             result_type operator()(T0 const & t0, Types const&... values)
@@ -400,18 +414,10 @@ PYTHONIC_EXCEPTION(OSError);
                 return t0 > t1 ? t0 : t1;
             }
         };
-    template<class T>
-        struct Max<core::list<T>> {
-            typedef typename core::list<T>::value_type result_type;
-
-            result_type operator()( core::list<T> const & s ) {
-                return *std::max_element(s.begin(), s.end());
-            }
-        };
 
     template <class... Types>
-        typename Max<Types...>::result_type max(Types const&... values) {
-            return Max<Types...>()(values...);
+        typename Max<  is_iterable< typename nth<0, typename std::remove_reference<Types...>::type >::type >::value, Types...>::result_type max(Types &&... values) {
+            return Max< is_iterable< typename nth<0, Types...>::type >::value, typename std::remove_reference<Types...>::type>()(std::forward<Types>(values)...);
         }
     PROXY(pythonic,max);
 

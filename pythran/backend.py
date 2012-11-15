@@ -155,7 +155,9 @@ class CxxBackend(Backend):
                         FunctionDeclaration( Value("pythonic::generator_iterator<{0}>".format(next_name), "end"), []),
                         Block([Statement("return generator_iterator<{0}>()".format(next_name))])),
                     FunctionBody(
-                        FunctionDeclaration( Value("bool", "operator!="), [Value("{0} const &".format(next_name),"other")]), Block([Statement("return {0}!=other.{0}".format(CxxBackend.generator_state_holder))]))
+                        FunctionDeclaration( Value("bool", "operator!="), [Value("{0} const &".format(next_name),"other")], "const"), Block([Statement("return {0}!=other.{0}".format(CxxBackend.generator_state_holder))])),
+                    FunctionBody(
+                        FunctionDeclaration( Value("bool", "operator=="), [Value("{0} const &".format(next_name),"other")], "const"), Block([Statement("return {0}==other.{0}".format(CxxBackend.generator_state_holder))])),
                     ]
             next_signature = templatize(FunctionDeclaration(
                 Value("typename {0}::result_type".format(instanciated_next_name), "{0}::next".format(instanciated_next_name)), [] ), formal_types)

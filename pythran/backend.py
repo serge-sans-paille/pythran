@@ -131,15 +131,18 @@ class CxxBackend(Backend):
 
             next_declaration = [FunctionDeclaration( Value("result_type", "next"),
                 [] ) , EmptyStatement()] #*** empty statement to force a comma ...
+
+            # the constructors
             next_constructors = [
                     FunctionBody(
                         FunctionDeclaration( Value("", next_name), []), Block([])
-                        ),
-                    FunctionBody(
+                        )]
+            if formal_types: 
+                    next_constructors.append(FunctionBody(
                         make_function_declaration("",next_name, formal_types, formal_args, default_arg_values),
                         Line("{0} {{ }}".format( ": {0}".format(", ".join(["{0}({0})".format(fa) for fa in formal_args]+["{0}(0)".format(CxxBackend.generator_state_holder)]))))
-                        )
-                    ]
+                        ))
+
             next_iterator = [
                     FunctionBody(
                         FunctionDeclaration( Value("void", "operator++"), []), Block([Statement("next()")])),

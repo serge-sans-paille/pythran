@@ -193,33 +193,43 @@ class NestedFunctionRemover(Transformation):
     '''replace nested function by top-level functions and a call to a bind intrinsic that generates a local function with some arguments binded'''
     def __init__(self, ctx):
         Transformation.__init__(self)
-        self.nested_functions=list()
         self.ctx=ctx
 
     def visit_FunctionDef(self, node):
         [self.visit(n) for n in node.body ]
-        self.nested_functions.append(node)
+
+        self.ctx.module.body.append(node)
+
         former_name=node.name
         former_nbargs=len(node.args.args)
-        node.name="pythran_{0}".format(former_name)
+        new_name="pythran_{0}".format(former_name)
+
         ii=gather(ImportedIds, node, self.ctx)
         binded_args=[ast.Name(iin,ast.Load()) for iin in sorted(ii)]
         node.args.args= [ast.Name(iin,ast.Param()) for iin in sorted(ii)] + node.args.args
-        proxy_call=ast.Name(node.name,ast.Load())
+
+        class Renamer(ast.NodeTransformer):
+            def visit_Call(self, node):
+                self.generic_visit(node)
+                if isinstance(node.func, ast.Name) and node.func.id ==former_name:
+                    node.func.id=new_name
+                    node.args = [ast.Name(iin,ast.Load()) for iin in sorted(ii)] + node.args
+                return node
+        Renamer().visit(node)
+
+        node.name=new_name
+        proxy_call=ast.Name(new_name,ast.Load())
         return ast.Assign([ast.Name(former_name, ast.Store())], ast.Call(ast.Name("bind{0}".format(former_nbargs),ast.Load()), [proxy_call]+binded_args, [], None, None))
 
 class RemoveNestedFunctions(Transformation):
 
     def visit_Module(self, node):
-        self.nested_functions=list()
         [ self.visit(n) for n in node.body ]
-        node.body.extend(self.nested_functions)
         return node
 
     def visit_FunctionDef(self, node):
         nfr = NestedFunctionRemover(self.ctx)
         node.body=[nfr.visit(n) for n in node.body]
-        self.nested_functions.extend(nfr.nested_functions)
         return node
 
 ##

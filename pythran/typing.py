@@ -6,7 +6,7 @@ import ast
 import networkx as nx
 import operator
 from tables import pytype_to_ctype_table, operator_to_lambda, modules, builtin_constants, builtin_constructors
-from analysis import  GlobalDeclarations, YieldPoints, OrderedGlobalDeclarations, StrangeAliases, ModuleAnalysis, LocalDeclarations
+from analysis import  GlobalDeclarations, YieldPoints, OrderedGlobalDeclarations, Aliases, ModuleAnalysis, LocalDeclarations
 from passes import Transformation
 from passmanager import gather, apply
 from syntax import PythranSyntaxError
@@ -187,7 +187,7 @@ class Types(ModuleAnalysis):
         self.result["bool"]=NamedType("bool")
         self.current=list()
         self.current_global_declarations = dict()
-        ModuleAnalysis.__init__(self, StrangeAliases, LocalDeclarations)
+        ModuleAnalysis.__init__(self, Aliases, LocalDeclarations)
 
     def run(self, node, ctx):
         apply(Reorder, node, ctx)
@@ -358,20 +358,32 @@ class Types(ModuleAnalysis):
     def visit_Call(self, node):
         self.visit(node.func)
         [self.visit(n) for n in node.args]
-        # handle backward type dependencies from method calls
-        if isinstance(node.func, ast.Attribute):
-            if isinstance(node.func.value, ast.Name):
-                if node.func.value.id in modules and node.func.attr in modules[node.func.value.id]:
-                    if modules[node.func.value.id][node.func.attr].ismethod():
-                        modules[node.func.value.id][node.func.attr].combiner(self, node)
-            else:
-                raise PythranSyntaxError("Unknown Attribute: `{0}'".format(node.func.attr), node)
-        # handle backward type dependencies from user calls
-        elif isinstance(node.func, ast.Name):
-            faliases=self.strange_aliases[self.current[-1]].get(node.func.id,{node.func.id})
-            for fid in faliases:
-                if fid in modules['__user__'] and modules['__user__'][fid].ismethod():
-                    modules['__user__'][fid].combiner(self, node)
+        ai = self.aliases[node.func]
+        for alias in self.aliases[node.func].aliases:
+            # handle backward type dependencies from method calls
+            if isinstance(alias, ast.Attribute):
+                if isinstance(alias.value, ast.Name):
+                    if alias.value.id in modules and alias.attr in modules[alias.value.id]:
+                        if modules[alias.value.id][alias.attr].ismethod():
+                            modules[alias.value.id][alias.attr].combiner(self, node)
+                else:
+                    raise PythranSyntaxError("Unknown Attribute: `{0}'".format(alias.attr), node)
+            # handle backward type dependencies from user calls
+            elif isinstance(alias, ast.FunctionDef):
+                modules['__user__'][alias.name].combiner(self, node)
+            # this comes from a bind
+            elif isinstance(alias, ast.Call):
+                bounded_function_name = alias.args[0].id
+                bounded_function = modules['__user__'][bounded_function_name]
+                fake_name = ast.Name(bounded_function_name, ast.Load())
+                fake_node = ast.Call(fake_name, alias.args[1:] + node.args, [], None, None)
+                bounded_function.combiner(self, fake_node)
+                # force recombination of binded call
+                for n in self.name_to_nodes[node.func.id]:
+                    self.result[n] = ReturnType(self.result[alias.func], [self.result[arg] for arg in alias.args])
+
+
+                
         F=lambda f: ReturnType(f, [self.result[arg] for arg in node.args])
         self.combine(node, node.func, op=lambda x,y:y, unary_op=F)
 

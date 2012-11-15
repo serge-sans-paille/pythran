@@ -1,3 +1,6 @@
 All this files are taken from http://www.s-anand.net/euler.html.
 
 The only sensible modification is that they have been turned into function with no parameters returning a value instead of printing something.
+Special cases are listed below:
+
+euler11: nums used to be a tuple of tuples, it is now a list of lists

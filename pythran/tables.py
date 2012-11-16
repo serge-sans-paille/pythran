@@ -305,12 +305,13 @@ modules = {
         }
 
 # a method name to module binding
-methods ={}
+methods = {}
 for module, elems in modules.iteritems():
     for elem, signature in elems.iteritems():
         if signature.ismethod():
             assert elem not in methods # we need unicity
             methods[elem]= ( module, signature )
+methods['union']=methods['union_'] # for the checking phase
 
 # a function name to module binding
 functions ={}

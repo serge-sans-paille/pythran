@@ -143,15 +143,15 @@ namespace  pythonic {
 				}
 
 				template<typename U, typename... Types> 
-					set<T> union_(U const& other, Types const&... others) const{
-						set<T> tmp = union_(others...);
+					set<T> union_(U && other, Types &&... others) const{
+						set<T> tmp = union_(std::forward<Types...>(others)...);
 						tmp.data->insert(other.begin(), other.end());
 						return tmp;
 					}
 
 				template<typename... Types> 
-					void update(Types const&... others) {
-						*this=union_(others...);
+					void update(Types &&... others) {
+						*this=union_(std::forward<Types>(others)...);
 					}
 
 				set<T> intersection() const{

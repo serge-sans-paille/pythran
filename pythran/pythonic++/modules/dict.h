@@ -102,6 +102,14 @@ namespace pythonic {
             V setdefault(core::dict<K,V> &d, W const & k) {
                 return d.get(k);
             }
+        template<class K, class V, class W, class X>
+            V setdefault(core::dict<K,V> &&d, W const & k, X const &default_) {
+                return d.setdefault(k,default_);
+            }
+        template<class K, class V, class W>
+            V setdefault(core::dict<K,V> &&d, W const & k) {
+                return d.get(k);
+            }
         PROXY(pythonic::__dict__, setdefault);
 
         template<class K, class V, class Iterable>

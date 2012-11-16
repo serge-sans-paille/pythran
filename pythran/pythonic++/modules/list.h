@@ -28,7 +28,11 @@ namespace pythonic {
         //TODO: have to raise a valueError
         template<class T>
             long index(core::list<T> &seq, T const& x) {
-		return seq.index(x);
+                return seq.index(x);
+            }
+        template<class T>
+            long index(core::list<T> &&seq, T const& x) {
+                return seq.index(x);
             }
         PROXY(pythonic::__list__, index);
 
@@ -47,7 +51,11 @@ namespace pythonic {
 
         template<class T>
             long count(core::list<T> &seq, T &&x) {
-                return std::count(seq.begin(),seq.end(),x);
+                return std::count(seq.begin(),seq.end(),std::forward<T>(x));
+            }
+        template<class T>
+            long count(core::list<T> &&seq, T &&x) {
+                return std::count(seq.begin(),seq.end(),std::forward<T>(x));
             }
 
         PROXY(pythonic::__list__,count);

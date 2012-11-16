@@ -125,7 +125,7 @@ namespace  pythonic {
                         }
                 list(empty_list const &) : data() {}
                 list(size_type sz) :data(sz) {}
-                list(std::initializer_list<value_type> l) : data(l) {}
+                list(std::initializer_list<value_type> l) : data(std::move(l)) {}
                 list(list<T> && other) : data(std::move(other.data)) {}
                 list(list<T> const & other) : data(other.data) {}
                 template<class F>
@@ -264,7 +264,7 @@ namespace  pythonic {
                 }	
 
                 // list interface
-                operator bool() { return not data->empty(); }
+                operator bool() const { return not data->empty(); }
 
                 template <class F>
                     list<decltype(std::declval<T>()+std::declval<typename list<F>::value_type>())> operator+(list<F> const & s) const {

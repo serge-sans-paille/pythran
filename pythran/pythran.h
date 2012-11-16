@@ -256,6 +256,14 @@ namespace std {
         struct tuple_element<I, core::dict<K,V> > {
             typedef typename core::dict<K,V>::value_type type;
         };
+    /* for core::string */
+    template <size_t I>
+        typename core::string get( core::string const &t) { return core::string(t[I]); }
+
+    template <size_t I>
+        struct tuple_element<I, core::string > {
+            typedef typename core::string type;
+        };
 
     /* for containers */
     template <size_t I, class T>
@@ -354,7 +362,7 @@ ACCESS_EXCEPTION(UnicodeError);
             if (t.args.size()>3 || t.args.size()<2)\
                 return t.args;\
             else\
-                return core::list<std::string>(t.args.begin(), t.args.begin()+2);\
+                return core::list<core::string>(t.args.begin(), t.args.begin()+2);\
             }\
     template <>\
         none<typename core::BaseError::Type<1>::type> get<1>( const core::name& t ){ if(t.args.size()>3 || t.args.size()<2) return (None); else return t.args[0];}\
@@ -440,6 +448,27 @@ void fwd(Types const&... types) {
 
 template <typename T>
 struct python_to_pythran {};
+
+template<>
+struct python_to_pythran< core::string >{
+	python_to_pythran(){
+        static bool registered =false;
+        if(not registered) {
+            registered=true;
+            boost::python::converter::registry::push_back(&convertible,&construct,boost::python::type_id<core::string>());
+        }
+    }
+	static void* convertible(PyObject* obj_ptr){
+		if( !PyString_Check(obj_ptr) ) return 0;
+		return obj_ptr;
+	}
+    static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
+        void* storage=((boost::python::converter::rvalue_from_python_storage<core::string >*)(data))->storage.bytes;
+		char* s=PyString_AS_STRING(obj_ptr);
+		new (storage) core::string(s);
+        data->convertible=storage;
+    }
+};
 
 template<typename T>
 struct python_to_pythran< core::list<T> >{
@@ -590,6 +619,19 @@ template<>
 struct pythran_to_python<none_type> {
     pythran_to_python() {
         register_once< none_type, custom_none_type_to_none >();
+    }
+};
+
+struct custom_core_string_to_str{
+    static PyObject* convert(const core::string& v){
+		return PyString_FromString(v.c_str());
+    }
+};
+
+template<>
+struct pythran_to_python< core::string > {
+    pythran_to_python() {
+        register_once< core::string, custom_core_string_to_str >();
     }
 };
 

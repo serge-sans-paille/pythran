@@ -26,6 +26,10 @@ if not "has_path" in nx.__dict__:
 	nx.has_path=has_path
 
 ##
+def add_if_not_in(l0,l1):
+    s0=set(l0)
+    l=[x for x in l0]
+    return l + [ x for x in l1 if x not in s0]
 class TypeDependencies(ModuleAnalysis):
 
     NoDeps="None"
@@ -94,7 +98,7 @@ class TypeDependencies(ModuleAnalysis):
         return self.visit(node.body)+self.visit(node.orelse)
 
     def visit_Compare(self, node):
-        return [set()]
+        return [frozenset()]
 
     def visit_Call(self, node):
         func = self.visit(node.func)
@@ -103,13 +107,13 @@ class TypeDependencies(ModuleAnalysis):
         return func
 
     def visit_Num(self, node):
-        return [set()]
+        return [frozenset()]
 
     def visit_Str(self, node):
-        return [set()]
+        return [frozenset()]
 
     def visit_Attribute(self, node):
-        return [set()]
+        return [frozenset()]
 
     def visit_Subscript(self, node):
         return self.visit(node.value)
@@ -117,25 +121,25 @@ class TypeDependencies(ModuleAnalysis):
     def visit_Name(self, node):
         if node.id in self.naming: return self.naming[node.id]
         elif node.id in self.global_declarations: return [{self.global_declarations[node.id]}]
-        else: return [set()]
+        else: return [frozenset()]
 
     def visit_List(self, node):
-        return reduce(operator.add, map(self.visit,node.elts), [set()])
+        return reduce(add_if_not_in, map(self.visit,node.elts), [frozenset()])
 
     def visit_Set(self, node):
-        return reduce(operator.add, map(self.visit,node.elts), [set()])
+        return reduce(add_if_not_in, map(self.visit,node.elts), [frozenset()])
 
     def visit_Dict(self, node):
-        return reduce(operator.add, map(self.visit,node.keys)+map(self.visit,node.values), [set()])
+        return reduce(add_if_not_in, map(self.visit,node.keys)+map(self.visit,node.values), [frozenset()])
 
     def visit_Tuple(self, node):
-        return reduce(operator.add, map(self.visit,node.elts), [set()])
+        return reduce(add_if_not_in, map(self.visit,node.elts), [frozenset()])
 
     def visit_Slice(self, node):
-        return [set()]
+        return [frozenset()]
 
     def visit_Index(self, node):
-        return [set()]
+        return [frozenset()]
 
 class Reorder(Transformation):
     def __init__(self):
@@ -337,8 +341,14 @@ class Types(ModuleAnalysis):
 
     def visit_BinOp(self, node):
         [ self.visit(value) for value in (node.left, node.right)]
-        self.combine(node, node.left,  lambda x,y:ExpressionType(operator_to_lambda[type(node.op)],[x,y]))
-        self.combine(node, node.right,  lambda x,y:ExpressionType(operator_to_lambda[type(node.op)],[x,y]))
+        wl, wr = [self.result[x].isweak() for x in (node.left, node.right)]
+        if isinstance(node.op, ast.Add) and any([wl,wr]) and not all([wl,wr]): # assumes the + operator always has the same operand type on left and right side
+            F = lambda x,y:x+y
+        else:
+            F = lambda x,y:ExpressionType(operator_to_lambda[type(node.op)], [x,y])
+
+        self.combine(node, node.left, F)
+        self.combine(node, node.right, F)
 
     def visit_UnaryOp(self, node):
         self.visit(node.operand)
@@ -381,8 +391,6 @@ class Types(ModuleAnalysis):
                 # force recombination of binded call
                 for n in self.name_to_nodes[node.func.id]:
                     self.result[n] = ReturnType(self.result[alias.func], [self.result[arg] for arg in alias.args])
-
-
                 
         F=lambda f: ReturnType(f, [self.result[arg] for arg in node.args])
         self.combine(node, node.func, op=lambda x,y:y, unary_op=F)

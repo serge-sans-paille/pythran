@@ -51,7 +51,7 @@ namespace  pythonic {
 						std::copy(start, stop, std::back_inserter(*this));
 					}
 				set(empty_set const &) : data() {}
-				set(std::initializer_list<value_type> l) : data(l) {}
+				set(std::initializer_list<value_type> l) : data(std::move(l)) {}
 				set(set<T> const & other) : data(other.data) {}
 				template<class F>
 					set(set<F> const & other) :  data(){

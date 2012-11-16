@@ -12,6 +12,10 @@ namespace pythonic {
                 seq.push_back(value);
                 return None;
             }
+        template<class F>
+            none_type append(core::empty_list &seq, F&& value) {
+                return None;
+            }
         PROXY(pythonic::__list__, append);
 
         template<class T, class F>

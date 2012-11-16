@@ -385,7 +385,13 @@ class CxxBackend(Backend):
     # expr
     def visit_BoolOp(self, node):
         values = [ self.visit(value) for value in node.values ]
-        return reduce(operator_to_lambda[type(node.op)], values)
+        if node in self.bounded_expressions:
+            op=operator_to_lambda[type(node.op)]
+        elif isinstance(node.op, ast.And):
+            op=lambda l,r: '({0} and {1})'.format(l,r)
+        elif isinstance(node.op, ast.Or):
+            op=lambda l,r: '({0} or {1})'.format(l,r)
+        return reduce(op, values)
 
     def visit_BinOp(self, node):
         left = self.visit(node.left)
@@ -407,14 +413,14 @@ class CxxBackend(Backend):
             return "list()"
         else:
             elts = [ self.visit(n) for n in node.elts ]
-            return "{0}({{ {1} }})".format(self.types[node], ", ".join(elts))
+            return "core::list<decltype({0})>({{ {1} }})".format(elts[0],", ".join(elts))
 
     def visit_Set(self, node):
         if not node.elts: # empty set
             return "set()"
         else:
             elts = [ self.visit(n) for n in node.elts ]
-            return "{0}({{ {1} }})".format(self.types[node], ", ".join(elts))
+            return "core::set<decltype({0})>({{ {1} }})".format(elts[0],", ".join(elts))
 
     def visit_Dict(self, node):
         if not node.keys: # empty dict
@@ -422,7 +428,7 @@ class CxxBackend(Backend):
         else:
             keys = [ self.visit(n) for n in node.keys ]
             values = [ self.visit(n) for n in node.values ]
-            return "{0}({{ {1} }})".format(self.types[node],  ", ".join("{{ {0}, {1} }}".format(k,v) for k,v in zip(keys,values)))
+            return "core::dict<decltype({0}), decltype({1})>({{ {2} }})".format(keys[0], values[0], ", ".join("{{ {0}, {1} }}".format(k,v) for k,v in zip(keys,values)))
 
     def visit_Tuple(self, node):
         if not node.elts: # empty tuple

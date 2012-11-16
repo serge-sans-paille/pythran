@@ -1,10 +1,23 @@
 #ifndef PYTHONIC_STRING_H
 #define PYTHONIC_STRING_H
 #include <string>
+#include <sstream>
 
 namespace pythonic {
     namespace core {
-        using std::string;
+		class string : public std::string {
+			public:
+				string() : std::string() {}
+				string(std::string const & s) : std::string(s) {}
+				string(const char*s) : std::string(s) {}
+				string(char c) : std::string(1,c) {}
+				operator long() {
+					long out;
+					std::istringstream iss(*this);
+					iss >> out;
+					return out;
+				}
+		};
     }
 }
 template<typename T>

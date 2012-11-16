@@ -17,7 +17,7 @@ class SyntaxChecker(ast.NodeVisitor):
             else:
                 if not any(map(lambda t:isinstance(n,t),(ast.FunctionDef, ast.Import, ast.ImportFrom,))):
                     raise PythranSyntaxError("Top level statements can only be functions, comments or imports", n)
-        [ self.visit(n) for n in node.body ]
+        self.generic_visit(node)
 
     def visit_Interactive(self, node):
         raise PythranSyntaxError("Interactive session are not supported", node)
@@ -32,29 +32,37 @@ class SyntaxChecker(ast.NodeVisitor):
         raise PythranSyntaxError("Classes not supported")
 
     def visit_Print(self, node):
+        self.generic_visit(node)
         if node.dest: raise PythranSyntaxError("Printing to a specific stream", node.dest)
 
     def visit_With(self, node):
         raise PythranSyntaxError("With statements are not supported")
 
     def visit_Call(self, node):
+        self.generic_visit(node)
         if node.keywords:raise PythranSyntaxError("Call with keywords are not supported", node)
         if node.starargs: raise PythranSyntaxError("Call with star arguments are not supported", node)
         if node.kwargs: raise PythranSyntaxError("Call with kwargs are not supported", node)
 
     def visit_FunctionDef(self, node):
+        self.generic_visit(node)
         if node.args.vararg: raise PythranSyntaxError("Varargs are not supported", node)
         if node.args.kwarg: raise PythranSyntaxError("Keyword arguments are not supported", node)
-        self.visit(node.args)
-        [ self.visit(n) for n in node.body ]
 
     def visit_Raise(self, node):
+        self.generic_visit(node)
         if node.tback: raise PythranSyntaxError("Traceback in raise statements are not supported")
+
+    def visit_Attribute(self, node):
+        self.generic_visit(node)
+        if node.attr not in tables.methods and node.attr not in tables.attributes and node.attr not in tables.functions:
+            raise PythranSyntaxError("Pythran does not know of any class with the '{0}' attribute".format(node.attr))
+
 
     def visit_Import(self, node):
         for alias in node.names:
             if alias.name not in tables.modules:
-                PythranSyntaxError("Module '{0}'".format(alias.name), node)
+                raise PythranSyntaxError("Module '{0}' is either a user module or a non supported standard module.".format(alias.name), node)
 
     def visit_ImportFrom(self, node):
         if node.level != 0: raise PythranSyntaxError("Specifying a level in an import", node)

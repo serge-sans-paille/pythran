@@ -51,7 +51,7 @@ namespace pythonic {
 
     /* chr */
     template<class T>
-        core::string chr(T const &v) { return core::string(1,(char)v); }
+        core::string chr(T const &v) { return core::string((char)v); }
     PROXY(pythonic, chr);
 
     /* cmp */
@@ -83,6 +83,7 @@ namespace pythonic {
 							   out[std::get<0>(i)] = std::get<1>(i);
 						   return out;
 					   }
+
     PROXY(pythonic,dict);
 
     /* divmod */
@@ -250,11 +251,15 @@ namespace pythonic {
     core::empty_list list() {
         return core::empty_list();
     }
+    core::empty_list list(core::empty_list) {
+        return core::empty_list();
+    }
 
     template <class Iterable>
         core ::list<typename std::remove_reference<Iterable>::type::iterator::value_type> list(Iterable && t) {
-            return core::list<typename Iterable::iterator::value_type>(t.begin(), t.end());
+            return core::list<typename std::remove_reference<Iterable>::type::iterator::value_type>(t.begin(), t.end());
         } 
+
     PROXY(pythonic,list);
 
     /* exception */
@@ -338,16 +343,8 @@ PYTHONIC_EXCEPTION(OSError);
     }
 
     template <class Iterable>
-        struct _set {
-            typedef core::set<typename Iterable::value_type> type;
-            type operator()(Iterable &t) {
-                return type(t.begin(), t.end());
-            }
-        };
-
-    template <class Iterable>
-        typename _set<Iterable>::type set(Iterable t) {
-            return _set<Iterable>()(t);
+        core::set<typename std::remove_reference<Iterable>::type::iterator::value_type > set(Iterable&& t) {
+            return core::set<typename std::remove_reference<Iterable>::type::iterator::value_type >(t.begin(), t.end());
         } 
     PROXY(pythonic,set);
 
@@ -356,9 +353,9 @@ PYTHONIC_EXCEPTION(OSError);
     /* map */
     template <typename Operator, typename List0, typename... Iterators>
         auto _map(Operator& op, List0 && seq, Iterators... iterators)
-        -> core::list< decltype(op(*seq.begin(), *iterators...)) > 
+        -> core::list< decltype(op(*std::forward<List0>(seq).begin(), *iterators...)) > 
         {
-            decltype(_map(op,seq, iterators...)) s(len(seq));
+			core::list< decltype(op(*std::forward<List0>(seq).begin(), *iterators...)) > s(len(seq));
             auto iter = s.begin();
             for(auto & iseq : seq)
                 *iter++= op(iseq, *iterators++...);
@@ -367,9 +364,9 @@ PYTHONIC_EXCEPTION(OSError);
 
     template <typename Operator, typename List0, typename... ListN>
         auto map(Operator op, List0 && seq, ListN &&... lists)
-        -> decltype( _map(op, seq, lists.begin()...) )
+        -> decltype( _map(op, std::forward<List0>(seq), lists.begin()...) )
         {
-            return _map(op, seq, lists.begin()...);
+            return _map(op, std::forward<List0>(seq), lists.begin()...);
         }
 
     PROXY(pythonic,map);
@@ -416,54 +413,55 @@ PYTHONIC_EXCEPTION(OSError);
         };
 
     template <class... Types>
-        typename Max<  is_iterable< typename nth<0, typename std::remove_reference<Types...>::type >::type >::value, Types...>::result_type max(Types &&... values) {
-            return Max< is_iterable< typename nth<0, Types...>::type >::value, typename std::remove_reference<Types...>::type>()(std::forward<Types>(values)...);
+        typename Max<  sizeof...(Types) == 1, Types...>::result_type max(Types &&... values) {
+            return Max< sizeof...(Types) ==1, Types...>()(std::forward<Types>(values)...);
         }
     PROXY(pythonic,max);
 
     /* min */
-    template <class... Types> struct Min;
+    template <int n, class... Types>
+        struct Min;
 
     template <class T0>
-        struct Min<T0> {
+        struct Min<true, T0> {
+            typedef typename std::remove_reference<T0>::type::iterator::value_type result_type;
+            result_type operator()(T0 && t) {
+                return *std::min_element(t.begin(), t.end());
+            }
+        };
+
+    template<class T0>
+        struct Min<false, T0> {
             typedef T0 result_type;
-            result_type operator()(T0 const & t) {
+            result_type operator()( T0 const & t ) {
                 return t;
             }
         };
+
     template <class T0, class T1>
-        struct Min<T0, T1> {
+        struct Min<false, T0, T1> {
             typedef decltype(std::declval<T0>() + std::declval<T1>()) result_type;
             result_type operator()(T0 const & t0, T1 const& t1) {
-                return t0>t1? t1: t0;
+                return t0<t1? t0: t1;
             }
 
         };
 
     template <class T0, class... Types>
-        struct Min<T0, Types...> {
-            typedef decltype( Min<T0, typename Min<Types...>::result_type >::result_type) result_type;
+        struct Min<false, T0, Types...> {
+            typedef decltype( Min<false, T0, typename Min<false, Types...>::result_type>::result_type) result_type;
 
 
             result_type operator()(T0 const & t0, Types const&... values)
             {
                 auto t1 = (*this)(values...);
-                return t0 > t1 ? t0 : t1;
-            }
-        };
-
-    template<class T>
-        struct Min<core::list<T>> {
-            typedef typename core::list<T>::value_type result_type;
-
-            result_type operator()( core::list<T> const & s ) {
-                return *std::min_element(s.begin(), s.end());
+                return t0 < t1 ? t0 : t1;
             }
         };
 
     template <class... Types>
-        typename Min<Types...>::result_type min(Types const&... values) {
-            return Min<Types...>()(values...);
+        typename Min<  sizeof...(Types) == 1, Types...>::result_type min(Types &&... values) {
+            return Min< sizeof...(Types) ==1, Types...>()(std::forward<Types>(values)...);
         }
     PROXY(pythonic,min);
 
@@ -478,6 +476,7 @@ PYTHONIC_EXCEPTION(OSError);
 
     /* pow */
     using std::pow;
+	long pow(long n, long m) { return std::pow(n,m); }
     PROXY(pythonic, pow);
 
     /* xrange */

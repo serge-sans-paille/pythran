@@ -36,7 +36,8 @@ namespace pythonic {
         using std::log;
         using std::isinf;
         using std::pow;
-        
+		long pow(long n, long m) { return std::pow(n,m); }
+
         double const pi = std::atan(1)*4;
         double const e = std::exp(1);
 

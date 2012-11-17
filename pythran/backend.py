@@ -413,14 +413,14 @@ class CxxBackend(Backend):
             return "list()"
         else:
             elts = [ self.visit(n) for n in node.elts ]
-            return "core::list<decltype({0})>({{ {1} }})".format(elts[0],", ".join(elts))
+            return "core::list<typename __combined<{0}>::type >({{ {1} }})".format(", ".join("decltype({0})".format(elt) for elt in elts),", ".join(elts))
 
     def visit_Set(self, node):
         if not node.elts: # empty set
             return "set()"
         else:
             elts = [ self.visit(n) for n in node.elts ]
-            return "core::set<decltype({0})>({{ {1} }})".format(elts[0],", ".join(elts))
+            return "core::set<typename __combined<{0}>::type >({{ {1} }})".format(", ".join("decltype({0})".format(elt) for elt in elts),", ".join(elts))
 
     def visit_Dict(self, node):
         if not node.keys: # empty dict
@@ -428,7 +428,10 @@ class CxxBackend(Backend):
         else:
             keys = [ self.visit(n) for n in node.keys ]
             values = [ self.visit(n) for n in node.values ]
-            return "core::dict<decltype({0}), decltype({1})>({{ {2} }})".format(keys[0], values[0], ", ".join("{{ {0}, {1} }}".format(k,v) for k,v in zip(keys,values)))
+            return "core::dict<typename __combined<{0}>::type, typename __combined<{1}>::type >({{ {2} }})".format(
+                    ", ".join("decltype({0})".format(elt) for elt in keys),
+                    ", ".join("decltype({0})".format(elt) for elt in values),
+                    ", ".join("{{ {0}, {1} }}".format(k,v) for k,v in zip(keys,values)))
 
     def visit_Tuple(self, node):
         if not node.elts: # empty tuple

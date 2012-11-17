@@ -31,4 +31,14 @@ pythonic::core::string operator*(pythonic::core::string const & s, T const & t) 
     return other;
 }
 
+namespace std {
+  template <> struct hash<pythonic::core::string>
+  {
+    size_t operator()(const pythonic::core::string & x) const
+    {
+      return hash<std::string>()(x);
+    }
+  };
+}
+
 #endif

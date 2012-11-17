@@ -119,8 +119,8 @@ class TypeDependencies(ModuleAnalysis):
         return self.visit(node.value)
 
     def visit_Name(self, node):
-        if node.id in self.naming: return self.naming[node.id]
-        elif node.id in self.global_declarations: return [{self.global_declarations[node.id]}]
+        if node.id in self.naming: return frozenset(self.naming[node.id])
+        elif node.id in self.global_declarations: return [frozenset([self.global_declarations[node.id]])]
         else: return [frozenset()]
 
     def visit_List(self, node):

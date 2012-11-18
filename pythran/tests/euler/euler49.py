@@ -8,19 +8,61 @@ def solve():
     What 12-digit number do you form by concatenating the three terms in this sequence?
     
     '''
+
+    prime_list = [2, 3, 5, 7, 11, 13, 17, 19, 23]   # Ensure that this is initialised with at least 1 prime
+    prime_dict = dict.fromkeys(prime_list, 1)
+    lastn      = prime_list[-1]
+
+    def _isprime(n):
+        ''' Raw check to see if n is prime. Assumes that prime_list is already populated '''
+        isprime = n >= 2 and 1 or 0
+        for prime in prime_list:                    # Check for factors with all primes
+            if prime * prime > n: break             # ... up to sqrt(n)
+            if not n % prime:
+                isprime = 0
+                break
+        if isprime: prime_dict[n] = 1               # Maintain a dictionary for fast lookup
+        return isprime
+
+    def _refresh(x):
+        ''' Refreshes primes upto x '''
+        while lastn <= x:                           # Keep working until we've got up to x
+            lastn = lastn + 1                       # Check the next number
+            if _isprime(lastn):
+                prime_list.append(lastn) 
+    def isprime(x):
+        ''' Returns 1 if x is prime, 0 if not. Uses a pre-computed dictionary '''
+        _refresh(x)                                 # Compute primes up to x (which is a bit wasteful)
+        return prime_dict.get(x, 0) 
     
-    import prime
-    from combinatorics import permutations
+    def _combinators(_handle, items, n):
+        if n==0:
+            yield []
+            return
+        for i, item in enumerate(items):
+            this_one = [ item ]
+            for cc in _combinators(_handle, _handle(items, i), n-1):
+                yield this_one + cc
+
+    def combinations(items, n):
+        ''' take n distinct items, order matters '''
+        def skipIthItem(items, i):
+            return items[:i] + items[i+1:]
+        return _combinators(skipIthItem, items, n)
+
+    def permutations(items):
+        ''' take all items, order matters '''
+        return combinations(items, len(items))
     
-    prime._refresh(10000)
+    _refresh(10000)
     for num in xrange(1000, 10000):
         if str(num).find('0') >= 0: continue
     
-        if prime.isprime(num):
+        if isprime(num):
             prime_permutations = { num: 1 }
             for x in permutations(list(str(num))):
                 next_num = int(''.join(x))
-                if prime.isprime(next_num):
+                if isprime(next_num):
                     prime_permutations[next_num] = 1
     
             primes = sorted(prime_permutations.keys())

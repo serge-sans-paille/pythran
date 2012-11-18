@@ -15,9 +15,31 @@ def solve():
     
     If one complete new layer is wrapped around the spiral above, a square spiral with side length 9 will be formed. If this process is continued, what is the side length of the square spiral for which the ratio of primes along both diagonals first falls below 10%?
     '''
-    
-    import prime
-    prime._refresh(50000)
+
+    prime_list = [2, 3, 5, 7, 11, 13, 17, 19, 23]   # Ensure that this is initialised with at least 1 prime
+    prime_dict = dict.fromkeys(prime_list, 1)
+    lastn      = prime_list[-1]
+
+    def _isprime(n):
+        ''' Raw check to see if n is prime. Assumes that prime_list is already populated '''
+        isprime = n >= 2 and 1 or 0
+        for prime in prime_list:                    # Check for factors with all primes
+            if prime * prime > n: break             # ... up to sqrt(n)
+            if not n % prime:
+                isprime = 0
+                break
+        if isprime: prime_dict[n] = 1               # Maintain a dictionary for fast lookup
+        return isprime
+
+    def _refresh(x):
+        ''' Refreshes primes upto x '''
+        while lastn <= x:                           # Keep working until we've got up to x
+            lastn = lastn + 1                       # Check the next number
+            if _isprime(lastn):
+                prime_list.append(lastn)            # Maintain a list for sequential access
+   
+
+    _refresh(50000)
     
     width, diagonal, base, primes = 1, 1, 1, 0
     while True:
@@ -25,7 +47,7 @@ def solve():
         increment = width - 1
         for i in xrange(0, 4):
             diagonal = diagonal + increment
-            if i < 3 and prime._isprime(diagonal): primes += 1
+            if i < 3 and _isprime(diagonal): primes += 1
         base = base + 4
         if primes * 10 < base:
             return width

@@ -455,7 +455,7 @@ struct python_to_pythran< core::string >{
         static bool registered =false;
         if(not registered) {
             registered=true;
-            boost::python::converter::registry::push_back(&convertible,&construct,boost::python::type_id<core::string>());
+            boost::python::converter::registry::insert(&convertible,&construct,boost::python::type_id<core::string>());
         }
     }
 	static void* convertible(PyObject* obj_ptr){

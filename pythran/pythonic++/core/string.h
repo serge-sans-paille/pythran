@@ -9,8 +9,12 @@ namespace pythonic {
 			public:
 				string() : std::string() {}
 				string(std::string const & s) : std::string(s) {}
+				string(std::string && s) : std::string(std::move(s)) {}
 				string(const char*s) : std::string(s) {}
 				string(char c) : std::string(1,c) {}
+                core::string operator+(core::string const& s) const {
+                    return core::string( (*(std::string*)this)+(std::string const&)s );
+                }
 				operator long() {
 					long out;
 					std::istringstream iss(*this);

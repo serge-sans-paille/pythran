@@ -64,9 +64,13 @@ namespace pythonic {
 			public:
 				string() : std::string() {}
 				string(std::string const & s) : std::string(s) {}
+				string(std::string && s) : std::string(std::move(s)) {}
 				string(const char*s) : std::string(s) {}
 				string(char c) : std::string(1,c) {}
                 string(string_view const & other) : std::string( other.begin(), other.end()) {}
+                core::string operator+(core::string const& s) const {
+                    return core::string( (*(std::string*)this)+(std::string const&)s );
+                }
 				operator long() {
 					long out;
 					std::istringstream iss(*this);
@@ -189,6 +193,16 @@ pythonic::core::string pythonic::core::string_view::operator+(pythonic::core::st
     pythonic::core::string out(*data);
     std::copy(s.begin(), s.end(), std::copy(begin(), end(), out.begin()));
     return out;
+}
+
+namespace std {
+  template <> struct hash<pythonic::core::string>
+  {
+    size_t operator()(const pythonic::core::string & x) const
+    {
+      return hash<std::string>()(x);
+    }
+  };
 }
 
 #endif

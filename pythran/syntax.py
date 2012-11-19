@@ -10,6 +10,12 @@ class PythranSyntaxError(SyntaxError):
             self.offset=node.col_offset
 
 class SyntaxChecker(ast.NodeVisitor):
+
+    def __init__(self):
+        self.attributes = set()
+        for module in tables.modules.itervalues():
+            self.attributes.update(module.iterkeys())
+
     def visit_Module(self, node):
         for n in node.body:
             if isinstance(n, ast.Expr) and isinstance(n.value, ast.Str):
@@ -55,7 +61,7 @@ class SyntaxChecker(ast.NodeVisitor):
 
     def visit_Attribute(self, node):
         self.generic_visit(node)
-        if node.attr not in tables.methods and node.attr not in tables.attributes and node.attr not in tables.functions:
+        if node.attr not in self.attributes:
             raise PythranSyntaxError("Pythran does not know of any class with the '{0}' attribute".format(node.attr))
 
 

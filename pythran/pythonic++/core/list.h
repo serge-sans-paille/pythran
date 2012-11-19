@@ -82,6 +82,21 @@ namespace  pythonic {
                 T const & operator[](long i) const { return (*data)[slicing.lower + i*slicing.step];}
                 T & operator[](long i) { return (*data)[slicing.lower + i*slicing.step];}
 
+                // comparison
+                template <class K>
+                    bool operator==(core::list<K> const & other) const {
+                        auto self_iter=begin();
+                        for(auto const & other_iter : other) {
+                            if(self_iter == end() ) return false;
+                            else if(*self_iter != other_iter) return false;
+                            ++self_iter;
+                        }
+                        return self_iter == end();
+                    }
+
+
+
+
             };
 
         /* the container type */

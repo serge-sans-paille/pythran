@@ -496,6 +496,8 @@ class CxxBackend(Backend):
         upper = self.visit(node.upper) if node.upper else None
         step = self.visit(node.step) if node.step else None
         cv=None
+        if step == 'None':
+            step = None # happens when a[-4::]
         if not upper and not lower and step: # special case
             if isinstance(node.step, ast.Num): cv = node.step.n
             else:
@@ -506,7 +508,6 @@ class CxxBackend(Backend):
         if upper:
             if not lower: lower = "0"
         if cv and cv <0: upper,lower=lower,upper
-
         return "core::slice({0})".format(", ".join( l for l in [ lower, upper, step ] if l ))
 
     def visit_Index(self, node):

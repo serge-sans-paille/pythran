@@ -12,3 +12,5 @@ euler31: manual tuple to list conversion
 euler32: manual import combinatorics expansion
 euler34: manual tuple to list conversion
 euler38: turn polymorphic variable into monomorphic variable
+euler47: when importing factros from prime, rename it as prime_factor to prevent name clashing
+euler55: turn polymorphic variable into monomorphic variable

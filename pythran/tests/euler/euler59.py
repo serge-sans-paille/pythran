@@ -13,7 +13,20 @@ def solve():
     Your task has been made easy, as the encryption key consists of three lower case characters. Using cipher1.txt (right click and 'Save Link/Target As...'), a file containing the encrypted ASCII codes, and the knowledge that the plain text must contain common English words, decrypt the message and find the sum of the ASCII values in the original text.
     '''
     
-    from combinatorics import selections
+    def _combinators(_handle, items, n):
+        if n==0:
+            yield []
+            return
+        for i, item in enumerate(items):
+            this_one = [ item ]
+            for cc in _combinators(_handle, _handle(items, i), n-1):
+                yield this_one + cc
+
+    def selections(items, n):
+        ''' take n (not necessarily distinct) items, order matters '''
+        def keepAllItems(items, i):
+            return items
+        return _combinators(keepAllItems, items, n)
     
     code = tuple(int(c) for c in open('cipher1.txt').read().split(','))
     

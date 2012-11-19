@@ -360,7 +360,6 @@ namespace  pythonic {
 
         template<class T>
             list_view<T>& list_view<T>::operator=(list<T> const & seq) {
-                list<T> out;
                 long lower = slicing.lower >= 0L ? slicing.lower : ( slicing.lower + data->size());
                 lower = std::max(0L,lower);
                 long upper = slicing.upper >= 0L ? slicing.upper : ( slicing.upper + data->size());

@@ -45,6 +45,8 @@ def extract_constructed_types(t):
         return [ pytype_to_ctype(t) ] + reduce(lambda x,y:x+y, (extract_constructed_types(e) for e in t))
     elif t==long:
         return ["pythran_long_def"]
+    elif t==str:
+        return ["core::string"]
     else:
         return []
 

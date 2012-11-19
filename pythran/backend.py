@@ -173,7 +173,6 @@ class CxxBackend(Backend):
                          + [ Statement("{0} {1}".format(v,k)) for k,v in self.extra_declarations ]\
                          + [Statement("{0} {1}".format("long", CxxBackend.generator_state_holder))]\
                          + [Statement("typename {0}::result_type {1}".format(instanciated_next_name, CxxBackend.generator_state_value))]
-            next_members = next_members
 
             extern_typedefs = [Typedef(Value(t.generate(ctx), t.name)) for t in self.types[node][1] if not t.isweak()]
             iterator_typedef= [Typedef(Value("pythonic::generator_iterator<{0}>".format("{0}<{1}>".format(next_name, ", ".join(str(t) for t in formal_types) ) if formal_types else next_name), "iterator")), Typedef(Value(result_type.generate(ctx), "value_type"))]
@@ -284,7 +283,7 @@ class CxxBackend(Backend):
         local_target= "__target{0}".format(len(self.break_handler))
 
         local_iter_decl=Assignable(DeclType(Val(iter)))
-        local_target_decl=DeclType(Val("{0}.begin()".format(local_iter)))
+        local_target_decl=NamedType("{0}::iterator".format(local_iter_decl))
         if self.yields:
             self.extra_declarations.append( (local_iter, local_iter_decl) )
             self.extra_declarations.append( (local_target, local_target_decl) )

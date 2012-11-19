@@ -83,7 +83,7 @@ class TypeDependencies(ModuleAnalysis):
             [self.visit(n) for n in node.orelse]
 
     def visit_BoolOp(self, node):
-        return sum((self.visit(value) for value in node.values),list())
+        return sum((self.visit(value) for value in node.values),[])
 
     def visit_BinOp(self, node):
         return [l.union(r) for l in self.visit(node.left) for r in self.visit(node.right)]
@@ -119,7 +119,7 @@ class TypeDependencies(ModuleAnalysis):
         return self.visit(node.value)
 
     def visit_Name(self, node):
-        if node.id in self.naming: return frozenset(self.naming[node.id])
+        if node.id in self.naming: return self.naming[node.id]
         elif node.id in self.global_declarations: return [frozenset([self.global_declarations[node.id]])]
         else: return [frozenset()]
 

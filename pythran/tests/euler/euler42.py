@@ -1,3 +1,4 @@
+#unittest.skip open(...) intrinsic
 #pythran export solve()
 def solve():
     '''

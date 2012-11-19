@@ -12,11 +12,13 @@ class CompileTest(object):
         print self.module_name
 
         specs = { "solve": [] }
-        mod = pythran.cxx_generator(self.module_name, file(module_path).read(), specs)
+        module_code = file(module_path).read()
+        if "unittest.skip" in module_code:
+            return unittest.skip("Marked as skipable")
+        mod = pythran.cxx_generator(self.module_name, module_code, specs)
         pymod=load_dynamic(self.module_name, pythran.compile(os.environ.get("CXX","c++"), mod, check=False))
-        res = getattr(pymod,"solve")()
-
         if check_output:
+            res = getattr(pymod,"solve")()
             compiled_code=compile(file(module_path).read(),"","exec")
             env={}
             eval(compiled_code, env)

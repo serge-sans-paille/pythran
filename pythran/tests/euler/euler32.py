@@ -1,3 +1,4 @@
+#unittest.skip recursive generator
 #pythran export solve()
 
 ''' From O'Reilly's Python Cookbook '''

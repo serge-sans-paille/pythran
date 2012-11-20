@@ -108,7 +108,7 @@ namespace  pythonic {
                 // constructors
                 dict() : data(impl::no_memory()) {}
                 dict(empty_dict const &) : data() {}
-                dict(std::initializer_list<value_type> l) : data(l) {}
+                dict(std::initializer_list<value_type> l) : data(std::move(l)) {}
                 dict(dict<K,V> const & other) : data(other.data) {}
                 template<class B, class E>
                 dict(B begin, E end) : data(begin, end) {}
@@ -234,6 +234,7 @@ namespace  pythonic {
             };
 
         struct empty_dict {
+
             template<class K, class V> 
                 dict<K,V> operator+(dict<K,V> const & s) { return s; }
             empty_dict operator+(empty_dict const &) { return empty_dict(); }

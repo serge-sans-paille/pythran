@@ -248,6 +248,12 @@ modules = {
                 "count" : ConstMethodIntr(),
                 "insert" : MethodIntr([lambda self, node: self.combine(node.args[0], node.args[2], unary_op=lambda f: cxxtypes.ListType(f), register=True)]),
                 },
+        "__string__" : {
+                "find" : ConstMethodIntr(),
+                "join" : ConstMethodIntr(),
+                "capitalize" : ConstMethodIntr(),
+                "split" : ConstMethodIntr(),
+                },
         "__set__" : {
                 "add" : MethodIntr([lambda self, node: self.combine(node.args[0], node.args[1], unary_op=lambda f: cxxtypes.SetType(f), register=True)]),
                 "discard" : MethodIntr(),

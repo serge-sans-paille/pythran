@@ -146,7 +146,7 @@ class RemoveComprehension(Transformation):
 
         starget="__target"
         body = reduce( self.nest_reducer,
-                node.generators,
+                reversed(node.generators),
                 ast.Expr(ast.Call(ast.Attribute(ast.Name("__{0}__".format(comp_type),ast.Load()), comp_method, ast.Load()),[ast.Name(starget,ast.Load()),node.elt],[], None, None))
                 )
         # add extra metadata to this node
@@ -176,7 +176,7 @@ class RemoveComprehension(Transformation):
         self.count_iter=0
 
         body = reduce( self.nest_reducer,
-                node.generators,
+                reversed(node.generators),
                 ast.Expr(ast.Yield(node.elt))
                 )
 

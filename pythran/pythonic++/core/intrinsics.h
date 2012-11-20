@@ -15,20 +15,20 @@ namespace pythonic {
     template <class Iterable>
         bool all( Iterable && s) {
             //return s.end() == std::find_if(s.begin(), s.end(), [](typename Iterable::iterator::value_type const&t) { return not bool(t); });
-			auto iend = s.end();
-			for(auto iter = s.begin() ; iter != iend ; ++iter)
-				if( not *iter ) return false;
-			return true;
+            auto iend = s.end();
+            for(auto iter = s.begin() ; iter != iend ; ++iter)
+                if( not *iter ) return false;
+            return true;
         }
     PROXY(pythonic, all);
 
     /* any */
     template <class Iterable>
         bool any( Iterable && s) {
-			auto iend = s.end();
-			for(auto iter = s.begin() ; iter != iend ; ++iter)
-				if( *iter ) return true;
-			return false;
+            auto iend = s.end();
+            for(auto iter = s.begin() ; iter != iend ; ++iter)
+                if( *iter ) return true;
+            return false;
         }
     PROXY(pythonic, any);
 
@@ -63,9 +63,9 @@ namespace pythonic {
 
     /* complex */
     template<class T0, class T1=double> // do not handle string as first argument
-    std::complex<double> complex(T0 const& v0, T1 const& v1 = 0.) {
-        return std::complex<double>(v0,v1);
-    }
+        std::complex<double> complex(T0 const& v0, T1 const& v1 = 0.) {
+            return std::complex<double>(v0,v1);
+        }
     PROXY(pythonic, complex);
 
     /* dict */
@@ -73,62 +73,62 @@ namespace pythonic {
         return core::empty_dict();
     }
 
-	template<class Iterable>
-		core::dict<typename std::tuple_element<0, typename std::remove_reference<Iterable>::type::iterator::value_type>::type ,
-				   typename std::tuple_element<1, typename std::remove_reference<Iterable>::type::iterator::value_type>::type >
-					   dict( Iterable&& iterable) {
-						   core::dict<typename std::tuple_element<0, typename std::remove_reference<Iterable>::type::iterator::value_type>::type ,
-						   typename std::tuple_element<1, typename std::remove_reference<Iterable>::type::iterator::value_type>::type > out=core::empty_dict();
-						   for(auto const & i : iterable)
-							   out[std::get<0>(i)] = std::get<1>(i);
-						   return out;
-					   }
+    template<class Iterable>
+        core::dict<typename std::tuple_element<0, typename std::remove_reference<Iterable>::type::iterator::value_type>::type ,
+        typename std::tuple_element<1, typename std::remove_reference<Iterable>::type::iterator::value_type>::type >
+            dict( Iterable&& iterable) {
+                core::dict<typename std::tuple_element<0, typename std::remove_reference<Iterable>::type::iterator::value_type>::type ,
+                typename std::tuple_element<1, typename std::remove_reference<Iterable>::type::iterator::value_type>::type > out=core::empty_dict();
+                for(auto const & i : iterable)
+                    out[std::get<0>(i)] = std::get<1>(i);
+                return out;
+            }
 
     PROXY(pythonic,dict);
 
     /* divmod */
     template<class T0, class T1>
         auto divmod(T0 const& t0, T1 const& t1) // other types are left over
-            -> decltype(std::make_tuple(t0/t1, t0%t1)) {
-                return std::make_tuple(t0/t1, t0%t1);
-            }
+        -> decltype(std::make_tuple(t0/t1, t0%t1)) {
+            return std::make_tuple(t0/t1, t0%t1);
+        }
     PROXY(pythonic, divmod);
 
     /* enumerate */
     template<class T>
-    struct enumerate_iterator : std::iterator< std::random_access_iterator_tag, std::tuple<long, T> >{
-        long value;
-        typename core::list<T>::const_iterator iter;
-        enumerate_iterator(){}
-        enumerate_iterator(long value, typename core::list<T>::const_iterator iter) : value(value), iter(iter) {}
-        std::tuple<long,T>  operator*() { return std::make_tuple(value, *iter); }
-        enumerate_iterator& operator++() { ++value,++iter; return *this; }
-        enumerate_iterator operator++(int) { enumerate_iterator self(*this); ++value, ++iter; return self; }
-        enumerate_iterator& operator+=(long n) { value+=n,iter+=n; return *this; }
-        bool operator!=(enumerate_iterator const& other) { return value != other.value; }
-        bool operator<(enumerate_iterator const& other) { return value < other.value; }
-        long operator-(enumerate_iterator const& other) { return value - other.value; }
-    };
+        struct enumerate_iterator : std::iterator< std::random_access_iterator_tag, std::tuple<long, T> >{
+            long value;
+            typename core::list<T>::const_iterator iter;
+            enumerate_iterator(){}
+            enumerate_iterator(long value, typename core::list<T>::const_iterator iter) : value(value), iter(iter) {}
+            std::tuple<long,T>  operator*() { return std::make_tuple(value, *iter); }
+            enumerate_iterator& operator++() { ++value,++iter; return *this; }
+            enumerate_iterator operator++(int) { enumerate_iterator self(*this); ++value, ++iter; return self; }
+            enumerate_iterator& operator+=(long n) { value+=n,iter+=n; return *this; }
+            bool operator!=(enumerate_iterator const& other) { return value != other.value; }
+            bool operator<(enumerate_iterator const& other) { return value < other.value; }
+            long operator-(enumerate_iterator const& other) { return value - other.value; }
+        };
 
     template <class T>
-    struct _enumerate {
-        core::list<T> seq;
-        _enumerate() {}
-        typedef std::tuple<long, T> value_type;
-        typedef enumerate_iterator<T> iterator;
-        _enumerate( core::list<T> const& seq ) : seq(seq) {}
-        enumerate_iterator<T> begin() const { return enumerate_iterator<T>(0L,seq.begin()); }
-        enumerate_iterator<T> end() const { return enumerate_iterator<T>(seq.end()-seq.begin(), seq.end()); }
-    };
+        struct _enumerate {
+            core::list<T> seq;
+            _enumerate() {}
+            typedef std::tuple<long, T> value_type;
+            typedef enumerate_iterator<T> iterator;
+            _enumerate( core::list<T> const& seq ) : seq(seq) {}
+            enumerate_iterator<T> begin() const { return enumerate_iterator<T>(0L,seq.begin()); }
+            enumerate_iterator<T> end() const { return enumerate_iterator<T>(seq.end()-seq.begin(), seq.end()); }
+        };
     template <class T>
-    _enumerate<T> enumerate(core::list<T> const& seq) { return _enumerate<T>(seq); }
+        _enumerate<T> enumerate(core::list<T> const& seq) { return _enumerate<T>(seq); }
     PROXY(pythonic,enumerate);
 
     /* filter */
     template<class F, class Iterable>
         core::list<typename Iterable::iterator::value_type> filter(F const& f, Iterable const& iterable) { /* does not implement the full standard */
             core::list<typename Iterable::iterator::value_type> out;
-			out=core::empty_list();
+            out=core::empty_list();
             std::copy_if(iterable.begin(), iterable.end(), std::back_inserter(out), f);
             return out;
         }
@@ -234,12 +234,12 @@ namespace pythonic {
             }
         };
 
-	template <class... Types>
-		struct _len<std::tuple<Types...>> {
-			long operator()(std::tuple<Types...> const&) {
-				return sizeof...(Types);
-			}
-		};
+    template <class... Types>
+        struct _len<std::tuple<Types...>> {
+            long operator()(std::tuple<Types...> const&) {
+                return sizeof...(Types);
+            }
+        };
 
     template <class T>
         long len(T const &t) {
@@ -268,54 +268,54 @@ namespace pythonic {
     core::name name(Types ... args) {\
         return core::name(args ...);\
     }\
-\
+    \
     PROXY(pythonic,name);\
 
-PYTHONIC_EXCEPTION(BaseException);
-PYTHONIC_EXCEPTION(SystemExit);
-PYTHONIC_EXCEPTION(KeyboardInterrupt);
-PYTHONIC_EXCEPTION(GeneratorExit);
-PYTHONIC_EXCEPTION(Exception);
-PYTHONIC_EXCEPTION(StopIteration);
-PYTHONIC_EXCEPTION(StandardError);
-PYTHONIC_EXCEPTION(Warning);
-PYTHONIC_EXCEPTION(BytesWarning);
-PYTHONIC_EXCEPTION(UnicodeWarning);
-PYTHONIC_EXCEPTION(ImportWarning);
-PYTHONIC_EXCEPTION(FutureWarning);
-PYTHONIC_EXCEPTION(UserWarning);
-PYTHONIC_EXCEPTION(SyntaxWarning);
-PYTHONIC_EXCEPTION(RuntimeWarning);
-PYTHONIC_EXCEPTION(PendingDeprecationWarning);
-PYTHONIC_EXCEPTION(DeprecationWarning);
-PYTHONIC_EXCEPTION(BufferError);
-PYTHONIC_EXCEPTION(ArithmeticError);
-PYTHONIC_EXCEPTION(AssertionError);
-PYTHONIC_EXCEPTION(AttributeError);
-PYTHONIC_EXCEPTION(EOFError);
-PYTHONIC_EXCEPTION(ImportError);
-PYTHONIC_EXCEPTION(LookupError);
-PYTHONIC_EXCEPTION(MemoryError);
-PYTHONIC_EXCEPTION(NameError);
-PYTHONIC_EXCEPTION(ReferenceError);
-PYTHONIC_EXCEPTION(RuntimeError);
-PYTHONIC_EXCEPTION(SyntaxError);
-PYTHONIC_EXCEPTION(SystemError);
-PYTHONIC_EXCEPTION(TypeError);
-PYTHONIC_EXCEPTION(ValueError);
-PYTHONIC_EXCEPTION(FloatingPointError);
-PYTHONIC_EXCEPTION(OverflowError);
-PYTHONIC_EXCEPTION(ZeroDivisionError);
-PYTHONIC_EXCEPTION(IndexError);
-PYTHONIC_EXCEPTION(KeyError);
-PYTHONIC_EXCEPTION(UnboundLocalError);
-PYTHONIC_EXCEPTION(NotImplementedError);
-PYTHONIC_EXCEPTION(IndentationError);
-PYTHONIC_EXCEPTION(TabError);
-PYTHONIC_EXCEPTION(UnicodeError);
-PYTHONIC_EXCEPTION(EnvironmentError);
-PYTHONIC_EXCEPTION(IOError);
-PYTHONIC_EXCEPTION(OSError);
+    PYTHONIC_EXCEPTION(BaseException);
+    PYTHONIC_EXCEPTION(SystemExit);
+    PYTHONIC_EXCEPTION(KeyboardInterrupt);
+    PYTHONIC_EXCEPTION(GeneratorExit);
+    PYTHONIC_EXCEPTION(Exception);
+    PYTHONIC_EXCEPTION(StopIteration);
+    PYTHONIC_EXCEPTION(StandardError);
+    PYTHONIC_EXCEPTION(Warning);
+    PYTHONIC_EXCEPTION(BytesWarning);
+    PYTHONIC_EXCEPTION(UnicodeWarning);
+    PYTHONIC_EXCEPTION(ImportWarning);
+    PYTHONIC_EXCEPTION(FutureWarning);
+    PYTHONIC_EXCEPTION(UserWarning);
+    PYTHONIC_EXCEPTION(SyntaxWarning);
+    PYTHONIC_EXCEPTION(RuntimeWarning);
+    PYTHONIC_EXCEPTION(PendingDeprecationWarning);
+    PYTHONIC_EXCEPTION(DeprecationWarning);
+    PYTHONIC_EXCEPTION(BufferError);
+    PYTHONIC_EXCEPTION(ArithmeticError);
+    PYTHONIC_EXCEPTION(AssertionError);
+    PYTHONIC_EXCEPTION(AttributeError);
+    PYTHONIC_EXCEPTION(EOFError);
+    PYTHONIC_EXCEPTION(ImportError);
+    PYTHONIC_EXCEPTION(LookupError);
+    PYTHONIC_EXCEPTION(MemoryError);
+    PYTHONIC_EXCEPTION(NameError);
+    PYTHONIC_EXCEPTION(ReferenceError);
+    PYTHONIC_EXCEPTION(RuntimeError);
+    PYTHONIC_EXCEPTION(SyntaxError);
+    PYTHONIC_EXCEPTION(SystemError);
+    PYTHONIC_EXCEPTION(TypeError);
+    PYTHONIC_EXCEPTION(ValueError);
+    PYTHONIC_EXCEPTION(FloatingPointError);
+    PYTHONIC_EXCEPTION(OverflowError);
+    PYTHONIC_EXCEPTION(ZeroDivisionError);
+    PYTHONIC_EXCEPTION(IndexError);
+    PYTHONIC_EXCEPTION(KeyError);
+    PYTHONIC_EXCEPTION(UnboundLocalError);
+    PYTHONIC_EXCEPTION(NotImplementedError);
+    PYTHONIC_EXCEPTION(IndentationError);
+    PYTHONIC_EXCEPTION(TabError);
+    PYTHONIC_EXCEPTION(UnicodeError);
+    PYTHONIC_EXCEPTION(EnvironmentError);
+    PYTHONIC_EXCEPTION(IOError);
+    PYTHONIC_EXCEPTION(OSError);
 
     /* tuple */
     template <class Iterable>
@@ -355,7 +355,7 @@ PYTHONIC_EXCEPTION(OSError);
         auto _map(Operator& op, List0 && seq, Iterators... iterators)
         -> core::list< decltype(op(*std::forward<List0>(seq).begin(), *iterators...)) > 
         {
-			core::list< decltype(op(*std::forward<List0>(seq).begin(), *iterators...)) > s(len(seq));
+            core::list< decltype(op(*std::forward<List0>(seq).begin(), *iterators...)) > s(len(seq));
             auto iter = s.begin();
             for(auto & iseq : seq)
                 *iter++= op(iseq, *iterators++...);
@@ -476,7 +476,7 @@ PYTHONIC_EXCEPTION(OSError);
 
     /* pow */
     using std::pow;
-	long pow(long n, long m) { return std::pow(n,m); }
+    long pow(long n, long m) { return std::pow(n,m); }
     PROXY(pythonic, pow);
 
     /* xrange */
@@ -511,16 +511,16 @@ PYTHONIC_EXCEPTION(OSError);
         long _begin;
         long _end;
         long _step;
-		long _last;
+        long _last;
         typedef long value_type;
         typedef xrange_iterator iterator;
         typedef xrange_iterator const_iterator;
         typedef xrange_riterator reverse_iterator;
         typedef xrange_riterator const_reverse_iterator;
-		void _init_last() {
+        void _init_last() {
             if(_step>0) _last= _begin + std::max(0L,_step * ( (_end - _begin + _step -1)/ _step));
             else _last= _begin + std::min(0L,_step * ( (_end - _begin + _step +1)/ _step)) ;
-		}
+        }
         xrange(){}
         xrange( long b, long e , long s=1) : _begin(b), _end(e), _step(s) { _init_last(); }
         xrange( long e ) : _begin(0), _end(e), _step(1) { _init_last(); }
@@ -677,11 +677,11 @@ PYTHONIC_EXCEPTION(OSError);
             l.reserve(len(f));
         }
 
-	/* get good typing for floordiv */
-	template<class T0, class T1>
-	long floordiv(T0 a, T1 b) {
-		return T0(floor(a/b));
-	}
+    /* get good typing for floordiv */
+    template<class T0, class T1>
+        long floordiv(T0 a, T1 b) {
+            return T0(floor(a/b));
+        }
 
 }
 #endif

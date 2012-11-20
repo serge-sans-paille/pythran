@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_MODULE_STRING_H
 #define PYTHONIC_MODULE_STRING_H
-
-#include <boost/algorithm/string.hpp>  
+#include <algorithm>
+#include <cctype>
 
 namespace pythonic {
     namespace __string__ { /* to avoid conflict with the string intrinsic */
@@ -30,10 +30,13 @@ namespace pythonic {
         PROXY(pythonic::__string__, join);
         core::string capitalize(core::string const & s)
         {
-            core::string copy = s;
-            boost::algorithm::to_lower(copy);
-            copy[0]=std::toupper(copy[0]);
-            return copy;
+            if(s.empty()) return s;
+            else {
+                core::string copy = s;
+                ::toupper(*copy.begin());
+                std::transform(copy.begin()+1, copy.end(), copy.begin()+1, ::tolower);
+                return copy;
+            }
         }
         PROXY(pythonic::__string__, capitalize);
         core::list<core::string> split(core::string const& s, core::string const& sep = " ", int maxsplit = -1)

@@ -17,14 +17,14 @@ namespace pythonic {
         }
         PROXY(pythonic::__string__, find);
 
-        template<class T>
-            core::string join(core::string const & s, T const & iterable) {
-                auto b = iterable.begin();
+        template<class Iterable>
+            core::string join(core::string const & s, Iterable && iterable) {
                 std::ostringstream out;
-                out << *b;
-                b++;
-                for(;b!=iterable.end();b++)
-                    out << s << *b;
+                auto iter = iterable.begin();
+                out << *iter;
+                ++iter;
+                for(;iter!=iterable.end();++iter)
+                    out << s << *iter;
                 return out.str();
         }
         PROXY(pythonic::__string__, join);

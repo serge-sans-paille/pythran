@@ -18,6 +18,8 @@ import networkx as nx
 import metadata
 import intrinsic
 from passmanager import NodeAnalysis, FunctionAnalysis, ModuleAnalysis
+from syntax import PythranSyntaxError
+
 
 
 ##
@@ -361,6 +363,8 @@ class Aliases(ModuleAnalysis):
         return self.add(node) # not very accurate, could be enhanced through better handling of sets etc
 
     def visit_Name(self, node):
+        if (node.id,) not in self.aliases:
+            raise PythranSyntaxError("identifier {0} unknown, either because it is an unsupported intrinsic, the input code is faulty, or... pythran is buggy.".format(node.id), node)
         return self.add(node, self.aliases[(node.id,)].copy())
 
     def visit_List(self, node):

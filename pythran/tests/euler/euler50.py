@@ -25,6 +25,7 @@ def solve():
         return isprime
 
     def _refresh(x):
+        lastn      = prime_list[-1]
         ''' Refreshes primes upto x '''
         while lastn <= x:                           # Keep working until we've got up to x
             lastn = lastn + 1                       # Check the next number
@@ -33,6 +34,7 @@ def solve():
 
     def prime(x):
         ''' Returns the xth prime '''
+        lastn      = prime_list[-1]
         while len(prime_list) <= x:                 # Keep working until we've got the xth prime
             lastn = lastn + 1                       # Check the next number
             if _isprime(lastn):

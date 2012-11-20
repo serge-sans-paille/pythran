@@ -1,3 +1,4 @@
+#unittest.skip open intrinsic not supported
 #pythran export solve()
 def solve():
     '''

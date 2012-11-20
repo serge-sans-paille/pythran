@@ -55,6 +55,9 @@ namespace pythonic {
                 // accessor
             char const & operator[](long i) const { return (*data)[slicing.lower + i*slicing.step];}
             char & operator[](long i) { return (*data)[slicing.lower + i*slicing.step];}
+
+            // conversion
+            operator long();
         };
 
 		class string : public std::string {
@@ -192,6 +195,13 @@ pythonic::core::string_view& pythonic::core::string_view::operator=(pythonic::co
 pythonic::core::string pythonic::core::string_view::operator+(pythonic::core::string_view const & s) {
     pythonic::core::string out(*data);
     std::copy(s.begin(), s.end(), std::copy(begin(), end(), out.begin()));
+    return out;
+}
+
+pythonic::core::string_view::operator long() {
+    long out;
+    std::istringstream iss(pythonic::core::string(*this));
+    iss >> out;
     return out;
 }
 

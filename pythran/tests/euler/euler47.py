@@ -24,7 +24,7 @@ def solve():
             if _isprime(lastn):
                 prime_list.append(lastn)            # Maintain a list for sequential access
 
-    def factors(n):
+    def primes_factors(n):
         ''' Returns a prime factors of n as a list '''
         _refresh(n)
         x, xp, f = 0, prime_list[0], []
@@ -37,7 +37,7 @@ def solve():
                 xp = prime_list[x]
         return f 
 
-    def distinct_factors(n): return len(dict.fromkeys(factors(n)).keys())
+    def distinct_factors(n): return len(dict.fromkeys(primes_factors(n)).keys())
     
     factors = [0, 1, distinct_factors(2), distinct_factors(3)]
     while True:

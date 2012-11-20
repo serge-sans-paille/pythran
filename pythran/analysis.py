@@ -259,19 +259,18 @@ class OrderedGlobalDeclarations(ModuleAnalysis):
     '''Order all global functions according to their callgraph depth'''
     def __init__(self):
         self.result=dict()
-        ModuleAnalysis.__init__(self, StrangeAliases, GlobalDeclarations)
+        ModuleAnalysis.__init__(self, Aliases, GlobalDeclarations)
 
     def visit_FunctionDef(self,node):
         self.curr=node
         self.result[node]=set()
-        self.curr_aliases=self.strange_aliases[node]
         [ self.visit(n) for n in node.body ]
 
     def visit_Name(self,node):
         if node.id in self.global_declarations and isinstance(self.global_declarations[node.id], ast.FunctionDef):
             self.result[self.curr].add(self.global_declarations[node.id])
-        elif node.id in self.curr_aliases:
-            for alias in self.curr_aliases[node.id]:
+        elif node in self.aliases:
+            for alias in self.aliases[node].aliases:
                 if alias in self.global_declarations and isinstance(alias, ast.FunctionDef):
                     self.result[self.curr].add(self.global_declarations[alias])
 
@@ -286,26 +285,6 @@ class OrderedGlobalDeclarations(ModuleAnalysis):
             old_count=new_count
             new_count=reduce(lambda acc,s:acc+len(s),self.result.itervalues(),0)
         return sorted(self.result.iterkeys(), key=lambda s: len(self.result[s]), reverse=True)
-
-##
-class StrangeAliases(ModuleAnalysis):
-    """Gather a strange kind of aliasing informations across call sites."""
-    def __init__(self):
-        self.result=dict()
-        ModuleAnalysis.__init__(self)
-    def visit_FunctionDef(self, node):
-        self.result[node]=dict()
-        self.curr=self.result[node]
-        for arg in node.args.args:
-            self.curr[arg.id]={arg.id}
-        [ self.visit(n) for n in node.body ]
-
-    def visit_Assign(self, node):
-        if isinstance(node.value, ast.Name):
-            for t in node.targets:
-                if isinstance(t, ast.Name):
-                    if t.id not in self.curr: self.curr[t.id]=self.curr[node.value.id] if node.value.id in self.curr else {node.value.id}
-                    else: self.curr[t.id].add(node.value.id)
 
 ##
 class Aliases(ModuleAnalysis):
@@ -364,7 +343,11 @@ class Aliases(ModuleAnalysis):
 
     def visit_Call(self, node):
         self.visit(node.func)
-        return self.add(node, reduce(set.union,(self.visit(n) for n in node.args), set()).union(set(self.global_declarations.itervalues()) ) ) # should include built-ins too
+        if isinstance(node.func, ast.Name) and node.func.id.startswith("bind"):
+            [self.visit(n) for n in node.args]
+            return self.add(node, {node})
+        else:
+            return self.add(node, reduce(set.union,(self.visit(n) for n in node.args), set()).union(set(self.global_declarations.itervalues()) ) ) # should include built-ins too
 
     def visit_Num(self, node):
         return self.add(node)
@@ -578,9 +561,11 @@ class UpdateEffects(ModuleAnalysis):
             n = self.argument_index(arg)
             if n>=0:
                 func_aliases = self.aliases[node].state[Aliases.access_path(node.func)]
-                # expaand argument if any
+                # expand argument if any
                 func_aliases = reduce(lambda x, y : x + self.all_functions if isinstance(y, ast.Name) and self.argument_index(y)>=0 else [y], func_aliases, list())
                 for func_alias in func_aliases:
+                    if isinstance(func_alias, ast.Call): # special hook for binded functions
+                        func_alias=self.global_declarations[func_alias.args[0].id]
                     func_alias = self.node_to_functioneffect[func_alias]
                     if self.current_function not in self.result.predecessors(func_alias):
                         self.result.add_edge(self.current_function, func_alias, effective_parameters=[], formal_parameters=[])

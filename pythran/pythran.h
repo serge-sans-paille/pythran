@@ -55,25 +55,27 @@ struct content_of {
     typedef typename T::value_type type;
 };
 
+template<class T>
+struct content_of< std::tuple<T> > {
+    typedef T type;
+};
+template<class T, class... Types>
+struct content_of< std::tuple<T, Types...> > {
+    typedef typename std::enable_if<
+		std::is_same<
+			T,
+			typename content_of< std::tuple<Types...> >::type
+		>::value,
+		T
+	>::type	type;
+};
+
 template<class K, class V>
 struct content_of< core::dict<K,V> > {
     typedef V type;
 };
 
-/* callable trait { */
 
-template<typename T>
-struct is_callable
-{
-	typedef char	yes;
-	typedef struct { char _[2]; } no;
-
-	template <class C> static yes _test(typename C::callable*);
-	template <class C> static no _test(...);
-	static const bool value = sizeof( _test<T>(nullptr)) == sizeof(yes);
-};
-
-/* } */
 
 /* for type inference only,  a bit dangerous ? */
 template <class T0, class T1>
@@ -154,6 +156,8 @@ template<class K>
 indexable_dict<K> operator+(core::empty_dict, indexable<K>);
 template<class K0, class V, class K1>
 core::dict<decltype(std::declval<K0>() + std::declval<K1>()), V> operator+(core::dict<K0,V>, indexable<K1>);
+template<class K0, class V, class K1>
+core::dict<decltype(std::declval<K0>() + std::declval<K1>()), V> operator+(indexable<K1>, core::dict<K0,V>);
 template<class K, class... Types>
 std::tuple<Types...> operator+(indexable<K>, std::tuple<Types...>);
 template<class K, class... Types>
@@ -206,6 +210,8 @@ core::set<decltype(std::declval<V1>()+std::declval<V2>())> operator+(core::set<V
 
 template< class K, class V>
 core::dict<K,V> operator+(core::empty_dict, indexable_container<K,V>);
+template< class K0, class V0, class K1, class V1>
+core::dict<decltype(std::declval<K0>()+std::declval<K1>()), decltype(std::declval<V0>()+std::declval<V1>())> operator+(core::dict<K0,V0>, indexable_container<K1,V1>);
 template< class K, class V>
 core::dict<K,V> operator+(indexable_container<K,V>, core::empty_dict);
 
@@ -213,11 +219,15 @@ template <class K, class V>
 core::dict<K,V> operator+(indexable<K>, dict_container<V>);
 template <class V, class K>
 core::dict<K,V> operator+(dict_container<V>, indexable<K>);
+template <class V, class K, class W>
+core::dict<K,decltype(std::declval<V>()+std::declval<W>())> operator+(dict_container<V>, indexable_container<K,W>);
 
 template <class K, class V>
 core::dict<K,V> operator+(indexable_dict<K>, container<V>);
 template <class V, class K>
 core::dict<K,V> operator+(container<V>, indexable_dict<K>);
+template <class K, class V>
+indexable_dict<decltype(std::declval<K>()+std::declval<V>())> operator+(indexable_dict<K>, indexable<V>);
 
 /* some overloads */
 namespace std {
@@ -245,6 +255,14 @@ namespace std {
     template <size_t I, class K, class V>
         struct tuple_element<I, core::dict<K,V> > {
             typedef typename core::dict<K,V>::value_type type;
+        };
+    /* for core::string */
+    template <size_t I>
+        typename core::string get( core::string const &t) { return core::string(t[I]); }
+
+    template <size_t I>
+        struct tuple_element<I, core::string > {
+            typedef typename core::string type;
         };
 
     /* for containers */
@@ -344,7 +362,7 @@ ACCESS_EXCEPTION(UnicodeError);
             if (t.args.size()>3 || t.args.size()<2)\
                 return t.args;\
             else\
-                return core::list<std::string>(t.args.begin(), t.args.begin()+2);\
+                return core::list<core::string>(t.args.begin(), t.args.begin()+2);\
             }\
     template <>\
         none<typename core::BaseError::Type<1>::type> get<1>( const core::name& t ){ if(t.args.size()>3 || t.args.size()<2) return (None); else return t.args[0];}\
@@ -430,6 +448,27 @@ void fwd(Types const&... types) {
 
 template <typename T>
 struct python_to_pythran {};
+
+template<>
+struct python_to_pythran< core::string >{
+	python_to_pythran(){
+        static bool registered =false;
+        if(not registered) {
+            registered=true;
+            boost::python::converter::registry::insert(&convertible,&construct,boost::python::type_id<core::string>());
+        }
+    }
+	static void* convertible(PyObject* obj_ptr){
+		if( !PyString_Check(obj_ptr) ) return 0;
+		return obj_ptr;
+	}
+    static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
+        void* storage=((boost::python::converter::rvalue_from_python_storage<core::string >*)(data))->storage.bytes;
+		char* s=PyString_AS_STRING(obj_ptr);
+		new (storage) core::string(s);
+        data->convertible=storage;
+    }
+};
 
 template<typename T>
 struct python_to_pythran< core::list<T> >{
@@ -580,6 +619,19 @@ template<>
 struct pythran_to_python<none_type> {
     pythran_to_python() {
         register_once< none_type, custom_none_type_to_none >();
+    }
+};
+
+struct custom_core_string_to_str{
+    static PyObject* convert(const core::string& v){
+		return PyString_FromString(v.c_str());
+    }
+};
+
+template<>
+struct pythran_to_python< core::string > {
+    pythran_to_python() {
+        register_once< core::string, custom_core_string_to_str >();
     }
 };
 

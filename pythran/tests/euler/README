@@ -1,0 +1,16 @@
+All this files are taken from http://www.s-anand.net/euler.html.
+
+The only sensible modification is that they have been turned into function with no parameters returning a value instead of printing something.
+Special cases are listed below:
+
+euler07: manual import prime expansion
+euler11: manual tuple to list conversion
+euler12: manual import prime expansion
+euler18: manual tuple to list conversion
+euler27: manual import prime expansion
+euler31: manual tuple to list conversion
+euler32: manual import combinatorics expansion
+euler34: manual tuple to list conversion
+euler38: turn polymorphic variable into monomorphic variable
+euler47: when importing factros from prime, rename it as prime_factor to prevent name clashing
+euler55: turn polymorphic variable into monomorphic variable

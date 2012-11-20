@@ -131,15 +131,18 @@ class CxxBackend(Backend):
 
             next_declaration = [FunctionDeclaration( Value("result_type", "next"),
                 [] ) , EmptyStatement()] #*** empty statement to force a comma ...
+
+            # the constructors
             next_constructors = [
                     FunctionBody(
                         FunctionDeclaration( Value("", next_name), []), Block([])
-                        ),
-                    FunctionBody(
+                        )]
+            if formal_types: 
+                    next_constructors.append(FunctionBody(
                         make_function_declaration("",next_name, formal_types, formal_args, default_arg_values),
                         Line("{0} {{ }}".format( ": {0}".format(", ".join(["{0}({0})".format(fa) for fa in formal_args]+["{0}(0)".format(CxxBackend.generator_state_holder)]))))
-                        )
-                    ]
+                        ))
+
             next_iterator = [
                     FunctionBody(
                         FunctionDeclaration( Value("void", "operator++"), []), Block([Statement("next()")])),
@@ -152,7 +155,9 @@ class CxxBackend(Backend):
                         FunctionDeclaration( Value("pythonic::generator_iterator<{0}>".format(next_name), "end"), []),
                         Block([Statement("return generator_iterator<{0}>()".format(next_name))])),
                     FunctionBody(
-                        FunctionDeclaration( Value("bool", "operator!="), [Value("{0} const &".format(next_name),"other")]), Block([Statement("return {0}!=other.{0}".format(CxxBackend.generator_state_holder))]))
+                        FunctionDeclaration( Value("bool", "operator!="), [Value("{0} const &".format(next_name),"other")], "const"), Block([Statement("return {0}!=other.{0}".format(CxxBackend.generator_state_holder))])),
+                    FunctionBody(
+                        FunctionDeclaration( Value("bool", "operator=="), [Value("{0} const &".format(next_name),"other")], "const"), Block([Statement("return {0}==other.{0}".format(CxxBackend.generator_state_holder))])),
                     ]
             next_signature = templatize(FunctionDeclaration(
                 Value("typename {0}::result_type".format(instanciated_next_name), "{0}::next".format(instanciated_next_name)), [] ), formal_types)
@@ -168,7 +173,6 @@ class CxxBackend(Backend):
                          + [ Statement("{0} {1}".format(v,k)) for k,v in self.extra_declarations ]\
                          + [Statement("{0} {1}".format("long", CxxBackend.generator_state_holder))]\
                          + [Statement("typename {0}::result_type {1}".format(instanciated_next_name, CxxBackend.generator_state_value))]
-            next_members = next_members
 
             extern_typedefs = [Typedef(Value(t.generate(ctx), t.name)) for t in self.types[node][1] if not t.isweak()]
             iterator_typedef= [Typedef(Value("pythonic::generator_iterator<{0}>".format("{0}<{1}>".format(next_name, ", ".join(str(t) for t in formal_types) ) if formal_types else next_name), "iterator")), Typedef(Value(result_type.generate(ctx), "value_type"))]
@@ -279,7 +283,7 @@ class CxxBackend(Backend):
         local_target= "__target{0}".format(len(self.break_handler))
 
         local_iter_decl=Assignable(DeclType(Val(iter)))
-        local_target_decl=DeclType(Val("{0}.begin()".format(local_iter)))
+        local_target_decl=NamedType("{0}::iterator".format(local_iter_decl))
         if self.yields:
             self.extra_declarations.append( (local_iter, local_iter_decl) )
             self.extra_declarations.append( (local_target, local_target_decl) )
@@ -380,7 +384,13 @@ class CxxBackend(Backend):
     # expr
     def visit_BoolOp(self, node):
         values = [ self.visit(value) for value in node.values ]
-        return reduce(operator_to_lambda[type(node.op)], values)
+        if node in self.bounded_expressions:
+            op=operator_to_lambda[type(node.op)]
+        elif isinstance(node.op, ast.And):
+            op=lambda l,r: '({0} and {1})'.format(l,r)
+        elif isinstance(node.op, ast.Or):
+            op=lambda l,r: '({0} or {1})'.format(l,r)
+        return reduce(op, values)
 
     def visit_BinOp(self, node):
         left = self.visit(node.left)
@@ -402,14 +412,14 @@ class CxxBackend(Backend):
             return "list()"
         else:
             elts = [ self.visit(n) for n in node.elts ]
-            return "core::list< decltype({0})>({{ {1} }})".format(" + ".join(elts), ", ".join(elts))
+            return "core::list<typename __combined<{0}>::type >({{ {1} }})".format(", ".join("decltype({0})".format(elt) for elt in elts),", ".join(elts))
 
     def visit_Set(self, node):
         if not node.elts: # empty set
             return "set()"
         else:
             elts = [ self.visit(n) for n in node.elts ]
-            return "core::set< decltype({0})>({{ {1} }})".format(" + ".join(elts), ", ".join(elts))
+            return "core::set<typename __combined<{0}>::type >({{ {1} }})".format(", ".join("decltype({0})".format(elt) for elt in elts),", ".join(elts))
 
     def visit_Dict(self, node):
         if not node.keys: # empty dict
@@ -417,7 +427,10 @@ class CxxBackend(Backend):
         else:
             keys = [ self.visit(n) for n in node.keys ]
             values = [ self.visit(n) for n in node.values ]
-            return "core::dict< decltype({0}),  decltype({1})>({{ {2} }})".format(" + ".join(keys), " + ".join(values),  ", ".join("{{ {0}, {1} }}".format(k,v) for k,v in zip(keys,values)))
+            return "core::dict<typename __combined<{0}>::type, typename __combined<{1}>::type >({{ {2} }})".format(
+                    ", ".join("decltype({0})".format(elt) for elt in keys),
+                    ", ".join("decltype({0})".format(elt) for elt in values),
+                    ", ".join("{{ {0}, {1} }}".format(k,v) for k,v in zip(keys,values)))
 
     def visit_Tuple(self, node):
         if not node.elts: # empty tuple
@@ -482,6 +495,8 @@ class CxxBackend(Backend):
         upper = self.visit(node.upper) if node.upper else None
         step = self.visit(node.step) if node.step else None
         cv=None
+        if step == 'None':
+            step = None # happens when a[-4::]
         if not upper and not lower and step: # special case
             if isinstance(node.step, ast.Num): cv = node.step.n
             else:
@@ -492,7 +507,6 @@ class CxxBackend(Backend):
         if upper:
             if not lower: lower = "0"
         if cv and cv <0: upper,lower=lower,upper
-
         return "core::slice({0})".format(", ".join( l for l in [ lower, upper, step ] if l ))
 
     def visit_Index(self, node):

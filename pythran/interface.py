@@ -45,6 +45,8 @@ def extract_constructed_types(t):
         return [ pytype_to_ctype(t) ] + reduce(lambda x,y:x+y, (extract_constructed_types(e) for e in t))
     elif t==long:
         return ["pythran_long_def"]
+    elif t==str:
+        return ["core::string"]
     else:
         return []
 
@@ -55,8 +57,8 @@ def cxx_generator(module_name, code, specs=None):
     '''python + pythran spec -> c++ code'''
     # font end
     ir=ast.parse(code)
-    check_syntax(ir)
     renamings = apply(NormalizeIdentifiers,ir)
+    check_syntax(ir)
 
     # middle-end
     refine(ir)
@@ -73,6 +75,7 @@ def cxx_generator(module_name, code, specs=None):
         mod.use_private_namespace=False
         mod.add_to_preamble(content)
         mod.add_to_init([Statement('boost::python::numeric::array::set_module_and_type("numpy", "ndarray")')]);
+        mod.add_to_init([Statement('boost::python::implicitly_convertible<std::string, pythonic::core::string>()')]);
 
         for function_name,signatures in specs.iteritems():
             internal_function_name=renamings.get(function_name,function_name)

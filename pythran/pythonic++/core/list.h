@@ -82,6 +82,21 @@ namespace  pythonic {
                 T const & operator[](long i) const { return (*data)[slicing.lower + i*slicing.step];}
                 T & operator[](long i) { return (*data)[slicing.lower + i*slicing.step];}
 
+                // comparison
+                template <class K>
+                    bool operator==(core::list<K> const & other) const {
+                        auto self_iter=begin();
+                        for(auto const & other_iter : other) {
+                            if(self_iter == end() ) return false;
+                            else if(*self_iter != other_iter) return false;
+                            ++self_iter;
+                        }
+                        return self_iter == end();
+                    }
+
+
+
+
             };
 
         /* the container type */
@@ -125,7 +140,7 @@ namespace  pythonic {
                         }
                 list(empty_list const &) : data() {}
                 list(size_type sz) :data(sz) {}
-                list(std::initializer_list<value_type> l) : data(l) {}
+                list(std::initializer_list<value_type> l) : data(std::move(l)) {}
                 list(list<T> && other) : data(std::move(other.data)) {}
                 list(list<T> const & other) : data(other.data) {}
                 template<class F>
@@ -264,7 +279,7 @@ namespace  pythonic {
                 }	
 
                 // list interface
-                operator bool() { return not data->empty(); }
+                operator bool() const { return not data->empty(); }
 
                 template <class F>
                     list<decltype(std::declval<T>()+std::declval<typename list<F>::value_type>())> operator+(list<F> const & s) const {
@@ -345,7 +360,6 @@ namespace  pythonic {
 
         template<class T>
             list_view<T>& list_view<T>::operator=(list<T> const & seq) {
-                list<T> out;
                 long lower = slicing.lower >= 0L ? slicing.lower : ( slicing.lower + data->size());
                 lower = std::max(0L,lower);
                 long upper = slicing.upper >= 0L ? slicing.upper : ( slicing.upper + data->size());

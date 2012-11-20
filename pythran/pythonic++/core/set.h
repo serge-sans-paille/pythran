@@ -51,7 +51,7 @@ namespace  pythonic {
 						std::copy(start, stop, std::back_inserter(*this));
 					}
 				set(empty_set const &) : data() {}
-				set(std::initializer_list<value_type> l) : data(l) {}
+				set(std::initializer_list<value_type> l) : data(std::move(l)) {}
 				set(set<T> const & other) : data(other.data) {}
 				template<class F>
 					set(set<F> const & other) :  data(){
@@ -143,15 +143,15 @@ namespace  pythonic {
 				}
 
 				template<typename U, typename... Types> 
-					set<T> union_(U const& other, Types const&... others) const{
-						set<T> tmp = union_(others...);
+					set<T> union_(U && other, Types &&... others) const{
+						set<T> tmp = union_(std::forward<Types...>(others)...);
 						tmp.data->insert(other.begin(), other.end());
 						return tmp;
 					}
 
 				template<typename... Types> 
-					void update(Types const&... others) {
-						*this=union_(others...);
+					void update(Types &&... others) {
+						*this=union_(std::forward<Types>(others)...);
 					}
 
 				set<T> intersection() const{

@@ -380,7 +380,13 @@ class CxxBackend(Backend):
     # expr
     def visit_BoolOp(self, node):
         values = [ self.visit(value) for value in node.values ]
-        return reduce(operator_to_lambda[type(node.op)], values)
+        if node in self.bounded_expressions:
+            op=operator_to_lambda[type(node.op)]
+        elif isinstance(node.op, ast.And):
+            op=lambda l,r: '({0} and {1})'.format(l,r)
+        elif isinstance(node.op, ast.Or):
+            op=lambda l,r: '({0} or {1})'.format(l,r)
+        return reduce(op, values)
 
     def visit_BinOp(self, node):
         left = self.visit(node.left)

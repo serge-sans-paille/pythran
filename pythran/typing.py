@@ -337,12 +337,18 @@ class Types(ModuleAnalysis):
 
     def visit_BoolOp(self, node):
         [ self.visit(value) for value in node.values]
-        [ self.combine(node, value,  lambda x,y:ExpressionType(operator_to_lambda[type(node.op)],[x,y])) for value in node.values]
+        [ self.combine(node, value ) for value in node.values]
 
     def visit_BinOp(self, node):
         [ self.visit(value) for value in (node.left, node.right)]
-        self.combine(node, node.left,  lambda x,y:ExpressionType(operator_to_lambda[type(node.op)],[x,y]))
-        self.combine(node, node.right,  lambda x,y:ExpressionType(operator_to_lambda[type(node.op)],[x,y]))
+        wl, wr = [self.result[x].isweak() for x in (node.left, node.right)]
+        if isinstance(node.op, ast.Add) and any([wl,wr]) and not all([wl,wr]): # assumes the + operator always has the same operand type on left and right side
+            F = lambda x,y:x+y
+        else:
+            F = lambda x,y:ExpressionType(operator_to_lambda[type(node.op)], [x,y])
+
+        self.combine(node, node.left, F)
+        self.combine(node, node.right, F)
 
     def visit_UnaryOp(self, node):
         self.visit(node.operand)

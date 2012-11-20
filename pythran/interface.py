@@ -57,8 +57,8 @@ def cxx_generator(module_name, code, specs=None):
     '''python + pythran spec -> c++ code'''
     # font end
     ir=ast.parse(code)
-    check_syntax(ir)
     renamings = apply(NormalizeIdentifiers,ir)
+    check_syntax(ir)
 
     # middle-end
     refine(ir)

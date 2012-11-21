@@ -1,24 +1,33 @@
 """Generator for C/C++."""
-# Serge Guelton:
-# The licensing terms are not set in the source package,
-# but pypi[1] says the software is under the MIT license,
-# so I reproduce it here
+# Serge Guelton: The licensing terms are not set in the source package, but
+# pypi[1] says the software is under the MIT license, so I reproduce it here
 # [1] http://pypi.python.org/pypi/cgen
 #
 # Copyright (C) 2008 Andreas Kloeckner
-# 
-# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-# 
-# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-# 
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-# 
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
 
 from __future__ import division
 
 __copyright__ = "Copyright (C) 2008 Andreas Kloeckner"
 
-import struct as _struct
 
 class Generable(object):
     def __str__(self):
@@ -64,6 +73,7 @@ class Declarator(Generable):
         else:
             return "%s %s" % (tp_lines, tp_decl)
 
+
 class Value(Declarator):
     """A simple declarator: *typename* and *name* are given as strings."""
 
@@ -73,6 +83,7 @@ class Value(Declarator):
 
     def get_decl_pair(self):
         return [self.typename], self.name
+
 
 class NestedDeclarator(Declarator):
     def __init__(self, subdecl):
@@ -84,6 +95,7 @@ class NestedDeclarator(Declarator):
 
     def get_decl_pair(self):
         return self.subdecl.get_decl_pair()
+
 
 class DeclSpecifier(NestedDeclarator):
     def __init__(self, subdecl, spec, sep=' '):
@@ -105,45 +117,53 @@ class DeclSpecifier(NestedDeclarator):
         sub_tp, sub_decl = self.subdecl.get_decl_pair()
         return add_spec(sub_tp), sub_decl
 
+
 class NamespaceQualifier(DeclSpecifier):
     def __init__(self, namespace, subdecl):
         DeclSpecifier.__init__(self, subdecl, namespace, '::')
- 
+
+
 class Typedef(DeclSpecifier):
     def __init__(self, subdecl):
         DeclSpecifier.__init__(self, subdecl, "typedef")
+
 
 class Static(DeclSpecifier):
     def __init__(self, subdecl):
         DeclSpecifier.__init__(self, subdecl, "static")
 
+
 class Const(NestedDeclarator):
     def get_decl_pair(self):
         sub_tp, sub_decl = self.subdecl.get_decl_pair()
         return sub_tp, ("const %s" % sub_decl)
-    
+
+
 class TemplateSpecializer(NestedDeclarator):
     def __init__(self, specializer, subdecl):
         self.specializer = specializer
         NestedDeclarator.__init__(self, subdecl)
+
     def get_decl_pair(self):
         sub_tp, sub_decl = self.subdecl.get_decl_pair()
         sub_tp[-1] = sub_tp[-1] + '<%s>' % self.specializer
         return sub_tp, sub_decl
 
+
 class FunctionDeclaration(NestedDeclarator):
     def __init__(self, subdecl, arg_decls, *attributes):
         NestedDeclarator.__init__(self, subdecl)
         self.arg_decls = arg_decls
-        self.attributes=attributes
+        self.attributes = attributes
 
     def get_decl_pair(self):
         sub_tp, sub_decl = self.subdecl.get_decl_pair()
-
         return sub_tp, ("%s(%s) %s" % (
             sub_decl,
             ", ".join(ad.inline() for ad in self.arg_decls),
-            " ".join(self.attributes) ) )
+            " ".join(self.attributes))
+            )
+
 
 class ConstructorDeclaration(FunctionDeclaration):
 
@@ -152,8 +172,13 @@ class ConstructorDeclaration(FunctionDeclaration):
         self.initialization_list = initialization_list
 
     def get_decl_pair(self):
-        sub_tp, sub_decl =  FunctionDeclaration.get_decl_pair(self)
-        return sub_tp, sub_decl + (": {0}".format(", ".join(self.initialization_list)) if self.initialization_list else "")
+        sub_tp, sub_decl = FunctionDeclaration.get_decl_pair(self)
+        return (sub_tp,
+                sub_decl
+                + (": {0}".format(", ".join(self.initialization_list))
+                    if self.initialization_list
+                    else ""))
+
 
 class Struct(Declarator):
     """A structure declarator."""
@@ -179,6 +204,7 @@ class Struct(Declarator):
             yield "} "
         return get_tp(), ""
 
+
 # template --------------------------------------------------------------------
 class Template(NestedDeclarator):
     def __init__(self, template_spec, subdecl):
@@ -189,28 +215,31 @@ class Template(NestedDeclarator):
         yield "template <%s>" % ", ".join(self.template_spec)
         for i in self.subdecl.generate(with_semicolon):
             yield i
-        if not isinstance(self.subdecl, FunctionDeclaration) and not isinstance(self.subdecl, Template):
+        if(not isinstance(self.subdecl, FunctionDeclaration)
+                and not isinstance(self.subdecl, Template)):
             yield ";"
+
 
 # control flow/statement stuff ------------------------------------------------
 class ExceptHandler(Generable):
     def __init__(self, name, body, alias=None):
-        self.name=name
-        assert isinstance(body,Generable)
-        self.body=body
-        self.alias=alias
+        self.name = name
+        assert isinstance(body, Generable)
+        self.body = body
+        self.alias = alias
 
     def generate(self):
-        if self.name==None:
+        if self.name is None:
             yield "catch(...)"
         else:
-            yield "catch (core::%s const& %s)" % (self.name,self.alias if self.alias else 'e')
+            yield "catch (core::%s const& %s)" % (self.name, self.alias or '')
         if isinstance(self.body, Block):
             for line in self.body.generate():
                 yield line
         else:
             for line in self.body.generate():
-                yield "  "+line
+                yield "  " + line
+
 
 class TryExcept(Generable):
     def __init__(self, try_, except_, else_=None):
@@ -226,7 +255,7 @@ class TryExcept(Generable):
                 yield line
         else:
             for line in self.try_.generate():
-                yield "  "+line
+                yield "  " + line
 
         for exception in self.except_:
             if isinstance(exception, Block):
@@ -234,7 +263,8 @@ class TryExcept(Generable):
                     yield line
             else:
                 for line in exception.generate():
-                    yield "  "+line
+                    yield "  " + line
+
 
 class If(Generable):
     def __init__(self, condition, then_, else_=None):
@@ -252,7 +282,7 @@ class If(Generable):
         if len(condition_lines) > 1:
             yield "if ("
             for l in condition_lines:
-                yield "    "+l
+                yield "    " + l
             yield "  )"
         else:
             yield "if (%s)" % self.condition
@@ -262,7 +292,7 @@ class If(Generable):
                 yield line
         else:
             for line in self.then_.generate():
-                yield "  "+line
+                yield "  " + line
 
         if self.else_ is not None:
             yield "else"
@@ -271,7 +301,8 @@ class If(Generable):
                     yield line
             else:
                 for line in self.else_.generate():
-                    yield "  "+line
+                    yield "  " + line
+
 
 class Loop(Generable):
     def __init__(self, body):
@@ -286,13 +317,14 @@ class Loop(Generable):
                 yield line
         else:
             for line in self.body.generate():
-                yield "  "+line
+                yield "  " + line
 
         if self.outro_line() is not None:
             yield self.outro_line()
 
     def outro_line(self):
         return None
+
 
 class While(Loop):
     def __init__(self, condition, body):
@@ -302,6 +334,7 @@ class While(Loop):
 
     def intro_line(self):
         return "while (%s)" % self.condition
+
 
 class For(Loop):
     def __init__(self, start, condition, update, body):
@@ -315,6 +348,7 @@ class For(Loop):
     def intro_line(self):
         return "for (%s; %s; %s)" % (self.start, self.condition, self.update)
 
+
 # simple statements -----------------------------------------------------------
 class Define(Generable):
     def __init__(self, symbol, value):
@@ -323,6 +357,7 @@ class Define(Generable):
 
     def generate(self):
         yield "#define %s %s" % (self.symbol, self.value)
+
 
 class Include(Generable):
     def __init__(self, filename, system=True):
@@ -335,6 +370,7 @@ class Include(Generable):
         else:
             yield "#include \"%s\"" % self.filename
 
+
 class Pragma(Generable):
     def __init__(self, value):
         self.value = value
@@ -342,20 +378,24 @@ class Pragma(Generable):
     def generate(self):
         yield "#pragma %s" % (self.value)
 
+
 class Statement(Generable):
     def __init__(self, text):
         self.text = text
 
     def generate(self):
-        yield self.text+";"
+        yield self.text + ";"
+
 
 class ReturnStatement(Statement):
     def generate(self):
-        yield "return "+self.text+";"
+        yield "return " + self.text + ";"
+
 
 class EmptyStatement(Statement):
     def __init__(self):
         Statement.__init__(self, "")
+
 
 class Assign(Generable):
     def __init__(self, lvalue, rvalue):
@@ -365,6 +405,7 @@ class Assign(Generable):
     def generate(self):
         yield "%s = %s;" % (self.lvalue, self.rvalue)
 
+
 class Line(Generable):
     def __init__(self, text=""):
         self.text = text
@@ -372,12 +413,14 @@ class Line(Generable):
     def generate(self):
         yield self.text
 
+
 class Comment(Generable):
     def __init__(self, text):
         self.text = text
 
     def generate(self):
         yield "/* %s */" % self.text
+
 
 class LineComment(Generable):
     def __init__(self, text):
@@ -387,8 +430,8 @@ class LineComment(Generable):
     def generate(self):
         yield "// %s" % self.text
 
-# initializers ----------------------------------------------------------------
 
+# initializers ----------------------------------------------------------------
 class FunctionBody(Generable):
     def __init__(self, fdecl, body):
         """Initialize a function definition. *fdecl* is expected to be
@@ -406,9 +449,6 @@ class FunctionBody(Generable):
             yield b_line
 
 
-
-
-
 # block -----------------------------------------------------------------------
 class Block(Generable):
     def __init__(self, contents=[]):
@@ -424,11 +464,13 @@ class Block(Generable):
                 yield "  " + item_line
         yield "}"
 
+
 class Module(Block):
     def generate(self):
         for c in self.contents:
             for line in c.generate():
                 yield line
+
 
 class Namespace(Block):
     def __init__(self, name, contents=[]):
@@ -436,13 +478,14 @@ class Namespace(Block):
         self.name = name
 
     def generate(self):
-        yield "namespace "+self.name
+        yield "namespace " + self.name
         yield "{"
         for item in self.contents:
             for item_line in item.generate():
                 yield "  " + item_line
         yield "}"
         yield ""
+
 
 # copy-pasted from codepy.bpl, which is a real mess...
 class BoostPythonModule(object):
@@ -472,7 +515,8 @@ class BoostPythonModule(object):
         """Add a function to be exposed. *func* is expected to be a
         :class:`cgen.FunctionBody`.
         """
-        if not name:name=func.fdecl.name
+        if not name:
+            name = func.fdecl.name
 
         self.mod_body.append(func)
         self.init_body.append(

@@ -11,7 +11,7 @@ import ast
 from middlend import refine
 from backend import CxxBackend
 from subprocess import check_output, STDOUT, CalledProcessError
-from tempfile import mkstemp, TemporaryFile, NamedTemporaryFile
+from tempfile import mkstemp, NamedTemporaryFile
 from syntax import check_syntax
 from passes import NormalizeIdentifiers
 from passmanager import apply, dump

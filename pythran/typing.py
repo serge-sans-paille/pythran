@@ -6,12 +6,10 @@
 
 import ast
 import networkx as nx
-import operator
-from tables import pytype_to_ctype_table, operator_to_lambda, modules
-from tables import builtin_constants, builtin_constructors
-from analysis import  GlobalDeclarations, YieldPoints
-from analysis import OrderedGlobalDeclarations, Aliases, ModuleAnalysis
-from analysis import LocalDeclarations
+from tables import pytype_to_ctype_table, operator_to_lambda
+from tables import modules, builtin_constants, builtin_constructors
+from analysis import GlobalDeclarations, YieldPoints, LocalDeclarations
+from analysis import OrderedGlobalDeclarations, ModuleAnalysis, Aliases
 from passes import Transformation
 from passmanager import gather, apply
 from syntax import PythranSyntaxError
@@ -522,7 +520,7 @@ class Types(ModuleAnalysis):
         elif node.id in builtin_constructors:
             self.result[node] = NamedType(builtin_constructors[node.id])
         else:
-            self.result[node] = NamedType(node.id, [Weak])
+            self.result[node] = NamedType(node.id,{Weak})
 
     def visit_List(self, node):
         if node.elts:

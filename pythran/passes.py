@@ -13,10 +13,9 @@
     * GatherOMPData turns OpenMP-like string annotations into metadata
 '''
 
-from analysis import ImportedIds, GlobalDeclarations, Identifiers, ConstantExpressions
+from analysis import ImportedIds, Identifiers, ConstantExpressions
 from passmanager import gather, Transformation
 from tables import methods, attributes, functions, cxx_keywords, namespace, modules
-from syntax import PythranSyntaxError
 import metadata
 import ast
 

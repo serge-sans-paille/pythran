@@ -38,16 +38,15 @@ class ConstFunctionIntr(Intrinsic):
         Intrinsic.__init__(self, effects=() )
 
 class MethodIntr(FunctionIntr):
-    def __init__(self,_combiner = [], effects=None):
-        FunctionIntr.__init__(self, effects)
-        self.combinerList = _combiner
+    def __init__(self, *combiners):
+        FunctionIntr.__init__(self)
+        self.combiners = combiners
 
-    def addCombiner(self,_combiner):
-        self.combinerList = self.combinerList + _combiner
-        #self.combinerList.extend(_combiner)
+    def add_combiner(self, _combiner):
+        self.combiners += (_combiner,)
 
     def combiner(self,s,node):
-        for comb in self.combinerList:
+        for comb in self.combiners:
             comb(s,node)
 
     def ismethod(self):
@@ -57,9 +56,9 @@ class MethodIntr(FunctionIntr):
         return False
 
 class ConstMethodIntr(MethodIntr):
-    def __init__(self,_combiner = []):
+    def __init__(self, *combiners):
         FunctionIntr.__init__(self, ( ReadEffect() , ) *12 )
-        self.combinerList = _combiner
+        self.combiners = combiners
 
 class AttributeIntr(Intrinsic):
     def __init__(self,_val, effects=None):

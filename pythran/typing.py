@@ -330,7 +330,7 @@ class Types(ModuleAnalysis):
                         op, unary_op)  # deferred combination
                     user_module = modules['__user__']
                     current_function = user_module[self.current[-1].name]
-                    current_function.addCombiner([translator])
+                    current_function.add_combiner(translator)
                 else:
                     new_type = unary_op(self.result[othernode])
                     if node not in self.result:

@@ -1,7 +1,5 @@
-'''This module provides a dummy parser for pythran annotations, aka\
-    pythran specs.
-    * spec_parser reads the specification from a python module and returns\
-    them
+'''This module provides a dummy parser for pythran annotations.
+    * spec_parser reads the specs from a python module and returns them.
 '''
 import ply.lex as lex
 import ply.yacc as yacc
@@ -10,8 +8,8 @@ import re
 
 
 class SpecParser:
-    """ A parser that scans a file lurking for lines such as the following\
-    to generate a function signature
+    """ A parser that scans a file lurking for lines such as the one below.
+    It then generates a pythran-compatible signature to inject into compile.
 #pythran export a((float,(int,long),str list) list list)
 #pythran export a(str)
 #pythran export a( (str,str), int, long list list)
@@ -32,8 +30,8 @@ class SpecParser:
             'long': 'LONG',
             'float': 'FLOAT',
             }
-    tokens = ['IDENTIFIER', 'SHARP', 'COMMA', 'COLUMN', 'LPAREN', 'RPAREN']\
-            + list(reserved.values())
+    tokens = (['IDENTIFIER', 'SHARP', 'COMMA', 'COLUMN', 'LPAREN', 'RPAREN']
+            + list(reserved.values()))
 
     # token <> regexp binding
     t_SHARP = r'\#'
@@ -108,8 +106,10 @@ class SpecParser:
 
     def __init__(self, **kwargs):
         self.lexer = lex.lex(module=self, debug=0)
-        self.parser = yacc.yacc(module=self, debug=0,\
-                        tabmodule='pythran.parsetab')
+        self.parser = yacc.yacc(
+                module=self,
+                debug=0,
+                tabmodule='pythran.parsetab')
 
     def __call__(self, path):
         self.exports = dict()
@@ -122,12 +122,15 @@ class SpecParser:
             data = path
         # filter out everything that does not start with a #pythran
         # this is not as elegant as it could be...
-        pythran_data = reduce(str.__add__, (line for line in\
-            data.split('\n') if re.match(r'^#pythran.*$', line)), "")
+        pythran_data = reduce(
+                str.__add__,
+                (line for line in data.split('\n')
+                    if re.match(r'^#pythran.*$', line)),
+                "")
         self.parser.parse(pythran_data, lexer=self.lexer)
         if not self.exports:
-            err = SyntaxError("Pythran spec error: no pythran\
-                    specification")
+            err = SyntaxError(
+                    "Pythran spec error: no pythran specification")
             if input_file:
                 err.filename = input_file
             raise err

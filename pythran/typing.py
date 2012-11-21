@@ -1,6 +1,5 @@
-'''This module performs the return type inference, according to symbolic\
-    types, and reorder function declarations according to the return type\
-    dependencies.
+'''This module performs the return type inference, according to symbolic types,
+   It then reorders function declarations according to the return type deps.
     * type_all generates a node -> type binding
 '''
 
@@ -77,8 +76,8 @@ class TypeDependencies(ModuleAnalysis):
 
     def visit_Assign(self, node):
         v = self.visit(node.value)
-        self.naming.update({t.id: v for t in node.targets if isinstance(t,\
-            ast.Name)})  # need to handle subscript too ...
+        self.naming.update({t.id: v  # need to handle subscript too ...
+            for t in node.targets if isinstance(t, ast.Name)})
 
     def visit_AugAssign(self, node):
         v = self.visit(node.value)
@@ -96,8 +95,8 @@ class TypeDependencies(ModuleAnalysis):
         return sum((self.visit(value) for value in node.values), [])
 
     def visit_BinOp(self, node):
-        return [l.union(r) for l in self.visit(node.left) for r in\
-                    self.visit(node.right)]
+        return [l.union(r) for l in self.visit(node.left)
+                for r in self.visit(node.right)]
 
     def visit_UnaryOp(self, node):
         return self.visit(node.operand)
@@ -170,8 +169,8 @@ class Reorder(Transformation):
                 OrderedGlobalDeclarations)
 
     def run_visit(self, node):
-        none_successors =\
-            self.type_dependencies.successors(TypeDependencies.NoDeps)
+        none_successors = self.type_dependencies.successors(
+                TypeDependencies.NoDeps)
         for n in sorted(none_successors):
             # remove edges that implies a circular dependency
             for p in sorted(self.type_dependencies.predecessors(n)):
@@ -210,8 +209,8 @@ def node_to_id(n, depth=0):
         else:
             return node_to_id(n.value, 1 + depth)
     else:
-        raise NotImplementedError("assigning to something that is neither\
-                                    a Name nor a subscript of a name")
+        raise NotImplementedError(
+                "One can only assign to Name or Subscripts of a name")
 
 
 def copy_func(f, name=None):
@@ -238,8 +237,10 @@ class Types(ModuleAnalysis):
 
     def run_visit(self, node):
         ModuleAnalysis.run_visit(self, node)
-        final_types = {k: self.result[k] if k in self.result else v\
-                        for k, v in self.result.iteritems()}
+        final_types = {k: self.result[k]
+                if k in self.result
+                else v
+                for k, v in self.result.iteritems()}
         for k in self.local_declarations:
             self.result[k] = Assignable(self.result[k])
         for head in self.current_global_declarations.itervalues():
@@ -255,9 +256,11 @@ class Types(ModuleAnalysis):
         """ checks whether node aliases to a parameter"""
         try:
             node_id, _ = node_to_id(node)
-            return node_id in self.name_to_nodes and any(
-                [isinstance(n, ast.Name) and isinstance(n.ctx, ast.Param)\
-                    for n in self.name_to_nodes[node_id]])
+            return (node_id in self.name_to_nodes
+                    and any(
+                        isinstance(n, ast.Name)
+                        and isinstance(n.ctx, ast.Param)
+                        for n in self.name_to_nodes[node_id]))
         except NotImplementedError:
             return False
 
@@ -299,9 +302,10 @@ class Types(ModuleAnalysis):
                         def interprocedural_type_translator(s, n):
                             translated_othernode = ast.Name(
                                 '__fake__', ast.Load())
-                            s.result[translated_othernode] =\
-                                parametric_type.instanciate(s.current[-1],
-                                [s.result[arg] for arg in n.args])
+                            s.result[translated_othernode] = \
+                                    parametric_type.instanciate(
+                                            s.current[-1],
+                                            [s.result[arg] for arg in n.args])
                             # look for modified argument
                             for p, effective_arg in enumerate(n.args):
                                 formal_arg = args[p]
@@ -324,8 +328,9 @@ class Types(ModuleAnalysis):
                     translator = translator_generator(
                         self.current[-1].args.args,
                         op, unary_op)  # deferred combination
-                    modules['__user__'][self.current[-1].name].\
-                        addCombiner([translator])
+                    user_module = modules['__user__']
+                    current_function = user_module[self.current[-1].name]
+                    current_function.addCombiner([translator])
                 else:
                     new_type = unary_op(self.result[othernode])
                     if node not in self.result:
@@ -440,27 +445,26 @@ class Types(ModuleAnalysis):
     def visit_Call(self, node):
         self.visit(node.func)
         [self.visit(n) for n in node.args]
-        ai = self.aliases[node.func]
+        user_module = modules['__user__']
         for alias in self.aliases[node.func].aliases:
             # handle backward type dependencies from method calls
             if isinstance(alias, ast.Attribute):
                 if isinstance(alias.value, ast.Name):
                     if (alias.value.id in modules and
                         alias.attr in modules[alias.value.id]):
-                        if modules[alias.value.id][alias.attr].ismethod():
-                            modules[alias.value.id][alias.attr].\
-                                combiner(self, node)
+                        aliased_fun = modules[alias.value.id][alias.attr]
+                        if aliased_fun.ismethod():
+                            aliased_fun.combiner(self, node)
                 else:
                     raise PythranSyntaxError(
                         "Unknown Attribute: `{0}'".format(alias.attr), node)
             # handle backward type dependencies from user calls
             elif isinstance(alias, ast.FunctionDef):
-                modules['__user__'][alias.name].combiner(self, node)
+                user_module[alias.name].combiner(self, node)
             # this comes from a bind
             elif isinstance(alias, ast.Call):
                 bounded_function_name = alias.args[0].id
-                bounded_function =\
-                    modules['__user__'][bounded_function_name]
+                bounded_function = user_module[bounded_function_name]
                 fake_name = ast.Name(bounded_function_name, ast.Load())
                 fake_node = ast.Call(fake_name, alias.args[1:] + node.args,
                     [], None, None)
@@ -482,11 +486,11 @@ class Types(ModuleAnalysis):
     def visit_Attribute(self, node):
         value, attr = (node.value, node.attr)
         if value.id in modules and attr in modules[value.id]:
-            self.result[node] =\
-                DeclType(Val('{0}::{1}'.format(value.id, attr)))\
-                if modules[value.id][attr].isscalar()\
-                else DeclType(Val(
-                    "{0}::proxy::{1}()".format(value.id, attr)))
+            self.result[node] = (DeclType(
+                Val('{0}::{1}'.format(value.id, attr)))
+                if modules[value.id][attr].isscalar()
+                else DeclType(Val("{0}::proxy::{1}()".format(value.id, attr)))
+                )
         else:
             raise PythranSyntaxError(
                 "Unknown Attribute: `{0}'".format(node.attr), node)
@@ -520,7 +524,7 @@ class Types(ModuleAnalysis):
         elif node.id in builtin_constructors:
             self.result[node] = NamedType(builtin_constructors[node.id])
         else:
-            self.result[node] = NamedType(node.id,{Weak})
+            self.result[node] = NamedType(node.id, {Weak})
 
     def visit_List(self, node):
         if node.elts:
@@ -542,8 +546,10 @@ class Types(ModuleAnalysis):
         if node.keys:
             [self.visit(elt) for elt in node.keys]
             [self.visit(elt) for elt in node.values]
-            [self.combine(node, key,
-                unary_op=lambda x:DictType(x, self.result[value]))\
+            [self.combine(
+                node,
+                key,
+                unary_op=lambda x:DictType(x, self.result[value]))
                 for key, value in zip(node.keys, node.values)]
         else:
             self.result[node] = NamedType("core::empty_dict")

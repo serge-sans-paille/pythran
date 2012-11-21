@@ -10,7 +10,7 @@ class build_with_ply(build):
 
     def run(self, *args, **kwargs):
         if not self.dry_run:
-            from  pythran.spec import SpecParser
+            from pythran.spec import SpecParser
             SpecParser()  # this forces the generation of the parsetab file
             self.mkpath(os.path.join(self.build_lib, 'pythran'))
             for p in ['parsetab.py']:
@@ -37,7 +37,7 @@ class TestCommand(Command):
     def run(self):
         where = os.path.join('pythran', 'tests')
         try:
-            import skip.py
+            import py
             import multiprocessing
             cpu_count = multiprocessing.cpu_count()
             py.test.cmdline.main(["-n", str(cpu_count), where])
@@ -52,9 +52,15 @@ class BenchmarkCommand(Command):
 
     default_nb_iter = 11
     description = 'run the benchmark suite for the package'
-    user_options = [('nb-iter=', None, 'number of times the benchmark is\
-    run (default={0})'.format(default_nb_iter)), ('mode=', None, 'mode\
-    to use (cpython, pythran, pythran + omp)')]
+    user_options = [
+            ('nb-iter=',
+                None,
+                'number of times the benchmark is run (default={0})'.format(
+                    default_nb_iter)),
+            ('mode=',
+                None,
+                'mode to use (cpython, pythran, pythran + omp)')
+            ]
 
     runas_marker = '#runas '
 
@@ -79,13 +85,13 @@ class BenchmarkCommand(Command):
         median = lambda x: sorted(x)[len(x) / 2]
         for candidate in candidates:
             with file(candidate) as content:
-                runas = [line for line in content.readlines() if
-                        line.startswith(BenchmarkCommand.runas_marker)]
+                runas = [line for line in content.readlines()
+                        if line.startswith(BenchmarkCommand.runas_marker)]
                 if len(runas) == 1:
-                    module_name, _ = os.path.splitext(os.path.basename(
-                                    candidate))
-                    runas_commands = runas[0].replace(BenchmarkCommand.\
-                                    runas_marker, '').split(";")
+                    module_name, _ = os.path.splitext(
+                            os.path.basename(candidate))
+                    runas_commands = runas[0].replace(
+                            BenchmarkCommand.runas_marker, '').split(";")
                     runas_context = ";".join(["import {0}".format(
                                     module_name)] + runas_commands[:-1])
                     runas_command = "{0}.{1}".format(module_name,
@@ -103,9 +109,12 @@ class BenchmarkCommand(Command):
                         specs = spec_parser(candidate)
                         mod = cxx_generator(module_name, file(candidate)
                             .read(), specs)
-                        pythran_compile(os.environ.get("CXX", "c++"), mod,
-                            cxxflags=["-Ofast", "-DNDEBUG"] + (["-fopenmp"]
-                            if self.mode == "pythran+omp" else []))
+                        pythran_compile(os.environ.get("CXX", "c++"),
+                                mod,
+                                cxxflags=(["-Ofast", "-DNDEBUG"]
+                                    + (["-fopenmp"]
+                                        if self.mode == "pythran+omp"
+                                        else [])))
 
                     timing = median(ti.repeat(self.nb_iter, number=1))
                     print module_name, timing

@@ -37,7 +37,7 @@ class TestCommand(Command):
     def run(self):
         where = os.path.join('pythran', 'tests')
         try:
-            import py
+            import skip.py
             import multiprocessing
             cpu_count = multiprocessing.cpu_count()
             py.test.cmdline.main(["-n", str(cpu_count), where])

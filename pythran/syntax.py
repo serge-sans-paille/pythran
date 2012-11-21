@@ -30,13 +30,14 @@ class SyntaxChecker(ast.NodeVisitor):
         self.generic_visit(node)
 
     def visit_Interactive(self, node):
-        raise PythranSyntaxError("Interactive session are not supported", node)
+        raise PythranSyntaxError("Interactive session not supported", node)
 
     def visit_Expression(self, node):
-        raise PythranSyntaxError("Top-Level expressions are not supported", node)
+        raise PythranSyntaxError("Interactive expressions not supported", node)
 
     def visit_Suite(self, node):
-        raise PythranSyntaxError("Suite are specific to Jython and not supported", node)
+        raise PythranSyntaxError(
+                "Suites are specific to Jython and not supported", node)
 
     def visit_ClassDef(self, node):
         raise PythranSyntaxError("Classes not supported")
@@ -44,37 +45,45 @@ class SyntaxChecker(ast.NodeVisitor):
     def visit_Print(self, node):
         self.generic_visit(node)
         if node.dest:
-            raise PythranSyntaxError("Printing to a specific stream", node.dest)
+            raise PythranSyntaxError(
+                    "Printing to a specific stream not supported", node.dest)
 
     def visit_With(self, node):
-        raise PythranSyntaxError("With statements are not supported")
+        raise PythranSyntaxError("With statements not supported")
 
     def visit_Call(self, node):
         self.generic_visit(node)
         if node.keywords:
-            raise PythranSyntaxError("Call with keywords are not supported", node)
+            raise PythranSyntaxError("Call with keywords not supported", node)
         if node.starargs:
-            raise PythranSyntaxError("Call with star arguments are not supported", node)
+            raise PythranSyntaxError(
+                    "Call with star arguments not supported",
+                    node)
         if node.kwargs:
-            raise PythranSyntaxError("Call with kwargs are not supported", node)
+            raise PythranSyntaxError("Call with kwargs not supported", node)
 
     def visit_FunctionDef(self, node):
         self.generic_visit(node)
         if node.args.vararg:
-            raise PythranSyntaxError("Varargs are not supported", node)
+            raise PythranSyntaxError("Varargs not supported", node)
         if node.args.kwarg:
-            raise PythranSyntaxError("Keyword arguments are not supported", node)
+            raise PythranSyntaxError(
+                    "Keyword arguments not supported",
+                    node)
 
     def visit_Raise(self, node):
         self.generic_visit(node)
         if node.tback:
-            raise PythranSyntaxError("Traceback in raise statements are not supported")
+            raise PythranSyntaxError(
+                    "Traceback in raise statements not supported",
+                    node)
 
     def visit_Attribute(self, node):
         self.generic_visit(node)
         if node.attr not in self.attributes:
-            raise PythranSyntaxError("Pythran does not know of any class with the '{0}' attribute".format(node.attr))
-
+            raise PythranSyntaxError(
+                    "Attribute '{0}' unknown".format(node.attr),
+                    node)
 
     def visit_Import(self, node):
         for alias in node.names:
@@ -87,21 +96,24 @@ class SyntaxChecker(ast.NodeVisitor):
         if node.level != 0:
             raise PythranSyntaxError("Specifying a level in an import", node)
         if not node.module:
-            raise PythranSyntaxError("The import from syntax without module", node)
+            raise PythranSyntaxError(
+                    "import from without module", node)
         module = node.module
         if module not in tables.modules:
-            raise PythranSyntaxError("Module '{0}'".format(module), node)
+            raise PythranSyntaxError(
+                    "Module '{0}' unknown".format(module), node)
 
     def visit_Exec(self, node):
-        raise PythranSyntaxError("Exec statement are not supported", node)
+        raise PythranSyntaxError("Exec statement not supported", node)
 
     def visit_Global(self, node):
-        raise PythranSyntaxError("Global variables are not supported", node)
+        raise PythranSyntaxError("Global variables not supported", node)
 
     def visit_DictComp(self, node):
-        raise PythranSyntaxError("Dictionary comprehension are not supported", node)
+        raise PythranSyntaxError(
+                "Dictionary comprehension not supported", node)
 
 
 def check_syntax(node):
-    '''Does nothing but raising exception when pythran syntax is not respected'''
+    '''Does nothing but raising PythranSyntaxError when needed'''
     SyntaxChecker().visit(node)

@@ -239,6 +239,7 @@ modules = {
                 "random": FunctionIntr(),
                 "gauss": FunctionIntr(),
                 "uniform": FunctionIntr(),
+                "expovariate": FunctionIntr(),
                 },
         "__list__": {
                 "append": MethodIntr(

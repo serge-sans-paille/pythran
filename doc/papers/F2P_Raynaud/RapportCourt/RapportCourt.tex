@@ -1,0 +1,345 @@
+\documentclass[a4paper]{article}
+
+\usepackage[utf8]{inputenc}   
+\usepackage[T1]{fontenc}      
+\usepackage[francais]{babel}  
+
+\usepackage{url}
+
+\usepackage{graphicx}
+
+\usepackage[a4paper]{geometry}
+
+\title{Pythran : Rapport court}           
+\author{Alan Raynaud}
+\date{}                      
+
+\sloppy 
+
+\begin{document}
+
+%Page de garde
+
+\maketitle                  
+
+\tableofcontents            
+
+\clearpage
+
+\section{Analyse bibliographique}             
+
+\subsection{Introduction : du Python et des performances}
+
+TODO : Langage interprété, conçu pour optimiser dev et pas execution
+
+TODO : Question de la nécessité de la performance + temps d'execution vs temps de dev
+
+\subsection{Optimisation dans l'utilisation de python}
+
+\label{OptCode}
+
+\subsubsection{Améliorer les performances en améliorant le code}
+
+Python permet génalement de résoudre un même problème de plusieurs façons. Si le choix d'un bon algorithme est crucial, la façon dont est implémenté cet algorithme peut faire varier considérablement les performance du programme final. C'est pourquoi il existe un ensemble de bonne pratiques permettant d'améliorer son code\cite{PythonSpeed}.
+
+Exemples :
+\begin{itemize}
+\item Concaténer des strings avec .join() plutôt qu'avec l'opérateur +.
+\item Utiliser plusieurs affectations plutôt qu'une affectation multiple : a=x;b=y; plutôt que a,b=x,y.
+\item Utiliser les opérateurs propres au langage plutôt que les fonctions lamda : operator.add plutôt que lambda x,y : x+y.
+\end{itemize}
+
+\subsubsection{Iterateurs et generateur}
+
+Dans la boucle de l'exemple suivant, python génère la liste  [1..100] puis créé un objet iterateur qui permet de parcourir un à un les élements de cette liste.
+
+\begin{verbatim}
+for i in range(100):
+  print i
+\end{verbatim}
+
+On se rend compte dans cet exemple qu'il n'était pas nécessaire d'avoir toute la liste en mémoire. En effet, un seul élement est utilisé à la fois, et chaque élément n'est utilisé qu'une seule fois.
+
+C'est pourquoi il existe en python des générateurs. Les générateurs permettent de réaliser des iterateurs qui ne parcourent pas un ensemble, mais génèrent les éléments de l'itération au fur et à mesure. Quand on utilise un iterateur produit par un generateur, il n'y a toujours qu'une seule valeur en mémoire : celle actuellement utilisée.
+
+Python fournit également des iterateurs se comportant comme ceux produits par des générateurs : 
+
+\begin{itemize}
+  \item xrange qui se comporte comme range, mais ne créé pas de liste en mémoire
+  \item les iterateurs du module itertools comme imap et product
+\end{itemize}
+
+Afin de considérer l'intérêt en terme de performance, on peut considérer la figure~\ref{GenExpMapImapPy} , qui montre les différences de temps d'exécution entre trois implémentations du calcul de la somme des carrés des N premiers entiers. 
+
+Dans chaque cas, le temps de l'execution de 100 itérations du même programme est mesuré grâce au module timeit.
+
+\begin{verbatim}
+time100 = timeit.timeit('Expression', number=100)
+\end{verbatim}
+
+\begin{figure}[h]
+  \includegraphics[scale=0.5]{./Pictures/GenExpMapImapPy}
+  \caption{Compaison de performances entre trois implémentations en python}
+  \label{GenExpMapImapPy}
+\end{figure}
+
+La première implémentation utilise un générateur :
+
+\begin{verbatim}
+sum(x*x for x in xrange(N))
+\end{verbatim}
+
+Le générateur créé permet de ne produire les carrés qu'au fur et à mesure de la sommation. A un instant donné, il n'y a qu'un seul carré en mémoire.
+
+
+La seconde implémentation utilise l'operateur imap qui applique une fonction à un iterateur pour produire un nouvel iterateur :
+
+\begin{verbatim}
+sum(imap(lambda x:x*x, xrange(N)))
+\end{verbatim}
+
+Cette implémentation est moins performante que la première car elle utilise des appels de fonctions, qui sont couteux en python.
+
+
+La troisième implémentation utilise l'operateur map qui applique une fonction à un iterateur pour produire une liste :
+
+\begin{verbatim}
+sum(map(lambda x:x*x, xrange(N)))
+\end{verbatim}
+
+Dans cette implémentation, la liste des carrés est créée avant la sommation. C'est l'opération de création de l'espace mémoire nécessaire pour la stocker qui est couteuse et diminue les performance par rapport à la seconde implémentation.
+
+\subsection{Optimisation à partir du code python}
+
+Les méthodes d'amélioration des performances présentées en \ref{OptCode} nécessitent d'effectuer des modifications au niveau du code source. Les gains en temps d'exécution se feront donc au prix d'augmentation du temps de développement. Il existe cependant des outils qui permettent d'augmenter les performances d'un programme sans avoir à modifier le code source.
+
+\subsubsection{Optimisation de l'interpréteur}
+
+CPython est l'implémentation de référence du langage python. Il en existe cependant d'autre comme Jython écrit en Java et IronPython , l'implémentation de python pour .NET. Le projet Pypy, quant à lui, a pour but d'obtenir une implémentation de python plus performante que CPython.
+
+Un programme écrit en python pour CPython peut être exécuté avec Pypy sans modification\footnote{Il existe quelques incompatibilités dans des cas particuliers, souvent liées à des différence de stratégie des ramasse-miettes\cite{PypyDiff}.} et sera en moyenne 5,5 fois plus rapide\cite{PypySpeed}.
+
+\subsubsection{La solution pythran : compiler en code natif}
+
+L'outils pythran permet de traduire un module python en C++ pour pouvoir ensuite être compilé en code natif. Afin d'être utilisable par pythran, le code source doit seulement être annoté de descriptions d'interfaces. Le résultat est un module python en code natif qui peut être utilisé depuis un programme python usuel.
+
+Avant même de traduire le code python en C++, pythran se charge de l'optimiser. Par exemple, il va analyser quels sont les expressions constantes et les remplacer par leurs valeurs.
+
+Pythran ne traduit qu'un sous-ensemble de python. En particulier, les classes ne sont pas gérées. Cela destine pythran à être utilisé pour l'optimisation d'algorithmes dont les temps d'exécution sont critiques pour le programme les utilisant.
+
+La figure~\ref{RangeXrangePyCpp} permet de comparer les performances entre un programme en python et son équivalent en C++.
+
+\begin{figure}[h]
+  \includegraphics[scale=0.5]{./Pictures/RangeXrangePyCpp}
+  \caption{Comparaison de performances entre python et C++ compilé avec et sans le flag -O3.}
+  \label{RangeXrangePyCpp}
+\end{figure}
+
+Les programme en python sont les suivants :
+
+\begin{verbatim}
+  sum(range(N))
+\end{verbatim}
+
+\begin{verbatim}
+  sum(xrange(N))
+\end{verbatim}
+
+et leurs équivalents en C++ sont :
+
+\begin{verbatim}
+  pythonic::sum(pythonic::range(N))
+\end{verbatim}
+
+\begin{verbatim}
+  pythonic::sum(pythonic::xrange(N))
+\end{verbatim}
+
+où pythonic est le namespace de pythonic++ (cf. \ref{pythonicpp} p. \pageref{pythonicpp}).
+
+Les temps en python sont de nouveau mesurés avec timeit.timeit() et les temps en C++ sont mesurés avec clock().
+
+On remarque que, contrairement à ce à quoi on pouvait s'attendre, les programme en C++ ne sont pas toujours plus rapides que ceux en python. Dans le cas du xrange, le programme en python est légèrement plus performant que celui en C++. Cependant, l'optimisation du compilateur C++ permet de réduire de façon drastiques le temps d'exécution. Enfin, le gain réalisé en remplaçant range par xrange se retrouve également en C++. 
+
+De cela on peut en conclure que pythran peut augmenter les performances d'un algorithme sur trois axes :
+
+\begin{itemize}
+  \item Optimisation du code d'origine, par exemple en utilisant des iterateurs comme xrange ou imap plutôt que range ou map.
+  \item Traduction en code C++ pour pouvoir être compilé en code natif, en général plus rapide que du code interprété.
+  \item Possibilité de bénéficier des optimisations supplémentaires du compilateur C++.
+\end{itemize}
+
+
+Pythran permet également d'annoter le programme de directives OpenMP, qui permettent de paralléliser les opérations qui peuvent l'être. Une bonne utilisation des directives OpenMP permet ainsi d'augmenter encore la vitesse d'execution d'un facteur x2 à x4\cite{PythranRenpar}.
+
+\section{Analyse du problème}
+
+Le code python lu par pythran est réprésenté sous forme d'un arbre syntaxique abstrait (AST) dont les noeuds représentent des opérateurs et les feuilles des opérandes. C'est sur cet arbre que pythran travaille pour optimiser le programme et le traduire en C++.
+
+\subsection{Transformations de l'AST}
+
+Avant de produire la traduction C++, pythran peut effectuer des opérations sur l'AST. Ces opérations visent à apporter des modifications ne changeant pas les résultats produits par le programme, mais utilisant des combinaisons d'opérateurs plus performantes celles initialement utilisées. On appelle ce type de modification une transformation de l'AST.
+
+\subsubsection{Recherche de transformations valide}
+
+La recherche de transformations pertinentes nécessitent d'avoir des connaissance pointues sur le coût des différentes opérations effectuées par un même opérateur. Par exemple, c'est parce que l'allocation d'une grande quantité de mémoire a un coût prohibitif que les transformation du type range -> xrange permet un gain de performances.
+
+Un autre problème est celui de la recherche de la validité d'une transformation. On a vu qu'une transformation consiste à remplacer une combinaison d'opérateurs par une autre combinaison équivalente. Or, cette équivalence peut n'être vérifiée que sous certaines conditions. La transformation n'est alors valide que dans les cas où ces conditions sous toutes vérifiées.
+
+Dans le cas de xrange, une condition suffisante pour que la transformation range -> xrange soit valide est que le résultat produit par range ne soit jamais modifié. Ce qui serait par exemple le cas dans l'exemple suivant\footnote{En supposant que range(100) soit bien une opération produisant la liste [1..100].} :
+
+\begin{verbatim}
+  for i in range(100):
+    f(i)
+\end{verbatim}
+
+Ceci peut donc être remplacé par
+
+\begin{verbatim}
+  for i in xrange(100):
+    f(i)
+\end{verbatim}
+
+\subsubsection{Le problème du contexte}
+
+Un obstacle majeur est qu'il n'est pas trivial de savoir si les conditions de validité de la transformation sont remplies.
+
+Par exemple, il est possible d'appliquer la transformation range -> xrange au programme suivant. Mais pour pouvoir savoir cela, il faut vérifier dans le reste du code pour s'assurer que la liste assignée à la variable l n'est jamais modifiée.
+
+\begin{verbatim}
+  l = range(100)
+  .
+  .
+  .
+  for i in l:
+    f(i)
+\end{verbatim}
+
+Un autre problème vient du fait que dans l'AST, un opérateur est représenté par son nom, ce qui permet la situation de l'exemple suivant, où la transformation range() -> xrange() n'est pas valide.
+
+\begin{verbatim}
+  def g(n):
+    return [9001,n,27,42]
+  .
+  .
+  .
+  range = g
+  .
+  .
+  .
+  for i in range(100):
+    f(i)
+\end{verbatim}
+
+Avant d'effectuer la transformation, il faut donc analyser le programme pour déterminer dans quels cas la transformation est valide. Dans pythran, c'est ce que réalisent les analyses, qui parcourent et annotent l'AST. Les transformations appliquées ensuites utilisent les annotations laissées par les analyses.
+
+Un exemple simple est celui de la réduction des expressions constantes. Une analyse parcourt l'AST pour déterminer quels noeuds correspondent à des expressions constantes. Une transformation peut ensuite être appliquée à ces noeuds pour les réduire en feuille.
+
+\subsection{Compilation du code optimisé}
+
+\label{pythonicpp}
+
+C'est à partir de l'AST optimisé que pythran génère le code C++. Pour cela, il utilise pythonic++, un ensemble de headers C++ qui contiennent les équivalents en C++ des opérateurs et des collections natives au python. 
+
+Pour qu'un module de la bibliothèque standart de python puisse être utilisé dans du code traduit par pythran, il faut donc qu'un équivalent de ce module ai été développé pour pythonic++.
+
+En particulier, le module itertools n'est pas encore implementé dans pythonic++, ce qui empêche d'utiliser des opérateurs comme imap ou product.
+
+\section{Plan de travail}
+
+L'ordre envisagé pour le plan de travail prend en compte plusieurs paramètres :
+
+\begin{itemize}
+\item Certains travaux dépendent des résultats des autres. En particulier, la plupart des transformations de l'AST visent à utiliser des fonctions du module itertools toute les fois où cela est possible. Ces transformations ne peuvent donc être implémentées qu'une fois le module itertools disponible dans pythonic++.
+\item Certains travaux sont plus simples et permettent d'assimiler les concepts et outils nécessaires à la réalisation des travaux plus complexes du même type. Par exemple, la transformation de range en xrange est complexe et devrait donc être abordée après que la transformation de generator expression en imap ait été complétée.
+\end{itemize}
+
+\subsection{Implémentation du module Itertools}
+
+\subsubsection{Ecriture du module pour Pythonic++}
+
+Le module itertools doit être implémenté en C++ pour pythonic++. Le code produit doit être homogène avec le reste de pythonic++. A savoir :
+
+\begin{itemize}
+\item Etre conforme à la norme C++11.
+\item BLABLABLA...
+\end{itemize}
+
+TODO Completer ou fusionner les subsubsection
+
+\subsubsection{Méthodologie}
+
+La méthodologie utilisée pour l'implémentation du module itertools est une itération des étapes suivantes :
+
+\begin{enumerate}
+\item Déterminer une fonction à implémenter
+\item Ecrire des tests 
+\item Implémenter la fonction
+\item Tester la fonction pour vérifier qu'elle produit le résultat attendu pour tout les cas de test.
+\item Tester les performances de la fonction et vérifier qu'il n'y a pas d'opération anormalement couteuse avec l'outils Callgrind. 
+\end{enumerate}
+
+\subsubsection{Priorités}
+
+TODO imap, ifiler et product? cf S\P
+
+\subsection{Transformation de l'AST}
+
+Une seconde partie du travail consistera à TODO(concevoir?) des transformations de l'AST pertinentes. En particulier, il faudra déterminer dans quel cas elles sont valides et s'assurer de ne les appliquer que dans ces cas.
+
+\subsubsection{Les generator expressions}
+
+TODO Justifier pertinence
+
+Il est toujours possible de remplacer 
+
+\begin{verbatim}
+  (g(a,b,c...) for a in A if fa(a) for b in B if fb(a,b) for c in C if fc(a,b,c) ... )
+\end{verbatim}
+ 
+par
+
+\begin{verbatim}
+  imap(lambda a,b,c... : g(a,b,c...), ifilter(lambda a,b,c... : fa(a) and fb(a,b) and fc(a,b,c)..., product(A,B,C...)))
+\end{verbatim}
+
+Il faudra donc implémenter la transformation correspondante.
+
+\subsubsection{Le cas xrange}
+
+Les exemples précédents ont montré que la transformation range -> xrange n'est pas toujours valide. Il faudra donc :
+
+\begin{enumerate}
+  \item Identifier la plupart des cas dans lesquels la transformation est valide.
+  \item Ecrire une ou des analyses permettant d'identifier ces cas.
+  \item Implémenter la transformation.
+\end{enumerate}
+
+On note en particulier qu'il est à priori très difficile de trouver une analyse permettant de trouver tous les cas dans lesquels la transformation serait valide.
+
+Par exemple, il serait valide de remplacer range par xrange dans la boucle for de l'exemple suivant, mais très difficile de le déterminer.
+
+
+\begin{verbatim}
+def g(n):
+  return map(lambda x : - 1 * x, xrange(0,-n,-1))
+
+range = g
+
+for i in range(100):
+    f(i)
+\end{verbatim}
+
+
+\clearpage
+
+\appendix
+
+
+\listoffigures            
+
+\bibliographystyle{plain}
+\bibliography{RapportCourtBib}
+
+\end{document}
+

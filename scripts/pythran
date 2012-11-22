@@ -28,8 +28,9 @@ def get_or_create_config_file():
     where = os.path.join(os.environ.get('XDG_CONFIG_HOME',
                         os.environ['HOME']), '.pythranrc')
     if not os.path.isfile(where):
-        print >> sys.stderr, 'W:', 'No pythran config file found in',\
-            where, 'creating an empty one'
+        w0 = 'No config file found in {0}, creating an empty one'.format(
+                where)
+        print >> sys.stderr, 'W:', w0
         with file(where, 'w'):
             pass
     return where
@@ -49,34 +50,39 @@ parser = argparse.ArgumentParser(prog='pythran',
         fromfile_prefix_chars="@"
         )
 
-parser.add_argument('input_file', type=str, help='the python module to\
-compile')
-parser.add_argument('-o', dest='output_file', type=str, help='path to\
-generated file')
-parser.add_argument('-E', dest='translate_only', action='store_true',\
-help='only run the translator, do not compile')
-parser.add_argument('-e', dest='raw_translate_only', action='store_true',\
-help='only run the translator, do not generate python glue, do not compile')
-parser.add_argument('-f', dest='extra_fflags', metavar='flag',\
-action='append', help='any compiler switch relevant to the underlying\
-C++ compiler', default=list())
-parser.add_argument('-m', dest='extra_mflags', metavar='machine',\
-action='append', help='any machine flag relevant to the underlying C++\
-compiler', default=list())
-parser.add_argument('-I', dest='extra_Iflags', metavar='include_dir',\
-action='append', help='any include dir relevant to the underlying C++\
-compiler', default=list())
-parser.add_argument('-D', dest='extra_Dflags', metavar='macro_definition',\
-action='append', help='any macro definition relevant to the underlying\
-C++ compiler', default=list())
-parser.add_argument('-O', dest='extra_Oflags', metavar='level',\
-action='append', help='any optimization level relevant to the underlying\
-C++ compiler', default=list())
-parser.add_argument('-g', dest='debug_flag', action='store_true',\
-help='any debug level relevant to the underlying C++ compiler')
-parser.add_argument('--pythran-no-env-check', dest='no_env_check',\
-action='store_true', help='disable check of compilation environment,\
-makes the compiler run significantly faster')
+parser.add_argument('input_file', type=str,
+        help='the python module to compile')
+parser.add_argument('-o', dest='output_file', type=str,
+        help='path to generated file')
+parser.add_argument('-E', dest='translate_only', action='store_true',
+        help='only run the translator, do not compile')
+parser.add_argument('-e', dest='raw_translate_only', action='store_true',
+        help='similar to -E, but does not generate python glue')
+parser.add_argument('-f', dest='extra_fflags', metavar='flag',
+        action='append',
+        help='any compiler switch relevant to the underlying C++ compiler',
+        default=list())
+parser.add_argument('-m', dest='extra_mflags', metavar='machine',
+        action='append',
+        help='any machine flag relevant to the underlying C++ compiler',
+        default=list())
+parser.add_argument('-I', dest='extra_Iflags', metavar='include_dir',
+        action='append',
+        help='any include dir relevant to the underlying C++ compiler',
+        default=list())
+parser.add_argument('-D', dest='extra_Dflags', metavar='macro_definition',
+        action='append',
+        help='any macro definition relevant to the underlying C++ compiler',
+        default=list())
+parser.add_argument('-O', dest='extra_Oflags', metavar='level',
+        action='append',
+        help='any optimization level relevant to the underlying C++ compiler',
+        default=list())
+parser.add_argument('-g', dest='debug_flag', action='store_true',
+        help='any debug level relevant to the underlying C++ compiler')
+parser.add_argument('--pythran-no-env-check', dest='no_env_check',
+        action='store_true',
+        help='disable compilation environment checks')
 
 parser.convert_arg_line_to_args = convert_arg_line_to_args
 
@@ -105,19 +111,21 @@ try:
     else:
         # build using the forwarded compiler options
         compiler = os.environ.get("CXX", "c++")
-        extra_cxxflags = os.environ.get("CXXFLAGS", "").split()\
-                + ['-f{0}'.format(n) for n in args.extra_fflags]\
-                + ['-m{0}'.format(n) for n in args.extra_mflags]\
-                + ['-I{0}'.format(n) for n in args.extra_Iflags]\
-                + ['-D{0}'.format(n) for n in args.extra_Dflags]\
-                + ['-O{0}'.format(n) for n in args.extra_Oflags]\
+        extra_cxxflags = (os.environ.get("CXXFLAGS", "").split()
+                + ['-f{0}'.format(n) for n in args.extra_fflags]
+                + ['-m{0}'.format(n) for n in args.extra_mflags]
+                + ['-I{0}'.format(n) for n in args.extra_Iflags]
+                + ['-D{0}'.format(n) for n in args.extra_Dflags]
+                + ['-O{0}'.format(n) for n in args.extra_Oflags]
                 + (['-g'] if args.debug_flag else [])
+                )
 
         if not args.no_env_check:
-            print >> sys.stderr, 'W:', 'Checking your compilation\
-                    environment, this make take some time.'
-            print >> sys.stderr, 'W:', 'To disable this, add\
-                    --pythran-no-env-check to', config_file
+            w0 = 'Checking compilation environment, this make take some time.'
+            w1 = 'To disable this, add --pythran-no-env-check to {0}'.format(
+                    config_file)
+            print >> sys.stderr, 'W:', w0
+            print >> sys.stderr, 'W:', w1
         pythran.compile(compiler, module, args.output_file,
             cxxflags=extra_cxxflags, check=not args.no_env_check)
 
@@ -130,8 +138,8 @@ except ValueError as e:
     print >> sys.stderr, "E:", e
     sys.exit(1)
 except SyntaxError as e:
-    print >> sys.stderr, "I am in trouble. Your input file does not\
-            seem to match Pythran's constraints..."
+    print >> sys.stderr, ("I am in trouble." +
+            "Your input file does not seem to match Pythran's constraints...")
     print >> sys.stderr, "E:", e
     sys.exit(1)
 except CalledProcessError as e:
@@ -142,14 +150,14 @@ except CalledProcessError as e:
     print >> sys.stderr, e.output
     sys.exit(1)
 except NotImplementedError as e:
-    print >> sys.stderr, "MAYDAY, MAYDAY, MAYDAY; pythran compiler;\
-        code area out of control"
-    print >> sys.stderr, "E: not implemented feature needed, bash the\
-        developers"
+    print >> sys.stderr, ("MAYDAY, MAYDAY, MAYDAY; pythran compiler; "
+             + "code area out of control")
+    print >> sys.stderr, ("E: not implemented feature needed, " +
+            "bash the developers")
     raise
 except EnvironmentError as e:
-    print >> sys.stderr, "By Jove! Your environment does not seem to\
-        provide all what we need"
+    print >> sys.stderr, ("By Jove! Your environment does not seem "
+            + "to provide all what we need")
     print >> sys.stderr, "E:", e
     sys.exit(1)
 

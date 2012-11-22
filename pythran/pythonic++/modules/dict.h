@@ -14,7 +14,7 @@ namespace pythonic {
         template<class Iterable, class V=none_type>
             core::dict<typename std::remove_reference<Iterable>::type::value_type, V> fromkeys(Iterable && iter, V const & v = None) {
                 core::dict<typename std::remove_reference<Iterable>::type::value_type,V> D;
-				D=core::empty_dict();
+                D=core::empty_dict();
                 for(auto i: iter) D[i]=v;
                 return D;
             }
@@ -32,8 +32,8 @@ namespace pythonic {
             X get(core::empty_dict const &, W const& , X const &default_) {
                 return default_;
             }
-		template<class T, class I, class J>
-			decltype(std::declval<T>()+std::declval<J>()) get(::dict_container<T>, I , J );
+        template<class T, class I, class J>
+            decltype(std::declval<T>()+std::declval<J>()) get(::dict_container<T>, I , J );
         PROXY(pythonic::__dict__, get);
 
         template<class K, class V, class W>

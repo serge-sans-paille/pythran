@@ -34,7 +34,7 @@ namespace  pythonic {
                 // data holder
                 typedef  typename std::remove_cv< typename std::remove_reference<T>::type>::type  _type;
                 typedef std::vector< _type > container_type;
-				impl::shared_ref<container_type> data; 
+                impl::shared_ref<container_type> data; 
 
                 template<class U>
                     friend class list;
@@ -106,7 +106,7 @@ namespace  pythonic {
                 // data holder
                 typedef  typename std::remove_cv< typename std::remove_reference<T>::type>::type  _type;
                 typedef std::vector< _type > container_type;
-				impl::shared_ref<container_type> data; 
+                impl::shared_ref<container_type> data; 
 
                 template<class U>
                     friend class list_view;
@@ -135,9 +135,9 @@ namespace  pythonic {
                 list() : data(impl::no_memory()) {}
                 template<class InputIterator>
                     list(InputIterator start, InputIterator stop) : data() {
-                            data->reserve(DEFAULT_LIST_CAPACITY);
-                            std::copy(start, stop, std::back_inserter(*data));
-                        }
+                        data->reserve(DEFAULT_LIST_CAPACITY);
+                        std::copy(start, stop, std::back_inserter(*data));
+                    }
                 list(empty_list const &) : data() {}
                 list(size_type sz) :data(sz) {}
                 list(std::initializer_list<value_type> l) : data(std::move(l)) {}
@@ -145,20 +145,20 @@ namespace  pythonic {
                 list(list<T> const & other) : data(other.data) {}
                 template<class F>
                     list(list<F> const & other) : data(other.size()) {
-                            std::copy(other.begin(), other.end(), begin());
-                        }
+                        std::copy(other.begin(), other.end(), begin());
+                    }
                 list(list_view<T> const & other) : data( other.begin(), other.end()) {}
 
                 list<T>& operator=(list<T> && other) {
-					data=std::move(other.data);
+                    data=std::move(other.data);
                     return *this;
                 }
                 list<T>& operator=(list<T> const & other) {
-					data=other.data;
+                    data=other.data;
                     return *this;
                 }
                 list<T>& operator=(empty_list const & ) {
-					data=impl::shared_ref<container_type>();
+                    data=impl::shared_ref<container_type>();
                     return *this;
                 }
 
@@ -168,7 +168,7 @@ namespace  pythonic {
                         data->resize(it - data->begin());
                     }
                     else {
-						data=impl::shared_ref<T>(other.begin(),other.end());
+                        data=impl::shared_ref<T>(other.begin(),other.end());
                     }
                     return *this;
                 }
@@ -219,7 +219,7 @@ namespace  pythonic {
 
                 list<T> operator[]( slice const &s ) const {
                     list<T> out(0);
-					out.reserve(size());
+                    out.reserve(size());
                     long lower, upper;
                     if(s.step<0) {
                         if( s.lower == std::numeric_limits<long>::max() )
@@ -379,6 +379,10 @@ namespace  pythonic {
                 list<T> out(size() + s.size());
                 std::copy(s.begin(), s.end(), std::copy(begin(), end(), out.begin()));
                 return out;
+            }
+        template<class N, class T>
+            list<T> operator*(N n, core::list<T> const& l) {
+                return l*n;
             }
 
     }

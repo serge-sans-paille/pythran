@@ -43,38 +43,38 @@ namespace pythonic {
 
         std::tuple<double,long> frexp(double x)
         {
-                int exp;
-                double sig = std::frexp(x,&exp);
-                return std::tuple<double,long>(sig,exp);
+            int exp;
+            double sig = std::frexp(x,&exp);
+            return std::tuple<double,long>(sig,exp);
         }
 
         WRAP(double,gamma,std::tgamma,double);
 
         template<class T>
-        T factorial(T x)
-        {
+            T factorial(T x)
+            {
                 T res = 1;
                 for(T i=2;i<=x;i++)
-                        res *= i;
+                    res *= i;
                 return res;
-        }
-        
+            }
+
         std::tuple<double,double> modf(double x)
         {
-                double i;
-                double frac = std::modf(x,&i);
-                return std::make_tuple(frac,i);
+            double i;
+            double frac = std::modf(x,&i);
+            return std::make_tuple(frac,i);
         }
 
         double log(double x, double base) { return log(x)/log(base); }
 
         template<class T>
-        double degrees(T x) { return (x * 360.) / (2. * pi); }
+            double degrees(T x) { return (x * 360.) / (2. * pi); }
 
         template<class T>
-        double radians(T x) { return (x * 2. * pi) / 360.; }
-        
-	PROXY(pythonic::math,isinf);
+            double radians(T x) { return (x * 2. * pi) / 360.; }
+
+        PROXY(pythonic::math,isinf);
         PROXY(pythonic::math,modf);
         PROXY(pythonic::math,frexp);
         PROXY(pythonic::math,factorial);

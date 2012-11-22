@@ -16,15 +16,15 @@ namespace pythonic {
         return other op std::complex<double>(self,0.)  ;\
     }
 
-    COMPLEX_OPERATOR(long,operator+,+)
-    COMPLEX_OPERATOR(long,operator-,-)
-    COMPLEX_OPERATOR(long,operator*,*)
-    COMPLEX_OPERATOR(long,operator/,/)
+    COMPLEX_OPERATOR(long,operator+,+);
+    COMPLEX_OPERATOR(long,operator-,-);
+    COMPLEX_OPERATOR(long,operator*,*);
+    COMPLEX_OPERATOR(long,operator/,/);
 
-    COMPLEX_OPERATOR(double,operator+,+)
-    COMPLEX_OPERATOR(double,operator-,-)
-    COMPLEX_OPERATOR(double,operator*,*)
-    COMPLEX_OPERATOR(double,operator/,/)
+    COMPLEX_OPERATOR(double,operator+,+);
+    COMPLEX_OPERATOR(double,operator-,-);
+    COMPLEX_OPERATOR(double,operator*,*);
+    COMPLEX_OPERATOR(double,operator/,/);
 
 #undef COMPLEX_OPERATOR
 }

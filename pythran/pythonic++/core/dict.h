@@ -82,7 +82,7 @@ namespace  pythonic {
                 typedef  typename std::remove_cv< typename std::remove_reference<K>::type>::type  _key_type;
                 typedef  typename std::remove_cv< typename std::remove_reference<V>::type>::type  _value_type;
                 typedef std::unordered_map< _key_type, _value_type > container_type;
-				impl::shared_ref<container_type> data; 
+                impl::shared_ref<container_type> data; 
 
 
                 public:
@@ -111,7 +111,7 @@ namespace  pythonic {
                 dict(std::initializer_list<value_type> l) : data(std::move(l)) {}
                 dict(dict<K,V> const & other) : data(other.data) {}
                 template<class B, class E>
-                dict(B begin, E end) : data(begin, end) {}
+                    dict(B begin, E end) : data(begin, end) {}
 
                 // iterators
                 iterator begin() { return iterator(data->begin()); }
@@ -140,30 +140,30 @@ namespace  pythonic {
 
                 void clear() { return data->clear(); }
 
-            	dict<K,V> copy() const{
-                	return core::dict<K,V>(this->item_begin(), this->item_end());
-            	}
+                dict<K,V> copy() const{
+                    return core::dict<K,V>(this->item_begin(), this->item_end());
+                }
 
                 template <class W>
-                decltype(std::declval<V>()+std::declval<W>()) get(K const& key, W d) const {
-                    auto ivalue = data->find(key);
-                    if(ivalue != data->end()) return ivalue->second;
-                    else return d;
-                }
+                    decltype(std::declval<V>()+std::declval<W>()) get(K const& key, W d) const {
+                        auto ivalue = data->find(key);
+                        if(ivalue != data->end()) return ivalue->second;
+                        else return d;
+                    }
                 none<V> get(K const& key) const {
                     auto ivalue = data->find(key);
                     if(ivalue != data->end()) return ivalue->second;
                     else return None;
                 }
                 template <class W>
-                decltype(std::declval<V>()+std::declval<W>()) setdefault(K const& key, W d) {
-                    auto ivalue = data->find(key);
-                    if(ivalue != data->end()) return ivalue->second;
-                    else {
-                        (*data)[key]=d;
-                        return d;
+                    decltype(std::declval<V>()+std::declval<W>()) setdefault(K const& key, W d) {
+                        auto ivalue = data->find(key);
+                        if(ivalue != data->end()) return ivalue->second;
+                        else {
+                            (*data)[key]=d;
+                            return d;
+                        }
                     }
-                }
                 none<V> setdefault(K const& key) {
                     auto ivalue = data->find(key);
                     if(ivalue != data->end()) return ivalue->second;
@@ -173,26 +173,26 @@ namespace  pythonic {
                     }
                 }
                 template<class K0, class W0>
-                void update(core::dict<K0,W0> const & d) {
-                    for(auto kv : *d.data)
-                        (*data)[kv.first]=kv.second;
-                }
+                    void update(core::dict<K0,W0> const & d) {
+                        for(auto kv : *d.data)
+                            (*data)[kv.first]=kv.second;
+                    }
                 template<class Iterable>
-                void update(Iterable const & d)  {
-                    for(auto kv : d)
-                        (*data)[std::get<0>(kv)]=std::get<1>(kv);
-                }
+                    void update(Iterable const & d)  {
+                        for(auto kv : d)
+                            (*data)[std::get<0>(kv)]=std::get<1>(kv);
+                    }
 
                 template <class W>
-                decltype(std::declval<V>()+std::declval<W>()) pop(K const& key, W d) {
-                    auto ivalue = data->find(key);
-                    if(ivalue != data->end()) {
-                        auto tmp = ivalue->second;
-                        data->erase(ivalue);
-                        return tmp;
+                    decltype(std::declval<V>()+std::declval<W>()) pop(K const& key, W d) {
+                        auto ivalue = data->find(key);
+                        if(ivalue != data->end()) {
+                            auto tmp = ivalue->second;
+                            data->erase(ivalue);
+                            return tmp;
+                        }
+                        else return d;
                     }
-                    else return d;
-                }
                 V pop(K const& key) {
                     auto ivalue = data->find(key);
                     if(ivalue != data->end()) {

@@ -22,10 +22,15 @@ namespace pythonic {
             return a + (b-a)*random();
         }
 
+        double expovariate(double l) {
+            return std::exponential_distribution<>(l)(__random_generator);
+        }
+
         PROXY(pythonic::random, seed);
         PROXY(pythonic::random, random);
         PROXY(pythonic::random, gauss);
         PROXY(pythonic::random, uniform);
+        PROXY(pythonic::random, expovariate);
     }
 }
 

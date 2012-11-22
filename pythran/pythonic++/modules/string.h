@@ -26,7 +26,7 @@ namespace pythonic {
                 for(;iter!=iterable.end();++iter)
                     out << s << *iter;
                 return out.str();
-        }
+            }
         PROXY(pythonic::__string__, join);
         core::string capitalize(core::string const & s)
         {

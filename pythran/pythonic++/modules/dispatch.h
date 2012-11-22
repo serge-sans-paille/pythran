@@ -10,33 +10,33 @@ namespace pythonic {
         template<class Any, class Arg0, class Arg1>
             auto pop(Any&& any, Arg0 const & arg0, Arg1 const& arg1) -> decltype(any.pop(arg0,arg1)) { return any.pop(arg0,arg1); }
 
-        PROXY(pythonic::__dispatch__, pop)
+        PROXY(pythonic::__dispatch__, pop);
 
-	template<class Any>
-	    auto clear(Any&& any) -> decltype(any.clear()) {return any.clear();}
+        template<class Any>
+            auto clear(Any&& any) -> decltype(any.clear()) {return any.clear();}
 
-        PROXY(pythonic::__dispatch__, clear)
+        PROXY(pythonic::__dispatch__, clear);
 
-	template<class Any>
-	    auto copy(Any const& any) -> decltype(any.copy()) {return any.copy();}
+        template<class Any>
+            auto copy(Any const& any) -> decltype(any.copy()) {return any.copy();}
 
-        PROXY(pythonic::__dispatch__, copy)
+        PROXY(pythonic::__dispatch__, copy);
 
         template<class Any, class Arg0>
             auto remove(Any& any, Arg0 const & arg0) -> decltype(any.remove(arg0)) { return any.remove(arg0); }
 
-        PROXY(pythonic::__dispatch__, remove)
+        PROXY(pythonic::__dispatch__, remove);
 
         template<class Any, class Arg0>
             auto update(Any&& any, Arg0 && arg0) -> decltype(any.update(std::forward<Arg0>(arg0))) {
-				return any.update(std::forward<Arg0>(arg0));
-			}
+                return any.update(std::forward<Arg0>(arg0));
+            }
         template<class Any, class Arg0, class Arg1>
             auto update(Any&& any, Arg0 && arg0, Arg1 && arg1) -> decltype(any.update(std::forward<Arg0>(arg0), std::forward<Arg1>(arg1))) {
-				return any.update(std::forward<Arg0>(arg0), std::forward<Arg1>(arg1));
-			}
+                return any.update(std::forward<Arg0>(arg0), std::forward<Arg1>(arg1));
+            }
 
-        PROXY(pythonic::__dispatch__, update)
+        PROXY(pythonic::__dispatch__, update);
 
     }
 }

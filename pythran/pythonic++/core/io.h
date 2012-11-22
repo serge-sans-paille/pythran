@@ -6,9 +6,9 @@
 namespace pythonic {
     namespace detail {
         template<class T>
-        std::ostream& print(std::ostream& os, T const & t) {
-            return os << t;
-        }
+            std::ostream& print(std::ostream& os, T const & t) {
+                return os << t;
+            }
     }
 
     void print_nonl() {
@@ -96,8 +96,8 @@ namespace pythonic {
                 auto niter = iter ; ++niter;
                 while(niter != v.item_end()) {
                     detail::print(os, *iter) << ", ";
-					++niter, ++iter;
-				}
+                    ++niter, ++iter;
+                }
                 detail::print(os, *iter);
             }
             return os << '}';
@@ -147,9 +147,9 @@ namespace pythonic {
     /* string */
     namespace detail {
         template<>
-        std::ostream& print<core::string>(std::ostream& os, core::string const & s) {
-            return os << '\'' << s << '\'';
-        }
+            std::ostream& print<core::string>(std::ostream& os, core::string const & s) {
+                return os << '\'' << s << '\'';
+            }
     }
 }
 #endif

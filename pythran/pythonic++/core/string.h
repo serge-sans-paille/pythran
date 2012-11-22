@@ -7,7 +7,7 @@
 namespace pythonic {
     namespace core {
         class string;
-    
+
         class string_view {
             typedef std::string container_type;
             impl::shared_ref<container_type> data;
@@ -29,30 +29,30 @@ namespace pythonic {
             typedef typename container_type::reverse_iterator reverse_iterator;
             typedef typename container_type::const_reverse_iterator const_reverse_iterator;
 
-                // constructor
+            // constructor
             string_view(): data(impl::no_memory()) {}
             string_view(string_view const & s): data(s.data), slicing(s.slicing) {}
             string_view(string & , slice const &);
 
-                // const getter
+            // const getter
             container_type const & get_data() const { return *data; }
             slice const & get_slice() const { return slicing; }
 
-                // assignment
+            // assignment
             string_view& operator=(string const & );
             string_view& operator=(string_view const & );
             string operator+(string_view const & );
 
-                // iterators
+            // iterators
             iterator begin() { assert(slicing.step==1) ; return data->begin()+slicing.lower; }
             const_iterator begin() const { assert(slicing.step==1) ; return data->begin()+slicing.lower; }
             iterator end() { assert(slicing.step==1) ; return data->begin()+slicing.upper; }
             const_iterator end() const { assert(slicing.step==1) ; return data->begin()+slicing.upper; }
 
-                // size
+            // size
             size_type size() const { assert(slicing.step!=0); return (slicing.upper - slicing.lower)/slicing.step ; }
 
-                // accessor
+            // accessor
             char const & operator[](long i) const { return (*data)[slicing.lower + i*slicing.step];}
             char & operator[](long i) { return (*data)[slicing.lower + i*slicing.step];}
 
@@ -60,81 +60,81 @@ namespace pythonic {
             operator long();
         };
 
-		class string : public std::string {
+        class string : public std::string {
 
             friend class string_view;
 
-			public:
-				string() : std::string() {}
-				string(std::string const & s) : std::string(s) {}
-				string(std::string && s) : std::string(std::move(s)) {}
-				string(const char*s) : std::string(s) {}
-				string(char c) : std::string(1,c) {}
-                string(string_view const & other) : std::string( other.begin(), other.end()) {}
-                core::string operator+(core::string const& s) const {
-                    return core::string( (*(std::string*)this)+(std::string const&)s );
+            public:
+            string() : std::string() {}
+            string(std::string const & s) : std::string(s) {}
+            string(std::string && s) : std::string(std::move(s)) {}
+            string(const char*s) : std::string(s) {}
+            string(char c) : std::string(1,c) {}
+            string(string_view const & other) : std::string( other.begin(), other.end()) {}
+            core::string operator+(core::string const& s) const {
+                return core::string( (*(std::string*)this)+(std::string const&)s );
+            }
+            operator long() {
+                long out;
+                std::istringstream iss(*this);
+                iss >> out;
+                return out;
+            }
+            string& operator=(string_view const & other) {
+                if(other.get_data() == *this ) {
+                    auto it = std::copy(other.begin(), other.end(), this->begin());
+                    this->resize(it - this->begin());
                 }
-				operator long() {
-					long out;
-					std::istringstream iss(*this);
-					iss >> out;
-					return out;
-				}
-                string& operator=(string_view const & other) {
-                    if(other.get_data() == *this ) {
-                        auto it = std::copy(other.begin(), other.end(), this->begin());
-                        this->resize(it - this->begin());
-                    }
-                    else {
-						*this=other.get_data();
-                    }
-                    return *this;
+                else {
+                    *this=other.get_data();
                 }
-                using std::string::operator+=;
-                string& operator+=(string_view const & other) {
-                    resize(size() + other.get_data().size());
-                    std::copy(other.begin(), other.end(), begin());
-                    return *this;
-                }
-                bool operator==(string_view const & other) {
-                    if(length() != other.size())
+                return *this;
+            }
+            using std::string::operator+=;
+            string& operator+=(string_view const & other) {
+                resize(size() + other.get_data().size());
+                std::copy(other.begin(), other.end(), begin());
+                return *this;
+            }
+            bool operator==(string_view const & other) {
+                if(length() != other.size())
+                    return false;
+                for(int i=other.get_slice().lower, j=0;i<other.get_slice().upper;i+=other.get_slice().step, j++)
+                    if(other.get_data()[i] != (*this)[j])
                         return false;
-                    for(int i=other.get_slice().lower, j=0;i<other.get_slice().upper;i+=other.get_slice().step, j++)
-                        if(other.get_data()[i] != (*this)[j])
-                            return false;
-                    return true;
-                }
-                string_view operator()( slice const &s) const {
-                    return string_view(*const_cast<string*>(this), s); // SG: ugly !
-                }
+                return true;
+            }
+            string_view operator()( slice const &s) const {
+                return string_view(*const_cast<string*>(this), s); // SG: ugly !
+            }
 
-                using std::string::operator[];
-                string operator[]( slice const &s ) const {
-                    string out;
-                    out.reserve(size());
-                    long lower, upper;
-                    if(s.step<0) {
-                        if( s.lower == std::numeric_limits<long>::max() )
-                            lower = size()-1;
-                        else
-                            lower = s.lower >= 0L ? s.lower : ( s.lower + size());
-                        lower = std::max(0L,lower);
-                        upper = s.upper >= 0L ? s.upper : ( s.upper + size());
-                        upper = std::min(upper, (long)size());
-                        for(long iter = lower; iter >= upper ; iter+=s.step)
-                            out.push_back((*this)[iter]);
-                    }
-                    else {
+            using std::string::operator[];
+            string operator[]( slice const &s ) const {
+                string out;
+                out.reserve(size());
+                long lower, upper;
+                if(s.step<0) {
+                    if( s.lower == std::numeric_limits<long>::max() )
+                        lower = size()-1;
+                    else
                         lower = s.lower >= 0L ? s.lower : ( s.lower + size());
-                        lower = std::max(0L,lower);
-                        upper = s.upper >= 0L ? s.upper : ( s.upper + size());
-                        upper = std::min(upper, (long)size());
-                        for(long iter = lower; iter < upper ; iter+=s.step)
-                            out.push_back((*this)[iter]);
-                    }
-                    return out;
+                    lower = std::max(0L,lower);
+                    upper = s.upper >= 0L ? s.upper : ( s.upper + size());
+                    upper = std::min(upper, (long)size());
+                    for(long iter = lower; iter >= upper ; iter+=s.step)
+                        out.push_back((*this)[iter]);
                 }
-		};
+                else {
+                    lower = s.lower >= 0L ? s.lower : ( s.lower + size());
+                    lower = std::max(0L,lower);
+                    upper = s.upper >= 0L ? s.upper : ( s.upper + size());
+                    upper = std::min(upper, (long)size());
+                    for(long iter = lower; iter < upper ; iter+=s.step)
+                        out.push_back((*this)[iter]);
+                }
+                return out;
+            }
+        };
     }
 }
 template<typename T>
@@ -147,9 +147,9 @@ pythonic::core::string operator*(pythonic::core::string const & s, T const & t) 
         std::copy(s.begin(), s.end(), where);
     return other;
 }
-        /* string_view implementation */
+/* string_view implementation */
 pythonic::core::string_view::string_view(string & other, slice const &s) :
-data(other), slicing(s)
+    data(other), slicing(s)
 {
     long lower, upper;
     if(slicing.step<0) {
@@ -206,13 +206,13 @@ pythonic::core::string_view::operator long() {
 }
 
 namespace std {
-  template <> struct hash<pythonic::core::string>
-  {
-    size_t operator()(const pythonic::core::string & x) const
+    template <> struct hash<pythonic::core::string>
     {
-      return hash<std::string>()(x);
-    }
-  };
+        size_t operator()(const pythonic::core::string & x) const
+        {
+            return hash<std::string>()(x);
+        }
+    };
 }
 
 #endif

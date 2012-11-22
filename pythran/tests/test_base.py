@@ -564,3 +564,10 @@ def import_as():
     import math as MATH
     return MATH.sin(x)**2 + COS(x)**2"""
         self.run_test(code, import_as=[])
+
+    def test_tuple_removal(self):
+        self.run_test("def tuple_removal(t): a,b = t ; return a, b", (1,"e"), tuple_removal=[(int, str)])
+
+    def test_list_removal(self):
+        self.run_test("def list_removal(t): [a,b] = t ; return a, b", (1,2), list_removal=[(int, int)])
+

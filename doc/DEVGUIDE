@@ -10,6 +10,15 @@ Disclaimer
 
 This document is a never ending work-in-progress draft. Please contribute!
 
+Coding Style
+------------
+
+All Python code must be conform to the PEP8, and the ``pep8`` command must not
+yield any message when run on our database. Additionnaly, avoid backslashes,
+and try to make your code as concise as possible.
+
+C++ code use spaces (no tabs) and a tab width of 4.
+
 File Hierarchy
 --------------
 
@@ -51,9 +60,10 @@ validation suite is run through the command::
 
     $> python setup.py test
 
-If you have `py.test <http://pytest.org/latest/>` in your ``PYTHONPATH``, the
-test suite will run using all available cores. Otherwise it might run **very**
-slowly, almost half an hour on a decent laptop :'(.
+If you have `py.test <http://pytest.org/latest/>`  from debian package
+`python-pytest-xdist` in your ``PYTHONPATH``, the test suite will run using all
+available cores. Otherwise it might run **very** slowly, almost half an hour on
+a decent laptop :'(.
 
 Note that it is still possible to use the ``unittest`` module directly, for
 instance to pass a subset of the test suite::

@@ -1,9 +1,14 @@
-class UpdateEffect(object):pass
-class ReadEffect(object):pass
+class UpdateEffect(object):
+    pass
+
+
+class ReadEffect(object):
+    pass
+
 
 class Intrinsic:
     def __init__(self, effects=None):
-        self.effects = effects or ( UpdateEffect(), ) + ( ReadEffect(), ) * 11
+        self.effects = effects or (UpdateEffect(),) + (ReadEffect(),) * 11
 
     def isscalar(self):
         return False
@@ -21,11 +26,12 @@ class Intrinsic:
         return False
 
     def isconst(self):
-        return any( isinstance(x, UpdateEffect) for x in self.effects )
+        return any(isinstance(x, UpdateEffect) for x in self.effects)
+
 
 class FunctionIntr(Intrinsic):
     def __init__(self, effects=None):
-        Intrinsic.__init__(self,effects)
+        Intrinsic.__init__(self, effects)
 
     def isfunction(self):
         return True
@@ -33,9 +39,11 @@ class FunctionIntr(Intrinsic):
     def isstaticfunction(self):
         return True
 
+
 class ConstFunctionIntr(Intrinsic):
     def __init__(self):
-        Intrinsic.__init__(self, effects=() )
+        Intrinsic.__init__(self, effects=())
+
 
 class MethodIntr(FunctionIntr):
     def __init__(self, *combiners):
@@ -45,9 +53,9 @@ class MethodIntr(FunctionIntr):
     def add_combiner(self, _combiner):
         self.combiners += (_combiner,)
 
-    def combiner(self,s,node):
+    def combiner(self, s, node):
         for comb in self.combiners:
-            comb(s,node)
+            comb(s, node)
 
     def ismethod(self):
         return True
@@ -55,18 +63,21 @@ class MethodIntr(FunctionIntr):
     def isstaticfunction(self):
         return False
 
+
 class ConstMethodIntr(MethodIntr):
     def __init__(self, *combiners):
-        FunctionIntr.__init__(self, ( ReadEffect() , ) *12 )
+        FunctionIntr.__init__(self, (ReadEffect(),) * 12)
         self.combiners = combiners
 
+
 class AttributeIntr(Intrinsic):
-    def __init__(self,_val, effects=None):
+    def __init__(self, _val, effects=None):
         Intrinsic.__init__(self, effects)
         self.val = _val
 
     def isattribute(self):
         return True
+
 
 class ScalarIntr(Intrinsic):
     def __init__(self, effects=None):

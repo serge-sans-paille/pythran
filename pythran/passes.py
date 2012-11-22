@@ -573,7 +573,7 @@ class ExpandImports(Transformation):
     def visit_FunctionDef(self, node):
         self.symbols.pop(node.name, None)
         gsymbols = self.symbols.copy()
-        self.visit(node.args)
+        [self.symbols.pop(arg.id, None) for arg in node.args.args]
         node.body = [k for k in (self.visit(n) for n in node.body) if k]
         self.symbols = gsymbols
         return node

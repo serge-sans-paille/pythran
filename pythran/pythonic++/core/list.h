@@ -380,6 +380,10 @@ namespace  pythonic {
                 std::copy(s.begin(), s.end(), std::copy(begin(), end(), out.begin()));
                 return out;
             }
+        template<class N, class T>
+            list<T> operator*(N n, core::list<T> const& l) {
+                return l*n;
+            }
 
     }
 

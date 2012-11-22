@@ -55,7 +55,7 @@ class NormalizeTuples(Transformation):
         if isinstance(node, ast.Name):
             if state:
                 renamings[node.id] = state
-        elif isinstance(node, ast.Tuple):
+        elif isinstance(node, ast.Tuple) or isinstance(node, ast.List):
             [self.traverse_tuples(n, state + (i,), renamings)
                     for i, n in enumerate(node.elts)]
         elif isinstance(node, ast.Subscript):
@@ -101,6 +101,9 @@ class NormalizeTuples(Transformation):
     def visit_SetComp(self, node):
         return self.visit_AnyComp(node)
 
+    def visit_GeneratorExp(self, node):
+        return self.visit_AnyComp(node)
+
     def visit_Lambda(self, node):
         self.generic_visit(node)
         for i, arg in enumerate(node.args.args):
@@ -119,7 +122,7 @@ class NormalizeTuples(Transformation):
         self.generic_visit(node)
         extra_assign = [node]
         for i, t in enumerate(node.targets):
-            if isinstance(t, ast.Tuple):
+            if isinstance(t, ast.Tuple) or isinstance(t, ast.List):
                 renamings = dict()
                 self.traverse_tuples(t, (), renamings)
                 if renamings:
@@ -152,7 +155,7 @@ class NormalizeTuples(Transformation):
     def visit_For(self, node):
         self.generic_visit(node)
         target = node.target
-        if isinstance(target,  ast.Tuple):
+        if isinstance(target, ast.Tuple) or isinstance(target, ast.List):
                 renamings = dict()
                 self.traverse_tuples(target, (), renamings)
                 if renamings:

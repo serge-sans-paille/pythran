@@ -50,6 +50,8 @@ cxx_keywords = {
         'xor', 'xor_eq',
         # C++11 additions
         'constexpr', 'decltype', 'noexcept', 'nullptr', 'static_assert',
+        # reserved namespaces
+        'std',
         }
 
 operator_to_lambda = {

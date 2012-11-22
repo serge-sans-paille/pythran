@@ -102,6 +102,13 @@ class SyntaxChecker(ast.NodeVisitor):
         if module not in tables.modules:
             raise PythranSyntaxError(
                     "Module '{0}' unknown".format(module), node)
+        for alias in node.names:
+            if alias.name not in tables.modules[module]:
+                raise PythranSyntaxError(
+                        "identifier '{0}' not found in module '{1}'".format(
+                            alias.name,
+                            module),
+                        node)
 
     def visit_Exec(self, node):
         raise PythranSyntaxError("Exec statement not supported", node)

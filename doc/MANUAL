@@ -210,6 +210,13 @@ glue. To do so use the ``-e`` switch. It will turn the python code into c++
 code you can call from a C++ code. In that case there is **no** need for a
 particular Pythran specification.
 
+F.A.Q.
+------
+
+1. My exported function has too many arguments:
+
+   - Use -DBOOST_PYTHON_MAX_ARITY=42 or more...
+
 Troubleshooting
 ---------------
 

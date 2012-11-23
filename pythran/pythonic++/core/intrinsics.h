@@ -95,33 +95,34 @@ namespace pythonic {
     PROXY(pythonic, divmod);
 
     /* enumerate */
-    template<class T>
-        struct enumerate_iterator : std::iterator< std::random_access_iterator_tag, std::tuple<long, T> >{
+    template<class Iterable>
+        struct enumerate_iterator : std::iterator< std::random_access_iterator_tag, std::tuple<long, typename std::remove_reference<Iterable>::type::iterator::value_type> >{
             long value;
-            typename core::list<T>::const_iterator iter;
+            typename std::remove_reference<Iterable>::type::iterator iter;
             enumerate_iterator(){}
-            enumerate_iterator(long value, typename core::list<T>::const_iterator iter) : value(value), iter(iter) {}
-            std::tuple<long,T>  operator*() { return std::make_tuple(value, *iter); }
+            enumerate_iterator(long value, typename std::remove_reference<Iterable>::type::iterator iter) : value(value), iter(iter) {}
+            std::tuple<long, typename std::remove_reference<Iterable>::type::iterator::value_type> operator*() { return std::make_tuple(value, *iter); }
             enumerate_iterator& operator++() { ++value,++iter; return *this; }
             enumerate_iterator operator++(int) { enumerate_iterator self(*this); ++value, ++iter; return self; }
             enumerate_iterator& operator+=(long n) { value+=n,iter+=n; return *this; }
-            bool operator!=(enumerate_iterator const& other) { return value != other.value; }
-            bool operator<(enumerate_iterator const& other) { return value < other.value; }
-            long operator-(enumerate_iterator const& other) { return value - other.value; }
+            bool operator!=(enumerate_iterator const& other) { return iter != other.iter; }
+            bool operator<(enumerate_iterator const& other) { return iter < other.iter; }
+            long operator-(enumerate_iterator const& other) { return iter - other.iter; }
         };
 
-    template <class T>
+    template <class Iterable>
         struct _enumerate {
-            core::list<T> seq;
+            typename std::remove_reference<Iterable>::type seq;
             _enumerate() {}
-            typedef std::tuple<long, T> value_type;
-            typedef enumerate_iterator<T> iterator;
-            _enumerate( core::list<T> const& seq ) : seq(seq) {}
-            enumerate_iterator<T> begin() const { return enumerate_iterator<T>(0L,seq.begin()); }
-            enumerate_iterator<T> end() const { return enumerate_iterator<T>(seq.end()-seq.begin(), seq.end()); }
+            typedef enumerate_iterator<Iterable> iterator;
+            _enumerate( Iterable&& seq ) : seq(seq) {}
+            enumerate_iterator<Iterable> begin() { return enumerate_iterator<Iterable>(0L, seq.begin()); }
+            enumerate_iterator<Iterable> end() { return enumerate_iterator<Iterable>(-1L, seq.end()); }
         };
-    template <class T>
-        _enumerate<T> enumerate(core::list<T> const& seq) { return _enumerate<T>(seq); }
+
+    template <class Iterable>
+        _enumerate<Iterable> enumerate(Iterable && seq) { return _enumerate<Iterable>(std::forward<Iterable>(seq)); }
+
     PROXY(pythonic,enumerate);
 
     /* filter */

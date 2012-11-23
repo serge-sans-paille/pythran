@@ -2,6 +2,7 @@
 #define PYTHONIC_MODULE_STRING_H
 #include <algorithm>
 #include <cctype>
+#include <iostream>
 
 namespace pythonic {
     namespace __string__ { /* to avoid conflict with the string intrinsic */
@@ -28,6 +29,7 @@ namespace pythonic {
                 return out.str();
             }
         PROXY(pythonic::__string__, join);
+
         core::string capitalize(core::string const & s)
         {
             if(s.empty()) return s;
@@ -39,6 +41,7 @@ namespace pythonic {
             }
         }
         PROXY(pythonic::__string__, capitalize);
+
         core::list<core::string> split(core::string const& s, core::string const& sep = " ", int maxsplit = -1)
         {
             core::list<core::string> res(0);
@@ -55,6 +58,15 @@ namespace pythonic {
             return res;
         } 
         PROXY(pythonic::__string__, split);
+
+        bool endswith(core::string const& s, core::string const& suffix, long start=0, long end=std::string::npos) {
+            if(end == std::string::npos)
+                end = s.size();
+            long rstart = end - suffix.size() - start;
+            return rstart >= 0 and s.compare(rstart, suffix.size(), suffix) == 0;
+        }
+        PROXY(pythonic::__string__, endswith);
+
     }
 }
 #endif

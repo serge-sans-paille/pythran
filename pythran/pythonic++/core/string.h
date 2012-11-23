@@ -137,8 +137,8 @@ namespace pythonic {
         };
     }
 }
-template<typename T>
-pythonic::core::string operator*(pythonic::core::string const & s, T const & t) {
+
+pythonic::core::string operator*(pythonic::core::string const & s, long t) {
     size_t n=t;
     pythonic::core::string other;
     other.resize(s.size()*n,'a');
@@ -147,6 +147,11 @@ pythonic::core::string operator*(pythonic::core::string const & s, T const & t) 
         std::copy(s.begin(), s.end(), where);
     return other;
 }
+
+pythonic::core::string operator*(long t, pythonic::core::string const & s) {
+    return s*t;
+}
+
 /* string_view implementation */
 pythonic::core::string_view::string_view(string & other, slice const &s) :
     data(other), slicing(s)

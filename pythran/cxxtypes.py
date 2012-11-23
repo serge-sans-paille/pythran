@@ -220,9 +220,13 @@ class IteratorContentType(Type):
         self.fields = ("of",)
 
     def generate(self, ctx):
+        iterator_value_type = ctx(self.of).generate(ctx)
+        tn = 'typename '
         return 'typename std::remove_cv<{0}>::type'.format(
-            'typename {0}::iterator::value_type'.format(
-                ctx(self.of).generate(ctx)))
+            '{0}{1}::iterator::value_type'.format(
+                tn * (not iterator_value_type.startswith(tn)),
+                iterator_value_type)
+            )
 
 
 class ReturnType(Type):

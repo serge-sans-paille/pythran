@@ -640,11 +640,8 @@ class CxxBackend(Backend):
             return "list()"
         else:
             elts = [self.visit(n) for n in node.elts]
-            return "core::list<{0}>({{ {1} }})".format(
-                    "typename __combined<{0}>::type".format(
-                        ", ".join(
-                            "decltype({0})".format(elt) for elt in elts)
-                        ),
+            return "{0}({{ {1} }})".format(
+                    self.types[node],
                     ", ".join(elts))
 
     def visit_Set(self, node):
@@ -652,11 +649,8 @@ class CxxBackend(Backend):
             return "set()"
         else:
             elts = [self.visit(n) for n in node.elts]
-            return "core::set<{0}>({{ {1} }})".format(
-                    "typename __combined<{0}>::type".format(
-                        ", ".join(
-                            "decltype({0})".format(elt) for elt in elts)
-                        ),
+            return "{0}({{ {1} }})".format(
+                    self.types[node],
                     ", ".join(elts))
 
     def visit_Dict(self, node):
@@ -665,11 +659,8 @@ class CxxBackend(Backend):
         else:
             keys = [self.visit(n) for n in node.keys]
             values = [self.visit(n) for n in node.values]
-            return "core::dict<{0}, {1}>({{ {2} }})".format(
-                    "typename __combined<{0}>::type".format(", ".join(
-                        "decltype({0})".format(elt) for elt in keys)),
-                    "typename __combined<{0}>::type ".format(", ".join(
-                        "decltype({0})".format(elt) for elt in values)),
+            return "{0}({{ {1} }})".format(
+                    self.types[node],
                     ", ".join("{{ {0}, {1} }}".format(k, v)
                         for k, v in zip(keys, values)))
 

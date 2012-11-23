@@ -440,6 +440,7 @@ class Types(ModuleAnalysis):
         [self.combine(node, n) for n in (node.body, node.orelse)]
 
     def visit_Compare(self, node):
+        self.generic_visit(node)
         self.result[node] = NamedType("bool")
 
     def visit_Call(self, node):

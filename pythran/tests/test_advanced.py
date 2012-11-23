@@ -13,3 +13,7 @@ def generator_enumeration():
     def test_augassign_floordiv(self):
         self.run_test("def augassign_floordiv(i,j): k=i ; k//=j; return k",
                 2, 5, augassign_floordiv=[int, int])
+
+    def test_builtin_constructors(self):
+        self.run_test("def builtin_constructors(l): return map(int,l)",
+                [1.5, 2.5], builtin_constructors=[[float]])

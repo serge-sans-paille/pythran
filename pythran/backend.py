@@ -10,6 +10,7 @@ from analysis import YieldPoints, BoundedExpressions, UpdateEffects
 from passmanager import gather, Backend
 
 from tables import operator_to_lambda, modules, type_to_suffix
+from tables import builtin_constructors
 from typing import Types
 from syntax import PythranSyntaxError
 import metadata
@@ -737,6 +738,9 @@ class CxxBackend(Backend):
         elif (node.id in self.global_declarations
                 or node.id in self.local_functions):
             return "{0}()".format(node.id)
+        elif node.id in builtin_constructors:
+            return "pythonic::constructor<{0}>()".format(
+                    builtin_constructors[node.id])
         else:
             return node.id
 

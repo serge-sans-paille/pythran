@@ -667,6 +667,16 @@ namespace pythonic {
 
     PROXY(pythonic,zip);
 
+    /* constructor */
+    template<typename T>
+    struct constructor {
+        template<class V>
+        T operator()(V&& v) {
+            return T(std::forward<V>(v));
+        }
+    };
+
+
     /* reserve */
     template <class Container, class From>
         void reserve(Container & , From &) //do nothing unless specialized

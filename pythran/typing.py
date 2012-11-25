@@ -440,6 +440,7 @@ class Types(ModuleAnalysis):
         [self.combine(node, n) for n in (node.body, node.orelse)]
 
     def visit_Compare(self, node):
+        self.generic_visit(node)
         self.result[node] = NamedType("bool")
 
     def visit_Call(self, node):
@@ -522,7 +523,8 @@ class Types(ModuleAnalysis):
         elif node.id in modules["__builtins__"]:
             self.result[node] = NamedType("proxy::{0}".format(node.id))
         elif node.id in builtin_constructors:
-            self.result[node] = NamedType(builtin_constructors[node.id])
+            self.result[node] = NamedType("pythonic::constructor<{0}>".format(
+                builtin_constructors[node.id]))
         else:
             self.result[node] = NamedType(node.id, {Weak})
 

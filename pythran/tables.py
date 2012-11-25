@@ -276,6 +276,7 @@ modules = {
                 "join": ConstMethodIntr(),
                 "capitalize": ConstMethodIntr(),
                 "split": ConstMethodIntr(),
+                "endswith": ConstMethodIntr(),
                 },
         "__set__": {
                 "add": MethodIntr(

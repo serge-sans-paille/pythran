@@ -10,6 +10,7 @@ from analysis import YieldPoints, BoundedExpressions, UpdateEffects
 from passmanager import gather, Backend
 
 from tables import operator_to_lambda, modules, type_to_suffix
+from tables import builtin_constructors
 from typing import Types
 from syntax import PythranSyntaxError
 import metadata
@@ -456,12 +457,11 @@ class CxxBackend(Backend):
     def visit_AugAssign(self, node):
         value = self.visit(node.value)
         target = self.visit(node.target)
-        stmt = Statement(
-                operator_to_lambda[type(node.op)](
-                    target,
-                    "={0}".format(value)
-                    )[1:-1]
-                )
+        l = operator_to_lambda[type(node.op)]
+        if type(node.op) in (ast.FloorDiv,):
+            stmt = Assign(target, l(target, value))
+        else:
+            stmt = Statement(l(target, "={0}".format(value))[1:-1])
         return self.process_omp_attachements(node, stmt)
 
     def visit_Print(self, node):
@@ -640,11 +640,8 @@ class CxxBackend(Backend):
             return "list()"
         else:
             elts = [self.visit(n) for n in node.elts]
-            return "core::list<{0}>({{ {1} }})".format(
-                    "typename __combined<{0}>::type".format(
-                        ", ".join(
-                            "decltype({0})".format(elt) for elt in elts)
-                        ),
+            return "{0}({{ {1} }})".format(
+                    self.types[node],
                     ", ".join(elts))
 
     def visit_Set(self, node):
@@ -652,11 +649,8 @@ class CxxBackend(Backend):
             return "set()"
         else:
             elts = [self.visit(n) for n in node.elts]
-            return "core::set<{0}>({{ {1} }})".format(
-                    "typename __combined<{0}>::type".format(
-                        ", ".join(
-                            "decltype({0})".format(elt) for elt in elts)
-                        ),
+            return "{0}({{ {1} }})".format(
+                    self.types[node],
                     ", ".join(elts))
 
     def visit_Dict(self, node):
@@ -665,11 +659,8 @@ class CxxBackend(Backend):
         else:
             keys = [self.visit(n) for n in node.keys]
             values = [self.visit(n) for n in node.values]
-            return "core::dict<{0}, {1}>({{ {2} }})".format(
-                    "typename __combined<{0}>::type".format(", ".join(
-                        "decltype({0})".format(elt) for elt in keys)),
-                    "typename __combined<{0}>::type ".format(", ".join(
-                        "decltype({0})".format(elt) for elt in values)),
+            return "{0}({{ {1} }})".format(
+                    self.types[node],
                     ", ".join("{{ {0}, {1} }}".format(k, v)
                         for k, v in zip(keys, values)))
 
@@ -738,6 +729,9 @@ class CxxBackend(Backend):
         elif (node.id in self.global_declarations
                 or node.id in self.local_functions):
             return "{0}()".format(node.id)
+        elif node.id in builtin_constructors:
+            return "pythonic::constructor<{0}>()".format(
+                    builtin_constructors[node.id])
         else:
             return node.id
 

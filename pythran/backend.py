@@ -461,7 +461,7 @@ class CxxBackend(Backend):
         if type(node.op) in (ast.FloorDiv,):
             stmt = Assign(target, l(target, value))
         else:
-            stmt = Statement(l(target, "={0}".format(value))[1:-1])
+            stmt = Statement(l(target, '')[1:-2] + '= {0}'.format(value))
         return self.process_omp_attachements(node, stmt)
 
     def visit_Print(self, node):

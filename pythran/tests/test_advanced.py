@@ -20,3 +20,6 @@ def generator_enumeration():
 
     def test_tuple_sum(self):
         self.run_test("def tuple_sum(): return sum((1,2,3.5))", tuple_sum=[])
+
+    def test_minus_unary_minus(self):
+        self.run_test("def minus_unary_minus(a): return a - -1", 1, minus_unary_minus=[int])

@@ -83,6 +83,9 @@ namespace pythonic {
         };
     /* } */
 
+    template<int> struct int_{}; // compile-time counter
+
+
 
 }
 #endif

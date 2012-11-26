@@ -642,6 +642,23 @@ namespace pythonic {
         {
             return sum(s,0L);
         }
+
+    template<class Tuple>
+        auto tuple_sum(Tuple const& t, int_<0>) -> decltype(std::get<0>(t)) {
+            return std::get<0>(t);
+        }
+
+    template<class Tuple, int I>
+        auto tuple_sum(Tuple const& t, int_<I>) -> typename std::remove_reference<decltype(std::get<I>(t))>::type {
+            return std::get<I>(t) + tuple_sum(t, int_<I-1>());
+        }
+
+
+    template<class... Types>
+        auto sum(std::tuple<Types...> const & t) -> decltype(tuple_sum(t, int_<sizeof...(Types)-1>())) {
+            return tuple_sum(t, int_<sizeof...(Types)-1>());
+        }
+
     PROXY(pythonic,sum);
 
     /* xrange -> forward declared */

@@ -9,7 +9,7 @@
 \lstset{language=python} % more options are welcome, RTFM!
 
 \usepackage{graphicx}
-\usepackage{todo}
+\usepackage[marginpar]{todo}
 
 \usepackage[a4paper]{geometry}
 
@@ -75,7 +75,7 @@ Exemples :
 \item Utiliser plusieurs affectations plutôt qu'une affectation
   multiple : \lstinline|a=x;b=y;| plutôt que \lstinline|a,b=x,y|.
 \item Utiliser les opérateurs propres au langage plutôt que les
-  fonctions lambda : operator.add plutôt que lambda x,y : x+y.
+  fonctions lambda : \lstinline|operator.add| plutôt que \lstinline|lambda x,y : x+y|.
 \end{itemize}
 
 \subsubsection{Itérateurs et générateur}
@@ -106,7 +106,7 @@ produits par des générateurs :
 \begin{itemize}
     \item \texttt{xrange} qui se comporte comme \texttt{range}, mais ne créé pas de liste en
   mémoire.
-\item les itérateurs du module \texttt{itertools} comme \texttt{imap} et \texttt{product}.\todo{toujours utiliser lstlisting / lstinline ou texttt pour le code}
+\item les itérateurs du module \texttt{itertools} comme \texttt{imap} et \texttt{product}.
 \end{itemize}
 
 Afin de considérer l'intérêt en terme de performances, on peut
@@ -121,7 +121,7 @@ des carrés des N premiers entiers.\todo{donner la version de python utilisée, 
 \end{figure}
 
 Dans chaque cas, le temps de l'exécution de 100 itérations du même
-programme est mesuré grâce au module \texttt{timeit}.\todo{expliquer un peu ce module}
+programme est mesuré grâce au module \texttt{timeit}.
 
 \begin{lstlisting}
 time100 = timeit.timeit('Expression', number=100)
@@ -138,23 +138,23 @@ mesure de la sommation. À un instant donné, il n'y a qu'un seul carré
 en mémoire.
 
 
-La seconde implémentation utilise la fonction imap qui applique une
+La seconde implémentation utilise la fonction \texttt{imap} qui applique une
 fonction à un itérateur pour produire un nouvel itérateur :
 
-\begin{verbatim}
+\begin{lstlisting}
 sum(imap(lambda x:x*x, xrange(N)))
-\end{verbatim}
+\end{lstlisting}
 
 Cette implémentation est moins performante que la première car elle
 utilise des appels de fonction, qui sont coûteux en Python.\todo{argumenter}
 
 
-La troisième implémentation utilise la fonction map qui applique une
+La troisième implémentation utilise la fonction \texttt{map} qui applique une
 fonction à un itérateur pour produire une liste :
 
-\begin{verbatim}
+\begin{lstlisting}
 sum(map(lambda x:x*x, xrange(N)))
-\end{verbatim}
+\end{lstlisting}
 
 Dans cette implémentation, la liste des carrés est créée avant la
 sommation. C'est l'opération de création de l'espace mémoire
@@ -163,10 +163,10 @@ par rapport à la seconde implémentation.
 
 On remarque bien que l'implémentation choisie peut faire
 considérablement varier le temps d'exécution. On constate également
-que le simple fait de remplacer map par imap permet un gain de
+que le simple fait de remplacer \texttt{map} par \texttt{imap} permet un gain de
 performance non négligeable dès que l'on manipule un large ensemble de
 données. La même constatation peut être faite quand à l'utilisation de
-xrange plutôt que range ou encore izip plutôt que zip.\todo{pour plus atrd: comment mesurer l'utilisation émmoire et la comparer?}
+\texttt{xrange} plutôt que \texttt{range} ou encore \texttt{izip} plutôt que \texttt{zip}.\todo{pour plus atrd: comment mesurer l'utilisation émmoire et la comparer?}
 
 \subsubsection{Module spécialisés}
 
@@ -216,49 +216,49 @@ La figure~\ref{RangeXrangePyCpp} permet de comparer les performances
 entre un programme en Python et son équivalent en C++.
 
 \begin{figure}[h]
-  \includegraphics[scale=1]{./Pictures/RangeXrangePyCpp}
+  \includegraphics[width=\textwidth]{./Pictures/RangeXrangePyCpp}
   \caption{Comparaison de performances entre Python et C++ compilé avec et sans le flag -O3.}
   \label{RangeXrangePyCpp}
 \end{figure}
 
 Les programme en Python sont les suivants :
 
-\begin{verbatim}
+\begin{lstlisting}
   sum(range(N))
-\end{verbatim}
+\end{lstlisting}
 
-\begin{verbatim}
+\begin{lstlisting}
   sum(xrange(N))
-\end{verbatim}
+\end{lstlisting}
 
 et leurs équivalents en C++ sont :
 
-\begin{verbatim}
+\begin{lstlisting}
   pythonic::sum(pythonic::range(N))
-\end{verbatim}
+\end{lstlisting}
 
-\begin{verbatim}
+\begin{lstlisting}
   pythonic::sum(pythonic::xrange(N))
-\end{verbatim}
+\end{lstlisting}
 
-où pythonic est le namespace de Pythonic++ (cf. \ref{Pythonicpp}
+où \texttt{pythonic} est le namespace de Pythonic++ (cf. \ref{Pythonicpp}
 p. \pageref{Pythonicpp}).
 
-Les temps en Python sont de nouveau mesurés avec timeit.timeit() et
-les temps en C++ sont mesurés avec clock().
+Les temps en Python sont de nouveau mesurés avec \texttt{timeit.timeit()} et
+les temps en C++ sont mesurés avec \texttt{clock()}.
 
 \begin{figure}[h]
-  \includegraphics[scale=1]{./Pictures/RangeXrangeCppO3}
-  \caption{Comparaison entre range et xrange en C++ avec le drapeau -O3.}
+  \includegraphics[width=\textwidth]{./Pictures/RangeXrangeCppO3}
+  \caption{Comparaison entre \texttt{range} et \texttt{xrange} en C++ avec le drapeau -O3.}
   \label{RangeXrangeCppO3}
 \end{figure}
 
 On remarque que, contrairement à ce à quoi on pouvait s'attendre, les
 implémentations en C++ ne sont pas toujours plus rapides que celles en
-Python. Dans le cas du xrange, le programme en Python est légèrement
+Python. Dans le cas du \texttt{xrange}, le programme en Python est légèrement
 plus performant que celui en C++. Cependant, l'optimisation du
 compilateur C++ permet de réduire de façon drastique le temps
-d'exécution. Enfin, le gain réalisé en remplaçant range par xrange se
+d'exécution. Enfin, le gain réalisé en remplaçant \texttt{range} par \texttt{xrange} se
 retrouve également en C++, comme le montre la
 figure~\ref{RangeXrangeCppO3}.
 
@@ -267,7 +267,7 @@ performances d'un algorithme sur trois axes :
 
 \begin{itemize}
 \item Optimisation du code d'origine, par exemple en remplaçant
-  automatiquement des fonctions comme range ou map par xrange et imap.
+  automatiquement des fonctions comme \texttt{range} ou \texttt{map} par \texttt{xrange} et \texttt{imap}.
 \item Traduction en code C++ pour pouvoir être compilé en code natif,
   en général plus rapide que du code interprété.
 \item Possibilité de bénéficier des optimisations supplémentaires du
@@ -303,7 +303,7 @@ La recherche de transformations pertinentes nécessitent d'avoir des
 connaissance pointues sur le coût des différentes opérations
 effectuées par un même opérateur. Par exemple, c'est parce que
 l'allocation d'une grande quantité de mémoire a un coût prohibitif que
-les transformation du type range -> xrange permettent un gain de
+les transformation du type \texttt{range} -> \texttt{xrange} permettent un gain de
 performances.
 
 Un autre problème est celui de la recherche de la validité d'une
@@ -313,49 +313,49 @@ cette équivalence peut n'être vérifiée que sous certaines
 conditions. La transformation n'est alors valide que dans les cas où
 ces conditions sont toutes vérifiées.
 
-Dans le cas de xrange, une condition suffisante pour que la
-transformation range -> xrange soit valide est que le résultat produit
-par range ne soit jamais modifié. Ce qui serait par exemple le cas
+Dans le cas de \texttt{xrange}, une condition suffisante pour que la
+transformation \texttt{range} -> \texttt{xrange} soit valide est que le résultat produit
+par\texttt{range}ne soit jamais modifié. Ce qui serait par exemple le cas
 dans l'exemple suivant\footnote{En supposant que range(100) soit bien
   une opération produisant la liste [1..100].} :
 
-\begin{verbatim}
+\begin{lstlisting}
   for i in range(100):
     f(i)
-\end{verbatim}
+\end{lstlisting}
 
 Ceci peut donc être remplacé par
 
-\begin{verbatim}
+\begin{lstlisting}
   for i in xrange(100):
     f(i)
-\end{verbatim}
+\end{lstlisting}
 
 \subsubsection{Le problème du contexte}
 
 Un obstacle majeur est qu'il n'est pas trivial de savoir si les
 conditions de validité de la transformation sont remplies.
 
-Par exemple, il est possible d'appliquer la transformation range ->
-xrange au programme suivant. Mais pour pouvoir savoir cela, il faut
+Par exemple, il est possible d'appliquer la transformation \texttt{range} ->
+\texttt{xrange} au programme suivant. Mais pour pouvoir savoir cela, il faut
 vérifier le reste du code pour s'assurer que la liste assignée à la
 variable l n'est jamais modifiée.
 
-\begin{verbatim}
+\begin{lstlisting}
   l = range(100)
   .
   .
   .
   for i in l:
     f(i)
-\end{verbatim}
+\end{lstlisting}
 
 Un autre problème vient du fait que dans l'AST, un opérateur est
 représenté par son nom, ce qui permet la situation de l'exemple
-suivant, où la transformation range() -> xrange() n'est pas valide
+suivant, où la transformation \texttt{range()} -> \texttt{xrange()} n'est pas valide
 dans la boucle for.\todo{pas en gros problème, juste une gestion des portées... on a déjà l'analyse qui faut.Mais qui de foo(range(100))? a=range(18) ?}
 
-\begin{verbatim}
+\begin{lstlisting}
   def g(n):
     return [9001,n,27,42]
   .
@@ -367,7 +367,7 @@ dans la boucle for.\todo{pas en gros problème, juste une gestion des portées..
   .
   for i in range(100):
     f(i)
-\end{verbatim}
+\end{lstlisting}
 
 Avant d'effectuer la transformation, il faut donc analyser le
 programme pour déterminer dans quels cas la transformation est
@@ -392,8 +392,8 @@ natives au Python.
 Pour qu'un module de la bibliothèque standard de Python puisse être
 utilisé dans du code traduit par pythran, il faut donc qu'un
 équivalent de ce module ai été développé pour Pythonic++. Ce n'est pas
-encore le cas du module itertools, ce qui empêche d'utiliser des
-fonctions comme imap ou product.
+encore le cas du module \texttt{itertools}, ce qui empêche d'utiliser des
+fonctions comme \texttt{imap} ou \texttt{product}.
 
 \section{Plan de travail}
 
@@ -403,21 +403,21 @@ paramètres :
 \begin{itemize}
 \item Certains travaux dépendent des résultats des autres. En
   particulier, la plupart des transformations de l'AST visent à
-  utiliser des fonctions du module itertools dès que cela est
+  utiliser des fonctions du module \texttt{itertools} dès que cela est
   possible. Ces transformations ne peuvent donc être implémentées
-  qu'une fois le module itertools disponible dans Pythonic++.
+  qu'une fois le module \texttt{itertools} disponible dans Pythonic++.
 \item Certains travaux sont plus simples et permettent d'assimiler les
   concepts et outils nécessaires à la réalisation des travaux plus
-  complexes du même type. Par exemple, la transformation de range en
-  xrange est complexe et devrait donc être abordée après que la
-  transformation de generator expression en imap ait été complétée.
+  complexes du même type. Par exemple, la transformation de \texttt{range} en
+  \texttt{xrange} est complexe et devrait donc être abordée après que la
+  transformation de generator expression en \texttt{imap} ait été complétée.
 \end{itemize}
 
-\subsection{Implémentation du module Itertools}
+\subsection{Implémentation du module \texttt{Itertools}}
 
 \subsubsection{Méthodologie}
 
-La méthodologie utilisée pour l'implémentation du module itertools est
+La méthodologie utilisée pour l'implémentation du module \texttt{itertools} est
 une itération des étapes suivantes :
 
 \begin{enumerate}
@@ -436,9 +436,9 @@ Les opérateurs à implémenter en priorités sont ceux nécessaires à
 l'implémentation des nouvelles transformations :
 
 \begin{itemize}
-  \item imap
-  \item product
-  \item ifilter
+  \item \texttt{imap}
+  \item \texttt{product}
+  \item \texttt{ifilter}
 \end{itemize}
 
 
@@ -452,35 +452,35 @@ appliquer que dans ces cas.
 \subsubsection{Les generator expressions}
 
 En Python, les generator expression sont plus performantes que
-l'utilisation de map ou imap. Cependant, cela est lié au coût
+l'utilisation de \texttt{map} ou \texttt{imap}. Cependant, cela est lié au coût
 prohibitif d'un appel de fonction en Python. Une fois traduit en C++,
 ce surcoût devrait être moindre et devrait rendre l'implémentation de
-imap plus performante que l'équivalent des generator expressions.
+\texttt{imap} plus performante que l'équivalent des generator expressions.
 
 Il sera alors pertinent de remplacer
 
-\begin{verbatim}
+\begin{lstlisting}
 (g(a,b,c...) for a in A if fa(a) for b in B if fb(a,b) for c in C if fc(a,b,c) ... )
-\end{verbatim}
+\end{lstlisting}
  
 par
 
-\begin{verbatim}
+\begin{lstlisting}
 imap(lambda a,b,c... : g(a,b,c...), 
   ifilter(lambda a,b,c... : fa(a) and fb(a,b) and fc(a,b,c)..., product(A,B,C...)))
-\end{verbatim}
+\end{lstlisting}
 
 Cette transformation est toujours valide et ne nécessitera pas
 d'écrire une analyse. Il faudra donc simplement implémenter la
 transformation, et effectuer des tests pour vérifier qu'elle apporte
 bien un gain de performances.\todo{à priori perte de perfs en python, et gain en C++...}
 
-\subsubsection{Le cas xrange}
+\subsubsection{Le cas \texttt{xrange}}
 
 \todo[inline]{pas uniquement xrange: map ->imap, zip ->izip,[x for x..] ->(x for x...)}
 
-Les exemples précédents ont montré que la transformation range ->
-xrange n'est pas toujours valide. Il faudra donc :
+Les exemples précédents ont montré que la transformation \texttt{range} ->
+ \texttt{xrange} n'est pas toujours valide. Il faudra donc :
 
 \begin{enumerate}
 \item Identifier la plupart des cas dans lesquels la transformation
@@ -492,11 +492,11 @@ xrange n'est pas toujours valide. Il faudra donc :
 On note en particulier qu'il est à priori hors de portée de trouver
 une analyse permettant de trouver tous les cas dans lesquels la
 transformation serait valide. Par exemple, il serait valide de
-remplacer range par xrange dans la boucle for de l'exemple suivant,
+remplacer \texttt{range} par \texttt{xrange} dans la boucle for de l'exemple suivant,
 mais très difficile de le déterminer.
 
 
-\begin{verbatim}
+\begin{lstlisting}
 def g(n):
   return map(lambda x : - 1 * x, xrange(0,-n,-1))
 
@@ -504,7 +504,7 @@ range = g
 
 for i in range(100):
     f(i)
-\end{verbatim}
+\end{lstlisting}
 
 \subsubsection{Contraintes}
 
@@ -524,6 +524,8 @@ doit être validé par l'outils pep8.
 
 \bibliographystyle{plain}
 \bibliography{RapportCourtBib}
+
+\todos
 
 \end{document}
 

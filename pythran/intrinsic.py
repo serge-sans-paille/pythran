@@ -40,9 +40,9 @@ class FunctionIntr(Intrinsic):
         return True
 
 
-class ConstFunctionIntr(Intrinsic):
+class ConstFunctionIntr(FunctionIntr):
     def __init__(self):
-        Intrinsic.__init__(self, effects=())
+        FunctionIntr.__init__(self, effects=())
 
 
 class MethodIntr(FunctionIntr):

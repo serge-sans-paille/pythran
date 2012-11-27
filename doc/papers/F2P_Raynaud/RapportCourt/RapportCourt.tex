@@ -25,7 +25,7 @@
 
 \maketitle   
 \begin{abstract}
-    trop de la balouze ce sujet
+    trop de la balouze ce sujet\todo{Ecrire un résumé plus explicite.}
 \end{abstract}
 
 \clearpage               
@@ -38,22 +38,27 @@
 
 \subsection{Introduction : du Python et des performances}
 
-Python, langage interprété et dynamiquement typé, est souvent
-considéré\todo{c'est plus qu'une considération, c'est un fait, cf. par example \url{http://shootout.alioth.debian.org/}} comme moins performant que d'autre langages compilés comme C
-ou C++. Dans ce contexte, la performance est souvent réduite au temps
-d'exécution des opérations du programme,\todo{ça ne veut rien dire :-)} et c'est cette définition
-restreinte qui sera utilisée sous le nom de performance dans la
-suite\footnote{Une meilleurs définition serait celle de Arnold Allen :
-  "The word performance in computer performance means the same thing
-  that performance means in other contexts, that is, it means 'How
-  well is the computer doing the work it is supposed to
+Python, langage interprété et dynamiquement typé, est la plupart du
+temps moins performant que d'autres langages compilés comme C ou
+C++\cite{PythonVsCpp}. On se contente souvent de définir la
+performance d'un programme comme étant sa vitesse d'exécution par
+rapport à un programme semblabme écrit dans un langage différent ou
+utilisant un autre algorithme. C'est cette définition restreinte qui
+sera utilisée sous le nom de performance dans la suite\footnote{Il
+  existe de nombreux travaux sur la manière de mesurer scentifiquement
+  la performance d'un programme, qui s'appuient sur de nombreux
+  indicateurs en plus du temps d'exécution. L'un des spécialiste du
+  domaine résume cela de manière informelle en ces mots : "The word
+  performance in computer performance means the same thing that
+  performance means in other contexts, that is, it means 'How well is
+  the computer doing the work it is supposed to
   do?'"\cite{Allen}}. Toutes les applications n'ont pas un même besoin
 en performances, et celles du Python sont généralement considérées
 comme suffisantes dans la plupart des cas. Il existe cependant des
 applications qui effectuent des calculs intensifs ou doivent traiter
 de très grande quantités de données, et qui ont donc besoin que
 certains de leurs algorithmes soient effectués avec des performances
-supérieures à celles ordinairement obtenues avec Python.\todo{tu peux citer numpy ici, dire que python est de plus en plus utilisé en calcul scientifique}
+supérieures à celles ordinairement obtenues avec Python.
 
 \subsection{Utilisation d'un Python plus performant}
 
@@ -61,13 +66,13 @@ supérieures à celles ordinairement obtenues avec Python.\todo{tu peux citer nu
 
 \subsubsection{Bonne pratiques de codage}
 
-Python permet généralement de résoudre un même problème de plusieurs
-façons. Si le choix d'un bon algorithme est crucial, la façon dont est
-implémenté cet algorithme peut faire varier considérablement les
-performances du programme final. C'est pourquoi il existe un ensemble
-de bonnes pratiques permettant d'améliorer les performances de son
-code\cite{PythonSpeed}.\todo{Attention, généralement un dev python ne se pose pas ce genre de questions. On dit qu'en python il existe une unique façon de résoudre un problème...}
-
+Un des principes de la philosophie python est ``There should be one--
+and preferably only one --obvious way to do it.''\cite{ZenPython} Le
+souci d'optimiser les performances d'un programme python induit
+cependant plus de reflexions quant à la manière de résoudre un
+problème. C'est pour cela qu'il existe des guides donnant bonnes
+pratique pour écrire un programme python le plus performant
+possible\cite{PythonSpeed}.
 
 Exemples :
 \begin{itemize}
@@ -75,7 +80,8 @@ Exemples :
 \item Utiliser plusieurs affectations plutôt qu'une affectation
   multiple : \lstinline|a=x;b=y;| plutôt que \lstinline|a,b=x,y|.
 \item Utiliser les opérateurs propres au langage plutôt que les
-  fonctions lambda : \lstinline|operator.add| plutôt que \lstinline|lambda x,y : x+y|.
+  fonctions lambda : \lstinline|operator.add| plutôt que
+  \lstinline|lambda x,y : x+y|.
 \end{itemize}
 
 \subsubsection{Itérateurs et générateur}
@@ -104,15 +110,16 @@ Python fournit également des itérateurs se comportant comme ceux
 produits par des générateurs :
 
 \begin{itemize}
-    \item \texttt{xrange} qui se comporte comme \texttt{range}, mais ne créé pas de liste en
-  mémoire.
-\item les itérateurs du module \texttt{itertools} comme \texttt{imap} et \texttt{product}.
+\item \texttt{xrange} qui se comporte comme \texttt{range}, mais ne
+  créé pas de liste en mémoire.
+\item les itérateurs du module \texttt{itertools} comme \texttt{imap}
+  et \texttt{product}.
 \end{itemize}
 
 Afin de considérer l'intérêt en terme de performances, on peut
 considérer la figure~\ref{GenExpMapImapPy}, qui montre les différences
 de temps d'exécution entre trois implémentations du calcul de la somme
-des carrés des N premiers entiers.\todo{donner la version de python utilisée, la distrib, la version du noyau, le proc pour que ce soit reproductible}
+des carrés des N premiers entiers.
 
 \begin{figure}[h]
   \includegraphics[width=\textwidth]{./Pictures/GenExpMapImapPy}
@@ -120,8 +127,15 @@ des carrés des N premiers entiers.\todo{donner la version de python utilisée, 
   \label{GenExpMapImapPy}
 \end{figure}
 
-Dans chaque cas, le temps de l'exécution de 100 itérations du même
-programme est mesuré grâce au module \texttt{timeit}.
+Les évaluations de performances sont effectuées sur une machine
+comportant un processeur de type Intel Core i3 4G de RAM, un noyau
+Linux 3.2.0 et python 2.7.3.  Dans chaque cas, le temps de l'exécution
+de 100 itérations du même programme est mesuré grâce au module
+\texttt{timeit}. Le module \texttt{timeit} est un module de python
+fournissant des outils pour mesures les temps d'exécution de morceaux
+de code python. En particulier, la fonction
+\lstinline|timeit.timeit(expr, number = n)| permet de mesurer le temps
+de n executions du code contenu dans \texttt{expr}.
 
 \begin{lstlisting}
 time100 = timeit.timeit('Expression', number=100)
@@ -137,20 +151,20 @@ Le générateur créé permet de ne produire les carrés qu'au fur et à
 mesure de la sommation. À un instant donné, il n'y a qu'un seul carré
 en mémoire.
 
-
-La seconde implémentation utilise la fonction \texttt{imap} qui applique une
-fonction à un itérateur pour produire un nouvel itérateur :
+La seconde implémentation utilise la fonction \texttt{imap} qui
+applique une fonction à un itérateur pour produire un nouvel
+itérateur~:
 
 \begin{lstlisting}
 sum(imap(lambda x:x*x, xrange(N)))
 \end{lstlisting}
 
 Cette implémentation est moins performante que la première car elle
-utilise des appels de fonction, qui sont coûteux en Python.\todo{argumenter}
+utilise des appels de fonction, qui sont coûteux en
+Python.\todo{argumenter}
 
-
-La troisième implémentation utilise la fonction \texttt{map} qui applique une
-fonction à un itérateur pour produire une liste :
+La troisième implémentation utilise la fonction \texttt{map} qui
+applique une fonction à un itérateur pour produire une liste :
 
 \begin{lstlisting}
 sum(map(lambda x:x*x, xrange(N)))
@@ -163,10 +177,12 @@ par rapport à la seconde implémentation.
 
 On remarque bien que l'implémentation choisie peut faire
 considérablement varier le temps d'exécution. On constate également
-que le simple fait de remplacer \texttt{map} par \texttt{imap} permet un gain de
-performance non négligeable dès que l'on manipule un large ensemble de
-données. La même constatation peut être faite quand à l'utilisation de
-\texttt{xrange} plutôt que \texttt{range} ou encore \texttt{izip} plutôt que \texttt{zip}.\todo{pour plus atrd: comment mesurer l'utilisation émmoire et la comparer?}
+que le simple fait de remplacer \texttt{map} par \texttt{imap} permet
+un gain de performance non négligeable dès que l'on manipule un large
+ensemble de données. La même constatation peut être faite quand à
+l'utilisation de \texttt{xrange} plutôt que \texttt{range} ou encore
+\texttt{izip} plutôt que \texttt{zip}.\todo{pour plus atrd: comment
+  mesurer l'utilisation émmoire et la comparer?}
 
 \subsubsection{Module spécialisés}
 
@@ -217,7 +233,8 @@ entre un programme en Python et son équivalent en C++.
 
 \begin{figure}[h]
   \includegraphics[width=\textwidth]{./Pictures/RangeXrangePyCpp}
-  \caption{Comparaison de performances entre Python et C++ compilé avec et sans le flag -O3.}
+  \caption{Comparaison de performances entre Python et C++ compilé
+    avec et sans le flag -O3.}
   \label{RangeXrangePyCpp}
 \end{figure}
 
@@ -249,17 +266,18 @@ les temps en C++ sont mesurés avec \texttt{clock()}.
 
 \begin{figure}[h]
   \includegraphics[width=\textwidth]{./Pictures/RangeXrangeCppO3}
-  \caption{Comparaison entre \texttt{range} et \texttt{xrange} en C++ avec le drapeau -O3.}
+  \caption{Comparaison entre \texttt{range} et \texttt{xrange} en C++
+    avec le drapeau -O3.}
   \label{RangeXrangeCppO3}
 \end{figure}
 
 On remarque que, contrairement à ce à quoi on pouvait s'attendre, les
 implémentations en C++ ne sont pas toujours plus rapides que celles en
-Python. Dans le cas du \texttt{xrange}, le programme en Python est légèrement
-plus performant que celui en C++. Cependant, l'optimisation du
-compilateur C++ permet de réduire de façon drastique le temps
-d'exécution. Enfin, le gain réalisé en remplaçant \texttt{range} par \texttt{xrange} se
-retrouve également en C++, comme le montre la
+Python. Dans le cas du \texttt{xrange}, le programme en Python est
+légèrement plus performant que celui en C++. Cependant, l'optimisation
+du compilateur C++ permet de réduire de façon drastique le temps
+d'exécution. Enfin, le gain réalisé en remplaçant \texttt{range} par
+\texttt{xrange} se retrouve également en C++, comme le montre la
 figure~\ref{RangeXrangeCppO3}.
 
 De cela on peut en conclure que pythran peut augmenter les
@@ -267,7 +285,8 @@ performances d'un algorithme sur trois axes :
 
 \begin{itemize}
 \item Optimisation du code d'origine, par exemple en remplaçant
-  automatiquement des fonctions comme \texttt{range} ou \texttt{map} par \texttt{xrange} et \texttt{imap}.
+  automatiquement des fonctions comme \texttt{range} ou \texttt{map}
+  par \texttt{xrange} et \texttt{imap}.
 \item Traduction en code C++ pour pouvoir être compilé en code natif,
   en général plus rapide que du code interprété.
 \item Possibilité de bénéficier des optimisations supplémentaires du
@@ -303,8 +322,8 @@ La recherche de transformations pertinentes nécessitent d'avoir des
 connaissance pointues sur le coût des différentes opérations
 effectuées par un même opérateur. Par exemple, c'est parce que
 l'allocation d'une grande quantité de mémoire a un coût prohibitif que
-les transformation du type \texttt{range} -> \texttt{xrange} permettent un gain de
-performances.
+les transformation du type \texttt{range} -> \texttt{xrange}
+permettent un gain de performances.
 
 Un autre problème est celui de la recherche de la validité d'une
 transformation. On a vu qu'une transformation consiste à remplacer une
@@ -408,9 +427,10 @@ paramètres :
   qu'une fois le module \texttt{itertools} disponible dans Pythonic++.
 \item Certains travaux sont plus simples et permettent d'assimiler les
   concepts et outils nécessaires à la réalisation des travaux plus
-  complexes du même type. Par exemple, la transformation de \texttt{range} en
-  \texttt{xrange} est complexe et devrait donc être abordée après que la
-  transformation de generator expression en \texttt{imap} ait été complétée.
+  complexes du même type. Par exemple, la transformation de
+  \texttt{range} en \texttt{xrange} est complexe et devrait donc être
+  abordée après que la transformation de generator expression en
+  \texttt{imap} ait été complétée.
 \end{itemize}
 
 \subsection{Implémentation du module \texttt{Itertools}}
@@ -425,9 +445,11 @@ une itération des étapes suivantes :
 \item Écrire des tests.
 \item Implémenter la fonction en C++ dans Pythonic++.
 \item Tester la fonction pour vérifier qu'elle produit le résultat
-    attendu pour tout les cas de test.\todo{préciser que c'est fait automatiquement par la suite de test existante ?}
-\item Tester les performances de la fonction et vérifier qu'il n'y a
-    pas d'opération anormalement coûteuse avec l'outils Callgrind.\todo{module callgrind devalgrind ?}
+  attendu pour tout les cas de test.\todo{préciser que c'est fait
+    automatiquement par la suite de test existante ? -> ah?}
+  \item Tester les performances de la fonction et vérifier qu'il n'y a
+    pas d'opération anormalement coûteuse avec le module CallGrind de
+    l'outils Vallgrind.
 \end{enumerate}
 
 \subsubsection{Priorités}
@@ -473,14 +495,15 @@ imap(lambda a,b,c... : g(a,b,c...),
 Cette transformation est toujours valide et ne nécessitera pas
 d'écrire une analyse. Il faudra donc simplement implémenter la
 transformation, et effectuer des tests pour vérifier qu'elle apporte
-bien un gain de performances.\todo{à priori perte de perfs en python, et gain en C++...}
+bien un gain de performances après traduction en C++.
 
 \subsubsection{Le cas \texttt{xrange}}
 
-\todo[inline]{pas uniquement xrange: map ->imap, zip ->izip,[x for x..] ->(x for x...)}
+\todo{pas uniquement xrange: map ->imap, zip ->izip,[x for x..] ->(x for x...)}
 
-Les exemples précédents ont montré que la transformation \texttt{range} ->
- \texttt{xrange} n'est pas toujours valide. Il faudra donc :
+Les exemples précédents ont montré que la transformation
+\texttt{range} -> \texttt{xrange} n'est pas toujours valide. Il faudra
+donc :
 
 \begin{enumerate}
 \item Identifier la plupart des cas dans lesquels la transformation
@@ -492,8 +515,8 @@ Les exemples précédents ont montré que la transformation \texttt{range} ->
 On note en particulier qu'il est à priori hors de portée de trouver
 une analyse permettant de trouver tous les cas dans lesquels la
 transformation serait valide. Par exemple, il serait valide de
-remplacer \texttt{range} par \texttt{xrange} dans la boucle for de l'exemple suivant,
-mais très difficile de le déterminer.
+remplacer \texttt{range} par \texttt{xrange} dans la boucle for de
+l'exemple suivant, mais très difficile de le déterminer.
 
 
 \begin{lstlisting}
@@ -513,7 +536,7 @@ code produit doit être conforme à pep8, un ensemble de bonnes
 pratiques Python. Pour cela, avant d'être commité, tout code ajouté
 doit être validé par l'outils pep8.
 
-\todo[inline]{et ne pas perturbé les 450+ cas test existants}
+\todo{et ne pas perturber les 450+ cas test existants}
 
 \clearpage
 

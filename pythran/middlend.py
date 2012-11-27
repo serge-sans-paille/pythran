@@ -4,7 +4,8 @@ from passes import RemoveLambdas, NormalizeTuples, NormalizeReturn
 from passes import UnshadowParameters, NormalizeException, ConstantFolding
 from passes import NormalizeMethodCalls, NormalizeAttributes, ExpandImports
 from passes import RemoveComprehension, RemoveNestedFunctions, GatherOMPData
-from passmanager import apply
+from passmanager import apply, gather
+from analysis import GlobalEffects
 
 
 def refine(node):
@@ -26,3 +27,4 @@ def refine(node):
 
     # some optimizations
     apply(ConstantFolding, node)
+    gather(GlobalEffects, node)

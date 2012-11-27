@@ -10,7 +10,7 @@ class Intrinsic:
     def __init__(self, argument_effects=(UpdateEffect(),) * 11,
             global_effects=True):
         self.argument_effects = argument_effects
-        self.gobal_effects = global_effects
+        self.global_effects = global_effects
 
     def isscalar(self):
         return False

@@ -50,7 +50,7 @@ class ConstFunctionIntr(FunctionIntr):
 
 class MethodIntr(FunctionIntr):
     def __init__(self, *combiners):
-        FunctionIntr.__init__(self)
+        FunctionIntr.__init__(self, (UpdateEffect(),) + (ReadEffect(),) * 10)
         self.combiners = combiners
 
     def add_combiner(self, _combiner):

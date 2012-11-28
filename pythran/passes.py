@@ -211,7 +211,7 @@ class RemoveComprehension(Transformation):
                 [ast.Name(starget, ast.Store())],
                 ast.Call(ast.Name(comp_type, ast.Load()), [], [], None, None)
                 )
-        result = ast.Return(ast.Name(starget, ast.Store()))
+        result = ast.Return(ast.Name(starget, ast.Load()))
         sargs = sorted(ast.Name(arg, ast.Load()) for arg in args)
         fd = ast.FunctionDef(name,
                 ast.arguments(sargs, None, None, []),
@@ -493,7 +493,7 @@ class NormalizeException(Transformation):
                         []
                         )
                     )
-            node.orelse = None
+            node.orelse = []
         return node
 
     def visit_TryFinally(self, node):

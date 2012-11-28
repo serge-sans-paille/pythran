@@ -14,6 +14,7 @@
     * GatherOMPData turns OpenMP-like string annotations into metadata
 '''
 
+from analysis import ImportedIds, Identifiers, ConstantExpressions, YieldPoints
 from passmanager import Transformation
 from tables import methods, attributes, functions
 from tables import cxx_keywords, namespace, modules
@@ -376,17 +377,26 @@ class RemoveLambdas(Transformation):
 class NormalizeReturn(Transformation):
     '''Adds Return statement when they are implicit,
     and adds the None return value when not set'''
+
     def visit_FunctionDef(self, node):
+        self.yield_points = self.passmanager.gather(YieldPoints, node)
         self.has_return = False
         [self.visit(n) for n in node.body]
         if not self.has_return:
-            node.body.append(ast.Return(ast.Name("None", ast.Load())))
+            if self.yield_points:
+                node.body.append(ast.Return(None))
+            else:
+                node.body.append(ast.Return(ast.Name("None", ast.Load())))
         return node
 
     def visit_Return(self, node):
         self.has_return = True
         if not node.value:
-            node.value = ast.Name("None", ast.Load())
+            node.value = (None
+                    if self.yield_points
+                    else ast.Name("None", ast.Load())
+                    )
+
         return node
 
 

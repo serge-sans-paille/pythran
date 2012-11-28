@@ -15,7 +15,7 @@ from subprocess import check_output, STDOUT, CalledProcessError
 from tempfile import mkstemp, NamedTemporaryFile
 from syntax import check_syntax
 from passes import NormalizeIdentifiers
-from passmanager import apply, dump
+from passmanager import PassManager
 from tables import pytype_to_ctype_table
 
 
@@ -66,15 +66,16 @@ def extract_all_constructed_types(v):
 
 def cxx_generator(module_name, code, specs=None):
     '''python + pythran spec -> c++ code'''
+    pm = PassManager(module_name)
     # font end
     ir = ast.parse(code)
-    renamings = apply(NormalizeIdentifiers, ir)
+    renamings = pm.apply(NormalizeIdentifiers, ir)
     check_syntax(ir)
 
     # middle-end
-    refine(ir)
+    refine(pm, ir)
     # back-end
-    content = dump(CxxBackend, ir, module_name)
+    content = pm.dump(CxxBackend, ir)
 
     if specs is None:
         class Generable:

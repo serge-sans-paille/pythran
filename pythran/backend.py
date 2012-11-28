@@ -7,7 +7,7 @@ from cxxtypes import *
 
 from analysis import LocalDeclarations, GlobalDeclarations
 from analysis import YieldPoints, BoundedExpressions, ArgumentEffects
-from passmanager import gather, Backend
+from passmanager import Backend
 
 from tables import operator_to_lambda, modules, type_to_suffix
 from tables import builtin_constructors, pytype_to_ctype_table
@@ -37,13 +37,12 @@ class CxxBackend(Backend):
     # flags the last statement of a generator
     final_statement = "that_is_all_folks"
 
-    def __init__(self, name):
-        modules['__user__'] = dict()
+    def __init__(self):
         self.declarations = list()
         self.definitions = list()
         self.break_handler = list()
         self.result = list()
-        Backend.__init__(self, name,
+        Backend.__init__(self,
                 GlobalDeclarations, BoundedExpressions, Types, ArgumentEffects)
 
     # mod
@@ -59,7 +58,7 @@ class CxxBackend(Backend):
 
         assert not self.local_declarations
         self.result = headers + [
-                Namespace("__{0}".format(self.name),
+                Namespace("__{0}".format(self.passmanager.module_name),
                     body
                     + self.declarations
                     + self.definitions)]
@@ -115,7 +114,8 @@ class CxxBackend(Backend):
         formal_types = ["argument_type{0}".format(i)
                 for i in xrange(len(formal_args))]
 
-        ldecls = {sym.id: sym for sym in gather(LocalDeclarations, node)}
+        ldecls = {sym.id: sym
+                for sym in self.passmanager.gather(LocalDeclarations, node)}
 
         self.local_declarations.append(set(ldecls.iterkeys()))
         self.local_declarations[-1].update(formal_args)
@@ -125,7 +125,8 @@ class CxxBackend(Backend):
 
         # 0 is used as initial_state, thus the +1
         self.yields = {k: (1 + v, "yield_point{0}".format(1 + v))
-                for (v, k) in enumerate(gather(YieldPoints, node))}
+                for (v, k) in
+                enumerate(self.passmanager.gather(YieldPoints, node))}
 
         operator_body = [self.visit(n) for n in node.body]
         default_arg_values = (

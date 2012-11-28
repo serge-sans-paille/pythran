@@ -56,7 +56,9 @@ class ContextManager(object):
                                     ast.FunctionDef) else ctx.function
             else:
                 rnode = node
-            setattr(self, uncamel(D.__name__), D().run(rnode, ctx))
+            d = D()
+            d.passmanager = self.passmanager
+            setattr(self, uncamel(D.__name__), d.run(rnode, ctx))
         return self.run_visit(node)
 
     def run_visit(self, node):
@@ -71,7 +73,7 @@ class Analysis(ast.NodeVisitor, ContextManager):
         '''`dependencies' holds the type of all analysis required by this
             analysis. `self.result' must be set prior to calling this
             constructor.'''
-        assert (hasattr(self, "result"),
+        assert hasattr(self, "result"), (
             "An analysis must have a result attribute when initialized")
         ContextManager.__init__(self, *dependencies)
 
@@ -97,9 +99,7 @@ class NodeAnalysis(Analysis):
 
 class Backend(ModuleAnalysis):
     '''A pass that produces code from an AST.'''
-    def __init__(self, name, *dependencies):
-        self.name = name
-        ModuleAnalysis.__init__(self, *dependencies)
+    pass
 
 
 class Transformation(ContextManager, ast.NodeTransformer):
@@ -107,21 +107,30 @@ class Transformation(ContextManager, ast.NodeTransformer):
     pass
 
 
-def gather(analysis, node, ctx=None):
-    '''High-level function to call an `analysis' on a `node', eventually
-    using a `ctx'.'''
-    return analysis().run(node, ctx)
+class PassManager(object):
+    '''front end to the pythran pass system'''
+    def __init__(self, module_name):
+        self.module_name = module_name
 
+    def gather(self, analysis, node, ctx=None):
+        '''High-level function to call an `analysis' on a `node', eventually
+        using a `ctx'.'''
+        a = analysis()
+        a.passmanager = self
+        return a.run(node, ctx)
 
-def dump(backend, node, module_name):
-    '''High-level function to call a `backend' on a `node' to generate
-    code for module `module_name'.'''
-    return backend(module_name).run(node, None)
+    def dump(self, backend, node):
+        '''High-level function to call a `backend' on a `node' to generate
+        code for module `module_name'.'''
+        b = backend()
+        b.passmanager = self
+        return b.run(node, None)
 
-
-def apply(transformation, node, ctx=None):
-    '''High-level function to call a `transformation' on a `node',
-    eventually using a `ctx'.'''
-    n = transformation().run(node, ctx)
-    ast.fix_missing_locations(node)
-    return n
+    def apply(self, transformation, node, ctx=None):
+        '''High-level function to call a `transformation' on a `node',
+        eventually using a `ctx'.'''
+        t = transformation()
+        t.passmanager = self
+        n = t.run(node, ctx)
+        ast.fix_missing_locations(node)
+        return n

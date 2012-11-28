@@ -10,7 +10,6 @@ from tables import modules, builtin_constants, builtin_constructors
 from analysis import GlobalDeclarations, YieldPoints, LocalDeclarations
 from analysis import OrderedGlobalDeclarations, ModuleAnalysis, Aliases
 from passes import Transformation
-from passmanager import gather, apply
 from syntax import PythranSyntaxError
 from cxxtypes import *
 from intrinsic import MethodIntr
@@ -235,7 +234,7 @@ class Types(ModuleAnalysis):
         ModuleAnalysis.__init__(self, Aliases, LocalDeclarations)
 
     def run(self, node, ctx):
-        apply(Reorder, node, ctx)
+        self.passmanager.apply(Reorder, node, ctx)
         return ModuleAnalysis.run(self, node, ctx)
 
     def run_visit(self, node):
@@ -353,7 +352,7 @@ class Types(ModuleAnalysis):
         self.current.append(node)
         self.typedefs = list()
         self.name_to_nodes = {arg.id: {arg} for arg in node.args.args}
-        self.yield_points = gather(YieldPoints, node)
+        self.yield_points = self.passmanager.gather(YieldPoints, node)
 
         for k, v in builtin_constants.iteritems():
             fake_node = ast.Name(k, ast.Load())

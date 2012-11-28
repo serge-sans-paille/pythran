@@ -14,8 +14,7 @@
     * GatherOMPData turns OpenMP-like string annotations into metadata
 '''
 
-from analysis import ImportedIds, Identifiers, ConstantExpressions
-from passmanager import gather, Transformation
+from passmanager import Transformation
 from tables import methods, attributes, functions
 from tables import cxx_keywords, namespace, modules
 import metadata
@@ -186,7 +185,7 @@ class RemoveComprehension(Transformation):
         node.elt = self.visit(node.elt)
         name = "{0}_comprehension{1}".format(comp_type, self.count)
         self.count += 1
-        args = gather(ImportedIds, node, self.ctx)
+        args = self.passmanager.gather(ImportedIds, node, self.ctx)
         self.count_iter = 0
 
         starget = "__target"
@@ -236,7 +235,7 @@ class RemoveComprehension(Transformation):
         node.elt = self.visit(node.elt)
         name = "generator_expression{0}".format(self.count)
         self.count += 1
-        args = gather(ImportedIds, node, self.ctx)
+        args = self.passmanager.gather(ImportedIds, node, self.ctx)
         self.count_iter = 0
 
         body = reduce(self.nest_reducer,
@@ -264,9 +263,10 @@ class NestedFunctionRemover(Transformation):
     '''replace nested function by top-level functions
     and a call to a bind intrinsic that
     generates a local function with some arguments binded'''
-    def __init__(self, ctx):
+    def __init__(self, pm, ctx):
         Transformation.__init__(self)
         self.ctx = ctx
+        self.passmanager = pm
 
     def visit_FunctionDef(self, node):
         [self.visit(n) for n in node.body]
@@ -277,7 +277,7 @@ class NestedFunctionRemover(Transformation):
         former_nbargs = len(node.args.args)
         new_name = "pythran_{0}".format(former_name)
 
-        ii = gather(ImportedIds, node, self.ctx)
+        ii = self.passmanager.gather(ImportedIds, node, self.ctx)
         binded_args = [ast.Name(iin, ast.Load()) for iin in sorted(ii)]
         node.args.args = ([ast.Name(iin, ast.Param()) for iin in sorted(ii)]
                 + node.args.args)
@@ -317,7 +317,7 @@ class RemoveNestedFunctions(Transformation):
         return node
 
     def visit_FunctionDef(self, node):
-        nfr = NestedFunctionRemover(self.ctx)
+        nfr = NestedFunctionRemover(self.passmanager, self.ctx)
         node.body = [nfr.visit(n) for n in node.body]
         return node
 
@@ -325,8 +325,9 @@ class RemoveNestedFunctions(Transformation):
 ##
 class LambdaRemover(Transformation):
     '''turns lambda into top-level functions'''
-    def __init__(self, name, ctx):
+    def __init__(self, pm, name, ctx):
         Transformation.__init__(self)
+        self.passmanager = pm
         self.ctx = ctx
         self.prefix = name
         self.lambda_functions = list()
@@ -336,7 +337,7 @@ class LambdaRemover(Transformation):
         forged_name = "{0}_lambda{1}".format(
                 self.prefix,
                 len(self.lambda_functions))
-        ii = gather(ImportedIds, node, self.ctx)
+        ii = self.passmanager.gather(ImportedIds, node, self.ctx)
         binded_args = [ast.Name(iin, ast.Load()) for iin in sorted(ii)]
         former_nbargs = len(node.args.args)
         node.args.args = ([ast.Name(iin, ast.Param()) for iin in sorted(ii)]
@@ -365,7 +366,7 @@ class RemoveLambdas(Transformation):
         return node
 
     def visit_FunctionDef(self, node):
-        lr = LambdaRemover(node.name, self.ctx)
+        lr = LambdaRemover(self.passmanager, node.name, self.ctx)
         node.body = [lr.visit(n) for n in node.body]
         self.lambda_functions.extend(lr.lambda_functions)
         return node

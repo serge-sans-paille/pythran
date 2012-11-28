@@ -224,7 +224,7 @@ class ConstantExpressions(NodeAnalysis):
     """Identify constant expressions (dummy implementation)"""
     def __init__(self):
         self.result = set()
-        NodeAnalysis.__init__(self, Globals, Locals)
+        NodeAnalysis.__init__(self, Globals, Locals, PureFunctions, Aliases)
 
     def add(self, node):
         self.result.add(node)
@@ -273,11 +273,12 @@ class ConstantExpressions(NodeAnalysis):
                 and self.add(node))
 
     def visit_Name(self, node):
-        if node in self.locals:
-            return (node.id not in self.locals[node]
-                    and node.id in modules['__builtins__']
-                    and modules['__builtins__'][node.id].isconst())
-        else:  # not in an expression
+        if node in self.aliases:
+            pure_fun = all(alias in self.pure_functions
+                    for alias in self.aliases[node].aliases)
+            return pure_fun and self.add(node)
+
+        else:
             return False
 
     def visit_Attribute(self, node):

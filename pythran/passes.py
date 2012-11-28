@@ -636,7 +636,8 @@ class ConstantFolding(Transformation):
                 for module_name in modules if not module_name.startswith('__')}
 
     def to_ast(self, value):
-        if any(isinstance(value, t) for t in (int, long, bool, float)):
+        if any(isinstance(value, t)
+                for t in (int, long, bool, float, complex)):
             return ast.Num(value)
         elif isinstance(value, str):
             return ast.Str(value)

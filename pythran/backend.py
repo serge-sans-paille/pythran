@@ -10,7 +10,7 @@ from analysis import YieldPoints, BoundedExpressions, ArgumentEffects
 from passmanager import gather, Backend
 
 from tables import operator_to_lambda, modules, type_to_suffix
-from tables import builtin_constructors
+from tables import builtin_constructors, pytype_to_ctype_table
 from typing import Types
 from syntax import PythranSyntaxError
 import metadata
@@ -684,7 +684,12 @@ class CxxBackend(Backend):
         return "{0}({1})".format(func, ", ".join(args))
 
     def visit_Num(self, node):
-        if type(node.n) == long:
+        if type(node.n) == complex:
+            return "{0}({1}, {2})".format(
+                    pytype_to_ctype_table[type(node.n)],
+                    node.n.real,
+                    node.n.imag)
+        elif type(node.n) == long:
             return 'pythran_long({0})'.format(str(node.n))
         else:
             return str(node.n) + type_to_suffix.get(type(node.n), "")

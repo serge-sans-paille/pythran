@@ -393,7 +393,7 @@ class NormalizeReturn(Transformation):
 class NormalizeMethodCalls(Transformation):
     '''Turns built in method calls into function calls'''
     def visit_Call(self, node):
-        [self.visit(n) for n in node.args]
+        self.generic_visit(node)
         if isinstance(node.func, ast.Attribute) and node.func.attr in methods:
             node.args.insert(0,  node.func.value)
             node.func = ast.Attribute(

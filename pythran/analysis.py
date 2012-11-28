@@ -233,29 +233,32 @@ class ConstantExpressions(NodeAnalysis):
         return all(self.visit(n) for n in node.values) and self.add(node)
 
     def visit_BinOp(self, node):
-        return (all(self.visit(n) for n in (node.left, node.right))
+        return (all([self.visit(n) for n in (node.left, node.right)])
                 and self.add(node))
 
     def visit_UnaryOp(self, node):
         return self.visit(node.operand) and self.add(node)
 
     def visit_IfExp(self, node):
-        return (all(self.visit(n) for n in (node.test, node.body, node.orelse))
-                and self.add(node))
+        return (
+                all([self.visit(n)
+                    for n in (node.test, node.body, node.orelse)])
+                and self.add(node)
+                )
 
     def visit_Dict(self, node):
-        return (all(self.visit(n) for n in (node.keys + node.values))
+        return (all([self.visit(n) for n in (node.keys + node.values)])
                 and self.add(node))
 
     def visit_Set(self, node):
-        return all(self.visit(n) for n in node.elts) and self.add(node)
+        return all([self.visit(n) for n in node.elts]) and self.add(node)
 
     def visit_Compare(self, node):
-        return (all(self.visit(n) for n in [node.left] + node.comparators)
+        return (all([self.visit(n) for n in [node.left] + node.comparators])
                 and self.add(node))
 
     def visit_Call(self, node):
-        return (all(self.visit(n) for n in node.args + [node.func])
+        return (all([self.visit(n) for n in (node.args + [node.func])])
                 and self.add(node))
 
     def visit_Num(self, node):
@@ -265,7 +268,7 @@ class ConstantExpressions(NodeAnalysis):
         return self.add(node)
 
     def visit_Subscript(self, node):
-        return (all(self.visit(n) for n in (node.value, node.slice))
+        return (all([self.visit(n) for n in (node.value, node.slice)])
                 and self.add(node))
 
     def visit_Name(self, node):

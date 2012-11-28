@@ -12,6 +12,7 @@ This module provides a few code analysis for the pythran language.
     * BoundedExpressions gathers temporary objects
     * ArgumentEffects computes write effect on arguments
     * GlobalEffects computes function effect on global state
+    * PureFunctions detects functions without side-effects.
 '''
 
 from tables import modules, builtin_constants, builtin_constructors
@@ -420,7 +421,7 @@ class Aliases(ModuleAnalysis):
                             set(self.global_declarations.itervalues())
                             )
                         )
-                    ) # should include built-ins too
+                    )  # should include built-ins too
 
     def visit_Num(self, node):
         return self.add(node)
@@ -761,10 +762,23 @@ class GlobalEffects(ModuleAnalysis):
             if isinstance(func_alias, ast.Call):
                 bound_name = func_alias.args[0].id
                 func_alias = self.global_declarations[bound_name]
-            if isinstance(func_alias, ast.Name): print func_alias.id
             func_alias = self.node_to_functioneffect[func_alias]
             self.result.add_edge(self.current_function, func_alias)
         self.generic_visit(node)
 
 
+##
+class PureFunctions(ModuleAnalysis):
+    '''Yields the set of pure functions'''
+    def __init__(self):
+        self.result = set()
+        ModuleAnalysis.__init__(self, ArgumentEffects, GlobalEffects)
 
+    def run(self, node, ctx):
+        ModuleAnalysis.run(self, node, ctx)
+        functions_with_no_arg_effect = {func
+                for func, ae in self.argument_effects.iteritems()
+                if not any(ae)}
+        pure_functions = functions_with_no_arg_effect.difference(
+                self.global_effects)
+        return pure_functions

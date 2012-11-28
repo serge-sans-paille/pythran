@@ -571,3 +571,6 @@ def import_as():
     def test_list_removal(self):
         self.run_test("def list_removal(t): [a,b] = t ; return a, b", (1,2), list_removal=[(int, int)])
 
+    def test_recursive_attr(self):
+        self.run_test("def recursive_attr(): return {1,2,3}.union({1,2}).union({5})", recursive_attr=[])
+

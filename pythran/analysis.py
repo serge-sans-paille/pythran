@@ -413,12 +413,14 @@ class Aliases(ModuleAnalysis):
             return self.add(node, {node})
         else:
             return self.add(node,
-                    reduce(
-                        set.union,
-                        (self.visit(n) for n in node.args),
-                        set(self.global_declarations.itervalues())
+                    {None}.union(
+                        reduce(
+                            set.union,
+                            (self.visit(n) for n in node.args),
+                            set(self.global_declarations.itervalues())
+                            )
                         )
-                    )  # should include built-ins too
+                    ) # should include built-ins too
 
     def visit_Num(self, node):
         return self.add(node)
@@ -455,7 +457,7 @@ class Aliases(ModuleAnalysis):
 
     def visit_FunctionDef(self, node):
         self.aliases = dict()
-        self.aliases.update({(k,): {v}
+        self.aliases.update({(k,): {k}
             for k, v in builtin_constants.iteritems()})
         self.aliases.update({(k,): {v}
             for k, v in builtin_constructors.iteritems()})
@@ -551,7 +553,7 @@ class BoundedExpressions(ModuleAnalysis):
                 self.result.add(n)
 
     def visit_Return(self, node):
-        self.visit(node.value)
+        node.value and self.visit(node.value)
         if node.value:
             self.result.add(node.value)
             if isinstance(node.value, ast.Subscript):

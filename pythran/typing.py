@@ -200,6 +200,10 @@ class Reorder(Transformation):
         return node
 
 
+class UnboundableRValue(Exception):
+    pass
+
+
 def node_to_id(n, depth=0):
     if isinstance(n, ast.Name):
         return (n.id, depth)
@@ -209,8 +213,7 @@ def node_to_id(n, depth=0):
         else:
             return node_to_id(n.value, 1 + depth)
     else:
-        raise NotImplementedError(
-                "One can only assign to Name or Subscripts of a name")
+        raise UnboundableRValue()
 
 
 def copy_func(f, name=None):
@@ -256,32 +259,33 @@ class Types(ModuleAnalysis):
         """ checks whether node aliases to a parameter"""
         try:
             node_id, _ = node_to_id(node)
-            return (node_id in self.name_to_nodes
-                    and any(
-                        isinstance(n, ast.Name)
-                        and isinstance(n.ctx, ast.Param)
-                        for n in self.name_to_nodes[node_id]))
-        except NotImplementedError:
-            return False
+            return (node_id in self.name_to_nodes and
+                           any([isinstance(n, ast.Name) and
+                           isinstance(n.ctx, ast.Param)
+                           for n in self.name_to_nodes[node_id]]))
+        except UnboundableRValue:
+                return False
 
-    def combine(self, node, othernode, op=None, unary_op=None,
-                register=False):
+    def combine(self, node, othernode, op=None, unary_op=None, register=False):
         self.combine_(node, othernode, op if op else lambda x, y: x + y,
                         unary_op if unary_op else lambda x: x, register)
 
     def combine_(self, node, othernode, op, unary_op, register):
-        if register:
-# this comes from an assignment, so we must check where the value is assigned
-            node_id, depth = node_to_id(node)
-            if node_id not in self.name_to_nodes:
-                self.name_to_nodes[node_id] = set()
-            self.name_to_nodes[node_id].add(node)
-            former_unary_op = copy_func(unary_op)
-            #use ContainerType instead of ListType because it can be a tuple
-            unary_op = lambda x: former_unary_op(
-                reduce(lambda t, n: ContainerType(t), xrange(depth), x))
-                # update the type to reflect container nesting
         try:
+            if register:  # this comes from an assignment,
+                          # so we must check where the value is assigned
+                node_id, depth = node_to_id(node)
+                if node_id not in self.name_to_nodes:
+                    self.name_to_nodes[node_id] = set()
+                self.name_to_nodes[node_id].add(node)
+                former_unary_op = copy_func(unary_op)
+                # use ContainerType instead of ListType
+                # because it can be a tuple
+                unary_op = lambda x: former_unary_op(
+                             reduce(lambda t, n: ContainerType(t),
+                              xrange(depth), x))
+                         # update the type to reflect container nesting
+
             if isinstance(othernode, ast.FunctionDef):
                 new_type = NamedType(othernode.name)
                 if node not in self.result:
@@ -302,10 +306,9 @@ class Types(ModuleAnalysis):
                         def interprocedural_type_translator(s, n):
                             translated_othernode = ast.Name(
                                 '__fake__', ast.Load())
-                            s.result[translated_othernode] = \
-                                    parametric_type.instanciate(
-                                            s.current[-1],
-                                            [s.result[arg] for arg in n.args])
+                            s.result[translated_othernode] = (
+                             parametric_type.instanciate(
+                             s.current[-1], [s.result[arg] for arg in n.args]))
                             # look for modified argument
                             for p, effective_arg in enumerate(n.args):
                                 formal_arg = args[p]
@@ -337,6 +340,8 @@ class Types(ModuleAnalysis):
                         self.result[node] = new_type
                     else:
                         self.result[node] = op(self.result[node], new_type)
+        except UnboundableRValue:
+            pass
         except:
             print ast.dump(othernode)
             raise

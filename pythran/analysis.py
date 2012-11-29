@@ -192,6 +192,9 @@ class ImportedIds(NodeAnalysis):
     def visit_SetComp(self, node):
         self.visit_AnyComp(node)
 
+    def visit_DictComp(self, node):
+        self.visit_AnyComp(node)
+
     def visit_GeneratorExp(self, node):
         self.visit_AnyComp(node)
 

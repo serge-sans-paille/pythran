@@ -182,7 +182,7 @@ class RemoveComprehension(Transformation):
             return reduce(lambda n, if_: ast.If(if_, [n], []), ifs, node)
         return ast.For(g.target, g.iter, [wrap_in_ifs(x, g.ifs)], [])
 
-    def visit_AnyComp(self, node, comp_type, comp_method):
+    def visit_AnyComp(self, node, comp_type, comp_module, comp_method):
         node.elt = self.visit(node.elt)
         name = "{0}_comprehension{1}".format(comp_type, self.count)
         self.count += 1
@@ -195,7 +195,7 @@ class RemoveComprehension(Transformation):
                 ast.Expr(
                     ast.Call(
                         ast.Attribute(
-                            ast.Name("__{0}__".format(comp_type), ast.Load()),
+                            ast.Name(comp_module, ast.Load()),
                             comp_method,
                             ast.Load()),
                         [ast.Name(starget, ast.Load()), node.elt],
@@ -227,10 +227,19 @@ class RemoveComprehension(Transformation):
                 )  # no sharing !
 
     def visit_ListComp(self, node):
-        return self.visit_AnyComp(node, "list", "append")
+        return self.visit_AnyComp(node, "list", "__list__", "append")
 
     def visit_SetComp(self, node):
-        return self.visit_AnyComp(node, "set", "add")
+        return self.visit_AnyComp(node, "set", "__set__", "add")
+
+    def visit_DictComp(self, node):
+        # this is a quickfix to match visit_AnyComp signature
+        # potential source of improvement there!
+        node.elt = ast.List(
+                [ast.Tuple([node.key, node.value], ast.Load())],
+                ast.Load()
+                )
+        return self.visit_AnyComp(node, "dict", "__dispatch__", "update")
 
     def visit_GeneratorExp(self, node):
         node.elt = self.visit(node.elt)

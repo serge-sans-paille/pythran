@@ -42,6 +42,9 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
     def test_list_comprehension(self):
         self.run_test("def list_comprehension(l): return [ x*x for x in l ]", [1,2,3], list_comprehension=[[int]])
  
+    def test_dict_comprehension(self):
+        self.run_test("def dict_comprehension(l): return { i: 1 for i in l if len(i)>1 }", ["1","12","123"], dict_comprehension=[[str]])
+ 
     def test_filtered_list_comprehension(self):
         self.run_test("def filtered_list_comprehension(l): return [ x*x for x in l if x > 1 if x <10]", [1,2,3], filtered_list_comprehension=[[int]])
 

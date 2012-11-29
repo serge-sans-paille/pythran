@@ -13,6 +13,7 @@ This module provides a few code analysis for the pythran language.
     * ArgumentEffects computes write effect on arguments
     * GlobalEffects computes function effect on global state
     * PureFunctions detects functions without side-effects.
+    * ParallelMaps detects parallel map(...)
 '''
 
 from tables import modules, builtin_constants, builtin_constructors
@@ -783,3 +784,24 @@ class PureFunctions(ModuleAnalysis):
         pure_functions = functions_with_no_arg_effect.difference(
                 self.global_effects)
         return pure_functions
+
+
+##
+class ParallelMaps(ModuleAnalysis):
+    '''Yields the est of maps that could be parallel'''
+    def __init__(self):
+        self.result = set()
+        ModuleAnalysis.__init__(self, PureFunctions, Aliases)
+
+    def visit_Call(self, node):
+        if all(alias == modules['__builtins__']['map']
+                for alias in self.aliases[node.func].aliases):
+            if all(self.pure_functions.__contains__(f)
+                    for f in self.aliases[node.args[0]].aliases):
+                self.result.add(node)
+
+    def display(self, data):
+        for node in data:
+            print "I:", "call to the `map' intrinsic could be parallel", "(line {0})".format(node.lineno)
+
+

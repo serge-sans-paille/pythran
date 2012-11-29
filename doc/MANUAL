@@ -167,6 +167,14 @@ set), introduced by the ``list`` (resp. ``set``) keyword::
 
 Easy enough, isn't it?
 
+.. note::
+
+    It is in fact possible to analyse a code without specifications, but you
+    cannot go further that generic (a.k.a. heavily templated) c++ code. Use the
+    ``-e`` switch!
+
+
+
 Advanced Usage
 --------------
 
@@ -211,6 +219,12 @@ Note that as in python, all variables have function-level scope, ``x`` and
 
 OpenMP directive parsing is enabled by ``-fopenmp`` when using ``g++`` as the
 backend compiler.
+
+Alteratively, one can run the great::
+
+    pythran -ppythran.analysis.ParallelMaps -e as.py
+
+Which runs a code analyzer that displays extra information cocnerning parallel ``map`` found int he code.
 
 Getting Pure C++
 ----------------

@@ -81,6 +81,8 @@ class Analysis(ast.NodeVisitor, ContextManager):
         ContextManager.run(self, node, ctx)
         return self.result
 
+    def display(self, data):
+        print data
 
 class ModuleAnalysis(Analysis):
     '''An analysis that operates on a whole module.'''
@@ -129,8 +131,11 @@ class PassManager(object):
     def apply(self, transformation, node, ctx=None):
         '''High-level function to call a `transformation' on a `node',
         eventually using a `ctx'.'''
-        t = transformation()
-        t.passmanager = self
-        n = t.run(node, ctx)
-        ast.fix_missing_locations(node)
+        a = transformation()
+        a.passmanager = self
+        n = a.run(node, ctx)
+        if issubclass(transformation, Transformation):
+            ast.fix_missing_locations(node)
+        else:
+            a.display(n)
         return n

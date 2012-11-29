@@ -25,7 +25,17 @@
 
 \maketitle   
 \begin{abstract}
-    trop de la balouze ce sujet\todo{Ecrire un résumé plus explicite.}
+  Ce rapport court présente tout d'abord les différents moyens
+  d'améliorer les performances d'un programme en python. En
+  particulier, il montre que l'utilisation d'itérateurs à la place de
+  créations de liste peut diminuer le temps d'exécution d'un programme
+  donné. Il présente également pythran, un outil permettant de
+  traduire du code python en C++ pour créer des modules hautement
+  performants. En plus d'une simple traduction, pythran peut optimiser
+  le programme initial, comme remplacer l'utilisation de listes par
+  l'utilisation d'itérateurs. Les problématiques liées à ce type
+  d'optimisation seront détaillées puis suivies d'un plan de travail
+  visant à les résoudre.
 \end{abstract}
 
 \clearpage               
@@ -161,7 +171,7 @@ sum(imap(lambda x:x*x, xrange(N)))
 
 Cette implémentation est moins performante que la première car elle
 utilise des appels de fonction, qui sont coûteux en
-Python.\todo{argumenter}
+Python\cite{CallOverhead}.
 
 La troisième implémentation utilise la fonction \texttt{map} qui
 applique une fonction à un itérateur pour produire une liste :
@@ -181,8 +191,7 @@ que le simple fait de remplacer \texttt{map} par \texttt{imap} permet
 un gain de performance non négligeable dès que l'on manipule un large
 ensemble de données. La même constatation peut être faite quand à
 l'utilisation de \texttt{xrange} plutôt que \texttt{range} ou encore
-\texttt{izip} plutôt que \texttt{zip}.\todo{pour plus atrd: comment
-  mesurer l'utilisation émmoire et la comparer?}
+\texttt{izip} plutôt que \texttt{zip}.
 
 \subsubsection{Module spécialisés}
 
@@ -369,23 +378,16 @@ variable l n'est jamais modifiée.
     f(i)
 \end{lstlisting}
 
-Un autre problème vient du fait que dans l'AST, un opérateur est
-représenté par son nom, ce qui permet la situation de l'exemple
-suivant, où la transformation \texttt{range()} -> \texttt{xrange()} n'est pas valide
-dans la boucle for.\todo{pas en gros problème, juste une gestion des portées... on a déjà l'analyse qui faut.Mais qui de foo(range(100))? a=range(18) ?}
+ou encore 
 
 \begin{lstlisting}
-  def g(n):
-    return [9001,n,27,42]
+  def f(l):
+    ...
+
   .
   .
   .
-  range = g
-  .
-  .
-  .
-  for i in range(100):
-    f(i)
+  f(range(100))
 \end{lstlisting}
 
 Avant d'effectuer la transformation, il faut donc analyser le
@@ -437,16 +439,16 @@ paramètres :
 
 \subsubsection{Méthodologie}
 
-La méthodologie utilisée pour l'implémentation du module \texttt{itertools} est
-une itération des étapes suivantes :
+La méthodologie utilisée pour l'implémentation du module
+\texttt{itertools} est une itération des étapes suivantes :
 
 \begin{enumerate}
 \item Déterminer une fonction à implémenter.
 \item Écrire des tests.
 \item Implémenter la fonction en C++ dans Pythonic++.
 \item Tester la fonction pour vérifier qu'elle produit le résultat
-  attendu pour tout les cas de test.\todo{préciser que c'est fait
-    automatiquement par la suite de test existante ? -> ah?}
+  attendu pour tout les cas de test. Il suffit pour cela d'écrire les
+  tests unitaires et de les ajouter à la suite de test de pythran.
   \item Tester les performances de la fonction et vérifier qu'il n'y a
     pas d'opération anormalement coûteuse avec le module CallGrind de
     l'outils Vallgrind.
@@ -497,13 +499,13 @@ d'écrire une analyse. Il faudra donc simplement implémenter la
 transformation, et effectuer des tests pour vérifier qu'elle apporte
 bien un gain de performances après traduction en C++.
 
-\subsubsection{Le cas \texttt{xrange}}
-
-\todo{pas uniquement xrange: map ->imap, zip ->izip,[x for x..] ->(x for x...)}
+\subsubsection{Les transformations en itérateur}
 
 Les exemples précédents ont montré que la transformation
-\texttt{range} -> \texttt{xrange} n'est pas toujours valide. Il faudra
-donc :
+\texttt{range} -> \texttt{xrange} n'est pas toujours valide. Les
+autres transformation du même type comme \texttt{zip} -> \texttt{izip}
+ou \texttt{map} -> \texttt{imap} posent le même problème et devront
+donc être résolu de façon semblable.
 
 \begin{enumerate}
 \item Identifier la plupart des cas dans lesquels la transformation
@@ -534,9 +536,12 @@ for i in range(100):
 Le analyse et transformations de pythran sont écrites en Python. Tout
 code produit doit être conforme à pep8, un ensemble de bonnes
 pratiques Python. Pour cela, avant d'être commité, tout code ajouté
-doit être validé par l'outils pep8.
+doit être validé par l'outils pep8. 
 
-\todo{et ne pas perturber les 450+ cas test existants}
+Bien évidement, les modifications ne doivent pas apporter de
+regressions. La suite de test de pythran devra donc être utilisée pour
+vérifier que tous les tests unitaires sont toujours réussis après
+avoir implémenté les transformations.
 
 \clearpage
 
@@ -548,7 +553,6 @@ doit être validé par l'outils pep8.
 \bibliographystyle{plain}
 \bibliography{RapportCourtBib}
 
-\todos
 
 \end{document}
 

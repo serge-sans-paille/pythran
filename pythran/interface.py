@@ -9,7 +9,7 @@ import os.path
 import distutils.sysconfig
 from cxxgen import *
 import ast
-from middlend import refine
+from middlend import refine, default_optimization_sequence
 from backend import CxxBackend
 from subprocess import check_output, STDOUT, CalledProcessError
 from tempfile import mkstemp, NamedTemporaryFile
@@ -45,12 +45,15 @@ def extract_constructed_types(t):
         return [pytype_to_ctype(t)] + extract_constructed_types(list(t)[0])
     elif isinstance(t, dict):
         tkey, tvalue = t.items()[0]
-        return [pytype_to_ctype(t)] +\
-             extract_constructed_types(tkey) +\
-             extract_constructed_types(tvalue)
+        return ([pytype_to_ctype(t)]
+                + extract_constructed_types(tkey)
+                + extract_constructed_types(tvalue))
     elif isinstance(t, tuple):
-        return [pytype_to_ctype(t)] + reduce(lambda x, y: x + y,
-                            (extract_constructed_types(e) for e in t))
+        return ([pytype_to_ctype(t)]
+                + reduce(
+                    lambda x, y: x + y,
+                    (extract_constructed_types(e) for e in t))
+                )
     elif t == long:
         return ["pythran_long_def"]
     elif t == str:
@@ -64,7 +67,18 @@ def extract_all_constructed_types(v):
                 (extract_constructed_types(t) for t in v), [])), key=len)
 
 
-def cxx_generator(module_name, code, specs=None):
+def parse_optimization(optimization):
+    '''Turns an optimization of the form
+        my_optim
+        my_package.my_optim
+        into the associated symbol'''
+    splitted = optimization.split('.')
+    if len(splitted) == 1:
+        splitted = ['pythran', 'optimizations'] + splitted
+    return reduce(getattr, splitted[1:], __import__(splitted[0]))
+
+
+def cxx_generator(module_name, code, specs=None, optimizations=None):
     '''python + pythran spec -> c++ code'''
     pm = PassManager(module_name)
     # font end
@@ -73,7 +87,11 @@ def cxx_generator(module_name, code, specs=None):
     check_syntax(ir)
 
     # middle-end
-    refine(pm, ir)
+    if not optimizations:
+        optimizations = default_optimization_sequence
+    else:
+        optimizations = [parse_optimization(optim) for optim in optimizations]
+    refine(pm, ir, optimizations)
     # back-end
     content = pm.dump(CxxBackend, ir)
 

@@ -184,6 +184,16 @@ Tired of typing the same compiler switches again and again? Store them in
 Wants to try your own compiler? Pythran uses ``c++`` by default, and this
 behavior can be overridden using ``CXX`` or ``CXXFLAGS`` environment variables.
 
+The careful reader might have noticed the ``-p`` flag from the command line. It
+makes it possible to define your own optimization sequence::
+
+    pythran -pConstantFodling -pmy_package.MyOptimization
+
+runs the ``ConstantFolding`` optimization from ``pythran.optimizations``
+followed by a custom optimization found in the ``my_package`` package, loaded
+from ``PYTHONPATH``.
+
+
 Adding OpenMP directives
 ------------------------
 

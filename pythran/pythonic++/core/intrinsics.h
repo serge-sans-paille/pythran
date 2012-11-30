@@ -363,6 +363,30 @@ namespace pythonic {
             return s;
         }
 
+
+    template <typename List0, typename... Iterators>
+        core::list< std::tuple<typename List0::value_type, typename Iterators::value_type... > > _map(pythonic::none_type op, List0 && seq, Iterators... iterators) 
+        {
+            auto first = seq.begin();
+            auto last = seq.end();
+            core::list< std::tuple<typename List0::value_type, typename Iterators::value_type... > > out(last-first);
+            auto iter = out.begin();
+            while(first!=last)
+                *iter++= std::make_tuple( *first++, *iterators++... );
+            return out;
+        }
+
+    template <typename List0>
+        auto _map(pythonic::none_type op, List0 && seq)
+        -> List0 
+        {
+            List0 s(len(seq));
+            auto iter = s.begin();
+            for(auto & iseq : seq)
+                *iter++= iseq;
+            return s;
+        }
+
     template <typename Operator, typename List0, typename... ListN>
         auto map(Operator op, List0 && seq, ListN &&... lists)
         -> decltype( _map(op, std::forward<List0>(seq), lists.begin()...) )

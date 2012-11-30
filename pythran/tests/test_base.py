@@ -84,6 +84,12 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
     def test_multimin(self):
         self.run_test("def multimin(l,v):return min(v,min(l))", [ 1.1, 2.2 ], 3, multimin=[[float],int])
 
+    def test_map_none(self):
+        self.run_test("def map_none(l0): return map(None, l0)", [0,1,2], map_none=[[int]])
+
+    def test_map_none2(self):
+        self.run_test("def map_none2(l0): return map(None, l0, l0)", [0,1,2], map_none2=[[int]])
+
     def test_map(self):
         self.run_test("def map_(l0, l1,v): return map(lambda x,y:x*v+y, l0, l1)", [0,1,2], [0,1.1,2.2], 2, map_=[[int], [float], int])
     

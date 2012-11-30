@@ -97,6 +97,11 @@ class dict_container {
         dict_container();
 };
 
+template <class A>
+core::list<A> operator+(container<A>, core::empty_list);
+template <class A>
+core::list<A> operator+(core::empty_list , container<A> );
+
 template <class A, class B>
 B operator+(container<A> , B );
 template <class A, class B>

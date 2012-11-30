@@ -240,6 +240,7 @@ modules = {
                 "gauss": FunctionIntr(global_effects=True),
                 "uniform": FunctionIntr(global_effects=True),
                 "expovariate": FunctionIntr(global_effects=True),
+                "sample": FunctionIntr(global_effects=True)
                 },
         "__list__": {
                 "append": MethodIntr(

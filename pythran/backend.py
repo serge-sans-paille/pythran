@@ -567,7 +567,8 @@ class CxxBackend(Backend):
         test = self.visit(node.test)
         body = [self.visit(n) for n in node.body]
         orelse = [self.visit(n) for n in node.orelse]
-        return If(test, Block(body), Block(orelse) if orelse else None)
+        stmt = If(test, Block(body), Block(orelse) if orelse else None)
+        return self.process_omp_attachements(node, stmt)
 
     def visit_Raise(self, node):
         type = node.type and self.visit(node.type)

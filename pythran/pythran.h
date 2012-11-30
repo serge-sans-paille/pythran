@@ -1,35 +1,73 @@
 #ifndef PYTHRAN_H
 #define PYTHRAN_H
 
+#define pythran_long(v) v ## LL
+#define pythran_long_def long long
 
 #include <pythonic++.h>
+#include <type_traits>
 using namespace pythonic;
 
 /* type inference stuff {*/
 
 template<class Type, class... Types>
-    struct __combined {
-        typedef typename __combined< Type, typename __combined<Types...>::type >::type type;
-    };
+struct __combined {
+    typedef typename __combined< Type, typename __combined<Types...>::type >::type type;
+};
 
 template<class T>
-    struct __combined<T> {
-        typedef T type;
-    };
+struct __combined<T> {
+    typedef T type;
+};
+
 template<class T0, class T1>
-    struct __combined<T0,T1> {
-        typedef decltype(std::declval<T0>()+std::declval<T1>()) type;
-    };
+struct __combined<T0,T1> {
+    typedef decltype(std::declval<T0>()+std::declval<T1>()) type;
+};
 
 template<class T>
-    struct __combined<T,T> {
-        typedef T type;
-    };
+struct __combined<T,T> {
+    typedef T type;
+};
 
+template<class T>
+struct assignable{
+    typedef typename std::remove_cv<typename std::remove_reference<T>::type>::type type;
+};
+
+template<class T>
+struct assignable<pythonic::core::set<T> >{
+    typedef pythonic::core::set<typename assignable<T>::type > type;
+};
+
+template<class K,class V>
+struct assignable<pythonic::core::dict<K,V> >{
+    typedef pythonic::core::dict<typename assignable<K>::type,typename assignable<V>::type > type;
+};
+
+template<class T>
+struct assignable<pythonic::core::list<T> >{
+    typedef pythonic::core::list<typename assignable<T>::type > type;
+};
 
 template<class T>
 struct content_of {
     typedef typename T::value_type type;
+};
+
+template<class T>
+struct content_of< std::tuple<T> > {
+    typedef T type;
+};
+template<class T, class... Types>
+struct content_of< std::tuple<T, Types...> > {
+    typedef typename std::enable_if<
+        std::is_same<
+        T,
+        typename content_of< std::tuple<Types...> >::type
+            >::value,
+        T
+            >::type	type;
 };
 
 template<class K, class V>
@@ -38,9 +76,10 @@ struct content_of< core::dict<K,V> > {
 };
 
 
+
 /* for type inference only,  a bit dangerous ? */
 template <class T0, class T1>
-variant<T0,T1> operator+(T0 , T1 );
+typename std::enable_if< is_callable<T0>::value, variant<T0,T1> >::type operator+(T0 , T1 );
 
 /* for type inference too */
 template<class T>
@@ -57,6 +96,11 @@ class dict_container {
     private:
         dict_container();
 };
+
+template <class A>
+core::list<A> operator+(container<A>, core::empty_list);
+template <class A>
+core::list<A> operator+(core::empty_list , container<A> );
 
 template <class A, class B>
 B operator+(container<A> , B );
@@ -77,6 +121,9 @@ template <class A>
 dict_container<A> operator+(container<A> , core::empty_dict );
 template <class A>
 dict_container<A> operator+(core::empty_dict , container<A> );
+
+template <class K, class V>
+core::dict<K, V> operator+(core::empty_dict , core::list<std::tuple<K,V>> );
 
 template <class A>
 decltype(std::declval<core::list<A>>() + none_type()) operator+(container<A> , none_type );
@@ -115,6 +162,10 @@ template<class K>
 indexable_dict<K> operator+(indexable<K>, core::empty_dict);
 template<class K>
 indexable_dict<K> operator+(core::empty_dict, indexable<K>);
+template<class K0, class V, class K1>
+core::dict<decltype(std::declval<K0>() + std::declval<K1>()), V> operator+(core::dict<K0,V>, indexable<K1>);
+template<class K0, class V, class K1>
+core::dict<decltype(std::declval<K0>() + std::declval<K1>()), V> operator+(indexable<K1>, core::dict<K0,V>);
 template<class K, class... Types>
 std::tuple<Types...> operator+(indexable<K>, std::tuple<Types...>);
 template<class K, class... Types>
@@ -167,6 +218,8 @@ core::set<decltype(std::declval<V1>()+std::declval<V2>())> operator+(core::set<V
 
 template< class K, class V>
 core::dict<K,V> operator+(core::empty_dict, indexable_container<K,V>);
+template< class K0, class V0, class K1, class V1>
+core::dict<decltype(std::declval<K0>()+std::declval<K1>()), decltype(std::declval<V0>()+std::declval<V1>())> operator+(core::dict<K0,V0>, indexable_container<K1,V1>);
 template< class K, class V>
 core::dict<K,V> operator+(indexable_container<K,V>, core::empty_dict);
 
@@ -174,11 +227,15 @@ template <class K, class V>
 core::dict<K,V> operator+(indexable<K>, dict_container<V>);
 template <class V, class K>
 core::dict<K,V> operator+(dict_container<V>, indexable<K>);
+template <class V, class K, class W>
+core::dict<K,decltype(std::declval<V>()+std::declval<W>())> operator+(dict_container<V>, indexable_container<K,W>);
 
 template <class K, class V>
 core::dict<K,V> operator+(indexable_dict<K>, container<V>);
 template <class V, class K>
 core::dict<K,V> operator+(container<V>, indexable_dict<K>);
+template <class K, class V>
+indexable_dict<decltype(std::declval<K>()+std::declval<V>())> operator+(indexable_dict<K>, indexable<V>);
 
 /* some overloads */
 namespace std {
@@ -189,7 +246,9 @@ namespace std {
         };
     /* for core::list */
     template <size_t I, class T>
-        auto get( core::list<T>& t) -> decltype(t[I]) { return t[I]; }
+        typename core::list<T>::reference get( core::list<T>& t) { return t[I]; }
+    template <size_t I, class T>
+        typename core::list<T>::const_reference get( core::list<T> const & t) { return t[I]; }
 
     template <size_t I, class T>
         struct tuple_element<I, core::list<T> > {
@@ -198,10 +257,20 @@ namespace std {
     /* for core::dict */
     template <size_t I, class K, class V>
         auto get( core::dict<K,V>& d) -> decltype(d[I]) { return d[I]; }
+    template <size_t I, class K, class V>
+        auto get( core::dict<K,V> const & d) -> decltype(d[I]) { return d[I]; }
 
     template <size_t I, class K, class V>
         struct tuple_element<I, core::dict<K,V> > {
             typedef typename core::dict<K,V>::value_type type;
+        };
+    /* for core::string */
+    template <size_t I>
+        typename core::string get( core::string const &t) { return core::string(t[I]); }
+
+    template <size_t I>
+        struct tuple_element<I, core::string > {
+            typedef typename core::string type;
         };
 
     /* for containers */
@@ -217,13 +286,102 @@ namespace std {
         };
 #define GET_COMPLEX(T)\
     template <size_t I>\
-        T& get( std::complex<T>& );\
+    T& get( std::complex<T>& );\
     template <>\
-        T& get<0>( std::complex<T>& t) { return reinterpret_cast<T*>(&t)[0]; }\
+    T& get<0>( std::complex<T>& t) { return reinterpret_cast<T*>(&t)[0]; }\
     template <>\
-        T& get<1>( std::complex<T>& t) { return reinterpret_cast<T*>(&t)[1]; }\
+    T& get<1>( std::complex<T>& t) { return reinterpret_cast<T*>(&t)[1]; }\
+    \
+    template <size_t I>\
+    T const & get( std::complex<T> const & );\
+    template <>\
+    T const & get<0>( std::complex<T> const & t) { return reinterpret_cast<T const *>(&t)[0]; }\
+    template <>\
+    T const & get<1>( std::complex<T> const & t) { return reinterpret_cast<T const *>(&t)[1]; }\
 
     GET_COMPLEX(double)
+
+        /* for exception */
+
+#define ACCESS_EXCEPTION(name) \
+        template <size_t I> \
+        struct tuple_element<I, core::name> { \
+            typedef none<typename core::BaseError::Type<I>::type> type; \
+        }; \
+        \
+        template <size_t I> \
+        none<typename core::BaseError::Type<I>::type> get( const core::name& t ); \
+        template <> \
+        none<typename core::BaseError::Type<0>::type> get<0>( const core::name& t) { return t.args; } \
+
+        ACCESS_EXCEPTION(BaseException);
+    ACCESS_EXCEPTION(SystemExit);
+    ACCESS_EXCEPTION(KeyboardInterrupt);
+    ACCESS_EXCEPTION(GeneratorExit);
+    ACCESS_EXCEPTION(Exception);
+    ACCESS_EXCEPTION(StopIteration);
+    ACCESS_EXCEPTION(StandardError);
+    ACCESS_EXCEPTION(Warning);
+    ACCESS_EXCEPTION(BytesWarning);
+    ACCESS_EXCEPTION(UnicodeWarning);
+    ACCESS_EXCEPTION(ImportWarning);
+    ACCESS_EXCEPTION(FutureWarning);
+    ACCESS_EXCEPTION(UserWarning);
+    ACCESS_EXCEPTION(SyntaxWarning);
+    ACCESS_EXCEPTION(RuntimeWarning);
+    ACCESS_EXCEPTION(PendingDeprecationWarning);
+    ACCESS_EXCEPTION(DeprecationWarning);
+    ACCESS_EXCEPTION(BufferError);
+    ACCESS_EXCEPTION(ArithmeticError);
+    ACCESS_EXCEPTION(AssertionError);
+    ACCESS_EXCEPTION(AttributeError);
+    ACCESS_EXCEPTION(EOFError);
+    ACCESS_EXCEPTION(ImportError);
+    ACCESS_EXCEPTION(LookupError);
+    ACCESS_EXCEPTION(MemoryError);
+    ACCESS_EXCEPTION(NameError);
+    ACCESS_EXCEPTION(ReferenceError);
+    ACCESS_EXCEPTION(RuntimeError);
+    ACCESS_EXCEPTION(SyntaxError);
+    ACCESS_EXCEPTION(SystemError);
+    ACCESS_EXCEPTION(TypeError);
+    ACCESS_EXCEPTION(ValueError);
+    ACCESS_EXCEPTION(FloatingPointError);
+    ACCESS_EXCEPTION(OverflowError);
+    ACCESS_EXCEPTION(ZeroDivisionError);
+    ACCESS_EXCEPTION(IndexError);
+    ACCESS_EXCEPTION(KeyError);
+    ACCESS_EXCEPTION(UnboundLocalError);
+    ACCESS_EXCEPTION(NotImplementedError);
+    ACCESS_EXCEPTION(IndentationError);
+    ACCESS_EXCEPTION(TabError);
+    ACCESS_EXCEPTION(UnicodeError);
+
+#define ENVIRONMENTERROR_EXCEPTION(name)\
+    template <size_t I> \
+    struct tuple_element<I, core::name> { \
+        typedef none<typename core::BaseError::Type<I>::type> type; \
+    }; \
+    \
+    template <size_t I> \
+    none<typename core::BaseError::Type<I>::type> get( const core::name& t ); \
+    template <> \
+    none<typename core::BaseError::Type<0>::type> get<0>( const core::name& t ){\
+        if (t.args.size()>3 || t.args.size()<2)\
+        return t.args;\
+        else\
+        return core::list<core::string>(t.args.begin(), t.args.begin()+2);\
+    }\
+    template <>\
+    none<typename core::BaseError::Type<1>::type> get<1>( const core::name& t ){ if(t.args.size()>3 || t.args.size()<2) return (None); else return t.args[0];}\
+    template <>\
+    none<typename core::BaseError::Type<2>::type> get<2>( const core::name& t ){ if(t.args.size()>3 || t.args.size()<2) return None; else return t.args[1];}\
+    template <>\
+    none<typename core::BaseError::Type<3>::type> get<3>( const core::name& t ){ if(t.args.size()==3) return t.args[2]; else return None; }\
+
+    ENVIRONMENTERROR_EXCEPTION(EnvironmentError)
+        ENVIRONMENTERROR_EXCEPTION(IOError)
+        ENVIRONMENTERROR_EXCEPTION(OSError)
 
 }
 /* } */
@@ -299,9 +457,30 @@ void fwd(Types const&... types) {
 template <typename T>
 struct python_to_pythran {};
 
+template<>
+struct python_to_pythran< core::string >{
+    python_to_pythran(){
+        static bool registered =false;
+        if(not registered) {
+            registered=true;
+            boost::python::converter::registry::insert(&convertible,&construct,boost::python::type_id<core::string>());
+        }
+    }
+    static void* convertible(PyObject* obj_ptr){
+        if( !PyString_Check(obj_ptr) ) return 0;
+        return obj_ptr;
+    }
+    static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
+        void* storage=((boost::python::converter::rvalue_from_python_storage<core::string >*)(data))->storage.bytes;
+        char* s=PyString_AS_STRING(obj_ptr);
+        new (storage) core::string(s);
+        data->convertible=storage;
+    }
+};
+
 template<typename T>
 struct python_to_pythran< core::list<T> >{
-	python_to_pythran(){
+    python_to_pythran(){
         python_to_pythran<T>();
         static bool registered =false;
         if(not registered) {
@@ -309,11 +488,11 @@ struct python_to_pythran< core::list<T> >{
             boost::python::converter::registry::push_back(&convertible,&construct,boost::python::type_id<core::list<T> >());
         }
     }
-	static void* convertible(PyObject* obj_ptr){
-		// the second condition is important, for some reason otherwise there were attempted conversions of Body to list which failed afterwards.
-		if( !PySequence_Check(obj_ptr) || !PyObject_HasAttrString(obj_ptr,"__len__")) return 0;
-		return obj_ptr;
-	}
+    static void* convertible(PyObject* obj_ptr){
+        // the second condition is important, for some reason otherwise there were attempted conversions of Body to list which failed afterwards.
+        if( !PySequence_Check(obj_ptr) || !PyObject_HasAttrString(obj_ptr,"__len__")) return 0;
+        return obj_ptr;
+    }
     static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
         void* storage=((boost::python::converter::rvalue_from_python_storage<core::list<T> >*)(data))->storage.bytes;
         boost::python::extract<boost::python::numeric::array> extractor(obj_ptr);
@@ -338,7 +517,7 @@ struct python_to_pythran< core::list<T> >{
 
 template<typename T>
 struct python_to_pythran< core::set<T> >{
-	python_to_pythran(){
+    python_to_pythran(){
         python_to_pythran<T>();
         static bool registered =false;
         if(not registered) {
@@ -346,31 +525,31 @@ struct python_to_pythran< core::set<T> >{
             boost::python::converter::registry::push_back(&convertible,&construct,boost::python::type_id<core::set<T> >());
         }
     }
-	static void* convertible(PyObject* obj_ptr){
-		// the second condition is important, for some reason otherwise there were attempted conversions of Body to list which failed afterwards.
-		if(!PySet_Check(obj_ptr) || !PyObject_HasAttrString(obj_ptr,"__len__")) return 0;
-		return obj_ptr;
-	}
-	static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
-		 void* storage=((boost::python::converter::rvalue_from_python_storage<core::set<T> >*)(data))->storage.bytes;
-		 Py_ssize_t l=PySet_GET_SIZE(obj_ptr);
-		 new (storage) core::set<T>();
-         core::set<T>& v=*(core::set<T>*)(storage);
-         // may be useful to reserve more space ?
-         PyObject *iterator = PyObject_GetIter(obj_ptr);
-         PyObject *item;
-         while((item = PyIter_Next(iterator))) {
-             v.add(boost::python::extract<T>(item));
-             Py_DECREF(item);
-         }
-         Py_DECREF(iterator);
-		 data->convertible=storage;
-	}
+    static void* convertible(PyObject* obj_ptr){
+        // the second condition is important, for some reason otherwise there were attempted conversions of Body to list which failed afterwards.
+        if(!PySet_Check(obj_ptr) || !PyObject_HasAttrString(obj_ptr,"__len__")) return 0;
+        return obj_ptr;
+    }
+    static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
+        void* storage=((boost::python::converter::rvalue_from_python_storage<core::set<T> >*)(data))->storage.bytes;
+        Py_ssize_t l=PySet_GET_SIZE(obj_ptr);
+        new (storage) core::set<T>(core::empty_set());
+        core::set<T>& v=*(core::set<T>*)(storage);
+        // may be useful to reserve more space ?
+        PyObject *iterator = PyObject_GetIter(obj_ptr);
+        PyObject *item;
+        while((item = PyIter_Next(iterator))) {
+            v.add(boost::python::extract<T>(item));
+            Py_DECREF(item);
+        }
+        Py_DECREF(iterator);
+        data->convertible=storage;
+    }
 };
 
 template<typename K, typename V>
 struct python_to_pythran< core::dict<K,V> >{
-	python_to_pythran(){
+    python_to_pythran(){
         python_to_pythran<K>();
         python_to_pythran<V>();
         static bool registered =false;
@@ -379,28 +558,28 @@ struct python_to_pythran< core::dict<K,V> >{
             boost::python::converter::registry::push_back(&convertible,&construct,boost::python::type_id<core::dict<K,V> >());
         }
     }
-	static void* convertible(PyObject* obj_ptr){
-		// the second condition is important, for some reason otherwise there were attempted conversions of Body to list which failed afterwards.
-		if(!PyDict_Check(obj_ptr) || !PyObject_HasAttrString(obj_ptr,"__len__")) return 0;
-		return obj_ptr;
-	}
-	static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
-		 void* storage=((boost::python::converter::rvalue_from_python_storage<core::dict<K,V> >*)(data))->storage.bytes;
-		 new (storage) core::dict<K,V>();
-         core::dict<K,V>& v=*(core::dict<K,V>*)(storage);
+    static void* convertible(PyObject* obj_ptr){
+        // the second condition is important, for some reason otherwise there were attempted conversions of Body to list which failed afterwards.
+        if(!PyDict_Check(obj_ptr) || !PyObject_HasAttrString(obj_ptr,"__len__")) return 0;
+        return obj_ptr;
+    }
+    static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
+        void* storage=((boost::python::converter::rvalue_from_python_storage<core::dict<K,V> >*)(data))->storage.bytes;
+        new (storage) core::dict<K,V>(core::empty_dict());
+        core::dict<K,V>& v=*(core::dict<K,V>*)(storage);
 
-         PyObject *key, *value;
-         Py_ssize_t pos = 0;
-         while(PyDict_Next(obj_ptr, &pos, &key, &value)) {
-             v[boost::python::extract<K>(key)]=boost::python::extract<V>(value);
-         }
-		 data->convertible=storage;
-	}
+        PyObject *key, *value;
+        Py_ssize_t pos = 0;
+        while(PyDict_Next(obj_ptr, &pos, &key, &value)) {
+            v[boost::python::extract<K>(key)]=boost::python::extract<V>(value);
+        }
+        data->convertible=storage;
+    }
 };
 
 template<typename... Types>
 struct python_to_pythran< std::tuple<Types...> >{
-	python_to_pythran(){
+    python_to_pythran(){
         static bool registered=false;
         fwd(python_to_pythran<Types>()...);
         if(not registered) {
@@ -408,21 +587,21 @@ struct python_to_pythran< std::tuple<Types...> >{
             boost::python::converter::registry::push_back(&convertible,&construct,boost::python::type_id< std::tuple<Types...> >());
         }
     }
-	static void* convertible(PyObject* obj_ptr){
-		if(!PyTuple_Check(obj_ptr) || !PyObject_HasAttrString(obj_ptr,"__len__")) return 0;
-		return obj_ptr;
-	}
+    static void* convertible(PyObject* obj_ptr){
+        if(!PyTuple_Check(obj_ptr) || !PyObject_HasAttrString(obj_ptr,"__len__")) return 0;
+        return obj_ptr;
+    }
 
     template<int ...S>
         static void do_construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data, seq<S...>){
-		 void* storage=((boost::python::converter::rvalue_from_python_storage<std::tuple<Types...>>*)(data))->storage.bytes;
-		 new (storage) std::tuple<Types...>( boost::python::extract< typename std::tuple_element<S, std::tuple<Types...> >::type >(PyTuple_GetItem(obj_ptr,S))...);
-		 data->convertible=storage;
+            void* storage=((boost::python::converter::rvalue_from_python_storage<std::tuple<Types...>>*)(data))->storage.bytes;
+            new (storage) std::tuple<Types...>( boost::python::extract< typename std::tuple_element<S, std::tuple<Types...> >::type >(PyTuple_GetItem(obj_ptr,S))...);
+            data->convertible=storage;
         }
 
-	static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
+    static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
         do_construct(obj_ptr, data, typename gens< std::tuple_size<std::tuple<Types...>>::value >::type());
-	}
+    }
 };
 
 template<typename T>
@@ -448,6 +627,19 @@ template<>
 struct pythran_to_python<none_type> {
     pythran_to_python() {
         register_once< none_type, custom_none_type_to_none >();
+    }
+};
+
+struct custom_core_string_to_str{
+    static PyObject* convert(const core::string& v){
+        return PyString_FromString(v.c_str());
+    }
+};
+
+template<>
+struct pythran_to_python< core::string > {
+    pythran_to_python() {
+        register_once< core::string, custom_core_string_to_str >();
     }
 };
 

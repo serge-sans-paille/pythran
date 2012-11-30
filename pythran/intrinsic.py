@@ -1,6 +1,16 @@
+class UpdateEffect(object):
+    pass
+
+
+class ReadEffect(object):
+    pass
+
+
 class Intrinsic:
-    def __init__(self):
-        pass
+    def __init__(self, argument_effects=(UpdateEffect(),) * 11,
+            global_effects=True):
+        self.argument_effects = argument_effects
+        self.global_effects = global_effects
 
     def isscalar(self):
         return False
@@ -17,9 +27,14 @@ class Intrinsic:
     def isattribute(self):
         return False
 
+    def isconst(self):
+        return any(isinstance(x, UpdateEffect) for x in self.argument_effects)
+
+
 class FunctionIntr(Intrinsic):
-    def __init__(self):
-        pass
+    def __init__(self, argument_effects=(UpdateEffect(),) * 11,
+            global_effects=False):
+        Intrinsic.__init__(self, argument_effects, global_effects)
 
     def isfunction(self):
         return True
@@ -27,17 +42,23 @@ class FunctionIntr(Intrinsic):
     def isstaticfunction(self):
         return True
 
+
+class ConstFunctionIntr(FunctionIntr):
+    def __init__(self):
+        FunctionIntr.__init__(self, argument_effects=())
+
+
 class MethodIntr(FunctionIntr):
-    def __init__(self,_combiner = []):
-        self.combinerList = _combiner
+    def __init__(self, *combiners):
+        FunctionIntr.__init__(self, (UpdateEffect(),) + (ReadEffect(),) * 10)
+        self.combiners = combiners
 
-    def addCombiner(self,_combiner):
-        self.combinerList = self.combinerList + _combiner
-        #self.combinerList.extend(_combiner)
+    def add_combiner(self, _combiner):
+        self.combiners += (_combiner,)
 
-    def combiner(self,s,node):
-        for comb in self.combinerList:
-            comb(s,node)
+    def combiner(self, s, node):
+        for comb in self.combiners:
+            comb(s, node)
 
     def ismethod(self):
         return True
@@ -45,16 +66,25 @@ class MethodIntr(FunctionIntr):
     def isstaticfunction(self):
         return False
 
+
+class ConstMethodIntr(MethodIntr):
+    def __init__(self, *combiners):
+        FunctionIntr.__init__(self, (ReadEffect(),) * 12)
+        self.combiners = combiners
+
+
 class AttributeIntr(Intrinsic):
-    def __init__(self,_val):
+    def __init__(self, _val, effects=None):
+        Intrinsic.__init__(self, global_effects=False)
         self.val = _val
 
     def isattribute(self):
         return True
 
+
 class ScalarIntr(Intrinsic):
     def __init__(self):
-        pass
+        Intrinsic.__init__(self, argument_effects=(), global_effects=False)
 
     def isscalar(self):
         return True

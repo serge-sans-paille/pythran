@@ -7,23 +7,14 @@
     type name(argType x){ return cname(x); }
 
 // Use this to create a proxy on a specific intrinsic
-// should check out perfect forwarding too ...
 #define PROXY(ns,f) \
     namespace proxy {\
         struct f {\
+            typedef void callable;\
             template<typename... Types>\
-                auto operator()(Types const &... types) -> decltype(ns::f(types...)) {\
-                    return ns::f(types...); \
-                }\
-        };\
-    }
-#define VPROXY(ns,f) \
-    namespace proxy {\
-        struct f {\
-            template<typename... Types>\
-                auto operator()(Types &&... types) -> decltype(ns::f(types...)) {\
-                    return ns::f(types...); \
-                }\
+            auto operator()(Types &&... types) -> decltype(ns::f(std::forward<Types>(types)...)) {\
+                return ns::f(std::forward<Types>(types)...); \
+            }\
         };\
     }
 
@@ -51,6 +42,50 @@ namespace pythonic {
                 return (*this)!= other;
             }
         };
+
+    /* callable trait { */
+
+    template<typename T>
+        struct is_callable
+        {
+            typedef char	yes;
+            typedef struct { char _[2]; } no;
+
+            template <class C> static yes _test(typename C::callable*);
+            template <class C> static no _test(...);
+            static const bool value = sizeof( _test<T>(nullptr)) == sizeof(yes);
+        };
+
+    /* } */
+
+    /* iterable trait { */
+    template<typename T>
+        struct is_iterable
+        {
+            typedef char	yes;
+            typedef struct { char _[2]; } no;
+
+            template <class C> static yes _test(typename C::iterator*);
+            template <class C> static no _test(...);
+            static const bool value = sizeof( _test<T>(nullptr)) == sizeof(yes);
+        };
+    /* } */
+
+    /* helper that retreives the nth type of a variadic template { */
+    template<int id, class Type, class... Types>
+        struct nth {
+            typedef typename nth<id-1, Types...>::type type;
+        };
+
+    template<class Type, class... Types>
+        struct nth<0, Type, Types...> {
+            typedef Type type;
+        };
+    /* } */
+
+    template<int> struct int_{}; // compile-time counter
+
+
 
 }
 #endif

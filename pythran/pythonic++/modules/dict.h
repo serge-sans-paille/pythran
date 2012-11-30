@@ -1,5 +1,7 @@
 #ifndef PYTHONIC_MODULE_DICT_H
 #define PYTHONIC_MODULE_DICT_H
+template<class T> class dict_container;
+
 namespace pythonic {
     namespace __dict__ { /* to avoid conflict with the dict intrinsic */
 
@@ -10,8 +12,9 @@ namespace pythonic {
         PROXY(pythonic::__dict__, clear);
 
         template<class Iterable, class V=none_type>
-            core::dict<typename Iterable::value_type, V> fromkeys(Iterable const& iter, V const & v = None) {
-                core::dict<typename Iterable::value_type,V> D;
+            core::dict<typename std::remove_reference<Iterable>::type::value_type, V> fromkeys(Iterable && iter, V const & v = None) {
+                core::dict<typename std::remove_reference<Iterable>::type::value_type,V> D;
+                D=core::empty_dict();
                 for(auto i: iter) D[i]=v;
                 return D;
             }
@@ -25,6 +28,12 @@ namespace pythonic {
             none<V> get(core::dict<K,V> const &d, W const& k) {
                 return d.get(k);
             }
+        template<class W, class X>
+            X get(core::empty_dict const &, W const& , X const &default_) {
+                return default_;
+            }
+        template<class T, class I, class J>
+            decltype(std::declval<T>()+std::declval<J>()) get(::dict_container<T>, I , J );
         PROXY(pythonic::__dict__, get);
 
         template<class K, class V, class W>
@@ -93,32 +102,40 @@ namespace pythonic {
             V setdefault(core::dict<K,V> &d, W const & k) {
                 return d.get(k);
             }
-        VPROXY(pythonic::__dict__, setdefault);
+        template<class K, class V, class W, class X>
+            V setdefault(core::dict<K,V> &&d, W const & k, X const &default_) {
+                return d.setdefault(k,default_);
+            }
+        template<class K, class V, class W>
+            V setdefault(core::dict<K,V> &&d, W const & k) {
+                return d.get(k);
+            }
+        PROXY(pythonic::__dict__, setdefault);
 
         template<class K, class V, class Iterable>
             none_type update(core::dict<K,V> d, Iterable const & k) {
                 d.update(k);
                 return None;
             }
-        VPROXY(pythonic::__dict__, update);
+        PROXY(pythonic::__dict__, update);
 
         template<class K, class V>
             core::dict_items<core::dict<K,V>> viewitems(core::dict<K,V> const &d) {
                 return d.viewitems();
             }
-        VPROXY(pythonic::__dict__, viewitems);
+        PROXY(pythonic::__dict__, viewitems);
 
         template<class K, class V>
             core::dict_keys<core::dict<K,V>> viewkeys(core::dict<K,V> const &d) {
                 return d.viewkeys();
             }
-        VPROXY(pythonic::__dict__, viewkeys);
+        PROXY(pythonic::__dict__, viewkeys);
 
         template<class K, class V>
             core::dict_values<core::dict<K,V>> viewvalues(core::dict<K,V> const &d) {
                 return d.viewvalues();
             }
-        VPROXY(pythonic::__dict__, viewvalues);
+        PROXY(pythonic::__dict__, viewvalues);
     }
 }
 #endif

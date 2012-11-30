@@ -1,4 +1,4 @@
-#runas whetstone(10**3)
+#runas whetstone(2*10**5)
 """
 /*
  * C Converted Whetstone Double Precision Benchmark

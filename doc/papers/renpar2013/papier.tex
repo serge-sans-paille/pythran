@@ -72,15 +72,15 @@ caractère extrêmement dynamique, sa bibliothèque standard riche, son large
 domaines d'applications, dont par exemple l'administration système ou les
 services web.  Python a également percé dans le monde du calcul
 scientifique~\cite{Oliphant2007}, notamment grâce au paquet
-SciPy~\cite{scipy}. Le surcout d'interprétation du langage Python étant
+SciPy~\cite{scipy}. Le surcoût d'interprétation du langage Python étant
 rédhibitoire pour une utilisation dans un contexte de calcul intensif,
 SciPy repose sur deux concepts pour atteindre un bon niveau de
 performance. D'une part, les noyaux de calculs intensifs sont écrits dans
 des langages de bas niveau, C et Fortran, dont les appels sont encapsulés
 par un module dit \emph{natif}. D'autre part, la structure de données de
-base, le tableau multidimensionnel~\cite{numpyarray2011} a été conçue pour
+base, le tableau multidimensionnel~\cite{numpyarray2011}, a été conçue pour
 être accessible à la fois par les modules natifs et l'interpréteur Python
-sans surcout de conversion.
+sans surcoût de conversion.
 
 Pour faciliter l'écriture par l'utilisateur de modules natifs, \emph{i.e.\
 } sans avoir à écrire soi-même le code permettant de traduire des objets
@@ -117,7 +117,7 @@ partie est exécutée nativement, comme introduit dans~\cite{dongara2007}.
 Il est possible d'écrire des modules natifs directement en langage C/C++.
 Il faut dans ce cas respecter l'interface fournie dans~\cite{pythoncapi},
 ce qui conduit à l'écriture d'une quantité non négligeable de code
-d'encapsulation. Des outils ont été développé pour réduire ce coût de
+d'encapsulation. Des outils ont été développés pour réduire ce coût de
 développement, notamment Swig~\cite{swig2003} qui utilise un fichier
 d'interface spécifique pour guider la traduction, et
 \texttt{boost::python}~\cite{boostpython2007} qui se base lui sur le
@@ -151,7 +151,7 @@ similaire, en limitant la conversion à des portions de code délimitées par
 des annotations, et en générant du C++. Le projet
 numba~\footnote{\emph{cf}.\ \texttt{https://github.com/numba/numba}}
 fonctionne sur le même principe, mais en générant du code LLVM.  Le
-problème des approches intrusives et qu'elles impliquent de modifier du
+problème des approches intrusives est qu'elles impliquent de modifier du
 code existant de façon non triviale, et demandent l'investissement dans un
 nouveau langage, investissement dont la pérennité n'est pas toujours
 garantie.
@@ -590,8 +590,11 @@ l'aide des intrinsèques \texttt{zip} et \texttt{map}, montrent des
 possibilités d'améliorations non exploitées.
 
 \begin{table}
-  \begin{tabular}{|l|c|c|c|c|}
+	\centering
+  \begin{tabular}{l|c|c|c|c}
 				&CPython	&	PyPy	&	Pythran	&	Pythran+OpenMP\\
+	  \hline
+	  \hline
 	nqueens		&1.754		&	0.603	&	0.228	&	-		  \\
 	pi\_buffon	&47.083		&	12.08	&	2.676	&	0.561		\\
 	extrema		&0.386		&	0.564	&	0.033	&	-\\
@@ -619,7 +622,7 @@ en mode parallèle.
 
 Le code généré est évalué pour ses versions séquentielles et parallèles. La
 comparaison avec des approches séquentielles existantes montre des gains
-de $\times XY$ à $\times YZ$ très encourageants.
+de $\times 6$ à $\times 390$ très encourageants.
 
 
 

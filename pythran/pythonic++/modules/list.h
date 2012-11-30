@@ -12,6 +12,10 @@ namespace pythonic {
                 seq.push_back(value);
                 return None;
             }
+        template<class F>
+            none_type append(core::empty_list &seq, F&& value) {
+                return None;
+            }
         PROXY(pythonic::__list__, append);
 
         template<class T, class F>
@@ -19,23 +23,22 @@ namespace pythonic {
                 seq+=add;
                 return None;
             }
-        template<class T, class F>
-            none_type extend(core::list<T> &seq, core::list<F> &add) {
-                seq+=add;
-                return None;
-            }
         PROXY(pythonic::__list__, extend);
 
         //TODO: have to raise a valueError
         template<class T>
-            long index(core::list<T> &seq, T& x) {
-		return seq.index(x);
+            long index(core::list<T> &seq, T const& x) {
+                return seq.index(x);
             }
-        VPROXY(pythonic::__list__, index);
+        template<class T>
+            long index(core::list<T> &&seq, T const& x) {
+                return seq.index(x);
+            }
+        PROXY(pythonic::__list__, index);
 
         //TODO: have to raise a valueError
         template<class T>
-            none_type remove(core::list<T> &seq, T& x) {
+            none_type remove(core::list<T> &seq, T const & x) {
                 seq.erase(index(seq,x));
                 return None;
             }
@@ -48,10 +51,14 @@ namespace pythonic {
 
         template<class T>
             long count(core::list<T> &seq, T &&x) {
-                return std::count(seq.begin(),seq.end(),x);
+                return std::count(seq.begin(),seq.end(),std::forward<T>(x));
+            }
+        template<class T>
+            long count(core::list<T> &&seq, T &&x) {
+                return std::count(seq.begin(),seq.end(),std::forward<T>(x));
             }
 
-        VPROXY(pythonic::__list__,count);
+        PROXY(pythonic::__list__,count);
 
         template<class T>
             none_type reverse(core::list<T> &seq) {

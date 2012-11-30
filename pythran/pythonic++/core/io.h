@@ -6,9 +6,9 @@
 namespace pythonic {
     namespace detail {
         template<class T>
-        std::ostream& print(std::ostream& os, T const & t) {
-            return os << t;
-        }
+            std::ostream& print(std::ostream& os, T const & t) {
+                return os << t;
+            }
     }
 
     void print_nonl() {
@@ -47,6 +47,23 @@ namespace pythonic {
         return os << "[]";
     }
 
+    /* exception */
+
+    std::ostream& operator<<(std::ostream& o, core::BaseException const & e)
+    {
+        return o << e.args;
+    }
+
+    std::ostream& operator<<(std::ostream& o, core::EnvironmentError const & e)
+    {
+        if(e.args.size()==2)
+            return o << "[Errno " << e.args[0] << "] " << e.args[1];
+        else if(e.args.size()==3)
+            return o << "[Errno " << e.args[0] << "] " << e.args[1] << ": '" << e.args[2] << "'";
+        else
+            return o << e.args;
+    }
+
     /* set */
 
     template<class T>
@@ -77,8 +94,10 @@ namespace pythonic {
             auto iter = v.item_begin();
             if(iter != v.item_end()) {
                 auto niter = iter ; ++niter;
-                while(niter++ != v.item_end())
-                    detail::print(os, *iter++) << ", ";
+                while(niter != v.item_end()) {
+                    detail::print(os, *iter) << ", ";
+                    ++niter, ++iter;
+                }
                 detail::print(os, *iter);
             }
             return os << '}';
@@ -101,8 +120,6 @@ namespace pythonic {
     }
 
     /* tuple */
-
-    template<std::size_t> struct int_{}; // compile-time counter
 
     template<class Ch, class Tr, class Tuple, std::size_t I>
         void print_tuple(std::basic_ostream<Ch,Tr>& os, Tuple const& t, int_<I>){
@@ -128,9 +145,9 @@ namespace pythonic {
     /* string */
     namespace detail {
         template<>
-        std::ostream& print<core::string>(std::ostream& os, core::string const & s) {
-            return os << '\'' << s << '\'';
-        }
+            std::ostream& print<core::string>(std::ostream& os, core::string const & s) {
+                return os << '\'' << s << '\'';
+            }
     }
 }
 #endif

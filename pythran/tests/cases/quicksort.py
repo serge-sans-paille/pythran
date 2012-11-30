@@ -33,10 +33,17 @@ def partition(list, start, end):
     return top                                 # Return the split point
 
 
-def quicksort(list, start, end):
+def do_quicksort(list, start, end):
     if start < end:                            # If there are two or more elements...
         split = partition(list, start, end)    # ... partition the sublist...
-        quicksort(list, start, split-1)        # ... and sort both halves.
-        quicksort(list, split+1, end)
+        "omp task if(split-1 - start > 20000)"
+        do_quicksort(list, start, split-1)        # ... and sort both halves.
+        "omp task if(split-1 - start > 20000)"
+        do_quicksort(list, split+1, end)
     else:
         return
+
+def quicksort(l,s,e):
+    "omp parallel"
+    "omp single nowait"
+    do_quicksort(l,s,e)

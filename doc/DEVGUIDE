@@ -10,6 +10,15 @@ Disclaimer
 
 This document is a never ending work-in-progress draft. Please contribute!
 
+Coding Style
+------------
+
+All Python code must be conform to the PEP8, and the ``pep8`` command must not
+yield any message when run on our database. Additionnaly, avoid backslashes,
+and try to make your code as concise as possible.
+
+C++ code use spaces (no tabs) and a tab width of 4.
+
 File Hierarchy
 --------------
 
@@ -51,15 +60,21 @@ validation suite is run through the command::
 
     $> python setup.py test
 
-easy enough? Beware, it runs **very** slowly, almost half an hour on a decent
-laptop :'(.
+If you have `py.test <http://pytest.org/latest/>`  from debian package
+`python-pytest-xdist` in your ``PYTHONPATH``, the test suite will run using all
+available cores. Otherwise it might run **very** slowly, almost half an hour on
+a decent laptop :'(.
 
-It is still possible to use the ``unittest`` module directly, for instance to
-pass a subset of the test suite::
+Note that it is still possible to use the ``unittest`` module directly, for
+instance to pass a subset of the test suite::
 
     $> PYTHONPATH=.:pythran/tests:$PYTHONPATH python -m unittest test_math
 
-runs all the tests found in ``pythran/tests/test_math.py``.
+runs all the tests found in ``pythran/tests/test_math.py``. The command::
+
+    $> PYTHONPATH=. py.test -n 8 pythran/tests/test_list.py
+
+does almost the same with ``py.test``.
 
 There are two kinds of tests in ``pythran``:
 
@@ -105,18 +120,42 @@ taken into account by the benchmarking suite, they must have a line starting
 with the ``#runas`` directive. Check ``pythran/tests/matmul.py`` for a complete
 example.
 
+To run the benchmark suite, one can rely on::
+
+    $> python setup.py bench --mode=<mode>
+
+where *<mode>* is one among:
+
+python
+    Uses the interpreter used to run ``setup.py``.
+
+pythran
+    Uses the pythran compiler.
+
+pythran+omp
+    Uses the pythran compiler in OpenMP mode.
+
+All measurements are made using the ``timeit`` module. The number of iterations is customizable through the ``--nb-iter`` switch.
+
 How to
 ------
 
 :Add support for a new module:
-    1. provide its C++ implementation in ``pythran/pythonic++/modules``.
+    1. Provide its C++ implementation in ``pythran/pythonic++/modules``.
            ``pythran/pythonic++/modules/math.h`` and
            ``pythran/pythonic++/modules/list.h`` are good example to referer to.
-    2. provide its description in ``pythran/tables.py``. Each function, method
+    2. Provide its description in ``pythran/tables.py``. Each function, method
            or variable must be listed there with the appropriate description.
-    3. provide its test suite in ``pythran/tests/`` under the name
+    3. Provide its test suite in ``pythran/tests/`` under the name
            ``test_my_module.py``. One test case per function, method or variable
            is great.
+
+:Add a new analysis:
+    1. Subclass one of ``ModuleAnalysis``, ``FunctionAnalysis`` or ``NodeAnalysis``.
+    2. List analysis required by yours in the parent constructor, they will be built automatically and stored in the attribute with the corresponding uncameled name.
+    3. Write your analysis as a regular ``ast.NodeVisitor``. The analysis result must be stored in ``self.result``.
+    4. Use it either from another pass's constructor, or throught the ``passmanager.gather`` function.
+
 
 :Push changes into the holy trunk:
     1. Use the ``github`` interface and the pull/push requests features

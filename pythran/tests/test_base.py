@@ -42,6 +42,9 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
     def test_list_comprehension(self):
         self.run_test("def list_comprehension(l): return [ x*x for x in l ]", [1,2,3], list_comprehension=[[int]])
  
+    def test_dict_comprehension(self):
+        self.run_test("def dict_comprehension(l): return { i: 1 for i in l if len(i)>1 }", ["1","12","123"], dict_comprehension=[[str]])
+ 
     def test_filtered_list_comprehension(self):
         self.run_test("def filtered_list_comprehension(l): return [ x*x for x in l if x > 1 if x <10]", [1,2,3], filtered_list_comprehension=[[int]])
 
@@ -471,7 +474,13 @@ def forelse():
         self.run_test(code, forelse=[])
 
     def test_tuples(self):
-        self.run_test("def tuples(): return ((1,2.,'e') , [ x for x in tuple([1,2,3])] )", tuples=[])
+        self.run_test("def tuples(n): return ((1,2.,'e') , [ x for x in tuple([1,2,n])] )", 1, tuples=[int])
+
+    def test_long_assign(self):
+        self.run_test("def _long_assign():\n b=10L\n c = b + 10\n return c", _long_assign=[])
+
+    def test_long(self):
+        self.run_test("def _long(a): return a+34",111111111111111L, _long=[long])
 
     def test_reversed_slice(self):
         self.run_test("def reversed_slice(l): return l[::-2]", [0,1,2,3,4], reversed_slice=[[int]])
@@ -558,3 +567,13 @@ def import_as():
     import math as MATH
     return MATH.sin(x)**2 + COS(x)**2"""
         self.run_test(code, import_as=[])
+
+    def test_tuple_removal(self):
+        self.run_test("def tuple_removal(t): a,b = t ; return a, b", (1,"e"), tuple_removal=[(int, str)])
+
+    def test_list_removal(self):
+        self.run_test("def list_removal(t): [a,b] = t ; return a, b", (1,2), list_removal=[(int, int)])
+
+    def test_recursive_attr(self):
+        self.run_test("def recursive_attr(): return {1,2,3}.union({1,2}).union({5})", recursive_attr=[])
+

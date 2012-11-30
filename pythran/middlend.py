@@ -1,28 +1,34 @@
 '''This module turns a python AST into an optimized, pythran compatible ast
 '''
 from passes import RemoveLambdas, NormalizeTuples, NormalizeReturn
-from passes import UnshadowParameters, NormalizeException, ConstantFolding
+from passes import UnshadowParameters, NormalizeException
 from passes import NormalizeMethodCalls, NormalizeAttributes, ExpandImports
 from passes import RemoveComprehension, RemoveNestedFunctions, GatherOMPData
-from passmanager import apply
+
+from optimizations import ConstantFolding
+
+default_optimization_sequence = (
+        ConstantFolding,
+        )
 
 
-def refine(node):
+def refine(pm, node, optimizations=default_optimization_sequence):
     """refine node in place until it matches pythran's expectations"""
     # parse openmp directive
-    apply(GatherOMPData, node)
+    pm.apply(GatherOMPData, node)
 
     # sanitize input
-    apply(NormalizeException, node)
-    apply(NormalizeMethodCalls, node)
-    apply(NormalizeAttributes, node)
-    apply(NormalizeTuples, node)
-    apply(RemoveComprehension, node)
-    apply(RemoveNestedFunctions, node)
-    apply(NormalizeReturn, node)
-    apply(RemoveLambdas, node)
-    apply(ExpandImports, node)
-    apply(UnshadowParameters, node)
+    pm.apply(NormalizeException, node)
+    pm.apply(NormalizeMethodCalls, node)
+    pm.apply(NormalizeAttributes, node)
+    pm.apply(NormalizeTuples, node)
+    pm.apply(RemoveComprehension, node)
+    pm.apply(RemoveNestedFunctions, node)
+    pm.apply(NormalizeReturn, node)
+    pm.apply(RemoveLambdas, node)
+    pm.apply(ExpandImports, node)
+    pm.apply(UnshadowParameters, node)
 
-    # some optimizations
-    apply(ConstantFolding, node)
+    # some extra optimizations
+    for optimization in optimizations:
+        pm.apply(optimization, node)

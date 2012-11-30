@@ -96,12 +96,12 @@ namespace pythonic {
 
     /* enumerate */
     template<class Iterable>
-        struct enumerate_iterator : std::iterator< std::random_access_iterator_tag, std::tuple<long, typename std::remove_reference<Iterable>::type::iterator::value_type> >{
+        struct enumerate_iterator : std::iterator< std::random_access_iterator_tag, std::tuple<long, typename Iterable::iterator::value_type> >{
             long value;
-            typename std::remove_reference<Iterable>::type::iterator iter;
+            typename Iterable::iterator iter;
             enumerate_iterator(){}
-            enumerate_iterator(long value, typename std::remove_reference<Iterable>::type::iterator iter) : value(value), iter(iter) {}
-            std::tuple<long, typename std::remove_reference<Iterable>::type::iterator::value_type> operator*() { return std::make_tuple(value, *iter); }
+            enumerate_iterator(long value, typename Iterable::iterator iter) : value(value), iter(iter) {}
+            std::tuple<long, typename Iterable::iterator::value_type> operator*() { return std::make_tuple(value, *iter); }
             enumerate_iterator& operator++() { ++value,++iter; return *this; }
             enumerate_iterator operator++(int) { enumerate_iterator self(*this); ++value, ++iter; return self; }
             enumerate_iterator& operator+=(long n) { value+=n,iter+=n; return *this; }
@@ -112,12 +112,12 @@ namespace pythonic {
 
     template <class Iterable>
         struct _enumerate {
-            typename std::remove_reference<Iterable>::type seq;
+            typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type seq;
             _enumerate() {}
-            typedef enumerate_iterator<Iterable> iterator;
+            typedef enumerate_iterator<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type> iterator;
             _enumerate( Iterable&& seq ) : seq(seq) {}
-            enumerate_iterator<Iterable> begin() { return enumerate_iterator<Iterable>(0L, seq.begin()); }
-            enumerate_iterator<Iterable> end() { return enumerate_iterator<Iterable>(-1L, seq.end()); }
+            iterator begin() { return iterator(0L, seq.begin()); }
+            iterator end() { return iterator(-1L, seq.end()); }
         };
 
     template <class Iterable>
@@ -642,6 +642,23 @@ namespace pythonic {
         {
             return sum(s,0L);
         }
+
+    template<class Tuple>
+        auto tuple_sum(Tuple const& t, int_<0>) -> decltype(std::get<0>(t)) {
+            return std::get<0>(t);
+        }
+
+    template<class Tuple, int I>
+        auto tuple_sum(Tuple const& t, int_<I>) -> typename std::remove_reference<decltype(std::get<I>(t))>::type {
+            return std::get<I>(t) + tuple_sum(t, int_<I-1>());
+        }
+
+
+    template<class... Types>
+        auto sum(std::tuple<Types...> const & t) -> decltype(tuple_sum(t, int_<sizeof...(Types)-1>())) {
+            return tuple_sum(t, int_<sizeof...(Types)-1>());
+        }
+
     PROXY(pythonic,sum);
 
     /* xrange -> forward declared */

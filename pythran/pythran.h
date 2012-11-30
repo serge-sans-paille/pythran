@@ -117,6 +117,9 @@ dict_container<A> operator+(container<A> , core::empty_dict );
 template <class A>
 dict_container<A> operator+(core::empty_dict , container<A> );
 
+template <class K, class V>
+core::dict<K, V> operator+(core::empty_dict , core::list<std::tuple<K,V>> );
+
 template <class A>
 decltype(std::declval<core::list<A>>() + none_type()) operator+(container<A> , none_type );
 template <class A>

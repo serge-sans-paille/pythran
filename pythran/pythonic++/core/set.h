@@ -225,6 +225,11 @@ namespace  pythonic {
 
                 // Operators
                 template<class U>
+                    bool operator==(set<U> const& other) const {
+                        return *data == *other.data;
+                    }
+
+                template<class U>
                     bool operator<=(set<U> const& other) const {
                         // Every element in *this is in other
                         return issubset(other);

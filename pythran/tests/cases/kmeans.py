@@ -48,5 +48,6 @@ def test():
     num_points, dim, k, cutoff, lower, upper = 10000, 2, 5, 0.01, 0, 200
     points = [ makeRandomPoint(dim, lower, upper) for i in range(num_points) ]
     clusters = kmeans(points, k, cutoff)
-    for c in clusters:
-        print c
+    #for c in clusters:
+    #    print c
+    return clusters

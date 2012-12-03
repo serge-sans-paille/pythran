@@ -32,12 +32,10 @@ modules natifs parallèles pour Python}
 
 \author{Serge \textsc{Guelton}}%\thanks{Le texte a été relu par Thierry Gautier.}%
 
-\address{École Normale Supérieure,\\
-Département d'informatique\\
-45 rue d'Ulm, F-75230 Paris Cedex 05 -- France\\
+\address{Télécom Bretagne / École Normale Supérieure,\\
 serge.guelton@telecom-bretagne.eu}
 
-\date{6 septembre 2012}
+\date{15 janvier 2013}
 
 \maketitle
 
@@ -403,7 +401,7 @@ classes natives, notamment tous les conteneurs, sont supportées.
 L'évaluation dynamique de chaînes de caractère comme code source ne rentre
 pas dans les possibilités du langage cible. De même, certaines fonctions
 intrinsèques telles \texttt{eval} ne sont pas supportées. Le langage
-intermédiaire utilisé par PyPy, RPython~\cite{rpython2007}, est soumis à
+intermédiaire utilisé par PyPy~\cite{rpython2007} est soumis à
 des contraintes similaires.
 
 Une fois que la validité de la syntaxe est assurée, l'arbre de syntaxe
@@ -432,8 +430,8 @@ foo(l)
   \item Les classe sont transformés en $n$-uplets~:
 	\texttt{c.real+c.imag} devient \texttt{c[0]+c[1]}.
 
-  \item Les appels de méthodes sont transformés en appels de fonctions~:
-	\texttt{l.append(v)} devient \texttt{any.append(l,v)}.
+  \item Les appels de méthodes sont convertis en appels de fonctions~:
+	\texttt{l.add(v)} devient \texttt{any.add(l,v)}.
 
   \item Les valeurs de retour implicites sont rendus
 	explicites~\footnote{Toute fonction Python a une valeur de retour, qui
@@ -491,9 +489,9 @@ exportées par le module sous la forme~:
 Plusieurs annotations pour la même fonction peuvent coexister~: plusieurs
 fonctions sont alors générées.
 
-Cet article ne vise pas à expliquer en détail le fonctionnement de cette
-étape. On admettra donc que cette analyse permet à Pythran d'accepter des
-fonctions polymorphes, mais uniquement des variables monomorphes.
+Cet article ne vise pas à expliquer en détail le fonctionnement de cette étape.
+On admettra donc que cette analyse permet à Pythran d'accepter des fonctions
+polymorphes. Cependant toutes les variables doivent être monomorphes.
 
 Pour faciliter la gestion de la mémoire, on ajoute une nouvelle
 contrainte~: il ne peut y avoir de dépendance circulaire dans la
@@ -549,17 +547,14 @@ applications exécutées par les interpréteurs CPython ou par PyPy, ou après
 transformation en un module natif par les traducteurs Shedskin et Pythran.
 
 Les codes utilisés sont tirés des bases de tests du défunt projet
-\texttt{unladen swallow}, ou issus de la littérature. La seule
-modification faite est l'ajout de la signature typée de la fonction
-appelée. Quand cela était possible, des annotations OpenMP ont été
-ajoutée. \texttt{extrema} recherche les valeurs extrêmes d'une liste,
-\texttt{matmul} effectue le produit de deux matrices
-carrées, \texttt{mandel} fait un calcul de fractal, \texttt{nqueens}
-résout une instance du problème des n-reines, \texttt{pi\_buffon} utilise
-une méthode de monte-carlo pour calculer les décimales de $\pi$,
-\texttt{quicksort} est une implémentation récursive du tri rapide et
-\texttt{stone} est l'adaptation en Python du vénérable test de
-performances \texttt{wetstone}.
+\texttt{unladen swallow}, ou issus de la littérature. La seule modification
+faite est l'ajout de la signature typée de la fonction appelée. Quand cela
+était possible, des annotations OpenMP ont été ajoutée. \texttt{matmul}
+effectue le produit de deux matrices carrées, \texttt{mandel} fait un calcul de
+fractal, \texttt{nqueens} résout une instance du problème des n-reines,
+\texttt{pi\_buffon} utilise une méthode de monte-carlo pour calculer les
+décimales de $\pi$ et \texttt{stone} est l'adaptation en Python du vénérable
+test de performances \texttt{wetstone}.
 
 Toutes les mesures de temps sont faites à l'aide du module
 \texttt{timeit}. Elles représentent le temps d'exécution médian sur 100
@@ -572,7 +567,7 @@ de RAM et un noyau Linux 3.0.0.
 Les modules Pythran sont compilés avec g++-4.7.1 et les drapeaux
 \texttt{-Ofast -DNDEBUG}.
 Les temps reproduits ici sont obtenus à l'aide de la commande
-\texttt{python setup.py bench} fournie avec l'installation de Pythran.
+\texttt{python setup.py bench} fournie avec l'installation de Pythran à partir du dépot \texttt{https://github.com/serge-sans-paille/pythran}.
 
 Le tableau~\ref{tbl:pythran-vs-cpython} illustre les performances de
 Pythran par rapport à CPython, en prenant en compte ou non les directives
@@ -584,10 +579,7 @@ de $\times3$ par rapport à PyPy. Les gains liés à OpenMP permettent
 d'apporter un facteur $\times2$ à $\times4$ suivant l'application. Les
 gains importants pour \texttt{matmul} et \texttt{mandel} s'expliquent par
 l'utilisation de types natifs au lieu d'objets Python pour les opérations
-de base. Le cas de \texttt{quicksort} est à relier au coût prohibitif d'un
-appel de fonction en Python. Le cas d'\texttt{extrema}, implémenté à
-l'aide des intrinsèques \texttt{zip} et \texttt{map}, montrent des
-possibilités d'améliorations non exploitées.
+de base.
 
 \begin{table}
 	\centering
@@ -595,16 +587,14 @@ possibilités d'améliorations non exploitées.
 				&CPython	&	PyPy	&	Pythran	&	Pythran+OpenMP\\
 	  \hline
 	  \hline
-	nqueens		&1.754		&	0.603	&	0.228	&	-		  \\
-	pi\_buffon	&47.083		&	12.08	&	2.676	&	0.561		\\
-	extrema		&0.386		&	0.564	&	0.033	&	-\\
-	stone		&6.956		&	0.204	&	0.023	&	-\\
-	mandel		&976.81		&	6.304	&	5.563	&	2.565\\
-	matmul		&153.91		&	9.061	&	7.314	&	2.263\\
-	quicksort	&3.331		&	0.087	&	0.040	&	-\\
+	nqueens		&1.754s		&	0.603s	&	0.228s	&	-		  \\
+	stone		&6.956s		&	0.204s	&	0.023s	&	-\\
+	pi\_buffon	&47.083s	&	12.08s	&	2.676s	&	0.561s		\\
+	mandel		&976.81s	&	6.304s	&	5.563s	&	2.565s\\
+	matmul		&153.91s	&	9.061s	&	7.314s	&	2.263s\\
   \end{tabular}
 
-  \caption{Comparaison de CPython, PyPy et Pythran, avec ou sans OpenMP.}
+  \caption{Comparaison des temps d'exécution par CPython, PyPy et Pythran, avec ou sans OpenMP.}
   \label{tbl:pythran-vs-cpython}
 \end{table}
 

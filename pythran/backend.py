@@ -689,12 +689,12 @@ class CxxBackend(Backend):
         if type(node.n) == complex:
             return "{0}({1}, {2})".format(
                     pytype_to_ctype_table[type(node.n)],
-                    node.n.real,
-                    node.n.imag)
+                    repr(node.n.real),
+                    repr(node.n.imag))
         elif type(node.n) == long:
-            return 'pythran_long({0})'.format(str(node.n))
+            return 'pythran_long({0})'.format(node.n)
         else:
-            return str(node.n) + type_to_suffix.get(type(node.n), "")
+            return repr(node.n) + type_to_suffix.get(type(node.n), "")
 
     def visit_Str(self, node):
         return 'core::string("{0}")'.format(node.s.replace('\n', '\\n"\n"'))

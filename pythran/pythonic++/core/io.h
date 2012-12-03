@@ -4,30 +4,20 @@
 #include <iostream>
 
 namespace pythonic {
-    namespace detail {
-        template<class T>
-            std::ostream& print(std::ostream& os, T const & t) {
-                return os << t;
-            }
+
+    /* a few empty_* types */
+    std::ostream& operator<<(std::ostream& os, core::empty_dict const & ) {
+        return os << "{}";
     }
 
-    void print_nonl() {
-    }
-    template< typename T, typename... Types>
-        void print_nonl(T const& value, Types const&... values) {
-            detail::print(std::cout, value) << ' ';
-            print_nonl(values...);
-        }
-
-    void print() {
-        std::cout << std::endl;
+    std::ostream& operator<<(std::ostream& os, core::empty_list const & ) {
+        return os << "[]";
     }
 
-    template< typename T, typename... Types>
-        void print(T const& value, Types const&... values) {
-            detail::print(std::cout, value) << ' ';
-            print(values...);
-        }
+    /* string */
+    std::ostream& operator<<(std::ostream& os, core::string const & s) {
+        return os << s.c_str();
+    }
 
     /* list */
 
@@ -37,15 +27,11 @@ namespace pythonic {
             auto iter = v.begin();
             if(iter != v.end()) {
                 while(iter+1 != v.end())
-                    detail::print(os,*iter++) << ", ";
-                detail::print(os, *iter);
+                    os << *iter++ << ", ";
+                os << *iter;
             }
             return os << ']';
         }
-
-    std::ostream& operator<<(std::ostream& os, core::empty_list const & ) {
-        return os << "[]";
-    }
 
     /* exception */
 
@@ -73,8 +59,8 @@ namespace pythonic {
             if(iter != v.end()) {
                 auto niter = iter ; ++niter;
                 while(niter++ != v.end())
-                    detail::print(os,*iter++) << ", ";
-                detail::print(os, *iter);
+                    os << *iter++ << ", ";
+                os << *iter;
             }
             return os << '}';
         }
@@ -85,8 +71,8 @@ namespace pythonic {
     /* dict */
     template<class K, class V>
         std::ostream& operator<<(std::ostream& os, std::pair<K,V> const & p) {
-            detail::print(os, p.first) << ": ";
-            return detail::print(os, p.second);
+            os << p.first << ": ";
+            return os << p.second ;
         }
     template<class K, class V>
         std::ostream& operator<<(std::ostream& os, core::dict<K,V> const & v) {
@@ -95,24 +81,20 @@ namespace pythonic {
             if(iter != v.item_end()) {
                 auto niter = iter ; ++niter;
                 while(niter != v.item_end()) {
-                    detail::print(os, *iter) << ", ";
+                    os << *iter << ", ";
                     ++niter, ++iter;
                 }
-                detail::print(os, *iter);
+                os << *iter ;
             }
             return os << '}';
         }
-
-    std::ostream& operator<<(std::ostream& os, core::empty_dict const & ) {
-        return os << "{}";
-    }
 
     /* none */
 
     template<class T>
         std::ostream& operator<<(std::ostream& os, none<T> const & v) {
             if(v == None) return os << "None";
-            else return detail::print(os, v.data);
+            else return os << v.data;
         }
 
     std::ostream& operator<<(std::ostream& os, none_type const &) {
@@ -124,13 +106,12 @@ namespace pythonic {
     template<class Ch, class Tr, class Tuple, std::size_t I>
         void print_tuple(std::basic_ostream<Ch,Tr>& os, Tuple const& t, int_<I>){
             print_tuple(os, t, int_<I-1>());
-            os << ", ";
-            detail::print(os, std::get<I>(t));
+            os << ", " << std::get<I>(t);
         }
 
     template<class Ch, class Tr, class Tuple>
         void print_tuple(std::basic_ostream<Ch,Tr>& os, Tuple const& t, int_<0>){
-            detail::print(os, std::get<0>(t));
+            os << std::get<0>(t);
         }
 
     template<class Ch, class Traits, class... Args>
@@ -142,12 +123,30 @@ namespace pythonic {
             return os << ')';
         }
 
-    /* string */
+    /* generic */
     namespace detail {
-        template<>
-            std::ostream& print<core::string>(std::ostream& os, core::string const & s) {
-                return os << '\'' << s << '\'';
+        template<class T>
+            std::ostream& print(std::ostream& os, T const & t) {
+                return os << t;
             }
     }
+
+    void print_nonl() {
+    }
+    template< typename T, typename... Types>
+        void print_nonl(T const& value, Types const&... values) {
+            detail::print(std::cout, value) << ' ';
+            print_nonl(values...);
+        }
+
+    void print() {
+        std::cout << std::endl;
+    }
+
+    template< typename T, typename... Types>
+        void print(T const& value, Types const&... values) {
+            detail::print(std::cout, value) << ' ';
+            print(values...);
+        }
 }
 #endif

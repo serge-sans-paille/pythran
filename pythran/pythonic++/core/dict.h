@@ -156,20 +156,18 @@ namespace  pythonic {
                     else return None;
                 }
                 template <class W>
-                    decltype(std::declval<V>()+std::declval<W>()) setdefault(K const& key, W d) {
+                    decltype(std::declval<V>()+std::declval<W>())& setdefault(K const& key, W d) {
                         auto ivalue = data->find(key);
                         if(ivalue != data->end()) return ivalue->second;
                         else {
-                            (*data)[key]=d;
-                            return d;
+                            return (*data)[key]=d;
                         }
                     }
-                none<V> setdefault(K const& key) {
+                none<V>& setdefault(K const& key) {
                     auto ivalue = data->find(key);
                     if(ivalue != data->end()) return ivalue->second;
                     else {
-                        (*data)[key]=None;
-                        return None;
+                        return (*data)[key]=None;
                     }
                 }
                 template<class K0, class W0>

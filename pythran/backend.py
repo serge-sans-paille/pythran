@@ -643,7 +643,7 @@ class CxxBackend(Backend):
         else:
             elts = [self.visit(n) for n in node.elts]
             return "{0}({{ {1} }})".format(
-                    self.types[node],
+                    Assignable(self.types[node]),
                     ", ".join(elts))
 
     def visit_Set(self, node):
@@ -652,7 +652,7 @@ class CxxBackend(Backend):
         else:
             elts = [self.visit(n) for n in node.elts]
             return "{0}({{ {1} }})".format(
-                    self.types[node],
+                    Assignable(self.types[node]),
                     ", ".join(elts))
 
     def visit_Dict(self, node):
@@ -662,7 +662,7 @@ class CxxBackend(Backend):
             keys = [self.visit(n) for n in node.keys]
             values = [self.visit(n) for n in node.values]
             return "{0}({{ {1} }})".format(
-                    self.types[node],
+                    Assignable(self.types[node]),
                     ", ".join("{{ {0}, {1} }}".format(k, v)
                         for k, v in zip(keys, values)))
 

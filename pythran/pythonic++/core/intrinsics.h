@@ -214,29 +214,37 @@ namespace pythonic {
 
     /* len */
 
-    template <class T>
+    template <class T, class I>
         struct _len {
             long operator()(T const &t) {
-                return t.end() - t.begin();
+                static_assert(!std::is_same<I, std::random_access_iterator_tag>::value, "WTF");
+                return 1;
             }
         };
 
     template <class T>
-        struct _len<core::set<T>> {
+        struct _len<T, std::random_access_iterator_tag> {
+            long operator()(T const &t) {
+                return std::distance(t.begin(), t.end());
+            }
+        };
+
+    template <class T, class I>
+        struct _len<core::set<T>, I> {
             long operator()(core::set<T> const &t) {
                 return t.size();
             }
         };
 
-    template <class K, class V>
-        struct _len<core::dict<K,V>> {
+    template <class K, class V, class I>
+        struct _len<core::dict<K,V>, I> {
             long operator()(core::dict<K,V> const &t) {
                 return t.size();
             }
         };
 
-    template <class... Types>
-        struct _len<std::tuple<Types...>> {
+    template <class... Types, class I>
+        struct _len<std::tuple<Types...>, I> {
             long operator()(std::tuple<Types...> const&) {
                 return sizeof...(Types);
             }
@@ -244,7 +252,7 @@ namespace pythonic {
 
     template <class T>
         long len(T const &t) {
-            return _len<T>()(t);
+            return _len<T, typename std::iterator_traits<typename T::iterator>::iterator_category>()(t);
         }
     PROXY(pythonic,len);
 
@@ -354,12 +362,12 @@ namespace pythonic {
     /* map */
     template <typename Operator, typename List0, typename... Iterators>
         auto _map(Operator& op, List0 && seq, Iterators... iterators)
-        -> core::list< decltype(op(*std::forward<List0>(seq).begin(), *iterators...)) > 
+        -> core::list< decltype(op(*seq.begin(), *iterators...)) > 
         {
-            core::list< decltype(op(*std::forward<List0>(seq).begin(), *iterators...)) > s(len(seq));
-            auto iter = s.begin();
-            for(auto & iseq : seq)
-                *iter++= op(iseq, *iterators++...);
+            core::list< decltype(op(*seq.begin(), *iterators...)) > s = core::empty_list();
+            s.reserve(len(seq));
+            for(auto const& iseq : seq)
+                s.push_back(op(iseq, *iterators++...));
             return s;
         }
 
@@ -712,6 +720,7 @@ namespace pythonic {
         long floordiv(T0 a, T1 b) {
             return T0(floor(a/b));
         }
+
 
 }
 #endif

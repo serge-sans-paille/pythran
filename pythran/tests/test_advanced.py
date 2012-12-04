@@ -35,3 +35,5 @@ def bool_op_casting():
     else:
         return M''', bool_op_casting=[])
 
+    def test_map_on_generator(self):
+        self.run_test('def map_on_generator(l): return map(float,(x*x for x in l))', [1,2,3], map_on_generator=[[int]])

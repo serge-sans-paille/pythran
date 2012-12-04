@@ -378,21 +378,21 @@ namespace pythonic {
         {
             auto first = seq.begin();
             auto last = seq.end();
-            core::list< std::tuple< typename std::remove_reference<List0>::type::iterator::value_type,  typename Iterators::value_type... > > out(last-first);
-            auto iter = out.begin();
+            core::list< std::tuple< typename std::remove_reference<List0>::type::iterator::value_type,  typename Iterators::value_type... > > s = core::empty_list();
+            s.reserve(last-first);
             while(first!=last)
-                *iter++= std::make_tuple( *first++, *iterators++... );
-            return out;
+                s.push_back(std::make_tuple( *first++, *iterators++... ));
+            return s;
         }
 
     template <typename List0>
         auto _map(pythonic::none_type op, List0 && seq)
         -> core::list< typename std::remove_reference<List0>::type::iterator::value_type >
         {
-            core::list< typename std::remove_reference<List0>::type::iterator::value_type > s(len(seq));
-            auto iter = s.begin();
+            core::list< typename std::remove_reference<List0>::type::iterator::value_type > s = core::empty_list();
+            s.reserve(len(seq));
             for(auto & iseq : seq)
-                *iter++= iseq;
+                s.push_back(iseq);
             return s;
         }
 

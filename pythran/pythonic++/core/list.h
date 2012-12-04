@@ -326,6 +326,7 @@ namespace  pythonic {
             template<class T> // just for type inference, should never been instantiated
                 list<T> operator+(list<T> const & s) { return s; }
             empty_list operator+(empty_list const &) { return empty_list(); }
+            operator bool() { return false; }
         };
 
         /* list_view implementation */

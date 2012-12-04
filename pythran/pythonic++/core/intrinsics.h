@@ -365,11 +365,12 @@ namespace pythonic {
 
 
     template <typename List0, typename... Iterators>
-        core::list< std::tuple<typename List0::value_type, typename Iterators::value_type... > > _map(pythonic::none_type op, List0 && seq, Iterators... iterators) 
+        auto _map(pythonic::none_type op, List0 && seq, Iterators... iterators) 
+        -> core::list< std::tuple< typename std::remove_reference<List0>::type::iterator::value_type,  typename Iterators::value_type... > >
         {
             auto first = seq.begin();
             auto last = seq.end();
-            core::list< std::tuple<typename List0::value_type, typename Iterators::value_type... > > out(last-first);
+            core::list< std::tuple< typename std::remove_reference<List0>::type::iterator::value_type,  typename Iterators::value_type... > > out(last-first);
             auto iter = out.begin();
             while(first!=last)
                 *iter++= std::make_tuple( *first++, *iterators++... );
@@ -378,9 +379,9 @@ namespace pythonic {
 
     template <typename List0>
         auto _map(pythonic::none_type op, List0 && seq)
-        -> List0 
+        -> core::list< typename std::remove_reference<List0>::type::iterator::value_type >
         {
-            List0 s(len(seq));
+            core::list< typename std::remove_reference<List0>::type::iterator::value_type > s(len(seq));
             auto iter = s.begin();
             for(auto & iseq : seq)
                 *iter++= iseq;

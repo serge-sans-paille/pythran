@@ -202,6 +202,17 @@ struct mpz_class_to_long{
     }
 };
 
+/* some basic math operations */
+template<class T, class U>
+auto floordiv(__gmp_expr<T,U> const& a, long b) -> decltype(a/b) {
+    return a/b;
+}
+template<class T, class U>
+auto floordiv(__gmp_expr<T,U> const& a, __gmp_expr<T,U> const& b) -> decltype(a/b) {
+    return a/b;
+}
+
+/* conversion stuff */
 template<>
 struct pythran_to_python< mpz_class > {
     pythran_to_python() {

@@ -23,3 +23,17 @@ def generator_enumeration():
 
     def test_minus_unary_minus(self):
         self.run_test("def minus_unary_minus(a): return a - -1", 1, minus_unary_minus=[int])
+
+    def test_bool_op_casting(self):
+        self.run_test('''
+def bool_op_casting():
+    l=[]
+    L=[1]
+    M=[2]
+    if (l and L) or M:
+        return (l and L) or M
+    else:
+        return M''', bool_op_casting=[])
+
+    def test_map_on_generator(self):
+        self.run_test('def map_on_generator(l): return map(float,(x*x for x in l))', [1,2,3], map_on_generator=[[int]])

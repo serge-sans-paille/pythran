@@ -542,28 +542,49 @@ class YieldPoints(FunctionAnalysis):
 ##
 class BoundedExpressions(ModuleAnalysis):
     '''Gathers all nodes that are bound to an identifier.'''
+
+    BoundableTypes = (
+            ast.Name,
+            ast.Subscript,
+            ast.BoolOp,
+            )
+
     def __init__(self):
         self.result = set()
         ModuleAnalysis.__init__(self)
 
+    def isboundable(self, node):
+        return any(isinstance(node, t)
+                for t in BoundedExpressions.BoundableTypes)
+
     def visit_Assign(self, node):
         self.result.add(node.value)
-        if isinstance(node.value, ast.Subscript):
-            self.result.add(node.value.slice)
-        self.visit(node.value)
-        [self.visit(n) for n in node.targets]
+        if self.isboundable(node.value):
+            self.result.add(node.value)
+        self.generic_visit(node)
 
     def visit_Call(self, node):
         for n in node.args:
-            if isinstance(n, ast.Subscript):
+            if self.isboundable(n):
                 self.result.add(n)
+        self.generic_visit(node)
 
     def visit_Return(self, node):
         node.value and self.visit(node.value)
         if node.value:
             self.result.add(node.value)
-            if isinstance(node.value, ast.Subscript):
-                self.result.add(node.value.slice)
+            if self.isboundable(node.value):
+                self.result.add(node.value)
+        self.generic_visit(node)
+
+    def visit_BoolOp(self, node):
+        if node in self.result:
+            self.result.update(node.values)
+        self.generic_visit(node)
+
+    def visit_Subscript(self, node):
+        if node in self.result:
+            self.result.add(node.slice)
 
 
 ##

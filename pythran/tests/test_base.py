@@ -583,3 +583,13 @@ def import_as():
     def test_recursive_attr(self):
         self.run_test("def recursive_attr(): return {1,2,3}.union({1,2}).union({5})", recursive_attr=[])
 
+    def test_range_negative_step(self):
+        self.run_test("""def range_negative_step(n):
+        o=[]
+        for i in xrange(n, 0, -1): o.append(i)
+        return o""", 10, range_negative_step=[int])
+    def test_reversed_range_negative_step(self):
+        self.run_test("""def reversed_range_negative_step(n):
+        o=[]
+        for i in reversed(xrange(n, 0, -1)): o.append(i)
+        return o""", 10, reversed_range_negative_step=[int])

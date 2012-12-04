@@ -20,11 +20,6 @@ struct __combined<T> {
     typedef T type;
 };
 
-template<class T0, class T1>
-struct __combined<T0,T1> {
-    typedef decltype(std::declval<T0>()+std::declval<T1>()) type;
-};
-
 template<class T>
 struct __combined<T,T> {
     typedef T type;
@@ -96,6 +91,11 @@ class dict_container {
     private:
         dict_container();
 };
+
+template <class A>
+core::list<A> operator+(container<A>, core::empty_list);
+template <class A>
+core::list<A> operator+(core::empty_list , container<A> );
 
 template <class A, class B>
 B operator+(container<A> , B );
@@ -231,6 +231,12 @@ template <class V, class K>
 core::dict<K,V> operator+(container<V>, indexable_dict<K>);
 template <class K, class V>
 indexable_dict<decltype(std::declval<K>()+std::declval<V>())> operator+(indexable_dict<K>, indexable<V>);
+
+/* clang needs this declaration here and not before */
+template<class T0, class T1>
+struct __combined<T0,T1> {
+    typedef decltype(std::declval<T0>()+std::declval<T1>()) type;
+};
 
 /* some overloads */
 namespace std {
@@ -379,6 +385,8 @@ namespace std {
         ENVIRONMENTERROR_EXCEPTION(OSError)
 
 }
+
+
 /* } */
 
 /* wrapper used by generated code to simulate closures { */

@@ -509,27 +509,29 @@ namespace pythonic {
     struct xrange_iterator : std::iterator< std::random_access_iterator_tag, long >{
         long value;
         long step;
+        long sign;
         xrange_iterator() {}
-        xrange_iterator(long v, long s) : value(v), step(s) {}
+        xrange_iterator(long v, long s) : value(v), step(s), sign(s<0?-1:1) {}
         long& operator*() { return value; }
         xrange_iterator& operator++() { value+=step; return *this; }
         xrange_iterator operator++(int) { xrange_iterator self(*this); value+=step; return self; }
         xrange_iterator& operator+=(long n) { value+=step*n; return *this; }
         bool operator!=(xrange_iterator const& other) { return value != other.value; }
-        bool operator<(xrange_iterator const& other) { return value < other.value; }
+        bool operator<(xrange_iterator const& other) { return sign*value < sign*other.value; }
         long operator-(xrange_iterator const& other) { return (value - other.value)/step; }
     };
     struct xrange_riterator : std::iterator< std::random_access_iterator_tag, long >{
         long value;
         long step;
+        long sign;
         xrange_riterator() {}
-        xrange_riterator(long v, long s) : value(v), step(s) {}
+        xrange_riterator(long v, long s) : value(v), step(s), sign(s<0?1:-1) {}
         long& operator*() { return value; }
         xrange_riterator& operator++() { value+=step; return *this; }
         xrange_riterator operator++(int) { xrange_riterator self(*this); value+=step; return self; }
         xrange_riterator& operator+=(long n) { value+=step*n; return *this; }
         bool operator!=(xrange_riterator const& other) { return value != other.value; }
-        bool operator<(xrange_riterator const& other) { return value > other.value; }
+        bool operator<(xrange_riterator const& other) { return sign*value > sign*other.value; }
         long operator-(xrange_riterator const& other) { return (value - other.value)/step; }
     };
 

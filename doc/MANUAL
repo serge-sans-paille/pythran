@@ -130,7 +130,7 @@ Enough talk, run::
 
 One touch of magic wand and you have your native binary. Note however that this
 binary will not run directly at godlike speed, because it does not call any of
-g++ optimization setps. What you really wanted to do was::
+the compiler optimization steps. What you really wanted to do was::
 
 	$> pythran mm.py -Ofast -march=native -DNDEBUG
 
@@ -240,6 +240,12 @@ F.A.Q.
 1. My exported function has too many arguments:
 
    - Use -DBOOST_PYTHON_MAX_ARITY=42 or more...
+
+2. Supported compiler versions:
+
+   - `g++` version 4.7
+
+   - `clang++` version 3.1-8
 
 Troubleshooting
 ---------------

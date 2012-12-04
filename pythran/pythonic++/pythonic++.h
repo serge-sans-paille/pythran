@@ -12,8 +12,8 @@
 #include "core/set.h"
 #include "core/dict.h"
 #include "core/tuple.h"
-#include "core/intrinsics.h"
 #include "core/io.h"
+#include "core/intrinsics.h"
 
 /* additional modules */
 #include "modules/dispatch.h"

@@ -37,3 +37,6 @@ def bool_op_casting():
 
     def test_map_on_generator(self):
         self.run_test('def map_on_generator(l): return map(float,(x*x for x in l))', [1,2,3], map_on_generator=[[int]])
+
+    def test_max_interface_arity(self):
+        self.run_test('def max_interface_arity({0}):pass'.format(*['_'+str(i) for i in xrange(42)]), range(42), max_interface_arity=[[int]*42])

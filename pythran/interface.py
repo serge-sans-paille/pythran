@@ -107,6 +107,9 @@ def cxx_generator(module_name, code, specs=None, optimizations=None):
     else:
         mod = BoostPythonModule(module_name)
         mod.use_private_namespace = False
+        # very low value for max_arity leads to various bugs
+        max_arity = max(16,max(len(s) for s in specs.itervalues()))
+        mod.add_to_preamble([Define("BOOST_PYTHON_MAX_ARITY", max_arity)])
         mod.add_to_preamble(content)
         mod.add_to_init([Statement(
 'boost::python::numeric::array::set_module_and_type("numpy", "ndarray")')])

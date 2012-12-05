@@ -237,11 +237,7 @@ particular Pythran specification.
 F.A.Q.
 ------
 
-1. My exported function has too many arguments:
-
-   - Use -DBOOST_PYTHON_MAX_ARITY=42 or more...
-
-2. Supported compiler versions:
+1. Supported compiler versions:
 
    - `g++` version 4.7
 

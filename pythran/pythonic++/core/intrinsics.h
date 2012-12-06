@@ -371,6 +371,31 @@ namespace pythonic {
             return s;
         }
 
+
+    template <typename List0, typename... Iterators>
+        auto _map(pythonic::none_type, List0 && seq, Iterators... iterators) 
+        -> core::list< std::tuple< typename std::remove_reference<List0>::type::iterator::value_type,  typename Iterators::value_type... > >
+        {
+            core::list< std::tuple< typename std::remove_reference<List0>::type::iterator::value_type,  typename Iterators::value_type... > > s = core::empty_list();
+            s.reserve(len(seq));
+            for(auto const& iseq : seq) {
+                s.push_back(std::make_tuple( iseq, *iterators... ));
+                fwd(++iterators...);
+            }
+	    return s;
+        }
+
+    template <typename List0>
+        auto _map(pythonic::none_type, List0 && seq)
+        -> core::list< typename std::remove_reference<List0>::type::iterator::value_type >
+        {
+            core::list< typename std::remove_reference<List0>::type::iterator::value_type > s = core::empty_list();
+            s.reserve(len(seq));
+            for(auto const& iseq : seq)
+                s.push_back(iseq);
+            return s;
+        }
+
     template <typename Operator, typename List0, typename... ListN>
         auto map(Operator op, List0 && seq, ListN &&... lists)
         -> decltype( _map(op, std::forward<List0>(seq), lists.begin()...) )

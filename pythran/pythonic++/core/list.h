@@ -173,9 +173,15 @@ namespace  pythonic {
                     return *this;
                 }
                 list<T>& operator+=(list_view<T> const & other) {
-                    data->resize(data->size() + len(other));
+                    data->resize(data->size() + other.size());
                     std::copy(other.begin(), other.end(), data->begin());
                     return *this;
+                }
+                list<T> operator+(list_view<T> const & other) const {
+                    list<T> new_list(begin(), end());
+                    new_list.reserve(data->size() + other.size());
+                    std::copy(other.begin(), other.end(), std::back_inserter(new_list));
+                    return new_list;
                 }
 
                 // iterators
@@ -325,6 +331,8 @@ namespace  pythonic {
         struct empty_list {
             template<class T> // just for type inference, should never been instantiated
                 list<T> operator+(list<T> const & s) { return s; }
+            template<class T> // just for type inference, should never been instantiated
+                list_view<T> operator+(list_view<T> const & s) { return s; }
             empty_list operator+(empty_list const &) { return empty_list(); }
             operator bool() { return false; }
         };

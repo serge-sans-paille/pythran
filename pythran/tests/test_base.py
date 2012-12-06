@@ -593,3 +593,23 @@ def import_as():
         o=[]
         for i in reversed(xrange(n, 0, -1)): o.append(i)
         return o""", 10, reversed_range_negative_step=[int])
+
+    def test_update_empty_list(self):
+        self.run_test('''
+def update_empty_list(l):
+    p = list()
+    return p + l[:1]''', range(5), update_empty_list=[[int]])
+
+    def test_update_list_with_slice(self):
+        self.run_test('''
+def update_list_with_slice(l):
+    p = list()
+    for i in xrange(10):
+        p += l[:1]''', range(5), update_list_with_slice=[[int]])
+
+    def test_add_slice_to_list(self):
+        self.run_test('''
+def add_slice_to_list(l):
+    p = list()
+    for i in xrange(10):
+        p = p + l[:1]''', range(5), add_slice_to_list=[[int]])

@@ -99,6 +99,7 @@ namespace  pythonic {
                 operator bool() { return not data->empty(); }
 
                 long size() const { return data->size(); }
+                set<T> operator+(core::empty_set const &) { return copy(); }
 
                 template<class U> // just for type inference, should never been instantiated
                     set<decltype(std::declval<T>()+std::declval<U>())> operator+(set<U> const &);

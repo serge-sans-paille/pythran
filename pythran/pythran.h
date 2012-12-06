@@ -453,9 +453,6 @@ template<int N, int ...S> struct gens : gens<N-1, N-1, S...> {};
 
 template<int ...S> struct gens<0, S...>{ typedef seq<S...> type; };
 
-template<typename... Types>
-void fwd(Types const&... types) {
-}
 
 template <typename T>
 struct python_to_pythran {};
@@ -584,7 +581,7 @@ template<typename... Types>
 struct python_to_pythran< std::tuple<Types...> >{
     python_to_pythran(){
         static bool registered=false;
-        fwd(python_to_pythran<Types>()...);
+        pythonic::fwd(python_to_pythran<Types>()...);
         if(not registered) {
             registered=true;
             boost::python::converter::registry::push_back(&convertible,&construct,boost::python::type_id< std::tuple<Types...> >());
@@ -732,7 +729,7 @@ struct custom_tuple_to_tuple {
 template<typename... Types>
 struct pythran_to_python< std::tuple<Types...> > {
     pythran_to_python() {
-        fwd(pythran_to_python<Types>()...);
+        pythonic::fwd(pythran_to_python<Types>()...);
         register_once<std::tuple<Types...>, custom_tuple_to_tuple<Types...>>();
     }
 };

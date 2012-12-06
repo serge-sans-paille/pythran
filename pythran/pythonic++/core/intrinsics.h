@@ -411,12 +411,11 @@ namespace pythonic {
 
     template <class T0, class... Types>
         struct Max<false, T0, Types...> {
-            typedef decltype( Max<false, T0, typename Max<false, Types...>::result_type>::result_type) result_type;
-
+            typedef typename Max<false, T0, typename Max<false, Types...>::result_type>::result_type result_type;
 
             result_type operator()(T0 const & t0, Types const&... values)
             {
-                auto t1 = (*this)(values...);
+                result_type t1 = Max<false, Types...>()(values...);
                 return t0 > t1 ? t0 : t1;
             }
         };
@@ -675,17 +674,19 @@ namespace pythonic {
 
     /* zip */
     template<class Iterator0, class... Iterators>
-        core::list< std::tuple<typename Iterator0::value_type, typename Iterators::value_type... > > _zip(Iterator0 first, Iterator0 last, Iterators...  iters) {
-            core::list< std::tuple< typename Iterator0::value_type, typename Iterators::value_type... > > out(last-first);
-            auto iter = out.begin();
-            while(first!=last)
-                *iter++= std::make_tuple( *first++, *iters++... );
+        core::list< std::tuple<typename Iterator0::value_type, typename Iterators::value_type... > > _zip(size_t n, Iterator0 first, Iterator0 last, Iterators...  iters) {
+            core::list< std::tuple< typename Iterator0::value_type, typename Iterators::value_type... > > out = core::empty_list();
+            out.reserve(n);
+            for(; first!=last; ++first, fwd(++iters...)) {
+                out.push_back(std::make_tuple( *first, *iters... ));
+            }
             return out;
         }
 
     template<class List0, class... Lists>
-        core::list< std::tuple<typename List0::value_type, typename Lists::value_type... > > zip(List0 const& s0, Lists const&...  lists) {
-            return _zip(s0.begin(), s0.end(), lists.begin()...);
+        core::list< std::tuple<typename std::remove_reference<List0>::type::value_type, typename std::remove_reference<Lists>::type::value_type... > > zip(List0 && s0, Lists &&...  lists) {
+            size_t n = max(len(std::forward<List0>(s0)), len(std::forward<Lists>(lists))...);
+            return _zip(n, s0.begin(), s0.end(), lists.begin()...);
         }
 
     core::empty_list zip() {

@@ -40,3 +40,9 @@ def bool_op_casting():
 
     def test_max_interface_arity(self):
         self.run_test('def max_interface_arity({0}):pass'.format(*['_'+str(i) for i in xrange(42)]), range(42), max_interface_arity=[[int]*42])
+
+    def test_multiple_max(self):
+        self.run_test('def multiple_max(i,j,k): return max(i,j,k)', 1, 1.5, False, multiple_max=[int, float, bool])
+
+    def test_zip_on_generator(self):
+        self.run_test('def zip_on_generator(n): return zip((i for i in xrange(n)), (i*2 for i in xrange(1,n+1)))', 5, zip_on_generator=[int])

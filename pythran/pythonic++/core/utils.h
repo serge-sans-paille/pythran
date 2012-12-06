@@ -86,6 +86,9 @@ namespace pythonic {
     template<int> struct int_{}; // compile-time counter
 
 
+    template<typename... Types>
+        void fwd(Types const&... types) {
+        }
 
 }
 #endif

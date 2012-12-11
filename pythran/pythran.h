@@ -20,11 +20,6 @@ struct __combined<T> {
     typedef T type;
 };
 
-template<class T0, class T1>
-struct __combined<T0,T1> {
-    typedef decltype(std::declval<T0>()+std::declval<T1>()) type;
-};
-
 template<class T>
 struct __combined<T,T> {
     typedef T type;
@@ -97,6 +92,11 @@ class dict_container {
         dict_container();
 };
 
+template <class A>
+core::list<A> operator+(container<A>, core::empty_list);
+template <class A>
+core::list<A> operator+(core::empty_list , container<A> );
+
 template <class A, class B>
 B operator+(container<A> , B );
 template <class A, class B>
@@ -116,6 +116,9 @@ template <class A>
 dict_container<A> operator+(container<A> , core::empty_dict );
 template <class A>
 dict_container<A> operator+(core::empty_dict , container<A> );
+
+template <class K, class V>
+core::dict<K, V> operator+(core::empty_dict , core::list<std::tuple<K,V>> );
 
 template <class A>
 decltype(std::declval<core::list<A>>() + none_type()) operator+(container<A> , none_type );
@@ -228,6 +231,12 @@ template <class V, class K>
 core::dict<K,V> operator+(container<V>, indexable_dict<K>);
 template <class K, class V>
 indexable_dict<decltype(std::declval<K>()+std::declval<V>())> operator+(indexable_dict<K>, indexable<V>);
+
+/* clang needs this declaration here and not before */
+template<class T0, class T1>
+struct __combined<T0,T1> {
+    typedef decltype(std::declval<T0>()+std::declval<T1>()) type;
+};
 
 /* some overloads */
 namespace std {
@@ -376,6 +385,8 @@ namespace std {
         ENVIRONMENTERROR_EXCEPTION(OSError)
 
 }
+
+
 /* } */
 
 /* wrapper used by generated code to simulate closures { */
@@ -442,9 +453,6 @@ template<int N, int ...S> struct gens : gens<N-1, N-1, S...> {};
 
 template<int ...S> struct gens<0, S...>{ typedef seq<S...> type; };
 
-template<typename... Types>
-void fwd(Types const&... types) {
-}
 
 template <typename T>
 struct python_to_pythran {};
@@ -573,7 +581,7 @@ template<typename... Types>
 struct python_to_pythran< std::tuple<Types...> >{
     python_to_pythran(){
         static bool registered=false;
-        fwd(python_to_pythran<Types>()...);
+        pythonic::fwd(python_to_pythran<Types>()...);
         if(not registered) {
             registered=true;
             boost::python::converter::registry::push_back(&convertible,&construct,boost::python::type_id< std::tuple<Types...> >());
@@ -721,7 +729,7 @@ struct custom_tuple_to_tuple {
 template<typename... Types>
 struct pythran_to_python< std::tuple<Types...> > {
     pythran_to_python() {
-        fwd(pythran_to_python<Types>()...);
+        pythonic::fwd(pythran_to_python<Types>()...);
         register_once<std::tuple<Types...>, custom_tuple_to_tuple<Types...>>();
     }
 };

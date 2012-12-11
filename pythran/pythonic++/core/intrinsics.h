@@ -95,33 +95,34 @@ namespace pythonic {
     PROXY(pythonic, divmod);
 
     /* enumerate */
-    template<class T>
-        struct enumerate_iterator : std::iterator< std::random_access_iterator_tag, std::tuple<long, T> >{
+    template<class Iterable>
+        struct enumerate_iterator : std::iterator< std::random_access_iterator_tag, std::tuple<long, typename Iterable::iterator::value_type> >{
             long value;
-            typename core::list<T>::const_iterator iter;
+            typename Iterable::iterator iter;
             enumerate_iterator(){}
-            enumerate_iterator(long value, typename core::list<T>::const_iterator iter) : value(value), iter(iter) {}
-            std::tuple<long,T>  operator*() { return std::make_tuple(value, *iter); }
+            enumerate_iterator(long value, typename Iterable::iterator iter) : value(value), iter(iter) {}
+            std::tuple<long, typename Iterable::iterator::value_type> operator*() { return std::make_tuple(value, *iter); }
             enumerate_iterator& operator++() { ++value,++iter; return *this; }
             enumerate_iterator operator++(int) { enumerate_iterator self(*this); ++value, ++iter; return self; }
             enumerate_iterator& operator+=(long n) { value+=n,iter+=n; return *this; }
-            bool operator!=(enumerate_iterator const& other) { return value != other.value; }
-            bool operator<(enumerate_iterator const& other) { return value < other.value; }
-            long operator-(enumerate_iterator const& other) { return value - other.value; }
+            bool operator!=(enumerate_iterator const& other) { return iter != other.iter; }
+            bool operator<(enumerate_iterator const& other) { return iter < other.iter; }
+            long operator-(enumerate_iterator const& other) { return iter - other.iter; }
         };
 
-    template <class T>
+    template <class Iterable>
         struct _enumerate {
-            core::list<T> seq;
+            typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type seq;
             _enumerate() {}
-            typedef std::tuple<long, T> value_type;
-            typedef enumerate_iterator<T> iterator;
-            _enumerate( core::list<T> const& seq ) : seq(seq) {}
-            enumerate_iterator<T> begin() const { return enumerate_iterator<T>(0L,seq.begin()); }
-            enumerate_iterator<T> end() const { return enumerate_iterator<T>(seq.end()-seq.begin(), seq.end()); }
+            typedef enumerate_iterator<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type> iterator;
+            _enumerate( Iterable&& seq ) : seq(seq) {}
+            iterator begin() { return iterator(0L, seq.begin()); }
+            iterator end() { return iterator(-1L, seq.end()); }
         };
-    template <class T>
-        _enumerate<T> enumerate(core::list<T> const& seq) { return _enumerate<T>(seq); }
+
+    template <class Iterable>
+        _enumerate<Iterable> enumerate(Iterable && seq) { return _enumerate<Iterable>(std::forward<Iterable>(seq)); }
+
     PROXY(pythonic,enumerate);
 
     /* filter */
@@ -213,29 +214,37 @@ namespace pythonic {
 
     /* len */
 
-    template <class T>
+    template <class T, class I>
         struct _len {
             long operator()(T const &t) {
-                return t.end() - t.begin();
+                static_assert(!std::is_same<I, std::random_access_iterator_tag>::value, "WTF");
+                return 1;
             }
         };
 
     template <class T>
-        struct _len<core::set<T>> {
+        struct _len<T, std::random_access_iterator_tag> {
+            long operator()(T const &t) {
+                return std::distance(t.begin(), t.end());
+            }
+        };
+
+    template <class T, class I>
+        struct _len<core::set<T>, I> {
             long operator()(core::set<T> const &t) {
                 return t.size();
             }
         };
 
-    template <class K, class V>
-        struct _len<core::dict<K,V>> {
+    template <class K, class V, class I>
+        struct _len<core::dict<K,V>, I> {
             long operator()(core::dict<K,V> const &t) {
                 return t.size();
             }
         };
 
-    template <class... Types>
-        struct _len<std::tuple<Types...>> {
+    template <class... Types, class I>
+        struct _len<std::tuple<Types...>, I> {
             long operator()(std::tuple<Types...> const&) {
                 return sizeof...(Types);
             }
@@ -243,7 +252,7 @@ namespace pythonic {
 
     template <class T>
         long len(T const &t) {
-            return _len<T>()(t);
+            return _len<T, typename std::iterator_traits<typename T::iterator>::iterator_category>()(t);
         }
     PROXY(pythonic,len);
 
@@ -353,12 +362,37 @@ namespace pythonic {
     /* map */
     template <typename Operator, typename List0, typename... Iterators>
         auto _map(Operator& op, List0 && seq, Iterators... iterators)
-        -> core::list< decltype(op(*std::forward<List0>(seq).begin(), *iterators...)) > 
+        -> core::list< decltype(op(*seq.begin(), *iterators...)) > 
         {
-            core::list< decltype(op(*std::forward<List0>(seq).begin(), *iterators...)) > s(len(seq));
-            auto iter = s.begin();
-            for(auto & iseq : seq)
-                *iter++= op(iseq, *iterators++...);
+            core::list< decltype(op(*seq.begin(), *iterators...)) > s = core::empty_list();
+            s.reserve(len(seq));
+            for(auto const& iseq : seq)
+                s.push_back(op(iseq, *iterators++...));
+            return s;
+        }
+
+
+    template <typename List0, typename... Iterators>
+        auto _map(pythonic::none_type, List0 && seq, Iterators... iterators) 
+        -> core::list< std::tuple< typename std::remove_reference<List0>::type::iterator::value_type,  typename Iterators::value_type... > >
+        {
+            core::list< std::tuple< typename std::remove_reference<List0>::type::iterator::value_type,  typename Iterators::value_type... > > s = core::empty_list();
+            s.reserve(len(seq));
+            for(auto const& iseq : seq) {
+                s.push_back(std::make_tuple( iseq, *iterators... ));
+                fwd(++iterators...);
+            }
+	    return s;
+        }
+
+    template <typename List0>
+        auto _map(pythonic::none_type, List0 && seq)
+        -> core::list< typename std::remove_reference<List0>::type::iterator::value_type >
+        {
+            core::list< typename std::remove_reference<List0>::type::iterator::value_type > s = core::empty_list();
+            s.reserve(len(seq));
+            for(auto const& iseq : seq)
+                s.push_back(iseq);
             return s;
         }
 
@@ -402,12 +436,11 @@ namespace pythonic {
 
     template <class T0, class... Types>
         struct Max<false, T0, Types...> {
-            typedef decltype( Max<false, T0, typename Max<false, Types...>::result_type>::result_type) result_type;
-
+            typedef typename Max<false, T0, typename Max<false, Types...>::result_type>::result_type result_type;
 
             result_type operator()(T0 const & t0, Types const&... values)
             {
-                auto t1 = (*this)(values...);
+                result_type t1 = Max<false, Types...>()(values...);
                 return t0 > t1 ? t0 : t1;
             }
         };
@@ -483,27 +516,29 @@ namespace pythonic {
     struct xrange_iterator : std::iterator< std::random_access_iterator_tag, long >{
         long value;
         long step;
+        long sign;
         xrange_iterator() {}
-        xrange_iterator(long v, long s) : value(v), step(s) {}
+        xrange_iterator(long v, long s) : value(v), step(s), sign(s<0?-1:1) {}
         long& operator*() { return value; }
         xrange_iterator& operator++() { value+=step; return *this; }
         xrange_iterator operator++(int) { xrange_iterator self(*this); value+=step; return self; }
         xrange_iterator& operator+=(long n) { value+=step*n; return *this; }
         bool operator!=(xrange_iterator const& other) { return value != other.value; }
-        bool operator<(xrange_iterator const& other) { return value < other.value; }
+        bool operator<(xrange_iterator const& other) { return sign*value < sign*other.value; }
         long operator-(xrange_iterator const& other) { return (value - other.value)/step; }
     };
     struct xrange_riterator : std::iterator< std::random_access_iterator_tag, long >{
         long value;
         long step;
+        long sign;
         xrange_riterator() {}
-        xrange_riterator(long v, long s) : value(v), step(s) {}
+        xrange_riterator(long v, long s) : value(v), step(s), sign(s<0?1:-1) {}
         long& operator*() { return value; }
         xrange_riterator& operator++() { value+=step; return *this; }
         xrange_riterator operator++(int) { xrange_riterator self(*this); value+=step; return self; }
         xrange_riterator& operator+=(long n) { value+=step*n; return *this; }
         bool operator!=(xrange_riterator const& other) { return value != other.value; }
-        bool operator<(xrange_riterator const& other) { return value > other.value; }
+        bool operator<(xrange_riterator const& other) { return sign*value > sign*other.value; }
         long operator-(xrange_riterator const& other) { return (value - other.value)/step; }
     };
 
@@ -641,23 +676,42 @@ namespace pythonic {
         {
             return sum(s,0L);
         }
+
+    template<class Tuple>
+        auto tuple_sum(Tuple const& t, int_<0>) -> decltype(std::get<0>(t)) {
+            return std::get<0>(t);
+        }
+
+    template<class Tuple, int I>
+        auto tuple_sum(Tuple const& t, int_<I>) -> typename std::remove_reference<decltype(std::get<I>(t))>::type {
+            return std::get<I>(t) + tuple_sum(t, int_<I-1>());
+        }
+
+
+    template<class... Types>
+        auto sum(std::tuple<Types...> const & t) -> decltype(tuple_sum(t, int_<sizeof...(Types)-1>())) {
+            return tuple_sum(t, int_<sizeof...(Types)-1>());
+        }
+
     PROXY(pythonic,sum);
 
     /* xrange -> forward declared */
 
     /* zip */
     template<class Iterator0, class... Iterators>
-        core::list< std::tuple<typename Iterator0::value_type, typename Iterators::value_type... > > _zip(Iterator0 first, Iterator0 last, Iterators...  iters) {
-            core::list< std::tuple< typename Iterator0::value_type, typename Iterators::value_type... > > out(last-first);
-            auto iter = out.begin();
-            while(first!=last)
-                *iter++= std::make_tuple( *first++, *iters++... );
+        core::list< std::tuple<typename Iterator0::value_type, typename Iterators::value_type... > > _zip(size_t n, Iterator0 first, Iterator0 last, Iterators...  iters) {
+            core::list< std::tuple< typename Iterator0::value_type, typename Iterators::value_type... > > out = core::empty_list();
+            out.reserve(n);
+            for(; first!=last; ++first, fwd(++iters...)) {
+                out.push_back(std::make_tuple( *first, *iters... ));
+            }
             return out;
         }
 
     template<class List0, class... Lists>
-        core::list< std::tuple<typename List0::value_type, typename Lists::value_type... > > zip(List0 const& s0, Lists const&...  lists) {
-            return _zip(s0.begin(), s0.end(), lists.begin()...);
+        core::list< std::tuple<typename std::remove_reference<List0>::type::value_type, typename std::remove_reference<Lists>::type::value_type... > > zip(List0 && s0, Lists &&...  lists) {
+            size_t n = max(len(std::forward<List0>(s0)), len(std::forward<Lists>(lists))...);
+            return _zip(n, s0.begin(), s0.end(), lists.begin()...);
         }
 
     core::empty_list zip() {
@@ -665,6 +719,16 @@ namespace pythonic {
     }
 
     PROXY(pythonic,zip);
+
+    /* constructor */
+    template<typename T>
+    struct constructor {
+        template<class V>
+        T operator()(V&& v) {
+            return T(std::forward<V>(v));
+        }
+    };
+
 
     /* reserve */
     template <class Container, class From>
@@ -682,6 +746,7 @@ namespace pythonic {
         long floordiv(T0 a, T1 b) {
             return T0(floor(a/b));
         }
+
 
 }
 #endif

@@ -59,35 +59,35 @@ operator_to_lambda = {
         ast.And: lambda l, r: "(({0})?({1}):({0}))".format(l, r),
         ast.Or: lambda l, r: "(({0})?({0}):({1}))".format(l, r),
         # operator
-        ast.Add: lambda l, r: "({0}+{1})".format(l, r),
-        ast.Sub: lambda l, r: "({0}-{1})".format(l, r),
-        ast.Mult: lambda l, r: "({0}*{1})".format(l, r),
-        ast.Div: lambda l, r: "({0}/{1})".format(l, r),
-        ast.Mod: lambda l, r: "({0}%{1})".format(l, r),
-        ast.Pow: lambda l, r: "(pow({0},{1}))".format(l, r),
-        ast.LShift: lambda l, r: "({0}<<{1})".format(l, r),
-        ast.RShift: lambda l, r: "({0}>>{1})".format(l, r),
-        ast.BitOr: lambda l, r: "({0}|{1})".format(l, r),
-        ast.BitXor: lambda l, r: "({0}^{1})".format(l, r),
-        ast.BitAnd: lambda l, r: "({0}&{1})".format(l, r),
+        ast.Add: lambda l, r: "({0} + {1})".format(l, r),
+        ast.Sub: lambda l, r: "({0} - {1})".format(l, r),
+        ast.Mult: lambda l, r: "({0} * {1})".format(l, r),
+        ast.Div: lambda l, r: "({0} / {1})".format(l, r),
+        ast.Mod: lambda l, r: "({0} % {1})".format(l, r),
+        ast.Pow: lambda l, r: "(pow({0}, {1}))".format(l, r),
+        ast.LShift: lambda l, r: "({0} << {1})".format(l, r),
+        ast.RShift: lambda l, r: "({0} >> {1})".format(l, r),
+        ast.BitOr: lambda l, r: "({0} | {1})".format(l, r),
+        ast.BitXor: lambda l, r: "({0} ^ {1})".format(l, r),
+        ast.BitAnd: lambda l, r: "({0} & {1})".format(l, r),
         #** assume from __future__ import division
-        ast.FloorDiv: lambda l, r: "(floordiv({0},{1}))".format(l, r),
+        ast.FloorDiv: lambda l, r: "(floordiv({0}, {1}))".format(l, r),
         # unaryop
         ast.Invert: lambda o: "(~{0})".format(o),
         ast.Not: lambda o: "(not {0})".format(o),
         ast.UAdd: lambda o: "(+{0})".format(o),
         ast.USub: lambda o: "(-{0})".format(o),
         # cmpop
-        ast.Eq: lambda l, r: "({0}=={1})".format(l, r),
-        ast.NotEq: lambda l, r: "({0}!={1})".format(l, r),
-        ast.Lt: lambda l, r: "({0}<{1})".format(l, r),
-        ast.LtE: lambda l, r: "({0}<={1})".format(l, r),
-        ast.Gt: lambda l, r: "({0}>{1})".format(l, r),
-        ast.GtE: lambda l, r: "({0}>={1})".format(l, r),
-        ast.Is: lambda l, r: "(id({0})==id({1}))".format(l, r),
-        ast.IsNot: lambda l, r: "(id({0})!=id({1}))".format(l, r),
-        ast.In: lambda l, r: "(in({1},{0}))".format(l, r),
-        ast.NotIn: lambda l, r: "(not in({1},{0}))".format(l, r),
+        ast.Eq: lambda l, r: "({0} == {1})".format(l, r),
+        ast.NotEq: lambda l, r: "({0} != {1})".format(l, r),
+        ast.Lt: lambda l, r: "({0} < {1})".format(l, r),
+        ast.LtE: lambda l, r: "({0} <= {1})".format(l, r),
+        ast.Gt: lambda l, r: "({0} > {1})".format(l, r),
+        ast.GtE: lambda l, r: "({0} >= {1})".format(l, r),
+        ast.Is: lambda l, r: "(id({0}) == id({1}))".format(l, r),
+        ast.IsNot: lambda l, r: "(id({0}) != id({1}))".format(l, r),
+        ast.In: lambda l, r: "(in({1}, {0}))".format(l, r),
+        ast.NotIn: lambda l, r: "(not in({1}, {0}))".format(l, r),
         }
 
 # each module consist in a module_name <> set of symbols
@@ -235,11 +235,12 @@ modules = {
                 "e": ScalarIntr(),
                 },
         "random": {
-                "seed": FunctionIntr(),
-                "random": FunctionIntr(),
-                "gauss": FunctionIntr(),
-                "uniform": FunctionIntr(),
-                "expovariate": FunctionIntr(),
+                "seed": FunctionIntr(global_effects=True),
+                "random": FunctionIntr(global_effects=True),
+                "gauss": FunctionIntr(global_effects=True),
+                "uniform": FunctionIntr(global_effects=True),
+                "expovariate": FunctionIntr(global_effects=True),
+                "sample": FunctionIntr(global_effects=True)
                 },
         "__list__": {
                 "append": MethodIntr(
@@ -276,6 +277,7 @@ modules = {
                 "join": ConstMethodIntr(),
                 "capitalize": ConstMethodIntr(),
                 "split": ConstMethodIntr(),
+                "endswith": ConstMethodIntr(),
                 },
         "__set__": {
                 "add": MethodIntr(
@@ -385,7 +387,7 @@ modules = {
                 "conjugate": MethodIntr(),
                 },
         "__dict__":  {
-                "fromkeys": FunctionIntr(),
+                "fromkeys": ConstFunctionIntr(),
                 "get": ConstMethodIntr(),
                 "has_key": ConstMethodIntr(),
                 "items": MethodIntr(),

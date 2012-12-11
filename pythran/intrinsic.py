@@ -7,8 +7,10 @@ class ReadEffect(object):
 
 
 class Intrinsic:
-    def __init__(self, effects=None):
-        self.effects = effects or (UpdateEffect(),) + (ReadEffect(),) * 11
+    def __init__(self, argument_effects=(UpdateEffect(),) * 11,
+            global_effects=True):
+        self.argument_effects = argument_effects
+        self.global_effects = global_effects
 
     def isscalar(self):
         return False
@@ -26,12 +28,13 @@ class Intrinsic:
         return False
 
     def isconst(self):
-        return any(isinstance(x, UpdateEffect) for x in self.effects)
+        return any(isinstance(x, UpdateEffect) for x in self.argument_effects)
 
 
 class FunctionIntr(Intrinsic):
-    def __init__(self, effects=None):
-        Intrinsic.__init__(self, effects)
+    def __init__(self, argument_effects=(UpdateEffect(),) * 11,
+            global_effects=False):
+        Intrinsic.__init__(self, argument_effects, global_effects)
 
     def isfunction(self):
         return True
@@ -40,14 +43,14 @@ class FunctionIntr(Intrinsic):
         return True
 
 
-class ConstFunctionIntr(Intrinsic):
+class ConstFunctionIntr(FunctionIntr):
     def __init__(self):
-        Intrinsic.__init__(self, effects=())
+        FunctionIntr.__init__(self, argument_effects=())
 
 
 class MethodIntr(FunctionIntr):
     def __init__(self, *combiners):
-        FunctionIntr.__init__(self)
+        FunctionIntr.__init__(self, (UpdateEffect(),) + (ReadEffect(),) * 10)
         self.combiners = combiners
 
     def add_combiner(self, _combiner):
@@ -72,7 +75,7 @@ class ConstMethodIntr(MethodIntr):
 
 class AttributeIntr(Intrinsic):
     def __init__(self, _val, effects=None):
-        Intrinsic.__init__(self, effects)
+        Intrinsic.__init__(self, global_effects=False)
         self.val = _val
 
     def isattribute(self):
@@ -80,8 +83,8 @@ class AttributeIntr(Intrinsic):
 
 
 class ScalarIntr(Intrinsic):
-    def __init__(self, effects=None):
-        Intrinsic.__init__(self, effects)
+    def __init__(self):
+        Intrinsic.__init__(self, argument_effects=(), global_effects=False)
 
     def isscalar(self):
         return True

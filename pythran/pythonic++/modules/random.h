@@ -26,11 +26,26 @@ namespace pythonic {
             return std::exponential_distribution<>(l)(__random_generator);
         }
 
+        template<class Iterable>
+            core::list<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type::iterator::value_type>
+            sample(Iterable&& s, size_t k) {
+                typedef typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type::iterator::value_type value_type;
+                core::list<value_type> tmp(s);
+                std::vector<size_t> indices(tmp.size());
+                std::iota(indices.begin(), indices.end(), 0);
+                std::random_shuffle(indices.begin(), indices.end());
+                core::list<value_type> out(k);
+                for(size_t i=0; i<k; i++)
+                    out[i] = tmp[ indices[i] ];
+                return out;
+            }
+
         PROXY(pythonic::random, seed);
         PROXY(pythonic::random, random);
         PROXY(pythonic::random, gauss);
         PROXY(pythonic::random, uniform);
         PROXY(pythonic::random, expovariate);
+        PROXY(pythonic::random, sample);
     }
 }
 

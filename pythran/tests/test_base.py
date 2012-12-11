@@ -42,6 +42,9 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
     def test_list_comprehension(self):
         self.run_test("def list_comprehension(l): return [ x*x for x in l ]", [1,2,3], list_comprehension=[[int]])
  
+    def test_dict_comprehension(self):
+        self.run_test("def dict_comprehension(l): return { i: 1 for i in l if len(i)>1 }", ["1","12","123"], dict_comprehension=[[str]])
+ 
     def test_filtered_list_comprehension(self):
         self.run_test("def filtered_list_comprehension(l): return [ x*x for x in l if x > 1 if x <10]", [1,2,3], filtered_list_comprehension=[[int]])
 
@@ -80,6 +83,12 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
 
     def test_multimin(self):
         self.run_test("def multimin(l,v):return min(v,min(l))", [ 1.1, 2.2 ], 3, multimin=[[float],int])
+
+    def test_map_none(self):
+        self.run_test("def map_none(l0): return map(None, l0)", [0,1,2], map_none=[[int]])
+
+    def test_map_none2(self):
+        self.run_test("def map_none2(l0): return map(None, l0, l0)", [0,1,2], map_none2=[[int]])
 
     def test_map(self):
         self.run_test("def map_(l0, l1,v): return map(lambda x,y:x*v+y, l0, l1)", [0,1,2], [0,1.1,2.2], 2, map_=[[int], [float], int])
@@ -571,3 +580,36 @@ def import_as():
     def test_list_removal(self):
         self.run_test("def list_removal(t): [a,b] = t ; return a, b", (1,2), list_removal=[(int, int)])
 
+    def test_recursive_attr(self):
+        self.run_test("def recursive_attr(): return {1,2,3}.union({1,2}).union({5})", recursive_attr=[])
+
+    def test_range_negative_step(self):
+        self.run_test("""def range_negative_step(n):
+        o=[]
+        for i in xrange(n, 0, -1): o.append(i)
+        return o""", 10, range_negative_step=[int])
+    def test_reversed_range_negative_step(self):
+        self.run_test("""def reversed_range_negative_step(n):
+        o=[]
+        for i in reversed(xrange(n, 0, -1)): o.append(i)
+        return o""", 10, reversed_range_negative_step=[int])
+
+    def test_update_empty_list(self):
+        self.run_test('''
+def update_empty_list(l):
+    p = list()
+    return p + l[:1]''', range(5), update_empty_list=[[int]])
+
+    def test_update_list_with_slice(self):
+        self.run_test('''
+def update_list_with_slice(l):
+    p = list()
+    for i in xrange(10):
+        p += l[:1]''', range(5), update_list_with_slice=[[int]])
+
+    def test_add_slice_to_list(self):
+        self.run_test('''
+def add_slice_to_list(l):
+    p = list()
+    for i in xrange(10):
+        p = p + l[:1]''', range(5), add_slice_to_list=[[int]])

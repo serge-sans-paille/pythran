@@ -1,5 +1,5 @@
-'''This modules contains code transformation to turn python code into
-    optimized pythran code
+'''This modules contains code transformation to turn python AST into
+    pythran AST
     * NormalizeTuples removes implicite variable -> tuple conversion
     * RemoveComprehension turns list comprehension into function calls
     * RemoveNestedFunctions turns nested function into top-level functions
@@ -14,10 +14,10 @@
     * GatherOMPData turns OpenMP-like string annotations into metadata
 '''
 
-from analysis import ImportedIds, Identifiers, ConstantExpressions
-from passmanager import gather, Transformation
+from analysis import ImportedIds, Identifiers, YieldPoints
+from passmanager import Transformation
 from tables import methods, attributes, functions
-from tables import cxx_keywords, namespace, modules
+from tables import cxx_keywords, namespace
 import metadata
 import ast
 
@@ -182,11 +182,11 @@ class RemoveComprehension(Transformation):
             return reduce(lambda n, if_: ast.If(if_, [n], []), ifs, node)
         return ast.For(g.target, g.iter, [wrap_in_ifs(x, g.ifs)], [])
 
-    def visit_AnyComp(self, node, comp_type, comp_method):
+    def visit_AnyComp(self, node, comp_type, comp_module, comp_method):
         node.elt = self.visit(node.elt)
         name = "{0}_comprehension{1}".format(comp_type, self.count)
         self.count += 1
-        args = gather(ImportedIds, node, self.ctx)
+        args = self.passmanager.gather(ImportedIds, node, self.ctx)
         self.count_iter = 0
 
         starget = "__target"
@@ -195,7 +195,7 @@ class RemoveComprehension(Transformation):
                 ast.Expr(
                     ast.Call(
                         ast.Attribute(
-                            ast.Name("__{0}__".format(comp_type), ast.Load()),
+                            ast.Name(comp_module, ast.Load()),
                             comp_method,
                             ast.Load()),
                         [ast.Name(starget, ast.Load()), node.elt],
@@ -211,7 +211,7 @@ class RemoveComprehension(Transformation):
                 [ast.Name(starget, ast.Store())],
                 ast.Call(ast.Name(comp_type, ast.Load()), [], [], None, None)
                 )
-        result = ast.Return(ast.Name(starget, ast.Store()))
+        result = ast.Return(ast.Name(starget, ast.Load()))
         sargs = sorted(ast.Name(arg, ast.Load()) for arg in args)
         fd = ast.FunctionDef(name,
                 ast.arguments(sargs, None, None, []),
@@ -227,16 +227,25 @@ class RemoveComprehension(Transformation):
                 )  # no sharing !
 
     def visit_ListComp(self, node):
-        return self.visit_AnyComp(node, "list", "append")
+        return self.visit_AnyComp(node, "list", "__list__", "append")
 
     def visit_SetComp(self, node):
-        return self.visit_AnyComp(node, "set", "add")
+        return self.visit_AnyComp(node, "set", "__set__", "add")
+
+    def visit_DictComp(self, node):
+        # this is a quickfix to match visit_AnyComp signature
+        # potential source of improvement there!
+        node.elt = ast.List(
+                [ast.Tuple([node.key, node.value], ast.Load())],
+                ast.Load()
+                )
+        return self.visit_AnyComp(node, "dict", "__dispatch__", "update")
 
     def visit_GeneratorExp(self, node):
         node.elt = self.visit(node.elt)
         name = "generator_expression{0}".format(self.count)
         self.count += 1
-        args = gather(ImportedIds, node, self.ctx)
+        args = self.passmanager.gather(ImportedIds, node, self.ctx)
         self.count_iter = 0
 
         body = reduce(self.nest_reducer,
@@ -264,9 +273,10 @@ class NestedFunctionRemover(Transformation):
     '''replace nested function by top-level functions
     and a call to a bind intrinsic that
     generates a local function with some arguments binded'''
-    def __init__(self, ctx):
+    def __init__(self, pm, ctx):
         Transformation.__init__(self)
         self.ctx = ctx
+        self.passmanager = pm
 
     def visit_FunctionDef(self, node):
         [self.visit(n) for n in node.body]
@@ -277,7 +287,7 @@ class NestedFunctionRemover(Transformation):
         former_nbargs = len(node.args.args)
         new_name = "pythran_{0}".format(former_name)
 
-        ii = gather(ImportedIds, node, self.ctx)
+        ii = self.passmanager.gather(ImportedIds, node, self.ctx)
         binded_args = [ast.Name(iin, ast.Load()) for iin in sorted(ii)]
         node.args.args = ([ast.Name(iin, ast.Param()) for iin in sorted(ii)]
                 + node.args.args)
@@ -317,7 +327,7 @@ class RemoveNestedFunctions(Transformation):
         return node
 
     def visit_FunctionDef(self, node):
-        nfr = NestedFunctionRemover(self.ctx)
+        nfr = NestedFunctionRemover(self.passmanager, self.ctx)
         node.body = [nfr.visit(n) for n in node.body]
         return node
 
@@ -325,8 +335,9 @@ class RemoveNestedFunctions(Transformation):
 ##
 class LambdaRemover(Transformation):
     '''turns lambda into top-level functions'''
-    def __init__(self, name, ctx):
+    def __init__(self, pm, name, ctx):
         Transformation.__init__(self)
+        self.passmanager = pm
         self.ctx = ctx
         self.prefix = name
         self.lambda_functions = list()
@@ -336,7 +347,7 @@ class LambdaRemover(Transformation):
         forged_name = "{0}_lambda{1}".format(
                 self.prefix,
                 len(self.lambda_functions))
-        ii = gather(ImportedIds, node, self.ctx)
+        ii = self.passmanager.gather(ImportedIds, node, self.ctx)
         binded_args = [ast.Name(iin, ast.Load()) for iin in sorted(ii)]
         former_nbargs = len(node.args.args)
         node.args.args = ([ast.Name(iin, ast.Param()) for iin in sorted(ii)]
@@ -365,7 +376,7 @@ class RemoveLambdas(Transformation):
         return node
 
     def visit_FunctionDef(self, node):
-        lr = LambdaRemover(node.name, self.ctx)
+        lr = LambdaRemover(self.passmanager, node.name, self.ctx)
         node.body = [lr.visit(n) for n in node.body]
         self.lambda_functions.extend(lr.lambda_functions)
         return node
@@ -375,17 +386,26 @@ class RemoveLambdas(Transformation):
 class NormalizeReturn(Transformation):
     '''Adds Return statement when they are implicit,
     and adds the None return value when not set'''
+
     def visit_FunctionDef(self, node):
+        self.yield_points = self.passmanager.gather(YieldPoints, node)
         self.has_return = False
         [self.visit(n) for n in node.body]
         if not self.has_return:
-            node.body.append(ast.Return(ast.Name("None", ast.Load())))
+            if self.yield_points:
+                node.body.append(ast.Return(None))
+            else:
+                node.body.append(ast.Return(ast.Name("None", ast.Load())))
         return node
 
     def visit_Return(self, node):
         self.has_return = True
         if not node.value:
-            node.value = ast.Name("None", ast.Load())
+            node.value = (None
+                    if self.yield_points
+                    else ast.Name("None", ast.Load())
+                    )
+
         return node
 
 
@@ -393,7 +413,7 @@ class NormalizeReturn(Transformation):
 class NormalizeMethodCalls(Transformation):
     '''Turns built in method calls into function calls'''
     def visit_Call(self, node):
-        [self.visit(n) for n in node.args]
+        self.generic_visit(node)
         if isinstance(node.func, ast.Attribute) and node.func.attr in methods:
             node.args.insert(0,  node.func.value)
             node.func = ast.Attribute(
@@ -482,7 +502,7 @@ class NormalizeException(Transformation):
                         []
                         )
                     )
-            node.orelse = None
+            node.orelse = []
         return node
 
     def visit_TryFinally(self, node):
@@ -625,51 +645,3 @@ class GatherOMPData(Transformation):
             self.current = list()
         self.generic_visit(node)
         return node
-
-
-##
-class ConstantFolding(Transformation):
-    '''Replace constant expression by their evaluation.'''
-    def __init__(self):
-        Transformation.__init__(self, ConstantExpressions)
-        self.env = {module_name: __import__(module_name)
-                for module_name in modules if not module_name.startswith('__')}
-
-    def to_ast(self, value):
-        if any(isinstance(value, t) for t in (int, long, bool, float)):
-            return ast.Num(value)
-        elif isinstance(value, str):
-            return ast.Str(value)
-        elif isinstance(value, list):
-            #SG: unsure whether it Load or something else
-            return ast.List([self.to_ast(elt) for elt in value], ast.Load())
-        elif isinstance(value, tuple):
-            return ast.Tuple([self.to_ast(elt) for elt in value], ast.Load())
-        elif isinstance(value, set):
-            return ast.Set([self.to_ast(elt) for elt in value])
-        elif isinstance(value, dict):
-            return ast.Dict(
-                    [self.to_ast(elt) for elt in value.iterkeys()],
-                    [self.to_ast(elt) for elt in value.itervalues()]
-                    )
-        else:
-            return None
-
-    def generic_visit(self, node):
-        if node in self.constant_expressions:
-            try:
-                fake_node = ast.Expression(
-                        node.value if isinstance(node, ast.Index) else node)
-                code = compile(fake_node, '<constant folding>', 'eval')
-                value = eval(code, self.env)
-                new_node = self.to_ast(value) or node
-                if (isinstance(node, ast.Index)
-                        and not isinstance(new_node, ast.Index)):
-                    new_node = ast.Index(new_node)
-                return new_node
-            except Exception as e:
-                print ast.dump(node)
-                print 'error in constant folding: ', e
-                return node
-        else:
-            return Transformation.generic_visit(self, node)

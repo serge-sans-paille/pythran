@@ -6,10 +6,11 @@ from cxxgen import *
 from cxxtypes import *
 
 from analysis import LocalDeclarations, GlobalDeclarations
-from analysis import YieldPoints, BoundedExpressions, UpdateEffects
-from passmanager import gather, Backend
+from analysis import YieldPoints, BoundedExpressions, ArgumentEffects
+from passmanager import Backend
 
 from tables import operator_to_lambda, modules, type_to_suffix
+from tables import builtin_constructors, pytype_to_ctype_table
 from typing import Types
 from syntax import PythranSyntaxError
 import metadata
@@ -36,14 +37,13 @@ class CxxBackend(Backend):
     # flags the last statement of a generator
     final_statement = "that_is_all_folks"
 
-    def __init__(self, name):
-        modules['__user__'] = dict()
+    def __init__(self):
         self.declarations = list()
         self.definitions = list()
         self.break_handler = list()
         self.result = list()
-        Backend.__init__(self, name,
-                GlobalDeclarations, BoundedExpressions, Types, UpdateEffects)
+        Backend.__init__(self,
+                GlobalDeclarations, BoundedExpressions, Types, ArgumentEffects)
 
     # mod
     def visit_Module(self, node):
@@ -58,7 +58,7 @@ class CxxBackend(Backend):
 
         assert not self.local_declarations
         self.result = headers + [
-                Namespace("__{0}".format(self.name),
+                Namespace("__{0}".format(self.passmanager.module_name),
                     body
                     + self.declarations
                     + self.definitions)]
@@ -114,7 +114,8 @@ class CxxBackend(Backend):
         formal_types = ["argument_type{0}".format(i)
                 for i in xrange(len(formal_args))]
 
-        ldecls = {sym.id: sym for sym in gather(LocalDeclarations, node)}
+        ldecls = {sym.id: sym
+                for sym in self.passmanager.gather(LocalDeclarations, node)}
 
         self.local_declarations.append(set(ldecls.iterkeys()))
         self.local_declarations[-1].update(formal_args)
@@ -124,7 +125,8 @@ class CxxBackend(Backend):
 
         # 0 is used as initial_state, thus the +1
         self.yields = {k: (1 + v, "yield_point{0}".format(1 + v))
-                for (v, k) in enumerate(gather(YieldPoints, node))}
+                for (v, k) in
+                enumerate(self.passmanager.gather(YieldPoints, node))}
 
         operator_body = [self.visit(n) for n in node.body]
         default_arg_values = (
@@ -148,7 +150,7 @@ class CxxBackend(Backend):
             for i, (t, a, d) in enumerate(zip(ftypes, fargs, defaults)):
                 if self.yields:
                     rvalue_ref = ""
-                elif self.update_effects[node][i]:
+                elif self.argument_effects[node][i]:
                     rvalue_ref = "&&"
                 else:
                     rvalue_ref = " const &"
@@ -456,12 +458,11 @@ class CxxBackend(Backend):
     def visit_AugAssign(self, node):
         value = self.visit(node.value)
         target = self.visit(node.target)
-        stmt = Statement(
-                operator_to_lambda[type(node.op)](
-                    target,
-                    "={0}".format(value)
-                    )[1:-1]
-                )
+        l = operator_to_lambda[type(node.op)]
+        if type(node.op) in (ast.FloorDiv,):
+            stmt = Assign(target, l(target, value))
+        else:
+            stmt = Statement(l(target, '')[1:-2] + '= {0}'.format(value))
         return self.process_omp_attachements(node, stmt)
 
     def visit_Print(self, node):
@@ -566,7 +567,8 @@ class CxxBackend(Backend):
         test = self.visit(node.test)
         body = [self.visit(n) for n in node.body]
         orelse = [self.visit(n) for n in node.orelse]
-        return If(test, Block(body), Block(orelse) if orelse else None)
+        stmt = If(test, Block(body), Block(orelse) if orelse else None)
+        return self.process_omp_attachements(node, stmt)
 
     def visit_Raise(self, node):
         type = node.type and self.visit(node.type)
@@ -640,11 +642,8 @@ class CxxBackend(Backend):
             return "list()"
         else:
             elts = [self.visit(n) for n in node.elts]
-            return "core::list<{0}>({{ {1} }})".format(
-                    "typename __combined<{0}>::type".format(
-                        ", ".join(
-                            "decltype({0})".format(elt) for elt in elts)
-                        ),
+            return "{0}({{ {1} }})".format(
+                    Assignable(self.types[node]),
                     ", ".join(elts))
 
     def visit_Set(self, node):
@@ -652,11 +651,8 @@ class CxxBackend(Backend):
             return "set()"
         else:
             elts = [self.visit(n) for n in node.elts]
-            return "core::set<{0}>({{ {1} }})".format(
-                    "typename __combined<{0}>::type".format(
-                        ", ".join(
-                            "decltype({0})".format(elt) for elt in elts)
-                        ),
+            return "{0}({{ {1} }})".format(
+                    Assignable(self.types[node]),
                     ", ".join(elts))
 
     def visit_Dict(self, node):
@@ -665,11 +661,8 @@ class CxxBackend(Backend):
         else:
             keys = [self.visit(n) for n in node.keys]
             values = [self.visit(n) for n in node.values]
-            return "core::dict<{0}, {1}>({{ {2} }})".format(
-                    "typename __combined<{0}>::type".format(", ".join(
-                        "decltype({0})".format(elt) for elt in keys)),
-                    "typename __combined<{0}>::type ".format(", ".join(
-                        "decltype({0})".format(elt) for elt in values)),
+            return "{0}({{ {1} }})".format(
+                    Assignable(self.types[node]),
                     ", ".join("{{ {0}, {1} }}".format(k, v)
                         for k, v in zip(keys, values)))
 
@@ -693,10 +686,15 @@ class CxxBackend(Backend):
         return "{0}({1})".format(func, ", ".join(args))
 
     def visit_Num(self, node):
-        if type(node.n) == long:
-            return 'pythran_long({0})'.format(str(node.n))
+        if type(node.n) == complex:
+            return "{0}({1}, {2})".format(
+                    pytype_to_ctype_table[type(node.n)],
+                    repr(node.n.real),
+                    repr(node.n.imag))
+        elif type(node.n) == long:
+            return 'pythran_long({0})'.format(node.n)
         else:
-            return str(node.n) + type_to_suffix.get(type(node.n), "")
+            return repr(node.n) + type_to_suffix.get(type(node.n), "")
 
     def visit_Str(self, node):
         return 'core::string("{0}")'.format(node.s.replace('\n', '\\n"\n"'))
@@ -738,6 +736,9 @@ class CxxBackend(Backend):
         elif (node.id in self.global_declarations
                 or node.id in self.local_functions):
             return "{0}()".format(node.id)
+        elif node.id in builtin_constructors:
+            return "pythonic::constructor<{0}>()".format(
+                    builtin_constructors[node.id])
         else:
             return node.id
 

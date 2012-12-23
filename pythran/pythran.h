@@ -112,6 +112,11 @@ core::set<decltype(std::declval<A>()+std::declval<B>())> operator+(container<A> 
 template <class A, class B>
 core::set<decltype(std::declval<A>()+std::declval<B>())> operator+(core::set<B> , container<A> );
 
+template <class A, class B, class C>
+core::dict<C, decltype(std::declval<A>()+std::declval<B>())> operator+(container<A> , core::dict<C,B> );
+template <class A, class B, class C>
+core::dict<C, decltype(std::declval<A>()+std::declval<B>())> operator+(core::dict<C,B> , container<A> );
+
 template <class A>
 dict_container<A> operator+(container<A> , core::empty_dict );
 template <class A>

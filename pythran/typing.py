@@ -215,18 +215,6 @@ class UnboundableRValue(Exception):
     pass
 
 
-def node_to_id(n, depth=0):
-    if isinstance(n, ast.Name):
-        return (n.id, depth)
-    elif isinstance(n, ast.Subscript):
-        if isinstance(n.slice, ast.Slice):
-            return node_to_id(n.value, depth)
-        else:
-            return node_to_id(n.value, 1 + depth)
-    else:
-        raise UnboundableRValue()
-
-
 def copy_func(f, name=None):
     return types.FunctionType(f.func_code,
                             f.func_globals,
@@ -266,10 +254,21 @@ class Types(ModuleAnalysis):
         """register ptype as a local typedef"""
         self.typedefs.append(ptype)
 
+    def node_to_id(self, n, depth=0):
+        if isinstance(n, ast.Name):
+            return (n.id, depth)
+        elif isinstance(n, ast.Subscript):
+            if isinstance(n.slice, ast.Slice):
+                return self.node_to_id(n.value, depth)
+            else:
+                return self.node_to_id(n.value, 1 + depth)
+        else:
+            raise UnboundableRValue()
+
     def isargument(self, node):
         """ checks whether node aliases to a parameter"""
         try:
-            node_id, _ = node_to_id(node)
+            node_id, _ = self.node_to_id(node)
             return (node_id in self.name_to_nodes and
                            any([isinstance(n, ast.Name) and
                            isinstance(n.ctx, ast.Param)
@@ -278,24 +277,23 @@ class Types(ModuleAnalysis):
                 return False
 
     def combine(self, node, othernode, op=None, unary_op=None, register=False):
-        self.combine_(node, othernode, op if op else lambda x, y: x + y,
-                        unary_op if unary_op else lambda x: x, register)
+        self.combine_(node, othernode, op or (lambda x, y: x + y),
+                        unary_op or (lambda x: x), register)
 
     def combine_(self, node, othernode, op, unary_op, register):
         try:
             if register:  # this comes from an assignment,
                           # so we must check where the value is assigned
-                node_id, depth = node_to_id(node)
-                if node_id not in self.name_to_nodes:
-                    self.name_to_nodes[node_id] = set()
-                self.name_to_nodes[node_id].add(node)
+                node_id, depth = self.node_to_id(node)
+                if depth > 0:
+                    node = ast.Name(node_id, ast.Load())
+                self.name_to_nodes.setdefault(node_id, set()).add(node)
+
                 former_unary_op = copy_func(unary_op)
-                # use ContainerType instead of ListType
-                # because it can be a tuple
-                unary_op = lambda x: former_unary_op(
-                             reduce(lambda t, n: ContainerType(t),
-                              xrange(depth), x))
-                         # update the type to reflect container nesting
+
+                # update the type to reflect container nesting
+                unary_op = lambda x: reduce(lambda t, n: ContainerType(t),
+                              xrange(depth), former_unary_op(x))
 
             if isinstance(othernode, ast.FunctionDef):
                 new_type = NamedType(othernode.name)
@@ -303,7 +301,7 @@ class Types(ModuleAnalysis):
                     self.result[node] = new_type
             else:
                 if register and self.isargument(node):
-                    node_id, _ = node_to_id(node)
+                    node_id, _ = self.node_to_id(node)
                     if node not in self.result:
                         self.result[node] = unary_op(self.result[othernode])
                     assert self.result[node], "found an alias with a type"

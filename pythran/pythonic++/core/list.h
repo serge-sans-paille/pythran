@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <iterator>
 #include "shared_ref.h"
+#include "slice.h"
 
 #define DEFAULT_LIST_CAPACITY 16
 
@@ -20,13 +21,6 @@ namespace  pythonic {
 
         struct empty_list;
         template <class T> class list;
-
-
-        struct slice {
-            long lower, upper, step;
-            slice(long lower=0, long upper=std::numeric_limits<long>::max(), long step=1)
-                : lower(lower), upper(upper), step(step) {}
-        };
 
         template<class T>
             class list_view {

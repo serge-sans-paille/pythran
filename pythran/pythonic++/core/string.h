@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_STRING_H
 #define PYTHONIC_STRING_H
-#include "list.h" // for slices
+#include "slice.h" // for slices
+#include "shared_ref.h"
+#include <cassert>
 #include <string>
 #include <sstream>
 

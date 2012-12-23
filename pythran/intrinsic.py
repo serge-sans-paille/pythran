@@ -8,9 +8,11 @@ class ReadEffect(object):
 
 class Intrinsic:
     def __init__(self, argument_effects=(UpdateEffect(),) * 11,
-            global_effects=True):
+            global_effects=True,
+            return_alias=lambda x: {None}):
         self.argument_effects = argument_effects
         self.global_effects = global_effects
+        self.return_alias = return_alias
 
     def isscalar(self):
         return False
@@ -33,8 +35,12 @@ class Intrinsic:
 
 class FunctionIntr(Intrinsic):
     def __init__(self, argument_effects=(UpdateEffect(),) * 11,
-            global_effects=False):
-        Intrinsic.__init__(self, argument_effects, global_effects)
+            global_effects=False,
+            return_alias=lambda x: {None}):
+        Intrinsic.__init__(self,
+                argument_effects,
+                global_effects,
+                return_alias)
 
     def isfunction(self):
         return True
@@ -43,14 +49,29 @@ class FunctionIntr(Intrinsic):
         return True
 
 
+class UserFunction(FunctionIntr):
+    def __init__(self, *combiners, **kwargs):
+        FunctionIntr.__init__(self, (UpdateEffect(),) + (ReadEffect(),) * 10,
+                return_alias=kwargs.get('return_alias', set()))
+        self.combiners = combiners
+
+    def add_combiner(self, _combiner):
+        self.combiners += (_combiner,)
+
+    def combiner(self, s, node):
+        for comb in self.combiners:
+            comb(s, node)
+
+
 class ConstFunctionIntr(FunctionIntr):
     def __init__(self):
         FunctionIntr.__init__(self, argument_effects=())
 
 
 class MethodIntr(FunctionIntr):
-    def __init__(self, *combiners):
-        FunctionIntr.__init__(self, (UpdateEffect(),) + (ReadEffect(),) * 10)
+    def __init__(self, *combiners, **kwargs):
+        FunctionIntr.__init__(self, (UpdateEffect(),) + (ReadEffect(),) * 10,
+                return_alias=kwargs.get('return_alias', lambda x: {None}))
         self.combiners = combiners
 
     def add_combiner(self, _combiner):

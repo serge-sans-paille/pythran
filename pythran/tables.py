@@ -406,7 +406,12 @@ modules = {
                         unary_op=lambda x: cxxtypes.DictType(
                             x,
                             self.result[node.args[2]]),
-                        register=True)
+                        register=True),
+                    return_alias=lambda node: {
+                        ast.Subscript(node.args[0],
+                            ast.Index(node.args[1]),
+                            ast.Load())
+                        }
                     ),
                 "values": MethodIntr(),
                 "viewitems": MethodIntr(),

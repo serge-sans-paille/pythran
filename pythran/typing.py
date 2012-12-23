@@ -7,13 +7,15 @@ import ast
 import networkx as nx
 from tables import pytype_to_ctype_table, operator_to_lambda
 from tables import modules, builtin_constants, builtin_constructors
+from tables import methods, functions
 from analysis import GlobalDeclarations, YieldPoints, LocalDeclarations
-from analysis import OrderedGlobalDeclarations, ModuleAnalysis, Aliases
+from analysis import OrderedGlobalDeclarations, ModuleAnalysis, StrictAliases
 from passes import Transformation
 from syntax import PythranSyntaxError
 from cxxtypes import *
-from intrinsic import MethodIntr
+from intrinsic import UserFunction
 import types
+import itertools
 
 
 # networkx backward compatibility
@@ -51,7 +53,7 @@ class TypeDependencies(ModuleAnalysis):
 
     def visit_FunctionDef(self, node):
         assert self.current_function is None
-        modules['__user__'][node.name] = MethodIntr()
+        modules['__user__'][node.name] = UserFunction()
         self.current_function = node
         self.result.add_node(node)
         self.naming = dict()
@@ -231,7 +233,7 @@ class Types(ModuleAnalysis):
         self.result["bool"] = NamedType("bool")
         self.current = list()
         self.current_global_declarations = dict()
-        ModuleAnalysis.__init__(self, Aliases, LocalDeclarations)
+        ModuleAnalysis.__init__(self, StrictAliases, LocalDeclarations)
 
     def run(self, node, ctx):
         self.passmanager.apply(Reorder, node, ctx)
@@ -262,6 +264,26 @@ class Types(ModuleAnalysis):
                 return self.node_to_id(n.value, depth)
             else:
                 return self.node_to_id(n.value, 1 + depth)
+        # use return_alias information if any
+        elif isinstance(n, ast.Call):
+            func = n.func
+            for alias in self.strict_aliases[func].aliases:
+                # handle backward type dependencies from method calls
+                signature = None
+                if isinstance(alias, ast.Attribute):
+                    _, signature = methods.get(
+                            func.attr,
+                            functions.get(func.attr, [(None, None)])[0]
+                            )
+                elif isinstance(alias, ast.Name):
+                    _, signature = functions.get(func.attr, [(None, None)])[0]
+                if signature:
+                    return_alias = (signature.return_alias
+                            and signature.return_alias(n))
+                    if return_alias:  # else new location -> unboundable
+                        return self.node_to_id(return_alias, depth)
+            raise UnboundableRValue()
+
         else:
             raise UnboundableRValue()
 
@@ -403,6 +425,9 @@ class Types(ModuleAnalysis):
             self.combine(t, node.value, register=True)
             if isinstance(t, ast.Subscript):
                 self.visit_AssignedSubscript(t)
+                for alias in self.strict_aliases[t.value].aliases:
+                    fake = ast.Subscript(alias, t.value, ast.Store())
+                    self.combine(fake, node.value, register=True)
 
     def visit_AugAssign(self, node):
         self.visit(node.value)
@@ -411,6 +436,14 @@ class Types(ModuleAnalysis):
                 [x, y]), register=True)
         if isinstance(node.target, ast.Subscript):
             self.visit_AssignedSubscript(node.target)
+            for alias in self.strict_aliases[node.target.value].aliases:
+                fake = ast.Subscript(alias, node.target.value, ast.Store())
+                self.combine(fake,
+                        node.value,
+                        lambda x, y: ExpressionType(
+                            operator_to_lambda[type(node.op)],
+                            [x, y]),
+                        register=True)
 
     def visit_For(self, node):
         self.visit(node.iter)
@@ -461,15 +494,29 @@ class Types(ModuleAnalysis):
         self.visit(node.func)
         [self.visit(n) for n in node.args]
         user_module = modules['__user__']
-        for alias in self.aliases[node.func].aliases:
+        for alias in self.strict_aliases[node.func].aliases:
             # handle backward type dependencies from method calls
             if isinstance(alias, ast.Attribute):
                 if isinstance(alias.value, ast.Name):
                     if (alias.value.id in modules and
                         alias.attr in modules[alias.value.id]):
                         aliased_fun = modules[alias.value.id][alias.attr]
-                        if aliased_fun.ismethod():
-                            aliased_fun.combiner(self, node)
+                        if hasattr(aliased_fun, 'combiner'):
+                            # aliased_fun.combiner(self, node)
+                            # also generate all possible aliasing combinations
+                            combinations = [filter(
+                                None,
+                                self.strict_aliases[arg].aliases.union({arg}))
+                                for arg in node.args]
+                            for new_args in itertools.product(*combinations):
+                                aliased_fun.combiner(self,
+                                        ast.Call(
+                                            node.func,
+                                            new_args,
+                                            [],
+                                            None,
+                                            None)
+                                        )
                 else:
                     raise PythranSyntaxError(
                         "Unknown Attribute: `{0}'".format(alias.attr), node)
@@ -525,6 +572,9 @@ class Types(ModuleAnalysis):
             self.visit(node.slice)
             self.combine(node.value, node.slice,
                 unary_op=lambda t: IndexableType(t), register=True)
+            for alias in self.strict_aliases[node.value].aliases:
+                self.combine(alias, node.slice,
+                    unary_op=lambda t: IndexableType(t), register=True)
 
     def visit_Name(self, node):
         if node.id in self.name_to_nodes:

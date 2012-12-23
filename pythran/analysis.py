@@ -17,6 +17,7 @@ This module provides a few code analysis for the pythran language.
 '''
 
 from tables import modules, builtin_constants, builtin_constructors
+from tables import methods, functions
 import ast
 import networkx as nx
 import metadata as md
@@ -363,13 +364,22 @@ class Aliases(ModuleAnalysis):
         self.aliases = dict()
         ModuleAnalysis.__init__(self, GlobalDeclarations)
 
+    def expand_unknown(self, node):
+        # should include built-ins too
+        return {None}.union(
+                set(node.args).union(
+                    self.global_declarations.itervalues()))
+
     @staticmethod
     def access_path(node):
         if isinstance(node, ast.Name):
             return (node.id,)
         elif isinstance(node, ast.Attribute):
             return Aliases.access_path(node.value) + (node.attr,)
+        elif isinstance(node, ast.FunctionDef):
+            return (node.name,)
         else:
+            # print 'unknown access path:', ast.dump(node)
             raise NotImplementedError
 
     # aliasing created by expressions
@@ -412,21 +422,59 @@ class Aliases(ModuleAnalysis):
         self.generic_visit(node)
         return self.add(node)
 
+    def call_return_alias(self, node):
+        func = node.func
+        aliases = set()
+        if isinstance(func, ast.Attribute):
+            _, signature = methods.get(func.attr,
+                    functions.get(func.attr, [(None, None)])[0])
+            if signature and signature.return_alias:
+                aliases = signature.return_alias(node)
+        elif isinstance(func, ast.Name):
+            func_aliases = self.result[func].aliases
+            for func_alias in func_aliases:
+                signature = None
+                if isinstance(func_alias, ast.FunctionDef):
+                    _, signature = functions.get(
+                            func_alias.name,
+                            [(None, None)])[0]
+                    if signature and signature.return_alias:
+                        aliases.update(signature.return_alias(node))
+                elif hasattr(func_alias, 'return_alias'):
+                    aliases.update(func_alias.return_alias(node))
+                else:
+                    pass  # better thing to do ?
+        if aliases:
+            for a in aliases:
+                if a not in self.result:
+                    self.add(a)
+            return aliases
+        else:  # i.e. no known alias
+            return self.expand_unknown(node)
+
     def visit_Call(self, node):
-        self.visit(node.func)
+        self.generic_visit(node)
         if isinstance(node.func, ast.Name) and node.func.id.startswith("bind"):
-            [self.visit(n) for n in node.args]
             return self.add(node, {node})
         else:
-            return self.add(node,
-                    {None}.union(
-                        reduce(
-                            set.union,
-                            (self.visit(n) for n in node.args),
-                            set(self.global_declarations.itervalues())
-                            )
-                        )
-                    )  # should include built-ins too
+            return_alias = self.call_return_alias(node)
+            # expand collected aliases
+            all_aliases = set()
+            for value in return_alias:
+                if value is None:
+                    all_aliases.add(None)
+                elif value in self.result:
+                    all_aliases.update(self.result[value].aliases)
+                else:
+                    try:
+                        ap = Aliases.access_path(value)
+                        all_aliases.update(self.aliases.get(ap, ()))
+                    except NotImplementedError:
+                        # should we do something better here?
+                        all_aliases.add(value)
+                        pass
+            return_alias = all_aliases
+            return self.add(node, return_alias)
 
     def visit_Num(self, node):
         return self.add(node)
@@ -482,6 +530,9 @@ class Aliases(ModuleAnalysis):
         for t in node.targets:
             if isinstance(t, ast.Name):
                 self.aliases[(t.id,)] = value_aliases or {t}
+                for alias in list(value_aliases):
+                    if isinstance(alias, ast.Name):
+                        self.aliases[(alias.id,)].add(t)
             else:
                 self.visit(t)
 
@@ -506,6 +557,17 @@ class Aliases(ModuleAnalysis):
         if node.name:
             self.aliases[(node.name.id,)] = {node.name}
             self.generic_visit(node)
+
+
+##
+class StrictAliases(Aliases):
+    """
+    Gather aliasing informations across nodes,
+    without adding unsure aliases.
+    """
+    def expand_unknown(self, node):
+        # should include built-ins too
+        return {}
 
 
 ##

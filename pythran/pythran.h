@@ -573,6 +573,7 @@ namespace pythonic {
 
 /* boost::python converters */
 #include <boost/python/numeric.hpp>
+#include "arrayobject.h"
 
 template<int ...> struct seq {};
 
@@ -940,6 +941,31 @@ struct pythran_to_python< none<T> > {
     }
 };
 
+template<class T>
+struct c_type_to_numpy_type {};
+template<>
+struct c_type_to_numpy_type<double> {
+    static const int value = NPY_DOUBLE;
+};
+
+template<class T, int N>
+struct custom_array_to_ndarray {
+    static PyObject* convert( core::ndarray<T,N> n) {
+        PyObject* result = PyArray_SimpleNewFromData(N, n.shape, c_type_to_numpy_type<T>::value, n.data->data);
+        n.data->data=nullptr;
+
+        if (!result)
+            return nullptr;
+        return boost::python::incref(result);
+    }
+};
+
+template<class T, int N>
+struct pythran_to_python< core::ndarray<T,N> > {
+    pythran_to_python() {
+        register_once< core::ndarray<T,N> , custom_array_to_ndarray<T,N> >();
+    }
+};
 /* } */
 #endif
 

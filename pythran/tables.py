@@ -239,6 +239,9 @@ modules = {
             "bind3": FunctionIntr(),
             "pmap": ConstFunctionIntr(),
             },
+        "numpy": {
+            "array": ConstFunctionIntr(),
+            },
         "time": {
                 "sleep": FunctionIntr(global_effects=True),
                 "time": FunctionIntr(global_effects=True),

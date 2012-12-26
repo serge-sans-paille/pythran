@@ -79,6 +79,7 @@ namespace pythonic {
                         if(mem and --mem->count == 0)
                         {
                             delete mem;
+                            mem = nullptr;
                         }
                     }
                     void acquire() {

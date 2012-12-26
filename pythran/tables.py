@@ -179,7 +179,10 @@ modules = {
             "bind1": FunctionIntr(),
             "bind2": FunctionIntr(),
             "bind3": FunctionIntr(),
-            "pmap":  ConstFunctionIntr(),
+            "pmap": ConstFunctionIntr(),
+            },
+        "numpy": {
+            "array": ConstFunctionIntr(),
             },
         "math": {
                 "isinf": ConstFunctionIntr(),

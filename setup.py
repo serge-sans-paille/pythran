@@ -144,7 +144,7 @@ setup(name='pythran',
             'Topic :: Software Development :: Code Generators',
             ],
         license="BSD 3-Clause",
-        requires=['ply (>=3.4)', 'networkx (>=1.5)'],
+        requires=['ply (>=3.4)', 'networkx (>=1.5)', 'numpy'],
         cmdclass={'build': build_with_ply, 'test': TestCommand,
             'bench': BenchmarkCommand}
      )

@@ -9,6 +9,7 @@ from intrinsic import Class
 from intrinsic import ConstFunctionIntr, FunctionIntr, ReadOnceFunctionIntr
 from intrinsic import ConstMethodIntr, MethodIntr, AttributeIntr, ConstantIntr
 from intrinsic import UpdateEffect, ReadEffect
+import numpy
 
 namespace = "pythonic"
 
@@ -20,6 +21,7 @@ pytype_to_ctype_table = {
         float: 'double',
         str: 'core::string',
         None: 'void',
+        numpy.int64: 'long long',
         }
 
 type_to_suffix = {
@@ -238,6 +240,27 @@ modules = {
             "bind2": FunctionIntr(),
             "bind3": FunctionIntr(),
             "pmap": ConstFunctionIntr(),
+            },
+        "numpy": {
+            "all": ConstMethodIntr(),
+            "array": ConstFunctionIntr(),
+            "sin": ConstFunctionIntr(),
+            "zeros": ConstFunctionIntr(),
+            "zeros_like": ConstFunctionIntr(),
+            "ones": ConstFunctionIntr(),
+            "ones_like": ConstFunctionIntr(),
+            "empty": ConstFunctionIntr(),
+            "empty_like": ConstFunctionIntr(),
+            "arange": ConstFunctionIntr(),
+            "linspace": ConstFunctionIntr(),
+            "reshape": ConstMethodIntr(),
+            "cumsum": ConstMethodIntr(),
+            "sum": ConstMethodIntr(),
+            "transpose": ConstMethodIntr(),
+            "max": ConstMethodIntr(),
+            "min": ConstMethodIntr(),
+            "pi": ScalarIntr(),
+            "e": ScalarIntr(),
             },
         "time": {
                 "sleep": FunctionIntr(global_effects=True),
@@ -860,6 +883,15 @@ modules = {
                 "truncate": MethodIntr(global_effects=True),
                 "write": MethodIntr(global_effects=True),
                 "writelines": MethodIntr(global_effects=True),
+                },
+        "__ndarray__" : {
+                "shape": AttributeIntr(0),
+                "ndim": AttributeIntr(1),
+                "strides": AttributeIntr(2),
+                "size": AttributeIntr(3),
+                "itemsize": AttributeIntr(4),
+                "nbytes": AttributeIntr(5),
+                "flat": AttributeIntr(6),
                 },
         # conflicting method names must be listed here
         "__dispatch__": {

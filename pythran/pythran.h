@@ -263,6 +263,16 @@ core::list<V> operator+(indexable_container<K,V>, core::empty_list);
 template <class K, class V>
 core::list<V> operator+(core::empty_list, indexable_container<K,V>);
 
+template<unsigned long N, class type, class K, class V>
+core::ndarray<type,N> operator+(core::ndarray<type,N>, indexable_container<K,V>);
+template<unsigned long N, class type, class K, class V>
+core::ndarray<type,N> operator+(indexable_container<K,V>, core::ndarray<type,N>);
+
+template<unsigned long N, class T, class K>
+core::ndarray<T,N> operator+(core::ndarray<T,N>, indexable<K>);
+template<class K, class T, unsigned long N>
+core::ndarray<T,N> operator+(indexable<K>, core::ndarray<T,N>);
+
 template <class K, class V1, class V2>
 core::set<decltype(std::declval<V1>()+std::declval<V2>())> operator+(indexable_container<K,V1>, core::set<V2>);
 template <class K, class V1, class V2>
@@ -369,6 +379,49 @@ namespace std {
         struct remove_cv< std::pair<const K, V> > {
             typedef std::pair<K, V> type;
         };
+    /* for core::list */
+    template <size_t I, class T>
+        typename core::list<T>::reference get( core::list<T>& t) { return t[I]; }
+    template <size_t I, class T>
+        typename core::list<T>::const_reference get( core::list<T> const & t) { return t[I]; }
+
+    template <size_t I, class T>
+        struct tuple_element<I, core::list<T> > {
+            typedef typename core::list<T>::value_type type;
+        };
+
+    /* for core::ndarray */
+    template <size_t I, class T, unsigned long N>
+        typename core::ndarray_helper<T,N>::result_type get( core::ndarray<T,N>& a) { return a[I]; }
+    template <size_t I, class T, unsigned long N>
+        typename core::ndarray_helper<T,N>::const_result_type get( core::ndarray<T,N> const& a) { return a[I]; }
+    template <size_t I, class T>
+        struct tuple_element<I, core::ndarray<T,1> > {
+            typedef T type;
+        };
+    template <size_t I, class T, unsigned long N>
+        struct tuple_element<I, core::ndarray<T,N> > {
+            typedef core::ndarray<T,N-1> type;
+        };
+
+    /* for core::dict */
+    template <size_t I, class K, class V>
+        auto get( core::dict<K,V>& d) -> decltype(d[I]) { return d[I]; }
+    template <size_t I, class K, class V>
+        auto get( core::dict<K,V> const & d) -> decltype(d[I]) { return d[I]; }
+
+    template <size_t I, class K, class V>
+        struct tuple_element<I, core::dict<K,V> > {
+            typedef typename core::dict<K,V>::value_type type;
+        };
+    /* for core::string */
+    template <size_t I>
+        typename core::string get( core::string const &t) { return core::string(t[I]); }
+
+    template <size_t I>
+        struct tuple_element<I, core::string > {
+            typedef typename core::string type;
+        };
 
     /* for containers */
     template <size_t I, class T>
@@ -406,6 +459,117 @@ template<>
 template<>
     // Python seems to always return none... Doing the same.
     none_type getattr<3>(core::file const& f) {return None;}
+
+/* for ndarrays */
+template <class T, unsigned long N>
+    struct attribute_element<0, pythonic::core::ndarray<T,N> > {
+        typedef core::list<long> type;
+    };
+
+template <class T, unsigned long N>
+    struct attribute_element<1, pythonic::core::ndarray<T,N> > {
+        typedef long type;
+    };
+
+template <class T, unsigned long N>
+    struct attribute_element<2, pythonic::core::ndarray<T,N> > {
+        typedef core::list<long> type;
+    };
+
+template <class T, unsigned long N>
+    struct attribute_element<3, pythonic::core::ndarray<T,N> > {
+        typedef long type;
+    };
+
+template <class T, unsigned long N>
+    struct attribute_element<4, pythonic::core::ndarray<T,N> > {
+        typedef long type;
+    };
+
+template <class T, unsigned long N>
+    struct attribute_element<5, pythonic::core::ndarray<T,N> > {
+        typedef long type;
+    };
+
+template <class T, unsigned long N>
+    struct attribute_element<6, pythonic::core::ndarray<T,N> > {
+        typedef pythonic::core::ndarray_flat_const<T,N> type;
+    };
+
+template <unsigned int I, class T, unsigned long N>
+    struct ndarray_attr;
+
+template <class T, unsigned long N>
+    struct ndarray_attr<0,T,N>
+    {
+        typename attribute_element<0,pythonic::core::ndarray<T,N>>::type const operator()(core::ndarray<T,N> const& a)
+        {
+            return core::list<long>(a.shape->begin(), a.shape->end());
+        }
+    };
+
+template <class T, unsigned long N>
+    struct ndarray_attr<1,T,N>
+    {
+        typename attribute_element<1,pythonic::core::ndarray<T,N>>::type const operator()(core::ndarray<T,N> const& a)
+        {
+            return N;
+        }
+    };
+
+template <class T, unsigned long N>
+    struct ndarray_attr<2,T,N>
+    {
+        typename attribute_element<2,pythonic::core::ndarray<T,N>>::type const operator()(core::ndarray<T,N> const& a)
+        {
+            core::list<long> strides(N);
+            strides[N-1] = sizeof(T);
+            std::transform(strides.rbegin(), strides.rend() -1, a.shape->rbegin(), strides.rbegin()+1, std::multiplies<long>());
+            return strides;
+        }
+    };
+
+template <class T, unsigned long N>
+    struct ndarray_attr<3,T,N>
+    {
+        typename attribute_element<3,pythonic::core::ndarray<T,N>>::type const operator()(core::ndarray<T,N> const& a)
+        {
+            return std::accumulate(a.shape->begin(), a.shape->end(), 1, std::multiplies<int>());
+        }
+    };
+
+template <class T, unsigned long N>
+    struct ndarray_attr<4,T,N>
+    {
+        typename attribute_element<4,pythonic::core::ndarray<T,N>>::type const operator()(core::ndarray<T,N> const& a)
+        {
+            return sizeof(T);
+        }
+    };
+
+template <class T, unsigned long N>
+    struct ndarray_attr<5,T,N>
+    {
+        typename attribute_element<5,pythonic::core::ndarray<T,N>>::type const operator()(core::ndarray<T,N> const& a)
+        {
+            return std::accumulate(a.shape->begin(), a.shape->end(), sizeof(T), std::multiplies<int>());
+        }
+    };
+
+template <class T, unsigned long N>
+    struct ndarray_attr<6,T,N>
+    {
+        typename attribute_element<6,pythonic::core::ndarray<T,N>>::type const operator()(core::ndarray<T,N> const& a)
+        {
+            return pythonic::core::ndarray_flat_const<T,N>(a);
+        }
+    };
+
+template <unsigned int I, class T, unsigned long N>
+    typename attribute_element<I,pythonic::core::ndarray<T,N>>::type const getattr(core::ndarray<T,N> const& a)
+    {
+        return ndarray_attr<I,T,N>()(a);
+    }
 
 /* for complex numbers */
 template <int I, class T>
@@ -573,6 +737,7 @@ namespace pythonic {
 
 /* boost::python converters */
 #include <boost/python/numeric.hpp>
+#include "arrayobject.h"
 
 template<int ...> struct seq {};
 
@@ -727,6 +892,28 @@ struct python_to_pythran< std::tuple<Types...> >{
 
     static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
         do_construct(obj_ptr, data, typename gens< std::tuple_size<std::tuple<Types...>>::value >::type());
+    }
+};
+
+template<typename type, unsigned long N>
+struct python_to_pythran< core::ndarray<type, N> >{
+    python_to_pythran(){
+        static bool registered=false;
+        pythonic::fwd(python_to_pythran<type>());
+        if(not registered) {
+            registered=true;
+            boost::python::converter::registry::push_back(&convertible,&construct,boost::python::type_id< core::ndarray<type, N> >());
+        }
+    }
+    static void* convertible(PyObject* obj_ptr){
+        if(!PyArray_Check(obj_ptr) ) return 0;
+        return obj_ptr;
+    }
+
+    static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
+        void* storage=((boost::python::converter::rvalue_from_python_storage<core::ndarray<type,N>>*)(data))->storage.bytes;
+        new (storage) core::ndarray< type, N>((type*)PyArray_BYTES(obj_ptr), PyArray_DIMS(obj_ptr), PyArray_SIZE(obj_ptr));
+        data->convertible=storage;
     }
 };
 
@@ -940,6 +1127,51 @@ struct pythran_to_python< none<T> > {
     }
 };
 
+template<class T>
+struct c_type_to_numpy_type {};
+
+template<>
+struct c_type_to_numpy_type<double> {
+    static const int value = NPY_DOUBLE;
+};
+
+template<>
+struct c_type_to_numpy_type<long int> {
+    static const int value = NPY_LONG;
+};
+
+template<>
+struct c_type_to_numpy_type<long long int> {
+    static const int value = NPY_LONGLONG;
+};
+
+template<>
+struct c_type_to_numpy_type<int> {
+    static const int value = NPY_INT;
+};
+
+template<>
+struct c_type_to_numpy_type<bool> {
+    static const int value = NPY_BOOL;
+};
+
+template<class T, unsigned long N>
+struct custom_array_to_ndarray {
+    static PyObject* convert( core::ndarray<T,N> n) {
+        PyObject* result = PyArray_SimpleNewFromData(N, n.shape->data(), c_type_to_numpy_type<T>::value, n.data.forget()->data + *n.offset_data);
+
+        if (!result)
+            return nullptr;
+        return boost::python::incref(result);
+    }
+};
+
+template<class T, unsigned long N>
+struct pythran_to_python< core::ndarray<T,N> > {
+    pythran_to_python() {
+        register_once< core::ndarray<T,N> , custom_array_to_ndarray<T,N> >();
+    }
+};
 /* } */
 #endif
 

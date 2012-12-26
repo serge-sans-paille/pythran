@@ -19,6 +19,7 @@ from openmp import GatherOMPData
 
 from passmanager import PassManager
 from tables import pytype_to_ctype_table
+from numpy import get_include
 
 from subprocess import check_output, STDOUT, CalledProcessError
 from tempfile import mkstemp, NamedTemporaryFile
@@ -124,10 +125,12 @@ def cxx_generator(module_name, code, specs=None, optimizations=None):
         max_arity = max(4, max(max(map(len, s)) for s in specs.itervalues()))
         mod.add_to_preamble([Define("BOOST_PYTHON_MAX_ARITY", max_arity)])
         mod.add_to_preamble(content)
-        mod.add_to_init([Statement('boost::python::numeric::array::'
-                                   'set_module_and_type("numpy", "ndarray")')])
-        mod.add_to_init([Statement('boost::python::implicitly_convertible'
-                                   '<std::string,pythonic::core::string>()')])
+        mod.add_to_init([
+            Statement('import_array()'),
+            Statement(
+                'boost::python::implicitly_convertible<std::string,'
+                + 'pythonic::core::string>()')]
+            )
 
         for function_name, signatures in specs.iteritems():
             internal_func_name = renamings.get(function_name,
@@ -285,6 +288,12 @@ decltype(std::declval<int>() + 1) main()
                                optional=True)
         except RuntimeError:
             pass
+
+        #numpy
+        self.check_package('numpy',
+                '#include "arrayobject.h"\nint main() { return 0; }',
+                cppflags=['-I{0}/numpy'.format(get_include())]
+                )
 
         # pythonic++
         cppflags = ['-I.',

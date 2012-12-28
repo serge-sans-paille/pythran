@@ -23,6 +23,6 @@ def fibo(n):
         'omp task default(none) shared(x,n)'
         x = fibo(n-1)                       
         y = fibo(n-2)                       
-        'omp task wait'                     
+        'omp taskwait'                     
         return x+y"""
         self.run_test(code, 10, fibo=[int])

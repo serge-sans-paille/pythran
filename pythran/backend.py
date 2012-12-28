@@ -426,7 +426,8 @@ class CxxBackend(Backend):
                     CxxBackend.final_statement))
                 ])
         else:
-            return ReturnStatement(self.visit(node.value))
+            stmt = ReturnStatement(self.visit(node.value))
+            return self.process_omp_attachements(node, stmt)
 
     def visit_Delete(self, node):
         return EmptyStatement()

@@ -209,18 +209,10 @@ namespace  pythonic {
 
                 // element access
                 reference operator[]( long n ) {
-#ifdef NDEBUG
                     return (*data)[(n>=0)?n : (data->size() + n)];
-#else
-                    return (*data).at((n>=0)?n : (data->size() + n));
-#endif
                 }
                 const_reference operator[]( long n ) const {
-#ifdef NDEBUG
                     return (*data)[(n>=0)?n : (data->size() + n)];
-#else
-                    return (*data).at((n>=0)?n : (data->size() + n));
-#endif
                 }
 
                 list<T> operator[]( slice const &s ) const {

@@ -128,14 +128,9 @@ Enough talk, run::
 
 	$> pythran mm.py
 
-One touch of magic wand and you have your native binary. Note however that this
-binary will not run directly at godlike speed, because it does not call any of
-the compiler optimization steps. What you really wanted to do was::
-
-	$> pythran mm.py -Ofast -march=native -DNDEBUG
-
-And be amazed by the generation of a ``mm.so`` native module that run around
-20x faster than the original one. ``timeit`` approved!
+One touch of magic wand and you have your native binary. Be amazed by the
+generation of a ``mm.so`` native module that run around 20x faster than the
+original one. ``timeit`` approved!
 
 
 

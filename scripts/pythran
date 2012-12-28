@@ -90,7 +90,7 @@ parser.add_argument('-D', dest='extra_Dflags', metavar='macro_definition',
 parser.add_argument('-O', dest='extra_Oflags', metavar='level',
         action='append',
         help='any optimization level relevant to the underlying C++ compiler',
-        default=list())
+        default=['2'])
 
 parser.add_argument('-g', dest='debug_flag', action='store_true',
         help='any debug level relevant to the underlying C++ compiler')

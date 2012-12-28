@@ -170,12 +170,24 @@ class Reorder(Transformation):
     def run_visit(self, node):
         none_successors = self.type_dependencies.successors(
                 TypeDependencies.NoDeps)
-        for n in sorted(none_successors):
-            # remove edges that implies a circular dependency
-            for p in sorted(self.type_dependencies.predecessors(n)):
-                if nx.has_path(self.type_dependencies, n, p):
-                    self.type_dependencies.remove_edge(p, n)
-        #nx.write_dot(self.type_dependencies,"b.dot")
+        candidates = sorted(none_successors)
+        while candidates:
+            new_candidates = list()
+            for n in candidates:
+                # remove edges that imply a circular dependency
+                for p in sorted(self.type_dependencies.predecessors(n)):
+                    if nx.has_path(self.type_dependencies, n, p):
+                        try:
+                            while True:  # may be multiple edges
+                                self.type_dependencies.remove_edge(p, n)
+                        except:
+                            pass  # no more edges to remove
+                    # nx.write_dot(self.type_dependencies,"b.dot")
+                if not n in self.type_dependencies.successors(n):
+                    new_candidates.extend(self.type_dependencies.successors(n))
+                else:
+                    pass
+            candidates = new_candidates
         Transformation.run_visit(self, node)
 
     def visit_Module(self, node):

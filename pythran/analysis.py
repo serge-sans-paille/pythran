@@ -826,6 +826,7 @@ class ParallelMaps(ModuleAnalysis):
 
     def display(self, data):
         for node in data:
-            print "I:", "call to the `map' intrinsic could be parallel", "(line {0})".format(node.lineno)
-
-
+            print "I:", "{0} {1}".format(
+                "call to the `map' intrinsic could be parallel",
+                "(line {0})".format(node.lineno)
+                )

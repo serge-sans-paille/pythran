@@ -84,6 +84,7 @@ class Analysis(ast.NodeVisitor, ContextManager):
     def display(self, data):
         print data
 
+
 class ModuleAnalysis(Analysis):
     '''An analysis that operates on a whole module.'''
     pass

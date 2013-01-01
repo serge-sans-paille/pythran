@@ -116,6 +116,7 @@ class SyntaxChecker(ast.NodeVisitor):
     def visit_Global(self, node):
         raise PythranSyntaxError("Global variables not supported", node)
 
+
 def check_syntax(node):
     '''Does nothing but raising PythranSyntaxError when needed'''
     SyntaxChecker().visit(node)

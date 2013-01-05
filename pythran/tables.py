@@ -186,6 +186,8 @@ modules = {
             },
         "numpy": {
             "array": ConstFunctionIntr(),
+            "zeros": ConstFunctionIntr(),
+            "ones": ConstFunctionIntr(),
             },
         "math": {
                 "isinf": ConstFunctionIntr(),

@@ -943,9 +943,30 @@ struct pythran_to_python< none<T> > {
 
 template<class T>
 struct c_type_to_numpy_type {};
+
 template<>
 struct c_type_to_numpy_type<double> {
     static const int value = NPY_DOUBLE;
+};
+
+template<>
+struct c_type_to_numpy_type<long int> {
+    static const int value = NPY_LONG;
+};
+
+template<>
+struct c_type_to_numpy_type<long long int> {
+    static const int value = NPY_LONGLONG;
+};
+
+template<>
+struct c_type_to_numpy_type<int> {
+    static const int value = NPY_INT;
+};
+
+template<>
+struct c_type_to_numpy_type<bool> {
+    static const int value = NPY_BOOL;
 };
 
 template<class T, int N>

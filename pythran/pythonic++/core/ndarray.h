@@ -56,20 +56,31 @@ namespace  pythonic {
                 }
 
                 template<class... Types>
-                    double& operator()(Types... t)
+                    T& operator()(Types... t)
                     {
                         return *at(data->data, t...);
                     }
 
-                double* at(double* from, int t)
+                template<class... Types>
+                    int offset(int t0, int t1, Types... tn)
+                    {
+                        return offset(t0 * shape[N - sizeof...(Types) - 1] + t1, tn...); 
+                    }
+
+                int offset(int t0, int t1)
+                {
+                    return t0 * shape[N-1] + t1;
+                }
+
+                T* at(T* from, int t)
                 {
                     return from +t;
                 }
 
                 template<class... Types>
-                    double* at(double* from, int t0, Types... tn)
+                    T* at(T* from, Types... tn)
                     {
-                        return at(from + t0*shape[N-sizeof...(Types)], tn...);
+                        return at(from, offset(tn...));
                     }
             };
     }

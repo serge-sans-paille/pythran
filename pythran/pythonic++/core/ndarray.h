@@ -18,8 +18,8 @@ namespace  pythonic {
                 T* data;
                 size_t n;
                 raw_array() : data(nullptr), n(0) {}
-                raw_array(size_t n) : data(new T[n]), n(n) {
-                }
+                raw_array(size_t n) : data(new T[n]), n(n) { }
+                raw_array(size_t n, T* d) : data(d), n(n) { }
                 raw_array(raw_array<T>&& d) : data(d.data), n(d.n) {
                     d.data = nullptr;
                 }
@@ -43,6 +43,16 @@ namespace  pythonic {
                     for(auto v :s )
                         r*=(*is++=v);
                     data = impl::shared_ref< raw_array<T> >(r);
+                }
+
+                ndarray(T* d, long int* shp)
+                {
+                    long r = 1;
+                    long * is = shape;
+                    long * v = shp;
+                    while(v!=shp+N)
+                        r*=(*is++=*v++);
+                    data = impl::shared_ref< raw_array<T> >(r, d);
                 }
 
                 ndarray(): data(impl::no_memory()) {}

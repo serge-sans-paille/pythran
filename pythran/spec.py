@@ -5,6 +5,7 @@ This module provides a dummy parser for pythran annotations.
 import ply.lex as lex
 import ply.yacc as yacc
 import os.path
+from numpy import array
 
 
 class SpecParser:
@@ -31,7 +32,8 @@ class SpecParser:
             'float': 'FLOAT',
             }
     tokens = (['IDENTIFIER', 'SHARP', 'COMMA', 'COLUMN', 'LPAREN', 'RPAREN']
-            + list(reserved.values()))
+            + list(reserved.values())
+            + ['LARRAY', 'RARRAY'])
 
     # token <> regexp binding
     t_SHARP = r'\#'
@@ -39,10 +41,17 @@ class SpecParser:
     t_COLUMN = r':'
     t_LPAREN = r'\('
     t_RPAREN = r'\)'
+    t_RARRAY = r'\]'
+    t_LARRAY = r'\['
 
     def t_IDENTIFER(self, t):
         r'[a-zA-Z_][a-zA-Z_0-9]*'
         t.type = SpecParser.reserved.get(t.value, 'IDENTIFIER')
+        return t
+
+    def t_NUMBER(self, t):
+        r'[0-9]+'
+        t.type = 'NUMBER'
         return t
 
     # skipped characters
@@ -79,6 +88,7 @@ class SpecParser:
         '''type : term
                 | type LIST
                 | type SET
+                | type LARRAY RARRAY
                 | type COLUMN type DICT
                 | LPAREN types RPAREN'''
         if len(p) == 2:
@@ -87,6 +97,8 @@ class SpecParser:
             p[0] = [p[1]]
         elif len(p) == 3 and p[2] == 'set':
             p[0] = {p[1]}
+        elif len(p) == 4 :
+            p[0] = array([p[1]])
         elif len(p) == 5:
             p[0] = {p[1]: p[3]}
         else:
@@ -102,7 +114,8 @@ class SpecParser:
         p[0] = eval(p[1])
 
     def p_error(self, p):
-        raise SyntaxError("Invalid Pythran spec")
+        raise SyntaxError("Invalid Pythran spec. Unknown text '{0}'".format(
+                    p.value))
 
     def __init__(self, **kwargs):
         self.lexer = lex.lex(module=self, debug=0)

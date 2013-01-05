@@ -18,7 +18,7 @@ from syntax import check_syntax
 from passes import NormalizeIdentifiers
 from passmanager import PassManager
 from tables import pytype_to_ctype_table
-from numpy import get_include
+from numpy import get_include, ndarray
 
 
 def pytype_to_ctype(t):
@@ -34,6 +34,8 @@ def pytype_to_ctype(t):
     elif isinstance(t, tuple):
         return 'std::tuple<{0}>'.format(", ".join(pytype_to_ctype(_)
                                     for _ in t))
+    elif isinstance(t, ndarray):
+        return 'core::ndarray<{0},{1}>'.format(pytype_to_ctype(t[tuple([0]*t.ndim)]), t.ndim)
     elif t in pytype_to_ctype_table:
         return pytype_to_ctype_table[t]
     else:

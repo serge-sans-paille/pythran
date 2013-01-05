@@ -47,7 +47,7 @@ def pytype_to_ctype(t):
 
 
 def extract_constructed_types(t):
-    if isinstance(t, list):
+    if isinstance(t, list) or isinstance(t, ndarray):
         return [pytype_to_ctype(t)] + extract_constructed_types(t[0])
     elif isinstance(t, set):
         return [pytype_to_ctype(t)] + extract_constructed_types(list(t)[0])

@@ -731,6 +731,28 @@ struct python_to_pythran< std::tuple<Types...> >{
     }
 };
 
+template<typename type, int N>
+struct python_to_pythran< core::ndarray<type, N> >{
+    python_to_pythran(){
+        static bool registered=false;
+        pythonic::fwd(python_to_pythran<type>());
+        if(not registered) {
+            registered=true;
+            boost::python::converter::registry::push_back(&convertible,&construct,boost::python::type_id< core::ndarray<type, N> >());
+        }
+    }
+    static void* convertible(PyObject* obj_ptr){
+        if(!PyArray_Check(obj_ptr) ) return 0;
+        return obj_ptr;
+    }
+
+    static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
+        void* storage=((boost::python::converter::rvalue_from_python_storage<core::ndarray<type,N>>*)(data))->storage.bytes;
+        new (storage) core::ndarray< type, N>((type*)PyArray_BYTES(obj_ptr), PyArray_DIMS(obj_ptr), PyArray_SIZE(obj_ptr));
+        data->convertible=storage;
+    }
+};
+
 template<typename T>
 struct pythran_to_python {
 };

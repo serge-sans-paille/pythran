@@ -263,6 +263,11 @@ core::list<V> operator+(indexable_container<K,V>, core::empty_list);
 template <class K, class V>
 core::list<V> operator+(core::empty_list, indexable_container<K,V>);
 
+template<int N, class type, class K, class V>
+core::ndarray<type,N> operator+(core::ndarray<type,N>, indexable_container<K,V>);
+template<int N, class type, class K, class V>
+core::ndarray<type,N> operator+(indexable_container<K,V>, core::ndarray<type,N>);
+
 template <class K, class V1, class V2>
 core::set<decltype(std::declval<V1>()+std::declval<V2>())> operator+(indexable_container<K,V1>, core::set<V2>);
 template <class K, class V1, class V2>
@@ -368,6 +373,45 @@ namespace std {
     template <class K, class V>
         struct remove_cv< std::pair<const K, V> > {
             typedef std::pair<K, V> type;
+        };
+    /* for core::list */
+    template <size_t I, class T>
+        typename core::list<T>::reference get( core::list<T>& t) { return t[I]; }
+    template <size_t I, class T>
+        typename core::list<T>::const_reference get( core::list<T> const & t) { return t[I]; }
+
+    template <size_t I, class T>
+        struct tuple_element<I, core::list<T> > {
+            typedef typename core::list<T>::value_type type;
+        };
+
+    /* for core::ndarray */
+    template <size_t I, class T, int N>
+        T& get( core::ndarray<T,N>& a) { return a(I); }
+    template <size_t I, class T, int N>
+        const T& get( core::ndarray<T,N> const& a) { return a(I); }
+    template <size_t I, class T, int N>
+        struct tuple_element<I, core::ndarray<T,N> > {
+            typedef T type;
+        };
+
+    /* for core::dict */
+    template <size_t I, class K, class V>
+        auto get( core::dict<K,V>& d) -> decltype(d[I]) { return d[I]; }
+    template <size_t I, class K, class V>
+        auto get( core::dict<K,V> const & d) -> decltype(d[I]) { return d[I]; }
+
+    template <size_t I, class K, class V>
+        struct tuple_element<I, core::dict<K,V> > {
+            typedef typename core::dict<K,V>::value_type type;
+        };
+    /* for core::string */
+    template <size_t I>
+        typename core::string get( core::string const &t) { return core::string(t[I]); }
+
+    template <size_t I>
+        struct tuple_element<I, core::string > {
+            typedef typename core::string type;
         };
 
     /* for containers */

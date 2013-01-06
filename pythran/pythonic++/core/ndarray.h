@@ -36,18 +36,18 @@ namespace  pythonic {
                 impl::shared_ref< raw_array<T> > data;
                 long shape[N];
 
-                ndarray(std::initializer_list<int> s)
+                ndarray(std::initializer_list<size_t> s)
                 {
-                    long r = 1;
+                    size_t r = 1;
                     long * is = shape;
                     for(auto v :s )
                         r*=(*is++=v);
                     data = impl::shared_ref< raw_array<T> >(r);
                 }
 
-                ndarray(T* d, long int* shp)
+                ndarray(T* d, long * shp)
                 {
-                    long r = 1;
+                    size_t r = 1;
                     long * is = shape;
                     long * v = shp;
                     while(v!=shp+N)
@@ -77,12 +77,12 @@ namespace  pythonic {
                         return offset(t0 * shape[N - sizeof...(Types) - 1] + t1, tn...); 
                     }
 
-                int offset(int t0, int t1)
+                long unsigned int offset(int t0, int t1)
                 {
                     return t0 * shape[N-1] + t1;
                 }
 
-                T* at(T* from, int t)
+                T* at(T* from, long unsigned int t)
                 {
                     return from +t;
                 }

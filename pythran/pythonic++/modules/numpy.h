@@ -43,8 +43,8 @@ namespace pythonic {
             core::ndarray<typename finalType<type>::Type, depth<core::list<type>>::Value + sizeof...(T)> build_array(core::list<core::list<type> > const &prev_l, core::list<type> const& l, T const& ...s)
             {
                 core::list<type> accumul(0);
-                for(int i=0;i<prev_l.size(); i++)
-                    for(int j=0; j<l.size(); j++)
+                for(size_t i=0;i<prev_l.size(); i++)
+                    for(size_t j=0; j<l.size(); j++)
                         accumul.push_back(prev_l[i][j]);
                 return build_array(accumul, l[0], s..., l.size());
             }
@@ -96,10 +96,10 @@ namespace pythonic {
                 return apply_to_tuple<sizeof...(T)-1>::builder(VAL, t, std::get<sizeof...(T)-1>(t));\
             }\
 \
-        core::ndarray<double,1> NAME(long size)\
+        core::ndarray<double,1> NAME(size_t size)\
         {\
             core::ndarray<double, 1> a({size});\
-            for(int i=0;i<size;i++)\
+            for(size_t i=0;i<size;i++)\
                 a(i)=VAL;\
             return a;\
         }

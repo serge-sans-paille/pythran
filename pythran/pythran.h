@@ -206,6 +206,11 @@ core::list<decltype(std::declval<V1>()+std::declval<V2>())> operator+(indexable_
 template <class K, class V1, class V2>
 core::list<decltype(std::declval<V1>()+std::declval<V2>())> operator+(core::list<V2>, indexable_container<K,V1>);
 
+template<int N, class type, class K, class V>
+core::ndarray<type,N> operator+(core::ndarray<type,N>, indexable_container<K,V>);
+template<int N, class type, class K, class V>
+core::ndarray<type,N> operator+(indexable_container<K,V>, core::ndarray<type,N>);
+
 template <class K, class V1, class V2>
 core::set<decltype(std::declval<V1>()+std::declval<V2>())> operator+(indexable_container<K,V1>, core::set<V2>);
 template <class K, class V1, class V2>
@@ -255,6 +260,17 @@ namespace std {
         struct tuple_element<I, core::list<T> > {
             typedef typename core::list<T>::value_type type;
         };
+
+    /* for core::ndarray */
+    template <size_t I, class T, int N>
+        T& get( core::ndarray<T,N>& a) { return a(I); }
+    template <size_t I, class T, int N>
+        const T& get( core::ndarray<T,N> const& a) { return a(I); }
+    template <size_t I, class T, int N>
+        struct tuple_element<I, core::ndarray<T,N> > {
+            typedef T type;
+        };
+
     /* for core::dict */
     template <size_t I, class K, class V>
         auto get( core::dict<K,V>& d) -> decltype(d[I]) { return d[I]; }

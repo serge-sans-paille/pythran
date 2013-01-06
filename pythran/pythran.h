@@ -268,13 +268,37 @@ namespace std {
         };
 
     /* for core::ndarray */
+    template <size_t I, class T>
+        T& get( core::ndarray<T,1>& a) { return a(I); }
     template <size_t I, class T, int N>
-        T& get( core::ndarray<T,N>& a) { return a(I); }
+        core::ndarray<T,N-1> get( core::ndarray<T,N>& a)
+        {
+            long* iter = a.shape + 1;
+            long offset = 0;
+            while(iter!= a.shape + N)
+                offset += *iter++;
+            return core::ndarray<T,N-1>(a.data, a.offset_data + I*offset, a.shape + 1);
+        }
+    template <size_t I, class T>
+        const T& get( core::ndarray<T,1> const& a) {
+            return a(I);
+        }
     template <size_t I, class T, int N>
-        const T& get( core::ndarray<T,N> const& a) { return a(I); }
+        const core::ndarray<T,N-1> get( core::ndarray<T,N> const& a)
+        {
+            long* iter = const_cast<long*>(a.shape + 1);
+            long offset = 0;
+            while(iter!= a.shape + N)
+                offset += *iter++;
+            return core::ndarray<T,N-1>(a.data, a.offset_data + I*offset, a.shape + 1);
+        }
+    template <size_t I, class T>
+        struct tuple_element<I, core::ndarray<T,1> > {
+            typedef T type;
+        };
     template <size_t I, class T, int N>
         struct tuple_element<I, core::ndarray<T,N> > {
-            typedef T type;
+            typedef core::ndarray<T,N-1> type;
         };
 
     /* for core::dict */

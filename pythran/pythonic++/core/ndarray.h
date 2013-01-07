@@ -38,7 +38,8 @@ namespace  pythonic {
                 long shape[N];
 
                 //  types
-                typedef T value_type;
+                typedef typename std::conditional<N==1, const T&, const ndarray<T,N-1> >::type value_type;
+
 
                 ndarray(std::initializer_list<size_t> s): offset_data(0)
                 {
@@ -119,7 +120,56 @@ namespace  pythonic {
                     {
                         return at(from, offset(tn...));
                     }
+
+            template<int V>
+            struct hook_operator
+            {
+                typedef typename std::conditional<V==1, T&, core::ndarray<T,V-1>>::type result_type;
+                typedef typename std::conditional<V==1, const T&, const core::ndarray<T,V-1>>::type const_result_type;
+
+                static result_type get(ndarray<T,V>& array, size_t t)
+                {
+                    long* iter = array.shape + 1;
+                    long offset = 0;
+                    while(iter!= array.shape + V)
+                        offset += *iter++;
+                    return core::ndarray<T,V-1>(array.data, array.offset_data + t*offset, array.shape + 1);
+                }
+
+                static const_result_type get(ndarray<T,V> const& array, const size_t t)
+                {
+                    long const* iter = array.shape + 1;
+                    long offset = 0;
+                    while(iter!= array.shape + V)
+                        offset += *iter++;
+                    return core::ndarray<T,V-1>(array.data, array.offset_data + t*offset, array.shape + 1);
+                }
             };
+
+                /*typename hook_operator<N>::result_type operator[](size_t t)
+                {
+                    return hook_operator<N>::get(*this, t);
+                }*/
+
+                typename hook_operator<N>::const_result_type operator[](const size_t t) const
+                  {
+                  return hook_operator<N>::get(*this, t);
+                  }
+            };
+
+            template<class T, int N>
+            ndarray<T,N>::template
+                static typename ndarray<T,N>::template hook_operator<1>::result_type ndarray<T,N>::template hook_operator<1>::get(ndarray<T,1>& array, size_t t)
+                {
+                    return 1;
+                }
+
+            template<class T, int N>
+                static typename ndarray<T,N>::template hook_operator<1>::const_result_type ndarray<T,N>::template hook_operator<1>::get(ndarray<T,1> const& array, const size_t t)
+                {
+                    return 1;
+                }
+
     }
 }
 #endif

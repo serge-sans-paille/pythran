@@ -773,6 +773,16 @@ template<>
 struct pythran_to_python< core::empty_dict > {
     pythran_to_python() { register_once< core::empty_dict, custom_empty_dict_to_dict >(); }
 };
+struct custom_empty_set_to_set {
+    static PyObject* convert(core::empty_set const &) {
+        PyObject* obj = PySet_New(nullptr);
+        return obj;
+    }
+};
+template<>
+struct pythran_to_python< core::empty_set > {
+    pythran_to_python() { register_once< core::empty_set, custom_empty_set_to_set >(); }
+};
 
 template <typename T>
 struct custom_none_to_any {

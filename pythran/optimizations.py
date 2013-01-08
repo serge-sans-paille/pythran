@@ -1,6 +1,6 @@
 '''This modules contains code transformation to turn pythran code into
     optimized pythran code
-    + ConstantUnfolding performms some kind of partial evaluation.
+    * ConstantUnfolding performs some kind of partial evaluation.
 '''
 
 from analysis import ConstantExpressions
@@ -83,8 +83,8 @@ __set__ = set
                     new_node = ast.Index(new_node)
                 return new_node
             except Exception as e:
-                print ast.dump(node)
-                print 'error in constant folding: ', e
+                #print ast.dump(node)
+                #print 'error in constant folding: ', e
                 return node
         else:
             return Transformation.generic_visit(self, node)

@@ -30,6 +30,9 @@ namespace  pythonic {
                 }
             };
 
+        template<class T, int V>
+            struct ndarray_helper;
+
         template<class T, int N>
             struct ndarray
             {
@@ -38,7 +41,8 @@ namespace  pythonic {
                 long shape[N];
 
                 //  types
-                typedef T value_type;
+                typedef typename ndarray_helper<T,N>::const_result_type value_type;
+
 
                 ndarray(std::initializer_list<size_t> s): offset_data(0)
                 {
@@ -115,7 +119,65 @@ namespace  pythonic {
                     {
                         return at(from, offset(tn...));
                     }
+
+                typename ndarray_helper<T, N>::result_type operator[](size_t t)
+                {
+                    if(t>=shape[0])
+                        throw IndexError("index out of bounds");
+                    return ndarray_helper<T, N>::get(*this, t);
+                }
+
+                typename ndarray_helper<T, N>::const_result_type operator[](const size_t t) const
+                {
+                    if(t>=shape[0])
+                        throw IndexError("index out of bounds");
+                    return ndarray_helper<T, N>::get(*this, t);
+                }
             };
+
+        template<class T, int V>
+            struct ndarray_helper
+            {
+                typedef core::ndarray<T,V-1> result_type;
+                typedef const core::ndarray<T,V-1> const_result_type;
+
+                static result_type get(ndarray<T,V>& array, size_t t)
+                {
+                    long* iter = array.shape + 1;
+                    long offset = 0;
+                    while(iter!= array.shape + V)
+                        offset += *iter++;
+                    return core::ndarray<T,V-1>(array.data, array.offset_data + t*offset, array.shape + 1);
+                }
+
+                static const_result_type get(ndarray<T,V> const& array, const size_t t)
+                {
+                    long const* iter = array.shape + 1;
+                    long offset = 0;
+                    while(iter!= array.shape + V)
+                        offset += *iter++;
+                    return core::ndarray<T,V-1>(array.data, array.offset_data + t*offset, array.shape + 1);
+                }
+            };
+
+
+        template<class T>
+            struct ndarray_helper<T,1>
+            {
+                typedef T& result_type;
+                typedef const T& const_result_type;
+
+                static result_type get(ndarray<T,1>& array, size_t t)
+                {
+                    return array(t);
+                }
+
+                static const_result_type get(ndarray<T,1> const& array, const size_t t)
+                {
+                    return array(t);
+                }
+            };
+
     }
 }
 #endif

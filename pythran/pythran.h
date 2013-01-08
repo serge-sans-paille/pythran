@@ -386,30 +386,10 @@ namespace std {
         };
 
     /* for core::ndarray */
-    template <size_t I, class T>
-        T& get( core::ndarray<T,1>& a) { return a(I); }
     template <size_t I, class T, int N>
-        core::ndarray<T,N-1> get( core::ndarray<T,N>& a)
-        {
-            long* iter = a.shape + 1;
-            long offset = 0;
-            while(iter!= a.shape + N)
-                offset += *iter++;
-            return core::ndarray<T,N-1>(a.data, a.offset_data + I*offset, a.shape + 1);
-        }
-    template <size_t I, class T>
-        const T& get( core::ndarray<T,1> const& a) {
-            return a(I);
-        }
+        typename core::ndarray_helper<T,N>::result_type get( core::ndarray<T,N>& a) { return a[I]; }
     template <size_t I, class T, int N>
-        const core::ndarray<T,N-1> get( core::ndarray<T,N> const& a)
-        {
-            long* iter = const_cast<long*>(a.shape + 1);
-            long offset = 0;
-            while(iter!= a.shape + N)
-                offset += *iter++;
-            return core::ndarray<T,N-1>(a.data, a.offset_data + I*offset, a.shape + 1);
-        }
+        typename core::ndarray_helper<T,N>::const_result_type get( core::ndarray<T,N> const& a) { return a[I]; }
     template <size_t I, class T>
         struct tuple_element<I, core::ndarray<T,1> > {
             typedef T type;
@@ -1062,7 +1042,7 @@ struct c_type_to_numpy_type<bool> {
 template<class T, int N>
 struct custom_array_to_ndarray {
     static PyObject* convert( core::ndarray<T,N> n) {
-        PyObject* result = PyArray_SimpleNewFromData(N, n.shape, c_type_to_numpy_type<T>::value, n.data->data);
+        PyObject* result = PyArray_SimpleNewFromData(N, n.shape, c_type_to_numpy_type<T>::value, n.data->data + n.offset_data);
         n.data->data=nullptr;
 
         if (!result)

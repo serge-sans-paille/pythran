@@ -263,10 +263,15 @@ core::list<V> operator+(indexable_container<K,V>, core::empty_list);
 template <class K, class V>
 core::list<V> operator+(core::empty_list, indexable_container<K,V>);
 
-template<int N, class type, class K, class V>
+template<unsigned long N, class type, class K, class V>
 core::ndarray<type,N> operator+(core::ndarray<type,N>, indexable_container<K,V>);
-template<int N, class type, class K, class V>
+template<unsigned long N, class type, class K, class V>
 core::ndarray<type,N> operator+(indexable_container<K,V>, core::ndarray<type,N>);
+
+template<unsigned long N, class T, class K>
+core::ndarray<T,N> operator+(core::ndarray<T,N>, indexable<K>);
+template<class K, class T, unsigned long N>
+core::ndarray<T,N> operator+(indexable<K>, core::ndarray<T,N>);
 
 template <class K, class V1, class V2>
 core::set<decltype(std::declval<V1>()+std::declval<V2>())> operator+(indexable_container<K,V1>, core::set<V2>);
@@ -386,15 +391,15 @@ namespace std {
         };
 
     /* for core::ndarray */
-    template <size_t I, class T, int N>
+    template <size_t I, class T, unsigned long N>
         typename core::ndarray_helper<T,N>::result_type get( core::ndarray<T,N>& a) { return a[I]; }
-    template <size_t I, class T, int N>
+    template <size_t I, class T, unsigned long N>
         typename core::ndarray_helper<T,N>::const_result_type get( core::ndarray<T,N> const& a) { return a[I]; }
     template <size_t I, class T>
         struct tuple_element<I, core::ndarray<T,1> > {
             typedef T type;
         };
-    template <size_t I, class T, int N>
+    template <size_t I, class T, unsigned long N>
         struct tuple_element<I, core::ndarray<T,N> > {
             typedef core::ndarray<T,N-1> type;
         };
@@ -454,6 +459,16 @@ template<>
 template<>
     // Python seems to always return none... Doing the same.
     none_type getattr<3>(core::file const& f) {return None;}
+
+/* for ndarrays */
+template <class T, unsigned long N>
+    struct attribute_element<0, pythonic::core::ndarray<T,N> > {
+        typedef std::array<long,N> type;
+    };
+template <unsigned long I, class T, unsigned long N>
+    std::array<long,N> const& getattr(core::ndarray<T,N> const& a) {
+        return a.shape;
+    }
 
 /* for complex numbers */
 template <int I, class T>
@@ -779,7 +794,7 @@ struct python_to_pythran< std::tuple<Types...> >{
     }
 };
 
-template<typename type, int N>
+template<typename type, unsigned long N>
 struct python_to_pythran< core::ndarray<type, N> >{
     python_to_pythran(){
         static bool registered=false;
@@ -1039,11 +1054,10 @@ struct c_type_to_numpy_type<bool> {
     static const int value = NPY_BOOL;
 };
 
-template<class T, int N>
+template<class T, unsigned long N>
 struct custom_array_to_ndarray {
     static PyObject* convert( core::ndarray<T,N> n) {
-        PyObject* result = PyArray_SimpleNewFromData(N, n.shape, c_type_to_numpy_type<T>::value, n.data->data + n.offset_data);
-        n.data->data=nullptr;
+        PyObject* result = PyArray_SimpleNewFromData(N, n.shape.data(), c_type_to_numpy_type<T>::value, n.data.forget()->data + n.offset_data);
 
         if (!result)
             return nullptr;
@@ -1051,7 +1065,7 @@ struct custom_array_to_ndarray {
     }
 };
 
-template<class T, int N>
+template<class T, unsigned long N>
 struct pythran_to_python< core::ndarray<T,N> > {
     pythran_to_python() {
         register_once< core::ndarray<T,N> , custom_array_to_ndarray<T,N> >();

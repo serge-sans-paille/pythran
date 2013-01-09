@@ -866,6 +866,9 @@ modules = {
                 "write": MethodIntr(global_effects=True),
                 "writelines": MethodIntr(global_effects=True),
                 },
+        "__ndarray__" : {
+                "shape": AttributeIntr(0),
+                },
         # conflicting method names must be listed here
         "__dispatch__": {
                 "clear": MethodIntr(),

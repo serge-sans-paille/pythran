@@ -60,13 +60,7 @@ namespace pythonic {
         template<class... T>
             core::ndarray<double, sizeof...(T)> build_cst_array(double val, T... t)
             {
-                core::ndarray<double, sizeof...(t)> a({t...});
-                long size = 1;
-                for(int i=0;i<sizeof...(t);i++)
-                    size *= a.shape[i];
-                for(int i=0;i<size; i++)
-                    a(i)=val;
-                return a;
+                return core::ndarray<double, sizeof...(t)>({t...}, val);
             }
 
         template<int N>
@@ -89,6 +83,24 @@ namespace pythonic {
                     }
             };
 
+        template<class... T>
+            core::ndarray<double, sizeof...(T)> zeros(std::tuple<T...> t)
+            {
+                return apply_to_tuple<sizeof...(T)-1>::builder(t, std::get<sizeof...(T)-1>(t));
+            }
+
+        template<unsigned long N>
+            core::ndarray<double, N> zeros(std::array<long, N> const &t)
+            {
+                return core::ndarray<double, N>(t);
+            }
+
+        core::ndarray<double,1> zeros(size_t size)\
+        {
+            return core::ndarray<double, 1>({size});
+        }
+
+
 #define CST_ARRAY(NAME, VAL)\
         template<class... T>\
             core::ndarray<double, sizeof...(T)> NAME(std::tuple<T...> t)\
@@ -96,15 +108,16 @@ namespace pythonic {
                 return apply_to_tuple<sizeof...(T)-1>::builder(VAL, t, std::get<sizeof...(T)-1>(t));\
             }\
 \
+        template<unsigned long N>\
+            core::ndarray<double, N> NAME(std::array<long, N> const &t)\
+            {\
+                return core::ndarray<double, N>(t);\
+            }\
+\
         core::ndarray<double,1> NAME(size_t size)\
         {\
-            core::ndarray<double, 1> a({size});\
-            for(size_t i=0;i<size;i++)\
-                a(i)=VAL;\
-            return a;\
+            return core::ndarray<double, 1>({size}, VAL);\
         }
-
-        CST_ARRAY(zeros, 0)
 
         PROXY(pythonic::numpy, zeros);
 

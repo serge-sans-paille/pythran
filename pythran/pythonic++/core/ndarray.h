@@ -33,6 +33,9 @@ namespace  pythonic {
         template<class T, int V>
             struct ndarray_helper;
 
+        template<class T, int N, int V>
+            struct apply_to_tuple;
+
         template<class T, int N>
             struct ndarray
             {
@@ -76,15 +79,15 @@ namespace  pythonic {
                 }
 
                 template<class... Types>
-                    T& operator()(Types const... t)
+                    typename ndarray_helper<T,N-sizeof...(Types)+1>::result_type operator()(Types const... t)
                     {
-                        return *at(data->data + offset_data, t...);
+                        return ndarray_helper<T,N-sizeof...(Types)+1>::at(*this, offset(t...));
                     }
 
                 template<class... Types>
-                    T& operator()(Types const... t) const
+                    typename ndarray_helper<T,N-sizeof...(Types)+1>::const_result_type operator()(Types const... t) const
                     {
-                        return *at(data->data + offset_data, t...);
+                        return ndarray_helper<T,N-sizeof...(Types)+1>::at(*this, offset(t...));
                     }
 
                 template<class... Types>
@@ -93,32 +96,15 @@ namespace  pythonic {
                         return offset(t0 * shape[N - sizeof...(Types) - 1] + t1, tn...); 
                     }
 
-                size_t offset(int const t0, int const t1)
+                size_t offset(int t0, int t1) const
                 {
-                    return t0 * shape[N-1] + t1;
+                    return offset_data + t0 * shape[N-1] + t1;
                 }
 
-                T* at(T* from, size_t const t)
+                size_t offset(int t0) const
                 {
-                    return from + t;
+                    return offset_data + t0 * shape[N-1];
                 }
-
-                template<class... Types>
-                    T* at(T* from, Types const... tn)
-                    {
-                        return at(from, offset(tn...));
-                    }
-
-                T* at(T* from, size_t const t) const
-                {
-                    return from + t;
-                }
-
-                template<class... Types>
-                    T* at(T* from, Types const... tn) const
-                    {
-                        return at(from, offset(tn...));
-                    }
 
                 typename ndarray_helper<T, N>::result_type operator[](size_t t)
                 {
@@ -132,6 +118,18 @@ namespace  pythonic {
                     if(t>=shape[0])
                         throw IndexError("index out of bounds");
                     return ndarray_helper<T, N>::get(*this, t);
+                }
+
+        template<class... C>
+                typename core::ndarray_helper<T, N-sizeof...(C) +1>::result_type operator[](std::tuple<C...> t)
+                {
+                    return apply_to_tuple<T,N,sizeof...(C)-1>::builder(*this, t, std::get<sizeof...(C)-1>(t));
+                }
+
+        template<class... C>
+                typename core::ndarray_helper<T, N-sizeof...(C) +1>::const_result_type operator[](std::tuple<C...> t) const
+                {
+                    return apply_to_tuple<T,N,sizeof...(C)-1>::builder(*this, t, std::get<sizeof...(C)-1>(t));
                 }
             };
 
@@ -158,6 +156,18 @@ namespace  pythonic {
                         offset += *iter++;
                     return core::ndarray<T,V-1>(array.data, array.offset_data + t*offset, array.shape + 1);
                 }
+
+                template<int W>
+                    static result_type at(ndarray<T,W> const& array, size_t offset)
+                    {
+                        return core::ndarray<T,V-1>(array.data, offset, array.shape + 1);
+                    }
+
+                template<int W>
+                    static const_result_type at(ndarray<T,W> const& array, size_t const offset)
+                    {
+                        return core::ndarray<T,V-1>(array.data, offset, array.shape + 1);
+                    }
             };
 
 
@@ -176,7 +186,53 @@ namespace  pythonic {
                 {
                     return array(t);
                 }
+
+                template<int W>
+                static result_type at(ndarray<T,W>& array, size_t t)
+                {
+                    return *(array.data->data + t);
+                }
+
+                template<int W>
+                static const_result_type at(ndarray<T,W> const& array, size_t const t)
+                {
+                    return *(array.data->data + t);
+                }
+
             };
+
+        template<class T, int N, int V>
+            struct apply_to_tuple
+            {
+                template<typename... C, typename... S>
+                    static typename core::ndarray_helper<T, N-sizeof...(C) +1>::result_type builder(ndarray<T,N>& array, std::tuple<C...>& t, S... s)
+                    {
+                        return apply_to_tuple<T,N,V-1>::builder(array, t, std::get<V-1>(t), s...);
+                    }
+
+                template<typename... C, typename... S>
+                    static typename core::ndarray_helper<T, N-sizeof...(C) +1>::const_result_type builder(ndarray<T,N> const& array, std::tuple<C...> const& t, S... s)
+                    {
+                        return apply_to_tuple<T,N,V-1>::builder(array, t, std::get<V-1>(t), s...);
+                    }
+            };
+
+        template<class T, int N>
+            struct apply_to_tuple<T,N,0>
+            {
+                template<typename... C, typename... S>
+                    static typename core::ndarray_helper<T, N-sizeof...(C) +1>::result_type builder(ndarray<T,N>& array, std::tuple<C...>& t, S... s)
+                    {
+                        return array(s...);
+                    }
+
+                template<typename... C, typename... S>
+                    static typename core::ndarray_helper<T, N-sizeof...(C) +1>::const_result_type builder(ndarray<T,N> const& array, std::tuple<C...> const& t, S... s)
+                    {
+                        return array(s...);
+                    }
+            };
+
 
     }
 }

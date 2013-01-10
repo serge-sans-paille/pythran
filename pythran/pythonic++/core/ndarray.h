@@ -111,30 +111,14 @@ namespace  pythonic {
                 template<class... Types>
                     typename ndarray_helper<T,N-sizeof...(Types)+1>::result_type operator()(Types ... t)
                     {
-                        return ndarray_helper<T,N-sizeof...(Types)+1>::at(*this, offset(t...));
+                        return ndarray_helper<T,N-sizeof...(Types)+1>::at(*this, t...);
                     }
 
                 template<class... Types>
                     typename ndarray_helper<T,N-sizeof...(Types)+1>::const_result_type operator()(Types ... t) const
                     {
-                        return ndarray_helper<T,N-sizeof...(Types)+1>::at(*this, offset(t...));
+                        return ndarray_helper<T,N-sizeof...(Types)+1>::at(*this, t...);
                     }
-
-                template<class... Types>
-                    size_t offset(int t0, int t1, Types ... tn) const
-                    {
-                        return offset(t0 * shape[N - sizeof...(Types) - 1] + t1, tn...); 
-                    }
-
-                size_t offset(int t0, int t1) const
-                {
-                    return offset_data + t0 * shape[N-1] + t1;
-                }
-
-                size_t offset(int t0) const
-                {
-                    return offset_data + t0 * shape[N-1];
-                }
 
                 typename ndarray_helper<T, N>::result_type operator[](size_t t)
                 {
@@ -188,15 +172,51 @@ namespace  pythonic {
                 }
 
                 template<unsigned long W>
-                    static result_type at(ndarray<T,W> & array, size_t offset)
+                    static result_type at(ndarray<T,W> & array, unsigned long t1)
                     {
-                        return core::ndarray<T,V-1>(array.data, offset, array.shape.begin() + 1);
+                        long r = 1;
+                        for(int i=W-V+1;i<W;i++)
+                            r*=array.shape[i];
+                        return core::ndarray<T,V-1>(array.data, t1*r, array.shape.begin() + W - V + 1);
                     }
 
                 template<unsigned long W>
-                    static const_result_type at(ndarray<T,W> const& array, size_t offset)
+                    static result_type at(ndarray<T,W> & array, unsigned long t1, unsigned long t2)
                     {
-                        return core::ndarray<T,V-1>(array.data, offset, array.shape.begin() + 1);
+                        long r = 1;
+                        for(int i=W-V+1;i<W;i++)
+                            r*=array.shape[i];
+                        return core::ndarray<T,V-1>(array.data, (t1 * array.shape[W-V] + t2)*r, array.shape.begin() + W - V);
+                    }
+
+                template<unsigned long W, class... C>
+                    static result_type at(ndarray<T,W> & array, unsigned long t1, unsigned long t2, C... t)
+                    {
+                        return at(array, t1 * array.shape[W-sizeof...(C)-V] + t2, t...);
+                    }
+
+                template<unsigned long W>
+                    static const_result_type at(ndarray<T,W> const& array, unsigned long t1)
+                    {
+                        long r = 1;
+                        for(int i=W-V+1;i<W;i++)
+                            r*=array.shape[i];
+                        return core::ndarray<T,V-1>(array.data, t1*r, array.shape.begin() + W - V +1);
+                    }
+
+                template<unsigned long W>
+                    static const_result_type at(ndarray<T,W> const& array, unsigned long t1, unsigned long t2)
+                    {
+                        long r = 1;
+                        for(int i=W-V+1;i<W;i++)
+                            r*=array.shape[i];
+                        return core::ndarray<T,V-1>(array.data, (t1 * array.shape[W-V] + t2)*r, array.shape.begin() + W - V +1);
+                    }
+
+                template<unsigned long W, class... C>
+                    static const_result_type at(ndarray<T,W> const& array, unsigned long t1, unsigned long t2, C... t)
+                    {
+                        return at(array, t1 * array.shape[W-sizeof...(C)-V] + t2, t...);
                     }
             };
 
@@ -218,17 +238,40 @@ namespace  pythonic {
                 }
 
                 template<unsigned long W>
-                static result_type at(ndarray<T,W>& array, size_t t)
+                static result_type at(ndarray<T,W>& array, unsigned long t)
+                {
+                    return *(array.data->data + array.offset_data + t);
+                }
+
+                template<unsigned long W>
+                static result_type at(ndarray<T,W>& array, unsigned long t1, unsigned long t2)
+                {
+                    return *(array.data->data + array.offset_data + t1 * array.shape[W-1] + t2);
+                }
+
+                template<unsigned long W, class... C>
+                static result_type at(ndarray<T,W>& array, unsigned long t1, unsigned long t2, C... t)
+                {
+                    return at(array, t1 * array.shape[W-sizeof...(C)-1] + t2, t...);
+                }
+
+                template<unsigned long W>
+                static const_result_type at(ndarray<T,W> const& array, unsigned long t)
                 {
                     return *(array.data->data + t);
                 }
 
                 template<unsigned long W>
-                static const_result_type at(ndarray<T,W> const& array, size_t const t)
+                static const_result_type at(ndarray<T,W> const& array, unsigned long t1, unsigned long t2)
                 {
-                    return *(array.data->data + t);
+                    return *(array.data->data + t1 * array.shape[W-1] + t2);
                 }
 
+                template<unsigned long W, class... C>
+                static const_result_type at(ndarray<T,W> const& array, unsigned long t1, unsigned long t2, C... t)
+                {
+                    return at(array, t1 * array.shape[W-sizeof...(C)-1] + t2, t...);
+                }
             };
 
         template<class T, unsigned long N, unsigned long V>

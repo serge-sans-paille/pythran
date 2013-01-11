@@ -13,7 +13,20 @@ from tables import operator_to_lambda, modules, type_to_suffix
 from tables import builtin_constructors, pytype_to_ctype_table
 from typing import Types
 from syntax import PythranSyntaxError
+import cStringIO
+import unparse
 import metadata
+
+class Python(Backend):
+
+    def __init__(self):
+        self.result = ''
+        Backend.__init__(self)
+
+    def visit(self, node):
+        output = cStringIO.StringIO()
+        unparse.Unparser(node, output)
+        self.result = output.getvalue()
 
 
 def templatize(node, types, default_types=None):

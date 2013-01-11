@@ -21,6 +21,8 @@ class Metadata(AST):
 class LocalVariable(AST):
     pass
 
+class Attribute(AST):
+    pass
 
 class Comprehension(AST):
     def __init__(self, target):

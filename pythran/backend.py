@@ -715,18 +715,32 @@ class CxxBackend(Backend):
 
     def visit_Subscript(self, node):
         value = self.visit(node.value)
-        slice = self.visit(node.slice)
-        if (isinstance(node.slice, ast.Index)
-                and isinstance(node.slice.value, ast.Num)
-                and any(isinstance(node.slice.value.n, t)
-                    for t in (int, long))):
-            return "std::get<{0}>({1})".format(node.slice.value.n, value)
+        # attribute case
+        if metadata.get(node, metadata.Attribute):
+            return "getattr<{0}>({1})".format(node.slice.value.n, value)
+        elif isinstance(node.slice, ast.Index):
+            # multiple indices case
+            if isinstance(node.slice.value, ast.Tuple):
+                t = node.slice.value
+                return "{1}({0})".format(
+                        ", ".join(self.visit(n) for n in t.elts),
+                        value
+                        )
+            else:
+                # static index case
+                if (isinstance(node.slice.value, ast.Num)
+                    and any(isinstance(node.slice.value.n, t)
+                        for t in (int, long))):
+                    return "std::get<{0}>({1})".format(node.slice.value.n, value)
+        # slice optimization case
         elif (isinstance(node.slice, ast.Slice)
                 and (isinstance(node.ctx, ast.Store)
                     or node not in self.bounded_expressions)):
+            slice = self.visit(node.slice)
             return "{1}({0})".format(slice, value)
-        else:
-            return "{1}[{0}]".format(slice, value)
+        # standard case
+        slice = self.visit(node.slice)
+        return "{1}[{0}]".format(slice, value)
 
     def visit_Name(self, node):
         if node.id in self.local_declarations[-1]:

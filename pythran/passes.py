@@ -428,10 +428,12 @@ class NormalizeAttributes(Transformation):
     '''Turns built in attributes into tuple subscript'''
     def visit_Attribute(self, node):
         if node.attr in attributes:
-            return ast.Subscript(
+            out = ast.Subscript(
                     node.value,
                     ast.Index(ast.Num(attributes[node.attr][1].val)),
                     node.ctx)
+            metadata.add(out, metadata.Attribute())
+            return out
         elif node.attr in functions:
             if len(functions[node.attr]) > 1:
                 return node

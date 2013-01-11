@@ -2,6 +2,7 @@
 #define PYTHONIC_ARRAY_H
 #include <cassert>
 #include <iostream>
+#include <array>
 #include <initializer_list>
 #include "shared_ref.h"
 
@@ -17,34 +18,53 @@ namespace  pythonic {
 
                 T* data;
                 size_t n;
-                raw_array() : data(nullptr), n(0) {}
-                raw_array(size_t n) : data(new T[n]), n(n) { }
-                raw_array(size_t n, T* d) : data(d), n(n) { }
-                raw_array(raw_array<T>&& d) : data(d.data), n(d.n) {
+                raw_array() : data(nullptr), n(0), foreign(false) {}
+                raw_array(size_t n) : data(new T[n]), n(n), foreign(false) { }
+                raw_array(size_t n, T* d) : data(d), n(n), foreign(true) { }
+                raw_array(raw_array<T>&& d) : data(d.data), n(d.n), foreign(false) {
                     d.data = nullptr;
                 }
 
                 ~raw_array() {
-                    if(data)
+                    if(data and not foreign)
                         delete [] data;
                 }
+                private:
+                bool foreign;
             };
 
-        template<class T, int N>
+        template<class T, unsigned long N>
             struct ndarray
             {
                 impl::shared_ref< raw_array<T> > data;
                 size_t offset_data;
-                long shape[N];
+                std::array<long,N> shape;
 
                 //  types
                 typedef typename std::conditional<N==1, const T&, const ndarray<T,N-1> >::type value_type;
 
-
                 ndarray(std::initializer_list<size_t> s): offset_data(0)
                 {
                     size_t r = 1;
-                    long * is = shape;
+                    auto is = shape.begin();
+                    for(auto v :s )
+                        r*=(*is++=v);
+                    data = impl::shared_ref< raw_array<T> >(r);
+                }
+
+                ndarray(std::initializer_list<size_t> s, T value): offset_data(0)
+                {
+                    size_t r = 1;
+                    auto is = shape.begin();
+                    for(auto v :s )
+                        r*=(*is++=v);
+                    data = impl::shared_ref< raw_array<T> >(r);
+                    std::fill(data->data, data->data+r, value);
+                }
+                ndarray(std::array<long, N> s): offset_data(0)
+                {
+                    size_t r = 1;
+                    auto is = shape.begin();
                     for(auto v :s )
                         r*=(*is++=v);
                     data = impl::shared_ref< raw_array<T> >(r);
@@ -53,122 +73,88 @@ namespace  pythonic {
                 ndarray(T* d, long const* shp): offset_data(0)
                 {
                     size_t r = 1;
-                    long * is = shape;
+                    long * is = shape.data();
                     long const* v = shp;
                     while(v!=shp+N)
                         r*=(*is++=*v++);
                     data = impl::shared_ref< raw_array<T> >(r, d);
                 }
+                ndarray<T,N>& operator=(ndarray<T,N> && other) {
+                    data=std::move(other.data);
+                    shape=std::move(other.shape);
+                    return *this;
+                }
+                ndarray<T,N>& operator=(ndarray<T,N> const & other) {
+                    data=other.data;
+                    shape=other.shape;
+                    return *this;
+                }
 
                 ndarray(impl::shared_ref< raw_array<T> > const& d, size_t ofs, long const* shp): offset_data(ofs)
                 {
-                    std::copy(shp, shp + N, shape);
+                    std::copy(shp, shp + N, shape.begin());
                     data = impl::shared_ref< raw_array<T> >(d);
                 }
 
                 ndarray(): data(impl::no_memory()), offset_data(0) {}
-                ndarray(core::ndarray<T,N>&& array): data(std::move(array.data)), offset_data(array.offset_data)
+                ndarray(core::ndarray<T,N>&& array): data(std::move(array.data)), offset_data(array.offset_data), shape(array.shape)
                 {
-                    std::copy(array.shape, array.shape + N, shape);
                 }
-                ndarray(const core::ndarray<T,N>& array): data(array.data), offset_data(array.offset_data)
+                ndarray(const core::ndarray<T,N>& array): data(array.data), offset_data(array.offset_data), shape(array.shape)
                 {
-                    std::copy(array.shape, array.shape + N, shape);
                 }
 
                 template<class... Types>
-                    T& operator()(Types const... t)
+                    T& operator()(Types ... t)
                     {
                         return *at(data->data + offset_data, t...);
                     }
 
                 template<class... Types>
-                    T& operator()(Types const... t) const
+                    T& operator()(Types ... t) const
                     {
                         return *at(data->data + offset_data, t...);
                     }
 
                 template<class... Types>
-                    size_t offset(int const t0, int const t1, Types const... tn)
+                    size_t offset(int t0, int t1, Types ... tn) const
                     {
                         return offset(t0 * shape[N - sizeof...(Types) - 1] + t1, tn...); 
                     }
 
-                size_t offset(int const t0, int const t1)
+                size_t offset(int t0, int t1) const
                 {
                     return t0 * shape[N-1] + t1;
                 }
 
-                T* at(T* from, size_t const t)
+                T* at(T* from, size_t t)
                 {
                     return from + t;
                 }
 
                 template<class... Types>
-                    T* at(T* from, Types const... tn)
+                    T* at(T* from, Types ... tn)
                     {
-                        return at(from, offset(tn...));
+                        return from + offset(tn...);
                     }
 
-                T* at(T* from, size_t const t) const
+                T* at(T* from, size_t t) const
                 {
                     return from + t;
                 }
 
                 template<class... Types>
-                    T* at(T* from, Types const... tn) const
+                    T* at(T* from, long t0, long t1) const
                     {
-                        return at(from, offset(tn...));
+                        return from + t0 * shape[N-1] + t1;
+                    }
+                template<class... Types>
+                    T* at(T* from, long t0, long t1, Types ... tn) const
+                    {
+                        return at(from, t0 * shape[N - sizeof...(Types) - 1] + t1, tn...);
                     }
 
-            template<int V>
-            struct hook_operator
-            {
-                typedef typename std::conditional<V==1, T&, core::ndarray<T,V-1>>::type result_type;
-                typedef typename std::conditional<V==1, const T&, const core::ndarray<T,V-1>>::type const_result_type;
-
-                static result_type get(ndarray<T,V>& array, size_t t)
-                {
-                    long* iter = array.shape + 1;
-                    long offset = 0;
-                    while(iter!= array.shape + V)
-                        offset += *iter++;
-                    return core::ndarray<T,V-1>(array.data, array.offset_data + t*offset, array.shape + 1);
-                }
-
-                static const_result_type get(ndarray<T,V> const& array, const size_t t)
-                {
-                    long const* iter = array.shape + 1;
-                    long offset = 0;
-                    while(iter!= array.shape + V)
-                        offset += *iter++;
-                    return core::ndarray<T,V-1>(array.data, array.offset_data + t*offset, array.shape + 1);
-                }
             };
-
-                /*typename hook_operator<N>::result_type operator[](size_t t)
-                {
-                    return hook_operator<N>::get(*this, t);
-                }*/
-
-                typename hook_operator<N>::const_result_type operator[](const size_t t) const
-                  {
-                  return hook_operator<N>::get(*this, t);
-                  }
-            };
-
-            template<class T, int N>
-            ndarray<T,N>::template
-                static typename ndarray<T,N>::template hook_operator<1>::result_type ndarray<T,N>::template hook_operator<1>::get(ndarray<T,1>& array, size_t t)
-                {
-                    return 1;
-                }
-
-            template<class T, int N>
-                static typename ndarray<T,N>::template hook_operator<1>::const_result_type ndarray<T,N>::template hook_operator<1>::get(ndarray<T,1> const& array, const size_t t)
-                {
-                    return 1;
-                }
 
     }
 }

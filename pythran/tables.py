@@ -421,6 +421,9 @@ modules = {
         "__iterator__": {
                 "next": MethodIntr(),
                 },
+        "__ndarray__" : {
+                "shape": AttributeIntr(0),
+                },
         # conflicting method names must be listed here
         "__dispatch__": {
                 "clear": MethodIntr(),

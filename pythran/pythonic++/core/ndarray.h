@@ -43,13 +43,13 @@ namespace  pythonic {
             struct ndarray
             {
                 impl::shared_ref< raw_array<T> > data;
-                size_t offset_data;
+                impl::shared_ref<size_t> offset_data;
                 std::array<long,N> shape;
 
                 //  types
                 typedef typename ndarray_helper<T,N>::const_result_type value_type;
 
-                ndarray(std::initializer_list<size_t> s): offset_data(0)
+                ndarray(std::initializer_list<size_t> s): offset_data(impl::shared_ref<size_t>(0))
                 {
                     size_t r = 1;
                     auto is = shape.begin();
@@ -58,7 +58,7 @@ namespace  pythonic {
                     data = impl::shared_ref< raw_array<T> >(r);
                 }
 
-                ndarray(std::initializer_list<size_t> s, T value): offset_data(0)
+                ndarray(std::initializer_list<size_t> s, T value): offset_data(impl::shared_ref<size_t>(0))
                 {
                     size_t r = 1;
                     auto is = shape.begin();
@@ -68,7 +68,7 @@ namespace  pythonic {
                     std::fill(data->data, data->data+r, value);
                 }
 
-                ndarray(std::array<long, N> const& s): offset_data(0)
+                ndarray(std::array<long, N> const& s): offset_data(impl::shared_ref<size_t>(0))
                 {
                     size_t r = 1;
                     auto is = shape.begin();
@@ -77,21 +77,21 @@ namespace  pythonic {
                     data = impl::shared_ref< raw_array<T> >(r);
                 }
 
-                ndarray(T* d, long const* shp, long const size): offset_data(0)
+                ndarray(T* d, long const* shp, long const size): offset_data(impl::shared_ref<size_t>(0))
                 {
                     std::copy(shp, shp + N, shape.begin());
                     data = impl::shared_ref< raw_array<T> >(size, d);
                 }
 
-                ndarray(impl::shared_ref< raw_array<T> > const& d, size_t ofs, long const* shp): offset_data(ofs)
+                ndarray(impl::shared_ref< raw_array<T> > const& d, size_t ofs, long const* shp): offset_data(impl::shared_ref<size_t>(ofs))
                 {
                     std::copy(shp, shp + N, shape.begin());
                     data = impl::shared_ref< raw_array<T> >(d);
                 }
 
-                ndarray(): data(impl::no_memory()), offset_data(0) {}
+                ndarray(): data(impl::no_memory()), offset_data(impl::shared_ref<size_t>(0)) {}
 
-                ndarray(core::ndarray<T,N>&& array): data(std::move(array.data)), offset_data(array.offset_data), shape(array.shape) {}
+                ndarray(core::ndarray<T,N>&& array): data(std::move(array.data)), offset_data(std::move(array.offset_data)), shape(array.shape) {}
 
                 ndarray(const core::ndarray<T,N>& array): data(array.data), offset_data(array.offset_data), shape(array.shape) {}
 
@@ -159,7 +159,7 @@ namespace  pythonic {
                     long offset = 0;
                     while(iter!= array.shape.begin() + V)
                         offset += *iter++;
-                    return core::ndarray<T,V-1>(array.data, array.offset_data + t*offset, array.shape.begin() + 1);
+                    return core::ndarray<T,V-1>(array.data, *array.offset_data + t*offset, array.shape.begin() + 1);
                 }
 
                 static const_result_type get(ndarray<T,V> const& array, const size_t t)
@@ -168,7 +168,7 @@ namespace  pythonic {
                     long offset = 0;
                     while(iter!= array.shape.begin() + V)
                         offset += *iter++;
-                    return core::ndarray<T,V-1>(array.data, array.offset_data + t*offset, array.shape.begin() + 1);
+                    return core::ndarray<T,V-1>(array.data, *array.offset_data + t*offset, array.shape.begin() + 1);
                 }
 
                 template<unsigned long W>
@@ -240,13 +240,13 @@ namespace  pythonic {
                 template<unsigned long W>
                 static result_type at(ndarray<T,W>& array, unsigned long t)
                 {
-                    return *(array.data->data + array.offset_data + t);
+                    return *(array.data->data + *array.offset_data + t);
                 }
 
                 template<unsigned long W>
                 static result_type at(ndarray<T,W>& array, unsigned long t1, unsigned long t2)
                 {
-                    return *(array.data->data + array.offset_data + t1 * array.shape[W-1] + t2);
+                    return *(array.data->data + *array.offset_data + t1 * array.shape[W-1] + t2);
                 }
 
                 template<unsigned long W, class... C>

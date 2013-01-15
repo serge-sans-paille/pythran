@@ -322,7 +322,7 @@ template <class T, unsigned long N>
     };
 template <unsigned long I, class T, unsigned long N>
     std::array<long,N> const& getattr(core::ndarray<T,N> const& a) {
-        return a.shape;
+        return (*a.shape);
     }
 
 /* for complex numbers */
@@ -892,7 +892,7 @@ struct c_type_to_numpy_type<bool> {
 template<class T, unsigned long N>
 struct custom_array_to_ndarray {
     static PyObject* convert( core::ndarray<T,N> n) {
-        PyObject* result = PyArray_SimpleNewFromData(N, n.shape.data(), c_type_to_numpy_type<T>::value, n.data.forget()->data + *n.offset_data);
+        PyObject* result = PyArray_SimpleNewFromData(N, n.shape->data(), c_type_to_numpy_type<T>::value, n.data.forget()->data + *n.offset_data);
 
         if (!result)
             return nullptr;

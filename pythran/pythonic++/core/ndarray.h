@@ -2,6 +2,7 @@
 #define PYTHONIC_ARRAY_H
 #include <cassert>
 #include <iostream>
+#include <iterator>
 #include <array>
 #include <initializer_list>
 #include "shared_ref.h"
@@ -36,8 +37,33 @@ namespace  pythonic {
         template<class T, unsigned long V>
             struct ndarray_helper;
 
+        template<class T, unsigned long N>
+            struct ndarray;
+
         template<class T, unsigned long N, unsigned long V>
             struct apply_to_tuple;
+
+        template<class T, unsigned long N>
+            struct ndarray_iterator: std::iterator< std::random_access_iterator_tag, typename ndarray_helper<T,N>::result_type >
+            {
+                ndarray<T,N> ref_array;
+                long value;
+                long step;
+
+                ndarray_iterator() {}
+                ndarray_iterator(long v, ndarray<T,N> ref, long s) : value(v), step(s), ref_array(ref) {}
+                typename ndarray_helper<T,N>::result_type operator*() { return ref_array[value]; }
+
+                ndarray_iterator<T,N>& operator++() { value+=step; return *this; }
+                ndarray_iterator<T,N> operator++(int) { ndarray_iterator<T,N> self(*this); value+=step; return self; }
+                ndarray_iterator<T,N>& operator+=(long n) { value+=step*n; return *this; }
+                bool operator!=(ndarray_iterator<T,N> const& other) { return value != other.value; }
+                bool operator<(ndarray_iterator<T,N> const& other) { return value < other.value; }
+                long operator-(ndarray_iterator<T,N> const& other) { return (value - other.value)/step; }
+
+                
+                
+            };
 
         template<class T, unsigned long N>
             struct ndarray
@@ -48,6 +74,7 @@ namespace  pythonic {
 
                 //  types
                 typedef typename ndarray_helper<T,N>::const_result_type value_type;
+                typedef ndarray_iterator<T,N> iterator;
 
                 ndarray(std::initializer_list<size_t> s): offset_data(impl::shared_ref<size_t>(0))
                 {
@@ -62,7 +89,6 @@ namespace  pythonic {
                 ndarray(std::initializer_list<size_t> s, T value): offset_data(impl::shared_ref<size_t>(0))
                 {
                     size_t r = 1;
-                    //shape = impl::shared_ref<std::array<long,N>>();
                     auto is = shape->begin();
                     for(auto v :s )
                         r*=(*is++=v);
@@ -81,7 +107,7 @@ namespace  pythonic {
 
                 ndarray(T* d, long const* shp, long const size): offset_data(impl::shared_ref<size_t>(0))
                 {
-                    std::copy(shp, shp + N, shape.begin());
+                    std::copy(shp, shp + N, shape->begin());
                     data = impl::shared_ref< raw_array<T> >(size, d);
                 }
 
@@ -110,7 +136,6 @@ namespace  pythonic {
                     offset_data=other.offset_data;
                     return *this;
                 }
-
 
                 template<class... Types>
                     typename ndarray_helper<T,N-sizeof...(Types)+1>::result_type operator()(Types ... t)
@@ -148,6 +173,16 @@ namespace  pythonic {
                 typename core::ndarray_helper<T, N-sizeof...(C) +1>::const_result_type operator[](std::tuple<C...> t) const
                 {
                     return apply_to_tuple<T,N,sizeof...(C)-1>::builder(*this, t, std::get<sizeof...(C)-1>(t));
+                }
+
+                iterator begin()
+                {
+                    return ndarray_iterator<T,N>(0,*this,1);
+                }
+
+                iterator end()
+                {
+                    return ndarray_iterator<T,N>((*shape)[0],*this,1);
                 }
             };
 
@@ -222,6 +257,7 @@ namespace  pythonic {
                     {
                         return at(array, t1 * (*array.shape)[W-sizeof...(C)-V] + t2, t...);
                     }
+
             };
 
 

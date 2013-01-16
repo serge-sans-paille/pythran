@@ -67,7 +67,7 @@ namespace pythonic {
             struct apply_to_tuple
             {
                 template<typename... T, typename... S>
-                    static core::ndarray<double, sizeof...(T)> builder(double val, std::tuple<T...>& t, S... s)
+                    static core::ndarray<double, sizeof...(T)> builder(double val, std::tuple<T...> const& t, S... s)
                     {
                         return apply_to_tuple<N-1>::builder(val, t, std::get<N-1>(t), s...);
                     }
@@ -77,16 +77,16 @@ namespace pythonic {
             struct apply_to_tuple<0>
             {
                 template<typename... T, typename... S>
-                    static core::ndarray<double, sizeof...(T)> builder(double val, std::tuple<T...>& t, S... s)
+                    static core::ndarray<double, sizeof...(T)> builder(double val, std::tuple<T...> const& t, S... s)
                     {
                         return build_cst_array(val, s...);
                     }
             };
 
         template<class... T>
-            core::ndarray<double, sizeof...(T)> zeros(std::tuple<T...> t)
+            core::ndarray<double, sizeof...(T)> zeros(std::tuple<T...> const& t)
             {
-                return apply_to_tuple<sizeof...(T)-1>::builder(t, std::get<sizeof...(T)-1>(t));
+                return apply_to_tuple<sizeof...(T)-1>::builder(0, t, std::get<sizeof...(T)-1>(t));
             }
 
         template<unsigned long N>

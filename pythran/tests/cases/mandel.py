@@ -1,9 +1,10 @@
 #runas mandel(800,0,0, 800)
 #pythran export mandel(int, float, float, int)
 def mandel(size, x_center, y_center, max_iteration):
-    out= [ [ 0 for i in xrange(size) ] for j in xrange(size) ]
+    from numpy import zeros
+    out= zeros((size,size))
+    "omp parallel for private(i,j,x,y,a,b,iteration, color_value) schedule(static,5)"
     for i in xrange(size):
-    	"omp parallel for private(j,x,y,a,b,iteration, color_value)"
         for j in xrange(size):
             x,y = ( x_center + 4.0*float(i-size/2)/size,
                       y_center + 4.0*float(j-size/2)/size
@@ -19,5 +20,5 @@ def mandel(size, x_center, y_center, max_iteration):
                 color_value = 255
             else:
                 color_value = iteration*10 % 255
-            out[i][j]=color_value
+            out[i,j]=color_value
     return out

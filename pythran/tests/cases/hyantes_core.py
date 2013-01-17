@@ -1,11 +1,19 @@
-#pythran export run(float, float, float, float, float, float, int, int, float list list)
+#pythran export run(float, float, float, float, float, float, float array 2)
 import math
-def run(xmin, ymin, xmax, ymax, step, range_, range_x, range_y, t):
-    pt = [ [ [  (xmin+step*i)*180/math.pi, (ymin+step*j)*180/math.pi, 0.] for j in xrange(range_y) ] for i in xrange(range_x)]
+from numpy import zeros
+def run(xmin, ymin, xmax, ymax, step, range_, t):
+    range_x = int((xmax - xmin )/step)
+    range_y = int((ymax - ymin )/step)
+    print xmax, xmin, range_x
+    print ymax, ymin, range_y
+    print step
+    pt = zeros((range_x, range_y, 3))
+    "omp parallel for private(i,j,k,tmp)"
     for i in xrange(range_x):
         for j in xrange(range_y):
-            for k in t:
-                tmp = 6368.* math.acos( math.cos(xmin+step*i)*math.cos( k[0] ) * math.cos((ymin+step*j)-k[1])+  math.sin(xmin+step*i)*math.sin(k[0]))
+            pt[i,j,0], pt[i,j,1] = (xmin+step*i)*180/math.pi, (ymin+step*j)*180/math.pi
+            for k in xrange(t.shape[0]):
+                tmp = 6368.* math.acos( math.cos(xmin+step*i)*math.cos( t[k,0] ) * math.cos((ymin+step*j)-t[k,1])+  math.sin(xmin+step*i)*math.sin(t[k,0]))
                 if tmp < range_:
-                    pt[i][j][2]+= k[2] / (1+tmp)
+                    pt[i,j,2]+= t[k,2] / (1+tmp)
     return pt

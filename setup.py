@@ -111,10 +111,11 @@ class BenchmarkCommand(Command):
                             .read(), specs)
                         pythran_compile(os.environ.get("CXX", "c++"),
                                 mod,
-                                cxxflags=(["-Ofast", "-DNDEBUG"]
+                                cxxflags=(["-O2"]
                                     + (["-fopenmp"]
                                         if self.mode == "pythran+omp"
-                                        else [])))
+                                        else [])),
+                                    check=False)
 
                     timing = median(ti.repeat(self.nb_iter, number=1))
                     print module_name, timing

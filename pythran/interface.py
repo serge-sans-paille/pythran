@@ -269,7 +269,7 @@ decltype(std::declval<int>() + 1) main()
 
         #numpy
         self.check_package('numpy',
-                '#include "arrayobject.h"\nint main() { return 0; }',
+                '#include "Python.h"\n#include "arrayobject.h"\nint main() { return 0; }',
                 cppflags=['-I{0}/numpy'.format(get_include())]
                 )
 

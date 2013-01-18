@@ -313,16 +313,47 @@ namespace std {
 
 /* attributes */
 template <int I, class T>
-struct attribute_element;
+struct attribute_element
+{
+    typedef T& type;
+};
 
 /* for ndarrays */
 template <class T, unsigned long N>
     struct attribute_element<0, pythonic::core::ndarray<T,N> > {
-        typedef std::array<long,N> type;
+        typedef core::list<long> type;
     };
-template <unsigned long I, class T, unsigned long N>
-    std::array<long,N> const& getattr(core::ndarray<T,N> const& a) {
-        return (*a.shape);
+
+template <class T, unsigned long N>
+    struct attribute_element<1, pythonic::core::ndarray<T,N> > {
+        typedef long type;
+    };
+
+template <unsigned int I, class T, unsigned long N>
+    struct ndarray_attr;
+
+template <class T, unsigned long N>
+    struct ndarray_attr<0,T,N>
+    {
+        typename attribute_element<0,pythonic::core::ndarray<T,N>>::type const operator()(core::ndarray<T,N> const& a)
+        {
+            return core::list<long>(a.shape->begin(), a.shape->end());
+        }
+    };
+
+template <class T, unsigned long N>
+    struct ndarray_attr<1,T,N>
+    {
+        typename attribute_element<1,pythonic::core::ndarray<T,N>>::type const operator()(core::ndarray<T,N> const& a)
+        {
+            return N;
+        }
+    };
+
+template <unsigned int I, class T, unsigned long N>
+    typename attribute_element<I,pythonic::core::ndarray<T,N>>::type const getattr(core::ndarray<T,N> const& a)
+    {
+        return ndarray_attr<I,T,N>()(a);
     }
 
 /* for complex numbers */

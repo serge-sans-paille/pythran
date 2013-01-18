@@ -432,6 +432,7 @@ modules = {
         "__ndarray__" : {
                 "shape": AttributeIntr(0),
                 "ndim": AttributeIntr(1),
+                "strides": AttributeIntr(2),
                 },
         # conflicting method names must be listed here
         "__dispatch__": {

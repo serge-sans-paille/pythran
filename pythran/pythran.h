@@ -329,6 +329,11 @@ template <class T, unsigned long N>
         typedef long type;
     };
 
+template <class T, unsigned long N>
+    struct attribute_element<2, pythonic::core::ndarray<T,N> > {
+        typedef core::list<long> type;
+    };
+
 template <unsigned int I, class T, unsigned long N>
     struct ndarray_attr;
 
@@ -347,6 +352,18 @@ template <class T, unsigned long N>
         typename attribute_element<1,pythonic::core::ndarray<T,N>>::type const operator()(core::ndarray<T,N> const& a)
         {
             return N;
+        }
+    };
+
+template <class T, unsigned long N>
+    struct ndarray_attr<2,T,N>
+    {
+        typename attribute_element<2,pythonic::core::ndarray<T,N>>::type const operator()(core::ndarray<T,N> const& a)
+        {
+            core::list<long> strides(N);
+            strides[N-1] = sizeof(T);
+            std::transform(strides.rbegin(), strides.rend() -1, a.shape->rbegin(), strides.rbegin()+1, std::multiplies<int>());
+            return strides;
         }
     };
 

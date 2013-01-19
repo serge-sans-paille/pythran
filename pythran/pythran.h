@@ -339,6 +339,11 @@ template <class T, unsigned long N>
         typedef long type;
     };
 
+template <class T, unsigned long N>
+    struct attribute_element<4, pythonic::core::ndarray<T,N> > {
+        typedef long type;
+    };
+
 template <unsigned int I, class T, unsigned long N>
     struct ndarray_attr;
 
@@ -381,6 +386,15 @@ template <class T, unsigned long N>
             for(auto s: (*a.shape))
                 size*=s;
             return size;
+        }
+    };
+
+template <class T, unsigned long N>
+    struct ndarray_attr<4,T,N>
+    {
+        typename attribute_element<4,pythonic::core::ndarray<T,N>>::type const operator()(core::ndarray<T,N> const& a)
+        {
+            return sizeof(T);
         }
     };
 

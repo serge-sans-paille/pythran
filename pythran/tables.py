@@ -872,6 +872,8 @@ modules = {
                 "strides": AttributeIntr(2),
                 "size": AttributeIntr(3),
                 "itemsize": AttributeIntr(4),
+                "nbytes": AttributeIntr(5),
+                "flat": AttributeIntr(6),
                 },
         # conflicting method names must be listed here
         "__dispatch__": {

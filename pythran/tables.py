@@ -433,6 +433,7 @@ modules = {
                 "shape": AttributeIntr(0),
                 "ndim": AttributeIntr(1),
                 "strides": AttributeIntr(2),
+                "size": AttributeIntr(3),
                 },
         # conflicting method names must be listed here
         "__dispatch__": {

@@ -434,6 +434,7 @@ modules = {
                 "ndim": AttributeIntr(1),
                 "strides": AttributeIntr(2),
                 "size": AttributeIntr(3),
+                "itemsize": AttributeIntr(4),
                 },
         # conflicting method names must be listed here
         "__dispatch__": {

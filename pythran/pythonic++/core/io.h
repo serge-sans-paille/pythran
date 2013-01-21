@@ -59,6 +59,69 @@ namespace pythonic {
         }
     }
 
+    /* ndarray */
+
+    bool table_modulo(int comp, int val)
+    {
+        return val%comp!=0;
+    }   
+ 
+    template<class T, unsigned long N>
+        std::ostream& operator<<(std::ostream& os, core::ndarray<T,N> const& e)
+        {
+            std::array<long, N> strides;
+            strides[N-1] = (*e.shape)[N-1];
+            if(strides[N-1]==0)
+                return os << "[]";
+            std::transform(strides.rbegin(), strides.rend() -1, e.shape->rbegin() + 1, strides.rbegin() + 1, std::multiplies<long>());
+            int depth = N;
+            int step = -1;
+            std::ostringstream oss;
+            oss << (*std::max_element(e.data->data, e.data->data+ std::accumulate(e.shape->begin(), e.shape->end(), 1, std::multiplies<long>()))); 
+            int size = oss.str().length();
+            T* iter = e.data->data + *e.offset_data;
+            int max_modulo = 1000;
+
+            os << "[";
+            do {
+                if(depth==1)
+                {
+                    os.width(size);
+                    os << *iter++;
+                    for(int i=1; i<(*e.shape)[N-1]; i++)
+                    {
+                        os.width(size+1);
+                        os << *iter++;
+                    }
+                    step = 1;
+                    depth++;
+                    max_modulo = std::lower_bound(strides.begin(), strides.end(), iter - e.data->data, table_modulo) - strides.begin();
+                }
+                else if(max_modulo + depth == N + 1)
+                {
+                    depth--;
+                    step = -1;
+                    os << "]";
+                    for(int i=0;i<depth;i++)
+                        os << std::endl;
+                    for(int i=0;i<N-depth;i++)
+                        os << " ";
+                    os << "[";
+                }
+                else
+                {
+                    depth+=step;
+                    if(step==1)
+                        os << "]";
+                    else
+                        os << "[";
+                }
+            }
+            while(depth != N+1);
+
+            return os << "]";
+        }
+
     /* set */
 
     template<class T>

@@ -1,0 +1,70 @@
+%                                                           clmomu01.ind
+%-----------------------------------------------------------------------
+% CLMoMu01 1.0: LaTeX style files for books
+% Sample index file for User's guide
+% (c) Springer-Verlag HD
+%-----------------------------------------------------------------------
+\begin{theindex}
+\item Absorption\idxquad 327
+\item Absorption of radiation \idxquad 289--292,\, 299,\,300
+\item Actinides \idxquad 244
+\item Aharonov-Bohm effect\idxquad 142--146
+\item Angular momentum\idxquad 101--112
+\subitem algebraic treatment\idxquad 391--396
+\item Angular momentum addition\idxquad 185--193
+\item Angular momentum commutation relations\idxquad 101
+\item Angular momentum quantization\idxquad 9--10,\,104--106
+\item Angular momentum states\idxquad 107,\,321,\,391--396
+\item Antiquark\idxquad 83
+\item $\alpha$-rays\idxquad 101--103
+\item Atomic theory\idxquad 8--10,\,219--249,\,327
+\item Average value\newline ({\it see also\/} Expectation value)
+15--16,\,25,\,34,\,37,\,357
+\indexspace
+\item Baker-Hausdorff formula\idxquad 23
+\item Balmer formula\idxquad 8
+\item Balmer series\idxquad 125
+\item Baryon\idxquad 220,\,224
+\item Basis\idxquad 98
+\item Basis system\idxquad 164,\,376
+\item Bell inequality\idxquad 379--381,\,382
+\item Bessel functions\idxquad 201,\,313,\,337
+\subitem spherical\idxquad 304--306,\, 309,\, 313--314,\,322
+\item Bound state\idxquad 73--74,\,78--79,\,116--118,\,202,\, 267,\,
+273,\,306,\,348,\,351
+\item Boundary conditions\idxquad 59,\, 70
+\item Bra\idxquad 159
+\item Breit-Wigner formula\idxquad 80,\,84,\,332
+\item Brillouin-Wigner perturbation theory\idxquad 203
+\indexspace
+\item Cathode rays\idxquad 8
+\item Causality\idxquad 357--359
+\item Center-of-mass frame\idxquad 232,\,274,\,338
+\item Central potential\idxquad 113--135,\,303--314
+\item Centrifugal potential\idxquad 115--116,\,323
+\item Characteristic function\idxquad 33
+\item Clebsch-Gordan coefficients\idxquad 191--193
+\item Cold emission\idxquad 88
+\item Combination principle, Ritz's\idxquad 124
+\item Commutation relations\idxquad 27,\,44,\,353,\,391
+\item Commutator\idxquad 21--22,\,27,\,44,\,344
+\item Compatibility of measurements\idxquad 99
+\item Complete orthonormal set\idxquad 31,\,40,\,160,\,360
+\item Complete orthonormal system, {\it see}\newline
+Complete orthonormal set
+\item Complete set of observables, {\it see\/} Complete
+set of operators
+\indexspace
+\item Eigenfunction\idxquad 34,\,46,\,344--346
+\subitem radial\idxquad 321
+\subsubitem calculation\idxquad 322--324
+\item EPR argument\idxquad 377--378
+\item Exchange term\idxquad 228,\,231,\,237,\,241,\,268,\,272
+\indexspace
+\item $f$-sum rule\idxquad 302
+\item Fermi energy\idxquad 223
+\indexspace
+\item H$^+_2$ molecule\idxquad 26
+\item Half-life\idxquad 65
+\item Holzwarth energies\idxquad 68
+\end{theindex}

@@ -8,7 +8,7 @@ class ReadEffect(object):
 
 class Intrinsic:
     def __init__(self, argument_effects=(UpdateEffect(),) * 11,
-            global_effects=True,
+            global_effects=False,
             return_alias=lambda x: {None}):
         self.argument_effects = argument_effects
         self.global_effects = global_effects
@@ -30,7 +30,9 @@ class Intrinsic:
         return False
 
     def isconst(self):
-        return any(isinstance(x, UpdateEffect) for x in self.argument_effects)
+        return not any(
+                isinstance(x, UpdateEffect) for x in self.argument_effects
+                ) and not self.global_effects
 
 
 class FunctionIntr(Intrinsic):

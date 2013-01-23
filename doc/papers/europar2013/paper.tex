@@ -1,0 +1,169 @@
+% to submit via https://www.easychair.org/account/signin.cgi?conf=europar2013
+% max 12 pages
+\documentclass{llncs}
+%
+\begin{document}
+%
+\title{Pythran: Bringing OpenMP to a Python Subset}
+
+\author{Serge Guelton\inst{1,2} \and Pierrick Brunet\inst{2}}
+
+\institute{
+    {\'E}cole Normale Sup{\'e}rieure, Paris, France
+    \and
+    T{\'e}l{\'e}com Bretagne, Plouzan{\'e}, France
+}
+
+\maketitle
+
+%
+\begin{abstract}
+
+    The Python language offers an interesting alternative as a scientific
+    computing language thanks to the SciPy package. However, the lack of
+    fine-grained parallelism support remains an important shortcoming. This
+    paper proposes to add OpenMP directives to the Python language and shows
+    that it is possible to turn a module written in a large Python subset
+    enhanced with these directive into a native parallel module that runs as
+    fast as its naive C equivalent. The approach is validated through the
+    Pythran compiler.
+
+\keywords{Python, OpenMP, C++, static compilation, scripting language}
+\end{abstract}
+
+%
+\section{Introduction}
+
+Since its birth in December 1989, the Python language~\cite{rossum97} has proved
+to be useful in various domains, ranging from system administration to web
+services, thanks to its dynamicity, expressiveness, rich ecosystem and
+battery-included standard library. It is also getting widely used in scientific
+computing~\cite{Oliphant2007}, mainly thanks to the SciPy~\cite{scipy} project
+that adds Matlab-like functionalities to the language.
+
+The prohibitive performance overhead of the language implied by its interpreted
+and highly dynamic nature should prevent its usage as a language for high
+performance computing. SciPy overcomes this issue through the usage of low-level
+routines written in C or Fortran and encapsulated in Python through
+\emph{native} modules. Moreover, its core data structure, the multi-dimensional
+array~\cite{numpyarray2011}, was designed so that the underlying data are
+available to both native modules and the Python interpreter without conversion
+costs.
+
+To make it easier for the user to write native functions, \emph{i.e.}\ without
+having to write the glue code that turns Python object into native structures
+back and forth, the SciPy package provides the \texttt{weave} module that makes
+it possible to bundle C code snippet into Python code and compile then load them
+at runtime.
+
+This hybrid approach, based on a mix of interpreted and native code, is getting
+wide spread in the Python landscape. Section~\ref{sec:python-hybrid} studies the
+existing approaches and shows a critical lack of parallelism support.
+Section~\ref{sec:python-openmp} studies the validity of adding OpenMP directives to the
+Python language in order to add fine-grain parallelism support to Python in the
+context of a Python subset called Pythran. Static compilation of this language
+into C++ and the underlying runtime is described in
+Section~\ref{sec:python-static-translation}.
+Section~\ref{sec:python-optim} presents several optimizations applied by the compiler to
+optimized generated code with respect to parallelism. The Pythran compiler is
+benchmarked on several scientific applications and compared to both interpreted
+and native code in Section~\ref{sec:validation}.
+
+%=========================================================
+\section{Hybrid Computations in Python}\label{sec:python-hybrid}
+%=========================================================
+
+In the context of interpreted language, an hybrid computation is defined
+in~\cite{dongara2007} as a computation where part of the code is interpreted,
+and part of the code is executed natively.
+
+It is now common for scripting language to have C bindings. To take advantage of
+compiled code, Python developers must write C/C++ functions and write the glue
+code using the Python C API~\cite{pythoncapi}. Tools have been developed to
+relieve the user from writing the encapsulating code, notably
+Swig~\cite{swig2003} that relies on an enhanced interface specification, or
+\texttt{boost::python}~\cite{boostpython2007} that relies on C++ facilities to
+guide translation.
+
+An opposite approach consists in using the host language --- herein Python ---
+to describe both parts of the system, and to let an automated tool perform the
+translation to native code of a part of the application, generally the
+computation-intensive one. That way, developers not familiar with lower level
+language or not eager to invest the additional development time can still
+benefit from a fair performance boost. This approach has been subject to many
+studies that can be classified based on their backward-compatibity with the host
+language.
+
+\subsection{Backward-Incompatible Languages}
+
+A constraining (from the performance point of view) aspect of the Python
+language is its type system. It has several consequences, among which the fact
+that each method call is resolved dynamically, including a simple add
+operation! It comes at no surprise that many approaches extend the Python
+language to add a static typing overlay. Likewise, there is only two types of
+integers (64bits integers and multi-precision integers) and one type of floating
+point type (double-precision floats) in Python, while using a type with the
+appropriate size may lead to significant performance boost.
+
+Cython~\cite{cython2010} is such a Python dialect. It extends the syntax with
+typing informations, calls to native functions from third party libraries, and a
+limited set of parallelism constructs, among which the possibility to define
+parallel loops, but no task parallelism. Plw~\cite{dongara2007} proposes a
+similar approach that mixes Python with C, using raw strings to hold the C code.
+The numba~\footnote{\emph{cf}.\ \texttt{https://github.com/numba/numba}}
+compiler uses additional type information to generate sequential LLVM bytecode.
+PyCUDA and PyOpenCL~\cite{klockner2012} also mixes python with kernels
+embeded as raw strings to target accelerators.
+
+The core issue of these approaches is that they imply to modify, in a more or
+less trivial way, the original code. They require to invest in a new language,
+and the long-term preservation of this investment is not ensured.
+
+%=========================================================
+\section{OpenMP Semantic Adaptations}\label{sec:python-openmp}
+%=========================================================
+
+\subsection{Variable Scope}
+
+\subsection{Iterators}
+
+%=========================================================
+\section{Static Translation of Python Programs}\label{sec:python-static}
+%=========================================================
+
+\subsection{Directive Oblivious Translation}
+
+\subsection{Runtime Support}
+
+\subsubsection{Shared References}
+
+\subsubsection{Iterator Category}
+
+%=========================================================
+\section{Optimizations for Parallelism}\label{sec:python-optim}
+%=========================================================
+
+\subsection{Limiting Copies}
+
+\subsection{Transfer Costs}
+
+%=========================================================
+\section{Validation}\label{sec:validation}
+%=========================================================
+
+\subsection{Comparison with CPython}
+
+\subsection{Parallelism Gain}
+
+\subsection{Comparison with Cython}
+
+%=========================================================
+\section{Conclusion and Future Work}
+%=========================================================
+
+\bibliographystyle{splncs03}
+\bibliography{biblio}
+
+\end{document}
+% vim:spell spelllang=en
+% vim:tw=80

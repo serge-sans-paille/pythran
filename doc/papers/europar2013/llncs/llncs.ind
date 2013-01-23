@@ -1,0 +1,349 @@
+% This is LLNCS.IND the handmade demonstration
+% file for an author index from Springer-Verlag
+% for Lecture Notes in Computer Science,
+% version 2.2 for LaTeX2e
+%
+\begin{theindex}
+\item Abt~I.               \idxquad{7}
+\item Ahmed~T.             \idxquad{3}
+\item Andreev~V.           \idxquad{24}
+\item Andrieu~B.           \idxquad{27}
+\item Arpagaus~M.          \idxquad{34}
+\indexspace
+\item Babaev~A.            \idxquad{25}
+\item B\"arwolff~A.        \idxquad{33}
+\item B\'an~J.             \idxquad{17}
+\item Baranov~P.           \idxquad{24}
+\item Barrelet~E.          \idxquad{28}
+\item Bartel~W.            \idxquad{11}
+\item Bassler~U.           \idxquad{28}
+\item Beck~H.P.            \idxquad{35}
+\item Behrend~H.-J.        \idxquad{11}
+\item Berger~Ch.           \idxquad{1}
+\item Bergstein~H.         \idxquad{1}
+\item Bernardi~G.          \idxquad{28}
+\item Bernet~R.            \idxquad{34}
+\item Besan\c con~M.       \idxquad{9}
+\item Biddulph~P.          \idxquad{22}
+\item Binder~E.            \idxquad{11}
+\item Bischoff~A.          \idxquad{33}
+\item Blobel~V.            \idxquad{13}
+\item Borras~K.            \idxquad{8}
+\item Bosetti~P.C.         \idxquad{2}
+\item Boudry~V.            \idxquad{27}
+\item Brasse~F.            \idxquad{11}
+\item Braun~U.             \idxquad{2}
+\item Braunschweig~A.      \idxquad{1}
+\item Brisson~V.           \idxquad{26}
+\item B\"ungener~L.        \idxquad{13}
+\item B\"urger~J.          \idxquad{11}
+\item B\"usser~F.W.        \idxquad{13}
+\item Buniatian~A.         \idxquad{11,37}
+\item Buschhorn~G.         \idxquad{25}
+\indexspace
+\item Campbell~A.J.        \idxquad{1}
+\item Carli~T.             \idxquad{25}
+\item Charles~F.           \idxquad{28}
+\item Clarke~D.            \idxquad{5}
+\item Clegg~A.B.           \idxquad{18}
+\item Colombo~M.           \idxquad{8}
+\item Courau~A.            \idxquad{26}
+\item Coutures~Ch.         \idxquad{9}
+\item Cozzika~G.           \idxquad{9}
+\item Criegee~L.           \idxquad{11}
+\item Cvach~J.             \idxquad{27}
+\indexspace
+\item Dagoret~S.           \idxquad{28}
+\item Dainton~J.B.         \idxquad{19}
+\item Dann~A.W.E.          \idxquad{22}
+\item Dau~W.D.             \idxquad{16}
+\item Deffur~E.            \idxquad{11}
+\item Delcourt~B.          \idxquad{26}
+\item Buono~Del~A.         \idxquad{28}
+\item Devel~M.             \idxquad{26}
+\item De Roeck~A.          \idxquad{11}
+\item Dingus~P.            \idxquad{27}
+\item Dollfus~C.           \idxquad{35}
+\item Dreis~H.B.           \idxquad{2}
+\item Drescher~A.          \idxquad{8}
+\item D\"ullmann~D.        \idxquad{13}
+\item D\"unger~O.          \idxquad{13}
+\item Duhm~H.              \idxquad{12}
+\indexspace
+\item Ebbinghaus~R.        \idxquad{8}
+\item Eberle~M.            \idxquad{12}
+\item Ebert~J.             \idxquad{32}
+\item Ebert~T.R.           \idxquad{19}
+\item Efremenko~V.         \idxquad{23}
+\item Egli~S.              \idxquad{35}
+\item Eichenberger~S.      \idxquad{35}
+\item Eichler~R.           \idxquad{34}
+\item Eisenhandler~E.      \idxquad{20}
+\item Ellis~N.N.           \idxquad{3}
+\item Ellison~R.J.         \idxquad{22}
+\item Elsen~E.             \idxquad{11}
+\item Evrard~E.            \idxquad{4}
+\indexspace
+\item Favart~L.            \idxquad{4}
+\item Feeken~D.            \idxquad{13}
+\item Felst~R.             \idxquad{11}
+\item Feltesse~A.          \idxquad{9}
+\item Fensome~I.F.         \idxquad{3}
+\item Ferrarotto~F.        \idxquad{31}
+\item Flamm~K.             \idxquad{11}
+\item Flauger~W.           \idxquad{11}
+\item Flieser~M.           \idxquad{25}
+\item Fl\"ugge~G.          \idxquad{2}
+\item Fomenko~A.           \idxquad{24}
+\item Fominykh~B.          \idxquad{23}
+\item Form\'anek~J.        \idxquad{30}
+\item Foster~J.M.          \idxquad{22}
+\item Franke~G.            \idxquad{11}
+\item Fretwurst~E.         \idxquad{12}
+\indexspace
+\item Gabathuler~E.        \idxquad{19}
+\item Gamerdinger~K.       \idxquad{25}
+\item Garvey~J.            \idxquad{3}
+\item Gayler~J.            \idxquad{11}
+\item Gellrich~A.          \idxquad{13}
+\item Gennis~M.            \idxquad{11}
+\item Genzel~H.            \idxquad{1}
+\item Godfrey~L.           \idxquad{7}
+\item Goerlach~U.          \idxquad{11}
+\item Goerlich~L.          \idxquad{6}
+\item Gogitidze~N.         \idxquad{24}
+\item Goodall~A.M.         \idxquad{19}
+\item Gorelov~I.           \idxquad{23}
+\item Goritchev~P.         \idxquad{23}
+\item Grab~C.              \idxquad{34}
+\item Gr\"assler~R.        \idxquad{2}
+\item Greenshaw~T.         \idxquad{19}
+\item Greif~H.             \idxquad{25}
+\item Grindhammer~G.       \idxquad{25}
+\indexspace
+\item Haack~J.             \idxquad{33}
+\item Haidt~D.             \idxquad{11}
+\item Hamon~O.             \idxquad{28}
+\item Handschuh~D.         \idxquad{11}
+\item Hanlon~E.M.          \idxquad{18}
+\item Hapke~M.             \idxquad{11}
+\item Harjes~J.            \idxquad{11}
+\item Haydar~R.            \idxquad{26}
+\item Haynes~W.J.          \idxquad{5}
+\item Hedberg~V.           \idxquad{21}
+\item Heinzelmann~G.       \idxquad{13}
+\item Henderson~R.C.W.     \idxquad{18}
+\item Henschel~H.          \idxquad{33}
+\item Herynek~I.           \idxquad{29}
+\item Hildesheim~W.        \idxquad{11}
+\item Hill~P.              \idxquad{11}
+\item Hilton~C.D.          \idxquad{22}
+\item Hoeger~K.C.          \idxquad{22}
+\item Huet~Ph.             \idxquad{4}
+\item Hufnagel~H.          \idxquad{14}
+\item Huot~N.              \idxquad{28}
+\indexspace
+\item Itterbeck~H.         \idxquad{1}
+\indexspace
+\item Jabiol~M.-A.         \idxquad{9}
+\item Jacholkowska~A.      \idxquad{26}
+\item Jacobsson~C.         \idxquad{21}
+\item Jansen~T.            \idxquad{11}
+\item J\"onsson~L.         \idxquad{21}
+\item Johannsen~A.         \idxquad{13}
+\item Johnson~D.P.         \idxquad{4}
+\item Jung~H.              \idxquad{2}
+\indexspace
+\item Kalmus~P.I.P.        \idxquad{20}
+\item Kasarian~S.          \idxquad{11}
+\item Kaschowitz~R.        \idxquad{2}
+\item Kathage~U.           \idxquad{16}
+\item Kaufmann~H.          \idxquad{33}
+\item Kenyon~I.R.          \idxquad{3}
+\item Kermiche~S.          \idxquad{26}
+\item Kiesling~C.          \idxquad{25}
+\item Klein~M.             \idxquad{33}
+\item Kleinwort~C.         \idxquad{13}
+\item Knies~G.             \idxquad{11}
+\item Ko~W.                \idxquad{7}
+\item K\"ohler~T.          \idxquad{1}
+\item Kolanoski~H.         \idxquad{8}
+\item Kole~F.              \idxquad{7}
+\item Kolya~S.D.           \idxquad{22}
+\item Korbel~V.            \idxquad{11}
+\item Korn~M.              \idxquad{8}
+\item Kostka~P.            \idxquad{33}
+\item Kotelnikov~S.K.      \idxquad{24}
+\item Krehbiel~H.          \idxquad{11}
+\item Kr\"ucker~D.         \idxquad{2}
+\item Kr\"uger~U.          \idxquad{11}
+\item Kubenka~J.P.         \idxquad{25}
+\item Kuhlen~M.            \idxquad{25}
+\item Kur\v{c}a~T.         \idxquad{17}
+\item Kurzh\"ofer~J.       \idxquad{8}
+\item Kuznik~B.            \idxquad{32}
+\indexspace
+\item Lamarche~F.          \idxquad{27}
+\item Lander~R.            \idxquad{7}
+\item Landon~M.P.J.        \idxquad{20}
+\item Lange~W.             \idxquad{33}
+\item Lanius~P.            \idxquad{25}
+\item Laporte~J.F.         \idxquad{9}
+\item Lebedev~A.           \idxquad{24}
+\item Leuschner~A.         \idxquad{11}
+\item Levonian~S.          \idxquad{11,24}
+\item Lewin~D.             \idxquad{11}
+\item Ley~Ch.              \idxquad{2}
+\item Lindner~A.           \idxquad{8}
+\item Lindstr\"om~G.       \idxquad{12}
+\item Linsel~F.            \idxquad{11}
+\item Lipinski~J.          \idxquad{13}
+\item Loch~P.              \idxquad{11}
+\item Lohmander~H.         \idxquad{21}
+\item Lopez~G.C.           \idxquad{20}
+\indexspace
+\item Magnussen~N.         \idxquad{32}
+\item Mani~S.              \idxquad{7}
+\item Marage~P.            \idxquad{4}
+\item Marshall~R.          \idxquad{22}
+\item Martens~J.           \idxquad{32}
+\item Martin~A.@           \idxquad{19}
+\item Martyn~H.-U.         \idxquad{1}
+\item Martyniak~J.         \idxquad{6}
+\item Masson~S.            \idxquad{2}
+\item Mavroidis~A.         \idxquad{20}
+\item McMahon~S.J.         \idxquad{19}
+\item Mehta~A.             \idxquad{22}
+\item Meier~K.             \idxquad{15}
+\item Mercer~D.            \idxquad{22}
+\item Merz~T.              \idxquad{11}
+\item Meyer~C.A.           \idxquad{35}
+\item Meyer~H.             \idxquad{32}
+\item Meyer~J.             \idxquad{11}
+\item Mikocki~S.           \idxquad{6,26}
+\item Milone~V.            \idxquad{31}
+\item Moreau~F.            \idxquad{27}
+\item Moreels~J.           \idxquad{4}
+\item Morris~J.V.          \idxquad{5}
+\item M\"uller~K.          \idxquad{35}
+\item Murray~S.A.          \idxquad{22}
+\indexspace
+\item Nagovizin~V.         \idxquad{23}
+\item Naroska~B.           \idxquad{13}
+\item Naumann~Th.          \idxquad{33}
+\item Newton~D.            \idxquad{18}
+\item Neyret~D.            \idxquad{28}
+\item Nguyen~A.            \idxquad{28}
+\item Niebergall~F.        \idxquad{13}
+\item Nisius~R.            \idxquad{1}
+\item Nowak~G.             \idxquad{6}
+\item Nyberg~M.            \idxquad{21}
+\indexspace
+\item Oberlack~H.          \idxquad{25}
+\item Obrock~U.            \idxquad{8}
+\item Olsson~J.E.          \idxquad{11}
+\item Ould-Saada~F.        \idxquad{13}
+\indexspace
+\item Pascaud~C.           \idxquad{26}
+\item Patel~G.D.           \idxquad{19}
+\item Peppel~E.            \idxquad{11}
+\item Phillips~H.T.        \idxquad{3}
+\item Phillips~J.P.        \idxquad{22}
+\item Pichler~Ch.          \idxquad{12}
+\item Pilgram~W.           \idxquad{2}
+\item Pitzl~D.             \idxquad{34}
+\item Prell~S.             \idxquad{11}
+\item Prosi~R.             \idxquad{11}
+\indexspace
+\item R\"adel~G.           \idxquad{11}
+\item Raupach~F.           \idxquad{1}
+\item Rauschnabel~K.       \idxquad{8}
+\item Reinshagen~S.        \idxquad{11}
+\item Ribarics~P.          \idxquad{25}
+\item Riech~V.             \idxquad{12}
+\item Riedlberger~J.       \idxquad{34}
+\item Rietz~M.             \idxquad{2}
+\item Robertson~S.M.       \idxquad{3}
+\item Robmann~P.           \idxquad{35}
+\item Roosen~R.            \idxquad{4}
+\item Royon~C.             \idxquad{9}
+\item Rudowicz~M.          \idxquad{25}
+\item Rusakov~S.           \idxquad{24}
+\item Rybicki~K.           \idxquad{6}
+\indexspace
+\item Sahlmann~N.          \idxquad{2}
+\item Sanchez~E.           \idxquad{25}
+\item Savitsky~M.          \idxquad{11}
+\item Schacht~P.           \idxquad{25}
+\item Schleper~P.          \idxquad{14}
+\item von Schlippe~W.      \idxquad{20}
+\item Schmidt~D.           \idxquad{32}
+\item Schmitz~W.           \idxquad{2}
+\item Sch\"oning~A.        \idxquad{11}
+\item Schr\"oder~V.        \idxquad{11}
+\item Schulz~M.            \idxquad{11}
+\item Schwab~B.            \idxquad{14}
+\item Schwind~A.           \idxquad{33}
+\item Seehausen~U.         \idxquad{13}
+\item Sell~R.              \idxquad{11}
+\item Semenov~A.           \idxquad{23}
+\item Shekelyan~V.         \idxquad{23}
+\item Shooshtari~H.        \idxquad{25}
+\item Shtarkov~L.N.        \idxquad{24}
+\item Siegmon~G.           \idxquad{16}
+\item Siewert~U.           \idxquad{16}
+\item Skillicorn~I.O.      \idxquad{10}
+\item Smirnov~P.           \idxquad{24}
+\item Smith~J.R.           \idxquad{7}
+\item Smolik~L.            \idxquad{11}
+\item Spitzer~H.           \idxquad{13}
+\item Staroba~P.           \idxquad{29}
+\item Steenbock~M.         \idxquad{13}
+\item Steffen~P.           \idxquad{11}
+\item Stella~B.            \idxquad{31}
+\item Stephens~K.          \idxquad{22}
+\item St\"osslein~U.       \idxquad{33}
+\item Strachota~J.         \idxquad{11}
+\item Straumann~U.         \idxquad{35}
+\item Struczinski~W.       \idxquad{2}
+\indexspace
+\item Taylor~R.E.          \idxquad{36,26}
+\item Tchernyshov~V.       \idxquad{23}
+\item Thiebaux~C.          \idxquad{27}
+\item Thompson~G.          \idxquad{20}
+\item Tru\"ol~P.           \idxquad{35}
+\item Turnau~J.            \idxquad{6}
+\indexspace
+\item Urban~L.             \idxquad{25}
+\item Usik~A.              \idxquad{24}
+\indexspace
+\item Valkarova~A.         \idxquad{30}
+\item Vall\'ee~C.          \idxquad{28}
+\item Van Esch~P.          \idxquad{4}
+\item Vartapetian~A.       \idxquad{11}
+\item Vazdik~Y.            \idxquad{24}
+\item Verrecchia~P.        \idxquad{9}
+\item Vick~R.              \idxquad{13}
+\item Vogel~E.             \idxquad{1}
+\indexspace
+\item Wacker~K.            \idxquad{8}
+\item Walther~A.           \idxquad{8}
+\item Weber~G.             \idxquad{13}
+\item Wegner~A.            \idxquad{11}
+\item Wellisch~H.P.        \idxquad{25}
+\item West~L.R.            \idxquad{3}
+\item Willard~S.           \idxquad{7}
+\item Winde~M.             \idxquad{33}
+\item Winter~G.-G.         \idxquad{11}
+\item Wolff~Th.            \idxquad{34}
+\item Wright~A.E.          \idxquad{22}
+\item Wulff~N.             \idxquad{11}
+\indexspace
+\item Yiou~T.P.            \idxquad{28}
+\indexspace
+\item \v{Z}\'a\v{c}ek~J.   \idxquad{30}
+\item Zeitnitz~C.          \idxquad{12}
+\item Ziaeepour~H.         \idxquad{26}
+\item Zimmer~M.            \idxquad{11}
+\item Zimmermann~W.        \idxquad{11}
+\end{theindex}

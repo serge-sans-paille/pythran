@@ -1,4 +1,5 @@
-'''This modules contains code transformation to turn python AST into
+'''
+This modules contains code transformation to turn python AST into
     pythran AST
     * NormalizeTuples removes implicite variable -> tuple conversion
     * RemoveComprehension turns list comprehension into function calls

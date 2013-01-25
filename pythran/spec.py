@@ -5,7 +5,6 @@ This module provides a dummy parser for pythran annotations.
 import ply.lex as lex
 import ply.yacc as yacc
 import os.path
-import re
 
 
 class SpecParser:
@@ -126,7 +125,7 @@ class SpecParser:
         pythran_data = reduce(
                 str.__add__,
                 (line for line in data.split('\n')
-                    if re.match(r'^#pythran.*$', line)),
+                    if line.startswith('#pythran')),
                 "")
         self.parser.parse(pythran_data, lexer=self.lexer)
         if not self.exports:

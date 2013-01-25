@@ -510,6 +510,9 @@ class CxxBackend(Backend):
             self.extra_declarations.append((local_target, local_target_decl,))
             local_target_decl = ""
             local_iter_decl = ""
+        target_decl = ("auto"
+                if metadata.get(node.target, metadata.LocalVariable)
+                else "")
 
         body = [self.visit(n) for n in node.body]
 
@@ -529,7 +532,8 @@ class CxxBackend(Backend):
                         local_iter),
                     "++{0}".format(local_target),
                     Block(
-                        [Statement("{0} = *{1}".format(
+                        [Statement("{0} {1}= *{2}".format(
+                            target_decl,
                             target,
                             local_target))]
                         + body))

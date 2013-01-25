@@ -19,6 +19,7 @@ from analysis import ImportedIds, Identifiers, YieldPoints
 from passmanager import Transformation
 from tables import methods, attributes, functions
 from tables import cxx_keywords, namespace
+from operator import itemgetter
 import metadata
 import ast
 
@@ -168,19 +169,28 @@ class NormalizeTuples(Transformation):
                 else extra_assign)
 
     def visit_For(self, node):
-        self.generic_visit(node)
         target = node.target
         if isinstance(target, ast.Tuple) or isinstance(target, ast.List):
-                renamings = dict()
-                self.traverse_tuples(target, (), renamings)
-                if renamings:
-                    self.counter += 1
-                    newname = "{0}{1}".format(
-                            NormalizeTuples.tuple_name,
-                            self.counter)
-                    node.target = ast.Name(newname, node.target.ctx)
-                    node.body = [_ConvertToTuple(newname, renamings).visit(n)
-                            for n in node.body]
+            renamings = dict()
+            self.traverse_tuples(target, (), renamings)
+            if renamings:
+                elems = [x[0] for x in
+                        sorted(renamings.items(), key=itemgetter(1))]
+                self.counter += 1
+                newname = "{0}{1}".format(
+                        NormalizeTuples.tuple_name,
+                        self.counter)
+                node.target = ast.Name(newname, node.target.ctx)
+                metadata.add(node.target, metadata.LocalVariable())
+                node.body.insert(0,
+                        ast.Assign([
+                            ast.Tuple(
+                                [ast.Name(x, ast.Store()) for x in elems],
+                                ast.Store())],
+                            ast.Name(newname, ast.Load())
+                            )
+                        )
+        self.generic_visit(node)
         return node
 
 

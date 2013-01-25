@@ -1,4 +1,7 @@
-'''This modules provides the translation tables from python to c++'''
+'''
+This modules provides the translation tables from python to c++.
+'''
+
 import ast
 import cxxtypes
 from intrinsic import ConstFunctionIntr, FunctionIntr

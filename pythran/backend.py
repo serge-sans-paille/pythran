@@ -1,6 +1,9 @@
-'''This module contains all pythran backends.
-    * CxxBackend dumps the AST into C++ code
 '''
+This module contains all pythran backends.
+    * Cxx dumps the AST into C++ code
+    * Python dumps the AST into Python code
+'''
+
 import ast
 from cxxgen import *
 from cxxtypes import *
@@ -17,7 +20,11 @@ import cStringIO
 import unparse
 import metadata
 
+
 class Python(Backend):
+    '''
+    Produce a Python representation of the AST.
+    '''
 
     def __init__(self):
         self.result = ''
@@ -42,7 +49,10 @@ def templatize(node, types, default_types=None):
         return node
 
 
-class CxxBackend(Backend):
+class Cxx(Backend):
+    '''
+    Produce a C++ representation of the AST.
+    '''
 
     # recover previous generator state
     generator_state_holder = "__generator_state"
@@ -189,7 +199,7 @@ class CxxBackend(Backend):
 
             operator_body.append(
                 Statement("{0}: return result_type();".format(
-                    CxxBackend.final_statement)))
+                    Cxx.final_statement)))
 
             next_declaration = [
                 FunctionDeclaration(Value("result_type", "next"), []),
@@ -211,7 +221,7 @@ class CxxBackend(Backend):
                                 ["{0}({0})".format(fa) for fa in formal_args]
                                 +
                                 ["{0}(0)".format(
-                                    CxxBackend.generator_state_holder)]))))
+                                    Cxx.generator_state_holder)]))))
                     ))
 
             next_iterator = [
@@ -226,7 +236,7 @@ class CxxBackend(Backend):
                             []),
                         Block([
                             ReturnStatement(
-                                CxxBackend.generator_state_value)])),
+                                Cxx.generator_state_value)])),
                     FunctionBody(
                         FunctionDeclaration(
                             Value("pythonic::generator_iterator<{0}>".format(
@@ -252,7 +262,7 @@ class CxxBackend(Backend):
                             "const"),
                         Block([ReturnStatement(
                             "{0}!=other.{0}".format(
-                                CxxBackend.generator_state_holder))])),
+                                Cxx.generator_state_holder))])),
                     FunctionBody(
                         FunctionDeclaration(
                             Value("bool", "operator=="),
@@ -260,7 +270,7 @@ class CxxBackend(Backend):
                             "const"),
                         Block([ReturnStatement(
                             "{0}==other.{0}".format(
-                                CxxBackend.generator_state_holder))])),
+                                Cxx.generator_state_holder))])),
                     ]
             next_signature = templatize(
                     FunctionDeclaration(
@@ -275,7 +285,7 @@ class CxxBackend(Backend):
             # the dispatch table at the entry point
             next_body.insert(0,
                     Statement("switch({0}) {{ {1} }}".format(
-                        CxxBackend.generator_state_holder,
+                        Cxx.generator_state_holder,
                         " ".join("case {0}: goto {1};".format(num, where)
                             for (num, where) in sorted(
                                 self.yields.itervalues(),
@@ -292,10 +302,10 @@ class CxxBackend(Backend):
                     + [Statement("{0} {1}".format(v, k))
                         for k, v in self.extra_declarations]
                     + [Statement("{0} {1}".format("long",
-                        CxxBackend.generator_state_holder))]
+                        Cxx.generator_state_holder))]
                     + [Statement("typename {0}::result_type {1}".format(
                         instanciated_next_name,
-                        CxxBackend.generator_state_value))]
+                        Cxx.generator_state_value))]
                     )
 
             extern_typedefs = [Typedef(Value(t.generate(ctx), t.name))
@@ -434,9 +444,9 @@ class CxxBackend(Backend):
         if self.yields:
             return Block([
                 Statement("{0} = -1".format(
-                    CxxBackend.generator_state_holder)),
+                    Cxx.generator_state_holder)),
                 Statement("goto {0}".format(
-                    CxxBackend.final_statement))
+                    Cxx.final_statement))
                 ])
         else:
             stmt = ReturnStatement(self.visit(node.value))
@@ -448,9 +458,9 @@ class CxxBackend(Backend):
     def visit_Yield(self, node):
         num, label = self.yields[node]
         return "".join(n for n in Block([
-            Assign(CxxBackend.generator_state_holder, num),
+            Assign(Cxx.generator_state_holder, num),
             ReturnStatement("{0} = {1}".format(
-                CxxBackend.generator_state_value,
+                Cxx.generator_state_value,
                 self.visit(node.value))),
             Statement("{0}:".format(label))
             ]).generate())

@@ -1,4 +1,5 @@
-'''This module provides a dummy parser for pythran annotations.
+'''
+This module provides a dummy parser for pythran annotations.
     * spec_parser reads the specs from a python module and returns them.
 '''
 import ply.lex as lex

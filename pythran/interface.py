@@ -1,4 +1,5 @@
-'''This module contains all the stuff to make your way from python code to
+'''
+This module contains all the stuff to make your way from python code to
     a dynamic library
     * cxx_generator transforms a python module to c++ code
     * compile transforms c++ code into a native module
@@ -10,7 +11,7 @@ import distutils.sysconfig
 from cxxgen import *
 import ast
 from middlend import refine, default_optimization_sequence
-from backend import CxxBackend
+from backend import Cxx
 from subprocess import check_output, STDOUT, CalledProcessError
 from tempfile import mkstemp, NamedTemporaryFile
 from syntax import check_syntax
@@ -93,7 +94,7 @@ def cxx_generator(module_name, code, specs=None, optimizations=None):
         optimizations = [parse_optimization(optim) for optim in optimizations]
     refine(pm, ir, optimizations)
     # back-end
-    content = pm.dump(CxxBackend, ir)
+    content = pm.dump(Cxx, ir)
 
     if specs is None:
         class Generable:

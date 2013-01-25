@@ -1,4 +1,7 @@
-"""Generator for C/C++."""
+"""
+Generator for C/C++.
+"""
+
 # Serge Guelton: The licensing terms are not set in the source package, but
 # pypi[1] says the software is under the MIT license, so I reproduce it here
 # [1] http://pypi.python.org/pypi/cgen
@@ -488,8 +491,9 @@ class Namespace(Block):
 
 
 # copy-pasted from codepy.bpl, which is a real mess...
-# the original code was under MIT License (cf. http://pypi.python.org/pypi/codepy)
-# so I repoduce it here
+# the original code was under MIT License
+# cf. http://pypi.python.org/pypi/codepy
+# so I reproduce it here
 #
 # Copyright (C) 2008 Andreas Kloeckner
 #

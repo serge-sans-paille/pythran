@@ -1,4 +1,7 @@
-'''This module performs a few early syntax check on the input AST.'''
+'''
+This module performs a few early syntax check on the input AST.
+'''
+
 import ast
 import tables
 

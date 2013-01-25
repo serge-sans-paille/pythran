@@ -9,6 +9,7 @@ from passmanager import Transformation
 from tables import modules
 import ast
 
+
 ##
 class ConstantFolding(Transformation):
     '''

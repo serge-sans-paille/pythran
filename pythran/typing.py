@@ -1,4 +1,5 @@
-'''This module performs the return type inference, according to symbolic types,
+'''
+This module performs the return type inference, according to symbolic types,
    It then reorders function declarations according to the return type deps.
     * type_all generates a node -> type binding
 '''

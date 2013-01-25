@@ -127,11 +127,11 @@ class NormalizeTuples(Transformation):
             self.traverse_tuples(arg, (), renamings)
             if renamings:
                 self.counter += 1
-                newname = "{0}{1}".format(
+                nname = "{0}{1}".format(
                         NormalizeTuples.tuple_name,
                         self.counter)
-                node.args.args[i] = ast.Name(newname, ast.Param())
-                node.body = _ConvertToTuple(newname, renamings).visit(node.body)
+                node.args.args[i] = ast.Name(nname, ast.Param())
+                node.body = _ConvertToTuple(nname, renamings).visit(node.body)
         return node
 
     def visit_Assign(self, node):
@@ -378,7 +378,6 @@ class RemoveNestedFunctions(Transformation):
     def pythran_bar(x, y):
         return (x + y)
     '''
-    
 
     def visit_Module(self, node):
         [self.visit(n) for n in node.body]
@@ -500,7 +499,7 @@ class NormalizeReturn(Transformation):
 class NormalizeMethodCalls(Transformation):
     '''
     Turns built in method calls into function calls.
-    
+
     >>> import ast, passmanager, backend
     >>> node = ast.parse("l.append(12)")
     >>> pm = passmanager.PassManager("test")
@@ -525,7 +524,7 @@ class NormalizeMethodCalls(Transformation):
 class NormalizeAttributes(Transformation):
     '''
     Turns built in attributes into tuple subscript.
-    
+
     >>> import ast, passmanager, backend
     >>> node = ast.parse("a.real")
     >>> pm = passmanager.PassManager("test")
@@ -618,19 +617,19 @@ class NormalizeException(Transformation):
     Transform else statement in try except block in nested try except.
 
     >>> import ast, passmanager, backend
-    >>> node = ast.parse("try:print 'tried'\\nexcept: print 'excepted'\\nelse: print 'else'")
+    >>> node = ast.parse("try:print 't'\\nexcept: print 'x'\\nelse: print 'e'")
     >>> pm = passmanager.PassManager("test")
     >>> node = pm.apply(NormalizeException, node)
     >>> print pm.dump(backend.Python, node)
     <BLANKLINE>
     try:
-        print 'tried'
+        print 't'
         try:
-            print 'else'
+            print 'e'
         except:
             pass
     except:
-        print 'excepted'
+        print 'x'
     '''
     def visit_TryExcept(self, node):
         if node.orelse:

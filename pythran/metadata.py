@@ -54,7 +54,6 @@ class OMPDirective(AST):
                 if match.group(0) in OMPDirective.keywords:
                     return match.group(0)
                 else:
-                    import ast
                     s = "{" + str(len(self.data)) + "}"
                     try:
                         v = ast.literal_eval(match.group(0))

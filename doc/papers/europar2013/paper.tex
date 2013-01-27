@@ -73,10 +73,11 @@ and native code in Section~\ref{sec:validation}.
 \section{Parallel Computations in Python}\label{sec:python-parallel}
 %=========================================================
 
-In the manycore area, relying on parallelism to balance the performance
+In the many cores area, turning to parallelism to balance the performance
 limitations of scripting languages, as described in~\cite{choy05} in the context
-of the MATLAB language, or in~\cite{mals07} in the context of the R language.
-In the context of Python, most approaches have focused on processes.
+of the MATLAB language, or in~\cite{mals07} in the context of the R language,
+seems legitimate. In the context of Python, most approaches have
+focused on fork-based parallelism.
 
 \subsection{Python and Parallelism}
 
@@ -122,7 +123,7 @@ enhanced interface specification, or
 \texttt{boost::python}~\cite{boostpython2007} that relies on C++ facilities to
 guide translation.
 
-An opposite approach consists in using the host language --- herein Python ---
+An opposite approach consists in using the host language ---herein Python---
 to describe both parts of the system, and to let an automated tool perform the
 translation to native code of a part of the application, generally the
 computation-intensive one where parallelism has been expressed in some ways.

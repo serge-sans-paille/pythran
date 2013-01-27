@@ -137,6 +137,8 @@ class PassManager(object):
         n = a.run(node, ctx)
         if issubclass(transformation, Transformation):
             ast.fix_missing_locations(node)
-        else:
+        elif issubclass(transformation, Analysis):
             a.display(n)
+        else:
+            pass  # FIXME raise unknown_kind_of_pass or internal_error?
         return n

@@ -50,5 +50,35 @@ namespace pythonic {
         }
     };
 
+    template<class T>
+    struct loop_iterator : std::iterator< typename T::iterator::iterator_category, typename T::iterator::value_type > {
+        T container;
+        typename T::const_iterator iter;
+        typename T::const_iterator end;
+        //loop_iterator(T&& container) : 
+        //    container(container), iter(container.begin()), end(container.end()) {
+        //}
+        loop_iterator(T const& container) : 
+            container(container), iter(container.begin()), end(container.end()) {
+        }
+
+        loop_iterator& operator++() {
+            ++iter;
+            return *this;
+        }
+
+        typename T::const_iterator::reference operator*() {
+            return *iter;
+        }
+
+        bool operator!=(typename T::const_iterator const& other) {
+            return iter != other;
+        }
+        bool operator<(typename T::const_iterator const& other) {
+            return iter < other;
+        }
+
+    };
+
 }
 #endif

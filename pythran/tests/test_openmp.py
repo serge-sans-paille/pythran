@@ -1,28 +1,38 @@
-from test_env import TestEnv
+import unittest
+import pythran
+import os
+from imp import load_dynamic
 
-class TestOpenMP(TestEnv):
+class CompileTest(unittest.TestCase):
+    def __init__(self, module_name):
+        self.module_name=module_name
 
-    def test_matrix_multiply(self):
-        code="""
-def zero(n,m): return [[0 for row in xrange(n)] for col in xrange(m)]
-def matrix_multiply(m0, m1):
-    new_matrix = zero(len(m0),len(m1[0]))
-    "omp parallel for private(i,j,k)"
-    for i in xrange(len(m0)):
-        for j in xrange(len(m1[0])):
-            for k in xrange(len(m1)):
-                new_matrix[i][j] += m0[i][k]*m1[k][j]
-    return new_matrix"""
-        self.run_test(code, [[0,1],[1,0]], [[1,2],[2,1]], matrix_multiply=[[[int]],[[int]]])
+    def __call__(self, check_output=False):
+        module_path=os.path.join(os.path.dirname(__file__),"openmp",self.module_name+".py")
+        print self.module_name
 
-    def test_fibo(self):
-        code="""
-def fibo(n):
-    if n < 2 : return n
-    else:
-        'omp task default(none) shared(x,n)'
-        x = fibo(n-1)                       
-        y = fibo(n-2)                       
-        'omp taskwait'                     
-        return x+y"""
-        self.run_test(code, 10, fibo=[int])
+        specs = { self.module_name: [] }
+        module_code = file(module_path).read()
+        if "unittest.skip" in module_code:
+            return self.skipTest("Marked as skipable")
+        mod = pythran.cxx_generator(self.module_name, module_code, specs)
+        pymod=load_dynamic(self.module_name, pythran.compile(os.environ.get("CXX","c++"), mod, check=False, cxxflags=['-O0', '-fopenmp']))
+
+        res = getattr(pymod, self.module_name)()
+        compiled_code=compile(file(module_path).read(),"","exec")
+        env={}
+        eval(compiled_code, env)
+        ref=eval(self.module_name+"()",env)
+        assert res == res, 'Test Failed, expecting {} got {}'.format(ref, res)
+
+class TestCase(unittest.TestCase):
+    pass
+
+import glob
+for f in glob.glob(os.path.join(os.path.dirname(__file__),"openmp", "*.py")):
+    name=os.path.splitext(os.path.basename(f))[0]
+    setattr(TestCase,"test_"+name, CompileTest(name))
+
+if __name__ == '__main__':
+    unittest.main()
+

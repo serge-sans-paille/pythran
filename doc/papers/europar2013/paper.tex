@@ -63,7 +63,7 @@ Section~\ref{sec:python-openmp} studies the validity of adding OpenMP directives
 Python language in order to add fine-grain parallelism support to Python in the
 context of a Python subset called Pythran. Static compilation of this language
 into C++ and the underlying runtime is described in
-Section~\ref{sec:python-static-translation}.
+Section~\ref{sec:python-static}.
 Section~\ref{sec:python-optim} presents several optimizations applied by the compiler to
 optimized generated code with respect to parallelism. The Pythran compiler is
 benchmarked on several scientific applications and compared to both interpreted
@@ -197,9 +197,19 @@ sequential algorithm. It means that:
 \section{OpenMP Semantic Adaptations}\label{sec:python-openmp}
 %=========================================================
 
-\subsection{Variable Scope}
+OpenMP is a standard API for parallel programming for Fortran, C and C++.
 
-\subsection{Iterators}
+\subsection{Directives}
+
+\subsubsection{Variable Scope}
+
+\subsubsection{Iterators}
+
+\subsection{Runtime Library}
+
+\subsection{Validation}
+
+\cite{wang2012}
 
 %=========================================================
 \section{Static Translation of Python Programs}\label{sec:python-static}

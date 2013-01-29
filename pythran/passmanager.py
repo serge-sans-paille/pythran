@@ -21,19 +21,22 @@ def uncamel(name):
 
 
 class AnalysisContext(object):
-    '''Class that stores the hierarchy of node visited:
+    '''
+    Class that stores the hierarchy of node visited:
         * parent module
         * parent function
-        '''
+    '''
     def __init__(self):
         self.module = None
         self.function = None
 
 
 class ContextManager(object):
-    '''Class to be inherited from to add automatic update of
+    '''
+    Class to be inherited from to add automatic update of
        AnalysisContext `ctx' to a node visitor.
-       The optional analysis dependencies are listed in `dependencies'.'''
+       The optional analysis dependencies are listed in `dependencies'.
+    '''
     def __init__(self, *dependencies):
         self.deps = dependencies
         self.ctx = AnalysisContext()
@@ -67,8 +70,10 @@ class ContextManager(object):
 
 
 class Analysis(ast.NodeVisitor, ContextManager):
-    '''A pass that does not change its content but gathers informations
-    about it.'''
+    '''
+    A pass that does not change its content but gathers informations
+    about it.
+    '''
     def __init__(self, *dependencies):
         '''`dependencies' holds the type of all analysis required by this
             analysis. `self.result' must be set prior to calling this
@@ -107,11 +112,16 @@ class Backend(ModuleAnalysis):
 
 class Transformation(ContextManager, ast.NodeTransformer):
     '''A pass that updates its content.'''
-    pass
 
+    def run_visit(self, node):
+        n = super(Transformation, self).run_visit(node)
+        ast.fix_missing_locations(n)
+        return n
 
 class PassManager(object):
-    '''front end to the pythran pass system'''
+    '''
+    Front end to the pythran pass system.
+    '''
     def __init__(self, module_name):
         self.module_name = module_name
 
@@ -130,15 +140,15 @@ class PassManager(object):
         return b.run(node, None)
 
     def apply(self, transformation, node, ctx=None):
-        '''High-level function to call a `transformation' on a `node',
-        eventually using a `ctx'.'''
+        '''
+        High-level function to call a `transformation' on a `node',
+        eventually using a `ctx'.
+        If the transformation is an analysis, the result of the analysis
+        is displayed.
+        '''
         a = transformation()
         a.passmanager = self
         n = a.run(node, ctx)
-        if issubclass(transformation, Transformation):
-            ast.fix_missing_locations(node)
-        elif issubclass(transformation, Analysis):
+        if issubclass(transformation, Analysis):
             a.display(n)
-        else:
-            pass  # FIXME raise unknown_kind_of_pass or internal_error?
         return n

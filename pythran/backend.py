@@ -23,7 +23,14 @@ import metadata
 
 class Python(Backend):
     '''
-    Produce a Python representation of the AST.
+    Produces a Python representation of the AST.
+
+    >>> import ast, passmanager
+    >>> node = ast.parse("print 'hello world'")
+    >>> pm = passmanager.PassManager('test')
+    >>> print pm.dump(Python, node)
+    <BLANKLINE>
+    print 'hello world'
     '''
 
     def __init__(self):
@@ -51,7 +58,20 @@ def templatize(node, types, default_types=None):
 
 class Cxx(Backend):
     '''
-    Produce a C++ representation of the AST.
+    Produces a C++ representation of the AST.
+
+    >>> import ast, passmanager
+    >>> node = ast.parse("print 'hello world'")
+    >>> pm = passmanager.PassManager('test')
+    >>> r = pm.dump(Cxx, node)
+    >>> for l in r: print l
+    #include <pythran/pythran.h>
+    #include <pythran/pythran_gmp.h>
+    namespace __test
+    {
+      print(core::string("hello world"));
+    }
+    <BLANKLINE>
     '''
 
     # recover previous generator state

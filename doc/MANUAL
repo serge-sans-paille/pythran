@@ -40,7 +40,7 @@ Prerequisite
 Let us assume you're running a Debian/Ubuntu distrib. In that case, all you 
 have to do is::
 
-	$> sudo apt-get install libboost-python-dev libgoogle-perftools-dev libgmp-dev python-ply python-networkx python-pytest
+	$> sudo apt-get install libboost-python-dev libgoogle-perftools-dev libgmp-dev python-ply python-networkx
 
 If you prefer the ``easy_install`` way, from ``setuptools``
 (``python-setuptools`` package under Debian), the way to go is::
@@ -224,11 +224,11 @@ Note that as in python, all variables have function-level scope, ``x`` and
 OpenMP directive parsing is enabled by ``-fopenmp`` when using ``g++`` as the
 backend compiler.
 
-Alteratively, one can run the great::
+Alternatively, one can run the great::
 
     pythran -ppythran.analysis.ParallelMaps -e as.py
 
-Which runs a code analyzer that displays extra information cocnerning parallel ``map`` found int he code.
+which runs a code analyzer that displays extra information concerning parallel ``map`` found int he code.
 
 Getting Pure C++
 ----------------

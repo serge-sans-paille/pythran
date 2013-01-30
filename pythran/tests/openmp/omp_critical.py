@@ -7,4 +7,4 @@ def omp_critical():
             mysum += i
         'omp critical'
         sum += mysum
-    return sum
+    return sum == 999 * 1000 / 2

@@ -11,7 +11,7 @@ def omp_for_private():
     if 'omp parallel private(sum1)':
         sum1 = 0
         'omp for private(sum0) schedule(static,1)'
-        for i in range(1, LOOPCOUNT):
+        for i in range(1, LOOPCOUNT+1):
             sum0 = sum1
             'omp flush'
             sum0 += i

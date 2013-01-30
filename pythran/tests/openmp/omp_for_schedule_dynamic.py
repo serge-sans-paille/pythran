@@ -29,4 +29,4 @@ def omp_for_schedule_dynamic():
             result+=1
     if tmp[count]%chunk_size != CFDMAX_SIZE%chunk_size:
         result+=1
-    return result
+    return result == 0

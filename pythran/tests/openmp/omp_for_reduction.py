@@ -95,4 +95,4 @@ def omp_for_reduction():
         result+=1
         print 'Error in exclusive bit or part 2'
 
-    return result
+    return result == 0

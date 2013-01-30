@@ -7,4 +7,4 @@ def omp_atomic_bitor():
     for i in xrange(LOOPCOUNT):
         "omp atomic"
         sum |= logics[i]
-    return sum
+    return sum == 1

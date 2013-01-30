@@ -13,4 +13,4 @@ def omp_for_ordered():
         'omp critical'
         is_larger &= my_is_larger
     known_sum = (99 * 100) / 2
-    return known_sum == sum, is_larger
+    return known_sum == sum and is_larger

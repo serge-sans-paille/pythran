@@ -10,4 +10,4 @@ def omp_parallel_for_if():
         num_threads = omp.get_num_threads()
         sum+=i
     known_sum = (LOOPCOUNT * (LOOPCOUNT + 1)) / 2
-    return known_sum == sum, num_threads == 1
+    return known_sum == sum and num_threads == 1

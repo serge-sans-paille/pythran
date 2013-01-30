@@ -11,4 +11,4 @@ def omp_for_lastprivate():
         'omp critical'
         sum+=sum0
     known_sum = (LOOPCOUNT * (LOOPCOUNT + 1)) / 2
-    return sum, known_sum, (i0 == LOOPCOUNT)
+    return (sum == known_sum) and (i0 == LOOPCOUNT)

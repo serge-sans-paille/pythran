@@ -6,4 +6,4 @@ def omp_atomic_bitxor():
     for i in xrange(LOOPCOUNT):
         "omp atomic"
         sum ^= logics[i]
-    return sum
+    return sum == 0

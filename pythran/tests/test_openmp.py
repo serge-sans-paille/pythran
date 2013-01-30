@@ -19,11 +19,7 @@ class CompileTest(unittest.TestCase):
         pymod=load_dynamic(self.module_name, pythran.compile(os.environ.get("CXX","c++"), mod, check=False, cxxflags=['-O0', '-fopenmp']))
 
         res = getattr(pymod, self.module_name)()
-        compiled_code=compile(file(module_path).read(),"","exec")
-        env={}
-        eval(compiled_code, env)
-        ref=eval(self.module_name+"()",env)
-        assert res == res, 'Test Failed, expecting {} got {}'.format(ref, res)
+        assert res, 'Test Failed'
 
 class TestCase(unittest.TestCase):
     pass

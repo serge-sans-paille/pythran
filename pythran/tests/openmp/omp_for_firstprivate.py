@@ -8,7 +8,7 @@ def omp_for_firstprivate():
         'omp single'
         threadsnum = omp.get_num_threads()
         'omp for firstprivate(sum0)'
-        for i in range(LOOPCOUNT):
+        for i in range(1, LOOPCOUNT+1):
             sum0+=i
             sum1 = sum0
         'omp critical'

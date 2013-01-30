@@ -16,6 +16,4 @@ def omp_for_nowait():
             'omp flush(count)'
             if count ==0:
                 result = 1
-        if not omp.in_parallel():
-            result = 1
-    return result
+    return result == 1

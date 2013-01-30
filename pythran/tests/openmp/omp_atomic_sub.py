@@ -5,4 +5,4 @@ def omp_atomic_sub():
     for i in xrange(LOOPCOUNT):
         "omp atomic"
         sum -= i
-    return sum
+    return sum == -(LOOPCOUNT*(LOOPCOUNT-1))/2

@@ -1,8 +1,8 @@
 def omp_atomic_prod():
-    sum = 0
-    LOOPCOUNT = 1000
+    sum = 1
+    LOOPCOUNT = 10
     "omp parallel for"
-    for i in xrange(LOOPCOUNT):
+    for i in xrange(1,LOOPCOUNT):
         "omp atomic"
         sum *= i
-    return sum
+    return sum == 362880

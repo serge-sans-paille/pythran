@@ -166,16 +166,32 @@ namespace  pythonic {
                 ndarray(const core::ndarray<T,N>& array): data(array.data), offset_data(array.offset_data), shape(array.shape) {}
 
                 ndarray<T,N>& operator=(ndarray<T,N> && other) {
-                    data=std::move(other.data);
-                    offset_data=std::move(other.offset_data);
-                    shape=std::move(other.shape);
+                    if(*offset_data>0 || (shape->data() && std::accumulate(shape->begin(), shape->end(), 0)!=data->n))
+                    {
+                        std::copy(other.data->data + *other.offset_data, other.data->data + *other.offset_data + std::accumulate(other.shape->begin(), other.shape->end(), 0), data->data + *offset_data);
+
+                    }
+                    else
+                    {
+                        data=std::move(other.data);
+                        offset_data=std::move(other.offset_data);
+                        shape=std::move(other.shape);
+                    }
                     return *this;
                 }
 
                 ndarray<T,N>& operator=(ndarray<T,N> const & other) {
-                    shape=other.shape;
-                    data=other.data;
-                    offset_data=other.offset_data;
+                    if(*offset_data>0 || (shape->data() && std::accumulate(shape->begin(), shape->end(), 0)!=data->n))
+                    {
+                        std::copy(other.data->data + *other.offset_data, other.data->data + *other.offset_data + std::accumulate(other.shape->begin(), other.shape->end(), 0), data->data + *offset_data);
+
+                    }
+                    else
+                    {
+                        shape=other.shape;
+                        data=other.data;
+                        offset_data=other.offset_data;
+                    }
                     return *this;
                 }
 

@@ -307,6 +307,7 @@ namespace  pythonic {
             template<class T> 
                 set<T> operator+(set<T> const & s) { return s; }
             empty_set operator+(empty_set const &) { return empty_set(); }
+            operator bool() { return false; }
             iterator begin() const {
                 return empty_iterator();
             }

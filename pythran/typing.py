@@ -1,4 +1,5 @@
-'''This module performs the return type inference, according to symbolic types,
+'''
+This module performs the return type inference, according to symbolic types,
    It then reorders function declarations according to the return type deps.
     * type_all generates a node -> type binding
 '''
@@ -7,13 +8,15 @@ import ast
 import networkx as nx
 from tables import pytype_to_ctype_table, operator_to_lambda
 from tables import modules, builtin_constants, builtin_constructors
+from tables import methods, functions
 from analysis import GlobalDeclarations, YieldPoints, LocalDeclarations
-from analysis import OrderedGlobalDeclarations, ModuleAnalysis, Aliases
+from analysis import OrderedGlobalDeclarations, ModuleAnalysis, StrictAliases
 from passes import Transformation
 from syntax import PythranSyntaxError
 from cxxtypes import *
-from intrinsic import MethodIntr
+from intrinsic import UserFunction
 import types
+import itertools
 
 
 # networkx backward compatibility
@@ -51,7 +54,7 @@ class TypeDependencies(ModuleAnalysis):
 
     def visit_FunctionDef(self, node):
         assert self.current_function is None
-        modules['__user__'][node.name] = MethodIntr()
+        modules['__user__'][node.name] = UserFunction()
         self.current_function = node
         self.result.add_node(node)
         self.naming = dict()
@@ -170,12 +173,24 @@ class Reorder(Transformation):
     def run_visit(self, node):
         none_successors = self.type_dependencies.successors(
                 TypeDependencies.NoDeps)
-        for n in sorted(none_successors):
-            # remove edges that implies a circular dependency
-            for p in sorted(self.type_dependencies.predecessors(n)):
-                if nx.has_path(self.type_dependencies, n, p):
-                    self.type_dependencies.remove_edge(p, n)
-        #nx.write_dot(self.type_dependencies,"b.dot")
+        candidates = sorted(none_successors)
+        while candidates:
+            new_candidates = list()
+            for n in candidates:
+                # remove edges that imply a circular dependency
+                for p in sorted(self.type_dependencies.predecessors(n)):
+                    if nx.has_path(self.type_dependencies, n, p):
+                        try:
+                            while True:  # may be multiple edges
+                                self.type_dependencies.remove_edge(p, n)
+                        except:
+                            pass  # no more edges to remove
+                    # nx.write_dot(self.type_dependencies,"b.dot")
+                if not n in self.type_dependencies.successors(n):
+                    new_candidates.extend(self.type_dependencies.successors(n))
+                else:
+                    pass
+            candidates = new_candidates
         Transformation.run_visit(self, node)
 
     def visit_Module(self, node):
@@ -203,18 +218,6 @@ class UnboundableRValue(Exception):
     pass
 
 
-def node_to_id(n, depth=0):
-    if isinstance(n, ast.Name):
-        return (n.id, depth)
-    elif isinstance(n, ast.Subscript):
-        if isinstance(n.slice, ast.Slice):
-            return node_to_id(n.value, depth)
-        else:
-            return node_to_id(n.value, 1 + depth)
-    else:
-        raise UnboundableRValue()
-
-
 def copy_func(f, name=None):
     return types.FunctionType(f.func_code,
                             f.func_globals,
@@ -231,7 +234,7 @@ class Types(ModuleAnalysis):
         self.result["bool"] = NamedType("bool")
         self.current = list()
         self.current_global_declarations = dict()
-        ModuleAnalysis.__init__(self, Aliases, LocalDeclarations)
+        ModuleAnalysis.__init__(self, StrictAliases, LocalDeclarations)
 
     def run(self, node, ctx):
         self.passmanager.apply(Reorder, node, ctx)
@@ -254,10 +257,41 @@ class Types(ModuleAnalysis):
         """register ptype as a local typedef"""
         self.typedefs.append(ptype)
 
+    def node_to_id(self, n, depth=0):
+        if isinstance(n, ast.Name):
+            return (n.id, depth)
+        elif isinstance(n, ast.Subscript):
+            if isinstance(n.slice, ast.Slice):
+                return self.node_to_id(n.value, depth)
+            else:
+                return self.node_to_id(n.value, 1 + depth)
+        # use return_alias information if any
+        elif isinstance(n, ast.Call):
+            func = n.func
+            for alias in self.strict_aliases[func].aliases:
+                # handle backward type dependencies from method calls
+                signature = None
+                if isinstance(alias, ast.Attribute):
+                    _, signature = methods.get(
+                            func.attr,
+                            functions.get(func.attr, [(None, None)])[0]
+                            )
+                elif isinstance(alias, ast.Name):
+                    _, signature = functions.get(func.attr, [(None, None)])[0]
+                if signature:
+                    return_alias = (signature.return_alias
+                            and signature.return_alias(n))
+                    if return_alias:  # else new location -> unboundable
+                        return self.node_to_id(return_alias, depth)
+            raise UnboundableRValue()
+
+        else:
+            raise UnboundableRValue()
+
     def isargument(self, node):
         """ checks whether node aliases to a parameter"""
         try:
-            node_id, _ = node_to_id(node)
+            node_id, _ = self.node_to_id(node)
             return (node_id in self.name_to_nodes and
                            any([isinstance(n, ast.Name) and
                            isinstance(n.ctx, ast.Param)
@@ -266,24 +300,23 @@ class Types(ModuleAnalysis):
                 return False
 
     def combine(self, node, othernode, op=None, unary_op=None, register=False):
-        self.combine_(node, othernode, op if op else lambda x, y: x + y,
-                        unary_op if unary_op else lambda x: x, register)
+        self.combine_(node, othernode, op or (lambda x, y: x + y),
+                        unary_op or (lambda x: x), register)
 
     def combine_(self, node, othernode, op, unary_op, register):
         try:
             if register:  # this comes from an assignment,
                           # so we must check where the value is assigned
-                node_id, depth = node_to_id(node)
-                if node_id not in self.name_to_nodes:
-                    self.name_to_nodes[node_id] = set()
-                self.name_to_nodes[node_id].add(node)
+                node_id, depth = self.node_to_id(node)
+                if depth > 0:
+                    node = ast.Name(node_id, ast.Load())
+                self.name_to_nodes.setdefault(node_id, set()).add(node)
+
                 former_unary_op = copy_func(unary_op)
-                # use ContainerType instead of ListType
-                # because it can be a tuple
-                unary_op = lambda x: former_unary_op(
-                             reduce(lambda t, n: ContainerType(t),
-                              xrange(depth), x))
-                         # update the type to reflect container nesting
+
+                # update the type to reflect container nesting
+                unary_op = lambda x: reduce(lambda t, n: ContainerType(t),
+                              xrange(depth), former_unary_op(x))
 
             if isinstance(othernode, ast.FunctionDef):
                 new_type = NamedType(othernode.name)
@@ -291,7 +324,7 @@ class Types(ModuleAnalysis):
                     self.result[node] = new_type
             else:
                 if register and self.isargument(node):
-                    node_id, _ = node_to_id(node)
+                    node_id, _ = self.node_to_id(node)
                     if node not in self.result:
                         self.result[node] = unary_op(self.result[othernode])
                     assert self.result[node], "found an alias with a type"
@@ -393,6 +426,9 @@ class Types(ModuleAnalysis):
             self.combine(t, node.value, register=True)
             if isinstance(t, ast.Subscript):
                 self.visit_AssignedSubscript(t)
+                for alias in self.strict_aliases[t.value].aliases:
+                    fake = ast.Subscript(alias, t.value, ast.Store())
+                    self.combine(fake, node.value, register=True)
 
     def visit_AugAssign(self, node):
         self.visit(node.value)
@@ -401,6 +437,14 @@ class Types(ModuleAnalysis):
                 [x, y]), register=True)
         if isinstance(node.target, ast.Subscript):
             self.visit_AssignedSubscript(node.target)
+            for alias in self.strict_aliases[node.target.value].aliases:
+                fake = ast.Subscript(alias, node.target.value, ast.Store())
+                self.combine(fake,
+                        node.value,
+                        lambda x, y: ExpressionType(
+                            operator_to_lambda[type(node.op)],
+                            [x, y]),
+                        register=True)
 
     def visit_For(self, node):
         self.visit(node.iter)
@@ -451,15 +495,29 @@ class Types(ModuleAnalysis):
         self.visit(node.func)
         [self.visit(n) for n in node.args]
         user_module = modules['__user__']
-        for alias in self.aliases[node.func].aliases:
+        for alias in self.strict_aliases[node.func].aliases:
             # handle backward type dependencies from method calls
             if isinstance(alias, ast.Attribute):
                 if isinstance(alias.value, ast.Name):
                     if (alias.value.id in modules and
                         alias.attr in modules[alias.value.id]):
                         aliased_fun = modules[alias.value.id][alias.attr]
-                        if aliased_fun.ismethod():
-                            aliased_fun.combiner(self, node)
+                        if hasattr(aliased_fun, 'combiner'):
+                            # aliased_fun.combiner(self, node)
+                            # also generate all possible aliasing combinations
+                            combinations = [filter(
+                                None,
+                                self.strict_aliases[arg].aliases.union({arg}))
+                                for arg in node.args]
+                            for new_args in itertools.product(*combinations):
+                                aliased_fun.combiner(self,
+                                        ast.Call(
+                                            node.func,
+                                            new_args,
+                                            [],
+                                            None,
+                                            None)
+                                        )
                 else:
                     raise PythranSyntaxError(
                         "Unknown Attribute: `{0}'".format(alias.attr), node)
@@ -515,6 +573,9 @@ class Types(ModuleAnalysis):
             self.visit(node.slice)
             self.combine(node.value, node.slice,
                 unary_op=lambda t: IndexableType(t), register=True)
+            for alias in self.strict_aliases[node.value].aliases:
+                self.combine(alias, node.slice,
+                    unary_op=lambda t: IndexableType(t), register=True)
 
     def visit_Name(self, node):
         if node.id in self.name_to_nodes:

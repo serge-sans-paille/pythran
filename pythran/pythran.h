@@ -112,6 +112,11 @@ core::set<decltype(std::declval<A>()+std::declval<B>())> operator+(container<A> 
 template <class A, class B>
 core::set<decltype(std::declval<A>()+std::declval<B>())> operator+(core::set<B> , container<A> );
 
+template <class A, class B, class C>
+core::dict<C, decltype(std::declval<A>()+std::declval<B>())> operator+(container<A> , core::dict<C,B> );
+template <class A, class B, class C>
+core::dict<C, decltype(std::declval<A>()+std::declval<B>())> operator+(core::dict<C,B> , container<A> );
+
 template <class A>
 dict_container<A> operator+(container<A> , core::empty_dict );
 template <class A>
@@ -767,6 +772,16 @@ struct custom_empty_dict_to_dict {
 template<>
 struct pythran_to_python< core::empty_dict > {
     pythran_to_python() { register_once< core::empty_dict, custom_empty_dict_to_dict >(); }
+};
+struct custom_empty_set_to_set {
+    static PyObject* convert(core::empty_set const &) {
+        PyObject* obj = PySet_New(nullptr);
+        return obj;
+    }
+};
+template<>
+struct pythran_to_python< core::empty_set > {
+    pythran_to_python() { register_once< core::empty_set, custom_empty_set_to_set >(); }
 };
 
 template <typename T>

@@ -110,6 +110,8 @@ namespace  pythonic {
                 dict(empty_dict const &) : data() {}
                 dict(std::initializer_list<value_type> l) : data(std::move(l)) {}
                 dict(dict<K,V> const & other) : data(other.data) {}
+                template<class Kp, class Vp>
+                    dict(dict<Kp,Vp> const & other) : data(other.item_begin(), other.item_end()) {}
                 template<class B, class E>
                     dict(B begin, E end) : data(begin, end) {}
 
@@ -143,6 +145,8 @@ namespace  pythonic {
                 dict<K,V> copy() const{
                     return core::dict<K,V>(this->item_begin(), this->item_end());
                 }
+
+
 
                 template <class W>
                     decltype(std::declval<V>()+std::declval<W>()) get(K const& key, W d) const {
@@ -236,6 +240,7 @@ namespace  pythonic {
             template<class K, class V> 
                 dict<K,V> operator+(dict<K,V> const & s) { return s; }
             empty_dict operator+(empty_dict const &) { return empty_dict(); }
+            operator bool() const { return false; }
         };
     }
 }

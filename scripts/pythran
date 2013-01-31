@@ -6,23 +6,6 @@ import pythran
 from subprocess import CalledProcessError
 
 
-def pyflakes_check(filename, filecontent):
-    'Use PyFlakes to handle a few common errors'
-    try:
-        from pyflakes import checker, messages
-        import ast
-        tree = ast.parse(filecontent, filename)
-        chk = checker.Checker(tree, filename)
-        error_message_types = (messages.RedefinedFunction,
-            messages.UndefinedExport, messages.UndefinedLocal,
-            messages.UndefinedName)
-        for message in chk.messages:
-            if type(message) in error_message_types:
-                raise SyntaxError(str(message))
-    except ImportError:
-        pass
-
-
 def get_or_create_config_file():
     """Retrieve configuration file location, and warn if it does not exist"""
     where = os.path.join(os.environ.get('XDG_CONFIG_HOME',
@@ -90,7 +73,7 @@ parser.add_argument('-D', dest='extra_Dflags', metavar='macro_definition',
 parser.add_argument('-O', dest='extra_Oflags', metavar='level',
         action='append',
         help='any optimization level relevant to the underlying C++ compiler',
-        default=list())
+        default=['2'])
 
 parser.add_argument('-g', dest='debug_flag', action='store_true',
         help='any debug level relevant to the underlying C++ compiler')
@@ -116,10 +99,11 @@ try:
         args.output_file = '{0}.{1}'.format(module_name, 'cpp' if
             args.translate_only else 'so')
 
-    specs = None if args.raw_translate_only else pythran.spec_parser(
-            args.input_file)
+    # slurp the file
     contents = file(args.input_file).read()
-    pyflakes_check(args.input_file, contents)
+
+    # retrieve specs if needed
+    specs = None if args.raw_translate_only else pythran.spec_parser(contents)
 
     module = pythran.cxx_generator(
             module_name,

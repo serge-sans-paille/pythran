@@ -1,6 +1,9 @@
-'''This module contains all pythran backends.
-    * CxxBackend dumps the AST into C++ code
 '''
+This module contains all pythran backends.
+    * Cxx dumps the AST into C++ code
+    * Python dumps the AST into Python code
+'''
+
 import ast
 from cxxgen import *
 from cxxtypes import *
@@ -13,7 +16,24 @@ from tables import operator_to_lambda, modules, type_to_suffix
 from tables import builtin_constructors, pytype_to_ctype_table
 from typing import Types
 from syntax import PythranSyntaxError
+import cStringIO
+import unparse
 import metadata
+
+
+class Python(Backend):
+    '''
+    Produce a Python representation of the AST.
+    '''
+
+    def __init__(self):
+        self.result = ''
+        Backend.__init__(self)
+
+    def visit(self, node):
+        output = cStringIO.StringIO()
+        unparse.Unparser(node, output)
+        self.result = output.getvalue()
 
 
 def templatize(node, types, default_types=None):
@@ -29,7 +49,10 @@ def templatize(node, types, default_types=None):
         return node
 
 
-class CxxBackend(Backend):
+class Cxx(Backend):
+    '''
+    Produce a C++ representation of the AST.
+    '''
 
     # recover previous generator state
     generator_state_holder = "__generator_state"
@@ -176,7 +199,7 @@ class CxxBackend(Backend):
 
             operator_body.append(
                 Statement("{0}: return result_type();".format(
-                    CxxBackend.final_statement)))
+                    Cxx.final_statement)))
 
             next_declaration = [
                 FunctionDeclaration(Value("result_type", "next"), []),
@@ -198,7 +221,7 @@ class CxxBackend(Backend):
                                 ["{0}({0})".format(fa) for fa in formal_args]
                                 +
                                 ["{0}(0)".format(
-                                    CxxBackend.generator_state_holder)]))))
+                                    Cxx.generator_state_holder)]))))
                     ))
 
             next_iterator = [
@@ -213,7 +236,7 @@ class CxxBackend(Backend):
                             []),
                         Block([
                             ReturnStatement(
-                                CxxBackend.generator_state_value)])),
+                                Cxx.generator_state_value)])),
                     FunctionBody(
                         FunctionDeclaration(
                             Value("pythonic::generator_iterator<{0}>".format(
@@ -239,7 +262,7 @@ class CxxBackend(Backend):
                             "const"),
                         Block([ReturnStatement(
                             "{0}!=other.{0}".format(
-                                CxxBackend.generator_state_holder))])),
+                                Cxx.generator_state_holder))])),
                     FunctionBody(
                         FunctionDeclaration(
                             Value("bool", "operator=="),
@@ -247,7 +270,7 @@ class CxxBackend(Backend):
                             "const"),
                         Block([ReturnStatement(
                             "{0}==other.{0}".format(
-                                CxxBackend.generator_state_holder))])),
+                                Cxx.generator_state_holder))])),
                     ]
             next_signature = templatize(
                     FunctionDeclaration(
@@ -262,7 +285,7 @@ class CxxBackend(Backend):
             # the dispatch table at the entry point
             next_body.insert(0,
                     Statement("switch({0}) {{ {1} }}".format(
-                        CxxBackend.generator_state_holder,
+                        Cxx.generator_state_holder,
                         " ".join("case {0}: goto {1};".format(num, where)
                             for (num, where) in sorted(
                                 self.yields.itervalues(),
@@ -279,10 +302,10 @@ class CxxBackend(Backend):
                     + [Statement("{0} {1}".format(v, k))
                         for k, v in self.extra_declarations]
                     + [Statement("{0} {1}".format("long",
-                        CxxBackend.generator_state_holder))]
+                        Cxx.generator_state_holder))]
                     + [Statement("typename {0}::result_type {1}".format(
                         instanciated_next_name,
-                        CxxBackend.generator_state_value))]
+                        Cxx.generator_state_value))]
                     )
 
             extern_typedefs = [Typedef(Value(t.generate(ctx), t.name))
@@ -421,12 +444,13 @@ class CxxBackend(Backend):
         if self.yields:
             return Block([
                 Statement("{0} = -1".format(
-                    CxxBackend.generator_state_holder)),
+                    Cxx.generator_state_holder)),
                 Statement("goto {0}".format(
-                    CxxBackend.final_statement))
+                    Cxx.final_statement))
                 ])
         else:
-            return ReturnStatement(self.visit(node.value))
+            stmt = ReturnStatement(self.visit(node.value))
+            return self.process_omp_attachements(node, stmt)
 
     def visit_Delete(self, node):
         return EmptyStatement()
@@ -434,9 +458,9 @@ class CxxBackend(Backend):
     def visit_Yield(self, node):
         num, label = self.yields[node]
         return "".join(n for n in Block([
-            Assign(CxxBackend.generator_state_holder, num),
+            Assign(Cxx.generator_state_holder, num),
             ReturnStatement("{0} = {1}".format(
-                CxxBackend.generator_state_value,
+                Cxx.generator_state_value,
                 self.visit(node.value))),
             Statement("{0}:".format(label))
             ]).generate())
@@ -496,6 +520,9 @@ class CxxBackend(Backend):
             self.extra_declarations.append((local_target, local_target_decl,))
             local_target_decl = ""
             local_iter_decl = ""
+        target_decl = ("auto"
+                if metadata.get(node.target, metadata.LocalVariable)
+                else "")
 
         body = [self.visit(n) for n in node.body]
 
@@ -515,7 +542,8 @@ class CxxBackend(Backend):
                         local_iter),
                     "++{0}".format(local_target),
                     Block(
-                        [Statement("{0} = *{1}".format(
+                        [Statement("{0} {1}= *{2}".format(
+                            target_decl,
                             target,
                             local_target))]
                         + body))

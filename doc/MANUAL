@@ -4,9 +4,9 @@ Pythran User Manual
 
 So you want to write algorithms that are easy to maintain as in python and
 you want performance as in fortran or c++? Let give a try to pythran!
-pythran is a python-to-c++ translator that turns python module into native c++
-module. From a user point of view, you still ``import`` your module, but under
-the hood... there is much more happening!
+pythran is a python-to-c++ translator that turns python module into native 
+c++11 module. From a user point of view, you still ``import`` your module, but
+under the hood... there is much more happening!
 
 Disclaimer
 ----------
@@ -33,10 +33,12 @@ Say bye bye to:
 In a nutshell, pythran makes it possible to write numerical algorithms in
 python and to have them run faster. Nuff said.
 
-Installation
+
+Prerequisite
 ------------
 
-Let us assume you're running a Debian/Ubuntu distrib. In that case, all you have to do is::
+Let us assume you're running a Debian/Ubuntu distrib. In that case, all you 
+have to do is::
 
 	$> sudo apt-get install libboost-python-dev libgoogle-perftools-dev libgmp-dev python-ply python-networkx python-pytest
 
@@ -50,7 +52,14 @@ and set your ``PYTHONPATH`` appropriately, something like::
 
 	$> export  PYTHONPATH=<my_prefix>/lib/python<my_version>/site-packages
 
-And you're almost done! From the source directory, run::
+You also need a modern C++11 enabled compiler (e.g. g++>=4.7), that supports
+for instance atomic operations (N3290) or variadic template (N2555).
+
+
+Installation
+------------
+
+You're almost done! From the source directory, run::
 
 	$> python setup.py install --prefix=<my_prefix>
 
@@ -128,14 +137,9 @@ Enough talk, run::
 
 	$> pythran mm.py
 
-One touch of magic wand and you have your native binary. Note however that this
-binary will not run directly at godlike speed, because it does not call any of
-the compiler optimization steps. What you really wanted to do was::
-
-	$> pythran mm.py -Ofast -march=native -DNDEBUG
-
-And be amazed by the generation of a ``mm.so`` native module that run around
-20x faster than the original one. ``timeit`` approved!
+One touch of magic wand and you have your native binary. Be amazed by the
+generation of a ``mm.so`` native module that run around 20x faster than the
+original one. ``timeit`` approved!
 
 
 

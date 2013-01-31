@@ -84,6 +84,7 @@ class Analysis(ast.NodeVisitor, ContextManager):
     def display(self, data):
         print data
 
+
 class ModuleAnalysis(Analysis):
     '''An analysis that operates on a whole module.'''
     pass
@@ -136,6 +137,8 @@ class PassManager(object):
         n = a.run(node, ctx)
         if issubclass(transformation, Transformation):
             ast.fix_missing_locations(node)
-        else:
+        elif issubclass(transformation, Analysis):
             a.display(n)
+        else:
+            pass  # FIXME raise unknown_kind_of_pass or internal_error?
         return n

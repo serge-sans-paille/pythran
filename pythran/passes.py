@@ -1,4 +1,5 @@
-'''This modules contains code transformation to turn python AST into
+'''
+This modules contains code transformation to turn python AST into
     pythran AST
     * NormalizeTuples removes implicite variable -> tuple conversion
     * RemoveComprehension turns list comprehension into function calls
@@ -18,12 +19,13 @@ from analysis import ImportedIds, Identifiers, YieldPoints
 from passmanager import Transformation
 from tables import methods, attributes, functions
 from tables import cxx_keywords, namespace
+from operator import itemgetter
 import metadata
 import ast
 
 
 ##
-class ConvertToTuple(ast.NodeTransformer):
+class _ConvertToTuple(ast.NodeTransformer):
     def __init__(self, tuple_id, renamings):
         self.tuple_id = tuple_id
         self.renamings = renamings
@@ -44,7 +46,21 @@ class ConvertToTuple(ast.NodeTransformer):
 
 
 class NormalizeTuples(Transformation):
-    """ Remove implicit tuple -> variable conversion."""
+    """
+    Remove implicit tuple -> variable conversion.
+
+    >>> import ast, passmanager, backend
+    >>> node = ast.parse("a=(1,2.) ; i,j = a")
+    >>> pm = passmanager.PassManager("test")
+    >>> node = pm.apply(NormalizeTuples, node)
+    >>> print pm.dump(backend.Python, node)
+    <BLANKLINE>
+    a = (1, 2.0)
+    if 1:
+        __tuple10 = a
+        i = __tuple10[0]
+        j = __tuple10[1]
+    """
     tuple_name = "__tuple"
 
     def __init__(self):
@@ -90,7 +106,7 @@ class NormalizeTuples(Transformation):
                 metadata.add(
                         nnode.generators[i].target,
                         metadata.LocalVariable())
-                nnode = ConvertToTuple(gtarget, g[1]).visit(nnode)
+                nnode = _ConvertToTuple(gtarget, g[1]).visit(nnode)
         node.elt = nnode.elt
         node.generators = nnode.generators
         return node
@@ -111,11 +127,11 @@ class NormalizeTuples(Transformation):
             self.traverse_tuples(arg, (), renamings)
             if renamings:
                 self.counter += 1
-                newname = "{0}{1}".format(
+                nname = "{0}{1}".format(
                         NormalizeTuples.tuple_name,
                         self.counter)
-                node.args.args[i] = ast.Name(newname, ast.Param())
-                node.body = ConvertToTuple(newname, renamings).visit(node.body)
+                node.args.args[i] = ast.Name(nname, ast.Param())
+                node.body = _ConvertToTuple(nname, renamings).visit(node.body)
         return node
 
     def visit_Assign(self, node):
@@ -153,25 +169,50 @@ class NormalizeTuples(Transformation):
                 else extra_assign)
 
     def visit_For(self, node):
-        self.generic_visit(node)
         target = node.target
         if isinstance(target, ast.Tuple) or isinstance(target, ast.List):
-                renamings = dict()
-                self.traverse_tuples(target, (), renamings)
-                if renamings:
-                    self.counter += 1
-                    newname = "{0}{1}".format(
-                            NormalizeTuples.tuple_name,
-                            self.counter)
-                    node.target = ast.Name(newname, node.target.ctx)
-                    node.body = [ConvertToTuple(newname, renamings).visit(n)
-                            for n in node.body]
+            renamings = dict()
+            self.traverse_tuples(target, (), renamings)
+            if renamings:
+                elems = [x[0] for x in
+                        sorted(renamings.items(), key=itemgetter(1))]
+                self.counter += 1
+                newname = "{0}{1}".format(
+                        NormalizeTuples.tuple_name,
+                        self.counter)
+                node.target = ast.Name(newname, node.target.ctx)
+                metadata.add(node.target, metadata.LocalVariable())
+                node.body.insert(0,
+                        ast.Assign([
+                            ast.Tuple(
+                                [ast.Name(x, ast.Store()) for x in elems],
+                                ast.Store())],
+                            ast.Name(newname, ast.Load())
+                            )
+                        )
+        self.generic_visit(node)
         return node
 
 
 ##
 class RemoveComprehension(Transformation):
-    """Turns all list comprehension from a node into new function calls."""
+    """
+    Turns all list comprehension from a node into new function calls.
+
+    >>> import ast, passmanager, backend
+    >>> node = ast.parse("[x*x for x in (1,2,3)]")
+    >>> pm = passmanager.PassManager("test")
+    >>> node = pm.apply(RemoveComprehension, node)
+    >>> print pm.dump(backend.Python, node)
+    <BLANKLINE>
+    list_comprehension0()
+    <BLANKLINE>
+    def list_comprehension0():
+        __target = list()
+        for x in (1, 2, 3):
+            __list__.append(__target, (x * x))
+        return __target
+    """
 
     def __init__(self):
         self.count = 0
@@ -269,10 +310,7 @@ class RemoveComprehension(Transformation):
 
 
 ##
-class NestedFunctionRemover(Transformation):
-    '''replace nested function by top-level functions
-    and a call to a bind intrinsic that
-    generates a local function with some arguments binded'''
+class _NestedFunctionRemover(Transformation):
     def __init__(self, pm, ctx):
         Transformation.__init__(self)
         self.ctx = ctx
@@ -321,20 +359,39 @@ class NestedFunctionRemover(Transformation):
 
 
 class RemoveNestedFunctions(Transformation):
+    '''
+    Replace nested function by top-level functions
+    and a call to a bind intrinsic that
+    generates a local function with some arguments binded.
+
+    >>> import ast, passmanager, backend
+    >>> node = ast.parse("def foo(x):\\n def bar(y): return x+y\\n bar(12)")
+    >>> pm = passmanager.PassManager("test")
+    >>> node = pm.apply(RemoveNestedFunctions, node)
+    >>> print pm.dump(backend.Python, node)
+    <BLANKLINE>
+    <BLANKLINE>
+    def foo(x):
+        bar = bind1(pythran_bar, x)
+        bar(12)
+    <BLANKLINE>
+    def pythran_bar(x, y):
+        return (x + y)
+    '''
 
     def visit_Module(self, node):
         [self.visit(n) for n in node.body]
         return node
 
     def visit_FunctionDef(self, node):
-        nfr = NestedFunctionRemover(self.passmanager, self.ctx)
+        nfr = _NestedFunctionRemover(self.passmanager, self.ctx)
         node.body = [nfr.visit(n) for n in node.body]
         return node
 
 
 ##
-class LambdaRemover(Transformation):
-    '''turns lambda into top-level functions'''
+class _LambdaRemover(Transformation):
+
     def __init__(self, pm, name, ctx):
         Transformation.__init__(self)
         self.passmanager = pm
@@ -368,6 +425,22 @@ class LambdaRemover(Transformation):
 
 
 class RemoveLambdas(Transformation):
+    '''
+    Turns lambda into top-level functions.
+
+    >>> import ast, passmanager, backend
+    >>> node = ast.parse("def foo(y): lambda x:y+x")
+    >>> pm = passmanager.PassManager("test")
+    >>> node = pm.apply(RemoveLambdas, node)
+    >>> print pm.dump(backend.Python, node)
+    <BLANKLINE>
+    <BLANKLINE>
+    def foo(y):
+        bind1(foo_lambda0, y)
+    <BLANKLINE>
+    def foo_lambda0(y, x):
+        return (y + x)
+    '''
 
     def visit_Module(self, node):
         self.lambda_functions = list()
@@ -376,7 +449,7 @@ class RemoveLambdas(Transformation):
         return node
 
     def visit_FunctionDef(self, node):
-        lr = LambdaRemover(self.passmanager, node.name, self.ctx)
+        lr = _LambdaRemover(self.passmanager, node.name, self.ctx)
         node.body = [lr.visit(n) for n in node.body]
         self.lambda_functions.extend(lr.lambda_functions)
         return node
@@ -384,8 +457,21 @@ class RemoveLambdas(Transformation):
 
 ##
 class NormalizeReturn(Transformation):
-    '''Adds Return statement when they are implicit,
-    and adds the None return value when not set'''
+    '''
+    Adds Return statement when they are implicit,
+    and adds the None return value when not set
+
+    >>> import ast, passmanager, backend
+    >>> node = ast.parse("def foo(y): print y")
+    >>> pm = passmanager.PassManager("test")
+    >>> node = pm.apply(NormalizeReturn, node)
+    >>> print pm.dump(backend.Python, node)
+    <BLANKLINE>
+    <BLANKLINE>
+    def foo(y):
+        print y
+        return None
+    '''
 
     def visit_FunctionDef(self, node):
         self.yield_points = self.passmanager.gather(YieldPoints, node)
@@ -411,7 +497,18 @@ class NormalizeReturn(Transformation):
 
 ##
 class NormalizeMethodCalls(Transformation):
-    '''Turns built in method calls into function calls'''
+    '''
+    Turns built in method calls into function calls.
+
+    >>> import ast, passmanager, backend
+    >>> node = ast.parse("l.append(12)")
+    >>> pm = passmanager.PassManager("test")
+    >>> node = pm.apply(NormalizeMethodCalls, node)
+    >>> print pm.dump(backend.Python, node)
+    <BLANKLINE>
+    __list__.append(l, 12)
+    '''
+
     def visit_Call(self, node):
         self.generic_visit(node)
         if isinstance(node.func, ast.Attribute) and node.func.attr in methods:
@@ -425,7 +522,18 @@ class NormalizeMethodCalls(Transformation):
 
 ##
 class NormalizeAttributes(Transformation):
-    '''Turns built in attributes into tuple subscript'''
+    '''
+    Turns built in attributes into tuple subscript.
+
+    >>> import ast, passmanager, backend
+    >>> node = ast.parse("a.real")
+    >>> pm = passmanager.PassManager("test")
+    >>> node = pm.apply(NormalizeAttributes, node)
+    >>> print pm.dump(backend.Python, node)
+    <BLANKLINE>
+    a[0]
+    '''
+
     def visit_Attribute(self, node):
         if node.attr in attributes:
             return ast.Subscript(
@@ -446,8 +554,21 @@ class NormalizeAttributes(Transformation):
 
 ##
 class NormalizeIdentifiers(Transformation):
-    '''Prevents naming conflict with c++ keywords by appending extra '_'
-    to conflicting names.'''
+    '''
+    Prevents naming conflict with c++ keywords by appending extra '_'
+    to conflicting names.
+
+    >>> import ast, passmanager, backend
+    >>> node = ast.parse("def namespace(union):pass")
+    >>> pm = passmanager.PassManager("test")
+    >>> d = pm.apply(NormalizeIdentifiers, node)
+    >>> print pm.dump(backend.Python, node)
+    <BLANKLINE>
+    <BLANKLINE>
+    def namespace_(union_):
+        pass
+    '''
+
     def __init__(self):
         self.renamings = dict()
         Transformation.__init__(self, Identifiers)
@@ -492,13 +613,30 @@ class NormalizeIdentifiers(Transformation):
 
 ##
 class NormalizeException(Transformation):
-    '''Transform else statement in try except block in nested try except'''
+    '''
+    Transform else statement in try except block in nested try except.
+
+    >>> import ast, passmanager, backend
+    >>> node = ast.parse("try:print 't'\\nexcept: print 'x'\\nelse: print 'e'")
+    >>> pm = passmanager.PassManager("test")
+    >>> node = pm.apply(NormalizeException, node)
+    >>> print pm.dump(backend.Python, node)
+    <BLANKLINE>
+    try:
+        print 't'
+        try:
+            print 'e'
+        except:
+            pass
+    except:
+        print 'x'
+    '''
     def visit_TryExcept(self, node):
         if node.orelse:
             node.body.append(
                     ast.TryExcept(
                         node.orelse,
-                        [ast.ExceptHandler(None, None, [])],
+                        [ast.ExceptHandler(None, None, [ast.Pass()])],
                         []
                         )
                     )
@@ -516,7 +654,21 @@ class NormalizeException(Transformation):
 
 ##
 class UnshadowParameters(Transformation):
-    '''Prevents parameter shadowing by creating new variable'''
+    '''
+    Prevents parameter shadowing by creating new variable.
+
+    >>> import ast, passmanager, backend
+    >>> node = ast.parse("def foo(a): a=None")
+    >>> pm = passmanager.PassManager("test")
+    >>> node = pm.apply(UnshadowParameters, node)
+    >>> print pm.dump(backend.Python, node)
+    <BLANKLINE>
+    <BLANKLINE>
+    def foo(a):
+        a_ = a
+        a_ = None
+    '''
+
     def __init__(self):
         Transformation.__init__(self, Identifiers)
 
@@ -560,7 +712,17 @@ class UnshadowParameters(Transformation):
 
 ##
 class ExpandImports(Transformation):
-    '''Expands all imports into full paths'''
+    '''
+    Expands all imports into full paths.
+    >>> import ast, passmanager, backend
+    >>> node = ast.parse("from math import cos ; cos(2)")
+    >>> pm = passmanager.PassManager("test")
+    >>> node = pm.apply(ExpandImports, node)
+    >>> print pm.dump(backend.Python, node)
+    <BLANKLINE>
+    import math as pythonic::math
+    math.cos(2)
+    '''
 
     def __init__(self):
         Transformation.__init__(self)
@@ -620,7 +782,10 @@ class ExpandImports(Transformation):
 
 ##
 class GatherOMPData(Transformation):
-    '''walks node and collect string comment looking for OpenMP directives'''
+    '''
+    walks node and collect string comment looking for OpenMP directives.
+    '''
+
     statements = ("Call", "Return", "Delete", "Assign", "AugAssign", "Print",
             "For", "While", "If", "Raise", "Assert", "Pass",)
 

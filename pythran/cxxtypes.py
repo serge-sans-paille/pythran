@@ -1,4 +1,6 @@
-'''This module defines classes needed to manipulate c++ types from pythran.'''
+'''
+This module defines classes needed to manipulate c++ types from pythran.
+'''
 import tables
 
 

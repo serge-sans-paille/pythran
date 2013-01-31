@@ -1,7 +1,9 @@
-'''This module provides a way to pass information between passes as metadata.
+'''
+This module provides a way to pass information between passes as metadata.
     * add attaches a metadata to a node
     * get retrieves all metadata from a particular class attached to a node
 '''
+
 from ast import AST  # so that metadata are walkable as regular ast nodes
 import ast
 
@@ -38,6 +40,7 @@ class OMPDirective(AST):
         'default',
         'single',
         'nowait',
+        'taskwait',
         'task',
         'if',
         'atomic')
@@ -51,7 +54,6 @@ class OMPDirective(AST):
                 if match.group(0) in OMPDirective.keywords:
                     return match.group(0)
                 else:
-                    import ast
                     s = "{" + str(len(self.data)) + "}"
                     try:
                         v = ast.literal_eval(match.group(0))

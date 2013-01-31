@@ -1,4 +1,5 @@
-'''This module contains all the stuff to make your way from python code to
+'''
+This module contains all the stuff to make your way from python code to
     a dynamic library
     * cxx_generator transforms a python module to c++ code
     * compile transforms c++ code into a native module
@@ -10,7 +11,7 @@ import distutils.sysconfig
 from cxxgen import *
 import ast
 from middlend import refine, default_optimization_sequence
-from backend import CxxBackend
+from backend import Cxx
 from subprocess import check_output, STDOUT, CalledProcessError
 from tempfile import mkstemp, NamedTemporaryFile
 from syntax import check_syntax
@@ -93,7 +94,7 @@ def cxx_generator(module_name, code, specs=None, optimizations=None):
         optimizations = [parse_optimization(optim) for optim in optimizations]
     refine(pm, ir, optimizations)
     # back-end
-    content = pm.dump(CxxBackend, ir)
+    content = pm.dump(Cxx, ir)
 
     if specs is None:
         class Generable:
@@ -105,10 +106,15 @@ def cxx_generator(module_name, code, specs=None, optimizations=None):
                             for l in s.generate()) for s in self.content)
         mod = Generable(content)
     else:
+        # uniform typing
+        for fname, signatures in specs.items():
+            if not isinstance(signatures, tuple):
+                specs[fname] = (signatures,)
+
         mod = BoostPythonModule(module_name)
         mod.use_private_namespace = False
         # very low value for max_arity leads to various bugs
-        max_arity = max(16,max(len(s) for s in specs.itervalues()))
+        max_arity = max(4, max(max(map(len, s)) for s in specs.itervalues()))
         mod.add_to_preamble([Define("BOOST_PYTHON_MAX_ARITY", max_arity)])
         mod.add_to_preamble(content)
         mod.add_to_init([Statement(
@@ -120,8 +126,6 @@ def cxx_generator(module_name, code, specs=None, optimizations=None):
         for function_name, signatures in specs.iteritems():
             internal_function_name = renamings.get(function_name,
                                                             function_name)
-            if not isinstance(signatures, tuple):
-                signatures = (signatures,)
             for sigid, signature in enumerate(signatures):
                 numbered_function_name = "{0}{1}".format(
                                         internal_function_name, sigid)

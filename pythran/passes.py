@@ -2,6 +2,7 @@
 This modules contains code transformation to turn python AST into
     pythran AST
     * NormalizeTuples removes implicite variable -> tuple conversion
+    * SimplifyGenExpIf simplifies generator expressions by grouping if-clauses.
     * RemoveComprehension turns list comprehension into function calls
     * RemoveNestedFunctions turns nested function into top-level functions
     * RemoveLambdas turns lambda into regular functions
@@ -43,7 +44,6 @@ class _ConvertToTuple(ast.NodeTransformer):
             nnode.ctx = node.ctx
             return nnode
         return node
-
 
 class NormalizeTuples(Transformation):
     """
@@ -193,6 +193,31 @@ class NormalizeTuples(Transformation):
         self.generic_visit(node)
         return node
 
+class SimplifyGenExpIfs(Transformation):
+    """Simplifies generator expressions by grouping if-clauses.
+
+    >>> import ast, passmanager, backend
+    >>> node = ast.parse("(x*y for x in range(10) if x > 5 for y in range(10) if y > 4)")
+    >>> pm = passmanager.PassManager("test")
+    >>> node = pm.apply(SimplifyGenExpIfs, node)
+    >>> print pm.dump(backend.Python, node)
+    <BLANKLINE>
+    ((x * y) for x in range(10) for y in range(10) if (x > 5) if (y > 4))
+    """
+
+    def __init__(self):
+        Transformation.__init__(self)
+
+    def visit_GeneratorExp(self, node):
+        self.generic_visit(node)
+        ifs = []
+        for gen in node.generators:
+            ifs.extend(gen.ifs)
+            gen.ifs[:] = []
+
+        node.generators[-1].ifs = ifs
+        return node
+
 
 ##
 class RemoveComprehension(Transformation):
@@ -205,6 +230,7 @@ class RemoveComprehension(Transformation):
     >>> node = pm.apply(RemoveComprehension, node)
     >>> print pm.dump(backend.Python, node)
     <BLANKLINE>
+    import itertools
     list_comprehension0()
     <BLANKLINE>
     def list_comprehension0():
@@ -282,31 +308,55 @@ class RemoveComprehension(Transformation):
                 )
         return self.visit_AnyComp(node, "dict", "__dispatch__", "update")
 
+    #Basic module management. A 
+    def visit_Module(self, node):
+        self.generic_visit(node)
+        importIt = ast.Import(names=[ast.alias(name='itertools', asname=None)])
+        return ast.Module(body=([importIt] + node.body))
+
     def visit_GeneratorExp(self, node):
-        node.elt = self.visit(node.elt)
-        name = "generator_expression{0}".format(self.count)
-        self.count += 1
-        args = self.passmanager.gather(ImportedIds, node, self.ctx)
-        self.count_iter = 0
+        self.generic_visit(node)
 
-        body = reduce(self.nest_reducer,
-                reversed(node.generators),
-                ast.Expr(ast.Yield(node.elt))
-                )
+        iterList = []
+        varList = []
 
-        sargs = sorted(ast.Name(arg, ast.Load()) for arg in args)
-        fd = ast.FunctionDef(name,
-                ast.arguments(sargs, None, None, []),
-                [body],
-                [])
-        self.ctx.module.body.append(fd)
-        return ast.Call(
-                ast.Name(name, ast.Load()),
-                [ast.Name(arg.id, ast.Load()) for arg in sargs],
-                [],
-                None,
-                None
-                )  # no sharing !
+        for gen in node.generators:
+            iterList.append(gen.iter)
+            varList.append(ast.Name(gen.target.id, ast.Store()))
+
+        # If dim = 1, product is useless
+        if len(iterList) == 1:
+            iterAST = iterList[0]
+            varAST = ast.arguments([varList[0]], None, None, [])
+        else:
+            prodName = ast.Attribute(
+                value=ast.Name(id='itertools', ctx=ast.Load()),
+                attr='product', ctx=ast.Load())
+
+            iterAST = ast.Call(prodName, iterList, [], None, None)
+            varAST = ast.arguments([ast.Tuple(varList, ast.Store())],
+                                   None, None, [])
+
+        # If there are no condition, ifilter is useless
+        if len(node.generators[-1].ifs) == 0:
+            finalIterAST = iterAST
+        else:
+            ldFilter = ast.Lambda(
+                varAST, ast.BoolOp(ast.And(), node.generators[-1].ifs))
+            ifilterName = ast.Attribute(
+                value=ast.Name(id='itertools', ctx=ast.Load()),
+                attr='ifilter', ctx=ast.Load())
+            finalIterAST = ast.Call(
+                ifilterName, [ldFilter, iterAST], [], None, None)
+
+        imapName = ast.Attribute(
+            value=ast.Name(id='itertools', ctx=ast.Load()),
+            attr='imap', ctx=ast.Load())
+
+        ldBodyimap = node.elt
+        ldimap = ast.Lambda(varAST, ldBodyimap)
+
+        return ast.Call(imapName, [ldimap, finalIterAST], [], None, None)
 
 
 ##

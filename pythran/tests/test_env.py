@@ -21,7 +21,11 @@ class TestEnv(unittest.TestCase):
             for iref, ires in zip(ref, res):
                 self.assertAlmostEqual(iref, ires)
         else:
-            unittest.TestCase.assertAlmostEqual(self, ref, res)
+            try:
+                unittest.TestCase.assertAlmostEqual(self, ref, res)
+            except TypeError:
+                raise AssertionError("Reference mismatch: pythran return value"
+                                     " differs from python.")
 
     def run_test(self, code, *params, **interface):
         """Test if a function call return value is unchanged when
@@ -94,5 +98,6 @@ class TestEnv(unittest.TestCase):
 
             # Compare pythran result against python ref and raise if mismatch
             if python_ref != pythran_res:
-                print python_ref, pythran_res
+                print "Python result: ", python_ref
+                print "Pythran result: ", pythran_res
                 self.assertAlmostEqual(python_ref, pythran_res)

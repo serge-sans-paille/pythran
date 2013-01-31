@@ -2,9 +2,10 @@
 This modules contains code transformation to turn pythran code into
 optimized pythran code
     * ConstantUnfolding performs some kind of partial evaluation.
+    * GenexpToImap tranforms generator expressions into iterators
 '''
 
-from analysis import ConstantExpressions
+from analysis import ConstantExpressions, OptimizableGenexp
 from passmanager import Transformation
 from tables import modules
 import ast
@@ -100,3 +101,75 @@ __set__ = set
                 return node
         else:
             return Transformation.generic_visit(self, node)
+
+
+class GenExpToImap(Transformation):
+    '''
+    Transforms generator expressions into iterators.
+    >>> import ast, passmanager, backend
+    >>> node = ast.parse("(x*y for x in xrange(10) if x > 0 for y in xrange(20))")
+    >>> pm = passmanager.PassManager("test")
+    >>> node = pm.apply(GenExpToImap, node)
+    >>> print pm.dump(backend.Python, node)
+    <BLANKLINE>
+    import itertools
+    itertools.imap((lambda (x, y): (x * y)), itertools.product(itertools.ifilter((lambda x: ((x > 0))), xrange(10)), xrange(20)))
+    '''
+
+    def __init__(self):
+        Transformation.__init__(self, OptimizableGenexp)
+
+    def visit_Module(self, node):
+        self.generic_visit(node)
+        importIt = ast.Import(names=[ast.alias(name='itertools', asname=None)])
+        return ast.Module(body=([importIt] + node.body))
+
+    def make_Iterator(self, gen):
+        if len(gen.ifs) == 0:
+            return gen.iter
+        else:
+            ldFilter = ast.Lambda(
+                ast.arguments([ast.Name(gen.target.id, ast.Store())],
+                              None, None, []), ast.BoolOp(ast.And(), gen.ifs))
+            ifilterName = ast.Attribute(
+                value=ast.Name(id='itertools', ctx=ast.Load()),
+                attr='ifilter', ctx=ast.Load())
+            return ast.Call(ifilterName, [ldFilter, gen.iter], [], None, None)
+
+    def visit_GeneratorExp(self, node):
+
+        if node in self.optimizable_genexp:
+
+            self.generic_visit(node)
+
+            iterList = []
+            varList = []
+
+            for gen in node.generators:
+                iterList.append(self.make_Iterator(gen))
+                varList.append(ast.Name(gen.target.id, ast.Param()))
+
+            # If dim = 1, product is useless
+            if len(iterList) == 1:
+                iterAST = iterList[0]
+                varAST = ast.arguments([varList[0]], None, None, [])
+            else:
+                prodName = ast.Attribute(
+                    value=ast.Name(id='itertools', ctx=ast.Load()),
+                    attr='product', ctx=ast.Load())
+
+                iterAST = ast.Call(prodName, iterList, [], None, None)
+                varAST = ast.arguments([ast.Tuple(varList, ast.Store())],
+                                   None, None, [])
+
+            imapName = ast.Attribute(
+                    value=ast.Name(id='itertools', ctx=ast.Load()),
+                    attr='imap', ctx=ast.Load())
+
+            ldBodyimap = node.elt
+            ldimap = ast.Lambda(varAST, ldBodyimap)
+
+            return ast.Call(imapName, [ldimap, iterAST], [], None, None)
+
+        else:
+            return self.generic_visit(node)

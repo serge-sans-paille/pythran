@@ -6,6 +6,7 @@ from passes import RemoveLambdas, NormalizeTuples, NormalizeReturn
 from passes import UnshadowParameters, NormalizeException
 from passes import NormalizeMethodCalls, NormalizeAttributes, ExpandImports
 from passes import RemoveComprehension, RemoveNestedFunctions
+from optimizations import GenExpToImap
 
 from optimizations import ConstantFolding
 
@@ -16,6 +17,9 @@ default_optimization_sequence = (
 
 def refine(pm, node, optimizations=default_optimization_sequence):
     """refine node in place until it matches pythran's expectations"""
+
+    pm.apply(GenExpToImap, node)
+
     # sanitize input
     pm.apply(NormalizeException, node)
     pm.apply(NormalizeMethodCalls, node)

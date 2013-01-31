@@ -35,7 +35,7 @@ def pytype_to_ctype(t):
         return 'std::tuple<{0}>'.format(", ".join(pytype_to_ctype(_)
                                     for _ in t))
     elif isinstance(t, ndarray):
-        return 'core::ndarray<{0},{1}>'.format(pytype_to_ctype(t[tuple([0]*t.ndim)]), t.ndim)
+        return 'core::ndarray<{0},{1}>'.format(pytype_to_ctype(t.flat[0]), t.ndim)
     elif t in pytype_to_ctype_table:
         return pytype_to_ctype_table[t]
     else:
@@ -273,7 +273,7 @@ decltype(std::declval<int>() + 1) main()
 
         #numpy
         self.check_package('numpy',
-                '#include "arrayobject.h"\nint main() { return 0; }',
+                '#include "Python.h"\n#include "arrayobject.h"\nint main() { return 0; }',
                 cppflags=['-I{0}/numpy'.format(get_include())]
                 )
 

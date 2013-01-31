@@ -237,6 +237,12 @@ modules = {
                 "pi": ScalarIntr(),
                 "e": ScalarIntr(),
                 },
+       "itertools": {
+                "imap": ConstFunctionIntr(),
+                "ifilter": ConstFunctionIntr(),
+                "product": ConstFunctionIntr(),
+                "izip": ConstFunctionIntr(),
+                },
         "random": {
                 "seed": FunctionIntr(global_effects=True),
                 "random": FunctionIntr(global_effects=True),

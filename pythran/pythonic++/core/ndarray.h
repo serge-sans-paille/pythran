@@ -60,7 +60,7 @@ namespace  pythonic {
                 bool operator!=(ndarray_iterator<T,N> const& other)
                 {
                     return (!std::equal(ref_array.shape->begin(), ref_array.shape->end(), other.ref_array.shape->begin())
-                            || !std::equal(ref_array.data->data->begin(), ref_array.data->data->end(), other.ref_array.data->data->begin())
+                            || !std::equal(ref_array.data->data, ref_array.data->data + std::accumulate(ref_array.shape->begin(), ref_array.shape->end(), 0), other.ref_array.data->data)
                             || other.offset_data != ref_array.offset_data
                             || value != other.value);
                 }
@@ -84,7 +84,7 @@ namespace  pythonic {
                 ndarray_flat_iterator<T,N>& operator+=(long n) { value+=step*n; return *this; }
                 bool operator!=(ndarray_flat_iterator<T,N> const& other)
                 {
-                    return (!std::equal(ref_array.data->data->begin(), ref_array.data->data->end(), other.ref_array.data->data->begin())
+                    return (!std::equal(ref_array.data->data, ref_array.data->data + std::accumulate(ref_array.shape->begin(), ref_array.shape->end(), 0), other.ref_array.data->data)
                             || other.offset_data != ref_array.offset_data
                             || value != other.value);
                 }
@@ -181,16 +181,32 @@ namespace  pythonic {
                 ndarray(const core::ndarray<T,N>& array): data(array.data), offset_data(array.offset_data), shape(array.shape) {}
 
                 ndarray<T,N>& operator=(ndarray<T,N> && other) {
-                    data=std::move(other.data);
-                    offset_data=std::move(other.offset_data);
-                    shape=std::move(other.shape);
+                    if(*offset_data>0 || (shape->data() && std::accumulate(shape->begin(), shape->end(), 0)!=data->n))
+                    {
+                        std::copy(other.data->data + *other.offset_data, other.data->data + *other.offset_data + std::accumulate(other.shape->begin(), other.shape->end(), 0), data->data + *offset_data);
+
+                    }
+                    else
+                    {
+                        data=std::move(other.data);
+                        offset_data=std::move(other.offset_data);
+                        shape=std::move(other.shape);
+                    }
                     return *this;
                 }
 
                 ndarray<T,N>& operator=(ndarray<T,N> const & other) {
-                    shape=other.shape;
-                    data=other.data;
-                    offset_data=other.offset_data;
+                    if(*offset_data>0 || (shape->data() && std::accumulate(shape->begin(), shape->end(), 0)!=data->n))
+                    {
+                        std::copy(other.data->data + *other.offset_data, other.data->data + *other.offset_data + std::accumulate(other.shape->begin(), other.shape->end(), 0), data->data + *offset_data);
+
+                    }
+                    else
+                    {
+                        shape=other.shape;
+                        data=other.data;
+                        offset_data=other.offset_data;
+                    }
                     return *this;
                 }
 

@@ -3,6 +3,8 @@ from pythran import compile as pythran_compile
 from imp import load_dynamic
 import unittest
 import os
+from numpy import ndarray, array
+from numpy import any as npany
 
 
 class TestEnv(unittest.TestCase):
@@ -51,8 +53,16 @@ class TestEnv(unittest.TestCase):
 
             # Build the python function call.
             modname = "test_" + name
-            arglist = ",".join(("'{0}'".format(p) if isinstance(p, str)
-                              else str(p)) for p in params)
+            attributes = []
+            for p in params:
+                if isinstance(p, str):
+                    attributes.append("'{0}'".format(p))
+                elif isinstance(p, ndarray):
+                    attributes.append("numpy.{0}".format(
+                                repr(p).replace("\n", "")))
+                else:
+                    attributes.append(str(p))
+            arglist = ",".join(attributes)
             function_call = "{0}({1})".format(name, arglist)
 
             # Compile the python module, python-way, 'env' contains the module
@@ -79,7 +89,10 @@ class TestEnv(unittest.TestCase):
             pythran_res = getattr(pymod, name)(*params)
 
             # Compare pythran result against python ref and raise if mismatch
-            if python_ref != pythran_res:
+            if ((isinstance(python_ref, ndarray)
+                        and npany(python_ref != pythran_res))
+                    or (not isinstance(python_ref, ndarray)
+                        and python_ref != pythran_res)):
                 print "Python result: ", python_ref
                 print "Pythran result: ", pythran_res
                 self.assertAlmostEqual(python_ref, pythran_res)

@@ -35,7 +35,7 @@ namespace pythonic {
             {
                 core::ndarray<type, sizeof...(l)> a({l...});
                 for(int i=0;i<prev_l.size(); i++)
-                    a(i) = prev_l[i];
+                    a.data->data[i] = prev_l[i];
                 return a;
             }
 
@@ -103,7 +103,7 @@ namespace pythonic {
 
 #define CST_ARRAY(NAME, VAL)\
         template<class... T>\
-            core::ndarray<double, sizeof...(T)> NAME(std::tuple<T...> t)\
+            core::ndarray<double, sizeof...(T)> NAME(std::tuple<T...> const& t)\
             {\
                 return apply_to_tuple<sizeof...(T)-1>::builder(VAL, t, std::get<sizeof...(T)-1>(t));\
             }\

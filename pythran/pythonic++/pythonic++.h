@@ -26,6 +26,7 @@
 #include "modules/random.h"
 #include "modules/iterator.h"
 #include "modules/string.h"
+#include "modules/itertools.h"
 
 /* extensions */
 #include "core/parallel.h"

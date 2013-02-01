@@ -20,6 +20,7 @@ from passmanager import Transformation
 from tables import methods, attributes, functions
 from tables import cxx_keywords, namespace
 from operator import itemgetter
+from copy import copy
 import metadata
 import ast
 
@@ -317,7 +318,6 @@ class _NestedFunctionRemover(Transformation):
         self.passmanager = pm
 
     def visit_FunctionDef(self, node):
-        [self.visit(n) for n in node.body]
 
         self.ctx.module.body.append(node)
 
@@ -346,7 +346,8 @@ class _NestedFunctionRemover(Transformation):
 
         node.name = new_name
         proxy_call = ast.Name(new_name, ast.Load())
-        return ast.Assign(
+
+        new_node = ast.Assign(
                 [ast.Name(former_name, ast.Store())],
                 ast.Call(
                     ast.Name("bind{0}".format(former_nbargs), ast.Load()),
@@ -356,6 +357,9 @@ class _NestedFunctionRemover(Transformation):
                     None
                     )
                 )
+
+	self.generic_visit(node)
+	return new_node
 
 
 class RemoveNestedFunctions(Transformation):
@@ -411,7 +415,7 @@ class _LambdaRemover(Transformation):
                 + node.args.args)
         forged_fdef = ast.FunctionDef(
                 forged_name,
-                node.args,
+                copy(node.args),
                 [ast.Return(node.body)],
                 [])
         self.lambda_functions.append(forged_fdef)

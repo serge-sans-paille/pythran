@@ -55,3 +55,14 @@ def bool_op_casting():
 
     def test_parallel_enumerate(self):
         self.run_test('def parallel_enumerate(l):\n k = [0]*(len(l) + 1)\n "omp parallel for private(i,j)"\n for i,j in enumerate(l):\n  k[i+1] = j\n return k', range(1000), parallel_enumerate=[[int]])
+
+    def test_ultra_nested_functions(self):
+        code = '''
+def ultra_nested_function(n):
+	def foo(y):
+		def bar(t): return t
+		return bar(y)
+	return foo(n)'''
+        self.run_test(code, 42, ultra_nested_function=[int])
+        
+

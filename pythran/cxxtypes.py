@@ -265,6 +265,19 @@ class ElementType(Type):
                 ctx(self.of).generate(ctx))
 
 
+class AttributeType(Type):
+    def __init__(self, index, of):
+        Type.__init__(self, None, of.qualifiers)
+        self.of = of
+        self.index = index
+        self.fields = ("index", "of",)
+
+    def generate(self, ctx):
+        return 'typename attribute_element<{0},{1}>::type'.format(
+                self.index,
+                ctx(self.of).generate(ctx))
+
+
 class ListType(Type):
     def __init__(self, of):
         Type.__init__(self, None, of.qualifiers)

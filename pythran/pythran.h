@@ -245,6 +245,7 @@ struct __combined<T0,T1> {
 
 /* some overloads */
 namespace std {
+
     /* for remove_cv */
     template <class K, class V>
         struct remove_cv< std::pair<const K, V> > {
@@ -284,113 +285,116 @@ namespace std {
         struct tuple_element<I, container<T> > {
             typedef typename container<T>::value_type type;
         };
+}
 
-    /* for complex numbers */
-    template <size_t I, class T>
-        struct tuple_element<I, complex<T> > {
-            typedef T type;
-        };
+/* attributes */
+template <int I, class T>
+struct attribute_element;
+
+/* for complex numbers */
+template <int I, class T>
+    struct attribute_element<I, std::complex<T> > {
+        typedef T type;
+    };
+
 #define GET_COMPLEX(T)\
-    template <size_t I>\
-    T& get( std::complex<T>& );\
+    template <int I>\
+    T& getattr( std::complex<T>& );\
     template <>\
-    T& get<0>( std::complex<T>& t) { return reinterpret_cast<T*>(&t)[0]; }\
+    T& getattr<0>( std::complex<T>& t) { return reinterpret_cast<T*>(&t)[0]; }\
     template <>\
-    T& get<1>( std::complex<T>& t) { return reinterpret_cast<T*>(&t)[1]; }\
+    T& getattr<1>( std::complex<T>& t) { return reinterpret_cast<T*>(&t)[1]; }\
     \
-    template <size_t I>\
-    T const & get( std::complex<T> const & );\
+    template <int I>\
+    T const & getattr( std::complex<T> const & );\
     template <>\
-    T const & get<0>( std::complex<T> const & t) { return reinterpret_cast<T const *>(&t)[0]; }\
+    T const & getattr<0>( std::complex<T> const & t) { return reinterpret_cast<T const *>(&t)[0]; }\
     template <>\
-    T const & get<1>( std::complex<T> const & t) { return reinterpret_cast<T const *>(&t)[1]; }\
+    T const & getattr<1>( std::complex<T> const & t) { return reinterpret_cast<T const *>(&t)[1]; }\
 
-    GET_COMPLEX(double)
+GET_COMPLEX(double)
 
-        /* for exception */
+/* for exception */
 
 #define ACCESS_EXCEPTION(name) \
-        template <size_t I> \
-        struct tuple_element<I, core::name> { \
+        template <int I> \
+        struct attribute_element<I, core::name> { \
             typedef none<typename core::BaseError::Type<I>::type> type; \
         }; \
         \
-        template <size_t I> \
-        none<typename core::BaseError::Type<I>::type> get( const core::name& t ); \
+        template <int I> \
+        none<typename core::BaseError::Type<I>::type> getattr( const core::name& t ); \
         template <> \
-        none<typename core::BaseError::Type<0>::type> get<0>( const core::name& t) { return t.args; } \
+        none<typename core::BaseError::Type<0>::type> getattr<0>( const core::name& t) { return t.args; } \
 
-        ACCESS_EXCEPTION(BaseException);
-    ACCESS_EXCEPTION(SystemExit);
-    ACCESS_EXCEPTION(KeyboardInterrupt);
-    ACCESS_EXCEPTION(GeneratorExit);
-    ACCESS_EXCEPTION(Exception);
-    ACCESS_EXCEPTION(StopIteration);
-    ACCESS_EXCEPTION(StandardError);
-    ACCESS_EXCEPTION(Warning);
-    ACCESS_EXCEPTION(BytesWarning);
-    ACCESS_EXCEPTION(UnicodeWarning);
-    ACCESS_EXCEPTION(ImportWarning);
-    ACCESS_EXCEPTION(FutureWarning);
-    ACCESS_EXCEPTION(UserWarning);
-    ACCESS_EXCEPTION(SyntaxWarning);
-    ACCESS_EXCEPTION(RuntimeWarning);
-    ACCESS_EXCEPTION(PendingDeprecationWarning);
-    ACCESS_EXCEPTION(DeprecationWarning);
-    ACCESS_EXCEPTION(BufferError);
-    ACCESS_EXCEPTION(ArithmeticError);
-    ACCESS_EXCEPTION(AssertionError);
-    ACCESS_EXCEPTION(AttributeError);
-    ACCESS_EXCEPTION(EOFError);
-    ACCESS_EXCEPTION(ImportError);
-    ACCESS_EXCEPTION(LookupError);
-    ACCESS_EXCEPTION(MemoryError);
-    ACCESS_EXCEPTION(NameError);
-    ACCESS_EXCEPTION(ReferenceError);
-    ACCESS_EXCEPTION(RuntimeError);
-    ACCESS_EXCEPTION(SyntaxError);
-    ACCESS_EXCEPTION(SystemError);
-    ACCESS_EXCEPTION(TypeError);
-    ACCESS_EXCEPTION(ValueError);
-    ACCESS_EXCEPTION(FloatingPointError);
-    ACCESS_EXCEPTION(OverflowError);
-    ACCESS_EXCEPTION(ZeroDivisionError);
-    ACCESS_EXCEPTION(IndexError);
-    ACCESS_EXCEPTION(KeyError);
-    ACCESS_EXCEPTION(UnboundLocalError);
-    ACCESS_EXCEPTION(NotImplementedError);
-    ACCESS_EXCEPTION(IndentationError);
-    ACCESS_EXCEPTION(TabError);
-    ACCESS_EXCEPTION(UnicodeError);
+ACCESS_EXCEPTION(BaseException);
+ACCESS_EXCEPTION(SystemExit);
+ACCESS_EXCEPTION(KeyboardInterrupt);
+ACCESS_EXCEPTION(GeneratorExit);
+ACCESS_EXCEPTION(Exception);
+ACCESS_EXCEPTION(StopIteration);
+ACCESS_EXCEPTION(StandardError);
+ACCESS_EXCEPTION(Warning);
+ACCESS_EXCEPTION(BytesWarning);
+ACCESS_EXCEPTION(UnicodeWarning);
+ACCESS_EXCEPTION(ImportWarning);
+ACCESS_EXCEPTION(FutureWarning);
+ACCESS_EXCEPTION(UserWarning);
+ACCESS_EXCEPTION(SyntaxWarning);
+ACCESS_EXCEPTION(RuntimeWarning);
+ACCESS_EXCEPTION(PendingDeprecationWarning);
+ACCESS_EXCEPTION(DeprecationWarning);
+ACCESS_EXCEPTION(BufferError);
+ACCESS_EXCEPTION(ArithmeticError);
+ACCESS_EXCEPTION(AssertionError);
+ACCESS_EXCEPTION(AttributeError);
+ACCESS_EXCEPTION(EOFError);
+ACCESS_EXCEPTION(ImportError);
+ACCESS_EXCEPTION(LookupError);
+ACCESS_EXCEPTION(MemoryError);
+ACCESS_EXCEPTION(NameError);
+ACCESS_EXCEPTION(ReferenceError);
+ACCESS_EXCEPTION(RuntimeError);
+ACCESS_EXCEPTION(SyntaxError);
+ACCESS_EXCEPTION(SystemError);
+ACCESS_EXCEPTION(TypeError);
+ACCESS_EXCEPTION(ValueError);
+ACCESS_EXCEPTION(FloatingPointError);
+ACCESS_EXCEPTION(OverflowError);
+ACCESS_EXCEPTION(ZeroDivisionError);
+ACCESS_EXCEPTION(IndexError);
+ACCESS_EXCEPTION(KeyError);
+ACCESS_EXCEPTION(UnboundLocalError);
+ACCESS_EXCEPTION(NotImplementedError);
+ACCESS_EXCEPTION(IndentationError);
+ACCESS_EXCEPTION(TabError);
+ACCESS_EXCEPTION(UnicodeError);
 
 #define ENVIRONMENTERROR_EXCEPTION(name)\
-    template <size_t I> \
-    struct tuple_element<I, core::name> { \
-        typedef none<typename core::BaseError::Type<I>::type> type; \
-    }; \
+    template <int I> \
+        struct attribute_element<I, core::name> { \
+            typedef none<typename core::BaseError::Type<I>::type> type; \
+        }; \
     \
-    template <size_t I> \
-    none<typename core::BaseError::Type<I>::type> get( const core::name& t ); \
+    template <int I> \
+        none<typename core::BaseError::Type<I>::type> getattr( const core::name& t ); \
     template <> \
-    none<typename core::BaseError::Type<0>::type> get<0>( const core::name& t ){\
-        if (t.args.size()>3 || t.args.size()<2)\
-        return t.args;\
-        else\
-        return core::list<core::string>(t.args.begin(), t.args.begin()+2);\
+        none<typename core::BaseError::Type<0>::type> getattr<0>( const core::name& t ){\
+            if (t.args.size()>3 || t.args.size()<2)\
+                return t.args;\
+            else\
+                return core::list<core::string>(t.args.begin(), t.args.begin()+2);\
     }\
     template <>\
-    none<typename core::BaseError::Type<1>::type> get<1>( const core::name& t ){ if(t.args.size()>3 || t.args.size()<2) return (None); else return t.args[0];}\
+        none<typename core::BaseError::Type<1>::type> getattr<1>( const core::name& t ){ if(t.args.size()>3 || t.args.size()<2) return (None); else return t.args[0];}\
     template <>\
-    none<typename core::BaseError::Type<2>::type> get<2>( const core::name& t ){ if(t.args.size()>3 || t.args.size()<2) return None; else return t.args[1];}\
+        none<typename core::BaseError::Type<2>::type> getattr<2>( const core::name& t ){ if(t.args.size()>3 || t.args.size()<2) return None; else return t.args[1];}\
     template <>\
-    none<typename core::BaseError::Type<3>::type> get<3>( const core::name& t ){ if(t.args.size()==3) return t.args[2]; else return None; }\
+        none<typename core::BaseError::Type<3>::type> getattr<3>( const core::name& t ){ if(t.args.size()==3) return t.args[2]; else return None; }\
 
-    ENVIRONMENTERROR_EXCEPTION(EnvironmentError)
-        ENVIRONMENTERROR_EXCEPTION(IOError)
-        ENVIRONMENTERROR_EXCEPTION(OSError)
-
-}
-
+ENVIRONMENTERROR_EXCEPTION(EnvironmentError)
+ENVIRONMENTERROR_EXCEPTION(IOError)
+ENVIRONMENTERROR_EXCEPTION(OSError)
 
 /* } */
 

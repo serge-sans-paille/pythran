@@ -530,8 +530,8 @@ in Python, the Cython approach is more verbose.
 
 \begin{figure}[ht]
 
-    \begin{lstlisting}[label={lst:cython-sample}, caption={Cython Impelmentation
-    of a Parallel Reduction.}]
+    \begin{lstlisting}[label={lst:cython-sample}, caption={Cython implementation
+    of a parallel reduction.}]
 import math
 cimport cython
 from cython.parallel import parallel, prange
@@ -547,8 +547,8 @@ def sum_sqrt():
 \end{figure}
 %
 \begin{figure}[ht]
-    \begin{lstlisting}[label={lst:pythran-sample}, caption={Cython Impelmentation
-    of a Parallel Reduction.}]
+    \begin{lstlisting}[label={lst:pythran-sample}, caption={Cython implementation
+    of a parallel reduction.}]
 #pythran export sum_sqrt()
 import math
 def sum_sqrt():

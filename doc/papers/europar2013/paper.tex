@@ -70,7 +70,7 @@ it possible to bundle C code snippet into Python code and compile then load them
 at runtime.
 
 This hybrid approach, based on a mix of interpreted and native code, is getting
-wide spread in the Python landscape. Section~\ref{sec:python-parallel} studies
+widespread in the Python landscape. Section~\ref{sec:python-parallel} studies
 the existing approaches and shows a critical lack of parallelism support.
 Section~\ref{sec:python-openmp} studies the validity of adding OpenMP directives
 to the Python language in order to add fine-grain parallelism support to Python
@@ -102,12 +102,12 @@ processes approach.
 Although the standard \texttt{threading} module makes it possible to start
 several light-weight threads within the same interpreter, this approach is not
 relevant for HPC, because of a specificity of CPython, the \emph{Global
-Interpreter Lock}~\cite{gil2012}~\footnote{Other Python interpreters, such as
-IronPython or Jython, do not have a GIL.} This lock ensures only one thread is
-active at a time in the interpreter. While it make it possible to have
+Interpreter Lock}~\cite{gil2012}.~\footnote{Other Python interpreters, such as
+IronPython or Jython, do not have a GIL.} This lock ensures that only one thread
+is active at a time in the interpreter. While it makes it possible to have
 cooperative thread, say for a GUI, it does not take advantage of multiple cores.
 However, there are two notable exceptions: the GIL is released on I/O, and the
-GIl does not prevent the use of threads inside native modules, where the user
+GIL does not prevent the use of threads inside native modules, where the user
 has full control.
 
 As a consequence, Python developers need to write multi-threaded native
@@ -138,7 +138,7 @@ An opposite approach consists in using the host language ---herein Python---
 to describe both parts of the system, and to let an automated tool perform the
 translation to native code of a part of the application, generally the
 computation-intensive one where parallelism has been expressed in some ways.
-Thus, developers not familiar with lower level language or not eager to invest
+Thus, developers not familiar with lower level languages or not eager to invest
 the additional development time can still benefit from a fair performance boost.
 This approach has been subject to many studies that can be classified based on
 their backward-compatibity with the host language.

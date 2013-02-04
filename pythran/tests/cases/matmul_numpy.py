@@ -1,4 +1,4 @@
-#runas a=[ [ float(i) for i in xrange(600)] for j in xrange(600)] ; matrix_multiply(a,a)
+#runas a=[ [ float(i) for i in xrange(600)] for j in xrange(600)] ; import numpy ; a = numpy.array(a) ; matrix_multiply(a,a)
 #pythran export matrix_multiply(float[][], float[][])
 import numpy
 def matrix_multiply(m0, m1):

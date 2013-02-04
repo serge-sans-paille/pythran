@@ -1,4 +1,6 @@
-'''This module defines classes needed to manipulate c++ types from pythran.'''
+'''
+This module defines classes needed to manipulate c++ types from pythran.
+'''
 import tables
 
 
@@ -259,6 +261,19 @@ class ElementType(Type):
 
     def generate(self, ctx):
         return 'typename std::tuple_element<{0},{1}>::type'.format(
+                self.index,
+                ctx(self.of).generate(ctx))
+
+
+class AttributeType(Type):
+    def __init__(self, index, of):
+        Type.__init__(self, None, of.qualifiers)
+        self.of = of
+        self.index = index
+        self.fields = ("index", "of",)
+
+    def generate(self, ctx):
+        return 'typename attribute_element<{0},{1}>::type'.format(
                 self.index,
                 ctx(self.of).generate(ctx))
 

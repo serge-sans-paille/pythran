@@ -15,6 +15,11 @@ class TestDoctest(unittest.TestCase):
         failed, _ = doctest.testmod(passes)
         self.assertEqual(failed, 0)
 
+    def test_optimizations(self):
+        from pythran import optimizations
+        failed, _ = doctest.testmod(optimizations)
+        self.assertEqual(failed, 0)
+
     #def test_typing(self):
     #    from pythran import typing
     #    failed, _ = doctest.testmod(typing)

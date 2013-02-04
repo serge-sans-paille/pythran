@@ -1,5 +1,6 @@
-'''This modules contains code transformation to turn pythran code into
-    optimized pythran code
+'''
+This modules contains code transformation to turn pythran code into
+optimized pythran code
     * ConstantUnfolding performs some kind of partial evaluation.
 '''
 
@@ -11,7 +12,18 @@ import ast
 
 ##
 class ConstantFolding(Transformation):
-    '''Replace constant expression by their evaluation.'''
+    '''
+    Replace constant expression by their evaluation.
+    >>> import ast, passmanager, backend
+    >>> node = ast.parse("def foo(): return len(range(5))")
+    >>> pm = passmanager.PassManager("test")
+    >>> pm.apply(ConstantFolding, node)
+    >>> print pm.dump(backend.Python, node)
+    <BLANKLINE>
+    <BLANKLINE>
+    def foo():
+        return 5
+    '''
 
     MAX_LEN = 2 ** 16
 

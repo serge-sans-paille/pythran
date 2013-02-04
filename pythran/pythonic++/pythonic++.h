@@ -12,10 +12,12 @@
 #include "core/set.h"
 #include "core/dict.h"
 #include "core/tuple.h"
+#include "core/ndarray.h"
 #include "core/io.h"
 #include "core/intrinsics.h"
 
 /* additional modules */
+#include "modules/numpy.h"
 #include "modules/dispatch.h"
 #include "modules/list.h"
 #include "modules/set.h"

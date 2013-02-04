@@ -211,6 +211,15 @@ core::list<decltype(std::declval<V1>()+std::declval<V2>())> operator+(indexable_
 template <class K, class V1, class V2>
 core::list<decltype(std::declval<V1>()+std::declval<V2>())> operator+(core::list<V2>, indexable_container<K,V1>);
 
+template<unsigned long N, class type, class K, class V>
+core::ndarray<type,N> operator+(core::ndarray<type,N>, indexable_container<K,V>);
+template<unsigned long N, class type, class K, class V>
+core::ndarray<type,N> operator+(indexable_container<K,V>, core::ndarray<type,N>);
+template<unsigned long N, class T, class K>
+core::ndarray<T,N> operator+(core::ndarray<T,N>, indexable<K>);
+template<class K, class T, unsigned long N>
+core::ndarray<T,N> operator+(indexable<K>, core::ndarray<T,N>);
+
 template <class K, class V1, class V2>
 core::set<decltype(std::declval<V1>()+std::declval<V2>())> operator+(indexable_container<K,V1>, core::set<V2>);
 template <class K, class V1, class V2>
@@ -245,6 +254,7 @@ struct __combined<T0,T1> {
 
 /* some overloads */
 namespace std {
+
     /* for remove_cv */
     template <class K, class V>
         struct remove_cv< std::pair<const K, V> > {
@@ -260,6 +270,21 @@ namespace std {
         struct tuple_element<I, core::list<T> > {
             typedef typename core::list<T>::value_type type;
         };
+
+    /* for core::ndarray */
+    template <size_t I, class T, unsigned long N>
+        typename core::ndarray_helper<T,N>::result_type get( core::ndarray<T,N>& a) { return a[I]; }
+    template <size_t I, class T, unsigned long N>
+        typename core::ndarray_helper<T,N>::const_result_type get( core::ndarray<T,N> const& a) { return a[I]; }
+    template <size_t I, class T>
+        struct tuple_element<I, core::ndarray<T,1> > {
+            typedef T type;
+        };
+    template <size_t I, class T, unsigned long N>
+        struct tuple_element<I, core::ndarray<T,N> > {
+            typedef core::ndarray<T,N-1> type;
+        };
+
     /* for core::dict */
     template <size_t I, class K, class V>
         auto get( core::dict<K,V>& d) -> decltype(d[I]) { return d[I]; }
@@ -284,113 +309,230 @@ namespace std {
         struct tuple_element<I, container<T> > {
             typedef typename container<T>::value_type type;
         };
+}
 
-    /* for complex numbers */
-    template <size_t I, class T>
-        struct tuple_element<I, complex<T> > {
-            typedef T type;
-        };
+/* attributes */
+template <int I, class T>
+struct attribute_element
+{
+    typedef T& type;
+};
+
+/* for ndarrays */
+template <class T, unsigned long N>
+    struct attribute_element<0, pythonic::core::ndarray<T,N> > {
+        typedef core::list<long> type;
+    };
+
+template <class T, unsigned long N>
+    struct attribute_element<1, pythonic::core::ndarray<T,N> > {
+        typedef long type;
+    };
+
+template <class T, unsigned long N>
+    struct attribute_element<2, pythonic::core::ndarray<T,N> > {
+        typedef core::list<long> type;
+    };
+
+template <class T, unsigned long N>
+    struct attribute_element<3, pythonic::core::ndarray<T,N> > {
+        typedef long type;
+    };
+
+template <class T, unsigned long N>
+    struct attribute_element<4, pythonic::core::ndarray<T,N> > {
+        typedef long type;
+    };
+
+template <class T, unsigned long N>
+    struct attribute_element<5, pythonic::core::ndarray<T,N> > {
+        typedef long type;
+    };
+
+template <class T, unsigned long N>
+    struct attribute_element<6, pythonic::core::ndarray<T,N> > {
+        typedef pythonic::core::ndarray_flat<T,N> type;
+    };
+
+template <unsigned int I, class T, unsigned long N>
+    struct ndarray_attr;
+
+template <class T, unsigned long N>
+    struct ndarray_attr<0,T,N>
+    {
+        typename attribute_element<0,pythonic::core::ndarray<T,N>>::type const operator()(core::ndarray<T,N> const& a)
+        {
+            return core::list<long>(a.shape->begin(), a.shape->end());
+        }
+    };
+
+template <class T, unsigned long N>
+    struct ndarray_attr<1,T,N>
+    {
+        typename attribute_element<1,pythonic::core::ndarray<T,N>>::type const operator()(core::ndarray<T,N> const& a)
+        {
+            return N;
+        }
+    };
+
+template <class T, unsigned long N>
+    struct ndarray_attr<2,T,N>
+    {
+        typename attribute_element<2,pythonic::core::ndarray<T,N>>::type const operator()(core::ndarray<T,N> const& a)
+        {
+            core::list<long> strides(N);
+            strides[N-1] = sizeof(T);
+            std::transform(strides.rbegin(), strides.rend() -1, a.shape->rbegin(), strides.rbegin()+1, std::multiplies<int>());
+            return strides;
+        }
+    };
+
+template <class T, unsigned long N>
+    struct ndarray_attr<3,T,N>
+    {
+        typename attribute_element<3,pythonic::core::ndarray<T,N>>::type const operator()(core::ndarray<T,N> const& a)
+        {
+            return std::accumulate(a.shape->begin(), a.shape->end(), 1, std::multiplies<int>());
+        }
+    };
+
+template <class T, unsigned long N>
+    struct ndarray_attr<4,T,N>
+    {
+        typename attribute_element<4,pythonic::core::ndarray<T,N>>::type const operator()(core::ndarray<T,N> const& a)
+        {
+            return sizeof(T);
+        }
+    };
+
+template <class T, unsigned long N>
+    struct ndarray_attr<5,T,N>
+    {
+        typename attribute_element<5,pythonic::core::ndarray<T,N>>::type const operator()(core::ndarray<T,N> const& a)
+        {
+            return std::accumulate(a.shape->begin(), a.shape->end(), sizeof(T), std::multiplies<int>());
+        }
+    };
+
+template <class T, unsigned long N>
+    struct ndarray_attr<6,T,N>
+    {
+        typename attribute_element<6,pythonic::core::ndarray<T,N>>::type const operator()(core::ndarray<T,N> const& a)
+        {
+            return pythonic::core::ndarray_flat<T,N>(a);
+        }
+    };
+
+template <unsigned int I, class T, unsigned long N>
+    typename attribute_element<I,pythonic::core::ndarray<T,N>>::type const getattr(core::ndarray<T,N> const& a)
+    {
+        return ndarray_attr<I,T,N>()(a);
+    }
+
+/* for complex numbers */
+template <int I, class T>
+    struct attribute_element<I, std::complex<T> > {
+        typedef T type;
+    };
+
 #define GET_COMPLEX(T)\
-    template <size_t I>\
-    T& get( std::complex<T>& );\
+    template <int I>\
+    T& getattr( std::complex<T>& );\
     template <>\
-    T& get<0>( std::complex<T>& t) { return reinterpret_cast<T*>(&t)[0]; }\
+    T& getattr<0>( std::complex<T>& t) { return reinterpret_cast<T*>(&t)[0]; }\
     template <>\
-    T& get<1>( std::complex<T>& t) { return reinterpret_cast<T*>(&t)[1]; }\
+    T& getattr<1>( std::complex<T>& t) { return reinterpret_cast<T*>(&t)[1]; }\
     \
-    template <size_t I>\
-    T const & get( std::complex<T> const & );\
+    template <int I>\
+    T const & getattr( std::complex<T> const & );\
     template <>\
-    T const & get<0>( std::complex<T> const & t) { return reinterpret_cast<T const *>(&t)[0]; }\
+    T const & getattr<0>( std::complex<T> const & t) { return reinterpret_cast<T const *>(&t)[0]; }\
     template <>\
-    T const & get<1>( std::complex<T> const & t) { return reinterpret_cast<T const *>(&t)[1]; }\
+    T const & getattr<1>( std::complex<T> const & t) { return reinterpret_cast<T const *>(&t)[1]; }\
 
-    GET_COMPLEX(double)
+GET_COMPLEX(double)
 
-        /* for exception */
+/* for exception */
 
 #define ACCESS_EXCEPTION(name) \
-        template <size_t I> \
-        struct tuple_element<I, core::name> { \
+        template <int I> \
+        struct attribute_element<I, core::name> { \
             typedef none<typename core::BaseError::Type<I>::type> type; \
         }; \
         \
-        template <size_t I> \
-        none<typename core::BaseError::Type<I>::type> get( const core::name& t ); \
+        template <int I> \
+        none<typename core::BaseError::Type<I>::type> getattr( const core::name& t ); \
         template <> \
-        none<typename core::BaseError::Type<0>::type> get<0>( const core::name& t) { return t.args; } \
+        none<typename core::BaseError::Type<0>::type> getattr<0>( const core::name& t) { return t.args; } \
 
-        ACCESS_EXCEPTION(BaseException);
-    ACCESS_EXCEPTION(SystemExit);
-    ACCESS_EXCEPTION(KeyboardInterrupt);
-    ACCESS_EXCEPTION(GeneratorExit);
-    ACCESS_EXCEPTION(Exception);
-    ACCESS_EXCEPTION(StopIteration);
-    ACCESS_EXCEPTION(StandardError);
-    ACCESS_EXCEPTION(Warning);
-    ACCESS_EXCEPTION(BytesWarning);
-    ACCESS_EXCEPTION(UnicodeWarning);
-    ACCESS_EXCEPTION(ImportWarning);
-    ACCESS_EXCEPTION(FutureWarning);
-    ACCESS_EXCEPTION(UserWarning);
-    ACCESS_EXCEPTION(SyntaxWarning);
-    ACCESS_EXCEPTION(RuntimeWarning);
-    ACCESS_EXCEPTION(PendingDeprecationWarning);
-    ACCESS_EXCEPTION(DeprecationWarning);
-    ACCESS_EXCEPTION(BufferError);
-    ACCESS_EXCEPTION(ArithmeticError);
-    ACCESS_EXCEPTION(AssertionError);
-    ACCESS_EXCEPTION(AttributeError);
-    ACCESS_EXCEPTION(EOFError);
-    ACCESS_EXCEPTION(ImportError);
-    ACCESS_EXCEPTION(LookupError);
-    ACCESS_EXCEPTION(MemoryError);
-    ACCESS_EXCEPTION(NameError);
-    ACCESS_EXCEPTION(ReferenceError);
-    ACCESS_EXCEPTION(RuntimeError);
-    ACCESS_EXCEPTION(SyntaxError);
-    ACCESS_EXCEPTION(SystemError);
-    ACCESS_EXCEPTION(TypeError);
-    ACCESS_EXCEPTION(ValueError);
-    ACCESS_EXCEPTION(FloatingPointError);
-    ACCESS_EXCEPTION(OverflowError);
-    ACCESS_EXCEPTION(ZeroDivisionError);
-    ACCESS_EXCEPTION(IndexError);
-    ACCESS_EXCEPTION(KeyError);
-    ACCESS_EXCEPTION(UnboundLocalError);
-    ACCESS_EXCEPTION(NotImplementedError);
-    ACCESS_EXCEPTION(IndentationError);
-    ACCESS_EXCEPTION(TabError);
-    ACCESS_EXCEPTION(UnicodeError);
+ACCESS_EXCEPTION(BaseException);
+ACCESS_EXCEPTION(SystemExit);
+ACCESS_EXCEPTION(KeyboardInterrupt);
+ACCESS_EXCEPTION(GeneratorExit);
+ACCESS_EXCEPTION(Exception);
+ACCESS_EXCEPTION(StopIteration);
+ACCESS_EXCEPTION(StandardError);
+ACCESS_EXCEPTION(Warning);
+ACCESS_EXCEPTION(BytesWarning);
+ACCESS_EXCEPTION(UnicodeWarning);
+ACCESS_EXCEPTION(ImportWarning);
+ACCESS_EXCEPTION(FutureWarning);
+ACCESS_EXCEPTION(UserWarning);
+ACCESS_EXCEPTION(SyntaxWarning);
+ACCESS_EXCEPTION(RuntimeWarning);
+ACCESS_EXCEPTION(PendingDeprecationWarning);
+ACCESS_EXCEPTION(DeprecationWarning);
+ACCESS_EXCEPTION(BufferError);
+ACCESS_EXCEPTION(ArithmeticError);
+ACCESS_EXCEPTION(AssertionError);
+ACCESS_EXCEPTION(AttributeError);
+ACCESS_EXCEPTION(EOFError);
+ACCESS_EXCEPTION(ImportError);
+ACCESS_EXCEPTION(LookupError);
+ACCESS_EXCEPTION(MemoryError);
+ACCESS_EXCEPTION(NameError);
+ACCESS_EXCEPTION(ReferenceError);
+ACCESS_EXCEPTION(RuntimeError);
+ACCESS_EXCEPTION(SyntaxError);
+ACCESS_EXCEPTION(SystemError);
+ACCESS_EXCEPTION(TypeError);
+ACCESS_EXCEPTION(ValueError);
+ACCESS_EXCEPTION(FloatingPointError);
+ACCESS_EXCEPTION(OverflowError);
+ACCESS_EXCEPTION(ZeroDivisionError);
+ACCESS_EXCEPTION(IndexError);
+ACCESS_EXCEPTION(KeyError);
+ACCESS_EXCEPTION(UnboundLocalError);
+ACCESS_EXCEPTION(NotImplementedError);
+ACCESS_EXCEPTION(IndentationError);
+ACCESS_EXCEPTION(TabError);
+ACCESS_EXCEPTION(UnicodeError);
 
 #define ENVIRONMENTERROR_EXCEPTION(name)\
-    template <size_t I> \
-    struct tuple_element<I, core::name> { \
-        typedef none<typename core::BaseError::Type<I>::type> type; \
-    }; \
+    template <int I> \
+        struct attribute_element<I, core::name> { \
+            typedef none<typename core::BaseError::Type<I>::type> type; \
+        }; \
     \
-    template <size_t I> \
-    none<typename core::BaseError::Type<I>::type> get( const core::name& t ); \
+    template <int I> \
+        none<typename core::BaseError::Type<I>::type> getattr( const core::name& t ); \
     template <> \
-    none<typename core::BaseError::Type<0>::type> get<0>( const core::name& t ){\
-        if (t.args.size()>3 || t.args.size()<2)\
-        return t.args;\
-        else\
-        return core::list<core::string>(t.args.begin(), t.args.begin()+2);\
+        none<typename core::BaseError::Type<0>::type> getattr<0>( const core::name& t ){\
+            if (t.args.size()>3 || t.args.size()<2)\
+                return t.args;\
+            else\
+                return core::list<core::string>(t.args.begin(), t.args.begin()+2);\
     }\
     template <>\
-    none<typename core::BaseError::Type<1>::type> get<1>( const core::name& t ){ if(t.args.size()>3 || t.args.size()<2) return (None); else return t.args[0];}\
+        none<typename core::BaseError::Type<1>::type> getattr<1>( const core::name& t ){ if(t.args.size()>3 || t.args.size()<2) return (None); else return t.args[0];}\
     template <>\
-    none<typename core::BaseError::Type<2>::type> get<2>( const core::name& t ){ if(t.args.size()>3 || t.args.size()<2) return None; else return t.args[1];}\
+        none<typename core::BaseError::Type<2>::type> getattr<2>( const core::name& t ){ if(t.args.size()>3 || t.args.size()<2) return None; else return t.args[1];}\
     template <>\
-    none<typename core::BaseError::Type<3>::type> get<3>( const core::name& t ){ if(t.args.size()==3) return t.args[2]; else return None; }\
+        none<typename core::BaseError::Type<3>::type> getattr<3>( const core::name& t ){ if(t.args.size()==3) return t.args[2]; else return None; }\
 
-    ENVIRONMENTERROR_EXCEPTION(EnvironmentError)
-        ENVIRONMENTERROR_EXCEPTION(IOError)
-        ENVIRONMENTERROR_EXCEPTION(OSError)
-
-}
-
+ENVIRONMENTERROR_EXCEPTION(EnvironmentError)
+ENVIRONMENTERROR_EXCEPTION(IOError)
+ENVIRONMENTERROR_EXCEPTION(OSError)
 
 /* } */
 
@@ -451,6 +593,7 @@ namespace pythonic {
 
 /* boost::python converters */
 #include <boost/python/numeric.hpp>
+#include "arrayobject.h"
 
 template<int ...> struct seq {};
 
@@ -606,6 +749,28 @@ struct python_to_pythran< std::tuple<Types...> >{
 
     static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
         do_construct(obj_ptr, data, typename gens< std::tuple_size<std::tuple<Types...>>::value >::type());
+    }
+};
+
+template<typename type, unsigned long N>
+struct python_to_pythran< core::ndarray<type, N> >{
+    python_to_pythran(){
+        static bool registered=false;
+        pythonic::fwd(python_to_pythran<type>());
+        if(not registered) {
+            registered=true;
+            boost::python::converter::registry::push_back(&convertible,&construct,boost::python::type_id< core::ndarray<type, N> >());
+        }
+    }
+    static void* convertible(PyObject* obj_ptr){
+        if(!PyArray_Check(obj_ptr) ) return 0;
+        return obj_ptr;
+    }
+
+    static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
+        void* storage=((boost::python::converter::rvalue_from_python_storage<core::ndarray<type,N>>*)(data))->storage.bytes;
+        new (storage) core::ndarray< type, N>((type*)PyArray_BYTES(obj_ptr), PyArray_DIMS(obj_ptr));
+        data->convertible=storage;
     }
 };
 
@@ -797,6 +962,52 @@ struct pythran_to_python< none<T> > {
     pythran_to_python() {
         pythran_to_python<T>();
         register_once<none<T>, custom_none_to_any<T>>();
+    }
+};
+
+template<class T>
+struct c_type_to_numpy_type {};
+
+template<>
+struct c_type_to_numpy_type<double> {
+    static const int value = NPY_DOUBLE;
+};
+
+template<>
+struct c_type_to_numpy_type<long int> {
+    static const int value = NPY_LONG;
+};
+
+template<>
+struct c_type_to_numpy_type<long long int> {
+    static const int value = NPY_LONGLONG;
+};
+
+template<>
+struct c_type_to_numpy_type<int> {
+    static const int value = NPY_INT;
+};
+
+template<>
+struct c_type_to_numpy_type<bool> {
+    static const int value = NPY_BOOL;
+};
+
+template<class T, unsigned long N>
+struct custom_array_to_ndarray {
+    static PyObject* convert( core::ndarray<T,N> n) {
+        PyObject* result = PyArray_SimpleNewFromData(N, n.shape->data(), c_type_to_numpy_type<T>::value, n.data.forget()->data + *n.offset_data);
+
+        if (!result)
+            return nullptr;
+        return boost::python::incref(result);
+    }
+};
+
+template<class T, unsigned long N>
+struct pythran_to_python< core::ndarray<T,N> > {
+    pythran_to_python() {
+        register_once< core::ndarray<T,N> , custom_array_to_ndarray<T,N> >();
     }
 };
 /* } */

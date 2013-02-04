@@ -1,4 +1,5 @@
-'''This modules contains code transformation to turn python AST into
+'''
+This modules contains code transformation to turn python AST into
     pythran AST
     * NormalizeTuples removes implicite variable -> tuple conversion
     * RemoveComprehension turns list comprehension into function calls
@@ -18,6 +19,8 @@ from analysis import ImportedIds, Identifiers, YieldPoints
 from passmanager import Transformation
 from tables import methods, attributes, functions
 from tables import cxx_keywords, namespace
+from operator import itemgetter
+from copy import copy
 import metadata
 import ast
 
@@ -125,11 +128,11 @@ class NormalizeTuples(Transformation):
             self.traverse_tuples(arg, (), renamings)
             if renamings:
                 self.counter += 1
-                newname = "{0}{1}".format(
+                nname = "{0}{1}".format(
                         NormalizeTuples.tuple_name,
                         self.counter)
-                node.args.args[i] = ast.Name(newname, ast.Param())
-                node.body = _ConvertToTuple(newname, renamings).visit(node.body)
+                node.args.args[i] = ast.Name(nname, ast.Param())
+                node.body = _ConvertToTuple(nname, renamings).visit(node.body)
         return node
 
     def visit_Assign(self, node):
@@ -167,19 +170,28 @@ class NormalizeTuples(Transformation):
                 else extra_assign)
 
     def visit_For(self, node):
-        self.generic_visit(node)
         target = node.target
         if isinstance(target, ast.Tuple) or isinstance(target, ast.List):
-                renamings = dict()
-                self.traverse_tuples(target, (), renamings)
-                if renamings:
-                    self.counter += 1
-                    newname = "{0}{1}".format(
-                            NormalizeTuples.tuple_name,
-                            self.counter)
-                    node.target = ast.Name(newname, node.target.ctx)
-                    node.body = [_ConvertToTuple(newname, renamings).visit(n)
-                            for n in node.body]
+            renamings = dict()
+            self.traverse_tuples(target, (), renamings)
+            if renamings:
+                elems = [x[0] for x in
+                        sorted(renamings.items(), key=itemgetter(1))]
+                self.counter += 1
+                newname = "{0}{1}".format(
+                        NormalizeTuples.tuple_name,
+                        self.counter)
+                node.target = ast.Name(newname, node.target.ctx)
+                metadata.add(node.target, metadata.LocalVariable())
+                node.body.insert(0,
+                        ast.Assign([
+                            ast.Tuple(
+                                [ast.Name(x, ast.Store()) for x in elems],
+                                ast.Store())],
+                            ast.Name(newname, ast.Load())
+                            )
+                        )
+        self.generic_visit(node)
         return node
 
 
@@ -306,7 +318,6 @@ class _NestedFunctionRemover(Transformation):
         self.passmanager = pm
 
     def visit_FunctionDef(self, node):
-        [self.visit(n) for n in node.body]
 
         self.ctx.module.body.append(node)
 
@@ -335,7 +346,8 @@ class _NestedFunctionRemover(Transformation):
 
         node.name = new_name
         proxy_call = ast.Name(new_name, ast.Load())
-        return ast.Assign(
+
+        new_node = ast.Assign(
                 [ast.Name(former_name, ast.Store())],
                 ast.Call(
                     ast.Name("bind{0}".format(former_nbargs), ast.Load()),
@@ -345,6 +357,9 @@ class _NestedFunctionRemover(Transformation):
                     None
                     )
                 )
+
+	self.generic_visit(node)
+	return new_node
 
 
 class RemoveNestedFunctions(Transformation):
@@ -367,7 +382,6 @@ class RemoveNestedFunctions(Transformation):
     def pythran_bar(x, y):
         return (x + y)
     '''
-    
 
     def visit_Module(self, node):
         [self.visit(n) for n in node.body]
@@ -401,7 +415,7 @@ class _LambdaRemover(Transformation):
                 + node.args.args)
         forged_fdef = ast.FunctionDef(
                 forged_name,
-                node.args,
+                copy(node.args),
                 [ast.Return(node.body)],
                 [])
         self.lambda_functions.append(forged_fdef)
@@ -489,7 +503,7 @@ class NormalizeReturn(Transformation):
 class NormalizeMethodCalls(Transformation):
     '''
     Turns built in method calls into function calls.
-    
+
     >>> import ast, passmanager, backend
     >>> node = ast.parse("l.append(12)")
     >>> pm = passmanager.PassManager("test")
@@ -514,7 +528,7 @@ class NormalizeMethodCalls(Transformation):
 class NormalizeAttributes(Transformation):
     '''
     Turns built in attributes into tuple subscript.
-    
+
     >>> import ast, passmanager, backend
     >>> node = ast.parse("a.real")
     >>> pm = passmanager.PassManager("test")
@@ -526,10 +540,12 @@ class NormalizeAttributes(Transformation):
 
     def visit_Attribute(self, node):
         if node.attr in attributes:
-            return ast.Subscript(
+            out = ast.Subscript(
                     node.value,
                     ast.Index(ast.Num(attributes[node.attr][1].val)),
                     node.ctx)
+            metadata.add(out, metadata.Attribute())
+            return out
         elif node.attr in functions:
             if len(functions[node.attr]) > 1:
                 return node
@@ -607,19 +623,19 @@ class NormalizeException(Transformation):
     Transform else statement in try except block in nested try except.
 
     >>> import ast, passmanager, backend
-    >>> node = ast.parse("try:print 'tried'\\nexcept: print 'excepted'\\nelse: print 'else'")
+    >>> node = ast.parse("try:print 't'\\nexcept: print 'x'\\nelse: print 'e'")
     >>> pm = passmanager.PassManager("test")
     >>> node = pm.apply(NormalizeException, node)
     >>> print pm.dump(backend.Python, node)
     <BLANKLINE>
     try:
-        print 'tried'
+        print 't'
         try:
-            print 'else'
+            print 'e'
         except:
             pass
     except:
-        print 'excepted'
+        print 'x'
     '''
     def visit_TryExcept(self, node):
         if node.orelse:

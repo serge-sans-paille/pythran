@@ -1,3 +1,8 @@
+'''
+This module contains all classes used to model intrinsics behavior.
+'''
+
+
 class UpdateEffect(object):
     pass
 

@@ -1,4 +1,5 @@
-'''This module performs the return type inference, according to symbolic types,
+'''
+This module performs the return type inference, according to symbolic types,
    It then reorders function declarations according to the return type deps.
     * type_all generates a node -> type binding
 '''
@@ -13,9 +14,10 @@ from analysis import OrderedGlobalDeclarations, ModuleAnalysis, StrictAliases
 from passes import Transformation
 from syntax import PythranSyntaxError
 from cxxtypes import *
-from intrinsic import UserFunction
+from intrinsic import UserFunction, MethodIntr
 import types
 import itertools
+import metadata
 
 
 # networkx backward compatibility
@@ -559,10 +561,15 @@ class Types(ModuleAnalysis):
 
     def visit_Subscript(self, node):
         self.visit(node.value)
-        if isinstance(node.slice, ast.Slice):
+        if metadata.get(node, metadata.Attribute):
+            f = lambda t: AttributeType(node.slice.value.n, t)
+        elif isinstance(node.slice, ast.Slice):
             f = lambda t: t
         elif isinstance(node.slice.value, ast.Num):
             f = lambda t: ElementType(node.slice.value.n, t)
+        elif isinstance(node.slice.value, ast.Tuple):
+            f = lambda t: reduce(lambda x, y: ContentType(x),
+                    node.slice.value.elts, t)
         else:
             f = lambda t: ContentType(t)
         self.combine(node, node.value, unary_op=f)

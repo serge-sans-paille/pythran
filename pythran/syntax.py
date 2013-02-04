@@ -1,4 +1,9 @@
-'''This module performs a few early syntax check on the input AST.'''
+'''
+This module performs a few early syntax check on the input AST.
+It checks the conformance of the input code to Pythran specific
+constraints.
+'''
+
 import ast
 import tables
 
@@ -19,7 +24,8 @@ class SyntaxChecker(ast.NodeVisitor):
             self.attributes.update(module.iterkeys())
 
     def visit_Module(self, node):
-        err = "Top level statements can only be functions, comments or imports"
+        err = ("Top level statements can only be strings, functions, comments"
+               " or imports")
         for n in node.body:
             if isinstance(n, ast.Expr) and isinstance(n.value, ast.Str):
                 continue

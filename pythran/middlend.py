@@ -1,5 +1,7 @@
-'''This module turns a python AST into an optimized, pythran compatible ast
 '''
+This module turns a python AST into an optimized, pythran compatible ast
+'''
+
 from passes import RemoveLambdas, NormalizeTuples, NormalizeReturn
 from passes import UnshadowParameters, NormalizeException
 from passes import NormalizeMethodCalls, NormalizeAttributes, ExpandImports

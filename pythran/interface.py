@@ -1,4 +1,5 @@
-'''This module contains all the stuff to make your way from python code to
+'''
+This module contains all the stuff to make your way from python code to
     a dynamic library
     * cxx_generator transforms a python module to c++ code
     * compile transforms c++ code into a native module
@@ -10,13 +11,14 @@ import distutils.sysconfig
 from cxxgen import *
 import ast
 from middlend import refine, default_optimization_sequence
-from backend import CxxBackend
+from backend import Cxx
 from subprocess import check_output, STDOUT, CalledProcessError
 from tempfile import mkstemp, NamedTemporaryFile
 from syntax import check_syntax
 from passes import NormalizeIdentifiers
 from passmanager import PassManager
 from tables import pytype_to_ctype_table
+from numpy import get_include, ndarray
 
 
 def pytype_to_ctype(t):
@@ -32,6 +34,8 @@ def pytype_to_ctype(t):
     elif isinstance(t, tuple):
         return 'std::tuple<{0}>'.format(", ".join(pytype_to_ctype(_)
                                     for _ in t))
+    elif isinstance(t, ndarray):
+        return 'core::ndarray<{0},{1}>'.format(pytype_to_ctype(t.flat[0]), t.ndim)
     elif t in pytype_to_ctype_table:
         return pytype_to_ctype_table[t]
     else:
@@ -39,7 +43,7 @@ def pytype_to_ctype(t):
 
 
 def extract_constructed_types(t):
-    if isinstance(t, list):
+    if isinstance(t, list) or isinstance(t, ndarray):
         return [pytype_to_ctype(t)] + extract_constructed_types(t[0])
     elif isinstance(t, set):
         return [pytype_to_ctype(t)] + extract_constructed_types(list(t)[0])
@@ -93,7 +97,7 @@ def cxx_generator(module_name, code, specs=None, optimizations=None):
         optimizations = [parse_optimization(optim) for optim in optimizations]
     refine(pm, ir, optimizations)
     # back-end
-    content = pm.dump(CxxBackend, ir)
+    content = pm.dump(Cxx, ir)
 
     if specs is None:
         class Generable:
@@ -116,11 +120,12 @@ def cxx_generator(module_name, code, specs=None, optimizations=None):
         max_arity = max(4, max(max(map(len, s)) for s in specs.itervalues()))
         mod.add_to_preamble([Define("BOOST_PYTHON_MAX_ARITY", max_arity)])
         mod.add_to_preamble(content)
-        mod.add_to_init([Statement(
-'boost::python::numeric::array::set_module_and_type("numpy", "ndarray")')])
-        mod.add_to_init([Statement(
-            'boost::python::implicitly_convertible<std::string,'
-            + 'pythonic::core::string>()')])
+        mod.add_to_init([
+            Statement('import_array()'),
+            Statement(
+                'boost::python::implicitly_convertible<std::string,'
+                + 'pythonic::core::string>()')]
+            )
 
         for function_name, signatures in specs.iteritems():
             internal_function_name = renamings.get(function_name,
@@ -265,6 +270,12 @@ decltype(std::declval<int>() + 1) main()
                                 optional=True)
         except EnvironmentError:
             pass
+
+        #numpy
+        self.check_package('numpy',
+                '#include "Python.h"\n#include "arrayobject.h"\nint main() { return 0; }',
+                cppflags=['-I{0}/numpy'.format(get_include())]
+                )
 
         # pythonic++
         self.check_package('pythonic++',

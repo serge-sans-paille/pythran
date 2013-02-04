@@ -1,4 +1,7 @@
-'''This modules provides the translation tables from python to c++'''
+'''
+This modules provides the translation tables from python to c++.
+'''
+
 import ast
 import cxxtypes
 from intrinsic import ConstFunctionIntr, FunctionIntr
@@ -179,7 +182,12 @@ modules = {
             "bind1": FunctionIntr(),
             "bind2": FunctionIntr(),
             "bind3": FunctionIntr(),
-            "pmap":  ConstFunctionIntr(),
+            "pmap": ConstFunctionIntr(),
+            },
+        "numpy": {
+            "array": ConstFunctionIntr(),
+            "zeros": ConstFunctionIntr(),
+            "ones": ConstFunctionIntr(),
             },
         "math": {
                 "isinf": ConstFunctionIntr(),
@@ -420,6 +428,15 @@ modules = {
                 },
         "__iterator__": {
                 "next": MethodIntr(),
+                },
+        "__ndarray__" : {
+                "shape": AttributeIntr(0),
+                "ndim": AttributeIntr(1),
+                "strides": AttributeIntr(2),
+                "size": AttributeIntr(3),
+                "itemsize": AttributeIntr(4),
+                "nbytes": AttributeIntr(5),
+                "flat": AttributeIntr(6),
                 },
         # conflicting method names must be listed here
         "__dispatch__": {

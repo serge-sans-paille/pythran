@@ -52,3 +52,17 @@ def bool_op_casting():
 
     def test_zip_on_generator(self):
         self.run_test('def zip_on_generator(n): return zip((i for i in xrange(n)), (i*2 for i in xrange(1,n+1)))', 5, zip_on_generator=[int])
+
+    def test_parallel_enumerate(self):
+        self.run_test('def parallel_enumerate(l):\n k = [0]*(len(l) + 1)\n "omp parallel for private(i,j)"\n for i,j in enumerate(l):\n  k[i+1] = j\n return k', range(1000), parallel_enumerate=[[int]])
+
+    def test_ultra_nested_functions(self):
+        code = '''
+def ultra_nested_function(n):
+	def foo(y):
+		def bar(t): return t
+		return bar(y)
+	return foo(n)'''
+        self.run_test(code, 42, ultra_nested_function=[int])
+        
+

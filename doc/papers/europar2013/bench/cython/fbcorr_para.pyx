@@ -3,15 +3,15 @@ cimport numpy as np
 cimport cython
 from cython.parallel import parallel, prange
 
-DTYPE = np.float
-ctypedef np.float_t DTYPE_t
+DTYPE = np.double
+ctypedef np.double_t DTYPE_t
 
 @cython.boundscheck(False)
-def fbcorr_para(np.ndarray[DTYPE_t, ndim=4, negative_indices=False] imgs,np.ndarray[DTYPE_t, ndim=4, negative_indices=False] filters):
+def fbcorr(np.ndarray[DTYPE_t, ndim=4, negative_indices=False] imgs,np.ndarray[DTYPE_t, ndim=4, negative_indices=False] filters):
     cdef int n_imgs = imgs.shape[0], n_rows = imgs.shape[1], n_cols = imgs.shape[2], n_channels = imgs.shape[3]
     cdef int n_filters = filters.shape[0], height = filters.shape[1], width = filters.shape[2], n_ch2 = filters.shape[3]
     cdef int ii, rr, cc, hh, ww, jj, ff
-    cdef float imgval, filterval, tmp
+    cdef double imgval, filterval, tmp
     cdef np.ndarray[DTYPE_t, ndim=4, negative_indices=False] output = np.zeros((n_imgs, n_filters, n_rows - height + 1, n_cols - width + 1))
     with nogil, parallel():
         for ii in prange(n_imgs):

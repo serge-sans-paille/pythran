@@ -3,17 +3,17 @@ cimport numpy as np
 import numpy as np
 from cython.parallel import parallel, prange
 
-DTYPE = np.float
-ctypedef np.float_t DTYPE_t
+DTYPE = np.double
+ctypedef np.double_t DTYPE_t
 
 @cython.boundscheck(False)
 @cython.cdivision(True)
 def mandel(int size, int x_center, int y_center, int max_iteration):
     cdef int i, j, iteration, color_value
-    cdef float x, y, a, b
+    cdef double x, y, a, b
     cdef np.ndarray[DTYPE_t, ndim=2, negative_indices=False] out = np.zeros((size,size))
     with nogil, parallel():
-        for i in prange(size, schedule="static", chunksize=5):
+        for i in prange(size):#, schedule="static", chunksize=5):
             for j in xrange(size):
                 x = x_center + 4.0*float(i-size/2)/size
                 y = y_center + 4.0*float(j-size/2)/size

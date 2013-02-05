@@ -2,13 +2,13 @@ cimport cython
 cimport numpy as np
 import numpy as np
 
-DTYPE = np.float
-ctypedef np.float_t DTYPE_t
+DTYPE = np.double
+ctypedef np.double_t DTYPE_t
 
 @cython.boundscheck(False)
 def mandel(int size, int x_center, int y_center, int max_iteration):
     cdef int i, j, iteration, color_value
-    cdef float x, y, a, b
+    cdef double x, y, a, b
     cdef np.ndarray[DTYPE_t, ndim=2, negative_indices=False] out = np.zeros((size,size))
     for i in xrange(size):
         for j in xrange(size):

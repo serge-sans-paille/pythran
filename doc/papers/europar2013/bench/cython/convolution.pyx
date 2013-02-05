@@ -2,8 +2,8 @@ import numpy as np
 cimport numpy as np
 cimport cython
 
-DTYPE = np.float
-ctypedef np.float_t DTYPE_t
+DTYPE = np.double
+ctypedef np.double_t DTYPE_t
 
 @cython.boundscheck(False)
 def convolution(np.ndarray[DTYPE_t, ndim=2, negative_indices=False] A):
@@ -11,15 +11,15 @@ def convolution(np.ndarray[DTYPE_t, ndim=2, negative_indices=False] A):
     cdef int n = A.shape[1]
     cdef np.ndarray[DTYPE_t, ndim=2, negative_indices=False] B = np.zeros((m,n))
 
-    cdef float c11 = 2.0
-    cdef float c21 = 5.0
-    cdef float c31 = -8.0
-    cdef float c12 = -3.0
-    cdef float c22 = 6.0
-    cdef float c32 = -9.0
-    cdef float c13 = 4.0
-    cdef float c23 = 7.0
-    cdef float c33 = 10.0
+    cdef double c11 = 2.0
+    cdef double c21 = 5.0
+    cdef double c31 = -8.0
+    cdef double c12 = -3.0
+    cdef double c22 = 6.0
+    cdef double c32 = -9.0
+    cdef double c13 = 4.0
+    cdef double c23 = 7.0
+    cdef double c33 = 10.0
     cdef int i,j
     for i in xrange(1, m - 1):
         for j in xrange(1, n - 1):

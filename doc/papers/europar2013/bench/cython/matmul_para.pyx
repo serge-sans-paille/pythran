@@ -3,14 +3,14 @@ cimport numpy as np
 cimport cython
 from cython.parallel import parallel, prange
 
-DTYPE = np.float
-ctypedef np.float_t DTYPE_t
+DTYPE = np.double
+ctypedef np.double_t DTYPE_t
 
 @cython.boundscheck(False)
 def matrix_multiply(np.ndarray[DTYPE_t, ndim=2, negative_indices=False] m0, np.ndarray[DTYPE_t, ndim=2, negative_indices=False] m1):
     cdef np.ndarray[DTYPE_t, ndim=2, negative_indices=False] new_matrix = np.zeros((m0.shape[0],m1.shape[1]))
     cdef int i, j, k
-    cdef float r
+    cdef double r
     "omp parallel for private(i,j,k,r)"
     with nogil, parallel():
         for i in prange(m0.shape[0]):

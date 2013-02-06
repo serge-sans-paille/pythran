@@ -38,10 +38,14 @@ class TestCommand(Command):
         where = os.path.join('pythran', 'tests')
         try:
             import py
+            import xdist
             import multiprocessing
+            args=[where]
             cpu_count = multiprocessing.cpu_count()
-            py.test.cmdline.main(["-n", str(cpu_count), where])
+            args[:] = ["-n", str(cpu_count)] + args
+            py.test.cmdline.main(args)
         except ImportError:
+            print "W: Using only one thread, try to install pytest-xdist package"
             loader = TestLoader()
             t = TextTestRunner()
             t.run(loader.discover(where))

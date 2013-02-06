@@ -172,15 +172,14 @@ class TestException(TestEnv):
 
     def test_finally2_exception(self):
         self.run_test("def finally_exception_():\n try:\n  raise 1\n  return 'bad'\n except:\n  a=2\n finally:\n  return 'good'", finally_exception_=[])
-# Error due to List to Tuple conversion
-#    def test_str1_exception(self):
-#        self.run_test("def str1_exception_():\n try:\n  raise EnvironmentError('a')\n except EnvironmentError as e:\n  return str(e)", str1_exception_=[])
 
+    def test_str1_exception(self):
+        self.run_test("def str1_exception_():\n try:\n  raise EnvironmentError('a')\n except EnvironmentError as e:\n  return str(e)", str1_exception_=[])
     def test_str2_exception(self):
         self.run_test("def str2_exception_():\n try:\n  raise EnvironmentError('a','b')\n except EnvironmentError as e:\n  return str(e)", str2_exception_=[])
-
     def test_str3_exception(self):
         self.run_test("def str3_exception_():\n try:\n  raise EnvironmentError('a','b','c')\n except EnvironmentError as e:\n  return str(e)", str3_exception_=[])
-# Error due to List to Tuple conversion
-#    def test_str4_exception(self):
-#        self.run_test("def str4_exception_():\n try:\n  raise EnvironmentError('a','b','c','d')\n except EnvironmentError as e:\n  return str(e)", str4_exception_=[])
+    def test_str4_exception(self):
+        self.run_test("def str4_exception_():\n try:\n  raise EnvironmentError('a','b','c','d')\n except EnvironmentError as e:\n  return str(e)", str4_exception_=[])
+    def test_str5_exception(self):
+        self.run_test("def str5_exception_():\n try:\n  raise EnvironmentError('a','b','c','d','e')\n except EnvironmentError as e:\n  return str(e)", str5_exception_=[])

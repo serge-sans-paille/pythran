@@ -2,6 +2,7 @@
 #define PYTHONIC_IO_H
 
 #include <iostream>
+#include <string>
 
 namespace pythonic {
 
@@ -40,14 +41,36 @@ namespace pythonic {
         return o << e.args;
     }
 
+    /* @brief Convert EnvironmentError to a string.
+     *
+     * The number of arguments used when creating the EnvironmentError impact
+     * the resulting "type" or formatting of the chain. We aim to mimic python
+     * behavior of course:
+     * - only one arg, then assume it can be converted to string,
+     * - two args, then the first one is the errno, the next one a string,
+     * - three args, like two args, adding "filename" as third one (after ':')
+     * - four or more args, the "tuple" used to construct the exception
+     *
+     */
     std::ostream& operator<<(std::ostream& o, core::EnvironmentError const & e)
     {
+        if(e.args.size()==1)
+            return o << e.args[0];
         if(e.args.size()==2)
             return o << "[Errno " << e.args[0] << "] " << e.args[1];
         else if(e.args.size()==3)
             return o << "[Errno " << e.args[0] << "] " << e.args[1] << ": '" << e.args[2] << "'";
-        else
-            return o << e.args;
+        else {
+        	// Generate "('a', 'b', 'c', 'd') if a,b,c, and d are in e.args
+            std::string listsep = "";
+            o << "(";
+            for(auto arg : e.args) {
+                o << listsep << "'" << arg << "'";
+                listsep=", ";
+            }
+            o << ")";
+            return o;
+        }
     }
 
     /* set */

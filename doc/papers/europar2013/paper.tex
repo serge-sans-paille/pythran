@@ -11,9 +11,10 @@
 \usetikzlibrary{positioning}
 \usetikzlibrary{shadows}
 \usetikzlibrary{arrows}
+\usetikzlibrary{shapes}
 
 
-\lstset{language=python}
+\lstset{language=python,morekeywords={cimport, cdef, with}}
 
 \begin{document}
 %
@@ -32,14 +33,15 @@
 %
 \begin{abstract}
 
-    The Python language offers an interesting alternative as a scientific
+    The Python language offers an interesting solution as a scientific
     computing language thanks to the SciPy package. However, the lack of
     fine-grained parallelism support remains an important shortcoming. This
     paper proposes to add OpenMP directives to the Python language and shows
     that it is possible to turn a module written in a large Python subset
-    enhanced with these directive into a native parallel module that runs as
-    fast as its naive C equivalent. The approach is validated through the
-    Pythran compiler.
+    enhanced with these directives into a native parallel module that runs as
+    fast as its naive C equivalent, while keeping the input code totally
+    compatible with the python interpreter. The approach is validated through
+    the Pythran compiler.
 
 \keywords{Python, OpenMP, C++, static compilation, scripting language}
 \end{abstract}
@@ -55,13 +57,13 @@ computing~\cite{Oliphant2007}, mainly thanks to the SciPy~\cite{scipy} project
 that adds Matlab-like functionalities to the language.
 
 The prohibitive performance overhead of the language implied by its interpreted
-and highly dynamic nature should prevent its usage as a language for high
+and highly dynamic nature does not prevent its usage as a language for high
 performance computing. SciPy overcomes this issue through the usage of low-level
 routines written in C or Fortran and encapsulated in Python through
 \emph{native} modules. Moreover, its core data structure, the multi-dimensional
 array~\cite{numpyarray2011}, was designed so that the underlying data are
 available to both native modules and the Python interpreter without conversion
-costs.
+cost.
 
 To make it easier for the user to write native functions, \emph{i.e.}\ without
 having to write the glue code that turns Python object into native structures
@@ -71,24 +73,24 @@ at runtime.
 
 This hybrid approach, based on a mix of interpreted and native code, is getting
 widespread in the Python landscape. Section~\ref{sec:python-parallel} studies
-the existing approaches and shows a critical lack of parallelism support.
+the existing approaches and shows a critical lack of parallelism support, and
+emphasises on the need for a backward-compatible approach.
 Section~\ref{sec:python-openmp} studies the validity of adding OpenMP directives
 to the Python language in order to add fine-grain parallelism support to Python
 in the context of a Python subset called Pythran. Static compilation of this
 language into C++ and the underlying runtime is described in
 Section~\ref{sec:python-static}. The Pythran compiler is benchmarked on several
-scientific applications and compared to both interpreted and native code in
-Section~\ref{sec:validation}.
+scientific kernels and compared to Cython in Section~\ref{sec:validation}.
 
 %=========================================================
 \section{Parallel Computations in Python}\label{sec:python-parallel}
 %=========================================================
 
 In the many cores area, turning to parallelism to balance the performance
-limitations of scripting languages, as described in~\cite{choy05} in the context
-of the MATLAB language, or in~\cite{mals07} in the context of the R language,
-seems legitimate. In the context of Python, most approaches have
-focused on fork-based parallelism.
+limitations of scripting languages, as described 
+% in~\cite{choy05} in the context of the MATLAB language, or
+in~\cite{mals07} in the context of the R language, seems legitimate. In the
+context of Python, most approaches have focused on fork-based parallelism.
 
 \subsection{Python and Parallelism}
 
@@ -110,8 +112,13 @@ However, there are two notable exceptions: the GIL is released on I/O, and the
 GIL does not prevent the use of threads inside native modules, where the user
 has full control.
 
+To illustrate this behavior, we used the CPU-bound Buffon's needle algorithm to
+estimate the value of $\pi$. It's execution time using a multi-threaded
+implementation on 4 cores is $\times 1.46$ the execution time of the sequential
+version. GIL contention actually makes the code run slower. 
+
 As a consequence, Python developers need to write multi-threaded native
-modules in order to fully benefit from multiple cores. This lead to a kind of
+modules in order to fully benefit from multiple cores. This leads to a kind of
 computations referred as hybrid computations.
 
 %There have been several approaches to replace the GIL by Transactional
@@ -121,15 +128,15 @@ computations referred as hybrid computations.
 
 \subsection{Hybrid Computations}
 
-In the context of interpreted language, an hybrid computation is defined
-in~\cite{dongara2007} as a computation where part of the code is interpreted,
-and part of the code is executed natively.
+In the context of interpreted language, \cite{dongara2007} defines a computation
+as \emph{hybrid} when part of the code is interpreted, and part of it is
+executed natively.
 
 It is now common for scripting language to have C bindings. To take advantage of
 compiled code, and to overcome the GIL limitations, Python developers must write
 parallel C/C++ functions and the associated boilerplate based on the Python C
 API~\cite{pythoncapi}. Tools have been developed to relieve the user from
-writing the encapsulating code, notably Swig~\cite{swig2003} that relies on an
+writing the encapsulating code, notably SWIG~\cite{swig2003} that relies on an
 enhanced interface specification, or
 \texttt{boost::python}~\cite{boostpython2007} that relies on C++ facilities to
 guide translation.
@@ -157,17 +164,22 @@ appropriate size may lead to significant performance boost.
 Cython~\cite{cython2010} is such a Python dialect. It extends the syntax with
 typing informations, calls to native functions from third party libraries, and a
 limited set of parallelism constructs, among which the possibility to define
-parallel loops, but no task parallelism. Plw~\cite{dongara2007} proposes a
+parallel loops, but no task parallelism. PLW~\cite{dongara2007} proposes a
 similar approach that mixes Python with C, using raw strings to hold the C code
-and the parallel directives, that are limited to parallel for loops.  The
-numba~\footnote{\emph{cf}.\ \texttt{https://github.com/numba/numba}} compiler
-uses additional type information to generate sequential LLVM bytecode.  PyCUDA
-and PyOpenCL~\cite{klockner2012} also mixes python with kernels embeded as raw
-strings to target accelerators.
+and the parallel directives, that are limited to parallel for loops.
+%The numba~\footnote{\emph{cf}.\ \texttt{https://github.com/numba/numba}}
+%compiler uses additional type information to generate sequential LLVM bytecode.
+PyCUDA and PyOpenCL~\cite{klockner2012} also mixes python with kernels embedded
+as raw strings to target accelerators.
 
 The core issue of these approaches is that they imply to modify, in a more or
 less trivial way, the original code. They require to invest in a new language,
-and the long-term preservation of this investment is not ensured.
+and the long-term preservation of this investment is not ensured. Moreover,
+there is no falling back if the code where to be deployed in an environment
+where the parallelizing tool/module is not available. For instance, once a code
+has been ported to PyCUDA and transformed into CUDA code embedded in Python
+strings, there is no way back and the developer has to maintain two versions of
+the algorithm.
 
 \subsubsection{Backward-Compatible Approaches}
 
@@ -176,14 +188,14 @@ but they do not extend the Python language, rather restrict it. As a
 consequence, they remain compatible with the original language and do not suffer
 from the drawbacks of the previous approach.
 
-Copperhead~\cite{shedskin2006} is a functional, data parallel language embedded in
-Python. It uses n-uplets, Numpy arrays and lists as its core data structure and
+Copperhead~\cite{copperhead2011} is a functional, data parallel language embedded in
+Python. It uses n-uplets, numpy arrays and lists as its core data structure and
 prohibits usage of many control-flow operators such as loops, enforcing the use
 of the \texttt{map}, \texttt{filter} or \texttt{reduce} intrinsics to exhibit
 parallelism. In returns, it can be efficiently compiled to either CUDA or C++
 with calls to the Thrust~\footnote{\emph{cf}.\
 \texttt{http://thrust.github.com/}} library. Python decorators are used to
-identify hot-spots that are dynamically compiled to native code.
+identify hot-spots that are JIT-compiled to native code.
 
 Tools such as PyPy~\cite{pypy2009}, a Python interpreter with a tracing JIT, or
 Shedskin~\cite{shedskin2006}, a Python to C++ compiler also are viable way to
@@ -193,10 +205,18 @@ proposes.
 %~\footnote{Shedskin is compatible with several Python modules that
 %provide coarse-grained, fork-based parallelism.}
 
+To be completely backward compatible, it must be possible to run the input code
+in an environment that is not aware of the existence of the parallelizing
+solution. This principle is not respected by parallel libraries, but code
+annotations satisfy it. This is where  OpenMP~\cite{openmp3.1} parallel
+annotations shines: the original code remains compatible with a compiler that is
+not aware of OpenMP.
+
 This article proposes to combine OpenMP~\cite{openmp3.1} parallel annotations
-with a Python subset called Pythran to bring fine-grain parallelism to Python
+with a Python subset called Pythran to bring fine-grain parallelism to Python.
 while being backward compatible with both the Python language, and the
-sequential algorithm. It means that:
+sequential algorithm.It means that:
+%
 \begin{enumerate}
     \item Any Pythran code can be run (sequentially), with no module dependency or code change,
         by any Python interpreter.
@@ -212,11 +232,9 @@ OpenMP is a standard API for parallel programming for Fortran, C and C++. It
 consists in a set of parallelizing directives and a few runtime library calls.
 If OpenMP is not activated, the directives are ignored, thus enabling
 incremental parallelization of the original source code while keeping the
-original code structure.
-
-The languages targeted by OpenMP are statically compiled. This section studies
-the semantic adaptation required to use the same API for a scripting language
-such as Python.
+original code structure. The languages targeted by OpenMP are statically
+compiled. This section studies the semantic adaptation required to use the same
+API for a scripting language such as Python.
 
 \subsection{Directives}
 
@@ -225,27 +243,28 @@ on structured blocks, represented by an instruction in C/C++ and delimited by
 comment in Fortran. A few directives (e.g.\ \texttt{threadprivate}) are not
 attached to a specific instruction.
 
-While Pythran does have a decorator mechanism~\footnote{\see PEP 319,
-\url{http://www.python.org/dev/peps/pep-0318/} for a more detail explanation fo
+While Pythran does have a decorator mechanism~\footnote{\see PEP 318,
+\url{http://www.python.org/dev/peps/pep-0318/} for a more detail explanation of
 Python decorators.}, it only applies to functions, methods and classes and does
 not make it possible to attach decorations to random instructions.
 PLW~\cite{dongara2007} suggests to use string instructions to hold such
-decorations. As Python does not have anonymous block~\footnote{\see PEP340,
-    \url{http://www.python.org/dev/peps/pep-0340/} for a discussion concerning
-anonymous block support in Python.}, one has to create a dummy \texttt{if 1:}
-instruction to apply an annotation to a whole block. Alternatively, the syntax
-\texttt{if 'my annotation':} is also supported.
-Listing~\ref{lst:instruction-annotation} shows how to annotate a parallel loop
-with reduction this way.
+decorations. As Python does not have anonymous block,
+%~\footnote{\see PEP340, \url{http://www.python.org/dev/peps/pep-0340/} for a
+%discussion concerning anonymous block support in Python.}
+one has to create a dummy \texttt{if 1:} instruction to apply an annotation to a
+whole block. Alternatively, the syntax \texttt{if 'my annotation':} is also
+supported. 
 
-\begin{figure}
-    \begin{lstlisting}[label={lst:instruction-annotation}, caption={Parallel
-    loop with reduction annotated with OpenMP directive.}]
-'omp parallel for reduction(+:r)'
-for auto in my_container:
-  r += x
-  \end{lstlisting}
-\end{figure}
+%Listing~\ref{lst:instruction-annotation} shows how to annotate a
+%parallel loop with reduction this way.
+%
+%\begin{figure}
+%    \begin{lstlisting}[label={lst:instruction-annotation}, caption={Parallel
+%    loop with reduction annotated with OpenMP directive.}]
+%'omp parallel for reduction(+:r)'
+%for auto in my_container: r += x
+%  \end{lstlisting}
+%\end{figure}
 
 Many OpenMP annotations are parametrized by clauses that list variables,
 specifying their behavior with respect to parallel regions, e.g.\
@@ -255,9 +274,7 @@ declaration in Python, and all variables assigned in a function have the
 function scope. Consequently, all variables referred to in a function are to be
 considered when building such variable lists: there is no concept of variable
 local to a block. Using the \texttt{default(none)} clause is possible to ensure
-that no variable gets forgotten when building such lists, as a compile-time
-error is raised if a variable is referred in a block but not in the associated
-parallel region.
+no variable gets forgotten when building such lists.
 
 The \texttt{reduction(\emph{operator}: \emph{list})} is used to handle data
 dependencies when performing a parallel reduction. The supported operator
@@ -283,7 +300,7 @@ The extension of Python iterator to random access iterators is direct for the
 standard containers: \texttt{list}~\footnote{Python \texttt{list}s behave as C++
 \texttt{vector}s.}, \texttt{set} or \texttt{dict}.
 
-Python also generalizes the concept of iterators through generators, which also
+Python also generalizes the concept of iterators through generators, which 
 behave like forward iterators. The simplest one, \texttt{xrange(\emph{start},
 \emph{stop}, \emph{step})}, successively yields value starting from
 \texttt\emph{start} to \texttt\emph{stop} by a step of \texttt\emph{step}. It is
@@ -293,24 +310,23 @@ random states of the iterator may be of an arbitrary complexity.
 
 A particular class of generator behaves like adaptor, in the sense that they
 apply a particular expression on each value of the iterator. It is the case of
-the \texttt{enumerate} builtin that yields each element of the enumerated
-iterator associated with its index. Generator expressions such as \texttt{(x*x
-for x in l)} have the same behavior. These generators are random iterators only
-if their input iterator is a random iterator itself.
+the \texttt{enumerate} builtin, that yields each element of the enumerated
+iterator associated with its index, and of generator expressions such as
+\texttt{(x*x for x in l)}. These generators are random iterators only if their
+input iterator is a random iterator itself.
 
 Finally, if the iterator yields a tuple, it is possible to unpack it inside the
 \texttt{for} construct, as shown in Listing~\ref{lst:complex-omp-for}. In that case
 all the unpacked variables are considered as iterators, especially with respect
-to default privatization rules. In the given example, \texttt{i} and \texttt{v}
+to default privatization rules: in the given example, \texttt{i} and \texttt{v}
 are private, and the parallel iteration is valid because the input of
 \texttt{enumerate} is a list, which allows random access iteration.
 
 \begin{figure}
     \begin{lstlisting}[label={lst:complex-omp-for}, caption={Parallel
-    loop with tuple unpacking.}]
+    loop in Pythran with tuple unpacking.}]
 'omp parallel for'
-for i, v in enumerate([2, 3, 5, 7, 11]):
-  print i, ':', v
+for i, v in enumerate([2, 3, 5, 7, 11]): print i, ':', v
   \end{lstlisting}
 \end{figure}
 
@@ -327,9 +343,9 @@ integers as parameters or return values, except for the mutex manipulation. In
 that case an opaque type is used to represent the native type.
 
 The \texttt{\_OPENMP} macro definition is always provided when OpenMP is
-activated, and can be used for portability with system where OpenMP is not
-available. Python does not have a preprocessor, but it is possible to catch the
-import exception if the \texttt{omp} module is not found.
+activated, and can be used to detect when OpenMP is not available. Python does
+not have a preprocessor, but it is possible to catch the import exception if the
+\texttt{omp} module is not found.
 
 \subsection{Validation}
 
@@ -341,16 +357,14 @@ test case is given in Listing~\ref{lst:openmp-validation}.
 \begin{figure}
     \begin{lstlisting}[label={lst:openmp-validation},caption={Example of Python
     OpenMP validation test case.}]
-def omp_parallel_for_if():
+def omp_parallel_for_if(loop_count):
   import omp
-  using = num_threads = 0
-  sum = sum2 = 0
-  LOOPCOUNT = 1000
-  'omp parallel for private(i) if(using == 1)'
-  for i in range(LOOPCOUNT + 1):
+  using = sum = sum2 = 0
+  'omp parallel for if(using == 1)'
+  for i in range(loop_count + 1):
     num_threads = omp.get_num_threads()
     sum += i
-  known_sum = (LOOPCOUNT * (LOOPCOUNT + 1)) / 2
+  known_sum = (loop_count * (loop_count + 1)) / 2
   return known_sum == sum and num_threads == 1
     \end{lstlisting}
 \end{figure}
@@ -374,18 +388,22 @@ introspection (e.g.\ \texttt{getattr}) or runtime compilation (e.g.\
 language (e.g.\ \texttt{math}, \texttt{random}). The \texttt{numpy} module is
 partially supported. The associated compiler turns Pythran code, eventually
 annotated with OpenMP and exported function type annotation, into C++ code. Its
-processing is summarized in Figure~\ref{fig:pythran-compiler}. The purpose of
-this section is not to dig into the internal of the compiler, but rather to
-focus on the impact of the parallelism layer, especially on the runtime library,
-\texttt{pythonic}.
+processing is summarized in Figure~\ref{fig:pythran-compiler} and relies on type
+inference to remove most dynamic behavior, combined with a high-level runtime
+library, \texttt{pythonic}, to allow a one-to-one mapping between Python and C++
+constructs. The purpose of this section is not to dig into the internal of the
+compiler, but rather to focus on the impact of the parallelism layer, especially
+on the runtime library.
 
 \begin{figure}
 
 \centering
 \begin{tikzpicture}[
-file/.style={draw=black!50,fill=black!10,rectangle, drop shadow, align=center},
-    tool/.style={draw=black!50,fill=black!10,circle, align=center}]
-    \node[file] (python) {\textbf{Python Module [\texttt{.py}]}};
+file/.style={draw=black!50,fill=black!10,rectangle, drop shadow, align=center,
+node distance=0.6cm},
+    tool/.style={draw=black!50,fill=black!10,ellipse, align=center, node
+distance=0.6cm}]
+\node[file] (python) {\textbf{Python Module [\texttt{.py}]}};
 \node[file] (annotation)	   [right=of python] {\textbf{Type Info}};
 \node[file] (omp)	   [left=of python] {\textbf{OpenMP}};
 \node[tool] (pythran) [below=of python] {\textbf{Pythran}};
@@ -414,20 +432,26 @@ The standard library of C++11, unlike its C++03 version, is thread-safe. Pythran
 runtime is based on the STL and provides the same guaranty, so that the data
 dependences in the original code remains explicit.
 
-A critical point when designing the pythonic runtime was memory management, the
-very same aspect that lead to the use of a GIL in CPython. Pythran handles the
-problem by refusing recursive types, which makes it possible to solely rely on
-reference counting for memory management. It can be implemented through the
-thread-safe shared pointer mechanism provided in C++11 standard library.
+A critical point of the design of the \texttt{pythonic} runtime is memory
+management, the very same aspect that lead to the use of a GIL in CPython.
+Memory management is implemented in Shedskin through the general-purpose Boehm
+garbage collector~\cite{boehm1991}, and Cython forbids usage of Python-managed
+object inside parallel regions, thus making memory management explicit for these
+parts.
+
+Pythran handles the problem by refusing recursive types, which makes it possible
+to solely rely on reference counting for memory management. It can be
+implemented through the thread-safe shared pointer mechanism provided in C++11
+standard library.
 
 Using shared references simplifies memory management, but the counterpart is an
-extra atomic operation for each copy. It limits parallelism, so reducing the
-number of copies remains an important goal. The move semantic introduced in
+extra atomic operation for each copy. As it limits parallelism, reducing the
+number of copies becomes an important goal. The move semantic introduced in
 C++11 avoids a few copies when working on temporary objects, but argument
-passing may be a trouble. To avoid a reference increment, one can use pass
-parameters by reference. Using an interprocedural memory effect analysis, Pythran
-determines for each argument whether it must be passed using reference or const
-reference to prevent this extra cost.
+passing still imply copies. To avoid a reference increment, one can pass
+parameters by reference. Using an out-of-scope interprocedural memory effect
+analysis, Pythran determines for each argument whether it must be passed using
+reference or const reference to prevent this extra cost.
 
 \subsection{Directive Oblivious Translation}
 
@@ -435,10 +459,21 @@ During Python to C++ translation, Pythran adopts a blind strategy: it does not
 understand the semantic of the annotations. Instead, it just split each
 annotation into a context-sensitive part ---the variable names--- and a
 context-insensitive part ---the clauses---, and attach them to the proper
-instruction in the AST. It then ensures a bijective translation between Python
-instruction and generated C++ instruction so that the OpenMP directive is
-regenerated on the proper instruction. The same approach is used at the
-expression level, to be compatible with the \texttt{if} clause.
+instruction in the AST.
+
+The Pythran compiler ensures a bijective translation between Python instruction
+and generated C++ instruction so that the OpenMP directive is regenerated on the
+proper instruction. The same approach is used at the expression level, to be
+compatible with the \texttt{if} clause.
+
+At the AST level, it means that the Python AST is first reduced to a Python AST
+where all nodes not available in C++ are transformed into a compatible
+representation. For instance, list comprehension expressions are turned into
+function calls or tuple unpacking is turned in multiple assignments. During this
+transformation process, an expression is always transformed into a single expression
+and a statement is always transformed into a single statement. Then this
+AST is converted into a C++ AST meant to be pretty-printed.
+
 
 \subsection{Transfer Costs}
 
@@ -462,18 +497,21 @@ structure.
 %=========================================================
 
 To validate the approach proposed in this paper, we first performed a simple
-experiment. Starting from the C code of a small geomatics application, we
-successively parallelized it with OpenMP, turned it into Python with a Pythran
-compatible kernel and parallelized the Python version using the approach
+experiment. Starting from the C code of a small geomatics application, Hyantes,
+we successively parallelized it with OpenMP, turned it into Python with a
+Pythran compatible kernel and parallelized the Python version using the approach
 described in this paper. We also measurer the SLOC for the two versions.
 Table~\ref{tbl:hyantes} summarizes the results of the experimentation made on a
-laptop with 4 non hyperthreaded cores using \texttt{-O2} compiler flag. It
-non only emphasises the use of a high level language prototyping, but also shows
+laptop with 4 non hyperthreaded cores using \texttt{-O2} compiler flag. It non
+only emphasises the use of a high level language prototyping, but also shows
 that it is possible to turn this prototype into reasonably efficient code
 through Pythran. It is also possible to prototype the parallel version while
 remaining at the Python level.
 
 \begin{table}
+
+    \caption{Comparison of several versions of the Hyantes prototype.}
+    \label{tbl:hyantes}
 
     \centering
     \begin{tabular}{|l|l|l|l|}
@@ -487,11 +525,18 @@ remaining at the Python level.
         \hline
     \end{tabular}
 
-    \caption{Comparison of several versions of the Hyantes prototype.}
-    \label{tbl:hyantes}
-
 \end{table}
 
+The Hyantes programs scales relatively well. Figure~\ref{fig:hyantes-speedup} shows
+the relative speedup of the application when increasing the number of OpenMP
+threads.
+
+\begin{figure}[ht]
+    \caption{Relative speedups of Pythran+OpenMP version of the Hyantes prototype.}
+    \label{fig:hyantes-speedup}
+    \centering
+    \includegraphics[width=\textwidth]{hyantes}
+\end{figure}
 
 We then compare Pythran with Cython. The approach share some similarities: they
 both generate code written in a rather low level language, with OpenMP
@@ -504,66 +549,66 @@ respectively.
 Pythran exposes the full OpenMP interface to the user, thus enabling both data
 and task parallelism, as described in Section~\ref{sec:python-openmp}. This is
 not the case in Cython, where:
-
+%
 \begin{itemize}
     \item Only loops can be made parallel, through the use of a dedicated
-        intrinsic \texttt{prange} as loop iterator. To use more advanced
-        parallelism construction, one must rely on the possibility to write raw C
-        code embedded in cython.~\todo{SG->PB: tu m'explique ce truc de C dans
-        cython ?}
+        intrinsic \texttt{prange} as loop iterator.
 
-    \item Cython automatically infers reductions and variable privacy, giving
-        less control to the end-user.
+    \item Reductions and variable privacy are inferred, but it chokes on
+        reduction on private variables.
 
     \item As Cython allows the mix of Python and Cython code, the user is
         responsible from releasing the GIL.
 
-    \item The code included in a parallel region interacts with the Python code
-        in a restricted manner. For instance, it is impossible to use a function
-        imported from a Python module, while it is still possible to use native
-        C functions.
+    \item It is impossible to use a function imported from a Python module in a
+        parallel region, while it is still possible to use native C functions.
+
 \end{itemize}
 
-Listings~\ref{lst:cython-sample} and~\ref{lst:pythran-sample} illustrates the
-difference between the two approaches. It shows that while being more integrated
-in Python, the Cython approach is more verbose.
+Listings~\ref{lst:cython-sample} and~\ref{lst:pythran-sample} illustrate the
+difference between the two and illustrates the intrusive behavior of Cython.
 
-\begin{figure}[ht]
+\begin{figure}
 
     \begin{lstlisting}[label={lst:cython-sample}, caption={Cython implementation
     of a parallel reduction.}]
-import math
-cimport cython
-from cython.parallel import parallel, prange
 from libc.math cimport sqrt
-def sum_sqrt():
-    cdef float r = 0
+from cython.parallel import parallel, prange
+def sum_sqrt(double r):
     cdef int i
     with nogil, parallel():
-        for i in prange(10000000):
-            r += sqrt(i)
+        for i in prange(10000000): r += sqrt(i)
     return r
-\end{lstlisting}
-\end{figure}
+    \end{lstlisting}
 %
-\begin{figure}[ht]
     \begin{lstlisting}[label={lst:pythran-sample}, caption={Cython implementation
     of a parallel reduction.}]
-#pythran export sum_sqrt()
+#pythran export sum_sqrt(float)
 import math
-def sum_sqrt():
-    r = 0
+def sum_sqrt(r):
     "omp parallel for private(i) reduction(+:r)"
-    for i in xrange(10000000):
-        r += math.sqrt(i)
+    for i in xrange(10000000): r += math.sqrt(i)
     return r
     \end{lstlisting}
 \end{figure}
 
 
 
-The performance of the two approaches is illustrated in
-Figure~\ref{fig:cython-pythran}.
+The performance of the two approaches is shown in
+Figure~\ref{fig:cython-pythran}.  The benchmarked codes are typical
+mathematical, image-processing or linear algebra kernels. All these kernels have
+been written in Cython and Python ---compatible with Pythran--- and annotated
+through the mechanism of each language to exhibit parallelism, then compiled
+into native code using GCC 4.7.2 and the \texttt{-O2 -fopenmp} flag. Their
+execution time when called from the Python interpreter is measured through the
+\texttt{timeit} module on a laptop with 4 Intel i7 cores at 2.10 GHz with
+hyperthreading deactivated. All results are normalized against Cython sequential
+execution time. They show that while being of a higher level than Cython,
+Pythran achieves comparable results.
+
+The source codes used for these benchmarks are available on the Pythran
+repository.~\footnote{\see \texttt{https://github.com/serge-sans-paille/pythran} on \texttt{europar2013}
+branch.} 
 
 \begin{figure}[ht]
     \includegraphics[width=\textwidth]{cython}
@@ -571,22 +616,7 @@ Figure~\ref{fig:cython-pythran}.
     \label{fig:cython-pythran}
 \end{figure}
 
-The benchmarked codes are typical mathematical, image-processing or linear
-algebra kernels. All these kernels have been written in Cython and Python
----compatible with Pythran--- and annotated through the mechanism of each
-language to exhibit parallelism, then compiled into native code using GCC 4.1
-and the \texttt{-O2 -fopenmp} flag. Their execution time when called from the
-Python interpreter is measured through the \texttt{timeit} module. All results
-are normalized to Cython sequential execution time.
 
-This figure shows our inability to select proper benchmarking code, and to run
-them on a real multiprocessor machine, but this is gonna change!~\todo{SG->PB:
-c'est pour toi !}
-
-All the source codes used for these benchmarks are availabe on the Pythran
-reporsitory.~\footnote{\emph{cf}.\
-\texttt{https://github.com/serge-sans-paille/pythran} on \texttt{europar2013}
-branch.} 
 
 
 %=========================================================
@@ -594,23 +624,22 @@ branch.}
 %=========================================================
 
 This paper studies the relevancy of adding OpenMP annotations to Python code. It
-shows that providing minor semantic adaptations, these annotations are relevant
-and makes it possible for Python code to benefit from multi-core performance
-boost without worrying about the Global Interpreter Lock.
+shows that providing minor semantic adaptations, these annotations make it
+possible for Python code to benefit from multi-core performance boost while
+retaining backward compatibility and without worrying about the Global
+Interpreter Lock.
 
 To achieve this goal, a translator from a subset of the Python language to C++
-has been designed. This translator can turn regular Python modules
-annotated with OpenMP directives and a few type annotations into native parallel
-module. Both the input module and the generated one remain compatible with the
-standard interpreter.
+has been designed. This translator turns regular Python modules annotated with
+OpenMP directives and a few type annotations into native parallel module. The
+input module remains compatible with the standard interpreter.
 
 The approach is compared with Cython, an extension of the Python language used
 to generate native module with an hybrid Python-C syntax that also provide means
-to exhibits fine grained parallelism. Modules generated by Pythran outperform
-modules generated by Cython for various kernels and both benefit from the
-parallel boost.
+to exhibit fine grained parallelism. It shows that retaining Python
+compatibility does not prevent the achievement of comparable performances.
 
-Future works include the extension of the approach to OpenMP 4 and the
+Future work includes the extension of the approach to OpenMP 4 and the
 \texttt{target} clause that should make it possible to target MIC from Python.
 There is also many vectorization possibility in Python, especially in the list
 comprehension construction, that needs to be explored.
@@ -621,9 +650,9 @@ comprehension construction, that needs to be explored.
 
 This work has received fundings from the \texttt{Silkan} company and the French
 ANR through the CARP project. The authors would like to thanks Adrien
-\textsc{Merlini} and Alan \textsc{Raynaud} for their work on the C++ runtime.
-Fabien \textsc{Dagnat} and Mehdi \textsc{Amini} also contributed to this paper
-through their many valuable advices.
+\textsc{Merlini} and Alan \textsc{Raynaud} for their work on the C++ runtime,
+Albert \textsc{Cohen}, B{\'e}atrice \textsc{Creusillet}, Fabien
+\textsc{Dagnat} and Mehdi \textsc{Amini} for their valuable advices.
 
 \bibliographystyle{splncs03}
 \bibliography{biblio}

@@ -5,7 +5,7 @@
   journal =      "Computing in Science Engineering",
   title =        "{C}ython: The Best of Both Worlds",
   year =         "2011",
-  month =        mar,
+  SKIP_month =        mar,
   volume =       "13",
   number =       "2",
   pages =        "31--39",
@@ -32,12 +32,12 @@
                  Fijalkowski and Armin Rigo",
   title =        "Tracing the meta-level: PyPy's tracing {JIT}
                  compiler",
-  booktitle =    "Proceedings of the 4th workshop on the Implementation,
+  SKIP_booktitle =    "Proceedings of the 4th workshop on the Implementation,
                  Compilation, Optimization of Object-Oriented Languages
                  and Programming Systems",
-  series =       "ICOOOLPS '09",
+  booktitle =    "Proceedings of the 4th COOOLPS workshop",
+  SKIP_series =       "ICOOOLPS '09",
   year =         "2009",
-  ISBN =         "978-1-60558-541-3",
   pages =        "18--25",
   publisher =    "{ACM}",
   address =      "New York, NY, USA",
@@ -60,9 +60,8 @@
                  language",
   booktitle =    "Proceedings of the 16th {ACM} symposium on Principles
                  and practice of parallel programming",
-  series =       "PPoPP '11",
+  SKIP_series =       "PPoPP'11",
   year =         "2011",
-  ISBN =         "978-1-4503-0119-0",
   pages =        "47--56",
   publisher =    "{ACM}",
   address =      "New York, NY, USA",
@@ -84,7 +83,7 @@
   booktitle =    "{IPDPS}",
   publisher =    "{IEEE}",
   year =         "2007",
-  month =        mar,
+  SKIP_month =        mar,
   pages =        "1--6",
 }
 
@@ -108,13 +107,18 @@
 }
 
 @InBook{gil2012,
+  title =      "Thread State and the Global Interpreter Lock",
+  crossref = {pythoncapi},
+}
+
+@Book{pythoncapi,
   title =        "{P}ython/{C} {API} Reference Manual",
-  chapter =      "Thread State and the Global Interpreter Lock",
   editor =       "Guido van Rossum and Fred L. Jr. Drake",
   publisher =    "{P}ython Software Foundation",
   year =         "2012",
   month =        sep,
 }
+
 
 @InProceedings{gpu2010,
   author =       "Rahul Garg and Jos{\'e} Nelson Amaral",
@@ -168,14 +172,6 @@
   key =          "openmp",
   year =         "2011",
   month =        jul,
-}
-
-@Book{pythoncapi,
-  title =        "{P}ython/{C} {API} Reference Manual",
-  editor =       "Guido van Rossum and Fred L. Jr. Drake",
-  publisher =    "Python Software Foundation",
-  year =         "2012",
-  month =        sep,
 }
 
 @InProceedings{rossum97,
@@ -340,6 +336,18 @@
   month =        jun,
   address =      "Rome, Italy",
   pages =        "237--249",
-  editor =       "Barbara M. Chapman and Federico Massaioli and Matthias
+  SKIP_editor =       "Barbara M. Chapman and Federico Massaioli and Matthias
                  S. M{\"u}ller and Marco Rorro",
 }
+
+
+@inproceedings{boehm1991,
+    author = {Boehm, Hans-J. and Demers, Alan J. and Shenker, Scott},
+    title = {Mostly parallel garbage collection},
+    booktitle = {Proceedings of the {ACM} {SIGPLAN} conference on Programming language design and implementation},
+    series = {PLDI '91},
+    year = 1991,
+    pages = {157--164},
+    publisher = {{ACM}},
+    address = {New York, NY, USA},
+} 

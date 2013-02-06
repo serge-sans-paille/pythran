@@ -14,13 +14,15 @@ ctypedef np.double_t DTYPE_t
 def run(double xmin, double ymin, double xmax, double ymax, double step, double range_, int range_x, int range_y, np.ndarray[DTYPE_t, ndim=2, negative_indices=False] t):
     cdef np.ndarray[DTYPE_t, ndim=2, negative_indices=False] pt = np.zeros((range_x, range_y))
     cdef int i,j,k
-    cdef double tmp
+    cdef double tmp, xi, yj
     "omp parallel for private(j,k,tmp)"
     with nogil, parallel():
         for i in prange(range_x):
             for j in xrange(range_y):
+                xi = xmin+step*i
+                yj = ymin+step*j
                 for k in xrange(t.shape[0]):
-                    tmp = 6368.* math.acos( math.cos(xmin+step*i)*math.cos( t[k,0] ) * math.cos((ymin+step*j)-t[k,1])+  math.sin(xmin+step*i)*math.sin(t[k,0]))
+                    tmp = 6368.* math.acos( math.cos(xi)*math.cos( t[k,0] ) * math.cos(yj-t[k,1])+  math.sin(xi)*math.sin(t[k,0]))
                     if tmp < range_:
                         pt[i,j]+=t[k,2] / (1+tmp)
     return pt

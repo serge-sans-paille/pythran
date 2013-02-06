@@ -56,5 +56,6 @@ setup(
             Extension("pairwise_omp", ["pairwise.py"], extra_compile_args=['-fopenmp']),
             Extension("hyantes", ["hyantes.py"]),
             Extension("hyantes_omp", ["hyantes.py"], extra_compile_args=['-fopenmp']),
+            Extension("pi_buffon_omp", ["pi_buffon.py"], extra_compile_args=['-fopenmp']),
             ]
      )

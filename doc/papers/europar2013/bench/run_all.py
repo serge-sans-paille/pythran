@@ -14,7 +14,7 @@ import timeit
 candidates = glob.glob("pythran/*.py")
 sys.path.append("pythran")
 sys.path.append("cython")
-nb_iter = 1
+nb_iter = 21
 median = lambda x: sorted(x)[len(x) / 2]
 for candidate in candidates:
     with file(candidate) as content:

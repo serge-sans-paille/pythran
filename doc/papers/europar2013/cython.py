@@ -3,10 +3,8 @@ import numpy as np
 import matplotlib.mlab as mlab
 import matplotlib.pyplot as plt
 import math
-from matplotlib.backends.backend_pdf import PdfPages
 
 with file("cython.dat") as fd:
-
     r = list()
     for line in fd:
         r.append(filter(None, line.split(' ')))
@@ -31,20 +29,18 @@ with file("cython.dat") as fd:
             if math.isnan(y[i][j]):
                 y[i][j] = 0
         
+    fig = plt.figure(1, figsize=(8,4))
 
-    hatches = [ '/' , 'o', '\\' ,  'O' , '+' , 'x' , 'o' , 'O' , '.' , '*' ]
+    hatches = [ ' ' , 'x', ' ' , 'x' , '+' , 'x' , 'o' , 'O' , '.' , '*' ]
+    colors  = [ 'grey' , 'grey', 'w', 'w' ]
     p = [0]*len(x)
     for i,j in enumerate(y):
-        p[i] = plt.bar(range(i,y.size+len(y)+len(y)-1, len(y) +1), j, hatch=hatches[i], color='white')
+        p[i] = plt.bar(range(i,y.size+len(y)+len(y)-1, len(y) +1), j, hatch=hatches[i], color=colors[i])
 
     #plt.xlabel('Comparison between cython and pythran')
     plt.xticks(range(2,y.size+len(y)+1, len(y) +1), [_[0] for _ in r ] )
-    plt.ylabel('execution time')
+    plt.ylabel('normalized execution time')
     #plt.title(r'$comparaison between cython and pythran with/without parallelism$')
-    plt.grid(True)
+    plt.grid(True, axis='y')
     plt.legend( (p[0][0], p[1][0], p[2][0], p[3][0]), ('Pythran', 'Pythran + OMP', 'Cython', 'Cython + OMP') , bbox_to_anchor=(0., 1.02, 1., .102), loc=2, ncol=2, mode="expand", borderaxespad=0.)
-    pp = PdfPages('cython.pdf')
-    plt.savefig(pp,format='pdf')
-    pp.close()
-
-
+    plt.savefig('cython.pdf',format='pdf')

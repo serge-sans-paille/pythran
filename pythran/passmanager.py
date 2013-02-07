@@ -118,6 +118,7 @@ class Transformation(ContextManager, ast.NodeTransformer):
         ast.fix_missing_locations(n)
         return n
 
+
 class PassManager(object):
     '''
     Front end to the pythran pass system.

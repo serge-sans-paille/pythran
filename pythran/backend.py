@@ -113,9 +113,7 @@ class Cxx(Backend):
     def process_omp_attachements(self, node, stmt, index=None):
         l = metadata.get(node, OMPDirective)
         if l:
-            if index is None:
-                stmt = [stmt]
-                index = 0
+            directives = list()
             for directive in reversed(l):
                 # special hook for default for index scope
                 if isinstance(node, ast.For):
@@ -126,8 +124,12 @@ class Cxx(Backend):
                             ):
                         directive.s += ' private({})'
                         directive.deps.append(ast.Name(target.id, ast.Param()))
-                stmt.insert(index, Pragma(directive))
-        return Block(stmt) if isinstance(stmt, list) else stmt
+                directives.append(directive)
+            if index is None:
+                stmt = AnnotatedStatement(stmt, directives)
+            else:
+                stmt[index] = AnnotatedStatement(stmt[index], directives)
+        return stmt
 
     # stmt
     def visit_FunctionDef(self, node):
@@ -601,7 +603,7 @@ class Cxx(Backend):
                 [self.visit(n) for n in node.orelse]
                 + [Statement("{0}:".format(break_handler))]))
 
-        return self.process_omp_attachements(node, stmts, 1)
+        return Block(self.process_omp_attachements(node, stmts, 1))
 
     def visit_While(self, node):
         test = self.visit(node.test)

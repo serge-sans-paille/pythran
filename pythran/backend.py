@@ -671,7 +671,8 @@ class Cxx(Backend):
         return self.process_omp_attachements(node, stmt)
 
     def visit_Pass(self, node):
-        return EmptyStatement()
+        stmt = EmptyStatement()
+        return self.process_omp_attachements(node, stmt)
 
     def visit_Break(self, node):
         if self.break_handler[-1]:

@@ -106,8 +106,13 @@ class GatherOMPData(Transformation):
     Walks node and collect string comments looking for OpenMP directives.
     '''
 
-    statements = ("Call", "Return", "Delete", "Assign", "AugAssign", "Print",
-            "For", "While", "Raise", "Assert", "Pass",)
+    # there is a special handling for If and Expr, so not listed here
+    statements = ("FunctionDef", "Return", "Delete", "Assign", "AugAssign",
+            "Print", "For", "While", "Raise", "TryExcept", "TryFinally",
+            "Assert", "Import", "ImportFrom", "Pass", "Break",)
+
+    # these fields hold statement lists
+    statement_lists = ("body", "orelse", "finalbody",)
 
     def __init__(self):
         Transformation.__init__(self)
@@ -115,8 +120,11 @@ class GatherOMPData(Transformation):
             setattr(self, "visit_" + s, lambda node_: self.attach_data(node_))
         self.current = list()
 
+    def isompdirective(self, node):
+        return isinstance(node, ast.Str) and node.s.startswith("omp ")
+
     def visit_Expr(self, node):
-        if isinstance(node.value, ast.Str) and node.value.s.startswith("omp "):
+        if self.isompdirective(node.value):
             self.current.append(node.value.s)
             return None
         else:
@@ -124,8 +132,7 @@ class GatherOMPData(Transformation):
         return node
 
     def visit_If(self, node):
-        test = node.test
-        if isinstance(test, ast.Str) and test.s.startswith("omp "):
+        if self.isompdirective(node.test):
             self.visit(ast.Expr(node.test))
             return self.visit(ast.If(ast.Num(1), node.body, node.orelse))
         else:
@@ -137,5 +144,12 @@ class GatherOMPData(Transformation):
                 md = OMPDirective(curr)
                 metadata.add(node, md)
             self.current = list()
+        # add a Pass to hold some directives
+        for field_name, field in ast.iter_fields(node):
+            if field_name in GatherOMPData.statement_lists:
+                if (field
+                        and isinstance(field[-1], ast.Expr)
+                        and self.isompdirective(field[-1].value)):
+                    field.append(ast.Pass())
         self.generic_visit(node)
         return node

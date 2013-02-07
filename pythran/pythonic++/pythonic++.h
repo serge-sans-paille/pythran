@@ -26,6 +26,7 @@
 #include "modules/random.h"
 #include "modules/iterator.h"
 #include "modules/string.h"
+#include "modules/time.h"
 #include "modules/omp.h"
 
 /* extensions */

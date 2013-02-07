@@ -190,6 +190,9 @@ modules = {
             "zeros": ConstFunctionIntr(),
             "ones": ConstFunctionIntr(),
             },
+        "time": {
+                "sleep": ConstFunctionIntr(),
+            },
         "math": {
                 "isinf": ConstFunctionIntr(),
                 "modf": ConstFunctionIntr(),

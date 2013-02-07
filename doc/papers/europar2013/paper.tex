@@ -5,6 +5,7 @@
 \usepackage{listings}
 \usepackage{url}
 \usepackage{todo}
+\usepackage{xcolor}
 \newcommand\see{\emph{cf.\ }}
 
 \usepackage{tikz}
@@ -14,9 +15,12 @@
 \usetikzlibrary{shapes}
 
 
-\lstset{language=python,morekeywords={cimport, cdef, with}}
+\lstset{language=python,morekeywords={cimport, cdef, with},
+basicstyle=\ttfamily, keywordstyle=\bf, stringstyle=\color{gray}}
 
 \begin{document}
+% update listing numbering
+\renewcommand{\thelstlisting}{\arabic{lstlisting}}
 %
 \title{Pythran: Bringing OpenMP to a Python Subset}
 
@@ -128,7 +132,7 @@ computations referred as hybrid computations.
 
 \subsection{Hybrid Computations}
 
-In the context of interpreted language, \cite{dongara2007} defines a computation
+In the context of interpreted languages, \cite{dongara2007} defines a computation
 as \emph{hybrid} when part of the code is interpreted, and part of it is
 executed natively.
 
@@ -147,8 +151,8 @@ translation to native code of a part of the application, generally the
 computation-intensive one where parallelism has been expressed in some ways.
 Thus, developers not familiar with lower level languages or not eager to invest
 the additional development time can still benefit from a fair performance boost.
-This approach has been subject to many studies that can be classified based on
-their backward-compatibity with the host language.
+This approach is the subject of many studies that can be classified based on
+their compatibility with the host language.
 
 \subsubsection{Backward-Incompatible Approaches}
 
@@ -173,7 +177,7 @@ PyCUDA and PyOpenCL~\cite{klockner2012} also mixes python with kernels embedded
 as raw strings to target accelerators.
 
 The core issue of these approaches is that they imply to modify, in a more or
-less trivial way, the original code. They require to invest in a new language,
+less complex way, the original code. They require to invest in a new language,
 and the long-term preservation of this investment is not ensured. Moreover,
 there is no falling back if the code where to be deployed in an environment
 where the parallelizing tool/module is not available. For instance, once a code
@@ -186,7 +190,8 @@ the algorithm.
 Most backward-compatible approaches also require to modify the input program,
 but they do not extend the Python language, rather restrict it. As a
 consequence, they remain compatible with the original language and do not suffer
-from the drawbacks of the previous approach.
+from the drawbacks of the previous approach. They also keep the benefit of
+existing tools associated to the language.
 
 Copperhead~\cite{copperhead2011} is a functional, data parallel language embedded in
 Python. It uses n-uplets, numpy arrays and lists as its core data structure and
@@ -286,33 +291,34 @@ have a special meaning in Python.} while C/C++ have.
 \subsubsection{Parallel For and Iterators}
 
 The core directive to handle data parallelism is the \texttt{for} directive that
-distribute the iteration space of the associated loop among the existing
+distributes the iteration space of the associated loop among the existing
 threads. To be compatible with OpenMP, the loop iteration space must be
-described by a random access iterator with a total order, i.e.\ it is possible
-to increase the iterator by any integer and to decide which iterator is the
-greatest among two. The integer used as loop indices in Fortran and C satisfy
-this conditions, so do C++ iterators with the \texttt{random\_access\_tag}
-trait. But a Python iterator only advance by a step of one until it is
-exhausted, in which case it raises an exception. They only have forward iterator
-behavior.
+described by a random access iterator with a total order. Integers used as
+loop indices in Fortran and C satisfy this conditions, as well as C++ iterators with
+the \texttt{random\_access\_tag} trait. But a Python iterator only advances by a
+step of one until it is exhausted, in which case it raises an exception: it
+behaves as a forward iterator. To be compatible with OpenMP, these iterators
+must be turned into random access iterators.
 
 The extension of Python iterator to random access iterators is direct for the
 standard containers: \texttt{list}~\footnote{Python \texttt{list}s behave as C++
-\texttt{vector}s.}, \texttt{set} or \texttt{dict}.
+\texttt{vector}s.}, \texttt{set} or \texttt{dict}. Other iterators require more
+care.
 
-Python also generalizes the concept of iterators through generators, which 
-behave like forward iterators. The simplest one, \texttt{xrange(\emph{start},
-\emph{stop}, \emph{step})}, successively yields value starting from
-\texttt\emph{start} to \texttt\emph{stop} by a step of \texttt\emph{step}. It is
-easily extended to support random access, but it generally does not make
-sense to use a generator as a loop iterator, as the relation between two
-random states of the iterator may be of an arbitrary complexity.
+Generators, Python objects that behave like iterators, are commonly used in
+Python. The simplest one, \texttt{xrange(\emph{start}, \emph{stop},
+\emph{step})}, successively yields value starting from \texttt\emph{start} to
+\texttt\emph{stop} by a step of \texttt\emph{step}. It is easily extended to
+support random access, but it generally does not make sense to use a generator
+as a loop iterator, as the relation between two random states of the iterator
+may be of an arbitrary complexity.
 
-A particular class of generator behaves like adaptor, in the sense that they
-apply a particular expression on each value of the iterator. It is the case of
-the \texttt{enumerate} builtin, that yields each element of the enumerated
-iterator associated with its index, and of generator expressions such as
-\texttt{(x*x for x in l)}. These generators are random iterators only if their
+Generator expressions are generators whose content is built from an other
+iterator. For instance \texttt{(x*x for x in l)} successively yields the square
+of each element in \texttt{l}. They behave like adaptors: they apply a
+particular expression on each value of the iterator. It is also the case of the
+\texttt{enumerate} builtin, that yields each element of the enumerated iterator
+associated with its index. These generators are random iterators only if their
 input iterator is a random iterator itself.
 
 Finally, if the iterator yields a tuple, it is possible to unpack it inside the
@@ -330,11 +336,15 @@ for i, v in enumerate([2, 3, 5, 7, 11]): print i, ':', v
   \end{lstlisting}
 \end{figure}
 
+Pythran runtime is aware of these three kind of iterators: random access
+iterators for standard containers, adaptor iterators for generator expressions
+and forward iterators for generators.
+
 \subsection{Runtime Library}
 
-The OpenMP runtime library makes it possible to retrieve the active thread id,
-whether dynamic scheduling is enabled and so on. All the functions are declared
-in the \texttt{<omp.h>} header, and have a default behavior when OpenMP is not
+OpenMP provides a small runtime library that, for instance, makes it possible to
+retrieve the active thread id. All the functions are declared in the
+\texttt{<omp.h>} header, and have a default behavior when OpenMP is not
 activated.
 
 Providing a biding to these library in the Python does not raise
@@ -349,10 +359,10 @@ not have a preprocessor, but it is possible to catch the import exception if the
 
 \subsection{Validation}
 
-A validation suite for OpenMP has been proposed in~\cite{wang2012} for C and
-Fortran. We have ported it to Python, and we also extended it to validate the
-corner cases specific to Python described in this section. An example of such
-test case is given in Listing~\ref{lst:openmp-validation}.
+A validation suite for OpenMP is proposed in~\cite{wang2012} for C and Fortran.
+We ported it to Python, and we also extended it to validate the corner cases
+specific to Python described in this section. A typical test case is given in
+Listing~\ref{lst:openmp-validation}.
 
 \begin{figure}
     \begin{lstlisting}[label={lst:openmp-validation},caption={Example of Python
@@ -381,19 +391,19 @@ loop nesting required by the \texttt{collapse} clause.
 \section{Static Translation of Python Programs}\label{sec:python-static}
 %=========================================================
 
-Pythran is subset of Python focused on scientific computing. It is implicitly
+Pythran is a subset of Python focused on scientific computing. It is implicitly
 statically typed and support most Python constructs except those that involve
 introspection (e.g.\ \texttt{getattr}) or runtime compilation (e.g.\
 \texttt{eval}). A few standard module are supported in addition to the core
 language (e.g.\ \texttt{math}, \texttt{random}). The \texttt{numpy} module is
-partially supported. The associated compiler turns Pythran code, eventually
-annotated with OpenMP and exported function type annotation, into C++ code. Its
-processing is summarized in Figure~\ref{fig:pythran-compiler} and relies on type
-inference to remove most dynamic behavior, combined with a high-level runtime
-library, \texttt{pythonic}, to allow a one-to-one mapping between Python and C++
-constructs. The purpose of this section is not to dig into the internal of the
-compiler, but rather to focus on the impact of the parallelism layer, especially
-on the runtime library.
+currently only partially supported. The associated compiler turns Pythran code,
+possibly annotated with OpenMP and a few function type annotations, into C++
+code. Its processing is summarized in Figure~\ref{fig:pythran-compiler} and
+relies on type inference to remove most dynamic behavior, combined with a
+high-level runtime library, \texttt{pythonic++}, to allow a one-to-one mapping
+between Python and C++ constructs. The purpose of this section is not to dig
+into the internal of the compiler, but rather to focus on the impact of the
+parallelism layer, especially on the runtime library.
 
 \begin{figure}
 
@@ -430,10 +440,10 @@ distance=0.6cm}]
 
 The standard library of C++11, unlike its C++03 version, is thread-safe. Pythran
 runtime is based on the STL and provides the same guaranty, so that the data
-dependences in the original code remains explicit.
+dependencies in the original code remains explicit.
 
-A critical point of the design of the \texttt{pythonic} runtime is memory
-management, the very same aspect that lead to the use of a GIL in CPython.
+A critical point of the design of the \texttt{pythonic++} runtime is memory
+management, the very same aspect that led to the use of a GIL in CPython.
 Memory management is implemented in Shedskin through the general-purpose Boehm
 garbage collector~\cite{boehm1991}, and Cython forbids usage of Python-managed
 object inside parallel regions, thus making memory management explicit for these
@@ -448,7 +458,7 @@ Using shared references simplifies memory management, but the counterpart is an
 extra atomic operation for each copy. As it limits parallelism, reducing the
 number of copies becomes an important goal. The move semantic introduced in
 C++11 avoids a few copies when working on temporary objects, but argument
-passing still imply copies. To avoid a reference increment, one can pass
+passing still implies copies. To avoid a reference increment, one can pass
 parameters by reference. Using an out-of-scope interprocedural memory effect
 analysis, Pythran determines for each argument whether it must be passed using
 reference or const reference to prevent this extra cost.
@@ -500,9 +510,9 @@ To validate the approach proposed in this paper, we first performed a simple
 experiment. Starting from the C code of a small geomatics application, Hyantes,
 we successively parallelized it with OpenMP, turned it into Python with a
 Pythran compatible kernel and parallelized the Python version using the approach
-described in this paper. We also measurer the SLOC for the two versions.
+described in this paper. We also measure the SLOC of the two versions.
 Table~\ref{tbl:hyantes} summarizes the results of the experimentation made on a
-laptop with 4 non hyperthreaded cores using \texttt{-O2} compiler flag. It non
+laptop with 4 non hyperthreaded cores using \texttt{-O2} compiler flag. It not
 only emphasises the use of a high level language prototyping, but also shows
 that it is possible to turn this prototype into reasonably efficient code
 through Pythran. It is also possible to prototype the parallel version while
@@ -521,7 +531,7 @@ remaining at the Python level.
         C       & 102   & 25 & 22 \\
         Python  & 30    & 676 & --\\
         Pythran & 30    & 38 &  22 \\
-        Pythran+OMP    & 30    & 11 & no OpenMP support\\
+        Pythran+OMP    & 31    & 11 & no OpenMP support\\
         \hline
     \end{tabular}
 
@@ -539,7 +549,7 @@ threads.
 \end{figure}
 
 We then compare Pythran with Cython. The approach share some similarities: they
-both generate code written in a rather low level language, with OpenMP
+both generate code written in a lower level language, with OpenMP
 directives. However, the inputs differ as Cython requires more typing
 information that Pythran to generate efficient code, and Cython is not
 backward-compatible with Python. They both translate explicit fine-grained
@@ -551,20 +561,21 @@ and task parallelism, as described in Section~\ref{sec:python-openmp}. This is
 not the case in Cython, where:
 %
 \begin{itemize}
-    \item Only loops can be made parallel, through the use of a dedicated
-        intrinsic \texttt{prange} as loop iterator.
+
+    \item Only loops can be made parallel, using a new \texttt{prange} intrinsic
+        as iterator.
 
     \item Reductions and variable privacy are inferred, but it chokes on
         reduction on private variables.
 
-    \item As Cython allows the mix of Python and Cython code, the user is
-        responsible from releasing the GIL.
+    \item The user is responsible from releasing the GIL inside parallel
+        regions.
 
     \item It is impossible to use a function imported from a Python module in a
-        parallel region, while it is still possible to use native C functions.
+        parallel region, but it is still possible to use native C functions.
 
 \end{itemize}
-
+%
 Listings~\ref{lst:cython-sample} and~\ref{lst:pythran-sample} illustrate the
 difference between the two and illustrates the intrusive behavior of Cython.
 
@@ -623,11 +634,10 @@ branch.}
 \section{Conclusion and Future Work}
 %=========================================================
 
-This paper studies the relevancy of adding OpenMP annotations to Python code. It
-shows that providing minor semantic adaptations, these annotations make it
-possible for Python code to benefit from multi-core performance boost while
-retaining backward compatibility and without worrying about the Global
-Interpreter Lock.
+This paper studies the addition  of OpenMP annotations to Python. It shows that
+providing minor semantic adaptations, these annotations make it possible for
+Python code to benefit from multi-cores while retaining backward compatibility
+and without worrying about the Global Interpreter Lock.
 
 To achieve this goal, a translator from a subset of the Python language to C++
 has been designed. This translator turns regular Python modules annotated with

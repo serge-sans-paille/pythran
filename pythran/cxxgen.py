@@ -374,20 +374,24 @@ class Include(Generable):
             yield "#include \"%s\"" % self.filename
 
 
-class Pragma(Generable):
-    def __init__(self, value):
-        self.value = value
-
-    def generate(self):
-        yield "#pragma %s" % (self.value)
-
-
 class Statement(Generable):
     def __init__(self, text):
         self.text = text
 
     def generate(self):
         yield self.text + ";"
+
+
+class AnnotatedStatement(Generable):
+    def __init__(self, stmt, annotations):
+        self.stmt = stmt
+        self.annotations = annotations
+
+    def generate(self):
+        for a in self.annotations:
+            yield "#pragma %s" % (a)
+        for s in self.stmt.generate():
+            yield s
 
 
 class ReturnStatement(Statement):
@@ -456,8 +460,7 @@ class FunctionBody(Generable):
 class Block(Generable):
     def __init__(self, contents=[]):
         self.contents = contents[:]
-
-        for item in contents:
+        for item in self.contents:
             assert isinstance(item, Generable), item
 
     def generate(self):

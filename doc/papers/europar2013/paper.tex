@@ -539,7 +539,7 @@ remaining at the Python level.
 
 The Hyantes programs scales relatively well. Figure~\ref{fig:hyantes-speedup} shows
 the relative speedup of the application when increasing the number of OpenMP
-threads.
+threads using up to 8 AMD Opteron 6176 SE.
 
 \begin{figure}[ht]
     \caption{Relative speedups of Pythran+OpenMP version of the Hyantes prototype.}
@@ -607,15 +607,15 @@ def sum_sqrt(r):
 
 The performance of the two approaches is shown in
 Figure~\ref{fig:cython-pythran}.  The benchmarked codes are typical
-mathematical, image-processing or linear algebra kernels. All these kernels have
-been written in Cython and Python ---compatible with Pythran--- and annotated
-through the mechanism of each language to exhibit parallelism, then compiled
-into native code using GCC 4.7.2 and the \texttt{-O2 -fopenmp} flag. Their
-execution time when called from the Python interpreter is measured through the
-\texttt{timeit} module on a laptop with 4 Intel i7 cores at 2.10 GHz with
-hyperthreading deactivated. All results are normalized against Cython sequential
-execution time. They show that while being of a higher level than Cython,
-Pythran achieves comparable results.
+mathematical, image-processing or linear algebra kernels. All these kernels
+have been written in Cython and Python ---compatible with Pythran--- and
+annotated through the mechanism of each language to exhibit parallelism, then
+compiled into native code using GCC 4.7.2 and the \texttt{-O2 -fopenmp} flag.
+Their execution time when called from the Python interpreter is measured
+through the \texttt{timeit} module on a machine using 4 AMD Opteron 6176 SE.
+All results are normalized against Cython sequential execution time. They show
+that while being of a higher level than Cython, Pythran achieves comparable
+results.
 
 The source codes used for these benchmarks are available on the Pythran
 repository.~\footnote{\see \texttt{https://github.com/serge-sans-paille/pythran} on \texttt{europar2013}

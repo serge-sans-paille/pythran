@@ -62,27 +62,26 @@ that adds Matlab-like functionalities to the language.
 
 The prohibitive performance overhead of the language implied by its interpreted
 and highly dynamic nature does not prevent its usage as a language for high
-performance computing. SciPy overcomes this issue through the usage of low-level
-routines written in C or Fortran and encapsulated in Python through
-\emph{native} modules. Moreover, its core data structure, the multi-dimensional
-array~\cite{numpyarray2011}, was designed so that the underlying data are
+performance computing. SciPy overcomes this issue through low-level routines
+written in C or Fortran and encapsulated in Python \emph{native} modules.
+Moreover, its core data structure, the multi-dimensional
+array~\cite{numpyarray2011}, has been designed so that the underlying data are
 available to both native modules and the Python interpreter without conversion
 cost.
 
-To make it easier for the user to write native functions, \emph{i.e.}\ without
-having to write the glue code that turns Python object into native structures
-back and forth, the SciPy package provides the \texttt{weave} module that makes
-it possible to bundle C code snippet into Python code and compile then load them
-at runtime.
+To enable the user to write native functions, without having to write the glue
+code that turns Python object into native structures back and forth, the SciPy
+package provides the \texttt{weave} module that makes it possible to bundle C
+code snippet into Python code and compile then load them at runtime.
 
 This hybrid approach, based on a mix of interpreted and native code, is getting
 widespread in the Python landscape. Section~\ref{sec:python-parallel} studies
 the existing approaches and shows a critical lack of parallelism support, and
 emphasises on the need for a backward-compatible approach.
-Section~\ref{sec:python-openmp} studies the validity of adding OpenMP directives
-to the Python language in order to add fine-grain parallelism support to Python
-in the context of a Python subset called Pythran. Static compilation of this
-language into C++ and the underlying runtime is described in
+Section~\ref{sec:python-openmp} studies the validity of using OpenMP directives
+within the Python language in order to add fine-grain parallelism support to
+Python in the context of a Python subset called Pythran. Static compilation of
+this language into C++ and the underlying runtime is described in
 Section~\ref{sec:python-static}. The Pythran compiler is benchmarked on several
 scientific kernels and compared to Cython in Section~\ref{sec:validation}.
 
@@ -108,13 +107,13 @@ processes approach.
 Although the standard \texttt{threading} module makes it possible to start
 several light-weight threads within the same interpreter, this approach is not
 relevant for HPC, because of a specificity of CPython, the \emph{Global
-Interpreter Lock}~\cite{gil2012}.~\footnote{Other Python interpreters, such as
+Interpreter Lock}~\cite{gil2012}.\footnote{Other Python interpreters, such as
 IronPython or Jython, do not have a GIL.} This lock ensures that only one thread
 is active at a time in the interpreter. While it makes it possible to have
-cooperative thread, say for a GUI, it does not take advantage of multiple cores.
-However, there are two notable exceptions: the GIL is released on I/O, and the
-GIL does not prevent the use of threads inside native modules, where the user
-has full control.
+cooperative threads, say for a GUI, it does not take advantage of multiple
+cores.  However, there are two notable exceptions: the GIL is released on I/O,
+and the GIL does not prevent the use of threads inside native modules, where the
+user has full control.
 
 To illustrate this behavior, we used the CPU-bound Buffon's needle algorithm to
 estimate the value of $\pi$. It's execution time using a multi-threaded
@@ -160,9 +159,9 @@ A constraining (from the performance point of view) aspect of the Python
 language is its type system. It has several consequences, among which the fact
 that each method call is resolved dynamically, including a simple add
 operation! It comes at no surprise that many approaches extend the Python
-language to add a static typing overlay. Likewise, there is only two types of
+language to add a static typing overlay. Likewise, there are only two types of
 integers (64bits integers and multi-precision integers) and one type of floating
-point type (double-precision floats) in Python, while using a type with the
+point type (double-precision floats) in Python, so using a type with the
 appropriate size may lead to significant performance boost.
 
 Cython~\cite{cython2010} is such a Python dialect. It extends the syntax with
@@ -173,11 +172,11 @@ similar approach that mixes Python with C, using raw strings to hold the C code
 and the parallel directives, that are limited to parallel for loops.
 %The numba~\footnote{\emph{cf}.\ \texttt{https://github.com/numba/numba}}
 %compiler uses additional type information to generate sequential LLVM bytecode.
-PyCUDA and PyOpenCL~\cite{klockner2012} also mixes python with kernels embedded
-as raw strings to target accelerators.
+PyCUDA and PyOpenCL~\cite{klockner2012} also target accelerators by mixing
+Python with kernels embedded as raw strings to target accelerators.
 
-The core issue of these approaches is that they imply to modify, in a more or
-less complex way, the original code. They require to invest in a new language,
+The main issue of these approaches is that they imply to modify, in a more or
+less complex way, the original code. They require to invest in a new dialect,
 and the long-term preservation of this investment is not ensured. Moreover,
 there is no falling back if the code where to be deployed in an environment
 where the parallelizing tool/module is not available. For instance, once a code
@@ -190,7 +189,7 @@ the algorithm.
 Most backward-compatible approaches also require to modify the input program,
 but they do not extend the Python language, rather restrict it. As a
 consequence, they remain compatible with the original language and do not suffer
-from the drawbacks of the previous approach. They also keep the benefit of
+from the drawbacks of the previous approaches. They also keep the benefit of
 existing tools associated to the language.
 
 Copperhead~\cite{copperhead2011} is a functional, data parallel language embedded in
@@ -198,23 +197,22 @@ Python. It uses n-uplets, numpy arrays and lists as its core data structure and
 prohibits usage of many control-flow operators such as loops, enforcing the use
 of the \texttt{map}, \texttt{filter} or \texttt{reduce} intrinsics to exhibit
 parallelism. In returns, it can be efficiently compiled to either CUDA or C++
-with calls to the Thrust~\footnote{\emph{cf}.\
+with calls to the Thrust\footnote{\emph{cf}.\
 \texttt{http://thrust.github.com/}} library. Python decorators are used to
 identify hot-spots that are JIT-compiled to native code.
 
 Tools such as PyPy~\cite{pypy2009}, a Python interpreter with a tracing JIT, or
-Shedskin~\cite{shedskin2006}, a Python to C++ compiler also are viable way to
+Shedskin~\cite{shedskin2006}, a Python to C++ compiler are also viable ways to
 turn regular Python codes into optimized ones, but they do not offer support for
-fine-grained parallelism beyond what the standard library
-proposes.
-%~\footnote{Shedskin is compatible with several Python modules that
-%provide coarse-grained, fork-based parallelism.}
+fine-grained parallelism beyond what the standard library proposes.
+%~\footnote{Shedskin is compatible with several Python modules that provide
+%coarse-grained, fork-based parallelism.}
 
 To be completely backward compatible, it must be possible to run the input code
 in an environment that is not aware of the existence of the parallelizing
 solution. This principle is not respected by parallel libraries, but code
 annotations satisfy it. This is where  OpenMP~\cite{openmp3.1} parallel
-annotations shines: the original code remains compatible with a compiler that is
+annotations shine: the original code remains compatible with a compiler that is
 not aware of OpenMP.
 
 This article proposes to combine OpenMP~\cite{openmp3.1} parallel annotations
@@ -230,7 +228,7 @@ sequential algorithm.It means that:
 \end{enumerate}
 
 %=========================================================
-\section{OpenMP Semantic Adaptations}\label{sec:python-openmp}
+\section{OpenMP Semantical Adaptations}\label{sec:python-openmp}
 %=========================================================
 
 OpenMP is a standard API for parallel programming for Fortran, C and C++. It
@@ -238,22 +236,22 @@ consists in a set of parallelizing directives and a few runtime library calls.
 If OpenMP is not activated, the directives are ignored, thus enabling
 incremental parallelization of the original source code while keeping the
 original code structure. The languages targeted by OpenMP are statically
-compiled. This section studies the semantic adaptation required to use the same
-API for a scripting language such as Python.
+compiled. This section studies the semantical adaptation required to use the
+same API for a scripting language such as Python.
 
 \subsection{Directives}
 
-OpenMP directives are held by C/C++ pragma, or by Fortran comments. Most of them apply
-on structured blocks, represented by an instruction in C/C++ and delimited by
-comment in Fortran. A few directives (e.g.\ \texttt{threadprivate}) are not
+OpenMP directives are held by C/C++ pragma, or by Fortran comments. Most of them
+apply to structured blocks, represented by an instruction in C/C++ and delimited
+by comments in Fortran. A few directives (e.g.\ \texttt{threadprivate}) are not
 attached to a specific instruction.
 
-While Pythran does have a decorator mechanism~\footnote{\see PEP 318,
+While Pythran has a decorator mechanism\footnote{\see PEP 318,
 \url{http://www.python.org/dev/peps/pep-0318/} for a more detail explanation of
 Python decorators.}, it only applies to functions, methods and classes and does
-not make it possible to attach decorations to random instructions.
-PLW~\cite{dongara2007} suggests to use string instructions to hold such
-decorations. As Python does not have anonymous block,
+not make it possible to attach decorations to other statements.  Pythran uses
+the path taken by PLW~\cite{dongara2007}, that uses string instructions to hold
+such decorations. As Python does not have anonymous block,
 %~\footnote{\see PEP340, \url{http://www.python.org/dev/peps/pep-0340/} for a
 %discussion concerning anonymous block support in Python.}
 one has to create a dummy \texttt{if 1:} instruction to apply an annotation to a
@@ -276,39 +274,39 @@ specifying their behavior with respect to parallel regions, e.g.\
 \texttt{private}, \texttt{shared}, \texttt{copyin}. They can only refer to
 variables that have already been declared. However, there is no variable
 declaration in Python, and all variables assigned in a function have the
-function scope. Consequently, all variables referred to in a function are to be
-considered when building such variable lists: there is no concept of variable
-local to a block. Using the \texttt{default(none)} clause is possible to ensure
-no variable gets forgotten when building such lists.
+function scope. Consequently, all variables that are referenced in a function
+are considered when building such variable lists: there is no concept of
+variable local to a block. Using the \texttt{default(none)} clause is possible
+to ensure no variable gets forgotten when building such lists.
 
-The \texttt{reduction(\emph{operator}: \emph{list})} is used to handle data
-dependencies when performing a parallel reduction. The supported operator
-depends on the input and backend language: Python has \texttt{min}/\texttt{max} operators but
-C/C++ have not. Python does not have \texttt{\&\&} or \texttt{||}
-operators~\footnote{Although similar, the \texttt{and} and \texttt{or} keywords
-have a special meaning in Python.} while C/C++ have.
+The \texttt{reduction(\emph{operator}: \emph{list})} directive is used to
+characterize some data dependencies when performing a parallel reduction. The
+list of supported operators depend on the input and backend languages: Python
+has \texttt{min}/\texttt{max} operators but C/C++ does not. C/C++ have
+\texttt{\&\&} or \texttt{||} while Python does not.\footnote{Although similar,
+the \texttt{and} and \texttt{or} keywords have a special meaning in Python.}
 
 \subsubsection{Parallel For and Iterators}
 
 The core directive to handle data parallelism is the \texttt{for} directive that
 distributes the iteration space of the associated loop among the existing
 threads. To be compatible with OpenMP, the loop iteration space must be
-described by a random access iterator with a total order. Integers used as
-loop indices in Fortran and C satisfy this conditions, as well as C++ iterators with
+described by a random access iterator with a total order. Integers used as loop
+indices in Fortran and C satisfy this conditions, as well as C++ iterators with
 the \texttt{random\_access\_tag} trait. But a Python iterator only advances by a
 step of one until it is exhausted, in which case it raises an exception: it
 behaves as a forward iterator. To be compatible with OpenMP, these iterators
 must be turned into random access iterators.
 
 The extension of Python iterator to random access iterators is direct for the
-standard containers: \texttt{list}~\footnote{Python \texttt{list}s behave as C++
+standard containers: \texttt{list}\footnote{Python \texttt{list}s behave as C++
 \texttt{vector}s.}, \texttt{set} or \texttt{dict}. Other iterators require more
 care.
 
 Generators, Python objects that behave like iterators, are commonly used in
 Python. The simplest one, \texttt{xrange(\emph{start}, \emph{stop},
-\emph{step})}, successively yields value starting from \texttt\emph{start} to
-\texttt\emph{stop} by a step of \texttt\emph{step}. It is easily extended to
+\emph{step})}, successively yields value starting from \texttt{\emph{start}} to
+\texttt{\emph{stop}} by a step of \texttt{\emph{step}}. It is easily extended to
 support random access, but it generally does not make sense to use a generator
 as a loop iterator, as the relation between two random states of the iterator
 may be of an arbitrary complexity.
@@ -347,10 +345,10 @@ retrieve the active thread id. All the functions are declared in the
 \texttt{<omp.h>} header, and have a default behavior when OpenMP is not
 activated.
 
-Providing a biding to these library in the Python does not raise
-particular problems, as the signature of these functions only involves passing
-integers as parameters or return values, except for the mutex manipulation. In
-that case an opaque type is used to represent the native type.
+Providing a binding to these library in Python does not raise particular
+problems, as the signature of these functions only involves integers passed as
+parameters or return values, except for the mutex manipulation. In that case an
+opaque type is used to represent the native type.
 
 The \texttt{\_OPENMP} macro definition is always provided when OpenMP is
 activated, and can be used to detect when OpenMP is not available. Python does
@@ -360,7 +358,7 @@ not have a preprocessor, but it is possible to catch the import exception if the
 \subsection{Validation}
 
 A validation suite for OpenMP is proposed in~\cite{wang2012} for C and Fortran.
-We ported it to Python, and we also extended it to validate the corner cases
+We ported it to Python, and also extended it to validate the corner cases
 specific to Python described in this section. A typical test case is given in
 Listing~\ref{lst:openmp-validation}.
 
@@ -392,9 +390,9 @@ loop nesting required by the \texttt{collapse} clause.
 %=========================================================
 
 Pythran is a subset of Python focused on scientific computing. It is implicitly
-statically typed and support most Python constructs except those that involve
+statically typed and supports most Python constructs except those that involve
 introspection (e.g.\ \texttt{getattr}) or runtime compilation (e.g.\
-\texttt{eval}). A few standard module are supported in addition to the core
+\texttt{eval}). A few standard modules are supported in addition to the core
 language (e.g.\ \texttt{math}, \texttt{random}). The \texttt{numpy} module is
 currently only partially supported. The associated compiler turns Pythran code,
 possibly annotated with OpenMP and a few function type annotations, into C++
@@ -402,7 +400,7 @@ code. Its processing is summarized in Figure~\ref{fig:pythran-compiler} and
 relies on type inference to remove most dynamic behavior, combined with a
 high-level runtime library, \texttt{pythonic++}, to allow a one-to-one mapping
 between Python and C++ constructs. The purpose of this section is not to dig
-into the internal of the compiler, but rather to focus on the impact of the
+into the internals of the compiler, but rather to focus on the impact of the
 parallelism layer, especially on the runtime library.
 
 \begin{figure}
@@ -438,16 +436,16 @@ distance=0.6cm}]
 
 \subsection{Runtime Support}
 
-The standard library of C++11, unlike its C++03 version, is thread-safe. Pythran
-runtime is based on the STL and provides the same guaranty, so that the data
-dependencies in the original code remains explicit.
+Pythran runtime is based on the STL. The standard library of C++11, unlike its
+C++03 version, is thread-safe, so the data dependencies in the original code
+remain explicit.
 
 A critical point of the design of the \texttt{pythonic++} runtime is memory
 management, the very same aspect that led to the use of a GIL in CPython.
 Memory management is implemented in Shedskin through the general-purpose Boehm
 garbage collector~\cite{boehm1991}, and Cython forbids usage of Python-managed
-object inside parallel regions, thus making memory management explicit for these
-parts.
+objects inside parallel regions, thus making memory management explicit for
+these parts.
 
 Pythran handles the problem by refusing recursive types, which makes it possible
 to solely rely on reference counting for memory management. It can be
@@ -466,9 +464,9 @@ reference or const reference to prevent this extra cost.
 \subsection{Directive Oblivious Translation}
 
 During Python to C++ translation, Pythran adopts a blind strategy: it does not
-understand the semantic of the annotations. Instead, it just split each
+understand the semantics of the annotations. Instead, it just splits each
 annotation into a context-sensitive part ---the variable names--- and a
-context-insensitive part ---the clauses---, and attach them to the proper
+context-insensitive part ---the clauses---, and attaches them to the proper
 instruction in the AST.
 
 The Pythran compiler ensures a bijective translation between Python instruction
@@ -476,24 +474,24 @@ and generated C++ instruction so that the OpenMP directive is regenerated on the
 proper instruction. The same approach is used at the expression level, to be
 compatible with the \texttt{if} clause.
 
-At the AST level, it means that the Python AST is first reduced to a Python AST
-where all nodes not available in C++ are transformed into a compatible
-representation. For instance, list comprehension expressions are turned into
-function calls or tuple unpacking is turned in multiple assignments. During this
-transformation process, an expression is always transformed into a single expression
-and a statement is always transformed into a single statement. Then this
-AST is converted into a C++ AST meant to be pretty-printed.
+At the AST level, it means that the Python AST is first reduced to a tree where
+all nodes not available in C++ are transformed into a compatible representation.
+For instance, list comprehension expressions are turned into function calls or
+tuple unpacking is turned in multiple assignments. During this transformation
+process, an expression is always transformed into a single expression and a
+statement is always transformed into a single statement. Then this AST is
+converted into a C++ AST meant to be pretty-printed.
 
 
 \subsection{Transfer Costs}
 
 When passing containers from Python to C back and forth, a copy of the whole
 data is made to turn the type agnostic, non-contiguous Python data into dense
-typed ones. This extra copy implies an extra cost that is not negligible: the
-time taken to pass two lists of float from Python to C++ is only twice less than
-the time taken to compute the dot product of the same lists directly in Python.
-Following Amdahl's law, this transfer cost greatly hinders parallelization, and
-is a well known issue.
+typed ones. This extra copy implies an extra cost that is not negligible:
+Passing two lists of float from Python to C++ requires as much as half the time
+to compute the dot product of the same lists directly in Python.  Following
+Amdahl's law, this transfer cost greatly hinders parallelization, and is a well
+known issue.
 
 The traditional solution is to use a native type that exposes a Python interface
 and has a constant translation cost. Numpy's \texttt{ndarray} is a typical
@@ -548,17 +546,17 @@ threads using up to 8 AMD Opteron 6176 SE.
     \includegraphics[width=\textwidth]{hyantes}
 \end{figure}
 
-We then compare Pythran with Cython. The approach share some similarities: they
-both generate code written in a lower level language, with OpenMP
+We then compare Pythran with Cython. The approaches share some similarities:
+they both generate code written in a lower level language, with OpenMP
 directives. However, the inputs differ as Cython requires more typing
-information that Pythran to generate efficient code, and Cython is not
-backward-compatible with Python. They both translate explicit fine-grained
+information than Pythran to generate efficient code, and Cython is not
+backward-compatible with Python. They translate explicit fine-grained
 parallelism through code annotations or specific python constructs,
 respectively.
 
 Pythran exposes the full OpenMP interface to the user, thus enabling both data
-and task parallelism, as described in Section~\ref{sec:python-openmp}. This is
-not the case in Cython, where:
+and task parallelism, as described in Section~\ref{sec:python-openmp}. It is
+not the case in Cython:
 %
 \begin{itemize}
 
@@ -592,7 +590,7 @@ def sum_sqrt(double r):
     return r
     \end{lstlisting}
 %
-    \begin{lstlisting}[label={lst:pythran-sample}, caption={Cython implementation
+    \begin{lstlisting}[label={lst:pythran-sample}, caption={Pythran implementation
     of a parallel reduction.}]
 #pythran export sum_sqrt(float)
 import math
@@ -618,7 +616,7 @@ that while being of a higher level than Cython, Pythran achieves comparable
 results.
 
 The source codes used for these benchmarks are available on the Pythran
-repository.~\footnote{\see \texttt{https://github.com/serge-sans-paille/pythran} on \texttt{europar2013}
+repository.\footnote{\see \texttt{https://github.com/serge-sans-paille/pythran} on \texttt{europar2013}
 branch.} 
 
 \begin{figure}[ht]
@@ -645,8 +643,8 @@ OpenMP directives and a few type annotations into native parallel module. The
 input module remains compatible with the standard interpreter.
 
 The approach is compared with Cython, an extension of the Python language used
-to generate native module with an hybrid Python-C syntax that also provide means
-to exhibit fine grained parallelism. It shows that retaining Python
+to generate native module with an hybrid Python-C syntax that also provides
+means to exhibit fine grained parallelism. It shows that retaining Python
 compatibility does not prevent the achievement of comparable performances.
 
 Future work includes the extension of the approach to OpenMP 4 and the
@@ -658,8 +656,8 @@ comprehension construction, that needs to be explored.
 \section*{Acknowledgments}
 %=========================================================
 
-This work has received fundings from the \texttt{Silkan} company and the French
-ANR through the CARP project. The authors would like to thanks Adrien
+This work has received fundings from the \textsc{silkan} company and the French
+ANR through the CARP project. The authors would like to thank Adrien
 \textsc{Merlini} and Alan \textsc{Raynaud} for their work on the C++ runtime,
 Albert \textsc{Cohen}, B{\'e}atrice \textsc{Creusillet}, Fabien
 \textsc{Dagnat} and Mehdi \textsc{Amini} for their valuable advices.

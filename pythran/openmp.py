@@ -18,6 +18,7 @@ keywords = {
         'copyprivate',
         'default',
         'firstprivate',
+        'final',
         'flush',
         'for',
         'if',
@@ -37,6 +38,7 @@ keywords = {
         'single',
         'task',
         'taskwait',
+        'taskyield',
         'threadprivate',
         'untied',
         }

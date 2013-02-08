@@ -185,6 +185,9 @@ modules = {
             "bind3": FunctionIntr(),
             "pmap":  ConstFunctionIntr(),
             },
+        "time": {
+                "sleep": ConstFunctionIntr(),
+            },
         "math": {
                 "isinf": ConstFunctionIntr(),
                 "modf": ConstFunctionIntr(),

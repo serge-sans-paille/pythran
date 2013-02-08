@@ -1,5 +1,5 @@
 def omp_for_nowait():
-    LOOPCOUNT = 10000
+    LOOPCOUNT = 1000
     myarray = [0]*LOOPCOUNT
     result = 0
     count = 0

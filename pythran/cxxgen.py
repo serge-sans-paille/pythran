@@ -455,9 +455,12 @@ class FunctionBody(Generable):
 # block -----------------------------------------------------------------------
 class Block(Generable):
     def __init__(self, contents=[]):
-        self.contents = contents[:]
+        if isinstance(contents, MultipleStatements):
+            self.contents = contents.contents[:]
+        else:
+            self.contents = contents[:]
 
-        for item in contents:
+        for item in self.contents:
             assert isinstance(item, Generable), item
 
     def generate(self):
@@ -466,6 +469,19 @@ class Block(Generable):
             for item_line in item.generate():
                 yield "  " + item_line
         yield "}"
+
+
+class MultipleStatements(Generable):
+    def __init__(self, contents=[]):
+        self.contents = contents[:]
+
+        for item in contents:
+            assert isinstance(item, Generable), item
+
+    def generate(self):
+        for item in self.contents:
+            for item_line in item.generate():
+                yield "  " + item_line
 
 
 class Module(Block):

@@ -43,7 +43,8 @@ class TestCommand(Command):
             cpu_count = multiprocessing.cpu_count()
             py.test.cmdline.main(["-n", str(cpu_count), where])
         except ImportError:
-            print "W: Using only one thread, try to install pytest-xdist package"
+            print ("W: Using only one thread,"
+                    "try to install pytest-xdist package")
             loader = TestLoader()
             t = TextTestRunner()
             t.run(loader.discover(where))
@@ -128,7 +129,7 @@ setup(name='pythran',
         author='Serge Guelton',
         author_email='serge.guelton@telecom-bretagne.eu',
         url='https://github.com/serge-sans-paille/pythran',
-        packages=['pythran', 'pythran/pythonic++'],
+        packages=['pythran', 'omp', 'pythran/pythonic++'],
         package_data={'pythran': ['pythran.h', 'pythran_gmp.h'],
             'pythran/pythonic++': ['pythonic++.h', 'core/*.h',
             'modules/*.h']},

@@ -8,16 +8,21 @@ import sys
 import errno
 import os.path
 import distutils.sysconfig
+
 from cxxgen import *
 import ast
 from middlend import refine, default_optimization_sequence
 from backend import Cxx
-from subprocess import check_output, STDOUT, CalledProcessError
-from tempfile import mkstemp, NamedTemporaryFile
 from syntax import check_syntax
 from passes import NormalizeIdentifiers
+from openmp import GatherOMPData
+
+
 from passmanager import PassManager
 from tables import pytype_to_ctype_table
+
+from subprocess import check_output, STDOUT, CalledProcessError
+from tempfile import mkstemp, NamedTemporaryFile
 
 
 def pytype_to_ctype(t):
@@ -84,6 +89,11 @@ def cxx_generator(module_name, code, specs=None, optimizations=None):
     pm = PassManager(module_name)
     # font end
     ir = ast.parse(code)
+
+    # parse openmp directive
+    pm.apply(GatherOMPData, ir)
+
+    # avoid conflicts with cxx keywords
     renamings = pm.apply(NormalizeIdentifiers, ir)
     check_syntax(ir)
 

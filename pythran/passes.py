@@ -12,7 +12,6 @@ This modules contains code transformation to turn python AST into
     * NormalizeException simplifies try blocks
     * UnshadowParameters prevents the shadow parameter phenomenon
     * ExpandImports replaces imports by their full paths
-    * GatherOMPData turns OpenMP-like string annotations into metadata
 '''
 
 from analysis import ImportedIds, Identifiers, YieldPoints
@@ -358,8 +357,8 @@ class _NestedFunctionRemover(Transformation):
                     )
                 )
 
-	self.generic_visit(node)
-	return new_node
+        self.generic_visit(node)
+        return new_node
 
 
 class RemoveNestedFunctions(Transformation):
@@ -783,36 +782,4 @@ class ExpandImports(Transformation):
             new_node.ctx = node.ctx
             ast.copy_location(new_node, node)
             return new_node
-        return node
-
-
-##
-class GatherOMPData(Transformation):
-    '''
-    walks node and collect string comment looking for OpenMP directives.
-    '''
-
-    statements = ("Call", "Return", "Delete", "Assign", "AugAssign", "Print",
-            "For", "While", "If", "Raise", "Assert", "Pass",)
-
-    def __init__(self):
-        Transformation.__init__(self)
-        for s in GatherOMPData.statements:
-            setattr(self, "visit_" + s, lambda node_: self.attach_data(node_))
-        self.current = list()
-
-    def visit_Expr(self, node):
-        if isinstance(node.value, ast.Str) and node.value.s.startswith("omp"):
-            self.current.append(node.value.s)
-            return None
-        else:
-            self.attach_data(node)
-        return node
-
-    def attach_data(self, node):
-        if self.current:
-            [metadata.add(node, metadata.OMPDirective(curr))
-                    for curr in self.current]
-            self.current = list()
-        self.generic_visit(node)
         return node

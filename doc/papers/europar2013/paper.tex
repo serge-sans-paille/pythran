@@ -178,7 +178,7 @@ Python with kernels embedded as raw strings to target accelerators.
 The main issue of these approaches is that they imply to modify, in a more or
 less complex way, the original code. They require to invest in a new dialect,
 and the long-term preservation of this investment is not ensured. Moreover,
-there is no falling back if the code where to be deployed in an environment
+there is no falling back if the code were to be deployed in an environment
 where the parallelizing tool/module is not available. For instance, once a code
 has been ported to PyCUDA and transformed into CUDA code embedded in Python
 strings, there is no way back and the developer has to maintain two versions of
@@ -211,18 +211,18 @@ fine-grained parallelism beyond what the standard library proposes.
 To be completely backward compatible, it must be possible to run the input code
 in an environment that is not aware of the existence of the parallelizing
 solution. This principle is not respected by parallel libraries, but code
-annotations satisfy it. This is where  OpenMP~\cite{openmp3.1} parallel
+annotations satisfy it. This is where OpenMP~\cite{openmp3.1} parallel
 annotations shine: the original code remains compatible with a compiler that is
 not aware of OpenMP.
 
 This article proposes to combine OpenMP~\cite{openmp3.1} parallel annotations
 with a Python subset called Pythran to bring fine-grain parallelism to Python.
-while being backward compatible with both the Python language, and the
-sequential algorithm.It means that:
+While being backward compatible with both the Python language, and the
+sequential algorithm. It means that:
 %
 \begin{enumerate}
-    \item Any Pythran code can be run (sequentially), with no module dependency or code change,
-        by any Python interpreter.
+    \item Any Pythran code can be run (sequentially), with no module dependency
+        or code change, by any Python interpreter.
     \item Parallelism is explicit and incrementally added to the original code
         through directives.
 \end{enumerate}
@@ -249,7 +249,7 @@ attached to a specific instruction.
 While Pythran has a decorator mechanism\footnote{\see PEP 318,
 \url{http://www.python.org/dev/peps/pep-0318/} for a more detail explanation of
 Python decorators.}, it only applies to functions, methods and classes and does
-not make it possible to attach decorations to other statements.  Pythran uses
+not make it possible to attach decorations to other statements. Pythran uses
 the path taken by PLW~\cite{dongara2007}, that uses string instructions to hold
 such decorations. As Python does not have anonymous block,
 %~\footnote{\see PEP340, \url{http://www.python.org/dev/peps/pep-0340/} for a
@@ -367,7 +367,7 @@ Listing~\ref{lst:openmp-validation}.
     OpenMP validation test case.}]
 def omp_parallel_for_if(loop_count):
   import omp
-  using = sum = sum2 = 0
+  using = sum = 0
   'omp parallel for if(using == 1)'
   for i in range(loop_count + 1):
     num_threads = omp.get_num_threads()
@@ -489,7 +489,7 @@ When passing containers from Python to C back and forth, a copy of the whole
 data is made to turn the type agnostic, non-contiguous Python data into dense
 typed ones. This extra copy implies an extra cost that is not negligible:
 Passing two lists of float from Python to C++ requires as much as half the time
-to compute the dot product of the same lists directly in Python.  Following
+to compute the dot product of the same lists directly in Python. Following
 Amdahl's law, this transfer cost greatly hinders parallelization, and is a well
 known issue.
 
@@ -560,8 +560,7 @@ not the case in Cython:
 %
 \begin{itemize}
 
-    \item Only loops can be made parallel, using a new \texttt{prange} intrinsic
-        as iterator.
+    \item Only loops can be made parallel, using a new \texttt{prange} generator.
 
     \item Reductions and variable privacy are inferred, but it chokes on
         reduction on private variables.
@@ -632,7 +631,7 @@ branch.}
 \section{Conclusion and Future Work}
 %=========================================================
 
-This paper studies the addition  of OpenMP annotations to Python. It shows that
+This paper studies the addition of OpenMP annotations to Python. It shows that
 providing minor semantic adaptations, these annotations make it possible for
 Python code to benefit from multi-cores while retaining backward compatibility
 and without worrying about the Global Interpreter Lock.

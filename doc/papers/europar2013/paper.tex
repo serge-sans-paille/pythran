@@ -118,7 +118,7 @@ user has full control.
 To illustrate this behavior, we used the CPU-bound Buffon's needle algorithm to
 estimate the value of $\pi$. It's execution time using a multi-threaded
 implementation on 4 cores is $\times 1.46$ the execution time of the sequential
-version. GIL contention actually makes the code run slower. 
+version. GIL contention actually increase the execution time.
 
 As a consequence, Python developers need to write multi-threaded native
 modules in order to fully benefit from multiple cores. This leads to a kind of
@@ -144,39 +144,39 @@ enhanced interface specification, or
 \texttt{boost::python}~\cite{boostpython2007} that relies on C++ facilities to
 guide translation.
 
-An opposite approach consists in using the host language ---herein Python---
-to describe both parts of the system, and to let an automated tool perform the
+An opposite approach consists in using the host language ---herein Python--- to
+describe both parts of the system, and to let an automated tool perform the
 translation to native code of a part of the application, generally the
 computation-intensive one where parallelism has been expressed in some ways.
 Thus, developers not familiar with lower level languages or not eager to invest
 the additional development time can still benefit from a fair performance boost.
-This approach is the subject of many studies that can be classified based on
+This approach is the subject of many studies that can be classified according to
 their compatibility with the host language.
 
 \subsubsection{Backward-Incompatible Approaches}
 
 A constraining (from the performance point of view) aspect of the Python
-language is its type system. It has several consequences, among which the fact
-that each method call is resolved dynamically, including a simple add
-operation! It comes at no surprise that many approaches extend the Python
-language to add a static typing overlay. Likewise, there are only two types of
-integers (64bits integers and multi-precision integers) and one type of floating
-point type (double-precision floats) in Python, so using a type with the
-appropriate size may lead to significant performance boost.
+language is its type system. It implies that each method call is resolved
+dynamically, even a simple add operation! It comes at no surprise that many
+approaches restrain the Python language to add a static typing overlay.  Also,
+only two types of integers (64bits integers and multi-precision integers) and
+one type of floating point type (double-precision floats) are available in
+Python, so using a type with the appropriate size may lead to significant
+performance boost.
 
 Cython~\cite{cython2010} is such a Python dialect. It extends the syntax with
 typing informations, calls to native functions from third party libraries, and a
-limited set of parallelism constructs, among which the possibility to define
+limited set of parallelism constructs, such as the possibility to define
 parallel loops, but no task parallelism. PLW~\cite{dongara2007} proposes a
 similar approach that mixes Python with C, using raw strings to hold the C code
 and the parallel directives, that are limited to parallel for loops.
 %The numba~\footnote{\emph{cf}.\ \texttt{https://github.com/numba/numba}}
 %compiler uses additional type information to generate sequential LLVM bytecode.
 PyCUDA and PyOpenCL~\cite{klockner2012} also target accelerators by mixing
-Python with kernels embedded as raw strings to target accelerators.
+Python with kernels embedded as raw strings containing accelerator code.
 
 The main issue of these approaches is that they imply to modify, in a more or
-less complex way, the original code. They require to invest in a new dialect,
+less complex way, the original code. They require to learn a new dialect,
 and the long-term preservation of this investment is not ensured. Moreover,
 there is no falling back if the code were to be deployed in an environment
 where the parallelizing tool/module is not available. For instance, once a code
@@ -186,18 +186,18 @@ the algorithm.
 
 \subsubsection{Backward-Compatible Approaches}
 
-Most backward-compatible approaches also require to modify the input program,
-but they do not extend the Python language, rather restrict it. As a
-consequence, they remain compatible with the original language and do not suffer
-from the drawbacks of the previous approaches. They also keep the benefit of
-existing tools associated to the language.
+Most backward-compatible approaches also require to modify the input program.
+They do not extend the Python language, but restrict it. As a consequence, they
+remain compatible with the original language and do not suffer from the
+drawbacks of the previous approaches. They also benefit from existing tools
+associated to the language.
 
-Copperhead~\cite{copperhead2011} is a functional, data parallel language embedded in
-Python. It uses n-uplets, numpy arrays and lists as its core data structure and
-prohibits usage of many control-flow operators such as loops, enforcing the use
-of the \texttt{map}, \texttt{filter} or \texttt{reduce} intrinsics to exhibit
-parallelism. In returns, it can be efficiently compiled to either CUDA or C++
-with calls to the Thrust\footnote{\emph{cf}.\
+Copperhead~\cite{copperhead2011} is a functional, data parallel language
+embedded in Python. It uses n-uplets, numpy arrays and lists as its core data
+structure and prohibits usage of many control-flow operators such as loops,
+enforcing the use of the \texttt{map}, \texttt{filter} or \texttt{reduce}
+intrinsics to exhibit parallelism. But it can be efficiently compiled to either
+CUDA or C++ with calls to the Thrust\footnote{\emph{cf}.\
 \texttt{http://thrust.github.com/}} library. Python decorators are used to
 identify hot-spots that are JIT-compiled to native code.
 
@@ -389,14 +389,14 @@ loop nesting required by the \texttt{collapse} clause.
 \section{Static Translation of Python Programs}\label{sec:python-static}
 %=========================================================
 
-Pythran is a subset of Python focused on scientific computing. It is implicitly
-statically typed and supports most Python constructs except those that involve
-introspection (e.g.\ \texttt{getattr}) or runtime compilation (e.g.\
-\texttt{eval}). A few standard modules are supported in addition to the core
-language (e.g.\ \texttt{math}, \texttt{random}). The \texttt{numpy} module is
-currently only partially supported. The associated compiler turns Pythran code,
-possibly annotated with OpenMP and a few function type annotations, into C++
-code. Its processing is summarized in Figure~\ref{fig:pythran-compiler} and
+Pythran is a subset of Python designed for scientific computing. It is
+implicitly statically typed and supports most Python constructs except those
+that involve introspection (e.g.\ \texttt{getattr}) or runtime compilation
+(e.g.\ \texttt{eval}). A few standard modules are supported in addition to the
+core language (e.g.\ \texttt{math}, \texttt{random}). The \texttt{numpy} module
+is currently only partially supported. The associated compiler turns Pythran
+code, possibly annotated with OpenMP and a few function type annotations, into
+C++ code. Its processing is summarized in Figure~\ref{fig:pythran-compiler} and
 relies on type inference to remove most dynamic behavior, combined with a
 high-level runtime library, \texttt{pythonic++}, to allow a one-to-one mapping
 between Python and C++ constructs. The purpose of this section is not to dig
@@ -459,7 +459,7 @@ C++11 avoids a few copies when working on temporary objects, but argument
 passing still implies copies. To avoid a reference increment, one can pass
 parameters by reference. Using an out-of-scope interprocedural memory effect
 analysis, Pythran determines for each argument whether it must be passed using
-reference or const reference to prevent this extra cost.
+reference or const reference to prevent this overhead.
 
 \subsection{Directive Oblivious Translation}
 
@@ -486,12 +486,12 @@ converted into a C++ AST meant to be pretty-printed.
 \subsection{Transfer Costs}
 
 When passing containers from Python to C back and forth, a copy of the whole
-data is made to turn the type agnostic, non-contiguous Python data into dense
-typed ones. This extra copy implies an extra cost that is not negligible:
+container is made to turn the type agnostic, non-contiguous Python data into
+dense typed ones. This extra copy implies an extra cost that is not negligible:
 Passing two lists of float from Python to C++ requires as much as half the time
 to compute the dot product of the same lists directly in Python. Following
-Amdahl's law, this transfer cost greatly hinders parallelization, and is a well
-known issue.
+Amdahl's law, this copy overhead greatly hinders the benefits of
+parallelization, and is a well known issue.
 
 The traditional solution is to use a native type that exposes a Python interface
 and has a constant translation cost. Numpy's \texttt{ndarray} is a typical
@@ -655,11 +655,12 @@ comprehension construction, that needs to be explored.
 \section*{Acknowledgments}
 %=========================================================
 
-This work has received fundings from the \textsc{silkan} company and the French
-ANR through the CARP project. The authors would like to thank Adrien
-\textsc{Merlini} and Alan \textsc{Raynaud} for their work on the C++ runtime,
-Albert \textsc{Cohen}, B{\'e}atrice \textsc{Creusillet}, Fabien
-\textsc{Dagnat} and Mehdi \textsc{Amini} for their valuable advices.
+This work has received fundings from \textsc{silkan} and the French ANR through the
+CARP project. The authors thank Adrien \textsc{Merlini} and Alan
+\textsc{Raynaud} for their work on the runtime, Albert \textsc{Cohen},
+B{\'e}atrice \textsc{Creusillet}, Fabien \textsc{Dagnat}, Mehdi \textsc{Amini},
+Fran{\,c}ois \textsc{Irigoin} and Ronan \textsc{Keryell} for their valuable
+reviews.
 
 \bibliographystyle{splncs03}
 \bibliography{biblio}

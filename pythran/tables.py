@@ -4,6 +4,7 @@ This modules provides the translation tables from python to c++.
 
 import ast
 import cxxtypes
+
 from intrinsic import ConstFunctionIntr, FunctionIntr
 from intrinsic import ConstMethodIntr, MethodIntr, AttributeIntr, ScalarIntr
 
@@ -184,6 +185,9 @@ modules = {
             "bind3": FunctionIntr(),
             "pmap":  ConstFunctionIntr(),
             },
+        "time": {
+                "sleep": ConstFunctionIntr(),
+            },
         "math": {
                 "isinf": ConstFunctionIntr(),
                 "modf": ConstFunctionIntr(),
@@ -244,6 +248,40 @@ modules = {
                 "uniform": FunctionIntr(global_effects=True),
                 "expovariate": FunctionIntr(global_effects=True),
                 "sample": FunctionIntr(global_effects=True)
+                },
+        "omp": {
+                "set_num_threads": FunctionIntr(global_effects=True),
+                "get_num_threads": FunctionIntr(global_effects=True),
+                "get_max_threads": FunctionIntr(global_effects=True),
+                "get_thread_num": FunctionIntr(global_effects=True),
+                "get_num_procs": FunctionIntr(global_effects=True),
+                "in_parallel": FunctionIntr(global_effects=True),
+                "set_dynamic": FunctionIntr(global_effects=True),
+                "get_dynamic": FunctionIntr(global_effects=True),
+                "set_nested": FunctionIntr(global_effects=True),
+                "get_nested": FunctionIntr(global_effects=True),
+                "init_lock": FunctionIntr(global_effects=True),
+                "destroy_lock": FunctionIntr(global_effects=True),
+                "set_lock": FunctionIntr(global_effects=True),
+                "unset_lock": FunctionIntr(global_effects=True),
+                "test_lock": FunctionIntr(global_effects=True),
+                "init_nest_lock": FunctionIntr(global_effects=True),
+                "destroy_nest_lock": FunctionIntr(global_effects=True),
+                "set_nest_lock": FunctionIntr(global_effects=True),
+                "unset_nest_lock": FunctionIntr(global_effects=True),
+                "test_nest_lock": FunctionIntr(global_effects=True),
+                "get_wtime": FunctionIntr(global_effects=True),
+                "get_wtick": FunctionIntr(global_effects=True),
+                "set_schedule": FunctionIntr(global_effects=True),
+                "get_schedule": FunctionIntr(global_effects=True),
+                "get_thread_limit": FunctionIntr(global_effects=True),
+                "set_max_active_levels": FunctionIntr(global_effects=True),
+                "get_max_active_levels": FunctionIntr(global_effects=True),
+                "get_level": FunctionIntr(global_effects=True),
+                "get_ancestor_thread_num": FunctionIntr(global_effects=True),
+                "get_team_size": FunctionIntr(global_effects=True),
+                "get_active_level": FunctionIntr(global_effects=True),
+                "in_final": FunctionIntr(global_effects=True),
                 },
         "__list__": {
                 "append": MethodIntr(

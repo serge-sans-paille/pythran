@@ -16,6 +16,9 @@ from tables import operator_to_lambda, modules, type_to_suffix
 from tables import builtin_constructors, pytype_to_ctype_table
 from typing import Types
 from syntax import PythranSyntaxError
+
+from openmp import OMPDirective
+
 import cStringIO
 import unparse
 import metadata
@@ -108,14 +111,25 @@ class Cxx(Backend):
 
     # openmp processing
     def process_omp_attachements(self, node, stmt, index=None):
-        l = metadata.get(node, metadata.OMPDirective)
+        l = metadata.get(node, OMPDirective)
         if l:
-            if index is None:
-                stmt = [stmt]
-                index = 0
+            directives = list()
             for directive in reversed(l):
-                stmt.insert(index, Pragma(directive))
-        return Block(stmt) if isinstance(stmt, list) else stmt
+                # special hook for default for index scope
+                if isinstance(node, ast.For):
+                    target = node.target
+                    if ('for' in directive.s
+                            and 'default' not in directive.s
+                            and all(x.id != target.id for x in directive.deps)
+                            ):
+                        directive.s += ' private({})'
+                        directive.deps.append(ast.Name(target.id, ast.Param()))
+                directives.append(directive)
+            if index is None:
+                stmt = AnnotatedStatement(stmt, directives)
+            else:
+                stmt[index] = AnnotatedStatement(stmt[index], directives)
+        return stmt
 
     # stmt
     def visit_FunctionDef(self, node):
@@ -548,6 +562,14 @@ class Cxx(Backend):
 
         self.break_handler.pop()
 
+        # eventually add local_iter in a shared clause
+        omp = metadata.get(node, OMPDirective)
+        if omp:
+            for directive in omp:
+                if 'parallel' in directive.s:
+                    directive.s += ' shared({})'
+                    directive.deps.append(ast.Name(local_iter, ast.Param()))
+
         stmts = [
                 Statement("{0} {1} = {2}".format(
                     local_iter_decl,
@@ -581,7 +603,7 @@ class Cxx(Backend):
                 [self.visit(n) for n in node.orelse]
                 + [Statement("{0}:".format(break_handler))]))
 
-        return self.process_omp_attachements(node, stmts, 1)
+        return Block(self.process_omp_attachements(node, stmts, 1))
 
     def visit_While(self, node):
         test = self.visit(node.test)
@@ -615,7 +637,10 @@ class Cxx(Backend):
         test = self.visit(node.test)
         body = [self.visit(n) for n in node.body]
         orelse = [self.visit(n) for n in node.orelse]
-        stmt = If(test, Block(body), Block(orelse) if orelse else None)
+        if isinstance(node.test, ast.Num) and node.test.n == 1:
+            stmt = Block(body)
+        else:
+            stmt = If(test, Block(body), Block(orelse) if orelse else None)
         return self.process_omp_attachements(node, stmt)
 
     def visit_Raise(self, node):
@@ -648,7 +673,8 @@ class Cxx(Backend):
         return self.process_omp_attachements(node, stmt)
 
     def visit_Pass(self, node):
-        return EmptyStatement()
+        stmt = EmptyStatement()
+        return self.process_omp_attachements(node, stmt)
 
     def visit_Break(self, node):
         if self.break_handler[-1]:

@@ -194,7 +194,7 @@ drawbacks of the previous approaches. They also benefit from existing tools
 associated to the language.
 
 Copperhead~\cite{copperhead2011} is a functional, data parallel language
-embedded in Python. It uses n-uplets, numpy arrays and lists as its core data
+embedded in Python. It uses $n$-uplets, NumPy arrays and lists as its core data
 structure and prohibits usage of many control-flow operators such as loops,
 enforcing the use of the \texttt{map}, \texttt{filter} or \texttt{reduce}
 intrinsics to exhibit parallelism. But it can be efficiently compiled to either
@@ -203,7 +203,7 @@ CUDA or C++ with calls to the Thrust\footnote{\emph{cf}.\
 identify hot-spots that are JIT-compiled to native code.
 
 Tools such as PyPy~\cite{pypy2009}, a Python interpreter with a tracing JIT, or
-Shedskin~\cite{shedskin2006}, a Python to C++ compiler are also viable ways to
+Shed Skin~\cite{shedskin2006}, a Python to C++ compiler are also viable ways to
 turn regular Python codes into optimized ones, but they do not offer support for
 fine-grained parallelism beyond what the standard library proposes.
 %~\footnote{Shedskin is compatible with several Python modules that provide
@@ -217,14 +217,14 @@ annotations shine: the original code remains compatible with a compiler that is
 not aware of OpenMP.
 
 This article proposes to combine OpenMP~\cite{openmp3.1} parallel annotations
-with a Python subset called Pythran to bring fine-grain parallelism to Python.
-While being backward compatible with both the Python language, and the
+with a Python subset called Pythran to bring fine-grain parallelism to Python,
+while being backward compatible with both the Python language and the
 sequential algorithm. It means that:
 %
 \begin{enumerate}
-    \item Any Pythran code can be run (sequentially), with no module dependency
-        or code change, by any Python interpreter.
-    \item Parallelism is explicit and incrementally added to the original code
+    \item any Pythran code can be run (sequentially), with no module dependency
+        or code change, by any Python interpreter;
+    \item parallelism is explicit and incrementally added to the original code
         through directives.
 \end{enumerate}
 
@@ -443,7 +443,7 @@ remain explicit.
 
 A critical point of the design of the \texttt{pythonic++} runtime is memory
 management, the very same aspect that led to the use of a GIL in CPython.
-Memory management is implemented in Shedskin through the general-purpose Boehm
+Memory management is implemented in Shed Skin through the general-purpose Boehm
 garbage collector~\cite{boehm1991}, and Cython forbids usage of Python-managed
 objects inside parallel regions, thus making memory management explicit for
 these parts.
@@ -495,9 +495,9 @@ Amdahl's law, this copy overhead greatly hinders the benefits of
 parallelization, and is a well known issue.
 
 The traditional solution is to use a native type that exposes a Python interface
-and has a constant translation cost. Numpy's \texttt{ndarray} is a typical
-implementation of this concept and is the keystone of the Scipy and Numpy
-packages. Basically, a numpy \texttt{ndarray} is a raw C pointer that is exposed
+and has a constant translation cost. NumPy's \texttt{ndarray} is a typical
+implementation of this concept and is the keystone of the Scipy and NumPy
+packages. Basically, a NumPy \texttt{ndarray} is a raw C pointer that is exposed
 at the Python level. As a tool for scientific computing, Pythran supports such a
 structure.
 

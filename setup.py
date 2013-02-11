@@ -124,7 +124,7 @@ class BenchmarkCommand(Command):
 
 
 setup(name='pythran',
-        version='0.1.0',
+        version='0.2.0',
         description='a claimless python to c++ converter',
         author='Serge Guelton',
         author_email='serge.guelton@telecom-bretagne.eu',
@@ -135,7 +135,7 @@ setup(name='pythran',
             'modules/*.h']},
         scripts=['scripts/pythran'],
         classifiers=[
-            'Development Status :: 3 - Alpha',
+            'Development Status :: 4 - Beta',
             'Environment :: Console',
             'Intended Audience :: Developers',
             'License :: OSI Approved :: BSD License',

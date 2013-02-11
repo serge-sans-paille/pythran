@@ -34,6 +34,7 @@ basicstyle=\ttfamily, keywordstyle=\bf, stringstyle=\color{gray}}
 
 \maketitle
 
+\marginpar{The title is to be changed}
 %
 \begin{abstract}
 
@@ -47,7 +48,7 @@ basicstyle=\ttfamily, keywordstyle=\bf, stringstyle=\color{gray}}
     compatible with the python interpreter. The approach is validated through
     the Pythran compiler.
 
-\keywords{Python, OpenMP, C++, static compilation, scripting language}
+\keywords{Python, OpenMP, C++, static compilation, scripting language.}
 \end{abstract}
 
 %
@@ -58,7 +59,7 @@ to be useful in various domains, ranging from system administration to web
 services, thanks to its dynamicity, expressiveness, rich ecosystem and
 battery-included standard library. It is also getting widely used in scientific
 computing~\cite{Oliphant2007}, mainly thanks to the SciPy~\cite{scipy} project
-that adds Matlab-like functionalities to the language.
+that adds MATLAB-like functionalities to the language.
 
 The prohibitive performance overhead of the language implied by its interpreted
 and highly dynamic nature does not prevent its usage as a language for high
@@ -100,7 +101,7 @@ context of Python, most approaches have focused on fork-based parallelism.
 Parallel computations are supported by the Python standard library through the
 \texttt{multiprocessing} module. It spawns several interpreters that can
 communicate through IPC, using Python built-in object serialization. This
-approach is only viable for computation intensive application, but the
+approach is only viable for computation intensive application. Furthermore, the
 communication and synchronization overheads are much greater than a light-weight
 processes approach.
 
@@ -116,9 +117,9 @@ and the GIL does not prevent the use of threads inside native modules, where the
 user has full control.
 
 To illustrate this behavior, we used the CPU-bound Buffon's needle algorithm to
-estimate the value of $\pi$. It's execution time using a multi-threaded
+estimate the value of $\pi$. Its execution time using a multi-threaded
 implementation on 4 cores is $\times 1.46$ the execution time of the sequential
-version. GIL contention actually increase the execution time.
+version. So the GIL contention actually \emph{increases} the execution time.
 
 As a consequence, Python developers need to write multi-threaded native
 modules in order to fully benefit from multiple cores. This leads to a kind of
@@ -159,7 +160,7 @@ A constraining (from the performance point of view) aspect of the Python
 language is its type system. It implies that each method call is resolved
 dynamically, even a simple add operation! It comes at no surprise that many
 approaches restrain the Python language to add a static typing overlay.  Also,
-only two types of integers (64bits integers and multi-precision integers) and
+only two types of integers (64-bit integers and multi-precision integers) and
 one type of floating point type (double-precision floats) are available in
 Python, so using a type with the appropriate size may lead to significant
 performance boost.
@@ -666,5 +667,13 @@ reviews.
 \bibliography{biblio}
 
 \end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% ispell-local-dictionary: "american"
+%%% TeX-auto-untabify: t
+%%% TeX-PDF-mode: t
+%%% End:
+
 % vim:spell spelllang=en
 % vim:tw=80

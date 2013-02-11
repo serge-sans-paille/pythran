@@ -34,6 +34,7 @@ basicstyle=\ttfamily, keywordstyle=\bf, stringstyle=\color{gray}}
 
 \maketitle
 
+\marginpar{The title is to be changed}
 %
 \begin{abstract}
 
@@ -47,7 +48,7 @@ basicstyle=\ttfamily, keywordstyle=\bf, stringstyle=\color{gray}}
     compatible with the python interpreter. The approach is validated through
     the Pythran compiler.
 
-\keywords{Python, OpenMP, C++, static compilation, scripting language}
+\keywords{Python, OpenMP, C++, static compilation, scripting language.}
 \end{abstract}
 
 %
@@ -58,7 +59,7 @@ to be useful in various domains, ranging from system administration to web
 services, thanks to its dynamicity, expressiveness, rich ecosystem and
 battery-included standard library. It is also getting widely used in scientific
 computing~\cite{Oliphant2007}, mainly thanks to the SciPy~\cite{scipy} project
-that adds Matlab-like functionalities to the language.
+that adds MATLAB-like functionalities to the language.
 
 The prohibitive performance overhead of the language implied by its interpreted
 and highly dynamic nature does not prevent its usage as a language for high
@@ -73,6 +74,8 @@ To enable the user to write native functions, without having to write the glue
 code that turns Python object into native structures back and forth, the SciPy
 package provides the \texttt{weave} module that makes it possible to bundle C
 code snippet into Python code and compile then load them at runtime.
+\marginpar{Strange to have a "partial" related work here, while weave is not even mention later (see further marginpar).}
+
 
 This hybrid approach, based on a mix of interpreted and native code, is getting
 widespread in the Python landscape. Section~\ref{sec:python-parallel} studies
@@ -100,15 +103,17 @@ context of Python, most approaches have focused on fork-based parallelism.
 Parallel computations are supported by the Python standard library through the
 \texttt{multiprocessing} module. It spawns several interpreters that can
 communicate through IPC, using Python built-in object serialization. This
-approach is only viable for computation intensive application, but the
+approach is only viable for computation intensive application, since the
 communication and synchronization overheads are much greater than a light-weight
 processes approach.
 
 Although the standard \texttt{threading} module makes it possible to start
 several light-weight threads within the same interpreter, this approach is not
-relevant for HPC, because of a specificity of CPython, the \emph{Global
+applicable to HPC, because of a specificity of CPython, the \emph{Global
 Interpreter Lock}~\cite{gil2012}.\footnote{Other Python interpreters, such as
-IronPython or Jython, do not have a GIL.} This lock ensures that only one thread
+IronPython or Jython, do not have a GIL.} 
+\marginpar{The fact that others Python implementations do not have a GIL make all the argumentation dubious, especially the last paragraph.}
+This lock ensures that only one thread
 is active at a time in the interpreter. While it makes it possible to have
 cooperative threads, say for a GUI, it does not take advantage of multiple
 cores.  However, there are two notable exceptions: the GIL is released on I/O,
@@ -116,9 +121,11 @@ and the GIL does not prevent the use of threads inside native modules, where the
 user has full control.
 
 To illustrate this behavior, we used the CPU-bound Buffon's needle algorithm to
-estimate the value of $\pi$. It's execution time using a multi-threaded
+estimate the value of $\pi$. Its execution time using a multi-threaded
 implementation on 4 cores is $\times 1.46$ the execution time of the sequential
-version. GIL contention actually increase the execution time.
+version. So the GIL contention actually \emph{increases} the execution time.
+\marginpar{MA: shortcut! What proves that the issue is the GIL? You may just have written bad code...}
+
 
 As a consequence, Python developers need to write multi-threaded native
 modules in order to fully benefit from multiple cores. This leads to a kind of
@@ -154,12 +161,14 @@ This approach is the subject of many studies that can be classified according to
 their compatibility with the host language.
 
 \subsubsection{Backward-Incompatible Approaches}
+\marginpar{Why weave does not fit this section and is mention in the introduction.}
+
 
 A constraining (from the performance point of view) aspect of the Python
 language is its type system. It implies that each method call is resolved
 dynamically, even a simple add operation! It comes at no surprise that many
 approaches restrain the Python language to add a static typing overlay.  Also,
-only two types of integers (64bits integers and multi-precision integers) and
+only two types of integers (64-bit integers and multi-precision integers) and
 one type of floating point type (double-precision floats) are available in
 Python, so using a type with the appropriate size may lead to significant
 performance boost.
@@ -176,7 +185,7 @@ PyCUDA and PyOpenCL~\cite{klockner2012} also target accelerators by mixing
 Python with kernels embedded as raw strings containing accelerator code.
 
 The main issue of these approaches is that they imply to modify, in a more or
-less complex way, the original code. They require to learn a new dialect,
+less complex way, the original code.\marginpar{just as pythran} They require to learn a new dialect,
 and the long-term preservation of this investment is not ensured. Moreover,
 there is no falling back if the code were to be deployed in an environment
 where the parallelizing tool/module is not available. For instance, once a code
@@ -193,37 +202,38 @@ drawbacks of the previous approaches. They also benefit from existing tools
 associated to the language.
 
 Copperhead~\cite{copperhead2011} is a functional, data parallel language
-embedded in Python. It uses n-uplets, numpy arrays and lists as its core data
+embedded in Python. It uses $n$-uplets, NumPy arrays and lists as its core data
 structure and prohibits usage of many control-flow operators such as loops,
 enforcing the use of the \texttt{map}, \texttt{filter} or \texttt{reduce}
 intrinsics to exhibit parallelism. But it can be efficiently compiled to either
 CUDA or C++ with calls to the Thrust\footnote{\emph{cf}.\
 \texttt{http://thrust.github.com/}} library. Python decorators are used to
 identify hot-spots that are JIT-compiled to native code.
+\marginpar{JIT is never defined.}
 
 Tools such as PyPy~\cite{pypy2009}, a Python interpreter with a tracing JIT, or
-Shedskin~\cite{shedskin2006}, a Python to C++ compiler are also viable ways to
-turn regular Python codes into optimized ones, but they do not offer support for
+Shed Skin~\cite{shedskin2006}, a Python to C++ compiler are also viable ways to
+turn regular Python codes into optimized ones \marginpar{"optimized"? I would rather say "native"/"bytecode"}, but they do not offer support for
 fine-grained parallelism beyond what the standard library proposes.
 %~\footnote{Shedskin is compatible with several Python modules that provide
 %coarse-grained, fork-based parallelism.}
 
 To be completely backward compatible, it must be possible to run the input code
 in an environment that is not aware of the existence of the parallelizing
-solution. This principle is not respected by parallel libraries, but code
-annotations satisfy it. This is where OpenMP~\cite{openmp3.1} parallel
+solution\marginpar{First sentence is unclear to me.}. This principle is not respected by parallel libraries, but code
+annotations satisfy it \marginpar{It is obviously not true for OpenMP. I don't see why it is not for parallel libraries!}. This is where OpenMP~\cite{openmp3.1} parallel
 annotations shine: the original code remains compatible with a compiler that is
-not aware of OpenMP.
+not aware of OpenMP.\marginpar{This is wrong.}
 
 This article proposes to combine OpenMP~\cite{openmp3.1} parallel annotations
-with a Python subset called Pythran to bring fine-grain parallelism to Python.
-While being backward compatible with both the Python language, and the
+with a Python subset called Pythran to bring fine-grain parallelism to Python,
+while being backward compatible with both the Python language and the
 sequential algorithm. It means that:
 %
 \begin{enumerate}
-    \item Any Pythran code can be run (sequentially), with no module dependency
-        or code change, by any Python interpreter.
-    \item Parallelism is explicit and incrementally added to the original code
+    \item any Pythran code can be run (sequentially), with no module dependency
+        or code change, by any Python interpreter;
+    \item parallelism is explicit and incrementally added to the original code
         through directives.
 \end{enumerate}
 
@@ -278,6 +288,8 @@ function scope. Consequently, all variables that are referenced in a function
 are considered when building such variable lists: there is no concept of
 variable local to a block. Using the \texttt{default(none)} clause is possible
 to ensure no variable gets forgotten when building such lists.
+\marginpar{I'm not sure what's the point with this paragraph. Just drop it?}
+
 
 The \texttt{reduction(\emph{operator}: \emph{list})} directive is used to
 characterize some data dependencies when performing a parallel reduction. The
@@ -285,13 +297,14 @@ list of supported operators depend on the input and backend languages: Python
 has \texttt{min}/\texttt{max} operators but C/C++ does not. C/C++ have
 \texttt{\&\&} or \texttt{||} while Python does not.\footnote{Although similar,
 the \texttt{and} and \texttt{or} keywords have a special meaning in Python.}
+\marginpar{Unclear to me what you're trying to explain. Python doesn't have \&\&, how is it relevant? C/C++ does not have  By the way OpenMP 4.0 has "user-defined" reduction operator.}
 
 \subsubsection{Parallel For and Iterators}
 
 The core directive to handle data parallelism is the \texttt{for} directive that
 distributes the iteration space of the associated loop among the existing
 threads. To be compatible with OpenMP, the loop iteration space must be
-described by a random access iterator with a total order. Integers used as loop
+described by a random access iterator with a total order.\marginpar{Is total order a real need?} Integers used as loop
 indices in Fortran and C satisfy this conditions, as well as C++ iterators with
 the \texttt{random\_access\_tag} trait. But a Python iterator only advances by a
 step of one until it is exhausted, in which case it raises an exception: it
@@ -317,7 +330,7 @@ of each element in \texttt{l}. They behave like adaptors: they apply a
 particular expression on each value of the iterator. It is also the case of the
 \texttt{enumerate} builtin, that yields each element of the enumerated iterator
 associated with its index. These generators are random iterators only if their
-input iterator is a random iterator itself.
+input iterator is a random iterator itself.\marginpar{Necessary condition, but is a sufficient one?}
 
 Finally, if the iterator yields a tuple, it is possible to unpack it inside the
 \texttt{for} construct, as shown in Listing~\ref{lst:complex-omp-for}. In that case
@@ -337,6 +350,7 @@ for i, v in enumerate([2, 3, 5, 7, 11]): print i, ':', v
 Pythran runtime is aware of these three kind of iterators: random access
 iterators for standard containers, adaptor iterators for generator expressions
 and forward iterators for generators.
+\marginpar{This sentence is like a "cheveu sur la soupe", the whole section talks about parallelism issue, while this sentence is about language restriction in general?}
 
 \subsection{Runtime Library}
 
@@ -354,6 +368,7 @@ The \texttt{\_OPENMP} macro definition is always provided when OpenMP is
 activated, and can be used to detect when OpenMP is not available. Python does
 not have a preprocessor, but it is possible to catch the import exception if the
 \texttt{omp} module is not found.
+\marginpar{omp module? First time you're talking about that. How is involved? Is it standard? ...}
 
 \subsection{Validation}
 
@@ -392,7 +407,7 @@ loop nesting required by the \texttt{collapse} clause.
 Pythran is a subset of Python designed for scientific computing. It is
 implicitly statically typed and supports most Python constructs except those
 that involve introspection (e.g.\ \texttt{getattr}) or runtime compilation
-(e.g.\ \texttt{eval}). A few standard modules are supported in addition to the
+(e.g.\ \texttt{eval}).\marginpar{class?} A few standard modules are supported in addition to the
 core language (e.g.\ \texttt{math}, \texttt{random}). The \texttt{numpy} module
 is currently only partially supported. The associated compiler turns Pythran
 code, possibly annotated with OpenMP and a few function type annotations, into
@@ -439,17 +454,18 @@ distance=0.6cm}]
 Pythran runtime is based on the STL. The standard library of C++11, unlike its
 C++03 version, is thread-safe, so the data dependencies in the original code
 remain explicit.
+\marginpar{I've never seen "explicit" dependencies in my C++ code, what's that?}
 
 A critical point of the design of the \texttt{pythonic++} runtime is memory
 management, the very same aspect that led to the use of a GIL in CPython.
-Memory management is implemented in Shedskin through the general-purpose Boehm
+Memory management is implemented in Shed Skin through the general-purpose Boehm
 garbage collector~\cite{boehm1991}, and Cython forbids usage of Python-managed
 objects inside parallel regions, thus making memory management explicit for
 these parts.
 
 Pythran handles the problem by refusing recursive types, which makes it possible
 to solely rely on reference counting for memory management. It can be
-implemented through the thread-safe shared pointer mechanism provided in C++11
+implemented through the thread-safe shared pointer mechanism provided by the C++11
 standard library.
 
 Using shared references simplifies memory management, but the counterpart is an
@@ -460,6 +476,9 @@ passing still implies copies. To avoid a reference increment, one can pass
 parameters by reference. Using an out-of-scope interprocedural memory effect
 analysis, Pythran determines for each argument whether it must be passed using
 reference or const reference to prevent this overhead.
+\marginpar{what is the point about reference or const refence? I mean: who cares? Nobody reads the generated code...
+Moreover, what about copy elision made by the compiler? You're tied to a single compilation unit so the C++ compiler should be able to make it anyway.}
+
 
 \subsection{Directive Oblivious Translation}
 
@@ -494,9 +513,9 @@ Amdahl's law, this copy overhead greatly hinders the benefits of
 parallelization, and is a well known issue.
 
 The traditional solution is to use a native type that exposes a Python interface
-and has a constant translation cost. Numpy's \texttt{ndarray} is a typical
-implementation of this concept and is the keystone of the Scipy and Numpy
-packages. Basically, a numpy \texttt{ndarray} is a raw C pointer that is exposed
+and has a constant translation cost. NumPy's \texttt{ndarray} is a typical
+implementation of this concept and is the keystone of the Scipy and NumPy
+packages. Basically, a NumPy \texttt{ndarray} is a raw C pointer that is exposed
 at the Python level. As a tool for scientific computing, Pythran supports such a
 structure.
 
@@ -508,7 +527,7 @@ To validate the approach proposed in this paper, we first performed a simple
 experiment. Starting from the C code of a small geomatics application, Hyantes,
 we successively parallelized it with OpenMP, turned it into Python with a
 Pythran compatible kernel and parallelized the Python version using the approach
-described in this paper. We also measure the SLOC of the two versions.
+described in this paper. We also measure the SLOC of the two versions. \marginpar{unfair, and arguably relevant.}
 Table~\ref{tbl:hyantes} summarizes the results of the experimentation made on a
 laptop with 4 non hyperthreaded cores using \texttt{-O2} compiler flag. It not
 only emphasises the use of a high level language prototyping, but also shows
@@ -611,7 +630,7 @@ compiled into native code using GCC 4.7.2 and the \texttt{-O2 -fopenmp} flag.
 Their execution time when called from the Python interpreter is measured
 through the \texttt{timeit} module on a machine using 4 AMD Opteron 6176 SE.
 All results are normalized against Cython sequential execution time. They show
-that while being of a higher level than Cython, Pythran achieves comparable
+that while handling code at a higher level than Cython, Pythran achieves comparable
 results.
 
 The source codes used for these benchmarks are available on the Pythran
@@ -620,7 +639,7 @@ branch.}
 
 \begin{figure}[ht]
     \includegraphics[width=\textwidth]{cython}
-    \caption{Comparison of Cython en Pythran generated code performance.}
+    \caption{Comparison of Cython and Pythran generated code performance.}
     \label{fig:cython-pythran}
 \end{figure}
 
@@ -666,5 +685,13 @@ reviews.
 \bibliography{biblio}
 
 \end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% ispell-local-dictionary: "american"
+%%% TeX-auto-untabify: t
+%%% TeX-PDF-mode: t
+%%% End:
+
 % vim:spell spelllang=en
 % vim:tw=80

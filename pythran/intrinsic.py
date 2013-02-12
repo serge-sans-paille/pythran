@@ -11,6 +11,10 @@ class ReadEffect(object):
     pass
 
 
+class ReadOnceEffect(ReadEffect):
+    pass
+
+
 class Intrinsic(object):
     def __init__(self, **kwargs):
         self.argument_effects = kwargs.get('argument_effects',
@@ -37,6 +41,9 @@ class Intrinsic(object):
         return not any(
                 isinstance(x, UpdateEffect) for x in self.argument_effects
                 ) and not self.global_effects
+
+    def isreadonce(self, n):
+        return isinstance(self.argument_effects[n], ReadOnceEffect)
 
 
 class FunctionIntr(Intrinsic):
@@ -65,8 +72,16 @@ class UserFunction(FunctionIntr):
 
 
 class ConstFunctionIntr(FunctionIntr):
+    def __init__(self, **kwargs):
+        kwargs.setdefault('argument_effects',
+                          (ReadEffect(),) * 10)
+        super(ConstFunctionIntr, self).__init__(**kwargs)
+
+
+class ReadOnceFunctionIntr(ConstFunctionIntr):
     def __init__(self):
-        super(ConstFunctionIntr, self).__init__(argument_effects=())
+        super(ReadOnceFunctionIntr, self).__init__(
+            argument_effects=(ReadOnceEffect(),) * 11)
 
 
 class MethodIntr(UserFunction):

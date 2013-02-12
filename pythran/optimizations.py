@@ -3,11 +3,13 @@ This modules contains code transformation to turn pythran code into
 optimized pythran code
     * ConstantUnfolding performs some kind of partial evaluation.
     * GenexpToImap tranforms generator expressions into iterators
+    * IterTransformation replaces expressions by iterators when possible.
 '''
 
 from analysis import ConstantExpressions, OptimizableGenexp
+from analysis import PotentialIterator, Aliases
 from passmanager import Transformation
-from tables import modules
+from tables import modules, equivalent_iterators
 import ast
 
 
@@ -158,3 +160,43 @@ class GenExpToImap(Transformation):
 
         else:
             return self.generic_visit(node)
+
+
+##
+class IterTransformation(Transformation):
+    '''
+    Replaces expressions by iterators when possible.
+    >>> import ast, passmanager, backend
+    >>> node = ast.parse("for i in __builtin__.range(10): print i")
+    >>> pm = passmanager.PassManager("test")
+    >>> node = pm.apply(IterTransformation, node)
+    >>> print pm.dump(backend.Python, node)
+    import itertools
+    for i in __builtin__.xrange(10):
+        print i
+    '''
+    def __init__(self):
+        Transformation.__init__(self, PotentialIterator, Aliases)
+
+    def visit_Module(self, node):
+        self.generic_visit(node)
+        importIt = ast.Import(names=[ast.alias(name='itertools', asname=None)])
+        return ast.Module(body=([importIt] + node.body))
+
+    def visit_Call(self, node):
+        if node in self.potential_iterator:
+            # In order to replace the intrinsics with their equivalent,
+            # we need to know which one they actually are
+            for k, v in self.aliases.iteritems():
+                if (isinstance(k, ast.Attribute) 
+                    and isinstance(k.value, ast.Name)):
+                    if k.value.id == "__builtin__":
+                        if k.attr in equivalent_iterators:
+                            if node.func in self.aliases:
+                                if (self.aliases[node.func].aliases ==
+                                    v.aliases):
+                                    (ns, new) = equivalent_iterators[k.attr]
+                                    node.func = ast.Attribute(
+                                        value=ast.Name(id=ns, ctx=ast.Load()),
+                                        attr=new, ctx=ast.Load())
+        return self.generic_visit(node)

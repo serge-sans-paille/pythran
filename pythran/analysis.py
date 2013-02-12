@@ -15,6 +15,7 @@ This module provides a few code analysis for the pythran language.
     * PureFunctions detects functions without side-effects.
     * ParallelMaps detects parallel map(...)
     * OptimizableGenexp finds whether a generator expr. can be optimized.
+    * PotentialIterator finds if it is possible to use an iterator.
 '''
 
 from tables import modules, builtin_constants, builtin_constructors
@@ -883,3 +884,32 @@ class OptimizableGenexp(NodeAnalysis):
                 optimizable &= (ident == g.target.id) | (ident not in targets)
         if optimizable:
             self.result.add(node)
+
+
+##
+class PotentialIterator(NodeAnalysis):
+    """Find whether an expression can be replaced with an iterator."""
+    def __init__(self):
+        self.result = set()
+        NodeAnalysis.__init__(self, Aliases)
+
+    def visit_For(self, node):
+        self.result.add(node.iter)
+        self.generic_visit(node)
+
+    def visit_Compare(self, node):
+        if isinstance(node.ops[0], ast.In) or isinstance(node.ops[0],
+                                                         ast.NotIn):
+            for c in node.comparators:
+                self.result.add(c)
+        self.generic_visit(node)
+
+    def visit_Call(self, node):
+        # Arguments of intrinsics are replaced by iterators whenever possible
+        func = node.func
+        if all(isinstance(f, intrinsic.Intrinsic)
+               for f in self.aliases[func].aliases):
+            for i in xrange(len(node.args)):
+                if all(f.isreadonce(i) for f in self.aliases[func].aliases):
+                    self.result.add(node.args[i])
+        self.generic_visit(node)

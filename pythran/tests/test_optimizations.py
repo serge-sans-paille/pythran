@@ -17,3 +17,19 @@ class TestBase(TestEnv):
 
     def test_genexp_triangular(self):
         self.run_test("def test_genexp_triangular(n): return sum((x*y for x in xrange(n) for y in xrange(x)))", 2, test_genexp_triangular=[int])
+
+    def test_aliased_readonce(self):
+        self.run_test("""
+def foo(f,l):
+    return map(f,l[1:])
+def alias_readonce(n): 
+    map = foo
+    return map(lambda (x,y): x*y < 50, zip(xrange(n), xrange(n)))
+""", 10, alias_readonce=[int]) 
+
+    def test_replace_aliased_map(self):
+        self.run_test("""
+def alias_replaced(n): 
+    map = filter
+    return list(map(lambda x : x < 5, xrange(n)))
+""", 10, alias_replaced=[int]) 

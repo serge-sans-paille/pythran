@@ -8,10 +8,11 @@ from passes import NormalizeMethodCalls, NormalizeAttributes, ExpandImports
 from passes import RemoveComprehension, RemoveNestedFunctions
 from optimizations import GenExpToImap
 
-from optimizations import ConstantFolding
+from optimizations import ConstantFolding, IterTransformation
 
 default_optimization_sequence = (
         ConstantFolding,
+        IterTransformation
         )
 
 

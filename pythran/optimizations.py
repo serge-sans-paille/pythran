@@ -2,12 +2,17 @@
 This modules contains code transformation to turn pythran code into
 optimized pythran code
     * ConstantUnfolding performs some kind of partial evaluation.
-    * GenExpToImap tranforms generator expressions into iterators
+    * GenExpToImap transforms generator expressions into iterators
+    * ListCompToMap transforms list comprehension into intrinsics.
+    * ListCompToGenexp transforms list comprehension into genexp
+    * IterTransformation replaces expressions by iterators when possible.
 '''
 
-from analysis import ConstantExpressions, OptimizableGenexp
+from analysis import ConstantExpressions, OptimizableComprehension
+from analysis import PotentialIterator, Aliases
 from passmanager import Transformation
-from tables import modules
+from tables import modules, equivalent_iterators
+from passes import NormalizeTuples, RemoveNestedFunctions, RemoveLambdas
 import ast
 
 
@@ -118,7 +123,8 @@ class GenExpToImap(Transformation):
     '''
 
     def __init__(self):
-        Transformation.__init__(self, OptimizableGenexp)
+        Transformation.__init__(self, NormalizeTuples,
+                                OptimizableComprehension)
 
     def visit_Module(self, node):
         self.generic_visit(node)
@@ -127,9 +133,71 @@ class GenExpToImap(Transformation):
         return node
 
     def make_Iterator(self, gen):
-        if len(gen.ifs) == 0:
-            return gen.iter
+        if gen.ifs:
+            ldFilter = ast.Lambda(
+                ast.arguments([ast.Name(gen.target.id, ast.Store())],
+                              None, None, []), ast.BoolOp(ast.And(), gen.ifs))
+            ifilterName = ast.Attribute(
+                value=ast.Name(id='itertools', ctx=ast.Load()),
+                attr='ifilter', ctx=ast.Load())
+            return ast.Call(ifilterName, [ldFilter, gen.iter], [], None, None)
         else:
+            return gen.iter
+
+    def visit_GeneratorExp(self, node):
+
+        if node in self.optimizable_comprehension:
+
+            self.generic_visit(node)
+
+            iters = [self.make_Iterator(gen) for gen in node.generators]
+            variables = [ast.Name(gen.target.id, ast.Param())
+                         for gen in node.generators]
+
+            # If dim = 1, product is useless
+            if len(iters) == 1:
+                iterAST = iters[0]
+                varAST = ast.arguments([variables[0]], None, None, [])
+            else:
+                prodName = ast.Attribute(
+                    value=ast.Name(id='itertools', ctx=ast.Load()),
+                    attr='product', ctx=ast.Load())
+
+                iterAST = ast.Call(prodName, iters, [], None, None)
+                varAST = ast.arguments([ast.Tuple(variables, ast.Store())],
+                                   None, None, [])
+
+            imapName = ast.Attribute(
+                    value=ast.Name(id='itertools', ctx=ast.Load()),
+                    attr='imap', ctx=ast.Load())
+
+            ldBodyimap = node.elt
+            ldimap = ast.Lambda(varAST, ldBodyimap)
+
+            return ast.Call(imapName, [ldimap, iterAST], [], None, None)
+
+        else:
+            return self.generic_visit(node)
+
+
+##
+class ListCompToMap(Transformation):
+    '''
+    Transforms list comprehension into intrinsics.
+    >>> import ast, passmanager, backend
+    >>> node = ast.parse("[x*x for x in range(10)]")
+    >>> pm = passmanager.PassManager("test")
+    >>> node = pm.apply(ListCompToMap, node)
+    >>> print pm.dump(backend.Python, node)
+    __builtin__.map((lambda x: (x * x)), range(10))
+    '''
+
+    def __init__(self):
+        Transformation.__init__(self, NormalizeTuples,
+                                OptimizableComprehension)
+
+    def make_Iterator(self, gen):
+        if gen.ifs:
             ldFilter = ast.Lambda(
                 ast.arguments([ast.Name(gen.target.id, ast.Param())],
                               None, None, []), ast.BoolOp(ast.And(), gen.ifs))
@@ -137,10 +205,12 @@ class GenExpToImap(Transformation):
                 value=ast.Name(id='itertools', ctx=ast.Load()),
                 attr='ifilter', ctx=ast.Load())
             return ast.Call(ifilterName, [ldFilter, gen.iter], [], None, None)
+        else:
+            return gen.iter
 
-    def visit_GeneratorExp(self, node):
+    def visit_ListComp(self, node):
 
-        if node in self.optimizable_genexp:
+        if node in self.optimizable_comprehension:
 
             self.generic_visit(node)
 
@@ -164,14 +234,93 @@ class GenExpToImap(Transformation):
                 varAST = ast.arguments([ast.Tuple(varList, ast.Store())],
                                    None, None, [])
 
-            imapName = ast.Attribute(
-                    value=ast.Name(id='itertools', ctx=ast.Load()),
-                    attr='imap', ctx=ast.Load())
+            mapName = ast.Attribute(
+                value=ast.Name(id='__builtin__', ctx=ast.Load()),
+                attr='map', ctx=ast.Load())
 
-            ldBodyimap = node.elt
-            ldimap = ast.Lambda(varAST, ldBodyimap)
+            ldBodymap = node.elt
+            ldmap = ast.Lambda(varAST, ldBodymap)
 
-            return ast.Call(imapName, [ldimap, iterAST], [], None, None)
+            return ast.Call(mapName, [ldmap, iterAST], [], None, None)
 
         else:
             return self.generic_visit(node)
+
+
+##
+class ListCompToGenexp(Transformation):
+    '''
+    Transforms list comprehension into genexp
+    >>> import ast, passmanager, backend
+    >>> node = ast.parse("""                      \\n\
+def foo(l):                                       \\n\
+    return __builtin__.sum(l)                     \\n\
+def bar(n):                                       \\n\
+    return foo([x for x in __builtin__.range(n)]) \
+""")
+    >>> pm = passmanager.PassManager("test")
+    >>> node = pm.apply(ListCompToGenexp, node)
+    >>> print pm.dump(backend.Python, node)
+    def foo(l):
+        return __builtin__.sum(l)
+    def bar(n):
+        return foo((x for x in __builtin__.range(n)))
+    '''
+    def __init__(self):
+        Transformation.__init__(self, NormalizeTuples,
+                                PotentialIterator)
+
+    def visit_ListComp(self, node):
+        self.generic_visit(node)
+        if node in self.potential_iterator:
+            return ast.GeneratorExp(node.elt, node.generators)
+        else:
+            return node
+
+
+##
+class IterTransformation(Transformation):
+    '''
+    Replaces expressions by iterators when possible.
+    >>> import ast, passmanager, backend
+    >>> node = ast.parse("""                      \\n\
+def foo(l):                                       \\n\
+    return __builtin__.sum(l)                     \\n\
+def bar(n):                                       \\n\
+    return foo(__builtin__.range(n)) \
+""")
+    >>> pm = passmanager.PassManager("test")
+    >>> node = pm.apply(IterTransformation, node)
+    >>> print pm.dump(backend.Python, node)
+    import itertools
+    def foo(l):
+        return __builtin__.sum(l)
+    def bar(n):
+        return foo(__builtin__.xrange(n))
+    '''
+    def __init__(self):
+        Transformation.__init__(self, PotentialIterator, Aliases)
+
+    def find_matching_builtin(self, node):
+        if node.func in self.aliases:
+            for k, v in self.aliases.iteritems():
+                if (isinstance(k, ast.Attribute)
+                    and isinstance(k.value, ast.Name)):
+                    if k.value.id == "__builtin__":
+                        if self.aliases[node.func].aliases == v.aliases:
+                            return k.attr
+
+    def visit_Module(self, node):
+        self.generic_visit(node)
+        importIt = ast.Import(names=[ast.alias(name='itertools', asname=None)])
+        return ast.Module(body=([importIt] + node.body))
+
+    def visit_Call(self, node):
+        if node in self.potential_iterator:
+            f = self.find_matching_builtin(node)
+            if f in equivalent_iterators:
+                (ns, new) = equivalent_iterators[f]
+                node.func = ast.Attribute(
+                    value=ast.Name(id=ns, ctx=ast.Load()),
+                    attr=new, ctx=ast.Load())
+        return self.generic_visit(node)

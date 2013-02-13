@@ -243,6 +243,7 @@ modules = {
             "array": ConstFunctionIntr(),
             "zeros": ConstFunctionIntr(),
             "ones": ConstFunctionIntr(),
+            "empty": ConstFunctionIntr(),
             },
         "time": {
                 "sleep": FunctionIntr(global_effects=True),

@@ -13,7 +13,7 @@ This document is a never ending work-in-progress draft. Please contribute!
 Coding Style
 ------------
 
-All Python code must be conform to the PEP8, and the ``pep8`` command must not
+All Python code must be conform to the PEP 8, and the ``pep8`` command must not
 yield any message when run on our database. Additionnaly, avoid backslashes,
 and try to make your code as concise as possible.
 

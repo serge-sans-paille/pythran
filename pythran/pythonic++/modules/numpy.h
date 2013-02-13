@@ -83,22 +83,27 @@ namespace pythonic {
                     }
             };
 
-        template<class... T>
-            core::ndarray<double, sizeof...(T)> zeros(std::tuple<T...> const& t)
-            {
-                return apply_to_tuple<sizeof...(T)-1>::builder(0, t, std::get<sizeof...(T)-1>(t));
-            }
-
-        template<unsigned long N>
-            core::ndarray<double, N> zeros(std::array<long, N> const &t)
-            {
-                return core::ndarray<double, N>(t);
-            }
-
-        core::ndarray<double,1> zeros(size_t size)\
-        {
-            return core::ndarray<double, 1>({size});
+#define NOT_INIT_ARRAY(NAME)\
+        template<class... T>\
+            core::ndarray<double, sizeof...(T)> NAME(std::tuple<T...> const& t)\
+            {\
+                return apply_to_tuple<sizeof...(T)-1>::builder(0, t, std::get<sizeof...(T)-1>(t));\
+            }\
+\
+        template<unsigned long N>\
+            core::ndarray<double, N> NAME(std::array<long, N> const &t)\
+            {\
+                return core::ndarray<double, N>(t);\
+            }\
+\
+        core::ndarray<double,1> NAME(size_t size)\
+        {\
+            return core::ndarray<double, 1>({size});\
         }
+
+NOT_INIT_ARRAY(zeros)
+
+NOT_INIT_ARRAY(empty)
 
 
 #define CST_ARRAY(NAME, VAL)\
@@ -124,6 +129,8 @@ namespace pythonic {
         CST_ARRAY(ones, 1)
 
         PROXY(pythonic::numpy, ones);
+
+        PROXY(pythonic::numpy, empty);
     }
 }
 

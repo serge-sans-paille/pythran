@@ -165,6 +165,16 @@ namespace  pythonic {
 
                 ndarray(const core::ndarray<T,N>& array): data(array.data), offset_data(array.offset_data), shape(array.shape) {}
 
+                //Check if InputIterator is not a fundamental type to avoid conflict with ndarray(initializer_list, int)
+                template<class InputIterator>
+                    ndarray(typename std::enable_if<!std::is_fundamental<InputIterator>::value, InputIterator>::type start, InputIterator stop) : offset_data(impl::shared_ref<size_t>(0))
+                    {
+                        shape = impl::shared_ref<std::array<long,1>>();
+                        (*shape)[0] = (stop - start);
+                        data = impl::shared_ref< raw_array<T> >((*shape)[0]);
+                        std::copy(start, stop, data->data);
+                    }
+
                 ndarray<T,N>& operator=(ndarray<T,N> && other) {
                     if(*offset_data>0 || (shape->data() && std::accumulate(shape->begin(), shape->end(), 0)!=data->n))
                     {

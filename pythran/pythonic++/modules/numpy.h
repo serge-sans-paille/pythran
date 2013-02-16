@@ -131,6 +131,28 @@ NOT_INIT_ARRAY(empty)
         PROXY(pythonic::numpy, ones);
 
         PROXY(pythonic::numpy, empty);
+
+        template<class T=long, class U, class V>
+        core::ndarray<decltype(std::declval<U>()+std::declval<V>()+std::declval<T>()), 1> arange(U begin, V end, T step=T(1))
+        {
+            typedef decltype(std::declval<U>()+std::declval<V>()+std::declval<T>()) combined_type;
+            size_t num = std::ceil((end - begin)/step);
+            core::ndarray<combined_type, 1> a({num});
+            if(num>0)
+            {
+                a[0] = begin;
+                std::transform(a.data->data, a.data->data + num - 1, a.data->data + 1, std::bind(std::plus<combined_type>(), step, std::placeholders::_1));
+            }
+            return a;
+        }
+
+        core::ndarray<long, 1> arange(long end)
+        {
+            xrange xr(end);
+            return core::ndarray<long, 1>(xr.begin(), xr.end());
+        }
+
+        PROXY(pythonic::numpy, arange);
     }
 }
 

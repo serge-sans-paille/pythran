@@ -68,3 +68,37 @@ class TestNumpy(TestEnv):
 
     def test_len_(self):
         self.run_test("\n\ndef len_():\n from numpy import array\n a =array([[[1,2],[3,4]],[[5,6],[7,8]]])\n return len(a)", len_=[])
+
+    def test_arange(self):
+        self.run_test("\n\ndef arange_():\n from numpy import arange\n return arange(10)", arange_=[])
+
+    def test_arange1(self):
+        self.run_test("\n\ndef arange1_():\n from numpy import arange\n return arange(1, 10)", arange1_=[])
+
+    def test_arange2(self):
+        self.run_test("\n\ndef arange2_():\n from numpy import arange\n return arange(0.5, 10)", arange2_=[])
+
+    def test_arange3(self):
+        self.run_test("\n\ndef arange3_():\n from numpy import arange\n return arange(0.5, 9.5)", arange3_=[])
+
+    def test_arange4(self):
+        self.run_test("\n\ndef arange4_():\n from numpy import arange\n return arange(0.2, 9.3, 1)", arange4_=[])
+
+    def test_arange5(self):
+        self.run_test("\n\ndef arange5_():\n from numpy import arange\n return arange(1, 2, 0.3)", arange5_=[])
+
+    def test_arange6(self):
+        self.run_test("\n\ndef arange6_():\n from numpy import arange\n return arange(0.2, 3.3, 0.5)", arange6_=[])
+
+    @unittest.skip("Work outside of tests") 
+    def test_arange7(self):
+        self.run_test("\n\ndef arange7_():\n from numpy import arange\n return arange(1, 4.5, -0.2)", arange7_=[])
+
+    def test_arange8(self):
+        self.run_test("\n\ndef arange8_():\n from numpy import arange\n return arange(4.5, 1, -0.1)", arange8_=[])
+
+    def test_arange9(self):
+        self.run_test("\n\ndef arange9_():\n from numpy import arange\n return arange(4.5, -12, -3.2)", arange9_=[])
+
+    def test_arange10(self):
+        self.run_test("\n\ndef arange10_():\n from numpy import arange\n return arange(-5, -5.5, -0.1)", arange10_=[])

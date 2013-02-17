@@ -28,6 +28,7 @@
 #include "modules/string.h"
 #include "modules/time.h"
 #include "modules/omp.h"
+#include "modules/itertools.h"
 
 /* extensions */
 #include "core/parallel.h"

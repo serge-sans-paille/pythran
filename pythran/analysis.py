@@ -14,6 +14,7 @@ This module provides a few code analysis for the pythran language.
     * GlobalEffects computes function effect on global state
     * PureFunctions detects functions without side-effects.
     * ParallelMaps detects parallel map(...)
+    * OptimizableGenexp finds whether a generator expr. can be optimized.
 '''
 
 from tables import modules, builtin_constants, builtin_constructors
@@ -892,3 +893,29 @@ class ParallelMaps(ModuleAnalysis):
                 "call to the `map' intrinsic could be parallel",
                 "(line {0})".format(node.lineno)
                 )
+
+
+##
+class OptimizableGenexp(NodeAnalysis):
+    """Find whether a generator expression can be optimized."""
+    def __init__(self):
+        self.result = set()
+        NodeAnalysis.__init__(self, Identifiers)
+
+    def visit_GeneratorExp(self, node):
+
+        targets = []
+        for gen in node.generators:
+            targets.append(gen.target.id)
+
+        optimizable = True
+
+        for gen in node.generators:
+            ids = self.passmanager.gather(Identifiers, gen, self.ctx)
+            for ident in ids:
+                optimizable = optimizable & ((ident == gen.target.id) |
+                                             (ident not in targets))
+        if (optimizable):
+            self.result.add(node)
+
+        return True

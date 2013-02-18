@@ -102,3 +102,15 @@ class TestNumpy(TestEnv):
 
     def test_arange10(self):
         self.run_test("\n\ndef arange10_():\n from numpy import arange\n return arange(-5, -5.5, -0.1)", arange10_=[])
+
+    def test_linspace(self):
+        self.run_test("\n\ndef linspace_():\n from numpy import linspace\n return linspace(1,4,32)",linspace_=[])
+
+    def test_linspace1(self):
+        self.run_test("\n\ndef linspace1_():\n from numpy import linspace\n return linspace(0.4,32.5,2)",linspace1_=[])
+
+    def test_linspace2(self):
+        self.run_test("\n\ndef linspace2_():\n from numpy import linspace\n return linspace(0.4,32.5,32, False)",linspace2_=[])
+
+    def test_linspace3(self):
+        self.run_test("\n\ndef linspace3_():\n from numpy import linspace\n return linspace(1,4)",linspace3_=[])

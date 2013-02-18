@@ -153,6 +153,18 @@ NOT_INIT_ARRAY(empty)
         }
 
         PROXY(pythonic::numpy, arange);
+
+        core::ndarray<double, 1> linspace(double start, double stop, size_t num=50, bool endpoint = true)
+        {
+            double step = (stop - start) / (num - endpoint);
+            core::ndarray<double, 1> a({num});
+            if(num>0)
+                a[0] = start;
+            std::transform(a.data->data, a.data->data + num - 1, a.data->data + 1, std::bind(std::plus<double>(), step, std::placeholders::_1));
+            return a;
+        }
+
+        PROXY(pythonic::numpy, linspace);
     }
 }
 

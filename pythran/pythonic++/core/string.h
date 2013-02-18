@@ -76,7 +76,7 @@ namespace pythonic {
             core::string operator+(core::string const& s) const {
                 return core::string( (*(std::string*)this)+(std::string const&)s );
             }
-            operator long() {
+            explicit operator long() {
                 long out;
                 std::istringstream iss(*this);
                 iss >> out;
@@ -136,6 +136,10 @@ namespace pythonic {
                 }
                 return out;
             }
+
+			explicit operator bool() const{
+				return not empty();
+			}
         };
     }
 }

@@ -77,6 +77,7 @@ class ConstFunctionIntr(FunctionIntr):
 
 class MethodIntr(FunctionIntr):
     def __init__(self, *combiners, **kwargs):
+        self.global_effects = kwargs.get('global_effects', False)
         FunctionIntr.__init__(self, (UpdateEffect(),) + (ReadEffect(),) * 10,
                 return_alias=kwargs.get('return_alias', lambda x: {None}))
         self.combiners = combiners

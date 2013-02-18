@@ -665,6 +665,17 @@ namespace pythonic {
         }
     PROXY(pythonic, str);
 
+    /* file */
+    core::file file(core::string const& filename, core::string const& strmode = "r") {
+        return core::file(filename, strmode);
+    } 
+    PROXY(pythonic, file);
+
+	core::file open(core::string const& filename, core::string const& strmode = "r"){
+		return core::file(filename, strmode);
+	}
+    PROXY(pythonic, open);
+
     /* sum */
     template<class Iterable, class T>
         auto sum(Iterable s, T start) -> decltype(start+std::declval<typename Iterable::iterator::value_type>())

@@ -245,6 +245,7 @@ modules = {
             "ones": ConstFunctionIntr(),
             "empty": ConstFunctionIntr(),
             "arange": ConstFunctionIntr(),
+            "linspace": ConstFunctionIntr(),
             },
         "time": {
                 "sleep": FunctionIntr(global_effects=True),

@@ -65,4 +65,9 @@ def ultra_nested_function(n):
 	return foo(n)'''
         self.run_test(code, 42, ultra_nested_function=[int])
         
+    def test_generator_sum(self):
+        code = '''
+def generator_sum(l0,l1):
+    return sum(x*y for x,y in zip(l0,l1))'''
+        self.run_test(code, range(10), range(10), generator_sum=[[int],[int]]
 

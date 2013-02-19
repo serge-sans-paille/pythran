@@ -18,12 +18,13 @@ default_optimization_sequence = (
 def refine(pm, node, optimizations=default_optimization_sequence):
     """refine node in place until it matches pythran's expectations"""
 
-    pm.apply(GenExpToImap, node)
 
     # sanitize input
     pm.apply(NormalizeException, node)
     pm.apply(NormalizeMethodCalls, node)
     pm.apply(NormalizeAttributes, node)
+    pm.apply(NormalizeTuples, node)
+    pm.apply(GenExpToImap, node)
     pm.apply(NormalizeTuples, node)
     pm.apply(RemoveComprehension, node)
     pm.apply(RemoveNestedFunctions, node)

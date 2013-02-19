@@ -77,6 +77,8 @@ The user documentation is available in the MANUAL file from the doc directory.
 
 The developer documentation is available in the DEVGUIDE file from the doc directory.
 
+A todo list is maintained in the eponymous TODO file.
+
 The CLI documentation is available from the pythran help command::
 
 	$> pythran --help

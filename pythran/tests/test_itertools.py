@@ -1,7 +1,7 @@
 import unittest
 from test_env import TestEnv
 
-class TestBase(TestEnv):
+class TestItertools(TestEnv):
 
     def test_imap(self):
         self.run_test("def imap_(l0,v): from itertools import imap; return sum(imap(lambda x:x*v, l0))", [0,1,2], 2, imap_=[[int], int])

@@ -107,13 +107,13 @@ class GenExpToImap(Transformation):
     '''
     Transforms generator expressions into iterators.
     >>> import ast, passmanager, backend
-    >>> node = ast.parse("(x*y for x in xrange(10) if x > 0 for y in xrange(20))")
+    >>> node = ast.parse("(x*x for x in range(10))")
     >>> pm = passmanager.PassManager("test")
     >>> node = pm.apply(GenExpToImap, node)
     >>> print pm.dump(backend.Python, node)
     <BLANKLINE>
     import itertools
-    itertools.imap((lambda (x, y): (x * y)), itertools.product(itertools.ifilter((lambda x: ((x > 0))), xrange(10)), xrange(20)))
+    itertools.imap((lambda x: (x * x)), range(10))
     '''
 
     def __init__(self):

@@ -18,7 +18,6 @@ default_optimization_sequence = (
 def refine(pm, node, optimizations=default_optimization_sequence):
     """refine node in place until it matches pythran's expectations"""
 
-
     # sanitize input
     pm.apply(NormalizeException, node)
     pm.apply(NormalizeMethodCalls, node)

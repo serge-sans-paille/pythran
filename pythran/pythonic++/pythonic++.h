@@ -29,6 +29,7 @@
 #include "modules/time.h"
 #include "modules/omp.h"
 #include "modules/itertools.h"
+#include "modules/bisect.h"
 
 /* extensions */
 #include "core/parallel.h"

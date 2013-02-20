@@ -231,6 +231,9 @@ modules = {
                 "pi": ScalarIntr(),
                 "e": ScalarIntr(),
                 },
+        "bisect": {
+                "bisect_left": ConstFunctionIntr(),
+                },
         "cmath": {
                 "cos": FunctionIntr(),
                 "sin": FunctionIntr(),

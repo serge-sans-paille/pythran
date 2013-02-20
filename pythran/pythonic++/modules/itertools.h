@@ -11,7 +11,7 @@ namespace pythonic {
         struct npos {};
 
         template <typename ResultType, typename Operator, typename... Iters>
-            struct imap_iterator : std::iterator< std::random_access_iterator_tag, ResultType >  {
+            struct imap_iterator : std::iterator< typename pythonic::min_iterator<typename std::remove_reference<Iters>::type::iterator...>::type , ResultType >  {
 
                 template <typename Op, typename... It>
                     struct imap_iterator_data;
@@ -43,7 +43,7 @@ namespace pythonic {
                         }
 
                         int operator-(imap_iterator_data const& other) {
-                            return (iter != other.iter);
+                            return (iter - other.iter);
                         }
 
                         imap_iterator_data<Op, L0, It...>& operator++() {
@@ -85,7 +85,7 @@ namespace pythonic {
                         }
 
                         int operator-(imap_iterator_data const& other) {
-                            return (iter != other.iter) ? 1 : 0;
+                            return (iter - other.iter);
                         }
 
                         imap_iterator_data<Op, L0>& operator++() {
@@ -95,11 +95,6 @@ namespace pythonic {
                     };
 
                 imap_iterator_data<Operator, Iters...> it_data;
-                //decltype(it_data.next_value()) value;
-
-                // Incrementation of iterator currently fail if the iterator
-                // is assigned before being returned. This quick fix ensure
-                // that the iterator is assigned after being returned.
 
                 imap_iterator() {}
                 imap_iterator(Operator _op, Iters... _iters)  : it_data(_op, _iters...) {
@@ -168,52 +163,17 @@ namespace pythonic {
         PROXY(pythonic::itertools,imap);
 
         template <typename ResultType, typename Operator, typename List0>
-            struct ifilter_iterator : std::iterator< std::random_access_iterator_tag, ResultType >  {
+            struct ifilter_iterator : std::iterator< std::forward_iterator_tag, ResultType >  {
 
-                List0 seq;
                 Operator op;
+                typedef typename std::remove_cv<typename std::remove_reference<List0>::type>::type sequence_type;
                 typename List0::iterator iter;
-                ResultType val;
-                // Incrementation of iterator currently fail if the iterator
-                // is assigned before being returned. This quick fix ensure
-                // that the iterator is assigned after being returned.
-                bool init;  //cf next_value
+                typename List0::iterator iter_end;
 
                 ifilter_iterator() {}
-                ifilter_iterator(Operator _op, List0 _seq) : op(_op), seq(_seq), init(false) {
-                    //iter = seq.begin(); //cf init
+                ifilter_iterator(Operator _op, List0 _seq) : iter(const_cast<sequence_type&>(_seq).begin()), iter_end(const_cast<sequence_type &>(_seq).end()) {
                 }
-
-                ResultType& operator*() { 
-                    if (!init) { //cf init
-                        iter = seq.begin();
-                        val = next_value();
-                        init = true;
-                    }
-
-                    return val; 
-                }
-
-                ifilter_iterator& operator++() { 
-                    if (iter != seq.end()) {
-                        ++iter;
-                        val = next_value(); //cf next_value
-                    }
-                    return *this; 
-                }
-
-                bool operator!=(ifilter_iterator const& other) { 
-                    if ( !init || !other.init) {//cf next_value
-                        return true;
-                    }
-                    return iter != other.iter; 
-                }
-
-                bool operator<(ifilter_iterator const& other) {
-                    if ( !init || !other.init) {//cf next_value
-                        return true;
-                    }
-                    return iter != other.iter; 
+                ifilter_iterator(npos, Operator _op, List0 _seq) : iter(const_cast<sequence_type &>(_seq).end()), iter_end(const_cast<sequence_type &>(_seq).end()) {
                 }
 
                 bool test_filter(std::false_type) {
@@ -224,18 +184,32 @@ namespace pythonic {
                     return *iter;
                 }
 
-                ResultType next_value() {
-                    while (iter != seq.end()) {
-                        if (test_filter(std::is_same<pythonic::none_type, Operator>())) {
-                            return *iter;
-                        } else
-                            ++iter;
+                ResultType operator*() { 
+                    return *iter;
+                }
+
+                ifilter_iterator& operator++() { 
+                    while (iter != iter_end) {
+                        ++iter;
+                        if (test_filter(std::is_same<pythonic::none_type, Operator>()))
+                            return *this;
                     }
                 }
 
-                void set_end() {
-                    iter = seq.end();
-                    init = true; //cf. next_value
+                bool operator==(ifilter_iterator const& other) { 
+                    return !(iter != other.iter); 
+                }
+
+                bool operator!=(ifilter_iterator const& other) { 
+                    return iter != other.iter; 
+                }
+
+                bool operator<(ifilter_iterator const& other) {
+                    return iter != other.iter; 
+                }
+
+                int operator-(ifilter_iterator const& other) {
+                    return (iter - other.iter); 
                 }
 
             };
@@ -245,23 +219,18 @@ namespace pythonic {
 
                 typedef ifilter_iterator<ResultType, Operator, List0> iterator;
 
+                typename std::remove_cv<typename std::remove_reference<List0>::type>::type seq; // to make sure we keep a reference on all the containers
                 iterator iter;
                 iterator end_iter;
 
+                typedef ResultType value_type;
+
                 _ifilter() {}
-                _ifilter(Operator&& _op, List0&& _seq) {
-                    iter = iterator(_op, _seq);
-                    end_iter = iterator(_op, _seq);
-                    end_iter.set_end();
-                }
-                _ifilter(Operator&& _op, const List0&& _seq) {
-                    iter = iterator(_op, _seq);
-                    end_iter = iterator(_op, _seq);
-                    end_iter.set_end();
+                _ifilter(Operator _op, List0 _seq) : seq(_seq), iter(_op, _seq), end_iter(npos(), _op, _seq) {
                 }
 
-                iterator begin() {  return iter; }
-                iterator end() {  return end_iter; }
+                iterator begin() const { return iter; }
+                iterator end() const { return end_iter; }
 
             };
 
@@ -278,7 +247,7 @@ namespace pythonic {
         PROXY(pythonic::itertools,ifilter);
 
         template <typename ResultType, typename... Iters>
-            struct product_iterator : std::iterator< std::random_access_iterator_tag, ResultType >  {
+            struct product_iterator : std::iterator< std::forward_iterator_tag, ResultType >  {
 
                 template <typename... It>
                     struct product_iterator_data;
@@ -286,21 +255,23 @@ namespace pythonic {
                 template <typename L0, typename... It>
                     struct product_iterator_data<L0, It...>
                     {
-                        L0 seq;
-                        typename L0::iterator iter;
+                        typedef typename std::remove_cv<typename std::remove_reference<L0>::type>::type sequence_type;
+                        typename sequence_type::iterator iter;
+                        typename sequence_type::iterator iter_begin;
+                        typename sequence_type::iterator iter_end;
                         product_iterator_data<It...> rec_iters; 
 
                         product_iterator_data() {}
-                        product_iterator_data(L0 _seq, It const&... _iters) : seq(_seq) {
-                            //iter = seq.begin(); //cf. product_iterator.init
-                            rec_iters = product_iterator_data<It...>(_iters...);
+                    product_iterator_data(L0 _seq, It... _iters) : iter(const_cast<sequence_type&>(_seq).begin()), iter_begin(const_cast<sequence_type&>(_seq).begin()), iter_end(const_cast<sequence_type&>(_seq).end()), rec_iters(_iters...) {
+                        }
+                        product_iterator_data(npos, L0 _seq, It... _iters) : iter(const_cast<sequence_type &>(_seq).end()), iter_begin(const_cast<sequence_type&>(_seq).begin()), iter_end(const_cast<sequence_type&>(_seq).end()), rec_iters(npos(), _iters...) {
                         }
 
                         bool next_value() {
                             if (rec_iters.next_value()) {
                                 ++iter;
-                                if (!(iter != seq.end())) {
-                                    iter = seq.begin();
+                                if (!(iter != iter_end)) {
+                                    iter = iter_begin;
                                     return true;
                                 }
                             }
@@ -312,28 +283,27 @@ namespace pythonic {
                                 return rec_iters.get_value(params..., *iter);
                             }
 
-                        void init() { //cf. product_iterator.init
-                            iter = seq.begin();
-                            rec_iters.init();
-                        }
-
                     };
 
                 template<typename L0>
                     struct product_iterator_data<L0>
                     {
-                        L0 seq;
-                        typename L0::iterator iter;
+                        //L0 seq;
+                        typedef typename std::remove_cv<typename std::remove_reference<L0>::type>::type sequence_type;
+                        typename sequence_type::iterator iter;
+                        typename sequence_type::iterator iter_begin;
+                        typename sequence_type::iterator iter_end;
 
                         product_iterator_data() {}
-                        product_iterator_data(L0 const& _seq) : seq(_seq) {
-                            //iter = seq.begin(); //cf. product_iterator.init
+                        product_iterator_data(L0 _seq) : iter(const_cast<sequence_type &>(_seq).begin()), iter_begin(const_cast<sequence_type&>(_seq).begin()), iter_end(const_cast<sequence_type&>(_seq).end()) {
+                        }
+                        product_iterator_data(npos, L0 _seq) : iter(const_cast<sequence_type &>(_seq).end()), iter_begin(const_cast<sequence_type&>(_seq).begin()), iter_end(const_cast<sequence_type&>(_seq).end()) {
                         }
 
                         bool next_value() {
                             ++iter;
-                            if (!(iter != seq.end())) {
-                                iter = seq.begin();
+                            if (!(iter != iter_end)) {
+                                iter = iter_begin;
                                 return true;
                             }
                             return false;
@@ -344,35 +314,19 @@ namespace pythonic {
                                 return std::make_tuple(params..., *iter);
                             }
 
-                        void init() { //cf. product_iterator.init
-                            iter = seq.begin();
-                        }
-
                     };
 
                 product_iterator_data<Iters...> it_data;
-                decltype(it_data.get_value()) value;
-                // Incrementation of iterator currently fail if the iterator
-                // is assigned before being returned. This quick fix ensure
-                // that the iterator is assigned after being returned.
-                bool init;
                 bool end;
 
                 product_iterator() {}
-                product_iterator(Iters const&... _iters) : init(false), end(false)  {
-                    it_data = product_iterator_data<Iters...>(_iters...);
+        product_iterator(Iters... _iters)  : it_data(_iters...), end(false) {
+                }
+        product_iterator(npos, Iters... _iters)  : it_data(npos(), _iters...), end(true) {
                 }
 
-                decltype(it_data.get_value())& operator*() {
-                    if (!init) { //cf. init
-                        it_data.init();
-                        value = it_data.get_value();
-                        init = true;
-                    }
-                    if (!end) {
-                        value = it_data.get_value();
-                    }
-                    return value;
+                decltype(it_data.get_value()) operator*() {
+                    return it_data.get_value();
                 }
 
                 product_iterator& operator++() { 
@@ -380,21 +334,20 @@ namespace pythonic {
                     return *this; 
                 }
 
+                bool operator==(product_iterator const& other) { 
+                    return (end == other.end);
+                }
+
                 bool operator!=(product_iterator const& other) { 
-                    return !init || !other.init || end != other.end;  //cf. init
+                    return end != other.end;
                 }
 
                 bool operator<(product_iterator const& other) {
-                    return !init || !other.init || end != other.end; //cf. init
+                    return end != other.end;                       
                 }
 
                 int operator-(product_iterator const& other) {
                     return (end != other.end) ? 1 : 0;
-                }
-
-                void set_end() {
-                    init = true; //cf. init
-                    end = true;
                 }
 
             };
@@ -405,26 +358,25 @@ namespace pythonic {
 
                 typedef product_iterator<ResultType, Iters...> iterator;
 
+                std::tuple<typename std::remove_cv<typename std::remove_reference<Iters>::type>::type ...> iters;
+
                 iterator iter;
                 iterator end_iter;
 
+                typedef ResultType value_type;
+
                 _product() {}
-                _product(Iters const&... _iters) {
-                    iter = iterator(_iters...);
-                    end_iter = iterator(_iters...);
-                    end_iter.set_end();
+                _product(Iters... _iters) : iters(_iters...), iter(_iters...), end_iter(npos(), _iters...) {
                 }
 
-                iterator begin() const { 
-                    return iter; }
-                iterator end() const { 
-                    return end_iter; }
+                iterator begin() const { return iter; }
+                iterator end() const { return end_iter; }
 
             };
 
         template <typename... Iter>
-            auto product(Iter const&... iters) -> _product< decltype(std::make_tuple((*iters.begin())...)), Iter...> {
-                return _product<decltype(std::make_tuple((*iters.begin())...)), Iter...> ( iters...);
+            auto product(Iter &&... iters) -> _product< decltype(std::make_tuple((*iters.begin())...)), Iter...> {
+                return _product<decltype(std::make_tuple((*iters.begin())...)), Iter...> ( std::forward<Iter>(iters)...);
             }
 
         PROXY(pythonic::itertools,product);

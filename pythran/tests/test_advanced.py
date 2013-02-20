@@ -69,5 +69,8 @@ def ultra_nested_function(n):
         code = '''
 def generator_sum(l0,l1):
     return sum(x*y for x,y in zip(l0,l1))'''
-        self.run_test(code, range(10), range(10), generator_sum=[[int],[int]]
+        self.run_test(code, range(10), range(10), generator_sum=[[int],[int]])
+
+    def test_tuple_to_list(self):
+        self.run_test('def tuple_to_list(t): return list(t)', (1,2,3), tuple_to_list=[(int, int, int)])
 

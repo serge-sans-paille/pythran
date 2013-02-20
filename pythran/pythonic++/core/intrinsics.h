@@ -269,6 +269,25 @@ namespace pythonic {
             return core::list<typename std::remove_reference<Iterable>::type::iterator::value_type>(t.begin(), t.end());
         } 
 
+    template<class Tuple, class Container>
+        void tuple_dump(Tuple const& t, Container& c, int_<0>) {
+            c[0]=std::get<0>(t);
+        }
+
+    template<class Tuple, class Container, int I>
+        void tuple_dump(Tuple const& t, Container& c, int_<I>) {
+            c[I]=std::get<I>(t);
+            tuple_dump(t,c, int_<I-1>());
+        }
+
+    template <class... Types>
+        core::list<typename std::tuple_element<0,std::tuple<Types...>>::type>
+        list(std::tuple<Types...> const & other) {
+            auto res =  core::list<typename std::tuple_element<0,std::tuple<Types...>>::type > (std::tuple_size<std::tuple<Types...>>::value);
+            tuple_dump(other, res, int_<sizeof...(Types)-1>());
+            return res;
+        }
+
     PROXY(pythonic,list);
 
     /* exception */

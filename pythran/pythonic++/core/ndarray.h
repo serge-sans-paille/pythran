@@ -175,6 +175,14 @@ namespace  pythonic {
                         std::copy(start, stop, data->data);
                     }
 
+                template<class Op, class U>
+                    ndarray(const core::ndarray<U,N>& array, Op op) : offset_data(impl::shared_ref<size_t>(0)), shape(array.shape)
+                    {
+                        ndarray_flat<U,N> iter(array);
+                        data = impl::shared_ref< raw_array<T> >(array.data->n);
+                        std::transform(iter.begin(), iter.end(), data->data, op);
+                    }
+
                 ndarray<T,N>& operator=(ndarray<T,N> && other) {
                     if(*offset_data>0 || (shape->data() && std::accumulate(shape->begin(), shape->end(), 0)!=data->n))
                     {

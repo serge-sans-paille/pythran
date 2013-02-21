@@ -1,3 +1,4 @@
+import unittest
 from test_env import TestEnv
 import numpy
 
@@ -114,3 +115,6 @@ class TestNumpy(TestEnv):
 
     def test_linspace3(self):
         self.run_test("\n\ndef linspace3_():\n from numpy import linspace\n return linspace(1,4)",linspace3_=[])
+
+    def test_sin(self):
+        self.run_test("\n\ndef sin_():\n from numpy import sin, linspace\n return sin(linspace(0,6))",sin_=[])

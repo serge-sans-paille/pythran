@@ -241,6 +241,7 @@ modules = {
             },
         "numpy": {
             "array": ConstFunctionIntr(),
+            "sin": ConstFunctionIntr(),
             "zeros": ConstFunctionIntr(),
             "ones": ConstFunctionIntr(),
             "empty": ConstFunctionIntr(),

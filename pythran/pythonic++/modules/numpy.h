@@ -2,6 +2,7 @@
 #define PYTHONIC_MODULE_NUMPY_H
 
 #include <vector>
+#include <cmath>
 
 namespace pythonic {
     namespace numpy {
@@ -165,6 +166,15 @@ NOT_INIT_ARRAY(empty)
         }
 
         PROXY(pythonic::numpy, linspace);
+
+        template<unsigned long N, class T>
+        core::ndarray<double, N> sin(core::ndarray<T, N> const& a)
+        {
+            return core::ndarray<double,N>(a, (double (*)(double))std::sin);
+        }
+
+        using std::sin;
+        PROXY(pythonic::numpy, sin);
     }
 }
 

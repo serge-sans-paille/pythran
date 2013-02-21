@@ -19,6 +19,7 @@ def refine(pm, node, optimizations=default_optimization_sequence):
     """refine node in place until it matches pythran's expectations"""
 
     # sanitize input
+    pm.apply(ExpandImports, node)
     pm.apply(NormalizeException, node)
     pm.apply(NormalizeMethodCalls, node)
     pm.apply(NormalizeAttributes, node)
@@ -29,7 +30,6 @@ def refine(pm, node, optimizations=default_optimization_sequence):
     pm.apply(RemoveNestedFunctions, node)
     pm.apply(NormalizeReturn, node)
     pm.apply(RemoveLambdas, node)
-    pm.apply(ExpandImports, node)
     pm.apply(UnshadowParameters, node)
 
     # some extra optimizations

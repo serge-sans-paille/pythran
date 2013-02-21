@@ -87,4 +87,9 @@ def ifiltern_(l0):
     def test_izip_on_generator(self):
         self.run_test("def izipg_(l0,l1): from itertools import izip; return sum(map(lambda (x,y) : x*y, izip((x for x in l0),(x for x in l1))))", [0,1,2], [10,11,12], izipg_=[[int],[int]]) 
 
-
+    def test_imap_on_complex_generator(self):
+        code='''
+from itertools import imap
+def imap_on_complex_generator(n):
+    return [x for x in imap(lambda x : x*x, (y for x in xrange(n) for y in xrange(x)))]'''
+        self.run_test(code, 12, imap_on_complex_generator=[int])

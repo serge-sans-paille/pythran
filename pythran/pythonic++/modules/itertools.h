@@ -7,8 +7,8 @@
 namespace pythonic {
 
     namespace itertools {
-         struct npos {};
 
+        struct npos {};
 
         template <typename ResultType, typename Operator, typename... Iters>
             struct imap_iterator : std::iterator< std::random_access_iterator_tag, ResultType >  {

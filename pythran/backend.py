@@ -262,6 +262,7 @@ class Cxx(Backend):
                     FunctionBody(
                         FunctionDeclaration(Value("void", "operator++"), []),
                         Block([Statement("next()")])),
+
                     FunctionBody(
                         FunctionDeclaration(
                             Value("typename {0}::result_type".format(
@@ -279,7 +280,7 @@ class Cxx(Backend):
                             []),
                         Block([Statement("next()"),
                             ReturnStatement(
-                                "generator_iterator<{0}>(this)".format(
+                                "generator_iterator<{0}>(*this)".format(
                                     next_name))])),
                     FunctionBody(
                         FunctionDeclaration(

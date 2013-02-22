@@ -7,6 +7,10 @@
 namespace pythonic {
     namespace numpy {
 
+        double const pi = 3.141592653589793238462643383279502884;
+        double const e = 2.718281828459045235360287471352662498;
+
+
         template<class T>
             struct finalType
             {

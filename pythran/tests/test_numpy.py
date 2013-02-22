@@ -118,3 +118,9 @@ class TestNumpy(TestEnv):
 
     def test_sin(self):
         self.run_test("\n\ndef sin_():\n from numpy import sin, linspace\n return sin(linspace(0,6))",sin_=[])
+
+    def test_pi(self):
+        self.run_test("\n\ndef pi_():\n from numpy import pi\n return pi",pi_=[])
+
+    def test_e(self):
+        self.run_test("\n\ndef e_():\n from numpy import e\n return e",e_=[])

@@ -13,7 +13,9 @@
 #include "core/dict.h"
 #include "core/tuple.h"
 #include "core/io.h"
+#include "core/file.h"
 #include "core/intrinsics.h"
+
 
 /* additional modules */
 #include "modules/dispatch.h"
@@ -26,6 +28,7 @@
 #include "modules/random.h"
 #include "modules/iterator.h"
 #include "modules/string.h"
+#include "modules/file.h"
 #include "modules/time.h"
 #include "modules/omp.h"
 

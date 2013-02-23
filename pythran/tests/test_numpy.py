@@ -131,3 +131,6 @@ class TestNumpy(TestEnv):
     def test_zeros_like_(self):
         self.run_test("def zeros_like_():\n from numpy import zeros_like\n return zeros_like([[i,j,k,l] for i in xrange(5) for j in xrange(4) for k in xrange(6) for l in xrange(8)])", zeros_like_=[])
 
+    def test_reshape_(self):
+        self.run_test("def reshape_():\n from numpy import arange,reshape\n return arange(10).reshape(2,5)", reshape_=[])
+

@@ -224,6 +224,15 @@ NOT_INIT_ARRAY(empty)
 
         NOT_INIT_LIKE(empty_like)
         PROXY(pythonic::numpy, empty_like);
+
+        template<class T, unsigned long N, class ...S>
+            core::ndarray<T,sizeof...(S)> reshape(core::ndarray<T,N> const& array, S ...s)
+            {
+                long shp[] = {s...};
+                return core::ndarray<T,sizeof...(s)>(array.data, 0, shp);
+            }
+
+        PROXY(pythonic::numpy, reshape);
     }
 }
 

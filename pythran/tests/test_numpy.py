@@ -124,3 +124,10 @@ class TestNumpy(TestEnv):
 
     def test_e(self):
         self.run_test("\n\ndef e_():\n from numpy import e\n return e",e_=[])
+
+    def test_ones_like_(self):
+        self.run_test("def ones_like_():\n from numpy import ones_like\n return ones_like([[i,j,k,l] for i in xrange(5) for j in xrange(4) for k in xrange(6) for l in xrange(8)])", ones_like_=[])
+
+    def test_zeros_like_(self):
+        self.run_test("def zeros_like_():\n from numpy import zeros_like\n return zeros_like([[i,j,k,l] for i in xrange(5) for j in xrange(4) for k in xrange(6) for l in xrange(8)])", zeros_like_=[])
+

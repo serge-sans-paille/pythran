@@ -179,6 +179,51 @@ NOT_INIT_ARRAY(empty)
 
         using std::sin;
         PROXY(pythonic::numpy, sin);
+
+        template<class... T, class type>
+            core::ndarray<type,sizeof...(T)> build_cst_array_from_list(type cst, core::list<type> const& prev_l, type const& val, T const& ...l)
+            {
+                return core::ndarray<type, sizeof...(l)>({l...}, cst);
+            }
+
+        template<class... T, class type>
+            core::ndarray<typename finalType<type>::Type, depth<core::list<type>>::Value + sizeof...(T)> build_cst_array_from_list(typename finalType<type>::Type cst, core::list<core::list<type> > const &prev_l, core::list<type> const& l, T const& ...s)
+            {
+                return build_cst_array_from_list(cst, l, l[0], s..., (size_t)l.size());
+            }
+
+        template<class type>
+            core::ndarray<typename finalType<type>::Type, depth<core::list<type>>::Value> ones_like(core::list<type> const& l)
+            {
+                return build_cst_array_from_list(1, l, l[0], (size_t)l.size());
+            }
+
+        PROXY(pythonic::numpy, ones_like);
+
+        template<class... T, class type>
+            core::ndarray<type,sizeof...(T)> build_not_init_array_from_list(core::list<type> const& prev_l, type const& val, T ...l)
+            {
+                return core::ndarray<type, sizeof...(l)>({l...});
+            }
+
+        template<class... T, class type>
+            core::ndarray<typename finalType<type>::Type, depth<core::list<type>>::Value + sizeof...(T)> build_not_init_array_from_list(core::list<core::list<type> > const &prev_l, core::list<type> const& l, T ...s)
+            {
+                return build_not_init_array_from_list(l, l[0], s..., (size_t)l.size());
+            }
+
+#define NOT_INIT_LIKE(NAME)\
+        template<class type>\
+            core::ndarray<typename finalType<type>::Type, depth<core::list<type>>::Value> NAME(core::list<type> const& l)\
+            {\
+                return build_not_init_array_from_list(l, l[0], (size_t)l.size());\
+            }
+
+        NOT_INIT_LIKE(zeros_like)
+        PROXY(pythonic::numpy, zeros_like);
+
+        NOT_INIT_LIKE(empty_like)
+        PROXY(pythonic::numpy, empty_like);
     }
 }
 

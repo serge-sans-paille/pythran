@@ -303,7 +303,7 @@ namespace  pythonic {
                     return ndarray_helper<T, N>::get(*this, t);
                 }
 
-                typename ndarray_helper<T, N>::const_result_type operator[](const size_t t) const
+                typename ndarray_helper<T, N>::const_result_type operator[](size_t t) const
                 {
                     if(t>=(*shape)[0])
                         throw IndexError("index out of bounds");
@@ -336,13 +336,13 @@ namespace  pythonic {
 
                 static result_type get(ndarray<T,V>& array, size_t t)
                 {
-                    long offset = std::accumulate(array.shape->begin() + 1, array.shape->begin() + V, 0);
+                    long offset = std::accumulate(array.shape->begin() + 1, array.shape->end(), 1, std::multiplies<long>());
                     return core::ndarray<T,V-1>(array.data, *array.offset_data + t*offset, array.shape->begin() + 1);
                 }
 
-                static const_result_type get(ndarray<T,V> const& array, const size_t t)
+                static const_result_type get(ndarray<T,V> const& array, size_t t)
                 {
-                    long offset = std::accumulate(array.shape->begin() + 1, array.shape->begin() + V, 0);
+                    long offset = std::accumulate(array.shape->begin() + 1, array.shape->end(), 1, std::multiplies<long>());
                     return core::ndarray<T,V-1>(array.data, *array.offset_data + t*offset, array.shape->begin() + 1);
                 }
 
@@ -369,14 +369,14 @@ namespace  pythonic {
                 template<unsigned long W>
                     static const_result_type at(ndarray<T,W> const& array, unsigned long t1)
                     {
-                        long r = std::accumulate(array.shape->begin() +W-V+1, array.shape->begin() + W, 1, std::multiplies<int>());
+                        long r = std::accumulate(array.shape->begin() +W-V+1, array.shape->begin() + W, 1, std::multiplies<long>());
                         return core::ndarray<T,V-1>(array.data, t1*r, array.shape->begin() + W - V +1);
                     }
 
                 template<unsigned long W>
                     static const_result_type at(ndarray<T,W> const& array, unsigned long t1, unsigned long t2)
                     {
-                        long r = std::accumulate(array.shape->begin() +W-V+1, array.shape->begin() + W, 1, std::multiplies<int>());
+                        long r = std::accumulate(array.shape->begin() +W-V+1, array.shape->begin() + W, 1, std::multiplies<long>());
                         return core::ndarray<T,V-1>(array.data, (t1 * (*array.shape)[W-V] + t2)*r, array.shape->begin() + W - V +1);
                     }
 
@@ -400,7 +400,7 @@ namespace  pythonic {
                     return array(t);
                 }
 
-                static const_result_type get(ndarray<T,1> const& array, const size_t t)
+                static const_result_type get(ndarray<T,1> const& array, size_t t)
                 {
                     return array(t);
                 }
@@ -426,13 +426,13 @@ namespace  pythonic {
                 template<unsigned long W>
                 static const_result_type at(ndarray<T,W> const& array, unsigned long t)
                 {
-                    return *(array.data->data + t);
+                    return *(array.data->data + t + *array.offset_data);
                 }
 
                 template<unsigned long W>
                 static const_result_type at(ndarray<T,W> const& array, unsigned long t1, unsigned long t2)
                 {
-                    return *(array.data->data + t1 * (*array.shape)[W-1] + t2);
+                    return *(array.data->data + t1 * (*array.shape)[W-1] + t2 + *array.offset_data);
                 }
 
                 template<unsigned long W, class... C>

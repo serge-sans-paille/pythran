@@ -134,3 +134,47 @@ class TestNumpy(TestEnv):
     def test_reshape_(self):
         self.run_test("def reshape_():\n from numpy import arange,reshape\n return arange(10).reshape(2,5)", reshape_=[])
 
+    def test_cumsum_(self):
+        self.run_test("def cumsum_():\n from numpy import arange,cumsum\n return arange(10).cumsum()", cumsum_=[])
+
+    def test_cumsum2_(self):
+        self.run_test("def cumsum2_():\n from numpy import arange,cumsum\n return arange(10).reshape(2,5).cumsum()", cumsum2_=[])
+
+    def test_cumsum3_(self):
+        self.run_test("def cumsum3_():\n from numpy import arange,cumsum\n return arange(10).reshape(2,5).cumsum(1)", cumsum3_=[])
+
+    def test_cumsum4_(self):
+        self.run_test("def cumsum4_():\n from numpy import arange,cumsum\n return arange(10).reshape(2,5).cumsum(0)", cumsum4_=[])
+
+    def test_cumsum5_(self):
+        self.run_test("def cumsum5_():\n from numpy import arange,cumsum\n return arange(10).cumsum(0)", cumsum5_=[])
+
+    def test_sum_(self):
+        self.run_test("def sum_():\n from numpy import arange,sum\n return arange(10).sum()", sum_=[])
+
+    def test_sum2_(self):
+        self.run_test("def sum2_():\n from numpy import arange,sum\n return arange(10).reshape(2,5).sum()", sum2_=[])
+
+    def test_sum3_(self):
+        self.run_test("def sum3_():\n from numpy import arange,sum\n return arange(10).reshape(2,5).sum(1)", sum3_=[])
+
+    def test_sum4_(self):
+        self.run_test("def sum4_():\n from numpy import arange,sum\n return arange(10).reshape(2,5).sum(0)", sum4_=[])
+
+    def test_sum5_(self):
+        self.run_test("def sum5_():\n from numpy import arange,sum\n return arange(10).sum(0)", sum5_=[])
+
+    def test_min_(self):
+        self.run_test("def min_():\n from numpy import arange,min\n return arange(10).min()", min_=[])
+
+    def test_min2_(self):
+        self.run_test("def min2_():\n from numpy import arange,min\n return arange(10).reshape(2,5).min()", min2_=[])
+
+    def test_min3_(self):
+        self.run_test("def min3_():\n from numpy import arange,min\n return arange(10).reshape(2,5).min(1)", min3_=[])
+
+    def test_min4_(self):
+        self.run_test("def min4_():\n from numpy import arange,min\n return arange(10).reshape(2,5).min(0)", min4_=[])
+
+    def test_min5_(self):
+        self.run_test("def min5_():\n from numpy import arange,min\n return arange(10).min(0)", min5_=[])

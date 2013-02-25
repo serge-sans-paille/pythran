@@ -233,6 +233,168 @@ NOT_INIT_ARRAY(empty)
             }
 
         PROXY(pythonic::numpy, reshape);
+
+        template<class T, unsigned long N>
+            core::ndarray<T,1> cumsum(core::ndarray<T,N> const& array)
+            {
+                core::ndarray<T,1> a({array.data->n});
+                a.data->data[0] = array.data->data[0];
+                std::transform(a.begin(), a.end()-1, array.data->data + 1, a.begin()+1, std::plus<T>());
+                return a;
+            }
+
+        template<class T, unsigned int N>
+        struct axis_helper
+        {
+            static core::ndarray<T,N> axis_cumsum( core::ndarray<T,N> const& array, long axis)
+            {
+                if(axis<0 || axis >=N)
+                    throw ValueError("axis out of bounds");
+
+                core::ndarray<T,N> a(*array.shape);
+                if(axis==0)
+                {
+                    std::copy(array.data->data + *array.offset_data, array.data->data + *array.offset_data + (*array.shape)[N-1], a.data->data);
+                    std::transform(a.begin(), a.end()-1, array.begin() + 1, a.begin() + 1, std::plus<core::ndarray<T,N-1>>());
+                }
+                else
+                    std::transform(array.begin(), array.end(), a.begin(), std::bind(axis_helper<T,N-1>::axis_cumsum, std::placeholders::_1, axis-1));
+                return a;
+            }
+
+            static typename std::remove_reference<typename core::ndarray_helper<T,N>::result_type>::type axis_sum( core::ndarray<T,N> const& array, long axis)
+            {
+                if(axis<0 || axis >=N)
+                    throw ValueError("axis out of bounds");
+
+                if(axis==0)
+                {
+                    core::ndarray<T,N> a(*(array.shape));
+                    *a.begin() = *array.begin(); 
+                    return std::accumulate(array.begin() + 1, array.end(), *a.begin());
+                }
+                else
+                {
+                    std::array<T,N-1> shp;
+                    std::copy(array.shape->begin(), array.shape->end() - 1, shp.begin());
+                    core::ndarray<T,N-1> a(shp);
+                    std::transform(array.begin(), array.end(), a.begin(), std::bind(axis_helper<T,N-1>::axis_sum, std::placeholders::_1, axis-1));
+                    return a;
+                }
+            }
+
+            static typename std::remove_reference<typename core::ndarray_helper<T,N>::result_type>::type axis_min( core::ndarray<T,N> const& array, long axis)
+            {
+                if(axis<0 || axis>=N)
+                    throw ValueError("axis out of bounds");
+
+                if(axis==0)
+                {
+                    std::array<T,N-1> shp;
+                    size_t size = 1;
+                    for(auto i= array.shape->begin() + 1, j = shp.begin(); i<array.shape->end(); i++, j++)
+                        size*=(*j = *i);
+                    core::ndarray<T,N-1> a(shp);
+                    core::ndarray_flat<T,N-1> a_iter(a);
+                    std::copy(array.data->data + *array.offset_data, array.data->data + *array.offset_data + size, a_iter.begin());
+                    for(auto i = array.begin() + 1; i<array.end(); i++)
+                    {
+                        auto next_subarray = *i;  //we need this variable to keep this ndarray alive while iter is used
+                        core::ndarray_flat_const<T,N-1> iter(next_subarray);
+                        auto k = a_iter.begin();
+                        for(auto j = iter.begin(); j<iter.end(); j++)
+                        {
+                            *k=std::min(*k,*j);
+                            k++;
+                        }
+                    }
+                    return a;
+                }
+                else
+                {
+                    std::array<T,N-1> shp;
+                    std::copy(array.shape->begin(), array.shape->end() - 1, shp.begin());
+                    core::ndarray<T,N-1> a(shp);
+                    std::transform(array.begin(), array.end(), a.begin(), std::bind(axis_helper<T,N-1>::axis_min, std::placeholders::_1, axis-1));
+                    return a;
+                }
+            }
+        };
+
+        template<class T>
+        struct axis_helper<T,1>
+        {
+            static core::ndarray<T,1> axis_cumsum( core::ndarray<T,1> const& array, long axis)
+            {
+                if(axis!=0)
+                    throw ValueError("axis out of bounds");
+
+                core::ndarray<T,1> a(*array.shape);
+                std::copy(array.begin(), array.end(), a.begin());
+                std::transform(a.begin(), a.end()-1, array.begin() + 1, a.begin() + 1, std::plus<T>());
+                return a;
+            }
+
+            static T axis_sum( core::ndarray<T,1> const& array, long axis)
+            {
+                if(axis!=0)
+                    throw ValueError("axis out of bounds");
+
+                return std::accumulate(array.begin(), array.end(), 0);
+            }
+
+            static T axis_min( core::ndarray<T,1> const& array, long axis)
+            {
+                if(axis!=0)
+                    throw ValueError("axis out of bounds");
+
+                T res = *array.begin();
+                for(auto i = array.begin() + 1; i<array.end(); i++)
+                    res = std::min(res, *i);
+                return res;
+            }
+        };
+
+        template<class T, unsigned long N>
+            core::ndarray<T,N> cumsum( core::ndarray<T,N> const& array, long axis)
+            {
+                return axis_helper<T,N>::axis_cumsum(array, axis);
+            }
+
+        PROXY(pythonic::numpy, cumsum);
+
+        template<class T, unsigned long N>
+            T min(core::ndarray<T,N> const& array)
+            {
+                core::ndarray_flat_const<T,N> iter(array);
+                T res = *iter.begin();
+                for(auto i = iter.begin() + 1; i<iter.end(); i++)
+                    res = std::min(res, *i);
+                return res;
+            }
+
+        template<class T, unsigned long N>
+            typename std::remove_reference<typename core::ndarray_helper<T,N>::result_type>::type min( core::ndarray<T,N> const& array, long axis)
+            {
+                return axis_helper<T,N>::axis_min(array, axis);
+            }
+
+        PROXY(pythonic::numpy, min);
+
+        template<class T, unsigned long N>
+            T sum(core::ndarray<T,N> const& array)
+            {
+                core::ndarray_flat_const<T,N> iter(array);
+                return std::accumulate(iter.begin(), iter.end(), 0);
+            }
+
+        template<class T, unsigned long N>
+            typename std::remove_reference<typename core::ndarray_helper<T,N>::result_type>::type sum( core::ndarray<T,N> const& array, long axis)
+            {
+                return axis_helper<T,N>::axis_sum(array, axis);
+            }
+
+        PROXY(pythonic::numpy, sum);
     }
 }
 

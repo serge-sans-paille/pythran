@@ -9,6 +9,7 @@ from intrinsic import Class
 from intrinsic import ConstFunctionIntr, FunctionIntr, ReadOnceFunctionIntr
 from intrinsic import ConstMethodIntr, MethodIntr, AttributeIntr, ConstantIntr
 from intrinsic import UpdateEffect, ReadEffect
+import numpy
 
 namespace = "pythonic"
 
@@ -20,6 +21,7 @@ pytype_to_ctype_table = {
         float: 'double',
         str: 'core::string',
         None: 'void',
+        numpy.int64: 'long long',
         }
 
 type_to_suffix = {
@@ -251,6 +253,10 @@ modules = {
             "arange": ConstFunctionIntr(),
             "linspace": ConstFunctionIntr(),
             "reshape": ConstMethodIntr(),
+            "cumsum": ConstMethodIntr(),
+            "sum": ConstMethodIntr(),
+            "max": ConstMethodIntr(),
+            "min": ConstMethodIntr(),
             "pi": ScalarIntr(),
             "e": ScalarIntr(),
             },

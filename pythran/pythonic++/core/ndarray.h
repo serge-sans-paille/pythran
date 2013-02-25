@@ -284,6 +284,12 @@ namespace  pythonic {
                     return *this;
                 }
 
+                ndarray<T,N> operator+(ndarray<T,N> const & other) const {
+                    core::ndarray<T,N> array(*other.shape); 
+                    std::transform(data->data + *(offset_data), data->data + *offset_data + std::accumulate(shape->begin(), shape->end(), 1, std::multiplies<long>()), other.data->data + *(other.offset_data), array.data->data, std::plus<T>());
+                    return array;
+                }
+
                 template<class... Types>
                     typename ndarray_helper<T,N-sizeof...(Types)+1>::result_type operator()(Types ... t)
                     {

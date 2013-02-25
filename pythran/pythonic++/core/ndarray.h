@@ -86,39 +86,92 @@ namespace  pythonic {
                 ndarray_const_iterator<T,N> operator+(long i) { return ndarray_const_iterator<T,N>(value + i*step, ref_array, step); }
             };
 
-                ndarray_flat_iterator() {}
-                ndarray_flat_iterator(long v, ndarray<T,N> const& ref, long s) : value(v), step(s), ref_array(ref) {}
+        template<class T, unsigned long N>
+            struct ndarray_flat_iterator: std::iterator< std::random_access_iterator_tag, T >
+            {
+                ndarray<T,N> & ref_array;
+                long value;
+                long step;
+
+                ndarray_flat_iterator(long v, ndarray<T,N> & ref, long s) : value(v), step(s), ref_array(ref) {}
                 T& operator*() { return ref_array.data->data[value + *(ref_array.offset_data)]; }
 
                 ndarray_flat_iterator<T,N>& operator++() { value+=step; return *this; }
-                ndarray_flat_iterator<T,N> operator++(int) { ndarray_iterator<T,N> self(*this); value+=step; return self; }
+                ndarray_flat_iterator<T,N> operator++(int) { ndarray_flat_iterator<T,N> self(*this); value+=step; return self; }
                 ndarray_flat_iterator<T,N>& operator+=(long n) { value+=step*n; return *this; }
                 bool operator!=(ndarray_flat_iterator<T,N> const& other) { return value != other.value; }
+                bool operator==(ndarray_flat_iterator<T,N> const& other) { return value == other.value; }
                 bool operator<(ndarray_flat_iterator<T,N> const& other) { return value < other.value; }
                 long operator-(ndarray_flat_iterator<T,N> const& other) { return (value - other.value)/step; }
+                ndarray_flat_iterator<T,N> operator+(long i) { return ndarray_flat_iterator<T,N>(value + i*step, ref_array, step); }
+            };
+
+        template<class T, unsigned long N>
+            struct ndarray_flat_const_iterator: std::iterator< std::random_access_iterator_tag, const T >
+            {
+                ndarray<T,N> const& ref_array;
+                long value;
+                long step;
+
+                ndarray_flat_const_iterator(long v, ndarray<T,N> const& ref, long s) : value(v), step(s), ref_array(ref) {}
+                T const& operator*() { return ref_array.data->data[value + *(ref_array.offset_data)]; }
+
+                ndarray_flat_const_iterator<T,N>& operator++() { value+=step; return *this; }
+                ndarray_flat_const_iterator<T,N> operator++(int) { ndarray_flat_const_iterator<T,N> self(*this); value+=step; return self; }
+                ndarray_flat_const_iterator<T,N>& operator+=(long n) { value+=step*n; return *this; }
+                bool operator!=(ndarray_flat_const_iterator<T,N> const& other) { return value != other.value; }
+                bool operator==(ndarray_flat_const_iterator<T,N> const& other) { return value == other.value; }
+                bool operator<(ndarray_flat_const_iterator<T,N> const& other) { return value < other.value; }
+                long operator-(ndarray_flat_const_iterator<T,N> const& other) { return (value - other.value)/step; }
+                ndarray_flat_const_iterator<T,N> operator+(long i) { return ndarray_flat_const_iterator<T,N>(value + i*step, ref_array, step); }
+            };
+
+        template<class T, unsigned long N>
+            struct ndarray_flat_const
+            {
+                ndarray<T,N> const& ref_array;
+
+                //types
+                typedef ndarray_flat_const_iterator<T,N> iterator;
+                typedef T& value_type;
+
+                ndarray_flat_const(ndarray<T,N> const& ref) : ref_array(ref) {}
+
+                iterator begin() const
+                {
+                    return ndarray_flat_const_iterator<T,N>(0,ref_array,1);
+                }
+
+                iterator end() const
+                {
+                    return ndarray_flat_const_iterator<T,N>(
+                            std::accumulate(ref_array.shape->begin(), ref_array.shape->end(), 1, std::multiplies<long>()),
+                            ref_array,
+                            1);
+                }
             };
 
         template<class T, unsigned long N>
             struct ndarray_flat
             {
-                ndarray<T,N> const& ref_array;
+                ndarray<T,N> & ref_array;
 
                 //types
                 typedef ndarray_flat_iterator<T,N> iterator;
                 typedef T& value_type;
 
                 ndarray_flat() {}
-                ndarray_flat(ndarray<T,N> const& ref) : ref_array(ref) {}
+                ndarray_flat(ndarray<T,N> & ref) : ref_array(ref) {}
 
-                iterator begin() const
+                iterator begin()
                 {
                     return ndarray_flat_iterator<T,N>(0,ref_array,1);
                 }
 
-                iterator end() const
+                iterator end()
                 {
                     return ndarray_flat_iterator<T,N>(
-                            std::accumulate(ref_array.shape->begin(), ref_array.shape->end(), 1, std::multiplies<int>()),
+                            std::accumulate(ref_array.shape->begin(), ref_array.shape->end(), 1, std::multiplies<long>()),
                             ref_array,
                             1);
                 }
@@ -196,7 +249,7 @@ namespace  pythonic {
                 template<class Op, class U>
                     ndarray(const core::ndarray<U,N>& array, Op op) : offset_data(impl::shared_ref<size_t>(0)), shape(array.shape)
                     {
-                        ndarray_flat<U,N> iter(array);
+                        ndarray_flat_const<U,N> iter(array);
                         data = impl::shared_ref< raw_array<T> >(array.data->n);
                         std::transform(iter.begin(), iter.end(), data->data, op);
                     }

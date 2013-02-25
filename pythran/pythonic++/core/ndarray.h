@@ -44,30 +44,47 @@ namespace  pythonic {
             struct apply_to_tuple;
 
         template<class T, unsigned long N>
-            struct ndarray_iterator: std::iterator< std::random_access_iterator_tag, typename ndarray_helper<T,N>::result_type >
+            struct ndarray_iterator: std::iterator< std::random_access_iterator_tag, typename std::remove_reference<typename ndarray_helper<T,N>::result_type>::type >
             {
-                ndarray<T,N> const& ref_array;
+                ndarray<T,N> & ref_array;
                 long value;
                 long step;
 
                 ndarray_iterator() {}
-                ndarray_iterator(long v, ndarray<T,N> const& ref, long s) : value(v), step(s), ref_array(ref) {}
+                ndarray_iterator(long v, ndarray<T,N> & ref, long s) : value(v), step(s), ref_array(ref) {}
                 typename ndarray_helper<T,N>::result_type operator*() { return ref_array[value]; }
 
                 ndarray_iterator<T,N>& operator++() { value+=step; return *this; }
                 ndarray_iterator<T,N> operator++(int) { ndarray_iterator<T,N> self(*this); value+=step; return self; }
                 ndarray_iterator<T,N>& operator+=(long n) { value+=step*n; return *this; }
                 bool operator!=(ndarray_iterator<T,N> const& other) { return value != other.value; }
+                bool operator==(ndarray_iterator<T,N> const& other) { return value == other.value; }
                 bool operator<(ndarray_iterator<T,N> const& other) { return value < other.value; }
                 long operator-(ndarray_iterator<T,N> const& other) { return (value - other.value)/step; }
+                ndarray_iterator<T,N> operator-(long i) { return ndarray_iterator<T,N>(value - i*step, ref_array, step); }
+                ndarray_iterator<T,N> operator+(long i) { return ndarray_iterator<T,N>(value + i*step, ref_array, step); }
             };
 
         template<class T, unsigned long N>
-            struct ndarray_flat_iterator: std::iterator< std::random_access_iterator_tag, T >
+            struct ndarray_const_iterator: std::iterator< std::random_access_iterator_tag, typename std::remove_reference<typename ndarray_helper<T,N>::const_result_type>::type >
             {
                 ndarray<T,N> const& ref_array;
                 long value;
                 long step;
+
+                ndarray_const_iterator(long v, ndarray<T,N> const& ref, long s) : value(v), step(s), ref_array(ref) {}
+                typename ndarray_helper<T,N>::const_result_type operator*() { return ref_array[value]; }
+
+                ndarray_const_iterator<T,N>& operator++() { value+=step; return *this; }
+                ndarray_const_iterator<T,N> operator++(int) { ndarray_const_iterator<T,N> self(*this); value+=step; return self; }
+                ndarray_const_iterator<T,N>& operator+=(long n) { value+=step*n; return *this; }
+                bool operator!=(ndarray_const_iterator<T,N> const& other) { return value != other.value; }
+                bool operator==(ndarray_const_iterator<T,N> const& other) { return value == other.value; }
+                bool operator<(ndarray_const_iterator<T,N> const& other) { return value < other.value; }
+                long operator-(ndarray_const_iterator<T,N> const& other) { return (value - other.value)/step; }
+                ndarray_const_iterator<T,N> operator-(long i) { return ndarray_const_iterator<T,N>(value - i*step, ref_array, step); }
+                ndarray_const_iterator<T,N> operator+(long i) { return ndarray_const_iterator<T,N>(value + i*step, ref_array, step); }
+            };
 
                 ndarray_flat_iterator() {}
                 ndarray_flat_iterator(long v, ndarray<T,N> const& ref, long s) : value(v), step(s), ref_array(ref) {}
@@ -117,6 +134,7 @@ namespace  pythonic {
                 //  types
                 typedef typename ndarray_helper<T,N>::const_result_type value_type;
                 typedef ndarray_iterator<T,N> iterator;
+                typedef ndarray_const_iterator<T,N> const_iterator;
 
                 ndarray(std::initializer_list<size_t> s): offset_data(impl::shared_ref<size_t>(0))
                 {
@@ -251,15 +269,10 @@ namespace  pythonic {
                     return apply_to_tuple<T,N,sizeof...(C)-1>::builder(*this, t, std::get<sizeof...(C)-1>(t));
                 }
 
-                iterator begin() const
-                {
-                    return ndarray_iterator<T,N>(0,*this,1);
-                }
-
-                iterator end() const
-                {
-                    return ndarray_iterator<T,N>((*shape)[0],*this,1);
-                }
+                iterator begin() { return ndarray_iterator<T,N>(0,*this,1); }
+                iterator end() { return ndarray_iterator<T,N>((*shape)[0],*this,1); }
+                const_iterator begin() const { return ndarray_const_iterator<T,N>(0,*this,1); }
+                const_iterator end() const { return ndarray_const_iterator<T,N>((*shape)[0],*this,1); }
             };
 
         template<class T, unsigned long V>
@@ -407,8 +420,6 @@ namespace  pythonic {
                         return array(s...);
                     }
             };
-
-
     }
 }
 #endif

@@ -8,6 +8,8 @@ tell ``pythran@freelists.org`` before, as it is good to discuss before coding!
 Detect positive array indexing
 ------------------------------
 
+*long-term job for serge-sans-paille*
+
 When indexing a list / array::
 
     a[i]
@@ -35,11 +37,14 @@ we target, but still...
 Support ``operator`` module
 ---------------------------
 
+*homework for xmar*
+
 This is an easy one. A good candidate to discover Pythran's runtime internals.
 
 
 Automatic vectorization of list comprehension
 ---------------------------------------------
+
 
 Because when you see::
 
@@ -71,6 +76,8 @@ first draft in the europar2013 branch, this is an easy go for newcomers.
 
 Jit typing
 ----------
+
+*warming-up for joker-eph*
 
 Pythran could be called at runtime (with a huge slowdown :() for each function
 marked with the appropriate decorator. Pretty good job for a new pythraner too.

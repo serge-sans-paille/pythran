@@ -33,3 +33,12 @@ def alias_replaced(n):
     map = filter
     return list(map(lambda x : x < 5, xrange(n)))
 """, 10, alias_replaced=[int]) 
+
+    def test_listcomptomap_alias(self):
+        self.run_test("""
+def foo(f,l):
+    return map(f,l[3:])
+def listcomptomap_alias(n): 
+    map = foo
+    return list([x for x in xrange(n)])
+""", 10, listcomptomap_alias=[int]) 

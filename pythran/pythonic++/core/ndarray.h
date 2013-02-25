@@ -255,9 +255,9 @@ namespace  pythonic {
                     }
 
                 ndarray<T,N>& operator=(ndarray<T,N> && other) {
-                    if(*offset_data>0 || (shape->data() && std::accumulate(shape->begin(), shape->end(), 0)!=data->n))
+                    if(*offset_data>0 || (shape->data() && std::accumulate(shape->begin(), shape->end(), 1, std::multiplies<long>())!=data->n))
                     {
-                        std::copy(other.data->data + *other.offset_data, other.data->data + *other.offset_data + std::accumulate(other.shape->begin(), other.shape->end(), 0), data->data + *offset_data);
+                        std::copy(other.data->data + *other.offset_data, other.data->data + *other.offset_data + std::accumulate(other.shape->begin(), other.shape->end(), 1, std::multiplies<long>()), data->data + *offset_data);
 
                     }
                     else
@@ -270,9 +270,9 @@ namespace  pythonic {
                 }
 
                 ndarray<T,N>& operator=(ndarray<T,N> const & other) {
-                    if(*offset_data>0 || (shape->data() && std::accumulate(shape->begin(), shape->end(), 0)!=data->n))
+                    if(*offset_data>0 || (shape->data() && std::accumulate(shape->begin(), shape->end(), 1, std::multiplies<long>())!=data->n))
                     {
-                        std::copy(other.data->data + *other.offset_data, other.data->data + *other.offset_data + std::accumulate(other.shape->begin(), other.shape->end(), 0), data->data + *offset_data);
+                        std::copy(other.data->data + *other.offset_data, other.data->data + *other.offset_data + std::accumulate(other.shape->begin(), other.shape->end(), 1, std::multiplies<long>()), data->data + *offset_data);
 
                     }
                     else

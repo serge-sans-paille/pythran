@@ -1,6 +1,9 @@
 #ifndef PYTHONIC_UTILS_H
 #define PYTHONIC_UTILS_H
 
+#include <type_traits>
+#include <iterator>
+
 //Use when the C/C++ function do not have the same name
 //than in python
 #define WRAP(type,name,cname,argType)\
@@ -89,6 +92,19 @@ namespace pythonic {
     template<typename... Types>
         void fwd(Types const&... types) {
         }
+        
+    /* Get the "minimum" of all iterators :
+     - only random => random
+     - at least one forward => forward 
+    */
+    template<typename... Iters>
+        struct min_iterator;
+
+    template<typename T>
+        struct min_iterator<T> {typedef typename T::iterator_category type;};
+
+    template<typename T, typename... Iters>
+        struct min_iterator<T, Iters...> {typedef typename std::conditional<std::is_same<typename T::iterator_category, std::forward_iterator_tag>::value, std::forward_iterator_tag, typename pythonic::min_iterator<Iters...>::type >::type type;};
 
 }
 #endif

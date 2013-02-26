@@ -38,6 +38,9 @@ def bool_op_casting():
     def test_map_on_generator(self):
         self.run_test('def map_on_generator(l): return map(float,(x*x for x in l))', [1,2,3], map_on_generator=[[int]])
 
+    def test_map2_on_generator(self):
+        self.run_test('def map2_on_generator(l): return map(lambda x,y : x*y, l, (y for x in l for y in l if x < 1))', [0,1,2,3], map2_on_generator=[[int]])
+
     def test_map_none_on_generator(self):
         self.run_test('def map_none_on_generator(l): return map(None,(x*x for x in l))', [1,2,3], map_none_on_generator=[[int]])
 

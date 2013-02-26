@@ -170,12 +170,6 @@ namespace pythonic {
                 typename List0::iterator iter;
                 typename List0::iterator iter_end;
 
-                ifilter_iterator() {}
-                ifilter_iterator(Operator _op, List0 _seq) : iter(const_cast<sequence_type&>(_seq).begin()), iter_end(const_cast<sequence_type &>(_seq).end()) {
-                }
-                ifilter_iterator(npos, Operator _op, List0 _seq) : iter(const_cast<sequence_type &>(_seq).end()), iter_end(const_cast<sequence_type &>(_seq).end()) {
-                }
-
                 bool test_filter(std::false_type) {
                     return op(*iter);
                 }
@@ -184,15 +178,28 @@ namespace pythonic {
                     return *iter;
                 }
 
+                ifilter_iterator() {}
+                ifilter_iterator(Operator _op, List0 _seq) : iter(const_cast<sequence_type&>(_seq).begin()), iter_end(const_cast<sequence_type &>(_seq).end()) {
+                    if (!test_filter(std::is_same<pythonic::none_type, Operator>()))
+                        next_value();
+                }
+                ifilter_iterator(npos, Operator _op, List0 _seq) : iter(const_cast<sequence_type &>(_seq).end()), iter_end(const_cast<sequence_type &>(_seq).end()) {
+                }
+
                 ResultType operator*() { 
                     return *iter;
                 }
 
                 ifilter_iterator& operator++() { 
+                    next_value();
+                    return *this;
+                }
+
+                void next_value() {
                     while (iter != iter_end) {
                         ++iter;
                         if (test_filter(std::is_same<pythonic::none_type, Operator>()))
-                            return *this;
+                            return;
                     }
                 }
 

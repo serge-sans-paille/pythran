@@ -20,8 +20,6 @@ class ConstantFolding(Transformation):
     >>> pm = passmanager.PassManager("test")
     >>> pm.apply(ConstantFolding, node)
     >>> print pm.dump(backend.Python, node)
-    <BLANKLINE>
-    <BLANKLINE>
     def foo():
         return 5
     '''
@@ -111,7 +109,6 @@ class GenExpToImap(Transformation):
     >>> pm = passmanager.PassManager("test")
     >>> node = pm.apply(GenExpToImap, node)
     >>> print pm.dump(backend.Python, node)
-    <BLANKLINE>
     import itertools
     itertools.imap((lambda x: (x * x)), range(10))
     '''

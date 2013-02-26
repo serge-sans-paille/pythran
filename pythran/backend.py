@@ -32,7 +32,6 @@ class Python(Backend):
     >>> node = ast.parse("print 'hello world'")
     >>> pm = passmanager.PassManager('test')
     >>> print pm.dump(Python, node)
-    <BLANKLINE>
     print 'hello world'
     '''
 
@@ -74,7 +73,6 @@ class Cxx(Backend):
     {
       print(core::string("hello world"));
     }
-    <BLANKLINE>
     '''
 
     # recover previous generator state

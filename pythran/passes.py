@@ -54,7 +54,6 @@ class NormalizeTuples(Transformation):
     >>> pm = passmanager.PassManager("test")
     >>> node = pm.apply(NormalizeTuples, node)
     >>> print pm.dump(backend.Python, node)
-    <BLANKLINE>
     a = (1, 2.0)
     if 1:
         __tuple10 = a
@@ -204,9 +203,7 @@ class RemoveComprehension(Transformation):
     >>> pm = passmanager.PassManager("test")
     >>> node = pm.apply(RemoveComprehension, node)
     >>> print pm.dump(backend.Python, node)
-    <BLANKLINE>
     list_comprehension0()
-    <BLANKLINE>
     def list_comprehension0():
         __target = list()
         for x in (1, 2, 3):
@@ -372,12 +369,9 @@ class RemoveNestedFunctions(Transformation):
     >>> pm = passmanager.PassManager("test")
     >>> node = pm.apply(RemoveNestedFunctions, node)
     >>> print pm.dump(backend.Python, node)
-    <BLANKLINE>
-    <BLANKLINE>
     def foo(x):
         bar = bind1(pythran_bar, x)
         bar(12)
-    <BLANKLINE>
     def pythran_bar(x, y):
         return (x + y)
     '''
@@ -436,11 +430,8 @@ class RemoveLambdas(Transformation):
     >>> pm = passmanager.PassManager("test")
     >>> node = pm.apply(RemoveLambdas, node)
     >>> print pm.dump(backend.Python, node)
-    <BLANKLINE>
-    <BLANKLINE>
     def foo(y):
         bind1(foo_lambda0, y)
-    <BLANKLINE>
     def foo_lambda0(y, x):
         return (y + x)
     '''
@@ -469,8 +460,6 @@ class NormalizeReturn(Transformation):
     >>> pm = passmanager.PassManager("test")
     >>> node = pm.apply(NormalizeReturn, node)
     >>> print pm.dump(backend.Python, node)
-    <BLANKLINE>
-    <BLANKLINE>
     def foo(y):
         print y
         return None
@@ -508,7 +497,6 @@ class NormalizeMethodCalls(Transformation):
     >>> pm = passmanager.PassManager("test")
     >>> node = pm.apply(NormalizeMethodCalls, node)
     >>> print pm.dump(backend.Python, node)
-    <BLANKLINE>
     __list__.append(l, 12)
     '''
 
@@ -533,7 +521,6 @@ class NormalizeAttributes(Transformation):
     >>> pm = passmanager.PassManager("test")
     >>> node = pm.apply(NormalizeAttributes, node)
     >>> print pm.dump(backend.Python, node)
-    <BLANKLINE>
     a[0]
     '''
 
@@ -568,8 +555,6 @@ class NormalizeIdentifiers(Transformation):
     >>> pm = passmanager.PassManager("test")
     >>> d = pm.apply(NormalizeIdentifiers, node)
     >>> print pm.dump(backend.Python, node)
-    <BLANKLINE>
-    <BLANKLINE>
     def namespace_(union_):
         pass
     '''
@@ -626,7 +611,6 @@ class NormalizeException(Transformation):
     >>> pm = passmanager.PassManager("test")
     >>> node = pm.apply(NormalizeException, node)
     >>> print pm.dump(backend.Python, node)
-    <BLANKLINE>
     try:
         print 't'
         try:
@@ -667,8 +651,6 @@ class UnshadowParameters(Transformation):
     >>> pm = passmanager.PassManager("test")
     >>> node = pm.apply(UnshadowParameters, node)
     >>> print pm.dump(backend.Python, node)
-    <BLANKLINE>
-    <BLANKLINE>
     def foo(a):
         a_ = a
         a_ = None
@@ -724,7 +706,6 @@ class ExpandImports(Transformation):
     >>> pm = passmanager.PassManager("test")
     >>> node = pm.apply(ExpandImports, node)
     >>> print pm.dump(backend.Python, node)
-    <BLANKLINE>
     import math as pythonic::math
     math.cos(2)
     '''

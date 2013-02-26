@@ -42,13 +42,15 @@ class Unparser:
         self.f = file
         self.future_imports = []
         self._indent = 0
+        self.line_marker = ""
         self.dispatch(tree)
         self.f.write("")
         self.f.flush()
 
     def fill(self, text=""):
         "Indent a piece of text, according to the current indentation level"
-        self.f.write("\n" + "    " * self._indent + text)
+        self.f.write(self.line_marker + "    " * self._indent + text)
+        self.line_marker = "\n"
 
     def write(self, text):
         "Append a piece of text to the current line."
@@ -234,7 +236,6 @@ class Unparser:
         self.leave()
 
     def _ClassDef(self, t):
-        self.write("\n")
         for deco in t.decorator_list:
             self.fill("@")
             self.dispatch(deco)
@@ -250,7 +251,6 @@ class Unparser:
         self.leave()
 
     def _FunctionDef(self, t):
-        self.write("\n")
         for deco in t.decorator_list:
             self.fill("@")
             self.dispatch(deco)

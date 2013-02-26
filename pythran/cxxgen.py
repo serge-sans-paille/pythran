@@ -490,7 +490,6 @@ class Namespace(Block):
             for item_line in item.generate():
                 yield "  " + item_line
         yield "}"
-        yield ""
 
 
 # copy-pasted from codepy.bpl, which is a real mess...

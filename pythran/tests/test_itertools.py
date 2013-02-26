@@ -59,11 +59,14 @@ def imap_none2_g(l0):
     return t
 """, [0,1,2], imap_none2_g=[[int]])
 
-    def test_ifilter(self):
-        self.run_test("def ifilter_(l0): from itertools import ifilter; return sum(ifilter(lambda x: (x % 2) == 1, l0))", [0,1,2,3,4,5], ifilter_=[[int]])  
+    def test_ifilter_init(self):
+        self.run_test("def ifilter_init(l0): from itertools import ifilter; return list(ifilter(lambda x: x > 2 , l0))", [0,1,2,3,4,5], ifilter_init=[[int]]) 
+
+    def test_ifilter_final(self):
+        self.run_test("def ifilter_final(l0): from itertools import ifilter; return list(ifilter(lambda x: x < 2, l0))", [0,1,2,3,4,5], ifilter_final=[[int]]) 
 
     def test_ifilter_on_generator(self):
-        self.run_test("def ifilterg_(l0): from itertools import ifilter; return sum(ifilter(lambda x: (x % 2) == 1, (y for x in l0 for y in xrange(x))))", [0,1,2,3,4,5], ifilterg_=[[int]])  
+        self.run_test("def ifilterg_(l0): from itertools import ifilter; return list(ifilter(lambda x: (x % 2) == 1, (y for x in l0 for y in xrange(x))))", [0,1,2,3,4,5], ifilterg_=[[int]])  
 
     def test_ifilter_none(self):
         self.run_test("""

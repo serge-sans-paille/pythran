@@ -27,22 +27,25 @@ class ConstantFolding(Transformation):
 
     MAX_LEN = 2 ** 16
 
-    class ConversionError(Exception):
-        pass
+    class ConversionError(Exception):
+	    pass
 
-    def __init__(self):
-        Transformation.__init__(self, ConstantExpressions)
+	def __init__(self):
+	    Transformation.__init__(self, ConstantExpressions)
 
-    def prepare(self, node, ctx):
-        self.env = {'__builtin__': __import__('__builtin__')}
-        try:
-            eval(compile(node, '<constant_folding>', 'exec'), self.env)
+	def prepare(self, node, ctx):
+	    self.env = {'__builtin__': __import__('__builtin__')}
+	if (node.body[0].names[0].name == "operator_"):
+	    node.body[0].names[0].name = "operator"
+	try:
+	    eval(compile(node, '<constant_folding>', 'exec'), self.env)
         except Exception as e:
             print ast.dump(node)
             print 'error in constant folding: ', e
             pass
         for module_name in modules:
             if not module_name.startswith('__'):
+		if module_name == "operator_" : module_name = "operator" #to import the python module operator instead of trying to import the module operator_ that does not exist
                 self.env[module_name] = __import__(module_name)
         super(ConstantFolding, self).prepare(node, ctx)
 

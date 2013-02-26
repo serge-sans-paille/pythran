@@ -385,8 +385,10 @@ namespace pythonic {
         {
             core::list< decltype(op(*seq.begin(), *iterators...)) > s = core::empty_list();
             s.reserve(len(seq));
-            for(auto const& iseq : seq)
-                s.push_back(op(iseq, *iterators++...));
+            for(auto const& iseq : seq) {
+                s.push_back(op(iseq, *iterators...));
+                fwd(++iterators...);
+            }
             return s;
         }
 

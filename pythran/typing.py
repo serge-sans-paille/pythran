@@ -59,8 +59,7 @@ class TypeDependencies(ModuleAnalysis):
         self.current_function = node
         self.result.add_node(node)
         self.naming = dict()
-        [self.visit(n) for n in node.args.defaults]
-        [self.visit(n) for n in node.body]
+        self.generic_visit(node)
         self.current_function = None
 
     def visit_Return(self, node):
@@ -89,10 +88,7 @@ class TypeDependencies(ModuleAnalysis):
 
     def visit_For(self, node):
         self.naming.update({node.target.id: self.visit(node.iter)})
-        if node.body:
-            [self.visit(n) for n in node.body]
-        if node.orelse:
-            [self.visit(n) for n in node.orelse]
+        self.generic_visit(node)
 
     def visit_BoolOp(self, node):
         return sum((self.visit(value) for value in node.values), [])
@@ -203,10 +199,12 @@ class Reorder(Transformation):
             else:
                 newbody.append(stmt)
             try:
-                newdef = [f for f in nx.topological_sort(
+                newdef = (f for f in nx.topological_sort(
                     self.type_dependencies,
                     self.ordered_global_declarations
-                    ) if isinstance(f, ast.FunctionDef)]
+                    ))
+                newdef = [f for f in newdef if isinstance(f, ast.FunctionDef)]
+
             except nx.exception.NetworkXUnfeasible:
                 raise PythranSyntaxError("Infinite function recursion",
                                         stmt)
@@ -217,14 +215,6 @@ class Reorder(Transformation):
 
 class UnboundableRValue(Exception):
     pass
-
-
-def copy_func(f, name=None):
-    return types.FunctionType(f.func_code,
-                            f.func_globals,
-                            name or f.func_name,
-                            f.func_defaults,
-                            f.func_closure)
 
 
 class Types(ModuleAnalysis):
@@ -313,7 +303,7 @@ class Types(ModuleAnalysis):
                     node = ast.Name(node_id, ast.Load())
                 self.name_to_nodes.setdefault(node_id, set()).add(node)
 
-                former_unary_op = copy_func(unary_op)
+                former_unary_op = unary_op
 
                 # update the type to reflect container nesting
                 unary_op = lambda x: reduce(lambda t, n: ContainerType(t),
@@ -379,9 +369,6 @@ class Types(ModuleAnalysis):
             print ast.dump(othernode)
             raise
 
-    def visit_Module(self, node):
-        [self.visit(n) for n in node.body]
-
     def visit_FunctionDef(self, node):
         self.current.append(node)
         self.typedefs = list()
@@ -392,8 +379,9 @@ class Types(ModuleAnalysis):
             fake_node = ast.Name(k, ast.Load())
             self.name_to_nodes.update({k: {fake_node}})
             self.result[fake_node] = NamedType(v)
-        self.visit(node.args)
-        [self.visit(n) for n in node.body]
+
+        self.generic_visit(node)
+
         # propagate type information through all aliases
         for name, nodes in self.name_to_nodes.iteritems():
             final_node = ast.Name("__fake__" + name, ast.Load())
@@ -406,20 +394,16 @@ class Types(ModuleAnalysis):
         self.current.pop()
 
     def visit_Return(self, node):
+        self.generic_visit(node)
         if not self.yield_points:
             if node.value:
-                self.visit(node.value)
                 self.combine(self.current[-1], node.value)
             else:
                 self.result[self.current[-1]] = NamedType("none_type")
 
     def visit_Yield(self, node):
-        self.visit(node.value)
+        self.generic_visit(node)
         self.combine(self.current[-1], node.value)
-
-    def visit_TryExcept(self, node):
-        [self.visit(n) for n in node.body]
-        [self.visit(n) for n in node.handlers]
 
     def visit_Assign(self, node):
         self.visit(node.value)
@@ -451,18 +435,15 @@ class Types(ModuleAnalysis):
         self.visit(node.iter)
         self.combine(node.target, node.iter,
             unary_op=lambda x: IteratorContentType(x), register=True)
-        self.visit(node.target)
-        if node.body:
-            [self.visit(n) for n in node.body]
-        if node.orelse:
-            [self.visit(n) for n in node.orelse]
+        node.body and [self.visit(n) for n in node.body]
+        node.orelse and [self.visit(n) for n in node.orelse]
 
     def visit_BoolOp(self, node):
-        [self.visit(value) for value in node.values]
+        self.generic_visit(node)
         [self.combine(node, value) for value in node.values]
 
     def visit_BinOp(self, node):
-        [self.visit(value) for value in (node.left, node.right)]
+        self.generic_visit(node)
         wl, wr = [self.result[x].isweak() for x in (node.left, node.right)]
         if (isinstance(node.op, ast.Add) and any([wl, wr])
             and not all([wl, wr])):
@@ -477,15 +458,12 @@ class Types(ModuleAnalysis):
         self.combine(node, node.right, F)
 
     def visit_UnaryOp(self, node):
-        self.visit(node.operand)
+        self.generic_visit(node)
         f = lambda x: ExpressionType(operator_to_lambda[type(node.op)], [x])
         self.combine(node, node.operand, unary_op=f)
 
-    def visit_Lambda(self, node):
-        assert False
-
     def visit_IfExp(self, node):
-        [self.visit(n) for n in (node.body, node.orelse)]
+        self.generic_visit(node)
         [self.combine(node, n) for n in (node.body, node.orelse)]
 
     def visit_Compare(self, node):
@@ -493,8 +471,7 @@ class Types(ModuleAnalysis):
         self.result[node] = NamedType("bool")
 
     def visit_Call(self, node):
-        self.visit(node.func)
-        [self.visit(n) for n in node.args]
+        self.generic_visit(node)
         user_module = modules['__user__']
         for alias in self.strict_aliases[node.func].aliases:
             # handle backward type dependencies from method calls
@@ -600,25 +577,24 @@ class Types(ModuleAnalysis):
             self.result[node] = NamedType(node.id, {Weak})
 
     def visit_List(self, node):
+        self.generic_visit(node)
         if node.elts:
-            [self.visit(elt) for elt in node.elts]
             [self.combine(node, elt,
                 unary_op=lambda x:ListType(x)) for elt in node.elts]
         else:
             self.result[node] = NamedType("core::empty_list")
 
     def visit_Set(self, node):
+        self.generic_visit(node)
         if node.elts:
-            [self.visit(elt) for elt in node.elts]
             [self.combine(node, elt,
                 unary_op=lambda x:SetType(x)) for elt in node.elts]
         else:
             self.result[node] = NamedType("core::empty_set")
 
     def visit_Dict(self, node):
+        self.generic_visit(node)
         if node.keys:
-            [self.visit(elt) for elt in node.keys]
-            [self.visit(elt) for elt in node.values]
             [self.combine(
                 node,
                 key,
@@ -636,7 +612,7 @@ class Types(ModuleAnalysis):
         [self.visit(n) for n in node.body]
 
     def visit_Tuple(self, node):
-        [self.visit(elt) for elt in node.elts]
+        self.generic_visit(node)
         try:
             types = [self.result[elt] for elt in node.elts]
             self.result[node] = TupleType(types)
@@ -644,7 +620,7 @@ class Types(ModuleAnalysis):
             pass  # not very harmonious with the combine method ...
 
     def visit_Index(self, node):
-        self.visit(node.value)
+        self.generic_visit(node)
         self.combine(node, node.value)
 
     def visit_arguments(self, node):

@@ -14,9 +14,9 @@ This modules contains code transformation to turn python AST into
     * ExpandImports replaces imports by their full paths
 '''
 
-from analysis import ImportedIds, Identifiers, YieldPoints
+from analysis import ImportedIds, Identifiers, YieldPoints, Globals
 from passmanager import Transformation
-from tables import methods, attributes, functions
+from tables import methods, attributes, functions, modules
 from tables import cxx_keywords, namespace
 from operator import itemgetter
 from copy import copy
@@ -500,14 +500,59 @@ class NormalizeMethodCalls(Transformation):
     __list__.append(l, 12)
     '''
 
-    def visit_Call(self, node):
+    def __init__(self):
+        Transformation.__init__(self, Globals)
+        self.imports = set()
+
+    def visit_FunctionDef(self, node):
+        self.imports = self.globals.copy()
+        [self.imports.discard(arg.id) for arg in node.args.args]
         self.generic_visit(node)
-        if isinstance(node.func, ast.Attribute) and node.func.attr in methods:
-            node.args.insert(0,  node.func.value)
-            node.func = ast.Attribute(
-                    ast.Name(methods[node.func.attr][0], ast.Load()),
-                    node.func.attr,
-                    ast.Load())
+        return node
+
+    def visit_Import(self, node):
+        for alias in node.names:
+            self.imports.add(alias.asname or alias.name)
+        return node
+
+    def visit_Assign(self, node):
+        n = self.generic_visit(node)
+        for t in node.targets:
+            if isinstance(t, ast.Name):
+                self.imports.discard(t.id)
+        return n
+
+    def visit_For(self, node):
+        node.iter = self.visit(node.iter)
+        if isinstance(node.target, ast.Name):
+            self.imports.discard(node.target.id)
+        if node.body:
+            node.body = [self.visit(n) for n in node.body]
+        if node.orelse:
+            node.orelse = [self.visit(n) for n in node.orelse]
+        return node
+
+    def visit_Call(self, node):
+        node = self.generic_visit(node)
+        if isinstance(node.func, ast.Attribute):
+            if node.func.attr in methods:
+                lhs = node.func.value
+                isname = isinstance(lhs, ast.Name)
+                if not isname or lhs.id not in self.imports:
+                    node.args.insert(0,  node.func.value)
+                    node.func = ast.Attribute(
+                            ast.Name(methods[node.func.attr][0], ast.Load()),
+                            node.func.attr,
+                            ast.Load())
+                elif isname and lhs.id in modules['__builtins__']:
+                    name = '__{0}__'.format(lhs.id)
+                    if name in modules:
+                        node.func.value.id = name
+                    else:
+                        name += '_'
+                        if name in modules:
+                            node.func.value.id = name
+
         return node
 
 

@@ -21,9 +21,9 @@ def refine(pm, node, optimizations=default_optimization_sequence):
     # sanitize input
     pm.apply(ExpandImports, node)
     pm.apply(NormalizeException, node)
+    pm.apply(NormalizeTuples, node)
     pm.apply(NormalizeMethodCalls, node)
     pm.apply(NormalizeAttributes, node)
-    pm.apply(NormalizeTuples, node)
     pm.apply(GenExpToImap, node)
     pm.apply(NormalizeTuples, node)
     pm.apply(RemoveComprehension, node)

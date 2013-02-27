@@ -535,16 +535,17 @@ class NormalizeMethodCalls(Transformation):
     def visit_Call(self, node):
         node = self.generic_visit(node)
         if isinstance(node.func, ast.Attribute):
+            lhs = node.func.value
+            isname = isinstance(lhs, ast.Name)
             if node.func.attr in methods:
-                lhs = node.func.value
-                isname = isinstance(lhs, ast.Name)
                 if not isname or lhs.id not in self.imports:
                     node.args.insert(0,  node.func.value)
                     node.func = ast.Attribute(
                             ast.Name(methods[node.func.attr][0], ast.Load()),
                             node.func.attr,
                             ast.Load())
-                elif isname and lhs.id in modules['__builtins__']:
+            if node.func.attr in methods or node.func.attr in functions:
+                if isname and lhs.id in modules['__builtins__']:
                     name = '__{0}__'.format(lhs.id)
                     if name in modules:
                         node.func.value.id = name
@@ -577,14 +578,6 @@ class NormalizeAttributes(Transformation):
                     node.ctx)
             metadata.add(out, metadata.Attribute())
             return out
-        elif node.attr in functions:
-            if len(functions[node.attr]) > 1:
-                return node
-            else:
-                [(module, _)] = functions[node.attr]
-                assert isinstance(node.value, ast.Name)
-                node.value.id = module
-                return node
         else:
             return node
 

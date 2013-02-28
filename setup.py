@@ -26,10 +26,10 @@ class TestCommand(Command):
     '''Scan the test directory for any tests, and run them.'''
 
     description = 'run the test suite for the package'
-    user_options = []
+    user_options = [('failfast', None, 'Stop upon first fail')]
 
     def initialize_options(self):
-        pass
+        self.failfast = False
 
     def finalize_options(self):
         pass
@@ -41,6 +41,9 @@ class TestCommand(Command):
             import xdist
             import multiprocessing
             cpu_count = multiprocessing.cpu_count()
+            args = ["-n", str(cpu_count), where]
+            if self.failfast:
+                args.insert(0, '-x')
             py.test.cmdline.main(["-n", str(cpu_count), where])
         except ImportError:
             print ("W: Using only one thread,"

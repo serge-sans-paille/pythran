@@ -93,5 +93,7 @@ namespace pythonic {
             }
         PROXY(pythonic::__list__, insert);
     }
+
+    BUILTIN_CLASS(__list__)
 }
 #endif

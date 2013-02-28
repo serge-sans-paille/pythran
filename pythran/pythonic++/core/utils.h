@@ -21,6 +21,16 @@
         };\
     }
 
+// use this macro to make builtin class members available in the builtin namespace
+#define BUILTIN_CLASS(name) \
+    namespace __builtin__ { \
+        namespace name { \
+            namespace proxy {\
+                using namespace ::pythonic::name::proxy;\
+            }\
+        }\
+    }
+
 namespace pythonic {
 
     /* some constants ... */
@@ -105,6 +115,8 @@ namespace pythonic {
 
     template<typename T, typename... Iters>
         struct min_iterator<T, Iters...> {typedef typename std::conditional<std::is_same<typename T::iterator_category, std::forward_iterator_tag>::value, std::forward_iterator_tag, typename pythonic::min_iterator<Iters...>::type >::type type;};
+
+
 
 }
 #endif

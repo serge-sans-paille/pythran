@@ -625,11 +625,11 @@ class Cxx(Backend):
         body = [self.visit(m) for m in node.body]
         if not isinstance(node.type, ast.Tuple):
             return [ExceptHandler(
-                node.type.id if node.type else None,
+                node.type and node.type.attr,
                 Block(body),
                 name)]
         else:
-            elts = [p.id for p in node.type.elts]
+            elts = [p.attr for p in node.type.elts]
             return [ExceptHandler(o, Block(body), name) for o in elts]
 
     def visit_If(self, node):
@@ -712,7 +712,7 @@ class Cxx(Backend):
 
     def visit_List(self, node):
         if not node.elts:  # empty list
-            return "list()"
+            return "__builtin__::list()"
         else:
             elts = [self.visit(n) for n in node.elts]
             return "{0}({{ {1} }})".format(
@@ -721,7 +721,7 @@ class Cxx(Backend):
 
     def visit_Set(self, node):
         if not node.elts:  # empty set
-            return "set()"
+            return "__builtin__::set()"
         else:
             elts = [self.visit(n) for n in node.elts]
             return "{0}({{ {1} }})".format(
@@ -730,7 +730,7 @@ class Cxx(Backend):
 
     def visit_Dict(self, node):
         if not node.keys:  # empty dict
-            return "dict()"
+            return "__builtin__::dict()"
         else:
             keys = [self.visit(n) for n in node.keys]
             values = [self.visit(n) for n in node.values]
@@ -773,18 +773,15 @@ class Cxx(Backend):
         return 'core::string("{0}")'.format(node.s.replace('\n', '\\n"\n"'))
 
     def visit_Attribute(self, node):
-        value, attr = (node.value, node.attr)
-        if (isinstance(value, ast.Name)
-                and value.id in modules
-                and attr in modules[value.id]):
-            if modules[value.id][attr]:
-                return "{0}::{1}".format(value.id, attr)
-            else:
-                return "{0}::proxy::{1}()".format(value.id, attr)
-        else:
-            raise PythranSyntaxError(
-                    "Attributes are only supported for namespaces",
-                    node)
+        def rec(w, n):
+            if isinstance(n, ast.Name):
+                return w[n.id], (n.id,)
+            elif isinstance(n, ast.Attribute):
+                r = rec(w, n.value)
+                return r[0][n.attr], r[1] + (n.attr,)
+        obj, path = rec(modules, node)
+        return ('::'.join(path) if obj.isscalar()
+                else ('::'.join(path[:-1]) + '::proxy::' + path[-1] + '()'))
 
     def visit_Subscript(self, node):
         value = self.visit(node.value)
@@ -811,8 +808,6 @@ class Cxx(Backend):
     def visit_Name(self, node):
         if node.id in self.local_declarations[-1]:
             return node.id
-        elif node.id in modules["__builtins__"]:
-            return "proxy::{0}()".format(node.id)
         elif (node.id in self.global_declarations
                 or node.id in self.local_functions):
             return "{0}()".format(node.id)

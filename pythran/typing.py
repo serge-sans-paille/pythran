@@ -14,10 +14,11 @@ from analysis import OrderedGlobalDeclarations, ModuleAnalysis, StrictAliases
 from passes import Transformation
 from syntax import PythranSyntaxError
 from cxxtypes import *
-from intrinsic import UserFunction, MethodIntr
+from intrinsic import UserFunction
 import types
 import itertools
 import metadata
+import intrinsic
 
 
 # networkx backward compatibility
@@ -475,30 +476,22 @@ class Types(ModuleAnalysis):
         user_module = modules['__user__']
         for alias in self.strict_aliases[node.func].aliases:
             # handle backward type dependencies from method calls
-            if isinstance(alias, ast.Attribute):
-                if isinstance(alias.value, ast.Name):
-                    if (alias.value.id in modules and
-                        alias.attr in modules[alias.value.id]):
-                        aliased_fun = modules[alias.value.id][alias.attr]
-                        if hasattr(aliased_fun, 'combiner'):
-                            # aliased_fun.combiner(self, node)
-                            # also generate all possible aliasing combinations
-                            combinations = [filter(
-                                None,
-                                self.strict_aliases[arg].aliases.union({arg}))
-                                for arg in node.args]
-                            for new_args in itertools.product(*combinations):
-                                aliased_fun.combiner(self,
-                                        ast.Call(
-                                            node.func,
-                                            new_args,
-                                            [],
-                                            None,
-                                            None)
-                                        )
-                else:
-                    raise PythranSyntaxError(
-                        "Unknown Attribute: `{0}'".format(alias.attr), node)
+            if isinstance(alias, intrinsic.Intrinsic):
+                if hasattr(alias, 'combiner'):
+                    # also generate all possible aliasing combinations
+                    combinations = [filter(
+                        None,
+                        self.strict_aliases[arg].aliases.union({arg}))
+                        for arg in node.args]
+                    for new_args in itertools.product(*combinations):
+                        alias.combiner(self,
+                                ast.Call(
+                                    node.func,
+                                    new_args,
+                                    [],
+                                    None,
+                                    None)
+                                )
             # handle backward type dependencies from user calls
             elif isinstance(alias, ast.FunctionDef):
                 user_module[alias.name].combiner(self, node)
@@ -525,16 +518,17 @@ class Types(ModuleAnalysis):
         self.result[node] = NamedType(pytype_to_ctype_table[str])
 
     def visit_Attribute(self, node):
-        value, attr = (node.value, node.attr)
-        if value.id in modules and attr in modules[value.id]:
-            self.result[node] = (DeclType(
-                Val('{0}::{1}'.format(value.id, attr)))
-                if modules[value.id][attr].isscalar()
-                else DeclType(Val("{0}::proxy::{1}()".format(value.id, attr)))
+        def rec(w, n):
+            if isinstance(n, ast.Name):
+                return w[n.id], (n.id,)
+            elif isinstance(n, ast.Attribute):
+                r = rec(w, n.value)
+                return r[0][n.attr], r[1] + (n.attr,)
+        obj, path = rec(modules, node)
+        self.result[node] = DeclType(
+                Val('::'.join(path)) if obj.isscalar()
+                else Val('::'.join(path[:-1]) + '::proxy::' + path[-1] + '()')
                 )
-        else:
-            raise PythranSyntaxError(
-                "Unknown Attribute: `{0}'".format(node.attr), node)
 
     def visit_Subscript(self, node):
         self.visit(node.value)
@@ -568,8 +562,6 @@ class Types(ModuleAnalysis):
             self.combine(node, self.current_global_declarations[node.id])
         elif node.id in builtin_constants:
             self.result[node] = NamedType(builtin_constants[node.id])
-        elif node.id in modules["__builtins__"]:
-            self.result[node] = NamedType("proxy::{0}".format(node.id))
         elif node.id in builtin_constructors:
             self.result[node] = NamedType("pythonic::constructor<{0}>".format(
                 builtin_constructors[node.id]))
@@ -607,7 +599,7 @@ class Types(ModuleAnalysis):
         if node.type and node.name:
             if not isinstance(node.type, ast.Tuple):
                 self.result[node.type] = NamedType(
-                    "core::{0}".format(node.type.id))
+                    "core::{0}".format(node.type.attr))
                 self.combine(node.name, node.type, register=True)
         [self.visit(n) for n in node.body]
 

@@ -27,5 +27,7 @@ namespace pythonic {
     COMPLEX_OPERATOR(double,operator/,/);
 
 #undef COMPLEX_OPERATOR
+
+    BUILTIN_CLASS(__complex___)
 }
 #endif

@@ -5,7 +5,7 @@ This modules provides the translation tables from python to c++.
 import ast
 import cxxtypes
 
-from intrinsic import ConstFunctionIntr, FunctionIntr
+from intrinsic import ConstFunctionIntr, FunctionIntr, Class
 from intrinsic import ConstMethodIntr, MethodIntr, AttributeIntr, ScalarIntr
 
 namespace = "pythonic"
@@ -88,15 +88,17 @@ operator_to_lambda = {
         ast.LtE: lambda l, r: "({0} <= {1})".format(l, r),
         ast.Gt: lambda l, r: "({0} > {1})".format(l, r),
         ast.GtE: lambda l, r: "({0} >= {1})".format(l, r),
-        ast.Is: lambda l, r: "(id({0}) == id({1}))".format(l, r),
-        ast.IsNot: lambda l, r: "(id({0}) != id({1}))".format(l, r),
+        ast.Is: lambda l, r: ("(__builtin__::id({0}) == "
+            "__builtin__::id({1}))".format(l, r)),
+        ast.IsNot: lambda l, r: ("(__builtin__::id({0}) != "
+            "__builtin__::id({1}))".format(l, r)),
         ast.In: lambda l, r: "(in({1}, {0}))".format(l, r),
         ast.NotIn: lambda l, r: "(not in({1}, {0}))".format(l, r),
         }
 
 # each module consist in a module_name <> set of symbols
 modules = {
-        "__builtins__": {
+        "__builtin__": {
             "abs": ConstFunctionIntr(),
             "BaseException": ConstFunctionIntr(),
             "SystemExit": ConstFunctionIntr(),
@@ -490,6 +492,12 @@ modules = {
                 },
         "__user__": {},
         }
+
+# create symlinks for classes
+modules['__builtin__']['__set__'] = Class(modules['__set__'])
+modules['__builtin__']['__dict__'] = Class(modules['__dict__'])
+modules['__builtin__']['__list__'] = Class(modules['__list__'])
+modules['__builtin__']['__complex___'] = Class(modules['__complex___'])
 
 # a method name to module binding
 methods = {}

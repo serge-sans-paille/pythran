@@ -57,7 +57,7 @@ class TestEnv(unittest.TestCase):
             # This may be done once before the loop, but the context might
             # need to be reset.
             compiled_code = compile(code, "", "exec")
-            env = {}
+            env = {'__builtin__' : __import__('__builtin__')}
             eval(compiled_code, env)
 
             python_ref = eval(function_call, env)  # Produce the reference

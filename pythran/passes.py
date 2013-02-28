@@ -12,12 +12,14 @@ This modules contains code transformation to turn python AST into
     * NormalizeException simplifies try blocks
     * UnshadowParameters prevents the shadow parameter phenomenon
     * ExpandImports replaces imports by their full paths
+    * ExpandBuiltins replaces builtins by their full paths
 '''
 
-from analysis import ImportedIds, Identifiers, YieldPoints, Globals
+from analysis import ImportedIds, Identifiers, YieldPoints, Globals, Locals
 from passmanager import Transformation
 from tables import methods, attributes, functions, modules
-from tables import cxx_keywords, namespace
+from tables import builtin_constructors
+from tables import cxx_keywords, namespace, builtin_constants
 from operator import itemgetter
 from copy import copy
 import metadata
@@ -205,7 +207,7 @@ class RemoveComprehension(Transformation):
     >>> print pm.dump(backend.Python, node)
     list_comprehension0()
     def list_comprehension0():
-        __target = list()
+        __target = __builtin__.list()
         for x in (1, 2, 3):
             __list__.append(__target, (x * x))
         return __target
@@ -247,7 +249,13 @@ class RemoveComprehension(Transformation):
         metadata.add(body, metadata.Comprehension(starget))
         init = ast.Assign(
                 [ast.Name(starget, ast.Store())],
-                ast.Call(ast.Name(comp_type, ast.Load()), [], [], None, None)
+                ast.Call(
+                    ast.Attribute(
+                        ast.Name('__builtin__', ast.Load()),
+                        comp_type,
+                        ast.Load()
+                        ),
+                    [], [], None, None)
                 )
         result = ast.Return(ast.Name(starget, ast.Load()))
         sargs = sorted(ast.Name(arg, ast.Load()) for arg in args)
@@ -346,7 +354,11 @@ class _NestedFunctionRemover(Transformation):
         new_node = ast.Assign(
                 [ast.Name(former_name, ast.Store())],
                 ast.Call(
-                    ast.Name("bind{0}".format(former_nbargs), ast.Load()),
+                    ast.Attribute(
+                        ast.Name('__builtin__', ast.Load()),
+                        "bind{0}".format(former_nbargs),
+                        ast.Load()
+                        ),
                     [proxy_call] + binded_args,
                     [],
                     None,
@@ -370,7 +382,7 @@ class RemoveNestedFunctions(Transformation):
     >>> node = pm.apply(RemoveNestedFunctions, node)
     >>> print pm.dump(backend.Python, node)
     def foo(x):
-        bar = bind1(pythran_bar, x)
+        bar = __builtin__.bind1(pythran_bar, x)
         bar(12)
     def pythran_bar(x, y):
         return (x + y)
@@ -414,7 +426,11 @@ class _LambdaRemover(Transformation):
         self.lambda_functions.append(forged_fdef)
         proxy_call = ast.Name(forged_name, ast.Load())
         return ast.Call(
-                ast.Name("bind{0}".format(former_nbargs), ast.Load()),
+                ast.Attribute(
+                    ast.Name('__builtin__', ast.Load()),
+                    "bind{0}".format(former_nbargs),
+                    ast.Load()
+                    ),
                 [proxy_call] + binded_args,
                 [],
                 None,
@@ -431,7 +447,7 @@ class RemoveLambdas(Transformation):
     >>> node = pm.apply(RemoveLambdas, node)
     >>> print pm.dump(backend.Python, node)
     def foo(y):
-        bind1(foo_lambda0, y)
+        __builtin__.bind1(foo_lambda0, y)
     def foo_lambda0(y, x):
         return (y + x)
     '''
@@ -536,23 +552,33 @@ class NormalizeMethodCalls(Transformation):
         node = self.generic_visit(node)
         if isinstance(node.func, ast.Attribute):
             lhs = node.func.value
-            isname = isinstance(lhs, ast.Name)
             if node.func.attr in methods:
-                if not isname or lhs.id not in self.imports:
+                isname = isinstance(lhs, ast.Name)
+                ispath = isname or isinstance(lhs, ast.Attribute)
+                if not ispath or (isname and lhs.id not in self.imports):
                     node.args.insert(0,  node.func.value)
                     node.func = ast.Attribute(
                             ast.Name(methods[node.func.attr][0], ast.Load()),
                             node.func.attr,
                             ast.Load())
             if node.func.attr in methods or node.func.attr in functions:
-                if isname and lhs.id in modules['__builtins__']:
-                    name = '__{0}__'.format(lhs.id)
+                def renamer(v):
+                    name = '__{0}__'.format(v)
                     if name in modules:
-                        node.func.value.id = name
+                        return name
                     else:
                         name += '_'
                         if name in modules:
-                            node.func.value.id = name
+                            return name
+                    return v
+
+                def rec(n):
+                    if isinstance(n, ast.Attribute):
+                        n.attr = renamer(n.attr)
+                        rec(n.value)
+                    elif isinstance(n, ast.Name):
+                        n.id = renamer(n.id)
+                rec(node.func.value)
 
         return node
 
@@ -802,3 +828,33 @@ class ExpandImports(Transformation):
             ast.copy_location(new_node, node)
             return new_node
         return node
+
+
+class ExpandBuiltins(Transformation):
+    '''
+    Expands all builtins into full paths.
+    >>> import ast, passmanager, backend
+    >>> node = ast.parse("def foo(): return list()")
+    >>> pm = passmanager.PassManager("test")
+    >>> node = pm.apply(ExpandBuiltins, node)
+    >>> print pm.dump(backend.Python, node)
+    def foo():
+        return __builtin__.list()
+    '''
+
+    def __init__(self):
+        Transformation.__init__(self, Locals)
+
+    def visit_Name(self, node):
+        s = node.id
+        if (isinstance(node.ctx, ast.Load)
+                and s not in builtin_constants
+                and s not in builtin_constructors
+                and s not in self.locals[node]
+                and s in modules['__builtin__']):
+            return ast.Attribute(
+                    ast.Name('__builtin__', ast.Load()),
+                    s,
+                    node.ctx)
+        else:
+            return node

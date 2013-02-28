@@ -116,3 +116,20 @@ class ScalarIntr(Intrinsic):
 
     def isscalar(self):
         return True
+
+
+class Class(object):
+    def __init__(self, d):
+        self.d = d
+
+    def ismethod(self):
+        return False
+
+    def isattribute(self):
+        return False
+
+    def isstaticfunction(self):
+        return False
+
+    def __getitem__(self, key):
+        return self.d[key]

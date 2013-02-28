@@ -14,6 +14,7 @@ namespace pythonic {
             nanosleep(&t, nullptr);
             return None;
        }    
+       PROXY(pythonic::time, sleep)
     }
 }
 

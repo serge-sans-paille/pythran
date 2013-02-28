@@ -104,5 +104,6 @@ namespace pythonic {
             }
         PROXY(pythonic::__set__, issubset);
     }
+    BUILTIN_CLASS(__set__)
 }
 #endif

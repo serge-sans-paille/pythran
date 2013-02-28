@@ -16,21 +16,15 @@ class ConstantFolding(Transformation):
     '''
     Replace constant expression by their evaluation.
     >>> import ast, passmanager, backend
-    >>> node = ast.parse("def foo(): return len(range(5))")
+    >>> node = ast.parse("def foo(): return 1+3")
     >>> pm = passmanager.PassManager("test")
     >>> pm.apply(ConstantFolding, node)
     >>> print pm.dump(backend.Python, node)
     def foo():
-        return 5
+        return 4
     '''
 
     MAX_LEN = 2 ** 16
-
-    INIT_CODE = '''
-__list__ = list
-__dict__ = dict
-__set__ = set
-'''
 
     class ConversionError(Exception):
         pass
@@ -39,14 +33,8 @@ __set__ = set
         Transformation.__init__(self, ConstantExpressions)
 
     def run_visit(self, node):
-        self.env = dict()
+        self.env = {'__builtin__': __import__('__builtin__')}
         try:
-            eval(
-                    compile(
-                        ast.parse(ConstantFolding.INIT_CODE),
-                        '<constant_folding>',
-                        'exec'),
-                    self.env)
             eval(compile(node, '<constant_folding>', 'exec'), self.env)
         except Exception as e:
             print ast.dump(node)

@@ -90,6 +90,9 @@ class Locals(ModuleAnalysis):
         [self.visit(n) for n in node.body]
 
     def visit_FunctionDef(self, node):
+        # special case for nested functions
+        if node.name not in self.global_declarations:
+            self.locals.add(node.name)
         self.expr_parent = node
         self.result[node] = self.locals.copy()
         parent_locals = self.locals.copy()
@@ -103,6 +106,7 @@ class Locals(ModuleAnalysis):
         self.visit(node.value)
         self.locals.update(t.id for t in node.targets
                 if isinstance(t, ast.Name))
+        [self.visit(t) for t in node.targets]
 
     def visit_For(self, node):
         self.expr_parent = node
@@ -125,6 +129,7 @@ class Locals(ModuleAnalysis):
         self.result[node] = self.locals.copy()
         if node.name:
             self.locals.add(node.name.id)
+        node.type and self.visit(node.type)
         [self.visit(n) for n in node.body]
 
     # statements that do not define a new variable
@@ -155,7 +160,6 @@ class Globals(ModuleAnalysis):
     def run(self, node, ctx):
         ModuleAnalysis.run(self, node, ctx)
         return set(self.global_declarations.keys()
-                + modules["__builtins__"].keys()
                 + builtin_constants.keys()
                 + builtin_constructors.keys())
 
@@ -288,9 +292,12 @@ class ConstantExpressions(NodeAnalysis):
             return False
 
     def visit_Attribute(self, node):
-        assert isinstance(node.value, ast.Name)
-        return (node.value.id in modules
-                and modules[node.value.id][node.attr].isconst())
+        def rec(w, n):
+            if isinstance(n, ast.Name):
+                return w[n.id]
+            elif isinstance(n, ast.Attribute):
+                return rec(w, n.value)[n.attr]
+        return rec(modules, node).isconst()
 
     def visit_List(self, node):
         return all([self.visit(n) for n in node.elts]) and self.add(node)
@@ -373,15 +380,16 @@ class Aliases(ModuleAnalysis):
 
     @staticmethod
     def access_path(node):
-        if isinstance(node, ast.Name):
-            return (node.id,)
-        elif isinstance(node, ast.Attribute):
-            return Aliases.access_path(node.value) + (node.attr,)
-        elif isinstance(node, ast.FunctionDef):
-            return (node.name,)
-        else:
-            # print 'unknown access path:', ast.dump(node)
-            raise NotImplementedError
+        def rec(w, n):
+            if isinstance(n, ast.Name):
+                return w.get(n.id, n.id)
+            elif isinstance(n, ast.Attribute):
+                return rec(w, n.value)[n.attr]
+            elif isinstance(n, ast.FunctionDef):
+                return node.name
+            else:
+                return node
+        return rec(modules, node)
 
     # aliasing created by expressions
     def add(self, node, values=None):
@@ -455,7 +463,9 @@ class Aliases(ModuleAnalysis):
 
     def visit_Call(self, node):
         self.generic_visit(node)
-        if isinstance(node.func, ast.Name) and node.func.id.startswith("bind"):
+        f = node.func
+        # special handler for bind functions
+        if isinstance(f, ast.Attribute) and f.attr.startswith("bind"):
             return self.add(node, {node})
         else:
             return_alias = self.call_return_alias(node)
@@ -484,7 +494,7 @@ class Aliases(ModuleAnalysis):
         return self.add(node)
 
     def visit_Attribute(self, node):
-        return self.add(node, {node})
+        return self.add(node, {Aliases.access_path(node)})
 
     def visit_Subscript(self, node):
         self.generic_visit(node)
@@ -492,13 +502,13 @@ class Aliases(ModuleAnalysis):
         return self.add(node)
 
     def visit_Name(self, node):
-        if (node.id,) not in self.aliases:
+        if node.id not in self.aliases:
             err = ("identifier {0} unknown, either because",
                     "it is an unsupported intrinsic,",
                     "the input code is faulty,",
                     "or... pythran is buggy.")
             raise PythranSyntaxError(" ".join(err).format(node.id), node)
-        return self.add(node, self.aliases[(node.id,)].copy())
+        return self.add(node, self.aliases[node.id].copy())
 
     def visit_List(self, node):
         self.generic_visit(node)
@@ -512,33 +522,32 @@ class Aliases(ModuleAnalysis):
 
     def visit_FunctionDef(self, node):
         self.aliases = dict()
-        self.aliases.update({(k,): {k}
-            for k, v in builtin_constants.iteritems()})
-        self.aliases.update({(k,): {v}
-            for k, v in builtin_constructors.iteritems()})
+        self.aliases.update((k, {k})
+            for k, v in builtin_constants.iteritems())
+        self.aliases.update((k, {v})
+            for k, v in builtin_constructors.iteritems())
         for module in modules:
-            self.aliases.update({
-                (k,) if module == "__builtins__" else (module, k): {v}
-                for k, v in modules[module].iteritems()})
-        self.aliases.update({(f.name,): {f}
-            for f in self.global_declarations.itervalues()})
-        self.aliases.update({(arg.id,): {arg}
-            for arg in node.args.args})
+            self.aliases.update((v, {v})
+                for k, v in modules[module].iteritems())
+        self.aliases.update((f.name, {f})
+            for f in self.global_declarations.itervalues())
+        self.aliases.update((arg.id, {arg})
+                for arg in node.args.args)
         self.generic_visit(node)
 
     def visit_Assign(self, node):
         value_aliases = self.visit(node.value)
         for t in node.targets:
             if isinstance(t, ast.Name):
-                self.aliases[(t.id,)] = value_aliases or {t}
+                self.aliases[t.id] = value_aliases or {t}
                 for alias in list(value_aliases):
                     if isinstance(alias, ast.Name):
-                        self.aliases[(alias.id,)].add(t)
+                        self.aliases[alias.id].add(t)
             else:
                 self.visit(t)
 
     def visit_For(self, node):
-        self.aliases[(node.target.id,)] = {node.target}
+        self.aliases[node.target.id] = {node.target}
         self.generic_visit(node)
 
     def visit_If(self, node):
@@ -556,7 +565,7 @@ class Aliases(ModuleAnalysis):
 
     def visit_ExceptHandler(self, node):
         if node.name:
-            self.aliases[(node.name.id,)] = {node.name}
+            self.aliases[node.name.id] = {node.name}
             self.generic_visit(node)
 
 
@@ -662,6 +671,8 @@ class ArgumentEffects(ModuleAnalysis):
                 self.update_effects = [isinstance(x, intrinsic.UpdateEffect)
                         for x in node.argument_effects]
             elif isinstance(node, ast.alias):
+                self.update_effects = []
+            elif isinstance(node, intrinsic.Class):
                 self.update_effects = []
             else:
                 raise NotImplementedError
@@ -797,6 +808,8 @@ class GlobalEffects(ModuleAnalysis):
                 self.global_effect = False
             elif isinstance(node, str):
                 self.global_effect = False
+            elif isinstance(node, intrinsic.Class):
+                self.global_effect = False
             else:
                 print type(node), node
                 raise NotImplementedError
@@ -881,7 +894,7 @@ class ParallelMaps(ModuleAnalysis):
         ModuleAnalysis.__init__(self, PureFunctions, Aliases)
 
     def visit_Call(self, node):
-        if all(alias == modules['__builtins__']['map']
+        if all(alias == modules['__builtin__']['map']
                 for alias in self.aliases[node.func].aliases):
             if all(self.pure_functions.__contains__(f)
                     for f in self.aliases[node.args[0]].aliases):

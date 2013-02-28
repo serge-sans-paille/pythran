@@ -137,5 +137,7 @@ namespace pythonic {
             }
         PROXY(pythonic::__dict__, viewvalues);
     }
+
+    BUILTIN_CLASS(__dict__)
 }
 #endif

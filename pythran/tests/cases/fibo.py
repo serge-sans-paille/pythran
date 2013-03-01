@@ -19,4 +19,4 @@ def test(n):
     "omp parallel"
     "omp single"
     f = fibo(n)
-    print f
+    return f

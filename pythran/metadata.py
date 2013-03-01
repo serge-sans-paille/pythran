@@ -5,7 +5,6 @@ This module provides a way to pass information between passes as metadata.
 '''
 
 from ast import AST  # so that metadata are walkable as regular ast nodes
-import ast
 
 
 class Metadata(AST):

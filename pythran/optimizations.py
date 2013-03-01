@@ -81,7 +81,7 @@ class ConstantFolding(Transformation):
                         and not isinstance(new_node, ast.Index)):
                     new_node = ast.Index(new_node)
                 return new_node
-            except Exception as e:
+            except Exception:  # as e:
                 #print ast.dump(node)
                 #print 'error in constant folding: ', e
                 return node

@@ -409,11 +409,14 @@ class _LambdaRemover(Transformation):
         self.lambda_functions = list()
 
     def visit_Lambda(self, node):
-        node.body = self.visit(node.body)
+        self.generic_visit(node)
         forged_name = "{0}_lambda{1}".format(
                 self.prefix,
                 len(self.lambda_functions))
+
         ii = self.passmanager.gather(ImportedIds, node, self.ctx)
+        ii.difference_update(self.lambda_functions)  # remove current lambdas
+
         binded_args = [ast.Name(iin, ast.Load()) for iin in sorted(ii)]
         former_nbargs = len(node.args.args)
         node.args.args = ([ast.Name(iin, ast.Param()) for iin in sorted(ii)]
@@ -454,7 +457,7 @@ class RemoveLambdas(Transformation):
 
     def visit_Module(self, node):
         self.lambda_functions = list()
-        [self.visit(n) for n in node.body]
+        self.generic_visit(node)
         node.body.extend(self.lambda_functions)
         return node
 

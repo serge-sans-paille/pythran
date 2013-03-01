@@ -5,20 +5,20 @@ import os
 import sys
 
 
-class build_with_ply(build):
+class BuildWithPly(build):
     '''Use ply to generate parsetab before building module.'''
 
     def run(self, *args, **kwargs):
-        if not self.dry_run:
+        if not self.dry_run:  # compatibility with the parent options
             from pythran.spec import SpecParser
             SpecParser()  # this forces the generation of the parsetab file
             self.mkpath(os.path.join(self.build_lib, 'pythran'))
-            for p in ['parsetab.py']:
+            for p in ('parsetab.py',):
                 target = os.path.join(self.build_lib, 'pythran', p)
                 if os.path.exists(p):
                     os.rename(p, target)
-                else:
-                    assert os.path.exists(target)
+                assert os.path.exists(target)
+        # regular build done by patent class
         build.run(self, *args, **kwargs)
 
 
@@ -44,7 +44,7 @@ class TestCommand(Command):
             args = ["-n", str(cpu_count), where]
             if self.failfast:
                 args.insert(0, '-x')
-            py.test.cmdline.main(["-n", str(cpu_count), where])
+            py.test.cmdline.main(args)
         except ImportError:
             print ("W: Using only one thread,"
                     "try to install pytest-xdist package")
@@ -59,13 +59,11 @@ class BenchmarkCommand(Command):
     default_nb_iter = 11
     description = 'run the benchmark suite for the package'
     user_options = [
-            ('nb-iter=',
-                None,
-                'number of times the benchmark is run (default={0})'.format(
-                    default_nb_iter)),
-            ('mode=',
-                None,
-                'mode to use (cpython, pythran, pythran + omp)')
+            ('nb-iter=', None,
+                'number of times the benchmark is run'
+                '(default={0})'.format(default_nb_iter)),
+            ('mode=', None,
+                'mode to use (cpython, pythran, pythran' '+omp)')
             ]
 
     runas_marker = '#runas '
@@ -86,22 +84,22 @@ class BenchmarkCommand(Command):
         import timeit
         from pythran import cxx_generator, spec_parser
         from pythran import compile as pythran_compile
-        candidates = glob.glob("pythran/tests/cases/*.py")
-        sys.path.append("pythran/tests/cases")
+        where = "pythran/tests/cases/"
+        candidates = glob.glob(where + '*.py')
+        sys.path.append(where)
         median = lambda x: sorted(x)[len(x) / 2]
         for candidate in candidates:
             with file(candidate) as content:
                 runas = [line for line in content.readlines()
                         if line.startswith(BenchmarkCommand.runas_marker)]
-                if len(runas) == 1:
+                if runas:
                     module_name, _ = os.path.splitext(
                             os.path.basename(candidate))
                     runas_commands = runas[0].replace(
                             BenchmarkCommand.runas_marker, '').split(";")
                     runas_context = ";".join(["import {0}".format(
                                     module_name)] + runas_commands[:-1])
-                    runas_command = "{0}.{1}".format(module_name,
-                                    runas_commands[-1])
+                    runas_command = module_name + '.' + runas_commands[-1]
 
                     # cleaning
                     sopath = module_name + ".so"
@@ -111,16 +109,15 @@ class BenchmarkCommand(Command):
                     ti = timeit.Timer(runas_command, runas_context)
 
                     # pythran part
-                    if self.mode == 'pythran'or self.mode == 'pythran+omp':
+                    if self.mode.startswith('pythran'):
                         specs = spec_parser(candidate)
-                        mod = cxx_generator(module_name, file(candidate)
-                            .read(), specs)
+                        code = file(candidate).read()
+                        mod = cxx_generator(module_name, code, specs)
+                        cxxflags = ["-Ofast", "-DNDEBUG"]
+                        if self.mode == "pythran+omp":
+                            cxxflags.append("-fopenmp")
                         pythran_compile(os.environ.get("CXX", "c++"),
-                                mod,
-                                cxxflags=(["-Ofast", "-DNDEBUG"]
-                                    + (["-fopenmp"]
-                                        if self.mode == "pythran+omp"
-                                        else [])))
+                                mod, cxxflags=cxxflags)
 
                     timing = median(ti.repeat(self.nb_iter, number=1))
                     print module_name, timing
@@ -151,6 +148,9 @@ setup(name='pythran',
             ],
         license="BSD 3-Clause",
         requires=['ply (>=3.4)', 'networkx (>=1.5)'],
-        cmdclass={'build': build_with_ply, 'test': TestCommand,
-            'bench': BenchmarkCommand}
+        cmdclass={
+            'build': BuildWithPly,
+            'test': TestCommand,
+            'bench': BenchmarkCommand
+            }
      )

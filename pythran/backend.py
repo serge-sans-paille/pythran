@@ -37,7 +37,7 @@ class Python(Backend):
 
     def __init__(self):
         self.result = ''
-        Backend.__init__(self)
+        super(Python, self).__init__()
 
     def visit(self, node):
         output = cStringIO.StringIO()
@@ -85,27 +85,22 @@ class Cxx(Backend):
         self.declarations = list()
         self.definitions = list()
         self.break_handler = list()
-        self.result = list()
-        Backend.__init__(self,
+        self.result = None
+        super(Cxx, self).__init__(
                 GlobalDeclarations, BoundedExpressions, Types, ArgumentEffects)
 
     # mod
     def visit_Module(self, node):
         # build all types
-        self.local_functions = set()
-        self.local_declarations = list()
-        headers = [Include(h)
-                for h in ("pythran/pythran.h", "pythran/pythran_gmp.h")]
-        # remove top-level strings
-        body = [self.visit(n)
-                for n in node.body if not isinstance(n, ast.Expr)]
+        headers = map(Include, ("pythran/pythran.h", "pythran/pythran_gmp.h"))
 
-        assert not self.local_declarations
-        self.result = headers + [
-                Namespace("__{0}".format(self.passmanager.module_name),
-                    body
-                    + self.declarations
-                    + self.definitions)]
+        # remove top-level strings
+        fbody = (n for n in node.body if not isinstance(n, ast.Expr))
+        body = map(self.visit, fbody)
+
+        nsbody = body + self.declarations + self.definitions
+        ns = Namespace("__" + self.passmanager.module_name, nsbody)
+        self.result = headers + [ns]
 
     # openmp processing
     def process_omp_attachements(self, node, stmt, index=None):
@@ -116,10 +111,10 @@ class Cxx(Backend):
                 # special hook for default for index scope
                 if isinstance(node, ast.For):
                     target = node.target
-                    if ('for' in directive.s
-                            and 'default' not in directive.s
-                            and all(x.id != target.id for x in directive.deps)
-                            ):
+                    hasfor = 'for' in directive.s
+                    nodefault = 'default' not in directive.s
+                    noindexref = all(x.id != target.id for x in directive.deps)
+                    if hasfor and nodefault and noindexref:
                         directive.s += ' private({})'
                         directive.deps.append(ast.Name(target.id, ast.Param()))
                 directives.append(directive)
@@ -152,28 +147,22 @@ class Cxx(Backend):
                         "__type{0}".format(self.mapping[node]))
 
             def typedefs(self):
-                l = sorted(self.mapping.items(),
-                        key=lambda x: x[1])
+                l = sorted(self.mapping.items(), key=lambda x: x[1])
                 L = list()
                 for k, v in l:
-                    L.append(Typedef(
-                        Value(self.cache[k], "__type{0}".format(v))))
+                    L.append(Typedef(Value(self.cache[k], "__type" + str(v))))
                 return L
 
         # prepare context and visit function body
         fargs = node.args.args
 
-        local_functions = {k for k in self.local_functions}
-
         formal_args = [arg.id for arg in fargs]
-        formal_types = ["argument_type{0}".format(i)
-                for i in xrange(len(formal_args))]
+        formal_types = ["argument_type" + str(i) for i in xrange(len(fargs))]
 
-        ldecls = {sym.id: sym
-                for sym in self.passmanager.gather(LocalDeclarations, node)}
+        ldecls = self.passmanager.gather(LocalDeclarations, node)
+        ldecls = {sym.id: sym for sym in ldecls}  # more convenient as a dict
 
-        self.local_declarations.append(set(ldecls.iterkeys()))
-        self.local_declarations[-1].update(formal_args)
+        self.local_declarations = set(ldecls.iterkeys()).union(formal_args)
         self.extra_declarations = []
 
         ldecls = set(ldecls.itervalues())
@@ -183,7 +172,10 @@ class Cxx(Backend):
                 for (v, k) in
                 enumerate(self.passmanager.gather(YieldPoints, node))}
 
-        operator_body = [self.visit(n) for n in node.body]
+        # gather body dump
+        operator_body = map(self.visit, node.body)
+
+        # compute arg dump
         default_arg_values = (
                 [None] * (len(node.args.args) - len(node.args.defaults))
                 + [self.visit(n) for n in node.args.defaults])
@@ -191,8 +183,7 @@ class Cxx(Backend):
                 [None] * (len(node.args.args) - len(node.args.defaults))
                 + [self.types[n] for n in node.args.defaults])
 
-        self.local_declarations.pop()
-
+        # compute type dump
         result_type = self.types[node][0]
 
         callable_type = Typedef(Value("void", "callable"))
@@ -470,7 +461,6 @@ class Cxx(Backend):
         self.declarations.append(topstruct)
         self.definitions.append(operator_definition)
 
-        self.local_functions = local_functions
         return EmptyStatement()
 
     def visit_Return(self, node):
@@ -557,7 +547,7 @@ class Cxx(Backend):
                 if metadata.get(node.target, metadata.LocalVariable)
                 else "")
 
-        body = [self.visit(n) for n in node.body]
+        loop_body = [self.visit(n) for n in node.body]
 
         self.break_handler.pop()
 
@@ -569,26 +559,26 @@ class Cxx(Backend):
                     directive.s += ' shared({})'
                     directive.deps.append(ast.Name(local_iter, ast.Param()))
 
-        stmts = [
-                Statement("{0} {1} = {2}".format(
-                    local_iter_decl,
-                    local_iter, iter)
-                    ),
-                For("{0} {1} = {2}.begin()".format(
+        prelude = Statement("{0} {1} = {2}".format(
+            local_iter_decl, local_iter, iter)
+            )
+        loop_body_prelude = Statement(
+                "{0} {1}= *{2}".format(
+                    target_decl,
+                    target,
+                    local_target)
+                )
+        loop = For(
+                "{0} {1} = {2}.begin()".format(
                     local_target_decl,
                     local_target,
                     local_iter),
-                    "{0} < {1}.end()".format(
-                        local_target,
-                        local_iter),
-                    "++{0}".format(local_target),
-                    Block(
-                        [Statement("{0} {1}= *{2}".format(
-                            target_decl,
-                            target,
-                            local_target))]
-                        + body))
-                ]
+                "{0} < {1}.end()".format(
+                    local_target,
+                    local_iter),
+                "++{0}".format(local_target),
+                Block([loop_body_prelude] + loop_body))
+        stmts = [prelude, loop]
 
         # in that case when can proceed to a reserve
         for comp in metadata.get(node, metadata.Comprehension):
@@ -598,9 +588,9 @@ class Cxx(Backend):
                         local_iter)))
 
         if break_handler:
-            stmts.append(Block(
-                [self.visit(n) for n in node.orelse]
-                + [Statement("{0}:".format(break_handler))]))
+            orelse = map(self.visit, node.orelse)
+            orelse_label = Statement("{0}:".format(break_handler))
+            stmts.append(Block(orelse + [orelse_label]))
 
         return Block(self.process_omp_attachements(node, stmts, 1))
 
@@ -806,10 +796,9 @@ class Cxx(Backend):
             return "{1}[{0}]".format(slice, value)
 
     def visit_Name(self, node):
-        if node.id in self.local_declarations[-1]:
+        if node.id in self.local_declarations:
             return node.id
-        elif (node.id in self.global_declarations
-                or node.id in self.local_functions):
+        elif node.id in self.global_declarations:
             return "{0}()".format(node.id)
         elif node.id in builtin_constructors:
             return "pythonic::constructor<{0}>()".format(

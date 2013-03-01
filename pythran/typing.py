@@ -15,7 +15,6 @@ from passes import Transformation
 from syntax import PythranSyntaxError
 from cxxtypes import *
 from intrinsic import UserFunction
-import types
 import itertools
 import metadata
 import intrinsic

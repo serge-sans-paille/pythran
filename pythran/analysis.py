@@ -32,7 +32,7 @@ class LocalDeclarations(NodeAnalysis):
     """Gathers all local symbols from a function"""
     def __init__(self):
         self.result = set()
-        NodeAnalysis.__init__(self)
+        super(LocalDeclarations, self).__init__()
 
     def visit_Assign(self, node):
         for t in node.targets:
@@ -43,7 +43,7 @@ class LocalDeclarations(NodeAnalysis):
     def visit_For(self, node):
         assert isinstance(node.target, ast.Name)
         self.result.add(node.target)
-        [self.visit(n) for n in node.body]
+        map(self.visit, node.body)
 
 
 ##
@@ -51,19 +51,17 @@ class GlobalDeclarations(ModuleAnalysis):
     """Generates a function name -> function node binding"""
     def __init__(self):
         self.result = dict()
-        ModuleAnalysis.__init__(self)
+        super(GlobalDeclarations, self).__init__()
 
     def visit_Import(self, node):
-        for alias in node.names:
-            self.result[alias.name] = alias
+        self.result.update((a.name, a) for a in node.names)
 
     def visit_ImportFrom(self, node):
-        for alias in node.names:
-            self.result[alias.asname or alias.name] = alias
-        return None
+        self.result.update((a.asname or a.name, a) for a in node.names)
 
     def visit_FunctionDef(self, node):
         self.result[node.name] = node
+        # no generic visit here, so no diving into function body
 
 
 ##
@@ -72,7 +70,7 @@ class Locals(ModuleAnalysis):
     def __init__(self):
         self.result = dict()
         self.locals = set()
-        ModuleAnalysis.__init__(self, GlobalDeclarations)
+        super(Locals, self).__init__(GlobalDeclarations)
 
     def generic_visit(self, node):
         ModuleAnalysis.generic_visit(self, node)
@@ -87,7 +85,7 @@ class Locals(ModuleAnalysis):
     def visit_Module(self, node):
         self.expr_parent = node
         self.result[node] = self.locals
-        [self.visit(n) for n in node.body]
+        map(self.visit, node.body)
 
     def visit_FunctionDef(self, node):
         # special case for nested functions
@@ -97,7 +95,7 @@ class Locals(ModuleAnalysis):
         self.result[node] = self.locals.copy()
         parent_locals = self.locals.copy()
         self.locals.update(arg.id for arg in node.args.args)
-        [self.visit(n) for n in node.body]
+        map(self.visit, node.body)
         self.locals = parent_locals
 
     def visit_Assign(self, node):
@@ -106,15 +104,15 @@ class Locals(ModuleAnalysis):
         self.visit(node.value)
         self.locals.update(t.id for t in node.targets
                 if isinstance(t, ast.Name))
-        [self.visit(t) for t in node.targets]
+        map(self.visit, node.targets)
 
     def visit_For(self, node):
         self.expr_parent = node
         self.result[node] = self.locals.copy()
         self.visit(node.iter)
         self.locals.add(node.target.id)
-        [self.visit(n) for n in node.body]
-        [self.visit(n) for n in node.orelse]
+        map(self.visit, node.body)
+        map(self.visit, node.orelse)
 
     def visit_Import(self, node):
         self.result[node] = self.locals.copy()
@@ -130,7 +128,7 @@ class Locals(ModuleAnalysis):
         if node.name:
             self.locals.add(node.name.id)
         node.type and self.visit(node.type)
-        [self.visit(n) for n in node.body]
+        map(self.visit, node.body)
 
     # statements that do not define a new variable
     visit_Return = store_and_visit
@@ -152,10 +150,10 @@ class Locals(ModuleAnalysis):
 class Globals(ModuleAnalysis):
     def __init__(self):
         self.result = dict()
-        ModuleAnalysis.__init__(self, GlobalDeclarations)
+        super(Globals, self).__init__(GlobalDeclarations)
 
     def visit(self, node):
-        pass
+        pass  # everything is done by the run method
 
     def run(self, node, ctx):
         ModuleAnalysis.run(self, node, ctx)
@@ -170,7 +168,7 @@ class ImportedIds(NodeAnalysis):
     def __init__(self):
         self.result = set()
         self.current_locals = set()
-        NodeAnalysis.__init__(self, Globals, Locals)
+        super(ImportedIds, self).__init__(Globals, Locals)
 
     def visit_Name(self, node):
         if isinstance(node.ctx, ast.Store):
@@ -183,26 +181,19 @@ class ImportedIds(NodeAnalysis):
         self.current_locals.add(node.name)
         current_locals = self.current_locals.copy()
         self.current_locals.update(arg.id for arg in node.args.args)
-        [self.visit(n) for n in node.body]
+        map(self.visit, node.body)
         self.current_locals = current_locals
 
     def visit_AnyComp(self, node):
         current_locals = self.current_locals.copy()
-        [self.visit(n) for n in node.generators]
+        map(self.visit, node.generators)
         self.visit(node.elt)
         self.current_locals = current_locals
 
-    def visit_ListComp(self, node):
-        self.visit_AnyComp(node)
-
-    def visit_SetComp(self, node):
-        self.visit_AnyComp(node)
-
-    def visit_DictComp(self, node):
-        self.visit_AnyComp(node)
-
-    def visit_GeneratorExp(self, node):
-        self.visit_AnyComp(node)
+    visit_ListComp = visit_AnyComp
+    visit_SetComp = visit_AnyComp
+    visit_DictComp = visit_AnyComp
+    visit_GeneratorExp = visit_AnyComp
 
     def visit_Lambda(self, node):
         current_locals = self.current_locals.copy()
@@ -220,7 +211,7 @@ class ImportedIds(NodeAnalysis):
         pass
 
     def run(self, node, ctx):
-        if isinstance(node, list):
+        if isinstance(node, list):  # so that this pass can be called on list
             node = ast.If(ast.Num(1), node, None)
         return NodeAnalysis.run(self, node, ctx)
 
@@ -244,50 +235,36 @@ class ConstantExpressions(NodeAnalysis):
         return all(self.visit(n) for n in node.values) and self.add(node)
 
     def visit_BinOp(self, node):
-        return (all([self.visit(n) for n in (node.left, node.right)])
-                and self.add(node))
+        rec = all(map(self.visit, (node.left, node.right)))
+        return rec and self.add(node)
 
     def visit_UnaryOp(self, node):
         return self.visit(node.operand) and self.add(node)
 
     def visit_IfExp(self, node):
-        return (
-                all([self.visit(n)
-                    for n in (node.test, node.body, node.orelse)])
-                and self.add(node)
-                )
-
-    def visit_Dict(self, node):
-        return (all([self.visit(n) for n in (node.keys + node.values)])
-                and self.add(node))
-
-    def visit_Set(self, node):
-        return all([self.visit(n) for n in node.elts]) and self.add(node)
+        rec = all(map(self.visit, (node.test, node.body, node.orelse)))
+        return rec and self.add(node)
 
     def visit_Compare(self, node):
-        return (all([self.visit(n) for n in [node.left] + node.comparators])
-                and self.add(node))
+        rec = all(map(self.visit, [node.left] + node.comparators))
+        return rec and self.add(node)
 
     def visit_Call(self, node):
-        return (all([self.visit(n) for n in (node.args + [node.func])])
-                and self.add(node))
+        rec = all(map(self.visit, node.args + [node.func]))
+        return rec and self.add(node)
 
-    def visit_Num(self, node):
-        return self.add(node)
-
-    def visit_Str(self, node):
-        return self.add(node)
+    visit_Num = add
+    visit_Str = add
 
     def visit_Subscript(self, node):
-        return (all([self.visit(n) for n in (node.value, node.slice)])
-                and self.add(node))
+        rec = all(map(self.visit, (node.value, node.slice)))
+        return rec and self.add(node)
 
     def visit_Name(self, node):
         if node in self.aliases:
             pure_fun = all(alias in self.pure_functions
                     for alias in self.aliases[node].aliases)
             return pure_fun and self.add(node)
-
         else:
             return False
 
@@ -299,16 +276,18 @@ class ConstantExpressions(NodeAnalysis):
                 return rec(w, n.value)[n.attr]
         return rec(modules, node).isconst()
 
-    def visit_List(self, node):
-        return all([self.visit(n) for n in node.elts]) and self.add(node)
+    def visit_Dict(self, node):
+        rec = all(map(self.visit, node.keys + node.values))
+        return rec and self.add(node)
 
-    def visit_Tuple(self, node):
-        return all([self.visit(n) for n in node.elts]) and self.add(node)
+    def visit_List(self, node):
+        return all(map(self.visit, node.elts)) and self.add(node)
+
+    visit_Tuple = visit_List
+    visit_Set = visit_List
 
     def visit_Slice(self, node):
-        l = (self.visit(node.lower) if node.lower else True)
-        u = (self.visit(node.upper) if node.upper else True)
-        s = (self.visit(node.step) if node.step else True)
+        # ultra-conservative, indeed
         return False
 
     def visit_Index(self, node):
@@ -320,49 +299,45 @@ class OrderedGlobalDeclarations(ModuleAnalysis):
     '''Order all global functions according to their callgraph depth'''
     def __init__(self):
         self.result = dict()
-        ModuleAnalysis.__init__(self, Aliases, GlobalDeclarations)
+        super(OrderedGlobalDeclarations, self).__init__(
+                StrictAliases, GlobalDeclarations)
 
     def visit_FunctionDef(self, node):
         self.curr = node
         self.result[node] = set()
-        [self.visit(n) for n in node.body]
+        self.generic_visit(node)
 
     def visit_Name(self, node):
-        if (node.id in self.global_declarations
-                and isinstance(
-                    self.global_declarations[node.id],
-                    ast.FunctionDef)):
-            self.result[self.curr].add(self.global_declarations[node.id])
-
-        elif node in self.aliases:
-            for alias in self.aliases[node].aliases:
-                if (alias in self.global_declarations
-                        and isinstance(alias, ast.FunctionDef)):
-                    self.result[self.curr].add(self.global_declarations[alias])
+        if node in self.strict_aliases:
+            for alias in self.strict_aliases[node].aliases:
+                if isinstance(alias, ast.FunctionDef):
+                    self.result[self.curr].add(alias)
+                if isinstance(alias, ast.Call):  # this is a bind
+                    for alias in self.strict_aliases[alias.args[0]].aliases:
+                        self.result[self.curr].add(alias)
 
     def run(self, node, ctx):
+        # compute the weight of each function
+        # the weight of a function is the number functions it references
         ModuleAnalysis.run(self, node, ctx)
         old_count = -1
         new_count = 0
+        # iteratively propagate weights
         while new_count != old_count:
             for k, v in self.result.iteritems():
-                for f in list(v):
-                    v.update(self.result[f])
+                [v.update(self.result[f]) for f in list(v)]
             old_count = new_count
-            new_count = reduce(
-                    lambda acc, s: acc + len(s),
-                    self.result.itervalues(),
-                    0)
-        return sorted(
-                self.result.iterkeys(),
-                key=lambda s: len(self.result[s]),
-                reverse=True)
+            new_count = reduce(lambda acc, s: acc + len(s),
+                    self.result.itervalues(), 0)
+        # return functions, the one with the greatest weight first
+        return sorted(self.result.iterkeys(), reverse=True,
+                key=lambda s: len(self.result[s]))
 
 
 ##
 class Aliases(ModuleAnalysis):
     """Gather aliasing informations across nodes."""
-    class AliasingInformation(object):
+    class Info(object):
         def __init__(self, state, aliases):
             self.state = state
             self.aliases = aliases
@@ -370,13 +345,12 @@ class Aliases(ModuleAnalysis):
     def __init__(self):
         self.result = dict()
         self.aliases = dict()
-        ModuleAnalysis.__init__(self, GlobalDeclarations)
+        super(Aliases, self).__init__(GlobalDeclarations)
 
     def expand_unknown(self, node):
-        # should include built-ins too
-        return {None}.union(
-                set(node.args).union(
-                    self.global_declarations.itervalues()))
+        # should include built-ins too?
+        unkowns = {None}.union(self.global_declarations.values())
+        return unkowns.union(node.args)
 
     @staticmethod
     def access_path(node):
@@ -395,9 +369,7 @@ class Aliases(ModuleAnalysis):
     def add(self, node, values=None):
         values = values or set()
         assert isinstance(values, set)
-        self.result[node] = Aliases.AliasingInformation(
-                self.aliases.copy(),
-                values)
+        self.result[node] = Aliases.Info(self.aliases.copy(), values)
         return values
 
     def visit_OMPDirective(self, node):
@@ -407,13 +379,12 @@ class Aliases(ModuleAnalysis):
         return self.add(node,
                 reduce(set.union, (self.visit(n) for n in node.values), set()))
 
-    def visit_BinOp(self, node):
-        self.generic_visit(node)
-        return self.add(node)
-
     def visit_UnaryOp(self, node):
         self.generic_visit(node)
         return self.add(node)
+
+    visit_BinOp = visit_UnaryOp
+    visit_Compare = visit_UnaryOp
 
     def visit_IfExp(self, node):
         return self.add(node,
@@ -426,10 +397,6 @@ class Aliases(ModuleAnalysis):
     def visit_Set(self, node):
         self.generic_visit(node)
         return self.add(node)  # not very accurate
-
-    def visit_Compare(self, node):
-        self.generic_visit(node)
-        return self.add(node)
 
     def call_return_alias(self, node):
         func = node.func
@@ -453,13 +420,8 @@ class Aliases(ModuleAnalysis):
                     aliases.update(func_alias.return_alias(node))
                 else:
                     pass  # better thing to do ?
-        if aliases:
-            for a in aliases:
-                if a not in self.result:
-                    self.add(a)
-            return aliases
-        else:  # i.e. no known alias
-            return self.expand_unknown(node)
+        [self.add(a) for a in aliases if a not in self.result]
+        return aliases or self.expand_unknown(node)
 
     def visit_Call(self, node):
         self.generic_visit(node)
@@ -487,27 +449,24 @@ class Aliases(ModuleAnalysis):
             return_alias = all_aliases
             return self.add(node, return_alias)
 
-    def visit_Num(self, node):
-        return self.add(node)
-
-    def visit_Str(self, node):
-        return self.add(node)
+    visit_Num = visit_UnaryOp
+    visit_Str = visit_UnaryOp
 
     def visit_Attribute(self, node):
         return self.add(node, {Aliases.access_path(node)})
 
     def visit_Subscript(self, node):
         self.generic_visit(node)
-        # not very accurate, could be enhanced through better handling of sets
+        # could be enhanced through better handling of containers
         return self.add(node)
 
     def visit_Name(self, node):
         if node.id not in self.aliases:
-            err = ("identifier {0} unknown, either because",
-                    "it is an unsupported intrinsic,",
-                    "the input code is faulty,",
-                    "or... pythran is buggy.")
-            raise PythranSyntaxError(" ".join(err).format(node.id), node)
+            err = ("identifier {0} unknown, either because "
+                   "it is an unsupported intrinsic, "
+                   "the input code is faulty, "
+                   "or... pythran is buggy.")
+            raise PythranSyntaxError(err.format(node.id), node)
         return self.add(node, self.aliases[node.id].copy())
 
     def visit_List(self, node):
@@ -553,9 +512,9 @@ class Aliases(ModuleAnalysis):
     def visit_If(self, node):
         self.visit(node.test)
         false_aliases = self.aliases.copy()
-        [self.visit(n) for n in node.body]
+        map(self.visit, node.body)
         true_aliases, self.aliases = self.aliases, false_aliases
-        [self.visit(n) for n in node.orelse]
+        map(self.visit, node.orelse)
         for k, v in true_aliases.iteritems():
             if k in self.aliases:
                 self.aliases[k].update(v)
@@ -576,7 +535,6 @@ class StrictAliases(Aliases):
     without adding unsure aliases.
     """
     def expand_unknown(self, node):
-        # should include built-ins too
         return {}
 
 
@@ -585,15 +543,14 @@ class Identifiers(NodeAnalysis):
     """Gather all identifiers used throughout a node."""
     def __init__(self):
         self.result = set()
-        NodeAnalysis.__init__(self)
+        super(Identifiers, self).__init__()
 
     def visit_Name(self, node):
         self.result.add(node.id)
 
     def visit_FunctionDef(self, node):
         self.result.add(node.name)
-        self.visit(node.args)
-        [self.visit(n) for n in node.body]
+        self.generic_visit(node)
 
     def visit_alias(self, node):
         if node.asname:
@@ -605,7 +562,7 @@ class YieldPoints(FunctionAnalysis):
     '''Gathers all yield points of a generator, if any.'''
     def __init__(self):
         self.result = list()
-        FunctionAnalysis.__init__(self)
+        super(YieldPoints, self).__init__()
 
     def visit_Yield(self, node):
         self.result.append(node)
@@ -615,7 +572,7 @@ class YieldPoints(FunctionAnalysis):
 class BoundedExpressions(ModuleAnalysis):
     '''Gathers all nodes that are bound to an identifier.'''
 
-    BoundableTypes = (
+    Boundable = (
             ast.Name,
             ast.Subscript,
             ast.BoolOp,
@@ -623,11 +580,10 @@ class BoundedExpressions(ModuleAnalysis):
 
     def __init__(self):
         self.result = set()
-        ModuleAnalysis.__init__(self)
+        super(BoundedExpressions, self).__init__()
 
     def isboundable(self, node):
-        return any(isinstance(node, t)
-                for t in BoundedExpressions.BoundableTypes)
+        return any(isinstance(node, t) for t in BoundedExpressions.Boundable)
 
     def visit_Assign(self, node):
         self.result.add(node.value)
@@ -685,7 +641,7 @@ class ArgumentEffects(ModuleAnalysis):
     def __init__(self):
         self.result = nx.DiGraph()
         self.node_to_functioneffect = dict()
-        ModuleAnalysis.__init__(self, Aliases, GlobalDeclarations)
+        super(ArgumentEffects, self).__init__(Aliases, GlobalDeclarations)
 
     def run_visit(self, node):
         for n in self.global_declarations.itervalues():
@@ -817,17 +773,17 @@ class GlobalEffects(ModuleAnalysis):
     def __init__(self):
         self.result = nx.DiGraph()
         self.node_to_functioneffect = dict()
-        ModuleAnalysis.__init__(self, Aliases, GlobalDeclarations)
+        super(GlobalEffects, self).__init__(Aliases, GlobalDeclarations)
 
     def run_visit(self, node):
         def register_node(n):
             fe = GlobalEffects.FunctionEffect(n)
             self.node_to_functioneffect[n] = fe
             self.result.add_node(fe)
-        [register_node(n) for n in self.global_declarations.itervalues()]
-        [register_node(n) for n in builtin_constructors.itervalues()]
+        map(register_node, self.global_declarations.itervalues())
+        map(register_node, builtin_constructors.itervalues())
         for m in modules:
-            [register_node(intrinsic) for intrinsic in modules[m].itervalues()]
+            map(register_node, modules[m].itervalues())
         self.all_functions = [fe.func for fe in self.result]
         return ModuleAnalysis.run_visit(self, node)
 
@@ -874,15 +830,15 @@ class PureFunctions(ModuleAnalysis):
     '''Yields the set of pure functions'''
     def __init__(self):
         self.result = set()
-        ModuleAnalysis.__init__(self, ArgumentEffects, GlobalEffects)
+        super(PureFunctions, self).__init__(ArgumentEffects, GlobalEffects)
 
     def run(self, node, ctx):
         ModuleAnalysis.run(self, node, ctx)
-        functions_with_no_arg_effect = {func
-                for func, ae in self.argument_effects.iteritems()
-                if not any(ae)}
-        pure_functions = functions_with_no_arg_effect.difference(
-                self.global_effects)
+        no_arg_effect = set()
+        for func, ae in self.argument_effects.iteritems():
+            if not any(ae):
+                no_arg_effect.add(func)
+        pure_functions = no_arg_effect.difference(self.global_effects)
         return pure_functions
 
 
@@ -891,7 +847,7 @@ class ParallelMaps(ModuleAnalysis):
     '''Yields the est of maps that could be parallel'''
     def __init__(self):
         self.result = set()
-        ModuleAnalysis.__init__(self, PureFunctions, Aliases)
+        super(ParallelMaps, self).__init__(PureFunctions, Aliases)
 
     def visit_Call(self, node):
         if all(alias == modules['__builtin__']['map']
@@ -913,22 +869,17 @@ class OptimizableGenexp(NodeAnalysis):
     """Find whether a generator expression can be optimized."""
     def __init__(self):
         self.result = set()
-        NodeAnalysis.__init__(self, Identifiers)
+        super(OptimizableGenexp, self).__init__(Identifiers)
 
     def visit_GeneratorExp(self, node):
 
-        targets = []
-        for gen in node.generators:
-            targets.append(gen.target.id)
+        targets = {gen.target.id for gen in node.generators}
 
         optimizable = True
 
-        for gen in node.generators:
-            ids = self.passmanager.gather(Identifiers, gen, self.ctx)
+        for g in node.generators:
+            ids = self.passmanager.gather(Identifiers, g, self.ctx)
             for ident in ids:
-                optimizable = optimizable & ((ident == gen.target.id) |
-                                             (ident not in targets))
-        if (optimizable):
+                optimizable &= (ident == g.target.id) | (ident not in targets)
+        if optimizable:
             self.result.add(node)
-
-        return True

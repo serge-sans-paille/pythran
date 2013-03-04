@@ -38,6 +38,10 @@ namespace pythonic {
 
         PROXY(pythonic::__dispatch__, update);
 
+        template<class Any>
+            auto next(Any&& any) -> decltype(any.next()) {return any.next();}
+        PROXY(pythonic::__dispatch__, next);
+
     }
 }
 #endif

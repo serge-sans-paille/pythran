@@ -291,6 +291,30 @@ namespace std {
 template <int I, class T>
 struct attribute_element;
 
+/* For files */
+
+template <>
+    struct attribute_element<0, core::file> {typedef bool type;};
+template <>
+    struct attribute_element<1, core::file> {typedef core::string const& type;};
+template <>
+    struct attribute_element<2, core::file> {typedef core::string const& type;};
+template <>
+    struct attribute_element<3, core::file> {typedef none_type type;};
+
+template<int I>
+    typename attribute_element<I, core::file>::type getattr(core::file const& f);
+template<>
+    bool getattr<0>(core::file const& f) {return f.closed();}
+template<>
+    core::string const& getattr<1>(core::file const& f) {return f.getmode();}
+template<>
+    core::string const& getattr<2>(core::file const& f) {return f.getname();}
+template<>
+    // Python seems to always return none... Doing the same.
+    none_type getattr<3>(core::file const& f) {return None;}
+
+
 /* for complex numbers */
 template <int I, class T>
     struct attribute_element<I, std::complex<T> > {

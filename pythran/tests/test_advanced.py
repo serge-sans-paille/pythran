@@ -44,6 +44,9 @@ def bool_op_casting():
     def test_map_none_on_generator(self):
         self.run_test('def map_none_on_generator(l): return map(None,(x*x for x in l))', [1,2,3], map_none_on_generator=[[int]])
 
+    def test_enumerate_on_generator(self):
+        self.run_test("def enumerate_on_generator(n): return map(lambda (x,y) : x, enumerate((y for x in xrange(n) for y in xrange(x))))", 5, enumerate_on_generator=[int])
+
     def test_map_none2_on_generator(self):
         self.run_test('def map_none2_on_generator(l): return map(None,(x*x for x in l), (2*x for x in l))', [1,2,3], map_none2_on_generator=[[int]])
 

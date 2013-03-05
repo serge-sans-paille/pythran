@@ -395,6 +395,16 @@ NOT_INIT_ARRAY(empty)
             }
 
         PROXY(pythonic::numpy, sum);
+
+        template<class T, unsigned long N>
+            bool all(core::ndarray<T,N> const& array)
+            {
+
+                core::ndarray_flat_const<T,N> iter(array);
+                return pythonic::all(iter);
+            }
+
+        PROXY(pythonic::numpy, all);
     }
 }
 

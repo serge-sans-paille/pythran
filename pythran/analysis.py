@@ -14,7 +14,8 @@ This module provides a few code analysis for the pythran language.
     * GlobalEffects computes function effect on global state
     * PureFunctions detects functions without side-effects.
     * ParallelMaps detects parallel map(...)
-    * OptimizableGenexp finds whether a generator expr. can be optimized.
+    * OptimizableComp finds whether a comprehension can be optimized.
+    * PotentialIterator finds if it is possible to use an iterator.
 '''
 
 from tables import modules, builtin_constants, builtin_constructors
@@ -477,6 +478,32 @@ class Aliases(ModuleAnalysis):
         self.generic_visit(node)
         return self.add(node)  # not very accurate
 
+    def visit_comprehension(self, node):
+        self.aliases[node.target.id] = {node.target}
+        self.generic_visit(node)
+
+    def visit_ListComp(self, node):
+        for gen in node.generators:
+            self.visit_comprehension(gen)
+        self.generic_visit(node.elt)
+
+    def visit_SetComp(self, node):
+        for gen in node.generators:
+            self.visit_comprehension(gen)
+        self.generic_visit(node.elt)
+
+    def visit_DictComp(self, node):
+        for gen in node.generators:
+            self.visit_comprehension(gen)
+        self.generic_visit(node.key)
+        self.generic_visit(node.value)
+
+
+    def visit_GeneratorExp(self, node):
+        for gen in node.generators:
+            self.visit_comprehension(gen)
+        self.generic_visit(node.elt)
+
     # aliasing created by statements
 
     def visit_FunctionDef(self, node):
@@ -865,21 +892,56 @@ class ParallelMaps(ModuleAnalysis):
 
 
 ##
-class OptimizableGenexp(NodeAnalysis):
-    """Find whether a generator expression can be optimized."""
+class OptimizableComprehension(NodeAnalysis):
+    """Find whether a comprehension can be optimized."""
     def __init__(self):
         self.result = set()
-        super(OptimizableGenexp, self).__init__(Identifiers)
+        super(OptimizableComprehension, self).__init__(Identifiers)
 
-    def visit_GeneratorExp(self, node):
-
-        targets = {gen.target.id for gen in node.generators}
-
+    def check_comprehension(self, iters):
+        targets = {gen.target.id for gen in iters}
         optimizable = True
 
-        for g in node.generators:
-            ids = self.passmanager.gather(Identifiers, g, self.ctx)
-            for ident in ids:
-                optimizable &= (ident == g.target.id) | (ident not in targets)
-        if optimizable:
+        for it in iters:
+            ids = self.passmanager.gather(Identifiers, it, self.ctx)
+            optimizable &= all(((ident == it.target.id)
+                                | (ident not in targets)) for ident in ids)
+
+        return optimizable
+
+    def visit_ListComp(self, node):
+        if (self.check_comprehension(node.generators)):
             self.result.add(node)
+
+    def visit_GeneratorExp(self, node):
+        if (self.check_comprehension(node.generators)):
+            self.result.add(node)
+
+
+##
+class PotentialIterator(NodeAnalysis):
+    """Find whether an expression can be replaced with an iterator."""
+    def __init__(self):
+        self.result = set()
+        NodeAnalysis.__init__(self, Aliases)
+
+    def visit_For(self, node):
+        self.result.add(node.iter)
+        self.generic_visit(node)
+
+    def visit_Compare(self, node):
+        if isinstance(node.ops[0], ast.In) or isinstance(node.ops[0],
+                                                         ast.NotIn):
+            for c in node.comparators:
+                self.result.add(c)
+        self.generic_visit(node)
+
+    def visit_Call(self, node):
+        # Arguments of intrinsics are replaced by iterators whenever possible
+        func = node.func
+        if all(isinstance(f, intrinsic.Intrinsic)
+               for f in self.aliases[func].aliases):
+            for i in xrange(len(node.args)):
+                if all(f.isreadonce(i) for f in self.aliases[func].aliases):
+                    self.result.add(node.args[i])
+        self.generic_visit(node)

@@ -98,11 +98,11 @@ namespace pythonic {
 
         /* enumerate */
         template<class Iterable>
-            struct enumerate_iterator : std::iterator< std::random_access_iterator_tag, std::tuple<long, typename Iterable::iterator::value_type> >{
+            struct enumerate_iterator : std::iterator< typename pythonic::min_iterator<typename std::remove_reference<Iterable>::type::iterator>::type, std::tuple<long, typename Iterable::iterator::value_type> >{
                 long value;
                 typename Iterable::iterator iter;
                 enumerate_iterator(){}
-                enumerate_iterator(long value, typename Iterable::iterator iter) : value(value), iter(iter) {}
+                enumerate_iterator(long value, Iterable seq) : value(value), iter(value == 0L ? seq.begin() : seq.end()) {}
                 std::tuple<long, typename Iterable::iterator::value_type> operator*() { return std::make_tuple(value, *iter); }
                 enumerate_iterator& operator++() { ++value,++iter; return *this; }
                 enumerate_iterator operator++(int) { enumerate_iterator self(*this); ++value, ++iter; return self; }
@@ -114,12 +114,15 @@ namespace pythonic {
 
         template <class Iterable>
             struct _enumerate {
-                typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type seq;
-                _enumerate() {}
                 typedef enumerate_iterator<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type> iterator;
-                _enumerate( Iterable&& seq ) : seq(seq) {}
-                iterator begin() { return iterator(0L, seq.begin()); }
-                iterator end() { return iterator(-1L, seq.end()); }
+                typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type seq;
+                iterator iter;
+                iterator end_iter;
+
+                _enumerate() {}
+                _enumerate( Iterable&& seq ) : seq(seq), iter(iterator(0L, seq)), end_iter(iterator(-1L, seq)) {}
+                iterator begin() const { return iter; }
+                iterator end() const { return end_iter; }
             };
 
         template <class Iterable>

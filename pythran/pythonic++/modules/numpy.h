@@ -283,7 +283,8 @@ NOT_INIT_ARRAY(empty)
                 }
             }
 
-            static typename std::remove_reference<typename core::ndarray_helper<T,N>::result_type>::type axis_min( core::ndarray<T,N> const& array, long axis)
+            template<class Op>
+            static typename std::remove_reference<typename core::ndarray_helper<T,N>::result_type>::type axis_minmax( core::ndarray<T,N> const& array, long axis, Op op)
             {
                 if(axis<0 || axis>=N)
                     throw ValueError("axis out of bounds");
@@ -304,7 +305,7 @@ NOT_INIT_ARRAY(empty)
                         auto k = a_iter.begin();
                         for(auto j = iter.begin(); j<iter.end(); j++)
                         {
-                            *k=std::min(*k,*j);
+                            *k=op(*k,*j);
                             k++;
                         }
                     }
@@ -315,7 +316,7 @@ NOT_INIT_ARRAY(empty)
                     std::array<T,N-1> shp;
                     std::copy(array.shape->begin(), array.shape->end() - 1, shp.begin());
                     core::ndarray<T,N-1> a(shp);
-                    std::transform(array.begin(), array.end(), a.begin(), std::bind(axis_helper<T,N-1>::axis_min, std::placeholders::_1, axis-1));
+                    std::transform(array.begin(), array.end(), a.begin(), std::bind(axis_helper<T,N-1>::axis_minmax, std::placeholders::_1, axis-1, op));
                     return a;
                 }
             }
@@ -343,14 +344,15 @@ NOT_INIT_ARRAY(empty)
                 return std::accumulate(array.begin(), array.end(), 0);
             }
 
-            static T axis_min( core::ndarray<T,1> const& array, long axis)
+            template<class Op>
+            static T axis_minmax( core::ndarray<T,1> const& array, long axis, Op op)
             {
                 if(axis!=0)
                     throw ValueError("axis out of bounds");
 
                 T res = *array.begin();
                 for(auto i = array.begin() + 1; i<array.end(); i++)
-                    res = std::min(res, *i);
+                    res = op(res, *i);
                 return res;
             }
         };
@@ -373,10 +375,17 @@ NOT_INIT_ARRAY(empty)
                 return res;
             }
 
+        double __min(double a, double b) { return std::min(a,b); }
+        float __min(float a, float b) { return std::min(a,b); }
+        long __min(long a, long b) { return std::min(a,b); }
+        long long __min(long long a, long long b) { return std::min(a,b); }
+        unsigned long __min(unsigned long a, unsigned long b) { return std::min(a,b); }
+        unsigned long long __min(unsigned long long a, unsigned long long b) { return std::min(a,b); }
+
         template<class T, unsigned long N>
             typename std::remove_reference<typename core::ndarray_helper<T,N>::result_type>::type min( core::ndarray<T,N> const& array, long axis)
             {
-                return axis_helper<T,N>::axis_min(array, axis);
+                return axis_helper<T,N>::axis_minmax(array, axis, (T (*)(T,T))__min);
             }
 
         PROXY(pythonic::numpy, min);

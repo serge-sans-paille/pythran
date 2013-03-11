@@ -524,7 +524,7 @@ template <class T, unsigned long N>
         {
             core::list<long> strides(N);
             strides[N-1] = sizeof(T);
-            std::transform(strides.rbegin(), strides.rend() -1, a.shape->rbegin(), strides.rbegin()+1, std::multiplies<int>());
+            std::transform(strides.rbegin(), strides.rend() -1, a.shape->rbegin(), strides.rbegin()+1, std::multiplies<long>());
             return strides;
         }
     };

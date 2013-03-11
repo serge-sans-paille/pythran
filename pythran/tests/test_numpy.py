@@ -178,3 +178,9 @@ class TestNumpy(TestEnv):
 
     def test_min5_(self):
         self.run_test("def min5_():\n from numpy import arange,min\n return arange(10).min(0)", min5_=[])
+
+    def test_transpose_(self):
+        self.run_test("def transpose_():\n from numpy import arange,transpose\n return arange(24).reshape(2,3,4).transpose()", transpose_=[])
+
+    def test_transpose2_(self):
+        self.run_test("def transpose2_():\n from numpy import arange,transpose\n return arange(24).reshape(2,3,4).transpose((2,0,1))", transpose2_=[])

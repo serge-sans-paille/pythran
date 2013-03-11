@@ -414,6 +414,88 @@ NOT_INIT_ARRAY(empty)
             }
 
         PROXY(pythonic::numpy, all);
+
+        template<class T, unsigned long N, class... C>
+            core::ndarray<T,N> apply_transpose(core::ndarray<T,N> const & a, long l[N])
+            {
+                std::array<long,N> shp;
+                for(unsigned long i=0; i<N; i++)
+                {    
+                    shp[i] = (*a.shape)[l[i]];
+                }
+
+                core::ndarray<T,N> new_array(shp);
+
+                std::array<long, N> new_strides;
+                new_strides[N-1] = 1;
+                std::transform(new_strides.rbegin(), new_strides.rend() -1, new_array.shape->rbegin(), new_strides.rbegin() + 1, std::multiplies<long>());
+
+                std::array<long, N> old_strides;
+                old_strides[N-1] = 1;
+                std::transform(old_strides.rbegin(), old_strides.rend() -1, a.shape->rbegin(), old_strides.rbegin() + 1, std::multiplies<long>());
+
+                core::ndarray_flat_const<T,N> iter(a);
+                long i = 0;
+                long offset = 0;
+                for(auto val= iter.begin(); val!=iter.end(); val++, i++)
+                {
+                    offset = 0;
+                    for(unsigned long s=0; s<N; s++)
+                        offset += ((long)(i/old_strides[l[s]])%(*a.shape)[l[s]])*new_strides[s];
+
+                    *(new_array.data->data + offset) = *val;
+                }
+
+                return new_array;
+            }
+
+        template<unsigned long N>
+            struct transpose_tuple
+            {
+                template<typename... T, typename... S, class type>
+                    static core::ndarray<type, sizeof...(T)> builder(core::ndarray<type, sizeof...(T)> const& a, std::tuple<T...> const& t, S... s)
+                    {
+                        long val = std::get<N-1>(t);
+                        if(val>=sizeof...(T))
+                            throw ValueError("invalid axis for this array");
+                        return transpose_tuple<N-1>::builder(a, t, val, s...);
+                    }
+            };
+
+        template<>
+            struct transpose_tuple<0>
+            {
+                template<typename... T, typename... S, class type>
+                    static core::ndarray<type, sizeof...(T)> builder(core::ndarray<type, sizeof...(T)> const& a, std::tuple<T...> const& t, S... s)
+                    {
+                        long axes[sizeof...(T)] = {s...};
+                        return apply_transpose(a, axes);
+                    }
+            };
+
+        template<class T, unsigned long N, class... C>
+            core::ndarray<T,N> transpose(core::ndarray<T,N> const & a, std::tuple<C...> const& t)
+            {
+                if(sizeof...(C) != N)
+                    throw ValueError("axes don't match array");
+
+                long val = std::get<sizeof...(C)-1>(t);
+                if(val>=N)
+                    throw ValueError("invalid axis for this array");
+
+                return transpose_tuple<sizeof...(C)-1>::builder(a, t, val);
+            }
+
+        template<class T, unsigned long N>
+            core::ndarray<T,N> transpose(core::ndarray<T,N> const & a)
+            {
+                long t[N];
+                for(unsigned long i = 0; i<N; i++)
+                    t[N-1-i] = i;
+                return apply_transpose(a, t);
+            }
+
+        PROXY(pythonic::numpy, transpose);
     }
 }
 

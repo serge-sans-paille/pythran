@@ -48,9 +48,8 @@ class ContextManager(object):
             self.ctx.function = node
         return super(ContextManager, self).visit(node)
 
-    def run(self, node, ctx):
-        '''Gather analysis result required by this analysis and run the
-           analysis on `node' using context `context'.'''
+    def prepare(self, node, ctx):
+        '''Gather analysis result required by this analysis'''
         for D in self.deps:
             if issubclass(D, ModuleAnalysis):
                 rnode = node if isinstance(node, ast.Module) else ctx.module
@@ -62,14 +61,14 @@ class ContextManager(object):
             d = D()
             d.passmanager = self.passmanager
             setattr(self, uncamel(D.__name__), d.run(rnode, ctx))
-        return self.run_visit(node)
 
-    def run_visit(self, node):
+    def run(self, node, ctx):
         '''Override this to add special pre or post processing handlers.'''
+        self.prepare(node, ctx)
         return self.visit(node)
 
 
-class Analysis(ast.NodeVisitor, ContextManager):
+class Analysis(ContextManager, ast.NodeVisitor):
     '''
     A pass that does not change its content but gathers informations
     about it.
@@ -83,11 +82,14 @@ class Analysis(ast.NodeVisitor, ContextManager):
         ContextManager.__init__(self, *dependencies)
 
     def run(self, node, ctx):
-        ContextManager.run(self, node, ctx)
+        super(Analysis, self).run(node, ctx)
         return self.result
 
     def display(self, data):
         print data
+
+    def apply(self, node, ctx):
+        self.display(self.run(node, ctx))
 
 
 class ModuleAnalysis(Analysis):
@@ -113,10 +115,13 @@ class Backend(ModuleAnalysis):
 class Transformation(ContextManager, ast.NodeTransformer):
     '''A pass that updates its content.'''
 
-    def run_visit(self, node):
-        n = super(Transformation, self).run_visit(node)
+    def run(self, node, ctx):
+        n = super(Transformation, self).run(node, ctx)
         ast.fix_missing_locations(n)
         return n
+
+    def apply(self, node, ctx):
+        return self.run(node, ctx)
 
 
 class PassManager(object):
@@ -149,7 +154,4 @@ class PassManager(object):
         '''
         a = transformation()
         a.passmanager = self
-        n = a.run(node, ctx)
-        if issubclass(transformation, Analysis):
-            a.display(n)
-        return n
+        return a.apply(node, ctx)

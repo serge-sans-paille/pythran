@@ -18,7 +18,7 @@ class ConstantFolding(Transformation):
     >>> import ast, passmanager, backend
     >>> node = ast.parse("def foo(): return 1+3")
     >>> pm = passmanager.PassManager("test")
-    >>> pm.apply(ConstantFolding, node)
+    >>> node = pm.apply(ConstantFolding, node)
     >>> print pm.dump(backend.Python, node)
     def foo():
         return 4
@@ -32,7 +32,7 @@ class ConstantFolding(Transformation):
     def __init__(self):
         Transformation.__init__(self, ConstantExpressions)
 
-    def run_visit(self, node):
+    def prepare(self, node, ctx):
         self.env = {'__builtin__': __import__('__builtin__')}
         try:
             eval(compile(node, '<constant_folding>', 'exec'), self.env)
@@ -43,7 +43,7 @@ class ConstantFolding(Transformation):
         for module_name in modules:
             if not module_name.startswith('__'):
                 self.env[module_name] = __import__(module_name)
-        self.visit(node)
+        super(ConstantFolding, self).prepare(node, ctx)
 
     def to_ast(self, value):
         if any(isinstance(value, t)

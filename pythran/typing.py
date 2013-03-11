@@ -47,11 +47,11 @@ class TypeDependencies(ModuleAnalysis):
         self.current_function = None
         ModuleAnalysis.__init__(self, GlobalDeclarations)
 
-    def run_visit(self, node):
+    def prepare(self, node, ctx):
+        super(TypeDependencies, self).prepare(node, ctx)
         for k, v in self.global_declarations.iteritems():
             self.result.add_node(v)
         self.result.add_node(TypeDependencies.NoDeps)
-        return ModuleAnalysis.run_visit(self, node)
 
     def visit_FunctionDef(self, node):
         assert self.current_function is None
@@ -167,7 +167,8 @@ class Reorder(Transformation):
         Transformation.__init__(self, TypeDependencies,
                 OrderedGlobalDeclarations)
 
-    def run_visit(self, node):
+    def prepare(self, node, ctx):
+        super(Reorder, self).prepare(node, ctx)
         none_successors = self.type_dependencies.successors(
                 TypeDependencies.NoDeps)
         candidates = sorted(none_successors)
@@ -188,7 +189,6 @@ class Reorder(Transformation):
                 else:
                     pass
             candidates = new_candidates
-        Transformation.run_visit(self, node)
 
     def visit_Module(self, node):
         newbody = list()
@@ -227,18 +227,18 @@ class Types(ModuleAnalysis):
         self.current_global_declarations = dict()
         ModuleAnalysis.__init__(self, StrictAliases, LocalDeclarations)
 
-    def run(self, node, ctx):
+    def prepare(self, node, ctx):
         self.passmanager.apply(Reorder, node, ctx)
-        return ModuleAnalysis.run(self, node, ctx)
+        super(Types, self).prepare(node, ctx)
 
-    def run_visit(self, node):
-        ModuleAnalysis.run_visit(self, node)
+    def run(self, node, ctx):
+        super(Types, self).run(node, ctx)
+        for k in self.local_declarations:
+            self.result[k] = Assignable(self.result[k])
         final_types = {k: self.result[k]
                 if k in self.result
                 else v
                 for k, v in self.result.iteritems()}
-        for k in self.local_declarations:
-            self.result[k] = Assignable(self.result[k])
         for head in self.current_global_declarations.itervalues():
             if head not in final_types:
                 final_types[head] = "void"

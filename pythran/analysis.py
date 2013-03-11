@@ -156,7 +156,7 @@ class Globals(ModuleAnalysis):
         pass  # everything is done by the run method
 
     def run(self, node, ctx):
-        ModuleAnalysis.run(self, node, ctx)
+        super(Globals, self).run(node, ctx)
         return set(self.global_declarations.keys()
                 + builtin_constants.keys()
                 + builtin_constructors.keys())
@@ -210,14 +210,14 @@ class ImportedIds(NodeAnalysis):
     def visit_Attribute(self, node):
         pass
 
+    def prepare(self, node, ctx):
+        super(ImportedIds, self).prepare(node, ctx)
+        self.visible_globals = set(self.globals) - self.locals[node]
+
     def run(self, node, ctx):
         if isinstance(node, list):  # so that this pass can be called on list
             node = ast.If(ast.Num(1), node, None)
-        return NodeAnalysis.run(self, node, ctx)
-
-    def run_visit(self, node):
-        self.visible_globals = set(self.globals) - self.locals[node]
-        NodeAnalysis.run_visit(self, node)
+        return super(ImportedIds, self).run(node, ctx)
 
 
 ##
@@ -319,7 +319,7 @@ class OrderedGlobalDeclarations(ModuleAnalysis):
     def run(self, node, ctx):
         # compute the weight of each function
         # the weight of a function is the number functions it references
-        ModuleAnalysis.run(self, node, ctx)
+        super(OrderedGlobalDeclarations, self).run(node, ctx)
         old_count = -1
         new_count = 0
         # iteratively propagate weights
@@ -643,7 +643,8 @@ class ArgumentEffects(ModuleAnalysis):
         self.node_to_functioneffect = dict()
         super(ArgumentEffects, self).__init__(Aliases, GlobalDeclarations)
 
-    def run_visit(self, node):
+    def prepare(self, node, ctx):
+        super(ArgumentEffects, self).prepare(node, ctx)
         for n in self.global_declarations.itervalues():
             fe = ArgumentEffects.FunctionEffects(n)
             self.node_to_functioneffect[n] = fe
@@ -658,10 +659,9 @@ class ArgumentEffects(ModuleAnalysis):
                 self.node_to_functioneffect[intrinsic] = fe
                 self.result.add_node(fe)
         self.all_functions = [fe.func for fe in self.result]
-        return ModuleAnalysis.run_visit(self, node)
 
     def run(self, node, ctx):
-        ModuleAnalysis.run(self, node, ctx)
+        super(ArgumentEffects, self).run(node, ctx)
         keep_going = True  # very naive approach
         while keep_going:
             keep_going = False
@@ -775,20 +775,22 @@ class GlobalEffects(ModuleAnalysis):
         self.node_to_functioneffect = dict()
         super(GlobalEffects, self).__init__(Aliases, GlobalDeclarations)
 
-    def run_visit(self, node):
+    def prepare(self, node, ctx):
+        super(GlobalEffects, self).prepare(node, ctx)
+
         def register_node(n):
             fe = GlobalEffects.FunctionEffect(n)
             self.node_to_functioneffect[n] = fe
             self.result.add_node(fe)
+
         map(register_node, self.global_declarations.itervalues())
         map(register_node, builtin_constructors.itervalues())
         for m in modules:
             map(register_node, modules[m].itervalues())
         self.all_functions = [fe.func for fe in self.result]
-        return ModuleAnalysis.run_visit(self, node)
 
     def run(self, node, ctx):
-        ModuleAnalysis.run(self, node, ctx)
+        super(GlobalEffects, self).run(node, ctx)
         keep_going = True
         while keep_going:
             keep_going = False
@@ -833,7 +835,7 @@ class PureFunctions(ModuleAnalysis):
         super(PureFunctions, self).__init__(ArgumentEffects, GlobalEffects)
 
     def run(self, node, ctx):
-        ModuleAnalysis.run(self, node, ctx)
+        super(PureFunctions, self).run(node, ctx)
         no_arg_effect = set()
         for func, ae in self.argument_effects.iteritems():
             if not any(ae):

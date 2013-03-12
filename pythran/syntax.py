@@ -17,6 +17,9 @@ class PythranSyntaxError(SyntaxError):
 
 
 class SyntaxChecker(ast.NodeVisitor):
+    '''
+    Visit an AST and raise a PythranSyntaxError upon unsupported construct
+    '''
 
     def __init__(self):
         self.attributes = set()

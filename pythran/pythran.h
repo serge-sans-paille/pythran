@@ -232,10 +232,12 @@ core::dict<K,decltype(std::declval<V>()+std::declval<W>())> operator+(dict_conta
 
 template <class K, class V>
 core::dict<K,V> operator+(indexable_dict<K>, container<V>);
+template <class K0, class K1>
+indexable_dict<typename __combined<K0,K1>::type> operator+(indexable_dict<K0>, indexable<K1>);
+template <class K0, class K1>
+indexable_dict<typename __combined<K0,K1>::type> operator+(indexable<K0>, indexable_dict<K1>);
 template <class V, class K>
 core::dict<K,V> operator+(container<V>, indexable_dict<K>);
-template <class K, class V>
-indexable_dict<decltype(std::declval<K>()+std::declval<V>())> operator+(indexable_dict<K>, indexable<V>);
 
 /* clang needs this declaration here and not before */
 template<class T0, class T1>

@@ -15,6 +15,7 @@ import ast
 class ConstantFolding(Transformation):
     '''
     Replace constant expression by their evaluation.
+
     >>> import ast, passmanager, backend
     >>> node = ast.parse("def foo(): return 1+3")
     >>> pm = passmanager.PassManager("test")
@@ -53,16 +54,15 @@ class ConstantFolding(Transformation):
             return ast.Str(value)
         elif isinstance(value, list) and len(value) < ConstantFolding.MAX_LEN:
             #SG: unsure whether it Load or something else
-            return ast.List([self.to_ast(elt) for elt in value], ast.Load())
+            return ast.List(map(self.to_ast, value), ast.Load())
         elif isinstance(value, tuple) and len(value) < ConstantFolding.MAX_LEN:
-            return ast.Tuple([self.to_ast(elt) for elt in value], ast.Load())
+            return ast.Tuple(map(self.to_ast, value), ast.Load())
         elif isinstance(value, set) and len(value) < ConstantFolding.MAX_LEN:
-            return ast.Set([self.to_ast(elt) for elt in value])
+            return ast.Set(map(self.to_ast, value))
         elif isinstance(value, dict) and len(value) < ConstantFolding.MAX_LEN:
-            return ast.Dict(
-                    [self.to_ast(elt) for elt in value.iterkeys()],
-                    [self.to_ast(elt) for elt in value.itervalues()]
-                    )
+            keys = map(self.to_ast, value.iterkeys())
+            values = map(self.to_ast, value.itervalues())
+            return ast.Dict(keys, values)
         else:
             raise ConstantFolding.ConversionError()
 
@@ -92,6 +92,7 @@ class ConstantFolding(Transformation):
 class GenExpToImap(Transformation):
     '''
     Transforms generator expressions into iterators.
+
     >>> import ast, passmanager, backend
     >>> node = ast.parse("(x*x for x in range(10))")
     >>> pm = passmanager.PassManager("test")

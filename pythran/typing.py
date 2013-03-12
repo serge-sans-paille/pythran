@@ -16,6 +16,7 @@ from syntax import PythranSyntaxError
 from cxxtypes import *
 from intrinsic import UserFunction
 import itertools
+import operator
 import metadata
 import intrinsic
 
@@ -34,11 +35,14 @@ if not "has_path" in nx.__dict__:
 ##
 def add_if_not_in(l0, l1):
     s0 = set(l0)
-    l = [x for x in l0]
+    l = list(l0)
     return l + [x for x in l1 if x not in s0]
 
 
 class TypeDependencies(ModuleAnalysis):
+    '''
+    Gathers the calles of each function required for type inference
+    '''
 
     NoDeps = "None"
 
@@ -161,6 +165,9 @@ class TypeDependencies(ModuleAnalysis):
 
 
 class Reorder(Transformation):
+    '''
+    Reorder top-level functions to prevent circular type dependencies
+    '''
     def __init__(self):
         Transformation.__init__(self, TypeDependencies,
                 OrderedGlobalDeclarations)
@@ -216,7 +223,9 @@ class UnboundableRValue(Exception):
 
 
 class Types(ModuleAnalysis):
-    '''Infer symbolic type for all AST node.'''
+    '''
+    Infer symbolic type for all AST node
+    '''
 
     def __init__(self):
         self.result = dict()
@@ -289,7 +298,7 @@ class Types(ModuleAnalysis):
                 return False
 
     def combine(self, node, othernode, op=None, unary_op=None, register=False):
-        self.combine_(node, othernode, op or (lambda x, y: x + y),
+        self.combine_(node, othernode, op or operator.add,
                         unary_op or (lambda x: x), register)
 
     def combine_(self, node, othernode, op, unary_op, register):
@@ -432,7 +441,7 @@ class Types(ModuleAnalysis):
     def visit_For(self, node):
         self.visit(node.iter)
         self.combine(node.target, node.iter,
-            unary_op=lambda x: IteratorContentType(x), register=True)
+            unary_op=IteratorContentType, register=True)
         node.body and [self.visit(n) for n in node.body]
         node.orelse and [self.visit(n) for n in node.orelse]
 
@@ -447,7 +456,7 @@ class Types(ModuleAnalysis):
             and not all([wl, wr])):
         # assumes the + operator always has the same operand type
         #on left and right side
-            F = lambda x, y: x + y
+            F = operator.add
         else:
             F = lambda x, y: ExpressionType(
                 operator_to_lambda[type(node.op)], [x, y])
@@ -539,17 +548,16 @@ class Types(ModuleAnalysis):
             f = lambda t: reduce(lambda x, y: ContentType(x),
                     node.slice.value.elts, t)
         else:
-            f = lambda t: ContentType(t)
+            f = ContentType
         self.combine(node, node.value, unary_op=f)
 
     def visit_AssignedSubscript(self, node):
         if not isinstance(node.slice, ast.Slice):
             self.visit(node.slice)
             self.combine(node.value, node.slice,
-                unary_op=lambda t: IndexableType(t), register=True)
+                    unary_op=IndexableType, register=True)
             for alias in self.strict_aliases[node.value].aliases:
-                self.combine(alias, node.slice,
-                    unary_op=lambda t: IndexableType(t), register=True)
+                self.combine(alias, node.slice, unary_op=IndexableType, register=True)
 
     def visit_Name(self, node):
         if node.id in self.name_to_nodes:
@@ -568,37 +576,35 @@ class Types(ModuleAnalysis):
     def visit_List(self, node):
         self.generic_visit(node)
         if node.elts:
-            [self.combine(node, elt,
-                unary_op=lambda x:ListType(x)) for elt in node.elts]
+            for elt in node.elts:
+                self.combine(node, elt, unary_op=ListType)
         else:
             self.result[node] = NamedType("core::empty_list")
 
     def visit_Set(self, node):
         self.generic_visit(node)
         if node.elts:
-            [self.combine(node, elt,
-                unary_op=lambda x:SetType(x)) for elt in node.elts]
+            for elt in node.elts:
+                self.combine(node, elt, unary_op=SetType)
         else:
             self.result[node] = NamedType("core::empty_set")
 
     def visit_Dict(self, node):
         self.generic_visit(node)
         if node.keys:
-            [self.combine(
-                node,
-                key,
-                unary_op=lambda x:DictType(x, self.result[value]))
-                for key, value in zip(node.keys, node.values)]
+            for key, value in zip(node.keys, node.values):
+                self.combine(node, key,
+                        unary_op=lambda x:DictType(x, self.result[value]))
         else:
             self.result[node] = NamedType("core::empty_dict")
 
     def visit_ExceptHandler(self, node):
         if node.type and node.name:
             if not isinstance(node.type, ast.Tuple):
-                self.result[node.type] = NamedType(
-                    "core::{0}".format(node.type.attr))
+                tname = NamedType('core::{0}'.format(node.type.attr))
+                self.result[node.type] = tname
                 self.combine(node.name, node.type, register=True)
-        [self.visit(n) for n in node.body]
+        map(self.visit, node.body)
 
     def visit_Tuple(self, node):
         self.generic_visit(node)
@@ -615,4 +621,4 @@ class Types(ModuleAnalysis):
     def visit_arguments(self, node):
         for i, arg in enumerate(node.args):
             self.result[arg] = ArgumentType(i)
-        [self.visit(n) for n in node.defaults]
+        map(self.visit, node.defaults)

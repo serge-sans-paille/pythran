@@ -151,9 +151,7 @@ class TypeDependencies(ModuleAnalysis):
                 [frozenset()])
 
     def visit_Tuple(self, node):
-        return reduce(add_if_not_in,
-                map(self.visit, node.elts),
-                [frozenset()])
+        return reduce(add_if_not_in, map(self.visit, node.elts), [frozenset()])
 
     def visit_Slice(self, node):
         return [frozenset()]
@@ -525,8 +523,8 @@ class Types(ModuleAnalysis):
                 return r[0][n.attr], r[1] + (n.attr,)
         obj, path = rec(modules, node)
         self.result[node] = DeclType(
-                Val('::'.join(path)) if obj.isscalar()
-                else Val('::'.join(path[:-1]) + '::proxy::' + path[-1] + '()')
+                '::'.join(path) if obj.isscalar() else
+                ('::'.join(path[:-1]) + '::proxy::' + path[-1] + '()')
                 )
 
     def visit_Subscript(self, node):

@@ -25,6 +25,11 @@ class TestDoctest(unittest.TestCase):
         failed, _ = doctest.testmod(backend)
         self.assertEqual(failed, 0)
 
+    def test_cxxtypes(self):
+        from pythran import cxxtypes
+        failed, _ = doctest.testmod(cxxtypes)
+        self.assertEqual(failed, 0)
+
     #def test_typing(self):
     #    from pythran import typing
     #    failed, _ = doctest.testmod(typing)

@@ -5,48 +5,40 @@ import tables
 
 
 class Weak:
+    """
+    Type Qualifier used to represent a weak type
+
+    When a weak type is combined with another type, the weak type is suppressed
+    """
     pass
 
 
-def walk_type(obj, cond, op):
-    if isinstance(obj, list):
-        return [walk_type(o, cond, op) for o in obj]
-    elif cond(obj):
-        return op(obj)
-    elif isinstance(obj, Type):
-        # constructs a new object only if necessary.
-        # important for type comparison, as they are based on id()
-        new = False
-        new_attrs = list()
-        for attr in obj.fields:
-            new_attr = walk_type(getattr(obj, attr), cond, op)
-            new = id(getattr(obj, attr)) != id(new_attr)
-            new_attrs.append(new_attr)
-        if new:
-            return type(obj)(*new_attrs)
-        else:
-            return obj
-    else:
-        return obj
-
-
 class Type(object):
-    """A generic type object, to hold scalars and such"""
-    def __init__(self, repr, qualifiers=None):
-        self.repr = repr
-        self.qualifiers = qualifiers.copy() if qualifiers else set()
-        self.fields = ("repr", "qualifiers",)
+    """
+    A generic type object to be sub-classed
+
+    It maintains a set of qualifiers and
+    a tuple of fields used for type comparison.
+
+    The keyword arguments are used to built the internal representation:
+    one attribute per key with the associated value
+    """
+    def __init__(self, **kwargs):
+        for k, v in kwargs.iteritems():
+            setattr(self, k, v)
+        self.qualifiers = self.qualifiers.copy()  # avoid sharing
+        self.fields = tuple(sorted(kwargs.keys()))
 
     def isweak(self):
         return Weak in self.qualifiers
 
-    def generate(self, ctx):
-        return self.repr
-
     def __eq__(self, other):
-        return (self.__class__ == other.__class__
-                and all(getattr(self, x) == getattr(other, y)
-                    for x, y in zip(self.fields, other.fields)))
+        havesameclass = self.__class__ == other.__class__
+        if havesameclass:
+            same = lambda x, y: getattr(self, x) == getattr(other, y)
+            return all(same(x,y) for x, y in zip(self.fields, other.fields))
+        else:
+            return False
 
     def __add__(self, other):
         if isinstance(other, CombinedTypes) and self in other.types:
@@ -64,24 +56,35 @@ class Type(object):
 
 
 class NamedType(Type):
-    """A generic type object, to hold scalars and such"""
-    def __init__(self, repr, qualifiers=None):
-        Type.__init__(self, repr, qualifiers)
-        self.fields = ("repr", "qualifiers",)
+    """
+    A generic type object, to hold scalar types and such
+
+    >>> NamedType('long long')
+    long long
+    """
+    def __init__(self, repr, qualifiers=set()):
+        super(NamedType, self).__init__(repr=repr, qualifiers=qualifiers)
+
+    def generate(self, ctx):
+        return self.repr
 
 
 class PType(Type):
+    """
+    A generic parametric type
+    """
+
     prefix = "__ptype{0}"
     count = 0
 
-    """A generic parametric type"""
     def __init__(self, fun, type):
-        Type.__init__(self, None, type.qualifiers)
-        self.fun = fun
-        self.type = type
-        self.name = PType.prefix.format(PType.count)
+        super(PType, self).__init__(
+                fun=fun,
+                type=type,
+                qualifiers=type.qualifiers,
+                name=PType.prefix.format(PType.count)
+                )
         PType.count += 1
-        self.fields = ("fun", "type", "name",)
 
     def generate(self, ctx):
         return ctx(self.type).generate(ctx)
@@ -95,44 +98,54 @@ class PType(Type):
 
 
 class InstanciatedType(Type):
+    """
+    A type instanciated from a parametric type
+    """
     def __init__(self, fun, name, arguments, caller, qualifiers):
-        Type.__init__(self, None, qualifiers)
-        self.fun = fun
-        self.name = name
-        self.arguments = arguments
+        super(InstanciatedType, self).__init__(
+            fun=fun,
+            name=name,
+            arguments=arguments,
+            qualifiers=qualifiers
+            )
         if fun == caller:
             self.qualifiers.add(Weak)
-        self.fields = ("fun", "name", "arguments",)
 
     def generate(self, ctx):
+        if self.arguments:
+            args = ", ".join(ctx(arg).generate(ctx) for arg in self.arguments)
+            template_params = "<{0}>".format(args)
+        else:
+            template_params = ""
+
         return "typename {0}::type{1}::{2}".format(
-                self.fun.name,
-                "<{0}>".format(", ".join(ctx(arg).generate(ctx)
-                    for arg in self.arguments))
-                if self.arguments
-                else "",
-                self.name
-                )
-
-
-class Val(Type):
-    """A generic val object, to hold scalars and such"""
-    def __init__(self, repr, qualifiers=None):
-        Type.__init__(self, repr, qualifiers)
+            self.fun.name,
+            template_params,
+            self.name
+            )
 
 
 class CombinedTypes(Type):
+    """
+    type resulting from the combination of other types
+
+    >>> NamedType('long') + NamedType('long')
+    long
+    >>> NamedType('long') + NamedType('char')
+    typename __combined<long , char>::type
+    """
+
     def __init__(self, types):
-        Type.__init__(self,
-                None,
-                reduce(set.union, [t.qualifiers for t in types], set()))
-        self.types = types
-        self.fields = ("types",)
+        super(CombinedTypes, self).__init__(
+            types=types,
+            qualifiers=set.union(*[t.qualifiers for t in types])
+            )
 
     def __add__(self, other):
         if isinstance(other, CombinedTypes):
-            return CombinedTypes(self.types
-                    + [t for t in other.types if t not in self.types])
+            stypes = set(self.types)
+            types = self.types + [t for t in other.types if t not in stypes]
+            return CombinedTypes(types)
         if other in self.types:
             return self
         if other.isweak() and not self.isweak():
@@ -142,84 +155,89 @@ class CombinedTypes(Type):
         return CombinedTypes(self.types + [other])
 
     def generate(self, ctx):
-        return 'typename __combined<{0}>::type'.format(
-                " , ".join(ctx(t).generate(ctx) for t in self.types))
-
-
-class RemoveQualifier(Type):
-    '''A type without const or reference qualifier'''
-    def __init__(self, type_):
-        Type.__init__(self, None, type_.qualifiers)
-        self.type_ = type_
-        self.fields = ("type_", "qualifiers",)
-
-    def generate(self, ctx):
-        return "typename std::remove_cv<{0}>::type".format(
-            "typename std::remove_reference<{0}>::type".format(
-                self.type_.generate(ctx)))
+        types = " , ".join(ctx(t).generate(ctx) for t in self.types)
+        return 'typename __combined<{0}>::type'.format(types)
+                
 
 
 class ArgumentType(Type):
-    """A type to hold function arguments"""
-    def __init__(self, num, qualifiers=None):
-        Type.__init__(self, None, qualifiers)
-        self.num = num
-        self.fields = ("num", "qualifiers",)
+    """
+    A type to hold function arguments
+
+    >>> ArgumentType(4)
+    typename std::remove_cv<\
+typename std::remove_reference<argument_type4>::type>::type
+    """
+    def __init__(self, num, qualifiers=set()):
+        super(ArgumentType, self).__init__(
+                num=num,
+                qualifiers=qualifiers)
 
     def generate(self, ctx):
-        return "typename std::remove_cv<{0}>::type".format(
-            "typename std::remove_reference<{0}>::type".format(
-                "argument_type{0}".format(self.num)))
+        argtype = "argument_type{0}".format(self.num)
+        noref = "typename std::remove_reference<{0}>::type".format(argtype)
+        return "typename std::remove_cv<{0}>::type".format(noref)
 
 
-class DeclVal(Type):
+class DependentType(Type):
+    """
+    A class to be sub-classed by any type that depends on another type
+    """
     def __init__(self, of):
-        Type.__init__(self, None, of.qualifiers)
-        self.of = of
-        self.fields = ("of",)
-
-    def generate(self, ctx):
-        return 'std::declval<{0}>()'.format(ctx(self.of).generate(ctx))
+        super(DependentType, self).__init__(
+                of=of,
+                qualifiers=of.qualifiers
+                )
 
 
-class Assignable(Type):
-    """A type which can be assigned"""
-    def __init__(self, of):
-        Type.__init__(self, None, of.qualifiers)
-        self.of = of
-        self.fields = ("of",)
+class Assignable(DependentType):
+    """
+    A type which can be assigned
+
+    It is used to make the difference between
+    * transient types (e.g. generated from expression template)
+    * assignable types (typically type of a variable)
+
+    >>> Assignable(NamedType("long"))
+    typename assignable<long>::type
+    """
 
     def generate(self, ctx):
         return 'typename assignable<{0}>::type'.format(self.of.generate(ctx))
 
 
-class DeclType(Type):
-    """Gather the type of a Typed variable"""
-    def __init__(self, of):
-        Type.__init__(self, None, of.qualifiers)
-        self.of = of
-        self.fields = ("of",)
+class DeclType(NamedType):
+    """
+    Gather the type of a variable
+    
+    >>> DeclType("toto")
+    decltype(toto)
+    """
 
     def generate(self, ctx):
-        return 'decltype({0})'.format(self.of.generate(ctx))
+        return 'decltype({0})'.format(self.repr)
 
 
-class ContentType(Type):
-    def __init__(self, of):
-        Type.__init__(self, None, of.qualifiers)
-        self.of = of
-        self.fields = ("of",)
+class ContentType(DependentType):
+    '''
+    Type of the object in a container
+
+    >>> ContentType(DeclType('l'))
+    typename content_of<decltype(l)>::type
+    '''
 
     def generate(self, ctx):
         return 'typename content_of<{0}>::type'.format(
                 ctx(self.of).generate(ctx))
 
 
-class IteratorContentType(Type):
-    def __init__(self, of):
-        Type.__init__(self, None, of.qualifiers)
-        self.of = of
-        self.fields = ("of",)
+class IteratorContentType(DependentType):
+    '''
+    Type of an iterator over the content of a container
+
+    >>> IteratorContentType(NamedType('string'))
+    typename std::remove_cv<typename string::iterator::value_type>::type
+    '''
 
     def generate(self, ctx):
         iterator_value_type = ctx(self.of).generate(ctx)
@@ -232,32 +250,44 @@ class IteratorContentType(Type):
 
 
 class ReturnType(Type):
-    def __init__(self, call, args):
-        Type.__init__(self,
-                None,
-                reduce(set.union,
-                    [arg.qualifiers for arg in args],
-                    call.qualifiers))
-        self.call = call
-        self.args = args
-        self.fields = ("call", "args",)
+    '''
+    Return type of a call with arguments
+
+    >>> ReturnType(NamedType('math::cos'), [NamedType('float')])
+    decltype(std::declval<math::cos>()(std::declval<float>()))
+    '''
+    def __init__(self, ftype, args):
+        args_qualifiers = [arg.qualifiers for arg in args]
+        super(ReturnType, self).__init__(
+                qualifiers=ftype.qualifiers.union(*args_qualifiers),
+                ftype=ftype,
+                args=args
+                )
 
     def generate(self, ctx):
-        cg = self.call.generate(ctx)
+        cg = self.ftype.generate(ctx)
         if cg not in tables.builtin_constructors.itervalues():
             cg = 'std::declval<{0}>()'.format(cg)
-        return 'decltype({0}({1}))'.format(
-                cg,
-                ", ".join("std::declval<{0}>()".format(ctx(arg).generate(ctx))
-                    for arg in self.args))
+        args = ("std::declval<{0}>()".format(ctx(arg).generate(ctx))
+                for arg in self.args)
+        return 'decltype({0}({1}))'.format(cg, ", ".join(args))
 
 
 class ElementType(Type):
+    '''
+    Type of the ith element of a tuple or container
+
+    >>> t = TupleType([NamedType('int'), NamedType('str')])
+    >>> ElementType(1, t)
+    typename std::tuple_element<1,std::tuple<int, str>>::type
+    '''
+
     def __init__(self, index, of):
-        Type.__init__(self, None, of.qualifiers)
-        self.of = of
-        self.index = index
-        self.fields = ("index", "of",)
+        super(ElementType, self).__init__(
+                qualifiers=of.qualifiers,
+                of=of,
+                index=index
+                )
 
     def generate(self, ctx):
         return 'typename std::tuple_element<{0},{1}>::type'.format(
@@ -265,12 +295,14 @@ class ElementType(Type):
                 ctx(self.of).generate(ctx))
 
 
-class AttributeType(Type):
-    def __init__(self, index, of):
-        Type.__init__(self, None, of.qualifiers)
-        self.of = of
-        self.index = index
-        self.fields = ("index", "of",)
+class AttributeType(ElementType):
+    '''
+    Type of the ith attribute of an object
+
+    >>> AttributeType(0, NamedType('complex'))
+    typename attribute_element<0,complex>::type
+    '''
+
 
     def generate(self, ctx):
         return 'typename attribute_element<{0},{1}>::type'.format(
@@ -278,32 +310,67 @@ class AttributeType(Type):
                 ctx(self.of).generate(ctx))
 
 
-class ListType(Type):
-    def __init__(self, of):
-        Type.__init__(self, None, of.qualifiers)
-        self.of = of
-        self.fields = ("of",)
+class ListType(DependentType):
+    '''
+    Type holding a list of stuff of the same type
+
+    >>> ListType(NamedType('int'))
+    core::list<int>
+    '''
+
 
     def generate(self, ctx):
         return 'core::list<{0}>'.format(ctx(self.of).generate(ctx))
 
 
-class SetType(Type):
-    def __init__(self, of):
-        Type.__init__(self, None, of.qualifiers)
-        self.of = of
-        self.fields = ("of",)
+class SetType(DependentType):
+    '''
+    Type holding a set of stuff of the same type
+
+    >>> SetType(NamedType('int'))
+    core::set<int>
+    '''
 
     def generate(self, ctx):
         return 'core::set<{0}>'.format(ctx(self.of).generate(ctx))
 
+class TupleType(Type):
+    '''
+    Type holding a tuple of stuffs of various types
+
+    >>> TupleType([NamedType('int'), NamedType('bool')])
+    std::tuple<int, bool>
+    '''
+    def __init__(self, ofs):
+        if ofs:
+            qualifiers = set.union(*[of.qualifiers for of in ofs])
+        else:
+            qualifiers = set()
+
+        super(TupleType, self).__init__(ofs=ofs, qualifiers=qualifiers)
+
+    def generate(self, ctx):
+        if self.ofs:
+            elts = (ctx(of).generate(ctx) for of in self.ofs)
+            return 'std::tuple<{0}>'.format(", ".join(elts))
+        else:
+            return 'decltype(std::make_tuple())'
+
 
 class DictType(Type):
+    '''
+    Type holding a dict of stuff of the same key and value type
+
+    >>> DictType(NamedType('int'), NamedType('float'))
+    core::dict<int,float>
+    '''
+
     def __init__(self, of_key, of_value):
-        Type.__init__(self, None, of_key.qualifiers.union(of_value.qualifiers))
-        self.of_key = of_key
-        self.of_value = of_value
-        self.fields = ("of_key", "of_value",)
+        super(DictType, self).__init__(
+                qualifiers=of_key.qualifiers.union(of_value.qualifiers),
+                of_key=of_key,
+                of_value=of_value
+                )
 
     def generate(self, ctx):
         return 'core::dict<{0},{1}>'.format(
@@ -311,52 +378,46 @@ class DictType(Type):
                 ctx(self.of_value).generate(ctx))
 
 
-class ContainerType(Type):
-    def __init__(self, of):
-        Type.__init__(self, None, of.qualifiers)
-        self.of = of
-        self.fields = ("of",)
+class ContainerType(DependentType):
+    '''
+    Type of any container of stuff of the same type
+
+    >>> ContainerType(NamedType('int'))
+    container<int>
+    '''
 
     def generate(self, ctx):
         return 'container<{0}>'.format(ctx(self.of).generate(ctx))
 
 
-class IndexableType(Type):
-    def __init__(self, of):
-        Type.__init__(self, None, of.qualifiers)
-        self.of = of
-        self.fields = ("of",)
+class IndexableType(DependentType):
+    '''
+    Type of any container indexed by the same type
+
+    >>> IndexableType(NamedType('int'))
+    indexable<int>
+    '''
 
     def generate(self, ctx):
         return 'indexable<{0}>'.format(ctx(self.of).generate(ctx))
 
 
-class TupleType(Type):
-    def __init__(self, ofs):
-        Type.__init__(self,
-                None,
-                reduce(set.union, [of.qualifiers for of in ofs], set()))
-        self.ofs = ofs
-        self.fields = ("ofs",)
-
-    def generate(self, ctx):
-        return ('std::tuple<{0}>'.format(
-            ", ".join(ctx(of).generate(ctx) for of in self.ofs))
-            if self.ofs
-            else 'decltype(std::make_tuple())')
-
 
 class ExpressionType(Type):
+    '''
+    Result type of an operator call
+
+    >>> op = lambda x,y: x + '+' + y
+    >>> ExpressionType(op, [NamedType('long'), NamedType('int')])
+    decltype(std::declval<long>()+std::declval<int>())
+    '''
     def __init__(self, op, exprs):
-        Type.__init__(self,
-                None,
-                reduce(set.union, (expr.qualifiers for expr in exprs), set()))
-        self.op = op
-        self.exprs = exprs
-        self.fields = ("op", "exprs",)
+        super(ExpressionType, self).__init__(
+                qualifiers=set.union(*[expr.qualifiers for expr in exprs]),
+                op=op,
+                exprs=exprs)
 
     def generate(self, ctx):
+        texprs = (ctx(expr).generate(ctx) for expr in self.exprs)
         return 'decltype({0})'.format(
-                self.op(
-                    *["std::declval<{0}>()".format(ctx(expr).generate(ctx))
-                        for expr in self.exprs]))
+                self.op(*["std::declval<{0}>()".format(t) for t in texprs]))

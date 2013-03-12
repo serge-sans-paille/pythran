@@ -536,7 +536,7 @@ class Cxx(Backend):
         local_iter = "__iter{0}".format(len(self.break_handler))
         local_target = "__target{0}".format(len(self.break_handler))
 
-        local_iter_decl = Assignable(DeclType(Val(iter)))
+        local_iter_decl = Assignable(DeclType(iter))
         local_target_decl = NamedType("{0}::iterator".format(local_iter_decl))
         if self.yields:
             self.extra_declarations.append((local_iter, local_iter_decl,))

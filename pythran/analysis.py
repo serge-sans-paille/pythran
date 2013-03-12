@@ -376,8 +376,7 @@ class Aliases(ModuleAnalysis):
         pass
 
     def visit_BoolOp(self, node):
-        return self.add(node,
-                reduce(set.union, (self.visit(n) for n in node.values), set()))
+        return self.add(node, set.union(*map(self.visit, node.values)))
 
     def visit_UnaryOp(self, node):
         self.generic_visit(node)

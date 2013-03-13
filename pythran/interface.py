@@ -55,7 +55,8 @@ def extract_constructed_types(t):
                 + extract_constructed_types(tkey)
                 + extract_constructed_types(tvalue))
     elif isinstance(t, tuple):
-        return [pytype_to_ctype(t)] + sum(map(extract_constructed_types,t),[])
+        return ([pytype_to_ctype(t)]
+                + sum(map(extract_constructed_types, t), []))
     elif t == long:
         return ["pythran_long_def"]
     elif t == str:

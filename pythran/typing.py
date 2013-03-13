@@ -557,7 +557,8 @@ class Types(ModuleAnalysis):
             self.combine(node.value, node.slice,
                     unary_op=IndexableType, register=True)
             for alias in self.strict_aliases[node.value].aliases:
-                self.combine(alias, node.slice, unary_op=IndexableType, register=True)
+                self.combine(alias, node.slice,
+                        unary_op=IndexableType, register=True)
 
     def visit_Name(self, node):
         if node.id in self.name_to_nodes:
@@ -594,7 +595,7 @@ class Types(ModuleAnalysis):
         if node.keys:
             for key, value in zip(node.keys, node.values):
                 self.combine(node, key,
-                        unary_op=lambda x:DictType(x, self.result[value]))
+                        unary_op=lambda x: DictType(x, self.result[value]))
         else:
             self.result[node] = NamedType("core::empty_dict")
 

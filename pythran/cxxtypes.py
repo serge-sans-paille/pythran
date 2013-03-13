@@ -36,7 +36,7 @@ class Type(object):
         havesameclass = self.__class__ == other.__class__
         if havesameclass:
             same = lambda x, y: getattr(self, x) == getattr(other, y)
-            return all(same(x,y) for x, y in zip(self.fields, other.fields))
+            return all(same(x, y) for x, y in zip(self.fields, other.fields))
         else:
             return False
 
@@ -157,7 +157,6 @@ class CombinedTypes(Type):
     def generate(self, ctx):
         types = " , ".join(ctx(t).generate(ctx) for t in self.types)
         return 'typename __combined<{0}>::type'.format(types)
-                
 
 
 class ArgumentType(Type):
@@ -209,7 +208,7 @@ class Assignable(DependentType):
 class DeclType(NamedType):
     """
     Gather the type of a variable
-    
+
     >>> DeclType("toto")
     decltype(toto)
     """
@@ -303,7 +302,6 @@ class AttributeType(ElementType):
     typename attribute_element<0,complex>::type
     '''
 
-
     def generate(self, ctx):
         return 'typename attribute_element<{0},{1}>::type'.format(
                 self.index,
@@ -317,7 +315,6 @@ class ListType(DependentType):
     >>> ListType(NamedType('int'))
     core::list<int>
     '''
-
 
     def generate(self, ctx):
         return 'core::list<{0}>'.format(ctx(self.of).generate(ctx))
@@ -333,6 +330,7 @@ class SetType(DependentType):
 
     def generate(self, ctx):
         return 'core::set<{0}>'.format(ctx(self.of).generate(ctx))
+
 
 class TupleType(Type):
     '''
@@ -400,7 +398,6 @@ class IndexableType(DependentType):
 
     def generate(self, ctx):
         return 'indexable<{0}>'.format(ctx(self.of).generate(ctx))
-
 
 
 class ExpressionType(Type):

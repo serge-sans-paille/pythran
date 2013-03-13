@@ -149,7 +149,7 @@ class Locals(ModuleAnalysis):
 ##
 class Globals(ModuleAnalysis):
     def __init__(self):
-        self.result = dict()
+        self.result = set()
         super(Globals, self).__init__(GlobalDeclarations)
 
     def visit(self, node):
@@ -159,7 +159,8 @@ class Globals(ModuleAnalysis):
         super(Globals, self).run(node, ctx)
         return set(self.global_declarations.keys()
                 + builtin_constants.keys()
-                + builtin_constructors.keys())
+                + builtin_constructors.keys()
+                + ['__builtin__'])
 
 
 ##

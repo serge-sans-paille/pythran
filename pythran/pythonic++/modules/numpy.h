@@ -153,7 +153,7 @@ NOT_INIT_ARRAY(empty)
 
         core::ndarray<long, 1> arange(long end)
         {
-            xrange xr(end);
+            __builtin__::xrange xr(end);
             return core::ndarray<long, 1>(xr.begin(), xr.end());
         }
 
@@ -249,7 +249,7 @@ NOT_INIT_ARRAY(empty)
             static core::ndarray<T,N> axis_cumsum( core::ndarray<T,N> const& array, long axis)
             {
                 if(axis<0 || axis >=N)
-                    throw ValueError("axis out of bounds");
+                    throw __builtin__::ValueError("axis out of bounds");
 
                 core::ndarray<T,N> a(*array.shape);
                 if(axis==0)
@@ -265,7 +265,7 @@ NOT_INIT_ARRAY(empty)
             static typename std::remove_reference<typename core::ndarray_helper<T,N>::result_type>::type axis_sum( core::ndarray<T,N> const& array, long axis)
             {
                 if(axis<0 || axis >=N)
-                    throw ValueError("axis out of bounds");
+                    throw __builtin__::ValueError("axis out of bounds");
 
                 if(axis==0)
                 {
@@ -287,7 +287,7 @@ NOT_INIT_ARRAY(empty)
             static typename std::remove_reference<typename core::ndarray_helper<T,N>::result_type>::type axis_minmax( core::ndarray<T,N> const& array, long axis, Op op)
             {
                 if(axis<0 || axis>=N)
-                    throw ValueError("axis out of bounds");
+                    throw __builtin__::ValueError("axis out of bounds");
 
                 if(axis==0)
                 {
@@ -316,7 +316,7 @@ NOT_INIT_ARRAY(empty)
                     std::array<T,N-1> shp;
                     std::copy(array.shape->begin(), array.shape->end() - 1, shp.begin());
                     core::ndarray<T,N-1> a(shp);
-                    std::transform(array.begin(), array.end(), a.begin(), std::bind(axis_helper<T,N-1>::axis_minmax, std::placeholders::_1, axis-1, op));
+                    std::transform(array.begin(), array.end(), a.begin(), std::bind(axis_helper<T,N-1>::template axis_minmax<Op>, std::placeholders::_1, axis-1, op));
                     return a;
                 }
             }
@@ -328,7 +328,7 @@ NOT_INIT_ARRAY(empty)
             static core::ndarray<T,1> axis_cumsum( core::ndarray<T,1> const& array, long axis)
             {
                 if(axis!=0)
-                    throw ValueError("axis out of bounds");
+                    throw __builtin__::ValueError("axis out of bounds");
 
                 core::ndarray<T,1> a(*array.shape);
                 std::copy(array.begin(), array.end(), a.begin());
@@ -339,7 +339,7 @@ NOT_INIT_ARRAY(empty)
             static T axis_sum( core::ndarray<T,1> const& array, long axis)
             {
                 if(axis!=0)
-                    throw ValueError("axis out of bounds");
+                    throw __builtin__::ValueError("axis out of bounds");
 
                 return std::accumulate(array.begin(), array.end(), 0);
             }
@@ -348,7 +348,7 @@ NOT_INIT_ARRAY(empty)
             static T axis_minmax( core::ndarray<T,1> const& array, long axis, Op op)
             {
                 if(axis!=0)
-                    throw ValueError("axis out of bounds");
+                    throw __builtin__::ValueError("axis out of bounds");
 
                 T res = *array.begin();
                 for(auto i = array.begin() + 1; i<array.end(); i++)
@@ -375,17 +375,10 @@ NOT_INIT_ARRAY(empty)
                 return res;
             }
 
-        double __min(double a, double b) { return std::min(a,b); }
-        float __min(float a, float b) { return std::min(a,b); }
-        long __min(long a, long b) { return std::min(a,b); }
-        long long __min(long long a, long long b) { return std::min(a,b); }
-        unsigned long __min(unsigned long a, unsigned long b) { return std::min(a,b); }
-        unsigned long long __min(unsigned long long a, unsigned long long b) { return std::min(a,b); }
-
         template<class T, unsigned long N>
             typename std::remove_reference<typename core::ndarray_helper<T,N>::result_type>::type min( core::ndarray<T,N> const& array, long axis)
             {
-                return axis_helper<T,N>::axis_minmax(array, axis, (T (*)(T,T))__min);
+                return axis_helper<T,N>::axis_minmax(array, axis, (T const& (*)(T const&, T const&))std::min<T>);
             }
 
         PROXY(pythonic::numpy, min);
@@ -410,7 +403,7 @@ NOT_INIT_ARRAY(empty)
             {
 
                 core::ndarray_flat_const<T,N> iter(array);
-                return pythonic::all(iter);
+                return pythonic::__builtin__::all(iter);
             }
 
         PROXY(pythonic::numpy, all);
@@ -457,7 +450,7 @@ NOT_INIT_ARRAY(empty)
                     {
                         long val = std::get<N-1>(t);
                         if(val>=sizeof...(T))
-                            throw ValueError("invalid axis for this array");
+                            throw __builtin__::ValueError("invalid axis for this array");
                         return transpose_tuple<N-1>::builder(a, t, val, s...);
                     }
             };
@@ -477,11 +470,11 @@ NOT_INIT_ARRAY(empty)
             core::ndarray<T,N> transpose(core::ndarray<T,N> const & a, std::tuple<C...> const& t)
             {
                 if(sizeof...(C) != N)
-                    throw ValueError("axes don't match array");
+                    throw __builtin__::ValueError("axes don't match array");
 
                 long val = std::get<sizeof...(C)-1>(t);
                 if(val>=N)
-                    throw ValueError("invalid axis for this array");
+                    throw __builtin__::ValueError("invalid axis for this array");
 
                 return transpose_tuple<sizeof...(C)-1>::builder(a, t, val);
             }

@@ -6,10 +6,14 @@
 #include <array>
 #include <initializer_list>
 #include "shared_ref.h"
+#ifdef __SSE__
+#include <xmmintrin.h>
+#endif
 
 namespace  pythonic {
 
     namespace core {
+
 
         template<class T>
             class raw_array {
@@ -42,6 +46,81 @@ namespace  pythonic {
 
         template<class T, unsigned long N, unsigned long V>
             struct apply_to_tuple;
+
+        template<class Op, class Arg0, class Arg1>
+            struct numpy_expr {
+                Arg0 arg0;
+                Arg1 arg1;
+                numpy_expr(Arg0 const& arg0, Arg1 const& arg1) : arg0(arg0), arg1(arg1) {
+                }
+#ifdef __SSE__
+                auto load(long i) const -> decltype(Op()(arg0.load(i), arg1.load(i))) {
+                    return Op()(arg0.load(i), arg1.load(i));
+                }
+#else
+                auto operator[](long i) const -> decltype(Op()(arg0[i], arg1[i])) {
+                    return Op()(arg0[i], arg1[i]);
+                }
+#endif
+                long size() const { return std::max(arg0.size(), arg1.size()); }
+            };
+        template<class Op, class T0, unsigned long N0, class T1, unsigned long N1>
+            struct numpy_expr<Op, ndarray<T0,N0>, ndarray<T1,N1>> {
+                T0* arg0;
+                T1* arg1;
+                long _size;
+                numpy_expr(ndarray<T0,N0> const& arg0, ndarray<T1,N1> const& arg1) : arg0(arg0.data->data), arg1(arg1.data->data), _size(std::max(arg0.size(), arg1.size())) {
+                }
+#ifdef __SSE__
+                auto load(long i) const -> decltype(Op()(_mm_loadu_pd(arg0+i), _mm_loadu_pd(arg1+i))) {
+                    return Op()(_mm_loadu_pd(arg0+i), _mm_loadu_pd(arg1+i));
+                }
+#else
+                auto operator[](long i) const -> decltype(Op()(arg0[i], arg1[i])) {
+                    return Op()(arg0[i], arg1[i]);
+                }
+#endif
+                long size() const { return _size; }
+            };
+
+        template<class Op, class T0, unsigned long N0, class Arg1>
+            struct numpy_expr<Op, ndarray<T0,N0>, Arg1> {
+                T0* arg0;
+                Arg1 arg1;
+                long _size;
+                numpy_expr(ndarray<T0,N0> const& arg0, Arg1 const& arg1) : arg0(arg0.data->data), arg1(arg1), _size(std::max(arg0.size(), arg1.size())) {
+                }
+#ifdef __SSE__
+                auto load(long i) const -> decltype(Op()(_mm_loadu_pd(arg0+i), arg1.load(i))) {
+                    return Op()(_mm_loadu_pd(arg0+i), arg1.load(i));
+                }
+#else
+                auto operator[](long i) const -> decltype(Op()(arg0[i], arg1[i])) {
+                    return Op()(arg0[i], arg1[i]);
+                }
+#endif
+                long size() const { return _size; }
+            };
+
+        template<class Op, class Arg0, class T1, unsigned long N1>
+            struct numpy_expr<Op, Arg0, ndarray<T1,N1>> {
+                Arg0 arg0;
+                T1* arg1;
+                long _size;
+                numpy_expr(Arg0 const& arg0, ndarray<T1,N1> const& arg1) : arg0(arg0), arg1(arg1.data->data), _size(std::max(arg0.size(), arg1.size())) {
+                }
+#ifdef __SSE__
+                auto load(long i) const -> decltype(Op()(arg0.load(i), _mm_loadu_pd(arg1+i))) {
+                    return Op()(arg0.load(i), _mm_loadu_pd(arg1+i));
+                }
+#else
+                auto operator[](long i) const -> decltype(Op()(arg0[i], arg1[i])) {
+                    return Op()(arg0[i], arg1[i]);
+                }
+#endif
+                long size() const { return _size; }
+            };
+
 
         template<class T, unsigned long N>
             struct ndarray_iterator: std::iterator< std::random_access_iterator_tag, typename std::remove_reference<typename ndarray_helper<T,N>::result_type>::type >
@@ -254,6 +333,10 @@ namespace  pythonic {
                         std::transform(iter.begin(), iter.end(), data->data, op);
                     }
 
+                long size() const {
+                    return data->n;
+                }
+
                 ndarray<T,N>& operator=(ndarray<T,N> && other) {
                     if(*offset_data>0 || (shape->data() && std::accumulate(shape->begin(), shape->end(), 1, std::multiplies<long>())!=data->n))
                     {
@@ -284,11 +367,33 @@ namespace  pythonic {
                     return *this;
                 }
 
-                ndarray<T,N> operator+(ndarray<T,N> const & other) const {
-                    core::ndarray<T,N> array(*other.shape); 
-                    std::transform(data->data + *(offset_data), data->data + *offset_data + std::accumulate(shape->begin(), shape->end(), 1, std::multiplies<long>()), other.data->data + *(other.offset_data), array.data->data, std::plus<T>());
-                    return array;
-                }
+                template<class Op, class Arg0, class Arg1>
+                    ndarray<T,N>& operator=(numpy_expr<Op, Arg0, Arg1> const & other) {
+                        long n = other.size();
+                        shape = impl::shared_ref<std::array<long,1>>();
+                        (*shape)[0] = n;
+                        data = impl::shared_ref< raw_array<T> >(n);
+                        T* iter = data->data;
+                        long i;
+#pragma omp parallel for if(n>1000)
+                        for(i=0;i< n/4*4; i+=4) {
+#ifdef __SSE__
+                            _mm_storeu_pd(iter, other.load(i));
+#else
+                            iter[i+0] = other[i+0];
+                            iter[i+1] = other[i+1];
+                            iter[i+2] = other[i+2];
+                            iter[i+3] = other[i+3];
+#endif
+                        }
+#if 0
+                        for(;i< n; ++i, ++iter) {
+                            *iter = other[i];
+                        }
+#endif
+                        return *this;
+                    }
+
 
                 template<class... Types>
                     typename ndarray_helper<T,N-sizeof...(Types)+1>::result_type operator()(Types ... t)
@@ -479,6 +584,32 @@ namespace  pythonic {
                         return array(s...);
                     }
             };
+
+        template<class T>
+        struct vectorized {
+            typedef T type;
+        };
+#ifdef __SSE__
+        template<>
+            struct vectorized<double> {
+                typedef __m128d type;
+            };
+#endif
+
+        template<class T, unsigned long N>
+            numpy_expr<std::plus<typename vectorized<T>::type>, ndarray<T,N>, ndarray<T,N>> operator+(ndarray<T,N> const & self, ndarray<T,N> const & other) {
+                return numpy_expr<std::plus<typename vectorized<T>::type>, ndarray<T,N>, ndarray<T,N>>(self, other);
+            }
+
+        template<class T, unsigned long N, class Op, class Arg0, class Arg1>
+            numpy_expr<std::plus<typename vectorized<T>::type>, ndarray<T,N>, numpy_expr<Op, Arg0, Arg1>> operator+(ndarray<T,N> const & self, numpy_expr<Op, Arg0, Arg1> const & other) {
+                return numpy_expr<std::plus<typename vectorized<T>::type>, ndarray<T,N>, numpy_expr<Op, Arg0, Arg1>>(self, other);
+            }
+
+        template<class T, unsigned long N, class Op, class Arg0, class Arg1>
+            numpy_expr<std::plus<typename vectorized<T>::type>, numpy_expr<Op, Arg0, Arg1>, ndarray<T,N>> operator+(numpy_expr<Op, Arg0, Arg1> const & other, ndarray<T,N> const & self) {
+                return numpy_expr<std::plus<typename vectorized<T>::type>, numpy_expr<Op, Arg0, Arg1>, ndarray<T,N>>(other, self);
+            }
     }
 }
 #endif

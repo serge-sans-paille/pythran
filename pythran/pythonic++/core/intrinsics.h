@@ -4,13 +4,14 @@
 #include <tuple>
 #include <sstream>
 #include <complex>
+#include <nt2/include/functions/abs.hpp>
 
 namespace pythonic {
 
     namespace __builtin__ {
 
         /* abs */
-        using std::abs;
+        using nt2::abs;
         PROXY(pythonic::__builtin__, abs);
 
         /* all */

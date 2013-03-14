@@ -91,7 +91,7 @@ class TestNumpy(TestEnv):
     def test_arange6(self):
         self.run_test("def np_arange6_():\n from numpy import arange\n return arange(0.2, 3.3, 0.5)", np_arange6_=[])
 
-    @unittest.skip("Work outside of tests") 
+    #@unittest.skip("Work outside of tests") 
     def test_arange7(self):
         self.run_test("def np_arange7_():\n from numpy import arange\n return arange(1, 4.5, -0.2)", np_arange7_=[])
 
@@ -134,6 +134,9 @@ class TestNumpy(TestEnv):
     def test_reshape_(self):
         self.run_test("def np_reshape_():\n from numpy import arange,reshape\n return arange(10).reshape(2,5)", np_reshape_=[])
 
+    def test_reshape_expr(self):
+        self.run_test("def np_reshape_expr():\n from numpy import ones,reshape\n return (ones(10) + ones(10)).reshape(2,5)", np_reshape_expr=[])
+
     def test_cumsum_(self):
         self.run_test("def np_cumsum_():\n from numpy import arange,cumsum\n return arange(10).cumsum()", np_cumsum_=[])
 
@@ -151,6 +154,9 @@ class TestNumpy(TestEnv):
 
     def test_sum_(self):
         self.run_test("def np_sum_():\n from numpy import arange,sum\n return arange(10).sum()", np_sum_=[])
+
+    def test_sum_expr(self):
+        self.run_test("def np_sum_expr():\n from numpy import arange, ones, sum\n return (arange(10)+ones(10)).sum()", np_sum_expr=[])
 
     def test_sum2_(self):
         self.run_test("def np_sum2_():\n from numpy import arange,sum\n return arange(10).reshape(2,5).sum()", np_sum2_=[])
@@ -182,5 +188,160 @@ class TestNumpy(TestEnv):
     def test_transpose_(self):
         self.run_test("def np_transpose_():\n from numpy import arange,transpose\n return arange(24).reshape(2,3,4).transpose()", np_transpose_=[])
 
+    def test_transpose_expr(self):
+        self.run_test("def np_transpose_expr():\n from numpy import arange,ones,transpose\n return (ones(24).reshape(2,3,4) + ones(24).reshape(2,3,4)).transpose()", np_transpose_expr=[])
+
     def test_transpose2_(self):
         self.run_test("def np_transpose2_():\n from numpy import arange,transpose\n return arange(24).reshape(2,3,4).transpose((2,0,1))", np_transpose2_=[])
+
+    def test_add0(self):
+        self.run_test("def np_add0(): from numpy import ones ; a, b = ones(10), ones(10) ; return a + b", np_add0=[])
+
+    def test_add1(self):
+        self.run_test("def np_add1(): from numpy import ones ; a, b = ones(10), ones(10) ; return a + b + a", np_add1=[])
+
+    def test_add2(self):
+        self.run_test("def np_add2(): from numpy import ones ; a, b = ones(10), ones(10) ; return a + b + 1", np_add2=[])
+
+    def test_add3(self):
+        self.run_test("def np_add3(): from numpy import ones ; a, b = ones(10), ones(10) ; return 1. + a + b + 1.", np_add3=[])
+
+    def test_add4(self):
+        self.run_test("def np_add4(): from numpy import ones ; a, b = ones(10), ones(10) ; return ( a + b ) + ( a + b )", np_add4=[])
+
+    def test_sub0(self):
+        self.run_test("def np_sub0(): from numpy import ones ; a, b = ones(10), ones(10) ; return a - b", np_sub0=[])
+
+    def test_sub1(self):
+        self.run_test("def np_sub1(): from numpy import ones ; a, b = ones(10), ones(10) ; return a - b - a", np_sub1=[])
+
+    def test_sub2(self):
+        self.run_test("def np_sub2(): from numpy import ones ; a, b = ones(10), ones(10) ; return a - b - 1", np_sub2=[])
+
+    def test_sub3(self):
+        self.run_test("def np_sub3(): from numpy import ones ; a, b = ones(10), ones(10) ; return 1. - a - b - 1.", np_sub3=[])
+
+    def test_sub4(self):
+        self.run_test("def np_sub4(): from numpy import ones ; a, b = ones(10), ones(10) ; return ( a - b ) - ( a - b )", np_sub4=[])
+
+    def test_addsub0(self):
+        self.run_test("def np_addsub0(): from numpy import ones ; a, b = ones(10), ones(10) ; return a - b + a", np_addsub0=[])
+
+    def test_addsub1(self):
+        self.run_test("def np_addsub1(): from numpy import ones ; a, b = ones(10), ones(10) ; return a + b - a", np_addsub1=[])
+
+    def test_addsub2(self):
+        self.run_test("def np_addsub2(): from numpy import ones ; a, b = ones(10), ones(10) ; return a + b - 1", np_addsub2=[])
+
+    def test_addsub3(self):
+        self.run_test("def np_addsub3(): from numpy import ones ; a, b = ones(10), ones(10) ; return 1. + a - b + 1.", np_addsub3=[])
+
+    def test_addsub4(self):
+        self.run_test("def np_addsub4(): from numpy import ones ; a, b = ones(10), ones(10) ; return ( a - b ) + ( a + b )", np_addsub4=[])
+
+    def test_addcossub0(self):
+        self.run_test("def np_addcossub0(): from numpy import ones, cos ; a, b = ones(10), ones(10) ; return a - b + cos(a)", np_addcossub0=[])
+
+    def test_addcossub1(self):
+        self.run_test("def np_addcossub1(): from numpy import ones, cos ; a, b = ones(10), ones(10) ; return a + cos(b - a)", np_addcossub1=[])
+
+    def test_addcossub2(self):
+        self.run_test("def np_addcossub2(): from numpy import ones, cos ; a, b = ones(10), ones(10) ; return a + cos(b - 1)", np_addcossub2=[])
+
+    def test_addcossub3(self):
+        self.run_test("def np_addcossub3(): from numpy import ones, cos ; a, b = ones(10), ones(10) ; return cos(1. + a - b + cos(1.))", np_addcossub3=[])
+
+    def test_addcossub4(self):
+        self.run_test("def np_addcossub4(): from numpy import ones, cos ; a, b = ones(10), ones(10) ; return cos( a - b ) + ( a + b )", np_addcossub4=[])
+
+    def test_sin0(self):
+        self.run_test("def np_sin0(): from numpy import ones, sin ; a, b = ones(10), ones(10) ; return sin(a) + b", np_sin0=[])
+
+    def test_tan0(self):
+        self.run_test("def np_tan0(): from numpy import ones, tan ; a, b = ones(10), ones(10) ; return tan(a - b)", np_tan0=[])
+
+    def test_arccos0(self):
+        self.run_test("def np_arccos0(): from numpy import ones, arccos ; a, b = ones(10), ones(10) ; return arccos(a - b) + 1", np_arccos0=[])
+
+    def test_arcsin0(self):
+        self.run_test("def np_arcsin0(): from numpy import ones, arcsin ; a, b = ones(10), ones(10) ; return arcsin(a + b - a + -b) + 1.", np_arcsin0=[])
+
+    def test_arctan0(self):
+        self.run_test("def np_arctan0(): from numpy import ones, arctan ; a, b = ones(10), ones(10) ; return arctan(a -0.5) + a", np_arctan0=[])
+
+    def test_arctan20(self):
+        self.run_test("def np_arctan20(): from numpy import ones, arctan2 ; a, b = ones(10), ones(10) ; return b - arctan2(a , b)", np_arctan20=[])
+
+    def test_cos1(self):
+        self.run_test("def np_cos1(): from numpy import cos ; a = 5 ; return cos(a)", np_cos1=[])
+
+    def test_sin1(self):
+        self.run_test("def np_sin1(): from numpy import sin ; a = 0.5 ; return sin(a)", np_sin1=[])
+
+    def test_tan1(self):
+        self.run_test("def np_tan1(): from numpy import tan ; a = 0.5 ; return tan(a)", np_tan1=[])
+
+    def test_arccos1(self):
+        self.run_test("def np_arccos1(): from numpy import arccos ; a= 1 ; return arccos(a)", np_arccos1=[])
+
+    def test_arcsin1(self):
+        self.run_test("def np_arcsin1(): from numpy import arcsin ; a= 1 ; return arcsin(a)", np_arcsin1=[])
+
+    def test_arctan1(self):
+        self.run_test("def np_arctan1(): from numpy import arctan ; a = 0.5 ; return arctan(a)", np_arctan1=[])
+
+    def test_arctan21(self):
+        self.run_test("def np_arctan21(): from numpy import arctan2 ; a, b = 1., .5 ; return arctan2(a , b)", np_arctan21=[])
+    pass
+
+#automatic generation of basic test cases for ufunc
+binary_ufunc = (
+        'add','arctan2',
+        'bitwise_and', 'bitwise_or', 'bitwise_xor',
+        'copysign',
+        'divide',
+        'equal',
+        #'frexp', # todo
+        'floor_divide', 'fmax', 'fmin', 'fmod',
+        'greater', 'greater_equal',
+        'hypot',
+        'ldexp', 'left_shift', 'less', 'less_equal', 'logaddexp', 'logaddexp2', "logical_and", "logical_or", "logical_xor",
+        'maximum', 'minimum', 'mod','multiply',
+        'nextafter','not_equal', 
+        'power',
+        'remainder','right_shift', 
+        'subtract',
+        'true_divide',
+        )
+
+unary_ufunc = (
+        'absolute', 'arccos', 'arccosh', 'arcsin', 'arcsinh', 'arctan', 'arctanh',
+        'bitwise_not',
+        'ceil',  'cos', 'cosh',
+        'deg2rad', 'degrees',
+        'exp', 'expm1',
+        'fabs', 'floor',
+        'isinf', 'isnan', 'invert', 'isfinite',
+        'log10', 'log1p', 'log2', 'logical_not',
+        'negative',
+        'rad2deg', 'radians','reciprocal', 'rint', 
+        'sign', 'signbit', 
+         'sin', 'sinh', 'spacing', 'sqrt', 'square', 
+        'tan', 'tanh','trunc', 
+        )
+
+for f in unary_ufunc:
+    if 'bitwise_' in f or 'invert' in f:
+        setattr(TestNumpy, 'test_' + f, eval("lambda self: self.run_test('def np_{0}(): from numpy import ones, int32, {0} ; a = ones(10, int32) ; return {0}(a)', np_{0}=[])".format(f)))
+        setattr(TestNumpy, 'test_' + f + '_scalar', eval("lambda self: self.run_test('def np_{0}_scalar(): from numpy import {0} ; a = 1 ; return {0}(a)', np_{0}_scalar=[])".format(f)))
+    else:
+        setattr(TestNumpy, 'test_' + f, eval("lambda self: self.run_test('def np_{0}(): from numpy import ones, {0} ; a = ones(10) ; return {0}(a)', np_{0}=[])".format(f)))
+        setattr(TestNumpy, 'test_' + f + '_scalar', eval("lambda self: self.run_test('def np_{0}_scalar(): from numpy import {0} ; a = 0.5 ; return {0}(a+0.5)', np_{0}_scalar=[])".format(f)))
+
+for f in binary_ufunc:
+    if 'bitwise_' in f or 'ldexp' in f or '_shift' in f :
+        setattr(TestNumpy, 'test_' + f, eval("lambda self: self.run_test('def np_{0}(): from numpy import ones, int32, {0} ; a = ones(10, int32) ; return {0}(a,a)', np_{0}=[])".format(f)))
+        setattr(TestNumpy, 'test_' + f + '_scalar', eval("lambda self: self.run_test('def np_{0}_scalar(): from numpy import {0} ; a = 1 ; return {0}(a, a-1)', np_{0}_scalar=[])".format(f)))
+    else:
+        setattr(TestNumpy, 'test_' + f, eval("lambda self: self.run_test('def np_{0}(): from numpy import ones, {0} ; a = ones(10) ; return {0}(a,a)', np_{0}=[])".format(f)))
+        setattr(TestNumpy, 'test_' + f + '_scalar', eval("lambda self: self.run_test('def np_{0}_scalar(): from numpy import {0} ; a = 0.5 ; return {0}(a+0.5, a+0.5)', np_{0}_scalar=[])".format(f)))

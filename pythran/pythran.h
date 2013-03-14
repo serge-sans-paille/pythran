@@ -43,6 +43,16 @@ template<class T>
 struct assignable<pythonic::core::list<T> >{
     typedef pythonic::core::list<typename assignable<T>::type > type;
 };
+template<class Op, class Arg0, class Arg1>
+struct assignable<pythonic::core::numpy_expr<Op, Arg0, Arg1>>
+{
+    typedef pythonic::core::ndarray<typename pythonic::core::numpy_expr<Op, Arg0, Arg1>::value_type, pythonic::core::numpy_expr<Op, Arg0, Arg1>::value> type;
+};
+template<class Op, class Arg0>
+struct assignable<pythonic::core::numpy_uexpr<Op, Arg0>>
+{
+    typedef pythonic::core::ndarray<typename pythonic::core::numpy_uexpr<Op, Arg0>::value_type, pythonic::core::numpy_uexpr<Op, Arg0>::value> type;
+};
 
 template<class T>
 struct content_of {
@@ -1112,6 +1122,17 @@ struct pythran_to_python< core::empty_set > {
 };
 
 template <typename T>
+struct custom_boost_simd_logical {
+    static PyObject* convert( boost::simd::logical<T> const& n) {
+        return boost::python::incref(boost::python::object((T)n).ptr());
+    }
+};
+template<typename T>
+struct pythran_to_python< boost::simd::logical<T> > {
+    pythran_to_python() { register_once< boost::simd::logical<T>, custom_boost_simd_logical<T> >(); }
+};
+
+template <typename T>
 struct custom_none_to_any {
     static PyObject* convert( none<T> const& n) {
         if(n.is_none) return boost::python::incref(boost::python::object().ptr());
@@ -1155,14 +1176,19 @@ struct c_type_to_numpy_type<bool> {
     static const int value = NPY_BOOL;
 };
 
+
+template<class T>
+struct c_type_to_numpy_type< boost::simd::logical<T>> {
+    static const int value = NPY_BOOL;
+};
+
 template<class T, unsigned long N>
 struct custom_array_to_ndarray {
     static PyObject* convert( core::ndarray<T,N> n) {
         PyObject* result = PyArray_SimpleNewFromData(N, n.shape->data(), c_type_to_numpy_type<T>::value, n.data.forget()->data + *n.offset_data);
-
         if (!result)
             return nullptr;
-        return boost::python::incref(result);
+        return result;
     }
 };
 

@@ -159,6 +159,7 @@ modules = {
             "dict": ConstFunctionIntr(),
             "divmod": ConstFunctionIntr(),
             "enumerate": ConstFunctionIntr(),
+            "file": ConstFunctionIntr(),
             "filter": ConstFunctionIntr(),
             "hex": ConstFunctionIntr(),
             "id": ConstFunctionIntr(),
@@ -168,6 +169,7 @@ modules = {
             "max": ConstFunctionIntr(),
             "min": ConstFunctionIntr(),
             "oct": ConstFunctionIntr(),
+            "open": ConstFunctionIntr(),
             "pow": ConstFunctionIntr(),
             "range": ConstFunctionIntr(),
             "reduce": ConstFunctionIntr(),
@@ -471,12 +473,35 @@ modules = {
                 "viewvalues": MethodIntr(),
                 },
         "__iterator__": {
-                "next": MethodIntr(),
+                #"next": MethodIntr(), //Dispatched
+                },
+        "__file__": {
+                # Member variables
+                "closed": AttributeIntr(0),
+                "mode": AttributeIntr(1),
+                "name": AttributeIntr(2),
+                "newlines": AttributeIntr(3),
+                # Member functions
+                "close": 		MethodIntr(global_effects=True),
+                "flush": 		MethodIntr(global_effects=True),
+                "fileno": 		MethodIntr(),
+                "isatty": 		MethodIntr(),
+                #"next": 		MethodIntr(global_effects=True), //Dispatched
+                "read": 		MethodIntr(global_effects=True),
+                "readline": 	MethodIntr(global_effects=True),
+                "readlines": 	MethodIntr(global_effects=True),
+                "xreadlines": 	MethodIntr(global_effects=True),
+                "seek": 		MethodIntr(global_effects=True),
+                "tell": 		MethodIntr(),
+                "truncate": 	MethodIntr(global_effects=True),
+                "write": 		MethodIntr(global_effects=True),
+                "writelines": 	MethodIntr(global_effects=True),
                 },
         # conflicting method names must be listed here
         "__dispatch__": {
                 "clear": MethodIntr(),
                 "copy": ConstMethodIntr(),
+                "next": MethodIntr(),
                 "pop": MethodIntr(),
                 "remove": MethodIntr(),
                 "update": MethodIntr(

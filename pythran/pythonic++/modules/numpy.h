@@ -65,7 +65,7 @@ namespace pythonic {
         template<class... T>
             core::ndarray<double, sizeof...(T)> build_cst_array(double val, T... t)
             {
-                return core::ndarray<double, sizeof...(t)>({t...}, val);
+                return core::ndarray<double, sizeof...(t)>({(size_t)t...}, val);
             }
 
         template<int N>

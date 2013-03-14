@@ -43,6 +43,11 @@ template<class T>
 struct assignable<pythonic::core::list<T> >{
     typedef pythonic::core::list<typename assignable<T>::type > type;
 };
+template<class Op, class Arg0, class Arg1>
+struct assignable<pythonic::core::numpy_expr<Op, Arg0, Arg1>>
+{
+    typedef typename assignable<Arg0>::type type;
+};
 
 template<class T>
 struct content_of {

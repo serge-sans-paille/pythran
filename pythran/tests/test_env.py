@@ -25,13 +25,15 @@ class TestEnv(unittest.TestCase):
                 raise AssertionError("Reference mismatch: pythran return value"
                                      " differs from python.")
 
-    def run_test(self, code, *params, **interface):
+    def run_test_with_prelude(self, code, prelude, *params, **interface):
         """Test if a function call return value is unchanged when
         executed using python eval or compiled with pythran.
 
         Args:
            code (str):  python (pythran valid) module to test.
            params (tuple): arguments to pass to the function to test.
+           prelude (fct): function to call between 'code' and the c++ 
+                          generated code
            interface (dict): pythran interface for the module to test.
                              Each key is the name of a function to call,
                              the value is a list of the arguments' type.
@@ -58,6 +60,7 @@ class TestEnv(unittest.TestCase):
             # need to be reset.
             compiled_code = compile(code, "", "exec")
             env = {'__builtin__' : __import__('__builtin__')}
+            prelude and prelude()
             eval(compiled_code, env)
 
             python_ref = eval(function_call, env)  # Produce the reference
@@ -68,6 +71,7 @@ class TestEnv(unittest.TestCase):
                                            cxx_code,
                                            cxxflags=TestEnv.PYTHRAN_CXX_FLAGS,
                                            check=False)
+            prelude and prelude()
             pymod = load_dynamic(modname, cxx_compiled)
 
             # Produce the pythran result
@@ -78,3 +82,6 @@ class TestEnv(unittest.TestCase):
                 print "Python result: ", python_ref
                 print "Pythran result: ", pythran_res
                 self.assertAlmostEqual(python_ref, pythran_res)
+    def run_test(self, code, *params, **interface):
+        return self.run_test_with_prelude(code, None, *params, **interface)
+

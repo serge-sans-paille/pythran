@@ -53,9 +53,6 @@ class TestOperator(TestEnv):
     def test_is_not(self):
         self.run_test("def is_not(a,b):\n from operator import is_not\n return is_not(a,b)", 1, 2, is_not=[int,int])
 
-    def test_abs(self):
-        self.run_test("def abs(a):\n from operator import abs\n return abs(a)", -1, abs=[int])
-
     def test___abs__(self):
         self.run_test("def __abs__(a):\n from operator import __abs__\n return __abs__(a)", -2, __abs__=[int])
 
@@ -82,3 +79,73 @@ class TestOperator(TestEnv):
 
     def test___floordiv__(self):
         self.run_test("def __floordiv__(a,b):\n from operator import __floordiv__\n return __floordiv__(a,b)", 5, 2, __floordiv__=[int,int])
+
+    def test_inv(self):
+        self.run_test("def inv(a):\n from operator import inv\n return inv(a)", 0x02, inv=[int])
+
+    def test_invert(self):
+        self.run_test("def invert(a):\n from operator import invert\n return invert(a)", 0x02, invert=[int])
+
+    def test___inv__(self):
+        self.run_test("def __inv__(a):\n from operator import __inv__\n return __inv__(a)", 0x02, __inv__=[int])
+
+    def test___invert__(self):
+        self.run_test("def __invert__(a):\n from operator import __invert__\n return __invert__(a)", 0x02, __invert__=[int])
+
+    def test_lshift(self):
+        self.run_test("def lshift(a,b):\n from operator import lshift\n return lshift(a,b)", 0x02, 1, lshift=[int,int])
+
+    def test___lshift__(self):
+        self.run_test("def __lshift__(a,b):\n from operator import __lshift__\n return __lshift__(a,b)",0x02 , 1, __lshift__=[int,int])
+
+    def test_mod(self):
+        self.run_test("def mod(a,b):\n from operator import mod\n return mod(a,b)", 5, 2, mod=[int,int])
+
+    def test___mod__(self):
+        self.run_test("def __mod__(a,b):\n from operator import __mod__\n return __mod__(a,b)", 5, 2, __mod__=[int,int])
+
+    def test_mul(self):
+        self.run_test("def mul(a,b):\n from operator import mul\n return mul(a,b)", 5, 2, mul=[int,int])
+
+    def test___mul__(self):
+        self.run_test("def __mul__(a,b):\n from operator import __mul__\n return __mul__(a,b)", 5, 2, __mul__=[int,int])
+
+    def test_neg(self):
+        self.run_test("def neg(a):\n from operator import neg\n return neg(a)", 1, neg=[int])
+
+    def test___neg__(self):
+        self.run_test("def __neg__(a):\n from operator import __neg__\n return __neg__(a)", 1, __neg__=[int])
+
+    def test_or_(self):
+        self.run_test("def or_(a,b):\n from operator import or_\n return or_(a,b)", 0x02, 0x01, or_=[int,int])
+
+    def test___or__(self):
+        self.run_test("def __or__(a,b):\n from operator import __or__\n return __or__(a,b)", 0x02, 0x01, __or__=[int,int])
+
+    def test_pos(self):
+        self.run_test("def pos(a):\n from operator import pos\n return pos(a)", 2, pos=[int])
+
+    def test___pos__(self):
+        self.run_test("def __pos__(a):\n from operator import __pos__\n return __pos__(a)", 2, __pos__=[int])
+
+    def test_rshift(self):
+        self.run_test("def rshift(a,b):\n from operator import rshift\n return rshift(a,b)", 0x02, 1, rshift=[int,int])
+
+    def test___rshift__(self):
+        self.run_test("def __rshift__(a,b):\n from operator import __rshift__\n return __rshift__(a,b)", 0x02, 1, __rshift__=[int,int])
+
+    def test_sub(self):
+        self.run_test("def sub(a,b):\n from operator import sub\n return sub(a,b)", 5, 2, sub=[int,int])
+
+    def test___sub__(self):
+        self.run_test("def __sub__(a,b):\n from operator import __sub__\n return __sub__(a,b)", 5, 2, __sub__=[int,int])
+
+    def test_truediv(self):
+        self.run_test("def truediv(a,b):\n from operator import truediv\n return truediv(a,b)", 5, 2, truediv=[int,int])
+
+    def test___truediv__(self):
+        self.run_test("def __truediv__(a,b):\n from operator import __truediv__\n return __truediv__(a,b)", 5, 2, __truediv__=[int,int])
+
+    def test___xor__(self):
+        self.run_test("def __xor__(a,b):\n from operator import __xor__\n return __xor__(a,b)", 0x02, 0x01, __xor__=[int,int])
+

@@ -28,6 +28,7 @@ def refine(pm, node, optimizations=default_optimization_sequence):
     pm.apply(GenExpToImap, node)
     pm.apply(NormalizeTuples, node)
     pm.apply(RemoveComprehension, node)
+    pm.apply(NormalizeTuples, node)
     pm.apply(RemoveNestedFunctions, node)
     pm.apply(NormalizeReturn, node)
     pm.apply(RemoveLambdas, node)

@@ -156,6 +156,9 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
     def test_xrange4(self):
         self.run_test("def xrange4_(b,e,s): return list(xrange(b,e,s))", 3,8,1, xrange4_=[int,int,int])
 
+    def test_xrange5(self):
+        self.run_test("def xrange5_(e): return max(xrange(e))", 3, xrange5_=[int])
+
     def test_multixrange(self):
         self.run_test("def multixrange(i): return map(lambda x,y:y*x/2, xrange(1,i), xrange(i,1,-1))", 3, multixrange=[int])
     

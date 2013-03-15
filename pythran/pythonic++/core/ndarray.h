@@ -6,8 +6,8 @@
 #include <array>
 #include <initializer_list>
 #include "shared_ref.h"
-#ifdef __SSE__
-#include <xmmintrin.h>
+#ifdef __AVX__
+#include <immintrin.h>
 #endif
 
 namespace  pythonic {
@@ -24,7 +24,7 @@ namespace  pythonic {
                 T* data;
                 size_t n;
                 raw_array() : data(nullptr), n(0), foreign(false){}
-                raw_array(size_t n) : data(new T[n]), n(n), foreign(false) { }
+                raw_array(size_t n) : data((T*)_mm_malloc(sizeof(T)*n, 32)), n(n), foreign(false) { }
                 raw_array(size_t n, T* d) : data(d), n(n), foreign(true) { }
                 raw_array(raw_array<T>&& d) : data(d.data), n(d.n), foreign(false) {
                     d.data = nullptr;
@@ -32,7 +32,7 @@ namespace  pythonic {
 
                 ~raw_array() {
                     if(data and not foreign)
-                        delete [] data;
+                        _mm_free(data);
                 }
                 private:
                 bool foreign;
@@ -47,13 +47,24 @@ namespace  pythonic {
         template<class T, unsigned long N, unsigned long V>
             struct apply_to_tuple;
 
+        template<class T>
+        struct vectorized {
+            typedef T type;
+        };
+#ifdef __AVX__
+        template<>
+            struct vectorized<double> {
+                typedef __m256d type;
+            };
+#endif
+
         template<class Op, class Arg0, class Arg1>
             struct numpy_expr {
                 Arg0 arg0;
                 Arg1 arg1;
                 numpy_expr(Arg0 const& arg0, Arg1 const& arg1) : arg0(arg0), arg1(arg1) {
                 }
-#ifdef __SSE__
+#ifdef __AVX__
                 auto load(long i) const -> decltype(Op()(arg0.load(i), arg1.load(i))) {
                     return Op()(arg0.load(i), arg1.load(i));
                 }
@@ -71,9 +82,9 @@ namespace  pythonic {
                 long _size;
                 numpy_expr(ndarray<T0,N0> const& arg0, ndarray<T1,N1> const& arg1) : arg0(arg0.data->data), arg1(arg1.data->data), _size(std::max(arg0.size(), arg1.size())) {
                 }
-#ifdef __SSE__
-                auto load(long i) const -> decltype(Op()(_mm_loadu_pd(arg0+i), _mm_loadu_pd(arg1+i))) {
-                    return Op()(_mm_loadu_pd(arg0+i), _mm_loadu_pd(arg1+i));
+#ifdef __AVX__
+                auto load(long i) const -> decltype(Op()(_mm256_load_pd(arg0+i), _mm256_load_pd(arg1+i))) {
+                    return Op()(_mm256_load_pd(arg0+i), _mm256_load_pd(arg1+i));
                 }
 #else
                 auto operator[](long i) const -> decltype(Op()(arg0[i], arg1[i])) {
@@ -90,9 +101,9 @@ namespace  pythonic {
                 long _size;
                 numpy_expr(ndarray<T0,N0> const& arg0, Arg1 const& arg1) : arg0(arg0.data->data), arg1(arg1), _size(std::max(arg0.size(), arg1.size())) {
                 }
-#ifdef __SSE__
-                auto load(long i) const -> decltype(Op()(_mm_loadu_pd(arg0+i), arg1.load(i))) {
-                    return Op()(_mm_loadu_pd(arg0+i), arg1.load(i));
+#ifdef __AVX__
+                auto load(long i) const -> decltype(Op()(_mm256_load_pd(arg0+i), arg1.load(i))) {
+                    return Op()(_mm256_load_pd(arg0+i), arg1.load(i));
                 }
 #else
                 auto operator[](long i) const -> decltype(Op()(arg0[i], arg1[i])) {
@@ -109,9 +120,9 @@ namespace  pythonic {
                 long _size;
                 numpy_expr(Arg0 const& arg0, ndarray<T1,N1> const& arg1) : arg0(arg0), arg1(arg1.data->data), _size(std::max(arg0.size(), arg1.size())) {
                 }
-#ifdef __SSE__
-                auto load(long i) const -> decltype(Op()(arg0.load(i), _mm_loadu_pd(arg1+i))) {
-                    return Op()(arg0.load(i), _mm_loadu_pd(arg1+i));
+#ifdef __AVX__
+                auto load(long i) const -> decltype(Op()(arg0.load(i), _mm256_load_pd(arg1+i))) {
+                    return Op()(arg0.load(i), _mm256_load_pd(arg1+i));
                 }
 #else
                 auto operator[](long i) const -> decltype(Op()(arg0[i], arg1[i])) {
@@ -375,15 +386,13 @@ namespace  pythonic {
                         data = impl::shared_ref< raw_array<T> >(n);
                         T* iter = data->data;
                         long i;
+                        static const long vlength = sizeof(typename vectorized<T>::type) / sizeof(T);
 #pragma omp parallel for if(n>1000)
-                        for(i=0;i< n/4*4; i+=4) {
-#ifdef __SSE__
-                            _mm_storeu_pd(iter, other.load(i));
+                        for(i=0;i< n/vlength*vlength; i+=vlength) {
+#ifdef __AVX__
+                            _mm256_store_pd(iter+i, other.load(i));
 #else
-                            iter[i+0] = other[i+0];
-                            iter[i+1] = other[i+1];
-                            iter[i+2] = other[i+2];
-                            iter[i+3] = other[i+3];
+                            iter[i] = other[i];
 #endif
                         }
 #if 0
@@ -585,16 +594,6 @@ namespace  pythonic {
                     }
             };
 
-        template<class T>
-        struct vectorized {
-            typedef T type;
-        };
-#ifdef __SSE__
-        template<>
-            struct vectorized<double> {
-                typedef __m128d type;
-            };
-#endif
 
         template<class T, unsigned long N>
             numpy_expr<std::plus<typename vectorized<T>::type>, ndarray<T,N>, ndarray<T,N>> operator+(ndarray<T,N> const & self, ndarray<T,N> const & other) {

@@ -97,12 +97,15 @@ class SpecParser:
             p[0] = [p[1]]
         elif len(p) == 3 and p[2] == 'set':
             p[0] = {p[1]}
-        elif len(p) == 4 :
+        elif len(p) == 4 and p[3] == ')':
+            p[0] = tuple(p[2])
+        elif len(p) == 4 and p[3] == ']':
             p[0] = array([p[1]])
         elif len(p) == 5:
             p[0] = {p[1]: p[3]}
         else:
-            p[0] = tuple(p[2])
+            raise SyntaxError("Invalid Pythran spec. Unknown text '{0}'".format(
+                                    p.value))
 
     def p_term(self, p):
         '''term : STR

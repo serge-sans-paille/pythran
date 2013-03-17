@@ -82,6 +82,12 @@ namespace pythonic {
                 iss >> out;
                 return out;
             }
+            operator long int() const { // Allows implicit conversion without loosing bool conversion
+                long int out;
+                std::istringstream iss(*this);
+                iss >> out;
+                return out;
+            }
             string& operator=(string_view const & other) {
                 if(other.get_data() == *this ) {
                     auto it = std::copy(other.begin(), other.end(), this->begin());

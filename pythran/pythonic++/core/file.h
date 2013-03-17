@@ -14,7 +14,7 @@ namespace  pythonic {
 
 		    struct npos{npos(){}};
 
-		    class file_iterator : std::iterator< std::forward_iterator_tag, core::string > {
+		    struct file_iterator : std::iterator< std::forward_iterator_tag, core::string > {
 					private:
 				core::file & f;
 				core::string curr;

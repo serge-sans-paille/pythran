@@ -168,6 +168,10 @@ def file_close(filename):
            self.tempfile()
            self.run_test("""def _attribute_newlines(filename):\n return file(filename, 'a').newlines""", self.filename, _attribute_newlines=[str])
 
+    def test_map_iter(self):
+           self.tempfile()
+           self.run_test("""def _map_iter(filename):\n f=file(filename)\n return map(lambda s: len(s), f)""", self.filename, _map_iter=[str])
+
     # The following tests insures the PROXY compatibility with rvalues
     def test_rvalue_write(self):
             self.filename=mkstemp()[1]

@@ -1,157 +1,118 @@
 #ifndef PYTHONIC_MODULE_OPERATOR_H
 #define PYTHONIC_MODULE_OPERATOR_H
 
+#define WRAPPER2ARGS(fname, lname) \
+        template <class A, class B> auto fname(A a, B b) -> decltype(lname(a, b)) { return lname(a, b); } 
+
+
+#define WRAPPER1ARG(fname, lname) \
+        template <class A> auto fname(A a) -> decltype(lname(a)) { return lname(a); } 
+
 namespace pythonic {
     namespace operator_ {
-	template <class A, class B>
+        template <class A, class B>
             bool lt(A const& a, B const& b) {
                 return a<b;
             }
 
-	template <class A, class B>
+        WRAPPER2ARGS(__lt__, lt)
+
+        template <class A, class B>
             bool le(A const& a, B const& b) {
                 return a<=b;
             }
 
-	template <class A, class B>
+        WRAPPER2ARGS(__le__, le)
+
+        template <class A, class B>
             bool eq(A const& a, B const& b) {
                 return a==b;
             }
 
+        WRAPPER2ARGS(__eq__, eq)
+
         template <class A, class B>
             bool ne(A const& a, B const& b) {
-		return 	a!=b;
+        	return 	a!=b;
             }
+
+        WRAPPER2ARGS(__ne__, ne)
 
         template <class A, class B>
             bool ge(A const& a, B const& b) {
-		return a>=b;
+        	return a>=b;
             }
+
+        WRAPPER2ARGS(__ge__, ge)
 
         template <class A, class B>
             bool gt(A const& a, B const& b) {
-		return a>b;
+        	return a>b;
             }
 
-        template <class A, class B>
-            bool __lt__(A const& a, B const& b) {
-		return a<b;
-            }
-
-        template <class A, class B>
-            bool __le__(A const& a, B const& b) {
-		return a<=b;
-            }
-
-        template <class A, class B>
-            bool __eq__(A const& a, B const& b) {
-		return a==b;
-            }
-
-        template <class A, class B>
-            bool __ne__(A const& a, B const& b) {
-		return a!=b;
-            }
-
-        template <class A, class B>
-            bool __ge__(A const& a, B const& b) {
-		return a>=b;
-            }
-
-        template <class A, class B>
-            bool __gt__(A const& a, B const& b) {
-		return a>b;
-            }
+        WRAPPER2ARGS(__gt__, gt)
 
         bool not_(bool const& a) {
-	    return !a;
+            return !a;
         }
 
-        bool __not__(bool const& a) {
-	    return !a;
-        }
+        WRAPPER1ARG(__not__, not_)
 
         bool truth(bool const& a) {
-	    return a;
+            return a;
         }
 
         template <class A, class B>
             bool is_(A const& a, B const& b) {
-		return a==b;
+        	return a==b;
             }
 
         template <class A, class B>
             bool is_not(A const& a, B const& b) {
-		return a != b;
+        	return a != b;
             }
 
-//	using std::abs;
-
-        template <class A>
-            A __abs__(A const& a) {
-		return abs(a);
-            }
-
-        template <class A, class B>
-            auto __add__(A const& a, B const& b) -> decltype(a+b) {
-		return a+b;
-            }
+        WRAPPER1ARG(__abs__, abs)
 
         template <class A, class B>
             auto add(A const& a, B const& b) -> decltype(a+b) {
-		return __add__(a+b);
+        	return a+b;
             }
 
+        WRAPPER2ARGS(__add__, add)
 
         template <class A, class B>
             auto and_(A const& a, B const& b) -> decltype(a&b){
-		return a&b;
+        	return a&b;
             }
 
-        template <class A, class B>
-            auto __and__(A const& a, B const& b) -> decltype(a&b){
-		return a&b;
-            }
+        WRAPPER2ARGS(__and__, and_)
 
         template <class A, class B>
             auto div(A const& a, B const& b) -> decltype(a/b){
-		if (b==0)
-		{
-                    throw ZeroDivisionError("Division by zero impossible !");
-		}
-		return a/b;
+        	if (b==0)
+        	{
+                    throw __builtin__::ZeroDivisionError("Division by zero !");
+        	}
+        	return a/b;
             }
 
-        template <class A, class B>
-            auto __div__(A const& a, B const& b) -> decltype(a/b){
-		if (b==0)
-		{
-                    throw ZeroDivisionError("Division by zero impossible !");
-		}
-		return a/b;
-            }
+        WRAPPER2ARGS(__div__, div)
 
         template <class A, class B>
             auto floordiv(A const& a, B const& b) -> decltype(a/b){
-		if (b==0)
-		{
-                    throw ZeroDivisionError("Division by zero impossible !");
-		}
-		return (a-(a % b))/b;
+        	if (b==0)
+        	{
+                    throw __builtin__::ZeroDivisionError("Division by zero !");
+        	}
+        	return (a-(a % b))/b;
             }
 
-        template <class A, class B>
-            auto __floordiv__(A const& a, B const& b) -> decltype(a/b) { 
-		if (b==0)
-		{
-                    throw ZeroDivisionError("Division by zero impossible !");
-		}
-		return (a-(a % b))/b;
-            }
+        WRAPPER2ARGS(__floordiv__, floordiv)
 
 //        template <class A>
 //            int index(A const& a) {
-//		
+//        	
 //            }
 //
 //        template <class A>
@@ -160,148 +121,102 @@ namespace pythonic {
 
         template <class A>
             A inv(A const& a) {
-		return ~a;
+        	return ~a;
             }
+
+        WRAPPER1ARG(__inv__, inv)
 
         template <class A>
             A invert(A const& a) {
-		return ~a;
+        	return ~a;
             }
 
-        template <class A>
-            A __inv__(A const& a) {
-		return ~a;
-            }
-
-        template <class A>
-            A __invert__(A const& a) {
-		return ~a;
-            }
+        WRAPPER1ARG(__invert__, invert)
 
         template <class A>
             A lshift(A const& a, int const& b) {
-		return a<<b;
+        	return a<<b;
             }
 
-        template <class A>
-            A __lshift__(A const& a, int const& b) {
-		return a<<b;
-            }
+        WRAPPER2ARGS(__lshift__, lshift)
 
          int mod(int const& a, int const& b) {
-		return a%b;
+        	return a%b;
             }
 
-         int __mod__(int const& a, int const& b) {
-		return a%b;
-            }
+        WRAPPER2ARGS(__mod__, mod)
 
         template <class A, class B>
             auto mul(A const& a, B const& b) -> decltype(a*b) {
-		return a*b;
+        	return a*b;
             }
 
-        template <class A, class B>
-            auto __mul__(A const& a, B const& b) -> decltype(a*b) {
-		return a*b;
-            }
+        WRAPPER2ARGS(__mul__, mul)
 
         template <class A>
             A neg(A const& a) {
-		return -a;
+        	return -a;
             }
 
-        template <class A>
-            A __neg__(A const& a) {
-		return -a;
-            }
+        WRAPPER1ARG(__neg__, neg)
 
         template <class A, class B>
             auto or_(A const& a, B const& b) -> decltype(a|b) {
-		return a|b;
+        	return a|b;
             }
 
-        template <class A, class B>
-            auto __or__(A const& a, B const& b) -> decltype(a|b) {
-		return a|b;
-            }
+        WRAPPER2ARGS(__or__, or_)
 
         template <class A>
             A pos(A const& a) {
-		return +a;
+        	return +a;
             }
 
-        template <class A>
-            A __pos__(A const& a) {
-		return +a;
-            }
-
-//        template <class A, class B>
-//            auto pow(A const& a, B const& b) -> decltype(a**b) {
-//		return a**b;
-//            }
-//
-//        template <class A, class B>
-//            auto __pow__(A const& a, B const& b) -> decltype(a**b) {
-//		return a**b;
-//            }
+        WRAPPER1ARG(__pos__, pos)
 
         template <class A, class B>
             auto rshift(A const& a, B const& b) -> decltype(a>>b) {
-		return a>>b;
+        	return a>>b;
             }
 
-        template <class A, class B>
-            auto __rshift__(A const& a, B const& b) -> decltype(a>>b) {
-		return a>>b;
-            }
+        WRAPPER2ARGS(__rshift__, rshift)
 
         template <class A, class B>
             auto sub(A const& a, B const& b) -> decltype(a-b) {
-		return a-b;
+        	return a-b;
             }
 
-        template <class A, class B>
-            auto __sub__(A const& a, B const& b) -> decltype(a-b) {
-		return a-b;
-            }
+      WRAPPER2ARGS(__sub__, sub)
 
         template <class A, class B>
-            auto truediv(A const& a, B const& b) -> decltype(a/b) {
-		return a/b;
+            auto truediv(A const& a, B const& b) -> decltype(a/(double)b) {
+        	return a/((double)b);
             }
 
-        template <class A, class B>
-            auto __truediv__(A const& a, B const& b) -> decltype(a/b) {
-		return a/b;
-            }
+      WRAPPER2ARGS(__truediv__, truediv)
 
 //        template <class A, class B>
 //            auto xor(A const& a, B const& b) -> decltype(a^b) {
-//		return a^b;
+//        	return a^b;
 //            }
 
         template <class A, class B>
             auto __xor__(A const& a, B const& b) -> decltype(a^b) {
-		return a^b;
+        	return a^b;
             }
 
         template <class A, class B>
             auto concat(A const& a, B const& b) -> decltype(a+b) {
-		return a+b;
+        	return a+b;
             }
 
-        template <class A, class B>
-            auto __concat__(A const& a, B const& b) -> decltype(a+b) {
-		return a+b;
-            }
-
+      WRAPPER2ARGS(__concat__, concat)
 
 
         PROXY(pythonic::operator_, lt);
         PROXY(pythonic::operator_, le);
         PROXY(pythonic::operator_, eq);
-	PROXY(pythonic::operator_, ne);
+        PROXY(pythonic::operator_, ne);
         PROXY(pythonic::operator_, ge);
         PROXY(pythonic::operator_, gt);
         PROXY(pythonic::operator_, __lt__);

@@ -48,6 +48,11 @@ struct assignable<pythonic::core::numpy_expr<Op, Arg0, Arg1>>
 {
     typedef typename assignable<Arg0>::type type;
 };
+template<class Op, class Arg0>
+struct assignable<pythonic::core::numpy_uexpr<Op, Arg0>>
+{
+    typedef typename assignable<Arg0>::type type;
+};
 
 template<class T>
 struct content_of {
@@ -1164,10 +1169,9 @@ template<class T, unsigned long N>
 struct custom_array_to_ndarray {
     static PyObject* convert( core::ndarray<T,N> n) {
         PyObject* result = PyArray_SimpleNewFromData(N, n.shape->data(), c_type_to_numpy_type<T>::value, n.data.forget()->data + *n.offset_data);
-
         if (!result)
             return nullptr;
-        return boost::python::incref(result);
+        return result;
     }
 };
 

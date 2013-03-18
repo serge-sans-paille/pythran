@@ -91,7 +91,7 @@ class TestNumpy(TestEnv):
     def test_arange6(self):
         self.run_test("def np_arange6_():\n from numpy import arange\n return arange(0.2, 3.3, 0.5)", np_arange6_=[])
 
-    @unittest.skip("Work outside of tests") 
+    #@unittest.skip("Work outside of tests") 
     def test_arange7(self):
         self.run_test("def np_arange7_():\n from numpy import arange\n return arange(1, 4.5, -0.2)", np_arange7_=[])
 

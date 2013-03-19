@@ -45,7 +45,6 @@ This is an easy one. A good candidate to discover Pythran's runtime internals.
 Automatic vectorization of list comprehension
 ---------------------------------------------
 
-
 Because when you see::
 
     [x*x for x in l]
@@ -93,6 +92,8 @@ running ``setup.py test``.
 Avoid false polymorphism
 ------------------------
 
+*pbrunet has an eye on this one*
+
 In the following code::
 
     a = 1 ; a = 'e'
@@ -112,3 +113,10 @@ Automatic generation of (part of) Pythonic
 Some part of ``pythonic`` are really boring to write. For instance the
 ``PROXY`` macro calls. Developers should be lazy: there must be a way (think
 about it!) to automate part of this work. Good for smart new pythraners!
+
+Performance issues detection
+----------------------------
+
+There is a big benchmark / test cases codebase in Pythran. We should monitor it
+and detect performance bottleneck, as well as track speedup changes upon new
+commits.

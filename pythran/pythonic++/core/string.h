@@ -5,6 +5,7 @@
 #include <cassert>
 #include <string>
 #include <sstream>
+#include <stdexcept>
 
 namespace pythonic {
     namespace core {
@@ -77,17 +78,17 @@ namespace pythonic {
             core::string operator+(core::string const& s) const {
                 return core::string( (*(std::string*)this)+(std::string const&)s );
             }
-            explicit operator long() {
-                long out;
-                std::istringstream iss(*this);
-                iss >> out;
-                return out;
-            }
+
             operator long int() const { // Allows implicit conversion without loosing bool conversion
-                long int out;
-                std::istringstream iss(*this);
-                iss >> out;
-                return out;
+                char *endptr;
+                long int res = strtol(data(), &endptr,10);
+                if(endptr == data()) {
+                    std::ostringstream err;
+                    err << "invalid literal for long() with base 10:"
+                        << "'" << *this << "'";
+                    throw std::runtime_error(err.str());
+                }
+                return res;
             }
             string& operator=(string_view const & other) {
                 if(other.get_data() == *this ) {

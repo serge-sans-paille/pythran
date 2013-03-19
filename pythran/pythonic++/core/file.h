@@ -142,20 +142,7 @@ namespace  pythonic {
 					return res;
 				}
 
-				core::string readline() {
-					if(not is_open) throw ValueError("I/O operation on closed file");
-					if (mode.find_first_of("r+") == std::string::npos)
-						throw IOError("File not open for reading");
-					char *content = nullptr;
-					size_t n=0; // Useless but must be given to readline. NULL => segfault
-					getline(&content, &n, **data);
-					// This part needs a new implementation of core::string(char*) to avoid unnecessary copy.
-					core::string res(content);
-					free(content);
-					return res;
-				}
-
-				core::string readline(size_t size) {
+				core::string readline(size_t size=std::numeric_limits<size_t>::max()) {
 					if(not is_open) throw ValueError("I/O operation on closed file");
 					if (mode.find_first_of("r+") == std::string::npos)
 						throw IOError("File not open for reading");
@@ -163,16 +150,16 @@ namespace  pythonic {
 					// if(size < 0) return readline(); // Already checked in module/file.h
 					// Getline will always realloc content to store full string.
 					// => Emulating expected behaviour
-					char *content = nullptr;
-					size_t real_size = getline(&content, &real_size, **data);
+                    static __thread char * buffer = nullptr;
+					static size_t n=0;
+					ssize_t real_size = getline(&buffer, &n, **data);
 					if (real_size > size){
 						fseek(**data, -(long)(real_size - size), SEEK_CUR);
-						content[size] = '\0';
+						buffer[size] = '\0';
 					}
-					// This part needs a new implementation of core::string(char*) to avoid unnecessary copy.
-					core::string res(content);
-					free(content);
-					return res;
+					// This part needs a new implementation of core::string(char*, size_t) to avoid unnecessary copy.
+                    if(real_size>0) return core::string(buffer, real_size);
+                    else return core::string();
 				}
 
 				core::list<core::string> readlines(int sizehint = -1) {

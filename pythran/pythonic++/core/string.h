@@ -71,6 +71,7 @@ namespace pythonic {
             string(std::string const & s) : std::string(s) {}
             string(std::string && s) : std::string(std::move(s)) {}
             string(const char*s) : std::string(s) {}
+            string(const char*s, size_t n) : std::string(s,n) {}
             string(char c) : std::string(1,c) {}
             string(string_view const & other) : std::string( other.begin(), other.end()) {}
             core::string operator+(core::string const& s) const {

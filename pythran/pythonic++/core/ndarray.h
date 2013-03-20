@@ -24,8 +24,8 @@ template <>
       double *bound = first + n/(unroll_factor*vsize) * (unroll_factor*vsize);
       __m128d xval = _mm_set_pd(val, val);
       while(first< bound) {
-          _mm_store_pd(first, xval);
-          _mm_store_pd(first+vsize, xval);
+          _mm_storeu_pd(first, xval);
+          _mm_storeu_pd(first+vsize, xval);
           first+=vsize * unroll_factor;
       }
       while(first<last)
@@ -135,17 +135,18 @@ namespace  pythonic {
                 T0 *arg0;
                 typedef decltype(Op()(arg0[std::declval<long>()])) value_type;
                 static constexpr unsigned long value = N0;
-                numpy_uexpr(ndarray<T0,N0> const& arg0 ) : arg0(arg0.data->data + *arg0.offset_data) {
+                long _size;
+                numpy_uexpr(ndarray<T0,N0> const& arg0 ) : arg0(arg0.data->data + *arg0.offset_data), _size(arg0.size()) {
                 }
 #ifdef __AVX__
-                auto load(long i) const -> decltype(Op()(_mm256_load_pd(arg0+i))) {
-                    return Op()(_mm256_load_pd(arg0+i));
+                auto load(long i) const -> decltype(Op()(_mm256_loadu_pd(arg0+i))) {
+                    return Op()(_mm256_loadu_pd(arg0+i));
                 }
 #endif
                 auto operator[](long i) const -> decltype(Op()(arg0[i])) {
                     return Op()(arg0[i]);
                 }
-                long size() const { return arg0.size(); }
+                long size() const { return _size; }
             };
 
         template<class Op, class Arg0, class Arg1>
@@ -179,8 +180,8 @@ namespace  pythonic {
                     _size(std::max(arg0.size(), arg1.size())) {
                 }
 #ifdef __AVX__
-                auto load(long i) const -> decltype(Op()(_mm256_load_pd(arg0+i), _mm256_load_pd(arg1+i))) {
-                    return Op()(_mm256_load_pd(arg0+i), _mm256_load_pd(arg1+i));
+                auto load(long i) const -> decltype(Op()(_mm256_loadu_pd(arg0+i), _mm256_loadu_pd(arg1+i))) {
+                    return Op()(_mm256_loadu_pd(arg0+i), _mm256_loadu_pd(arg1+i));
                 }
 #endif
                 auto operator[](long i) const -> decltype(Op()(arg0[i], arg1[i])) {
@@ -202,8 +203,8 @@ namespace  pythonic {
                     _size(std::max(arg0.size(), arg1.size())) {
                 }
 #ifdef __AVX__
-                auto load(long i) const -> decltype(Op()(_mm256_load_pd(arg0+i), arg1.load(i))) {
-                    return Op()(_mm256_load_pd(arg0+i), arg1.load(i));
+                auto load(long i) const -> decltype(Op()(_mm256_loadu_pd(arg0+i), arg1.load(i))) {
+                    return Op()(_mm256_loadu_pd(arg0+i), arg1.load(i));
                 }
 #endif
                 auto operator[](long i) const -> decltype(Op()(arg0[i], arg1[i])) {
@@ -225,8 +226,8 @@ namespace  pythonic {
                     _size(std::max(arg0.size(), arg1.size())) {
                 }
 #ifdef __AVX__
-                auto load(long i) const -> decltype(Op()(arg0.load(i), _mm256_load_pd(arg1+i))) {
-                    return Op()(arg0.load(i), _mm256_load_pd(arg1+i));
+                auto load(long i) const -> decltype(Op()(arg0.load(i), _mm256_loadu_pd(arg1+i))) {
+                    return Op()(arg0.load(i), _mm256_loadu_pd(arg1+i));
                 }
 #endif
                 auto operator[](long i) const -> decltype(Op()(arg0[i], arg1[i])) {
@@ -457,16 +458,18 @@ namespace  pythonic {
                         static const long vlength = sizeof(typename vectorized<T>::type) / sizeof(T);
                         const long bound = n/vlength*vlength;
 #pragma omp parallel for if(n>1000)
-                        for(i=0;i< bound; i+=vlength) {
 #ifdef __AVX__
-                            _mm256_store_pd(iter+i, other.load(i));
-#else
-                            iter[i] = other[i];
-#endif
+                        for(i=0;i< bound; i+=vlength) {
+                            _mm256_storeu_pd(iter+i, other.load(i));
                         }
                         for(;i< n; ++i, ++iter) {
                             *iter = other[i];
                         }
+#else
+                        for(i=0 ;i< n; ++i) {
+                            iter[i] = other[i];
+                        }
+#endif
                     }
                 template<class Op, class Arg0>
                     ndarray(numpy_uexpr<Op, Arg0> const & other) : offset_data(impl::shared_ref<size_t>(0)), shape(), data(other.size()) {
@@ -480,7 +483,7 @@ namespace  pythonic {
 #pragma omp parallel for if(n>1000)
                         for(i=0;i< bound; i+=vlength) {
 #ifdef __AVX__
-                            _mm256_store_pd(iter+i, other.load(i));
+                            _mm256_storeu_pd(iter+i, other.load(i));
 #else
                             iter[i] = other[i];
 #endif
@@ -536,7 +539,7 @@ namespace  pythonic {
 #pragma omp parallel for if(n>1000)
                         for(i=0;i< n/vlength*vlength; i+=vlength) {
 #ifdef __AVX__
-                            _mm256_store_pd(iter+i, other.load(i));
+                            _mm256_storeu_pd(iter+i, other.load(i));
 #else
                             iter[i] = other[i];
 #endif

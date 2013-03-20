@@ -88,13 +88,13 @@ namespace  pythonic {
         template<class T>
         struct vectorized {
             typedef T type;
-            type broadcast(T v) { return v;}
+            static type broadcast(T v) { return v;}
         };
 #ifdef __AVX__
         template<>
             struct vectorized<double> {
                 typedef __m256d type;
-                type broadcast(double v) { return _mm256_set_pd(v,v,v,v);}
+                static type broadcast(double v) { return _mm256_set_pd(v,v,v,v);}
             };
 #endif
 
@@ -102,13 +102,14 @@ namespace  pythonic {
             struct broadcast {
 
                 long size() const { return 0; }
-                typename vectorized<T>::type value;
-                broadcast(T v) : value(vectorized<T>::broadcast(v)) {}
+                typename vectorized<T>::type _value;
+                static constexpr unsigned long value = 0;
+                broadcast(T v) : _value(vectorized<T>::broadcast(v)) {}
 #ifdef __AVX__
-                typename vectorized<T>::type load(long ) const { return value;}
+                typename vectorized<T>::type load(long ) const { return _value;}
 #endif
                 T operator[](long ) const {
-                    return value;
+                    return _value;
                 }
             };
 
@@ -116,6 +117,7 @@ namespace  pythonic {
             struct numpy_uexpr {
                 Arg0 arg0;
                 typedef decltype(Op()(arg0[std::declval<long>()])) value_type;
+                static constexpr unsigned long value = Arg0::value;
                 numpy_uexpr(Arg0 const& arg0) : arg0(arg0) {
                 }
 #ifdef __AVX__
@@ -132,6 +134,7 @@ namespace  pythonic {
             struct numpy_uexpr<Op, ndarray<T0,N0>> {
                 T0 *arg0;
                 typedef decltype(Op()(arg0[std::declval<long>()])) value_type;
+                static constexpr unsigned long value = N0;
                 numpy_uexpr(ndarray<T0,N0> const& arg0 ) : arg0(arg0.data->data + *arg0.offset_data) {
                 }
 #ifdef __AVX__
@@ -150,6 +153,7 @@ namespace  pythonic {
                 Arg0 arg0;
                 Arg1 arg1;
                 typedef decltype(Op()(arg0[std::declval<long>()], arg1[std::declval<long>()])) value_type;
+                static constexpr unsigned long value = Arg0::value>Arg1::value?Arg0::value: Arg1::value;
                 numpy_expr(Arg0 const& arg0, Arg1 const& arg1) : arg0(arg0), arg1(arg1) {
                 }
 #ifdef __AVX__
@@ -168,6 +172,7 @@ namespace  pythonic {
                 T1* arg1;
                 long _size;
                 typedef decltype(Op()(arg0[std::declval<long>()], arg1[std::declval<long>()])) value_type;
+                static constexpr unsigned long value = N0>N1?N0:N1;
                 numpy_expr(ndarray<T0,N0> const& arg0, ndarray<T1,N1> const& arg1) :
                     arg0(arg0.data->data + *arg0.offset_data),
                     arg1(arg1.data->data + *arg1.offset_data),
@@ -190,6 +195,7 @@ namespace  pythonic {
                 Arg1 arg1;
                 long _size;
                 typedef decltype(Op()(arg0[std::declval<long>()], arg1[std::declval<long>()])) value_type;
+                static constexpr unsigned long value = std::max(N0, Arg1::value);
                 numpy_expr(ndarray<T0,N0> const& arg0, Arg1 const& arg1) :
                     arg0(arg0.data->data + *arg0.offset_data),
                     arg1(arg1),
@@ -212,6 +218,7 @@ namespace  pythonic {
                 T1* arg1;
                 long _size;
                 typedef decltype(Op()(arg0[std::declval<long>()], arg1[std::declval<long>()])) value_type;
+                static constexpr unsigned long value = Arg0::value>N1?Arg0::value:N1;
                 numpy_expr(Arg0 const& arg0, ndarray<T1,N1> const& arg1) :
                     arg0(arg0),
                     arg1(arg1.data->data + *arg1.offset_data),
@@ -752,14 +759,24 @@ namespace  pythonic {
                 return numpy_expr<plus, numpy_expr<Op, Arg0, Arg1>, ndarray<T,N>>(other, self);
             }
 
-        template<class T, unsigned long N>
-            numpy_expr<plus, ndarray<T,N>, broadcast<T>> operator+(ndarray<T,N> const & self, T other) {
-                return numpy_expr<plus, ndarray<T,N>, broadcast<T>>(self, broadcast<T>(other));
+        template<class T, unsigned long N, class S>
+            typename std::enable_if<std::is_scalar<S>::value, numpy_expr<plus, ndarray<T,N>, broadcast<S>>>::type operator+(ndarray<T,N> const & self, S other) {
+                return numpy_expr<plus, ndarray<T,N>, broadcast<S>>(self, broadcast<S>(other));
             }
 
-        template<class T, unsigned long N>
-            numpy_expr<plus, broadcast<T>, ndarray<T,N>> operator+(T other, ndarray<T,N> const & self) {
-                return numpy_expr<plus, broadcast<T>, ndarray<T,N>>(broadcast<T>(other), self);
+        template<class T, unsigned long N, class S>
+            typename std::enable_if<std::is_scalar<S>::value, numpy_expr<plus, broadcast<S>, ndarray<T,N>>>::type operator+(S other, ndarray<T,N> const & self) {
+                return numpy_expr<plus, broadcast<S>, ndarray<T,N>>(broadcast<S>(other), self);
+            }
+
+        template<class Op, class Arg0, class Arg1, class S>
+            typename std::enable_if<std::is_scalar<S>::value, numpy_expr<plus, numpy_expr<Op, Arg0, Arg1>, broadcast<S>>>::type operator+(numpy_expr<Op,Arg0,Arg1> const & self, S other) {
+                return numpy_expr<plus, numpy_expr<Op, Arg0, Arg1>, broadcast<S>>(self, broadcast<S>(other));
+            }
+
+        template<class Op, class Arg0, class Arg1, class S>
+            typename std::enable_if<std::is_scalar<S>::value, numpy_expr<plus, broadcast<S>, numpy_expr<Op, Arg0, Arg1>>>::type operator+(S other, numpy_expr<Op,Arg0,Arg1> const & self) {
+                return numpy_expr<plus, broadcast<S>, numpy_expr<Op, Arg0, Arg1>>(broadcast<S>(other), self);
             }
 
         template<class T, unsigned long N>

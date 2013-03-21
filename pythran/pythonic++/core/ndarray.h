@@ -32,6 +32,7 @@ template <>
           *first++=val;
   }
 }
+
 #endif
 
 namespace  pythonic {

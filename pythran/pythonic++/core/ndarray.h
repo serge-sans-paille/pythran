@@ -38,21 +38,6 @@ namespace  pythonic {
 
     namespace core {
 
-        struct plus {
-            template<class T0, class T1>
-                auto operator()(T0 const& t0, T1 const& t1) const -> decltype(t0 + t1) {
-                    return t0 + t1;
-                }
-        };
-
-        struct negate {
-            template<class T >
-                auto operator()(T const& t) const -> decltype(-t) {
-                    return -t;
-                }
-        };
-
-
         template<class T>
             class raw_array {
                 raw_array(raw_array<T> const& );
@@ -196,7 +181,7 @@ namespace  pythonic {
                 Arg1 arg1;
                 long _size;
                 typedef decltype(Op()(arg0[std::declval<long>()], arg1[std::declval<long>()])) value_type;
-                static constexpr unsigned long value = std::max(N0, Arg1::value);
+                static constexpr unsigned long value = N0>Arg1::value?N0:Arg1::value;
                 numpy_expr(ndarray<T0,N0> const& arg0, Arg1 const& arg1) :
                     arg0(arg0.data->data + *arg0.offset_data),
                     arg1(arg1),
@@ -740,60 +725,6 @@ namespace  pythonic {
                         return array(s...);
                     }
             };
-
-
-        template<class T, unsigned long N>
-            numpy_expr<plus, ndarray<T,N>, ndarray<T,N>> operator+(ndarray<T,N> const & self, ndarray<T,N> const & other) {
-                return numpy_expr<plus, ndarray<T,N>, ndarray<T,N>>(self, other);
-            }
-
-        template<class T, unsigned long N, class Op, class Arg0, class Arg1>
-            numpy_expr<plus, ndarray<T,N>, numpy_expr<Op, Arg0, Arg1>> operator+(ndarray<T,N> const & self, numpy_expr<Op, Arg0, Arg1> const & other) {
-                return numpy_expr<plus, ndarray<T,N>, numpy_expr<Op, Arg0, Arg1>>(self, other);
-            }
-
-        template<class OpA, class ArgA0, class ArgA1, class OpB, class ArgB0, class ArgB1>
-            numpy_expr<plus, numpy_expr<OpA, ArgA0, ArgA1>, numpy_expr<OpB, ArgB0, ArgB1>> operator+( numpy_expr<OpA, ArgA0, ArgA1> const & self, numpy_expr<OpB, ArgB0, ArgB1> const & other) {
-                return numpy_expr<plus, numpy_expr<OpA, ArgA0, ArgA1>, numpy_expr<OpB, ArgB0, ArgB1>>(self, other);
-            }
-
-        template<class T, unsigned long N, class Op, class Arg0, class Arg1>
-            numpy_expr<plus, numpy_expr<Op, Arg0, Arg1>, ndarray<T,N>> operator+(numpy_expr<Op, Arg0, Arg1> const & other, ndarray<T,N> const & self) {
-                return numpy_expr<plus, numpy_expr<Op, Arg0, Arg1>, ndarray<T,N>>(other, self);
-            }
-
-        template<class T, unsigned long N, class S>
-            typename std::enable_if<std::is_scalar<S>::value, numpy_expr<plus, ndarray<T,N>, broadcast<S>>>::type operator+(ndarray<T,N> const & self, S other) {
-                return numpy_expr<plus, ndarray<T,N>, broadcast<S>>(self, broadcast<S>(other));
-            }
-
-        template<class T, unsigned long N, class S>
-            typename std::enable_if<std::is_scalar<S>::value, numpy_expr<plus, broadcast<S>, ndarray<T,N>>>::type operator+(S other, ndarray<T,N> const & self) {
-                return numpy_expr<plus, broadcast<S>, ndarray<T,N>>(broadcast<S>(other), self);
-            }
-
-        template<class Op, class Arg0, class Arg1, class S>
-            typename std::enable_if<std::is_scalar<S>::value, numpy_expr<plus, numpy_expr<Op, Arg0, Arg1>, broadcast<S>>>::type operator+(numpy_expr<Op,Arg0,Arg1> const & self, S other) {
-                return numpy_expr<plus, numpy_expr<Op, Arg0, Arg1>, broadcast<S>>(self, broadcast<S>(other));
-            }
-
-        template<class Op, class Arg0, class Arg1, class S>
-            typename std::enable_if<std::is_scalar<S>::value, numpy_expr<plus, broadcast<S>, numpy_expr<Op, Arg0, Arg1>>>::type operator+(S other, numpy_expr<Op,Arg0,Arg1> const & self) {
-                return numpy_expr<plus, broadcast<S>, numpy_expr<Op, Arg0, Arg1>>(broadcast<S>(other), self);
-            }
-
-        template<class T, unsigned long N>
-            numpy_uexpr<negate, ndarray<T,N>> operator-(ndarray<T,N> const & self) {
-                return numpy_uexpr<negate, ndarray<T,N>>(self);
-            }
-        template<class Op, class Arg0, class Arg1>
-            numpy_uexpr<negate, numpy_expr<Op, Arg0, Arg1>> operator-(numpy_expr<Op, Arg0, Arg1> const& self) {
-                return numpy_uexpr<negate, numpy_expr<Op, Arg0, Arg1> >(self);
-            }
-        template<class Op, class Arg0>
-            numpy_uexpr<negate, numpy_uexpr<Op, Arg0>> operator-(numpy_uexpr<Op, Arg0> const& self) {
-                return numpy_uexpr<negate, numpy_uexpr<Op, Arg0> >(self);
-            }
     }
 }
 #endif

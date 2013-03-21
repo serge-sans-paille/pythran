@@ -22,6 +22,7 @@ pytype_to_ctype_table = {
         str: 'core::string',
         None: 'void',
         numpy.int64: 'long long',
+        numpy.float64: 'double',
         }
 
 type_to_suffix = {
@@ -244,6 +245,7 @@ modules = {
         "numpy": {
             "all": ConstMethodIntr(),
             "array": ConstFunctionIntr(),
+            "cos": ConstFunctionIntr(),
             "complex" : ConstFunctionIntr(),
             "complex32" : ConstFunctionIntr(),
             "complex64" : ConstFunctionIntr(),

@@ -185,17 +185,62 @@ class TestNumpy(TestEnv):
 #    def test_transpose2_(self):
 #        self.run_test("def np_transpose2_():\n from numpy import arange,transpose\n return arange(24).reshape(2,3,4).transpose((2,0,1))", np_transpose2_=[])
 #
-    def test_add0(self):
-        self.run_test("def np_add0(): from numpy import ones ; a, b = ones(10), ones(10) ; return a + b", np_add0=[])
+#    def test_add0(self):
+#        self.run_test("def np_add0(): from numpy import ones ; a, b = ones(10), ones(10) ; return a + b", np_add0=[])
+#
+#    def test_add1(self):
+#        self.run_test("def np_add1(): from numpy import ones ; a, b = ones(10), ones(10) ; return a + b + a", np_add1=[])
+#
+#    def test_add2(self):
+#        self.run_test("def np_add2(): from numpy import ones ; a, b = ones(10), ones(10) ; return a + b + 1", np_add2=[])
+#
+#    def test_add3(self):
+#        self.run_test("def np_add3(): from numpy import ones ; a, b = ones(10), ones(10) ; return 1. + a + b + 1.", np_add3=[])
+#
+#    def test_add4(self):
+#        self.run_test("def np_add4(): from numpy import ones ; a, b = ones(10), ones(10) ; return ( a + b ) + ( a + b )", np_add4=[])
+#
+#    def test_sub0(self):
+#        self.run_test("def np_sub0(): from numpy import ones ; a, b = ones(10), ones(10) ; return a - b", np_sub0=[])
+#
+#    def test_sub1(self):
+#        self.run_test("def np_sub1(): from numpy import ones ; a, b = ones(10), ones(10) ; return a - b - a", np_sub1=[])
+#
+#    def test_sub2(self):
+#        self.run_test("def np_sub2(): from numpy import ones ; a, b = ones(10), ones(10) ; return a - b - 1", np_sub2=[])
+#
+#    def test_sub3(self):
+#        self.run_test("def np_sub3(): from numpy import ones ; a, b = ones(10), ones(10) ; return 1. - a - b - 1.", np_sub3=[])
+#
+#    def test_sub4(self):
+#        self.run_test("def np_sub4(): from numpy import ones ; a, b = ones(10), ones(10) ; return ( a - b ) - ( a - b )", np_sub4=[])
+#
+#    def test_addsub0(self):
+#        self.run_test("def np_addsub0(): from numpy import ones ; a, b = ones(10), ones(10) ; return a - b + a", np_addsub0=[])
+#
+#    def test_addsub1(self):
+#        self.run_test("def np_addsub1(): from numpy import ones ; a, b = ones(10), ones(10) ; return a + b - a", np_addsub1=[])
+#
+#    def test_addsub2(self):
+#        self.run_test("def np_addsub2(): from numpy import ones ; a, b = ones(10), ones(10) ; return a + b - 1", np_addsub2=[])
+#
+#    def test_addsub3(self):
+#        self.run_test("def np_addsub3(): from numpy import ones ; a, b = ones(10), ones(10) ; return 1. + a - b + 1.", np_addsub3=[])
+#
+#    def test_addsub4(self):
+#        self.run_test("def np_addsub4(): from numpy import ones ; a, b = ones(10), ones(10) ; return ( a - b ) + ( a + b )", np_addsub4=[])
 
-    def test_add1(self):
-        self.run_test("def np_add1(): from numpy import ones ; a, b = ones(10), ones(10) ; return a + b + a", np_add1=[])
+    def test_addcossub0(self):
+        self.run_test("def np_addcossub0(): from numpy import ones, cos ; a, b = ones(10), ones(10) ; return a - b + cos(a)", np_addcossub0=[])
 
-    def test_add2(self):
-        self.run_test("def np_add2(): from numpy import ones ; a, b = ones(10), ones(10) ; return a + b + 1", np_add2=[])
+    def test_addcossub1(self):
+        self.run_test("def np_addcossub1(): from numpy import ones, cos ; a, b = ones(10), ones(10) ; return a + cos(b - a)", np_addcossub1=[])
 
-    def test_add3(self):
-        self.run_test("def np_add3(): from numpy import ones ; a, b = ones(10), ones(10) ; return 1. + a + b + 1.", np_add3=[])
+    def test_addcossub2(self):
+        self.run_test("def np_addcossub2(): from numpy import ones, cos ; a, b = ones(10), ones(10) ; return a + cos(b - 1)", np_addcossub2=[])
 
-    def test_add4(self):
-        self.run_test("def np_add4(): from numpy import ones ; a, b = ones(10), ones(10) ; return ( a + b ) + ( a + b )", np_add4=[])
+    def test_addcossub3(self):
+        self.run_test("def np_addcossub3(): from numpy import ones, cos ; a, b = ones(10), ones(10) ; return cos(1. + a - b + cos(1.))", np_addcossub3=[])
+
+    def test_addcossub4(self):
+        self.run_test("def np_addcossub4(): from numpy import ones, cos ; a, b = ones(10), ones(10) ; return cos( a - b ) + ( a + b )", np_addcossub4=[])

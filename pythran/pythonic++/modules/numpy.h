@@ -519,6 +519,9 @@ namespace pythonic {
             }
 
         PROXY(pythonic::numpy, transpose);
+
+        using pythonic::core::cos;
+        PROXY(pythonic::numpy, cos);
     }
 }
 

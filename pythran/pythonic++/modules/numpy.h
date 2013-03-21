@@ -198,15 +198,6 @@ namespace pythonic {
 
         PROXY(pythonic::numpy, linspace);
 
-        template<unsigned long N, class T>
-        core::ndarray<double, N> sin(core::ndarray<T, N> const& a)
-        {
-            return core::ndarray<double,N>(a, (double (*)(double))std::sin);
-        }
-
-        using std::sin;
-        PROXY(pythonic::numpy, sin);
-
         template<class... T, class type>
             core::ndarray<type,sizeof...(T)> build_cst_array_from_list(type cst, core::list<type> const& prev_l, type const& val, T const& ...l)
             {
@@ -520,8 +511,45 @@ namespace pythonic {
 
         PROXY(pythonic::numpy, transpose);
 
+        using pythonic::math::cos;
         using pythonic::core::cos;
         PROXY(pythonic::numpy, cos);
+
+        using pythonic::math::sin;
+        using pythonic::core::sin;
+        PROXY(pythonic::numpy, sin);
+
+        using pythonic::math::tan;
+        using pythonic::core::tan;
+        PROXY(pythonic::numpy, tan);
+
+        template<class T0>
+        auto arccos(T0 const& t0) -> decltype(std::acos(t0)) {
+            return std::acos(t0);
+        }
+        using pythonic::core::arccos;
+        PROXY(pythonic::numpy, arccos);
+
+        template<class T0>
+        auto arcsin(T0 const& t0) -> decltype(std::asin(t0)) {
+            return std::asin(t0);
+        }
+        using pythonic::core::arcsin;
+        PROXY(pythonic::numpy, arcsin);
+
+        template<class T0>
+        auto arctan(T0 const& t0) -> decltype(std::atan(t0)) {
+            return std::atan(t0);
+        }
+        using pythonic::core::arctan;
+        PROXY(pythonic::numpy, arctan);
+
+        template<class T0, class T1>
+        auto arctan2(T0 const& t0, T1 const& t1) -> decltype(std::atan2(t0,t1)) {
+            return std::atan2(t0,t1);
+        }
+        using pythonic::core::arctan2;
+        PROXY(pythonic::numpy, arctan2);
     }
 }
 

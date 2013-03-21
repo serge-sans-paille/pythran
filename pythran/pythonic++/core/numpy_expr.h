@@ -42,6 +42,29 @@ namespace  pythonic {
 #define NUMPY_UNARY_FUNC_SYM pythonic::math::proxy::cos
 #include "numpy_unary_expr.h"
 
+#define NUMPY_UNARY_FUNC_NAME sin
+#define NUMPY_UNARY_FUNC_SYM pythonic::math::proxy::sin
+#include "numpy_unary_expr.h"
+
+#define NUMPY_UNARY_FUNC_NAME tan
+#define NUMPY_UNARY_FUNC_SYM pythonic::math::proxy::tan
+#include "numpy_unary_expr.h"
+
+#define NUMPY_UNARY_FUNC_NAME arccos
+#define NUMPY_UNARY_FUNC_SYM pythonic::math::proxy::acos
+#include "numpy_unary_expr.h"
+
+#define NUMPY_UNARY_FUNC_NAME arcsin
+#define NUMPY_UNARY_FUNC_SYM pythonic::math::proxy::asin
+#include "numpy_unary_expr.h"
+
+#define NUMPY_UNARY_FUNC_NAME arctan
+#define NUMPY_UNARY_FUNC_SYM pythonic::math::proxy::atan
+#include "numpy_unary_expr.h"
+
+#define NUMPY_BINARY_FUNC_NAME arctan2
+#define NUMPY_BINARY_FUNC_SYM pythonic::math::proxy::atan2
+#include "numpy_binary_expr.h"
     }
 }
 

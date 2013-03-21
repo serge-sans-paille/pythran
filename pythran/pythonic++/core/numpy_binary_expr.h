@@ -60,6 +60,11 @@ typename std::enable_if<std::is_scalar<S>::value, numpy_expr<NUMPY_BINARY_FUNC_S
     return numpy_expr<NUMPY_BINARY_FUNC_SYM, numpy_expr<Op, Arg0, Arg1>, broadcast<S>>(self, broadcast<S>(other));
 }
 
+template<class Op, class Arg0, class S>
+typename std::enable_if<std::is_scalar<S>::value, numpy_expr<NUMPY_BINARY_FUNC_SYM, numpy_uexpr<Op, Arg0>, broadcast<S>>>::type NUMPY_BINARY_FUNC_NAME(numpy_uexpr<Op,Arg0> const & self, S other) {
+    return numpy_expr<NUMPY_BINARY_FUNC_SYM, numpy_uexpr<Op, Arg0>, broadcast<S>>(self, broadcast<S>(other));
+}
+
 template<class Op, class Arg0, class Arg1, class S>
 typename std::enable_if<std::is_scalar<S>::value, numpy_expr<NUMPY_BINARY_FUNC_SYM, broadcast<S>, numpy_expr<Op, Arg0, Arg1>>>::type NUMPY_BINARY_FUNC_NAME(S other, numpy_expr<Op,Arg0,Arg1> const & self) {
     return numpy_expr<NUMPY_BINARY_FUNC_SYM, broadcast<S>, numpy_expr<Op, Arg0, Arg1>>(broadcast<S>(other), self);

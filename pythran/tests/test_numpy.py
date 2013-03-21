@@ -244,3 +244,42 @@ class TestNumpy(TestEnv):
 
     def test_addcossub4(self):
         self.run_test("def np_addcossub4(): from numpy import ones, cos ; a, b = ones(10), ones(10) ; return cos( a - b ) + ( a + b )", np_addcossub4=[])
+
+    def test_sin0(self):
+        self.run_test("def np_sin0(): from numpy import ones, sin ; a, b = ones(10), ones(10) ; return sin(a) + b", np_sin0=[])
+
+    def test_tan0(self):
+        self.run_test("def np_tan0(): from numpy import ones, tan ; a, b = ones(10), ones(10) ; return tan(a - b)", np_tan0=[])
+
+    def test_arccos0(self):
+        self.run_test("def np_arccos0(): from numpy import ones, arccos ; a, b = ones(10), ones(10) ; return arccos(a - b) + 1", np_arccos0=[])
+
+    def test_arcsin0(self):
+        self.run_test("def np_arcsin0(): from numpy import ones, arcsin ; a, b = ones(10), ones(10) ; return arcsin(a + b - a + -b) + 1.", np_arcsin0=[])
+
+    def test_arctan0(self):
+        self.run_test("def np_arctan0(): from numpy import ones, arctan ; a, b = ones(10), ones(10) ; return arctan(a -0.5) + a", np_arctan0=[])
+
+    def test_arctan20(self):
+        self.run_test("def np_arctan20(): from numpy import ones, arctan2 ; a, b = ones(10), ones(10) ; return b - arctan2(a , b)", np_arctan20=[])
+
+    def test_cos1(self):
+        self.run_test("def np_cos1(): from numpy import cos ; a = 5 ; return cos(a)", np_cos1=[])
+
+    def test_sin1(self):
+        self.run_test("def np_sin1(): from numpy import sin ; a = 0.5 ; return sin(a)", np_sin1=[])
+
+    def test_tan1(self):
+        self.run_test("def np_tan1(): from numpy import tan ; a = 0.5 ; return tan(a)", np_tan1=[])
+
+    def test_arccos1(self):
+        self.run_test("def np_arccos1(): from numpy import arccos ; a= 1 ; return arccos(a)", np_arccos1=[])
+
+    def test_arcsin1(self):
+        self.run_test("def np_arcsin1(): from numpy import arcsin ; a= 1 ; return arcsin(a)", np_arcsin1=[])
+
+    def test_arctan1(self):
+        self.run_test("def np_arctan1(): from numpy import arctan ; a = 0.5 ; return arctan(a)", np_arctan1=[])
+
+    def test_arctan21(self):
+        self.run_test("def np_arctan21(): from numpy import arctan2 ; a, b = 1, .5 ; return arctan2(a , b)", np_arctan21=[])

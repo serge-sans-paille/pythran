@@ -9,6 +9,13 @@
 #define WRAP(type,name,cname,argType)\
     type name(argType x){ return cname(x); }
 
+// Use to declare a function as an alias of another one
+#define ALIAS(oldf, newf)\
+    template<typename... Types>\
+        auto newf(Types &&... types) ->  decltype(oldf(std::forward<Types>(types)...)) {\
+            return oldf(std::forward<Types>(types)...);\
+        }
+
 // Use this to create a proxy on a specific intrinsic
 #define PROXY(ns,f) \
     namespace proxy {\

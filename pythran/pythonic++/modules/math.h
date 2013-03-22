@@ -1,10 +1,12 @@
 #ifndef PYTHONIC_MODULE_MATH_H
 #define PYTHONIC_MODULE_MATH_H
 
+#include "nt2/toolbox/trigonometric/trigonometric.hpp"
+
 namespace pythonic {
     namespace math {
         using std::acos;
-        using std::cos;
+        using nt2::cos;
         using std::exp;
         using std::sin;
         using std::sqrt;

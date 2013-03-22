@@ -7,8 +7,12 @@
 #include <initializer_list>
 #include "shared_ref.h"
 
+#include <boost/simd/sdk/simd/native.hpp>
 #ifdef __AVX__
-#include <immintrin.h>
+#include <boost/simd/include/functions/unaligned_load.hpp>
+#include <boost/simd/include/functions/unaligned_store.hpp>
+#include <boost/simd/include/functions/load.hpp>
+#include <boost/simd/include/functions/store.hpp>
 #endif
 
 #include <mm_malloc.h>
@@ -19,14 +23,16 @@ namespace std {
 template <>
   void fill<double*, double> (double* first, double* last, const double& val) {
       size_t n = last - first;
-      static const size_t vsize = sizeof(__m128d) / sizeof(double);
+      typedef boost::simd::native<double, BOOST_SIMD_DEFAULT_EXTENSION> vS;
+      static const std::size_t vN = boost::simd::meta::cardinal_of< vS >::value;
       static const size_t unroll_factor = 2;
-      double *bound = first + n/(unroll_factor*vsize) * (unroll_factor*vsize);
-      __m128d xval = _mm_set_pd(val, val);
+      double *bound = first + n/(unroll_factor*vN) * (unroll_factor*vN);
+      vS xval = boost::simd::splat<vS>(val);
+
       while(first< bound) {
-          _mm_storeu_pd(first, xval);
-          _mm_storeu_pd(first+vsize, xval);
-          first+=vsize * unroll_factor;
+          boost::simd::unaligned_store<vS>( xval, first, 0);
+          boost::simd::unaligned_store<vS>( xval, first, vN);
+          first+= vN * unroll_factor;
       }
       while(first<last)
           *first++=val;
@@ -79,8 +85,11 @@ namespace  pythonic {
 #ifdef __AVX__
         template<>
             struct vectorized<double> {
-                typedef __m256d type;
-                static type broadcast(double v) { return _mm256_set_pd(v,v,v,v);}
+                typedef boost::simd::native<double, BOOST_SIMD_DEFAULT_EXTENSION> type;
+                static type broadcast(double v) {
+                    static const std::size_t N = boost::simd::meta::cardinal_of< type >::value;
+                    return boost::simd::splat<type> (v);
+                }
             };
 #endif
 
@@ -88,14 +97,15 @@ namespace  pythonic {
             struct broadcast {
 
                 long size() const { return 0; }
+                T __value;
                 typename vectorized<T>::type _value;
                 static constexpr unsigned long value = 0;
-                broadcast(T v) : _value(vectorized<T>::broadcast(v)) {}
+                broadcast(T v) : __value(v), _value(vectorized<T>::broadcast(v)) {}
 #ifdef __AVX__
                 typename vectorized<T>::type load(long ) const { return _value;}
 #endif
                 T operator[](long ) const {
-                    return _value;
+                    return __value;
                 }
             };
 
@@ -125,8 +135,8 @@ namespace  pythonic {
                 numpy_uexpr(ndarray<T0,N0> const& arg0 ) : arg0(arg0.data->data + *arg0.offset_data), _size(arg0.size()) {
                 }
 #ifdef __AVX__
-                auto load(long i) const -> decltype(Op()(_mm256_loadu_pd(arg0+i))) {
-                    return Op()(_mm256_loadu_pd(arg0+i));
+                auto load(long i) const -> decltype(Op()( boost::simd::unaligned_load<boost::simd::native<T0, BOOST_SIMD_DEFAULT_EXTENSION>>(arg0,i) )) {
+                    return Op()(boost::simd::unaligned_load<boost::simd::native<T0, BOOST_SIMD_DEFAULT_EXTENSION>>(arg0,i));
                 }
 #endif
                 auto operator[](long i) const -> decltype(Op()(arg0[i])) {
@@ -166,8 +176,8 @@ namespace  pythonic {
                     _size(std::max(arg0.size(), arg1.size())) {
                 }
 #ifdef __AVX__
-                auto load(long i) const -> decltype(Op()(_mm256_loadu_pd(arg0+i), _mm256_loadu_pd(arg1+i))) {
-                    return Op()(_mm256_loadu_pd(arg0+i), _mm256_loadu_pd(arg1+i));
+                auto load(long i) const -> decltype(Op()(boost::simd::unaligned_load<boost::simd::native<T0, BOOST_SIMD_DEFAULT_EXTENSION>>(arg0,i), boost::simd::unaligned_load<boost::simd::native<T1, BOOST_SIMD_DEFAULT_EXTENSION>>(arg1,i))) {
+                    return Op()(boost::simd::unaligned_load<boost::simd::native<T0, BOOST_SIMD_DEFAULT_EXTENSION>>(arg0,i), boost::simd::unaligned_load<boost::simd::native<T1, BOOST_SIMD_DEFAULT_EXTENSION>>(arg1,i));
                 }
 #endif
                 auto operator[](long i) const -> decltype(Op()(arg0[i], arg1[i])) {
@@ -189,8 +199,8 @@ namespace  pythonic {
                     _size(std::max(arg0.size(), arg1.size())) {
                 }
 #ifdef __AVX__
-                auto load(long i) const -> decltype(Op()(_mm256_loadu_pd(arg0+i), arg1.load(i))) {
-                    return Op()(_mm256_loadu_pd(arg0+i), arg1.load(i));
+                auto load(long i) const -> decltype(Op()(boost::simd::unaligned_load<boost::simd::native<T0, BOOST_SIMD_DEFAULT_EXTENSION>>(arg0,i), arg1.load(i))) {
+                    return Op()(boost::simd::unaligned_load<boost::simd::native<T0, BOOST_SIMD_DEFAULT_EXTENSION>>(arg0,i), arg1.load(i));
                 }
 #endif
                 auto operator[](long i) const -> decltype(Op()(arg0[i], arg1[i])) {
@@ -433,50 +443,49 @@ namespace  pythonic {
                         data = impl::shared_ref< raw_array<T> >(array.data->n);
                         std::transform(iter.begin(), iter.end(), data->data, op);
                     }
+                template<class E>
+                    void initialize(E const & expr) {
+                        long n = expr.size();
+                        shape = impl::shared_ref<std::array<long,1>>();
+                        (*shape)[0] = n;
+                        T* iter = data->data;
+                        typedef typename boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION> vT;
+                        static const std::size_t vN = boost::simd::meta::cardinal_of< vT >::value;
+                        long i;
+#ifdef __AVX__
+                        const long bound = n/(2*vN)*(2*vN);
+#else
+                        const long bound = (n/8)*8;
+#endif
+#pragma omp parallel for if(n>1000)
+#ifdef __AVX__
+                        for(i=0;i< bound; i+= vN) {
+                            boost::simd::unaligned_store<vT>( expr.load(i+0*vN), iter, i+0*vN);
+                        }
+#else
+                        for(i=0 ;i< bound; i+=8) {
+                            iter[i+0] = expr[i+0];
+                            iter[i+1] = expr[i+1];
+                            iter[i+2] = expr[i+2];
+                            iter[i+3] = expr[i+3];
+                            iter[i+4] = expr[i+4];
+                            iter[i+5] = expr[i+5];
+                            iter[i+6] = expr[i+6];
+                            iter[i+7] = expr[i+7];
+                        }
+#endif
+                        for(i=bound;i< n; ++i)
+                            iter[i] = expr[i];
+                    }
 
                 template<class Op, class Arg0, class Arg1>
-                    ndarray(numpy_expr<Op, Arg0, Arg1> const & other) : offset_data(impl::shared_ref<size_t>(0)), shape(), data(other.size()) {
-                        long n = other.size();
-                        shape = impl::shared_ref<std::array<long,1>>();
-                        (*shape)[0] = n;
-                        T* iter = data->data;
-                        long i;
-                        static const long vlength = sizeof(typename vectorized<T>::type) / sizeof(T);
-                        const long bound = n/vlength*vlength;
-#pragma omp parallel for if(n>1000)
-#ifdef __AVX__
-                        for(i=0;i< bound; i+=vlength) {
-                            _mm256_storeu_pd(iter+i, other.load(i));
-                        }
-                        for(;i< n; ++i, ++iter) {
-                            *iter = other[i];
-                        }
-#else
-                        for(i=0 ;i< n; ++i) {
-                            iter[i] = other[i];
-                        }
-#endif
+                    ndarray(numpy_expr<Op, Arg0, Arg1> const & expr) : offset_data(impl::shared_ref<size_t>(0)), shape(), data(expr.size()) {
+                        initialize(expr);
                     }
                 template<class Op, class Arg0>
-                    ndarray(numpy_uexpr<Op, Arg0> const & other) : offset_data(impl::shared_ref<size_t>(0)), shape(), data(other.size()) {
-                        long n = other.size();
-                        shape = impl::shared_ref<std::array<long,1>>();
-                        (*shape)[0] = n;
-                        T* iter = data->data;
-                        long i;
-                        static const long vlength = sizeof(typename vectorized<T>::type) / sizeof(T);
-                        const long bound = n/vlength*vlength;
-#pragma omp parallel for if(n>1000)
-                        for(i=0;i< bound; i+=vlength) {
-#ifdef __AVX__
-                            _mm256_storeu_pd(iter+i, other.load(i));
-#else
-                            iter[i] = other[i];
-#endif
-                        }
-                        for(;i< n; ++i, ++iter) {
-                            *iter = other[i];
-                        }
+                    ndarray(numpy_uexpr<Op, Arg0> const & expr) : offset_data(impl::shared_ref<size_t>(0)), shape(), data(expr.size()) {
+                        initialize(expr);
+
                     }
 
                 long size() const {
@@ -514,26 +523,8 @@ namespace  pythonic {
                 }
 
                 template<class Op, class Arg0, class Arg1>
-                    ndarray<T,N>& operator=(numpy_expr<Op, Arg0, Arg1> & other) {
-                        long n = other.size();
-                        shape = impl::shared_ref<std::array<long,1>>();
-                        (*shape)[0] = n;
-                        data = impl::shared_ref< raw_array<T> >(n);
-                        T* iter = data->data;
-                        long i;
-                        static const long vlength = sizeof(typename vectorized<T>::type) / sizeof(T);
-#pragma omp parallel for if(n>1000)
-                        for(i=0;i< n/vlength*vlength; i+=vlength) {
-#ifdef __AVX__
-                            _mm256_storeu_pd(iter+i, other.load(i));
-#else
-                            iter[i] = other[i];
-#endif
-                        }
-                        for(;i< n; ++i, ++iter) {
-                            *iter = other[i];
-                        }
-                        return *this;
+                    ndarray<T,N>& operator=(numpy_expr<Op, Arg0, Arg1> & expr) {
+                        initialize(expr);
                     }
 
 

@@ -183,6 +183,7 @@ class ToolChain(object):
 
         self.cppflags = self.python_cppflags()
         self.cppflags += self.pythran_cppflags()
+        self.cppflags += self.numpy_cppflags()
         self.cppflags += cfg.get('sys', 'cppflags').split()
         self.cppflags += kwargs.get('cppflags',
                 cfg.get('user', 'cppflags').split())
@@ -198,6 +199,9 @@ class ToolChain(object):
 
     def python_cppflags(self):
         return ["-I" + distutils.sysconfig.get_python_inc()]
+
+    def numpy_cppflags(self):
+        return ['-I{0}/numpy'.format(get_include())]
 
     def python_ldflags(self):
         return ["-L{0}/config".format(

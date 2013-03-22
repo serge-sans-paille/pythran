@@ -291,6 +291,21 @@ decltype(std::declval<int>() + 1) main()
         except RuntimeError:
             pass
 
+        # nt2
+        try:
+            self.check_package('Numerical template Toolbox', '#include <nt2/include/fucntions/simd/cos.hpp>\nint main() { return 0; }')
+        except EnvironmentError:
+            pass
+
+
+#        # tcmalloc only if available
+#        try:
+#            self.check_package('tcmalloc', 'int main() { return 0; }',
+#                                ldflags=['-ltcmalloc_minimal'],
+#                                optional=True)
+#        except EnvironmentError:
+#            pass
+#
         #numpy
         self.check_package('numpy',
                 '#include "Python.h"\n#include "arrayobject.h"\nint main() { return 0; }',

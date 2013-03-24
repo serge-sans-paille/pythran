@@ -83,3 +83,24 @@ def generator_sum(l0,l1):
     def test_in_generator(self):
         self.run_test("def in_generator(n):return 1. in (i*i for i in xrange(n))", 5, in_generator=[int])
 
+    def test_tuple_unpacking_in_generator(self):
+        code = '''
+def foo(l):
+    a,b= 1,0
+    yield a
+    yield b
+def tuple_unpacking_in_generator():
+    f = foo(range(10))
+    return 0 in f'''
+        self.run_test(code, tuple_unpacking_in_generator=[])
+
+    def test_loop_tuple_unpacking_in_generator(self):
+        code= '''
+def foo(l):
+    for i,j in enumerate(l):
+        yield i,j
+def loop_tuple_unpacking_in_generator():
+    f = foo(range(10))
+    return (0,0) in f'''
+        self.run_test(code, loop_tuple_unpacking_in_generator=[])
+

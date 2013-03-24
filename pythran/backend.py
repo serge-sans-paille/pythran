@@ -544,7 +544,7 @@ class Cxx(Backend):
             local_target_decl = ""
             local_iter_decl = ""
         target_decl = ("auto"
-                if metadata.get(node.target, metadata.LocalVariable)
+                if metadata.get(node.target, metadata.LocalVariable) and not self.yields
                 else "")
 
         loop_body = [self.visit(n) for n in node.body]

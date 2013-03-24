@@ -33,10 +33,12 @@ namespace  pythonic {
 
 			struct _file{
 					FILE* f;
-					_file() : f(nullptr) {}
-					_file(core::string const& filename, core::string const& strmode = "r") : f(fopen(filename.c_str(), strmode.c_str())){}
+					char* _buffer; // Buffer used by file.readline()
+					size_t _buffer_size;
+					_file() : f(nullptr), _buffer(nullptr), _buffer_size(0){}
+					_file(core::string const& filename, core::string const& strmode = "r") : f(fopen(filename.c_str(), strmode.c_str())), _buffer(nullptr), _buffer_size(0){}
 					FILE* operator*() const {return f;}
-					~_file() {if(f) fclose(f);}
+					~_file() {if(f) fclose(f); if (_buffer) free(_buffer);}
 			};
 
 			class file {
@@ -150,16 +152,14 @@ namespace  pythonic {
 					// if(size < 0) return readline(); // Already checked in module/file.h
 					// Getline will always realloc content to store full string.
 					// => Emulating expected behaviour
-                    static __thread char * buffer = nullptr;
-					static size_t n=0;
-					ssize_t real_size = getline(&buffer, &n, **data);
+					ssize_t real_size = getline(&data->_buffer, &data->_buffer_size, **data);
 					if (real_size > size){
 						fseek(**data, -(long)(real_size - size), SEEK_CUR);
-						buffer[size] = '\0';
+						data->_buffer[size] = '\0';
 					}
 					// This part needs a new implementation of core::string(char*, size_t) to avoid unnecessary copy.
-                    if(real_size>0) return core::string(buffer, real_size);
-                    else return core::string();
+					if(real_size>0) return core::string(data->_buffer, real_size);
+					else return core::string();
 				}
 
 				core::list<core::string> readlines(int sizehint = -1) {

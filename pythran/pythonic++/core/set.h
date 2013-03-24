@@ -11,7 +11,7 @@
 namespace  pythonic {
 
     template<class T, class V>
-        bool in(T const&, V const&);
+        bool in(T &&, V const&);
 
     /* the container type */
     namespace core {

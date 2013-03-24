@@ -757,8 +757,15 @@ namespace pythonic {
     /* in */
     template <class T, class V>
         struct _in {
-            bool operator()(T const &t, V const &v) {
+            template <class U>
+            bool operator()(U&& t, V const &v) {
                 return std::find(t.begin(), t.end(), v) != t.end();
+            }
+        };
+    template <class T, class V>
+        struct _in<core::set<T>, V> {
+            bool operator()(core::set<T> const &t, V const &v) {
+                return t.get_data().find(v) != t.end();
             }
         };
     template <class K, class V>
@@ -774,19 +781,17 @@ namespace pythonic {
                 return found != t.data.item_end() and std::get<1>(*found) == std::get<1>(v);
             }
         };
-    template <class T, class V>
-        bool in(T const &t, V const &v) {
-            return _in<T,V>()(t,v);
-        }
-    template <class T, class V>
-        bool in(core::set<T> const &t, V const &v) {
-            return t.get_data().find(v) != t.end();
-        }
     template <>
-        bool in<core::string, core::string>(core::string const &t, core::string const &v) {
-            return t.find(v) != core::string::npos;
+        struct _in<core::string, core::string> {
+            bool operator()(core::string const &t, core::string const &v) {
+                return t.find(v) != core::string::npos;
+            }
+        };
+
+    template <class T, class V>
+        bool in(T &&t, V const &v) {
+            return _in<typename std::remove_cv<typename std::remove_reference<T>::type>::type,V>()(std::forward<T>(t),v);
         }
-    PROXY(pythonic, in);
 
 }
 #endif

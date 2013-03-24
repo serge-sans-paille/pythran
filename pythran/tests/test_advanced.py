@@ -80,3 +80,6 @@ def generator_sum(l0,l1):
     def test_tuple_to_list(self):
         self.run_test('def tuple_to_list(t): return list(t)', (1,2,3), tuple_to_list=[(int, int, int)])
 
+    def test_in_generator(self):
+        self.run_test("def in_generator(n):return 1. in (i*i for i in xrange(n))", 5, in_generator=[int])
+

@@ -446,6 +446,24 @@ namespace pythonic {
             }
 
 
+    template<class R, class A>
+	struct itemgetterReturnFct {
+       long i;
+
+       itemgetterReturnFct(long const& item) { i = item; }
+
+       R operator()(A const& a) { return a[i];}
+	
+	};
+
+    template<class R, class A>
+    itemgetterReturnFct<R,A> itemgetter(long item)
+    {
+        return new itemgetterReturnFct<R,A>(item);
+    }
+    
+	
+
         PROXY(pythonic::operator_, truth);
         PROXY(pythonic::operator_, __abs__);
 //        PROXY(pythonic::operator_, xor);
@@ -454,6 +472,7 @@ namespace pythonic {
         PROXY(pythonic::operator_, is_not);
         PROXY(pythonic::operator_, countOf);
         PROXY(pythonic::operator_, indexOf);
+        PROXY(pythonic::operator_, itemgetter);
     }
 
 }

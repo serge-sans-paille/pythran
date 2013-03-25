@@ -760,7 +760,7 @@ class Cxx(Backend):
             return repr(node.n) + type_to_suffix.get(type(node.n), "")
 
     def visit_Str(self, node):
-        return 'core::string("{0}")'.format(node.s.replace('\n', '\\n"\n"'))
+        return 'core::string("{0}")'.format(node.s.replace('"','\\"').replace('\n', '\\n"\n"'))
 
     def visit_Attribute(self, node):
         def rec(w, n):

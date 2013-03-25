@@ -525,7 +525,7 @@ class Aliases(ModuleAnalysis):
     def visit_ExceptHandler(self, node):
         if node.name:
             self.aliases[node.name.id] = {node.name}
-            self.generic_visit(node)
+        self.generic_visit(node)
 
 
 ##

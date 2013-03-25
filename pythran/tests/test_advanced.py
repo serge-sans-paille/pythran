@@ -104,3 +104,13 @@ def loop_tuple_unpacking_in_generator():
     return (0,0) in f'''
         self.run_test(code, loop_tuple_unpacking_in_generator=[])
 
+    def test_assign_in_except(self):
+        code = '''
+def assign_in_except():
+    try:
+        a=1
+    except:
+        a+=a
+    return a'''
+        self.run_test(code, assign_in_except=[])
+

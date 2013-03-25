@@ -14,7 +14,7 @@ from analysis import OrderedGlobalDeclarations, ModuleAnalysis, StrictAliases
 from passes import Transformation
 from syntax import PythranSyntaxError
 from cxxtypes import *
-from intrinsic import UserFunction
+from intrinsic import UserFunction, MethodIntr
 import itertools
 import operator
 import metadata
@@ -269,18 +269,21 @@ class Types(ModuleAnalysis):
             for alias in self.strict_aliases[func].aliases:
                 # handle backward type dependencies from method calls
                 signature = None
-                if isinstance(alias, ast.Attribute):
-                    _, signature = methods.get(
-                            func.attr,
-                            functions.get(func.attr, [(None, None)])[0]
-                            )
-                elif isinstance(alias, ast.Name):
-                    _, signature = functions.get(func.attr, [(None, None)])[0]
+                if isinstance(alias, MethodIntr):
+                    signature = alias
+                #if isinstance(alias, ast.Attribute):
+                #    _, signature = methods.get(
+                #            func.attr,
+                #            functions.get(func.attr, [(None, None)])[0]
+                #            )
+                #elif isinstance(alias, ast.Name):
+                #    _, signature = functions.get(func.attr, [(None, None)])[0]
                 if signature:
                     return_alias = (signature.return_alias
                             and signature.return_alias(n))
                     if return_alias:  # else new location -> unboundable
-                        return self.node_to_id(return_alias, depth)
+                        assert len(return_alias), 'Too many return aliases'
+                        return self.node_to_id(list(return_alias)[0], depth)
             raise UnboundableRValue()
 
         else:

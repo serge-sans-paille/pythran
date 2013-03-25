@@ -14,3 +14,11 @@ class TestStr(TestEnv):
     def test_str_failed_conversion(self):
         self.run_test("def str_failed_conversion(s):\n try: return long(s)\n except: return 42", "prout", str_failed_conversion=[str])
 
+    def test_str_replace0(self):
+        self.run_test("def str_replace0(s): return s.replace('er', 'rer')", "parler", str_replace0=[str])
+
+    def test_str_replace1(self):
+        self.run_test("def str_replace1(s): return s.replace('er', 'rer', 1)", "erlang manger dessert", str_replace1=[str])
+
+    def test_str_replace2(self):
+        self.run_test("def str_replace2(s): return s.replace('', 'du vide surgit rien', 1)", "j aime les moulinettes a fromage", str_replace2=[str])

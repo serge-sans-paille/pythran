@@ -67,6 +67,21 @@ namespace pythonic {
         }
         PROXY(pythonic::__string__, endswith);
 
+        core::string replace(core::string const& self, core::string const& old_pattern, core::string const& new_pattern, long count=std::numeric_limits<long>::max()) {
+            core::string replaced(self);
+            replaced.reserve(1 + std::max(self.size(), self.size()* new_pattern.size() / (1+old_pattern.size())));
+
+            size_t pos = 0;
+            while(count and (pos = replaced.find(old_pattern, pos)) != std::string::npos)
+            {
+                replaced.replace(pos, old_pattern.length(), new_pattern);
+                pos += new_pattern.length();
+                count-=1;
+            }
+            return replaced;
+        }
+        PROXY(pythonic::__string__, replace);
+
     }
 }
 #endif

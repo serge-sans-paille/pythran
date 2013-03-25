@@ -333,6 +333,7 @@ modules = {
                 "capitalize": ConstMethodIntr(),
                 "split": ConstMethodIntr(),
                 "endswith": ConstMethodIntr(),
+                "replace": ConstMethodIntr(),
                 },
         "__set__": {
                 "add": MethodIntr(

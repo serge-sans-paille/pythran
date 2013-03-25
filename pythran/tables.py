@@ -169,6 +169,7 @@ modules = {
             "max": ConstFunctionIntr(),
             "min": ConstFunctionIntr(),
             "oct": ConstFunctionIntr(),
+            "ord": ConstFunctionIntr(),
             "open": ConstFunctionIntr(),
             "pow": ConstFunctionIntr(),
             "range": ConstFunctionIntr(),

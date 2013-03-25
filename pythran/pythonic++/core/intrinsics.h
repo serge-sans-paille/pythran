@@ -726,6 +726,19 @@ namespace pythonic {
 
         PROXY(pythonic::__builtin__,zip);
 
+        /* ord */
+        long ord(std::string const & v) {
+            if(v.size() != 1) {
+                std::ostringstream oss;
+                oss << "ord() expected a character, but string of length " << v.size() << " found";
+                throw TypeError(oss.str());
+            }
+            return (long)v[0];
+        }
+        long ord(char v) {
+            return v;
+        }
+        PROXY(pythonic::__builtin__, ord);
 
     }
     /* constructor */

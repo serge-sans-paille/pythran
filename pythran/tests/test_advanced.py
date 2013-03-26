@@ -114,3 +114,11 @@ def assign_in_except():
     return a'''
         self.run_test(code, assign_in_except=[])
 
+    def test_combiner_on_empty_list(self):
+        code = '''
+def b(l):
+    l+=[1]
+    return l
+def combiner_on_empty_list():
+    return b(list()) + b([])'''
+        self.run_test(code, combiner_on_empty_list=[])

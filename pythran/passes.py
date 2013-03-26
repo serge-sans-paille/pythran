@@ -742,21 +742,25 @@ class UnshadowParameters(Transformation):
                     )
         return node
 
+    def update(self, node):
+        if isinstance(node, ast.Name) and node.id in self.argsid:
+            if node.id not in self.renaming:
+                new_name = node.id
+                while new_name in self.identifiers:
+                    new_name = new_name + "_"
+                self.renaming[node.id] = new_name
+
     def visit_Assign(self, node):
-        for t in node.targets:
-            if isinstance(t, ast.Name) and t.id in self.argsid:
-                if t.id not in self.renaming:
-                    new_name = t.id
-                    while new_name in self.identifiers:
-                        new_name = new_name + "_"
-                    self.renaming[t.id] = new_name
-        [self.visit(t) for t in node.targets]
+        map(self.update, node.targets)
         try:
-            self.visit(node.metadata)
+            self.generic_visit(node)
         except AttributeError:
             pass
-        self.visit(node.value)
         return node
+
+    def visit_AugAssign(self, node):
+        self.update(node.target)
+        return self.generic_visit(node)
 
     def visit_Name(self, node):
         if node.id in self.renaming:

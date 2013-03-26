@@ -41,20 +41,15 @@ class Intrinsic(object):
 
 class FunctionIntr(Intrinsic):
     def __init__(self, **kwargs):
+        kwargs.setdefault('combiners', ())
         super(FunctionIntr, self).__init__(**kwargs)
+        self.combiners = kwargs['combiners']
 
     def isfunction(self):
         return True
 
     def isstaticfunction(self):
         return True
-
-
-class UserFunction(FunctionIntr):
-    def __init__(self, *combiners, **kwargs):
-        kwargs.setdefault('return_alias', lambda x: {None})
-        self.combiners = combiners
-        super(UserFunction, self).__init__(**kwargs)
 
     def add_combiner(self, _combiner):
         self.combiners += (_combiner,)
@@ -64,16 +59,24 @@ class UserFunction(FunctionIntr):
             comb(s, node)
 
 
+class UserFunction(FunctionIntr):
+    def __init__(self, *combiners, **kwargs):
+        kwargs.setdefault('return_alias', lambda x: {None})
+        kwargs['combiners'] = combiners
+        super(UserFunction, self).__init__(**kwargs)
+
+
 class ConstFunctionIntr(FunctionIntr):
     def __init__(self):
         super(ConstFunctionIntr, self).__init__(argument_effects=())
 
 
-class MethodIntr(UserFunction):
+class MethodIntr(FunctionIntr):
     def __init__(self, *combiners, **kwargs):
         kwargs.setdefault('argument_effects',
                 (UpdateEffect(),) + (ReadEffect(),) * 10)
-        super(MethodIntr, self).__init__(*combiners, **kwargs)
+        kwargs['combiners'] = combiners
+        super(MethodIntr, self).__init__(**kwargs)
 
     def ismethod(self):
         return True

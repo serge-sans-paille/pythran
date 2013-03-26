@@ -240,6 +240,10 @@ namespace  pythonic {
             template<class K, class V> 
                 dict<K,V> operator+(dict<K,V> const & s) { return s; }
             empty_dict operator+(empty_dict const &) { return empty_dict(); }
+            template<class K, class V> 
+                const dict<K,V>& operator+=(dict<K,V> const & s) { *this =(*this + s); return *this; }
+            const empty_dict& operator+=(empty_dict const &) { return *this; }
+
             operator bool() const { return false; }
         };
     }

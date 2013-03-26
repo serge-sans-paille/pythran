@@ -28,6 +28,8 @@
 #include <nt2/include/functions/log1p.hpp>
 #include <nt2/include/functions/expm1.hpp>
 #include <nt2/include/functions/gamma.hpp>
+#include <nt2/toolbox/boost_math/functions/lgamma.hpp>
+#include <nt2/toolbox/boost_math/functions/tgamma.hpp>
 #include <nt2/include/functions/trunc.hpp>
 #include <nt2/include/functions/copysign.hpp>
 #include <nt2/include/functions/hypot.hpp>
@@ -43,11 +45,18 @@ namespace pythonic {
         using nt2::sin;
         using nt2::sqrt;
         using nt2::log10;
-        ALIAS(nt2::is_nan, isnan)
+        ALIAS(nt2::is_nan, isnan);
         using nt2::ceil;
         using nt2::floor;
-        ALIAS(nt2::abs, fabs)
-        ALIAS(nt2::mod, fmod)
+        ALIAS(nt2::abs, fabs);
+
+        /* add a cast in the wrapper to make sure the right type is used */
+        template<typename T0, typename T1>
+        auto fmod(T0 arg0, T1 arg1) ->  decltype(nt2::mod((decltype(std::declval<T0>() + std::declval<T1>()))arg0, (decltype(std::declval<T0>() + std::declval<T1>()))arg1)) {
+            typedef decltype(std::declval<T0>() + std::declval<T1>()) common_type;
+            return nt2::mod((common_type)arg0, (common_type)arg1);
+        }
+
         using nt2::ldexp;
         using nt2::tan;
         using nt2::asin;
@@ -63,7 +72,9 @@ namespace pythonic {
         using nt2::erfc;
         using nt2::log1p;
         using nt2::expm1;
-        ALIAS(nt2::gamma, lgamma)
+        using nt2::gamma;
+        using nt2::boost_math::lgamma;
+        using nt2::boost_math::tgamma;
         using nt2::trunc;
         using nt2::copysign;
         using nt2::hypot;
@@ -82,7 +93,6 @@ namespace pythonic {
             return std::tuple<double,long>(sig,exp);
         }
 
-        WRAP(double,gamma,std::tgamma,double);
 
         template<class T>
             T factorial(T x)

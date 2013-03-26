@@ -543,9 +543,11 @@ class Cxx(Backend):
             self.extra_declarations.append((local_target, local_target_decl,))
             local_target_decl = ""
             local_iter_decl = ""
-        target_decl = ("auto"
-                if metadata.get(node.target, metadata.LocalVariable) and not self.yields
-                else "")
+            target_decl = ""
+        else:
+            target_decl = ("auto"
+                    if metadata.get(node.target, metadata.LocalVariable)
+                    else "")
 
         loop_body = [self.visit(n) for n in node.body]
 
@@ -760,7 +762,8 @@ class Cxx(Backend):
             return repr(node.n) + type_to_suffix.get(type(node.n), "")
 
     def visit_Str(self, node):
-        return 'core::string("{0}")'.format(node.s.replace('"','\\"').replace('\n', '\\n"\n"'))
+        quoted = node.s.replace('"', '\\"').replace('\n', '\\n"\n"')
+        return 'core::string("{0}")'.format(quoted)
 
     def visit_Attribute(self, node):
         def rec(w, n):

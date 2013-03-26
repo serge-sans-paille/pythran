@@ -1122,6 +1122,17 @@ struct pythran_to_python< core::empty_set > {
 };
 
 template <typename T>
+struct custom_boost_simd_logical {
+    static PyObject* convert( boost::simd::logical<T> const& n) {
+        return boost::python::incref(boost::python::object(n).ptr());
+    }
+};
+template<typename T>
+struct pythran_to_python< boost::simd::logical<T> > {
+    pythran_to_python() { register_once< boost::simd::logical<T>, custom_boost_simd_logical<T> >(); }
+};
+
+template <typename T>
 struct custom_none_to_any {
     static PyObject* convert( none<T> const& n) {
         if(n.is_none) return boost::python::incref(boost::python::object().ptr());

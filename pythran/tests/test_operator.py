@@ -149,11 +149,16 @@ class TestOperator(TestEnv):
 #    def test___xor__(self):
 #        self.run_test("def __xor__(a,b):\n from operator import __xor__\n return __xor__(a,b)", 0x02, 0x01, __xor__=[int,int])
 #
-#    def test_iadd(self):
-#        self.run_test("def iadd(a,b):\n from operator import iadd\n return iadd(a,b)", -1, 3, iadd=[int,int])
-#
-    def test_iadd_argument_modification(self):
+    def test_iadd(self):
+        self.run_test("def iadd(a,b):\n from operator import iadd\n return iadd(a,b)", -1, 3, iadd=[int,int])
+
+    def test_iadd_argument_modification_not_mutable(self):
         self.run_test("def iadd2(b):\n a = -1\n from operator import iadd\n iadd(a,b)\n return a", 3, iadd2=[int])
+
+    def test_iadd_argument_modification_mutable(self):
+        self.run_test("def iadd3(b):\n a = []\n from operator import iadd\n iadd(a,b)\n return a", [3], iadd3=[[int]])
+
+
 #
 #    def test___iadd__(self):
 #        self.run_test("def __iadd__(a,b):\n from operator import __iadd__\n return __iadd__(a,b)", 1, -4, __iadd__=[int,int])
@@ -265,7 +270,7 @@ class TestOperator(TestEnv):
 #
 #    def test_indexOf(self):
 #        self.run_test("def indexOf(a,b):\n from operator import indexOf\n return indexOf(a,b)", [4,3,2,1], 4, indexOf=[[int],int])
-    def test_itemgetter(self):
-        self.run_test("def itemgetter(i,a):\n import operator\n g = operator.itemgetter(i)\n return g(a)", 2, [4,3,2,1], itemgetter=[int,[int]])
+#    def test_itemgetter(self):
+#        self.run_test("def itemgetter(i,a):\n from operator import itemgetter\n g = itemgetter(i)\n return g(a)", 2, [4,3,2,1], itemgetter=[int,[int]])
 
         

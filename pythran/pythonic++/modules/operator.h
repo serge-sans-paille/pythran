@@ -7,7 +7,9 @@
         PROXY(pythonic::operator_, lname);
 
 #define IWRAPPER2ARGS(fname, lname) \
-        template <class A, class B> auto fname(A & a, B const& b) -> decltype(lname(a, b)) { return lname(a, b); }
+        template <class A, class B> auto fname(A  a, B const& b) -> decltype(lname(a, b)) { return lname(a, b); }\
+	PROXY(pythonic::operator_, fname);\
+        PROXY(pythonic::operator_, lname);
  
 
 #define WRAPPER1ARG(fname, lname) \
@@ -223,188 +225,104 @@ namespace pythonic {
         WRAPPER2ARGS(__concat__, concat)
 
         template <class A, class B>
-            A iadd(A & a, B const& b) {
+            A iadd(A a, B const& b) {
                 return a+=b;
             }
 
-        template <class A, class B>
-            A iadd(A const& a, B const& b) {
-                return a+b;
-            }
-
-        WRAPPER2ARGS(__iadd__, iadd)
         IWRAPPER2ARGS(__iadd__, iadd)
 
         template <class A, class B>
-            A iand(A & a, B const& b) {
+            A iand(A  a, B const& b) {
                 return a&=b;
             }
 
-        template <class A, class B>
-            A iand(A const& a, B const& b) {
-                return a&b;
-            }
-
-        WRAPPER2ARGS(__iand__, iand)
         IWRAPPER2ARGS(__iand__, iand)
 
         template <class A, class B>
-            A iconcat(A & a, B const& b) {
+            A iconcat(A  a, B const& b) {
                 return a+=b;
             }
 
-        template <class A, class B>
-            A iconcat(A const& a, B const& b) {
-                return a+b;
-            }
-
-        WRAPPER2ARGS(__iconcat__, iconcat)
         IWRAPPER2ARGS(__iconcat__, iconcat)
 
         template <class A, class B>
-            A idiv(A & a, B const& b) {
+            A idiv(A a, B const& b) {
                 return a /= b;
             }
 
-        template <class A, class B>
-            A idiv(A const& a, B const& b) {
-                return a / b;
-            }
-
-        WRAPPER2ARGS(__idiv__, idiv)
         IWRAPPER2ARGS(__idiv__, idiv)
 
         template <class A, class B>
-            A ifloordiv(A & a, B const& b) {
+            A ifloordiv(A a, B const& b) {
                 A tmp = (a-(a % b))/b;
                 a = tmp;
                 return tmp;
             }
 
-         template <class A, class B>
-            A ifloordiv(A const& a, B const& b) {
-                return (a-(a % b))/b;
-            }
-
-       WRAPPER2ARGS(__ifloordiv__, ifloordiv)
        IWRAPPER2ARGS(__ifloordiv__, ifloordiv)
 
         template <class A, class B>
-            A ilshift(A & a, B const& b) {
+            A ilshift(A a, B const& b) {
                 return a <<= b;
             }
         
-        template <class A, class B>
-            A ilshift(A const& a, B const& b) {
-                return a << b;
-            }
-
-        WRAPPER2ARGS(__ilshift__, ilshift)
         IWRAPPER2ARGS(__ilshift__, ilshift)
 
 
         template <class A, class B>
-            A imod(A const& a, B const& b) {
-		return a%b;
-            }
-
-        template <class A, class B>
-            A imod(A & a, B const& b) {
+            A imod(A a, B const& b) {
 		return a%=b;
             }
 
-        WRAPPER2ARGS(__imod__, imod)
         IWRAPPER2ARGS(__imod__, imod)
 
         template <class A, class B>
-            A imul(A const& a, B const& b) {
-		return a*b;
-            }
-
-        template <class A, class B>
-            A imul(A & a, B const& b) {
+            A imul(A a, B const& b) {
 		return a*=b;
             }
 
-        WRAPPER2ARGS(__imul__, imul)
         IWRAPPER2ARGS(__imul__, imul)
 
         template <class A, class B>
-            A ior(A const& a, B const& b) {
-		return a|b;
-            }
-
-        template <class A, class B>
-            A ior(A & a, B const& b) {
+            A ior(A a, B const& b) {
 		return a|=b;
             }
 
-        WRAPPER2ARGS(__ior__, ior)
         IWRAPPER2ARGS(__ior__, ior)
 
         template <class A, class B>
-            A ipow(A const& a, B const& b) {
-		return pow(a,b);
-            }
-
-        template <class A, class B>
-            A ipow(A & a, B const& b) {
+            A ipow(A a, B const& b) {
 		return a = pow(a,b);
             }
 
-        WRAPPER2ARGS(__ipow__, ipow)
         IWRAPPER2ARGS(__ipow__, ipow)
 
         template <class A, class B>
-            A irshift(A const& a, B const& b) {
-		return a>>b;
-            }
-
-        template <class A, class B>
-            A irshift(A & a, B const& b) {
+            A irshift(A a, B const& b) {
 		return a>>=b;
             }
 
-        WRAPPER2ARGS(__irshift__, irshift)
         IWRAPPER2ARGS(__irshift__, irshift)
 
         template <class A, class B>
-            A isub(A const& a, B const& b) {
-		return a-b;
-            }
-
-        template <class A, class B>
-            A isub(A & a, B const& b) {
+            A isub(A a, B const& b) {
 		return a-=b;
             }
 
-        WRAPPER2ARGS(__isub__, isub)
         IWRAPPER2ARGS(__isub__, isub)
 
         template <class A, class B>
-            A itruediv(A const& a, B const& b) {
-		return a/b;
-            }
-
-        template <class A, class B>
-            A itruediv(A & a, B const& b) {
+            A itruediv(A  a, B const& b) {
 		return a/=b;
             }
 
-        WRAPPER2ARGS(__itruediv__, itruediv)
         IWRAPPER2ARGS(__itruediv__, itruediv)
 
         template <class A, class B>
-            A ixor(A const& a, B const& b) {
-		return a^b;
-            }
-
-        template <class A, class B>
-            A ixor(A & a, B const& b) {
+            A ixor(A a, B const& b) {
 		return a^=b;
             }
 
-        WRAPPER2ARGS(__ixor__, ixor)
         IWRAPPER2ARGS(__ixor__, ixor)
 
 

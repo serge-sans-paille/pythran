@@ -360,37 +360,223 @@ modules = {
                 "__xor__": ConstFunctionIntr(),
                 "concat": ConstFunctionIntr(),
                 "__concat__": ConstFunctionIntr(),
-		        "iadd": ConstFunctionIntr(),
-                "__iadd__": ConstFunctionIntr(),
-                "iand": ConstFunctionIntr(),
-                "__iand__": ConstFunctionIntr(),
-                "iconcat": ConstFunctionIntr(),
-                "__iconcat__": ConstFunctionIntr(),
-                "idiv": ConstFunctionIntr(),
-                "__idiv__": ConstFunctionIntr(),
-                "ifloordiv": ConstFunctionIntr(),
-                "__ifloordiv__": ConstFunctionIntr(),
-                "ilshift": ConstFunctionIntr(),
-                "__ilshift__": ConstFunctionIntr(),
-                "imod": ConstFunctionIntr(),
-                "__imod__": ConstFunctionIntr(),
-                "imul": ConstFunctionIntr(),
-                "__imul__": ConstFunctionIntr(),
-                "ior": ConstFunctionIntr(),
-                "__ior__": ConstFunctionIntr(),
-                "ipow": ConstFunctionIntr(),
-                "__ipow__": ConstFunctionIntr(),
-                "irepeat": ConstFunctionIntr(),
-                "__irepeat__": ConstFunctionIntr(),
-                "irshift": ConstFunctionIntr(),
-                "__irshift__": ConstFunctionIntr(),
-                "isub": ConstFunctionIntr(),
-                "__isub__": ConstFunctionIntr(),
-                "itruediv": ConstFunctionIntr(),
-                "__itruediv__": ConstFunctionIntr(),
-                "ixor": ConstFunctionIntr(),
-                "__ixor__": ConstFunctionIntr(),
-                "contains": ConstFunctionIntr(),
+		"iadd": MethodIntr(
+                    lambda self, node:
+                    self.combine(
+                        node.args[0],
+                        node.args[1],
+                        register=True)
+                    ),
+                "__iadd__": MethodIntr(
+                    lambda self, node:
+                    self.combine(
+                        node.args[0],
+                        node.args[1],
+                        register=True)
+                    ),
+                "iand": MethodIntr(
+                    lambda self, node:
+                    self.combine(
+                        node.args[0],
+                        node.args[1],
+                        register=True)
+                    ),
+                "__iand__": MethodIntr(
+                    lambda self, node:
+                    self.combine(
+                        node.args[0],
+                        node.args[1],
+                        register=True)
+                    ),
+                "iconcat": MethodIntr(
+                    lambda self, node:
+                    self.combine(
+                        node.args[0],
+                        node.args[1],
+                        register=True)
+                    ),
+                "__iconcat__": MethodIntr(
+                    lambda self, node:
+                    self.combine(
+                        node.args[0],
+                        node.args[1],
+                        register=True)
+                    ),
+                "idiv": MethodIntr(
+                    lambda self, node:
+                    self.combine(
+                        node.args[0],
+                        node.args[1],
+                        register=True)
+                    ),
+                "__idiv__": MethodIntr(
+                    lambda self, node:
+                    self.combine(
+                        node.args[0],
+                        node.args[1],
+                        register=True)
+                    ),
+                "ifloordiv": MethodIntr(
+                    lambda self, node:
+                    self.combine(
+                        node.args[0],
+                        node.args[1],
+                        register=True)
+                    ),
+                "__ifloordiv__": MethodIntr(
+                    lambda self, node:
+                    self.combine(
+                        node.args[0],
+                        node.args[1],
+                        register=True)
+                    ),
+                "ilshift": MethodIntr(
+                    lambda self, node:
+                    self.combine(
+                        node.args[0],
+                        node.args[1],
+                        register=True)
+                    ),
+                "__ilshift__": MethodIntr(
+                    lambda self, node:
+                    self.combine(
+                        node.args[0],
+                        node.args[1],
+                        register=True)
+                    ),
+                "imod": MethodIntr(
+                    lambda self, node:
+                    self.combine(
+                        node.args[0],
+                        node.args[1],
+                        register=True)
+                    ),
+                "__imod__": MethodIntr(
+                    lambda self, node:
+                    self.combine(
+                        node.args[0],
+                        node.args[1],
+                        register=True)
+                    ),
+                "imul": MethodIntr(
+                    lambda self, node:
+                    self.combine(
+                        node.args[0],
+                        node.args[1],
+                        register=True)
+                    ),
+                "__imul__": MethodIntr(
+                    lambda self, node:
+                    self.combine(
+                        node.args[0],
+                        node.args[1],
+                        register=True)
+                    ),
+                "ior": MethodIntr(
+                    lambda self, node:
+                    self.combine(
+                        node.args[0],
+                        node.args[1],
+                        register=True)
+                    ),
+                "__ior__": MethodIntr(
+                    lambda self, node:
+                    self.combine(
+                        node.args[0],
+                        node.args[1],
+                        register=True)
+                    ),
+                "ipow": MethodIntr(
+                    lambda self, node:
+                    self.combine(
+                        node.args[0],
+                        node.args[1],
+                        register=True)
+                    ),
+                "__ipow__": MethodIntr(
+                    lambda self, node:
+                    self.combine(
+                        node.args[0],
+                        node.args[1],
+                        register=True)
+                    ),
+                "irepeat": MethodIntr(
+                    lambda self, node:
+                    self.combine(
+                        node.args[0],
+                        node.args[1],
+                        register=True)
+                    ),
+                "__irepeat__": MethodIntr(
+                    lambda self, node:
+                    self.combine(
+                        node.args[0],
+                        node.args[1],
+                        register=True)
+                    ),
+                "irshift": MethodIntr(
+                    lambda self, node:
+                    self.combine(
+                        node.args[0],
+                        node.args[1],
+                        register=True)
+                    ),
+                "__irshift__": MethodIntr(
+                    lambda self, node:
+                    self.combine(
+                        node.args[0],
+                        node.args[1],
+                        register=True)
+                    ),
+                "isub": MethodIntr(
+                    lambda self, node:
+                    self.combine(
+                        node.args[0],
+                        node.args[1],
+                        register=True)
+                    ),
+                "__isub__": MethodIntr(
+                    lambda self, node:
+                    self.combine(
+                        node.args[0],
+                        node.args[1],
+                        register=True)
+                    ),
+                "itruediv": MethodIntr(
+                    lambda self, node:
+                    self.combine(
+                        node.args[0],
+                        node.args[1],
+                        register=True)
+                    ),
+                "__itruediv__": MethodIntr(
+                    lambda self, node:
+                    self.combine(
+                        node.args[0],
+                        node.args[1],
+                        register=True)
+                    ),
+                "ixor": MethodIntr(
+                    lambda self, node:
+                    self.combine(
+                        node.args[0],
+                        node.args[1],
+                        register=True)
+                    ),
+                "__ixor__": MethodIntr(
+                    lambda self, node:
+                    self.combine(
+                        node.args[0],
+                        node.args[1],
+                        register=True)
+                    ),
+                "contains": MethodIntr(
+                    lambda self, node:
+                    self.combine(
+                        node.args[0],
+                        node.args[1],
+                        register=True)
+                    ),
                 "__contains__": ConstFunctionIntr(),
                 "countOf": ConstFunctionIntr(),
                 "delitem": ConstFunctionIntr(),

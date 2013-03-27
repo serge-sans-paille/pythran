@@ -11,6 +11,12 @@ namespace  pythonic {
                         return t0 + t1;
                     }
             };
+            struct multiply {
+                template<class T0, class T1>
+                    auto operator()(T0 const& t0, T1 const& t1) const -> decltype(t0 * t1) {
+                        return t0 * t1;
+                    }
+            };
             struct minus {
                 template<class T0, class T1>
                     auto operator()(T0 const& t0, T1 const& t1) const -> decltype(t0 - t1) {
@@ -28,6 +34,10 @@ namespace  pythonic {
 
 #define NUMPY_BINARY_FUNC_NAME operator+
 #define NUMPY_BINARY_FUNC_SYM ops::plus
+#include "numpy_binary_expr.h"
+
+#define NUMPY_BINARY_FUNC_NAME operator*
+#define NUMPY_BINARY_FUNC_SYM ops::multiply
 #include "numpy_binary_expr.h"
 
 #define NUMPY_BINARY_FUNC_NAME operator-
@@ -70,8 +80,64 @@ namespace  pythonic {
 #define NUMPY_UNARY_FUNC_SYM pythonic::math::proxy::atanh
 #include "numpy_unary_expr.h"
 
+#define NUMPY_UNARY_FUNC_NAME ceil
+#define NUMPY_UNARY_FUNC_SYM pythonic::math::proxy::ceil
+#include "numpy_unary_expr.h"
+
+#define NUMPY_BINARY_FUNC_NAME copysign
+#define NUMPY_BINARY_FUNC_SYM pythonic::math::proxy::copysign
+#include "numpy_binary_expr.h"
+
 #define NUMPY_UNARY_FUNC_NAME cos
 #define NUMPY_UNARY_FUNC_SYM pythonic::math::proxy::cos
+#include "numpy_unary_expr.h"
+
+#define NUMPY_UNARY_FUNC_NAME cosh
+#define NUMPY_UNARY_FUNC_SYM pythonic::math::proxy::cosh
+#include "numpy_unary_expr.h"
+
+#define NUMPY_UNARY_FUNC_NAME exp
+#define NUMPY_UNARY_FUNC_SYM pythonic::math::proxy::exp
+#include "numpy_unary_expr.h"
+
+#define NUMPY_UNARY_FUNC_NAME expm1
+#define NUMPY_UNARY_FUNC_SYM pythonic::math::proxy::expm1
+#include "numpy_unary_expr.h"
+
+#define NUMPY_UNARY_FUNC_NAME fabs
+#define NUMPY_UNARY_FUNC_SYM pythonic::math::proxy::fabs
+#include "numpy_unary_expr.h"
+
+#define NUMPY_UNARY_FUNC_NAME floor
+#define NUMPY_UNARY_FUNC_SYM pythonic::math::proxy::floor
+#include "numpy_unary_expr.h"
+
+#define NUMPY_BINARY_FUNC_NAME hypot
+#define NUMPY_BINARY_FUNC_SYM pythonic::math::proxy::hypot
+#include "numpy_binary_expr.h"
+
+#define NUMPY_UNARY_FUNC_NAME isinf
+#define NUMPY_UNARY_FUNC_SYM pythonic::math::proxy::isinf
+#include "numpy_unary_expr.h"
+
+#define NUMPY_UNARY_FUNC_NAME isnan
+#define NUMPY_UNARY_FUNC_SYM pythonic::math::proxy::isnan
+#include "numpy_unary_expr.h"
+
+#define NUMPY_UNARY_FUNC_NAME log
+#define NUMPY_UNARY_FUNC_SYM pythonic::math::proxy::log
+#include "numpy_unary_expr.h"
+
+#define NUMPY_UNARY_FUNC_NAME log10
+#define NUMPY_UNARY_FUNC_SYM pythonic::math::proxy::log10
+#include "numpy_unary_expr.h"
+
+#define NUMPY_UNARY_FUNC_NAME log1p
+#define NUMPY_UNARY_FUNC_SYM pythonic::math::proxy::log1p
+#include "numpy_unary_expr.h"
+
+#define NUMPY_UNARY_FUNC_NAME log2
+#define NUMPY_UNARY_FUNC_SYM pythonic::math::proxy::log2
 #include "numpy_unary_expr.h"
 
 #define NUMPY_UNARY_FUNC_NAME sin

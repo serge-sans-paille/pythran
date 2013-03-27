@@ -7,6 +7,7 @@
 #include <nt2/include/functions/sin.hpp>
 #include <nt2/include/functions/sqrt.hpp>
 #include <nt2/include/functions/log10.hpp>
+#include <nt2/include/functions/log2.hpp>
 #include <nt2/include/functions/is_nan.hpp>
 #include <nt2/include/functions/ceil.hpp>
 #include <nt2/include/functions/floor.hpp>
@@ -45,6 +46,7 @@ namespace pythonic {
         using nt2::sin;
         using nt2::sqrt;
         using nt2::log10;
+        using nt2::log2;
         ALIAS(nt2::is_nan, isnan);
         using nt2::ceil;
         using nt2::floor;
@@ -153,6 +155,7 @@ namespace pythonic {
         PROXY(pythonic::math,sin);
         PROXY(pythonic::math,sqrt);
         PROXY(pythonic::math,log10);
+        PROXY(pythonic::math,log2);
         PROXY(pythonic::math,isnan);
         PROXY(pythonic::math,ceil);
         PROXY(pythonic::math,floor);

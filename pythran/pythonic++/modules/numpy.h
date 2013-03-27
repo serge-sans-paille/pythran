@@ -511,9 +511,93 @@ namespace pythonic {
 
         PROXY(pythonic::numpy, transpose);
 
+        ALIAS(nt2::abs, absolute);
+        using pythonic::core::absolute;
+        PROXY(pythonic::numpy, absolute);
+
+        ALIAS(nt2::acos, arccos)
+        using pythonic::core::arccos;
+        PROXY(pythonic::numpy, arccos);
+
+        ALIAS(nt2::acosh, arccosh)
+        using pythonic::core::arccosh;
+        PROXY(pythonic::numpy, arccosh);
+
+        ALIAS(nt2::asin, arcsin)
+        using pythonic::core::arcsin;
+        PROXY(pythonic::numpy, arcsin);
+
+        ALIAS(nt2::asinh, arcsinh)
+        using pythonic::core::arcsinh;
+        PROXY(pythonic::numpy, arcsinh);
+
+        ALIAS(nt2::atan, arctan)
+        using pythonic::core::arctan;
+        PROXY(pythonic::numpy, arctan);
+
+        ALIAS(nt2::atan2, arctan2)
+        using pythonic::core::arctan2;
+        PROXY(pythonic::numpy, arctan2);
+
+        ALIAS(nt2::atanh, arctanh)
+        using pythonic::core::arctanh;
+        PROXY(pythonic::numpy, arctanh);
+
+        using pythonic::math::ceil;
+        using pythonic::core::ceil;
+        PROXY(pythonic::numpy, ceil);
+
+        using pythonic::math::copysign;
+        using pythonic::core::copysign;
+        PROXY(pythonic::numpy, copysign);
+
         using pythonic::math::cos;
         using pythonic::core::cos;
         PROXY(pythonic::numpy, cos);
+
+        using pythonic::math::cosh;
+        using pythonic::core::cosh;
+        PROXY(pythonic::numpy, cosh);
+
+        using pythonic::math::exp;
+        using pythonic::core::exp;
+        PROXY(pythonic::numpy, exp);
+
+        using pythonic::math::expm1;
+        using pythonic::core::expm1;
+        PROXY(pythonic::numpy, expm1);
+
+        using pythonic::math::fabs;
+        using pythonic::core::fabs;
+        PROXY(pythonic::numpy, fabs);
+
+        using pythonic::math::floor;
+        using pythonic::core::floor;
+        PROXY(pythonic::numpy, floor);
+
+        using pythonic::math::hypot;
+        using pythonic::core::hypot;
+        PROXY(pythonic::numpy, hypot);
+
+        using pythonic::math::isinf;
+        using pythonic::core::isinf;
+        PROXY(pythonic::numpy, isinf);
+
+        using pythonic::math::isnan;
+        using pythonic::core::isnan;
+        PROXY(pythonic::numpy, isnan);
+
+        using pythonic::math::log10;
+        using pythonic::core::log10;
+        PROXY(pythonic::numpy, log10);
+
+        using pythonic::math::log1p;
+        using pythonic::core::log1p;
+        PROXY(pythonic::numpy, log1p);
+
+        using pythonic::math::log2;
+        using pythonic::core::log2;
+        PROXY(pythonic::numpy, log2);
 
         using pythonic::math::sin;
         using pythonic::core::sin;
@@ -522,34 +606,6 @@ namespace pythonic {
         using pythonic::math::tan;
         using pythonic::core::tan;
         PROXY(pythonic::numpy, tan);
-
-        template<class T0>
-        auto arccos(T0 const& t0) -> decltype(std::acos(t0)) {
-            return std::acos(t0);
-        }
-        using pythonic::core::arccos;
-        PROXY(pythonic::numpy, arccos);
-
-        template<class T0>
-        auto arcsin(T0 const& t0) -> decltype(std::asin(t0)) {
-            return std::asin(t0);
-        }
-        using pythonic::core::arcsin;
-        PROXY(pythonic::numpy, arcsin);
-
-        template<class T0>
-        auto arctan(T0 const& t0) -> decltype(std::atan(t0)) {
-            return std::atan(t0);
-        }
-        using pythonic::core::arctan;
-        PROXY(pythonic::numpy, arctan);
-
-        template<class T0, class T1>
-        auto arctan2(T0 const& t0, T1 const& t1) -> decltype(std::atan2(t0,t1)) {
-            return std::atan2(t0,t1);
-        }
-        using pythonic::core::arctan2;
-        PROXY(pythonic::numpy, arctan2);
     }
 }
 

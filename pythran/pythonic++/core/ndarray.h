@@ -8,7 +8,7 @@
 #include "shared_ref.h"
 
 #include <boost/simd/sdk/simd/native.hpp>
-#ifdef __AVX__
+#ifdef __SSE__
 #include <boost/simd/include/functions/unaligned_load.hpp>
 #include <boost/simd/include/functions/unaligned_store.hpp>
 #include <boost/simd/include/functions/load.hpp>
@@ -17,25 +17,28 @@
 
 #include <mm_malloc.h>
 
-#ifdef __AVX__
+#ifdef __SSE__
 namespace std {
 
 template <>
   void fill<double*, double> (double* first, double* last, const double& val) {
       size_t n = last - first;
-      typedef boost::simd::native<double, BOOST_SIMD_DEFAULT_EXTENSION> vS;
-      static const std::size_t vN = boost::simd::meta::cardinal_of< vS >::value;
-      static const size_t unroll_factor = 2;
-      double *bound = first + n/(unroll_factor*vN) * (unroll_factor*vN);
-      vS xval = boost::simd::splat<vS>(val);
+      if(val == 0.) memset(first, sizeof(*first)*n, 0);
+      else {
+          typedef boost::simd::native<double, BOOST_SIMD_DEFAULT_EXTENSION> vS;
+          static const std::size_t vN = boost::simd::meta::cardinal_of< vS >::value;
+          static const size_t unroll_factor = 2;
+          double *bound = first + n/(unroll_factor*vN) * (unroll_factor*vN);
+          vS xval = boost::simd::splat<vS>(val);
 
-      while(first< bound) {
-          boost::simd::unaligned_store<vS>( xval, first, 0);
-          boost::simd::unaligned_store<vS>( xval, first, vN);
-          first+= vN * unroll_factor;
+          while(first< bound) {
+              boost::simd::store<vS>( xval, first, 0);
+              boost::simd::store<vS>( xval, first, vN);
+              first+= vN * unroll_factor;
+          }
+          while(first<last)
+              *first++=val;
       }
-      while(first<last)
-          *first++=val;
   }
 }
 
@@ -453,14 +456,14 @@ namespace  pythonic {
                         static const std::size_t vN = boost::simd::meta::cardinal_of< vT >::value;
                         long i;
 #ifdef __AVX__
-                        const long bound = n/(2*vN)*(2*vN);
+                        const long bound = n/vN*vN;
 #else
-                        const long bound = (n/8)*8;
+                        const long bound = n/8*8;
 #endif
 #pragma omp parallel for if(n>1000)
 #ifdef __AVX__
                         for(i=0;i< bound; i+= vN) {
-                            boost::simd::unaligned_store<vT>( expr.load(i+0*vN), iter, i+0*vN);
+                            boost::simd::unaligned_store<vT>( expr.load(i), iter, i);
                         }
 #else
                         for(i=0 ;i< bound; i+=8) {

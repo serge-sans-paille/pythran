@@ -5,10 +5,34 @@ namespace  pythonic {
 
     namespace core {
         namespace ops {
-            struct plus {
+            struct add {
                 template<class T0, class T1>
                     auto operator()(T0 const& t0, T1 const& t1) const -> decltype(t0 + t1) {
                         return t0 + t1;
+                    }
+            };
+            struct bitwise_and {
+                template<class T0, class T1>
+                    auto operator()(T0 const& t0, T1 const& t1) const -> decltype(t0 & t1) {
+                        return t0 & t1;
+                    }
+            };
+            struct bitwise_not {
+                template<class T0>
+                    decltype(~std::declval<T0>()) operator()(T0 const& t0) const {
+                        return ~t0 ;
+                    }
+            };
+            struct bitwise_or {
+                template<class T0, class T1>
+                    auto operator()(T0 const& t0, T1 const& t1) const -> decltype(t0 | t1) {
+                        return t0 | t1;
+                    }
+            };
+            struct bitwise_xor {
+                template<class T0, class T1>
+                    auto operator()(T0 const& t0, T1 const& t1) const -> decltype(t0 ^ t1) {
+                        return t0 ^ t1;
                     }
             };
             struct multiply {
@@ -32,9 +56,6 @@ namespace  pythonic {
             };
         }
 
-#define NUMPY_BINARY_FUNC_NAME operator+
-#define NUMPY_BINARY_FUNC_SYM ops::plus
-#include "numpy_binary_expr.h"
 
 #define NUMPY_BINARY_FUNC_NAME operator*
 #define NUMPY_BINARY_FUNC_SYM ops::multiply
@@ -51,6 +72,14 @@ namespace  pythonic {
 #define NUMPY_UNARY_FUNC_NAME absolute
 #define NUMPY_UNARY_FUNC_SYM pythonic::__builtin__::proxy::abs
 #include "numpy_unary_expr.h"
+
+#define NUMPY_BINARY_FUNC_NAME operator+
+#define NUMPY_BINARY_FUNC_SYM ops::add
+#include "numpy_binary_expr.h"
+
+#define NUMPY_BINARY_FUNC_NAME add
+#define NUMPY_BINARY_FUNC_SYM ops::add
+#include "numpy_binary_expr.h"
 
 #define NUMPY_UNARY_FUNC_NAME arccos
 #define NUMPY_UNARY_FUNC_SYM pythonic::math::proxy::acos
@@ -79,6 +108,22 @@ namespace  pythonic {
 #define NUMPY_UNARY_FUNC_NAME arctanh
 #define NUMPY_UNARY_FUNC_SYM pythonic::math::proxy::atanh
 #include "numpy_unary_expr.h"
+
+#define NUMPY_BINARY_FUNC_NAME bitwise_and
+#define NUMPY_BINARY_FUNC_SYM ops::bitwise_and
+#include "numpy_binary_expr.h"
+
+#define NUMPY_UNARY_FUNC_NAME bitwise_not
+#define NUMPY_UNARY_FUNC_SYM ops::bitwise_not
+#include "numpy_unary_expr.h"
+
+#define NUMPY_BINARY_FUNC_NAME bitwise_or
+#define NUMPY_BINARY_FUNC_SYM ops::bitwise_or
+#include "numpy_binary_expr.h"
+
+#define NUMPY_BINARY_FUNC_NAME bitwise_xor
+#define NUMPY_BINARY_FUNC_SYM ops::bitwise_xor
+#include "numpy_binary_expr.h"
 
 #define NUMPY_UNARY_FUNC_NAME ceil
 #define NUMPY_UNARY_FUNC_SYM pythonic::math::proxy::ceil

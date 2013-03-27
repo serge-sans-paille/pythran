@@ -511,101 +511,111 @@ namespace pythonic {
 
         PROXY(pythonic::numpy, transpose);
 
+#define NP_PROXY(name)\
+        using pythonic::core::name;\
+        PROXY(pythonic::numpy, name)
+#define NAMED_OPERATOR(name, op)\
+        template<class T0, class T1> \
+            auto name(T0 const& t0, T1 const& t1) -> decltype(t0 op t1) {\
+                return t0 op t1;\
+            }
+#define NAMED_UOPERATOR(name, op)\
+        template<class T > \
+            decltype(op std::declval<T>()) name(T const& t) {\
+                return op t ;\
+            }
+
+
         ALIAS(nt2::abs, absolute);
-        using pythonic::core::absolute;
-        PROXY(pythonic::numpy, absolute);
+        NP_PROXY(absolute);
+
+        NAMED_OPERATOR(add, +)
+        NP_PROXY(add);
 
         ALIAS(nt2::acos, arccos)
-        using pythonic::core::arccos;
-        PROXY(pythonic::numpy, arccos);
+        NP_PROXY(arccos);
 
         ALIAS(nt2::acosh, arccosh)
-        using pythonic::core::arccosh;
-        PROXY(pythonic::numpy, arccosh);
+        NP_PROXY(arccosh);
 
         ALIAS(nt2::asin, arcsin)
-        using pythonic::core::arcsin;
-        PROXY(pythonic::numpy, arcsin);
+        NP_PROXY(arcsin);
 
         ALIAS(nt2::asinh, arcsinh)
-        using pythonic::core::arcsinh;
-        PROXY(pythonic::numpy, arcsinh);
+        NP_PROXY(arcsinh);
 
         ALIAS(nt2::atan, arctan)
-        using pythonic::core::arctan;
-        PROXY(pythonic::numpy, arctan);
+        NP_PROXY(arctan);
 
         ALIAS(nt2::atan2, arctan2)
-        using pythonic::core::arctan2;
-        PROXY(pythonic::numpy, arctan2);
+        NP_PROXY(arctan2);
 
         ALIAS(nt2::atanh, arctanh)
-        using pythonic::core::arctanh;
-        PROXY(pythonic::numpy, arctanh);
+        NP_PROXY(arctanh);
+
+        NAMED_OPERATOR(bitwise_and, &)
+        NP_PROXY(bitwise_and);
+
+        NAMED_UOPERATOR(bitwise_not, ~)
+        NP_PROXY(bitwise_not);
+
+        NAMED_OPERATOR(bitwise_or, |)
+        NP_PROXY(bitwise_or);
+
+        NAMED_OPERATOR(bitwise_xor, ^)
+        NP_PROXY(bitwise_xor);
 
         using pythonic::math::ceil;
-        using pythonic::core::ceil;
-        PROXY(pythonic::numpy, ceil);
+        NP_PROXY(ceil);
 
         using pythonic::math::copysign;
-        using pythonic::core::copysign;
-        PROXY(pythonic::numpy, copysign);
+        NP_PROXY(copysign);
 
         using pythonic::math::cos;
-        using pythonic::core::cos;
-        PROXY(pythonic::numpy, cos);
+        NP_PROXY(cos);
 
         using pythonic::math::cosh;
-        using pythonic::core::cosh;
-        PROXY(pythonic::numpy, cosh);
+        NP_PROXY(cosh);
 
         using pythonic::math::exp;
-        using pythonic::core::exp;
-        PROXY(pythonic::numpy, exp);
+        NP_PROXY(exp);
 
         using pythonic::math::expm1;
-        using pythonic::core::expm1;
-        PROXY(pythonic::numpy, expm1);
+        NP_PROXY(expm1);
 
         using pythonic::math::fabs;
-        using pythonic::core::fabs;
-        PROXY(pythonic::numpy, fabs);
+        NP_PROXY(fabs);
 
         using pythonic::math::floor;
-        using pythonic::core::floor;
-        PROXY(pythonic::numpy, floor);
+        NP_PROXY(floor);
 
         using pythonic::math::hypot;
-        using pythonic::core::hypot;
-        PROXY(pythonic::numpy, hypot);
+        NP_PROXY(hypot);
 
         using pythonic::math::isinf;
-        using pythonic::core::isinf;
-        PROXY(pythonic::numpy, isinf);
+        NP_PROXY(isinf);
 
         using pythonic::math::isnan;
-        using pythonic::core::isnan;
-        PROXY(pythonic::numpy, isnan);
+        NP_PROXY(isnan);
 
         using pythonic::math::log10;
-        using pythonic::core::log10;
-        PROXY(pythonic::numpy, log10);
+        NP_PROXY(log10);
 
         using pythonic::math::log1p;
-        using pythonic::core::log1p;
-        PROXY(pythonic::numpy, log1p);
+        NP_PROXY(log1p);
 
         using pythonic::math::log2;
-        using pythonic::core::log2;
-        PROXY(pythonic::numpy, log2);
+        NP_PROXY(log2);
 
         using pythonic::math::sin;
-        using pythonic::core::sin;
-        PROXY(pythonic::numpy, sin);
+        NP_PROXY(sin);
 
         using pythonic::math::tan;
-        using pythonic::core::tan;
-        PROXY(pythonic::numpy, tan);
+        NP_PROXY(tan);
+
+#undef NP_PROXY
+#undef NAMED_OPERATOR
+#undef NAMED_UOPERATOR
     }
 }
 

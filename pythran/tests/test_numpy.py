@@ -285,19 +285,33 @@ class TestNumpy(TestEnv):
         self.run_test("def np_arctan21(): from numpy import arctan2 ; a, b = 1., .5 ; return arctan2(a , b)", np_arctan21=[])
 
 #automatic generation of basic test cases for ufunc
-finary_ufunc = (
-        'arctan2',
+binary_ufunc = (
+        'add','arctan2',
+        'bitwise_and', 'bitwise_or', 'bitwise_xor',
         'copysign',
         'hypot',
         )
-unary_unfuc = (
+unary_ufunc = (
         'absolute', 'arccos', 'arccosh', 'arcsin', 'arcsinh', 'arctan', 'arctanh',
+        'bitwise_not',
         'ceil',  'cos', 'cosh',
         'exp', 'expm1',
         'fabs', 'floor',
         'isinf', 'isnan',
         'log10', 'log1p', 'log2')
 
-for f in unary_unfuc:
-    setattr(TestNumpy, 'test_' + f, eval("lambda self: self.run_test('def np_{0}(): from numpy import ones, {0} ; a = ones(10) ; return {0}(a)', np_{0}=[])".format(f)))
-    setattr(TestNumpy, 'test_' + f + '_scalar', eval("lambda self: self.run_test('def np_{0}_scalar(): from numpy import {0} ; a = 0.5 ; return {0}(a+0.5)', np_{0}_scalar=[])".format(f)))
+for f in unary_ufunc:
+    if 'bitwise_' in f:
+        setattr(TestNumpy, 'test_' + f, eval("lambda self: self.run_test('def np_{0}(): from numpy import ones, int32, {0} ; a = ones(10, int32) ; return {0}(a)', np_{0}=[])".format(f)))
+        setattr(TestNumpy, 'test_' + f + '_scalar', eval("lambda self: self.run_test('def np_{0}_scalar(): from numpy import {0} ; a = 1 ; return {0}(a)', np_{0}_scalar=[])".format(f)))
+    else:
+        setattr(TestNumpy, 'test_' + f, eval("lambda self: self.run_test('def np_{0}(): from numpy import ones, {0} ; a = ones(10) ; return {0}(a)', np_{0}=[])".format(f)))
+        setattr(TestNumpy, 'test_' + f + '_scalar', eval("lambda self: self.run_test('def np_{0}_scalar(): from numpy import {0} ; a = 0.5 ; return {0}(a+0.5)', np_{0}_scalar=[])".format(f)))
+
+for f in binary_ufunc:
+    if 'bitwise_' in f:
+        setattr(TestNumpy, 'test_' + f, eval("lambda self: self.run_test('def np_{0}(): from numpy import ones, int32, {0} ; a = ones(10, int32) ; return {0}(a,a)', np_{0}=[])".format(f)))
+        setattr(TestNumpy, 'test_' + f + '_scalar', eval("lambda self: self.run_test('def np_{0}_scalar(): from numpy import {0} ; a = 1 ; return {0}(a, a-1)', np_{0}_scalar=[])".format(f)))
+    else:
+        setattr(TestNumpy, 'test_' + f, eval("lambda self: self.run_test('def np_{0}(): from numpy import ones, {0} ; a = ones(10) ; return {0}(a,a)', np_{0}=[])".format(f)))
+        setattr(TestNumpy, 'test_' + f + '_scalar', eval("lambda self: self.run_test('def np_{0}_scalar(): from numpy import {0} ; a = 0.5 ; return {0}(a+0.5, a+0.5)', np_{0}_scalar=[])".format(f)))

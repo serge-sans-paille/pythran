@@ -295,6 +295,7 @@ unary_ufunc = (
         'absolute', 'arccos', 'arccosh', 'arcsin', 'arcsinh', 'arctan', 'arctanh',
         'bitwise_not',
         'ceil',  'cos', 'cosh',
+        'deg2rad', 'degrees',
         'exp', 'expm1',
         'fabs', 'floor',
         'isinf', 'isnan',

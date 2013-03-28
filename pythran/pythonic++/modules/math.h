@@ -1,89 +1,42 @@
 #ifndef PYTHONIC_MODULE_MATH_H
 #define PYTHONIC_MODULE_MATH_H
 
-#include <nt2/include/functions/acos.hpp>
-#include <nt2/include/functions/cos.hpp>
-#include <nt2/include/functions/exp.hpp>
-#include <nt2/include/functions/sin.hpp>
-#include <nt2/include/functions/sqrt.hpp>
-#include <nt2/include/functions/log10.hpp>
-#include <nt2/include/functions/log2.hpp>
-#include <nt2/include/functions/is_nan.hpp>
-#include <nt2/include/functions/ceil.hpp>
-#include <nt2/include/functions/floor.hpp>
-#include <nt2/include/functions/abs.hpp>
-#include <nt2/include/functions/mod.hpp>
-#include <nt2/include/functions/ldexp.hpp>
-#include <nt2/include/functions/tan.hpp>
-#include <nt2/include/functions/asin.hpp>
-#include <nt2/include/functions/atan.hpp>
-#include <nt2/include/functions/atan2.hpp>
-#include <nt2/include/functions/cosh.hpp>
-#include <nt2/include/functions/sinh.hpp>
-#include <nt2/include/functions/tanh.hpp>
-#include <nt2/include/functions/atanh.hpp>
-#include <nt2/include/functions/asinh.hpp>
-#include <nt2/include/functions/acosh.hpp>
-#include <nt2/include/functions/erf.hpp>
-#include <nt2/include/functions/erfc.hpp>
-#include <nt2/include/functions/log1p.hpp>
-#include <nt2/include/functions/expm1.hpp>
-#include <nt2/include/functions/gamma.hpp>
-#include <nt2/toolbox/boost_math/functions/lgamma.hpp>
-#include <nt2/toolbox/boost_math/functions/tgamma.hpp>
-#include <nt2/include/functions/trunc.hpp>
-#include <nt2/include/functions/copysign.hpp>
-#include <nt2/include/functions/hypot.hpp>
-#include <nt2/include/functions/log.hpp>
-#include <nt2/include/functions/is_inf.hpp>
-#include <nt2/include/functions/pow.hpp>
-
 namespace pythonic {
     namespace math {
-        using nt2::acos;
-        using nt2::cos;
-        using nt2::exp;
-        using nt2::sin;
-        using nt2::sqrt;
-        using nt2::log10;
-        using nt2::log2;
-        ALIAS(nt2::is_nan, isnan);
-        using nt2::ceil;
-        using nt2::floor;
-        ALIAS(nt2::abs, fabs);
-
-        /* add a cast in the wrapper to make sure the right type is used */
-        template<typename T0, typename T1>
-        auto fmod(T0 arg0, T1 arg1) ->  decltype(nt2::mod((decltype(std::declval<T0>() + std::declval<T1>()))arg0, (decltype(std::declval<T0>() + std::declval<T1>()))arg1)) {
-            typedef decltype(std::declval<T0>() + std::declval<T1>()) common_type;
-            return nt2::mod((common_type)arg0, (common_type)arg1);
-        }
-
-        using nt2::ldexp;
-        using nt2::tan;
-        using nt2::asin;
-        using nt2::atan;
-        using nt2::atan2;
-        using nt2::cosh;
-        using nt2::sinh;
-        using nt2::tanh;
-        using nt2::atanh;
-        using nt2::asinh;
-        using nt2::acosh;
-        using nt2::erf;
-        using nt2::erfc;
-        using nt2::log1p;
-        using nt2::expm1;
-        using nt2::gamma;
-        using nt2::boost_math::lgamma;
-        using nt2::boost_math::tgamma;
-        using nt2::trunc;
-        using nt2::copysign;
-        using nt2::hypot;
-        using nt2::log;
-        ALIAS(nt2::is_inf, isinf)
-        using nt2::pow;
-        long pow(long n, long m) { return pow(n,m); }
+        using std::acos;
+        using std::cos;
+        using std::exp;
+        using std::sin;
+        using std::sqrt;
+        using std::log10;
+        using std::isnan;
+        using std::ceil;
+        using std::floor;
+        using std::fabs;
+        using std::fmod;
+        using std::ldexp;
+        using std::tan;
+        using std::asin;
+        using std::atan;
+        using std::atan2;
+        using std::cosh;
+        using std::sinh;
+        using std::tanh;
+        using std::atanh;
+        using std::asinh;
+        using std::acosh;
+        using std::erf;
+        using std::erfc;
+        using std::log1p;
+        using std::expm1;
+        using std::lgamma;
+        using std::trunc;
+        using std::copysign;
+        using std::hypot;
+        using std::log;
+        using std::isinf;
+        using std::pow;
+        long pow(long n, long m) { return std::pow(n,m); }
 
         double const pi = std::atan(1)*4;
         double const e = std::exp(1);
@@ -95,6 +48,7 @@ namespace pythonic {
             return std::tuple<double,long>(sig,exp);
         }
 
+        WRAP(double,gamma,std::tgamma,double);
 
         template<class T>
             T factorial(T x)
@@ -155,7 +109,6 @@ namespace pythonic {
         PROXY(pythonic::math,sin);
         PROXY(pythonic::math,sqrt);
         PROXY(pythonic::math,log10);
-        PROXY(pythonic::math,log2);
         PROXY(pythonic::math,isnan);
         PROXY(pythonic::math,ceil);
         PROXY(pythonic::math,floor);

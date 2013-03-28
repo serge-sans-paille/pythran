@@ -272,6 +272,8 @@ modules = {
             "cos": ConstFunctionIntr(),
             "cosh": ConstFunctionIntr(),
             "cumsum": ConstMethodIntr(),
+            "deg2rad": ConstFunctionIntr(),
+            "degrees": ConstFunctionIntr(),
             "double_" : ConstFunctionIntr(),
             "e": ScalarIntr(),
             "empty": ConstFunctionIntr(),
@@ -935,13 +937,13 @@ modules = {
                 "writelines": MethodIntr(global_effects=True),
                 },
         "__ndarray__" : {
-                "shape": AttributeIntr(0),
-                "ndim": AttributeIntr(1),
-                "strides": AttributeIntr(2),
-                "size": AttributeIntr(3),
+                "flat": AttributeIntr(6),
                 "itemsize": AttributeIntr(4),
                 "nbytes": AttributeIntr(5),
-                "flat": AttributeIntr(6),
+                "ndim": AttributeIntr(1),
+                "shape": AttributeIntr(0),
+                "size": AttributeIntr(3),
+                "strides": AttributeIntr(2),
                 },
         # conflicting method names must be listed here
         "__dispatch__": {

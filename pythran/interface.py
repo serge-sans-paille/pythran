@@ -255,10 +255,17 @@ decltype(std::declval<int>() + 1) main()
                 )
 
         # boost python
-        self.check_package('boost::python',
-                '#include <boost/python.hpp>\nint main() { return 0; }',
-                ldflags=['-lboost_python']
-                )
+        try:
+            self.check_package('boost::python',
+                    '#include <boost/python.hpp>\nint main() { return 0; }',
+                    ldflags=['-lboost_python']
+                    )
+        except RuntimeError:
+            self.check_package('boost::python',
+                    '#include <boost/python.hpp>\nint main() { return 0; }',
+                    ldflags=['-lboost_python-mt']
+                    )
+
 
         # boost format
         self.check_package('boost::format',

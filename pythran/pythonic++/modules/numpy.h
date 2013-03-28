@@ -570,6 +570,10 @@ namespace pythonic {
 
         NP_PROXY_ALIAS(degrees, nt2::indeg);
 
+        NP_PROXY_OP(divide);
+
+        NP_PROXY_OP(equal);
+
         NP_PROXY(exp);
 
         NP_PROXY(expm1);
@@ -577,6 +581,20 @@ namespace pythonic {
         NP_PROXY_ALIAS(fabs, nt2::abs);
 
         NP_PROXY(floor);
+
+        NP_PROXY_ALIAS(floor_divide, nt2::divfloor);
+
+        NP_PROXY_ALIAS(fmax, nt2::max);
+
+        NP_PROXY_ALIAS(fmin, nt2::min);
+
+        NP_PROXY_ALIAS(fmod, nt2::mod);
+
+        // NP_PROXY(frexp); // TODO
+
+        NP_PROXY_OP(greater);
+
+        NP_PROXY_OP(greater_equal);
 
         NP_PROXY(hypot);
 

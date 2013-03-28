@@ -281,25 +281,33 @@ class TestNumpy(TestEnv):
 #    def test_arctan1(self):
 #        self.run_test("def np_arctan1(): from numpy import arctan ; a = 0.5 ; return arctan(a)", np_arctan1=[])
 #
-    def test_arctan21(self):
-        self.run_test("def np_arctan21(): from numpy import arctan2 ; a, b = 1., .5 ; return arctan2(a , b)", np_arctan21=[])
+#    def test_arctan21(self):
+#        self.run_test("def np_arctan21(): from numpy import arctan2 ; a, b = 1., .5 ; return arctan2(a , b)", np_arctan21=[])
+    pass
 
 #automatic generation of basic test cases for ufunc
 binary_ufunc = (
-        'add','arctan2',
-        'bitwise_and', 'bitwise_or', 'bitwise_xor',
-        'copysign',
-        'hypot',
+        #'add','arctan2',
+        #'bitwise_and', 'bitwise_or', 'bitwise_xor',
+        #'copysign',
+        #'divide',
+        #'equal',
+        #'frexp', # todo
+        #'floor_divide', 'fmax', 'fmin', 'fmod',
+        'greater', 'greater_equal',
+        #'hypot',
         )
+
 unary_ufunc = (
-        'absolute', 'arccos', 'arccosh', 'arcsin', 'arcsinh', 'arctan', 'arctanh',
-        'bitwise_not',
-        'ceil',  'cos', 'cosh',
-        'deg2rad', 'degrees',
-        'exp', 'expm1',
-        'fabs', 'floor',
-        'isinf', 'isnan',
-        'log10', 'log1p', 'log2')
+        #'absolute', 'arccos', 'arccosh', 'arcsin', 'arcsinh', 'arctan', 'arctanh',
+        #'bitwise_not',
+        #'ceil',  'cos', 'cosh',
+        #'deg2rad', 'degrees',
+        #'exp', 'expm1',
+        #'fabs', 'floor',
+        #'isinf', 'isnan',
+        #'log10', 'log1p', 'log2'
+        )
 
 for f in unary_ufunc:
     if 'bitwise_' in f:

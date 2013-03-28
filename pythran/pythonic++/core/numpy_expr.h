@@ -13,11 +13,13 @@
 #include <nt2/include/functions/copysign.hpp>
 #include <nt2/include/functions/cos.hpp>
 #include <nt2/include/functions/cosh.hpp>
+#include <nt2/include/functions/divfloor.hpp>
 #include <nt2/include/functions/erf.hpp>
 #include <nt2/include/functions/erfc.hpp>
 #include <nt2/include/functions/exp.hpp>
 #include <nt2/include/functions/expm1.hpp>
 #include <nt2/include/functions/floor.hpp>
+#include <nt2/include/functions/frexp.hpp>
 #include <nt2/include/functions/gamma.hpp>
 #include <nt2/include/functions/hypot.hpp>
 #include <nt2/include/functions/indeg.hpp>
@@ -29,6 +31,8 @@
 #include <nt2/include/functions/log10.hpp>
 #include <nt2/include/functions/log1p.hpp>
 #include <nt2/include/functions/log2.hpp>
+#include <nt2/include/functions/max.hpp>
+#include <nt2/include/functions/min.hpp>
 #include <nt2/include/functions/mod.hpp>
 #include <nt2/include/functions/pow.hpp>
 #include <nt2/include/functions/sin.hpp>
@@ -71,14 +75,35 @@ namespace  pythonic {
                 }
 
             template<class T0, class T1>
-                auto multiply(T0 const& t0, T1 const& t1) -> decltype(t0 * t1) {
-                    return t0 * t1;
+                auto divide(T0 const& t0, T1 const& t1) -> decltype(t0 / t1) {
+                    return t0 / t1;
+                }
+
+            template<class T0, class T1>
+                auto equal(T0 const& t0, T1 const& t1) -> decltype(t0 == t1) {
+                    return t0 == t1;
+                }
+
+            template<class T0, class T1>
+                auto greater(T0 const& t0, T1 const& t1) -> decltype(t0 > t1) {
+                    return t0 > t1;
+                }
+
+            template<class T0, class T1>
+                auto greater_equal(T0 const& t0, T1 const& t1) -> decltype(t0 >= t1) {
+                    return t0 >= t1;
                 }
 
             template<class T0, class T1>
                 auto minus(T0 const& t0, T1 const& t1) -> decltype(t0 - t1) {
                     return t0 - t1;
                 }
+
+            template<class T0, class T1>
+                auto multiply(T0 const& t0, T1 const& t1) -> decltype(t0 * t1) {
+                    return t0 * t1;
+                }
+
 
             template<class T >
                 auto negate(T const& t) -> decltype(-t) {
@@ -154,21 +179,33 @@ namespace  pythonic {
 #include "numpy_unary_expr.h"
 
             PROXY(pythonic::numpy_expr::ops, bitwise_and)
+#define NUMPY_BINARY_FUNC_NAME operator&
+#define NUMPY_BINARY_FUNC_SYM proxy::bitwise_and
+#include "numpy_binary_expr.h"
 #define NUMPY_BINARY_FUNC_NAME bitwise_and
 #define NUMPY_BINARY_FUNC_SYM proxy::bitwise_and
 #include "numpy_binary_expr.h"
 
             PROXY(pythonic::numpy_expr::ops, bitwise_not)
+#define NUMPY_UNARY_FUNC_NAME operator~
+#define NUMPY_UNARY_FUNC_SYM proxy::bitwise_not
+#include "numpy_unary_expr.h"
 #define NUMPY_UNARY_FUNC_NAME bitwise_not
 #define NUMPY_UNARY_FUNC_SYM proxy::bitwise_not
 #include "numpy_unary_expr.h"
 
             PROXY(pythonic::numpy_expr::ops, bitwise_or)
+#define NUMPY_BINARY_FUNC_NAME operator|
+#define NUMPY_BINARY_FUNC_SYM proxy::bitwise_or
+#include "numpy_binary_expr.h"
 #define NUMPY_BINARY_FUNC_NAME bitwise_or
 #define NUMPY_BINARY_FUNC_SYM proxy::bitwise_or
 #include "numpy_binary_expr.h"
 
             PROXY(pythonic::numpy_expr::ops, bitwise_xor)
+#define NUMPY_BINARY_FUNC_NAME operator^
+#define NUMPY_BINARY_FUNC_SYM proxy::bitwise_xor
+#include "numpy_binary_expr.h"
 #define NUMPY_BINARY_FUNC_NAME bitwise_xor
 #define NUMPY_BINARY_FUNC_SYM proxy::bitwise_xor
 #include "numpy_binary_expr.h"
@@ -203,6 +240,22 @@ namespace  pythonic {
 #define NUMPY_UNARY_FUNC_SYM proxy::indeg
 #include "numpy_unary_expr.h"
 
+            PROXY(pythonic::numpy_expr::ops, divide)
+#define NUMPY_BINARY_FUNC_NAME operator/
+#define NUMPY_BINARY_FUNC_SYM proxy::divide
+#include "numpy_binary_expr.h"
+#define NUMPY_BINARY_FUNC_NAME divide
+#define NUMPY_BINARY_FUNC_SYM proxy::divide
+#include "numpy_binary_expr.h"
+
+            PROXY(pythonic::numpy_expr::ops, equal)
+#define NUMPY_BINARY_FUNC_NAME operator==
+#define NUMPY_BINARY_FUNC_SYM proxy::equal
+#include "numpy_binary_expr.h"
+#define NUMPY_BINARY_FUNC_NAME equal
+#define NUMPY_BINARY_FUNC_SYM proxy::equal
+#include "numpy_binary_expr.h"
+
             PROXY(nt2, exp)
 #define NUMPY_UNARY_FUNC_NAME exp
 #define NUMPY_UNARY_FUNC_SYM proxy::exp
@@ -221,6 +274,50 @@ namespace  pythonic {
 #define NUMPY_UNARY_FUNC_NAME floor
 #define NUMPY_UNARY_FUNC_SYM proxy::floor
 #include "numpy_unary_expr.h"
+
+            PROXY(nt2, divfloor)
+#define NUMPY_BINARY_FUNC_NAME floor_divide
+#define NUMPY_BINARY_FUNC_SYM proxy::divfloor
+#include "numpy_binary_expr.h"
+
+            PROXY(nt2, max)
+#define NUMPY_BINARY_FUNC_NAME fmax
+#define NUMPY_BINARY_FUNC_SYM proxy::max
+#include "numpy_binary_expr.h"
+
+            PROXY(nt2, min)
+#define NUMPY_BINARY_FUNC_NAME fmin
+#define NUMPY_BINARY_FUNC_SYM proxy::min
+#include "numpy_binary_expr.h"
+
+            PROXY(nt2, mod)
+#define NUMPY_BINARY_FUNC_NAME operator%
+#define NUMPY_BINARY_FUNC_SYM proxy::mod
+#include "numpy_binary_expr.h"
+#define NUMPY_BINARY_FUNC_NAME fmod
+#define NUMPY_BINARY_FUNC_SYM proxy::mod
+#include "numpy_binary_expr.h"
+// TODO
+//            PROXY(nt2, frexp)
+//#define NUMPY_UNARY_FUNC_NAME frexp
+//#define NUMPY_UNARY_FUNC_SYM proxy::frexp
+//#include "numpy_binary_expr.h"
+
+            PROXY(pythonic::numpy_expr::ops, greater)
+#define NUMPY_BINARY_FUNC_NAME operator>
+#define NUMPY_BINARY_FUNC_SYM proxy::greater
+#include "numpy_binary_expr.h"
+#define NUMPY_BINARY_FUNC_NAME greater
+#define NUMPY_BINARY_FUNC_SYM proxy::greater
+#include "numpy_binary_expr.h"
+
+            PROXY(pythonic::numpy_expr::ops, greater_equal)
+#define NUMPY_BINARY_FUNC_NAME operator>=
+#define NUMPY_BINARY_FUNC_SYM proxy::greater_equal
+#include "numpy_binary_expr.h"
+#define NUMPY_BINARY_FUNC_NAME greater_equal
+#define NUMPY_BINARY_FUNC_SYM proxy::greater_equal
+#include "numpy_binary_expr.h"
 
             PROXY(nt2, hypot)
 #define NUMPY_BINARY_FUNC_NAME hypot

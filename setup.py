@@ -46,7 +46,7 @@ class TestCommand(Command):
                 args.insert(0, '-x')
             py.test.cmdline.main(args)
         except ImportError:
-            print ("W: Using only one thread,"
+            print ("W: Using only one thread, "
                     "try to install pytest-xdist package")
             loader = TestLoader()
             t = TextTestRunner()

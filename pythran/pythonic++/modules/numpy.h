@@ -598,15 +598,59 @@ namespace pythonic {
 
         NP_PROXY(hypot);
 
+        NP_PROXY_ALIAS(invert, pythonic::numpy_expr::ops::bitwise_not); 
+
+        NP_PROXY_ALIAS(isfinite, nt2::is_finite);
+
         NP_PROXY_ALIAS(isinf, nt2::is_inf);
 
         NP_PROXY_ALIAS(isnan, nt2::is_nan);
+
+        NP_PROXY(ldexp);
+
+        NP_PROXY_OP(left_shift);
+
+        NP_PROXY_OP(less);
+
+        NP_PROXY_OP(less_equal);
 
         NP_PROXY(log10);
 
         NP_PROXY(log1p);
 
         NP_PROXY(log2);
+
+        NP_PROXY_ALIAS(logaddexp, pythonic::numpy_expr::ops::logaddexp);
+
+        NP_PROXY_ALIAS(logaddexp2, pythonic::numpy_expr::ops::logaddexp2);
+
+        NP_PROXY_OP(logical_and);
+
+        NP_PROXY_OP(logical_not);
+
+        NP_PROXY_OP(logical_or);
+
+        NP_PROXY_OP(logical_xor);
+
+        NP_PROXY_ALIAS(maximum, nt2::max);
+
+        NP_PROXY_ALIAS(minimum, nt2::min);
+
+        NP_PROXY(mod);
+
+        NP_PROXY_OP(multiply);
+
+        NP_PROXY_OP(negative);
+
+        NP_PROXY(nextafter);
+
+        NP_PROXY_OP(not_equal);
+
+        NP_PROXY_ALIAS(power, nt2::pow);
+
+        NP_PROXY_ALIAS(rad2deg, nt2::indeg);
+
+        NP_PROXY_ALIAS(radians, nt2::inrad);
 
         NP_PROXY(sin);
 

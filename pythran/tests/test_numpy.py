@@ -292,10 +292,14 @@ binary_ufunc = (
         #'copysign',
         #'divide',
         #'equal',
-        #'frexp', # todo
+        ##'frexp', # todo
         #'floor_divide', 'fmax', 'fmin', 'fmod',
-        'greater', 'greater_equal',
+        #'greater', 'greater_equal',
         #'hypot',
+        #'ldexp', 'left_shift', 'less', 'less_equal', 'logaddexp', 'logaddexp2', "logical_and", "logical_or", "logical_xor",
+        #'maximum', 'minimum', 'mod','multiply',
+        #'nextafter','not_equal', 
+        #'power',
         )
 
 unary_ufunc = (
@@ -305,12 +309,14 @@ unary_ufunc = (
         #'deg2rad', 'degrees',
         #'exp', 'expm1',
         #'fabs', 'floor',
-        #'isinf', 'isnan',
-        #'log10', 'log1p', 'log2'
+        #'isinf', 'isnan', 'invert', 'isfinite',
+        #'log10', 'log1p', 'log2', 'logical_not',
+        #'negative',
+        'rad2deg', 'radians',
         )
 
 for f in unary_ufunc:
-    if 'bitwise_' in f:
+    if 'bitwise_' in f or 'invert' in f:
         setattr(TestNumpy, 'test_' + f, eval("lambda self: self.run_test('def np_{0}(): from numpy import ones, int32, {0} ; a = ones(10, int32) ; return {0}(a)', np_{0}=[])".format(f)))
         setattr(TestNumpy, 'test_' + f + '_scalar', eval("lambda self: self.run_test('def np_{0}_scalar(): from numpy import {0} ; a = 1 ; return {0}(a)', np_{0}_scalar=[])".format(f)))
     else:
@@ -318,7 +324,7 @@ for f in unary_ufunc:
         setattr(TestNumpy, 'test_' + f + '_scalar', eval("lambda self: self.run_test('def np_{0}_scalar(): from numpy import {0} ; a = 0.5 ; return {0}(a+0.5)', np_{0}_scalar=[])".format(f)))
 
 for f in binary_ufunc:
-    if 'bitwise_' in f:
+    if 'bitwise_' in f or 'ldexp' in f or '_shift' in f:
         setattr(TestNumpy, 'test_' + f, eval("lambda self: self.run_test('def np_{0}(): from numpy import ones, int32, {0} ; a = ones(10, int32) ; return {0}(a,a)', np_{0}=[])".format(f)))
         setattr(TestNumpy, 'test_' + f + '_scalar', eval("lambda self: self.run_test('def np_{0}_scalar(): from numpy import {0} ; a = 1 ; return {0}(a, a-1)', np_{0}_scalar=[])".format(f)))
     else:

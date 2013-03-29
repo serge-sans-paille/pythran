@@ -584,7 +584,10 @@ modules = {
                 "getitem": ConstFunctionIntr(),
                 "__getitem__": ConstFunctionIntr(),
                 "indexOf": ConstFunctionIntr(),
-                "itemgetter": ConstFunctionIntr(),
+                "itemgetter": MethodIntr(
+		    return_alias = lambda node: { FunctionIntr() }
+                    ),
+
 		},
         "__list__": {
                 "append": MethodIntr(

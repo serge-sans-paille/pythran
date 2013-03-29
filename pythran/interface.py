@@ -5,7 +5,6 @@ This module contains all the stuff to make your way from python code to
     * compile transforms c++ code into a native module
 '''
 import sys
-import errno
 import os.path
 import distutils.sysconfig
 
@@ -216,7 +215,7 @@ class ToolChain(object):
             self.cxxflags.extend(cxxflags)
             self.ldflags.extend(ldflags)
         except CalledProcessError as e:
-            raise EnvironmentError(errno.ENOPKG, msg + '\n\n' + e.output)
+            raise RuntimeError(msg + '\n\n' + e.output)
 
     def check_package(self, pkg, code, cppflags=list(),
                       cxxflags=list(), ldflags=list(), optional=False):
@@ -227,7 +226,7 @@ class ToolChain(object):
     def configure(self):
         """Look for the many dependencies of pythran and add them to the
            relevant path.
-           Raise an EnvironmentError exception otherwise"""
+           Raise a RuntimeError exception otherwise"""
 
         # basic c++ compiler
         self.check_compile('no valid c++ compiler found',
@@ -284,7 +283,7 @@ decltype(std::declval<int>() + 1) main()
             self.check_package('tcmalloc', 'int main() { return 0; }',
                                ldflags=['-ltcmalloc_minimal'],
                                optional=True)
-        except EnvironmentError:
+        except RuntimeError:
             pass
 
         # pythonic++

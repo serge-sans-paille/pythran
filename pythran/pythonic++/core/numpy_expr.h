@@ -24,6 +24,7 @@
 #include <nt2/include/functions/hypot.hpp>
 #include <nt2/include/functions/indeg.hpp>
 #include <nt2/include/functions/inrad.hpp>
+#include <nt2/include/functions/iround.hpp>
 #include <nt2/include/functions/is_finite.hpp>
 #include <nt2/include/functions/is_inf.hpp>
 #include <nt2/include/functions/is_nan.hpp>
@@ -37,6 +38,7 @@
 #include <nt2/include/functions/mod.hpp>
 #include <nt2/include/functions/nextafter.hpp>
 #include <nt2/include/functions/pow.hpp>
+#include <nt2/include/functions/remainder.hpp>
 #include <nt2/include/functions/sin.hpp>
 #include <nt2/include/functions/sinh.hpp>
 #include <nt2/include/functions/sqrt.hpp>
@@ -146,7 +148,6 @@ namespace  pythonic {
                     return t0 * t1;
                 }
 
-
             template<class T >
                 auto negative(T const& t) -> decltype(-t) {
                     return -t;
@@ -157,6 +158,15 @@ namespace  pythonic {
                     return t0 != t1;
                 }
 
+            template<class T >
+                auto reciprocal(T const& t) -> decltype(T(1)/t) {
+                    return T(1)/t;
+                }
+
+            template<class T0, class T1>
+                auto right_shift(T0 const& t0, T1 const& t1) -> decltype(t0 >> t1) {
+                    return t0 >> t1;
+                }
 
             template<class T0, class T1>
                 auto minus(T0 const& t0, T1 const& t1) -> decltype(t0 - t1) {
@@ -530,6 +540,29 @@ namespace  pythonic {
 
 #define NUMPY_UNARY_FUNC_NAME radians
 #define NUMPY_UNARY_FUNC_SYM proxy::inrad
+#include "numpy_unary_expr.h"
+
+            PROXY(pythonic::numpy_expr::ops, reciprocal)
+#define NUMPY_UNARY_FUNC_NAME reciprocal
+#define NUMPY_UNARY_FUNC_SYM proxy::reciprocal
+#include "numpy_unary_expr.h"
+
+            PROXY(nt2, remainder)
+#define NUMPY_BINARY_FUNC_NAME remainder
+#define NUMPY_BINARY_FUNC_SYM proxy::remainder
+#include "numpy_binary_expr.h"
+
+            PROXY(pythonic::numpy_expr::ops, right_shift)
+#define NUMPY_BINARY_FUNC_NAME operator>>
+#define NUMPY_BINARY_FUNC_SYM proxy::right_shift
+#include "numpy_binary_expr.h"
+#define NUMPY_BINARY_FUNC_NAME right_shift
+#define NUMPY_BINARY_FUNC_SYM proxy::right_shift
+#include "numpy_binary_expr.h"
+
+            PROXY(nt2, iround)
+#define NUMPY_UNARY_FUNC_NAME rint
+#define NUMPY_UNARY_FUNC_SYM proxy::iround
 #include "numpy_unary_expr.h"
 
             PROXY(nt2, sin)

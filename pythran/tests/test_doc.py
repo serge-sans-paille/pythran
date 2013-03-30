@@ -29,6 +29,11 @@ class TestDoctest(unittest.TestCase):
         from pythran import cxxtypes
         failed, _ = doctest.testmod(cxxtypes)
         self.assertEqual(failed, 0)
+        
+    def test_openmp(self):
+        from pythran import openmp
+        failed, _ = doctest.testmod(openmp)
+        self.assertEqual(failed, 0)
 
     #def test_typing(self):
     #    from pythran import typing

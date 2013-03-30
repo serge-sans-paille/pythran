@@ -300,6 +300,7 @@ binary_ufunc = (
         #'maximum', 'minimum', 'mod','multiply',
         #'nextafter','not_equal', 
         #'power',
+        #'remainder','right_shift', 
         )
 
 unary_ufunc = (
@@ -312,7 +313,7 @@ unary_ufunc = (
         #'isinf', 'isnan', 'invert', 'isfinite',
         #'log10', 'log1p', 'log2', 'logical_not',
         #'negative',
-        'rad2deg', 'radians',
+        'rint', #'rad2deg', 'radians','reciprocal', 
         )
 
 for f in unary_ufunc:

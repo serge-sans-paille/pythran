@@ -652,6 +652,14 @@ namespace pythonic {
 
         NP_PROXY_ALIAS(radians, nt2::inrad);
 
+        NP_PROXY_ALIAS(reciprocal, pythonic::numpy_expr::ops::reciprocal);
+
+        NP_PROXY(remainder);
+
+        NP_PROXY_OP(right_shift);
+
+        NP_PROXY_ALIAS(rint, nt2::iround)
+
         NP_PROXY(sin);
 
         NP_PROXY(tan);

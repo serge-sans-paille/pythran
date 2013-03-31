@@ -35,8 +35,13 @@ class ConstantFolding(Transformation):
 
     def prepare(self, node, ctx):
         self.env = {'__builtin__': __import__('__builtin__')}
-        if (node.body[0].names[0].name == "operator_"):
-            node.body[0].names[0].name = "operator"
+        class OperatorRenamer(ast.NodeTransformer):
+            def visit_Import(self, node):
+                for n in node.names:
+                    if n.name == "operator_":
+                        n.name = "operator"
+                return node
+        node = OperatorRenamer().visit(node)
         try:
             eval(compile(node, '<constant_folding>', 'exec'), self.env)
         except Exception as e:

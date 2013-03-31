@@ -8,7 +8,7 @@
 
 #define IWRAPPER2ARGS(fname, lname) \
         template <class A, class B> auto fname(A  a, B const& b) -> decltype(lname(a, b)) { return lname(a, b); }\
-	PROXY(pythonic::operator_, fname);\
+    PROXY(pythonic::operator_, fname);\
         PROXY(pythonic::operator_, lname);
  
 
@@ -122,15 +122,6 @@ namespace pythonic {
 
           WRAPPER2ARGS(__floordiv__, floordiv)
 
-//        template <class A>
-//            int index(A const& a) {
-//                
-//            }
-//
-//        template <class A>
-//            int __index__(A const& a) {
-//            }
-
         template <class A>
             A inv(A const& a) {
                 return ~a;
@@ -207,11 +198,6 @@ namespace pythonic {
 
         WRAPPER2ARGS(__truediv__, truediv)
 
-//        template <class A, class B>
-//            auto xor(A const& a, B const& b) -> decltype(a^b) {
-//                return a^b;
-//            }
-
         template <class A, class B>
             auto __xor__(A const& a, B const& b) -> decltype(a^b) {
                 return a^b;
@@ -271,56 +257,56 @@ namespace pythonic {
 
         template <class A, class B>
             A imod(A a, B const& b) {
-		return a%=b;
+    	        return a%=b;
             }
 
         IWRAPPER2ARGS(__imod__, imod)
 
         template <class A, class B>
             A imul(A a, B const& b) {
-		return a*=b;
+            	return a*=b;
             }
 
         IWRAPPER2ARGS(__imul__, imul)
 
         template <class A, class B>
             A ior(A a, B const& b) {
-		return a|=b;
+    	        return a|=b;
             }
 
         IWRAPPER2ARGS(__ior__, ior)
 
         template <class A, class B>
             A ipow(A a, B const& b) {
-		return a = pow(a,b);
+            	return a = pow(a,b);
             }
 
         IWRAPPER2ARGS(__ipow__, ipow)
 
         template <class A, class B>
             A irshift(A a, B const& b) {
-		return a>>=b;
+    	        return a>>=b;
             }
 
         IWRAPPER2ARGS(__irshift__, irshift)
 
         template <class A, class B>
             A isub(A a, B const& b) {
-		return a-=b;
+            	return a-=b;
             }
 
         IWRAPPER2ARGS(__isub__, isub)
 
         template <class A, class B>
             A itruediv(A  a, B const& b) {
-		return a/=b;
+    	        return a/=b;
             }
 
         IWRAPPER2ARGS(__itruediv__, itruediv)
 
         template <class A, class B>
             A ixor(A a, B const& b) {
-		return a^=b;
+            	return a^=b;
             }
 
         IWRAPPER2ARGS(__ixor__, ixor)
@@ -328,63 +314,86 @@ namespace pythonic {
 
         template <class A, class B>
             bool contains(A const& a, B const& b) {
-		return 0 <= a.index(b) && a.index(b) < a.size();
+    	        return 0 <= a.index(b) && a.index(b) < a.size();
             }
 
         WRAPPER2ARGS(__contains__, contains)
 
         template <class A, class B>
             long countOf(A const& a, B const& b) {
-		return std::count(a.begin(), a.end(), b);
+            	return std::count(a.begin(), a.end(), b);
             }
 
         template <class A, class B>
             void delitem(A const& a, B const& b) {
-		try {
-	        	a.remove(b);
-		}
-		catch (std::exception& e)
-		{
-			std::cout << "Can't remove intem :" << e.what() << std::endl;
-		}
+            	try {
+                    	a.remove(b);
+    	        }
+            	catch (std::exception& e)
+            	{
+    	        	std::cout << "Can't remove intem :" << e.what() << std::endl;
+        	    }
             }
 
         WRAPPER2ARGS(__delitem__, delitem)
 
         template <class A, class B>
             auto getitem(A const& a, B const& b) -> decltype(a[b]) {
-		return a[b];
+        	    return a[b];
             }
 
         WRAPPER2ARGS(__getitem__, getitem)
 
         template <class A, class B>
             long indexOf(A const& a, B const& b) {
-		return a.index(b);
+        	    return a.index(b);
             }
 
+        struct itemgetter_return {
+            long i;
+            itemgetter_return(long const& item=-1) : i(item){}
+            template<class A>
+                auto operator()(A const& a) const -> decltype(a[i]) {
+                    return a[i];
+                }
+        };
 
-    template<class R, class A>
-	struct itemgetterReturnFct {
-       long i;
+        struct itemgetter_tuple_return {
+            pythonic::core::list<long> items_list;
+            template<typename... L>
+            itemgetter_tuple_return(long const& item, L ...  items)
+            {
+                items_list.push_back(item);
+                itemgetter_tuple_return(items...);
+            }
 
-       itemgetterReturnFct(long const& item) { i = item; }
+            itemgetter_tuple_return(){ }
 
-       R operator()(A const& a) { return a[i];}
-	
-	};
+            template<class A>
+                int operator()(A const& a) const {//-> decltype(std::make_tuple(a[items_list[0]])) {
+                    //auto result = std::make_tuple(a[items_list[0]]);
+                        int result = 1;
+//                    for (auto i = items_list.begin()+1; i!= items_list.end(); i++)
+//                        result = std::tuple_cat(result, std::make_tuple(a[*i]);
+                    return result;
+                }
+            int operator()() const { return -1;}
+        };
 
-    template<class R, class A>
-    itemgetterReturnFct<R,A> itemgetter(long item)
-    {
-        return new itemgetterReturnFct<R,A>(item);
-    }
+        itemgetter_return itemgetter(long item)
+        {
+            return itemgetter_return(item);
+        }
+
+        template<class... L>
+        itemgetter_tuple_return itemgetter(long const& item1, long const& item2, L ... items)
+        {
+            return itemgetter_tuple_return(item1, item2, items...);
+        }
     
-	
 
         PROXY(pythonic::operator_, truth);
         PROXY(pythonic::operator_, __abs__);
-//        PROXY(pythonic::operator_, xor);
         PROXY(pythonic::operator_, __xor__);
         PROXY(pythonic::operator_, is_);
         PROXY(pythonic::operator_, is_not);

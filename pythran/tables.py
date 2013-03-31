@@ -320,7 +320,6 @@ modules = {
                 "truth": ConstFunctionIntr(),
                 "is_": ConstFunctionIntr(),
                 "is_not": ConstFunctionIntr(),
-#                "abs": ConstFunctionIntr(),
                 "__abs__": ConstFunctionIntr(),
                 "add": ConstFunctionIntr(),
                 "__add__": ConstFunctionIntr(),
@@ -348,15 +347,12 @@ modules = {
                 "__or__": ConstFunctionIntr(),
                 "pos": ConstFunctionIntr(),
                 "__pos__": ConstFunctionIntr(),
-#                "pow": ConstFunctionIntr(),
-#                "__pow__": ConstFunctionIntr(),
                 "rshift": ConstFunctionIntr(),
                 "__rshift__": ConstFunctionIntr(),
                 "sub": ConstFunctionIntr(),
                 "__sub__": ConstFunctionIntr(),
                 "truediv": ConstFunctionIntr(),
                 "__truediv__": ConstFunctionIntr(),
-#                "xor": ConstFunctionIntr(),
                 "__xor__": ConstFunctionIntr(),
                 "concat": ConstFunctionIntr(),
                 "__concat__": ConstFunctionIntr(),
@@ -584,8 +580,9 @@ modules = {
                 "getitem": ConstFunctionIntr(),
                 "__getitem__": ConstFunctionIntr(),
                 "indexOf": ConstFunctionIntr(),
+                "__theitemgetter__": ConstFunctionIntr(),
                 "itemgetter": MethodIntr(
-		    return_alias = lambda node: { FunctionIntr() }
+            		    return_alias = lambda node: { modules['operator_']['__theitemgetter__'] }
                     ),
 
 		},

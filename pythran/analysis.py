@@ -372,7 +372,11 @@ class Aliases(ModuleAnalysis):
 
     # aliasing created by expressions
     def add(self, node, values=None):
-        values = values or set()
+        if not values:  # no given target for the alias
+            if isinstance(node, intrinsic.Intrinsic):
+                values = {node}  # an Intrinsic always aliases to itself
+            else:
+                values = set()  # otherwise aliases to nothing
         assert isinstance(values, set)
         self.result[node] = Aliases.Info(self.aliases.copy(), values)
         return values
@@ -405,6 +409,7 @@ class Aliases(ModuleAnalysis):
 
     def call_return_alias(self, node):
         func = node.func
+        #import pdb ; pdb.set_trace()
         aliases = set()
         if isinstance(func, ast.Attribute):
             _, signature = methods.get(func.attr,

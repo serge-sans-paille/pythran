@@ -1,45 +1,28 @@
 import unittest
 import doctest
+import pythran
+import inspect
 
 class TestDoctest(unittest.TestCase):
+    '''
+    Enable automatic doctest integration to unittest
 
-    modules = ('passes',)
+    Every module in the pythran package is scanned for doctests
+    and one test per module is created
+    '''
+    pass
 
-    def test_package(self):
-        import pythran
-        failed, _ = doctest.testmod(pythran)
-        self.assertEqual(failed, 0)
+def generic_test_package(self, mod):
+    failed, _ = doctest.testmod(mod)
+    self.assertEqual(failed, 0)
 
-    def test_passes(self):
-        from pythran import passes
-        failed, _ = doctest.testmod(passes)
-        self.assertEqual(failed, 0)
+def add_module_doctest(module_name):
+    module = getattr(pythran, module_name)
+    if inspect.ismodule(module):
+        setattr(TestDoctest, 'test_' + module_name,
+            lambda self: generic_test_package(self, module))
 
-    def test_optimizations(self):
-        from pythran import optimizations
-        failed, _ = doctest.testmod(optimizations)
-        self.assertEqual(failed, 0)
-
-    def test_backend(self):
-        from pythran import backend
-        failed, _ = doctest.testmod(backend)
-        self.assertEqual(failed, 0)
-
-    def test_cxxtypes(self):
-        from pythran import cxxtypes
-        failed, _ = doctest.testmod(cxxtypes)
-        self.assertEqual(failed, 0)
-        
-    def test_openmp(self):
-        from pythran import openmp
-        failed, _ = doctest.testmod(openmp)
-        self.assertEqual(failed, 0)
-
-    #def test_typing(self):
-    #    from pythran import typing
-    #    failed, _ = doctest.testmod(typing)
-    #    self.assertEqual(failed, 0)
-
+map(add_module_doctest, dir(pythran))
 
 if __name__ == '__main__':
     unittest.main()

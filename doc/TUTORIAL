@@ -143,6 +143,7 @@ One can also detect some common generator expression patterns to call the iterto
   >>> tree = ast.parse(norm)
   >>> _ = pm.apply(optim.GenExpToImap, tree)
   >>> print pm.dump(backend.Python, tree)
+  import itertools
   def norm(l):
       return sum(itertools.imap((lambda n: (n * n)), l))
 

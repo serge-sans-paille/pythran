@@ -358,26 +358,19 @@ namespace pythonic {
                 }
         };
 
+        template<typename... Types>
         struct itemgetter_tuple_return {
-            pythonic::core::list<long> items_list;
-            template<typename... L>
-            itemgetter_tuple_return(long const& item, L ...  items)
-            {
-                items_list.push_back(item);
-                itemgetter_tuple_return(items...);
-            }
+            
+            std::tuple<Types...> items;
 
-            itemgetter_tuple_return(){ }
-
+            itemgetter_tuple_return(Types... items) : items(items...) {}
+            
             template<class A>
-                int operator()(A const& a) const {//-> decltype(std::make_tuple(a[items_list[0]])) {
-                    //auto result = std::make_tuple(a[items_list[0]]);
-                        int result = 1;
-//                    for (auto i = items_list.begin()+1; i!= items_list.end(); i++)
-//                        result = std::tuple_cat(result, std::make_tuple(a[*i]);
+                auto operator()(A const& a) const -> std::tuple< decltype(a[std::declval<Types>()]...) > {
+                    std::tuple< decltype(a[std::declval<Types>()]...) > result;
+//                        boost::fusion::for_each(result, );
                     return result;
                 }
-            int operator()() const { return -1;}
         };
 
         itemgetter_return itemgetter(long item)
@@ -386,9 +379,9 @@ namespace pythonic {
         }
 
         template<class... L>
-        itemgetter_tuple_return itemgetter(long const& item1, long const& item2, L ... items)
+        auto itemgetter(long const& item1, long const& item2, L ... items) -> itemgetter_tuple_return<long const&,long const& , L...>
         {
-            return itemgetter_tuple_return(item1, item2, items...);
+            return itemgetter_tuple_return<long const&,long const& , L...>(item1, item2, items...);
         }
     
 

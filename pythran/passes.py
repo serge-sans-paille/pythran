@@ -258,7 +258,7 @@ class RemoveComprehension(Transformation):
                     [], [], None, None)
                 )
         result = ast.Return(ast.Name(starget, ast.Load()))
-        sargs = sorted(ast.Name(arg, ast.Load()) for arg in args)
+        sargs = sorted(ast.Name(arg, ast.Param()) for arg in args)
         fd = ast.FunctionDef(name,
                 ast.arguments(sargs, None, None, []),
                 [init, body, result],
@@ -299,7 +299,7 @@ class RemoveComprehension(Transformation):
                 ast.Expr(ast.Yield(node.elt))
                 )
 
-        sargs = sorted(ast.Name(arg, ast.Load()) for arg in args)
+        sargs = sorted(ast.Name(arg, ast.Param()) for arg in args)
         fd = ast.FunctionDef(name,
                 ast.arguments(sargs, None, None, []),
                 [body],

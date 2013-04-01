@@ -7,7 +7,7 @@ This module provides a few code analysis for the pythran language.
     * ImportedIds gathers identifiers imported by a node
     * ConstantExpressions gathers constant expression
     * Aliases gather aliasing informations
-    * Identifiers gathers all identifiers used in a module
+    * Identifiers gathers all identifiers used in a node
     * YieldPoints gathers all yield points from a node
     * BoundedExpressions gathers temporary objects
     * ArgumentEffects computes write effect on arguments
@@ -160,7 +160,7 @@ class Globals(ModuleAnalysis):
         return set(self.global_declarations.keys()
                 + builtin_constants.keys()
                 + builtin_constructors.keys()
-                + ['__builtin__'])
+                + [i for i in modules if i.startswith('__')])
 
 
 ##

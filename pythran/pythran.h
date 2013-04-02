@@ -124,6 +124,10 @@ dict_container<A> operator+(core::empty_dict , container<A> );
 
 template <class K, class V>
 core::dict<K, V> operator+(core::empty_dict , core::list<std::tuple<K,V>> );
+template <class K0, class V0, class K1, class V1>
+core::dict<typename __combined<K0,K1>::type, typename __combined<V0, V1>::type > operator+(core::dict<K0,V0> , core::list<std::tuple<K1,V1>> );
+template <class K0, class V0, class K1, class V1>
+core::dict<typename __combined<K0,K1>::type, typename __combined<V0, V1>::type > operator+(core::list<std::tuple<K1,V1>>, core::dict<K0,V0>);
 
 template <class A>
 decltype(std::declval<core::list<A>>() + none_type()) operator+(container<A> , none_type );
@@ -160,6 +164,10 @@ template<class K>
 indexable<K> operator+(core::empty_set, indexable<K>);
 template<class K>
 indexable_dict<K> operator+(indexable<K>, core::empty_dict);
+template<class K>
+indexable_dict<K> operator+(core::empty_dict, indexable_dict<K>);
+template<class K>
+indexable_dict<K> operator+(indexable_dict<K>, core::empty_dict);
 template<class K>
 indexable_dict<K> operator+(core::empty_dict, indexable<K>);
 template<class K0, class V, class K1>

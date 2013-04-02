@@ -230,7 +230,6 @@ class Types(ModuleAnalysis):
     def __init__(self):
         self.result = dict()
         self.result["bool"] = NamedType("bool")
-        self.current = list()
         self.current_global_declarations = dict()
         ModuleAnalysis.__init__(self, StrictAliases, LocalDeclarations)
 
@@ -301,8 +300,16 @@ class Types(ModuleAnalysis):
                 return False
 
     def combine(self, node, othernode, op=None, unary_op=None, register=False):
-        self.combine_(node, othernode, op or operator.add,
+        if register and node in self.strict_aliases:
+            for a in self.strict_aliases[node].aliases:
+                self.combine_(a, othernode, op or operator.add,
                         unary_op or (lambda x: x), register)
+            else:
+                self.combine_(node, othernode, op or operator.add,
+                        unary_op or (lambda x: x), register)
+        else:
+            self.combine_(node, othernode, op or operator.add,
+                    unary_op or (lambda x: x), register)
 
     def combine_(self, node, othernode, op, unary_op, register):
         try:
@@ -330,7 +337,7 @@ class Types(ModuleAnalysis):
                         self.result[node] = unary_op(self.result[othernode])
                     assert self.result[node], "found an alias with a type"
 
-                    parametric_type = PType(self.current[-1],
+                    parametric_type = PType(self.current,
                                             self.result[othernode])
                     self.register(parametric_type)
 
@@ -341,7 +348,7 @@ class Types(ModuleAnalysis):
                                 '__fake__', ast.Load())
                             s.result[translated_othernode] = (
                              parametric_type.instanciate(
-                             s.current[-1], [s.result[arg] for arg in n.args]))
+                             s.current, [s.result[arg] for arg in n.args]))
                             # look for modified argument
                             for p, effective_arg in enumerate(n.args):
                                 formal_arg = args[p]
@@ -362,10 +369,10 @@ class Types(ModuleAnalysis):
                                 #is a default parameter
                         return interprocedural_type_translator
                     translator = translator_generator(
-                        self.current[-1].args.args,
+                        self.current.args.args,
                         op, unary_op)  # deferred combination
                     user_module = modules['__user__']
-                    current_function = user_module[self.current[-1].name]
+                    current_function = user_module[self.current.name]
                     current_function.add_combiner(translator)
                 else:
                     new_type = unary_op(self.result[othernode])
@@ -380,7 +387,7 @@ class Types(ModuleAnalysis):
             raise
 
     def visit_FunctionDef(self, node):
-        self.current.append(node)
+        self.current = node
         self.typedefs = list()
         self.name_to_nodes = {arg.id: {arg} for arg in node.args.args}
         self.yield_points = self.passmanager.gather(YieldPoints, node)
@@ -401,19 +408,18 @@ class Types(ModuleAnalysis):
                 self.result[n] = self.result[final_node]
         self.current_global_declarations[node.name] = node
         self.result[node] = (Assignable(self.result[node]), self.typedefs)
-        self.current.pop()
 
     def visit_Return(self, node):
         self.generic_visit(node)
         if not self.yield_points:
             if node.value:
-                self.combine(self.current[-1], node.value)
+                self.combine(self.current, node.value)
             else:
-                self.result[self.current[-1]] = NamedType("none_type")
+                self.result[self.current] = NamedType("none_type")
 
     def visit_Yield(self, node):
         self.generic_visit(node)
-        self.combine(self.current[-1], node.value)
+        self.combine(self.current, node.value)
 
     def visit_Assign(self, node):
         self.visit(node.value)

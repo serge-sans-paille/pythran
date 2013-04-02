@@ -26,3 +26,15 @@ def dict_of_set():
 
     def test_typing_aliasing_and_combiner_back(self):
         self.run_test('def typing_aliasing_and_combiner_back(): d=set();e=set(); f = e or d; e.add("e"); return d,e,f', typing_aliasing_and_combiner_back=[])
+
+    def test_typing_aliasing_and_update(self):
+        code = '''
+def foo(d):
+    f=d
+    f+=[1]
+def typing_aliasing_and_update():
+    a= []
+    foo(a)
+    return a'''
+        self.run_test(code, typing_aliasing_and_update=[])
+

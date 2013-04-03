@@ -3,7 +3,7 @@ SED=sed
 ZIP=zip
 CP=cp
 
-TARGETS=index.html devguide.html manual.html authors.html todo.html license.txt
+TARGETS=index.html devguide.html manual.html authors.html todo.html tutorial.html license.txt
 EXTRA_DIST=os.css
 ZIPTARGET=pythran.zip
 
@@ -21,6 +21,7 @@ index.html:../README.rst Makefile
 	          -e 's,DEVGUIDE file,<a href="devguide.html">DEVGUIDE</a>,'\
 			  -e 's,AUTHORS file,<a href="authors.html">AUTHORS</a>,'\
 			  -e 's,TODO file,<a href="todo.html">TODO</a>,'\
+			  -e 's,TUTORIAL file,<a href="tutorial.html">TUTORIAL</a>,'\
 			  -e 's,LICENSE,<a href="license.txt">LICENSE</a>,'\
 			  -e 's,pythran/tests/cases/,<a href="https://github.com/serge-sans-paille/pythran/tree/master/pythran/tests/cases">pythran/tests/cases</a>,'\
 			  $@
@@ -35,6 +36,9 @@ authors.html:../AUTHORS Makefile
 	$(RST2HTML) $< $@
 
 todo.html:../TODO Makefile
+	$(RST2HTML) $< $@
+
+tutorial.html:../doc/TUTORIAL.rst Makefile
 	$(RST2HTML) $< $@
 
 license.txt:../LICENSE

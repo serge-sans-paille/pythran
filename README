@@ -75,7 +75,9 @@ Documentation
 
 The user documentation is available in the MANUAL file from the doc directory.
 
-The developer documentation is available in the DEVGUIDE file from the doc directory.
+The developer documentation is available in the DEVGUIDE file from the doc
+directory. The also is a TUTORIAL file for those who don't like reading
+documentation.
 
 A todo list is maintained in the eponymous TODO file.
 

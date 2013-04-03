@@ -10,7 +10,10 @@ class TestDoctest(unittest.TestCase):
     Every module in the pythran package is scanned for doctests
     and one test per module is created
     '''
-    pass
+    def test_tutorial(self):
+        failed, _ = doctest.testfile('../../doc/TUTORIAL.rst')
+        self.assertEqual(failed, 0)
+
 
 def generic_test_package(self, mod):
     failed, _ = doctest.testmod(mod)

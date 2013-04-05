@@ -652,7 +652,7 @@ namespace pythonic {
 
         NP_PROXY_ALIAS(radians, nt2::inrad);
 
-        NP_PROXY_ALIAS(reciprocal, pythonic::numpy_expr::ops::reciprocal);
+        NP_PROXY_ALIAS(reciprocal, nt2::rec);
 
         NP_PROXY(remainder);
 
@@ -660,9 +660,29 @@ namespace pythonic {
 
         NP_PROXY_ALIAS(rint, nt2::iround)
 
+        NP_PROXY(sign);
+
+        NP_PROXY_ALIAS(signbit, nt2::bitofsign)
+
         NP_PROXY(sin);
 
+        NP_PROXY(sinh);
+
+        NP_PROXY_ALIAS(spacing, nt2::eps)
+
+        NP_PROXY(sqrt);
+
+        NP_PROXY_ALIAS(square, pythonic::numpy_expr::ops::square);
+
+        NP_PROXY_ALIAS(subtract, pythonic::numpy_expr::ops::subtract);
+
         NP_PROXY(tan);
+
+        NP_PROXY(tanh);
+
+        NP_PROXY_ALIAS(true_divide, pythonic::numpy_expr::ops::divide); 
+
+        NP_PROXY(trunc);
 
 #undef NP_PROXY
 #undef NAMED_OPERATOR

@@ -301,6 +301,8 @@ binary_ufunc = (
         #'nextafter','not_equal', 
         #'power',
         #'remainder','right_shift', 
+        #'subtract',
+        'true_divide',
         )
 
 unary_ufunc = (
@@ -313,7 +315,10 @@ unary_ufunc = (
         #'isinf', 'isnan', 'invert', 'isfinite',
         #'log10', 'log1p', 'log2', 'logical_not',
         #'negative',
-        'rint', #'rad2deg', 'radians','reciprocal', 
+        #'rad2deg', 'radians','reciprocal', 'rint', 
+        #'sign', 'signbit', 
+        # 'sin', 'sinh', 'spacing', 'sqrt', 'square', 
+        #'tan', 'tanh','trunc', 
         )
 
 for f in unary_ufunc:
@@ -325,7 +330,7 @@ for f in unary_ufunc:
         setattr(TestNumpy, 'test_' + f + '_scalar', eval("lambda self: self.run_test('def np_{0}_scalar(): from numpy import {0} ; a = 0.5 ; return {0}(a+0.5)', np_{0}_scalar=[])".format(f)))
 
 for f in binary_ufunc:
-    if 'bitwise_' in f or 'ldexp' in f or '_shift' in f:
+    if 'bitwise_' in f or 'ldexp' in f or '_shift' in f :
         setattr(TestNumpy, 'test_' + f, eval("lambda self: self.run_test('def np_{0}(): from numpy import ones, int32, {0} ; a = ones(10, int32) ; return {0}(a,a)', np_{0}=[])".format(f)))
         setattr(TestNumpy, 'test_' + f + '_scalar', eval("lambda self: self.run_test('def np_{0}_scalar(): from numpy import {0} ; a = 1 ; return {0}(a, a-1)', np_{0}_scalar=[])".format(f)))
     else:

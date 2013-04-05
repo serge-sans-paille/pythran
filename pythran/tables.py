@@ -5,7 +5,8 @@ This modules provides the translation tables from python to c++.
 import ast
 import cxxtypes
 
-from intrinsic import ConstFunctionIntr, FunctionIntr, Class
+from intrinsic import Class
+from intrinsic import ConstFunctionIntr, FunctionIntr, ReadOnceFunctionIntr
 from intrinsic import ConstMethodIntr, MethodIntr, AttributeIntr, ScalarIntr
 
 namespace = "pythonic"
@@ -96,6 +97,13 @@ operator_to_lambda = {
         ast.NotIn: lambda l, r: "(not in({1}, {0}))".format(l, r),
         }
 
+equivalent_iterators = {
+    "range": ("__builtin__", "xrange"),
+    "filter": ("itertools", "ifilter"),
+    "map": ("itertools", "imap"),
+    "zip": ("itertools", "izip")
+    }
+
 # each module consist in a module_name <> set of symbols
 modules = {
         "__builtin__": {
@@ -150,39 +158,39 @@ modules = {
             #  "UnicodeDecodeError": ConstFunctionIntr(),
             #  "UnicodeEncodeError": ConstFunctionIntr(),
             #  "UnicodeTranslateError": ConstFunctionIntr(),
-            "all": ConstFunctionIntr(),
-            "any": ConstFunctionIntr(),
+            "all": ReadOnceFunctionIntr(),
+            "any": ReadOnceFunctionIntr(),
             "bin": ConstFunctionIntr(),
             "chr": ConstFunctionIntr(),
             "cmp": ConstFunctionIntr(),
             "complex": ConstFunctionIntr(),
-            "dict": ConstFunctionIntr(),
+            "dict": ReadOnceFunctionIntr(),
             "divmod": ConstFunctionIntr(),
-            "enumerate": ConstFunctionIntr(),
+            "enumerate": ReadOnceFunctionIntr(),
             "file": ConstFunctionIntr(),
-            "filter": ConstFunctionIntr(),
+            "filter": ReadOnceFunctionIntr(),
             "hex": ConstFunctionIntr(),
             "id": ConstFunctionIntr(),
             "len": ConstFunctionIntr(),
-            "list": ConstFunctionIntr(),
-            "map": ConstFunctionIntr(),
-            "max": ConstFunctionIntr(),
-            "min": ConstFunctionIntr(),
+            "list": ReadOnceFunctionIntr(),
+            "map": ReadOnceFunctionIntr(),
+            "max": ReadOnceFunctionIntr(),
+            "min": ReadOnceFunctionIntr(),
             "oct": ConstFunctionIntr(),
             "ord": ConstFunctionIntr(),
             "open": ConstFunctionIntr(),
             "pow": ConstFunctionIntr(),
             "range": ConstFunctionIntr(),
-            "reduce": ConstFunctionIntr(),
+            "reduce": ReadOnceFunctionIntr(),
             "reversed": ConstFunctionIntr(),
             "round": ConstFunctionIntr(),
-            "set": ConstFunctionIntr(),
+            "set": ReadOnceFunctionIntr(),
             "sorted": ConstFunctionIntr(),
             "str": ConstFunctionIntr(),
-            "sum": ConstFunctionIntr(),
-            "tuple": ConstFunctionIntr(),
+            "sum": ReadOnceFunctionIntr(),
+            "tuple": ReadOnceFunctionIntr(),
             "xrange": ConstFunctionIntr(),
-            "zip": ConstFunctionIntr(),
+            "zip": ReadOnceFunctionIntr(),
             # pythran extensions
             "bind0": FunctionIntr(),
             "bind1": FunctionIntr(),
@@ -250,10 +258,10 @@ modules = {
                 "e": ScalarIntr(),
                 },
        "itertools": {
-                "imap": ConstFunctionIntr(),
-                "ifilter": ConstFunctionIntr(),
+                "imap": ReadOnceFunctionIntr(),
+                "ifilter": ReadOnceFunctionIntr(),
                 "product": ConstFunctionIntr(),
-                "izip": ConstFunctionIntr(),
+                "izip": ReadOnceFunctionIntr(),
                 },
         "random": {
                 "seed": FunctionIntr(global_effects=True),

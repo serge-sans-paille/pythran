@@ -9,11 +9,13 @@
 #include <nt2/include/functions/atan.hpp>
 #include <nt2/include/functions/atan2.hpp>
 #include <nt2/include/functions/atanh.hpp>
+#include <nt2/include/functions/bitofsign.hpp>
 #include <nt2/include/functions/ceil.hpp>
 #include <nt2/include/functions/copysign.hpp>
 #include <nt2/include/functions/cos.hpp>
 #include <nt2/include/functions/cosh.hpp>
 #include <nt2/include/functions/divfloor.hpp>
+#include <nt2/include/functions/eps.hpp>
 #include <nt2/include/functions/erf.hpp>
 #include <nt2/include/functions/erfc.hpp>
 #include <nt2/include/functions/exp.hpp>
@@ -38,7 +40,9 @@
 #include <nt2/include/functions/mod.hpp>
 #include <nt2/include/functions/nextafter.hpp>
 #include <nt2/include/functions/pow.hpp>
+#include <nt2/include/functions/rec.hpp>
 #include <nt2/include/functions/remainder.hpp>
+#include <nt2/include/functions/sign.hpp>
 #include <nt2/include/functions/sin.hpp>
 #include <nt2/include/functions/sinh.hpp>
 #include <nt2/include/functions/sqrt.hpp>
@@ -158,18 +162,17 @@ namespace  pythonic {
                     return t0 != t1;
                 }
 
-            template<class T >
-                auto reciprocal(T const& t) -> decltype(T(1)/t) {
-                    return T(1)/t;
-                }
-
             template<class T0, class T1>
                 auto right_shift(T0 const& t0, T1 const& t1) -> decltype(t0 >> t1) {
                     return t0 >> t1;
                 }
+            template<class T>
+                auto square(T const& t) -> decltype(t*t) {
+                    return t*t;
+                }
 
             template<class T0, class T1>
-                auto minus(T0 const& t0, T1 const& t1) -> decltype(t0 - t1) {
+                auto subtract(T0 const& t0, T1 const& t1) -> decltype(t0 - t1) {
                     return t0 - t1;
                 }
 
@@ -177,11 +180,6 @@ namespace  pythonic {
         }
     }
     namespace core {
-
-            PROXY(pythonic::numpy_expr::ops, minus)
-#define NUMPY_BINARY_FUNC_NAME operator-
-#define NUMPY_BINARY_FUNC_SYM proxy::minus
-#include "numpy_binary_expr.h"
 
 
             PROXY(nt2, abs)
@@ -542,9 +540,9 @@ namespace  pythonic {
 #define NUMPY_UNARY_FUNC_SYM proxy::inrad
 #include "numpy_unary_expr.h"
 
-            PROXY(pythonic::numpy_expr::ops, reciprocal)
+            PROXY(nt2, rec)
 #define NUMPY_UNARY_FUNC_NAME reciprocal
-#define NUMPY_UNARY_FUNC_SYM proxy::reciprocal
+#define NUMPY_UNARY_FUNC_SYM proxy::rec
 #include "numpy_unary_expr.h"
 
             PROXY(nt2, remainder)
@@ -565,15 +563,72 @@ namespace  pythonic {
 #define NUMPY_UNARY_FUNC_SYM proxy::iround
 #include "numpy_unary_expr.h"
 
+            PROXY(nt2, sign)
+#define NUMPY_UNARY_FUNC_NAME sign
+#define NUMPY_UNARY_FUNC_SYM proxy::sign
+#include "numpy_unary_expr.h"
+
+            PROXY(nt2, bitofsign)
+#define NUMPY_UNARY_FUNC_NAME signbit
+#define NUMPY_UNARY_FUNC_SYM proxy::bitofsign
+#include "numpy_unary_expr.h"
+
             PROXY(nt2, sin)
 #define NUMPY_UNARY_FUNC_NAME sin
 #define NUMPY_UNARY_FUNC_SYM proxy::sin
 #include "numpy_unary_expr.h"
 
+            PROXY(nt2, sinh)
+#define NUMPY_UNARY_FUNC_NAME sinh
+#define NUMPY_UNARY_FUNC_SYM proxy::sinh
+#include "numpy_unary_expr.h"
+
+            PROXY(nt2, eps)
+#define NUMPY_UNARY_FUNC_NAME spacing
+#define NUMPY_UNARY_FUNC_SYM proxy::eps
+#include "numpy_unary_expr.h"
+
+            PROXY(nt2, sqrt)
+#define NUMPY_UNARY_FUNC_NAME sqrt
+#define NUMPY_UNARY_FUNC_SYM proxy::sqrt
+#include "numpy_unary_expr.h"
+
+            PROXY(pythonic::numpy_expr::ops, square)
+#define NUMPY_UNARY_FUNC_NAME square
+#define NUMPY_UNARY_FUNC_SYM proxy::sqrt
+#include "numpy_unary_expr.h"
+
+            PROXY(pythonic::numpy_expr::ops, subtract)
+#define NUMPY_BINARY_FUNC_NAME operator-
+#define NUMPY_BINARY_FUNC_SYM proxy::subtract
+#include "numpy_binary_expr.h"
+
+#define NUMPY_BINARY_FUNC_NAME subtract
+#define NUMPY_BINARY_FUNC_SYM proxy::subtract
+#include "numpy_binary_expr.h"
+
+
             PROXY(nt2, tan)
 #define NUMPY_UNARY_FUNC_NAME tan
 #define NUMPY_UNARY_FUNC_SYM proxy::tan
 #include "numpy_unary_expr.h"
+
+            PROXY(nt2, tanh);
+#define NUMPY_UNARY_FUNC_NAME tanh
+#define NUMPY_UNARY_FUNC_SYM proxy::tanh
+#include "numpy_unary_expr.h"
+
+            PROXY(nt2, trunc);
+#define NUMPY_UNARY_FUNC_NAME trunc
+#define NUMPY_UNARY_FUNC_SYM proxy::trunc
+#include "numpy_unary_expr.h"
+
+            // SG: badd
+#define NUMPY_BINARY_FUNC_NAME true_divide
+#define NUMPY_BINARY_FUNC_SYM proxy::divide
+#include "numpy_binary_expr.h"
+
+
     }
 }
 

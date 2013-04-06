@@ -16,6 +16,7 @@ This module provides a few code analysis for the pythran language.
     * ParallelMaps detects parallel map(...)
     * OptimizableGenexp finds whether a generator expr. can be optimized.
     * UsedDefChain build used-define chains analysis for each variable.
+    * UseOMP detects if a function use openMP
 '''
 
 from tables import modules, builtin_constants, builtin_constructors
@@ -1083,3 +1084,12 @@ class UsedDefChain(FunctionAnalysis):
         err = ("This node should have been removed in previous passes")
         raise PythranSyntaxError(err, node)
 
+
+class UseOMP(FunctionAnalysis):
+    """Detects if a function use openMP"""
+    def __init__(self):
+        self.result = False
+        super(UseOMP, self).__init__()
+
+    def visit_OMPDirective(self, node):
+        self.result = True

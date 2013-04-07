@@ -2,6 +2,7 @@
 #define PYTHONIC_STRING_H
 #include "slice.h" // for slices
 #include "shared_ref.h"
+#include <boost/format.hpp>
 #include <cassert>
 #include <string>
 #include <sstream>
@@ -148,6 +149,27 @@ namespace pythonic {
             explicit operator bool() const{
                 return not empty();
             }
+            template<class A>
+                core::string operator%(A const & a) const {
+                    const boost::format fmter(*this);
+                    return (boost::format(fmter) % a ).str();
+                }
+            template<class ...A>
+                core::string operator%(std::tuple<A...> const & a) const {
+                    boost::format fmter(*this);
+                    (fmt(fmter, a, int_<sizeof...(A)>() ));
+                    return fmter.str();
+                }
+            private:
+            template<class Tuple, int I>
+                void fmt(boost::format & f, Tuple const & a, int_<I>) const {
+                    fmt(f % std::get<std::tuple_size<Tuple>::value-I>(a), a, int_<I-1>());
+                }
+            template<class Tuple>
+                void fmt(boost::format & f, Tuple const & a, int_<1>) const {
+                    f % std::get<std::tuple_size<Tuple>::value-1>(a);
+                }
+
         };
     }
 }

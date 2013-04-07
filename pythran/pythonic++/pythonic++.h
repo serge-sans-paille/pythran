@@ -19,6 +19,7 @@
 
 /* additional modules */
 #include "modules/dispatch.h"
+#include "modules/float.h"
 #include "modules/list.h"
 #include "modules/set.h"
 #include "modules/dict.h"

@@ -437,6 +437,9 @@ modules = {
                 "strerror": AttributeIntr(2),
                 "filename": AttributeIntr(3),
                 },
+        "__float__" : {
+                "is_integer": ConstMethodIntr(),
+                },
         "__complex___": {
                 "real": AttributeIntr(0),
                 "imag": AttributeIntr(1),

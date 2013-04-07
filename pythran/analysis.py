@@ -391,8 +391,9 @@ class Aliases(ModuleAnalysis):
     visit_Compare = visit_UnaryOp
 
     def visit_IfExp(self, node):
-        return self.add(node,
-                self.visit(node.body).union(self.visit(node.orelse)))
+        self.visit(node.test)
+        rec = map(self.visit, [node.body, node.orelse])
+        return self.add(node, set.union(*rec))
 
     def visit_Dict(self, node):
         self.generic_visit(node)

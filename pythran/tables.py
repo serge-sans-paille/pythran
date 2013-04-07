@@ -67,7 +67,7 @@ operator_to_lambda = {
         ast.Sub: lambda l, r: "({0} - {1})".format(l, r),
         ast.Mult: lambda l, r: "({0} * {1})".format(l, r),
         ast.Div: lambda l, r: "({0} / {1})".format(l, r),
-        ast.Mod: lambda l, r: "({0} % {1})".format(l, r),
+        ast.Mod: lambda l, r: "(pythonic::mod({0}, {1}))".format(l, r),
         ast.Pow: lambda l, r: "(pow({0}, {1}))".format(l, r),
         ast.LShift: lambda l, r: "({0} << {1})".format(l, r),
         ast.RShift: lambda l, r: "({0} >> {1})".format(l, r),

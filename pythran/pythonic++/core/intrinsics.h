@@ -779,6 +779,15 @@ namespace pythonic {
             l.reserve(len(f));
         }
 
+    /* mod */
+    template <class T0, class T1>
+        auto mod(T0 const& t0, T1 const& t1) -> decltype(t0%t1) {
+            return t0%t1;
+        }
+        double mod(double d, long l) {
+            return mod(d,double(l));
+        }
+
     /* in */
     template <class T, class V>
         struct _in {

@@ -26,6 +26,17 @@ namespace pythonic {
             return std::exponential_distribution<>(l)(__random_generator);
         }
 
+        long randrange(long stop) {
+            return long(random() * stop);
+        }
+        long randrange(long start, long stop) {
+            return start + long(random() * (stop - start));
+        }
+        long randrange(long start, long stop, long step) {
+            return start + step * long((random() * (stop - start)) / std::abs(step));
+        }
+        PROXY(pythonic::random, randrange)
+
         template<class Iterable>
             core::list<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type::iterator::value_type>
             sample(Iterable&& s, size_t k) {

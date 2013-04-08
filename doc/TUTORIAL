@@ -143,6 +143,7 @@ One can also detect some common generator expression patterns to call the iterto
   >>> tree = ast.parse(norm)
   >>> _ = pm.apply(optim.GenExpToImap, tree)
   >>> print pm.dump(backend.Python, tree)
+  import itertools
   def norm(l):
       return sum(itertools.imap((lambda n: (n * n)), l))
 
@@ -177,7 +178,7 @@ One can also computes the state of ``globals()``::
   >>> code += 'def foo(a): b = math.cos(a) ; return [b] * 3'
   >>> tree = ast.parse(code)
   >>> pm.gather(analysis.Globals, tree)
-  set(['None', 'False', 'int', 'float', 'long', 'bool', '__builtin__', 'foo', 'True', 'math'])
+  set(['__list__', 'None', '__set__', 'False', 'int', '__file__', 'float', '__string__', 'long', '__complex___', '__dispatch__', '__exception__', 'bool', '__builtin__', '__dict__', '__iterator__', 'foo', 'True', 'math', '__user__'])
 
 One can also compute the state of ``locals()`` at any point of the program::
 

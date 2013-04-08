@@ -46,6 +46,11 @@ class ContextManager(object):
             self.ctx.module = node
         elif isinstance(node, ast.FunctionDef):
             self.ctx.function = node
+            for D in self.deps:
+                if issubclass(D, FunctionAnalysis):
+                    d = D()
+                    d.passmanager = self.passmanager
+                    setattr(self, uncamel(D.__name__), d.run(node, self.ctx))
         return super(ContextManager, self).visit(node)
 
     def prepare(self, node, ctx):
@@ -54,8 +59,10 @@ class ContextManager(object):
             if issubclass(D, ModuleAnalysis):
                 rnode = node if isinstance(node, ast.Module) else ctx.module
             elif issubclass(D, FunctionAnalysis):
-                rnode = node if isinstance(node,
-                                    ast.FunctionDef) else ctx.function
+                if ctx and ctx.function:
+                    rnode = ctx.function
+                else:
+                    continue
             else:
                 rnode = node
             d = D()

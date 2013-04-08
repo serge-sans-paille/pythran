@@ -1,4 +1,5 @@
 def omp_task():
+    import omp
     from time import sleep
     NUM_TASKS = 25
     tids = range(NUM_TASKS)

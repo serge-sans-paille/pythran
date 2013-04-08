@@ -120,3 +120,12 @@ Performance issues detection
 There is a big benchmark / test cases codebase in Pythran. We should monitor it
 and detect performance bottleneck, as well as track speedup changes upon new
 commits.
+
+Try Except around import module statements
+------------------------------------------
+
+When we use Try Except around an import module statement, it is possible to have
+a specific behaviour if the imported modules doesn't exist (using sur ImportError
+exception).
+While pythran, raise an error if module doesn't exist, it should branch in the
+except part of the code.

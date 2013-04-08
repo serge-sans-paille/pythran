@@ -576,7 +576,15 @@ namespace pythonic {
                 else return reverse_iterator(_end - std::min(0L,_step * ( 1 + (_end - _begin)/ _step)) , -_step);
             }
         };
-        PROXY(pythonic::__builtin__,xrange);
+        // clang++ is not happy with PROXY
+        namespace proxy {
+            struct xrange {
+                template<class... Types>
+                pythonic::__builtin__::xrange operator()(Types &&... args) {
+                    return pythonic::__builtin__::xrange(std::forward<Types>(args)...);
+                }
+            };
+        }
 
         /* range */
         core::list<long> _range(xrange & xr) {

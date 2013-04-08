@@ -144,7 +144,7 @@ namespace  pythonic {
 					return res;
 				}
 
-				core::string readline(size_t size=std::numeric_limits<size_t>::max()) {
+				core::string readline(ssize_t size=std::numeric_limits<ssize_t>::max()) {
 					if(not is_open) throw ValueError("I/O operation on closed file");
 					if (mode.find_first_of("r+") == std::string::npos)
 						throw IOError("File not open for reading");
@@ -216,7 +216,7 @@ namespace  pythonic {
 
 			// file_iterator implementation
 				file_iterator::file_iterator(core::file & ref) : f(ref), curr(ref.readline()), position(ref.tell()) {};
-        		file_iterator::file_iterator(core::file & ref, core::npos) : f(ref), position(-1), curr() {};
+        		file_iterator::file_iterator(core::file & ref, core::npos) : f(ref), curr(), position(-1) {};
         		bool file_iterator::operator==(file_iterator const& f2) const{
 		            return position == f2.position;
         		}

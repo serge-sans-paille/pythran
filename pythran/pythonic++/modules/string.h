@@ -42,12 +42,12 @@ namespace pythonic {
         }
         PROXY(pythonic::__string__, capitalize);
 
-        core::list<core::string> split(core::string const& s, core::string const& sep = " ", int maxsplit = -1)
+        core::list<core::string> split(core::string const& s, core::string const& sep = " ", long maxsplit = -1)
         {
             core::list<core::string> res(0);
             size_t current;
             size_t next = -1;
-            size_t numsplit = 0;
+            long numsplit = 0;
             do
             {
                 current = next + 1;
@@ -59,7 +59,7 @@ namespace pythonic {
         } 
         PROXY(pythonic::__string__, split);
 
-        bool endswith(core::string const& s, core::string const& suffix, long start=0, long end=std::string::npos) {
+        bool endswith(core::string const& s, core::string const& suffix, long start=0, size_t end=std::string::npos) {
             if(end == std::string::npos)
                 end = s.size();
             long rstart = end - suffix.size() - start;

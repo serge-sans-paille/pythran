@@ -90,6 +90,7 @@ namespace pythonic {
 
                         imap_iterator_data<Op, L0>& operator++() {
                             ++iter;
+                            return *this;
                         }
 
                     };

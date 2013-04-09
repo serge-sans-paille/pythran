@@ -1,5 +1,4 @@
 #from http://rosettacode.org/wiki/Array_concatenation#Python
-#pythran export array_concatenation()
 def array_concatenation():
     arr1 = [1, 2, 3]
     arr2 = [4, 5, 6]
@@ -13,3 +12,6 @@ def array_concatenation():
     arr6 = [7, 8, 9]
     arr6 += arr5
     assert arr6 == [7, 8, 9, 4, 5, 6]
+
+def test():
+    array_concatenation()

@@ -746,6 +746,11 @@ namespace pythonic {
 
         PROXY(pythonic::__builtin__,zip);
 
+        /* next */
+        template <class T>
+            decltype(*std::declval<T>()) next(T&& y) { auto out = *y; ++y; return out ; }
+        PROXY(pythonic::__builtin__, next);
+
         /* ord */
         long ord(std::string const & v) {
             if(v.size() != 1) {

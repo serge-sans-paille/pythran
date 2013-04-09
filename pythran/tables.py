@@ -168,6 +168,7 @@ modules = {
             "map": ConstFunctionIntr(),
             "max": ConstFunctionIntr(),
             "min": ConstFunctionIntr(),
+            "next": ConstFunctionIntr(),
             "oct": ConstFunctionIntr(),
             "ord": ConstFunctionIntr(),
             "open": ConstFunctionIntr(),
@@ -328,6 +329,11 @@ modules = {
                         register=True)
                     ),
                 },
+
+        "__iterator__": {
+                #"next": MethodIntr(), //Dispatched
+                },
+
         "__string__": {
                 "find": ConstMethodIntr(),
                 "join": ConstMethodIntr(),
@@ -477,9 +483,6 @@ modules = {
                 "viewitems": MethodIntr(),
                 "viewkeys": MethodIntr(),
                 "viewvalues": MethodIntr(),
-                },
-        "__iterator__": {
-                #"next": MethodIntr(), //Dispatched
                 },
         "__file__": {
                 # Member variables

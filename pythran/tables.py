@@ -251,8 +251,10 @@ modules = {
                 "e": ScalarIntr(),
                 },
        "itertools": {
+                "count": ConstFunctionIntr(),
                 "imap": ConstFunctionIntr(),
                 "ifilter": ConstFunctionIntr(),
+                "islice": ConstFunctionIntr(),
                 "product": ConstFunctionIntr(),
                 "izip": ConstFunctionIntr(),
                 },

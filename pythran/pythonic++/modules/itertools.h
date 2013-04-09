@@ -396,6 +396,113 @@ namespace pythonic {
 
         PROXY(pythonic::itertools,izip);
 
+        template <typename Iterable>
+            struct islice_iterator : std::iterator< typename Iterable::iterator_category, typename Iterable::value_type > {
+                __builtin__::xrange_iterator state;
+                Iterable iterable;
+                __builtin__::xrange_iterator::value_type prev;
+
+                islice_iterator() {}
+                islice_iterator(Iterable const & iterable, __builtin__::xrange_iterator const& xr): iterable(iterable), state(xr), prev(0) {
+                    std::advance(this->iterable, *state-prev);
+                    prev = *state;
+                }
+
+                typename Iterable::value_type operator*() {
+                    return *iterable;
+                }
+
+                islice_iterator& operator++() { 
+                    ++state;
+                    std::advance(this->iterable, *state-prev);
+                    prev = *state;
+                    return *this; 
+                }
+
+                bool operator==(islice_iterator const& other) { 
+                    return (state == other.state);
+                }
+
+                bool operator!=(islice_iterator const& other) { 
+                    return state != other.state;
+                }
+
+                bool operator<(islice_iterator const& other) {
+                    return state != other.state;                       
+                }
+
+                int operator-(islice_iterator const& other) {
+                    return state - other.state;
+                }
+
+            };
+
+
+        template <typename Iterable>
+            struct _islice {
+
+                typedef islice_iterator<typename Iterable::iterator> iterator;
+                typedef typename Iterable::value_type value_type;
+
+                Iterable iterable;
+                __builtin__::xrange xr;
+
+                _islice() {}
+                _islice(Iterable iterable, long start, long stop, long end) : iterable(iterable), xr(start, stop, end) {
+                }
+
+                iterator begin() { return iterator(iterable.begin(), xr.begin()); }
+                iterator end() { return iterator(iterable.begin(), xr.end()); }
+
+            };
+
+        template <typename Iterable>
+            _islice<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type> islice(Iterable&& iterable, long start, long stop, long step=1) {
+                return _islice<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type>(iterable, start, stop, step);
+            }
+        template <typename Iterable>
+            _islice<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type> islice(Iterable&& iterable, long stop) {
+                return _islice<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type>(iterable, 0, stop, 1);
+            }
+
+        PROXY(pythonic::itertools, islice);
+
+        template<class T>
+        struct count_iterator : std::iterator< std::random_access_iterator_tag, T > {
+            T value;
+            T step;
+            count_iterator() {}
+            count_iterator(T value, T step) : value(value), step(step) {}
+            T operator*() { return value;}
+            count_iterator& operator++() { value+=step; return *this;}
+            count_iterator& operator+=(long n) { value+=step*n; return *this; }
+            bool operator!=(count_iterator const& other) { return value != other.value; }
+            bool operator==(count_iterator const& other) { return value == other.value; }
+            bool operator<(count_iterator const& other) { return value < other.value; }
+            long operator-(count_iterator const& other) { return (value - other.value)/step; }
+
+        };
+
+        template<class T>
+            struct _count :  count_iterator<T> {
+                typedef T value_type;
+                typedef count_iterator<T> iterator;
+                _count() {}
+                _count(T value, T step) : count_iterator<T>(value, step) {}
+                iterator& begin() const { *this; }
+                iterator end() const { return count_iterator<T>(std::numeric_limits<T>::max(), count_iterator<T>::step); }
+            };
+
+        template <typename T0, typename T1=T0>
+            _count<decltype(std::declval<T0>()+std::declval<T1>())> count(T0 start, T1 step=1) {
+                return _count<decltype(std::declval<T0>()+std::declval<T1>())>(start, step);
+            }
+
+            _count<long> count() {
+                return _count<long>(0, 1);
+            }
+        PROXY(pythonic::itertools, count);
+
     }
 }
 

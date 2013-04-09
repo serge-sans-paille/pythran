@@ -93,4 +93,18 @@ def ifiltern_(l0):
     def test_izip_on_generator(self):
         self.run_test("def izipg_(l0,l1): from itertools import izip; return sum(map(lambda (x,y) : x*y, izip((z for x in l0 for z in xrange(x)),(z for x in l1 for z in xrange(x)))))", [0,1,2,3], [3,2,1,0], izipg_=[[int],[int]]) 
 
+    def test_islice0(self):
+        self.run_test("def islice0(l): from itertools import islice ; return [x for x in islice(l, 1,30,3)]", range(100), islice0=[[int]])
+
+    def test_islice1(self):
+        self.run_test("def islice1(l): from itertools import islice ; return [x for x in islice(l, 16)]", range(100), islice1=[[int]])
+
+    def test_count0(self):
+        self.run_test("def count0(): from itertools import count ; c = count() ; next(c); next(c); return next(c)", count0=[])
+
+    def test_count1(self):
+        self.run_test("def count1(n): from itertools import count ; c = count(n) ; next(c); next(c); return next(c)", 100, count1=[int])
+
+    def test_count2(self):
+        self.run_test("def count2(n): from itertools import count ; c = count(n,3.2) ; next(c); next(c); return next(c)", 100, count2=[int])
 

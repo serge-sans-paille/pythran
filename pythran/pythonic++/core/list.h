@@ -61,6 +61,7 @@ namespace  pythonic {
                 // assignment
                 list_view& operator=(list<T> const & );
                 list_view& operator=(list_view<T> const & );
+                list<T> operator+(list<T> const & );
                 list<T> operator+(list_view<T> const & );
 
                 // iterators
@@ -368,6 +369,12 @@ namespace  pythonic {
                     assert("not implemented yet");
                 }
                 return *this;
+            }
+        template<class T>
+            list<T> list_view<T>::operator+(list<T> const & s) {
+                list<T> out(size() + s.size());
+                std::copy(s.begin(), s.end(), std::copy(begin(), end(), out.begin()));
+                return out;
             }
         template<class T>
             list<T> list_view<T>::operator+(list_view<T> const & s) {

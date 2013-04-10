@@ -16,13 +16,15 @@ keywords = {
         'collapse',
         'copyin',
         'copyprivate',
+        'critical',
         'default',
-        'firstprivate',
         'final',
+        'firstprivate',
         'flush',
         'for',
         'if',
         'lastprivate',
+        'master',
         'none',
         'nowait',
         'num_threads',
@@ -51,14 +53,13 @@ reserved_contex = {
 
 class OMPDirective(AST):
     '''Turn a string into a context-dependent metadata.
-    
-    >>> o = OMPDirective("omp for private(a,b) shared(c,d)")
+    >>> o = OMPDirective("omp for private(a,b) shared(c)")
     >>> o.s
-    'omp for private({},{}) shared({},{})'
+    'omp for private({},{}) shared({})'
     >>> [ type(dep) for dep in o.deps ]
-    [<class '_ast.Name'>, <class '_ast.Name'>, <class '_ast.Name'>, <class '_ast.Name'>]
+    [<class '_ast.Name'>, <class '_ast.Name'>, <class '_ast.Name'>]
     >>> [ dep.id for dep in o.deps ]
-    ['a', 'b', 'c', 'd']
+    ['a', 'b', 'c']
     '''
 
     def __init__(self, s):
@@ -165,4 +166,3 @@ class GatherOMPData(Transformation):
                     field.append(ast.Pass())
         self.generic_visit(node)
         return node
-

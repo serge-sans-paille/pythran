@@ -2,7 +2,7 @@
 This modules contains code transformation to turn pythran code into
 optimized pythran code
     * ConstantUnfolding performs some kind of partial evaluation.
-    * GenexpToImap tranforms generator expressions into iterators
+    * GenExpToImap tranforms generator expressions into iterators
 '''
 
 from analysis import ConstantExpressions, OptimizableGenexp
@@ -108,7 +108,8 @@ class GenExpToImap(Transformation):
     def visit_Module(self, node):
         self.generic_visit(node)
         importIt = ast.Import(names=[ast.alias(name='itertools', asname=None)])
-        return ast.Module(body=([importIt] + node.body))
+        node.body.insert(0, importIt)
+        return node
 
     def make_Iterator(self, gen):
         if len(gen.ifs) == 0:

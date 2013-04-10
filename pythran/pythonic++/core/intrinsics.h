@@ -222,6 +222,18 @@ namespace pythonic {
                 }
             };
 
+        long len(core::empty_set const &t) {
+            return 0;
+        }
+
+        long len(core::empty_dict const &t) {
+            return 0;
+        }
+
+        long len(core::empty_list const&) {
+            return 0;
+        }
+
         template <class T>
             long len(T const &t) {
                 return _len<T, typename std::iterator_traits<typename T::iterator>::iterator_category>()(t);

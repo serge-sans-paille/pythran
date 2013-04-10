@@ -259,11 +259,11 @@ decltype(std::declval<int>() + 1) main()
                 '#include <boost/python.hpp>\nint main() { return 0; }',
                 ldflags=['-lboost_python']
                 )
+
         # boost format
         self.check_package('boost::format',
                 '#include <boost/format.hpp>\nint main() { return 0; }'
                 )
-
 
         # GMP
         self.check_package('GNU Multiprecision arithmetic library',

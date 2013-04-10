@@ -896,11 +896,11 @@ class OptimizableGenexp(NodeAnalysis):
 class UsedDefChain(FunctionAnalysis):
     """Build used-define chains analysis for each variable.
 
-       This analyse visit ast and build nodes each time it encounters an 
+       This analyse visit ast and build nodes each time it encounters an
        ast.Name node. It is a U (use) node when context is store and D (define)
        when context is Load or Param.
        This node is linked to all previous possible states in the program.
-       Multiple state can happen when we use if-else statement, and loop 
+       Multiple state can happen when we use if-else statement, and loop
        can happen too with for and while statement.
        Result is a dictionary which associate a graph to the matching name.
     """
@@ -927,7 +927,8 @@ class UsedDefChain(FunctionAnalysis):
                 entering_node = [i for j in prev_node[id]
                                    for i in graph.successors_iter(j)]
             else:
-                entering_node = filter(lambda x: graph.in_degree(x) == 0, graph)
+                cond = lambda x: graph.in_degree(x) == 0
+                entering_node = filter(cond, graph)
             graph.add_edges_from(product(self.current_node[id],
                         entering_node))
 

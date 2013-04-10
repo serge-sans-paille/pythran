@@ -657,7 +657,7 @@ class Cxx(Backend):
 
     def visit_Assert(self, node):
         params = [self.visit(node.test), node.msg and self.visit(node.msg)]
-        sparams = ", ".join(map(strip_exp,filter(None, params)))
+        sparams = ", ".join(map(strip_exp, filter(None, params)))
         return Statement("pythran_assert({0})".format(sparams))
 
     def visit_Import(self, node):

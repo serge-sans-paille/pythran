@@ -200,7 +200,7 @@ class NormalizeTuples(Transformation):
                                     nnode)
                                 )
                     else:
-                        node.body.insert(0,ast.Assign([rename], nnode))
+                        node.body.insert(0, ast.Assign([rename], nnode))
 
         self.generic_visit(node)
         return node
@@ -570,7 +570,7 @@ class NormalizeMethodCalls(Transformation):
                 isname = isinstance(lhs, ast.Name)
                 ispath = isname or isinstance(lhs, ast.Attribute)
                 if not ispath or (isname and lhs.id not in self.imports):
-                    node.args.insert(0,  node.func.value)
+                    node.args.insert(0, node.func.value)
                     node.func = ast.Attribute(
                             ast.Name(methods[node.func.attr][0], ast.Load()),
                             node.func.attr,

@@ -189,7 +189,7 @@ modules = {
             "bind1": FunctionIntr(),
             "bind2": FunctionIntr(),
             "bind3": FunctionIntr(),
-            "pmap":  ConstFunctionIntr(),
+            "pmap": ConstFunctionIntr(),
             },
         "time": {
                 "sleep": ConstFunctionIntr(),
@@ -446,7 +446,7 @@ modules = {
                 "strerror": AttributeIntr(2),
                 "filename": AttributeIntr(3),
                 },
-        "__float__" : {
+        "__float__": {
                 "is_integer": ConstMethodIntr(),
                 },
         "__complex___": {
@@ -454,7 +454,7 @@ modules = {
                 "imag": AttributeIntr(1),
                 "conjugate": MethodIntr(),
                 },
-        "__dict__":  {
+        "__dict__": {
                 "fromkeys": ConstFunctionIntr(),
                 "get": ConstMethodIntr(),
                 "has_key": ConstMethodIntr(),
@@ -493,20 +493,20 @@ modules = {
                 "name": AttributeIntr(2),
                 "newlines": AttributeIntr(3),
                 # Member functions
-                "close": 		MethodIntr(global_effects=True),
-                "flush": 		MethodIntr(global_effects=True),
-                "fileno": 		MethodIntr(),
-                "isatty": 		MethodIntr(),
+                "close": MethodIntr(global_effects=True),
+                "flush": MethodIntr(global_effects=True),
+                "fileno": MethodIntr(),
+                "isatty": MethodIntr(),
                 #"next": 		MethodIntr(global_effects=True), //Dispatched
-                "read": 		MethodIntr(global_effects=True),
-                "readline": 	MethodIntr(global_effects=True),
-                "readlines": 	MethodIntr(global_effects=True),
-                "xreadlines": 	MethodIntr(global_effects=True),
-                "seek": 		MethodIntr(global_effects=True),
-                "tell": 		MethodIntr(),
-                "truncate": 	MethodIntr(global_effects=True),
-                "write": 		MethodIntr(global_effects=True),
-                "writelines": 	MethodIntr(global_effects=True),
+                "read": MethodIntr(global_effects=True),
+                "readline": MethodIntr(global_effects=True),
+                "readlines": MethodIntr(global_effects=True),
+                "xreadlines": MethodIntr(global_effects=True),
+                "seek": MethodIntr(global_effects=True),
+                "tell": MethodIntr(),
+                "truncate": MethodIntr(global_effects=True),
+                "write": MethodIntr(global_effects=True),
+                "writelines": MethodIntr(global_effects=True),
                 },
         # conflicting method names must be listed here
         "__dispatch__": {

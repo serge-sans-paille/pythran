@@ -58,6 +58,13 @@ def templatize(node, types, default_types=None):
         return node
 
 
+def strip_exp(s):
+    if s.startswith('(') and s.endswith(')'):
+        return s[1:-1]
+    else:
+        return s
+
+
 class Cxx(Backend):
     '''
     Produces a C++ representation of the AST.
@@ -650,7 +657,7 @@ class Cxx(Backend):
 
     def visit_Assert(self, node):
         params = [self.visit(node.test), node.msg and self.visit(node.msg)]
-        sparams = ", ".join(filter(None, params))
+        sparams = ", ".join(map(strip_exp,filter(None, params)))
         return Statement("pythran_assert({0})".format(sparams))
 
     def visit_Import(self, node):

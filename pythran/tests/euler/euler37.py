@@ -74,7 +74,7 @@ def solve():
     def gen(result, number):
         if len(number) > 6: return
         number = list(number)
-        number.append('')
+        number.append(0)
         for digit in digits:
             number[-1] = digit
             if is_left_truncatable(number):

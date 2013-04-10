@@ -15,6 +15,7 @@
 #include "core/io.h"
 #include "core/file.h"
 #include "core/intrinsics.h"
+#include "core/assert.h"
 
 
 /* additional modules */

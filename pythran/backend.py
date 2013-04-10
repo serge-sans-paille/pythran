@@ -366,7 +366,7 @@ class Cxx(Backend):
 
             operator_declaration = [
                     templatize(
-                        make_function_declaration(
+                        make_const_function_declaration(
                             instanciated_next_name,
                             "operator()",
                             formal_types,
@@ -375,7 +375,7 @@ class Cxx(Backend):
                         formal_types,
                         default_arg_types),
                     EmptyStatement()]
-            operator_signature = make_function_declaration(
+            operator_signature = make_const_function_declaration(
                     instanciated_next_name,
                     "{0}::operator()".format(node.name),
                     formal_types,
@@ -649,9 +649,9 @@ class Cxx(Backend):
             return Statement("throw {0}".format(type or ""))
 
     def visit_Assert(self, node):
-        params = [node.msg and self.visit(node.msg), self.visit(node.test)]
-        return Statement("assert(({0}))".format(
-            ", ".join(p for p in params if p)))
+        params = [self.visit(node.test), node.msg and self.visit(node.msg)]
+        sparams = ", ".join(filter(None, params))
+        return Statement("pythran_assert({0})".format(sparams))
 
     def visit_Import(self, node):
         return EmptyStatement()  # everything is already #included

@@ -178,22 +178,30 @@ class NormalizeTuples(Transformation):
             renamings = dict()
             self.traverse_tuples(target, (), renamings)
             if renamings:
-                elems = [x[0] for x in
-                        sorted(renamings.items(), key=itemgetter(1))]
                 self.counter += 1
-                newname = "{0}{1}".format(
+                gtarget = "{0}{1}".format(
                         NormalizeTuples.tuple_name,
-                        self.counter)
-                node.target = ast.Name(newname, node.target.ctx)
-                metadata.add(node.target, metadata.LocalVariable())
-                node.body.insert(0,
-                        ast.Assign([
-                            ast.Tuple(
-                                [ast.Name(x, ast.Store()) for x in elems],
-                                ast.Store())],
-                            ast.Name(newname, ast.Load())
-                            )
+                        self.counter
                         )
+                node.target = ast.Name(gtarget, node.target.ctx)
+                metadata.add(node.target, metadata.LocalVariable())
+                for rename, state in sorted(renamings.iteritems()):
+                    nnode = reduce(
+                            lambda x, y: ast.Subscript(
+                                x,
+                                ast.Index(ast.Num(y)),
+                                ast.Load()),
+                            state,
+                            ast.Name(gtarget, ast.Load()))
+                    if isinstance(rename, str):
+                        node.body.insert(0,
+                                ast.Assign(
+                                    [ast.Name(rename, ast.Store())],
+                                    nnode)
+                                )
+                    else:
+                        node.body.insert(0,ast.Assign([rename], nnode))
+
         self.generic_visit(node)
         return node
 

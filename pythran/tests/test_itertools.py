@@ -108,3 +108,32 @@ def ifiltern_(l0):
     def test_count2(self):
         self.run_test("def count2(n): from itertools import count ; c = count(n,3.2) ; next(c); next(c); return next(c)", 100, count2=[int])
 
+    def test_next_enumerate(self):
+        self.run_test("def next_enumerate(n): x = enumerate(n) ; next(x) ; return map(None, x)", range(5), next_enumerate=[[int]])
+
+    def test_next_generator(self):
+        self.run_test("def next_generator(n): x = (i for i in xrange(n) for j in xrange(i)) ; next(x) ; return map(None, x)", 5, next_generator=[int])
+
+    def test_next_imap(self):
+        self.run_test("def next_imap(n): from itertools import imap ; x = imap(abs,n) ; next(x) ; return map(None, x)", range(-5,5), next_imap=[[int]])
+
+    def test_next_imap_none(self):
+        self.run_test("def next_imap_none(n): from itertools import imap ; x = imap(None,n) ; next(x) ; return map(None, x)", range(-5,5), next_imap_none=[[int]])
+
+    def test_next_ifilter(self):
+        self.run_test("def next_ifilter(n): from itertools import ifilter ; x = ifilter(abs,n) ; next(x) ; return map(None, x)", range(-5,5), next_ifilter=[[int]])
+
+    def test_next_ifilter_none(self):
+        self.run_test("def next_ifilter_none(n): from itertools import ifilter ; x = ifilter(None,n) ; next(x) ; return map(None, x)", range(-5,5), next_ifilter_none=[[int]])
+
+    def test_next_product(self):
+        self.run_test("def next_product(n): from itertools import product ; x = product(n,n) ; next(x) ; return map(None, x)", range(-5,5), next_product=[[int]])
+
+    def test_next_izip(self):
+        self.run_test("def next_izip(n): from itertools import izip ; x = izip(n,n) ; next(x) ; return map(None, x)", range(-5,5), next_izip=[[int]])
+
+    def test_next_islice(self):
+        self.run_test("def next_islice(n): from itertools import islice ; x = islice(n,8) ; next(x) ; return map(None, x)", range(-5,5), next_islice=[[int]])
+
+    def test_next_count(self):
+        self.run_test("def next_count(n): from itertools import count ; x = count(n) ; next(x) ; return next(x)", 5, next_count=[int])

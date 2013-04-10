@@ -97,15 +97,14 @@ namespace pythonic {
         PROXY(pythonic::__builtin__, divmod);
 
         /* enumerate */
-        template<class Iterable>
-            struct enumerate_iterator : std::iterator< typename pythonic::min_iterator<typename std::remove_reference<Iterable>::type::iterator>::type, std::tuple<long, typename Iterable::iterator::value_type> >{
+        template<class Iterator>
+            struct enumerate_iterator : std::iterator<Iterator, std::tuple<long, typename Iterator::value_type> >{
                 long value;
-                typename Iterable::iterator iter;
+                Iterator iter;
                 enumerate_iterator(){}
-                enumerate_iterator(long value, Iterable seq) : value(value), iter(value == 0L ? seq.begin() : seq.end()) {}
-                std::tuple<long, typename Iterable::iterator::value_type> operator*() { return std::make_tuple(value, *iter); }
+                enumerate_iterator(Iterator const& iter) : value(0L), iter(iter) {}
+                std::tuple<long, typename Iterator::value_type> operator*() { return std::make_tuple(value, *iter); }
                 enumerate_iterator& operator++() { ++value,++iter; return *this; }
-                enumerate_iterator operator++(int) { enumerate_iterator self(*this); ++value, ++iter; return self; }
                 enumerate_iterator& operator+=(long n) { value+=n,iter+=n; return *this; }
                 bool operator!=(enumerate_iterator const& other) { return iter != other.iter; }
                 bool operator<(enumerate_iterator const& other) { return iter < other.iter; }
@@ -113,20 +112,22 @@ namespace pythonic {
             };
 
         template <class Iterable>
-            struct _enumerate {
-                typedef enumerate_iterator<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type> iterator;
-                typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type seq;
-                iterator iter;
+            struct _enumerate : enumerate_iterator<typename Iterable::iterator> {
+                typedef enumerate_iterator<typename Iterable::iterator> iterator;
+                Iterable seq; // we need to keep one ref over the enumerated sequence alive
                 iterator end_iter;
 
                 _enumerate() {}
-                _enumerate( Iterable&& seq ) : seq(seq), iter(iterator(0L, seq)), end_iter(iterator(-1L, seq)) {}
-                iterator begin() const { return iter; }
+                _enumerate( Iterable seq ) :  enumerate_iterator<typename Iterable::iterator>(seq.begin()), seq(seq), end_iter(seq.end()) {}
+                iterator & begin() { return *this; }
+                iterator const & begin() const { return *this; }
                 iterator end() const { return end_iter; }
             };
 
         template <class Iterable>
-            _enumerate<Iterable> enumerate(Iterable && seq) { return _enumerate<Iterable>(std::forward<Iterable>(seq)); }
+            _enumerate<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type> enumerate(Iterable && seq) {
+                return _enumerate<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type>(std::forward<Iterable>(seq));
+            }
 
         PROXY(pythonic::__builtin__,enumerate);
 

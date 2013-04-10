@@ -168,7 +168,7 @@ modules = {
             "map": ConstFunctionIntr(),
             "max": ConstFunctionIntr(),
             "min": ConstFunctionIntr(),
-            "next": ConstFunctionIntr(),
+            "next": FunctionIntr(),  # not const
             "oct": ConstFunctionIntr(),
             "ord": ConstFunctionIntr(),
             "open": ConstFunctionIntr(),

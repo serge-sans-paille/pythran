@@ -132,33 +132,33 @@ namespace pythonic {
 
 
         template <typename ResultType, typename Operator, typename... Iters>
-            struct _imap{
+            struct _imap: imap_iterator<ResultType, Operator, Iters...> {
 
                 typedef imap_iterator<ResultType, Operator, Iters...> iterator;
 
-                std::tuple<typename std::remove_cv<typename std::remove_reference<Iters>::type>::type ...> iters; // to make sure we keep a reference on all the containers
-                iterator iter;
                 iterator end_iter;
+                std::tuple<typename std::remove_cv<typename std::remove_reference<Iters>::type>::type ...> iters; // to make sure we keep a reference on all the containers
 
                 typedef ResultType value_type;
 
                 _imap() {}
-                _imap(Operator _op, Iters... _iters) : iters(_iters...), iter(_op, _iters...), end_iter(npos(), _op, _iters...) {
+                _imap(Operator _op, Iters... _iters) : imap_iterator<ResultType, Operator, Iters...>(_op, _iters...), end_iter(npos(), _op, _iters...), iters(_iters...) {
                 }
 
-                iterator begin() const { return iter; }
+                iterator& begin() { return *this; }
+                iterator const& begin() const { return *this; }
                 iterator end() const { return end_iter; }
 
             };
 
         template <typename... Iter>
-            auto imap(pythonic::none_type _op, Iter && ... iters) -> _imap< decltype(std::make_tuple((*iters.begin())...)), pythonic::none_type, Iter...> {
-                return _imap<decltype(std::make_tuple((*iters.begin())...)), pythonic::none_type, Iter...> (std::forward<pythonic::none_type>(_op), std::forward<Iter>(iters)...);
+            auto imap(pythonic::none_type _op, Iter && ... iters) -> _imap< decltype(std::make_tuple((*iters.begin())...)), pythonic::none_type, typename std::remove_cv<typename std::remove_reference<Iter>::type>::type ...> {
+                return _imap<decltype(std::make_tuple((*iters.begin())...)), pythonic::none_type, typename std::remove_cv<typename std::remove_reference<Iter>::type>::type ...> (std::forward<pythonic::none_type>(_op), std::forward<Iter>(iters)...);
             }
 
         template <typename Operator, typename... Iter>
-            auto imap(Operator&& _op, Iter && ... iters) -> _imap< decltype(_op( (*iters.begin())...)), Operator, Iter...> {
-                return _imap<decltype(_op((*iters.begin())...)), Operator, Iter...> (std::forward<Operator>(_op), std::forward<Iter>(iters)...);
+            auto imap(Operator&& _op, Iter && ... iters) -> _imap< decltype(_op( (*iters.begin())...)), Operator, typename std::remove_cv<typename std::remove_reference<Iter>::type>::type ...> {
+                return _imap<decltype(_op((*iters.begin())...)), Operator, typename std::remove_cv<typename std::remove_reference<Iter>::type>::type ...> (std::forward<Operator>(_op), std::forward<Iter>(iters)...);
             }
 
         PROXY(pythonic::itertools,imap);
@@ -223,33 +223,33 @@ namespace pythonic {
             };
 
         template <typename ResultType, typename Operator, typename List0>
-            struct _ifilter{
+            struct _ifilter : ifilter_iterator<ResultType, Operator, List0>{
 
                 typedef ifilter_iterator<ResultType, Operator, List0> iterator;
 
-                typename std::remove_cv<typename std::remove_reference<List0>::type>::type seq; // to make sure we keep a reference on all the containers
-                iterator iter;
+                List0 seq; // to make sure we keep a reference on all the containers
                 iterator end_iter;
 
                 typedef ResultType value_type;
 
                 _ifilter() {}
-                _ifilter(Operator _op, List0 _seq) : seq(_seq), iter(_op, _seq), end_iter(npos(), _op, _seq) {
+                _ifilter(Operator _op, List0 _seq) : iterator(_op, _seq), seq(_seq), end_iter(npos(), _op, _seq) {
                 }
 
-                iterator begin() const { return iter; }
+                iterator& begin() { return *this; }
+                iterator const& begin() const { return *this; }
                 iterator end() const { return end_iter; }
 
             };
 
         template <typename List0>
-            auto ifilter(pythonic::none_type _op, List0&& _seq) -> _ifilter< bool, pythonic::none_type, typename std::remove_cv<typename std::remove_reference<List0>::type>::type> {
-                return _ifilter<bool, pythonic::none_type, typename std::remove_cv<typename std::remove_reference<List0>::type>::type> (std::forward<pythonic::none_type>(_op), std::forward<typename std::remove_reference<List0>::type>(_seq));
+            auto ifilter(pythonic::none_type _op, List0&& _seq) -> _ifilter< typename std::remove_cv<typename std::remove_reference<List0>::type>::type::value_type, pythonic::none_type, typename std::remove_cv<typename std::remove_reference<List0>::type>::type> {
+                return _ifilter<typename std::remove_cv<typename std::remove_reference<List0>::type>::type::value_type, pythonic::none_type, typename std::remove_cv<typename std::remove_reference<List0>::type>::type> (std::forward<pythonic::none_type>(_op), std::forward<List0>(_seq));
             }
 
         template <typename Operator, typename List0>
             auto ifilter(Operator&& _op, List0&& _seq) -> _ifilter< typename std::remove_cv<typename std::remove_reference<decltype(*_seq.begin())>::type>::type, Operator, typename std::remove_cv<typename std::remove_reference<List0>::type>::type> {
-                return _ifilter<typename std::remove_cv<typename std::remove_reference<decltype(*_seq.begin())>::type>::type, Operator, typename std::remove_cv<typename std::remove_reference<List0>::type>::type> (std::forward<Operator>(_op), std::forward<typename std::remove_reference<List0>::type>(_seq));
+                return _ifilter<typename std::remove_cv<typename std::remove_reference<decltype(*_seq.begin())>::type>::type, Operator, typename std::remove_cv<typename std::remove_reference<List0>::type>::type> (std::forward<Operator>(_op), std::forward<List0>(_seq));
             }
 
         PROXY(pythonic::itertools,ifilter);
@@ -361,30 +361,30 @@ namespace pythonic {
             };
 
 
-        template <typename ResultType, typename... Iters>
-            struct _product{
+        template <typename... Iters>
+            struct _product : product_iterator<decltype(std::make_tuple((*std::declval<Iters>().begin())...)), Iters...> {
 
-                typedef product_iterator<ResultType, Iters...> iterator;
+                typedef decltype(std::make_tuple((*std::declval<Iters>().begin())...)) value_type;
+                typedef product_iterator<value_type, Iters...> iterator;
 
-                std::tuple<typename std::remove_cv<typename std::remove_reference<Iters>::type>::type ...> iters;
+                std::tuple<Iters ...> iters;
 
-                iterator iter;
                 iterator end_iter;
 
-                typedef ResultType value_type;
 
                 _product() {}
-                _product(Iters... _iters) : iters(_iters...), iter(_iters...), end_iter(npos(), _iters...) {
+                _product(Iters... _iters) : iterator(_iters...), iters(_iters...), end_iter(npos(), _iters...) {
                 }
 
-                iterator begin() const { return iter; }
+                iterator& begin() { return *this; }
+                iterator const& begin() const { return *this; }
                 iterator end() const { return end_iter; }
 
             };
 
         template <typename... Iter>
-            auto product(Iter &&... iters) -> _product< decltype(std::make_tuple((*iters.begin())...)), Iter...> {
-                return _product<decltype(std::make_tuple((*iters.begin())...)), Iter...> ( std::forward<Iter>(iters)...);
+            auto product(Iter &&... iters) -> _product< typename std::remove_cv<typename std::remove_reference<Iter>::type>::type...> {
+                return _product<typename std::remove_cv<typename std::remove_reference<Iter>::type>::type...> ( std::forward<Iter>(iters)...);
             }
 
         PROXY(pythonic::itertools,product);
@@ -439,7 +439,7 @@ namespace pythonic {
 
 
         template <typename Iterable>
-            struct _islice {
+            struct _islice : islice_iterator<typename Iterable::iterator> {
 
                 typedef islice_iterator<typename Iterable::iterator> iterator;
                 typedef typename Iterable::value_type value_type;
@@ -447,22 +447,25 @@ namespace pythonic {
                 Iterable iterable;
                 __builtin__::xrange xr;
 
+                iterator end_iter;
+
                 _islice() {}
-                _islice(Iterable iterable, long start, long stop, long end) : iterable(iterable), xr(start, stop, end) {
+                _islice(Iterable iterable, __builtin__::xrange const& xr) : iterator(iterable.begin(), xr.begin()), iterable(iterable), xr(xr), end_iter(iterable.begin(), xr.end()) {
                 }
 
-                iterator begin() { return iterator(iterable.begin(), xr.begin()); }
-                iterator end() { return iterator(iterable.begin(), xr.end()); }
+                iterator& begin() { return *this; }
+                iterator const& begin() const { return *this; }
+                iterator end() const { return end_iter; }
 
             };
 
         template <typename Iterable>
             _islice<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type> islice(Iterable&& iterable, long start, long stop, long step=1) {
-                return _islice<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type>(iterable, start, stop, step);
+                return _islice<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type>(iterable, __builtin__::xrange(start, stop, step));
             }
         template <typename Iterable>
             _islice<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type> islice(Iterable&& iterable, long stop) {
-                return _islice<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type>(iterable, 0, stop, 1);
+                return _islice<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type>(iterable, __builtin__::xrange(0, stop, 1));
             }
 
         PROXY(pythonic::itertools, islice);
@@ -489,7 +492,8 @@ namespace pythonic {
                 typedef count_iterator<T> iterator;
                 _count() {}
                 _count(T value, T step) : count_iterator<T>(value, step) {}
-                iterator& begin() const { *this; }
+                iterator& begin() { *this; }
+                iterator const& begin() const { *this; }
                 iterator end() const { return count_iterator<T>(std::numeric_limits<T>::max(), count_iterator<T>::step); }
             };
 

@@ -76,7 +76,7 @@ class Locals(ModuleAnalysis):
         super(Locals, self).__init__(GlobalDeclarations)
 
     def generic_visit(self, node):
-        ModuleAnalysis.generic_visit(self, node)
+        super(Locals, self).generic_visit(node)
         if node not in self.result:
             self.result[node] = self.result[self.expr_parent]
 
@@ -97,6 +97,7 @@ class Locals(ModuleAnalysis):
         self.expr_parent = node
         self.result[node] = self.locals.copy()
         parent_locals = self.locals.copy()
+        map(self.visit, node.args.defaults)
         self.locals.update(arg.id for arg in node.args.args)
         map(self.visit, node.body)
         self.locals = parent_locals

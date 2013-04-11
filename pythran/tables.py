@@ -6,7 +6,7 @@ import ast
 import cxxtypes
 
 from intrinsic import ConstFunctionIntr, FunctionIntr, Class
-from intrinsic import ConstMethodIntr, MethodIntr, AttributeIntr, ScalarIntr
+from intrinsic import ConstMethodIntr, MethodIntr, AttributeIntr, ConstantIntr
 
 namespace = "pythonic"
 
@@ -235,8 +235,8 @@ modules = {
                 "ceil": ConstFunctionIntr(),
                 "floor": ConstFunctionIntr(),
                 "pow": ConstFunctionIntr(),
-                "pi": ScalarIntr(),
-                "e": ScalarIntr(),
+                "pi": ConstantIntr(),
+                "e": ConstantIntr(),
                 },
         "bisect": {
                 "bisect_left": ConstFunctionIntr(),
@@ -248,8 +248,8 @@ modules = {
                 "sqrt": FunctionIntr(),
                 "log10": FunctionIntr(),
                 "isnan": FunctionIntr(),
-                "pi": ScalarIntr(),
-                "e": ScalarIntr(),
+                "pi": ConstantIntr(),
+                "e": ConstantIntr(),
                 },
        "itertools": {
                 "count": ConstFunctionIntr(),

@@ -18,7 +18,7 @@ class Intrinsic(object):
         self.global_effects = kwargs.get('global_effects', False)
         self.return_alias = kwargs.get('return_alias', lambda x: {None})
 
-    def isscalar(self):
+    def isliteral(self):
         return False
 
     def isfunction(self):
@@ -100,11 +100,11 @@ class AttributeIntr(Intrinsic):
         return True
 
 
-class ScalarIntr(Intrinsic):
+class ConstantIntr(Intrinsic):
     def __init__(self):
-        super(ScalarIntr, self).__init__(argument_effects=())
+        super(ConstantIntr, self).__init__(argument_effects=())
 
-    def isscalar(self):
+    def isliteral(self):
         return True
 
 
@@ -119,6 +119,9 @@ class Class(object):
         return False
 
     def isstaticfunction(self):
+        return False
+
+    def isliteral(self):
         return False
 
     def __getitem__(self, key):

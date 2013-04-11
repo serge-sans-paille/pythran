@@ -533,14 +533,34 @@ class Aliases(ModuleAnalysis):
 
     def visit_For(self, node):
         self.aliases[node.target.id] = {node.target}
-        self.generic_visit(node)
+        # Error may come from false branch evaluation so we have to try again
+        try:
+            self.generic_visit(node)
+        except PythranSyntaxError:
+            self.generic_visit(node)
+
+    def visit_While(self, node):
+        # Error may come from false branch evaluation so we have to try again
+        try:
+            self.generic_visit(node)
+        except PythranSyntaxError:
+            self.generic_visit(node)
 
     def visit_If(self, node):
         self.visit(node.test)
         false_aliases = {k: v.copy() for k, v in self.aliases.iteritems()}
-        map(self.visit, node.body)
-        true_aliases, self.aliases = self.aliases, false_aliases
-        map(self.visit, node.orelse)
+        try:  # first try the true branch
+            map(self.visit, node.body)
+            true_aliases, self.aliases = self.aliases, false_aliases
+        except PythranSyntaxError:  # it failed, try the false branch
+            map(self.visit, node.orelse)
+            raise  # but still throw the exception, maybe we are in a For
+        try:  # then try the false branch
+            map(self.visit, node.orelse)
+        except PythranSyntaxError:  #it failed
+            # we still get some info from the true branch, validate them
+            self.aliases = true_aliases
+            raise  # and let other visit_ handle the issue
         for k, v in true_aliases.iteritems():
             if k in self.aliases:
                 self.aliases[k].update(v)
@@ -934,6 +954,7 @@ class UsedDefChain(FunctionAnalysis):
         self.result = dict()
         self.current_node = dict()
         self.use_only = dict()
+        self.in_loop = False
         super(UsedDefChain, self).__init__(Globals)
 
     def merge_dict_set(self, into_, from_):
@@ -1018,7 +1039,15 @@ class UsedDefChain(FunctionAnalysis):
         self.current_node[var] = set([last_node])
 
     def visit_If(self, node):
+        swap = False
         self.visit(node.test)
+
+        #if an identifier is first used in orelse and we are in a loop,
+        #we swap orelse and body
+        undef = self.passmanager.gather(ImportedIds, node.body, self.ctx)
+        if not all(i in self.current_node for i in undef) and self.in_loop:
+            node.body, node.orelse = node.orelse, node.body
+            swap = True
 
         #body
         old_node = dict(self.current_node)
@@ -1029,11 +1058,22 @@ class UsedDefChain(FunctionAnalysis):
         self.current_node = old_node
         map(self.visit, node.orelse)
 
+        if swap:
+            node.body, node.orelse = node.orelse, node.body
+
         #merge result
         self.merge_dict_set(self.current_node, new_node)
 
     def visit_IfExp(self, node):
+        swap = False
         self.visit(node.test)
+
+        #if an identifier is first used in orelse and we are in a loop,
+        #we swap orelse and body
+        undef = self.passmanager.gather(ImportedIds, node.body, self.ctx)
+        if undef and self.in_loop:
+            node.body, node.orelse = node.orelse, node.body
+            swap = True
 
         #body
         old_node = dict(self.current_node)
@@ -1044,6 +1084,9 @@ class UsedDefChain(FunctionAnalysis):
         self.current_node = old_node
         self.visit(node.orelse)
 
+        if swap:
+            node.body, node.orelse = node.orelse, node.body
+
         #merge result
         self.merge_dict_set(self.current_node, new_node)
 
@@ -1051,13 +1094,15 @@ class UsedDefChain(FunctionAnalysis):
         prev_node = dict(self.current_node)
         self.visit(node.test)
         #body
+        self.in_loop = True
         old_node = dict(self.current_node)
         map(self.visit, node.body)
         self.add_loop_edges(prev_node)
+        self.in_loop = False
 
         #orelse
         new_node = self.current_node
-        self.current_node = old_node
+        self.merge_dict_set(self.current_node, old_node)
         map(self.visit, node.orelse)
 
         #merge result
@@ -1067,14 +1112,16 @@ class UsedDefChain(FunctionAnalysis):
         self.visit(node.iter)
 
         #body
+        self.in_loop = True
         old_node = dict(self.current_node)
         self.visit(node.target)
         map(self.visit, node.body)
         self.add_loop_edges(old_node)
+        self.in_loop = False
 
         #orelse
         new_node = self.current_node
-        self.current_node = old_node
+        self.merge_dict_set(self.current_node, old_node)
         map(self.visit, node.orelse)
 
         #merge result

@@ -22,3 +22,30 @@ class TestStr(TestEnv):
 
     def test_str_replace2(self):
         self.run_test("def str_replace2(s): return s.replace('', 'du vide surgit rien', 1)", "j aime les moulinettes a fromage", str_replace2=[str])
+
+    def test_str_ascii_letters(self):
+        self.run_test("def str_ascii_letters(): import string; return string.ascii_letters", str_ascii_letters=[])
+
+    def test_str_ascii_lowercase(self):
+        self.run_test("def str_ascii_lowercase(): import string; return string.ascii_lowercase", str_ascii_lowercase=[])
+
+    def test_str_ascii_uppercase(self):
+        self.run_test("def str_ascii_uppercase(): import string; return string.ascii_uppercase", str_ascii_uppercase=[])
+
+    def test_str_digits(self):
+        self.run_test("def str_digits(): import string; return string.digits", str_digits=[])
+
+    def test_str_hexdigits(self):
+        self.run_test("def str_hexdigits(): import string; return string.hexdigits", str_hexdigits=[])
+
+    def test_str_octdigits(self):
+        self.run_test("def str_octdigits(): import string; return string.octdigits", str_octdigits=[])
+
+    def test_str_lower(self):
+        self.run_test("def str_lower(s): return s.lower()", "ThiS iS a TeST", str_lower=[str])
+
+    def test_str_upper(self):
+        self.run_test("def str_upper(s): return s.upper()", "ThiS iS a TeST", str_upper=[str])
+
+    def test_str_capitalize(self):
+        self.run_test("def str_capitalize(s): return s.capitalize()", "thiS iS a TeST", str_capitalize=[str])

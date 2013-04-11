@@ -586,6 +586,14 @@ modules = {
                     ),
 
         },
+        "string": {
+                "ascii_lowercase": ConstantIntr(),
+                "ascii_uppercase": ConstantIntr(),
+                "ascii_letters": ConstantIntr(),
+                "digits": ConstantIntr(),
+                "hexdigits": ConstantIntr(),
+                "octdigits": ConstantIntr(),
+                },
         "__list__": {
                 "append": MethodIntr(
                     lambda self, node:
@@ -620,11 +628,12 @@ modules = {
         "__iterator__": {
                 #"next": MethodIntr(), //Dispatched
                 },
-
         "__string__": {
                 "find": ConstMethodIntr(),
                 "join": ConstMethodIntr(),
                 "capitalize": ConstMethodIntr(),
+                "lower": ConstMethodIntr(),
+                "upper": ConstMethodIntr(),
                 "split": ConstMethodIntr(),
                 "endswith": ConstMethodIntr(),
                 "replace": ConstMethodIntr(),

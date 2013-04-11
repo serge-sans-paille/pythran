@@ -235,6 +235,10 @@ class Types(ModuleAnalysis):
 
     def prepare(self, node, ctx):
         self.passmanager.apply(Reorder, node, ctx)
+        for mname, module in modules.iteritems():
+            for fname, function in module.iteritems():
+                tname = 'pythonic::{0}::proxy::{1}'.format(mname, fname)
+                self.result[function] = NamedType(tname)
         super(Types, self).prepare(node, ctx)
 
     def run(self, node, ctx):
@@ -383,7 +387,7 @@ class Types(ModuleAnalysis):
         except UnboundableRValue:
             pass
         except:
-            print ast.dump(othernode)
+            #print ast.dump(othernode)
             raise
 
     def visit_FunctionDef(self, node):

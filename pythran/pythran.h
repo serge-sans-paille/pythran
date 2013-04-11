@@ -21,11 +21,6 @@ struct __combined<T> {
 };
 
 template<class T>
-struct __combined<T,T> {
-    typedef T type;
-};
-
-template<class T>
 struct assignable{
     typedef typename std::remove_cv<typename std::remove_reference<T>::type>::type type;
 };
@@ -71,10 +66,6 @@ struct content_of< core::dict<K,V> > {
 };
 
 
-
-/* for type inference only,  a bit dangerous ? */
-template <class T0, class T1>
-typename std::enable_if< is_callable<T0>::value, variant<T0,T1> >::type operator+(T0 , T1 );
 
 /* for type inference too */
 template<class T>
@@ -247,11 +238,40 @@ indexable_dict<typename __combined<K0,K1>::type> operator+(indexable<K0>, indexa
 template <class V, class K>
 core::dict<K,V> operator+(container<V>, indexable_dict<K>);
 
+template<class T0, class T1>
+struct __combined<core::list<T0>, core::list<T1>> {
+    typedef core::list<typename __combined<T0,T1>::type> type;
+};
+template<class T0, class T1>
+struct __combined<core::set<T0>, core::set<T1>> {
+    typedef core::set<typename __combined<T0,T1>::type> type;
+};
+template<class T0, class T1>
+struct __combined<__builtin__::_iter<T0>, __builtin__::_iter<T1>> {
+    typedef __builtin__::_iter<typename __combined<T0,T1>::type> type;
+};
+template<class... T0>
+struct __combined<std::tuple<T0...>, std::tuple<T0...>> {
+    typedef std::tuple<T0...> type;  // no further combination
+};
+template<class... T0>
+struct __combined<std::pair<T0...>, std::pair<T0...>> {
+    typedef std::pair<T0...> type;  // no further combination
+};
+template<class K0, class V0, class K1, class V1>
+struct __combined<core::dict<K0, V0>, core::dict<K1, V1>> {
+    typedef core::dict<typename __combined<K0,K1>::type, typename __combined<V0,V1>::type> type;
+};
+
 /* clang needs this declaration here and not before */
 template<class T0, class T1>
 struct __combined<T0,T1> {
     typedef decltype(std::declval<T0>()+std::declval<T1>()) type;
 };
+/* specialization for callbale types */
+template <class T0, class T1>
+typename std::enable_if< is_callable<T0>::value and is_callable<T1>::value, variant<T0,T1> >::type operator+(T0 , T1 );
+
 
 /* some overloads */
 namespace std {

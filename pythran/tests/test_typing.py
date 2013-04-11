@@ -38,3 +38,20 @@ def typing_aliasing_and_update():
     return a'''
         self.run_test(code, typing_aliasing_and_update=[])
 
+    def test_functional_variant_container0(self):
+        code='''
+import math
+def functional_variant_container0():
+    l=[]
+    l.append(math.cos)
+    l.append(math.sin)
+    return l[0](12)'''
+        self.run_test(code, functional_variant_container0=[])
+
+    def test_functional_variant_container1(self):
+        code='''
+import math
+def functional_variant_container1():
+    l=[math.cos, math.sin]
+    return l[0](12)'''
+        self.run_test(code, functional_variant_container1=[])

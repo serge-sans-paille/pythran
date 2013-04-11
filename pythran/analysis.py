@@ -815,7 +815,8 @@ class GlobalEffects(ModuleAnalysis):
         self.current_function.global_effect = True
 
     def visit_Call(self, node):
-        func_aliases = self.aliases[node].state[Aliases.access_path(node.func)]
+        # try to get all aliases of the function, if possible, else use [] as a fallback
+        func_aliases = self.aliases[node].state.get(Aliases.access_path(node.func),[])
         # expand argument if any
         func_aliases = reduce(
                 lambda x, y: x

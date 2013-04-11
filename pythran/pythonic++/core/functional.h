@@ -42,6 +42,7 @@ namespace pythonic {
 
     template<class Type, class... Types>
         struct variant<Type, Types...> {
+            typedef void callable;
             char mem[sizeof(Type)];
             Type* t;
             variant<Types...> ot;

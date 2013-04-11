@@ -516,7 +516,7 @@ class Aliases(ModuleAnalysis):
 
     def visit_If(self, node):
         self.visit(node.test)
-        false_aliases = self.aliases.copy()
+        false_aliases = {k: v.copy() for k, v in self.aliases.iteritems()}
         map(self.visit, node.body)
         true_aliases, self.aliases = self.aliases, false_aliases
         map(self.visit, node.orelse)

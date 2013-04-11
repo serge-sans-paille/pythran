@@ -137,3 +137,6 @@ def ifiltern_(l0):
 
     def test_next_count(self):
         self.run_test("def next_count(n): from itertools import count ; x = count(n) ; next(x) ; return next(x)", 5, next_count=[int])
+
+    def test_iter(self):
+        self.run_test("def iter_(n): r = iter(range(5,n)) ; next(r) ; return next(r)", 12, iter_=[int])

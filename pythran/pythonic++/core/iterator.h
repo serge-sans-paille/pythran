@@ -5,27 +5,26 @@ namespace pythonic {
     template <class T>
         struct generator_iterator : std::iterator<std::forward_iterator_tag, typename T::result_type> {
             T the_generator;
-            long step;
-            generator_iterator() : the_generator(), step(std::numeric_limits<long>::max()) { the_generator.__generator_state = -1 ;} // this represents the end
-            generator_iterator(T const& a_generator) : the_generator(a_generator), step(0) {}
-            generator_iterator& operator++() { ++step; the_generator.next(); return *this; }
+            generator_iterator() : the_generator() { the_generator.__generator_state = -1 ;} // this represents the end
+            generator_iterator(T const& a_generator) : the_generator(a_generator) {
+            }
+            generator_iterator& operator++() {
+                try { the_generator.next(); }
+                catch(core::StopIteration const&) {
+                    the_generator.__generator_state = -1;
+                }
+                return *this;
+            }
             typename T::result_type operator*() {
                  return *the_generator;
             }
             bool operator!=(generator_iterator<T> const & other) const {
-                if( the_generator.__generator_state == other.the_generator.__generator_state and the_generator.__generator_state == -1 )
-                    return false;
-                else
-                    return step != other.step;
-            }
-            bool operator==(generator_iterator<T> const & other) const {
-                return ! ((*this) == other);
+                assert( other.the_generator.__generator_state == -1);
+                return the_generator.__generator_state != other.the_generator.__generator_state ;
             }
             bool operator<(generator_iterator<T> const & other) const {
-                if( the_generator.__generator_state == other.the_generator.__generator_state and the_generator.__generator_state == -1 )
-                    return false;
-                else
-                    return step < other.step;
+                assert( other.the_generator.__generator_state == -1);
+                return the_generator.__generator_state != other.the_generator.__generator_state ;
             }
         };
 

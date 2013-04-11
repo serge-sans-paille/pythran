@@ -183,7 +183,27 @@ namespace pythonic {
             }
         PROXY(pythonic::__builtin__,id);
 
+        /* iter */
 
+        template <class T>
+            struct _iter : T::iterator {
+                typedef typename T::iterator iterator;
+                iterator _end;
+                T data;
+                _iter() {}
+                _iter(T data) : iterator(data.begin()), _end(data.end()), data(data) {
+                }
+                iterator& begin() { return *this; }
+                iterator const& begin() const { return *this; }
+                iterator const& end() const { return _end; }
+            };
+
+        template <class T>
+            _iter<typename std::remove_cv<typename std::remove_reference<T>::type>::type> iter(T&& t)  {
+                return _iter<typename std::remove_cv<typename std::remove_reference<T>::type>::type>(std::forward<T>(t));
+            }
+
+        PROXY(pythonic::__builtin__,iter);
 
         /* len */
 
@@ -749,7 +769,15 @@ namespace pythonic {
 
         /* next */
         template <class T>
-            decltype(*std::declval<T>()) next(T&& y) { auto out = *y; ++y; return out ; }
+            typename std::remove_reference<decltype(*std::declval<T>())>::type next(T&& y) {
+                if((decltype(y.begin()))y != y.end()) {
+                    auto out = *y; ++y;
+                    return out ;
+                }
+                else {
+                    throw core::StopIteration("exhausted");
+                }
+            }
         PROXY(pythonic::__builtin__, next);
 
         /* ord */

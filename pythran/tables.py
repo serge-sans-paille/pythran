@@ -163,6 +163,7 @@ modules = {
             "filter": ConstFunctionIntr(),
             "hex": ConstFunctionIntr(),
             "id": ConstFunctionIntr(),
+            "iter": FunctionIntr(),  # not const
             "len": ConstFunctionIntr(),
             "list": ConstFunctionIntr(),
             "map": ConstFunctionIntr(),

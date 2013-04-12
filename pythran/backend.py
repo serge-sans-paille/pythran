@@ -739,11 +739,8 @@ class Cxx(Backend):
                         for k, v in zip(keys, values)))
 
     def visit_Tuple(self, node):
-        if not node.elts:  # empty tuple
-            return "std::tuple<>()"
-        else:
-            elts = [self.visit(n) for n in node.elts]
-            return "std::make_tuple({0})".format(", ".join(elts))
+        elts = map(self.visit,node.elts or ())
+        return "core::make_tuple({0})".format(", ".join(elts))
 
     def visit_Compare(self, node):
         left = self.visit(node.left)

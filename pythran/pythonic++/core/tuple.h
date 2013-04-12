@@ -24,7 +24,7 @@ std::tuple<Types0..., Types1...> operator+(std::tuple<Types0...> && t0, std::tup
 }
 
 /* hashable tuples, as proposed in http://stackoverflow.com/questions/7110301/generic-hash-for-tuples-in-unordered-map-unordered-set */
-//namespace {
+namespace {
     size_t hash_combiner(size_t left, size_t right) //replacable
     { return left^right;}
 
@@ -45,14 +45,102 @@ std::tuple<Types0..., Types1...> operator+(std::tuple<Types0...> && t0, std::tup
                 return hash_combiner(a, b); 
             }
         };
-//}
+}
+namespace pythonic {
+    template<class Tuple, class Container>
+        void tuple_dump(Tuple const& t, Container& c, int_<0>) {
+            c[0]=std::get<0>(t);
+        }
+
+    template<class Tuple, class Container, int I>
+        void tuple_dump(Tuple const& t, Container& c, int_<I>) {
+            c[I]=std::get<I>(t);
+            tuple_dump(t,c, int_<I-1>());
+        }
+}
  
+
+/* make_tuple wrapper to generate a tuple-like container */
+namespace pythonic {
+
+    namespace core {
+
+        template<class T>
+            struct ltuple : list<T> {
+                template<class... Types>
+                    ltuple(Types&&... types) : list<T>(std::forward<Types>(types)...) {
+                    }
+
+                ltuple(std::initializer_list<T> l) : list<T>(std::move(l)) {
+                }
+            };
+
+        template<class... Types>
+            struct are_same;
+        template<>
+            struct are_same<> {
+                static bool const value = false;
+            };
+        template<class T>
+            struct are_same<T> {
+                static bool const value = true;
+                typedef typename std::remove_cv<typename std::remove_reference<T>::type>::type type;
+            };
+        template<class T, class... Types>
+            struct are_same<T, Types...> {
+                static bool const value = are_same<Types...>::value and std::is_same<typename std::remove_cv<typename std::remove_reference<T>::type>::type, typename are_same<Types...>::type>::value;
+                typedef typename std::remove_cv<typename std::remove_reference<T>::type>::type type;
+            };
+
+        template<bool Same, class... Types>
+            struct _make_tuple {
+                std::tuple<Types...> operator()(Types... types) {
+                    return std::tuple<Types...>(types...);
+                }
+            };
+        template<class... Types>
+            struct _make_tuple<true, Types...> {
+                ltuple<typename are_same<Types...>::type> operator()(Types... types) {
+                    typedef typename are_same<Types...>::type T;
+                    return ltuple<T>({types...});
+                }
+            };
+
+        template<class... Types>
+            auto make_tuple(Types&&... types) -> decltype(_make_tuple<are_same<Types...>::value, Types...>()(std::forward<Types>(types)...)) {
+                return _make_tuple<are_same<Types...>::value, Types...>()(std::forward<Types>(types)...);
+            }
+    }
+}
+/* specialize std::get */
+namespace std {
+    template <size_t I, class T>
+        typename pythonic::core::ltuple<T>::reference get( pythonic::core::ltuple<T>& t) { return t[I]; }
+    template <size_t I, class T>
+        typename pythonic::core::ltuple<T>::const_reference get( pythonic::core::ltuple<T> const & t) { return t[I]; }
+
+    template <size_t I, class T>
+        struct tuple_element<I, pythonic::core::ltuple<T> > {
+            typedef typename pythonic::core::ltuple<T>::value_type type;
+        };
+}
+/* specialize std::hash */
 namespace std {
     template<class...Types>
         struct hash<std::tuple<Types...>> {
             size_t operator()(std::tuple<Types...> const& t) const {
                 const size_t begin = std::tuple_size<std::tuple<Types...>>::value-1;
                 return hash_impl<begin, Types...>()(1, t); //1 should be some largervalue
+            }
+        };
+    template<class T>
+        struct hash<pythonic::core::ltuple<T>> {
+            size_t operator()(pythonic::core::ltuple<T> const& l) const {
+                size_t seed = 0;
+                hash<T> h;
+                for(auto const &iter: l) 
+                    seed ^= h(l) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+                return seed;
             }
         };
 }

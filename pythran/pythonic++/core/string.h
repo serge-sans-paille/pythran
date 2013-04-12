@@ -272,4 +272,15 @@ namespace std {
     };
 }
 
+/* std::get overload */
+namespace std {
+    template <size_t I>
+        typename pythonic::core::string get( pythonic::core::string const &t) { return pythonic::core::string(t[I]); }
+
+    template <size_t I>
+        struct tuple_element<I, pythonic::core::string > {
+            typedef typename pythonic::core::string type;
+        };
+}
+
 #endif

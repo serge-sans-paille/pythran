@@ -142,6 +142,10 @@ namespace  pythonic {
                     list(list<F> const & other) : data(other.size()) {
                         std::copy(other.begin(), other.end(), begin());
                     }
+                template<class... Types>
+                    list(std::tuple<Types...> const& t) : data(sizeof...(Types)) {
+                        tuple_dump(t, *this, int_<sizeof...(Types)-1>());
+                    }
                 list(list_view<T> const & other) : data( other.begin(), other.end()) {}
 
                 list<T>& operator=(list<T> && other) {
@@ -389,5 +393,18 @@ namespace  pythonic {
 
     }
 
+}
+
+/* overload std::get */
+namespace std {
+    template <size_t I, class T>
+        typename pythonic::core::list<T>::reference get( pythonic::core::list<T>& t) { return t[I]; }
+    template <size_t I, class T>
+        typename pythonic::core::list<T>::const_reference get( pythonic::core::list<T> const & t) { return t[I]; }
+
+    template <size_t I, class T>
+        struct tuple_element<I, pythonic::core::list<T> > {
+            typedef typename pythonic::core::list<T>::value_type type;
+        };
 }
 #endif

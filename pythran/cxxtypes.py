@@ -278,7 +278,8 @@ class ElementType(Type):
 
     >>> t = TupleType([NamedType('int'), NamedType('str')])
     >>> ElementType(1, t)
-    typename std::tuple_element<1,std::tuple<int, str>>::type
+    typename std::tuple_element<1,\
+decltype(core::make_tuple(std::declval<int>(), std::declval<str>()))>::type
     '''
 
     def __init__(self, index, of):
@@ -337,7 +338,7 @@ class TupleType(Type):
     Type holding a tuple of stuffs of various types
 
     >>> TupleType([NamedType('int'), NamedType('bool')])
-    std::tuple<int, bool>
+    decltype(core::make_tuple(std::declval<int>(), std::declval<bool>()))
     '''
     def __init__(self, ofs):
         if ofs:
@@ -348,11 +349,9 @@ class TupleType(Type):
         super(TupleType, self).__init__(ofs=ofs, qualifiers=qualifiers)
 
     def generate(self, ctx):
-        if self.ofs:
-            elts = (ctx(of).generate(ctx) for of in self.ofs)
-            return 'std::tuple<{0}>'.format(", ".join(elts))
-        else:
-            return 'decltype(std::make_tuple())'
+        elts = (ctx(of).generate(ctx) for of in self.ofs)
+        telts = ('std::declval<{0}>()'.format(elt) for elt in elts)
+        return 'decltype(core::make_tuple({0}))'.format(", ".join(telts))
 
 
 class DictType(Type):

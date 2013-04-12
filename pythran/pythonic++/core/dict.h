@@ -211,7 +211,7 @@ namespace  pythonic {
                     else {
                         auto r = *b;
                         data->erase(b);
-                        return make_tuple(r.first, r.second);
+                        return std::make_tuple(r.first, r.second);
                     }
                 }
 
@@ -243,5 +243,18 @@ namespace  pythonic {
             operator bool() const { return false; }
         };
     }
+}
+
+/* overload std::get */
+namespace std {
+    template <size_t I, class K, class V>
+        auto get( pythonic::core::dict<K,V>& d) -> decltype(d[I]) { return d[I]; }
+    template <size_t I, class K, class V>
+        auto get( pythonic::core::dict<K,V> const & d) -> decltype(d[I]) { return d[I]; }
+
+    template <size_t I, class K, class V>
+        struct tuple_element<I, pythonic::core::dict<K,V> > {
+            typedef typename pythonic::core::dict<K,V>::value_type type;
+        };
 }
 #endif

@@ -49,6 +49,10 @@ template<class T>
 struct content_of< std::tuple<T> > {
     typedef T type;
 };
+template<class T>
+struct content_of< core::ltuple<T> > {
+    typedef T type;
+};
 template<class T, class... Types>
 struct content_of< std::tuple<T, Types...> > {
     typedef typename std::enable_if<
@@ -120,6 +124,15 @@ core::dict<typename __combined<K0,K1>::type, typename __combined<V0, V1>::type >
 template <class K0, class V0, class K1, class V1>
 core::dict<typename __combined<K0,K1>::type, typename __combined<V0, V1>::type > operator+(core::list<std::tuple<K1,V1>>, core::dict<K0,V0>);
 
+/* in case tuples were converted to list { */
+template <class T>
+core::dict<T, T> operator+(core::empty_dict , core::list<core::ltuple<T>> );
+template <class K0, class V0, class T>
+core::dict<typename __combined<K0,T>::type, typename __combined<V0, T>::type > operator+(core::dict<K0,V0> , core::list<core::ltuple<T>> );
+template <class K0, class V0, class T>
+core::dict<typename __combined<K0,T>::type, typename __combined<V0, T>::type > operator+(core::list<core::ltuple<T>>, core::dict<K0,V0>);
+/* } */
+
 template <class A>
 typename __combined<core::list<A>, none_type>::type operator+(container<A> , none_type );
 template <class A>
@@ -169,6 +182,10 @@ template<class K, class... Types>
 std::tuple<Types...> operator+(indexable<K>, std::tuple<Types...>);
 template<class K, class... Types>
 std::tuple<Types...> operator+(std::tuple<Types...>, indexable<K>);
+template<class K, class T>
+core::ltuple<T>operator+(indexable<K>, core::ltuple<T>);
+template<class K, class T>
+core::ltuple<T> operator+(core::ltuple<T>, indexable<K>);
 template<class K>
 std::complex<double> operator+(indexable<K>, std::complex<double>);
 template<class K>
@@ -250,6 +267,10 @@ template<class T0, class T1>
 struct __combined<__builtin__::_iter<T0>, __builtin__::_iter<T1>> {
     typedef __builtin__::_iter<typename __combined<T0,T1>::type> type;
 };
+template<class T0, class T1>
+struct __combined<core::ltuple<T0>, core::ltuple<T1>> {
+    typedef core::ltuple<typename __combined<T0,T1>::type> type;
+};
 template<class... T0, class... T1>
 struct __combined<std::tuple<T0...>, std::tuple<T1...>> {
     typedef std::tuple<typename __combined<T0,T1>::type ...> type;  // no further combination
@@ -280,34 +301,6 @@ namespace std {
     template <class K, class V>
         struct remove_cv< std::pair<const K, V> > {
             typedef std::pair<K, V> type;
-        };
-    /* for core::list */
-    template <size_t I, class T>
-        typename core::list<T>::reference get( core::list<T>& t) { return t[I]; }
-    template <size_t I, class T>
-        typename core::list<T>::const_reference get( core::list<T> const & t) { return t[I]; }
-
-    template <size_t I, class T>
-        struct tuple_element<I, core::list<T> > {
-            typedef typename core::list<T>::value_type type;
-        };
-    /* for core::dict */
-    template <size_t I, class K, class V>
-        auto get( core::dict<K,V>& d) -> decltype(d[I]) { return d[I]; }
-    template <size_t I, class K, class V>
-        auto get( core::dict<K,V> const & d) -> decltype(d[I]) { return d[I]; }
-
-    template <size_t I, class K, class V>
-        struct tuple_element<I, core::dict<K,V> > {
-            typedef typename core::dict<K,V>::value_type type;
-        };
-    /* for core::string */
-    template <size_t I>
-        typename core::string get( core::string const &t) { return core::string(t[I]); }
-
-    template <size_t I>
-        struct tuple_element<I, core::string > {
-            typedef typename core::string type;
         };
 
     /* for containers */
@@ -795,6 +788,25 @@ struct pythran_to_python< std::tuple<Types...> > {
     pythran_to_python() {
         pythonic::fwd(pythran_to_python<Types>()...);
         register_once<std::tuple<Types...>, custom_tuple_to_tuple<Types...>>();
+    }
+};
+
+template<typename T>
+struct custom_ltuple_to_tuple {
+    static PyObject* convert(core::ltuple<T> const & t) {
+        size_t n = t.size();
+        PyObject* obj = PyTuple_New(n);
+        for(size_t i=0; i<n; ++i)
+            PyTuple_SET_ITEM(obj, i, boost::python::incref(boost::python::object(t[i]).ptr()));
+        return obj;
+    }
+};
+
+template<typename T>
+struct pythran_to_python< core::ltuple<T> > {
+    pythran_to_python() {
+        pythran_to_python<T>();
+        register_once<core::ltuple<T>, custom_ltuple_to_tuple<T>>();
     }
 };
 

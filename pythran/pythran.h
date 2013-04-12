@@ -94,19 +94,19 @@ template <class A, class B>
 B operator+(B , container<A> );
 
 template <class A, class B>
-core::list<decltype(std::declval<A>()+std::declval<B>())> operator+(container<A> , core::list<B> );
+core::list<typename __combined<A,B>::type> operator+(container<A> , core::list<B> );
 template <class A, class B>
-core::list<decltype(std::declval<A>()+std::declval<B>())> operator+(core::list<B> , container<A> );
+core::list<typename __combined<A,B>::type> operator+(core::list<B> , container<A> );
 
 template <class A, class B>
-core::set<decltype(std::declval<A>()+std::declval<B>())> operator+(container<A> , core::set<B> );
+core::set<typename __combined<A,B>::type> operator+(container<A> , core::set<B> );
 template <class A, class B>
-core::set<decltype(std::declval<A>()+std::declval<B>())> operator+(core::set<B> , container<A> );
+core::set<typename __combined<A,B>::type> operator+(core::set<B> , container<A> );
 
 template <class A, class B, class C>
-core::dict<C, decltype(std::declval<A>()+std::declval<B>())> operator+(container<A> , core::dict<C,B> );
+core::dict<C, typename __combined<A,B>::type > operator+(container<A> , core::dict<C,B> );
 template <class A, class B, class C>
-core::dict<C, decltype(std::declval<A>()+std::declval<B>())> operator+(core::dict<C,B> , container<A> );
+core::dict<C, typename __combined<A,B>::type > operator+(core::dict<C,B> , container<A> );
 
 template <class A>
 dict_container<A> operator+(container<A> , core::empty_dict );
@@ -121,12 +121,12 @@ template <class K0, class V0, class K1, class V1>
 core::dict<typename __combined<K0,K1>::type, typename __combined<V0, V1>::type > operator+(core::list<std::tuple<K1,V1>>, core::dict<K0,V0>);
 
 template <class A>
-decltype(std::declval<core::list<A>>() + none_type()) operator+(container<A> , none_type );
+typename __combined<core::list<A>, none_type>::type operator+(container<A> , none_type );
 template <class A>
-decltype(std::declval<core::list<A>>() + none_type()) operator+(none_type , container<A> );
+typename __combined<core::list<A>, none_type>::type operator+(none_type , container<A> );
 
 template <class A, class B>
-container<decltype(std::declval<A>()+std::declval<B>())> operator+(container<A> , container<B> );
+container<typename __combined<A,B>::type> operator+(container<A> , container<B> );
 
 template<class T>
 class indexable {
@@ -143,8 +143,8 @@ class indexable_dict {
         indexable_dict();
 };
 
-template<class K1, class K2>
-indexable<decltype(std::declval<K1>()+std::declval<K2>())> operator+(indexable<K1>, indexable<K2>);
+template<class K0, class K1>
+indexable<typename __combined<K0,K1>::type> operator+(indexable<K0>, indexable<K1>);
 template<class K>
 indexable<K> operator+(indexable<K>, core::empty_list);
 template<class K>
@@ -162,9 +162,9 @@ indexable_dict<K> operator+(indexable_dict<K>, core::empty_dict);
 template<class K>
 indexable_dict<K> operator+(core::empty_dict, indexable<K>);
 template<class K0, class V, class K1>
-core::dict<decltype(std::declval<K0>() + std::declval<K1>()), V> operator+(core::dict<K0,V>, indexable<K1>);
+core::dict<typename __combined<K0,K1>::type, V> operator+(core::dict<K0,V>, indexable<K1>);
 template<class K0, class V, class K1>
-core::dict<decltype(std::declval<K0>() + std::declval<K1>()), V> operator+(indexable<K1>, core::dict<K0,V>);
+core::dict<typename __combined<K0,K1>::type, V> operator+(indexable<K1>, core::dict<K0,V>);
 template<class K, class... Types>
 std::tuple<Types...> operator+(indexable<K>, std::tuple<Types...>);
 template<class K, class... Types>
@@ -182,8 +182,8 @@ class indexable_container {
     private:
         indexable_container();
 };
-template<class K1, class V1, class K2, class V2>
-indexable_container<decltype(std::declval<K1>()+std::declval<K2>()), decltype(std::declval<V1>()+std::declval<V2>())> operator+(indexable_container<K1,V1>, indexable_container<K2,V2>);
+template<class K0, class V0, class K1, class V1>
+indexable_container<typename __combined<K0,K1>::type, typename __combined<V0,V1>::type> operator+(indexable_container<K0,V0>, indexable_container<K1,V1>);
 
 template <class K, class V>
 indexable_container<K,V> operator+(indexable<K>, container<V>);
@@ -205,10 +205,10 @@ indexable_container<typename __combined<K1,K2>::type,V1> operator+(indexable_con
 template <class K1, class V1, class K2>
 indexable_container<typename __combined<K1,K2>::type,V1> operator+(indexable<K2>, indexable_container<K1,V1>);
 
-template <class K, class V1, class V2>
-core::list<decltype(std::declval<V1>()+std::declval<V2>())> operator+(indexable_container<K,V1>, core::list<V2>);
-template <class K, class V1, class V2>
-core::list<decltype(std::declval<V1>()+std::declval<V2>())> operator+(core::list<V2>, indexable_container<K,V1>);
+template <class K, class V0, class V1>
+core::list<typename __combined<V0,V1>::type> operator+(indexable_container<K,V0>, core::list<V1>);
+template <class K, class V0, class V1>
+core::list<typename __combined<V0,V1>::type> operator+(core::list<V1>, indexable_container<K,V0>);
 
 template <class K, class V1, class V2>
 core::set<decltype(std::declval<V1>()+std::declval<V2>())> operator+(indexable_container<K,V1>, core::set<V2>);
@@ -218,7 +218,7 @@ core::set<decltype(std::declval<V1>()+std::declval<V2>())> operator+(core::set<V
 template< class K, class V>
 core::dict<K,V> operator+(core::empty_dict, indexable_container<K,V>);
 template< class K0, class V0, class K1, class V1>
-core::dict<decltype(std::declval<K0>()+std::declval<K1>()), decltype(std::declval<V0>()+std::declval<V1>())> operator+(core::dict<K0,V0>, indexable_container<K1,V1>);
+core::dict<typename __combined<K0,K1>::type, typename __combined<V0,V1>::type> operator+(core::dict<K0,V0>, indexable_container<K1,V1>);
 template< class K, class V>
 core::dict<K,V> operator+(indexable_container<K,V>, core::empty_dict);
 
@@ -227,7 +227,7 @@ core::dict<K,V> operator+(indexable<K>, dict_container<V>);
 template <class V, class K>
 core::dict<K,V> operator+(dict_container<V>, indexable<K>);
 template <class V, class K, class W>
-core::dict<K,decltype(std::declval<V>()+std::declval<W>())> operator+(dict_container<V>, indexable_container<K,W>);
+core::dict<K,typename __combined<V,W>::type> operator+(dict_container<V>, indexable_container<K,W>);
 
 template <class K, class V>
 core::dict<K,V> operator+(indexable_dict<K>, container<V>);
@@ -250,13 +250,13 @@ template<class T0, class T1>
 struct __combined<__builtin__::_iter<T0>, __builtin__::_iter<T1>> {
     typedef __builtin__::_iter<typename __combined<T0,T1>::type> type;
 };
-template<class... T0>
-struct __combined<std::tuple<T0...>, std::tuple<T0...>> {
-    typedef std::tuple<T0...> type;  // no further combination
+template<class... T0, class... T1>
+struct __combined<std::tuple<T0...>, std::tuple<T1...>> {
+    typedef std::tuple<typename __combined<T0,T1>::type ...> type;  // no further combination
 };
-template<class... T0>
-struct __combined<std::pair<T0...>, std::pair<T0...>> {
-    typedef std::pair<T0...> type;  // no further combination
+template<class T00, class T01, class T10, class T11>
+struct __combined<std::pair<T00, T01>, std::pair<T10, T11>> {
+    typedef std::pair<typename __combined<T00,T10>::type, typename __combined<T01,T11>::type> type;  // no further combination
 };
 template<class K0, class V0, class K1, class V1>
 struct __combined<core::dict<K0, V0>, core::dict<K1, V1>> {

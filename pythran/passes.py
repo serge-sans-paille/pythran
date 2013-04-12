@@ -97,9 +97,10 @@ class NormalizeTuples(Transformation):
         else:
             return node
 
-    def visit_AnyComp(self, node):
-        self.generic_visit(node.elt)
-        generators = [self.visit(n) for n in node.generators]
+    def visit_AnyComp(self, node, *fields):
+        for field in fields:
+            setattr(node, field, self.visit(getattr(node, field)))
+        generators = map(self.visit, node.generators)
         nnode = node
         for i, g in enumerate(generators):
             if isinstance(g, tuple):
@@ -111,18 +112,22 @@ class NormalizeTuples(Transformation):
                         nnode.generators[i].target,
                         metadata.LocalVariable())
                 nnode = _ConvertToTuple(gtarget, g[1]).visit(nnode)
-        node.elt = nnode.elt
+        for field in fields:
+            setattr(node, field, getattr(nnode, field))
         node.generators = nnode.generators
         return node
 
     def visit_ListComp(self, node):
-        return self.visit_AnyComp(node)
+        return self.visit_AnyComp(node, 'elt')
 
     def visit_SetComp(self, node):
-        return self.visit_AnyComp(node)
+        return self.visit_AnyComp(node, 'elt')
+
+    def visit_DictComp(self, node):
+        return self.visit_AnyComp(node, 'key', 'value')
 
     def visit_GeneratorExp(self, node):
-        return self.visit_AnyComp(node)
+        return self.visit_AnyComp(node, 'elt')
 
     def visit_Lambda(self, node):
         self.generic_visit(node)

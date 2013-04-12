@@ -80,12 +80,28 @@ namespace pythonic {
                 return core::string( (*(std::string*)this)+(std::string const&)s );
             }
 
+            operator char() const {
+                assert(size() == 1);
+                return (*this)[0];
+            }
+
             operator long int() const { // Allows implicit conversion without loosing bool conversion
                 char *endptr;
                 long int res = strtol(data(), &endptr,10);
                 if(endptr == data()) {
                     std::ostringstream err;
                     err << "invalid literal for long() with base 10:"
+                        << "'" << *this << "'";
+                    throw std::runtime_error(err.str());
+                }
+                return res;
+            }
+            operator double() const {
+                char *endptr;
+                double res = strtod(data(), &endptr);
+                if(endptr == data()) {
+                    std::ostringstream err;
+                    err << "invalid literal for double():"
                         << "'" << *this << "'";
                     throw std::runtime_error(err.str());
                 }

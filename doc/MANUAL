@@ -228,7 +228,7 @@ Alternatively, one can run the great::
 
     pythran -ppythran.analysis.ParallelMaps -e as.py
 
-which runs a code analyzer that displays extra information concerning parallel ``map`` found int he code.
+which runs a code analyzer that displays extra information concerning parallel ``map`` found in the code.
 
 Getting Pure C++
 ----------------

@@ -358,32 +358,47 @@ namespace pythonic {
                 }
         };
 
-        template<typename... Types>
-        struct itemgetter_tuple_return {
-            
-            std::tuple<Types...> items;
-
-            itemgetter_tuple_return(Types... items) : items(items...) {}
-            
-            template<class A>
-                auto operator()(A const& a) const -> std::tuple< decltype(a[std::declval<Types>()]...) > {
-                    std::tuple< decltype(a[std::declval<Types>()]...) > result;
-//                        boost::fusion::for_each(result, );
-                    return result;
-                }
-        };
 
         itemgetter_return itemgetter(long item)
         {
             return itemgetter_return(item);
         }
 
+        template<typename... Types>
+        struct itemgetter_tuple_return {
+         
+            std::tuple<Types...> items;
+         
+            itemgetter_tuple_return(Types... items) : items(items...) {
+            }
+            
+            itemgetter_tuple_return(){
+            }
+         
+            template<class T, class A, int I>
+                void helper(T & t, A const& a, int_<I>) const {
+                    std::get<I>(t) = a[std::get<I>(items)];
+                    helper(t,a, int_<I-1>());
+                }
+            template<class T, class A>
+                void helper(T& t, A const& a, int_<0>) const {
+                    std::get<0>(t) = a[std::get<0>(items)];
+                }
+         
+            template<class A>
+                auto operator()(A const& a) const -> std::tuple< typename std::remove_cv<typename std::remove_reference<decltype(a[std::declval<Types>()])>::type>::type ... > {
+                    std::tuple< typename std::remove_cv<typename std::remove_reference<decltype(a[std::declval<Types>()])>::type>::type ... > t;
+                    helper(t, a, int_<sizeof...(Types)-1>());
+                    return t;
+                }
+        };
+         
         template<class... L>
-        auto itemgetter(long const& item1, long const& item2, L ... items) -> itemgetter_tuple_return<long const&,long const& , L...>
+        auto itemgetter(long const& item1, long const& item2, L ... items) -> itemgetter_tuple_return<long,long, L...>
         {
-            return itemgetter_tuple_return<long const&,long const& , L...>(item1, item2, items...);
+            return itemgetter_tuple_return<long,long , L...>(item1, item2, items...);
         }
-    
+
 
         PROXY(pythonic::operator_, truth);
         PROXY(pythonic::operator_, __abs__);

@@ -62,7 +62,10 @@ class OMPDirective(AST):
     ['a', 'b', 'c']
     '''
 
-    def __init__(self, s):
+    def __init__(self, *args):  # no positional argument to be deep copyable
+
+        if not args:
+            return
 
         self.deps = []
 
@@ -103,7 +106,7 @@ class OMPDirective(AST):
                     curr_index += 1
             return out
 
-        self.s = tokenize(s)
+        self.s = tokenize(args[0])
         self._fields = ('deps',)
 
     def __str__(self):

@@ -250,6 +250,7 @@ namespace  pythonic {
                 void reserve(size_t n) { data->reserve(n); }
                 void resize(size_t n) { data->resize(n); }
                 iterator erase(size_t n) { return data->erase(data->begin()+n); }
+                const_iterator erase(size_t n) const { return data->erase(data->begin()+n); }
 
                 // const getter
                 container_type const & get_data() const { return *data; }
@@ -267,6 +268,8 @@ namespace  pythonic {
                 void remove(T const& x) {
                     erase(index(x));
                 }
+                void remove(T const& x) const { erase(index(x)); }
+
 
 
                 //Misc
@@ -274,6 +277,8 @@ namespace  pythonic {
                 long index(T const& x) {
                     return std::find(begin(),end(),x)-begin();
                 }	
+                long index(T const& x) const { return std::find(begin(),end(),x)-begin(); }	
+
 
                 // list interface
                 operator bool() const { return not data->empty(); }
@@ -326,6 +331,10 @@ namespace  pythonic {
                 list_view<T> operator+(list_view<T> const & s) { return s; }
             empty_list operator+(empty_list const &) { return empty_list(); }
             operator bool() { return false; }
+            template<class T> // just for type inference, should never been instantiated
+                const list<T>& operator+=(list<T> const & s) { *this = (*this + s); return *this; }
+            template<class T> // just for type inference, should never been instantiated
+                const list<T>& operator+=(empty_list const &) {return *this;}
         };
 
         /* list_view implementation */

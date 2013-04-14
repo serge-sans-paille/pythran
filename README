@@ -11,6 +11,8 @@ Pythran is a python to c++ compiler for a subset of the python language. It
 takes a python module annotated with a few interface description and turns it
 into a native python module with the same interface, but (hopefully) faster.
 
+Pythran development is currently done on python version 2.7.
+
 Installation
 ------------
 

@@ -173,6 +173,7 @@ class ImportedIds(NodeAnalysis):
     def __init__(self):
         self.result = set()
         self.current_locals = set()
+        self.is_list = False
         super(ImportedIds, self).__init__(Globals, Locals)
 
     def visit_Name(self, node):
@@ -217,10 +218,13 @@ class ImportedIds(NodeAnalysis):
 
     def prepare(self, node, ctx):
         super(ImportedIds, self).prepare(node, ctx)
+        if self.is_list:  # so that this pass can be called on list
+            node = node.body[0]
         self.visible_globals = set(self.globals) - self.locals[node]
 
     def run(self, node, ctx):
         if isinstance(node, list):  # so that this pass can be called on list
+            self.is_list = True
             node = ast.If(ast.Num(1), node, None)
         return super(ImportedIds, self).run(node, ctx)
 

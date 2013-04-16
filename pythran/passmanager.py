@@ -50,6 +50,7 @@ class ContextManager(object):
                 if issubclass(D, FunctionAnalysis):
                     d = D()
                     d.passmanager = self.passmanager
+                    d.ctx = self.ctx
                     setattr(self, uncamel(D.__name__), d.run(node, self.ctx))
         return super(ContextManager, self).visit(node)
 

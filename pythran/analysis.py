@@ -174,10 +174,11 @@ class ImportedIds(NodeAnalysis):
         self.result = set()
         self.current_locals = set()
         self.is_list = False
+        self.in_augassign = False
         super(ImportedIds, self).__init__(Globals, Locals)
 
     def visit_Name(self, node):
-        if isinstance(node.ctx, ast.Store):
+        if isinstance(node.ctx, ast.Store) and not self.in_augassign:
             self.current_locals.add(node.id)
         elif (node.id not in self.visible_globals
                 and node.id not in self.current_locals):
@@ -200,6 +201,17 @@ class ImportedIds(NodeAnalysis):
     visit_SetComp = visit_AnyComp
     visit_DictComp = visit_AnyComp
     visit_GeneratorExp = visit_AnyComp
+
+    def visit_Assign(self, node):
+        #order matter as an assignation
+        #is evaluted before being assigned
+        self.visit(node.value)
+        map(self.visit, node.targets)
+
+    def visit_AugAssign(self, node):
+        self.in_augassign = True
+        self.generic_visit(node)
+        self.in_augassign = False
 
     def visit_Lambda(self, node):
         current_locals = self.current_locals.copy()

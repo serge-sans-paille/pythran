@@ -51,7 +51,7 @@ struct assignable<pythonic::core::numpy_expr<Op, Arg0, Arg1>>
 template<class Op, class Arg0>
 struct assignable<pythonic::core::numpy_uexpr<Op, Arg0>>
 {
-    typedef typename assignable<Arg0>::type type;
+    typedef pythonic::core::ndarray<typename pythonic::core::numpy_uexpr<Op, Arg0>::value_type, pythonic::core::numpy_uexpr<Op, Arg0>::value> type;
 };
 
 template<class T>
@@ -1173,6 +1173,12 @@ struct c_type_to_numpy_type<int> {
 
 template<>
 struct c_type_to_numpy_type<bool> {
+    static const int value = NPY_BOOL;
+};
+
+
+template<class T>
+struct c_type_to_numpy_type< boost::simd::logical<T>> {
     static const int value = NPY_BOOL;
 };
 

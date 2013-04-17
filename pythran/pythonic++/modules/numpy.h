@@ -134,7 +134,24 @@ namespace pythonic {
             return core::ndarray<double, 1>({size});\
         }
 
-        NOT_INIT_ARRAY(zeros)
+
+        template<class... T>
+            core::ndarray<double, sizeof...(T)> zeros(std::tuple<T...> const& t)
+            {
+                return apply_to_tuple<sizeof...(T)-1>::builder(double(0), t, std::get<sizeof...(T)-1>(t));
+            }
+
+        template<unsigned long N>
+            core::ndarray<double, N> zeros(std::array<long, N> const &t)
+            {
+                return core::ndarray<double, N>(t,0);
+            }
+
+        template<class Type = proxy::double_>
+        core::ndarray<Type,1> zeros(size_t size, Type dtype= Type())
+        {
+            return core::ndarray<Type, 1>({size}, Type(0));
+        }
 
         NOT_INIT_ARRAY(empty)
 
@@ -149,7 +166,7 @@ namespace pythonic {
         template<unsigned long N>
             core::ndarray<double, N> ones(std::array<long, N> const &t)
             {
-                return core::ndarray<double, N>(t);
+                return core::ndarray<double, N>(t, 1);
             }
 
         template<class Type = proxy::double_>
@@ -246,10 +263,15 @@ namespace pythonic {
         PROXY(pythonic::numpy, empty_like);
 
         template<class T, unsigned long N, class ...S>
-            core::ndarray<T,sizeof...(S)> reshape(core::ndarray<T,N> const& array, S ...s)
+            core::ndarray<T,sizeof...(S)> reshape(core::ndarray<T,N> const& array, S... s)
             {
                 long shp[] = {s...};
                 return core::ndarray<T,sizeof...(s)>(array.data, 0, shp);
+            }
+
+        template<class Expr, class ...S>
+            auto reshape( Expr const& expr, S&& ...s) -> decltype(reshape(typename core::numpy_expr_to_ndarray<Expr>::type(expr), s...)) {
+                return reshape(typename core::numpy_expr_to_ndarray<Expr>::type(expr), s...);
             }
 
         PROXY(pythonic::numpy, reshape);
@@ -404,10 +426,9 @@ namespace pythonic {
 
         PROXY(pythonic::numpy, min);
 
-        template<class T, unsigned long N>
-            T sum(core::ndarray<T,N> const& array)
-            {
-                core::ndarray_flat_const<T,N> iter(array);
+        template<class Expr>
+            auto sum(Expr const& array) -> decltype(*core::make_ndarray_const_iterator(array).begin()){
+                auto iter = core::make_ndarray_const_iterator(array);
                 return std::accumulate(iter.begin(), iter.end(), 0);
             }
 
@@ -507,6 +528,11 @@ namespace pythonic {
                 for(unsigned long i = 0; i<N; i++)
                     t[N-1-i] = i;
                 return apply_transpose(a, t);
+            }
+
+        template<class Expr>
+            auto transpose(Expr const & a) -> decltype(transpose(typename core::numpy_expr_to_ndarray<Expr>::type(a))) {
+                return transpose(typename core::numpy_expr_to_ndarray<Expr>::type(a));
             }
 
         PROXY(pythonic::numpy, transpose);

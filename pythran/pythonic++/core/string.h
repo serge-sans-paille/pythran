@@ -80,7 +80,7 @@ namespace pythonic {
                 return core::string( (*(std::string*)this)+(std::string const&)s );
             }
 
-            operator char() const {
+            explicit operator char() const {
                 assert(size() == 1);
                 return (*this)[0];
             }
@@ -96,7 +96,7 @@ namespace pythonic {
                 }
                 return res;
             }
-            operator double() const {
+            explicit operator double() const {
                 char *endptr;
                 double res = strtod(data(), &endptr);
                 if(endptr == data()) {

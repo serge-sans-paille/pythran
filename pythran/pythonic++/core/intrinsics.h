@@ -102,7 +102,7 @@ namespace pythonic {
                 long value;
                 Iterator iter;
                 enumerate_iterator(){}
-                enumerate_iterator(Iterator const& iter) : value(0L), iter(iter) {}
+                enumerate_iterator(Iterator const& iter, int first) : value(first), iter(iter) {}
                 std::tuple<long, typename Iterator::value_type> operator*() { return std::make_tuple(value, *iter); }
                 enumerate_iterator& operator++() { ++value,++iter; return *this; }
                 enumerate_iterator& operator+=(long n) { value+=n,iter+=n; return *this; }
@@ -118,15 +118,15 @@ namespace pythonic {
                 iterator end_iter;
 
                 _enumerate() {}
-                _enumerate( Iterable seq ) :  enumerate_iterator<typename Iterable::iterator>(seq.begin()), seq(seq), end_iter(seq.end()) {}
+                _enumerate( Iterable seq, int first ) :  enumerate_iterator<typename Iterable::iterator>(seq.begin(), first), seq(seq), end_iter(seq.end(), -1) {}
                 iterator & begin() { return *this; }
                 iterator const & begin() const { return *this; }
                 iterator end() const { return end_iter; }
             };
 
         template <class Iterable>
-            _enumerate<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type> enumerate(Iterable && seq) {
-                return _enumerate<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type>(std::forward<Iterable>(seq));
+            _enumerate<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type> enumerate(Iterable && seq, long first = 0L) {
+                return _enumerate<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type>(std::forward<Iterable>(seq), first);
             }
 
         PROXY(pythonic::__builtin__,enumerate);

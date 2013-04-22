@@ -106,6 +106,23 @@ namespace pythonic {
         }
         PROXY(pythonic::__string__, replace);
 
+        core::string strip(core::string const& self, core::string const& to_del = " ")
+        {
+            return core::string(self.begin() + self.find_first_not_of(to_del), self.begin() + self.find_last_not_of(to_del) + 1);
+        }
+        PROXY(pythonic::__string__, strip);
+
+        core::string lstrip(core::string const& self, core::string const& to_del = " ")
+        {
+            return core::string(self.begin() + self.find_first_not_of(to_del), self.end());
+        }
+        PROXY(pythonic::__string__, lstrip);
+
+        core::string rstrip(core::string const& self, core::string const& to_del = " ")
+        {
+            return core::string(self.begin(), self.begin() + self.find_last_not_of(to_del) + 1);
+        }
+        PROXY(pythonic::__string__, rstrip);
     }
 }
 #endif

@@ -76,6 +76,8 @@ namespace pythonic {
             string(const char*s, size_t n) : std::string(s,n) {}
             string(char c) : std::string(1,c) {}
             string(string_view const & other) : std::string( other.begin(), other.end()) {}
+            template<class T>
+            string(T const& begin, T const& end) : std::string( begin, end) {}
             core::string operator+(core::string const& s) const {
                 return core::string( (*(std::string*)this)+(std::string const&)s );
             }

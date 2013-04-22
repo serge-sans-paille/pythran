@@ -629,14 +629,17 @@ modules = {
                 #"next": MethodIntr(), //Dispatched
                 },
         "__string__": {
+                "capitalize": ConstMethodIntr(),
+                "endswith": ConstMethodIntr(),
                 "find": ConstMethodIntr(),
                 "join": ConstMethodIntr(),
-                "capitalize": ConstMethodIntr(),
                 "lower": ConstMethodIntr(),
-                "upper": ConstMethodIntr(),
-                "split": ConstMethodIntr(),
-                "endswith": ConstMethodIntr(),
                 "replace": ConstMethodIntr(),
+                "split": ConstMethodIntr(),
+                "strip": ConstMethodIntr(),
+                "lstrip": ConstMethodIntr(),
+                "rstrip": ConstMethodIntr(),
+                "upper": ConstMethodIntr(),
                 },
         "__set__": {
                 "add": MethodIntr(

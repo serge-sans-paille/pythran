@@ -49,3 +49,21 @@ class TestStr(TestEnv):
 
     def test_str_capitalize(self):
         self.run_test("def str_capitalize(s): return s.capitalize()", "thiS iS a TeST", str_capitalize=[str])
+
+    def test_str_strip(self):
+        self.run_test("def str_strip(s): return s.strip()", "       ThiS iS a TeST        ", str_strip=[str])
+
+    def test_str_strip2(self):
+        self.run_test("def str_strip2(s): return s.strip(\"TSih\")", "ThiS iS a TeST", str_strip2=[str])
+
+    def test_str_lstrip(self):
+        self.run_test("def str_lstrip(s): return s.lstrip()", "       ThiS iS a TeST        ", str_lstrip=[str])
+
+    def test_str_lstrip2(self):
+        self.run_test("def str_lstrip2(s): return s.lstrip(\"TSih\")", "ThiS iS a TeST", str_lstrip2=[str])
+
+    def test_str_rstrip(self):
+        self.run_test("def str_rstrip(s): return s.rstrip()", "       ThiS iS a TeST        ", str_rstrip=[str])
+
+    def test_str_rstrip2(self):
+        self.run_test("def str_rstrip2(s): return s.rstrip(\"TSih\")", "ThiS iS a TeST", str_rstrip2=[str])

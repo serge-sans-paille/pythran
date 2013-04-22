@@ -258,6 +258,7 @@ modules = {
                 "islice": ConstFunctionIntr(),
                 "product": ConstFunctionIntr(),
                 "izip": ConstFunctionIntr(),
+                "combinations": ConstFunctionIntr(),
                 },
         "random": {
                 "seed": FunctionIntr(global_effects=True),

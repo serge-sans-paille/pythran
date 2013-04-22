@@ -147,3 +147,13 @@ def ifilter_with_nested_lambdas(N):
     perf = lambda n: n == sum(i for i in xrange(1, n) if n % i == 0)
     return map(perf, xrange(20))'''
         self.run_test(code, 10, ifilter_with_nested_lambdas=[int])
+
+    def test_combinations_on_generator(self):
+        self.run_test("def combinations_g(l0,a): from itertools import combinations; return sum(map(lambda (x,y) : x*y, combinations((y for x in l0 for y in xrange(x)),a)))", [0,1,2], 2, combinations_g=[[int],int])
+
+    def test_next_combinations(self):
+        self.run_test("def next_combinations(n): from itertools import combinations ; x = combinations(n,2) ; next(x) ; return map(None, x)", range(5), next_combinations=[[int]])
+
+    def test_combinations(self):
+        self.run_test("def combinations_(l0,a): from itertools import combinations; return sum(map(lambda (x,y) : x*y, combinations(l0,a)))", [0,1,2,3,4,5], 2, combinations_=[[int],int])
+

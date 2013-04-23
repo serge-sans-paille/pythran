@@ -40,9 +40,7 @@
 #include "modules/operator.h"
 
 /* numpy's expression template */
-#if 0
 #include "core/numpy_expr.h"
-#endif
 #include "modules/numpy.h"
 
 /* extensions */

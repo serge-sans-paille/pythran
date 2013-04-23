@@ -38,6 +38,75 @@ namespace pythonic {
         }
 
 
+       template<class T, class dtype=typename nested_container_value_type<T>::type>
+          core::ndarray<dtype, nested_container_depth<T>::value > array(T&& iterable, dtype d=dtype()) {
+              return core::ndarray<dtype, nested_container_depth<T>::value >(std::forward<T>(iterable));
+          }
+
+       PROXY(pythonic::numpy, array);
+
+       template<class S, class dtype=double>
+          core::ndarray<dtype, std::tuple_size<S>::value> zeros(S&& shape, dtype d=dtype()) {
+              return core::ndarray<dtype, std::tuple_size<S>::value>(std::forward<S>(shape), dtype(0));
+          }
+
+       template<class dtype=double>
+          core::ndarray<dtype, 1> zeros(long size, dtype d=dtype()) {
+              return zeros(core::make_tuple(size), d);
+          }
+
+
+       PROXY(pythonic::numpy, zeros);
+
+       template<class S, class dtype=double>
+          core::ndarray<dtype, std::tuple_size<S>::value> ones(S&& shape, dtype d=dtype()) {
+              return core::ndarray<dtype, std::tuple_size<S>::value>(std::forward<S>(shape), dtype(1));
+          }
+
+       template<class dtype=double>
+          core::ndarray<dtype, 1> ones(long size, dtype d=dtype()) {
+              return ones(core::make_tuple(size), d);
+          }
+
+       PROXY(pythonic::numpy, ones);
+
+       template<class S, class dtype=double>
+          core::ndarray<dtype, std::tuple_size<S>::value> empty(S&& shape, dtype d=dtype()) {
+              return core::ndarray<dtype, std::tuple_size<S>::value>(std::forward<S>(shape), None);
+          }
+       template<class dtype=double>
+          core::ndarray<dtype, 1> empty(long size, dtype d=dtype()) {
+              return empty(core::make_tuple(size), d);
+          }
+
+       PROXY(pythonic::numpy, empty);
+
+       template<class T, class U, class dtype=long>
+           core::ndarray<decltype(std::declval<T>()+std::declval<U>()+std::declval<dtype>()), 1> arange(T begin, U end, dtype step=dtype(1))
+           {
+               typedef decltype(begin+end+step) R;
+               size_t size = std::max(R(0), R(std::ceil((end - begin)/step)));
+               core::ndarray<R, 1> a(core::make_tuple(size), None);
+               if(size)
+               {
+                   auto prev = a.begin(),
+                        end = a.end();
+                   *prev = begin;
+                   auto iter = prev + 1;
+                   for(auto iter = prev + 1; iter!=end; ++iter) {
+                       *iter = *prev + step;
+                       prev = iter;
+                   }
+               }
+               return a;
+           }
+
+       template<class T>
+          core::ndarray<T, 1> arange(T end) {
+              return arange(T(0), end);
+          }
+       PROXY(pythonic::numpy, arange);
+#if 0
 
         template<class T>
             struct finalType
@@ -713,6 +782,7 @@ namespace pythonic {
 #undef NP_PROXY
 #undef NAMED_OPERATOR
 #undef NAMED_UOPERATOR
+#endif
     }
 }
 

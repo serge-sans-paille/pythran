@@ -955,6 +955,8 @@ class UsedDefChain(FunctionAnalysis):
         self.current_node = dict()
         self.use_only = dict()
         self.in_loop = False
+        self.break_ = dict()
+        self.continue_ = dict()
         super(UsedDefChain, self).__init__(Globals)
 
     def merge_dict_set(self, into_, from_):
@@ -965,19 +967,21 @@ class UsedDefChain(FunctionAnalysis):
                 into_[i] = from_[i]
 
     def add_loop_edges(self, prev_node):
-        for id in self.current_node:
+        self.merge_dict_set(self.continue_, self.current_node)
+        for id in self.continue_:
             if id in self.result:
                 graph = self.result[id]
             else:
                 graph = self.use_only[id]
-            if id in prev_node and prev_node[id] != self.current_node[id]:
+            if id in prev_node and prev_node[id] != self.continue_[id]:
                 entering_node = [i for j in prev_node[id]
                                    for i in graph.successors_iter(j)]
             else:
                 cond = lambda x: graph.in_degree(x) == 0
                 entering_node = filter(cond, graph)
-            graph.add_edges_from(product(self.current_node[id],
+            graph.add_edges_from(product(self.continue_[id],
                         entering_node))
+        self.continue_ = dict()
 
     def visit_Name(self, node):
         if node.id not in self.result and node.id not in self.use_only:
@@ -1090,6 +1094,12 @@ class UsedDefChain(FunctionAnalysis):
         #merge result
         self.merge_dict_set(self.current_node, new_node)
 
+    def visit_Break(self, node):
+        self.merge_dict_set(self.break_, self.current_node)
+
+    def visit_Continue(self, node):
+        self.merge_dict_set(self.continue_, self.current_node)
+
     def visit_While(self, node):
         prev_node = dict(self.current_node)
         self.visit(node.test)
@@ -1107,6 +1117,8 @@ class UsedDefChain(FunctionAnalysis):
 
         #merge result
         self.merge_dict_set(self.current_node, new_node)
+        self.merge_dict_set(self.current_node, self.break_)
+        self.break_ = dict()
 
     def visit_For(self, node):
         self.visit(node.iter)
@@ -1126,6 +1138,8 @@ class UsedDefChain(FunctionAnalysis):
 
         #merge result
         self.merge_dict_set(self.current_node, new_node)
+        self.merge_dict_set(self.current_node, self.break_)
+        self.break_ = dict()
 
     def visit_TryExcept(self, node):
 

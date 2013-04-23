@@ -72,6 +72,10 @@ namespace pythonic {
                         return this->mem != other.mem;
                     }
 
+                    void external() {
+                        ++mem->count;
+                    }
+
                     T* forget() {
                         T *ptr = &mem->ptr;
                         mem = nullptr;
@@ -91,6 +95,7 @@ namespace pythonic {
                         ++mem->count;
                     }
             };
+
     }
 }
 

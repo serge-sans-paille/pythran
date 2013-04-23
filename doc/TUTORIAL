@@ -178,7 +178,7 @@ One can also computes the state of ``globals()``::
   >>> code += 'def foo(a): b = math.cos(a) ; return [b] * 3'
   >>> tree = ast.parse(code)
   >>> pm.gather(analysis.Globals, tree)
-  set(['__list__', 'None', '__set__', 'False', 'int', '__file__', 'float', '__string__', 'long', '__complex___', '__dispatch__', '__exception__', 'bool', '__builtin__', '__dict__', '__float__', '__iterator__', 'foo', 'True', 'math', '__user__'])
+  set(['__list__', 'int', 'float', '__builtin__', '__ndarray__', '__dict__', '__float__', '__set__', 'long', 'bool', '__user__', 'foo', 'True', 'math', 'None', '__file__', '__string__', '__exception__', '__iterator__', 'False', '__dispatch__', '__complex___'])
 
 One can also compute the state of ``locals()`` at any point of the program::
 

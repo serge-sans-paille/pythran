@@ -6,18 +6,24 @@ class TestNumpy(TestEnv):
 
     def test_array1D_(self):
         self.run_test("def np_array1D_():\n from numpy import array\n return array([1,2,3])", np_array1D_=[])
-        
+       
     def test_array2D_(self):
         self.run_test("def np_array2D_():\n from numpy import array\n return array([[1,2],[3,4]])", np_array2D_=[])
 
-    def test_arrayND_(self):
-        self.run_test("def np_arrayND_():\n from numpy import array\n return array([[i,j,k,l] for i in xrange(5) for j in xrange(4) for k in xrange(6) for l in xrange(8)])", np_arrayND_=[])
+    def test_array_typed(self):
+        self.run_test("def np_array_typed():\n from numpy import array, int64\n return array([1.,2.,3.], int64)", np_array_typed=[])
 
     def test_zeros_(self):
         self.run_test("def np_zeros_():\n from numpy import zeros\n return zeros((10,5))", np_zeros_=[])
 
     def test_ones_(self):
-        self.run_test("def np_ones_():\n from numpy import zeros\n return zeros((10,5))", np_ones_=[])
+        self.run_test("def np_ones_():\n from numpy import ones\n return ones((10,5))", np_ones_=[])
+
+    def test_flat_zeros_(self):
+        self.run_test("def np_flat_zeros_():\n from numpy import zeros\n return zeros(10)", np_flat_zeros_=[])
+
+    def test_flat_ones_(self):
+        self.run_test("def np_flat_ones_():\n from numpy import ones\n return ones(5)", np_flat_ones_=[])
 
     def test_acces1D_(self):
         self.run_test("def np_acces1D_():\n from numpy import array\n a =array([1,2,3])\n return a[1]", np_acces1D_=[])
@@ -70,6 +76,9 @@ class TestNumpy(TestEnv):
     def test_len_(self):
         self.run_test("def np_len_():\n from numpy import array\n a =array([[[1,2],[3,4]],[[5,6],[7,8]]])\n return len(a)", np_len_=[])
 
+    def test_empty_(self):
+        self.run_test("def np_empty_():\n from numpy import empty\n a = empty((3,2))\n return a.strides, len(a)", np_empty_=[])
+
     def test_arange(self):
         self.run_test("def np_arange_():\n from numpy import arange\n return arange(10)", np_arange_=[])
 
@@ -91,7 +100,6 @@ class TestNumpy(TestEnv):
     def test_arange6(self):
         self.run_test("def np_arange6_():\n from numpy import arange\n return arange(0.2, 3.3, 0.5)", np_arange6_=[])
 
-    #@unittest.skip("Work outside of tests") 
     def test_arange7(self):
         self.run_test("def np_arange7_():\n from numpy import arange\n return arange(1, 4.5, -0.2)", np_arange7_=[])
 
@@ -126,10 +134,13 @@ class TestNumpy(TestEnv):
         self.run_test("def np_e_():\n from numpy import e\n return e", np_e_=[])
 
     def test_ones_like_(self):
-        self.run_test("def np_ones_like_():\n from numpy import ones_like\n return ones_like([[i,j,k,l] for i in xrange(5) for j in xrange(4) for k in xrange(6) for l in xrange(8)])", np_ones_like_=[])
+        self.run_test("def np_ones_like_():\n from numpy import ones_like, array\n return ones_like(array([[i,j,k,l] for i in xrange(5) for j in xrange(4) for k in xrange(6) for l in xrange(8)]))", np_ones_like_=[])
 
     def test_zeros_like_(self):
-        self.run_test("def np_zeros_like_():\n from numpy import zeros_like\n return zeros_like([[i,j,k,l] for i in xrange(5) for j in xrange(4) for k in xrange(6) for l in xrange(8)])", np_zeros_like_=[])
+        self.run_test("def np_zeros_like_():\n from numpy import zeros_like, array\n return zeros_like(array([[i,j,k,l] for i in xrange(5) for j in xrange(4) for k in xrange(6) for l in xrange(8)]))", np_zeros_like_=[])
+
+    def test_empty_like_(self):
+        self.run_test("def np_empty_like_():\n from numpy import empty_like, array\n return empty_like(array([[i,j,k,l] for i in xrange(5) for j in xrange(4) for k in xrange(6) for l in xrange(8)])).shape", np_empty_like_=[])
 
     def test_reshape_(self):
         self.run_test("def np_reshape_():\n from numpy import arange,reshape\n return arange(10).reshape(2,5)", np_reshape_=[])
@@ -184,6 +195,36 @@ class TestNumpy(TestEnv):
 
     def test_min5_(self):
         self.run_test("def np_min5_():\n from numpy import arange,min\n return arange(10).min(0)", np_min5_=[])
+
+    def test_max_(self):
+        self.run_test("def np_max_():\n from numpy import arange,max\n return arange(10).max()", np_max_=[])
+
+    def test_max2_(self):
+        self.run_test("def np_max2_():\n from numpy import arange,max\n return arange(10).reshape(2,5).max()", np_max2_=[])
+
+    def test_max3_(self):
+        self.run_test("def np_max3_():\n from numpy import arange,max\n return arange(10).reshape(2,5).max(1)", np_max3_=[])
+
+    def test_max4_(self):
+        self.run_test("def np_max4_():\n from numpy import arange,max\n return arange(10).reshape(2,5).max(0)", np_max4_=[])
+
+    def test_max5_(self):
+        self.run_test("def np_max5_():\n from numpy import arange,max\n return arange(10).max(0)", np_max5_=[])
+
+    def test_all_(self):
+        self.run_test("def np_all_():\n from numpy import arange,all\n return arange(10).all()", np_all_=[])
+
+    def test_all2_(self):
+        self.run_test("def np_all2_():\n from numpy import ones,all\n return ones(10).reshape(2,5).all()", np_all2_=[])
+
+    def test_all3_(self):
+        self.run_test("def np_all3_():\n from numpy import arange,all\n return arange(10).reshape(2,5).all(1)", np_all3_=[])
+
+    def test_all4_(self):
+        self.run_test("def np_all4_():\n from numpy import ones,all\n return ones(10).reshape(2,5).all(0)", np_all4_=[])
+
+    def test_all5_(self):
+        self.run_test("def np_all5_():\n from numpy import arange,all\n return arange(10).all(0)", np_all5_=[])
 
     def test_transpose_(self):
         self.run_test("def np_transpose_():\n from numpy import arange,transpose\n return arange(24).reshape(2,3,4).transpose()", np_transpose_=[])
@@ -292,7 +333,6 @@ class TestNumpy(TestEnv):
 
     def test_arctan21(self):
         self.run_test("def np_arctan21(): from numpy import arctan2 ; a, b = 1., .5 ; return arctan2(a , b)", np_arctan21=[])
-    pass
 
 #automatic generation of basic test cases for ufunc
 binary_ufunc = (

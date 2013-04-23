@@ -61,25 +61,22 @@ namespace pythonic {
 
     /* ndarray */
 
-    bool table_modulo(int comp, int val)
-    {
-        return val%comp!=0;
-    }   
- 
-    template<class T, unsigned long N>
+    template<class T, size_t N>
         std::ostream& operator<<(std::ostream& os, core::ndarray<T,N> const& e)
         {
             std::array<long, N> strides;
-            strides[N-1] = (*e.shape)[N-1];
+            auto shape = e.shape;
+            strides[N-1] = shape[N-1];
             if(strides[N-1]==0)
                 return os << "[]";
-            std::transform(strides.rbegin(), strides.rend() -1, e.shape->rbegin() + 1, strides.rbegin() + 1, std::multiplies<long>());
-            int depth = N;
+            std::transform(strides.rbegin(), strides.rend() -1, shape.rbegin() + 1, strides.rbegin() + 1, std::multiplies<long>());
+            size_t depth = N;
             int step = -1;
             std::ostringstream oss;
-            oss << (*std::max_element(e.data->data, e.data->data+ std::accumulate(e.shape->begin(), e.shape->end(), 1, std::multiplies<long>()))); 
+            auto e_count = e.size();
+            oss << *std::max_element(e.buffer, e.buffer+ e_count);
             int size = oss.str().length();
-            T* iter = e.data->data + *e.offset_data;
+            T* iter = e.buffer;
             int max_modulo = 1000;
 
             os << "[";
@@ -88,23 +85,23 @@ namespace pythonic {
                 {
                     os.width(size);
                     os << *iter++;
-                    for(int i=1; i<(*e.shape)[N-1]; i++)
+                    for(int i=1; i<shape[N-1]; i++)
                     {
                         os.width(size+1);
                         os << *iter++;
                     }
                     step = 1;
                     depth++;
-                    max_modulo = std::lower_bound(strides.begin(), strides.end(), iter - e.data->data, table_modulo) - strides.begin();
+                    max_modulo = std::lower_bound(strides.begin(), strides.end(), iter - e.buffer, [](int comp, int val){ return val%comp!=0; }) - strides.begin();
                 }
                 else if(max_modulo + depth == N + 1)
                 {
                     depth--;
                     step = -1;
                     os << "]";
-                    for(int i=0;i<depth;i++)
+                    for(size_t i=0;i<depth;i++)
                         os << std::endl;
-                    for(int i=0;i<N-depth;i++)
+                    for(size_t i=0;i<N-depth;i++)
                         os << " ";
                     os << "[";
                 }

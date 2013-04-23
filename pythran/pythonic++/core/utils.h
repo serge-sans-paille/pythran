@@ -135,6 +135,52 @@ namespace pythonic {
     template<typename T, typename... Iters>
         struct min_iterator<T, Iters...> {typedef typename std::conditional<std::is_same<typename T::iterator_category, std::forward_iterator_tag>::value, std::forward_iterator_tag, typename pythonic::min_iterator<Iters...>::type >::type type;};
 
+    /* compute nested container depth and memory size*/
+    template<class T>
+        struct nested_container_depth {
+            static const int value = 1 + nested_container_depth<
+                typename std::conditional<
+                    is_iterable<T>::value,
+                    typename std::conditional<
+                        std::is_scalar<typename T::value_type>::value,
+                        bool,
+                        typename T::value_type
+                    >::type,
+                    bool
+                >::type
+            >::value;
+        };
+    template<>
+        struct nested_container_depth<bool> {
+            static const int value = 0;
+        };
+
+    template<class T>
+        struct nested_container_size {
+            typedef typename std::remove_cv<typename std::remove_reference<T>::type>::type Type;
+            size_t operator()(T const& t) {
+                return t.size()
+                    *
+                    nested_container_size<
+                    typename std::conditional<
+                        std::is_scalar<typename Type::value_type>::value,
+                        bool,
+                        typename Type::value_type
+                    >::type>()(*t.begin());
+            }
+        };
+    template<>
+        struct nested_container_size<bool> {
+            size_t operator()(bool) { return 1; }
+        };
+    template<class T, bool end=0>
+        struct nested_container_value_type {
+            typedef typename nested_container_value_type<typename T::value_type, std::is_scalar<typename T::value_type>::value >::type type;
+        };
+    template<class T>
+        struct nested_container_value_type<T,true> {
+            typedef T type;
+        };
 
 
 }

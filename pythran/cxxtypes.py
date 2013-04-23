@@ -273,16 +273,18 @@ class IteratorContentType(DependentType):
     Type of an iterator over the content of a container
 
     >>> IteratorContentType(NamedType('string'))
-    typename std::remove_cv<typename string::iterator::value_type>::type
+    typename std::remove_cv<typename \
+std::iterator_traits<typename string::iterator>::value_type>::type
     '''
 
     def generate(self, ctx):
         iterator_value_type = ctx(self.of).generate(ctx)
         tn = 'typename '
+        trait = 'typename std::iterator_traits<{0}{1}::iterator>::value_type'
         return 'typename std::remove_cv<{0}>::type'.format(
-            '{0}{1}::iterator::value_type'.format(
-                tn * (not iterator_value_type.startswith(tn)),
-                iterator_value_type)
+                trait.format(
+                    tn * (not iterator_value_type.startswith(tn)),
+                    iterator_value_type)
             )
 
 

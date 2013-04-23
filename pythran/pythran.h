@@ -43,7 +43,7 @@ template<class T>
 struct assignable<pythonic::core::list<T> >{
     typedef pythonic::core::list<typename assignable<T>::type > type;
 };
-#if 0
+
 template<class Op, class Arg0, class Arg1>
 struct assignable<pythonic::core::numpy_expr<Op, Arg0, Arg1>>
 {
@@ -54,7 +54,7 @@ struct assignable<pythonic::core::numpy_uexpr<Op, Arg0>>
 {
     typedef pythonic::core::ndarray<typename pythonic::core::numpy_uexpr<Op, Arg0>::value_type, pythonic::core::numpy_uexpr<Op, Arg0>::value> type;
 };
-#endif
+
 
 template<class T>
 struct content_of {
@@ -1156,8 +1156,7 @@ template<class T, size_t N>
 struct custom_array_to_ndarray {
     static PyObject* convert( core::ndarray<T,N> const& n) {
         const_cast<core::ndarray<T,N>&>(n).mem.forget();
-        auto shape = n.shape();
-        PyObject* result = PyArray_SimpleNewFromData(N, const_cast<long*>(shape.get_data().data()), c_type_to_numpy_type<T>::value, n.buffer);
+        PyObject* result = PyArray_SimpleNewFromData(N, const_cast<long*>(n.shape.get_data().data()), c_type_to_numpy_type<T>::value, n.buffer);
         if (!result)
             return nullptr;
         return result;

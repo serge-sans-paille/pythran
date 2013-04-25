@@ -49,6 +49,7 @@ namespace pythonic {
                         imap_iterator_data<Op, L0, It...>& operator++() {
                             ++iter;
                             ++rec_iters;
+                            return *this;
                         }
 
                     };
@@ -398,8 +399,8 @@ namespace pythonic {
 
         template <typename Iterable>
             struct islice_iterator : std::iterator< typename Iterable::iterator_category, typename Iterable::value_type > {
-                __builtin__::xrange_iterator state;
                 Iterable iterable;
+                __builtin__::xrange_iterator state;
                 __builtin__::xrange_iterator::value_type prev;
 
                 islice_iterator() {}

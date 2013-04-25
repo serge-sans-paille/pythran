@@ -5,6 +5,14 @@
 #include <cmath>
 #include <cstdint>
 
+#define NUMPY_EXPR_TO_NDARRAY0(fname)\
+    template<class T, class... Types>\
+        auto fname(T&& expr, Types... others)\
+            -> decltype(fname(typename core::numpy_expr_to_ndarray<T>::type(std::forward<T>(expr)), std::forward<Types>(others)...))\
+    {\
+        return fname(typename core::numpy_expr_to_ndarray<T>::type(std::forward<T>(expr)), std::forward<Types>(others)...);\
+    }
+
 namespace pythonic {
     namespace numpy {
 
@@ -86,13 +94,12 @@ namespace pythonic {
            {
                typedef decltype(begin+end+step) R;
                size_t size = std::max(R(0), R(std::ceil((end - begin)/step)));
-               core::ndarray<R, 1> a(core::make_tuple(size), None);
+               core::ndarray<R, 1> a(core::make_tuple((long)size), None);
                if(size)
                {
                    auto prev = a.begin(),
                         end = a.end();
                    *prev = begin;
-                   auto iter = prev + 1;
                    for(auto iter = prev + 1; iter!=end; ++iter) {
                        *iter = *prev + step;
                        prev = iter;
@@ -120,11 +127,13 @@ namespace pythonic {
                return expr.reshape(core::make_tuple(std::forward<S>(s)...));
            }
 
+       NUMPY_EXPR_TO_NDARRAY0(reshape);
+
        PROXY(pythonic::numpy, reshape);
 
        template<class T, size_t N, class dtype=T>
            core::ndarray<dtype,1> cumsum(core::ndarray<T,N> const& expr, dtype d = dtype()) {
-               size_t count = expr.size();
+               long count = expr.size();
                core::ndarray<dtype,1> cumsumy(core::make_tuple(count), None);
                std::partial_sum(expr.buffer, expr.buffer + count, cumsumy.buffer);
                return cumsumy;
@@ -139,10 +148,9 @@ namespace pythonic {
 
        template<class T, size_t N, class dtype=T>
            core::ndarray<dtype,N> cumsum(core::ndarray<T,N> const& expr, long axis, dtype d = dtype()) {
-               if(axis<0 || axis >=N)
+               if(axis<0 || axis >=long(N))
                    throw __builtin__::ValueError("axis out of bounds");
 
-               size_t count = expr.size();
                auto shape = expr.shape;
                core::ndarray<dtype,N> cumsumy(shape, None);
                if(axis==0) {
@@ -173,7 +181,7 @@ namespace pythonic {
        template<class T, size_t N>
             typename core::ndarray<T,N>::value_type sum( core::ndarray<T,N> const& array, long axis)
             {
-                if(axis<0 || axis >=N)
+                if(axis<0 || axis >=long(N))
                     throw __builtin__::ValueError("axis out of bounds");
                 auto shape = array.shape;
                 if(axis==0)
@@ -182,7 +190,7 @@ namespace pythonic {
                 }
                 else
                 {
-                    core::ltuple<double, N-1> shp(N-1);
+                    core::ltuple<long, N-1> shp;
                     std::copy(shape.begin(), shape.end() - 1, shp.begin());
                     core::ndarray<T,N-1> sumy(shp, None);
                     std::transform(array.begin(), array.end(), sumy.begin(), [=](core::ndarray<T,N-1> const& other) {return sum(other, axis-1);});
@@ -218,12 +226,12 @@ namespace pythonic {
        template<class T, size_t N>
            typename core::ndarray<T,N>::value_type min(core::ndarray<T,N> const& array, long axis)
            {
-               if(axis<0 || axis >=N)
+               if(axis<0 || axis >=long(N))
                    throw __builtin__::ValueError("axis out of bounds");
                auto shape = array.shape;
                if(axis==0)
                {
-                   core::ltuple<double, N-1> shp(N-1);
+                   core::ltuple<long, N-1> shp;
                    size_t size = 1;
                    for(auto i= shape.begin() + 1, j = shp.begin(); i<shape.end(); i++, j++)
                         size*=(*j = *i);
@@ -243,7 +251,7 @@ namespace pythonic {
                }
                else
                {
-                   core::ltuple<double, N-1> shp(N-1);
+                   core::ltuple<long, N-1> shp;
                    std::copy(shape.begin(), shape.end() - 1, shp.begin());
                    core::ndarray<T,N-1> miny(shp, None);
                    std::transform(array.begin(), array.end(), miny.begin(), [=](core::ndarray<T,N-1> const& other) {return min(other, axis-1);});
@@ -253,12 +261,12 @@ namespace pythonic {
        template<class T, size_t N>
            typename core::ndarray<T,N>::value_type max(core::ndarray<T,N> const& array, long axis)
            {
-               if(axis<0 || axis >=N)
+               if(axis<0 || axis >=long(N))
                    throw __builtin__::ValueError("axis out of bounds");
                auto shape = array.shape;
                if(axis==0)
                {
-                   core::ltuple<double, N-1> shp(N-1);
+                   core::ltuple<long, N-1> shp;
                    size_t size = 1;
                    for(auto i= shape.begin() + 1, j = shp.begin(); i<shape.end(); i++, j++)
                         size*=(*j = *i);
@@ -278,7 +286,7 @@ namespace pythonic {
                }
                else
                {
-                   core::ltuple<double, N-1> shp(N-1);
+                   core::ltuple<long, N-1> shp;
                    std::copy(shape.begin(), shape.end() - 1, shp.begin());
                    core::ndarray<T,N-1> miny(shp, None);
                    std::transform(array.begin(), array.end(), miny.begin(), [=](core::ndarray<T,N-1> const& other) {return max(other, axis-1);});
@@ -306,12 +314,12 @@ namespace pythonic {
        template<class T, size_t N>
             typename core::ndarray<T,N>::value_type all( core::ndarray<T,N> const& array, long axis)
             {
-                if(axis<0 || axis >=N)
+                if(axis<0 || axis >=long(N))
                     throw __builtin__::ValueError("axis out of bounds");
                 auto shape = array.shape;
                 if(axis==0)
                 {
-                    core::ltuple<double, N-1> shp(N-1);
+                    core::ltuple<long, N-1> shp;
                     size_t size = 1;
                     for(auto i= shape.begin() + 1, j = shp.begin(); i<shape.end(); i++, j++)
                         size*=(*j = *i);
@@ -331,7 +339,7 @@ namespace pythonic {
                 }
                 else
                 {
-                    core::ltuple<double, N-1> shp(N-1);
+                    core::ltuple<long, N-1> shp;
                     std::copy(shape.begin(), shape.end() - 1, shp.begin());
                     core::ndarray<T,N-1> ally(shp, None);
                     std::transform(array.begin(), array.end(), ally.begin(), [=](core::ndarray<T,N-1> const& other) {return all(other, axis-1);});
@@ -345,7 +353,7 @@ namespace pythonic {
             core::ndarray<T,N> _transpose(core::ndarray<T,N> const & a, long const l[N])
             {
                 auto shape = a.shape;
-                core::ltuple<long, N> shp(N);
+                core::ltuple<long, N> shp;
                 for(unsigned long i=0; i<N; i++)
                     shp[i] = shape[l[i]];
 
@@ -361,7 +369,6 @@ namespace pythonic {
 
                 auto iter = a.buffer,
                      iter_end = a.buffer + a.size();
-                long i = 0;
                 for(long i=0; iter!=iter_end; ++iter, ++i) {
                     long offset = 0;
                     for(unsigned long s=0; s<N; s++)
@@ -386,11 +393,12 @@ namespace pythonic {
                 static_assert(N==M, "axes don't match array");
 
                 long val = t[M-1];
-                if(val>=N)
+                if(val>=long(N))
                     throw __builtin__::ValueError("invalid axis for this array");
                 return _transpose(a, &t[0]);
             }
 
+        NUMPY_EXPR_TO_NDARRAY0(transpose);
         PROXY(pythonic::numpy, transpose);
 #if 0
         template<class... T, class type>
@@ -503,6 +511,8 @@ namespace pythonic {
 
         NP_PROXY_OP(divide);
 
+        NP_PROXY_ALIAS(empty_like, pythonic::numpy_expr::ops::empty_like);
+
         NP_PROXY_OP(equal);
 
         NP_PROXY(exp);
@@ -577,6 +587,8 @@ namespace pythonic {
 
         NP_PROXY_OP(not_equal);
 
+        NP_PROXY_ALIAS(ones_like, pythonic::numpy_expr::ops::ones_like);
+
         NP_PROXY_ALIAS(power, nt2::pow);
 
         NP_PROXY_ALIAS(rad2deg, nt2::indeg);
@@ -614,6 +626,8 @@ namespace pythonic {
         NP_PROXY_ALIAS(true_divide, pythonic::numpy_expr::ops::divide); 
 
         NP_PROXY(trunc);
+
+        NP_PROXY_ALIAS(zeros_like, pythonic::numpy_expr::ops::zeros_like);
 
 #undef NP_PROXY
 #undef NAMED_OPERATOR

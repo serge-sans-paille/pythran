@@ -7,8 +7,8 @@
 #include <initializer_list>
 #include "shared_ref.h"
 
-#include <boost/simd/sdk/simd/native.hpp>
 #ifdef __AVX__
+#include <boost/simd/sdk/simd/native.hpp>
 #include <boost/simd/include/functions/unaligned_load.hpp>
 #include <boost/simd/include/functions/unaligned_store.hpp>
 #include <boost/simd/include/functions/load.hpp>
@@ -199,7 +199,6 @@ namespace  pythonic {
                 core::ltuple<long, N1> const & shape() const { return a1.shape; }
             };
 
-#if 0
         template <class Expr>
             struct numpy_expr_to_ndarray;
 
@@ -216,7 +215,6 @@ namespace  pythonic {
                 static const size_t N = std::tuple_size< typename std::remove_cv<typename std::remove_reference< decltype(std::declval<numpy_expr<Op, Arg0, Arg1>>().shape()) >::type > ::type > ::value;
                 typedef core::ndarray<T, N> type;
             };
-#endif
 
         template<class T>
             class raw_array {
@@ -277,10 +275,11 @@ namespace  pythonic {
                         auto content_iter = self.data.begin();
                         for(auto & iterable_content : iterable)
                             offset += type_helper<ndarray<T,N-1>>::initialize_from_iterable(*content_iter++, shared, mem_iter + offset, iterable_content);
+                        self.shape = get_shape(self);
                         return offset;
                     }
                 template<class ShapeIterator>
-                    static long initialize_from_shape(ndarray<T,N>& self, memory& shared, T* mem_iter, ShapeIterator& shape_iterator) {
+                    static long initialize_from_shape(ndarray<T,N>& self, memory& shared, T* mem_iter, ShapeIterator shape_iterator) {
                         self.mem = shared;
                         self.data_size = *shape_iterator;
                         self.data.resize(self.data_size);
@@ -289,6 +288,7 @@ namespace  pythonic {
                         long offset = 0;
                         for(auto & content : self.data)
                             offset += type_helper<ndarray<T,N-1>>::initialize_from_shape(content, shared, mem_iter + offset, next_shape_iterator);
+                        self.shape = get_shape(self);
                         return offset;
                     }
             };
@@ -312,14 +312,16 @@ namespace  pythonic {
                         self.data_size = iterable.size();
                         self.buffer = mem_iter;
                         auto data_end = std::copy(iterable.begin(), iterable.end(), self.data);
+                        self.shape = get_shape(self);
                         return data_end - self.data;
                     }
                 template<class ShapeIterator>
-                    static long initialize_from_shape(ndarray<T,1>& self, memory& shared, T* mem_iter, ShapeIterator& shape_iterator) {
+                    static long initialize_from_shape(ndarray<T,1>& self, memory& shared, T* mem_iter, ShapeIterator shape_iterator) {
                         self.mem = shared;
                         self.data = mem_iter;
                         self.data_size = *shape_iterator;
                         self.buffer = mem_iter;
+                        self.shape = get_shape(self);
                         return self.data_size;
                     }
             };
@@ -369,7 +371,7 @@ namespace  pythonic {
 
         template<class T, size_t N>
             ltuple<long, N> get_shape( ndarray<T,N> const& array) {
-                ltuple<long, N> v(N);
+                ltuple<long, N> v;
                 _get_shape<T,N>()(array, v.begin());
                 return v;
             }
@@ -392,23 +394,33 @@ namespace  pythonic {
                 ltuple<long, N> shape;
 
                 /* constructors */
-                ndarray() : data_size(0), mem(impl::no_memory()), data(), buffer(nullptr) {}
+                ndarray() : data_size(0), mem(impl::no_memory()), data(), buffer(nullptr), shape() {}
 
+                /* copy */
+                ndarray(ndarray<T,N> const& other) :
+                    data_size(other.data_size),
+                    mem(other.mem),
+                    data(other.data),
+                    buffer(other.buffer),
+                    shape(other.shape)
+                {
+                }
 
                 /* from a sequence */
                 template<class Iterable>
                     ndarray(Iterable&& iterable, typename std::enable_if< // prevent destruction of copy constructor
                             !std::is_same<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type, ndarray<T,N>>::value
                             and
-                            !is_numpy_expr<Iterable>::value,
+                            !is_numpy_expr<Iterable>::value
+                            and
+                            is_iterable<Iterable>::value,
                             bool>::type = false):
                         data_size(0),
                         mem(nested_container_size<Iterable>()(std::forward<Iterable>(iterable))),
                         data(),
-                        shape(N)
+                        shape()
                 {
                     type_helper<ndarray<T,N>>::initialize_from_iterable(*this, mem, mem->data, std::forward<Iterable>(iterable));
-                    shape = get_shape(*this);
                 }
 
                 /* from a shape */
@@ -434,7 +446,7 @@ namespace  pythonic {
                         shape(shape)
                 {
                     auto shape_iterator = shape.begin();
-                    long offset = type_helper<ndarray<T,N>>::initialize_from_shape(*this, mem, mem->data, shape_iterator);
+                    type_helper<ndarray<T,N>>::initialize_from_shape(*this, mem, mem->data, shape_iterator);
                 }
 
                 /* from a foreign pointer */
@@ -445,7 +457,7 @@ namespace  pythonic {
                     shape(shape, shape + N)
                 {
                     mem.external(); // make sure we do not releas the pointer
-                    auto shape_iterator = shape;
+                    auto shape_iterator = this->shape.begin();
                     type_helper<ndarray<T,N>>::initialize_from_shape(*this, mem, mem->data, shape_iterator);
                 }
 
@@ -454,10 +466,10 @@ namespace  pythonic {
                     void initialize_from_expr(E const & expr) {
                         long n = expr.size();
                         T* iter = buffer;
-                        typedef typename boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION> vT;
-                        static const std::size_t vN = boost::simd::meta::cardinal_of< vT >::value;
                         long i;
 #ifdef __AVX__
+                        typedef typename boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION> vT;
+                        static const std::size_t vN = boost::simd::meta::cardinal_of< vT >::value;
                         const long bound = n/vN*vN;
 #else
                         const long bound = n/8*8;
@@ -491,7 +503,7 @@ namespace  pythonic {
                         shape(expr.shape())
                 {
                     auto shape_iterator = shape.begin();
-                    long offset = type_helper<ndarray<T,N>>::initialize_from_shape(*this, mem, mem->data, shape_iterator);
+                    type_helper<ndarray<T,N>>::initialize_from_shape(*this, mem, mem->data, shape_iterator);
                     initialize_from_expr(expr);
                 }
 
@@ -503,21 +515,23 @@ namespace  pythonic {
                         shape(expr.shape())
                 {
                     auto shape_iterator = shape.begin();
-                    long offset = type_helper<ndarray<T,N>>::initialize_from_shape(*this, mem, mem->data, shape_iterator);
+                    type_helper<ndarray<T,N>>::initialize_from_shape(*this, mem, mem->data, shape_iterator);
                     initialize_from_expr(expr);
                 }
 
                 /* assignment */
                 ndarray<T,N>& operator=(ndarray<T,N> const& other) {
-                    if(data_size == other.data_size) // maybe a subarray copy ?
+                    if(data_size == other.data_size) { // maybe a subarray copy ?
+                        data_size = other.data_size;
                         std::copy(other.begin(), other.end(), begin());
-                    else { // just an init ?
+                    }
+                    else {
                         data_size = other.data_size;
                         mem = other.mem;
                         data = other.data;
                         buffer = other.buffer;
+                        shape = other.shape;
                     }
-                    shape = get_shape(*this);
                     return *this;
                 }
 

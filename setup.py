@@ -26,10 +26,12 @@ class TestCommand(Command):
     '''Scan the test directory for any tests, and run them.'''
 
     description = 'run the test suite for the package'
-    user_options = [('failfast', None, 'Stop upon first fail')]
+    user_options = [('failfast', None, 'Stop upon first fail'),
+                    ('cov', None, 'Perform coverage analysis')]
 
     def initialize_options(self):
         self.failfast = False
+        self.cov = False
 
     def finalize_options(self):
         pass
@@ -44,6 +46,15 @@ class TestCommand(Command):
             args = ["-n", str(cpu_count), where]
             if self.failfast:
                 args.insert(0, '-x')
+            if self.cov:
+                try:
+                    import pytest_cov
+                    args = ["--cov-report", "html",
+                            "--cov-report", "annotate",
+                            "--cov", "pythran"] + args
+                except ImportError:
+                    print ("W: Skipping coverage analysis, pytest_cov"
+                            "not found")
             py.test.cmdline.main(args)
         except ImportError:
             print ("W: Using only one thread, "

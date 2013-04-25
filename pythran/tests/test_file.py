@@ -75,8 +75,7 @@ def file_close(filename):
 	f.close()
 	try: 
 		f.write("q")
-	except:
-		return""", filename, file_close=[str])
+	except:pass""", filename, file_close=[str])
 
     def test_read(self):
             self.tempfile()
@@ -125,7 +124,7 @@ def file_close(filename):
     def test_fileno(self):
             self.tempfile()
             # Useless to check if same fileno, just checking if fct can be called
-            self.run_test("""def _fileno(filename):\n f=file(filename)\n a=f.fileno()\n return""", self.filename, _fileno=[str])
+            self.run_test("""def _fileno(filename):\n f=file(filename)\n a=f.fileno()\n return a!= 0""", self.filename, _fileno=[str])
 
     def test_isatty(self):
             self.tempfile()

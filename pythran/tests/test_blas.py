@@ -2,11 +2,13 @@ from test_env import TestEnv
 
 class TestBlas(TestEnv):
 
-    def test_matrix_multiply(self):
+    def test_naive_matrix_multiply(self):
         code="""
-def zero(n,m): return [[0 for row in xrange(n)] for col in xrange(m)]
 def matrix_multiply(m0, m1):
-    new_matrix = zero(len(m0),len(m1[0]))
+    new_matrix = []
+    for i in xrange(len(m0)):
+        new_matrix.append([0]*len(m1[0]))
+
     for i in xrange(len(m0)):
         for j in xrange(len(m1[0])):
             for k in xrange(len(m1)):

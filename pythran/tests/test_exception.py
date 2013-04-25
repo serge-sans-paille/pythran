@@ -147,10 +147,10 @@ class TestException(TestEnv):
         self.run_test("def UnicodeError_():\n try: raise UnicodeError('a','b','c')\n except UnicodeError as e: return e.args", UnicodeError_=[])
 
     def test_multiple_exception(self):
-        self.run_test("def multiple_exception_():\n try:\n  raise OverflowError('a','b','c')\n except IOError:\n  a=2\n except OverflowError as e:\n  return e.args", multiple_exception_=[])
+        self.run_test("def multiple_exception_():\n try:\n  raise OverflowError('a','b','c')\n except IOError as e:\n  a=2 ; print a ; return e.args\n except OverflowError as e:\n  return e.args", multiple_exception_=[])
 
     def test_multiple_tuple_exception(self):
-        self.run_test("def multiple_tuple_exception_():\n try:\n  raise OverflowError('a','b','c')\n except (IOError, OSError):\n  a=3\n except OverflowError as e:\n  return e.args", multiple_tuple_exception_=[])
+        self.run_test("def multiple_tuple_exception_():\n try:\n  raise OverflowError('a','b','c')\n except (IOError, OSError):\n  a=3;print a\n except OverflowError as e:\n  return e.args", multiple_tuple_exception_=[])
 
     def test_reraise_exception(self):
         self.run_test("def reraise_exception_():\n try:\n  raise OverflowError('a','b','c')\n except IOError:\n  raise\n except:  return 'ok'", reraise_exception_=[])
@@ -159,19 +159,19 @@ class TestException(TestEnv):
         self.run_test("def raiseinst_exception_():\n try:\n  raise OverflowError, ('a','b','c')\n except OverflowError as e:\n  return e.args", raiseinst_exception_=[])
 
     def test_else2_exception(self):
-        self.run_test("def else2_exception_():\n try:\n  raise 1\n  return 'bad'\n except:\n  a=2\n else:\n  return 'ok'\n return 'bad2'", else2_exception_=[])
+        self.run_test("def else2_exception_():\n try:\n  raise 1\n  return 0,'bad'\n except:\n  a=2\n else:\n  return 0,'bad2'\n return a,'ok'", else2_exception_=[])
 
     def test_else_exception(self):
-        self.run_test("def else_exception_():\n try:\n  a=2\n except:\n  return 'bad'\n else:\n  return 'ok'\n return 'bad2'", else_exception_=[])
+        self.run_test("def else_exception_():\n try:\n  a=2\n except:\n  return 0,'bad'\n else:\n  return a,'ok'\n return 0,'bad2'", else_exception_=[])
 
     def test_enverror_exception(self):
         self.run_test("def enverror_exception_():\n try:\n  raise EnvironmentError('a','b','c')\n except EnvironmentError as e:\n  return (e.errno,e.strerror,e.filename)", enverror_exception_=[])
 
     def test_finally_exception(self):
-        self.run_test("def finally_exception_():\n try:\n  a=2\n except:\n  return 'bad'\n finally:\n  return 'good'", finally_exception_=[])
+        self.run_test("def finally_exception_():\n try:\n  a=2\n except:\n  return 0,'bad'\n finally:\n  return a,'good'", finally_exception_=[])
 
     def test_finally2_exception(self):
-        self.run_test("def finally_exception_():\n try:\n  raise 1\n  return 'bad'\n except:\n  a=2\n finally:\n  return 'good'", finally_exception_=[])
+        self.run_test("def finally_exception_():\n try:\n  raise 1\n  return 0,'bad'\n except:\n  a=2\n finally:\n  return a,'good'", finally_exception_=[])
 
     def test_str1_exception(self):
         self.run_test("def str1_exception_():\n try:\n  raise EnvironmentError('a')\n except EnvironmentError as e:\n  return str(e)", str1_exception_=[])

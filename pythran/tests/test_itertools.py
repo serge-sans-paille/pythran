@@ -75,7 +75,7 @@ def ifiltern_(l0):
   s = 0
   for b in (ifilter(None, l0)):
     s += 1
-  return s
+  return b,s
 """, [True,False,True,True], ifiltern_=[[bool]])  
 
     def test_product(self):

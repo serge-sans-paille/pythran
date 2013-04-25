@@ -11,7 +11,8 @@ class TestEnv(unittest.TestCase):
     """
 
     # default options used for the c++ compiler
-    PYTHRAN_CXX_FLAGS = ["-O0", "-fno-implicit-inline-templates", "-fopenmp"]
+    PYTHRAN_CXX_FLAGS = ["-O0", "-fno-implicit-inline-templates", "-fopenmp",
+            '-Wall', '-Wno-unknown-pragmas']
 
     def assertAlmostEqual(self, ref, res):
         if hasattr(ref, '__iter__'):

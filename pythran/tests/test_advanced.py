@@ -127,7 +127,7 @@ def combiner_on_empty_list():
         self.run_test('def dict_comprehension_with_tuple(n): return { x:y for x,y in zip(range(n), range(1+n)) }', 10, dict_comprehension_with_tuple=[int])
 
     def test_nested_comprehension_with_tuple(self):
-        self.run_test('def nested_comprehension_with_tuple(l): return [[ 1 for x,y in sqrpoints ] for sqrpoints in l]', [[(x,x)]*5 for x in range(10)], nested_comprehension_with_tuple=[[[(int,int)]]])
+        self.run_test('def nested_comprehension_with_tuple(l): return [[ x+y for x,y in sqrpoints ] for sqrpoints in l]', [[(x,x)]*5 for x in range(10)], nested_comprehension_with_tuple=[[[(int,int)]]])
 
     def test_hashable_tuple(self):
         self.run_test('def hashable_tuple(): return { (1,"e", 2.5) : "r" }', hashable_tuple=[])

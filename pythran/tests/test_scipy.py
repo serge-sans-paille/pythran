@@ -30,10 +30,12 @@ def iterative_fibonnaci(a):
     if a <= 2:
         return 1
     last = next_to_last = 1
-    for i in range(2,a):
+    i = 2
+    while i < a:
         result = last + next_to_last
         next_to_last = last
         last = result
+        i+=1
     return result;
 """
         self.run_test(code, 5, iterative_fibonnaci=[int])

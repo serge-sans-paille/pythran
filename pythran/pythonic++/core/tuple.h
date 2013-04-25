@@ -52,7 +52,7 @@ namespace pythonic {
             c[0]=std::get<0>(t);
         }
 
-    template<class Tuple, class Container, int I>
+    template<class Tuple, class Container, size_t I>
         void tuple_dump(Tuple const& t, Container& c, int_<I>) {
             c[I]=std::get<I>(t);
             tuple_dump(t,c, int_<I-1>());
@@ -65,14 +65,21 @@ namespace pythonic {
 
     namespace core {
 
-        template<class T>
-            struct ltuple : list<T> {
-                template<class... Types>
-                    ltuple(Types&&... types) : list<T>(std::forward<Types>(types)...) {
-                    }
-
+        template<class T, size_t N>
+            struct ltuple : public list<T> {
                 ltuple(std::initializer_list<T> l) : list<T>(std::move(l)) {
                 }
+                ltuple() : list<T>(N) {
+                }
+                ltuple(ltuple<T,N> const& l) : list<T>(l) {
+                }
+                ltuple(ltuple<T,N> & l) : list<T>(l) {
+                }
+                template<class Iter>
+                ltuple(Iter b, Iter e): list<T>(b,e) {
+                }
+
+
             };
 
         template<class... Types>
@@ -100,9 +107,9 @@ namespace pythonic {
             };
         template<class... Types>
             struct _make_tuple<true, Types...> {
-                ltuple<typename are_same<Types...>::type> operator()(Types... types) {
+                ltuple<typename are_same<Types...>::type, sizeof...(Types)> operator()(Types... types) {
                     typedef typename are_same<Types...>::type T;
-                    return ltuple<T>({types...});
+                    return ltuple<T, sizeof...(Types)>({types...});
                 }
             };
 
@@ -114,14 +121,18 @@ namespace pythonic {
 }
 /* specialize std::get */
 namespace std {
-    template <size_t I, class T>
-        typename pythonic::core::ltuple<T>::reference get( pythonic::core::ltuple<T>& t) { return t[I]; }
-    template <size_t I, class T>
-        typename pythonic::core::ltuple<T>::const_reference get( pythonic::core::ltuple<T> const & t) { return t[I]; }
+    template <size_t I, class T, size_t N>
+        typename pythonic::core::ltuple<T,N>::reference get( pythonic::core::ltuple<T,N>& t) { return t[I]; }
+    template <size_t I, class T, size_t N>
+        typename pythonic::core::ltuple<T,N>::const_reference get( pythonic::core::ltuple<T,N> const & t) { return t[I]; }
 
-    template <size_t I, class T>
-        struct tuple_element<I, pythonic::core::ltuple<T> > {
-            typedef typename pythonic::core::ltuple<T>::value_type type;
+    template <size_t I, class T, size_t N>
+        struct tuple_element<I, pythonic::core::ltuple<T,N> > {
+            typedef typename pythonic::core::ltuple<T,N>::value_type type;
+        };
+    template<class T, size_t N>
+        struct tuple_size<pythonic::core::ltuple<T,N>> {
+            static const size_t value = N;
         };
 }
 /* specialize std::hash */
@@ -133,9 +144,9 @@ namespace std {
                 return hash_impl<begin, Types...>()(1, t); //1 should be some largervalue
             }
         };
-    template<class T>
-        struct hash<pythonic::core::ltuple<T>> {
-            size_t operator()(pythonic::core::ltuple<T> const& l) const {
+    template<class T, size_t N>
+        struct hash<pythonic::core::ltuple<T,N>> {
+            size_t operator()(pythonic::core::ltuple<T,N> const& l) const {
                 size_t seed = 0;
                 hash<T> h;
                 for(auto const &iter: l) 

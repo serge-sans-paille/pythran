@@ -177,7 +177,7 @@ namespace pythonic {
                     return fmter.str();
                 }
             private:
-            template<class Tuple, int I>
+            template<class Tuple, size_t I>
                 void fmt(boost::format & f, Tuple const & a, int_<I>) const {
                     fmt(f % std::get<std::tuple_size<Tuple>::value-I>(a), a, int_<I-1>());
                 }

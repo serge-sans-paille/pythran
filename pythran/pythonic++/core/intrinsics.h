@@ -719,7 +719,7 @@ namespace pythonic {
                 return std::get<0>(t);
             }
 
-        template<class Tuple, int I>
+        template<class Tuple, size_t I>
             auto tuple_sum(Tuple const& t, int_<I>) -> typename std::remove_reference<decltype(std::get<I>(t))>::type {
                 return std::get<I>(t) + tuple_sum(t, int_<I-1>());
             }

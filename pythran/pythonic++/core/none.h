@@ -62,6 +62,12 @@ namespace pythonic {
     template <class T0, class T1>
         T0 operator+(none<T0> const& self, T1 const& other) { return self.data + other; }
 
+    template <class T0, class T1>
+         auto operator+(none<T0> const& self, none<T1> const& other)
+         -> decltype(none<decltype(self.data + other.data)>(self.data + other.data)) {
+             return none<decltype(self.data + other.data)>(self.data + other.data);
+         }
+
     /* for type inference only */
     template <class T>
         none<T> operator+(T ,none_type ); 

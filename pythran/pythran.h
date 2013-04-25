@@ -49,8 +49,8 @@ template<class T>
 struct content_of< std::tuple<T> > {
     typedef T type;
 };
-template<class T>
-struct content_of< core::ltuple<T> > {
+template<class T, size_t N>
+struct content_of< core::ltuple<T,N> > {
     typedef T type;
 };
 template<class T, class... Types>
@@ -125,12 +125,12 @@ template <class K0, class V0, class K1, class V1>
 core::dict<typename __combined<K0,K1>::type, typename __combined<V0, V1>::type > operator+(core::list<std::tuple<K1,V1>>, core::dict<K0,V0>);
 
 /* in case tuples were converted to list { */
-template <class T>
-core::dict<T, T> operator+(core::empty_dict , core::list<core::ltuple<T>> );
-template <class K0, class V0, class T>
-core::dict<typename __combined<K0,T>::type, typename __combined<V0, T>::type > operator+(core::dict<K0,V0> , core::list<core::ltuple<T>> );
-template <class K0, class V0, class T>
-core::dict<typename __combined<K0,T>::type, typename __combined<V0, T>::type > operator+(core::list<core::ltuple<T>>, core::dict<K0,V0>);
+template <class T, size_t N>
+core::dict<T, T> operator+(core::empty_dict , core::list<core::ltuple<T,N>> );
+template <class K0, class V0, class T, size_t N>
+core::dict<typename __combined<K0,T>::type, typename __combined<V0, T>::type > operator+(core::dict<K0,V0> , core::list<core::ltuple<T,N>> );
+template <class K0, class V0, class T, size_t N>
+core::dict<typename __combined<K0,T>::type, typename __combined<V0, T>::type > operator+(core::list<core::ltuple<T,N>>, core::dict<K0,V0>);
 /* } */
 
 template <class A>
@@ -182,10 +182,10 @@ template<class K, class... Types>
 std::tuple<Types...> operator+(indexable<K>, std::tuple<Types...>);
 template<class K, class... Types>
 std::tuple<Types...> operator+(std::tuple<Types...>, indexable<K>);
-template<class K, class T>
-core::ltuple<T>operator+(indexable<K>, core::ltuple<T>);
-template<class K, class T>
-core::ltuple<T> operator+(core::ltuple<T>, indexable<K>);
+template<class K, class T, size_t N>
+core::ltuple<T,N> operator+(indexable<K>, core::ltuple<T,N>);
+template<class K, class T, size_t N>
+core::ltuple<T,N> operator+(core::ltuple<T,N>, indexable<K>);
 template<class K>
 std::complex<double> operator+(indexable<K>, std::complex<double>);
 template<class K>
@@ -267,9 +267,9 @@ template<class T0, class T1>
 struct __combined<__builtin__::_iter<T0>, __builtin__::_iter<T1>> {
     typedef __builtin__::_iter<typename __combined<T0,T1>::type> type;
 };
-template<class T0, class T1>
-struct __combined<core::ltuple<T0>, core::ltuple<T1>> {
-    typedef core::ltuple<typename __combined<T0,T1>::type> type;
+template<class T0, class T1, size_t N0, size_t N1>
+struct __combined<core::ltuple<T0,N0>, core::ltuple<T1,N1>> {
+    typedef core::ltuple<typename __combined<T0,T1>::type, N0> type;
 };
 template<class... T0, class... T1>
 struct __combined<std::tuple<T0...>, std::tuple<T1...>> {
@@ -312,7 +312,10 @@ namespace std {
 
 /* attributes */
 template <int I, class T>
-struct attribute_element;
+struct attribute_element
+{
+    typedef T& type;
+};
 
 /* For files */
 
@@ -336,7 +339,6 @@ template<>
 template<>
     // Python seems to always return none... Doing the same.
     none_type getattr<3>(core::file const& f) {return None;}
-
 
 /* for complex numbers */
 template <int I, class T>
@@ -791,9 +793,9 @@ struct pythran_to_python< std::tuple<Types...> > {
     }
 };
 
-template<typename T>
+template<typename T, size_t N>
 struct custom_ltuple_to_tuple {
-    static PyObject* convert(core::ltuple<T> const & t) {
+    static PyObject* convert(core::ltuple<T,N> const & t) {
         size_t n = t.size();
         PyObject* obj = PyTuple_New(n);
         for(size_t i=0; i<n; ++i)
@@ -802,11 +804,11 @@ struct custom_ltuple_to_tuple {
     }
 };
 
-template<typename T>
-struct pythran_to_python< core::ltuple<T> > {
+template<typename T, size_t N>
+struct pythran_to_python< core::ltuple<T,N> > {
     pythran_to_python() {
         pythran_to_python<T>();
-        register_once<core::ltuple<T>, custom_ltuple_to_tuple<T>>();
+        register_once<core::ltuple<T,N>, custom_ltuple_to_tuple<T,N>>();
     }
 };
 
@@ -870,6 +872,7 @@ struct pythran_to_python< none<T> > {
         register_once<none<T>, custom_none_to_any<T>>();
     }
 };
+
 /* } */
 #endif
 

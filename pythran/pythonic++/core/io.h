@@ -126,7 +126,7 @@ namespace pythonic {
 
     /* tuple */
 
-    template<class Ch, class Tr, class Tuple, int I>
+    template<class Ch, class Tr, class Tuple, size_t I>
         void print_tuple(std::basic_ostream<Ch,Tr>& os, Tuple const& t, int_<I>){
             print_tuple(os, t, int_<I-1>());
             os << ", " << std::get<I>(t);

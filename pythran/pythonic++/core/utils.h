@@ -96,7 +96,7 @@ namespace pythonic {
         };
     /* } */
 
-    template<int> struct int_{}; // compile-time counter
+    template<size_t> struct int_{}; // compile-time counter
 
 
     template<typename... Types>

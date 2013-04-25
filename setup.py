@@ -49,7 +49,7 @@ class TestCommand(Command):
             print ("W: Using only one thread, "
                     "try to install pytest-xdist package")
             loader = TestLoader()
-            t = TextTestRunner()
+            t = TextTestRunner(failfast=self.failfast)
             t.run(loader.discover(where))
 
 

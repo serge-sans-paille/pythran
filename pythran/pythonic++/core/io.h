@@ -65,15 +65,15 @@ namespace pythonic {
         std::ostream& operator<<(std::ostream& os, core::ndarray<T,N> const& e)
         {
             std::array<long, N> strides;
-            auto shape = e.shape();
+            auto shape = e.shape;
             strides[N-1] = shape[N-1];
             if(strides[N-1]==0)
                 return os << "[]";
             std::transform(strides.rbegin(), strides.rend() -1, shape.rbegin() + 1, strides.rbegin() + 1, std::multiplies<long>());
-            int depth = N;
+            size_t depth = N;
             int step = -1;
             std::ostringstream oss;
-            auto e_count = e.count();
+            auto e_count = e.size();
             oss << *std::max_element(e.buffer, e.buffer+ e_count);
             int size = oss.str().length();
             T* iter = e.buffer;
@@ -99,9 +99,9 @@ namespace pythonic {
                     depth--;
                     step = -1;
                     os << "]";
-                    for(int i=0;i<depth;i++)
+                    for(size_t i=0;i<depth;i++)
                         os << std::endl;
-                    for(int i=0;i<N-depth;i++)
+                    for(size_t i=0;i<N-depth;i++)
                         os << " ";
                     os << "[";
                 }

@@ -92,6 +92,11 @@ namespace  pythonic {
                     return t0 == t1;
                 }
 
+            template<class T>
+                auto empty_like(T const&) -> decltype(T(0))/* prevents instanciation on a ndarray*/ {
+                    return T();
+                }
+
             template<class T0, class T1>
                 auto greater(T0 const& t0, T1 const& t1) -> decltype(t0 > t1) {
                     return t0 > t1;
@@ -162,6 +167,11 @@ namespace  pythonic {
                     return t0 != t1;
                 }
 
+            template<class T>
+                auto ones_like(T const&) -> decltype(T(1)) {
+                    return T(1);
+                }
+
             template<class T0, class T1>
                 auto right_shift(T0 const& t0, T1 const& t1) -> decltype(t0 >> t1) {
                     return t0 >> t1;
@@ -176,6 +186,10 @@ namespace  pythonic {
                     return t0 - t1;
                 }
 
+            template<class T>
+                auto zeros_like(T const&) -> decltype(T(0)) {
+                    return T(0);
+                }
 
         }
     }
@@ -308,6 +322,11 @@ namespace  pythonic {
 #define NUMPY_BINARY_FUNC_NAME equal
 #define NUMPY_BINARY_FUNC_SYM proxy::equal
 #include "numpy_binary_expr.h"
+
+            PROXY(pythonic::numpy_expr::ops, empty_like)
+#define NUMPY_UNARY_FUNC_NAME empty_like
+#define NUMPY_UNARY_FUNC_SYM proxy::empty_like
+#include "numpy_unary_expr.h"
 
             PROXY(nt2, exp)
 #define NUMPY_UNARY_FUNC_NAME exp
@@ -527,6 +546,11 @@ namespace  pythonic {
 #define NUMPY_BINARY_FUNC_SYM proxy::not_equal
 #include "numpy_binary_expr.h"
 
+            PROXY(pythonic::numpy_expr::ops, ones_like)
+#define NUMPY_UNARY_FUNC_NAME ones_like
+#define NUMPY_UNARY_FUNC_SYM proxy::ones_like
+#include "numpy_unary_expr.h"
+
             PROXY(nt2, pow)
 #define NUMPY_BINARY_FUNC_NAME power
 #define NUMPY_BINARY_FUNC_SYM proxy::pow
@@ -628,6 +652,10 @@ namespace  pythonic {
 #define NUMPY_BINARY_FUNC_SYM proxy::divide
 #include "numpy_binary_expr.h"
 
+            PROXY(pythonic::numpy_expr::ops, zeros_like)
+#define NUMPY_UNARY_FUNC_NAME zeros_like
+#define NUMPY_UNARY_FUNC_SYM proxy::zeros_like
+#include "numpy_unary_expr.h"
 
     }
 }

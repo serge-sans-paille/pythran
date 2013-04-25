@@ -444,6 +444,10 @@ template <class T, size_t N>
     struct attribute_element<0, pythonic::core::ndarray<T,N> > {
         typedef core::ltuple<long,N> type;
     };
+template <class Op, class Arg>
+    struct attribute_element<0, pythonic::core::numpy_uexpr<Op, Arg> > {
+        typedef core::ltuple<long, pythonic::core::numpy_uexpr<Op, Arg>::value> type;
+    };
 
 template <class T, size_t N>
     struct attribute_element<1, pythonic::core::ndarray<T,N> > {
@@ -483,7 +487,7 @@ template <class T, size_t N>
     {
         typename attribute_element<0,pythonic::core::ndarray<T,N>>::type const operator()(core::ndarray<T,N> const& a)
         {
-            return a.shape();
+            return a.shape;
         }
     };
 
@@ -501,9 +505,9 @@ template <class T, size_t N>
     {
         typename attribute_element<2,pythonic::core::ndarray<T,N>>::type const operator()(core::ndarray<T,N> const& a)
         {
-            core::ltuple<long,N> strides(N);
+            core::ltuple<long,N> strides;
             strides[N-1] = sizeof(T);
-            auto shape = a.shape();
+            auto shape = a.shape;
             std::transform(strides.rbegin(), strides.rend() -1, shape.rbegin(), strides.rbegin()+1, std::multiplies<long>());
             return strides;
         }
@@ -514,7 +518,7 @@ template <class T, size_t N>
     {
         typename attribute_element<3,pythonic::core::ndarray<T,N>>::type const operator()(core::ndarray<T,N> const& a)
         {
-            return a.count();
+            return a.size();
         }
     };
 
@@ -532,7 +536,7 @@ template <class T, size_t N>
     {
         typename attribute_element<5,pythonic::core::ndarray<T,N>>::type const operator()(core::ndarray<T,N> const& a)
         {
-            return a.count() * sizeof(T);
+            return a.size() * sizeof(T);
         }
     };
 
@@ -549,6 +553,11 @@ template <unsigned int I, class T, size_t N>
     typename attribute_element<I,pythonic::core::ndarray<T,N>>::type const getattr(core::ndarray<T,N> const& a)
     {
         return ndarray_attr<I,T,N>()(a);
+    }
+template <unsigned int I, class Op, class Arg>
+    typename attribute_element<I,pythonic::core::ndarray<typename core::numpy_uexpr<Op,Arg>::value_type,  core::numpy_uexpr<Op,Arg>::value>>::type const getattr(core::numpy_uexpr<Op,Arg> const& a)
+    {
+        return ndarray_attr<I,typename core::numpy_uexpr<Op,Arg>::value_type,  core::numpy_uexpr<Op,Arg>::value>()(a);
     }
 
 /* for complex numbers */

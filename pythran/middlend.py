@@ -6,6 +6,7 @@ from passes import RemoveLambdas, NormalizeTuples, NormalizeReturn
 from passes import UnshadowParameters, NormalizeException, ExpandBuiltins
 from passes import NormalizeMethodCalls, NormalizeAttributes, FalsePolymorphism
 from passes import RemoveComprehension, RemoveNestedFunctions, ExpandImports
+from passes import NormalizeExtSlice
 from optimizations import GenExpToImap, ListCompToMap, ListCompToGenexp, Pow2
 
 
@@ -13,6 +14,7 @@ def refine(pm, node, optimizations):
     """refine node in place until it matches pythran's expectations"""
 
     # sanitize input
+    pm.apply(NormalizeExtSlice, node)
     pm.apply(NormalizeTuples, node)
     pm.apply(ExpandBuiltins, node)
     pm.apply(ExpandImports, node)

@@ -181,11 +181,11 @@ namespace pythonic {
                 }
 
                 ifilter_iterator() {}
-                ifilter_iterator(Operator _op, List0 _seq) : iter(const_cast<sequence_type&>(_seq).begin()), iter_end(const_cast<sequence_type &>(_seq).end()) {
+                ifilter_iterator(Operator _op, List0 _seq) : op(_op), iter(const_cast<sequence_type&>(_seq).begin()), iter_end(const_cast<sequence_type &>(_seq).end()) {
                     if (!test_filter(std::is_same<pythonic::none_type, Operator>()))
                         next_value();
                 }
-                ifilter_iterator(npos, Operator _op, List0 _seq) : iter(const_cast<sequence_type &>(_seq).end()), iter_end(const_cast<sequence_type &>(_seq).end()) {
+                ifilter_iterator(npos, Operator _op, List0 _seq) : op(_op), iter(const_cast<sequence_type &>(_seq).end()), iter_end(const_cast<sequence_type &>(_seq).end()) {
                 }
 
                 ResultType operator*() { 

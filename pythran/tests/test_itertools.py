@@ -140,3 +140,10 @@ def ifiltern_(l0):
 
     def test_iter(self):
         self.run_test("def iter_(n): r = iter(range(5,n)) ; next(r) ; return next(r)", 12, iter_=[int])
+
+    def test_ifilter_with_nested_lambdas(self):
+        code = '''
+def ifilter_with_nested_lambdas(N):
+    perf = lambda n: n == sum(i for i in xrange(1, n) if n % i == 0)
+    return map(perf, xrange(20))'''
+        self.run_test(code, 10, ifilter_with_nested_lambdas=[int])

@@ -815,6 +815,10 @@ class Cxx(Backend):
                     or node not in self.bounded_expressions)):
             slice = self.visit(node.slice)
             return "{1}({0})".format(slice, value)
+        # extended slice case
+        elif isinstance(node.slice, ast.ExtSlice):
+            slice = self.visit(node.slice)
+            return "{1}({0})".format(','.join(slice), value)
         # standard case
         else:
             slice = self.visit(node.slice)
@@ -832,6 +836,10 @@ class Cxx(Backend):
             return node.id
 
     # other
+    def visit_ExtSlice(self, node):
+        return map(self.visit, node.dims)
+
+
     def visit_Slice(self, node):
         lower = node.lower and self.visit(node.lower)
         upper = node.upper and self.visit(node.upper)

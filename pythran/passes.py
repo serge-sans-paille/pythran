@@ -14,6 +14,7 @@ This modules contains code transformation to turn python AST into
     * ExpandImports replaces imports by their full paths
     * ExpandBuiltins replaces builtins by their full paths
     * FalsePolymorphism rename variable if possible to avoid false polymorphism
+    * NormalizeExtSlice makes sure ExtSlice contain only slice and no index
 '''
 
 from analysis import ImportedIds, Identifiers, YieldPoints, Globals, Locals
@@ -947,3 +948,21 @@ class FalsePolymorphism(Transformation):
                             var.id = name
                         self.identifiers.add(name)
         return node
+
+##
+class NormalizeExtSlice(Transformation):
+
+    def __init__(self):
+        super(NormalizeExtSlice, self).__init__()
+
+    def visit_ExtSlice(self, node):
+        for i, dim in enumerate(node.dims):
+            dim = self.visit(dim)
+            if type(dim) is ast.Index:
+                dim = ast.Slice(dim.value,
+                        ast.BinOp(dim.value, ast.Add(), ast.Num(1)),
+                        None
+                        )
+            node.dims[i] = dim
+        return node
+

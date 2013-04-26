@@ -619,20 +619,26 @@ class Types(ModuleAnalysis):
     def visit_Subscript(self, node):
         self.visit(node.value)
         if metadata.get(node, metadata.Attribute):
-            f = lambda t: AttributeType(node.slice.value.n, t)
-        elif isinstance(node.slice, ast.Slice):
-            f = lambda t: t
-        elif isinstance(node.slice.value, ast.Num) and node.slice.value.n >= 0:
-            f = lambda t: ElementType(node.slice.value.n, t)
-        elif isinstance(node.slice.value, ast.Tuple):
-            f = lambda t: reduce(lambda x, y: ContentType(x),
-                    node.slice.value.elts, t)
+            f= lambda t: AttributeType(node.value.n, t)
         else:
-            f = ContentType
+            def slice_handler(slice):
+                if isinstance(slice, ast.Slice):
+                    return lambda t: t
+                elif isinstance(slice, ast.ExtSlice):
+                    funs = map(slice_handler, slice.dims)
+                    return lambda t: reduce(lambda x, y: y(x), funs, t)
+                elif isinstance(slice.value, ast.Num) and node.slice.value.n >= 0:
+                    return lambda t: ElementType(slice.value.n, t)
+                elif isinstance(slice.value, ast.Tuple):
+                    return lambda t: reduce(lambda x, y: ContentType(x),
+                            slice.value.elts, t)
+                else:
+                    return ContentType
+            f = slice_handler(node.slice)
         self.combine(node, node.value, unary_op=f)
 
     def visit_AssignedSubscript(self, node):
-        if not isinstance(node.slice, ast.Slice):
+        if type(node.slice) not in (ast.Slice, ast.ExtSlice):
             self.visit(node.slice)
             self.combine(node.value, node.slice,
                     unary_op=IndexableType, register=True)

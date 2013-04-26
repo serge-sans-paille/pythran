@@ -17,6 +17,10 @@ template<class T>
 numpy_uexpr<NUMPY_UNARY_FUNC_SYM, sliced_ndarray<T>> NUMPY_UNARY_FUNC_NAME(sliced_ndarray<T> const & self) {
     return numpy_uexpr<NUMPY_UNARY_FUNC_SYM, sliced_ndarray<T>>(self);
 }
+template<class T, size_t N, size_t L>
+numpy_uexpr<NUMPY_UNARY_FUNC_SYM, gsliced_ndarray<T,N,L>> NUMPY_UNARY_FUNC_NAME(gsliced_ndarray<T,N,L> const & self) {
+    return numpy_uexpr<NUMPY_UNARY_FUNC_SYM, gsliced_ndarray<T,N,L>>(self);
+}
 template<class Op, class Arg0, class Arg1>
 numpy_uexpr<NUMPY_UNARY_FUNC_SYM, numpy_expr<Op, Arg0, Arg1>> NUMPY_UNARY_FUNC_NAME(numpy_expr<Op, Arg0, Arg1> const& self) {
     return numpy_uexpr<NUMPY_UNARY_FUNC_SYM, numpy_expr<Op, Arg0, Arg1> >(self);

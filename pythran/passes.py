@@ -14,6 +14,7 @@ This modules contains code transformation to turn python AST into
     * ExpandImports replaces imports by their full paths
     * ExpandBuiltins replaces builtins by their full paths
     * FalsePolymorphism rename variable if possible to avoid false polymorphism
+    * NormalizeExtSlice makes sure ExtSlice contain only slice and no index
 '''
 
 from analysis import ImportedIds, Identifiers, YieldPoints, Globals, Locals

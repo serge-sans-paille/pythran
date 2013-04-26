@@ -391,7 +391,7 @@ modules = {
             "logical_xor": ConstFunctionIntr(),
             "max": ConstMethodIntr(),
             "maximum": ConstFunctionIntr(),
-            "mean": ConstFunctionIntr(),
+            "mean": ConstMethodIntr(),
             "median": ConstFunctionIntr(),
             "min": ConstMethodIntr(),
             "minimum": ConstFunctionIntr(),
@@ -1114,8 +1114,8 @@ modules = {
                 "shape": AttributeIntr(0),
                 "size": AttributeIntr(3),
                 "strides": AttributeIntr(2),
-                "tostring": ConstMethodIntr(),
                 "tolist": ConstMethodIntr(),
+                "tostring": ConstMethodIntr(),
                 },
         # conflicting method names must be listed here
         "__dispatch__": {

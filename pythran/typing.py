@@ -620,6 +620,9 @@ class Types(ModuleAnalysis):
         self.visit(node.value)
         if metadata.get(node, metadata.Attribute):
             f = lambda t: AttributeType(node.slice.value.n, t)
+        elif isinstance(node.slice, ast.ExtSlice):
+            d = sum(int(type(dim) is ast.Index) for dim in node.slice.dims)
+            f = lambda t: reduce(lambda x, y: ContentType(x), range(d),t)
         elif isinstance(node.slice, ast.Slice):
             f = lambda t: t
         elif isinstance(node.slice.value, ast.Num) and node.slice.value.n >= 0:
@@ -629,10 +632,10 @@ class Types(ModuleAnalysis):
                     node.slice.value.elts, t)
         else:
             f = ContentType
-        self.combine(node, node.value, unary_op=f)
+        f and self.combine(node, node.value, unary_op=f)
 
     def visit_AssignedSubscript(self, node):
-        if not isinstance(node.slice, ast.Slice):
+        if type(node.slice) not in (ast.Slice, ast.ExtSlice):
             self.visit(node.slice)
             self.combine(node.value, node.slice,
                     unary_op=IndexableType, register=True)

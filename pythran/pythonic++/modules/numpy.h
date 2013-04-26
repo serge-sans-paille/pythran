@@ -1063,9 +1063,9 @@ namespace pythonic {
 
         PROXY(pythonic::numpy, argwhere);
 
-        template<class T, size_t N>
-            core::ndarray<T,N> around(core::ndarray<T,N> const& a, long decimals=0) {
-                return pythonic::core::rint(a * std::pow(T(10),decimals)) / std::pow(T(10), decimals);
+        template<class E>
+            auto around(E const& a, long decimals=0) -> decltype(pythonic::core::rint(a * std::pow(typename core::numpy_expr_to_ndarray<E>::type::dtype(10),decimals)) / std::pow(typename core::numpy_expr_to_ndarray<E>::type::dtype(10), decimals)) {
+                return pythonic::core::rint(a * std::pow(typename core::numpy_expr_to_ndarray<E>::type::dtype(10),decimals)) / std::pow(typename core::numpy_expr_to_ndarray<E>::type::dtype(10), decimals);
             }
         template<class T>
             typename core::numpy_expr_to_ndarray<core::list<T>>::type around(core::list<T> const& l, long decimals=0) {

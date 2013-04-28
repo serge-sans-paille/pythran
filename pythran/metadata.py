@@ -27,6 +27,10 @@ class Attribute(AST):
     pass
 
 
+class Lazy(AST):
+    pass
+
+
 class Comprehension(AST):
     def __init__(self, *args):  # no positional argument to be deep copyable
         if args:

@@ -205,6 +205,20 @@ class Assignable(DependentType):
         return 'typename assignable<{0}>::type'.format(self.of.generate(ctx))
 
 
+class Lazy(DependentType):
+    """
+    A type which can be a reference
+
+    It is used to make a lazy evaluation of numpy expressions
+
+    >>> Lazy(NamedType("long"))
+    typename lazy<long>::type
+    """
+
+    def generate(self, ctx):
+        return 'typename lazy<{0}>::type'.format(self.of.generate(ctx))
+
+
 class DeclType(NamedType):
     """
     Gather the type of a variable

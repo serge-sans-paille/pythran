@@ -11,6 +11,7 @@ from tables import modules, builtin_constants, builtin_constructors
 from tables import methods, functions
 from analysis import GlobalDeclarations, YieldPoints, LocalDeclarations
 from analysis import OrderedGlobalDeclarations, ModuleAnalysis, StrictAliases
+from analysis import LazynessAnalysis
 from passes import Transformation
 from syntax import PythranSyntaxError
 from cxxtypes import *
@@ -264,7 +265,8 @@ class Types(ModuleAnalysis):
         self.result = dict()
         self.result["bool"] = NamedType("bool")
         self.current_global_declarations = dict()
-        ModuleAnalysis.__init__(self, StrictAliases, LocalDeclarations)
+        self.max_recompute = 1  # max number of use to be lazy
+        ModuleAnalysis.__init__(self, StrictAliases, LazynessAnalysis)
 
     def prepare(self, node, ctx):
         self.passmanager.apply(Reorder, node, ctx)
@@ -276,8 +278,6 @@ class Types(ModuleAnalysis):
 
     def run(self, node, ctx):
         super(Types, self).run(node, ctx)
-        for k in self.local_declarations:
-            self.result[k] = Assignable(self.result[k])
         final_types = {k: self.result[k]
                 if k in self.result
                 else v
@@ -451,6 +451,12 @@ class Types(ModuleAnalysis):
                 self.result[n] = self.result[final_node]
         self.current_global_declarations[node.name] = node
         self.result[node] = (Assignable(self.result[node]), self.typedefs)
+        for k in self.passmanager.gather(LocalDeclarations, node):
+            lazy_res = self.lazyness_analysis[k.id]
+            if lazy_res <= self.max_recompute:
+                self.result[k] = Lazy(self.result[k])
+            else:
+                self.result[k] = Assignable(self.result[k])
 
     def visit_Return(self, node):
         self.generic_visit(node)

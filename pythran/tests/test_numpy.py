@@ -250,6 +250,9 @@ class TestNumpy(TestEnv):
     def test_add4(self):
         self.run_test("def np_add4(): from numpy import ones ; a, b = ones(10), ones(10) ; return ( a + b ) + ( a + b )", np_add4=[])
 
+    def test_add5(self):
+        self.run_test("def np_add5(): from numpy import ones ; a, b = ones(10), ones(10) ; return (-a) + (-b)", np_add5=[])
+
     def test_sub0(self):
         self.run_test("def np_sub0(): from numpy import ones ; a, b = ones(10), ones(10) ; return a - b", np_sub0=[])
 

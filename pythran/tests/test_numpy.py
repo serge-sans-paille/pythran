@@ -250,6 +250,9 @@ class TestNumpy(TestEnv):
     def test_add4(self):
         self.run_test("def np_add4(): from numpy import ones ; a, b = ones(10), ones(10) ; return ( a + b ) + ( a + b )", np_add4=[])
 
+    def test_add5(self):
+        self.run_test("def np_add5(): from numpy import ones ; a, b = ones(10), ones(10) ; return (-a) + (-b)", np_add5=[])
+
     def test_sub0(self):
         self.run_test("def np_sub0(): from numpy import ones ; a, b = ones(10), ones(10) ; return a - b", np_sub0=[])
 
@@ -333,6 +336,25 @@ class TestNumpy(TestEnv):
 
     def test_arctan21(self):
         self.run_test("def np_arctan21(): from numpy import arctan2 ; a, b = 1., .5 ; return arctan2(a , b)", np_arctan21=[])
+
+    def test_sliced0(self):
+        self.run_test("def np_sliced0(): from numpy import ones ; a = ones(20) ; return a[2:12]", np_sliced0=[])
+
+    def test_sliced1(self):
+        self.run_test("def np_sliced1(): from numpy import ones ; a = ones(20) ; return a[2:12:3]", np_sliced1=[])
+
+    def test_sliced2(self):
+        self.run_test("def np_sliced2(): from numpy import ones ; a = ones(20) ; return -a[2:12:3]", np_sliced2=[])
+
+    def test_sliced3(self):
+        self.run_test("def np_sliced3(): from numpy import ones ; a = ones(20) ; return a[1:11:3] -a[2:12:3]", np_sliced3=[])
+
+    def test_sliced4(self):
+        self.run_test("def np_sliced4(): from numpy import ones ; a = ones(20) ; return a[1:11] -a[2:12]", np_sliced4=[])
+
+    def test_sliced5(self):
+        self.run_test("def np_sliced5(): from numpy import ones ; a = ones(20) ; return (-a[1:11]) + 3*a[2:12]", np_sliced5=[])
+
 
 #automatic generation of basic test cases for ufunc
 binary_ufunc = (

@@ -55,7 +55,7 @@ namespace  pythonic {
 #ifdef __AVX__
                 typename vectorized<T>::type load(long ) const { return _value;}
 #endif
-                T operator[](long ) const {
+                T at(long ) const {
                     return __value;
                 }
             };
@@ -63,140 +63,53 @@ namespace  pythonic {
         template<class Op, class Arg0>
             struct numpy_uexpr {
                 Arg0 arg0;
-                typedef decltype(Op()(arg0[std::declval<long>()])) value_type;
+                typedef decltype(Op()(arg0.at(std::declval<long>()))) value_type;
                 static constexpr size_t value = Arg0::value;
-                numpy_uexpr(Arg0 const& arg0) : arg0(arg0) {
+                core::ltuple<long, value> shape;
+                numpy_uexpr(Arg0 const& arg0) : arg0(arg0), shape(arg0.shape) {
                 }
 #ifdef __AVX__
                 auto load(long i) const -> decltype(Op()(arg0.load(i))) {
                     return Op()(arg0.load(i));
                 }
 #endif
-                auto operator[](long i) const -> decltype(Op()(arg0[i])) {
-                    return Op()(arg0[i]);
+                auto at(long i) const -> decltype(Op()(arg0.at(i))) {
+                    return Op()(arg0.at(i));
                 }
                 size_t size() const { return arg0.size(); }
-                auto shape() const -> decltype(arg0.shape()) { return arg0.shape(); }
             };
 
-        template <class Op, class T0, size_t N0>
-            struct numpy_uexpr<Op, ndarray<T0,N0>> {
-                T0 *arg0;
-                typedef decltype(Op()(arg0[std::declval<long>()])) value_type;
-                static constexpr size_t value = N0;
-                size_t _size;
-                ndarray<T0,N0> a0;
-                numpy_uexpr(ndarray<T0,N0> const& arg0 ) : arg0(arg0.buffer), _size(arg0.size()), a0(arg0) {
-                }
-#ifdef __AVX__
-                auto load(long i) const -> decltype(Op()( boost::simd::unaligned_load<boost::simd::native<T0, BOOST_SIMD_DEFAULT_EXTENSION>>(arg0,i) )) {
-                    return Op()(boost::simd::unaligned_load<boost::simd::native<T0, BOOST_SIMD_DEFAULT_EXTENSION>>(arg0,i));
-                }
-#endif
-                auto operator[](long i) const -> decltype(Op()(arg0[i])) {
-                    return Op()(arg0[i]);
-                }
-                size_t size() const { return _size; }
-                core::ltuple<long, N0> const & shape() const { return a0.shape; }
-            };
+        template<class U, class V, size_t N>
+            typename std::enable_if<U::value!=0,core::ltuple<long, N>>::type const& select_shape(U const& u, V const&, int_<N> ) {
+                return u.shape;
+            }
+        template<class U, class V, size_t N>
+            typename std::enable_if<U::value==0 and V::value!=0,core::ltuple<long, N>>::type const& select_shape(U const& , V const&v, int_<N> ) {
+                return v.shape;
+            }
+        template<class U, class V>
+            core::ltuple<long, 0> select_shape(U const& u, V const&, int_<0> ) {
+                return core::ltuple<long, 0>();
+            }
 
         template<class Op, class Arg0, class Arg1>
             struct numpy_expr {
                 Arg0 arg0;
                 Arg1 arg1;
-                typedef decltype(Op()(arg0[std::declval<long>()], arg1[std::declval<long>()])) value_type;
+                typedef decltype(Op()(arg0.at(std::declval<long>()), arg1.at(std::declval<long>()))) value_type;
                 static constexpr size_t value = Arg0::value>Arg1::value?Arg0::value: Arg1::value;
-                numpy_expr(Arg0 const& arg0, Arg1 const& arg1) : arg0(arg0), arg1(arg1) {
+                core::ltuple<long, value> shape;
+                numpy_expr(Arg0 const& arg0, Arg1 const& arg1) : arg0(arg0), arg1(arg1), shape(select_shape(arg0,arg1, int_<value>())) {
                 }
 #ifdef __AVX__
                 auto load(long i) const -> decltype(Op()(arg0.load(i), arg1.load(i))) {
                     return Op()(arg0.load(i), arg1.load(i));
                 }
 #endif
-                auto operator[](long i) const -> decltype(Op()(arg0[i], arg1[i])) {
-                    return Op()(arg0[i], arg1[i]);
+                auto at(long i) const -> decltype(Op()(arg0.at(i), arg1.at(i))) {
+                    return Op()(arg0.at(i), arg1.at(i));
                 }
                 size_t size() const { return std::max(arg0.size(), arg1.size()); }
-                auto shape() const -> decltype(arg0.shape()) { return arg0.shape(); }
-            };
-
-        template<class Op, class T0, size_t N0, class T1, size_t N1>
-            struct numpy_expr<Op, ndarray<T0,N0>, ndarray<T1,N1>> {
-                T0* arg0;
-                T1* arg1;
-                size_t _size;
-                typedef decltype(Op()(arg0[std::declval<long>()], arg1[std::declval<long>()])) value_type;
-                static constexpr size_t value = N0>N1?N0:N1;
-                ndarray<T0,N0> a0;
-                ndarray<T1,N1> a1;
-                numpy_expr(ndarray<T0,N0> const& arg0, ndarray<T1,N1> const& arg1) :
-                    arg0(arg0.buffer),
-                    arg1(arg1.buffer),
-                    _size(std::max(arg0.size(), arg1.size())),
-                    a0(arg0), a1(arg1) {
-                    }
-#ifdef __AVX__
-                auto load(long i) const -> decltype(Op()(boost::simd::unaligned_load<boost::simd::native<T0, BOOST_SIMD_DEFAULT_EXTENSION>>(arg0,i), boost::simd::unaligned_load<boost::simd::native<T1, BOOST_SIMD_DEFAULT_EXTENSION>>(arg1,i))) {
-                    return Op()(boost::simd::unaligned_load<boost::simd::native<T0, BOOST_SIMD_DEFAULT_EXTENSION>>(arg0,i), boost::simd::unaligned_load<boost::simd::native<T1, BOOST_SIMD_DEFAULT_EXTENSION>>(arg1,i));
-                }
-#endif
-                auto operator[](long i) const -> decltype(Op()(arg0[i], arg1[i])) {
-                    return Op()(arg0[i], arg1[i]);
-                }
-                size_t size() const { return _size; }
-                core::ltuple<long, N0> const & shape() const { return a0.shape; }
-            };
-
-        template<class Op, class T0, size_t N0, class Arg1>
-            struct numpy_expr<Op, ndarray<T0,N0>, Arg1> {
-                T0* arg0;
-                Arg1 arg1;
-                size_t _size;
-                typedef decltype(Op()(arg0[std::declval<long>()], arg1[std::declval<long>()])) value_type;
-                static constexpr size_t value = N0>Arg1::value?N0:Arg1::value;
-                ndarray<T0,N0> a0;
-                numpy_expr(ndarray<T0,N0> const& arg0, Arg1 const& arg1) :
-                    arg0(arg0.buffer),
-                    arg1(arg1),
-                    _size(std::max(arg0.size(), arg1.size())),
-                    a0(arg0) {
-                    }
-#ifdef __AVX__
-                auto load(long i) const -> decltype(Op()(boost::simd::unaligned_load<boost::simd::native<T0, BOOST_SIMD_DEFAULT_EXTENSION>>(arg0,i), arg1.load(i))) {
-                    return Op()(boost::simd::unaligned_load<boost::simd::native<T0, BOOST_SIMD_DEFAULT_EXTENSION>>(arg0,i), arg1.load(i));
-                }
-#endif
-                auto operator[](long i) const -> decltype(Op()(arg0[i], arg1[i])) {
-                    return Op()(arg0[i], arg1[i]);
-                }
-                size_t size() const { return _size; }
-                core::ltuple<long, N0> const & shape() const { return a0.shape; }
-            };
-
-        template<class Op, class Arg0, class T1, size_t N1>
-            struct numpy_expr<Op, Arg0, ndarray<T1,N1>> {
-                Arg0 arg0;
-                T1* arg1;
-                size_t _size;
-                typedef decltype(Op()(arg0[std::declval<long>()], arg1[std::declval<long>()])) value_type;
-                static constexpr size_t value = Arg0::value>N1?Arg0::value:N1;
-                ndarray<T1,N1> a1;
-                numpy_expr(Arg0 const& arg0, ndarray<T1,N1> const& arg1) :
-                    arg0(arg0),
-                    arg1(arg1.buffer),
-                    _size(std::max(arg0.size(), arg1.size())),
-                    a1(arg1) {
-                    }
-#ifdef __AVX__
-                auto load(long i) const -> decltype(Op()(arg0.load(i), _mm256_loadu_pd(arg1+i))) {
-                    return Op()(arg0.load(i), _mm256_loadu_pd(arg1+i));
-                }
-#endif
-                auto operator[](long i) const -> decltype(Op()(arg0[i], arg1[i])) {
-                    return Op()(arg0[i], arg1[i]);
-                }
-                size_t size() const { return _size; }
-                core::ltuple<long, N1> const & shape() const { return a1.shape; }
             };
 
         template <class Expr>
@@ -204,17 +117,18 @@ namespace  pythonic {
 
         template<class Op, class Arg>
             struct numpy_expr_to_ndarray<numpy_uexpr<Op, Arg>> {
-                typedef typename std::remove_cv<typename std::remove_reference< decltype(std::declval<numpy_uexpr<Op, Arg>>()[0]) >::type>::type T;
-                static const size_t N = std::tuple_size< typename std::remove_cv<typename std::remove_reference< decltype(std::declval<numpy_uexpr<Op, Arg>>().shape()) >::type > ::type > ::value;
+                typedef typename std::remove_cv<typename std::remove_reference< decltype(std::declval<numpy_uexpr<Op, Arg>>().at(0)) >::type>::type T;
+                static const size_t N = std::tuple_size< typename std::remove_cv<typename std::remove_reference< decltype(std::declval<numpy_uexpr<Op, Arg>>().shape) >::type > ::type > ::value;
                 typedef core::ndarray<T, N> type;
             };
 
         template<class Op, class Arg0, class Arg1>
             struct numpy_expr_to_ndarray<numpy_expr<Op, Arg0, Arg1>> {
-                typedef typename std::remove_cv<typename std::remove_reference< decltype(std::declval<numpy_expr<Op, Arg0, Arg1>>()[0]) >::type>::type T;
-                static const size_t N = std::tuple_size< typename std::remove_cv<typename std::remove_reference< decltype(std::declval<numpy_expr<Op, Arg0, Arg1>>().shape()) >::type > ::type > ::value;
+                typedef typename std::remove_cv<typename std::remove_reference< decltype(std::declval<numpy_expr<Op, Arg0, Arg1>>().at(0)) >::type>::type T;
+                static const size_t N = std::tuple_size< typename std::remove_cv<typename std::remove_reference< decltype(std::declval<numpy_expr<Op, Arg0, Arg1>>().shape) >::type > ::type > ::value;
                 typedef core::ndarray<T, N> type;
             };
+
 
         template<class T>
             class raw_array {
@@ -328,14 +242,22 @@ namespace  pythonic {
 
         template<class T>
             struct sliced_ndarray : slice {
+                static constexpr size_t value = T::value;
                 typedef typename T::value_type value_type;
                 typedef typename T::reference reference;
                 typedef typename T::const_reference const_reference;
+                core::ltuple<long, value> shape;
 
                 T& data;
 
-                sliced_ndarray(T& data, slice const& s) : slice(s), data(data) {}
+                sliced_ndarray(T& data, slice const& s) : slice(s), shape(data.shape.begin(), data.shape.end()), data(data) {
+                    shape[0] = ceil(double(upper - lower)/step);
+                }
 
+                auto at(long i) const -> decltype(data.at(lower+i*step)) {
+                    return data.at(lower+i*step);
+                }
+                size_t size() const { return (data.size() / data.shape[0]) * shape[0] ; }
                 reference operator[](long i) { return data[lower+i*step]; }
                 const_reference operator[](long i) const { return data[lower+i*step]; }
                 sliced_ndarray<T> operator[](slice const& s) const { return sliced_ndarray(data, slice(lower + step*s.lower, std::min(upper, lower + step*s.upper), step*s.step)); }
@@ -380,6 +302,7 @@ namespace  pythonic {
             struct ndarray {
 
                 /* types */
+                static const size_t value = N;
                 typedef typename type_helper<ndarray<T, N>>::type value_type;
                 typedef value_type& reference;
                 typedef value_type const & const_reference;
@@ -481,18 +404,18 @@ namespace  pythonic {
                         }
 #else
                         for(i=0 ;i< bound; i+=8) {
-                            iter[i+0] = expr[i+0];
-                            iter[i+1] = expr[i+1];
-                            iter[i+2] = expr[i+2];
-                            iter[i+3] = expr[i+3];
-                            iter[i+4] = expr[i+4];
-                            iter[i+5] = expr[i+5];
-                            iter[i+6] = expr[i+6];
-                            iter[i+7] = expr[i+7];
+                            iter[i+0] = expr.at(i+0);
+                            iter[i+1] = expr.at(i+1);
+                            iter[i+2] = expr.at(i+2);
+                            iter[i+3] = expr.at(i+3);
+                            iter[i+4] = expr.at(i+4);
+                            iter[i+5] = expr.at(i+5);
+                            iter[i+6] = expr.at(i+6);
+                            iter[i+7] = expr.at(i+7);
                         }
 #endif
                         for(i=bound;i< n; ++i)
-                            iter[i] = expr[i];
+                            iter[i] = expr.at(i);
                     }
 
                 template<class Op, class Arg0, class Arg1>
@@ -500,7 +423,7 @@ namespace  pythonic {
                         data_size(0),
                         mem(expr.size()),
                         data(),
-                        shape(expr.shape())
+                        shape(expr.shape)
                 {
                     auto shape_iterator = shape.begin();
                     type_helper<ndarray<T,N>>::initialize_from_shape(*this, mem, mem->data, shape_iterator);
@@ -512,7 +435,19 @@ namespace  pythonic {
                         data_size(0),
                         mem(expr.size()),
                         data(),
-                        shape(expr.shape())
+                        shape(expr.shape)
+                {
+                    auto shape_iterator = shape.begin();
+                    type_helper<ndarray<T,N>>::initialize_from_shape(*this, mem, mem->data, shape_iterator);
+                    initialize_from_expr(expr);
+                }
+                /* from a slice */
+                template<class E>
+                    ndarray(sliced_ndarray<E> const& expr):
+                        data_size(0),
+                        mem(expr.size()),
+                        data(),
+                        shape(expr.shape)
                 {
                     auto shape_iterator = shape.begin();
                     type_helper<ndarray<T,N>>::initialize_from_shape(*this, mem, mem->data, shape_iterator);
@@ -538,23 +473,34 @@ namespace  pythonic {
                 /* accessors */
                 reference operator[](long i) { return data[i]; }
                 template<class U, size_t M>
-                    typename ndarray<T, N-M+1>::reference operator[](ltuple<U,M> const& l) { return at<typename ndarray<T, N-M+1>::reference>(l.begin(), int_<M>()); }
+                    typename ndarray<T, N-M+1>::reference operator[](ltuple<U,M> const& l) { return mat<typename ndarray<T, N-M+1>::reference>(l.begin(), int_<M>()); }
                 const_reference operator[](long i) const { return data[i]; }
                 sliced_ndarray<ndarray<T,N>> operator[](slice const& s) const { return sliced_ndarray<ndarray<T,N>>(*this, s); }
                 sliced_ndarray<ndarray<T,N>> operator[](slice const& s) { return sliced_ndarray<ndarray<T,N>>(*this, s); }
+                sliced_ndarray<ndarray<T,N>> operator()(slice const& s) const { return sliced_ndarray<ndarray<T,N>>(*this, s); }
+                sliced_ndarray<ndarray<T,N>> operator()(slice const& s) { return sliced_ndarray<ndarray<T,N>>(*this, s); }
 
                 typename type_helper<ndarray<T, N>>::iterator begin() { return type_helper<ndarray<T, N>>::begin(*this); }
                 typename type_helper<ndarray<T, N>>::iterator end() { return type_helper<ndarray<T, N>>::end(*this); }
                 typename type_helper<ndarray<T, N>>::const_iterator begin() const { return type_helper<ndarray<T, N>>::begin(*this); }
                 typename type_helper<ndarray<T, N>>::const_iterator end() const { return type_helper<ndarray<T, N>>::end(*this); }
 
+                T& at(long i) { return buffer[i]; }
+                T at(long i) const { return buffer[i]; }
+
+#ifdef __AVX__
+                auto load(long i) const -> decltype(boost::simd::unaligned_load<boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>>(buffer,i)) {
+                    return boost::simd::unaligned_load<boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>>(buffer,i);
+                }
+#endif
+
                 /* helpers */
                 template<class R, class U, size_t M>
-                    R at(U&& iter, int_<M>) {
-                        return (*this)[*iter].at<R>(iter+1, int_<M-1>());
+                    R mat(U&& iter, int_<M>) {
+                        return (*this)[*iter].mat<R>(iter+1, int_<M-1>());
                     }
                 template<class R, class U>
-                    R at(U&& iter, int_<1>) {
+                    R mat(U&& iter, int_<1>) {
                         return (*this)[*iter];
                     }
                 size_t size() const {

@@ -30,6 +30,11 @@ numpy_expr<NUMPY_BINARY_FUNC_SYM, numpy_uexpr<OpA, ArgA0>, numpy_expr<OpB, ArgB0
     return numpy_expr<NUMPY_BINARY_FUNC_SYM, numpy_uexpr<OpA, ArgA0>, numpy_expr<OpB, ArgB0, ArgB1>>(self, other);
 }
 
+template<class OpA, class ArgA0, class OpB, class ArgB0>
+numpy_expr<NUMPY_BINARY_FUNC_SYM, numpy_uexpr<OpA, ArgA0>, numpy_uexpr<OpB, ArgB0>> NUMPY_BINARY_FUNC_NAME( numpy_uexpr<OpA, ArgA0> const & self, numpy_uexpr<OpB, ArgB0> const & other) {
+    return numpy_expr<NUMPY_BINARY_FUNC_SYM, numpy_uexpr<OpA, ArgA0>, numpy_uexpr<OpB, ArgB0>>(self, other);
+}
+
 template<class OpA, class ArgA0, class OpB, class ArgB0, class ArgB1>
 numpy_expr<NUMPY_BINARY_FUNC_SYM, numpy_expr<OpB, ArgB0, ArgB1>, numpy_uexpr<OpA, ArgA0>> NUMPY_BINARY_FUNC_NAME( numpy_expr<OpB, ArgB0, ArgB1> const & self, numpy_uexpr<OpA, ArgA0> const & other) {
     return numpy_expr<NUMPY_BINARY_FUNC_SYM, numpy_expr<OpB, ArgB0, ArgB1>, numpy_uexpr<OpA, ArgA0>>(self, other);

@@ -17,6 +17,7 @@ This module provides a few code analysis for the pythran language.
     * OptimizableGenexp finds whether a generator expr. can be optimized.
     * UsedDefChain build used-define chains analysis for each variable.
     * UseOMP detects if a function use openMP
+    * LazynessAnalysis returns number of time a name is use.
 '''
 
 from tables import modules, builtin_constants, builtin_constructors
@@ -1184,3 +1185,214 @@ class UseOMP(FunctionAnalysis):
 
     def visit_OMPDirective(self, node):
         self.result = True
+
+
+class LazynessAnalysis(FunctionAnalysis):
+    """
+    Returns number of time a name is used. +inf if it is use in a
+    loop or if a variable used to compute it is modify before
+    its last use
+    >>> import ast, passmanager, backend
+    >>> code = "def foo(): c = 1; a = c + 2; c = 2; b = c + c + a; return b"
+    >>> node = ast.parse(code)
+    >>> pm = passmanager.PassManager("test")
+    >>> res = pm.gather(LazynessAnalysis, node)
+    >>> res['a'], res['b'], res['c']
+    (inf, 1, 2)
+    """
+    def __init__(self):
+        self.result = dict()
+        self.name_count = dict()
+        self.use = dict()
+        self.dead = set()
+        self.in_loop = False
+        super(LazynessAnalysis, self).__init__(ArgumentEffects, Aliases)
+
+    def modify(self, node, state):
+        #if we modify a variable, all variables that needed it
+        #to be compute are dead and its aliases too
+        if isinstance(node, ast.Name):
+            for var, deps in self.use.iteritems():
+                for dep in deps:
+                    if dep == node.id:
+                        self.dead.add(var)
+                        for alias in state[dep]:
+                            self.dead.add(alias)
+                        break
+
+    def assign_to(self, node, from_, state):
+        # a reassigned variable is not dead anymore
+        if node.id in self.dead:
+            self.dead.remove(node.id)
+        # when we reassign a variable, we reinit all of its aliases
+        # and save the result as a possible worse case
+        if node.id in self.use:
+            #gather value for alias node and other variables with same name
+            state_name_count = filter(self.name_count.__contains__,
+                    state[node.id])
+            alias_val = map(self.name_count.get, state_name_count)
+            alias_val += [value for name, value in self.name_count.iteritems()
+                                    if name.id == node.id]
+            ex_value = max(alias_val)
+            if node.id in self.result:
+                ex_value = max(self.result[node.id], ex_value)
+            self.result[node.id] = ex_value
+            for alias in state[node.id]:
+                if alias in self.name_count:
+                    self.name_count[alias] = 0
+        self.name_count[node] = 0
+        self.use[node.id] = set(from_)
+        self.modify(node, state)
+
+    def visit_FunctionDef(self, node):
+        self.ids = self.passmanager.gather(Identifiers, node, self.ctx)
+        self.generic_visit(node)
+
+    def visit_FunctionDef(self, node):
+        self.ids = self.passmanager.gather(Identifiers, node, self.ctx)
+        self.generic_visit(node)
+
+    def visit_Assign(self, node):
+        self.visit(node.value)
+        ids = self.passmanager.gather(Identifiers, node.value, self.ctx)
+        for target in node.targets:
+            if isinstance(target, ast.Name):
+                self.assign_to(target, ids, self.aliases[node.value].state)
+            elif isinstance(target, ast.Subscript):
+                #if we modify just a part of a variable, it can't be lazy
+                var_name = target.value
+                while isinstance(var_name, ast.Subscript):
+                    var_name = var_name.value
+                self.result[var_name.id] = float('inf')
+            else:
+                raise PythranSyntaxError("Assign to unknown node", node)
+
+    def visit_AugAssign(self, node):
+        #augassigned variable can't be lazy
+        self.visit(node.value)
+        if isinstance(node.target, ast.Name):
+            self.result[node.target.id] = float('inf')
+        elif isinstance(node.target, ast.Subscript):
+            var_name = node.target.value
+            while isinstance(var_name, ast.Subscript):
+                var_name = var_name.value
+            self.result[var_name.id] = float('inf')
+        else:
+            raise PythranSyntaxError("AugAssign to unknown node", node)
+
+    def visit_Name(self, node):
+        if isinstance(node.ctx, ast.Load) and node.id in self.use:
+            name_from_id = [name for name in self.name_count.iterkeys()
+                                    if name.id == node.id]
+            for alias in self.aliases[node].aliases.union(set(name_from_id)):
+                # we only care about variable local to the function
+                if isinstance(alias, ast.Name) and alias.id in self.ids:
+                    if self.in_loop:
+                        self.name_count[alias] = float('inf')
+                    if node.id in self.dead:
+                        # if a variable is dead, all it's aliases are dead too
+                        self.dead.add(alias.id)  # PB: may be not the best
+                        self.name_count[alias] = float('inf')
+                    elif alias in self.name_count:
+                        self.name_count[alias] += 1
+        elif (isinstance(node.ctx, ast.Param) or
+                isinstance(node.ctx, ast.Store)):
+            #Store is only for exception
+            self.name_count[node] = 0
+            self.use[node.id] = set()
+
+    def visit_If(self, node):
+        self.visit(node.test)
+        old_count = dict(self.name_count)
+        old_dead = set(self.dead)
+        old_deps = {a: set(b) for a, b in self.use.iteritems()}
+
+        if isinstance(node.body, list):
+            map(self.visit, node.body)
+        else:
+            self.visit(node.body)
+        mid_count = self.name_count
+        mid_dead = self.dead
+        mid_deps = self.use
+
+        self.name_count = old_count
+        self.dead = old_dead
+        self.use = old_deps
+        if isinstance(node.orelse, list):
+            map(self.visit, node.orelse)
+        else:
+            self.visit(node.orelse)
+
+        #merge use variable
+        for key in self.use:
+            if key in mid_deps:
+                self.use[key].update(mid_deps[key])
+        for key in mid_deps:
+            if key not in self.use:
+                self.use[key] = set(mid_deps[key])
+
+        #value is the worse case of both branches
+        names = set(self.name_count.keys() + mid_count.keys())
+        for name in names:
+            val_body = mid_count.get(name, 0)
+            val_else = self.name_count.get(name, 0)
+            self.name_count[name] = max(val_body, val_else)
+
+        #dead var are still dead
+        self.dead.update(mid_dead)
+
+    visit_IfExp = visit_If
+
+    def visit_For(self, node):
+        ids = self.passmanager.gather(Identifiers, node.iter, self.ctx)
+        for id in ids:
+            self.result[id] = float('inf')  # iterate value can't be lazy
+        if isinstance(node.target, ast.Name):
+            self.assign_to(node.target, ids, self.aliases[node.iter].state)
+        else:
+            err = "Assignation in for loop not to a Name"
+            raise PythranSyntaxError(err, node)
+
+        self.in_loop = True
+        map(self.visit, node.body)
+        self.in_loop = False
+
+        map(self.visit, node.orelse)
+
+    def visit_While(self, node):
+        self.visit(node.test)
+
+        self.in_loop = True
+        map(self.visit, node.body)
+        self.in_loop = False
+
+        map(self.visit, node.orelse)
+
+    def visit_Call(self, node):
+        map(self.visit, node.args)
+        #when there is an argument effet, we apply "modify" to the arg
+        for fun in self.aliases[node.func].aliases:
+            if isinstance(fun, ast.Call):
+                fun = fun.args[0]
+                for fun1 in self.aliases[fun].aliases:
+                    for i, arg in enumerate(self.argument_effects[fun1]):
+                        if len(node.args) != i:
+                            break
+                        elif arg:
+                            self.modify(node.args[i],
+                                    self.aliases[node.func].state)
+            elif fun in self.argument_effects:
+                for i, arg in enumerate(self.argument_effects[fun]):
+                    if arg and len(node.args) > i:
+                        self.modify(node.args[i],
+                                self.aliases[node.func].state)
+            else:
+                for arg in node.args:
+                    self.modify(arg, self.aliases[node.func].state)
+
+    def run(self, node, ctx):
+        super(LazynessAnalysis, self).run(node, ctx)
+        for name, val in self.name_count.iteritems():
+            old_val = self.result.get(name.id, 0)
+            self.result[name.id] = max(old_val, val)
+        return self.result

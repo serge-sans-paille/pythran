@@ -372,7 +372,11 @@ class Aliases(ModuleAnalysis):
 
     # aliasing created by expressions
     def add(self, node, values=None):
-        values = values or set()
+        if not values:  # no given target for the alias
+            if isinstance(node, intrinsic.Intrinsic):
+                values = {node}  # an Intrinsic always aliases to itself
+            else:
+                values = set()  # otherwise aliases to nothing
         assert isinstance(values, set)
         self.result[node] = Aliases.Info(self.aliases.copy(), values)
         return values
@@ -556,6 +560,10 @@ class Identifiers(NodeAnalysis):
     def visit_FunctionDef(self, node):
         self.result.add(node.name)
         self.generic_visit(node)
+
+    def visit_ImportFrom(self, node):
+        self.generic_visit(node)
+        self.result.add(node.module)
 
     def visit_alias(self, node):
         if node.asname:

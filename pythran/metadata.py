@@ -28,8 +28,9 @@ class Attribute(AST):
 
 
 class Comprehension(AST):
-    def __init__(self, target):
-        self.target = target
+    def __init__(self, *args):  # no positional argument to be deep copyable
+        if args:
+            self.target = args[0]
 
 
 def add(node, data):

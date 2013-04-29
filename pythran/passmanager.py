@@ -150,7 +150,9 @@ class PassManager(object):
         code for module `module_name'.'''
         b = backend()
         b.passmanager = self
-        return b.run(node, None)
+        cxxAst = b.run(node,None)
+        cxxStr = "\n".join("\n".join(s.generate()) for s in cxxAst)
+        return cxxStr
 
     def apply(self, transformation, node, ctx=None):
         '''

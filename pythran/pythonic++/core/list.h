@@ -269,11 +269,11 @@ namespace  pythonic {
                 }
 
 
+
                 //Misc
                 //TODO: have to raise a valueError
-                long index(T const& x) {
-                    return std::find(begin(),end(),x)-begin();
-                }	
+                long index(T const& x) const { return std::find(begin(),end(),x)-begin(); }	
+
 
                 // list interface
                 operator bool() const { return not data->empty(); }

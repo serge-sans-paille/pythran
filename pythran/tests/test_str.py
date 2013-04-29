@@ -67,3 +67,6 @@ class TestStr(TestEnv):
 
     def test_str_rstrip2(self):
         self.run_test("def str_rstrip2(s): return s.rstrip(\"TSih\")", "ThiS iS a TeST", str_rstrip2=[str])
+
+    def test_str_format(self):
+        self.run_test("def str_format(): a = 43.23; return '%.2f %.2f' % (a, a)", str_format=[])

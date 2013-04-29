@@ -178,6 +178,12 @@ namespace pythonic {
                     (fmt(fmter, a, int_<sizeof...(A)>() ));
                     return fmter.str();
                 }
+            template<size_t N, class T>
+                core::string operator%(core::ltuple<T, N> const & a) const {
+                    boost::format fmter(*this);
+                    (fmt(fmter, a, int_<N>() ));
+                    return fmter.str();
+                }
             private:
             template<class Tuple, size_t I>
                 void fmt(boost::format & f, Tuple const & a, int_<I>) const {

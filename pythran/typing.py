@@ -545,7 +545,7 @@ class Types(ModuleAnalysis):
                 return r[0][n.attr], r[1] + (n.attr,)
         obj, path = rec(modules, node)
         self.result[node] = DeclType(
-                '::'.join(path) if obj.isscalar() else
+                '::'.join(path) if obj.isliteral() else
                 ('::'.join(path[:-1]) + '::proxy::' + path[-1] + '()')
                 )
 

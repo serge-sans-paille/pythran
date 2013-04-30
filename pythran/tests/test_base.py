@@ -375,6 +375,9 @@ def nested_def(a):
     def test_enumerate(self):
         self.run_test("def enumerate_(l): return [ x for x in enumerate(l) ]", ["a","b","c"], enumerate_=[[str]])
 
+    def test_enumerat2(self):
+        self.run_test("def enumerate2_(l): return [ x for x in enumerate(l, 3) ]", ["a","b","c"], enumerate2_=[[str]])
+
     def test_filter(self):
         self.run_test("def filter_(l): return filter(lambda x:x%2, l)", [1,2,3], filter_=[[int]])
 

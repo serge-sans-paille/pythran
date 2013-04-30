@@ -5,7 +5,6 @@ This module contains all the stuff to make your way from python code to
     * compile transforms c++ code into a native module
 '''
 import sys
-import errno
 import os.path
 import distutils.sysconfig
 
@@ -34,10 +33,10 @@ def pytype_to_ctype(t):
     elif isinstance(t, dict):
         tkey, tvalue = t.items()[0]
         return 'core::dict<{0},{1}>'.format(pytype_to_ctype(tkey),
-                                        pytype_to_ctype(tvalue))
+                                            pytype_to_ctype(tvalue))
     elif isinstance(t, tuple):
         return 'std::tuple<{0}>'.format(", ".join(pytype_to_ctype(_)
-                                    for _ in t))
+                                        for _ in t))
     elif t in pytype_to_ctype_table:
         return pytype_to_ctype_table[t]
     else:
@@ -67,7 +66,8 @@ def extract_constructed_types(t):
 
 def extract_all_constructed_types(v):
     return sorted(set(reduce(lambda x, y: x + y,
-                (extract_constructed_types(t) for t in v), [])), key=len)
+                            (extract_constructed_types(t) for t in v), [])),
+                  key=len)
 
 
 def parse_optimization(optimization):
@@ -109,8 +109,8 @@ def cxx_generator(module_name, code, specs=None, optimizations=None):
                 self.content = content
 
             def generate(self):
-                return "\n".join("\n".join(l
-                            for l in s.generate()) for s in self.content)
+                return "\n".join("\n".join(l for l in s.generate())
+                                 for s in self.content)
         mod = Generable(content)
     else:
         # uniform typing
@@ -124,52 +124,55 @@ def cxx_generator(module_name, code, specs=None, optimizations=None):
         max_arity = max(4, max(max(map(len, s)) for s in specs.itervalues()))
         mod.add_to_preamble([Define("BOOST_PYTHON_MAX_ARITY", max_arity)])
         mod.add_to_preamble(content)
-        mod.add_to_init([Statement(
-'boost::python::numeric::array::set_module_and_type("numpy", "ndarray")')])
-        mod.add_to_init([Statement(
-            'boost::python::implicitly_convertible<std::string,'
-            + 'pythonic::core::string>()')])
+        mod.add_to_init([Statement('boost::python::numeric::array::'
+                                   'set_module_and_type("numpy", "ndarray")')])
+        mod.add_to_init([Statement('boost::python::implicitly_convertible'
+                                   '<std::string,pythonic::core::string>()')])
 
         for function_name, signatures in specs.iteritems():
-            internal_function_name = renamings.get(function_name,
-                                                            function_name)
+            internal_func_name = renamings.get(function_name,
+                                               function_name)
             for sigid, signature in enumerate(signatures):
-                numbered_function_name = "{0}{1}".format(
-                                        internal_function_name, sigid)
+                numbered_function_name = "{0}{1}".format(internal_func_name,
+                                                         sigid)
                 arguments_types = [pytype_to_ctype(t) for t in signature]
                 arguments = ["a{0}".format(i)
-                            for i in xrange(len(arguments_types))]
-                specialized_fname = "__{0}::{1}::type{2}".format(
-                    module_name, internal_function_name, "<{0}>".format(
-                    ", ".join(arguments_types)) if arguments_types else "")
+                             for i in xrange(len(arguments_types))]
+                name_fmt = "__{0}::{1}::type{2}"
+                args_list = ", ".join(arguments_types)
+                specialized_fname = name_fmt.format(module_name,
+                                                    internal_func_name,
+                                                    "<{0}>".format(args_list)
+                                                    if arguments_types else "")
                 result_type = ("typename std::remove_reference"
-                         + "<typename {0}::result_type>::type".format(
-                             specialized_fname))
-                mod.add_to_init([Statement("python_to_pythran<{0}>()".format(
-                t)) for t in extract_all_constructed_types(signature)])
+                               + "<typename {0}::result_type>::type".format(
+                                 specialized_fname))
+                mod.add_to_init(
+                    [Statement("python_to_pythran<{0}>()".format(t))
+                     for t in extract_all_constructed_types(signature)])
                 mod.add_to_init([Statement(
                     "pythran_to_python<{0}>()".format(result_type))])
                 mod.add_function(
-                        FunctionBody(
-                            FunctionDeclaration(
-                                Value(
-                                    result_type,
-                                    numbered_function_name),
-                                [Value(t, a) for t, a in zip(
-                                            arguments_types, arguments)]),
-                            Block([Statement("return {0}()({1})".format(
-                                '__{0}::{1}'.format(
-                                    module_name, internal_function_name),
-                                ', '.join(arguments)))])
-                            ),
-                        function_name
-                        )
+                    FunctionBody(
+                        FunctionDeclaration(
+                            Value(
+                                result_type,
+                                numbered_function_name),
+                            [Value(t, a)
+                             for t, a in zip(arguments_types, arguments)]),
+                        Block([Statement("return {0}()({1})".format(
+                            '__{0}::{1}'.format(
+                                module_name, internal_func_name),
+                            ', '.join(arguments)))])
+                    ),
+                    function_name
+                )
     return mod
 
 
 class ToolChain(object):
     def __init__(self, compiler, cppflags=None,
-                cxxflags=None, ldflags=None, check=True):
+                 cxxflags=None, ldflags=None, check=True):
         self.compiler = compiler
         self.cppflags = cppflags or list()
         self.cxxflags = cxxflags or list()
@@ -193,29 +196,29 @@ class ToolChain(object):
         return module_so
 
     def check_compile(self, msg, code, cppflags=list(),
-                    cxxflags=list(), ldflags=list(), optional=False):
+                      cxxflags=list(), ldflags=list(), optional=False):
         try:
             if optional or self.check:
                 tmpfile = NamedTemporaryFile(suffix=".cpp")
                 tmpfile.write(code)
                 tmpfile.flush()
                 check_output([self.compiler]
-                                + self.cppflags
-                                + cppflags
-                                + self.cxxflags
-                                + cxxflags
-                                + [tmpfile.name]
-                                + self.ldflags
-                                + ldflags,
-                                stderr=STDOUT)
+                             + self.cppflags
+                             + cppflags
+                             + self.cxxflags
+                             + cxxflags
+                             + [tmpfile.name]
+                             + self.ldflags
+                             + ldflags,
+                             stderr=STDOUT)
             self.cppflags.extend(cppflags)
             self.cxxflags.extend(cxxflags)
             self.ldflags.extend(ldflags)
         except CalledProcessError as e:
-            raise EnvironmentError(errno.ENOPKG, msg + '\n\n' + e.output)
+            raise RuntimeError(msg + '\n\n' + e.output)
 
     def check_package(self, pkg, code, cppflags=list(),
-                    cxxflags=list(), ldflags=list(), optional=False):
+                      cxxflags=list(), ldflags=list(), optional=False):
         return self.check_compile(
             pkg + ' not found, try to add -I or -L flags?',
             code, cppflags, cxxflags, ldflags, optional)
@@ -223,11 +226,11 @@ class ToolChain(object):
     def configure(self):
         """Look for the many dependencies of pythran and add them to the
            relevant path.
-           Raise an EnvironmentError exception otherwise"""
+           Raise a RuntimeError exception otherwise"""
 
         # basic c++ compiler
         self.check_compile('no valid c++ compiler found',
-                """#include <iostream>
+                           """#include <iostream>
 int main(int argc, char *argv[])
 {
     std::cout << "hello " << (argc>1?argv[1]:"world") << std::endl;
@@ -235,9 +238,9 @@ int main(int argc, char *argv[])
 }
 """, ldflags=['-fPIC'])
         # c++2011
-        self.check_compile(
-            'no c++ 2011 support found, try to add compiler specific flags?',
-"""#include <utility>
+        self.check_compile('no c++ 2011 support found, try to add compiler '
+                           'specific flags?',
+                           """#include <utility>
 decltype(std::declval<int>() + 1) main()
 {
     void * p = nullptr;
@@ -246,52 +249,59 @@ decltype(std::declval<int>() + 1) main()
 
         # python-dev
         self.check_package('python development environment',
-                '#include <Python.h>\nint main() { return 0; }',
-                cppflags=["-I{0}".format(
-                                distutils.sysconfig.get_python_inc())],
-                ldflags=['-L{0}/config'.format(
-                                distutils.sysconfig.get_python_lib(0, 1)),
-                        '-lpython{0}'.format(sys.version[:3])]
-                )
+                           '#include <Python.h>\nint main() { return 0; }',
+                           cppflags=["-I{0}".format(
+                                     distutils.sysconfig.get_python_inc())],
+                           ldflags=['-L{0}/config'.format(
+                                    distutils.sysconfig.get_python_lib(0, 1)),
+                           '-lpython{0}'.format(sys.version[:3])])
 
         # boost python
-        self.check_package('boost::python',
-                '#include <boost/python.hpp>\nint main() { return 0; }',
-                ldflags=['-lboost_python']
-                )
+        try:
+            self.check_package('boost::python',
+                               '#include <boost/python.hpp>\nint main()'
+                               ' { return 0; }',
+                               ldflags=['-lboost_python'])
+        except RuntimeError:
+            self.check_package('boost::python',
+                               '#include <boost/python.hpp>\nint main()'
+                               ' { return 0; }',
+                               ldflags=['-lboost_python-mt'])
 
         # boost format
         self.check_package('boost::format',
-                '#include <boost/format.hpp>\nint main() { return 0; }'
-                )
+                           '#include <boost/format.hpp>\nint main()'
+                           ' { return 0; }')
 
         # GMP
         self.check_package('GNU Multiprecision arithmetic library',
-                '#include <gmpxx.h>\nint main() { return 0; }',
-                ldflags=['-lgmpxx', '-lgmp']
-                )
+                           '#include <gmpxx.h>\nint main() { return 0; }',
+                           ldflags=['-lgmpxx', '-lgmp'])
 
         # tcmalloc only if available
         try:
             self.check_package('tcmalloc', 'int main() { return 0; }',
-                                ldflags=['-ltcmalloc_minimal'],
-                                optional=True)
-        except EnvironmentError:
+                               ldflags=['-ltcmalloc_minimal'],
+                               optional=True)
+        except RuntimeError:
             pass
 
         # pythonic++
+        cppflags = ['-I.',
+                    '-DENABLE_PYTHON_MODULE'
+                    ] + ['-I{0}'
+                         .format(os.path.join(p, "pythran", "pythonic++"))
+                         for p in sys.path if os.path.exists(
+                         os.path.join(p,
+                                      "pythran", "pythonic++", "pythonic++.h"))
+                         ] + ['-I{0}'.format(p)
+                              for p in sys.path if p if os.path.exists(
+                              os.path.join(p, "pythran", "pythran.h"))
+                              ]
+
         self.check_package('pythonic++',
-                '#include <pythonic++.h>\nint main() { return 0; }',
-                cppflags=['-I.', '-DENABLE_PYTHON_MODULE']
-                         + ['-I{0}'.format(
-                            os.path.join(p, "pythran", "pythonic++"))
-                            for p in sys.path if os.path.exists(
-                                os.path.join(p,
-                                    "pythran", "pythonic++", "pythonic++.h"))]
-                         + ['-I{0}'.format(p)
-                            for p in sys.path if p if os.path.exists(
-                                os.path.join(p, "pythran", "pythran.h"))]
-        )
+                           '#include <pythonic++.h>\nint main() { return 0; }',
+                           cppflags=cppflags)
 
 
 def compile(compiler, module, output_filename=None, cppflags=list(),

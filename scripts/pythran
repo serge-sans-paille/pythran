@@ -65,6 +65,11 @@ parser.add_argument('-I', dest='extra_Iflags', metavar='include_dir',
         help='any include dir relevant to the underlying C++ compiler',
         default=list())
 
+parser.add_argument('-L', dest='extra_Lflags', metavar='ldflags',
+        action='append',
+        help='any search dir relevant to the linker',
+        default=list())
+
 parser.add_argument('-D', dest='extra_Dflags', metavar='macro_definition',
         action='append',
         help='any macro definition relevant to the underlying C++ compiler',
@@ -122,6 +127,7 @@ try:
                 + ['-m{0}'.format(n) for n in args.extra_mflags]
                 + ['-I{0}'.format(n) for n in args.extra_Iflags]
                 + ['-D{0}'.format(n) for n in args.extra_Dflags]
+                + ['-L{0}'.format(n) for n in args.extra_Lflags]
                 + ['-O{0}'.format(n) for n in args.extra_Oflags]
                 + (['-g'] if args.debug_flag else [])
                 )

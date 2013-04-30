@@ -76,11 +76,13 @@ namespace pythonic {
             string(const char*s, size_t n) : std::string(s,n) {}
             string(char c) : std::string(1,c) {}
             string(string_view const & other) : std::string( other.begin(), other.end()) {}
+            template<class T>
+            string(T const& begin, T const& end) : std::string( begin, end) {}
             core::string operator+(core::string const& s) const {
                 return core::string( (*(std::string*)this)+(std::string const&)s );
             }
 
-            operator char() const {
+            explicit operator char() const {
                 assert(size() == 1);
                 return (*this)[0];
             }
@@ -96,7 +98,7 @@ namespace pythonic {
                 }
                 return res;
             }
-            operator double() const {
+            explicit operator double() const {
                 char *endptr;
                 double res = strtod(data(), &endptr);
                 if(endptr == data()) {
@@ -174,6 +176,12 @@ namespace pythonic {
                 core::string operator%(std::tuple<A...> const & a) const {
                     boost::format fmter(*this);
                     (fmt(fmter, a, int_<sizeof...(A)>() ));
+                    return fmter.str();
+                }
+            template<size_t N, class T>
+                core::string operator%(core::ltuple<T, N> const & a) const {
+                    boost::format fmter(*this);
+                    (fmt(fmter, a, int_<N>() ));
                     return fmter.str();
                 }
             private:

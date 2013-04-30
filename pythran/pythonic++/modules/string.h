@@ -5,6 +5,14 @@
 #include <iostream>
 
 namespace pythonic {
+    namespace string {
+       core::string const ascii_lowercase("abcdefghijklmnopqrstuvwxyz"); 
+       core::string const ascii_uppercase("ABCDEFGHIJKLMNOPQRSTUVWXYZ"); 
+       core::string const ascii_letters = ascii_lowercase + ascii_uppercase; 
+       core::string const digits("0123456789"); 
+       core::string const hexdigits("0123456789abcdefABCDEF"); 
+       core::string const octdigits("01234567"); 
+    }
     namespace __string__ { /* to avoid conflict with the string intrinsic */
         long find(core::string const & s, core::string const& value, size_t start, long long end) {
             long a = s.find(value,start);
@@ -35,12 +43,28 @@ namespace pythonic {
             if(s.empty()) return s;
             else {
                 core::string copy = s;
-                ::toupper(*copy.begin());
-                std::transform(copy.begin()+1, copy.end(), copy.begin()+1, ::tolower);
+                copy[0] = ::toupper(s[0]);
+                std::transform(s.begin()+1, s.end(), copy.begin()+1, ::tolower);
                 return copy;
             }
         }
         PROXY(pythonic::__string__, capitalize);
+
+        core::string lower(core::string const & s)
+        {
+            core::string copy = s;
+            std::transform(s.begin(),s.end(), copy.begin(), ::tolower);
+            return copy;
+        }
+        PROXY(pythonic::__string__, lower);
+
+        core::string upper(core::string const & s)
+        {
+            core::string copy = s;
+            std::transform(s.begin(),s.end(), copy.begin(), ::toupper);
+            return copy;
+        }
+        PROXY(pythonic::__string__, upper);
 
         core::list<core::string> split(core::string const& s, core::string const& sep = " ", long maxsplit = -1)
         {
@@ -82,6 +106,23 @@ namespace pythonic {
         }
         PROXY(pythonic::__string__, replace);
 
+        core::string strip(core::string const& self, core::string const& to_del = " ")
+        {
+            return core::string(self.begin() + self.find_first_not_of(to_del), self.begin() + self.find_last_not_of(to_del) + 1);
+        }
+        PROXY(pythonic::__string__, strip);
+
+        core::string lstrip(core::string const& self, core::string const& to_del = " ")
+        {
+            return core::string(self.begin() + self.find_first_not_of(to_del), self.end());
+        }
+        PROXY(pythonic::__string__, lstrip);
+
+        core::string rstrip(core::string const& self, core::string const& to_del = " ")
+        {
+            return core::string(self.begin(), self.begin() + self.find_last_not_of(to_del) + 1);
+        }
+        PROXY(pythonic::__string__, rstrip);
     }
 }
 #endif

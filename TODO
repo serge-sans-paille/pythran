@@ -129,3 +129,11 @@ a specific behaviour if the imported modules doesn't exist (using sur ImportErro
 exception).
 While pythran, raise an error if module doesn't exist, it should branch in the
 except part of the code.
+
+ConstantFolding timeout
+-----------------------
+
+Sometime we can have a code which compute a constant but it is really long and
+we want to compile it to have the result faster. For now, pythran will compute
+it through CPython which makes it slower. A time out can avoid this issue.
+It might be possible to save current computation at the end of the timeout.

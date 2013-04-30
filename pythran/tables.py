@@ -6,7 +6,7 @@ import ast
 import cxxtypes
 
 from intrinsic import ConstFunctionIntr, FunctionIntr, Class
-from intrinsic import ConstMethodIntr, MethodIntr, AttributeIntr, ScalarIntr
+from intrinsic import ConstMethodIntr, MethodIntr, AttributeIntr, ConstantIntr
 
 namespace = "pythonic"
 
@@ -235,8 +235,8 @@ modules = {
                 "ceil": ConstFunctionIntr(),
                 "floor": ConstFunctionIntr(),
                 "pow": ConstFunctionIntr(),
-                "pi": ScalarIntr(),
-                "e": ScalarIntr(),
+                "pi": ConstantIntr(),
+                "e": ConstantIntr(),
                 },
         "bisect": {
                 "bisect_left": ConstFunctionIntr(),
@@ -248,8 +248,8 @@ modules = {
                 "sqrt": FunctionIntr(),
                 "log10": FunctionIntr(),
                 "isnan": FunctionIntr(),
-                "pi": ScalarIntr(),
-                "e": ScalarIntr(),
+                "pi": ConstantIntr(),
+                "e": ConstantIntr(),
                 },
        "itertools": {
                 "count": ConstFunctionIntr(),
@@ -258,6 +258,8 @@ modules = {
                 "islice": ConstFunctionIntr(),
                 "product": ConstFunctionIntr(),
                 "izip": ConstFunctionIntr(),
+                "combinations": ConstFunctionIntr(),
+                "permutations": ConstFunctionIntr(),
                 },
         "random": {
                 "seed": FunctionIntr(global_effects=True),
@@ -586,6 +588,14 @@ modules = {
                     ),
 
         },
+        "string": {
+                "ascii_lowercase": ConstantIntr(),
+                "ascii_uppercase": ConstantIntr(),
+                "ascii_letters": ConstantIntr(),
+                "digits": ConstantIntr(),
+                "hexdigits": ConstantIntr(),
+                "octdigits": ConstantIntr(),
+                },
         "__list__": {
                 "append": MethodIntr(
                     lambda self, node:
@@ -620,14 +630,18 @@ modules = {
         "__iterator__": {
                 #"next": MethodIntr(), //Dispatched
                 },
-
         "__string__": {
+                "capitalize": ConstMethodIntr(),
+                "endswith": ConstMethodIntr(),
                 "find": ConstMethodIntr(),
                 "join": ConstMethodIntr(),
-                "capitalize": ConstMethodIntr(),
-                "split": ConstMethodIntr(),
-                "endswith": ConstMethodIntr(),
+                "lower": ConstMethodIntr(),
                 "replace": ConstMethodIntr(),
+                "split": ConstMethodIntr(),
+                "strip": ConstMethodIntr(),
+                "lstrip": ConstMethodIntr(),
+                "rstrip": ConstMethodIntr(),
+                "upper": ConstMethodIntr(),
                 },
         "__set__": {
                 "add": MethodIntr(

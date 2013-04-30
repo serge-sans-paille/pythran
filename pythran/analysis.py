@@ -76,7 +76,7 @@ class Locals(ModuleAnalysis):
         super(Locals, self).__init__(GlobalDeclarations)
 
     def generic_visit(self, node):
-        ModuleAnalysis.generic_visit(self, node)
+        super(Locals, self).generic_visit(node)
         if node not in self.result:
             self.result[node] = self.result[self.expr_parent]
 
@@ -97,6 +97,7 @@ class Locals(ModuleAnalysis):
         self.expr_parent = node
         self.result[node] = self.locals.copy()
         parent_locals = self.locals.copy()
+        map(self.visit, node.args.defaults)
         self.locals.update(arg.id for arg in node.args.args)
         map(self.visit, node.body)
         self.locals = parent_locals
@@ -172,10 +173,12 @@ class ImportedIds(NodeAnalysis):
     def __init__(self):
         self.result = set()
         self.current_locals = set()
+        self.is_list = False
+        self.in_augassign = False
         super(ImportedIds, self).__init__(Globals, Locals)
 
     def visit_Name(self, node):
-        if isinstance(node.ctx, ast.Store):
+        if isinstance(node.ctx, ast.Store) and not self.in_augassign:
             self.current_locals.add(node.id)
         elif (node.id not in self.visible_globals
                 and node.id not in self.current_locals):
@@ -199,6 +202,17 @@ class ImportedIds(NodeAnalysis):
     visit_DictComp = visit_AnyComp
     visit_GeneratorExp = visit_AnyComp
 
+    def visit_Assign(self, node):
+        #order matter as an assignation
+        #is evaluted before being assigned
+        self.visit(node.value)
+        map(self.visit, node.targets)
+
+    def visit_AugAssign(self, node):
+        self.in_augassign = True
+        self.generic_visit(node)
+        self.in_augassign = False
+
     def visit_Lambda(self, node):
         current_locals = self.current_locals.copy()
         self.current_locals.update(arg.id for arg in node.args.args)
@@ -216,10 +230,13 @@ class ImportedIds(NodeAnalysis):
 
     def prepare(self, node, ctx):
         super(ImportedIds, self).prepare(node, ctx)
+        if self.is_list:  # so that this pass can be called on list
+            node = node.body[0]
         self.visible_globals = set(self.globals) - self.locals[node]
 
     def run(self, node, ctx):
         if isinstance(node, list):  # so that this pass can be called on list
+            self.is_list = True
             node = ast.If(ast.Num(1), node, None)
         return super(ImportedIds, self).run(node, ctx)
 
@@ -516,14 +533,34 @@ class Aliases(ModuleAnalysis):
 
     def visit_For(self, node):
         self.aliases[node.target.id] = {node.target}
-        self.generic_visit(node)
+        # Error may come from false branch evaluation so we have to try again
+        try:
+            self.generic_visit(node)
+        except PythranSyntaxError:
+            self.generic_visit(node)
+
+    def visit_While(self, node):
+        # Error may come from false branch evaluation so we have to try again
+        try:
+            self.generic_visit(node)
+        except PythranSyntaxError:
+            self.generic_visit(node)
 
     def visit_If(self, node):
         self.visit(node.test)
         false_aliases = {k: v.copy() for k, v in self.aliases.iteritems()}
-        map(self.visit, node.body)
-        true_aliases, self.aliases = self.aliases, false_aliases
-        map(self.visit, node.orelse)
+        try:  # first try the true branch
+            map(self.visit, node.body)
+            true_aliases, self.aliases = self.aliases, false_aliases
+        except PythranSyntaxError:  # it failed, try the false branch
+            map(self.visit, node.orelse)
+            raise  # but still throw the exception, maybe we are in a For
+        try:  # then try the false branch
+            map(self.visit, node.orelse)
+        except PythranSyntaxError:  #it failed
+            # we still get some info from the true branch, validate them
+            self.aliases = true_aliases
+            raise  # and let other visit_ handle the issue
         for k, v in true_aliases.iteritems():
             if k in self.aliases:
                 self.aliases[k].update(v)
@@ -917,6 +954,9 @@ class UsedDefChain(FunctionAnalysis):
         self.result = dict()
         self.current_node = dict()
         self.use_only = dict()
+        self.in_loop = False
+        self.break_ = dict()
+        self.continue_ = dict()
         super(UsedDefChain, self).__init__(Globals)
 
     def merge_dict_set(self, into_, from_):
@@ -927,19 +967,21 @@ class UsedDefChain(FunctionAnalysis):
                 into_[i] = from_[i]
 
     def add_loop_edges(self, prev_node):
-        for id in self.current_node:
+        self.merge_dict_set(self.continue_, self.current_node)
+        for id in self.continue_:
             if id in self.result:
                 graph = self.result[id]
             else:
                 graph = self.use_only[id]
-            if id in prev_node and prev_node[id] != self.current_node[id]:
+            if id in prev_node and prev_node[id] != self.continue_[id]:
                 entering_node = [i for j in prev_node[id]
                                    for i in graph.successors_iter(j)]
             else:
                 cond = lambda x: graph.in_degree(x) == 0
                 entering_node = filter(cond, graph)
-            graph.add_edges_from(product(self.current_node[id],
+            graph.add_edges_from(product(self.continue_[id],
                         entering_node))
+        self.continue_ = dict()
 
     def visit_Name(self, node):
         if node.id not in self.result and node.id not in self.use_only:
@@ -1001,7 +1043,15 @@ class UsedDefChain(FunctionAnalysis):
         self.current_node[var] = set([last_node])
 
     def visit_If(self, node):
+        swap = False
         self.visit(node.test)
+
+        #if an identifier is first used in orelse and we are in a loop,
+        #we swap orelse and body
+        undef = self.passmanager.gather(ImportedIds, node.body, self.ctx)
+        if not all(i in self.current_node for i in undef) and self.in_loop:
+            node.body, node.orelse = node.orelse, node.body
+            swap = True
 
         #body
         old_node = dict(self.current_node)
@@ -1012,11 +1062,22 @@ class UsedDefChain(FunctionAnalysis):
         self.current_node = old_node
         map(self.visit, node.orelse)
 
+        if swap:
+            node.body, node.orelse = node.orelse, node.body
+
         #merge result
         self.merge_dict_set(self.current_node, new_node)
 
     def visit_IfExp(self, node):
+        swap = False
         self.visit(node.test)
+
+        #if an identifier is first used in orelse and we are in a loop,
+        #we swap orelse and body
+        undef = self.passmanager.gather(ImportedIds, node.body, self.ctx)
+        if undef and self.in_loop:
+            node.body, node.orelse = node.orelse, node.body
+            swap = True
 
         #body
         old_node = dict(self.current_node)
@@ -1027,41 +1088,58 @@ class UsedDefChain(FunctionAnalysis):
         self.current_node = old_node
         self.visit(node.orelse)
 
+        if swap:
+            node.body, node.orelse = node.orelse, node.body
+
         #merge result
         self.merge_dict_set(self.current_node, new_node)
+
+    def visit_Break(self, node):
+        self.merge_dict_set(self.break_, self.current_node)
+
+    def visit_Continue(self, node):
+        self.merge_dict_set(self.continue_, self.current_node)
 
     def visit_While(self, node):
         prev_node = dict(self.current_node)
         self.visit(node.test)
         #body
+        self.in_loop = True
         old_node = dict(self.current_node)
         map(self.visit, node.body)
         self.add_loop_edges(prev_node)
+        self.in_loop = False
 
         #orelse
         new_node = self.current_node
-        self.current_node = old_node
+        self.merge_dict_set(self.current_node, old_node)
         map(self.visit, node.orelse)
 
         #merge result
         self.merge_dict_set(self.current_node, new_node)
+        self.merge_dict_set(self.current_node, self.break_)
+        self.break_ = dict()
 
     def visit_For(self, node):
         self.visit(node.iter)
 
         #body
+        self.in_loop = True
         old_node = dict(self.current_node)
         self.visit(node.target)
         map(self.visit, node.body)
         self.add_loop_edges(old_node)
+        self.in_loop = False
 
         #orelse
         new_node = self.current_node
-        self.current_node = old_node
+        self.merge_dict_set(self.current_node, old_node)
         map(self.visit, node.orelse)
 
         #merge result
         self.merge_dict_set(self.current_node, new_node)
+        self.merge_dict_set(self.current_node, self.break_)
+        self.break_ = dict()
 
     def visit_TryExcept(self, node):
 

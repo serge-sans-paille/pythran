@@ -242,14 +242,22 @@ namespace  pythonic {
 
         template<class T>
             struct sliced_ndarray : slice {
+                static constexpr size_t value = T::value;
                 typedef typename T::value_type value_type;
                 typedef typename T::reference reference;
                 typedef typename T::const_reference const_reference;
+                core::ltuple<long, value> shape;
 
                 T& data;
 
-                sliced_ndarray(T& data, slice const& s) : slice(s), data(data) {}
+                sliced_ndarray(T& data, slice const& s) : slice(s), shape(data.shape.begin(), data.shape.end()), data(data) {
+                    shape[0] = ceil(double(upper - lower)/step);
+                }
 
+                auto at(long i) const -> decltype(data.at(lower+i*step)) {
+                    return data.at(lower+i*step);
+                }
+                size_t size() const { return (data.size() / data.shape[0]) * shape[0] ; }
                 reference operator[](long i) { return data[lower+i*step]; }
                 const_reference operator[](long i) const { return data[lower+i*step]; }
                 sliced_ndarray<T> operator[](slice const& s) const { return sliced_ndarray(data, slice(lower + step*s.lower, std::min(upper, lower + step*s.upper), step*s.step)); }
@@ -424,6 +432,18 @@ namespace  pythonic {
 
                 template<class Op, class Arg0>
                     ndarray(numpy_uexpr<Op, Arg0> const & expr) :
+                        data_size(0),
+                        mem(expr.size()),
+                        data(),
+                        shape(expr.shape)
+                {
+                    auto shape_iterator = shape.begin();
+                    type_helper<ndarray<T,N>>::initialize_from_shape(*this, mem, mem->data, shape_iterator);
+                    initialize_from_expr(expr);
+                }
+                /* from a slice */
+                template<class E>
+                    ndarray(sliced_ndarray<E> const& expr):
                         data_size(0),
                         mem(expr.size()),
                         data(),

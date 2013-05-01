@@ -167,4 +167,9 @@ def ifilter_with_nested_lambdas(N):
         self.run_test("def permutations_(l0,a): from itertools import permutations; return sum(map(lambda (x,y) : x*y, permutations(l0,a)))", [0,1,2,3,4,5], 2, permutations_=[[int],int])
 
     def test_permutations_2(self):
-        self.run_test("def permutations_2_(l0): from itertools import permutations; return sum(map(lambda (x,y) : x*y, permutations(l0)))", [0,1,2,3], permutations_=[[int]])
+        '''Test permutation without second arg'''
+        self.run_test("def permutations_2_(l0): "
+                      "  from itertools import permutations;"
+                      "  return list(permutations(l0))",
+                      [0, 1, 2, 3],
+                      permutations_2_=[[int]])

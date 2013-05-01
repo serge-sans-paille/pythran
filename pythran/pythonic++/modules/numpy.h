@@ -19,6 +19,7 @@ namespace pythonic {
         /* a few classical constants */
         double const pi = 3.141592653589793238462643383279502884;
         double const e = 2.718281828459045235360287471352662498;
+        double const nan = std::numeric_limits<double>::quiet_NaN();
 
         /* numpy standard types */
         namespace proxy {
@@ -113,6 +114,12 @@ namespace pythonic {
               return arange(T(0), end);
           }
        PROXY(pythonic::numpy, arange);
+
+       template<class T>
+          long alen(T&& expr) {
+              return expr.shape[0];
+          }
+       PROXY(pythonic::numpy, alen);
 
        core::ndarray<double, 1> linspace(double start, double stop, long num=50, bool endpoint = true)
        {
@@ -349,6 +356,23 @@ namespace pythonic {
 
         PROXY(pythonic::numpy, all);
 
+        template<class U, class V>
+            bool allclose(U&& u, V&& v, double rtol=1e-5, double atol=1e-8) {
+                long u_s = u.size(),
+                     v_s = v.size();
+                if( u_s == v_s ) {
+                    for(long i=0;i < u_s; ++i) {
+                        auto v_i = v.at(i);
+                        if( std::abs(u.at(i)-v_i) > (atol + rtol * std::abs(v_i)))
+                            return false;
+                    }
+                    return true;
+                }
+                return false;
+            }
+
+        PROXY(pythonic::numpy, allclose);
+
         template<class T, unsigned long N, class... C>
             core::ndarray<T,N> _transpose(core::ndarray<T,N> const & a, long const l[N])
             {
@@ -463,6 +487,7 @@ namespace pythonic {
         using pythonic::core::name;\
         PROXY(pythonic::numpy, name)
 
+        NP_PROXY(abs);
 
         NP_PROXY_ALIAS(absolute, nt2::abs);
 

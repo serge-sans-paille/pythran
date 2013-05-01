@@ -222,6 +222,11 @@ namespace  pythonic {
                     return T(1);
                 }
 
+            template<class T >
+                auto positive(T const& t) -> decltype(+t) {
+                    return +t;
+                }
+
             template<class T0, class T1>
                 auto right_shift(T0 const& t0, T1 const& t1) -> decltype(t0 >> t1) {
                     return t0 >> t1;
@@ -245,8 +250,11 @@ namespace  pythonic {
     }
     namespace core {
 
-
             PROXY(nt2, abs)
+#define NUMPY_UNARY_FUNC_NAME abs
+#define NUMPY_UNARY_FUNC_SYM proxy::abs
+#include "numpy_unary_expr.h"
+
 #define NUMPY_UNARY_FUNC_NAME absolute
 #define NUMPY_UNARY_FUNC_SYM proxy::abs
 #include "numpy_unary_expr.h"
@@ -599,6 +607,11 @@ namespace  pythonic {
             PROXY(pythonic::numpy_expr::ops, ones_like)
 #define NUMPY_UNARY_FUNC_NAME ones_like
 #define NUMPY_UNARY_FUNC_SYM proxy::ones_like
+#include "numpy_unary_expr.h"
+
+        PROXY(pythonic::numpy_expr::ops, positive)
+#define NUMPY_UNARY_FUNC_NAME operator+
+#define NUMPY_UNARY_FUNC_SYM proxy::positive
 #include "numpy_unary_expr.h"
 
             PROXY(nt2, pow)

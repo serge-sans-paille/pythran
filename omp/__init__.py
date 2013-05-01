@@ -24,7 +24,7 @@ class omp(object):
         for path in paths:
             if libgomp_path:
                 break
-            libgomp_path = ctypes.util.find_library(path+"gomp")
+            libgomp_path = ctypes.util.find_library(path+"libgomp")
 
         if not libgomp_path:
             raise EnvironmentError("I can't find a shared library for libgomp,"

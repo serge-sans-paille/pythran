@@ -11,6 +11,7 @@
 #include <nt2/include/functions/scalar/atanh.hpp>
 #include <nt2/include/functions/scalar/bitofsign.hpp>
 #include <nt2/include/functions/scalar/ceil.hpp>
+#include <nt2/include/functions/scalar/conj.hpp>
 #include <nt2/include/functions/scalar/copysign.hpp>
 #include <nt2/include/functions/scalar/cos.hpp>
 #include <nt2/include/functions/scalar/cosh.hpp>
@@ -62,6 +63,7 @@
 #include <nt2/include/functions/simd/atanh.hpp>
 #include <nt2/include/functions/simd/bitofsign.hpp>
 #include <nt2/include/functions/simd/ceil.hpp>
+#include <nt2/include/functions/simd/conj.hpp>
 #include <nt2/include/functions/simd/copysign.hpp>
 #include <nt2/include/functions/simd/cos.hpp>
 #include <nt2/include/functions/simd/cosh.hpp>
@@ -222,6 +224,11 @@ namespace  pythonic {
                     return T(1);
                 }
 
+            template<class T >
+                auto positive(T const& t) -> decltype(+t) {
+                    return +t;
+                }
+
             template<class T0, class T1>
                 auto right_shift(T0 const& t0, T1 const& t1) -> decltype(t0 >> t1) {
                     return t0 >> t1;
@@ -241,14 +248,39 @@ namespace  pythonic {
                     return T(0);
                 }
 
+            template<class T >
+                auto angle_in_rad(T const& t) -> decltype(atan(std::imag(t)/std::real(t))) {
+                    if(std::real(t)) return atan(std::imag(t)/std::real(t));
+                    else return M_PI/2;
+                }
+
+            template<class T >
+                auto angle_in_deg(T const& t) -> decltype(nt2::indeg(angle_in_rad(t))) {
+                    return nt2::indeg(angle_in_rad(t));
+                }
+
+
         }
     }
     namespace core {
 
-
             PROXY(nt2, abs)
+#define NUMPY_UNARY_FUNC_NAME abs
+#define NUMPY_UNARY_FUNC_SYM proxy::abs
+#include "numpy_unary_expr.h"
+
 #define NUMPY_UNARY_FUNC_NAME absolute
 #define NUMPY_UNARY_FUNC_SYM proxy::abs
+#include "numpy_unary_expr.h"
+
+        PROXY(pythonic::numpy_expr::ops, angle_in_rad)
+#define NUMPY_UNARY_FUNC_NAME angle_in_rad
+#define NUMPY_UNARY_FUNC_SYM proxy::angle_in_rad
+#include "numpy_unary_expr.h"
+
+        PROXY(pythonic::numpy_expr::ops, angle_in_deg)
+#define NUMPY_UNARY_FUNC_NAME angle_in_deg
+#define NUMPY_UNARY_FUNC_SYM proxy::angle_in_deg
 #include "numpy_unary_expr.h"
 
             PROXY(pythonic::numpy_expr::ops, add)
@@ -336,6 +368,15 @@ namespace  pythonic {
 #define NUMPY_BINARY_FUNC_NAME copysign
 #define NUMPY_BINARY_FUNC_SYM proxy::copysign
 #include "numpy_binary_expr.h"
+
+            PROXY(nt2, conj)
+#define NUMPY_UNARY_FUNC_NAME conj
+#define NUMPY_UNARY_FUNC_SYM proxy::conj
+#include "numpy_unary_expr.h"
+
+#define NUMPY_UNARY_FUNC_NAME conjugate
+#define NUMPY_UNARY_FUNC_SYM proxy::conj
+#include "numpy_unary_expr.h"
 
             PROXY(nt2, cos)
 #define NUMPY_UNARY_FUNC_NAME cos
@@ -599,6 +640,11 @@ namespace  pythonic {
             PROXY(pythonic::numpy_expr::ops, ones_like)
 #define NUMPY_UNARY_FUNC_NAME ones_like
 #define NUMPY_UNARY_FUNC_SYM proxy::ones_like
+#include "numpy_unary_expr.h"
+
+        PROXY(pythonic::numpy_expr::ops, positive)
+#define NUMPY_UNARY_FUNC_NAME operator+
+#define NUMPY_UNARY_FUNC_SYM proxy::positive
 #include "numpy_unary_expr.h"
 
             PROXY(nt2, pow)

@@ -178,6 +178,12 @@ namespace pythonic {
                     return reinterpret_cast<intptr_t>(&t.get_data());
                 }
             };
+        template <class T, size_t N>
+            struct _id< core::ndarray<T,N> > {
+                intptr_t operator()(core::ndarray<T,N> const &t) {
+                    return reinterpret_cast<intptr_t>(t.buffer);
+                }
+            };
 
         template <class T>
             intptr_t id(T const & t) {

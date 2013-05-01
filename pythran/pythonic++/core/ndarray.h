@@ -112,14 +112,41 @@ namespace  pythonic {
                 size_t size() const { return std::max(arg0.size(), arg1.size()); }
             };
 
+
+
         template <class Expr>
-            struct numpy_expr_to_ndarray;
+            struct numpy_expr_to_ndarray {
+                typedef Expr type;
+            };
+
+        template <class L>
+            struct numpy_expr_to_ndarray<core::list<L>> {
+                typedef typename nested_container_value_type<core::list<L>>::type T;
+                static const size_t N = nested_container_depth<core::list<L>>::value;
+                typedef core::ndarray<T, N> type;
+            };
+
+        template <class T_, size_t N_>
+            struct numpy_expr_to_ndarray<ndarray<T_, N_>> {
+                typedef T_ T;
+                static const size_t N = N_;
+                typedef core::ndarray<T, N> type;
+            };
 
         template<class Op, class Arg>
             struct numpy_expr_to_ndarray<numpy_uexpr<Op, Arg>> {
                 typedef typename std::remove_cv<typename std::remove_reference< decltype(std::declval<numpy_uexpr<Op, Arg>>().at(0)) >::type>::type T;
                 static const size_t N = std::tuple_size< typename std::remove_cv<typename std::remove_reference< decltype(std::declval<numpy_uexpr<Op, Arg>>().shape) >::type > ::type > ::value;
                 typedef core::ndarray<T, N> type;
+            };
+
+        template<class T>
+            struct to_ndarray {
+                typedef T type;
+            };
+        template <class L>
+            struct to_ndarray<core::list<L>> {
+                typedef typename numpy_expr_to_ndarray<core::list<L>>::type type;
             };
 
         template<class Op, class Arg0, class Arg1>
@@ -162,7 +189,6 @@ namespace  pythonic {
             struct is_numpy_expr<numpy_expr<Op, Arg0, Arg1>> {
                 static constexpr bool value = true;
              };
-
 
         template<class T>
             struct type_helper;
@@ -247,15 +273,19 @@ namespace  pythonic {
                 typedef typename T::reference reference;
                 typedef typename T::const_reference const_reference;
                 core::ltuple<long, value> shape;
+                size_t jump;
 
-                T& data;
+                T data;
 
-                sliced_ndarray(T& data, slice const& s) : slice(s), shape(data.shape.begin(), data.shape.end()), data(data) {
+                sliced_ndarray(T const& data, slice const& s) : slice(s), shape(data.shape.begin(), data.shape.end()), data(data) {
                     shape[0] = ceil(double(upper - lower)/step);
+                    jump = 1;
+                    for(size_t i=1;i<value; ++i)
+                        jump*=shape[i];
                 }
 
-                auto at(long i) const -> decltype(data.at(lower+i*step)) {
-                    return data.at(lower+i*step);
+                auto at(long i) const -> decltype(data.at(jump*lower+i*step)) {
+                    return data.at(jump*lower+i*step);
                 }
                 size_t size() const { return (data.size() / data.shape[0]) * shape[0] ; }
                 reference operator[](long i) { return data[lower+i*step]; }
@@ -279,8 +309,8 @@ namespace  pythonic {
             struct _get_shape {
                 template<class Iter>
                     void operator()(ndarray<T,N> const& array, Iter iter) {
-                        *iter++ = array.data_size;
-                        _get_shape<T, N-1>()(array.data[0], iter);
+                        if((*iter++ = array.data_size))
+                            _get_shape<T, N-1>()(array.data[0], iter);
                     }
             };
         template<class T>
@@ -303,6 +333,7 @@ namespace  pythonic {
 
                 /* types */
                 static const size_t value = N;
+                typedef T dtype;
                 typedef typename type_helper<ndarray<T, N>>::type value_type;
                 typedef value_type& reference;
                 typedef value_type const & const_reference;

@@ -18,13 +18,13 @@ class omp(object):
         paths = omp.LD_LIBRARY_PATHS
 
         # Try to load find libgomp shared library using loader search dirs
-        libgomp_path = ctypes.util.find_library("libgomp")
+        libgomp_path = ctypes.util.find_library("gomp")
 
         # Try to use custom paths if lookup failed
         for path in paths:
             if libgomp_path:
                 break
-            libgomp_path = ctypes.util.find_library(path+"libgomp")
+            libgomp_path = ctypes.util.find_library(path+"gomp")
 
         if not libgomp_path:
             raise EnvironmentError("I can't find a shared library for libgomp,"

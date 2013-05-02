@@ -130,7 +130,7 @@ class GenExpToImap(Transformation):
             return gen.iter
         else:
             ldFilter = ast.Lambda(
-                ast.arguments([ast.Name(gen.target.id, ast.Store())],
+                ast.arguments([ast.Name(gen.target.id, ast.Param())],
                               None, None, []), ast.BoolOp(ast.And(), gen.ifs))
             ifilterName = ast.Attribute(
                 value=ast.Name(id='itertools', ctx=ast.Load()),

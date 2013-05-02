@@ -7,6 +7,7 @@ import cxxtypes
 
 from intrinsic import ConstFunctionIntr, FunctionIntr, Class
 from intrinsic import ConstMethodIntr, MethodIntr, AttributeIntr, ConstantIntr
+from intrinsic import UpdateEffect, ReadEffect
 
 namespace = "pythonic"
 
@@ -577,8 +578,8 @@ modules = {
                     ),
                 "__contains__": ConstFunctionIntr(),
                 "countOf": ConstFunctionIntr(),
-                "delitem": ConstFunctionIntr(),
-                "__delitem__": ConstFunctionIntr(),
+                "delitem": FunctionIntr(argument_effects=[UpdateEffect(), ReadEffect()]),
+                "__delitem__": FunctionIntr(argument_effects=[UpdateEffect(), ReadEffect()]),
                 "getitem": ConstFunctionIntr(),
                 "__getitem__": ConstFunctionIntr(),
                 "indexOf": ConstFunctionIntr(),

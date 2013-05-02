@@ -80,13 +80,8 @@ namespace  pythonic {
                 // comparison
                 template <class K>
                     bool operator==(core::list<K> const & other) const {
-                        auto self_iter=begin();
-                        for(auto const & other_iter : other) {
-                            if(self_iter == end() ) return false;
-                            else if(*self_iter != other_iter) return false;
-                            ++self_iter;
-                        }
-                        return self_iter == end();
+                        if(size()!=other.size()) return false;
+                        return std::equal(begin(),end(),other.begin());
                     }
 
 
@@ -182,6 +177,17 @@ namespace  pythonic {
                     std::copy(other.begin(), other.end(), std::back_inserter(new_list));
                     return new_list;
                 }
+
+                // comparison
+                template <class K>
+                    bool operator==(core::list<K> const & other) const {
+                        if(size()!=other.size()) return false;
+                        return std::equal(begin(),end(),other.begin());
+                    }
+                template <class K>
+                    bool operator!=(core::list<K> const & other) const {
+                        return !operator==(other);
+                    }
 
                 // iterators
                 iterator begin() { return data->begin(); }

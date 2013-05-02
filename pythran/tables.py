@@ -260,6 +260,7 @@ modules = {
             "alltrue": ConstFunctionIntr(),
             "amax": ConstFunctionIntr(),
             "amin": ConstFunctionIntr(),
+            "any": ConstMethodIntr(),
             "arange": ConstFunctionIntr(),
             "arccos": ConstFunctionIntr(),
             "arcsin": ConstFunctionIntr(),

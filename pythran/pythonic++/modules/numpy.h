@@ -207,13 +207,31 @@ namespace pythonic {
 
        PROXY(pythonic::numpy, sum);
 
-       template<class T, unsigned long N>
-           T min(core::ndarray<T,N> const& array) {
-               return *std::min_element(array.buffer, array.buffer + array.size());
+       template<class E>
+           auto min(E&& expr) -> typename std::remove_reference<decltype(expr.at(0))>::type {
+               long sz = expr.size();
+               if(not sz) 
+                   throw __builtin__::ValueError("empty sequence");
+               auto res = expr.at(0);
+               for(long i = 1; i< sz ; ++i) {
+                   auto e_i = expr.at(i);
+                   if(e_i< res)
+                       res = e_i;
+               }
+               return res;
            }
-       template<class T, unsigned long N>
-           T max(core::ndarray<T,N> const& array) {
-               return *std::max_element(array.buffer, array.buffer + array.size());
+       template<class E>
+           auto max(E&& expr) -> typename std::remove_reference<decltype(expr.at(0))>::type {
+               long sz = expr.size();
+               if(not sz) 
+                   throw __builtin__::ValueError("empty sequence");
+               auto res = expr.at(0);
+               for(long i = 1; i< sz ; ++i) {
+                   auto e_i = expr.at(i);
+                   if(e_i > res)
+                       res = e_i;
+               }
+               return res;
            }
 
        template<class T>
@@ -305,9 +323,13 @@ namespace pythonic {
        PROXY(pythonic::numpy, min);
        PROXY(pythonic::numpy, max);
 
-       template<class T, size_t N>
-           bool all(core::ndarray<T,N> const& array) {
-               return std::all_of(array.buffer, array.buffer + array.size(), [](T t) { return bool(t); });
+       template<class E>
+           bool all(E&& expr) {
+               long sz = expr.size();
+               for(long i=0;i < sz ; ++i)
+                   if( not expr.at(i) )
+                       return false;
+               return true;
            }
 
        template<class T>
@@ -372,6 +394,27 @@ namespace pythonic {
             }
 
         PROXY(pythonic::numpy, allclose);
+
+        template<class... Types>
+            auto alltrue(Types&&... types) -> decltype(all(std::forward<Types>(types)...)) {
+                return all(std::forward<Types>(types)...);
+            }
+
+        PROXY(pythonic::numpy, alltrue);
+
+        template<class... Types>
+            auto amax(Types&&... types) -> decltype(max(std::forward<Types>(types)...)) {
+                return max(std::forward<Types>(types)...);
+            }
+
+        PROXY(pythonic::numpy, amax);
+
+        template<class... Types>
+            auto amin(Types&&... types) -> decltype(min(std::forward<Types>(types)...)) {
+                return min(std::forward<Types>(types)...);
+            }
+
+        PROXY(pythonic::numpy, amin);
 
         template<class T, unsigned long N, class... C>
             core::ndarray<T,N> _transpose(core::ndarray<T,N> const & a, long const l[N])

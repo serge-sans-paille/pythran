@@ -416,6 +416,61 @@ namespace pythonic {
 
         PROXY(pythonic::numpy, amin);
 
+       template<class E>
+           bool any(E&& expr) {
+               long sz = expr.size();
+               for(long i=0;i < sz ; ++i)
+                   if( expr.at(i) )
+                       return true;
+               return false;
+           }
+
+       template<class T>
+            T any( core::ndarray<T,1> const& array, long axis)
+            {
+                if(axis!=0)
+                    throw __builtin__::ValueError("axis out of bounds");
+                return any(array);
+            }
+
+       template<class T, size_t N>
+            typename core::ndarray<T,N>::value_type any( core::ndarray<T,N> const& array, long axis)
+            {
+                if(axis<0 || axis >=long(N))
+                    throw __builtin__::ValueError("axis out of bounds");
+                auto shape = array.shape;
+                if(axis==0)
+                {
+                    core::ltuple<long, N-1> shp;
+                    size_t size = 1;
+                    for(auto i= shape.begin() + 1, j = shp.begin(); i<shape.end(); i++, j++)
+                        size*=(*j = *i);
+                    core::ndarray<T,N-1> a(shp, None);
+                    auto a_iter = a.buffer;
+                    std::copy(array.buffer, array.buffer + size, a_iter);
+                    for(auto i = array.begin() + 1; i<array.end(); i++)
+                    {
+                        auto next_subarray = *i;  //we need this variable to keep this ndarray alive while iter is used
+                        auto iter = next_subarray.buffer,
+                             iter_end = next_subarray.buffer + next_subarray.size();
+                        auto k = a_iter;
+                        for(auto j = iter; j<iter_end; j++, k++)
+                            *k=*k or *j;
+                    }
+                    return a;
+                }
+                else
+                {
+                    core::ltuple<long, N-1> shp;
+                    std::copy(shape.begin(), shape.end() - 1, shp.begin());
+                    core::ndarray<T,N-1> ally(shp, None);
+                    std::transform(array.begin(), array.end(), ally.begin(), [=](core::ndarray<T,N-1> const& other) {return any(other, axis-1);});
+                    return ally;
+                }
+            }
+
+        PROXY(pythonic::numpy, any);
+
         template<class T, unsigned long N, class... C>
             core::ndarray<T,N> _transpose(core::ndarray<T,N> const & a, long const l[N])
             {

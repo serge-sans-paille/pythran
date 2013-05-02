@@ -394,7 +394,7 @@ namespace pythonic {
             itemgetter_tuple_return(){
             }
          
-            template<class T, class A, int I>
+            template<class T, class A, size_t I>
                 void helper(T & t, A const& a, int_<I>) const {
                     std::get<I>(t) = a[std::get<I>(items)];
                     helper(t,a, int_<I-1>());

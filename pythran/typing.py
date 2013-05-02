@@ -536,7 +536,12 @@ class Types(ModuleAnalysis):
 
     def visit_Compare(self, node):
         self.generic_visit(node)
-        self.result[node] = NamedType("bool")
+        all_compare =  zip(node.ops, node.comparators)
+        for op, comp in all_compare:
+            self.combine(node, comp,
+                    unary_op=lambda x: ExpressionType(
+                        operator_to_lambda[type(op)], [self.result[node.left], x])
+                    )
 
     def visit_Call(self, node):
         self.generic_visit(node)

@@ -41,7 +41,10 @@ def add_if_not_in(l0, l1):
 
 class TypeDependencies(ModuleAnalysis):
     '''
-    Gathers the calles of each function required for type inference
+    Gathers the callees of each function required for type inference
+
+    This analyse produces a directed graph with functions as nodes and edges
+    between nodes when a function might call another.
     '''
 
     NoDeps = "None"
@@ -57,16 +60,31 @@ class TypeDependencies(ModuleAnalysis):
             self.result.add_node(v)
         self.result.add_node(TypeDependencies.NoDeps)
 
+    def visit_any_conditionnal(self, node):
+        '''
+        Set and restore the in_cond variable whenever a node
+        the children of which may not be executed is visited
+        '''
+        in_cond = self.in_cond
+        self.in_cond = True
+        self.generic_visit(node)
+        self.in_cond = in_cond
+
     def visit_FunctionDef(self, node):
         assert self.current_function is None
         modules['__user__'][node.name] = UserFunction()
         self.current_function = node
         self.result.add_node(node)
         self.naming = dict()
+        self.in_cond = False  # True when we are in a if, while or for
         self.generic_visit(node)
         self.current_function = None
 
     def visit_Return(self, node):
+        '''
+        Gather all the function call that led to the creation of the
+        returned expression and add an edge to each of this function.
+        '''
         if node.value:
             v = self.visit(node.value)
             for dep_set in v:
@@ -80,19 +98,31 @@ class TypeDependencies(ModuleAnalysis):
     def visit_Yield(self, node):
         self.visit_Return(node)
 
+    def update_naming(self, name, value):
+        '''
+        Update or renew the name <-> dependencies binding
+        depending on the in_cond state
+        '''
+        if self.in_cond:
+            self.naming.setdefault(name, []).extend(value)
+        else:
+            self.naming[name] = value
+
     def visit_Assign(self, node):
         v = self.visit(node.value)
-        self.naming.update({t.id: v  # need to handle subscript too ...
-            for t in node.targets if isinstance(t, ast.Name)})
+        for t in node.targets:
+            if isinstance(t, ast.Name):
+                self.update_naming(t.id, v)
 
     def visit_AugAssign(self, node):
         v = self.visit(node.value)
-        if isinstance(node.target, ast.Name):
-            self.naming.update({node.target.id: v})
+        t = node.target
+        if isinstance(t, ast.Name):
+            self.update_naming(t.id, v)
 
     def visit_For(self, node):
         self.naming.update({node.target.id: self.visit(node.iter)})
-        self.generic_visit(node)
+        self.visit_any_conditionnal(node)
 
     def visit_BoolOp(self, node):
         return sum((self.visit(value) for value in node.values), [])
@@ -162,6 +192,10 @@ class TypeDependencies(ModuleAnalysis):
 
     def visit_Index(self, node):
         return [frozenset()]
+
+    visit_If = visit_any_conditionnal
+    visit_While = visit_any_conditionnal
+
 
 
 class Reorder(Transformation):

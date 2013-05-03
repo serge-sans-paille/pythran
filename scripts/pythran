@@ -75,11 +75,6 @@ parser.add_argument('-D', dest='extra_Dflags', metavar='macro_definition',
         help='any macro definition relevant to the underlying C++ compiler',
         default=list())
 
-parser.add_argument('-L', dest='extra_Lflags', metavar='library_dir',
-        action='append',
-        help='any library dir relevant to the underlying C++ compiler',
-        default=list())
-
 parser.add_argument('-O', dest='extra_Oflags', metavar='level',
         action='append',
         help='any optimization level relevant to the underlying C++ compiler',

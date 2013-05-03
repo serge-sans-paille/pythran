@@ -676,13 +676,6 @@ class NormalizeIdentifiers(Transformation):
                 node.asname = self.rename(node.name)
         return node
 
-
-    def visit_ImportFrom(self, node):
-        self.generic_visit(node)
-        if node.module and node.module in cxx_keywords:
-            node.module = self.rename(node.module)
-        return node
-
     def visit_Attribute(self, node):
         self.visit(node.value)
         if node.attr in cxx_keywords:
@@ -791,6 +784,7 @@ class UnshadowParameters(Transformation):
         return node
 
 
+
 ##
 class ExpandImports(Transformation):
     '''
@@ -857,6 +851,36 @@ class ExpandImports(Transformation):
             new_node.ctx = node.ctx
             ast.copy_location(new_node, node)
             return new_node
+        return node
+
+
+class ExpandImportAsterisk(Transformation):
+    '''
+    Expands all import when '*' detected
+    >>> import ast, passmanager, backend
+    >>> node = ast.parse("from math import *")
+    >>> pm = passmanager.PassManager("test")
+    >>> node = pm.apply(ExpandImportAsterisk, node)
+    >>> print pm.dump(backend.Python, node)
+    from math import asinh, atan2, fmod, atan, isnan, factorial, pow, copysign, cos, cosh, ldexp, hypot, isinf, floor, sinh, acosh, tan, ceil, exp, trunc, asin, expm1, e, log, fabs, tanh, log10, atanh, radians, sqrt, frexp, lgamma, erf, erfc, modf, degrees, acos, pi, log1p, sin, gamma
+    '''
+
+    def __init__(self):
+        Transformation.__init__(self)
+        self.symbols = dict()
+    
+    def visit_ImportFrom(self, node):
+        for alias in node.names:
+            self.symbols[alias.asname or alias.name] = (
+                    node.module,
+                    alias.name,
+                    )
+        for sym in self.symbols.keys():
+            if self.symbols[sym][1] == '*':
+                node.names.pop()
+                for functionName in modules[self.symbols[sym][0]]:
+                    al = ast.alias(functionName, None)
+                    node.names.append(al)
         return node
 
 

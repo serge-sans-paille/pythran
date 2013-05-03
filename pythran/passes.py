@@ -13,6 +13,7 @@ This modules contains code transformation to turn python AST into
     * NormalizeException simplifies try blocks
     * UnshadowParameters prevents the shadow parameter phenomenon
     * ExpandImports replaces imports by their full paths
+    * ExpandImportAll replaces import * by all their modules
     * ExpandBuiltins replaces builtins by their full paths
     * FalsePolymorphism rename variable if possible to avoid false polymorphism
 '''
@@ -798,6 +799,7 @@ class UnshadowParameters(Transformation):
 class ExpandImports(Transformation):
     '''
     Expands all imports into full paths.
+
     >>> import ast, passmanager, backend
     >>> node = ast.parse("from math import cos ; cos(2)")
     >>> pm = passmanager.PassManager("test")
@@ -859,6 +861,31 @@ class ExpandImports(Transformation):
             new_node.ctx = node.ctx
             ast.copy_location(new_node, node)
             return new_node
+        return node
+
+
+##
+class ExpandImportAll(Transformation):
+    '''
+    Expands all import when '*' detected
+
+    >>> import ast, passmanager, backend
+    >>> node = ast.parse("from math import *")
+    >>> pm = passmanager.PassManager("test")
+    >>> node = pm.apply(ExpandImportAll, node)
+    >>> print pm.dump(backend.Python, node)
+    from math import asinh, atan2, fmod, atan, isnan, factorial, pow, \
+copysign, cos, cosh, ldexp, hypot, isinf, floor, sinh, acosh, tan, ceil, exp, \
+trunc, asin, expm1, e, log, fabs, tanh, log10, atanh, radians, sqrt, frexp, \
+lgamma, erf, erfc, modf, degrees, acos, pi, log1p, sin, gamma
+    '''
+
+    def visit_ImportFrom(self, node):
+        for alias in node.names:
+            if alias.name == '*':
+                node.names.pop()
+                node.names.extend(ast.alias(fname, None)
+                        for fname in modules[node.module])
         return node
 
 

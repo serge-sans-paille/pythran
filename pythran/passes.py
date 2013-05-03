@@ -676,6 +676,12 @@ class NormalizeIdentifiers(Transformation):
                 node.asname = self.rename(node.name)
         return node
 
+    def visit_ImportFrom(self, node):
+        self.generic_visit(node)
+        if node.module and node.module in cxx_keywords:
+            node.module = self.rename(node.module)
+        return node
+            
     def visit_Attribute(self, node):
         self.visit(node.value)
         if node.attr in cxx_keywords:
@@ -782,7 +788,6 @@ class UnshadowParameters(Transformation):
         if node.id in self.renaming:
             node.id = self.renaming[node.id]
         return node
-
 
 
 ##

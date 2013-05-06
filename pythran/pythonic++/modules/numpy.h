@@ -6,11 +6,17 @@
 #include <cstdint>
 
 #define NUMPY_EXPR_TO_NDARRAY0(fname)\
-    template<class T, class... Types>\
-        auto fname(T&& expr, Types... others)\
-            -> decltype(fname(typename core::numpy_expr_to_ndarray<T>::type(std::forward<T>(expr)), std::forward<Types>(others)...))\
+    template<class Op, class Arg, class... Types>\
+        auto fname(core::numpy_uexpr<Op,Arg> const& expr, Types... others)\
+            -> decltype(fname(typename core::numpy_expr_to_ndarray<core::numpy_uexpr<Op,Arg>>::type(expr), std::forward<Types>(others)...)) \
     {\
-        return fname(typename core::numpy_expr_to_ndarray<T>::type(std::forward<T>(expr)), std::forward<Types>(others)...);\
+        return fname(typename core::numpy_expr_to_ndarray<core::numpy_uexpr<Op,Arg>>::type(expr), std::forward<Types>(others)...);\
+    }\
+    template<class Op, class Arg0, class Arg1, class... Types>\
+        auto fname(core::numpy_expr<Op,Arg0, Arg1> const& expr, Types... others)\
+            -> decltype(fname(typename core::numpy_expr_to_ndarray<core::numpy_expr<Op,Arg0,Arg1>>::type(expr), std::forward<Types>(others)...)) \
+    {\
+        return fname(typename core::numpy_expr_to_ndarray<core::numpy_expr<Op,Arg0, Arg1>>::type(expr), std::forward<Types>(others)...);\
     }
 
 namespace pythonic {
@@ -471,6 +477,7 @@ namespace pythonic {
 
         PROXY(pythonic::numpy, any);
 
+
         template<class T, unsigned long N, class... C>
             core::ndarray<T,N> _transpose(core::ndarray<T,N> const & a, long const l[N])
             {
@@ -590,6 +597,24 @@ namespace pythonic {
         NP_PROXY_ALIAS(absolute, nt2::abs);
 
         NP_PROXY_OP(add);
+
+        NP_PROXY_ALIAS(angle_in_deg, pythonic::numpy_expr::ops::angle_in_deg);
+
+        NP_PROXY_ALIAS(angle_in_rad, pythonic::numpy_expr::ops::angle_in_rad);
+
+        template<class T>
+            auto angle(T const& t, bool in_deg) -> decltype(typename core::numpy_expr_to_ndarray<T>::type(angle_in_rad(typename core::to_ndarray<T>::type(t)))) {
+                if(in_deg)
+                    return typename core::numpy_expr_to_ndarray<T>::type(angle_in_deg(typename core::to_ndarray<T>::type(t)));
+                else
+                    return typename core::numpy_expr_to_ndarray<T>::type(angle_in_rad(typename core::to_ndarray<T>::type(t)));
+            }
+        template<class T>
+            auto angle(T const& t) -> typename std::enable_if<not core::is_numpy_expr<T>::value,decltype(angle(t,false))>::type {
+                    return angle(t,false);
+            }
+        PROXY(pythonic::numpy, angle);
+
 
         NP_PROXY_ALIAS(arccos, nt2::acos);
 

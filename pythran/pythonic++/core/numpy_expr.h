@@ -246,6 +246,18 @@ namespace  pythonic {
                     return T(0);
                 }
 
+            template<class T >
+                auto angle_in_rad(T const& t) -> decltype(atan(std::imag(t)/std::real(t))) {
+                    if(std::real(t)) return atan(std::imag(t)/std::real(t));
+                    else return M_PI/2;
+                }
+
+            template<class T >
+                auto angle_in_deg(T const& t) -> decltype(nt2::indeg(angle_in_rad(t))) {
+                    return nt2::indeg(angle_in_rad(t));
+                }
+
+
         }
     }
     namespace core {
@@ -257,6 +269,16 @@ namespace  pythonic {
 
 #define NUMPY_UNARY_FUNC_NAME absolute
 #define NUMPY_UNARY_FUNC_SYM proxy::abs
+#include "numpy_unary_expr.h"
+
+        PROXY(pythonic::numpy_expr::ops, angle_in_rad)
+#define NUMPY_UNARY_FUNC_NAME angle_in_rad
+#define NUMPY_UNARY_FUNC_SYM proxy::angle_in_rad
+#include "numpy_unary_expr.h"
+
+        PROXY(pythonic::numpy_expr::ops, angle_in_deg)
+#define NUMPY_UNARY_FUNC_NAME angle_in_deg
+#define NUMPY_UNARY_FUNC_SYM proxy::angle_in_deg
 #include "numpy_unary_expr.h"
 
             PROXY(pythonic::numpy_expr::ops, add)

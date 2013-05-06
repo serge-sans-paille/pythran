@@ -42,29 +42,30 @@ class TestList(TestEnv):
         self.run_test("def list_comparison(l): return max(l)", [[1,2,3],[1,4,1],[1,4,8,9]], list_comparison=[[[int]]])
 
     def test_list_equal_comparison_true(self):
-        self.run_test("def list_comparison(l1,l2):  return l1==l2",
-                      [1,2,3],[1,4,1], list_comparison=[[int],[int]])
+        self.run_test("def list_comparison_true(l1,l2):  return l1==l2",
+                      [1,2,3],[1,4,1], list_comparison_true=[[int],[int]])
 
     def test_list_equal_comparison_false(self):
-        self.run_test("def list_comparison(l1,l2): return l1==l2",
-                      [1,4,1],[1,4,1], list_comparison=[[int],[int]])
+        self.run_test("def list_comparison_false(l1,l2): return l1==l2",
+                      [1,4,1],[1,4,1], list_comparison_false=[[int],[int]])
 
     def test_list_equal_comparison_different_sizes(self):
-        self.run_test("def list_comparison(l1,l2): return l1==l2",
-                      [1,4,1],[1,4,1,5], list_comparison=[[int],[int]])
+        self.run_test("def list_comparison_different_sizes(l1,l2): return l1==l2",
+                      [1,4,1],[1,4,1,5], list_comparison_different_sizes=[[int],[int]])
 
     def test_list_unequal_comparison_false(self):
-        self.run_test("def list_comparison(l1,l2):  return l1!=l2",
-                      [1,2,3],[1,4,1], list_comparison=[[int],[int]])
+        self.run_test("def list_comparison_unequal_false(l1,l2):  return l1!=l2",
+                      [1,2,3],[1,4,1], list_comparison_unequal_false=[[int],[int]])
 
     def test_list_unequal_comparison_true(self):
-        self.run_test("def list_comparison(l1,l2): return l1!=l2",
-                      [1,4,1],[1,4,1], list_comparison=[[int],[int]])
+        self.run_test("def list_comparison_unequal_true(l1,l2): return l1!=l2",
+                      [1,4,1],[1,4,1], list_comparison_unequal_true=[[int],[int]])
 
     def test_list_unequal_comparison_different_sizes(self):
-        self.run_test("def list_comparison(l1,l2): return l1!=l2",
-                      [1,4,1],[1,4,1,5], list_comparison=[[int],[int]])
-
+        self.run_test("def list_unequal_comparison_different_sizes(l1,l2): return l1!=l2",
+                      [1,4,1],[1,4,1,5], list_unequal_comparison_different_sizes=[[int],[int]])
+  
     def test_assigned_slice(self):
         self.run_test("def assigned_slice(l): l[0]=l[2][1:3] ; return l",
                       [[1,2,3],[1,4,1],[1,4,8,9]], assigned_slice=[[[int]]])
+

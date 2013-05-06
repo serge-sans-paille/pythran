@@ -55,13 +55,16 @@ class TestCommand(Command):
                 except ImportError:
                     print ("W: Skipping coverage analysis, pytest_cov"
                             "not found")
-            py.test.cmdline.main(args)
+            if py.test.cmdline.main(args) == 0:
+                print "\\_o<"
         except ImportError:
             print ("W: Using only one thread, "
                     "try to install pytest-xdist package")
             loader = TestLoader()
             t = TextTestRunner(failfast=self.failfast)
             t.run(loader.discover(where))
+            if t.wasSuccessful():
+                print "\\_o<"
 
 
 class BenchmarkCommand(Command):

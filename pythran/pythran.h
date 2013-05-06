@@ -1136,6 +1136,11 @@ struct c_type_to_numpy_type<double> {
 };
 
 template<>
+struct c_type_to_numpy_type<std::complex<double>> {
+    static const int value = NPY_CDOUBLE;
+};
+
+template<>
 struct c_type_to_numpy_type<long int> {
     static const int value = NPY_LONG;
 };

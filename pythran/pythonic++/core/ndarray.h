@@ -112,14 +112,34 @@ namespace  pythonic {
                 size_t size() const { return std::max(arg0.size(), arg1.size()); }
             };
 
+
+
         template <class Expr>
-            struct numpy_expr_to_ndarray;
+            struct numpy_expr_to_ndarray {
+                typedef Expr type;
+            };
+
+        template <class L>
+            struct numpy_expr_to_ndarray<core::list<L>> {
+                typedef typename nested_container_value_type<core::list<L>>::type T;
+                static const size_t N = nested_container_depth<core::list<L>>::value;
+                typedef core::ndarray<T, N> type;
+            };
 
         template<class Op, class Arg>
             struct numpy_expr_to_ndarray<numpy_uexpr<Op, Arg>> {
                 typedef typename std::remove_cv<typename std::remove_reference< decltype(std::declval<numpy_uexpr<Op, Arg>>().at(0)) >::type>::type T;
                 static const size_t N = std::tuple_size< typename std::remove_cv<typename std::remove_reference< decltype(std::declval<numpy_uexpr<Op, Arg>>().shape) >::type > ::type > ::value;
                 typedef core::ndarray<T, N> type;
+            };
+
+        template<class T>
+            struct to_ndarray {
+                typedef T type;
+            };
+        template <class L>
+            struct to_ndarray<core::list<L>> {
+                typedef typename numpy_expr_to_ndarray<core::list<L>>::type type;
             };
 
         template<class Op, class Arg0, class Arg1>
@@ -162,7 +182,6 @@ namespace  pythonic {
             struct is_numpy_expr<numpy_expr<Op, Arg0, Arg1>> {
                 static constexpr bool value = true;
              };
-
 
         template<class T>
             struct type_helper;

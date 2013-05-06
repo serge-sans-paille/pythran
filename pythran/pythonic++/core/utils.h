@@ -3,6 +3,17 @@
 
 #include <type_traits>
 #include <iterator>
+#include <complex>
+
+// overload is_scalar to consider complex has scalar types
+template<class T>
+struct is_complex {
+    static const bool value = false;
+};
+template<class T>
+struct is_complex<std::complex<T>> {
+    static const bool value = true;
+};
 
 //Use when the C/C++ function do not have the same name
 //than in python
@@ -99,7 +110,7 @@ namespace pythonic {
 
             template <class C> static yes _test(typename C::iterator*);
             template <class C> static no _test(...);
-            static const bool value = sizeof( _test<T>(nullptr)) == sizeof(yes);
+            static const bool value = sizeof( _test<typename std::remove_reference<T>::type>(nullptr)) == sizeof(yes);
         };
     /* } */
 
@@ -142,7 +153,7 @@ namespace pythonic {
                 typename std::conditional<
                     is_iterable<T>::value,
                     typename std::conditional<
-                        std::is_scalar<typename T::value_type>::value,
+                        std::is_scalar<typename T::value_type>::value or is_complex<typename T::value_type>::value,
                         bool,
                         typename T::value_type
                     >::type,
@@ -163,7 +174,7 @@ namespace pythonic {
                     *
                     nested_container_size<
                     typename std::conditional<
-                        std::is_scalar<typename Type::value_type>::value,
+                        std::is_scalar<typename Type::value_type>::value or is_complex<typename Type::value_type>::value,
                         bool,
                         typename Type::value_type
                     >::type>()(*t.begin());
@@ -171,11 +182,12 @@ namespace pythonic {
         };
     template<>
         struct nested_container_size<bool> {
-            size_t operator()(bool) { return 1; }
+            template<class F>
+            size_t operator()(F) { return 1; }
         };
     template<class T, bool end=0>
         struct nested_container_value_type {
-            typedef typename nested_container_value_type<typename T::value_type, std::is_scalar<typename T::value_type>::value >::type type;
+            typedef typename nested_container_value_type<typename T::value_type, std::is_scalar<typename T::value_type>::value or is_complex<typename T::value_type>::value >::type type;
         };
     template<class T>
         struct nested_container_value_type<T,true> {

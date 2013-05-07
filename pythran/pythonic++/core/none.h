@@ -2,6 +2,7 @@
 #define PYTHONIC_NONE_H
 
 #include <iterator>
+#include <complex>
 
 namespace pythonic {
 
@@ -53,8 +54,26 @@ namespace pythonic {
     SPECIALIZE_NONE(long long);
     SPECIALIZE_NONE(double);
 
-
-
+    template<>
+    struct none<std::complex<double>> {
+        std::complex<double> data;
+        bool is_none;
+        none() : data(), is_none(false) {}
+        none(none_type const&) : data(), is_none(true) {}
+        none(std::complex<double> const& data) : data(data), is_none(false) {}
+        bool operator==(none_type const &) const { return is_none; }
+        template <class O>
+            bool operator==(O const & t) const { return not is_none and data == t; }
+        operator bool() const { return not is_none and data.imag() !=0 and data.real() != 0; }
+    };
+    std::complex<double> operator+(none<std::complex<double>> const& t0, std::complex<double> const &t1) { return t0.data + t1     ; }
+    std::complex<double> operator+(std::complex<double> const &t0, none<std::complex<double>> const& t1) { return t0      + t1.data; }
+    std::complex<double> operator-(none<std::complex<double>> const& t0, std::complex<double> const &t1) { return t0.data - t1     ; }
+    std::complex<double> operator-(std::complex<double> const &t0, none<std::complex<double>> const& t1) { return t0      - t1.data; }
+    std::complex<double> operator*(none<std::complex<double>> const& t0, std::complex<double> const &t1) { return t0.data * t1     ; }
+    std::complex<double> operator*(std::complex<double> const &t0, none<std::complex<double>> const& t1) { return t0      * t1.data; }
+    std::complex<double> operator/(none<std::complex<double>> const& t0, std::complex<double> const &t1) { return t0.data / t1     ; }
+    std::complex<double> operator/(std::complex<double> const &t0, none<std::complex<double>> const& t1) { return t0      / t1.data; }
 
     template <class T0, class T1>
         T0 operator+(T0 const& self, none<T1> const& other) { return self + other.data; }

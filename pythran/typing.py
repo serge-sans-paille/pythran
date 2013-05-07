@@ -339,11 +339,10 @@ class Types(ModuleAnalysis):
 
     def combine(self, node, othernode, op=None, unary_op=None, register=False):
         if register and node in self.strict_aliases:
+            self.combine_(node, othernode, op or operator.add,
+                    unary_op or (lambda x: x), register)
             for a in self.strict_aliases[node].aliases:
                 self.combine_(a, othernode, op or operator.add,
-                        unary_op or (lambda x: x), register)
-            else:
-                self.combine_(node, othernode, op or operator.add,
                         unary_op or (lambda x: x), register)
         else:
             self.combine_(node, othernode, op or operator.add,
@@ -369,7 +368,8 @@ class Types(ModuleAnalysis):
                 if node not in self.result:
                     self.result[node] = new_type
             else:
-                if register and self.isargument(node):
+                # only perform inter procedural combination upon stage 0
+                if register and self.isargument(node) and self.stage == 0:
                     node_id, _ = self.node_to_id(node)
                     if node not in self.result:
                         self.result[node] = unary_op(self.result[othernode])
@@ -435,6 +435,12 @@ class Types(ModuleAnalysis):
             self.name_to_nodes.update({k: {fake_node}})
             self.result[fake_node] = NamedType(v)
 
+        # two stages, one for inter procedural propagation
+        self.stage = 0
+        self.generic_visit(node)
+
+        # and one for backward propagation
+        self.stage = 1
         self.generic_visit(node)
 
         # propagate type information through all aliases
@@ -502,14 +508,17 @@ class Types(ModuleAnalysis):
         if (isinstance(node.op, ast.Add) and any([wl, wr])
             and not all([wl, wr])):
         # assumes the + operator always has the same operand type
-        #on left and right side
+        # on left and right side
             F = operator.add
         else:
             F = lambda x, y: ExpressionType(
                 operator_to_lambda[type(node.op)], [x, y])
 
-        self.combine(node, node.left, F)
-        self.combine(node, node.right, F)
+        fake_node = ast.Name("#", ast.Param())
+        self.combine(fake_node, node.left, F)
+        self.combine(fake_node, node.right, F)
+        self.combine(node, fake_node)
+        del self.result[fake_node]
 
     def visit_UnaryOp(self, node):
         self.generic_visit(node)

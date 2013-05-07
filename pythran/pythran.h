@@ -9,15 +9,14 @@
 using namespace pythonic;
 
 /* type inference stuff {*/
-
-template<class Type, class... Types>
+template<class T0, class T1, class... Types>
 struct __combined {
-    typedef typename __combined< Type, typename __combined<Types...>::type >::type type;
+    typedef typename __combined< T0, typename __combined<T1, Types...>::type >::type type;
 };
 
-template<class T>
-struct __combined<T> {
-    typedef T type;
+template<class T0, class T1>
+struct __combined<T0,T1> {
+    typedef decltype(std::declval<T0>()+std::declval<T1>()) type;
 };
 
 template<class T>
@@ -113,12 +112,16 @@ template <class A, class B, class C>
 core::dict<C, typename __combined<A,B>::type > operator+(core::dict<C,B> , container<A> );
 
 template <class A>
+dict_container<A> operator+(dict_container<A> , dict_container<A> );
+template <class A>
 dict_container<A> operator+(container<A> , core::empty_dict );
 template <class A>
 dict_container<A> operator+(core::empty_dict , container<A> );
 
 template <class K, class V>
 core::dict<K, V> operator+(core::empty_dict , core::list<std::tuple<K,V>> );
+template <class K, class V>
+core::dict<K, V> operator+(core::list<std::tuple<K,V>>, core::empty_dict);
 template <class K0, class V0, class K1, class V1>
 core::dict<typename __combined<K0,K1>::type, typename __combined<V0, V1>::type > operator+(core::dict<K0,V0> , core::list<std::tuple<K1,V1>> );
 template <class K0, class V0, class K1, class V1>
@@ -127,6 +130,8 @@ core::dict<typename __combined<K0,K1>::type, typename __combined<V0, V1>::type >
 /* in case tuples were converted to list { */
 template <class T, size_t N>
 core::dict<T, T> operator+(core::empty_dict , core::list<core::ltuple<T,N>> );
+template <class T, size_t N>
+core::dict<T, T> operator+(core::list<core::ltuple<T,N>>,core::empty_dict  );
 template <class K0, class V0, class T, size_t N>
 core::dict<typename __combined<K0,T>::type, typename __combined<V0, T>::type > operator+(core::dict<K0,V0> , core::list<core::ltuple<T,N>> );
 template <class K0, class V0, class T, size_t N>
@@ -156,6 +161,8 @@ class indexable_dict {
         indexable_dict();
 };
 
+template<class K>
+indexable_dict<K> operator+(indexable_dict<K>, indexable_dict<K>);
 template<class K0, class K1>
 indexable<typename __combined<K0,K1>::type> operator+(indexable<K0>, indexable<K1>);
 template<class K>
@@ -172,6 +179,10 @@ template<class K>
 indexable_dict<K> operator+(core::empty_dict, indexable_dict<K>);
 template<class K>
 indexable_dict<K> operator+(indexable_dict<K>, core::empty_dict);
+template<class K0, class K1, class V1>
+core::dict<typename __combined<K0,K1>::type, V1> operator+(core::dict<K1,V1>, indexable_dict<K0>);
+template<class K0, class K1, class V1>
+core::dict<typename __combined<K0,K1>::type, V1> operator+(indexable_dict<K0>, core::dict<K1,V1>);
 template<class K>
 indexable_dict<K> operator+(core::empty_dict, indexable<K>);
 template<class K0, class V, class K1>
@@ -246,6 +257,11 @@ core::dict<K,V> operator+(dict_container<V>, indexable<K>);
 template <class V, class K, class W>
 core::dict<K,typename __combined<V,W>::type> operator+(dict_container<V>, indexable_container<K,W>);
 
+template <class K, class V, class W>
+core::dict<K,typename __combined<V,W>::type> operator+(core::dict<K,V>, dict_container<W>);
+template <class V, class K, class W>
+core::dict<K,typename __combined<V,W>::type> operator+(dict_container<W>, core::dict<K,V>);
+
 template <class K, class V>
 core::dict<K,V> operator+(indexable_dict<K>, container<V>);
 template <class K0, class K1>
@@ -284,10 +300,9 @@ struct __combined<core::dict<K0, V0>, core::dict<K1, V1>> {
     typedef core::dict<typename __combined<K0,K1>::type, typename __combined<V0,V1>::type> type;
 };
 
-/* clang needs this declaration here and not before */
-template<class T0, class T1>
-struct __combined<T0,T1> {
-    typedef decltype(std::declval<T0>()+std::declval<T1>()) type;
+template<>
+struct __combined<void, void> {
+    typedef void type;
 };
 
 /* specialization for callable types */

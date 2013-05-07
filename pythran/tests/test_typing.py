@@ -55,3 +55,29 @@ def functional_variant_container1():
     l=[math.cos, math.sin]
     return l[0](12)'''
         self.run_test(code, functional_variant_container1=[])
+
+    def test_type_set_in_loop(self):
+        code = '''
+def type_set_in_loop():
+    a = [[]]
+    for i in range(2):
+        b = []
+        for j in a:
+            b += [j] + [[1]]
+        a = b
+    return a,b'''
+        self.run_test(code, type_set_in_loop=[])
+
+    def test_type_set_in_while(self):
+        code = '''
+def type_set_in_while():
+    a = [[]]
+    n = 3
+    while n:
+        b = []
+        for j in a:
+            b += [j] + [[1]]
+        a = b
+        n -= 1
+    return a,b'''
+        self.run_test(code, type_set_in_while=[])

@@ -10,6 +10,7 @@ namespace pythonic {
         class function {
             char mem[sizeof(T)];
             public:
+            typedef void callable;
             T* ptr; //SG: I fail to understand why gcc requires this to be public
 
             function() : ptr(nullptr) {}

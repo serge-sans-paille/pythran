@@ -289,9 +289,13 @@ template<class T0, class T1>
 struct __combined<T0,T1> {
     typedef decltype(std::declval<T0>()+std::declval<T1>()) type;
 };
-/* specialization for callbale types */
+
+/* specialization for callable types */
 template <class T0, class T1>
 typename std::enable_if< is_callable<T0>::value and is_callable<T1>::value, variant<T0,T1> >::type operator+(T0 , T1 );
+
+template <class T>
+typename std::enable_if< is_callable<T>::value, T>::type operator+(T , T);
 
 
 /* some overloads */

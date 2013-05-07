@@ -271,6 +271,7 @@ modules = {
             "argmax": ConstFunctionIntr(),
             "argmin": ConstFunctionIntr(),
             "argsort": ConstFunctionIntr(),
+            "around": ConstFunctionIntr(),
             "array": ConstFunctionIntr(),
             "bitwise_and": ConstFunctionIntr(),
             "bitwise_not": ConstFunctionIntr(),

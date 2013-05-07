@@ -615,6 +615,107 @@ namespace pythonic {
             }
         PROXY(pythonic::numpy, angle);
 
+        template<class T, size_t N, class F>
+            core::ndarray<
+                typename std::remove_cv<
+                    typename std::remove_reference<
+                        decltype(
+                                std::declval<T>()
+                                +
+                                std::declval<typename nested_container_value_type<F>::type>())
+                        >::type
+                    >::type,
+                1> append(core::ndarray<T,N> const& nto, F const& data) {
+                    typename core::numpy_expr_to_ndarray<F>::type ndata(data);
+                    long nsize = nto.size() + ndata.size();
+                    core::ndarray<
+                        typename std::remove_cv<
+                            typename std::remove_reference<
+                                decltype(
+                                        std::declval<T>()
+                                        +
+                                        std::declval<typename nested_container_value_type<F>::type>())
+                                >::type
+                            >::type,
+                        1> out(core::make_tuple(nsize), None);
+                    size_t i=0;
+                    for(i=0;i<nto.size();i++)
+                        out.at(i) = nto.at(i);
+                    for(size_t j=0;j<ndata.size();j++)
+                        out.at(i+j) = ndata.at(j);
+                    return out;
+                }
+        template<class T, class F>
+            core::ndarray<
+                typename std::remove_cv<
+                    typename std::remove_reference<
+                        decltype(
+                                std::declval<typename nested_container_value_type<core::list<T>>::type>()
+                                +
+                                std::declval<typename nested_container_value_type<F>::type>())
+                        >::type
+                    >::type,
+                1> append(core::list<T> const& to, F const& data) {
+                    return append(typename core::numpy_expr_to_ndarray<core::list<T>>::type(to), data);
+                }
+
+        PROXY(pythonic::numpy, append);
+
+       template<class E>
+           long argmin(E&& expr) {
+               long sz = expr.size();
+               if(not sz) 
+                   throw __builtin__::ValueError("empty sequence");
+               auto res = expr.at(0);
+               long index = 0;
+               for(long i = 1; i< sz ; ++i) {
+                   auto e_i = expr.at(i);
+                   if(e_i< res) {
+                       res = e_i;
+                       index = i;
+                   }
+               }
+               return index;
+           }
+       template<class E>
+           long argmax(E&& expr) {
+               long sz = expr.size();
+               if(not sz) 
+                   throw __builtin__::ValueError("empty sequence");
+               auto res = expr.at(0);
+               long index = 0;
+               for(long i = 1; i< sz ; ++i) {
+                   auto e_i = expr.at(i);
+                   if(e_i > res) {
+                       res = e_i;
+                       index = i;
+                   }
+               }
+               return index;
+           }
+        PROXY(pythonic::numpy, argmax);
+
+        PROXY(pythonic::numpy, argmin);
+
+        template<class T, size_t N>
+            core::ndarray<long, N> argsort(core::ndarray<T,N> const& a) {
+                size_t last_axis = a.shape[N-1];
+                size_t n = a.size();
+                core::ndarray<long, N> indices(a.shape, None);
+                for(long j=0, * iter_indices = indices.buffer, *end_indices = indices.buffer + n;
+                        iter_indices != end_indices;
+                        iter_indices += last_axis, j+=last_axis)
+                {
+                    // fill with the original indices
+                    std::iota(iter_indices, iter_indices + last_axis, 0L);
+                    // sort the index using the value from a
+                    std::sort(iter_indices, iter_indices + last_axis,
+                            [&a,j](long i1, long i2) {return a.at(j+i1) < a.at(j+i2);});
+                }
+                return indices;
+            }
+
+        PROXY(pythonic::numpy, argsort);
 
         NP_PROXY_ALIAS(arccos, nt2::acos);
 

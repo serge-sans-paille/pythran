@@ -89,9 +89,10 @@ namespace pythonic {
 
     /* for type inference only */
     template <class T>
-        none<T> operator+(T ,none_type ); 
+        typename std::enable_if<!std::is_same<T,none_type>::value, none<T>>::type operator+(T ,none_type ); 
     template <class T>
-        none<T> operator+(none_type , T ); 
+        typename std::enable_if<!std::is_same<T,none_type>::value, none<T>>::type operator+(none_type , T ); 
+    none_type operator+(none_type, none_type);
 }
 
 #endif

@@ -30,7 +30,7 @@ namespace {
     size_t hash_combiner(size_t left, size_t right) //replacable
     { return left^right;}
 
-    template<int index, class...types>
+    template<size_t index, class...types>
         struct hash_impl {
             size_t operator()(size_t a, const std::tuple<types...>& t) const {
                 typedef typename std::tuple_element<index, std::tuple<types...>>::type nexttype;

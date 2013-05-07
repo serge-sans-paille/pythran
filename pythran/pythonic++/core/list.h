@@ -326,11 +326,11 @@ namespace  pythonic {
 
         /* empty list implementation */
         struct empty_list {
-            template<class T> // just for type inference, should never been instantiated
-                list<T> operator+(list<T> const & s) { return s; }
-            template<class T> // just for type inference, should never been instantiated
-                list_view<T> operator+(list_view<T> const & s) { return s; }
-            empty_list operator+(empty_list const &) { return empty_list(); }
+            template<class T>
+                list<T> operator+(list<T> const & s) const { return s; }
+            template<class T>
+                list_view<T> operator+(list_view<T> const & s) const { return s; }
+            empty_list operator+(empty_list const &) const { return empty_list(); }
             operator bool() { return false; }
         };
 

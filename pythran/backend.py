@@ -739,7 +739,7 @@ class Cxx(Backend):
                         for k, v in zip(keys, values)))
 
     def visit_Tuple(self, node):
-        elts = map(self.visit,node.elts or ())
+        elts = map(self.visit, node.elts or ())
         return "core::make_tuple({0})".format(", ".join(elts))
 
     def visit_Compare(self, node):

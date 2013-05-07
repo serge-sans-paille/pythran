@@ -648,8 +648,8 @@ namespace pythonic {
                     core::list<int> prev_permut(curr_permut.begin(),
                                                 curr_permut.begin()+size);
                     core::list<int> new_permut;
-                    while(end = std::next_permutation(curr_permut.begin(),
-                                                    curr_permut.end())) {
+                    while((end = std::next_permutation(curr_permut.begin(),
+                                                    curr_permut.end()))) {
                         // Check if the prefix of the new permutation is
                         // different of the previous one
                         core::list<int> new_permut(curr_permut.begin(),

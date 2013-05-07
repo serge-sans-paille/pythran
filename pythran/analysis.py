@@ -557,7 +557,7 @@ class Aliases(ModuleAnalysis):
             raise  # but still throw the exception, maybe we are in a For
         try:  # then try the false branch
             map(self.visit, node.orelse)
-        except PythranSyntaxError:  #it failed
+        except PythranSyntaxError:  # it failed
             # we still get some info from the true branch, validate them
             self.aliases = true_aliases
             raise  # and let other visit_ handle the issue
@@ -860,8 +860,10 @@ class GlobalEffects(ModuleAnalysis):
         self.current_function.global_effect = True
 
     def visit_Call(self, node):
-        # try to get all aliases of the function, if possible, else use [] as a fallback
-        func_aliases = self.aliases[node].state.get(Aliases.access_path(node.func),[])
+        # try to get all aliases of the function, if possible
+        # else use [] as a fallback
+        ap = Aliases.access_path(node.func)
+        func_aliases = self.aliases[node].state.get(ap, [])
         # expand argument if any
         func_aliases = reduce(
                 lambda x, y: x

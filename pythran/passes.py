@@ -676,7 +676,6 @@ class NormalizeIdentifiers(Transformation):
                 node.asname = self.rename(node.name)
         return node
 
-
     def visit_ImportFrom(self, node):
         self.generic_visit(node)
         if node.module and node.module in cxx_keywords:

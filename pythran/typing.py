@@ -197,7 +197,6 @@ class TypeDependencies(ModuleAnalysis):
     visit_While = visit_any_conditionnal
 
 
-
 class Reorder(Transformation):
     '''
     Reorder top-level functions to prevent circular type dependencies
@@ -495,8 +494,8 @@ class Types(ModuleAnalysis):
         self.visit(node.iter)
         self.combine(node.target, node.iter,
             unary_op=IteratorContentType, register=True)
-        node.body and [self.visit(n) for n in node.body]
-        node.orelse and [self.visit(n) for n in node.orelse]
+        node.body and map(self.visit, node.body)
+        node.orelse and map(self.visit, node.orelse)
 
     def visit_BoolOp(self, node):
         self.generic_visit(node)
@@ -571,6 +570,7 @@ class Types(ModuleAnalysis):
                         [self.result[arg] for arg in alias.args])
 
         F = lambda f: ReturnType(f, [self.result[arg] for arg in node.args])
+        # op is used to drop previous value there
         self.combine(node, node.func, op=lambda x, y: y, unary_op=F)
 
     def visit_Num(self, node):

@@ -35,6 +35,7 @@ class ConstantFolding(Transformation):
 
     def prepare(self, node, ctx):
         self.env = {'__builtin__': __import__('__builtin__')}
+
         class OperatorRenamer(ast.NodeTransformer):
             def visit_Import(self, node):
                 for n in node.names:

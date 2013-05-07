@@ -359,7 +359,7 @@ modules = {
                 "__xor__": ConstFunctionIntr(),
                 "concat": ConstFunctionIntr(),
                 "__concat__": ConstFunctionIntr(),
-		        "iadd": MethodIntr(
+                "iadd": MethodIntr(
                     lambda self, node:
                     self.combine(
                         node.args[0],
@@ -578,14 +578,17 @@ modules = {
                     ),
                 "__contains__": ConstFunctionIntr(),
                 "countOf": ConstFunctionIntr(),
-                "delitem": FunctionIntr(argument_effects=[UpdateEffect(), ReadEffect()]),
-                "__delitem__": FunctionIntr(argument_effects=[UpdateEffect(), ReadEffect()]),
+                "delitem": FunctionIntr(
+                        argument_effects=[UpdateEffect(), ReadEffect()]),
+                "__delitem__": FunctionIntr(
+                        argument_effects=[UpdateEffect(), ReadEffect()]),
                 "getitem": ConstFunctionIntr(),
                 "__getitem__": ConstFunctionIntr(),
                 "indexOf": ConstFunctionIntr(),
                 "__theitemgetter__": ConstFunctionIntr(),
                 "itemgetter": MethodIntr(
-                        return_alias = lambda node: { modules['operator_']['__theitemgetter__'] }
+                        return_alias=lambda node: {
+                            modules['operator_']['__theitemgetter__']}
                     ),
 
         },

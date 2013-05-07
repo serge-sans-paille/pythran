@@ -717,6 +717,17 @@ namespace pythonic {
 
         PROXY(pythonic::numpy, argsort);
 
+        template<class T, size_t N>
+            core::ndarray<T,N> around(core::ndarray<T,N> const& a, long decimals=0) {
+                return pythonic::core::rint(a * std::pow(T(10),decimals)) / std::pow(T(10), decimals);
+            }
+        template<class T>
+            typename core::numpy_expr_to_ndarray<core::list<T>>::type around(core::list<T> const& l, long decimals=0) {
+                return around(typename core::numpy_expr_to_ndarray<core::list<T>>::type(l), decimals);
+            }
+
+        PROXY(pythonic::numpy, around);
+
         NP_PROXY_ALIAS(arccos, nt2::acos);
 
         NP_PROXY_ALIAS(arccosh, nt2::acosh);

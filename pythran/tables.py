@@ -271,7 +271,8 @@ modules = {
                 "gauss": FunctionIntr(global_effects=True),
                 "uniform": FunctionIntr(global_effects=True),
                 "expovariate": FunctionIntr(global_effects=True),
-                "sample": FunctionIntr(global_effects=True)
+                "sample": FunctionIntr(global_effects=True),
+                "choice": FunctionIntr(global_effects=True),
                 },
         "omp": {
                 "set_num_threads": FunctionIntr(global_effects=True),

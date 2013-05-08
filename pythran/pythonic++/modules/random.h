@@ -60,6 +60,12 @@ namespace pythonic {
         PROXY(pythonic::random, uniform);
         PROXY(pythonic::random, expovariate);
         PROXY(pythonic::random, sample);
+
+        template<class Seq>
+            typename Seq::value_type choice(Seq const& seq){
+                return seq[long(random() * seq.size())];
+            }
+        PROXY(pythonic::random, choice);
     }
 }
 

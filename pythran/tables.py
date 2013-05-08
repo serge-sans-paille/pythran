@@ -194,7 +194,8 @@ modules = {
             "pmap": ConstFunctionIntr(),
             },
         "time": {
-                "sleep": ConstFunctionIntr(),
+                "sleep": FunctionIntr(global_effects=True),
+                "time": FunctionIntr(global_effects=True),
             },
         "math": {
                 "isinf": ConstFunctionIntr(),

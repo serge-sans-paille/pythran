@@ -36,22 +36,23 @@ class ConstantFolding(Transformation):
     def prepare(self, node, ctx):
         self.env = {'__builtin__': __import__('__builtin__')}
 
-        class OperatorRenamer(ast.NodeTransformer):
-            def visit_Import(self, node):
-                for n in node.names:
-                    if n.name == "operator_":
-                        n.name = "operator"
-                return node
-        node = OperatorRenamer().visit(node)
         for module_name in modules:
+            not_builtin = ["__builtin__", "__exception__", "__dispatch__",
+                "__iterator__"]
             # module starting with "__" are pythran internal module and
             # should not be imported in the Python interpreter
             if not module_name.startswith('__'):
+                import_name = module_name
                 if module_name == "operator_":
-                    module_name = "operator"  # to import the python module
-                    # operator instead of trying to import the module
-                    # operator_ that does not exist
-                self.env[module_name] = __import__(module_name)
+                    import_name = "operator"
+                self.env[module_name] = __import__(import_name)
+            elif module_name not in not_builtin:
+                try:
+                    self.env[module_name] = __import__(module_name.strip('_'))
+                except:
+                    self.env[module_name] = getattr(self.env['__builtin__'],
+                            module_name.strip('_'))
+
         try:
             eval(compile(node, '<constant_folding>', 'exec'), self.env)
         except Exception as e:

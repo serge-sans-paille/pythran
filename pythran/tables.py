@@ -755,7 +755,7 @@ modules = {
         "__complex___": {
                 "real": AttributeIntr(0),
                 "imag": AttributeIntr(1),
-                "conjugate": MethodIntr(),
+                "conjugate": ConstMethodIntr(),
                 },
         "__dict__": {
                 "fromkeys": ConstFunctionIntr(),

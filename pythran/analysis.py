@@ -297,7 +297,7 @@ class ConstantExpressions(NodeAnalysis):
                 return w[n.id]
             elif isinstance(n, ast.Attribute):
                 return rec(w, n.value)[n.attr]
-        return rec(modules, node).isconst()
+        return rec(modules, node).isconst() and self.add(node)
 
     def visit_Dict(self, node):
         rec = all(map(self.visit, node.keys + node.values))

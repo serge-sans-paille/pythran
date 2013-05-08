@@ -189,12 +189,12 @@ One can also compute the state of ``locals()`` at any point of the program::
   set(['a', 'b', 'math'])
 
 The ``ConstantFolding`` pass relies on the eponymous analyse that flags all
-constant expressions. In the previous code, there is only one constant
-*expression*::
+constant expressions. In the previous code, there is only two constant
+*expressions* but only one can be evaluate::
 
   >>> ce = pm.gather(analysis.ConstantExpressions, tree)
-  >>> map(ast.dump, ce)
-  ['Num(n=3)']
+  >>> sorted(map(ast.dump, ce))
+  ["Attribute(value=Name(id='math', ctx=Load()), attr='cos', ctx=Load())", 'Num(n=3)']
 
 One of the most critical analyse of Pythran is the points-to analysis. There
 are two flavors of this analyse, one that computes an over-set of the aliased

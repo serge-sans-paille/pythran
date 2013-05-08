@@ -241,6 +241,8 @@ modules = {
                 },
         "bisect": {
                 "bisect_left": ConstFunctionIntr(),
+                "bisect_right": ConstFunctionIntr(),
+                "bisect": ConstFunctionIntr(),
                 },
         "cmath": {
                 "cos": FunctionIntr(),

@@ -3,12 +3,21 @@ from test_env import TestEnv
 import numpy
 
 class TestNumpy(TestEnv):
-    def test_asarray_chkfinite0(self):
-        self.run_test("def np_asarray_chkfinite0():\n from numpy import asarray_chkfinite\n return asarray_chkfinite((1,2,3))", np_asarray_chkfinite0=[])
-       
-    def test_asarray_chkfinite1(self):
-        self.run_test("def np_asarray_chkfinite1():\n from numpy import asarray_chkfinite, nan\n try: return asarray_chkfinite([[1,2],[nan,4]])\n except ValueError: return asarray_chkfinite([[1.,2.],[3.,4.]])", np_asarray_chkfinite1=[])
+    def test_asscalar0(self):
+        self.run_test("def np_asscalar0(): from numpy import array, asscalar, int32; a = array([1], int32) ; return asscalar(a)", np_asscalar0=[])
 
+    def test_asscalar1(self):
+        self.run_test("def np_asscalar1(): from numpy import array, asscalar, int64; a = array([[1]], int64) ; return asscalar(a)", np_asscalar1=[])
+
+#    def test_ascontiguousarray0(self):
+#        self.run_test("def np_ascontiguousarray0():\n from numpy import ascontiguousarray\n return ascontiguousarray((1,2,3))", np_ascontiguousarray0=[])
+#
+#    def test_asarray_chkfinite0(self):
+#        self.run_test("def np_asarray_chkfinite0():\n from numpy import asarray_chkfinite\n return asarray_chkfinite((1,2,3))", np_asarray_chkfinite0=[])
+#       
+#    def test_asarray_chkfinite1(self):
+#        self.run_test("def np_asarray_chkfinite1():\n from numpy import asarray_chkfinite, nan\n try: return asarray_chkfinite([[1,2],[nan,4]])\n except ValueError: return asarray_chkfinite([[1.,2.],[3.,4.]])", np_asarray_chkfinite1=[])
+#
 #    def test_asarray0(self):
 #        self.run_test("def np_asarray0():\n from numpy import asarray\n return asarray((1,2,3))", np_asarray0=[])
 #       

@@ -281,6 +281,8 @@ modules = {
             "array_str": ConstFunctionIntr(),
             "asarray": ConstFunctionIntr(),
             "asarray_chkfinite": ConstFunctionIntr(),
+            "ascontiguousarray": ConstFunctionIntr(),
+            "asscalar": ConstFunctionIntr(),
             "bitwise_and": ConstFunctionIntr(),
             "bitwise_not": ConstFunctionIntr(),
             "bitwise_or": ConstFunctionIntr(),

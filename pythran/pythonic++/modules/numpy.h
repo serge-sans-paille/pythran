@@ -826,6 +826,69 @@ namespace pythonic {
 
         PROXY(pythonic::numpy, array_equiv);
 
+        template<class T, size_t N>
+            core::list<core::ndarray<T,N>> array_split(core::ndarray<T,N> const& a, long nb_split) {
+                long sz = std::distance(a.begin(), a.end());
+                long n = (sz + nb_split -1 ) / nb_split;
+                long end = n * nb_split;
+                long nb_full_split = nb_split;
+                if(end != sz) nb_full_split -= (end -sz);
+                core::list<core::ndarray<T,N>> out(nb_split);
+                long index = 0;
+                for(long i=0;i<nb_full_split; i++, index+=n) 
+                    out[i] = core::ndarray<T,N>(a[core::slice(index, index+n)]);
+                for(long i=nb_full_split;i<nb_split; i++, index+=(n-1)) 
+                    out[i] = core::ndarray<T,N>(a[core::slice(index, index + n - 1)]);
+
+                return out;
+            }
+
+        template<class T, size_t N, class I>
+            typename std::enable_if<is_iterable<I>::value, core::list<core::ndarray<T,N>>>::type
+            array_split(core::ndarray<T,N> const& a, I const& split_mask) {
+                long sz = std::distance(a.begin(), a.end());
+                core::list<core::ndarray<T,N>> out(1+split_mask.size());
+                long index = 0;
+                auto inserter = out.begin();
+                for(auto next_index: split_mask) {
+                    *inserter++ = core::ndarray<T,N>(a[core::slice(index, next_index)]);
+                    index = next_index;
+                }
+                *inserter = core::ndarray<T,N>(a[core::slice(index, sz)]);
+                return out;
+            }
+
+        PROXY(pythonic::numpy, array_split);
+        template<class T, size_t N>
+            core::string array_str(core::ndarray<T,N> const& a) {
+                std::ostringstream oss;
+                oss << a;
+                return core::string(oss.str());
+            }
+
+        PROXY(pythonic::numpy, array_str);
+
+        template<class E>
+            struct _asarray {
+                template<class... Types>
+                    auto operator()(Types&&... args) -> decltype(array(std::forward<Types>(args)...)) {
+                        return array(std::forward<Types>(args)...);
+                    }
+            };
+        template<class T, size_t N>
+            struct _asarray<core::ndarray<T,N>> {
+                template<class F>
+                    core::ndarray<T,N> operator()(F&& a) {
+                        return a;
+                    }
+            };
+
+        template<class E, class... Types>
+            auto asarray(E&& e, Types&&... args) -> decltype(_asarray<typename std::remove_cv<typename std::remove_reference<E>::type>::type>()(std::forward<E>(e), std::forward<Types>(args)...)) {
+                return _asarray<typename std::remove_cv<typename std::remove_reference<E>::type>::type>()(std::forward<E>(e), std::forward<Types>(args)...);
+            }
+
+        PROXY(pythonic::numpy, asarray);
 
         NP_PROXY_ALIAS(arccos, nt2::acos);
 

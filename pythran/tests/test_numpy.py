@@ -3,18 +3,45 @@ from test_env import TestEnv
 import numpy
 
 class TestNumpy(TestEnv):
-    def test_array_equiv0(self):
-        self.run_test("def np_array_equiv0(): from numpy import array_equiv ;  a,b = [1,2], [1,2] ; return array_equiv(a,b)", np_array_equiv0=[])
-
-    def test_array_equiv1(self):
-        self.run_test("def np_array_equiv1(): from numpy import array_equiv ;  a,b = [1,2], [1,3] ; return array_equiv(a,b)", np_array_equiv1=[])
-
-    def test_array_equiv2(self):
-        self.run_test("def np_array_equiv2(): from numpy import array_equiv ;  a,b = [1,2], [[1,2],[1,2]] ; return array_equiv(a,b)", np_array_equiv2=[])
-
-    def test_array_equiv3(self):
-        self.run_test("def np_array_equiv3(): from numpy import array_equiv ;  a,b = [1,2], [[1,2],[1,3]] ; return array_equiv(a,b)", np_array_equiv3=[])
-
+#    def test_asarray0(self):
+#        self.run_test("def np_asarray0():\n from numpy import asarray\n return asarray((1,2,3))", np_asarray0=[])
+#       
+#    def test_asarray1(self):
+#        self.run_test("def np_asarray1():\n from numpy import asarray\n return asarray([(1,2),(3,4)])", np_asarray1=[])
+#
+#    def test_asarray2(self):
+#        self.run_test("def np_asarray2():\n from numpy import asarray, int8\n return asarray([1.,2.,3.], int8)", np_asarray2=[])
+#
+#    def test_asarray3(self):
+#        self.run_test("def np_asarray3():\n from numpy import arange, asarray; a = arange(3) ; b = asarray(a) ; return a is b", np_asarray3=[])
+#
+#    def test_array_str0(self):
+#        self.run_test("def np_array_str0(): from numpy import arange, array_str ; x = arange(3) ; return array_str(x)", np_array_str0=[])
+#
+#    def test_array_split0(self):
+#        self.run_test("def np_array_split0(): from numpy import arange, array_split,array2string ; a = arange(12) ; return map(array2string,array_split(a, 3))", np_array_split0=[])
+#
+#    def test_array_split1(self):
+#        self.run_test("def np_array_split1(): from numpy import arange, array_split, array2string ; a = arange(12); return map(array2string,array_split(a, 5))", np_array_split1=[])
+#
+#    def test_array_split2(self):
+#        self.run_test("def np_array_split2(): from numpy import arange, array_split, array2string ; a = arange(12).reshape(6,2); return map(array2string,array_split(a, 4))", np_array_split2=[])
+#
+#    def test_array_split3(self):
+#        self.run_test("def np_array_split3(): from numpy import arange, array_split, array2string ; a = arange(12).reshape(6,2); return map(array2string,array_split(a, [0,1,5]))", np_array_split3=[])
+#
+#    def test_array_equiv0(self):
+#        self.run_test("def np_array_equiv0(): from numpy import array_equiv ;  a,b = [1,2], [1,2] ; return array_equiv(a,b)", np_array_equiv0=[])
+#
+#    def test_array_equiv1(self):
+#        self.run_test("def np_array_equiv1(): from numpy import array_equiv ;  a,b = [1,2], [1,3] ; return array_equiv(a,b)", np_array_equiv1=[])
+#
+#    def test_array_equiv2(self):
+#        self.run_test("def np_array_equiv2(): from numpy import array_equiv ;  a,b = [1,2], [[1,2],[1,2]] ; return array_equiv(a,b)", np_array_equiv2=[])
+#
+#    def test_array_equiv3(self):
+#        self.run_test("def np_array_equiv3(): from numpy import array_equiv ;  a,b = [1,2], [[1,2],[1,3]] ; return array_equiv(a,b)", np_array_equiv3=[])
+#
 #    def test_array_equal0(self):
 #        self.run_test("def np_array_equal0(): from numpy import array_equal ;  a,b = [1,2], [1,2] ; return array_equal(a,b)", np_array_equal0=[])
 #
@@ -458,6 +485,9 @@ class TestNumpy(TestEnv):
 #
 #    def test_sliced5(self):
 #        self.run_test("def np_sliced5(): from numpy import ones ; a = ones(20) ; return (-a[1:11]) + 3*a[2:12]", np_sliced5=[])
+#
+#    def test_sliced6(self):
+#        self.run_test("def np_sliced6(): from numpy import arange ; a = arange(12).reshape(6,2) ; return a[3:4]", np_sliced6=[])
 #
 #    def test_alen0(self):
 #        self.run_test("def np_alen0(): from numpy import ones, alen ; return alen(ones((5,6)))", np_alen0=[])

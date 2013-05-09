@@ -905,6 +905,18 @@ namespace pythonic {
 
         PROXY(pythonic::numpy, asarray_chkfinite);
 
+        ALIAS(asarray, ascontiguousarray)
+        PROXY(pythonic::numpy, ascontiguousarray);
+
+        template<class E>
+            auto asscalar(E const& expr) -> decltype(expr.at(0)) {
+                if(expr.size() != 1)
+                    throw __builtin__::ValueError("can only convert an array  of size 1 to a Python scalar");
+                return expr.at(0);
+            }
+
+        PROXY(pythonic::numpy, asscalar);
+
         NP_PROXY_ALIAS(arccos, nt2::acos);
 
         NP_PROXY_ALIAS(arccosh, nt2::acosh);

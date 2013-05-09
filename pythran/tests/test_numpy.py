@@ -3,6 +3,12 @@ from test_env import TestEnv
 import numpy
 
 class TestNumpy(TestEnv):
+    def test_asarray_chkfinite0(self):
+        self.run_test("def np_asarray_chkfinite0():\n from numpy import asarray_chkfinite\n return asarray_chkfinite((1,2,3))", np_asarray_chkfinite0=[])
+       
+    def test_asarray_chkfinite1(self):
+        self.run_test("def np_asarray_chkfinite1():\n from numpy import asarray_chkfinite, nan\n try: return asarray_chkfinite([[1,2],[nan,4]])\n except ValueError: return asarray_chkfinite([[1.,2.],[3.,4.]])", np_asarray_chkfinite1=[])
+
 #    def test_asarray0(self):
 #        self.run_test("def np_asarray0():\n from numpy import asarray\n return asarray((1,2,3))", np_asarray0=[])
 #       

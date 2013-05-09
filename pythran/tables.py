@@ -280,6 +280,7 @@ modules = {
             "array_split": ConstFunctionIntr(),
             "array_str": ConstFunctionIntr(),
             "asarray": ConstFunctionIntr(),
+            "asarray_chkfinite": ConstFunctionIntr(),
             "bitwise_and": ConstFunctionIntr(),
             "bitwise_not": ConstFunctionIntr(),
             "bitwise_or": ConstFunctionIntr(),

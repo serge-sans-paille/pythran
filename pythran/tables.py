@@ -276,6 +276,7 @@ modules = {
             "array": ConstFunctionIntr(),
             "array2string": ConstFunctionIntr(),
             "array_equal": ConstFunctionIntr(),
+            "array_equiv": ConstFunctionIntr(),
             "bitwise_and": ConstFunctionIntr(),
             "bitwise_not": ConstFunctionIntr(),
             "bitwise_or": ConstFunctionIntr(),

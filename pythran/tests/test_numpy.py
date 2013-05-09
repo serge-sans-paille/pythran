@@ -3,22 +3,34 @@ from test_env import TestEnv
 import numpy
 
 class TestNumpy(TestEnv):
-    def test_array_equal0(self):
-        self.run_test("def np_array_equal0(): from numpy import array_equal ;  a,b = [1,2], [1,2] ; return array_equal(a,b)", np_array_equal0=[])
+    def test_array_equiv0(self):
+        self.run_test("def np_array_equiv0(): from numpy import array_equiv ;  a,b = [1,2], [1,2] ; return array_equiv(a,b)", np_array_equiv0=[])
 
-    def test_array_equal1(self):
-        self.run_test("def np_array_equal1(): from numpy import array, array_equal ;  a,b = array([1,2]), array([1,2]) ; return array_equal(a,b)", np_array_equal1=[])
+    def test_array_equiv1(self):
+        self.run_test("def np_array_equiv1(): from numpy import array_equiv ;  a,b = [1,2], [1,3] ; return array_equiv(a,b)", np_array_equiv1=[])
 
-    def test_array_equal2(self):
-        self.run_test("def np_array_equal2(): from numpy import array, array_equal ;  a,b = array([[1,2],[3,5]]), array([[1,2],[3,5]]) ; return array_equal(a,b)", np_array_equal2=[])
+    def test_array_equiv2(self):
+        self.run_test("def np_array_equiv2(): from numpy import array_equiv ;  a,b = [1,2], [[1,2],[1,2]] ; return array_equiv(a,b)", np_array_equiv2=[])
 
-    def test_array_equal3(self):
-        self.run_test("def np_array_equal3(): from numpy import array, array_equal ;  a,b = array([[1,2],[3,5]]), array([[1,2],[4,5]]) ; return array_equal(a,b)", np_array_equal3=[])
+    def test_array_equiv3(self):
+        self.run_test("def np_array_equiv3(): from numpy import array_equiv ;  a,b = [1,2], [[1,2],[1,3]] ; return array_equiv(a,b)", np_array_equiv3=[])
 
-    def test_array_equal4(self):
-        self.run_test("def np_array_equal4(): from numpy import array, array_equal ;  a,b = array([1,2]), array([1,2,3]) ; return array_equal(a,b)", np_array_equal4=[])
-
-
+#    def test_array_equal0(self):
+#        self.run_test("def np_array_equal0(): from numpy import array_equal ;  a,b = [1,2], [1,2] ; return array_equal(a,b)", np_array_equal0=[])
+#
+#    def test_array_equal1(self):
+#        self.run_test("def np_array_equal1(): from numpy import array, array_equal ;  a,b = array([1,2]), array([1,2]) ; return array_equal(a,b)", np_array_equal1=[])
+#
+#    def test_array_equal2(self):
+#        self.run_test("def np_array_equal2(): from numpy import array, array_equal ;  a,b = array([[1,2],[3,5]]), array([[1,2],[3,5]]) ; return array_equal(a,b)", np_array_equal2=[])
+#
+#    def test_array_equal3(self):
+#        self.run_test("def np_array_equal3(): from numpy import array, array_equal ;  a,b = array([[1,2],[3,5]]), array([[1,2],[4,5]]) ; return array_equal(a,b)", np_array_equal3=[])
+#
+#    def test_array_equal4(self):
+#        self.run_test("def np_array_equal4(): from numpy import array, array_equal ;  a,b = array([1,2]), array([1,2,3]) ; return array_equal(a,b)", np_array_equal4=[])
+#
+#
 #    def test_array2string0(self):
 #        self.run_test("def np_array2string0(): from numpy import arange, array2string ; x = arange(3) ; return array2string(x)", np_array2string0=[])
 #

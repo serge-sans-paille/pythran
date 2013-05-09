@@ -126,6 +126,13 @@ namespace  pythonic {
                 typedef core::ndarray<T, N> type;
             };
 
+        template <class T_, size_t N_>
+            struct numpy_expr_to_ndarray<ndarray<T_, N_>> {
+                typedef T_ T;
+                static const size_t N = N_;
+                typedef core::ndarray<T, N> type;
+            };
+
         template<class Op, class Arg>
             struct numpy_expr_to_ndarray<numpy_uexpr<Op, Arg>> {
                 typedef typename std::remove_cv<typename std::remove_reference< decltype(std::declval<numpy_uexpr<Op, Arg>>().at(0)) >::type>::type T;
@@ -298,8 +305,8 @@ namespace  pythonic {
             struct _get_shape {
                 template<class Iter>
                     void operator()(ndarray<T,N> const& array, Iter iter) {
-                        *iter++ = array.data_size;
-                        _get_shape<T, N-1>()(array.data[0], iter);
+                        if((*iter++ = array.data_size))
+                            _get_shape<T, N-1>()(array.data[0], iter);
                     }
             };
         template<class T>

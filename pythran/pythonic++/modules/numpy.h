@@ -717,6 +717,34 @@ namespace pythonic {
 
         PROXY(pythonic::numpy, argsort);
 
+        template<class E>
+            typename core::ndarray<long, 2>
+            argwhere(E const& expr) {
+                typedef typename core::ndarray<long, 2> out_type;
+                constexpr long N = core::numpy_expr_to_ndarray<E>::N;
+                long sz = expr.size();
+                auto eshape = expr.shape;
+                long *buffer = new long[N * sz]; // too much memory used
+                long *buffer_iter = buffer;
+                long real_sz = 0;
+                for(long i=0; i< sz; ++i) {
+                    if(expr.at(i)) {
+                        ++real_sz;
+                        long mult = 1;
+                        for(long j=N-1; j>0; j--) {
+                            buffer_iter[j] = (i/mult)%eshape[j];
+                            mult*=eshape[j];
+                        }
+                        buffer_iter[0] = i/mult;
+                        buffer_iter+=N;
+                    }
+                }
+                long shape[2] = { real_sz, N };
+                return out_type(buffer, shape, N*real_sz);
+            }
+
+        PROXY(pythonic::numpy, argwhere);
+
         template<class T, size_t N>
             core::ndarray<T,N> around(core::ndarray<T,N> const& a, long decimals=0) {
                 return pythonic::core::rint(a * std::pow(T(10),decimals)) / std::pow(T(10), decimals);
@@ -727,6 +755,41 @@ namespace pythonic {
             }
 
         PROXY(pythonic::numpy, around);
+
+        template<class T, size_t N>
+            core::string array2string(core::ndarray<T,N> const& a) {
+                std::ostringstream oss;
+                oss << a;
+                return core::string(oss.str());
+            }
+
+        PROXY(pythonic::numpy, array2string);
+
+        template<class U, class V>
+            typename std::enable_if<has_shape<U>::value and has_shape<V>::value,bool>::type array_equal(U const& u, V const&v) {
+                if(u.shape == v.shape) {
+                    long n = u.size();
+                    for(long i=0;i<n;i++)
+                        if(u.at(i) != v.at(i))
+                            return false;
+                    return true;
+                }
+                return false;
+            }
+        template<class U, class V>
+            typename std::enable_if<has_shape<V>::value,bool>::type array_equal(core::list<U> const& u, V const&v) {
+                return array_equal(typename core::numpy_expr_to_ndarray<core::list<U>>::type(u), v);
+            }
+        template<class U, class V>
+            typename std::enable_if<has_shape<U>::value,bool>::type array_equal(U const& u, core::list<V> const&v) {
+                return array_equal(u, typename core::numpy_expr_to_ndarray<core::list<V>>::type(v));
+            }
+        template<class U, class V>
+            bool array_equal(core::list<U> const& u, core::list<V> const&v) {
+                return array_equal(typename core::numpy_expr_to_ndarray<core::list<U>>::type(u), typename core::numpy_expr_to_ndarray<core::list<V>>::type(v));
+            }
+
+        PROXY(pythonic::numpy, array_equal);
 
         NP_PROXY_ALIAS(arccos, nt2::acos);
 

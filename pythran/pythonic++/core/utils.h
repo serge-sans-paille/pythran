@@ -101,6 +101,21 @@ namespace pythonic {
 
     /* } */
 
+    /* has shape trait { */
+
+    template<typename T>
+        struct has_shape
+        {
+            typedef char	yes;
+            typedef struct { char _[2]; } no;
+
+            template <class C> static yes _test(decltype(std::declval<C>().shape)*);
+            template <class C> static no _test(...);
+            static const bool value = sizeof( _test<T>(nullptr)) == sizeof(yes);
+        };
+
+    /* } */
+
     /* iterable trait { */
     template<typename T>
         struct is_iterable

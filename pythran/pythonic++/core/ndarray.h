@@ -273,15 +273,19 @@ namespace  pythonic {
                 typedef typename T::reference reference;
                 typedef typename T::const_reference const_reference;
                 core::ltuple<long, value> shape;
+                size_t jump;
 
-                T& data;
+                T data;
 
-                sliced_ndarray(T& data, slice const& s) : slice(s), shape(data.shape.begin(), data.shape.end()), data(data) {
+                sliced_ndarray(T const& data, slice const& s) : slice(s), shape(data.shape.begin(), data.shape.end()), data(data) {
                     shape[0] = ceil(double(upper - lower)/step);
+                    jump = 1;
+                    for(size_t i=1;i<value; ++i)
+                        jump*=shape[i];
                 }
 
-                auto at(long i) const -> decltype(data.at(lower+i*step)) {
-                    return data.at(lower+i*step);
+                auto at(long i) const -> decltype(data.at(jump*lower+i*step)) {
+                    return data.at(jump*lower+i*step);
                 }
                 size_t size() const { return (data.size() / data.shape[0]) * shape[0] ; }
                 reference operator[](long i) { return data[lower+i*step]; }

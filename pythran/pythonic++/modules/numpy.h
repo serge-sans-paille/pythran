@@ -791,6 +791,42 @@ namespace pythonic {
 
         PROXY(pythonic::numpy, array_equal);
 
+        template<class U, class V>
+            typename std::enable_if<has_shape<U>::value and has_shape<V>::value,bool>::type array_equiv(U const& u, V const&v) {
+                if(u.shape == v.shape) {
+                    return array_equal(u,v);
+                }
+                else if(u.size() > v.size()) {
+                    return array_equiv(v,u);
+                }
+                else if(v.size()%u.size() ==0) {
+                    long vs = v.size(),
+                         us = u.size();
+                    for(long vi = 0; vi < vs ; ) {
+                        for(long ui=0;ui<us; ++ui,++vi)
+                            if(u.at(ui) != v.at(vi))
+                                return false;
+                    }
+                    return true;
+                }
+                return false;
+            }
+        template<class U, class V>
+            typename std::enable_if<has_shape<V>::value,bool>::type array_equiv(core::list<U> const& u, V const&v) {
+                return array_equiv(typename core::numpy_expr_to_ndarray<core::list<U>>::type(u), v);
+            }
+        template<class U, class V>
+            typename std::enable_if<has_shape<U>::value,bool>::type array_equiv(U const& u, core::list<V> const&v) {
+                return array_equiv(u, typename core::numpy_expr_to_ndarray<core::list<V>>::type(v));
+            }
+        template<class U, class V>
+            bool array_equiv(core::list<U> const& u, core::list<V> const&v) {
+                return array_equiv(typename core::numpy_expr_to_ndarray<core::list<U>>::type(u), typename core::numpy_expr_to_ndarray<core::list<V>>::type(v));
+            }
+
+        PROXY(pythonic::numpy, array_equiv);
+
+
         NP_PROXY_ALIAS(arccos, nt2::acos);
 
         NP_PROXY_ALIAS(arccosh, nt2::acosh);

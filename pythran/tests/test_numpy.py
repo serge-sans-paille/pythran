@@ -3,12 +3,51 @@ from test_env import TestEnv
 import numpy
 
 class TestNumpy(TestEnv):
-    def test_asscalar0(self):
-        self.run_test("def np_asscalar0(): from numpy import array, asscalar, int32; a = array([1], int32) ; return asscalar(a)", np_asscalar0=[])
-
-    def test_asscalar1(self):
-        self.run_test("def np_asscalar1(): from numpy import array, asscalar, int64; a = array([[1]], int64) ; return asscalar(a)", np_asscalar1=[])
-
+#    def test_average0(self):
+#        self.run_test("def np_average0(): from numpy import average, arange ; a = arange(10) ; return average(a)", np_average0=[])
+#
+#    def test_average1(self):
+#        self.run_test("def np_average1(): from numpy import average, arange ; a = arange(10).reshape(2,5) ; return average(a,1)", np_average1=[])
+#
+#    def test_average2(self):
+#        self.run_test("def np_average2(): from numpy import average, arange ; a = arange(10) ; return average(a,None, range(10))", np_average2=[])
+#
+#    def test_average3(self):
+#        self.run_test("def np_average3(): from numpy import average, arange ; a = arange(10).reshape(2,5) ; return average(a,None, arange(10).reshape(2,5))", np_average3=[])
+#
+#    def test_atleast_1d0(self):
+#        self.run_test("def np_atleast_1d0(): from numpy import arange, atleast_1d ; a = 1 ; return atleast_1d(a)", np_atleast_1d0=[])
+#
+#    def test_atleast_1d1(self):
+#        self.run_test("def np_atleast_1d1(): from numpy import arange, atleast_1d ; a = arange(2) ; r = atleast_1d(a) ; return r is a", np_atleast_1d1=[])
+#
+#    def test_atleast_2d0(self):
+#        self.run_test("def np_atleast_2d0(): from numpy import arange, atleast_2d ; a = 1 ; return atleast_2d(a)", np_atleast_2d0=[])
+#
+#    def test_atleast_2d1(self):
+#        self.run_test("def np_atleast_2d1(): from numpy import arange, atleast_2d ; a = arange(2).reshape(1,2) ; r = atleast_2d(a) ; return r is a", np_atleast_2d1=[])
+#
+#    def test_atleast_2d2(self):
+#        self.run_test("def np_atleast_2d2(): from numpy import arange, atleast_2d ; a = arange(2) ; r = atleast_2d(a) ; return r", np_atleast_2d2=[])
+#
+#    def test_atleast_3d0(self):
+#        self.run_test("def np_atleast_3d0(): from numpy import arange, atleast_3d ; a = 1 ; return atleast_3d(a)", np_atleast_3d0=[])
+#
+#    def test_atleast_3d1(self):
+#        self.run_test("def np_atleast_3d1(): from numpy import arange, atleast_3d ; a = arange(8).reshape(2,2,2) ; r = atleast_3d(a) ; return r is a", np_atleast_3d1=[])
+#
+#    def test_atleast_3d2(self):
+#        self.run_test("def np_atleast_3d2(): from numpy import arange, atleast_3d ; a = arange(8).reshape(2,4) ; r = atleast_3d(a) ; return r", np_atleast_3d2=[])
+#
+#    def test_atleast_3d3(self):
+#        self.run_test("def np_atleast_3d3(): from numpy import arange, atleast_3d ; a = arange(8) ; r = atleast_3d(a) ; return r", np_atleast_3d3=[])
+#
+#    def test_asscalar0(self):
+#        self.run_test("def np_asscalar0(): from numpy import array, asscalar, int32; a = array([1], int32) ; return asscalar(a)", np_asscalar0=[])
+#
+#    def test_asscalar1(self):
+#        self.run_test("def np_asscalar1(): from numpy import array, asscalar, int64; a = array([[1]], int64) ; return asscalar(a)", np_asscalar1=[])
+#
 #    def test_ascontiguousarray0(self):
 #        self.run_test("def np_ascontiguousarray0():\n from numpy import ascontiguousarray\n return ascontiguousarray((1,2,3))", np_ascontiguousarray0=[])
 #

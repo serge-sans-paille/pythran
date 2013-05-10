@@ -1212,6 +1212,38 @@ namespace pythonic {
 
         PROXY(pythonic::numpy, delete_);
 
+        template<class T>
+            core::ndarray<T,1> diag(core::ndarray<T,2> a, long k=0) {
+                T* buffer = new T[std::max(a.shape[0], a.shape[1])];
+                long shape[1] = {0};
+                auto iter = buffer;
+                if(k>=0)
+                    for(int i=0, j = k; i< a.shape[0] and j < a.shape[1]; ++i, ++j, ++shape[0])
+                        *iter++ = a[i][j];
+                else {
+                    for(int i=-k, j = 0; i< a.shape[0] and j < a.shape[1]; ++i, ++j, ++shape[0])
+                        *iter++ = a[i][j];
+                }
+                return core::ndarray<T,1>(buffer, shape, shape[0]);
+            }
+
+        template<class T>
+            core::ndarray<T,2> diag(core::ndarray<T,1> a, long k=0) {
+                long n = a.size() + std::abs(k);
+                core::ndarray<T,2> out(core::make_tuple(n,n), 0);
+                if(k>=0)
+                    for(long i=0,j =k ; i< n and j<n ;++i,++j)
+                        out[i][j] = a.buffer[i];
+                else
+                    for(long i=-k,j =0 ; i< n and j<n ;++i,++j)
+                        out[i][j] = a.buffer[j];
+                return out;
+            }
+
+        PROXY(pythonic::numpy, diag);
+
+        ALIAS(diag, diagflat);
+        PROXY(pythonic::numpy, diagflat);
         NP_PROXY_ALIAS(arccos, nt2::acos);
 
         NP_PROXY_ALIAS(arccosh, nt2::acosh);

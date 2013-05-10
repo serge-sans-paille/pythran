@@ -20,20 +20,6 @@ namespace pythonic {
         return os << s.c_str();
     }
 
-    /* list */
-
-    template<class T>
-        std::ostream& operator<<(std::ostream& os, core::list<T> const & v) {
-            os << '[';
-            auto iter = v.begin();
-            if(iter != v.end()) {
-                while(iter+1 != v.end())
-                    os << *iter++ << ", ";
-                os << *iter;
-            }
-            return os << ']';
-        }
-
     /* exception */
 
     std::ostream& operator<<(std::ostream& o, core::BaseException const & e)

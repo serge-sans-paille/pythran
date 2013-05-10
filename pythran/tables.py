@@ -313,6 +313,8 @@ modules = {
             "deg2rad": ConstFunctionIntr(),
             "degrees": ConstFunctionIntr(),
             "delete_": ConstFunctionIntr(),
+            "diag": ConstFunctionIntr(),
+            "diagflat": ConstFunctionIntr(),
             "divide": ConstFunctionIntr(),
             "double_" : ConstFunctionIntr(),
             "e": ConstantIntr(),

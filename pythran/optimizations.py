@@ -55,8 +55,14 @@ class ConstantFolding(Transformation):
                 try:
                     self.env[module_name] = __import__(module_name.strip('_'))
                 except:
-                    self.env[module_name] = getattr(self.env['__builtin__'],
-                            module_name.strip('_'))
+                    try:
+                        # should try from another package than builtin,
+                        # e.g. for ndarray
+                        self.env[module_name] = getattr(
+                                self.env['__builtin__'],
+                                module_name.strip('_'))
+                    except:
+                        pass
 
         try:
             eval(compile(node, '<constant_folding>', 'exec'), self.env)

@@ -2,6 +2,7 @@
 #define PYTHONIC_MODULE_TIME_H
 
 #include <time.h>
+#include <sys/time.h>
 #include <cmath>
 
 namespace pythonic {
@@ -15,6 +16,14 @@ namespace pythonic {
             return None;
        }    
        PROXY(pythonic::time, sleep)
+
+       double time()
+       {
+            struct timeval t;
+            gettimeofday(&t, nullptr);
+            return t.tv_sec + t.tv_usec * 1e-6;
+       }    
+       PROXY(pythonic::time, time)
     }
 }
 

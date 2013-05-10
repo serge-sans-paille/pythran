@@ -307,6 +307,19 @@ namespace  pythonic {
             template<class T> 
                 set<T> operator+(set<T> const & s) { return s; }
             empty_set operator+(empty_set const &) { return empty_set(); }
+            empty_set operator|(empty_set const &) { return empty_set(); }
+            template<class T> 
+                set<T> operator|(set<T> const & s) { return s; }
+            empty_set operator&(empty_set const &) { return empty_set(); }
+            template<class T> 
+                empty_set operator&(set<T> const & s) { return empty_set(); }
+            empty_set operator-(empty_set const &) { return empty_set(); }
+            template<class T> 
+                set<T> operator-(set<T> const & s) { return s; }
+            empty_set operator^(empty_set const &) { return empty_set(); }
+            template<class T> 
+                set<T> operator^(set<T> const & s) { return s; }
+
             operator bool() { return false; }
             iterator begin() const {
                 return empty_iterator();
@@ -321,7 +334,7 @@ namespace  pythonic {
                const_iterator end() const{
                return empty_iterator();
                }
-               */
+             */
 
         };
     }

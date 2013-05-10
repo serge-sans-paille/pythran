@@ -25,6 +25,11 @@ struct assignable{
 };
 
 template<class T>
+struct lazy{
+    typedef T type;
+};
+
+template<class T>
 struct assignable<pythonic::core::set<T> >{
     typedef pythonic::core::set<typename assignable<T>::type > type;
 };

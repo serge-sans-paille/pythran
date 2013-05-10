@@ -108,6 +108,10 @@ namespace pythonic {
                     return it_data.next_value(); //value; 
                 }
 
+                const decltype(it_data.next_value()) operator*() const { 
+                    return it_data.next_value(); //value; 
+                }
+
                 imap_iterator& operator++() { 
                     ++it_data;
                     return *this; 

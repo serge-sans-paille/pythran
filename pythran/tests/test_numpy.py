@@ -3,18 +3,65 @@ from test_env import TestEnv
 import numpy
 
 class TestNumpy(TestEnv):
-    def test_binary_repr0(self):
-        self.run_test("def np_binary_repr0(): from numpy import binary_repr ; a = 3 ; return binary_repr(a)", np_binary_repr0=[])
+    def test_delete0(self):
+        self.run_test("def np_delete0(): from numpy import array, delete ; a = array([[1,2,3,4], [5,6,7,8], [9,10,11,12]]) ; return delete(a, 1)", np_delete0=[])
 
-    def test_binary_repr1(self):
-        self.run_test("def np_binary_repr1(): from numpy import binary_repr ; a = -3 ; return binary_repr(a)", np_binary_repr1=[])
+    def test_delete1(self):
+        self.run_test("def np_delete1(): from numpy import array, delete ; a = array([[1,2,3,4], [5,6,7,8], [9,10,11,12]]) ; return delete(a, [1,3,5])", np_delete1=[])
 
-    def test_binary_repr2(self):
-        self.run_test("def np_binary_repr2(): from numpy import binary_repr ; a = 3 ; return binary_repr(a,4)", np_binary_repr2=[])
-
-    def test_binary_repr3(self):
-        self.run_test("def np_binary_repr3(): from numpy import binary_repr ; a = -3 ; return binary_repr(a,4)", np_binary_repr3=[])
-
+#    def test_cumprod_(self):
+#        self.run_test("def np_cumprod_():\n from numpy import arange,cumprod\n return arange(10).cumprod()", np_cumprod_=[])
+#
+#    def test_cumprod2_(self):
+#        self.run_test("def np_cumprod2_():\n from numpy import arange,cumprod\n return arange(10).reshape(2,5).cumprod()", np_cumprod2_=[])
+#
+#    def test_cumprod3_(self):
+#        self.run_test("def np_cumprod3_():\n from numpy import arange,cumprod\n return arange(10).reshape(2,5).cumprod(1)", np_cumprod3_=[])
+#
+#    def test_cumprod4_(self):
+#        self.run_test("def np_cumprod4_():\n from numpy import arange,cumprod\n return arange(10).reshape(2,5).cumprod(0)", np_cumprod4_=[])
+#
+#    def test_cumprod5_(self):
+#        self.run_test("def np_cumprod5_():\n from numpy import arange,cumprod\n return arange(10).cumprod(0)", np_cumprod5_=[])
+#
+#    def test_copy0(self):
+#        code= '''
+#def test_copy0():
+#    import numpy as np
+#    x = np.array([1, 2, 3])
+#    y = x
+#    z = np.copy(x)
+#    x[0] = 10
+#    return x[0], y[0], z[0]'''
+#        self.run_test(code, test_copy0=[])
+#
+#    def test_clip0(self):
+#        self.run_test("def np_clip0(): from numpy import arange, array, clip ; a = arange(10) ; return clip(a,1,8)", np_clip0=[])
+#
+#    def test_clip1(self):
+#        self.run_test("def np_clip1(): from numpy import arange, array, clip ; a = arange(10) ; return clip(a,3,6)", np_clip1=[])
+#
+#    def test_concatenate0(self):
+#        self.run_test("def np_concatenate0(): from numpy import array, concatenate ; a = array([[1, 2], [3, 4]]) ; b = array([[5, 6]]) ; return concatenate((a,b))", np_concatenate0=[])
+#
+#    def test_bincount0(self):
+#        self.run_test("def np_bincount0(): from numpy import arange, bincount ; a = arange(5) ; return bincount(a)", np_bincount0=[])
+#
+#    def test_bincount1(self):
+#        self.run_test("def np_bincount1(): from numpy import bincount,array ; a = array([0, 1, 1, 2, 2, 2]) ; w = array([0.3, 0.5, 0.2, 0.7, 1., -0.6]) ; return bincount(a,w)", np_bincount1=[])
+#
+#    def test_binary_repr0(self):
+#        self.run_test("def np_binary_repr0(): from numpy import binary_repr ; a = 3 ; return binary_repr(a)", np_binary_repr0=[])
+#
+#    def test_binary_repr1(self):
+#        self.run_test("def np_binary_repr1(): from numpy import binary_repr ; a = -3 ; return binary_repr(a)", np_binary_repr1=[])
+#
+#    def test_binary_repr2(self):
+#        self.run_test("def np_binary_repr2(): from numpy import binary_repr ; a = 3 ; return binary_repr(a,4)", np_binary_repr2=[])
+#
+#    def test_binary_repr3(self):
+#        self.run_test("def np_binary_repr3(): from numpy import binary_repr ; a = -3 ; return binary_repr(a,4)", np_binary_repr3=[])
+#
 #    def test_base_repr0(self):
 #        self.run_test("def np_base_repr0(): from numpy import base_repr ; a = 5 ; return base_repr(a)", np_base_repr0=[])
 #
@@ -618,7 +665,7 @@ class TestNumpy(TestEnv):
 #unary_ufunc = (
 #        'abs', 'absolute', 'arccos', 'arccosh', 'arcsin', 'arcsinh', 'arctan', 'arctanh',
 #        'bitwise_not',
-#        'ceil',  'cos', 'cosh',
+#        'ceil', 'conj', 'conjugate', 'cos', 'cosh',
 #        'deg2rad', 'degrees',
 #        'exp', 'expm1',
 #        'fabs', 'floor',

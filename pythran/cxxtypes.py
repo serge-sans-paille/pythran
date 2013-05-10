@@ -41,14 +41,14 @@ class Type(object):
             return False
 
     def __add__(self, other):
-        if isinstance(other, CombinedTypes) and self in other.types:
-            return other
         if self.isweak() and not other.isweak():
             return other
         if other.isweak() and not self.isweak():
             return self
         if self == other:
             return self
+        if isinstance(other, CombinedTypes) and self in other.types:
+            return other
         return CombinedTypes([self, other])
 
     def __repr__(self):

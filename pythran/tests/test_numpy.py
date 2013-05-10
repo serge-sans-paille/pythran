@@ -3,6 +3,33 @@ from test_env import TestEnv
 import numpy
 
 class TestNumpy(TestEnv):
+    def test_binary_repr0(self):
+        self.run_test("def np_binary_repr0(): from numpy import binary_repr ; a = 3 ; return binary_repr(a)", np_binary_repr0=[])
+
+    def test_binary_repr1(self):
+        self.run_test("def np_binary_repr1(): from numpy import binary_repr ; a = -3 ; return binary_repr(a)", np_binary_repr1=[])
+
+    def test_binary_repr2(self):
+        self.run_test("def np_binary_repr2(): from numpy import binary_repr ; a = 3 ; return binary_repr(a,4)", np_binary_repr2=[])
+
+    def test_binary_repr3(self):
+        self.run_test("def np_binary_repr3(): from numpy import binary_repr ; a = -3 ; return binary_repr(a,4)", np_binary_repr3=[])
+
+#    def test_base_repr0(self):
+#        self.run_test("def np_base_repr0(): from numpy import base_repr ; a = 5 ; return base_repr(a)", np_base_repr0=[])
+#
+#    def test_base_repr1(self):
+#        self.run_test("def np_base_repr1(): from numpy import base_repr ; a = 6 ; return base_repr(a,5)", np_base_repr1=[])
+#
+#    def test_base_repr2(self):
+#        self.run_test("def np_base_repr2(): from numpy import base_repr ; a = 7 ; return base_repr(a,5,3)", np_base_repr2=[])
+#
+#    def test_base_repr3(self):
+#        self.run_test("def np_base_repr3(): from numpy import base_repr ; a = 10 ; return base_repr(a, 16)", np_base_repr3=[])
+#
+#    def test_base_repr4(self):
+#        self.run_test("def np_base_repr4(): from numpy import base_repr ; a = 32 ; return base_repr(a, 16)", np_base_repr4=[])
+#
 #    def test_average0(self):
 #        self.run_test("def np_average0(): from numpy import average, arange ; a = arange(10) ; return average(a)", np_average0=[])
 #

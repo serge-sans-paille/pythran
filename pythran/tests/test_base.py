@@ -507,6 +507,18 @@ def yielder():
     b=f.next()
     return [i*i for i in f]"""
         self.run_test(code, yielder=[])
+
+    def test_yield_with_default_param(self):
+        code="""
+def foo(a=1000):
+    for i in xrange(10):
+        yield a
+
+def yield_param():
+    it = foo()
+    return [i for i in it]"""
+        self.run_test(code, yield_param=[])
+
     def test_set(self):
         code="""
 def set_(a,b):

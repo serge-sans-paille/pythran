@@ -41,14 +41,14 @@ class Type(object):
             return False
 
     def __add__(self, other):
-        if isinstance(other, CombinedTypes) and self in other.types:
-            return other
         if self.isweak() and not other.isweak():
             return other
         if other.isweak() and not self.isweak():
             return self
         if self == other:
             return self
+        if isinstance(other, CombinedTypes) and self in other.types:
+            return other
         return CombinedTypes([self, other])
 
     def __repr__(self):
@@ -203,6 +203,20 @@ class Assignable(DependentType):
 
     def generate(self, ctx):
         return 'typename assignable<{0}>::type'.format(self.of.generate(ctx))
+
+
+class Lazy(DependentType):
+    """
+    A type which can be a reference
+
+    It is used to make a lazy evaluation of numpy expressions
+
+    >>> Lazy(NamedType("long"))
+    typename lazy<long>::type
+    """
+
+    def generate(self, ctx):
+        return 'typename lazy<{0}>::type'.format(self.of.generate(ctx))
 
 
 class DeclType(NamedType):

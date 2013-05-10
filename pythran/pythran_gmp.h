@@ -19,6 +19,12 @@ struct assignable<__gmp_expr<T,U> >
     static_assert(!std::is_same<type,double>::value,"Cannot combine long and float.");
 };
 
+template<class T, class U>
+struct lazy<__gmp_expr<T,U> >
+{
+    typedef typename assignable<__gmp_expr<T,U>>::type type;
+};
+
 template<class T>
 struct assignable<__gmp_expr<T,T> >
 {

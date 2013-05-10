@@ -178,6 +178,21 @@ namespace  pythonic {
                     return new_list;
                 }
 
+                // io
+
+                /* list */
+
+                friend std::ostream& operator<<(std::ostream& os, core::list<T> const & v) {
+                    os << '[';
+                    auto iter = v.begin();
+                    if(iter != v.end()) {
+                        while(iter+1 != v.end())
+                            os << *iter++ << ", ";
+                        os << *iter;
+                    }
+                    return os << ']';
+                }
+
                 // comparison
                 template <class K>
                     bool operator==(core::list<K> const & other) const {

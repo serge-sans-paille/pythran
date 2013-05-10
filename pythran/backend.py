@@ -51,7 +51,7 @@ def templatize(node, types, default_types=None):
     if types:
         return Template(
                 ["typename {0} {1}".format(
-                    t, "= const {0}".format(d) if d else "")
+                    t, "= {0}".format(d) if d else "")
                     for t, d in zip(types, default_types)],
                 node)
     else:
@@ -241,6 +241,10 @@ class Cxx(Backend):
                         FunctionDeclaration(Value("", next_name), []),
                         Block([]))]
             if formal_types:
+                #if all parameters have a default value, we don't need default
+                # constructor
+                if default_arg_values and all(default_arg_values):
+                    next_constructors = list()
                 next_constructors.append(FunctionBody(
                     make_function_declaration("",
                         next_name, formal_types, formal_args,

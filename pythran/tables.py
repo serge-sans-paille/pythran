@@ -194,7 +194,8 @@ modules = {
             "pmap": ConstFunctionIntr(),
             },
         "time": {
-                "sleep": ConstFunctionIntr(),
+                "sleep": FunctionIntr(global_effects=True),
+                "time": FunctionIntr(global_effects=True),
             },
         "math": {
                 "isinf": ConstFunctionIntr(),
@@ -241,6 +242,8 @@ modules = {
                 },
         "bisect": {
                 "bisect_left": ConstFunctionIntr(),
+                "bisect_right": ConstFunctionIntr(),
+                "bisect": ConstFunctionIntr(),
                 },
         "cmath": {
                 "cos": FunctionIntr(),
@@ -269,7 +272,8 @@ modules = {
                 "gauss": FunctionIntr(global_effects=True),
                 "uniform": FunctionIntr(global_effects=True),
                 "expovariate": FunctionIntr(global_effects=True),
-                "sample": FunctionIntr(global_effects=True)
+                "sample": FunctionIntr(global_effects=True),
+                "choice": FunctionIntr(global_effects=True),
                 },
         "omp": {
                 "set_num_threads": FunctionIntr(global_effects=True),
@@ -755,7 +759,7 @@ modules = {
         "__complex___": {
                 "real": AttributeIntr(0),
                 "imag": AttributeIntr(1),
-                "conjugate": MethodIntr(),
+                "conjugate": ConstMethodIntr(),
                 },
         "__dict__": {
                 "fromkeys": ConstFunctionIntr(),

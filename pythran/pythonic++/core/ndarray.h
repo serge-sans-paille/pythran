@@ -333,6 +333,7 @@ namespace  pythonic {
 
                 /* types */
                 static const size_t value = N;
+                typedef T dtype;
                 typedef typename type_helper<ndarray<T, N>>::type value_type;
                 typedef value_type& reference;
                 typedef value_type const & const_reference;

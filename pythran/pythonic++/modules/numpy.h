@@ -17,6 +17,12 @@
             -> decltype(fname(typename core::numpy_expr_to_ndarray<core::numpy_expr<Op,Arg0,Arg1>>::type(expr), std::forward<Types>(others)...)) \
     {\
         return fname(typename core::numpy_expr_to_ndarray<core::numpy_expr<Op,Arg0, Arg1>>::type(expr), std::forward<Types>(others)...);\
+    }\
+    template<class T, class... Types>\
+        auto fname(core::list<T> const& expr, Types... others)\
+            -> decltype(fname(typename core::numpy_expr_to_ndarray<core::list<T>>::type(expr), std::forward<Types>(others)...)) \
+    {\
+        return fname(typename core::numpy_expr_to_ndarray<core::list<T>>::type(expr), std::forward<Types>(others)...);\
     }
 
 namespace pythonic {
@@ -53,9 +59,9 @@ namespace pythonic {
         }
 
 
-       template<class T, class dtype=typename nested_container_value_type<T>::type>
-          core::ndarray<dtype, nested_container_depth<T>::value > array(T&& iterable, dtype d=dtype()) {
-              return core::ndarray<dtype, nested_container_depth<T>::value >(std::forward<T>(iterable));
+       template<class T, class dtype=typename nested_container_value_type<typename std::remove_cv<typename std::remove_reference<T>::type>::type>::type>
+          core::ndarray<dtype, nested_container_depth<typename std::remove_cv<typename std::remove_reference<T>::type>::type>::value > array(T&& iterable, dtype d=dtype()) {
+              return core::ndarray<dtype, nested_container_depth<typename std::remove_cv<typename std::remove_reference<T>::type>::type>::value >(std::forward<T>(iterable));
           }
 
        PROXY(pythonic::numpy, array);
@@ -211,6 +217,7 @@ namespace pythonic {
                 }
             }
 
+       NUMPY_EXPR_TO_NDARRAY0(sum);
        PROXY(pythonic::numpy, sum);
 
        template<class E>
@@ -916,6 +923,98 @@ namespace pythonic {
             }
 
         PROXY(pythonic::numpy, asscalar);
+
+        template<class T>
+            typename std::enable_if<std::is_scalar<T>::value or is_complex<T>::value, core::ndarray<T,1>>::type
+            atleast_1d(T t) {
+                return core::ndarray<T,1>(core::make_tuple(1L), t);
+            }
+        template<class T>
+            auto atleast_1d(T const& t) -> typename std::enable_if< not(std::is_scalar<T>::value or is_complex<T>::value), typename core::numpy_expr_to_ndarray<T>::type > ::type {
+                return asarray(t);
+            }
+
+        PROXY(pythonic::numpy, atleast_1d);
+
+        template<class T>
+            typename std::enable_if<std::is_scalar<T>::value or is_complex<T>::value, core::ndarray<T,2>>::type
+            atleast_2d(T t) {
+                return core::ndarray<T,2>(core::make_tuple(1L,1L), t);
+            }
+        template<class T>
+            auto atleast_2d(T const& t)
+            -> typename std::enable_if<
+                    not(std::is_scalar<T>::value or is_complex<T>::value) and core::numpy_expr_to_ndarray<T>::type::value < 2,
+                    core::ndarray<typename core::numpy_expr_to_ndarray<T>::type::dtype,2>
+                > ::type
+            {
+                auto r = asarray(t);
+                return r.reshape(core::make_tuple(1L, r.shape[0]));
+            }
+
+        template<class T>
+            auto atleast_2d(T const& t)
+            -> typename std::enable_if<
+                    not(std::is_scalar<T>::value or is_complex<T>::value) and core::numpy_expr_to_ndarray<T>::type::value >= 2,
+                    decltype(asarray(t))
+               > ::type
+            {
+                return asarray(t);
+            }
+
+        PROXY(pythonic::numpy, atleast_2d);
+
+        template<class T>
+            typename std::enable_if<std::is_scalar<T>::value or is_complex<T>::value, core::ndarray<T,3>>::type
+            atleast_3d(T t) {
+                return core::ndarray<T,3>(core::make_tuple(1L,1L,1L), t);
+            }
+        template<class T>
+            auto atleast_3d(T const& t)
+            -> typename std::enable_if<
+                    not(std::is_scalar<T>::value or is_complex<T>::value) and (core::numpy_expr_to_ndarray<T>::type::value < 3),
+                    core::ndarray<typename core::numpy_expr_to_ndarray<T>::type::dtype, 3>
+                > ::type
+            {
+                auto r = asarray(t);
+                auto shape = r.shape;
+                if(shape.size() == 1)
+                    return r.reshape(core::make_tuple(1L, shape[0],1L));
+                else
+                    return r.reshape(core::make_tuple(shape[0], shape[1], 1L));
+            }
+
+        template<class T>
+            auto atleast_3d(T const& t)
+            -> typename std::enable_if<
+                    not(std::is_scalar<T>::value or is_complex<T>::value) and core::numpy_expr_to_ndarray<T>::type::value >= 3,
+                    decltype(asarray(t))
+               > ::type
+            {
+                return asarray(t);
+            }
+
+        PROXY(pythonic::numpy, atleast_3d);
+
+        template<class E>
+            auto average(E const & expr, none_type const& axis=None) -> decltype(sum(expr, axis)/1.) {
+                return sum(expr, axis) / double(expr.size());
+            }
+
+        template<class E>
+            auto average(E const & expr, long axis) -> decltype(sum(expr, axis)/1.) {
+                auto shape = expr.shape;
+                return sum(expr, axis) / double(shape[axis]);
+            }
+
+        template<class E, class W>
+            auto average(E const & expr, none_type const& axis, W&& weights) -> decltype(average(expr * asarray(weights) / average(asarray(weights)))) {
+                auto aweights = asarray(weights);
+                auto weighted_expr = expr * aweights / average(aweights) ;
+                return average(weighted_expr) ;
+            }
+
+        PROXY(pythonic::numpy, average);
 
         NP_PROXY_ALIAS(arccos, nt2::acos);
 

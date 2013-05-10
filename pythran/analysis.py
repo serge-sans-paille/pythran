@@ -625,6 +625,7 @@ class Identifiers(NodeAnalysis):
         self.result.add(node.module)
 
     def visit_alias(self, node):
+        self.result.add(node.name)
         if node.asname:
             self.result.add(node.asname)
 

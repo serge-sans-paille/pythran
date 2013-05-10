@@ -11,6 +11,7 @@
 #include <nt2/include/functions/scalar/atanh.hpp>
 #include <nt2/include/functions/scalar/bitofsign.hpp>
 #include <nt2/include/functions/scalar/ceil.hpp>
+#include <nt2/include/functions/scalar/conj.hpp>
 #include <nt2/include/functions/scalar/copysign.hpp>
 #include <nt2/include/functions/scalar/cos.hpp>
 #include <nt2/include/functions/scalar/cosh.hpp>
@@ -62,6 +63,7 @@
 #include <nt2/include/functions/simd/atanh.hpp>
 #include <nt2/include/functions/simd/bitofsign.hpp>
 #include <nt2/include/functions/simd/ceil.hpp>
+#include <nt2/include/functions/simd/conj.hpp>
 #include <nt2/include/functions/simd/copysign.hpp>
 #include <nt2/include/functions/simd/cos.hpp>
 #include <nt2/include/functions/simd/cosh.hpp>
@@ -366,6 +368,15 @@ namespace  pythonic {
 #define NUMPY_BINARY_FUNC_NAME copysign
 #define NUMPY_BINARY_FUNC_SYM proxy::copysign
 #include "numpy_binary_expr.h"
+
+            PROXY(nt2, conj)
+#define NUMPY_UNARY_FUNC_NAME conj
+#define NUMPY_UNARY_FUNC_SYM proxy::conj
+#include "numpy_unary_expr.h"
+
+#define NUMPY_UNARY_FUNC_NAME conjugate
+#define NUMPY_UNARY_FUNC_SYM proxy::conj
+#include "numpy_unary_expr.h"
 
             PROXY(nt2, cos)
 #define NUMPY_UNARY_FUNC_NAME cos

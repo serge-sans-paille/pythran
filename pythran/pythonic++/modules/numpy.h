@@ -1082,6 +1082,136 @@ namespace pythonic {
 
         PROXY(pythonic::numpy, binary_repr);
 
+        template<class T, size_t N>
+            core::ndarray<long,1> bincount(core::ndarray<T,N> const & expr, none_type weights=None, none<long> minlength = None) {
+                long length = 0;
+                if(minlength) length = (long)minlength;
+                length = std::max(length, 1 + max(expr));
+                core::ndarray<long, 1> out( core::make_tuple(length), 0L);
+                long n = expr.size();
+                for(long i=0; i < n; i++)
+                    ++out[ expr.at(i) ];
+                return out;
+            }
+
+        template<class T, size_t N, class E>
+            core::ndarray<decltype(std::declval<long>()*std::declval<E>().at(0)),1> bincount(core::ndarray<T,N> const & expr, E const& weights, none<long> minlength = None) {
+                long length = 0;
+                if(minlength) length = (long)minlength;
+                length = std::max(length, 1 + max(expr));
+                core::ndarray<decltype(std::declval<long>()*std::declval<E>().at(0)), 1> out( core::make_tuple(length), 0L);
+                long n = expr.size();
+                for(long i=0; i < n; i++)
+                    out[ expr.at(i) ] += weights.at(i);
+                return out;
+            }
+
+        PROXY(pythonic::numpy, bincount);
+
+        template<class E, class Mi, class Ma>
+            typename core::numpy_expr_to_ndarray<E>::type clip(E const& e, Mi a_min, Ma a_max) {
+                typename core::numpy_expr_to_ndarray<E>::type out(e.shape, None);
+                auto out_iter = out.buffer;
+                for(long i=0, n=e.size(); i<n; i++) {
+                    auto v = e.at(i);
+                    if(v<a_min) v=a_min;
+                    else if(v>a_max) v = a_max;
+                    *out_iter++ = v;
+                }
+                return out;
+            }
+
+        PROXY(pythonic::numpy, clip);
+
+        template<class T, size_t N, size_t M>
+            core::ndarray<T,N> concatenate(core::ltuple<core::ndarray<T,N>, M> const & ai) {
+                long n = 1;
+                long shape[N];
+                shape[0] = 0L;
+                for(auto const& a : ai) {
+                    shape[0] += a.shape[0];
+                    n *= a.size();
+                }
+                std::copy(ai[0].shape.begin() +1 , ai[0].shape.end(), &shape[1]);
+
+                T* buffer = new T[n];
+                T* iter = buffer;
+                for(auto const& a : ai) 
+                    iter = std::copy(a.buffer, a.buffer + a.size(), iter);
+
+                return core::ndarray<T,N>(buffer, shape, n);
+            }
+        PROXY(pythonic::numpy, concatenate);
+
+        template<class T, size_t N>
+            core::ndarray<T,N> copy(core::ndarray<T,N> const& a) {
+                auto res = core::ndarray<T,N>(a.shape, None);
+                std::copy(a.buffer, a.buffer + a.size(), res.buffer);
+                return res;
+            }
+        PROXY(pythonic::numpy, copy);
+
+        template<class T, size_t N, class dtype=T>
+            core::ndarray<dtype,1> cumprod(core::ndarray<T,N> const& expr, dtype d = dtype()) {
+                long count = expr.size();
+                core::ndarray<dtype,1> cumprody(core::make_tuple(count), None);
+                std::partial_sum(expr.buffer, expr.buffer + count, cumprody.buffer, std::multiplies<T>());
+                return cumprody;
+            }
+
+        template<class T, class dtype=T>
+            core::ndarray<dtype,1> cumprod(core::ndarray<T,1> const& expr, long axis, dtype d = dtype()) {
+                if(axis !=0)
+                    throw __builtin__::ValueError("axis out of bounds");
+                return cumprod(expr);
+            }
+
+        template<class T, size_t N, class dtype=T>
+            core::ndarray<dtype,N> cumprod(core::ndarray<T,N> const& expr, long axis, dtype d = dtype()) {
+                if(axis<0 || axis >=long(N))
+                    throw __builtin__::ValueError("axis out of bounds");
+
+                auto shape = expr.shape;
+                core::ndarray<dtype,N> cumprody(shape, None);
+                if(axis==0) {
+                    std::copy(expr.buffer, expr.buffer + shape[N-1], cumprody.buffer);
+                    std::transform(cumprody.begin(), cumprody.end()-1, expr.begin() + 1, cumprody.begin() + 1, std::multiplies<core::ndarray<T,N-1>>());
+                }
+                else {
+                    std::transform(expr.begin(), expr.end(), cumprody.begin(), [=](core::ndarray<T,N-1> const& e) { return cumprod(e, axis-1, d); });
+                }
+                return cumprody;
+            }
+
+        ALIAS(cumprod, cumproduct)
+        PROXY(pythonic::numpy, cumproduct);
+        PROXY(pythonic::numpy, cumprod);
+
+        template<class T, size_t N>
+            core::ndarray<T,1> delete_(core::ndarray<T,N> const& a, long index, none_type axis=None) {
+                core::ndarray<T,1> out(core::make_tuple(long(a.size())-1), None);
+                long n = a.size();
+                index = std::min(n, index);
+                std::copy(a.buffer + index + 1 , a.buffer + n, std::copy(a.buffer, a.buffer + index, out.buffer));
+                return out;
+            }
+
+        template<class T, size_t N, class I>
+            typename std::enable_if<!std::is_scalar<I>::value, core::ndarray<T,1>>::type
+            delete_(core::ndarray<T,N> const& in, I const& indices, none_type axis=None) {
+                core::ndarray<T,1> out(core::make_tuple(long(in.size())-indices.size()), None);
+                auto out_iter = out.buffer;
+                auto in_iter = in.buffer;
+                for(long index : indices) {
+                    out_iter = std::copy(in_iter, in.buffer + index, out_iter);
+                    in_iter = in.buffer + index + 1;
+                }
+                std::copy(in_iter, in.buffer + in.size(), out_iter);
+                return out;
+            }
+
+        PROXY(pythonic::numpy, delete_);
+
         NP_PROXY_ALIAS(arccos, nt2::acos);
 
         NP_PROXY_ALIAS(arccosh, nt2::acosh);
@@ -1106,12 +1236,9 @@ namespace pythonic {
 
         NP_PROXY(ceil);
 
-        // TODO
-        // using pythonic::math::conj;
-        // NP_PROXY(conj);
-        //
-        // using pythonic::math::conjugate;
-        // NP_PROXY(conjugate);
+        NP_PROXY(conj);
+
+        NP_PROXY_ALIAS(conjugate, nt2::conj);
 
         NP_PROXY(copysign);
 

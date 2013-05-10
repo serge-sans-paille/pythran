@@ -671,9 +671,11 @@ class NormalizeIdentifiers(Transformation):
         return node
 
     def visit_alias(self, node):
+        if node.name in cxx_keywords:
+            node.name = self.rename(node.name)
         if node.asname:
             if node.asname in cxx_keywords:
-                node.asname = self.rename(node.name)
+                node.asname = self.rename(node.asname)
         return node
 
     def visit_ImportFrom(self, node):

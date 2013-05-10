@@ -287,6 +287,8 @@ modules = {
             "atleast_2d": ConstFunctionIntr(),
             "atleast_3d": ConstFunctionIntr(),
             "average": ConstFunctionIntr(),
+            "base_repr": ConstFunctionIntr(),
+            "binary_repr": ConstFunctionIntr(),
             "bitwise_and": ConstFunctionIntr(),
             "bitwise_not": ConstFunctionIntr(),
             "bitwise_or": ConstFunctionIntr(),

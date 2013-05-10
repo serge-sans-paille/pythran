@@ -1016,6 +1016,72 @@ namespace pythonic {
 
         PROXY(pythonic::numpy, average);
 
+        namespace {
+
+            char *int2bin(long a, char *buffer, int buf_size) {
+                buffer += (buf_size - 1);
+                for (int i = sizeof(a)*8-1; i >= 0; i--) {
+                    *buffer-- = (a & 1) + '0';
+                    a >>= 1;
+                }
+                return buffer;
+            }
+
+            char* itoa( int value, char* result, int base ) {
+                // check that the base if valid
+                if (base < 2 || base > 16) { *result = 0; return result; }
+
+                char* out = result;
+                int quotient = abs(value);
+
+                do {
+                    const int tmp = quotient / base;
+                    *out = "0123456789ABCDEF"[ quotient - (tmp*base) ];
+                    ++out;
+                    quotient = tmp;
+                } while ( quotient );
+
+                // Apply negative sign
+                if ( value < 0) *out++ = '-';
+
+                std::reverse( result, out );
+                *out = 0;
+                return result;
+            }
+
+        }
+
+        core::string base_repr(long number, long base=2, long padding=0) {
+            char * mem = new char[sizeof(number)*8+1 + padding];
+            std::fill(mem, mem+padding, '0');
+            itoa(number, mem + padding, base);
+            auto res = core::string(mem);
+            delete [] mem;
+            return res;
+        }
+
+        PROXY(pythonic::numpy, base_repr);
+
+        core::string binary_repr(long number, none_type width=None) {
+            return base_repr(number,2);
+        }
+
+        core::string binary_repr(long number, long width) {
+            core::string out = binary_repr(std::abs(number));
+            if(number>=0) {
+                return base_repr(std::abs(number), 2, width - out.size());
+            }
+            else {
+                char * mem = new char[width+1];
+                int2bin(number, mem, width);
+                auto res = core::string(mem);
+                delete [] mem;
+                return res;
+            }
+        }
+
+        PROXY(pythonic::numpy, binary_repr);
+
         NP_PROXY_ALIAS(arccos, nt2::acos);
 
         NP_PROXY_ALIAS(arccosh, nt2::acosh);

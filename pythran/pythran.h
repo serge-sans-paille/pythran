@@ -354,6 +354,10 @@ template<class K0, class V0, class K1, class V1>
 struct __combined<core::dict<K0, V0>, core::dict<K1, V1>> {
     typedef core::dict<typename __combined<K0,K1>::type, typename __combined<V0,V1>::type> type;
 };
+template<class T0, size_t N, class T1>
+struct __combined<core::ndarray<T0,N>, core::ndarray<T1,N>> {
+    typedef core::ndarray<typename __combined<T0,T1>::type,N> type;
+};
 
 template<>
 struct __combined<void, void> {

@@ -51,6 +51,7 @@ namespace  pythonic {
                 T __value;
                 typename vectorized<T>::type _value;
                 static constexpr size_t value = 0;
+                broadcast() {}
                 broadcast(T v) : __value(v), _value(vectorized<T>::broadcast(v)) {}
 #ifdef __AVX__
                 typename vectorized<T>::type load(long ) const { return _value;}
@@ -66,6 +67,7 @@ namespace  pythonic {
                 typedef decltype(Op()(arg0.at(std::declval<long>()))) value_type;
                 static constexpr size_t value = Arg0::value;
                 core::ltuple<long, value> shape;
+                numpy_uexpr() {}
                 numpy_uexpr(Arg0 const& arg0) : arg0(arg0), shape(arg0.shape) {
                 }
 #ifdef __AVX__
@@ -99,6 +101,8 @@ namespace  pythonic {
                 typedef decltype(Op()(arg0.at(std::declval<long>()), arg1.at(std::declval<long>()))) value_type;
                 static constexpr size_t value = Arg0::value>Arg1::value?Arg0::value: Arg1::value;
                 core::ltuple<long, value> shape;
+                numpy_expr() {}
+
                 numpy_expr(Arg0 const& arg0, Arg1 const& arg1) : arg0(arg0), arg1(arg1), shape(select_shape(arg0,arg1, int_<value>())) {
                 }
 #ifdef __AVX__

@@ -604,7 +604,7 @@ class Types(ModuleAnalysis):
             f = lambda t: AttributeType(node.slice.value.n, t)
         elif isinstance(node.slice, ast.Slice):
             f = lambda t: t
-        elif isinstance(node.slice.value, ast.Num):
+        elif isinstance(node.slice.value, ast.Num) and node.slice.value.n >= 0:
             f = lambda t: ElementType(node.slice.value.n, t)
         elif isinstance(node.slice.value, ast.Tuple):
             f = lambda t: reduce(lambda x, y: ContentType(x),

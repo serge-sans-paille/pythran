@@ -789,9 +789,10 @@ class Cxx(Backend):
         # attribute case
         if metadata.get(node, metadata.Attribute):
             return "getattr<{0}>({1})".format(node.slice.value.n, value)
-        # static index case
+        # positive static index case
         elif (isinstance(node.slice, ast.Index)
                 and isinstance(node.slice.value, ast.Num)
+                and (node.slice.value.n >= 0)
                 and any(isinstance(node.slice.value.n, t)
                     for t in (int, long))):
             return "std::get<{0}>({1})".format(node.slice.value.n, value)

@@ -1020,7 +1020,8 @@ namespace pythonic {
 
             char *int2bin(long a, char *buffer, int buf_size) {
                 buffer += (buf_size - 1);
-                for (int i = sizeof(a)*8-1; i >= 0; i--) {
+                buffer[1]=0;
+                for (int i = 0; i < buf_size; ++i) {
                     *buffer-- = (a & 1) + '0';
                     a >>= 1;
                 }

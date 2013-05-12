@@ -314,6 +314,18 @@ namespace  pythonic {
                         data[i] = v;
                     return *this;
                 }
+
+                sliced_ndarray<T>& operator+=(value_type v) {
+                    for(int i=lower; i<upper; i+=step)
+                        data[i] += v;
+                    return *this;
+                }
+
+                sliced_ndarray<T>& operator-=(value_type v) {
+                    for(int i=lower; i<upper; i+=step)
+                        data[i] -= v;
+                    return *this;
+                }
             };
 
         /* a few helpers */

@@ -397,6 +397,7 @@ modules = {
             "uint32" : ConstFunctionIntr(),
             "uint64" : ConstFunctionIntr(),
             "uint8" : ConstFunctionIntr(),
+            "where" : ConstFunctionIntr(),
             "zeros": ConstFunctionIntr(),
             "zeros_like": ConstFunctionIntr(),
             # "frexp" : ConstFunctionIntr(), TODO

@@ -39,6 +39,56 @@ class TestNumpy(TestEnv):
     def test_delete1(self):
         self.run_test("def np_delete1(): from numpy import array, delete ; a = array([[1,2,3,4], [5,6,7,8], [9,10,11,12]]) ; return delete(a, [1,3,5])", np_delete1=[])
 
+    def test_where0(self):
+        self.run_test("""def np_where0():
+    from numpy import arange, where
+    a = arange(12).reshape(3,4)
+    b = arange(5, 17).reshape(3,4)
+    c = [[0, 1, 1, 1], [0, 0, 1, 1], [1, 0, 0, 0]]
+    return where(c , a, b)""", np_where0=[])
+
+    def test_where1(self):
+        self.run_test("""def np_where1():
+    from numpy import arange, where
+    a = arange(12).reshape(3,4)
+    c = [[0, 1, 1, 1], [0, 0, 1, 1], [1, 0, 0, 0]]
+    return where(True , a, c)""", np_where1=[])
+
+    def test_where2(self):
+        self.run_test("""def np_where2():
+    from numpy import arange, where
+    a = arange(12).reshape(3,4)
+    c = [[0, 1, 1, 1], [0, 0, 1, 1], [1, 0, 0, 0]]
+    return where(False , a, c)""", np_where2=[])
+
+    def test_where3(self):
+        self.run_test("""def np_where3():
+    from numpy import arange, where
+    a = arange(12).reshape(3,4)
+    c = [[0, 1, 1, 1], [0, 0, 1, 1], [1, 0, 0, 0]]
+    return where(True , a, 5)""", np_where3=[])
+
+    def test_where4(self):
+        self.run_test("""def np_where4():
+    from numpy import arange, where
+    a = arange(12).reshape(3,4)
+    c = [[0, 1, 1, 1], [0, 0, 1, 1], [1, 0, 0, 0]]
+    return where(False , a, 6)""", np_where4=[])
+
+    def test_where5(self):
+        self.run_test("""def np_where5():
+    from numpy import arange, where
+    a = arange(12).reshape(3,4)
+    b = arange(5, 17).reshape(3,4)
+    return where(a>5 , a, b)""", np_where5=[])
+
+    def test_where6(self):
+        self.run_test("""def np_where6():
+    from numpy import arange, where
+    a = arange(12).reshape(3,4)
+    return where(a>5 , 1, 2)""", np_where6=[])
+
+
     def test_cumprod_(self):
         self.run_test("def np_cumprod_():\n from numpy import arange,cumprod\n return arange(10).cumprod()", np_cumprod_=[])
 

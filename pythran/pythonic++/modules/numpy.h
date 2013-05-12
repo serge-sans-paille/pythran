@@ -1370,6 +1370,41 @@ namespace pythonic {
 
         PROXY(pythonic::numpy, where)
 
+            template<class E>
+            auto nonzero(E const& expr) -> core::ltuple<core::ndarray<long,1>, core::numpy_expr_to_ndarray<E>::N>
+            {
+                constexpr long N = core::numpy_expr_to_ndarray<E>::N;
+                typedef core::ltuple<core::ndarray<long,1>, N> out_type;
+                long sz = expr.size();
+                auto eshape = expr.shape;
+                long *buffer = new long[N * sz]; // too much memory used
+                long *buffer_iter = buffer;
+                long real_sz = 0;
+                for(long i=0; i< sz; ++i) {
+                    if(expr.at(i)) {
+                        ++real_sz;
+                        long mult = 1;
+                        for(long j=N-1; j>0; j--) {
+                            buffer_iter[j] = (i/mult)%eshape[j];
+                            mult*=eshape[j];
+                        }
+                        buffer_iter[0] = i/mult;
+                        buffer_iter+=N;
+                    }
+                }
+                out_type out;
+                core::ltuple<long, 1> shape{ real_sz };
+                for(long i=0; i<N; i++)
+                {
+                    out[i] = core::ndarray<long, 1>(shape, None);
+                    for(long j=0; j<real_sz; j++)
+                        out[i][j] = buffer[j * N + i];
+                }
+                return out;
+            }
+
+        PROXY(pythonic::numpy, nonzero)
+
         NP_PROXY_ALIAS(arccos, nt2::acos);
 
         NP_PROXY_ALIAS(arccosh, nt2::acosh);

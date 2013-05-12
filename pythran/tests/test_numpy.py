@@ -3,6 +3,15 @@ from test_env import TestEnv
 import numpy
 
 class TestNumpy(TestEnv):
+    def test_nonzero0(self):
+        self.run_test("def np_nonzero0(): from numpy import arange, nonzero ; x = arange(6) ; return nonzero(x)", np_nonzero0=[])
+
+    def test_nonzero1(self):
+        self.run_test("def np_nonzero1(): from numpy import arange, nonzero ; x = arange(6) ; return nonzero(x>8)", np_nonzero1=[])
+
+    def test_nonzero2(self):
+        self.run_test("def np_nonzero2(): from numpy import arange, nonzero ; x = arange(6).reshape(2,3) ; return nonzero(x>0)", np_nonzero2=[])
+
     def test_diagflat3(self):
         self.run_test("def np_diagflat3(): from numpy import diagflat, arange; a = arange(2) ; return diagflat(a)", np_diagflat3=[])
 

@@ -1245,6 +1245,130 @@ namespace pythonic {
 
         ALIAS(diag, diagflat);
         PROXY(pythonic::numpy, diagflat);
+
+        /* cas : array_like, array_like, array_like */
+        template<class E, class X, class Y>
+            typename std::enable_if<core::is_array_like<typename std::remove_reference<E>::type>::value && 
+            core::is_array_like<typename std::remove_reference<X>::type>::value &&
+            core::is_array_like<typename std::remove_reference<Y>::type>::value,
+            core::ndarray<decltype(std::declval<typename nested_container_value_type<typename std::remove_reference<X>::type, !core::is_array_like<typename std::remove_reference<X>::type>::value>::type>() + std::declval<typename nested_container_value_type<typename std::remove_reference<Y>::type, !core::is_array_like<typename std::remove_reference<Y>::type>::value>::type>()), nested_container_depth<typename std::conditional<core::is_array_like<typename std::remove_reference<E>::type>::value, typename std::remove_reference<E>::type, bool>::type>::value>
+                >::type where(E&& e, X&& x, Y&& y) {
+                    auto condition = asarray(e);
+                    auto x_ = asarray(x);
+                    auto y_ = asarray(y);
+                    core::ndarray<decltype(std::declval<typename nested_container_value_type<typename std::remove_reference<X>::type>::type>() + std::declval<typename nested_container_value_type<typename std::remove_reference<Y>::type>::type>()), nested_container_depth<typename std::remove_reference<E>::type>::value> out(condition.shape, None);
+                    auto out_iter = out.buffer;
+                    for(long i=0, n=condition.size(); i<n; i++) {
+                        if(condition.at(i))
+                            *out_iter++ = x_.at(i);
+                        else
+                            *out_iter++ = y_.at(i);
+                    }
+                    return out;
+                }
+
+        /* cas : array_like, value, array_like */
+        template<class E, class X, class Y>
+            typename std::enable_if<core::is_array_like<typename std::remove_reference<E>::type>::value && 
+            !core::is_array_like<typename std::remove_reference<X>::type>::value &&
+            core::is_array_like<typename std::remove_reference<Y>::type>::value,
+            core::ndarray<decltype(std::declval<X>() + std::declval<typename nested_container_value_type<typename std::remove_reference<Y>::type, !core::is_array_like<typename std::remove_reference<Y>::type>::value>::type>()), nested_container_depth<typename std::conditional<core::is_array_like<typename std::remove_reference<E>::type>::value, typename std::remove_reference<E>::type, bool>::type>::value>
+                >::type where(E&& e, X&& x, Y&& y) {
+                    auto condition = asarray(e);
+                    auto y_ = asarray(y);
+                    core::ndarray<decltype(std::declval<X>() + std::declval<typename nested_container_value_type<typename std::remove_reference<Y>::type>::type>()), nested_container_depth<typename std::remove_reference<E>::type>::value> out(condition.shape, None);
+                    auto out_iter = out.buffer;
+                    for(long i=0, n=condition.size(); i<n; i++) {
+                        if(condition.at(i))
+                            *out_iter++ = x;
+                        else
+                            *out_iter++ = y_.at(i);
+                    }
+                    return out;
+                }
+
+        /* cas : array_like, array_like, value */
+        template<class E, class X, class Y>
+            typename std::enable_if<core::is_array_like<typename std::remove_reference<E>::type>::value && 
+            core::is_array_like<typename std::remove_reference<X>::type>::value &&
+            !core::is_array_like<typename std::remove_reference<Y>::type>::value,
+            core::ndarray<decltype(std::declval<Y>() + std::declval<typename nested_container_value_type<typename std::remove_reference<X>::type, !core::is_array_like<typename std::remove_reference<X>::type>::value>::type>()), nested_container_depth<typename std::conditional<core::is_array_like<typename std::remove_reference<E>::type>::value, typename std::remove_reference<E>::type, bool>::type>::value>
+                >::type where(E&& e, X&& x, Y&& y) {
+                    auto condition = asarray(e);
+                    auto x_ = asarray(x);
+                    core::ndarray<decltype(std::declval<Y>() + std::declval<typename nested_container_value_type<typename std::remove_reference<X>::type>::type>()), nested_container_depth<typename std::remove_reference<E>::type>::value> out(condition.shape, None);
+                    auto out_iter = out.buffer;
+                    for(long i=0, n=condition.size(); i<n; i++) {
+                        if(condition.at(i))
+                            *out_iter++ = x_.at(i);
+                        else
+                            *out_iter++ = y;
+                    }
+                    return out;
+                }
+
+        /* cas : array_like, value, value */
+        template<class E, class X, class Y>
+            typename std::enable_if<core::is_array_like<typename std::remove_reference<E>::type>::value && 
+            !core::is_array_like<typename std::remove_reference<X>::type>::value &&
+            !core::is_array_like<typename std::remove_reference<Y>::type>::value,
+            core::ndarray<decltype(std::declval<Y>() + std::declval<X>()), nested_container_depth<typename std::conditional<core::is_array_like<typename std::remove_reference<E>::type>::value, typename std::remove_reference<E>::type, bool>::type>::value>
+                >::type where(E&& e, X&& x, Y&& y) {
+                    auto condition = asarray(e);
+                    core::ndarray<decltype(std::declval<Y>() + std::declval<X>()), nested_container_depth<typename std::remove_reference<E>::type>::value> out(condition.shape, None);
+                    auto out_iter = out.buffer;
+                    for(long i=0, n=condition.size(); i<n; i++) {
+                        if(condition.at(i))
+                            *out_iter++ = x;
+                        else
+                            *out_iter++ = y;
+                    }
+                    return out;
+                }
+
+        /* cas : value, value, array_like */
+        template<class E, class X, class Y>
+            typename std::enable_if<!core::is_array_like<typename std::remove_reference<E>::type>::value && 
+            !core::is_array_like<typename std::remove_reference<X>::type>::value &&
+            core::is_array_like<typename std::remove_reference<Y>::type>::value,
+            core::ndarray<decltype(std::declval<X>() + std::declval<typename nested_container_value_type<typename std::remove_reference<Y>::type, !core::is_array_like<typename std::remove_reference<Y>::type>::value>::type>()), nested_container_depth<typename std::conditional<core::is_array_like<typename std::remove_reference<Y>::type>::value, typename std::remove_reference<Y>::type, bool>::type>::value>
+                >::type where(E&& e, X&& x, Y&& y) {
+                    auto y_ = asarray(y);
+                    if(e)
+                        return core::ndarray<decltype(std::declval<X>() + std::declval<typename nested_container_value_type<typename std::remove_reference<Y>::type>::type>()), nested_container_depth<typename std::remove_reference<Y>::type>::value>(y_.shape, x);
+                    else
+                        return copy(y_);
+                }
+
+        /* cas : value, array_like, value */
+        template<class E, class X, class Y>
+            typename std::enable_if<!core::is_array_like<typename std::remove_reference<E>::type>::value && 
+            core::is_array_like<typename std::remove_reference<X>::type>::value &&
+            !core::is_array_like<typename std::remove_reference<Y>::type>::value,
+            core::ndarray<decltype(std::declval<Y>() + std::declval<typename nested_container_value_type<typename std::remove_reference<X>::type, !core::is_array_like<typename std::remove_reference<X>::type>::value>::type>()), nested_container_depth<typename std::conditional<core::is_array_like<typename std::remove_reference<X>::type>::value, typename std::remove_reference<X>::type, bool>::type>::value>
+                >::type where(E&& e, X&& x, Y&& y) {
+                    auto x_ = asarray(x);
+                    if(e)
+                        return copy(x_);
+                    else
+                        return core::ndarray<decltype(std::declval<Y>() + std::declval<typename nested_container_value_type<typename std::remove_reference<X>::type>::type>()), nested_container_depth<typename std::remove_reference<X>::type>::value>(x_.shape, y);
+                }
+
+        /* cas : value, array_like, array_like */
+        template<class E, class X, class Y>
+            typename std::enable_if<!core::is_array_like<typename std::remove_reference<E>::type>::value && 
+            core::is_array_like<typename std::remove_reference<X>::type>::value &&
+            core::is_array_like<typename std::remove_reference<Y>::type>::value,
+            core::ndarray<decltype(std::declval<typename nested_container_value_type<typename std::remove_reference<Y>::type, !core::is_array_like<typename std::remove_reference<Y>::type>::value>::type>() + std::declval<typename nested_container_value_type<typename std::remove_reference<X>::type, !core::is_array_like<typename std::remove_reference<X>::type>::value>::type>()), nested_container_depth<typename std::conditional<core::is_array_like<typename std::remove_reference<X>::type>::value, typename std::remove_reference<X>::type, bool>::type>::value>
+                >::type where(E&& e, X&& x, Y&& y) {
+                    if(e)
+                        return copy(x);
+                    else
+                        return copy(y);
+                }
+
+        PROXY(pythonic::numpy, where)
+
         NP_PROXY_ALIAS(arccos, nt2::acos);
 
         NP_PROXY_ALIAS(arccosh, nt2::acosh);

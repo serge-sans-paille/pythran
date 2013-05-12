@@ -90,13 +90,19 @@ class TestEnv(unittest.TestCase):
             pythran_res = getattr(pymod, name)(*params)
 
             # Compare pythran result against python ref and raise if mismatch
-            if ((isinstance(python_ref, ndarray)
-                        and npany(python_ref != pythran_res))
-                    or (not isinstance(python_ref, ndarray)
-                        and python_ref != pythran_res)):
-                print "Python result: ", python_ref
-                print "Pythran result: ", pythran_res
-                self.assertAlmostEqual(python_ref, pythran_res)
+            try:
+                if python_ref != pythran_res:
+                    print "Python result: ", python_ref
+                    print "Pythran result: ", pythran_res
+                    self.assertAlmostEqual(python_ref, pythran_res)
+            except ValueError:
+                if hasattr(python_ref, '__iter__'):
+                    print "Python result: ", python_ref
+                    print "Pythran result: ", pythran_res
+                    self.assertEqual(len(python_ref), len(pythran_res))
+                    for iref, ires in zip(python_ref, pythran_res):
+                        self.assertAlmostEqual(iref, ires)
+                
     def run_test(self, code, *params, **interface):
         return self.run_test_with_prelude(code, None, *params, **interface)
 

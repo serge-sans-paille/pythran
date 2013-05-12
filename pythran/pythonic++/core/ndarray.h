@@ -180,7 +180,6 @@ namespace  pythonic {
                 }
             };
 
-
         template<class Expr>
             struct is_numpy_expr {
                 static constexpr bool value = false;
@@ -193,6 +192,19 @@ namespace  pythonic {
             struct is_numpy_expr<numpy_expr<Op, Arg0, Arg1>> {
                 static constexpr bool value = true;
              };
+
+        template<class Expr>
+            struct is_array_like {
+                static constexpr bool value = is_numpy_expr<Expr>::value;
+            };
+        template<class L>
+            struct is_array_like<core::list<L>>{
+                static constexpr bool value = true;
+            };
+        template<class T, size_t N>
+            struct is_array_like<core::ndarray<T,N>>{
+                static constexpr bool value = true;
+            };
 
         template<class T>
             struct type_helper;
@@ -559,5 +571,14 @@ namespace  pythonic {
 
             };
     }
+
+    template<class Op, class Arg>
+        struct nested_container_depth<core::numpy_uexpr<Op, Arg>> {
+            static const int value = core::numpy_uexpr<Op, Arg>::value;
+        };
+    template<class Op, class Arg0, class Arg1>
+        struct nested_container_depth<core::numpy_expr<Op, Arg0, Arg1>> {
+            static const int  value = core::numpy_expr<Op, Arg0, Arg1>::value;
+        };
 }
 #endif

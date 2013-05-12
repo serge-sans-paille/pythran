@@ -50,8 +50,8 @@
 #include <nt2/include/functions/scalar/tan.hpp>
 #include <nt2/include/functions/scalar/tanh.hpp>
 #include <nt2/include/functions/scalar/trunc.hpp>
-#include <nt2/toolbox/boost_math/functions/lgamma.hpp>
-#include <nt2/toolbox/boost_math/functions/tgamma.hpp>
+#include <nt2/boost_math/functions/lgamma.hpp>
+#include <nt2/boost_math/functions/tgamma.hpp>
 #ifdef __AVX__
 #include <nt2/include/functions/simd/abs.hpp>
 #include <nt2/include/functions/simd/acos.hpp>

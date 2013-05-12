@@ -367,6 +367,7 @@ modules = {
             "nan": ConstantIntr(),
             "negative": ConstFunctionIntr(),
             "nextafter": ConstFunctionIntr(),
+            "nonzero": ConstFunctionIntr(),
             "not_equal": ConstFunctionIntr(),
             "ones": ConstFunctionIntr(),
             "ones_like": ConstFunctionIntr(),

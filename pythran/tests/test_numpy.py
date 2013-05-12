@@ -97,6 +97,12 @@ class TestNumpy(TestEnv):
     a = arange(12).reshape(3,4)
     return where(a>5 , 1, 2)""", np_where6=[])
 
+    def test_where7(self):
+        self.run_test("""def np_where7():
+    from numpy import arange, where
+    a = arange(12).reshape(3,4)
+    return where(a>5)""", np_where7=[])
+
 
     def test_cumprod_(self):
         self.run_test("def np_cumprod_():\n from numpy import arange,cumprod\n return arange(10).cumprod()", np_cumprod_=[])

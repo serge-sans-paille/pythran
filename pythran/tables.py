@@ -400,6 +400,7 @@ modules = {
             "uint32" : ConstFunctionIntr(),
             "uint64" : ConstFunctionIntr(),
             "uint8" : ConstFunctionIntr(),
+            "unwrap" : ConstFunctionIntr(),
             "where" : ConstFunctionIntr(),
             "zeros": ConstFunctionIntr(),
             "zeros_like": ConstFunctionIntr(),

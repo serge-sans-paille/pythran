@@ -1150,6 +1150,7 @@ namespace pythonic {
                 std::copy(a.buffer, a.buffer + a.size(), res.buffer);
                 return res;
             }
+        NUMPY_EXPR_TO_NDARRAY0(copy);
         PROXY(pythonic::numpy, copy);
 
         template<class T, size_t N, class dtype=T>

@@ -1288,7 +1288,7 @@ namespace pythonic {
             core::is_array_like<typename std::remove_reference<typename std::remove_cv<X>::type>::type>::value &&
             core::is_array_like<typename std::remove_reference<typename std::remove_cv<Y>::type>::type>::value,
             core::ndarray<decltype(std::declval<typename nested_container_value_type<typename std::remove_reference<typename std::remove_cv<X>::type>::type, !core::is_array_like<typename std::remove_reference<typename std::remove_cv<X>::type>::type>::value>::type>() + std::declval<typename nested_container_value_type<typename std::remove_reference<typename std::remove_cv<Y>::type>::type, !core::is_array_like<typename std::remove_reference<typename std::remove_cv<Y>::type>::type>::value>::type>()), nested_container_depth<typename std::conditional<core::is_array_like<typename std::remove_reference<typename std::remove_cv<E>::type>::type>::value, typename std::remove_reference<typename std::remove_cv<E>::type>::type, bool>::type>::value>
-                >::type where(E&& e, X&& x, Y&& y) {
+                >::type where(E const& e, X const& x, Y const& y) {
                     auto condition = asarray(e);
                     auto x_ = asarray(x);
                     auto y_ = asarray(y);
@@ -1309,7 +1309,7 @@ namespace pythonic {
             !core::is_array_like<typename std::remove_reference<typename std::remove_cv<X>::type>::type>::value &&
             core::is_array_like<typename std::remove_reference<typename std::remove_cv<Y>::type>::type>::value,
             core::ndarray<decltype(std::declval<X>() + std::declval<typename nested_container_value_type<typename std::remove_reference<typename std::remove_cv<Y>::type>::type, !core::is_array_like<typename std::remove_reference<typename std::remove_cv<Y>::type>::type>::value>::type>()), nested_container_depth<typename std::conditional<core::is_array_like<typename std::remove_reference<typename std::remove_cv<E>::type>::type>::value, typename std::remove_reference<typename std::remove_cv<E>::type>::type, bool>::type>::value>
-                >::type where(E&& e, X&& x, Y&& y) {
+                >::type where(E const& e, X const& x, Y const& y) {
                     auto condition = asarray(e);
                     auto y_ = asarray(y);
                     core::ndarray<decltype(std::declval<X>() + std::declval<typename nested_container_value_type<typename std::remove_reference<typename std::remove_cv<Y>::type>::type>::type>()), nested_container_depth<typename std::remove_reference<typename std::remove_cv<E>::type>::type>::value> out(condition.shape, None);
@@ -1329,7 +1329,7 @@ namespace pythonic {
             core::is_array_like<typename std::remove_reference<typename std::remove_cv<X>::type>::type>::value &&
             !core::is_array_like<typename std::remove_reference<typename std::remove_cv<Y>::type>::type>::value,
             core::ndarray<decltype(std::declval<Y>() + std::declval<typename nested_container_value_type<typename std::remove_reference<typename std::remove_cv<X>::type>::type, !core::is_array_like<typename std::remove_reference<typename std::remove_cv<X>::type>::type>::value>::type>()), nested_container_depth<typename std::conditional<core::is_array_like<typename std::remove_reference<typename std::remove_cv<E>::type>::type>::value, typename std::remove_reference<typename std::remove_cv<E>::type>::type, bool>::type>::value>
-                >::type where(E&& e, X&& x, Y&& y) {
+                >::type where(E const& e, X const& x, Y const& y) {
                     auto condition = asarray(e);
                     auto x_ = asarray(x);
                     core::ndarray<decltype(std::declval<Y>() + std::declval<typename nested_container_value_type<typename std::remove_reference<typename std::remove_cv<X>::type>::type>::type>()), nested_container_depth<typename std::remove_reference<typename std::remove_cv<E>::type>::type>::value> out(condition.shape, None);
@@ -1349,7 +1349,7 @@ namespace pythonic {
             !core::is_array_like<typename std::remove_reference<typename std::remove_cv<X>::type>::type>::value &&
             !core::is_array_like<typename std::remove_reference<typename std::remove_cv<Y>::type>::type>::value,
             core::ndarray<decltype(std::declval<Y>() + std::declval<X>()), nested_container_depth<typename std::conditional<core::is_array_like<typename std::remove_reference<typename std::remove_cv<E>::type>::type>::value, typename std::remove_reference<typename std::remove_cv<E>::type>::type, bool>::type>::value>
-                >::type where(E&& e, X&& x, Y&& y) {
+                >::type where(E const& e, X const& x, Y const& y) {
                     auto condition = asarray(e);
                     core::ndarray<decltype(std::declval<Y>() + std::declval<X>()), nested_container_depth<typename std::remove_reference<typename std::remove_cv<E>::type>::type>::value> out(condition.shape, None);
                     auto out_iter = out.buffer;
@@ -1368,7 +1368,7 @@ namespace pythonic {
             !core::is_array_like<typename std::remove_reference<typename std::remove_cv<X>::type>::type>::value &&
             core::is_array_like<typename std::remove_reference<typename std::remove_cv<Y>::type>::type>::value,
             core::ndarray<decltype(std::declval<X>() + std::declval<typename nested_container_value_type<typename std::remove_reference<typename std::remove_cv<Y>::type>::type, !core::is_array_like<typename std::remove_reference<typename std::remove_cv<Y>::type>::type>::value>::type>()), nested_container_depth<typename std::conditional<core::is_array_like<typename std::remove_reference<typename std::remove_cv<Y>::type>::type>::value, typename std::remove_reference<typename std::remove_cv<Y>::type>::type, bool>::type>::value>
-                >::type where(E&& e, X&& x, Y&& y) {
+                >::type where(E const& e, X const& x, Y const& y) {
                     auto y_ = asarray(y);
                     if(e)
                         return core::ndarray<decltype(std::declval<X>() + std::declval<typename nested_container_value_type<typename std::remove_reference<typename std::remove_cv<Y>::type>::type>::type>()), nested_container_depth<typename std::remove_reference<typename std::remove_cv<Y>::type>::type>::value>(y_.shape, x);
@@ -1382,7 +1382,7 @@ namespace pythonic {
             core::is_array_like<typename std::remove_reference<typename std::remove_cv<X>::type>::type>::value &&
             !core::is_array_like<typename std::remove_reference<typename std::remove_cv<Y>::type>::type>::value,
             core::ndarray<decltype(std::declval<Y>() + std::declval<typename nested_container_value_type<typename std::remove_reference<typename std::remove_cv<X>::type>::type, !core::is_array_like<typename std::remove_reference<typename std::remove_cv<X>::type>::type>::value>::type>()), nested_container_depth<typename std::conditional<core::is_array_like<typename std::remove_reference<typename std::remove_cv<X>::type>::type>::value, typename std::remove_reference<typename std::remove_cv<X>::type>::type, bool>::type>::value>
-                >::type where(E&& e, X&& x, Y&& y) {
+                >::type where(E const& e, X const& x, Y const& y) {
                     auto x_ = asarray(x);
                     if(e)
                         return copy(x_);
@@ -1396,7 +1396,7 @@ namespace pythonic {
             core::is_array_like<typename std::remove_reference<typename std::remove_cv<X>::type>::type>::value &&
             core::is_array_like<typename std::remove_reference<typename std::remove_cv<Y>::type>::type>::value,
             core::ndarray<decltype(std::declval<typename nested_container_value_type<typename std::remove_reference<typename std::remove_cv<Y>::type>::type, !core::is_array_like<typename std::remove_reference<typename std::remove_cv<Y>::type>::type>::value>::type>() + std::declval<typename nested_container_value_type<typename std::remove_reference<typename std::remove_cv<X>::type>::type, !core::is_array_like<typename std::remove_reference<typename std::remove_cv<X>::type>::type>::value>::type>()), nested_container_depth<typename std::conditional<core::is_array_like<typename std::remove_reference<typename std::remove_cv<X>::type>::type>::value, typename std::remove_reference<typename std::remove_cv<X>::type>::type, bool>::type>::value>
-                >::type where(E&& e, X&& x, Y&& y) {
+                >::type where(E const& e, X const& x, Y const& y) {
                     if(e)
                         return copy(asarray(x));
                     else
@@ -1404,12 +1404,31 @@ namespace pythonic {
                 }
 
         template<class E>
-            auto where(E&& expr) -> core::ltuple<core::ndarray<long,1>, core::numpy_expr_to_ndarray<E>::N>
+            auto where(E const& expr) -> core::ltuple<core::ndarray<long,1>, core::numpy_expr_to_ndarray<E>::N>
             {
-                return nonzero(std::forward<E>(expr));
+                return nonzero(expr);
             }
 
         PROXY(pythonic::numpy, where)
+
+        template<class E>
+            core::ndarray<double, core::numpy_expr_to_ndarray<E>::N> unwrap(E const& expr, double discont = pi)
+            {
+                discont = nt2::max(discont, pi);
+                core::ndarray<double, core::numpy_expr_to_ndarray<E>::N> out(expr.shape, None);
+                out.buffer[0] = expr.at(0);
+                for(size_t i=1; i<out.size(); i++)
+                {
+                    auto val = expr.at(i);
+                    if(nt2::abs(out.buffer[i-1] - val) > discont)
+                        out.buffer[i] = val + 2*pi * int(nt2::abs(out.buffer[i-1] - val) / (discont));
+                    else
+                        out.buffer[i] = val;
+                }
+                return out;
+            }
+
+        PROXY(pythonic::numpy, unwrap)
 
         NP_PROXY_ALIAS(arccos, nt2::acos);
 

@@ -3,6 +3,12 @@ from test_env import TestEnv
 import numpy
 
 class TestNumpy(TestEnv):
+    def test_unwrap0(self):
+        self.run_test("def np_unwrap0(): from numpy import arange, unwrap, pi ; x = arange(6) ; x[:3] += pi; return unwrap(x)", np_unwrap0=[])
+
+    def test_unwrap1(self):
+        self.run_test("def np_unwrap1(): from numpy import arange, unwrap, pi ; x = arange(6) ; x[:3] += 2*pi; return unwrap(x, 4)", np_unwrap1=[])
+
     def test_nonzero0(self):
         self.run_test("def np_nonzero0(): from numpy import arange, nonzero ; x = arange(6) ; return nonzero(x)", np_nonzero0=[])
 

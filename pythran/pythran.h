@@ -97,11 +97,6 @@ template <class A>
 core::list<A> operator+(core::empty_list , container<A> );
 
 template <class A, class B>
-B operator+(container<A> , B );
-template <class A, class B>
-B operator+(B , container<A> );
-
-template <class A, class B>
 core::list<typename __combined<A,B>::type> operator+(container<A> , core::list<B> );
 template <class A, class B>
 core::list<typename __combined<A,B>::type> operator+(core::list<B> , container<A> );
@@ -111,10 +106,25 @@ core::set<typename __combined<A,B>::type> operator+(container<A> , core::set<B> 
 template <class A, class B>
 core::set<typename __combined<A,B>::type> operator+(core::set<B> , container<A> );
 
+template <class A, class B>
+core::set<typename __combined<A,B>::type> operator+(core::list<A> , core::set<B> );
+template <class A, class B>
+core::set<typename __combined<A,B>::type> operator+(core::set<B> , core::list<A> );
+
+template <class A>
+core::set<A> operator+(core::list<A> , core::empty_set );
+template <class A>
+core::set<A> operator+(core::empty_set , core::list<A> );
+
 template <class A, class B, class C>
 core::dict<C, typename __combined<A,B>::type > operator+(container<A> , core::dict<C,B> );
 template <class A, class B, class C>
 core::dict<C, typename __combined<A,B>::type > operator+(core::dict<C,B> , container<A> );
+
+template <class A, class B>
+dict_container<typename __combined<A,B>::type > operator+(container<A> , dict_container<B> );
+template <class A, class B, class C>
+dict_container<typename __combined<A,B>::type > operator+(dict_container<B> , container<A> );
 
 template <class A>
 dict_container<A> operator+(dict_container<A> , dict_container<A> );
@@ -223,6 +233,11 @@ indexable_container<K,V> operator+(indexable<K>, container<V>);
 template <class V, class K>
 indexable_container<K,V> operator+(container<V>, indexable<K>);
 
+template <class K, class V, class W>
+indexable_container<K, typename __combined<V,W>::type> operator+(indexable_container<K,V>, container<W>);
+template <class V, class K, class W>
+indexable_container<K, typename __combined<V,W>::type> operator+(container<W>, indexable_container<K,V>);
+
 template <class K, class V>
 core::list<V> operator+(indexable<K>, core::list<V>);
 template <class V, class K>
@@ -242,6 +257,11 @@ template <class K, class V0, class V1>
 core::list<typename __combined<V0,V1>::type> operator+(indexable_container<K,V0>, core::list<V1>);
 template <class K, class V0, class V1>
 core::list<typename __combined<V0,V1>::type> operator+(core::list<V1>, indexable_container<K,V0>);
+
+template <class K, class V>
+core::list<V> operator+(indexable_container<K,V>, core::empty_list);
+template <class K, class V>
+core::list<V> operator+(core::empty_list, indexable_container<K,V>);
 
 template <class K, class V1, class V2>
 core::set<decltype(std::declval<V1>()+std::declval<V2>())> operator+(indexable_container<K,V1>, core::set<V2>);
@@ -308,6 +328,21 @@ struct __combined<core::dict<K0, V0>, core::dict<K1, V1>> {
 template<>
 struct __combined<void, void> {
     typedef void type;
+};
+
+struct dummy {};
+
+template<class T0, class T1>
+struct __combined<none<T0>, T1> : std::enable_if<!is_none<T1>::value, dummy>::type {
+    typedef none<typename __combined<T0,T1>::type> type;
+};
+template<class T0, class T1>
+struct __combined<T1, none<T0>> : std::enable_if<!is_none<T0>::value, dummy>::type {
+    typedef none<typename __combined<T0,T1>::type> type;
+};
+template<class T0, class T1>
+struct __combined<none<T1>, none<T0>>  {
+    typedef none<typename __combined<T0,T1>::type> type;
 };
 
 /* specialization for callable types */

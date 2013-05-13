@@ -33,6 +33,9 @@ namespace pythonic {
 
             variant() : t(nullptr) {}
             variant(Type const& t) : t(new (mem) Type(t)) {}
+            variant(variant<Type> const& t) : t(t.t?new (mem) Type(*t.t):t.t) {}
+            template<class OtherType>
+            variant(variant<OtherType> const& t) : t(nullptr) {}
 
             template <class... Args>
                 auto operator()(Args&&... args) -> decltype( std::declval<Type>()(args...)){
@@ -52,6 +55,18 @@ namespace pythonic {
             variant(Type const& t) : t(new (mem) Type(t)), ot() {}
             template<class T>
                 variant(T const& t) : t(nullptr), ot(t) {}
+
+            // the below constructor handle case when Types and OtherTypes are not exactly the same
+            // or are in a different order
+            template<class OtherType, class... OtherTypes>
+                variant(variant<OtherType, OtherTypes...> const& t) :
+                    t(nullptr),
+                    ot(t.ot) {}
+
+            template<class... OtherTypes>
+                variant(variant<Type, OtherTypes...> const& t) :
+                    t(t.t?new (mem) Type(*t.t):t.t),
+                    ot(t.ot) {}
 
             template <class... Args>
                 auto operator()(Args&&... args) -> decltype( std::declval<Type>()(args...)){

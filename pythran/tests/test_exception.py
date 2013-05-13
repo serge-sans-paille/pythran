@@ -171,7 +171,7 @@ class TestException(TestEnv):
         self.run_test("def finally_exception_():\n try:\n  a=2\n except:\n  return 0,'bad'\n finally:\n  return a,'good'", finally_exception_=[])
 
     def test_finally2_exception(self):
-        self.run_test("def finally_exception_():\n try:\n  raise 1\n  return 0,'bad'\n except:\n  a=2\n finally:\n  return a,'good'", finally_exception_=[])
+        self.run_test("def finally2_exception_():\n try:\n  raise 1\n  return 0,'bad'\n except:\n  a=2\n finally:\n  return a,'good'", finally2_exception_=[])
 
     def test_str1_exception(self):
         self.run_test("def str1_exception_():\n try:\n  raise EnvironmentError('a')\n except EnvironmentError as e:\n  return str(e)", str1_exception_=[])

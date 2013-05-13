@@ -97,6 +97,44 @@ operator_to_lambda = {
         ast.NotIn: lambda l, r: "(not in({1}, {0}))".format(l, r),
         }
 
+operator_to_type = {
+        # uses operator equivalence to avoid combinatory explosion
+        # operator with similar behavior alias
+        # boolop
+        ast.And: operator_to_lambda[ast.And],
+        ast.Or: operator_to_lambda[ast.And],
+        # operator
+        ast.Add: operator_to_lambda[ast.Add],
+        ast.Sub: operator_to_lambda[ast.Add],
+        ast.Mult: operator_to_lambda[ast.Mult],
+        ast.Div: operator_to_lambda[ast.Mult],
+        ast.Mod: operator_to_lambda[ast.Mod],
+        ast.Pow: operator_to_lambda[ast.Pow],
+        ast.LShift: operator_to_lambda[ast.LShift],
+        ast.RShift: operator_to_lambda[ast.LShift],
+        ast.BitOr: operator_to_lambda[ast.BitOr],
+        ast.BitXor: operator_to_lambda[ast.BitOr],
+        ast.BitAnd: operator_to_lambda[ast.BitOr],
+        #** assume from __future__ import division
+        ast.FloorDiv: operator_to_lambda[ast.Mult],
+        # unaryop
+        ast.Invert: operator_to_lambda[ast.Invert],
+        ast.Not: operator_to_lambda[ast.Not],
+        ast.UAdd: operator_to_lambda[ast.USub],
+        ast.USub: operator_to_lambda[ast.USub],
+        # cmpop
+        ast.Eq: operator_to_lambda[ast.Eq],
+        ast.NotEq: operator_to_lambda[ast.Eq],
+        ast.Lt: operator_to_lambda[ast.Eq],
+        ast.LtE: operator_to_lambda[ast.Eq],
+        ast.Gt: operator_to_lambda[ast.Eq],
+        ast.GtE: operator_to_lambda[ast.Eq],
+        ast.Is: operator_to_lambda[ast.Eq],
+        ast.IsNot: operator_to_lambda[ast.Eq],
+        ast.In: operator_to_lambda[ast.In],
+        ast.NotIn: operator_to_lambda[ast.In],
+        }
+
 # each module consist in a module_name <> set of symbols
 modules = {
         "__builtin__": {

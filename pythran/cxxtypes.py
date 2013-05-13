@@ -32,6 +32,9 @@ class Type(object):
     def isweak(self):
         return Weak in self.qualifiers
 
+    def all_types(self):
+        return {self}
+
     def __eq__(self, other):
         havesameclass = self.__class__ == other.__class__
         if havesameclass:
@@ -132,7 +135,7 @@ class CombinedTypes(Type):
     >>> NamedType('long') + NamedType('long')
     long
     >>> NamedType('long') + NamedType('char')
-    typename __combined<long , char>::type
+    typename __combined<char,long>::type
     """
 
     def __init__(self, types):
@@ -143,20 +146,28 @@ class CombinedTypes(Type):
 
     def __add__(self, other):
         if isinstance(other, CombinedTypes):
-            stypes = set(self.types)
-            types = self.types + [t for t in other.types if t not in stypes]
-            return CombinedTypes(types)
+            return CombinedTypes([self, other])
         if other in self.types:
             return self
         if other.isweak() and not self.isweak():
             return self
         if self == other:
             return self
-        return CombinedTypes(self.types + [other])
+        return CombinedTypes([self,other])
+
+    def all_types(self):
+        out = set()
+        for t in self.types:
+            out.update(t.all_types())
+        return out
 
     def generate(self, ctx):
-        types = " , ".join(ctx(t).generate(ctx) for t in self.types)
-        return 'typename __combined<{0}>::type'.format(types)
+        # gather all underlying types and make sure they do not appear twice
+        combined = sorted(set(ctx(t).generate(ctx) for t in self.all_types()))
+        if len(combined) == 1:
+            return combined[0]
+        else:
+            return 'typename __combined<{0}>::type'.format(",".join(combined))
 
 
 class ArgumentType(Type):
@@ -218,6 +229,16 @@ class Lazy(DependentType):
     def generate(self, ctx):
         return 'typename lazy<{0}>::type'.format(self.of.generate(ctx))
 
+class ConstructorType(DependentType):
+    """
+    A type that constructs a Named type
+
+    >>> ConstructorType(NamedType("long"))
+    pythonic::constructor<long>
+    """
+
+    def generate(self, ctx):
+        return 'pythonic::constructor<{0}>'.format(self.of.generate(ctx))
 
 class DeclType(NamedType):
     """
@@ -240,6 +261,9 @@ class ContentType(DependentType):
     '''
 
     def generate(self, ctx):
+        # the content of a container can be inferred directly
+        if type(self.of) in (ListType, SetType, ContainerType):
+            return self.of.of.generate(ctx)
         return 'typename content_of<{0}>::type'.format(
                 ctx(self.of).generate(ctx))
 
@@ -278,6 +302,9 @@ class ReturnType(Type):
                 )
 
     def generate(self, ctx):
+        # the return type of a constructor is obvious
+        if type(self.ftype) is ConstructorType:
+            return self.ftype.of.generate(ctx)
         cg = self.ftype.generate(ctx)
         if cg not in tables.builtin_constructors.itervalues():
             cg = 'std::declval<{0}>()'.format(cg)

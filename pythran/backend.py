@@ -143,21 +143,30 @@ class Cxx(Backend):
 
             def __init__(self):
                 self.cache = dict()
+                self.rcache = dict()
                 self.mapping = dict()
 
             def __call__(self, node):
                 if node not in self.mapping:
                     t = node.generate(self)
-                    self.mapping[node] = len(self.mapping)
-                    self.cache[node] = t
+                    if t in self.rcache:
+                        self.mapping[node] = self.mapping[self.rcache[t]]
+                        self.cache[node] = self.cache[self.rcache[t]]
+                    else:
+                        self.rcache[t] = node
+                        self.mapping[node] = len(self.mapping)
+                        self.cache[node] = t
                 return CachedTypeVisitor.CachedType(
                         "__type{0}".format(self.mapping[node]))
 
             def typedefs(self):
                 l = sorted(self.mapping.items(), key=lambda x: x[1])
                 L = list()
+                visited = set()  # make sure the same value is not typedefed twice
                 for k, v in l:
-                    L.append(Typedef(Value(self.cache[k], "__type" + str(v))))
+                    if v not in visited:
+                        L.append(Typedef(Value(self.cache[k], "__type" + str(v))))
+                        visited.add(v)
                 return L
 
         # prepare context and visit function body

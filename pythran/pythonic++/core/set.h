@@ -101,11 +101,6 @@ namespace  pythonic {
                 long size() const { return data->size(); }
                 set<T> operator+(core::empty_set const &) { return copy(); }
 
-                template<class U> // just for type inference, should never been instantiated
-                    set<decltype(std::declval<T>()+std::declval<U>())> operator+(set<U> const &);
-                template<class U> // just for type inference, should never been instantiated
-                    set<decltype(std::declval<T>()+std::declval<U>())> operator+(list<U> const &);
-
                 // Misc
 
                 set<T> copy() const{
@@ -149,6 +144,8 @@ namespace  pythonic {
                         tmp.data->insert(other.begin(), other.end());
                         return tmp;
                     }
+                template<class U>
+                set<T> operator+(core::set<U> const &other) { return union_(other); }
 
                 template<typename... Types> 
                     void update(Types &&... others) {

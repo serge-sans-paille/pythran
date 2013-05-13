@@ -242,6 +242,10 @@ namespace  pythonic {
             empty_dict operator+(empty_dict const &) { return empty_dict(); }
             operator bool() const { return false; }
         };
+        template <class K, class V>
+            core::dict<K, V> operator+(core::dict<K,V> const& d, core::empty_dict) {
+                return d;
+            }
     }
 }
 

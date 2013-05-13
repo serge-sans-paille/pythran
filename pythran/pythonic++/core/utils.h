@@ -37,6 +37,18 @@ namespace pythonic {
     const bool True = true;
     const bool False = false;
 
+    // none trait
+    template<class T> struct none;
+    template<class T>
+        struct is_none {
+            static const bool value = false;
+        };
+    template<class T>
+        struct is_none<none<T>> {
+            static const bool value = true;
+        };
+
+
     // container trait
     // from http://stackoverflow.com/questions/4347921/sfinae-compiler-troubles/4410310#4410310
     template <typename T> struct is_container {

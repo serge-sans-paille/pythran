@@ -6,7 +6,7 @@ This module performs the return type inference, according to symbolic types,
 
 import ast
 import networkx as nx
-from tables import pytype_to_ctype_table, operator_to_lambda
+from tables import pytype_to_ctype_table, operator_to_type
 from tables import modules, builtin_constants, builtin_constructors
 from tables import methods, functions
 from analysis import GlobalDeclarations, YieldPoints, LocalDeclarations
@@ -483,7 +483,7 @@ class Types(ModuleAnalysis):
     def visit_AugAssign(self, node):
         self.visit(node.value)
         self.combine(node.target, node.value,
-            lambda x, y: ExpressionType(operator_to_lambda[type(node.op)],
+            lambda x, y: ExpressionType(operator_to_type[type(node.op)],
                 [x, y]), register=True)
         if isinstance(node.target, ast.Subscript):
             self.visit_AssignedSubscript(node.target)
@@ -492,7 +492,7 @@ class Types(ModuleAnalysis):
                 self.combine(fake,
                         node.value,
                         lambda x, y: ExpressionType(
-                            operator_to_lambda[type(node.op)],
+                            operator_to_type[type(node.op)],
                             [x, y]),
                         register=True)
 
@@ -517,7 +517,7 @@ class Types(ModuleAnalysis):
             F = operator.add
         else:
             F = lambda x, y: ExpressionType(
-                operator_to_lambda[type(node.op)], [x, y])
+                operator_to_type[type(node.op)], [x, y])
 
         fake_node = ast.Name("#", ast.Param())
         self.combine(fake_node, node.left, F)
@@ -527,7 +527,7 @@ class Types(ModuleAnalysis):
 
     def visit_UnaryOp(self, node):
         self.generic_visit(node)
-        f = lambda x: ExpressionType(operator_to_lambda[type(node.op)], [x])
+        f = lambda x: ExpressionType(operator_to_type[type(node.op)], [x])
         self.combine(node, node.operand, unary_op=f)
 
     def visit_IfExp(self, node):
@@ -631,8 +631,7 @@ class Types(ModuleAnalysis):
         elif node.id in builtin_constants:
             self.result[node] = NamedType(builtin_constants[node.id])
         elif node.id in builtin_constructors:
-            self.result[node] = NamedType("pythonic::constructor<{0}>".format(
-                builtin_constructors[node.id]))
+            self.result[node] = ConstructorType(NamedType(builtin_constructors[node.id]))
         else:
             self.result[node] = NamedType(node.id, {Weak})
 

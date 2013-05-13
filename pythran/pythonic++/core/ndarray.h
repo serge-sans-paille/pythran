@@ -534,6 +534,12 @@ namespace  pythonic {
                 T& at(long i) { return buffer[i]; }
                 T at(long i) const { return buffer[i]; }
 
+#ifdef __AVX__
+                auto load(long i) const -> decltype(boost::simd::unaligned_load<boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>>(buffer,i)) {
+                    return boost::simd::unaligned_load<boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>>(buffer,i);
+                }
+#endif
+
                 /* helpers */
                 template<class R, class U, size_t M>
                     R mat(U&& iter, int_<M>) {

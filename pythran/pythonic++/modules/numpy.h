@@ -1420,7 +1420,7 @@ namespace pythonic {
                 {
                     auto val = expr.at(i);
                     if(nt2::abs(out.buffer[i-1] - val) > discont)
-                        out.buffer[i] = val + 2*pi * int(nt2::abs(out.buffer[i-1] - val) / (discont));
+                        out.buffer[i] = val + 2*pi * int((out.buffer[i-1] - val) / (discont));
                     else
                         out.buffer[i] = val;
                 }
@@ -1428,6 +1428,44 @@ namespace pythonic {
             }
 
         PROXY(pythonic::numpy, unwrap)
+
+        template<class E>
+            core::ndarray<typename core::numpy_expr_to_ndarray<E>::T, 1> unique(E const& expr) {
+                std::set<typename core::numpy_expr_to_ndarray<E>::T> res;
+                for(size_t i=0; i<expr.size(); i++)
+                    res.insert(expr.at(i));
+                return core::ndarray<typename core::numpy_expr_to_ndarray<E>::T, 1>(res);
+            }
+
+        template<class E>
+            std::tuple<core::ndarray<typename core::numpy_expr_to_ndarray<E>::T, 1>, core::ndarray<long, 1>> unique(E const& expr, bool return_index) {
+                std::set<typename core::numpy_expr_to_ndarray<E>::T> res;
+                std::vector<long> return_index_res;
+                for(size_t i=0; i<expr.size(); i++)
+                {
+                    std::pair<typename std::set<typename core::numpy_expr_to_ndarray<E>::T>::iterator, bool> pair = res.insert(expr.at(i));
+                    if(pair.second)
+                        return_index_res.push_back(i);
+                }
+                return std::make_tuple(core::ndarray<typename core::numpy_expr_to_ndarray<E>::T, 1>(res), core::ndarray<long, 1>(return_index_res));
+            }
+
+        template<class E>
+            std::tuple<core::ndarray<typename core::numpy_expr_to_ndarray<E>::T, 1>, core::ndarray<long, 1>, core::ndarray<long, 1>> unique(E const& expr, bool return_index, bool return_inverse) {
+                std::set<typename core::numpy_expr_to_ndarray<E>::T> res;
+                std::vector<long> return_index_res;
+                core::ndarray<long, 1> return_inverse_res(core::ltuple<long, 1>({expr.size()}), None);
+                for(int i=0; i<expr.size(); i++)
+                {
+                    auto pair = res.insert(expr.at(i));
+                    return_inverse_res[i] = std::distance(res.begin(), pair.first);
+                    if(pair.second)
+                        return_index_res.push_back(i);
+                }
+                return std::make_tuple(core::ndarray<typename core::numpy_expr_to_ndarray<E>::T, 1>(res), core::ndarray<long, 1>(return_index_res), return_inverse_res);
+            }
+
+        PROXY(pythonic::numpy, unique)
 
         NP_PROXY_ALIAS(arccos, nt2::acos);
 

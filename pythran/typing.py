@@ -484,7 +484,7 @@ class Types(ModuleAnalysis):
     def visit_AugAssign(self, node):
         self.visit(node.value)
         self.combine(node.target, node.value,
-            lambda x, y: ExpressionType(operator_to_type[type(node.op)],
+            lambda x, y: x + ExpressionType(operator_to_type[type(node.op)],
                 [x, y]), register=True)
         if isinstance(node.target, ast.Subscript):
             self.visit_AssignedSubscript(node.target)
@@ -492,7 +492,7 @@ class Types(ModuleAnalysis):
                 fake = ast.Subscript(alias, node.target.value, ast.Store())
                 self.combine(fake,
                         node.value,
-                        lambda x, y: ExpressionType(
+                        lambda x, y: x + ExpressionType(
                             operator_to_type[type(node.op)],
                             [x, y]),
                         register=True)

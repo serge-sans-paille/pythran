@@ -575,6 +575,18 @@ class Types(ModuleAnalysis):
                     self.result[n] = ReturnType(self.result[alias.func],
                         [self.result[arg] for arg in alias.args])
 
+        # recurring nightmare
+        isweak = any(self.result[n].isweak() for n in node.args + [node.func])
+        if self.stage == 0 and isweak:
+            # maybe we can get saved if we have a hint about
+            # the called function return type
+            for alias in self.strict_aliases[node.func].aliases:
+                if alias is self.current and alias in self.result:
+                    # great we have a (partial) type information
+                    self.result[node] = self.result[alias]
+                    return
+
+        # default behavior
         F = lambda f: ReturnType(f, [self.result[arg] for arg in node.args])
         # op is used to drop previous value there
         self.combine(node, node.func, op=lambda x, y: y, unary_op=F)

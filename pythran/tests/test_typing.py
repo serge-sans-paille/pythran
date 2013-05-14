@@ -1,4 +1,5 @@
 from test_env import TestEnv
+import unittest
 
 class TestTyping(TestEnv):
 
@@ -81,3 +82,38 @@ def type_set_in_while():
         n -= 1
     return a,b'''
         self.run_test(code, type_set_in_while=[])
+
+    @unittest.skip("issue #78")
+    def test_recursive_interprocedural_typing0(self):
+        code = '''
+from cmath import exp, pi
+
+def fft(x):
+    N = len(x)
+    if N <= 1: return x
+    even = fft(x[0::2])
+    odd =  fft(x[1::2])
+    return [even[k] + exp(-2j*pi*k/N)*odd[k] for k in xrange(N/2)] + \
+           [even[k] - exp(-2j*pi*k/N)*odd[k] for k in xrange(N/2)]
+
+def recursive_interprocedural_typing0():
+   l = [1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0]
+   z = fft(l)
+   return z'''
+        self.run_test(code, recursive_interprocedural_typing0=[])
+
+    @unittest.skip("issue #89")
+    def test_recursive_interprocedural_typing1(self):
+        code = '''
+def s_perm(seq):
+    if not seq:
+        return [[]]
+    else:
+        new_items = []
+        for item in s_perm(seq[:-1]):
+            new_items += [item + seq for i in range(1)]
+        return new_items
+def recursive_interprocedural_typing1():
+    l = [1,2,3]
+    return s_perm(l)'''
+        self.run_test(code, recursive_interprocedural_typing1=[])

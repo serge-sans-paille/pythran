@@ -35,11 +35,11 @@ namespace pythonic {
                             }
 
                         bool operator==(imap_iterator_data const& other) {
-                            return !(iter != other.iter) && (rec_iters == other.rec_iters); 
+                            return !(*this != other);
                         }
 
                         bool operator!=(imap_iterator_data const& other) {
-                            return (iter != other.iter) || (rec_iters != other.rec_iters); 
+                            return (iter != other.iter) and (rec_iters != other.rec_iters); // stop as soon as one is different
                         }
 
                         int operator-(imap_iterator_data const& other) {

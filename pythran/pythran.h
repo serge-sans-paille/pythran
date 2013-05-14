@@ -316,6 +316,14 @@ template<class... T0, class... T1>
 struct __combined<std::tuple<T0...>, std::tuple<T1...>> {
     typedef std::tuple<typename __combined<T0,T1>::type ...> type;  // no further combination
 };
+template<class T, size_t N, class... Types>
+struct __combined<core::ltuple<T,N>, std::tuple<Types...>> {
+    typedef std::tuple<Types...> type;
+};
+template<class T, size_t N, class... Types>
+struct __combined<std::tuple<Types...>, core::ltuple<T,N>> {
+    typedef std::tuple<Types...> type;
+};
 template<class T00, class T01, class T10, class T11>
 struct __combined<std::pair<T00, T01>, std::pair<T10, T11>> {
     typedef std::pair<typename __combined<T00,T10>::type, typename __combined<T01,T11>::type> type;  // no further combination

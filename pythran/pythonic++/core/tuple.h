@@ -66,6 +66,23 @@ namespace pythonic {
 namespace pythonic {
 
     namespace core {
+        template<class T, size_t N>
+            struct ltuple;
+
+            template<size_t I>
+                struct to_tuple_impl {
+                    template<class T, size_t N>
+                        auto operator()(ltuple<T,N> const& l) const -> decltype(std::tuple_cat(to_tuple_impl<I-1>()(l), std::tuple<T>(l[I]))) {
+                            return std::tuple_cat(to_tuple_impl<I-1>()(l), std::tuple<T>(l[I]));
+                        }
+                };
+            template<>
+                struct to_tuple_impl<0> {
+                    template<class T, size_t N>
+                        std::tuple<T> operator()(ltuple<T,N> const& l) const {
+                            return std::tuple<T>(l[0]);
+                        }
+                };
 
         template<class T, size_t N>
             struct ltuple : public list<T> {
@@ -80,8 +97,14 @@ namespace pythonic {
                 template<class Iter>
                 ltuple(Iter b, Iter e): list<T>(b,e) {
                 }
+                template<class... Types>
+                    operator std::tuple<Types...>() const {
+                        return std::tuple<Types...>(to_tuple_impl<N-1>()(*this));
+                    }
 
-
+                auto to_tuple() const -> decltype(to_tuple_impl<N-1>()(*this)) {
+                    return to_tuple_impl<N-1>()(*this);
+                }
             };
 
         template<class... Types>
@@ -119,6 +142,20 @@ namespace pythonic {
             auto make_tuple(Types&&... types) -> decltype(_make_tuple<are_same<Types...>::value, Types...>()(std::forward<Types>(types)...)) {
                 return _make_tuple<are_same<Types...>::value, Types...>()(std::forward<Types>(types)...);
             }
+
+        template<class T, size_t N, class... Types>
+            auto operator+(std::tuple<Types...> const& t, ltuple<T,N> const& lt)
+            -> decltype( std::tuple_cat(t, lt.to_tuple()))
+            {
+                return std::tuple_cat(t, lt.to_tuple());
+            }
+        template<class T, size_t N, class... Types>
+            auto operator+(ltuple<T,N> const& lt, std::tuple<Types...> const& t)
+            -> decltype( std::tuple_cat(lt.to_tuple(), t) )
+            {
+                return std::tuple_cat(lt.to_tuple(), t);
+            }
+
     }
 }
 /* specialize std::get */

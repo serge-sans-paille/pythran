@@ -346,7 +346,7 @@ namespace  pythonic {
             template<class T>
                 list_view<T> operator+(list_view<T> const & s) const { return s; }
             empty_list operator+(empty_list const &) const { return empty_list(); }
-            operator bool() { return false; }
+            operator bool() const { return false; }
         };
 
         /* list_view implementation */

@@ -578,14 +578,9 @@ namespace pythonic {
             xrange( long b, long e , long s=1) : _begin(b), _end(e), _step(s) { _init_last(); }
             xrange( long e ) : _begin(0), _end(e), _step(1) { _init_last(); }
             xrange_iterator begin() const { return xrange_iterator(_begin, _step); }
-            xrange_iterator end() const {
-                return xrange_iterator(_last, _step);
-            }
-            reverse_iterator rbegin() const { return reverse_iterator(_end-_step, -_step); }
-            reverse_iterator rend() const {
-                if(_step>0) return reverse_iterator(_end - std::max(0L,_step * ( 1 + (_end - _begin)/ _step)) , -_step);
-                else return reverse_iterator(_end - std::min(0L,_step * ( 1 + (_end - _begin)/ _step)) , -_step);
-            }
+            xrange_iterator end() const { return xrange_iterator(_last, _step); }
+            reverse_iterator rbegin() const { return reverse_iterator(_last - _step, -_step); }
+            reverse_iterator rend() const { return reverse_iterator(_begin - _step, -_step) ;}
         };
         // clang++ is not happy with PROXY
         namespace proxy {

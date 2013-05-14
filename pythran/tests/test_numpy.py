@@ -3,11 +3,25 @@ from test_env import TestEnv
 import numpy
 
 class TestNumpy(TestEnv):
+    def test_unique0(self):
+        self.run_test("def np_unique0(): from numpy import array, unique ; x = array([1,1,2,2,2,1,5]) ; return unique(x)", np_unique0=[])
+
+    def test_unique1(self):
+        self.run_test("def np_unique1(): from numpy import array, unique ; x = array([[1,2,2],[2,1,5]]) ; return unique(x)", np_unique1=[])
+
+    def test_unique2(self):
+        self.run_test("def np_unique2(): from numpy import array, unique ; x = array([1,1,2,2,2,1,5]) ; return unique(x, True)", np_unique2=[])
+
+    def test_unique3(self):
+        self.run_test("def np_unique3(): from numpy import array, unique ; x = array([1,1,2,2,2,1,5]) ; return unique(x, True, True)", np_unique3=[])
     def test_unwrap0(self):
-        self.run_test("def np_unwrap0(): from numpy import arange, unwrap, pi ; x = arange(6) ; x[:3] += pi; return unwrap(x)", np_unwrap0=[])
+        self.run_test("def np_unwrap0(): from numpy import arange, unwrap, pi ; x = arange(6) ; x[:3] += 2*pi; return unwrap(x)", np_unwrap0=[])
 
     def test_unwrap1(self):
         self.run_test("def np_unwrap1(): from numpy import arange, unwrap, pi ; x = arange(6) ; x[:3] += 2*pi; return unwrap(x, 4)", np_unwrap1=[])
+
+    def test_unwrap2(self):
+        self.run_test("def np_unwrap2(): from numpy import arange, unwrap, pi ; x = arange(6) ; x[:3] -= 2*pi; return unwrap(x, 4)", np_unwrap2=[])
 
     def test_nonzero0(self):
         self.run_test("def np_nonzero0(): from numpy import arange, nonzero ; x = arange(6) ; return nonzero(x)", np_nonzero0=[])

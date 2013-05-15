@@ -72,15 +72,22 @@ namespace pythonic {
             template<size_t I>
                 struct to_tuple_impl {
                     template<class T, size_t N>
-                        auto operator()(ltuple<T,N> const& l) const -> decltype(std::tuple_cat(to_tuple_impl<I-1>()(l), std::tuple<T>(l[I]))) {
-                            return std::tuple_cat(to_tuple_impl<I-1>()(l), std::tuple<T>(l[I]));
+                        auto operator()(ltuple<T,N> const& l) const -> decltype(std::tuple_cat(to_tuple_impl<I-1>()(l), std::tuple<T>(l[I-1]))) {
+                            return std::tuple_cat(to_tuple_impl<I-1>()(l), std::tuple<T>(l[I-1]));
+                        }
+                };
+            template<>
+                struct to_tuple_impl<1> {
+                    template<class T, size_t N>
+                        std::tuple<T> operator()(ltuple<T,N> const& l) const {
+                            return std::tuple<T>(l[0]);
                         }
                 };
             template<>
                 struct to_tuple_impl<0> {
                     template<class T, size_t N>
-                        std::tuple<T> operator()(ltuple<T,N> const& l) const {
-                            return std::tuple<T>(l[0]);
+                        std::tuple<> operator()(ltuple<T,N> const& l) const {
+                            return std::tuple<>();
                         }
                 };
 
@@ -99,11 +106,11 @@ namespace pythonic {
                 }
                 template<class... Types>
                     operator std::tuple<Types...>() const {
-                        return std::tuple<Types...>(to_tuple_impl<N-1>()(*this));
+                        return std::tuple<Types...>(to_tuple_impl<N>()(*this));
                     }
 
-                auto to_tuple() const -> decltype(to_tuple_impl<N-1>()(*this)) {
-                    return to_tuple_impl<N-1>()(*this);
+                auto to_tuple() const -> decltype(to_tuple_impl<N>()(*this)) {
+                    return to_tuple_impl<N>()(*this);
                 }
             };
 

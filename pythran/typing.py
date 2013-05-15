@@ -6,7 +6,8 @@ This module performs the return type inference, according to symbolic types,
 
 import ast
 import networkx as nx
-from tables import pytype_to_ctype_table, operator_to_type
+from tables import pytype_to_ctype_table
+from tables import operator_to_lambda as operator_to_type
 from tables import modules, builtin_constants, builtin_constructors
 from tables import methods, functions
 from analysis import GlobalDeclarations, YieldPoints, LocalDeclarations
@@ -540,7 +541,7 @@ class Types(ModuleAnalysis):
         for op, comp in all_compare:
             self.combine(node, comp,
                     unary_op=lambda x: ExpressionType(
-                        operator_to_lambda[type(op)], [self.result[node.left], x])
+                        operator_to_type[type(op)], [self.result[node.left], x])
                     )
 
     def visit_Call(self, node):

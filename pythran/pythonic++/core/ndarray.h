@@ -51,6 +51,7 @@ namespace  pythonic {
                 T __value;
                 typename vectorized<T>::type _value;
                 static constexpr size_t value = 0;
+                broadcast() {}
                 broadcast(T v) : __value(v), _value(vectorized<T>::broadcast(v)) {}
 #ifdef __AVX__
                 typename vectorized<T>::type load(long ) const { return _value;}

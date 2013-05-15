@@ -75,6 +75,11 @@ typename std::enable_if<std::is_scalar<S>::value, numpy_expr<NUMPY_BINARY_FUNC_S
     return numpy_expr<NUMPY_BINARY_FUNC_SYM, broadcast<S>, numpy_expr<Op, Arg0, Arg1>>(broadcast<S>(other), self);
 }
 
+template<class Op, class Arg0, class S>
+typename std::enable_if<std::is_scalar<S>::value, numpy_expr<NUMPY_BINARY_FUNC_SYM, broadcast<S>, numpy_uexpr<Op, Arg0>>>::type NUMPY_BINARY_FUNC_NAME(S other, numpy_uexpr<Op,Arg0> const & self) {
+    return numpy_expr<NUMPY_BINARY_FUNC_SYM, broadcast<S>, numpy_uexpr<Op, Arg0>>(broadcast<S>(other), self);
+}
+
 /* sliced ndarray */
 template<class T>
 numpy_expr<NUMPY_BINARY_FUNC_SYM, sliced_ndarray<T>, sliced_ndarray<T>> NUMPY_BINARY_FUNC_NAME(sliced_ndarray<T> const & self, sliced_ndarray<T> const & other) {

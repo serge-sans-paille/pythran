@@ -26,7 +26,7 @@ struct assignable{
 
 template<class T>
 struct lazy{
-    typedef T type;
+    typedef typename assignable<T>::type type;  // very conservative :-)
 };
 
 template<class T>

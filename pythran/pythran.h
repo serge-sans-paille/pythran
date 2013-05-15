@@ -275,15 +275,20 @@ core::list<V> operator+(indexable_container<K,V>, core::empty_list);
 template <class K, class V>
 core::list<V> operator+(core::empty_list, indexable_container<K,V>);
 
-template<size_t N, class type, class K, class V>
-core::ndarray<type,N> operator+(core::ndarray<type,N>, indexable_container<K,V>);
-template<size_t N, class type, class K, class V>
-core::ndarray<type,N> operator+(indexable_container<K,V>, core::ndarray<type,N>);
+struct dummy {};
 
-template<size_t N, class T, class K>
-core::ndarray<T,N> operator+(core::ndarray<T,N>, indexable<K>);
-template<class K, class T, size_t N>
-core::ndarray<T,N> operator+(indexable<K>, core::ndarray<T,N>);
+template<size_t N, class T>
+struct __combined<core::ndarray<T,N>, core::ndarray<T,N>> {
+    typedef core::ndarray<T,N> type;
+};
+template<size_t N, class T, class O>
+struct __combined<core::ndarray<T,N>, O> {
+    typedef core::ndarray<T,N> type;
+};
+template<size_t N, class T, class O>
+struct __combined<O, core::ndarray<T,N>> {
+    typedef core::ndarray<T,N> type;
+};
 
 template <class K, class V1, class V2>
 core::set<decltype(std::declval<V1>()+std::declval<V2>())> operator+(indexable_container<K,V1>, core::set<V2>);
@@ -354,17 +359,12 @@ template<class K0, class V0, class K1, class V1>
 struct __combined<core::dict<K0, V0>, core::dict<K1, V1>> {
     typedef core::dict<typename __combined<K0,K1>::type, typename __combined<V0,V1>::type> type;
 };
-template<class T0, size_t N, class T1>
-struct __combined<core::ndarray<T0,N>, core::ndarray<T1,N>> {
-    typedef core::ndarray<typename __combined<T0,T1>::type,N> type;
-};
 
 template<>
 struct __combined<void, void> {
     typedef void type;
 };
 
-struct dummy {};
 
 template<class T0, class T1>
 struct __combined<none<T0>, T1> : std::enable_if<!is_none<T1>::value, dummy>::type {

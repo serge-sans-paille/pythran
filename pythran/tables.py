@@ -63,6 +63,7 @@ cxx_keywords = {
         'std',
         }
 
+
 operator_to_lambda = {
         # boolop
         ast.And: lambda l, r: "(({0})?({1}):({0}))".format(l, r),
@@ -73,7 +74,7 @@ operator_to_lambda = {
         ast.Mult: lambda l, r: "({0} * {1})".format(l, r),
         ast.Div: lambda l, r: "({0} / {1})".format(l, r),
         ast.Mod: lambda l, r: "(pythonic::mod({0}, {1}))".format(l, r),
-        ast.Pow: lambda l, r: "(pow({0}, {1}))".format(l, r),
+        ast.Pow: lambda l, r: "(pythonic::__builtin__::pow({0}, {1}))".format(l, r),
         ast.LShift: lambda l, r: "({0} << {1})".format(l, r),
         ast.RShift: lambda l, r: "({0} >> {1})".format(l, r),
         ast.BitOr: lambda l, r: "({0} | {1})".format(l, r),
@@ -224,6 +225,7 @@ modules = {
             "ord": ConstFunctionIntr(),
             "open": ConstFunctionIntr(),
             "pow": ConstFunctionIntr(),
+            "pow2": ConstFunctionIntr(),
             "range": ConstFunctionIntr(),
             "reduce": ReadOnceFunctionIntr(),
             "reversed": ReadOnceFunctionIntr(),

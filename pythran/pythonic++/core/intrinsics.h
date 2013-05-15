@@ -536,6 +536,11 @@ namespace pythonic {
         long pow(long n, long m) { return std::pow(n,m); }
         PROXY(pythonic::__builtin__, pow);
 
+        /* pow2 */
+        template<class T>
+        auto pow2(T const& e) -> decltype(e*e) { return e*e; }
+        PROXY(pythonic::__builtin__, pow2);
+
         /* xrange */
         struct xrange_iterator : std::iterator< std::random_access_iterator_tag, long >{
             long value;

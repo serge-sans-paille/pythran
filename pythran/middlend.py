@@ -6,13 +6,14 @@ from passes import RemoveLambdas, NormalizeTuples, NormalizeReturn
 from passes import UnshadowParameters, NormalizeException, ExpandBuiltins
 from passes import NormalizeMethodCalls, NormalizeAttributes, FalsePolymorphism
 from passes import RemoveComprehension, RemoveNestedFunctions, ExpandImports
-from optimizations import GenExpToImap, ListCompToMap, ListCompToGenexp
+from optimizations import GenExpToImap, ListCompToMap, ListCompToGenexp, Pow2
 
 from optimizations import ConstantFolding, IterTransformation
 
 default_optimization_sequence = (
         ConstantFolding,
-        IterTransformation
+        IterTransformation,
+        Pow2
         )
 
 

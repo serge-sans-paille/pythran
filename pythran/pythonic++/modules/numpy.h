@@ -2034,6 +2034,38 @@ namespace pythonic {
 
         PROXY(pythonic::numpy, union1d)
 
+        template<class T>
+            core::ndarray<T,2> triu(core::ndarray<T,2> const& expr, int k = 0)
+            {
+                core::ndarray<T,2> out(expr.shape, None);
+                for(int i=0; i<expr.shape[0]; ++i)
+                    for(long j=0 ; j<expr.shape[1]; ++j)
+                        if( j - i >= k)
+                            out.buffer[i * expr.shape[1] + j] = expr.buffer[i * expr.shape[1] + j];
+                        else
+                            out.buffer[i * expr.shape[1] + j] = 0;
+                return out;
+                
+            }
+        NUMPY_EXPR_TO_NDARRAY0(triu)
+        PROXY(pythonic::numpy, triu)
+
+        template<class T>
+            core::ndarray<T,2> tril(core::ndarray<T,2> const& expr, int k = 0)
+            {
+                core::ndarray<T,2> out(expr.shape, None);
+                for(int i=0; i<expr.shape[0]; ++i)
+                    for(long j=0 ; j<expr.shape[1]; ++j)
+                        if( j - i <= k)
+                            out.buffer[i * expr.shape[1] + j] = expr.buffer[i * expr.shape[1] + j];
+                        else
+                            out.buffer[i * expr.shape[1] + j] = 0;
+                return out;
+                
+            }
+        NUMPY_EXPR_TO_NDARRAY0(tril)
+        PROXY(pythonic::numpy, tril)
+
         NP_PROXY_ALIAS(arccos, nt2::acos);
 
         NP_PROXY_ALIAS(arccosh, nt2::acosh);

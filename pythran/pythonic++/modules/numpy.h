@@ -2061,10 +2061,26 @@ namespace pythonic {
                         else
                             out.buffer[i * expr.shape[1] + j] = 0;
                 return out;
-                
             }
+
         NUMPY_EXPR_TO_NDARRAY0(tril)
         PROXY(pythonic::numpy, tril)
+
+        template<class T>
+            core::ndarray<T,1> trim_zeros(core::ndarray<T,1> const& expr, core::string const& trim = "fb")
+            {
+                int begin = 0;
+                int end = expr.size();
+                if(trim.find("f") != std::string::npos)
+                    begin = std::find_if(expr.buffer, expr.buffer + end, [](T i){return i!=0;}) - expr.buffer;
+                if(trim.find("b") != std::string::npos)
+                    while(*(expr.buffer + --end) != 0); // Ugly, ndarray miss real iterator
+                core::ndarray<T,1> out(core::ltuple<long, 1>({end - begin}), None);
+                std::copy(expr.buffer + begin, expr.buffer + end, out.buffer);
+                return out;
+            }
+        NUMPY_EXPR_TO_NDARRAY0(trim_zeros)
+        PROXY(pythonic::numpy, trim_zeros)
 
         NP_PROXY_ALIAS(arccos, nt2::acos);
 

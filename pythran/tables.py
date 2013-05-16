@@ -429,6 +429,7 @@ modules = {
             "tanh": ConstFunctionIntr(),
             "transpose": ConstMethodIntr(),
             "tril": ConstMethodIntr(),
+            "trim_zeros": ConstMethodIntr(),
             "triu": ConstMethodIntr(),
             "true_divide": ConstFunctionIntr(),
             "trunc": ConstFunctionIntr(),

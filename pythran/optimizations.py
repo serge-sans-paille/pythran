@@ -73,8 +73,7 @@ class ConstantFolding(Transformation):
         super(ConstantFolding, self).prepare(node, ctx)
 
     def to_ast(self, value):
-        if any(isinstance(value, t)
-                for t in (int, long, bool, float, complex)):
+        if (type(value) in (int, long, bool, float, complex)):
             return ast.Num(value)
         elif isinstance(value, str):
             return ast.Str(value)

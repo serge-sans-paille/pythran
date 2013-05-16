@@ -3,6 +3,39 @@ from test_env import TestEnv
 import numpy
 
 class TestNumpy(TestEnv):
+    def test_ndindex0(self):
+        self.run_test("def np_ndindex0(): import numpy as np ; return [x for x in np.ndindex(5,6)]", np_ndindex0=[])
+
+    def test_ndindex1(self):
+        self.run_test("def np_ndindex1(): import numpy as np ; a = 3 ; return [x for x in np.ndindex(a)]", np_ndindex1=[])
+
+    def test_ndenumerate0(self):
+        self.run_test("def np_ndenumerate0(): import numpy as np ; a = np.array([[1, 2], [3, 4]]) ; return [x for x in np.ndenumerate(a)]", np_ndenumerate0=[])
+
+    def test_ndenumerate1(self):
+        self.run_test("def np_ndenumerate1(): import numpy as np ; a = np.array([1, 2, 3, 4]) ; return [x for x in np.ndenumerate(a)]", np_ndenumerate1=[])
+
+    def test_nansum0(self):
+        self.run_test("def np_nansum0(): import numpy as np ; a = np.array([[1, 2], [3, np.nan]]) ; return np.nansum(a)" , np_nansum0=[])
+
+    def test_nansum1(self):
+        self.run_test("def np_nansum1(): import numpy as np ; a = np.array([[1, 2], [np.NINF, np.nan]]) ; return np.nansum(a)" , np_nansum1=[])
+
+    def test_nansum2(self):
+        self.run_test("def np_nansum2(): import numpy as np ; a= [1, np.nan] ; return np.nansum(a)", np_nansum2=[])
+
+    def test_nanmin0(self):
+        self.run_test("def np_nanmin0(): import numpy as np ; a = np.array([[1, 2], [3, np.nan]]) ; return np.nanmin(a)" , np_nanmin0=[])
+
+    def test_nanmin1(self):
+        self.run_test("def np_nanmin1(): import numpy as np ; a = np.array([[1, 2], [np.NINF, np.nan]]) ; return np.nanmin(a)" , np_nanmin1=[])
+
+    def test_nanmax0(self):
+        self.run_test("def np_nanmax0(): import numpy as np ; a = np.array([[1, 2], [3, np.nan]]) ; return np.nanmax(a)" , np_nanmax0=[])
+
+    def test_nanmax1(self):
+        self.run_test("def np_nanmax1(): import numpy as np ; a = np.array([[1, 2], [np.inf, np.nan]]) ; return np.nanmax(a)" , np_nanmax1=[])
+
     def test_nanargmax0(self):
         self.run_test("def np_nanargmax0(): from numpy import array, nanargmax, nan ; a = array([[nan, 4], [2, 3]]) ; return nanargmax(a)", np_nanargmax0=[])
 
@@ -123,6 +156,207 @@ class TestNumpy(TestEnv):
     def test_fromstring3(self):
         self.run_test("def np_fromstring3(): from numpy import fromstring, uint32 ; a = '1,2, 3, 4' ; return fromstring(a, uint32,2, ',')", np_fromstring3=[])
 
+    def test_outer0(self):
+        self.run_test("def np_outer0(): from numpy import outer, arange, ravel ; x = arange(6).reshape(2,3); return outer(x, x+2)", np_outer0=[])
+
+    def test_outer1(self):
+        self.run_test("def np_outer1(): from numpy import outer, arange ; x = arange(6).reshape(2,3); return outer(x, range(6))", np_outer1=[])
+
+    def test_place0(self):
+        self.run_test("def np_place0(): from numpy import place, arange, ravel ; x = arange(6).reshape(2,3); place(x, x>1, ravel(x**2)); return x", np_place0=[])
+
+    def test_place1(self):
+        self.run_test("def np_place1(): from numpy import place, arange ; x = arange(6).reshape(2,3); place(x, x>1, [57, 58]); return x", np_place1=[])
+
+    def test_prod_(self):
+        self.run_test("def np_prod_():\n from numpy import arange,prod\n return arange(1, 10).prod()", np_prod_=[])
+
+    def test_prod_expr(self):
+        self.run_test("def np_prod_expr():\n from numpy import arange, ones, prod\n return (arange(10)+ones(10)).prod()", np_prod_expr=[])
+
+    def test_prod2_(self):
+        self.run_test("def np_prod2_():\n from numpy import arange,prod\n return arange(1, 11).reshape(2,5).prod()", np_prod2_=[])
+
+    def test_prod3_(self):
+        self.run_test("def np_prod3_():\n from numpy import arange,prod\n return arange(1, 11).reshape(2,5).prod(1)", np_prod3_=[])
+
+    def test_prod4_(self):
+        self.run_test("def np_prod4_():\n from numpy import arange,prod\n return arange(1, 11).reshape(2,5).prod(0)", np_prod4_=[])
+
+    def test_prod5_(self):
+        self.run_test("def np_prod5_():\n from numpy import arange,prod\n return arange(1, 11).prod(0)", np_prod5_=[])
+
+    def test_ptp0(self):
+        self.run_test("def np_ptp0(): from numpy import ptp, arange ; x = arange(4).reshape(2,2); return ptp(x)", np_ptp0=[])
+
+    def test_ptp1(self):
+        self.run_test("def np_ptp1(): from numpy import ptp, arange ; x = arange(4).reshape(2,2); return ptp(x,0)", np_ptp1=[])
+
+    def test_ptp2(self):
+        self.run_test("def np_ptp2(): from numpy import ptp, arange ; x = arange(4).reshape(2,2); return ptp(x,1)", np_ptp2=[])
+
+    def test_put0(self):
+        self.run_test("def np_put0(): from numpy import put, arange ; x = arange(5); put(x, [0,2], [-44, -55]); return x", np_put0=[])
+
+    def test_put1(self):
+        self.run_test("def np_put1(): from numpy import put, arange ; x = arange(6).reshape(2,3); put(x, [0,2,3], [57, 58]); return x", np_put1=[])
+
+    def test_put2(self):
+        self.run_test("def np_put2(): from numpy import put, arange ; x = arange(6).reshape(2,3); put(x, 2, 57); return x", np_put2=[])
+
+    def test_putmask0(self):
+        self.run_test("def np_putmask0(): from numpy import putmask, arange ; x = arange(6).reshape(2,3); putmask(x, x>1, x**2); return x", np_putmask0=[])
+
+    def test_putmask1(self):
+        self.run_test("def np_putmask1(): from numpy import putmask, arange ; x = arange(6).reshape(2,3); putmask(x, x>1, [57, 58]); return x", np_putmask1=[])
+
+    def test_ravel(self):
+        self.run_test("def np_ravel(): from numpy import ravel, arange ; x = arange(6).reshape(2,3); return ravel(x)", np_ravel=[])
+
+    def test_repeat(self):
+        self.run_test("def np_repeat(): from numpy import repeat, arange ; x = arange(3); return repeat(x, 3)", np_repeat=[])
+
+    def test_resize3(self):
+        self.run_test("def np_resize3(): from numpy import resize, arange ; x = arange(24).reshape(2,3,4); return resize(x, (6,6))", np_resize3=[])
+
+    def test_resize2(self):
+        self.run_test("def np_resize2(): from numpy import resize, arange ; x = arange(24).reshape(2,3,4); return resize(x, (3,3))", np_resize2=[])
+
+    def test_resize1(self):
+        self.run_test("def np_resize1(): from numpy import resize, arange ; x = arange(24); return resize(x, 32)", np_resize1=[])
+
+    def test_resize0(self):
+        self.run_test("def np_resize0(): from numpy import resize, arange ; x = arange(24); return resize(x, 12)", np_resize0=[])
+
+    def test_rollaxis2(self):
+        self.run_test("def np_rollaxis2(): from numpy import rollaxis, arange ; x = arange(24).reshape(2,3,4); return rollaxis(x, 2)", np_rollaxis2=[])
+
+    def test_rollaxis1(self):
+        self.run_test("def np_rollaxis1(): from numpy import rollaxis, arange ; x = arange(24).reshape(2,3,4); return rollaxis(x, 1, 2)", np_rollaxis1=[])
+
+    def test_rollaxis0(self):
+        self.run_test("def np_rollaxis0(): from numpy import rollaxis, arange ; x = arange(24).reshape(2,3,4); return rollaxis(x, 1)", np_rollaxis0=[])
+
+    def test_roll2(self):
+        self.run_test("def np_roll2(): from numpy import roll, arange ; x = arange(6).reshape(2,3); return roll(x, -1)", np_roll2=[])
+
+    def test_roll1(self):
+        self.run_test("def np_roll1(): from numpy import roll, arange ; x = arange(6).reshape(2,3); return roll(x, 10)", np_roll1=[])
+
+    def test_roll0(self):
+        self.run_test("def np_roll0(): from numpy import roll, arange ; x = arange(6).reshape(2,3); return roll(x, 3)", np_roll0=[])
+
+    def test_searchsorted3(self):
+        self.run_test("def np_searchsorted3(): from numpy import searchsorted, arange ; x = arange(6); return searchsorted(x, [[3,4],[1,87]])", np_searchsorted3=[])
+
+    def test_searchsorted2(self):
+        self.run_test("def np_searchsorted2(): from numpy import searchsorted, arange ; x = arange(6); return searchsorted(x, [[3,4],[1,87]], 'right')", np_searchsorted2=[])
+
+    def test_searchsorted1(self):
+        self.run_test("def np_searchsorted1(): from numpy import searchsorted, arange ; x = arange(6); return searchsorted(x, 3)", np_searchsorted1=[])
+
+    def test_searchsorted0(self):
+        self.run_test("def np_searchsorted0(): from numpy import searchsorted, arange ; x = arange(6); return searchsorted(x, 3, 'right')", np_searchsorted0=[])
+
+    def test_rank1(self):
+        self.run_test("def np_rank1(): from numpy import rank, arange ; x = arange(24).reshape(2,3,4); return rank(x)", np_rank1=[])
+
+    def test_rank0(self):
+        self.run_test("def np_rank0(): from numpy import rank, arange ; x = arange(6); return rank(x)", np_rank0=[])
+
+    def test_rot904(self):
+        self.run_test("def np_rot904(): from numpy import rot90, arange ; x = arange(24).reshape(2,3,4); return rot90(x, 4)", np_rot904=[])
+
+    def test_rot903(self):
+        self.run_test("def np_rot903(): from numpy import rot90, arange ; x = arange(24).reshape(2,3,4); return rot90(x, 2)", np_rot903=[])
+
+    def test_rot902(self):
+        self.run_test("def np_rot902(): from numpy import rot90, arange ; x = arange(24).reshape(2,3,4); return rot90(x, 3)", np_rot902=[])
+
+    def test_rot900(self):
+        self.run_test("def np_rot900(): from numpy import rot90, arange ; x = arange(24).reshape(2,3,4); return rot90(x)", np_rot900=[])
+
+    def test_rot901(self):
+        self.run_test("def np_rot901(): from numpy import rot90, arange ; x = arange(4).reshape(2,2); return rot90(x)", np_rot901=[])
+
+    def test_select2(self):
+        self.run_test("def np_select2(): from numpy import select, arange ; x = arange(10).reshape(2,5); condlist = [x<3, x>5]; choicelist = [x, x**2]; return select(condlist, choicelist)", np_select2=[])
+
+    def test_select1(self):
+        self.run_test("def np_select1(): from numpy import select, arange ; x = arange(10); condlist = [x<3, x>5]; choicelist = [x+3, x**2]; return select(condlist, choicelist)", np_select1=[])
+
+    def test_select0(self):
+        self.run_test("def np_select0(): from numpy import select, arange ; x = arange(10); condlist = [x<3, x>5]; choicelist = [x, x**2]; return select(condlist, choicelist)", np_select0=[])
+
+    def test_sometrue0(self):
+        self.run_test("def np_sometrue0(): from numpy import sometrue, array ; a = array([[True, False], [True, True]]) ; return sometrue(a)", np_sometrue0=[])
+
+    def test_sometrue1(self):
+        self.run_test("def np_sometrue1(): from numpy import sometrue, array ; a = array([[True, False], [False, False]]) ; return sometrue(a, 0)", np_sometrue1=[])
+
+    def test_sometrue2(self):
+        self.run_test("def np_sometrue2(): from numpy import sometrue ; a = [-1, 0, 5] ; return sometrue(a)", np_sometrue2=[])
+
+    def test_sort0(self):
+        self.run_test("def np_sort0(): from numpy import array, sort ; a = array([[1,6],[7,5]]) ; return sort(a)", np_sort0=[])
+
+    def test_sort1(self):
+        self.run_test("def np_sort1(): from numpy import array, sort ; a = array([2, 1, 6, 3, 5]) ; return sort(a)", np_sort1=[])
+
+    def test_sort2(self):
+        self.run_test("def np_sort2(): from numpy import arange, sort ; a = arange(2*3*4, 0, -1).reshape(2,3,4) ; return sort(a)", np_sort2=[])
+
+    def test_sort3(self):
+        self.run_test("def np_sort3(): from numpy import arange, sort ; a = arange(2*3*4, 0, -1).reshape(2,3,4) ; return sort(a, 0)", np_sort3=[])
+
+    def test_sort4(self):
+        self.run_test("def np_sort4(): from numpy import arange, sort ; a = arange(2*3*4, 0, -1).reshape(2,3,4) ; return sort(a, 1)", np_sort4=[])
+
+    def test_sort_complex0(self):
+        self.run_test("def np_sort_complex0(): from numpy import array, sort_complex ; a = array([[1,6],[7,5]]) ; return sort_complex(a)", np_sort_complex0=[])
+
+    def test_sort_complex1(self):
+        self.run_test("def np_sort_complex1(): from numpy import array, sort_complex ; a = array([1 + 2j, 2 - 1j, 3 - 2j, 3 - 3j, 3 + 5j]) ; return sort_complex(a)", np_sort_complex1=[])
+
+    def test_split0(self):
+        self.run_test("def np_split0(): from numpy import arange, split,array2string ; a = arange(12) ; return map(array2string,split(a, 3))", np_split0=[])
+
+    def test_split1(self):
+        self.run_test("def np_split1():\n from numpy import arange, split\n a = arange(12)\n try:\n  split(a, 5)\n  return False\n except ValueError:\n  return True", np_split1=[])
+
+    def test_split2(self):
+        self.run_test("def np_split2(): from numpy import arange, split, array2string ; a = arange(12).reshape(6,2); return map(array2string,split(a, [0,1,5]))", np_split2=[])
+
+    def test_take0(self):
+        self.run_test("def np_take0():\n from numpy import arange, take\n a = arange(24).reshape(2,3,4)\n return take(a, [0,1])", np_take0=[])
+
+    def test_take1(self):
+        self.run_test("def np_take1():\n from numpy import arange, take\n a = arange(24).reshape(2,3,4)\n return take(a, [[0,0,2,2],[1,0,1,2]])", np_take1=[])
+
+    def test_swapaxes_(self):
+        self.run_test("def np_swapaxes_():\n from numpy import arange, swapaxes\n a = arange(24).reshape(2,3,4)\n return swapaxes(a, 1, 2)", np_swapaxes_=[])
+
+    def test_tile0(self):
+        self.run_test("def np_tile0(): from numpy import arange, tile ; a = arange(4) ; return tile(a, 3)", np_tile0=[])
+
+    def test_tile1(self):
+        self.run_test("def np_tile1(): from numpy import arange, tile ; a = arange(4) ; return tile(a, (3, 2))", np_tile1=[])
+
+    def test_tolist0(self):
+        self.run_test("def np_tolist0(): from numpy import arange ; a = arange(12) ; return a.tolist()", np_tolist0=[])
+
+    def test_tolist1(self):
+        self.run_test("def np_tolist1(): from numpy import arange ; a = arange(12).reshape(3,4) ; return a.tolist()", np_tolist1=[])
+
+    def test_tolist2(self):
+        self.run_test("def np_tolist2(): from numpy import arange ; a = arange(2*3*4*5).reshape(2,3,4,5) ; return a.tolist()", np_tolist2=[])
+
+    def test_tostring0(self):
+        self.run_test("def np_tostring0(): from numpy import arange ; a = arange(80, 100) ; return a.tostring()", np_tostring0=[])
+
+    def test_tostring1(self):
+        self.run_test("def np_tostring1(): from numpy import arange ; a = arange(500, 600) ; return a.tostring()", np_tostring1=[])
+
     def test_fromiter0(self):
         self.run_test("def g(): yield 1 ; yield 2\ndef np_fromiter0(): from numpy import fromiter, float32 ; iterable = g() ; return fromiter(iterable, float32)", np_fromiter0=[])
 
@@ -224,6 +458,69 @@ class TestNumpy(TestEnv):
     def test_diff4(self):
         self.run_test("def np_diff4(): from numpy import array, diff ; x = array([1, 2, 4, 7, 0]) ; return diff(x + x)", np_diff4=[])
 
+    def test_trace0(self):
+        self.run_test("def np_trace0(): from numpy import arange, trace; x = arange(9).reshape(3,3); return trace(x)", np_trace0=[])
+
+    def test_trace1(self):
+        self.run_test("def np_trace1(): from numpy import arange, trace; x = arange(12).reshape(3,4); return trace(x, 1)", np_trace1=[])
+
+    def test_trace2(self):
+        self.run_test("def np_trace2(): from numpy import arange, trace; x = arange(12).reshape(3,4); return trace(x, 1)", np_trace2=[])
+
+    def test_tri0(self):
+        self.run_test("def np_tri0(): from numpy import tri; return tri(3)", np_tri0=[])
+
+    def test_tri1(self):
+        self.run_test("def np_tri1(): from numpy import tri; return tri(3, 4)", np_tri1=[])
+
+    def test_tri2(self):
+        self.run_test("def np_tri2(): from numpy import tri; return tri(4, 3, -1)", np_tri2=[])
+
+    def test_tri3(self):
+        self.run_test("def np_tri3(): from numpy import tri, int64; return tri(3, 5, 1, int64)", np_tri3=[])
+
+    def test_trim_zeros0(self):
+        self.run_test("""
+def np_trim_zeros0():
+    from numpy import array, trim_zeros
+    x = array((0, 0, 0, 1, 2, 3, 0, 2, 1, 0))
+    return trim_zeros(x)""", np_trim_zeros0=[])
+
+    def test_trim_zeros1(self):
+        self.run_test("""
+def np_trim_zeros1():
+    from numpy import array, trim_zeros
+    x = array((0, 0, 0, 1, 2, 3, 0, 2, 1, 0))
+    return trim_zeros(x, "f")""", np_trim_zeros1=[])
+
+    def test_trim_zeros2(self):
+        self.run_test("""
+def np_trim_zeros2():
+    from numpy import array, trim_zeros
+    x = array((0, 0, 0, 1, 2, 3, 0, 2, 1, 0))
+    return trim_zeros(x, "b")""", np_trim_zeros2=[])
+
+    def test_triu0(self):
+        self.run_test("def np_triu0(): from numpy import arange, triu; x = arange(12).reshape(3,4); return triu(x)", np_triu0=[])
+
+    def test_triu1(self):
+        self.run_test("def np_triu1(): from numpy import arange, triu; x = arange(12).reshape(3,4); return triu(x, 1)", np_triu1=[])
+
+    def test_triu2(self):
+        self.run_test("def np_triu2(): from numpy import arange, triu; x = arange(12).reshape(3,4); return triu(x, -1)", np_triu2=[])
+
+    def test_tril0(self):
+        self.run_test("def np_tril0(): from numpy import arange, tril; x = arange(12).reshape(3,4); return tril(x)", np_tril0=[])
+
+    def test_tril1(self):
+        self.run_test("def np_tril1(): from numpy import arange, tril; x = arange(12).reshape(3,4); return tril(x, 1)", np_tril1=[])
+
+    def test_tril2(self):
+        self.run_test("def np_tril2(): from numpy import arange, tril; x = arange(12).reshape(3,4); return tril(x, -1)", np_tril2=[])
+
+    def test_union1d(self):
+        self.run_test("def np_union1d(): from numpy import arange, union1d ; x = arange(-1,2) ; y = arange(1,4); return union1d(x, y)", np_union1d=[])
+
     def test_unique0(self):
         self.run_test("def np_unique0(): from numpy import array, unique ; x = array([1,1,2,2,2,1,5]) ; return unique(x)", np_unique0=[])
 
@@ -237,10 +534,13 @@ class TestNumpy(TestEnv):
         self.run_test("def np_unique3(): from numpy import array, unique ; x = array([1,1,2,2,2,1,5]) ; return unique(x, True, True)", np_unique3=[])
 
     def test_unwrap0(self):
-        self.run_test("def np_unwrap0(): from numpy import arange, unwrap, pi ; x = arange(6) ; x[:3] += pi; return unwrap(x)", np_unwrap0=[])
+        self.run_test("def np_unwrap0(): from numpy import arange, unwrap, pi ; x = arange(6) ; x[:3] += 2*pi; return unwrap(x)", np_unwrap0=[])
 
     def test_unwrap1(self):
         self.run_test("def np_unwrap1(): from numpy import arange, unwrap, pi ; x = arange(6) ; x[:3] += 2*pi; return unwrap(x, 4)", np_unwrap1=[])
+
+    def test_unwrap2(self):
+        self.run_test("def np_unwrap2(): from numpy import arange, unwrap, pi ; x = arange(6) ; x[:3] -= 2*pi; return unwrap(x, 4)", np_unwrap2=[])
 
     def test_nonzero0(self):
         self.run_test("def np_nonzero0(): from numpy import arange, nonzero ; x = arange(6) ; return nonzero(x)", np_nonzero0=[])
@@ -1015,7 +1315,7 @@ unary_ufunc = (
         'isinf', 'isneginf', 'isposinf', 'isnan', 'invert', 'isfinite',
         'log10', 'log1p', 'log2', 'logical_not',
         'negative',
-        'rad2deg', 'radians','reciprocal', 'rint', 
+        'rad2deg', 'radians','reciprocal', 'rint', 'round', 'round_',
         'sign', 'signbit', 
          'sin', 'sinh', 'spacing', 'sqrt', 'square', 
         'tan', 'tanh','trunc', 

@@ -434,6 +434,7 @@ modules = {
             "uint32" : ConstFunctionIntr(),
             "uint64" : ConstFunctionIntr(),
             "uint8" : ConstFunctionIntr(),
+            "union1d": ConstFunctionIntr(),
             "unique" : ConstFunctionIntr(),
             "unwrap" : ConstFunctionIntr(),
             "where" : ConstFunctionIntr(),

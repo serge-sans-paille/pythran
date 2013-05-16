@@ -224,6 +224,8 @@ class TestNumpy(TestEnv):
     def test_diff4(self):
         self.run_test("def np_diff4(): from numpy import array, diff ; x = array([1, 2, 4, 7, 0]) ; return diff(x + x)", np_diff4=[])
 
+    def test_union1d(self):
+        self.run_test("def np_union1d(): from numpy import arange, union1d ; x = arange(-1,2) ; y = arange(1,4); return union1d(x, y)", np_union1d=[])
     def test_unique0(self):
         self.run_test("def np_unique0(): from numpy import array, unique ; x = array([1,1,2,2,2,1,5]) ; return unique(x)", np_unique0=[])
 

@@ -2021,6 +2021,19 @@ namespace pythonic {
 
         PROXY(pythonic::numpy, unique)
 
+        template<class E, class F>
+            core::ndarray<decltype(std::declval<typename core::numpy_expr_to_ndarray<E>::T>() + std::declval<typename core::numpy_expr_to_ndarray<F>::T>()), 1> union1d(E const& e, F const& f)
+            {
+                std::set<decltype(std::declval<typename core::numpy_expr_to_ndarray<E>::T>() + std::declval<typename core::numpy_expr_to_ndarray<F>::T>())> res;
+                for(size_t i=0; i<e.size(); i++)
+                    res.insert(e.at(i));
+                for(size_t i=0; i<f.size(); i++)
+                    res.insert(f.at(i));
+                return core::ndarray<decltype(std::declval<typename core::numpy_expr_to_ndarray<E>::T>() + std::declval<typename core::numpy_expr_to_ndarray<F>::T>()), 1>(res);
+            }
+
+        PROXY(pythonic::numpy, union1d)
+
         NP_PROXY_ALIAS(arccos, nt2::acos);
 
         NP_PROXY_ALIAS(arccosh, nt2::acosh);

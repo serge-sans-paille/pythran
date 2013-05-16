@@ -224,6 +224,24 @@ class TestNumpy(TestEnv):
     def test_diff4(self):
         self.run_test("def np_diff4(): from numpy import array, diff ; x = array([1, 2, 4, 7, 0]) ; return diff(x + x)", np_diff4=[])
 
+    def test_triu0(self):
+        self.run_test("def np_triu0(): from numpy import arange, triu; x = arange(12).reshape(3,4); return triu(x)", np_triu0=[])
+
+    def test_triu1(self):
+        self.run_test("def np_triu1(): from numpy import arange, triu; x = arange(12).reshape(3,4); return triu(x, 1)", np_triu1=[])
+
+    def test_triu2(self):
+        self.run_test("def np_triu2(): from numpy import arange, triu; x = arange(12).reshape(3,4); return triu(x, -1)", np_triu2=[])
+
+    def test_tril0(self):
+        self.run_test("def np_tril0(): from numpy import arange, tril; x = arange(12).reshape(3,4); return tril(x)", np_tril0=[])
+
+    def test_tril1(self):
+        self.run_test("def np_tril1(): from numpy import arange, tril; x = arange(12).reshape(3,4); return tril(x, 1)", np_tril1=[])
+
+    def test_tril2(self):
+        self.run_test("def np_tril2(): from numpy import arange, tril; x = arange(12).reshape(3,4); return tril(x, -1)", np_tril2=[])
+
     def test_union1d(self):
         self.run_test("def np_union1d(): from numpy import arange, union1d ; x = arange(-1,2) ; y = arange(1,4); return union1d(x, y)", np_union1d=[])
     def test_unique0(self):

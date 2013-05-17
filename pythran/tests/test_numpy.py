@@ -3,6 +3,119 @@ from test_env import TestEnv
 import numpy
 
 class TestNumpy(TestEnv):
+    def test_fromiter0(self):
+        self.run_test("def g(): yield 1 ; yield 2\ndef np_fromiter0(): from numpy import fromiter, float32 ; iterable = g() ; return fromiter(iterable, float32)", np_fromiter0=[])
+
+    def test_fromiter1(self):
+        self.run_test("def np_fromiter1(): from numpy import fromiter, float32 ; iterable = (x*x for x in range(5)) ; return fromiter(iterable, float32, 5)", np_fromiter1=[])
+
+    def test_fromfunction0(self):
+        self.run_test("def np_fromfunction0(): from numpy import fromfunction ; s = (3,) ; return fromfunction(lambda i: i == 1, s)", np_fromfunction0=[])
+
+    def test_fromfunction1(self):
+        self.run_test("def np_fromfunction1(): from numpy import fromfunction; s = (3,3) ; return fromfunction(lambda i, j: i + j, s)", np_fromfunction1=[])
+
+    def test_flipud0(self):
+        self.run_test("def np_flipud0(): from numpy import flipud, diag ; x = diag([1.,2.,3.]) ; return flipud(x)", np_flipud0=[])
+
+    def test_fliplr0(self):
+        self.run_test("def np_fliplr0(): from numpy import fliplr, diag ; x = diag([1.,2.,3.]) ; return fliplr(x)", np_fliplr0=[])
+
+    def test_flatten0(self):
+        self.run_test("def np_flatten0(): from numpy import array; x = array([[1,2], [3,4]]) ; return x.flatten()", np_flatten0=[])
+
+    def test_flatnonzero0(self):
+        self.run_test("def np_flatnonzero0(): from numpy import arange, flatnonzero ; x = arange(-2, 3) ; return flatnonzero(x)", np_flatnonzero0=[])
+
+    def test_fix0(self):
+        self.run_test("def np_fix0(): from numpy import fix, array ; x = 3.14 ; return fix(x)", np_fix0=[])
+
+    def test_fix1(self):
+        self.run_test("def np_fix1(): from numpy import fix, array ; x = 3 ; return fix(x)", np_fix1=[])
+
+    def test_fix2(self):
+        self.run_test("def np_fix2(): from numpy import fix, array ; x = [2.1, 2.9, -2.1, -2.9] ; return fix(x)", np_fix2=[])
+
+    def test_fix3(self):
+        self.run_test("def np_fix3(): from numpy import fix, array ; x = array([2.1, 2.9, -2.1, -2.9]) ; return fix(x)", np_fix3=[])
+
+    def test_fix4(self):
+        self.run_test("def np_fix4(): from numpy import fix, array ; x = array([2.1, 2.9, -2.1, -2.9]) ; return fix(x+x)", np_fix4=[])
+
+    def test_finfo0(self):
+        self.run_test("def np_finfo0(): from numpy import finfo, float64 ; x = finfo(float64) ; return x.eps", np_finfo0=[])
+
+    def test_fill0(self):
+        self.run_test("def np_fill0(): from numpy import ones ; x = ones((2,3)) ; x.fill(5) ; return x", np_fill0=[])
+
+    def test_eye0(self):
+        self.run_test("def np_eye0(): from numpy import eye ; x = 2 ; return eye(x)", np_eye0=[])
+
+    def test_eye1(self):
+        self.run_test("def np_eye1(): from numpy import eye ; x = 2 ; return eye(x, x+1)", np_eye1=[])
+
+    def test_eye1b(self):
+        self.run_test("def np_eye1b(): from numpy import eye ; x = 3 ; return eye(x, x-1)", np_eye1b=[])
+
+    def test_eye2(self):
+        self.run_test("def np_eye2(): from numpy import eye ; x = 2 ; return eye(x, x, 1)", np_eye2=[])
+
+    def test_eye3(self):
+        self.run_test("def np_eye3(): from numpy import eye, int32 ; x = 2 ; return eye(x, x, 1, int32)", np_eye3=[])
+
+    def test_ediff1d0(self):
+        self.run_test("def np_ediff1d0(): from numpy import array, ediff1d ; x = [1,2,4,7,0] ; return ediff1d(x)", np_ediff1d0=[])
+
+    def test_ediff1d1(self):
+        self.run_test("def np_ediff1d1(): from numpy import array, ediff1d ; x = [[1,2,4],[1,6,24]] ; return ediff1d(x)", np_ediff1d1=[])
+
+    def test_dot0(self):
+        self.run_test("def np_dot0(): from numpy import array, dot ; x, y = 2, 3 ; return dot(x,y)", np_dot0=[])
+
+    def test_dot1(self):
+        self.run_test("def np_dot1(): from numpy import array, dot ; x, y = [2, 3], [2, 3] ; return dot(x,y)", np_dot1=[])
+
+    def test_dot2(self):
+        self.run_test("def np_dot2(): from numpy import array, dot ; x, y = [2j, 3j], [2j, 3j] ; return dot(x,y)", np_dot2=[])
+
+    def test_dot3(self):
+        self.run_test("def np_dot3(): from numpy import array, dot ; x, y = array([2, 3]), array([2, 3]) ; return dot(x+x,y)", np_dot3=[])
+
+    def test_dot4(self):
+        self.run_test("def np_dot4(): from numpy import array, dot ; x, y = array([2, 3]), [2, 3] ; return dot(x,y)", np_dot4=[])
+
+    def test_digitize0(self):
+        self.run_test("def np_digitize0(): from numpy import array, digitize; x = array([0.2, 6.4, 3.0, 1.6]) ; bins = array([0.0, 1.0, 2.5, 4.0, 10.0]) ; return digitize(x, bins)", np_digitize0=[])
+
+    def test_digitize1(self):
+        self.run_test("def np_digitize1(): from numpy import array, digitize; x = array([0.2, 6.4, 3.0, 1.6]) ; bins = array([ 10.0, 4.0, 2.5, 1.0, 0.0]) ; return digitize(x, bins)", np_digitize1=[])
+    def test_diff0(self):
+        self.run_test("def np_diff0(): from numpy import array, diff ; x = array([1, 2, 4, 7, 0]) ; return diff(x)", np_diff0=[])
+
+    def test_diff1(self):
+        self.run_test("def np_diff1(): from numpy import array, diff ; x = array([1, 2, 4, 7, 0]) ; return diff(x,2)", np_diff1=[])
+
+    def test_diff2(self):
+        self.run_test("def np_diff2(): from numpy import array, diff ; x = array([[1, 3, 6, 10], [0, 5, 6, 8]]) ; return diff(x)", np_diff2=[])
+
+    def test_diff3(self):
+        self.run_test("def np_diff3(): from numpy import array, diff ; x = array([[1, 3, 6, 10], [0, 5, 6, 8]]) ; return diff(x,2)", np_diff3=[])
+
+    def test_diff4(self):
+        self.run_test("def np_diff4(): from numpy import array, diff ; x = array([1, 2, 4, 7, 0]) ; return diff(x + x)", np_diff4=[])
+
+    def test_unique0(self):
+        self.run_test("def np_unique0(): from numpy import array, unique ; x = array([1,1,2,2,2,1,5]) ; return unique(x)", np_unique0=[])
+
+    def test_unique1(self):
+        self.run_test("def np_unique1(): from numpy import array, unique ; x = array([[1,2,2],[2,1,5]]) ; return unique(x)", np_unique1=[])
+
+    def test_unique2(self):
+        self.run_test("def np_unique2(): from numpy import array, unique ; x = array([1,1,2,2,2,1,5]) ; return unique(x, True)", np_unique2=[])
+
+    def test_unique3(self):
+        self.run_test("def np_unique3(): from numpy import array, unique ; x = array([1,1,2,2,2,1,5]) ; return unique(x, True, True)", np_unique3=[])
+
     def test_unwrap0(self):
         self.run_test("def np_unwrap0(): from numpy import arange, unwrap, pi ; x = arange(6) ; x[:3] += pi; return unwrap(x)", np_unwrap0=[])
 
@@ -26,6 +139,15 @@ class TestNumpy(TestEnv):
 
     def test_diagflat5(self):
         self.run_test("def np_diagflat5(): from numpy import diagflat, arange; a = arange(4) ; return diagflat(a,-2)", np_diagflat5=[])
+
+    def test_diagonal0(self):
+        self.run_test("def np_diagonal0(): from numpy import diagonal, arange; a = arange(10).reshape(2,5) ; return diagonal(a)", np_diagonal0=[])
+
+    def test_diagonal1(self):
+        self.run_test("def np_diagonal1(): from numpy import diagonal, arange; a = arange(9).reshape(3,3) ; return diagonal(a,1)", np_diagonal1=[])
+
+    def test_diagonal2(self):
+        self.run_test("def np_diagonal2(): from numpy import diagonal, arange; a = arange(9).reshape(3,3) ; return diagonal(a,-2)", np_diagonal2=[])
 
     def test_diag0(self):
         self.run_test("def np_diag0(): from numpy import diag, arange; a = arange(10).reshape(2,5) ; return diag(a)", np_diag0=[])

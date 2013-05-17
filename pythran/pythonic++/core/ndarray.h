@@ -194,15 +194,20 @@ namespace  pythonic {
              };
 
         template<class Expr>
-            struct is_array_like {
+            struct is_array {
                 static constexpr bool value = is_numpy_expr<Expr>::value;
+            };
+        template< class T, size_t N>
+            struct is_array< ndarray<T,N> > {
+                static constexpr bool value = true;
+            };
+
+        template<class Expr>
+            struct is_array_like {
+                static constexpr bool value = is_array<Expr>::value;
             };
         template<class L>
             struct is_array_like<core::list<L>>{
-                static constexpr bool value = true;
-            };
-        template<class T, size_t N>
-            struct is_array_like<core::ndarray<T,N>>{
                 static constexpr bool value = true;
             };
 
@@ -294,7 +299,7 @@ namespace  pythonic {
                 T data;
 
                 sliced_ndarray(T const& data, slice const& s) : slice(s), shape(data.shape.begin(), data.shape.end()), data(data) {
-                    shape[0] = ceil(double(upper - lower)/step);
+                    shape[0] = ceil(std::abs(double(upper - lower)/step));
                     jump = 1;
                     for(size_t i=1;i<value; ++i)
                         jump*=shape[i];
@@ -304,8 +309,8 @@ namespace  pythonic {
                     return data.at(jump*lower+i*step);
                 }
                 size_t size() const { return (data.size() / data.shape[0]) * shape[0] ; }
-                reference operator[](long i) { return data[lower+i*step]; }
-                const_reference operator[](long i) const { return data[lower+i*step]; }
+                reference operator[](long i) { return data[jump*lower+i*step]; }
+                const_reference operator[](long i) const { return data[jump*lower+i*step]; }
                 sliced_ndarray<T> operator[](slice const& s) const { return sliced_ndarray(data, slice(lower + step*s.lower, std::min(upper, lower + step*s.upper), step*s.step)); }
                 sliced_ndarray<T> operator[](slice const& s) { return sliced_ndarray(data, slice(lower + step*s.lower, std::min(upper, lower + step*s.upper), step*s.step)); }
 

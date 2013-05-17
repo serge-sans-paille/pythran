@@ -54,6 +54,11 @@ struct assignable<pythonic::core::numpy_uexpr<Op, Arg0>>
 {
     typedef pythonic::core::ndarray<typename pythonic::core::numpy_uexpr<Op, Arg0>::value_type, pythonic::core::numpy_uexpr<Op, Arg0>::value> type;
 };
+template<class T>
+struct assignable<pythonic::core::sliced_ndarray<T>>
+{
+    typedef typename assignable<T>::type type;
+};
 
 
 template<class T>
@@ -446,6 +451,29 @@ template<>
 template<>
     // Python seems to always return none... Doing the same.
     none_type getattr<3>(core::file const& f) {return None;}
+
+/* for finfo */
+template <class T>
+    struct attribute_element<0, core::finfo<T>> {
+        typedef T type;
+    };
+
+template<size_t I, class T>
+    struct finfo_attr {
+    };
+
+template<class T>
+    struct finfo_attr<0,T> {
+        typename attribute_element<0, core::finfo<T>>::type operator()(core::finfo<T> const& f) const {
+            return f.eps();
+        }
+    };
+
+template <size_t I, class T>
+    typename attribute_element<I, core::finfo<T>>::type getattr(core::finfo<T> const& f)
+    {
+        return finfo_attr<I,T>()(f);
+    }
 
 /* for ndarrays */
 template <class T, size_t N>

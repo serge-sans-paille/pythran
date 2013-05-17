@@ -51,6 +51,15 @@ namespace pythonic {
                             ++rec_iters;
                             return *this;
                         }
+                        imap_iterator_data<Op, L0, It...>& operator+=(long i) {
+                            iter+=i;
+                            rec_iters+=i;
+                            return *this;
+                        }
+                        imap_iterator_data<Op, L0, It...> operator+(long i) {
+                            imap_iterator_data<Op, L0, It...> other(*this);
+                            return other+=i;
+                        }
 
                     };
 
@@ -93,6 +102,15 @@ namespace pythonic {
                             ++iter;
                             return *this;
                         }
+                        imap_iterator_data<Op, L0>& operator+=(long i) {
+                            iter+=i;
+                            return *this;
+                        }
+                        imap_iterator_data<Op, L0> operator+(long i) {
+                            imap_iterator_data<Op, L0> other(*this);
+                            return other+=i;
+                        }
+
 
                     };
 
@@ -115,6 +133,14 @@ namespace pythonic {
                 imap_iterator& operator++() { 
                     ++it_data;
                     return *this; 
+                }
+                imap_iterator& operator+=(long i) { 
+                    it_data+=i;
+                    return *this; 
+                }
+                imap_iterator operator+(long i) { 
+                    imap_iterator other(*this);
+                    return other+=i;
                 }
 
                 bool operator==(imap_iterator const& other) { 

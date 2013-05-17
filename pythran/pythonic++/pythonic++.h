@@ -14,6 +14,7 @@
 #include "core/dict.h"
 #include "core/tuple.h"
 #include "core/ndarray.h"
+#include "core/finfo.h"
 #include "core/io.h"
 #include "core/file.h"
 #include "core/intrinsics.h"
@@ -42,6 +43,8 @@
 /* numpy's expression template */
 #include "core/numpy_expr.h"
 #include "modules/numpy.h"
+#include "modules/ndarray.h"
+#include "modules/finfo.h"
 
 /* extensions */
 #include "core/parallel.h"

@@ -1240,11 +1240,239 @@ namespace pythonic {
                         out[i][j] = a.buffer[j];
                 return out;
             }
+        template<class T>
+            auto diag(core::list<T> const& t, long k=0) 
+            -> decltype(diag(asarray(t),k))
+            {
+                return diag(asarray(t),k);
+            }
 
         PROXY(pythonic::numpy, diag);
 
         ALIAS(diag, diagflat);
         PROXY(pythonic::numpy, diagflat);
+
+        ALIAS(diag, diagonal);
+        PROXY(pythonic::numpy, diagonal);
+
+        template<class E>
+            typename core::numpy_expr_to_ndarray<E>::type
+            diff(E const& expr, long n=1) {
+                decltype(expr.shape) shape(expr.shape.begin(), expr.shape.end());
+                --shape[core::numpy_expr_to_ndarray<E>::N-1];
+
+                typename core::numpy_expr_to_ndarray<E>::type out(shape, None);
+                auto slice = expr.shape[-1];
+                long j = 0;
+                for(long i = 0, n = expr.size(); i< n ; i+=slice) {
+                    auto prev = expr.at(i);
+                    for(long k = 1; k< slice ; ++k) {
+                        auto nprev = expr.at(i+k);
+                        out.at(j++) = nprev - prev;
+                        prev = nprev;
+                    }
+                }
+                if(n==1) return out;
+                else return diff(out, n-1); // TODO: inplace modification to avoid n-1 allcoations
+            }
+
+        PROXY(pythonic::numpy, diff);
+
+        template<class E, class F>
+            core::ndarray< long, 1 >
+            digitize(E const& expr, F const& b) {
+                auto bins = asarray(b);
+                bool is_increasing = bins.size() > 1 and bins.at(0) < bins.at(1);
+                core::ndarray<long, 1> out(core::make_tuple(long(expr.size())), None);
+                if(is_increasing) {
+                    for(long i = 0, n = expr.size(); i< n; ++i)
+                        out.at(i) = std::lower_bound(bins.begin(), bins.end(), expr.at(i)) - bins.begin();
+                }
+                else {
+                    for(long i = 0, n = expr.size(); i< n; ++i)
+                        out.at(i) = std::lower_bound(bins.begin(), bins.end(), expr.at(i), operator_::proxy::gt()) - bins.begin();
+                }
+                return out;
+            }
+
+        PROXY(pythonic::numpy, digitize);
+
+        template<class E, class F>
+            typename std::enable_if<
+                (std::is_scalar<E>::value or is_complex<E>::value) and (std::is_scalar<F>::value or is_complex<F>::value),
+                decltype(std::declval<E>()*std::declval<F>())
+            >::type
+            dot(E const& e, F const& f)
+            {
+                return e*f;
+            }
+
+        template<class E, class F>
+            typename std::enable_if<
+                core::is_array<E>::value and core::is_array<F>::value and
+                core::numpy_expr_to_ndarray<E>::N == 1 and core::numpy_expr_to_ndarray<F>::N ==1,
+                decltype(std::declval<typename core::numpy_expr_to_ndarray<E>::type::dtype>()*std::declval<typename core::numpy_expr_to_ndarray<F>::type::dtype>())
+            >::type
+            dot(E const& e, F const& f) {
+                return sum(e*f);
+            }
+
+        template<class E, class F>
+            typename std::enable_if<
+                (std::is_scalar<E>::value or is_complex<E>::value) and (std::is_scalar<E>::value or is_complex<E>::value),
+                decltype(std::declval<E>()*std::declval<F>())
+            >::type
+            dot(core::list<E> const& e, core::list<F> const& f) {
+                return dot(asarray(e), asarray(f));
+            }
+
+        template<class E, class F>
+            typename std::enable_if<
+                (std::is_scalar<E>::value or is_complex<E>::value) and
+                core::is_array<F>::value and core::numpy_expr_to_ndarray<F>::N ==1,
+                decltype(std::declval<E>()*std::declval<typename core::numpy_expr_to_ndarray<F>::type::dtype>())
+            >::type
+            dot(F const& f,core::list<E> const& e) {
+                return dot(f, asarray(e));
+            }
+
+        template<class E, class F>
+            typename std::enable_if<
+                (std::is_scalar<E>::value or is_complex<E>::value) and
+                core::is_array<F>::value and core::numpy_expr_to_ndarray<F>::N ==1,
+                decltype(std::declval<E>()*std::declval<typename core::numpy_expr_to_ndarray<F>::type::dtype>())
+            >::type
+            dot(core::list<E> const& e, F const& f) {
+                return dot(asarray(e), f);
+            }
+
+        PROXY(pythonic::numpy, dot);
+
+        template<class E>
+            core::ndarray<typename core::numpy_expr_to_ndarray<E>::type::dtype, 1>
+            ediff1d(E const& expr)
+            {
+                long n = expr.size() -1 ;
+                core::ndarray<typename core::numpy_expr_to_ndarray<E>::type::dtype, 1> out(core::make_tuple(n), None);
+                auto prev = expr.at(0);
+                for(long i=0; i< n ; ++i) {
+                    auto next = expr.at(i+1);
+                    out.at(i) = next - prev;
+                    prev = next;
+                }
+                return out;
+            }
+
+        template<class E>
+            auto ediff1d(core::list<E> const & expr) -> decltype(ediff1d(asarray(expr))) {
+                return ediff1d(asarray(expr));
+            }
+
+        PROXY(pythonic::numpy, ediff1d);
+
+        template<class dtype = double>
+            core::ndarray<dtype, 2> eye(long N, long M=-1, long k=0, dtype d=dtype())
+            {
+                if(M<0) M = N;
+                core::ndarray<dtype, 2> out = zeros(core::make_tuple(N, M), d);
+                if(k>=0)
+                    for(int i=0, j = k; i< N and j < M; ++i, ++j)
+                        out[i][j] = dtype(1);
+                else
+                    for(int i=-k, j = 0; i< N and j < M; ++i, ++j)
+                        out[i][j] = dtype(1);
+                return out;
+            }
+
+        PROXY(pythonic::numpy, eye);
+
+        template<class dtype=double>
+            core::finfo<dtype> finfo(dtype d=dtype()) {
+                return core::finfo<dtype>();
+            }
+        PROXY(pythonic::numpy, finfo)
+
+
+            template<class E>
+            core::ndarray<long, 1> flatnonzero(E const& expr) {
+                long n = expr.size();
+                long *buffer = new long[n];
+                long *iter = buffer;
+                for(long i=0;i<n;i++) 
+                    if(expr.at(i))
+                        *iter++ = i;
+                long shape[1] = { iter - buffer };
+                return core::ndarray<long, 1>(buffer, shape, shape[0]);
+            }
+        template<class E>
+            auto flatnonzero(core::list<E> const & l)
+            -> decltype(flatnonzero(asarray(l)))
+            {
+                return flatnonzero(asarray(l));
+            }
+
+        PROXY(pythonic::numpy, flatnonzero);
+
+        template<class T, size_t N>
+            core::ndarray<T,N> fliplr(core::ndarray<T,N> const& a) {
+                static_assert(N>=2, "fliplr only works on array of dimension >= 2");
+                core::ndarray<T,N> out(a.shape, None);
+                std::copy(a.buffer, a.buffer + a.size(), out.buffer);
+                for(auto & col : out)
+                    std::reverse(col.begin(), col.end());
+                return out;
+            }
+
+        PROXY(pythonic::numpy, fliplr); // does not return a view...
+
+        template<class T, size_t N>
+            core::ndarray<T,N> flipud(core::ndarray<T,N> const& a) {
+                core::ndarray<T,N> out(a.shape, None);
+                std::reverse_copy(a.begin(), a.end(), out.begin());
+                return out;
+            }
+        PROXY(pythonic::numpy, flipud);
+
+        template<class F, class dtype=double>
+            core::ndarray<typename std::remove_cv<typename std::remove_reference<decltype(std::declval<F>()(dtype()))>::type>::type, 1>
+            fromfunction(F&& f, core::ltuple<long,1> const& shape, dtype d = dtype()) {
+                core::ndarray<typename std::remove_cv<typename std::remove_reference<decltype(f(dtype()))>::type>::type, 1> out(shape, None);
+                for(dtype i=0, n= out.shape[0]; i<n; ++i)
+                    out[i] = f(i);
+                return out;
+            }
+
+        template<class F, class dtype=double>
+            core::ndarray<typename std::remove_cv<typename std::remove_reference<decltype(std::declval<F>()(dtype(), dtype()))>::type>::type, 2>
+            fromfunction(F&& f, core::ltuple<long,2> const& shape, dtype d = dtype()) {
+                core::ndarray<typename std::remove_cv<typename std::remove_reference<decltype(f(dtype(), dtype()))>::type>::type, 2> out(shape, None);
+                for(dtype i=0, n= out.shape[0]; i<n; ++i)
+                    for(dtype j=0, m= out.shape[1]; j<m; ++j)
+                        out[i][j] = f(i,j);
+                return out;
+            }
+
+        /* must specialize for higher order */
+        PROXY(pythonic::numpy, fromfunction);
+
+        template<class Iterable, class dtype=double>
+            core::ndarray<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type::value_type, 1>
+            fromiter(Iterable&& iterable, dtype d=dtype(), long count = -1)
+            {
+                typedef typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type::value_type T;
+                if(count < 0) {
+                    core::list<T> buffer(0);
+                    std::copy(iterable.begin(), iterable.end(), std::back_inserter(buffer));
+                    return core::ndarray<T,1>(buffer);
+                }
+                else {
+                    T* buffer = new T[count];
+                    std::copy_n(iterable.begin(), count, buffer);
+                    long shape [1] = { count };
+                    return core::ndarray<T,1>(buffer, shape, shape[0]);
+                }
+            }
+        PROXY(pythonic::numpy, fromiter);
 
             template<class E>
             auto nonzero(E const& expr) -> core::ltuple<core::ndarray<long,1>, core::numpy_expr_to_ndarray<E>::N>
@@ -1622,6 +1850,9 @@ namespace pythonic {
         NP_PROXY_ALIAS(true_divide, pythonic::numpy_expr::ops::divide); 
 
         NP_PROXY(trunc);
+
+        ALIAS(trunc, fix);
+        PROXY(pythonic::numpy, fix);
 
         NP_PROXY_ALIAS(zeros_like, pythonic::numpy_expr::ops::zeros_like);
 

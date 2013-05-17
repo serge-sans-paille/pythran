@@ -224,6 +224,27 @@ class TestNumpy(TestEnv):
     def test_diff4(self):
         self.run_test("def np_diff4(): from numpy import array, diff ; x = array([1, 2, 4, 7, 0]) ; return diff(x + x)", np_diff4=[])
 
+    def test_trace0(self):
+        self.run_test("def np_trace0(): from numpy import arange, trace; x = arange(9).reshape(3,3); return trace(x)", np_trace0=[])
+
+    def test_trace1(self):
+        self.run_test("def np_trace1(): from numpy import arange, trace; x = arange(12).reshape(3,4); return trace(x, 1)", np_trace1=[])
+
+    def test_trace2(self):
+        self.run_test("def np_trace2(): from numpy import arange, trace; x = arange(12).reshape(3,4); return trace(x, 1)", np_trace2=[])
+
+    def test_tri0(self):
+        self.run_test("def np_tri0(): from numpy import tri; return tri(3)", np_tri0=[])
+
+    def test_tri1(self):
+        self.run_test("def np_tri1(): from numpy import tri; return tri(3, 4)", np_tri1=[])
+
+    def test_tri2(self):
+        self.run_test("def np_tri2(): from numpy import tri; return tri(4, 3, -1)", np_tri2=[])
+
+    def test_tri3(self):
+        self.run_test("def np_tri3(): from numpy import tri, int64; return tri(3, 5, 1, int64)", np_tri3=[])
+
     def test_trim_zeros0(self):
         self.run_test("""
 def np_trim_zeros0():

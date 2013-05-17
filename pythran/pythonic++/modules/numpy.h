@@ -2082,6 +2082,33 @@ namespace pythonic {
         NUMPY_EXPR_TO_NDARRAY0(trim_zeros)
         PROXY(pythonic::numpy, trim_zeros)
 
+        template<class dtype = double>
+        core::ndarray<dtype, 2> tri(int N, int M=-1, int k=0, dtype d=dtype())
+        {
+            if(M==-1)
+                M = N;
+           core::ndarray<dtype, 2> out(core::ltuple<long, 2>({N, M}), 0); 
+            for(int i=0; i<N; ++i)
+                for(long j=0 ; j<M; ++j)
+                    if( j - i <= k)
+                        out.buffer[i * M + j] = 1;
+            return out;
+        }
+
+        PROXY(pythonic::numpy, tri)
+
+        template<class T>
+            T trace(core::ndarray<T,2> const& expr, int offset=0)
+            {
+                T res = 0;
+                long size = std::min(expr.shape[0] + std::min(offset, 0), expr.shape[1] - std::max(0, offset));
+                for(int i=0; i<size; ++i)
+                    res += expr.buffer[i * expr.shape[1] + i + offset];
+                return res;
+            }
+        NUMPY_EXPR_TO_NDARRAY0(trace)
+        PROXY(pythonic::numpy, trace)
+
         NP_PROXY_ALIAS(arccos, nt2::acos);
 
         NP_PROXY_ALIAS(arccosh, nt2::acosh);

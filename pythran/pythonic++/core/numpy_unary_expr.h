@@ -10,6 +10,10 @@ numpy_uexpr<NUMPY_UNARY_FUNC_SYM, ndarray<T,N>> NUMPY_UNARY_FUNC_NAME(ndarray<T,
     return numpy_uexpr<NUMPY_UNARY_FUNC_SYM, ndarray<T,N>>(self);
 }
 template<class T>
+numpy_uexpr<NUMPY_UNARY_FUNC_SYM, typename numpy_expr_to_ndarray<list<T>>::type> NUMPY_UNARY_FUNC_NAME(list<T> const & self) {
+    return numpy_uexpr<NUMPY_UNARY_FUNC_SYM, typename numpy_expr_to_ndarray<list<T>>::type>(typename numpy_expr_to_ndarray<list<T>>::type(self));
+}
+template<class T>
 numpy_uexpr<NUMPY_UNARY_FUNC_SYM, sliced_ndarray<T>> NUMPY_UNARY_FUNC_NAME(sliced_ndarray<T> const & self) {
     return numpy_uexpr<NUMPY_UNARY_FUNC_SYM, sliced_ndarray<T>>(self);
 }

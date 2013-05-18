@@ -1192,8 +1192,18 @@ struct c_type_to_numpy_type<int> {
 };
 
 template<>
+struct c_type_to_numpy_type<unsigned int> {
+    static const int value = NPY_UINT;
+};
+
+template<>
 struct c_type_to_numpy_type<signed char> {
     static const int value = NPY_INT8;
+};
+
+template<>
+struct c_type_to_numpy_type<unsigned char> {
+    static const int value = NPY_UINT8;
 };
 
 template<>

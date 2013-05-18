@@ -1474,6 +1474,73 @@ namespace pythonic {
             }
         PROXY(pythonic::numpy, fromiter);
 
+        template<class dtype=double>
+            core::ndarray<dtype,1> fromstring(core::string const& string, dtype d=dtype(), long count = -1 , core::string const& sep = "") {
+                if(sep) {
+                    core::list<dtype> res(0);
+                    if(count<0) count = std::numeric_limits<long>::max();
+                    else res.reserve(count);
+                    size_t current;
+                    size_t next = -1;
+                    long numsplit = 0;
+                    do {
+                        current = next + 1;
+                        next = string.find_first_of( sep, current );
+                        dtype item;
+                        std::istringstream iss(string.substr( current, next - current ));
+                        iss >> item;
+                        res.push_back(item);
+                    }
+                    while (next != core::string::npos && ++numsplit<count);
+                    return core::ndarray<dtype, 1>(res);
+                }
+                else {
+                    if(count <0) count = string.size();
+                    long shape[1] = { count };
+                    dtype* buffer = new dtype[shape[0]];
+                    dtype const* tstring = reinterpret_cast<dtype const*>(&string[0]);
+                    std::copy(tstring, tstring + shape[0], buffer);
+                    return core::ndarray<dtype,1>(buffer, shape, shape[0]);
+                }
+            }
+
+        PROXY(pythonic::numpy, fromstring);
+
+        template<class dtype=double>
+            auto identity(long n, dtype d=dtype()) -> decltype(eye(n,n,0,d)) {
+                return eye(n,n,0,d);
+            }
+        PROXY(pythonic::numpy, identity);
+
+        template<size_t N, class dtype=long>
+            core::ndarray<dtype, N+1> indices(core::ltuple<long, N> const& shape, dtype d = dtype()) {
+                core::ltuple<long, N+1> oshape;
+                oshape[0] = N ;
+                std::copy(shape.begin(), shape.end(), oshape.begin() + 1);
+                core::ndarray<dtype, N+1> out(oshape, None);
+                dtype* iters[N];
+                for(size_t n=0; n<N; ++n) 
+                    iters[n]=out[n].buffer;
+                size_t lens[N];
+                lens[0] = out.size() / shape[0];
+                for(size_t n=1; n<N; ++n) 
+                    lens[n] = lens[n-1] / shape[n];
+                for(long i=0, n=out.size()/N; i<n;i++) {
+                        long mult = 1;
+                        for(long n=N-1; n>0; n--) {
+                            *(iters[n]++) = (i/mult)%shape[n];
+                            mult *= shape[n];
+                        }
+                        *(iters[0]++) = i/mult;
+                }
+                return out;
+            }
+
+        PROXY(pythonic::numpy, indices);
+
+        ALIAS(dot, inner); // only for scalar and 1D case
+        PROXY(pythonic::numpy, inner);
+
             template<class E>
             auto nonzero(E const& expr) -> core::ltuple<core::ndarray<long,1>, core::numpy_expr_to_ndarray<E>::N>
             {

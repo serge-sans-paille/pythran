@@ -3,6 +3,32 @@ from test_env import TestEnv
 import numpy
 
 class TestNumpy(TestEnv):
+    def test_inner0(self):
+        self.run_test("def np_inner0(): from numpy import array, inner ; x, y = 2, 3 ; return inner(x,y)", np_inner0=[])
+
+    def test_inner1(self):
+        self.run_test("def np_inner1(): from numpy import array, inner ; x, y = [2, 3], [2, 3] ; return inner(x,y)", np_inner1=[])
+
+    def test_indices0(self):
+        self.run_test("def np_indices0(): from numpy import indices ; s = (2,3) ; return indices(s)", np_indices0=[])
+    def test_identity0(self):
+        self.run_test("def np_identity0(): from numpy import identity ; a = 3; return identity(a)", np_identity0=[])
+
+    def test_identity1(self):
+        self.run_test("def np_identity1(): from numpy import identity, uint8 ; a = 4; return identity(a)", np_identity1=[])
+
+    def test_fromstring0(self):
+        self.run_test("def np_fromstring0(): from numpy import fromstring, uint8 ; a = '\x01\x02' ; return fromstring(a, uint8)", np_fromstring0=[])
+
+    def test_fromstring1(self):
+        self.run_test("def np_fromstring1(): from numpy import fromstring, uint8 ; a = '\x01\x02\x03\x04' ; return fromstring(a, uint8,3)", np_fromstring1=[])
+
+    def test_fromstring2(self):
+        self.run_test("def np_fromstring2(): from numpy import fromstring, uint32 ; a = '1 2 3 4' ; return fromstring(a, uint32,-1, ' ')", np_fromstring2=[])
+
+    def test_fromstring3(self):
+        self.run_test("def np_fromstring3(): from numpy import fromstring, uint32 ; a = '1,2, 3, 4' ; return fromstring(a, uint32,2, ',')", np_fromstring3=[])
+
     def test_fromiter0(self):
         self.run_test("def g(): yield 1 ; yield 2\ndef np_fromiter0(): from numpy import fromiter, float32 ; iterable = g() ; return fromiter(iterable, float32)", np_fromiter0=[])
 

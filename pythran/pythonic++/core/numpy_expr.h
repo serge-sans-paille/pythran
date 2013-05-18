@@ -31,6 +31,8 @@
 #include <nt2/include/functions/scalar/is_finite.hpp>
 #include <nt2/include/functions/scalar/is_inf.hpp>
 #include <nt2/include/functions/scalar/is_nan.hpp>
+#include <nt2/include/functions/scalar/is_negative.hpp>
+#include <nt2/include/functions/scalar/is_positive.hpp>
 #include <nt2/include/functions/scalar/ldexp.hpp>
 #include <nt2/include/functions/scalar/log.hpp>
 #include <nt2/include/functions/scalar/log10.hpp>
@@ -84,6 +86,8 @@
 #include <nt2/include/functions/simd/is_finite.hpp>
 #include <nt2/include/functions/simd/is_inf.hpp>
 #include <nt2/include/functions/simd/is_nan.hpp>
+#include <nt2/include/functions/simd/is_negative.hpp>
+#include <nt2/include/functions/simd/is_positive.hpp>
 #include <nt2/include/functions/simd/ldexp.hpp>
 #include <nt2/include/functions/simd/log.hpp>
 #include <nt2/include/functions/simd/log10.hpp>
@@ -159,6 +163,16 @@ namespace  pythonic {
             template<class T0, class T1>
                 auto greater_equal(T0 const& t0, T1 const& t1) -> decltype(t0 >= t1) {
                     return t0 >= t1;
+                }
+
+            template<class T>
+                auto isneginf(T const& t) -> decltype(nt2::is_inf(t) and nt2::is_negative(t)) {
+                    return nt2::is_inf(t) and nt2::is_negative(t);
+                }
+
+            template<class T>
+                auto isposinf(T const& t) -> decltype(nt2::is_inf(t) and nt2::is_positive(t)) {
+                    return nt2::is_inf(t) and nt2::is_positive(t);
                 }
 
             template<class T0, class T1>
@@ -507,6 +521,16 @@ namespace  pythonic {
             PROXY(nt2, is_nan)
 #define NUMPY_UNARY_FUNC_NAME isnan
 #define NUMPY_UNARY_FUNC_SYM proxy::is_nan
+#include "numpy_unary_expr.h"
+
+            PROXY(pythonic::numpy_expr::ops, isneginf)
+#define NUMPY_UNARY_FUNC_NAME isneginf
+#define NUMPY_UNARY_FUNC_SYM proxy::isneginf
+#include "numpy_unary_expr.h"
+
+            PROXY(pythonic::numpy_expr::ops, isposinf)
+#define NUMPY_UNARY_FUNC_NAME isposinf
+#define NUMPY_UNARY_FUNC_SYM proxy::isposinf
 #include "numpy_unary_expr.h"
 
             PROXY(nt2, ldexp)

@@ -3,6 +3,126 @@ from test_env import TestEnv
 import numpy
 
 class TestNumpy(TestEnv):
+    def test_nanargmax0(self):
+        self.run_test("def np_nanargmax0(): from numpy import array, nanargmax, nan ; a = array([[nan, 4], [2, 3]]) ; return nanargmax(a)", np_nanargmax0=[])
+
+    def test_nanargmin0(self):
+        self.run_test("def np_nanargmin0(): from numpy import array, nanargmin, nan ; a = array([[nan, 4], [2, 3]]) ; return nanargmin(a)", np_nanargmin0=[])
+
+    def test_nan_to_num0(self):
+        self.run_test("def np_nan_to_num0(): import numpy as np ; a = np.array([np.inf, -np.inf, np.nan, -128, 128]) ; return np.nan_to_num(a)", np_nan_to_num0=[])
+
+    def test_median0(self):
+        self.run_test("def np_median0(): from numpy import array, median ; a = array([[1, 2], [3, 4]]) ; return median(a)", np_median0=[])
+
+    def test_median1(self):
+        self.run_test("def np_median1(): from numpy import array, median ; a = array([1, 2, 3, 4,5]) ; return median(a)", np_median1=[])
+
+    def test_mean0(self):
+        self.run_test("def np_mean0(): from numpy import array, mean ; a = array([[1, 2], [3, 4]]) ; return mean(a)", np_mean0=[])
+
+    def test_logspace0(self):
+        self.run_test("def np_logspace0(): from numpy import logspace ; start, stop = 3., 4. ; return logspace(start, stop, 4)", np_logspace0=[])
+
+    def test_logspace1(self):
+        self.run_test("def np_logspace1(): from numpy import logspace ; start, stop = 3., 4. ; return logspace(start, stop, 4, False)", np_logspace1=[])
+
+    def test_logspace2(self):
+        self.run_test("def np_logspace2(): from numpy import logspace ; start, stop = 3., 4. ; return logspace(start, stop, 4, True, 2.0)", np_logspace2=[])
+
+    def test_lexsort0(self):
+        self.run_test("def np_lexsort0(): from numpy import lexsort ; surnames =    ('Hertz',    'Galilei', 'Hertz') ; first_names = ('Heinrich', 'Galileo', 'Gustav') ; return lexsort((first_names, surnames))", np_lexsort0=[])
+
+    def test_lexsort1(self):
+        self.run_test("def np_lexsort1(): from numpy import lexsort ; a  = [1,5,1,4,3,4,4]; b = [9,4,0,4,0,2,1] ; return lexsort((a,b))", np_lexsort1=[])
+
+    def test_item0(self):
+        self.run_test("def np_item0(): from numpy import array ; a = array([[3, 1, 7],[2, 8, 3],[8, 5, 3]]) ; return a.item(3)", np_item0=[])
+
+    def test_item1(self):
+        self.run_test("def np_item1(): from numpy import array ; a = array([[3, 1, 7],[2, 8, 3],[8, 5, 3]]) ; return a.item(7)", np_item1=[])
+
+    def test_item2(self):
+        self.run_test("def np_item2(): from numpy import array ; a = array([[3, 1, 7],[2, 8, 3],[8, 5, 3]]) ; return a.item((0,1))", np_item2=[])
+
+    def test_item3(self):
+        self.run_test("def np_item3(): from numpy import array ; a = array([[3, 1, 7],[2, 8, 3],[8, 5, 3]]) ; return a.item((2,2))", np_item3=[])
+
+    def test_issctype0(self):
+        self.run_test("def np_issctype0(): from numpy import issctype, int32 ; a = int32 ; return issctype(a)", np_issctype0=[])
+
+    def test_issctype1(self):
+        self.run_test("def np_issctype1(): from numpy import issctype ; a = list ; return issctype(a)", np_issctype1=[])
+
+    @unittest.skip('NIY')
+    def test_issctype2(self):
+        self.run_test("def np_issctype2(): from numpy import issctype ; a = 3.1 ; return issctype(a)", np_issctype2=[])
+
+    def test_isscalar0(self):
+        self.run_test("def np_isscalar0(): from numpy import isscalar ; a = 3.1 ; return isscalar(a)", np_isscalar0=[])
+
+    def test_isscalar1(self):
+        self.run_test("def np_isscalar1(): from numpy import isscalar ; a = [3.1] ; return isscalar(a)", np_isscalar1=[])
+
+    def test_isscalar2(self):
+        self.run_test("def np_isscalar2(): from numpy import isscalar ; a = '3.1' ; return isscalar(a)", np_isscalar2=[])
+
+    def test_isrealobj0(self):
+        self.run_test("def np_isrealobj0(): from numpy import array, isrealobj ; a = array([1,2,3.]) ; return isrealobj(a)", np_isrealobj0=[])
+
+    def test_isrealobj1(self):
+        self.run_test("def np_isrealobj1(): from numpy import array, isrealobj ; a = array([1,2,3.,4 + 1j]).reshape(2,2) ; return isrealobj(a)", np_isrealobj1=[])
+
+    def test_isreal0(self):
+        self.run_test("def np_isreal0(): from numpy import array, isreal ; a = array([1,2,3.]) ; return isreal(a)", np_isreal0=[])
+
+    def test_isreal1(self):
+        self.run_test("def np_isreal1(): from numpy import array, isreal ; a = array([1,2,3.,4 + 1j]).reshape(2,2) ; return isreal(a)", np_isreal1=[])
+
+    def test_iscomplex0(self):
+        self.run_test("def np_iscomplex0(): from numpy import array, iscomplex ; a = array([1,2,3.]) ; return iscomplex(a)", np_iscomplex0=[])
+
+    def test_iscomplex1(self):
+        self.run_test("def np_iscomplex1(): from numpy import array, iscomplex ; a = array([1,2,3.,4 + 1j]).reshape(2,2) ; return iscomplex(a)", np_iscomplex1=[])
+
+    def test_intersect1d0(self):
+        self.run_test("def np_intersect1d0(): from numpy import intersect1d ; a,b = [1, 3, 4, 3], [3, 1, 2, 1] ; return intersect1d(a,b)", np_intersect1d0=[])
+
+    def test_insert0(self):
+        self.run_test("def np_insert0(): from numpy import array, insert ; a = array([[1, 1], [2, 2], [3, 3]]) ; return insert(a, 1, 5)", np_insert0=[])
+
+    def test_insert1(self):
+        self.run_test("def np_insert1(): from numpy import array, insert ; a = array([[1, 1], [2, 2], [3, 3]]) ; return insert(a, [1,2], [5,6])", np_insert1=[])
+
+    def test_insert2(self):
+        self.run_test("def np_insert2(): from numpy import array, insert ; a = array([[1, 1], [2, 2], [3, 3]]) ; return insert(a, [1,1], [5.2,6,7])", np_insert2=[])
+
+    def test_inner0(self):
+        self.run_test("def np_inner0(): from numpy import array, inner ; x, y = 2, 3 ; return inner(x,y)", np_inner0=[])
+
+    def test_inner1(self):
+        self.run_test("def np_inner1(): from numpy import array, inner ; x, y = [2, 3], [2, 3] ; return inner(x,y)", np_inner1=[])
+
+    def test_indices0(self):
+        self.run_test("def np_indices0(): from numpy import indices ; s = (2,3) ; return indices(s)", np_indices0=[])
+    def test_identity0(self):
+        self.run_test("def np_identity0(): from numpy import identity ; a = 3; return identity(a)", np_identity0=[])
+
+    def test_identity1(self):
+        self.run_test("def np_identity1(): from numpy import identity, uint8 ; a = 4; return identity(a)", np_identity1=[])
+
+    def test_fromstring0(self):
+        self.run_test("def np_fromstring0(): from numpy import fromstring, uint8 ; a = '\x01\x02' ; return fromstring(a, uint8)", np_fromstring0=[])
+
+    def test_fromstring1(self):
+        self.run_test("def np_fromstring1(): from numpy import fromstring, uint8 ; a = '\x01\x02\x03\x04' ; return fromstring(a, uint8,3)", np_fromstring1=[])
+
+    def test_fromstring2(self):
+        self.run_test("def np_fromstring2(): from numpy import fromstring, uint32 ; a = '1 2 3 4' ; return fromstring(a, uint32,-1, ' ')", np_fromstring2=[])
+
+    def test_fromstring3(self):
+        self.run_test("def np_fromstring3(): from numpy import fromstring, uint32 ; a = '1,2, 3, 4' ; return fromstring(a, uint32,2, ',')", np_fromstring3=[])
+
     def test_fromiter0(self):
         self.run_test("def g(): yield 1 ; yield 2\ndef np_fromiter0(): from numpy import fromiter, float32 ; iterable = g() ; return fromiter(iterable, float32)", np_fromiter0=[])
 
@@ -892,7 +1012,7 @@ unary_ufunc = (
         'deg2rad', 'degrees',
         'exp', 'expm1',
         'fabs', 'floor',
-        'isinf', 'isnan', 'invert', 'isfinite',
+        'isinf', 'isneginf', 'isposinf', 'isnan', 'invert', 'isfinite',
         'log10', 'log1p', 'log2', 'logical_not',
         'negative',
         'rad2deg', 'radians','reciprocal', 'rint', 

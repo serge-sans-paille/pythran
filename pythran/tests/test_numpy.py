@@ -3,6 +3,25 @@ from test_env import TestEnv
 import numpy
 
 class TestNumpy(TestEnv):
+    def test_iscomplex0(self):
+        self.run_test("def np_iscomplex0(): from numpy import array, iscomplex ; a = array([1,2,3.]) ; return iscomplex(a)", np_iscomplex0=[])
+
+    def test_iscomplex1(self):
+        self.run_test("def np_iscomplex1(): from numpy import array, iscomplex ; a = array([1,2,3.,4 + 1j]).reshape(2,2) ; return iscomplex(a)", np_iscomplex1=[])
+
+
+    def test_intersect1d0(self):
+        self.run_test("def np_intersect1d0(): from numpy import intersect1d ; a,b = [1, 3, 4, 3], [3, 1, 2, 1] ; return intersect1d(a,b)", np_intersect1d0=[])
+
+    def test_insert0(self):
+        self.run_test("def np_insert0(): from numpy import array, insert ; a = array([[1, 1], [2, 2], [3, 3]]) ; return insert(a, 1, 5)", np_insert0=[])
+
+    def test_insert1(self):
+        self.run_test("def np_insert1(): from numpy import array, insert ; a = array([[1, 1], [2, 2], [3, 3]]) ; return insert(a, [1,2], [5,6])", np_insert1=[])
+
+    def test_insert2(self):
+        self.run_test("def np_insert2(): from numpy import array, insert ; a = array([[1, 1], [2, 2], [3, 3]]) ; return insert(a, [1,1], [5.2,6,7])", np_insert2=[])
+
     def test_inner0(self):
         self.run_test("def np_inner0(): from numpy import array, inner ; x, y = 2, 3 ; return inner(x,y)", np_inner0=[])
 
@@ -920,7 +939,7 @@ unary_ufunc = (
         'deg2rad', 'degrees',
         'exp', 'expm1',
         'fabs', 'floor',
-        'isinf', 'isnan', 'invert', 'isfinite',
+        'isinf', 'isneginf', 'isposinf', 'isnan', 'invert', 'isfinite',
         'log10', 'log1p', 'log2', 'logical_not',
         'negative',
         'rad2deg', 'radians','reciprocal', 'rint', 

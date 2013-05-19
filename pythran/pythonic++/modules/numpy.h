@@ -1541,6 +1541,94 @@ namespace pythonic {
         ALIAS(dot, inner); // only for scalar and 1D case
         PROXY(pythonic::numpy, inner);
 
+        template<class T, size_t N, class I, class F>
+            typename std::enable_if<is_iterable<I>::value and is_iterable<F>::value, core::ndarray<T,1>>::type
+            insert(core::ndarray<T,N> const& in, I const& indices, F const& data, none_type axis=None)
+            {
+                core::ndarray<T,1> out(core::make_tuple(long(in.size()+std::min(indices.size(), data.size()))), None);
+                auto out_iter = out.buffer;
+                auto in_iter = in.buffer;
+                auto data_iter = data.begin();
+                for(long index : indices) {
+                    out_iter = std::copy(in_iter, in.buffer + index, out_iter);
+                    *out_iter++ = *data_iter++;
+                    in_iter = in.buffer + index;
+                }
+                std::copy(in_iter, in.buffer + in.size(), out_iter);
+                return out;
+            }
+        template<class T, size_t N, class I, class F>
+            typename std::enable_if<is_iterable<I>::value and not is_iterable<F>::value, core::ndarray<T,1>>::type
+            insert(core::ndarray<T,N> const& in, I const& indices, F const& data, none_type axis=None)
+            {
+                return insert(in, indices, core::list<F>({data}), axis);
+            }
+        template<class T, size_t N, class I, class F>
+            typename std::enable_if<not is_iterable<I>::value and is_iterable<F>::value, core::ndarray<T,1>>::type
+            insert(core::ndarray<T,N> const& in, I const& indices, F const& data, none_type axis=None)
+            {
+                return insert(in, core::list<I>({indices}), {data}, axis);
+            }
+        template<class T, size_t N, class I, class F>
+            typename std::enable_if<not is_iterable<I>::value and not is_iterable<F>::value, core::ndarray<T,1>>::type
+            insert(core::ndarray<T,N> const& in, I const& indices, F const& data, none_type axis=None)
+            {
+                return insert(in, core::list<I>({indices}), core::list<F>({data}), axis);
+            }
+
+        PROXY(pythonic::numpy, insert);
+
+        template<class E, class F>
+            core::ndarray<
+                decltype(std::declval<typename core::numpy_expr_to_ndarray<E>::type::dtype>()
+                        +
+                        std::declval<typename core::numpy_expr_to_ndarray<F>::type::dtype>()),
+                1>
+                    intersect1d(E const& e, F const& f)
+                    {
+                        typedef decltype(std::declval<typename core::numpy_expr_to_ndarray<E>::type::dtype>()
+                                +
+                                std::declval<typename core::numpy_expr_to_ndarray<F>::type::dtype>()) T;
+                        auto ae = asarray(e);
+                        auto af = asarray(f);
+                        std::set<T> sae(ae.buffer, ae.buffer + ae.size());
+                        std::set<T> found;
+                        core::list<T> lout(0);
+                        lout.reserve(sae.size());
+                        for(long i=0, n = af.size(); i<n; ++i)
+                            if(sae.find(af.at(i)) != sae.end() and found.find(af.at(i)) == found.end()) {
+                                found.insert(af.at(i));
+                                lout.push_back(af.at(i));
+                            }
+                        std::sort(lout.begin(), lout.end());
+                        return core::ndarray<T, 1> (lout);
+                    }
+
+        PROXY(pythonic::numpy, intersect1d);
+
+        template<class E>
+            typename std::enable_if<
+                    is_complex<typename core::numpy_expr_to_ndarray<E>::type::dtype>::value,
+                    core::ndarray<bool, core::numpy_expr_to_ndarray<E>::N>
+                        >::type
+            iscomplex(E const& expr) {
+                core::ndarray<bool, core::numpy_expr_to_ndarray<E>::N> out(expr.shape, None);
+                for(long i=0, n=expr.size(); i<n; ++i)
+                    out.at(i) = expr.at(i).imag();
+                return out;
+            }
+
+        template<class E>
+            typename std::enable_if<
+                    not is_complex<typename core::numpy_expr_to_ndarray<E>::type::dtype>::value,
+                    core::ndarray<bool, core::numpy_expr_to_ndarray<E>::N>
+                        >::type
+            iscomplex(E const& expr) {
+                return core::ndarray<bool, core::numpy_expr_to_ndarray<E>::N>(expr.shape, false); 
+            }
+
+        PROXY(pythonic::numpy, iscomplex);
+
             template<class E>
             auto nonzero(E const& expr) -> core::ltuple<core::ndarray<long,1>, core::numpy_expr_to_ndarray<E>::N>
             {
@@ -1837,6 +1925,10 @@ namespace pythonic {
         NP_PROXY_ALIAS(isinf, nt2::is_inf);
 
         NP_PROXY_ALIAS(isnan, nt2::is_nan);
+
+        NP_PROXY_ALIAS(isneginf, pythonic::numpy_expr::ops::isneginf); 
+
+        NP_PROXY_ALIAS(isposinf, pythonic::numpy_expr::ops::isposinf); 
 
         NP_PROXY(ldexp);
 

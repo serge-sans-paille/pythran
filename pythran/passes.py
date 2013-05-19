@@ -842,11 +842,10 @@ class ExpandImports(Transformation):
         return node
 
     def visit_Assign(self, node):
-        self.visit(node.value)
-        [self.visit(n) for n in node.targets]
+        new_node = self.generic_visit(node)
         [self.symbols.pop(t.id, None)
-                for t in node.targets if isinstance(t, ast.Name)]
-        return node
+                for t in new_node.targets if isinstance(t, ast.Name)]
+        return new_node
 
     def visit_Name(self, node):
         if node.id in self.symbols:

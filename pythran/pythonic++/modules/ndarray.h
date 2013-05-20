@@ -23,6 +23,7 @@ namespace pythonic {
             }
 
         PROXY(pythonic::__ndarray__, flatten);
+
         template<class E>
             auto item(E&& expr, long i) -> decltype(expr.at(i))
             {
@@ -35,7 +36,42 @@ namespace pythonic {
             }
         PROXY(pythonic::__ndarray__, item);
 
-                
+        template<class T, size_t N>
+            core::string tostring(core::ndarray<T,N> const& expr)
+            {
+                return core::string(reinterpret_cast<const char*>(expr.buffer), expr.size() * sizeof(T));
+            }
+        NUMPY_EXPR_TO_NDARRAY0(tostring);
+        PROXY(pythonic::__ndarray__, tostring);
+
+        template<class T, size_t N>
+            struct tolist_type
+            {
+                typedef core::list<typename tolist_type<T, N-1>::type> type;
+            };
+
+        template<class T>
+            struct tolist_type<T, 1>
+            {
+                typedef core::list<T> type;
+            };
+
+        template<class T>
+            core::list<T> tolist(core::ndarray<T,1> const& expr)
+            {
+                return core::list<T>(expr.buffer, expr.buffer + expr.size());
+            }
+
+        template<class T, size_t N>
+            typename tolist_type<T, N>::type tolist(core::ndarray<T,N> const& expr)
+            {
+                typename tolist_type<T, N>::type out(0);
+                for(core::ndarray<T,N-1> const& elts: expr)
+                    out.push_back(tolist(elts));
+                return out;
+            }
+        NUMPY_EXPR_TO_NDARRAY0(tolist);
+        PROXY(pythonic::__ndarray__, tolist);
     }
 }
 #endif

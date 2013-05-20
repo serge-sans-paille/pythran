@@ -970,7 +970,7 @@ struct pythran_to_python<none_type> {
 
 struct custom_core_string_to_str{
     static PyObject* convert(const core::string& v){
-        return PyString_FromString(v.c_str());
+        return PyString_FromStringAndSize(v.c_str(), v.size());
     }
 };
 

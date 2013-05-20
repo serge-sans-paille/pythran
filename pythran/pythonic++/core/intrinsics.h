@@ -793,9 +793,11 @@ namespace pythonic {
         PROXY(pythonic::__builtin__, ord);
 
     }
+
     /* constructor */
     template<typename T>
         struct constructor {
+            typedef T type;
             template<class V>
                 T operator()(V&& v) {
                     return T(std::forward<V>(v));

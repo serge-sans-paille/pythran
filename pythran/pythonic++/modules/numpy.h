@@ -1629,6 +1629,73 @@ namespace pythonic {
 
         PROXY(pythonic::numpy, iscomplex);
 
+        template<class E>
+            typename std::enable_if<
+                    is_complex<typename core::numpy_expr_to_ndarray<E>::type::dtype>::value,
+                    core::ndarray<bool, core::numpy_expr_to_ndarray<E>::N>
+                        >::type
+            isreal(E const& expr) {
+                core::ndarray<bool, core::numpy_expr_to_ndarray<E>::N> out(expr.shape, None);
+                for(long i=0, n=expr.size(); i<n; ++i)
+                    out.at(i) = not expr.at(i).imag();
+                return out;
+            }
+
+        template<class E>
+            typename std::enable_if<
+                    not is_complex<typename core::numpy_expr_to_ndarray<E>::type::dtype>::value,
+                    core::ndarray<bool, core::numpy_expr_to_ndarray<E>::N>
+                        >::type
+            isreal(E const& expr) {
+                return core::ndarray<bool, core::numpy_expr_to_ndarray<E>::N>(expr.shape, true); 
+            }
+
+        PROXY(pythonic::numpy, isreal);
+
+        template<class E>
+            constexpr bool isrealobj(E const& expr) {
+                return not is_complex<typename core::numpy_expr_to_ndarray<E>::type::dtype>::value ;
+            }
+
+        PROXY(pythonic::numpy, isrealobj);
+
+        template<class E>
+            constexpr bool isscalar(E const&) {
+                return std::is_scalar<E>::value or is_complex<E>::value or std::is_same<E, core::string>::value;
+            }
+        PROXY(pythonic::numpy, isscalar);
+
+        template<class E>
+            constexpr bool issctype(E const& expr) {
+                return isscalar(expr); // types are represented as an instance of the type...
+            }
+        PROXY(pythonic::numpy, issctype);
+
+        template<class K>
+            struct lexcmp {
+                K const& keys;
+                lexcmp(K const& keys) : keys(keys) {
+                }
+                bool operator()(long i0, long i1) {
+                    for(long i= keys.size() -1; i>=0; --i)
+                        if(keys[i][i0] < keys[i][i1]) return true;
+                        else if(keys[i][i0] > keys[i][i1]) return false;
+                    return false;
+                }
+            };
+
+        template<class T, size_t N>
+            core::ndarray<long, 1> lexsort(core::ltuple<T, N> const& keys) {
+                long n = keys[0].size();
+                core::ndarray<long, 1> out(core::make_tuple(n), None);
+                // fill with the original indices
+                std::iota(out.buffer, out.buffer + n, 0L);
+                // then sort using keys as the comparator
+                std::sort(out.buffer, out.buffer +n, lexcmp<core::ltuple<T, N>>(keys));
+                return out;
+            }
+        PROXY(pythonic::numpy, lexsort)
+
             template<class E>
             auto nonzero(E const& expr) -> core::ltuple<core::ndarray<long,1>, core::numpy_expr_to_ndarray<E>::N>
             {

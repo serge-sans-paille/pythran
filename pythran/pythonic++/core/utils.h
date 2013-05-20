@@ -5,6 +5,7 @@
 #include <iterator>
 #include <complex>
 
+
 // overload is_scalar to consider complex has scalar types
 template<class T>
 struct is_complex {

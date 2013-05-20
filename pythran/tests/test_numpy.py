@@ -3,12 +3,60 @@ from test_env import TestEnv
 import numpy
 
 class TestNumpy(TestEnv):
+    def test_lexsort0(self):
+        self.run_test("def np_lexsort0(): from numpy import lexsort ; surnames =    ('Hertz',    'Galilei', 'Hertz') ; first_names = ('Heinrich', 'Galileo', 'Gustav') ; return lexsort((first_names, surnames))", np_lexsort0=[])
+
+    def test_lexsort1(self):
+        self.run_test("def np_lexsort1(): from numpy import lexsort ; a  = [1,5,1,4,3,4,4]; b = [9,4,0,4,0,2,1] ; return lexsort((a,b))", np_lexsort1=[])
+
+    def test_item0(self):
+        self.run_test("def np_item0(): from numpy import array ; a = array([[3, 1, 7],[2, 8, 3],[8, 5, 3]]) ; return a.item(3)", np_item0=[])
+
+    def test_item1(self):
+        self.run_test("def np_item1(): from numpy import array ; a = array([[3, 1, 7],[2, 8, 3],[8, 5, 3]]) ; return a.item(7)", np_item1=[])
+
+    def test_item2(self):
+        self.run_test("def np_item2(): from numpy import array ; a = array([[3, 1, 7],[2, 8, 3],[8, 5, 3]]) ; return a.item((0,1))", np_item2=[])
+
+    def test_item3(self):
+        self.run_test("def np_item3(): from numpy import array ; a = array([[3, 1, 7],[2, 8, 3],[8, 5, 3]]) ; return a.item((2,2))", np_item3=[])
+
+    def test_issctype0(self):
+        self.run_test("def np_issctype0(): from numpy import issctype, int32 ; a = int32 ; return issctype(a)", np_issctype0=[])
+
+    def test_issctype1(self):
+        self.run_test("def np_issctype1(): from numpy import issctype ; a = list ; return issctype(a)", np_issctype1=[])
+
+    @unittest.skip('NIY')
+    def test_issctype2(self):
+        self.run_test("def np_issctype2(): from numpy import issctype ; a = 3.1 ; return issctype(a)", np_issctype2=[])
+
+    def test_isscalar0(self):
+        self.run_test("def np_isscalar0(): from numpy import isscalar ; a = 3.1 ; return isscalar(a)", np_isscalar0=[])
+
+    def test_isscalar1(self):
+        self.run_test("def np_isscalar1(): from numpy import isscalar ; a = [3.1] ; return isscalar(a)", np_isscalar1=[])
+
+    def test_isscalar2(self):
+        self.run_test("def np_isscalar2(): from numpy import isscalar ; a = '3.1' ; return isscalar(a)", np_isscalar2=[])
+
+    def test_isrealobj0(self):
+        self.run_test("def np_isrealobj0(): from numpy import array, isrealobj ; a = array([1,2,3.]) ; return isrealobj(a)", np_isrealobj0=[])
+
+    def test_isrealobj1(self):
+        self.run_test("def np_isrealobj1(): from numpy import array, isrealobj ; a = array([1,2,3.,4 + 1j]).reshape(2,2) ; return isrealobj(a)", np_isrealobj1=[])
+
+    def test_isreal0(self):
+        self.run_test("def np_isreal0(): from numpy import array, isreal ; a = array([1,2,3.]) ; return isreal(a)", np_isreal0=[])
+
+    def test_isreal1(self):
+        self.run_test("def np_isreal1(): from numpy import array, isreal ; a = array([1,2,3.,4 + 1j]).reshape(2,2) ; return isreal(a)", np_isreal1=[])
+
     def test_iscomplex0(self):
         self.run_test("def np_iscomplex0(): from numpy import array, iscomplex ; a = array([1,2,3.]) ; return iscomplex(a)", np_iscomplex0=[])
 
     def test_iscomplex1(self):
         self.run_test("def np_iscomplex1(): from numpy import array, iscomplex ; a = array([1,2,3.,4 + 1j]).reshape(2,2) ; return iscomplex(a)", np_iscomplex1=[])
-
 
     def test_intersect1d0(self):
         self.run_test("def np_intersect1d0(): from numpy import intersect1d ; a,b = [1, 3, 4, 3], [3, 1, 2, 1] ; return intersect1d(a,b)", np_intersect1d0=[])

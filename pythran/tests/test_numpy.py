@@ -3,6 +3,33 @@ from test_env import TestEnv
 import numpy
 
 class TestNumpy(TestEnv):
+    def test_nanargmax0(self):
+        self.run_test("def np_nanargmax0(): from numpy import array, nanargmax, nan ; a = array([[nan, 4], [2, 3]]) ; return nanargmax(a)", np_nanargmax0=[])
+
+    def test_nanargmin0(self):
+        self.run_test("def np_nanargmin0(): from numpy import array, nanargmin, nan ; a = array([[nan, 4], [2, 3]]) ; return nanargmin(a)", np_nanargmin0=[])
+
+    def test_nan_to_num0(self):
+        self.run_test("def np_nan_to_num0(): import numpy as np ; a = np.array([np.inf, -np.inf, np.nan, -128, 128]) ; return np.nan_to_num(a)", np_nan_to_num0=[])
+
+    def test_median0(self):
+        self.run_test("def np_median0(): from numpy import array, median ; a = array([[1, 2], [3, 4]]) ; return median(a)", np_median0=[])
+
+    def test_median1(self):
+        self.run_test("def np_median1(): from numpy import array, median ; a = array([1, 2, 3, 4,5]) ; return median(a)", np_median1=[])
+
+    def test_mean0(self):
+        self.run_test("def np_mean0(): from numpy import array, mean ; a = array([[1, 2], [3, 4]]) ; return mean(a)", np_mean0=[])
+
+    def test_logspace0(self):
+        self.run_test("def np_logspace0(): from numpy import logspace ; start, stop = 3., 4. ; return logspace(start, stop, 4)", np_logspace0=[])
+
+    def test_logspace1(self):
+        self.run_test("def np_logspace1(): from numpy import logspace ; start, stop = 3., 4. ; return logspace(start, stop, 4, False)", np_logspace1=[])
+
+    def test_logspace2(self):
+        self.run_test("def np_logspace2(): from numpy import logspace ; start, stop = 3., 4. ; return logspace(start, stop, 4, True, 2.0)", np_logspace2=[])
+
     def test_lexsort0(self):
         self.run_test("def np_lexsort0(): from numpy import lexsort ; surnames =    ('Hertz',    'Galilei', 'Hertz') ; first_names = ('Heinrich', 'Galileo', 'Gustav') ; return lexsort((first_names, surnames))", np_lexsort0=[])
 

@@ -324,6 +324,43 @@ namespace pythonic {
 
         PROXY(pythonic::numpy, nanargmin);
 
+       template<class T, size_t N>
+           T prod(core::ndarray<T,N> const& expr, none_type axis=None) {
+               return std::accumulate(expr.buffer, expr.buffer + expr.size(), T(1), std::multiplies<T>());
+           }
+
+       template<class T>
+            T prod( core::ndarray<T,1> const& array, long axis)
+            {
+                if(axis!=0)
+                    throw __builtin__::ValueError("axis out of bounds");
+                return prod(array);
+            }
+
+       template<class T, size_t N>
+            typename core::ndarray<T,N>::value_type prod( core::ndarray<T,N> const& array, long axis)
+            {
+                if(axis<0 || axis >=long(N))
+                    throw __builtin__::ValueError("axis out of bounds");
+                auto shape = array.shape;
+                if(axis==0)
+                {
+                    return std::accumulate(array.begin() + 1, array.end(), *array.begin(), std::multiplies<typename core::ndarray<T,N>::value_type>());
+                }
+                else
+                {
+                    core::ltuple<long, N-1> shp;
+                    std::copy(shape.begin(), shape.end() - 1, shp.begin());
+                    core::ndarray<T,N-1> prody(shp, None);
+                    std::transform(array.begin(), array.end(), prody.begin(), [=](core::ndarray<T,N-1> const& other) {return prod(other, axis-1);});
+                    return prody;
+                }
+            }
+
+       ALIAS(prod, product);
+       PROXY(pythonic::numpy, prod);
+       PROXY(pythonic::numpy, product);
+
        template<class E>
            auto min(E&& expr) -> typename std::remove_reference<decltype(expr.at(0))>::type {
                long sz = expr.size();
@@ -587,6 +624,8 @@ namespace pythonic {
             }
 
         PROXY(pythonic::numpy, any);
+        ALIAS(any, sometrue);
+        PROXY(pythonic::numpy, sometrue);
 
 
         template<class T, unsigned long N, class... C>
@@ -2109,6 +2148,421 @@ namespace pythonic {
         NUMPY_EXPR_TO_NDARRAY0(trace)
         PROXY(pythonic::numpy, trace)
 
+        template<class E>
+            typename core::numpy_expr_to_ndarray<E>::type tile(E const& expr, int reps)
+            {
+                typename core::numpy_expr_to_ndarray<E>::type out(core::ltuple<long, 1>({expr.size() * reps}), None);
+                for(size_t i=0; i<expr.size(); i++)
+                    out.buffer[i] = expr.at(i);
+                for(size_t i=expr.size(); i<expr.size() * reps; i++)
+                    out.buffer[i] = out.buffer[i%expr.size()];
+                return out;
+            }
+
+        template<class E, size_t N>
+            core::ndarray<typename core::numpy_expr_to_ndarray<E>::T, N> tile(E const& expr, core::ltuple<long, N> const& reps)
+            {
+                core::ltuple<long, N> shape;
+                for(size_t i=0; i<N; i++)
+                    shape[N - i - 1] = reps[N - i - 1] * ((E::value > i)?expr.shape[i]:1);
+                core::ndarray<typename core::numpy_expr_to_ndarray<E>::T, N> out(shape, None);
+                for(size_t i=0; i<expr.size(); i++)
+                    out.buffer[i] = expr.at(i);
+                for(size_t i=expr.size(); i<out.size(); i++)
+                    out.buffer[i] = out.buffer[i%expr.size()];
+                return out;
+            }
+
+        PROXY(pythonic::numpy, tile);
+
+        template<class T, size_t N>
+            core::ndarray<T,N> swapaxes(core::ndarray<T,N> const & a, int axis1, int axis2)
+            {
+                long t[N];
+                for(unsigned long i = 0; i<N; i++)
+                    t[i] = i;
+                std::swap(t[axis1], t[axis2]);
+                return _transpose(a, t);
+            }
+
+        NUMPY_EXPR_TO_NDARRAY0(swapaxes);
+        PROXY(pythonic::numpy, swapaxes);
+
+        template<class F, class T, size_t N>
+            typename core::numpy_expr_to_ndarray<F>::type take(core::ndarray<T,N> const & expr, F const& indices)
+            {
+                typename core::numpy_expr_to_ndarray<F>::type out = asarray(indices);
+                for(size_t i=0; i<out.size(); i++)
+                    out.buffer[i] = expr.at(out.buffer[i]);
+                return out;
+            }
+        NUMPY_EXPR_TO_NDARRAY0(take);
+        PROXY(pythonic::numpy, take);
+
+        template<class T, size_t N>
+            core::list<core::ndarray<T,N>> split(core::ndarray<T,N> const& a, long nb_split) {
+                if(a.size()%nb_split != 0)
+                    throw __builtin__::ValueError("array split does not result in an equal division");
+                return  array_split(a, nb_split);
+            }
+
+        template<class T, size_t N, class I>
+            typename std::enable_if<is_iterable<I>::value, core::list<core::ndarray<T,N>>>::type
+            split(core::ndarray<T,N> const& a, I const& split_mask) {
+                return array_split(a, split_mask);
+            }
+
+        PROXY(pythonic::numpy, split);
+
+        bool comp_complex(proxy::complex const& i, proxy::complex const& j)
+        {
+            if(std::real(i) == std::real(j))
+                return std::imag(i) < std::imag(j);
+            else
+                return std::real(i) < std::real(j);
+        }
+
+        template<class T, size_t N>
+            core::ndarray<proxy::complex,N> sort_complex(core::ndarray<T,N> const& expr)
+            {
+                core::ndarray<proxy::complex,N> out(expr.shape, None);
+                std::copy(expr.buffer, expr.buffer + expr.size(), out.buffer);
+                for(int i=0; i<expr.size()/expr.shape[N-1]; i++)
+                    std::sort(out.buffer + i * expr.shape[N-1], out.buffer + (i+1) * expr.shape[N-1], comp_complex);
+                return out;
+            }
+
+        NUMPY_EXPR_TO_NDARRAY0(sort_complex)
+        PROXY(pythonic::numpy, sort_complex);
+
+        template<class T, size_t N>
+            core::ndarray<T,N> sort(core::ndarray<T,N> const& expr, long axis=-1)
+            {
+                while(axis<0)
+                    axis += N;
+                axis = axis%N;
+                core::ndarray<T,N> out(expr.shape, None);
+                std::copy(expr.buffer, expr.buffer + expr.size(), out.buffer);
+                long step = std::accumulate(expr.shape.begin() + axis, expr.shape.end(), 1L, std::multiplies<long>());
+                for(size_t i=0; i<expr.size()/expr.shape[axis]*step; i+=step)
+                {
+                    std::vector<T> to_sort;
+                    T* iter = out.buffer + (i%expr.size() + i/expr.size());
+                    while(iter!=out.buffer + (i%expr.size() + i/expr.size()) + step)
+                    {
+                        to_sort.push_back(*iter);
+                        iter+=step/expr.shape[axis];
+                    }
+                    std::sort(to_sort.begin(), to_sort.end());
+                    iter = out.buffer + (i%expr.size() + i/expr.size());
+                    for(auto val: to_sort)
+                    {
+                        *iter = val;
+                        iter += step/expr.shape[axis];
+                    }
+                }
+                return out;
+            }
+
+        NUMPY_EXPR_TO_NDARRAY0(sort)
+        PROXY(pythonic::numpy, sort);
+
+        template<class T, size_t N, class U>
+            core::ndarray<T,N> select(core::list<core::ndarray<U,N>> const& condlist, core::list<core::ndarray<T,N>> const& choicelist, T _default = 0)
+            {
+                core::ndarray<T,N> out(choicelist[0].shape, _default);
+                for(size_t i=0; i<out.size(); i++)
+                {
+                    for(int j=0; j<condlist.size(); j++)
+                    {
+                        if(condlist[j].buffer[i])
+                        {
+                            out.buffer[i] = choicelist[j].buffer[i];
+                            break;
+                        }
+                    }
+                }
+                return out;
+            }
+
+        template<class T, size_t N, class U>
+            auto select(core::list<U> const& condlist, core::list<core::ndarray<T,N>> const& choicelist, T _default = 0) 
+                -> decltype(select(std::declval<core::list<typename core::numpy_expr_to_ndarray<U>::type>>(), choicelist, _default))
+            {
+                core::list<typename core::numpy_expr_to_ndarray<U>::type> condition(condlist.size());
+                for(int i=0; i<condlist.size(); i++)
+                    condition[i] = asarray(condlist[i]);
+                return select(condition, choicelist);
+            }
+
+        template<class T, size_t N, class U>
+            auto select(core::list<core::ndarray<T,N>> const& condlist, core::list<U> const& choicelist, T _default = 0) 
+                -> decltype(select(condlist, std::declval<core::list<typename core::numpy_expr_to_ndarray<U>::type>>(), _default))
+            {
+                core::list<typename core::numpy_expr_to_ndarray<U>::type> choice(choicelist.size());
+                for(int i=0; i<choicelist.size(); i++)
+                    choice[i] = asarray(choicelist[i]);
+                return select(condlist, choice);
+            }
+
+        template<class V, class U>
+            auto select(core::list<V> const& condlist, core::list<U> const& choicelist, typename core::numpy_expr_to_ndarray<U>::T _default = 0) 
+                -> decltype(select(std::declval<core::list<typename core::numpy_expr_to_ndarray<V>::type>>(), std::declval<core::list<typename core::numpy_expr_to_ndarray<U>::type>>(), _default))
+            {
+                core::list<typename core::numpy_expr_to_ndarray<U>::type> choice(choicelist.size());
+                core::list<typename core::numpy_expr_to_ndarray<V>::type> condition(condlist.size());
+                for(int i=0; i<choicelist.size(); i++)
+                    choice[i] = asarray(choicelist[i]);
+                for(int i=0; i<condlist.size(); i++)
+                    condition[i] = asarray(condlist[i]);
+                return select(condition, choice);
+            }
+
+        NUMPY_EXPR_TO_NDARRAY0(select)
+        PROXY(pythonic::numpy, select);
+
+        template<class T, size_t N>
+            core::ndarray<T,N> rot90(core::ndarray<T,N> const& expr, int k=1)
+            {
+                if(k%4==0)
+                    return copy(expr);
+                core::ltuple<long, N> shape;
+                std::copy(expr.shape.begin(), expr.shape.end(), shape.begin());
+                if(k%4!=2)
+                    std::swap(shape[0], shape[1]);
+                core::ndarray<T,N> out(shape, None);
+                if(k%4==1)
+                {
+                    for(int i=0; i<out.shape[1]; i++)
+                        for(int j=0; j<out.shape[0]; j++)
+                            out[out.shape[0]-1-j][i] = expr[i][j];
+                }
+                else if(k%4==2)
+                {
+                    for(int i=0; i<out.shape[1]; i++)
+                        for(int j=0; j<out.shape[0]; j++)
+                            out[out.shape[0]-1-j][out.shape[1]-1-i] = expr[j][i];
+                }
+                else
+                {
+                    for(int i=0; i<out.shape[1]; i++)
+                        for(int j=0; j<out.shape[0]; j++)
+                            out[j][out.shape[1]-1-i] = expr[i][j];
+                }
+                return out;
+            }
+
+        NUMPY_EXPR_TO_NDARRAY0(rot90)
+        PROXY(pythonic::numpy, rot90);
+
+        template<class E>
+        size_t rank(E const& expr)
+        {
+            return E::value;
+        }
+
+        PROXY(pythonic::numpy, rank);
+
+        template<class E, class T>
+        typename std::enable_if<core::is_array_like<E>::value, core::ndarray<long, core::numpy_expr_to_ndarray<E>::N>>::type searchsorted(core::ndarray<T,1> const& a, E const& v, core::string side = "left")
+        {
+            core::ndarray<T,core::numpy_expr_to_ndarray<E>::N> to_search = asarray(v);
+            core::ndarray<long, core::numpy_expr_to_ndarray<E>::N> out(to_search.shape, None);
+            if(side[0]=='l')
+            {
+                for(int i=0; i<out.size(); i++)
+                    out.at(i) = std::lower_bound(a.buffer, a.buffer + a.size(), to_search.at(i)) - a.buffer;
+            }
+            else if(side[0]=='r')
+            {
+                for(int i=0; i<out.size(); i++)
+                    out.at(i) = std::upper_bound(a.buffer, a.buffer + a.size(), to_search.at(i)) - a.buffer;
+            }
+            else
+               throw __builtin__::ValueError("'" + side + "' is an invalid value for keyword 'side'");
+            return out;
+        }
+
+        template<class T>
+        long searchsorted(core::ndarray<T,1> const& a, T const& v, core::string side = "left")
+        {
+            if(side[0]=='l')
+            {
+                return std::lower_bound(a.buffer, a.buffer + a.size(), v) - a.buffer;
+            }
+            else if(side[0]=='r')
+            {
+                return std::upper_bound(a.buffer, a.buffer + a.size(), v) - a.buffer;
+            }
+            else
+               throw __builtin__::ValueError("'" + side + "' is an invalid value for keyword 'side'");
+        }
+
+        NUMPY_EXPR_TO_NDARRAY0(searchsorted)
+        PROXY(pythonic::numpy, searchsorted);
+
+        template<class T, size_t N>
+        core::ndarray<T,N> roll(core::ndarray<T,N> const& expr, int shift)
+        {
+            while(shift<0) shift+=expr.size();
+            shift %=expr.size();;
+            core::ndarray<T,N> out(expr.shape, None);
+            for(int i=shift; i<expr.size(); i++)
+                out.at(i) = expr.at(i - shift);
+            for(int i=0; i<shift; i++)
+                out.at(i) = expr.at(i + expr.size() - shift);
+
+            return out;
+        }
+        NUMPY_EXPR_TO_NDARRAY0(roll)
+        PROXY(pythonic::numpy, roll);
+
+        template<class T, size_t N>
+            core::ndarray<T,N> rollaxis(core::ndarray<T,N> const & a, int axis, int start=0)
+            {
+                if(start>=axis)
+                    return copy(a);
+                long t[N];
+                for(unsigned long i = 0; i<start; i++)
+                    t[i] = i;
+                t[start] = axis;
+                for(unsigned long i = start + 1; i<=axis; i++)
+                    t[i] = i-1;
+                for(unsigned long i = axis + 1; i<N; i++)
+                    t[i] = i;
+                return _transpose(a, t);
+            }
+
+        NUMPY_EXPR_TO_NDARRAY0(rollaxis);
+        PROXY(pythonic::numpy, rollaxis);
+
+        template<class T, size_t N>
+        core::ndarray<T,1> resize(core::ndarray<T,N> const& expr, int new_shape)
+        {
+            core::ndarray<T,1> out(core::ltuple<long, 1>({new_shape}), None);
+            for(int i=0; i<new_shape; i++)
+                out.at(i) = expr.at(i % expr.size());
+            return out;
+        }
+
+        template<class T, size_t N, size_t M>
+        core::ndarray<T,M> resize(core::ndarray<T,N> const& expr, core::ltuple<long, M> const& new_shape)
+        {
+            core::ndarray<T,M> out(new_shape, None);
+            for(size_t i=0; i<out.size(); i++)
+                out.at(i) = expr.at(i % expr.size());
+            return out;
+        }
+
+        NUMPY_EXPR_TO_NDARRAY0(resize);
+        PROXY(pythonic::numpy, resize);
+
+        template<class T, size_t N>
+        core::ndarray<T,1> repeat(core::ndarray<T,N> const& expr, int repeats)
+        {
+            core::ndarray<T,1> out(core::ltuple<long, 1>({expr.size() * repeats}), None);
+            for(int i=0; i<out.size(); i++)
+                out.at(i) = expr.at(i / expr.size());
+            return out;
+        }
+
+        NUMPY_EXPR_TO_NDARRAY0(repeat);
+        PROXY(pythonic::numpy, repeat);
+
+        template<class T, size_t N>
+        core::ndarray<T,1> ravel(core::ndarray<T,N> const& expr)
+        {
+            return reshape(expr, (long)expr.size());
+        }
+
+        NUMPY_EXPR_TO_NDARRAY0(ravel);
+        PROXY(pythonic::numpy, ravel);
+
+        template<class T, size_t N, class E,class F>
+        none_type putmask(core::ndarray<T,N> & expr, E const& mask, F const& values)
+        {
+            for(size_t i=0; i<expr.size(); i++)
+                if(mask.at(i))
+                    expr.at(i) = values.at(i%values.size());
+            return None;
+        }
+        PROXY(pythonic::numpy, putmask);
+
+        template<class T, size_t N, class E,class F>
+        none_type place(core::ndarray<T,N> & expr, E const& mask, F const& values)
+        {
+            int j=0;
+            int first = -1;
+            for(size_t i=0; i<expr.size(); i++)
+            {
+                if(mask.at(i))
+                {
+                    if(first==-1)
+                        first = i;
+                    if(j<values.size())
+                        expr.at(i) = values.at(j++);
+                    else
+                    {
+                        expr.at(i) = expr.at(first);
+                        std::cout << i << "/" << first << std::endl;
+                        }
+                }
+            }
+            return None;
+        }
+        PROXY(pythonic::numpy, place);
+
+        template<class F, class T, size_t N, class E>
+            typename std::enable_if<core::is_array_like<F>::value, none_type>::type put(core::ndarray<T,N> & expr, F const& ind, E const& v)
+            {
+                for(size_t i=0; i<ind.size(); i++)
+                {
+                    auto val = ind.at(i);
+                    if(val>=expr.size() || val <0)
+                        throw __builtin__::ValueError("indice out of bound");
+                    expr.at(val) = v.at(i%v.size());
+                }
+                return None;
+            }
+
+        template<class T, size_t N>
+            none_type put(core::ndarray<T,N> & expr, int ind, T const& v)
+            {
+                if(ind>=expr.size() || ind <0)
+                    throw __builtin__::ValueError("indice out of bound");
+                expr.at(ind) = v;
+                return None;
+            }
+
+        NUMPY_EXPR_TO_NDARRAY0(put);
+        PROXY(pythonic::numpy, put);
+
+        template<class E>
+        auto ptp(E const& expr, long axis) -> decltype(max(expr, axis) - min(expr, axis))
+        {
+            return max(expr, axis) - min(expr, axis);
+        }
+
+        template<class E>
+        auto ptp(E const& expr) -> decltype(max(expr) - min(expr))
+        {
+            return max(expr) - min(expr);
+        }
+
+        PROXY(pythonic::numpy, ptp);
+
+        template<class E, class F>
+        core::ndarray<typename core::numpy_expr_to_ndarray<E>::T, 2> outer(E const& a, F const& b)
+        {
+            core::ndarray<typename core::numpy_expr_to_ndarray<E>::T, 2> out(core::ltuple<long, 2>({a.size(), b.size()}), None);
+            for(size_t i=0; i<a.size(); i++)
+                for(size_t j=0; j<b.size(); j++)
+                    out.buffer[i * b.size() + j] = a.at(i) * b.at(j);
+            return out;
+        }
+
+        PROXY(pythonic::numpy, outer);
+
         NP_PROXY_ALIAS(arccos, nt2::acos);
 
         NP_PROXY_ALIAS(arccosh, nt2::acosh);
@@ -2244,6 +2698,12 @@ namespace pythonic {
         NP_PROXY_OP(right_shift);
 
         NP_PROXY_ALIAS(rint, nt2::iround)
+
+        ALIAS(rint, round);
+        PROXY(pythonic::numpy, round);
+
+        ALIAS(rint, round_);
+        PROXY(pythonic::numpy, round_);
 
         NP_PROXY(sign);
 

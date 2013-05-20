@@ -14,7 +14,7 @@ class TestEnv(unittest.TestCase):
 
     # default options used for the c++ compiler
     PYTHRAN_CXX_FLAGS = ["-O0", "-fno-implicit-inline-templates", "-fopenmp",
-            '-Wall', '-Wno-unknown-pragmas']
+            '-Wall', '-Wno-unknown-pragmas', '-I/home/pbrunet/pythran/nt2/install/include']
 
     def assertAlmostEqual(self, ref, res):
         if hasattr(ref, '__iter__'):

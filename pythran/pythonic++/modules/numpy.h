@@ -32,6 +32,7 @@ namespace pythonic {
         double const pi = 3.141592653589793238462643383279502884;
         double const e = 2.718281828459045235360287471352662498;
         double const nan = std::numeric_limits<double>::quiet_NaN();
+        double const inf = std::numeric_limits<double>::infinity();
 
         /* numpy standard types */
         namespace proxy {
@@ -102,6 +103,7 @@ namespace pythonic {
 
        PROXY(pythonic::numpy, empty);
 
+
        template<class T, class U, class dtype=long>
            core::ndarray<decltype(std::declval<T>()+std::declval<U>()+std::declval<dtype>()), 1> arange(T begin, U end, dtype step=dtype(1))
            {
@@ -140,6 +142,14 @@ namespace pythonic {
        }
 
        PROXY(pythonic::numpy, linspace);
+
+       auto logspace(double start, double stop, long num=50, bool endpoint = true, double base=10.0)
+           -> decltype(core::power(base, linspace(start, stop, num, endpoint)))
+       {
+           return core::power(base, linspace(start, stop, num, endpoint));
+       }
+
+       PROXY(pythonic::numpy, logspace);
 
        template<class T, size_t N, class ...S>
            core::ndarray<T, sizeof...(S)> reshape( core::ndarray<T,N> const& expr, S&& ...s) {
@@ -219,6 +229,100 @@ namespace pythonic {
 
        NUMPY_EXPR_TO_NDARRAY0(sum);
        PROXY(pythonic::numpy, sum);
+       template<class E, class dtype=double>
+           auto
+           mean(E const& expr, none_type axis=None, dtype d=dtype())
+           -> decltype(sum(expr)/dtype(expr.size()))
+           {
+               return sum(expr)/dtype(expr.size());
+           }
+
+       PROXY(pythonic::numpy, mean);
+
+       template<class T, size_t N>
+           decltype(std::declval<T>()+1.) median(core::ndarray<T,N> const& arr) {
+               size_t n = arr.size();
+               T* tmp = new T[n];
+               std::copy(arr.buffer, arr.buffer + n, tmp);
+               std::sort(tmp, tmp + n);
+               auto out = (tmp[n/2]+tmp[(n-1)/2])/double(2);
+               delete [] tmp;
+               return out;
+           }
+
+       PROXY(pythonic::numpy, median);
+
+       template<class E>
+           typename core::numpy_expr_to_ndarray<E>::type
+           nan_to_num(E const& expr) {
+               typename core::numpy_expr_to_ndarray<E>::type out(expr.shape, None);
+               for(long i=0, n=expr.size(); i<n; ++i) {
+                   auto v = expr.at(i);
+                   if(pythonic::numpy_expr::ops::isposinf(v))
+                       out.at(i) = std::numeric_limits<typename core::numpy_expr_to_ndarray<E>::type::dtype>::max();
+                   else if(pythonic::numpy_expr::ops::isneginf(v))
+                       out.at(i) = -std::numeric_limits<typename core::numpy_expr_to_ndarray<E>::type::dtype>::max();
+                   else if(nt2::is_nan(v))
+                       out.at(i) = 0;
+                   else out.at(i) = v;
+               }
+               return out;
+           }
+
+       PROXY(pythonic::numpy, nan_to_num);
+       template<class E>
+           long nanargmin(E&& expr) {
+               long sz = expr.size();
+               if(not sz) 
+                   throw __builtin__::ValueError("empty sequence");
+               long i = 0;
+               auto e_i = expr.at(i);
+               for(; i< sz and nt2::is_nan(e_i) ; ++i) {
+                   e_i = expr.at(i);
+               }
+               if( i < sz) {
+                   auto res = e_i;
+                   auto index = i;
+                   for(; i< sz ; ++i) {
+                       auto e_i = expr.at(i);
+                       if(e_i< res and not nt2::is_nan(e_i)) {
+                           res = e_i;
+                           index = i;
+                       }
+                   }
+                   return index;
+               }
+               else
+                   throw __builtin__::ValueError("empty sequence");
+           }
+       template<class E>
+           long nanargmax(E&& expr) {
+               long sz = expr.size();
+               if(not sz) 
+                   throw __builtin__::ValueError("empty sequence");
+               long i = 0;
+               auto e_i = expr.at(i);
+               while(i< sz and nt2::is_nan(e_i)) {
+                   e_i = expr.at(++i);
+               }
+               if( i < sz) {
+                   auto res = e_i;
+                   auto index = i;
+                   for(; i< sz ; ++i) {
+                       auto e_i = expr.at(i);
+                       if(e_i > res and not nt2::is_nan(e_i)) {
+                           res = e_i;
+                           index = i;
+                       }
+                   }
+                   return index;
+               }
+               else
+                   throw __builtin__::ValueError("empty sequence");
+           }
+        PROXY(pythonic::numpy, nanargmax);
+
+        PROXY(pythonic::numpy, nanargmin);
 
        template<class E>
            auto min(E&& expr) -> typename std::remove_reference<decltype(expr.at(0))>::type {

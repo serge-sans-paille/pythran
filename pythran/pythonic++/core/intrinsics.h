@@ -9,6 +9,9 @@
 
 namespace pythonic {
 
+    double const nan = std::numeric_limits<double>::quiet_NaN();
+    double const inf = std::numeric_limits<double>::infinity();
+
     namespace __builtin__ {
 
         /* abs */

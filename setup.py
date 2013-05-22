@@ -23,6 +23,9 @@ class BuildWithPly(build):
             self.build_ply()
         # regular build done by patent class
         build.run(self, *args, **kwargs)
+        print 'args', args
+        print 'kwargs', kwargs
+        print 'self', dir(self)
 
 
 class TestCommand(Command):

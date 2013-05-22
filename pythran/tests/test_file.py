@@ -7,7 +7,6 @@ class TestFile(TestEnv):
     def __init__(self, *args, **kwargs):
             super(TestEnv, self).__init__(*args, **kwargs)
             self.file_content = """azerty\nqwerty\n\n"""
-            self.b=0
 
     def tempfile(self):
             filename=mkstemp()[1]
@@ -226,13 +225,3 @@ def _rvalue_close(filename):
     def test_rvalue_seek(self):
             self.tempfile()
             self.run_test("""def _rvalue_seek(filename):\n file(filename, 'a').seek(3)""", self.filename, _rvalue_seek=[str])
-
-
-
-
-
-
-
-
-
-

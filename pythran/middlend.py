@@ -8,15 +8,8 @@ from passes import NormalizeMethodCalls, NormalizeAttributes, FalsePolymorphism
 from passes import RemoveComprehension, RemoveNestedFunctions, ExpandImports
 from optimizations import GenExpToImap, ListCompToMap, ListCompToGenexp
 
-from optimizations import ConstantFolding, IterTransformation
 
-default_optimization_sequence = (
-        ConstantFolding,
-        IterTransformation
-        )
-
-
-def refine(pm, node, optimizations=default_optimization_sequence):
+def refine(pm, node, optimizations):
     """refine node in place until it matches pythran's expectations"""
 
     # sanitize input

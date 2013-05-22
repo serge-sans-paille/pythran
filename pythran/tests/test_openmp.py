@@ -19,8 +19,7 @@ class CompileTest(unittest.TestCase):
             return self.skipTest("Marked as skipable")
         mod = pythran.cxx_generator(self.module_name, module_code, specs)
         pymod = load_dynamic(self.module_name,
-                pythran.compile(os.environ.get("CXX", "c++"), mod, check=False,
-                    cxxflags=['-O0', '-fopenmp']))
+                pythran.compile(mod,cxxflags=['-O0', '-fopenmp']))
 
         res = getattr(pymod, self.module_name)()
         assert res, 'Test Failed'

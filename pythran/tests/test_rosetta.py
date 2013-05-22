@@ -16,7 +16,7 @@ class CompileTest(object):
         if "unittest.skip" in module_code:
             return self.skipTest("Marked as skipable")
         mod = pythran.cxx_generator(self.module_name, module_code, specs)
-        pymod=load_dynamic(self.module_name, pythran.compile(os.environ.get("CXX","c++"), mod, check=False))
+        pymod=load_dynamic(self.module_name, pythran.compile(mod))
         if check_output:
             res = getattr(pymod,"test")()
             compiled_code=compile(file(module_path).read(),"","exec")

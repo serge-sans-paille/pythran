@@ -10,11 +10,13 @@ import distutils.sysconfig
 
 from cxxgen import *
 import ast
-from middlend import refine, default_optimization_sequence
+from middlend import refine
 from backend import Cxx
 from syntax import check_syntax
 from passes import NormalizeIdentifiers
 from openmp import GatherOMPData
+
+from config import cfg
 
 
 from passmanager import PassManager
@@ -95,11 +97,11 @@ def cxx_generator(module_name, code, specs=None, optimizations=None):
     check_syntax(ir)
 
     # middle-end
-    if not optimizations:
-        optimizations = default_optimization_sequence
-    else:
-        optimizations = [parse_optimization(optim) for optim in optimizations]
+    optimizations = (optimizations or
+            cfg.get('pythran', 'optimizations').split())
+    optimizations = map(parse_optimization, optimizations)
     refine(pm, ir, optimizations)
+
     # back-end
     content = pm.dump(Cxx, ir)
 
@@ -171,13 +173,35 @@ def cxx_generator(module_name, code, specs=None, optimizations=None):
 
 
 class ToolChain(object):
-    def __init__(self, compiler, cppflags=None,
-                 cxxflags=None, ldflags=None, check=True):
-        self.compiler = compiler
-        self.cppflags = cppflags or list()
-        self.cxxflags = cxxflags or list()
-        self.ldflags = ldflags or list()
-        self.check = check
+    def __init__(self, **kwargs):
+        self.compiler = kwargs.get('cxx', cfg.get('user', 'cxx'))
+
+        self.cppflags = self.python_cppflags()
+        self.cppflags += self.pythran_cppflags()
+        self.cppflags += cfg.get('sys', 'cppflags').split()
+        self.cppflags += kwargs.get('cppflags',
+                cfg.get('user', 'cppflags').split())
+
+        self.cxxflags = cfg.get('sys', 'cxxflags').split()
+        self.cxxflags += kwargs.get('cxxflags',
+                cfg.get('user', 'cxxflags').split())
+
+        self.ldflags = self.python_ldflags()
+        self.ldflags += cfg.get('sys', 'ldflags').split()
+        self.ldflags += kwargs.get('ldflags',
+                cfg.get('user', 'ldflags').split())
+
+    def python_cppflags(self):
+        return ["-I" + distutils.sysconfig.get_python_inc()]
+
+    def python_ldflags(self):
+        return ["-L{0}/config".format(
+            distutils.sysconfig.get_python_lib(0, 1))]
+
+    def pythran_cppflags(self):
+        curr_dir = os.path.dirname(os.path.dirname(__file__))
+        get = lambda *x: '-I' + os.path.join(curr_dir, *x)
+        return [get(), get('pythran', 'pythonic++')]
 
     def compile(self, module, output_filename=None):
         fd, fdpath = mkstemp(suffix=".cpp")
@@ -195,118 +219,8 @@ class ToolChain(object):
         os.remove(fdpath)
         return module_so
 
-    def check_compile(self, msg, code, cppflags=list(),
-                      cxxflags=list(), ldflags=list(), optional=False):
-        try:
-            if optional or self.check:
-                tmpfile = NamedTemporaryFile(suffix=".cpp")
-                tmpfile.write(code)
-                tmpfile.flush()
-                check_output([self.compiler]
-                             + self.cppflags
-                             + cppflags
-                             + self.cxxflags
-                             + cxxflags
-                             + [tmpfile.name]
-                             + self.ldflags
-                             + ldflags,
-                             stderr=STDOUT)
-            self.cppflags.extend(cppflags)
-            self.cxxflags.extend(cxxflags)
-            self.ldflags.extend(ldflags)
-        except CalledProcessError as e:
-            raise RuntimeError(msg + '\n\n' + e.output)
 
-    def check_package(self, pkg, code, cppflags=list(),
-                      cxxflags=list(), ldflags=list(), optional=False):
-        return self.check_compile(
-            pkg + ' not found, try to add -I or -L flags?',
-            code, cppflags, cxxflags, ldflags, optional)
-
-    def configure(self):
-        """Look for the many dependencies of pythran and add them to the
-           relevant path.
-           Raise a RuntimeError exception otherwise"""
-
-        # basic c++ compiler
-        self.check_compile('no valid c++ compiler found',
-                           """#include <iostream>
-int main(int argc, char *argv[])
-{
-    std::cout << "hello " << (argc>1?argv[1]:"world") << std::endl;
-    return 0;
-}
-""", ldflags=['-fPIC'])
-        # c++2011
-        self.check_compile('no c++ 2011 support found, try to add compiler '
-                           'specific flags?',
-                           """#include <utility>
-decltype(std::declval<int>() + 1) main()
-{
-    void * p = nullptr;
-    return 0;
-}""", cppflags=['-std=c++0x'])
-
-        # python-dev
-        self.check_package('python development environment',
-                           '#include <Python.h>\nint main() { return 0; }',
-                           cppflags=["-I{0}".format(
-                                     distutils.sysconfig.get_python_inc())],
-                           ldflags=['-L{0}/config'.format(
-                                    distutils.sysconfig.get_python_lib(0, 1)),
-                           '-lpython{0}'.format(sys.version[:3])])
-
-        # boost python
-        try:
-            self.check_package('boost::python',
-                               '#include <boost/python.hpp>\nint main()'
-                               ' { return 0; }',
-                               ldflags=['-lboost_python'])
-        except RuntimeError:
-            self.check_package('boost::python',
-                               '#include <boost/python.hpp>\nint main()'
-                               ' { return 0; }',
-                               ldflags=['-lboost_python-mt'])
-
-        # boost format
-        self.check_package('boost::format',
-                           '#include <boost/format.hpp>\nint main()'
-                           ' { return 0; }')
-
-        # GMP
-        self.check_package('GNU Multiprecision arithmetic library',
-                           '#include <gmpxx.h>\nint main() { return 0; }',
-                           ldflags=['-lgmpxx', '-lgmp'])
-
-        # tcmalloc only if available
-        try:
-            self.check_package('tcmalloc', 'int main() { return 0; }',
-                               ldflags=['-ltcmalloc_minimal'],
-                               optional=True)
-        except RuntimeError:
-            pass
-
-        # pythonic++
-        cppflags = ['-I.',
-                    '-DENABLE_PYTHON_MODULE'
-                    ] + ['-I{0}'
-                         .format(os.path.join(p, "pythran", "pythonic++"))
-                         for p in sys.path if os.path.exists(
-                         os.path.join(p,
-                                      "pythran", "pythonic++", "pythonic++.h"))
-                         ] + ['-I{0}'.format(p)
-                              for p in sys.path if p if os.path.exists(
-                              os.path.join(p, "pythran", "pythran.h"))
-                              ]
-
-        self.check_package('pythonic++',
-                           '#include <pythonic++.h>\nint main() { return 0; }',
-                           cppflags=cppflags)
-
-
-def compile(compiler, module, output_filename=None, cppflags=list(),
-            cxxflags=list(), check=True):
+def compile(module, output_filename=None, **kwargs):
     '''c++ code + compiler flags -> native module'''
-    tc = ToolChain(compiler, cppflags=cppflags, cxxflags=cxxflags, check=check)
-    tc.configure()
+    tc = ToolChain(**kwargs)
     return tc.compile(module, output_filename=output_filename)

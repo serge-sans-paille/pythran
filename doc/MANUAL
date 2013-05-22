@@ -23,15 +23,15 @@ Say hello to:
 - map, reduce and the like
 - dictionaries, set, list
 - exceptions
+- file handling
 
 Say bye bye to:
 
 - classes
 - polymorphic variables [ but not all of them :-) ]
-- file handling
 
 In a nutshell, pythran makes it possible to write numerical algorithms in
-python and to have them run faster. Nuff said.
+Python and to have them run faster. Nuff said.
 
 
 Prerequisite
@@ -81,6 +81,25 @@ runs a whole (and long) validation suite. The ``bench`` target, as in::
     python setup.py bench
 
 compares the performance of pythran-generated code with cpython.
+
+If these tests fail, you are likely missing some of the requirements. You can
+set site specific flags in your ``~/.pythranrc``::
+
+    [sys]
+    cppflags = -DENABLE_PYTHON_MODULE
+    cxxflags = -std=c++11
+    # update your library names here
+    ldflags =   -lboost_python
+                -lgmp
+                -lgmpxx
+
+    [user]
+
+    cxx = c++
+    cppflags =
+    cxxflags = -O2 -g
+    # update your library paths here
+    ldflags = -fPIC -ltcmalloc_minimal
 
 First Steps
 -----------

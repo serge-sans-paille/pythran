@@ -5,20 +5,6 @@ import argparse
 import pythran
 from subprocess import CalledProcessError
 
-
-def get_or_create_config_file():
-    """Retrieve configuration file location, and warn if it does not exist"""
-    where = os.path.join(os.environ.get('XDG_CONFIG_HOME',
-                        os.environ['HOME']), '.pythranrc')
-    if not os.path.isfile(where):
-        w0 = 'No config file found in {0}, creating an empty one'.format(
-                where)
-        print >> sys.stderr, 'W:', w0
-        with file(where, 'w'):
-            pass
-    return where
-
-
 def convert_arg_line_to_args(arg_line):
     """Read argument from file in a prettier way"""
     for arg in arg_line.split():
@@ -89,8 +75,7 @@ parser.add_argument('--pythran-no-env-check', dest='no_env_check',
 
 parser.convert_arg_line_to_args = convert_arg_line_to_args
 
-config_file = get_or_create_config_file()
-args = parser.parse_args(['@' + config_file] + sys.argv[1:])
+args = parser.parse_args(sys.argv[1:])
 if args.raw_translate_only:
     args.translate_only = True
 
@@ -121,25 +106,26 @@ try:
         file(args.output_file, 'w').write(str(module.generate()))
     else:
         # build using the forwarded compiler options
-        compiler = os.environ.get("CXX", "c++")
-        extra_cxxflags = (os.environ.get("CXXFLAGS", "").split()
-                + ['-f{0}'.format(n) for n in args.extra_fflags]
-                + ['-m{0}'.format(n) for n in args.extra_mflags]
-                + ['-I{0}'.format(n) for n in args.extra_Iflags]
-                + ['-D{0}'.format(n) for n in args.extra_Dflags]
-                + ['-L{0}'.format(n) for n in args.extra_Lflags]
-                + ['-O{0}'.format(n) for n in args.extra_Oflags]
-                + (['-g'] if args.debug_flag else [])
-                )
+        cppflags = ['-I{0}'.format(n) for n in args.extra_Iflags]
+        cppflags += ['-D{0}'.format(n) for n in args.extra_Dflags]
 
-        if not args.no_env_check:
-            w0 = 'Checking compilation environment, this make take some time.'
-            w1 = 'To disable this, add --pythran-no-env-check to {0}'.format(
-                    config_file)
-            print >> sys.stderr, 'W:', w0
-            print >> sys.stderr, 'W:', w1
-        pythran.compile(compiler, module, args.output_file,
-            cxxflags=extra_cxxflags, check=not args.no_env_check)
+        cxxflags = ['-O{0}'.format(n) for n in args.extra_Oflags]
+        cxxflags += ['-m{0}'.format(n) for n in args.extra_mflags]
+        cxxflags += ['-f{0}'.format(n) for n in args.extra_fflags]
+        if args.debug_flag:
+            cxxflags += ['-g']
+
+        ldflags = ['-f{0}'.format(n) for n in args.extra_Lflags]
+
+        compiler_options = {}
+        if cppflags:
+            compiler_options['cppflags'] = cppflags
+        if ldflags:
+            compiler_options['ldflags'] = ldflags
+        if cxxflags:
+            compiler_options['cxxflags'] = cxxflags
+        
+        pythran.compile(module, args.output_file, **compiler_options)
 
 except IOError as e:
     print >> sys.stderr, "I've got a bad feeling about this..."

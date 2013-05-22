@@ -68,10 +68,8 @@ class TestEnv(unittest.TestCase):
 
             # Compile the code using pythran
             cxx_code = cxx_generator(modname, code, interface)
-            cxx_compiled = pythran_compile(os.environ.get("CXX", "c++"),
-                                           cxx_code,
-                                           cxxflags=TestEnv.PYTHRAN_CXX_FLAGS,
-                                           check=False)
+            cxx_compiled = pythran_compile(cxx_code,
+                                           cxxflags=TestEnv.PYTHRAN_CXX_FLAGS)
             prelude and prelude()
             pymod = load_dynamic(modname, cxx_compiled)
 

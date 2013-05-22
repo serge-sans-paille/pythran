@@ -12,7 +12,7 @@ class CompileTest(object):
         specs = pythran.spec_parser(module_path)
         print self.module_name
         module= pythran.cxx_generator(self.module_name, file(module_path).read(), specs)
-        pythran.compile(os.environ.get("CXX","c++"), module, check=False)
+        pythran.compile(module)
 
 class TestCase(unittest.TestCase):
     pass

@@ -8,16 +8,19 @@ import sys
 class BuildWithPly(build):
     '''Use ply to generate parsetab before building module.'''
 
+    def build_ply(self):
+        from pythran.spec import SpecParser
+        SpecParser()  # this forces the generation of the parsetab file
+        self.mkpath(os.path.join(self.build_lib, 'pythran'))
+        for p in ('parsetab.py',):
+            target = os.path.join(self.build_lib, 'pythran', p)
+            if os.path.exists(p):
+                os.rename(p, target)
+            assert os.path.exists(target)
+
     def run(self, *args, **kwargs):
         if not self.dry_run:  # compatibility with the parent options
-            from pythran.spec import SpecParser
-            SpecParser()  # this forces the generation of the parsetab file
-            self.mkpath(os.path.join(self.build_lib, 'pythran'))
-            for p in ('parsetab.py',):
-                target = os.path.join(self.build_lib, 'pythran', p)
-                if os.path.exists(p):
-                    os.rename(p, target)
-                assert os.path.exists(target)
+            self.build_ply()
         # regular build done by patent class
         build.run(self, *args, **kwargs)
 
@@ -144,7 +147,7 @@ setup(name='pythran',
         author_email='serge.guelton@telecom-bretagne.eu',
         url='https://github.com/serge-sans-paille/pythran',
         packages=['pythran', 'omp', 'pythran/pythonic++'],
-        package_data={'pythran': ['pythran.h', 'pythran_gmp.h'],
+        package_data={'pythran': ['pythran.h', 'pythran_gmp.h', 'pythran.cfg'],
             'pythran/pythonic++': ['pythonic++.h', 'core/*.h',
             'modules/*.h']},
         scripts=['scripts/pythran'],

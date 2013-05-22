@@ -3,6 +3,39 @@ from test_env import TestEnv
 import numpy
 
 class TestNumpy(TestEnv):
+    def test_ndindex0(self):
+        self.run_test("def np_ndindex0(): import numpy as np ; return [x for x in np.ndindex(5,6)]", np_ndindex0=[])
+
+    def test_ndindex1(self):
+        self.run_test("def np_ndindex1(): import numpy as np ; a = 3 ; return [x for x in np.ndindex(a)]", np_ndindex1=[])
+
+    def test_ndenumerate0(self):
+        self.run_test("def np_ndenumerate0(): import numpy as np ; a = np.array([[1, 2], [3, 4]]) ; return [x for x in np.ndenumerate(a)]", np_ndenumerate0=[])
+
+    def test_ndenumerate1(self):
+        self.run_test("def np_ndenumerate1(): import numpy as np ; a = np.array([1, 2, 3, 4]) ; return [x for x in np.ndenumerate(a)]", np_ndenumerate1=[])
+
+    def test_nansum0(self):
+        self.run_test("def np_nansum0(): import numpy as np ; a = np.array([[1, 2], [3, np.nan]]) ; return np.nansum(a)" , np_nansum0=[])
+
+    def test_nansum1(self):
+        self.run_test("def np_nansum1(): import numpy as np ; a = np.array([[1, 2], [np.NINF, np.nan]]) ; return np.nansum(a)" , np_nansum1=[])
+
+    def test_nansum2(self):
+        self.run_test("def np_nansum2(): import numpy as np ; a= [1, np.nan] ; return np.nansum(a)", np_nansum2=[])
+
+    def test_nanmin0(self):
+        self.run_test("def np_nanmin0(): import numpy as np ; a = np.array([[1, 2], [3, np.nan]]) ; return np.nanmin(a)" , np_nanmin0=[])
+
+    def test_nanmin1(self):
+        self.run_test("def np_nanmin1(): import numpy as np ; a = np.array([[1, 2], [np.NINF, np.nan]]) ; return np.nanmin(a)" , np_nanmin1=[])
+
+    def test_nanmax0(self):
+        self.run_test("def np_nanmax0(): import numpy as np ; a = np.array([[1, 2], [3, np.nan]]) ; return np.nanmax(a)" , np_nanmax0=[])
+
+    def test_nanmax1(self):
+        self.run_test("def np_nanmax1(): import numpy as np ; a = np.array([[1, 2], [np.inf, np.nan]]) ; return np.nanmax(a)" , np_nanmax1=[])
+
     def test_nanargmax0(self):
         self.run_test("def np_nanargmax0(): from numpy import array, nanargmax, nan ; a = array([[nan, 4], [2, 3]]) ; return nanargmax(a)", np_nanargmax0=[])
 

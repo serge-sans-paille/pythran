@@ -33,6 +33,7 @@ namespace pythonic {
         double const e = 2.718281828459045235360287471352662498;
         double const nan = std::numeric_limits<double>::quiet_NaN();
         double const inf = std::numeric_limits<double>::infinity();
+        double const NINF = -std::numeric_limits<double>::infinity();
 
         /* numpy standard types */
         namespace proxy {
@@ -229,6 +230,116 @@ namespace pythonic {
 
        NUMPY_EXPR_TO_NDARRAY0(sum);
        PROXY(pythonic::numpy, sum);
+
+       template<class E>
+           typename core::numpy_expr_to_ndarray<E>::type::dtype
+           nansum(E const& expr) {
+               typename core::numpy_expr_to_ndarray<E>::type::dtype s=0;
+               long n = expr.size();
+               for(long i=0;i<n;++i) {
+                   auto e_i = expr.at(i);
+                   if(not nt2::is_nan(e_i))
+                       s += e_i ;
+               }
+               return s;
+           }
+
+       PROXY(pythonic::numpy, nansum);
+
+       template<class E>
+           struct ndenumerate_iterator : std::iterator<std::random_access_iterator_tag, std::tuple<core::ltuple<long, core::numpy_expr_to_ndarray<E>::N>, typename core::numpy_expr_to_ndarray<E>::type::dtype> > {
+               long index;
+               E const& expr;
+               typename core::numpy_expr_to_ndarray<E>::type::dtype* iter;
+               ndenumerate_iterator(){}
+               ndenumerate_iterator(E const& expr, long first) : index(first), expr(expr), iter(expr.buffer) {
+               }
+               std::tuple<core::ltuple<long, core::numpy_expr_to_ndarray<E>::N>, typename core::numpy_expr_to_ndarray<E>::type::dtype> operator*() {
+                   core::ltuple<long, core::numpy_expr_to_ndarray<E>::N> out;
+                   auto shape = expr.shape;
+                   constexpr long N = core::numpy_expr_to_ndarray<E>::N;
+                   long mult = 1;
+                   for(long j=N-1; j>0; j--) {
+                       out[j] = (index/mult)%shape[j];
+                       mult*=shape[j];
+                   }
+                   out[0] = index/mult;
+                   return std::tuple<core::ltuple<long, core::numpy_expr_to_ndarray<E>::N>, typename core::numpy_expr_to_ndarray<E>::type::dtype>(out, *iter);
+               }
+               ndenumerate_iterator& operator++() { ++index, ++iter ; return *this; }
+               ndenumerate_iterator& operator+=(long n) { index+=n,iter+=n; return *this; }
+               bool operator!=(ndenumerate_iterator const& other) { return index != other.index; }
+               bool operator<(ndenumerate_iterator const& other) { return index < other.index; }
+               long operator-(ndenumerate_iterator const& other) { return index - other.index; }
+
+           };
+
+       template<class E>
+           struct _ndenumerate : ndenumerate_iterator<E> {
+                typedef ndenumerate_iterator<E> iterator;
+                E expr; // we need to keep one ref over the enumerated sequence alive
+                iterator end_iter;
+
+                _ndenumerate() {}
+                _ndenumerate( E const& expr) :  ndenumerate_iterator<E>(expr, 0), expr(expr), end_iter(expr, expr.size()) {}
+                iterator & begin() { return *this; }
+                iterator const & begin() const { return *this; }
+                iterator end() const { return end_iter; }
+           };
+
+       template<class E>
+           _ndenumerate<E> ndenumerate(E const& expr) {
+               return _ndenumerate<E>(expr);
+           }
+
+       PROXY(pythonic::numpy, ndenumerate);
+
+       template<size_t N>
+           struct ndindex_iterator : std::iterator<std::random_access_iterator_tag, core::ltuple<long, N> > {
+               long index;
+               core::ltuple<long, N> shape;
+               ndindex_iterator(){}
+               ndindex_iterator(core::ltuple<long, N> const& shape, long first) : index(first), shape(shape) {
+               }
+               core::ltuple<long, N> operator*() {
+                   core::ltuple<long, N> out;
+                   long mult = 1;
+                   for(long j=N-1; j>0; j--) {
+                       out[j] = (index/mult)%shape[j];
+                       mult*=shape[j];
+                   }
+                   out[0] = index/mult;
+                   return out;
+               }
+               ndindex_iterator& operator++() { ++index; return *this; }
+               ndindex_iterator& operator+=(long n) { index+=n; return *this; }
+               bool operator!=(ndindex_iterator const& other) { return index != other.index; }
+               bool operator<(ndindex_iterator const& other) { return index < other.index; }
+               long operator-(ndindex_iterator const& other) { return index - other.index; }
+
+           };
+
+       template<size_t N>
+           struct _ndindex : ndindex_iterator<N> {
+                typedef ndindex_iterator<N> iterator;
+                core::ltuple<long, N> shape; 
+                iterator end_iter;
+
+                _ndindex() {}
+                _ndindex( core::ltuple<long, N> const& shape) :  ndindex_iterator<N>(shape, 0), shape(shape), end_iter(shape, std::accumulate(shape.begin(), shape.end(), 1L, std::multiplies<long>())) {
+                }
+                iterator & begin() { return *this; }
+                iterator const & begin() const { return *this; }
+                iterator end() const { return end_iter; }
+           };
+
+       template<class... Types>
+           _ndindex<sizeof...(Types)> ndindex(Types... args) {
+               return _ndindex<sizeof...(Types)>(core::make_tuple(args...));
+           }
+
+       PROXY(pythonic::numpy, ndindex);
+
        template<class E, class dtype=double>
            auto
            mean(E const& expr, none_type axis=None, dtype d=dtype())
@@ -476,6 +587,55 @@ namespace pythonic {
 
        PROXY(pythonic::numpy, min);
        PROXY(pythonic::numpy, max);
+
+       template<class E>
+           auto nanmin(E&& expr) -> typename std::remove_reference<decltype(expr.at(0))>::type {
+               long n = expr.size();
+               if(not n) 
+                   throw __builtin__::ValueError("empty sequence");
+               long i = 0;
+               auto e_i = expr.at(i);
+               while( nt2::is_nan(e_i) and i < n )
+                   e_i = expr.at(++i);
+               if(i == n) {
+                   throw __builtin__::ValueError("nan sequence");
+               }
+               else {
+                   auto res = e_i;
+                   for(; i< n ; ++i) {
+                       auto e_i = expr.at(i);
+                       if(e_i< res and not nt2::is_nan(e_i))
+                           res = e_i;
+                   }
+                   return res;
+               }
+           }
+
+       template<class E>
+           auto nanmax(E&& expr) -> typename std::remove_reference<decltype(expr.at(0))>::type {
+               long n = expr.size();
+               if(not n) 
+                   throw __builtin__::ValueError("empty sequence");
+               long i = 0;
+               auto e_i = expr.at(i);
+               while( nt2::is_nan(e_i) and i < n )
+                   e_i = expr.at(++i);
+               if(i == n) {
+                   throw __builtin__::ValueError("nan sequence");
+               }
+               else {
+                   auto res = e_i;
+                   for(; i< n ; ++i) {
+                       auto e_i = expr.at(i);
+                       if(e_i > res and not nt2::is_nan(e_i))
+                           res = e_i;
+                   }
+                   return res;
+               }
+           }
+
+       PROXY(pythonic::numpy, nanmin);
+       PROXY(pythonic::numpy, nanmax);
 
        template<class E>
            bool all(E&& expr) {

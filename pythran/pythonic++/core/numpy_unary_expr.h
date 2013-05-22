@@ -5,7 +5,7 @@
 #error NUMPY_UNARY_FUNC_SYM undefined
 #endif
 
-template<class T, unsigned long N>
+template<class T, size_t N>
 numpy_uexpr<NUMPY_UNARY_FUNC_SYM, ndarray<T,N>> NUMPY_UNARY_FUNC_NAME(ndarray<T,N> const & self) {
     return numpy_uexpr<NUMPY_UNARY_FUNC_SYM, ndarray<T,N>>(self);
 }

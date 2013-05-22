@@ -19,6 +19,8 @@ from syntax import PythranSyntaxError
 
 from openmp import OMPDirective
 
+from math import isnan
+
 import cStringIO
 import unparse
 import metadata
@@ -775,6 +777,8 @@ class Cxx(Backend):
                     repr(node.n.imag))
         elif type(node.n) == long:
             return 'pythran_long({0})'.format(node.n)
+        elif isnan(node.n):
+            return 'pythonic::nan'
         else:
             return repr(node.n) + type_to_suffix.get(type(node.n), "")
 

@@ -195,9 +195,13 @@ namespace pythonic {
 
        PROXY(pythonic::numpy, cumsum);
 
-       template<class T, size_t N>
-           T sum(core::ndarray<T,N> const& expr, none_type axis=None) {
-               return std::accumulate(expr.buffer, expr.buffer + expr.size(), T(0));
+       template<class E>
+           typename core::numpy_expr_to_ndarray<E>::type::dtype
+           sum(E const& expr, none_type axis=None) {
+               auto p = typename core::numpy_expr_to_ndarray<E>::type::dtype(0);
+               for(long i=0, n = expr.size() ; i<n; i++)
+                   p += expr.at(i);
+               return p;
            }
 
        template<class T>
@@ -435,9 +439,13 @@ namespace pythonic {
 
         PROXY(pythonic::numpy, nanargmin);
 
-       template<class T, size_t N>
-           T prod(core::ndarray<T,N> const& expr, none_type axis=None) {
-               return std::accumulate(expr.buffer, expr.buffer + expr.size(), T(1), std::multiplies<T>());
+       template<class E>
+           typename core::numpy_expr_to_ndarray<E>::type::dtype
+           prod(E const& expr, none_type axis=None) {
+               auto p = typename core::numpy_expr_to_ndarray<E>::type::dtype(1);
+               for(long i=0, n = expr.size() ; i<n; i++)
+                   p *= expr.at(i);
+               return p;
            }
 
        template<class T>

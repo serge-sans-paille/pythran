@@ -140,7 +140,7 @@ core::dict<C, typename __combined<A,B>::type > operator+(core::dict<C,B> , conta
 
 template <class A, class B>
 dict_container<typename __combined<A,B>::type > operator+(container<A> , dict_container<B> );
-template <class A, class B, class C>
+template <class A, class B>
 dict_container<typename __combined<A,B>::type > operator+(dict_container<B> , container<A> );
 
 template <class A>

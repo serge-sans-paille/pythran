@@ -741,7 +741,6 @@ namespace pythonic {
                 return tuple_sum(t, int_<sizeof...(Types)-1>());
             }
 
-        PROXY(pythonic::__builtin__,sum);
 
         /* xrange -> forward declared */
 

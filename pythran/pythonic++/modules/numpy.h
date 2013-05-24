@@ -1551,13 +1551,8 @@ namespace pythonic {
                         out[i][j] = a.buffer[j];
                 return out;
             }
-        template<class T>
-            auto diag(core::list<T> const& t, long k=0) 
-            -> decltype(diag(asarray(t),k))
-            {
-                return diag(asarray(t),k);
-            }
 
+        NUMPY_EXPR_TO_NDARRAY0(diag);
         PROXY(pythonic::numpy, diag);
 
         ALIAS(diag, diagflat);
@@ -2905,6 +2900,21 @@ namespace pythonic {
 #undef NP_PROXY
 #undef NAMED_OPERATOR
 #undef NAMED_UOPERATOR
+    }
+
+    namespace __builtin__ {
+        template<class Op, class Arg0>
+            auto sum(core::numpy_uexpr<Op, Arg0> const& e) -> decltype(numpy::sum(numpy::asarray(e), 0))
+            {
+                return numpy::sum(numpy::asarray(e), 0);
+            }
+
+        template<class Op, class Arg0, class Arg1>
+            auto sum(core::numpy_expr<Op, Arg0, Arg1> const& e) -> decltype(numpy::sum(numpy::asarray(e), 0))
+            {
+                return numpy::sum(numpy::asarray(e), 0);
+            }
+        PROXY(pythonic::__builtin__,sum);
     }
 }
 

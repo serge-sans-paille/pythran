@@ -295,6 +295,67 @@ struct __combined<O, core::ndarray<T,N>> {
     typedef core::ndarray<T,N> type;
 };
 
+template<class Arg0, class Op, class K>
+struct __combined<core::numpy_uexpr<Op, Arg0>, indexable<K>> {
+    typedef core::numpy_uexpr<Op, Arg0> type;
+};
+
+template<class Arg0, class Arg1, class Op, class K>
+struct __combined<core::numpy_expr<Op, Arg0, Arg1>, indexable<K>> {
+    typedef core::numpy_expr<Op, Arg0, Arg1> type;
+};
+
+template<class Arg0, class Op, class K>
+struct __combined<indexable<K>, core::numpy_uexpr<Op, Arg0>> {
+    typedef core::numpy_uexpr<Op, Arg0> type;
+};
+
+template<class Arg0, class Arg1, class Op, class K>
+struct __combined<indexable<K>, core::numpy_expr<Op, Arg0, Arg1>> {
+    typedef core::numpy_expr<Op, Arg0, Arg1> type;
+};
+
+template<class Arg0, class Op, class K, class V>
+struct __combined<core::numpy_uexpr<Op, Arg0>, indexable_container<K,V>> {
+    typedef core::numpy_uexpr<Op, Arg0> type;
+};
+
+template<class Arg0, class Arg1, class Op, class K, class V>
+struct __combined<core::numpy_expr<Op, Arg0, Arg1>, indexable_container<K,V>> {
+    typedef core::numpy_expr<Op, Arg0, Arg1> type;
+};
+
+template<class Arg0, class Op, class K, class V>
+struct __combined<indexable_container<K,V>, core::numpy_uexpr<Op, Arg0>> {
+    typedef core::numpy_uexpr<Op, Arg0> type;
+};
+
+template<class Arg0, class Arg1, class Op, class K, class V>
+struct __combined<indexable_container<K,V>, core::numpy_expr<Op, Arg0, Arg1>> {
+    typedef core::numpy_expr<Op, Arg0, Arg1> type;
+};
+
+
+template<class Arg0, class Op, class K>
+struct __combined<container<K>, core::numpy_uexpr<Op, Arg0>> {
+    typedef core::numpy_uexpr<Op, Arg0> type;
+};
+
+template<class Arg0, class Arg1, class Op, class K>
+struct __combined<container<K>, core::numpy_expr<Op, Arg0, Arg1>> {
+    typedef core::numpy_expr<Op, Arg0, Arg1> type;
+};
+
+template<class Arg0, class Op, class K>
+struct __combined<core::numpy_uexpr<Op, Arg0>, container<K>> {
+    typedef core::numpy_uexpr<Op, Arg0> type;
+};
+
+template<class Arg0, class Arg1, class Op, class K>
+struct __combined<core::numpy_expr<Op, Arg0, Arg1>, container<K>> {
+    typedef core::numpy_expr<Op, Arg0, Arg1> type;
+};
+
 template <class K, class V1, class V2>
 core::set<decltype(std::declval<V1>()+std::declval<V2>())> operator+(indexable_container<K,V1>, core::set<V2>);
 template <class K, class V1, class V2>

@@ -40,7 +40,7 @@ Prerequisite
 Let us assume you're running a Debian/Ubuntu distrib. In that case, all you 
 have to do is::
 
-	$> sudo apt-get install libboost-python-dev libgoogle-perftools-dev libgmp-dev python-ply python-networkx
+	$> sudo apt-get install libboost-python-dev libgoogle-perftools-dev libgmp-dev python-ply python-networkx cmake
 
 If you prefer the ``easy_install`` way, from ``setuptools``
 (``python-setuptools`` package under Debian), the way to go is::

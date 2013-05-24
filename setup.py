@@ -3,6 +3,8 @@ from distutils.command.build import build
 from unittest import TextTestRunner, TestLoader
 import os
 import sys
+import shutil
+from subprocess import check_call
 
 
 class BuildWithPly(build):
@@ -18,14 +20,46 @@ class BuildWithPly(build):
                 os.rename(p, target)
             assert os.path.exists(target)
 
+    def build_nt2(self):
+        nt2_dir = 'nt2'
+        if not os.path.isdir(nt2_dir):
+            print 'nt2 git reprository not setup, cloning it'
+            cmd = 'git clone https://github.com/MetaScale/nt2.git -b release'
+            check_call(cmd.split())
+
+        nt2_build_dir = os.path.join(self.build_temp, nt2_dir)
+        if not os.path.isdir(nt2_build_dir):
+            os.makedirs(nt2_build_dir)
+
+        if not os.path.exists(os.path.join(nt2_build_dir, 'Makefile')):
+            print 'nt2 not already configured, configuring it'
+
+            cwd = os.getcwd()
+            abs_nt2_dir = os.path.join(cwd, nt2_dir)
+            os.chdir(nt2_build_dir)
+            build_cmd = ['cmake',
+                    abs_nt2_dir,
+                    '-DCMAKE_INSTALL_PREFIX=.',
+                    '-DNT2_FIND_REPOSITORIES='
+                    'git://github.com/MetaScale/nt2-modules.git',
+                    '-DNT2_MODULES_EXTRA='
+                    'extern.boost_math']
+            check_call(build_cmd)
+            os.chdir(cwd)
+
+        check_call(['make', '-C', nt2_build_dir, 'install'])
+        for d in ('nt2', 'boost'):
+            src = os.path.join(nt2_build_dir, 'include', d)
+            target = os.path.join(self.build_lib, 'pythran', d)
+            shutil.rmtree(target)
+            shutil.copytree(src, target)
+
     def run(self, *args, **kwargs):
         if not self.dry_run:  # compatibility with the parent options
             self.build_ply()
+            self.build_nt2()
         # regular build done by patent class
         build.run(self, *args, **kwargs)
-        print 'args', args
-        print 'kwargs', kwargs
-        print 'self', dir(self)
 
 
 class TestCommand(Command):

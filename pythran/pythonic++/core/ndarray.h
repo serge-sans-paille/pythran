@@ -5,6 +5,7 @@
 #include <iterator>
 #include <array>
 #include <initializer_list>
+#include <numeric>
 #include "shared_ref.h"
 
 #ifdef __AVX__

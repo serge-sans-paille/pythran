@@ -51,7 +51,7 @@ class BuildWithPly(build):
         for d in ('nt2', 'boost'):
             src = os.path.join(nt2_build_dir, 'include', d)
             target = os.path.join(self.build_lib, 'pythran', d)
-            shutil.rmtree(target)
+            shutil.rmtree(target,True)
             shutil.copytree(src, target)
 
     def run(self, *args, **kwargs):

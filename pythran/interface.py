@@ -210,7 +210,7 @@ class ToolChain(object):
     def pythran_cppflags(self):
         curr_dir = os.path.dirname(os.path.dirname(__file__))
         get = lambda *x: '-I' + os.path.join(curr_dir, *x)
-        return [get(), get('pythran', 'pythonic++')]
+        return [get(), get('pythran'), get('pythran', 'pythonic++')]
 
     def compile(self, module, output_filename=None):
         fd, fdpath = mkstemp(suffix=".cpp")

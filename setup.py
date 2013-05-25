@@ -47,12 +47,11 @@ class BuildWithPly(build):
             check_call(build_cmd)
             os.chdir(cwd)
 
-        check_call(['make', '-C', nt2_build_dir, 'install'])
+        check_call(['make', '-C', nt2_build_dir, 'install','-j'])
         for d in ('nt2', 'boost'):
             src = os.path.join(nt2_build_dir, 'include', d)
             target = os.path.join(self.build_lib, 'pythran', d)
-            if os.path.exists(target):
-                shutil.rmtree(target)
+            shutil.rmtree(target,True)
             shutil.copytree(src, target)
 
     def run(self, *args, **kwargs):

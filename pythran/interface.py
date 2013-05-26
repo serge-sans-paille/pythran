@@ -41,7 +41,8 @@ def pytype_to_ctype(t):
         return 'std::tuple<{0}>'.format(", ".join(pytype_to_ctype(_)
                                         for _ in t))
     elif isinstance(t, ndarray):
-        return 'core::ndarray<{0},{1}>'.format(pytype_to_ctype(t.flat[0]), t.ndim)
+        return 'core::ndarray<{0},{1}>'.format(pytype_to_ctype(t.flat[0]),
+                                               t.ndim)
     elif t in pytype_to_ctype_table:
         return pytype_to_ctype_table[t]
     else:
@@ -101,7 +102,7 @@ def cxx_generator(module_name, code, specs=None, optimizations=None):
 
     # middle-end
     optimizations = (optimizations or
-            cfg.get('pythran', 'optimizations').split())
+                     cfg.get('pythran', 'optimizations').split())
     optimizations = map(parse_optimization, optimizations)
     refine(pm, ir, optimizations)
 
@@ -131,10 +132,9 @@ def cxx_generator(module_name, code, specs=None, optimizations=None):
         mod.add_to_preamble(content)
         mod.add_to_init([
             Statement('import_array()'),
-            Statement(
-                'boost::python::implicitly_convertible<std::string,'
-                + 'pythonic::core::string>()')]
-            )
+            Statement('boost::python::implicitly_convertible<std::string,'
+                      + 'pythonic::core::string>()')]
+        )
 
         for function_name, signatures in specs.iteritems():
             internal_func_name = renamings.get(function_name,
@@ -186,31 +186,31 @@ class ToolChain(object):
         self.cppflags += self.numpy_cppflags()
         self.cppflags += cfg.get('sys', 'cppflags').split()
         self.cppflags += kwargs.get('cppflags',
-                cfg.get('user', 'cppflags').split())
+                                    cfg.get('user', 'cppflags').split())
 
         self.cxxflags = cfg.get('sys', 'cxxflags').split()
         self.cxxflags += kwargs.get('cxxflags',
-                cfg.get('user', 'cxxflags').split())
+                                    cfg.get('user', 'cxxflags').split())
 
         self.ldflags = self.python_ldflags()
         self.ldflags += cfg.get('sys', 'ldflags').split()
         self.ldflags += kwargs.get('ldflags',
-                cfg.get('user', 'ldflags').split())
+                                   cfg.get('user', 'ldflags').split())
 
     def python_cppflags(self):
         return ["-I" + distutils.sysconfig.get_python_inc()]
 
     def numpy_cppflags(self):
-        return ['-I{0}/numpy'.format(get_include())]
+        return ["-I" + os.path.join(get_include(), 'numpy')]
 
     def python_ldflags(self):
-        return ["-L{0}/config".format(
-            distutils.sysconfig.get_python_lib(0, 1))]
+        return ["-L" + os.path.join(distutils.sysconfig.get_python_lib(0, 1),
+                                    "config")]
 
     def pythran_cppflags(self):
         curr_dir = os.path.dirname(os.path.dirname(__file__))
         get = lambda *x: '-I' + os.path.join(curr_dir, *x)
-        return [get(), get('pythran', 'pythonic++')]
+        return [get(), get('pythran'), get('pythran', 'pythonic++')]
 
     def compile(self, module, output_filename=None):
         fd, fdpath = mkstemp(suffix=".cpp")

@@ -5,6 +5,7 @@
 #include <iterator>
 #include <array>
 #include <initializer_list>
+#include <numeric>
 #include "shared_ref.h"
 
 #ifdef __AVX__
@@ -617,7 +618,7 @@ namespace  pythonic {
                 /* helpers */
                 template<class R, class U, size_t M>
                     R mat(U&& iter, int_<M>) {
-                        return (*this)[*iter].mat<R>(iter+1, int_<M-1>());
+                        return (*this)[*iter].template mat<R>(iter+1, int_<M-1>());
                     }
                 template<class R, class U>
                     R mat(U&& iter, int_<1>) {

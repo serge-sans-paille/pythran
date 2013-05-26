@@ -627,11 +627,11 @@ class Types(ModuleAnalysis):
                 elif isinstance(slice, ast.ExtSlice):
                     funs = map(slice_handler, slice.dims)
                     return lambda t: reduce(lambda x, y: y(x), funs, t)
-                elif isinstance(slice.value, ast.Num) and node.slice.value.n >= 0:
-                    return lambda t: ElementType(slice.value.n, t)
-                elif isinstance(slice.value, ast.Tuple):
+                elif isinstance(slice, ast.Num) and node.n >= 0:
+                    return lambda t: ElementType(slice.n, t)
+                elif isinstance(slice, ast.Tuple):
                     return lambda t: reduce(lambda x, y: ContentType(x),
-                            slice.value.elts, t)
+                            slice.elts, t)
                 else:
                     return ContentType
             f = slice_handler(node.slice)

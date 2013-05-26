@@ -131,6 +131,51 @@ template<class F, class T, size_t N>
 numpy_expr<NUMPY_BINARY_FUNC_SYM, ndarray<T,N>, sliced_ndarray<F>> NUMPY_BINARY_FUNC_NAME(ndarray<T,N> const & self, sliced_ndarray<F> const & other) {
     return numpy_expr<NUMPY_BINARY_FUNC_SYM, ndarray<T,N>, sliced_ndarray<F>>(self, other);
 }
+/* gsliced array */
+template<class T, size_t M>
+numpy_expr<NUMPY_BINARY_FUNC_SYM, gsliced_ndarray<T, M>, gsliced_ndarray<T, M>> NUMPY_BINARY_FUNC_NAME(gsliced_ndarray<T, M> const & self, gsliced_ndarray<T, M> const & other) {
+    return numpy_expr<NUMPY_BINARY_FUNC_SYM, gsliced_ndarray<T, M>, gsliced_ndarray<T, M>>(self, other);
+}
+
+template<class T, class Op, class Arg0, class Arg1, size_t M>
+numpy_expr<NUMPY_BINARY_FUNC_SYM, gsliced_ndarray<T, M>, numpy_expr<Op, Arg0, Arg1>> NUMPY_BINARY_FUNC_NAME(gsliced_ndarray<T, M> const & self, numpy_expr<Op, Arg0, Arg1> const & other) {
+    return numpy_expr<NUMPY_BINARY_FUNC_SYM, gsliced_ndarray<T, M>, numpy_expr<Op, Arg0, Arg1>>(self, other);
+}
+
+template<class T, class Op, class Arg0, size_t M>
+numpy_expr<NUMPY_BINARY_FUNC_SYM, gsliced_ndarray<T, M>, numpy_uexpr<Op, Arg0>> NUMPY_BINARY_FUNC_NAME(gsliced_ndarray<T, M> const & self, numpy_uexpr<Op, Arg0> const & other) {
+    return numpy_expr<NUMPY_BINARY_FUNC_SYM, gsliced_ndarray<T, M>, numpy_uexpr<Op, Arg0>>(self, other);
+}
+
+template<class T, class Op, class Arg0, class Arg1, size_t M>
+numpy_expr<NUMPY_BINARY_FUNC_SYM, numpy_expr<Op, Arg0, Arg1>, gsliced_ndarray<T, M>> NUMPY_BINARY_FUNC_NAME(numpy_expr<Op, Arg0, Arg1> const & other, gsliced_ndarray<T, M> const & self) {
+    return numpy_expr<NUMPY_BINARY_FUNC_SYM, numpy_expr<Op, Arg0, Arg1>, gsliced_ndarray<T, M>>(other, self);
+}
+
+template<class T, class Op, class Arg0, size_t M>
+numpy_expr<NUMPY_BINARY_FUNC_SYM, numpy_uexpr<Op, Arg0>, gsliced_ndarray<T, M>> NUMPY_BINARY_FUNC_NAME(numpy_uexpr<Op, Arg0> const & other, gsliced_ndarray<T, M> const & self) {
+    return numpy_expr<NUMPY_BINARY_FUNC_SYM, numpy_uexpr<Op, Arg0>, gsliced_ndarray<T, M>>(other, self);
+}
+
+template<class T, class S, size_t M>
+typename std::enable_if<std::is_scalar<S>::value, numpy_expr<NUMPY_BINARY_FUNC_SYM, gsliced_ndarray<T, M>, broadcast<S>>>::type NUMPY_BINARY_FUNC_NAME(gsliced_ndarray<T, M> const & self, S other) {
+    return numpy_expr<NUMPY_BINARY_FUNC_SYM, gsliced_ndarray<T, M>, broadcast<S>>(self, broadcast<S>(other));
+}
+
+template<class T, class S, size_t M>
+typename std::enable_if<std::is_scalar<S>::value, numpy_expr<NUMPY_BINARY_FUNC_SYM, broadcast<S>, gsliced_ndarray<T, M>>>::type NUMPY_BINARY_FUNC_NAME(S other, gsliced_ndarray<T, M> const & self) {
+    return numpy_expr<NUMPY_BINARY_FUNC_SYM, broadcast<S>, gsliced_ndarray<T, M>>(broadcast<S>(other), self);
+}
+
+template<class F, class T, size_t N, size_t M>
+numpy_expr<NUMPY_BINARY_FUNC_SYM, gsliced_ndarray<F, M>, ndarray<T,N>> NUMPY_BINARY_FUNC_NAME(gsliced_ndarray<F, M> const & self, ndarray<T,N> const & other) {
+    return numpy_expr<NUMPY_BINARY_FUNC_SYM, gsliced_ndarray<F, M>, ndarray<T,N>>(self, other);
+}
+
+template<class F, class T, size_t N, size_t M>
+numpy_expr<NUMPY_BINARY_FUNC_SYM, ndarray<T,N>, gsliced_ndarray<F, M>> NUMPY_BINARY_FUNC_NAME(ndarray<T,N> const & self, gsliced_ndarray<F, M> const & other) {
+    return numpy_expr<NUMPY_BINARY_FUNC_SYM, ndarray<T,N>, gsliced_ndarray<F, M>>(self, other);
+}
 
 #undef NUMPY_BINARY_FUNC_NAME
 #undef NUMPY_BINARY_FUNC_SYM

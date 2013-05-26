@@ -3,6 +3,18 @@ from test_env import TestEnv
 import numpy
 
 class TestNumpy(TestEnv):
+    def test_gslice0(self):
+        self.run_test("def np_gslice0(): import numpy as np ; a = np.array(range(10*9)).reshape(10,9) ; return a[1:9,5:7]", np_gslice0=[])
+
+    def test_gslice1(self):
+        self.run_test("def np_gslice1(): import numpy as np ; a = np.array(range(10*9*8)).reshape(10,9,8) ; return a[1:9,0:1, 3:6]", np_gslice1=[])
+
+    def test_gslice2(self):
+        self.run_test("def np_gslice2(): import numpy as np ; a = np.array(range(10*9*8)).reshape(10,9,8) ; return a[:,0:1, 3:6]", np_gslice2=[])
+
+    def test_gslice3(self):
+        self.run_test("def np_gslice3(): import numpy as np ; a = np.array(range(10*9*8)).reshape(10,9,8) ; return a[:-1,0:-1, -3:7]", np_gslice3=[])
+
     def test_ndindex0(self):
         self.run_test("def np_ndindex0(): import numpy as np ; return [x for x in np.ndindex(5,6)]", np_ndindex0=[])
 

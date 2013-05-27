@@ -15,6 +15,12 @@ class TestNumpy(TestEnv):
     def test_gslice3(self):
         self.run_test("def np_gslice3(): import numpy as np ; a = np.array(range(10*9*8)).reshape(10,9,8) ; return a[:-1,0:-1, -3:7]", np_gslice3=[])
 
+    def test_gslice4(self):
+        self.run_test("def np_gslice4(): import numpy as np ; a = np.array(range(10*9*8)).reshape(10,9,8) ; return a[1,0:-1, -3:7]", np_gslice4=[])
+
+    def test_gslice5(self):
+        self.run_test("def np_gslice5(): import numpy as np ; a = np.array(range(10*9*8)).reshape(10,9,8) ; return a[1,0:-1, 7]", np_gslice5=[])
+
     def test_ndindex0(self):
         self.run_test("def np_ndindex0(): import numpy as np ; return [x for x in np.ndindex(5,6)]", np_ndindex0=[])
 

@@ -621,7 +621,8 @@ class Types(ModuleAnalysis):
         if metadata.get(node, metadata.Attribute):
             f = lambda t: AttributeType(node.slice.value.n, t)
         elif isinstance(node.slice, ast.ExtSlice):
-            f = lambda t:t
+            d = sum(int(type(dim) is ast.Index) for dim in node.slice.dims)
+            f = lambda t: reduce(lambda x, y: ContentType(x), range(d),t)
         elif isinstance(node.slice, ast.Slice):
             f = lambda t: t
         elif isinstance(node.slice.value, ast.Num) and node.slice.value.n >= 0:

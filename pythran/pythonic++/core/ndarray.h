@@ -306,27 +306,36 @@ namespace  pythonic {
                 static constexpr size_t value = count_slices<T>::value + count_slices<Types...>::value;
             };
 
-        template<class T, size_t M>
+        template<class T, size_t N>
             struct gsliced_ndarray {
-                static constexpr size_t value = M;
+                static constexpr size_t value = N;
 
                 typedef typename T::value_type value_type;
                 typedef typename T::reference reference;
                 typedef typename T::const_reference const_reference;
                 std::vector<slice> gslice;
+                core::ltuple<long, value> gshape;
                 core::ltuple<long, value> shape;
 
                 T data;
 
-                gsliced_ndarray(T const& data, std::vector<slice> const& s) : gslice(s), shape(data.shape.begin(), data.shape.end()), data(data) {
-                    for(size_t i=0;i<gslice.size();i++) {
+                gsliced_ndarray(T const& data, std::vector<slice> const& s, std::vector<bool> const& mask) :
+                    gslice(s),
+                    gshape(data.shape.begin(), data.shape.end()),
+                    shape(data.shape.begin(), data.shape.end()),
+                    data(data)
+                {
+
+                    for(size_t i=0, j=0;i<gslice.size();i++) {
                         if(gslice[i].upper > shape[i])
                             gslice[i].upper = shape[i];
                         else if(gslice[i].upper < 0)
                             gslice[i].upper += shape[i];
                         if(gslice[i].lower <0)
                             gslice[i].lower += shape[i];
-                        shape[i] = ceil(std::abs(double(gslice[i].upper - gslice[i].lower)/gslice[i].step));
+                        gshape[i] = ceil(std::abs(double(gslice[i].upper - gslice[i].lower)/gslice[i].step));
+                        if(mask[i])
+                            shape[j++] = ceil(std::abs(double(gslice[i].upper - gslice[i].lower)/gslice[i].step));
                     }
                 }
 
@@ -336,8 +345,8 @@ namespace  pythonic {
                     long findex = 0;
                     auto const &dshape = data.shape;
                     for(long j=gslice.size()-1; j>0; j--) {
-                        findex += (gslice[j].lower + (i/mult)%shape[j])*dmult;
-                        mult*=shape[j];
+                        findex += (gslice[j].lower + (i/mult)%gshape[j])*dmult;
+                        mult*=gshape[j];
                         dmult*=dshape[j];
                     }
                     return findex + (gslice[0].lower + i/mult)*dmult;
@@ -350,35 +359,42 @@ namespace  pythonic {
                 size_t size() const {
                     size_t n = data.size();
                     for(size_t i=0;i<gslice.size();++i)
-                        n = (n / data.shape[i]) * shape[i];
+                        n = (n / data.shape[i]) * gshape[i];
                     return n;
                 }
 
-                gsliced_ndarray<T,M>& operator=(value_type v) {
+                gsliced_ndarray<T,N>& operator=(value_type v) {
                     for(long i=0, n= size(); i<n ; ++i)
                         data.buffer[to_index(i)] = v;
                     return *this;
                 }
 
-                template<class E, size_t P>
-                    typename std::enable_if<core::is_array<E>::value, gsliced_ndarray<T,P>&>::type operator=(E const& v) {
+                template<class E, size_t M>
+                    typename std::enable_if<core::is_array<E>::value, gsliced_ndarray<T,M>&>::type operator=(E const& v) {
                         for(long i=0, n= size(); i<n ; ++i)
                             data.buffer[to_index(i)] = v.at(i);
                         return *this;
                     }
 
 
-                gsliced_ndarray<T,M>& operator+=(value_type v) {
+                gsliced_ndarray<T,N>& operator+=(value_type v) {
                     for(long i=0, n= size(); i<n ; ++i)
                         data.buffer[to_index(i)] += v;
                     return *this;
                 }
 
-                gsliced_ndarray<T,M>& operator-=(value_type v) {
+                gsliced_ndarray<T,N>& operator-=(value_type v) {
                     for(long i=0, n= size(); i<n ; ++i)
                         data.buffer[to_index(i)] -= v;
                     return *this;
                 }
+            };
+        template<class E, size_t M>
+            struct numpy_expr_to_ndarray<gsliced_ndarray<E,M>> {
+                typedef typename std::remove_cv<typename std::remove_reference< decltype(std::declval<gsliced_ndarray<E,M>>().at(0)) >::type>::type T;
+                static const size_t N = std::tuple_size< typename std::remove_cv<typename std::remove_reference< decltype(std::declval<gsliced_ndarray<E,M>>().shape) >::type > ::type > ::value;
+                typedef core::ndarray<T, N> type;
+
             };
 
         template<class T>
@@ -645,6 +661,7 @@ namespace  pythonic {
                     auto shape_iterator = shape.begin();
                     type_helper<ndarray<T,N>>::initialize_from_shape(*this, mem, mem->data, shape_iterator);
                     initialize_from_expr(expr);
+
                 }
 
                 /* assignment */
@@ -698,13 +715,13 @@ namespace  pythonic {
                 template<class S0, class S1, class...S>
                 gsliced_ndarray<ndarray<T,N>, count_slices<S0,S1,S...>::value > operator()(S0 const& s0, S1 const& s1, S const&... s_) const
                 {
-                    return gsliced_ndarray<ndarray<T,N>, count_slices<S0,S1,S...>::value>(*this, std::vector<slice>({as_shape(s0), as_shape(s1), as_shape(s_)...}));
+                    return gsliced_ndarray<ndarray<T,N>, count_slices<S0,S1,S...>::value>(*this, std::vector<slice>({as_shape(s0), as_shape(s1), as_shape(s_)...}), std::vector<bool>({std::is_same<S0,slice>::value, std::is_same<S1,slice>::value, std::is_same<S,slice>::value...}));
                 }
 
                 template<class S0, class S1, class...S>
                 gsliced_ndarray<ndarray<T,N>, count_slices<S0,S1,S...>::value > operator()(S0 const& s0, S1 const& s1, S const&... s_)
                 {
-                    return gsliced_ndarray<ndarray<T,N>, count_slices<S0,S1,S...>::value>(*this, std::vector<slice>({as_shape(s0), as_shape(s1), as_shape(s_)...}));
+                    return gsliced_ndarray<ndarray<T,N>, count_slices<S0,S1,S...>::value>(*this, std::vector<slice>({as_shape(s0), as_shape(s1), as_shape(s_)...}), std::vector<bool>({std::is_same<S0,slice>::value, std::is_same<S1,slice>::value, std::is_same<S,slice>::value...}));
                 }
 
 

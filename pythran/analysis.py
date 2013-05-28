@@ -514,7 +514,7 @@ class Aliases(ModuleAnalysis):
         map(self.visit_comprehension, node.generators)
         self.visit(node.elt)
         return self.add(node)
-    
+
     visit_SetComp = visit_ListComp
 
     visit_GeneratorExp = visit_ListComp

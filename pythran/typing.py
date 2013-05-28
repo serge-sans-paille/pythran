@@ -537,11 +537,12 @@ class Types(ModuleAnalysis):
 
     def visit_Compare(self, node):
         self.generic_visit(node)
-        all_compare =  zip(node.ops, node.comparators)
+        all_compare = zip(node.ops, node.comparators)
         for op, comp in all_compare:
             self.combine(node, comp,
                     unary_op=lambda x: ExpressionType(
-                        operator_to_type[type(op)], [self.result[node.left], x])
+                        operator_to_type[type(op)],
+                        [self.result[node.left], x])
                     )
 
     def visit_Call(self, node):
@@ -622,7 +623,7 @@ class Types(ModuleAnalysis):
             f = lambda t: AttributeType(node.slice.value.n, t)
         elif isinstance(node.slice, ast.ExtSlice):
             d = sum(int(type(dim) is ast.Index) for dim in node.slice.dims)
-            f = lambda t: reduce(lambda x, y: ContentType(x), range(d),t)
+            f = lambda t: reduce(lambda x, y: ContentType(x), range(d), t)
         elif isinstance(node.slice, ast.Slice):
             f = lambda t: t
         elif isinstance(node.slice.value, ast.Num) and node.slice.value.n >= 0:
@@ -652,7 +653,8 @@ class Types(ModuleAnalysis):
         elif node.id in builtin_constants:
             self.result[node] = NamedType(builtin_constants[node.id])
         elif node.id in builtin_constructors:
-            self.result[node] = ConstructorType(NamedType(builtin_constructors[node.id]))
+            self.result[node] = ConstructorType(
+                    NamedType(builtin_constructors[node.id]))
         else:
             self.result[node] = NamedType(node.id, {Weak})
 

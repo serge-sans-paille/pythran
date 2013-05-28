@@ -351,7 +351,10 @@ class Pow2(Transformation):
                 and type(node.right) is ast.Num
                 and node.right.n == 2):
             return ast.Call(
-                    ast.Attribute(ast.Name('__builtin__', ast.Load()), 'pow2', ast.Load()),
+                    ast.Attribute(
+                        ast.Name('__builtin__', ast.Load()),
+                        'pow2',
+                        ast.Load()),
                     [node.left],
                     [],
                     None,

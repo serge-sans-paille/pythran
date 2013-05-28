@@ -104,8 +104,8 @@ class SpecParser:
         elif len(p) == 5:
             p[0] = {p[1]: p[3]}
         else:
-            raise SyntaxError("Invalid Pythran spec. Unknown text '{0}'".format(
-                                    p.value))
+            raise SyntaxError("Invalid Pythran spec. "
+                    "Unknown text '{0}'".format(p.value))
 
     def p_term(self, p):
         '''term : STR

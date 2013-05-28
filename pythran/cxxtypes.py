@@ -153,7 +153,7 @@ class CombinedTypes(Type):
             return self
         if self == other:
             return self
-        return CombinedTypes([self,other])
+        return CombinedTypes([self, other])
 
     def all_types(self):
         out = set()
@@ -229,6 +229,7 @@ class Lazy(DependentType):
     def generate(self, ctx):
         return 'typename lazy<{0}>::type'.format(self.of.generate(ctx))
 
+
 class ConstructorType(DependentType):
     """
     A type that constructs a Named type
@@ -239,6 +240,7 @@ class ConstructorType(DependentType):
 
     def generate(self, ctx):
         return 'pythonic::constructor<{0}>'.format(self.of.generate(ctx))
+
 
 class DeclType(NamedType):
     """

@@ -43,7 +43,6 @@
 #include <nt2/include/functions/scalar/mod.hpp>
 #include <nt2/include/functions/scalar/nextafter.hpp>
 #include <nt2/include/functions/scalar/pow.hpp>
-#include <nt2/include/functions/scalar/powi.hpp>
 #include <nt2/include/functions/scalar/rec.hpp>
 #include <nt2/include/functions/scalar/remainder.hpp>
 #include <nt2/include/functions/scalar/sign.hpp>
@@ -98,7 +97,6 @@
 #include <nt2/include/functions/simd/mod.hpp>
 #include <nt2/include/functions/simd/nextafter.hpp>
 #include <nt2/include/functions/simd/pow.hpp>
-#include <nt2/include/functions/simd/powi.hpp>
 #include <nt2/include/functions/simd/rec.hpp>
 #include <nt2/include/functions/simd/remainder.hpp>
 #include <nt2/include/functions/simd/sign.hpp>
@@ -678,11 +676,6 @@ namespace  pythonic {
 #define NUMPY_BINARY_FUNC_SYM proxy::pow
 #include "numpy_binary_expr.h"
 
-            PROXY(nt2, powi)
-#define NUMPY_BINARY_FUNC_NAME poweri
-#define NUMPY_BINARY_FUNC_SYM proxy::powi
-#include "numpy_binary_expr.h"
-
 #define NUMPY_UNARY_FUNC_NAME rad2deg
 #define NUMPY_UNARY_FUNC_SYM proxy::indeg
 #include "numpy_unary_expr.h"
@@ -792,9 +785,9 @@ namespace  pythonic {
                 return pythonic::core::power(a, value);
             }
         template<class T>
-            auto pow(T const& a, long value) -> typename std::enable_if<core::is_array_like<T>::value, decltype(pythonic::core::poweri(a, value))>::type
+            auto pow(T const& a, long value) -> typename std::enable_if<core::is_array_like<T>::value, decltype(pythonic::core::power(a, value))>::type
             {
-                return pythonic::core::poweri(a, value);
+                return pythonic::core::power(a, value);
             }
     }
 }

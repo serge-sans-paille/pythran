@@ -115,7 +115,7 @@ try:
         if args.debug_flag:
             cxxflags += ['-g']
 
-        ldflags = ['-f{0}'.format(n) for n in args.extra_Lflags]
+        ldflags = ['-L{0}'.format(n) for n in args.extra_Lflags]
 
         compiler_options = {}
         if cppflags:

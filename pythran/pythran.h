@@ -150,25 +150,16 @@ dict_container<A> operator+(container<A> , core::empty_dict );
 template <class A>
 dict_container<A> operator+(core::empty_dict , container<A> );
 
-template <class K, class V>
-core::dict<K, V> operator+(core::empty_dict , core::list<std::tuple<K,V>> );
-template <class K, class V>
-core::dict<K, V> operator+(core::list<std::tuple<K,V>>, core::empty_dict);
-template <class K0, class V0, class K1, class V1>
-core::dict<typename __combined<K0,K1>::type, typename __combined<V0, V1>::type > operator+(core::dict<K0,V0> , core::list<std::tuple<K1,V1>> );
-template <class K0, class V0, class K1, class V1>
-core::dict<typename __combined<K0,K1>::type, typename __combined<V0, V1>::type > operator+(core::list<std::tuple<K1,V1>>, core::dict<K0,V0>);
+template <class T>
+core::dict<typename std::tuple_element<0,T>::type, typename std::tuple_element<1,T>::type> operator+(core::empty_dict , core::list<T> );
+template <class T>
+core::dict<typename std::tuple_element<0,T>::type, typename std::tuple_element<1,T>::type> operator+(core::list<T> , core::empty_dict);
 
-/* in case tuples were converted to list { */
-template <class T, size_t N>
-core::dict<T, T> operator+(core::empty_dict , core::list<core::ltuple<T,N>> );
-template <class T, size_t N>
-core::dict<T, T> operator+(core::list<core::ltuple<T,N>>,core::empty_dict  );
-template <class K0, class V0, class T, size_t N>
-core::dict<typename __combined<K0,T>::type, typename __combined<V0, T>::type > operator+(core::dict<K0,V0> , core::list<core::ltuple<T,N>> );
-template <class K0, class V0, class T, size_t N>
-core::dict<typename __combined<K0,T>::type, typename __combined<V0, T>::type > operator+(core::list<core::ltuple<T,N>>, core::dict<K0,V0>);
-/* } */
+template <class K0, class V0, class T>
+core::dict<typename __combined<K0,typename std::tuple_element<0,T>::type>::type, typename __combined<V0, typename std::tuple_element<1,T>::type>::type > operator+(core::dict<K0,V0> , core::list<T> );
+template <class K0, class V0, class T>
+core::dict<typename __combined<K0,typename std::tuple_element<0,T>::type>::type, typename __combined<V0, typename std::tuple_element<1,T>::type>::type > operator+(core::list<T>, core::dict<K0,V0>);
+
 
 template <class A>
 typename __combined<core::list<A>, none_type>::type operator+(container<A> , none_type );

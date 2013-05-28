@@ -365,7 +365,7 @@ namespace  pythonic {
                     return findex + (i/mgshape[0])*mdshape[0];
                 }
 
-                auto at(long i) const -> decltype(data.at(0)) {
+                auto at(long i) const -> typename std::remove_reference<decltype(data.at(0))>::type {
                     return data.at(to_index(i));
                 }
 
@@ -744,6 +744,7 @@ namespace  pythonic {
                 typename type_helper<ndarray<T, N>>::const_iterator end() const { return type_helper<ndarray<T, N>>::end(*this); }
 
                 T at(long i) const { return buffer[i]; }
+                T& at(long i) { return buffer[i]; }
 
 #ifdef __AVX__
                 auto load(long i) const -> decltype(boost::simd::unaligned_load<boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>>(buffer,i)) {

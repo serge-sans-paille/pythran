@@ -164,10 +164,11 @@ class Cxx(Backend):
             def typedefs(self):
                 l = sorted(self.mapping.items(), key=lambda x: x[1])
                 L = list()
-                visited = set()  # make sure the same value is not typedefed twice
+                visited = set()  # the same value must not be typedefed twice
                 for k, v in l:
                     if v not in visited:
-                        L.append(Typedef(Value(self.cache[k], "__type" + str(v))))
+                        typename = "__type" + str(v)
+                        L.append(Typedef(Value(self.cache[k], typename)))
                         visited.add(v)
                 return L
 
@@ -838,7 +839,6 @@ class Cxx(Backend):
     # other
     def visit_ExtSlice(self, node):
         return map(self.visit, node.dims)
-
 
     def visit_Slice(self, node):
         lower = node.lower and self.visit(node.lower)

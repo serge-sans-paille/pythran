@@ -54,16 +54,15 @@ class TestNumpy(TestEnv):
     def test_nanmax1(self):
         self.run_test("def np_nanmax1(): import numpy as np ; a = np.array([[1, 2], [np.inf, np.nan]]) ; return np.nanmax(a)" , np_nanmax1=[])
 
-    @unittest.skip("Need extended Slices and mean as Method instead of function")
     def test_np_residual(self):
         self.run_test("""import numpy as np
 def np_residual():
-    nx, ny = 75, 75
+    nx, ny, nz= 75, 75, 100
     hx, hy = 1./(nx-1), 1./(ny-1)
 
     P_left, P_right = 0, 0
     P_top, P_bottom = 1, 0
-    P = np.zeros((nx, ny), float)
+    P = np.ones((nx, ny, nz), np.float64)
     d2x = np.zeros_like(P)
     d2y = np.zeros_like(P)
 
@@ -1379,6 +1378,16 @@ def test_copy0():
 
     def test_sliced6(self):
         self.run_test("def np_sliced6(): from numpy import arange ; a = arange(12).reshape(6,2) ; return a[3:4]", np_sliced6=[])
+
+    def test_sliced7(self):
+        self.run_test("def np_sliced7(): from numpy import arange ; a = arange(12).reshape(6,2) ; a[3:4] = 1 ; return a", np_sliced7=[])
+
+    def test_sliced8(self):
+        self.run_test("def np_sliced8(): from numpy import arange ; a = arange(12).reshape(3,2,2) ; a[1:2] = 1 ; return a", np_sliced8=[])
+
+    def test_sliced9(self):
+        self.run_test("def np_sliced9(): from numpy import arange ; a = arange(12).reshape(3,2,2) ; a[1:2] = arange(4).reshape(1,2,2) ; return a", np_sliced9=[])
+
 
     def test_alen0(self):
         self.run_test("def np_alen0(): from numpy import ones, alen ; return alen(ones((5,6)))", np_alen0=[])

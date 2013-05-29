@@ -708,8 +708,8 @@ namespace pythonic {
                     for(long i=0;i < u_s; ++i) {
                         auto v_i = v.at(i);
                         auto u_i = u.at(i);
-                        if( v_i != v_i || // Check for nan
-                            u_i != u_i || // Check for nan
+                        if( nt2::is_nan(v_i) ||
+                            nt2::is_nan(u_i) ||
                             std::abs(u.at(i)-v_i) > (atol + rtol * std::abs(v_i)))
                             return false;
                     }

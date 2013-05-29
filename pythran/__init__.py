@@ -22,5 +22,5 @@ The C++ code can be compiled into a native module with the proper c++ compiler:
 'my_module.so'
 '''
 
-from interface import cxx_generator, compile
+from interface import cxx_generator, ToolChain
 from spec import spec_parser

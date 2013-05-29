@@ -125,7 +125,8 @@ try:
         if cxxflags:
             compiler_options['cxxflags'] = cxxflags
         
-        pythran.compile(module, args.output_file, **compiler_options)
+        pythran.ToolChain.compile_module(module, args.output_file,
+                                         **compiler_options)
 
 except IOError as e:
     print >> sys.stderr, "I've got a bad feeling about this..."
@@ -140,12 +141,10 @@ except SyntaxError as e:
             "Your input file does not seem to match Pythran's constraints...")
     print >> sys.stderr, "E:", e
     sys.exit(1)
-except CalledProcessError as e:
+except pythran.ToolChain.CompileError as e:
     print >> sys.stderr, "Leave the vessel! Women and children first!"
     print >> sys.stderr, "C++ compiler failed to compile translated code."
     print >> sys.stderr, "E:", e
-    print >> sys.stderr
-    print >> sys.stderr, e.output
     sys.exit(1)
 except NotImplementedError as e:
     print >> sys.stderr, ("MAYDAY, MAYDAY, MAYDAY; pythran compiler; "

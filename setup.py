@@ -75,7 +75,14 @@ class TestCommand(Command):
         pass
 
     def run(self):
-        where = os.path.join('pythran', 'tests')
+        # Do not include current directory, validate using installed pythran
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        sys.path = filter(lambda p: p != current_dir, sys.path)
+        where = os.path.join(current_dir, 'pythran', 'tests')
+
+        from pythran import ToolChain
+        ToolChain.test_compile()
+
         try:
             import py
             import xdist
@@ -134,27 +141,31 @@ class BenchmarkCommand(Command):
     def run(self):
         import glob
         import timeit
-        from pythran import cxx_generator, spec_parser
-        from pythran import compile as pythran_compile
-        where = "pythran/tests/cases/"
-        candidates = glob.glob(where + '*.py')
+        # Do not include current directory, validate using installed pythran
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        sys.path = filter(lambda p: p != current_dir, sys.path)
+        where = os.path.join(current_dir, 'pythran', 'tests', 'cases')
+
+        from pythran import ToolChain, cxx_generator, spec_parser
+        #ToolChain.test_compile()
+
+        candidates = glob.glob(os.path.join(where, '*.py'))
         sys.path.append(where)
         median = lambda x: sorted(x)[len(x) / 2]
         for candidate in candidates:
             with file(candidate) as content:
                 runas = [line for line in content.readlines()
-                        if line.startswith(BenchmarkCommand.runas_marker)]
+                         if line.startswith(BenchmarkCommand.runas_marker)]
                 if runas:
-                    module_name, _ = os.path.splitext(
-                            os.path.basename(candidate))
+                    modname, _ = os.path.splitext(os.path.basename(candidate))
                     runas_commands = runas[0].replace(
-                            BenchmarkCommand.runas_marker, '').split(";")
+                        BenchmarkCommand.runas_marker, '').split(";")
                     runas_context = ";".join(["import {0}".format(
-                                    module_name)] + runas_commands[:-1])
-                    runas_command = module_name + '.' + runas_commands[-1]
+                        modname)] + runas_commands[:-1])
+                    runas_command = modname + '.' + runas_commands[-1]
 
                     # cleaning
-                    sopath = module_name + ".so"
+                    sopath = os.path.splitext(candidate)[0] + ".so"
                     if os.path.exists(sopath):
                         os.remove(sopath)
 
@@ -162,17 +173,18 @@ class BenchmarkCommand(Command):
 
                     # pythran part
                     if self.mode.startswith('pythran'):
-                        specs = spec_parser(candidate)
-                        code = file(candidate).read()
-                        mod = cxx_generator(module_name, code, specs)
                         cxxflags = ["-Ofast", "-DNDEBUG"]
                         if self.mode == "pythran+omp":
                             cxxflags.append("-fopenmp")
-                        pythran_compile(os.environ.get("CXX", "c++"),
-                                mod, cxxflags=cxxflags)
+                        ToolChain.compile_pythranfile(candidate,
+                                                      cxxflags=cxxflags)
 
+                    print modname + " running ...",
+                    sys.stdout.flush()
                     timing = median(ti.repeat(self.nb_iter, number=1))
-                    print module_name, timing
+                    print timing
+                else:
+                    print "* Skip '" + candidate + ', no #runas directive'
 
 
 setup(name='pythran',

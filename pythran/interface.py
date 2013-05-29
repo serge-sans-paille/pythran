@@ -7,6 +7,7 @@ This module contains all the stuff to make your way from python code to
 import sys
 import os.path
 import distutils.sysconfig
+import shutil
 
 from cxxgen import *
 import ast
@@ -178,58 +179,145 @@ def cxx_generator(module_name, code, specs=None, optimizations=None):
 
 
 class ToolChain(object):
-    def __init__(self, **kwargs):
-        self.compiler = kwargs.get('cxx', cfg.get('user', 'cxx'))
 
-        self.cppflags = self.python_cppflags()
-        self.cppflags += self.pythran_cppflags()
-        self.cppflags += self.numpy_cppflags()
-        self.cppflags += cfg.get('sys', 'cppflags').split()
-        self.cppflags += kwargs.get('cppflags',
-                                    cfg.get('user', 'cppflags').split())
+    class CompileError(Exception):
 
-        self.cxxflags = cfg.get('sys', 'cxxflags').split()
-        self.cxxflags += kwargs.get('cxxflags',
-                                    cfg.get('user', 'cxxflags').split())
+        def __init__(self, cmdline, output):
+            self.cmdline = "'"+("' '".join(cmdline))+"'"
+            self.output = output
+            self._message = "\n".join(["Compile error!\n",
+                                       "******** Command line was: ********",
+                                       self.cmdline,
+                                       "\n******** Output :  ********\n",
+                                       self.output])
 
-        self.ldflags = self.python_ldflags()
-        self.ldflags += cfg.get('sys', 'ldflags').split()
-        self.ldflags += kwargs.get('ldflags',
-                                   cfg.get('user', 'ldflags').split())
+            super(ToolChain.CompileError, self).__init__(self._message)
 
-    def python_cppflags(self):
+    @classmethod
+    def cxxflags(cls):
+        return (cfg.get('user', 'cxxflags').split() +
+                cfg.get('sys', 'cxxflags').split())
+
+    @classmethod
+    def cppflags(cls):
+        return (cls.python_cppflags() +
+                cls.numpy_cppflags() +
+                cls.pythran_cppflags() +
+                cfg.get('sys', 'cppflags').split() +
+                cfg.get('user', 'cppflags').split())
+
+    @classmethod
+    def python_cppflags(cls):
         return ["-I" + distutils.sysconfig.get_python_inc()]
 
-    def numpy_cppflags(self):
+    @classmethod
+    def numpy_cppflags(cls):
         return ["-I" + os.path.join(get_include(), 'numpy')]
 
-    def python_ldflags(self):
+    @classmethod
+    def python_ldflags(cls):
         return ["-L" + os.path.join(distutils.sysconfig.get_python_lib(0, 1),
                                     "config")]
 
-    def pythran_cppflags(self):
+    @classmethod
+    def pythran_cppflags(cls):
         curr_dir = os.path.dirname(os.path.dirname(__file__))
         get = lambda *x: '-I' + os.path.join(curr_dir, *x)
         return [get('.'), get('pythran'), get('pythran', 'pythonic++')]
 
-    def compile(self, module, output_filename=None):
-        fd, fdpath = mkstemp(suffix=".cpp")
+    @classmethod
+    def ldflags(cls):
+        return (cls.python_ldflags() +
+                cfg.get('sys', 'ldflags').split() +
+                cfg.get('user', 'ldflags').split())
+
+    @classmethod
+    def get_temp(cls, content, suffix=".cpp"):
+        '''Get a temporary file for given content, default extension is .cpp
+           It is user's responsability to delete when done.'''
+        fd, fdpath = mkstemp(suffix)
         with os.fdopen(fd, "w") as cpp:
-            content = str(module.generate())
             cpp.write(content)
-        module_cpp = fdpath
-        module_so = output_filename or "{0}.so".format(module.name)
-        check_output([self.compiler, module_cpp]
-                     + self.cppflags
-                     + self.cxxflags
-                     + ["-shared", "-o", module_so]
-                     + self.ldflags,
-                     stderr=STDOUT)
-        os.remove(fdpath)
+        return fd, fdpath
+
+    @classmethod
+    def compile_cxxfile(cls, cxxfile, module_so=None, **kwargs):
+        '''c++ file -> native module'''
+        # FIXME: I'm not sure about overriding the user defined compiler here...
+        compiler = kwargs.get('cxx', cfg.get('user', 'cxx'))
+
+        cppflags = cls.cppflags() + kwargs.get('cppflags', [])
+        cxxflags = cls.cxxflags() + kwargs.get('cxxflags', [])
+        ldflags = cls.ldflags() + kwargs.get('ldflags', [])
+
+        # Get output filename from input filename if not set
+        module_so = module_so or (os.path.splitext(cxxfile)[0] + ".so")
+        try:
+            cmd = ([compiler, cxxfile]
+                   + cppflags
+                   + cxxflags
+                   + ["-shared", "-o", module_so]
+                   + ldflags)
+            output = check_output(cmd, stderr=STDOUT)
+        except CalledProcessError as e:
+            raise ToolChain.CompileError(e.cmd, e.output)
+
+        return module_so
+    '''c++ file -> native module'''
+
+    @classmethod
+    def compile_cxxcode(cls, cxxcode, module_so=None, keep_temp=False,
+                        **kwargs):
+        '''c++ code (string) -> temporary file -> native module.
+           Return the generated .so.'''
+
+        # Get a temporary C++ file to compile
+        fd, fdpath = cls.get_temp(cxxcode)
+        try:
+            module_so = cls.compile_cxxfile(fdpath, module_so, **kwargs)
+        finally:
+            if not keep_temp:
+                # remove tempfile
+                os.remove(fdpath)
+
         return module_so
 
+    @classmethod
+    def compile_module(cls, module, module_so=None, keep_temp=False, **kwargs):
+        '''BoostPython module -> c++ code -> native module'''
+        return cls.compile_cxxcode(str(module.generate()), module_so=module_so,
+                                   **kwargs)
 
-def compile(module, output_filename=None, **kwargs):
-    '''c++ code + compiler flags -> native module'''
-    tc = ToolChain(**kwargs)
-    return tc.compile(module, output_filename=output_filename)
+    @classmethod
+    def compile_pythrancode(cls, pythrancode, module_name, specs=None,
+                            module_so=None, **kwargs):
+        '''Pythran code (string) -> c++ code -> native module'''
+        from spec import spec_parser
+        specs = specs or spec_parser(pythrancode)
+        module = cxx_generator(module_name, pythrancode, specs)
+        return cls.compile_module(module, **kwargs)
+
+    @classmethod
+    def compile_pythranfile(cls, file_path, specs=None, keep_temp=False,
+                            **kwargs):
+        '''Pythran file -> c++ file -> native module'''
+        basedir, basename = os.path.split(file_path)
+        module_name = os.path.splitext(basename)[0]
+        module_so = os.path.join(basedir, module_name + ".so")
+        dl = cls.compile_pythrancode(file(file_path).read(), module_name,
+                                     module_so=module_so, specs=specs,
+                                     **kwargs)
+        # install DLL to the same path as the input py for smooth import
+        shutil.move(dl, module_so)
+        return module_so
+
+    @classmethod
+    def test_compile(cls):
+        """ Simple passthrough compile test.
+        May raises ToolChain.CompileError Exception.
+        """
+        module_so = cls.compile_cxxcode("\n".join([
+            "#define BOOST_PYTHON_MAX_ARITY 4",
+            "#include <pythran/pythran.h>",
+            "#include <pythran/pythran_gmp.h>"]))
+        module_so and os.remove(module_so)

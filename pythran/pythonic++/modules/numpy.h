@@ -707,7 +707,10 @@ namespace pythonic {
                 if( u_s == v_s ) {
                     for(long i=0;i < u_s; ++i) {
                         auto v_i = v.at(i);
-                        if( std::abs(u.at(i)-v_i) > (atol + rtol * std::abs(v_i)))
+                        auto u_i = u.at(i);
+                        if( nt2::is_nan(v_i) ||
+                            nt2::is_nan(u_i) ||
+                            std::abs(u.at(i)-v_i) > (atol + rtol * std::abs(v_i)))
                             return false;
                     }
                     return true;

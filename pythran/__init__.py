@@ -24,3 +24,4 @@ The C++ code can be compiled into a native module with the proper c++ compiler:
 
 from interface import cxx_generator, compile
 from spec import spec_parser
+from config import cfg

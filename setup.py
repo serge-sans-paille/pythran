@@ -1,6 +1,10 @@
 from distutils.core import setup, Command
 from distutils.command.build import build
 from unittest import TextTestRunner, TestLoader
+from pythran import cxx_generator, cfg
+from pythran import compile as pythran_compile
+from subprocess import CalledProcessError
+from ast import parse
 import os
 import sys
 import shutil
@@ -76,7 +80,17 @@ class TestCommand(Command):
     def finalize_options(self):
         pass
 
+    def check_nt2(self):
+        code = "def nt2(): return"
+        cxx_code = cxx_generator("test_nt2", parse(code), {"nt2":[]})
+        try:
+            pythran_compile(cxx_code, cppflags=[cfg.get('user', 'cppflags'), '-E'])
+        except CalledProcessError as e:
+            print "E: You try to run validation without nt2, it's bad"
+            raise
+
     def run(self):
+        self.check_nt2()
         where = os.path.join('pythran', 'tests')
         try:
             import py

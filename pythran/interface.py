@@ -6,7 +6,7 @@ This module contains all the stuff to make your way from python code to
 '''
 import sys
 import os.path
-import distutils.sysconfig
+import sysconfig
 import shutil
 
 from cxxgen import *
@@ -208,22 +208,22 @@ class ToolChain(object):
 
     @classmethod
     def python_cppflags(cls):
-        return ["-I" + distutils.sysconfig.get_python_inc()]
+        return ["-I" + sysconfig.get_config_var("INCLUDEPY")]
 
     @classmethod
     def numpy_cppflags(cls):
         return ["-I" + os.path.join(get_include(), 'numpy')]
 
     @classmethod
-    def python_ldflags(cls):
-        return ["-L" + os.path.join(distutils.sysconfig.get_python_lib(0, 1),
-                                    "config")]
-
-    @classmethod
     def pythran_cppflags(cls):
         curr_dir = os.path.dirname(os.path.dirname(__file__))
         get = lambda *x: '-I' + os.path.join(curr_dir, *x)
         return [get('.'), get('pythran'), get('pythran', 'pythonic++')]
+
+    @classmethod
+    def python_ldflags(cls):
+        return ["-L" + sysconfig.get_config_var("LIBPL"),
+                "-lpython" + sysconfig.get_config_var('VERSION')]
 
     @classmethod
     def ldflags(cls):

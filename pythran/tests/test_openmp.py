@@ -4,9 +4,12 @@ import os
 from imp import load_dynamic
 
 
-class CompileTest(unittest.TestCase):
+class CompileTest(object):
     def __init__(self, module_name):
         self.module_name = module_name
+
+    def __name__(self):
+        return self.module_name
 
     def __call__(self, check_output=False):
         module_path = os.path.join(os.path.dirname(__file__), "openmp",

@@ -3,6 +3,15 @@ from test_env import TestEnv
 import numpy
 
 class TestNumpy(TestEnv):
+    def test_frexp0(self):
+        self.run_test("def np_frexp0(): import numpy as np ; a = 1.5 ; return np.frexp(a)", np_frexp0=[])
+
+    def test_frexp1(self):
+        self.run_test("def np_frexp1(): import numpy as np ; a = np.array([1.1,2.2,3.3]) ; return np.frexp(a)", np_frexp1=[])
+
+    def test_frexp2(self):
+        self.run_test("def np_frexp2(): import numpy as np ; a = np.array([1.1,2.2,3.3]) ; return np.frexp(a+a)", np_frexp2=[])
+
     def test_gslice0(self):
         self.run_test("def np_gslice0(): import numpy as np ; a = np.array(range(10*9)).reshape(10,9) ; return a[1:9,5:7]", np_gslice0=[])
 

@@ -2730,6 +2730,30 @@ namespace pythonic {
 
         PROXY(pythonic::numpy, outer);
 
+        template<class T>
+        typename std::enable_if<std::is_scalar<T>::value, std::tuple<T,int>>::type
+        frexp(T val) {
+            int exp;
+            T significand = std::frexp(val, &exp);
+            return std::make_tuple(significand, exp);
+        }
+        template<class E>
+            typename std::enable_if<
+                not std::is_scalar<E>::value and not is_complex<E>::value,
+                std::tuple<
+                    core::ndarray<typename core::numpy_expr_to_ndarray<E>::type::dtype, core::numpy_expr_to_ndarray<E>::N>,
+                    core::ndarray<int, core::numpy_expr_to_ndarray<E>::N>
+                >
+            >::type
+            frexp(E const& arr) {
+                core::ndarray<typename core::numpy_expr_to_ndarray<E>::type::dtype, core::numpy_expr_to_ndarray<E>::N> significands(arr.shape, None);
+                core::ndarray<int, core::numpy_expr_to_ndarray<E>::N> exps(arr.shape, None);
+                for(long i=0,n=arr.size(); i<n; ++i)
+                    significands.buffer[i] = std::frexp(arr.at(i), exps.buffer + i);
+            return std::make_tuple(significands, exps);
+        }
+        PROXY(pythonic::numpy, frexp);
+
         NP_PROXY_ALIAS(arccos, nt2::acos);
 
         NP_PROXY_ALIAS(arccosh, nt2::acosh);

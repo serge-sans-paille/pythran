@@ -347,6 +347,7 @@ modules = {
             "fmax": ConstFunctionIntr(),
             "fmin": ConstFunctionIntr(),
             "fmod": ConstFunctionIntr(),
+            "frexp": ConstFunctionIntr(),
             "fromfunction": ConstFunctionIntr(),
             "fromiter": ConstFunctionIntr(),
             "fromstring": ConstFunctionIntr(),
@@ -477,7 +478,6 @@ modules = {
             "where": ConstFunctionIntr(),
             "zeros": ConstFunctionIntr(),
             "zeros_like": ConstFunctionIntr(),
-            # "frexp": ConstFunctionIntr(), TODO
             },
         "time": {
                 "sleep": FunctionIntr(global_effects=True),

@@ -167,11 +167,11 @@ namespace pythonic {
         struct nested_container_depth {
             static const int value = 1 + nested_container_depth<
                 typename std::conditional<
-                    is_iterable<T>::value,
+                    is_iterable<typename std::remove_reference<T>::type>::value,
                     typename std::conditional<
-                        std::is_scalar<typename T::value_type>::value or is_complex<typename T::value_type>::value,
+                        std::is_scalar<typename std::remove_reference<T>::type::value_type>::value or is_complex<typename std::remove_reference<T>::type::value_type>::value,
                         bool,
-                        typename T::value_type
+                        typename std::remove_reference<T>::type::value_type
                     >::type,
                     bool
                 >::type

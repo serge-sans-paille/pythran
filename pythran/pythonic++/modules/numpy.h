@@ -113,8 +113,8 @@ namespace pythonic {
                core::ndarray<R, 1> a(core::make_tuple((long)size), None);
                if(size)
                {
-                   auto prev = a.begin(),
-                        end = a.end();
+                   auto prev = a.buffer,
+                        end = a.buffer + a.size();
                    *prev = begin;
                    for(auto iter = prev + 1; iter!=end; ++iter) {
                        *iter = *prev + step;
@@ -199,7 +199,7 @@ namespace pythonic {
            typename core::numpy_expr_to_ndarray<E>::type::dtype
            sum(E const& expr, none_type axis=None) {
                auto p = typename core::numpy_expr_to_ndarray<E>::type::dtype(0);
-               for(long i=0, n = expr.size() ; i<n; i++)
+               for(long i=0, n = expr.size() ; i<n; ++i)
                    p += expr.at(i);
                return p;
            }
@@ -443,7 +443,7 @@ namespace pythonic {
            typename core::numpy_expr_to_ndarray<E>::type::dtype
            prod(E const& expr, none_type axis=None) {
                auto p = typename core::numpy_expr_to_ndarray<E>::type::dtype(1);
-               for(long i=0, n = expr.size() ; i<n; i++)
+               for(long i=0, n = expr.size() ; i<n; ++i)
                    p *= expr.at(i);
                return p;
            }
@@ -531,18 +531,18 @@ namespace pythonic {
                {
                    core::ltuple<long, N-1> shp;
                    size_t size = 1;
-                   for(auto i= shape.begin() + 1, j = shp.begin(); i<shape.end(); i++, j++)
+                   for(auto i= shape.begin() + 1, j = shp.begin(); i<shape.end(); ++i, ++j)
                         size*=(*j = *i);
                    core::ndarray<T,N-1> a(shp, None);
                    auto a_iter = a.buffer;
                    std::copy(array.buffer, array.buffer + size, a_iter);
-                   for(auto i = array.begin() + 1; i<array.end(); i++)
+                   for(auto i = array.begin() + 1; i<array.end(); ++i)
                    {
                        auto next_subarray = *i;  //we need this variable to keep this ndarray alive while iter is used
                        auto iter = next_subarray.buffer,
                             iter_end = next_subarray.buffer + next_subarray.size();
                        auto k = a_iter;
-                       for(auto j = iter; j<iter_end; j++, k++)
+                       for(auto j = iter; j<iter_end; ++j, ++k)
                            *k=std::min(*k,*j);
                     }
                     return a;
@@ -566,18 +566,18 @@ namespace pythonic {
                {
                    core::ltuple<long, N-1> shp;
                    size_t size = 1;
-                   for(auto i= shape.begin() + 1, j = shp.begin(); i<shape.end(); i++, j++)
+                   for(auto i= shape.begin() + 1, j = shp.begin(); i<shape.end(); ++i, ++j)
                         size*=(*j = *i);
                    core::ndarray<T,N-1> a(shp, None);
                    auto a_iter = a.buffer;
                    std::copy(array.buffer, array.buffer + size, a_iter);
-                   for(auto i = array.begin() + 1; i<array.end(); i++)
+                   for(auto i = array.begin() + 1; i<array.end(); ++i)
                    {
                        auto next_subarray = *i;  //we need this variable to keep this ndarray alive while iter is used
                        auto iter = next_subarray.buffer,
                             iter_end = next_subarray.buffer + next_subarray.size();
                        auto k = a_iter;
-                       for(auto j = iter; j<iter_end; j++, k++)
+                       for(auto j = iter; j<iter_end; ++j, ++k)
                            *k=std::max(*k,*j);
                     }
                     return a;
@@ -672,18 +672,18 @@ namespace pythonic {
                 {
                     core::ltuple<long, N-1> shp;
                     size_t size = 1;
-                    for(auto i= shape.begin() + 1, j = shp.begin(); i<shape.end(); i++, j++)
+                    for(auto i= shape.begin() + 1, j = shp.begin(); i<shape.end(); ++i, ++j)
                         size*=(*j = *i);
                     core::ndarray<T,N-1> a(shp, None);
                     auto a_iter = a.buffer;
                     std::copy(array.buffer, array.buffer + size, a_iter);
-                    for(auto i = array.begin() + 1; i<array.end(); i++)
+                    for(auto i = array.begin() + 1; i<array.end(); ++i)
                     {
                         auto next_subarray = *i;  //we need this variable to keep this ndarray alive while iter is used
                         auto iter = next_subarray.buffer,
                              iter_end = next_subarray.buffer + next_subarray.size();
                         auto k = a_iter;
-                        for(auto j = iter; j<iter_end; j++, k++)
+                        for(auto j = iter; j<iter_end; ++j, ++k)
                             *k=*k and *j;
                     }
                     return a;
@@ -768,18 +768,18 @@ namespace pythonic {
                 {
                     core::ltuple<long, N-1> shp;
                     size_t size = 1;
-                    for(auto i= shape.begin() + 1, j = shp.begin(); i<shape.end(); i++, j++)
+                    for(auto i= shape.begin() + 1, j = shp.begin(); i<shape.end(); ++i, ++j)
                         size*=(*j = *i);
                     core::ndarray<T,N-1> a(shp, None);
                     auto a_iter = a.buffer;
                     std::copy(array.buffer, array.buffer + size, a_iter);
-                    for(auto i = array.begin() + 1; i<array.end(); i++)
+                    for(auto i = array.begin() + 1; i<array.end(); ++i)
                     {
                         auto next_subarray = *i;  //we need this variable to keep this ndarray alive while iter is used
                         auto iter = next_subarray.buffer,
                              iter_end = next_subarray.buffer + next_subarray.size();
                         auto k = a_iter;
-                        for(auto j = iter; j<iter_end; j++, k++)
+                        for(auto j = iter; j<iter_end; ++j, ++k)
                             *k=*k or *j;
                     }
                     return a;
@@ -804,7 +804,7 @@ namespace pythonic {
             {
                 auto shape = a.shape;
                 core::ltuple<long, N> shp;
-                for(unsigned long i=0; i<N; i++)
+                for(unsigned long i=0; i<N; ++i)
                     shp[i] = shape[l[i]];
 
                 core::ndarray<T,N> new_array(shp, None);
@@ -833,7 +833,7 @@ namespace pythonic {
             core::ndarray<T,N> transpose(core::ndarray<T,N> const & a)
             {
                 long t[N];
-                for(unsigned long i = 0; i<N; i++)
+                for(unsigned long i = 0; i<N; ++i)
                     t[N-1-i] = i;
                 return _transpose(a, t);
             }
@@ -960,9 +960,9 @@ namespace pythonic {
                             >::type,
                         1> out(core::make_tuple(nsize), None);
                     size_t i=0;
-                    for(i=0;i<nto.size();i++)
+                    for(i=0;i<nto.size();++i)
                         out.at(i) = nto.at(i);
-                    for(size_t j=0;j<ndata.size();j++)
+                    for(size_t j=0;j<ndata.size();++j)
                         out.at(i+j) = ndata.at(j);
                     return out;
                 }
@@ -1090,7 +1090,7 @@ namespace pythonic {
             typename std::enable_if<has_shape<U>::value and has_shape<V>::value,bool>::type array_equal(U const& u, V const&v) {
                 if(u.shape == v.shape) {
                     long n = u.size();
-                    for(long i=0;i<n;i++)
+                    for(long i=0;i<n;++i)
                         if(u.at(i) != v.at(i))
                             return false;
                     return true;
@@ -1156,9 +1156,9 @@ namespace pythonic {
                 if(end != sz) nb_full_split -= (end -sz);
                 core::list<core::ndarray<T,N>> out(nb_split);
                 long index = 0;
-                for(long i=0;i<nb_full_split; i++, index+=n) 
+                for(long i=0;i<nb_full_split; ++i, index+=n) 
                     out[i] = core::ndarray<T,N>(a[core::slice(index, index+n)]);
-                for(long i=nb_full_split;i<nb_split; i++, index+=(n-1)) 
+                for(long i=nb_full_split;i<nb_split; ++i, index+=(n-1)) 
                     out[i] = core::ndarray<T,N>(a[core::slice(index, index + n - 1)]);
 
                 return out;
@@ -1404,7 +1404,7 @@ namespace pythonic {
                 length = std::max(length, 1 + max(expr));
                 core::ndarray<long, 1> out( core::make_tuple(length), 0L);
                 long n = expr.size();
-                for(long i=0; i < n; i++)
+                for(long i=0; i < n; ++i)
                     ++out[ expr.at(i) ];
                 return out;
             }
@@ -1416,7 +1416,7 @@ namespace pythonic {
                 length = std::max(length, 1 + max(expr));
                 core::ndarray<decltype(std::declval<long>()*std::declval<E>().at(0)), 1> out( core::make_tuple(length), 0L);
                 long n = expr.size();
-                for(long i=0; i < n; i++)
+                for(long i=0; i < n; ++i)
                     out[ expr.at(i) ] += weights.at(i);
                 return out;
             }
@@ -1427,7 +1427,7 @@ namespace pythonic {
             typename core::numpy_expr_to_ndarray<E>::type clip(E const& e, Mi a_min, Ma a_max) {
                 typename core::numpy_expr_to_ndarray<E>::type out(e.shape, None);
                 auto out_iter = out.buffer;
-                for(long i=0, n=e.size(); i<n; i++) {
+                for(long i=0, n=e.size(); i<n; ++i) {
                     auto v = e.at(i);
                     if(v<a_min) v=a_min;
                     else if(v>a_max) v = a_max;
@@ -1583,7 +1583,7 @@ namespace pythonic {
                     }
                 }
                 if(n==1) return out;
-                else return diff(out, n-1); // TODO: inplace modification to avoid n-1 allcoations
+                else return diff(out, n-1); // TODO: inplace modification to avoid n-1 allocations
             }
 
         PROXY(pythonic::numpy, diff);
@@ -1708,7 +1708,7 @@ namespace pythonic {
                 long n = expr.size();
                 long *buffer = new long[n];
                 long *iter = buffer;
-                for(long i=0;i<n;i++) 
+                for(long i=0;i<n;++i) 
                     if(expr.at(i))
                         *iter++ = i;
                 long shape[1] = { iter - buffer };
@@ -1728,7 +1728,7 @@ namespace pythonic {
                 static_assert(N>=2, "fliplr only works on array of dimension >= 2");
                 core::ndarray<T,N> out(a.shape, None);
                 std::copy(a.buffer, a.buffer + a.size(), out.buffer);
-                for(auto & col : out)
+                for(auto col : out)
                     std::reverse(col.begin(), col.end());
                 return out;
             }
@@ -1835,7 +1835,7 @@ namespace pythonic {
                 lens[0] = out.size() / shape[0];
                 for(size_t n=1; n<N; ++n) 
                     lens[n] = lens[n-1] / shape[n];
-                for(long i=0, n=out.size()/N; i<n;i++) {
+                for(long i=0, n=out.size()/N; i<n;++i) {
                         long mult = 1;
                         for(long n=N-1; n>0; n--) {
                             *(iters[n]++) = (i/mult)%shape[n];
@@ -2030,10 +2030,10 @@ namespace pythonic {
                 }
                 out_type out;
                 core::ltuple<long, 1> shape{ real_sz };
-                for(long i=0; i<N; i++)
+                for(long i=0; i<N; ++i)
                 {
                     out[i] = core::ndarray<long, 1>(shape, None);
-                    for(long j=0; j<real_sz; j++)
+                    for(long j=0; j<real_sz; ++j)
                         out[i][j] = buffer[j * N + i];
                 }
                 return out;
@@ -2053,7 +2053,7 @@ namespace pythonic {
                     auto y_ = asarray(y);
                     core::ndarray<decltype(std::declval<typename nested_container_value_type<typename std::remove_reference<typename std::remove_cv<X>::type>::type>::type>() + std::declval<typename nested_container_value_type<typename std::remove_reference<typename std::remove_cv<Y>::type>::type>::type>()), nested_container_depth<typename std::remove_reference<typename std::remove_cv<E>::type>::type>::value> out(condition.shape, None);
                     auto out_iter = out.buffer;
-                    for(long i=0, n=condition.size(); i<n; i++) {
+                    for(long i=0, n=condition.size(); i<n; ++i) {
                         if(condition.at(i))
                             *out_iter++ = x_.at(i);
                         else
@@ -2073,7 +2073,7 @@ namespace pythonic {
                     auto y_ = asarray(y);
                     core::ndarray<decltype(std::declval<X>() + std::declval<typename nested_container_value_type<typename std::remove_reference<typename std::remove_cv<Y>::type>::type>::type>()), nested_container_depth<typename std::remove_reference<typename std::remove_cv<E>::type>::type>::value> out(condition.shape, None);
                     auto out_iter = out.buffer;
-                    for(long i=0, n=condition.size(); i<n; i++) {
+                    for(long i=0, n=condition.size(); i<n; ++i) {
                         if(condition.at(i))
                             *out_iter++ = x;
                         else
@@ -2093,7 +2093,7 @@ namespace pythonic {
                     auto x_ = asarray(x);
                     core::ndarray<decltype(std::declval<Y>() + std::declval<typename nested_container_value_type<typename std::remove_reference<typename std::remove_cv<X>::type>::type>::type>()), nested_container_depth<typename std::remove_reference<typename std::remove_cv<E>::type>::type>::value> out(condition.shape, None);
                     auto out_iter = out.buffer;
-                    for(long i=0, n=condition.size(); i<n; i++) {
+                    for(long i=0, n=condition.size(); i<n; ++i) {
                         if(condition.at(i))
                             *out_iter++ = x_.at(i);
                         else
@@ -2112,7 +2112,7 @@ namespace pythonic {
                     auto condition = asarray(e);
                     core::ndarray<decltype(std::declval<Y>() + std::declval<X>()), nested_container_depth<typename std::remove_reference<typename std::remove_cv<E>::type>::type>::value> out(condition.shape, None);
                     auto out_iter = out.buffer;
-                    for(long i=0, n=condition.size(); i<n; i++) {
+                    for(long i=0, n=condition.size(); i<n; ++i) {
                         if(condition.at(i))
                             *out_iter++ = x;
                         else
@@ -2176,7 +2176,7 @@ namespace pythonic {
                 discont = nt2::max(discont, pi);
                 core::ndarray<double, core::numpy_expr_to_ndarray<E>::N> out(expr.shape, None);
                 out.buffer[0] = expr.at(0);
-                for(size_t i=1; i<out.size(); i++)
+                for(size_t i=1; i<out.size(); ++i)
                 {
                     auto val = expr.at(i);
                     if(nt2::abs(out.buffer[i-1] - val) > discont)
@@ -2192,7 +2192,7 @@ namespace pythonic {
         template<class E>
             core::ndarray<typename core::numpy_expr_to_ndarray<E>::T, 1> unique(E const& expr) {
                 std::set<typename core::numpy_expr_to_ndarray<E>::T> res;
-                for(size_t i=0; i<expr.size(); i++)
+                for(size_t i=0; i<expr.size(); ++i)
                     res.insert(expr.at(i));
                 return core::ndarray<typename core::numpy_expr_to_ndarray<E>::T, 1>(res);
             }
@@ -2201,7 +2201,7 @@ namespace pythonic {
             std::tuple<core::ndarray<typename core::numpy_expr_to_ndarray<E>::T, 1>, core::ndarray<long, 1>> unique(E const& expr, bool return_index) {
                 std::set<typename core::numpy_expr_to_ndarray<E>::T> res;
                 std::vector<long> return_index_res;
-                for(size_t i=0; i<expr.size(); i++)
+                for(size_t i=0; i<expr.size(); ++i)
                 {
                     std::pair<typename std::set<typename core::numpy_expr_to_ndarray<E>::T>::iterator, bool> pair = res.insert(expr.at(i));
                     if(pair.second)
@@ -2215,7 +2215,7 @@ namespace pythonic {
                 std::set<typename core::numpy_expr_to_ndarray<E>::T> res;
                 std::vector<long> return_index_res;
                 core::ndarray<long, 1> return_inverse_res(core::ltuple<long, 1>({expr.size()}), None);
-                for(int i=0; i<expr.size(); i++)
+                for(int i=0; i<expr.size(); ++i)
                 {
                     auto pair = res.insert(expr.at(i));
                     return_inverse_res[i] = std::distance(res.begin(), pair.first);
@@ -2231,9 +2231,9 @@ namespace pythonic {
             core::ndarray<decltype(std::declval<typename core::numpy_expr_to_ndarray<E>::T>() + std::declval<typename core::numpy_expr_to_ndarray<F>::T>()), 1> union1d(E const& e, F const& f)
             {
                 std::set<decltype(std::declval<typename core::numpy_expr_to_ndarray<E>::T>() + std::declval<typename core::numpy_expr_to_ndarray<F>::T>())> res;
-                for(size_t i=0; i<e.size(); i++)
+                for(size_t i=0; i<e.size(); ++i)
                     res.insert(e.at(i));
-                for(size_t i=0; i<f.size(); i++)
+                for(size_t i=0; i<f.size(); ++i)
                     res.insert(f.at(i));
                 return core::ndarray<decltype(std::declval<typename core::numpy_expr_to_ndarray<E>::T>() + std::declval<typename core::numpy_expr_to_ndarray<F>::T>()), 1>(res);
             }
@@ -2319,9 +2319,9 @@ namespace pythonic {
             typename core::numpy_expr_to_ndarray<E>::type tile(E const& expr, int reps)
             {
                 typename core::numpy_expr_to_ndarray<E>::type out(core::ltuple<long, 1>({expr.size() * reps}), None);
-                for(size_t i=0; i<expr.size(); i++)
+                for(size_t i=0; i<expr.size(); ++i)
                     out.buffer[i] = expr.at(i);
-                for(size_t i=expr.size(); i<expr.size() * reps; i++)
+                for(size_t i=expr.size(); i<expr.size() * reps; ++i)
                     out.buffer[i] = out.buffer[i%expr.size()];
                 return out;
             }
@@ -2330,12 +2330,12 @@ namespace pythonic {
             core::ndarray<typename core::numpy_expr_to_ndarray<E>::T, N> tile(E const& expr, core::ltuple<long, N> const& reps)
             {
                 core::ltuple<long, N> shape;
-                for(size_t i=0; i<N; i++)
+                for(size_t i=0; i<N; ++i)
                     shape[N - i - 1] = reps[N - i - 1] * ((E::value > i)?expr.shape[i]:1);
                 core::ndarray<typename core::numpy_expr_to_ndarray<E>::T, N> out(shape, None);
-                for(size_t i=0; i<expr.size(); i++)
+                for(size_t i=0; i<expr.size(); ++i)
                     out.buffer[i] = expr.at(i);
-                for(size_t i=expr.size(); i<out.size(); i++)
+                for(size_t i=expr.size(); i<out.size(); ++i)
                     out.buffer[i] = out.buffer[i%expr.size()];
                 return out;
             }
@@ -2346,7 +2346,7 @@ namespace pythonic {
             core::ndarray<T,N> swapaxes(core::ndarray<T,N> const & a, int axis1, int axis2)
             {
                 long t[N];
-                for(unsigned long i = 0; i<N; i++)
+                for(unsigned long i = 0; i<N; ++i)
                     t[i] = i;
                 std::swap(t[axis1], t[axis2]);
                 return _transpose(a, t);
@@ -2359,7 +2359,7 @@ namespace pythonic {
             typename core::numpy_expr_to_ndarray<F>::type take(core::ndarray<T,N> const & expr, F const& indices)
             {
                 typename core::numpy_expr_to_ndarray<F>::type out = asarray(indices);
-                for(size_t i=0; i<out.size(); i++)
+                for(size_t i=0; i<out.size(); ++i)
                     out.buffer[i] = expr.at(out.buffer[i]);
                 return out;
             }
@@ -2394,7 +2394,7 @@ namespace pythonic {
             {
                 core::ndarray<proxy::complex,N> out(expr.shape, None);
                 std::copy(expr.buffer, expr.buffer + expr.size(), out.buffer);
-                for(int i=0; i<expr.size()/expr.shape[N-1]; i++)
+                for(int i=0; i<expr.size()/expr.shape[N-1]; ++i)
                     std::sort(out.buffer + i * expr.shape[N-1], out.buffer + (i+1) * expr.shape[N-1], comp_complex);
                 return out;
             }
@@ -2438,9 +2438,9 @@ namespace pythonic {
             core::ndarray<T,N> select(core::list<core::ndarray<U,N>> const& condlist, core::list<core::ndarray<T,N>> const& choicelist, T _default = 0)
             {
                 core::ndarray<T,N> out(choicelist[0].shape, _default);
-                for(size_t i=0; i<out.size(); i++)
+                for(size_t i=0; i<out.size(); ++i)
                 {
-                    for(int j=0; j<condlist.size(); j++)
+                    for(int j=0; j<condlist.size(); ++j)
                     {
                         if(condlist[j].buffer[i])
                         {
@@ -2457,7 +2457,7 @@ namespace pythonic {
                 -> decltype(select(std::declval<core::list<typename core::numpy_expr_to_ndarray<U>::type>>(), choicelist, _default))
             {
                 core::list<typename core::numpy_expr_to_ndarray<U>::type> condition(condlist.size());
-                for(int i=0; i<condlist.size(); i++)
+                for(int i=0; i<condlist.size(); ++i)
                     condition[i] = asarray(condlist[i]);
                 return select(condition, choicelist);
             }
@@ -2467,7 +2467,7 @@ namespace pythonic {
                 -> decltype(select(condlist, std::declval<core::list<typename core::numpy_expr_to_ndarray<U>::type>>(), _default))
             {
                 core::list<typename core::numpy_expr_to_ndarray<U>::type> choice(choicelist.size());
-                for(int i=0; i<choicelist.size(); i++)
+                for(int i=0; i<choicelist.size(); ++i)
                     choice[i] = asarray(choicelist[i]);
                 return select(condlist, choice);
             }
@@ -2478,9 +2478,9 @@ namespace pythonic {
             {
                 core::list<typename core::numpy_expr_to_ndarray<U>::type> choice(choicelist.size());
                 core::list<typename core::numpy_expr_to_ndarray<V>::type> condition(condlist.size());
-                for(int i=0; i<choicelist.size(); i++)
+                for(int i=0; i<choicelist.size(); ++i)
                     choice[i] = asarray(choicelist[i]);
-                for(int i=0; i<condlist.size(); i++)
+                for(int i=0; i<condlist.size(); ++i)
                     condition[i] = asarray(condlist[i]);
                 return select(condition, choice);
             }
@@ -2500,20 +2500,20 @@ namespace pythonic {
                 core::ndarray<T,N> out(shape, None);
                 if(k%4==1)
                 {
-                    for(int i=0; i<out.shape[1]; i++)
-                        for(int j=0; j<out.shape[0]; j++)
+                    for(int i=0; i<out.shape[1]; ++i)
+                        for(int j=0; j<out.shape[0]; ++j)
                             out[out.shape[0]-1-j][i] = expr[i][j];
                 }
                 else if(k%4==2)
                 {
-                    for(int i=0; i<out.shape[1]; i++)
-                        for(int j=0; j<out.shape[0]; j++)
+                    for(int i=0; i<out.shape[1]; ++i)
+                        for(int j=0; j<out.shape[0]; ++j)
                             out[out.shape[0]-1-j][out.shape[1]-1-i] = expr[j][i];
                 }
                 else
                 {
-                    for(int i=0; i<out.shape[1]; i++)
-                        for(int j=0; j<out.shape[0]; j++)
+                    for(int i=0; i<out.shape[1]; ++i)
+                        for(int j=0; j<out.shape[0]; ++j)
                             out[j][out.shape[1]-1-i] = expr[i][j];
                 }
                 return out;
@@ -2537,12 +2537,12 @@ namespace pythonic {
             core::ndarray<long, core::numpy_expr_to_ndarray<E>::N> out(to_search.shape, None);
             if(side[0]=='l')
             {
-                for(int i=0; i<out.size(); i++)
+                for(int i=0; i<out.size(); ++i)
                     out.at(i) = std::lower_bound(a.buffer, a.buffer + a.size(), to_search.at(i)) - a.buffer;
             }
             else if(side[0]=='r')
             {
-                for(int i=0; i<out.size(); i++)
+                for(int i=0; i<out.size(); ++i)
                     out.at(i) = std::upper_bound(a.buffer, a.buffer + a.size(), to_search.at(i)) - a.buffer;
             }
             else
@@ -2574,9 +2574,9 @@ namespace pythonic {
             while(shift<0) shift+=expr.size();
             shift %=expr.size();;
             core::ndarray<T,N> out(expr.shape, None);
-            for(int i=shift; i<expr.size(); i++)
+            for(int i=shift; i<expr.size(); ++i)
                 out.at(i) = expr.at(i - shift);
-            for(int i=0; i<shift; i++)
+            for(int i=0; i<shift; ++i)
                 out.at(i) = expr.at(i + expr.size() - shift);
 
             return out;
@@ -2590,12 +2590,12 @@ namespace pythonic {
                 if(start>=axis)
                     return copy(a);
                 long t[N];
-                for(unsigned long i = 0; i<start; i++)
+                for(unsigned long i = 0; i<start; ++i)
                     t[i] = i;
                 t[start] = axis;
-                for(unsigned long i = start + 1; i<=axis; i++)
+                for(unsigned long i = start + 1; i<=axis; ++i)
                     t[i] = i-1;
-                for(unsigned long i = axis + 1; i<N; i++)
+                for(unsigned long i = axis + 1; i<N; ++i)
                     t[i] = i;
                 return _transpose(a, t);
             }
@@ -2607,7 +2607,7 @@ namespace pythonic {
         core::ndarray<T,1> resize(core::ndarray<T,N> const& expr, int new_shape)
         {
             core::ndarray<T,1> out(core::ltuple<long, 1>({new_shape}), None);
-            for(int i=0; i<new_shape; i++)
+            for(int i=0; i<new_shape; ++i)
                 out.at(i) = expr.at(i % expr.size());
             return out;
         }
@@ -2616,7 +2616,7 @@ namespace pythonic {
         core::ndarray<T,M> resize(core::ndarray<T,N> const& expr, core::ltuple<long, M> const& new_shape)
         {
             core::ndarray<T,M> out(new_shape, None);
-            for(size_t i=0; i<out.size(); i++)
+            for(size_t i=0; i<out.size(); ++i)
                 out.at(i) = expr.at(i % expr.size());
             return out;
         }
@@ -2628,7 +2628,7 @@ namespace pythonic {
         core::ndarray<T,1> repeat(core::ndarray<T,N> const& expr, int repeats)
         {
             core::ndarray<T,1> out(core::ltuple<long, 1>({expr.size() * repeats}), None);
-            for(int i=0; i<out.size(); i++)
+            for(int i=0; i<out.size(); ++i)
                 out.at(i) = expr.at(i / expr.size());
             return out;
         }
@@ -2648,7 +2648,7 @@ namespace pythonic {
         template<class T, size_t N, class E,class F>
         none_type putmask(core::ndarray<T,N> & expr, E const& mask, F const& values)
         {
-            for(size_t i=0; i<expr.size(); i++)
+            for(size_t i=0; i<expr.size(); ++i)
                 if(mask.at(i))
                     expr.at(i) = values.at(i%values.size());
             return None;
@@ -2660,7 +2660,7 @@ namespace pythonic {
         {
             int j=0;
             int first = -1;
-            for(size_t i=0; i<expr.size(); i++)
+            for(size_t i=0; i<expr.size(); ++i)
             {
                 if(mask.at(i))
                 {
@@ -2682,7 +2682,7 @@ namespace pythonic {
         template<class F, class T, size_t N, class E>
             typename std::enable_if<core::is_array_like<F>::value, none_type>::type put(core::ndarray<T,N> & expr, F const& ind, E const& v)
             {
-                for(size_t i=0; i<ind.size(); i++)
+                for(size_t i=0; i<ind.size(); ++i)
                 {
                     auto val = ind.at(i);
                     if(val>=expr.size() || val <0)
@@ -2722,8 +2722,8 @@ namespace pythonic {
         core::ndarray<typename core::numpy_expr_to_ndarray<E>::T, 2> outer(E const& a, F const& b)
         {
             core::ndarray<typename core::numpy_expr_to_ndarray<E>::T, 2> out(core::ltuple<long, 2>({a.size(), b.size()}), None);
-            for(size_t i=0; i<a.size(); i++)
-                for(size_t j=0; j<b.size(); j++)
+            for(size_t i=0; i<a.size(); ++i)
+                for(size_t j=0; j<b.size(); ++j)
                     out.buffer[i * b.size() + j] = a.at(i) * b.at(j);
             return out;
         }

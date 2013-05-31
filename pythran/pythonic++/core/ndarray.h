@@ -211,6 +211,30 @@ namespace  pythonic {
             struct is_array_like<core::list<L>>{
                 static constexpr bool value = true;
             };
+        template<class T>
+            struct nditerator : std::iterator<std::random_access_iterator_tag, typename std::remove_reference<decltype(std::declval<T>()[0])>::type> {
+                T data;
+                long index;
+                nditerator(T const& data, long index) : data(data), index(index) {
+                }
+                auto operator*() -> decltype(data[index]) { return data[index]; }
+                nditerator<T> operator++() { ++index; return *this;}
+                nditerator<T> operator--() { --index; return *this;}
+                nditerator<T> operator+(long i) const { return nditerator(data, index + i); }
+                nditerator<T> operator-(long i) const { return nditerator(data, index - i); }
+                nditerator<T>& operator+=(long i) { index+=i ; return *this;}
+                nditerator<T>& operator-=(long i) { index-=i; return *this;}
+                long operator-(nditerator<T> const& other) const { return index - other.index; }
+                bool operator!=(nditerator<T> const& other) const {
+                    return index != other.index;
+                }
+                bool operator==(nditerator<T> const& other) const {
+                    return index == other.index;
+                }
+                bool operator<(nditerator<T> const& other) const {
+                    return index < other.index;
+                }
+            };
 
         template<class T>
             struct type_helper;
@@ -218,41 +242,27 @@ namespace  pythonic {
         template<class T, size_t N>
             struct type_helper<ndarray<T,N>> {
                 typedef ndarray<T,N-1> type;
-                typedef std::vector<type> holder;
-                typedef typename holder::iterator iterator;
-                typedef typename holder::const_iterator const_iterator;
+                typedef nditerator<ndarray<T,N>> iterator;
+                typedef nditerator<ndarray<T,N>> const_iterator;
                 typedef impl::shared_ref<raw_array<T>> memory;
+                template<class S, class Iter>
+                static T* initialize_from_iterable(S& shape, T* from, Iter&& iter) {
+                    shape[std::tuple_size<S>::value - N] = iter.size();
+                    for(auto content : iter) {
+                        from = type_helper<type>::initialize_from_iterable(shape, from, content);
+                    }
+                    return from;
+                }
 
-                static iterator begin(ndarray<T,N>& self) { return self.data.begin(); }
-                static iterator end(ndarray<T,N>& self) { return self.data.end(); }
-                static const_iterator begin(ndarray<T,N> const& self) { return self.data.begin(); }
-                static const_iterator end(ndarray<T,N> const& self) { return self.data.end(); }
-                template<class Iterable>
-                    static long initialize_from_iterable(ndarray<T,N>& self, memory& shared, T* mem_iter, Iterable&& iterable) {
-                        self.mem = shared;
-                        self.data_size = iterable.size();
-                        self.data.resize(self.data_size);
-                        self.buffer = mem_iter;
-                        long offset = 0;
-                        auto content_iter = self.data.begin();
-                        for(auto & iterable_content : iterable)
-                            offset += type_helper<ndarray<T,N-1>>::initialize_from_iterable(*content_iter++, shared, mem_iter + offset, iterable_content);
-                        self.shape = get_shape(self);
-                        return offset;
-                    }
-                template<class ShapeIterator>
-                    static long initialize_from_shape(ndarray<T,N>& self, memory& shared, T* mem_iter, ShapeIterator shape_iterator) {
-                        self.mem = shared;
-                        self.data_size = *shape_iterator;
-                        self.data.resize(self.data_size);
-                        self.buffer = mem_iter;
-                        auto next_shape_iterator = ++shape_iterator;
-                        long offset = 0;
-                        for(auto & content : self.data)
-                            offset += type_helper<ndarray<T,N-1>>::initialize_from_shape(content, shared, mem_iter + offset, next_shape_iterator);
-                        self.shape = get_shape(self);
-                        return offset;
-                    }
+                static type get(ndarray<T,N> const& self, long i) {
+                    type r;
+                    r.data_size = self.shape[1];
+                    r.mem = self.mem;
+                    r.buffer = self.buffer + i*std::accumulate(self.shape.begin() + 1, self.shape.end(), 1L, std::multiplies<long>());
+                    for(size_t i =1; i<N;i++)
+                        r.shape[i-1] = self.shape[i];
+                    return r;
+                }
             };
 
         template<class T>
@@ -262,30 +272,14 @@ namespace  pythonic {
                 typedef holder iterator;
                 typedef const holder const_iterator;
                 typedef impl::shared_ref<raw_array<T>> memory;
-
-                static iterator begin(ndarray<T,1>& self) { return self.data; }
-                static iterator end(ndarray<T,1>& self) { return self.data + self.data_size; }
-                static const_iterator begin(ndarray<T,1> const& self) { return self.data; }
-                static const_iterator end(ndarray<T,1> const& self) { return self.data + self.data_size; }
-                template<class Iterable>
-                    static long initialize_from_iterable(ndarray<T,1>& self, memory& shared, T* mem_iter, Iterable&& iterable) {
-                        self.mem = shared;
-                        self.data = mem_iter;
-                        self.data_size = iterable.size();
-                        self.buffer = mem_iter;
-                        auto data_end = std::copy(iterable.begin(), iterable.end(), self.data);
-                        self.shape = get_shape(self);
-                        return data_end - self.data;
-                    }
-                template<class ShapeIterator>
-                    static long initialize_from_shape(ndarray<T,1>& self, memory& shared, T* mem_iter, ShapeIterator shape_iterator) {
-                        self.mem = shared;
-                        self.data = mem_iter;
-                        self.data_size = *shape_iterator;
-                        self.buffer = mem_iter;
-                        self.shape = get_shape(self);
-                        return self.data_size;
-                    }
+                template<class S, class Iter>
+                static T* initialize_from_iterable(S& shape, T* from, Iter&& iter) {
+                    shape[std::tuple_size<S>::value - 1] = iter.size();
+                    return std::copy(iter.begin(), iter.end(), from);
+                }
+                static type& get(ndarray<T,1> const& self, long i) {
+                    return self.buffer[i];
+                }
             };
 
         slice const& as_shape(slice const& s) { return s;}
@@ -414,6 +408,12 @@ namespace  pythonic {
                 }
             };
 
+        template <class T>
+            struct indexed_ndarray : T {
+                indexed_ndarray(T const& t) : T(t) {
+                }
+            };
+
         template<class E, size_t M, size_t L>
             struct numpy_expr_to_ndarray<gsliced_ndarray<E,M,L>> {
                 typedef typename std::remove_cv<typename std::remove_reference< decltype(std::declval<gsliced_ndarray<E,M,L>>().at(0)) >::type>::type T;
@@ -510,33 +510,7 @@ namespace  pythonic {
             };
 
         /* a few helpers */
-        long product(long t) { return t; }
-        template<class... Types>
-            long product(long t, Types... types) { return t * product(types...); }
-
-        template<class T, size_t N>
-            struct _get_shape {
-                template<class Iter>
-                    void operator()(ndarray<T,N> const& array, Iter iter) {
-                        if((*iter++ = array.data_size))
-                            _get_shape<T, N-1>()(array.data[0], iter);
-                    }
-            };
-        template<class T>
-            struct _get_shape<T,1> {
-                template<class Iter>
-                    void operator()(ndarray<T,1> const& array, Iter iter) {
-                        *iter = array.data_size;
-                    }
-            };
-
-        template<class T, size_t N>
-            ltuple<long, N> get_shape( ndarray<T,N> const& array) {
-                ltuple<long, N> v;
-                _get_shape<T,N>()(array, v.begin());
-                return v;
-            }
-
+        
         template<class T, size_t N>
             struct ndarray {
 
@@ -552,18 +526,16 @@ namespace  pythonic {
                 /* members */
                 size_t data_size;
                 typename type_helper<ndarray<T, N>>::memory mem;
-                typename type_helper<ndarray<T, N>>::holder data;
                 T* buffer;
                 ltuple<long, N> shape;
 
                 /* constructors */
-                ndarray() : data_size(0), mem(impl::no_memory()), data(), buffer(nullptr), shape() {}
+                ndarray() : data_size(0), mem(impl::no_memory()), buffer(nullptr), shape() {}
 
                 /* copy */
                 ndarray(ndarray<T,N> const& other) :
                     data_size(other.data_size),
                     mem(other.mem),
-                    data(other.data),
                     buffer(other.buffer),
                     shape(other.shape)
                 {
@@ -573,7 +545,6 @@ namespace  pythonic {
                 ndarray(ndarray<T,N> && other) :
                     data_size(other.data_size),
                     mem(std::move(other.mem)),
-                    data(std::move(other.data)),
                     buffer(std::move(other.buffer)),
                     shape(std::move(other.shape))
                 {
@@ -584,54 +555,49 @@ namespace  pythonic {
                     ndarray(Iterable&& iterable, typename std::enable_if< // prevent destruction of copy constructor
                             !std::is_same<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type, ndarray<T,N>>::value
                             and
-                            !is_numpy_expr<Iterable>::value
+                            !is_numpy_expr<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type>::value
                             and
-                            is_iterable<Iterable>::value,
+                            is_iterable<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type>::value,
                             bool>::type = false):
                         data_size(0),
                         mem(nested_container_size<Iterable>()(std::forward<Iterable>(iterable))),
-                        data(),
+                        buffer(mem->data),
                         shape()
                 {
-                    type_helper<ndarray<T,N>>::initialize_from_iterable(*this, mem, mem->data, std::forward<Iterable>(iterable));
+                    type_helper<ndarray<T,N>>::initialize_from_iterable(shape, mem->data, std::forward<Iterable>(iterable));
+                    data_size = shape[0];
                 }
 
                 /* from a shape */
                 template<class Shape>
                     ndarray(Shape&& shape, T value):
-                        data_size(0),
+                        data_size(shape[0]),
                         mem(std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<long>())),
-                        data(),
-                        shape(shape)
+                        buffer(mem->data),
+                        shape(shape.begin(), shape.end())
 
                 {
-                    auto shape_iterator = shape.begin();
-                    long offset = type_helper<ndarray<T,N>>::initialize_from_shape(*this, mem, mem->data, shape_iterator);
-                    std::fill(mem->data, mem->data + offset, value);
+                    std::fill(mem->data, mem->data + size(), value);
                 }
 
                 /* from a shape without setting values */
                 template<class Shape>
                     ndarray(Shape&& shape, none_type):
-                        data_size(0),
+                        data_size(shape[0]),
                         mem(std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<long>())),
-                        data(),
-                        shape(shape)
+                        buffer(mem->data),
+                        shape(shape.begin(), shape.end())
                 {
-                    auto shape_iterator = shape.begin();
-                    type_helper<ndarray<T,N>>::initialize_from_shape(*this, mem, mem->data, shape_iterator);
                 }
 
                 /* from a foreign pointer */
                 ndarray(T* data, long int* shape, size_t data_size):
                     data_size(data_size),
                     mem(data),
-                    data(),
+                    buffer(mem->data),
                     shape(shape, shape + N)
                 {
                     mem.external(); // make sure we do not releas the pointer
-                    auto shape_iterator = this->shape.begin();
-                    type_helper<ndarray<T,N>>::initialize_from_shape(*this, mem, mem->data, shape_iterator);
                 }
 
                 /* from a  numpy expression */
@@ -670,62 +636,52 @@ namespace  pythonic {
 
                 template<class Op, class Arg0, class Arg1>
                     ndarray(numpy_expr<Op, Arg0, Arg1> const & expr) :
-                        data_size(0),
+                        data_size(expr.shape[0]),
                         mem(expr.size()),
-                        data(),
-                        shape(expr.shape)
+                        buffer(mem->data),
+                        shape(expr.shape.begin(), expr.shape.end())
                 {
-                    auto shape_iterator = shape.begin();
-                    type_helper<ndarray<T,N>>::initialize_from_shape(*this, mem, mem->data, shape_iterator);
                     initialize_from_expr(expr);
                 }
 
                 template<class Op, class Arg0>
                     ndarray(numpy_uexpr<Op, Arg0> const & expr) :
-                        data_size(0),
+                        data_size(expr.shape[0]),
                         mem(expr.size()),
-                        data(),
-                        shape(expr.shape)
+                        buffer(mem->data),
+                        shape(expr.shape.begin(), expr.shape.end())
                 {
-                    auto shape_iterator = shape.begin();
-                    type_helper<ndarray<T,N>>::initialize_from_shape(*this, mem, mem->data, shape_iterator);
                     initialize_from_expr(expr);
                 }
                 /* from a slice */
                 template<class E>
                     ndarray(sliced_ndarray<E> const& expr):
-                        data_size(0),
+                        data_size(expr.shape[0]),
                         mem(expr.size()),
-                        data(),
-                        shape(expr.shape)
+                        buffer(mem->data),
+                        shape(expr.shape.begin(), expr.shape.end())
                 {
-                    auto shape_iterator = shape.begin();
-                    type_helper<ndarray<T,N>>::initialize_from_shape(*this, mem, mem->data, shape_iterator);
                     initialize_from_expr(expr);
                 }
                 template<class E, size_t M, size_t L>
                     ndarray(gsliced_ndarray<E,M,L> const& expr):
-                        data_size(0),
+                        data_size(expr.shape[0]),
                         mem(expr.size()),
-                        data(),
-                        shape(expr.shape)
+                        buffer(mem->data),
+                        shape(expr.shape.begin(), expr.shape.end())
                 {
-                    auto shape_iterator = shape.begin();
-                    type_helper<ndarray<T,N>>::initialize_from_shape(*this, mem, mem->data, shape_iterator);
                     initialize_from_expr(expr);
-
                 }
 
                 /* assignment */
                 ndarray<T,N>& operator=(ndarray<T,N> const& other) {
                     if(data_size == other.data_size) { // maybe a subarray copy ?
                         data_size = other.data_size;
-                        std::copy(other.begin(), other.end(), begin());
+                        std::copy(other.begin(), other.end(), begin()); //SG:coorect?
                     }
                     else {
                         data_size = other.data_size;
                         mem = other.mem;
-                        data = other.data;
                         buffer = other.buffer;
                         shape = other.shape;
                     }
@@ -737,10 +693,34 @@ namespace  pythonic {
                 }
 
                 /* accessors */
-                reference operator[](long i) { if(i<0) i+=shape[0]; return data[i]; }
-                template<class U, size_t M>
-                    typename ndarray<T, N-M+1>::reference operator[](ltuple<U,M> const& l) { return mat<typename ndarray<T, N-M+1>::reference>(l.begin(), int_<M>()); }
-                const_reference operator[](long i) const { if(i<0) i+=shape[0]; return data[i]; }
+                auto operator[](long i) -> decltype(type_helper<ndarray<T,N>>::get(*this, i))
+                {
+                    if(i<0) i+=shape[0];
+                    return type_helper<ndarray<T,N>>::get(*this, i);
+                }
+                auto operator[](long i) const -> decltype(type_helper<ndarray<T,N>>::get(*this, i))
+                {
+                    if(i<0) i+=shape[0];
+                    return type_helper<ndarray<T,N>>::get(*this, i);
+                }
+
+                template <size_t M>
+                    auto get(ltuple<long, M> const& l, int_<1>) -> decltype((*this)[l[M-1]])
+                            {
+                        return (*this)[l[M-1]];
+                        }
+                template <size_t M, size_t I>
+                    auto get(ltuple<long, M> const& l, int_<I>) -> decltype((*this)[l[M-I]].get(l, int_<I-1>()))
+                    {
+                        return (*this)[l[M-I]].get(l, int_<I-1>());
+                    }
+                template<size_t M>
+                    typename std::conditional<M==N, T&, indexed_ndarray<typename type_helper<ndarray<T, N-M+1>>::type>>::type
+                    operator[](ltuple<long,M> const& l)
+                    {
+                        return typename std::conditional<M==N, T&, indexed_ndarray<typename type_helper<ndarray<T, N-M+1>>::type>>::type(get(l, int_<M>()));
+                    }
+
                 sliced_ndarray<ndarray<T,N>> operator[](slice const& s) const
                 {
                     long lower, upper;
@@ -780,11 +760,6 @@ namespace  pythonic {
                 }
 
 
-                typename type_helper<ndarray<T, N>>::iterator begin() { return type_helper<ndarray<T, N>>::begin(*this); }
-                typename type_helper<ndarray<T, N>>::iterator end() { return type_helper<ndarray<T, N>>::end(*this); }
-                typename type_helper<ndarray<T, N>>::const_iterator begin() const { return type_helper<ndarray<T, N>>::begin(*this); }
-                typename type_helper<ndarray<T, N>>::const_iterator end() const { return type_helper<ndarray<T, N>>::end(*this); }
-
                 T at(long i) const { return buffer[i]; }
                 T& at(long i) { return buffer[i]; }
 
@@ -794,15 +769,11 @@ namespace  pythonic {
                 }
 #endif
 
+                nditerator< ndarray<T,N> > begin() { return nditerator<ndarray<T,N> >(*this, 0); }
+                nditerator< ndarray<T,N> > begin() const { return nditerator<ndarray<T,N> >(*this, 0); }
+                nditerator< ndarray<T,N> > end() { return nditerator<ndarray<T,N> >(*this, data_size); }
+                nditerator< ndarray<T,N> > end() const { return nditerator<ndarray<T,N> >(*this, data_size); }
                 /* helpers */
-                template<class R, class U, size_t M>
-                    R mat(U&& iter, int_<M>) {
-                        return (*this)[*iter].template mat<R>(iter+1, int_<M-1>());
-                    }
-                template<class R, class U>
-                    R mat(U&& iter, int_<1>) {
-                        return (*this)[*iter];
-                    }
                 size_t size() const {
                     return std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<long>());
                 }
@@ -810,15 +781,16 @@ namespace  pythonic {
                     ndarray<T, 1> flatty;
                     flatty.data_size = size();
                     flatty.mem = mem;
-                    flatty.data = flatty.buffer = buffer;
+                    flatty.buffer = buffer;
                     return flatty;
                 }
                 template<size_t M>
                     ndarray<T,M> reshape(core::ltuple<long,M> const& shape) const {
                         ndarray<T, M> reshappy;
+                        reshappy.data_size = shape[0];
                         reshappy.mem = mem;
-                        auto shape_iterator = shape.begin();
-                        type_helper<ndarray<T, M>>::initialize_from_shape(reshappy, reshappy.mem, reshappy.mem->data, shape_iterator);
+                        reshappy.buffer = mem->data;
+                        reshappy.shape = shape;
                         return reshappy;
                     }
 

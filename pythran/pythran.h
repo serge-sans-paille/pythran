@@ -455,9 +455,9 @@ namespace std {
 
     /* for core::ndarray */
     template <size_t I, class T, size_t N>
-        typename core::ndarray<T,N>::reference get( core::ndarray<T,N>& a) { return a[I]; }
+        auto get( core::ndarray<T,N>& a) -> decltype(a[I]) { return a[I]; }
     template <size_t I, class T, size_t N>
-        typename core::ndarray<T,N>::const_reference get( core::ndarray<T,N> const& a) { return a[I]; }
+        auto get( core::ndarray<T,N> const& a) -> decltype(a[I]) { return a[I]; }
     template <size_t I, class T, size_t N>
         struct tuple_element<I, core::ndarray<T,N> > {
             typedef typename core::ndarray<T,N>::value_type type;

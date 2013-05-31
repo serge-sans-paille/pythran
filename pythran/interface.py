@@ -110,7 +110,7 @@ def cxx_generator(module_name, code, specs=None, optimizations=None):
     # back-end
     content = pm.dump(Cxx, ir)
 
-    if specs is None:
+    if not specs:  # Match "None" AND empty specs
         class Generable:
             def __init__(self, content):
                 self.content = content
@@ -283,32 +283,43 @@ class ToolChain(object):
         return module_so
 
     @classmethod
-    def compile_module(cls, module, module_so=None, keep_temp=False, **kwargs):
-        '''BoostPython module -> c++ code -> native module'''
-        return cls.compile_cxxcode(str(module.generate()), module_so=module_so,
-                                   **kwargs)
-
-    @classmethod
-    def compile_pythrancode(cls, pythrancode, module_name, specs=None,
-                            module_so=None, **kwargs):
+    def compile_pythrancode(cls, module_name, pythrancode, specs=None,
+                            opts=None, cpponly=False, module_so=None,
+                            **kwargs):
         '''Pythran code (string) -> c++ code -> native module'''
+
+        # Autodetect the Pythran spec if not given as parameter
         from spec import spec_parser
-        specs = specs or spec_parser(pythrancode)
-        module = cxx_generator(module_name, pythrancode, specs)
-        return cls.compile_module(module, **kwargs)
+        specs = spec_parser(pythrancode) if specs is None else specs
+
+        # Generate C++
+        module = cxx_generator(module_name, pythrancode, specs, opts)
+
+        if cpponly:
+            # User want only the C++ code
+            _, output_file = cls.get_temp(str(module.generate()))
+            if module_so:
+                shutil.move(output_file, module_so)
+        else:
+            # Compile to binary
+            output_file = cls.compile_cxxcode(str(module.generate()),
+                                              module_so=module_so,
+                                              **kwargs)
+
+        return output_file
 
     @classmethod
-    def compile_pythranfile(cls, file_path, specs=None, keep_temp=False,
+    def compile_pythranfile(cls, file_path, module_so=None, module_name=None,
                             **kwargs):
         '''Pythran file -> c++ file -> native module'''
+        # derive module name from fgile name
         basedir, basename = os.path.split(file_path)
-        module_name = os.path.splitext(basename)[0]
-        module_so = os.path.join(basedir, module_name + ".so")
-        dl = cls.compile_pythrancode(file(file_path).read(), module_name,
-                                     module_so=module_so, specs=specs,
-                                     **kwargs)
-        # install DLL to the same path as the input py for smooth import
-        shutil.move(dl, module_so)
+        module_name = module_name or os.path.splitext(basename)[0]
+
+        # derive destination from file name
+        module_so = module_so or os.path.join(basedir, module_name + ".so")
+        dl = cls.compile_pythrancode(module_name, file(file_path).read(),
+                                     module_so=module_so, **kwargs)
         return module_so
 
     @classmethod

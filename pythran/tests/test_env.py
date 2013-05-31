@@ -97,9 +97,8 @@ class TestEnv(unittest.TestCase):
             python_ref = eval(function_call, env)  # Produce the reference
 
             # Compile the code using pythran
-            cxx_code = cxx_generator(modname, code, interface)
-            cxx_compiled = ToolChain.compile_module(cxx_code,
-                                                    cxxflags=TestEnv.PYTHRAN_CXX_FLAGS)
+            cxx_compiled = ToolChain.compile_pythrancode(modname, code,
+                interface, cxxflags=TestEnv.PYTHRAN_CXX_FLAGS)
             if not check_output:
                 return
 

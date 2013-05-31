@@ -12,7 +12,7 @@ def convert_arg_line_to_args(arg_line):
         yield arg
 
 
-def get_cxx_compiler_flags(args):
+def compile_flags(args):
     """Build a dictionnary with an entry for cppflags, ldflags, and cxxflags
     according to the command line defined options
 
@@ -125,22 +125,19 @@ try:
             raise ValueError("Do you really ask for Python-to-C++ on this C++ "
                          "input file: '{0}'?".format(args.input_file))
         pythran.ToolChain.compile_cxxfile(args.input_file, args.output_file,
-                                          **get_cxx_compiler_flags(args))
+                                          **compile_flags(args))
 
     else: # assume we have a .py input file here
 
-        # slurp the file
-        contents = file(args.input_file).read()
+        # Special handling for raw_translate_only, the trick is to provide and
+        # empty specs to avoid compile_pythranfile to auto-generate one
+        specs = {} if args.raw_translate_only else None
 
-        # retrieve specs if needed
-        specs = None if args.raw_translate_only else pythran.spec_parser(contents)
-
-        module = pythran.cxx_generator(module_name,contents,specs,args.opts)
-        if args.translate_only:  # eventually only generate cpp file
-            file(args.output_file, 'w').write(str(module.generate()))
-        else:
-            pythran.ToolChain.compile_module(module, args.output_file,
-                                             **get_cxx_compiler_flags(args))
+        pythran.ToolChain.compile_pythranfile(args.input_file,
+                                              module_so = args.output_file,
+                                              specs = specs,
+                                              cpponly = args.translate_only,
+                                              **compile_flags(args))
 
 
 except IOError as e:

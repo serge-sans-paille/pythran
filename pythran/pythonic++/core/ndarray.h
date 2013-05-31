@@ -66,7 +66,7 @@ namespace  pythonic {
             struct numpy_uexpr {
                 Arg0 arg0;
                 typedef decltype(Op()(arg0.at(std::declval<long>()))) value_type;
-                static constexpr size_t value = Arg0::value;
+                static constexpr size_t value = std::remove_reference<Arg0>::type::value;
                 core::ltuple<long, value> shape;
                 numpy_uexpr() {}
                 numpy_uexpr(Arg0 const& arg0) : arg0(arg0), shape(arg0.shape) {
@@ -100,11 +100,11 @@ namespace  pythonic {
                 Arg0 arg0;
                 Arg1 arg1;
                 typedef decltype(Op()(arg0.at(std::declval<long>()), arg1.at(std::declval<long>()))) value_type;
-                static constexpr size_t value = Arg0::value>Arg1::value?Arg0::value: Arg1::value;
+                static constexpr size_t value = std::remove_reference<Arg0>::type::value>std::remove_reference<Arg1>::type::value?std::remove_reference<Arg0>::type::value: std::remove_reference<Arg1>::type::value;
                 core::ltuple<long, value> shape;
                 numpy_expr() {}
 
-                numpy_expr(Arg0 const& arg0, Arg1 const& arg1) : arg0(arg0), arg1(arg1), shape(select_shape(arg0,arg1, int_<value>())) {
+                numpy_expr(Arg0 arg0, Arg1 arg1) : arg0(arg0), arg1(arg1), shape(select_shape(arg0,arg1, int_<value>())) {
                 }
 #ifdef __AVX__
                 auto load(long i) const -> decltype(Op()(arg0.load(i), arg1.load(i))) {
@@ -569,6 +569,16 @@ namespace  pythonic {
                 {
                 }
 
+                /* move */
+                ndarray(ndarray<T,N> && other) :
+                    data_size(other.data_size),
+                    mem(std::move(other.mem)),
+                    data(std::move(other.data)),
+                    buffer(std::move(other.buffer)),
+                    shape(std::move(other.shape))
+                {
+                }
+
                 /* from a sequence */
                 template<class Iterable>
                     ndarray(Iterable&& iterable, typename std::enable_if< // prevent destruction of copy constructor
@@ -812,6 +822,31 @@ namespace  pythonic {
                         return reshappy;
                     }
 
+            };
+
+        template<class T>
+            struct is_numexpr_arg {
+                static constexpr bool value = false;
+            };
+        template<class T, size_t N>
+            struct is_numexpr_arg<ndarray<T,N>> {
+                static constexpr bool value = true;
+            };
+        template<class T>
+            struct is_numexpr_arg<sliced_ndarray<T>> {
+                static constexpr bool value = true;
+            };
+        template<class T, size_t N, size_t M>
+            struct is_numexpr_arg<gsliced_ndarray<T,N,M>> {
+                static constexpr bool value = true;
+            };
+        template<class O, class A0, class A1>
+            struct is_numexpr_arg<numpy_expr<O,A0,A1>> {
+                static constexpr bool value = true;
+            };
+        template<class O, class A0 >
+            struct is_numexpr_arg<numpy_uexpr<O,A0>> {
+                static constexpr bool value = true;
             };
     }
 

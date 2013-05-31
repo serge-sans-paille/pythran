@@ -3,6 +3,31 @@ import sys
 import os
 import argparse
 import pythran
+import logging
+logger = logging.getLogger("pythran")
+
+# Initialize logging
+try:
+    # Set a nice colored output
+    from colorlog import ColoredFormatter
+    formatter = ColoredFormatter(
+        "%(log_color)s%(levelname)-8s%(reset)s %(blue)s%(message)s",
+        log_colors={
+                'DEBUG':    'cyan',
+                'INFO':     'green',
+                'WARNING':  'yellow',
+                'ERROR':    'red',
+                'CRITICAL': 'red',
+        }
+    )
+    stream = logging.StreamHandler()
+    stream.setFormatter(formatter)
+    logger.addHandler(stream)
+except ImportError:
+    # No color available, use default config
+    logging.basicConfig(format='%(levelname)s: %(message)s')
+    logger.warn("Disabling color, you really want to install colorlog.")
+
 
 def convert_arg_line_to_args(arg_line):
     """Read argument from file in a prettier way"""
@@ -39,7 +64,6 @@ def compile_flags(args):
 
     return compiler_options
 
-
 parser = argparse.ArgumentParser(prog='pythran',
         description='pythran: a python to C++ compiler',
         epilog="It's a megablast!",
@@ -62,6 +86,9 @@ parser.add_argument('-f', dest='extra_fflags', metavar='flag',
         action='append',
         help='any compiler switch relevant to the underlying C++ compiler',
         default=list())
+
+parser.add_argument('-v', dest='verbose', action='store_true',
+        help='be verbose')
 
 parser.add_argument('-p', dest='opts', metavar='pass',
         action='append',
@@ -106,6 +133,8 @@ args = parser.parse_args(sys.argv[1:])
 if args.raw_translate_only:
     args.translate_only = True
 
+if args.verbose:
+    logger.setLevel(logging.INFO)
 
 try:
     if not os.path.exists(args.input_file):
@@ -141,33 +170,33 @@ try:
 
 
 except IOError as e:
-    print >> sys.stderr, "I've got a bad feeling about this..."
-    print >> sys.stderr, "E:", e
+    logger.critical("I've got a bad feeling about this...\n"
+                 "E: " + str(e))
     sys.exit(1)
 except ValueError as e:
-    print >> sys.stderr, "Chair to keyboard interface error"
-    print >> sys.stderr, "E:", e
+    logger.critical("Chair to keyboard interface error\n"
+                 "E: " + str(e))
     sys.exit(1)
 except SyntaxError as e:
-    print >> sys.stderr, ("I am in trouble." +
-            "Your input file does not seem to match Pythran's constraints...")
-    print >> sys.stderr, "E:", e
+    logger.critical("I am in trouble. Your input file does not seem "
+                 "to match Pythran's constraints...\n"
+                 "E: " + str(e))
     sys.exit(1)
 except pythran.ToolChain.CompileError as e:
-    print >> sys.stderr, "Leave the vessel! Women and children first!"
-    print >> sys.stderr, "C++ compiler failed to compile translated code."
-    print >> sys.stderr, "E:", e
+    logger.critical("Leave the vessel! Women and children first!\n"
+                 "C++ compiler failed to compile translated code.\n"
+                 "E: " + str(e))
     sys.exit(1)
 except NotImplementedError as e:
-    print >> sys.stderr, ("MAYDAY, MAYDAY, MAYDAY; pythran compiler; "
-             + "code area out of control")
-    print >> sys.stderr, ("E: not implemented feature needed, " +
-            "bash the developers")
-    raise
+    logger.critical("MAYDAY, MAYDAY, MAYDAY; pythran compiler; "
+                 "code area out of control\n"
+                 "E: not implemented feature needed, "
+                 "bash the developers")
+    raise # Why ? we may instead display the stacktrace and exit?
 except EnvironmentError as e:
-    print >> sys.stderr, ("By Jove! Your environment does not seem "
-            + "to provide all what we need")
-    print >> sys.stderr, "E:", e
+    logger.critical("By Jove! Your environment does not seem "
+                 "to provide all what we need\n"
+                 "E: " + str(e))
     sys.exit(1)
 
 # what a great editor!

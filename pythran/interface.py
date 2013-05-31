@@ -8,6 +8,8 @@ import sys
 import os.path
 import sysconfig
 import shutil
+import logging
+logger = logging.getLogger(__name__)
 
 from cxxgen import *
 import ast
@@ -27,6 +29,9 @@ from numpy import get_include, ndarray
 from subprocess import check_output, STDOUT, CalledProcessError
 from tempfile import mkstemp, NamedTemporaryFile
 
+def format_cmdline(cmd):
+    """No comma when printing a command line allows for copy/paste"""
+    return "'"+"' '".join(cmd)+"'"
 
 def pytype_to_ctype(t):
     '''python -> c++ type binding'''
@@ -183,7 +188,7 @@ class ToolChain(object):
     class CompileError(Exception):
 
         def __init__(self, cmdline, output):
-            self.cmdline = "'"+("' '".join(cmdline))+"'"
+            self.cmdline = format_cmdline(cmdline)
             self.output = output
             self._message = "\n".join(["Compile error!\n",
                                        "******** Command line was: ********",
@@ -258,12 +263,14 @@ class ToolChain(object):
                    + cxxflags
                    + ["-shared", "-o", module_so]
                    + ldflags)
+            logger.info("Command line: "+format_cmdline(cmd))
             output = check_output(cmd, stderr=STDOUT)
         except CalledProcessError as e:
             raise ToolChain.CompileError(e.cmd, e.output)
+        logger.info("Generated module: " + module_so)
+        logger.info("Output: " + output)
 
         return module_so
-    '''c++ file -> native module'''
 
     @classmethod
     def compile_cxxcode(cls, cxxcode, module_so=None, keep_temp=False,
@@ -284,8 +291,7 @@ class ToolChain(object):
 
     @classmethod
     def compile_pythrancode(cls, module_name, pythrancode, specs=None,
-                            opts=None, cpponly=False, module_so=None,
-                            **kwargs):
+                            opts=None, cpponly=False, module_so=None, **kwargs):
         '''Pythran code (string) -> c++ code -> native module'''
 
         # Autodetect the Pythran spec if not given as parameter
@@ -300,6 +306,8 @@ class ToolChain(object):
             _, output_file = cls.get_temp(str(module.generate()))
             if module_so:
                 shutil.move(output_file, module_so)
+                output_file = module_so
+            logger.info("Generated C++ source file: " + output_file)
         else:
             # Compile to binary
             output_file = cls.compile_cxxcode(str(module.generate()),

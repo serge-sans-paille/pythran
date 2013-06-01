@@ -29,9 +29,11 @@ from numpy import get_include, ndarray
 from subprocess import check_output, STDOUT, CalledProcessError
 from tempfile import mkstemp, NamedTemporaryFile
 
+
 def format_cmdline(cmd):
     """No comma when printing a command line allows for copy/paste"""
     return "'"+"' '".join(cmd)+"'"
+
 
 def pytype_to_ctype(t):
     '''python -> c++ type binding'''
@@ -248,7 +250,7 @@ class ToolChain(object):
     @classmethod
     def compile_cxxfile(cls, cxxfile, module_so=None, **kwargs):
         '''c++ file -> native module'''
-        # FIXME: I'm not sure about overriding the user defined compiler here...
+        # FIXME: not sure about overriding the user defined compiler here...
         compiler = kwargs.get('cxx', cfg.get('user', 'cxx'))
 
         cppflags = cls.cppflags() + kwargs.get('cppflags', [])
@@ -291,7 +293,8 @@ class ToolChain(object):
 
     @classmethod
     def compile_pythrancode(cls, module_name, pythrancode, specs=None,
-                            opts=None, cpponly=False, module_so=None, **kwargs):
+                            opts=None, cpponly=False, module_so=None,
+                            **kwargs):
         '''Pythran code (string) -> c++ code -> native module'''
 
         # Autodetect the Pythran spec if not given as parameter

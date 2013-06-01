@@ -2,9 +2,7 @@ from pythran import cxx_generator, ToolChain
 from imp import load_dynamic
 import unittest
 import os
-from numpy import ndarray, array
-from numpy import any as npany
-
+from numpy import ndarray
 
 class TestEnv(unittest.TestCase):
     """
@@ -14,6 +12,7 @@ class TestEnv(unittest.TestCase):
     # default options used for the c++ compiler
     PYTHRAN_CXX_FLAGS = ["-O0", "-fno-implicit-inline-templates", "-fopenmp",
                          '-Wall', '-Wno-unknown-pragmas']
+    TEST_RETURNVAL = "TEST_RETURNVAL"
 
     def assertAlmostEqual(self, ref, res):
         if hasattr(ref, '__iter__'):
@@ -53,8 +52,8 @@ class TestEnv(unittest.TestCase):
            interface (dict): pythran interface for the module to test.
                              Each key is the name of a function to call,
                              the value is a list of the arguments' type.
-                             Special keys are 'module_name', 'prelude', and
-                             'check_output'.
+                             Special keys are 'module_name', 'prelude', 'runas'
+                             and 'check_output'.
 
         Returns: nothing.
 
@@ -69,49 +68,72 @@ class TestEnv(unittest.TestCase):
         module_name = interface.pop('module_name', None)
         prelude = interface.pop('prelude', None)
         check_output = interface.pop('check_output', True)
+        runas = interface.pop('runas', None)
 
         for name in sorted(interface.keys()):
-            # Build the python function call.
-            modname = module_name or ("test_" + name)
-            attributes = []
-            for p in params:
-                if isinstance(p, str):
-                    attributes.append("'{0}'".format(p))
-                elif isinstance(p, ndarray):
-                    attributes.append("numpy.{0}".format(
-                        repr(p).replace("\n", "")))
-                else:
-                    attributes.append(str(p))
-            arglist = ",".join(attributes)
-            function_call = "{0}({1})".format(name, arglist)
+            if runas:
+                # runas is a python code string to run the test. By convention
+                # the last statement of the sequence is the value to test.
+                # We insert ourselves a variable to capture this value:
+                # "a=1; b=2; myfun(a+b,a-b)" => "a=1; b=2; RES=myfun(a+b,a-b)"
+                runas_commands = runas.split(";")
+                begin = ";".join(runas_commands[:-1]+[''])
+                last = self.TEST_RETURNVAL + '=' + runas_commands[-1]
+                runas = begin+"\n"+last
+            else:
+                # No runas provided, derive one from interface and params
+                attributes = []
+                for p in params:
+                    if isinstance(p, str):
+                        attributes.append("'{0}'".format(p))
+                    elif isinstance(p, ndarray):
+                        attributes.append("numpy.{0}".format(
+                            repr(p).replace("\n", "")))
+                    else:
+                         # repr preserve the "L" suffix for long
+                        attributes.append(repr(p))
+                arglist = ",".join(attributes)
+                function_call = "{0}({1})".format(name, arglist)
+                runas = self.TEST_RETURNVAL + '=' + function_call
 
-            # Compile the python module, python-way, 'env' contains the module
-            # and allow to call functions.
-            # This may be done once before the loop, but the context might
-            # need to be reset.
-            compiled_code = compile(code, "", "exec")
-            env = {'__builtin__': __import__('__builtin__')}
+            # Caller may requires some cleaning
             prelude and prelude()
-            eval(compiled_code, env)
 
-            python_ref = eval(function_call, env)  # Produce the reference
+            # Produce the reference, python-way, run in an separated 'env'
+            env = {'__builtin__': __import__('__builtin__')}
+            refcode = code+"\n"+runas
+            try:
+                if check_output:
+                    exec refcode in env
+                    python_ref = env[self.TEST_RETURNVAL]
+            except Exception as e:
+                # useful for debug
+                print refcode
+                raise
+
+            # If no module name was provided, create one
+            modname = module_name or ("test_" + name)
 
             # Compile the code using pythran
             cxx_compiled = ToolChain.compile_pythrancode(modname, code,
-                interface, cxxflags=TestEnv.PYTHRAN_CXX_FLAGS)
-            if not check_output:
-                return
+                interface, cxxflags=self.PYTHRAN_CXX_FLAGS)
 
             try:
+                if not check_output:
+                    return
+
+                # Caller may requires some cleaning
                 prelude and prelude()
                 pymod = load_dynamic(modname, cxx_compiled)
 
-                # Produce the pythran result
-                pythran_res = getattr(pymod, name)(*params)
+                # Produce the pythran result, exec in the loaded module ctx
+                exec runas in pymod.__dict__
+                pythran_res = getattr(pymod, self.TEST_RETURNVAL)
 
-                # Test Results
+                # Test Results, assert if mismatch
                 self.compare_pythonpythran_results(python_ref, pythran_res)
             finally:
+                # Clean temporary DLL
                 os.remove(cxx_compiled)
 
 
@@ -138,10 +160,11 @@ class TestFromDir(TestEnv):
     check_output = True
     files = None
     path = "defined_by_subclass"
+    runas_marker = '#runas '
 
     @classmethod
     def interface(cls, name=None, file=None):
-        ''' Return Pythran specs. By default try '''
+        ''' Return Pythran specs.'''
         default_value = {name: []}
         try:
             from pythran.spec import spec_parser
@@ -164,11 +187,12 @@ class TestFromDir(TestEnv):
         """
 
         def __init__(
-            self, test_env, module_name, module_code, check_output=False,
-                **specs):
+            self, test_env, module_name, module_code, check_output=True,
+                runas=None, **specs):
             self.test_env = test_env
             self.module_name = module_name
             self.module_code = module_code
+            self.runas = runas
             self.specs = specs
             self.check_output = check_output
 
@@ -207,9 +231,22 @@ class TestFromDir(TestEnv):
             # Module name is file name, also external interface default value
             name, _ = os.path.splitext(os.path.basename(filepath))
             specs = target.interface(name, filepath)
-            if stub:
-                func = lambda: None
-            else:
-                func = TestFromDir.TestFunctor(
-                    target, name, file(filepath).read(), **specs)
-            setattr(target, "test_"+name, func)
+            runas_list = [line for line in file(filepath).readlines()
+                          if line.startswith(TestFromDir.runas_marker)]
+            runas_list = runas_list or [None]
+            runcount = 0
+            for runas in runas_list:
+                if runas:
+                    runas = runas.replace(TestFromDir.runas_marker, '')
+                    runcount = runcount+1
+                    suffix = "_run"+str(runcount)
+                else:
+                    suffix = '_norun'
+                if stub:
+                    func = lambda: None
+                else:
+                    func = TestFromDir.TestFunctor(target, name,
+                        file(filepath).read(), runas=runas,
+                        check_output=(runas is not None), **specs)
+
+                setattr(target, "test_"+name+suffix, func)

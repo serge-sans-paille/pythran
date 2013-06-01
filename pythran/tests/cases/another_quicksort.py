@@ -1,3 +1,6 @@
+# unittest.skip g++4.8 explose in memory, clang is fine
+#runas QuickSort([1,4,2,4,6,10,7,0,6,5,12,99])
+
 # swap two value of the list
 #pythran export swap (float list, int, int)
 def swap (l, idx1, idx2):
@@ -45,7 +48,7 @@ def QuickSort (l):
     size = len (l)
     if size > 1:
         # Get the lists of bigger and smaller items and final position of pivot
-        idx = 0#partition (l)
+        idx = partition (l)
         l1 = []
         l2 = []
         for i in range (0, idx):
@@ -56,12 +59,8 @@ def QuickSort (l):
         QuickSort(l1);
         # Recursively sort elements at least as big as the pivot
         QuickSort(l2);
-        print "Sorted : "
-        print l1
-        print l2
         for i in range (0, len (l1)):
             l[i] = l1[i]
         for i in range (0, len (l2)):
             l[len (l1) + i] = l2[i]
-    return
-
+    return l

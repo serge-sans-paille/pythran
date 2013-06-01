@@ -4,11 +4,7 @@
 #include <tuple>
 #include <sstream>
 #include <complex>
-#include <nt2/include/functions/scalar/abs.hpp>
-#ifdef __AVX__
-#include <nt2/include/functions/simd/abs.hpp>
-#endif
- 
+#include <nt2/include/functions/abs.hpp>
 
 namespace pythonic {
 

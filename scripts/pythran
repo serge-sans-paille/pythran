@@ -162,8 +162,8 @@ try:
         if args.translate_only:
             raise ValueError("Do you really ask for Python-to-C++ on this C++ "
                              "input file: '{0}'?".format(args.input_file))
-        pythran.ToolChain.compile_cxxfile(args.input_file, args.output_file,
-                                          **compile_flags(args))
+        pythran.compile_cxxfile(args.input_file, args.output_file,
+                                **compile_flags(args))
 
     else:  # assume we have a .py input file here
 
@@ -171,11 +171,11 @@ try:
         # empty specs to avoid compile_pythranfile to auto-generate one
         specs = {} if args.raw_translate_only else None
 
-        pythran.ToolChain.compile_pythranfile(args.input_file,
-                                              module_so=args.output_file,
-                                              specs=specs,
-                                              cpponly=args.translate_only,
-                                              **compile_flags(args))
+        pythran.compile_pythranfile(args.input_file,
+                                    module_so=args.output_file,
+                                    specs=specs,
+                                    cpponly=args.translate_only,
+                                    **compile_flags(args))
 
 
 except IOError as e:
@@ -191,7 +191,7 @@ except SyntaxError as e:
                     "to match Pythran's constraints...\n"
                     "E: " + str(e))
     sys.exit(1)
-except pythran.ToolChain.CompileError as e:
+except pythran.CompileError as e:
     logger.critical("Leave the vessel! Women and children first!\n"
                     "C++ compiler failed to compile translated code.\n"
                     "E: " + str(e))

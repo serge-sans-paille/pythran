@@ -7,6 +7,18 @@ import shutil
 from subprocess import check_call
 
 
+def _exclude_current_dir_from_import():
+    """ Prevents Python loading from current directory, so that
+    `import pythran` lookup the PYTHONPATH.
+
+    Returns current_dir
+
+    """
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    sys.path = filter(lambda p: p != current_dir, sys.path)
+    return current_dir
+
+
 class BuildWithPly(build):
     '''Use ply to generate parsetab before building module.'''
 
@@ -76,12 +88,11 @@ class TestCommand(Command):
 
     def run(self):
         # Do not include current directory, validate using installed pythran
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        sys.path = filter(lambda p: p != current_dir, sys.path)
+        current_dir = _exclude_current_dir_from_import()
         where = os.path.join(current_dir, 'pythran', 'tests')
 
-        from pythran import ToolChain
-        ToolChain.test_compile()
+        from pythran import test_compile
+        test_compile()
 
         try:
             import py
@@ -141,13 +152,13 @@ class BenchmarkCommand(Command):
     def run(self):
         import glob
         import timeit
+
         # Do not include current directory, validate using installed pythran
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        sys.path = filter(lambda p: p != current_dir, sys.path)
+        current_dir = _exclude_current_dir_from_import()
         where = os.path.join(current_dir, 'pythran', 'tests', 'cases')
 
-        from pythran import ToolChain, cxx_generator, spec_parser
-        # ToolChain.test_compile()
+        from pythran import test_compile, compile_pythranfile
+        test_compile()
 
         candidates = glob.glob(os.path.join(where, '*.py'))
         sys.path.append(where)
@@ -176,8 +187,8 @@ class BenchmarkCommand(Command):
                         cxxflags = ["-Ofast", "-DNDEBUG"]
                         if self.mode == "pythran+omp":
                             cxxflags.append("-fopenmp")
-                        ToolChain.compile_pythranfile(candidate,
-                                                      cxxflags=cxxflags)
+                        compile_pythranfile(candidate,
+                                            cxxflags=cxxflags)
 
                     print modname + " running ...",
                     sys.stdout.flush()

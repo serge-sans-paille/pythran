@@ -1,8 +1,9 @@
-from pythran import cxx_generator, ToolChain
+from pythran import compile_pythrancode
 from imp import load_dynamic
 import unittest
 import os
 from numpy import ndarray
+
 
 class TestEnv(unittest.TestCase):
     """
@@ -60,8 +61,8 @@ class TestEnv(unittest.TestCase):
         Raises:
            AssertionError by 'unittest' if return value differ.
            SyntaxError if code is not python valid.
-           pythran.ToolChain.CompileError if generated code can't be compiled.
-           ...possible others...
+           pythran.CompileError if generated code can't be compiled.
+           ...possibly others...
         """
 
         # Extract special keys from interface.
@@ -115,7 +116,7 @@ class TestEnv(unittest.TestCase):
             modname = module_name or ("test_" + name)
 
             # Compile the code using pythran
-            cxx_compiled = ToolChain.compile_pythrancode(modname, code,
+            cxx_compiled = compile_pythrancode(modname, code,
                 interface, cxxflags=self.PYTHRAN_CXX_FLAGS)
 
             try:
@@ -167,7 +168,7 @@ class TestFromDir(TestEnv):
         ''' Return Pythran specs.'''
         default_value = {name: []}
         try:
-            from pythran.spec import spec_parser
+            from pythran import spec_parser
             specs = spec_parser(open(file).read()) if file else default_value
         except SyntaxError:
             specs = default_value

@@ -89,6 +89,7 @@ class TestCommand(Command):
     def run(self):
         # Do not include current directory, validate using installed pythran
         current_dir = _exclude_current_dir_from_import()
+        os.chdir("pythran/tests")
         where = os.path.join(current_dir, 'pythran', 'tests')
 
         from pythran import test_compile
@@ -155,6 +156,7 @@ class BenchmarkCommand(Command):
 
         # Do not include current directory, validate using installed pythran
         current_dir = _exclude_current_dir_from_import()
+        os.chdir("pythran/tests")
         where = os.path.join(current_dir, 'pythran', 'tests', 'cases')
 
         from pythran import test_compile, compile_pythranfile

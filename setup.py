@@ -38,14 +38,14 @@ class BuildWithPly(build):
             abs_nt2_dir = os.path.join(cwd, nt2_dir)
             os.chdir(nt2_build_dir)
             build_cmd = ['cmake',
-                    abs_nt2_dir,
-                    '-DCMAKE_INSTALL_PREFIX=.',
-                    '-DNT2_FIND_REPOSITORIES='
-                    'git://github.com/MetaScale/nt2-modules.git']
+                         abs_nt2_dir,
+                         '-DCMAKE_INSTALL_PREFIX=.',
+                         '-DNT2_FIND_REPOSITORIES='
+                         'git://github.com/MetaScale/nt2-modules.git']
             check_call(build_cmd)
             os.chdir(cwd)
 
-        check_call(['make', '-C', nt2_build_dir, 'install','-j'])
+        check_call(['make', '-C', nt2_build_dir, 'install', '-j'])
         for d in ('nt2', 'boost'):
             src = os.path.join(nt2_build_dir, 'include', d)
             target = os.path.join(self.build_lib, 'pythran', d)
@@ -99,12 +99,12 @@ class TestCommand(Command):
                             "--cov", "pythran"] + args
                 except ImportError:
                     print ("W: Skipping coverage analysis, pytest_cov"
-                            "not found")
+                           "not found")
             if py.test.cmdline.main(args) == 0:
                 print "\\_o<"
         except ImportError:
             print ("W: Using only one thread, "
-                    "try to install pytest-xdist package")
+                   "try to install pytest-xdist package")
             loader = TestLoader()
             t = TextTestRunner(failfast=self.failfast)
             t.run(loader.discover(where))
@@ -118,12 +118,12 @@ class BenchmarkCommand(Command):
     default_nb_iter = 11
     description = 'run the benchmark suite for the package'
     user_options = [
-            ('nb-iter=', None,
-                'number of times the benchmark is run'
-                '(default={0})'.format(default_nb_iter)),
-            ('mode=', None,
-                'mode to use (cpython, pythran, pythran' '+omp)')
-            ]
+        ('nb-iter=', None,
+         'number of times the benchmark is run'
+         '(default={0})'.format(default_nb_iter)),
+        ('mode=', None,
+         'mode to use (cpython, pythran, pythran' '+omp)')
+    ]
 
     runas_marker = '#runas '
 
@@ -147,7 +147,7 @@ class BenchmarkCommand(Command):
         where = os.path.join(current_dir, 'pythran', 'tests', 'cases')
 
         from pythran import ToolChain, cxx_generator, spec_parser
-        #ToolChain.test_compile()
+        # ToolChain.test_compile()
 
         candidates = glob.glob(os.path.join(where, '*.py'))
         sys.path.append(where)
@@ -188,33 +188,33 @@ class BenchmarkCommand(Command):
 
 
 setup(name='pythran',
-        version='0.2.0',
-        description='a claimless python to c++ converter',
-        author='Serge Guelton',
-        author_email='serge.guelton@telecom-bretagne.eu',
-        url='https://github.com/serge-sans-paille/pythran',
-        packages=['pythran', 'omp', 'pythran/pythonic++'],
-        package_data={'pythran': ['pythran.h', 'pythran_gmp.h', 'pythran.cfg'],
-            'pythran/pythonic++': ['pythonic++.h', 'core/*.h',
-            'modules/*.h']},
-        scripts=['scripts/pythran'],
-        classifiers=[
-            'Development Status :: 4 - Beta',
-            'Environment :: Console',
-            'Intended Audience :: Developers',
-            'License :: OSI Approved :: BSD License',
-            'Natural Language :: English',
-            'Operating System :: POSIX :: Linux',
-            'Programming Language :: Python :: 2.7',
-            'Programming Language :: Python :: Implementation :: CPython',
-            'Programming Language :: C++',
-            'Topic :: Software Development :: Code Generators',
-            ],
-        license="BSD 3-Clause",
-        requires=['ply (>=3.4)', 'networkx (>=1.5)', 'numpy', 'colorlog'],
-        cmdclass={
-            'build': BuildWithPly,
-            'test': TestCommand,
-            'bench': BenchmarkCommand
-            }
-     )
+      version='0.2.0',
+      description='a claimless python to c++ converter',
+      author='Serge Guelton',
+      author_email='serge.guelton@telecom-bretagne.eu',
+      url='https://github.com/serge-sans-paille/pythran',
+      packages=['pythran', 'omp', 'pythran/pythonic++'],
+      package_data={'pythran': ['pythran.h', 'pythran_gmp.h', 'pythran.cfg'],
+                    'pythran/pythonic++': ['pythonic++.h', 'core/*.h',
+                                           'modules/*.h']},
+      scripts=['scripts/pythran'],
+      classifiers=[
+      'Development Status :: 4 - Beta',
+      'Environment :: Console',
+      'Intended Audience :: Developers',
+      'License :: OSI Approved :: BSD License',
+      'Natural Language :: English',
+      'Operating System :: POSIX :: Linux',
+      'Programming Language :: Python :: 2.7',
+      'Programming Language :: Python :: Implementation :: CPython',
+      'Programming Language :: C++',
+      'Topic :: Software Development :: Code Generators',
+      ],
+      license="BSD 3-Clause",
+      requires=['ply (>=3.4)', 'networkx (>=1.5)', 'numpy', 'colorlog'],
+      cmdclass={
+      'build': BuildWithPly,
+      'test': TestCommand,
+      'bench': BenchmarkCommand
+      }
+      )

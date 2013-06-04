@@ -7,6 +7,10 @@ template<class F, class S>
 bool operator==(std::pair<F,S> const& self, std::tuple<F,S> const& other) {
     return self.first == std::get<0>(other) and self.second == std::get<1>(other);
 }
+template<class T0, size_t N0, class T1, size_t N1>
+bool operator==(std::array<T0,N0> const& self, std::array<T1,N1> const& other) {
+    return N0 == N1 and std::equal(self.begin(), self.end(), other.begin());
+}
 
 template<class... Types0, class... Types1>
 std::tuple<Types0..., Types1...> operator+(std::tuple<Types0...> const& t0, std::tuple<Types1...> const& t1) {
@@ -66,53 +70,28 @@ namespace pythonic {
 namespace pythonic {
 
     namespace core {
-        template<class T, size_t N>
-            struct ltuple;
 
             template<size_t I>
                 struct to_tuple_impl {
                     template<class T, size_t N>
-                        auto operator()(ltuple<T,N> const& l) const -> decltype(std::tuple_cat(to_tuple_impl<I-1>()(l), std::tuple<T>(l[I-1]))) {
+                        auto operator()(std::array<T,N> const& l) const -> decltype(std::tuple_cat(to_tuple_impl<I-1>()(l), std::tuple<T>(l[I-1]))) {
                             return std::tuple_cat(to_tuple_impl<I-1>()(l), std::tuple<T>(l[I-1]));
                         }
                 };
             template<>
                 struct to_tuple_impl<1> {
                     template<class T, size_t N>
-                        std::tuple<T> operator()(ltuple<T,N> const& l) const {
+                        std::tuple<T> operator()(std::array<T,N> const& l) const {
                             return std::tuple<T>(l[0]);
                         }
                 };
             template<>
                 struct to_tuple_impl<0> {
                     template<class T, size_t N>
-                        std::tuple<> operator()(ltuple<T,N> const& l) const {
+                        std::tuple<> operator()(std::array<T,N> const& l) const {
                             return std::tuple<>();
                         }
                 };
-
-        template<class T, size_t N>
-            struct ltuple : public list<T> {
-                ltuple(std::initializer_list<T> l) : list<T>(std::move(l)) {
-                }
-                ltuple() : list<T>(N) {
-                }
-                ltuple(ltuple<T,N> const& l) : list<T>(l) {
-                }
-                ltuple(ltuple<T,N> & l) : list<T>(l) {
-                }
-                template<class Iter>
-                ltuple(Iter b, Iter e): list<T>(b,e) {
-                }
-                template<class... Types>
-                    operator std::tuple<Types...>() const {
-                        return std::tuple<Types...>(to_tuple_impl<N>()(*this));
-                    }
-
-                auto to_tuple() const -> decltype(to_tuple_impl<N>()(*this)) {
-                    return to_tuple_impl<N>()(*this);
-                }
-            };
 
         template<class... Types>
             struct are_same;
@@ -139,9 +118,9 @@ namespace pythonic {
             };
         template<class... Types>
             struct _make_tuple<true, Types...> {
-                ltuple<typename are_same<Types...>::type, sizeof...(Types)> operator()(Types... types) {
+                std::array<typename are_same<Types...>::type, sizeof...(Types)> operator()(Types... types) {
                     typedef typename are_same<Types...>::type T;
-                    return ltuple<T, sizeof...(Types)>({types...});
+                    return std::array<T, sizeof...(Types)>({{types...}});
                 }
             };
 
@@ -151,35 +130,19 @@ namespace pythonic {
             }
 
         template<class T, size_t N, class... Types>
-            auto operator+(std::tuple<Types...> const& t, ltuple<T,N> const& lt)
+            auto operator+(std::tuple<Types...> const& t, std::array<T,N> const& lt)
             -> decltype( std::tuple_cat(t, lt.to_tuple()))
             {
                 return std::tuple_cat(t, lt.to_tuple());
             }
         template<class T, size_t N, class... Types>
-            auto operator+(ltuple<T,N> const& lt, std::tuple<Types...> const& t)
+            auto operator+(std::array<T,N> const& lt, std::tuple<Types...> const& t)
             -> decltype( std::tuple_cat(lt.to_tuple(), t) )
             {
                 return std::tuple_cat(lt.to_tuple(), t);
             }
 
     }
-}
-/* specialize std::get */
-namespace std {
-    template <size_t I, class T, size_t N>
-        typename pythonic::core::ltuple<T,N>::reference get( pythonic::core::ltuple<T,N>& t) { return t[I]; }
-    template <size_t I, class T, size_t N>
-        typename pythonic::core::ltuple<T,N>::const_reference get( pythonic::core::ltuple<T,N> const & t) { return t[I]; }
-
-    template <size_t I, class T, size_t N>
-        struct tuple_element<I, pythonic::core::ltuple<T,N> > {
-            typedef typename pythonic::core::ltuple<T,N>::value_type type;
-        };
-    template<class T, size_t N>
-        struct tuple_size<pythonic::core::ltuple<T,N>> {
-            static const size_t value = N;
-        };
 }
 /* specialize std::hash */
 namespace std {
@@ -191,8 +154,8 @@ namespace std {
             }
         };
     template<class T, size_t N>
-        struct hash<pythonic::core::ltuple<T,N>> {
-            size_t operator()(pythonic::core::ltuple<T,N> const& l) const {
+        struct hash<std::array<T,N>> {
+            size_t operator()(std::array<T,N> const& l) const {
                 size_t seed = 0;
                 hash<T> h;
                 for(auto const &iter: l) 

@@ -71,7 +71,7 @@ struct content_of< std::tuple<T> > {
     typedef T type;
 };
 template<class T, size_t N>
-struct content_of< core::ltuple<T,N> > {
+struct content_of< std::array<T,N> > {
     typedef T type;
 };
 template<class T, class... Types>
@@ -217,9 +217,9 @@ std::tuple<Types...> operator+(indexable<K>, std::tuple<Types...>);
 template<class K, class... Types>
 std::tuple<Types...> operator+(std::tuple<Types...>, indexable<K>);
 template<class K, class T, size_t N>
-core::ltuple<T,N> operator+(indexable<K>, core::ltuple<T,N>);
+std::array<T,N> operator+(indexable<K>, std::array<T,N>);
 template<class K, class T, size_t N>
-core::ltuple<T,N> operator+(core::ltuple<T,N>, indexable<K>);
+std::array<T,N> operator+(std::array<T,N>, indexable<K>);
 template<class K>
 std::complex<double> operator+(indexable<K>, std::complex<double>);
 template<class K>
@@ -393,19 +393,19 @@ struct __combined<__builtin__::_iter<T0>, __builtin__::_iter<T1>> {
     typedef __builtin__::_iter<typename __combined<T0,T1>::type> type;
 };
 template<class T0, class T1, size_t N0, size_t N1>
-struct __combined<core::ltuple<T0,N0>, core::ltuple<T1,N1>> {
-    typedef core::ltuple<typename __combined<T0,T1>::type, N0> type;
+struct __combined<std::array<T0,N0>, std::array<T1,N1>> {
+    typedef std::array<typename __combined<T0,T1>::type, N0> type;
 };
 template<class... T0, class... T1>
 struct __combined<std::tuple<T0...>, std::tuple<T1...>> {
     typedef std::tuple<typename __combined<T0,T1>::type ...> type;  // no further combination
 };
 template<class T, size_t N, class... Types>
-struct __combined<core::ltuple<T,N>, std::tuple<Types...>> {
+struct __combined<std::array<T,N>, std::tuple<Types...>> {
     typedef std::tuple<Types...> type;
 };
 template<class T, size_t N, class... Types>
-struct __combined<std::tuple<Types...>, core::ltuple<T,N>> {
+struct __combined<std::tuple<Types...>, std::array<T,N>> {
     typedef std::tuple<Types...> type;
 };
 template<class T00, class T01, class T10, class T11>
@@ -530,11 +530,11 @@ template <size_t I, class T>
 /* for ndarrays */
 template <class T, size_t N>
     struct attribute_element<0, pythonic::core::ndarray<T,N> > {
-        typedef core::ltuple<long,N> type;
+        typedef std::array<long,N> type;
     };
 template <class Op, class Arg>
     struct attribute_element<0, pythonic::core::numpy_uexpr<Op, Arg> > {
-        typedef core::ltuple<long, pythonic::core::numpy_uexpr<Op, Arg>::value> type;
+        typedef std::array<long, pythonic::core::numpy_uexpr<Op, Arg>::value> type;
     };
 
 template <class T, size_t N>
@@ -544,7 +544,7 @@ template <class T, size_t N>
 
 template <class T, size_t N>
     struct attribute_element<2, pythonic::core::ndarray<T,N> > {
-        typedef core::ltuple<long,N> type;
+        typedef std::array<long,N> type;
     };
 
 template <class T, size_t N>
@@ -593,7 +593,7 @@ template <class T, size_t N>
     {
         typename attribute_element<2,pythonic::core::ndarray<T,N>>::type const operator()(core::ndarray<T,N> const& a)
         {
-            core::ltuple<long,N> strides;
+            std::array<long,N> strides;
             strides[N-1] = sizeof(T);
             auto shape = a.shape;
             std::transform(strides.rbegin(), strides.rend() -1, shape.rbegin(), strides.rbegin()+1, std::multiplies<long>());
@@ -1126,7 +1126,7 @@ struct pythran_to_python< std::tuple<Types...> > {
 
 template<typename T, size_t N>
 struct custom_ltuple_to_tuple {
-    static PyObject* convert(core::ltuple<T,N> const & t) {
+    static PyObject* convert(std::array<T,N> const & t) {
         size_t n = t.size();
         PyObject* obj = PyTuple_New(n);
         for(size_t i=0; i<n; ++i)
@@ -1136,10 +1136,10 @@ struct custom_ltuple_to_tuple {
 };
 
 template<typename T, size_t N>
-struct pythran_to_python< core::ltuple<T,N> > {
+struct pythran_to_python< std::array<T,N> > {
     pythran_to_python() {
         pythran_to_python<T>();
-        register_once<core::ltuple<T,N>, custom_ltuple_to_tuple<T,N>>();
+        register_once<std::array<T,N>, custom_ltuple_to_tuple<T,N>>();
     }
 };
 
@@ -1278,7 +1278,7 @@ template<class T, size_t N>
 struct custom_array_to_ndarray {
     static PyObject* convert( core::ndarray<T,N> const& n) {
         const_cast<core::ndarray<T,N>&>(n).mem.forget();
-        PyObject* result = PyArray_SimpleNewFromData(N, const_cast<long*>(n.shape.get_data().data()), c_type_to_numpy_type<T>::value, n.buffer);
+        PyObject* result = PyArray_SimpleNewFromData(N, const_cast<long*>(n.shape.data()), c_type_to_numpy_type<T>::value, n.buffer);
         if (!result)
             return nullptr;
         return result;

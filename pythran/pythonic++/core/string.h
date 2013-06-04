@@ -179,7 +179,7 @@ namespace pythonic {
                     return fmter.str();
                 }
             template<size_t N, class T>
-                core::string operator%(core::ltuple<T, N> const & a) const {
+                core::string operator%(std::array<T, N> const & a) const {
                     boost::format fmter(*this);
                     (fmt(fmter, a, int_<N>() ));
                     return fmter.str();

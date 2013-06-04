@@ -1,5 +1,6 @@
-#ifndef PYTHONIC_ARRAY_H
-#define PYTHONIC_ARRAY_H
+#ifndef PYTHONIC_NDARRAY_H
+#define PYTHONIC_NDARRAY_H
+
 #include <cassert>
 #include <iostream>
 #include <iterator>
@@ -18,8 +19,9 @@
 
 
 namespace  pythonic {
-    namespace __builtin__ {
-        template <class T>
+
+    namespace __builtin__ {         // forward declared to be specialized here
+        template <class T>          // should disappear when header hierarchy is reworked
             long len(T const &t);
     }
 
@@ -27,14 +29,25 @@ namespace  pythonic {
 
         template<class T, size_t N>
             struct ndarray;
+        template<class Expr>
+            struct is_array;
+        template<class Expr>
+            struct is_numpy_expr;
 
+        /* type trait to store scalar <> vector type binding
+        */
         template<class T>
             struct vectorized {
                 typedef T type;
-                static type broadcast(T v) { return v;}
+                static type broadcast(T value) {
+                    /* impelmentation of the type-specific handler to broadcas a value */
+                    return value;
+                }
             };
 
 #ifdef __AVX__
+        /* specialized trait for doubles when vectorization is turned on
+        */
         template<>
             struct vectorized<double> {
                 typedef boost::simd::native<double, BOOST_SIMD_DEFAULT_EXTENSION> type;
@@ -45,6 +58,10 @@ namespace  pythonic {
             };
 #endif
 
+        /* Type adaptor for scalar values
+         *
+         * Have them behave like infinite arrays of that value
+         */
         template<class T>
             struct broadcast {
 
@@ -62,8 +79,11 @@ namespace  pythonic {
                 }
             };
 
+        /* Expression template for numpy expressions - unary operators
+        */
         template<class Op, class Arg0>
             struct numpy_uexpr {
+
                 Arg0 arg0;
                 typedef decltype(Op()(arg0.at(std::declval<long>()))) value_type;
                 static constexpr size_t value = std::remove_reference<Arg0>::type::value;
@@ -95,6 +115,8 @@ namespace  pythonic {
                 return std::array<long, 0>();
             }
 
+        /* Expression template for numpy expressions - binary operators
+        */
         template<class Op, class Arg0, class Arg1>
             struct numpy_expr {
                 Arg0 arg0;
@@ -119,49 +141,11 @@ namespace  pythonic {
 
 
 
-        template <class Expr>
-            struct numpy_expr_to_ndarray {
-                typedef Expr type;
-            };
 
-        template <class L>
-            struct numpy_expr_to_ndarray<core::list<L>> {
-                typedef typename nested_container_value_type<core::list<L>>::type T;
-                static const size_t N = nested_container_depth<core::list<L>>::value;
-                typedef core::ndarray<T, N> type;
-            };
-
-        template <class T_, size_t N_>
-            struct numpy_expr_to_ndarray<ndarray<T_, N_>> {
-                typedef T_ T;
-                static const size_t N = N_;
-                typedef core::ndarray<T, N> type;
-            };
-
-        template<class Op, class Arg>
-            struct numpy_expr_to_ndarray<numpy_uexpr<Op, Arg>> {
-                typedef typename std::remove_cv<typename std::remove_reference< decltype(std::declval<numpy_uexpr<Op, Arg>>().at(0)) >::type>::type T;
-                static const size_t N = std::tuple_size< typename std::remove_cv<typename std::remove_reference< decltype(std::declval<numpy_uexpr<Op, Arg>>().shape) >::type > ::type > ::value;
-                typedef core::ndarray<T, N> type;
-            };
-
-        template<class T>
-            struct to_ndarray {
-                typedef T type;
-            };
-        template <class L>
-            struct to_ndarray<core::list<L>> {
-                typedef typename numpy_expr_to_ndarray<core::list<L>>::type type;
-            };
-
-        template<class Op, class Arg0, class Arg1>
-            struct numpy_expr_to_ndarray<numpy_expr<Op, Arg0, Arg1>> {
-                typedef typename std::remove_cv<typename std::remove_reference< decltype(std::declval<numpy_expr<Op, Arg0, Arg1>>().at(0)) >::type>::type T;
-                static const size_t N = std::tuple_size< typename std::remove_cv<typename std::remove_reference< decltype(std::declval<numpy_expr<Op, Arg0, Arg1>>().shape) >::type > ::type > ::value;
-                typedef core::ndarray<T, N> type;
-            };
-
-
+        /* Wrapper class to store an array pointer
+         *
+         * for internal use only, meant to be stored in a shared_ptr
+         */
         template<class T>
             class raw_array {
                 raw_array(raw_array<T> const& );
@@ -181,36 +165,11 @@ namespace  pythonic {
                 }
             };
 
-        template<class Expr>
-            struct is_numpy_expr {
-                static constexpr bool value = false;
-            };
-        template<class Op, class Arg>
-            struct is_numpy_expr<numpy_uexpr<Op, Arg>> {
-                static constexpr bool value = true;
-            };
-        template<class Op, class Arg0, class Arg1>
-            struct is_numpy_expr<numpy_expr<Op, Arg0, Arg1>> {
-                static constexpr bool value = true;
-             };
-
-        template<class Expr>
-            struct is_array {
-                static constexpr bool value = is_numpy_expr<Expr>::value;
-            };
-        template< class T, size_t N>
-            struct is_array< ndarray<T,N> > {
-                static constexpr bool value = true;
-            };
-
-        template<class Expr>
-            struct is_array_like {
-                static constexpr bool value = is_array<Expr>::value;
-            };
-        template<class L>
-            struct is_array_like<core::list<L>>{
-                static constexpr bool value = true;
-            };
+        /* Random Access Iterator over an ndarray
+         *
+         * wrapper around the operator[] of ndarray, when iterating over the first dimension
+         * returned by calls to begin() or end() over an ndarray
+         */
         template<class T>
             struct nditerator : std::iterator<std::random_access_iterator_tag, typename std::remove_reference<decltype(std::declval<T>()[0])>::type> {
                 T data;
@@ -236,6 +195,10 @@ namespace  pythonic {
                 }
             };
 
+        /* Helper for dimension-specific part of ndarray
+         *
+         * Instead of specializing the whole ndarray class, the dimension-specific behavior are stored here.
+         */
         template<class T>
             struct type_helper;
 
@@ -244,7 +207,6 @@ namespace  pythonic {
                 typedef ndarray<T,N-1> type;
                 typedef nditerator<ndarray<T,N>> iterator;
                 typedef nditerator<ndarray<T,N>> const_iterator;
-                typedef impl::shared_ref<raw_array<T>> memory;
                 template<class S, class Iter>
                 static T* initialize_from_iterable(S& shape, T* from, Iter&& iter) {
                     shape[std::tuple_size<S>::value - N] = iter.size();
@@ -271,7 +233,6 @@ namespace  pythonic {
                 typedef T* holder;
                 typedef holder iterator;
                 typedef const holder const_iterator;
-                typedef impl::shared_ref<raw_array<T>> memory;
                 template<class S, class Iter>
                 static T* initialize_from_iterable(S& shape, T* from, Iter&& iter) {
                     shape[std::tuple_size<S>::value - 1] = iter.size();
@@ -282,14 +243,18 @@ namespace  pythonic {
                 }
             };
 
-        slice const& as_shape(slice const& s) { return s;}
-        slice as_shape(long s) {
+        /* Type converter from index to slice
+         */
+        slice const& as_slice(slice const& s) { return s;}
+        slice as_slice(long s) {
             if(s!=-1)
                 return slice(s,s+1);
             else
                 return slice(s,std::numeric_limits<long>::max());
         }
 
+        /* Meta-Function to count the number of slices in a type list
+         */
         template<class... Types>
             struct count_slices;
         template<>
@@ -305,6 +270,8 @@ namespace  pythonic {
                 static constexpr size_t value = count_slices<T>::value + count_slices<Types...>::value;
             };
 
+        /* Proxy type for extended slices
+         */
         template<class T, size_t N, size_t M>
             struct gsliced_ndarray {
                 static constexpr size_t value = N;
@@ -408,6 +375,8 @@ namespace  pythonic {
                 }
             };
 
+        /* proxy type to hold the return of an index
+         */
         template <class T>
             struct indexed_ndarray : T {
                 indexed_ndarray() : T() {}
@@ -415,14 +384,9 @@ namespace  pythonic {
                 }
             };
 
-        template<class E, size_t M, size_t L>
-            struct numpy_expr_to_ndarray<gsliced_ndarray<E,M,L>> {
-                typedef typename std::remove_cv<typename std::remove_reference< decltype(std::declval<gsliced_ndarray<E,M,L>>().at(0)) >::type>::type T;
-                static const size_t N = std::tuple_size< typename std::remove_cv<typename std::remove_reference< decltype(std::declval<gsliced_ndarray<E,M,L>>().shape) >::type > ::type > ::value;
-                typedef core::ndarray<T, N> type;
 
-            };
-
+        /* proxy type to hold the return of a slice
+         */
         template<class T>
             struct sliced_ndarray : slice {
                 static constexpr size_t value = T::value;
@@ -510,8 +474,13 @@ namespace  pythonic {
                 }
             };
 
-        /* a few helpers */
-        
+        /* Multidimensional array of values
+         *
+         * An ndarray wraps a raw array pointers and manages multiple dimensions casted overt the raw data.
+         * The number of dimensions is fixed as well as the type of the underlying data.
+         * A shared pointer is used internally to mimic Python's behavior.
+         *
+         */
         template<class T, size_t N>
             struct ndarray {
 
@@ -525,10 +494,11 @@ namespace  pythonic {
                 typedef typename type_helper<ndarray<T, N>>::const_iterator const_iterator;
 
                 /* members */
-                size_t data_size;
-                typename type_helper<ndarray<T, N>>::memory mem;
-                T* buffer;
-                std::array<long, N> shape;
+                size_t data_size;                       // number of elements in the first dimension
+
+                impl::shared_ref<raw_array<T>> mem;     // shared data pointer
+                T* buffer;                              // pointer to the first data stored in the equivalent flat array
+                std::array<long, N> shape;              // shape of the multidimensional array
 
                 /* constructors */
                 ndarray() : data_size(0), mem(impl::no_memory()), buffer(nullptr), shape() {}
@@ -550,9 +520,9 @@ namespace  pythonic {
                     shape(std::move(other.shape))
                 {
                 }
-                struct dummy{};
 
                 /* from a sequence */
+                struct dummy{}; // for ADNL only
                 template<class Iterable>
                     ndarray(Iterable&& iterable, typename std::enable_if< // prevent destruction of copy constructor
                             !std::is_same<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type, ndarray<T,N>>::value
@@ -675,6 +645,8 @@ namespace  pythonic {
                 }
 
                 /* assignment */
+
+                /* of another array */
                 ndarray<T,N>& operator=(ndarray<T,N> const& other) {
                     if(data_size == other.data_size) { // maybe a subarray copy ?
                         data_size = other.data_size;
@@ -688,12 +660,16 @@ namespace  pythonic {
                     }
                     return *this;
                 }
+
+                /* of a single value */
                 ndarray<T,N>& operator=(T value) {
                     std::fill(buffer, buffer + size(), value);
                     return *this;
                 }
 
                 /* accessors */
+
+                /* by index */
                 auto operator[](long i) -> decltype(type_helper<ndarray<T,N>>::get(*this, i))
                 {
                     if(i<0) i+=shape[0];
@@ -705,6 +681,7 @@ namespace  pythonic {
                     return type_helper<ndarray<T,N>>::get(*this, i);
                 }
 
+                /* by tuple */
                 T& get(std::array<long, N> const& l, int_<0>)
                 {
                     size_t offset =l[N-1];
@@ -773,6 +750,7 @@ namespace  pythonic {
                     return get(arr, int_<N-M>());
                 }
 
+                /* by slice */
                 sliced_ndarray<ndarray<T,N>> operator[](slice const& s) const
                 {
                     long lower, upper;
@@ -800,18 +778,20 @@ namespace  pythonic {
                     return (*this)[s];
                 }
 
+                /* by extended slice */
                 template<class S0, class S1, class...S>
                 gsliced_ndarray<ndarray<T,N>, count_slices<S0,S1,S...>::value, 2 + sizeof...(S) > operator()(S0 const& s0, S1 const& s1, S const&... s_) const
                 {
-                    return gsliced_ndarray<ndarray<T,N>, count_slices<S0,S1,S...>::value, 2 + sizeof...(S)>(*this, std::array<slice, 2 + sizeof...(S)>({{as_shape(s0), as_shape(s1), as_shape(s_)...}}), std::array<bool, 2 + sizeof...(S)>({{std::is_same<S0,slice>::value, std::is_same<S1,slice>::value, std::is_same<S,slice>::value...}}));
+                    return gsliced_ndarray<ndarray<T,N>, count_slices<S0,S1,S...>::value, 2 + sizeof...(S)>(*this, std::array<slice, 2 + sizeof...(S)>({{as_slice(s0), as_slice(s1), as_slice(s_)...}}), std::array<bool, 2 + sizeof...(S)>({{std::is_same<S0,slice>::value, std::is_same<S1,slice>::value, std::is_same<S,slice>::value...}}));
                 }
                 template<class S0, class S1, class...S>
                 gsliced_ndarray<ndarray<T,N>, count_slices<S0,S1,S...>::value, 2 + sizeof...(S) > operator()(S0 const& s0, S1 const& s1, S const&... s_)
                 {
-                    return gsliced_ndarray<ndarray<T,N>, count_slices<S0,S1,S...>::value, 2 + sizeof...(S)>(*this, std::array<slice, 2 + sizeof...(S)>({{as_shape(s0), as_shape(s1), as_shape(s_)...}}), std::array<bool, 2 + sizeof...(S)>({{std::is_same<S0,slice>::value, std::is_same<S1,slice>::value, std::is_same<S,slice>::value...}}));
+                    return gsliced_ndarray<ndarray<T,N>, count_slices<S0,S1,S...>::value, 2 + sizeof...(S)>(*this, std::array<slice, 2 + sizeof...(S)>({{as_slice(s0), as_slice(s1), as_slice(s_)...}}), std::array<bool, 2 + sizeof...(S)>({{std::is_same<S0,slice>::value, std::is_same<S1,slice>::value, std::is_same<S,slice>::value...}}));
                 }
 
 
+                /* to the flat array */
                 T at(long i) const { return buffer[i]; }
                 T& at(long i) { return buffer[i]; }
 
@@ -821,11 +801,13 @@ namespace  pythonic {
                 }
 #endif
 
+                /* through iterators */
                 nditerator< ndarray<T,N> > begin() { return nditerator<ndarray<T,N> >(*this, 0); }
                 nditerator< ndarray<T,N> > begin() const { return nditerator<ndarray<T,N> >(*this, 0); }
                 nditerator< ndarray<T,N> > end() { return nditerator<ndarray<T,N> >(*this, data_size); }
                 nditerator< ndarray<T,N> > end() const { return nditerator<ndarray<T,N> >(*this, data_size); }
-                /* helpers */
+
+                /* member functions */
                 size_t size() const {
                     return std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<long>());
                 }
@@ -848,6 +830,110 @@ namespace  pythonic {
 
             };
 
+
+        /* Type trait to retrieve typing information from numpy expressions
+         *
+         * 3 informations are available:
+         * - the type `type` of the equivalent array
+         * - the number of dimensions `value` of the equivalent array
+         * - the type `T` of the value contained by the equivalent array
+         */
+        template <class Expr>
+            struct numpy_expr_to_ndarray {
+                typedef Expr type;
+            };
+
+        template <class L>
+            struct numpy_expr_to_ndarray<core::list<L>> {
+                typedef typename nested_container_value_type<core::list<L>>::type T;
+                static const size_t N = nested_container_depth<core::list<L>>::value;
+                typedef core::ndarray<T, N> type;
+            };
+
+        template <class T_, size_t N_>
+            struct numpy_expr_to_ndarray<ndarray<T_, N_>> {
+                typedef T_ T;
+                static const size_t N = N_;
+                typedef core::ndarray<T, N> type;
+            };
+
+        template<class Op, class Arg>
+            struct numpy_expr_to_ndarray<numpy_uexpr<Op, Arg>> {
+                typedef typename std::remove_cv<typename std::remove_reference< decltype(std::declval<numpy_uexpr<Op, Arg>>().at(0)) >::type>::type T;
+                static const size_t N = std::tuple_size< typename std::remove_cv<typename std::remove_reference< decltype(std::declval<numpy_uexpr<Op, Arg>>().shape) >::type > ::type > ::value;
+                typedef core::ndarray<T, N> type;
+            };
+
+        template<class Op, class Arg0, class Arg1>
+            struct numpy_expr_to_ndarray<numpy_expr<Op, Arg0, Arg1>> {
+                typedef typename std::remove_cv<typename std::remove_reference< decltype(std::declval<numpy_expr<Op, Arg0, Arg1>>().at(0)) >::type>::type T;
+                static const size_t N = std::tuple_size< typename std::remove_cv<typename std::remove_reference< decltype(std::declval<numpy_expr<Op, Arg0, Arg1>>().shape) >::type > ::type > ::value;
+                typedef core::ndarray<T, N> type;
+            };
+        template<class E, size_t M, size_t L>
+            struct numpy_expr_to_ndarray<gsliced_ndarray<E,M,L>> {
+                typedef typename std::remove_cv<typename std::remove_reference< decltype(std::declval<gsliced_ndarray<E,M,L>>().at(0)) >::type>::type T;
+                static const size_t N = std::tuple_size< typename std::remove_cv<typename std::remove_reference< decltype(std::declval<gsliced_ndarray<E,M,L>>().shape) >::type > ::type > ::value;
+                typedef core::ndarray<T, N> type;
+
+            };
+
+        /* Type trait that checks if a type is a numpy expression
+         *
+         * valid numpy expressions are:
+         * - numpy_uexpr
+         * - numpy_expr
+         */
+        template<class Expr>
+            struct is_numpy_expr {
+                static constexpr bool value = false;
+            };
+        template<class Op, class Arg>
+            struct is_numpy_expr<numpy_uexpr<Op, Arg>> {
+                static constexpr bool value = true;
+            };
+        template<class Op, class Arg0, class Arg1>
+            struct is_numpy_expr<numpy_expr<Op, Arg0, Arg1>> {
+                static constexpr bool value = true;
+             };
+
+        /* Type trait that checks if a type is an array expression
+         *
+         * valid array expressions are:
+         * - numpy_uexpr
+         * - numpy_expr
+         * - ndarray
+         */
+        template<class Expr>
+            struct is_array {
+                static constexpr bool value = is_numpy_expr<Expr>::value;
+            };
+        template< class T, size_t N>
+            struct is_array< ndarray<T,N> > {
+                static constexpr bool value = true;
+            };
+
+        /* Type trait that checks if a type resemble an array expression
+         *
+         * valid candidates are:
+         * - numpy_uexpr
+         * - numpy_expr
+         * - ndarray
+         * - list
+         */
+        template<class Expr>
+            struct is_array_like {
+                static constexpr bool value = is_array<Expr>::value;
+            };
+        template<class L>
+            struct is_array_like<core::list<L>>{
+                static constexpr bool value = true;
+            };
+
+        /* Type trait that checks if a type is a potential numpy expression parameter
+         *
+         * Only used to write concise expression templates
+         */
         template<class T>
             struct is_numexpr_arg {
                 static constexpr bool value = false;
@@ -872,6 +958,7 @@ namespace  pythonic {
             struct is_numexpr_arg<numpy_uexpr<O,A0>> {
                 static constexpr bool value = true;
             };
+
     }
 
     template<class Op, class Arg>

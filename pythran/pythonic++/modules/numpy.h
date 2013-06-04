@@ -875,11 +875,11 @@ namespace pythonic {
         NP_PROXY_ALIAS(angle_in_rad, pythonic::numpy_expr::ops::angle_in_rad);
 
         template<class T>
-            auto angle(T const& t, bool in_deg) -> decltype(typename core::numpy_expr_to_ndarray<T>::type(angle_in_rad(typename core::to_ndarray<T>::type(t)))) {
+            auto angle(T const& t, bool in_deg) -> decltype(typename core::numpy_expr_to_ndarray<T>::type(angle_in_rad(typename core::numpy_expr_to_ndarray<T>::type(t)))) {
                 if(in_deg)
-                    return typename core::numpy_expr_to_ndarray<T>::type(angle_in_deg(typename core::to_ndarray<T>::type(t)));
+                    return typename core::numpy_expr_to_ndarray<T>::type(angle_in_deg(typename core::numpy_expr_to_ndarray<T>::type(t)));
                 else
-                    return typename core::numpy_expr_to_ndarray<T>::type(angle_in_rad(typename core::to_ndarray<T>::type(t)));
+                    return typename core::numpy_expr_to_ndarray<T>::type(angle_in_rad(typename core::numpy_expr_to_ndarray<T>::type(t)));
             }
         template<class T>
             auto angle(T const& t) -> typename std::enable_if<not core::is_numpy_expr<T>::value,decltype(angle(t,false))>::type {

@@ -24,6 +24,7 @@
 #include <nt2/include/functions/floor.hpp>
 #include <nt2/include/functions/frexp.hpp>
 #include <nt2/include/functions/gamma.hpp>
+#include <nt2/include/functions/gammaln.hpp>
 #include <nt2/include/functions/hypot.hpp>
 #include <nt2/include/functions/indeg.hpp>
 #include <nt2/include/functions/inrad.hpp>
@@ -52,8 +53,6 @@
 #include <nt2/include/functions/tan.hpp>
 #include <nt2/include/functions/tanh.hpp>
 #include <nt2/include/functions/trunc.hpp>
-#include <nt2/toolbox/boost_math/functions/lgamma.hpp>
-#include <nt2/toolbox/boost_math/functions/tgamma.hpp>
 
 namespace  pythonic {
 

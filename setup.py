@@ -41,9 +41,7 @@ class BuildWithPly(build):
                     abs_nt2_dir,
                     '-DCMAKE_INSTALL_PREFIX=.',
                     '-DNT2_FIND_REPOSITORIES='
-                    'git://github.com/MetaScale/nt2-modules.git',
-                    '-DNT2_MODULES_EXTRA='
-                    'extern.boost_math']
+                    'git://github.com/MetaScale/nt2-modules.git']
             check_call(build_cmd)
             os.chdir(cwd)
 

@@ -522,17 +522,16 @@ namespace  pythonic {
                 }
 
                 /* from a sequence */
-                struct dummy{}; // for ADNL only
-                template<class Iterable>
-                    ndarray(Iterable&& iterable, typename std::enable_if< // prevent destruction of copy constructor
-                            !std::is_same<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type, ndarray<T,N>>::value
-                            and
-                            !is_numpy_expr<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type>::value
-                            and
-                            is_iterable<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type>::value,
-                            dummy>::type = dummy()):
+              template<class Iterable,
+                       class = typename std::enable_if< // prevent destruction of copy constructor
+                                         !std::is_same<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type, ndarray<T,N>>::value
+                                         and !is_numpy_expr<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type>::value
+                                         and is_iterable<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type>::value,
+                                         void>::type
+                      >
+                    ndarray(Iterable&& iterable):
                         data_size(0),
-                        mem(nested_container_size<Iterable>()(std::forward<Iterable>(iterable))),
+                        mem(nested_container_size<Iterable>::size(std::forward<Iterable>(iterable))),
                         buffer(mem->data),
                         shape()
                 {

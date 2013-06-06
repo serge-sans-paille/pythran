@@ -1773,7 +1773,7 @@ namespace pythonic {
                     if(count <0) count = string.size();
                     long shape[1] = { count };
                     dtype* buffer = new dtype[shape[0]];
-                    dtype const* tstring = reinterpret_cast<dtype const*>(&string[0]);
+                    dtype const* tstring = reinterpret_cast<dtype const*>(string.data());
                     std::copy(tstring, tstring + shape[0], buffer);
                     return core::ndarray<dtype,1>(buffer, shape);
                 }

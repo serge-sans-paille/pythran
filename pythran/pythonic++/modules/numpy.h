@@ -1980,7 +1980,7 @@ namespace pythonic {
                     }
                 }
                 out_type out;
-                std::array<long, 1> shape{ real_sz };
+                std::array<long, 1> shape{{real_sz}};
                 for(long i=0; i<N; ++i)
                 {
                     out[i] = core::ndarray<long, 1>(shape, None);

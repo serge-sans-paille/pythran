@@ -151,9 +151,13 @@ template <class A>
 dict_container<A> operator+(core::empty_dict , container<A> );
 
 template <class T>
-core::dict<typename std::tuple_element<0,T>::type, typename std::tuple_element<1,T>::type> operator+(core::empty_dict , core::list<T> );
+struct __combined<core::empty_dict, core::list<T>> {
+    typedef core::dict<typename std::tuple_element<0,T>::type, typename std::tuple_element<1,T>::type> type;
+};
 template <class T>
-core::dict<typename std::tuple_element<0,T>::type, typename std::tuple_element<1,T>::type> operator+(core::list<T> , core::empty_dict);
+struct __combined<core::list<T>, core::empty_dict> {
+    typedef core::dict<typename std::tuple_element<0,T>::type, typename std::tuple_element<1,T>::type> type;
+};
 
 template <class K0, class V0, class T>
 core::dict<typename __combined<K0,typename std::tuple_element<0,T>::type>::type, typename __combined<V0, typename std::tuple_element<1,T>::type>::type > operator+(core::dict<K0,V0> , core::list<T> );

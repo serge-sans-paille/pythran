@@ -3,6 +3,24 @@ from test_env import TestEnv
 import numpy
 
 class TestNumpy(TestEnv):
+
+    @unittest.skip("Buggy because of ndarray<T,N>& operator=(ndarray<T,N> const& other) implementation.")
+    def test_assign_ndarray(self):
+        self.run_test("""def assign_ndarray(t):
+                           import numpy as np;
+                           a = np.array([1,2,3]);
+                           b = np.array([1,2,3]);
+                           if t:
+                             c = a;
+                           else:
+                             c=b;
+                           if t:
+                             c=b;
+                           b[0] = -1;
+                           return c;
+                           """,
+                           1,assign_ndarray=[int])
+
     def test_frexp0(self):
         self.run_test("def np_frexp0(): import numpy as np ; a = 1.5 ; return np.frexp(a)", np_frexp0=[])
 

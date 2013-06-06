@@ -648,10 +648,9 @@ namespace  pythonic {
                 /* of another array */
                 ndarray<T,N>& operator=(ndarray<T,N> const& other) {
                     if(data_size == other.data_size) { // maybe a subarray copy ?
-                        data_size = other.data_size;
+                        // This branch is buggy, see "test_assign_ndarray"
                         std::copy(other.begin(), other.end(), begin()); //SG:correct?
-                    }
-                    else {
+                    } else {
                         data_size = other.data_size;
                         mem = other.mem;
                         buffer = other.buffer;

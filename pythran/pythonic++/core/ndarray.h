@@ -279,26 +279,29 @@ namespace  pythonic {
                 typedef typename T::value_type value_type;
                 typedef typename T::reference reference;
                 typedef typename T::const_reference const_reference;
+                // with a.shape = [7,5,10]
+
+                // list of slices :
+                // ex : a[1:3,3,7:] -> [(1,3,1), (3,4,1), (7,10,1)]
                 std::array<slice,M> gslice;
+                // shape of this extslice_array with 1 in flat dimension :
+                // ex : a[1:3,3,7:] -> [2,1,3]
                 std::array<long,M> gshape;
+                // shape of this extslice :
+                // ex : a[1:3,3,7:] -> [2,3]
                 std::array<long,N> shape;
 
-                T data;
+                T& data;
+                long _size;
+                impl::shared_ref<raw_array<long>> to_index;
+                long islice;
 
-                long start_index;
-                std::array<long,M> mdshape;
-                std::array<long,M> mgshape;
-
-                gsliced_ndarray(T const& data, std::array<slice,M> const& s, std::array<bool,M> const& mask) :
+                gsliced_ndarray(T & data, core::ltuple<slice,M> const& s, core::ltuple<bool,M> const& mask) :
                     gslice(s),
                     gshape(),
                     shape(),
-                    data(data),
-                    start_index(0),
-                    mdshape(),
-                    mgshape()
+                    data(data)
                 {
-                    std::copy_n(data.shape.begin(), N, shape.begin());
                     std::copy_n(data.shape.begin(), M, gshape.begin());
                     for(size_t i=0, j=0;i<M;i++) {
                         if(gslice[i].upper > data.shape[i])
@@ -311,51 +314,75 @@ namespace  pythonic {
                         if(mask[i])
                             shape[j++] = gshape[i];
                     }
+                    long start_index = 0;
                     auto const &dshape = data.shape;
                     long dmult = 1;
                     long gmult = 1;
+                    // number of elts before the next elts of thie dimension in the extslice :
+                    // ex : a[1:3,3,7:] -> [50,10,1]
+                    std::array<long,M> jump_array;
+                    // number of elts before the next elts of thie dimension in the array :
+                    // ex : a[1:3,3,7:] -> [3,3,1]
+                    std::array<long,M> jump_extslice;
                     for(long j=M-1; j>=0; j--) {
-                        mdshape[j] = dmult;
-                        mgshape[j] = gmult;
+                        jump_array[j] = dmult;
+                        jump_extslice[j] = gmult;
                         start_index += gslice[j].lower*dmult;
                         dmult*=dshape[j];
                         gmult*=gshape[j];
                     }
+                    islice = std::accumulate(data.shape.begin()+M, data.shape.end(),1, std::multiplies<long>());
+                    _size = gmult * islice;
+                    to_index->data = new long[gmult];
+                    fill_index(start_index, 0, int_<M>(), jump_array, jump_extslice);
                 }
 
-                long to_index(long i) const {
-                    long j = M-1;
-                    long findex = start_index + i%gshape[j];
-                    for(--j; j>0; j--) {
-                        findex += ((i/mgshape[j])%gshape[j])*mdshape[j];
+                template<size_t L>
+                void fill_index(int offset, int indice, int_<L>, std::array<long, M> const& jump_array, std::array<long, M> const& jump_extslice)
+                {
+                    const size_t s = gshape[M-L];
+                    const long ja = jump_array[M-L];
+                    const long je = jump_extslice[M-L];
+                    for(int i=0; i<s; i++)
+                    {
+                        fill_index(offset, indice, int_<L-1>(), jump_array, jump_extslice);
+                        offset += ja;
+                        indice += je;
                     }
-                    return findex + (i/mgshape[0])*mdshape[0];
+                }
+
+                void fill_index(int offset, int indice, int_<1>, std::array<long, M> const&, std::array<long, M> const&)
+                {
+                    auto begin = to_index->data + indice;
+                    auto end = begin + gshape[M-1];
+                    while(begin != end)
+                        *begin++ = offset++;
                 }
 
                 auto at(long i) const -> typename std::remove_reference<decltype(data.at(0))>::type {
-                    return data.at(to_index(i));
+                    //for performance
+                    if(islice==1)
+                        return data.at(to_index->data[i]);
+                    else
+                        return data.at(to_index->data[i/islice] + i % islice);
                 }
 
                 long size() const {
-                    size_t n = data.size();
-                    for(size_t i=0;i<M;++i)
-                        n = (n / data.shape[i]) * gshape[i];
-                    return n;
+                    return _size;
                 }
 
                 template<class E>
                     typename std::enable_if<not core::is_array<E>::value, gsliced_ndarray<T,N,M>&>::type operator=(E const& v) {
                         for(long i=0, n= size(); i<n ; ++i)
-                            data.buffer[to_index(i)] = v;
+                            data.buffer[to_index->data[i]] = v;
                         return *this;
                     }
 
                 template<class E>
                     typename std::enable_if<core::is_array<E>::value, gsliced_ndarray<T,N,M>&>::type operator=(E const& v) {
-                        long islice = std::accumulate(data.shape.begin()+M, data.shape.end(),1, std::multiplies<long>());
                         long bound = size();
                         for(long i=0, k=0; k<bound; ++i) {
-                            auto I = to_index(i)*islice;
+                            auto I = to_index->data[i]*islice;
                             for(long j=0;j<islice; j++,k++)
                                 data.at(I+j) = v.at(k%v.size());
                         }
@@ -365,13 +392,13 @@ namespace  pythonic {
 
                 gsliced_ndarray<T,N,M>& operator+=(value_type v) {
                     for(long i=0, n= size(); i<n ; ++i)
-                        data.buffer[to_index(i)] += v;
+                        data.buffer[to_index->data[i]] += v;
                     return *this;
                 }
 
                 gsliced_ndarray<T,N,M>& operator-=(value_type v) {
                     for(long i=0, n= size(); i<n ; ++i)
-                        data.buffer[to_index(i)] -= v;
+                        data.buffer[to_index->data[i]] -= v;
                     return *this;
                 }
             };

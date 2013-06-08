@@ -2,6 +2,12 @@ from test_env import TestEnv
 
 class TestStr(TestEnv):
 
+    def test_str_startswith0(self):
+        self.run_test("def str_startswith0(s0, s1): return s0.startswith(s1)", "barbapapa", "barba", str_startswith0=[str, str])
+
+    def test_str_startswith1(self):
+        self.run_test("def str_startswith1(s0, s1): return s0.startswith(s1)", "barbapapa", "barbi", str_startswith1=[str, str])
+
     def test_str_endswith0(self):
         self.run_test("def str_endswith0(s0, s1): return s0.endswith(s1)", "barbapapa", "papa", str_endswith0=[str, str])
 

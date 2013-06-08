@@ -891,6 +891,7 @@ modules = {
         "__string__": {
                 "capitalize": ConstMethodIntr(),
                 "endswith": ConstMethodIntr(),
+                "startswith": ConstMethodIntr(),
                 "find": ConstMethodIntr(),
                 "join": ConstMethodIntr(),
                 "lower": ConstMethodIntr(),

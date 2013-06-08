@@ -124,7 +124,7 @@ Afterwards, frenetically type::
 	$> pythran dprod.py
 
 \o/ a ``dprod.so`` native module has been created and you can play with it
-right *now*. The speedup will not be terrible because of the conversion cost
+right *now*. The speedup will not be terrific because of the conversion cost
 from python to C++.
 
 So let's try again with a well-known example. Let me

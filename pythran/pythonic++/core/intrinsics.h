@@ -743,10 +743,10 @@ namespace pythonic {
 
         /* zip */
         template<class Iterator0, class... Iterators>
-            core::list< std::tuple<typename Iterator0::value_type, typename Iterators::value_type... > > _zip(size_t n, Iterator0 first, Iterator0 last, Iterators...  iters) {
+            core::list< std::tuple<typename Iterator0::value_type, typename Iterators::value_type... > > _zip(size_t n, Iterator0 first, Iterators...  iters) {
                 core::list< std::tuple< typename Iterator0::value_type, typename Iterators::value_type... > > out = core::empty_list();
                 out.reserve(n);
-                for(; first!=last; ++first, fwd(++iters...)) {
+                for(size_t i=0; i<n ; ++i, ++first, fwd(++iters...)) {
                     out.push_back(std::make_tuple( *first, *iters... ));
                 }
                 return out;
@@ -755,7 +755,7 @@ namespace pythonic {
         template<class List0, class... Lists>
             core::list< std::tuple<typename std::remove_reference<List0>::type::value_type, typename std::remove_reference<Lists>::type::value_type... > > zip(List0 && s0, Lists &&...  lists) {
                 size_t n = max(len(std::forward<List0>(s0)), len(std::forward<Lists>(lists))...);
-                return _zip(n, s0.begin(), s0.end(), lists.begin()...);
+                return _zip(n, s0.begin(), lists.begin()...);
             }
 
         core::empty_list zip() {

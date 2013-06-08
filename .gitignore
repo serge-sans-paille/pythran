@@ -2,3 +2,5 @@
 *.pyc
 build
 dist
+website/*.html
+website/license.txt

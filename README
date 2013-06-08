@@ -48,7 +48,7 @@ Pythran releases are hosted on http://pypi.python.org/pypi/pythran.
 	- Add serge_sans_paille's debian server to your `source.list`, following
 	  the instruction given in http://serge.liyun.free.fr/serge/debian.html
 
-	- Run the classical::
+	- Run the classic::
 
 		$> sudo apt-get update
 		$> sudo apt-get install pythran
@@ -88,7 +88,7 @@ The CLI documentation is available from the pythran help command::
 	$> pythran --help
 
 Some extra developer documentation is also available using pydoc. Beware, this
-is the computer science incarnation for the famous Where's Wally? game::
+is the computer science incarnation for the famous Where's Waldo? game::
 
 	$> pydoc pythran
 	$> pydoc pythran.typing

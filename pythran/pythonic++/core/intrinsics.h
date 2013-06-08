@@ -246,12 +246,10 @@ namespace pythonic {
                 }
             };
 
-        template <class... Types, class I>
-            struct _len<std::tuple<Types...>, I> {
-                long operator()(std::tuple<Types...> const&) {
-                    return sizeof...(Types);
-                }
-            };
+        template <class... Types>
+            long len(std::tuple<Types...> const&) {
+                return sizeof...(Types);
+            }
 
         long len(core::empty_set const &t) {
             return 0;

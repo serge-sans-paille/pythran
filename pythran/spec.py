@@ -46,11 +46,16 @@ class SpecParser:
         return t
 
     # skipped characters
-    t_ignore = ' \t\r\n'
+    t_ignore = ' \t\r'
 
     # error handling
     def t_error(self, t):
         t.lexer.skip(1)
+
+    # Define a rule so we can track line numbers
+    def t_newline(self, t):
+        r'\n+'
+        t.lexer.lineno += len(t.value)
 
     ## yacc part
 
@@ -102,7 +107,11 @@ class SpecParser:
         p[0] = eval(p[1])
 
     def p_error(self, p):
-        raise SyntaxError("Invalid Pythran spec")
+        err = SyntaxError("Invalid Pythran spec near '" + str(p.value) + "'")
+        err.lineno = p.lineno
+        if self.input_file:
+            err.filename = self.input_file
+        raise err;
 
     def __init__(self, **kwargs):
         self.lexer = lex.lex(module=self, debug=0)
@@ -113,26 +122,22 @@ class SpecParser:
 
     def __call__(self, path):
         self.exports = dict()
-        input_file = None
+        self.input_file = None
         if os.path.isfile(path):
-            input_file = path
+            self.input_file = path
             with file(path) as fd:
                 data = fd.read()
         else:
             data = path
         # filter out everything that does not start with a #pythran
-        # this is not as elegant as it could be...
-        pythran_data = reduce(
-                str.__add__,
-                (line for line in data.split('\n')
-                    if line.startswith('#pythran')),
-                "")
+        pythran_data = "\n".join((line if line.startswith('#pythran') else ''
+                                  for line in data.split('\n')))
         self.parser.parse(pythran_data, lexer=self.lexer)
         if not self.exports:
             err = SyntaxError(
                     "Pythran spec error: no pythran specification")
-            if input_file:
-                err.filename = input_file
+            if self.input_file:
+                err.filename = self.input_file
             raise err
         return self.exports
 

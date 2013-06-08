@@ -862,6 +862,12 @@ namespace pythonic {
                 return t.find(v) != core::string::npos;
             }
         };
+    template <>
+        struct _in<core::string_view, core::string> {
+            bool operator()(core::string_view const &t, core::string const &v) {
+                return core::string(t).find(v) != core::string::npos;
+            }
+        };
 
     template <class T, class V>
         bool in(T &&t, V const &v) {

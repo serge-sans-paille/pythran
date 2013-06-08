@@ -52,6 +52,7 @@ namespace  pythonic {
 					public:
 				// Types
 				typedef core::file_iterator iterator;
+                typedef core::string value_type;
 
 				// Constructors
 				file() : data(impl::no_memory()) {}

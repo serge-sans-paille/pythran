@@ -43,7 +43,7 @@ namespace pythonic {
             if(s.empty()) return s;
             else {
                 core::string copy = s;
-                copy[0] = ::toupper(s[0]);
+                *copy.begin() = ::toupper(*s.begin());
                 std::transform(s.begin()+1, s.end(), copy.begin()+1, ::tolower);
                 return copy;
             }
@@ -66,28 +66,18 @@ namespace pythonic {
         }
         PROXY(pythonic::__string__, upper);
 
-        core::list<core::string> split(core::string const& s, core::string const& sep = " ", long maxsplit = -1)
-        {
-            core::list<core::string> res(0);
-            size_t current;
-            size_t next = -1;
-            long numsplit = 0;
-            do
-            {
-                current = next + 1;
-                next = s.find_first_of( sep, current );
-                res.push_back(s.substr( current, next - current ));
-            }
-            while (next != core::string::npos && (numsplit++<maxsplit || maxsplit==-1));
-            return res;
-        } 
-        PROXY(pythonic::__string__, split);
+        bool startswith(core::string const& s, core::string const& prefix, long start=0, size_t end=std::string::npos) {
+            if(end == std::string::npos)
+                end = s.size();
+            return (end - start) >= prefix.size() and s.compare(start, prefix.size(), prefix) == 0;
+        }
+        PROXY(pythonic::__string__, startswith);
 
         bool endswith(core::string const& s, core::string const& suffix, long start=0, size_t end=std::string::npos) {
             if(end == std::string::npos)
                 end = s.size();
-            long rstart = end - suffix.size() - start;
-            return rstart >= 0 and s.compare(rstart, suffix.size(), suffix) == 0;
+            long rstart = end - suffix.size();
+            return rstart >= start and s.compare(rstart, suffix.size(), suffix) == 0;
         }
         PROXY(pythonic::__string__, endswith);
 
@@ -106,11 +96,39 @@ namespace pythonic {
         }
         PROXY(pythonic::__string__, replace);
 
-        core::string strip(core::string const& self, core::string const& to_del = " ")
+        core::string strip(core::string const& self, core::string const& to_del = " \n")
         {
             return core::string(self.begin() + self.find_first_not_of(to_del), self.begin() + self.find_last_not_of(to_del) + 1);
         }
         PROXY(pythonic::__string__, strip);
+
+        core::list<core::string> split(core::string const& in, core::string const& sep = " \n", long maxsplit = -1)
+        {
+            core::string s = strip(in);
+            core::list<core::string> res(0);
+            size_t current = 0;
+            size_t next;
+            long numsplit = 0;
+            while (next != core::string::npos && (numsplit++<maxsplit || maxsplit==-1))
+            {
+                next = s.find_first_of( sep, current );
+                res.push_back(s.substr( current, next - current ));
+                current = next + 1;
+            }
+            if(next != core::string::npos)
+            {
+                current = next + 1;
+                res.push_back(s.substr( current, s.size() - current ));    
+            }
+            return res;
+        } 
+
+        core::list<core::string> split(core::string const& s, none_type const&, long maxsplit = -1)
+        {
+            return split(s, " \n", maxsplit);
+        } 
+        PROXY(pythonic::__string__, split);
+
 
         core::string lstrip(core::string const& self, core::string const& to_del = " ")
         {

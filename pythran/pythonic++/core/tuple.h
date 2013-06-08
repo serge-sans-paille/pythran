@@ -159,7 +159,7 @@ namespace std {
                 size_t seed = 0;
                 hash<T> h;
                 for(auto const &iter: l) 
-                    seed ^= h(l) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+                    seed ^= h(iter) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
                 return seed;
             }
         };

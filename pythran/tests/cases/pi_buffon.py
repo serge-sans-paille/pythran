@@ -1,16 +1,16 @@
-#runas pi_estimate(40000000)
-#pythran export pi_estimate(int)
+#pythran export pi_estimate(int,float list, int)
+#runas pi_estimate(4000,[x/100. for x in range(100)],100)
 from math import sqrt, pow
 from random import random
 
-def pi_estimate(DARTS):
+def pi_estimate(DARTS,rand,randsize):
     hits = 0
     "omp parallel for private(i,x,y,dist), reduction(+:hits)"
     for i in xrange (0, DARTS):
-    	x = random()
-    	y = random()
-    	dist = sqrt(pow(x, 2) + pow(y, 2))
-    	if dist <= 1.0:
+        x = rand[i%randsize]
+        y = rand[(randsize-i)%randsize]
+        dist = sqrt(pow(x, 2) + pow(y, 2))
+        if dist <= 1.0:
             hits += 1.0
     # hits / throws = 1/4 Pi
     pi = 4 * (hits / DARTS)

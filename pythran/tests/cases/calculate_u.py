@@ -1,6 +1,6 @@
 # from the paper `using cython to speedup numerical python programs'
 #pythran export timeloop(float, float, float, float, float, float list list, float list list, float list list)
-#runas A=[range(2000) for i in xrange(100)] ; B=[range(2000) for i in xrange(100)] ; C=[range(2000) for i in xrange(100)] ; timeloop(1,2,.01,.1,.18, A,B,C )
+#runas A=[range(20) for i in xrange(10)] ; B=[range(20) for i in xrange(10)] ; C=[range(20) for i in xrange(10)] ; timeloop(1,2,.01,.1,.18, A,B,C )
 def timeloop(t, t_stop, dt, dx, dy, u, um, k):
     while t <= t_stop:
         t += dt
@@ -22,4 +22,3 @@ def calculate_u(dt, dx, dy, u, um, k):
                                 (0.5*(k[i][j+1] + k[i][j])*(u[i][j+1] - u[i][j]) -
                                     0.5*(k[i][j] + k[i][j-1])*(u[i][j] - u[i][j-1])))
     return up
-

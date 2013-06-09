@@ -92,7 +92,7 @@ namespace pythonic {
     template<typename T>
         struct is_callable
         {
-            typedef char	yes;
+            typedef char yes;
             typedef struct { char _[2]; } no;
 
             template <class C> static yes _test(typename C::callable*);
@@ -107,7 +107,7 @@ namespace pythonic {
     template<typename T>
         struct has_shape
         {
-            typedef char	yes;
+            typedef char yes;
             typedef struct { char _[2]; } no;
 
             template <class C> static yes _test(decltype(std::declval<C>().shape)*);
@@ -121,7 +121,7 @@ namespace pythonic {
     template<typename T>
         struct is_iterable
         {
-            typedef char	yes;
+            typedef char yes;
             typedef struct { char _[2]; } no;
 
             template <class C> static yes _test(typename C::iterator*);
@@ -182,25 +182,37 @@ namespace pythonic {
             static const int value = 0;
         };
 
+
+    /* Get the size of a container, using recursion on inner container if any
+     * FIXME: should be a constexpr?
+     * FIXME: why a class and not a function?
+     */
     template<class T>
         struct nested_container_size {
             typedef typename std::remove_cv<typename std::remove_reference<T>::type>::type Type;
-            size_t operator()(T const& t) {
+            static size_t size(T const& t) {
                 return t.size()
                     *
                     nested_container_size<
-                    typename std::conditional<
-                        std::is_scalar<typename Type::value_type>::value or is_complex<typename Type::value_type>::value,
+                      typename std::conditional<
+                        // If we have a scalar of a complex, we want to stop
+                        // recursion, and then dispatch to bool specialization
+                        std::is_scalar<typename Type::value_type>::value
+                        or is_complex<typename Type::value_type>::value,
                         bool,
                         typename Type::value_type
-                    >::type>()(*t.begin());
+                      >::type
+                    >::size(*t.begin());
             }
         };
+    /* Recursion stops on bool */
     template<>
         struct nested_container_size<bool> {
             template<class F>
-            size_t operator()(F) { return 1; }
+            static size_t size(F) { return 1; }
         };
+
+    /* Statically define (by recursion) the type of element inside nested constainers */
     template<class T, bool end=0>
         struct nested_container_value_type {
             typedef typename nested_container_value_type<typename T::value_type, std::is_scalar<typename T::value_type>::value or is_complex<typename T::value_type>::value >::type type;

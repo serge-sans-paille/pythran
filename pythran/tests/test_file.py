@@ -49,7 +49,7 @@ class TestFile(TestEnv):
             # Expecting file to be erased.
             # But python execution of test will erase it before pythran can :s
             self.tempfile()
-            self.run_test_with_prelude("""def writing_mode_constructor(filename):\n f=file(filename, "w")\n f.close()""", self.reinit_file, self.filename, writing_mode_constructor=[str])
+            self.run_test("""def writing_mode_constructor(filename):\n f=file(filename, "w")\n f.close()""", self.filename,prelude=self.reinit_file, writing_mode_constructor=[str])
             assert(open(self.filename).read()=="")
 
     #TODO : tester le differents modes du constructeur
@@ -110,7 +110,7 @@ def file_close(filename):
 
     def test_offset_write(self):
             self.tempfile()
-            self.run_test_with_prelude("""def _offset_write(filename):\n f=file(filename, "a")\n f.seek(5)\n f.write("aze")\n f.close()\n return file(filename,"r").read()""", self.reinit_file, self.filename, _offset_write=[str])
+            self.run_test("""def _offset_write(filename):\n f=file(filename, "a")\n f.seek(5)\n f.write("aze")\n f.close()\n return file(filename,"r").read()""", self.filename, prelude = self.reinit_file, _offset_write=[str])
 
     def test_next(self):
             self.tempfile()

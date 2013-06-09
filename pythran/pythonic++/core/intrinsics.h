@@ -707,9 +707,9 @@ namespace pythonic {
         } 
         PROXY(pythonic::__builtin__, file);
     
-    	core::file open(core::string const& filename, core::string const& strmode = "r"){
-    		return core::file(filename, strmode);
-    	}
+        core::file open(core::string const& filename, core::string const& strmode = "r"){
+            return core::file(filename, strmode);
+        }
         PROXY(pythonic::__builtin__, open);
 
         /* sum */
@@ -828,7 +828,7 @@ namespace pythonic {
             return t0%t1;
         }
         double mod(double d, long l) {
-            return mod(d,double(l));
+            return fmod(d,double(l));
         }
 
     /* in */

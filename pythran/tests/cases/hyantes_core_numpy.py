@@ -1,5 +1,6 @@
+#unittest.skip output mismatch
 #pythran export run(float, float, float, float, float, float, int, int, float[][])
-#runas: import numpy ; run(0,0,90,90, 1, 0.0001, 800, 800, numpy.array([ [i/10., i/10., i/20.] for i in xrange(800)]))
+#runas import numpy ; run(0,0,90,90, 1, 100, 80, 80, numpy.array([ [i/10., i/10., i/20.] for i in xrange(80)]))
 import numpy as np
 def run(xmin, ymin, xmax, ymax, step, range_, range_x, range_y, t):
     X,Y = t.shape

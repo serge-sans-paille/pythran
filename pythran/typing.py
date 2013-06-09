@@ -5,7 +5,9 @@ This module performs the return type inference, according to symbolic types,
 '''
 
 import ast
+from numpy import ndarray
 import networkx as nx
+
 from tables import pytype_to_ctype_table
 from tables import operator_to_lambda as operator_to_type
 from tables import modules, builtin_constants, builtin_constructors
@@ -39,6 +41,49 @@ def add_if_not_in(l0, l1):
     s0 = set(l0)
     l = list(l0)
     return l + [x for x in l1 if x not in s0]
+
+
+def pytype_to_ctype(t):
+    '''python -> c++ type binding'''
+    if isinstance(t, list):
+        return 'core::list<{0}>'.format(pytype_to_ctype(t[0]))
+    if isinstance(t, set):
+        return 'core::set<{0}>'.format(pytype_to_ctype(list(t)[0]))
+    elif isinstance(t, dict):
+        tkey, tvalue = t.items()[0]
+        return 'core::dict<{0},{1}>'.format(pytype_to_ctype(tkey),
+                                            pytype_to_ctype(tvalue))
+    elif isinstance(t, tuple):
+        return 'std::tuple<{0}>'.format(", ".join(pytype_to_ctype(_)
+                                        for _ in t))
+    elif isinstance(t, ndarray):
+        return 'core::ndarray<{0},{1}>'.format(pytype_to_ctype(t.flat[0]),
+                                               t.ndim)
+    elif t in pytype_to_ctype_table:
+        return pytype_to_ctype_table[t]
+    else:
+        raise NotImplementedError("{0}:{1}".format(type(t), t))
+
+
+def extract_constructed_types(t):
+    if isinstance(t, list) or isinstance(t, ndarray):
+        return [pytype_to_ctype(t)] + extract_constructed_types(t[0])
+    elif isinstance(t, set):
+        return [pytype_to_ctype(t)] + extract_constructed_types(list(t)[0])
+    elif isinstance(t, dict):
+        tkey, tvalue = t.items()[0]
+        return ([pytype_to_ctype(t)]
+                + extract_constructed_types(tkey)
+                + extract_constructed_types(tvalue))
+    elif isinstance(t, tuple):
+        return ([pytype_to_ctype(t)]
+                + sum(map(extract_constructed_types, t), []))
+    elif t == long:
+        return ["pythran_long_def"]
+    elif t == str:
+        return ["core::string"]
+    else:
+        return []
 
 
 class TypeDependencies(ModuleAnalysis):

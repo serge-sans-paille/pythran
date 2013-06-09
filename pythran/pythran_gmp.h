@@ -1,3 +1,6 @@
+#ifndef PYTHRAN_GMP_H
+#define PYTHRAN_GMP_H
+
 #include <gmpxx.h>
 #include <type_traits>
 
@@ -226,3 +229,4 @@ struct pythran_to_python< mpz_class > {
     }
 };
 
+#endif

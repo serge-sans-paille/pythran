@@ -1,6 +1,7 @@
+#unittest.skip GCC explose in memory, clang is fine (expect for abs and complex)
 #pythran export gauss(int, float list list, float list)
 #pythran export gauss(int, complex list list, complex list)
-
+#runas gauss(4,[[10.0,-6.0,3.5,3.2],[6.7,2.8,-.65,1.2],[9.2,3.0,5.4,1.3],[1.6,8.3,2.5,5.2]],[33.4,4.5,-5.4,-13.4])
 def pivot(n,i,a,b):
     i0=i
     amp0=abs(a[i-1][i-1])
@@ -37,4 +38,5 @@ def gauss(n,a,b):
     for i in range(n-1,0,-1):
         for j in range(i,n):
             b[i-1]=b[i-1]-a[j][i-1]*b[j]
+    return b
 

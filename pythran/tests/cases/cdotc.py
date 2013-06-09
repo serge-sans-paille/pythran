@@ -1,4 +1,5 @@
 #pythran export CDOTC(int, complex list, int, complex list, int)
+#runas CDOTC(2,[complex(1,2),complex(2,3),complex(3,4),complex(5,6)],2,[complex(3,4),complex(1,2),complex(2,3),complex(5,6)],3)
 def CDOTC(N,CX,INCX,CY,INCY):
 #     .. Scalar Arguments ..
 #      INTEGER INCX,INCY,N

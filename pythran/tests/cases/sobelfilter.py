@@ -1,4 +1,5 @@
 #skip.runas import Image; im = Image.open("Scribus.gif"); image_list = list(im.getdata()); cols, rows = im.size; res = range(len(image_list)); sobelFilter(image_list, res, cols, rows)
+#runas cols = 100; rows = 100 ;image_list=[x%10+y%20 for x in xrange(cols) for y in xrange(rows)]; sobelFilter(image_list, cols, rows)
 #pythran export sobelFilter(int list, int, int)
 def sobelFilter(original_image, cols, rows):
     edge_image = range(len(original_image))

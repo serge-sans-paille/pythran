@@ -3,6 +3,24 @@ from test_env import TestEnv
 import numpy
 
 class TestNumpy(TestEnv):
+
+    @unittest.skip("Buggy because of ndarray<T,N>& operator=(ndarray<T,N> const& other) implementation.")
+    def test_assign_ndarray(self):
+        self.run_test("""def assign_ndarray(t):
+                           import numpy as np;
+                           a = np.array([1,2,3]);
+                           b = np.array([1,2,3]);
+                           if t:
+                             c = a;
+                           else:
+                             c=b;
+                           if t:
+                             c=b;
+                           b[0] = -1;
+                           return c;
+                           """,
+                           1,assign_ndarray=[int])
+
     def test_frexp0(self):
         self.run_test("def np_frexp0(): import numpy as np ; a = 1.5 ; return np.frexp(a)", np_frexp0=[])
 
@@ -134,8 +152,10 @@ def np_rosen_hess_p(x, p):
                -400*x[1:-1]*p[2:]
     Hp[-1] = -400*x[-2]*p[-2] + 200*p[-1]
     return Hp
-""", numpy.array([1.3, 0.7, 0.8, 1.9, 1.2]), numpy.array([2.3, 1.7, 1.8, 2.9, 2.2]),
-np_rosen_hess_p=[numpy.array([float]), numpy.array([float])])
+""",
+                      runas="""
+import numpy; np_rosen_hess_p(numpy.array([1.3, 0.7, 0.8, 1.9, 1.2]), numpy.array([2.3, 1.7, 1.8, 2.9, 2.2]))""",
+                      np_rosen_hess_p=[numpy.array([float]), numpy.array([float])])
 
     def test_rosen_hess(self):
         self.run_test("""import numpy
@@ -148,7 +168,9 @@ def np_rosen_hess(x):
     diagonal[1:-1] = 202 + 1200*x[1:-1]**2 - 400*x[2:]
     H = H + numpy.diag(diagonal)
     return H
-""", numpy.array([1.3, 0.7, 0.8, 1.9, 1.2]), np_rosen_hess=[numpy.array([float])])
+""",
+                      runas="import numpy; np_rosen_hess(numpy.array([1.3, 0.7, 0.8, 1.9, 1.2]))",
+                      np_rosen_hess=[numpy.array([float])])
 
     def test_rosen_der(self):
         self.run_test("""import numpy
@@ -161,10 +183,14 @@ def np_rosen_der(x):
     der[0] = -400*x[0]*(x[1]-x[0]**2) - 2*(1-x[0])
     der[-1] = 200*(x[-1]-x[-2]**2)
     return der
-""", numpy.array([1.3, 0.7, 0.8, 1.9, 1.2]), np_rosen_der=[numpy.array([float])])
+""",
+                      runas="import numpy; np_rosen_der( numpy.array([1.3, 0.7, 0.8, 1.9, 1.2]))",
+                      np_rosen_der=[numpy.array([float])])
 
     def test_rosen(self):
-        self.run_test("import numpy\ndef np_rosen(x): return sum(100.0*(x[1:]-x[:-1]**2.0)**2.0 + (1-x[:-1])**2.0)", numpy.array([1.3, 0.7, 0.8, 1.9, 1.2]), np_rosen=[numpy.array([float])])
+        self.run_test("import numpy\ndef np_rosen(x): return sum(100.0*(x[1:]-x[:-1]**2.0)**2.0 + (1-x[:-1])**2.0)",
+                      runas="import numpy; np_rosen(numpy.array([1.3, 0.7, 0.8, 1.9, 1.2]))",
+                      np_rosen=[numpy.array([float])])
 
     def test_nanargmax0(self):
         self.run_test("def np_nanargmax0(): from numpy import array, nanargmax, nan ; a = array([[nan, 4], [2, 3]]) ; return nanargmax(a)", np_nanargmax0=[])
@@ -1076,7 +1102,7 @@ def test_copy0():
         self.run_test("def np_shape_():\n from numpy import array\n a =array([[[1,2],[3,4]],[[5,6],[7,8]]])\n return a.shape", np_shape_=[])
 
     def test_input_array_(self):
-        self.run_test("import numpy\n\ndef input_array_(a):\n return a.shape", numpy.array([[1,2],[3,4]]), input_array_=[numpy.array([[int]])])
+        self.run_test("import numpy\n\ndef input_array_(a):\n return a.shape", runas="import numpy; input_array_(numpy.array([[1,2],[3,4]]))", input_array_=[numpy.array([[int]])])
 
     def test_change_array1D_(self):
         self.run_test("def np_change_array1D_():\n from numpy import array\n a =array([[[1,2],[3,4]],[[5,6],[7,8]]])\n a[0,0,0] = 36\n return a", np_change_array1D_=[])

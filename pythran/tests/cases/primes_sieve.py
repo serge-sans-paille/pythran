@@ -2,6 +2,7 @@
 # using a list instead of generator as return values
 
 #pythran export primes_sieve(int)
+#runas primes_sieve(100)
 def primes_sieve(limit):
     a = [True] * limit                          # Initialize the primality list
     a[0] = a[1] = False

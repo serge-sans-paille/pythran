@@ -107,8 +107,9 @@ class SpecParser:
         p[0] = eval(p[1])
 
     def p_error(self, p):
-        err = SyntaxError("Invalid Pythran spec near '" + str(p.value) + "'")
-        err.lineno = p.lineno
+        p_val = p.value if p else ''
+        err = SyntaxError("Invalid Pythran spec near '" + str(p_val) + "'")
+        err.lineno = self.lexer.lineno
         if self.input_file:
             err.filename = self.input_file
         raise err;

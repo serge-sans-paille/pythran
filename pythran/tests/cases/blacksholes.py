@@ -1,4 +1,3 @@
-#unittest.skip pythran doesn't generate c++ code, infinite loop somewhere?
 #runas BlackScholes(range(1,100), range(1,100), range(1,100), 0.5, 0.76, 12)
 #pythran export BlackScholes(float list, float list, float list, float, float, int)
 import math

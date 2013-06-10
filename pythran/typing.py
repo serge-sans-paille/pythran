@@ -37,12 +37,6 @@ if not "has_path" in nx.__dict__:
 
 
 ##
-def add_if_not_in(l0, l1):
-    s0 = set(l0)
-    l = list(l0)
-    return l + [x for x in l1 if x not in s0]
-
-
 def pytype_to_ctype(t):
     '''python -> c++ type binding'''
     if isinstance(t, list):
@@ -131,6 +125,10 @@ class TypeDependencies(ModuleAnalysis):
         '''
         Gather all the function call that led to the creation of the
         returned expression and add an edge to each of this function.
+
+        When visiting an expression, one returns a list of frozensets.  Each
+        element of the list is linked to a possible path, each element of a
+        frozenset is linked to a dependency.
         '''
         if node.value:
             v = self.visit(node.value)
@@ -142,8 +140,7 @@ class TypeDependencies(ModuleAnalysis):
                     self.result.add_edge(TypeDependencies.NoDeps,
                                             self.current_function)
 
-    def visit_Yield(self, node):
-        self.visit_Return(node)
+    visit_Yield = visit_Return
 
     def update_naming(self, name, value):
         '''
@@ -175,8 +172,8 @@ class TypeDependencies(ModuleAnalysis):
         return sum((self.visit(value) for value in node.values), [])
 
     def visit_BinOp(self, node):
-        return [l.union(r) for l in self.visit(node.left)
-                for r in self.visit(node.right)]
+        args = map(self.visit,(node.left, node.right))
+        return list({frozenset.union(*x) for x in itertools.product(*args)})
 
     def visit_UnaryOp(self, node):
         return self.visit(node.operand)
@@ -191,10 +188,10 @@ class TypeDependencies(ModuleAnalysis):
         return [frozenset()]
 
     def visit_Call(self, node):
+        args = map(self.visit, node.args)
         func = self.visit(node.func)
-        for arg in node.args:
-            func = [f.union(v) for f in func for v in self.visit(arg)]
-        return func
+        params = args + [func or []]
+        return list({frozenset.union(*p) for p in itertools.product(*params)})
 
     def visit_Num(self, node):
         return [frozenset()]
@@ -217,22 +214,21 @@ class TypeDependencies(ModuleAnalysis):
             return [frozenset()]
 
     def visit_List(self, node):
-        return reduce(add_if_not_in,
-                map(self.visit, node.elts),
-                [frozenset()])
+        if node.elts:
+            return list(set(sum(map(self.visit, node.elts), [])))
+        else:
+            return [frozenset()]
 
-    def visit_Set(self, node):
-        return reduce(add_if_not_in,
-                map(self.visit, node.elts),
-                [frozenset()])
+    visit_Set = visit_List
 
     def visit_Dict(self, node):
-        return reduce(add_if_not_in,
-                map(self.visit, node.keys) + map(self.visit, node.values),
-                [frozenset()])
+        if node.keys:
+            items = node.keys + node.values
+            return list(set(sum(map(self.visit, items), [])))
+        else:
+            return [frozenset()]
 
-    def visit_Tuple(self, node):
-        return reduce(add_if_not_in, map(self.visit, node.elts), [frozenset()])
+    visit_Tuple = visit_List
 
     def visit_Slice(self, node):
         return [frozenset()]

@@ -32,5 +32,6 @@ Higher level entry points includes:
 '''
 
 from toolchain import (generate_cxx, compile_cxxfile, compile_cxxcode,
-                       compile_pythrancode, compile_pythranfile, test_compile)
+                       compile_pythrancode, compile_pythranfile, test_compile,
+                       CompileError)
 from spec import spec_parser

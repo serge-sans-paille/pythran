@@ -3,8 +3,8 @@ Pythran User Manual
 ===================
 
 So you want to write algorithms that are easy to maintain as in python and
-you want performance as in fortran or c++? Let give a try to pythran!
-pythran is a python-to-c++ translator that turns python module into native 
+you want performance as in FORTRAN or C++? Let give a try to Pythran!
+Pythran is a python-to-c++ translator that turns python module into native 
 c++11 module. From a user point of view, you still ``import`` your module, but
 under the hood... there is much more happening!
 
@@ -24,13 +24,14 @@ Say hello to:
 - dictionaries, set, list
 - exceptions
 - file handling
+- (partial) `numpy` support
 
 Say bye bye to:
 
 - classes
 - polymorphic variables [ but not all of them :-) ]
 
-In a nutshell, pythran makes it possible to write numerical algorithms in
+In a nutshell, Pythran makes it possible to write numerical algorithms in
 Python and to have them run faster. Nuff said.
 
 
@@ -80,7 +81,7 @@ runs a whole (and long) validation suite. The ``bench`` target, as in::
 
     python setup.py bench
 
-compares the performance of pythran-generated code with cpython.
+compares the performance of Pythran-generated code with CPython.
 
 If these tests fail, you are likely missing some of the requirements. You can
 set site specific flags in your ``~/.pythranrc``::
@@ -101,6 +102,8 @@ set site specific flags in your ``~/.pythranrc``::
     # update your library paths here
     ldflags = -fPIC -ltcmalloc_minimal
 
+Be careful, the `user` section is overwritten by the command-line flags!
+
 First Steps
 -----------
 
@@ -111,12 +114,12 @@ To begin with, you need... a python function in a module. Something like::
 		return sum([x*y for x,y in zip(l0,l1)])
 
 will be perfect. But due to \_o< typing, ``l0`` and ``l1`` can be of any type,
-so pythran needs a small hint there. Add the following line somewhere in your
+so Pythran needs a small hint there. Add the following line somewhere in your
 file, say at the top head, or right before the function definition::
 
 	#pythran export dprod(int list, int list)
 
-This basically tells pythran the type of the forthcoming arguments.
+This basically tells Pythran the type of the forthcoming arguments.
 
 
 Afterwards, frenetically type::
@@ -131,24 +134,24 @@ So let's try again with a well-known example. Let me
 introduce the almighty *matrix multiply*!::
 
 	<<mm.py>>
-	def zero(n,m): return [[0 for row in xrange(n)] for col in xrange(m)]
+	def zero(n,m): return [[0]*n for col in range(m)]
 	def matrix_multiply(m0, m1):
 		new_matrix = zero(len(m0),len(m1[0]))
-		for i in xrange(len(m0)):
-			for j in xrange(len(m1[0])):
-				for k in xrange(len(m1)):
+		for i in range(len(m0)):
+			for j in range(len(m1[0])):
+				for k in range(len(m1)):
 					new_matrix[i][j] += m0[i][k]*m1[k][j]
 		return new_matrix
 
-This a slightly more complex example, as a few intrinsics such as ``xrange`` or
+This a slightly more complex example, as a few intrinsics such as ``range`` or
 ``len`` are used, with a function call and even nested list comprehension. But
-pythran can make its way through this. As you only want to export the
+Pythran can make its way through this. As you only want to export the
 ``matrix_multiply`` function, you can safely ignore the ``zero`` function and
 just add::
 
 	#pythran export matrix_multiply(float list list, float list list)
 
-to the source file. Note how pythran can combine different types and infers the
+to the source file. Note how Pythran can combine different types and infers the
 resulting type. It also respects the nested list structure of python, so you
 are not limited to matrices...
 
@@ -160,16 +163,46 @@ One touch of magic wand and you have your native binary. Be amazed by the
 generation of a ``mm.so`` native module that run around 20x faster than the
 original one. ``timeit`` approved!
 
+But scientific computing in Python usually means Numpy. Here is a well-known Numpy snippet::
+
+	<<arc_distance.py>>
+    import numpy as np
+    def arc_distance(theta_1, phi_1, theta_2, phi_2):
+        """
+        Calculates the pairwise arc distance
+        between all points in vector a and b.
+        """
+        temp = (np.sin((theta_2-theta_1)/2)**2
+               + np.cos(theta_1)*np.cos(theta_2) * np.sin((phi_2-phi_1)/2)**2)
+        distance_matrix = 2 * np.arctan2(sqrt(temp), sqrt(1-temp))
+        return distance_matrix
+
+This example uses a lot of Numpy `ufunc`. Pythran is reasonably good at
+handling such expressions. As you already now, you need to **export** it, giving its
+argument type by adding::
+
+	#pythran export arc_distance(float[], float[], float[], float[])
+
+To the input file. You can compile it as the previous code::
+
+    $> pythran arc_distance.py
+
+and you'll get a decent binary. But what you really wanted to do was::
+
+    $> pythran -fopenmp -march=avx arc_distance.py
+
+which basically tells the compiler to parallelize and vectorize loops. Then you'll get **really** fast code!
+
 
 
 Concerning Pythran specifications
 ---------------------------------
 
-The ``#pythran export`` commands are critical to pythran. In fact if they are
-missing, pythran will complain loudly (and fail miserably). So let us dive into
+The ``#pythran export`` commands are critical to Pythran. In fact if they are
+missing, Pythran will complain loudly (and fail miserably). So let us dive into
 these complex language!
 
-There is currently only one pythran command, the ``export`` command. Its syntax is::
+There is currently only one Pythran command, the ``export`` command. Its syntax is::
 
 	#pythran export function_name(argument_type*)
 
@@ -205,15 +238,14 @@ A failing compilation? A lust of c++ tangled code? Give a try to the ``-E``
 switch that stops the compilation process right after c++ code generation, so
 that you can inspect it.
 
-Want more performance? Big fan of ``-Ofast -march=native``? pythran
-automagically forwards these switches to the underlying compiler! pythran is
+Want more performance? Big fan of ``-Ofast -march=native``? Pythran
+automagically forwards these switches to the underlying compiler! Pythran is
 sensible to the ``-DNDEBUG`` switch too.
 
 Tired of typing the same compiler switches again and again? Store them in
 ``$XDG_CONFIG_HOME/.pythranrc``!
 
-Wants to try your own compiler? Pythran uses ``c++`` by default, and this
-behavior can be overridden using ``CXX`` or ``CXXFLAGS`` environment variables.
+Wants to try your own compiler? Update the `c++` field from your `pythranrc`!
 
 The careful reader might have noticed the ``-p`` flag from the command line. It
 makes it possible to define your own optimization sequence::
@@ -269,7 +301,7 @@ F.A.Q.
 Troubleshooting
 ---------------
 
-Plenty of them! Seriously, pythran is pre-alpha software, so it will crash. You
+Plenty of them! Seriously, Pythran is software, so it will crash. You
 must make it abort in unusual ways! And more important, you must provide
 feedback to serge_sans_paille using its email serge.guelton@telecom-bretagne.eu,
 the IRC channel ``#pythran`` on FreeNode, or the mailing list ``pythran@freelists.org``

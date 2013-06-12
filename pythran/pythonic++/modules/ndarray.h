@@ -19,7 +19,7 @@ namespace pythonic {
                 T *buffer = new T[n];
                 std::copy(a.buffer, a.buffer + n, buffer);
                 long shape[1] = {n};
-                return core::ndarray<T, 1>(buffer, shape, shape[0]);
+                return core::ndarray<T, 1>(buffer, shape);
             }
 
         PROXY(pythonic::__ndarray__, flatten);

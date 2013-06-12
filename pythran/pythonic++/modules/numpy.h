@@ -1012,7 +1012,7 @@ namespace pythonic {
                     }
                 }
                 long shape[2] = { real_sz, N };
-                return out_type(buffer, shape, N*real_sz);
+                return out_type(buffer, shape);
             }
 
         PROXY(pythonic::numpy, argwhere);
@@ -1405,7 +1405,7 @@ namespace pythonic {
                 for(auto const& a : ai) 
                     iter = std::copy(a.buffer, a.buffer + a.size(), iter);
 
-                return core::ndarray<T,N>(buffer, shape, n);
+                return core::ndarray<T,N>(buffer, shape);
             }
         PROXY(pythonic::numpy, concatenate);
 
@@ -1491,7 +1491,7 @@ namespace pythonic {
                     for(int i=-k, j = 0; i< a.shape[0] and j < a.shape[1]; ++i, ++j, ++shape[0])
                         *iter++ = a[i][j];
                 }
-                return core::ndarray<T,1>(buffer, shape, shape[0]);
+                return core::ndarray<T,1>(buffer, shape);
             }
 
         template<class T>
@@ -1663,7 +1663,7 @@ namespace pythonic {
                     if(expr.at(i))
                         *iter++ = i;
                 long shape[1] = { iter - buffer };
-                return core::ndarray<long, 1>(buffer, shape, shape[0]);
+                return core::ndarray<long, 1>(buffer, shape);
             }
         template<class E>
             auto flatnonzero(core::list<E> const & l)
@@ -1730,7 +1730,7 @@ namespace pythonic {
                     T* buffer = new T[count];
                     std::copy_n(iterable.begin(), count, buffer);
                     long shape [1] = { count };
-                    return core::ndarray<T,1>(buffer, shape, shape[0]);
+                    return core::ndarray<T,1>(buffer, shape);
                 }
             }
         PROXY(pythonic::numpy, fromiter);
@@ -1761,7 +1761,7 @@ namespace pythonic {
                     dtype* buffer = new dtype[shape[0]];
                     dtype const* tstring = reinterpret_cast<dtype const*>(&string[0]);
                     std::copy(tstring, tstring + shape[0], buffer);
-                    return core::ndarray<dtype,1>(buffer, shape, shape[0]);
+                    return core::ndarray<dtype,1>(buffer, shape);
                 }
             }
 
@@ -2622,8 +2622,7 @@ namespace pythonic {
                     else
                     {
                         expr.at(i) = expr.at(first);
-                        std::cout << i << "/" << first << std::endl;
-                        }
+                    }
                 }
             }
             return None;

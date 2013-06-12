@@ -560,8 +560,8 @@ namespace  pythonic {
                 }
 
                 /* from a foreign pointer */
-                ndarray(T* data, long int* pshape, size_t data_size):
-                    data_size(data_size),
+                ndarray(T* data, long * pshape):
+                    data_size(*pshape),
                     mem(data),
                     buffer(mem->data),
                     shape()

@@ -1,4 +1,3 @@
-#unittest.skip Buggy generated C++ code, see #103
 # from http://rosettacode.org/wiki/Yin_and_yang#Python
 import math
 def yinyang(n=3):

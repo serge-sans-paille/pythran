@@ -1,4 +1,3 @@
-#unittest.skip output mismatch
 #runas calc(60,100)
 #pythran export calc(int, int)
 def update(u):
@@ -13,8 +12,8 @@ def update(u):
                     (u[i][ j+1] + u[i][ j-1]) * dx2) / (2*(dx2+dy2))
 
 def calc(N, Niter=100):
-    u = [ [0]*N ]*N 
-    u[0][0] = 1
+    u = [ [0]*N for _ in xrange(N)]
+    u[0] = [1] * N
     for i in range(Niter):
         update(u)
     return u

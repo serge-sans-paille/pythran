@@ -1,4 +1,3 @@
-#unittest.skip output mismatch
 #runas mandel(20,0,0, 8)
 #pythran export mandel(int, float, float, int)
 def mandel(size, x_center, y_center, max_iteration):

@@ -1,4 +1,3 @@
-#unittest.skip type inference issue on return value, see issue #101
 #pythran export pivot(int, int, int list list, int list)
 #pythran export pivot(int, int, float list list, float list)
 #pythran export pivot(int, int, complex list list, complex list)

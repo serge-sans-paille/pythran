@@ -975,6 +975,64 @@ struct python_to_pythran< std::tuple<Types...> >{
         do_construct(obj_ptr, data, typename gens< std::tuple_size<std::tuple<Types...>>::value >::type());
     }
 };
+template<class T>
+struct c_type_to_numpy_type {};
+
+template<>
+struct c_type_to_numpy_type<double> {
+    static const int value = NPY_DOUBLE;
+};
+
+template<>
+struct c_type_to_numpy_type<float> {
+    static const int value = NPY_FLOAT;
+};
+
+template<>
+struct c_type_to_numpy_type<std::complex<double>> {
+    static const int value = NPY_CDOUBLE;
+};
+
+template<>
+struct c_type_to_numpy_type<long int> {
+    static const int value = NPY_LONG;
+};
+
+template<>
+struct c_type_to_numpy_type<long long int> {
+    static const int value = NPY_LONGLONG;
+};
+
+template<>
+struct c_type_to_numpy_type<int> {
+    static const int value = NPY_INT;
+};
+
+template<>
+struct c_type_to_numpy_type<unsigned int> {
+    static const int value = NPY_UINT;
+};
+
+template<>
+struct c_type_to_numpy_type<signed char> {
+    static const int value = NPY_INT8;
+};
+
+template<>
+struct c_type_to_numpy_type<unsigned char> {
+    static const int value = NPY_UINT8;
+};
+
+template<>
+struct c_type_to_numpy_type<bool> {
+    static const int value = NPY_BOOL;
+};
+
+
+template<class T>
+struct c_type_to_numpy_type< boost::simd::logical<T>> {
+    static const int value = NPY_BOOL;
+};
 
 template<typename T, size_t N>
 struct python_to_pythran< core::ndarray<T, N> >{
@@ -987,7 +1045,8 @@ struct python_to_pythran< core::ndarray<T, N> >{
         }
     }
     static void* convertible(PyObject* obj_ptr){
-        if(!PyArray_Check(obj_ptr) ) return 0;
+        if(!PyArray_Check(obj_ptr) or PyArray_TYPE(obj_ptr) != c_type_to_numpy_type<T>::value )
+            return 0;
         return obj_ptr;
     }
 
@@ -1220,70 +1279,12 @@ struct pythran_to_python< none<T> > {
     }
 };
 
-template<class T>
-struct c_type_to_numpy_type {};
-
-template<>
-struct c_type_to_numpy_type<double> {
-    static const int value = NPY_DOUBLE;
-};
-
-template<>
-struct c_type_to_numpy_type<float> {
-    static const int value = NPY_FLOAT;
-};
-
-template<>
-struct c_type_to_numpy_type<std::complex<double>> {
-    static const int value = NPY_CDOUBLE;
-};
-
-template<>
-struct c_type_to_numpy_type<long int> {
-    static const int value = NPY_LONG;
-};
-
-template<>
-struct c_type_to_numpy_type<long long int> {
-    static const int value = NPY_LONGLONG;
-};
-
-template<>
-struct c_type_to_numpy_type<int> {
-    static const int value = NPY_INT;
-};
-
-template<>
-struct c_type_to_numpy_type<unsigned int> {
-    static const int value = NPY_UINT;
-};
-
-template<>
-struct c_type_to_numpy_type<signed char> {
-    static const int value = NPY_INT8;
-};
-
-template<>
-struct c_type_to_numpy_type<unsigned char> {
-    static const int value = NPY_UINT8;
-};
-
-template<>
-struct c_type_to_numpy_type<bool> {
-    static const int value = NPY_BOOL;
-};
-
-
-template<class T>
-struct c_type_to_numpy_type< boost::simd::logical<T>> {
-    static const int value = NPY_BOOL;
-};
 
 template<class T, size_t N>
 struct custom_array_to_ndarray {
-    static PyObject* convert( core::ndarray<T,N> const& n) {
-        const_cast<core::ndarray<T,N>&>(n).mem.forget();
-        PyObject* result = PyArray_SimpleNewFromData(N, const_cast<long*>(n.shape.data()), c_type_to_numpy_type<T>::value, n.buffer);
+    static PyObject* convert( core::ndarray<T,N> n) {
+        n.mem.forget();
+        PyObject* result = PyArray_SimpleNewFromData(N, n.shape.data(), c_type_to_numpy_type<T>::value, n.buffer);
         if (!result)
             return nullptr;
         return result;

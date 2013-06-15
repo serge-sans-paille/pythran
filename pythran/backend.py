@@ -521,7 +521,7 @@ class Cxx(Backend):
         targets = [self.visit(t) for t in node.targets]
         alltargets = "= ".join(targets)
         if any(metadata.get(t, metadata.LocalVariable) for t in node.targets):
-            alltargets = "auto {0}".format(alltargets)
+            alltargets = "typename assignable<decltype({1})>::type {0}".format(alltargets, value)
         stmt = Assign(alltargets, value)
         return self.process_omp_attachements(node, stmt)
 

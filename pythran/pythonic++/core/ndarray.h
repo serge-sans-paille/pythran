@@ -666,6 +666,30 @@ namespace  pythonic {
                     return *this;
                 }
 
+                /* update operators */
+                ndarray<T,N>& operator+=(T value) {
+                    for(T* iter = buffer, end = buffer + size(); iter != end; ++iter)
+                        *iter += value;
+                    return *this;
+                }
+                template<class E>
+                typename std::enable_if<is_array<E>::value, ndarray<T,N>&>::type operator+=(E const & other) {
+                    for(long i=0, n=size(); i< n; ++i)
+                        buffer[i] += other.at(i);
+                    return *this;
+                }
+                ndarray<T,N>& operator-=(T value) {
+                    for(T* iter = buffer, end = buffer + size(); iter != end; ++iter)
+                        *iter -= value;
+                    return *this;
+                }
+                template<class E>
+                typename std::enable_if<is_array<E>::value, ndarray<T,N>&>::type operator-=(E const & other) {
+                    for(long i=0, n=size(); i< n; ++i)
+                        buffer[i] -= other.at(i);
+                    return *this;
+                }
+
                 /* accessors */
 
                 /* by index */

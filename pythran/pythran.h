@@ -8,6 +8,13 @@
 #include <type_traits>
 using namespace pythonic;
 
+/* specialization for callable types */
+template <class T0, class T1>
+typename std::enable_if< is_callable<T0>::value and is_callable<T1>::value, variant<T0,T1> >::type operator+(T0 , T1 );
+
+template <class T>
+typename std::enable_if< is_callable<T>::value, T>::type operator+(T , T);
+
 /* type inference stuff {*/
 template<class T0, class T1, class... Types>
 struct __combined {
@@ -109,46 +116,92 @@ class dict_container {
 };
 
 template <class A>
-core::list<A> operator+(container<A>, core::empty_list);
-template <class A>
-core::list<A> operator+(core::empty_list , container<A> );
-
-template <class A, class B>
-core::list<typename __combined<A,B>::type> operator+(container<A> , core::list<B> );
-template <class A, class B>
-core::list<typename __combined<A,B>::type> operator+(core::list<B> , container<A> );
-
-template <class A, class B>
-core::set<typename __combined<A,B>::type> operator+(container<A> , core::set<B> );
-template <class A, class B>
-core::set<typename __combined<A,B>::type> operator+(core::set<B> , container<A> );
-
-template <class A, class B>
-core::set<typename __combined<A,B>::type> operator+(core::list<A> , core::set<B> );
-template <class A, class B>
-core::set<typename __combined<A,B>::type> operator+(core::set<B> , core::list<A> );
+struct __combined<container<A>, core::empty_list> {
+    typedef core::list<A> type;
+};
 
 template <class A>
-core::set<A> operator+(core::list<A> , core::empty_set );
+struct __combined<core::empty_list , container<A> > {
+    typedef core::list<A> type;
+};
+
+template <class A, class B>
+struct __combined<container<A> , core::list<B> > {
+    typedef core::list<typename __combined<A,B>::type> type;
+};
+template <class A, class B>
+struct __combined<core::list<B> , container<A> > {
+    typedef core::list<typename __combined<A,B>::type> type;
+};
+
+template <class A, class B>
+struct __combined<container<A> , core::set<B> > {
+    typedef core::set<typename __combined<A,B>::type> type;
+};
+template <class A, class B>
+struct __combined<core::set<B> , container<A> > {
+    typedef core::set<typename __combined<A,B>::type> type;
+};
+
+template <class A, class B>
+struct __combined<core::list<A> , core::set<B> > {
+    typedef core::set<typename __combined<A,B>::type> type;
+};
+
+template <class A, class B>
+struct __combined<core::set<B> , core::list<A> > {
+    typedef core::set<typename __combined<A,B>::type> type;
+};
+
+
 template <class A>
-core::set<A> operator+(core::empty_set , core::list<A> );
+struct __combined<core::list<A> , core::empty_set > {
+    typedef core::set<A> type;
+};
+
+template <class A>
+struct __combined<core::empty_set , core::list<A> > {
+    typedef core::set<A> type;
+};
+
 
 template <class A, class B, class C>
-core::dict<C, typename __combined<A,B>::type > operator+(container<A> , core::dict<C,B> );
+struct __combined<container<A> , core::dict<C,B> > {
+    typedef core::dict<C, typename __combined<A,B>::type > type;
+};
+
 template <class A, class B, class C>
-core::dict<C, typename __combined<A,B>::type > operator+(core::dict<C,B> , container<A> );
+struct __combined<core::dict<C,B> , container<A> > {
+    typedef core::dict<C, typename __combined<A,B>::type > type;
+};
+
 
 template <class A, class B>
-dict_container<typename __combined<A,B>::type > operator+(container<A> , dict_container<B> );
+struct __combined<container<A> , dict_container<B> > {
+    typedef dict_container<typename __combined<A,B>::type > type;
+};
+
 template <class A, class B>
-dict_container<typename __combined<A,B>::type > operator+(dict_container<B> , container<A> );
+struct __combined<dict_container<B> , container<A> > {
+    typedef dict_container<typename __combined<A,B>::type > type;
+};
+
 
 template <class A>
-dict_container<A> operator+(dict_container<A> , dict_container<A> );
+struct __combined<dict_container<A> , dict_container<A> > {
+    typedef dict_container<A> type;
+};
+
 template <class A>
-dict_container<A> operator+(container<A> , core::empty_dict );
+struct __combined<container<A> , core::empty_dict > {
+    typedef dict_container<A> type;
+};
+
 template <class A>
-dict_container<A> operator+(core::empty_dict , container<A> );
+struct __combined<core::empty_dict , container<A> > {
+    typedef dict_container<A> type;
+};
+
 
 template <class T>
 struct __combined<core::empty_dict, core::list<T>> {
@@ -160,18 +213,33 @@ struct __combined<core::list<T>, core::empty_dict> {
 };
 
 template <class K0, class V0, class T>
-core::dict<typename __combined<K0,typename std::tuple_element<0,T>::type>::type, typename __combined<V0, typename std::tuple_element<1,T>::type>::type > operator+(core::dict<K0,V0> , core::list<T> );
+struct __combined<core::dict<K0,V0> , core::list<T> > {
+    typedef core::dict<typename __combined<K0,typename std::tuple_element<0,T>::type>::type, typename __combined<V0, typename std::tuple_element<1,T>::type>::type > type;
+};
+
 template <class K0, class V0, class T>
-core::dict<typename __combined<K0,typename std::tuple_element<0,T>::type>::type, typename __combined<V0, typename std::tuple_element<1,T>::type>::type > operator+(core::list<T>, core::dict<K0,V0>);
+struct __combined<core::list<T>, core::dict<K0,V0>> {
+    typedef core::dict<typename __combined<K0,typename std::tuple_element<0,T>::type>::type, typename __combined<V0, typename std::tuple_element<1,T>::type>::type > type;
+};
+
 
 
 template <class A>
-typename __combined<core::list<A>, none_type>::type operator+(container<A> , none_type );
+struct __combined<container<A> , none_type > {
+    typedef typename __combined<core::list<A>, none_type>::type type;
+};
+
 template <class A>
-typename __combined<core::list<A>, none_type>::type operator+(none_type , container<A> );
+struct __combined<none_type , container<A> > {
+    typedef typename __combined<core::list<A>, none_type>::type type;
+};
+
 
 template <class A, class B>
-container<typename __combined<A,B>::type> operator+(container<A> , container<B> );
+struct __combined<container<A> , container<B> > {
+    typedef container<typename __combined<A,B>::type> type;
+};
+
 
 template<class T>
 class indexable {
@@ -189,45 +257,115 @@ class indexable_dict {
 };
 
 template<class K>
-indexable_dict<K> operator+(indexable_dict<K>, indexable_dict<K>);
+struct __combined<indexable_dict<K>, indexable_dict<K>> {
+    typedef indexable_dict<K> type;
+};
+
 template<class K0, class K1>
-indexable<typename __combined<K0,K1>::type> operator+(indexable<K0>, indexable<K1>);
+struct __combined<indexable<K0>, indexable<K1>> {
+    typedef indexable<typename __combined<K0,K1>::type> type;
+};
+
 template<class K>
-indexable<K> operator+(indexable<K>, core::empty_list);
+struct __combined<indexable<K>, core::empty_list> {
+    typedef indexable<K> type;
+};
+
 template<class K>
-indexable<K> operator+(core::empty_list, indexable<K>);
+struct __combined<core::empty_list, indexable<K>> {
+    typedef indexable<K> type;
+};
+
 template<class K>
-indexable<K> operator+(indexable<K>, core::empty_set);
+struct __combined<indexable<K>, core::empty_set> {
+    typedef indexable<K> type;
+};
+
 template<class K>
-indexable<K> operator+(core::empty_set, indexable<K>);
+struct __combined<core::empty_set, indexable<K>> {
+    typedef indexable<K> type;
+};
+
 template<class K>
-indexable_dict<K> operator+(indexable<K>, core::empty_dict);
+struct __combined<indexable<K>, core::empty_dict> {
+    typedef indexable_dict<K> type;
+};
+
 template<class K>
-indexable_dict<K> operator+(core::empty_dict, indexable_dict<K>);
+struct __combined<core::empty_dict, indexable_dict<K>> {
+    typedef indexable_dict<K> type;
+};
+
 template<class K>
-indexable_dict<K> operator+(indexable_dict<K>, core::empty_dict);
+struct __combined<indexable_dict<K>, core::empty_dict> {
+    typedef indexable_dict<K> type;
+};
+
 template<class K0, class K1, class V1>
-core::dict<typename __combined<K0,K1>::type, V1> operator+(core::dict<K1,V1>, indexable_dict<K0>);
+struct __combined<core::dict<K1,V1>, indexable_dict<K0>> {
+    typedef core::dict<typename __combined<K0,K1>::type, V1> type;
+};
+
 template<class K0, class K1, class V1>
-core::dict<typename __combined<K0,K1>::type, V1> operator+(indexable_dict<K0>, core::dict<K1,V1>);
+struct __combined<indexable_dict<K0>, core::dict<K1,V1>> {
+    typedef core::dict<typename __combined<K0,K1>::type, V1> type;
+};
+
 template<class K>
-indexable_dict<K> operator+(core::empty_dict, indexable<K>);
+struct __combined<core::empty_dict, indexable<K>> {
+    typedef indexable_dict<K> type;
+};
+
 template<class K0, class V, class K1>
-core::dict<typename __combined<K0,K1>::type, V> operator+(core::dict<K0,V>, indexable<K1>);
+struct __combined<core::dict<K0,V>, indexable<K1>> {
+    typedef core::dict<typename __combined<K0,K1>::type, V> type;
+};
+
 template<class K0, class V, class K1>
-core::dict<typename __combined<K0,K1>::type, V> operator+(indexable<K1>, core::dict<K0,V>);
+struct __combined<indexable<K1>, core::dict<K0,V>> {
+    typedef core::dict<typename __combined<K0,K1>::type, V> type;
+};
+
 template<class K, class... Types>
-std::tuple<Types...> operator+(indexable<K>, std::tuple<Types...>);
+struct __combined<indexable<K>, std::tuple<Types...>> {
+    typedef std::tuple<Types...> type;
+};
+
 template<class K, class... Types>
-std::tuple<Types...> operator+(std::tuple<Types...>, indexable<K>);
+struct __combined<std::tuple<Types...>, indexable<K>> {
+    typedef std::tuple<Types...> type;
+};
+
 template<class K, class T, size_t N>
-std::array<T,N> operator+(indexable<K>, std::array<T,N>);
+struct __combined<indexable<K>, std::array<T,N>> {
+    typedef std::array<T,N> type;
+};
+
 template<class K, class T, size_t N>
-std::array<T,N> operator+(std::array<T,N>, indexable<K>);
+struct __combined<std::array<T,N>, indexable<K>> {
+    typedef std::array<T,N> type;
+};
+
+template<class K, class T, size_t N>
+struct __combined<container<K>, std::array<T,N>> {
+    typedef std::array<typename __combined<T,K>::type ,N> type;
+};
+
+template<class K, class T, size_t N>
+struct __combined<std::array<T,N>, container<K>> {
+    typedef std::array<typename __combined<T,K>::type ,N> type;
+};
+
 template<class K>
-std::complex<double> operator+(indexable<K>, std::complex<double>);
+struct __combined<indexable<K>, std::complex<double>> {
+    typedef std::complex<double> type;
+};
+
 template<class K>
-std::complex<double> operator+(std::complex<double>, indexable<K>);
+struct __combined<std::complex<double>, indexable<K>> {
+    typedef std::complex<double> type;
+};
+
 
 template<class K, class V>
 class indexable_container {
@@ -238,47 +376,92 @@ class indexable_container {
         indexable_container();
 };
 template<class K0, class V0, class K1, class V1>
-indexable_container<typename __combined<K0,K1>::type, typename __combined<V0,V1>::type> operator+(indexable_container<K0,V0>, indexable_container<K1,V1>);
+struct __combined<indexable_container<K0,V0>, indexable_container<K1,V1>> {
+    typedef indexable_container<typename __combined<K0,K1>::type, typename __combined<V0,V1>::type> type;
+};
+
 
 template <class K, class V>
-indexable_container<K,V> operator+(indexable<K>, container<V>);
+struct __combined<indexable<K>, container<V>> {
+    typedef indexable_container<K,V> type;
+};
+
 template <class V, class K>
-indexable_container<K,V> operator+(container<V>, indexable<K>);
+struct __combined<container<V>, indexable<K>> {
+    typedef indexable_container<K,V> type;
+};
+
 
 template <class K, class V, class W>
-indexable_container<K, typename __combined<V,W>::type> operator+(indexable_container<K,V>, container<W>);
+struct __combined<indexable_container<K,V>, container<W>> {
+    typedef indexable_container<K, typename __combined<V,W>::type> type;
+};
+
 template <class V, class K, class W>
-indexable_container<K, typename __combined<V,W>::type> operator+(container<W>, indexable_container<K,V>);
+struct __combined<container<W>, indexable_container<K,V>> {
+    typedef indexable_container<K, typename __combined<V,W>::type> type;
+};
+
 
 template <class K, class V>
-core::list<V> operator+(indexable<K>, core::list<V>);
+struct __combined<indexable<K>, core::list<V>> {
+    typedef core::list<V> type;
+};
+
 template <class V, class K>
-core::list<V> operator+(core::list<V>, indexable<K>);
+struct __combined<core::list<V>, indexable<K>> {
+    typedef core::list<V> type;
+};
+
 
 template <class K, class V>
-core::set<V> operator+(indexable<K>, core::set<V>);
+struct __combined<indexable<K>, core::set<V>> {
+    typedef core::set<V> type;
+};
+
 template <class K, class V>
-core::set<V> operator+(core::set<V>, indexable<K>);
+struct __combined<core::set<V>, indexable<K>> {
+    typedef core::set<V> type;
+};
+
 
 template <class K1, class V1, class K2>
-indexable_container<typename __combined<K1,K2>::type,V1> operator+(indexable_container<K1,V1>, indexable<K2>);
+struct __combined<indexable_container<K1,V1>, indexable<K2>> {
+    typedef indexable_container<typename __combined<K1,K2>::type,V1> type;
+};
+
 template <class K1, class V1, class K2>
-indexable_container<typename __combined<K1,K2>::type,V1> operator+(indexable<K2>, indexable_container<K1,V1>);
+struct __combined<indexable<K2>, indexable_container<K1,V1>> {
+    typedef indexable_container<typename __combined<K1,K2>::type,V1> type;
+};
+
 
 template <class K, class V0, class V1>
-core::list<typename __combined<V0,V1>::type> operator+(indexable_container<K,V0>, core::list<V1>);
+struct __combined<indexable_container<K,V0>, core::list<V1>> {
+    typedef core::list<typename __combined<V0,V1>::type> type;
+};
+
 template <class K, class V0, class V1>
-core::list<typename __combined<V0,V1>::type> operator+(core::list<V1>, indexable_container<K,V0>);
+struct __combined<core::list<V1>, indexable_container<K,V0>> {
+    typedef core::list<typename __combined<V0,V1>::type> type;
+};
+
 
 template <class K, class V>
-core::list<V> operator+(indexable_container<K,V>, core::empty_list);
+struct __combined<indexable_container<K,V>, core::empty_list> {
+    typedef core::list<V> type;
+};
+
 template <class K, class V>
-core::list<V> operator+(core::empty_list, indexable_container<K,V>);
+struct __combined<core::empty_list, indexable_container<K,V>> {
+    typedef core::list<V> type;
+};
+
 
 struct dummy {};
 
-template<size_t N, class T>
-struct __combined<core::ndarray<T,N>, core::ndarray<T,N>> {
+template<size_t N, class T, size_t M>
+struct __combined<core::ndarray<T,N>, core::ndarray<T,M>> {
     typedef core::ndarray<T,N> type;
 };
 template<size_t N, class T, class O>
@@ -352,37 +535,88 @@ struct __combined<core::numpy_expr<Op, Arg0, Arg1>, container<K>> {
 };
 
 template <class K, class V1, class V2>
-core::set<decltype(std::declval<V1>()+std::declval<V2>())> operator+(indexable_container<K,V1>, core::set<V2>);
+struct __combined<indexable_container<K,V1>, core::set<V2>> {
+    typedef core::set<decltype(std::declval<V1>()+std::declval<V2>())> type;
+};
+
 template <class K, class V1, class V2>
-core::set<decltype(std::declval<V1>()+std::declval<V2>())> operator+(core::set<V2>, indexable_container<K,V1>);
+struct __combined<core::set<V2>, indexable_container<K,V1>> {
+    typedef core::set<decltype(std::declval<V1>()+std::declval<V2>())> type;
+};
+
 
 template< class K, class V>
-core::dict<K,V> operator+(core::empty_dict, indexable_container<K,V>);
+struct __combined<core::empty_dict, indexable_container<K,V>> {
+    typedef core::dict<K,V> type;
+};
+
 template< class K0, class V0, class K1, class V1>
-core::dict<typename __combined<K0,K1>::type, typename __combined<V0,V1>::type> operator+(core::dict<K0,V0>, indexable_container<K1,V1>);
+struct __combined<core::dict<K0,V0>, indexable_container<K1,V1>> {
+    typedef core::dict<typename __combined<K0,K1>::type, typename __combined<V0,V1>::type> type;
+};
+
+template< class K0, class V0, class K1, class V1>
+struct __combined<indexable_container<K1,V1>, core::dict<K0,V0>> {
+    typedef core::dict<typename __combined<K0,K1>::type, typename __combined<V0,V1>::type> type;
+};
+
 template< class K, class V>
-core::dict<K,V> operator+(indexable_container<K,V>, core::empty_dict);
+struct __combined<indexable_container<K,V>, core::empty_dict> {
+    typedef core::dict<K,V> type;
+};
+
 
 template <class K, class V>
-core::dict<K,V> operator+(indexable<K>, dict_container<V>);
+struct __combined<indexable<K>, dict_container<V>> {
+    typedef core::dict<K,V> type;
+};
+
 template <class V, class K>
-core::dict<K,V> operator+(dict_container<V>, indexable<K>);
+struct __combined<dict_container<V>, indexable<K>> {
+    typedef core::dict<K,V> type;
+};
+
 template <class V, class K, class W>
-core::dict<K,typename __combined<V,W>::type> operator+(dict_container<V>, indexable_container<K,W>);
+struct __combined<dict_container<V>, indexable_container<K,W>> {
+    typedef core::dict<K,typename __combined<V,W>::type> type;
+};
+
+template <class V, class K, class W>
+struct __combined<indexable_container<K,W>, dict_container<V>> {
+    typedef core::dict<K,typename __combined<V,W>::type> type;
+};
 
 template <class K, class V, class W>
-core::dict<K,typename __combined<V,W>::type> operator+(core::dict<K,V>, dict_container<W>);
+struct __combined<core::dict<K,V>, dict_container<W>> {
+    typedef core::dict<K,typename __combined<V,W>::type> type;
+};
+
 template <class V, class K, class W>
-core::dict<K,typename __combined<V,W>::type> operator+(dict_container<W>, core::dict<K,V>);
+struct __combined<dict_container<W>, core::dict<K,V>> {
+    typedef core::dict<K,typename __combined<V,W>::type> type;
+};
+
 
 template <class K, class V>
-core::dict<K,V> operator+(indexable_dict<K>, container<V>);
+struct __combined<indexable_dict<K>, container<V>> {
+    typedef core::dict<K,V> type;
+};
+
 template <class K0, class K1>
-indexable_dict<typename __combined<K0,K1>::type> operator+(indexable_dict<K0>, indexable<K1>);
+struct __combined<indexable_dict<K0>, indexable<K1>> {
+    typedef indexable_dict<typename __combined<K0,K1>::type> type;
+};
+
 template <class K0, class K1>
-indexable_dict<typename __combined<K0,K1>::type> operator+(indexable<K0>, indexable_dict<K1>);
+struct __combined<indexable<K0>, indexable_dict<K1>> {
+    typedef indexable_dict<typename __combined<K0,K1>::type> type;
+};
+
 template <class V, class K>
-core::dict<K,V> operator+(container<V>, indexable_dict<K>);
+struct __combined<container<V>, indexable_dict<K>> {
+    typedef core::dict<K,V> type;
+};
+
 
 template<class T0, class T1>
 struct __combined<core::list<T0>, core::list<T1>> {
@@ -440,12 +674,6 @@ struct __combined<none<T1>, none<T0>>  {
     typedef none<typename __combined<T0,T1>::type> type;
 };
 
-/* specialization for callable types */
-template <class T0, class T1>
-typename std::enable_if< is_callable<T0>::value and is_callable<T1>::value, variant<T0,T1> >::type operator+(T0 , T1 );
-
-template <class T>
-typename std::enable_if< is_callable<T>::value, T>::type operator+(T , T);
 
 
 /* some overloads */
@@ -462,6 +690,10 @@ namespace std {
         auto get( core::ndarray<T,N>& a) -> decltype(a[I]) { return a[I]; }
     template <size_t I, class T, size_t N>
         auto get( core::ndarray<T,N> const& a) -> decltype(a[I]) { return a[I]; }
+    template <size_t I, class O, class A0, class A1>
+        auto get( core::numpy_expr<O,A0,A1> const& a) -> decltype(a[I]) { return a[I]; }
+    template <size_t I, class O, class A>
+        auto get( core::numpy_uexpr<O,A> const& a) -> decltype(a[I]) { return a[I]; }
     template <size_t I, class T, size_t N>
         struct tuple_element<I, core::ndarray<T,N> > {
             typedef typename core::ndarray<T,N>::value_type type;

@@ -353,10 +353,11 @@ namespace  pythonic {
                 template<class E>
                     typename std::enable_if<core::is_array<E>::value, gsliced_ndarray<T,N,M>&>::type operator=(E const& v) {
                         long islice = std::accumulate(data.shape.begin()+M, data.shape.end(),1, std::multiplies<long>());
-                        for(long i=0, k=0; k<v.size() ; ++i) {
+                        long bound = size();
+                        for(long i=0, k=0; k<bound; ++i) {
                             auto I = to_index(i)*islice;
                             for(long j=0;j<islice; j++,k++)
-                                data.at(I+j) = v.at(k);
+                                data.at(I+j) = v.at(k%v.size());
                         }
                         return *this;
                     }

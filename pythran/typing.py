@@ -331,7 +331,11 @@ class Types(ModuleAnalysis):
 
     def register(self, ptype):
         """register ptype as a local typedef"""
-        self.typedefs.append(ptype)
+        if str(ptype) not in map(str,self.typedefs):
+            self.typedefs.append(ptype)
+            return True
+        else:
+            return False
 
     def node_to_id(self, n, depth=0):
         if isinstance(n, ast.Name):
@@ -418,41 +422,42 @@ class Types(ModuleAnalysis):
 
                     parametric_type = PType(self.current,
                                             self.result[othernode])
-                    self.register(parametric_type)
+                    if self.register(parametric_type):
 
-                    def translator_generator(args, op, unary_op):
-                        ''' capture args for translator generation'''
-                        def interprocedural_type_translator(s, n):
-                            translated_othernode = ast.Name(
-                                '__fake__', ast.Load())
-                            s.result[translated_othernode] = (
-                             parametric_type.instanciate(
-                             s.current, [s.result[arg] for arg in n.args]))
-                            # look for modified argument
-                            for p, effective_arg in enumerate(n.args):
-                                formal_arg = args[p]
-                                if formal_arg.id == node_id:
-                                    translated_node = effective_arg
-                                    break
-                            try:
-                                s.combine(translated_node,
-                                    translated_othernode,
-                                    op, unary_op, register=True)
-                            except NotImplementedError:
-                                pass
-                                # this may fail when the effective
-                                #parameter is an expression
-                            except UnboundLocalError:
-                                pass
-                                # this may fail when translated_node
-                                #is a default parameter
-                        return interprocedural_type_translator
-                    translator = translator_generator(
-                        self.current.args.args,
-                        op, unary_op)  # deferred combination
-                    user_module = modules['__user__']
-                    current_function = user_module[self.current.name]
-                    current_function.add_combiner(translator)
+                        user_module = modules['__user__']
+                        current_function = user_module[self.current.name]
+
+                        def translator_generator(args, op, unary_op):
+                            ''' capture args for translator generation'''
+                            def interprocedural_type_translator(s, n):
+                                translated_othernode = ast.Name(
+                                    '__fake__', ast.Load())
+                                s.result[translated_othernode] = (
+                                 parametric_type.instanciate(
+                                 s.current, [s.result[arg] for arg in n.args]))
+                                # look for modified argument
+                                for p, effective_arg in enumerate(n.args):
+                                    formal_arg = args[p]
+                                    if formal_arg.id == node_id:
+                                        translated_node = effective_arg
+                                        break
+                                try:
+                                    s.combine(translated_node,
+                                        translated_othernode,
+                                        op, unary_op, register=True)
+                                except NotImplementedError:
+                                    pass
+                                    # this may fail when the effective
+                                    #parameter is an expression
+                                except UnboundLocalError:
+                                    pass
+                                    # this may fail when translated_node
+                                    #is a default parameter
+                            return interprocedural_type_translator
+                        translator = translator_generator(
+                            self.current.args.args,
+                            op, unary_op)  # deferred combination
+                        current_function.add_combiner(translator)
                 else:
                     new_type = unary_op(self.result[othernode])
                     if node not in self.result:

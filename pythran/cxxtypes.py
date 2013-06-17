@@ -2,6 +2,7 @@
 This module defines classes needed to manipulate c++ types from pythran.
 '''
 import tables
+from config import cfg
 
 
 class Weak:
@@ -163,7 +164,15 @@ class CombinedTypes(Type):
 
     def generate(self, ctx):
         # gather all underlying types and make sure they do not appear twice
-        combined = sorted(set(ctx(t).generate(ctx) for t in self.all_types()))
+        mct = cfg.getint('typing', 'max_container_type')
+        all_types = self.all_types()
+        it = [t for t in all_types if type(t) not in (IndexableType, ContainerType)]
+        ot0 = [t for t in all_types if type(t) is IndexableType]
+        ot1 = [t for t in all_types if type(t) is ContainerType]
+        icombined = sorted(set(ctx(t).generate(ctx) for t in it))
+        lcombined0 = sorted(set(ctx(t).generate(ctx) for t in ot0))[-mct:]
+        lcombined1 = sorted(set(ctx(t).generate(ctx) for t in ot1))[-mct:]
+        combined = icombined + lcombined0 + lcombined1
         if len(combined) == 1:
             return combined[0]
         else:
@@ -280,6 +289,10 @@ std::iterator_traits<typename string::iterator>::value_type>::type
     '''
 
     def generate(self, ctx):
+        # special hook to avoid delegating this trivial computation to c++
+        if type(self.of) is ReturnType and type(self.of.ftype) is DeclType:
+            if self.of.ftype.repr == '__builtin__::proxy::xrange()':
+                return ctx(NamedType('long')).generate(ctx)
         iterator_value_type = ctx(self.of).generate(ctx)
         tn = 'typename '
         trait = 'typename std::iterator_traits<{0}{1}::iterator>::value_type'

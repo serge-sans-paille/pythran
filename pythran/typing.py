@@ -23,6 +23,7 @@ import itertools
 import operator
 import metadata
 import intrinsic
+from config import cfg
 
 
 # networkx backward compatibility
@@ -331,11 +332,11 @@ class Types(ModuleAnalysis):
 
     def register(self, ptype):
         """register ptype as a local typedef"""
-        if str(ptype) not in map(str,self.typedefs):
+        # Too many of them leads to memory burst
+        if len(self.typedefs) < cfg.getint('typing', 'max_combiner'):
             self.typedefs.append(ptype)
             return True
-        else:
-            return False
+        return False
 
     def node_to_id(self, n, depth=0):
         if isinstance(n, ast.Name):

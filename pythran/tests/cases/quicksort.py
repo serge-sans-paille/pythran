@@ -1,5 +1,5 @@
-#runas import sys ; sys.setrecursionlimit(10000) ; a = [i for i in xrange(100,1,-1)] ; quicksort(a,0,len(a)-1)
-#pythran export quicksort (int list, int, int)
+#pythran export quicksort(int list, int, int)
+#runas quicksort(range(10),0,9)
 def partition(list, start, end):
     pivot = list[end]                          # Partition around the last value
     bottom = start-1                           # Start outside the area to be partitioned

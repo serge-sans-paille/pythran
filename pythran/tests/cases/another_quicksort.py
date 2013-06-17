@@ -1,8 +1,7 @@
-# unittest.skip g++4.8 explose in memory, clang is fine
-#runas QuickSort([1,4,2,4,6,10,7,0,6,5,12,99])
+#pythran export QuickSort(float list)
+#runas QuickSort(range(10))
 
 # swap two value of the list
-#pythran export swap (float list, int, int)
 def swap (l, idx1, idx2):
     if (idx1 != idx2):
         tmp = l[idx1]
@@ -11,7 +10,6 @@ def swap (l, idx1, idx2):
 
 # partition the list using the value at pivot index size / 2 and return the
 # new pivot index
-#pythran export partition (float list)
 def partition (l):
     size = len (l)
     # the pivot indfex
@@ -43,7 +41,6 @@ def partition (l):
     swap (l, i, size - 1)
     return i
 
-#pythran export QuickSort (float list)
 def QuickSort (l):
     size = len (l)
     if size > 1:

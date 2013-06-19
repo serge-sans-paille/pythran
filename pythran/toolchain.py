@@ -27,7 +27,7 @@ from tempfile import mkstemp, NamedTemporaryFile
 
 def _format_cmdline(cmd):
     """No comma when printing a command line allows for copy/paste"""
-    return "'"+"' '".join(cmd)+"'"
+    return "'" + "' '".join(cmd) + "'"
 
 
 def _extract_all_constructed_types(v):
@@ -228,7 +228,7 @@ def compile_cxxfile(cxxfile, module_so=None, **kwargs):
                + _cxxflags
                + ["-shared", "-o", module_so]
                + _ldflags)
-        logger.info("Command line: "+_format_cmdline(cmd))
+        logger.info("Command line: " + _format_cmdline(cmd))
         output = check_output(cmd, stderr=STDOUT)
     except CalledProcessError as e:
         raise CompileError(e.cmd, e.output)
@@ -254,7 +254,7 @@ def compile_cxxcode(cxxcode, module_so=None, keep_temp=False,
             # remove tempfile
             os.remove(fdpath)
         else:
-            logger.warn("Keeping temporary generated file:"+fdpath)
+            logger.warn("Keeping temporary generated file:" + fdpath)
 
     return module_so
 

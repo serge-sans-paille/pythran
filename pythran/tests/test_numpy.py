@@ -3,6 +3,8 @@ from test_env import TestEnv
 import numpy
 
 class TestNumpy(TestEnv):
+    def test_filter_array(self):
+        self.run_test('def filter_array(n): import numpy ; a = numpy.zeros(n) ; return a[a>1]', 10, filter_array=[int])
 
     @unittest.skip("Buggy because of ndarray<T,N>& operator=(ndarray<T,N> const& other) implementation.")
     def test_assign_ndarray(self):

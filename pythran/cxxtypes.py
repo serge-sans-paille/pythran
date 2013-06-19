@@ -166,9 +166,12 @@ class CombinedTypes(Type):
         # gather all underlying types and make sure they do not appear twice
         mct = cfg.getint('typing', 'max_container_type')
         all_types = self.all_types()
-        it = [t for t in all_types if type(t) not in (IndexableType, ContainerType)]
-        ot0 = [t for t in all_types if type(t) is IndexableType]
-        ot1 = [t for t in all_types if type(t) is ContainerType]
+        fot0 = lambda t:  type(t) is IndexableType
+        fot1 = lambda t: type(t) is ContainerType
+        fit = lambda t: not fot0(t) and not fot1(t)
+        it = filter(fit, all_types)
+        ot0 = filter(fot0, all_types)
+        ot1 = filter(fot1, all_types)
         icombined = sorted(set(ctx(t).generate(ctx) for t in it))
         lcombined0 = sorted(set(ctx(t).generate(ctx) for t in ot0))[-mct:]
         lcombined1 = sorted(set(ctx(t).generate(ctx) for t in ot1))[-mct:]
@@ -284,8 +287,8 @@ class IteratorContentType(DependentType):
     Type of an iterator over the content of a container
 
     >>> IteratorContentType(NamedType('string'))
-    typename std::remove_cv<typename \
-std::iterator_traits<typename string::iterator>::value_type>::type
+    typename std::remove_cv<typename std::iterator_traits<\
+typename std::remove_reference<string>::type::iterator>::value_type>::type
     '''
 
     def generate(self, ctx):
@@ -294,13 +297,12 @@ std::iterator_traits<typename string::iterator>::value_type>::type
             if self.of.ftype.repr == '__builtin__::proxy::xrange()':
                 return ctx(NamedType('long')).generate(ctx)
         iterator_value_type = ctx(self.of).generate(ctx)
-        tn = 'typename '
-        trait = 'typename std::iterator_traits<{0}{1}::iterator>::value_type'
         return 'typename std::remove_cv<{0}>::type'.format(
-                trait.format(
-                    tn * (not iterator_value_type.startswith(tn)),
-                    iterator_value_type)
-            )
+                'typename std::iterator_traits<{0}>::value_type'.format(
+                    'typename std::remove_reference<{0}>::type::iterator'.
+                    format(iterator_value_type)
+                    )
+                )
 
 
 class ReturnType(Type):
@@ -336,8 +338,9 @@ class ElementType(Type):
 
     >>> t = TupleType([NamedType('int'), NamedType('str')])
     >>> ElementType(1, t)
-    typename std::tuple_element<1,\
-decltype(core::make_tuple(std::declval<int>(), std::declval<str>()))>::type
+    typename std::tuple_element<1,typename std::remove_reference<\
+decltype(core::make_tuple(std::declval<int>(), std::declval<str>()))>\
+::type>::type
     '''
 
     def __init__(self, index, of):
@@ -350,7 +353,10 @@ decltype(core::make_tuple(std::declval<int>(), std::declval<str>()))>::type
     def generate(self, ctx):
         return 'typename std::tuple_element<{0},{1}>::type'.format(
                 self.index,
-                ctx(self.of).generate(ctx))
+                'typename std::remove_reference<{0}>::type'.format(
+                    ctx(self.of).generate(ctx)
+                    )
+                )
 
 
 class AttributeType(ElementType):

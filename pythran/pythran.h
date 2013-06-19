@@ -630,6 +630,18 @@ template<class T0, class T1>
 struct __combined<__builtin__::_iter<T0>, __builtin__::_iter<T1>> {
     typedef __builtin__::_iter<typename __combined<T0,T1>::type> type;
 };
+template<class T0, class T1>
+struct __combined<__builtin__::_iter<T0>&, __builtin__::_iter<T1>&> {
+    typedef __builtin__::_iter<typename __combined<T0,T1>::type> type;
+};
+template<class T0, class T1>
+struct __combined<__builtin__::_iter<T0>&, __builtin__::_iter<T1>> {
+    typedef __builtin__::_iter<typename __combined<T0,T1>::type> type;
+};
+template<class T0, class T1>
+struct __combined<__builtin__::_iter<T0>, __builtin__::_iter<T1>&> {
+    typedef __builtin__::_iter<typename __combined<T0,T1>::type> type;
+};
 template<class T0, class T1, size_t N0, size_t N1>
 struct __combined<std::array<T0,N0>, std::array<T1,N1>> {
     typedef std::array<typename __combined<T0,T1>::type, N0> type;

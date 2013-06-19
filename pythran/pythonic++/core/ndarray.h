@@ -813,6 +813,18 @@ namespace  pythonic {
                     return gsliced_ndarray<ndarray<T,N>, count_slices<S0,S1,S...>::value, 2 + sizeof...(S)>(*this, std::array<slice, 2 + sizeof...(S)>({{as_slice(s0), as_slice(s1), as_slice(s_)...}}), std::array<bool, 2 + sizeof...(S)>({{std::is_same<S0,slice>::value, std::is_same<S1,slice>::value, std::is_same<S,slice>::value...}}));
                 }
 
+                /* by array */
+                template<class E>
+                typename std::enable_if<is_array<E>::value, ndarray<T,1>>::type
+                operator[](E const & expr) {
+                    long n= expr.size(), j=0;
+                    T* obuffer = new T[n];
+                    for(long i=0;i<n;++i)
+                        if(expr.at(i))
+                            obuffer[j++] = buffer[i];
+                    long shape [] = { j };
+                    return ndarray<T,1>(obuffer, shape);
+                }
 
                 /* to the flat array */
                 T at(long i) const { return buffer[i]; }

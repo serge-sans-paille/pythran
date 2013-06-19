@@ -173,7 +173,7 @@ class TypeDependencies(ModuleAnalysis):
         return sum((self.visit(value) for value in node.values), [])
 
     def visit_BinOp(self, node):
-        args = map(self.visit,(node.left, node.right))
+        args = map(self.visit, (node.left, node.right))
         return list({frozenset.union(*x) for x in itertools.product(*args)})
 
     def visit_UnaryOp(self, node):
@@ -679,7 +679,11 @@ class Types(ModuleAnalysis):
             f = lambda t: reduce(lambda x, y: ContentType(x),
                     node.slice.value.elts, t)
         else:
-            f = ContentType
+            self.visit(node.slice)
+            f = lambda x: ExpressionType(
+                    lambda a, b: "{0}[{1}]".format(a, b),
+                    [x, self.result[node.slice]]
+                    )
         f and self.combine(node, node.value, unary_op=f)
 
     def visit_AssignedSubscript(self, node):

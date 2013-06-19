@@ -39,7 +39,7 @@ namespace pythonic {
                         }
 
                         bool operator!=(imap_iterator_data const& other) {
-                            return (iter != other.iter) and (rec_iters != other.rec_iters); // stop as soon as one is different
+                            return (iter != other.iter) and (rec_iters != other.rec_iters); // stop as soon as both is different
                         }
 
                         int operator-(imap_iterator_data const& other) {

@@ -185,8 +185,8 @@ namespace pythonic {
 
             template<bool Same, class... Types>
                 struct _make_tuple {
-                    std::tuple<Types...> operator()(Types... types) {
-                        return std::tuple<Types...>(types...);
+                    auto operator()(Types... types) -> decltype(std::make_tuple(std::forward<Types>(types)...)) {
+                        return std::make_tuple(std::forward<Types>(types)...);
                     }
                 };
             template<class... Types>

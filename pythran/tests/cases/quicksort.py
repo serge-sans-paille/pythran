@@ -38,8 +38,6 @@ def do_quicksort(list, start, end):
         split = partition(list, start, end)    # ... partition the sublist...
         do_quicksort(list, start, split-1)        # ... and sort both halves.
         do_quicksort(list, split+1, end)
-    else:
-        return
 
 def quicksort(l,s,e):
     do_quicksort(l,s,e)

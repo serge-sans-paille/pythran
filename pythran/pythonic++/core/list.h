@@ -128,9 +128,8 @@ namespace  pythonic {
                         data->reserve(DEFAULT_LIST_CAPACITY);
                         std::copy(start, stop, std::back_inserter(*data));
                     }
-                list(empty_list const &) : data() {}
                 list(size_type sz) :data(sz) {}
-                list(std::initializer_list<value_type> l) : data(std::move(l)) {}
+                list(std::initializer_list<T> l) : data(std::move(l)) {}
                 list(list<T> && other) : data(std::move(other.data)) {}
                 list(list<T> const & other) : data(other.data) {}
                 template<class F>
@@ -300,6 +299,7 @@ namespace  pythonic {
 
 
                 // list interface
+                explicit
                 operator bool() const { return not data->empty(); }
 
                 template <class F>
@@ -350,6 +350,8 @@ namespace  pythonic {
                 list_view<T> operator+(list_view<T> const & s) const { return s; }
             empty_list operator+(empty_list const &) const { return empty_list(); }
             operator bool() const { return false; }
+            template<class T>
+                operator list<T>() const { return list<T>(0); }
         };
 
         /* list_view implementation */

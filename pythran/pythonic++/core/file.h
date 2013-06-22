@@ -165,7 +165,7 @@ namespace  pythonic {
 					// Official python doc specifies that sizehint is used as a max of chars
 					// But it has not been implemented in the standard python interpreter...
 					core::string str;
-					core::list<core::string> lst = core::empty_list(); 
+					core::list<core::string> lst(0);
 					while((str=readline())){
 						lst.push_back(str);
 					}

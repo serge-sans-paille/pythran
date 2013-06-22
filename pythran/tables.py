@@ -11,6 +11,8 @@ from intrinsic import ConstMethodIntr, MethodIntr, AttributeIntr, ConstantIntr
 from intrinsic import UpdateEffect, ReadEffect
 import numpy
 
+pythran_ward = '__pythran_'
+
 namespace = "pythonic"
 
 pytype_to_ctype_table = {

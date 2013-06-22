@@ -14,6 +14,7 @@ from passmanager import Backend
 
 from tables import operator_to_lambda, modules, type_to_suffix
 from tables import builtin_constructors, pytype_to_ctype_table
+from tables import pythran_ward
 from typing import Types
 from syntax import PythranSyntaxError
 
@@ -78,7 +79,7 @@ class Cxx(Backend):
     >>> for l in r: print l
     #include <pythran/pythran.h>
     #include <pythran/pythran_gmp.h>
-    namespace __test
+    namespace __pythran_test
     {
       print(core::string("hello world"));
     }
@@ -108,7 +109,7 @@ class Cxx(Backend):
         body = map(self.visit, fbody)
 
         nsbody = body + self.declarations + self.definitions
-        ns = Namespace("__" + self.passmanager.module_name, nsbody)
+        ns = Namespace(pythran_ward + self.passmanager.module_name, nsbody)
         self.result = headers + [ns]
 
     # openmp processing

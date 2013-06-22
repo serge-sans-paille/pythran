@@ -20,6 +20,7 @@ from config import cfg
 from passmanager import PassManager
 from numpy import get_include
 from typing import extract_constructed_types, pytype_to_ctype
+from tables import pythran_ward
 
 from subprocess import check_output, STDOUT, CalledProcessError
 from tempfile import mkstemp, NamedTemporaryFile
@@ -175,7 +176,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
                 arguments_types = [pytype_to_ctype(t) for t in signature]
                 arguments = ["a{0}".format(i)
                              for i in xrange(len(arguments_types))]
-                name_fmt = "__{0}::{1}::type{2}"
+                name_fmt = pythran_ward + "{0}::{1}::type{2}"
                 args_list = ", ".join(arguments_types)
                 specialized_fname = name_fmt.format(module_name,
                                                     internal_func_name,
@@ -198,7 +199,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
                             [Value(t, a)
                              for t, a in zip(arguments_types, arguments)]),
                         Block([Statement("return {0}()({1})".format(
-                            '__{0}::{1}'.format(
+                            pythran_ward + '{0}::{1}'.format(
                                 module_name, internal_func_name),
                             ', '.join(arguments)))])
                     ),

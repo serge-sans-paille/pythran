@@ -8,8 +8,7 @@ import ast
 from numpy import ndarray
 import networkx as nx
 
-from tables import pytype_to_ctype_table
-from tables import operator_to_lambda as operator_to_type
+from tables import pytype_to_ctype_table, operator_to_lambda
 from tables import modules, builtin_constants, builtin_constructors
 from tables import methods, functions
 from analysis import GlobalDeclarations, YieldPoints, LocalDeclarations
@@ -487,8 +486,9 @@ class Types(ModuleAnalysis):
         self.generic_visit(node)
 
         # and one for backward propagation
-        self.stage = 1
-        self.generic_visit(node)
+        # but this step is too costly
+        # self.stage = 1
+        # self.generic_visit(node)
 
         # propagate type information through all aliases
         for name, nodes in self.name_to_nodes.iteritems():
@@ -531,7 +531,7 @@ class Types(ModuleAnalysis):
     def visit_AugAssign(self, node):
         self.visit(node.value)
         self.combine(node.target, node.value,
-            lambda x, y: x + ExpressionType(operator_to_type[type(node.op)],
+            lambda x, y: x + ExpressionType(operator_to_lambda[type(node.op)],
                 [x, y]), register=True)
         if isinstance(node.target, ast.Subscript):
             if self.visit_AssignedSubscript(node.target):
@@ -565,7 +565,7 @@ class Types(ModuleAnalysis):
             F = operator.add
         else:
             F = lambda x, y: ExpressionType(
-                operator_to_type[type(node.op)], [x, y])
+                operator_to_lambda[type(node.op)], [x, y])
 
         fake_node = ast.Name("#", ast.Param())
         self.combine(fake_node, node.left, F)
@@ -575,7 +575,7 @@ class Types(ModuleAnalysis):
 
     def visit_UnaryOp(self, node):
         self.generic_visit(node)
-        f = lambda x: ExpressionType(operator_to_type[type(node.op)], [x])
+        f = lambda x: ExpressionType(operator_to_lambda[type(node.op)], [x])
         self.combine(node, node.operand, unary_op=f)
 
     def visit_IfExp(self, node):
@@ -588,7 +588,7 @@ class Types(ModuleAnalysis):
         for op, comp in all_compare:
             self.combine(node, comp,
                     unary_op=lambda x: ExpressionType(
-                        operator_to_type[type(op)],
+                        operator_to_lambda[type(op)],
                         [self.result[node.left], x])
                     )
 

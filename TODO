@@ -89,19 +89,6 @@ nice. As Pythran is sooooooo easy to use, that should not be hard, so to make
 the task more interesting, the tutorial should be automatically tested when
 running ``setup.py test``.
 
-Avoid false polymorphism
-------------------------
-
-*pbrunet has an eye on this one*
-
-In the following code::
-
-    a = 1 ; a = 'e'
-
-``a`` looks like a polymorphic variable, but it is not really. Scalar renaming
-could be used to prevent this false type dependency... This is an interesting
-job for a pythraner that wants to improve its compilation skills.
-
 Named arguments
 ---------------
 

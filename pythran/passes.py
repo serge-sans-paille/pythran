@@ -874,7 +874,7 @@ class ExpandBuiltins(Transformation):
     '''
 
     def __init__(self):
-        Transformation.__init__(self, Locals)
+        Transformation.__init__(self, Locals, Globals)
 
     def visit_Name(self, node):
         s = node.id
@@ -882,6 +882,7 @@ class ExpandBuiltins(Transformation):
                 and s not in builtin_constants
                 and s not in builtin_constructors
                 and s not in self.locals[node]
+                and s not in self.globals
                 and s in modules['__builtin__']):
             return ast.Attribute(
                     ast.Name('__builtin__', ast.Load()),

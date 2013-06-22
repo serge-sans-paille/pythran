@@ -36,6 +36,7 @@ namespace pythonic {
             // constructor
             string_view(): data(impl::no_memory()) {}
             string_view(string_view const & s): data(s.data), slicing(s.slicing) {}
+            string_view(string_view const & s, slice const& sl): data(s.data), slicing(s.slicing.lower + sl.lower, std::min(s.slicing.upper, s.slicing.lower + sl.upper), s.slicing.step * sl.step) {}
             string_view(string & , slice const &);
 
             // const getter
@@ -69,6 +70,7 @@ namespace pythonic {
             friend class string_view;
 
             public:
+            typedef core::string value_type;
             string() : std::string() {}
             string(std::string const & s) : std::string(s) {}
             string(std::string && s) : std::string(std::move(s)) {}
@@ -84,7 +86,7 @@ namespace pythonic {
 
             explicit operator char() const {
                 assert(size() == 1);
-                return (*this)[0];
+                return std::string::operator[](0);
             }
 
             operator long int() const { // Allows implicit conversion without loosing bool conversion
@@ -133,14 +135,23 @@ namespace pythonic {
                         return false;
                 return true;
             }
+            //to avoid int conversion during comparison (which is not requiered)
+            bool operator==(char v)
+            {
+                return size()==1 and std::string::operator[](0) == v;
+            }
             string_view operator()( slice const &s) const {
                 return string_view(*const_cast<string*>(this), s); // SG: ugly !
             }
 
-            using std::string::operator[];
+            string operator[]( long i ) const {
+                if(i>=0)
+                    return core::string(std::string::operator[](i));
+                else
+                    return core::string(std::string::operator[](size()+i));
+            }
+
             string operator[]( slice const &s ) const {
-                string out;
-                out.reserve(size());
                 long lower, upper;
                 if(s.step<0) {
                     if( s.lower == std::numeric_limits<long>::max() )
@@ -150,18 +161,14 @@ namespace pythonic {
                     lower = std::max(0L,lower);
                     upper = s.upper >= 0L ? s.upper : ( s.upper + size());
                     upper = std::min(upper, (long)size());
-                    for(long iter = lower; iter >= upper ; iter+=s.step)
-                        out.push_back((*this)[iter]);
                 }
                 else {
                     lower = s.lower >= 0L ? s.lower : ( s.lower + size());
                     lower = std::max(0L,lower);
                     upper = s.upper >= 0L ? s.upper : ( s.upper + size());
                     upper = std::min(upper, (long)size());
-                    for(long iter = lower; iter < upper ; iter+=s.step)
-                        out.push_back((*this)[iter]);
                 }
-                return out;
+                return string_view(*const_cast<string*>(this), slice(lower, upper, s.step)); // SG: ugly !
             }
 
             explicit operator bool() const{
@@ -179,7 +186,7 @@ namespace pythonic {
                     return fmter.str();
                 }
             template<size_t N, class T>
-                core::string operator%(std::array<T, N> const & a) const {
+                core::string operator%(core::array<T, N> const & a) const {
                     boost::format fmter(*this);
                     (fmt(fmter, a, int_<N>() ));
                     return fmter.str();

@@ -388,7 +388,7 @@ namespace pythonic {
             auto _map(Operator& op, List0 && seq, Iterators... iterators)
             -> core::list< decltype(op(*seq.begin(), *iterators...)) > 
             {
-                core::list< decltype(op(*seq.begin(), *iterators...)) > s = core::empty_list();
+                core::list< decltype(op(*seq.begin(), *iterators...)) > s(0);
                 s.reserve(len(seq));
                 for(auto const& iseq : seq) {
                     s.push_back(op(iseq, *iterators...));
@@ -402,7 +402,7 @@ namespace pythonic {
             auto _map(pythonic::none_type, List0 && seq, Iterators... iterators) 
             -> core::list< std::tuple< typename std::remove_reference<List0>::type::iterator::value_type,  typename Iterators::value_type... > >
             {
-                core::list< std::tuple< typename std::remove_reference<List0>::type::iterator::value_type,  typename Iterators::value_type... > > s = core::empty_list();
+                core::list< std::tuple< typename std::remove_reference<List0>::type::iterator::value_type,  typename Iterators::value_type... > > s(0);
                 s.reserve(len(seq));
                 for(auto const& iseq : seq) {
                     s.push_back(std::make_tuple( iseq, *iterators... ));
@@ -415,7 +415,7 @@ namespace pythonic {
             auto _map(pythonic::none_type, List0 && seq)
             -> core::list< typename std::remove_reference<List0>::type::iterator::value_type >
             {
-                core::list< typename std::remove_reference<List0>::type::iterator::value_type > s = core::empty_list();
+                core::list< typename std::remove_reference<List0>::type::iterator::value_type > s(0);
                 s.reserve(len(seq));
                 for(auto const& iseq : seq)
                     s.push_back(iseq);
@@ -746,7 +746,7 @@ namespace pythonic {
         /* zip */
         template<class Iterator0, class... Iterators>
             core::list< std::tuple<typename Iterator0::value_type, typename Iterators::value_type... > > _zip(size_t n, Iterator0 first, Iterator0 last, Iterators...  iters) {
-                core::list< std::tuple< typename Iterator0::value_type, typename Iterators::value_type... > > out = core::empty_list();
+                core::list< std::tuple< typename Iterator0::value_type, typename Iterators::value_type... > > out(0);
                 out.reserve(n);
                 for(; first!=last; ++first, fwd(++iters...)) {
                     out.push_back(std::make_tuple( *first, *iters... ));

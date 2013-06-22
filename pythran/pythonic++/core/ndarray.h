@@ -65,7 +65,7 @@ namespace  pythonic {
         template<class T>
             struct broadcast {
 
-                size_t size() const { return 0; }
+                long size() const { return 0; }
                 T __value;
                 typename vectorized<T>::type _value;
                 static constexpr size_t value = 0;
@@ -99,7 +99,7 @@ namespace  pythonic {
                 auto at(long i) const -> decltype(Op()(arg0.at(i))) {
                     return Op()(arg0.at(i));
                 }
-                size_t size() const { return arg0.size(); }
+                long size() const { return arg0.size(); }
             };
 
         template<class U, class V, size_t N>
@@ -136,7 +136,7 @@ namespace  pythonic {
                 auto at(long i) const -> decltype(Op()(arg0.at(i), arg1.at(i))) {
                     return Op()(arg0.at(i), arg1.at(i));
                 }
-                size_t size() const { return std::max(arg0.size(), arg1.size()); }
+                long size() const { return std::max(arg0.size(), arg1.size()); }
             };
 
 
@@ -336,7 +336,7 @@ namespace  pythonic {
                     return data.at(to_index(i));
                 }
 
-                size_t size() const {
+                long size() const {
                     size_t n = data.size();
                     for(size_t i=0;i<M;++i)
                         n = (n / data.shape[i]) * gshape[i];
@@ -409,7 +409,7 @@ namespace  pythonic {
                 auto at(long i) const -> decltype(data.at(jump*lower+i*step)) {
                     return data.at(jump*lower+i*step);
                 }
-                size_t size() const { return (data.size() / data.shape[0]) * shape[0] ; }
+                long size() const { return (data.size() / data.shape[0]) * shape[0] ; }
                 reference operator[](long i) { return data[jump*lower+i*step]; }
                 const_reference operator[](long i) const { return data[jump*lower+i*step]; }
                 sliced_ndarray<T> operator[](slice const& s) const { return sliced_ndarray(data, slice(lower + step*s.lower, std::min(upper, lower + step*s.upper), step*s.step)); }
@@ -843,7 +843,7 @@ namespace  pythonic {
                 nditerator< ndarray<T,N> > end() const { return nditerator<ndarray<T,N> >(*this, data_size); }
 
                 /* member functions */
-                size_t size() const {
+                long size() const {
                     return std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<long>());
                 }
                 ndarray<T,1> flat() const {

@@ -213,7 +213,8 @@ namespace pythonic {
             }
 
        template<class T, size_t N>
-            typename core::ndarray<T,N>::value_type sum( core::ndarray<T,N> const& array, long axis)
+            typename std::enable_if<N!=1, typename core::ndarray<T,N>::value_type>::type
+            sum( core::ndarray<T,N> const& array, long axis)
             {
                 if(axis<0 || axis >=long(N))
                     throw __builtin__::ValueError("axis out of bounds");
@@ -232,7 +233,6 @@ namespace pythonic {
                 }
             }
 
-       NUMPY_EXPR_TO_NDARRAY0(sum);
        PROXY(pythonic::numpy, sum);
 
        template<class E>
@@ -1273,7 +1273,7 @@ namespace pythonic {
             }
 
         template<class E, class W>
-            auto average(E const & expr, none_type const& axis, W&& weights) -> decltype(average(expr * asarray(weights) / average(asarray(weights)))) {
+            auto average(E const & expr, none_type const& axis, W const& weights) -> decltype(average(expr * asarray(weights) / average(asarray(weights)))) {
                 auto aweights = asarray(weights);
                 auto weighted_expr = expr * aweights / average(aweights) ;
                 return average(weighted_expr) ;
@@ -1694,23 +1694,37 @@ namespace pythonic {
             }
         PROXY(pythonic::numpy, flipud);
 
-        template<class F, class dtype=double>
-            core::ndarray<typename std::remove_cv<typename std::remove_reference<decltype(std::declval<F>()(dtype()))>::type>::type, 1>
-            fromfunction(F&& f, std::array<long,1> const& shape, dtype d = dtype()) {
-                core::ndarray<typename std::remove_cv<typename std::remove_reference<decltype(f(dtype()))>::type>::type, 1> out(shape, None);
-                for(dtype i=0, n= out.shape[0]; i<n; ++i)
-                    out[i] = f(i);
-                return out;
-            }
+        template<class F, size_t N, class dtype>
+            struct fromfunction_helper;
 
-        template<class F, class dtype=double>
-            core::ndarray<typename std::remove_cv<typename std::remove_reference<decltype(std::declval<F>()(dtype(), dtype()))>::type>::type, 2>
-            fromfunction(F&& f, std::array<long,2> const& shape, dtype d = dtype()) {
-                core::ndarray<typename std::remove_cv<typename std::remove_reference<decltype(f(dtype(), dtype()))>::type>::type, 2> out(shape, None);
-                for(dtype i=0, n= out.shape[0]; i<n; ++i)
-                    for(dtype j=0, m= out.shape[1]; j<m; ++j)
-                        out[i][j] = f(i,j);
-                return out;
+        template<class F, class dtype>
+            struct fromfunction_helper<F,1,dtype> {
+                core::ndarray<typename std::remove_cv<typename std::remove_reference<decltype(std::declval<F>()(dtype()))>::type>::type, 1>
+                    operator()(F&& f, std::array<long,1> const& shape, dtype d = dtype()) {
+                        core::ndarray<typename std::remove_cv<typename std::remove_reference<decltype(f(dtype()))>::type>::type, 1> out(shape, None);
+                        for(dtype i=0, n= out.shape[0]; i<n; ++i)
+                            out[i] = f(i);
+                        return out;
+                    }
+            };
+
+        template<class F, class dtype>
+            struct fromfunction_helper<F,2,dtype> {
+                core::ndarray<typename std::remove_cv<typename std::remove_reference<decltype(std::declval<F>()(dtype(), dtype()))>::type>::type, 2>
+                    operator()(F&& f, std::array<long,2> const& shape, dtype d = dtype()) {
+                        core::ndarray<typename std::remove_cv<typename std::remove_reference<decltype(f(dtype(), dtype()))>::type>::type, 2> out(shape, None);
+                        for(dtype i=0, n= out.shape[0]; i<n; ++i)
+                            for(dtype j=0, m= out.shape[1]; j<m; ++j)
+                                out[i][j] = f(i,j);
+                        return out;
+                    }
+            };
+
+
+        template<class F, size_t N, class dtype=double>
+            auto fromfunction(F&& f, std::array<long, N> const& shape, dtype d = dtype())
+            -> decltype(fromfunction_helper<F, N, dtype>()(std::forward<F>(f), shape)) {
+                return fromfunction_helper<F, N, dtype>()(std::forward<F>(f), shape);
             }
 
         /* must specialize for higher order */

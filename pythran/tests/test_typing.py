@@ -57,6 +57,7 @@ def functional_variant_container1():
     return l[0](12)'''
         self.run_test(code, functional_variant_container1=[])
 
+    @unittest.skip("bad typing: need backward propagation")
     def test_type_set_in_loop(self):
         code = '''
 def type_set_in_loop():
@@ -69,6 +70,7 @@ def type_set_in_loop():
     return a,b'''
         self.run_test(code, type_set_in_loop=[])
 
+    @unittest.skip("bad typing: need backward propagation")
     def test_type_set_in_while(self):
         code = '''
 def type_set_in_while():

@@ -523,10 +523,10 @@ class Types(ModuleAnalysis):
         for t in node.targets:
             self.combine(t, node.value, register=True)
             if isinstance(t, ast.Subscript):
-                self.visit_AssignedSubscript(t)
-                for alias in self.strict_aliases[t.value].aliases:
-                    fake = ast.Subscript(alias, t.value, ast.Store())
-                    self.combine(fake, node.value, register=True)
+                if self.visit_AssignedSubscript(t):
+                    for alias in self.strict_aliases[t.value].aliases:
+                        fake = ast.Subscript(alias, t.value, ast.Store())
+                        self.combine(fake, node.value, register=True)
 
     def visit_AugAssign(self, node):
         self.visit(node.value)
@@ -534,15 +534,15 @@ class Types(ModuleAnalysis):
             lambda x, y: x + ExpressionType(operator_to_type[type(node.op)],
                 [x, y]), register=True)
         if isinstance(node.target, ast.Subscript):
-            self.visit_AssignedSubscript(node.target)
-            for alias in self.strict_aliases[node.target.value].aliases:
-                fake = ast.Subscript(alias, node.target.value, ast.Store())
-                self.combine(fake,
-                        node.value,
-                        lambda x, y: x + ExpressionType(
-                            operator_to_type[type(node.op)],
-                            [x, y]),
-                        register=True)
+            if self.visit_AssignedSubscript(node.target):
+                for alias in self.strict_aliases[node.target.value].aliases:
+                    fake = ast.Subscript(alias, node.target.value, ast.Store())
+                    self.combine(fake,
+                            node.value,
+                            lambda x, y: x + ExpressionType(
+                                operator_to_lambda[type(node.op)],
+                                [x, y]),
+                            register=True)
 
     def visit_For(self, node):
         self.visit(node.iter)
@@ -694,6 +694,9 @@ class Types(ModuleAnalysis):
             for alias in self.strict_aliases[node.value].aliases:
                 self.combine(alias, node.slice,
                         unary_op=IndexableType, register=True)
+            return True
+        else:
+            return False
 
     def visit_Name(self, node):
         if node.id in self.name_to_nodes:

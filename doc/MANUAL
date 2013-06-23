@@ -230,6 +230,21 @@ Easy enough, isn't it?
     ``-e`` switch!
 
 
+IPython Integration
+-------------------
+
+The magic function ``%%pythran`` is made available to ipython users through an
+IPython extension. The extension is located in the ``extensions/`` directory
+and can be loaded using IPython's magic function::
+
+    %load_ext pythranmagic
+
+Once done, you can pythranize your code from the IPython shell::
+
+    %%pythran
+    #pythran export foo()
+    def foo(): print 'hello'
+
 
 Advanced Usage
 --------------

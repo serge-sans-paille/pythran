@@ -80,6 +80,7 @@ namespace pythonic {
             int max_modulo = 1000;
 
             os << "[";
+            if( shape[0] != 0)
             do {
                 if(depth==1)
                 {

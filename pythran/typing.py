@@ -665,6 +665,10 @@ class Types(ModuleAnalysis):
                 ('::'.join(path[:-1]) + '::proxy::' + path[-1] + '()')
                 )
 
+    def visit_Slice(self, node):
+        self.generic_visit(node)
+        self.result[node] = NamedType('core::slice')
+
     def visit_Subscript(self, node):
         self.visit(node.value)
         if metadata.get(node, metadata.Attribute):
@@ -673,7 +677,11 @@ class Types(ModuleAnalysis):
             d = sum(int(type(dim) is ast.Index) for dim in node.slice.dims)
             f = lambda t: reduce(lambda x, y: ContentType(x), range(d), t)
         elif isinstance(node.slice, ast.Slice):
-            f = lambda t: t
+            self.visit(node.slice)
+            f = lambda x:  ExpressionType(
+                    lambda a, b: "{0}[{1}]".format(a, b),
+                    [x, self.result[node.slice]]
+                    )
         elif isinstance(node.slice.value, ast.Num) and node.slice.value.n >= 0:
             f = lambda t: ElementType(node.slice.value.n, t)
         elif isinstance(node.slice.value, ast.Tuple):

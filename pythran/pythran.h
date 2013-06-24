@@ -61,12 +61,6 @@ struct assignable<pythonic::core::numpy_uexpr<Op, Arg0>>
 {
     typedef pythonic::core::ndarray<typename pythonic::core::numpy_uexpr<Op, Arg0>::value_type, pythonic::core::numpy_uexpr<Op, Arg0>::value> type;
 };
-template<class T>
-struct assignable<pythonic::core::sliced_ndarray<T>>
-{
-    typedef typename assignable<T>::type type;
-};
-
 
 template<class T>
 struct content_of {
@@ -473,6 +467,19 @@ struct __combined<O, core::ndarray<T,N>> {
     typedef core::ndarray<T,N> type;
 };
 
+template<class T>
+struct __combined<core::indexed_ndarray<T>, core::indexed_ndarray<T>> {
+    typedef core::indexed_ndarray<T> type;
+};
+template<class T, class O>
+struct __combined<core::indexed_ndarray<T>, O> {
+    typedef core::indexed_ndarray<T> type;
+};
+template<class T, class O>
+struct __combined<O, core::indexed_ndarray<T>> {
+    typedef core::indexed_ndarray<T> type;
+};
+
 template<class Arg0, class Op, class K>
 struct __combined<core::numpy_uexpr<Op, Arg0>, indexable<K>> {
     typedef core::numpy_uexpr<Op, Arg0> type;
@@ -709,6 +716,10 @@ namespace std {
     template <size_t I, class T, size_t N>
         struct tuple_element<I, core::ndarray<T,N> > {
             typedef typename core::ndarray<T,N>::value_type type;
+        };
+    template <size_t I, class T>
+        struct tuple_element<I, core::indexed_ndarray<T> > {
+            typedef typename T::value_type type;
         };
     template <size_t I, class Op, class Arg0, class Arg1>
         struct tuple_element<I, core::numpy_expr<Op,Arg0, Arg1> > {
@@ -1539,6 +1550,20 @@ template<class T, size_t N>
 struct pythran_to_python< core::ndarray<T,N> > {
     pythran_to_python() {
         register_once< core::ndarray<T,N> , custom_array_to_ndarray<T,N> >();
+    }
+};
+
+template<class T>
+struct custom_sliced_array_to_ndarray {
+    static PyObject* convert( core::sliced_ndarray<T> n) {
+        return custom_array_to_ndarray<typename T::dtype, T::value>().convert(n);
+    }
+};
+
+template<class T>
+struct pythran_to_python< core::sliced_ndarray<T> > {
+    pythran_to_python() {
+        register_once< core::sliced_ndarray<T> , custom_sliced_array_to_ndarray<T> >();
     }
 };
 /* } */

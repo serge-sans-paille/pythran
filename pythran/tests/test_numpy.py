@@ -3,10 +3,19 @@ from test_env import TestEnv
 import numpy
 
 class TestNumpy(TestEnv):
+    def test_assign_sliced_array(self):
+        self.run_test("""def assign_sliced_array():
+   import numpy as np;
+   a = np.array([1,2,3]);
+   b = np.array([1,2,3]);
+   c=a[1:]
+   c=b[1:]
+   b[2] = -1;
+   return c;""", assign_sliced_array=[])
+
     def test_filter_array(self):
         self.run_test('def filter_array(n): import numpy ; a = numpy.zeros(n) ; return a[a>1]', 10, filter_array=[int])
 
-    @unittest.skip("Buggy because of ndarray<T,N>& operator=(ndarray<T,N> const& other) implementation.")
     def test_assign_ndarray(self):
         self.run_test("""def assign_ndarray(t):
                            import numpy as np;

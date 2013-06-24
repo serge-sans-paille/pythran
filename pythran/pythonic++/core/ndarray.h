@@ -195,6 +195,39 @@ namespace  pythonic {
                 }
             };
 
+        /* proxy type to hold the return of an index
+         */
+        template <class T>
+            struct indexed_ndarray : T {
+                indexed_ndarray() : T() {}
+                indexed_ndarray(T const& t) : T(t) {
+                }
+
+                template<class E>
+                    typename std::enable_if<is_array<typename std::remove_reference<E>::type>::value, indexed_ndarray<T>&>::type
+                    operator=(E&& e) {
+                        if(T::data_size) {
+                            for(long i=0, n=e.size(); i<n; ++i)
+                                T::buffer[i] = e.at(i);
+                        }
+                        else
+                            T::operator=(std::forward<E>(e));
+                        return *this;
+                    }
+                template<class M, size_t N>
+                    indexed_ndarray<T>& operator=(std::array<M,N> const& e) {
+                        T::operator=(e);
+                        return *this;
+                    }
+                template<class E>
+                    typename std::enable_if<not is_array<typename std::remove_reference<E>::type>::value, indexed_ndarray<T>&>::type
+                    operator=(E&& e) {
+                        T::operator=(std::forward<E>(e));
+                        return *this;
+                    }
+            };
+
+
         /* Helper for dimension-specific part of ndarray
          *
          * Instead of specializing the whole ndarray class, the dimension-specific behavior are stored here.
@@ -216,8 +249,8 @@ namespace  pythonic {
                     return from;
                 }
 
-                static type get(ndarray<T,N> const& self, long i) {
-                    type r;
+                static indexed_ndarray<type> get(ndarray<T,N> const& self, long i) {
+                    indexed_ndarray<type> r;
                     r.data_size = self.shape[1];
                     r.mem = self.mem;
                     r.buffer = self.buffer + i*std::accumulate(self.shape.begin() + 1, self.shape.end(), 1L, std::multiplies<long>());
@@ -403,16 +436,6 @@ namespace  pythonic {
                 }
             };
 
-        /* proxy type to hold the return of an index
-         */
-        template <class T>
-            struct indexed_ndarray : T {
-                indexed_ndarray() : T() {}
-                indexed_ndarray(T const& t) : T(t) {
-                }
-            };
-
-
         /* proxy type to hold the return of a slice
          */
         template<class T>
@@ -425,6 +448,8 @@ namespace  pythonic {
                 size_t jump;
 
                 T data;
+
+                sliced_ndarray() {}
 
                 sliced_ndarray(T const& data, slice const& s) : slice(s), shape(data.shape), data(data) {
                     shape[0] = ceil(std::abs(double(upper - lower)/step));
@@ -441,6 +466,14 @@ namespace  pythonic {
                 const_reference operator[](long i) const { return data[jump*lower+i*step]; }
                 sliced_ndarray<T> operator[](slice const& s) const { return sliced_ndarray(data, slice(lower + step*s.lower, std::min(upper, lower + step*s.upper), step*s.step)); }
                 sliced_ndarray<T> operator[](slice const& s) { return sliced_ndarray(data, slice(lower + step*s.lower, std::min(upper, lower + step*s.upper), step*s.step)); }
+
+                sliced_ndarray<T>& operator=(sliced_ndarray<T> const& v) {
+                    slice::operator=(v);
+                    shape = v.shape;
+                    jump = v.jump;
+                    data = v.data;
+                    return *this;
+                }
 
                 template<class E>
                 typename std::enable_if<not core::is_array<E>::value, sliced_ndarray<T>&>::type operator=(E const& v) {
@@ -468,8 +501,10 @@ namespace  pythonic {
                     }
                     else
                     {
-                        for(long i=lower, j=0; i>upper; i+=step, j++)
-                            data[i] = v.at(j);
+                        long slice = v.size()/std::abs(((upper - lower)/step));
+                        for(long i=upper, j=0; i<lower; i-=step)
+                            for(long k=0;k<slice; ++k, ++j)
+                                data[i].at(k) = v.at(j);
                     }
                     return *this;
                 }
@@ -487,7 +522,6 @@ namespace  pythonic {
                     }
                     return *this;
                 }
-
 
                 sliced_ndarray<T>& operator+=(value_type v) {
                     for(long i=lower; i<upper; i+=step)
@@ -550,18 +584,18 @@ namespace  pythonic {
                 }
 
                 /* from a sequence */
-              template<class Iterable,
-                       class = typename std::enable_if< // prevent destruction of copy constructor
-                                         !std::is_same<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type, ndarray<T,N>>::value
-                                         and !is_numpy_expr<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type>::value
-                                         and is_iterable<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type>::value,
-                                         void>::type
-                      >
-                    ndarray(Iterable&& iterable):
-                        data_size(0),
-                        mem(nested_container_size<Iterable>::size(std::forward<Iterable>(iterable))),
-                        buffer(mem->data),
-                        shape()
+                template<class Iterable,
+                    class = typename std::enable_if< // prevent destruction of copy constructor
+                        !std::is_same<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type, ndarray<T,N>>::value
+                        and !is_numpy_expr<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type>::value
+                        and is_iterable<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type>::value,
+                    void>::type
+                        >
+                        ndarray(Iterable&& iterable):
+                            data_size(0),
+                            mem(nested_container_size<Iterable>::size(std::forward<Iterable>(iterable))),
+                            buffer(mem->data),
+                            shape()
                 {
                     type_helper<ndarray<T,N>>::initialize_from_iterable(shape, mem->data, std::forward<Iterable>(iterable));
                     data_size = shape[0];
@@ -675,15 +709,19 @@ namespace  pythonic {
 
                 /* of another array */
                 ndarray<T,N>& operator=(ndarray<T,N> const& other) {
-                    if(data_size == other.data_size) { // maybe a subarray copy ?
-                        // This branch is buggy, see "test_assign_ndarray"
-                        std::copy(other.begin(), other.end(), begin()); //SG:correct?
-                    } else {
-                        data_size = other.data_size;
-                        mem = other.mem;
-                        buffer = other.buffer;
-                        shape = other.shape;
-                    }
+                    data_size = other.data_size;
+                    mem = other.mem;
+                    buffer = other.buffer;
+                    shape = other.shape;
+                    return *this;
+                }
+
+                /* of an indexed array */
+                ndarray<T,N>& operator=(indexed_ndarray<ndarray<T,N>> const& other) {
+                    data_size = other.data_size;
+                    mem = other.mem;
+                    buffer = other.buffer;
+                    shape = other.shape;
                     return *this;
                 }
 
@@ -974,6 +1012,10 @@ namespace  pythonic {
             struct is_array< ndarray<T,N> > {
                 static constexpr bool value = true;
             };
+        template< class T>
+            struct is_array< indexed_ndarray<T> > {
+                static constexpr bool value = true;
+            };
 
         /* Type trait that checks if a type resemble an array expression
          *
@@ -1006,6 +1048,10 @@ namespace  pythonic {
             };
         template<class T>
             struct is_numexpr_arg<sliced_ndarray<T>> {
+                static constexpr bool value = true;
+            };
+        template<class T>
+            struct is_numexpr_arg<indexed_ndarray<T>> {
                 static constexpr bool value = true;
             };
         template<class T, size_t N, size_t M>

@@ -918,8 +918,6 @@ modules = {
                         self.combine(
                             node.args[0],
                             node_args_k,
-                            unary_op=lambda f: cxxtypes.SetType(
-                                cxxtypes.ContentType(f)),
                             register=True)
                         for node_args_k in node.args[1:]
                         ]
@@ -929,8 +927,6 @@ modules = {
                         self.combine(
                             node.args[0],
                             node_args_k,
-                            unary_op=lambda f: cxxtypes.SetType(
-                                cxxtypes.ContentType(f)),
                             register=True)
                         for node_args_k in node.args[1:]
                         ]
@@ -941,8 +937,6 @@ modules = {
                         self.combine(
                             node.args[0],
                             node_args_k,
-                            unary_op=lambda f: cxxtypes.SetType(
-                                cxxtypes.ContentType(f)),
                             register=True)
                         for node_args_k in node.args[1:]
                         ]
@@ -953,8 +947,6 @@ modules = {
                         self.combine(
                             node.args[0],
                             node_args_k,
-                            unary_op=lambda f: cxxtypes.SetType(
-                                cxxtypes.ContentType(f)),
                             register=True)
                         for node_args_k in node.args[1:]
                         ]
@@ -965,8 +957,6 @@ modules = {
                         self.combine(
                             node.args[0],
                             node_args_k,
-                            unary_op=lambda f: cxxtypes.SetType(
-                                cxxtypes.ContentType(f)),
                             register=True)
                         for node_args_k in node.args[1:]
                         ]
@@ -977,8 +967,6 @@ modules = {
                             self.combine(
                                 node.args[0],
                                 node_args_k,
-                                unary_op=lambda f: cxxtypes.SetType(
-                                    cxxtypes.ContentType(f)),
                                 register=True)
                             for node_args_k in node.args[1:]
                             ]
@@ -989,8 +977,6 @@ modules = {
                             self.combine(
                                 node.args[0],
                                 node_args_k,
-                                unary_op=lambda f: cxxtypes.SetType(
-                                    cxxtypes.ContentType(f)),
                                 register=True)
                             for node_args_k in node.args[1:]
                             ]

@@ -13,6 +13,8 @@ def are_equal(s1):
         	self.run_test(code, {'jack', 'sjoerd'}, are_equal=[{str}])
 	def test_in(self):
 		self.run_test("def _in(a,b):\n return b in a", {'aze', 'qsd'},'qsd', _in=[{str},str])
+	def test_empty_in(self):
+		self.run_test("def empty_in(b):\n return b in set()",'qsd', empty_in=[str])
 	def test_len(self):
 		self.run_test("def _len(a):\n return len(a)", {'aze', 'qsd', 'azeqsd'}, _len=[{str}])
 	def test_disjoint(self):
@@ -64,7 +66,6 @@ def are_equal(s1):
 
 	def test_fct_intersection(self):
 		self.run_test("def _fct_intersection(b, c):\n a={1.}\n return a.intersection(b,c)", {1,3,4,5,6}, {1.,2.,4.}, _fct_intersection=[{int},{float}])
-	@unittest.skip("Not supported yet.")
 	def test_fct_intersection_empty_set(self):
 		self.run_test("def _fct_intersection_empty_set(b, c):\n a=set()\n return a.intersection(b,c)", {1,3,4,5,6}, {1.,2.,4.}, _fct_intersection_empty_set=[{int},{float}])
 	def test_fct_intersection_list(self):
@@ -73,17 +74,14 @@ def are_equal(s1):
 		self.run_test("def _operator_intersection(b, c):\n a={1.}\n return (a & b & c)", {1,3,4,5,6}, {1.,2.,4.}, _operator_intersection=[{int},{float}])
 	def test_fct_intersection_update(self):
 		self.run_test("def _fct_intersection_update(b, c):\n a={1.,10.}\n return a.intersection_update(b,c)", {1,3,4,5,6}, {1.,2.,4.}, _fct_intersection_update=[{int},{float}])
-	@unittest.skip("Not supported yet.")
 	def test_fct_intersection_update_empty_set(self):
 		self.run_test("def _fct_intersection_update_empty_set(b, c):\n a=set()\n return a.intersection_update(b,c)", {1,3,4,5,6}, {1.,2.,4.}, _fct_intersection_update_empty_set=[{int},{float}])
-	@unittest.skip("Not supported yet.")
 	def test_fct_intersection_empty_set_update(self):
 		self.run_test("def _fct_intersection_empty_set_update(c):\n a={1}\n b=set()\n return a.intersection_update(b,c)", {1.,2.,4.}, _fct_intersection_empty_set_update=[{float}])
 	def test_fct_intersection_update_list(self):
 		self.run_test("def _fct_intersection_update_list(b, c):\n a={1.,10.}\n return a.intersection_update(b,c)", [1,3,4,5,6], {1.,2.,4.}, _fct_intersection_update_list=[[int],{float}])
 	def test_operator_intersection_update(self):
 		self.run_test("def _operator_intersection_update(b, c):\n a={1.}\n a &= b & c\n return a", {1,3,4,5,6}, {1.,2.,4.}, _operator_intersection_update=[{int},{float}])
-	@unittest.skip("Not supported yet.")
 	def test_operator_intersection_update_empty_set(self):
 		self.run_test("def _operator_intersection_update_empty_set(b, c):\n a=set()\n a &= b & c\n return a", {1,3,4,5,6}, {1.,2.,4.}, _operator_intersection_update_empty_set=[{int},{float}])
 

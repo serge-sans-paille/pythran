@@ -1290,6 +1290,7 @@ class LazynessAnalysis(FunctionAnalysis):
                 #if we modify just a part of a variable, it can't be lazy
                 var_name = target.value
                 while isinstance(var_name, ast.Subscript):
+                    self.visit(var_name.slice)
                     var_name = var_name.value
                 self.result[var_name.id] = float('inf')
             else:

@@ -21,7 +21,10 @@ class TestDict(TestEnv):
         self.run_test("def initialized_dict(): return {1:'e', 5.2:'f'}", initialized_dict=[])
 
     def test_dict_contains(self):
-        self.run_test("def dict_contains(): return 'e' in { 'a':1, 'e': 2 }", dict_contains=[])
+        self.run_test("def dict_contains(v): return v in { 'a':1, 'e': 2 }", "e", dict_contains=[str])
+
+    def test_emptydict_contains(self):
+        self.run_test("def emptydict_contains(v): return v in dict()", "e", emptydict_contains=[str])
 
     def test_dict_get_item(self):
         self.run_test("def dict_get_item(a): return a['e']", {'e':1, 'f':2}, dict_get_item=[{str:int}])

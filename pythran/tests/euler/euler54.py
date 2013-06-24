@@ -1,4 +1,4 @@
-#unittest.skip open intrinsic not supported
+#unittest.skip type can't be deducte
 #pythran export solve()
 def solve():
     '''
@@ -62,18 +62,18 @@ def solve():
         # Royal flush
         for suit, kinds in get(hand, all_suits):
             if has(kinds, tuple('TJQKA')):
-                return (9,)
+                return (9,0,0)
     
         # Straight flush
         for suit, kinds in get(hand, all_suits):
             kinds = sorted(kind for kind in kinds.keys())
             if len(kinds) == 5 and kinds[4] - kinds[0] == 4:
-                return (8, kinds[0])
+                return (8, kinds[0],0)
     
         # Four of a kind
         for kind, suits in get(hand, all_kinds):
             if len(suits.keys()) == 4:
-                return (7, kind)
+                return (7, kind,0)
     
         # Full house
         for kind, suits in get(hand, all_kinds):
@@ -85,17 +85,17 @@ def solve():
         # Flush
         for suit, kinds in get(hand, all_suits):
             if len(kinds.keys()) == 5:
-                return (5,)
+                return (5,0,0)
     
         # Straight
         kinds = sorted(kind for kind in all_kinds if hand.has_key(kind))
         if len(kinds) == 5 and kinds[4] - kinds[0] == 4:
-            return (4, kinds[0])
+            return (4, kinds[0],0)
     
         # Three of a kind
         for kind, suits in get(hand, all_kinds):
             if len(suits.keys()) == 3:
-                return (3, kind)
+                return (3, kind,0)
     
         # Two pairs
         for kind, suits in get(hand, all_kinds):
@@ -107,13 +107,13 @@ def solve():
         # One pair
         for kind, suits in get(hand, all_kinds):
             if len(suits.keys()) == 2:
-                return (1, kind)
+                return (1, kind,0)
     
         for kind in all_kinds:
             if kind in hand:
-                return (0, kind)
+                return (0, kind,0)
     
-        return 0
+        return (0,0,0)
     
     
     count = 0

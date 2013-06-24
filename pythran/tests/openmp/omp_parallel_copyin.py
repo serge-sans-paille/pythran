@@ -1,4 +1,3 @@
-unittest.skip
 #threadprivate supprimé, est ce que c'est grave?
 def omp_parallel_copyin():
     sum = 0

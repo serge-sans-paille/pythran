@@ -845,10 +845,22 @@ namespace pythonic {
                 return t.get_data().find(v) != t.end();
             }
         };
+    template <class V>
+        struct _in<core::empty_set, V> {
+            bool operator()(core::empty_set const &t, V const &v) {
+                return false;
+            }
+        };
     template <class K, class V>
         struct _in<core::dict<K,V>,K> {
             bool operator()(core::dict<K,V> const &t, K const &v) {
                 return t.find(v) != t.item_end();
+            }
+        };
+    template <class V>
+        struct _in<core::empty_dict, V> {
+            bool operator()(core::empty_dict const &t, V const &v) {
+                return false;
             }
         };
     template <class D, class I>

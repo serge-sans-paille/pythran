@@ -132,10 +132,6 @@ parser.add_argument('-g', dest='debug_flag', action='store_true',
                     help='any debug level relevant to the underlying C++ '
                     'compiler')
 
-parser.add_argument('--pythran-no-env-check', dest='no_env_check',
-                    action='store_true',
-                    help='disable compilation environment checks')
-
 parser.convert_arg_line_to_args = convert_arg_line_to_args
 
 args = parser.parse_args(sys.argv[1:])

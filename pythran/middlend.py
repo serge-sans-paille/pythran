@@ -6,6 +6,7 @@ from passes import RemoveLambdas, NormalizeTuples, NormalizeReturn
 from passes import UnshadowParameters, NormalizeException, ExpandBuiltins
 from passes import NormalizeMethodCalls, NormalizeAttributes, FalsePolymorphism
 from passes import RemoveComprehension, RemoveNestedFunctions, ExpandImports
+from passes import NormalizeCompare
 from optimizations import GenExpToImap, ListCompToMap, ListCompToGenexp, Pow2
 
 
@@ -26,6 +27,7 @@ def refine(pm, node, optimizations):
 
     pm.apply(NormalizeTuples, node)
     pm.apply(RemoveLambdas, node)
+    pm.apply(NormalizeCompare, node)
     pm.apply(RemoveNestedFunctions, node)
     pm.apply(ListCompToGenexp, node)
     pm.apply(RemoveComprehension, node)

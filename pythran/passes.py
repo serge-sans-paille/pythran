@@ -1,12 +1,13 @@
 '''
 This modules contains code transformation to turn python AST into
     pythran AST
-    * NormalizeTuples removes implicite variable -> tuple conversion
+    * NormalizeTuples removes implicit variable -> tuple conversion
     * RemoveComprehension turns list comprehension into function calls
     * RemoveNestedFunctions turns nested function into top-level functions
     * RemoveLambdas turns lambda into regular functions
     * NormalizeReturn adds return statement where relevant
     * NormalizeMethodCalls turns built in method calls into function calls
+    * NormalizeCompare turns complex compare into function calls
     * NormalizeAttributes turns built in attributes into function calls
     * NormalizeIdentifiers prevents conflicts with c++ keywords
     * NormalizeException simplifies try blocks
@@ -14,7 +15,6 @@ This modules contains code transformation to turn python AST into
     * ExpandImports replaces imports by their full paths
     * ExpandBuiltins replaces builtins by their full paths
     * FalsePolymorphism rename variable if possible to avoid false polymorphism
-    * NormalizeExtSlice makes sure ExtSlice contain only slice and no index
 '''
 
 from analysis import ImportedIds, Identifiers, YieldPoints, Globals, Locals
@@ -949,3 +949,55 @@ class FalsePolymorphism(Transformation):
                             var.id = name
                         self.identifiers.add(name)
         return node
+
+
+class NormalizeCompare(Transformation):
+    '''
+    Turns multiple compare into a function with proper temporaries.
+
+    >>> import ast, passmanager, backend
+    >>> node = ast.parse("def foo(a): return 0 < a + 1 < 3")
+    >>> pm = passmanager.PassManager("test")
+    >>> node = pm.apply(NormalizeCompare, node)
+    >>> print pm.dump(backend.Python, node)
+    def foo(a):
+        return foo_compare0(0, (a + 1), 3)
+    def foo_compare0($0, $1, $2):
+        return ($0 < $1 < $2)
+    '''
+
+    def visit_Module(self, node):
+        self.compare_functions = list()
+        self.generic_visit(node)
+        node.body.extend(self.compare_functions)
+        return node
+
+    def visit_FunctionDef(self, node):
+        self.prefix = node.name
+        self.generic_visit(node)
+        return node
+
+    def visit_Compare(self, node):
+        node = self.generic_visit(node)
+        if len(node.ops) > 1:
+            forged_name = "{0}_compare{1}".format(
+                    self.prefix,
+                    len(self.compare_functions)
+                    )
+            binded_args = [node.left] + node.comparators
+            args = ast.arguments([ast.Name('${}'.format(i), ast.Param())
+                for i in range(1 + len(node.ops))],
+                None, None, [])
+            node.left = ast.Name('$0', ast.Load())
+            node.comparators = [ast.Name('${}'.format(i), ast.Load())
+                    for i in range(1, 1 + len(node.ops))]
+            forged_fdef = ast.FunctionDef(
+                    forged_name,
+                    args,
+                    [ast.Return(node)],
+                    [])
+            self.compare_functions.append(forged_fdef)
+            return ast.Call(ast.Name(forged_name, ast.Load()),
+                    binded_args, [], None, None)
+        else:
+            return node

@@ -767,7 +767,13 @@ class Cxx(Backend):
         ops = [operator_to_lambda[type(n)] for n in node.ops]
         comparators = [self.visit(n) for n in node.comparators]
         all_compare = zip(ops, comparators)
-        return " and ".join(op(left, r) for op, r in all_compare)
+        op, right = all_compare[0]
+        output = [op(left, right)]
+        left = right
+        for op, right in all_compare[1:]:
+            output.append(op(left, right))
+            left = right
+        return " and ".join(output)
 
     def visit_Call(self, node):
         args = [self.visit(n) for n in node.args]

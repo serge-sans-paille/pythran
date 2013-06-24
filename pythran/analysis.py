@@ -1085,7 +1085,7 @@ class UsedDefChain(FunctionAnalysis):
             swap = True
 
         #body
-        old_node = dict(self.current_node)
+        old_node = {i: set(j) for i, j in self.current_node.iteritems()}
         map(self.visit, node.body)
 
         #orelse
@@ -1111,7 +1111,7 @@ class UsedDefChain(FunctionAnalysis):
             swap = True
 
         #body
-        old_node = dict(self.current_node)
+        old_node = {i: set(j) for i, j in self.current_node.iteritems()}
         self.visit(node.body)
 
         #orelse
@@ -1132,11 +1132,11 @@ class UsedDefChain(FunctionAnalysis):
         self.merge_dict_set(self.continue_, self.current_node)
 
     def visit_While(self, node):
-        prev_node = dict(self.current_node)
+        prev_node = {i: set(j) for i, j in self.current_node.iteritems()}
         self.visit(node.test)
         #body
         self.in_loop = True
-        old_node = dict(self.current_node)
+        old_node = {i: set(j) for i, j in self.current_node.iteritems()}
         map(self.visit, node.body)
         self.add_loop_edges(prev_node)
         self.in_loop = False
@@ -1156,7 +1156,7 @@ class UsedDefChain(FunctionAnalysis):
 
         #body
         self.in_loop = True
-        old_node = dict(self.current_node)
+        old_node = {i: set(j) for i, j in self.current_node.iteritems()}
         self.visit(node.target)
         map(self.visit, node.body)
         self.add_loop_edges(old_node)

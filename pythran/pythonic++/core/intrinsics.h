@@ -102,12 +102,12 @@ namespace pythonic {
 
         /* enumerate */
         template<class Iterator>
-            struct enumerate_iterator : std::iterator<Iterator, std::tuple<long, typename Iterator::value_type> >{
+            struct enumerate_iterator : std::iterator<Iterator, std::tuple<long, typename std::iterator_traits<Iterator>::value_type> >{
                 long value;
                 Iterator iter;
                 enumerate_iterator(){}
                 enumerate_iterator(Iterator const& iter, int first) : value(first), iter(iter) {}
-                std::tuple<long, typename Iterator::value_type> operator*() { return std::make_tuple(value, *iter); }
+                auto operator*() -> decltype(std::make_tuple(value, *iter)) { return std::make_tuple(value, *iter); }
                 enumerate_iterator& operator++() { ++value,++iter; return *this; }
                 enumerate_iterator& operator+=(long n) { value+=n,iter+=n; return *this; }
                 bool operator!=(enumerate_iterator const& other) { return iter != other.iter; }

@@ -193,6 +193,7 @@ namespace  pythonic {
                 bool operator<(nditerator<T> const& other) const {
                     return index < other.index;
                 }
+                operator typename T::iterator () const { return ((T*)this)->buffer + index; }
             };
 
         /* proxy type to hold the return of an index

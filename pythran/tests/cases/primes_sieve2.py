@@ -1,5 +1,6 @@
 #pythran export get_primes7(int)
 #from http://blog.famzah.net/2010/07/01/cpp-vs-python-vs-perl-vs-php-performance-benchmark/
+#runas get_primes7(100)
 def get_primes7(n):
 	"""
 	standard optimized sieve algorithm to get a list of prime numbers

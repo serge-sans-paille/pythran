@@ -11,7 +11,10 @@ Pythran is a python to c++ compiler for a subset of the python language. It
 takes a python module annotated with a few interface description and turns it
 into a native python module with the same interface, but (hopefully) faster.
 
-Pythran development is currently done using python version 2.7.
+It is meant to efficiently compile **scientific programs**, and takes advantage
+of multi-cores and SIMD instruction units.
+
+Pythran development is currently done using Python version **2.7**.
 
 Installation
 ------------
@@ -22,15 +25,9 @@ Pythran releases are hosted on http://pypi.python.org/pypi/pythran.
 
 1. Gather dependencies:
 
-	- Following the easy install way::
-	
-		$> PYTHONPATH=<my_prefix>/lib/python<my_version>/site-packages \
-				easy_install --prefix=<my_prefix> ply networkx
-		$> sudo apt-get install libboost-python-dev libgoogle-perftools-dev libgmp-dev
+   Pythran depends on a few Python modules and several C++ libraries. On a debian-like platform, run::
 
-	- Following the debian way::
-
-		$> sudo apt-get install libboost-python-dev libgoogle-perftools-dev libgmp-dev python-ply python-networkx python-pytest
+        $> sudo apt-get install libboost-python-dev libgoogle-perftools-dev libgmp-dev python-ply python-networkx python-pytest cmake
 
 2. Use the install target from setup script, in source directory::
 
@@ -43,17 +40,13 @@ Pythran releases are hosted on http://pypi.python.org/pypi/pythran.
 
 **or**
 
-1. The debway:
+1. Add serge_sans_paille's debian server to your `source.list`, following the
+   instruction given in http://serge.liyun.free.fr/serge/debian.html
 
-	- Add serge_sans_paille's debian server to your `source.list`, following
-	  the instruction given in http://serge.liyun.free.fr/serge/debian.html
-
-	- Run the classic::
+2. Run the classic::
 
 		$> sudo apt-get update
 		$> sudo apt-get install pythran
-
-
 
 
 Basic Usage

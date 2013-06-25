@@ -4,13 +4,17 @@
 #include <tuple>
 #include <sstream>
 #include <complex>
+#include <nt2/include/functions/abs.hpp>
 
 namespace pythonic {
+
+    double const nan = std::numeric_limits<double>::quiet_NaN();
+    double const inf = std::numeric_limits<double>::infinity();
 
     namespace __builtin__ {
 
         /* abs */
-        using std::abs;
+        using nt2::abs;
         PROXY(pythonic::__builtin__, abs);
 
         /* all */
@@ -98,12 +102,12 @@ namespace pythonic {
 
         /* enumerate */
         template<class Iterator>
-            struct enumerate_iterator : std::iterator<Iterator, std::tuple<long, typename Iterator::value_type> >{
+            struct enumerate_iterator : std::iterator<Iterator, std::tuple<long, typename std::iterator_traits<Iterator>::value_type> >{
                 long value;
                 Iterator iter;
                 enumerate_iterator(){}
                 enumerate_iterator(Iterator const& iter, int first) : value(first), iter(iter) {}
-                std::tuple<long, typename Iterator::value_type> operator*() { return std::make_tuple(value, *iter); }
+                auto operator*() -> decltype(std::make_tuple(value, *iter)) { return std::make_tuple(value, *iter); }
                 enumerate_iterator& operator++() { ++value,++iter; return *this; }
                 enumerate_iterator& operator+=(long n) { value+=n,iter+=n; return *this; }
                 bool operator!=(enumerate_iterator const& other) { return iter != other.iter; }
@@ -174,6 +178,12 @@ namespace pythonic {
             struct _id< core::set<T> > {
                 intptr_t operator()(core::set<T> const &t) {
                     return reinterpret_cast<intptr_t>(&t.get_data());
+                }
+            };
+        template <class T, size_t N>
+            struct _id< core::ndarray<T,N> > {
+                intptr_t operator()(core::ndarray<T,N> const &t) {
+                    return reinterpret_cast<intptr_t>(t.buffer);
                 }
             };
 
@@ -378,7 +388,7 @@ namespace pythonic {
             auto _map(Operator& op, List0 && seq, Iterators... iterators)
             -> core::list< decltype(op(*seq.begin(), *iterators...)) > 
             {
-                core::list< decltype(op(*seq.begin(), *iterators...)) > s = core::empty_list();
+                core::list< decltype(op(*seq.begin(), *iterators...)) > s(0);
                 s.reserve(len(seq));
                 for(auto const& iseq : seq) {
                     s.push_back(op(iseq, *iterators...));
@@ -392,7 +402,7 @@ namespace pythonic {
             auto _map(pythonic::none_type, List0 && seq, Iterators... iterators) 
             -> core::list< std::tuple< typename std::remove_reference<List0>::type::iterator::value_type,  typename Iterators::value_type... > >
             {
-                core::list< std::tuple< typename std::remove_reference<List0>::type::iterator::value_type,  typename Iterators::value_type... > > s = core::empty_list();
+                core::list< std::tuple< typename std::remove_reference<List0>::type::iterator::value_type,  typename Iterators::value_type... > > s(0);
                 s.reserve(len(seq));
                 for(auto const& iseq : seq) {
                     s.push_back(std::make_tuple( iseq, *iterators... ));
@@ -405,7 +415,7 @@ namespace pythonic {
             auto _map(pythonic::none_type, List0 && seq)
             -> core::list< typename std::remove_reference<List0>::type::iterator::value_type >
             {
-                core::list< typename std::remove_reference<List0>::type::iterator::value_type > s = core::empty_list();
+                core::list< typename std::remove_reference<List0>::type::iterator::value_type > s(0);
                 s.reserve(len(seq));
                 for(auto const& iseq : seq)
                     s.push_back(iseq);
@@ -527,6 +537,11 @@ namespace pythonic {
         using std::pow;
         long pow(long n, long m) { return std::pow(n,m); }
         PROXY(pythonic::__builtin__, pow);
+
+        /* pow2 */
+        template<class T>
+        auto pow2(T const& e) -> decltype(e*e) { return e*e; }
+        PROXY(pythonic::__builtin__, pow2);
 
         /* xrange */
         struct xrange_iterator : std::iterator< std::random_access_iterator_tag, long >{
@@ -692,9 +707,9 @@ namespace pythonic {
         } 
         PROXY(pythonic::__builtin__, file);
     
-    	core::file open(core::string const& filename, core::string const& strmode = "r"){
-    		return core::file(filename, strmode);
-    	}
+        core::file open(core::string const& filename, core::string const& strmode = "r"){
+            return core::file(filename, strmode);
+        }
         PROXY(pythonic::__builtin__, open);
 
         /* sum */
@@ -725,14 +740,13 @@ namespace pythonic {
                 return tuple_sum(t, int_<sizeof...(Types)-1>());
             }
 
-        PROXY(pythonic::__builtin__,sum);
 
         /* xrange -> forward declared */
 
         /* zip */
         template<class Iterator0, class... Iterators>
             core::list< std::tuple<typename Iterator0::value_type, typename Iterators::value_type... > > _zip(size_t n, Iterator0 first, Iterator0 last, Iterators...  iters) {
-                core::list< std::tuple< typename Iterator0::value_type, typename Iterators::value_type... > > out = core::empty_list();
+                core::list< std::tuple< typename Iterator0::value_type, typename Iterators::value_type... > > out(0);
                 out.reserve(n);
                 for(; first!=last; ++first, fwd(++iters...)) {
                     out.push_back(std::make_tuple( *first, *iters... ));
@@ -780,9 +794,11 @@ namespace pythonic {
         PROXY(pythonic::__builtin__, ord);
 
     }
+
     /* constructor */
     template<typename T>
         struct constructor {
+            typedef T type;
             template<class V>
                 T operator()(V&& v) {
                     return T(std::forward<V>(v));
@@ -812,7 +828,7 @@ namespace pythonic {
             return t0%t1;
         }
         double mod(double d, long l) {
-            return mod(d,double(l));
+            return fmod(d,double(l));
         }
 
     /* in */
@@ -829,10 +845,22 @@ namespace pythonic {
                 return t.get_data().find(v) != t.end();
             }
         };
+    template <class V>
+        struct _in<core::empty_set, V> {
+            bool operator()(core::empty_set const &t, V const &v) {
+                return false;
+            }
+        };
     template <class K, class V>
         struct _in<core::dict<K,V>,K> {
             bool operator()(core::dict<K,V> const &t, K const &v) {
                 return t.find(v) != t.item_end();
+            }
+        };
+    template <class V>
+        struct _in<core::empty_dict, V> {
+            bool operator()(core::empty_dict const &t, V const &v) {
+                return false;
             }
         };
     template <class D, class I>
@@ -846,6 +874,12 @@ namespace pythonic {
         struct _in<core::string, core::string> {
             bool operator()(core::string const &t, core::string const &v) {
                 return t.find(v) != core::string::npos;
+            }
+        };
+    template <>
+        struct _in<core::string_view, core::string> {
+            bool operator()(core::string_view const &t, core::string const &v) {
+                return core::string(t).find(v) != core::string::npos;
             }
         };
 

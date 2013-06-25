@@ -9,6 +9,9 @@ from intrinsic import Class
 from intrinsic import ConstFunctionIntr, FunctionIntr, ReadOnceFunctionIntr
 from intrinsic import ConstMethodIntr, MethodIntr, AttributeIntr, ConstantIntr
 from intrinsic import UpdateEffect, ReadEffect
+import numpy
+
+pythran_ward = '__pythran_'
 
 namespace = "pythonic"
 
@@ -20,6 +23,8 @@ pytype_to_ctype_table = {
         float: 'double',
         str: 'core::string',
         None: 'void',
+        numpy.int64: 'long long',
+        numpy.float64: 'double',
         }
 
 type_to_suffix = {
@@ -60,6 +65,7 @@ cxx_keywords = {
         'std',
         }
 
+
 operator_to_lambda = {
         # boolop
         ast.And: lambda l, r: "(({0})?({1}):({0}))".format(l, r),
@@ -70,7 +76,8 @@ operator_to_lambda = {
         ast.Mult: lambda l, r: "({0} * {1})".format(l, r),
         ast.Div: lambda l, r: "({0} / {1})".format(l, r),
         ast.Mod: lambda l, r: "(pythonic::mod({0}, {1}))".format(l, r),
-        ast.Pow: lambda l, r: "(pow({0}, {1}))".format(l, r),
+        ast.Pow: (lambda l, r:
+            "(pythonic::__builtin__::pow({0}, {1}))".format(l, r)),
         ast.LShift: lambda l, r: "({0} << {1})".format(l, r),
         ast.RShift: lambda l, r: "({0} >> {1})".format(l, r),
         ast.BitOr: lambda l, r: "({0} | {1})".format(l, r),
@@ -96,44 +103,6 @@ operator_to_lambda = {
             "__builtin__::id({1}))".format(l, r)),
         ast.In: lambda l, r: "(in({1}, {0}))".format(l, r),
         ast.NotIn: lambda l, r: "(not in({1}, {0}))".format(l, r),
-        }
-
-operator_to_type = {
-        # uses operator equivalence to avoid combinatory explosion
-        # operator with similar behavior alias
-        # boolop
-        ast.And: operator_to_lambda[ast.And],
-        ast.Or: operator_to_lambda[ast.And],
-        # operator
-        ast.Add: operator_to_lambda[ast.Add],
-        ast.Sub: operator_to_lambda[ast.Add],
-        ast.Mult: operator_to_lambda[ast.Mult],
-        ast.Div: operator_to_lambda[ast.Mult],
-        ast.Mod: operator_to_lambda[ast.Mod],
-        ast.Pow: operator_to_lambda[ast.Pow],
-        ast.LShift: operator_to_lambda[ast.LShift],
-        ast.RShift: operator_to_lambda[ast.LShift],
-        ast.BitOr: operator_to_lambda[ast.BitOr],
-        ast.BitXor: operator_to_lambda[ast.BitOr],
-        ast.BitAnd: operator_to_lambda[ast.BitOr],
-        #** assume from __future__ import division
-        ast.FloorDiv: operator_to_lambda[ast.Mult],
-        # unaryop
-        ast.Invert: operator_to_lambda[ast.Invert],
-        ast.Not: operator_to_lambda[ast.Not],
-        ast.UAdd: operator_to_lambda[ast.USub],
-        ast.USub: operator_to_lambda[ast.USub],
-        # cmpop
-        ast.Eq: operator_to_lambda[ast.Eq],
-        ast.NotEq: operator_to_lambda[ast.Eq],
-        ast.Lt: operator_to_lambda[ast.Eq],
-        ast.LtE: operator_to_lambda[ast.Eq],
-        ast.Gt: operator_to_lambda[ast.Eq],
-        ast.GtE: operator_to_lambda[ast.Eq],
-        ast.Is: operator_to_lambda[ast.Eq],
-        ast.IsNot: operator_to_lambda[ast.Eq],
-        ast.In: operator_to_lambda[ast.In],
-        ast.NotIn: operator_to_lambda[ast.In],
         }
 
 equivalent_iterators = {
@@ -221,6 +190,7 @@ modules = {
             "ord": ConstFunctionIntr(),
             "open": ConstFunctionIntr(),
             "pow": ConstFunctionIntr(),
+            "pow2": ConstFunctionIntr(),
             "range": ConstFunctionIntr(),
             "reduce": ReadOnceFunctionIntr(),
             "reversed": ReadOnceFunctionIntr(),
@@ -238,6 +208,240 @@ modules = {
             "bind2": FunctionIntr(),
             "bind3": FunctionIntr(),
             "pmap": ConstFunctionIntr(),
+            },
+        "numpy": {
+            "abs": ConstFunctionIntr(),
+            "absolute": ConstFunctionIntr(),
+            "accumulate": ConstFunctionIntr(),
+            "add": ConstFunctionIntr(),
+            "alen": ConstFunctionIntr(),
+            "all": ConstMethodIntr(),
+            "allclose": ConstFunctionIntr(),
+            "alltrue": ConstFunctionIntr(),
+            "amax": ConstFunctionIntr(),
+            "amin": ConstFunctionIntr(),
+            "angle": ConstFunctionIntr(),
+            "any": ConstMethodIntr(),
+            "append": ConstFunctionIntr(),
+            "arange": ConstFunctionIntr(),
+            "arccos": ConstFunctionIntr(),
+            "arccos": ConstFunctionIntr(),
+            "arccosh": ConstFunctionIntr(),
+            "arcsin": ConstFunctionIntr(),
+            "arcsin": ConstFunctionIntr(),
+            "arcsinh": ConstFunctionIntr(),
+            "arctan": ConstFunctionIntr(),
+            "arctan": ConstFunctionIntr(),
+            "arctan2": ConstFunctionIntr(),
+            "arctan2": ConstFunctionIntr(),
+            "arctanh": ConstFunctionIntr(),
+            "argmax": ConstFunctionIntr(),
+            "argmin": ConstFunctionIntr(),
+            "argsort": ConstFunctionIntr(),
+            "argwhere": ConstFunctionIntr(),
+            "around": ConstFunctionIntr(),
+            "array": ConstFunctionIntr(),
+            "array2string": ConstFunctionIntr(),
+            "array_equal": ConstFunctionIntr(),
+            "array_equiv": ConstFunctionIntr(),
+            "array_split": ConstFunctionIntr(),
+            "array_str": ConstFunctionIntr(),
+            "asarray": ConstFunctionIntr(),
+            "asarray_chkfinite": ConstFunctionIntr(),
+            "ascontiguousarray": ConstFunctionIntr(),
+            "asscalar": ConstFunctionIntr(),
+            "atleast_1d": ConstFunctionIntr(),
+            "atleast_2d": ConstFunctionIntr(),
+            "atleast_3d": ConstFunctionIntr(),
+            "average": ConstFunctionIntr(),
+            "base_repr": ConstFunctionIntr(),
+            "binary_repr": ConstFunctionIntr(),
+            "bincount": ConstFunctionIntr(),
+            "bitwise_and": ConstFunctionIntr(),
+            "bitwise_not": ConstFunctionIntr(),
+            "bitwise_or": ConstFunctionIntr(),
+            "bitwise_xor": ConstFunctionIntr(),
+            "ceil": ConstFunctionIntr(),
+            "clip": ConstFunctionIntr(),
+            "concatenate": ConstFunctionIntr(),
+            "complex": ConstFunctionIntr(),
+            "complex128": ConstFunctionIntr(),
+            "complex32": ConstFunctionIntr(),
+            "complex64": ConstFunctionIntr(),
+            "conj": ConstFunctionIntr(),
+            "conjugate": ConstFunctionIntr(),
+            "copy": ConstFunctionIntr(),
+            "copysign": ConstFunctionIntr(),
+            "cos": ConstFunctionIntr(),
+            "cosh": ConstFunctionIntr(),
+            "cumprod": ConstMethodIntr(),
+            "cumproduct": ConstMethodIntr(),
+            "cumsum": ConstMethodIntr(),
+            "deg2rad": ConstFunctionIntr(),
+            "degrees": ConstFunctionIntr(),
+            "delete_": ConstFunctionIntr(),
+            "diag": ConstFunctionIntr(),
+            "diagflat": ConstFunctionIntr(),
+            "diagonal": ConstFunctionIntr(),
+            "diff": ConstFunctionIntr(),
+            "digitize": ConstFunctionIntr(),
+            "divide": ConstFunctionIntr(),
+            "dot": ConstFunctionIntr(),
+            "double_": ConstFunctionIntr(),
+            "e": ConstantIntr(),
+            "ediff1d": ConstFunctionIntr(),
+            "empty": ConstFunctionIntr(),
+            "empty_like": ConstFunctionIntr(),
+            "equal": ConstFunctionIntr(),
+            "exp": ConstFunctionIntr(),
+            "expm1": ConstFunctionIntr(),
+            "eye": ConstFunctionIntr(),
+            "fabs": ConstFunctionIntr(),
+            "finfo": ConstFunctionIntr(),
+            "fix": ConstFunctionIntr(),
+            "flatnonzero": ConstFunctionIntr(),
+            "fliplr": ConstFunctionIntr(),
+            "flipud": ConstFunctionIntr(),
+            "float128": ConstFunctionIntr(),
+            "float32": ConstFunctionIntr(),
+            "float64": ConstFunctionIntr(),
+            "float_": ConstFunctionIntr(),
+            "floor": ConstFunctionIntr(),
+            "floor_divide": ConstFunctionIntr(),
+            "fmax": ConstFunctionIntr(),
+            "fmin": ConstFunctionIntr(),
+            "fmod": ConstFunctionIntr(),
+            "frexp": ConstFunctionIntr(),
+            "fromfunction": ConstFunctionIntr(),
+            "fromiter": ConstFunctionIntr(),
+            "fromstring": ConstFunctionIntr(),
+            "greater": ConstFunctionIntr(),
+            "greater_equal": ConstFunctionIntr(),
+            "hypot": ConstFunctionIntr(),
+            "identity": ConstFunctionIntr(),
+            "indices": ConstFunctionIntr(),
+            "inf": ConstantIntr(),
+            "inner": ConstFunctionIntr(),
+            "insert": ConstFunctionIntr(),
+            "intersect1d": ConstFunctionIntr(),
+            "int16": ConstFunctionIntr(),
+            "int32": ConstFunctionIntr(),
+            "int64": ConstFunctionIntr(),
+            "int8": ConstFunctionIntr(),
+            "invert": ConstFunctionIntr(),
+            "iscomplex": ConstFunctionIntr(),
+            "isfinite": ConstFunctionIntr(),
+            "isinf": ConstFunctionIntr(),
+            "isnan": ConstFunctionIntr(),
+            "isneginf": ConstFunctionIntr(),
+            "isposinf": ConstFunctionIntr(),
+            "isreal": ConstFunctionIntr(),
+            "isrealobj": ConstFunctionIntr(),
+            "isscalar": ConstFunctionIntr(),
+            "issctype": ConstFunctionIntr(),
+            "ldexp": ConstFunctionIntr(),
+            "left_shift": ConstFunctionIntr(),
+            "less": ConstFunctionIntr(),
+            "less_equal": ConstFunctionIntr(),
+            "lexsort": ConstFunctionIntr(),
+            "linspace": ConstFunctionIntr(),
+            "log10": ConstFunctionIntr(),
+            "log1p": ConstFunctionIntr(),
+            "log2": ConstFunctionIntr(),
+            "logaddexp": ConstFunctionIntr(),
+            "logaddexp2": ConstFunctionIntr(),
+            "logspace": ConstFunctionIntr(),
+            "logical_and": ConstFunctionIntr(),
+            "logical_not": ConstFunctionIntr(),
+            "logical_or": ConstFunctionIntr(),
+            "logical_xor": ConstFunctionIntr(),
+            "max": ConstMethodIntr(),
+            "maximum": ConstFunctionIntr(),
+            "mean": ConstMethodIntr(),
+            "median": ConstFunctionIntr(),
+            "min": ConstMethodIntr(),
+            "minimum": ConstFunctionIntr(),
+            "mod": ConstFunctionIntr(),
+            "multiply": ConstFunctionIntr(),
+            "nan": ConstantIntr(),
+            "nan_to_num": ConstFunctionIntr(),
+            "nanargmax": ConstFunctionIntr(),
+            "nanargmin": ConstFunctionIntr(),
+            "nanmax": ConstFunctionIntr(),
+            "nanmin": ConstFunctionIntr(),
+            "nansum": ConstFunctionIntr(),
+            "ndenumerate": ConstFunctionIntr(),
+            "ndindex": ConstFunctionIntr(),
+            "negative": ConstFunctionIntr(),
+            "nextafter": ConstFunctionIntr(),
+            "NINF": ConstantIntr(),
+            "nonzero": ConstFunctionIntr(),
+            "not_equal": ConstFunctionIntr(),
+            "ones": ConstFunctionIntr(),
+            "ones_like": ConstFunctionIntr(),
+            "outer": ConstFunctionIntr(),
+            "pi": ConstantIntr(),
+            "place": FunctionIntr(),
+            "power": ConstFunctionIntr(),
+            "prod": ConstMethodIntr(),
+            "product": ConstFunctionIntr(),
+            "ptp": ConstFunctionIntr(),
+            "put": FunctionIntr(),
+            "putmask": FunctionIntr(),
+            "rad2deg": ConstFunctionIntr(),
+            "radians": ConstFunctionIntr(),
+            "rank": ConstFunctionIntr(),
+            "ravel": ConstFunctionIntr(),
+            "reciprocal": ConstFunctionIntr(),
+            "remainder": ConstFunctionIntr(),
+            "repeat": ConstFunctionIntr(),
+            "reshape": ConstMethodIntr(),
+            "resize": ConstMethodIntr(),
+            "right_shift": ConstFunctionIntr(),
+            "rint": ConstFunctionIntr(),
+            "roll": ConstFunctionIntr(),
+            "rollaxis": ConstFunctionIntr(),
+            "rot90": ConstFunctionIntr(),
+            "round": ConstFunctionIntr(),
+            "round_": ConstFunctionIntr(),
+            "searchsorted": ConstFunctionIntr(),
+            "select": ConstFunctionIntr(),
+            "sign": ConstFunctionIntr(),
+            "signbit": ConstFunctionIntr(),
+            "sin": ConstFunctionIntr(),
+            "sinh": ConstFunctionIntr(),
+            "sometrue": ConstFunctionIntr(),
+            "sort": ConstFunctionIntr(),
+            "sort_complex": ConstFunctionIntr(),
+            "spacing": ConstFunctionIntr(),
+            "split": ConstFunctionIntr(),
+            "sqrt": ConstFunctionIntr(),
+            "square": ConstFunctionIntr(),
+            "subtract": ConstFunctionIntr(),
+            "sum": ConstMethodIntr(),
+            "swapaxes": ConstMethodIntr(),
+            "take": ConstFunctionIntr(),
+            "tan": ConstFunctionIntr(),
+            "tanh": ConstFunctionIntr(),
+            "tile": ConstFunctionIntr(),
+            "trace": ConstFunctionIntr(),
+            "transpose": ConstMethodIntr(),
+            "tri": ConstMethodIntr(),
+            "tril": ConstMethodIntr(),
+            "trim_zeros": ConstMethodIntr(),
+            "triu": ConstMethodIntr(),
+            "true_divide": ConstFunctionIntr(),
+            "trunc": ConstFunctionIntr(),
+            "uint16": ConstFunctionIntr(),
+            "uint32": ConstFunctionIntr(),
+            "uint64": ConstFunctionIntr(),
+            "uint8": ConstFunctionIntr(),
+            "union1d": ConstFunctionIntr(),
+            "unique": ConstFunctionIntr(),
+            "unwrap": ConstFunctionIntr(),
+            "where": ConstFunctionIntr(),
+            "zeros": ConstFunctionIntr(),
+            "zeros_like": ConstFunctionIntr(),
             },
         "time": {
                 "sleep": FunctionIntr(global_effects=True),
@@ -687,6 +891,7 @@ modules = {
         "__string__": {
                 "capitalize": ConstMethodIntr(),
                 "endswith": ConstMethodIntr(),
+                "startswith": ConstMethodIntr(),
                 "find": ConstMethodIntr(),
                 "join": ConstMethodIntr(),
                 "lower": ConstMethodIntr(),
@@ -713,8 +918,6 @@ modules = {
                         self.combine(
                             node.args[0],
                             node_args_k,
-                            unary_op=lambda f: cxxtypes.SetType(
-                                cxxtypes.ContentType(f)),
                             register=True)
                         for node_args_k in node.args[1:]
                         ]
@@ -724,8 +927,6 @@ modules = {
                         self.combine(
                             node.args[0],
                             node_args_k,
-                            unary_op=lambda f: cxxtypes.SetType(
-                                cxxtypes.ContentType(f)),
                             register=True)
                         for node_args_k in node.args[1:]
                         ]
@@ -736,8 +937,6 @@ modules = {
                         self.combine(
                             node.args[0],
                             node_args_k,
-                            unary_op=lambda f: cxxtypes.SetType(
-                                cxxtypes.ContentType(f)),
                             register=True)
                         for node_args_k in node.args[1:]
                         ]
@@ -748,8 +947,6 @@ modules = {
                         self.combine(
                             node.args[0],
                             node_args_k,
-                            unary_op=lambda f: cxxtypes.SetType(
-                                cxxtypes.ContentType(f)),
                             register=True)
                         for node_args_k in node.args[1:]
                         ]
@@ -760,8 +957,6 @@ modules = {
                         self.combine(
                             node.args[0],
                             node_args_k,
-                            unary_op=lambda f: cxxtypes.SetType(
-                                cxxtypes.ContentType(f)),
                             register=True)
                         for node_args_k in node.args[1:]
                         ]
@@ -772,8 +967,6 @@ modules = {
                             self.combine(
                                 node.args[0],
                                 node_args_k,
-                                unary_op=lambda f: cxxtypes.SetType(
-                                    cxxtypes.ContentType(f)),
                                 register=True)
                             for node_args_k in node.args[1:]
                             ]
@@ -784,8 +977,6 @@ modules = {
                             self.combine(
                                 node.args[0],
                                 node_args_k,
-                                unary_op=lambda f: cxxtypes.SetType(
-                                    cxxtypes.ContentType(f)),
                                 register=True)
                             for node_args_k in node.args[1:]
                             ]
@@ -860,6 +1051,23 @@ modules = {
                 "truncate": MethodIntr(global_effects=True),
                 "write": MethodIntr(global_effects=True),
                 "writelines": MethodIntr(global_effects=True),
+                },
+        "__finfo__": {
+                "eps": AttributeIntr(0),
+                },
+        "__ndarray__": {
+                "fill": MethodIntr(),
+                "flat": AttributeIntr(6),
+                "flatten": MethodIntr(),
+                "item": MethodIntr(),
+                "itemsize": AttributeIntr(4),
+                "nbytes": AttributeIntr(5),
+                "ndim": AttributeIntr(1),
+                "shape": AttributeIntr(0),
+                "size": AttributeIntr(3),
+                "strides": AttributeIntr(2),
+                "tolist": ConstMethodIntr(),
+                "tostring": ConstMethodIntr(),
                 },
         # conflicting method names must be listed here
         "__dispatch__": {

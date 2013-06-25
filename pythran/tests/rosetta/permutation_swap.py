@@ -1,4 +1,5 @@
 #from http://rosettacode.org/wiki/Permutations_by_swapping#Python
+#unittest.skip requires two-step typing
 
 def s_permutations(seq):
     items = [[]]

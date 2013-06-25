@@ -1,4 +1,5 @@
 #pythran export guerre(complex list, int, complex, float, int)
+#runas guerre([complex(1,2),complex(3,4),complex(5,6),complex(7,8)],2,complex(5.6,4.3),-3.4,20)
 def guerre(a,n,z,err,nter):
     az = [complex(0,0) for i in xrange(50)]
     azz = [complex(0,0) for i in xrange(50)]
@@ -44,4 +45,3 @@ def guerre(a,n,z,err,nter):
         if jter==100:
             raise RuntimeError("Laguerre method not converging")
     return z
-

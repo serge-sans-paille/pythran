@@ -1,4 +1,5 @@
 #pythran export CROTG(complex, complex, float, complex)
+#runas CROTG(complex(1,2),complex(5,6),3.4,complex(10,-3))
 import math
 
 def CROTG(CA,CB,C=0,S=0):

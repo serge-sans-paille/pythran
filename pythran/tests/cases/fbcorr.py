@@ -1,6 +1,6 @@
 # from https://github.com/numba/numba/blob/master/examples/fbcorr.py
 #pythran export fbcorr(float list list list list, float list list list list)
-#runas: from random import random ; imgs = [ [ [ [ random() for i in xrange(3) ] for j in xrange(32) ] for j in xrange(32) ] for k in xrange(32) ] ; filt = [ [ [ [ random() for i in xrange(3) ] for j in xrange(5) ] for j in xrange(5) ] for k in xrange(6) ] ; fbcorr(imgs, filters)
+#runas imgs = [ [ [ [ i+j+k for i in xrange(3) ] for j in xrange(16) ] for j in xrange(16) ] for k in xrange(16) ]; filters = [ [ [ [ i+2*j-k for i in xrange(3) ] for j in xrange(5) ] for j in xrange(5) ] for k in xrange(6) ] ; fbcorr(imgs, filters)
 
 def fbcorr(imgs, filters):
     n_imgs, n_rows, n_cols, n_channels = (len(imgs), len(imgs[0]), len(imgs[0][0]), len(imgs[0][0][0]))
@@ -16,3 +16,4 @@ def fbcorr(imgs, filters):
                                 imgval = imgs[ii][rr + hh][cc + ww][jj]
                                 filterval = filters[ff][hh][ww][jj]
                                 output[ii][ff][rr][cc] += imgval * filterval
+    return output

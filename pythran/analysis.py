@@ -514,7 +514,7 @@ class Aliases(ModuleAnalysis):
         map(self.visit_comprehension, node.generators)
         self.visit(node.elt)
         return self.add(node)
-    
+
     visit_SetComp = visit_ListComp
 
     visit_GeneratorExp = visit_ListComp
@@ -625,6 +625,7 @@ class Identifiers(NodeAnalysis):
         self.result.add(node.module)
 
     def visit_alias(self, node):
+        self.result.add(node.name)
         if node.asname:
             self.result.add(node.asname)
 
@@ -1084,7 +1085,7 @@ class UsedDefChain(FunctionAnalysis):
             swap = True
 
         #body
-        old_node = dict(self.current_node)
+        old_node = {i: set(j) for i, j in self.current_node.iteritems()}
         map(self.visit, node.body)
 
         #orelse
@@ -1110,7 +1111,7 @@ class UsedDefChain(FunctionAnalysis):
             swap = True
 
         #body
-        old_node = dict(self.current_node)
+        old_node = {i: set(j) for i, j in self.current_node.iteritems()}
         self.visit(node.body)
 
         #orelse
@@ -1131,11 +1132,11 @@ class UsedDefChain(FunctionAnalysis):
         self.merge_dict_set(self.continue_, self.current_node)
 
     def visit_While(self, node):
-        prev_node = dict(self.current_node)
+        prev_node = {i: set(j) for i, j in self.current_node.iteritems()}
         self.visit(node.test)
         #body
         self.in_loop = True
-        old_node = dict(self.current_node)
+        old_node = {i: set(j) for i, j in self.current_node.iteritems()}
         map(self.visit, node.body)
         self.add_loop_edges(prev_node)
         self.in_loop = False
@@ -1155,7 +1156,7 @@ class UsedDefChain(FunctionAnalysis):
 
         #body
         self.in_loop = True
-        old_node = dict(self.current_node)
+        old_node = {i: set(j) for i, j in self.current_node.iteritems()}
         self.visit(node.target)
         map(self.visit, node.body)
         self.add_loop_edges(old_node)
@@ -1289,6 +1290,7 @@ class LazynessAnalysis(FunctionAnalysis):
                 #if we modify just a part of a variable, it can't be lazy
                 var_name = target.value
                 while isinstance(var_name, ast.Subscript):
+                    self.visit(var_name.slice)
                     var_name = var_name.value
                 self.result[var_name.id] = float('inf')
             else:

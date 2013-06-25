@@ -15,7 +15,7 @@ class TestRandom(TestEnv):
         self.run_test("def expovariate_(n,l): from random import expovariate ; s= sum(expovariate(l) for x in range(n)) ; return abs(s/n - 1/l) < .05", 10**5, 5., expovariate_=[int,  float])
 
     def test_randrange0(self):
-        self.run_test("def randrange0(n): from random import randrange ; s= sum(randrange(n) for x in range(n)) ; return abs(s/n - n/2) < .05", 10**5,  randrange0=[int])
+        self.run_test("def randrange0(n): from random import randrange ; s= sum(randrange(n) for x in range(n)) ; return abs(s/n - n/2) < .05", 10**6,  randrange0=[int])
 
     def test_randrange1(self):
         self.run_test("def randrange1(n): from random import randrange ; s= sum(randrange(-n,n) for x in range(n)) ; return abs(s/n) < .05", 10**5,  randrange1=[int])

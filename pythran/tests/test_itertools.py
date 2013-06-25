@@ -12,7 +12,6 @@ class TestItertools(TestEnv):
     def test_imap2(self):
         self.run_test("def imap2_(l0, l1,v): from itertools import imap; return sum(imap(lambda x,y:x*v+y, l0, l1))", [0,1,2], [0,1.1,2.2], 1, imap2_=[[int], [float], int]) 
 
-    @unittest.skip("Not supported yet.")
     def test_imap2_ineq_size(self):
         self.run_test("def imap2_(l0, l1,v): from itertools import imap; return sum(imap(lambda x,y:x*v+y, l0, l1))", [0,1,2,3], [0,1.1,2.2], 1, imap2_=[[int], [float], int]) 
 

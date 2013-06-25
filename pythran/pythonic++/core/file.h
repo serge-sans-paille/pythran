@@ -52,6 +52,7 @@ namespace  pythonic {
 					public:
 				// Types
 				typedef core::file_iterator iterator;
+                typedef core::string value_type;
 
 				// Constructors
 				file() : data(impl::no_memory()) {}
@@ -155,10 +156,9 @@ namespace  pythonic {
 					ssize_t real_size = getline(&data->_buffer, &data->_buffer_size, **data);
 					if (real_size > size){
 						fseek(**data, -(long)(real_size - size), SEEK_CUR);
-						data->_buffer[size] = '\0';
 					}
 					// This part needs a new implementation of core::string(char*, size_t) to avoid unnecessary copy.
-					if(real_size>0) return core::string(data->_buffer, real_size);
+					if(real_size>0) return core::string(data->_buffer, std::min(real_size, size));
 					else return core::string();
 				}
 
@@ -166,7 +166,7 @@ namespace  pythonic {
 					// Official python doc specifies that sizehint is used as a max of chars
 					// But it has not been implemented in the standard python interpreter...
 					core::string str;
-					core::list<core::string> lst = core::empty_list(); 
+					core::list<core::string> lst(0);
 					while((str=readline())){
 						lst.push_back(str);
 					}

@@ -75,7 +75,7 @@ subset of Python AST) into a C++ AST::
   >>> from pythran import backend
   >>> cxx = pm.dump(backend.Cxx, tree)
   >>> "\n".join("\n".join(s.generate()) for s in cxx)
-  '#include <pythran/pythran.h>\n#include <pythran/pythran_gmp.h>\nnamespace __tutorial_module\n{\n  ;\n  struct fib\n  {\n    typedef void callable;\n    template <typename argument_type0 >\n    struct type\n    {\n      typedef typename assignable<typename std::remove_cv<typename std::remove_reference<argument_type0>::type>::type>::type result_type;\n    }  \n    ;\n    template <typename argument_type0 >\n    typename type<argument_type0>::result_type operator()(argument_type0 const & n) const\n    ;\n  }  ;\n  template <typename argument_type0 >\n  typename fib::type<argument_type0>::result_type fib::operator()(argument_type0 const & n) const\n  {\n    return ((n < 2L) ? n : (fib()((n - 1L)) + fib()((n - 2L))));\n  }\n}'
+  '#include <pythran/pythran.h>\n#include <pythran/pythran_gmp.h>\nnamespace __pythran_tutorial_module\n{\n  ;\n  struct fib\n  {\n    typedef void callable;\n    template <typename argument_type0 >\n    struct type\n    {\n      typedef typename assignable<typename std::remove_cv<typename std::remove_reference<argument_type0>::type>::type>::type result_type;\n    }  \n    ;\n    template <typename argument_type0 >\n    typename type<argument_type0>::result_type operator()(argument_type0 const & n) const\n    ;\n  }  ;\n  template <typename argument_type0 >\n  typename fib::type<argument_type0>::result_type fib::operator()(argument_type0 const & n) const\n  {\n    return ((n < 2L) ? n : (fib()((n - 1L)) + fib()((n - 2L))));\n  }\n}'
 
 The above string is understandable by a C++11 compiler, but it quickly reaches the limit of our developer brain, so most of the time, we are more comfortable with the Python backend::
 
@@ -178,7 +178,7 @@ One can also computes the state of ``globals()``::
   >>> code += 'def foo(a): b = math.cos(a) ; return [b] * 3'
   >>> tree = ast.parse(code)
   >>> pm.gather(analysis.Globals, tree)
-  set(['__list__', 'None', '__set__', 'False', 'int', '__file__', 'float', '__string__', 'long', '__complex___', '__dispatch__', '__exception__', 'bool', '__builtin__', '__dict__', '__float__', '__iterator__', 'foo', 'True', 'math', '__user__'])
+  set(['__list__', 'int', 'float', '__builtin__', '__ndarray__', '__dict__', '__float__', '__set__', 'long', '__finfo__', 'bool', '__user__', 'foo', 'True', 'math', 'None', '__file__', '__string__', '__exception__', '__iterator__', 'False', '__dispatch__', '__complex___'])
 
 One can also compute the state of ``locals()`` at any point of the program::
 

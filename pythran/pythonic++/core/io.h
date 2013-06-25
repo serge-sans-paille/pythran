@@ -59,6 +59,67 @@ namespace pythonic {
         }
     }
 
+    /* ndarray */
+
+    template<class T, size_t N>
+        std::ostream& operator<<(std::ostream& os, core::ndarray<T,N> const& e)
+        {
+            std::array<long, N> strides;
+            auto shape = e.shape;
+            strides[N-1] = shape[N-1];
+            if(strides[N-1]==0)
+                return os << "[]";
+            std::transform(strides.rbegin(), strides.rend() -1, shape.rbegin() + 1, strides.rbegin() + 1, std::multiplies<long>());
+            size_t depth = N;
+            int step = -1;
+            std::ostringstream oss;
+            auto e_count = e.size();
+            oss << *std::max_element(e.buffer, e.buffer+ e_count);
+            int size = oss.str().length();
+            T* iter = e.buffer;
+            int max_modulo = 1000;
+
+            os << "[";
+            if( shape[0] != 0)
+            do {
+                if(depth==1)
+                {
+                    os.width(size);
+                    os << *iter++;
+                    for(int i=1; i<shape[N-1]; i++)
+                    {
+                        os.width(size+1);
+                        os << *iter++;
+                    }
+                    step = 1;
+                    depth++;
+                    max_modulo = std::lower_bound(strides.begin(), strides.end(), iter - e.buffer, [](int comp, int val){ return val%comp!=0; }) - strides.begin();
+                }
+                else if(max_modulo + depth == N + 1)
+                {
+                    depth--;
+                    step = -1;
+                    os << "]";
+                    for(size_t i=0;i<depth;i++)
+                        os << std::endl;
+                    for(size_t i=0;i<N-depth;i++)
+                        os << " ";
+                    os << "[";
+                }
+                else
+                {
+                    depth+=step;
+                    if(step==1)
+                        os << "]";
+                    else
+                        os << "[";
+                }
+            }
+            while(depth != N+1);
+
+            return os << "]";
+        }
+
     /* set */
 
     template<class T>
@@ -96,6 +157,19 @@ namespace pythonic {
                 os << *iter ;
             }
             return os << '}';
+        }
+
+    /* array */
+    template<class T, size_t N>
+        std::ostream& operator<<(std::ostream& os, std::array<T,N> const & v) {
+            os << '(';
+            auto iter = v.begin();
+            if(iter != v.end()) {
+                while(iter+1 != v.end())
+                    os << *iter++ << ", ";
+                os << *iter;
+            }
+            return os << ')';
         }
 
     /* none */

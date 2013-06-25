@@ -3,7 +3,31 @@ import sys
 import os
 import argparse
 import pythran
-from subprocess import CalledProcessError
+import logging
+logger = logging.getLogger("pythran")
+
+# Initialize logging
+try:
+    # Set a nice colored output
+    from colorlog import ColoredFormatter
+    formatter = ColoredFormatter(
+        "%(log_color)s%(levelname)-8s%(reset)s %(blue)s%(message)s",
+        log_colors={
+        'DEBUG':    'cyan',
+        'INFO':     'green',
+        'WARNING':  'yellow',
+        'ERROR':    'red',
+        'CRITICAL': 'red',
+        }
+    )
+    stream = logging.StreamHandler()
+    stream.setFormatter(formatter)
+    logger.addHandler(stream)
+except ImportError:
+    # No color available, use default config
+    logging.basicConfig(format='%(levelname)s: %(message)s')
+    logger.warn("Disabling color, you really want to install colorlog.")
+
 
 def convert_arg_line_to_args(arg_line):
     """Read argument from file in a prettier way"""
@@ -13,65 +37,100 @@ def convert_arg_line_to_args(arg_line):
         yield arg
 
 
+def compile_flags(args):
+    """Build a dictionnary with an entry for cppflags, ldflags, and cxxflags
+    according to the command line defined options
+
+    """
+
+    cppflags = ['-I{0}'.format(n) for n in args.extra_Iflags]
+    cppflags += ['-D{0}'.format(n) for n in args.extra_Dflags]
+
+    cxxflags = ['-O{0}'.format(n) for n in args.extra_Oflags]
+    cxxflags += ['-m{0}'.format(n) for n in args.extra_mflags]
+    cxxflags += ['-f{0}'.format(n) for n in args.extra_fflags]
+    if args.debug_flag:
+        cxxflags += ['-g']
+
+    ldflags = ['-f{0}'.format(n) for n in args.extra_Lflags]
+
+    compiler_options = {}
+    if cppflags:
+        compiler_options['cppflags'] = cppflags
+    if ldflags:
+        compiler_options['ldflags'] = ldflags
+    if cxxflags:
+        compiler_options['cxxflags'] = cxxflags
+
+    return compiler_options
+
 parser = argparse.ArgumentParser(prog='pythran',
-        description='pythran: a python to C++ compiler',
-        epilog="It's a megablast!",
-        fromfile_prefix_chars="@"
-        )
+                                 description='pythran: a python to C++ '
+                                 'compiler',
+                                 epilog="It's a megablast!",
+                                 fromfile_prefix_chars="@"
+                                 )
 
 parser.add_argument('input_file', type=str,
-        help='the python module to compile')
+                    help='the pythran module to compile, either a .py or a '
+                    '.cpp file')
 
 parser.add_argument('-o', dest='output_file', type=str,
-        help='path to generated file')
+                    help='path to generated file')
 
 parser.add_argument('-E', dest='translate_only', action='store_true',
-        help='only run the translator, do not compile')
+                    help='only run the translator, do not compile')
 
 parser.add_argument('-e', dest='raw_translate_only', action='store_true',
-        help='similar to -E, but does not generate python glue')
+                    help='similar to -E, but does not generate python glue')
 
 parser.add_argument('-f', dest='extra_fflags', metavar='flag',
-        action='append',
-        help='any compiler switch relevant to the underlying C++ compiler',
-        default=list())
+                    action='append',
+                    help='any compiler switch relevant to the underlying C++ '
+                    'compiler',
+                    default=list())
 
-parser.add_argument('-p', dest='optimizations', metavar='pass',
-        action='append',
-        help='any pythran optimization to apply before code generation',
-        default=list())
+parser.add_argument('-v', dest='verbose', action='store_true',
+                    help='be verbose')
+
+parser.add_argument('-p', dest='opts', metavar='pass',
+                    action='append',
+                    help='any pythran optimization to apply before code '
+                    'generation',
+                    default=list())
 
 parser.add_argument('-m', dest='extra_mflags', metavar='machine',
-        action='append',
-        help='any machine flag relevant to the underlying C++ compiler',
-        default=list())
+                    action='append',
+                    help='any machine flag relevant to the underlying C++ '
+                    'compiler',
+                    default=list())
 
 parser.add_argument('-I', dest='extra_Iflags', metavar='include_dir',
-        action='append',
-        help='any include dir relevant to the underlying C++ compiler',
-        default=list())
+                    action='append',
+                    help='any include dir relevant to the underlying C++ '
+                    'compiler',
+                    default=list())
 
 parser.add_argument('-L', dest='extra_Lflags', metavar='ldflags',
-        action='append',
-        help='any search dir relevant to the linker',
-        default=list())
+                    action='append',
+                    help='any search dir relevant to the linker',
+                    default=list())
 
 parser.add_argument('-D', dest='extra_Dflags', metavar='macro_definition',
-        action='append',
-        help='any macro definition relevant to the underlying C++ compiler',
-        default=list())
+                    action='append',
+                    help='any macro definition relevant to the underlying C++ '
+                    'compiler',
+                    default=list())
 
 parser.add_argument('-O', dest='extra_Oflags', metavar='level',
-        action='append',
-        help='any optimization level relevant to the underlying C++ compiler',
-        default=['2'])
+                    action='append',
+                    help='any optimization level relevant to the underlying '
+                    'C++ compiler',
+                    default=['2'])
 
 parser.add_argument('-g', dest='debug_flag', action='store_true',
-        help='any debug level relevant to the underlying C++ compiler')
-
-parser.add_argument('--pythran-no-env-check', dest='no_env_check',
-        action='store_true',
-        help='disable compilation environment checks')
+                    help='any debug level relevant to the underlying C++ '
+                    'compiler')
 
 parser.convert_arg_line_to_args = convert_arg_line_to_args
 
@@ -79,84 +138,70 @@ args = parser.parse_args(sys.argv[1:])
 if args.raw_translate_only:
     args.translate_only = True
 
+if args.verbose:
+    logger.setLevel(logging.INFO)
 
 try:
     if not os.path.exists(args.input_file):
         raise ValueError("input file `{0}' not found".format(args.input_file))
 
-    module_name = os.path.splitext(os.path.basename(args.input_file))[0]
+    module_name, ext = os.path.splitext(os.path.basename(args.input_file))
+
+    if ext not in ['.cpp', '.py']:  # FIXME: do we support other ext than .cpp?
+        raise SyntaxError("Unsupported file extension: '{0}'".format(ext))
+
     if not args.output_file:  # build the output file from the input name
         args.output_file = '{0}.{1}'.format(module_name, 'cpp' if
-            args.translate_only else 'so')
+                                            args.translate_only else 'so')
 
-    # slurp the file
-    contents = file(args.input_file).read()
+    if ext == '.cpp':
+        if args.translate_only:
+            raise ValueError("Do you really ask for Python-to-C++ on this C++ "
+                             "input file: '{0}'?".format(args.input_file))
+        pythran.compile_cxxfile(args.input_file, args.output_file,
+                                **compile_flags(args))
 
-    # retrieve specs if needed
-    specs = None if args.raw_translate_only else pythran.spec_parser(contents)
+    else:  # assume we have a .py input file here
 
-    module = pythran.cxx_generator(
-            module_name,
-            contents,
-            specs,
-            args.optimizations
-            )
+        # Special handling for raw_translate_only, the trick is to provide and
+        # empty specs to avoid compile_pythranfile to auto-generate one
+        specs = {} if args.raw_translate_only else None
 
-    if args.translate_only:  # eventually only generate cpp file
-        file(args.output_file, 'w').write(str(module.generate()))
-    else:
-        # build using the forwarded compiler options
-        cppflags = ['-I{0}'.format(n) for n in args.extra_Iflags]
-        cppflags += ['-D{0}'.format(n) for n in args.extra_Dflags]
+        pythran.compile_pythranfile(args.input_file,
+                                    module_so=args.output_file,
+                                    specs=specs,
+                                    cpponly=args.translate_only,
+                                    **compile_flags(args))
 
-        cxxflags = ['-O{0}'.format(n) for n in args.extra_Oflags]
-        cxxflags += ['-m{0}'.format(n) for n in args.extra_mflags]
-        cxxflags += ['-f{0}'.format(n) for n in args.extra_fflags]
-        if args.debug_flag:
-            cxxflags += ['-g']
-
-        ldflags = ['-f{0}'.format(n) for n in args.extra_Lflags]
-
-        compiler_options = {}
-        if cppflags:
-            compiler_options['cppflags'] = cppflags
-        if ldflags:
-            compiler_options['ldflags'] = ldflags
-        if cxxflags:
-            compiler_options['cxxflags'] = cxxflags
-        
-        pythran.compile(module, args.output_file, **compiler_options)
 
 except IOError as e:
-    print >> sys.stderr, "I've got a bad feeling about this..."
-    print >> sys.stderr, "E:", e
+    logger.critical("I've got a bad feeling about this...\n"
+                    "E: " + str(e))
     sys.exit(1)
 except ValueError as e:
-    print >> sys.stderr, "Chair to keyboard interface error"
-    print >> sys.stderr, "E:", e
+    logger.critical("Chair to keyboard interface error\n"
+                    "E: " + str(e))
     sys.exit(1)
 except SyntaxError as e:
-    print >> sys.stderr, ("I am in trouble." +
-            "Your input file does not seem to match Pythran's constraints...")
-    print >> sys.stderr, "E:", e
+    logger.critical("I am in trouble. Your input file does not seem "
+                    "to match Pythran's constraints...\n"
+                    "E: " + str(e))
     sys.exit(1)
-except CalledProcessError as e:
-    print >> sys.stderr, "Leave the vessel! Women and children first!"
-    print >> sys.stderr, "C++ compiler failed to compile translated code."
-    print >> sys.stderr, "E:", e
-    print >> sys.stderr
-    print >> sys.stderr, e.output
+except pythran.CompileError as e:
+    logger.critical("Leave the vessel! Women and children first!\n"
+                    "C++ compiler failed to compile translated code.\n"
+                    "E: " + str(e))
     sys.exit(1)
 except NotImplementedError as e:
-    print >> sys.stderr, ("MAYDAY, MAYDAY, MAYDAY; pythran compiler; "
-             + "code area out of control")
-    print >> sys.stderr, ("E: not implemented feature needed, " +
-            "bash the developers")
-    raise
+    logger.critical("MAYDAY, MAYDAY, MAYDAY; pythran compiler; "
+                    "code area out of control\n"
+                    "E: not implemented feature needed, "
+                    "bash the developers")
+    raise  # Why ? we may instead display the stacktrace and exit?
 except EnvironmentError as e:
-    print >> sys.stderr, ("By Jove! Your environment does not seem "
-            + "to provide all what we need")
-    print >> sys.stderr, "E:", e
+    logger.critical("By Jove! Your environment does not seem "
+                    "to provide all what we need\n"
+                    "E: " + str(e))
     sys.exit(1)
 
 # what a great editor!

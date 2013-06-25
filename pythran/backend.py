@@ -14,10 +14,13 @@ from passmanager import Backend
 
 from tables import operator_to_lambda, modules, type_to_suffix
 from tables import builtin_constructors, pytype_to_ctype_table
+from tables import pythran_ward
 from typing import Types
 from syntax import PythranSyntaxError
 
 from openmp import OMPDirective
+
+from math import isnan
 
 import cStringIO
 import unparse
@@ -76,7 +79,7 @@ class Cxx(Backend):
     >>> for l in r: print l
     #include <pythran/pythran.h>
     #include <pythran/pythran_gmp.h>
-    namespace __test
+    namespace __pythran_test
     {
       print(core::string("hello world"));
     }
@@ -106,7 +109,7 @@ class Cxx(Backend):
         body = map(self.visit, fbody)
 
         nsbody = body + self.declarations + self.definitions
-        ns = Namespace("__" + self.passmanager.module_name, nsbody)
+        ns = Namespace(pythran_ward + self.passmanager.module_name, nsbody)
         self.result = headers + [ns]
 
     # openmp processing
@@ -162,10 +165,11 @@ class Cxx(Backend):
             def typedefs(self):
                 l = sorted(self.mapping.items(), key=lambda x: x[1])
                 L = list()
-                visited = set()  # make sure the same value is not typedefed twice
+                visited = set()  # the same value must not be typedefed twice
                 for k, v in l:
                     if v not in visited:
-                        L.append(Typedef(Value(self.cache[k], "__type" + str(v))))
+                        typename = "__type" + str(v)
+                        L.append(Typedef(Value(self.cache[k], typename)))
                         visited.add(v)
                 return L
 
@@ -518,7 +522,10 @@ class Cxx(Backend):
         targets = [self.visit(t) for t in node.targets]
         alltargets = "= ".join(targets)
         if any(metadata.get(t, metadata.LocalVariable) for t in node.targets):
-            alltargets = "auto {0}".format(alltargets)
+            alltargets = ("typename "
+                    "assignable<decltype({1})>::type {0}".format(
+                        alltargets, value)
+                    )
         stmt = Assign(alltargets, value)
         return self.process_omp_attachements(node, stmt)
 
@@ -680,7 +687,12 @@ class Cxx(Backend):
         assert False, "should be filtered out by the expand_import pass"
 
     def visit_Expr(self, node):
-        stmt = Statement(self.visit(node.value))
+        # turn docstring into comments
+        if type(node.value) is ast.Str:
+            stmt = Line("//" + node.value.s.replace('\n', '\n//'))
+        # other expressions are processed normally
+        else:
+            stmt = Statement(self.visit(node.value))
         return self.process_omp_attachements(node, stmt)
 
     def visit_Pass(self, node):
@@ -760,7 +772,13 @@ class Cxx(Backend):
         ops = [operator_to_lambda[type(n)] for n in node.ops]
         comparators = [self.visit(n) for n in node.comparators]
         all_compare = zip(ops, comparators)
-        return " and ".join(op(left, r) for op, r in all_compare)
+        op, right = all_compare[0]
+        output = [op(left, right)]
+        left = right
+        for op, right in all_compare[1:]:
+            output.append(op(left, right))
+            left = right
+        return " and ".join(output)
 
     def visit_Call(self, node):
         args = [self.visit(n) for n in node.args]
@@ -775,6 +793,8 @@ class Cxx(Backend):
                     repr(node.n.imag))
         elif type(node.n) == long:
             return 'pythran_long({0})'.format(node.n)
+        elif isnan(node.n):
+            return 'pythonic::nan'
         else:
             return repr(node.n) + type_to_suffix.get(type(node.n), "")
 
@@ -811,6 +831,10 @@ class Cxx(Backend):
                     or node not in self.bounded_expressions)):
             slice = self.visit(node.slice)
             return "{1}({0})".format(slice, value)
+        # extended slice case
+        elif isinstance(node.slice, ast.ExtSlice):
+            slice = self.visit(node.slice)
+            return "{1}({0})".format(','.join(slice), value)
         # standard case
         else:
             slice = self.visit(node.slice)
@@ -828,6 +852,9 @@ class Cxx(Backend):
             return node.id
 
     # other
+    def visit_ExtSlice(self, node):
+        return map(self.visit, node.dims)
+
     def visit_Slice(self, node):
         lower = node.lower and self.visit(node.lower)
         upper = node.upper and self.visit(node.upper)

@@ -131,3 +131,9 @@ def combiner_on_empty_list():
 
     def test_hashable_tuple(self):
         self.run_test('def hashable_tuple(): return { (1,"e", 2.5) : "r" }', hashable_tuple=[])
+
+    def test_conflicting_names(self):
+        self.run_test('def map(): return 5', map=[])
+
+    def test_multiple_compares(self):
+        self.run_test('def multiple_compares(x): return 1 < x <2, 1< x+1 < 2', 0.5, multiple_compares=[float])

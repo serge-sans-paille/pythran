@@ -55,8 +55,14 @@ class ConstantFolding(Transformation):
                 try:
                     self.env[module_name] = __import__(module_name.strip('_'))
                 except:
-                    self.env[module_name] = getattr(self.env['__builtin__'],
-                            module_name.strip('_'))
+                    try:
+                        # should try from another package than builtin,
+                        # e.g. for ndarray
+                        self.env[module_name] = getattr(
+                                self.env['__builtin__'],
+                                module_name.strip('_'))
+                    except:
+                        pass
 
         try:
             eval(compile(node, '<constant_folding>', 'exec'), self.env)
@@ -67,8 +73,7 @@ class ConstantFolding(Transformation):
         super(ConstantFolding, self).prepare(node, ctx)
 
     def to_ast(self, value):
-        if any(isinstance(value, t)
-                for t in (int, long, bool, float, complex)):
+        if (type(value) in (int, long, bool, float, complex)):
             return ast.Num(value)
         elif isinstance(value, str):
             return ast.Str(value)
@@ -282,6 +287,7 @@ def bar(n):                                       \\n\
 class IterTransformation(Transformation):
     '''
     Replaces expressions by iterators when possible.
+
     >>> import ast, passmanager, backend
     >>> node = ast.parse("""                      \\n\
 def foo(l):                                       \\n\
@@ -324,3 +330,35 @@ def bar(n):                                       \\n\
                     value=ast.Name(id=ns, ctx=ast.Load()),
                     attr=new, ctx=ast.Load())
         return self.generic_visit(node)
+
+
+##
+class Pow2(Transformation):
+    '''
+    Replaces **2 by a call to pow2
+
+    >>> import ast, passmanager, backend
+    >>> node = ast.parse('a**2')
+    >>> pm = passmanager.PassManager("test")
+    >>> node = pm.apply(Pow2, node)
+    >>> print pm.dump(backend.Python, node)
+    __builtin__.pow2(a)
+    '''
+
+    def visit_BinOp(self, node):
+        self.generic_visit(node)
+        if (type(node.op) is ast.Pow
+                and type(node.right) is ast.Num
+                and node.right.n == 2):
+            return ast.Call(
+                    ast.Attribute(
+                        ast.Name('__builtin__', ast.Load()),
+                        'pow2',
+                        ast.Load()),
+                    [node.left],
+                    [],
+                    None,
+                    None
+                    )
+        else:
+            return node

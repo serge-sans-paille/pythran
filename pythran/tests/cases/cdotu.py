@@ -1,4 +1,5 @@
 #pythran export CDOTU(int, complex list, int, complex list, int)
+#runas CDOTU(2,[complex(1,2),complex(2,3),complex(3,4),complex(5,6)],2,[complex(3,4),complex(1,2),complex(2,3),complex(5,6)],3)
 def CDOTU(N,CX,INCX,CY,INCY):
 #     .. Scalar Arguments ..
 #     INTEGER INCX,INCY,N

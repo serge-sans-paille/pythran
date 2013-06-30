@@ -297,13 +297,13 @@ def compile_pythranfile(file_path, module_so=None, module_name=None,
     Returns the generated .so (or .cpp if `cpponly` is set to true).
 
     '''
-
-    # derive module name from file name
-    basedir, basename = os.path.split(file_path)
-    module_name = module_name or os.path.splitext(basename)[0]
-
     # derive destination from file name
     module_so = module_so or os.path.join(basedir, module_name + ".so")
+
+    # derive module name from file name
+    _, basename = os.path.split(module_so)
+    module_name = module_name or os.path.splitext(basename)[0]
+
     dl = compile_pythrancode(module_name, file(file_path).read(),
                              module_so=module_so, cpponly=cpponly, **kwargs)
     return module_so

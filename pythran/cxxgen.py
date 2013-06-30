@@ -288,6 +288,20 @@ class For(Loop):
         return "for (%s; %s; %s)" % (self.start, self.condition, self.update)
 
 
+class AutoFor(Loop):
+    def __init__(self, target, iter, body):
+        self.target = target
+        self.iter = iter
+
+        assert isinstance(body, Generable)
+        self.body = body
+
+    def intro_line(self):
+        return "for (decltype(*{1}.begin()) {0}: {1})".format(
+                self.target,
+                self.iter)
+
+
 # simple statements -----------------------------------------------------------
 class Define(Generable):
     def __init__(self, symbol, value):

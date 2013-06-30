@@ -16,6 +16,7 @@ This module provides a few code analysis for the pythran language.
     * ParallelMaps detects parallel map(...)
     * UsedDefChain build used-define chains analysis for each variable.
     * UseOMP detects if a function use OpenMP
+    * HasBreak detects if a loop has a direct Break
     * LazynessAnalysis returns number of time a name is use.
     * OptimizableComp finds whether a comprehension can be optimized.
     * PotentialIterator finds if it is possible to use an iterator.
@@ -1643,3 +1644,29 @@ class ArgumentReadOnce(ModuleAnalysis):
         dep = self.generic_visit(node)
         local = self.local_effect(node.iter, 1)
         return lambda ctx: dep(ctx) + local(ctx)
+
+
+class HasBreak(NodeAnalysis):
+
+    def __init__(self):
+        self.result = False
+        super(HasBreak, self).__init__()
+
+    def visit_For(self, node):
+        return
+
+    def visit_Break(self, node):
+        self.result = True
+
+
+class HasContinue(NodeAnalysis):
+
+    def __init__(self):
+        self.result = False
+        super(HasContinue, self).__init__()
+
+    def visit_For(self, node):
+        return
+
+    def visit_Continue(self, node):
+        self.result = True

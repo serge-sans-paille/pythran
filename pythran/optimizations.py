@@ -6,14 +6,16 @@ optimized pythran code
     * ListCompToMap transforms list comprehension into intrinsics.
     * ListCompToGenexp transforms list comprehension into genexp
     * IterTransformation replaces expressions by iterators when possible.
+    * LoopFullUnrolling fully unrolls loops with static bounds
 '''
 
 from analysis import ConstantExpressions, OptimizableComprehension
-from analysis import PotentialIterator, Aliases
+from analysis import PotentialIterator, Aliases, UseOMP, HasBreak, HasContinue
 from passmanager import Transformation
 from tables import modules, equivalent_iterators
 from passes import NormalizeTuples, RemoveNestedFunctions, RemoveLambdas
 import ast
+from copy import deepcopy
 
 
 ##
@@ -362,3 +364,43 @@ class Pow2(Transformation):
                     )
         else:
             return node
+
+##
+class LoopFullUnrolling(Transformation):
+    '''
+    Fully unroll loops with static bounds
+
+    >>> import ast, passmanager, backend
+    >>> node = ast.parse('for j in [1,2,3]: i += j')
+    >>> pm = passmanager.PassManager("test")
+    >>> node = pm.apply(LoopFullUnrolling, node)
+    >>> print pm.dump(backend.Python, node)
+    j = 1
+    i += j
+    j = 2
+    i += j
+    j = 3
+    i += j
+    '''
+
+    MAX_ITER = 64
+
+    def visit_For(self, node):
+        self.generic_visit(node)
+        use_omp = self.passmanager.gather(UseOMP, node, self.ctx)
+        has_break = any(self.passmanager.gather(HasBreak, n, self.ctx)
+                for n in node.body)
+        has_cont = any(self.passmanager.gather(HasContinue, n, self.ctx)
+                for n in node.body)
+        if type(node.iter) is ast.List:
+            if (not use_omp and
+                    not has_break and
+                    not has_cont and
+                    len(node.iter.elts) < LoopFullUnrolling.MAX_ITER):
+                elts = node.iter.elts
+                block = []
+                for elt in elts:
+                    block.append(ast.Assign([deepcopy(node.target)], elt))
+                    block.extend(deepcopy(node.body))
+                return block
+        return node

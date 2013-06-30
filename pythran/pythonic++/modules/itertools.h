@@ -329,6 +329,10 @@ namespace pythonic {
                                 return rec_iters.get_value(params..., *iter);
                             }
 
+                        long operator-(product_iterator_data<L0, It...> const& other) const {
+                            return (iter - other.iter) * (rec_iters - other.rec_iters);
+                        }
+
                     };
 
                 template<typename L0>
@@ -359,6 +363,10 @@ namespace pythonic {
                             auto get_value(Types const&... params) const ->decltype(std::make_tuple(params..., *iter)) {
                                 return std::make_tuple(params..., *iter);
                             }
+
+                        long operator-(product_iterator_data<L0> const& other) const {
+                            return iter - other.iter;
+                        }
 
                     };
 
@@ -392,8 +400,8 @@ namespace pythonic {
                     return end != other.end;                       
                 }
 
-                int operator-(product_iterator const& other) {
-                    return (end != other.end) ? 1 : 0;
+                long operator-(product_iterator const& other) const {
+                    return it_data - other.it_data;
                 }
 
             };

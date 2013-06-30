@@ -29,10 +29,14 @@ namespace  pythonic {
 
         template<class T, size_t N>
             struct ndarray;
+        template<class T>
+            struct indexed_ndarray;
         template<class Expr>
             struct is_array;
         template<class Expr>
             struct is_numpy_expr;
+        template<class T>
+            struct type_helper;
 
         /* type trait to store scalar <> vector type binding
         */
@@ -234,8 +238,6 @@ namespace  pythonic {
          *
          * Instead of specializing the whole ndarray class, the dimension-specific behavior are stored here.
          */
-        template<class T>
-            struct type_helper;
 
         template<class T, size_t N>
             struct type_helper<ndarray<T,N>> {

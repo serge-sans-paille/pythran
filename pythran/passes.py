@@ -237,6 +237,7 @@ class RemoveComprehension(Transformation):
     def nest_reducer(self, x, g):
         def wrap_in_ifs(node, ifs):
             return reduce(lambda n, if_: ast.If(if_, [n], []), ifs, node)
+        metadata.add(g.target, metadata.LocalVariable())
         return ast.For(g.target, g.iter, [wrap_in_ifs(x, g.ifs)], [])
 
     def visit_AnyComp(self, node, comp_type, comp_module, comp_method):

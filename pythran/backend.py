@@ -570,11 +570,6 @@ class Cxx(Backend):
             self.extra_declarations.append((local_target, local_target_decl,))
             local_target_decl = ""
             local_iter_decl = ""
-            target_decl = ""
-        else:
-            target_decl = ("auto"
-                    if metadata.get(node.target, metadata.LocalVariable)
-                    else "")
 
         loop_body = [self.visit(n) for n in node.body]
 
@@ -591,22 +586,29 @@ class Cxx(Backend):
         prelude = Statement("{0} {1} = {2}".format(
             local_iter_decl, local_iter, iter)
             )
-        loop_body_prelude = Statement(
-                "{0} {1}= *{2}".format(
-                    target_decl,
+        has_local = metadata.get(node.target, metadata.LocalVariable)
+        if has_local and not self.yields and not omp:
+            loop = AutoFor(
                     target,
-                    local_target)
-                )
-        loop = For(
-                "{0} {1} = {2}.begin()".format(
-                    local_target_decl,
-                    local_target,
-                    local_iter),
-                "{0} < {1}.end()".format(
-                    local_target,
-                    local_iter),
-                "++{0}".format(local_target),
-                Block([loop_body_prelude] + loop_body))
+                    local_iter,
+                    Block(loop_body)
+                    )
+        else:
+            loop_body_prelude = Statement(
+                    "{}= *{}".format(
+                        target,
+                        local_target)
+                    )
+            loop = For(
+                    "{0} {1} = {2}.begin()".format(
+                        local_target_decl,
+                        local_target,
+                        local_iter),
+                    "{0} < {1}.end()".format(
+                        local_target,
+                        local_iter),
+                    "++{0}".format(local_target),
+                    Block([loop_body_prelude] + loop_body))
         stmts = [prelude, loop]
 
         # in that case when can proceed to a reserve

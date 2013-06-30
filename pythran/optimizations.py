@@ -375,12 +375,15 @@ class LoopFullUnrolling(Transformation):
     >>> pm = passmanager.PassManager("test")
     >>> node = pm.apply(LoopFullUnrolling, node)
     >>> print pm.dump(backend.Python, node)
-    j = 1
-    i += j
-    j = 2
-    i += j
-    j = 3
-    i += j
+    if 1:
+        j = 1
+        i += j
+    if 1:
+        j = 2
+        i += j
+    if 1:
+        j = 3
+        i += j
     '''
 
     MAX_ITER = 64
@@ -400,7 +403,12 @@ class LoopFullUnrolling(Transformation):
                 elts = node.iter.elts
                 block = []
                 for elt in elts:
-                    block.append(ast.Assign([deepcopy(node.target)], elt))
-                    block.extend(deepcopy(node.body))
+                    block.append(
+                            ast.If(ast.Num(1),
+                                [ast.Assign([deepcopy(node.target)], elt)]
+                                + deepcopy(node.body),
+                                []
+                                )
+                            )
                 return block
         return node

@@ -297,7 +297,7 @@ class AutoFor(Loop):
         self.body = body
 
     def intro_line(self):
-        return "for (decltype(*{1}.begin()) {0}: {1})".format(
+        return "for (auto {0}: {1})".format(
                 self.target,
                 self.iter)
 

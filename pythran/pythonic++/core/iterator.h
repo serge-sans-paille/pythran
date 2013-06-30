@@ -15,7 +15,7 @@ namespace pythonic {
                 }
                 return *this;
             }
-            typename T::result_type operator*() {
+            typename T::result_type operator*() const {
                  return *the_generator;
             }
             bool operator!=(generator_iterator<T> const & other) const {

@@ -30,19 +30,21 @@ namespace pythonic {
                         }
 
                         template<typename... Types> 
-                            auto next_value(Types ... params) -> decltype(rec_iters.next_value(params..., *(iter))) {
-                                return rec_iters.next_value(params..., *iter);
+                            auto next_value(Types&& ... params) const
+                            -> decltype(rec_iters.next_value(std::forward<Types>(params)..., *iter))
+                            {
+                                return rec_iters.next_value(std::forward<Types>(params)..., *iter);
                             }
 
-                        bool operator==(imap_iterator_data const& other) {
+                        bool operator==(imap_iterator_data const& other) const {
                             return !(*this != other);
                         }
 
-                        bool operator!=(imap_iterator_data const& other) {
+                        bool operator!=(imap_iterator_data const& other) const {
                             return (iter != other.iter) and (rec_iters != other.rec_iters); // stop as soon as one is different
                         }
 
-                        int operator-(imap_iterator_data const& other) {
+                        int operator-(imap_iterator_data const& other) const {
                             return (iter - other.iter);
                         }
 
@@ -56,7 +58,7 @@ namespace pythonic {
                             rec_iters+=i;
                             return *this;
                         }
-                        imap_iterator_data<Op, L0, It...> operator+(long i) {
+                        imap_iterator_data<Op, L0, It...> operator+(long i) const {
                             imap_iterator_data<Op, L0, It...> other(*this);
                             return other+=i;
                         }
@@ -77,24 +79,28 @@ namespace pythonic {
                         }
 
                         template<typename... Types, typename O = Op, typename = typename std::enable_if<!std::is_same<pythonic::none_type, O>::value, O>::type>
-                            auto next_value(Types ... params) -> decltype(op(params..., *iter)) {
-                                return op(params..., *iter);
+                            auto next_value(Types&& ... params) const
+                            -> decltype(op(std::forward<Types>(params)..., *iter))
+                            {
+                                return op(std::forward<Types>(params)..., *iter);
                             }
-
                         template<typename... Types, typename O = Op, typename = typename std::enable_if<std::is_same<pythonic::none_type, O>::value, O>::type>
-                            auto next_value(Types ... params) -> decltype(std::make_tuple(params..., *iter)) {
-                                return std::make_tuple(params..., *iter);
+                            auto next_value(Types&& ... params) const
+                            -> decltype(std::make_tuple(std::forward<Types>(params)..., *iter))
+                            {
+                                return std::make_tuple(std::forward<Types>(params)..., *iter);
                             }
 
-                        bool operator==(imap_iterator_data const& other) {
+
+                        bool operator==(imap_iterator_data const& other) const {
                             return !(iter != other.iter); 
                         }
 
-                        bool operator!=(imap_iterator_data const& other) {
+                        bool operator!=(imap_iterator_data const& other) const {
                             return (iter != other.iter); 
                         }
 
-                        int operator-(imap_iterator_data const& other) {
+                        int operator-(imap_iterator_data const& other) const {
                             return (iter - other.iter);
                         }
 
@@ -106,7 +112,7 @@ namespace pythonic {
                             iter+=i;
                             return *this;
                         }
-                        imap_iterator_data<Op, L0> operator+(long i) {
+                        imap_iterator_data<Op, L0> operator+(long i) const {
                             imap_iterator_data<Op, L0> other(*this);
                             return other+=i;
                         }
@@ -138,24 +144,24 @@ namespace pythonic {
                     it_data+=i;
                     return *this; 
                 }
-                imap_iterator operator+(long i) { 
+                imap_iterator operator+(long i) const { 
                     imap_iterator other(*this);
                     return other+=i;
                 }
 
-                bool operator==(imap_iterator const& other) { 
+                bool operator==(imap_iterator const& other) const { 
                     return it_data == other.it_data; 
                 }
 
-                bool operator!=(imap_iterator const& other) { 
+                bool operator!=(imap_iterator const& other) const { 
                     return it_data != other.it_data; 
                 }
 
-                bool operator<(imap_iterator const& other) {
+                bool operator<(imap_iterator const& other) const {
                     return it_data != other.it_data; 
                 }
 
-                int operator-(imap_iterator const& other) {
+                int operator-(imap_iterator const& other) const {
                     return it_data - other.it_data;
                 }
 
@@ -178,7 +184,8 @@ namespace pythonic {
 
                 iterator& begin() { return *this; }
                 iterator const& begin() const { return *this; }
-                iterator end() const { return end_iter; }
+                iterator const& end() const { return end_iter; }
+                long size() const { return end() - begin(); }
 
             };
 
@@ -218,7 +225,7 @@ namespace pythonic {
                 ifilter_iterator(npos, Operator _op, List0 _seq) : op(_op), iter(const_cast<sequence_type &>(_seq).end()), iter_end(const_cast<sequence_type &>(_seq).end()) {
                 }
 
-                ResultType operator*() { 
+                ResultType operator*() const { 
                     return *iter;
                 }
 
@@ -235,19 +242,19 @@ namespace pythonic {
                     }
                 }
 
-                bool operator==(ifilter_iterator const& other) { 
+                bool operator==(ifilter_iterator const& other) const { 
                     return !(iter != other.iter); 
                 }
 
-                bool operator!=(ifilter_iterator const& other) { 
+                bool operator!=(ifilter_iterator const& other) const { 
                     return iter != other.iter; 
                 }
 
-                bool operator<(ifilter_iterator const& other) {
+                bool operator<(ifilter_iterator const& other) const {
                     return iter != other.iter; 
                 }
 
-                int operator-(ifilter_iterator const& other) {
+                int operator-(ifilter_iterator const& other) const {
                     return (iter - other.iter); 
                 }
 
@@ -269,7 +276,7 @@ namespace pythonic {
 
                 iterator& begin() { return *this; }
                 iterator const& begin() const { return *this; }
-                iterator end() const { return end_iter; }
+                iterator const& end() const { return end_iter; }
 
             };
 
@@ -318,7 +325,7 @@ namespace pythonic {
                         }
 
                         template<typename... Types> 
-                            auto get_value(Types const&... params) -> decltype(rec_iters.get_value(params..., *iter)) {
+                            auto get_value(Types const&... params) const -> decltype(rec_iters.get_value(params..., *iter)) {
                                 return rec_iters.get_value(params..., *iter);
                             }
 
@@ -349,7 +356,7 @@ namespace pythonic {
                         }
 
                         template<typename... Types>
-                            auto get_value(Types const&... params) ->decltype(std::make_tuple(params..., *iter)) {
+                            auto get_value(Types const&... params) const ->decltype(std::make_tuple(params..., *iter)) {
                                 return std::make_tuple(params..., *iter);
                             }
 
@@ -364,7 +371,7 @@ namespace pythonic {
         product_iterator(npos, Iters... _iters)  : it_data(npos(), _iters...), end(true) {
                 }
 
-                decltype(it_data.get_value()) operator*() {
+                decltype(it_data.get_value()) operator*() const {
                     return it_data.get_value();
                 }
 
@@ -373,15 +380,15 @@ namespace pythonic {
                     return *this; 
                 }
 
-                bool operator==(product_iterator const& other) { 
+                bool operator==(product_iterator const& other) const { 
                     return (end == other.end);
                 }
 
-                bool operator!=(product_iterator const& other) { 
+                bool operator!=(product_iterator const& other) const { 
                     return end != other.end;
                 }
 
-                bool operator<(product_iterator const& other) {
+                bool operator<(product_iterator const& other) const {
                     return end != other.end;                       
                 }
 
@@ -439,7 +446,7 @@ namespace pythonic {
                     prev = *state;
                 }
 
-                typename Iterable::value_type operator*() {
+                typename Iterable::value_type operator*() const {
                     return *iterable;
                 }
 
@@ -450,19 +457,19 @@ namespace pythonic {
                     return *this; 
                 }
 
-                bool operator==(islice_iterator const& other) { 
+                bool operator==(islice_iterator const& other) const { 
                     return (state == other.state);
                 }
 
-                bool operator!=(islice_iterator const& other) { 
+                bool operator!=(islice_iterator const& other) const { 
                     return state != other.state;
                 }
 
-                bool operator<(islice_iterator const& other) {
+                bool operator<(islice_iterator const& other) const {
                     return state != other.state;                       
                 }
 
-                int operator-(islice_iterator const& other) {
+                int operator-(islice_iterator const& other) const {
                     return state - other.state;
                 }
 
@@ -507,13 +514,13 @@ namespace pythonic {
             T step;
             count_iterator() {}
             count_iterator(T value, T step) : value(value), step(step) {}
-            T operator*() { return value;}
+            T operator*() const { return value;}
             count_iterator& operator++() { value+=step; return *this;}
             count_iterator& operator+=(long n) { value+=step*n; return *this; }
-            bool operator!=(count_iterator const& other) { return value != other.value; }
-            bool operator==(count_iterator const& other) { return value == other.value; }
-            bool operator<(count_iterator const& other) { return value < other.value; }
-            long operator-(count_iterator const& other) { return (value - other.value)/step; }
+            bool operator!=(count_iterator const& other) const { return value != other.value; }
+            bool operator==(count_iterator const& other) const { return value == other.value; }
+            bool operator<(count_iterator const& other) const { return value < other.value; }
+            long operator-(count_iterator const& other) const { return (value - other.value)/step; }
 
         };
 
@@ -549,7 +556,7 @@ namespace pythonic {
                 curr_permut.resize(iterable.size());
                 std::fill(curr_permut.begin() + num_elts, curr_permut.end(), true);
             }
-            core::list<typename T::value_type> operator*(){
+            core::list<typename T::value_type> operator*() const {
                 core::list<typename T::value_type> res(0);
                 int i=0;
                 for(auto const& iter : iterable)
@@ -564,17 +571,17 @@ namespace pythonic {
                 end = std::next_permutation(curr_permut.begin(), curr_permut.end());
                 return *this;
             }
-            bool operator!=(combination_iterator const& other)
+            bool operator!=(combination_iterator const& other) const
             {
                 return !(*this==other);
             }
-            bool operator==(combination_iterator const& other)
+            bool operator==(combination_iterator const& other) const
             {
                 if(other.end != end)
                     return false;
                 return std::equal(curr_permut.begin(), curr_permut.end(), other.curr_permut.begin());
             }
-            bool operator<(combination_iterator const& other)
+            bool operator<(combination_iterator const& other) const
             {
                 if(end!=other.end)
                     return end>other.end;
@@ -647,7 +654,7 @@ namespace pythonic {
             permutations_iterator(std::vector<typename T::value_type> const& iter,
                                   int num_elts,
                                   bool end) :
-                    pool(iter), end(end), size(num_elts),
+                    pool(iter), size(num_elts), end(end),
                     curr_permut(__builtin__::range(pool.size())) {
                 if(num_elts > iter.size()) {
                     end = true;
@@ -655,7 +662,7 @@ namespace pythonic {
             }
 
             /** Build the permutation visible from the "outside" */
-            core::list<typename T::value_type> operator*(){
+            core::list<typename T::value_type> operator*() const {
                 core::list<typename T::value_type> res(size);
                 for(int i =0; i<size; i++)
                 {
@@ -692,17 +699,17 @@ namespace pythonic {
                 }
                 return *this;
             }
-            bool operator!=(permutations_iterator const& other)
+            bool operator!=(permutations_iterator const& other) const
             {
                 return !(*this==other);
             }
-            bool operator==(permutations_iterator const& other)
+            bool operator==(permutations_iterator const& other) const
             {
                 if(other.end != end)
                     return false;
                 return std::equal(curr_permut.begin(), curr_permut.end(), other.curr_permut.begin());
             }
-            bool operator<(permutations_iterator const& other)
+            bool operator<(permutations_iterator const& other) const
             {
                 if(end!=other.end)
                     return end>other.end;

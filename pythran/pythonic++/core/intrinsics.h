@@ -550,14 +550,14 @@ namespace pythonic {
             long sign;
             xrange_iterator() {}
             xrange_iterator(long v, long s) : value(v), step(s), sign(s<0?-1:1) {}
-            long& operator*() { return value; }
+            long operator*() const { return value; }
             xrange_iterator& operator++() { value+=step; return *this; }
             xrange_iterator operator++(int) { xrange_iterator self(*this); value+=step; return self; }
             xrange_iterator& operator+=(long n) { value+=step*n; return *this; }
-            bool operator!=(xrange_iterator const& other) { return value != other.value; }
-            bool operator==(xrange_iterator const& other) { return value == other.value; }
-            bool operator<(xrange_iterator const& other) { return sign*value < sign*other.value; }
-            long operator-(xrange_iterator const& other) { return (value - other.value)/step; }
+            bool operator!=(xrange_iterator const& other) const { return value != other.value; }
+            bool operator==(xrange_iterator const& other) const { return value == other.value; }
+            bool operator<(xrange_iterator const& other) const { return sign*value < sign*other.value; }
+            long operator-(xrange_iterator const& other) const { return (value - other.value)/step; }
         };
         struct xrange_riterator : std::iterator< std::random_access_iterator_tag, long >{
             long value;
@@ -565,14 +565,14 @@ namespace pythonic {
             long sign;
             xrange_riterator() {}
             xrange_riterator(long v, long s) : value(v), step(s), sign(s<0?1:-1) {}
-            long& operator*() { return value; }
+            long operator*() { return value; }
             xrange_riterator& operator++() { value+=step; return *this; }
             xrange_riterator operator++(int) { xrange_riterator self(*this); value+=step; return self; }
             xrange_riterator& operator+=(long n) { value+=step*n; return *this; }
-            bool operator!=(xrange_riterator const& other) { return value != other.value; }
-            bool operator==(xrange_riterator const& other) { return value == other.value; }
-            bool operator<(xrange_riterator const& other) { return sign*value > sign*other.value; }
-            long operator-(xrange_riterator const& other) { return (value - other.value)/step; }
+            bool operator!=(xrange_riterator const& other) const { return value != other.value; }
+            bool operator==(xrange_riterator const& other) const { return value == other.value; }
+            bool operator<(xrange_riterator const& other) const { return sign*value > sign*other.value; }
+            long operator-(xrange_riterator const& other) const { return (value - other.value)/step; }
         };
 
         struct xrange {
@@ -694,7 +694,7 @@ namespace pythonic {
 
         /* str */
         template <class T>
-            core::string str(T const & t) {
+            core::string str(T&& t) {
                 std::ostringstream oss;
                 oss << t;
                 return oss.str();

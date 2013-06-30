@@ -34,7 +34,9 @@ struct is_complex<std::complex<T>> {
         struct f {\
             typedef void callable;\
             template<typename... Types>\
-            auto operator()(Types &&... types) -> decltype(ns::f(std::forward<Types>(types)...)) {\
+            auto operator()(Types &&... types) const \
+            -> decltype(ns::f(std::forward<Types>(types)...))\
+            {\
                 return ns::f(std::forward<Types>(types)...); \
             }\
         };\

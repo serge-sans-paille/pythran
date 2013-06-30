@@ -281,7 +281,7 @@ class Cxx(Backend):
                             Value("typename {0}::result_type".format(
                                 instanciated_next_name),
                                 "operator*"),
-                            []),
+                            [], "const"),
                         Block([
                             ReturnStatement(
                                 Cxx.generator_state_value)])),

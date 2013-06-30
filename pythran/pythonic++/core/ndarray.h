@@ -176,9 +176,10 @@ namespace  pythonic {
                 long index;
                 nditerator(T const& data, long index) : data(data), index(index) {
                 }
+                auto operator*() const -> decltype(data[index]) { return data[index]; }
                 auto operator*() -> decltype(data[index]) { return data[index]; }
-                nditerator<T> operator++() { ++index; return *this;}
-                nditerator<T> operator--() { --index; return *this;}
+                nditerator<T>& operator++() { ++index; return *this;}
+                nditerator<T>& operator--() { --index; return *this;}
                 nditerator<T> operator+(long i) const { return nditerator(data, index + i); }
                 nditerator<T> operator-(long i) const { return nditerator(data, index - i); }
                 nditerator<T>& operator+=(long i) { index+=i ; return *this;}

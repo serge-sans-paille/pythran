@@ -811,7 +811,7 @@ class Cxx(Backend):
                 return r[0][n.attr], r[1] + (n.attr,)
         obj, path = rec(modules, node)
         return ('::'.join(path) if obj.isliteral()
-                else ('::'.join(path[:-1]) + '::proxy::' + path[-1] + '()'))
+                else ('::'.join(path[:-1]) + '::proxy::' + path[-1] + '{}'))
 
     def visit_Subscript(self, node):
         value = self.visit(node.value)

@@ -24,9 +24,11 @@ namespace pythonic {
                         imap_iterator_data<Op,It...> rec_iters; 
 
                         imap_iterator_data() {}
-                        imap_iterator_data(Op _op, L0 _seq, It... _iters) : iter(const_cast<sequence_type&>(_seq).begin()), rec_iters(_op, _iters...) {
+                        template<class... Types>
+                        imap_iterator_data(Op _op, L0 _seq, Types&&... _iters) : iter(const_cast<sequence_type&>(_seq).begin()), rec_iters(_op, std::forward<Types>(_iters)...) {
                         }
-                        imap_iterator_data(npos, Op _op, L0 _seq, It... _iters) : iter(const_cast<sequence_type &>(_seq).end()), rec_iters(npos(), _op, _iters...) {
+                        template<class... Types>
+                        imap_iterator_data(npos, Op _op, L0 _seq, Types&&... _iters) : iter(const_cast<sequence_type &>(_seq).end()), rec_iters(npos(), _op,std::forward<Types>( _iters)...) {
                         }
 
                         template<typename... Types> 
@@ -123,13 +125,11 @@ namespace pythonic {
                 imap_iterator_data<Operator, Iters...> it_data;
 
                 imap_iterator() {}
-                imap_iterator(Operator _op, Iters... _iters)  : it_data(_op, _iters...) {
+                template<class... Types>
+                imap_iterator(Operator _op, Types&&... _iters)  : it_data(_op, std::forward<Types>(_iters)...) {
                 }
-                imap_iterator(npos, Operator _op, Iters... _iters)  : it_data(npos(), _op, _iters...) {
-                }
-
-                decltype(it_data.next_value()) operator*() { 
-                    return it_data.next_value(); //value; 
+                template<class... Types>
+                imap_iterator(npos, Operator _op, Types&&... _iters)  : it_data(npos(), _op, std::forward<Types>(_iters)...) {
                 }
 
                 const decltype(it_data.next_value()) operator*() const { 
@@ -179,7 +179,12 @@ namespace pythonic {
                 typedef ResultType value_type;
 
                 _imap() {}
-                _imap(Operator _op, Iters... _iters) : imap_iterator<ResultType, Operator, Iters...>(_op, _iters...), end_iter(npos(), _op, _iters...), iters(_iters...) {
+                template<class... Types>
+                _imap(Operator _op, Types... _iters) :
+                    imap_iterator<ResultType, Operator, Iters...>(_op, _iters...),
+                    end_iter(npos(), _op, _iters...),
+                    iters(_iters...)
+                {
                 }
 
                 iterator& begin() { return *this; }

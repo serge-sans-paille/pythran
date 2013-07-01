@@ -14,7 +14,7 @@ typename std::enable_if<
         >::type
         NUMPY_BINARY_FUNC_NAME(E0 && self, E1 && other)
 {
-    return numpy_expr<NUMPY_BINARY_FUNC_SYM, E0, E1>(self, other);
+    return numpy_expr<NUMPY_BINARY_FUNC_SYM, E0, E1>(std::forward<E0>(self), std::forward<E1>(other));
 }
 
 template<class E, class S>

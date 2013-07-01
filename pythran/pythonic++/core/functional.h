@@ -17,7 +17,7 @@ namespace pythonic {
             function(T const & t) : ptr(new (mem) T(t)) {}
 
             template<class... Types>
-                auto operator()(Types&&... args) const -> decltype((*ptr)(args...)) { return (*ptr)(args...); }
+                auto operator()(Types&&... args) const -> decltype((*ptr)(std::forward<Types>(args)...)) { return (*ptr)(std::forward<Types>(args)...); }
 
             template<class F>
                 function<T>& operator=(F&& f) { ptr = new(mem) F(f); }
@@ -38,8 +38,8 @@ namespace pythonic {
             variant(variant<OtherType> const& t) : t(nullptr) {}
 
             template <class... Args>
-                auto operator()(Args&&... args) -> decltype( std::declval<Type>()(args...)){
-                    return (*t)(args...);
+                auto operator()(Args&&... args) -> decltype( std::declval<Type>()(std::forward<Args>(args)...) ) {
+                    return (*t)(std::forward<Args>(args)...);
                 }
 
         };

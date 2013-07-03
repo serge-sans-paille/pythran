@@ -160,6 +160,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
         # very low value for max_arity leads to various bugs
         max_arity = max(4, max(max(map(len, s)) for s in specs.itervalues()))
         mod.add_to_preamble([Define("BOOST_PYTHON_MAX_ARITY", max_arity)])
+        mod.add_to_preamble([Define("BOOST_SIMD_NO_STRICT_ALIASING", "1")])
         mod.add_to_preamble(content)
         mod.add_to_init([
             Statement('import_array()'),

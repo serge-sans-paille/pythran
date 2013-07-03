@@ -196,12 +196,52 @@ namespace pythonic {
        PROXY(pythonic::numpy, cumsum);
 
        template<class E>
-           typename core::numpy_expr_to_ndarray<E>::type::dtype
+           typename std::enable_if<
+                std::is_scalar< typename core::numpy_expr_to_ndarray<E>::type::dtype >::value,
+                typename core::numpy_expr_to_ndarray<E>::type::dtype
+                    >::type
            sum(E const& expr, none_type axis=None) {
-               auto p = typename core::numpy_expr_to_ndarray<E>::type::dtype(0);
-               for(long i=0, n = expr.size() ; i<n; ++i)
+               typedef typename core::numpy_expr_to_ndarray<E>::type::dtype T;
+               long n= expr.size();
+#ifdef __AVX__
+               long i;
+               typedef typename boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION> vT;
+               static const std::size_t vN = boost::simd::meta::cardinal_of< vT >::value;
+               const long bound = n/vN*vN;
+               vT vp = boost::simd::splat<vT>(T(0));
+#else
+               T vp(0);
+#endif
+#pragma omp parallel for reduction(+:vp)
+#ifdef __AVX__
+               for(i=0;i< bound; i+= vN) {
+                   vp += expr.load(i);
+               }
+               T p = boost::simd::sum(vp);
+               for(;i< n; ++i)
                    p += expr.at(i);
                return p;
+#else
+               for(long i=0 ; i<n; ++i) {
+                   vp += expr.at(i);
+               }
+               return vp;
+#endif
+           }
+       /* no fancy parallelization for non-scalar types */
+       template<class E>
+           typename std::enable_if<
+                !std::is_scalar< typename core::numpy_expr_to_ndarray<E>::type::dtype >::value,
+                typename core::numpy_expr_to_ndarray<E>::type::dtype
+                    >::type
+           sum(E const& expr, none_type axis=None) {
+               typedef typename core::numpy_expr_to_ndarray<E>::type::dtype T;
+               long n= expr.size();
+               T vp(0);
+               for(long i=0 ; i<n; ++i) {
+                   vp += expr.at(i);
+               }
+               return vp;
            }
 
        template<class T>

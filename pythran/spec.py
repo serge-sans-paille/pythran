@@ -127,7 +127,7 @@ class SpecParser:
         err.lineno = self.lexer.lineno
         if self.input_file:
             err.filename = self.input_file
-        raise err;
+        raise err
 
     def __init__(self, **kwargs):
         self.lexer = lex.lex(module=self, debug=0)

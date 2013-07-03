@@ -365,6 +365,7 @@ class Pow2(Transformation):
         else:
             return node
 
+
 ##
 class LoopFullUnrolling(Transformation):
     '''

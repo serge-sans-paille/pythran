@@ -20,16 +20,15 @@ namespace pythonic {
                     struct imap_iterator_data<Op, L0, It...>
                     {
                         typedef typename std::remove_cv<typename std::remove_reference<L0>::type>::type sequence_type;
-                        typename std::remove_reference<L0>::type::iterator iter;
                         imap_iterator_data<Op,It...> rec_iters; 
+                        sequence_type iterator_ref;  // keep value of iterable to avoid dangling reference
+                        typename sequence_type::iterator iter;
 
                         imap_iterator_data() {}
-                        template<class... Types>
-                        imap_iterator_data(Op _op, L0 _seq, Types&&... _iters) : iter(const_cast<sequence_type&>(_seq).begin()), rec_iters(_op, std::forward<Types>(_iters)...) {
-                        }
-                        template<class... Types>
-                        imap_iterator_data(npos, Op _op, L0 _seq, Types&&... _iters) : iter(const_cast<sequence_type &>(_seq).end()), rec_iters(npos(), _op,std::forward<Types>( _iters)...) {
-                        }
+                        template<class First, class... Types>
+                        imap_iterator_data(Op _op, First&& _seq, Types&&... _iters) : iterator_ref(_seq), iter(iterator_ref.begin()), rec_iters(_op, std::forward<Types>(_iters)...) {}
+                        template<class First, class... Types>
+                        imap_iterator_data(npos, Op _op, First&& _seq, Types&&... _iters) : iterator_ref(_seq), iter(iterator_ref.end()), rec_iters(npos(), _op, std::forward<Types>(_iters)...) {}
 
                         template<typename... Types> 
                             auto next_value(Types&& ... params) const
@@ -72,12 +71,15 @@ namespace pythonic {
                     {
                         Op op;
                         typedef typename std::remove_cv<typename std::remove_reference<L0>::type>::type sequence_type;
-                        typename std::remove_reference<L0>::type::iterator iter;
+                        sequence_type iterator_ref;  // keep value of iterable to avoid dangling reference
+                        typename sequence_type::iterator iter;
 
                         imap_iterator_data() {}
-                        imap_iterator_data(Op _op, L0 _seq) : op(_op), iter(const_cast<sequence_type &>(_seq).begin()) {
+                        template<class First>
+                        imap_iterator_data(Op _op, First&& _seq) : op(_op), iterator_ref(_seq), iter(iterator_ref.begin()) {
                         }
-                        imap_iterator_data(npos, Op _op, L0 _seq) : op(_op), iter(const_cast<sequence_type &>(_seq).end()) {
+                        template<class First>
+                        imap_iterator_data(npos, Op _op, First&& _seq) : op(_op), iterator_ref(_seq), iter(iterator_ref.end()) {
                         }
 
                         template<typename... Types, typename O = Op, typename = typename std::enable_if<!std::is_same<pythonic::none_type, O>::value, O>::type>
@@ -126,11 +128,9 @@ namespace pythonic {
 
                 imap_iterator() {}
                 template<class... Types>
-                imap_iterator(Operator _op, Types&&... _iters)  : it_data(_op, std::forward<Types>(_iters)...) {
-                }
+                imap_iterator(Operator _op, Types&&... _iters)  : it_data(_op, std::forward<Types>(_iters)...) {}
                 template<class... Types>
-                imap_iterator(npos, Operator _op, Types&&... _iters)  : it_data(npos(), _op, std::forward<Types>(_iters)...) {
-                }
+                imap_iterator(npos, Operator _op,Types&&... _iters)  : it_data(npos(), _op, std::forward<Types>(_iters)...) {}
 
                 const decltype(it_data.next_value()) operator*() const { 
                     return it_data.next_value(); //value; 
@@ -174,18 +174,15 @@ namespace pythonic {
                 typedef imap_iterator<ResultType, Operator, Iters...> iterator;
 
                 iterator end_iter;
-                std::tuple<typename std::remove_cv<typename std::remove_reference<Iters>::type>::type ...> iters; // to make sure we keep a reference on all the containers
 
                 typedef ResultType value_type;
 
                 _imap() {}
                 template<class... Types>
-                _imap(Operator _op, Types... _iters) :
-                    imap_iterator<ResultType, Operator, Iters...>(_op, _iters...),
-                    end_iter(npos(), _op, _iters...),
-                    iters(_iters...)
-                {
-                }
+                _imap(Operator&& _op, Types&&... _iters) :
+                    imap_iterator<ResultType, Operator, Iters...>(_op, std::forward<Types>(_iters)...),
+                    end_iter(npos(), _op, std::forward<Types>(_iters)...)
+                {}
 
                 iterator& begin() { return *this; }
                 iterator const& begin() const { return *this; }

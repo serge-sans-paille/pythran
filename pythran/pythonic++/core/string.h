@@ -36,6 +36,7 @@ namespace pythonic {
             // constructor
             string_view(): data(impl::no_memory()) {}
             string_view(string_view const & s): data(s.data), slicing(s.slicing) {}
+            string_view(string_view const & s, slice const& sl): data(s.data), slicing(s.slicing.lower + sl.lower, std::min(s.slicing.upper, s.slicing.lower + sl.upper), s.slicing.step * sl.step) {}
             string_view(string & , slice const &);
 
             // const getter
@@ -59,9 +60,19 @@ namespace pythonic {
             // accessor
             char const & operator[](long i) const { return (*data)[slicing.lower + i*slicing.step];}
             char & operator[](long i) { return (*data)[slicing.lower + i*slicing.step];}
+            string_view operator[](slice const& s) const { return string_view(*this, s); }
 
             // conversion
             operator long();
+            explicit operator bool() const {return size() > 0;}
+            bool operator!() const { return not bool();}
+
+            // io
+            friend std::ostream& operator<<(std::ostream& os, core::string_view const & v) {
+                for(auto b = v.begin(); b != v.end(); b++)
+                    os << *b;
+                return os;
+            }
         };
 
         class string : public std::string {
@@ -69,6 +80,8 @@ namespace pythonic {
             friend class string_view;
 
             public:
+            typedef core::string value_type;
+
             string() : std::string() {}
             string(std::string const & s) : std::string(s) {}
             string(std::string && s) : std::string(std::move(s)) {}
@@ -84,7 +97,7 @@ namespace pythonic {
 
             explicit operator char() const {
                 assert(size() == 1);
-                return (*this)[0];
+                return std::string::operator[](0);
             }
 
             operator long int() const { // Allows implicit conversion without loosing bool conversion
@@ -134,13 +147,18 @@ namespace pythonic {
                 return true;
             }
             string_view operator()( slice const &s) const {
-                return string_view(*const_cast<string*>(this), s); // SG: ugly !
+                return operator[](s);
             }
 
-            using std::string::operator[];
-            string operator[]( slice const &s ) const {
-                string out;
-                out.reserve(size());
+            char operator[]( long i) const {
+                if(i<0) i+= size();
+                return std::string::operator[](i);
+            }
+
+            char& operator[]( long i) {
+                return std::string::operator[](i);
+            }
+            string_view operator[]( slice const &s ) const {
                 long lower, upper;
                 if(s.step<0) {
                     if( s.lower == std::numeric_limits<long>::max() )
@@ -150,18 +168,14 @@ namespace pythonic {
                     lower = std::max(0L,lower);
                     upper = s.upper >= 0L ? s.upper : ( s.upper + size());
                     upper = std::min(upper, (long)size());
-                    for(long iter = lower; iter >= upper ; iter+=s.step)
-                        out.push_back((*this)[iter]);
                 }
                 else {
                     lower = s.lower >= 0L ? s.lower : ( s.lower + size());
                     lower = std::max(0L,lower);
                     upper = s.upper >= 0L ? s.upper : ( s.upper + size());
                     upper = std::min(upper, (long)size());
-                    for(long iter = lower; iter < upper ; iter+=s.step)
-                        out.push_back((*this)[iter]);
                 }
-                return out;
+                return string_view(*const_cast<string*>(this), slice(lower, upper, s.step)); // SG: ugly !
             }
 
             explicit operator bool() const{
@@ -287,6 +301,10 @@ namespace std {
 
     template <size_t I>
         struct tuple_element<I, pythonic::core::string > {
+            typedef typename pythonic::core::string type;
+        };
+    template <size_t I>
+        struct tuple_element<I, pythonic::core::string_view > {
             typedef typename pythonic::core::string type;
         };
 }

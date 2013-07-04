@@ -120,7 +120,7 @@ namespace pythonic {
             struct _make_tuple<true, Types...> {
                 std::array<typename are_same<Types...>::type, sizeof...(Types)> operator()(Types... types) {
                     typedef typename are_same<Types...>::type T;
-                    return std::array<T, sizeof...(Types)>({{types...}});
+                    return std::array<T, sizeof...(Types)>{{types...}};
                 }
             };
 

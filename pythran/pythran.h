@@ -441,6 +441,16 @@ struct __combined<core::list<V1>, indexable_container<K,V0>> {
 };
 
 
+template <class K, class V, class T, size_t N>
+struct __combined<indexable_container<K,V>, std::array<T,N>> {
+    typedef std::array<typename __combined<V,T>::type, N> type;
+};
+
+template <class K, class V, class T, size_t N>
+struct __combined<std::array<T,N>, indexable_container<K,V>> {
+    typedef std::array<typename __combined<T,V>::type, N> type;
+};
+
 template <class K, class V>
 struct __combined<indexable_container<K,V>, core::empty_list> {
     typedef core::list<V> type;
@@ -1021,15 +1031,15 @@ namespace pythonic {
             struct bind0 {
                 template<typename Operator, typename... Types>
                     auto operator()(Operator const& op, Types &&... types)
-                    -> function<decltype(std::bind(op, types...))> {
-                        return function<decltype(std::bind(op, types...))>(std::bind(op, types...)); 
+                    -> function<decltype(std::bind(op, std::forward<Types>(types)...))> {
+                        return function<decltype(std::bind(op, std::forward<Types>(types)...))>(std::bind(op, std::forward<Types>(types)...)); 
                     }
             };
             struct bind1 {
                 template<typename Operator, typename... Types>
                     auto operator()(Operator const& op, Types &&... types)
-                    -> function<decltype(std::bind(op, types..., std::placeholders::_1))> {
-                        return function<decltype(std::bind(op, types..., std::placeholders::_1))>(std::bind(op, types..., std::placeholders::_1)); 
+                    -> function<decltype(std::bind(op, std::forward<Types>(types)..., std::placeholders::_1))> {
+                        return function<decltype(std::bind(op, std::forward<Types>(types)..., std::placeholders::_1))>(std::bind(op, std::forward<Types>(types)..., std::placeholders::_1)); 
                     }
             };
             struct bind2 {

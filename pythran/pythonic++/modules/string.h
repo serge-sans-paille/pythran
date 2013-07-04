@@ -107,7 +107,7 @@ namespace pythonic {
             core::string s = strip(in);
             core::list<core::string> res(0);
             size_t current = 0;
-            size_t next;
+            size_t next = 0;
             long numsplit = 0;
             while (next != core::string::npos && (numsplit++<maxsplit || maxsplit==-1))
             {

@@ -175,30 +175,60 @@ namespace  pythonic {
          * returned by calls to begin() or end() over an ndarray
          */
         template<class T>
-            struct nditerator : std::iterator<std::random_access_iterator_tag, typename std::remove_reference<decltype(std::declval<T>()[0])>::type> {
-                T data;
+            struct nditerator;
+        template<class T, size_t N>
+            struct nditerator<ndarray<T,N>> : std::iterator<std::random_access_iterator_tag, typename std::remove_reference<decltype(std::declval<ndarray<T,N>>()[0])>::type> {
+                ndarray<T,N> data;
+                typename std::remove_reference<decltype(std::declval<ndarray<T,N>>()[0])>::type iter;
+                long step;
+                nditerator(ndarray<T,N> const& data, long index) : data(data), iter(data[index]), step(type_helper<ndarray<T,N>>::step(data)) {
+                }
+                decltype(iter) const& operator*() const  { return iter; }
+                decltype(iter) & operator*() { return iter; }
+                nditerator<ndarray<T,N>>& operator++() { iter.buffer+=step; return *this;}
+                nditerator<ndarray<T,N>>& operator--() { iter.buffer-=step; return *this;}
+                nditerator<ndarray<T,N>> operator+(long i) const { nditerator<ndarray<T,N>> other(*this); other.iter.buffer+=i*step; return other; }
+                nditerator<ndarray<T,N>> operator-(long i) const { nditerator<ndarray<T,N>> other(*this); other.iter.buffer+=i*step; return other; }
+                nditerator<ndarray<T,N>>& operator+=(long i) { iter.buffer += i*step ; return *this;}
+                nditerator<ndarray<T,N>>& operator-=(long i) { iter.buffer -= i*step; return *this;}
+                long operator-(nditerator<ndarray<T,N>> const& other) const { return (iter.buffer - other.iter.buffer)/step; }
+                bool operator!=(nditerator<ndarray<T,N>> const& other) const {
+                    return iter.buffer != other.iter.buffer;
+                }
+                bool operator==(nditerator<ndarray<T,N>> const& other) const {
+                    return iter.buffer == other.iter.buffer;
+                }
+                bool operator<(nditerator<ndarray<T,N>> const& other) const {
+                    return iter.buffer < other.iter.buffer;
+                }
+                operator T*() const { return iter.buffer; }
+            };
+
+        template<class T>
+            struct nditerator<ndarray<T,1>> : std::iterator<std::random_access_iterator_tag, T> {
+                ndarray<T,1> data;
                 long index;
-                nditerator(T const& data, long index) : data(data), index(index) {
+                nditerator(ndarray<T,1> const& data, long index) : data(data), index(index) {
                 }
                 auto operator*() const -> decltype(data[index]) { return data[index]; }
                 auto operator*() -> decltype(data[index]) { return data[index]; }
-                nditerator<T>& operator++() { ++index; return *this;}
-                nditerator<T>& operator--() { --index; return *this;}
-                nditerator<T> operator+(long i) const { return nditerator(data, index + i); }
-                nditerator<T> operator-(long i) const { return nditerator(data, index - i); }
-                nditerator<T>& operator+=(long i) { index+=i ; return *this;}
-                nditerator<T>& operator-=(long i) { index-=i; return *this;}
-                long operator-(nditerator<T> const& other) const { return index - other.index; }
-                bool operator!=(nditerator<T> const& other) const {
+                nditerator<ndarray<T,1>>& operator++() { ++index; return *this;}
+                nditerator<ndarray<T,1>>& operator--() { --index; return *this;}
+                nditerator<ndarray<T,1>> operator+(long i) const { return nditerator<ndarray<T,1>>(data, index + i); }
+                nditerator<ndarray<T,1>> operator-(long i) const { return nditerator<ndarray<T,1>>(data, index - i); }
+                nditerator<ndarray<T,1>>& operator+=(long i) { index+=i ; return *this;}
+                nditerator<ndarray<T,1>>& operator-=(long i) { index-=i; return *this;}
+                long operator-(nditerator<ndarray<T,1>> const& other) const { return index - other.index; }
+                bool operator!=(nditerator<ndarray<T,1>> const& other) const {
                     return index != other.index;
                 }
-                bool operator==(nditerator<T> const& other) const {
+                bool operator==(nditerator<ndarray<T,1>> const& other) const {
                     return index == other.index;
                 }
-                bool operator<(nditerator<T> const& other) const {
+                bool operator<(nditerator<ndarray<T,1>> const& other) const {
                     return index < other.index;
                 }
-                operator typename T::iterator () const { return ((T*)this)->buffer + index; }
+                operator T*() const { return data.buffer + index; }
             };
 
         /* proxy type to hold the return of an index
@@ -262,6 +292,7 @@ namespace  pythonic {
                         r.shape[i-1] = self.shape[i];
                     return r;
                 }
+                static long step(ndarray<T,N> const& self) { return std::accumulate(self.shape.begin() + 1, self.shape.end(), 1L, std::multiplies<long>());}
             };
 
         template<class T>
@@ -278,6 +309,7 @@ namespace  pythonic {
                 static type& get(ndarray<T,1> const& self, long i) {
                     return self.buffer[i];
                 }
+                static constexpr long step(ndarray<T,1> const& ) { return 1;}
             };
 
         /* Type converter from index to slice
@@ -708,6 +740,15 @@ namespace  pythonic {
                 {
                     initialize_from_expr(expr);
                 }
+                template<class E>
+                    ndarray(indexed_ndarray<E> const& expr):
+                        data_size(expr.shape[0]),
+                        mem(expr.size()),
+                        buffer(mem->data),
+                        shape(expr.shape)
+                {
+                    initialize_from_expr(expr);
+                }
 
                 /* assignment */
 
@@ -913,7 +954,7 @@ namespace  pythonic {
 
                 /* member functions */
                 long size() const {
-                    return std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<long>());
+                    return std::accumulate(shape.begin()+1, shape.end(), *shape.begin(), std::multiplies<long>());
                 }
                 ndarray<T,1> flat() const {
                     ndarray<T, 1> flatty;

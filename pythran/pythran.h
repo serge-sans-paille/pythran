@@ -715,20 +715,36 @@ namespace std {
         };
 
     /* for core::ndarray */
-    template <size_t I, class T, size_t N>
-        auto get( core::ndarray<T,N>& a) -> decltype(a[I]) { return a[I]; }
-    template <size_t I, class T, size_t N>
-        auto get( core::ndarray<T,N> const& a) -> decltype(a[I]) { return a[I]; }
+    template <size_t i, class t, size_t n>
+        auto get( core::ndarray<t,n>& a) -> decltype(a[i]) { return a[i]; }
+    template <size_t i, class t, size_t n>
+        auto get( core::ndarray<t,n> const& a) -> decltype(a[i]) { return a[i]; }
+
+    template <size_t i, class t>
+        auto get( core::sliced_ndarray<t>& a) -> decltype(a[i]) { return a[i]; }
+    template <size_t i, class t>
+        auto get( core::sliced_ndarray<t> const& a) -> decltype(a[i]) { return a[i]; }
+
+    template <size_t i, class t>
+        auto get( core::indexed_ndarray<t>& a) -> decltype(a[i]) { return a[i]; }
+    template <size_t i, class t, size_t n>
+        auto get( core::indexed_ndarray<t> const& a) -> decltype(a[i]) { return a[i]; }
+
     template <size_t I, class O, class A0, class A1>
         auto get( core::numpy_expr<O,A0,A1> const& a) -> decltype(a[I]) { return a[I]; }
     template <size_t I, class O, class A>
         auto get( core::numpy_uexpr<O,A> const& a) -> decltype(a[I]) { return a[I]; }
+
     template <size_t I, class T, size_t N>
         struct tuple_element<I, core::ndarray<T,N> > {
             typedef typename core::ndarray<T,N>::value_type type;
         };
     template <size_t I, class T>
         struct tuple_element<I, core::indexed_ndarray<T> > {
+            typedef typename T::value_type type;
+        };
+    template <size_t I, class T>
+        struct tuple_element<I, core::sliced_ndarray<T> > {
             typedef typename T::value_type type;
         };
     template <size_t I, class Op, class Arg0, class Arg1>

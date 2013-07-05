@@ -473,9 +473,13 @@ class Cxx(Backend):
                         "result_type"))]
                     )
             extra_typedefs = ctx.typedefs() + extra_typedefs
-            return_declaration = [templatize(
-                Struct("type", extra_typedefs),
-                formal_types)]
+            return_declaration = [
+                    templatize(
+                        Struct("type", extra_typedefs),
+                        formal_types,
+                        default_arg_types
+                        )
+                    ]
             topstruct = Struct(
                     node.name,
                     [callable_type]

@@ -137,3 +137,15 @@ def combiner_on_empty_list():
 
     def test_multiple_compares(self):
         self.run_test('def multiple_compares(x): return 1 < x <2, 1< x+1 < 2', 0.5, multiple_compares=[float])
+
+    def test_default_arg0(self):
+        self.run_test('def default_arg0(n=12): return n', default_arg0=[])
+
+    def test_default_arg1(self):
+        self.run_test('def default_arg1(m,n=12): return m+n', 1, default_arg1=[int])
+
+    def test_default_arg2(self):
+        self.run_test('def default_arg2(n=12): return n', 1, default_arg2=[int])
+
+    def test_default_arg3(self):
+        self.run_test('def default_arg3(m,n=12): return m+n', 1, 2, default_arg3=[int,int])

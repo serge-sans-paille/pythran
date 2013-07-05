@@ -76,6 +76,17 @@ def _get_temp(content, suffix=".cpp"):
     return fd, fdpath
 
 
+class HasArgument(ast.NodeVisitor):
+    '''Checks if a given function has arguments'''
+    def __init__(self, fname):
+        self.fname = fname
+
+    def visit_Module(self, node):
+        for n in node.body:
+            if type(n) is ast.FunctionDef and n.name == self.fname:
+                return len(n.args.args) > 0
+        return False
+
 # PUBLIC INTERFACE STARTS HERE
 
 
@@ -175,6 +186,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
                 numbered_function_name = "{0}{1}".format(internal_func_name,
                                                          sigid)
                 arguments_types = [pytype_to_ctype(t) for t in signature]
+                has_arguments = HasArgument(internal_func_name).visit(ir)
                 arguments = ["a{0}".format(i)
                              for i in xrange(len(arguments_types))]
                 name_fmt = pythran_ward + "{0}::{1}::type{2}"
@@ -182,7 +194,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
                 specialized_fname = name_fmt.format(module_name,
                                                     internal_func_name,
                                                     "<{0}>".format(args_list)
-                                                    if arguments_types else "")
+                                                    if has_arguments else "")
                 result_type = ("typename std::remove_reference"
                                + "<typename {0}::result_type>::type".format(
                                  specialized_fname))

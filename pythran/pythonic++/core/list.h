@@ -83,10 +83,9 @@ namespace  pythonic {
                         if(size()!=other.size()) return false;
                         return std::equal(begin(),end(),other.begin());
                     }
-
-
-
-
+                bool operator==(core::empty_list const& other) const {
+                    return size() == 0;
+                }
             };
 
         /* the container type */
@@ -198,10 +197,16 @@ namespace  pythonic {
                         if(size()!=other.size()) return false;
                         return std::equal(begin(),end(),other.begin());
                     }
+                bool operator==(core::empty_list const&) const {
+                    return size() == 0;
+                }
                 template <class K>
                     bool operator!=(core::list<K> const & other) const {
                         return !operator==(other);
                     }
+                bool operator!=(core::empty_list const&) const {
+                    return size() != 0;
+                }
 
                 // iterators
                 iterator begin() { return data->begin(); }

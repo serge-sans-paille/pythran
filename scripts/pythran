@@ -61,6 +61,8 @@ def compile_flags(args):
         compiler_options['ldflags'] = ldflags
     if cxxflags:
         compiler_options['cxxflags'] = cxxflags
+    if args.opts:
+        compiler_options['opts'] = args.opts
 
     return compiler_options
 

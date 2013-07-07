@@ -206,3 +206,11 @@ def bar(l,n):
 def readonce_cycle2(n): 
     return foo(range(n),0)
 """, 5, readonce_cycle2=[int])
+
+    def test_full_unroll0(self):
+        self.run_test("""
+def full_unroll0():
+    k = []
+    for i,j in zip([1,2,3],[4,5,6]): k.append((i,j))
+    return k""", full_unroll0=[])
+

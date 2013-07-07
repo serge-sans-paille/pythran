@@ -159,19 +159,6 @@ namespace pythonic {
             return os << '}';
         }
 
-    /* array */
-    template<class T, size_t N>
-        std::ostream& operator<<(std::ostream& os, std::array<T,N> const & v) {
-            os << '(';
-            auto iter = v.begin();
-            if(iter != v.end()) {
-                while(iter+1 != v.end())
-                    os << *iter++ << ", ";
-                os << *iter;
-            }
-            return os << ')';
-        }
-
     /* none */
 
     template<class T>

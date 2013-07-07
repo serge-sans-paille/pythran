@@ -56,7 +56,7 @@ namespace  pythonic {
 
 				// Constructors
 				file() : data(impl::no_memory()) {}
-				file(core::string const& filename, core::string const& strmode = "r") : mode(strmode), name(filename), newlines('\n'){
+				file(core::string const& filename, core::string const& strmode = "r") : data(impl::no_memory()), mode(strmode), name(filename), newlines('\n'){
 					open(filename, strmode);
 				}
 

@@ -246,12 +246,10 @@ namespace pythonic {
                 }
             };
 
-        template <class... Types, class I>
-            struct _len<std::tuple<Types...>, I> {
-                long operator()(std::tuple<Types...> const&) {
-                    return sizeof...(Types);
-                }
-            };
+        template <class... Types>
+            long len(std::tuple<Types...> const&) {
+                return sizeof...(Types);
+            }
 
         long len(core::empty_set const &t) {
             return 0;
@@ -550,14 +548,14 @@ namespace pythonic {
             long sign;
             xrange_iterator() {}
             xrange_iterator(long v, long s) : value(v), step(s), sign(s<0?-1:1) {}
-            long& operator*() { return value; }
+            long operator*() const { return value; }
             xrange_iterator& operator++() { value+=step; return *this; }
             xrange_iterator operator++(int) { xrange_iterator self(*this); value+=step; return self; }
             xrange_iterator& operator+=(long n) { value+=step*n; return *this; }
-            bool operator!=(xrange_iterator const& other) { return value != other.value; }
-            bool operator==(xrange_iterator const& other) { return value == other.value; }
-            bool operator<(xrange_iterator const& other) { return sign*value < sign*other.value; }
-            long operator-(xrange_iterator const& other) { return (value - other.value)/step; }
+            bool operator!=(xrange_iterator const& other) const { return value != other.value; }
+            bool operator==(xrange_iterator const& other) const { return value == other.value; }
+            bool operator<(xrange_iterator const& other) const { return sign*value < sign*other.value; }
+            long operator-(xrange_iterator const& other) const { return (value - other.value)/step; }
         };
         struct xrange_riterator : std::iterator< std::random_access_iterator_tag, long >{
             long value;
@@ -565,14 +563,14 @@ namespace pythonic {
             long sign;
             xrange_riterator() {}
             xrange_riterator(long v, long s) : value(v), step(s), sign(s<0?1:-1) {}
-            long& operator*() { return value; }
+            long operator*() { return value; }
             xrange_riterator& operator++() { value+=step; return *this; }
             xrange_riterator operator++(int) { xrange_riterator self(*this); value+=step; return self; }
             xrange_riterator& operator+=(long n) { value+=step*n; return *this; }
-            bool operator!=(xrange_riterator const& other) { return value != other.value; }
-            bool operator==(xrange_riterator const& other) { return value == other.value; }
-            bool operator<(xrange_riterator const& other) { return sign*value > sign*other.value; }
-            long operator-(xrange_riterator const& other) { return (value - other.value)/step; }
+            bool operator!=(xrange_riterator const& other) const { return value != other.value; }
+            bool operator==(xrange_riterator const& other) const { return value == other.value; }
+            bool operator<(xrange_riterator const& other) const { return sign*value > sign*other.value; }
+            long operator-(xrange_riterator const& other) const { return (value - other.value)/step; }
         };
 
         struct xrange {
@@ -694,7 +692,7 @@ namespace pythonic {
 
         /* str */
         template <class T>
-            core::string str(T const & t) {
+            core::string str(T&& t) {
                 std::ostringstream oss;
                 oss << t;
                 return oss.str();
@@ -745,10 +743,10 @@ namespace pythonic {
 
         /* zip */
         template<class Iterator0, class... Iterators>
-            core::list< std::tuple<typename Iterator0::value_type, typename Iterators::value_type... > > _zip(size_t n, Iterator0 first, Iterator0 last, Iterators...  iters) {
-                core::list< std::tuple< typename Iterator0::value_type, typename Iterators::value_type... > > out(0);
+            core::list< std::tuple<typename Iterator0::value_type, typename Iterators::value_type... > > _zip(size_t n, Iterator0 first, Iterators...  iters) {
+                core::list< std::tuple< typename Iterator0::value_type, typename Iterators::value_type... > > out = core::empty_list();
                 out.reserve(n);
-                for(; first!=last; ++first, fwd(++iters...)) {
+                for(size_t i=0; i<n ; ++i, ++first, fwd(++iters...)) {
                     out.push_back(std::make_tuple( *first, *iters... ));
                 }
                 return out;
@@ -756,8 +754,8 @@ namespace pythonic {
 
         template<class List0, class... Lists>
             core::list< std::tuple<typename std::remove_reference<List0>::type::value_type, typename std::remove_reference<Lists>::type::value_type... > > zip(List0 && s0, Lists &&...  lists) {
-                size_t n = max(len(std::forward<List0>(s0)), len(std::forward<Lists>(lists))...);
-                return _zip(n, s0.begin(), s0.end(), lists.begin()...);
+                size_t n = min(len(std::forward<List0>(s0)), len(std::forward<Lists>(lists))...);
+                return _zip(n, s0.begin(), lists.begin()...);
             }
 
         core::empty_list zip() {

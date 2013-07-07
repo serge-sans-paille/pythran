@@ -281,7 +281,7 @@ class Cxx(Backend):
                             Value("typename {0}::result_type".format(
                                 instanciated_next_name),
                                 "operator*"),
-                            []),
+                            [], "const"),
                         Block([
                             ReturnStatement(
                                 Cxx.generator_state_value)])),
@@ -473,9 +473,13 @@ class Cxx(Backend):
                         "result_type"))]
                     )
             extra_typedefs = ctx.typedefs() + extra_typedefs
-            return_declaration = [templatize(
-                Struct("type", extra_typedefs),
-                formal_types)]
+            return_declaration = [
+                    templatize(
+                        Struct("type", extra_typedefs),
+                        formal_types,
+                        default_arg_types
+                        )
+                    ]
             topstruct = Struct(
                     node.name,
                     [callable_type]
@@ -570,11 +574,6 @@ class Cxx(Backend):
             self.extra_declarations.append((local_target, local_target_decl,))
             local_target_decl = ""
             local_iter_decl = ""
-            target_decl = ""
-        else:
-            target_decl = ("auto"
-                    if metadata.get(node.target, metadata.LocalVariable)
-                    else "")
 
         loop_body = [self.visit(n) for n in node.body]
 
@@ -591,22 +590,29 @@ class Cxx(Backend):
         prelude = Statement("{0} {1} = {2}".format(
             local_iter_decl, local_iter, iter)
             )
-        loop_body_prelude = Statement(
-                "{0} {1}= *{2}".format(
-                    target_decl,
+        has_local = metadata.get(node.target, metadata.LocalVariable)
+        if has_local and not self.yields and not omp:
+            loop = AutoFor(
                     target,
-                    local_target)
-                )
-        loop = For(
-                "{0} {1} = {2}.begin()".format(
-                    local_target_decl,
-                    local_target,
-                    local_iter),
-                "{0} < {1}.end()".format(
-                    local_target,
-                    local_iter),
-                "++{0}".format(local_target),
-                Block([loop_body_prelude] + loop_body))
+                    local_iter,
+                    Block(loop_body)
+                    )
+        else:
+            loop_body_prelude = Statement(
+                    "{}= *{}".format(
+                        target,
+                        local_target)
+                    )
+            loop = For(
+                    "{0} {1} = {2}.begin()".format(
+                        local_target_decl,
+                        local_target,
+                        local_iter),
+                    "{0} < {1}.end()".format(
+                        local_target,
+                        local_iter),
+                    "++{0}".format(local_target),
+                    Block([loop_body_prelude] + loop_body))
         stmts = [prelude, loop]
 
         # in that case when can proceed to a reserve
@@ -811,7 +817,7 @@ class Cxx(Backend):
                 return r[0][n.attr], r[1] + (n.attr,)
         obj, path = rec(modules, node)
         return ('::'.join(path) if obj.isliteral()
-                else ('::'.join(path[:-1]) + '::proxy::' + path[-1] + '()'))
+                else ('::'.join(path[:-1]) + '::proxy::' + path[-1] + '{}'))
 
     def visit_Subscript(self, node):
         value = self.visit(node.value)

@@ -76,6 +76,17 @@ def _get_temp(content, suffix=".cpp"):
     return fd, fdpath
 
 
+class HasArgument(ast.NodeVisitor):
+    '''Checks if a given function has arguments'''
+    def __init__(self, fname):
+        self.fname = fname
+
+    def visit_Module(self, node):
+        for n in node.body:
+            if type(n) is ast.FunctionDef and n.name == self.fname:
+                return len(n.args.args) > 0
+        return False
+
 # PUBLIC INTERFACE STARTS HERE
 
 
@@ -160,6 +171,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
         # very low value for max_arity leads to various bugs
         max_arity = max(4, max(max(map(len, s)) for s in specs.itervalues()))
         mod.add_to_preamble([Define("BOOST_PYTHON_MAX_ARITY", max_arity)])
+        mod.add_to_preamble([Define("BOOST_SIMD_NO_STRICT_ALIASING", "1")])
         mod.add_to_preamble(content)
         mod.add_to_init([
             Statement('import_array()'),
@@ -174,6 +186,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
                 numbered_function_name = "{0}{1}".format(internal_func_name,
                                                          sigid)
                 arguments_types = [pytype_to_ctype(t) for t in signature]
+                has_arguments = HasArgument(internal_func_name).visit(ir)
                 arguments = ["a{0}".format(i)
                              for i in xrange(len(arguments_types))]
                 name_fmt = pythran_ward + "{0}::{1}::type{2}"
@@ -181,7 +194,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
                 specialized_fname = name_fmt.format(module_name,
                                                     internal_func_name,
                                                     "<{0}>".format(args_list)
-                                                    if arguments_types else "")
+                                                    if has_arguments else "")
                 result_type = ("typename std::remove_reference"
                                + "<typename {0}::result_type>::type".format(
                                  specialized_fname))
@@ -297,13 +310,13 @@ def compile_pythranfile(file_path, module_so=None, module_name=None,
     Returns the generated .so (or .cpp if `cpponly` is set to true).
 
     '''
-
-    # derive module name from file name
-    basedir, basename = os.path.split(file_path)
-    module_name = module_name or os.path.splitext(basename)[0]
-
     # derive destination from file name
     module_so = module_so or os.path.join(basedir, module_name + ".so")
+
+    # derive module name from file name
+    _, basename = os.path.split(module_so)
+    module_name = module_name or os.path.splitext(basename)[0]
+
     dl = compile_pythrancode(module_name, file(file_path).read(),
                              module_so=module_so, cpponly=cpponly, **kwargs)
     return module_so

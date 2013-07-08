@@ -112,6 +112,8 @@ class SyntaxChecker(ast.NodeVisitor):
             raise PythranSyntaxError(
                     "Module '{0}' unknown".format(module), node)
         for alias in node.names:
+            if alias.name == '*':
+                continue
             if alias.name not in tables.modules[module]:
                 raise PythranSyntaxError(
                         "identifier '{0}' not found in module '{1}'".format(

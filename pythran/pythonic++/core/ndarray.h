@@ -488,6 +488,8 @@ namespace  pythonic {
                 sliced_ndarray() {}
 
                 sliced_ndarray(T const& data, slice const& s) : slice(s), shape(data.shape), data(data) {
+                    assert(upper>=0);
+                    assert(lower>=0);
                     shape[0] = ceil(std::abs(double(upper - lower)/step));
                     jump = 1;
                     for(size_t i=1;i<value; ++i)
@@ -500,8 +502,22 @@ namespace  pythonic {
                 long size() const { return (data.size() / data.shape[0]) * shape[0] ; }
                 reference operator[](long i) { return data[jump*lower+i*step]; }
                 const_reference operator[](long i) const { return data[jump*lower+i*step]; }
-                sliced_ndarray<T> operator[](slice const& s) const { return sliced_ndarray(data, slice(lower + step*s.lower, std::min(upper, lower + step*s.upper), step*s.step)); }
-                sliced_ndarray<T> operator[](slice const& s) { return sliced_ndarray(data, slice(lower + step*s.lower, std::min(upper, lower + step*s.upper), step*s.step)); }
+                sliced_ndarray<T> operator[](slice const& s) const {
+                    long slower, supper;
+                    slower = s.lower >= 0L ? s.lower : ( s.lower + shape[0]);
+                    slower = std::max(0L,slower);
+                    supper = s.upper >= 0L ? s.upper : ( s.upper + shape[0]);
+                    supper = std::min(supper, shape[0]);
+                    return sliced_ndarray(data, slice(lower + step*slower, std::min(upper, lower + step*supper), step*s.step));
+                }
+                sliced_ndarray<T> operator[](slice const& s) {
+                    long slower, supper;
+                    slower = s.lower >= 0L ? s.lower : ( s.lower + shape[0]);
+                    slower = std::max(0L,slower);
+                    supper = s.upper >= 0L ? s.upper : ( s.upper + shape[0]);
+                    supper = std::min(supper, shape[0]);
+                    return sliced_ndarray(data, slice(lower + step*slower, std::min(upper, lower + step*supper), step*s.step));
+                }
 
                 sliced_ndarray<T>& operator=(sliced_ndarray<T> const& v) {
                     slice::operator=(v);

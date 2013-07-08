@@ -821,6 +821,10 @@ template <class Op, class Arg>
     struct attribute_element<0, pythonic::core::numpy_uexpr<Op, Arg> > {
         typedef core::array<long, pythonic::core::numpy_uexpr<Op, Arg>::value> type;
     };
+template <class T>
+    struct attribute_element<0, pythonic::core::sliced_ndarray<T> > {
+        typedef core::array<long, T::value> type;
+    };
 
 template <class T, size_t N>
     struct attribute_element<1, pythonic::core::ndarray<T,N> > {
@@ -931,6 +935,12 @@ template <unsigned int I, class Op, class Arg>
     typename attribute_element<I,pythonic::core::ndarray<typename core::numpy_uexpr<Op,Arg>::value_type,  core::numpy_uexpr<Op,Arg>::value>>::type const getattr(core::numpy_uexpr<Op,Arg> const& a)
     {
         return ndarray_attr<I,typename core::numpy_uexpr<Op,Arg>::value_type,  core::numpy_uexpr<Op,Arg>::value>()(a);
+    }
+
+template <unsigned int I, class T>
+    typename attribute_element<I,pythonic::core::sliced_ndarray<T>>::type const getattr(core::sliced_ndarray<T> const& a)
+    {
+        return ndarray_attr<I,typename T::value_type, T::value>()(a);
     }
 
 /* for complex numbers */

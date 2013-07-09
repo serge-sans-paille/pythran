@@ -35,3 +35,7 @@ from toolchain import (generate_cxx, compile_cxxfile, compile_cxxcode,
                        compile_pythrancode, compile_pythranfile, test_compile,
                        CompileError)
 from spec import spec_parser
+
+# Default logger to avoid a warning if no handler is set by client
+import logging
+logging.getLogger('pythran').addHandler(logging.NullHandler())

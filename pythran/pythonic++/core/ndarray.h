@@ -340,12 +340,17 @@ namespace  pythonic {
             };
 
         /* Proxy type for extended slices
+        for a = np.arange(2*3*4).reshape(2,3,4)
+            a = a[1,0:1]
+        T : type of the sliced array, ex: ndarray<long, 3>
+        N : number of slices, ex: 1
+        M : number of args, ex: 2
          */
         template<class T, size_t N, size_t M>
             struct gsliced_ndarray {
-                static constexpr size_t value = N;
+                static constexpr size_t value = T::value + N - M;
 
-                typedef typename nested_container_value_type<T,T::value + N - M>::type value_type;
+                typedef typename nested_container_value_type<T, value>::type value_type;
                 // with a.shape = [7,5,10]
 
                 // list of slices :
@@ -356,7 +361,7 @@ namespace  pythonic {
                 core::array<long,M> gshape;
                 // shape of this extslice :
                 // ex : a[1:3,3,7:] -> [2,3]
-                core::array<long,N> shape;
+                core::array<long,value> shape;
 
                 T& data;
                 long _size;
@@ -381,14 +386,16 @@ namespace  pythonic {
                         if(mask[i])
                             shape[j++] = gshape[i];
                     }
+                    std::copy(data.shape.begin() + M , data.shape.end(), shape.begin() + N);
+
                     long start_index = 0;
                     auto const &dshape = data.shape;
                     long dmult = 1;
                     long gmult = 1;
-                    // number of elts before the next elts of thie dimension in the extslice :
+                    // number of elts before the next elts of this dimension in the extslice :
                     // ex : a[1:3,3,7:] -> [50,10,1]
                     core::array<long,M> jump_array;
-                    // number of elts before the next elts of thie dimension in the array :
+                    // number of elts before the next elts of this dimension in the array :
                     // ex : a[1:3,3,7:] -> [3,3,1]
                     core::array<long,M> jump_extslice;
                     for(long j=M-1; j>=0; j--) {

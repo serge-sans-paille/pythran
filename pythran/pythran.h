@@ -856,6 +856,16 @@ template <class T, size_t N>
         typedef pythonic::core::ndarray<T,1> type;
     };
 
+template <class T, size_t N>
+    struct attribute_element<7, pythonic::core::ndarray<T,N> > {
+        typedef T type;
+    };
+
+template <class T, size_t N>
+    struct attribute_element<8, pythonic::core::ndarray<T,N> > {
+        typedef pythonic::core::ndarray<T,N> type;
+    };
+
 template <unsigned int I, class T, size_t N>
     struct ndarray_attr;
 
@@ -923,6 +933,24 @@ template <class T, size_t N>
         typename attribute_element<6,pythonic::core::ndarray<T,N>>::type const operator()(core::ndarray<T,N> const& a)
         {
             return a.flat();
+        }
+    };
+
+template <class T, size_t N>
+    struct ndarray_attr<7,T,N>
+    {
+        typename attribute_element<7,pythonic::core::ndarray<T,N>>::type const operator()(core::ndarray<T,N> const& a)
+        {
+            return T();
+        }
+    };
+
+template <class T, size_t N>
+    struct ndarray_attr<8,T,N>
+    {
+        typename attribute_element<8,pythonic::core::ndarray<T,N>>::type const operator()(core::ndarray<T,N> const& a)
+        {
+            return pythonic::numpy::transpose(a);
         }
     };
 

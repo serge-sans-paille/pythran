@@ -4,6 +4,7 @@
 #include <type_traits>
 #include <iterator>
 #include <complex>
+#include <limits>
 
 
 // overload is_scalar to consider complex has scalar types
@@ -215,12 +216,12 @@ namespace pythonic {
         };
 
     /* Statically define (by recursion) the type of element inside nested constainers */
-    template<class T, bool end=0>
+    template<class T, size_t end=std::numeric_limits<size_t>::max()>
         struct nested_container_value_type {
-            typedef typename nested_container_value_type<typename T::value_type, std::is_scalar<typename T::value_type>::value or is_complex<typename T::value_type>::value >::type type;
+            typedef typename nested_container_value_type<typename T::value_type, ((std::is_scalar<typename T::value_type>::value or is_complex<typename T::value_type>::value)?0:end-1)>::type type;
         };
     template<class T>
-        struct nested_container_value_type<T,true> {
+        struct nested_container_value_type<T,0> {
             typedef T type;
         };
 

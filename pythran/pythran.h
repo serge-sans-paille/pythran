@@ -54,12 +54,12 @@ struct assignable<pythonic::core::list<T> >{
 template<class Op, class Arg0, class Arg1>
 struct assignable<pythonic::core::numpy_expr<Op, Arg0, Arg1>>
 {
-    typedef pythonic::core::ndarray<typename pythonic::core::numpy_expr<Op, Arg0, Arg1>::value_type, pythonic::core::numpy_expr<Op, Arg0, Arg1>::value> type;
+    typedef typename pythonic::core::numpy_expr_to_ndarray<pythonic::core::numpy_expr<Op, Arg0, Arg1>>::type type;
 };
 template<class Op, class Arg0>
 struct assignable<pythonic::core::numpy_uexpr<Op, Arg0>>
 {
-    typedef pythonic::core::ndarray<typename pythonic::core::numpy_uexpr<Op, Arg0>::value_type, pythonic::core::numpy_uexpr<Op, Arg0>::value> type;
+    typedef typename pythonic::core::numpy_expr_to_ndarray<pythonic::core::numpy_uexpr<Op, Arg0>>::type type;
 };
 
 template<class T>

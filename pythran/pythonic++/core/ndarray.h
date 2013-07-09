@@ -89,8 +89,8 @@ namespace  pythonic {
             struct numpy_uexpr {
 
                 Arg0 arg0;
-                typedef decltype(Op()(arg0.at(std::declval<long>()))) value_type;
                 static constexpr size_t value = std::remove_reference<Arg0>::type::value;
+                typedef typename type_helper<ndarray<decltype(Op()(arg0.at(std::declval<long>()))), value>>::type value_type;
                 core::array<long, value> shape;
                 numpy_uexpr() {}
                 numpy_uexpr(Arg0 const& arg0) : arg0(arg0), shape(arg0.shape) {
@@ -125,8 +125,8 @@ namespace  pythonic {
             struct numpy_expr {
                 Arg0 arg0;
                 Arg1 arg1;
-                typedef decltype(Op()(arg0.at(std::declval<long>()), arg1.at(std::declval<long>()))) value_type;
                 static constexpr size_t value = std::remove_reference<Arg0>::type::value>std::remove_reference<Arg1>::type::value?std::remove_reference<Arg0>::type::value: std::remove_reference<Arg1>::type::value;
+                typedef typename type_helper<ndarray<decltype(Op()(arg0.at(std::declval<long>()), arg1.at(std::declval<long>()))), value>>::type value_type;
                 core::array<long, value> shape;
                 numpy_expr() {}
 
@@ -345,9 +345,7 @@ namespace  pythonic {
             struct gsliced_ndarray {
                 static constexpr size_t value = N;
 
-                typedef typename T::value_type value_type;
-                typedef typename T::reference reference;
-                typedef typename T::const_reference const_reference;
+                typedef typename nested_container_value_type<T,T::value + N - M>::type value_type;
                 // with a.shape = [7,5,10]
 
                 // list of slices :
@@ -459,17 +457,32 @@ namespace  pythonic {
                     }
 
 
-                gsliced_ndarray<T,N,M>& operator+=(value_type v) {
+                template<class U, size_t K, size_t L>
+                gsliced_ndarray<T,N,M>& operator+=(gsliced_ndarray<U,K,L> const& v) {
+                    for(long i=0, n= size(); i<n ; ++i)
+                        data.buffer[to_index->data[i]] += v.data.buffer[v.to_index->data[i]];
+                    return *this;
+                }
+
+
+                gsliced_ndarray<T,N,M>& operator/=(typename nested_container_value_type<gsliced_ndarray<T,N,M>>::type v) {
+                    for(long i=0, n= size(); i<n ; ++i)
+                        data.buffer[to_index->data[i]] /= v;
+                    return *this;
+                }
+
+                gsliced_ndarray<T,N,M>& operator-=(typename nested_container_value_type<gsliced_ndarray<T,N,M>>::type v) {
+                    for(long i=0, n= size(); i<n ; ++i)
+                        data.buffer[to_index->data[i]] -= v;
+                    return *this;
+                }
+
+                gsliced_ndarray<T,N,M>& operator+=(typename nested_container_value_type<gsliced_ndarray<T,N,M>>::type v) {
                     for(long i=0, n= size(); i<n ; ++i)
                         data.buffer[to_index->data[i]] += v;
                     return *this;
                 }
 
-                gsliced_ndarray<T,N,M>& operator-=(value_type v) {
-                    for(long i=0, n= size(); i<n ; ++i)
-                        data.buffer[to_index->data[i]] -= v;
-                    return *this;
-                }
             };
 
         /* proxy type to hold the return of a slice
@@ -612,7 +625,7 @@ namespace  pythonic {
 
                 impl::shared_ref<raw_array<T>> mem;     // shared data pointer
                 T* buffer;                              // pointer to the first data stored in the equivalent flat array
-                core::array<long, N> shape;              // shape of the multidimensional array
+                core::array<long, N> shape;             // shape of the multidimensional array
 
                 /* constructors */
                 ndarray() : data_size(0), mem(impl::no_memory()), buffer(nullptr), shape() {}

@@ -10,26 +10,27 @@ import ctypes
 
 
 class omp(object):
-    LD_LIBRARY_PATHS = os.environ.get('LD_LIBRARY_PATH', '').split(':') + [
-        "/usr/lib/x86_64-linux-gnu/",
+    paths = (
+        # find_library() does not search automatically LD_LIBRARY_PATH
+        os.environ.get('LD_LIBRARY_PATH', '').split(':')
+        + [  # Default gcc path on debian/ubuntu (?)
+            "/usr/lib/x86_64-linux-gnu/",
+        ]
         # MacPorts install gcc in a "non standard" path on OSX
-    ] + glob.glob("/opt/local/lib/gcc*/")
+        + glob.glob("/opt/local/lib/gcc*/")
+    )
 
     def __init__(self):
-        # Paths are "non-standard" place to lookup
-        paths = omp.LD_LIBRARY_PATHS
-
         # Try to load find libgomp shared library using loader search dirs
         libgomp_path = find_library("gomp")
 
         # Try to use custom paths if lookup failed
-        for path in paths:
+        for path in omp.paths:
             if libgomp_path:
                 break
             path = path.strip()
-            if not os.path.isdir(path):
-                continue
-            libgomp_path = find_library(os.path.join(path, "libgomp"))
+            if os.path.isdir(path):
+                libgomp_path = find_library(os.path.join(path, "libgomp"))
 
         if not libgomp_path:
             raise EnvironmentError("I can't find a shared library for libgomp,"

@@ -39,13 +39,9 @@ def brownian_bridge(ti, tf, bi, bf, n):
     B[0]     = bi                 # valeur initiale
     B[n-1]   = bf                 # valeur finale
     t1       = ti
-    print norm(0,1)
-    print norm(0,1)
-    print norm(0,1)
     for k in range(1,n-1):               # construction du pont en ti+k*pas
         m = moy(t1,tf,B[k-1],bf,t1+pas)  # sur les intervalle [ti+(k-1)*pas,tf]
         v = var(t1,tf,B[k-1],bf,t1+pas)  # avec les valeurs limites B[k-1],et bf
         B[k] = m+sqrt(v)*norm(0,1)
         t1  += pas
-    print ""
     return T, B

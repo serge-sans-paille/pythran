@@ -305,7 +305,7 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
 
 
 def compile_pythranfile(file_path, module_so=None, module_name=None,
-                        cpponly=True, **kwargs):
+                        cpponly=False, **kwargs):
     '''Pythran file -> c++ file -> native module
     Returns the generated .so (or .cpp if `cpponly` is set to true).
 

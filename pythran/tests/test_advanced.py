@@ -1,4 +1,5 @@
 from test_env import TestEnv
+from unittest import skip
 
 class TestAdvanced(TestEnv):
 
@@ -149,3 +150,7 @@ def combiner_on_empty_list():
 
     def test_default_arg3(self):
         self.run_test('def default_arg3(m,n=12): return m+n', 1, 2, default_arg3=[int,int])
+
+    @skip("lists as zeros parameter are not supported")
+    def test_list_as_zeros_parameter(self):
+        self.run_test('def list_as_zeros_parameter(n): from numpy import zeros ; return zeros([n,n])', 3, list_as_zeros_parameter=[int])

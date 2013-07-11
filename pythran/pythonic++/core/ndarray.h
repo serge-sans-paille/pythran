@@ -931,12 +931,12 @@ namespace  pythonic {
                 template<class S0, class S1, class...S>
                 gsliced_ndarray<ndarray<T,N>, count_slices<S0,S1,S...>::value, 2 + sizeof...(S) > operator()(S0 const& s0, S1 const& s1, S const&... s_) const
                 {
-                    return gsliced_ndarray<ndarray<T,N>, count_slices<S0,S1,S...>::value, 2 + sizeof...(S)>(*this, core::array<slice, 2 + sizeof...(S)>({as_slice(s0), as_slice(s1), as_slice(s_)...}), core::array<bool, 2 + sizeof...(S)>({std::is_same<S0,slice>::value, std::is_same<S1,slice>::value, std::is_same<S,slice>::value...}));
+                    return gsliced_ndarray<ndarray<T,N>, count_slices<S0,S1,S...>::value, 2 + sizeof...(S)>(*this, core::array<slice, 2 + sizeof...(S)>{{as_slice(s0), as_slice(s1), as_slice(s_)...}}, core::array<bool, 2 + sizeof...(S)>{{std::is_same<S0,slice>::value, std::is_same<S1,slice>::value, std::is_same<S,slice>::value...}});
                 }
                 template<class S0, class S1, class...S>
                 gsliced_ndarray<ndarray<T,N>, count_slices<S0,S1,S...>::value, 2 + sizeof...(S) > operator()(S0 const& s0, S1 const& s1, S const&... s_)
                 {
-                    return gsliced_ndarray<ndarray<T,N>, count_slices<S0,S1,S...>::value, 2 + sizeof...(S)>(*this, core::array<slice, 2 + sizeof...(S)>({as_slice(s0), as_slice(s1), as_slice(s_)...}), core::array<bool, 2 + sizeof...(S)>({std::is_same<S0,slice>::value, std::is_same<S1,slice>::value, std::is_same<S,slice>::value...}));
+                    return gsliced_ndarray<ndarray<T,N>, count_slices<S0,S1,S...>::value, 2 + sizeof...(S)>(*this, core::array<slice, 2 + sizeof...(S)>{{as_slice(s0), as_slice(s1), as_slice(s_)...}}, core::array<bool, 2 + sizeof...(S)>{{std::is_same<S0,slice>::value, std::is_same<S1,slice>::value, std::is_same<S,slice>::value...}});
                 }
 
                 /* by array */

@@ -2,6 +2,7 @@
 #define PYTHONIC_TUPLE_H
 
 #include <tuple>
+#include <algorithm>
 
 template<class F, class S>
 bool operator==(std::pair<F,S> const& self, std::tuple<F,S> const& other) {
@@ -48,6 +49,7 @@ namespace {
             }
         };
 }
+
 namespace pythonic {
     template<class Tuple, class Container>
         void tuple_dump(Tuple const& t, Container& c, int_<0>) {
@@ -66,90 +68,195 @@ namespace pythonic {
 namespace pythonic {
 
     namespace core {
-            template<class T, size_t N>
+        template<class T, size_t N>
             struct array;
 
-            template<size_t I>
-                struct to_tuple_impl {
-                    template<class T, size_t N>
-                        auto operator()(core::array<T,N> const& l) const -> decltype(std::tuple_cat(to_tuple_impl<I-1>()(l), std::tuple<T>(l[I-1]))) {
-                            return std::tuple_cat(to_tuple_impl<I-1>()(l), std::tuple<T>(l[I-1]));
-                        }
-                };
-            template<>
-                struct to_tuple_impl<1> {
-                    template<class T, size_t N>
-                        std::tuple<T> operator()(core::array<T,N> const& l) const {
-                            return std::tuple<T>(l[0]);
-                        }
-                };
-            template<>
-                struct to_tuple_impl<0> {
-                    template<class T, size_t N>
-                        std::tuple<> operator()(core::array<T,N> const& l) const {
-                            return std::tuple<>();
-                        }
-                };
+        template<size_t I>
+            struct to_tuple_impl {
+                template<class T, size_t N>
+                    auto operator()(core::array<T,N> const& l) const -> decltype(std::tuple_cat(to_tuple_impl<I-1>()(l), std::tuple<T>(l[I-1]))) {
+                        return std::tuple_cat(to_tuple_impl<I-1>()(l), std::tuple<T>(l[I-1]));
+                    }
+            };
+        template<>
+            struct to_tuple_impl<1> {
+                template<class T, size_t N>
+                    std::tuple<T> operator()(core::array<T,N> const& l) const {
+                        return std::tuple<T>(l[0]);
+                    }
+            };
+        template<>
+            struct to_tuple_impl<0> {
+                template<class T, size_t N>
+                    std::tuple<> operator()(core::array<T,N> const& l) const {
+                        return std::tuple<>();
+                    }
+            };
 
-        template<class T, size_t N>
-        struct array: public std::array<T,N>
-        {
-            array(std::initializer_list<T> l) : std::array<T,N>() {
-                std::copy(l.begin(), l.end(), this->begin());
-            }
-            array() : std::array<T,N>() {}
-            array(array<T,N> const& l) : std::array<T,N>(l) {}
-            array(array<T,N>&& l) : std::array<T,N>(std::move(l)) {}
-            template<class U>
-                array(array<U,N> const& l) : std::array<T,N>() {
-                    std::copy(l.begin(), l.end(), this->begin());
-                }
-            template<class... Types>
-                operator std::tuple<Types...>() const {
-                    return std::tuple<Types...>(to_tuple_impl<N>()(*this));
+        /* inspired by std::array implementation */
+        template<typename T, size_t N>
+            struct array
+            {
+                typedef T value_type;
+                typedef value_type* pointer;
+                typedef const value_type* const_pointer;
+                typedef value_type& reference;
+                typedef const value_type& const_reference;
+                typedef value_type* iterator;
+                typedef const value_type* const_iterator;
+                typedef std::size_t size_type;
+                typedef std::ptrdiff_t difference_type;
+                typedef std::reverse_iterator<iterator> reverse_iterator;
+                typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+
+                // Support for zero-sized arrays mandatory.
+                value_type buffer[N ? N : 1];
+
+                // No explicit construct/copy/destroy for aggregate type.
+
+                void
+                    fill(const value_type& __u)
+                    { std::fill_n(begin(), size(), __u); }
+
+                // Iterators.
+                iterator
+                    begin() noexcept
+                    { return iterator(data()); }
+
+                const_iterator
+                    begin() const noexcept
+                    { return const_iterator(data()); }
+
+                iterator
+                    end() noexcept
+                    { return iterator(data() + N); }
+
+                const_iterator
+                    end() const noexcept
+                    { return const_iterator(data() + N); }
+
+                reverse_iterator 
+                    rbegin() noexcept
+                    { return reverse_iterator(end()); }
+
+                const_reverse_iterator 
+                    rbegin() const noexcept
+                    { return const_reverse_iterator(end()); }
+
+                reverse_iterator 
+                    rend() noexcept
+                    { return reverse_iterator(begin()); }
+
+                const_reverse_iterator 
+                    rend() const noexcept
+                    { return const_reverse_iterator(begin()); }
+
+                const_iterator
+                    cbegin() const noexcept
+                    { return const_iterator(&(buffer[0])); }
+
+                const_iterator
+                    cend() const noexcept
+                    { return const_iterator(&(buffer[N])); }
+
+                const_reverse_iterator 
+                    crbegin() const noexcept
+                    { return const_reverse_iterator(end()); }
+
+                const_reverse_iterator 
+                    crend() const noexcept
+                    { return const_reverse_iterator(begin()); }
+
+                // Capacity.
+                constexpr size_type 
+                    size() const noexcept { return N; }
+
+                constexpr size_type 
+                    max_size() const noexcept { return N; }
+
+                constexpr bool 
+                    empty() const noexcept { return size() == 0; }
+
+                // Element access.
+                reference
+                    operator[](size_type __n)
+                    { return buffer[__n]; }
+
+                constexpr const_reference
+                    operator[](size_type __n) const noexcept
+                    { return buffer[__n]; }
+
+                reference 
+                    front()
+                    { return *begin(); }
+
+                const_reference 
+                    front() const
+                    { return *begin(); }
+
+                reference 
+                    back()
+                    { return N ? *(end() - 1) : *end(); }
+
+                const_reference 
+                    back() const
+                    { return N ? *(end() - 1) : *end(); }
+
+                pointer
+                    data() noexcept
+                    { return &(buffer[0]); }
+
+                const_pointer
+                    data() const noexcept
+                    { return &(buffer[0]); }
+
+                template<size_t M>
+                    bool operator==(array<T, M> const& other) const {
+                        return N == M and std::equal(begin(), end(), other.begin()); 
+                    }
+                template<size_t M>
+                    bool operator<(array<T, M> const& other) const {
+                        return std::lexicographical_compare(begin(), end(), other.begin(), other.end());
+                    }
+
+                template<class... Types>
+                    operator std::tuple<Types...>() const {
+                        return std::tuple<Types...>(to_tuple_impl<N>()(*this));
+                    }
+
+                auto to_tuple() const -> decltype(to_tuple_impl<N>()(*this)) {
+                    return to_tuple_impl<N>()(*this);
                 }
 
-            auto to_tuple() const -> decltype(to_tuple_impl<N>()(*this)) {
-                return to_tuple_impl<N>()(*this);
-            }
-            template<class T1, size_t N1>
-                bool operator==(pythonic::core::array<T1,N1> const& other) const {
-                    return N == N1 and std::equal(this->begin(), this->end(), other.begin());
+                list<T> operator[](core::slice const& s){
+                    long lower, upper, step;
+                    lower = s.lower;
+                    step = s.step;
+                    upper = s.upper;
+                    if(s.step<0)
+                    {
+                        if(s.upper<0) upper += N;
+                        if(s.lower<0) lower += N;
+                        else if(s.lower > N) lower= N;
+                        list<T> out((upper - lower)/step);
+                        for(int i=0; i< out.size(); i++)
+                            out[i] = buffer[upper + i * step];
+                        return out;
+                    }
+                    else
+                    {   
+                        if(s.lower<0) lower += N;
+                        if(s.upper<0) upper += N;
+                        else if(s.upper>N) upper = N;
+                        list<T> out((upper - lower)/step);
+                        for(int i=0; i< out.size(); i++)
+                            out[i] = buffer[lower + i * step];
+                        return out;
+                    }
                 }
-            core::array<T,N>& operator=(core::array<T,N> const& t){
-                std::copy(t.begin(), t.end(), this->begin());
-                return *this;
-            }
-            using std::array<T,N>::operator[];
-            list<T> operator[](core::slice const& s){
-                long lower, upper, step;
-                lower = s.lower;
-                step = s.step;
-                upper = s.upper;
-                if(s.step<0)
-                {
-                    if(s.upper<0) upper += N;
-                    if(s.lower<0) lower += N;
-                    else if(s.lower > N) lower= N;
-                    list<T> out((upper - lower)/step);
-                    for(int i=0; i< out.size(); i++)
-                        out[i] = std::array<T,N>::operator[](upper + i * step);
-                    return out;
-                }
-                else
-                {   
-                    if(s.lower<0) lower += N;
-                    if(s.upper<0) upper += N;
-                    else if(s.upper>N) upper = N;
-                    list<T> out((upper - lower)/step);
-                    for(int i=0; i< out.size(); i++)
-                        out[i] = std::array<T,N>::operator[](lower + i * step);
-                    return out;
-                }
-            }
 
-            /* array */
-                friend std::ostream& operator<<(std::ostream& os, core::array<T,N> const & v) {
+                /* array */
+                friend std::ostream& operator<<(std::ostream& os, core::array<T, N> const & v) {
                     os << '(';
                     auto iter = v.begin();
                     if(iter != v.end()) {
@@ -159,7 +266,7 @@ namespace pythonic {
                     }
                     return os << ')';
                 }
-        };
+            };
 
         template<class... Types>
             struct are_same;
@@ -188,7 +295,7 @@ namespace pythonic {
             struct _make_tuple<true, Types...> {
                 core::array<typename are_same<Types...>::type, sizeof...(Types)> operator()(Types... types) {
                     typedef typename are_same<Types...>::type T;
-                    return core::array<T, sizeof...(Types)>({types...});
+                    return core::array<T, sizeof...(Types)>{{types...}};
                 }
             };
 
@@ -212,6 +319,7 @@ namespace pythonic {
 
     }
 }
+
 /* specialize std::get */
 namespace std {
     template <size_t I, class T, size_t N>

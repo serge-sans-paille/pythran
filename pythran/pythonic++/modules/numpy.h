@@ -2034,7 +2034,7 @@ namespace pythonic {
                     }
                 }
                 out_type out;
-                core::array<long, 1> shape({real_sz});
+                core::array<long, 1> shape{{real_sz}};
                 for(long i=0; i<N; ++i)
                 {
                     out[i] = core::ndarray<long, 1>(shape, None);
@@ -2219,7 +2219,7 @@ namespace pythonic {
             std::tuple<core::ndarray<typename core::numpy_expr_to_ndarray<E>::T, 1>, core::ndarray<long, 1>, core::ndarray<long, 1>> unique(E const& expr, bool return_index, bool return_inverse) {
                 std::set<typename core::numpy_expr_to_ndarray<E>::T> res;
                 std::vector<long> return_index_res;
-                core::ndarray<long, 1> return_inverse_res({expr.size()}, None);
+                core::ndarray<long, 1> return_inverse_res(core::array<long,1>{{expr.size()}}, None);
                 for(int i=0; i<expr.size(); ++i)
                 {
                     auto pair = res.insert(expr.at(i));
@@ -2286,7 +2286,7 @@ namespace pythonic {
                     begin = std::find_if(expr.buffer, expr.buffer + end, [](T i){return i!=0;}) - expr.buffer;
                 if(trim.find("b") != std::string::npos)
                     while(*(expr.buffer + --end) != 0); // Ugly, ndarray miss real iterator
-                core::ndarray<T,1> out({end - begin}, None);
+                core::ndarray<T,1> out(core::array<long,1>{{end - begin}}, None);
                 std::copy(expr.buffer + begin, expr.buffer + end, out.buffer);
                 return out;
             }
@@ -2298,7 +2298,7 @@ namespace pythonic {
         {
             if(M==-1)
                 M = N;
-           core::ndarray<dtype, 2> out({N, M}, 0); 
+           core::ndarray<dtype, 2> out(core::array<long,2>{{N, M}}, 0); 
             for(int i=0; i<N; ++i)
                 for(long j=0 ; j<M; ++j)
                     if( j - i <= k)
@@ -2323,7 +2323,7 @@ namespace pythonic {
         template<class E>
             typename core::numpy_expr_to_ndarray<E>::type tile(E const& expr, int reps)
             {
-                typename core::numpy_expr_to_ndarray<E>::type out({expr.size() * reps}, None);
+                typename core::numpy_expr_to_ndarray<E>::type out(core::array<long, 1>{{expr.size() * reps}}, None);
                 for(size_t i=0; i<expr.size(); ++i)
                     out.buffer[i] = expr.at(i);
                 for(size_t i=expr.size(); i<expr.size() * reps; ++i)
@@ -2611,7 +2611,7 @@ namespace pythonic {
         template<class T, size_t N>
         core::ndarray<T,1> resize(core::ndarray<T,N> const& expr, int new_shape)
         {
-            core::ndarray<T,1> out({new_shape}, None);
+            core::ndarray<T,1> out(core::array<long, N>{{new_shape}}, None);
             for(int i=0; i<new_shape; ++i)
                 out.at(i) = expr.at(i % expr.size());
             return out;
@@ -2632,7 +2632,7 @@ namespace pythonic {
         template<class T, size_t N>
         core::ndarray<T,1> repeat(core::ndarray<T,N> const& expr, int repeats)
         {
-            core::ndarray<T,1> out({expr.size() * repeats}, None);
+            core::ndarray<T,1> out(core::array<long, N>{{expr.size() * repeats}}, None);
             for(int i=0; i<out.size(); ++i)
                 out.at(i) = expr.at(i / expr.size());
             return out;
@@ -2725,7 +2725,7 @@ namespace pythonic {
         template<class E, class F>
         core::ndarray<typename core::numpy_expr_to_ndarray<E>::T, 2> outer(E const& a, F const& b)
         {
-            core::ndarray<typename core::numpy_expr_to_ndarray<E>::T, 2> out({a.size(), b.size()}, None);
+            core::ndarray<typename core::numpy_expr_to_ndarray<E>::T, 2> out(core::array<long, 2>{{a.size(), b.size()}}, None);
             for(size_t i=0; i<a.size(); ++i)
                 for(size_t j=0; j<b.size(); ++j)
                     out.buffer[i * b.size() + j] = a.at(i) * b.at(j);

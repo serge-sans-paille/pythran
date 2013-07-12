@@ -477,17 +477,17 @@ struct __combined<O, core::ndarray<T,N>> {
     typedef core::ndarray<T,N> type;
 };
 
-template<class T>
-struct __combined<core::indexed_ndarray<T>, core::indexed_ndarray<T>> {
-    typedef core::indexed_ndarray<T> type;
+template<class T, size_t N>
+struct __combined<core::indexed_ndarray<T,N>, core::indexed_ndarray<T,N>> {
+    typedef core::indexed_ndarray<T,N> type;
 };
-template<class T, class O>
-struct __combined<core::indexed_ndarray<T>, O> {
-    typedef core::indexed_ndarray<T> type;
+template<class T, class O, size_t N>
+struct __combined<core::indexed_ndarray<T,N>, O> {
+    typedef core::indexed_ndarray<T,N> type;
 };
-template<class T, class O>
-struct __combined<O, core::indexed_ndarray<T>> {
-    typedef core::indexed_ndarray<T> type;
+template<class T, class O, size_t N>
+struct __combined<O, core::indexed_ndarray<T,N>> {
+    typedef core::indexed_ndarray<T,N> type;
 };
 
 template<class Arg0, class Op, class K>
@@ -725,10 +725,10 @@ namespace std {
     template <size_t i, class t>
         auto get( core::sliced_ndarray<t> const& a) -> decltype(a[i]) { return a[i]; }
 
-    template <size_t i, class t>
-        auto get( core::indexed_ndarray<t>& a) -> decltype(a[i]) { return a[i]; }
     template <size_t i, class t, size_t n>
-        auto get( core::indexed_ndarray<t> const& a) -> decltype(a[i]) { return a[i]; }
+        auto get( core::indexed_ndarray<t,n>& a) -> decltype(a[i]) { return a[i]; }
+    template <size_t i, class t, size_t n>
+        auto get( core::indexed_ndarray<t,n> const& a) -> decltype(a[i]) { return a[i]; }
 
     template <size_t I, class O, class A0, class A1>
         auto get( core::numpy_expr<O,A0,A1> const& a) -> decltype(a[I]) { return a[I]; }
@@ -739,9 +739,9 @@ namespace std {
         struct tuple_element<I, core::ndarray<T,N> > {
             typedef typename core::ndarray<T,N>::value_type type;
         };
-    template <size_t I, class T>
-        struct tuple_element<I, core::indexed_ndarray<T> > {
-            typedef typename T::value_type type;
+    template <size_t I, class T, size_t N>
+        struct tuple_element<I, core::indexed_ndarray<T,N> > {
+            typedef typename core::ndarray<T,N>::value_type type;
         };
     template <size_t I, class T>
         struct tuple_element<I, core::sliced_ndarray<T> > {

@@ -19,6 +19,8 @@ namespace  pythonic {
 
     namespace core {
 
+        struct single_value {};
+
         struct empty_list;
         template <class T> class list;
 
@@ -127,7 +129,9 @@ namespace  pythonic {
                         data->reserve(DEFAULT_LIST_CAPACITY);
                         std::copy(start, stop, std::back_inserter(*data));
                     }
+                list(empty_list const&) :data(0) {}
                 list(size_type sz) :data(sz) {}
+                list(T const& value, single_value) : data(1) { (*data)[0] = value; }
                 list(std::initializer_list<T> l) : data(std::move(l)) {}
                 list(list<T> && other) : data(std::move(other.data)) {}
                 list(list<T> const & other) : data(other.data) {}
@@ -345,7 +349,6 @@ namespace  pythonic {
 
 
             };
-
 
         /* empty list implementation */
         struct empty_list {

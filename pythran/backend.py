@@ -745,9 +745,16 @@ class Cxx(Backend):
             return "__builtin__::list()"
         else:
             elts = [self.visit(n) for n in node.elts]
-            return "{0}({{ {1} }})".format(
-                    Assignable(self.types[node]),
-                    ", ".join(elts))
+            # constructor disambiguation, clang++ workaround
+            if len(elts) == 1:
+                elts.append('core::single_value()')
+                return "{0}({{ {1} }})".format(
+                        Assignable(self.types[node]),
+                        ", ".join(elts))
+            else:
+                return "{0}({{ {1} }})".format(
+                        Assignable(self.types[node]),
+                        ", ".join(elts))
 
     def visit_Set(self, node):
         if not node.elts:  # empty set

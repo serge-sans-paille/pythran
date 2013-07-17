@@ -261,14 +261,12 @@ def compile_cxxcode(cxxcode, module_so=None, keep_temp=False,
 
     # Get a temporary C++ file to compile
     fd, fdpath = _get_temp(cxxcode)
-    try:
-        module_so = compile_cxxfile(fdpath, module_so, **kwargs)
-    finally:
-        if not keep_temp:
-            # remove tempfile
-            os.remove(fdpath)
-        else:
-            logger.warn("Keeping temporary generated file:" + fdpath)
+    module_so = compile_cxxfile(fdpath, module_so, **kwargs)
+    if not keep_temp:
+        # remove tempfile
+        os.remove(fdpath)
+    else:
+        logger.warn("Keeping temporary generated file:" + fdpath)
 
     return module_so
 

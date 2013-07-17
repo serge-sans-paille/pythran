@@ -1167,6 +1167,10 @@ namespace  pythonic {
             struct is_array< indexed_ndarray<T,N> > {
                 static constexpr bool value = true;
             };
+        template< class T, size_t M, size_t N>
+            struct is_array< gsliced_ndarray<T,M,N> > {
+                static constexpr bool value = true;
+            };
 
         /* Type trait that checks if a type resemble an array expression
          *

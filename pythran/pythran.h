@@ -1416,6 +1416,19 @@ struct pythran_to_python< core::string > {
     }
 };
 
+struct custom_core_string_view_to_str{
+    static PyObject* convert(const pythonic::core::string_view& v){
+        return custom_core_string_to_str().convert(v);
+    }
+};
+
+template<>
+struct pythran_to_python< pythonic::core::string_view > {
+    pythran_to_python() {
+        register_once< pythonic::core::string_view, custom_core_string_view_to_str >();
+    }
+};
+
 template<typename T>
 struct custom_core_list_to_list{
     static PyObject* convert(const core::list<T>& v){

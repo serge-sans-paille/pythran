@@ -361,10 +361,13 @@ namespace  pythonic {
         T : type of the sliced array, ex: ndarray<long, 3>
         N : number of slices, ex: 1
         M : number of args, ex: 2
+
+        we assume that M>=N
          */
         template<class T, size_t N, size_t M>
             struct gsliced_ndarray {
-                static constexpr size_t value = T::value + N - M;
+                static_assert(M>=N, "dimension doesn't match in gsliced_ndarray");
+                static constexpr size_t value = T::value + N - M; // number of slice (N) + number of implicit dimension (T::value - M)
 
                 typedef typename nested_container_value_type<T, value>::type value_type;
                 // with a.shape = [7,5,10]
@@ -382,6 +385,8 @@ namespace  pythonic {
                 T data;
                 long _size;
                 impl::shared_ref<raw_array<long>> to_index;
+                // number of elements between 2 value in implicit dimension (it is an offset)
+                //ex : a[:,1] -> 10
                 long islice;
 
                 gsliced_ndarray(T const& data, core::array<slice,M> const& s, core::array<bool,M> const& mask) :
@@ -433,7 +438,7 @@ namespace  pythonic {
                     const size_t s = gshape[M-L];
                     const long ja = jump_array[M-L];
                     const long je = jump_extslice[M-L];
-                    for(int i=0; i<s; i++)
+                    for(size_t i=0; i<s; i++)
                     {
                         fill_index(offset, indice, int_<L-1>(), jump_array, jump_extslice);
                         offset += ja;
@@ -449,12 +454,92 @@ namespace  pythonic {
                         *begin++ = offset++;
                 }
 
-                auto at(long i) const -> typename std::remove_reference<decltype(data.at(0))>::type {
+                template<size_t V>
+                auto _at(long i, int_<V>) const-> typename std::remove_reference<decltype(data.at(0))>::type
+                {
                     //for performance
                     if(islice==1)
                         return data.at(to_index->data[i]);
                     else
                         return data.at(to_index->data[i/islice] + i % islice);
+                }
+
+                template<size_t V>
+                auto _at(long i, int_<V>) -> decltype(data.at(0))
+                {
+                    //for performance
+                    if(islice==1)
+                        return data.at(to_index->data[i]);
+                    else
+                        return data.at(to_index->data[i/islice] + i % islice);
+                }
+                
+                auto _at(long i, int_<1>) -> decltype(data.at(0))
+                {
+                    return data.at(to_index->data[i]);
+                }
+
+                auto _at(long i, int_<1>) const -> typename std::remove_reference<decltype(data.at(0))>::type
+                {
+                    return data.at(to_index->data[i]);
+                }
+
+                auto at(long i) const -> typename std::remove_reference<decltype(data.at(0))>::type {
+                    return _at(i, int_<value>());
+                }
+
+                auto at(long i) -> decltype(data.at(0)) {
+                    return _at(i, int_<value>());
+                }
+
+                template<size_t V, size_t NN>
+                gsliced_ndarray<T, N-1, M> get(long i, int_<V>, int_<NN>) const
+                {
+                    core::array<bool,M> mask;
+                    for(size_t i=0, j=0; i<M; i++)
+                    {
+                        if(shape[j] == gshape[i])
+                        {
+                            mask[i] = true;
+                            j++;
+                        }
+                    }
+                    return gsliced_ndarray<T, N-1, M>(data, gshape, mask);
+                }
+
+                template<size_t NN>
+                value_type get(long i, int_<1>, int_<NN>) const
+                {
+                    return _at(i, int_<1>());
+                }
+
+                value_type get(long i, int_<1>, int_<1>) const
+                {
+                    return _at(i, int_<1>());
+                }
+
+                template<size_t V>
+                indexed_ndarray<typename nested_container_value_type<T>::type, value-1> get(long i, int_<V>, int_<1>) const
+                {
+                    core::array<long, M> tuple;
+                    for(int i=0; i<M; i++)
+                    {
+                        if(gslice[i].step == 1)
+                            tuple[i] = gslice[i].lower;
+                        else
+                            tuple[i] = i;
+                    }
+                    return indexed_ndarray<typename nested_container_value_type<T>::type, value-1>(data, tuple);
+                }
+
+                auto operator[](long i) const -> typename std::remove_reference<decltype(this->get(i, int_<value>(), int_<N>()))>::type
+                {
+                    return this->get(i, int_<value>(), int_<N>());
+                }
+
+                auto operator[](long i) -> decltype(this->get(i, int_<value>(), int_<N>()))
+                {
+                    return this->get(i, int_<value>(), int_<N>());
                 }
 
                 long size() const {

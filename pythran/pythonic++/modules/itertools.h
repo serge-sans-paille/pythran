@@ -445,16 +445,18 @@ namespace pythonic {
         PROXY(pythonic::itertools,izip);
 
         template <typename Iterable>
-            struct islice_iterator : std::iterator< typename Iterable::iterator_category, typename Iterable::value_type > {
-                Iterable iterable;
+            struct islice_iterator : std::iterator< typename Iterable::iterator::iterator_category, typename Iterable::iterator::value_type > {
+                typename std::remove_reference<typename std::remove_cv<Iterable>::type>::type iterable_ref;
+                typename std::remove_reference<typename std::remove_cv<Iterable>::type>::type::iterator iterable;
+                __builtin__::xrange xr_ref;
                 __builtin__::xrange_iterator state;
                 __builtin__::xrange_iterator::value_type prev;
 
                 islice_iterator() {}
-                islice_iterator(Iterable const & iterable, __builtin__::xrange_iterator const& xr): iterable(iterable), state(xr), prev(0) {
-                    std::advance(this->iterable, *state-prev);
-                    prev = *state;
+                islice_iterator(Iterable const & iterable, __builtin__::xrange const& xr): xr_ref(xr), iterable_ref(iterable), iterable(iterable_ref.begin()), state(xr_ref.begin()), prev(*state) {
+                    std::advance(this->iterable, *state);
                 }
+                islice_iterator(npos const& n, Iterable const & iterable, __builtin__::xrange const& xr): xr_ref(xr), iterable_ref(iterable), iterable(iterable_ref.begin()), state(xr_ref.end()), prev(0) {}
 
                 typename Iterable::value_type operator*() const {
                     return *iterable;
@@ -487,18 +489,15 @@ namespace pythonic {
 
 
         template <typename Iterable>
-            struct _islice : islice_iterator<typename Iterable::iterator> {
+            struct _islice : islice_iterator<Iterable> {
 
-                typedef islice_iterator<typename Iterable::iterator> iterator;
+                typedef islice_iterator<Iterable> iterator;
                 typedef typename Iterable::value_type value_type;
-
-                Iterable iterable;
-                __builtin__::xrange xr;
 
                 iterator end_iter;
 
                 _islice() {}
-                _islice(Iterable iterable, __builtin__::xrange const& xr) : iterator(iterable.begin(), xr.begin()), iterable(iterable), xr(xr), end_iter(iterable.begin(), xr.end()) {
+                _islice(Iterable const& iterable, __builtin__::xrange const& xr) : iterator(iterable, xr), end_iter(npos(), iterable, xr) {
                 }
 
                 iterator& begin() { return *this; }

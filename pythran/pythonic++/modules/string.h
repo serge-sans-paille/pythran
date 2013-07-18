@@ -98,6 +98,8 @@ namespace pythonic {
 
         core::string strip(core::string const& self, core::string const& to_del = " \n")
         {
+            if(not self)
+                return self;
             return core::string(self.begin() + self.find_first_not_of(to_del), self.begin() + self.find_last_not_of(to_del) + 1);
         }
         PROXY(pythonic::__string__, strip);

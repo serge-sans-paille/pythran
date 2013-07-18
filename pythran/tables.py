@@ -1056,6 +1056,7 @@ modules = {
                 "eps": AttributeIntr(0),
                 },
         "__ndarray__": {
+                "dtype": AttributeIntr(7),
                 "fill": MethodIntr(),
                 "flat": AttributeIntr(6),
                 "flatten": MethodIntr(),
@@ -1066,6 +1067,7 @@ modules = {
                 "shape": AttributeIntr(0),
                 "size": AttributeIntr(3),
                 "strides": AttributeIntr(2),
+                "T": AttributeIntr(8),
                 "tolist": ConstMethodIntr(),
                 "tostring": ConstMethodIntr(),
                 },

@@ -252,7 +252,8 @@ namespace  pythonic {
                         else
                             lower = s.lower >= 0L ? s.lower : ( s.lower + data->size());
                         lower = std::max(0L,lower);
-                        upper = s.upper >= 0L ? s.upper : ( s.upper + data->size());
+                        upper = s.upper == std::numeric_limits<long>::max() ? 0L : s.upper;
+                        upper = upper >= 0L ? upper : ( upper + data->size());
                         upper = std::min(upper, (long)data->size());
                         for(long iter = lower; iter >= upper ; iter+=s.step)
                             out.push_back((*data)[iter]);
@@ -274,7 +275,11 @@ namespace  pythonic {
 
                 // modifiers
                 void push_back( T const & x) { data->push_back(x); }
-                void insert(size_t i, T const & x) { data->insert(data->begin()+i, x); }
+                void insert(size_t i, T const & x) {
+                    if(i==size()) data->push_back(x);
+                    else data->insert(data->begin()+i, x);
+                }
+
                 void reserve(size_t n) { data->reserve(n); }
                 void resize(size_t n) { data->resize(n); }
                 iterator erase(size_t n) { return data->erase(data->begin()+n); }

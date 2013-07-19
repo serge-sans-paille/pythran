@@ -19,7 +19,7 @@ This modules contains code transformation to turn python AST into
 '''
 
 from analysis import ImportedIds, Identifiers, YieldPoints, Globals, Locals
-from analysis import UsedDefChain, UseOMP
+from analysis import UsedDefChain, UseOMP, CFG
 from passmanager import Transformation
 from tables import methods, attributes, functions, modules
 from tables import builtin_constructors
@@ -503,19 +503,24 @@ class NormalizeReturn(Transformation):
         return None
     '''
 
+    def __init__(self):
+        super(NormalizeReturn, self).__init__(CFG)
+
     def visit_FunctionDef(self, node):
         self.yield_points = self.passmanager.gather(YieldPoints, node)
-        self.has_return = False
-        [self.visit(n) for n in node.body]
-        if not self.has_return:
-            if self.yield_points:
-                node.body.append(ast.Return(None))
-            else:
-                node.body.append(ast.Return(ast.Name("None", ast.Load())))
+        map(self.visit, node.body)
+        # Look for nodes that have no successors
+        for n in self.cfg.predecessors(None):
+            if type(n) not in (ast.Return, ast.Raise):
+                if self.yield_points:
+                    node.body.append(ast.Return(None))
+                else:
+                    node.body.append(ast.Return(ast.Name("None", ast.Load())))
+                break
+
         return node
 
     def visit_Return(self, node):
-        self.has_return = True
         if not node.value:
             node.value = (None
                     if self.yield_points

@@ -138,7 +138,7 @@ namespace pythonic {
                 std::copy(other.begin(), other.end(), begin());
                 return *this;
             }
-            bool operator==(string_view const & other) {
+            bool operator==(string_view const & other) const {
                 if(length() != other.size())
                     return false;
                 for(int i=other.get_slice().lower, j=0;i<other.get_slice().upper;i+=other.get_slice().step, j++)

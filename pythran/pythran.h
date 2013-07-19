@@ -37,6 +37,11 @@ struct lazy{
 };
 
 template<class T>
+struct assignable<none<T> >{
+    typedef none<typename assignable<T>::type > type;
+};
+
+template<class T>
 struct assignable<pythonic::core::set<T> >{
     typedef pythonic::core::set<typename assignable<T>::type > type;
 };
@@ -701,6 +706,21 @@ struct __combined<T1, none<T0>> : std::enable_if<!is_none<T0>::value, dummy>::ty
 template<class T0, class T1>
 struct __combined<none<T1>, none<T0>>  {
     typedef none<typename __combined<T0,T1>::type> type;
+};
+
+template<class T>
+struct __combined<typename std::enable_if<!is_none<T>::value, none_type>::type, T> {
+    typedef none<T> type;
+};
+
+template<class T>
+struct __combined<T, typename std::enable_if<!is_none<T>::value, none_type>::type> {
+    typedef none<T> type;
+};
+
+template<>
+struct __combined<none_type, none_type>  {
+    typedef none_type type;
 };
 
 
@@ -1599,7 +1619,7 @@ template <typename T>
 struct custom_none_to_any {
     static PyObject* convert( none<T> const& n) {
         if(n.is_none) return boost::python::incref(boost::python::object().ptr());
-        else return boost::python::incref(boost::python::object(n.data).ptr());
+        else return boost::python::incref(boost::python::object(static_cast<T const&>(n)).ptr());
     }
 };
 

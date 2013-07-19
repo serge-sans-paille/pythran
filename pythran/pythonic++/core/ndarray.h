@@ -29,7 +29,7 @@ namespace  pythonic {
 
         template<class T, size_t N>
             struct ndarray;
-        template<class T>
+        template<class T, size_t N>
             struct indexed_ndarray;
         template<class Expr>
             struct is_array;
@@ -89,8 +89,8 @@ namespace  pythonic {
             struct numpy_uexpr {
 
                 Arg0 arg0;
-                typedef decltype(Op()(arg0.at(std::declval<long>()))) value_type;
                 static constexpr size_t value = std::remove_reference<Arg0>::type::value;
+                typedef typename type_helper<ndarray<decltype(Op()(arg0.at(std::declval<long>()))), value>>::type value_type;
                 core::array<long, value> shape;
                 numpy_uexpr() {}
                 numpy_uexpr(Arg0 const& arg0) : arg0(arg0), shape(arg0.shape) {
@@ -125,8 +125,8 @@ namespace  pythonic {
             struct numpy_expr {
                 Arg0 arg0;
                 Arg1 arg1;
-                typedef decltype(Op()(arg0.at(std::declval<long>()), arg1.at(std::declval<long>()))) value_type;
                 static constexpr size_t value = std::remove_reference<Arg0>::type::value>std::remove_reference<Arg1>::type::value?std::remove_reference<Arg0>::type::value: std::remove_reference<Arg1>::type::value;
+                typedef typename type_helper<ndarray<decltype(Op()(arg0.at(std::declval<long>()), arg1.at(std::declval<long>()))), value>>::type value_type;
                 core::array<long, value> shape;
                 numpy_expr() {}
 
@@ -233,32 +233,54 @@ namespace  pythonic {
 
         /* proxy type to hold the return of an index
          */
-        template <class T>
-            struct indexed_ndarray : T {
-                indexed_ndarray() : T() {}
-                indexed_ndarray(T const& t) : T(t) {
+        template <class T, size_t N>
+            struct indexed_ndarray : ndarray<T,N> {
+                indexed_ndarray() : ndarray<T,N>() {}
+                indexed_ndarray(ndarray<T,N> const& t) : ndarray<T,N>(t) {}
+                indexed_ndarray(ndarray<T,N+1> const& t, long i) {
+                    ndarray<T,N>::data_size = t.shape[1];
+                    ndarray<T,N>::mem = t.mem;
+                    ndarray<T,N>::buffer = t.buffer + i*std::accumulate(t.shape.begin() + 1, t.shape.end(), 1L, std::multiplies<long>());
+                    for(size_t i =1; i<N+1;i++)
+                        ndarray<T,N>::shape[i-1] = t.shape[i];
                 }
+                template<size_t M>
+                    indexed_ndarray(ndarray<T,N+M> const& a, core::array<long,M> const& l)
+                    {
+                        std::copy(a.shape.begin() + M, a.shape.end(), ndarray<T,N>::shape.begin());
+                        long mult = a.shape[N+M-1];
+                        for(size_t i=N+M-2; i>M-1; --i)
+                            mult *= a.shape[i];
+                        size_t offset = 0;
+                        for(size_t i=M-1;i>0;--i) {
+                            offset += l[i]*mult;
+                            mult *= a.shape[i];
+                        }
+                        ndarray<T,N>::data_size = ndarray<T,N>::shape[0];
+                        ndarray<T,N>::mem = a.mem;
+                        ndarray<T,N>::buffer = a.buffer + offset + l[0] * mult;
+                    }
 
                 template<class E>
-                    typename std::enable_if<is_array<typename std::remove_reference<E>::type>::value, indexed_ndarray<T>&>::type
+                    typename std::enable_if<is_array<typename std::remove_reference<E>::type>::value, indexed_ndarray<T,N>&>::type
                     operator=(E&& e) {
-                        if(T::data_size) {
+                        if(ndarray<T,N>::data_size) {
                             for(long i=0, n=e.size(); i<n; ++i)
-                                T::buffer[i] = e.at(i);
+                                ndarray<T,N>::buffer[i] = e.at(i);
                         }
                         else
-                            T::operator=(std::forward<E>(e));
+                            ndarray<T,N>::operator=(std::forward<E>(e));
                         return *this;
                     }
-                template<class M, size_t N>
-                    indexed_ndarray<T>& operator=(core::array<M,N> const& e) {
-                        T::operator=(e);
+                template<class M, size_t L>
+                    indexed_ndarray<T,N>& operator=(core::array<M,L> const& e) {
+                        ndarray<T,N>::operator=(e);
                         return *this;
                     }
                 template<class E>
-                    typename std::enable_if<not is_array<typename std::remove_reference<E>::type>::value, indexed_ndarray<T>&>::type
+                    typename std::enable_if<not is_array<typename std::remove_reference<E>::type>::value, indexed_ndarray<T,N>&>::type
                     operator=(E&& e) {
-                        T::operator=(std::forward<E>(e));
+                        ndarray<T,N>::operator=(std::forward<E>(e));
                         return *this;
                     }
             };
@@ -283,14 +305,8 @@ namespace  pythonic {
                     return from;
                 }
 
-                static indexed_ndarray<type> get(ndarray<T,N> const& self, long i) {
-                    indexed_ndarray<type> r;
-                    r.data_size = self.shape[1];
-                    r.mem = self.mem;
-                    r.buffer = self.buffer + i*std::accumulate(self.shape.begin() + 1, self.shape.end(), 1L, std::multiplies<long>());
-                    for(size_t i =1; i<N;i++)
-                        r.shape[i-1] = self.shape[i];
-                    return r;
+                static indexed_ndarray<T,N-1> get(ndarray<T,N> const& self, long i) {
+                    return indexed_ndarray<T,N-1>(self, i);
                 }
                 static long step(ndarray<T,N> const& self) { return std::accumulate(self.shape.begin() + 1, self.shape.end(), 1L, std::multiplies<long>());}
             };
@@ -340,14 +356,20 @@ namespace  pythonic {
             };
 
         /* Proxy type for extended slices
+        for a = np.arange(2*3*4).reshape(2,3,4)
+            a = a[1,0:1]
+        T : type of the sliced array, ex: ndarray<long, 3>
+        N : number of slices, ex: 1
+        M : number of args, ex: 2
+
+        we assume that M>=N
          */
         template<class T, size_t N, size_t M>
             struct gsliced_ndarray {
-                static constexpr size_t value = N;
+                static_assert(M>=N, "dimension doesn't match in gsliced_ndarray");
+                static constexpr size_t value = T::value + N - M; // number of slice (N) + number of implicit dimension (T::value - M)
 
-                typedef typename T::value_type value_type;
-                typedef typename T::reference reference;
-                typedef typename T::const_reference const_reference;
+                typedef typename nested_container_value_type<T, value>::type value_type;
                 // with a.shape = [7,5,10]
 
                 // list of slices :
@@ -358,14 +380,16 @@ namespace  pythonic {
                 core::array<long,M> gshape;
                 // shape of this extslice :
                 // ex : a[1:3,3,7:] -> [2,3]
-                core::array<long,N> shape;
+                core::array<long,value> shape;
 
-                T& data;
+                T data;
                 long _size;
                 impl::shared_ref<raw_array<long>> to_index;
+                // number of elements between 2 value in implicit dimension (it is an offset)
+                //ex : a[:,1] -> 10
                 long islice;
 
-                gsliced_ndarray(T & data, core::array<slice,M> const& s, core::array<bool,M> const& mask) :
+                gsliced_ndarray(T const& data, core::array<slice,M> const& s, core::array<bool,M> const& mask) :
                     gslice(s),
                     gshape(),
                     shape(),
@@ -383,14 +407,16 @@ namespace  pythonic {
                         if(mask[i])
                             shape[j++] = gshape[i];
                     }
+                    std::copy(data.shape.begin() + M , data.shape.end(), shape.begin() + N);
+
                     long start_index = 0;
                     auto const &dshape = data.shape;
                     long dmult = 1;
                     long gmult = 1;
-                    // number of elts before the next elts of thie dimension in the extslice :
+                    // number of elts before the next elts of this dimension in the extslice :
                     // ex : a[1:3,3,7:] -> [50,10,1]
                     core::array<long,M> jump_array;
-                    // number of elts before the next elts of thie dimension in the array :
+                    // number of elts before the next elts of this dimension in the array :
                     // ex : a[1:3,3,7:] -> [3,3,1]
                     core::array<long,M> jump_extslice;
                     for(long j=M-1; j>=0; j--) {
@@ -412,7 +438,7 @@ namespace  pythonic {
                     const size_t s = gshape[M-L];
                     const long ja = jump_array[M-L];
                     const long je = jump_extslice[M-L];
-                    for(int i=0; i<s; i++)
+                    for(size_t i=0; i<s; i++)
                     {
                         fill_index(offset, indice, int_<L-1>(), jump_array, jump_extslice);
                         offset += ja;
@@ -428,12 +454,92 @@ namespace  pythonic {
                         *begin++ = offset++;
                 }
 
-                auto at(long i) const -> typename std::remove_reference<decltype(data.at(0))>::type {
+                template<size_t V>
+                auto _at(long i, int_<V>) const-> typename std::remove_reference<decltype(data.at(0))>::type
+                {
                     //for performance
                     if(islice==1)
                         return data.at(to_index->data[i]);
                     else
                         return data.at(to_index->data[i/islice] + i % islice);
+                }
+
+                template<size_t V>
+                auto _at(long i, int_<V>) -> decltype(data.at(0))
+                {
+                    //for performance
+                    if(islice==1)
+                        return data.at(to_index->data[i]);
+                    else
+                        return data.at(to_index->data[i/islice] + i % islice);
+                }
+                
+                auto _at(long i, int_<1>) -> decltype(data.at(0))
+                {
+                    return data.at(to_index->data[i]);
+                }
+
+                auto _at(long i, int_<1>) const -> typename std::remove_reference<decltype(data.at(0))>::type
+                {
+                    return data.at(to_index->data[i]);
+                }
+
+                auto at(long i) const -> typename std::remove_reference<decltype(data.at(0))>::type {
+                    return _at(i, int_<value>());
+                }
+
+                auto at(long i) -> decltype(data.at(0)) {
+                    return _at(i, int_<value>());
+                }
+
+                template<size_t V, size_t NN>
+                gsliced_ndarray<T, N-1, M> get(long i, int_<V>, int_<NN>) const
+                {
+                    core::array<bool,M> mask;
+                    for(size_t i=0, j=0; i<M; i++)
+                    {
+                        if(shape[j] == gshape[i])
+                        {
+                            mask[i] = true;
+                            j++;
+                        }
+                    }
+                    return gsliced_ndarray<T, N-1, M>(data, gshape, mask);
+                }
+
+                template<size_t NN>
+                value_type get(long i, int_<1>, int_<NN>) const
+                {
+                    return _at(i, int_<1>());
+                }
+
+                value_type get(long i, int_<1>, int_<1>) const
+                {
+                    return _at(i, int_<1>());
+                }
+
+                template<size_t V>
+                indexed_ndarray<typename nested_container_value_type<T>::type, value-1> get(long i, int_<V>, int_<1>) const
+                {
+                    core::array<long, M> tuple;
+                    for(int i=0; i<M; i++)
+                    {
+                        if(gslice[i].step == 1)
+                            tuple[i] = gslice[i].lower;
+                        else
+                            tuple[i] = i;
+                    }
+                    return indexed_ndarray<typename nested_container_value_type<T>::type, value-1>(data, tuple);
+                }
+
+                auto operator[](long i) const -> typename std::remove_reference<decltype(this->get(i, int_<value>(), int_<N>()))>::type
+                {
+                    return this->get(i, int_<value>(), int_<N>());
+                }
+
+                auto operator[](long i) -> decltype(this->get(i, int_<value>(), int_<N>()))
+                {
+                    return this->get(i, int_<value>(), int_<N>());
                 }
 
                 long size() const {
@@ -459,17 +565,32 @@ namespace  pythonic {
                     }
 
 
-                gsliced_ndarray<T,N,M>& operator+=(value_type v) {
+                template<class U, size_t K, size_t L>
+                gsliced_ndarray<T,N,M>& operator+=(gsliced_ndarray<U,K,L> const& v) {
+                    for(long i=0, n= size(); i<n ; ++i)
+                        data.buffer[to_index->data[i]] += v.data.buffer[v.to_index->data[i]];
+                    return *this;
+                }
+
+
+                gsliced_ndarray<T,N,M>& operator/=(typename nested_container_value_type<gsliced_ndarray<T,N,M>>::type v) {
+                    for(long i=0, n= size(); i<n ; ++i)
+                        data.buffer[to_index->data[i]] /= v;
+                    return *this;
+                }
+
+                gsliced_ndarray<T,N,M>& operator-=(typename nested_container_value_type<gsliced_ndarray<T,N,M>>::type v) {
+                    for(long i=0, n= size(); i<n ; ++i)
+                        data.buffer[to_index->data[i]] -= v;
+                    return *this;
+                }
+
+                gsliced_ndarray<T,N,M>& operator+=(typename nested_container_value_type<gsliced_ndarray<T,N,M>>::type v) {
                     for(long i=0, n= size(); i<n ; ++i)
                         data.buffer[to_index->data[i]] += v;
                     return *this;
                 }
 
-                gsliced_ndarray<T,N,M>& operator-=(value_type v) {
-                    for(long i=0, n= size(); i<n ; ++i)
-                        data.buffer[to_index->data[i]] -= v;
-                    return *this;
-                }
             };
 
         /* proxy type to hold the return of a slice
@@ -612,7 +733,7 @@ namespace  pythonic {
 
                 impl::shared_ref<raw_array<T>> mem;     // shared data pointer
                 T* buffer;                              // pointer to the first data stored in the equivalent flat array
-                core::array<long, N> shape;              // shape of the multidimensional array
+                core::array<long, N> shape;             // shape of the multidimensional array
 
                 /* constructors */
                 ndarray() : data_size(0), mem(impl::no_memory()), buffer(nullptr), shape() {}
@@ -756,12 +877,12 @@ namespace  pythonic {
                 {
                     initialize_from_expr(expr);
                 }
-                template<class E>
-                    ndarray(indexed_ndarray<E> const& expr):
-                        data_size(expr.shape[0]),
-                        mem(expr.size()),
-                        buffer(mem->data),
-                        shape(expr.shape)
+                template<class Tp>
+                ndarray(indexed_ndarray<Tp,N> const& expr):
+                    data_size(expr.shape[0]),
+                    mem(expr.size()),
+                    buffer(mem->data),
+                    shape(expr.shape)
                 {
                     initialize_from_expr(expr);
                 }
@@ -778,7 +899,7 @@ namespace  pythonic {
                 }
 
                 /* of an indexed array */
-                ndarray<T,N>& operator=(indexed_ndarray<ndarray<T,N>> const& other) {
+                ndarray<T,N>& operator=(indexed_ndarray<T,N> const& other) {
                     data_size = other.data_size;
                     mem = other.mem;
                     buffer = other.buffer;
@@ -843,22 +964,9 @@ namespace  pythonic {
                 }
 
                 template<size_t M, size_t K>
-                    indexed_ndarray<typename type_helper<ndarray<T, N-M+1>>::type> get(core::array<long,M> const& l, int_<K>)
+                    indexed_ndarray<T, N-M> get(core::array<long,M> const& l, int_<K>)
                     {
-                        indexed_ndarray<typename type_helper<ndarray<T, N-M+1>>::type> out;
-                        std::copy(shape.begin() + M, shape.end(), out.shape.begin());
-                        long mult = shape[N-1];
-                        for(size_t i=N-2; i>M-1; --i)
-                            mult *= shape[i];
-                        size_t offset = 0;
-                        for(size_t i=M-1;i>0;--i) {
-                            offset += l[i]*mult;
-                            mult *= shape[i];
-                        }
-                        out.data_size = out.shape[0];
-                        out.mem = mem;
-                        out.buffer = buffer + offset + l[0] * mult;
-                        return out;
+                        return indexed_ndarray<T, N-M>(*this, l);
                     }
                 template<size_t M>
                 auto operator[](core::array<long, M> const& arr) ->decltype(this->get(arr, int_<N-M>())) {
@@ -876,22 +984,9 @@ namespace  pythonic {
                 }
 
                 template<size_t M, size_t K>
-                    indexed_ndarray<typename type_helper<ndarray<T, N-M+1>>::type> get(core::array<long,M> const& l, int_<K>) const
+                    indexed_ndarray<T, N-M> get(core::array<long,M> const& l, int_<K>) const
                     {
-                        indexed_ndarray<typename type_helper<ndarray<T, N-M+1>>::type> out;
-                        std::copy(shape.begin() + M, shape.end(), out.shape.begin());
-                        long mult = shape[N-1];
-                        for(size_t i=N-2; i>M-1; --i)
-                            mult *= shape[i];
-                        size_t offset = 0;
-                        for(size_t i=M-1;i>0;--i) {
-                            offset += l[i]*mult;
-                            mult *= shape[i];
-                        }
-                        out.data_size = out.shape[0];
-                        out.mem = mem;
-                        out.buffer = buffer + offset + l[0] * mult;
-                        return out;
+                        return indexed_ndarray<T, N-M>(*this, l);
                     }
                     
                 template<size_t M>
@@ -930,11 +1025,6 @@ namespace  pythonic {
                 /* by extended slice */
                 template<class S0, class S1, class...S>
                 gsliced_ndarray<ndarray<T,N>, count_slices<S0,S1,S...>::value, 2 + sizeof...(S) > operator()(S0 const& s0, S1 const& s1, S const&... s_) const
-                {
-                    return gsliced_ndarray<ndarray<T,N>, count_slices<S0,S1,S...>::value, 2 + sizeof...(S)>(*this, core::array<slice, 2 + sizeof...(S)>{{as_slice(s0), as_slice(s1), as_slice(s_)...}}, core::array<bool, 2 + sizeof...(S)>{{std::is_same<S0,slice>::value, std::is_same<S1,slice>::value, std::is_same<S,slice>::value...}});
-                }
-                template<class S0, class S1, class...S>
-                gsliced_ndarray<ndarray<T,N>, count_slices<S0,S1,S...>::value, 2 + sizeof...(S) > operator()(S0 const& s0, S1 const& s1, S const&... s_)
                 {
                     return gsliced_ndarray<ndarray<T,N>, count_slices<S0,S1,S...>::value, 2 + sizeof...(S)>(*this, core::array<slice, 2 + sizeof...(S)>{{as_slice(s0), as_slice(s1), as_slice(s_)...}}, core::array<bool, 2 + sizeof...(S)>{{std::is_same<S0,slice>::value, std::is_same<S1,slice>::value, std::is_same<S,slice>::value...}});
                 }
@@ -1073,8 +1163,12 @@ namespace  pythonic {
             struct is_array< ndarray<T,N> > {
                 static constexpr bool value = true;
             };
-        template< class T>
-            struct is_array< indexed_ndarray<T> > {
+        template< class T, size_t N>
+            struct is_array< indexed_ndarray<T,N> > {
+                static constexpr bool value = true;
+            };
+        template< class T, size_t M, size_t N>
+            struct is_array< gsliced_ndarray<T,M,N> > {
                 static constexpr bool value = true;
             };
 
@@ -1111,8 +1205,8 @@ namespace  pythonic {
             struct is_numexpr_arg<sliced_ndarray<T>> {
                 static constexpr bool value = true;
             };
-        template<class T>
-            struct is_numexpr_arg<indexed_ndarray<T>> {
+        template<class T, size_t N>
+            struct is_numexpr_arg<indexed_ndarray<T,N>> {
                 static constexpr bool value = true;
             };
         template<class T, size_t N, size_t M>

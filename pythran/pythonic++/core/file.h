@@ -137,10 +137,8 @@ namespace  pythonic {
 					size = size < 0 ? tell() - curr_pos : size;
 					seek(curr_pos);
 					char *content = new char[size+1];
-					// Putting a '\0' after relevant info even if size is > number of bits in file.
-					content[fread(content, sizeof(char), size, **data)] = '\0';
 					// This part needs a new implementation of core::string(char*) to avoid unnecessary copy.
-					core::string res(content);
+					core::string res(content, fread(content, sizeof(char), size, **data));
 					delete[] content;
 					return res;
 				}
@@ -236,7 +234,7 @@ namespace  pythonic {
 					return *this;
         		}
 				core::string file_iterator::operator*() const{
-        		    return core::string(curr);
+        		    return curr;
 		        }
 			// End of file_iterator implementation
 

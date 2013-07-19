@@ -94,7 +94,7 @@ class Cxx(Backend):
     def __init__(self):
         self.declarations = list()
         self.definitions = list()
-        self.break_handler = list()
+        self.break_handlers = list()
         self.result = None
         super(Cxx, self).__init__(
                 GlobalDeclarations, BoundedExpressions, Types, ArgumentEffects)
@@ -559,13 +559,13 @@ class Cxx(Backend):
         target = self.visit(node.target)
 
         if node.orelse:
-            break_handler = "__no_breaking{0}".format(len(self.break_handler))
+            break_handler = "__no_breaking{0}".format(len(self.break_handlers))
         else:
             break_handler = None
-        self.break_handler.append(break_handler)
+        self.break_handlers.append(break_handler)
 
-        local_iter = "__iter{0}".format(len(self.break_handler))
-        local_target = "__target{0}".format(len(self.break_handler))
+        local_iter = "__iter{0}".format(len(self.break_handlers))
+        local_target = "__target{0}".format(len(self.break_handlers))
 
         local_iter_decl = Assignable(DeclType(iter))
         local_target_decl = NamedType("{0}::iterator".format(local_iter_decl))
@@ -577,7 +577,7 @@ class Cxx(Backend):
 
         loop_body = [self.visit(n) for n in node.body]
 
-        self.break_handler.pop()
+        self.break_handlers.pop()
 
         # eventually add local_iter in a shared clause
         omp = metadata.get(node, OMPDirective)
@@ -631,13 +631,25 @@ class Cxx(Backend):
 
     def visit_While(self, node):
         test = self.visit(node.test)
-        self.break_handler.append(
-                Block([self.visit(n) for n in node.orelse])
-                if node.orelse
-                else None)
+
+        if node.orelse:
+            break_handler = "__no_breaking{0}".format(len(self.break_handlers))
+        else:
+            break_handler = None
+        self.break_handlers.append(break_handler)
+
         body = [self.visit(n) for n in node.body]
-        self.break_handler.pop()
-        return While(test, Block(body))
+
+        self.break_handlers.pop()
+
+        while_ = While(test, Block(body))
+
+        if break_handler:
+            orelse = map(self.visit, node.orelse)
+            orelse_label = Statement("{0}:".format(break_handler))
+            return Block([while_] + orelse + [orelse_label])
+        else:
+            return while_
 
     def visit_TryExcept(self, node):
         body = [self.visit(n) for n in node.body]
@@ -706,8 +718,8 @@ class Cxx(Backend):
         return self.process_omp_attachements(node, stmt)
 
     def visit_Break(self, node):
-        if self.break_handler[-1]:
-            return Statement("goto {0}".format(self.break_handler[-1]))
+        if self.break_handlers[-1]:
+            return Statement("goto {0}".format(self.break_handlers[-1]))
         else:
             return Statement("break")
 

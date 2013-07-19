@@ -78,7 +78,7 @@ namespace pythonic {
 
         template<class T, class F>
             none_type insert(core::list<T> &seq, long n, F const& value) {
-                if(seq.size()) n = n%seq.size();
+                n = n%(1+seq.size());
                 if (n<0) n+=seq.size();
                 seq.insert(n, value);
                 return None;
@@ -86,7 +86,7 @@ namespace pythonic {
 
         template<class T, class F>
             none_type insert(core::list<T> &seq, long n, F && value) {
-                if(seq.size()) n = n%seq.size();
+                n = n%(1+seq.size()); // +1 because we want to be able to insert at the end of seq
                 if (n<0) n+=seq.size();
                 seq.insert(n, value);
                 return None;

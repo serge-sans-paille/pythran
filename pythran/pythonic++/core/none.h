@@ -57,22 +57,30 @@ namespace pythonic {
         operator long long() const { return data; }\
         operator double() const { return data; }\
     };\
-    T operator+(none<T> const& t0, T const &t1)  { return t0.data + t1     ; }\
-    T operator+(T const &t0, none<T> const& t1)  { return t0      + t1.data; }\
-    T operator>(none<T> const& t0, T const &t1)  { return t0.data > t1     ; }\
-    T operator>(T const &t0, none<T> const& t1)  { return t0      > t1.data; }\
-    T operator>=(none<T> const& t0, T const &t1) { return t0.data >= t1     ; }\
-    T operator>=(T const &t0, none<T> const& t1) { return t0      >= t1.data; }\
-    T operator<(none<T> const& t0, T const &t1)  { return t0.data < t1     ; }\
-    T operator<(T const &t0, none<T> const& t1)  { return t0      < t1.data; }\
-    T operator<=(none<T> const& t0, T const &t1) { return t0.data <= t1     ; }\
-    T operator<=(T const &t0, none<T> const& t1) { return t0      <= t1.data; }\
-    T operator-(none<T> const& t0, T const &t1)  { return t0.data - t1     ; }\
-    T operator-(T const &t0, none<T> const& t1)  { return t0      - t1.data; }\
-    T operator*(none<T> const& t0, T const &t1)  { return t0.data * t1     ; }\
-    T operator*(T const &t0, none<T> const& t1)  { return t0      * t1.data; }\
-    T operator/(none<T> const& t0, T const &t1)  { return t0.data / t1     ; }\
-    T operator/(T const &t0, none<T> const& t1)  { return t0      / t1.data; }
+    T operator+(none<T> const& t0, T const &t1)         { return t0.data + t1     ; }\
+    T operator+(T const &t0, none<T> const& t1)         { return t0      + t1.data; }\
+    T operator+(none<T> const &t0, none<T> const& t1)   { return t0.data + t1.data; }\
+    T operator>(none<T> const& t0, T const &t1)         { return t0.data > t1     ; }\
+    T operator>(T const &t0, none<T> const& t1)         { return t0      > t1.data; }\
+    T operator>(none<T> const &t0, none<T> const& t1)   { return t0.data > t1.data; }\
+    T operator>=(none<T> const& t0, T const &t1)        { return t0.data >= t1     ; }\
+    T operator>=(T const &t0, none<T> const& t1)        { return t0      >= t1.data; }\
+    T operator>=(none<T> const &t0, none<T> const& t1)  { return t0.data >= t1.data; }\
+    T operator<(none<T> const& t0, T const &t1)         { return t0.data < t1     ; }\
+    T operator<(T const &t0, none<T> const& t1)         { return t0      < t1.data; }\
+    T operator<(none<T> const &t0, none<T> const& t1)   { return t0.data < t1.data; }\
+    T operator<=(none<T> const& t0, T const &t1)        { return t0.data <= t1     ; }\
+    T operator<=(T const &t0, none<T> const& t1)        { return t0      <= t1.data; }\
+    T operator<=(none<T> const &t0, none<T> const& t1)  { return t0.data <= t1.data; }\
+    T operator-(none<T> const& t0, T const &t1)         { return t0.data - t1     ; }\
+    T operator-(T const &t0, none<T> const& t1)         { return t0      - t1.data; }\
+    T operator-(none<T> const &t0, none<T> const& t1)   { return t0.data - t1.data; }\
+    T operator*(none<T> const& t0, T const &t1)         { return t0.data * t1     ; }\
+    T operator*(T const &t0, none<T> const& t1)         { return t0      * t1.data; }\
+    T operator*(none<T> const &t0, none<T> const& t1)   { return t0.data * t1.data; }\
+    T operator/(none<T> const& t0, T const &t1)         { return t0.data / t1     ; }\
+    T operator/(T const &t0, none<T> const& t1)         { return t0      / t1.data; }\
+    T operator/(none<T> const &t0, none<T> const& t1)   { return t0.data / t1.data; }
 
     SPECIALIZE_NONE(size_t);
     SPECIALIZE_NONE(long);

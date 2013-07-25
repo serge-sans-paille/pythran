@@ -212,12 +212,13 @@ namespace pythonic {
     }
 }
 
-pythonic::core::string operator*(pythonic::core::string const & s, long t) {
-    size_t n=t;
+pythonic::core::string operator*(pythonic::core::string const & s, long n) {
+    if(n<0)
+        return pythonic::core::string();
     pythonic::core::string other;
-    other.resize(s.size()*n,'a');
+    other.resize(s.size()*n);
     auto where = other.begin();
-    for(size_t i=0;i<n; i++, where+=s.size())
+    for(long i=0;i<n; i++, where+=s.size())
         std::copy(s.begin(), s.end(), where);
     return other;
 }

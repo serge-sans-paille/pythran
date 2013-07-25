@@ -3,6 +3,7 @@
 
 #include <fstream>
 #include <iterator>
+#include <cstring>
 #include <string>
 #include <cstdio>
 #include <unistd.h>
@@ -194,7 +195,9 @@ namespace  pythonic {
 					if (mode.find_first_of("wa+") == std::string::npos) 
 						throw IOError("file.write() :  File not opened for writing.");
 					if (size <0) size = this->tell();
-					ftruncate(fileno(), size);
+                    int error = ftruncate(fileno(), size);
+                    if(error==-1)
+                        throw RuntimeError(strerror(errno));
 				}
 
 				void write(core::string const& str){

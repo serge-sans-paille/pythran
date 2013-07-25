@@ -55,7 +55,7 @@ namespace  pythonic {
                 // constructor
                 list_view(): data(impl::no_memory()) {}
                 list_view(list_view<T> const & s): data(s.data), slicing(s.slicing) {}
-                list_view(list<T> & , slice const &);
+                list_view(list<T> & other, slice const & s) : data(other.data), slicing(s.normalize(other.size())) {}
 
                 // const getter
                 container_type const & get_data() const { return *data; }
@@ -73,7 +73,7 @@ namespace  pythonic {
                 const_iterator end() const { assert(slicing.step==1) ; return data->begin()+slicing.upper; }
 
                 // size
-                size_type size() const { assert(slicing.step==1); return slicing.upper - slicing.lower ; }
+                size_type size() const { return slicing.size(); }
 
                 // accessor
                 T const & operator[](long i) const { return (*data)[slicing.lower + i*slicing.step];}
@@ -247,29 +247,10 @@ namespace  pythonic {
                 }
 
                 list<T> operator[]( slice const &s ) const {
-                    list<T> out(0);
-                    out.reserve(size());
-                    long lower, upper;
-                    if(s.step<0) {
-                        if( s.lower == std::numeric_limits<long>::max() )
-                            lower = data->size()-1;
-                        else
-                            lower = s.lower >= 0L ? s.lower : ( s.lower + data->size());
-                        lower = std::max(0L,lower);
-                        upper = s.upper == std::numeric_limits<long>::max() ? 0L : s.upper;
-                        upper = upper >= 0L ? upper : ( upper + data->size());
-                        upper = std::min(upper, (long)data->size());
-                        for(long iter = lower; iter >= upper ; iter+=s.step)
-                            out.push_back((*data)[iter]);
-                    }
-                    else {
-                        lower = s.lower >= 0L ? s.lower : ( s.lower + data->size());
-                        lower = std::max(0L,lower);
-                        upper = s.upper >= 0L ? s.upper : ( s.upper + data->size());
-                        upper = std::min(upper, (long)data->size());
-                        for(long iter = lower; iter < upper ; iter+=s.step)
-                            out.push_back((*data)[iter]);
-                    }
+                    core::slice norm = s.normalize(size());
+                    list<T> out(norm.size());
+                    for(long i = 0; i < out.size() ; i++)
+                        out[i] = (*data)[norm.lower + i * norm.step];
                     return out;
                 }
 
@@ -369,26 +350,6 @@ namespace  pythonic {
 
         /* list_view implementation */
         template<class T>
-            list_view<T>::list_view(list<T> & other, slice const &s):
-                data(other.data), slicing(s) {
-                    long lower, upper;
-                    if(slicing.step<0) {
-                        if( slicing.lower == std::numeric_limits<long>::max() )
-                            lower = data->size();
-                        else
-                            lower = s.lower >= 0L ? s.lower : ( s.lower + data->size());
-                        slicing.lower = std::max(0L,lower);
-                        upper = slicing.upper >= 0L ? slicing.upper : ( slicing.upper + data->size());
-                        slicing.upper = std::min(upper, (long)data->size());
-                    }
-                    else {
-                        lower = slicing.lower >= 0L ? slicing.lower : ( slicing.lower + data->size());
-                        slicing.lower = std::max(0L,lower);
-                        upper = slicing.upper >= 0L ? slicing.upper : ( slicing.upper + data->size());
-                        slicing.upper = std::min(upper, (long)data->size());
-                    }
-                }
-        template<class T>
             list_view<T>& list_view<T>::operator=(list_view<T> const & s) {
                 slicing=s.slicing;
                 if(data != s.data) {
@@ -399,14 +360,9 @@ namespace  pythonic {
 
         template<class T>
             list_view<T>& list_view<T>::operator=(list<T> const & seq) {
-                long lower = slicing.lower >= 0L ? slicing.lower : ( slicing.lower + data->size());
-                lower = std::max(0L,lower);
-                long upper = slicing.upper >= 0L ? slicing.upper : ( slicing.upper + data->size());
-                upper = std::min(upper, (long)data->size());
-                typename list<T>::iterator it = data->begin(); 
                 if( slicing.step == 1) {
-                    data->erase(it+lower, it + upper);
-                    data->insert(it+lower, seq.begin(), seq.end());
+                    data->erase(begin(), end());
+                    data->insert(begin(), seq.begin(), seq.end());
                 }
                 else {
                     assert("not implemented yet");

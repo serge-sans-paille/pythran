@@ -36,8 +36,8 @@ namespace pythonic {
             // constructor
             string_view(): data(impl::no_memory()) {}
             string_view(string_view const & s): data(s.data), slicing(s.slicing) {}
-            string_view(string_view const & s, slice const& sl): data(s.data), slicing(s.slicing.lower + sl.lower, std::min(s.slicing.upper, s.slicing.lower + sl.upper), s.slicing.step * sl.step) {}
-            string_view(string & , slice const &);
+            string_view(string_view const & s, slice const& sl): data(s.data), slicing(s.slicing.lower + sl.lower, s.slicing.lower + sl.upper, s.slicing.step * sl.step) {}
+            string_view(std::string & other, slice const & s) : data(other), slicing(s.normalize(other.size())){}
 
             // const getter
             container_type const & get_data() const { return *data; }
@@ -55,12 +55,12 @@ namespace pythonic {
             const_iterator end() const { assert(slicing.step==1) ; return data->begin()+slicing.upper; }
 
             // size
-            size_type size() const { assert(slicing.step!=0); return (slicing.upper - slicing.lower)/slicing.step ; }
+            size_type size() const { return slicing.size(); }
 
             // accessor
             char const & operator[](long i) const { return (*data)[slicing.lower + i*slicing.step];}
             char & operator[](long i) { return (*data)[slicing.lower + i*slicing.step];}
-            string_view operator[](slice const& s) const { return string_view(*this, s); }
+            string_view operator[](slice const& s) const { return string_view(*this, s.normalize(size())); }
 
             // conversion
             operator long();
@@ -141,7 +141,7 @@ namespace pythonic {
             bool operator==(string_view const & other) const {
                 if(length() != other.size())
                     return false;
-                for(int i=other.get_slice().lower, j=0;i<other.get_slice().upper;i+=other.get_slice().step, j++)
+                for(int i=other.get_slice().lower.data, j=0;i<other.get_slice().upper.data;i+=other.get_slice().step.data, j++)
                     if(other.get_data()[i] != (*this)[j])
                         return false;
                 return true;
@@ -159,23 +159,7 @@ namespace pythonic {
                 return std::string::operator[](i);
             }
             string_view operator[]( slice const &s ) const {
-                long lower, upper;
-                if(s.step<0) {
-                    if( s.lower == std::numeric_limits<long>::max() )
-                        lower = size()-1;
-                    else
-                        lower = s.lower >= 0L ? s.lower : ( s.lower + size());
-                    lower = std::max(0L,lower);
-                    upper = s.upper >= 0L ? s.upper : ( s.upper + size());
-                    upper = std::min(upper, (long)size());
-                }
-                else {
-                    lower = s.lower >= 0L ? s.lower : ( s.lower + size());
-                    lower = std::max(0L,lower);
-                    upper = s.upper >= 0L ? s.upper : ( s.upper + size());
-                    upper = std::min(upper, (long)size());
-                }
-                return string_view(*const_cast<string*>(this), slice(lower, upper, s.step)); // SG: ugly !
+                return string_view(*const_cast<string*>(this), s.normalize(size())); // SG: ugly !
             }
 
             explicit operator bool() const{
@@ -227,44 +211,16 @@ pythonic::core::string operator*(long t, pythonic::core::string const & s) {
     return s*t;
 }
 
-/* string_view implementation */
-pythonic::core::string_view::string_view(string & other, slice const &s) :
-    data(other), slicing(s)
-{
-    long lower, upper;
-    if(slicing.step<0) {
-        if( slicing.lower == std::numeric_limits<long>::max() )
-            lower = data->size();
-        else
-            lower = s.lower >= 0L ? s.lower : ( s.lower + data->size());
-        slicing.lower = std::max(0L,lower);
-        upper = slicing.upper >= 0L ? slicing.upper : ( slicing.upper + data->size());
-        slicing.upper = std::min(upper, (long)data->size());
-    }
-    else
-    {
-        lower = slicing.lower >= 0L ? slicing.lower : ( slicing.lower + data->size());
-        slicing.lower = std::max(0L,lower);
-        upper = slicing.upper >= 0L ? slicing.upper : ( slicing.upper + data->size());
-        slicing.upper = std::min(upper, (long)data->size());
-    }
-}
-
 pythonic::core::string_view& pythonic::core::string_view::operator=(pythonic::core::string_view const & s) {
     slicing=s.slicing;
     data=s.data;
     return *this;
 }
 
-pythonic::core::string_view& pythonic::core::string_view::operator=(pythonic::core::string const & seq) {
-    long lower = slicing.lower >= 0L ? slicing.lower : ( slicing.lower + data->size());
-    lower = std::max(0L,lower);
-    long upper = slicing.upper >= 0L ? slicing.upper : ( slicing.upper + data->size());
-    upper = std::min(upper, (long)data->size());
-    typename pythonic::core::string::iterator it = data->begin(); 
+pythonic::core::string_view& pythonic::core::string_view::operator=(pythonic::core::string const & s) {
     if( slicing.step == 1) {
-        data->erase(it+lower, it + upper);
-        data->insert(it+lower, seq.begin(), seq.end());
+        data->erase(begin(), end());
+        data->insert(begin(), s.begin(), s.end());
     }
     else {
         assert("not implemented yet");

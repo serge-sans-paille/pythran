@@ -375,7 +375,7 @@ class _NestedFunctionRemover(Transformation):
                 ast.Call(
                     ast.Attribute(
                         ast.Name('__builtin__', ast.Load()),
-                        "bind{0}".format(former_nbargs),
+                        "bind",
                         ast.Load()
                         ),
                     [proxy_call] + binded_args,
@@ -401,7 +401,7 @@ class RemoveNestedFunctions(Transformation):
     >>> node = pm.apply(RemoveNestedFunctions, node)
     >>> print pm.dump(backend.Python, node)
     def foo(x):
-        bar = __builtin__.bind1(pythran_bar, x)
+        bar = __builtin__.bind(pythran_bar, x)
         bar(12)
     def pythran_bar(x, y):
         return (x + y)
@@ -450,7 +450,7 @@ class _LambdaRemover(Transformation):
         return ast.Call(
                 ast.Attribute(
                     ast.Name('__builtin__', ast.Load()),
-                    "bind{0}".format(former_nbargs),
+                    "bind",
                     ast.Load()
                     ),
                 [proxy_call] + binded_args,
@@ -469,7 +469,7 @@ class RemoveLambdas(Transformation):
     >>> node = pm.apply(RemoveLambdas, node)
     >>> print pm.dump(backend.Python, node)
     def foo(y):
-        __builtin__.bind1(foo_lambda0, y)
+        __builtin__.bind(foo_lambda0, y)
     def foo_lambda0(y, x):
         return (y + x)
     '''

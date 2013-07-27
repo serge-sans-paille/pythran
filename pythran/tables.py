@@ -203,10 +203,7 @@ modules = {
             "xrange": ConstFunctionIntr(),
             "zip": ReadOnceFunctionIntr(),
             # pythran extensions
-            "bind0": FunctionIntr(),
-            "bind1": FunctionIntr(),
-            "bind2": FunctionIntr(),
-            "bind3": FunctionIntr(),
+            "bind": FunctionIntr(),
             "pmap": ConstFunctionIntr(),
             },
         "numpy": {

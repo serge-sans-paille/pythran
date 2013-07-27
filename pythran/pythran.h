@@ -1098,57 +1098,6 @@ ENVIRONMENTERROR_EXCEPTION(OSError)
 
 /* } */
 
-/* wrapper used by generated code to simulate closures { */
-namespace pythonic {
-    namespace __builtin__ {
-        namespace proxy {
-            struct bind0 {
-                template<typename Operator, typename... Types>
-                    auto operator()(Operator const& op, Types &&... types)
-                    -> function<decltype(std::bind(op, std::forward<Types>(types)...))> {
-                        return function<decltype(std::bind(op, std::forward<Types>(types)...))>(std::bind(op, std::forward<Types>(types)...)); 
-                    }
-            };
-            struct bind1 {
-                template<typename Operator, typename... Types>
-                    auto operator()(Operator const& op, Types &&... types)
-                    -> function<decltype(std::bind(op, std::forward<Types>(types)..., std::placeholders::_1))> {
-                        return function<decltype(std::bind(op, std::forward<Types>(types)..., std::placeholders::_1))>(std::bind(op, std::forward<Types>(types)..., std::placeholders::_1)); 
-                    }
-            };
-            struct bind2 {
-                template<typename Operator, typename... Types>
-                    auto operator()(Operator const& op, Types &&... types)
-                    -> function<decltype(std::bind(op, types..., std::placeholders::_1, std::placeholders::_2))> {
-                        return function<decltype(std::bind(op, types..., std::placeholders::_1, std::placeholders::_2))>(std::bind(op, types..., std::placeholders::_1, std::placeholders::_2));
-                    }
-            };
-            struct bind3 {
-                template<typename Operator, typename... Types>
-                    auto operator()(Operator const& op, Types &&... types)
-                    -> function<decltype(std::bind(op, types..., std::placeholders::_1, std::placeholders::_2, std::placeholders::_3))> {
-                        return function<decltype(std::bind(op, types..., std::placeholders::_1, std::placeholders::_2, std::placeholders::_3))>(std::bind(op, types..., std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)); 
-                    }
-            };
-            struct bind4 {
-                template<typename Operator, typename... Types>
-                    auto operator()(Operator const& op, Types &&... types)
-                    -> function<decltype(std::bind(op, types..., std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4))> {
-                        return function<decltype(std::bind(op, types..., std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4))>(std::bind(op, types..., std::placeholders::_1, std::placeholders::_2, std::placeholders::_3,  std::placeholders::_4)); 
-                    }
-            };
-            struct bind5 {
-                template<typename Operator, typename... Types>
-                    auto operator()(Operator const& op, Types &&... types)
-                    -> function<decltype(std::bind(op, types..., std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5))> {
-                        return function<decltype(std::bind(op, types..., std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5))>(std::bind(op, types..., std::placeholders::_1, std::placeholders::_2, std::placeholders::_3,  std::placeholders::_4, std::placeholders::_5)); 
-                    }
-            };
-        }
-    }
-}
-/* } */
-
 #ifdef ENABLE_PYTHON_MODULE
 /* python <-> c++ conversion stuff { */
 

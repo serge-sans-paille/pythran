@@ -45,6 +45,9 @@ class Intrinsic(object):
     def isreadonce(self, n):
         return isinstance(self.argument_effects[n], ReadOnceEffect)
 
+    def combiner(self, s, node):
+        pass
+
 
 class FunctionIntr(Intrinsic):
     def __init__(self, **kwargs):

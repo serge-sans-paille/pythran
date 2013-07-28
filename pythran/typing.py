@@ -23,6 +23,7 @@ import operator
 import metadata
 import intrinsic
 from config import cfg
+from collections import defaultdict
 
 
 # networkx backward compatibility
@@ -113,7 +114,6 @@ class TypeDependencies(ModuleAnalysis):
 
     def visit_FunctionDef(self, node):
         assert self.current_function is None
-        modules['__user__'][node.name] = UserFunction()
         self.current_function = node
         self.result.add_node(node)
         self.naming = dict()
@@ -306,6 +306,7 @@ class Types(ModuleAnalysis):
     def __init__(self):
         self.result = dict()
         self.result["bool"] = NamedType("bool")
+        self.user_functions = defaultdict(UserFunction)
         self.current_global_declarations = dict()
         self.max_recompute = 1  # max number of use to be lazy
         ModuleAnalysis.__init__(self, StrictAliases, LazynessAnalysis)
@@ -424,8 +425,8 @@ class Types(ModuleAnalysis):
                                             self.result[othernode])
                     if self.register(parametric_type):
 
-                        user_module = modules['__user__']
-                        current_function = user_module[self.current.name]
+                        current_function = self.user_functions[
+                                self.current.name]
 
                         def translator_generator(args, op, unary_op):
                             ''' capture args for translator generation'''
@@ -595,32 +596,30 @@ class Types(ModuleAnalysis):
 
     def visit_Call(self, node):
         self.generic_visit(node)
-        user_module = modules['__user__']
         for alias in self.strict_aliases[node.func].aliases:
             # handle backward type dependencies from method calls
             if isinstance(alias, intrinsic.Intrinsic):
-                if hasattr(alias, 'combiner'):
-                    # also generate all possible aliasing combinations
-                    combinations = [filter(
-                        None,
-                        self.strict_aliases[arg].aliases.union({arg}))
-                        for arg in node.args]
-                    for new_args in itertools.product(*combinations):
-                        alias.combiner(self,
-                                ast.Call(
-                                    node.func,
-                                    new_args,
-                                    [],
-                                    None,
-                                    None)
-                                )
+                # also generate all possible aliasing combinations
+                combinations = [filter(
+                    None,
+                    self.strict_aliases[arg].aliases.union({arg}))
+                    for arg in node.args]
+                for new_args in itertools.product(*combinations):
+                    alias.combiner(self,
+                            ast.Call(
+                                node.func,
+                                new_args,
+                                [],
+                                None,
+                                None)
+                            )
             # handle backward type dependencies from user calls
             elif isinstance(alias, ast.FunctionDef):
-                user_module[alias.name].combiner(self, node)
+                self.user_functions[alias.name].combiner(self, node)
             # this comes from a bind
             elif isinstance(alias, ast.Call):
                 bounded_function_name = alias.args[0].id
-                bounded_function = user_module[bounded_function_name]
+                bounded_function = self.user_functions[bounded_function_name]
                 fake_name = ast.Name(bounded_function_name, ast.Load())
                 fake_node = ast.Call(fake_name, alias.args[1:] + node.args,
                     [], None, None)

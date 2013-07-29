@@ -306,7 +306,7 @@ class Types(ModuleAnalysis):
     def __init__(self):
         self.result = dict()
         self.result["bool"] = NamedType("bool")
-        self.user_functions = defaultdict(UserFunction)
+        self.combiners = defaultdict(UserFunction)
         self.current_global_declarations = dict()
         self.max_recompute = 1  # max number of use to be lazy
         ModuleAnalysis.__init__(self, StrictAliases, LazynessAnalysis)
@@ -317,6 +317,7 @@ class Types(ModuleAnalysis):
             for fname, function in module.iteritems():
                 tname = 'pythonic::{0}::proxy::{1}'.format(mname, fname)
                 self.result[function] = NamedType(tname)
+                self.combiners[function] = function
         super(Types, self).prepare(node, ctx)
 
     def run(self, node, ctx):
@@ -425,8 +426,7 @@ class Types(ModuleAnalysis):
                                             self.result[othernode])
                     if self.register(parametric_type):
 
-                        current_function = self.user_functions[
-                                self.current.name]
+                        current_function = self.combiners[self.current]
 
                         def translator_generator(args, op, unary_op):
                             ''' capture args for translator generation'''
@@ -597,37 +597,24 @@ class Types(ModuleAnalysis):
     def visit_Call(self, node):
         self.generic_visit(node)
         for alias in self.strict_aliases[node.func].aliases:
-            # handle backward type dependencies from method calls
-            if isinstance(alias, intrinsic.Intrinsic):
-                # also generate all possible aliasing combinations
-                combinations = [filter(
-                    None,
-                    self.strict_aliases[arg].aliases.union({arg}))
-                    for arg in node.args]
-                for new_args in itertools.product(*combinations):
-                    alias.combiner(self,
-                            ast.Call(
-                                node.func,
-                                new_args,
-                                [],
-                                None,
-                                None)
-                            )
-            # handle backward type dependencies from user calls
-            elif isinstance(alias, ast.FunctionDef):
-                self.user_functions[alias.name].combiner(self, node)
             # this comes from a bind
-            elif isinstance(alias, ast.Call):
-                bounded_function_name = alias.args[0].id
-                bounded_function = self.user_functions[bounded_function_name]
-                fake_name = ast.Name(bounded_function_name, ast.Load())
+            if isinstance(alias, ast.Call):
+                a0 = alias.args[0]
+                bounded_name = a0.id
+                # by construction of the bind construct
+                assert len(self.strict_aliases[a0].aliases) == 1
+                bounded_function = list(self.strict_aliases[a0].aliases)[0]
+                fake_name = ast.Name(bounded_name, ast.Load())
                 fake_node = ast.Call(fake_name, alias.args[1:] + node.args,
                     [], None, None)
-                bounded_function.combiner(self, fake_node)
+                self.combiners[bounded_function].combiner(self, fake_node)
                 # force recombination of binded call
                 for n in self.name_to_nodes[node.func.id]:
                     self.result[n] = ReturnType(self.result[alias.func],
                         [self.result[arg] for arg in alias.args])
+            # handle backward type dependencies from function calls
+            else:
+                self.combiners[alias].combiner(self, node)
 
         # recurring nightmare
         isweak = any(self.result[n].isweak() for n in node.args + [node.func])

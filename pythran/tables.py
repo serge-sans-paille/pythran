@@ -1086,7 +1086,6 @@ modules = {
                         ]
                     ),
                 },
-        "__user__": {},
         }
 
 # create symlinks for classes

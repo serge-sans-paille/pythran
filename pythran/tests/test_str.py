@@ -2,7 +2,7 @@ from test_env import TestEnv
 
 class TestStr(TestEnv):
 
-   def test_str_startswith0(self):
+    def test_str_startswith0(self):
         self.run_test("def str_startswith0(s0, s1): return s0.startswith(s1)", "barbapapa", "barba", str_startswith0=[str, str])
 
     def test_str_startswith1(self):
@@ -85,3 +85,9 @@ class TestStr(TestEnv):
 
     def test_str_join2(self):
         self.run_test("def str_join2(): from itertools import ifilter ; a = ['l', 'l'] ; return 'o'.join(ifilter(len, a))", str_join2=[])
+
+    def test_str_find0(self):
+        self.run_test("def str_find0(s): return s.find('pop')", "popop", str_find0=[str])
+
+    def test_str_find1(self):
+        self.run_test("def str_find1(s): return s.find('pap')", "popop", str_find1=[str])

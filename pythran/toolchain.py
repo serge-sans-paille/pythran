@@ -20,7 +20,7 @@ from openmp import GatherOMPData
 from config import cfg
 from passmanager import PassManager
 from numpy import get_include
-from typing import extract_constructed_types, pytype_to_ctype
+from typing import extract_constructed_types, pytype_to_ctype, pytype_to_deps
 from tables import pythran_ward, functions
 from intrinsic import ConstExceptionIntr
 
@@ -39,6 +39,15 @@ def _extract_all_constructed_types(v):
     return sorted(set(reduce(lambda x, y: x + y,
                             (extract_constructed_types(t) for t in v), [])),
                   key=len)
+
+
+def _extract_specs_dependencies(specs):
+    deps = set()
+    for _, signatures in specs.iteritems():
+        for _, signature in enumerate(signatures):
+            for t in signature:
+                deps.update(pytype_to_deps(t))
+    return deps
 
 
 def _parse_optimization(optimization):
@@ -63,7 +72,7 @@ def _numpy_cppflags():
 def _pythran_cppflags():
     curr_dir = os.path.dirname(os.path.dirname(__file__))
     get = lambda *x: '-I' + os.path.join(curr_dir, *x)
-    return [get('.'), get('pythran'), get('pythran', 'pythonic++')]
+    return [get('.'), get('pythran')]
 
 
 def _python_ldflags():
@@ -180,16 +189,16 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
         mod = BoostPythonModule(module_name)
         mod.use_private_namespace = False
         # very low value for max_arity leads to various bugs
-        min_val = 4
+        min_val = 2
         max_arity = max([min_val] + [max(map(len, s)) for s in specs.itervalues()])
         mod.add_to_preamble([Define("BOOST_PYTHON_MAX_ARITY", max_arity)])
         mod.add_to_preamble([Define("BOOST_SIMD_NO_STRICT_ALIASING", "1")])
+        mod.add_to_preamble([Include("pythonic/core.hpp")])
+        mod.add_to_preamble([Include("pythonic/python/core.hpp")])
+        mod.add_to_preamble(map(Include, _extract_specs_dependencies(specs)))
         mod.add_to_preamble(content.body)
         mod.add_to_init([
-            Statement('import_array()'),
-            Statement('boost::python::implicitly_convertible<std::string,'
-                      + 'pythonic::core::string>()')]
-        )
+            Line('#ifdef PYTHONIC_TYPES_NDARRAY_HPP\nimport_array()\n#endif')])
 
         # topologically sorted exceptions based on the inheritance hierarchy.
         # needed because otherwise boost python register_exception handlers
@@ -212,7 +221,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
         mod.add_to_init([
             Statement(
                 'boost::python::register_exception_translator<' +
-                'pythonic::core::%s>(&translate_%s)' %
+                'pythonic::types::%s>(&pythonic::translate_%s)' %
                 (n.__name__, n.__name__)) for n in sorted_exceptions])
 
         for function_name, signatures in specs.iteritems():
@@ -235,10 +244,10 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
                                + "<typename {0}::result_type>::type".format(
                                  specialized_fname))
                 mod.add_to_init(
-                    [Statement("python_to_pythran<{0}>()".format(t))
+                     [Statement("pythonic::python_to_pythran<{0}>()".format(t))
                      for t in _extract_all_constructed_types(signature)])
                 mod.add_to_init([Statement(
-                    "pythran_to_python<{0}>()".format(result_type))])
+                    "pythonic::pythran_to_python<{0}>()".format(result_type))])
                 mod.add_function(
                     FunctionBody(
                         FunctionDeclaration(
@@ -272,15 +281,6 @@ def compile_cxxfile(cxxfile, module_so=None, **kwargs):
     _cppflags = cppflags() + kwargs.get('cppflags', [])
     _cxxflags = cxxflags() + kwargs.get('cxxflags', [])
     _ldflags = ldflags() + kwargs.get('ldflags', [])
-
-    # workaround g++-4.8 bug
-    try:
-        extra_flags = ['-ftrack-macro-expansion=0']
-        check_call([compiler, cxxfile, '-E'] + extra_flags,
-                     stdout=file(devnull), stderr=file(devnull))
-        _cppflags.extend(extra_flags)
-    except CalledProcessError:
-        pass
 
     # Get output filename from input filename if not set
     module_so = module_so or (os.path.splitext(cxxfile)[0] + ".so")
@@ -380,6 +380,6 @@ def test_compile():
     '''
     module_so = compile_cxxcode("\n".join([
         "#define BOOST_PYTHON_MAX_ARITY 4",
-        "#include <pythran/pythran.h>"
+        "#include <pythonic/core.hpp>"
         ]))
     module_so and os.remove(module_so)

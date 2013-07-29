@@ -208,7 +208,8 @@ class ExceptHandler(Generable):
         if self.name is None:
             yield "catch(...)"
         else:
-            yield "catch (core::%s const& %s)" % (self.name, self.alias or '')
+            yield "catch (pythonic::types::%s const& %s)" % (self.name,
+                    self.alias or '')
         for line in self.body.generate():
             yield line
 

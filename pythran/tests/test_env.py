@@ -145,7 +145,10 @@ class TestEnv(unittest.TestCase):
 
             # Only compare the type of exceptions raised
             if pythran_exception_type != python_exception_type:
-                return AssertionError(
+                if python_exception_type is None:
+                    raise e
+                else:
+                    raise AssertionError(
                     "expected exception was %s, but received %s" %
                     (python_exception_type, pythran_exception_type))
 

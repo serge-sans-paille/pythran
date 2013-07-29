@@ -75,7 +75,7 @@ subset of Python AST) into a C++ AST::
   >>> from pythran import backend
   >>> cxx = pm.dump(backend.Cxx, tree)
   >>> str(cxx)
-  '#include <pythran/pythran.h>\nnamespace __pythran_tutorial_module\n{\n  ;\n  struct fib\n  {\n    typedef void callable;\n    template <typename argument_type0 >\n    struct type\n    {\n      typedef typename assignable<typename std::remove_cv<typename std::remove_reference<argument_type0>::type>::type>::type result_type;\n    }  \n    ;\n    template <typename argument_type0 >\n    typename type<argument_type0>::result_type operator()(argument_type0 const & n) const\n    ;\n  }  ;\n  template <typename argument_type0 >\n  typename fib::type<argument_type0>::result_type fib::operator()(argument_type0 const & n) const\n  {\n    return ((n < 2L) ? n : (fib()((n - 1L)) + fib()((n - 2L))));\n  }\n}'
+  'namespace __pythran_tutorial_module\n{\n  ;\n  struct fib\n  {\n    typedef void callable;\n    template <typename argument_type0 >\n    struct type\n    {\n      typedef typename pythonic::assignable<typename std::remove_cv<typename std::remove_reference<argument_type0>::type>::type>::type result_type;\n    }  \n    ;\n    template <typename argument_type0 >\n    typename type<argument_type0>::result_type operator()(argument_type0 const & n) const\n    ;\n  }  ;\n  template <typename argument_type0 >\n  typename fib::type<argument_type0>::result_type fib::operator()(argument_type0 const & n) const\n  {\n    return ((n < 2L) ? n : (fib()((n - 1L)) + fib()((n - 2L))));\n  }\n}'
 
 The above string is understandable by a C++11 compiler, but it quickly reaches the limit of our developer brain, so most of the time, we are more comfortable with the Python backend::
 
@@ -192,7 +192,7 @@ One can also computes the state of ``globals()``::
   >>> code += 'def foo(a): b = math.cos(a) ; return [b] * 3'
   >>> tree = ast.parse(code)
   >>> pm.gather(analysis.Globals, tree)
-  set(['__list__', '__complex___', '__file__', '__set__', '__string__', '__builtin__', '__finfo__', '__exception__', '__dispatch__', '__ndarray__', '__dict__', '__iterator__', 'foo', 'math', '__float__'])
+  set(['__list__', '__complex___', '__str__', '__set__', '__builtin__', '__finfo__', '__exception__', '__dispatch__', '__ndarray__', '__dict__', '__iterator__', 'foo', '__file__', 'math', '__float__'])
 
 One can also compute the state of ``locals()`` at any point of the program::
 

@@ -332,10 +332,7 @@ namespace  pythonic {
          */
         slice const& as_slice(slice const& s) { return s;}
         slice as_slice(long s) {
-            if(s!=-1)
-                return slice(s,s+1);
-            else
-                return slice(s,std::numeric_limits<long>::max());
+            return slice(s,s+1);
         }
 
         /* Meta-Function to count the number of slices in a type list
@@ -397,15 +394,14 @@ namespace  pythonic {
                 {
                     std::copy_n(data.shape.begin(), M, gshape.begin());
                     for(size_t i=0, j=0;i<M;i++) {
-                        if(gslice[i].upper > data.shape[i])
-                            gslice[i].upper = data.shape[i];
-                        else if(gslice[i].upper < 0)
-                            gslice[i].upper += data.shape[i];
-                        if(gslice[i].lower <0)
-                            gslice[i].lower += data.shape[i];
-                        gshape[i] = ceil(std::abs(double(gslice[i].upper - gslice[i].lower)/gslice[i].step));
                         if(mask[i])
+                        {
+                            gslice[i].normalize_inplace(data.shape[i]);
+                            gshape[i] = gslice[i].size();
                             shape[j++] = gshape[i];
+                        }
+                        else
+                            gshape[i] = 1;
                     }
                     std::copy(data.shape.begin() + M , data.shape.end(), shape.begin() + N);
 
@@ -608,36 +604,27 @@ namespace  pythonic {
 
                 sliced_ndarray() {}
 
-                sliced_ndarray(T const& data, slice const& s) : slice(s), shape(data.shape), data(data) {
-                    assert(upper>=0);
-                    assert(lower>=0);
-                    shape[0] = ceil(std::abs(double(upper - lower)/step));
+                sliced_ndarray(T const& data, slice const& s) : slice(s.normalize(data.shape[0])), shape(data.shape), data(data) {
+                    shape[0] = slice::size();
                     jump = 1;
                     for(size_t i=1;i<value; ++i)
                         jump*=shape[i];
                 }
 
-                auto at(long i) const -> decltype(data.at(jump*lower+i*step)) {
+                auto at(long i) const -> decltype(data.at(0)) {
                     return data.at(jump*lower+i*step);
                 }
                 long size() const { return (data.size() / data.shape[0]) * shape[0] ; }
                 reference operator[](long i) { return data[jump*lower+i*step]; }
                 const_reference operator[](long i) const { return data[jump*lower+i*step]; }
+
                 sliced_ndarray<T> operator[](slice const& s) const {
-                    long slower, supper;
-                    slower = s.lower >= 0L ? s.lower : ( s.lower + shape[0]);
-                    slower = std::max(0L,slower);
-                    supper = s.upper >= 0L ? s.upper : ( s.upper + shape[0]);
-                    supper = std::min(supper, shape[0]);
-                    return sliced_ndarray(data, slice(lower + step*slower, std::min(upper, lower + step*supper), step*s.step));
+                    core::slice norm = s.normalize(slice::size());
+                    return sliced_ndarray(data, slice(lower + step*norm.lower, lower + step*norm.upper, step*norm.step));
                 }
                 sliced_ndarray<T> operator[](slice const& s) {
-                    long slower, supper;
-                    slower = s.lower >= 0L ? s.lower : ( s.lower + shape[0]);
-                    slower = std::max(0L,slower);
-                    supper = s.upper >= 0L ? s.upper : ( s.upper + shape[0]);
-                    supper = std::min(supper, shape[0]);
-                    return sliced_ndarray(data, slice(lower + step*slower, std::min(upper, lower + step*supper), step*s.step));
+                    core::slice norm = s.normalize(slice::size());
+                    return sliced_ndarray(data, slice(lower + step*norm.lower, lower + step*norm.upper, step*norm.step));
                 }
 
                 sliced_ndarray<T>& operator=(sliced_ndarray<T> const& v) {
@@ -650,61 +637,35 @@ namespace  pythonic {
 
                 template<class E>
                 typename std::enable_if<not core::is_array<E>::value, sliced_ndarray<T>&>::type operator=(E const& v) {
-                    if(step>0)
-                    {
-                        for(long i=lower; i<upper; i+=step)
-                            data[i] = v;
-                    }
-                    else
-                    {
-                        for(long i=upper; i<lower; i-=step)
-                            data[i] = v;
-                    }
+                    for(long i =0; i<slice::size(); i++)
+                        data[lower + i * step] = v;
                     return *this;
                 }
 
                 template<class E>
                 typename std::enable_if< (value>1) and core::is_array<E>::value, sliced_ndarray<T>&>::type operator=(E const& v) {
-                    if(step>0)
-                    {
-                        long slice = v.size()/std::abs(((upper - lower)/step));
-                        for(long i=lower, j=0; i<upper; i+=step)
-                            for(long k=0;k<slice; ++k, ++j)
-                                data[i].at(k) = v.at(j);
-                    }
-                    else
-                    {
-                        long slice = v.size()/std::abs(((upper - lower)/step));
-                        for(long i=upper, j=0; i<lower; i-=step)
-                            for(long k=0;k<slice; ++k, ++j)
-                                data[i].at(k) = v.at(j);
-                    }
+                    long slice = v.size()/slice::size();
+                    for(long i=0, j=0; i<slice::size(); i++)
+                        for(long k=0;k<slice; ++k, ++j)
+                            data[lower + i * step].at(k) = v.at(j);
                     return *this;
                 }
                 template<class E>
                 typename std::enable_if<value==1 and core::is_array<E>::value, sliced_ndarray<T>&>::type operator=(E const& v) {
-                    if(step>0)
-                    {
-                        for(long i=lower, j=0; i<upper; i+=step, j++)
-                            data[i] = v.at(j);
-                    }
-                    else
-                    {
-                        for(long i=lower, j=0; i>upper; i+=step, j++)
-                            data[i] = v.at(j);
-                    }
+                    for(long i=0; i<slice::size(); i++)
+                        data[lower + i * step] = v.at(i);
                     return *this;
                 }
 
                 sliced_ndarray<T>& operator+=(value_type v) {
-                    for(long i=lower; i<upper; i+=step)
-                        data[i] += v;
+                    for(long i=0; i<slice::size(); i++)
+                        data[lower + i * step] += v;
                     return *this;
                 }
 
                 sliced_ndarray<T>& operator-=(value_type v) {
-                    for(long i=lower; i<upper; i+=step)
-                        data[i] -= v;
+                    for(long i=0; i<slice::size(); i++)
+                        data[lower + i * step] -= v;
                     return *this;
                 }
             };
@@ -997,21 +958,11 @@ namespace  pythonic {
                 /* by slice */
                 sliced_ndarray<ndarray<T,N>> operator[](slice const& s) const
                 {
-                    long lower, upper;
-                    lower = s.lower >= 0L ? s.lower : ( s.lower + shape[0]);
-                    lower = std::max(0L,lower);
-                    upper = s.upper >= 0L ? s.upper : ( s.upper + shape[0]);
-                    upper = std::min(upper, shape[0]);
-                    return sliced_ndarray<ndarray<T,N>>(*this, slice(lower, upper, s.step));
+                    return sliced_ndarray<ndarray<T,N>>(*this, s.normalize(shape[0]));
                 }
                 sliced_ndarray<ndarray<T,N>> operator[](slice const& s)
                 {
-                    long lower, upper;
-                    lower = s.lower >= 0L ? s.lower : ( s.lower + shape[0]);
-                    lower = std::max(0L,lower);
-                    upper = s.upper >= 0L ? s.upper : ( s.upper + shape[0]);
-                    upper = std::min(upper, shape[0]);
-                    return sliced_ndarray<ndarray<T,N>>(*this, slice(lower, upper, s.step));
+                    return sliced_ndarray<ndarray<T,N>>(*this, s.normalize(shape[0]));
                 }
                 sliced_ndarray<ndarray<T,N>> operator()(slice const& s) const
                 {

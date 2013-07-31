@@ -24,8 +24,7 @@ This module provides a few code analysis for the pythran language.
     * ArgumentReadOnce counts the usages of each argument of each function
 '''
 
-from tables import modules, builtin_constructors
-from tables import methods, functions
+from tables import modules, methods, functions
 import ast
 import networkx as nx
 import metadata as md
@@ -321,7 +320,6 @@ class Globals(ModuleAnalysis):
     def run(self, node, ctx):
         super(Globals, self).run(node, ctx)
         return set(self.global_declarations.keys()
-                + builtin_constructors.keys()
                 + [i for i in modules if i.startswith('__')])
 
 
@@ -684,8 +682,6 @@ class Aliases(ModuleAnalysis):
 
     def visit_FunctionDef(self, node):
         self.aliases = dict()
-        self.aliases.update((k, {v})
-            for k, v in builtin_constructors.iteritems())
         for module in modules:
             self.aliases.update((v, {v})
                 for k, v in modules[module].iteritems())
@@ -875,10 +871,6 @@ class ArgumentEffects(ModuleAnalysis):
             fe = ArgumentEffects.FunctionEffects(n)
             self.node_to_functioneffect[n] = fe
             self.result.add_node(fe)
-        for n in builtin_constructors.itervalues():
-            fe = ArgumentEffects.ConstructorEffects(n)
-            self.node_to_functioneffect[n] = fe
-            self.result.add_node(fe)
         for m in modules:
             for name, intrinsic in modules[m].iteritems():
                 fe = ArgumentEffects.FunctionEffects(intrinsic)
@@ -1010,7 +1002,6 @@ class GlobalEffects(ModuleAnalysis):
             self.result.add_node(fe)
 
         map(register_node, self.global_declarations.itervalues())
-        map(register_node, builtin_constructors.itervalues())
         for m in modules:
             map(register_node, modules[m].itervalues())
         self.all_functions = [fe.func for fe in self.result]
@@ -1648,10 +1639,6 @@ class ArgumentReadOnce(ModuleAnalysis):
         super(ArgumentReadOnce, self).prepare(node, ctx)
         for n in self.global_declarations.itervalues():
             fe = ArgumentReadOnce.FunctionEffects(n)
-            self.node_to_functioneffect[n] = fe
-            self.result.add(fe)
-        for n in builtin_constructors.itervalues():
-            fe = ArgumentReadOnce.ConstructorEffects(n)
             self.node_to_functioneffect[n] = fe
             self.result.add(fe)
         for m in modules:

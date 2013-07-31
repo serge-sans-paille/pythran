@@ -9,8 +9,7 @@ from numpy import ndarray
 import networkx as nx
 
 from tables import pytype_to_ctype_table, operator_to_lambda
-from tables import modules, builtin_constructors
-from tables import methods, functions
+from tables import modules, methods, functions
 from analysis import GlobalDeclarations, YieldPoints, LocalDeclarations
 from analysis import OrderedGlobalDeclarations, ModuleAnalysis, StrictAliases
 from analysis import LazynessAnalysis
@@ -696,9 +695,6 @@ class Types(ModuleAnalysis):
                 self.combine(node, n)
         elif node.id in self.current_global_declarations:
             self.combine(node, self.current_global_declarations[node.id])
-        elif node.id in builtin_constructors:
-            self.result[node] = ConstructorType(
-                    NamedType(builtin_constructors[node.id]))
         else:
             self.result[node] = NamedType(node.id, {Weak})
 

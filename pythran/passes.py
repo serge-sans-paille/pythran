@@ -22,7 +22,6 @@ from analysis import ImportedIds, Identifiers, YieldPoints, Globals, Locals
 from analysis import UsedDefChain, UseOMP, CFG
 from passmanager import Transformation
 from tables import methods, attributes, functions, modules
-from tables import builtin_constructors
 from tables import cxx_keywords, namespace
 from operator import itemgetter
 from copy import copy
@@ -912,7 +911,6 @@ class ExpandBuiltins(Transformation):
     def visit_Name(self, node):
         s = node.id
         if (isinstance(node.ctx, ast.Load)
-                and s not in builtin_constructors
                 and s not in self.locals[node]
                 and s not in self.globals
                 and s in modules['__builtin__']):

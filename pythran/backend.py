@@ -884,24 +884,7 @@ class Cxx(Backend):
         lower = node.lower and self.visit(node.lower)
         upper = node.upper and self.visit(node.upper)
         step = node.step and self.visit(node.step)
-        cv = None
-        if step == 'None':
-            step = None  # happens when a[-4::]
-        if not upper and not lower and step:  # special case
-            if isinstance(node.step, ast.Num):
-                cv = node.step.n
-            else:
-                print ast.dump(node.step)
-                raise NotImplementedError(
-                        "non constant step with undefined upper/lower bound")
-        if step and not upper:
-            upper = "std::numeric_limits<long>::max()"
-        if upper and not lower:
-            lower = "0"
-        if cv and cv < 0:
-            upper, lower = lower, upper
-        return "core::slice({0})".format(", ".join(l
-            for l in (lower, upper, step) if l))
+        return "core::slice({},{},{})".format(lower, upper, step)
 
     def visit_Index(self, node):
         return self.visit(node.value)

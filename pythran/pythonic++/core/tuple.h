@@ -229,30 +229,11 @@ namespace pythonic {
                 }
 
                 list<T> operator[](core::slice const& s){
-                    long lower, upper, step;
-                    lower = s.lower;
-                    step = s.step;
-                    upper = s.upper;
-                    if(s.step<0)
-                    {
-                        if(s.upper<0) upper += N;
-                        if(s.lower<0) lower += N;
-                        else if(s.lower > N) lower= N;
-                        list<T> out((upper - lower)/step);
-                        for(int i=0; i< out.size(); i++)
-                            out[i] = buffer[upper + i * step];
-                        return out;
-                    }
-                    else
-                    {   
-                        if(s.lower<0) lower += N;
-                        if(s.upper<0) upper += N;
-                        else if(s.upper>N) upper = N;
-                        list<T> out((upper - lower)/step);
-                        for(int i=0; i< out.size(); i++)
-                            out[i] = buffer[lower + i * step];
-                        return out;
-                    }
+                    core::slice norm = s.normalize(size());
+                    list<T> out(norm.size());
+                    for(int i=0; i< out.size(); i++)
+                        out[i] = buffer[norm.lower + i * norm.step];
+                    return out;
                 }
 
                 /* array */

@@ -1106,6 +1106,8 @@ ENVIRONMENTERROR_EXCEPTION(OSError)
 
 /* boost::python converters */
 #include <boost/python/numeric.hpp>
+// as writen here : http://docs.scipy.org/doc/numpy-dev/reference/c-api.deprecations.html
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include "arrayobject.h"
 
 template<int ...> struct seq {};
@@ -1332,15 +1334,16 @@ struct python_to_pythran< core::ndarray<T, N> >{
             boost::python::converter::registry::push_back(&convertible,&construct,boost::python::type_id< core::ndarray<T, N> >());
         }
     }
+    //reinterpret_cast needed to fit BOOST Python API. Check is done by template and PyArray_Check
     static void* convertible(PyObject* obj_ptr){
-        if(!PyArray_Check(obj_ptr) or PyArray_TYPE(obj_ptr) != c_type_to_numpy_type<T>::value )
+        if(!PyArray_Check(obj_ptr) or PyArray_TYPE(reinterpret_cast<PyArrayObject*>(obj_ptr)) != c_type_to_numpy_type<T>::value )
             return 0;
         return obj_ptr;
     }
 
     static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
         void* storage=((boost::python::converter::rvalue_from_python_storage<core::ndarray<T,N>>*)(data))->storage.bytes;
-        new (storage) core::ndarray< T, N>((T*)PyArray_BYTES(obj_ptr), PyArray_DIMS(obj_ptr));
+        new (storage) core::ndarray< T, N>((T*)PyArray_BYTES(reinterpret_cast<PyArrayObject*>(obj_ptr)), PyArray_DIMS(reinterpret_cast<PyArrayObject*>(obj_ptr)));
         Py_INCREF(obj_ptr);
         data->convertible=storage;
     }

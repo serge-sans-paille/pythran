@@ -5,6 +5,7 @@
 #include "core/utils.h"
 #include "core/functional.h"
 #include "core/none.h"
+#include "core/slice.h"
 #include "core/list.h"
 #include "core/tuple.h"
 #include "core/string.h"

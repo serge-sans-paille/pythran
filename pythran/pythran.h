@@ -1355,9 +1355,9 @@ struct pythran_to_python {
 
 template<class Type, class Converter>
 static void register_once() {
-    static bool registered=false;
-    if(not registered) {
-        registered=true;
+    boost::python::type_info info = boost::python::type_id<Type >();
+    const boost::python::converter::registration* reg = boost::python::converter::registry::query(info);
+    if(not reg or not (*reg).m_to_python) {
         boost::python::to_python_converter< Type, Converter >();
     }
 }

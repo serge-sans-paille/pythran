@@ -252,7 +252,8 @@ class Cxx(Backend):
             next_constructors = [
                     FunctionBody(
                         FunctionDeclaration(Value("", next_name), []),
-                        Block([]))]
+                        Line(': {}(0) {{}}'.format(Cxx.generator_state_holder))
+                        )]
             if formal_types:
                 #if all parameters have a default value, we don't need default
                 # constructor

@@ -8,8 +8,10 @@ import cxxtypes
 from intrinsic import Class
 from intrinsic import ConstFunctionIntr, FunctionIntr, ReadOnceFunctionIntr
 from intrinsic import ConstMethodIntr, MethodIntr, AttributeIntr, ConstantIntr
+from intrinsic import ConstExceptionIntr
 from intrinsic import UpdateEffect, ReadEffect
 import numpy
+import sys
 
 pythran_ward = '__pythran_'
 
@@ -103,56 +105,54 @@ equivalent_iterators = {
 modules = {
         "__builtin__": {
             "abs": ConstFunctionIntr(),
-            "BaseException": ConstFunctionIntr(),
-            "SystemExit": ConstFunctionIntr(),
-            "KeyboardInterrupt": ConstFunctionIntr(),
-            "GeneratorExit": ConstFunctionIntr(),
-            "Exception": ConstFunctionIntr(),
-            "StopIteration": ConstFunctionIntr(),
-            "StandardError": ConstFunctionIntr(),
-            "Warning": ConstFunctionIntr(),
-            "BytesWarning": ConstFunctionIntr(),
-            "UnicodeWarning": ConstFunctionIntr(),
-            "ImportWarning": ConstFunctionIntr(),
-            "FutureWarning": ConstFunctionIntr(),
-            "UserWarning": ConstFunctionIntr(),
-            "SyntaxWarning": ConstFunctionIntr(),
-            "RuntimeWarning": ConstFunctionIntr(),
-            "PendingDeprecationWarning": ConstFunctionIntr(),
-            "DeprecationWarning": ConstFunctionIntr(),
-            "BufferError": ConstFunctionIntr(),
-            "ArithmeticError": ConstFunctionIntr(),
-            "AssertionError": ConstFunctionIntr(),
-            "AttributeError": ConstFunctionIntr(),
-            "EnvironmentError": ConstFunctionIntr(),
-            "EOFError": ConstFunctionIntr(),
-            "ImportError": ConstFunctionIntr(),
-            "LookupError": ConstFunctionIntr(),
-            "MemoryError": ConstFunctionIntr(),
-            "NameError": ConstFunctionIntr(),
-            "ReferenceError": ConstFunctionIntr(),
-            "RuntimeError": ConstFunctionIntr(),
-            "SyntaxError": ConstFunctionIntr(),
-            "SystemError": ConstFunctionIntr(),
-            "TypeError": ConstFunctionIntr(),
-            "ValueError": ConstFunctionIntr(),
-            "FloatingPointError": ConstFunctionIntr(),
-            "OverflowError": ConstFunctionIntr(),
-            "ZeroDivisionError": ConstFunctionIntr(),
-            "IOError": ConstFunctionIntr(),
-            "OSError": ConstFunctionIntr(),
-            "WindowsError": ConstFunctionIntr(),
-            "VMSError": ConstFunctionIntr(),
-            "IndexError": ConstFunctionIntr(),
-            "KeyError": ConstFunctionIntr(),
-            "UnboundLocalError": ConstFunctionIntr(),
-            "NotImplementedError": ConstFunctionIntr(),
-            "IndentationError": ConstFunctionIntr(),
-            "TabError": ConstFunctionIntr(),
-            "UnicodeError": ConstFunctionIntr(),
-            #  "UnicodeDecodeError": ConstFunctionIntr(),
-            #  "UnicodeEncodeError": ConstFunctionIntr(),
-            #  "UnicodeTranslateError": ConstFunctionIntr(),
+            "BaseException": ConstExceptionIntr(),
+            "SystemExit": ConstExceptionIntr(),
+            "KeyboardInterrupt": ConstExceptionIntr(),
+            "GeneratorExit": ConstExceptionIntr(),
+            "Exception": ConstExceptionIntr(),
+            "StopIteration": ConstExceptionIntr(),
+            "StandardError": ConstExceptionIntr(),
+            "Warning": ConstExceptionIntr(),
+            "BytesWarning": ConstExceptionIntr(),
+            "UnicodeWarning": ConstExceptionIntr(),
+            "ImportWarning": ConstExceptionIntr(),
+            "FutureWarning": ConstExceptionIntr(),
+            "UserWarning": ConstExceptionIntr(),
+            "SyntaxWarning": ConstExceptionIntr(),
+            "RuntimeWarning": ConstExceptionIntr(),
+            "PendingDeprecationWarning": ConstExceptionIntr(),
+            "DeprecationWarning": ConstExceptionIntr(),
+            "BufferError": ConstExceptionIntr(),
+            "ArithmeticError": ConstExceptionIntr(),
+            "AssertionError": ConstExceptionIntr(),
+            "AttributeError": ConstExceptionIntr(),
+            "EnvironmentError": ConstExceptionIntr(),
+            "EOFError": ConstExceptionIntr(),
+            "ImportError": ConstExceptionIntr(),
+            "LookupError": ConstExceptionIntr(),
+            "MemoryError": ConstExceptionIntr(),
+            "NameError": ConstExceptionIntr(),
+            "ReferenceError": ConstExceptionIntr(),
+            "RuntimeError": ConstExceptionIntr(),
+            "SyntaxError": ConstExceptionIntr(),
+            "SystemError": ConstExceptionIntr(),
+            "TypeError": ConstExceptionIntr(),
+            "ValueError": ConstExceptionIntr(),
+            "FloatingPointError": ConstExceptionIntr(),
+            "OverflowError": ConstExceptionIntr(),
+            "ZeroDivisionError": ConstExceptionIntr(),
+            "IOError": ConstExceptionIntr(),
+            "OSError": ConstExceptionIntr(),
+            "IndexError": ConstExceptionIntr(),
+            "KeyError": ConstExceptionIntr(),
+            "UnboundLocalError": ConstExceptionIntr(),
+            "NotImplementedError": ConstExceptionIntr(),
+            "IndentationError": ConstExceptionIntr(),
+            "TabError": ConstExceptionIntr(),
+            "UnicodeError": ConstExceptionIntr(),
+            #  "UnicodeDecodeError": ConstExceptionIntr(),
+            #  "UnicodeEncodeError": ConstExceptionIntr(),
+            #  "UnicodeTranslateError": ConstExceptionIntr(),
             "all": ReadOnceFunctionIntr(),
             "any": ReadOnceFunctionIntr(),
             "bin": ConstFunctionIntr(),
@@ -1082,6 +1082,14 @@ modules = {
                     ),
                 },
         }
+
+# VMSError is only available on VMS
+if 'VMSError' in sys.modules['__builtin__'].__dict__:
+    modules['__builtin__']['VMSError'] = ConstExceptionIntr()
+
+# WindowsError is only available on Windows
+if 'WindowsError' in sys.modules['__builtin__'].__dict__:
+    modules['__builtin__']['WindowsError'] = ConstExceptionIntr()
 
 # create symlinks for classes
 modules['__builtin__']['__set__'] = Class(modules['__set__'])

@@ -83,6 +83,13 @@ class ConstFunctionIntr(FunctionIntr):
         super(ConstFunctionIntr, self).__init__(**kwargs)
 
 
+class ConstExceptionIntr(FunctionIntr):
+    def __init__(self, **kwargs):
+        kwargs.setdefault('argument_effects',
+                          (ReadEffect(),) * 10)
+        super(ConstExceptionIntr, self).__init__(**kwargs)
+
+
 class ReadOnceFunctionIntr(ConstFunctionIntr):
     def __init__(self):
         super(ReadOnceFunctionIntr, self).__init__(

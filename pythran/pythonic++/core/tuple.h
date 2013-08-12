@@ -231,7 +231,7 @@ namespace pythonic {
                 list<T> operator[](core::slice const& s){
                     core::slice norm = s.normalize(size());
                     list<T> out(norm.size());
-                    for(int i=0; i< out.size(); i++)
+                    for(long i=0; i< out.size(); i++)
                         out[i] = buffer[norm.lower + i * norm.step];
                     return out;
                 }

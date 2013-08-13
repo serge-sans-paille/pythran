@@ -198,16 +198,19 @@ struct python_to_pythran<mpz_class>{
 	}
 	static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
 		 void* storage=((boost::python::converter::rvalue_from_python_storage<mpz_class>*)(data))->storage.bytes;
-
-        new (storage) mpz_class(PyString_AsString(PyObject_Str(obj_ptr)));
-
-	    data->convertible=storage;
+         auto s = PyObject_Str(obj_ptr);
+         new (storage) mpz_class(PyString_AsString(s));
+         Py_DECREF(s);
+         data->convertible=storage;
     }
 };
 
 struct mpz_class_to_long{
     static PyObject* convert(const mpz_class& v){
-        return PyNumber_Long(PyString_FromString(v.get_str().c_str()));
+        auto s = PyString_FromString(v.get_str().c_str());
+        auto l = PyNumber_Long(s);
+        Py_DECREF(s);
+        return l;
     }
 };
 

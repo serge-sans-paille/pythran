@@ -598,7 +598,7 @@ namespace  pythonic {
                 typedef typename T::reference reference;
                 typedef typename T::const_reference const_reference;
                 core::array<long, value> shape;
-                size_t jump;
+                long jump;
 
                 T data;
 

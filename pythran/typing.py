@@ -500,7 +500,9 @@ class Types(ModuleAnalysis):
             for n in nodes:
                 self.result[n] = self.result[final_node]
         self.current_global_declarations[node.name] = node
-        self.result[node] = (Assignable(self.result[node]), self.typedefs)
+        # return type may be unset if the function always raises
+        return_type = self.result.get(node, NamedType("void"))
+        self.result[node] = (Assignable(return_type), self.typedefs)
         for k in self.passmanager.gather(LocalDeclarations, node):
             lazy_res = self.lazyness_analysis[k.id]
             if lazy_res <= self.max_recompute:

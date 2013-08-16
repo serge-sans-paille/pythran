@@ -11,7 +11,12 @@ namespace pythonic {
     double const nan = std::numeric_limits<double>::quiet_NaN();
     double const inf = std::numeric_limits<double>::infinity();
 
+
     namespace __builtin__ {
+
+        bool const False = false;
+        bool const True = true;
+        none_type const None;
 
         /* abs */
         using nt2::abs;
@@ -165,7 +170,7 @@ namespace pythonic {
         template <class T>
             struct _id< none<T> > {
                 intptr_t operator()(none<T> const &t) {
-                    return t ? reinterpret_cast<intptr_t>(&t.data): reinterpret_cast<intptr_t>(&None);
+                    return t ? reinterpret_cast<intptr_t>(&t.data): reinterpret_cast<intptr_t>(&__builtin__::None);
                 }
             };
         template <class T>
@@ -538,7 +543,7 @@ namespace pythonic {
 
         /* pow2 */
         template<class T>
-        auto pow2(T const& e) -> decltype(e*e) { return e*e; }
+            auto pow2(T const& e) -> decltype(e*e) { return e*e; }
         PROXY(pythonic::__builtin__, pow2);
 
         /* xrange */
@@ -599,9 +604,9 @@ namespace pythonic {
         namespace proxy {
             struct xrange {
                 template<class... Types>
-                pythonic::__builtin__::xrange operator()(Types &&... args) {
-                    return pythonic::__builtin__::xrange(std::forward<Types>(args)...);
-                }
+                    pythonic::__builtin__::xrange operator()(Types &&... args) {
+                        return pythonic::__builtin__::xrange(std::forward<Types>(args)...);
+                    }
             };
         }
 
@@ -704,7 +709,7 @@ namespace pythonic {
             return core::file(filename, strmode);
         } 
         PROXY(pythonic::__builtin__, file);
-    
+
         core::file open(core::string const& filename, core::string const& strmode = "r"){
             return core::file(filename, strmode);
         }

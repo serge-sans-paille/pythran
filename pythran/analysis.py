@@ -24,7 +24,7 @@ This module provides a few code analysis for the pythran language.
     * ArgumentReadOnce counts the usages of each argument of each function
 '''
 
-from tables import modules, builtin_constants, builtin_constructors
+from tables import modules, builtin_constructors
 from tables import methods, functions
 import ast
 import networkx as nx
@@ -321,7 +321,6 @@ class Globals(ModuleAnalysis):
     def run(self, node, ctx):
         super(Globals, self).run(node, ctx)
         return set(self.global_declarations.keys()
-                + builtin_constants.keys()
                 + builtin_constructors.keys()
                 + [i for i in modules if i.startswith('__')])
 
@@ -685,8 +684,6 @@ class Aliases(ModuleAnalysis):
 
     def visit_FunctionDef(self, node):
         self.aliases = dict()
-        self.aliases.update((k, {k})
-            for k, v in builtin_constants.iteritems())
         self.aliases.update((k, {v})
             for k, v in builtin_constructors.iteritems())
         for module in modules:

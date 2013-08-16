@@ -882,10 +882,12 @@ class Cxx(Backend):
         return map(self.visit, node.dims)
 
     def visit_Slice(self, node):
-        lower = node.lower and self.visit(node.lower)
-        upper = node.upper and self.visit(node.upper)
-        step = node.step and self.visit(node.step)
-        return "core::slice({},{},{})".format(lower, upper, step)
+        args = []
+        for field in ('lower', 'upper', 'step'):
+            nfield = getattr(node, field)
+            arg = self.visit(nfield) if nfield else '__builtin__::None'
+            args.append(arg)
+        return "core::slice({},{},{})".format(*args)
 
     def visit_Index(self, node):
         return self.visit(node.value)

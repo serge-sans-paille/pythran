@@ -259,11 +259,14 @@ class DeclType(NamedType):
     Gather the type of a variable
 
     >>> DeclType("toto")
-    decltype(toto)
+    typename std::remove_cv<\
+typename std::remove_reference<decltype(toto)>::type>::type
     """
 
     def generate(self, ctx):
-        return 'decltype({0})'.format(self.repr)
+        return ('typename std::remove_cv<'
+                'typename std::remove_reference<'
+                'decltype({0})>::type>::type'.format(self.repr))
 
 
 class ContentType(DependentType):
@@ -271,7 +274,8 @@ class ContentType(DependentType):
     Type of the object in a container
 
     >>> ContentType(DeclType('l'))
-    typename content_of<decltype(l)>::type
+    typename content_of<typename std::remove_cv<\
+typename std::remove_reference<decltype(l)>::type>::type>::type
     '''
 
     def generate(self, ctx):

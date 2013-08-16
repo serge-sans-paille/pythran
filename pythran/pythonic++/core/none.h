@@ -8,7 +8,10 @@ namespace pythonic {
 
     struct none_type { none_type(){} };
 
-    static const none_type None;
+    namespace __builtin__ {
+        extern none_type const None; // forward declaration
+    }
+
 
     /* Type adapator to simulate an option type
      *

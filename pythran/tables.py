@@ -32,12 +32,6 @@ type_to_suffix = {
         long: "LL",
         }
 
-builtin_constants = {
-    "True": "bool",
-    "False": "bool",
-    "None": "none_type"
-    }
-
 builtin_constructors = {
         'int': pytype_to_ctype_table[int],
         'float': pytype_to_ctype_table[float],
@@ -202,6 +196,9 @@ modules = {
             "tuple": ReadOnceFunctionIntr(),
             "xrange": ConstFunctionIntr(),
             "zip": ReadOnceFunctionIntr(),
+            "False": ConstantIntr(),
+            "None": ConstantIntr(),
+            "True": ConstantIntr(),
             # pythran extensions
             "bind": FunctionIntr(),
             "pmap": ConstFunctionIntr(),

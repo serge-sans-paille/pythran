@@ -23,7 +23,7 @@ from analysis import UsedDefChain, UseOMP, CFG
 from passmanager import Transformation
 from tables import methods, attributes, functions, modules
 from tables import builtin_constructors
-from tables import cxx_keywords, namespace, builtin_constants
+from tables import cxx_keywords, namespace
 from operator import itemgetter
 from copy import copy
 import networkx as nx
@@ -500,7 +500,7 @@ class NormalizeReturn(Transformation):
     >>> print pm.dump(backend.Python, node)
     def foo(y):
         print y
-        return None
+        return __builtin__.None
     '''
 
     def __init__(self):
@@ -515,18 +515,18 @@ class NormalizeReturn(Transformation):
                 if self.yield_points:
                     node.body.append(ast.Return(None))
                 else:
-                    node.body.append(ast.Return(ast.Name("None", ast.Load())))
+                    none = ast.Attribute(ast.Name("__builtin__", ast.Load()),
+                            'None', ast.Load())
+                    node.body.append(ast.Return(none))
                 break
 
         return node
 
     def visit_Return(self, node):
-        if not node.value:
-            node.value = (None
-                    if self.yield_points
-                    else ast.Name("None", ast.Load())
-                    )
-
+        if not node.value and not self.yield_points:
+            none = ast.Attribute(ast.Name("__builtin__", ast.Load()),
+                    'None', ast.Load())
+            node.value = none
         return node
 
 
@@ -912,7 +912,6 @@ class ExpandBuiltins(Transformation):
     def visit_Name(self, node):
         s = node.id
         if (isinstance(node.ctx, ast.Load)
-                and s not in builtin_constants
                 and s not in builtin_constructors
                 and s not in self.locals[node]
                 and s not in self.globals

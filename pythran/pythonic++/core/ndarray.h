@@ -9,7 +9,7 @@
 #include <numeric>
 #include "shared_ref.h"
 
-#ifdef __AVX__
+#ifdef USE_BOOST_SIMD
 #include <boost/simd/sdk/simd/native.hpp>
 #include <boost/simd/include/functions/unaligned_load.hpp>
 #include <boost/simd/include/functions/unaligned_store.hpp>
@@ -49,7 +49,7 @@ namespace  pythonic {
                 }
             };
 
-#ifdef __AVX__
+#ifdef USE_BOOST_SIMD
         /* specialized trait for doubles when vectorization is turned on
         */
         template<>
@@ -75,7 +75,7 @@ namespace  pythonic {
                 static constexpr size_t value = 0;
                 broadcast() {}
                 broadcast(T v) : __value(v), _value(vectorized<T>::broadcast(v)) {}
-#ifdef __AVX__
+#ifdef USE_BOOST_SIMD
                 typename vectorized<T>::type load(long ) const { return _value;}
 #endif
                 T at(long ) const {
@@ -95,7 +95,7 @@ namespace  pythonic {
                 numpy_uexpr() {}
                 numpy_uexpr(Arg0 const& arg0) : arg0(arg0), shape(arg0.shape) {
                 }
-#ifdef __AVX__
+#ifdef USE_BOOST_SIMD
                 auto load(long i) const -> decltype(Op()(arg0.load(i))) {
                     return Op()(arg0.load(i));
                 }
@@ -132,7 +132,7 @@ namespace  pythonic {
 
                 numpy_expr(Arg0 arg0, Arg1 arg1) : arg0(arg0), arg1(arg1), shape(select_shape(arg0,arg1, int_<value>())) {
                 }
-#ifdef __AVX__
+#ifdef USE_BOOST_SIMD
                 auto load(long i) const -> decltype(Op()(arg0.load(i), arg1.load(i))) {
                     return Op()(arg0.load(i), arg1.load(i));
                 }
@@ -772,7 +772,7 @@ namespace  pythonic {
                         long n = expr.size();
                         T* iter = buffer;
                         long i;
-#ifdef __AVX__
+#ifdef USE_BOOST_SIMD
                         typedef typename boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION> vT;
                         static const std::size_t vN = boost::simd::meta::cardinal_of< vT >::value;
                         const long bound = n/vN*vN;
@@ -780,7 +780,7 @@ namespace  pythonic {
                         const long bound = n/8*8;
 #endif
 #pragma omp parallel for if(n>1000)
-#ifdef __AVX__
+#ifdef USE_BOOST_SIMD
                         for(i=0;i< bound; i+= vN) {
                             boost::simd::unaligned_store<vT>( expr.load(i), iter, i);
                         }
@@ -997,7 +997,7 @@ namespace  pythonic {
                 T at(long i) const { return buffer[i]; }
                 T& at(long i) { return buffer[i]; }
 
-#ifdef __AVX__
+#ifdef USE_BOOST_SIMD
                 auto load(long i) const -> decltype(boost::simd::unaligned_load<boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>>(buffer,i)) {
                     return boost::simd::unaligned_load<boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>>(buffer,i);
                 }

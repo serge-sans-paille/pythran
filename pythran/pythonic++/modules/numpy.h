@@ -203,7 +203,7 @@ namespace pythonic {
            sum(E const& expr, none_type axis=None) {
                typedef typename core::numpy_expr_to_ndarray<E>::type::dtype T;
                long n= expr.size();
-#ifdef __AVX__
+#ifdef USE_BOOST_SIMD
                long i;
                typedef typename boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION> vT;
                static const std::size_t vN = boost::simd::meta::cardinal_of< vT >::value;
@@ -213,7 +213,7 @@ namespace pythonic {
                T vp(0);
 #endif
 #pragma omp parallel for reduction(+:vp)
-#ifdef __AVX__
+#ifdef USE_BOOST_SIMD
                for(i=0;i< bound; i+= vN) {
                    vp += expr.load(i);
                }

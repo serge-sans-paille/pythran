@@ -9,8 +9,7 @@ from numpy import ndarray
 import networkx as nx
 
 from tables import pytype_to_ctype_table, operator_to_lambda
-from tables import modules, builtin_constants, builtin_constructors
-from tables import methods, functions
+from tables import modules, methods, functions
 from analysis import GlobalDeclarations, YieldPoints, LocalDeclarations
 from analysis import OrderedGlobalDeclarations, ModuleAnalysis, StrictAliases
 from analysis import LazynessAnalysis
@@ -477,11 +476,6 @@ class Types(ModuleAnalysis):
         self.name_to_nodes = {arg.id: {arg} for arg in node.args.args}
         self.yield_points = self.passmanager.gather(YieldPoints, node)
 
-        for k, v in builtin_constants.iteritems():
-            fake_node = ast.Name(k, ast.Load())
-            self.name_to_nodes.update({k: {fake_node}})
-            self.result[fake_node] = NamedType(v)
-
         # two stages, one for inter procedural propagation
         self.stage = 0
         self.generic_visit(node)
@@ -701,11 +695,6 @@ class Types(ModuleAnalysis):
                 self.combine(node, n)
         elif node.id in self.current_global_declarations:
             self.combine(node, self.current_global_declarations[node.id])
-        elif node.id in builtin_constants:
-            self.result[node] = NamedType(builtin_constants[node.id])
-        elif node.id in builtin_constructors:
-            self.result[node] = ConstructorType(
-                    NamedType(builtin_constructors[node.id]))
         else:
             self.result[node] = NamedType(node.id, {Weak})
 

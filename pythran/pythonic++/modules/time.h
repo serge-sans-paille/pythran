@@ -13,7 +13,7 @@ namespace pythonic {
             t.tv_sec = std::fabs(value);
             t.tv_nsec = std::fabs((value - t.tv_sec) * 1e+9);
             nanosleep(&t, nullptr);
-            return None;
+            return __builtin__::None;
        }    
        PROXY(pythonic::time, sleep)
 

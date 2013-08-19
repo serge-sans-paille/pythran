@@ -242,28 +242,19 @@ class Lazy(DependentType):
         return 'typename lazy<{0}>::type'.format(self.of.generate(ctx))
 
 
-class ConstructorType(DependentType):
-    """
-    A type that constructs a Named type
-
-    >>> ConstructorType(NamedType("long"))
-    pythonic::constructor<long>
-    """
-
-    def generate(self, ctx):
-        return 'pythonic::constructor<{0}>'.format(self.of.generate(ctx))
-
-
 class DeclType(NamedType):
     """
     Gather the type of a variable
 
     >>> DeclType("toto")
-    decltype(toto)
+    typename std::remove_cv<\
+typename std::remove_reference<decltype(toto)>::type>::type
     """
 
     def generate(self, ctx):
-        return 'decltype({0})'.format(self.repr)
+        return ('typename std::remove_cv<'
+                'typename std::remove_reference<'
+                'decltype({0})>::type>::type'.format(self.repr))
 
 
 class ContentType(DependentType):
@@ -271,7 +262,8 @@ class ContentType(DependentType):
     Type of the object in a container
 
     >>> ContentType(DeclType('l'))
-    typename content_of<decltype(l)>::type
+    typename content_of<typename std::remove_cv<\
+typename std::remove_reference<decltype(l)>::type>::type>::type
     '''
 
     def generate(self, ctx):
@@ -322,11 +314,8 @@ class ReturnType(Type):
 
     def generate(self, ctx):
         # the return type of a constructor is obvious
-        if type(self.ftype) is ConstructorType:
-            return self.ftype.of.generate(ctx)
         cg = self.ftype.generate(ctx)
-        if cg not in tables.builtin_constructors.itervalues():
-            cg = 'std::declval<{0}>()'.format(cg)
+        cg = 'std::declval<{0}>()'.format(cg)
         args = ("std::declval<{0}>()".format(ctx(arg).generate(ctx))
                 for arg in self.args)
         return 'decltype({0}({1}))'.format(cg, ", ".join(args))

@@ -351,7 +351,7 @@ namespace pythonic {
         template <class A, class B>
             none_type delitem(A&& a, B const& b) {
                 a.remove(b);
-                return None;
+                return __builtin__::None;
             }
 
         WRAPPER(__delitem__, delitem)

@@ -11,7 +11,12 @@ namespace pythonic {
     double const nan = std::numeric_limits<double>::quiet_NaN();
     double const inf = std::numeric_limits<double>::infinity();
 
+
     namespace __builtin__ {
+
+        bool const False = false;
+        bool const True = true;
+        none_type const None;
 
         /* abs */
         using nt2::abs;
@@ -54,6 +59,13 @@ namespace pythonic {
                 }
             }
         PROXY(pythonic::__builtin__, bin);
+
+        /* bool */
+        template<class T>
+            bool bool_(T&& t) {
+                return t;
+            }
+        PROXY(pythonic::__builtin__, bool_);
 
         /* chr */
         template<class T>
@@ -146,6 +158,13 @@ namespace pythonic {
 
         PROXY(pythonic::__builtin__, filter);
 
+        /* float */
+        template<class T>
+            double float_(T&& t) {
+                return t;
+            }
+        PROXY(pythonic::__builtin__, float_);
+
         /* hex */
         template <class T>
             core::string hex(T const & v) {
@@ -165,7 +184,7 @@ namespace pythonic {
         template <class T>
             struct _id< none<T> > {
                 intptr_t operator()(none<T> const &t) {
-                    return t ? reinterpret_cast<intptr_t>(&t.data): reinterpret_cast<intptr_t>(&None);
+                    return t ? reinterpret_cast<intptr_t>(&t.data): reinterpret_cast<intptr_t>(&__builtin__::None);
                 }
             };
         template <class T>
@@ -192,6 +211,13 @@ namespace pythonic {
                 return _id<T>()(t);
             }
         PROXY(pythonic::__builtin__,id);
+
+        /* int */
+        template<class T>
+            long int_(T&& t) {
+                return t;
+            }
+        PROXY(pythonic::__builtin__, int_);
 
         /* iter */
 
@@ -287,11 +313,19 @@ namespace pythonic {
             core::list<typename std::tuple_element<0,std::tuple<Types...>>::type>
             list(std::tuple<Types...> const & other) {
                 auto res =  core::list<typename std::tuple_element<0,std::tuple<Types...>>::type > (std::tuple_size<std::tuple<Types...>>::value);
-                tuple_dump(other, res, int_<sizeof...(Types)-1>());
+                tuple_dump(other, res, ::pythonic::int_<sizeof...(Types)-1>());
                 return res;
             }
 
         PROXY(pythonic::__builtin__,list);
+
+        /* long */
+        template<class T>
+            pythran_long_def long_(T&& t) {
+                return t;
+            }
+        PROXY(pythonic::__builtin__, long_);
+
 
         /* exception */
 #define PYTHONIC_EXCEPTION(name)\
@@ -538,7 +572,7 @@ namespace pythonic {
 
         /* pow2 */
         template<class T>
-        auto pow2(T const& e) -> decltype(e*e) { return e*e; }
+            auto pow2(T const& e) -> decltype(e*e) { return e*e; }
         PROXY(pythonic::__builtin__, pow2);
 
         /* xrange */
@@ -599,9 +633,9 @@ namespace pythonic {
         namespace proxy {
             struct xrange {
                 template<class... Types>
-                pythonic::__builtin__::xrange operator()(Types &&... args) {
-                    return pythonic::__builtin__::xrange(std::forward<Types>(args)...);
-                }
+                    pythonic::__builtin__::xrange operator()(Types &&... args) {
+                        return pythonic::__builtin__::xrange(std::forward<Types>(args)...);
+                    }
             };
         }
 
@@ -704,7 +738,7 @@ namespace pythonic {
             return core::file(filename, strmode);
         } 
         PROXY(pythonic::__builtin__, file);
-    
+
         core::file open(core::string const& filename, core::string const& strmode = "r"){
             return core::file(filename, strmode);
         }
@@ -723,19 +757,19 @@ namespace pythonic {
             }
 
         template<class Tuple>
-            auto tuple_sum(Tuple const& t, int_<0>) -> decltype(std::get<0>(t)) {
+            auto tuple_sum(Tuple const& t, ::pythonic::int_<0>) -> decltype(std::get<0>(t)) {
                 return std::get<0>(t);
             }
 
         template<class Tuple, size_t I>
-            auto tuple_sum(Tuple const& t, int_<I>) -> typename std::remove_reference<decltype(std::get<I>(t))>::type {
-                return std::get<I>(t) + tuple_sum(t, int_<I-1>());
+            auto tuple_sum(Tuple const& t, ::pythonic::int_<I>) -> typename std::remove_reference<decltype(std::get<I>(t))>::type {
+                return std::get<I>(t) + tuple_sum(t, ::pythonic::int_<I-1>());
             }
 
 
         template<class... Types>
-            auto sum(std::tuple<Types...> const & t) -> decltype(tuple_sum(t, int_<sizeof...(Types)-1>())) {
-                return tuple_sum(t, int_<sizeof...(Types)-1>());
+            auto sum(std::tuple<Types...> const & t) -> decltype(tuple_sum(t, ::pythonic::int_<sizeof...(Types)-1>())) {
+                return tuple_sum(t, ::pythonic::int_<sizeof...(Types)-1>());
             }
 
 
@@ -792,16 +826,6 @@ namespace pythonic {
         PROXY(pythonic::__builtin__, ord);
 
     }
-
-    /* constructor */
-    template<typename T>
-        struct constructor {
-            typedef T type;
-            template<class V>
-                T operator()(V&& v) {
-                    return T(std::forward<V>(v));
-                }
-        };
 
     /* get good typing for floordiv */
     template<class T0, class T1>

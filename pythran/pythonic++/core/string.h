@@ -102,7 +102,7 @@ namespace pythonic {
 
             operator long int() const { // Allows implicit conversion without loosing bool conversion
                 char *endptr;
-                long int res = strtol(data(), &endptr,10);
+                long res = strtol(data(), &endptr,10);
                 if(endptr == data()) {
                     std::ostringstream err;
                     err << "invalid literal for long() with base 10:"
@@ -141,7 +141,9 @@ namespace pythonic {
             bool operator==(string_view const & other) const {
                 if(length() != other.size())
                     return false;
-                for(int i=other.get_slice().lower.data, j=0;i<other.get_slice().upper.data;i+=other.get_slice().step.data, j++)
+                for(long i=other.get_slice().lower, j=0L;
+                        i<other.get_slice().upper;
+                        i= i + other.get_slice().step, j++)
                     if(other.get_data()[i] != (*this)[j])
                         return false;
                 return true;

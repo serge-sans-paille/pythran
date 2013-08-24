@@ -457,7 +457,7 @@ namespace  pythonic {
                     if(islice==1)
                         return data.at(to_index->data[i]);
                     else
-                        return data.at(to_index->data[i/islice] + i % islice);
+                        return data.at(to_index->data[i/islice]*islice + i % islice);
                 }
 
                 template<size_t V>
@@ -467,7 +467,7 @@ namespace  pythonic {
                     if(islice==1)
                         return data.at(to_index->data[i]);
                     else
-                        return data.at(to_index->data[i/islice] + i % islice);
+                        return data.at(to_index->data[i/islice]*islice + i % islice);
                 }
                 
                 auto _at(long i, int_<1>) -> decltype(data.at(0))
@@ -541,6 +541,16 @@ namespace  pythonic {
                 long size() const {
                     return _size;
                 }
+
+                gsliced_ndarray<T,N,M>& operator=(gsliced_ndarray<T,N,M> const& v) {
+                        long bound = size();
+                        for(long i=0, k=0; k<bound; ++i) {
+                            auto I = to_index->data[i]*islice;
+                            for(long j=0;j<islice; j++,k++)
+                                data.at(I+j) = v.at(k%v.size());
+                        }
+                        return *this;
+                    }
 
                 template<class E>
                     typename std::enable_if<not core::is_array<E>::value, gsliced_ndarray<T,N,M>&>::type operator=(E const& v) {

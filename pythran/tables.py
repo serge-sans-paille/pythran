@@ -32,29 +32,16 @@ type_to_suffix = {
         long: "LL",
         }
 
-builtin_constants = {
-    "True": "bool",
-    "False": "bool",
-    "None": "none_type"
-    }
-
-builtin_constructors = {
-        'int': pytype_to_ctype_table[int],
-        'float': pytype_to_ctype_table[float],
-        'bool': pytype_to_ctype_table[bool],
-        'long': pytype_to_ctype_table[long],
-        }
-
 cxx_keywords = {
         'and', 'and_eq', 'asm', 'auto', 'bitand', 'bitor',
-        'break', 'case', 'catch', 'char', 'class',
+        'bool', 'break', 'case', 'catch', 'char', 'class',
         'compl', 'const', 'const_cast', 'continue', 'default', 'delete',
         'do', 'double', 'dynamic_cast', 'else', 'enum', 'explicit',
-        'export', 'extern', 'false', 'for', 'friend',
-        'goto', 'if', 'inline', 'mutable', 'namespace', 'new', 'not',
-        'not_eq', 'operator', 'or', 'or_eq', 'private', 'protected', 'public',
-        'register', 'reinterpret_cast', 'return', 'short', 'signed', 'sizeof',
-        'static', 'static_cast',
+        'export', 'extern', 'false', 'float', 'for', 'friend',
+        'goto', 'if', 'inline', 'int', 'long', 'mutable', 'namespace', 'new',
+        'not', 'not_eq', 'operator', 'or', 'or_eq', 'private', 'protected',
+        'public', 'register', 'reinterpret_cast', 'return', 'short', 'signed',
+        'sizeof', 'static', 'static_cast',
         'struct', 'switch', 'template', 'this', 'throw', 'true',
         'try', 'typedef', 'typeid', 'typename', 'union', 'unsigned',
         'using', 'virtual', 'void', 'volatile', 'wchar_t', 'while',
@@ -169,19 +156,24 @@ modules = {
             "all": ReadOnceFunctionIntr(),
             "any": ReadOnceFunctionIntr(),
             "bin": ConstFunctionIntr(),
+            "bool_": ConstFunctionIntr(),
             "chr": ConstFunctionIntr(),
             "cmp": ConstFunctionIntr(),
             "complex": ConstFunctionIntr(),
             "dict": ReadOnceFunctionIntr(),
             "divmod": ConstFunctionIntr(),
+            "double_": ConstFunctionIntr(),
             "enumerate": ReadOnceFunctionIntr(),
             "file": ConstFunctionIntr(),
             "filter": ReadOnceFunctionIntr(),
+            "float_": ConstFunctionIntr(),
             "hex": ConstFunctionIntr(),
             "id": ConstFunctionIntr(),
+            "int_": ConstFunctionIntr(),
             "iter": FunctionIntr(),  # not const
             "len": ConstFunctionIntr(),
             "list": ReadOnceFunctionIntr(),
+            "long_": ConstFunctionIntr(),
             "map": ReadOnceFunctionIntr(),
             "max": ReadOnceFunctionIntr(),
             "min": ReadOnceFunctionIntr(),
@@ -202,6 +194,9 @@ modules = {
             "tuple": ReadOnceFunctionIntr(),
             "xrange": ConstFunctionIntr(),
             "zip": ReadOnceFunctionIntr(),
+            "False": ConstantIntr(),
+            "None": ConstantIntr(),
+            "True": ConstantIntr(),
             # pythran extensions
             "bind": FunctionIntr(),
             "pmap": ConstFunctionIntr(),

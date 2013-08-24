@@ -55,10 +55,6 @@ struct is_complex<std::complex<T>> {
 
 namespace pythonic {
 
-    /* some constants ... */
-    const bool True = true;
-    const bool False = false;
-
     // none trait
     template<class T> struct none;
     template<class T>

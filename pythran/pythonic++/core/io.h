@@ -163,7 +163,7 @@ namespace pythonic {
 
     template<class T>
         std::ostream& operator<<(std::ostream& os, none<T> const & v) {
-            if(v == None) return os << "None";
+            if(v == __builtin__::None) return os << "None";
             else return os << v.data;
         }
 

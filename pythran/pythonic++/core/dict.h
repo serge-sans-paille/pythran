@@ -157,7 +157,7 @@ namespace  pythonic {
                 none<V> get(K const& key) const {
                     auto ivalue = data->find(key);
                     if(ivalue != data->end()) return ivalue->second;
-                    else return None;
+                    else return __builtin__::None;
                 }
                 template <class W>
                     decltype(std::declval<V>()+std::declval<W>())& setdefault(K const& key, W d) {
@@ -171,7 +171,7 @@ namespace  pythonic {
                     auto ivalue = data->find(key);
                     if(ivalue != data->end()) return ivalue->second;
                     else {
-                        return (*data)[key]=None;
+                        return (*data)[key]=__builtin__::None;
                     }
                 }
                 template<class K0, class W0>

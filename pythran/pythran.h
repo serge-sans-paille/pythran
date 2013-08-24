@@ -807,7 +807,7 @@ template<>
     core::string const& getattr<2>(core::file const& f) {return f.getname();}
 template<>
     // Python seems to always return none... Doing the same.
-    none_type getattr<3>(core::file const& f) {return None;}
+    none_type getattr<3>(core::file const& f) {return __builtin__::None;}
 
 /* for finfo */
 template <class T>
@@ -1086,11 +1086,11 @@ ACCESS_EXCEPTION(UnicodeError);
                 return core::list<core::string>(t.args.begin(), t.args.begin()+2);\
     }\
     template <>\
-        none<typename core::BaseError::Type<1>::type> getattr<1>( const core::name& t ){ if(t.args.size()>3 || t.args.size()<2) return (None); else return t.args[0];}\
+        none<typename core::BaseError::Type<1>::type> getattr<1>( const core::name& t ){ if(t.args.size()>3 || t.args.size()<2) return __builtin__::None; else return t.args[0];}\
     template <>\
-        none<typename core::BaseError::Type<2>::type> getattr<2>( const core::name& t ){ if(t.args.size()>3 || t.args.size()<2) return None; else return t.args[1];}\
+        none<typename core::BaseError::Type<2>::type> getattr<2>( const core::name& t ){ if(t.args.size()>3 || t.args.size()<2) return __builtin__::None; else return t.args[1];}\
     template <>\
-        none<typename core::BaseError::Type<3>::type> getattr<3>( const core::name& t ){ if(t.args.size()==3) return t.args[2]; else return None; }\
+        none<typename core::BaseError::Type<3>::type> getattr<3>( const core::name& t ){ if(t.args.size()==3) return t.args[2]; else return __builtin__::None; }\
 
 ENVIRONMENTERROR_EXCEPTION(EnvironmentError)
 ENVIRONMENTERROR_EXCEPTION(IOError)

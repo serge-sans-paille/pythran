@@ -114,7 +114,7 @@ There are many small passes used iteratively to produce the Pythran AST. For ins
   >>> print pm.dump(backend.Python, tree)
   def foo():
       pass
-      return None
+      return __builtin__.None
 
 There are many other passes in Pythran. For instance one can prevent clashes with C++ keywords::
 
@@ -178,7 +178,7 @@ One can also computes the state of ``globals()``::
   >>> code += 'def foo(a): b = math.cos(a) ; return [b] * 3'
   >>> tree = ast.parse(code)
   >>> pm.gather(analysis.Globals, tree)
-  set(['__list__', 'int', 'float', '__builtin__', '__ndarray__', '__dict__', '__float__', '__set__', 'long', '__finfo__', 'bool', 'foo', 'True', 'math', 'None', '__file__', '__string__', '__exception__', '__iterator__', 'False', '__dispatch__', '__complex___'])
+  set(['__list__', '__complex___', '__file__', '__set__', '__string__', '__builtin__', '__finfo__', '__exception__', '__dispatch__', '__ndarray__', '__dict__', '__iterator__', 'foo', 'math', '__float__'])
 
 One can also compute the state of ``locals()`` at any point of the program::
 
@@ -200,14 +200,14 @@ One of the most critical analyse of Pythran is the points-to analysis. There
 are two flavors of this analyse, one that computes an over-set of the aliased
 variable, and one that computes an under set. ``Aliases`` computes an over-set::
 
-  >>> code = 'def foo(): b= float or bool ; return b'
+  >>> code = 'def foo(c, d): b= c or d ; return b'
   >>> tree = ast.parse(code)
   >>> al = pm.gather(analysis.Aliases, tree)
   >>> returned = tree.body[-1].body[-1].value
   >>> print ast.dump(returned)
   Name(id='b', ctx=Load())
-  >>> al[returned].aliases
-  set(['double', 'bool'])
+  >>> sorted(a.id for a in al[returned].aliases)
+  ['c', 'd']
 
 Pythran also implements an inter-procedural analyse to compute which arguments
 are updated, for instance using an augmented assign, or the ``append`` method::

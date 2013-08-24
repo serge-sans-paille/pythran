@@ -9,8 +9,8 @@ namespace pythonic {
         // Random generator, use Mersenne Twister to keep consistent with Python
         static std::mt19937 __random_generator;
 
-        none_type seed(long s) { __random_generator.seed(s); return None; }
-        none_type seed() { __random_generator.seed(time(nullptr)); return None; }
+        none_type seed(long s) { __random_generator.seed(s); return __builtin__::None; }
+        none_type seed() { __random_generator.seed(time(nullptr)); return __builtin__::None; }
 
         double random() {
           static std::uniform_real_distribution<> uniform_distrib(0.0, 1.0);

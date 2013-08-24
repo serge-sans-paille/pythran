@@ -7,7 +7,7 @@ namespace pythonic {
         template<class E, class F>
             none_type fill(E&& e, F f) {
                 std::fill(e.buffer, e.buffer + e.size(), f);
-                return None;
+                return __builtin__::None;
             }
 
         PROXY(pythonic::__ndarray__, fill);

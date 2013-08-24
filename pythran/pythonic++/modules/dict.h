@@ -12,7 +12,7 @@ namespace pythonic {
         PROXY(pythonic::__dict__, clear);
 
         template<class Iterable, class V=none_type>
-            core::dict<typename std::remove_reference<Iterable>::type::value_type, V> fromkeys(Iterable && iter, V const & v = None) {
+            core::dict<typename std::remove_reference<Iterable>::type::value_type, V> fromkeys(Iterable && iter, V const & v = __builtin__::None) {
                 core::dict<typename std::remove_reference<Iterable>::type::value_type,V> D;
                 D=core::empty_dict();
                 for(auto i: iter) D[i]=v;
@@ -115,7 +115,7 @@ namespace pythonic {
         template<class K, class V, class Iterable>
             none_type update(core::dict<K,V> d, Iterable const & k) {
                 d.update(k);
-                return None;
+                return __builtin__::None;
             }
         PROXY(pythonic::__dict__, update);
 

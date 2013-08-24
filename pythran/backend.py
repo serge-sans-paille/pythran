@@ -13,7 +13,7 @@ from analysis import YieldPoints, BoundedExpressions, ArgumentEffects
 from passmanager import Backend
 
 from tables import operator_to_lambda, modules, type_to_suffix
-from tables import builtin_constructors, pytype_to_ctype_table
+from tables import pytype_to_ctype_table
 from tables import pythran_ward
 from typing import Types
 from syntax import PythranSyntaxError
@@ -814,7 +814,7 @@ class Cxx(Backend):
     def visit_Num(self, node):
         if type(node.n) == complex:
             return "{0}({1}, {2})".format(
-                    pytype_to_ctype_table[type(node.n)],
+                    pytype_to_ctype_table[complex],
                     repr(node.n.real),
                     repr(node.n.imag))
         elif type(node.n) == long:
@@ -871,9 +871,6 @@ class Cxx(Backend):
             return node.id
         elif node.id in self.global_declarations:
             return "{0}()".format(node.id)
-        elif node.id in builtin_constructors:
-            return "pythonic::constructor<{0}>()".format(
-                    builtin_constructors[node.id])
         else:
             return node.id
 
@@ -882,10 +879,12 @@ class Cxx(Backend):
         return map(self.visit, node.dims)
 
     def visit_Slice(self, node):
-        lower = node.lower and self.visit(node.lower)
-        upper = node.upper and self.visit(node.upper)
-        step = node.step and self.visit(node.step)
-        return "core::slice({},{},{})".format(lower, upper, step)
+        args = []
+        for field in ('lower', 'upper', 'step'):
+            nfield = getattr(node, field)
+            arg = self.visit(nfield) if nfield else '__builtin__::None'
+            args.append(arg)
+        return "core::slice({},{},{})".format(*args)
 
     def visit_Index(self, node):
         return self.visit(node.value)

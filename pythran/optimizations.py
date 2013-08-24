@@ -75,8 +75,11 @@ class ConstantFolding(Transformation):
         super(ConstantFolding, self).prepare(node, ctx)
 
     def to_ast(self, value):
-        if (type(value) in (int, long, bool, float, complex)):
+        if (type(value) in (int, long, float, complex)):
             return ast.Num(value)
+        elif isinstance(value, bool):
+            return ast.Attribute(ast.Name('__builtin__', ast.Load()),
+                    'True' if value else False)
         elif isinstance(value, str):
             return ast.Str(value)
         elif isinstance(value, list) and len(value) < ConstantFolding.MAX_LEN:

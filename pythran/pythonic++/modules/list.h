@@ -5,23 +5,23 @@ namespace pythonic {
         template<class T, class F>
             none_type append(core::list<T> &seq, F const& value) {
                 seq.push_back(value);
-                return None;
+                return __builtin__::None;
             }
         template<class T, class F>
             none_type append(core::list<T> &seq, F&& value) {
                 seq.push_back(value);
-                return None;
+                return __builtin__::None;
             }
         template<class F>
             none_type append(core::empty_list &seq, F&& value) {
-                return None;
+                return __builtin__::None;
             }
         PROXY(pythonic::__list__, append);
 
         template<class T, class F>
             none_type extend(core::list<T> &seq, core::list<F> const& add) {
                 seq+=add;
-                return None;
+                return __builtin__::None;
             }
         PROXY(pythonic::__list__, extend);
 
@@ -40,7 +40,7 @@ namespace pythonic {
         template<class T>
             none_type remove(core::list<T> &seq, T const & x) {
                 seq.erase(index(seq,x));
-                return None;
+                return __builtin__::None;
             }
         PROXY(pythonic::__list__, remove);
 
@@ -63,7 +63,7 @@ namespace pythonic {
         template<class T>
             none_type reverse(core::list<T> &seq) {
                 std::reverse(seq.begin(),seq.end());
-                return None;
+                return __builtin__::None;
             }
 
         PROXY(pythonic::__list__,reverse);
@@ -71,7 +71,7 @@ namespace pythonic {
         template<class T>
             none_type sort(core::list<T> &seq) {
                 std::sort(seq.begin(),seq.end());
-                return None;
+                return __builtin__::None;
             }
 
         PROXY(pythonic::__list__,sort);
@@ -81,7 +81,7 @@ namespace pythonic {
                 n = n%(1+seq.size());
                 if (n<0) n+=seq.size();
                 seq.insert(n, value);
-                return None;
+                return __builtin__::None;
             }
 
         template<class T, class F>
@@ -89,7 +89,7 @@ namespace pythonic {
                 n = n%(1+seq.size()); // +1 because we want to be able to insert at the end of seq
                 if (n<0) n+=seq.size();
                 seq.insert(n, value);
-                return None;
+                return __builtin__::None;
             }
         PROXY(pythonic::__list__, insert);
     }

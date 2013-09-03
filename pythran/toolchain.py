@@ -126,20 +126,88 @@ def ldflags():
             cfg.get('user', 'ldflags').split())
 
 
-def generate_cxx(module_name, code, specs=None, optimizations=None):
-    '''python + pythran spec -> c++ code
-    returns a BoostPythonModule object
+def specialize_cxx_with_specs(module_name, cxx, specs, renamings, ir):
+    ''' Given the generic C++ (as BoostPythonModule object), the specs (types
+    for arguments), and the renaming map, generate a new C++ code specialized
+    for these types.
+    Returns the new code as a string.
 
     '''
-    pm = PassManager(module_name)
-    # font end
+    # uniform typing
+    for fname, signatures in specs.items():
+        if not isinstance(signatures, tuple):
+            specs[fname] = (signatures,)
+    mod = BoostPythonModule(module_name)
+    mod.use_private_namespace = False
+    # very low value for max_arity leads to various bugs
+    max_arity = max(4, max(max(map(len, s)) for s in specs.itervalues()))
+    mod.add_to_preamble([Define("BOOST_PYTHON_MAX_ARITY", max_arity)])
+    mod.add_to_preamble([Define("BOOST_SIMD_NO_STRICT_ALIASING", "1")])
+    mod.add_to_preamble(cxx)
+    mod.add_to_init([
+        Statement('import_array()'),
+        Statement('boost::python::implicitly_convertible<std::string,'
+                  + 'pythonic::core::string>()')]
+    )
+
+    for function_name, signatures in specs.iteritems():
+        internal_func_name = renamings.get(function_name,
+                                           function_name)
+        for sigid, signature in enumerate(signatures):
+            numbered_function_name = "{0}{1}".format(internal_func_name,
+                                                     sigid)
+            arguments_types = [pytype_to_ctype(t) for t in signature]
+            has_arguments = HasArgument(internal_func_name).visit(ir)
+            arguments = ["a{0}".format(i)
+                         for i in xrange(len(arguments_types))]
+            name_fmt = pythran_ward + "{0}::{1}::type{2}"
+            args_list = ", ".join(arguments_types)
+            specialized_fname = name_fmt.format(module_name,
+                                                internal_func_name,
+                                                "<{0}>".format(args_list)
+                                                if has_arguments else "")
+            result_type = ("typename std::remove_reference"
+                           + "<typename {0}::result_type>::type".format(
+                             specialized_fname))
+            mod.add_to_init(
+                [Statement("python_to_pythran<{0}>()".format(t))
+                 for t in _extract_all_constructed_types(signature)])
+            mod.add_to_init([Statement(
+                "pythran_to_python<{0}>()".format(result_type))])
+            mod.add_function(
+                FunctionBody(
+                    FunctionDeclaration(
+                        Value(
+                            result_type,
+                            numbered_function_name),
+                        [Value(t, a)
+                         for t, a in zip(arguments_types, arguments)]),
+                    Block([Statement("return {0}()({1})".format(
+                        pythran_ward + '{0}::{1}'.format(
+                            module_name, internal_func_name),
+                        ', '.join(arguments)))])
+                ),
+                function_name
+            )
+    return str(mod.generate())
+
+
+def generate_generic_cxx(module_name, code, optimizations=None):
+    '''Generate C++ for the python code, return both the C++ as a "Generable"
+    object encapsulating a BoostPythonModule object and the "renamings" map.
+    This map contains the python entities that are C++ reserved keywords and
+    were renamed.
+    '''
+    # Front-end
     ir = ast.parse(code)
+    pm = PassManager(module_name)
 
     # parse openmp directive
     pm.apply(GatherOMPData, ir)
 
     # avoid conflicts with cxx keywords
     renamings = pm.apply(NormalizeIdentifiers, ir)
+
     check_syntax(ir)
 
     # middle-end
@@ -151,74 +219,33 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
     # back-end
     content = pm.dump(Cxx, ir)
 
+    class Generable:
+        def __init__(self, content):
+            self.content = content
+
+        def generate(self):
+            return "\n".join("\n".join(l for l in s.generate())
+                             for s in self.content)
+
+    return Generable(content), renamings, ir
+
+
+def generate_cxx(module_name, code, specs=None, optimizations=None):
+    '''python + pythran spec -> c++ code
+    returns a string object
+    '''
+    cxx, renamings, ir = generate_generic_cxx(module_name, code, optimizations)
+
     if not specs:  # Match "None" AND empty specs
-        class Generable:
-            def __init__(self, content):
-                self.content = content
-
-            def generate(self):
-                return "\n".join("\n".join(l for l in s.generate())
-                                 for s in self.content)
-        mod = Generable(content)
+        cxx = cxx.generate()
     else:
-        # uniform typing
-        for fname, signatures in specs.items():
-            if not isinstance(signatures, tuple):
-                specs[fname] = (signatures,)
+        cxx = specialize_cxx_with_specs(module_name,
+                                        cxx.content,
+                                        specs,
+                                        renamings,
+                                        ir)
 
-        mod = BoostPythonModule(module_name)
-        mod.use_private_namespace = False
-        # very low value for max_arity leads to various bugs
-        max_arity = max(4, max(max(map(len, s)) for s in specs.itervalues()))
-        mod.add_to_preamble([Define("BOOST_PYTHON_MAX_ARITY", max_arity)])
-        mod.add_to_preamble([Define("BOOST_SIMD_NO_STRICT_ALIASING", "1")])
-        mod.add_to_preamble(content)
-        mod.add_to_init([
-            Statement('import_array()'),
-            Statement('boost::python::implicitly_convertible<std::string,'
-                      + 'pythonic::core::string>()')]
-        )
-
-        for function_name, signatures in specs.iteritems():
-            internal_func_name = renamings.get(function_name,
-                                               function_name)
-            for sigid, signature in enumerate(signatures):
-                numbered_function_name = "{0}{1}".format(internal_func_name,
-                                                         sigid)
-                arguments_types = [pytype_to_ctype(t) for t in signature]
-                has_arguments = HasArgument(internal_func_name).visit(ir)
-                arguments = ["a{0}".format(i)
-                             for i in xrange(len(arguments_types))]
-                name_fmt = pythran_ward + "{0}::{1}::type{2}"
-                args_list = ", ".join(arguments_types)
-                specialized_fname = name_fmt.format(module_name,
-                                                    internal_func_name,
-                                                    "<{0}>".format(args_list)
-                                                    if has_arguments else "")
-                result_type = ("typename std::remove_reference"
-                               + "<typename {0}::result_type>::type".format(
-                                 specialized_fname))
-                mod.add_to_init(
-                    [Statement("python_to_pythran<{0}>()".format(t))
-                     for t in _extract_all_constructed_types(signature)])
-                mod.add_to_init([Statement(
-                    "pythran_to_python<{0}>()".format(result_type))])
-                mod.add_function(
-                    FunctionBody(
-                        FunctionDeclaration(
-                            Value(
-                                result_type,
-                                numbered_function_name),
-                            [Value(t, a)
-                             for t, a in zip(arguments_types, arguments)]),
-                        Block([Statement("return {0}()({1})".format(
-                            pythran_ward + '{0}::{1}'.format(
-                                module_name, internal_func_name),
-                            ', '.join(arguments)))])
-                    ),
-                    function_name
-                )
-    return mod
+    return cxx
 
 
 def compile_cxxfile(cxxfile, module_so=None, **kwargs):
@@ -283,21 +310,19 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
     from spec import spec_parser
     specs = spec_parser(pythrancode) if specs is None else specs
 
-    # Generate C++, get a BoostPythonModule object
+    # Generate C++
     module = generate_cxx(module_name, pythrancode, specs, opts)
 
     if cpponly:
         # User wants only the C++ code
-        _, output_file = _get_temp(str(module.generate()))
+        _, output_file = _get_temp(module)
         if module_so:
             shutil.move(output_file, module_so)
             output_file = module_so
         logger.info("Generated C++ source file: " + output_file)
     else:
         # Compile to binary
-        output_file = compile_cxxcode(str(module.generate()),
-                                      module_so=module_so,
-                                      **kwargs)
+        output_file = compile_cxxcode(module, module_so, **kwargs)
 
     return output_file
 

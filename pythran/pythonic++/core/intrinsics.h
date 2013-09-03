@@ -184,7 +184,7 @@ namespace pythonic {
         template <class T>
             struct _id< none<T> > {
                 intptr_t operator()(none<T> const &t) {
-                    return t ? reinterpret_cast<intptr_t>(&t.data): reinterpret_cast<intptr_t>(&__builtin__::None);
+                    return t.id();
                 }
             };
         template <class T>

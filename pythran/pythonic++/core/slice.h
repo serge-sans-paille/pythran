@@ -2,6 +2,7 @@
 #define PYTHONIC_SLICE_H
 
 #include <limits>
+#include <cassert>
 
 namespace pythonic {
     namespace core {
@@ -17,44 +18,32 @@ namespace pythonic {
             */
             slice normalize(long max_size) const
             {
-// FIXME cross-reference
-//                if(step==0)
-//                    throw core::ValueError("slice step cannot be zero");
-                long _lower, _upper, _step;
-                if(step.is_none) _step = 1;
-                else _step = step.data;
-                if(upper.is_none and _step>0) _upper = max_size;
-                else if(upper.is_none and _step<0) _upper = -1; 
-                else if(upper.data<0) _upper = std::max((long)-1, max_size + upper);
-                else if(upper.data> max_size) _upper = max_size;
-                else _upper = upper.data;
-                if(lower.is_none and _step>0) _lower = 0;
-                else if(lower.is_none and _step<0) _lower = max_size - 1;
-                else if(lower.data<0) _lower = std::max((long)0, max_size + lower);
-                else if(lower.data > max_size) _lower= max_size - 1;
-                else _lower = lower.data;
-                return slice(_lower, _upper, _step);
+                slice out(*this);
+                out.normalize_inplace(max_size);
+                return out;
             }
 
             void normalize_inplace(long max_size)
             {
-//FIXME cross -reference
 //                if(step==0)
 //                    throw core::ValueError("slice step cannot be zero");
-                if(step.is_none) step.data = 1;
-                if(upper.is_none and step.data>0) upper.data = max_size;
-                else if(upper.is_none and step.data<0) upper.data = -1; 
-                else if(upper.data<0) upper.data = std::max((long)-1, max_size + upper.data);
-                else if(upper.data> max_size) upper.data = max_size;
-                if(lower.is_none and step.data>0) lower.data = 0;
-                else if(lower.is_none and step.data<0) lower.data = max_size - 1;
-                else if(lower.data<0) lower.data = std::max((long)0, max_size + lower.data);
-                else if(lower.data > max_size) lower.data= max_size - 1;
+                if(step.is_none) step = 1L;
+
+                if(upper.is_none and step>0L) upper = max_size;
+                else if(upper.is_none and step<0L) upper = -1L; 
+                else if(upper<0L) upper = std::max(-1L, max_size + upper);
+                else if(upper> max_size) upper = max_size;
+
+                if(lower.is_none and step>0L) lower = 0L;
+                else if(lower.is_none and step<0L) lower = max_size - 1L;
+                else if(lower <0L) lower = std::max(0L, max_size + lower);
+                else if(lower > max_size) lower = max_size - 1L;
             }
 
             long size() const
             {
-                return std::max((long)0, (long)ceil(double(upper.data - lower.data)/step.data));
+                assert( not upper.is_none and not lower.is_none and not step.is_none );
+                return std::max(0L, long(ceil(double(upper - lower)/double(step))));
             }
         };
     }

@@ -15,20 +15,26 @@ def pi_estimate(darts):
     return pi
 
 from threading import Thread
-def threaded_pi_estimate(darts):
-    t1 = Thread(target=pi_estimate, args=(darts//4,))
-    t2 = Thread(target=pi_estimate, args=(darts//4,))
-    t3 = Thread(target=pi_estimate, args=(darts//4,))
-    t4 = Thread(target=pi_estimate, args=(darts//4,))
-    t1.start() ; t2.start()
-    t3.start() ; t4.start()
-    t1.join() ; t2.join()
-    t3.join() ; t4.join()
+from multiprocessing import Queue
+def threaded_pi_estimate(d):
+    def work(darts, queue):
+        queue.put(pi_estimate(darts))
+    n = 4
+    q = Queue()
+    threads = [
+      Thread(target=work, args=(d//n, q)),
+      Thread(target=work, args=(d//n, q)),
+      Thread(target=work, args=(d//n, q)),
+      Thread(target=work, args=(d//n, q)),
+    ]
+    map(Thread.start, threads)
+    map(Thread.join, threads)
+    return sum(q.get() for _ in threads)/n
 
 from multiprocessing import Pool
 def multi_pi_estimate(darts):
     p = Pool(4)
-    p.map(pi_estimate,[darts//4]*4)
+    return sum(p.map(pi_estimate,[darts//4]*4)) / 4
 
 if __name__ == '__main__':
     median = lambda x: sorted(x)[len(x) / 2]

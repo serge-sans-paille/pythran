@@ -37,7 +37,7 @@ OpenMP Annotations}
     \IEEEauthorblockA{\newline\IEEEauthorrefmark{2}
     T{\'e}l{\'e}com Bretagne, Plouzan{\'e}, France}
     \IEEEauthorblockA{\newline\IEEEauthorrefmark{3}
-    Silkan, Meudon la For\^et, France}
+    SILKAN Inc., Los-Altos, USA}
 }
 
 \maketitle
@@ -48,21 +48,21 @@ OpenMP Annotations}
     HPC users traditionally rely on low-level, compiled language such as C or
     FORTRAN to perform computation-intensive tasks. As a consequence, it is a
     common situation to have HPC application written in a high-level language
-    such as Python, calling native routines for computation-intensive tasks. To
-    improve development speed and reduce maintenance costs, several solutions
-    such as Cython, Numba, Parakeet or Pythran, have appeared to make it
-    possible to automatically or semi-automatically turn Python functions into
-    native ones.
+    such as Python, calling native routines for computate-intensive tasks. To
+    improve development speed and reduce maintenance costs, using a higher-level
+    language like Python seems attractive. While it is usually associated with
+    low performance, several solutions such as Cython, Numba, Parakeet or 
+    Pythran offer to automatically or semi-automatically turn Python functions 
+    into native ones.
 
-    One of the key point to match the performance of native applications is the
-    ability to write parallel applications. This paper studies the addition of
-    OpenMP directives, a popular model to describe the parallelism of
-    C/C++/FORTRAN applications, to Pythran, an automatic compiler from a subset
-    of Python to C++. It shows that scientific Python applications annotated
-    with OpenMP directives can be turned by an automatic compiler into native
-    applications that run within the same order of magnitude than
+    One of the key points required to match the performance of native 
+    applications is the ability to write parallel applications. This paper
+    studies the addition of OpenMP directives, a popular model to describe
+    parallelism in C/C++/FORTRAN applications, to Pythran, an automatic compiler     
+    from a subset of Python to C++. It shows that scientific Python applications
+    annotated with OpenMP directives can be turned by an automatic compiler into 
+    native applications that run within the same order of magnitude than
     manually-written ones.
-
 \end{abstract}
 
 %
@@ -71,73 +71,77 @@ OpenMP Annotations}
 Since its birth in December 1989, the Python language~\cite{rossum97} has proved
 to be useful in various domains, ranging from system administration to web
 services, thanks to its dynamicity, expressiveness, rich ecosystem and
-battery-included standard library. It is also getting widely used in scientific
-computing~\cite{Oliphant2007}, mainly thanks to the SciPy~\cite{scipy} project
-that provides a set of scientific and numeric tools, ranging from linear algebra
-to ordinary differential equation solvers or generic algorithms.
+% Mehdi : battery-included ??????
+battery-included standard library. It is also widely used in scientific
+computing~\cite{Oliphant2007}, thanks to the SciPy~\cite{scipy} project
+which provides a set of scientific and numeric tools, ranging from linear algebra to ordinary differential equation solvers or generic algorithms.
 
-It is now heading toward High Performance Computing(HPC), either as a glue
-language used to bind several native libraries together, or to write whole
-applications in Pure Python. However, the prohibitive performance overhead of
-the language implied by its interpreted and highly dynamic nature prevents its
-usage for the most performance - critical code sections, where native code is
-generally used. The SciPy modules partly overcome this issue through the usage
-of low-level routines written in C or Fortran and encapsulated in Python
-\emph{native} modules. Moreover, its core data structure, the multi-dimensional
+It is now heading toward High Performance Computing (HPC), either as a glue
+language used to bind several native libraries together, or to support whole
+applications in Pure Python. However, the prohibitive overhead of the language
+implied by its interpreted and highly dynamic nature prevents its usage for the
+most performance-critical code sections, where native code is generally used.
+The SciPy modules partly overcome this issue through the usage of low-level 
+routines written in C or Fortran and encapsulated in Python \emph{native} 
+modules. Moreover, its core data structure, the multi-dimensional
 array~\cite{numpyarray2011}, has been designed so that the underlying data are
 available to both native modules and the Python interpreter without conversion
 cost. Yet when a new function not already part of an existing module is
 required, one has to write it in C or FORTRAN.
 
-To enable the user to write native functions without having to write the glue
-code that turns Python object into native structures back and forth, the SciPy
-package provides the \texttt{weave} module that makes it possible to bundle C
-code snippet into Python code and compile then load them at runtime. This hybrid
-approach, based on a mix of interpreted and native code, is getting widespread
-in the Python landscape. It is also the recommended approach to write
-application that use fine grain parallelism, has Python parallelism support
-targets coarse-grain parallelism.
+To allow the user to write native functions without having to write the boilerplate glue code that turns Python object into native structures back and
+forth, the SciPy package provides the \texttt{weave} module. It makes
+possible to bundle C code snippets into Python code. They are then compiled and 
+loaded at runtime. This hybrid approach, based on a mix of interpreted and
+native code, is getting widespread in the Python landscape. It is also the
+recommended approach to write applications that make use of fine grain
+parallelism, as Python parallelism support is only suitable for coarse-grain
+parallelism.
 
 This paper presents the addition of OpenMP, a popular standard to turn
 sequential C, C++ and FORTRAN application into parallel applications, to the
 Pythran~\cite{pythran2013} compiler, a compiler that turn Python modules into
 C++ meta-programs.  Section~\ref{sec:python-parallel} gives an overview of
 existing approaches to compile Python functions or modules and shows a critical
-lack of parallelism support, and emphasises on the need for a
-backward-compatible approach.  Section~\ref{sec:python-static} presents the
+lack of parallelism support. It also emphasises on the need for a
+backward-compatible approach. Section~\ref{sec:python-static} presents the
 Pythran compiler and the underlying runtime. Section~\ref{sec:python-openmp}
 studies the validity of using OpenMP directives within the Python language in
+% I would dispute the fact that OpenMP is "fine-grain", we're not talking about % vectorization here.
 order to add fine-grain parallelism support to Python in the context of Pythran.
-The Pythran compiler is benchmarked on several scientific kernels, compared
-to Cython, Numba and Parakeet in Section~\ref{sec:validation}.
+Finally, the Pythran compiler is benchmarked on several scientific kernels and
+compared to Cython, Numba and Parakeet in Section~\ref{sec:validation}.
 
 %=========================================================
 \section{Parallel Computations in Python}\label{sec:python-parallel}
 %=========================================================
 
-In the many cores area, turning to parallelism to balance the performance
-limitations of scripting languages, as described in~\cite{choy05} in the context
-of the MATLAB language, or in~\cite{mals07} in the context of the R language,
-seems legitimate. In the context of Python, most approaches have focused on
+% Mehdi area => era, Serge: validate?
+% I also wonder the rational of using parallelism when performance are bad 
+% because language is bad…
+In the many-cores era, it is mandatory to exhibit parallelism to balance the 
+performance limitations of scripting languages, as described in~\cite{choy05}
+in the context of the MATLAB language, or in~\cite{mals07} in the context of 
+the R language. In the context of Python, most approaches have focused on
 fork-based parallelism.
 
 \subsection{Python and Parallelism}
 
 Parallel computations are supported by the Python standard library through the
-\texttt{multiprocessing} module. It spawns several interpreters that can
+\texttt{multiprocessing} module. It spawns several interpreters that
 communicate through Inter Process Communication(IPC), using Python built-in
 object serialization. This approach is only viable for computation intensive
-application, since the communication and synchronization overheads are much
-greater than a light-weight processes approach.
+independent tasks, since the communication and synchronization overheads are 
+much greater than a light-weight threaded approach.
 
-The standard \texttt{threading} module also makes it possible to start
-several light-weight threads within the same interpreter, but this lower-level approach is not
-applicable to HPC, because of a specificity of CPython, the \emph{Global
+The standard \texttt{threading} module also makes possible to start several
+light-weight threads within the same interpreter, but this lower-level approach
+is not applicable to HPC, because of a specificity of CPython, the \emph{Global
 Interpreter Lock}~\cite{gil2012}.\footnote{Other Python interpreters, such as
 IronPython or Jython, do not have a GIL.} This lock ensures that only one thread
-is active at a time in the interpreter. While it makes it possible to have
+is active at a time in the interpreter. While it enables the possibility of
 cooperative threads, say for a GUI, it does not take advantage of multiple
-cores.  However, there are two notable exceptions: the GIL is released on I/O,
+cores. However, there are two notable exceptions: the GIL is released on I/O,
 and the GIL does not prevent the use of threads inside native modules, where the
 user has full control.
 
@@ -183,38 +187,41 @@ def threaded_buffon(d):
 
 from multiprocessing import Pool
 def multi_buffon(darts):
-  p = Pool(4)
-  return sum(p.map(buffon, [darts//4]*4))/4
+  n = 4
+  p = Pool(n)
+  return sum(p.map(buffon, [darts//n]*n))/n
 \end{lstlisting}
+% Mehdi: I don't get the [darts//4]*4 at the last line of the listing
 
 There have also been several approaches to replace the GIL by Transactional
 Memories~\cite{Riley2006,Tabba2010} but none of them made there way to the
-mainstream interpreters.  As a consequence, Python developers need to write
+mainstream interpreters. As a consequence, Python developers need to write
 multi-threaded native modules in order to fully benefit from multiple cores.
 This leads to a kind of computations referred as \emph{hybrid computations}.
 
 
 \subsection{Hybrid Computations}
 
-In the context of interpreted languages, \cite{dongara2007} defines a computation
-as \emph{hybrid} when part of the code is interpreted, and part of it is
-executed natively.
+In the context of interpreted languages, \cite{dongara2007} defines a 
+computation as \emph{hybrid} when part of the code is interpreted, and part of
+it is executed natively.
 
 It is now common for scripting language to have C bindings. To take advantage of
 compiled code, and to overcome the GIL limitations, Python developers must write
 parallel C/C++ functions and the associated boilerplate based on the Python C
-API~\cite{pythoncapi}. Tools have been developed to relieve the user from
-writing the encapsulating code, notably SWIG~\cite{swig2003} that relies on an
-enhanced interface specification, or
-\texttt{boost::python}~\cite{boostpython2007} that relies on C++ facilities to
-guide translation.
+API~\cite{pythoncapi}. Tools have been developed to relieve the user from this
+cumbersome task, notably SWIG~\cite{swig2003} that relies on an interface specification supplied by the programmer to generate the glue, or 
+\texttt{boost::python}~\cite{boostpython2007} that relies on C++ templates and 
+type overloading facilities to guide translation.
 
 An opposite approach consists in using the host language ---herein Python--- to
-describe both parts of the system, and to let an automated tool perform the
-translation to native code of a part of the application, generally the
-computation-intensive one where parallelism has been expressed in some ways.
-Thus, developers not familiar with lower level languages or not eager to invest
-the additional development time can still benefit from a fair performance boost.
+describe both parts of the system, i.e.\ the hybrid and the native. An automated 
+tool performs the translation to native code of a specific part of the 
+application, generally the computation-intensive one where parallelism has been
+expressed in some ways.
+Therefore, developers not familiar with lower level languages or not eager to 
+invest the additional development time can still benefit from a fair performance
+boost.
 This approach is the subject of many studies that can be classified according to
 their compatibility with the host language.
 
@@ -233,10 +240,9 @@ Cython~\cite{cython2010} is an hybrid Python/C dialect. It extends the Python
 syntax with typing informations, calls to native functions from third party
 libraries, and a limited set of parallelism constructs, such as the possibility
 to define parallel loops, but no task parallelism. When possible, it unboxes
-Python variable to improve performance. Without type annotation, the performance
-improvement is not terrific, but given enough type annotation, Cython can
-generates code that runs as fast as its C equivalent, while maintaining a syntax
-close to Python.
+Python variables to improve performance. Without type annotations, the 
+performance improvement is not terrific, but given enough type annotation, Cython can generates code that runs as fast as its C equivalent, while 
+maintaining a syntax close to Python.
 
 PLW~\cite{dongara2007} and \texttt{Scipy.weave} both propose an other approach
 that directly mixes Python with C, using raw strings to hold the C code. PLW
@@ -244,10 +250,10 @@ also supports parallel directives that are limited to parallel for loops.
 PyCUDA and PyOpenCL~\cite{klockner2012} also target accelerators by mixing
 Python with kernels embedded as raw strings containing accelerator code.
 
-The main issue of these approaches is that they imply to modify, in a
-backward-incompatible way, the original code. They require to learn a new
+The main drawback of these approaches is that they require to modify in a
+backward-incompatible way the original code. They require to learn a new
 dialect, and the long-term preservation of this investment is not ensured.
-Moreover, there is no falling back if the code were to be deployed in an
+Moreover, there is no fall back if the code were to be deployed in an
 environment where the parallelizing tool/module is not available. For instance,
 once a code has been ported to PyCUDA and transformed into CUDA code embedded in
 Python strings, there is no way back and the developer has to maintain two
@@ -278,7 +284,7 @@ only supporting a small subset of the Python language. Additionally, it supports
 implicit parallelism using an implicit mapping between numpy functions and a set
 of parallel primitives including \texttt{map}s \texttt{scan}s and
 \texttt{reduce}s. These two approaches use Just-In-Time(JIT) compilation and do
-not suffer from the backward-incompatibility issues. When meeting an unsupported
+not suffer from backward-incompatibility issues. When meeting an unsupported
 construct, numba falls back to Python C-API calls, while parakeet raises an
 exception.
 
@@ -296,11 +302,12 @@ original code remains mostly compatible with a compiler that is not aware of the
 annotations, while taking the annotation into account turns the sequential code
 into parallel code.
 
+%FIXME: why not cite OpenMP 4.0 (aka the latest)?
 This article proposes to combine OpenMP~\cite{openmp3.1} parallel annotations
 with the Python subset supported by the Pythran compiler to make it possible to
 write fine-grain parallel applications in Python, while being fully backward
-compatible with both the Python language and the sequential algorithm. It means
-that:
+compatible with both the Python language and the sequential algorithm. It 
+implies that:
 
 \begin{enumerate}
 

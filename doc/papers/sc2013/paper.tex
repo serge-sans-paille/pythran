@@ -72,7 +72,7 @@ Since its birth in December 1989, the Python language~\cite{rossum97} has proved
 to be useful in various domains, ranging from system administration to web
 services, thanks to its dynamicity, expressiveness, rich ecosystem and
 % Mehdi : battery-included ??????
-battery-included standard library. It is also widely used in scientific
+``batteries included'' standard library. It is also widely used in scientific
 computing~\cite{Oliphant2007}, thanks to the SciPy~\cite{scipy} project
 which provides a set of scientific and numeric tools, ranging from linear algebra to ordinary differential equation solvers or generic algorithms.
 
@@ -189,7 +189,7 @@ from multiprocessing import Pool
 def multi_buffon(darts):
   n = 4
   p = Pool(n)
-  return sum(p.map(buffon, [darts//n]*n))/n
+  return sum(p.map(buffon, darts//n))/n
 \end{lstlisting}
 % Mehdi: I don't get the [darts//4]*4 at the last line of the listing
 
@@ -741,7 +741,7 @@ OpenMP directives has been studied on several situations: first on the
 motivating example, then on a synthetic geomatic application. Python and Cython
 versions are then compared and finally the effect of OpenMP directives on Pythran
 generated code are illustrated in the context of the Python Benchmarks
-suite~\footnote{\url{https://github.com/numfocus/python-benchmarks}}.
+suite.
 
 The target machine has  8 AMD Opteron 6176 SE cores and 8 GO of RAM. It is
 running a Linux kernel 3.10-2-amd64, x86\_64 GNU/Linux. The C++ compiler used is
@@ -901,13 +901,27 @@ repository.\footnote{\see the \texttt{sc2013} branch of the git repository.}
 
 \subsection{Python Benchmarks Test Bed}
 
-To Be FINISHED
+The Python Benchmark test bed
+(\url{https://github.com/numfocus/python-benchmarks}) is an innitiative to
+gather relevant numerical python benchmarks and compare several implementations
+and compilers. The original benchmarks are slightly adapted to match each
+compiler restriction (e.g. lack of support for a particular construct), or
+completely rewritten in the target's paradigm (e.g. using PyOpenCL or Theano).
+We picked up the targets that did not imply a full rewrite of their input:
+Cython, Numba, Pythran and Parakeet, when available and supported.
+Additionnaly, the original Python code is run.
 
-\begin{figure}[ht]
-    \includegraphics[width=.5\textwidth]{growcut}
-    \caption{Comparison of Various python Compilers on the Growcut benchmark}
-    \label{fig:pb-growcut}
-\end{figure}
+The best execution time out of five run is shown for each code version. If the
+code does not compile with a particular compiler, the column is left blank. Two
+code versions are shown for Pytrhan: one compiler without the OpenMP flag set
+and one with the OpenMP flag set. The code itself is not modified, only the
+compilation flag. A logarithmic scale is used due to the generally poor
+performance of the pure Python version.
+
+Figure~\ref{fig:pb-julia} shows the execution time of the computation of the
+julia fractal. It's a highly parallel, computate-intensive code. Pythran and
+Cython's version have almost the same execution time, but activating OpenMP
+yields an extra $\times 3.95$ speedup when compared to Pythran alone.
 
 \begin{figure}[ht]
     \includegraphics[width=.5\textwidth]{julia}
@@ -915,21 +929,37 @@ To Be FINISHED
     \label{fig:pb-julia}
 \end{figure}
 
-\begin{figure}[ht]
-    \includegraphics[width=.5\textwidth]{rosen_der}
-    \caption{Comparison of Various python Compilers on the rosen\_der benchmark}
-    \label{fig:pb-rosen}
-\end{figure}
+Figure~\ref{fig:pb-pairwise} shows the execution time of the computation of a distance matrix between two random vectors, using a parallel nested loop. On that example, Pytrhan slightly outperforms Cython, parakeet and Numba. Taking into account the OpenMP annotation that flags the outermost loop as parallel yields an $\times 4.27$ speedup to Pythran.
 
 \begin{figure}[ht]
     \includegraphics[width=.5\textwidth]{pairwise}
     \caption{Comparison of Various python Compilers on the pairwise benchmark}
     \label{fig:pb-pairwise}
 \end{figure}
-growcut: $\times 2.65$
-julia: $\times 3.95$
-rosen\_der: $\times 1.78$
-pairwise: $\times 4.27$
+
+Figure~\ref{fig:pb-rosen} shows the execution time of the computation of the third derivative of the Rosenbrock function for a random array input, using Numpy's vector operations. There is no explicit parallelism in this function but the vector operation is implictly parallel. On this example, Cython is on par with Pythran and slightly faster than Parakeet, but turning OpenMP on makes the Pythran version run $\times 1.78$ faster than sequential Pythran.
+
+\begin{figure}[ht]
+    \includegraphics[width=.5\textwidth]{rosen_der}
+    \caption{Comparison of Various python Compilers on the rosen\_der benchmark}
+    \label{fig:pb-rosen}
+\end{figure}
+
+Figure~\ref{fig:pb-rosen} shows the execution time of the computation of one step of the GrowCut algorithm used in image processing. On this example, Parakeet performs better than Cython and Pytrhan and way better than Numba, but paralleizing the outermost loop with OpenMP gives a $\times 2.65$ speedup to Pythran that helps it outperform Parakeet.
+
+\begin{figure}[ht]
+    \includegraphics[width=.5\textwidth]{growcut}
+    \caption{Comparison of Various python Compilers on the Growcut benchmark}
+    \label{fig:pb-growcut}
+\end{figure}
+
+It appears that all Python compilers manage to yield significant speedups over
+the Python interepreter, each compiler managing some cases better than others.
+All the benchmarks exhibt some level of parallelism that are easy to capture
+using OpenMP without changing the original algorithm and while maintaining
+backward compatibility with the Python interpreter. Some even have a degree of
+implicit parallism that makes parallelization fully transparent to the user.
+Taking advantage of this parallelism appears to be the key to reach an additional performance level.
 
 
 %=========================================================

@@ -429,11 +429,7 @@ def complex_number():
         self.run_test(code, complex_number=[])
 
     def test_raise(self):
-        try:
-            self.run_test("def raise_(): raise RuntimeError('pof')", raise_=[])
-        except RuntimeError as e:
-            if e.message == 'pof': pass
-            else: raise
+        self.run_test("def raise_():\n raise RuntimeError('pof')", raise_=[])
 
     def test_complex_number_serialization(self):
         self.run_test("def complex_number_serialization(l): return [x+y for x in l for y in l]", [complex(1,0), complex(1,0)], complex_number_serialization=[[complex]])

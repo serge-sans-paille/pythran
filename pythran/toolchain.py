@@ -20,10 +20,12 @@ from config import cfg
 from passmanager import PassManager
 from numpy import get_include
 from typing import extract_constructed_types, pytype_to_ctype
-from tables import pythran_ward
+from tables import pythran_ward, functions
+from intrinsic import ConstExceptionIntr
 
 from subprocess import check_output, STDOUT, CalledProcessError
 from tempfile import mkstemp, NamedTemporaryFile
+import networkx as nx
 
 
 def _format_cmdline(cmd):
@@ -178,6 +180,29 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
             Statement('boost::python::implicitly_convertible<std::string,'
                       + 'pythonic::core::string>()')]
         )
+
+        # add topologically sorted exceptions based on the inheritance hierarchy.
+        # needed because otherwise boost python regiser_exception handlers do not
+        # catch exception type in the right way (first valid exception is selected,
+        # so inheritance has to be taken into account in the registration order)
+        exceptions = nx.DiGraph()
+        for function_name, v in functions.iteritems():
+            for mname, symbol in v:
+                if isinstance(symbol, ConstExceptionIntr):
+                    exceptions.add_node(
+                        getattr(sys.modules[mname], function_name))
+
+        # add edges based on class relationships
+        for n in exceptions:
+            if n.__base__ in exceptions:
+                exceptions.add_edge(n.__base__, n)
+
+        sorted_exceptions = nx.topological_sort(exceptions)
+        mod.add_to_init([
+            Statement(
+                'boost::python::register_exception_translator<' +
+                'pythonic::core::%s>(&translate_%s)' %
+                (n.__name__, n.__name__)) for n in sorted_exceptions])
 
         for function_name, signatures in specs.iteritems():
             internal_func_name = renamings.get(function_name,

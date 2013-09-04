@@ -187,3 +187,177 @@ class TestException(TestEnv):
     def test_no_msg_exception(self):
         self.run_test("def no_msg_exception_():\n try: raise IndexError()\n except IndexError as e: return e.args", no_msg_exception_=[])
 
+# test if exception translators are registered in pythran
+
+    def test_BaseException_register(self):
+        self.run_test("def BaseException_(): raise BaseException('abc')", BaseException_=[])
+
+    def test_SystemExit_register(self):
+        self.run_test("def SystemExit_():\n raise SystemExit('a','b','c')", SystemExit_=[])
+
+    def test_KeyboardInterrupt_register(self):
+        self.run_test("def KeyboardInterrupt_():\n raise KeyboardInterrupt('a','b','c')", KeyboardInterrupt_=[])
+
+    def test_GeneratorExit_register(self):
+        self.run_test("def GeneratorExit_():\n raise GeneratorExit('a','b','c')", GeneratorExit_=[])
+
+    def test_Exception_register(self):
+        self.run_test("def Exception_():\n raise Exception('a','b','c')", Exception_=[])
+
+    def test_StopIteration_register(self):
+        self.run_test("def StopIteration_():\n raise StopIteration('a','b','c')", StopIteration_=[])
+
+    def test_StandardError_register(self):
+        self.run_test("def StandardError_():\n raise StandardError('a','b','c')", StandardError_=[])
+
+    def test_Warning_register(self):
+        self.run_test("def Warning_():\n raise Warning('a','b','c')", Warning_=[])
+
+    def test_BytesWarning_register(self):
+        self.run_test("def BytesWarning_():\n raise BytesWarning('a','b','c')", BytesWarning_=[])
+
+    def test_UnicodeWarning_register(self):
+        self.run_test("def UnicodeWarning_():\n raise UnicodeWarning('a','b','c')", UnicodeWarning_=[])
+
+    def test_ImportWarning_register(self):
+        self.run_test("def ImportWarning_():\n raise ImportWarning('a','b','c')", ImportWarning_=[])
+
+    def test_FutureWarning_register(self):
+        self.run_test("def FutureWarning_():\n raise FutureWarning('a','b','c')", FutureWarning_=[])
+
+    def test_UserWarning_register(self):
+        self.run_test("def UserWarning_():\n raise UserWarning('a','b','c')", UserWarning_=[])
+
+    def test_SyntaxWarning_register(self):
+        self.run_test("def SyntaxWarning_():\n raise SyntaxWarning('a','b','c')", SyntaxWarning_=[])
+
+    def test_RuntimeWarning_register(self):
+        self.run_test("def RuntimeWarning_():\n raise RuntimeWarning('a','b','c')", RuntimeWarning_=[])
+
+    def test_PendingDeprecationWarning_register(self):
+        self.run_test("def PendingDeprecationWarning_():\n raise PendingDeprecationWarning('a','b','c')", PendingDeprecationWarning_=[])
+
+    def test_DeprecationWarning_register(self):
+        self.run_test("def DeprecationWarning_():\n raise DeprecationWarning('a','b','c')", DeprecationWarning_=[])
+
+    def test_BufferError_register(self):
+        self.run_test("def BufferError_():\n raise BufferError('a','b','c')", BufferError_=[])
+
+    def test_ArithmeticError_register(self):
+        self.run_test("def ArithmeticError_():\n raise ArithmeticError('a','b','c')", ArithmeticError_=[])
+
+    def test_AssertionError_register(self):
+        self.run_test("def AssertionError_():\n raise AssertionError('a','b','c')", AssertionError_=[])
+
+    def test_AttributeError_register(self):
+        self.run_test("def AttributeError_():\n raise AttributeError('a','b','c')", AttributeError_=[])
+
+    def test_EnvironmentError4_register(self):
+        self.run_test("def EnvironmentError4_():\n raise EnvironmentError('a','b','c','d')", EnvironmentError4_=[])
+
+    def test_EnvironmentError3_register(self):
+        self.run_test("def EnvironmentError3_():\n raise EnvironmentError('a','b','c')", EnvironmentError3_=[])
+
+    def test_EnvironmentError2_register(self):
+        self.run_test("def EnvironmentError2_():\n raise EnvironmentError('a','b')", EnvironmentError2_=[])
+
+    def test_EnvironmentError1_register(self):
+        self.run_test("def EnvironmentError1_():\n raise EnvironmentError('a')", EnvironmentError1_=[])
+
+    def test_EOFError_register(self):
+        self.run_test("def EOFError_():\n raise EOFError('a','b','c')", EOFError_=[])
+
+    def test_ImportError_register(self):
+        self.run_test("def ImportError_():\n raise ImportError('a','b','c')", ImportError_=[])
+
+    def test_LookupError_register(self):
+        self.run_test("def LookupError_():\n raise LookupError('a','b','c')", LookupError_=[])
+
+    def test_MemoryError_register(self):
+        self.run_test("def MemoryError_():\n raise MemoryError('a','b','c')", MemoryError_=[])
+
+    def test_NameError_register(self):
+        self.run_test("def NameError_():\n raise NameError('a','b','c')", NameError_=[])
+
+    def test_ReferenceError_register(self):
+        self.run_test("def ReferenceError_():\n raise ReferenceError('a','b','c')", ReferenceError_=[])
+
+    def test_RuntimeError_register(self):
+        self.run_test("def RuntimeError_():\n raise RuntimeError('a','b','c')", RuntimeError_=[])
+
+    def test_SyntaxError_register(self):
+        self.run_test("def SyntaxError_():\n raise SyntaxError('a','b','c')", SyntaxError_=[])
+
+    def test_SystemError_register(self):
+        self.run_test("def SystemError_():\n raise SystemError('a','b','c')", SystemError_=[])
+
+    def test_TypeError_register(self):
+        self.run_test("def TypeError_():\n raise TypeError('a','b','c')", TypeError_=[])
+
+    def test_ValueError_register(self):
+        self.run_test("def ValueError_():\n raise ValueError('a','b','c')", ValueError_=[])
+
+    def test_FloatingPointError_register(self):
+        self.run_test("def FloatingPointError_():\n raise FloatingPointError('a','b','c')", FloatingPointError_=[])
+
+    def test_OverflowError_register(self):
+        self.run_test("def OverflowError_():\n raise OverflowError('a','b','c')", OverflowError_=[])
+
+    def test_ZeroDivisionError_register(self):
+        self.run_test("def ZeroDivisionError_():\n raise ZeroDivisionError('a','b','c')", ZeroDivisionError_=[])
+
+    def test_IOError_register(self):
+        self.run_test("def IOError_():\n raise IOError('a','b','c')", IOError_=[])
+
+    def test_OSError_register(self):
+        self.run_test("def OSError_():\n raise OSError('a','b','c')", OSError_=[])
+
+    def test_IndexError_register(self):
+        self.run_test("def IndexError_():\n raise IndexError('a','b','c')", IndexError_=[])
+
+    def test_KeyError_register(self):
+        self.run_test("def KeyError_():\n raise KeyError('a','b','c')", KeyError_=[])
+
+    def test_UnboundLocalError_register(self):
+        self.run_test("def UnboundLocalError_():\n raise UnboundLocalError('a','b','c')", UnboundLocalError_=[])
+
+    def test_NotImplementedError_register(self):
+        self.run_test("def NotImplementedError_():\n raise NotImplementedError('a','b','c')", NotImplementedError_=[])
+
+    def test_IndentationError_register(self):
+        self.run_test("def IndentationError_():\n raise IndentationError('a','b','c')", IndentationError_=[])
+
+    def test_TabError_register(self):
+        self.run_test("def TabError_():\n raise TabError('a','b','c')", TabError_=[])
+
+    def test_UnicodeError_register(self):
+        self.run_test("def UnicodeError_():\n raise UnicodeError('a','b','c')", UnicodeError_=[])
+
+    def test_multiple_exception_register(self):
+        self.run_test("def multiple_exception_():\n raise OverflowError('a','b','c')", multiple_exception_=[])
+
+    def test_multiple_tuple_exception_register(self):
+        self.run_test("def multiple_tuple_exception_():\n raise OverflowError('a','b','c')", multiple_tuple_exception_=[])
+
+    def test_reraise_exception_register(self):
+        self.run_test("def reraise_exception_():\n raise OverflowError('a','b','c')", reraise_exception_=[])
+
+    def test_raiseinst_exception_register(self):
+        self.run_test("def raiseinst_exception_():\n raise OverflowError, ('a','b','c')", raiseinst_exception_=[])
+
+    def test_enverror_exception_register(self):
+        self.run_test("def enverror_exception_():\n raise EnvironmentError('a','b','c')", enverror_exception_=[])
+
+    def test_str1_exception_register(self):
+        self.run_test("def str1_exception_():\n raise EnvironmentError('a')", str1_exception_=[])
+    def test_str2_exception_register(self):
+        self.run_test("def str2_exception_():\n raise EnvironmentError('a','b')", str2_exception_=[])
+    def test_str3_exception_register(self):
+        self.run_test("def str3_exception_():\n raise EnvironmentError('a','b','c')", str3_exception_=[])
+    def test_str4_exception_register(self):
+        self.run_test("def str4_exception_():\n raise EnvironmentError('a','b','c','d')", str4_exception_=[])
+    def test_str5_exception_register(self):
+        self.run_test("def str5_exception_():\n raise EnvironmentError('a','b','c','d','e')", str5_exception_=[])
+
+    def test_no_msg_exception_register(self):
+        self.run_test("def no_msg_exception_():\n raise IndexError()", no_msg_exception_=[])

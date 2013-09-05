@@ -1,3 +1,4 @@
+#runas solve()
 #unittest.skip recursive generator
 #pythran export solve()
 def solve():

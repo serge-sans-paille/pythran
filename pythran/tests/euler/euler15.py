@@ -1,3 +1,4 @@
+#skip.runas solve()
 #pythran export solve()
 def solve():
     def fact(n):

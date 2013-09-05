@@ -1,3 +1,4 @@
+#runas solve()
 #pythran export solve()
 def solve():
     cache = { 1: 1 }

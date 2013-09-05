@@ -1,3 +1,4 @@
+#runas solve()
 #pythran export solve()
 '''
 Euler published the remarkable quadratic formula:

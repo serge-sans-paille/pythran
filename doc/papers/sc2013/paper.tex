@@ -45,9 +45,10 @@ OpenMP Annotations}
 %
 \begin{abstract}
 
-    HPC users traditionally rely on low-level, compiled language such as C or
+    High Performance Computing users traditionally rely on low-level,
+    compiled language such as C or
     FORTRAN to perform computation-intensive tasks. As a consequence, it is a
-    common situation to have HPC application written in a high-level language
+    common situation to have High Performance Computing application written in a high-level language
     such as Python, calling native routines for computate-intensive tasks. To
     improve development speed and reduce maintenance costs, using a higher-level
     language like Python seems attractive. While it is usually associated with
@@ -129,7 +130,7 @@ fork-based parallelism.
 
 Parallel computations are supported by the Python standard library through the
 \texttt{multiprocessing} module. It spawns several interpreters that
-communicate through Inter Process Communication(IPC), using Python built-in
+communicate through Inter Process Communication (IPC), using Python built-in
 object serialization. This approach is only viable for computation intensive
 independent tasks, since the communication and synchronization overheads are 
 much greater than a light-weight threaded approach.
@@ -491,13 +492,14 @@ While Python has a decorator mechanism\footnote{\see PEP 318,
 Python decorators.}, it only applies to functions, methods and classes and does
 not make it possible to attach decorations to other statements.
 PLW~\cite{dongara2007}, uses string instructions to hold such decorations. As
-Python does not have anonymous block,~\footnote{\see PEP340,
+Python does not have anonymous block,\footnote{\see PEP340,
     \url{http://www.python.org/dev/peps/pep-0340/} for a discussion concerning
 anonymous block support in Python.} one has to create a dummy \texttt{if 1:}
 instruction to apply an annotation to a whole block. Pythran uses comments to
 hold OpenMP directives, and internally stores them as string instructions.
 Alternatively, the syntax \texttt{if 'my annotation':} is also supported. 
 
+%what about flush clause which is not linked to a statement?
 Many OpenMP annotations are parametrized by clauses that list variables,
 specifying their behavior with respect to parallel regions, e.g.\
 \texttt{private}, \texttt{shared}, \texttt{copyin}. They can only refer to
@@ -556,7 +558,7 @@ defined as argument, then read twice, which gives a def-use chain of
 \{0, 1, 1\} so the variable scope is 0. \texttt{i} is defined as a loop iterator then
 used in the loop body, which gives a chain of \{DEF, USE\}, with nesting
 depths of \{2, 2\} and a scope of 2. Likewise \texttt{x} has a chain
-of \{D, U\}, nesting depths of \{2, 2\} and a scope of 2, which means it can be
+of \{DEF, USE\}, nesting depths of \{2, 2\} and a scope of 2, which means it can be
 automatically declared local to the loop, thus not needing to be listed as
 \texttt{private}.
 
@@ -595,8 +597,8 @@ behaves as a forward iterator. To be compatible with OpenMP, these iterators
 must be turned into random access iterators.
 
 The extension of Python iterator to random access iterators is direct for the
-standard containers: \texttt{list}\footnote{Python \texttt{list}s behave as C++
-\texttt{vector}s.}, \texttt{set} or \texttt{dict}. Other iterators require more
+standard containers: \texttt{list},\footnote{Python \texttt{list}s behave as C++
+\texttt{vector}s.} \texttt{set} or \texttt{dict}. Other iterators require more
 care.
 
 Generators, Python objects that behave like iterators, are commonly used in
@@ -745,7 +747,7 @@ suite.
 
 The target machine has  8 AMD Opteron 6176 SE cores and 8 GO of RAM. It is
 running a Linux kernel 3.10-2-amd64, x86\_64 GNU/Linux. The C++ compiler used is
-\texttt{g++} version 4.8.1 and all applicationsa re compiled using the
+\texttt{g++} version 4.8.1 and all applications are compiled using the
 \texttt{-Ofast} flag. Pythran generated programs are linked with Boost.Python
 version 1.54. The Pythran version is extracted from the \texttt{sc2013} branch
 of the git repository \url{https://github.com/serge-sans-paille/pythran}. Python
@@ -879,6 +881,8 @@ def sum_sqrt(r):
     \end{lstlisting}
 \end{figure}
 
+%Ce n'est pas ce code qui ne donne pas les mêmes résultats avec Cython et Python et Pythran?
+
 The performance of the two approaches is shown in
 Figure~\ref{fig:cython-pythran}.  The benchmarked codes are typical
 mathematical, image-processing or linear algebra kernels. All these kernels have
@@ -913,7 +917,7 @@ Additionnaly, the original Python code is run.
 
 The best execution time out of five run is shown for each code version. If the
 code does not compile with a particular compiler, the column is left blank. Two
-code versions are shown for Pytrhan: one compiler without the OpenMP flag set
+code versions are shown for Pythran: one compiler without the OpenMP flag set
 and one with the OpenMP flag set. The code itself is not modified, only the
 compilation flag. A logarithmic scale is used due to the generally poor
 performance of the pure Python version.
@@ -929,7 +933,7 @@ yields an extra $\times 3.95$ speedup when compared to Pythran alone.
     \label{fig:pb-julia}
 \end{figure}
 
-Figure~\ref{fig:pb-pairwise} shows the execution time of the computation of a distance matrix between two random vectors, using a parallel nested loop. On that example, Pytrhan slightly outperforms Cython, parakeet and Numba. Taking into account the OpenMP annotation that flags the outermost loop as parallel yields an $\times 4.27$ speedup to Pythran.
+Figure~\ref{fig:pb-pairwise} shows the execution time of the computation of a distance matrix between two random vectors, using a parallel nested loop. On that example, Pythran slightly outperforms Cython, parakeet and Numba. Taking into account the OpenMP annotation that flags the outermost loop as parallel yields an $\times 4.27$ speedup to Pythran.
 
 \begin{figure}[ht]
     \includegraphics[width=.5\textwidth]{pairwise}

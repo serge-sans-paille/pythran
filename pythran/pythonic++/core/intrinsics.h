@@ -5,6 +5,7 @@
 #include <sstream>
 #include <complex>
 #include <nt2/include/functions/abs.hpp>
+#include <gmpxx.h>
 
 namespace pythonic {
 
@@ -568,6 +569,12 @@ namespace pythonic {
         /* pow */
         using std::pow;
         long pow(long n, long m) { return std::pow(n,m); }
+        template<class T, class U>
+        mpz_class pow(__gmp_expr<T,U> const& a, long b) {
+            mpz_class rop;
+            mpz_pow_ui(rop.get_mpz_t(), a.get_mpz_t(), b);
+            return rop;
+        }
         PROXY(pythonic::__builtin__, pow);
 
         /* pow2 */

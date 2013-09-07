@@ -103,14 +103,16 @@ class TestEnv(unittest.TestCase):
             # Produce the reference, python-way, run in an separated 'env'
             env = {'__builtin__': __import__('__builtin__')}
             refcode = code+"\n"+runas
+
+            # Compare if exception raised in python and in pythran are the same
+            python_exception_type = None
+            pythran_exception_type = None
             try:
                 if check_output:
                     exec refcode in env
                     python_ref = env[self.TEST_RETURNVAL]
-            except Exception as e:
-                # useful for debug
-                print refcode
-                raise
+            except BaseException as e:
+                python_exception_type = type(e)
 
             # If no module name was provided, create one
             modname = module_name or ("test_" + name)
@@ -127,15 +129,25 @@ class TestEnv(unittest.TestCase):
                 prelude and prelude()
                 pymod = load_dynamic(modname, cxx_compiled)
 
-                # Produce the pythran result, exec in the loaded module ctx
-                exec runas in pymod.__dict__
-                pythran_res = getattr(pymod, self.TEST_RETURNVAL)
+                try:
+                    # Produce the pythran result, exec in the loaded module ctx
+                    exec runas in pymod.__dict__
+                except BaseException as e:
+                    pythran_exception_type = type(e)
+                else:
+                    pythran_res = getattr(pymod, self.TEST_RETURNVAL)
+                    # Test Results, assert if mismatch
+                    self.compare_pythonpythran_results(python_ref, pythran_res)
 
-                # Test Results, assert if mismatch
-                self.compare_pythonpythran_results(python_ref, pythran_res)
             finally:
                 # Clean temporary DLL
                 os.remove(cxx_compiled)
+
+            # Only compare the type of exceptions raised
+            if pythran_exception_type != python_exception_type:
+                return AssertionError(
+                    "expected exception was %s, but received %s" %
+                    (python_exception_type, pythran_exception_type))
 
 
 class TestFromDir(TestEnv):

@@ -1,4 +1,4 @@
-#skip.runas solve()
+#runas solve()
 #pythran export solve()
 def solve():
     '''
@@ -12,7 +12,7 @@ def solve():
             n = n / 10
         return s
 
-    n = 1
+    n = 1L
     for i in xrange(1,100): n = n*i
     return digits(n)
 

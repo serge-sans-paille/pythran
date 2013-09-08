@@ -1,4 +1,4 @@
-#skip.runas solve()
+#runas solve()
 #pythran export solve()
 '''
 Starting with the number 1 and moving to the right in a clockwise direction a 5 by 5 spiral is formed as follows:
@@ -22,7 +22,7 @@ What is the sum of both diagonals in a 1001 by 1001 spiral formed in the same wa
 '''
 
 def solve():
- diagonal = 1
+ diagonal = 1L
  start = 1
  for width in xrange(3, 1002, 2):
      increment = width - 1

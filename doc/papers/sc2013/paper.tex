@@ -47,9 +47,9 @@ OpenMP Annotations}
 
     High Performance Computing users traditionally rely on low-level,
     compiled language such as C or
-    FORTRAN to perform computation-intensive tasks. As a consequence, it is a
+    FORTRAN to perform compute-intensive tasks. As a consequence, it is a
     common situation to have High Performance Computing application written in a high-level language
-    such as Python, calling native routines for computate-intensive tasks. To
+    such as Python, calling native routines for compute-intensive tasks. To
     improve development speed and reduce maintenance costs, using a higher-level
     language like Python seems attractive. While it is usually associated with
     low performance, several solutions such as Cython, Numba, Parakeet or
@@ -131,7 +131,7 @@ fork-based parallelism.
 Parallel computations are supported by the Python standard library through the
 \texttt{multiprocessing} module. It spawns several interpreters that
 communicate through Inter Process Communication (IPC), using Python built-in
-object serialization. This approach is only viable for computation intensive
+object serialization. This approach is only viable for compute-intensive
 independent tasks, since the communication and synchronization overheads are
 much greater than a light-weight threaded approach.
 
@@ -218,7 +218,7 @@ type overloading facilities to guide translation.
 An opposite approach consists in using the host language ---herein Python--- to
 describe both parts of the system, i.e.\ the hybrid and the native. An automated
 tool performs the translation to native code of a specific part of the
-application, generally the computation-intensive one where parallelism has been
+application, generally the compute-intensive one where parallelism has been
 expressed in some ways.
 Therefore, developers not familiar with lower level languages or not eager to
 invest the additional development time can still benefit from a fair performance
@@ -939,7 +939,7 @@ performance of the pure Python version.
 % added by hand. It is misleading since the previous paragraph said
 % "The code itself is not modified, only the compilation flag."
 Figure~\ref{fig:pb-julia} shows the execution time of the computation of the
-julia fractal. It's a highly parallel, computate-intensive code. Pythran and
+julia fractal. It's a highly parallel, compute-intensive code. Pythran and
 Cython's version have almost the same execution time, but activating OpenMP
 yields an extra $\times 3.95$ speedup when compared to Pythran alone.
 

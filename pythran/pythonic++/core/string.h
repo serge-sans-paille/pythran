@@ -142,7 +142,7 @@ namespace pythonic {
                 if(length() != other.size())
                     return false;
                 for(long i=other.get_slice().lower, j=0L;
-                        i<other.get_slice().upper;
+                        j<length();
                         i= i + other.get_slice().step, j++)
                     if(other.get_data()[i] != (*this)[j])
                         return false;

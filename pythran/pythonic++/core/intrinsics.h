@@ -218,6 +218,12 @@ namespace pythonic {
             long int_(T&& t) {
                 return t;
             }
+
+            long int_(char t) {
+                assert( t >= '0' and t <= '9' );
+                return t - '0';
+            }
+
         PROXY(pythonic::__builtin__, int_);
 
         /* iter */

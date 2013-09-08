@@ -7,6 +7,7 @@
 #include <string>
 #include <sstream>
 #include <stdexcept>
+#include <gmpxx.h>
 
 namespace pythonic {
     namespace core {
@@ -163,6 +164,9 @@ namespace pythonic {
             string_view operator[]( slice const &s ) const {
                 return string_view(*const_cast<string*>(this), s.normalize(size())); // SG: ugly !
             }
+            char const & operator[](mpz_class const &m) const { return (*this)[m.get_si()];}
+            char & operator[](mpz_class const& m) { return (*this)[m.get_si()];}
+
 
             explicit operator bool() const{
                 return not empty();

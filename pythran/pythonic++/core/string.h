@@ -38,7 +38,7 @@ namespace pythonic {
             string_view(): data(impl::no_memory()) {}
             string_view(string_view const & s): data(s.data), slicing(s.slicing) {}
             string_view(string_view const & s, normalized_slice const& sl): data(s.data), slicing(s.slicing.lower + sl.lower, s.slicing.lower + sl.upper, s.slicing.step * sl.step) {}
-            string_view(std::string & other, normalized_slice const & s) : data(other), slicing(s){}
+            string_view(core::string & other, normalized_slice const & s);
 
             // const getter
             container_type const & get_data() const { return *data; }
@@ -76,46 +76,50 @@ namespace pythonic {
             }
         };
 
-        class string : public std::string {
-
+        class string {
             friend class string_view;
+            typedef std::string container_type;
+            impl::shared_ref<container_type> data;
 
             public:
-            typedef core::string value_type;
 
-            string() : std::string() {}
-            string(std::string const & s) : std::string(s) {}
-            string(std::string && s) : std::string(std::move(s)) {}
-            string(const char*s) : std::string(s) {}
-            string(const char*s, size_t n) : std::string(s,n) {}
-            string(char c) : std::string(1,c) {}
-            string(string_view const & other) : std::string( other.begin(), other.end()) {}
+            static const size_t npos = std::string::npos;
+
+            typedef core::string value_type;
+            typedef container_type::iterator iterator;
+
+            string() : data() {}
+            string(std::string const & s) : data(s) {}
+            string(std::string && s) : data(std::move(s)) {}
+            string(const char*s) : data(s) {}
+            string(const char*s, size_t n) : data(s,n) {}
+            string(char c) : data(1,c) {}
+            string(string_view const & other) : data( other.begin(), other.end()) {}
             template<class T>
-            string(T const& begin, T const& end) : std::string( begin, end) {}
-            core::string operator+(core::string const& s) const {
-                return core::string( (*(std::string*)this)+(std::string const&)s );
-            }
+                string(T const& begin, T const& end) : data( begin, end) {}
 
             explicit operator char() const {
                 assert(size() == 1);
-                return std::string::operator[](0);
+                return (*data)[0];
             }
 
             operator long int() const { // Allows implicit conversion without loosing bool conversion
                 char *endptr;
-                long res = strtol(data(), &endptr,10);
-                if(endptr == data()) {
+                auto dat = data->data();
+                long res = strtol(dat, &endptr,10);
+                if(endptr == dat) {
                     std::ostringstream err;
                     err << "invalid literal for long() with base 10:"
-                        << "'" << *this << "'";
+                           "'" << c_str() << '\'';
                     throw std::runtime_error(err.str());
                 }
                 return res;
             }
             explicit operator double() const {
                 char *endptr;
-                double res = strtod(data(), &endptr);
-                if(endptr == data()) {
+                auto dat = data->data();
+                double res = strtod(dat, &endptr);
+                if(endptr == dat) {
                     std::ostringstream err;
                     err << "invalid literal for double():"
                         << "'" << *this << "'";
@@ -124,26 +128,59 @@ namespace pythonic {
                 return res;
             }
             string& operator=(string_view const & other) {
-                if(other.get_data() == *this ) {
-                    auto it = std::copy(other.begin(), other.end(), this->begin());
-                    this->resize(it - this->begin());
+                if(other.get_data() == *data ) {
+                    auto it = std::copy(other.begin(), other.end(), begin());
+                    resize(it - this->begin());
                 }
                 else {
                     *this=other.get_data();
                 }
                 return *this;
             }
-            using std::string::operator+=;
+
+            core::string& operator+=(core::string const& s) {
+                *data += *s.data;
+                return *this;
+            }
+
+            container_type const & get_data() const { return *data; }
+
+            size_t size() const { return data->size(); }
+            auto begin() const -> decltype(data->begin()) { return data->begin(); }
+            auto begin() -> decltype(data->begin()) { return data->begin(); }
+            auto end() const -> decltype(data->end()) { return data->end(); }
+            auto end() -> decltype(data->end()) { return data->end(); }
+            auto c_str() const -> decltype(data->c_str()) { return data->c_str(); }
+            auto resize(long n) -> decltype(data->resize(n)) { return data->resize(n); }
+            size_t find(string const &s, size_t pos = 0) const { return data->find(*s.data, pos); }
+            size_t find_first_of(string const &s, size_t pos = 0) const { return data-> find_first_of(*s.data, pos); }
+            size_t find_first_of(const char* s, size_t pos = 0) const { return data-> find_first_of(s, pos); }
+            size_t find_first_not_of(string const &s, size_t pos = 0) const { return data->find_first_not_of(*s.data, pos); }
+            size_t find_last_not_of(string const &s, size_t pos = npos) const { return data-> find_last_not_of(*s.data, pos); }
+            string substr(size_t pos = 0, size_t len = npos) const { return data->substr(pos, len); }
+            bool empty() const { return data->empty(); }
+            int compare(size_t pos, size_t len, string const & str) const { return data->compare(pos, len, *str.data); }
+            void reserve(size_t n) { data->reserve(n); }
+            string& replace(size_t pos,  size_t len,  string const & str) { data->replace(pos, len, *str.data); return *this; }
+
             string& operator+=(string_view const & other) {
                 resize(size() + other.get_data().size());
                 std::copy(other.begin(), other.end(), begin());
                 return *this;
             }
+            bool operator==(string const& other) const { return *data == *other.data; }
+            bool operator==(char other) const { return data->size() == 1 and (*data)[0] == other; }
+            bool operator!=(string const& other) const { return *data != *other.data; }
+            bool operator!=(char other) const { return data->size() != 1 and (*data)[0] != other; }
+            bool operator<=(string const& other) const { return *data <= *other.data; }
+            bool operator<(string const& other) const { return *data < *other.data; }
+            bool operator>=(string const& other) const { return *data >= *other.data; }
+            bool operator>(string const& other) const { return *data > *other.data; }
             bool operator==(string_view const & other) const {
-                if(length() != other.size())
+                if(size() != other.size())
                     return false;
                 for(long i=other.get_slice().lower, j=0L;
-                        j<length();
+                        j<size();
                         i= i + other.get_slice().step, j++)
                     if(other.get_data()[i] != (*this)[j])
                         return false;
@@ -155,36 +192,37 @@ namespace pythonic {
 
             char operator[]( long i) const {
                 if(i<0) i+= size();
-                return std::string::operator[](i);
+                return (*data)[i];
             }
 
             char& operator[]( long i) {
-                return std::string::operator[](i);
+                if(i<0) i+= size();
+                return (*data)[i];
             }
             string_view operator[]( slice const &s ) const {
                 return string_view(*const_cast<string*>(this), s.normalize(size())); // SG: ugly !
             }
-            char const & operator[](mpz_class const &m) const { return (*this)[m.get_si()];}
+            char operator[](mpz_class const &m) const { return (*this)[m.get_si()];}
             char & operator[](mpz_class const& m) { return (*this)[m.get_si()];}
 
 
             explicit operator bool() const{
-                return not empty();
+                return not data->empty();
             }
             template<class A>
                 core::string operator%(A const & a) const {
-                    const boost::format fmter(*this);
+                    const boost::format fmter(*data);
                     return (boost::format(fmter) % a ).str();
                 }
             template<class ...A>
                 core::string operator%(std::tuple<A...> const & a) const {
-                    boost::format fmter(*this);
+                    boost::format fmter(*data);
                     (fmt(fmter, a, int_<sizeof...(A)>() ));
                     return fmter.str();
                 }
             template<size_t N, class T>
                 core::string operator%(core::array<T, N> const & a) const {
-                    boost::format fmter(*this);
+                    boost::format fmter(*data);
                     (fmt(fmter, a, int_<N>() ));
                     return fmter.str();
                 }
@@ -199,6 +237,24 @@ namespace pythonic {
                 }
 
         };
+        pythonic::core::string pythonic::core::string_view::operator+(pythonic::core::string_view const & s) {
+            pythonic::core::string out(*data);
+            std::copy(s.begin(), s.end(), std::copy(begin(), end(), out.begin()));
+            return out;
+        }
+
+        pythonic::core::string operator+(pythonic::core::string const& str, pythonic::core::string const& str2) {
+            return pythonic::core::string(str.get_data() + str2.get_data());
+        }
+
+        pythonic::core::string operator+(pythonic::core::string const& str, char const *s) {
+            return pythonic::core::string(str.get_data() + s);
+        }
+
+        pythonic::core::string operator+(char const *s, pythonic::core::string const& str) {
+            return pythonic::core::string(s + str.get_data());
+        }
+
     }
 }
 
@@ -234,15 +290,12 @@ pythonic::core::string_view& pythonic::core::string_view::operator=(pythonic::co
     return *this;
 }
 
-pythonic::core::string pythonic::core::string_view::operator+(pythonic::core::string_view const & s) {
-    pythonic::core::string out(*data);
-    std::copy(s.begin(), s.end(), std::copy(begin(), end(), out.begin()));
-    return out;
-}
+pythonic::core::string_view::string_view(pythonic::core::string & other, normalized_slice const & s) : data(other.data), slicing(s){}
+
 
 pythonic::core::string_view::operator long() {
     long out;
-    std::istringstream iss(pythonic::core::string(*this));
+    std::istringstream iss(pythonic::core::string(*this).get_data());
     iss >> out;
     return out;
 }
@@ -252,7 +305,7 @@ namespace std {
     {
         size_t operator()(const pythonic::core::string & x) const
         {
-            return hash<std::string>()(x);
+            return hash<std::string>()(x.get_data());
         }
     };
 }

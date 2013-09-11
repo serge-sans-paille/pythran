@@ -241,8 +241,7 @@ namespace pythonic {
                 }
 
                 void next_value() {
-                    while (iter != iter_end) {
-                        ++iter;
+                    while (++iter != iter_end) {
                         if (test_filter(std::is_same<pythonic::none_type, Operator>()))
                             return;
                     }

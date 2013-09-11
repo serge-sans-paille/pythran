@@ -12,6 +12,22 @@ namespace pythonic {
     namespace core {
         class string;
 
+        struct const_string_view_iterator : std::iterator< std::random_access_iterator_tag, char >
+        {
+            const char * data;
+            long step;
+            const_string_view_iterator(char const *data, long step) : data(data), step(step) {
+            }
+            const_string_view_iterator operator++() { data +=step; return *this; }
+            bool operator<(const_string_view_iterator const& other) const { return (step>0)?(data < other.data):(data > other.data); }
+            bool operator==(const_string_view_iterator const& other) const { return data == other.data; }
+            bool operator!=(const_string_view_iterator const& other) const { return data != other.data; }
+            char operator*() const { return *data; }
+            char operator*() { return *data; }
+            const_string_view_iterator operator-(long n) const { const_string_view_iterator other(*this); other.data += step * n; return other; } 
+            long operator-(const_string_view_iterator const & other) const { return (data - other.data)/step; }
+        };
+
         class string_view {
             typedef std::string container_type;
             impl::shared_ref<container_type> data;
@@ -20,18 +36,16 @@ namespace pythonic {
 
             public:
             //  types
-            typedef typename container_type::reference reference;
-            typedef typename container_type::const_reference const_reference;
-            typedef typename container_type::iterator iterator;
-            typedef typename container_type::const_iterator const_iterator;
-            typedef typename container_type::size_type size_type;
-            typedef typename container_type::difference_type difference_type;
-            typedef typename container_type::value_type value_type;
-            typedef typename container_type::allocator_type allocator_type;
-            typedef typename container_type::pointer pointer;
-            typedef typename container_type::const_pointer const_pointer;
-            typedef typename container_type::reverse_iterator reverse_iterator;
-            typedef typename container_type::const_reverse_iterator const_reverse_iterator;
+            typedef container_type::reference reference;
+            typedef container_type::const_reference const_reference;
+            typedef const_string_view_iterator iterator;
+            typedef const_string_view_iterator const_iterator;
+            typedef container_type::size_type size_type;
+            typedef container_type::difference_type difference_type;
+            typedef container_type::value_type value_type;
+            typedef container_type::allocator_type allocator_type;
+            typedef container_type::pointer pointer;
+            typedef container_type::const_pointer const_pointer;
 
             // constructor
             string_view(): data(impl::no_memory()) {}
@@ -49,10 +63,8 @@ namespace pythonic {
             string operator+(string_view const & );
 
             // iterators
-            iterator begin() { assert(slicing.step==1) ; return data->begin()+slicing.lower; }
-            const_iterator begin() const { assert(slicing.step==1) ; return data->begin()+slicing.lower; }
-            iterator end() { assert(slicing.step==1) ; return data->begin()+slicing.upper; }
-            const_iterator end() const { assert(slicing.step==1) ; return data->begin()+slicing.upper; }
+            const_iterator begin() const { return const_iterator(data->c_str() + slicing.lower, slicing.step); }
+            const_iterator end() const { return const_iterator(data->c_str() + slicing.upper, slicing.step); }
 
             // size
             size_type size() const { return slicing.size(); }
@@ -69,7 +81,7 @@ namespace pythonic {
 
             // io
             friend std::ostream& operator<<(std::ostream& os, core::string_view const & v) {
-                for(auto b = v.begin(); b != v.end(); b++)
+                for(auto b = v.begin(); b != v.end(); ++b)
                     os << *b;
                 return os;
             }
@@ -139,7 +151,7 @@ namespace pythonic {
                 if(endptr == dat) {
                     std::ostringstream err;
                     err << "invalid literal for double():"
-                        << "'" << *this << "'";
+                        << "'" << c_str() << "'";
                     throw std::runtime_error(err.str());
                 }
                 return res;
@@ -300,8 +312,8 @@ pythonic::core::string_view& pythonic::core::string_view::operator=(pythonic::co
 
 pythonic::core::string_view& pythonic::core::string_view::operator=(pythonic::core::string const & s) {
     if( slicing.step == 1) {
-        data->erase(begin(), end());
-        data->insert(begin(), s.begin(), s.end());
+        data->erase(slicing.lower, slicing.upper);
+        data->insert(slicing.lower, s.get_data());
     }
     else {
         assert("not implemented yet");

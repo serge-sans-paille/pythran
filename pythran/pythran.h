@@ -1,11 +1,20 @@
 #ifndef PYTHRAN_H
 #define PYTHRAN_H
 
-#define pythran_long(v) v ## LL
-#define pythran_long_def long long
+#ifdef USE_GMP
+#include <gmpxx.h>
+typedef mpz_class pythran_long_t;
+#define pythran_long(a) pythran_long_t(#a)
+#else
+typedef long long pythran_long_t;
+#define pythran_long(a) pythran_long_t(a)
+#endif
+
+
 
 #include <pythonic++.h>
 #include <type_traits>
+
 using namespace pythonic;
 
 /* specialization for callable types */
@@ -1617,5 +1626,10 @@ struct pythran_to_python< core::sliced_ndarray<T> > {
 };
 /* } */
 #endif
+
+#ifdef USE_GMP
+#include "pythran_gmp.h"
+#endif
+
 
 #endif

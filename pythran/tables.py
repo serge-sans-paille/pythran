@@ -19,7 +19,7 @@ pytype_to_ctype_table = {
         complex: 'std::complex<double>',
         bool: 'bool',
         int: 'long',
-        long: 'pythran_long_def',
+        long: 'pythran_long_t',
         float: 'double',
         str: 'core::string',
         None: 'void',

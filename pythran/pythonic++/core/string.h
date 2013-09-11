@@ -7,7 +7,6 @@
 #include <string>
 #include <sstream>
 #include <stdexcept>
-#include <gmpxx.h>
 
 namespace pythonic {
     namespace core {
@@ -115,6 +114,24 @@ namespace pythonic {
                 }
                 return res;
             }
+
+            operator pythran_long_t() const {
+#ifdef USE_GMP
+                return pythran_long_t(*data);
+#else
+                char *endptr;
+                auto dat = data->data();
+                pythran_long_t res = strtoll(dat, &endptr,10);
+                if(endptr == dat) {
+                    std::ostringstream err;
+                    err << "invalid literal for long() with base 10:"
+                           "'" << c_str() << '\'';
+                    throw std::runtime_error(err.str());
+                }
+                return res;
+#endif
+            }
+
             explicit operator double() const {
                 char *endptr;
                 auto dat = data->data();
@@ -202,8 +219,10 @@ namespace pythonic {
             string_view operator[]( slice const &s ) const {
                 return string_view(*const_cast<string*>(this), s.normalize(size())); // SG: ugly !
             }
-            char operator[](mpz_class const &m) const { return (*this)[m.get_si()];}
-            char & operator[](mpz_class const& m) { return (*this)[m.get_si()];}
+#ifdef USE_GMP
+            char operator[](pythran_long_t const &m) const { return (*this)[m.get_si()];}
+            char & operator[](pythran_long_t const& m) { return (*this)[m.get_si()];}
+#endif
 
 
             explicit operator bool() const{

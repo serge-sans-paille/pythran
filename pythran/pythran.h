@@ -50,6 +50,16 @@ struct assignable<none<T> >{
     typedef none<typename assignable<T>::type > type;
 };
 
+template<class... Types>
+struct assignable<std::tuple<Types...>>{
+    typedef std::tuple<typename assignable<Types>::type...> type;
+};
+
+template<class T, size_t N>
+struct assignable<pythonic::core::array<T,N> >{
+    typedef pythonic::core::array<typename assignable<T>::type, N> type;
+};
+
 template<class T>
 struct assignable<pythonic::core::set<T> >{
     typedef pythonic::core::set<typename assignable<T>::type > type;

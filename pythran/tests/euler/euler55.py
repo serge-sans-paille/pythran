@@ -1,4 +1,4 @@
-#skip.runas solve()
+#runas solve()
 #pythran export solve()
 def solve():
     '''

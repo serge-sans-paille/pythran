@@ -1,4 +1,4 @@
-#skip.runas solve()
+#runas solve()
 #pythran export solve()
 def solve():
     '''
@@ -17,7 +17,7 @@ def solve():
     How many, not necessarily distinct, values of  nCr, for 1 <= n <= 100, are greater than one-million?
     '''
     
-    fact_c = { 0: 1, 1: 1 }
+    fact_c = { 0: 1L, 1: 1L }
     def fact(n): return fact_c.has_key(n) and fact_c[n] or fact_c.setdefault(n, n * fact(n-1))
     
     count = 0

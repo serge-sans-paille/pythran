@@ -1,4 +1,4 @@
-#skip.runas solve()
+#runas solve()
 #pythran export solve()
 def solve():
     '''
@@ -10,7 +10,7 @@ def solve():
     max = 0
     for a in xrange(0, 100):
         for b in xrange(0, 100):
-            ds = sum(int(digit) for digit in str(a**b))
+            ds = sum(int(digit) for digit in str(long(a)**b))
             if ds > max: max = ds
     return max
 

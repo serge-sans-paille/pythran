@@ -1,4 +1,4 @@
-#skip.runas solve()
+#runas solve()
 #pythran export solve()
 '''
  Using names.txt (right click and 'Save Link/Target As...'), a 46K text file containing over five-thousand first names, begin by sorting it into alphabetical order. Then working out the alphabetical value for each name, multiply this value by its alphabetical position in the list to obtain a name score.
@@ -12,7 +12,7 @@
 def worth(name): 
 	return sum(ord(letter) - ord('A') + 1 for letter in name)
 def solve():
- names = open('names22.txt').read().replace('"', '').split(',')
+ names = open('pythran/tests/euler/names22.txt').read().replace('"', '').split(',')
  names.sort()
 
  return sum((i+1) * worth(names[i]) for i in xrange(0, len(names)))

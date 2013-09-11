@@ -160,7 +160,7 @@ namespace  pythonic {
                     else return __builtin__::None;
                 }
                 template <class W>
-                    decltype(std::declval<V>()+std::declval<W>())& setdefault(K const& key, W d) {
+                    V& setdefault(K const& key, W d) {
                         auto ivalue = data->find(key);
                         if(ivalue != data->end()) return ivalue->second;
                         else {

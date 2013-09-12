@@ -142,6 +142,7 @@ class PassManager(object):
     def gather(self, analysis, node, ctx=None):
         '''High-level function to call an `analysis' on a `node', eventually
         using a `ctx'.'''
+        assert issubclass(analysis, Analysis)
         a = analysis()
         a.passmanager = self
         return a.run(node, ctx)
@@ -149,6 +150,7 @@ class PassManager(object):
     def dump(self, backend, node):
         '''High-level function to call a `backend' on a `node' to generate
         code for module `module_name'.'''
+        assert issubclass(backend, Backend)
         b = backend()
         b.passmanager = self
         return b.run(node, None)
@@ -160,6 +162,8 @@ class PassManager(object):
         If the transformation is an analysis, the result of the analysis
         is displayed.
         '''
+        assert any(issubclass(transformation, T) for T in
+                (Transformation, Analysis))
         a = transformation()
         a.passmanager = self
         return a.apply(node, ctx)

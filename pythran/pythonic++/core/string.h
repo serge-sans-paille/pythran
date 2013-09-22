@@ -16,7 +16,7 @@ namespace pythonic {
             typedef std::string container_type;
             impl::shared_ref<container_type> data;
 
-            slice slicing;
+            normalized_slice slicing;
 
             public:
             //  types
@@ -36,12 +36,12 @@ namespace pythonic {
             // constructor
             string_view(): data(impl::no_memory()) {}
             string_view(string_view const & s): data(s.data), slicing(s.slicing) {}
-            string_view(string_view const & s, slice const& sl): data(s.data), slicing(s.slicing.lower + sl.lower, s.slicing.lower + sl.upper, s.slicing.step * sl.step) {}
-            string_view(std::string & other, slice const & s) : data(other), slicing(s.normalize(other.size())){}
+            string_view(string_view const & s, normalized_slice const& sl): data(s.data), slicing(s.slicing.lower + sl.lower, s.slicing.lower + sl.upper, s.slicing.step * sl.step) {}
+            string_view(std::string & other, normalized_slice const & s) : data(other), slicing(s){}
 
             // const getter
             container_type const & get_data() const { return *data; }
-            slice const & get_slice() const { return slicing; }
+            normalized_slice const & get_slice() const { return slicing; }
 
             // assignment
             string_view& operator=(string const & );

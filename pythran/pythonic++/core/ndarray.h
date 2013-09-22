@@ -371,7 +371,7 @@ namespace  pythonic {
 
                 // list of slices :
                 // ex : a[1:3,3,7:] -> [(1,3,1), (3,4,1), (7,10,1)]
-                core::array<slice,M> gslice;
+                core::array<normalized_slice,M> gslice;
                 // shape of this extslice_array with 1 in flat dimension :
                 // ex : a[1:3,3,7:] -> [2,1,3]
                 core::array<long,M> gshape;
@@ -387,7 +387,7 @@ namespace  pythonic {
                 long islice;
 
                 gsliced_ndarray(T const& data, core::array<slice,M> const& s, core::array<bool,M> const& mask) :
-                    gslice(s),
+                    gslice(),
                     gshape(),
                     shape(),
                     data(data)
@@ -396,12 +396,16 @@ namespace  pythonic {
                     for(size_t i=0, j=0;i<M;i++) {
                         if(mask[i])
                         {
-                            gslice[i].normalize_inplace(data.shape[i]);
+                            gslice[i] = s[i].normalize(data.shape[i]);
                             gshape[i] = gslice[i].size();
                             shape[j++] = gshape[i];
                         }
-                        else
+                        else {
+                            gslice[i].lower = (long)s[i].lower;
+                            gslice[i].upper = (long)s[i].upper;
+                            gslice[i].step = (long)s[i].step;
                             gshape[i] = 1;
+                        }
                     }
                     std::copy(data.shape.begin() + M , data.shape.end(), shape.begin() + N);
 
@@ -602,7 +606,7 @@ namespace  pythonic {
         /* proxy type to hold the return of a slice
          */
         template<class T>
-            struct sliced_ndarray : slice {
+            struct sliced_ndarray : normalized_slice {
                 static constexpr size_t value = T::value;
                 typedef typename T::value_type value_type;
                 typedef typename T::reference reference;
@@ -614,8 +618,8 @@ namespace  pythonic {
 
                 sliced_ndarray() {}
 
-                sliced_ndarray(T const& data, slice const& s) : slice(s.normalize(data.shape[0])), shape(data.shape), data(data) {
-                    shape[0] = slice::size();
+                sliced_ndarray(T const& data, slice const& s) : normalized_slice(s.normalize(data.shape[0])), shape(data.shape), data(data) {
+                    shape[0] = normalized_slice::size();
                     jump = 1;
                     for(size_t i=1;i<value; ++i)
                         jump*=shape[i];
@@ -629,16 +633,16 @@ namespace  pythonic {
                 const_reference operator[](long i) const { return data[jump*lower+i*step]; }
 
                 sliced_ndarray<T> operator[](slice const& s) const {
-                    core::slice norm = s.normalize(slice::size());
+                    core::normalized_slice norm = s.normalize(normalized_slice::size());
                     return sliced_ndarray(data, slice(lower + step*norm.lower, lower + step*norm.upper, step*norm.step));
                 }
                 sliced_ndarray<T> operator[](slice const& s) {
-                    core::slice norm = s.normalize(slice::size());
+                    core::normalized_slice norm = s.normalize(normalized_slice::size());
                     return sliced_ndarray(data, slice(lower + step*norm.lower, lower + step*norm.upper, step*norm.step));
                 }
 
                 sliced_ndarray<T>& operator=(sliced_ndarray<T> const& v) {
-                    slice::operator=(v);
+                    normalized_slice::operator=(v);
                     shape = v.shape;
                     jump = v.jump;
                     data = v.data;
@@ -647,35 +651,38 @@ namespace  pythonic {
 
                 template<class E>
                 typename std::enable_if<not core::is_array<E>::value, sliced_ndarray<T>&>::type operator=(E const& v) {
-                    for(long i =0; i<slice::size(); i++)
+                    for(long i =0; i<normalized_slice::size(); i++)
                         data[lower + i * step] = v;
                     return *this;
                 }
 
                 template<class E>
                 typename std::enable_if< (value>1) and core::is_array<E>::value, sliced_ndarray<T>&>::type operator=(E const& v) {
-                    long slice = v.size()/slice::size();
-                    for(long i=0, j=0; i<slice::size(); i++)
+                    long slice = v.size()/normalized_slice::size();
+                    for(long i=0, j=0; i<normalized_slice::size(); i++)
                         for(long k=0;k<slice; ++k, ++j)
                             data[lower + i * step].at(k) = v.at(j);
                     return *this;
                 }
                 template<class E>
                 typename std::enable_if<value==1 and core::is_array<E>::value, sliced_ndarray<T>&>::type operator=(E const& v) {
-                    for(long i=0; i<slice::size(); i++)
-                        data[lower + i * step] = v.at(i);
+#pragma omp parallel for if(normalized_slice::size() > 10000)
+                    for(long i=0; i<normalized_slice::size(); i++)
+                        data.at(lower + i * step) = v.at(i);
                     return *this;
                 }
 
                 sliced_ndarray<T>& operator+=(value_type v) {
-                    for(long i=0; i<slice::size(); i++)
-                        data[lower + i * step] += v;
+#pragma omp parallel for if(normalized_slice::size() > 10000)
+                    for(long i=0; i<normalized_slice::size(); i++)
+                        data.at(lower + i * step) += v;
                     return *this;
                 }
 
                 sliced_ndarray<T>& operator-=(value_type v) {
-                    for(long i=0; i<slice::size(); i++)
-                        data[lower + i * step] -= v;
+#pragma omp parallel for if(normalized_slice::size() > 10000)
+                    for(long i=0; i<normalized_slice::size(); i++)
+                        data.at(lower + i * step) -= v;
                     return *this;
                 }
             };
@@ -968,11 +975,11 @@ namespace  pythonic {
                 /* by slice */
                 sliced_ndarray<ndarray<T,N>> operator[](slice const& s) const
                 {
-                    return sliced_ndarray<ndarray<T,N>>(*this, s.normalize(shape[0]));
+                    return sliced_ndarray<ndarray<T,N>>(*this, s);
                 }
                 sliced_ndarray<ndarray<T,N>> operator[](slice const& s)
                 {
-                    return sliced_ndarray<ndarray<T,N>>(*this, s.normalize(shape[0]));
+                    return sliced_ndarray<ndarray<T,N>>(*this, s);
                 }
                 sliced_ndarray<ndarray<T,N>> operator()(slice const& s) const
                 {

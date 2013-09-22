@@ -35,7 +35,7 @@ namespace  pythonic {
                 template<class U>
                     friend class list;
 
-                slice slicing;
+                normalized_slice slicing;
 
                 public:
                 //  types
@@ -247,7 +247,7 @@ namespace  pythonic {
                 }
 
                 list<T> operator[]( slice const &s ) const {
-                    core::slice norm = s.normalize(size());
+                    core::normalized_slice norm = s.normalize(size());
                     list<T> out(norm.size());
                     for(long i = 0; i < out.size() ; i++)
                         out[i] = (*data)[norm.lower + i * norm.step];

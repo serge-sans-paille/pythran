@@ -1802,7 +1802,7 @@ namespace pythonic {
                         current = next + 1;
                         next = string.find_first_of( sep, current );
                         dtype item;
-                        std::istringstream iss(string.substr( current, next - current ));
+                        std::istringstream iss(string.substr( current, next - current ).get_data());
                         iss >> item;
                         res.push_back(item);
                     }
@@ -1813,7 +1813,7 @@ namespace pythonic {
                     if(count <0) count = string.size();
                     long shape[1] = { count };
                     dtype* buffer = new dtype[shape[0]];
-                    dtype const* tstring = reinterpret_cast<dtype const*>(string.data());
+                    dtype const* tstring = reinterpret_cast<dtype const*>(string.c_str());
                     std::copy(tstring, tstring + shape[0], buffer);
                     return core::ndarray<dtype,1>(buffer, shape);
                 }
@@ -2687,7 +2687,7 @@ namespace pythonic {
         PROXY(pythonic::numpy, rank);
 
         template<class E, class T>
-        typename std::enable_if<core::is_array_like<E>::value, core::ndarray<long, core::numpy_expr_to_ndarray<E>::N>>::type searchsorted(core::ndarray<T,1> const& a, E const& v, core::string side = "left")
+        typename std::enable_if<core::is_array_like<E>::value, core::ndarray<long, core::numpy_expr_to_ndarray<E>::N>>::type searchsorted(core::ndarray<T,1> const& a, E const& v, core::string const & side = "left")
         {
             core::ndarray<T,core::numpy_expr_to_ndarray<E>::N> to_search = asarray(v);
             core::ndarray<long, core::numpy_expr_to_ndarray<E>::N> out(to_search.shape, __builtin__::None);
@@ -2707,7 +2707,7 @@ namespace pythonic {
         }
 
         template<class T>
-        long searchsorted(core::ndarray<T,1> const& a, T const& v, core::string side = "left")
+        long searchsorted(core::ndarray<T,1> const& a, T const& v, core::string const &side = "left")
         {
             if(side[0]=='l')
             {

@@ -1,3 +1,4 @@
+#runas solve()
 #pythran export solve()
 '''
  Let d(n) be defined as the sum of proper divisors of n (numbers less than n which divide evenly into n).

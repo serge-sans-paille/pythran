@@ -1,3 +1,4 @@
+#runas solve()
 #unittest.skip type can't be deducte
 #pythran export solve()
 def solve():

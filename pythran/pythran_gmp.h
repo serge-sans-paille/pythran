@@ -4,10 +4,6 @@
 #include <gmpxx.h>
 #include <type_traits>
 
-#undef pythran_long
-#undef pythran_long_def
-#define pythran_long(a) mpz_class(#a)
-#define pythran_long_def mpz_class
 
 template<class T,class U>
 struct gmp_compo;
@@ -231,5 +227,15 @@ struct pythran_to_python< mpz_class > {
         register_once< mpz_class, mpz_class_to_long >();
     }
 };
+namespace std {
+    template <class T, class U>
+        struct hash<__gmp_expr<T,U>>
+    {
+        size_t operator()(const __gmp_expr<T,U> & x) const
+        {
+            return hash<std::string>()(x.get_str());
+        }
+    };
+}
 
 #endif

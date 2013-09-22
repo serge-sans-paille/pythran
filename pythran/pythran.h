@@ -1,11 +1,20 @@
 #ifndef PYTHRAN_H
 #define PYTHRAN_H
 
-#define pythran_long(v) v ## LL
-#define pythran_long_def long long
+#ifdef USE_GMP
+#include <gmpxx.h>
+typedef mpz_class pythran_long_t;
+#define pythran_long(a) pythran_long_t(#a)
+#else
+typedef long long pythran_long_t;
+#define pythran_long(a) pythran_long_t(a)
+#endif
+
+
 
 #include <pythonic++.h>
 #include <type_traits>
+
 using namespace pythonic;
 
 /* specialization for callable types */
@@ -39,6 +48,16 @@ struct lazy{
 template<class T>
 struct assignable<none<T> >{
     typedef none<typename assignable<T>::type > type;
+};
+
+template<class... Types>
+struct assignable<std::tuple<Types...>>{
+    typedef std::tuple<typename assignable<Types>::type...> type;
+};
+
+template<class T, size_t N>
+struct assignable<pythonic::core::array<T,N> >{
+    typedef pythonic::core::array<typename assignable<T>::type, N> type;
 };
 
 template<class T>
@@ -1675,5 +1694,10 @@ REGISTER_EXCEPTION_TRANSLATOR(WindowsError);
 #endif
 
 #endif
+
+#ifdef USE_GMP
+#include "pythran_gmp.h"
+#endif
+
 
 #endif

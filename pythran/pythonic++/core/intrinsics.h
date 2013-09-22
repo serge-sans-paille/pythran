@@ -217,6 +217,12 @@ namespace pythonic {
             long int_(T&& t) {
                 return t;
             }
+
+            long int_(char t) {
+                assert( t >= '0' and t <= '9' );
+                return t - '0';
+            }
+
         PROXY(pythonic::__builtin__, int_);
 
         /* iter */
@@ -321,7 +327,7 @@ namespace pythonic {
 
         /* long */
         template<class T>
-            pythran_long_def long_(T&& t) {
+            pythran_long_t long_(T&& t) {
                 return t;
             }
         PROXY(pythonic::__builtin__, long_);
@@ -568,6 +574,14 @@ namespace pythonic {
         /* pow */
         using std::pow;
         long pow(long n, long m) { return std::pow(n,m); }
+#ifdef USE_GMP
+        template<class T, class U>
+        pythran_long_t pow(__gmp_expr<T,U> const& a, long b) {
+            mpz_class rop;
+            mpz_pow_ui(rop.get_mpz_t(), a.get_mpz_t(), b);
+            return rop;
+        }
+#endif
         PROXY(pythonic::__builtin__, pow);
 
         /* pow2 */

@@ -78,7 +78,6 @@ class Cxx(Backend):
     >>> r = pm.dump(Cxx, node)
     >>> for l in r: print l
     #include <pythran/pythran.h>
-    #include <pythran/pythran_gmp.h>
     namespace __pythran_test
     {
       print(core::string("hello world"));
@@ -102,7 +101,7 @@ class Cxx(Backend):
     # mod
     def visit_Module(self, node):
         # build all types
-        headers = map(Include, ("pythran/pythran.h", "pythran/pythran_gmp.h"))
+        header = Include("pythran/pythran.h")
 
         # remove top-level strings
         fbody = (n for n in node.body if not isinstance(n, ast.Expr))
@@ -110,7 +109,7 @@ class Cxx(Backend):
 
         nsbody = body + self.declarations + self.definitions
         ns = Namespace(pythran_ward + self.passmanager.module_name, nsbody)
-        self.result = headers + [ns]
+        self.result = [header, ns]
 
     # openmp processing
     def process_omp_attachements(self, node, stmt, index=None):

@@ -19,10 +19,10 @@ namespace pythonic {
             return (a>end)?-1:a;
         }
         long find(core::string const & s, core::string const& value, size_t start) {
-            return find(s,value,start,s.length());
+            return find(s,value,start,s.size());
         }
         long find(core::string const & s, core::string const& value) {
-            return find(s,value,0,s.length());
+            return find(s,value,0,s.size());
         }
         PROXY(pythonic::__string__, find);
 
@@ -88,8 +88,8 @@ namespace pythonic {
             size_t pos = 0;
             while(count and (pos = replaced.find(old_pattern, pos)) != std::string::npos)
             {
-                replaced.replace(pos, old_pattern.length(), new_pattern);
-                pos += new_pattern.length();
+                replaced.replace(pos, old_pattern.size(), new_pattern);
+                pos += new_pattern.size();
                 count-=1;
             }
             return replaced;

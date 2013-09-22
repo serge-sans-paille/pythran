@@ -16,8 +16,10 @@ namespace pythonic {
     }
 
     /* string */
-    std::ostream& operator<<(std::ostream& os, core::string const & s) {
-        return os << s.c_str();
+    namespace core {
+        std::ostream& operator<<(std::ostream& os, string const & s) {
+            return os << s.c_str();
+        }
     }
 
     /* exception */

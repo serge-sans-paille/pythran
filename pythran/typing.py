@@ -73,9 +73,9 @@ def extract_constructed_types(t):
         return ([pytype_to_ctype(t)]
                 + sum(map(extract_constructed_types, t), []))
     elif t == long:
-        return ["pythran_long_def"]
+        return [pytype_to_ctype(t)]
     elif t == str:
-        return ["core::string"]
+        return [pytype_to_ctype(t)]
     else:
         return []
 

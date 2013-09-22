@@ -192,12 +192,16 @@ namespace pythonic {
             };
 
         template <typename... Iter>
-            auto imap(pythonic::none_type _op, Iter && ... iters) -> _imap< decltype(std::make_tuple((*iters.begin())...)), pythonic::none_type, typename std::remove_cv<typename std::remove_reference<Iter>::type>::type ...> {
+            auto imap(pythonic::none_type _op, Iter && ... iters)
+            -> _imap< decltype(std::make_tuple((*iters.begin())...)), pythonic::none_type, typename std::remove_cv<typename std::remove_reference<Iter>::type>::type ...>
+            {
                 return _imap<decltype(std::make_tuple((*iters.begin())...)), pythonic::none_type, typename std::remove_cv<typename std::remove_reference<Iter>::type>::type ...> (std::forward<pythonic::none_type>(_op), std::forward<Iter>(iters)...);
             }
 
         template <typename Operator, typename... Iter>
-            auto imap(Operator&& _op, Iter && ... iters) -> _imap< decltype(_op( (*iters.begin())...)), Operator, typename std::remove_cv<typename std::remove_reference<Iter>::type>::type ...> {
+            auto imap(Operator&& _op, Iter && ... iters)
+            -> _imap< decltype(_op( (*iters.begin())...)), Operator, typename std::remove_cv<typename std::remove_reference<Iter>::type>::type ...>
+            {
                 return _imap<decltype(_op((*iters.begin())...)), Operator, typename std::remove_cv<typename std::remove_reference<Iter>::type>::type ...> (std::forward<Operator>(_op), std::forward<Iter>(iters)...);
             }
 
@@ -237,8 +241,7 @@ namespace pythonic {
                 }
 
                 void next_value() {
-                    while (iter != iter_end) {
-                        ++iter;
+                    while (++iter != iter_end) {
                         if (test_filter(std::is_same<pythonic::none_type, Operator>()))
                             return;
                     }

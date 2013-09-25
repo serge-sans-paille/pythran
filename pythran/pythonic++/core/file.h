@@ -204,7 +204,7 @@ namespace  pythonic {
 					if(not is_open) throw ValueError("I/O operation on closed file");
 					if (mode.find_first_of("wa+") == std::string::npos) 
 						throw IOError("file.write() :  File not opened for writing.");
-					fwrite(str.c_str(), sizeof(char), str.length(), **data);
+					fwrite(str.c_str(), sizeof(char), str.size(), **data);
 				}
 
 				template<class T>

@@ -261,6 +261,16 @@ namespace  pythonic {
                         ndarray<T,N>::buffer = a.buffer + offset + l[0] * mult;
                     }
 
+                indexed_ndarray<T,N>& operator=(indexed_ndarray<T,N> const& e) {
+                    if(ndarray<T,N>::data_size) {
+                        for(long i=0, n=e.size(); i<n; ++i)
+                            ndarray<T,N>::buffer[i] = e.at(i);
+                    }
+                    else
+                        ndarray<T,N>::operator=(std::forward<indexed_ndarray<T,N>>(e));
+                    return *this;
+                }
+
                 template<class E>
                     typename std::enable_if<is_array<typename std::remove_reference<E>::type>::value, indexed_ndarray<T,N>&>::type
                     operator=(E&& e) {

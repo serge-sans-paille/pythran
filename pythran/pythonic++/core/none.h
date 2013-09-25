@@ -50,6 +50,8 @@ namespace pythonic {
     template<>\
     class none<T> {\
         T data;\
+        template<class F> \
+        friend std::ostream& operator<<(std::ostream&, none<F> const &);\
         friend T operator+(none<T> const& t0, T const &t1)         ;\
         friend T operator+(T const &t0, none<T> const& t1)         ;\
         friend T operator+(none<T> const &t0, none<T> const& t1)   ;\

@@ -357,6 +357,6 @@ def test_compile():
     '''
     module_so = compile_cxxcode("\n".join([
         "#define BOOST_PYTHON_MAX_ARITY 4",
-        "#include <pythran/pythran.h>",
-        "#include <pythran/pythran_gmp.h>"]))
+        "#include <pythran/pythran.h>"
+        ]))
     module_so and os.remove(module_so)

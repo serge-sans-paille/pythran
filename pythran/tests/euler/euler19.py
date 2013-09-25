@@ -1,3 +1,4 @@
+#runas solve()
 #unittest.skip date time not supported
 #pythran export solve()
 def solve():

@@ -1,0 +1,42 @@
+% This is LLNCSDOC.STY the modification of the
+% LLNCS class file for the documentation of
+% the class itself.
+%
+\def\AmS{{\protect\usefont{OMS}{cmsy}{m}{n}%
+  A\kern-.1667em\lower.5ex\hbox{M}\kern-.125emS}}
+\def\AmSTeX{{\protect\AmS-\protect\TeX}}
+%
+\def\ps@myheadings{\let\@mkboth\@gobbletwo
+\def\@oddhead{\hbox{}\hfil\small\rm\rightmark
+\qquad\thepage}%
+\def\@oddfoot{}\def\@evenhead{\small\rm\thepage\qquad
+\leftmark\hfil}%
+\def\@evenfoot{}\def\sectionmark##1{}\def\subsectionmark##1{}}
+\ps@myheadings
+%
+\setcounter{tocdepth}{2}
+%
+\renewcommand{\labelitemi}{--}
+\newenvironment{alpherate}%
+{\renewcommand{\labelenumi}{\alph{enumi})}\begin{enumerate}}%
+{\end{enumerate}\renewcommand{\labelenumi}{enumi}}
+%
+\def\bibauthoryear{\begingroup
+\def\thebibliography##1{\section*{References}%
+    \small\list{}{\settowidth\labelwidth{}\leftmargin\parindent
+    \itemindent=-\parindent
+    \labelsep=\z@
+    \usecounter{enumi}}%
+    \def\newblock{\hskip .11em plus .33em minus -.07em}%
+    \sloppy
+    \sfcode`\.=1000\relax}%
+    \def\@cite##1{##1}%
+    \def\@lbibitem[##1]##2{\item[]\if@filesw
+      {\def\protect####1{\string ####1\space}\immediate
+    \write\@auxout{\string\bibcite{##2}{##1}}}\fi\ignorespaces}%
+\begin{thebibliography}{}
+\bibitem[1982]{clar:eke3} Clarke, F., Ekeland, I.: Nonlinear
+oscillations and boundary-value problems for Hamiltonian systems.
+Arch. Rat. Mech. Anal. {\bf 78} (1982) 315--333
+\end{thebibliography}
+\endgroup}

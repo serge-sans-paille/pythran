@@ -44,9 +44,9 @@ captionpos=b}
 
 \author{Serge Guelton\inst{1,2} \and Pierrick Brunet\inst{2}}
 
-\institute{École Normale Supérieure, Département d'Informatique, Paris, France
+\institute{\'Ecole Normale Sup\'erieure, D\'epartement d'Informatique, Paris, France
 \and
-Télécom Bretagne, Plouzané, France
+T\'el\'ecom Bretagne, Plouzan\'e, France
 }
 \begin{document}
 
@@ -75,19 +75,22 @@ of slower execution than equivalent programs written in static languages.
 
 Several tools exist to counterbalance the execution time limitations. They can
 be classified depending on
+% PB : Inline enumeration looks strange for me but may be it is the english way to do
 \begin{inparaenum}[1)]
 \item the restriction they impose on their input and
 \item the compilation approach.
 \end{inparaenum}
 PyPy\cite{pypy2009} targets the whole Python
 language using a tracing \ac{JIT} approach, Nuitka\cite{nuitka2012} sets the same
-goal but using translation to C++ and \ac{AOT} compilation. Shed
-Skin\cite{shedskin2006} translates to C++ but only targets an implicitly statically
+goal but using translation to C++ and \ac{AOT} compilation.
+Shed~Skin\cite{shedskin2006} translates to C++ but only targets an implicitly statically
 typed subset of Python and several modules from the standard library. In the
 field of numerical computations, Parakeet\cite{parakeet2012} and
 Numba\cite{numba2013} are \ac{JIT} compilers based on LLVM that
 only supports the Python subset required to run numpy-centric programs.
 
+% we don't say we focus on scientifical python?
+% Ex : ...and most of \ac{OO} features to focus on scientific python modules
 Pythran\cite{pythran2013} is an \ac{AOT} compiler that focuses on the
 optimization of the functional and procedural paradigms offered by Python,
 leaving aside dynamicity and most of \ac{OO} features.  Indeed, the Python
@@ -96,14 +99,15 @@ programmers, but the language proves to be useful even with a limited subset of
 features:
 \begin{inparaenum}[1)]
 \item classical data types (\texttt{bool}eans, \texttt{int}egers,
-\texttt{long} integers, \texttt{float}ing point numbers, \texttt{str}ings) ;
+\texttt{long} integers, \texttt{float}ing point numbers, \texttt{str}ings)~;
 \item standard containers (\texttt{list}s, \texttt{set}s, \texttt{tuple}s,
 \texttt{dict}ionaries) ;
 \item a few features or function inherited from
-functional programming such as list/set/dict comprehension and \texttt{reduce},
-\texttt{map}, \texttt{filter} operators and
+functional programming such as \texttt{list}/\texttt{set}/\texttt{dict}
+comprehension and \texttt{reduce}, \texttt{map}, \texttt{filter} operators and
 \item the \texttt{numpy} module that
 provides a multi-dimensional array structure targeted at scientific computing. 
+% "at scientific computing" looks strange for me but it may be my bad english...
 \end{inparaenum}
 
 The paper is organized as follows: Section~\ref{sec:architecture} presents the
@@ -115,6 +119,7 @@ numerical computations.
 \section{Architecture of the Pythran Compiler}
 \label{sec:architecture}
 
+% mature?
 Pythran is a mature \ac{OSS} available through its source code
 repository (see \url{https://githib.com/serge-sans-paille/pythran}), the
 Python Package Index (see \url{https://pypi.python.org/pypi/pythran}) and
@@ -130,6 +135,8 @@ high-level transformations, and provides source-to-source facilities for free.
 As the primary backend of Pythran is C++11, a high-level language, there is no
 need of low-level optimizations that are performed by the backend compiler.
 
+% It looks like pythran generate a *.py file as an output. What did you mean with
+% this arrow?
 \begin{figure}[ht]
     \centering
     \begin{tikzpicture}[
@@ -172,16 +179,21 @@ need of low-level optimizations that are performed by the backend compiler.
 
 
 The compilation process used by Pythran follows several steps:
+% In previous enumeration, all items are in a same sentence, here we have
+% a sentence for each item.
 \begin{inparaenum}[1)]
 \item\label{en:ast} Turn Python code into an \ac{AST} using the \texttt{ast}
     module.
 \item Refine Python \ac{AST} into Pythran \ac{IR}. For instance this makes
     \emph{destructuring} or \emph{list comprehension} explicit and removes the
     corresponding constructs from the \ac{AST}. \emph{Partial functions} or
+    %what is partial function in python? Is it sub-function
+    % (function declared in another function)?
     \emph{lambda functions} are also converted to top-level functions after
     closure computations at this step.
 \item Perform several optimizations on the \ac{IR}, using the optimization
     sequence provided by the user.
+    %after user optimisation, it applies pythran default optimisation, isn't it?
 \item Type the \ac{IR} using \emph{parametric types}.
 \item Dump the \ac{IR} into Python code or templated C++ code.
 \item Optionally use type annotations gathered during Step~\ref{en:ast} to
@@ -197,14 +209,16 @@ the developer interacts with the various passes and analyse through the
 \section{Procedural and Functional Python Optimizations}
 \label{sec:functionnal-optim}
 
+% PB : --- are ugly for me :-) but it is only cosmetic
 Python compilers generally use \emph{unboxing}---the process of removing the
-object layer Python adds around any value--- as the primary way to obtain
+object layer Python adds around any value---as the primary way to obtain
 C-like performances. This is achieved either through the discovery of variable
 types at runtime or through static typing. Pythran, in a similar manner to
 Sched Skin, relies on static type inference, with the slight difference that it
 performs function-level parametric typing and relies on C++ template
 instantiantion to verify the code is correctly type. In the end, valid Pythran
 programs are implicitly statically typed and all variables are unboxed.
+% PB : I don't understand where pythran unbox values.
 
 Additionally, Pythran performs several optimizations inherited from functional
 programing to its \ac{IR}. It uses a variant of
@@ -212,17 +226,19 @@ programing to its \ac{IR}. It uses a variant of
 when combining some intrinsics. Practically, this relies on aliasing analysis
 to detect calls to the \texttt{map} (resp.\ \texttt{range}, \texttt{zip} or
 \texttt{filter}) functions and lazyness analysis to turn them into calls to the
+% and pure function detection?
 \texttt{imap} function from the \texttt{itertools} module (resp.\
 \texttt{xrange}, \texttt{izip} or \texttt{ifilter}). The transformation engine
 is aware of the semantics of several Python builtins, so that a call like
 \texttt{sum(map(sqrt, map(abs, l))} is turned into the equivalent---but more
+% PB : explains why it is more efficient?
 memory-efficient---\texttt{sum(imap(sqrt, imap(abs, l))}. During its \ac{AST}
 to \ac{IR} conversion, Pythran turns some list comprehension constructs into
 \texttt{map} calls, so list comprehension also benefit from the optimization:
 \texttt{sum([x*y for x,y in zip(l0, l1)]} is turned into \texttt{sum(imap(foo,
 izip(l0, l1)))}, where \texttt{foo} is an helper function generated on the fly.
 
-Using the introspection capability of Python, Pythran also performs
+Using the introspection ability of Python, Pythran also performs
 inter-procedural constant folding. The optimization relies on an analysis that
 flags some functions as ``pure'' when they neither update their arguments not
 have global side effects (which include I/O and random generator state). When a
@@ -240,7 +256,7 @@ implements part of the \acs{API} of the \texttt{numpy} package, with a focus on
 the multi-dimensional array point-to-point expressions. Given two arrays of
 similar shape \texttt{a} and \texttt{b}, it turns the expression
 \texttt{cos(a)*sin(2*b)} into a single parallelized and vectorized loop, taking
-advantage of multiple codes and vector instruction units if available. This is
+advantage of multiple cores and vector instruction units if available. This is
 done at the C++ level using algorithmic patterns parallelized with OpenMP,
 vectorized through calls to \texttt{Boost.simd}~\cite{boostsimd2012} and
 combined with \emph{expression template}s.

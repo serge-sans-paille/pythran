@@ -89,11 +89,9 @@ field of numerical computations, Parakeet\cite{parakeet2012} and
 Numba\cite{numba2013} are \ac{JIT} compilers based on LLVM that
 only supports the Python subset required to run numpy-centric programs.
 
-% we don't say we focus on scientifical python?
-% Ex : ...and most of \ac{OO} features to focus on scientific python modules
 Pythran\cite{pythran2013} is an \ac{AOT} compiler that focuses on the
 optimization of the functional and procedural paradigms offered by Python,
-leaving aside dynamicity and most of \ac{OO} features.  Indeed, the Python
+leaving aside dynamicity and most \ac{OO} features to focus on scientific python modules.  Indeed, the Python
 language and its standard library offers comprehensive services to the
 programmers, but the language proves to be useful even with a limited subset of
 features:
@@ -120,7 +118,8 @@ numerical computations.
 \label{sec:architecture}
 
 % mature?
-Pythran is a mature \ac{OSS} available through its source code
+% yes, mature! 1500+ validation test looks mature enough to me ;-)
+Pythran is an \ac{OSS} available through its source code
 repository (see \url{https://githib.com/serge-sans-paille/pythran}), the
 Python Package Index (see \url{https://pypi.python.org/pypi/pythran}) and
 a Debian repository (see \url{http://ridee.enstb.org/debian}). It can be
@@ -137,6 +136,7 @@ need of low-level optimizations that are performed by the backend compiler.
 
 % It looks like pythran generate a *.py file as an output. What did you mean with
 % this arrow?
+% SG: Pythran can generate a.py file if using the Python backend
 \begin{figure}[ht]
     \centering
     \begin{tikzpicture}[

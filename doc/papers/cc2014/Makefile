@@ -5,3 +5,6 @@ include LaTeX.mk
 check:pdf
 	! grep 'LaTeX Warning:' $(LU_MASTERS).log
 
+
+fullpaper.pdf:paper.pdf tool.pdf
+	pdfjoin $^ -o $@

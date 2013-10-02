@@ -26,7 +26,6 @@
 \usetikzlibrary{shapes}
 \usetikzlibrary{fit}
 
-\bibliographystyle{splncs}
 \lstset{language=python,morekeywords={cimport, cdef, with},
 basicstyle=\ttfamily, keywordstyle=\bf, stringstyle=\color{gray},
 captionpos=b}
@@ -58,7 +57,7 @@ captionpos=b}
 %
 %\end{abstract}
 
-\section{Tool Paper Motivation}
+\section*{Tool Paper Motivation}
 
 The purpose of the tool demonstration is to showcase the core functionalities
 of the Pythran compiler infrastructure, for three kind of audience:
@@ -93,9 +92,11 @@ the code running but the speaker does not to type anything) and reproducibility
 ``demonstration effect'').
 
 \begin{figure}
+    \vspace{-1em}
     \includegraphics[width=\textwidth]{pythran-notebook}
     \caption{Example of IPython Notebook.}
     \label{fig:notebook}
+    \vspace{-1em}
 \end{figure}
 
 %\section*{Conventions}
@@ -266,8 +267,6 @@ def bar(g):
 >>> foo, bar = tree.body
 >>> ae[foo]
 [True, False]
->>> ae[bar]
-[True]
 \end{lstlisting}
 
 Pythran also implements an intra-procedural aliasing analysis that provides
@@ -276,8 +275,7 @@ critical piece of informations:
 \begin{lstlisting}
 >>> code = '''
 def foo(c, d):
-    b= c or d
-    return b'''
+    b= c or d ; return b'''
 >>> tree = ast.parse(code)
 >>> al = pm.gather(analysis.Aliases, tree)
 >>> returned = tree.body[-1].body[-1].value
@@ -359,19 +357,27 @@ Matching calls are stored as the result of the analyse.
 \section{Python Benchmarks Project}
 \label{sec:python-benchmarks}
 
-Python Benchmarks is a project that aims at comparing the existing approaches to
-speedup numerical computations in Python. The project and its result can be
-found on \url{https://github.com/numfocus/python-benchmarks}.
+Python Benchmarks is a project that aims at comparing the existing approaches
+to speedup numerical computations in Python. Any project can contribute to new
+motivated benchmarks, resulting in more than five different tools
+beingrepresented. The project and its result are hosted at
+\url{https://github.com/numfocus/python-benchmarks}.
+
 Figure~\ref{fig:python-benchmarks} illustrates the result of one of the
 benchmark, showing that Pythran performs well compared to existing approaches.
+Several other benchmarks are available and are to be shown during the
+presentation.
 
-\begin{figure}
-
-    \includegraphics[width=\textwidth]{rosen_der_logscale}
+\begin{figure}[ht]
+    \vspace{-2em}
+    \hspace{-.05\textwidth}
+    \includegraphics[width=1.1\textwidth]{rosen_der_logscale}
     \caption{Timings for the \texttt{rosen\_der} function from Python Benchmarks.}
     \label{fig:python-benchmarks}
+    \vspace{-2em}
 
 \end{figure}
+
 
 \section{Conclusion}
 

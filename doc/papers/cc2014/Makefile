@@ -1,4 +1,4 @@
-LU_MASTERS=paper
+LU_MASTERS=paper tool
 LU_FLAVORS=PDF
 # generic Makefile from latex-make package
 include LaTeX.mk

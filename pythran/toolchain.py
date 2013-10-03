@@ -182,10 +182,11 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
                       + 'pythonic::core::string>()')]
         )
 
-        # add topologically sorted exceptions based on the inheritance hierarchy.
-        # needed because otherwise boost python regiser_exception handlers do not
-        # catch exception type in the right way (first valid exception is selected,
-        # so inheritance has to be taken into account in the registration order)
+        # topologically sorted exceptions based on the inheritance hierarchy.
+        # needed because otherwise boost python register_exception handlers
+        # do not catch exception type in the right way
+        # (first valid exception is selected)
+        # Inheritance has to be taken into account in the registration order.
         exceptions = nx.DiGraph()
         for function_name, v in functions.iteritems():
             for mname, symbol in v:

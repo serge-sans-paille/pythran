@@ -23,7 +23,8 @@ from typing import extract_constructed_types, pytype_to_ctype
 from tables import pythran_ward, functions
 from intrinsic import ConstExceptionIntr
 
-from subprocess import check_output, STDOUT, CalledProcessError
+from os import devnull
+from subprocess import check_call, check_output, STDOUT, CalledProcessError
 from tempfile import mkstemp, NamedTemporaryFile
 import networkx as nx
 
@@ -258,6 +259,15 @@ def compile_cxxfile(cxxfile, module_so=None, **kwargs):
     _cppflags = cppflags() + kwargs.get('cppflags', [])
     _cxxflags = cxxflags() + kwargs.get('cxxflags', [])
     _ldflags = ldflags() + kwargs.get('ldflags', [])
+
+    # workaround g++-4.8 bug
+    try:
+        extra_flags = ['-ftrack-macro-expansion=0']
+        check_call([compiler, cxxfile, '-E'] + extra_flags,
+                     stdout=file(devnull), stderr=file(devnull))
+        _cppflags.extend(extra_flags)
+    except CalledProcessError:
+        pass
 
     # Get output filename from input filename if not set
     module_so = module_so or (os.path.splitext(cxxfile)[0] + ".so")

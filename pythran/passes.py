@@ -446,16 +446,19 @@ class _LambdaRemover(Transformation):
                 [])
         self.lambda_functions.append(forged_fdef)
         proxy_call = ast.Name(forged_name, ast.Load())
-        return ast.Call(
-                ast.Attribute(
-                    ast.Name('__builtin__', ast.Load()),
-                    "bind",
-                    ast.Load()
-                    ),
-                [proxy_call] + binded_args,
-                [],
-                None,
-                None)
+        if binded_args:
+            return ast.Call(
+                    ast.Attribute(
+                        ast.Name('__builtin__', ast.Load()),
+                        "bind",
+                        ast.Load()
+                        ),
+                    [proxy_call] + binded_args,
+                    [],
+                    None,
+                    None)
+        else :
+            return proxy_call
 
 
 class RemoveLambdas(Transformation):

@@ -11,7 +11,7 @@ class TestEnv(unittest.TestCase):
     """
 
     # default options used for the c++ compiler
-    PYTHRAN_CXX_FLAGS = ["-O0", "-fno-implicit-inline-templates", "-fopenmp",
+    PYTHRAN_CXX_FLAGS = ['-O0', '-fopenmp',
                          '-Wall', '-Wno-unknown-pragmas']
     TEST_RETURNVAL = "TEST_RETURNVAL"
 

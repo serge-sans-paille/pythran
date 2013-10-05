@@ -1,5 +1,4 @@
-unittest.skip
-#threadprivate supprimé, est ce que c'est grave?
+#unittest.skip threadprivate not supported
 def omp_parallel_copyin():
     sum = 0
     sum1 = 7

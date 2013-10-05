@@ -1,3 +1,4 @@
+#runas solve()
 #pythran export solve()
 '''
 Find the value of d < 1000 for which 1 / d contains the longest recurring cycle
@@ -8,7 +9,7 @@ def cycle_length(n):
     if n % 2 == 0: return cycle_length(n / 2)
     if n % 5 == 0: return cycle_length(n / 5)
     while True:
-        if (pow(10, i) - 1) % n == 0: return i
+        if (pow(10L, i) - 1) % n == 0: return i
         else: i = i + 1
 
 def solve():

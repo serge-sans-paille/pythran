@@ -1,5 +1,5 @@
 #pythran export test()
-#runas test()
+#norunas test() because of random input
 import  math, random
 
 # a point is a tuple
@@ -45,7 +45,7 @@ def makeRandomPoint(n, lower, upper):
     return [random.uniform(lower, upper) for i in range(n)]
 
 def test():
-    num_points, dim, k, cutoff, lower, upper = 10000, 2, 5, 0.01, 0, 200
+    num_points, dim, k, cutoff, lower, upper = 100, 2, 5, 0.01, 0, 200
     points = [ makeRandomPoint(dim, lower, upper) for i in range(num_points) ]
     clusters = kmeans(points, k, cutoff)
     #for c in clusters:

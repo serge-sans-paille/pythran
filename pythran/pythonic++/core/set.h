@@ -11,7 +11,7 @@
 namespace  pythonic {
 
     template<class T, class V>
-        bool in(T const&, V const&);
+        bool in(T &&, V const&);
 
     /* the container type */
     namespace core {
@@ -101,11 +101,6 @@ namespace  pythonic {
                 long size() const { return data->size(); }
                 set<T> operator+(core::empty_set const &) { return copy(); }
 
-                template<class U> // just for type inference, should never been instantiated
-                    set<decltype(std::declval<T>()+std::declval<U>())> operator+(set<U> const &);
-                template<class U> // just for type inference, should never been instantiated
-                    set<decltype(std::declval<T>()+std::declval<U>())> operator+(list<U> const &);
-
                 // Misc
 
                 set<T> copy() const{
@@ -149,6 +144,8 @@ namespace  pythonic {
                         tmp.data->insert(other.begin(), other.end());
                         return tmp;
                     }
+                template<class U>
+                set<T> operator+(core::set<U> const &other) { return union_(other); }
 
                 template<typename... Types> 
                     void update(Types &&... others) {
@@ -307,6 +304,19 @@ namespace  pythonic {
             template<class T> 
                 set<T> operator+(set<T> const & s) { return s; }
             empty_set operator+(empty_set const &) { return empty_set(); }
+            empty_set operator|(empty_set const &) { return empty_set(); }
+            template<class T> 
+                set<T> operator|(set<T> const & s) { return s; }
+            empty_set operator&(empty_set const &) { return empty_set(); }
+            template<class T> 
+                empty_set operator&(set<T> const & s) { return empty_set(); }
+            empty_set operator-(empty_set const &) { return empty_set(); }
+            template<class T> 
+                set<T> operator-(set<T> const & s) { return s; }
+            empty_set operator^(empty_set const &) { return empty_set(); }
+            template<class T> 
+                set<T> operator^(set<T> const & s) { return s; }
+
             operator bool() { return false; }
             iterator begin() const {
                 return empty_iterator();
@@ -321,7 +331,7 @@ namespace  pythonic {
                const_iterator end() const{
                return empty_iterator();
                }
-               */
+             */
 
         };
     }

@@ -5,6 +5,7 @@ This module provides a dummy parser for pythran annotations.
 import ply.lex as lex
 import ply.yacc as yacc
 import os.path
+from numpy import array
 
 
 class SpecParser:
@@ -31,7 +32,8 @@ class SpecParser:
             'float': 'FLOAT',
             }
     tokens = (['IDENTIFIER', 'SHARP', 'COMMA', 'COLUMN', 'LPAREN', 'RPAREN']
-            + list(reserved.values()))
+            + list(reserved.values())
+            + ['LARRAY', 'RARRAY'])
 
     # token <> regexp binding
     t_SHARP = r'\#'
@@ -39,18 +41,30 @@ class SpecParser:
     t_COLUMN = r':'
     t_LPAREN = r'\('
     t_RPAREN = r'\)'
+    t_RARRAY = r'\]'
+    t_LARRAY = r'\['
 
     def t_IDENTIFER(self, t):
         r'[a-zA-Z_][a-zA-Z_0-9]*'
         t.type = SpecParser.reserved.get(t.value, 'IDENTIFIER')
         return t
 
+    def t_NUMBER(self, t):
+        r'[0-9]+'
+        t.type = 'NUMBER'
+        return t
+
     # skipped characters
-    t_ignore = ' \t\r\n'
+    t_ignore = ' \t\r'
 
     # error handling
     def t_error(self, t):
         t.lexer.skip(1)
+
+    # Define a rule so we can track line numbers
+    def t_newline(self, t):
+        r'\n+'
+        t.lexer.lineno += len(t.value)
 
     ## yacc part
 
@@ -79,6 +93,7 @@ class SpecParser:
         '''type : term
                 | type LIST
                 | type SET
+                | type LARRAY RARRAY
                 | type COLUMN type DICT
                 | LPAREN types RPAREN'''
         if len(p) == 2:
@@ -87,10 +102,15 @@ class SpecParser:
             p[0] = [p[1]]
         elif len(p) == 3 and p[2] == 'set':
             p[0] = {p[1]}
+        elif len(p) == 4 and p[3] == ')':
+            p[0] = tuple(p[2])
+        elif len(p) == 4 and p[3] == ']':
+            p[0] = array([p[1]])
         elif len(p) == 5:
             p[0] = {p[1]: p[3]}
         else:
-            p[0] = tuple(p[2])
+            raise SyntaxError("Invalid Pythran spec. "
+                    "Unknown text '{0}'".format(p.value))
 
     def p_term(self, p):
         '''term : STR
@@ -102,7 +122,12 @@ class SpecParser:
         p[0] = eval(p[1])
 
     def p_error(self, p):
-        raise SyntaxError("Invalid Pythran spec")
+        p_val = p.value if p else ''
+        err = SyntaxError("Invalid Pythran spec near '" + str(p_val) + "'")
+        err.lineno = self.lexer.lineno
+        if self.input_file:
+            err.filename = self.input_file
+        raise err
 
     def __init__(self, **kwargs):
         self.lexer = lex.lex(module=self, debug=0)
@@ -113,26 +138,22 @@ class SpecParser:
 
     def __call__(self, path):
         self.exports = dict()
-        input_file = None
+        self.input_file = None
         if os.path.isfile(path):
-            input_file = path
+            self.input_file = path
             with file(path) as fd:
                 data = fd.read()
         else:
             data = path
         # filter out everything that does not start with a #pythran
-        # this is not as elegant as it could be...
-        pythran_data = reduce(
-                str.__add__,
-                (line for line in data.split('\n')
-                    if line.startswith('#pythran')),
-                "")
+        pythran_data = "\n".join((line if line.startswith('#pythran') else ''
+                                  for line in data.split('\n')))
         self.parser.parse(pythran_data, lexer=self.lexer)
         if not self.exports:
             err = SyntaxError(
                     "Pythran spec error: no pythran specification")
-            if input_file:
-                err.filename = input_file
+            if self.input_file:
+                err.filename = self.input_file
             raise err
         return self.exports
 

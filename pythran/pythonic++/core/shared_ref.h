@@ -40,7 +40,6 @@ namespace pythonic {
                     template<class... Types>
                         shared_ref(Types... args) : mem(new memory(args...)) {}
 
-
                     ~shared_ref() throw()
                     {dispose();}
 
@@ -73,18 +72,30 @@ namespace pythonic {
                         return this->mem != other.mem;
                     }
 
-                private:
+                    void external() {
+                        ++mem->count;
+                    }
+
+                    T* forget() {
+                        T *ptr = &mem->ptr;
+                        mem = nullptr;
+                        return ptr;
+                    }
+
+                 private:
                     void dispose()
                     {
                         if(mem and --mem->count == 0)
                         {
                             delete mem;
+                            mem = nullptr;
                         }
                     }
                     void acquire() {
                         ++mem->count;
                     }
             };
+
     }
 }
 

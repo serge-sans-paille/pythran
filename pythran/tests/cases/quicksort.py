@@ -1,5 +1,5 @@
-#runas import sys ; sys.setrecursionlimit(10000000) ; a = [i for i in xrange(10000,1,-1)] ; quicksort(a,0,len(a)-1)
-#pythran export quicksort (int list, int, int)
+#pythran export quicksort(int list, int, int)
+#runas quicksort(range(10),0,9)
 def partition(list, start, end):
     pivot = list[end]                          # Partition around the last value
     bottom = start-1                           # Start outside the area to be partitioned
@@ -38,8 +38,6 @@ def do_quicksort(list, start, end):
         split = partition(list, start, end)    # ... partition the sublist...
         do_quicksort(list, start, split-1)        # ... and sort both halves.
         do_quicksort(list, split+1, end)
-    else:
-        return
 
 def quicksort(l,s,e):
     do_quicksort(l,s,e)

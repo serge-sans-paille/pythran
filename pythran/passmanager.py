@@ -46,30 +46,37 @@ class ContextManager(object):
             self.ctx.module = node
         elif isinstance(node, ast.FunctionDef):
             self.ctx.function = node
+            for D in self.deps:
+                if issubclass(D, FunctionAnalysis):
+                    d = D()
+                    d.passmanager = self.passmanager
+                    d.ctx = self.ctx
+                    setattr(self, uncamel(D.__name__), d.run(node, self.ctx))
         return super(ContextManager, self).visit(node)
 
-    def run(self, node, ctx):
-        '''Gather analysis result required by this analysis and run the
-           analysis on `node' using context `context'.'''
+    def prepare(self, node, ctx):
+        '''Gather analysis result required by this analysis'''
         for D in self.deps:
             if issubclass(D, ModuleAnalysis):
                 rnode = node if isinstance(node, ast.Module) else ctx.module
             elif issubclass(D, FunctionAnalysis):
-                rnode = node if isinstance(node,
-                                    ast.FunctionDef) else ctx.function
+                if ctx and ctx.function:
+                    rnode = ctx.function
+                else:
+                    continue
             else:
                 rnode = node
             d = D()
             d.passmanager = self.passmanager
             setattr(self, uncamel(D.__name__), d.run(rnode, ctx))
-        return self.run_visit(node)
 
-    def run_visit(self, node):
+    def run(self, node, ctx):
         '''Override this to add special pre or post processing handlers.'''
+        self.prepare(node, ctx)
         return self.visit(node)
 
 
-class Analysis(ast.NodeVisitor, ContextManager):
+class Analysis(ContextManager, ast.NodeVisitor):
     '''
     A pass that does not change its content but gathers informations
     about it.
@@ -83,11 +90,14 @@ class Analysis(ast.NodeVisitor, ContextManager):
         ContextManager.__init__(self, *dependencies)
 
     def run(self, node, ctx):
-        ContextManager.run(self, node, ctx)
+        super(Analysis, self).run(node, ctx)
         return self.result
 
     def display(self, data):
         print data
+
+    def apply(self, node, ctx):
+        self.display(self.run(node, ctx))
 
 
 class ModuleAnalysis(Analysis):
@@ -113,10 +123,13 @@ class Backend(ModuleAnalysis):
 class Transformation(ContextManager, ast.NodeTransformer):
     '''A pass that updates its content.'''
 
-    def run_visit(self, node):
-        n = super(Transformation, self).run_visit(node)
+    def run(self, node, ctx):
+        n = super(Transformation, self).run(node, ctx)
         ast.fix_missing_locations(n)
         return n
+
+    def apply(self, node, ctx):
+        return self.run(node, ctx)
 
 
 class PassManager(object):
@@ -129,6 +142,7 @@ class PassManager(object):
     def gather(self, analysis, node, ctx=None):
         '''High-level function to call an `analysis' on a `node', eventually
         using a `ctx'.'''
+        assert issubclass(analysis, Analysis)
         a = analysis()
         a.passmanager = self
         return a.run(node, ctx)
@@ -136,6 +150,7 @@ class PassManager(object):
     def dump(self, backend, node):
         '''High-level function to call a `backend' on a `node' to generate
         code for module `module_name'.'''
+        assert issubclass(backend, Backend)
         b = backend()
         b.passmanager = self
         return b.run(node, None)
@@ -147,9 +162,8 @@ class PassManager(object):
         If the transformation is an analysis, the result of the analysis
         is displayed.
         '''
+        assert any(issubclass(transformation, T) for T in
+                (Transformation, Analysis))
         a = transformation()
         a.passmanager = self
-        n = a.run(node, ctx)
-        if issubclass(transformation, Analysis):
-            a.display(n)
-        return n
+        return a.apply(node, ctx)

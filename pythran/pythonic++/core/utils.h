@@ -3,11 +3,31 @@
 
 #include <type_traits>
 #include <iterator>
+#include <complex>
+#include <limits>
+
+
+// overload is_scalar to consider complex has scalar types
+template<class T>
+struct is_complex {
+    static const bool value = false;
+};
+template<class T>
+struct is_complex<std::complex<T>> {
+    static const bool value = true;
+};
 
 //Use when the C/C++ function do not have the same name
 //than in python
 #define WRAP(type,name,cname,argType)\
     type name(argType x){ return cname(x); }
+
+// Use to declare a function as an alias of another one
+#define ALIAS(oldf, newf)\
+    template<typename... Types>\
+        auto newf(Types &&... types) ->  decltype(oldf(std::forward<Types>(types)...)) {\
+            return oldf(std::forward<Types>(types)...);\
+        }
 
 // Use this to create a proxy on a specific intrinsic
 #define PROXY(ns,f) \
@@ -15,7 +35,9 @@
         struct f {\
             typedef void callable;\
             template<typename... Types>\
-            auto operator()(Types &&... types) -> decltype(ns::f(std::forward<Types>(types)...)) {\
+            auto operator()(Types &&... types) const \
+            -> decltype(ns::f(std::forward<Types>(types)...))\
+            {\
                 return ns::f(std::forward<Types>(types)...); \
             }\
         };\
@@ -33,9 +55,17 @@
 
 namespace pythonic {
 
-    /* some constants ... */
-    const bool True = true;
-    const bool False = false;
+    // none trait
+    template<class T> struct none;
+    template<class T>
+        struct is_none {
+            static const bool value = false;
+        };
+    template<class T>
+        struct is_none<none<T>> {
+            static const bool value = true;
+        };
+
 
     // container trait
     // from http://stackoverflow.com/questions/4347921/sfinae-compiler-troubles/4410310#4410310
@@ -61,10 +91,25 @@ namespace pythonic {
     template<typename T>
         struct is_callable
         {
-            typedef char	yes;
+            typedef char yes;
             typedef struct { char _[2]; } no;
 
             template <class C> static yes _test(typename C::callable*);
+            template <class C> static no _test(...);
+            static const bool value = sizeof( _test<T>(nullptr)) == sizeof(yes);
+        };
+
+    /* } */
+
+    /* has shape trait { */
+
+    template<typename T>
+        struct has_shape
+        {
+            typedef char yes;
+            typedef struct { char _[2]; } no;
+
+            template <class C> static yes _test(decltype(std::declval<C>().shape)*);
             template <class C> static no _test(...);
             static const bool value = sizeof( _test<T>(nullptr)) == sizeof(yes);
         };
@@ -75,12 +120,12 @@ namespace pythonic {
     template<typename T>
         struct is_iterable
         {
-            typedef char	yes;
+            typedef char yes;
             typedef struct { char _[2]; } no;
 
             template <class C> static yes _test(typename C::iterator*);
             template <class C> static no _test(...);
-            static const bool value = sizeof( _test<T>(nullptr)) == sizeof(yes);
+            static const bool value = sizeof( _test<typename std::remove_reference<T>::type>(nullptr)) == sizeof(yes);
         };
     /* } */
 
@@ -96,7 +141,7 @@ namespace pythonic {
         };
     /* } */
 
-    template<int> struct int_{}; // compile-time counter
+    template<size_t> struct int_{}; // compile-time counter
 
 
     template<typename... Types>
@@ -116,6 +161,65 @@ namespace pythonic {
     template<typename T, typename... Iters>
         struct min_iterator<T, Iters...> {typedef typename std::conditional<std::is_same<typename T::iterator_category, std::forward_iterator_tag>::value, std::forward_iterator_tag, typename pythonic::min_iterator<Iters...>::type >::type type;};
 
+    /* compute nested container depth and memory size*/
+    template<class T>
+        struct nested_container_depth {
+            static const int value = 1 + nested_container_depth<
+                typename std::conditional<
+                    is_iterable<typename std::remove_reference<T>::type>::value,
+                    typename std::conditional<
+                        std::is_scalar<typename std::remove_reference<T>::type::value_type>::value or is_complex<typename std::remove_reference<T>::type::value_type>::value,
+                        bool,
+                        typename std::remove_reference<T>::type::value_type
+                    >::type,
+                    bool
+                >::type
+            >::value;
+        };
+    template<>
+        struct nested_container_depth<bool> {
+            static const int value = 0;
+        };
+
+
+    /* Get the size of a container, using recursion on inner container if any
+     * FIXME: should be a constexpr?
+     * FIXME: why a class and not a function?
+     */
+    template<class T>
+        struct nested_container_size {
+            typedef typename std::remove_cv<typename std::remove_reference<T>::type>::type Type;
+            static size_t size(T const& t) {
+                return t.size()
+                    *
+                    nested_container_size<
+                      typename std::conditional<
+                        // If we have a scalar of a complex, we want to stop
+                        // recursion, and then dispatch to bool specialization
+                        std::is_scalar<typename Type::value_type>::value
+                        or is_complex<typename Type::value_type>::value,
+                        bool,
+                        typename Type::value_type
+                      >::type
+                    >::size(*t.begin());
+            }
+        };
+    /* Recursion stops on bool */
+    template<>
+        struct nested_container_size<bool> {
+            template<class F>
+            static size_t size(F) { return 1; }
+        };
+
+    /* Statically define (by recursion) the type of element inside nested constainers */
+    template<class T, size_t end=std::numeric_limits<size_t>::max()>
+        struct nested_container_value_type {
+            typedef typename nested_container_value_type<typename T::value_type, ((std::is_scalar<typename T::value_type>::value or is_complex<typename T::value_type>::value)?0:end-1)>::type type;
+        };
+    template<class T>
+        struct nested_container_value_type<T,0> {
+            typedef T type;
+        };
 
 
 }

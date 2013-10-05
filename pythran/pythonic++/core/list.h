@@ -19,6 +19,8 @@ namespace  pythonic {
 
     namespace core {
 
+        struct single_value {};
+
         struct empty_list;
         template <class T> class list;
 
@@ -33,7 +35,7 @@ namespace  pythonic {
                 template<class U>
                     friend class list;
 
-                slice slicing;
+                normalized_slice slicing;
 
                 public:
                 //  types
@@ -53,7 +55,7 @@ namespace  pythonic {
                 // constructor
                 list_view(): data(impl::no_memory()) {}
                 list_view(list_view<T> const & s): data(s.data), slicing(s.slicing) {}
-                list_view(list<T> & , slice const &);
+                list_view(list<T> & other, slice const & s) : data(other.data), slicing(s.normalize(other.size())) {}
 
                 // const getter
                 container_type const & get_data() const { return *data; }
@@ -61,6 +63,7 @@ namespace  pythonic {
                 // assignment
                 list_view& operator=(list<T> const & );
                 list_view& operator=(list_view<T> const & );
+                list<T> operator+(list<T> const & );
                 list<T> operator+(list_view<T> const & );
 
                 // iterators
@@ -70,7 +73,7 @@ namespace  pythonic {
                 const_iterator end() const { assert(slicing.step==1) ; return data->begin()+slicing.upper; }
 
                 // size
-                size_type size() const { assert(slicing.step==1); return slicing.upper - slicing.lower ; }
+                size_type size() const { return slicing.size(); }
 
                 // accessor
                 T const & operator[](long i) const { return (*data)[slicing.lower + i*slicing.step];}
@@ -79,18 +82,12 @@ namespace  pythonic {
                 // comparison
                 template <class K>
                     bool operator==(core::list<K> const & other) const {
-                        auto self_iter=begin();
-                        for(auto const & other_iter : other) {
-                            if(self_iter == end() ) return false;
-                            else if(*self_iter != other_iter) return false;
-                            ++self_iter;
-                        }
-                        return self_iter == end();
+                        if(size()!=other.size()) return false;
+                        return std::equal(begin(),end(),other.begin());
                     }
-
-
-
-
+                bool operator==(core::empty_list const& other) const {
+                    return size() == 0;
+                }
             };
 
         /* the container type */
@@ -132,14 +129,19 @@ namespace  pythonic {
                         data->reserve(DEFAULT_LIST_CAPACITY);
                         std::copy(start, stop, std::back_inserter(*data));
                     }
-                list(empty_list const &) : data() {}
+                list(empty_list const&) :data(0) {}
                 list(size_type sz) :data(sz) {}
-                list(std::initializer_list<value_type> l) : data(std::move(l)) {}
+                list(T const& value, single_value) : data(1) { (*data)[0] = value; }
+                list(std::initializer_list<T> l) : data(std::move(l)) {}
                 list(list<T> && other) : data(std::move(other.data)) {}
                 list(list<T> const & other) : data(other.data) {}
                 template<class F>
                     list(list<F> const & other) : data(other.size()) {
                         std::copy(other.begin(), other.end(), begin());
+                    }
+                template<class... Types>
+                    list(std::tuple<Types...> const& t) : data(sizeof...(Types)) {
+                        tuple_dump(t, *this, int_<sizeof...(Types)-1>());
                     }
                 list(list_view<T> const & other) : data( other.begin(), other.end()) {}
 
@@ -178,6 +180,38 @@ namespace  pythonic {
                     return new_list;
                 }
 
+                // io
+
+                /* list */
+
+                friend std::ostream& operator<<(std::ostream& os, core::list<T> const & v) {
+                    os << '[';
+                    auto iter = v.begin();
+                    if(iter != v.end()) {
+                        while(iter+1 != v.end())
+                            os << *iter++ << ", ";
+                        os << *iter;
+                    }
+                    return os << ']';
+                }
+
+                // comparison
+                template <class K>
+                    bool operator==(core::list<K> const & other) const {
+                        if(size()!=other.size()) return false;
+                        return std::equal(begin(),end(),other.begin());
+                    }
+                bool operator==(core::empty_list const&) const {
+                    return size() == 0;
+                }
+                template <class K>
+                    bool operator!=(core::list<K> const & other) const {
+                        return !operator==(other);
+                    }
+                bool operator!=(core::empty_list const&) const {
+                    return size() != 0;
+                }
+
                 // iterators
                 iterator begin() { return data->begin(); }
                 const_iterator begin() const { return data->begin(); }
@@ -208,30 +242,15 @@ namespace  pythonic {
                 const_reference operator[]( long n ) const {
                     return (*data)[(n>=0)?n : (data->size() + n)];
                 }
+                const_reference at( long n ) const {
+                    return (*data)[n];
+                }
 
                 list<T> operator[]( slice const &s ) const {
-                    list<T> out(0);
-                    out.reserve(size());
-                    long lower, upper;
-                    if(s.step<0) {
-                        if( s.lower == std::numeric_limits<long>::max() )
-                            lower = data->size()-1;
-                        else
-                            lower = s.lower >= 0L ? s.lower : ( s.lower + data->size());
-                        lower = std::max(0L,lower);
-                        upper = s.upper >= 0L ? s.upper : ( s.upper + data->size());
-                        upper = std::min(upper, (long)data->size());
-                        for(long iter = lower; iter >= upper ; iter+=s.step)
-                            out.push_back((*data)[iter]);
-                    }
-                    else {
-                        lower = s.lower >= 0L ? s.lower : ( s.lower + data->size());
-                        lower = std::max(0L,lower);
-                        upper = s.upper >= 0L ? s.upper : ( s.upper + data->size());
-                        upper = std::min(upper, (long)data->size());
-                        for(long iter = lower; iter < upper ; iter+=s.step)
-                            out.push_back((*data)[iter]);
-                    }
+                    core::normalized_slice norm = s.normalize(size());
+                    list<T> out(norm.size());
+                    for(long i = 0; i < out.size() ; i++)
+                        out[i] = (*data)[norm.lower + i * norm.step];
                     return out;
                 }
 
@@ -241,7 +260,11 @@ namespace  pythonic {
 
                 // modifiers
                 void push_back( T const & x) { data->push_back(x); }
-                void insert(size_t i, T const & x) { data->insert(data->begin()+i, x); }
+                void insert(size_t i, T const & x) {
+                    if(i==size()) data->push_back(x);
+                    else data->insert(data->begin()+i, x);
+                }
+
                 void reserve(size_t n) { data->reserve(n); }
                 void resize(size_t n) { data->resize(n); }
                 iterator erase(size_t n) { return data->erase(data->begin()+n); }
@@ -264,13 +287,14 @@ namespace  pythonic {
                 }
 
 
+
                 //Misc
                 //TODO: have to raise a valueError
-                long index(T const& x) {
-                    return std::find(begin(),end(),x)-begin();
-                }	
+                long index(T const& x) const { return std::find(begin(),end(),x)-begin(); }	
+
 
                 // list interface
+                explicit
                 operator bool() const { return not data->empty(); }
 
                 template <class F>
@@ -312,38 +336,19 @@ namespace  pythonic {
 
             };
 
-
         /* empty list implementation */
         struct empty_list {
-            template<class T> // just for type inference, should never been instantiated
-                list<T> operator+(list<T> const & s) { return s; }
-            template<class T> // just for type inference, should never been instantiated
-                list_view<T> operator+(list_view<T> const & s) { return s; }
-            empty_list operator+(empty_list const &) { return empty_list(); }
-            operator bool() { return false; }
+            template<class T>
+                list<T> operator+(list<T> const & s) const { return s; }
+            template<class T>
+                list_view<T> operator+(list_view<T> const & s) const { return s; }
+            empty_list operator+(empty_list const &) const { return empty_list(); }
+            operator bool() const { return false; }
+            template<class T>
+                operator list<T>() const { return list<T>(0); }
         };
 
         /* list_view implementation */
-        template<class T>
-            list_view<T>::list_view(list<T> & other, slice const &s):
-                data(other.data), slicing(s) {
-                    long lower, upper;
-                    if(slicing.step<0) {
-                        if( slicing.lower == std::numeric_limits<long>::max() )
-                            lower = data->size();
-                        else
-                            lower = s.lower >= 0L ? s.lower : ( s.lower + data->size());
-                        slicing.lower = std::max(0L,lower);
-                        upper = slicing.upper >= 0L ? slicing.upper : ( slicing.upper + data->size());
-                        slicing.upper = std::min(upper, (long)data->size());
-                    }
-                    else {
-                        lower = slicing.lower >= 0L ? slicing.lower : ( slicing.lower + data->size());
-                        slicing.lower = std::max(0L,lower);
-                        upper = slicing.upper >= 0L ? slicing.upper : ( slicing.upper + data->size());
-                        slicing.upper = std::min(upper, (long)data->size());
-                    }
-                }
         template<class T>
             list_view<T>& list_view<T>::operator=(list_view<T> const & s) {
                 slicing=s.slicing;
@@ -355,19 +360,20 @@ namespace  pythonic {
 
         template<class T>
             list_view<T>& list_view<T>::operator=(list<T> const & seq) {
-                long lower = slicing.lower >= 0L ? slicing.lower : ( slicing.lower + data->size());
-                lower = std::max(0L,lower);
-                long upper = slicing.upper >= 0L ? slicing.upper : ( slicing.upper + data->size());
-                upper = std::min(upper, (long)data->size());
-                typename list<T>::iterator it = data->begin(); 
                 if( slicing.step == 1) {
-                    data->erase(it+lower, it + upper);
-                    data->insert(it+lower, seq.begin(), seq.end());
+                    data->erase(begin(), end());
+                    data->insert(begin(), seq.begin(), seq.end());
                 }
                 else {
                     assert("not implemented yet");
                 }
                 return *this;
+            }
+        template<class T>
+            list<T> list_view<T>::operator+(list<T> const & s) {
+                list<T> out(size() + s.size());
+                std::copy(s.begin(), s.end(), std::copy(begin(), end(), out.begin()));
+                return out;
             }
         template<class T>
             list<T> list_view<T>::operator+(list_view<T> const & s) {
@@ -382,5 +388,18 @@ namespace  pythonic {
 
     }
 
+}
+
+/* overload std::get */
+namespace std {
+    template <size_t I, class T>
+        typename pythonic::core::list<T>::reference get( pythonic::core::list<T>& t) { return t[I]; }
+    template <size_t I, class T>
+        typename pythonic::core::list<T>::const_reference get( pythonic::core::list<T> const & t) { return t[I]; }
+
+    template <size_t I, class T>
+        struct tuple_element<I, pythonic::core::list<T> > {
+            typedef typename pythonic::core::list<T>::value_type type;
+        };
 }
 #endif

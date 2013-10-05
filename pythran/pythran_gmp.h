@@ -1,10 +1,9 @@
+#ifndef PYTHRAN_GMP_H
+#define PYTHRAN_GMP_H
+
 #include <gmpxx.h>
 #include <type_traits>
 
-#undef pythran_long
-#undef pythran_long_def
-#define pythran_long(a) mpz_class(#a)
-#define pythran_long_def mpz_class
 
 template<class T,class U>
 struct gmp_compo;
@@ -17,6 +16,12 @@ struct assignable<__gmp_expr<T,U> >
 {
     typedef typename gmp_compo<T,U>::type type;
     static_assert(!std::is_same<type,double>::value,"Cannot combine long and float.");
+};
+
+template<class T, class U>
+struct lazy<__gmp_expr<T,U> >
+{
+    typedef typename assignable<__gmp_expr<T,U>>::type type;
 };
 
 template<class T>
@@ -189,16 +194,19 @@ struct python_to_pythran<mpz_class>{
 	}
 	static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
 		 void* storage=((boost::python::converter::rvalue_from_python_storage<mpz_class>*)(data))->storage.bytes;
-
-        new (storage) mpz_class(PyString_AsString(PyObject_Str(obj_ptr)));
-
-	    data->convertible=storage;
+         auto s = PyObject_Str(obj_ptr);
+         new (storage) mpz_class(PyString_AsString(s));
+         Py_DECREF(s);
+         data->convertible=storage;
     }
 };
 
 struct mpz_class_to_long{
     static PyObject* convert(const mpz_class& v){
-        return PyNumber_Long(PyString_FromString(v.get_str().c_str()));
+        auto s = PyString_FromString(v.get_str().c_str());
+        auto l = PyNumber_Long(s);
+        Py_DECREF(s);
+        return l;
     }
 };
 
@@ -219,4 +227,15 @@ struct pythran_to_python< mpz_class > {
         register_once< mpz_class, mpz_class_to_long >();
     }
 };
+namespace std {
+    template <class T, class U>
+        struct hash<__gmp_expr<T,U>>
+    {
+        size_t operator()(const __gmp_expr<T,U> & x) const
+        {
+            return hash<std::string>()(x.get_str());
+        }
+    };
+}
 
+#endif

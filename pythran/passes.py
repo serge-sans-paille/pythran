@@ -1,27 +1,31 @@
 '''
 This modules contains code transformation to turn python AST into
     pythran AST
-    * NormalizeTuples removes implicite variable -> tuple conversion
+    * NormalizeTuples removes implicit variable -> tuple conversion
     * RemoveComprehension turns list comprehension into function calls
     * RemoveNestedFunctions turns nested function into top-level functions
     * RemoveLambdas turns lambda into regular functions
     * NormalizeReturn adds return statement where relevant
     * NormalizeMethodCalls turns built in method calls into function calls
+    * NormalizeCompare turns complex compare into function calls
     * NormalizeAttributes turns built in attributes into function calls
     * NormalizeIdentifiers prevents conflicts with c++ keywords
     * NormalizeException simplifies try blocks
     * UnshadowParameters prevents the shadow parameter phenomenon
     * ExpandImports replaces imports by their full paths
+    * ExpandImportAll replaces import * by all their modules
     * ExpandBuiltins replaces builtins by their full paths
+    * FalsePolymorphism rename variable if possible to avoid false polymorphism
 '''
 
 from analysis import ImportedIds, Identifiers, YieldPoints, Globals, Locals
+from analysis import UsedDefChain, UseOMP, CFG
 from passmanager import Transformation
 from tables import methods, attributes, functions, modules
-from tables import builtin_constructors
-from tables import cxx_keywords, namespace, builtin_constants
+from tables import cxx_keywords, namespace
 from operator import itemgetter
 from copy import copy
+import networkx as nx
 import metadata
 import ast
 
@@ -94,9 +98,10 @@ class NormalizeTuples(Transformation):
         else:
             return node
 
-    def visit_AnyComp(self, node):
-        self.generic_visit(node.elt)
-        generators = [self.visit(n) for n in node.generators]
+    def visit_AnyComp(self, node, *fields):
+        for field in fields:
+            setattr(node, field, self.visit(getattr(node, field)))
+        generators = map(self.visit, node.generators)
         nnode = node
         for i, g in enumerate(generators):
             if isinstance(g, tuple):
@@ -108,18 +113,22 @@ class NormalizeTuples(Transformation):
                         nnode.generators[i].target,
                         metadata.LocalVariable())
                 nnode = _ConvertToTuple(gtarget, g[1]).visit(nnode)
-        node.elt = nnode.elt
+        for field in fields:
+            setattr(node, field, getattr(nnode, field))
         node.generators = nnode.generators
         return node
 
     def visit_ListComp(self, node):
-        return self.visit_AnyComp(node)
+        return self.visit_AnyComp(node, 'elt')
 
     def visit_SetComp(self, node):
-        return self.visit_AnyComp(node)
+        return self.visit_AnyComp(node, 'elt')
+
+    def visit_DictComp(self, node):
+        return self.visit_AnyComp(node, 'key', 'value')
 
     def visit_GeneratorExp(self, node):
-        return self.visit_AnyComp(node)
+        return self.visit_AnyComp(node, 'elt')
 
     def visit_Lambda(self, node):
         self.generic_visit(node)
@@ -175,22 +184,30 @@ class NormalizeTuples(Transformation):
             renamings = dict()
             self.traverse_tuples(target, (), renamings)
             if renamings:
-                elems = [x[0] for x in
-                        sorted(renamings.items(), key=itemgetter(1))]
                 self.counter += 1
-                newname = "{0}{1}".format(
+                gtarget = "{0}{1}".format(
                         NormalizeTuples.tuple_name,
-                        self.counter)
-                node.target = ast.Name(newname, node.target.ctx)
-                metadata.add(node.target, metadata.LocalVariable())
-                node.body.insert(0,
-                        ast.Assign([
-                            ast.Tuple(
-                                [ast.Name(x, ast.Store()) for x in elems],
-                                ast.Store())],
-                            ast.Name(newname, ast.Load())
-                            )
+                        self.counter
                         )
+                node.target = ast.Name(gtarget, node.target.ctx)
+                metadata.add(node.target, metadata.LocalVariable())
+                for rename, state in sorted(renamings.iteritems()):
+                    nnode = reduce(
+                            lambda x, y: ast.Subscript(
+                                x,
+                                ast.Index(ast.Num(y)),
+                                ast.Load()),
+                            state,
+                            ast.Name(gtarget, ast.Load()))
+                    if isinstance(rename, str):
+                        node.body.insert(0,
+                                ast.Assign(
+                                    [ast.Name(rename, ast.Store())],
+                                    nnode)
+                                )
+                    else:
+                        node.body.insert(0, ast.Assign([rename], nnode))
+
         self.generic_visit(node)
         return node
 
@@ -220,6 +237,7 @@ class RemoveComprehension(Transformation):
     def nest_reducer(self, x, g):
         def wrap_in_ifs(node, ifs):
             return reduce(lambda n, if_: ast.If(if_, [n], []), ifs, node)
+        metadata.add(g.target, metadata.LocalVariable())
         return ast.For(g.target, g.iter, [wrap_in_ifs(x, g.ifs)], [])
 
     def visit_AnyComp(self, node, comp_type, comp_module, comp_method):
@@ -258,7 +276,7 @@ class RemoveComprehension(Transformation):
                     [], [], None, None)
                 )
         result = ast.Return(ast.Name(starget, ast.Load()))
-        sargs = sorted(ast.Name(arg, ast.Load()) for arg in args)
+        sargs = sorted(ast.Name(arg, ast.Param()) for arg in args)
         fd = ast.FunctionDef(name,
                 ast.arguments(sargs, None, None, []),
                 [init, body, result],
@@ -299,7 +317,7 @@ class RemoveComprehension(Transformation):
                 ast.Expr(ast.Yield(node.elt))
                 )
 
-        sargs = sorted(ast.Name(arg, ast.Load()) for arg in args)
+        sargs = sorted(ast.Name(arg, ast.Param()) for arg in args)
         fd = ast.FunctionDef(name,
                 ast.arguments(sargs, None, None, []),
                 [body],
@@ -356,7 +374,7 @@ class _NestedFunctionRemover(Transformation):
                 ast.Call(
                     ast.Attribute(
                         ast.Name('__builtin__', ast.Load()),
-                        "bind{0}".format(former_nbargs),
+                        "bind",
                         ast.Load()
                         ),
                     [proxy_call] + binded_args,
@@ -382,7 +400,7 @@ class RemoveNestedFunctions(Transformation):
     >>> node = pm.apply(RemoveNestedFunctions, node)
     >>> print pm.dump(backend.Python, node)
     def foo(x):
-        bar = __builtin__.bind1(pythran_bar, x)
+        bar = __builtin__.bind(pythran_bar, x)
         bar(12)
     def pythran_bar(x, y):
         return (x + y)
@@ -431,7 +449,7 @@ class _LambdaRemover(Transformation):
         return ast.Call(
                 ast.Attribute(
                     ast.Name('__builtin__', ast.Load()),
-                    "bind{0}".format(former_nbargs),
+                    "bind",
                     ast.Load()
                     ),
                 [proxy_call] + binded_args,
@@ -450,7 +468,7 @@ class RemoveLambdas(Transformation):
     >>> node = pm.apply(RemoveLambdas, node)
     >>> print pm.dump(backend.Python, node)
     def foo(y):
-        __builtin__.bind1(foo_lambda0, y)
+        __builtin__.bind(foo_lambda0, y)
     def foo_lambda0(y, x):
         return (y + x)
     '''
@@ -481,28 +499,33 @@ class NormalizeReturn(Transformation):
     >>> print pm.dump(backend.Python, node)
     def foo(y):
         print y
-        return None
+        return __builtin__.None
     '''
+
+    def __init__(self):
+        super(NormalizeReturn, self).__init__(CFG)
 
     def visit_FunctionDef(self, node):
         self.yield_points = self.passmanager.gather(YieldPoints, node)
-        self.has_return = False
-        [self.visit(n) for n in node.body]
-        if not self.has_return:
-            if self.yield_points:
-                node.body.append(ast.Return(None))
-            else:
-                node.body.append(ast.Return(ast.Name("None", ast.Load())))
+        map(self.visit, node.body)
+        # Look for nodes that have no successors
+        for n in self.cfg.predecessors(None):
+            if type(n) not in (ast.Return, ast.Raise):
+                if self.yield_points:
+                    node.body.append(ast.Return(None))
+                else:
+                    none = ast.Attribute(ast.Name("__builtin__", ast.Load()),
+                            'None', ast.Load())
+                    node.body.append(ast.Return(none))
+                break
+
         return node
 
     def visit_Return(self, node):
-        self.has_return = True
-        if not node.value:
-            node.value = (None
-                    if self.yield_points
-                    else ast.Name("None", ast.Load())
-                    )
-
+        if not node.value and not self.yield_points:
+            none = ast.Attribute(ast.Name("__builtin__", ast.Load()),
+                    'None', ast.Load())
+            node.value = none
         return node
 
 
@@ -559,7 +582,7 @@ class NormalizeMethodCalls(Transformation):
                 isname = isinstance(lhs, ast.Name)
                 ispath = isname or isinstance(lhs, ast.Attribute)
                 if not ispath or (isname and lhs.id not in self.imports):
-                    node.args.insert(0,  node.func.value)
+                    node.args.insert(0, node.func.value)
                     node.func = ast.Attribute(
                             ast.Name(methods[node.func.attr][0], ast.Load()),
                             node.func.attr,
@@ -638,8 +661,8 @@ class NormalizeIdentifiers(Transformation):
             self.renamings[name] = new_name
         return self.renamings[name]
 
-    def run_visit(self, node):
-        self.visit(node)
+    def run(self, node, ctx):
+        super(NormalizeIdentifiers, self).run(node, ctx)
         return self.renamings
 
     def visit_Name(self, node):
@@ -655,9 +678,17 @@ class NormalizeIdentifiers(Transformation):
         return node
 
     def visit_alias(self, node):
+        if node.name in cxx_keywords:
+            node.name = self.rename(node.name)
         if node.asname:
             if node.asname in cxx_keywords:
-                node.asname = self.rename(node.name)
+                node.asname = self.rename(node.asname)
+        return node
+
+    def visit_ImportFrom(self, node):
+        self.generic_visit(node)
+        if node.module and node.module in cxx_keywords:
+            node.module = self.rename(node.module)
         return node
 
     def visit_Attribute(self, node):
@@ -742,21 +773,25 @@ class UnshadowParameters(Transformation):
                     )
         return node
 
+    def update(self, node):
+        if isinstance(node, ast.Name) and node.id in self.argsid:
+            if node.id not in self.renaming:
+                new_name = node.id
+                while new_name in self.identifiers:
+                    new_name = new_name + "_"
+                self.renaming[node.id] = new_name
+
     def visit_Assign(self, node):
-        for t in node.targets:
-            if isinstance(t, ast.Name) and t.id in self.argsid:
-                if t.id not in self.renaming:
-                    new_name = t.id
-                    while new_name in self.identifiers:
-                        new_name = new_name + "_"
-                    self.renaming[t.id] = new_name
-        [self.visit(t) for t in node.targets]
+        map(self.update, node.targets)
         try:
-            self.visit(node.metadata)
+            self.generic_visit(node)
         except AttributeError:
             pass
-        self.visit(node.value)
         return node
+
+    def visit_AugAssign(self, node):
+        self.update(node.target)
+        return self.generic_visit(node)
 
     def visit_Name(self, node):
         if node.id in self.renaming:
@@ -768,6 +803,7 @@ class UnshadowParameters(Transformation):
 class ExpandImports(Transformation):
     '''
     Expands all imports into full paths.
+
     >>> import ast, passmanager, backend
     >>> node = ast.parse("from math import cos ; cos(2)")
     >>> pm = passmanager.PassManager("test")
@@ -814,11 +850,10 @@ class ExpandImports(Transformation):
         return node
 
     def visit_Assign(self, node):
-        self.visit(node.value)
-        [self.visit(n) for n in node.targets]
+        new_node = self.generic_visit(node)
         [self.symbols.pop(t.id, None)
-                for t in node.targets if isinstance(t, ast.Name)]
-        return node
+                for t in new_node.targets if isinstance(t, ast.Name)]
+        return new_node
 
     def visit_Name(self, node):
         if node.id in self.symbols:
@@ -830,6 +865,31 @@ class ExpandImports(Transformation):
             new_node.ctx = node.ctx
             ast.copy_location(new_node, node)
             return new_node
+        return node
+
+
+##
+class ExpandImportAll(Transformation):
+    '''
+    Expands all import when '*' detected
+
+    >>> import ast, passmanager, backend
+    >>> node = ast.parse("from math import *")
+    >>> pm = passmanager.PassManager("test")
+    >>> node = pm.apply(ExpandImportAll, node)
+    >>> print pm.dump(backend.Python, node)
+    from math import asinh, atan2, fmod, atan, isnan, factorial, pow, \
+copysign, cos, cosh, ldexp, hypot, isinf, floor, sinh, acosh, tan, ceil, exp, \
+trunc, asin, expm1, e, log, fabs, tanh, log10, atanh, radians, sqrt, frexp, \
+lgamma, erf, erfc, modf, degrees, acos, pi, log1p, sin, gamma
+    '''
+
+    def visit_ImportFrom(self, node):
+        for alias in node.names:
+            if alias.name == '*':
+                node.names.pop()
+                node.names.extend(ast.alias(fname, None)
+                        for fname in modules[node.module])
         return node
 
 
@@ -846,18 +906,128 @@ class ExpandBuiltins(Transformation):
     '''
 
     def __init__(self):
-        Transformation.__init__(self, Locals)
+        Transformation.__init__(self, Locals, Globals)
 
     def visit_Name(self, node):
         s = node.id
         if (isinstance(node.ctx, ast.Load)
-                and s not in builtin_constants
-                and s not in builtin_constructors
                 and s not in self.locals[node]
+                and s not in self.globals
                 and s in modules['__builtin__']):
             return ast.Attribute(
                     ast.Name('__builtin__', ast.Load()),
                     s,
                     node.ctx)
+        else:
+            return node
+
+
+class FalsePolymorphism(Transformation):
+    """
+    Rename variable when possible to avoid false polymorphism.
+    >>> import ast, passmanager, backend
+    >>> node = ast.parse("def foo(): a = 12; a = 'babar'")
+    >>> pm = passmanager.PassManager("test")
+    >>> node = pm.apply(FalsePolymorphism, node)
+    >>> print pm.dump(backend.Python, node)
+    def foo():
+        a = 12
+        a_ = 'babar'
+    """
+    def __init__(self):
+        super(FalsePolymorphism, self).__init__(UsedDefChain, UseOMP)
+
+    def visit_FunctionDef(self, node):
+        #function using openmp are ignored
+        if not self.use_omp:
+            self.identifiers = self.passmanager.gather(Identifiers, node,
+                    self.ctx)
+            for name, udgraph in self.used_def_chain.iteritems():
+                group_variable = list()
+                while udgraph:
+                    e = udgraph.nodes_iter().next()
+                    to_change = set()
+                    to_analyse_pred = set([e])
+                    to_analyse_succ = set()
+                    while to_analyse_pred or to_analyse_succ:
+                        if to_analyse_pred:
+                            n = to_analyse_pred.pop()
+                            to_change.add(n)
+                            to_analyse_succ.update(udgraph.successors(n))
+                            to_analyse_succ -= to_change
+                        else:
+                            n = to_analyse_succ.pop()
+                            if (udgraph.node[n]['action'] == 'U' or
+                                    udgraph.node[n]['action'] == 'UD'):
+                                to_change.add(n)
+                                to_analyse_succ.update(udgraph.successors(n))
+                                to_analyse_succ -= to_change
+                        if (udgraph.node[n]['action'] == 'U' or
+                                udgraph.node[n]['action'] == 'UD'):
+                            to_analyse_pred.update(udgraph.predecessors(n))
+                            to_analyse_pred -= to_change
+                    nodes_to_change = [udgraph.node[k]['name']
+                                            for k in to_change]
+                    group_variable.append(nodes_to_change)
+                    udgraph.remove_nodes_from(to_change)
+                if len(group_variable) > 1:
+                    self.identifiers.remove(name)
+                    for group in group_variable:
+                        while name in self.identifiers:
+                            name += "_"
+                        for var in group:
+                            var.id = name
+                        self.identifiers.add(name)
+        return node
+
+
+class NormalizeCompare(Transformation):
+    '''
+    Turns multiple compare into a function with proper temporaries.
+
+    >>> import ast, passmanager, backend
+    >>> node = ast.parse("def foo(a): return 0 < a + 1 < 3")
+    >>> pm = passmanager.PassManager("test")
+    >>> node = pm.apply(NormalizeCompare, node)
+    >>> print pm.dump(backend.Python, node)
+    def foo(a):
+        return foo_compare0(0, (a + 1), 3)
+    def foo_compare0($0, $1, $2):
+        return ($0 < $1 < $2)
+    '''
+
+    def visit_Module(self, node):
+        self.compare_functions = list()
+        self.generic_visit(node)
+        node.body.extend(self.compare_functions)
+        return node
+
+    def visit_FunctionDef(self, node):
+        self.prefix = node.name
+        self.generic_visit(node)
+        return node
+
+    def visit_Compare(self, node):
+        node = self.generic_visit(node)
+        if len(node.ops) > 1:
+            forged_name = "{0}_compare{1}".format(
+                    self.prefix,
+                    len(self.compare_functions)
+                    )
+            binded_args = [node.left] + node.comparators
+            args = ast.arguments([ast.Name('${}'.format(i), ast.Param())
+                for i in range(1 + len(node.ops))],
+                None, None, [])
+            node.left = ast.Name('$0', ast.Load())
+            node.comparators = [ast.Name('${}'.format(i), ast.Load())
+                    for i in range(1, 1 + len(node.ops))]
+            forged_fdef = ast.FunctionDef(
+                    forged_name,
+                    args,
+                    [ast.Return(node)],
+                    [])
+            self.compare_functions.append(forged_fdef)
+            return ast.Call(ast.Name(forged_name, ast.Load()),
+                    binded_args, [], None, None)
         else:
             return node

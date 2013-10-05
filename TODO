@@ -45,7 +45,6 @@ This is an easy one. A good candidate to discover Pythran's runtime internals.
 Automatic vectorization of list comprehension
 ---------------------------------------------
 
-
 Because when you see::
 
     [x*x for x in l]
@@ -90,17 +89,6 @@ nice. As Pythran is sooooooo easy to use, that should not be hard, so to make
 the task more interesting, the tutorial should be automatically tested when
 running ``setup.py test``.
 
-Avoid false polymorphism
-------------------------
-
-In the following code::
-
-    a = 1 ; a = 'e'
-
-``a`` looks like a polymorphic variable, but it is not really. Scalar renaming
-could be used to prevent this false type dependency... This is an interesting
-job for a pythraner that wants to improve its compilation skills.
-
 Named arguments
 ---------------
 
@@ -112,3 +100,27 @@ Automatic generation of (part of) Pythonic
 Some part of ``pythonic`` are really boring to write. For instance the
 ``PROXY`` macro calls. Developers should be lazy: there must be a way (think
 about it!) to automate part of this work. Good for smart new pythraners!
+
+Performance issues detection
+----------------------------
+
+There is a big benchmark / test cases codebase in Pythran. We should monitor it
+and detect performance bottleneck, as well as track speedup changes upon new
+commits.
+
+Try Except around import module statements
+------------------------------------------
+
+When we use Try Except around an import module statement, it is possible to have
+a specific behaviour if the imported modules doesn't exist (using sur ImportError
+exception).
+While pythran, raise an error if module doesn't exist, it should branch in the
+except part of the code.
+
+ConstantFolding timeout
+-----------------------
+
+Sometime we can have a code which compute a constant but it is really long and
+we want to compile it to have the result faster. For now, pythran will compute
+it through CPython which makes it slower. A time out can avoid this issue.
+It might be possible to save current computation at the end of the timeout.

@@ -157,10 +157,10 @@ namespace  pythonic {
                 none<V> get(K const& key) const {
                     auto ivalue = data->find(key);
                     if(ivalue != data->end()) return ivalue->second;
-                    else return None;
+                    else return __builtin__::None;
                 }
                 template <class W>
-                    decltype(std::declval<V>()+std::declval<W>())& setdefault(K const& key, W d) {
+                    V& setdefault(K const& key, W d) {
                         auto ivalue = data->find(key);
                         if(ivalue != data->end()) return ivalue->second;
                         else {
@@ -171,7 +171,7 @@ namespace  pythonic {
                     auto ivalue = data->find(key);
                     if(ivalue != data->end()) return ivalue->second;
                     else {
-                        return (*data)[key]=None;
+                        return (*data)[key]=__builtin__::None;
                     }
                 }
                 template<class K0, class W0>
@@ -211,7 +211,7 @@ namespace  pythonic {
                     else {
                         auto r = *b;
                         data->erase(b);
-                        return make_tuple(r.first, r.second);
+                        return std::make_tuple(r.first, r.second);
                     }
                 }
 
@@ -242,6 +242,23 @@ namespace  pythonic {
             empty_dict operator+(empty_dict const &) { return empty_dict(); }
             operator bool() const { return false; }
         };
+        template <class K, class V>
+            core::dict<K, V> operator+(core::dict<K,V> const& d, core::empty_dict) {
+                return d;
+            }
     }
+}
+
+/* overload std::get */
+namespace std {
+    template <size_t I, class K, class V>
+        auto get( pythonic::core::dict<K,V>& d) -> decltype(d[I]) { return d[I]; }
+    template <size_t I, class K, class V>
+        auto get( pythonic::core::dict<K,V> const & d) -> decltype(d[I]) { return d[I]; }
+
+    template <size_t I, class K, class V>
+        struct tuple_element<I, pythonic::core::dict<K,V> > {
+            typedef typename pythonic::core::dict<K,V>::value_type type;
+        };
 }
 #endif

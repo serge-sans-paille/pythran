@@ -1,7 +1,7 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-#pythran export brownian_bridge(float, float, float, float, int)
-from random import gauss as norm
+#pythran export brownian_bridge(int, int, float, float, int)
+#runas brownian_bridge(1,5,1.35,2.65,4)
+
+import random
 from math import sqrt
 
 def linspace(begin, end, nbsteps):
@@ -9,6 +9,12 @@ def linspace(begin, end, nbsteps):
     return [ begin + i*(end-begin)/nbsteps for i in xrange(nbsteps) ]
 
 def zeros(n): return [0.]*n
+
+# should be "from random import gauss as norm", but not reproducible...
+def norm(m,u):
+    return ((m*u+0.15)%1)
+
+
 
 # moyenne du pont en t entre les points (t1,b1) et (t2,b2):
 def moy(t1,t2,b1,b2,t): return (1.*(t2*b1-t1*b2)+t*(b2-b1))/(t2-t1)
@@ -18,16 +24,17 @@ def var(t1,t2,b1,b2,t): return (1.*t-t1)*(t2-t)/(t2-t1)
 
 def brownian_bridge(ti, tf, bi, bf, n):
     """
-    simulation d'un pont brownien sur [ti,tf], 
-    avec les valeurs extrèmes bi et bf
-    et n points par unité de temps
-    sortie : 
-    - T   : positions temporelles des échantillons
-    - B   : valeurs des échantillons
+    simulation d'un pont brownien sur [ti,tf],
+    avec les valeurs extremes bi et bf
+    et n points par unite de temps
+    sortie :
+    - T   : positions temporelles des echantillons
+    - B   : valeurs des echantillons
     """
+
     n        = int(n*(tf-ti))     # nombre de points
-    T        = linspace(ti,tf,n)  # points d'échantillonnage
-    pas      = (tf-ti)/(n-1.)     # pas d'échantillonnage
+    T        = linspace(ti,tf,n)  # points d'echantillonnage
+    pas      = (tf-ti)/(n-1.)     # pas d'echantillonnage
     B        = zeros(n)           # initialisation du brownien
     B[0]     = bi                 # valeur initiale
     B[n-1]   = bf                 # valeur finale
@@ -38,4 +45,3 @@ def brownian_bridge(ti, tf, bi, bf, n):
         B[k] = m+sqrt(v)*norm(0,1)
         t1  += pas
     return T, B
-

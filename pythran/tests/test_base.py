@@ -156,6 +156,9 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
     def test_xrange4(self):
         self.run_test("def xrange4_(b,e,s): return list(xrange(b,e,s))", 3,8,1, xrange4_=[int,int,int])
 
+    def test_xrange5(self):
+        self.run_test("def xrange5_(e): return max(xrange(e))", 3, xrange5_=[int])
+
     def test_multixrange(self):
         self.run_test("def multixrange(i): return map(lambda x,y:y*x/2, xrange(1,i), xrange(i,1,-1))", 3, multixrange=[int])
     
@@ -163,7 +166,7 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
         self.run_test("def print_(a,b,c,d): print a,b,c,d,'e',1.5,", [1,2,3.1],3,True, "d", print_=[[float], int, bool, str])
 
     def test_assign(self):
-        self.run_test("def assign(a): b=2*a", 1, assign=[int])
+        self.run_test("def assign(a): b=2*a ; return b", 1, assign=[int])
 
     def test_multiassign(self):
         self.run_test("def multiassign(a):\n c=b=a\n return c", [1], multiassign=[[int]])
@@ -218,16 +221,16 @@ def lambda_():
         self.run_test("def tuple_(t): return t[0]+t[1]", (0,1), tuple_=[(int, int)])
 
     def test_nested_list_comprehension(self):
-        self.run_test("def nested_list_comprehension(): return [ [ 0 for x in xrange(10) ] for y in xrange(20) ]", nested_list_comprehension=[])
+        self.run_test("def nested_list_comprehension(): return [ [ x+y for x in xrange(10) ] for y in xrange(20) ]", nested_list_comprehension=[])
 
     def test_delete(self):
         self.run_test("def delete_(v): del v", 1, delete_=[int])
 
     def test_continue(self):
-        self.run_test("def continue_():\n for i in xrange(3):continue", continue_=[])
+        self.run_test("def continue_():\n for i in xrange(3):continue\n return i", continue_=[])
 
     def test_break(self):
-        self.run_test("def break_():\n for i in xrange(3):break", break_=[])
+        self.run_test("def break_():\n for i in xrange(3):break\n return i", break_=[])
 
     def test_assert(self):
         self.run_test("def assert_(i): assert i > 0", 1, assert_=[int])
@@ -236,7 +239,7 @@ def lambda_():
         self.run_test("def assert_with_msg(i): assert i > 0, 'hell yeah'", 1, assert_with_msg=[int])
 
     def test_import_from(self):
-        self.run_test("def import_from(): from math import cos ; cos(1.)", import_from=[])
+        self.run_test("def import_from(): from math import cos ; return cos(1.)", import_from=[])
 
     def test_len(self):
         self.run_test("def len_(i,j,k): return len(i)+len(j)+len(k)", "youpi", [1,2],[], len_=[str,[int], [float]])
@@ -287,7 +290,7 @@ def lambda_():
         self.run_test("def initialization_list(): return [1, 2.3]", initialization_list=[])
 
     def test_multiple_assign(self):
-        self.run_test("def multiple_assign():\n a=0\n a=1.5\n return a", multiple_assign=[])
+        self.run_test("def multiple_assign():\n a=0 ; b = a\n a=1.5\n return a, b", multiple_assign=[])
 
     def test_multiple_return1(self):
         self.run_test("def multiple_return1(a):\n if True:return 1\n else:\n  return a", 2,  multiple_return1=[int])
@@ -296,7 +299,7 @@ def lambda_():
         self.run_test("def multiple_return2(a):\n if True:return 1\n else:\n  b=a\n  return b", 2,  multiple_return2=[int])
 
     def test_multiple_return3(self):
-        self.run_test("def multiple_return3(a):\n if True:return 1\n else:\n  b=a\n  return a", 2,  multiple_return3=[int])
+        self.run_test("def multiple_return3(a):\n if True:return 1\n else:\n  b=a\n  return a+b", 2,  multiple_return3=[int])
 
     def test_id(self):
         self.run_test("def id_(a):\n c=a\n return id(a)==id(c)", [1,2,3], id_=[[int]])
@@ -372,6 +375,9 @@ def nested_def(a):
     def test_enumerate(self):
         self.run_test("def enumerate_(l): return [ x for x in enumerate(l) ]", ["a","b","c"], enumerate_=[[str]])
 
+    def test_enumerat2(self):
+        self.run_test("def enumerate2_(l): return [ x for x in enumerate(l, 3) ]", ["a","b","c"], enumerate2_=[[str]])
+
     def test_filter(self):
         self.run_test("def filter_(l): return filter(lambda x:x%2, l)", [1,2,3], filter_=[[int]])
 
@@ -423,11 +429,7 @@ def complex_number():
         self.run_test(code, complex_number=[])
 
     def test_raise(self):
-        try:
-            self.run_test("def raise_(): raise RuntimeError('pof')", raise_=[])
-        except RuntimeError as e:
-            if e.message == 'pof': pass
-            else: raise
+        self.run_test("def raise_():\n raise RuntimeError('pof')", raise_=[])
 
     def test_complex_number_serialization(self):
         self.run_test("def complex_number_serialization(l): return [x+y for x in l for y in l]", [complex(1,0), complex(1,0)], complex_number_serialization=[[complex]])
@@ -453,15 +455,6 @@ def subscript_assignment ():
 def export(template):
     return [ new*new for new in template ]"""
         self.run_test(code, [1], export=[[int]])
-
-    def test_random_(self):
-        code="""
-import random
-def random_():
-    random.seed()
-    random.seed(0)
-    random.random()"""
-        self.run_test(code, random_=[])
 
     def test_forelse(self):
         code="""
@@ -501,7 +494,7 @@ def shadow_parameters(l):
     def test_yielder(self):
         code="""
 def iyielder(i):
-    for k in xrange(18):
+    for k in xrange(i+18):
         yield k
     return
 
@@ -510,6 +503,18 @@ def yielder():
     b=f.next()
     return [i*i for i in f]"""
         self.run_test(code, yielder=[])
+
+    def test_yield_with_default_param(self):
+        code="""
+def foo(a=1000):
+    for i in xrange(10):
+        yield a
+
+def yield_param():
+    it = foo()
+    return [i for i in it]"""
+        self.run_test(code, yield_param=[])
+
     def test_set(self):
         code="""
 def set_(a,b):
@@ -605,11 +610,13 @@ def update_empty_list(l):
 def update_list_with_slice(l):
     p = list()
     for i in xrange(10):
-        p += l[:1]''', range(5), update_list_with_slice=[[int]])
+        p += l[:1]
+    return p,i''', range(5), update_list_with_slice=[[int]])
 
     def test_add_slice_to_list(self):
         self.run_test('''
 def add_slice_to_list(l):
     p = list()
     for i in xrange(10):
-        p = p + l[:1]''', range(5), add_slice_to_list=[[int]])
+        p = p + l[:1]
+    return p,i''', range(5), add_slice_to_list=[[int]])

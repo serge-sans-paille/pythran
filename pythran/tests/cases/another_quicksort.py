@@ -1,5 +1,7 @@
+#pythran export QuickSort(float list)
+#runas QuickSort(range(10))
+
 # swap two value of the list
-#pythran export swap (float list, int, int)
 def swap (l, idx1, idx2):
     if (idx1 != idx2):
         tmp = l[idx1]
@@ -8,7 +10,6 @@ def swap (l, idx1, idx2):
 
 # partition the list using the value at pivot index size / 2 and return the
 # new pivot index
-#pythran export partition (float list)
 def partition (l):
     size = len (l)
     # the pivot indfex
@@ -40,12 +41,11 @@ def partition (l):
     swap (l, i, size - 1)
     return i
 
-#pythran export QuickSort (float list)
 def QuickSort (l):
     size = len (l)
     if size > 1:
         # Get the lists of bigger and smaller items and final position of pivot
-        idx = 0#partition (l)
+        idx = partition (l)
         l1 = []
         l2 = []
         for i in range (0, idx):
@@ -56,12 +56,8 @@ def QuickSort (l):
         QuickSort(l1);
         # Recursively sort elements at least as big as the pivot
         QuickSort(l2);
-        print "Sorted : "
-        print l1
-        print l2
         for i in range (0, len (l1)):
             l[i] = l1[i]
         for i in range (0, len (l2)):
             l[len (l1) + i] = l2[i]
-    return
-
+    return l

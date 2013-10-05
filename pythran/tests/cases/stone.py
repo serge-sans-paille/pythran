@@ -1,4 +1,5 @@
-#runas whetstone(2*10**5)
+#pythran export whetstone(int)
+#runas whetstone(2*10**2)
 """
 /*
  * C Converted Whetstone Double Precision Benchmark
@@ -39,7 +40,6 @@
  *            r.painter@ieee.org
  */
 """
-#pythran export whetstone(int)
 from math import sin as DSIN, cos as DCOS, atan as DATAN, log as DLOG, exp as DEXP, sqrt as DSQRT
 
 

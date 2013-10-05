@@ -40,7 +40,6 @@ class Generable(object):
 
     def generate(self, with_semicolon=True):
         """Generate (i.e. yield) the lines making up this code construct."""
-
         raise NotImplementedError
 
 
@@ -142,17 +141,6 @@ class Const(NestedDeclarator):
         return sub_tp, ("const %s" % sub_decl)
 
 
-class TemplateSpecializer(NestedDeclarator):
-    def __init__(self, specializer, subdecl):
-        self.specializer = specializer
-        NestedDeclarator.__init__(self, subdecl)
-
-    def get_decl_pair(self):
-        sub_tp, sub_decl = self.subdecl.get_decl_pair()
-        sub_tp[-1] = sub_tp[-1] + '<%s>' % self.specializer
-        return sub_tp, sub_decl
-
-
 class FunctionDeclaration(NestedDeclarator):
     def __init__(self, subdecl, arg_decls, *attributes):
         NestedDeclarator.__init__(self, subdecl)
@@ -166,21 +154,6 @@ class FunctionDeclaration(NestedDeclarator):
             ", ".join(ad.inline() for ad in self.arg_decls),
             " ".join(self.attributes))
             )
-
-
-class ConstructorDeclaration(FunctionDeclaration):
-
-    def __init__(self, subdecl, arg_decls, initialization_list):
-        FunctionDeclaration.__init__(self, subdecl, arg_decls)
-        self.initialization_list = initialization_list
-
-    def get_decl_pair(self):
-        sub_tp, sub_decl = FunctionDeclaration.get_decl_pair(self)
-        return (sub_tp,
-                sub_decl
-                + (": {0}".format(", ".join(self.initialization_list))
-                    if self.initialization_list
-                    else ""))
 
 
 class Struct(Declarator):
@@ -236,12 +209,8 @@ class ExceptHandler(Generable):
             yield "catch(...)"
         else:
             yield "catch (core::%s const& %s)" % (self.name, self.alias or '')
-        if isinstance(self.body, Block):
-            for line in self.body.generate():
-                yield line
-        else:
-            for line in self.body.generate():
-                yield "  " + line
+        for line in self.body.generate():
+            yield line
 
 
 class TryExcept(Generable):
@@ -253,20 +222,12 @@ class TryExcept(Generable):
     def generate(self):
         yield "try"
 
-        if isinstance(self.try_, Block):
-            for line in self.try_.generate():
-                yield line
-        else:
-            for line in self.try_.generate():
-                yield "  " + line
+        for line in self.try_.generate():
+            yield line
 
         for exception in self.except_:
-            if isinstance(exception, Block):
-                for line in exception.generate():
-                    yield line
-            else:
-                for line in exception.generate():
-                    yield "  " + line
+            for line in exception.generate():
+                yield "  " + line
 
 
 class If(Generable):
@@ -281,30 +242,15 @@ class If(Generable):
         self.else_ = else_
 
     def generate(self):
-        condition_lines = self.condition.split("\n")
-        if len(condition_lines) > 1:
-            yield "if ("
-            for l in condition_lines:
-                yield "    " + l
-            yield "  )"
-        else:
-            yield "if (%s)" % self.condition
+        yield "if (%s)" % self.condition
 
-        if isinstance(self.then_, Block):
-            for line in self.then_.generate():
-                yield line
-        else:
-            for line in self.then_.generate():
-                yield "  " + line
+        for line in self.then_.generate():
+            yield line
 
         if self.else_ is not None:
             yield "else"
-            if isinstance(self.else_, Block):
-                for line in self.else_.generate():
-                    yield line
-            else:
-                for line in self.else_.generate():
-                    yield "  " + line
+            for line in self.else_.generate():
+                yield line
 
 
 class Loop(Generable):
@@ -315,18 +261,8 @@ class Loop(Generable):
         if self.intro_line() is not None:
             yield self.intro_line()
 
-        if isinstance(self.body, Block):
-            for line in self.body.generate():
-                yield line
-        else:
-            for line in self.body.generate():
-                yield "  " + line
-
-        if self.outro_line() is not None:
-            yield self.outro_line()
-
-    def outro_line(self):
-        return None
+        for line in self.body.generate():
+            yield line
 
 
 class While(Loop):
@@ -350,6 +286,20 @@ class For(Loop):
 
     def intro_line(self):
         return "for (%s; %s; %s)" % (self.start, self.condition, self.update)
+
+
+class AutoFor(Loop):
+    def __init__(self, target, iter, body):
+        self.target = target
+        self.iter = iter
+
+        assert isinstance(body, Generable)
+        self.body = body
+
+    def intro_line(self):
+        return "for (auto {0}: {1})".format(
+                self.target,
+                self.iter)
 
 
 # simple statements -----------------------------------------------------------
@@ -421,23 +371,6 @@ class Line(Generable):
         yield self.text
 
 
-class Comment(Generable):
-    def __init__(self, text):
-        self.text = text
-
-    def generate(self):
-        yield "/* %s */" % self.text
-
-
-class LineComment(Generable):
-    def __init__(self, text):
-        assert "\n" not in text
-        self.text = text
-
-    def generate(self):
-        yield "// %s" % self.text
-
-
 # initializers ----------------------------------------------------------------
 class FunctionBody(Generable):
     def __init__(self, fdecl, body):
@@ -445,7 +378,6 @@ class FunctionBody(Generable):
         a :class:`FunctionDeclaration` instance, while *body* is a
         :class:`Block`.
         """
-
         self.fdecl = fdecl
         self.body = body
 
@@ -533,13 +465,6 @@ class BoostPythonModule(object):
 
     def add_to_preamble(self, pa):
         self.preamble.extend(pa)
-
-    def add_to_module(self, body):
-        """Add the :class:`cgen.Generable` instances in the iterable
-        *body* to the body of the module *self*.
-        """
-
-        self.mod_body.extend(body)
 
     def add_function(self, func, name=None):
         """Add a function to be exposed. *func* is expected to be a

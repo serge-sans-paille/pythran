@@ -1,4 +1,4 @@
-#runas BlackScholes(range(1000), range(1000), range(1000), 0.5, 0.76, 12) 
+#runas BlackScholes(range(1,100), range(1,100), range(1,100), 0.5, 0.76, 12)
 #pythran export BlackScholes(float list, float list, float list, float, float, int)
 import math
 
@@ -14,7 +14,7 @@ def BlackScholes(stock_price, option_strike, option_years, Riskfree,  Volatility
     put_result = []
     for opt in xrange(0, nb_opt) :
         sqrtT = math.sqrt(option_years[opt])
-        d1 = math.log(stock_price[opt] / option_strike[opt]) 
+        d1 = math.log(stock_price[opt] / option_strike[opt])
         d1 += (Riskfree + 0.5 * Volatility * Volatility) * option_years[opt]
         d1 /= (Volatility * sqrtT)
         d2 = d1 - Volatility * sqrtT

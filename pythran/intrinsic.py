@@ -11,6 +11,10 @@ class ReadEffect(object):
     pass
 
 
+class ReadOnceEffect(ReadEffect):
+    pass
+
+
 class Intrinsic(object):
     def __init__(self, **kwargs):
         self.argument_effects = kwargs.get('argument_effects',
@@ -18,7 +22,7 @@ class Intrinsic(object):
         self.global_effects = kwargs.get('global_effects', False)
         self.return_alias = kwargs.get('return_alias', lambda x: {None})
 
-    def isscalar(self):
+    def isliteral(self):
         return False
 
     def isfunction(self):
@@ -38,23 +42,24 @@ class Intrinsic(object):
                 isinstance(x, UpdateEffect) for x in self.argument_effects
                 ) and not self.global_effects
 
+    def isreadonce(self, n):
+        return isinstance(self.argument_effects[n], ReadOnceEffect)
+
+    def combiner(self, s, node):
+        pass
+
 
 class FunctionIntr(Intrinsic):
     def __init__(self, **kwargs):
+        kwargs.setdefault('combiners', ())
         super(FunctionIntr, self).__init__(**kwargs)
+        self.combiners = kwargs['combiners']
 
     def isfunction(self):
         return True
 
     def isstaticfunction(self):
         return True
-
-
-class UserFunction(FunctionIntr):
-    def __init__(self, *combiners, **kwargs):
-        kwargs.setdefault('return_alias', lambda x: {None})
-        self.combiners = combiners
-        super(UserFunction, self).__init__(**kwargs)
 
     def add_combiner(self, _combiner):
         self.combiners += (_combiner,)
@@ -64,16 +69,39 @@ class UserFunction(FunctionIntr):
             comb(s, node)
 
 
+class UserFunction(FunctionIntr):
+    def __init__(self, *combiners, **kwargs):
+        kwargs.setdefault('return_alias', lambda x: {None})
+        kwargs['combiners'] = combiners
+        super(UserFunction, self).__init__(**kwargs)
+
+
 class ConstFunctionIntr(FunctionIntr):
+    def __init__(self, **kwargs):
+        kwargs.setdefault('argument_effects',
+                          (ReadEffect(),) * 10)
+        super(ConstFunctionIntr, self).__init__(**kwargs)
+
+
+class ConstExceptionIntr(FunctionIntr):
+    def __init__(self, **kwargs):
+        kwargs.setdefault('argument_effects',
+                          (ReadEffect(),) * 10)
+        super(ConstExceptionIntr, self).__init__(**kwargs)
+
+
+class ReadOnceFunctionIntr(ConstFunctionIntr):
     def __init__(self):
-        super(ConstFunctionIntr, self).__init__(argument_effects=())
+        super(ReadOnceFunctionIntr, self).__init__(
+            argument_effects=(ReadOnceEffect(),) * 11)
 
 
-class MethodIntr(UserFunction):
+class MethodIntr(FunctionIntr):
     def __init__(self, *combiners, **kwargs):
         kwargs.setdefault('argument_effects',
                 (UpdateEffect(),) + (ReadEffect(),) * 10)
-        super(MethodIntr, self).__init__(*combiners, **kwargs)
+        kwargs['combiners'] = combiners
+        super(MethodIntr, self).__init__(**kwargs)
 
     def ismethod(self):
         return True
@@ -97,11 +125,11 @@ class AttributeIntr(Intrinsic):
         return True
 
 
-class ScalarIntr(Intrinsic):
+class ConstantIntr(Intrinsic):
     def __init__(self):
-        super(ScalarIntr, self).__init__(argument_effects=())
+        super(ConstantIntr, self).__init__(argument_effects=())
 
-    def isscalar(self):
+    def isliteral(self):
         return True
 
 
@@ -116,6 +144,9 @@ class Class(object):
         return False
 
     def isstaticfunction(self):
+        return False
+
+    def isliteral(self):
         return False
 
     def __getitem__(self, key):

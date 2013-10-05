@@ -16,13 +16,15 @@ keywords = {
         'collapse',
         'copyin',
         'copyprivate',
+        'critical',
         'default',
-        'firstprivate',
         'final',
+        'firstprivate',
         'flush',
         'for',
         'if',
         'lastprivate',
+        'master',
         'none',
         'nowait',
         'num_threads',
@@ -41,24 +43,33 @@ keywords = {
         'taskyield',
         'threadprivate',
         'untied',
-        }
+}
 
 reserved_contex = {
         'default',
         'schedule',
-        }
+}
 
 
 class OMPDirective(AST):
-    '''
-    Turn a string into a context-dependent metadata.
+    '''Turn a string into a context-dependent metadata.
+    >>> o = OMPDirective("omp for private(a,b) shared(c)")
+    >>> o.s
+    'omp for private({},{}) shared({})'
+    >>> [ type(dep) for dep in o.deps ]
+    [<class '_ast.Name'>, <class '_ast.Name'>, <class '_ast.Name'>]
+    >>> [ dep.id for dep in o.deps ]
+    ['a', 'b', 'c']
     '''
 
-    def __init__(self, s):
+    def __init__(self, *args):  # no positional argument to be deep copyable
+        if not args:
+            return
 
         self.deps = []
 
         def tokenize(s):
+            '''A simple contextual "parser" for an OpenMP string'''
             # not completely satisfying if there are strings in if expressions
             out = ''
             par_count = 0
@@ -94,7 +105,7 @@ class OMPDirective(AST):
                     curr_index += 1
             return out
 
-        self.s = tokenize(s)
+        self.s = tokenize(args[0])
         self._fields = ('deps',)
 
     def __str__(self):
@@ -103,20 +114,19 @@ class OMPDirective(AST):
 
 ##
 class GatherOMPData(Transformation):
-    '''
-    Walks node and collect string comments looking for OpenMP directives.
-    '''
+    '''Walks node and collect string comments looking for OpenMP directives.'''
 
     # there is a special handling for If and Expr, so not listed here
     statements = ("FunctionDef", "Return", "Delete", "Assign", "AugAssign",
-            "Print", "For", "While", "Raise", "TryExcept", "TryFinally",
-            "Assert", "Import", "ImportFrom", "Pass", "Break",)
+                  "Print", "For", "While", "Raise", "TryExcept", "TryFinally",
+                  "Assert", "Import", "ImportFrom", "Pass", "Break",)
 
     # these fields hold statement lists
     statement_lists = ("body", "orelse", "finalbody",)
 
     def __init__(self):
         Transformation.__init__(self)
+        # Remap self.visit_XXXX() to self.attach_data() generic method
         for s in GatherOMPData.statements:
             setattr(self, "visit_" + s, lambda node_: self.attach_data(node_))
         self.current = list()
@@ -140,6 +150,10 @@ class GatherOMPData(Transformation):
             return self.attach_data(node)
 
     def attach_data(self, node):
+        '''Generic method called for visit_XXXX() with XXXX in
+        GatherOMPData.statements list
+
+        '''
         if self.current:
             for curr in self.current:
                 md = OMPDirective(curr)

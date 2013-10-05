@@ -13,11 +13,14 @@ from analysis import YieldPoints, BoundedExpressions, ArgumentEffects
 from passmanager import Backend
 
 from tables import operator_to_lambda, modules, type_to_suffix
-from tables import builtin_constructors, pytype_to_ctype_table
+from tables import pytype_to_ctype_table
+from tables import pythran_ward
 from typing import Types
 from syntax import PythranSyntaxError
 
 from openmp import OMPDirective
+
+from math import isnan
 
 import cStringIO
 import unparse
@@ -51,11 +54,18 @@ def templatize(node, types, default_types=None):
     if types:
         return Template(
                 ["typename {0} {1}".format(
-                    t, "= const {0}".format(d) if d else "")
+                    t, "= {0}".format(d) if d else "")
                     for t, d in zip(types, default_types)],
                 node)
     else:
         return node
+
+
+def strip_exp(s):
+    if s.startswith('(') and s.endswith(')'):
+        return s[1:-1]
+    else:
+        return s
 
 
 class Cxx(Backend):
@@ -68,8 +78,7 @@ class Cxx(Backend):
     >>> r = pm.dump(Cxx, node)
     >>> for l in r: print l
     #include <pythran/pythran.h>
-    #include <pythran/pythran_gmp.h>
-    namespace __test
+    namespace __pythran_test
     {
       print(core::string("hello world"));
     }
@@ -84,7 +93,7 @@ class Cxx(Backend):
     def __init__(self):
         self.declarations = list()
         self.definitions = list()
-        self.break_handler = list()
+        self.break_handlers = list()
         self.result = None
         super(Cxx, self).__init__(
                 GlobalDeclarations, BoundedExpressions, Types, ArgumentEffects)
@@ -92,15 +101,15 @@ class Cxx(Backend):
     # mod
     def visit_Module(self, node):
         # build all types
-        headers = map(Include, ("pythran/pythran.h", "pythran/pythran_gmp.h"))
+        header = Include("pythran/pythran.h")
 
         # remove top-level strings
         fbody = (n for n in node.body if not isinstance(n, ast.Expr))
         body = map(self.visit, fbody)
 
         nsbody = body + self.declarations + self.definitions
-        ns = Namespace("__" + self.passmanager.module_name, nsbody)
-        self.result = headers + [ns]
+        ns = Namespace(pythran_ward + self.passmanager.module_name, nsbody)
+        self.result = [header, ns]
 
     # openmp processing
     def process_omp_attachements(self, node, stmt, index=None):
@@ -136,21 +145,31 @@ class Cxx(Backend):
 
             def __init__(self):
                 self.cache = dict()
+                self.rcache = dict()
                 self.mapping = dict()
 
             def __call__(self, node):
                 if node not in self.mapping:
                     t = node.generate(self)
-                    self.mapping[node] = len(self.mapping)
-                    self.cache[node] = t
+                    if t in self.rcache:
+                        self.mapping[node] = self.mapping[self.rcache[t]]
+                        self.cache[node] = self.cache[self.rcache[t]]
+                    else:
+                        self.rcache[t] = node
+                        self.mapping[node] = len(self.mapping)
+                        self.cache[node] = t
                 return CachedTypeVisitor.CachedType(
                         "__type{0}".format(self.mapping[node]))
 
             def typedefs(self):
                 l = sorted(self.mapping.items(), key=lambda x: x[1])
                 L = list()
+                visited = set()  # the same value must not be typedefed twice
                 for k, v in l:
-                    L.append(Typedef(Value(self.cache[k], "__type" + str(v))))
+                    if v not in visited:
+                        typename = "__type" + str(v)
+                        L.append(Typedef(Value(self.cache[k], typename)))
+                        visited.add(v)
                 return L
 
         # prepare context and visit function body
@@ -232,8 +251,13 @@ class Cxx(Backend):
             next_constructors = [
                     FunctionBody(
                         FunctionDeclaration(Value("", next_name), []),
-                        Block([]))]
+                        Line(': {}(0) {{}}'.format(Cxx.generator_state_holder))
+                        )]
             if formal_types:
+                #if all parameters have a default value, we don't need default
+                # constructor
+                if default_arg_values and all(default_arg_values):
+                    next_constructors = list()
                 next_constructors.append(FunctionBody(
                     make_function_declaration("",
                         next_name, formal_types, formal_args,
@@ -257,7 +281,7 @@ class Cxx(Backend):
                             Value("typename {0}::result_type".format(
                                 instanciated_next_name),
                                 "operator*"),
-                            []),
+                            [], "const"),
                         Block([
                             ReturnStatement(
                                 Cxx.generator_state_value)])),
@@ -366,7 +390,7 @@ class Cxx(Backend):
 
             operator_declaration = [
                     templatize(
-                        make_function_declaration(
+                        make_const_function_declaration(
                             instanciated_next_name,
                             "operator()",
                             formal_types,
@@ -375,7 +399,7 @@ class Cxx(Backend):
                         formal_types,
                         default_arg_types),
                     EmptyStatement()]
-            operator_signature = make_function_declaration(
+            operator_signature = make_const_function_declaration(
                     instanciated_next_name,
                     "{0}::operator()".format(node.name),
                     formal_types,
@@ -449,9 +473,13 @@ class Cxx(Backend):
                         "result_type"))]
                     )
             extra_typedefs = ctx.typedefs() + extra_typedefs
-            return_declaration = [templatize(
-                Struct("type", extra_typedefs),
-                formal_types)]
+            return_declaration = [
+                    templatize(
+                        Struct("type", extra_typedefs),
+                        formal_types,
+                        default_arg_types
+                        )
+                    ]
             topstruct = Struct(
                     node.name,
                     [callable_type]
@@ -498,7 +526,10 @@ class Cxx(Backend):
         targets = [self.visit(t) for t in node.targets]
         alltargets = "= ".join(targets)
         if any(metadata.get(t, metadata.LocalVariable) for t in node.targets):
-            alltargets = "auto {0}".format(alltargets)
+            alltargets = ("typename "
+                    "assignable<decltype({1})>::type {0}".format(
+                        alltargets, value)
+                    )
         stmt = Assign(alltargets, value)
         return self.process_omp_attachements(node, stmt)
 
@@ -528,28 +559,25 @@ class Cxx(Backend):
         target = self.visit(node.target)
 
         if node.orelse:
-            break_handler = "__no_breaking{0}".format(len(self.break_handler))
+            break_handler = "__no_breaking{0}".format(len(self.break_handlers))
         else:
             break_handler = None
-        self.break_handler.append(break_handler)
+        self.break_handlers.append(break_handler)
 
-        local_iter = "__iter{0}".format(len(self.break_handler))
-        local_target = "__target{0}".format(len(self.break_handler))
+        local_iter = "__iter{0}".format(len(self.break_handlers))
+        local_target = "__target{0}".format(len(self.break_handlers))
 
-        local_iter_decl = Assignable(DeclType(Val(iter)))
+        local_iter_decl = Assignable(DeclType(iter))
         local_target_decl = NamedType("{0}::iterator".format(local_iter_decl))
         if self.yields:
             self.extra_declarations.append((local_iter, local_iter_decl,))
             self.extra_declarations.append((local_target, local_target_decl,))
             local_target_decl = ""
             local_iter_decl = ""
-        target_decl = ("auto"
-                if metadata.get(node.target, metadata.LocalVariable)
-                else "")
 
         loop_body = [self.visit(n) for n in node.body]
 
-        self.break_handler.pop()
+        self.break_handlers.pop()
 
         # eventually add local_iter in a shared clause
         omp = metadata.get(node, OMPDirective)
@@ -562,22 +590,29 @@ class Cxx(Backend):
         prelude = Statement("{0} {1} = {2}".format(
             local_iter_decl, local_iter, iter)
             )
-        loop_body_prelude = Statement(
-                "{0} {1}= *{2}".format(
-                    target_decl,
+        has_local = metadata.get(node.target, metadata.LocalVariable)
+        if has_local and not self.yields and not omp:
+            loop = AutoFor(
                     target,
-                    local_target)
-                )
-        loop = For(
-                "{0} {1} = {2}.begin()".format(
-                    local_target_decl,
-                    local_target,
-                    local_iter),
-                "{0} < {1}.end()".format(
-                    local_target,
-                    local_iter),
-                "++{0}".format(local_target),
-                Block([loop_body_prelude] + loop_body))
+                    local_iter,
+                    Block(loop_body)
+                    )
+        else:
+            loop_body_prelude = Statement(
+                    "{}= *{}".format(
+                        target,
+                        local_target)
+                    )
+            loop = For(
+                    "{0} {1} = {2}.begin()".format(
+                        local_target_decl,
+                        local_target,
+                        local_iter),
+                    "{0} < {1}.end()".format(
+                        local_target,
+                        local_iter),
+                    "++{0}".format(local_target),
+                    Block([loop_body_prelude] + loop_body))
         stmts = [prelude, loop]
 
         # in that case when can proceed to a reserve
@@ -596,13 +631,25 @@ class Cxx(Backend):
 
     def visit_While(self, node):
         test = self.visit(node.test)
-        self.break_handler.append(
-                Block([self.visit(n) for n in node.orelse])
-                if node.orelse
-                else None)
+
+        if node.orelse:
+            break_handler = "__no_breaking{0}".format(len(self.break_handlers))
+        else:
+            break_handler = None
+        self.break_handlers.append(break_handler)
+
         body = [self.visit(n) for n in node.body]
-        self.break_handler.pop()
-        return While(test, Block(body))
+
+        self.break_handlers.pop()
+
+        while_ = While(test, Block(body))
+
+        if break_handler:
+            orelse = map(self.visit, node.orelse)
+            orelse_label = Statement("{0}:".format(break_handler))
+            return Block([while_] + orelse + [orelse_label])
+        else:
+            return while_
 
     def visit_TryExcept(self, node):
         body = [self.visit(n) for n in node.body]
@@ -647,9 +694,9 @@ class Cxx(Backend):
             return Statement("throw {0}".format(type or ""))
 
     def visit_Assert(self, node):
-        params = [node.msg and self.visit(node.msg), self.visit(node.test)]
-        return Statement("assert(({0}))".format(
-            ", ".join(p for p in params if p)))
+        params = [self.visit(node.test), node.msg and self.visit(node.msg)]
+        sparams = ", ".join(map(strip_exp, filter(None, params)))
+        return Statement("pythran_assert({0})".format(sparams))
 
     def visit_Import(self, node):
         return EmptyStatement()  # everything is already #included
@@ -658,7 +705,12 @@ class Cxx(Backend):
         assert False, "should be filtered out by the expand_import pass"
 
     def visit_Expr(self, node):
-        stmt = Statement(self.visit(node.value))
+        # turn docstring into comments
+        if type(node.value) is ast.Str:
+            stmt = Line("//" + node.value.s.replace('\n', '\n//'))
+        # other expressions are processed normally
+        else:
+            stmt = Statement(self.visit(node.value))
         return self.process_omp_attachements(node, stmt)
 
     def visit_Pass(self, node):
@@ -666,8 +718,8 @@ class Cxx(Backend):
         return self.process_omp_attachements(node, stmt)
 
     def visit_Break(self, node):
-        if self.break_handler[-1]:
-            return Statement("goto {0}".format(self.break_handler[-1]))
+        if self.break_handlers[-1]:
+            return Statement("goto {0}".format(self.break_handlers[-1]))
         else:
             return Statement("break")
 
@@ -705,9 +757,16 @@ class Cxx(Backend):
             return "__builtin__::list()"
         else:
             elts = [self.visit(n) for n in node.elts]
-            return "{0}({{ {1} }})".format(
-                    Assignable(self.types[node]),
-                    ", ".join(elts))
+            # constructor disambiguation, clang++ workaround
+            if len(elts) == 1:
+                elts.append('core::single_value()')
+                return "{0}({{ {1} }})".format(
+                        Assignable(self.types[node]),
+                        ", ".join(elts))
+            else:
+                return "{0}({{ {1} }})".format(
+                        Assignable(self.types[node]),
+                        ", ".join(elts))
 
     def visit_Set(self, node):
         if not node.elts:  # empty set
@@ -730,18 +789,21 @@ class Cxx(Backend):
                         for k, v in zip(keys, values)))
 
     def visit_Tuple(self, node):
-        if not node.elts:  # empty tuple
-            return "std::tuple<>()"
-        else:
-            elts = [self.visit(n) for n in node.elts]
-            return "std::make_tuple({0})".format(", ".join(elts))
+        elts = map(self.visit, node.elts or ())
+        return "core::make_tuple({0})".format(", ".join(elts))
 
     def visit_Compare(self, node):
         left = self.visit(node.left)
         ops = [operator_to_lambda[type(n)] for n in node.ops]
         comparators = [self.visit(n) for n in node.comparators]
         all_compare = zip(ops, comparators)
-        return " and ".join(op(left, r) for op, r in all_compare)
+        op, right = all_compare[0]
+        output = [op(left, right)]
+        left = right
+        for op, right in all_compare[1:]:
+            output.append(op(left, right))
+            left = right
+        return " and ".join(output)
 
     def visit_Call(self, node):
         args = [self.visit(n) for n in node.args]
@@ -751,16 +813,19 @@ class Cxx(Backend):
     def visit_Num(self, node):
         if type(node.n) == complex:
             return "{0}({1}, {2})".format(
-                    pytype_to_ctype_table[type(node.n)],
+                    pytype_to_ctype_table[complex],
                     repr(node.n.real),
                     repr(node.n.imag))
         elif type(node.n) == long:
             return 'pythran_long({0})'.format(node.n)
+        elif isnan(node.n):
+            return 'pythonic::nan'
         else:
             return repr(node.n) + type_to_suffix.get(type(node.n), "")
 
     def visit_Str(self, node):
-        return 'core::string("{0}")'.format(node.s.replace('\n', '\\n"\n"'))
+        quoted = node.s.replace('"', '\\"').replace('\n', '\\n"\n"')
+        return 'core::string("{0}")'.format(quoted)
 
     def visit_Attribute(self, node):
         def rec(w, n):
@@ -770,17 +835,18 @@ class Cxx(Backend):
                 r = rec(w, n.value)
                 return r[0][n.attr], r[1] + (n.attr,)
         obj, path = rec(modules, node)
-        return ('::'.join(path) if obj.isscalar()
-                else ('::'.join(path[:-1]) + '::proxy::' + path[-1] + '()'))
+        return ('::'.join(path) if obj.isliteral()
+                else ('::'.join(path[:-1]) + '::proxy::' + path[-1] + '{}'))
 
     def visit_Subscript(self, node):
         value = self.visit(node.value)
         # attribute case
         if metadata.get(node, metadata.Attribute):
             return "getattr<{0}>({1})".format(node.slice.value.n, value)
-        # static index case
+        # positive static index case
         elif (isinstance(node.slice, ast.Index)
                 and isinstance(node.slice.value, ast.Num)
+                and (node.slice.value.n >= 0)
                 and any(isinstance(node.slice.value.n, t)
                     for t in (int, long))):
             return "std::get<{0}>({1})".format(node.slice.value.n, value)
@@ -790,6 +856,10 @@ class Cxx(Backend):
                     or node not in self.bounded_expressions)):
             slice = self.visit(node.slice)
             return "{1}({0})".format(slice, value)
+        # extended slice case
+        elif isinstance(node.slice, ast.ExtSlice):
+            slice = self.visit(node.slice)
+            return "{1}({0})".format(','.join(slice), value)
         # standard case
         else:
             slice = self.visit(node.slice)
@@ -800,35 +870,20 @@ class Cxx(Backend):
             return node.id
         elif node.id in self.global_declarations:
             return "{0}()".format(node.id)
-        elif node.id in builtin_constructors:
-            return "pythonic::constructor<{0}>()".format(
-                    builtin_constructors[node.id])
         else:
             return node.id
 
     # other
+    def visit_ExtSlice(self, node):
+        return map(self.visit, node.dims)
+
     def visit_Slice(self, node):
-        lower = node.lower and self.visit(node.lower)
-        upper = node.upper and self.visit(node.upper)
-        step = node.step and self.visit(node.step)
-        cv = None
-        if step == 'None':
-            step = None  # happens when a[-4::]
-        if not upper and not lower and step:  # special case
-            if isinstance(node.step, ast.Num):
-                cv = node.step.n
-            else:
-                print ast.dump(node.step)
-                raise NotImplementedError(
-                        "non constant step with undefined upper/lower bound")
-        if step and not upper:
-            upper = "std::numeric_limits<long>::max()"
-        if upper and not lower:
-            lower = "0"
-        if cv and cv < 0:
-            upper, lower = lower, upper
-        return "core::slice({0})".format(", ".join(l
-            for l in (lower, upper, step) if l))
+        args = []
+        for field in ('lower', 'upper', 'step'):
+            nfield = getattr(node, field)
+            arg = self.visit(nfield) if nfield else '__builtin__::None'
+            args.append(arg)
+        return "core::slice({},{},{})".format(*args)
 
     def visit_Index(self, node):
         return self.visit(node.value)

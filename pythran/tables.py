@@ -198,7 +198,6 @@ modules = {
             "None": ConstantIntr(),
             "True": ConstantIntr(),
             # pythran extensions
-            "bind": FunctionIntr(),
             "pmap": ConstFunctionIntr(),
             },
         "numpy": {
@@ -481,6 +480,9 @@ modules = {
                 "pow": ConstFunctionIntr(),
                 "pi": ConstantIntr(),
                 "e": ConstantIntr(),
+                },
+        "functools": {
+                "partial": FunctionIntr(),
                 },
         "bisect": {
                 "bisect_left": ConstFunctionIntr(),

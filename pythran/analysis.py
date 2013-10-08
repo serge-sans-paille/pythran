@@ -609,7 +609,7 @@ class Aliases(ModuleAnalysis):
         self.generic_visit(node)
         f = node.func
         # special handler for bind functions
-        if isinstance(f, ast.Attribute) and f.attr == "bind":
+        if isinstance(f, ast.Attribute) and f.attr == "partial":
             return self.add(node, {node})
         else:
             return_alias = self.call_return_alias(node)

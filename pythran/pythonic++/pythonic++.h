@@ -38,6 +38,7 @@
 #include "modules/time.h"
 #include "modules/omp.h"
 #include "modules/itertools.h"
+#include "modules/functools.h"
 #include "modules/bisect.h"
 #include "modules/operator.h"
 

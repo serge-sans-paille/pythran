@@ -56,6 +56,10 @@ class ContextManager(object):
 
     def prepare(self, node, ctx):
         '''Gather analysis result required by this analysis'''
+        if not self.ctx.module and ctx and ctx.module:
+            self.ctx.module = ctx.module
+        if not self.ctx.function and ctx and ctx.function:
+            self.ctx.function = ctx.function
         for D in self.deps:
             if issubclass(D, ModuleAnalysis):
                 rnode = node if isinstance(node, ast.Module) else ctx.module

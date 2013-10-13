@@ -3,7 +3,9 @@
 namespace pythonic {
 
     template <class T>
-        struct generator_iterator : std::iterator<std::forward_iterator_tag, typename T::result_type> {
+        struct generator_iterator : std::iterator<std::forward_iterator_tag, typename T::result_type, ptrdiff_t, typename T::result_type*, typename T::result_type /* no ref */>
+    {
+
             T the_generator;
             generator_iterator() : the_generator() { the_generator.__generator_state = -1 ;} // this represents the end
             generator_iterator(T const& a_generator) : the_generator(a_generator) {
@@ -26,7 +28,7 @@ namespace pythonic {
                 assert( other.the_generator.__generator_state == -1);
                 return the_generator.__generator_state != other.the_generator.__generator_state ;
             }
-        };
+    };
 
     struct empty_iterator : std::iterator< std::forward_iterator_tag, int > {
         // Empty iterator used, among other things, by empty_set

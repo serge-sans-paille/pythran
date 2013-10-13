@@ -4,7 +4,7 @@ import numpy as np
 def run(xmin, ymin, xmax, ymax, step, range_, range_x, range_y, t):
     X,Y = t.shape
     pt = np.zeros((X,Y))
-#    "omp parallel for private(i,j,k,tmp)"
+    "omp parallel for"
     for i in range(X):
         for j in range(Y):
             for k in t:

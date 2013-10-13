@@ -7,7 +7,7 @@ def fbcorr(imgs, filters, output):
     n_imgs, n_rows, n_cols, n_channels = imgs.shape
     n_filters, height, width, n_ch2 = filters.shape
 
-    "omp parallel for private(ii,rr,cc,hh,ww,jj,ff,imgval, filterval)"
+    "omp parallel for"
     for ii in range(n_imgs):
         for rr in range(n_rows - height + 1):
             for cc in range(n_cols - width + 1):

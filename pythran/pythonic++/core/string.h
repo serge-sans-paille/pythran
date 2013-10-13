@@ -209,7 +209,7 @@ namespace pythonic {
             bool operator==(string_view const & other) const {
                 if(size() != other.size())
                     return false;
-                for(long i=other.get_slice().lower, j=0L;
+                for(size_t i=other.get_slice().lower, j=0L;
                         j<size();
                         i= i + other.get_slice().step, j++)
                     if(other.get_data()[i] != (*this)[j])

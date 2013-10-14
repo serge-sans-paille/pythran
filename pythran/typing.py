@@ -48,8 +48,10 @@ def pytype_to_ctype(t):
         return 'core::dict<{0},{1}>'.format(pytype_to_ctype(tkey),
                                             pytype_to_ctype(tvalue))
     elif isinstance(t, tuple):
-        return 'std::tuple<{0}>'.format(", ".join(pytype_to_ctype(_)
-                                        for _ in t))
+        return 'decltype(core::make_tuple({0}))'.format(
+                ", ".join('std::declval<{}>()'.format(
+                    pytype_to_ctype(_)) for _ in t)
+                )
     elif isinstance(t, ndarray):
         return 'core::ndarray<{0},{1}>'.format(pytype_to_ctype(t.flat[0]),
                                                t.ndim)

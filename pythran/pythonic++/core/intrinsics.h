@@ -310,10 +310,9 @@ namespace pythonic {
         }
 
         template <class Iterable>
-            core ::list<typename std::remove_reference<Iterable>::type::iterator::value_type> list(Iterable && t) {
-                return core::list<typename std::remove_reference<Iterable>::type::iterator::value_type>(t.begin(), t.end());
+            core::list<typename std::iterator_traits<typename std::remove_reference<Iterable>::type::iterator>::value_type> list(Iterable && t) {
+                return core::list<typename std::iterator_traits<typename std::remove_reference<Iterable>::type::iterator>::value_type>(t.begin(), t.end());
             } 
-
 
         template <class... Types>
             core::list<typename std::tuple_element<0,std::tuple<Types...>>::type>

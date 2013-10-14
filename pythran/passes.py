@@ -457,7 +457,7 @@ class _LambdaRemover(Transformation):
                     [],
                     None,
                     None)
-        else :
+        else:
             return proxy_call
 
 

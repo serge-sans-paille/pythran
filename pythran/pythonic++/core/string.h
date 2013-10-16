@@ -60,7 +60,9 @@ namespace pythonic {
             // assignment
             string_view& operator=(string const & );
             string_view& operator=(string_view const & );
-            string operator+(string_view const & );
+
+            // arithmetic
+            string operator+(string_view const & ) const;
 
             // iterators
             const_iterator begin() const { return const_iterator(data->c_str() + slicing.lower, slicing.step); }
@@ -71,11 +73,10 @@ namespace pythonic {
 
             // accessor
             char const & operator[](long i) const { return (*data)[slicing.lower + i*slicing.step];}
-            char & operator[](long i) { return (*data)[slicing.lower + i*slicing.step];}
             string_view operator[](slice const& s) const { return string_view(*this, s.normalize(size())); }
 
             // conversion
-            operator long();
+            operator long() const;
             explicit operator bool() const {return size() > 0;}
             bool operator!() const { return not bool();}
 
@@ -176,9 +177,7 @@ namespace pythonic {
 
             size_t size() const { return data->size(); }
             auto begin() const -> decltype(data->begin()) { return data->begin(); }
-            auto begin() -> decltype(data->begin()) { return data->begin(); }
             auto end() const -> decltype(data->end()) { return data->end(); }
-            auto end() -> decltype(data->end()) { return data->end(); }
             auto c_str() const -> decltype(data->c_str()) { return data->c_str(); }
             auto resize(long n) -> decltype(data->resize(n)) { return data->resize(n); }
             size_t find(string const &s, size_t pos = 0) const { return data->find(*s.data, pos); }
@@ -208,7 +207,7 @@ namespace pythonic {
             bool operator==(string_view const & other) const {
                 if(size() != other.size())
                     return false;
-                for(long i=other.get_slice().lower, j=0L;
+                for(size_t i=other.get_slice().lower, j=0L;
                         j<size();
                         i= i + other.get_slice().step, j++)
                     if(other.get_data()[i] != (*this)[j])
@@ -224,16 +223,11 @@ namespace pythonic {
                 return (*data)[i];
             }
 
-            char& operator[]( long i) {
-                if(i<0) i+= size();
-                return (*data)[i];
-            }
             string_view operator[]( slice const &s ) const {
                 return string_view(*const_cast<string*>(this), s.normalize(size())); // SG: ugly !
             }
 #ifdef USE_GMP
             char operator[](pythran_long_t const &m) const { return (*this)[m.get_si()];}
-            char & operator[](pythran_long_t const& m) { return (*this)[m.get_si()];}
 #endif
 
 
@@ -257,6 +251,18 @@ namespace pythonic {
                     (fmt(fmter, a, int_<N>() ));
                     return fmter.str();
                 }
+
+            string capitalize() const {
+                if(empty()) return *this;
+                else {
+                    string copy = *this;
+                    auto iter = copy.data->begin();
+                    *iter = ::toupper(*iter);
+                    ++iter;
+                    std::transform(iter, copy.data->end(), iter, ::tolower);
+                    return copy;
+                }
+            }
             private:
             template<class Tuple, size_t I>
                 void fmt(boost::format & f, Tuple const & a, int_<I>) const {
@@ -268,7 +274,7 @@ namespace pythonic {
                 }
 
         };
-        pythonic::core::string pythonic::core::string_view::operator+(pythonic::core::string_view const & s) {
+        pythonic::core::string pythonic::core::string_view::operator+(pythonic::core::string_view const & s) const {
             pythonic::core::string out(*data);
             std::copy(s.begin(), s.end(), std::copy(begin(), end(), out.begin()));
             return out;
@@ -324,7 +330,7 @@ pythonic::core::string_view& pythonic::core::string_view::operator=(pythonic::co
 pythonic::core::string_view::string_view(pythonic::core::string & other, normalized_slice const & s) : data(other.data), slicing(s){}
 
 
-pythonic::core::string_view::operator long() {
+pythonic::core::string_view::operator long() const {
     long out;
     std::istringstream iss(pythonic::core::string(*this).get_data());
     iss >> out;

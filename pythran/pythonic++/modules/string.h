@@ -40,13 +40,7 @@ namespace pythonic {
 
         core::string capitalize(core::string const & s)
         {
-            if(s.empty()) return s;
-            else {
-                core::string copy = s;
-                copy[0] = ::toupper(s[0]);
-                std::transform(s.begin()+1, s.end(), copy.begin()+1, ::tolower);
-                return copy;
-            }
+            return s.capitalize();
         }
         PROXY(pythonic::__string__, capitalize);
 

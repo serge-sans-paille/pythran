@@ -340,6 +340,11 @@ namespace std {
         }
     };
 }
+namespace boost {
+    std::size_t hash_value(pythonic::core::string  const &x) {
+        return std::hash<pythonic::core::string>()(x);
+    }
+}
 
 /* std::get overload */
 namespace std {

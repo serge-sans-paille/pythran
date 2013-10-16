@@ -339,5 +339,17 @@ namespace std {
         };
 }
 
+/* and boost's */
+namespace boost {
+    template<class... Types>
+        std::size_t hash_value(std::tuple<Types...>  const &x) {
+            return std::hash<std::tuple<Types...>>()(x);
+        }
+    template<class T, size_t N>
+        std::size_t hash_value(pythonic::core::array<T,N>  const &x) {
+            return std::hash<pythonic::core::array<T,N>>()(x);
+        }
+}
+
 #endif
 

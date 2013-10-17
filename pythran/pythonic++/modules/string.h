@@ -27,14 +27,50 @@ namespace pythonic {
         PROXY(pythonic::__string__, find);
 
         template<class Iterable>
-            core::string join(core::string const & s, Iterable && iterable) {
-                std::ostringstream out;
+            typename std::enable_if<
+                std::is_same<
+                    typename std::iterator_traits<typename std::remove_reference<Iterable>::type::iterator>::iterator_category,
+                    std::random_access_iterator_tag
+                > :: value,
+                core::string
+            >::type
+            join(core::string const & s, Iterable && iterable) {
+                /* first iterate over iterable to gether sizes */
+                size_t n = s.size() * std::distance(iterable.begin(), iterable.end());
+                for(auto const& iter:iterable)
+                    n += __builtin__::len(iter);
+
+                core::string out("");
+                out.reserve(n);
+
                 auto iter = iterable.begin();
-                out << *iter;
+                out += *iter;
                 ++iter;
-                for(;iter!=iterable.end();++iter)
-                    out << s << *iter;
-                return out.str();
+                for(;iter!=iterable.end();++iter) {
+                    out += s ;
+                    out += *iter ;
+                }
+                return out;
+            }
+
+        template<class Iterable>
+            typename std::enable_if<
+                not std::is_same<
+                    typename std::iterator_traits<typename std::remove_reference<Iterable>::type::iterator>::iterator_category,
+                    std::random_access_iterator_tag
+                > :: value,
+                core::string
+            >::type
+            join(core::string const & s, Iterable && iterable) {
+                core::string out;
+                auto iter = iterable.begin();
+                out += *iter;
+                ++iter;
+                for(;iter!=iterable.end();++iter) {
+                    out += s ;
+                    out += *iter ;
+                }
+                return out;
             }
         PROXY(pythonic::__string__, join);
 

@@ -295,6 +295,10 @@ namespace pythonic {
             return 0;
         }
 
+        long len(char) {
+            return 1;
+        }
+
         template <class T>
             long len(T const &t) {
                 return _len<T, typename std::iterator_traits<typename T::iterator>::iterator_category>()(t);

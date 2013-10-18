@@ -35,7 +35,7 @@ namespace pythonic {
                 core::string
             >::type
             join(core::string const & s, Iterable && iterable) {
-                /* first iterate over iterable to gether sizes */
+                /* first iterate over iterable to gather sizes */
                 size_t n = s.size() * std::distance(iterable.begin(), iterable.end());
                 for(auto const& iter:iterable)
                     n += __builtin__::len(iter);
@@ -62,6 +62,7 @@ namespace pythonic {
                 core::string
             >::type
             join(core::string const & s, Iterable && iterable) {
+                
                 core::string out;
                 auto iter = iterable.begin();
                 out += *iter;
@@ -117,19 +118,37 @@ namespace pythonic {
         }
         PROXY(pythonic::__string__, endswith);
 
-        core::string replace(core::string const& self, core::string const& old_pattern, core::string const& new_pattern, long count=std::numeric_limits<long>::max()) {
-            core::string replaced(self);
-            replaced.reserve(1 + std::max(self.size(), self.size()* new_pattern.size() / (1+old_pattern.size())));
+        core::string replace(core::string const& self, core::string const& old_pattern, core::string const& new_pattern, long count=std::numeric_limits<long>::max())
+        {
+            char const * needle = old_pattern.c_str();
+            char const * new_needle = new_pattern.c_str();
+            char const * new_needle_end = new_needle + new_pattern.size();
+            char const * haystack = self.c_str();
 
-            size_t pos = 0;
-            while(count and (pos = replaced.find(old_pattern, pos)) != std::string::npos)
-            {
-                replaced.replace(pos, old_pattern.size(), new_pattern);
-                pos += new_pattern.size();
-                count-=1;
+            char const * haystack_next = strstr(haystack, needle);
+            if(not count or not haystack_next) {
+                return core::string(haystack);
             }
-            return replaced;
+            else {
+                size_t n = 1 + std::max(self.size(), self.size()* (1+new_pattern.size()) / (1+old_pattern.size()));
+                char * buffer = new char[n];
+                char *iter = buffer;
+                do {
+                    iter = std::copy(haystack, haystack_next, iter);
+                    iter = std::copy(new_needle, new_needle_end, iter);
+                    count -= 1;
+                    haystack = haystack_next + old_pattern.size();
+                    assert(iter - buffer < n);
+                } while(count and (haystack_next=strstr(haystack, needle)));
+                std::copy(haystack, self.c_str() + self.size() + 1, iter);
+
+                core::string replaced(buffer);
+                delete [] buffer;
+                return replaced;
+            }
+
         }
+
         PROXY(pythonic::__string__, replace);
 
         core::string strip(core::string const& self, core::string const& to_del = " \n")

@@ -198,9 +198,7 @@ namespace pythonic {
                 return *this;
             }
             bool operator==(string const& other) const { return *data == *other.data; }
-            bool operator==(char other) const { return data->size() == 1 and (*data)[0] == other; }
             bool operator!=(string const& other) const { return *data != *other.data; }
-            bool operator!=(char other) const { return data->size() != 1 and (*data)[0] != other; }
             bool operator<=(string const& other) const { return *data <= *other.data; }
             bool operator<(string const& other) const { return *data < *other.data; }
             bool operator>=(string const& other) const { return *data >= *other.data; }
@@ -284,6 +282,18 @@ namespace pythonic {
 
         pythonic::core::string operator+(char const *s, pythonic::core::string const& str) {
             return pythonic::core::string(s + str.get_data());
+        }
+        bool operator==(char c, pythonic::core::string const& s) {
+            return s.size() == 1 and s[0] == c;
+        }
+        bool operator==(pythonic::core::string const& s, char c) {
+            return s.size() == 1 and s[0] == c;
+        }
+        bool operator!=(char c, pythonic::core::string const& s) {
+            return s.size() != 1 or s[0] != c;
+        }
+        bool operator!=(pythonic::core::string const& s, char c) {
+            return s.size() != 1 or s[0] != c;
         }
 
     }

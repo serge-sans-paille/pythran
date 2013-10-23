@@ -18,6 +18,17 @@ tests on several cores, doc generation. ::
 
     $> sudo apt-get install python-setuptools python-pytest-xdist python-docutils
     $> sudo easy_install colorlog
+    
+Configuration
+-------------
+
+Pythran can be configured with a rc file. An example is found in `pythran/pythran.cfg`.
+Look at it! To use it::
+
+    $> cp pythran/pythran.cfg ~/.pythranrc
+    
+In particular, you may want to add ``-I<install_prefix>/lib/<python-version>/site-packages/pythran`` 
+to the ``cppflags``.
 
 Coding Style
 ------------

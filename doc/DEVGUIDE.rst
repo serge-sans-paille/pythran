@@ -10,6 +10,15 @@ Disclaimer
 
 This document is a never ending work-in-progress draft. Please contribute!
 
+Additional Packages
+-------------------
+
+Additional packages may be needed to use pythran to its fullest: colored logs, 
+tests on several cores, doc generation. ::
+
+    $> sudo apt-get install python-setuptools python-pytest-xdist python-docutils
+    $> sudo easy_install colorlog
+
 Coding Style
 ------------
 

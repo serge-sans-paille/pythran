@@ -510,6 +510,7 @@ modules = {
         "random": {
                 "seed": FunctionIntr(global_effects=True),
                 "random": FunctionIntr(global_effects=True),
+                "randint": FunctionIntr(global_effects=True),
                 "randrange": FunctionIntr(global_effects=True),
                 "gauss": FunctionIntr(global_effects=True),
                 "uniform": FunctionIntr(global_effects=True),

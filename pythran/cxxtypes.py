@@ -433,11 +433,12 @@ class ContainerType(DependentType):
     Type of any container of stuff of the same type
 
     >>> ContainerType(NamedType('int'))
-    container<int>
+    container<typename std::remove_reference<int>::type>
     '''
 
     def generate(self, ctx):
-        return 'container<{0}>'.format(ctx(self.of).generate(ctx))
+        return 'container<typename std::remove_reference<{0}>::type>'.format(
+                ctx(self.of).generate(ctx))
 
 
 class IndexableType(DependentType):

@@ -181,7 +181,10 @@ namespace pythonic {
             auto end() -> decltype(data->end()) { return data->end(); }
             auto c_str() const -> decltype(data->c_str()) { return data->c_str(); }
             auto resize(long n) -> decltype(data->resize(n)) { return data->resize(n); }
-            size_t find(string const &s, size_t pos = 0) const { return data->find(*s.data, pos); }
+            size_t find(string const &s, size_t pos = 0) const {
+                const char * res =  strstr(c_str() + pos, s.c_str());
+                return res ? res - c_str() : npos;
+            }
             size_t find_first_of(string const &s, size_t pos = 0) const { return data-> find_first_of(*s.data, pos); }
             size_t find_first_of(const char* s, size_t pos = 0) const { return data-> find_first_of(s, pos); }
             size_t find_first_not_of(string const &s, size_t pos = 0) const { return data->find_first_not_of(*s.data, pos); }

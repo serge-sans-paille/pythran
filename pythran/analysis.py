@@ -233,11 +233,13 @@ class Locals(ModuleAnalysis):
     self.result[node] contains the locals at that point in time
     self.expr_parent contains the parent node of what's being evaluated, so
       that it may be used to copy over results for some children
+    self.declared_globals is used to know what not to add to locals
     """
     def __init__(self):
         self.result = dict()
         self.locals = set()
-        super(Locals, self).__init__(GlobalDeclarations)
+        self.declared_globals = set()
+        super(Locals, self).__init__()
 
     def generic_visit(self, node):
         super(Locals, self).generic_visit(node)
@@ -245,18 +247,21 @@ class Locals(ModuleAnalysis):
             self.result[node] = self.result[self.expr_parent]
 
     #Utilities
-    def set_parent_node(self, node):
-        self.expr_parent = node
-
     def copy_locals(self, node):
         self.result[node] = self.locals.copy()
 
-    def set_locals(self, node):
-        self.result[node] = self.locals()
-
     def handle_locals(self, node):
-        self.set_parent_node(node)
+        self.expr_parent = node
         self.copy_locals(node)
+
+    def add_local(self, local):
+        #If the same name was declared with 'global' earlier, cancel
+        if local not in self.declared_globals:
+            self.locals.add(local)
+
+    def add_locals(self, locals):
+        for local in locals:
+            self.add_local(local)
 
     #General function for statements that do not affect self.locals
     def store_and_visit(self, node):
@@ -265,49 +270,53 @@ class Locals(ModuleAnalysis):
 
     #Custom handling
     def visit_Module(self, node):
-        self.set_parent_node(node)
-        self.set_locals(node)
+        self.handle_locals(node)
         map(self.visit, node.body)
 
     def visit_FunctionDef(self, node):
-        # special case for nested functions
-        if node.name not in self.global_declarations:
-            self.locals.add(node.name)
+        self.add_local(node.name)
         self.handle_locals(node)
-        #Store locals to restore them after handling function body
-        parent_locals = self.locals.copy()
+        #Store attributes to restore them after handling function body
+        saved_locals = self.locals.copy()
+        saved_globals = self.declared_globals.copy()
+
+        #Handle function body, nested scope
         map(self.visit, node.args.defaults)
-        self.locals.update(arg.id for arg in node.args.args)
+        self.add_locals(arg.id for arg in node.args.args)
         map(self.visit, node.body)
-        #restore locals
-        self.locals = parent_locals
+
+        #restore attributes
+        self.locals = saved_locals
+        self.declared_globals = saved_globals
 
     def visit_Assign(self, node):
         self.handle_locals(node)
         self.visit(node.value)
-        self.locals.update(t.id for t in node.targets
-                if isinstance(t, ast.Name))
+        self.add_locals(t.id for t in node.targets if isinstance(t, ast.Name))
         map(self.visit, node.targets)
+
+    def visit_Global(self, node):
+        self.declared_globals.update(n for n in node.names)
 
     def visit_For(self, node):
         self.handle_locals(node)
         self.visit(node.iter)
-        self.locals.add(node.target.id)
+        self.add_local(node.target.id)
         map(self.visit, node.body)
         map(self.visit, node.orelse)
 
     def visit_Import(self, node):
         self.copy_locals(node)
-        self.locals.update(alias.name for alias in node.names)
+        self.add_locals(alias.name for alias in node.names)
 
     def visit_ImportFrom(self, node):
         self.copy_locals(node)
-        self.locals.update(alias.name for alias in node.names)
+        self.add_locals(alias.name for alias in node.names)
 
     def visit_ExceptHandler(self, node):
         self.handle_locals(node)
         if node.name:
-            self.locals.add(node.name.id)
+            self.add_local(node.name.id)
         node.type and self.visit(node.type)
         map(self.visit, node.body)
 

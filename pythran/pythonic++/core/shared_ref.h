@@ -56,7 +56,7 @@ namespace pythonic {
                     {
                         if(mem != p.mem){
                             dispose();
-                            mem=p.mem;
+                            mem=std::move(p.mem);
                             p.mem=nullptr;
                         }
                         return *this;

@@ -28,6 +28,7 @@ def solve():
 
     def _refresh(x):
         ''' Refreshes primes upto x '''
+        lastn = prime_list[-1]
         while lastn <= x:                           # Keep working until we've got up to x
             lastn = lastn + 1                       # Check the next number
             if _isprime(lastn):

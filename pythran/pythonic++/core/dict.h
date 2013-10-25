@@ -6,7 +6,8 @@
 #include <limits>
 #include <algorithm>
 #include <iterator>
-#include <unordered_map>
+//#include <unordered_map>
+#include <boost/unordered_map.hpp>
 #include "shared_ref.h"
 
 namespace  pythonic {
@@ -14,6 +15,8 @@ namespace  pythonic {
 
     /* the container type */
     namespace core {
+
+        static const size_t DEFAULT_DICT_SIZE = 64;
 
         struct empty_dict;
 
@@ -81,7 +84,7 @@ namespace  pythonic {
                 // data holder
                 typedef  typename std::remove_cv< typename std::remove_reference<K>::type>::type  _key_type;
                 typedef  typename std::remove_cv< typename std::remove_reference<V>::type>::type  _value_type;
-                typedef std::unordered_map< _key_type, _value_type > container_type;
+                typedef boost::unordered_map< _key_type, _value_type > container_type;
                 impl::shared_ref<container_type> data; 
 
 
@@ -107,8 +110,8 @@ namespace  pythonic {
 
                 // constructors
                 dict() : data(impl::no_memory()) {}
-                dict(empty_dict const &) : data() {}
-                dict(std::initializer_list<value_type> l) : data(std::move(l)) {}
+                dict(empty_dict const &) : data(DEFAULT_DICT_SIZE) {}
+                dict(std::initializer_list<value_type> l) : data(l.begin(), l.end()) {}
                 dict(dict<K,V> const & other) : data(other.data) {}
                 template<class Kp, class Vp>
                     dict(dict<Kp,Vp> const & other) : data(other.item_begin(), other.item_end()) {}

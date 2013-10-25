@@ -15,7 +15,7 @@ namespace pythonic {
             core::dict<typename std::remove_reference<Iterable>::type::value_type, V> fromkeys(Iterable && iter, V const & v = __builtin__::None) {
                 core::dict<typename std::remove_reference<Iterable>::type::value_type,V> D;
                 D=core::empty_dict();
-                for(auto i: iter) D[i]=v;
+                for(auto const& i: iter) D[i]=v;
                 return D;
             }
         PROXY(pythonic::__dict__, fromkeys);

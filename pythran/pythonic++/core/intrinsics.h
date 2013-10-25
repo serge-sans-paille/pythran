@@ -295,6 +295,10 @@ namespace pythonic {
             return 0;
         }
 
+        long len(char) {
+            return 1;
+        }
+
         template <class T>
             long len(T const &t) {
                 return _len<T, typename std::iterator_traits<typename T::iterator>::iterator_category>()(t);
@@ -744,6 +748,36 @@ namespace pythonic {
                 oss << t;
                 return oss.str();
             }
+
+        core::string str(long value) {
+            /* adapted from http://www.jb.man.ac.uk/~slowe/cpp/itoa.html#performance */
+            thread_local static char buffer[8*(1 << sizeof(value))]; // this buffer is large enough to hold the binary representation, so the decimal representation will be ok 
+            char* ptr = buffer, *ptr1 = buffer, tmp_char;
+            long tmp_value;
+
+            do {
+                tmp_value = value;
+                value /= 10;
+                *ptr++ = "zyxwvutsrqponmlkjihgfedcba9876543210123456789abcdefghijklmnopqrstuvwxyz" [35 + (tmp_value - value * 10)];
+            } while ( value );
+
+            // Apply negative sign
+            if (tmp_value < 0) *ptr++ = '-';
+            *ptr-- = '\0';
+            while(ptr1 < ptr) {
+                tmp_char = *ptr;
+                *ptr--= *ptr1;
+                *ptr1++ = tmp_char;
+            }
+            return buffer;
+        }
+
+        core::string str(double l) {
+            thread_local static char buffer[8*(1 << sizeof(l))]; // when using %g, only 6 significant bits are used, so this should be enough. Use snprintf though
+            snprintf(buffer, sizeof(buffer), "%g", l);
+            return buffer;
+        }
+
         PROXY(pythonic::__builtin__, str);
 
         /* file */

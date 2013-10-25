@@ -103,10 +103,7 @@ class ConstantFolding(Transformation):
                         node.value if isinstance(node, ast.Index) else node)
                 code = compile(fake_node, '<constant folding>', 'eval')
                 value = eval(code, self.env)
-                try:
-                    new_node = self.to_ast(value)
-                except ConstantFolding.ConversionError:
-                    new_node = node
+                new_node = self.to_ast(value)
                 if (isinstance(node, ast.Index)
                         and not isinstance(new_node, ast.Index)):
                     new_node = ast.Index(new_node)
@@ -114,7 +111,7 @@ class ConstantFolding(Transformation):
             except Exception:  # as e:
                 #print ast.dump(node)
                 #print 'error in constant folding: ', e
-                return node
+                return Transformation.generic_visit(self, node)
         else:
             return Transformation.generic_visit(self, node)
 

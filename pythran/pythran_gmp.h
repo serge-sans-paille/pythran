@@ -231,11 +231,18 @@ namespace std {
     template <class T, class U>
         struct hash<__gmp_expr<T,U>>
     {
-        size_t operator()(const __gmp_expr<T,U> & x) const
+        size_t operator()(__gmp_expr<T,U> const & x) const
         {
             return hash<std::string>()(x.get_str());
         }
     };
 }
+
+#include <boost/functional/hash_fwd.hpp>
+template <class T, class U>
+    std::size_t hash_value(__gmp_expr<T,U> const & x)
+    {
+        return std::hash<__gmp_expr<T,U> >()(x);
+    }
 
 #endif

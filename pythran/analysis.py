@@ -410,7 +410,7 @@ class ConstantExpressions(NodeAnalysis):
         return True
 
     def visit_BoolOp(self, node):
-        return all(self.visit(n) for n in node.values) and self.add(node)
+        return all(map(self.visit, node.values)) and self.add(node)
 
     def visit_BinOp(self, node):
         rec = all(map(self.visit, (node.left, node.right)))

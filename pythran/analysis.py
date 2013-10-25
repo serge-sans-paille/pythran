@@ -329,16 +329,19 @@ class Locals(ModuleAnalysis):
 
 ##
 class Globals(ModuleAnalysis):
+    """Gather global declarations + globals declared through the
+    global keyword.
+    """
     def __init__(self):
         self.result = set()
         super(Globals, self).__init__(GlobalDeclarations)
 
-    def visit(self, node):
-        pass  # everything is done by the run method
+    def visit_Global(self, node):
+        self.result.update(n for n in node.names)
 
     def run(self, node, ctx):
         super(Globals, self).run(node, ctx)
-        return set(self.global_declarations.keys()
+        return self.result | set(self.global_declarations.keys()
                 + [i for i in modules if i.startswith('__')])
 
 

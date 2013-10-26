@@ -109,7 +109,7 @@ namespace  pythonic {
                 typedef typename container_type::const_pointer const_pointer;
 
                 // constructors
-                dict() : data(impl::no_memory()) {}
+                dict() : data() {}
                 dict(empty_dict const &) : data(impl::shared_ref<container_type>::make_ref(DEFAULT_DICT_SIZE)) {}
                 dict(std::initializer_list<value_type> l) : data(impl::shared_ref<container_type>::make_ref(l.begin(), l.end())) {}
                 dict(dict<K,V> const & other) : data(other.data) {}

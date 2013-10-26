@@ -722,7 +722,7 @@ namespace  pythonic {
                 core::array<long, N> shape;             // shape of the multidimensional array
 
                 /* constructors */
-                ndarray() : data_size(0), mem(impl::no_memory()), buffer(nullptr), shape() {}
+                ndarray() : data_size(0), mem(), buffer(nullptr), shape() {}
 
                 /* copy */
                 ndarray(ndarray<T,N> const& other) :

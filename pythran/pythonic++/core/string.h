@@ -49,7 +49,7 @@ namespace pythonic {
 
             // constructors
 
-            string_view(): data(impl::no_memory()) {}
+            string_view(): data() {}
 
             string_view(string_view const & s)
               : data(s.data),

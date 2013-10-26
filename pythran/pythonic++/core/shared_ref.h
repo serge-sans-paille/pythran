@@ -15,8 +15,6 @@ namespace pythonic {
 #endif
 
     namespace impl {
-        // Force construction of an uninitialized shared_ref
-        struct no_memory{};
 
         /** Light-weight shared_ptr like-class
          *
@@ -38,19 +36,16 @@ namespace pythonic {
                 public:
 
                     // Uninitialized ctor
-                    shared_ref(no_memory const&) noexcept
+                    shared_ref() noexcept
                         : mem(nullptr)
-                    {}
-                    // Uninitialized ctor (rvalue ref)
-                    shared_ref(no_memory &&) noexcept
-                        : mem(nullptr)
-                    {}
+                    {
+                    }
 
                     // Ctor allocate T and forward all arguments to T ctor
                     template<class... Types>
                     static shared_ref<T> make_ref(Types&&... args)
                         {
-                          shared_ref<T> ref{no_memory()};
+                          shared_ref<T> ref;
                           ref.mem = new memory(std::forward<Types>(args)...);
                           ref.acquire();
                           return ref;
@@ -66,11 +61,6 @@ namespace pythonic {
                         : mem(p.mem)
                     {if(mem) acquire();}
 
-                    // Copy Ctor, again
-                    // Without a non-const copy-ctor here, the greedy variadic template ctor takes over
-                    shared_ref(shared_ref<T> & p) noexcept
-                        : mem(p.mem)
-                    {if(mem) acquire();}
 
                     ~shared_ref() noexcept
                     {dispose();}

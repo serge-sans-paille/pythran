@@ -56,8 +56,8 @@ namespace  pythonic {
                 typedef core::string value_type;
 
 				// Constructors
-				file() : data(impl::no_memory()) {}
-				file(core::string const& filename, core::string const& strmode = "r") : data(impl::no_memory()), mode(strmode), name(filename), newlines('\n'){
+				file() : data() {}
+				file(core::string const& filename, core::string const& strmode = "r") : data(), mode(strmode), name(filename), newlines('\n'){
 					open(filename, strmode);
 				}
 

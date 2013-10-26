@@ -53,7 +53,7 @@ namespace  pythonic {
                 typedef typename container_type::const_reverse_iterator const_reverse_iterator;
 
                 // constructor
-                list_view(): data(impl::no_memory()) {}
+                list_view(): data() {}
                 list_view(list_view<T> const & s): data(s.data), slicing(s.slicing) {}
                 list_view(list<T> & other, slice const & s) : data(other.data), slicing(s.normalize(other.size())) {}
 
@@ -123,20 +123,20 @@ namespace  pythonic {
 
 
                 // constructors
-                list() : data(impl::no_memory()) {}
+                list() : data() {}
                 template<class InputIterator>
                     list(InputIterator start, InputIterator stop) : data(impl::shared_ref<container_type>::make_ref()) {
                         data->reserve(DEFAULT_LIST_CAPACITY);
                         std::copy(start, stop, std::back_inserter(*data));
                     }
-                list(empty_list const&) :data(0) {}
+                list(empty_list const&) :data(impl::shared_ref<container_type>::make_ref()) {}
                 list(size_type sz) :data(impl::shared_ref<container_type>::make_ref(sz)) {}
                 list(T const& value, single_value) : data(impl::shared_ref<container_type>::make_ref(1)) { (*data)[0] = value; }
                 list(std::initializer_list<T> l) : data(impl::shared_ref<container_type>::make_ref(std::move(l))) {}
                 list(list<T> && other) : data(std::move(other.data)) {}
                 list(list<T> const & other) : data(other.data) {}
                 template<class F>
-                    list(list<F> const & other) : data(other.size()) {
+                    list(list<F> const & other) : data(impl::shared_ref<container_type>::make_ref(other.size())) {
                         std::copy(other.begin(), other.end(), begin());
                     }
                 template<class... Types>

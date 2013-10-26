@@ -27,23 +27,23 @@ namespace pythonic {
                             memory(Types&&... args) : ptr(args...),count(1) {}
                     } *mem;
                 public:
-                    shared_ref(no_memory const&) throw()
+                    shared_ref(no_memory const&) noexcept
                         : mem(nullptr)
                     {}
-                    shared_ref(shared_ref<T>&& p) throw()
+                    shared_ref(shared_ref<T>&& p) noexcept
                         : mem(p.mem)
                     {p.mem=nullptr;}
-                    shared_ref(shared_ref<T> const& p) throw()
+                    shared_ref(shared_ref<T> const& p) noexcept
                         : mem(p.mem)
                     {if(mem) acquire();}
 
                     template<class... Types>
                         shared_ref(Types... args) : mem(new memory(args...)) {}
 
-                    ~shared_ref() throw()
+                    ~shared_ref() noexcept
                     {dispose();}
 
-                    shared_ref<T>& operator=(shared_ref<T> const & p) throw()
+                    shared_ref<T>& operator=(shared_ref<T> const & p) noexcept
                     {
                         if(mem != p.mem){
                             dispose();
@@ -52,7 +52,7 @@ namespace pythonic {
                         }
                         return *this;
                     }
-                    shared_ref<T>& operator=(shared_ref<T> && p) throw()
+                    shared_ref<T>& operator=(shared_ref<T> && p) noexcept
                     {
                         if(mem != p.mem){
                             dispose();
@@ -62,10 +62,10 @@ namespace pythonic {
                         return *this;
                     }
 
-                    T& operator*() const throw()
+                    T& operator*() const noexcept
                     {return mem->ptr;}
 
-                    T* operator->() const throw()
+                    T* operator->() const noexcept
                     {return &mem->ptr;}
 
                     bool operator!=(shared_ref<T> const & other) const {

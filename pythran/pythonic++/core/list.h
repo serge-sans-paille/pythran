@@ -125,14 +125,14 @@ namespace  pythonic {
                 // constructors
                 list() : data(impl::no_memory()) {}
                 template<class InputIterator>
-                    list(InputIterator start, InputIterator stop) : data() {
+                    list(InputIterator start, InputIterator stop) : data(impl::shared_ref<container_type>::make_ref()) {
                         data->reserve(DEFAULT_LIST_CAPACITY);
                         std::copy(start, stop, std::back_inserter(*data));
                     }
                 list(empty_list const&) :data(0) {}
-                list(size_type sz) :data(sz) {}
-                list(T const& value, single_value) : data(1) { (*data)[0] = value; }
-                list(std::initializer_list<T> l) : data(std::move(l)) {}
+                list(size_type sz) :data(impl::shared_ref<container_type>::make_ref(sz)) {}
+                list(T const& value, single_value) : data(impl::shared_ref<container_type>::make_ref(1)) { (*data)[0] = value; }
+                list(std::initializer_list<T> l) : data(impl::shared_ref<container_type>::make_ref(std::move(l))) {}
                 list(list<T> && other) : data(std::move(other.data)) {}
                 list(list<T> const & other) : data(other.data) {}
                 template<class F>
@@ -140,10 +140,10 @@ namespace  pythonic {
                         std::copy(other.begin(), other.end(), begin());
                     }
                 template<class... Types>
-                    list(std::tuple<Types...> const& t) : data(sizeof...(Types)) {
+                    list(std::tuple<Types...> const& t) : data(impl::shared_ref<container_type>::make_ref(sizeof...(Types))) {
                         tuple_dump(t, *this, int_<sizeof...(Types)-1>());
                     }
-                list(list_view<T> const & other) : data( other.begin(), other.end()) {}
+                list(list_view<T> const & other) : data( impl::shared_ref<container_type>::make_ref(other.begin(), other.end())) {}
 
                 list<T>& operator=(list<T> && other) {
                     data=std::move(other.data);
@@ -154,7 +154,7 @@ namespace  pythonic {
                     return *this;
                 }
                 list<T>& operator=(empty_list const & ) {
-                    data=impl::shared_ref<container_type>();
+                    data=impl::shared_ref<container_type>::make_ref();
                     return *this;
                 }
 
@@ -164,7 +164,7 @@ namespace  pythonic {
                         data->resize(it - data->begin());
                     }
                     else {
-                        data=impl::shared_ref<T>(other.begin(),other.end());
+                        data=impl::shared_ref<T>::make_ref(other.begin(),other.end());
                     }
                     return *this;
                 }

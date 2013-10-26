@@ -47,10 +47,19 @@ namespace pythonic {
             typedef container_type::pointer pointer;
             typedef container_type::const_pointer const_pointer;
 
-            // constructor
+            // constructors
+
             string_view(): data(impl::no_memory()) {}
-            string_view(string_view const & s): data(s.data), slicing(s.slicing) {}
-            string_view(string_view const & s, normalized_slice const& sl): data(s.data), slicing(s.slicing.lower + sl.lower, s.slicing.lower + sl.upper, s.slicing.step * sl.step) {}
+
+            string_view(string_view const & s)
+              : data(s.data),
+                slicing(s.slicing) {}
+
+            string_view(string_view const & s, normalized_slice const& sl)
+              : data(s.data),
+                slicing(s.slicing.lower + sl.lower,
+                        s.slicing.lower + sl.upper,
+                        s.slicing.step * sl.step) {}
             string_view(core::string & other, normalized_slice const & s);
 
             // const getter
@@ -99,15 +108,15 @@ namespace pythonic {
             typedef core::string value_type;
             typedef container_type::iterator iterator;
 
-            string() : data() {}
-            string(std::string const & s) : data(s) {}
-            string(std::string && s) : data(std::move(s)) {}
-            string(const char*s) : data(s) {}
-            string(const char*s, size_t n) : data(s,n) {}
-            string(char c) : data(1,c) {}
-            string(string_view const & other) : data( other.begin(), other.end()) {}
+            string() : data(impl::shared_ref<container_type>::make_ref()) {}
+            string(std::string const & s) : data(impl::shared_ref<container_type>::make_ref(s)) {}
+            string(std::string && s) : data(impl::shared_ref<container_type>::make_ref(std::move(s))) {}
+            string(const char*s) : data(impl::shared_ref<container_type>::make_ref(s)) {}
+            string(const char*s, size_t n) : data(impl::shared_ref<container_type>::make_ref(s,n)) {}
+            string(char c) : data(impl::shared_ref<container_type>::make_ref(1,c)) {}
+            string(string_view const & other) : data(impl::shared_ref<container_type>::make_ref(other.begin(), other.end())) {}
             template<class T>
-                string(T const& begin, T const& end) : data( begin, end) {}
+                string(T const& begin, T const& end) : data(impl::shared_ref<container_type>::make_ref(begin, end)) {}
 
             explicit operator char() const {
                 assert(size() == 1);

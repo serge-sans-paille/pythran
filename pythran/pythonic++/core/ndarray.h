@@ -400,7 +400,8 @@ namespace  pythonic {
                     gslice(),
                     gshape(),
                     shape(),
-                    data(data)
+                    data(data),
+                    to_index(impl::shared_ref<raw_array<long>>::make_ref())
                 {
                     std::copy_n(data.shape.begin(), M, gshape.begin());
                     for(size_t i=0, j=0;i<M;i++) {
@@ -751,7 +752,7 @@ namespace  pythonic {
                         >
                         ndarray(Iterable&& iterable):
                             data_size(0),
-                            mem(nested_container_size<Iterable>::size(std::forward<Iterable>(iterable))),
+                            mem(impl::shared_ref<raw_array<T>>::make_ref(nested_container_size<Iterable>::size(std::forward<Iterable>(iterable)))),
                             buffer(mem->data),
                             shape()
                 {
@@ -762,7 +763,7 @@ namespace  pythonic {
                 /* from a shape */
                 ndarray(core::array<long, N> const& shape, T value):
                     data_size(shape[0]),
-                    mem(std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<long>())),
+                    mem(impl::shared_ref<raw_array<T>>::make_ref(std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<long>()))),
                     buffer(mem->data),
                     shape(shape)
 
@@ -773,7 +774,7 @@ namespace  pythonic {
                 /* from a shape without setting values */
                 ndarray(core::array<long, N> const& shape, none_type):
                     data_size(shape[0]),
-                    mem(std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<long>())),
+                    mem(impl::shared_ref<raw_array<T>>::make_ref(std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<long>()))),
                     buffer(mem->data),
                     shape(shape)
                 {
@@ -782,7 +783,7 @@ namespace  pythonic {
                 /* from a foreign pointer */
                 ndarray(T* data, long * pshape):
                     data_size(*pshape),
-                    mem(data),
+                    mem(impl::shared_ref<raw_array<T>>::make_ref(data)),
                     buffer(mem->data),
                     shape()
                 {
@@ -827,7 +828,7 @@ namespace  pythonic {
                 template<class Op, class Arg0, class Arg1>
                     ndarray(numpy_expr<Op, Arg0, Arg1> const & expr) :
                         data_size(expr.shape[0]),
-                        mem(expr.size()),
+                        mem(impl::shared_ref<raw_array<T>>::make_ref(expr.size())),
                         buffer(mem->data),
                         shape(expr.shape)
                 {
@@ -837,7 +838,7 @@ namespace  pythonic {
                 template<class Op, class Arg0>
                     ndarray(numpy_uexpr<Op, Arg0> const & expr) :
                         data_size(expr.shape[0]),
-                        mem(expr.size()),
+                        mem(impl::shared_ref<raw_array<T>>::make_ref(expr.size())),
                         buffer(mem->data),
                         shape(expr.shape)
                 {
@@ -847,7 +848,7 @@ namespace  pythonic {
                 template<class E>
                     ndarray(sliced_ndarray<E> const& expr):
                         data_size(expr.shape[0]),
-                        mem(expr.size()),
+                        mem(impl::shared_ref<raw_array<T>>::make_ref(expr.size())),
                         buffer(mem->data),
                         shape(expr.shape)
                 {
@@ -856,7 +857,7 @@ namespace  pythonic {
                 template<class E, size_t M, size_t L>
                     ndarray(gsliced_ndarray<E,M,L> const& expr):
                         data_size(expr.shape[0]),
-                        mem(expr.size()),
+                        mem(impl::shared_ref<raw_array<T>>::make_ref(expr.size())),
                         buffer(mem->data),
                         shape(expr.shape)
                 {
@@ -865,7 +866,7 @@ namespace  pythonic {
                 template<class Tp>
                 ndarray(indexed_ndarray<Tp,N> const& expr):
                     data_size(expr.shape[0]),
-                    mem(expr.size()),
+                    mem(impl::shared_ref<raw_array<T>>::make_ref(expr.size())),
                     buffer(mem->data),
                     shape(expr.shape)
                 {

@@ -48,9 +48,13 @@ namespace pythonic {
 
                     // Ctor allocate T and forward all arguments to T ctor
                     template<class... Types>
-                        shared_ref(Types&&... args)
-                            : mem( new memory(std::forward<Types>(args)...) )
-                        {}
+                    static shared_ref<T> make_ref(Types&&... args)
+                        {
+                          shared_ref<T> ref{no_memory()};
+                          ref.mem = new memory(std::forward<Types>(args)...);
+                          ref.acquire();
+                          return ref;
+                        }
 
                     // Move Ctor
                     shared_ref(shared_ref<T>&& p) noexcept

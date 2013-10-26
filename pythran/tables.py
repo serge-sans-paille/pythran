@@ -197,8 +197,6 @@ modules = {
             "False": ConstantIntr(),
             "None": ConstantIntr(),
             "True": ConstantIntr(),
-            # pythran extensions
-            "pmap": ConstFunctionIntr(),
             },
         "numpy": {
             "abs": ConstFunctionIntr(),

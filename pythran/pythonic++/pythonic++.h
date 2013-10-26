@@ -48,7 +48,4 @@
 #include "modules/ndarray.h"
 #include "modules/finfo.h"
 
-/* extensions */
-#include "core/parallel.h"
-
 #endif

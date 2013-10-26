@@ -33,7 +33,8 @@ OpenMP Annotations}
     \IEEEauthorblockN{Mehdi Amini\IEEEauthorrefmark{3}}
     \newline
     \IEEEauthorblockA{\newline\IEEEauthorrefmark{1}
-        {\'E}cole Normale Sup{\'e}rieure, D\'{e}partement d'Informatique, Paris, France}
+        {\'E}cole Normale Sup{\'e}rieure, D\'{e}partement d'Informatique, Paris,
+        France}
     \IEEEauthorblockA{\newline\IEEEauthorrefmark{2}
     T{\'e}l{\'e}com Bretagne, Plouzan{\'e}, France}
     \IEEEauthorblockA{\newline\IEEEauthorrefmark{3}
@@ -45,16 +46,15 @@ OpenMP Annotations}
 %
 \begin{abstract}
 
-    High Performance Computing users traditionally rely on low-level,
-    compiled language such as C or
-    FORTRAN to perform compute-intensive tasks. As a consequence, it is a
-    common situation to have High Performance Computing application written in a high-level language
-    such as Python, calling native routines for compute-intensive tasks. To
-    improve development speed and reduce maintenance costs, using a higher-level
-    language like Python seems attractive. While it is usually associated with
-    low performance, several solutions such as Cython, Numba, Parakeet or
-    Pythran offer to automatically or semi-automatically turn Python functions
-    into native ones.
+    High Performance Computing users traditionally rely on low-level, compiled
+    language such as C or FORTRAN to perform compute-intensive tasks. As a
+    consequence, it is a common situation to have High Performance Computing
+    application written in a high-level language such as Python, calling native
+    routines for compute-intensive tasks. To improve development speed and
+    reduce maintenance costs, using a higher-level language like Python seems
+    attractive. While it is usually associated with low performance, several
+    solutions such as Cython, Numba, Parakeet or Pythran offer to automatically
+    or semi-automatically turn Python functions into native ones.
 
     One of the key points required to match the performance of native
     applications is the ability to write parallel applications. This paper
@@ -72,7 +72,6 @@ OpenMP Annotations}
 Since its birth in December 1989, the Python language~\cite{rossum97} has proved
 to be useful in various domains, ranging from system administration to web
 services, thanks to its dynamicity, expressiveness, rich ecosystem and
-% Mehdi : battery-included ??????
 ``batteries included'' standard library. It is also widely used in scientific
 computing~\cite{Oliphant2007}, thanks to the SciPy~\cite{scipy} project
 which provides a set of scientific and numeric tools, ranging from linear
@@ -210,10 +209,11 @@ computation as \emph{hybrid} when part of the code is interpreted, and part of
 it is executed natively.
 
 It is now common for scripting language to have C bindings. To take advantage of
-compiled code, and to overcome the GIL limitations, Python developers has to write
-parallel C/C++ functions and the associated boilerplate based on the Python C
-API~\cite{pythoncapi}. Tools have been developed to relieve the user from this
-cumbersome task, notably SWIG~\cite{swig2003} that relies on an interface specification supplied by the programmer to generate the glue, or
+compiled code, and to overcome the GIL limitations, Python developers have to
+write parallel C/C++ functions and the associated boilerplate based on the
+Python C API~\cite{pythoncapi}. Tools have been developed to relieve the user
+from this cumbersome task, notably SWIG~\cite{swig2003} that relies on an
+interface specification supplied by the programmer to generate the glue, or
 \texttt{boost::python}~\cite{boostpython2007} that relies on C++ templates and
 type overloading facilities to guide translation.
 
@@ -244,7 +244,8 @@ syntax with typing informations, calls to native functions from third party
 libraries, and a limited set of parallelism constructs, such as the possibility
 to define parallel loops, but no task parallelism. When possible, it unboxes
 Python variables to improve performance. Without type annotations, the
-performance improvement is not terrific, but given enough type annotation, Cython can generates code that runs as fast as its C equivalent, while
+performance improvement is not terrific, but given enough type annotation,
+Cython can generates code that runs as fast as its C equivalent, while
 maintaining a syntax close to Python.
 
 PLW~\cite{dongara2007} and \texttt{Scipy.weave} both propose an other approach
@@ -275,7 +276,7 @@ embedded in Python. It uses $n$-uplets, NumPy arrays and lists as its core data
 structure and prohibits usage of many control-flow operators such as loops,
 enforcing the use of the \texttt{map}, \texttt{filter} or \texttt{reduce}
 intrinsics to exhibit parallelism. But it can be efficiently compiled to either
-CUDA or C++ with calls to the Thrust\footnote{\emph{cf}.\
+CUDA or C++ with calls to the Thrust\footnote{\emph{cf}.
 \texttt{http://thrust.github.com/}} library. Python decorators are used to
 identify hot-spots that are JIT-compiled to native code.
 
@@ -297,8 +298,8 @@ enhance Python performance. However Shed~Skin does not provide support for
 fine-grained parallelism beyond what the standard library proposes. PyPy is
 heading toward STM for parallelism support.
 
-To be completely backward compatible, it has to be possible to run the input code
-in an environment that is not aware of the existence of the parallelizing
+To be completely backward compatible, it has to be possible to run the input
+code in an environment that is not aware of the existence of the parallelizing
 solution. This principle is not respected by parallel libraries, but code
 annotations partially satisfy it. This is where parallel annotations shine: the
 original code remains mostly compatible with a compiler that is not aware of the
@@ -336,9 +337,9 @@ not supported. The associated compiler turns Pythran code, possibly annotated
 with OpenMP and a few function type annotations, into C++ code.
 Figure~\ref{fig:pythran-compiler} summarizes its processing: type inference
 helps removing most dynamic behavior, and is combined with a high-level runtime
-library ---\texttt{pythonic++}--- to allow a one-to-one mapping between Python and
-C++ constructs. The purpose of this section is not to dig into the internals of
-the compiler, but rather to focus on the impact of the parallelism layer,
+library ---\texttt{pythonic++}--- to allow a one-to-one mapping between Python
+and C++ constructs. The purpose of this section is not to dig into the internals
+of the compiler, but rather to focus on the impact of the parallelism layer,
 especially on the runtime library.
 
 \begin{figure}
@@ -358,7 +359,8 @@ distance=0.7cm}]
 \node[file] (pythonic) [left=of empty] {\textbf{\texttt{pythonic++}}};
 \node[file] (annotation)     [above=of pythonic] {\textbf{Type Info}};
 \node[file] (boost) [below=of pythonic] {\textbf{\texttt{boost::python}}};
-\node[file] (so) [yshift=-1.5em, below=of gxx] {\textbf{Native Module [\texttt{.so}]}};
+\node[file] (so) [yshift=-1.5em, below=of gxx] {\textbf{Native Module
+[\texttt{.so}]}};
 
 \draw[very thick, ->] (python) -- (pythran);
 \draw[very thick] (annotation) -| (empty.center);
@@ -390,8 +392,8 @@ these parts.
 
 Pythran handles the problem by refusing recursive types, which makes it possible
 to solely rely on reference counting for memory management. It can be
-implemented through the thread-safe shared pointer mechanism provided by the C++11
-standard library.
+implemented through the thread-safe shared pointer mechanism provided by the
+C++11 standard library.
 
 Using shared references simplifies memory management, but the counterpart is an
 extra atomic operation for each copy.
@@ -491,10 +493,10 @@ double pi(size_t nsteps) {
 
 \subsection{Directives}
 
-OpenMP directives are held by C/C++ \texttt{\#pragma}, or by Fortran comments. Most of them
-apply to structured blocks in C/C++ and delimited by comments in Fortran.
-A few directives (e.g.\ \texttt{threadprivate}) are not
-attached to a specific instruction.
+OpenMP directives are held by C/C++ \texttt{\#pragma}, or by Fortran comments.
+Most of them apply to structured blocks in C/C++ and delimited by comments in
+Fortran. A few directives (e.g.\ \texttt{threadprivate}) are not attached to a
+specific instruction.
 
 While Python has a decorator mechanism\footnote{\see PEP 318,
 \url{http://www.python.org/dev/peps/pep-0318/} for a more detail explanation of
@@ -510,8 +512,8 @@ Alternatively, the syntax \texttt{if 'my annotation':} is also supported.
 
 %what about flush clause which is not linked to a statement?
 Many OpenMP annotations are parametrized by clauses that list variables,
-specifying their behavior with respect to parallel regions, e.g.\
-\texttt{private}, \texttt{shared}, \texttt{copyin}. They can only refer to
+specifying their behavior with respect to parallel regions,
+e.g.\ \texttt{private}, \texttt{shared}, \texttt{copyin}. They can only refer to
 variables that have already been declared. However, there is no variable
 declaration in Python, and all variables assigned in a function have the
 function scope, called local scope and available through the \texttt{local()}
@@ -534,8 +536,8 @@ The annotated motivating example is given in
 Listing~\ref{lst:motivating-example-annotated-v0}. Note that unlike in C,
 \texttt{x} has to be listed in a \texttt{private} clause.
 
-\begin{lstlisting}[float, label={lst:motivating-example-annotated-v0}, caption={Motivating
-example: computing $\pi$ in Python with OpenMP.}]
+\begin{lstlisting}[float, label={lst:motivating-example-annotated-v0},
+  caption={Motivating example: computing $\pi$ in Python with OpenMP.}]
 def pi(nsteps):
   sum, step = 0., 1. / nsteps
 #omp parallel for reduction(+:sum) private(x)
@@ -565,10 +567,10 @@ reference. Computing the min of this list yields the scope of the variable.
 For instance, in the motivating example, the \texttt{nsteps} variable is first
 defined as argument, then read twice, which gives a def-use chain of
 \{DEF, USE, USE\}. The associated nesting depths is
-\{0, 1, 1\} so the variable scope is 0. \texttt{i} is defined as a loop iterator then
-used in the loop body, which gives a chain of \{DEF, USE\}, with nesting
-depths of \{2, 2\} and a scope of 2. Likewise \texttt{x} has a chain
-of \{DEF, USE\}, nesting depths of \{2, 2\} and a scope of 2, which means it can be
+\{0, 1, 1\} so the variable scope is 0. \texttt{i} is defined as a loop iterator
+then used in the loop body, which gives a chain of \{DEF, USE\}, with nesting
+depths of \{2, 2\} and a scope of 2. Likewise \texttt{x} has a chain of
+\{DEF, USE\}, nesting depths of \{2, 2\} and a scope of 2, which means it can be
 automatically declared local to the loop, thus not needing to be listed as
 \texttt{private}.
 
@@ -583,8 +585,9 @@ Thanks to this automatic scoping computation, it is possible to write shorter
 OpenMP directive, as illustrated in
 Listing~\ref{lst:motivating-example-annotated-v1}.
 
-\begin{lstlisting}[float, label={lst:motivating-example-annotated-v1}, caption={Motivating
-example: computing $\pi$ in Python with OpenMP and automatic scoping.}]
+\begin{lstlisting}[float, label={lst:motivating-example-annotated-v1},
+  caption={Motivating example: computing $\pi$ in Python with OpenMP and
+  automatic scoping.}]
 def pi(nsteps):
   sum, step = 0., 1. / nsteps
   #omp parallel for reduction(+:sum)
@@ -624,14 +627,14 @@ iterator. For instance \texttt{(x*x for x in l)} successively yields the square
 of each element in \texttt{l}. They behave like adaptors: they apply a
 particular expression on each value of the iterator. It is also the case of the
 \texttt{enumerate} builtin, that yields each element of the enumerated iterator
-associated with its index. These generators are random access iterators only if their
-input iterator is a random iterator itself.
+associated with its index. These generators are random access iterators only if
+their input iterator is a random iterator itself.
 
 Finally, if the iterator yields a tuple, it is possible to unpack it inside the
-\texttt{for} construct, as shown in Listing~\ref{lst:complex-omp-for}. In that case
-all the unpacked variables are considered as iterators, especially with respect
-to default privatization rules: in the given example, \texttt{i} and \texttt{v}
-are private, and the parallel iteration is valid because the input of
+\texttt{for} construct, as shown in Listing~\ref{lst:complex-omp-for}. In that
+case all the unpacked variables are considered as iterators, especially with
+respect to default privatization rules: in the given example, \texttt{i} and
+\texttt{v} are private, and the parallel iteration is valid because the input of
 \texttt{enumerate} is a list, which allows random access iteration.
 
 \begin{lstlisting}[float, label={lst:complex-omp-for}, caption={Parallel
@@ -720,8 +723,8 @@ We ported it to Python, and also extended it to validate the corner cases
 specific to Python described in this section. A typical test case is given in
 Listing~\ref{lst:openmp-validation}.
 
-\begin{lstlisting}[float,label={lst:openmp-validation},caption={Example of Python
-    OpenMP validation test case.}]
+\begin{lstlisting}[float,label={lst:openmp-validation},caption={Example of
+  Python OpenMP validation test case.}]
 def omp_parallel_for_if(loop_count):
   import omp
   using = sum = 0
@@ -740,20 +743,20 @@ Python test function into a C++ function with the same directives and runtime
 calls. Apart from the \texttt{threadprivate} directive and the
 \texttt{collapse(\emph{n})} clause, all tests were successful.
 \texttt{threadprivate} directives were held by global variables not supported in
-Pythran yet~; and the C++ code generated by Pythran does not preserve the perfect
-loop nesting required by the \texttt{collapse} clause.
+Pythran yet~; and the C++ code generated by Pythran does not preserve the
+perfect loop nesting required by the \texttt{collapse} clause.
 
 %=========================================================
 \section{Validation}\label{sec:validation}
 %=========================================================
 
-In addition to the experimental validation done using the OpenMP validation suite
-presented in Section~\ref{sec:python-openmp}, the performance of parallel module
-generated by Pythran from Python module with explicit parallelization using
-OpenMP directives has been studied on several situations: first on the
+In addition to the experimental validation done using the OpenMP validation
+suite presented in Section~\ref{sec:python-openmp}, the performance of parallel
+module generated by Pythran from Python module with explicit parallelization
+using OpenMP directives has been studied on several situations: first on the
 motivating example, then on a synthetic geomatic application. Python and Cython
-versions are then compared and finally the effect of OpenMP directives on Pythran
-generated code are illustrated in the context of the Python Benchmarks
+versions are then compared and finally the effect of OpenMP directives on
+Pythran generated code are illustrated in the context of the Python Benchmarks
 suite.
 
 The target machine has  8 AMD Opteron 6176 SE cores and 8 GO of RAM. It is
@@ -810,21 +813,21 @@ possible to prototype the parallel version while remaining at the Python level.
     \centering
     \begin{tabular}{|l|r|}
         \hline
-        Language & SLOC  \\
+        Language & SLOC     \\
         \hline
-        C       & 102   \\
-        Python  & 30    \\
-        Pythran & 30     \\
-        Pythran+OMP    & 31  \\
+        C       & 102       \\
+        Python  & 30        \\
+        Pythran & 30        \\
+        Pythran+OMP    & 31 \\
         \hline
     \end{tabular}
 
 \end{table}
 
 
-The Hyantes programs scales relatively well. Figure~\ref{fig:hyantes-speedup} shows
-the relative speedup of the application when increasing the number of OpenMP
-threads using up to 8 cores.
+The Hyantes programs scales relatively well. Figure~\ref{fig:hyantes-speedup}
+shows the relative speedup of the application when increasing the number of
+OpenMP threads using up to 8 cores.
 
 \begin{figure}
 
@@ -883,8 +886,8 @@ def sum_sqrt(double r):
     return r
     \end{lstlisting}
 %
-    \begin{lstlisting}[label={lst:pythran-sample}, caption={Pythran implementation
-    of a parallel reduction.}]
+    \begin{lstlisting}[label={lst:pythran-sample}, caption={Pythran
+      implementation of a parallel reduction.}]
 #pythran export sum_sqrt(float)
 import math
 def sum_sqrt(r):
@@ -951,7 +954,11 @@ yields an extra $\times 3.95$ speedup when compared to Pythran alone.
     \label{fig:pb-julia}
 \end{figure}
 
-Figure~\ref{fig:pb-pairwise} shows the execution time of the computation of a distance matrix between two random vectors, using a parallel nested loop. On that example, Pythran slightly outperforms Cython, parakeet and Numba. Taking into account the OpenMP annotation that flags the outermost loop as parallel yields an $\times 4.27$ speedup to Pythran.
+Figure~\ref{fig:pb-pairwise} shows the execution time of the computation of a
+distance matrix between two random vectors, using a parallel nested loop. On
+that example, Pythran slightly outperforms Cython, parakeet and Numba. Taking
+into account the OpenMP annotation that flags the outermost loop as parallel
+yields an $\times 4.27$ speedup to Pythran.
 
 \begin{figure}[ht]
     \includegraphics[width=.5\textwidth]{pairwise}
@@ -959,7 +966,12 @@ Figure~\ref{fig:pb-pairwise} shows the execution time of the computation of a di
     \label{fig:pb-pairwise}
 \end{figure}
 
-Figure~\ref{fig:pb-rosen} shows the execution time of the computation of the third derivative of the Rosenbrock function for a random array input, using Numpy's vector operations. There is no explicit parallelism in this function but the vector operation is implictly parallel. On this example, Cython is on par with Pythran and slightly faster than Parakeet, but turning OpenMP on makes the Pythran version run $\times 1.78$ faster than sequential Pythran.
+Figure~\ref{fig:pb-rosen} shows the execution time of the computation of the
+third derivative of the Rosenbrock function for a random array input, using
+Numpy's vector operations. There is no explicit parallelism in this function but
+the vector operation is implictly parallel. On this example, Cython is on par
+with Pythran and slightly faster than Parakeet, but turning OpenMP on makes the
+Pythran version run $\times 1.78$ faster than sequential Pythran.
 
 \begin{figure}[ht]
     \includegraphics[width=.5\textwidth]{rosen_der}
@@ -967,7 +979,11 @@ Figure~\ref{fig:pb-rosen} shows the execution time of the computation of the thi
     \label{fig:pb-rosen}
 \end{figure}
 
-Figure~\ref{fig:pb-rosen} shows the execution time of the computation of one step of the GrowCut algorithm used in image processing. On this example, Parakeet performs better than Cython and Pytrhan and way better than Numba, but paralleizing the outermost loop with OpenMP gives a $\times 2.65$ speedup to Pythran that helps it outperform Parakeet.
+Figure~\ref{fig:pb-rosen} shows the execution time of the computation of one
+step of the GrowCut algorithm used in image processing. On this example,
+Parakeet performs better than Cython and Pytrhan and way better than Numba, but
+paralleizing the outermost loop with OpenMP gives a $\times 2.65$ speedup to
+Pythran that helps it outperform Parakeet.
 
 \begin{figure}[ht]
     \includegraphics[width=.5\textwidth]{growcut}
@@ -981,7 +997,8 @@ All the benchmarks exhibt some level of parallelism that are easy to capture
 using OpenMP without changing the original algorithm and while maintaining
 backward compatibility with the Python interpreter. Some even have a degree of
 implicit parallism that makes parallelization fully transparent to the user.
-Taking advantage of this parallelism appears to be the key to reach an additional performance level.
+Taking advantage of this parallelism appears to be the key to reach an
+additional performance level.
 
 
 %=========================================================
@@ -1010,9 +1027,9 @@ Future work will focus on the extension of the approach to OpenMP 4 and the
 \texttt{target} clause that should allow to target accelerator like Intel MIC
 from Python.
 The \texttt{simd} clause also brings interesting vectorization capabilities that
-could be exposed at the python level. There are also several implicit vectorization
-opportunities in Python, especially in the list comprehension construction, that
-need to be explored.
+could be exposed at the python level. There are also several implicit
+vectorization opportunities in Python, especially in the list comprehension
+construction, that need to be explored.
 
 %=========================================================
 \section*{Acknowledgment}

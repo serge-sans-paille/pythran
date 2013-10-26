@@ -75,7 +75,8 @@ services, thanks to its dynamicity, expressiveness, rich ecosystem and
 % Mehdi : battery-included ??????
 ``batteries included'' standard library. It is also widely used in scientific
 computing~\cite{Oliphant2007}, thanks to the SciPy~\cite{scipy} project
-which provides a set of scientific and numeric tools, ranging from linear algebra to ordinary differential equation solvers or generic algorithms.
+which provides a set of scientific and numeric tools, ranging from linear
+algebra to ordinary differential equation solvers or generic algorithms.
 
 It is now heading toward High Performance Computing (HPC), either as a glue
 language used to bind several native libraries together, or to support whole
@@ -90,8 +91,9 @@ available to both native modules and the Python interpreter without conversion
 cost. Yet when a new function not already part of an existing module is
 required, one has to write it in C or FORTRAN.
 
-To allow the user to write native functions without having to write the boilerplate glue code that turns Python object into native structures back and
-forth, the SciPy package provides the \texttt{weave} module. It makes
+To allow the user to write native functions without having to write the
+boilerplate glue code that turns Python object into native structures back and
+forth, the SciPy package provides the \texttt{weave} module. It makes it
 possible to bundle C code snippets into Python code. They are then compiled and
 loaded at runtime. This hybrid approach, based on a mix of interpreted and
 native code, is getting widespread in the Python landscape. It is also the
@@ -135,7 +137,7 @@ object serialization. This approach is only viable for compute-intensive
 independent tasks, since the communication and synchronization overheads are
 much greater than a light-weight threaded approach.
 
-The standard \texttt{threading} module also makes possible to start several
+The standard \texttt{threading} module also makes it possible to start several
 light-weight threads within the same interpreter, but this lower-level approach
 is not applicable to HPC, because of a specificity of CPython, the \emph{Global
 Interpreter Lock}~\cite{gil2012}.\footnote{Other Python interpreters, such as
@@ -305,7 +307,7 @@ into parallel code.
 
 %FIXME: why not cite OpenMP 4.0 (aka the latest)?
 This article proposes to combine OpenMP~\cite{openmp3.1} parallel annotations
-with the Python subset supported by the Pythran compiler to make possible to
+with the Python subset supported by the Pythran compiler to make it possible to
 write fine-grain parallel applications in Python, while being fully backward
 compatible with both the Python language and the sequential algorithm. It
 implies that:
@@ -348,13 +350,13 @@ node distance=0.7cm},
     tool/.style={draw=black!50,fill=black!10,ellipse, align=center, node
 distance=0.7cm}]
 \node[file] (python) {\textbf{Python Module [\texttt{.py}]}};
-\node[file] (omp)	   [xshift=-2em, left=of python] {\textbf{OpenMP}};
+\node[file] (omp)    [xshift=-2em, left=of python] {\textbf{OpenMP}};
 \node[tool] (pythran) [below=of python] {\textbf{Pythran}};
 \node[file] (meta-cxx) [below=of pythran] {\textbf{C++} Meta Program};
 \node[tool] (gxx) [yshift=-1.5em, below=of meta-cxx] {\textbf{g++}};
 \node (empty) [xshift=-1em, left=of gxx] {};
 \node[file] (pythonic) [left=of empty] {\textbf{\texttt{pythonic++}}};
-\node[file] (annotation)	   [above=of pythonic] {\textbf{Type Info}};
+\node[file] (annotation)     [above=of pythonic] {\textbf{Type Info}};
 \node[file] (boost) [below=of pythonic] {\textbf{\texttt{boost::python}}};
 \node[file] (so) [yshift=-1.5em, below=of gxx] {\textbf{Native Module [\texttt{.so}]}};
 
@@ -386,7 +388,7 @@ garbage collector~\cite{boehm1991}, and Cython forbids usage of Python-managed
 objects inside parallel regions, thus making memory management explicit for
 these parts.
 
-Pythran handles the problem by refusing recursive types, which makes possible
+Pythran handles the problem by refusing recursive types, which makes it possible
 to solely rely on reference counting for memory management. It can be
 implemented through the thread-safe shared pointer mechanism provided by the C++11
 standard library.
@@ -557,7 +559,7 @@ notable exception of the iterator declaration in a for loop, that holds a
 nesting depth equals to 1 plus the loop declaration indentation level.
 
 Tracking the nesting depth of all variable use, for instance using def-use % I don't see the need for def-use chains for this! Unless you include some "unaliasing algo"
-chains, makes possible to build a list of nesting depths, one per variable
+chains, makes it possible to build a list of nesting depths, one per variable
 reference. Computing the min of this list yields the scope of the variable.
 
 For instance, in the motivating example, the \texttt{nsteps} variable is first
@@ -645,7 +647,7 @@ ones.
 
 \subsection{OpenMP Runtime Library}
 
-OpenMP provides a small runtime library that, for instance, makes possible to
+OpenMP provides a small runtime library that, for instance, makes it possible to
 retrieve the active thread id. All the functions are declared in the
 \texttt{<omp.h>} header, and have a default behavior when OpenMP is not
 activated.

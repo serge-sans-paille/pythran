@@ -20,102 +20,111 @@ namespace pythonic {
          *
          *  Unlike std::shared_ptr, it allocates the memory itself using new.
          */
-        template <class T>
-            class shared_ref
+        template<class T>
+        class shared_ref {
+        private:
+            struct memory {
+                T ptr;
+                atomic_size_t count;
+                template<class ... Types>
+                memory(Types&&... args) :
+                        ptr(std::forward<Types>(args)...), count(1)
+                {
+                }
+            }*mem;
+
+        public:
+
+            // Uninitialized ctor
+            shared_ref() noexcept :
+                    mem(nullptr)
             {
-                private:
-                    struct memory {
-                        T ptr;
-                        atomic_size_t count;
-                        template<class... Types>
-                            memory(Types&&... args)
-                            : ptr( std::forward<Types>(args)... ), count(1)
-                            {}
-                    } *mem;
+            }
 
-                public:
+            // Ctor allocate T and forward all arguments to T ctor
+            template<class ... Types>
+            static shared_ref<T> make_ref(Types&&... args)
+            {
+                shared_ref<T> ref;
+                ref.mem = new memory(std::forward<Types>(args)...);
+                ref.acquire();
+                return ref;
+            }
 
-                    // Uninitialized ctor
-                    shared_ref() noexcept
-                        : mem(nullptr)
-                    {
-                    }
+            // Move Ctor
+            shared_ref(shared_ref<T> && p) noexcept :
+                    mem(p.mem)
+            {
+                p.mem=nullptr;
+            }
 
-                    // Ctor allocate T and forward all arguments to T ctor
-                    template<class... Types>
-                    static shared_ref<T> make_ref(Types&&... args)
-                        {
-                          shared_ref<T> ref;
-                          ref.mem = new memory(std::forward<Types>(args)...);
-                          ref.acquire();
-                          return ref;
-                        }
+            // Copy Ctor
+            shared_ref(shared_ref<T> const& p) noexcept :
+                    mem(p.mem)
+            {
+                if(mem) acquire();
+            }
 
-                    // Move Ctor
-                    shared_ref(shared_ref<T>&& p) noexcept
-                        : mem(p.mem)
-                    {p.mem=nullptr;}
+            ~shared_ref() noexcept
+            {
+                dispose();
+            }
 
-                    // Copy Ctor
-                    shared_ref(shared_ref<T> const& p) noexcept
-                        : mem(p.mem)
-                    {if(mem) acquire();}
+            // Magic swapperator, help for assignment operators
+            void swap(shared_ref<T> & rhs) noexcept {
+                using std::swap;
+                swap(mem, rhs.mem);
+            }
 
+            // Takes by copy so that acquire/release is handle by ctor
+            shared_ref<T>& operator=(shared_ref<T> p) noexcept
+            {
+                swap(p);
+                return *this;
+            }
 
-                    ~shared_ref() noexcept
-                    {dispose();}
+            T& operator*() const noexcept
+            {
+                return mem->ptr;
+            }
 
-                    // Magic swapperator, help for assignment operators
-                    void swap(shared_ref<T> & rhs) noexcept {
-                      using std::swap;
-                      swap(mem, rhs.mem);
-                    }
+            T* operator->() const noexcept
+            {
+                return &mem->ptr;
+            }
 
-                    // Takes by copy so that acquire/release is handle by ctor
-                    shared_ref<T>& operator=(shared_ref<T> p) noexcept
-                    {
-                        swap(p);
-                        return *this;
-                    }
+            bool operator!=(shared_ref<T> const & other) const noexcept {
+                return mem != other.mem;
+            }
 
-                    T& operator*() const noexcept
-                    {return mem->ptr;}
+            // Bump the count so that the object is NEVER deleted.
+            // OK this is a very bad design but it helps ndarray...
+            void external() {
+                ++mem->count;
+            }
 
-                    T* operator->() const noexcept
-                    {return &mem->ptr;}
+            // !!! The interface is screwed, you won't be able to delete
+            // T since it was a member of the struct allocated with new !!!
+            T* forget() {
+                T *ptr = &mem->ptr;
+                mem = nullptr;
+                return ptr;
+            }
 
-                    bool operator!=(shared_ref<T> const & other) const noexcept {
-                        return mem != other.mem;
-                    }
+        private:
+            void dispose()
+            {
+                if(mem and --mem->count == 0)
+                {
+                    delete mem;
+                    mem = nullptr;
+                }
+            }
 
-                    // Bump the count so that the object is NEVER deleted.
-                    // OK this is a very bad design but it helps ndarray...
-                    void external() {
-                        ++mem->count;
-                    }
-
-                    // FIXME The interface is screwed, you won't be able to delete
-                    // T since it was a member of the struct allocated with new
-                    T* forget() {
-                        T *ptr = &mem->ptr;
-                        mem = nullptr;
-                        return ptr;
-                    }
-
-                 private:
-                    void dispose()
-                    {
-                        if(mem and --mem->count == 0)
-                        {
-                            delete mem;
-                            mem = nullptr;
-                        }
-                    }
-                    void acquire() {
-                        ++mem->count;
-                    }
-            };
-
+            void acquire() {
+                ++mem->count;
+            }
+        };
     }
 }
 

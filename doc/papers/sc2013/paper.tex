@@ -335,10 +335,16 @@ addition to the core language (e.g.\ \texttt{math}, \texttt{random}). The
 \texttt{numpy} module is currently only partially supported. User classes are
 not supported. The associated compiler turns Pythran code, possibly annotated
 with OpenMP and a few function type annotations, into C++ code.
+
 Figure~\ref{fig:pythran-compiler} summarizes its processing: type inference
 helps removing most dynamic behavior, and is combined with a high-level runtime
-library ---\texttt{pythonic++}--- to allow a one-to-one mapping between Python
-and C++ constructs. The purpose of this section is not to dig into the internals
+library ---\texttt{Pythonic++}--- to allow a one-to-one mapping between Python
+and C++ constructs. Pythonic++ is a template library, i.e.\ it consists
+exclusively of a set of headers. Therefore the generated C++ file is easily
+distribuable and does not depend on Pythran. One could even preprocess this
+C++ file to avoid the need of distributing along the Pythonic++ headers.
+
+The purpose of this section is not to dig into the internals
 of the compiler, but rather to focus on the impact of the parallelism layer,
 especially on the runtime library.
 
@@ -1010,11 +1016,14 @@ providing minor semantic adaptations, these annotations enable Python code
 to benefit from multi-cores while retaining backward compatibility and without
 worrying about the Global Interpreter Lock.
 
-To achieve this goal, a translator from a subset of the Python language to C++
-has been designed. This translator turns regular Python modules annotated with
+To achieve this goal, we designed Pythran, a translator from a subset of the
+Python language to C++. Pythran turns regular Python modules annotated with
 OpenMP directives and a few type annotations into native parallel module. The
 input module remains compatible with the standard interpreter and the underlying
-runtime is compatible with parallel constructs.
+runtime is compatible with parallel constructs. While Pythran accepts a limited
+input, we extend it progressively and with a great care on its stability. As
+such, even if its development is community-based, it is more than a research
+prototype and should be usable on real world code.
 
 The approach is compared with Cython, an extension of the Python language used
 to generate native module with an hybrid Python-C syntax that also provides

@@ -5,10 +5,12 @@
 #define pythran_assert(...) 
 #else
 
-void pythran_assert(bool cond, pythonic::core::string const& what="") {
-    if(not cond) throw pythonic::core::AssertionError(what);
+void pythran_assert(bool cond, pythonic::core::string const& what = "")
+{
+    if (not cond)
+        throw pythonic::core::AssertionError(what);
 }
 
-#endif
+#endif // NDEBUG
 
 #endif

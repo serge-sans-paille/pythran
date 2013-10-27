@@ -60,171 +60,171 @@ namespace  pythonic {
 
         namespace ops {
             template<class T0, class T1>
-                auto add(T0 const& t0, T1 const& t1) -> decltype(t0 + t1) {
-                    return t0 + t1;
-                }
+            auto add(T0 const& t0, T1 const& t1) -> decltype(t0 + t1) {
+                return t0 + t1;
+            }
 
             template<class T0, class T1>
-                auto bitwise_and(T0 const& t0, T1 const& t1) -> decltype(t0 & t1) {
-                    return t0 & t1;
-                }
+            auto bitwise_and(T0 const& t0, T1 const& t1) -> decltype(t0 & t1) {
+                return t0 & t1;
+            }
 
             template<class T0>
-                decltype(~std::declval<T0>()) bitwise_not(T0 const& t0) {
-                    return ~t0 ;
-                }
+            decltype(~std::declval<T0>()) bitwise_not(T0 const& t0) {
+                return ~t0 ;
+            }
 
             template<class T0, class T1>
-                auto bitwise_or(T0 const& t0, T1 const& t1) -> decltype(t0 | t1) {
-                    return t0 | t1;
-                }
+            auto bitwise_or(T0 const& t0, T1 const& t1) -> decltype(t0 | t1) {
+                return t0 | t1;
+            }
 
             template<class T0, class T1>
-                auto bitwise_xor(T0 const& t0, T1 const& t1) -> decltype(t0 ^ t1) {
-                    return t0 ^ t1;
-                }
+            auto bitwise_xor(T0 const& t0, T1 const& t1) -> decltype(t0 ^ t1) {
+                return t0 ^ t1;
+            }
 
             template<class T0, class T1>
-                auto divide(T0 const& t0, T1 const& t1) -> decltype(t0 / t1) {
-                    return t0 / t1;
-                }
+            auto divide(T0 const& t0, T1 const& t1) -> decltype(t0 / t1) {
+                return t0 / t1;
+            }
 
             template<class T0, class T1>
-                auto equal(T0 const& t0, T1 const& t1) -> decltype(t0 == t1) {
-                    return t0 == t1;
-                }
+            auto equal(T0 const& t0, T1 const& t1) -> decltype(t0 == t1) {
+                return t0 == t1;
+            }
 
             template<class T>
-                auto empty_like(T const&) -> decltype(T(0))/* prevents instanciation on a ndarray*/ {
-                    return T();
-                }
+            auto empty_like(T const&) -> decltype(T(0))/* prevents instanciation on a ndarray*/ {
+                return T();
+            }
 
             template<class T0, class T1>
-                auto greater(T0 const& t0, T1 const& t1) -> decltype(t0 > t1) {
-                    return t0 > t1;
-                }
+            auto greater(T0 const& t0, T1 const& t1) -> decltype(t0 > t1) {
+                return t0 > t1;
+            }
 
             template<class T0, class T1>
-                auto greater_equal(T0 const& t0, T1 const& t1) -> decltype(t0 >= t1) {
-                    return t0 >= t1;
-                }
+            auto greater_equal(T0 const& t0, T1 const& t1) -> decltype(t0 >= t1) {
+                return t0 >= t1;
+            }
 
             template<class T>
-                auto isneginf(T const& t) -> decltype(nt2::is_inf(t) and nt2::is_negative(t)) {
-                    return nt2::is_inf(t) and nt2::is_negative(t);
-                }
+            auto isneginf(T const& t) -> decltype(nt2::is_inf(t) and nt2::is_negative(t)) {
+                return nt2::is_inf(t) and nt2::is_negative(t);
+            }
 
             template<class T>
-                auto isposinf(T const& t) -> decltype(nt2::is_inf(t) and nt2::is_positive(t)) {
-                    return nt2::is_inf(t) and nt2::is_positive(t);
-                }
+            auto isposinf(T const& t) -> decltype(nt2::is_inf(t) and nt2::is_positive(t)) {
+                return nt2::is_inf(t) and nt2::is_positive(t);
+            }
 
             template<class T0, class T1>
-                auto left_shift(T0 const& t0, T1 const& t1) -> decltype(t0 << t1) {
-                    return t0 << t1;
-                }
+            auto left_shift(T0 const& t0, T1 const& t1) -> decltype(t0 << t1) {
+                return t0 << t1;
+            }
 
             template<class T0, class T1>
-                auto less(T0 const& t0, T1 const& t1) -> decltype(t0 < t1) {
-                    return t0 < t1;
-                }
+            auto less(T0 const& t0, T1 const& t1) -> decltype(t0 < t1) {
+                return t0 < t1;
+            }
 
             template<class T0, class T1>
-                auto less_equal(T0 const& t0, T1 const& t1) -> decltype(t0 <= t1) {
-                    return t0 <= t1;
-                }
+            auto less_equal(T0 const& t0, T1 const& t1) -> decltype(t0 <= t1) {
+                return t0 <= t1;
+            }
 
             template<class T0, class T1>
-                auto logaddexp(T0 const& t0, T1 const& t1) -> decltype(nt2::log(nt2::exp(t0) + nt2::exp(t1))) {
-                    return nt2::log(nt2::exp(t0) + nt2::exp(t1));
-                }
+            auto logaddexp(T0 const& t0, T1 const& t1) -> decltype(nt2::log(nt2::exp(t0) + nt2::exp(t1))) {
+                return nt2::log(nt2::exp(t0) + nt2::exp(t1));
+            }
 
             template<class T0, class T1>
-                auto logaddexp2(T0 const& t0, T1 const& t1) -> decltype(nt2::log2(nt2::pow(T0(2),t0) + nt2::pow(T1(2),t1))) {
-                    return nt2::log2(nt2::pow(T0(2),t0) + nt2::pow(T1(2),t1));
-                }
+            auto logaddexp2(T0 const& t0, T1 const& t1) -> decltype(nt2::log2(nt2::pow(T0(2),t0) + nt2::pow(T1(2),t1))) {
+                return nt2::log2(nt2::pow(T0(2),t0) + nt2::pow(T1(2),t1));
+            }
 
             template<class T0, class T1>
-                auto logical_and(T0 const& t0, T1 const& t1) -> decltype(t0 and t1) {
-                    return t0 and t1;
-                }
+            auto logical_and(T0 const& t0, T1 const& t1) -> decltype(t0 and t1) {
+                return t0 and t1;
+            }
 
             template<class T>
-                auto logical_not(T const& t) -> decltype(not t) {
-                    return not t;
-                }
+            auto logical_not(T const& t) -> decltype(not t) {
+                return not t;
+            }
 
             template<class T0, class T1>
-                auto logical_or(T0 const& t0, T1 const& t1) -> decltype(t0 or t1) {
-                    return t0 or t1;
-                }
+            auto logical_or(T0 const& t0, T1 const& t1) -> decltype(t0 or t1) {
+                return t0 or t1;
+            }
 
             template<class T0, class T1>
-                auto logical_xor(T0 const& t0, T1 const& t1) -> decltype((t0 and not t1) or (t1 and not t0)) {
-                    return (t0 and not t1) or (t1 and not t0);
-                }
+            auto logical_xor(T0 const& t0, T1 const& t1) -> decltype((t0 and not t1) or (t1 and not t0)) {
+                return (t0 and not t1) or (t1 and not t0);
+            }
 
             template<class T0, class T1>
-                auto multiply(T0 const& t0, T1 const& t1) -> decltype(t0 * t1) {
-                    return t0 * t1;
+            auto multiply(T0 const& t0, T1 const& t1) -> decltype(t0 * t1) {
+                return t0 * t1;
+            }
+
+            template<class T >
+            auto negative(T const& t) -> decltype(-t) {
+                return -t;
+            }
+
+            template<class T0, class T1>
+            auto not_equal(T0 const& t0, T1 const& t1) -> decltype(t0 != t1) {
+                return t0 != t1;
+            }
+
+            template<class T>
+            auto ones_like(T const&) -> decltype(T(1)) {
+                return T(1);
+            }
+
+            template<class T >
+            auto positive(T const& t) -> decltype(+t) {
+                return +t;
+            }
+
+            template<class T0, class T1>
+            auto right_shift(T0 const& t0, T1 const& t1) -> decltype(t0 >> t1) {
+                return t0 >> t1;
+            }
+            template<class T>
+            auto square(T const& t) -> decltype(t*t) {
+                return t*t;
+            }
+
+            template<class T0, class T1>
+            auto subtract(T0 const& t0, T1 const& t1) -> decltype(t0 - t1) {
+                return t0 - t1;
+            }
+
+            template<class T>
+            auto zeros_like(T const&) -> decltype(T(0)) {
+                return T(0);
+            }
+
+            template<class T >
+            auto angle_in_rad(T const& t) -> decltype(atan(std::imag(t)/std::real(t))) {
+                if(std::real(t))
+                    return atan(std::imag(t)/std::real(t));
+                else
+                    return M_PI/2;
                 }
 
             template<class T >
-                auto negative(T const& t) -> decltype(-t) {
-                    return -t;
-                }
-
-            template<class T0, class T1>
-                auto not_equal(T0 const& t0, T1 const& t1) -> decltype(t0 != t1) {
-                    return t0 != t1;
-                }
-
-            template<class T>
-                auto ones_like(T const&) -> decltype(T(1)) {
-                    return T(1);
-                }
-
-            template<class T >
-                auto positive(T const& t) -> decltype(+t) {
-                    return +t;
-                }
-
-            template<class T0, class T1>
-                auto right_shift(T0 const& t0, T1 const& t1) -> decltype(t0 >> t1) {
-                    return t0 >> t1;
-                }
-            template<class T>
-                auto square(T const& t) -> decltype(t*t) {
-                    return t*t;
-                }
-
-            template<class T0, class T1>
-                auto subtract(T0 const& t0, T1 const& t1) -> decltype(t0 - t1) {
-                    return t0 - t1;
-                }
-
-            template<class T>
-                auto zeros_like(T const&) -> decltype(T(0)) {
-                    return T(0);
-                }
-
-            template<class T >
-                auto angle_in_rad(T const& t) -> decltype(atan(std::imag(t)/std::real(t))) {
-                    if(std::real(t)) return atan(std::imag(t)/std::real(t));
-                    else return M_PI/2;
-                }
-
-            template<class T >
-                auto angle_in_deg(T const& t) -> decltype(nt2::indeg(angle_in_rad(t))) {
-                    return nt2::indeg(angle_in_rad(t));
-                }
-
-
+            auto angle_in_deg(T const& t) -> decltype(nt2::indeg(angle_in_rad(t))) {
+                return nt2::indeg(angle_in_rad(t));
+            }
         }
     }
     namespace core {
 
-            PROXY(nt2, abs)
+        PROXY(nt2, abs)
 #define NUMPY_UNARY_FUNC_NAME abs
 #define NUMPY_UNARY_FUNC_SYM proxy::abs
 #include "numpy_unary_expr.h"
@@ -726,15 +726,15 @@ namespace  pythonic {
     }
     namespace __builtin__ {
         template<class T>
-            auto pow(T const& a, double value) -> typename std::enable_if<core::is_array_like<T>::value, decltype(pythonic::core::power(a, value))>::type
-            {
-                return pythonic::core::power(a, value);
-            }
+        auto pow(T const& a, double value) -> typename std::enable_if<core::is_array_like<T>::value, decltype(pythonic::core::power(a, value))>::type
+        {
+            return pythonic::core::power(a, value);
+        }
         template<class T>
-            auto pow(T const& a, long value) -> typename std::enable_if<core::is_array_like<T>::value, decltype(pythonic::core::power(a, value))>::type
-            {
-                return pythonic::core::power(a, value);
-            }
+        auto pow(T const& a, long value) -> typename std::enable_if<core::is_array_like<T>::value, decltype(pythonic::core::power(a, value))>::type
+        {
+            return pythonic::core::power(a, value);
+        }
     }
 }
 

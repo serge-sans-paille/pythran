@@ -4,11 +4,12 @@
 namespace pythonic {
     namespace core {
         template<class T>
-            struct finfo {
-                T eps() const {
-                    return std::numeric_limits<T>::epsilon();
-                }
-            };
+        struct finfo {
+            T eps() const
+            {
+                return std::numeric_limits<T>::epsilon();
+            }
+        };
     }
 }
 

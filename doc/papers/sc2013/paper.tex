@@ -73,9 +73,10 @@ Since its birth in December 1989, the Python language~\cite{rossum97} has proved
 to be useful in various domains, ranging from system administration to web
 services, thanks to its dynamicity, expressiveness, rich ecosystem and
 ``batteries included'' standard library. It is also widely used in scientific
-computing~\cite{Oliphant2007}, thanks to the SciPy~\cite{scipy} project
-which provides a set of scientific and numeric tools, ranging from linear
-algebra to ordinary differential equation solvers or generic algorithms.
+computing~\cite{Oliphant2007}, thanks to the \texttt{numpy} module and the
+SciPy~\cite{scipy} project which provide a set of scientific and numeric tools,
+ranging from linear algebra to ordinary differential equation solvers or generic
+algorithms.
 
 It is now heading toward High Performance Computing (HPC), either as a glue
 language used to bind several native libraries together, or to support whole
@@ -90,15 +91,17 @@ available to both native modules and the Python interpreter without conversion
 cost. Yet when a new function not already part of an existing module is
 required, one has to write it in C or FORTRAN.
 
+The hybrid approach, where an application contains a mix of interpreted and
+native code, is getting widespread in the Python landscape.
+It is also the recommended approach to write applications that make use of fine
+grain parallelism, as Python parallelism support is only suitable for
+coarse-grain parallelism.
 To allow the user to write native functions without having to write the
 boilerplate glue code that turns Python object into native structures back and
 forth, the SciPy package provides the \texttt{weave} module. It makes it
 possible to bundle C code snippets into Python code. They are then compiled and
-loaded at runtime. This hybrid approach, based on a mix of interpreted and
-native code, is getting widespread in the Python landscape. It is also the
-recommended approach to write applications that make use of fine grain
-parallelism, as Python parallelism support is only suitable for coarse-grain
-parallelism.
+loaded at runtime. Other project like PyCuda or PyOpenCL offers the same
+convenience to target hardware accelerators.
 
 This paper presents the addition of OpenMP, a popular standard to turn
 sequential C, C++ and FORTRAN application into parallel applications, to the
@@ -160,7 +163,7 @@ while a speedup of 4 would be expected for this kind of application.
 
 \begin{lstlisting}[float, label={lst:buffon-python}, caption={Implementation of
 sequential and parallel version of the Buffon algorithm in Python.}]
-def buffon(darts):
+def buffon(darts, _ = 0):
   hits = 0
   for i in xrange (0, darts):
     x, y = random(), random()
@@ -175,7 +178,7 @@ from threading import Thread
 from multiprocessing import Queue
 def threaded_buffon(d):
   def work(darts, queue):
-    queue.put(pi_estimate(darts))
+    queue.put(buffon(darts))
   n = 4
   q = Queue()
   threads = [
@@ -188,16 +191,22 @@ def threaded_buffon(d):
   map(Thread.join, threads)
   return sum(q.get() for _ in threads)/n
 
+import functools
 from multiprocessing import Pool
 def multi_buffon(darts):
   n = 4
   p = Pool(n)
-  return sum(p.map(buffon, darts//n))/n
+  return sum(p.map(functools.partial(buffon,darts/n), range(n)))/n
 \end{lstlisting}
-% Mehdi: I don't get the [darts//4]*4 at the last line of the listing
+
+Another widely used solution is the module IPython.parallel, which supports many
+different styles of parallelism including: single program, multiple data (SPMD)
+parallelism, multiple program, multiple data (MPMD) parallelism. message passing
+using MPI, task farming, and data parallel.
+FIXME: to be continued...
 
 There have also been several approaches to replace the GIL by Transactional
-Memories~\cite{Riley2006,Tabba2010} but none of them made their way to the
+Memories~\cite{Riley2006,Tabba2010} but none of them made its way to the
 mainstream interpreters. As a consequence, Python developers need to write
 multi-threaded native modules in order to fully benefit from multiple cores.
 This leads to a kind of computations referred as \emph{hybrid computations}.
@@ -241,7 +250,7 @@ Python, so using a type with the appropriate size may lead to significant
 performance boost.
 
 Cython~\cite{cython2010} is an hybrid Python/C dialect. It extends the Python
-syntax with typing informations, calls to native functions from third party
+syntax with typing information, calls to native functions from third party
 libraries, and a limited set of parallelism constructs, such as the possibility
 to define parallel loops, but no task parallelism. When possible, it unboxes
 Python variables to improve performance. Without type annotations, the
@@ -249,24 +258,26 @@ performance improvement is not terrific, but given enough type annotation,
 Cython can generates code that runs as fast as its C equivalent, while
 maintaining a syntax close to Python.
 
-PLW~\cite{dongara2007} and \texttt{Scipy.weave} both propose an other approach
+PLW~\cite{dongara2007} and \texttt{Scipy.weave} both propose another approach
 that directly mixes Python with C, using raw strings to hold the C code. PLW
 also supports parallel directives that are limited to parallel for loops.
 PyCUDA and PyOpenCL~\cite{klockner2012} also target accelerators by mixing
 Python with kernels embedded as raw strings containing accelerator code.
 
-The main drawback of these approaches is that they require to modify in a
+The main drawback of these approaches % Reviewer 4 not happy with this
+is that they require to modify in a
 backward-incompatible way the original code. They require to learn a new
 dialect, and the long-term preservation of this investment is not ensured.
-Moreover, there is no fall back if the code were to be deployed in an
-environment where the parallelizing tool/module is not available. For instance,
-once a code has been ported to PyCUDA and transformed into CUDA code embedded in
-Python strings, there is no way back and the developer has to maintain two
-versions of the algorithm.
+Moreover, some of these approaches have no fallback if the code were to be
+deployed in an environment where the parallelizing tool/module is not available.
+For instance, once a code has been ported to PyCUDA and transformed into CUDA
+code embedded in Python strings, there is no way back and the developer has to
+maintain two versions of the algorithm.
 
 \subsubsection{Backward-Compatible Approaches}
 
-Most backward-compatible approaches also require to modify the input program.
+Most backward-compatible approaches also % Reviewer 4 not happy with this
+require to modify the input program.
 They do not extend the Python language, but restrict it. As a consequence, they
 remain compatible with the original language and do not suffer from the
 drawbacks of the previous approaches. They also benefit from existing tools
@@ -435,8 +446,10 @@ all nodes not available in C++ are transformed into a compatible representation.
 For instance, list comprehension expressions are turned into function calls or
 tuple unpacking is turned in multiple assignments. During this transformation
 process, an expression is always transformed into a single expression and a
-statement is always transformed into a single statement. Then this AST is
-converted into a C++ AST meant to be pretty-printed.
+statement is always transformed into a single statement.
+% FIXME as noted by reviewer 4, the previous sentence is not exact. Just a few
+% lines above we said that "tuple unpacking is turned in multiple assignments"
+Then this AST is converted into a C++ AST meant to be pretty-printed.
 
 
 \subsection{Transfer Costs}
@@ -453,7 +466,9 @@ The traditional solution is to use a native type that exposes a Python interface
 and has a constant translation cost. NumPy's \texttt{ndarray} is a typical
 implementation of this concept and is the keystone of the Scipy and NumPy
 packages. Basically, a NumPy \texttt{ndarray} is a raw C pointer that is exposed
-at the Python level. As a tool for scientific computing, Pythran supports such a
+at the Python level. The PEP 3118 defined the API that allows to share
+efficiently the embeded data between Python and the native world without
+involving any copy. As a tool for scientific computing, Pythran supports such a
 structure, implemented as a class wrapping a raw pointer.
 
 
@@ -535,8 +550,9 @@ list of supported operators depend on the input and backend languages: Python
 has \texttt{min}/\texttt{max} operators but C/C++ does not. % C++11 has...
 C/C++ have
 \texttt{\&\&} or \texttt{||} while Python does not.\footnote{Although similar,
-the \texttt{and} and \texttt{or} keywords have a special meaning in Python.} The
-latest OpenMP specifications~\cite{openmp4} describe a way to declare
+the \texttt{and} and \texttt{or} keywords have a special meaning in Python.}
+% FIXME reviewer 4 doesn't seem to agree with and/or C++ vs Python
+The latest OpenMP specifications~\cite{openmp4} describe a way to declare
 user-defined reduction but is not implemented in any compiler yet.
 
 The annotated motivating example is given in
@@ -612,7 +628,9 @@ threads. To be compatible with OpenMP, the loop iteration space has to be
 described by a random access iterator with a total order. Integers used as loop
 indices in Fortran and C satisfy this conditions, as well as C++ iterators with
 the \texttt{random\_access\_tag} trait. But a Python iterator only advances by a
-step of one until it is exhausted, in which case it raises an exception: it
+step of one until it is exhausted,
+% reviewer 4 disagree with the previous statement
+in which case it raises an exception: it
 behaves as a forward iterator. To be compatible with OpenMP, these iterators
 has to be turned into random access iterators.
 
@@ -629,7 +647,7 @@ support random access, but it generally does not make sense to use a generator
 as a loop iterator, as the relation between two random states of the iterator
 may be of an arbitrary complexity.
 
-Generator expressions are generators whose content is built from an other
+Generator expressions are generators whose content is built from another
 iterator. For instance \texttt{(x*x for x in l)} successively yields the square
 of each element in \texttt{l}. They behave like adaptors: they apply a
 particular expression on each value of the iterator. It is also the case of the
@@ -687,7 +705,7 @@ import omp
 def omp_get_num_threads():
   nthreads, nthreads_lib = 0, -1
   #omp parallel
-  if 1
+  if 1:
     #omp critical
     nthreads += 1
     #omp single
@@ -1053,6 +1071,28 @@ B{\'e}atrice \textsc{Creusillet}, Fabien \textsc{Dagnat}, Fran{\,c}ois
 
 \bibliographystyle{IEEEtranS}
 \bibliography{biblio}
+
+
+% FIXME reviewer 4
+% Fig 2, 3, etc: Please use a different color scheme, or add plot markers to
+% the plots for the colorblind among us who can't distinguish thin green and
+% red lines from each other.
+
+% FIXME reviewer 4
+% Fig 2, 3: I believe a log-log plot or a plot of the overall speedup versus
+% number of active threads would be a better way to display the data.
+
+% Remaining reviewer's comments:
+% - Is it the intent of the Pythran authors to expose the entirety of the
+%   OpenMP API, or just a subset?  Task parallelism?
+% - V.C: "Cython is not backwards compatible with Python".  This is false:
+%   Cython's Pure Python mode is fully backwards compatible.
+% - Figs 5,6,7,8: to do apples-to-apples, what about Cython + prange?
+% - Perhaps the only complain is that I would have liked to see the timing for
+%   compilation to be included in the article.  Pythran and Cython are very
+%   different beasts than Numba or Parakeet in this sense, and the later maybe
+%   more useful to compile code that still not exists at compilation time (like
+%   user queries, for example).
 
 \end{document}
 % vim:spell spelllang=en

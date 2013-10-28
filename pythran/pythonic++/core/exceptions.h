@@ -24,7 +24,7 @@ namespace pythonic {
                 template<typename ... Types>
                     BaseException(core::string first,Types ... types) { args = core::empty_list() ; init(first, types ...);}
                 BaseException() { args = core::empty_list();}
-                virtual ~BaseException() throw(){}
+                virtual ~BaseException() noexcept {}
                 core::list<core::string> args;
             protected:
                 template<typename T, typename ... Types>
@@ -44,7 +44,7 @@ namespace pythonic {
             template<class ... Types> \
             name(core::string first, Types ... types):parent(first, types ...){} \
             name():parent(){} \
-            virtual ~name() throw(){} \
+            virtual ~name() noexcept {} \
         };
 
         CLASS_EXCEPTION(SystemExit,BaseException);

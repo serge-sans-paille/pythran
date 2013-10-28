@@ -38,6 +38,7 @@
 #include "modules/time.h"
 #include "modules/omp.h"
 #include "modules/itertools.h"
+#include "modules/functools.h"
 #include "modules/bisect.h"
 #include "modules/operator.h"
 
@@ -46,8 +47,5 @@
 #include "modules/numpy.h"
 #include "modules/ndarray.h"
 #include "modules/finfo.h"
-
-/* extensions */
-#include "core/parallel.h"
 
 #endif

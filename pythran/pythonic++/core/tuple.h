@@ -339,17 +339,22 @@ namespace std {
         };
 }
 
+#include <boost/version.hpp>
+
 /* and boost's */
 namespace boost {
+#if BOOST_VERSION < 105000
     template<class... Types>
         std::size_t hash_value(std::tuple<Types...>  const &x) {
             return std::hash<std::tuple<Types...>>()(x);
         }
+#endif
     template<class T, size_t N>
         std::size_t hash_value(pythonic::core::array<T,N>  const &x) {
             return std::hash<pythonic::core::array<T,N>>()(x);
         }
 }
+
 
 #endif
 

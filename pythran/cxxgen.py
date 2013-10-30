@@ -489,3 +489,11 @@ class BoostPythonModule(object):
                 + [Block(self.init_body)])
 
         return Module(body)
+
+class CompilationUnit(object):
+
+    def __init__(self, body):
+        self.body = body
+
+    def __str__(self):
+        return '\n'.join('\n'.join(s.generate()) for s in self.body)

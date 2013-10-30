@@ -67,7 +67,6 @@ def strip_exp(s):
     else:
         return s
 
-
 class Cxx(Backend):
     '''
     Produces a C++ representation of the AST.
@@ -76,7 +75,7 @@ class Cxx(Backend):
     >>> node = ast.parse("print 'hello world'")
     >>> pm = passmanager.PassManager('test')
     >>> r = pm.dump(Cxx, node)
-    >>> for l in r: print l
+    >>> print r
     #include <pythran/pythran.h>
     namespace __pythran_test
     {
@@ -109,7 +108,7 @@ class Cxx(Backend):
 
         nsbody = body + self.declarations + self.definitions
         ns = Namespace(pythran_ward + self.passmanager.module_name, nsbody)
-        self.result = [header, ns]
+        self.result = CompilationUnit([header, ns])
 
     # openmp processing
     def process_omp_attachements(self, node, stmt, index=None):

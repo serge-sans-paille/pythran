@@ -199,11 +199,11 @@ def multi_buffon(darts):
   return sum(p.map(functools.partial(buffon,darts/n), range(n)))/n
 \end{lstlisting}
 
-Another widely used solution is the module IPython.parallel, which supports many
+Another widely used solution is the module \texttt{IPython.parallel}, which supports many
 different styles of parallelism including: single program, multiple data (SPMD)
-parallelism, multiple program, multiple data (MPMD) parallelism. message passing
+parallelism, multiple program, multiple data (MPMD) parallelism, message passing
 using MPI, task farming, and data parallel.
-FIXME: to be continued...
+%FIXME: to be continued...
 
 There have also been several approaches to replace the GIL by Transactional
 Memories~\cite{Riley2006,Tabba2010} but none of them made its way to the
@@ -353,7 +353,7 @@ helps removing most dynamic behavior, and is combined with a high-level runtime
 library ---\texttt{Pythonic++}--- to allow a one-to-one mapping between Python
 and C++ constructs. Pythonic++ is a template library, i.e.\ it consists
 exclusively of a set of headers. Therefore the generated C++ file is easily
-distribuable and does not depend on Pythran. One could even preprocess this
+distributable and does not depend on Pythran. One could even preprocess this
 C++ file to avoid the need of distributing along the Pythonic++ headers.
 
 The purpose of this section is not to dig into the internals
@@ -444,11 +444,10 @@ compatible with the \texttt{if} clause.
 At the AST level, it means that the Python AST is first reduced to a tree where
 all nodes not available in C++ are transformed into a compatible representation.
 For instance, list comprehension expressions are turned into function calls or
-tuple unpacking is turned in multiple assignments. During this transformation
+tuple unpacking is turned in multiple assignments enclosed in a dummy
+\texttt{if}. During this transformation
 process, an expression is always transformed into a single expression and a
 statement is always transformed into a single statement.
-% FIXME as noted by reviewer 4, the previous sentence is not exact. Just a few
-% lines above we said that "tuple unpacking is turned in multiple assignments"
 Then this AST is converted into a C++ AST meant to be pretty-printed.
 
 
@@ -467,7 +466,7 @@ and has a constant translation cost. NumPy's \texttt{ndarray} is a typical
 implementation of this concept and is the keystone of the Scipy and NumPy
 packages. Basically, a NumPy \texttt{ndarray} is a raw C pointer that is exposed
 at the Python level. The PEP 3118 defined the API that allows to share
-efficiently the embeded data between Python and the native world without
+efficiently the embedded data between Python and the native world without
 involving any copy. As a tool for scientific computing, Pythran supports such a
 structure, implemented as a class wrapping a raw pointer.
 
@@ -550,8 +549,7 @@ list of supported operators depend on the input and backend languages: Python
 has \texttt{min}/\texttt{max} operators but C/C++ does not. % C++11 has...
 C/C++ have
 \texttt{\&\&} or \texttt{||} while Python does not.\footnote{Although similar,
-the \texttt{and} and \texttt{or} keywords have a special meaning in Python.}
-% FIXME reviewer 4 doesn't seem to agree with and/or C++ vs Python
+the \texttt{and} and \texttt{or} keywords are not boolean operators in Python.}
 The latest OpenMP specifications~\cite{openmp4} describe a way to declare
 user-defined reduction but is not implemented in any compiler yet.
 
@@ -664,7 +662,7 @@ respect to default privatization rules: in the given example, \texttt{i} and
 
 \begin{lstlisting}[float, label={lst:complex-omp-for}, caption={Parallel
     loop in Pythran with tuple unpacking.}]
-'omp parallel for'
+#omp parallel for
 for i, v in enumerate([2, 3, 5, 7, 11]):
     print i, ':', v
 \end{lstlisting}
@@ -753,7 +751,7 @@ Listing~\ref{lst:openmp-validation}.
 def omp_parallel_for_if(loop_count):
   import omp
   using = sum = 0
-  'omp parallel for if(using == 1)'
+  #omp parallel for if(using == 1)
   for i in range(loop_count + 1):
     num_threads = omp.get_num_threads()
     sum += i
@@ -871,9 +869,9 @@ We then compare Pythran with Cython. These approaches share some similarities:
 they both generate code written in a lower level language, with OpenMP
 directives. However, the inputs differ as Cython requires more typing
 information than Pythran to generate efficient code, and Cython is not
-backward-compatible with Python. They translate explicit fine-grained
-parallelism through code annotations or specific Python constructs,
-respectively.
+backward-compatible with Python (outside of \emph{Pure mode}). They translate
+explicit fine-grained parallelism through code annotations or specific Python
+constructs, respectively.
 
 Pythran exposes the full OpenMP interface to the user, thus enabling both data
 and task parallelism, as described in Section~\ref{sec:python-openmp}. It is
@@ -905,9 +903,8 @@ from libc.math cimport sqrt
 from cython.parallel import parallel, prange
 def sum_sqrt(double r):
     cdef int i
-    with nogil, parallel():
-        for i in prange(10000000):
-            r += sqrt(i)
+    for i in prange(10000000, nogil=True):
+        r += sqrt(i)
     return r
     \end{lstlisting}
 %
@@ -949,21 +946,21 @@ repository.\footnote{\see the \texttt{sc2013} branch of the git repository.}
 \subsection{Python Benchmarks Test Bed}
 
 The Python Benchmark test bed
-(\url{https://github.com/numfocus/python-benchmarks}) is an innitiative to
+(\url{https://github.com/numfocus/python-benchmarks}) is an initiative to
 gather relevant numerical python benchmarks and compare several implementations
 and compilers. The original benchmarks are slightly adapted to match each
 compiler restriction (e.g. lack of support for a particular construct), or
 completely rewritten in the target's paradigm (e.g. using PyOpenCL or Theano).
 We picked up the targets that did not imply a full rewrite of their input:
 Cython, Numba, Pythran and Parakeet, when available and supported.
-Additionnaly, the original Python code is run.
+Additionally, the original Python code is run.
 
 The best execution time out of five run is shown for each code version. If the
 code does not compile with a particular compiler, the column is left blank. Two
 code versions are shown for Pythran: one compiler without the OpenMP flag set
 and one with the OpenMP flag set. The code itself is not modified, only the
-compilation flag. A logarithmic scale is used due to the generally poor
-performance of the pure Python version.
+compilation flag and the directives. A logarithmic scale is used due to the
+generally poor performance of the pure Python version.
 
 %% For the two paragraph below. it is not specified if openmp annotations were
 % added by hand. It is misleading since the previous paragraph said
@@ -994,7 +991,7 @@ yields an $\times 4.27$ speedup to Pythran.
 Figure~\ref{fig:pb-rosen} shows the execution time of the computation of the
 third derivative of the Rosenbrock function for a random array input, using
 Numpy's vector operations. There is no explicit parallelism in this function but
-the vector operation is implictly parallel. On this example, Cython is on par
+the vector operation is implicitly parallel. On this example, Cython is on par
 with Pythran and slightly faster than Parakeet, but turning OpenMP on makes the
 Pythran version run $\times 1.78$ faster than sequential Pythran.
 
@@ -1006,8 +1003,8 @@ Pythran version run $\times 1.78$ faster than sequential Pythran.
 
 Figure~\ref{fig:pb-growcut} shows the execution time of the computation of one
 step of the GrowCut algorithm used in image processing. On this example,
-Parakeet performs better than Cython and Pytrhan and way better than Numba, but
-paralleizing the outermost loop with OpenMP gives a $\times 2.65$ speedup to
+Parakeet performs better than Cython and Pythran and way better than Numba, but
+parallelizing the outermost loop with OpenMP gives a $\times 2.65$ speedup to
 Pythran that helps it outperform Parakeet.
 
 \begin{figure}[ht]
@@ -1017,11 +1014,11 @@ Pythran that helps it outperform Parakeet.
 \end{figure}
 
 It appears that all Python compilers manage to yield significant speedups over
-the Python interepreter, each compiler managing some cases better than others.
-All the benchmarks exhibt some level of parallelism that are easy to capture
+the Python interpreter, each compiler managing some cases better than others.
+All the benchmarks exhibit some level of parallelism that are easy to capture
 using OpenMP without changing the original algorithm and while maintaining
 backward compatibility with the Python interpreter. Some even have a degree of
-implicit parallism that makes parallelization fully transparent to the user.
+implicit parallelism that makes parallelization fully transparent to the user.
 Taking advantage of this parallelism appears to be the key to reach an
 additional performance level.
 

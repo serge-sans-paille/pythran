@@ -49,7 +49,9 @@ set terminal pdf
 set output "pi_omp_bench.pdf"
 set xlabel "Number of Active Threads"
 set ylabel "Elapsed Time(s)"
-plot 'pi.c.omp' with lines title "C + OpenMP" , 'pi.pythran.omp' with lines title "Pythran + OpenMP"
+set style line 1 lc rgb '#8b1a0e' pt 1 ps 1 lt 1 lw 2 # --- red
+set style line 2 lc rgb '#5e9c36' pt 6 ps 1 lt 1 lw 2 # --- green
+plot 'pi.c.omp' with linespoints ls 1 title "C + OpenMP" , 'pi.pythran.omp' with linespoints ls 2 title "Pythran + OpenMP"
 EOF
 
 
@@ -91,7 +93,9 @@ set terminal pdf
 set output "hyantes_omp_bench.pdf"
 set xlabel "Number of Active Threads"
 set ylabel "Elapsed Time(s)"
-plot 'hyantes.c.omp' with lines title "C + OpenMP" , 'hyantes.pythran.omp' with lines title "Pythran + OpenMP"
+set style line 1 lc rgb '#8b1a0e' pt 1 ps 1 lt 1 lw 2 # --- red
+set style line 2 lc rgb '#5e9c36' pt 6 ps 1 lt 1 lw 2 # --- green
+plot 'hyantes.c.omp' with linespoints ls 1 title "C + OpenMP" , 'hyantes.pythran.omp' with linespoints ls 2 title "Pythran + OpenMP"
 EOF
 
 

@@ -19,7 +19,7 @@ This modules contains code transformation to turn python AST into
 '''
 
 from analysis import ImportedIds, Identifiers, YieldPoints, Globals, Locals
-from analysis import UsedDefChain, UseOMP, CFG
+from analysis import UsedDefChain, UseOMP, CFG, GlobalDeclarations
 from passmanager import Transformation
 from tables import methods, attributes, functions, modules
 from tables import cxx_keywords, namespace
@@ -338,8 +338,13 @@ class _NestedFunctionRemover(Transformation):
         Transformation.__init__(self)
         self.ctx = ctx
         self.passmanager = pm
+        self.global_declarations = pm.gather(GlobalDeclarations, ctx.module)
 
     def visit_FunctionDef(self, node):
+        if modules['functools'] not in self.global_declarations.values():
+            import_ = ast.Import([ast.alias('functools', None)])
+            self.ctx.module.body.insert(0, import_)
+            self.global_declarations['functools'] = modules['functools']
 
         self.ctx.module.body.append(node)
 
@@ -373,8 +378,8 @@ class _NestedFunctionRemover(Transformation):
                 [ast.Name(former_name, ast.Store())],
                 ast.Call(
                     ast.Attribute(
-                        ast.Name('__builtin__', ast.Load()),
-                        "bind",
+                        ast.Name('functools', ast.Load()),
+                        "partial",
                         ast.Load()
                         ),
                     [proxy_call] + binded_args,
@@ -399,34 +404,42 @@ class RemoveNestedFunctions(Transformation):
     >>> pm = passmanager.PassManager("test")
     >>> node = pm.apply(RemoveNestedFunctions, node)
     >>> print pm.dump(backend.Python, node)
+    import functools
     def foo(x):
-        bar = __builtin__.bind(pythran_bar, x)
+        bar = functools.partial(pythran_bar, x)
         bar(12)
     def pythran_bar(x, y):
         return (x + y)
     '''
 
     def visit_Module(self, node):
-        [self.visit(n) for n in node.body]
+        map(self.visit, node.body)
         return node
 
     def visit_FunctionDef(self, node):
         nfr = _NestedFunctionRemover(self.passmanager, self.ctx)
-        node.body = [nfr.visit(n) for n in node.body]
+        node.body = map(nfr.visit, node.body)
         return node
 
 
 ##
 class _LambdaRemover(Transformation):
 
-    def __init__(self, pm, name, ctx):
+    def __init__(self, pm, name, ctx, lambda_functions, imports):
         Transformation.__init__(self)
         self.passmanager = pm
         self.ctx = ctx
         self.prefix = name
-        self.lambda_functions = list()
+        self.lambda_functions = lambda_functions
+        self.imports = imports
+        self.global_declarations = pm.gather(GlobalDeclarations, ctx.module)
 
     def visit_Lambda(self, node):
+        if modules['functools'] not in self.global_declarations.values():
+            import_ = ast.Import([ast.alias('functools', None)])
+            self.imports.append(import_)
+            self.global_declarations['functools'] = modules['functools']
+
         self.generic_visit(node)
         forged_name = "{0}_lambda{1}".format(
                 self.prefix,
@@ -449,15 +462,15 @@ class _LambdaRemover(Transformation):
         if binded_args:
             return ast.Call(
                     ast.Attribute(
-                        ast.Name('__builtin__', ast.Load()),
-                        "bind",
+                        ast.Name('functools', ast.Load()),
+                        "partial",
                         ast.Load()
                         ),
                     [proxy_call] + binded_args,
                     [],
                     None,
                     None)
-        else :
+        else:
             return proxy_call
 
 
@@ -470,22 +483,24 @@ class RemoveLambdas(Transformation):
     >>> pm = passmanager.PassManager("test")
     >>> node = pm.apply(RemoveLambdas, node)
     >>> print pm.dump(backend.Python, node)
+    import functools
     def foo(y):
-        __builtin__.bind(foo_lambda0, y)
+        functools.partial(foo_lambda0, y)
     def foo_lambda0(y, x):
         return (y + x)
     '''
 
     def visit_Module(self, node):
         self.lambda_functions = list()
+        self.imports = list()
         self.generic_visit(node)
-        node.body.extend(self.lambda_functions)
+        node.body = self.imports + node.body + self.lambda_functions
         return node
 
     def visit_FunctionDef(self, node):
-        lr = _LambdaRemover(self.passmanager, node.name, self.ctx)
-        node.body = [lr.visit(n) for n in node.body]
-        self.lambda_functions.extend(lr.lambda_functions)
+        lr = _LambdaRemover(self.passmanager, node.name, self.ctx,
+                            self.lambda_functions, self.imports)
+        node.body = map(lr.visit, node.body)
         return node
 
 

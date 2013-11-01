@@ -1054,6 +1054,13 @@ namespace  pythonic {
                         return reshappy;
                     }
 
+                core::ndarray<T,N> copy() const {
+                    auto res = core::ndarray<T,N>(shape, __builtin__::None);
+                    std::copy(buffer, buffer + size(), res.buffer);
+                    return res;
+                }
+
+
             };
 
 

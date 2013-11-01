@@ -181,7 +181,10 @@ namespace pythonic {
             auto end() -> decltype(data->end()) { return data->end(); }
             auto c_str() const -> decltype(data->c_str()) { return data->c_str(); }
             auto resize(long n) -> decltype(data->resize(n)) { return data->resize(n); }
-            size_t find(string const &s, size_t pos = 0) const { return data->find(*s.data, pos); }
+            size_t find(string const &s, size_t pos = 0) const {
+                const char * res =  strstr(c_str() + pos, s.c_str());
+                return res ? res - c_str() : npos;
+            }
             size_t find_first_of(string const &s, size_t pos = 0) const { return data-> find_first_of(*s.data, pos); }
             size_t find_first_of(const char* s, size_t pos = 0) const { return data-> find_first_of(s, pos); }
             size_t find_first_not_of(string const &s, size_t pos = 0) const { return data->find_first_not_of(*s.data, pos); }
@@ -198,9 +201,7 @@ namespace pythonic {
                 return *this;
             }
             bool operator==(string const& other) const { return *data == *other.data; }
-            bool operator==(char other) const { return data->size() == 1 and (*data)[0] == other; }
             bool operator!=(string const& other) const { return *data != *other.data; }
-            bool operator!=(char other) const { return data->size() != 1 and (*data)[0] != other; }
             bool operator<=(string const& other) const { return *data <= *other.data; }
             bool operator<(string const& other) const { return *data < *other.data; }
             bool operator>=(string const& other) const { return *data >= *other.data; }
@@ -285,6 +286,18 @@ namespace pythonic {
         pythonic::core::string operator+(char const *s, pythonic::core::string const& str) {
             return pythonic::core::string(s + str.get_data());
         }
+        bool operator==(char c, pythonic::core::string const& s) {
+            return s.size() == 1 and s[0] == c;
+        }
+        bool operator==(pythonic::core::string const& s, char c) {
+            return s.size() == 1 and s[0] == c;
+        }
+        bool operator!=(char c, pythonic::core::string const& s) {
+            return s.size() != 1 or s[0] != c;
+        }
+        bool operator!=(pythonic::core::string const& s, char c) {
+            return s.size() != 1 or s[0] != c;
+        }
 
     }
 }
@@ -339,6 +352,11 @@ namespace std {
             return hash<std::string>()(x.get_data());
         }
     };
+}
+namespace boost {
+    std::size_t hash_value(pythonic::core::string  const &x) {
+        return std::hash<pythonic::core::string>()(x);
+    }
 }
 
 /* std::get overload */

@@ -2,7 +2,7 @@ from test_env import TestEnv
 
 class TestStr(TestEnv):
 
-    def test_str_startswith0(self):
+   def test_str_startswith0(self):
         self.run_test("def str_startswith0(s0, s1): return s0.startswith(s1)", "barbapapa", "barba", str_startswith0=[str, str])
 
     def test_str_startswith1(self):
@@ -76,3 +76,12 @@ class TestStr(TestEnv):
 
     def test_str_format(self):
         self.run_test("def str_format(): a = 43.23; return '%.2f %.2f' % (a, a)", str_format=[])
+
+    def test_str_join0(self):
+        self.run_test("def str_join0(): a = ['1'] ; a.pop() ; return 'e'.join(a)", str_join0=[])
+
+    def test_str_join1(self):
+        self.run_test("def str_join1(): a = ['l', 'l'] ; return 'o'.join(a)", str_join1=[])
+
+    def test_str_join2(self):
+        self.run_test("def str_join2(): from itertools import ifilter ; a = ['l', 'l'] ; return 'o'.join(ifilter(len, a))", str_join2=[])

@@ -374,6 +374,11 @@ struct __combined<core::array<T,N>, container<K>> {
     typedef core::array<typename __combined<T,K>::type ,N> type;
 };
 
+template<class T, size_t N>
+struct __combined<core::array<T,N>, core::array<T,N>> {
+    typedef core::array<T ,N> type;
+};
+
 template<class K>
 struct __combined<indexable<K>, std::complex<double>> {
     typedef std::complex<double> type;
@@ -1156,7 +1161,7 @@ struct python_to_pythran< core::string >{
     static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
         void* storage=((boost::python::converter::rvalue_from_python_storage<core::string >*)(data))->storage.bytes;
         char* s=PyString_AS_STRING(obj_ptr);
-        new (storage) core::string(s);
+        new (storage) core::string(s, PyString_GET_SIZE(obj_ptr));
         data->convertible=storage;
     }
 };
@@ -1283,6 +1288,33 @@ struct python_to_pythran< std::tuple<Types...> >{
 
     static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
         do_construct(obj_ptr, data, typename gens< std::tuple_size<std::tuple<Types...>>::value >::type());
+    }
+};
+
+template<typename T, size_t N>
+struct python_to_pythran< core::array<T, N> >{
+    python_to_pythran(){
+        static bool registered=false;
+        python_to_pythran<T>();
+        if(not registered) {
+            registered=true;
+            boost::python::converter::registry::push_back(&convertible,&construct,boost::python::type_id< core::array<T,N> >());
+        }
+    }
+    static void* convertible(PyObject* obj_ptr){
+        if(!PyTuple_Check(obj_ptr) || !PyObject_HasAttrString(obj_ptr,"__len__")) return 0;
+        return obj_ptr;
+    }
+
+    template<int ...S>
+        static void do_construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data, seq<S...>){
+            void* storage=((boost::python::converter::rvalue_from_python_storage<core::array<T,N>>*)(data))->storage.bytes;
+            new (storage) core::array<T,N>{{boost::python::extract<T>(PyTuple_GetItem(obj_ptr,S))...}};
+            data->convertible=storage;
+        }
+
+    static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
+        do_construct(obj_ptr, data, typename gens<N>::type());
     }
 };
 template<class T>

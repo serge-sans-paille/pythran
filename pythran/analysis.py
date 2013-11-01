@@ -441,7 +441,7 @@ class ConstantExpressions(NodeAnalysis):
         return True
 
     def visit_BoolOp(self, node):
-        return all(self.visit(n) for n in node.values) and self.add(node)
+        return all(map(self.visit, node.values)) and self.add(node)
 
     def visit_BinOp(self, node):
         rec = all(map(self.visit, (node.left, node.right)))
@@ -640,7 +640,7 @@ class Aliases(ModuleAnalysis):
         self.generic_visit(node)
         f = node.func
         # special handler for bind functions
-        if isinstance(f, ast.Attribute) and f.attr == "bind":
+        if isinstance(f, ast.Attribute) and f.attr == "partial":
             return self.add(node, {node})
         else:
             return_alias = self.call_return_alias(node)

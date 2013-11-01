@@ -197,9 +197,6 @@ modules = {
             "False": ConstantIntr(),
             "None": ConstantIntr(),
             "True": ConstantIntr(),
-            # pythran extensions
-            "bind": FunctionIntr(),
-            "pmap": ConstFunctionIntr(),
             },
         "numpy": {
             "abs": ConstFunctionIntr(),
@@ -482,6 +479,9 @@ modules = {
                 "pi": ConstantIntr(),
                 "e": ConstantIntr(),
                 },
+        "functools": {
+                "partial": FunctionIntr(),
+                },
         "bisect": {
                 "bisect_left": ConstFunctionIntr(),
                 "bisect_right": ConstFunctionIntr(),
@@ -510,6 +510,7 @@ modules = {
         "random": {
                 "seed": FunctionIntr(global_effects=True),
                 "random": FunctionIntr(global_effects=True),
+                "randint": FunctionIntr(global_effects=True),
                 "randrange": FunctionIntr(global_effects=True),
                 "gauss": FunctionIntr(global_effects=True),
                 "uniform": FunctionIntr(global_effects=True),

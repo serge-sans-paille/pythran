@@ -23,6 +23,7 @@ This module provides a few code analysis for the pythran language.
     * PotentialIterator finds if it is possible to use an iterator.
     * ArgumentReadOnce counts the usages of each argument of each function
 '''
+from twisted.internet.test._posixifaces import in6_addr
 
 from tables import modules, methods, functions
 import ast
@@ -222,7 +223,14 @@ class GlobalDeclarations(ModuleAnalysis):
 
     def visit_FunctionDef(self, node):
         self.result[node.name] = node
-        # no generic visit here, so no diving into function body
+        #needed because of the global keyword
+        map(self.visit, node.body)
+
+    def visit_Global(self, node):
+        for n in node.names:
+            if n not in modules[self.passmanager.module_name]:
+                modules[self.passmanager.module_name][n] = intrinsic.ConstantIntr
+            self.result[n] = modules[self.passmanager.module_name][n]
 
 
 ##
@@ -582,8 +590,8 @@ class Aliases(ModuleAnalysis):
 
     def expand_unknown(self, node):
         # should include built-ins too?
-        unkowns = {None}.union(self.global_declarations.values())
-        return unkowns.union(node.args)
+        unknowns = {None}.union(self.global_declarations)
+        return unknowns.union(node.args)
 
     @staticmethod
     def access_path(node):
@@ -740,8 +748,12 @@ class Aliases(ModuleAnalysis):
         for module in modules:
             self.aliases.update((v, {v})
                 for k, v in modules[module].iteritems())
-        self.aliases.update((f.name, {f})
-            for f in self.global_declarations.itervalues())
+        for k,v in self.global_declarations.iteritems():
+            try:
+                self.aliases[v.name] = {v}
+            except AttributeError:
+                self.aliases[k] = {v}
+
         self.aliases.update((arg.id, {arg})
                 for arg in node.args.args)
         self.generic_visit(node)

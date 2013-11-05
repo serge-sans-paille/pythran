@@ -12,7 +12,9 @@ There are two kinds of passes: transformations and analysis.
 
 import ast
 import re
-
+from tables import modules
+import logging
+logger = logging.getLogger("pythran")
 
 def uncamel(name):
     '''Transforms CamelCase naming convention into C-ish convention'''
@@ -137,6 +139,11 @@ class PassManager(object):
     Front end to the pythran pass system.
     '''
     def __init__(self, module_name):
+        if module_name in modules:
+            logger.warn("Passmanager called on already processed module: "
+                + module_name)
+        else:
+            modules[module_name] = {}
         self.module_name = module_name
 
     def gather(self, analysis, node, ctx=None):

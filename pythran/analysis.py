@@ -227,7 +227,27 @@ class GlobalDeclarations(ModuleAnalysis):
 
 ##
 class Locals(ModuleAnalysis):
-    """Statically compute the value of locals() before each statement
+    """
+    Statically compute the value of locals() before each statement
+
+    Yields a dictionary binding every node to the set of variable names defined
+    *before* this node.
+
+    Following snippet illustrates its behavior:
+    >>> import ast, passmanager
+    >>> pm = passmanager.PassManager('test')
+    >>> code = '''
+    ... def b(n):
+    ...     m = n + 1
+    ...     def b(n):
+    ...         return n + 1
+    ...     return b(m)'''
+    >>> tree = ast.parse(code)
+    >>> l = pm.gather(Locals, tree)
+    >>> l[tree.body[0].body[0]]
+    set(['n'])
+    >>> l[tree.body[0].body[1]]
+    set(['b', 'm', 'n'])
 
     self.locals contains ALL locals
     self.result[node] contains the locals at that point in time
@@ -235,9 +255,11 @@ class Locals(ModuleAnalysis):
       that it may be used to copy over results for some children
     self.declared_globals is used to know what not to add to locals
     """
+
     def __init__(self):
         self.result = dict()
         self.locals = set()
+        self.nesting = 0
         self.declared_globals = set()
         super(Locals, self).__init__()
 
@@ -274,6 +296,10 @@ class Locals(ModuleAnalysis):
         map(self.visit, node.body)
 
     def visit_FunctionDef(self, node):
+        # special case for nested functions
+        if self.nesting:
+            self.add_local(node.name)
+        self.nesting += 1
         self.add_local(node.name)
         self.handle_locals(node)
         #Store attributes to restore them after handling function body
@@ -288,6 +314,7 @@ class Locals(ModuleAnalysis):
         #restore attributes
         self.locals = saved_locals
         self.declared_globals = saved_globals
+        self.nesting -= 1
 
     def visit_Assign(self, node):
         self.handle_locals(node)

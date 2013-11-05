@@ -227,11 +227,34 @@ class GlobalDeclarations(ModuleAnalysis):
 
 ##
 class Locals(ModuleAnalysis):
-    """Statically compute the value of locals() before each statement"""
+    """
+    Statically compute the value of locals() before each statement
+
+    Yields a dictionary binding every node to the set of variable names defined
+    *before* this node.
+
+    Following snippet illustrates its behavior:
+    >>> import ast, passmanager
+    >>> pm = passmanager.PassManager('test')
+    >>> code = '''
+    ... def b(n):
+    ...     m = n + 1
+    ...     def b(n):
+    ...         return n + 1
+    ...     return b(m)'''
+    >>> tree = ast.parse(code)
+    >>> l = pm.gather(Locals, tree)
+    >>> l[tree.body[0].body[0]]
+    set(['n'])
+    >>> l[tree.body[0].body[1]]
+    set(['b', 'm', 'n'])
+    """
+
     def __init__(self):
         self.result = dict()
         self.locals = set()
-        super(Locals, self).__init__(GlobalDeclarations)
+        self.nesting = 0
+        super(Locals, self).__init__()
 
     def generic_visit(self, node):
         super(Locals, self).generic_visit(node)
@@ -250,8 +273,9 @@ class Locals(ModuleAnalysis):
 
     def visit_FunctionDef(self, node):
         # special case for nested functions
-        if node.name not in self.global_declarations:
+        if self.nesting:
             self.locals.add(node.name)
+        self.nesting += 1
         self.expr_parent = node
         self.result[node] = self.locals.copy()
         parent_locals = self.locals.copy()
@@ -259,6 +283,7 @@ class Locals(ModuleAnalysis):
         self.locals.update(arg.id for arg in node.args.args)
         map(self.visit, node.body)
         self.locals = parent_locals
+        self.nesting -= 1
 
     def visit_Assign(self, node):
         self.expr_parent = node

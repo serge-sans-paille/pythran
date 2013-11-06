@@ -23,7 +23,6 @@ This module provides a few code analysis for the pythran language.
     * PotentialIterator finds if it is possible to use an iterator.
     * ArgumentReadOnce counts the usages of each argument of each function
 '''
-from twisted.internet.test._posixifaces import in6_addr
 
 from tables import modules, methods, functions
 import ast
@@ -229,7 +228,8 @@ class GlobalDeclarations(ModuleAnalysis):
     def visit_Global(self, node):
         for n in node.names:
             if n not in modules[self.passmanager.module_name]:
-                modules[self.passmanager.module_name][n] = intrinsic.ConstantIntr
+                modules[self.passmanager.module_name][n] = \
+                    intrinsic.ConstantIntr()
             self.result[n] = modules[self.passmanager.module_name][n]
 
 
@@ -1680,6 +1680,8 @@ class ArgumentReadOnce(ModuleAnalysis):
             elif isinstance(node, ast.alias):
                 self.read_effects = []
             elif isinstance(node, intrinsic.Class):
+                self.read_effects = []
+            elif isinstance(node, intrinsic.ConstantIntr):
                 self.read_effects = []
             else:
                 raise NotImplementedError

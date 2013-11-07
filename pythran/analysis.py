@@ -277,12 +277,12 @@ class Locals(ModuleAnalysis):
             self.result[node] = self.result[self.expr_parent]
 
     #Utilities
-    def copy_locals(self, node):
+    def store_locals(self, node):
         self.result[node] = self.locals.copy()
 
     def handle_locals(self, node):
         self.expr_parent = node
-        self.copy_locals(node)
+        self.store_locals(node)
 
     def add_local(self, local):
         #If the same name was declared with 'global' earlier, cancel
@@ -332,6 +332,7 @@ class Locals(ModuleAnalysis):
 
     def visit_Global(self, node):
         self.declared_globals.update(n for n in node.names)
+        self.store_locals(node)
 
     def visit_For(self, node):
         self.handle_locals(node)
@@ -341,11 +342,11 @@ class Locals(ModuleAnalysis):
         map(self.visit, node.orelse)
 
     def visit_Import(self, node):
-        self.copy_locals(node)
+        self.store_locals(node)
         self.add_locals(alias.name for alias in node.names)
 
     def visit_ImportFrom(self, node):
-        self.copy_locals(node)
+        self.store_locals(node)
         self.add_locals(alias.name for alias in node.names)
 
     def visit_ExceptHandler(self, node):

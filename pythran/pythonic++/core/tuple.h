@@ -343,7 +343,9 @@ namespace std {
 
 /* and boost's */
 namespace boost {
-#if BOOST_VERSION < 105400
+/* clang does not process this definition in the boost header because
+    BOOST_NO_CXX11_HDR_TUPLE is defined for it */
+#ifdef BOOST_NO_CXX11_HDR_TUPLE
     template<class... Types>
         std::size_t hash_value(std::tuple<Types...>  const &x) {
             return std::hash<std::tuple<Types...>>()(x);

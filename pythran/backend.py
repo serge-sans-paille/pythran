@@ -717,6 +717,8 @@ class Cxx(Backend):
         stmt = EmptyStatement()
         return self.process_omp_attachements(node, stmt)
 
+    visit_Global = visit_Pass;
+
     def visit_Break(self, node):
         if self.break_handlers[-1]:
             return Statement("goto {0}".format(self.break_handlers[-1]))

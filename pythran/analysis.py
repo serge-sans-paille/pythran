@@ -193,13 +193,18 @@ class LocalDeclarations(NodeAnalysis):
     """Gathers all local symbols from a function"""
     def __init__(self):
         self.result = set()
+        self.declared_globals = set()
         super(LocalDeclarations, self).__init__()
+
+    def visit_Global(self, node):
+        self.declared_globals.update(n for n in node.names)
 
     def visit_Assign(self, node):
         for t in node.targets:
             assert isinstance(t, ast.Name) or isinstance(t, ast.Subscript)
             if isinstance(t, ast.Name) and not md.get(t, md.LocalVariable):
-                self.result.add(t)
+                if t.id not in self.declared_globals:
+                    self.result.add(t)
 
     def visit_For(self, node):
         assert isinstance(node.target, ast.Name)

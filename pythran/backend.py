@@ -11,6 +11,7 @@ from cxxtypes import *
 from analysis import LocalDeclarations, GlobalDeclarations
 from analysis import YieldPoints, BoundedExpressions, ArgumentEffects
 from passmanager import Backend
+from pythran.analysis import DeclaredGlobals
 
 from tables import operator_to_lambda, modules, type_to_suffix
 from tables import pytype_to_ctype_table
@@ -96,7 +97,8 @@ class Cxx(Backend):
         self.break_handlers = list()
         self.result = None
         super(Cxx, self).__init__(
-                GlobalDeclarations, BoundedExpressions, Types, ArgumentEffects)
+                GlobalDeclarations, BoundedExpressions, Types, ArgumentEffects,
+                DeclaredGlobals)
 
     # mod
     def visit_Module(self, node):
@@ -869,6 +871,8 @@ class Cxx(Backend):
 
     def visit_Name(self, node):
         if node.id in self.local_declarations:
+            return node.id
+        elif node.id in self.declared_globals:
             return node.id
         elif node.id in self.global_declarations:
             return "{0}()".format(node.id)

@@ -1,5 +1,7 @@
 '''
 This module provides a few code analysis for the pythran language.
+    * CFG returns the control flow graph of a node
+    * DeclaredGlobals gathers globals declared in a function
     * LocalDeclarations gathers declarations local to a node
     * GlobalDeclarations gathers top-level declarations
     * Locals computes the value of locals()
@@ -187,17 +189,22 @@ class CFG(FunctionAnalysis):
             raises += nraises
         return currs, raises
 
+##
+class DeclaredGlobals(NodeAnalysis):
+    """Gathers all globals declared in the function"""
+    def __init__(self):
+        self.result = set()
+        super(DeclaredGlobals, self).__init__()
+
+    def visit_Global(self, node):
+        self.result.update(n for n in node.names)
 
 ##
 class LocalDeclarations(NodeAnalysis):
     """Gathers all local symbols from a function"""
     def __init__(self):
         self.result = set()
-        self.declared_globals = set()
-        super(LocalDeclarations, self).__init__()
-
-    def visit_Global(self, node):
-        self.declared_globals.update(n for n in node.names)
+        super(LocalDeclarations, self).__init__(DeclaredGlobals)
 
     def visit_Assign(self, node):
         for t in node.targets:
@@ -274,7 +281,7 @@ class Locals(ModuleAnalysis):
         self.locals = set()
         self.nesting = 0
         self.declared_globals = set()
-        super(Locals, self).__init__()
+        super(Locals, self).__init__(DeclaredGlobals)
 
     def generic_visit(self, node):
         super(Locals, self).generic_visit(node)
@@ -335,10 +342,6 @@ class Locals(ModuleAnalysis):
         self.add_locals(t.id for t in node.targets if isinstance(t, ast.Name))
         map(self.visit, node.targets)
 
-    def visit_Global(self, node):
-        self.declared_globals.update(n for n in node.names)
-        self.store_locals(node)
-
     def visit_For(self, node):
         self.handle_locals(node)
         self.visit(node.iter)
@@ -375,6 +378,7 @@ class Locals(ModuleAnalysis):
     visit_Pass = store_and_visit
     visit_Break = store_and_visit
     visit_Continue = store_and_visit
+    visit_Global = store_and_visit
 
 
 ##

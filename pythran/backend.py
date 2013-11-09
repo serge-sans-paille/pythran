@@ -109,7 +109,14 @@ class Cxx(Backend):
         fbody = (n for n in node.body if not isinstance(n, ast.Expr))
         body = map(self.visit, fbody)
 
-        nsbody = body + self.declarations + self.definitions
+        #generate global variables declared in the module
+        globals =  (
+                    [Statement("{0} {1}".format(
+                        self.types[self.global_declarations[k]].generate(), k))
+                            for k in self.declared_globals]
+                )
+
+        nsbody = globals + body + self.declarations + self.definitions
         ns = Namespace(pythran_ward + self.passmanager.module_name, nsbody)
         self.result = [header, ns]
 

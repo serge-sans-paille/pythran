@@ -110,11 +110,12 @@ class Cxx(Backend):
         body = map(self.visit, fbody)
 
         #generate global variables declared in the module
+        ctx = lambda x: x
         globals =  (
-                    [Statement("{0} {1}".format(
-                        self.types[self.global_declarations[k]].generate(), k))
-                            for k in self.declared_globals]
-                )
+            [Statement("{0} {1}".format(
+                self.types[self.global_declarations[k]].generate(ctx), k))
+                for k in self.declared_globals]
+        )
 
         nsbody = globals + body + self.declarations + self.definitions
         ns = Namespace(pythran_ward + self.passmanager.module_name, nsbody)

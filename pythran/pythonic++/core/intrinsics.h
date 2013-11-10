@@ -163,6 +163,12 @@ namespace pythonic {
             double float_(T&& t) {
                 return t;
             }
+#ifdef USE_GMP
+        template<class T, class U>
+            double float_(__gmp_expr<T,U> const& a) {
+                return mpz_get_d(a.get_mpz_t());
+            }
+#endif
         PROXY(pythonic::__builtin__, float_);
 
         /* hex */

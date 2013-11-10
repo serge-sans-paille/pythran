@@ -151,6 +151,9 @@ def combiner_on_empty_list():
     def test_default_arg3(self):
         self.run_test('def default_arg3(m,n=12): return m+n', 1, 2, default_arg3=[int,int])
 
+    def test_long_to_float_conversion(self):
+        self.run_test('def long_to_float_conversion(l): return float(l)', 12345678912345678L, long_to_float_conversion=[long])
+
     @skip("lists as zeros parameter are not supported")
     def test_list_as_zeros_parameter(self):
         self.run_test('def list_as_zeros_parameter(n): from numpy import zeros ; return zeros([n,n])', 3, list_as_zeros_parameter=[int])

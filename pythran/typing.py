@@ -12,11 +12,11 @@ from tables import pytype_to_ctype_table, operator_to_lambda
 from tables import modules, methods, functions
 from analysis import GlobalDeclarations, YieldPoints, LocalDeclarations
 from analysis import OrderedGlobalDeclarations, ModuleAnalysis, StrictAliases
-from analysis import LazynessAnalysis
+from analysis import LazynessAnalysis, DeclaredGlobals
 from passes import Transformation
 from syntax import PythranSyntaxError
 from cxxtypes import *
-from intrinsic import UserFunction, MethodIntr
+from intrinsic import UserFunction, MethodIntr, ConstantIntr
 import itertools
 import operator
 import metadata
@@ -309,16 +309,22 @@ class Types(ModuleAnalysis):
         self.result["bool"] = NamedType("bool")
         self.combiners = defaultdict(UserFunction)
         self.current_global_declarations = dict()
+        self.globals = set()
         self.max_recompute = 1  # max number of use to be lazy
-        ModuleAnalysis.__init__(self, StrictAliases, LazynessAnalysis)
+        ModuleAnalysis.__init__(self, StrictAliases, LazynessAnalysis,
+                                DeclaredGlobals)
 
     def prepare(self, node, ctx):
         self.passmanager.apply(Reorder, node, ctx)
         for mname, module in modules.iteritems():
             for fname, function in module.iteritems():
-                tname = 'pythonic::{0}::proxy::{1}'.format(mname, fname)
-                self.result[function] = NamedType(tname)
-                self.combiners[function] = function
+                if not isinstance(function, ConstantIntr):
+                    tname = 'pythonic::{0}::proxy::{1}'.format(mname, fname)
+                    self.result[function] = NamedType(tname)
+                    self.combiners[function] = function
+                else:
+                    self.result[function] =  NamedType(fname, {Weak})
+
         super(Types, self).prepare(node, ctx)
 
     def run(self, node, ctx):
@@ -342,7 +348,7 @@ class Types(ModuleAnalysis):
 
     def node_to_id(self, n, depth=0):
         if isinstance(n, ast.Name):
-            return (n.id, depth)
+            return (n.id, -1 if n.id in self.globals else depth)
         elif isinstance(n, ast.Subscript):
             if isinstance(n.slice, ast.Slice):
                 return self.node_to_id(n.value, depth)
@@ -403,6 +409,8 @@ class Types(ModuleAnalysis):
                 node_id, depth = self.node_to_id(node)
                 if depth > 0:
                     node = ast.Name(node_id, ast.Load())
+                elif depth < 0:
+                    node = modules[self.passmanager.module_name][node_id]
                 self.name_to_nodes.setdefault(node_id, set()).add(node)
 
                 former_unary_op = unary_op
@@ -478,6 +486,9 @@ class Types(ModuleAnalysis):
         self.name_to_nodes = {arg.id: {arg} for arg in node.args.args}
         self.yield_points = self.passmanager.gather(YieldPoints, node)
 
+        old_globals = self.globals
+        self.globals = self.passmanager.gather(DeclaredGlobals, node)
+
         # two stages, one for inter procedural propagation
         self.stage = 0
         self.generic_visit(node)
@@ -505,6 +516,9 @@ class Types(ModuleAnalysis):
                 self.result[k] = Lazy(self.result[k])
             else:
                 self.result[k] = Assignable(self.result[k])
+
+        #Restore globals
+        self.globals = old_globals
 
     def visit_Return(self, node):
         self.generic_visit(node)

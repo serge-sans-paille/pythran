@@ -339,20 +339,22 @@ namespace std {
         };
 }
 
-#include <boost/version.hpp>
+#include <boost/functional/hash/extensions.hpp>
 
 /* and boost's */
-namespace boost {
-#if BOOST_VERSION < 105400
-    template<class... Types>
-        std::size_t hash_value(std::tuple<Types...>  const &x) {
-            return std::hash<std::tuple<Types...>>()(x);
-        }
+namespace pythonic {
+    namespace core {
+#ifdef BOOST_NO_CXX11_HDR_TUPLE
+        template<class... Types>
+            std::size_t hash_value(std::tuple<Types...>  const &x) {
+                return std::hash<std::tuple<Types...>>()(x);
+            }
 #endif
-    template<class T, size_t N>
-        std::size_t hash_value(pythonic::core::array<T,N>  const &x) {
-            return std::hash<pythonic::core::array<T,N>>()(x);
-        }
+        template<class T, size_t N>
+            std::size_t hash_value(pythonic::core::array<T,N>  const &x) {
+                return std::hash<pythonic::core::array<T,N>>()(x);
+            }
+    }
 }
 
 

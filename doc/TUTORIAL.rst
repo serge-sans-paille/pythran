@@ -147,6 +147,20 @@ One can also detect some common generator expression patterns to call the iterto
   def norm(l):
       return sum(itertools.imap((lambda n: (n * n)), l))
 
+Instructions outside of functions are automatically moved into a top-level
+__init__ function::
+
+  >>> code = 'a=1\nprint a\ndef foo(): return 2\nprint a+foo()'
+  >>> tree = ast.parse(code)
+  >>> _ = pm.apply(passes.ExtractTopLevelStmts, tree)
+  >>> print pm.dump(backend.Python, tree)
+  def foo():
+      return 2
+  def __init__():
+      a = 1
+      print a
+      print (a + foo())
+  __init__()
 
 Analysis
 --------

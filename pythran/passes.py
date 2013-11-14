@@ -2,6 +2,7 @@
 This modules contains code transformation to turn python AST into
     pythran AST
     * NormalizeTuples removes implicit variable -> tuple conversion
+    * ExtractTopLevelStmts moves top level statements into __init__
     * RemoveComprehension turns list comprehension into function calls
     * RemoveNestedFunctions turns nested function into top-level functions
     * RemoveLambdas turns lambda into regular functions
@@ -209,6 +210,29 @@ class NormalizeTuples(Transformation):
                         node.body.insert(0, ast.Assign([rename], nnode))
 
         self.generic_visit(node)
+        return node
+
+
+##
+class ExtractTopLevelStmts(Transformation):
+    """
+    Turns top level statements into __init__.
+    """
+
+    def visit_Module(self, node):
+        module_body = list()
+        init_body = list()
+        for stmt in node.body:
+            if type(stmt) in (ast.FunctionDef, ast.Import, ast.ImportFrom):
+                module_body.append(stmt)
+            else:
+                init_body.append(stmt)
+        init = ast.FunctionDef('__init__',
+                               ast.arguments([], None, None, []),
+                               init_body,
+                               [])
+        module_body.append(init)
+        node.body = module_body
         return node
 
 

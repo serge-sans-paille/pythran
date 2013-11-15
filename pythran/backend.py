@@ -145,6 +145,11 @@ class Cxx(Backend):
 
     # stmt
     def visit_FunctionDef(self, node):
+        """ Caches all types and alias them as __type0, __type1, __type2, ...
+            Removes duplicates.
+
+            The alias declarations are returned in typedefs.
+        """
         class CachedTypeVisitor:
             class CachedType:
                 def __init__(self, s):

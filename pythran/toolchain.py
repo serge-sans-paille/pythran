@@ -3,6 +3,7 @@ This module contains all the stuff to make your way from python code to
 a dynamic library, see __init__.py for exported interfaces.
 '''
 import sys
+import re
 import os.path
 import sysconfig
 import shutil
@@ -135,6 +136,9 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
 
     '''
     pm = PassManager(module_name)
+    # hacky way to turn OpenMP comments into strings
+    code = re.sub(r'(\s*)#(omp\s[^\n]+)', r'\1"\2"', code)
+
     # font end
     ir = ast.parse(code)
 

@@ -577,10 +577,11 @@ class Cxx(Backend):
 
     def visit_Print(self, node):
         values = [self.visit(n) for n in node.values]
-        return Statement("print{0}({1})".format(
+        stmt = Statement("print{0}({1})".format(
                 "" if node.nl else "_nonl",
                 ", ".join(values))
                 )
+        return self.process_omp_attachements(node, stmt)
 
     def visit_For(self, node):
         if not isinstance(node.target, ast.Name):

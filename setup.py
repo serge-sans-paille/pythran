@@ -205,7 +205,7 @@ class BenchmarkCommand(Command):
 
 
 setup(name='pythran',
-      version='0.3.0',
+      version='0.4.0',
       description='a claimless python to c++ converter',
       author='Serge Guelton',
       author_email='serge.guelton@telecom-bretagne.eu',

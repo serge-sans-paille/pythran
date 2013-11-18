@@ -131,14 +131,14 @@ namespace pythonic {
             }
             else {
                 size_t n = 1 + std::max(self.size(), self.size()* (1+new_pattern.size()) / (1+old_pattern.size()));
-                char * buffer = new char[n];
+                char *buffer = new char[n];
                 char *iter = buffer;
                 do {
                     iter = std::copy(haystack, haystack_next, iter);
                     iter = std::copy(new_needle, new_needle_end, iter);
                     count -= 1;
                     haystack = haystack_next + old_pattern.size();
-                    assert(iter - buffer < n);
+                    assert(size_t(iter - buffer) < n);
                 } while(count and (haystack_next=strstr(haystack, needle)));
                 std::copy(haystack, self.c_str() + self.size() + 1, iter);
 

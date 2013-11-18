@@ -14,6 +14,10 @@ class TestDoctest(unittest.TestCase):
         failed, _ = doctest.testfile('../../doc/TUTORIAL.rst')
         self.assertEqual(failed, 0)
 
+    def test_internal(self):
+        failed, _ = doctest.testfile('../../doc/INTERNAL.rst')
+        self.assertEqual(failed, 0)
+
 
 def generic_test_package(self, mod):
     failed, _ = doctest.testmod(mod)

@@ -297,9 +297,10 @@ class AutoFor(Loop):
         self.body = body
 
     def intro_line(self):
-        return "for (auto {0}: {1})".format(
+        return ("for (typename decltype({1})::iterator::reference "
+                "{0}: {1})".format(
                 self.target,
-                self.iter)
+                self.iter))
 
 
 # simple statements -----------------------------------------------------------
@@ -489,3 +490,15 @@ class BoostPythonModule(object):
                 + [Block(self.init_body)])
 
         return Module(body)
+
+    def __str__(self):
+        return str(self.generate())
+
+
+class CompilationUnit(object):
+
+    def __init__(self, body):
+        self.body = body
+
+    def __str__(self):
+        return '\n'.join('\n'.join(s.generate()) for s in self.body)

@@ -11,7 +11,7 @@ namespace pythonic {
         struct npos {};
 
         template <typename ResultType, typename Operator, typename... Iters>
-            struct imap_iterator : std::iterator< typename pythonic::min_iterator<typename std::remove_reference<Iters>::type::iterator...>::type , ResultType >  {
+            struct imap_iterator : std::iterator< typename pythonic::min_iterator<typename std::remove_reference<Iters>::type::iterator...>::type , ResultType, ptrdiff_t, ResultType*, ResultType /* no ref */ >  {
 
                 template <typename Op, typename... It>
                     struct imap_iterator_data;
@@ -132,7 +132,7 @@ namespace pythonic {
                 template<class... Types>
                 imap_iterator(npos, Operator _op,Types&&... _iters)  : it_data(npos(), _op, std::forward<Types>(_iters)...) {}
 
-                const decltype(it_data.next_value()) operator*() const { 
+                typename imap_iterator::reference operator*() const { 
                     return it_data.next_value(); //value; 
                 }
 
@@ -558,7 +558,13 @@ namespace pythonic {
         PROXY(pythonic::itertools, count);
 
         template<class T>
-        struct combination_iterator : std::iterator< std::forward_iterator_tag, core::list<typename T::value_type> > {
+        struct combination_iterator : std::iterator< std::forward_iterator_tag,
+                                                     core::list<typename T::value_type>,
+                                                     ptrdiff_t,
+                                                     core::list<typename T::value_type>*,
+                                                     core::list<typename T::value_type> /*no ref*/
+                                                   >
+        {
             std::vector<typename T::value_type> iterable;
             std::vector<bool> curr_permut;
             bool end;
@@ -649,7 +655,11 @@ namespace pythonic {
         template<class T>
         struct permutations_iterator :
                 std::iterator< std::forward_iterator_tag,
-                               core::list<typename T::value_type> > {
+                               core::list<typename T::value_type>,
+                               ptrdiff_t,
+                               core::list<typename T::value_type>*,
+                               core::list<typename T::value_type> /* no ref*/
+                             > {
             // Vector of inputs, contains elements to permute
             std::vector<typename T::value_type> pool;
 

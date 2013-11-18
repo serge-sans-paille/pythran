@@ -7,7 +7,7 @@ def pairwise(X):
     M = len(X)
     N = len(X[0])
     D = [ [0 for x in xrange(M) ] for y in xrange(M) ]
-    "omp parallel for private(i,j,k,d,tmp)"
+    "omp parallel for"
     for i in xrange(M):
         for j in xrange(M):
             d = 0.0

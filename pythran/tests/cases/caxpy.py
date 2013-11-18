@@ -19,7 +19,7 @@ def CAXPY(N,CA,CX,INCX,CY,INCY):
         if (abs(CA) == 0.0E+0):
                 return
         if (INCX == 1 and INCY == 1):
-                "omp parallel for private(I)"
+                "omp parallel for"
                 for I in range(N):
                         CY[I] = CY[I] + CA*CX[I]
 #

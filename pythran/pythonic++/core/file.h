@@ -15,7 +15,12 @@ namespace  pythonic {
 
 		    struct npos{npos(){}};
 
-		    struct file_iterator : std::iterator< std::forward_iterator_tag, core::string > {
+		    struct file_iterator : std::iterator< std::forward_iterator_tag,
+                                                  core::string,
+                                                  ptrdiff_t,
+                                                  core::string*,
+                                                  core::string /* no ref */ >
+        {
 					private:
 				core::file & f;
 				core::string curr;
@@ -29,7 +34,7 @@ namespace  pythonic {
 		        bool operator!=(file_iterator const& f2) const;
 		        bool operator<(file_iterator const& f2) const;
 				file_iterator& operator++();
-				core::string operator*() const;
+				core::string const& operator*() const;
 			};
 
 			struct _file{
@@ -236,7 +241,7 @@ namespace  pythonic {
 					position = f.eof() ? -1 : f.tell();
 					return *this;
         		}
-				core::string file_iterator::operator*() const{
+				core::string const &file_iterator::operator*() const{
         		    return curr;
 		        }
 			// End of file_iterator implementation

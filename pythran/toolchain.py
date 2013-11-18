@@ -3,6 +3,7 @@ This module contains all the stuff to make your way from python code to
 a dynamic library, see __init__.py for exported interfaces.
 '''
 import sys
+import re
 import os.path
 import sysconfig
 import shutil
@@ -135,6 +136,9 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
 
     '''
     pm = PassManager(module_name)
+    # hacky way to turn OpenMP comments into strings
+    code = re.sub(r'(\s*)#(omp\s[^\n]+)', r'\1"\2"', code)
+
     # font end
     ir = ast.parse(code)
 
@@ -154,16 +158,8 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
     # back-end
     content = pm.dump(Cxx, ir)
 
-    if not specs:  # Match "None" AND empty specs
-        class Generable:
-            def __init__(self, content):
-                self.content = content
-
-            def generate(self):
-                return "\n".join("\n".join(l for l in s.generate())
-                                 for s in self.content)
-        mod = Generable(content)
-    else:
+    # instanciate the meta program
+    if specs:
         # uniform typing
         for fname, signatures in specs.items():
             if not isinstance(signatures, tuple):
@@ -175,7 +171,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
         max_arity = max(4, max(max(map(len, s)) for s in specs.itervalues()))
         mod.add_to_preamble([Define("BOOST_PYTHON_MAX_ARITY", max_arity)])
         mod.add_to_preamble([Define("BOOST_SIMD_NO_STRICT_ALIASING", "1")])
-        mod.add_to_preamble(content)
+        mod.add_to_preamble(content.body)
         mod.add_to_init([
             Statement('import_array()'),
             Statement('boost::python::implicitly_convertible<std::string,'
@@ -245,6 +241,8 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
                     ),
                     function_name
                 )
+    else:
+        mod = content
     return mod
 
 
@@ -324,7 +322,7 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
 
     if cpponly:
         # User wants only the C++ code
-        _, output_file = _get_temp(str(module.generate()))
+        _, output_file = _get_temp(str(module))
         if module_so:
             shutil.move(output_file, module_so)
             output_file = module_so

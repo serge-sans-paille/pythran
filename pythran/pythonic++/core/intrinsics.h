@@ -114,7 +114,12 @@ namespace pythonic {
 
         /* enumerate */
         template<class Iterator>
-            struct enumerate_iterator : std::iterator<Iterator, std::tuple<long, typename std::iterator_traits<Iterator>::value_type> >{
+            struct enumerate_iterator : std::iterator<Iterator,
+                                                      std::tuple<long, typename std::iterator_traits<Iterator>::value_type>,
+                                                      ptrdiff_t,
+                                                      std::tuple<long, typename std::iterator_traits<Iterator>::value_type>*,
+                                                      std::tuple<long, typename std::iterator_traits<Iterator>::value_type> /* not a ref */
+                                        >{
                 long value;
                 Iterator iter;
                 enumerate_iterator(){}
@@ -599,13 +604,13 @@ namespace pythonic {
         PROXY(pythonic::__builtin__, pow2);
 
         /* xrange */
-        struct xrange_iterator : std::iterator< std::random_access_iterator_tag, long >{
+        struct xrange_iterator : std::iterator< std::random_access_iterator_tag, long, ptrdiff_t, long*, long/*no ref here*/ >{
             long value;
             long step;
             long sign;
             xrange_iterator() {}
             xrange_iterator(long v, long s) : value(v), step(s), sign(s<0?-1:1) {}
-            long operator*() const { return value; }
+            reference operator*() const { return value; }
             xrange_iterator& operator++() { value+=step; return *this; }
             xrange_iterator operator++(int) { xrange_iterator self(*this); value+=step; return self; }
             xrange_iterator& operator+=(long n) { value+=step*n; return *this; }
@@ -614,7 +619,7 @@ namespace pythonic {
             bool operator<(xrange_iterator const& other) const { return sign*value < sign*other.value; }
             long operator-(xrange_iterator const& other) const { return (value - other.value)/step; }
         };
-        struct xrange_riterator : std::iterator< std::random_access_iterator_tag, long >{
+        struct xrange_riterator : std::iterator< std::random_access_iterator_tag, long, ptrdiff_t, long*, long/*no ref here*/ >{
             long value;
             long step;
             long sign;

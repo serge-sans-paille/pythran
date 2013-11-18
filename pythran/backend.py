@@ -8,7 +8,7 @@ import ast
 from cxxgen import *
 from cxxtypes import *
 
-from analysis import LocalDeclarations, GlobalDeclarations
+from analysis import LocalDeclarations, GlobalDeclarations, Scope
 from analysis import YieldPoints, BoundedExpressions, ArgumentEffects
 from passmanager import Backend
 from pythran.analysis import DeclaredGlobals
@@ -77,7 +77,7 @@ class Cxx(Backend):
     >>> node = ast.parse("print 'hello world'")
     >>> pm = passmanager.PassManager('test')
     >>> r = pm.dump(Cxx, node)
-    >>> for l in r: print l
+    >>> print r
     #include <pythran/pythran.h>
     namespace __pythran_test
     {
@@ -98,7 +98,7 @@ class Cxx(Backend):
         self.result = None
         super(Cxx, self).__init__(
                 GlobalDeclarations, BoundedExpressions, Types, ArgumentEffects,
-                DeclaredGlobals)
+                DeclaredGlobals, Scope)
 
     # mod
     def visit_Module(self, node):
@@ -119,7 +119,21 @@ class Cxx(Backend):
 
         nsbody = globals + body + self.declarations + self.definitions
         ns = Namespace(pythran_ward + self.passmanager.module_name, nsbody)
-        self.result = [header, ns]
+        self.result = CompilationUnit([header, ns])
+
+    # local declaration processing
+    def process_locals(self, node, node_visited, *skipped):
+        locals = self.scope[node].difference(skipped)
+        if not locals or self.yields:
+            return node_visited  # no processing
+
+        locals_visited = []
+        for varname in locals:
+            vartype = self.local_types[varname]
+            decl = Statement("{} {}".format(vartype, varname))
+            locals_visited.append(decl)
+        self.ldecls = [ld for ld in self.ldecls if ld.id not in locals]
+        return Block(locals_visited + [node_visited])
 
     # openmp processing
     def process_omp_attachements(self, node, stmt, index=None):
@@ -158,10 +172,15 @@ class Cxx(Backend):
                 def generate(self, ctx):
                     return self.s
 
-            def __init__(self):
-                self.cache = dict()
-                self.rcache = dict()
-                self.mapping = dict()
+            def __init__(self, other=None):
+                if other:
+                    self.cache = other.cache.copy()
+                    self.rcache = other.rcache.copy()
+                    self.mapping = other.mapping.copy()
+                else:
+                    self.cache = dict()
+                    self.rcache = dict()
+                    self.mapping = dict()
 
             def __call__(self, node):
                 if node not in self.mapping:
@@ -193,13 +212,19 @@ class Cxx(Backend):
         formal_args = [arg.id for arg in fargs]
         formal_types = ["argument_type" + str(i) for i in xrange(len(fargs))]
 
-        ldecls = self.passmanager.gather(LocalDeclarations, node)
-        ldecls = {sym.id: sym for sym in ldecls}  # more convenient as a dict
+        self.ldecls = self.passmanager.gather(LocalDeclarations, node)
 
-        self.local_declarations = set(ldecls.iterkeys()).union(formal_args)
+        self.local_names = {sym.id for sym in self.ldecls}.union(formal_args)
         self.extra_declarations = []
 
-        ldecls = set(ldecls.itervalues())
+        lctx = CachedTypeVisitor()
+        self.local_types = {n: self.types[n].generate(lctx)
+                            for n in self.ldecls}
+        self.local_types.update((n.id, t) for n, t in self.local_types.items())
+
+        # choose one node among all the ones with the same name for each name
+        self.ldecls = {n for _, n in
+                       {n.id: n for n in self.ldecls}.iteritems()}
 
         # 0 is used as initial_state, thus the +1
         self.yields = {k: (1 + v, "yield_point{0}".format(1 + v))
@@ -354,14 +379,14 @@ class Cxx(Backend):
                                 self.yields.itervalues(),
                                 key=lambda x: x[0])))))
 
-            ctx = CachedTypeVisitor()
+            ctx = CachedTypeVisitor(lctx)
             next_members = (
                     [Statement("{0} {1}".format(ft, fa))
                         for (ft, fa) in zip(formal_types, formal_args)]
                     + [Statement("{0} {1}".format(
                         self.types[k].generate(ctx),
                         k.id))
-                        for k in ldecls]
+                        for k in self.ldecls]
                     + [Statement("{0} {1}".format(v, k))
                         for k, v in self.extra_declarations]
                     + [Statement("{0} {1}".format("long",
@@ -464,12 +489,12 @@ class Cxx(Backend):
                     "{0}::operator()".format(node.name),
                     formal_types,
                     formal_args)
-            ctx = CachedTypeVisitor()
+            ctx = CachedTypeVisitor(lctx)
             operator_local_declarations = (
                     [Statement("{0} {1}".format(
-                        self.types[k].generate(ctx), k.id)) for k in ldecls]
+                     self.types[k].generate(ctx), k.id)) for k in self.ldecls]
                     + [Statement("{0} {1}".format(v, k))
-                        for k, v in self.extra_declarations]
+                       for k, v in self.extra_declarations]
                     )
             dependent_typedefs = ctx.typedefs()
             operator_definition = FunctionBody(
@@ -540,11 +565,17 @@ class Cxx(Backend):
         value = self.visit(node.value)
         targets = [self.visit(t) for t in node.targets]
         alltargets = "= ".join(targets)
-        if any(metadata.get(t, metadata.LocalVariable) for t in node.targets):
-            alltargets = ("typename "
-                    "assignable<decltype({1})>::type {0}".format(
-                        alltargets, value)
-                    )
+        islocal = any(metadata.get(t, metadata.LocalVariable)
+                      for t in node.targets)
+        if len(targets) == 1 and isinstance(node.targets[0], ast.Name):
+            islocal |= node.targets[0].id in self.scope[node]
+        if islocal and not self.yields:
+            # remove this decl from local decls
+            tdecls = {t.id for t in node.targets}
+            self.ldecls = {d for d in self.ldecls if d.id not in tdecls}
+            # add a local declaration
+            alltargets = '{} {}'.format(self.local_types[node.targets[0]],
+                                        alltargets)
         stmt = Assign(alltargets, value)
         return self.process_omp_attachements(node, stmt)
 
@@ -560,10 +591,11 @@ class Cxx(Backend):
 
     def visit_Print(self, node):
         values = [self.visit(n) for n in node.values]
-        return Statement("print{0}({1})".format(
+        stmt = Statement("print{0}({1})".format(
                 "" if node.nl else "_nonl",
                 ", ".join(values))
                 )
+        return self.process_omp_attachements(node, stmt)
 
     def visit_For(self, node):
         if not isinstance(node.target, ast.Name):
@@ -590,7 +622,7 @@ class Cxx(Backend):
             local_target_decl = ""
             local_iter_decl = ""
 
-        loop_body = [self.visit(n) for n in node.body]
+        loop_body = Block(map(self.visit, node.body))
 
         self.break_handlers.pop()
 
@@ -605,16 +637,31 @@ class Cxx(Backend):
         prelude = Statement("{0} {1} = {2}".format(
             local_iter_decl, local_iter, iter)
             )
-        has_local = metadata.get(node.target, metadata.LocalVariable)
-        if has_local and not self.yields and not omp:
+
+        auto_for = bool(metadata.get(node.target, metadata.LocalVariable))
+        auto_for |= (type(node.target) is ast.Name
+                      and node.target.id in self.scope[node])
+        auto_for &= not self.yields and not omp
+
+        loop_body = self.process_locals(node, loop_body, node.target.id)
+
+        if auto_for:
+            self.ldecls = {d for d in self.ldecls if d.id != node.target.id}
             loop = AutoFor(
                     target,
                     local_iter,
-                    Block(loop_body)
+                    loop_body
                     )
         else:
+            if (metadata.get(node.target, metadata.LocalVariable) and
+                    not self.yields):
+                local_type = "typename decltype({})::reference ".format(
+                                local_target)
+            else:
+                local_type = ""
             loop_body_prelude = Statement(
-                    "{}= *{}".format(
+                    "{} {}= *{}".format(
+                        local_type,
                         target,
                         local_target)
                     )
@@ -627,7 +674,8 @@ class Cxx(Backend):
                         local_target,
                         local_iter),
                     "++{0}".format(local_target),
-                    Block([loop_body_prelude] + loop_body))
+                    Block([loop_body_prelude, loop_body])
+                    )
         stmts = [prelude, loop]
 
         # in that case when can proceed to a reserve
@@ -692,7 +740,8 @@ class Cxx(Backend):
             stmt = Block(body)
         else:
             stmt = If(test, Block(body), Block(orelse) if orelse else None)
-        return self.process_omp_attachements(node, stmt)
+        return self.process_locals(node,
+                                   self.process_omp_attachements(node, stmt))
 
     def visit_Raise(self, node):
         type = node.type and self.visit(node.type)
@@ -726,7 +775,8 @@ class Cxx(Backend):
         # other expressions are processed normally
         else:
             stmt = Statement(self.visit(node.value))
-        return self.process_omp_attachements(node, stmt)
+        return self.process_locals(node,
+                                   self.process_omp_attachements(node, stmt))
 
     def visit_Pass(self, node):
         stmt = EmptyStatement()
@@ -883,7 +933,7 @@ class Cxx(Backend):
             return "{1}[{0}]".format(slice, value)
 
     def visit_Name(self, node):
-        if node.id in self.local_declarations:
+        if node.id in self.local_names:
             return node.id
         elif node.id in self.declared_globals:
             return node.id

@@ -140,7 +140,7 @@ class GatherOMPData(Transformation):
             return None
         else:
             self.attach_data(node)
-        return node
+            return node
 
     def visit_If(self, node):
         if self.isompdirective(node.test):
@@ -167,4 +167,16 @@ class GatherOMPData(Transformation):
                         and self.isompdirective(field[-1].value)):
                     field.append(ast.Pass())
         self.generic_visit(node)
+
+        # add an If to hold scoping OpenMP directives
+        directives = metadata.get(node, OMPDirective)
+        field_names = {n for n, _ in ast.iter_fields(node)}
+        has_no_scope = field_names.isdisjoint(GatherOMPData.statement_lists)
+        if directives and has_no_scope:
+            # some directives create a scope, but the holding stmt may not
+            # artificially create one here if needed
+            sdirective = ''.join(d.s for d in directives)
+            scoping = ('parallel', 'task', 'section')
+            if any(s in sdirective for s in scoping):
+                node = ast.If(ast.Num(1), [node], [])
         return node

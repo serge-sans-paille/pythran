@@ -567,7 +567,9 @@ class Cxx(Backend):
         alltargets = "= ".join(targets)
         islocal = any(metadata.get(t, metadata.LocalVariable)
                       for t in node.targets)
-        if len(targets) == 1 and isinstance(node.targets[0], ast.Name):
+        if len(targets) == 1 and isinstance(node.targets[0], ast.Name)\
+            and node in self.scope and \
+                        node.targets[0].id not in self.declared_globals:
             islocal |= node.targets[0].id in self.scope[node]
         if islocal and not self.yields:
             # remove this decl from local decls

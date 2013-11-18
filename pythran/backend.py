@@ -49,9 +49,12 @@ class Python(Backend):
         self.result = output.getvalue()
 
 
-def templatize(node, types, default_types=None):
+def templatize(node, types, default_types=None, additional_types=None):
     if not default_types:
         default_types = [None] * len(types)
+    if additional_types:
+        types = types + additional_types
+        default_types += [None] * len(additional_types)
     if types:
         return Template(
                 ["typename {0} {1}".format(
@@ -513,6 +516,19 @@ class Cxx(Backend):
                         "result_type"))]
                     )
             extra_typedefs = ctx.typedefs() + extra_typedefs
+
+            #The global combiners
+            combiners = []
+            for k,v in self.types[node][2].items():
+                #the iterable dict is a <global_name, node> assocation
+                decl = templatize(
+                    Alias("combiner_" + k, self.types[v]),
+                    formal_types,
+                    default_arg_types,
+                    [NamedType("or_global_type")]
+                )
+                combiners.append(decl)
+
             return_declaration = [
                     templatize(
                         Struct("type", extra_typedefs),
@@ -523,6 +539,7 @@ class Cxx(Backend):
             topstruct = Struct(
                     node.name,
                     [callable_type]
+                    + combiners
                     + return_declaration
                     + operator_declaration)
 

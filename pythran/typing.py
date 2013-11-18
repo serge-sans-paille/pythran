@@ -310,6 +310,8 @@ class Types(ModuleAnalysis):
         self.combiners = defaultdict(UserFunction)
         self.current_global_declarations = dict()
         self.globals = set()
+        self.global_combiners = dict()
+        self.nested = 0 #Are we in a nested function?
         self.max_recompute = 1  # max number of use to be lazy
         ModuleAnalysis.__init__(self, StrictAliases, LazynessAnalysis,
                                 DeclaredGlobals)
@@ -410,7 +412,10 @@ class Types(ModuleAnalysis):
                 if depth > 0:
                     node = ast.Name(node_id, ast.Load())
                 elif depth < 0:
-                    node = modules[self.passmanager.module_name][node_id]
+                    #It's a global identifier
+                    #node = modules[self.passmanager.module_name][node_id]
+                    node = self.global_combiners[node_id]
+
                 self.name_to_nodes.setdefault(node_id, set()).add(node)
 
                 former_unary_op = unary_op
@@ -481,6 +486,13 @@ class Types(ModuleAnalysis):
             raise
 
     def visit_FunctionDef(self, node):
+        """ Returns a tuple of three values: an Assignable, the typedefs in the
+        function, as well as the global effects of the function: the effects
+        the function has on the globals.
+
+        The effects the function have on the globals is the types the function
+        requires the globals to be."""
+        self.nested += 1
         self.current = node
         self.typedefs = list()
         self.name_to_nodes = {arg.id: {arg} for arg in node.args.args}
@@ -488,6 +500,13 @@ class Types(ModuleAnalysis):
 
         old_globals = self.globals
         self.globals = self.passmanager.gather(DeclaredGlobals, node)
+
+        #If we are NOT in a nested function
+        if self.nested == 1:
+            self.global_combiners = {arg: ConstantIntr() for arg in
+                                        self.globals}
+            self.result.update((v, NamedType("or_global_type")) for k, v in
+                                        self.global_combiners.items())
 
         # two stages, one for inter procedural propagation
         self.stage = 0
@@ -509,7 +528,13 @@ class Types(ModuleAnalysis):
         self.current_global_declarations[node.name] = node
         # return type may be unset if the function always raises
         return_type = self.result.get(node, NamedType("void"))
-        self.result[node] = (Assignable(return_type), self.typedefs)
+
+        if self.nested > 1:
+            self.result[node] = (Assignable(return_type), self.typedefs, {})
+        else:
+            self.result[node] = (Assignable(return_type), self.typedefs,
+                                        self.global_combiners)
+
         for k in self.passmanager.gather(LocalDeclarations, node):
             lazy_res = self.lazyness_analysis[k.id]
             if lazy_res <= self.max_recompute:
@@ -519,6 +544,7 @@ class Types(ModuleAnalysis):
 
         #Restore globals
         self.globals = old_globals
+        self.nested -= 1
 
     def visit_Return(self, node):
         self.generic_visit(node)

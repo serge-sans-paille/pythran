@@ -130,6 +130,18 @@ class Typedef(DeclSpecifier):
         DeclSpecifier.__init__(self, subdecl, "typedef")
 
 
+class Alias(Generable):
+    def __init__(self, alias, val):
+        self.val = val
+        self.alias = alias
+
+    def generate(self, with_semicolon=True):
+        if with_semicolon:
+            yield "using %s = %s;" % (self.alias, self.val)
+        else:
+            yield "using %s = %s" % (self.alias, self.val)
+
+
 class Static(DeclSpecifier):
     def __init__(self, subdecl):
         DeclSpecifier.__init__(self, subdecl, "static")

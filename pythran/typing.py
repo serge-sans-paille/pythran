@@ -20,7 +20,6 @@ from intrinsic import UserFunction, MethodIntr, ConstantIntr
 import itertools
 import operator
 import metadata
-import intrinsic
 from config import cfg
 from collections import defaultdict
 
@@ -311,7 +310,8 @@ class Types(ModuleAnalysis):
         self.current_global_declarations = dict()
         self.globals = set()
         self.global_combiners = dict()
-        self.nested = 0 #Are we in a nested function?
+        self.current_global_combiner = dict()
+        self.nested = 0  # Are we in a nested function?
         self.max_recompute = 1  # max number of use to be lazy
         ModuleAnalysis.__init__(self, StrictAliases, LazynessAnalysis,
                                 DeclaredGlobals)
@@ -325,7 +325,7 @@ class Types(ModuleAnalysis):
                     self.result[function] = NamedType(tname)
                     self.combiners[function] = function
                 else:
-                    self.result[function] =  NamedType(fname, {Weak})
+                    self.result[function] =  NamedType("void", {Weak})
 
         super(Types, self).prepare(node, ctx)
 
@@ -338,6 +338,7 @@ class Types(ModuleAnalysis):
         for head in self.current_global_declarations.itervalues():
             if head not in final_types:
                 final_types[head] = "void"
+
         return final_types
 
     def register(self, ptype):
@@ -414,7 +415,7 @@ class Types(ModuleAnalysis):
                 elif depth < 0:
                     #It's a global identifier
                     #node = modules[self.passmanager.module_name][node_id]
-                    node = self.global_combiners[node_id]
+                    node = self.current_global_combiner[node_id]
 
                 self.name_to_nodes.setdefault(node_id, set()).add(node)
 
@@ -503,10 +504,11 @@ class Types(ModuleAnalysis):
 
         #If we are NOT in a nested function
         if self.nested == 1:
-            self.global_combiners = {arg: ConstantIntr() for arg in
+            self.global_combiners[node.name] = {arg: ConstantIntr() for arg in
                                         self.globals}
             self.result.update((v, NamedType("or_global_type")) for k, v in
-                                        self.global_combiners.items())
+                self.global_combiners[node.name].items())
+            self.current_global_combiner = self.global_combiners[node.name]
 
         # two stages, one for inter procedural propagation
         self.stage = 0
@@ -533,7 +535,7 @@ class Types(ModuleAnalysis):
             self.result[node] = (Assignable(return_type), self.typedefs, {})
         else:
             self.result[node] = (Assignable(return_type), self.typedefs,
-                                        self.global_combiners)
+                                        self.current_global_combiner)
 
         for k in self.passmanager.gather(LocalDeclarations, node):
             lazy_res = self.lazyness_analysis[k.id]

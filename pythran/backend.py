@@ -98,6 +98,7 @@ class Cxx(Backend):
         self.declarations = list()
         self.definitions = list()
         self.break_handlers = list()
+        self.functions = list()
         self.result = None
         super(Cxx, self).__init__(
                 GlobalDeclarations, BoundedExpressions, Types, ArgumentEffects,
@@ -112,15 +113,28 @@ class Cxx(Backend):
         fbody = (n for n in node.body if not isinstance(n, ast.Expr))
         body = map(self.visit, fbody)
 
+        """Now that we've analyzed all the code, handle globals. Merge all the
+        type combiners we have for each globals into one, and put them in
+        final_types[modules[self.passmanager.module_name][global_name]]"""
+        for node in self.functions:
+            # a function's types[2] is its {global: combiner} association
+            for gb in self.types[node][2].keys():
+                gbnode = self.global_declarations[gb]
+                self.types[gbnode] = TemplatedType("{0}::combiner_{1}".format(
+                    node.name, gb),
+                       [NamedType("{0}_argument_type{1}".format(node.name, i))
+                        for i in range(0, len(node.args.args))]
+                    + [self.types[gbnode]])
+
         #generate global variables declared in the module
         ctx = lambda x: x
-        globals =  (
+        globals = (
             [Statement("{0} {1}".format(
-                self.types[self.global_declarations[k]].generate(ctx), k))
-                for k in self.declared_globals]
+                self.types[self.global_declarations[gb]].generate(ctx), gb))
+                for gb in self.declared_globals]
         )
 
-        nsbody = globals + body + self.declarations + self.definitions
+        nsbody = body + self.declarations + globals + self.definitions
         ns = Namespace(pythran_ward + self.passmanager.module_name, nsbody)
         self.result = CompilationUnit([header, ns])
 
@@ -543,6 +557,7 @@ class Cxx(Backend):
                     + return_declaration
                     + operator_declaration)
 
+        self.functions.append(node)
         self.declarations.append(topstruct)
         self.definitions.append(operator_definition)
 

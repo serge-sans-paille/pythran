@@ -128,6 +128,28 @@ class InstanciatedType(Type):
             self.name
             )
 
+class TemplatedType(Type):
+    """
+    A type with template arguments passed in paramemeter
+    """
+    def __init__(self, name, arguments, qualifiers=set()):
+        super(TemplatedType, self).__init__(
+            name=name,
+            arguments=arguments,
+            qualifiers=qualifiers
+            )
+
+    def generate(self, ctx):
+        if self.arguments:
+            args = ", ".join(ctx(arg).generate(ctx) for arg in self.arguments)
+            template_params = "<{0}>".format(args)
+        else:
+            template_params = ""
+
+        return "{0}{1}".format(
+            self.name,
+            template_params,
+            )
 
 class CombinedTypes(Type):
     """

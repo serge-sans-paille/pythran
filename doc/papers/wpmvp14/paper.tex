@@ -9,6 +9,7 @@
 % authoryear    To obtain author/year citation style instead of numeric.
 
 \usepackage{amsmath}
+\usepackage{listings}
 
 
 \begin{document}
@@ -34,7 +35,16 @@
 \maketitle
 
 \begin{abstract}
-This is the text of the abstract.
+
+    The Python language is highly dynamic, most notably due to late binding. As
+    a consequence, program run using Python typically run an order of magnitude
+    slower than their C counterpart. It is also a high level languages whose
+    semantic can be made more static without much change from a user point of
+    view in the case of mathematical applications. In that case, the language
+    provides several vectorization opportunities that are studied in this
+    paper, and evaluated in the context of Pythran, an ahead-of-time compiler
+    that turns Python module into C++ meta-programs.
+
 \end{abstract}
 
 %\category{CR-number}{subcategory}{third-level}
@@ -51,6 +61,38 @@ Vectorization, Meta-Programming, Python, C++
 %%
 %%
 \section{Python, Unboxing and Pythran}
+
+The Python language has grown in audience for the past ten years, even reaching
+the world of scientific computations thanks to the \texttt{numpy} module, a
+module that provides a MATLAB-like API. As a consequence, more and more code is
+being written either in pure Python, generally to prototype an application, or
+as a Python and native code mix when performance matters. However, Python
+trades performance for dynamicity and does not particularly shines in terms of
+performance.
+
+For instance, the natural solution to Project Euler sixth problem ``Find the
+difference between the sum of the squares of the first one hundred natural
+numbers and the square of the sum`` can be coded as in
+Listing~\ref{lst:euler06-py} in Python and as in Listing~\ref{lst:euler06-c} in
+C.
+
+\begin{lstlisting}[language=python, label={lst:euler06-py}, caption={Solution to the Project Euler Sixth Problem in Python}]
+def solve();
+  r = xrange(1, 101)
+  a = sum(r)
+  return a * a - sum(i*i for i in r)
+\end{lstlisting}
+
+\begin{lstlisting}[language=c, label={lst:euler06-c}, caption={Solution to the Project Euler Sixth Problem in C}]
+size_t solve() {
+  size_t a = 0, s = 0;
+  for(size_t i = 0; i< 101; ++i) {
+    a += i;
+    s += i*i;
+  }
+  return a * a - s
+}
+\end{lstlisting}
 
 \subsection{The Unboxing Problem}
 

@@ -10,6 +10,7 @@
 
 \usepackage{amsmath}
 \usepackage{listings}
+\usepackage{hyperref}
 
 
 \begin{document}
@@ -74,25 +75,18 @@ For instance, the natural solution to Project Euler sixth problem ``Find the
 difference between the sum of the squares of the first one hundred natural
 numbers and the square of the sum`` can be coded as in
 Listing~\ref{lst:euler06-py} in Python and as in Listing~\ref{lst:euler06-c} in
-C.
+C. A comparison of the performance of the Python function and the C function
+called through the \texttt{ctypes} module shows that the C version runs more
+than $\times250$ faster than the Python version. Enabling compiler
+auto-vectorization makes the C version $\times400$ faster than the Python
+version.~\footnote{To perform more reliable time measurements, \texttt{n} has
+    been increased to 100001 instead of 101. The script used to perform the
+    measures as well as all other experimental data are available at
+\url{https://github.com/serge-sans-paille/pythran/tree/wpmvp14/doc/papers/wpmvp14/experiments}.}
 
-\begin{lstlisting}[language=python, label={lst:euler06-py}, caption={Solution to the Project Euler Sixth Problem in Python}]
-def solve();
-  r = xrange(1, 101)
-  a = sum(r)
-  return a * a - sum(i*i for i in r)
-\end{lstlisting}
+\lstinputlisting[language=python, label={lst:euler06-py}, caption={Solution to the Project Euler Sixth Problem in Python}]{experiments/euler06.py}
 
-\begin{lstlisting}[language=c, label={lst:euler06-c}, caption={Solution to the Project Euler Sixth Problem in C}]
-size_t solve() {
-  size_t a = 0, s = 0;
-  for(size_t i = 0; i< 101; ++i) {
-    a += i;
-    s += i*i;
-  }
-  return a * a - s
-}
-\end{lstlisting}
+\lstinputlisting[language=c, label={lst:euler06-c}, caption={Solution to the Project Euler Sixth Problem in C}]{experiments/euler06.c}
 
 \subsection{The Unboxing Problem}
 

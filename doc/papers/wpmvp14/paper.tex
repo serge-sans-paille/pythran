@@ -1,0 +1,92 @@
+% submit to https://sites.google.com/site/wpmvp2014/home
+\documentclass[preprint]{sigplanconf}
+
+% The following \documentclass options may be useful:
+
+% preprint      Remove this option only once the paper is in final form.
+% 10pt          To set in 10-point type instead of 9-point.
+% 11pt          To set in 11-point type instead of 9-point.
+% authoryear    To obtain author/year citation style instead of numeric.
+
+\usepackage{amsmath}
+
+
+\begin{document}
+
+\special{papersize=8.5in,11in}
+\setlength{\pdfpageheight}{\paperheight}
+\setlength{\pdfpagewidth}{\paperwidth}
+
+%\conferenceinfo{CONF 'yy}{Month d--d, 20yy, City, ST, Country} 
+%\copyrightyear{20yy} 
+%\copyrightdata{978-1-nnnn-nnnn-n/yy/mm} 
+%\doi{nnnnnnn.nnnnnnn}
+
+\title{Vectorizing Python Constructs Using Pythran and Boost SIMD}
+
+\authorinfo{Serge Guelton}
+           {QuarksLab, T{\'e}l{\'e}com Bretagne}
+           {sguelton@quarkslab.com}
+\authorinfo{Jo{\"e}l Falcou}
+           {MetaScale}
+           {joel.falcou@metascale.org}
+
+\maketitle
+
+\begin{abstract}
+This is the text of the abstract.
+\end{abstract}
+
+%\category{CR-number}{subcategory}{third-level}
+
+% general terms are not compulsory anymore, 
+% you may leave them out
+%\terms
+%term1, term2
+
+\keywords
+Vectorization, Meta-Programming, Python, C++
+
+
+%%
+%%
+\section{Python, Unboxing and Pythran}
+
+\subsection{The Unboxing Problem}
+
+\subsection{The Pythran Compiler}
+
+%%
+%%
+\section{Changing Python Semantic for Vectorization}
+
+\subsection{Intrinsics}
+
+\subsection{List Comprehension}
+
+\subsection{The Numpy Module}
+
+%%
+%%
+\section{Vectorization of a Meta-Program}
+
+\subsection{Boost SIMD}
+
+\subsection{Load/Store Protocol}
+
+%%
+%%
+\section{Validation of the Approach using the Pythran Compiler}
+
+\acks
+
+Acknowledgments, if needed.
+
+% We recommend abbrvnat bibliography style.
+\cite{*}
+
+\bibliographystyle{abbrvnat}
+\bibliography{biblio}
+
+
+\end{document}

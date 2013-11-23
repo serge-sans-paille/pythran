@@ -21,7 +21,8 @@ This module provides a few code analysis for the pythran language.
     * LazynessAnalysis returns number of time a name is use.
     * OptimizableComp finds whether a comprehension can be optimized.
     * PotentialIterator finds if it is possible to use an iterator.
-    * ArgumentReadOnce counts the usages of each argument of each function
+    * ArgumentReadOnce counts the usages of each argument of each function.
+    * OrderedGlobalDeclarations order all global functions.
 '''
 
 from tables import modules, methods, functions
@@ -515,7 +516,7 @@ class OrderedGlobalDeclarations(ModuleAnalysis):
             for alias in self.strict_aliases[node].aliases:
                 if isinstance(alias, ast.FunctionDef):
                     self.result[self.curr].add(alias)
-                if isinstance(alias, ast.Call):  # this is a bind
+                elif isinstance(alias, ast.Call):  # this is a bind
                     for alias in self.strict_aliases[alias.args[0]].aliases:
                         self.result[self.curr].add(alias)
 
@@ -1387,8 +1388,9 @@ class UseOMP(FunctionAnalysis):
 class LazynessAnalysis(FunctionAnalysis):
     """
     Returns number of time a name is used. +inf if it is use in a
-    loop or if a variable used to compute it is modify before
-    its last use
+    loop, if a variable used to compute it is modify before
+    its last use or if it is use in a function call (as it is not an
+    interprocedural analysis)
     >>> import ast, passmanager, backend
     >>> code = "def foo(): c = 1; a = c + 2; c = 2; b = c + c + a; return b"
     >>> node = ast.parse(code)
@@ -1440,10 +1442,6 @@ class LazynessAnalysis(FunctionAnalysis):
         self.name_count[node] = 0
         self.use[node.id] = set(from_)
         self.modify(node, state)
-
-    def visit_FunctionDef(self, node):
-        self.ids = self.passmanager.gather(Identifiers, node, self.ctx)
-        self.generic_visit(node)
 
     def visit_FunctionDef(self, node):
         self.ids = self.passmanager.gather(Identifiers, node, self.ctx)
@@ -1569,6 +1567,7 @@ class LazynessAnalysis(FunctionAnalysis):
     def visit_Call(self, node):
         map(self.visit, node.args)
         #when there is an argument effet, we apply "modify" to the arg
+        #and as it we don't know how it is modify, it is set to inf
         for fun in self.aliases[node.func].aliases:
             if isinstance(fun, ast.Call):
                 fun = fun.args[0]
@@ -1584,6 +1583,8 @@ class LazynessAnalysis(FunctionAnalysis):
                     if arg and len(node.args) > i:
                         self.modify(node.args[i],
                                 self.aliases[node.func].state)
+                        if isinstance(node.args[i], ast.Name): 
+                            self.result[node.args[i].id] = float('inf')
             else:
                 for arg in node.args:
                     self.modify(arg, self.aliases[node.func].state)

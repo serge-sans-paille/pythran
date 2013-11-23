@@ -45,6 +45,21 @@ struct lazy{
     typedef typename assignable<T>::type type;  // very conservative :-)
 };
 
+template<class T, size_t N>
+struct lazy<core::indexed_ndarray<T,N>>{
+    typedef core::indexed_ndarray<T,N> type;
+};
+
+template<class Op, class Arg0>
+struct lazy<core::numpy_uexpr<Op,Arg0>>{
+    typedef core::numpy_uexpr<Op,typename lazy<Arg0>::type> type;
+};
+
+template<class Op, class Arg0, class Arg1>
+struct lazy<core::numpy_expr<Op,Arg0,Arg1>>{
+    typedef core::numpy_expr<Op,typename lazy<Arg0>::type, typename lazy<Arg1>::type> type;
+};
+
 template<class T>
 struct assignable<none<T> >{
     typedef none<typename assignable<T>::type > type;

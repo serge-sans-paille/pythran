@@ -780,26 +780,31 @@ namespace std {
         auto get( core::numpy_uexpr<O,A> const& a) -> decltype(a[I]) { return a[I]; }
 
     template <size_t I, class T, size_t N>
-        struct tuple_element<I, core::ndarray<T,N> > {
-            typedef typename core::ndarray<T,N>::value_type type;
+        class tuple_element<I, core::ndarray<T,N> > {
+            public:
+                typedef typename core::ndarray<T,N>::value_type type;
         };
     template <size_t I, class T, size_t N>
-        struct tuple_element<I, core::indexed_ndarray<T,N> > {
-            typedef typename core::ndarray<T,N>::value_type type;
+        class tuple_element<I, core::indexed_ndarray<T,N> > {
+            public:
+                typedef typename core::ndarray<T,N>::value_type type;
         };
     template <size_t I, class T>
-        struct tuple_element<I, core::sliced_ndarray<T> > {
-            typedef typename T::value_type type;
+        class tuple_element<I, core::sliced_ndarray<T> > {
+            public:
+                typedef typename T::value_type type;
         };
     template <size_t I, class Op, class Arg0, class Arg1>
-        struct tuple_element<I, core::numpy_expr<Op,Arg0, Arg1> > {
-            typedef typename core::numpy_expr_to_ndarray<core::numpy_expr<Op,Arg0, Arg1>>::type::value_type type;
+        class tuple_element<I, core::numpy_expr<Op,Arg0, Arg1> > {
+            public:
+                typedef typename core::numpy_expr_to_ndarray<core::numpy_expr<Op,Arg0, Arg1>>::type::value_type type;
         };
 
     /* for containers */
     template <size_t I, class T>
-        struct tuple_element<I, container<T> > {
-            typedef typename container<T>::value_type type;
+        class tuple_element<I, container<T> > {
+            public:
+                typedef typename container<T>::value_type type;
         };
 }
 

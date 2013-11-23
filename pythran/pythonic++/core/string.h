@@ -368,12 +368,14 @@ namespace std {
         typename pythonic::core::string get( pythonic::core::string const &t) { return pythonic::core::string(t[I]); }
 
     template <size_t I>
-        struct tuple_element<I, pythonic::core::string > {
-            typedef typename pythonic::core::string type;
+        class tuple_element<I, pythonic::core::string > {
+            public:
+                typedef typename pythonic::core::string type;
         };
     template <size_t I>
-        struct tuple_element<I, pythonic::core::string_view > {
-            typedef typename pythonic::core::string type;
+        class tuple_element<I, pythonic::core::string_view > {
+            public:
+                typedef typename pythonic::core::string type;
         };
 }
 

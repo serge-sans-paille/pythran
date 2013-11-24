@@ -84,13 +84,55 @@ version.~\footnote{To perform more reliable time measurements, \texttt{n} has
     measures as well as all other experimental data are available at
 \url{https://github.com/serge-sans-paille/pythran/tree/wpmvp14/doc/papers/wpmvp14/experiments}.}
 
+There are two main reason for the poor performance of Python:
+
+\begin{description}
+
+    \item[dynamic binding] each variable access is made through a dictionnary
+        look-up to bind variable names to variable instances~;
+
+    \item[boxing] each variable value is encapsulated into a heap-allocated
+        generic object ---the \texttt{PyObject}--- which implies extra
+        indirections for each operation.
+
+\end{description}
+
+In that context, it does not make sense to speak about vectorization: the
+nature of an operation is unknown to the interpreter until its execution, and
+data are not contiguous in memory.
+
 \lstinputlisting[language=python, label={lst:euler06-py}, caption={Solution to the Project Euler Sixth Problem in Python}]{experiments/euler06.py}
 
 \lstinputlisting[language=c, label={lst:euler06-c}, caption={Solution to the Project Euler Sixth Problem in C}]{experiments/euler06.c}
 
-\subsection{The Unboxing Problem}
+Several approaches have been proposed to solve these issues: using native
+modules, relying on Ahead-Of-Time (AOT) or Just-In-Time (JIT) compilation.
 
-\subsection{The Pythran Compiler}
+A native module is a shared library whose interface make it callable from the
+Python interpreter using the regular \texttt{import} mechanism. It makes it
+possible to call FORTRAN/C/C++ code from Python in a transparent way. Typically
+Python object are unboxed when transferred from Python to C, where efficient
+computations can happen. The the result is boxed when getting back to the
+Python world. In between, vectorization can happen.  This is the approach taken
+by the \texttt{numpy} module: a native type, the \texttt{ndarray} contains
+contiguous unboxed elemnts, and provides a great deal of high-level functions
+to manipulate them. All the computation-intensive part is done in pure C.
+Vectorization can eventually happen at this level, for instance when performing
+a point-to-point operation like the sum of two arrays.  However the granuarity
+of the operations limits the ratio of load / stores versus operation. For
+instance, if \texttt{a}, \texttt{b} and \texttt{c} are 1-D arrays, the sum
+\texttt{a + b +c} is computed using two loops and an intermediate array.
+
+AOT compilation uses type inference or type annotation to statically compute
+the type of all (like in Shedskin, Parakeet) or part of (like in Cython or
+Numba) variables, effectively unboxing them to speed-up computations. Using JIT
+compilation, type information is available at runtime and the unboxing decision
+is based on profitablity, e.g.\ according to a trace analysis. This is the
+approach of the PyPy project. In both cases, generation of vector instruction
+is possible, but none of the cited project use it.  Indeed automatic
+vectorization is a complex topic, and as stated in~\cite{maleki2011}, many cases
+are not yet correctly supported even for mainstream compilers.
+
 
 %%
 %%

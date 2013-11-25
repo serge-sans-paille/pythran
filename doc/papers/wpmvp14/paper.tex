@@ -133,10 +133,29 @@ is possible, but none of the cited project use it.  Indeed automatic
 vectorization is a complex topic, and as stated in~\cite{maleki2011}, many cases
 are not yet correctly supported even for mainstream compilers.
 
+Pythran is also an AOT compiler, which holds the uinique property of turning
+Python modules into C++ \emph{meta-programs}. It does not need type annotations
+and keeps the polymorphism of original functions, respecting Python's duck
+typing. Like other AOT compilers, it unboxes all variables for better
+performance, and performs a wide variety of optimizations such as lazy
+evaluation, constant folding, expression fusion etc.  It supports core
+\texttt{numpy} constructs and most Python constructs to the notable exception
+of user classes. Constructs such as \texttt{eval}, are not supported.
+
+This paper introduces vectorization of Python programs based on the idea that
+many Python constructs already exhibit good vectorization opportunities. The
+goal of the paper switches from automatic vectorization to vectorization of
+high-level Python intrisics, as described in Section~\ref{sec:python-semantic}.
+One of the difficulties of vectorizing Python functions is linked to function
+polymorphism. Vectorization in the context of C++ meta-programs is examined in
+Section~\ref{sec:meta-vectorization}. The approach is validated using the
+Pythran compiler on several micro-applications from signal processing, physics
+and mathematics presented in Section~\ref{sec:benchs}.
 
 %%
 %%
-\section{Changing Python Semantic for Vectorization}
+\section{Using Python Semantic for Vectorization}
+\label{sec:python-semantic}
 
 \subsection{Intrinsics}
 
@@ -147,6 +166,7 @@ are not yet correctly supported even for mainstream compilers.
 %%
 %%
 \section{Vectorization of a Meta-Program}
+\label{sec:meta-vectorization}
 
 \subsection{Boost SIMD}
 
@@ -155,6 +175,7 @@ are not yet correctly supported even for mainstream compilers.
 %%
 %%
 \section{Validation of the Approach using the Pythran Compiler}
+\label{sec:benchs}
 
 \acks
 

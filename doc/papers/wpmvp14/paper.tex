@@ -12,6 +12,8 @@
 \usepackage{listings}
 \usepackage{hyperref}
 
+\lstset{captionpos=b, float}
+
 
 \begin{document}
 
@@ -157,7 +159,147 @@ and mathematics presented in Section~\ref{sec:benchs}.
 \section{Using Python Semantic for Vectorization}
 \label{sec:python-semantic}
 
+Automatic vectorization generally relies on explicit loop-level vectorization, as
+extensively described in~\cite{bik04}, or on block-level vectorization, also
+called Superword Level Parallelism (SLP) as introduced in~\cite{larsen00}.
+Modern compilers for C/C++/FORTRAN generally implement a mixture of both.
+
+A high-level language such as Python exhibit another level of vectorization
+opportunity in implict loop. Implicit loops can be foud in many places, but
+this paper focuses on \emph{list comprehension} and \emph{generator
+expression}, \emph{map} or \emph{sum} intrinsics and \emph{array operations}
+through the \texttt{numpy} module.
+
 \subsection{Intrinsics}
+
+\subsubsection{\texttt{sum}}
+
+The \texttt{sum} intrinsic is a typical case of potential vectorization of an
+implict loop. Its prototype is: \texttt{sum(sequence[, start]) $\rightarrow$
+value} and its behavior is equivalent to the Python code in
+Listing~\ref{lst:sum-py}. Depending on the type of \texttt{sequence}, and also
+wether one needs to strictly conforms to the IEEE Standard for Floating-Point
+Arithmetic (IEEE 754).
+
+\begin{lstlisting}[language=python, label={lst:sum-py}, caption={Pseudo code of the \texttt{sum} intrinsic.}]
+def sum(sequence, value=0):
+  for e in sequence:
+    value += e
+  return value
+\end{lstlisting}
+
+
+Appart from standard compliancy, to be able to efficiently vectorize this code in C++, one must check that:
+
+\begin{enumerate}
+    \item\label{enu:same-types} All element of \texttt{sequence} have the same types;
+    \item\label{enu:scalar-types} \texttt{sequence} contains scalar types;
+    \item\label{enu:contiguous} \texttt{sequence} contains contiguous elements;
+    \item\label{enu:random-access} \texttt{sequence} provides a random access iterator. in particular one can computes its size in $\mathcal{O}(1)$.
+\end{enumerate}
+
+Condition~\ref{enu:same-types} is a prerequiste for static typing and efficient
+unboxing. For instance, any code that does not match it will fail to compile
+using Pythran or Shed-Skin. It is also satisified for the \texttt{ndarray}
+container as they wraps unboxed arrays. Condition~\ref{enu:scalar-types} can be
+checked at compile time. Python supports two native types candidates for
+vectorization: \texttt{int} (64 bits integer) and \texttt{float}
+(double-precision floating point numbers). The \texttt{numpy} model supports a
+wide range of signed and unsigned integers as well as single, double or
+quadruple precision float. Depending on the target architecture, only some of
+them can fit into vector registers. Finally condition~\ref{enu:contiguous} also
+is a static property of a container. It is verified for C++ alternative to
+Python's \texttt{list}, \texttt{str} and \texttt{ndarrays}, but generally not
+for \texttt{set} or \texttt{dict}. Condition \ref{enu:random-access} is not matched by \emph{generator}s, the Python incarnation of co-routines.
+
+Depending on the container properties, it is possible to select a vectorized
+implementation of fallback to a generic one, e.g.\ using Substitution Failure
+Is Not An Error (SFINAE).
+
+A possible C++ meta-implementation of \texttt{sum} in that context is presented
+in listing~\ref{lst:sum-cxx}. It makes use of the parametric vector register
+introduced by Boost.SIMD and presented in Section~\ref{sec:meta-vectorization}.
+There is nothing new in the vectorization scheme itself. However, the
+possibility to write a meta-function that provides a vectorized implementation
+of the \texttt{sum} intrinsic makes it possible to efficiently turn a Python
+call into a C++ call.
+
+\begin{lstlisting}[language=c++, label={lst:sum-cxx}, caption={Meta-implementation of the \texttt{sum} intrinsic in C++11.}]
+template<class T, class V=long>
+typename std::enable_if<is_vectorizable<T>::value,
+                        typename T::value_type
+                       >::type
+sum(T const& sequence, V value=0L)
+{
+  // E is the type of an element of T
+  typedef typename T::value_type E;
+  // vE is a vector type of vsize elements of type E
+  typedef typename simd::native<E,
+    BOOST_SIMD_DEFAULT_EXTENSION> vE;
+  static const size_t vsize =
+    simd::meta::cardinal_of<vE>::value;
+
+  // vector_value is for the parallel reduction
+  vE vector_value = simd::splat<vE>(E());
+  const size_t n = sequence.size();
+  const size_t bound = n / vsize * vsize;
+  for(size_t i = 0; i < bound; i+= vsize)
+    vp += sequence.load(i);
+  // inner sum of the vector
+  value += boost::simd::sum(vp);
+
+  // handle the tail
+  for(size_t i = bound; i < n; ++i)
+    value += sequence.at(i);
+  return value;
+}
+\end{lstlisting}
+
+\subsubsection{\texttt{map}}
+
+The \texttt{map} intrinsic simply creates a new \texttt{list} and fills it by
+repeatedly applying a function to the items of its argument sequence(s). Its
+prototype is: \texttt{map(function, sequence[, sequence, \dots]) $\rightarrow$
+list}. Again, this is a typical case of vectorizable implicit loops, providing some conditions are met:
+
+\begin{enumerate}
+
+    \item[\label{enu:pure}] \texttt{function} must be vectorizable;
+    \item[\label{enu:sequence}] all \texttt{sequence}s verify the same constraints as stated for the \texttt{sum} intrinsic.
+
+\end{enumerate}
+
+Deciding if a given function is vectorizable can be approximated through a
+composition rules. First, some functions are known to be vectorizable. This is
+generally the case for the addition, substraction etc. Depending on the target
+vector instruction set, some operations may or may not be available as vector
+instructions, e.g.\ trigonometric functions, but they can be provided as
+composite instructions. Some are just not available, as quadruple precision
+float addition. Starting from this set of vectorizable function, one can use
+the \texttt{;} as a closure binary relation to compute a subset of all
+vectorizable functions. Said otherwise, any sequence of operation that only
+involve vector operations is a vector operation and a function whose body is a
+sequence of vector operation or vectorizable functions is a vectorizable
+function itself.
+
+The preceding statemnt is only valid if the function's body only references
+vector functions and formal parameters, as the function must be valid for both
+scalar types and vector types. Note that this perfectly matches the translation
+of polymorphic Python functions into C++ meta-functions, as detailed in
+Listings~\ref{lst:square-python} and~\ref{lst:square-cxx}.
+
+\begin{lstlisting}[language=python, label={lst:square-python}, caption={Python implementation of the square function.}]
+def square(x):
+  return x * x
+\end{lstlisting}
+
+\begin{lstlisting}[language=c++, label={lst:square-cxx}, caption={C++ meta-implementation of the square function.}]
+template<class T>
+auto square(T const& x) -> decltype(x * x) {
+  return x * x;
+}
+\end{lstlisting}
+
 
 \subsection{List Comprehension}
 

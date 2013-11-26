@@ -156,6 +156,16 @@ and mathematics presented in Section~\ref{sec:benchs}.
 
 %%
 %%
+\section{Vectorization of a Meta-Program}
+\label{sec:meta-vectorization}
+
+\subsection{Boost SIMD}
+
+\subsection{Load/Store Protocol}
+
+
+%%
+%%
 \section{Using Python Semantic for Vectorization}
 \label{sec:python-semantic}
 
@@ -210,7 +220,8 @@ quadruple precision float. Depending on the target architecture, only some of
 them can fit into vector registers. Finally condition~\ref{enu:contiguous} also
 is a static property of a container. It is verified for C++ alternative to
 Python's \texttt{list}, \texttt{str} and \texttt{ndarrays}, but generally not
-for \texttt{set} or \texttt{dict}. Condition \ref{enu:random-access} is not matched by \emph{generator}s, the Python incarnation of co-routines.
+for \texttt{set} or \texttt{dict}. Condition \ref{enu:random-access} is not
+matched by \emph{generator}s, the Python incarnation of co-routines.
 
 Depending on the container properties, it is possible to select a vectorized
 implementation of fallback to a generic one, e.g.\ using Substitution Failure
@@ -260,7 +271,8 @@ sum(T const& sequence, V value=0L)
 The \texttt{map} intrinsic simply creates a new \texttt{list} and fills it by
 repeatedly applying a function to the items of its argument sequence(s). Its
 prototype is: \texttt{map(function, sequence[, sequence, \dots]) $\rightarrow$
-list}. Again, this is a typical case of vectorizable implicit loops, providing some conditions are met:
+list}. Again, this is a typical case of vectorizable implicit loops, providing
+some conditions are met:
 
 \begin{enumerate}
 
@@ -271,7 +283,7 @@ list}. Again, this is a typical case of vectorizable implicit loops, providing s
 
 Deciding if a given function is vectorizable can be approximated through a
 composition rules. First, some functions are known to be vectorizable. This is
-generally the case for the addition, substraction etc. Depending on the target
+generally the case for the addition, subtraction etc. Depending on the target
 vector instruction set, some operations may or may not be available as vector
 instructions, e.g.\ trigonometric functions, but they can be provided as
 composite instructions. Some are just not available, as quadruple precision
@@ -282,11 +294,19 @@ involve vector operations is a vector operation and a function whose body is a
 sequence of vector operation or vectorizable functions is a vectorizable
 function itself.
 
-The preceding statemnt is only valid if the function's body only references
+The preceding statement is only valid if the function's body only references
 vector functions and formal parameters, as the function must be valid for both
 scalar types and vector types. Note that this perfectly matches the translation
 of polymorphic Python functions into C++ meta-functions, as detailed in
-Listings~\ref{lst:square-python} and~\ref{lst:square-cxx}.
+Listings~\ref{lst:square-python} and~\ref{lst:square-cxx}. The core idea is that
+the \texttt{square} function can be called indifferently on floating point
+values or on vector of floating point values. Through (automatic) template
+instantiation, the C++ compiler generates the actual scalar and vector version
+from the same meta-function. As Pythran always translates Python's polymorphic
+function in that form, writing a vector version of the \texttt{map} intrinsic is
+slightly more difficult than for the \texttt{sum} intrinsic due to its variadic
+number of arguments, but it also relies on the \texttt{load}/\texttt{store}
+protocol and SFINAE to select it.
 
 \begin{lstlisting}[language=python, label={lst:square-python}, caption={Python implementation of the square function.}]
 def square(x):
@@ -294,25 +314,45 @@ def square(x):
 \end{lstlisting}
 
 \begin{lstlisting}[language=c++, label={lst:square-cxx}, caption={C++ meta-implementation of the square function.}]
-template<class T>
-auto square(T const& x) -> decltype(x * x) {
-  return x * x;
-}
+struct square {
+    template<class T>
+    auto operator()(T const& x)
+    -> decltype(x * x)
+    {
+      return x * x;
+    }
+};
 \end{lstlisting}
-
 
 \subsection{List Comprehension}
 
+Python provides \emph{list comprehension} as a way to create \texttt{list} from
+any iterable. For instance \texttt{[abs(x) for x in l]} creates a new
+\texttt{list} that holds the absolute value of each element of \texttt{l}. A
+filter can be set up as in  \texttt{[abs(x) for x in l if x \% 3]}, where only
+the elements non multiple of 3 are taken into account. Let us call
+\emph{comprehesion rule} the expression on the left of the
+\texttt{for}.
+
+List comprehension can be translated into a combination of \texttt{map} and
+(optionnaly) \texttt{filter}, by transformation of the comprehension rule into
+a lambda function. For instance the previous example can be re-written as
+\texttt{map(abs, filter(lambda x: x\% 3, l))}. Once in this form, the same
+    vectorization opportunities as in the previous section arise.
+
+Generator expression is somehow similar to list comprehension, to the notable
+exception that the value returned is an \emph{iterator adaptator} on the
+container argument. In the context of vectorization, a generator expression
+supports the vector protocol if the associated container also supports it. In
+that case the  \emph{iterator adaptator} implements the vector protocol by
+applying the comprehension rule to each vctor element from this container, in a
+streaming fashion.
+
+Set comprehensions and dict comprehensions can also be rewritten in the form of
+generator expression using the eponym function: \texttt{\{ x + 3 for x in l\}}
+is equivalent to \texttt{set(x + 3 for x in l)}.
+
 \subsection{The Numpy Module}
-
-%%
-%%
-\section{Vectorization of a Meta-Program}
-\label{sec:meta-vectorization}
-
-\subsection{Boost SIMD}
-
-\subsection{Load/Store Protocol}
 
 %%
 %%

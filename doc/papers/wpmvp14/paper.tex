@@ -14,6 +14,13 @@
 
 \lstset{captionpos=b, float}
 
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usetikzlibrary{shadows}
+\usetikzlibrary{arrows}
+\usetikzlibrary{shapes}
+
+
 
 \begin{document}
 
@@ -34,6 +41,9 @@
 \authorinfo{Jo{\"e}l Falcou}
            {MetaScale}
            {joel.falcou@metascale.org}
+\authorinfo{Pierrick Brunet}
+           {INRIA/MOAIS}
+           {pierrick.brunet@inria.fr}
 
 \maketitle
 
@@ -135,14 +145,49 @@ is possible, but none of the cited project use it.  Indeed automatic
 vectorization is a complex topic, and as stated in~\cite{maleki2011}, many cases
 are not yet correctly supported even for mainstream compilers.
 
-Pythran is also an AOT compiler, which holds the uinique property of turning
+Pythran is also an AOT compiler, which holds the unique property of turning
 Python modules into C++ \emph{meta-programs}. It does not need type annotations
 and keeps the polymorphism of original functions, respecting Python's duck
-typing. Like other AOT compilers, it unboxes all variables for better
-performance, and performs a wide variety of optimizations such as lazy
-evaluation, constant folding, expression fusion etc.  It supports core
-\texttt{numpy} constructs and most Python constructs to the notable exception
-of user classes. Constructs such as \texttt{eval}, are not supported.
+typing. It compilation frow is described in Figure~\ref{fig:pythran-compiler}.
+Like other AOT compilers, it unboxes all variables for better performance, and
+performs a wide variety of optimizations such as lazy evaluation, constant
+folding, expression fusion etc.  It supports core \texttt{numpy} constructs and
+most Python constructs to the notable exception of user classes. Constructs
+such as \texttt{eval}, are not supported.
+
+
+\begin{figure}
+
+\centering
+\begin{tikzpicture}[
+file/.style={draw=black!50,fill=black!10,rectangle, drop shadow, align=center,
+node distance=0.7cm},
+    tool/.style={draw=black!50,fill=black!10,ellipse, align=center, node
+    distance=0.7cm}]
+    \node[file] (python) {\textbf{Python Module [\texttt{.py}]}};
+    \node[tool] (pythran) [below=of python] {\textbf{Pythran}};
+    \node[file] (meta-cxx) [below=of pythran] {\textbf{C++} Meta Program};
+    \node[tool] (gxx) [yshift=-1.5em, below=of meta-cxx] {\textbf{g++}};
+    \node (empty) [xshift=-1em, left=of gxx] {};
+    \node[file] (pythonic) [left=of empty] {\textbf{\texttt{pythonic++}}};
+    \node[file] (annotation)     [above=of pythonic] {\textbf{Type Info}};
+    \node[file] (boost) [below=of pythonic] {\textbf{\texttt{boost::python}}};
+    \node[file] (so) [yshift=-1.5em, below=of gxx] {\textbf{Native Module
+    [\texttt{.so}]}};
+
+\draw[very thick, ->] (python) -- (pythran);
+\draw[very thick] (annotation) -| (empty.center);
+\draw[very thick, ->] (pythran) -- (meta-cxx);
+\draw[very thick, ->] (meta-cxx) -- (gxx);
+\draw[very thick] (boost) -| (empty.center);
+\draw[very thick, ->] (pythonic) -- (gxx);
+\draw[very thick, ->] (gxx) -- (so);
+\end{tikzpicture}
+
+\caption{Pythran compiler workflow.}
+\label{fig:pythran-compiler}
+\end{figure}
+
 
 This paper introduces vectorization of Python programs based on the idea that
 many Python constructs already exhibit good vectorization opportunities. The
@@ -348,11 +393,61 @@ that case the  \emph{iterator adaptator} implements the vector protocol by
 applying the comprehension rule to each vctor element from this container, in a
 streaming fashion.
 
-Set comprehensions and dict comprehensions can also be rewritten in the form of
+Set comprehension can also be rewritten in the form of
 generator expression using the eponym function: \texttt{\{ x + 3 for x in l\}}
 is equivalent to \texttt{set(x + 3 for x in l)}.
 
+Dictionnary comprehension and multi-level comprehension (i.e.\ containing
+multiple \texttt{for} clauses) are not considered in this preliminary work.
+
 \subsection{The Numpy Module}
+
+The \texttt{numpy} module played a major role in the adoption of Python by the
+scientific community. In a nutshell, this is a thin Python wrapper above a raw
+array that provides an array language embeded into Python. An example of
+\texttt{numpy} code is show on Listing~\ref{lst:numpy-code}.
+
+\begin{lstlisting}[language=python, label={lst:numpy-code}, caption={Sample \texttt{numpy} code.}]
+import numpy as np
+def rosen(x):
+  return np.sum(100*(x[1:] - x[:-1] ** 2) ** 2
+                + (1 - x[:-1]) ** 2)
+\end{lstlisting}
+
+Common features of array language include indexing, slicing, point-to-point
+operation etc. The latter is traditionnaly a good source of vectorization.
+However, because of the module layer, \texttt{numpy} always create a new array
+to hold intermediate result. For instance in the expression \texttt{(1 -
+x[:-1]) ** 2)} two array are created ---slicing does not create an array but a
+view. The implied extra cost would hide the benefits of vectorization.
+
+The typical way to solve this issue in C++ is to use \emph{expression
+templates}, a technique described in~\cite{} that uses the C++ type system to
+perform lazy evaluation of an expression. However, this approach is limited to
+a single expression. Listing~\ref{lst:numpy-code-fs} illustrates the situation:
+expression templates would not prevent the creation of temporary arrays
+\texttt{t0} and \texttt{t1}. Fortunately, it is possible to apply \emph{forward
+substitution} to fallback to the expression from Listing~\ref{lst:numpy-code}
+and avoid the creattion of any temporary.
+
+\begin{lstlisting}[language=python, label={lst:numpy-code-fs}, caption={Sample \texttt{numpy} code requiring forward subsitution.}]
+import numpy as np
+def rosen(x):
+  t0 = 100*(x[1:] - x[:-1] ** 2) ** 2
+  t1 = (1 - x[:-1]) ** 2
+  return np.sum(t0 + t1)
+\end{lstlisting}
+
+It is possible to hook in the expression template to add vectorization support.
+Indeed the expression from Listing~\ref{lst:numpy-code} hides a single vector
+loop, that can be explicitly vectorized using Bosst.SIMD in a similar manner as
+the \texttt{map} and \texttt{sum} intrinsics.
+
+One potential drawback of the approach would be the generation of multiple load
+from the same location, as in \texttt{1. / a + a}, where \texttt{a} is loaded
+twice on each loop iteration. Fortunately, the backend C++ compiler is capable
+of detecting the redundant load and perform \emph{redundant load store
+elimination}, effectively issuing a single load.
 
 %%
 %%

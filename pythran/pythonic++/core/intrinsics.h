@@ -6,6 +6,10 @@
 #include <complex>
 #include <nt2/include/functions/abs.hpp>
 
+#ifdef USE_BOOST_SIMD
+#include <boost/simd/include/functions/sum.hpp>
+#endif
+
 namespace pythonic {
 
     double const nan = std::numeric_limits<double>::quiet_NaN();
@@ -483,6 +487,33 @@ namespace pythonic {
 
         PROXY(pythonic::__builtin__,map);
 
+        template<class F, class E>
+        core::list<decltype(std::declval<F>()(std::declval<typename E::value_type>()))>
+        vmap(F function, E const & expr) {
+               typedef typename E::value_type T;
+               long n= expr.size();
+               core::list<decltype(std::declval<F>()(std::declval<typename E::value_type>()))> out(n);
+#ifdef USE_BOOST_SIMD
+               long i;
+               typedef typename boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION> vT;
+               static const std::size_t vN = boost::simd::meta::cardinal_of< vT >::value;
+               const long bound = n/vN*vN;
+#endif
+#ifdef USE_BOOST_SIMD
+               for(i=0;i< bound; i+= vN) {
+                   out.store(i, expr.load(i));
+               }
+               for(;i< n; ++i)
+                   out.at(i) = expr.at(i);
+               return out;
+#else
+               for(long i=0 ; i<n; ++i) {
+                   out.at(i) = expr.at(i);
+               }
+               return out;
+#endif
+           }
+        PROXY(pythonic::__builtin__,vmap);
         /* max */
         template <int n, class... Types>
             struct Max;
@@ -829,6 +860,37 @@ namespace pythonic {
             auto sum(std::tuple<Types...> const & t) -> decltype(tuple_sum(t, ::pythonic::int_<sizeof...(Types)-1>())) {
                 return tuple_sum(t, ::pythonic::int_<sizeof...(Types)-1>());
             }
+        template<class E>
+        typename E::value_type
+        vsum(E const & expr) {
+               typedef typename E::value_type T;
+               long n= expr.size();
+               core::list<typename E::value_type> out(n);
+#ifdef USE_BOOST_SIMD
+               long i;
+               typedef typename boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION> vT;
+               static const std::size_t vN = boost::simd::meta::cardinal_of< vT >::value;
+               const long bound = n/vN*vN;
+               vT vp = boost::simd::splat<vT>(T(0));
+#else
+               T vp(0);
+#endif
+#ifdef USE_BOOST_SIMD
+               for(i=0;i< bound; i+= vN) {
+                   vp += expr.load(i);
+               }
+               T p = boost::simd::sum(vp);
+               for(;i< n; ++i)
+                   p += expr.at(i);
+               return p;
+#else
+               for(long i=0 ; i<n; ++i) {
+                   vp += expr.at(i);
+               }
+               return vp;
+#endif
+           }
+        PROXY(pythonic::__builtin__,vsum);
 
 
         /* xrange -> forward declared */

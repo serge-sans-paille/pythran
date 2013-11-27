@@ -175,6 +175,7 @@ modules = {
             "list": ReadOnceFunctionIntr(),
             "long_": ConstFunctionIntr(),
             "map": ReadOnceFunctionIntr(),
+            "vmap": ReadOnceFunctionIntr(),
             "max": ReadOnceFunctionIntr(),
             "min": ReadOnceFunctionIntr(),
             "next": FunctionIntr(),  # not const
@@ -191,6 +192,7 @@ modules = {
             "sorted": ConstFunctionIntr(),
             "str": ConstFunctionIntr(),
             "sum": ReadOnceFunctionIntr(),
+            "vsum": ReadOnceFunctionIntr(),
             "tuple": ReadOnceFunctionIntr(),
             "xrange": ConstFunctionIntr(),
             "zip": ReadOnceFunctionIntr(),

@@ -11,6 +11,14 @@
 #include "shared_ref.h"
 #include "slice.h"
 
+#ifdef USE_BOOST_SIMD
+#include <boost/simd/sdk/simd/native.hpp>
+#include <boost/simd/include/functions/unaligned_load.hpp>
+#include <boost/simd/include/functions/unaligned_store.hpp>
+#include <boost/simd/include/functions/load.hpp>
+#include <boost/simd/include/functions/store.hpp>
+#endif
+
 #define DEFAULT_LIST_CAPACITY 16
 
 namespace  pythonic {
@@ -245,6 +253,19 @@ namespace  pythonic {
                 const_reference at( long n ) const {
                     return (*data)[n];
                 }
+                reference at( long n ) {
+                    return (*data)[n];
+                }
+#ifdef USE_BOOST_SIMD
+                template<class L>
+                auto load( L n ) const -> decltype(boost::simd::unaligned_load<boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>>(data->data(), n)){
+                    return (boost::simd::unaligned_load<boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>>(data->data(), n));
+                }
+                template<class vT>
+                void store(long n, vT&& v) {
+                    //boost::simd::unaligned_store<typename std::remove_cv<typename std::remove_reference<vT>::type>::type>(v, &(*data)[n], n);
+                }
+#endif
 
                 list<T> operator[]( slice const &s ) const {
                     core::normalized_slice norm = s.normalize(size());

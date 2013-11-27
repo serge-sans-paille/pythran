@@ -627,17 +627,23 @@ namespace  pythonic {
 
                 sliced_ndarray(T const& data, slice const& s) : normalized_slice(s.normalize(data.shape[0])), shape(data.shape), data(data) {
                     shape[0] = normalized_slice::size();
-                    jump = 1;
+                    jump = lower;
                     for(size_t i=1;i<value; ++i)
                         jump*=shape[i];
                 }
 
                 auto at(long i) const -> decltype(data.at(0)) {
-                    return data.at(jump*lower+i*step);
+                    return data.at(jump+i*step);
                 }
+#ifdef USE_BOOST_SIMD
+                /* warning : step must be equal to 1! */
+                auto load(long i) const -> decltype(data.load(jump+i)) {
+                    return data.load(jump+i);
+                }
+#endif
                 long size() const { return (data.size() / data.shape[0]) * shape[0] ; }
-                reference operator[](long i) { return data[jump*lower+i*step]; }
-                const_reference operator[](long i) const { return data[jump*lower+i*step]; }
+                reference operator[](long i) { return data[jump+i*step]; }
+                const_reference operator[](long i) const { return data[jump+i*step]; }
 
                 sliced_ndarray<T> operator[](slice const& s) const {
                     core::normalized_slice norm = s.normalize(normalized_slice::size());

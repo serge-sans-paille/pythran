@@ -77,6 +77,7 @@ Vectorization, Meta-Programming, Python, C++
 
 The Python language has grown in audience for the past ten years, even reaching
 the world of scientific computations thanks to the \texttt{numpy} module, a
+%% what about the scipy module? It is not really used?
 module that provides a MATLAB-like API. As a consequence, more and more code is
 being written either in pure Python, generally to prototype an application, or
 as a Python and native code mix when performance matters. However, Python
@@ -122,36 +123,38 @@ modules, relying on Ahead-Of-Time (AOT) or Just-In-Time (JIT) compilation.
 
 A native module is a shared library whose interface make it callable from the
 Python interpreter using the regular \texttt{import} mechanism. It makes it
-possible to call FORTRAN/C/C++ code from Python in a transparent way. Typically
+possible to call native code from Python in a transparent way. Typically
+%% It may be others languages, isn't it?
 Python object are unboxed when transferred from Python to C, where efficient
-computations can happen. The the result is boxed when getting back to the
-Python world. In between, vectorization can happen.  This is the approach taken
+computations can happen. Then the result is boxed when getting back to the
+Python world. In between, vectorization can happen. This is the approach taken
 by the \texttt{numpy} module: a native type, the \texttt{ndarray} contains
-contiguous unboxed elemnts, and provides a great deal of high-level functions
+contiguous unboxed elements, and provides a great deal of high-level functions
 to manipulate them. All the computation-intensive part is done in pure C.
 Vectorization can eventually happen at this level, for instance when performing
-a point-to-point operation like the sum of two arrays.  However the granuarity
-of the operations limits the ratio of load / stores versus operation. For
+a point-to-point operation like the sum of two arrays. However the granularity
+of the operations limits the ratio of \texttt{load}/\texttt{store} versus operation. For
 instance, if \texttt{a}, \texttt{b} and \texttt{c} are 1-D arrays, the sum
-\texttt{a + b +c} is computed using two loops and an intermediate array.
+\texttt{a + b + c} is computed using two loops and an intermediate array.
+% It means there are 4 load / stores and only two loops of addition.
 
 AOT compilation uses type inference or type annotation to statically compute
 the type of all (like in Shedskin, Parakeet) or part of (like in Cython or
 Numba) variables, effectively unboxing them to speed-up computations. Using JIT
 compilation, type information is available at runtime and the unboxing decision
-is based on profitablity, e.g.\ according to a trace analysis. This is the
+is based on profitability, e.g.\ according to a trace analysis. This is the
 approach of the PyPy project. In both cases, generation of vector instruction
-is possible, but none of the cited project use it.  Indeed automatic
+is possible, but none of the cited project use it. Indeed automatic
 vectorization is a complex topic, and as stated in~\cite{maleki2011}, many cases
 are not yet correctly supported even for mainstream compilers.
 
 Pythran is also an AOT compiler, which holds the unique property of turning
 Python modules into C++ \emph{meta-programs}. It does not need type annotations
 and keeps the polymorphism of original functions, respecting Python's duck
-typing. It compilation frow is described in Figure~\ref{fig:pythran-compiler}.
-Like other AOT compilers, it unboxes all variables for better performance, and
+typing. Its compilation workflow is described in Figure~\ref{fig:pythran-compiler}.
+Like others AOT compilers, it unboxes all variables for better performance, and
 performs a wide variety of optimizations such as lazy evaluation, constant
-folding, expression fusion etc.  It supports core \texttt{numpy} constructs and
+folding, expression fusion etc. It supports core \texttt{numpy} constructs and
 most Python constructs to the notable exception of user classes. Constructs
 such as \texttt{eval}, are not supported.
 
@@ -206,7 +209,7 @@ and mathematics presented in Section~\ref{sec:benchs}.
 
 \subsection{Boost SIMD}
 
-\subsection{Load/Store Protocol}
+\subsection{\texttt{Load}/\texttt{Store} Protocol}
 
 
 %%
@@ -220,7 +223,7 @@ called Superword Level Parallelism (SLP) as introduced in~\cite{larsen00}.
 Modern compilers for C/C++/FORTRAN generally implement a mixture of both.
 
 A high-level language such as Python exhibit another level of vectorization
-opportunity in implict loop. Implicit loops can be foud in many places, but
+opportunity in implict loop. Implicit loops can be found in many places, but
 this paper focuses on \emph{list comprehension} and \emph{generator
 expression}, \emph{map} or \emph{sum} intrinsics and \emph{array operations}
 through the \texttt{numpy} module.
@@ -228,6 +231,7 @@ through the \texttt{numpy} module.
 \subsection{Intrinsics}
 
 \subsubsection{\texttt{sum}}
+% only sum as texttt in a title is not really beautiful
 
 The \texttt{sum} intrinsic is a typical case of potential vectorization of an
 implict loop. Its prototype is: \texttt{sum(sequence[, start]) $\rightarrow$
@@ -235,6 +239,7 @@ value} and its behavior is equivalent to the Python code in
 Listing~\ref{lst:sum-py}. Depending on the type of \texttt{sequence}, and also
 wether one needs to strictly conforms to the IEEE Standard for Floating-Point
 Arithmetic (IEEE 754).
+% I don't understand what this last sentence is doing here :-s
 
 \begin{lstlisting}[language=python, label={lst:sum-py}, caption={Pseudo code of the \texttt{sum} intrinsic.}]
 def sum(sequence, value=0):
@@ -250,16 +255,16 @@ Appart from standard compliancy, to be able to efficiently vectorize this code i
     \item\label{enu:same-types} All element of \texttt{sequence} have the same types;
     \item\label{enu:scalar-types} \texttt{sequence} contains scalar types;
     \item\label{enu:contiguous} \texttt{sequence} contains contiguous elements;
-    \item\label{enu:random-access} \texttt{sequence} provides a random access iterator. in particular one can computes its size in $\mathcal{O}(1)$.
+    \item\label{enu:random-access} \texttt{sequence} provides a random access iterator. In particular one can computes its size in $\mathcal{O}(1)$.
 \end{enumerate}
 
 Condition~\ref{enu:same-types} is a prerequiste for static typing and efficient
 unboxing. For instance, any code that does not match it will fail to compile
 using Pythran or Shed-Skin. It is also satisified for the \texttt{ndarray}
 container as they wraps unboxed arrays. Condition~\ref{enu:scalar-types} can be
-checked at compile time. Python supports two native types candidates for
+checked at compile time. Python supports two native scalar types candidates for
 vectorization: \texttt{int} (64 bits integer) and \texttt{float}
-(double-precision floating point numbers). The \texttt{numpy} model supports a
+(double-precision floating point numbers). The \texttt{numpy} model add supports for a
 wide range of signed and unsigned integers as well as single, double or
 quadruple precision float. Depending on the target architecture, only some of
 them can fit into vector registers. Finally condition~\ref{enu:contiguous} also
@@ -268,8 +273,12 @@ Python's \texttt{list}, \texttt{str} and \texttt{ndarrays}, but generally not
 for \texttt{set} or \texttt{dict}. Condition \ref{enu:random-access} is not
 matched by \emph{generator}s, the Python incarnation of co-routines.
 
-Depending on the container properties, it is possible to select a vectorized
-implementation of fallback to a generic one, e.g.\ using Substitution Failure
+%we know a work have to be done about random acces but you speak about something else now ...
+%It is disturbing and we don't really know why you speak about this new topic.
+
+As function have to be generic but some containers do not match requierement
+properties, it is possible to select a vectorized
+implementation of fallback to a generic one using Substitution Failure
 Is Not An Error (SFINAE).
 
 A possible C++ meta-implementation of \texttt{sum} in that context is presented
@@ -390,8 +399,10 @@ exception that the value returned is an \emph{iterator adaptator} on the
 container argument. In the context of vectorization, a generator expression
 supports the vector protocol if the associated container also supports it. In
 that case the  \emph{iterator adaptator} implements the vector protocol by
-applying the comprehension rule to each vctor element from this container, in a
+applying the comprehension rule to each vector element from this container, in a
 streaming fashion.
+
+Python also provide same features for set and dictionnary.
 
 Set comprehension can also be rewritten in the form of
 generator expression using the eponym function: \texttt{\{ x + 3 for x in l\}}

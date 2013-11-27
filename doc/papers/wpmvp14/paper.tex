@@ -20,7 +20,10 @@
 \usetikzlibrary{arrows}
 \usetikzlibrary{shapes}
 
-
+\providecommand{\boostsimd}{\textsc{Boost.SIMD}}
+\providecommand{\cpp}[1][~]{\textsc{C++}#1}
+\providecommand{\ie}[1][~]{\textit{i.e.}#1}
+\providecommand{\eg}[1][~]{\textit{e.g.#1}}
 
 \begin{document}
 
@@ -39,8 +42,8 @@
            {QuarksLab, T{\'e}l{\'e}com Bretagne}
            {sguelton@quarkslab.com}
 \authorinfo{Jo{\"e}l Falcou}
-           {MetaScale}
-           {joel.falcou@metascale.org}
+           {LRI, Universit\'e Paris-Sud}
+           {joel.falcou@lri.fr}
 \authorinfo{Pierrick Brunet}
            {INRIA/MOAIS}
            {pierrick.brunet@inria.fr}
@@ -203,8 +206,110 @@ and mathematics presented in Section~\ref{sec:benchs}.
 %%
 \section{Vectorization of a Meta-Program}
 \label{sec:meta-vectorization}
+SIMD extensions have been a feature of choice for processor manufacturers for a
+couple of decades. However, programming applications that take advantage of the 
+SIMD extension available on the current target remains a complex task. Programmers 
+that use low-level intrinsics have to deal with a verbose programming style due 
+to the fact that SIMD instructions sets cover a few common functionnalities, requiring
+to bury the initial algorithms in architecture specific implementation details.
+Furthermore, these efforts have to be repeated for every different extension
+that one may want to support, making design and maintenance of such applications 
+very time consuming. 
 
-\subsection{Boost SIMD}
+\boostsimd{} is a high-level C++ library to program SIMD architectures. 
+Designed as an \textit{Embedded Domain Specific Language}, \boostsimd{} 
+provides both expresiveness and performance by using generic programming 
+to handle vectorization. \boostsimd{} does not only provide a portable 
+way but also enable the use of common programming idioms when designing 
+SIMD-aware algorithms. Two components are provided:
+
+\begin{itemize}
+\item \textbf{An abstraction of SIMD registers} for portable algorithm design,
+coupled with a large set of functions covering the classical set of operators
+along with a sensible amount (200+) of mathematical functions and utility functions,
+\item \textbf{A support for \cpp standard components} like \texttt{Iterator}
+over SIMD \texttt{Range}, SIMD-aware allocators and SIMD-aware STL algorithms.
+\end{itemize}
+
+\subsection{SIMD register abstraction}
+The first level of abstraction introduced by \textsc{Boost.} \textsc{SIMD} is
+the \texttt{pack} class. For a given type \texttt{T} and a given static integral 
+value \texttt{N} (\texttt{N} being a power of 2), a \texttt{pack} encapsulates
+the best type able to store a sequence of \texttt{N} elements of type \texttt{T}.
+For arbitrary \texttt{T} and \texttt{N}, this type is simply \texttt{std::array<T,N>}
+but when \texttt{T} and \texttt{N} matches the type and width of a SIMD register,
+the architecture-specific type used to represent this register is used instead.
+This semantic provides a way to use arbitrarily large SIMD registers on any system
+and let the library select the best vectorizable type to handle them. By default,
+if \texttt{N} is not provided, \texttt{pack} will automatically select a value
+that will trigger the selection of the native SIMD register type. Moreover, by
+carrying informations about its underlying scalar type, \texttt{pack} enables
+proper instruction selection even when used on extensions (like SSE2 and above)
+that map all integral type to a single SIMD type (\texttt{\_\_m128i} for SSE2).\\
+
+\texttt{pack} handles these low-level SIMD register type as regular objects with
+value semantics, which includes the ability to be constructed or copied from a
+single scalar value, list of scalar values, iterator or range. In each case, the
+proper register loading strategy (splat, set, load or gather) will be issued.
+\texttt{pack} also takes care of issues like boolean predicates support and provides
+both a range and a tuple-like interface.
+
+\subsection{Interaction with Standard Algorithm}
+Modern \cpp programming style based on Generic Programming usually leads to an
+intensive use of various STL components like Iterators. \boostsimd{} provides
+iterator adaptors that turn regular random access iterators into iterators
+suitable for SIMD processing. These adaptors act as free functions taking
+regular iterators as parameters and return iterators that output \texttt{pack}
+whenever dereferenced. These iterators are then usable directly in usual STL
+algorithms such as \texttt{transform} or \texttt{fold} (Listing \ref{stl_example}).
+
+\begin{lstlisting}[language=c++, label={lst:square-cxx}, caption={SIMD Iterator with STL algorithm},label=stl_example]
+std::vector<int,allocator<int> > v(N),r(N);
+
+std::transform ( simd::begin(v.begin())
+               , simd::end(v.end())
+               , simd::begin(r.begin())
+               , [](pack<int> const& p)
+                 { 
+                   return p*p; 
+                 } 
+              );
+\end{lstlisting}
+
+Previous examples of integration within standard algorithm are still limited.
+Applying \texttt{transform} or \texttt{fold} algorithm on SIMD aware data
+requires the size of the data to be an exact multiple of the SIMD register width
+and, in the case of fold, to potentially perform additional operations at the
+end of its call. To alleviate this limitation, \boostsimd{}
+provides its own overload for both \texttt{transform} and \texttt{fold} that take
+care of potential trailing data and performs proper completion of \texttt{fold}.
+Moreover, as \boostsimd{} provides default implementation of all its function for scalar values,
+we can rely on polymorphic callable object to write a mixed scalar/SIMD call to algortihm
+like \texttt{transform}. By using the \texttt{boost::simd::transform} algorithm, code
+handlign alignment, scalar prologue and epilogue is generated.
+
+\begin{lstlisting}[language=c++, label={lst:square-cxx}, caption={Polymorphic SIMD algorithm call},label=stl_poly]
+std::vector<int,allocator<int> > v(128), r(128);
+
+struct f
+{
+  template<class T>
+  auto operator()(T const& p)
+  -> decltype(p * p)
+  {
+    return p * p;
+  }
+};
+
+simd::transform( v.begin(), v.end()
+               , r.begin()
+               , f() 
+               );
+\end{lstlisting}
+
+
+Code written this way keeps a conventional structure and facilitate an usage of template
+functors for both scalar and SIMD cases also helps maximizing code reuse.
 
 \subsection{Load/Store Protocol}
 

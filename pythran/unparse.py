@@ -83,14 +83,14 @@ class Unparser:
 
     def _Module(self, tree):
         # Goes through each top-level statement. If the special __init__() function
-        # is found, add a call to it
+        # is found, add a call to it because it's a special Pythran feature.
         has_init = False
         for stmt in tree.body:
             self.dispatch(stmt)
             if (type(stmt) is ast.FunctionDef and
                     stmt.name == '__init__'):
                 has_init = True
-        # call __init__() in which top staments are moved
+        # Call __init__() in which top statements are moved.
         if has_init:
             self.fill("__init__()")
 

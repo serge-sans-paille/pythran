@@ -51,7 +51,7 @@ cat > rosen_fs.dat << EOF
 CPython 1.64
 Pythran 0.49
 Pythran+AVX 0.41
-Pythran+AVX+forward_substitution 0.29
+Pythran+AVX+fs 0.29
 EOF
 
 

@@ -53,8 +53,8 @@
 \begin{abstract}
 
     The Python language is highly dynamic, most notably due to late binding. As
-    a consequence, program run using Python typically run an order of magnitude
-    slower than their C counterpart. It is also a high level languages whose
+    a consequence, programs run using Python typically run an order of magnitude
+    slower than their C counterpart. It is also a high level language whose
     semantic can be made more static without much change from a user point of
     view in the case of mathematical applications. In that case, the language
     provides several vectorization opportunities that are studied in this
@@ -90,23 +90,25 @@ shines in terms of performance.
 
 \subsection{Python Performance Shortcomings}
 
-For instance, the natural solution to Project Euler sixth problem ``Find the
-difference between the sum of the squares of the first one hundred natural
-numbers and the square of the sum`` can be coded as in
-Listing~\ref{lst:euler06-py} in Python and as in Listing~\ref{lst:euler06-c} in
-C. A comparison of the performance of the Python function and the C function
-called through the \texttt{ctypes} module shows that the C version runs more
-than $\times250$ faster than the Python version. Enabling compiler
-auto-vectorization makes the C version $\times400$ faster than the Python
-version. To perform more reliable time measurements, \texttt{n} has been
-increased to 100001 instead of 101.
+To illustrate the relatively bad performance of Python for numerical
+computations, let us consider the sixth problem from the Project Euler: ``Find
+the difference between the sum of the squares of the first one hundred natural
+numbers and the square of the sum``. A straight-forward solution can be coded
+as in Listing~\ref{lst:euler06-py} in Python or as in
+Listing~\ref{lst:euler06-c} in C. A comparison of the performance of the Python
+function and the C function called through the \texttt{ctypes} module shows
+that the C version runs more than $\times250$ faster than the Python version.
+Enabling compiler auto-vectorization even makes the C version $\times400$
+faster than the Python version (Note that to perform more reliable time
+measurements, the size of the problem has been increased to 100001 instead of
+101).
 
-There are two main reason for the poor performance of Python:
+There are two main reasons for the poor performance of Python:
 
 \begin{description}
 
     \item[dynamic binding] each variable access is made through a dictionary
-        look-up to bind variable names to variable instances~;
+        look-up that binds variable names to variable instances;
 
     \item[boxing] each variable value is encapsulated into a heap-allocated
         generic object ---the \texttt{PyObject}--- which implies extra
@@ -116,7 +118,7 @@ There are two main reason for the poor performance of Python:
 
 In that context, it does not make sense to speak about vectorization: the
 nature of an operation is unknown to the interpreter until its execution, and
-data are not contiguous in memory.
+data are not even contiguous in memory.
 
 \lstinputlisting[language=python, label={lst:euler06-py}, caption={Solution to the Project Euler Sixth Problem in Python}]{experiments/euler06.py}
 
@@ -125,26 +127,27 @@ data are not contiguous in memory.
 
 \subsection{Compiling Python Code}
 
-Several approaches have been proposed to solve the performance issues of
-Python: using native modules, relying on Ahead-Of-Time (AOT) or Just-In-Time
-(JIT) compilation.
+Several approaches have been proposed to solve the performance issue of Python:
+using native modules, relying on Ahead-Of-Time (AOT) compilation or
+Just-In-Time (JIT) compilation.
 
 A native module is a shared library whose interface make it callable from the
 Python interpreter using the regular \texttt{import} mechanism. It makes it
 possible to call native code from Python in a transparent way. Typically Python
-object are unboxed when transferred from Python to C, where efficient
+object are unboxed when transfered from Python to C, where efficient
 computations can happen. Then the result is boxed when getting back to the
 Python world. In between, vectorization can happen. This is the approach taken
 by the \texttt{numpy} module: a native type, the \texttt{ndarray} contains
-contiguous unboxed elements, and provides a great deal of high-level functions
-to manipulate them. All the computation-intensive part is done in pure C.
-Vectorization can eventually happen at this level, for instance when performing
-a point-to-point operation like the sum of two arrays. However the granularity
-of the operations limits the ratio of \texttt{load}/\texttt{store} versus
-operation. For instance, if \texttt{a}, \texttt{b} and \texttt{c} are 1-D
-arrays, the sum \texttt{a + b + c} is computed using two loops and an
-intermediate array.  It means there are 4 load / stores and only two additions
-per loop iteration.
+contiguous unboxed elements, say single precision floating point numbers, and
+provides a great deal of high-level functions to manipulate them. All the
+computation-intensive part is done in pure C.  Vectorization can eventually
+happen at this level, for instance when performing a point-to-point operation
+like the sum of two arrays. However the granularity of the operations limits
+the ratio of \texttt{load}/\texttt{store} versus operation. For instance, if
+\texttt{a}, \texttt{b} and \texttt{c} are 1-D arrays, the sum \texttt{a + b +
+c} is computed using two loops and an intermediate array. It means there are 4
+load / stores and only two additions per loop iteration and vectorization is
+unlikely to be profitable.
 
 AOT compilation uses type inference or type annotation to statically compute
 the type of all (like in Shedskin~\cite{shedskin2006},
@@ -154,22 +157,24 @@ computations. Using JIT compilation, type information is available at runtime
 and the unboxing decision is based on profitability, e.g.\ according to a trace
 analysis. This is the approach of the PyPy project~\cite{pypy2009}. In both
 cases, generation of vector instruction is possible, but none of the cited
-project use it. Indeed automatic vectorization is a complex topic, and as
+project uses it. Indeed automatic vectorization is a complex topic, and as
 stated in~\cite{maleki2011}, many cases are not yet correctly supported even
-for mainstream compilers.
+for mainstream C/C++/FORTRAN compilers.
 
 \subsection{The Pythran Compiler}
 
-Pythran~\cite{pythran2013, pyhpc2013} is also an AOT compiler, bit it holds the
-unique property of turning Python modules into C++ \emph{meta-programs}. It
-does not need type annotations and keeps the polymorphism of original
-functions, respecting Python's duck typing. Its compilation workflow is
-described in Figure~\ref{fig:pythran-compiler}.  Like others AOT compilers, it
-unboxes all variables for better performance, and performs a wide variety of
-optimizations such as lazy evaluation, constant folding, expression fusion etc.
-It supports core \texttt{numpy} constructs and most Python constructs to the
-notable exception of user classes. Constructs such as \texttt{eval}, are not
-supported either.
+Pythran~\cite{pythran2013, pyhpc2013} is also an AOT compiler, but it holds the
+unique property of turning Python modules into C++11 \emph{meta-programs}. It
+does not need any type annotations during translation and keeps the
+polymorphism of original functions, respecting Python's duck typing. Its
+compilation work-flow is described in Figure~\ref{fig:pythran-compiler}: Python
+source is turned into generic C++11 code that is then instantiated for the
+given types provided as extra annotations.  Like other AOT compilers, it
+unboxes all variables for better performance, but also performs a wide variety
+of optimizations such as lazy evaluation, constant folding, expression fusion
+etc.  It supports core \texttt{numpy} constructs and most Python constructs, to
+the notable exception of user classes. Instructions such as \texttt{eval},
+\texttt{exec} or \texttt{getattr} are not supported either.
 
 \begin{figure}
 
@@ -199,19 +204,20 @@ node distance=0.7cm},
 \draw[very thick, ->] (gxx) -- (so);
 \end{tikzpicture}
 
-\caption{Pythran compiler workflow.}
+\caption{Pythran compiler work-flow.}
 \label{fig:pythran-compiler}
 \end{figure}
 
 
 This paper explores the vectorization of Python programs based on the idea that
-many Python constructs already exhibit good vectorization opportunities. The
-goal of the paper switches from automatic vectorization to vectorization of
-high-level Python intrinsics, as described in Section~\ref{sec:python-semantic}.
-One of the difficulties of vectorizing Python functions is linked to function
-polymorphism. Vectorization in the context of C++ meta-programs is examined in
-Section~\ref{sec:meta-vectorization}. The approach is validated using the
-Pythran compiler on several kernels presented in Section~\ref{sec:benchs}.
+many Python constructs already exhibit good vectorization opportunities. Thus
+the goal of the compiler switches from automatic vectorization to vectorization
+of high-level Python intrinsics. One of the difficulties of vectorizing Python
+functions is linked to function polymorphism: vectorization in the context of
+C++ meta-programs is first examined in Section~\ref{sec:meta-vectorization},
+and Python constructs that can benefit from vectorization are then described in
+Section~\ref{sec:python-semantic}. The approach is validated using the Pythran
+compiler on several kernels presented in Section~\ref{sec:benchs}.
 
 %%
 %%
@@ -233,7 +239,7 @@ applications very time consuming.
 Designed as an \textit{Embedded Domain Specific Language}, \boostsimd{} 
 provides both expressiveness and performance by using generic programming 
 to handle vectorization. \boostsimd{} does not only provide a portable 
-way but also enable the use of common programming idioms when designing 
+way but also enables the use of common programming idioms when designing 
 SIMD-aware algorithms. Two components are provided:
 
 \begin{itemize}
@@ -333,13 +339,13 @@ reasons:
 \begin{description}
 
     \item[portability] Only SSE was supported, moving to AVX or another vector
-        instruction set would require a great deal of engineering;
+        instruction set would have required a great deal of engineering;
 
     \item[completness] Many basic mathematic functions such as cos or sin
-        are not directly available in the target instruction sets;
+        were not directly available in the target instruction sets;
 
-    \item[typing] Pytrhan manipulates meta-functions with parametric types,
-        while a given instruction set only provide concretes type.
+    \item[typing] Pythran manipulates meta-functions with parametric types,
+        while a given instruction set only provides concretes type.
 
 \end{description}
 
@@ -347,14 +353,13 @@ The \boostsimd{} abstraction layer solves these three issues to the expense of
 an increase in compilation time, which still remains acceptable for an AOT
 compiler.
 
-
 Pythran uses function objects to represent any Python functions, either
 user-functions or functions from the standard library. The former are
 automatically generated from the user code analysis, and the latter are
 hand-coded in a library called \texttt{pythonic++} provided with the compiler.
-For instance the Python function \texttt{def foo(x): return 3 * x} is compiled
+As an example, the Python function \texttt{def foo(x): return 3 * x} is compiled
 into a code similar to the one in Listing~\ref{lst:simple-pythran-output}. The
-actual would be more complicated to handle type inference across several
+actual is slightly more complicated to handle type inference across several
 statements, but the structure remains valid.
 
 Thanks to this representation, both the Python and C++ function can be called
@@ -374,10 +379,10 @@ struct foo {
 };
 \end{lstlisting}
 
-This representation perfectly matches the requirements of \boostsimd, as
-presented in Listing~\ref{lst:square-cxx}. The \texttt{foo} function can be
-used indifferently on scalar types and vector types.
-
+A critical point is that this representation perfectly matches the requirements
+of \boostsimd, as presented in Listing~\ref{lst:square-cxx}. The \texttt{foo}
+function can be used indifferently on scalar types and vector types. This paves
+the way for automatic vectorization of high level idioms.
 
 %%
 %%
@@ -389,11 +394,11 @@ extensively described in~\cite{bik04}, or on block-level vectorization, also
 called Superword Level Parallelism (SLP) as introduced in~\cite{larsen00}.
 Modern compilers for C/C++/FORTRAN generally implement a mixture of both.
 
-A high-level language such as Python exhibits another level of vectorization
-opportunity in implicit loop. Implicit loops can be found in many places, but
-this paper focuses on \emph{list comprehension} and \emph{generator
-expression}, \emph{map} or \emph{sum} intrinsics and \emph{array operations}
-through the \texttt{numpy} module.
+However, a high-level language such as Python exhibits another level of
+vectorization opportunity: implicit loops. Implicit loops can be found in many
+places, but this paper focuses on \emph{list comprehension} and \emph{set
+comprehension}, the \emph{map} and \emph{sum} intrinsics, and \emph{array
+operations} through the \texttt{numpy} module.
 
 \subsection{Intrinsics}
 
@@ -404,7 +409,8 @@ implicit loop. Its prototype is: \texttt{sum(sequence[, start]) $\rightarrow$
 value} and its behavior is equivalent to the Python code in
 Listing~\ref{lst:sum-py}. Depending on the type of \texttt{sequence}, and also
 whether one needs to strictly conforms to the IEEE Standard for Floating-Point
-Arithmetic (IEEE 754), vectorization of this reduction is a comm case of \texttt{fold}.
+Arithmetic (IEEE 754), vectorization of this reduction is a valid application
+of \boostsimd's \texttt{fold}.
 
 \begin{lstlisting}[language=python, label={lst:sum-py}, caption={Pseudo code of the \texttt{sum} intrinsic.}]
 def sum(sequence, value=0):
@@ -412,7 +418,6 @@ def sum(sequence, value=0):
     value += e
   return value
 \end{lstlisting}
-
 
 Apart from standard compliance, to be able to efficiently vectorize this code in C++, one must check that:
 
@@ -423,13 +428,13 @@ Apart from standard compliance, to be able to efficiently vectorize this code in
     \item\label{enu:random-access} \texttt{sequence} provides a random access iterator. In particular one can computes its size in $\mathcal{O}(1)$.
 \end{enumerate}
 
-Condition~\ref{enu:same-types} is a prerequiste for static typing and efficient
+Condition~\ref{enu:same-types} is a prerequisite for static typing and efficient
 unboxing. For instance, any code that does not match it will fail to compile
-using Pythran or Shed-Skin. It is also satisfied for the \texttt{ndarray}
-container as they wraps unboxed arrays. Condition~\ref{enu:scalar-types} can be
+using Pythran or Shed-Skin. It is always satisfied for the \texttt{ndarray}
+container as it wraps unboxed arrays. Condition~\ref{enu:scalar-types} can be
 checked at compile time. Python supports two native scalar types candidates for
 vectorization: \texttt{int} (64 bits integer) and \texttt{float}
-(double-precision floating point numbers). The \texttt{numpy} model add supports for a
+(double-precision floating point numbers). The \texttt{numpy} module adds support for a
 wide range of signed and unsigned integers as well as single, double or
 quadruple precision float. Depending on the target architecture, only some of
 them can fit into vector registers. Finally condition~\ref{enu:contiguous} also
@@ -442,9 +447,9 @@ matched by \emph{generator}s, the Python incarnation of co-routines.
 %It is disturbing and we don't really know why you speak about this new topic.
 
 As function have to be generic but some containers do not match required
-properties, it is possible to select a vectorized
-implementation of fall-back to a generic one using Substitution Failure
-Is Not An Error (SFINAE)~\cite{metaprogramming2002}.
+properties, it is necessary to select a vectorized implementation of fall back
+to a generic one using Substitution Failure Is Not An Error
+(SFINAE)~\cite{metaprogramming2002}. Vectorized versions are implement in this manner.
 
 A possible C++ meta-implementation of \texttt{sum} in that context is presented
 in listing~\ref{lst:sum-cxx}. It makes use of the parametric vector register
@@ -456,20 +461,21 @@ call into a C++ call.
 
 \begin{lstlisting}[language=c++, label={lst:sum-cxx}, caption={Meta-implementation of the \texttt{sum} intrinsic in C++11.}]
 template<class T, class V=long>
-typename std::enable_if<is_vectorizable<T>::value,
-                        typename T::value_type
-                       >::type
+typename std::enable_if<
+  is_vectorizable<T>::value,
+  typename T::value_type
+>::type
 sum(T const& sequence, V value=0L)
 {
   // E is the type of an element of T
   typedef typename T::value_type E;
-  // vE is a vector type of vsize elements of type E
+  // vE is a vector type of vsize elements
   typedef typename simd::native<E,
     BOOST_SIMD_DEFAULT_EXTENSION> vE;
   static const size_t vsize =
     simd::meta::cardinal_of<vE>::value;
 
-  // vector_value is for the parallel reduction
+  // parallel reduction
   vE vector_value = simd::splat<vE>(E());
   const size_t n = sequence.size();
   const size_t bound = n / vsize * vsize;
@@ -505,27 +511,27 @@ composition rules. First, some functions are known to be vectorizable. This is
 generally the case for the addition, subtraction etc. Depending on the target
 vector instruction set, some operations may or may not be available as vector
 instructions, e.g.\ trigonometric functions, but they can be provided as
-composite instructions. Some are just not available, as quadruple precision
-float addition. Starting from this set of vectorizable function, one can use
-the \texttt{;} as a closure binary relation to compute a subset of all
-vectorizable functions. Said otherwise, any sequence of operation that only
-involve vector operations is a vector operation and a function whose body is a
-sequence of vector operation or vectorizable functions is a vectorizable
-function itself.
+composite instructions, as done by \boostsimd. Some are just not available, as
+quadruple precision float addition. Starting from this set of vectorizable
+function, one can use the \texttt{;} as a closure binary relation to compute a
+subset of all vectorizable functions. Said otherwise, any sequence of operation
+that only involve vector operations is a vector operation and a function whose
+body is a sequence of vector operation or vectorizable functions is a
+vectorizable function itself.
 
-The preceding statement is only valid if the function's body only references
-vector functions and formal parameters, as the function must be valid for both
-scalar types and vector types. Note that this perfectly matches the translation
-of polymorphic Python functions into C++ meta-functions, as detailed in
-Listings~\ref{lst:square-python} and~\ref{lst:square-cxx}. The core idea is that
-the \texttt{square} function can be called indifferently on floating point
-values or on vector of floating point values. Through (automatic) template
-instantiation, the C++ compiler generates the actual scalar and vector version
-from the same meta-function. As Pythran always translates Python's polymorphic
-function in that form, writing a vector version of the \texttt{map} intrinsic is
-slightly more difficult than for the \texttt{sum} intrinsic due to its variadic
-number of arguments, but it also relies on the \texttt{load}/\texttt{store}
-protocol and SFINAE to select it.
+The preceding statement is only valid if the body of the function only
+references vector functions and formal parameters, as the function must be
+valid for both scalar types and vector types. Note that this perfectly matches
+the translation of polymorphic Python functions into C++ meta-functions, as
+detailed in Listings~\ref{lst:square-python} and~\ref{lst:square-cxx}. The core
+idea is that the \texttt{square} function can be called indifferently on
+floating point values or on vector of floating point values. Through
+(automatic) template instantiation, the C++ compiler generates the actual
+scalar and vector version from the same meta-function. As Pythran always
+translates Python's polymorphic function in that form, writing a vector version
+of the \texttt{map} intrinsic becomes possible. It is slightly more technical
+than for the \texttt{sum} intrinsic due to its variadic number of arguments,
+but it relies on the same concepts.
 
 \begin{lstlisting}[language=python, label={lst:square-python}, caption={Python implementation of the square function.}]
 def square(x):
@@ -559,24 +565,26 @@ a lambda function. For instance the previous example can be re-written as
 \texttt{map(abs, filter(lambda x: x\% 3, l))}. Once in this form, the same
     vectorization opportunities as in the previous section arise.
 
-Generator expression is somehow similar to list comprehension, to the notable
-exception that the value returned is an \emph{iterator adaptator} on the
-container argument. In the context of vectorization, a generator expression
-supports the vector protocol if the associated container also supports it. In
-that case the  \emph{iterator adaptator} implements the vector protocol by
-applying the comprehension rule to each vector element from this container, in a
-streaming fashion.
+% Generator expression is somehow similar to list comprehension, to the notable
+% exception that the value returned is an \emph{iterator adaptator} on the
+% container argument. In the context of vectorization, a generator expression
+% supports the vector protocol if the associated container also supports it. In
+% that case the  \emph{iterator adaptator} implements the vector protocol by
+% applying the comprehension rule to each vector element from this container, in a
+% streaming fashion.
 
 Python also provide same features for set and dictionary.  Set comprehension
 can be rewritten in the form of generator expression using the eponym function:
 \texttt{\{ x + 3 for x in l\}} is equivalent to \texttt{set(x + 3 for x in l)}.
-Dictionary comprehension and multi-level comprehension (i.e.\ containing
-multiple \texttt{for} clauses) are not considered in this preliminary work.
+
+Dictionary comprehension, generator expressions and multi-level comprehension
+(i.e.\ containing multiple \texttt{for} clauses) are not considered in this
+paper.
 
 \subsection{The Numpy Module}
 
 The \texttt{numpy} module played a major role in the adoption of Python by the
-scientific community. In a nutshell, this is a thin Python wrapper above a raw
+scientific community. In a nutshell, it is a thin Python wrapper above a raw
 array that provides an array language embedded into Python. An example of
 \texttt{numpy} code is show on Listing~\ref{lst:numpy-code}.
 
@@ -588,21 +596,21 @@ def rosen(x):
 \end{lstlisting}
 
 Common features of array language include indexing, slicing, point-to-point
-operation etc. The latter is traditionally a good source of vectorization.
-However, because of the module layer, \texttt{numpy} always create a new array
-to hold intermediate result. For instance in the expression \texttt{(1 -
-x[:-1]) ** 2)} two array are created ---slicing does not create an array but a
-view. The implied extra cost would hide the benefits of vectorization.
+operation etc. Point-to-point operations are traditionally a good source of
+vectorization. However, because of the mandatory module layer, \texttt{numpy}
+always create a new array to hold intermediate result. For instance in the
+expression \texttt{(1 - x[:-1]) ** 2)} two array are created ---slicing does
+not create an array but a view. The implied extra cost would hide the benefits
+of vectorization.
 
 The typical way to solve this issue in C++ is to use \emph{expression
-templates}, a technique described in~\cite{} that uses the C++ type system to
-perform lazy evaluation of an expression. However, this approach is limited to
-a single expression. Listing~\ref{lst:numpy-code-fs} illustrates the situation:
-expression templates would not prevent the creation of temporary arrays
-\texttt{t0} and \texttt{t1}. Fortunately, it is possible to apply \emph{forward
-substitution} to fall-back to the expression from Listing~\ref{lst:numpy-code}
-and avoid the creation of any temporary in some case detected with static analysis
-of the source code.
+templates}, a technique described in~\cite{expression_templates} that uses the
+C++ type system to perform lazy evaluation of an expression. Yet, this
+approach is limited to a single expression, as illustrated by Listing~\ref{lst:numpy-code-fs}: in that case expression templates would not prevent the creation
+of temporary arrays \texttt{t0} and \texttt{t1}. Fortunately, it is possible to
+apply \emph{forward substitution} to fall-back to the expression from
+Listing~\ref{lst:numpy-code} and avoid the creation of any temporary in some
+case detected with static analysis of the source code.
 
 \begin{lstlisting}[language=python, label={lst:numpy-code-fs}, caption={Sample \texttt{numpy} code requiring forward subsitution.}]
 import numpy as np
@@ -612,7 +620,7 @@ def rosen(x):
   return np.sum(t0 + t1)
 \end{lstlisting}
 
-It is possible to hook in the expression template to add vectorization support.
+It is possible to hook in the expression template code to add vectorization support.
 Indeed the expression from Listing~\ref{lst:numpy-code} hides a single vector
 loop, that can be explicitly vectorized using \boostsimd in a similar manner as
 the \texttt{map} and \texttt{sum} intrinsics.
@@ -743,18 +751,16 @@ over memory movement ratio.
 \subsection{Vectorization of \texttt{ndarray} point-to-point operations with
 intermediate array}
 
-To have good performance even with intermediate array, we use forward substitution
-detect through a static analysis. It can be done only if it is not use multipe time
---- as it would lead to compute the same thing many times --- and if values used
-to compute it are not changed between definition and use.
-This detection transform 3 SIMD Loop computation in one intensive computation in
-the case of Listing~\ref{numpy-code-fs}
+To have good performance even with intermediate array, Pythran uses forward
+substitution. This is not always beneficial if the substituted variable is used multiple time ---it
+would lead to the computation of the expression several times--- and it is only legal if no dependency are violated. This detection
+transforms three SIMD loop computations in one intensive computation in the case of Listing~\ref{lst:numpy-code}. Figure~\ref{fig:numpy-code-fs} shows the benefits of the approach.
 
 \begin{figure}[ht]
 
     \includegraphics[width=.5\textwidth]{rosen_fs}
-    \caption{Timings of rosen computation with mutlpiple assignment using CPython, Pythran, Pythran with vectorization, Pythran with vectorization and forward substitution.}
-    \label{fig:numpy-timings}
+    \caption{Timings of rosen computation with multiple assignment using CPython, Pythran, Pythran with vectorization, Pythran with vectorization and forward substitution.}
+    \label{fig:numpy-code-fs}
 
 \end{figure}
 

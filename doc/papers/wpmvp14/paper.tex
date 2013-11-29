@@ -81,7 +81,7 @@ Vectorization, Meta-Programming, Python, C++
 The Python language~\cite{rossum97} has grown in audience for the past ten
 years, even reaching the world of scientific computations~\cite{oliphant2007}
 thanks to the \texttt{numpy} module~\cite{numpyarray2011}, a module that
-provides an efficient multi-dimensionnal array type, and the \texttt{scipy}
+provides an efficient multi-dimensional array type, and the \texttt{scipy}
 package~\cite{scipy} that provides a MATLAB-like API. As a consequence, more
 and more code is being written either in pure Python, generally to prototype an
 application, or as a Python and native code mix when performance matters.
@@ -105,7 +105,7 @@ There are two main reason for the poor performance of Python:
 
 \begin{description}
 
-    \item[dynamic binding] each variable access is made through a dictionnary
+    \item[dynamic binding] each variable access is made through a dictionary
         look-up to bind variable names to variable instances~;
 
     \item[boxing] each variable value is encapsulated into a heap-allocated
@@ -223,7 +223,7 @@ choice for processor manufacturers for a couple of decades. However,
 programming applications that take advantage of the SIMD extension available on
 the current target remains a complex task. Programmers that use low-level
 intrinsics have to deal with a verbose programming style due to the fact that
-SIMD instructions sets cover a few common functionnalities, requiring to bury
+SIMD instructions sets cover a few common functionalities, requiring to bury
 the initial algorithms in architecture specific implementation details.
 Furthermore, these efforts have to be repeated for every different extension
 that one may want to support, making design and maintenance of such
@@ -231,7 +231,7 @@ applications very time consuming.
 
 \boostsimd{} is a high-level C++ library to program SIMD architectures. 
 Designed as an \textit{Embedded Domain Specific Language}, \boostsimd{} 
-provides both expresiveness and performance by using generic programming 
+provides both expressiveness and performance by using generic programming 
 to handle vectorization. \boostsimd{} does not only provide a portable 
 way but also enable the use of common programming idioms when designing 
 SIMD-aware algorithms. Two components are provided:
@@ -297,9 +297,9 @@ end of its call. To alleviate this limitation, \boostsimd{}
 provides its own overload for both \texttt{transform} and \texttt{fold} that take
 care of potential trailing data and performs proper completion of \texttt{fold}.
 Moreover, as \boostsimd{} provides default implementation of all its function for scalar values,
-we can rely on polymorphic callable object to write a mixed scalar/SIMD call to algortihm
+we can rely on polymorphic callable object to write a mixed scalar/SIMD call to algorithm
 like \texttt{transform}. By using the \texttt{boost::simd::transform} algorithm, code
-handlign alignment, scalar prologue and epilogue is generated.
+handling alignment, scalar prologue and epilogue is generated.
 
 \begin{lstlisting}[language=c++, label={lst:square-cxx}, caption={Polymorphic SIMD algorithm call},label=stl_poly]
 std::vector<int,allocator<int> > v(128), r(128);
@@ -326,7 +326,7 @@ functors for both scalar and SIMD cases also helps maximizing code reuse.
 
 \subsection{Interaction with Pythran}
 
-The first attempt to have Pytrhan generate vectorized code directly relied on
+The first attempt to have Pythran generate vectorized code directly relied on
 SSE intrinsics. This approach quickly proved to be inappropriate for several
 reasons:
 
@@ -335,7 +335,7 @@ reasons:
     \item[portability] Only SSE was supported, moving to AVX or another vector
         instruction set would require a great deal of engineering;
 
-    \item[completness] Many basic mathematic functions such as cosinus or sinus
+    \item[completness] Many basic mathematic functions such as cos or sin
         are not directly available in the target instruction sets;
 
     \item[typing] Pytrhan manipulates meta-functions with parametric types,
@@ -354,7 +354,7 @@ automatically generated from the user code analysis, and the latter are
 hand-coded in a library called \texttt{pythonic++} provided with the compiler.
 For instance the Python function \texttt{def foo(x): return 3 * x} is compiled
 into a code similar to the one in Listing~\ref{lst:simple-pythran-output}. The
-actual would be more compilcated to handle type inference across several
+actual would be more complicated to handle type inference across several
 statements, but the structure remains valid.
 
 Thanks to this representation, both the Python and C++ function can be called
@@ -390,7 +390,7 @@ called Superword Level Parallelism (SLP) as introduced in~\cite{larsen00}.
 Modern compilers for C/C++/FORTRAN generally implement a mixture of both.
 
 A high-level language such as Python exhibits another level of vectorization
-opportunity in implict loop. Implicit loops can be found in many places, but
+opportunity in implicit loop. Implicit loops can be found in many places, but
 this paper focuses on \emph{list comprehension} and \emph{generator
 expression}, \emph{map} or \emph{sum} intrinsics and \emph{array operations}
 through the \texttt{numpy} module.
@@ -400,10 +400,10 @@ through the \texttt{numpy} module.
 \subsubsection{The \texttt{sum} Intrinsic}
 
 The \texttt{sum} intrinsic is a typical case of potential vectorization of an
-implict loop. Its prototype is: \texttt{sum(sequence[, start]) $\rightarrow$
+implicit loop. Its prototype is: \texttt{sum(sequence[, start]) $\rightarrow$
 value} and its behavior is equivalent to the Python code in
 Listing~\ref{lst:sum-py}. Depending on the type of \texttt{sequence}, and also
-wether one needs to strictly conforms to the IEEE Standard for Floating-Point
+whether one needs to strictly conforms to the IEEE Standard for Floating-Point
 Arithmetic (IEEE 754), vectorization of this reduction is a comm case of \texttt{fold}.
 
 \begin{lstlisting}[language=python, label={lst:sum-py}, caption={Pseudo code of the \texttt{sum} intrinsic.}]
@@ -414,7 +414,7 @@ def sum(sequence, value=0):
 \end{lstlisting}
 
 
-Appart from standard compliancy, to be able to efficiently vectorize this code in C++, one must check that:
+Apart from standard compliance, to be able to efficiently vectorize this code in C++, one must check that:
 
 \begin{enumerate}
     \item\label{enu:same-types} All element of \texttt{sequence} have the same types;
@@ -425,7 +425,7 @@ Appart from standard compliancy, to be able to efficiently vectorize this code i
 
 Condition~\ref{enu:same-types} is a prerequiste for static typing and efficient
 unboxing. For instance, any code that does not match it will fail to compile
-using Pythran or Shed-Skin. It is also satisified for the \texttt{ndarray}
+using Pythran or Shed-Skin. It is also satisfied for the \texttt{ndarray}
 container as they wraps unboxed arrays. Condition~\ref{enu:scalar-types} can be
 checked at compile time. Python supports two native scalar types candidates for
 vectorization: \texttt{int} (64 bits integer) and \texttt{float}
@@ -441,9 +441,9 @@ matched by \emph{generator}s, the Python incarnation of co-routines.
 %we know a work have to be done about random acces but you speak about something else now ...
 %It is disturbing and we don't really know why you speak about this new topic.
 
-As function have to be generic but some containers do not match requierement
+As function have to be generic but some containers do not match required
 properties, it is possible to select a vectorized
-implementation of fallback to a generic one using Substitution Failure
+implementation of fall-back to a generic one using Substitution Failure
 Is Not An Error (SFINAE)~\cite{metaprogramming2002}.
 
 A possible C++ meta-implementation of \texttt{sum} in that context is presented
@@ -550,11 +550,11 @@ any iterable. For instance \texttt{[abs(x) for x in l]} creates a new
 \texttt{list} that holds the absolute value of each element of \texttt{l}. A
 filter can be set up as in  \texttt{[abs(x) for x in l if x \% 3]}, where only
 the elements non multiple of 3 are taken into account. Let us call
-\emph{comprehesion rule} the expression on the left of the
+\emph{comprehension rule} the expression on the left of the
 \texttt{for}.
 
 List comprehension can be translated into a combination of \texttt{map} and
-(optionnaly) \texttt{filter}, by transformation of the comprehension rule into
+(optionally) \texttt{filter}, by transformation of the comprehension rule into
 a lambda function. For instance the previous example can be re-written as
 \texttt{map(abs, filter(lambda x: x\% 3, l))}. Once in this form, the same
     vectorization opportunities as in the previous section arise.
@@ -567,20 +567,17 @@ that case the  \emph{iterator adaptator} implements the vector protocol by
 applying the comprehension rule to each vector element from this container, in a
 streaming fashion.
 
-Python also provide same features for set and dictionnary.
-
-Set comprehension can also be rewritten in the form of
-generator expression using the eponym function: \texttt{\{ x + 3 for x in l\}}
-is equivalent to \texttt{set(x + 3 for x in l)}.
-
-Dictionnary comprehension and multi-level comprehension (i.e.\ containing
+Python also provide same features for set and dictionary.  Set comprehension
+can be rewritten in the form of generator expression using the eponym function:
+\texttt{\{ x + 3 for x in l\}} is equivalent to \texttt{set(x + 3 for x in l)}.
+Dictionary comprehension and multi-level comprehension (i.e.\ containing
 multiple \texttt{for} clauses) are not considered in this preliminary work.
 
 \subsection{The Numpy Module}
 
 The \texttt{numpy} module played a major role in the adoption of Python by the
 scientific community. In a nutshell, this is a thin Python wrapper above a raw
-array that provides an array language embeded into Python. An example of
+array that provides an array language embedded into Python. An example of
 \texttt{numpy} code is show on Listing~\ref{lst:numpy-code}.
 
 \begin{lstlisting}[language=python, label={lst:numpy-code}, caption={Sample \texttt{numpy} code.}]
@@ -591,7 +588,7 @@ def rosen(x):
 \end{lstlisting}
 
 Common features of array language include indexing, slicing, point-to-point
-operation etc. The latter is traditionnaly a good source of vectorization.
+operation etc. The latter is traditionally a good source of vectorization.
 However, because of the module layer, \texttt{numpy} always create a new array
 to hold intermediate result. For instance in the expression \texttt{(1 -
 x[:-1]) ** 2)} two array are created ---slicing does not create an array but a
@@ -603,8 +600,8 @@ perform lazy evaluation of an expression. However, this approach is limited to
 a single expression. Listing~\ref{lst:numpy-code-fs} illustrates the situation:
 expression templates would not prevent the creation of temporary arrays
 \texttt{t0} and \texttt{t1}. Fortunately, it is possible to apply \emph{forward
-substitution} to fallback to the expression from Listing~\ref{lst:numpy-code}
-and avoid the creattion of any temporary.
+substitution} to fall-back to the expression from Listing~\ref{lst:numpy-code}
+and avoid the creation of any temporary.
 
 \begin{lstlisting}[language=python, label={lst:numpy-code-fs}, caption={Sample \texttt{numpy} code requiring forward subsitution.}]
 import numpy as np
@@ -616,12 +613,12 @@ def rosen(x):
 
 It is possible to hook in the expression template to add vectorization support.
 Indeed the expression from Listing~\ref{lst:numpy-code} hides a single vector
-loop, that can be explicitly vectorized using Bosst.SIMD in a similar manner as
+loop, that can be explicitly vectorized using \boostsimd in a similar manner as
 the \texttt{map} and \texttt{sum} intrinsics.
 
 One potential drawback of the approach would be the generation of multiple load
 from the same location, as in \texttt{1. / a + a}, where \texttt{a} is loaded
-twice on each loop iteration. Fortunately, the backend C++ compiler is capable
+twice on each loop iteration. Fortunately, the back-end C++ compiler is capable
 of detecting the redundant load and perform \emph{redundant load store
 elimination}, effectively issuing a single load.
 
@@ -642,7 +639,7 @@ Experiments are run on a computer running a Linux kernel version 3.10. The
 processors are Intel Core i7, so the AVX instruction set is available. Python
 version is 2.7.5, Pythran version is the \texttt{HEAD} of the \texttt{wpmvp14}
 branch of the official Pythran repository
-\url{https://github.com/serge-sans-paille/pythran}. The backend C++ compiler is
+\url{https://github.com/serge-sans-paille/pythran}. The back-end C++ compiler is
 Clang version 3.4-1. The compilation flags used are \texttt{-O2} without
 vectorisation support and \texttt{-O2 -march=native -DUSE\_BOOST\_SIMD} with
 vectorisation support. Using \texttt{-O3} or \texttt{-Ofast} actually degraded
@@ -659,7 +656,7 @@ used in this paper are available online at
 This experiment considers the code from Listing~\ref{lst:euler06-py}. This code
 uses \emph{generator expression} that have not been explored in this paper, so
 it has been modified to use \emph{list comprehension} instead. As a result, a
-lot of temporay array are used, which leads to the performance show on
+lot of temporary array are used, which leads to the performance show on
 Figure~\ref{fig:euler06-timings}. Although Pythran does a decent job at
 optimizing the code, vectorization does not provide significant speedup. This
 is due to the poor computation over memory transfer ratio, and the lack of
@@ -675,13 +672,13 @@ is evaluated in the context of \texttt{numpy} arrays in
 
 \end{figure}
 
-\subsection{Vectorization of the \texttt{map} intrisinc}
+\subsection{Vectorization of the \texttt{map} intrinsic}
 
-To evaluate the vectorization of the \texttt{map} intrisinc, two expressions
+To evaluate the vectorization of the \texttt{map} intrinsic, two expressions
 are used: \texttt{map(abs, r)} and \texttt{map(lambda x: 5 * x + 3, r)}, where
 \texttt{r} is a \texttt{ndarray} of random double-precision floating point
 numbers. Figure~\ref{fig:map-timings} summarizes the result. The execution time
-for the Cython version is extremly long due to the ndarray indexing and
+for the CPython version is extremely long due to the \texttt{ndarray} indexing and
 function call overheads in CPython. Thanks to static typing and aggressive
 inlining, Pythran does not suffer from these issues, as shown by its sequential
 execution time. Vectorization is beneficial and yields a $\times2.93$ speedup.
@@ -695,14 +692,14 @@ execution time. Vectorization is beneficial and yields a $\times2.93$ speedup.
 
 \end{figure}
 
-\subsection{Vectorization of the \texttt{sum} intrisinc}
+\subsection{Vectorization of the \texttt{sum} intrinsic}
 
-To evaluate the vectorization of the \texttt{sum} intrisinc, two expressions
+To evaluate the vectorization of the \texttt{sum} intrinsic, two expressions
 are used: \texttt{sum(r)} and \texttt{sum(r * r)}, where \texttt{r} is a
 \texttt{ndarray} of random double-precision floating point numbers.
 Figure~\ref{fig:sum-timings} summarizes the result. Again, CPython is extremely
 slow. It is interesting to note that the extra array multiplication does not
-impacts the excution time much, simply because it is an operation pefromed at
+impacts the execution time much, simply because it is an operation performed at
 the native level by the \texttt{numpy} module, while the \texttt{sum} is fully
 interpreted. The vectorized reductions yields a decent $\times2.41$ speedup
 over the sequential version.
@@ -756,17 +753,17 @@ and \texttt{sum} intrinsics and array operations from \texttt{numpy} are
 considered and the approach is validated on several kernels, showing
 promising results.
 
-Future works include the case of Python generators, that have the benfit of not
+Future works include the case of Python generators, that have the benefit of not
 creating intermediate container to hold the data, but require more analyse in
 the context of vectorization. Handling \texttt{list} operations in an efficient
-manner as done for \texttt{numpy} arrays is also a required developpment axis.
+manner as done for \texttt{numpy} arrays is also a required development axis.
 
 \acks
 
-Several students from Télécom Bretagne have been working on this project, the
+Several students from T{\'e}l{\'e}com Bretagne have been working on this project, the
 authors would like to thank Alan Raynaud, Adrien Merlini and Yuanchang Peng for
-their contribution to the Pytrhan project. They are also in debt to Mehdi
-Aminin for his careful code reviews.
+their contribution to the Pythran project. They are also in debt to Mehdi
+Amini for his careful code reviews.
 
 
 % We recommend abbrvnat bibliography style.

@@ -865,7 +865,6 @@ namespace pythonic {
         vsum(E const & expr) {
                typedef typename E::value_type T;
                long n= expr.size();
-               core::list<typename E::value_type> out(n);
 #ifdef USE_BOOST_SIMD
                long i;
                typedef typename boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION> vT;
@@ -881,7 +880,7 @@ namespace pythonic {
                }
                T p = boost::simd::sum(vp);
                for(;i< n; ++i)
-                   p += expr.at(i);
+                   p = p + expr.at(i);
                return p;
 #else
                for(long i=0 ; i<n; ++i) {

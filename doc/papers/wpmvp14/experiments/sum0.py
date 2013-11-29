@@ -1,4 +1,3 @@
-#pythran export sum0(int)
-def sum0(n):
-    r = range(n)
+#pythran export sum0(float [])
+def sum0(r):
     return vsum(r)

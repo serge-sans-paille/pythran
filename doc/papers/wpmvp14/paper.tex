@@ -570,6 +570,136 @@ elimination}, effectively issuing a single load.
 \section{Validation of the Approach using the Pythran Compiler}
 \label{sec:benchs}
 
+To validate the approach, a number of code snippets presenting vectorization
+opportunities have been selected and benchmarked. The original Python version
+is used as a reference, then code is compiled with Pythran without
+vectorization support and finally with Pythran and vectorization support. Time
+measurements are made using the \texttt{timeit} module.
+
+Experiments are run on a computer running a Linux kernel version 3.10. The
+processors are Intel Core i7, so the AVX instruction set is available. Python
+version is 2.7.5, Pythran version is the \texttt{HEAD} of the \texttt{wpmvp14}
+branch of the official Pythran repository
+\url{https://github.com/serge-sans-paille/pythran}. The backend C++ compiler is
+Clang version 3.4-1. The compilation flags used are \texttt{-O2} without
+vectorisation support and \texttt{-O2 -march=native -DUSE\_BOOST\_SIMD} with
+vectorisation support. Using \texttt{-O3} or \texttt{-Ofast} actually degraded
+performances.
+
+\subsection{Vectorization of the \texttt{map} intrisinc}
+
+To evaluate the vectorization of the \texttt{map} intrisinc, two expressions
+are used: \texttt{map(abs, r)} and \texttt{map(lambda x: 5 * x + 3, r)}, where
+\texttt{r} is a \texttt{ndarray} of random double-precision floating point
+numbers. Table~\ref{tbl:map-timings} summarizes the result. The execution time
+for the Cython version is extremly long due to the ndarray indexing and
+function call overheads in CPython. Thanks to static typing and aggressive
+inlining, Pythran does not suffer from these issues, as shown by its sequential
+execution time. Vectorization is beneficial and yields a $\times2.93$ speedup.
+
+\begin{table}
+
+    \centering
+    \begin{tabular}{|l|r|r|r|}
+        \hline
+                                               & \textbf{CPython}   & \textbf{Pythran}   & \textbf{Pythran+AVX} \\
+        \hline
+        \texttt{map(abs, r)}                    &   1530ms  & 1.72ms    & 0.587ms   \\
+        \hline
+        \texttt{map(f, r)}    &   141ms   & 1.72ms    & 0.587ms  \\
+        \hline
+
+    \end{tabular}
+    \caption{Timings of various \texttt{map} calls using CPython, Pythran, and Pythran with vectorization.}
+    \label{tbl:map-timings}
+
+\end{table}
+
+\subsection{Vectorization of the \texttt{sum} intrisinc}
+
+To evaluate the vectorization of the \texttt{sum} intrisinc, two expressions
+are used: \texttt{sum(r)} and \texttt{sum(r * r)}, where \texttt{r} is a
+\texttt{ndarray} of random double-precision floating point numbers.
+Table~\ref{tbl:sum-timings} summarizes the result. Again, CPython is extremely
+slow. It is interesting to note that the extra array multiplication does not
+impacts the excution time much, simply because it is an operation pefromed at
+the native level by the \texttt{numpy} module, while the \texttt{sum} is fully
+interpreted. The vectorized reductions yields a decent $\times2.41$ speedup
+over the sequential version.
+
+\begin{table}
+
+    \centering
+    \begin{tabular}{|l|r|r|r|}
+        \hline
+                                               & \textbf{CPython}   & \textbf{Pythran}   & \textbf{Pythran+AVX} \\
+        \hline
+        \texttt{sum(r)}                    &   277ms  & 1.07ms    & 0.416ms   \\
+        \hline
+        \texttt{sum(r * r)}    &   292ms   & 1.09ms    & 0.452ms  \\
+        \hline
+
+    \end{tabular}
+    \caption{Timings of various \texttt{sum} calls using CPython, Pythran, and Pythran with vectorization.}
+    \label{tbl:sum-timings}
+
+\end{table}
+
+\subsection{Vectorization of \texttt{ndarray} point-to-point operations}
+
+To evaluate the vectorization of \texttt{ndarray} point-to-point operations,
+three expressions are used: \texttt{1. / a + a}, the example from
+Listing~\ref{lst:numpy-code} and a computation of the point-to-point arc
+distance  between random values. Again, all inputs are large randomized
+\texttt{ndarray} of double precision floating point numbers.
+Table~\ref{tbl:numpy-timings} summarizes the results. Because all computations
+are done in native space, there is not much speedup when running them through
+Pythran. The only benefits comes from the elimination of temporary arrays and
+loop fusion. As a consequence, the more elements in the \texttt{numpy}
+expression, the more Pythran accelerates the code. The vectorization speedups
+follow the same process, as larger expression tend to increase the operation
+over memory movement ratio.
+
+\begin{table}
+
+    \centering
+    \begin{tabular}{|l|r|r|r|}
+        \hline
+                                               & \textbf{CPython}   & \textbf{Pythran}   & \textbf{Pythran+AVX} \\
+        \hline
+        \texttt{1. / a + a}                    &   7.48ms  & 6.19ms    & 4.05ms   \\
+        \hline
+        \emph{rosen}                           &   13.9ms   & 2.98ms   & 1.15ms  \\
+        \hline
+        \emph{arc distance}                    &   178ms   & 146ms    & 53.8ms  \\
+        \hline
+
+    \end{tabular}
+    \caption{Timings of various \texttt{numpy} expressions using CPython, Pythran, and Pythran with vectorization.}
+    \label{tbl:numpy-timings}
+
+\end{table}
+
+\subsection{Vectorization of an Euler Problem}
+
+This experiment considers the code from Listing~\ref{lst:euler06-py}.
+
+\begin{table}
+
+    \centering
+    \begin{tabular}{|l|r|r|r|}
+        \hline
+                                               & \textbf{CPython}   & \textbf{Pythran}   & \textbf{Pythran+AVX} \\
+        \hline
+        \emph{euler06}                    &   12ms   & 0.34ms    & 0.30ms  \\
+        \hline
+
+    \end{tabular}
+    \caption{Timings of various \texttt{numpy} expressions using CPython, Pythran, and Pythran with vectorization.}
+    \label{tbl:numpy-timings}
+
+\end{table}
+
 \acks
 
 Acknowledgments, if needed.

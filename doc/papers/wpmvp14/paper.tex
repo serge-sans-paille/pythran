@@ -601,7 +601,8 @@ a single expression. Listing~\ref{lst:numpy-code-fs} illustrates the situation:
 expression templates would not prevent the creation of temporary arrays
 \texttt{t0} and \texttt{t1}. Fortunately, it is possible to apply \emph{forward
 substitution} to fall-back to the expression from Listing~\ref{lst:numpy-code}
-and avoid the creation of any temporary.
+and avoid the creation of any temporary in some case detected with static analysis
+of the source code.
 
 \begin{lstlisting}[language=python, label={lst:numpy-code-fs}, caption={Sample \texttt{numpy} code requiring forward subsitution.}]
 import numpy as np
@@ -735,6 +736,24 @@ over memory movement ratio.
     \includegraphics[width=.5\textwidth]{rosen}
     \includegraphics[width=.5\textwidth]{arc}
     \caption{Timings of various \texttt{numpy} expressions using CPython, Pythran, and Pythran with vectorization.}
+    \label{fig:numpy-timings}
+
+\end{figure}
+
+\subsection{Vectorization of \texttt{ndarray} point-to-point operations with
+intermediate array}
+
+To have good performance even with intermediate array, we use forward substitution
+detect through a static analysis. It can be done only if it is not use multipe time
+--- as it would lead to compute the same thing many times --- and if values used
+to compute it are not changed between definition and use.
+This detection transform 3 SIMD Loop computation in one intensive computation in
+the case of Listing~\ref{numpy-code-fs}
+
+\begin{figure}[ht]
+
+    \includegraphics[width=.5\textwidth]{rosen_fs}
+    \caption{Timings of rosen computation with mutlpiple assignment using CPython, Pythran, Pythran with vectorization, Pythran with vectorization and forward substitution.}
     \label{fig:numpy-timings}
 
 \end{figure}

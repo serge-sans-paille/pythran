@@ -309,12 +309,14 @@ namespace std {
         typename pythonic::core::array<T,N>::const_reference get( pythonic::core::array<T,N> const & t) { return t[I]; }
 
     template <size_t I, class T, size_t N>
-        struct tuple_element<I, pythonic::core::array<T,N> > {
-            typedef typename pythonic::core::array<T,N>::value_type type;
+        class tuple_element<I, pythonic::core::array<T,N> > {
+            public:
+                typedef typename pythonic::core::array<T,N>::value_type type;
         };
     template<class T, size_t N>
-        struct tuple_size<pythonic::core::array<T,N>> {
-            static const size_t value = N;
+        class tuple_size<pythonic::core::array<T,N>> {
+            public:
+                static const size_t value = N;
         };
 }
 

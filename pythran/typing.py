@@ -116,7 +116,6 @@ class TypeDependencies(ModuleAnalysis):
     def visit_FunctionDef(self, node):
         assert self.current_function is None
         self.current_function = node
-        self.result.add_node(node)
         self.naming = dict()
         self.in_cond = False  # True when we are in a if, while or for
         self.generic_visit(node)
@@ -268,8 +267,6 @@ class Reorder(Transformation):
                     # nx.write_dot(self.type_dependencies,"b.dot")
                 if not n in self.type_dependencies.successors(n):
                     new_candidates.extend(self.type_dependencies.successors(n))
-                else:
-                    pass
             candidates = new_candidates
 
     def visit_Module(self, node):
@@ -281,10 +278,9 @@ class Reorder(Transformation):
             else:
                 newbody.append(stmt)
             try:
-                newdef = (f for f in nx.topological_sort(
+                newdef = nx.topological_sort(
                     self.type_dependencies,
-                    self.ordered_global_declarations
-                    ))
+                    self.ordered_global_declarations)
                 newdef = [f for f in newdef if isinstance(f, ast.FunctionDef)]
 
             except nx.exception.NetworkXUnfeasible:
@@ -311,6 +307,7 @@ class Types(ModuleAnalysis):
         self.current_global_declarations = dict()
         self.max_recompute = 1  # max number of use to be lazy
         ModuleAnalysis.__init__(self, StrictAliases, LazynessAnalysis)
+        self.curr_locals_declaration = None
 
     def prepare(self, node, ctx):
         self.passmanager.apply(Reorder, node, ctx)
@@ -323,10 +320,7 @@ class Types(ModuleAnalysis):
 
     def run(self, node, ctx):
         super(Types, self).run(node, ctx)
-        final_types = {k: self.result[k]
-                if k in self.result
-                else v
-                for k, v in self.result.iteritems()}
+        final_types = self.result.copy()
         for head in self.current_global_declarations.itervalues():
             if head not in final_types:
                 final_types[head] = "void"
@@ -369,10 +363,7 @@ class Types(ModuleAnalysis):
                     if return_alias:  # else new location -> unboundable
                         assert len(return_alias), 'Too many return aliases'
                         return self.node_to_id(list(return_alias)[0], depth)
-            raise UnboundableRValue()
-
-        else:
-            raise UnboundableRValue()
+        raise UnboundableRValue()
 
     def isargument(self, node):
         """ checks whether node aliases to a parameter"""
@@ -473,6 +464,9 @@ class Types(ModuleAnalysis):
             raise
 
     def visit_FunctionDef(self, node):
+        self.curr_locals_declaration = self.passmanager.gather(
+            LocalDeclarations,
+            node)
         self.current = node
         self.typedefs = list()
         self.name_to_nodes = {arg.id: {arg} for arg in node.args.args}
@@ -501,10 +495,8 @@ class Types(ModuleAnalysis):
         self.result[node] = (Assignable(return_type), self.typedefs)
         for k in self.passmanager.gather(LocalDeclarations, node):
             lazy_res = self.lazyness_analysis[k.id]
-            if lazy_res <= self.max_recompute:
-                self.result[k] = Lazy(self.result[k])
-            else:
-                self.result[k] = Assignable(self.result[k])
+            qualifier = Lazy if lazy_res <= self.max_recompute else Assignable
+            self.result[k] = qualifier(self.result[k])
 
     def visit_Return(self, node):
         self.generic_visit(node)
@@ -522,6 +514,12 @@ class Types(ModuleAnalysis):
         self.visit(node.value)
         for t in node.targets:
             self.combine(t, node.value, register=True)
+            if t in self.curr_locals_declaration:
+                lazy_res = self.lazyness_analysis[t.id]
+                if lazy_res <= self.max_recompute:
+                    self.result[t] = Lazy(self.result[t])
+                else:
+                    self.result[t] = Assignable(self.result[t])
             if isinstance(t, ast.Subscript):
                 if self.visit_AssignedSubscript(t):
                     for alias in self.strict_aliases[t.value].aliases:

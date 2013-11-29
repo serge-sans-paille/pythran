@@ -47,6 +47,14 @@ Pythran 0.34
 Pythran+AVX 0.30
 EOF
 
+cat > rosen_fs.dat << EOF
+CPython 1.64
+Pythran 0.49
+Pythran+AVX 0.41
+Pythran+AVX+forward_substitution 0.29
+EOF
+
+
 function logplot {
 gnuplot << EOF
 set terminal pdf
@@ -85,5 +93,6 @@ logplot sum 'taking the sum of the elements of an ndarray'
 logplot sum_square 'taking the sum of the square of the elements of an ndarray'
 plot numexpr 'ternary numpy expression'
 plot rosen 'rosen function'
+plot rosen_fs 'rosen function'
 plot arc 'arc distances'
 logplot euler06 'euler06 problem'

@@ -95,6 +95,8 @@ namespace  pythonic {
                 numpy_uexpr() {}
                 numpy_uexpr(Arg0 const& arg0) : arg0(arg0), shape(arg0.shape) {
                 }
+                template<class Arg0_ = typename std::conditional<std::is_reference<Arg0>::value, Arg0, Arg0&>::type>
+                numpy_uexpr(numpy_uexpr<Op, Arg0_> const& expr) : arg0(expr.arg0), shape(expr.arg0.shape) {}
 #ifdef USE_BOOST_SIMD
                 auto load(long i) const -> decltype(Op()(arg0.load(i))) {
                     return Op()(arg0.load(i));
@@ -132,6 +134,9 @@ namespace  pythonic {
 
                 numpy_expr(Arg0 arg0, Arg1 arg1) : arg0(arg0), arg1(arg1), shape(select_shape(arg0,arg1, int_<value>())) {
                 }
+                template<class Arg0_ = typename std::conditional<std::is_reference<Arg0>::value, Arg0, Arg0&>::type, class Arg1_ = typename std::conditional<std::is_reference<Arg0>::value, Arg1, Arg1&>::type>
+                numpy_expr(numpy_expr<Op, Arg0_, Arg1_> const& expr) : arg0(expr.arg0), arg1(expr.arg1), shape(select_shape(expr.arg0,expr.arg1, int_<value>())) {}
+                
 #ifdef USE_BOOST_SIMD
                 auto load(long i) const -> decltype(Op()(arg0.load(i), arg1.load(i))) {
                     return Op()(arg0.load(i), arg1.load(i));

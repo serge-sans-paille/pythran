@@ -146,7 +146,7 @@ like the sum of two arrays. However the granularity of the operations limits
 the ratio of \texttt{load}/\texttt{store} versus operation. For instance, if
 \texttt{a}, \texttt{b} and \texttt{c} are 1-D arrays, the sum \texttt{a + b +
 c} is computed using two loops and an intermediate array. It means there are 4
-load / stores and only two additions per loop iteration and vectorization is
+\texttt{load}/\texttt{store} and only two additions per loop iteration and vectorization is
 unlikely to be profitable.
 
 AOT compilation uses type inference or type annotation to statically compute
@@ -440,11 +440,9 @@ quadruple precision float. Depending on the target architecture, only some of
 them can fit into vector registers. Finally condition~\ref{enu:contiguous} also
 is a static property of a container. It is verified for C++ alternative to
 Python's \texttt{list}, \texttt{str} and \texttt{ndarrays}, but generally not
-for \texttt{set} or \texttt{dict}. Condition \ref{enu:random-access} is not
+for \texttt{set} or \texttt{dict}. Condition \ref{enu:random-access} is matched by
+the C++ alternative of contiguous container but it is not
 matched by \emph{generator}s, the Python incarnation of co-routines.
-
-%we know a work have to be done about random acces but you speak about something else now ...
-%It is disturbing and we don't really know why you speak about this new topic.
 
 As function have to be generic but some containers do not match required
 properties, it is necessary to select a vectorized implementation of fall back
@@ -609,8 +607,8 @@ C++ type system to perform lazy evaluation of an expression. Yet, this
 approach is limited to a single expression, as illustrated by Listing~\ref{lst:numpy-code-fs}: in that case expression templates would not prevent the creation
 of temporary arrays \texttt{t0} and \texttt{t1}. Fortunately, it is possible to
 apply \emph{forward substitution} to fall-back to the expression from
-Listing~\ref{lst:numpy-code} and avoid the creation of any temporary in some
-case detected with static analysis of the source code.
+Listing~\ref{lst:numpy-code} and avoid the creation of any temporary based on
+static analysis of the source code.
 
 \begin{lstlisting}[language=python, label={lst:numpy-code-fs}, caption={Sample \texttt{numpy} code requiring forward subsitution.}]
 import numpy as np

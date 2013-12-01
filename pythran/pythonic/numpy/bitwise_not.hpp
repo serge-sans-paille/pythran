@@ -8,6 +8,13 @@
 namespace pythonic {
 
     namespace numpy {
+
+        bool bitwise_not(bool t0) {
+            return not t0;
+        }
+
+        PROXY(pythonic::numpy, bitwise_not)
+
         FPROXY(pythonic::operator_, bitwise_not, invert)
 
     }

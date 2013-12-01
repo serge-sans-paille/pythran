@@ -1546,7 +1546,7 @@ unary_ufunc = (
         'exp', 'expm1',
         'fabs', 'floor',
         'isinf', 'isneginf', 'isposinf', 'isnan', 'invert', 'isfinite',
-        'log10', 'log1p', 'log2', 'logical_not',
+        'log', 'log10', 'log1p', 'log2', 'logical_not',
         'negative',
         'rad2deg', 'radians','reciprocal', 'rint', 'round', 'round_',
         'sign', 'signbit',

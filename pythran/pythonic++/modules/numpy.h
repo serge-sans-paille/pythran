@@ -105,10 +105,10 @@ namespace pythonic {
        PROXY(pythonic::numpy, empty);
 
 
-       template<class T, class U, class dtype=long>
-           core::ndarray<decltype(std::declval<T>()+std::declval<U>()+std::declval<dtype>()), 1> arange(T begin, U end, dtype step=dtype(1))
+       template<class T, class U, class S=long, class dtype=decltype(std::declval<T>()+std::declval<U>()+std::declval<S>())>
+           core::ndarray<dtype, 1> arange(T begin, U end, S step=S(1), dtype d=dtype())
            {
-               typedef decltype(begin+end+step) R;
+               typedef dtype R;
                size_t size = std::max(R(0), R(std::ceil((end - begin)/step)));
                core::ndarray<R, 1> a(core::make_tuple((long)size), __builtin__::None);
                if(size)

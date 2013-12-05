@@ -1189,6 +1189,12 @@ def test_copy0():
     def test_arange10(self):
         self.run_test("def np_arange10_():\n from numpy import arange\n return arange(-5, -5.5, -0.1)", np_arange10_=[])
 
+    def test_arange11(self):
+        self.run_test("def np_arange11_():\n from numpy import arange, uint8\n return arange(0, 255, 1, uint8)", np_arange11_=[])
+
+    def test_arange12(self):
+        self.run_test("def np_arange12_():\n from numpy import arange, float32\n return arange(0, 25, 1., float32)", np_arange12_=[])
+
     def test_linspace(self):
         self.run_test("def np_linspace_():\n from numpy import linspace\n return linspace(1,4,32)", np_linspace_=[])
 

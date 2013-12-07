@@ -44,6 +44,9 @@ class ConstantFolding(Transformation):
         self.env = {'__builtin__': __import__('__builtin__')}
 
         for module_name in modules:
+            #not importing own file
+            if self.passmanager.module_name == module_name:
+                continue
             not_builtin = ["__builtin__", "__exception__", "__dispatch__",
                 "__iterator__"]
             # module starting with "__" are pythran internal module and

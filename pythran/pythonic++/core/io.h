@@ -207,7 +207,9 @@ namespace pythonic {
     }
     template< typename T, typename... Types>
         void print_nonl(T const& value, Types const&... values) {
-            detail::print(std::cout, value) << ' ';
+            detail::print(std::cout, value);
+            if(sizeof...(Types) > 0)
+              std::cout << ' ';
             print_nonl(values...);
         }
 
@@ -217,7 +219,9 @@ namespace pythonic {
 
     template< typename T, typename... Types>
         void print(T const& value, Types const&... values) {
-            detail::print(std::cout, value) << ' ';
+            detail::print(std::cout, value);
+            if(sizeof...(values) > 0)
+              std::cout << ' ';
             print(values...);
         }
 }

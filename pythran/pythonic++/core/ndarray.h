@@ -38,6 +38,17 @@ namespace  pythonic {
         template<class T>
             struct type_helper;
 
+        template<class T, class E>
+            ndarray<typename T::value_type, 1> num_filter(T const& self, E const& expr) {
+                typename T::value_type * buffer = new typename T::value_type [self.size()];
+                long j, n = self.size();
+                for(long i = j = 0; i < n ; ++i)
+                    if(expr.at(i))
+                        buffer[j++] = self.at(i);
+                long shape [] = { j };
+                return ndarray<typename T::value_type, 1>(buffer, shape);
+            }
+
         /* type trait to store scalar <> vector type binding
         */
         template<class T>
@@ -104,6 +115,13 @@ namespace  pythonic {
                     return Op()(arg0.at(i));
                 }
                 long size() const { return arg0.size(); }
+
+                template<class E>
+                    typename std::enable_if<is_numpy_expr<E>::value, ndarray<value_type, 1> >::type
+                    operator[](E const & expr)
+                    {
+                        return num_filter(*this, expr);
+                    }
             };
 
         template<class U, class V, size_t N>
@@ -141,6 +159,13 @@ namespace  pythonic {
                     return Op()(arg0.at(i), arg1.at(i));
                 }
                 long size() const { return std::max(arg0.size(), arg1.size()); }
+
+                template<class E>
+                    typename std::enable_if<is_numpy_expr<E>::value, ndarray<value_type, 1> >::type
+                    operator[](E const & expr)
+                    {
+                        return num_filter(*this, expr);
+                    }
             };
 
 
@@ -235,6 +260,8 @@ namespace  pythonic {
          */
         template <class T, size_t N>
             struct indexed_ndarray : ndarray<T,N> {
+                typedef typename ndarray<T,N>::value_type value_type;
+
                 indexed_ndarray() : ndarray<T,N>() {}
                 indexed_ndarray(ndarray<T,N> const& t) : ndarray<T,N>(t) {}
                 indexed_ndarray(ndarray<T,N+1> const& t, long i) {
@@ -553,6 +580,13 @@ namespace  pythonic {
                     return _size;
                 }
 
+                template<class E>
+                    typename std::enable_if<is_numpy_expr<E>::value, ndarray<value_type, 1> >::type
+                    operator[](E const & expr)
+                    {
+                        return num_filter(*this, expr);
+                    }
+
                 gsliced_ndarray<T,N,M>& operator=(gsliced_ndarray<T,N,M> const& v) {
                         long bound = size();
                         for(long i=0, k=0; k<bound; ++i) {
@@ -692,6 +726,12 @@ namespace  pythonic {
                         data.at(lower + i * step) -= v;
                     return *this;
                 }
+                template<class E>
+                    typename std::enable_if<is_numpy_expr<E>::value, ndarray<value_type, 1> >::type
+                    operator[](E const & expr)
+                    {
+                        return num_filter(*this, expr);
+                    }
             };
 
         /* Multidimensional array of values
@@ -1008,13 +1048,7 @@ namespace  pythonic {
                 template<class E>
                 typename std::enable_if<is_array<E>::value, ndarray<T,1>>::type
                 operator[](E const & expr) {
-                    long n= expr.size(), j=0;
-                    T* obuffer = new T[n];
-                    for(long i=0;i<n;++i)
-                        if(expr.at(i))
-                            obuffer[j++] = buffer[i];
-                    long shape [] = { j };
-                    return ndarray<T,1>(obuffer, shape);
+                    return num_filter(*this, expr);
                 }
 
                 /* to the flat array */
@@ -1107,6 +1141,13 @@ namespace  pythonic {
             struct numpy_expr_to_ndarray<gsliced_ndarray<E,M,L>> {
                 typedef typename std::remove_cv<typename std::remove_reference< decltype(std::declval<gsliced_ndarray<E,M,L>>().at(0)) >::type>::type T;
                 static const size_t N = std::tuple_size< typename std::remove_cv<typename std::remove_reference< decltype(std::declval<gsliced_ndarray<E,M,L>>().shape) >::type > ::type > ::value;
+                typedef core::ndarray<T, N> type;
+
+            };
+        template<class E>
+            struct numpy_expr_to_ndarray<sliced_ndarray<E>> {
+                typedef typename std::remove_cv<typename std::remove_reference< decltype(std::declval<sliced_ndarray<E>>().at(0)) >::type>::type T;
+                static const size_t N = std::tuple_size< typename std::remove_cv<typename std::remove_reference< decltype(std::declval<sliced_ndarray<E>>().shape) >::type > ::type > ::value;
                 typedef core::ndarray<T, N> type;
 
             };

@@ -21,8 +21,23 @@ class TestNumpy(TestEnv):
    b[2] = -1;
    return c;""", assign_sliced_array=[])
 
-    def test_filter_array(self):
-        self.run_test('def filter_array(n): import numpy ; a = numpy.zeros(n) ; return a[a>1]', 10, filter_array=[int])
+    def test_filter_array_0(self):
+        self.run_test('def filter_array_0(n): import numpy ; a = numpy.zeros(n) ; return a[a>1]', 10, filter_array_0=[int])
+
+    def test_filter_array_1(self):
+        self.run_test('def filter_array_1(n): import numpy ; a = numpy.arange(n) ; return a[a>4]', 10, filter_array_1=[int])
+
+    def test_filter_array_2(self):
+        self.run_test('def filter_array_2(n): import numpy ; a = numpy.arange(n) ; return (a+a)[a>4]', 10, filter_array_2=[int])
+
+    def test_filter_array_3(self):
+        self.run_test('def filter_array_3(n): import numpy ; a = numpy.arange(n) ; return (-a)[a>4]', 10, filter_array_3=[int])
+
+    def test_filter_array_4(self):
+        self.run_test('def filter_array_4(n): import numpy ; a = numpy.arange(n) ; return a[1:-1][a[1:-1]>4]', 10, filter_array_4=[int])
+
+    def test_filter_array_5(self):
+        self.run_test('def filter_array_5(n): import numpy ; a = numpy.arange(n) ; return (a[1:-1])[a[1:-1]>4]', 10, filter_array_5=[int])
 
     def test_assign_ndarray(self):
         self.run_test("""def assign_ndarray(t):

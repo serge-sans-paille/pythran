@@ -10,7 +10,6 @@ typedef long long pythran_long_t;
 #define pythran_long(a) pythran_long_t(a)
 #endif
 
-#include <boost/preprocessor/facilities/overload.hpp>
 #include <pythonic++.h>
 #include <type_traits>
 
@@ -756,44 +755,42 @@ struct __combined<none_type, none_type>  {
     typedef none_type type;
 };
 
+#define pythran_export_start(module, funcname, ...) \
+    namespace __pythran_##module{\
+    template <int N> \
+    struct funcname##_globals {\
+    };\
+    \
+    template<>\
+    struct funcname##_globals<__COUNTER__> {\
+        template<typename combiner, typename or_type>\
+        using global_type = or_type;\
+    }; \
+    \
+    pythran_export_multi(funcname, __VA_ARGS__)
 
-#define pythran_export(funcname, ...) \
-    BOOST_PP_OVERLOAD(pythran_export_,__VA_ARGS__)(funcname, __VA_ARGS__);
+#define pythran_export_multi(funcname, ...) pythran_export_multi_I(__COUNTER__, funcname, __VA_ARGS__)
+#define pythran_export_multi_I(N, funcname, ...) \
+    template<> \
+    struct funcname##_globals<N> { \
+        template<typename combiner, typename or_type> \
+        using global_type = funcname##_globals<N-1>::template global_type<combiner, typename combiner::template type<__VA_ARGS__, or_type>>; \
+    };
 
-#define pythran_export_1(funcname, arg0) \
-    typedef arg0 funcname##_argument_type0;
+#define pythran_export_end(funcname, ...) pythran_export_end_I(__COUNTER__, funcname, __VA_ARGS__)
+#define pythran_export_end_I(N, funcname, ...) \
+    pythran_export_multi_I(N, funcname, __VA_ARGS__) \
+    template <class combiner, class or_type> \
+    funcname##_globals<N>::global_type<combiner, or_type> \
+    funcname##_global_type(int) {}\
+    } /*End namespace */
 
-#define pythran_export_2(funcname, arg0, arg1) \
-    typedef arg0 funcname##_argument_type0; \
-    typedef arg1 funcname##_argument_type1
-
-#define pythran_export_3(funcname, arg0, arg1, arg2) \
-    pythran_export_2(funcname, arg0, arg1); \
-    typedef arg2 funcname##_argument_type2
-
-#define pythran_export_4(funcname, arg0, arg1, arg2, arg3) \
-    pythran_export_3(funcname, arg0, arg1, arg2); \
-    typedef arg3 funcname##_argument_type3
-
-#define pythran_export_5(funcname, arg0, arg1, arg2, arg3, arg4) \
-    pythran_export_4(funcname, arg0, arg1, arg2, arg3); \
-    typedef arg4 funcname##_argument_type4
-
-#define pythran_export_6(funcname, arg0, arg1, arg2, arg3, arg4, arg5) \
-    pythran_export_5(funcname, arg0, arg1, arg2, arg3, arg4); \
-    typedef arg5 funcname##_argument_type5
-
-#define pythran_export_7(funcname, arg0, arg1, arg2, arg3, arg4, arg5, arg6) \
-    pythran_export_6(funcname, arg0, arg1, arg2, arg3, arg4, arg5); \
-    typedef arg6 funcname##_argument_type6
-
-#define pythran_export_8(funcname, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7) \
-    pythran_export_7(funcname, arg0, arg1, arg2, arg3, arg4, arg5, arg6); \
-    typedef arg7 funcname##_argument_type7
-
-#define pythran_export_9(funcname, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) \
-    pythran_export_8(funcname, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7); \
-    typedef arg8 funcname##_argument_type8
+#define pythran_export_solo(module, funcname, ...) \
+    pythran_export_start(module, funcname, __VA_ARGS__) \
+    template <class combiner, class or_type> \
+    funcname##_globals<__COUNTER__-1>::global_type<combiner, or_type> \
+    funcname##_global_type(int) {}\
+    } /*End namespace */
 
 
 /* some overloads */

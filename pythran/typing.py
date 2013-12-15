@@ -325,7 +325,7 @@ class Types(ModuleAnalysis):
                     self.result[function] = NamedType(tname)
                     self.combiners[function] = function
                 else:
-                    self.result[function] =  NamedType("void", {Weak})
+                    self.result[function] = NamedType("void", {Weak})
 
         super(Types, self).prepare(node, ctx)
 

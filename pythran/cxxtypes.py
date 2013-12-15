@@ -326,7 +326,8 @@ class ReturnType(Type):
     >>> ReturnType(NamedType('math::cos'), [NamedType('float')])
     decltype(std::declval<math::cos>()(std::declval<float>()))
     '''
-    def __init__(self, ftype, args):
+    def __init__(self, ftype, args, is_function_call=False):
+        self.is_function_call = is_function_call
         args_qualifiers = [arg.qualifiers for arg in args]
         super(ReturnType, self).__init__(
                 qualifiers=ftype.qualifiers.union(*args_qualifiers),
@@ -337,7 +338,10 @@ class ReturnType(Type):
     def generate(self, ctx):
         # the return type of a constructor is obvious
         cg = self.ftype.generate(ctx)
-        cg = 'std::declval<{0}>()'.format(cg)
+        #Overloaded functions can't be processed by declval
+        if not self.is_function_call:
+            cg = 'std::declval<{0}>()'.format(cg)
+
         args = ("std::declval<{0}>()".format(ctx(arg).generate(ctx))
                 for arg in self.args)
         return 'decltype({0}({1}))'.format(cg, ", ".join(args))

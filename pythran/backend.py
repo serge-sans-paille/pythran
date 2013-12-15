@@ -120,15 +120,26 @@ class Cxx(Backend):
             # a function's types[2] is its {global: combiner} association
             for gb in self.types[node][2].keys():
                 gbnode = self.global_declarations[gb]
-                self.types[gbnode] = TemplatedType("{0}::combiner_{1}".format(
-                    node.name, gb),
-                       [NamedType("{0}_argument_type{1}".format(node.name, i))
-                        for i in range(0, len(node.args.args))]
-                    + [self.types[gbnode]])
+                #if f the function and a the global, produces
+                #decltype(f_global_type<f::combiner_a, self.types[gbnode]>(0))
+                self.types[gbnode] = \
+                    TemplatedType("{0}_global_type".format(node.name),
+                                  [NamedType("{0}::combiner_{1}".format(
+                                   node.name, gb))] + [self.types[gbnode]])
+                self.types[gbnode] = ReturnType(self.types[gbnode],
+                                                [NamedType("int")], True)
+
+        #generate the func_global_type() by default, if the user didn't export
+        #the function in the c++ code
+        default_global_types = (
+            [Statement("template<class combiner, class or_type> or_type "
+                       "{0}_global_type(...){{}}"
+                       .format(node.name)) for node in self.functions]
+        )
 
         #generate global variables declared in the module
         ctx = lambda x: x
-        globals = (
+        globals = default_global_types + (
             [Statement("{0} {1}".format(
                 self.types[self.global_declarations[gb]].generate(ctx), gb))
                 for gb in self.declared_globals]
@@ -535,12 +546,12 @@ class Cxx(Backend):
             combiners = []
             for k,v in self.types[node][2].items():
                 #the iterable dict is a <global_name, node> assocation
-                decl = templatize(
-                    Alias("combiner_" + k, self.types[v]),
+                decl = Struct("combiner_"+k, [templatize(
+                    Alias("type", self.types[v]),
                     formal_types,
                     default_arg_types,
                     [NamedType("or_global_type")]
-                )
+                )])
                 combiners.append(decl)
 
             return_declaration = [

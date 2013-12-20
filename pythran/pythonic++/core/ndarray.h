@@ -27,6 +27,8 @@ namespace  pythonic {
 
     namespace core {
 
+        struct foreign {}; // used to mark memory as foreigned memory
+
         template<class T, size_t N>
             struct ndarray;
         template<class T, size_t N>
@@ -37,16 +39,18 @@ namespace  pythonic {
             struct is_numpy_expr;
         template<class T>
             struct type_helper;
+        template<class T>
+            struct numpy_expr_to_ndarray;
 
         template<class T, class E>
-            ndarray<typename T::value_type, 1> num_filter(T const& self, E const& expr) {
-                typename T::value_type * buffer = new typename T::value_type [self.size()];
+            ndarray<typename numpy_expr_to_ndarray<T>::T, 1> num_filter(T const& self, E const& expr) {
+                typename numpy_expr_to_ndarray<T>::T* buffer = new typename numpy_expr_to_ndarray<T>::T [self.size()];
                 long j, n = self.size();
                 for(long i = j = 0; i < n ; ++i)
                     if(expr.at(i))
                         buffer[j++] = self.at(i);
                 long shape [] = { j };
-                return ndarray<typename T::value_type, 1>(buffer, shape);
+                return ndarray<typename numpy_expr_to_ndarray<T>::T, 1>(buffer, shape);
             }
 
         /* type trait to store scalar <> vector type binding
@@ -821,6 +825,14 @@ namespace  pythonic {
 
                 /* from a foreign pointer */
                 ndarray(T* data, long * pshape):
+                    data_size(*pshape),
+                    mem(data),
+                    buffer(mem->data),
+                    shape()
+                {
+                    std::copy(pshape, pshape + N, shape.begin());
+                }
+                ndarray(T* data, long * pshape, foreign const&):
                     data_size(*pshape),
                     mem(data),
                     buffer(mem->data),

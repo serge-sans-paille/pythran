@@ -1395,7 +1395,7 @@ struct python_to_pythran< core::ndarray<T, N> >{
 
     static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
         void* storage=((boost::python::converter::rvalue_from_python_storage<core::ndarray<T,N>>*)(data))->storage.bytes;
-        new (storage) core::ndarray< T, N>((T*)PyArray_BYTES(reinterpret_cast<PyArrayObject*>(obj_ptr)), PyArray_DIMS(reinterpret_cast<PyArrayObject*>(obj_ptr)));
+        new (storage) core::ndarray< T, N>((T*)PyArray_BYTES(reinterpret_cast<PyArrayObject*>(obj_ptr)), PyArray_DIMS(reinterpret_cast<PyArrayObject*>(obj_ptr)), core::foreign());
         Py_INCREF(obj_ptr);
         data->convertible=storage;
     }

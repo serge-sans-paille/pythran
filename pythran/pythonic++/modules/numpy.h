@@ -1458,6 +1458,13 @@ namespace pythonic {
         NUMPY_EXPR_TO_NDARRAY0(copy);
         PROXY(pythonic::numpy, copy);
 
+        template<class T, size_t N>
+            core::ndarray<T,N> copyto(core::ndarray<T,N>& out, core::ndarray<T,N> const& a) {
+                std::copy(a.buffer, a.buffer + a.size(), out.buffer);
+                return out;
+            }
+        PROXY(pythonic::numpy, copyto);
+
         template<class T, size_t N, class dtype=T>
             core::ndarray<dtype,1> cumprod(core::ndarray<T,N> const& expr, dtype d = dtype()) {
                 long count = expr.size();

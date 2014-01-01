@@ -260,6 +260,7 @@ modules = {
             "conj": ConstFunctionIntr(),
             "conjugate": ConstFunctionIntr(),
             "copy": ConstFunctionIntr(),
+            "copyto": ConstFunctionIntr(),
             "copysign": ConstFunctionIntr(),
             "cos": ConstFunctionIntr(),
             "cosh": ConstFunctionIntr(),

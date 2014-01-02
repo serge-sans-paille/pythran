@@ -150,11 +150,10 @@ class SpecParser:
                                   for line in data.split('\n')))
         self.parser.parse(pythran_data, lexer=self.lexer)
         if not self.exports:
-            err = SyntaxError(
-                    "Pythran spec error: no pythran specification")
-            if self.input_file:
-                err.filename = self.input_file
-            raise err
+            import logging
+            logger = logging.getLogger("pythran")
+            logger.warn("No pythran specification, "
+                        "no function will be exported")
         return self.exports
 
 

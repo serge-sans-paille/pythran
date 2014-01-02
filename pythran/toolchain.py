@@ -15,7 +15,7 @@ import ast
 from middlend import refine
 from backend import Cxx
 from syntax import check_syntax
-from passes import NormalizeIdentifiers
+from passes import NormalizeIdentifiers, ExtractTopLevelStmts
 from openmp import GatherOMPData
 from config import cfg
 from passmanager import PassManager
@@ -139,8 +139,11 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
     # hacky way to turn OpenMP comments into strings
     code = re.sub(r'(\s*)#(omp\s[^\n]+)', r'\1"\2"', code)
 
-    # font end
+    # front end
     ir = ast.parse(code)
+
+    # remove top - level statements
+    pm.apply(ExtractTopLevelStmts, ir)
 
     # parse openmp directive
     pm.apply(GatherOMPData, ir)
@@ -159,7 +162,16 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
     content = pm.dump(Cxx, ir)
 
     # instanciate the meta program
-    if specs:
+    if specs is None:
+        class Generable:
+            def __init__(self, content):
+                self.content = content
+
+            def generate(self):
+                return "\n".join("\n".join(l for l in s.generate())
+                                 for s in self.content)
+        mod = Generable(content)
+    else:
         # uniform typing
         for fname, signatures in specs.items():
             if not isinstance(signatures, tuple):
@@ -168,7 +180,8 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
         mod = BoostPythonModule(module_name)
         mod.use_private_namespace = False
         # very low value for max_arity leads to various bugs
-        max_arity = max(4, max(max(map(len, s)) for s in specs.itervalues()))
+        min_val = 4
+        max_arity = max([min_val] + [max(map(len, s)) for s in specs.itervalues()])
         mod.add_to_preamble([Define("BOOST_PYTHON_MAX_ARITY", max_arity)])
         mod.add_to_preamble([Define("BOOST_SIMD_NO_STRICT_ALIASING", "1")])
         mod.add_to_preamble(content.body)
@@ -241,8 +254,9 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
                     ),
                     function_name
                 )
-    else:
-        mod = content
+        # call __init__() to execute top-level statements
+        init_call = '::'.join([pythran_ward + module_name, '__init__()()'])
+        mod.add_to_init([Statement(init_call)])
     return mod
 
 

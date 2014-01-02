@@ -1434,10 +1434,10 @@ class LazynessAnalysis(FunctionAnalysis):
         if node.id in self.use:
             #gather value for alias node and other variables with same name
             state_name_count = filter(self.name_count.__contains__,
-                    state[node.id])
+                                      state[node.id])
             alias_val = map(self.name_count.get, state_name_count)
             alias_val += [value for name, value in self.name_count.iteritems()
-                                    if name.id == node.id]
+                          if name.id == node.id]
             ex_value = max(alias_val)
             if node.id in self.result:
                 ex_value = max(self.result[node.id], ex_value)
@@ -1485,7 +1485,7 @@ class LazynessAnalysis(FunctionAnalysis):
     def visit_Name(self, node):
         if isinstance(node.ctx, ast.Load) and node.id in self.use:
             name_from_id = [name for name in self.name_count.iterkeys()
-                                    if name.id == node.id]
+                            if name.id == node.id]
             for alias in self.aliases[node].aliases.union(set(name_from_id)):
                 # we only care about variable local to the function
                 if isinstance(alias, ast.Name) and alias.id in self.ids:

@@ -180,9 +180,15 @@ namespace  pythonic {
                 }
 
             template<class T>
-                auto ones_like(T const&) -> decltype(T(1)) {
-                    return T(1);
+                auto ones_like(T const&) -> decltype(static_cast<T>(1)) {
+                    return static_cast<T>(1);
                 }
+#ifdef USE_BOOST_SIMD
+            template<class T>
+                auto zeros_like(boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION> const&) {
+                    return boost::simd::splat<boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>>(static_cast<T>(1));
+                }
+#endif
 
             template<class T >
                 auto positive(T const& t) -> decltype(+t) {
@@ -204,9 +210,15 @@ namespace  pythonic {
                 }
 
             template<class T>
-                auto zeros_like(T const&) -> decltype(T(0)) {
-                    return T(0);
+                auto zeros_like(T const&) -> decltype(static_cast<T>(0)) {
+                    return static_cast<T>(0);
                 }
+#ifdef USE_BOOST_SIMD
+            template<class T>
+                auto zeros_like(boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION> const&) {
+                    return boost::simd::splat<boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>>(static_cast<T>(0));
+                }
+#endif
 
             template<class T >
                 auto angle_in_rad(T const& t) -> decltype(atan(std::imag(t)/std::real(t))) {

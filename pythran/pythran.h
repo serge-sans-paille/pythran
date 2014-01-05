@@ -85,6 +85,11 @@ struct assignable<pythonic::core::numpy_uexpr<Op, Arg0>>
 {
     typedef typename pythonic::core::numpy_expr_to_ndarray<pythonic::core::numpy_uexpr<Op, Arg0>>::type type;
 };
+template<class Arg, class Filter>
+struct assignable<pythonic::core::numpy_fexpr<Arg, Filter>>
+{
+    typedef typename pythonic::core::numpy_expr_to_ndarray<pythonic::core::numpy_fexpr<Arg, Filter>>::type type;
+};
 
 template<class T>
 struct content_of {
@@ -523,6 +528,10 @@ template<class Arg0, class Op, class K>
 struct __combined<core::numpy_uexpr<Op, Arg0>, indexable<K>> {
     typedef core::numpy_uexpr<Op, Arg0> type;
 };
+template<class A, class F, class K>
+struct __combined<core::numpy_fexpr<A, F>, indexable<K>> {
+    typedef core::numpy_fexpr<A, F> type;
+};
 
 template<class Arg0, class Arg1, class Op, class K>
 struct __combined<core::numpy_expr<Op, Arg0, Arg1>, indexable<K>> {
@@ -532,6 +541,10 @@ struct __combined<core::numpy_expr<Op, Arg0, Arg1>, indexable<K>> {
 template<class Arg0, class Op, class K>
 struct __combined<indexable<K>, core::numpy_uexpr<Op, Arg0>> {
     typedef core::numpy_uexpr<Op, Arg0> type;
+};
+template<class A, class F, class K>
+struct __combined<indexable<K>, core::numpy_fexpr<A, F>> {
+    typedef core::numpy_fexpr<A, F> type;
 };
 
 template<class Arg0, class Arg1, class Op, class K>
@@ -544,6 +557,11 @@ struct __combined<core::numpy_uexpr<Op, Arg0>, indexable_container<K,V>> {
     typedef core::numpy_uexpr<Op, Arg0> type;
 };
 
+template<class A, class F, class K, class V>
+struct __combined<core::numpy_fexpr<A, F>, indexable_container<K,V>> {
+    typedef core::numpy_fexpr<A, F> type;
+};
+
 template<class Arg0, class Arg1, class Op, class K, class V>
 struct __combined<core::numpy_expr<Op, Arg0, Arg1>, indexable_container<K,V>> {
     typedef core::numpy_expr<Op, Arg0, Arg1> type;
@@ -552,6 +570,11 @@ struct __combined<core::numpy_expr<Op, Arg0, Arg1>, indexable_container<K,V>> {
 template<class Arg0, class Op, class K, class V>
 struct __combined<indexable_container<K,V>, core::numpy_uexpr<Op, Arg0>> {
     typedef core::numpy_uexpr<Op, Arg0> type;
+};
+
+template<class A, class F, class K, class V>
+struct __combined<indexable_container<K,V>, core::numpy_fexpr<A, F>> {
+    typedef core::numpy_fexpr<A, F> type;
 };
 
 template<class Arg0, class Arg1, class Op, class K, class V>
@@ -565,6 +588,11 @@ struct __combined<container<K>, core::numpy_uexpr<Op, Arg0>> {
     typedef core::numpy_uexpr<Op, Arg0> type;
 };
 
+template<class A, class F, class K>
+struct __combined<container<K>, core::numpy_fexpr<A, F>> {
+    typedef core::numpy_uexpr<A, F> type;
+};
+
 template<class Arg0, class Arg1, class Op, class K>
 struct __combined<container<K>, core::numpy_expr<Op, Arg0, Arg1>> {
     typedef core::numpy_expr<Op, Arg0, Arg1> type;
@@ -573,6 +601,11 @@ struct __combined<container<K>, core::numpy_expr<Op, Arg0, Arg1>> {
 template<class Arg0, class Op, class K>
 struct __combined<core::numpy_uexpr<Op, Arg0>, container<K>> {
     typedef core::numpy_uexpr<Op, Arg0> type;
+};
+
+template<class A, class F, class K>
+struct __combined<core::numpy_fexpr<A, F>, container<K>> {
+    typedef core::numpy_fexpr<A, F> type;
 };
 
 template<class Arg0, class Arg1, class Op, class K>
@@ -778,6 +811,8 @@ namespace std {
         auto get( core::numpy_expr<O,A0,A1> const& a) -> decltype(a[I]) { return a[I]; }
     template <size_t I, class O, class A>
         auto get( core::numpy_uexpr<O,A> const& a) -> decltype(a[I]) { return a[I]; }
+    template <size_t I, class A, class F>
+        auto get( core::numpy_fexpr<A,F> const& a) -> decltype(a[I]) { return a[I]; }
 
     template <size_t I, class T, size_t N>
         struct tuple_element<I, core::ndarray<T,N> > {
@@ -864,6 +899,10 @@ template <class T, size_t N>
 template <class Op, class Arg>
     struct attribute_element<0, pythonic::core::numpy_uexpr<Op, Arg> > {
         typedef core::array<long, pythonic::core::numpy_uexpr<Op, Arg>::value> type;
+    };
+template <class Arg, class F>
+    struct attribute_element<0, pythonic::core::numpy_fexpr<Arg, F> > {
+        typedef core::array<long, pythonic::core::numpy_fexpr<Arg, F>::value> type;
     };
 template <class T>
     struct attribute_element<0, pythonic::core::sliced_ndarray<T> > {
@@ -1007,6 +1046,11 @@ template <unsigned int I, class Op, class Arg>
     typename attribute_element<I,pythonic::core::ndarray<typename core::numpy_uexpr<Op,Arg>::value_type,  core::numpy_uexpr<Op,Arg>::value>>::type const getattr(core::numpy_uexpr<Op,Arg> const& a)
     {
         return ndarray_attr<I,typename core::numpy_uexpr<Op,Arg>::value_type,  core::numpy_uexpr<Op,Arg>::value>()(a);
+    }
+template <unsigned int I, class Arg, class F>
+    typename attribute_element<I,pythonic::core::ndarray<typename core::numpy_fexpr<Arg,F>::value_type,  core::numpy_fexpr<Arg,F>::value>>::type const getattr(core::numpy_fexpr<Arg, F> const& a)
+    {
+        return ndarray_attr<I,typename core::numpy_fexpr<Arg,F>::value_type,  core::numpy_fexpr<Arg,F>::value>()(a);
     }
 
 template <unsigned int I, class T>

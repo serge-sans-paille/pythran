@@ -42,16 +42,28 @@ namespace  pythonic {
         template<class T>
             struct numpy_expr_to_ndarray;
 
-        template<class T, class E>
-            ndarray<typename numpy_expr_to_ndarray<T>::T, 1> num_filter(T const& self, E const& expr) {
-                typename numpy_expr_to_ndarray<T>::T* buffer = new typename numpy_expr_to_ndarray<T>::T [self.size()];
-                long j, n = self.size();
-                for(long i = j = 0; i < n ; ++i)
-                    if(expr.at(i))
-                        buffer[j++] = self.at(i);
-                long shape [] = { j };
-                return ndarray<typename numpy_expr_to_ndarray<T>::T, 1>(buffer, shape);
-            }
+        /* Wrapper class to store an array pointer
+         *
+         * for internal use only, meant to be stored in a shared_ptr
+         */
+        template<class T>
+            class raw_array {
+                raw_array(raw_array<T> const& );
+
+                public:
+                typedef T* pointer_type;
+
+                T* data;
+                raw_array() : data(nullptr) {}
+                raw_array(size_t n) : data(new T[n]) {}
+                raw_array(T* d) : data(d) {}
+                raw_array(raw_array<T>&& d) : data(d.data) { d.data = nullptr; }
+
+                ~raw_array() {
+                    if(data)
+                        delete [] data;
+                }
+            };
 
         /* type trait to store scalar <> vector type binding
         */
@@ -98,6 +110,58 @@ namespace  pythonic {
                 }
             };
 
+        /* Expression template for numpy expressions - filter
+        */
+        template<class Arg0, class F>
+            struct numpy_fexpr {
+                Arg0 arg0;
+                impl::shared_ref<raw_array<long>> indices;
+                static constexpr size_t value = 1;
+                typedef typename numpy_expr_to_ndarray<Arg0>::T value_type;
+                core::array<long, value> shape;
+                numpy_fexpr() : indices() {}
+                numpy_fexpr(Arg0 const& arg0, F const& filter) : arg0(arg0), indices(arg0.size()) {
+                    long j = 0, n = filter.size();
+                    auto iter = indices->data;
+                    for(long i = 0; i < n ; ++i)
+                        if(filter.at(i))
+                            iter[j++] = i;
+                    shape[0] = { j };
+                }
+#ifdef USE_BOOST_SIMD
+                auto load(long i) const -> decltype(arg0.load(i)) {
+                    return arg0.load(i); // FIXME
+                }
+#endif
+                auto at(long i) const -> decltype(arg0.at(indices->data[i])) {
+                    return arg0.at(indices->data[i]);
+                }
+
+                long size() const { return shape[0]; }
+
+                template<class E>
+                    typename std::enable_if<is_numpy_expr<E>::value, numpy_fexpr< numpy_fexpr<Arg0, F>, E > >::type
+                    operator[](E const & expr) 
+                    {
+                        return numpy_fexpr<numpy_fexpr<Arg0, F>, E >(*this, expr);
+                    }
+
+                numpy_fexpr<Arg0, F>& operator=(value_type const& v) {
+                        for(long i=0, n= size(); i<n ; ++i)
+                            arg0.at(indices->data[i]) = v;
+                        return *this;
+                    }
+                template<class E>
+                typename std::enable_if<is_array<typename std::remove_reference<E>::type>::value, numpy_fexpr<Arg0, F>&>::type
+                    operator=(E&& e)
+                    {
+                        for(long i=0, n= size(); i<n ; ++i)
+                            arg0.at(indices->data[i]) = e.at(i);
+                        return *this;
+                    }
+
+            };
+
         /* Expression template for numpy expressions - unary operators
         */
         template<class Op, class Arg0>
@@ -121,10 +185,10 @@ namespace  pythonic {
                 long size() const { return arg0.size(); }
 
                 template<class E>
-                    typename std::enable_if<is_numpy_expr<E>::value, ndarray<value_type, 1> >::type
+                    typename std::enable_if<is_numpy_expr<E>::value, numpy_fexpr<numpy_uexpr<Op, Arg0>, E> >::type
                     operator[](E const & expr)
                     {
-                        return num_filter(*this, expr);
+                        return numpy_fexpr<numpy_uexpr<Op, Arg0>, E>(*this, expr);
                     }
             };
 
@@ -165,38 +229,16 @@ namespace  pythonic {
                 long size() const { return std::max(arg0.size(), arg1.size()); }
 
                 template<class E>
-                    typename std::enable_if<is_numpy_expr<E>::value, ndarray<value_type, 1> >::type
+                    typename std::enable_if<is_numpy_expr<E>::value, numpy_fexpr<numpy_expr<Op, Arg0, Arg1>, E> >::type
                     operator[](E const & expr)
                     {
-                        return num_filter(*this, expr);
+                        return numpy_fexpr<numpy_expr<Op, Arg0, Arg1>, E>(*this, expr);
                     }
             };
 
 
 
 
-        /* Wrapper class to store an array pointer
-         *
-         * for internal use only, meant to be stored in a shared_ptr
-         */
-        template<class T>
-            class raw_array {
-                raw_array(raw_array<T> const& );
-
-                public:
-                typedef T* pointer_type;
-
-                T* data;
-                raw_array() : data(nullptr) {}
-                raw_array(size_t n) : data(new T[n]) {}
-                raw_array(T* d) : data(d) {}
-                raw_array(raw_array<T>&& d) : data(d.data) { d.data = nullptr; }
-
-                ~raw_array() {
-                    if(data)
-                        delete [] data;
-                }
-            };
 
         /* Random Access Iterator over an ndarray
          *
@@ -585,10 +627,10 @@ namespace  pythonic {
                 }
 
                 template<class E>
-                    typename std::enable_if<is_numpy_expr<E>::value, ndarray<value_type, 1> >::type
+                    typename std::enable_if<is_numpy_expr<E>::value, numpy_fexpr<gsliced_ndarray<T,N,M>, E> >::type
                     operator[](E const & expr)
                     {
-                        return num_filter(*this, expr);
+                        return numpy_fexpr<gsliced_ndarray<T,N,M>, E>(*this, expr);
                     }
 
                 gsliced_ndarray<T,N,M>& operator=(gsliced_ndarray<T,N,M> const& v) {
@@ -731,10 +773,10 @@ namespace  pythonic {
                     return *this;
                 }
                 template<class E>
-                    typename std::enable_if<is_numpy_expr<E>::value, ndarray<value_type, 1> >::type
+                    typename std::enable_if<is_numpy_expr<E>::value, numpy_fexpr<sliced_ndarray<T>, E> >::type
                     operator[](E const & expr)
                     {
-                        return num_filter(*this, expr);
+                        return numpy_fexpr<sliced_ndarray<T>, E>(*this, expr);
                     }
             };
 
@@ -888,6 +930,15 @@ namespace  pythonic {
 
                 template<class Op, class Arg0>
                     ndarray(numpy_uexpr<Op, Arg0> const & expr) :
+                        data_size(expr.shape[0]),
+                        mem(expr.size()),
+                        buffer(mem->data),
+                        shape(expr.shape)
+                {
+                    initialize_from_expr(expr);
+                }
+                template<class Op, class Arg0>
+                    ndarray(numpy_fexpr<Op, Arg0> const & expr) :
                         data_size(expr.shape[0]),
                         mem(expr.size()),
                         buffer(mem->data),
@@ -1058,9 +1109,14 @@ namespace  pythonic {
 
                 /* by array */
                 template<class E>
-                typename std::enable_if<is_array<E>::value, ndarray<T,1>>::type
+                typename std::enable_if<is_array<E>::value, numpy_fexpr<ndarray<T,N>, E>>::type
                 operator[](E const & expr) {
-                    return num_filter(*this, expr);
+                    return numpy_fexpr<ndarray<T,N>, E>(*this, expr);
+                }
+                template<class E>
+                typename std::enable_if<is_array<E>::value, numpy_fexpr<ndarray<T,N>, E>>::type
+                operator[](E const & expr) const {
+                    return numpy_fexpr<ndarray<T,N>, E>(*this, expr);
                 }
 
                 /* to the flat array */
@@ -1140,6 +1196,12 @@ namespace  pythonic {
             struct numpy_expr_to_ndarray<numpy_uexpr<Op, Arg>> {
                 typedef typename std::remove_cv<typename std::remove_reference< decltype(std::declval<numpy_uexpr<Op, Arg>>().at(0)) >::type>::type T;
                 static const size_t N = std::tuple_size< typename std::remove_cv<typename std::remove_reference< decltype(std::declval<numpy_uexpr<Op, Arg>>().shape) >::type > ::type > ::value;
+                typedef core::ndarray<T, N> type;
+            };
+        template<class Arg, class F>
+            struct numpy_expr_to_ndarray<numpy_fexpr<Arg, F>> {
+                typedef typename std::remove_cv<typename std::remove_reference< decltype(std::declval<numpy_fexpr<Arg, F>>().at(0)) >::type>::type T;
+                static const size_t N = std::tuple_size< typename std::remove_cv<typename std::remove_reference< decltype(std::declval<numpy_fexpr<Arg, F>>().shape) >::type > ::type > ::value;
                 typedef core::ndarray<T, N> type;
             };
 
@@ -1254,6 +1316,10 @@ namespace  pythonic {
             };
         template<class O, class A0 >
             struct is_numexpr_arg<numpy_uexpr<O,A0>> {
+                static constexpr bool value = true;
+            };
+        template<class A, class F >
+            struct is_numexpr_arg<numpy_fexpr<A, F>> {
                 static constexpr bool value = true;
             };
 

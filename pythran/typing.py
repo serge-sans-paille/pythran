@@ -83,7 +83,7 @@ def extract_constructed_types(t):
 
 class TypeDependencies(ModuleAnalysis):
     '''
-    Gathers the callees of each function required for type inference
+    Gathers the callees of each function required for the inference of the return type
 
     This analyse produces a directed graph with functions as nodes and edges
     between nodes when a function might call another.
@@ -125,20 +125,27 @@ class TypeDependencies(ModuleAnalysis):
         '''
         Gather all the function call that led to the creation of the
         returned expression and add an edge to each of this function.
+        '''
+        if node.value:
+            self.add_edges(self.visit(node.value))
+
+    def add_edges(self, visit_result):
+        """
+        Adds edges from each called function in the node to the current function
 
         When visiting an expression, one returns a list of frozensets.  Each
         element of the list is linked to a possible path, each element of a
         frozenset is linked to a dependency.
-        '''
-        if node.value:
-            v = self.visit(node.value)
-            for dep_set in v:
-                if dep_set:
-                    [self.result.add_edge(dep,
-                            self.current_function) for dep in dep_set]
-                else:
-                    self.result.add_edge(TypeDependencies.NoDeps,
-                                            self.current_function)
+        """
+        if not visit_result:
+            return
+        for dep_set in visit_result:
+            if dep_set:
+                [self.result.add_edge(dep, self.current_function)
+                 for dep in dep_set]
+            else:
+                self.result.add_edge(TypeDependencies.NoDeps,
+                                        self.current_function)
 
     visit_Yield = visit_Return
 
@@ -238,6 +245,45 @@ class TypeDependencies(ModuleAnalysis):
 
     visit_If = visit_any_conditionnal
     visit_While = visit_any_conditionnal
+    visit_Expr = visit_Subscript
+
+
+class Callees(TypeDependencies):
+    """
+    Gathers all the functions called inside a function
+
+    >>> import ast, passmanager, typing
+    >>> pm = passmanager.PassManager('test')
+    >>> source = '''
+    ... def b(x):
+    ...     global y
+    ...     y = x
+    ... def a(x):
+    >>>     b(x)
+    >>> '''
+    >>> gbs = ast.parse(source)
+    >>> res = pm.gather(typing.Callees, gbs)
+    >>> len(res.edges())
+    1
+    """
+    def __init__(self):
+        self.recursion = False
+        TypeDependencies.__init__(self)
+
+    def visit(self, node):
+        """
+        Instead of just gathering the function calls relevant to the return
+        expression, gathers all.
+        """
+        if self.recursion or not self.current_function:
+            return super(Callees, self).visit(node)
+        else:
+            self.recursion = True
+            result = super(Callees, self).visit(node)
+            self.recursion = False
+
+            self.add_edges(result)
+            return result
 
 
 class Reorder(Transformation):

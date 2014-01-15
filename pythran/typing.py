@@ -250,24 +250,31 @@ class TypeDependencies(ModuleAnalysis):
 
 class Callees(TypeDependencies):
     """
-    Gathers all the functions called inside a function
+    Gathers all the functions called inside each function, and list the
+    list of arguments whit which they are called
 
     >>> import ast, passmanager, typing
     >>> pm = passmanager.PassManager('test')
     >>> source = '''
-    ... def b(x):
+    ... def b(z):
     ...     global y
-    ...     y = x
+    ...     y = z
     ... def a(x):
     >>>     b(x)
     >>> '''
     >>> gbs = ast.parse(source)
     >>> res = pm.gather(typing.Callees, gbs)
-    >>> len(res.edges())
-    1
+    >>> '''Id of the first Arg of the first call of b in a'''
+    >>> res[gbs.body[1]][gbs.body[0]][0][0].id
+    'x'
     """
     def __init__(self):
         self.recursion = False
+        #In addition to creating the call graph between functions, we also remember
+        #with which arguments the functions were called.
+        #
+        #self.args[function_node][called_function] = [[arg1, arg2], [arg1', arg2'],???] ]
+        self.args = {}
         TypeDependencies.__init__(self)
 
     def visit(self, node):
@@ -285,6 +292,33 @@ class Callees(TypeDependencies):
             self.add_edges(result)
             return result
 
+    def visit_Call(self, node):
+        if self.current_function:
+            #list of set of functions
+            func = self.visit(node.func)
+            if not (self.current_function in self.args):
+                self.args[self.current_function] = {}
+            #Merge the sets and look at each individual element
+            elems =  {e for p in func for e in p}
+            for f in elems:
+                if not (f in self.args[self.current_function]):
+                    self.args[self.current_function][f] = []
+                #Add the call to the list of calls
+                self.args[self.current_function][f].append(node.args)
+            #We now have the list of each function called, and for each of
+            #those the list of various ways it's called in
+            #self.args[f][called_function]
+
+        return super(Callees, self).visit_Call(node)
+
+    def run(self, node, ctx):
+        """Instead of returning the DiGraph of TypeDependencies, returns a dict
+        of {function names: {functions called inside: [list of args] }}
+
+        There can be several args object if the function is called several times inside
+        """
+        super(Callees, self).run(node, ctx)
+        return self.args
 
 class Reorder(Transformation):
     '''

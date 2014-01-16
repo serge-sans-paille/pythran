@@ -774,7 +774,7 @@ struct __combined<none_type, none_type>  {
     template<> \
     struct funcname##_globals<N> { \
         template<typename combiner, typename or_type> \
-        using global_type = funcname##_globals<N-1>::template global_type<combiner, typename combiner::template type<__VA_ARGS__, or_type>>; \
+        using global_type = funcname##_globals<N-1>::template global_type<combiner, typename combiner::template type<__VA_ARGS__, or_type>::type>; \
     };
 
 #define pythran_export_end(funcname, ...) pythran_export_end_I(__COUNTER__, funcname, __VA_ARGS__)

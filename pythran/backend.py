@@ -16,7 +16,7 @@ from pythran.analysis import DeclaredGlobals
 from tables import operator_to_lambda, modules, type_to_suffix
 from tables import pytype_to_ctype_table
 from tables import pythran_ward
-from typing import Types
+from typing import Types, Callees
 from syntax import PythranSyntaxError
 
 from openmp import OMPDirective
@@ -102,7 +102,31 @@ class Cxx(Backend):
         self.result = None
         super(Cxx, self).__init__(
                 GlobalDeclarations, BoundedExpressions, Types, ArgumentEffects,
-                DeclaredGlobals, Scope)
+                DeclaredGlobals, Scope, Callees)
+
+    def get_globals_changed(self, node):
+        """Gets the globals changed in the function or sub functions
+            node represents the FunctionDef of the function we're interested in.
+
+            For example:
+
+            def b(x):
+                global y
+                y= 1
+
+            def a(x):
+                b(x)
+
+            getGlobalsChanged(function def of 'a') will return set([y]).
+        """
+        #First the globals changed directly
+        globals_changed = set(self.types[node][2].keys())
+        #Second the globals changed in the subfunctions:
+        if node in self.callees:
+            for subfunction in self.callees[node].keys():
+                globals_changed |= set(self.types[subfunction][2].keys())
+
+        return globals_changed
 
     # mod
     def visit_Module(self, node):
@@ -544,15 +568,12 @@ class Cxx(Backend):
 
             #The global combiners
             combiners = []
-            for k,v in self.types[node][2].items():
-                #the iterable dict is a <global_name, node> assocation
-                decl = Struct("combiner_"+k, [templatize(
-                    Alias("type", self.types[v]),
-                    formal_types,
-                    default_arg_types,
-                    [NamedType("or_global_type")]
-                )])
-                combiners.append(decl)
+            globals_changed = self.get_globals_changed(node)
+
+            for gb in globals_changed:
+                combiner = self.get_combiner(node, gb, formal_types,
+                                             default_arg_types)
+                combiners.append(combiner)
 
             return_declaration = [
                     templatize(
@@ -573,6 +594,54 @@ class Cxx(Backend):
         self.definitions.append(operator_definition)
 
         return EmptyStatement()
+
+    def get_combiner(self, node, gb, formal_types, default_arg_types):
+        """
+            Get the combiner for the function of 'node' and the global gb
+
+            The combiner is a structure taking in template parameters
+            the types with which the function is called with, and deduces
+            the type of the globals affected by the function thanks to that.
+        """
+        combiner = NamedType("or_type")  # Default combiner
+        direct_global_changes = self.types[node][2]
+
+        if not (node in self.callees):
+            self.callees[node] = {}
+
+        #Check if sub functions changes the global gb
+        for callee, calls in self.callees[node].items():
+            if not (gb in self.types[callee][2]):
+                continue
+            #The sub function does change the global gb
+            for call in calls:
+                combiner = \
+                    InstanciatedType("{0}::combiner_{1}".format(callee.name, gb),
+                                     "type",
+                                     [self.types[x] for x in call] + [combiner],
+                                     node.name, {})
+
+        ctx = lambda x : x
+        or_typedef = Typedef(Value(combiner.generate(ctx), "or_global_type"))
+
+        if gb in direct_global_changes:
+            typedef = Typedef(Value(self.types[direct_global_changes[gb]]
+                                    .generate(ctx), "type"))
+        else:
+            #We don't directly change the global in the function, so just use
+            #the combiners
+            typedef = Typedef(Value(NamedType("or_global_type").generate(ctx),
+                                    "type"))
+
+        #the iterable dict is a <global_name, node> assocation
+        decl = Struct("combiner_"+gb, [templatize(
+            Struct("type", [or_typedef, typedef]),
+            formal_types,
+            default_arg_types,
+            [NamedType("or_type")]
+        )])
+
+        return decl
 
     def visit_Return(self, node):
         if self.yields:

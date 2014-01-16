@@ -195,6 +195,7 @@ class Struct(Declarator):
 
 # template --------------------------------------------------------------------
 class Template(NestedDeclarator):
+    """Template(types, decl) -> template<types...> decl;"""
     def __init__(self, template_spec, subdecl):
         self.template_spec = template_spec
         self.subdecl = subdecl

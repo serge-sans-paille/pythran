@@ -123,14 +123,17 @@ class InstanciatedType(Type):
             template_params = ""
 
         return "typename {0}::type{1}::{2}".format(
-            self.fun.name,
+            self.fun if isinstance(self.fun, str) else self.fun.name,
             template_params,
             self.name
             )
 
+
 class TemplatedType(Type):
     """
     A type with template arguments passed in paramemeter
+
+    TemplatedType("a", [NamedType("int"), NamedType("bool")]) -> a<int, bool>
     """
     def __init__(self, name, arguments, qualifiers=set()):
         super(TemplatedType, self).__init__(

@@ -25,6 +25,8 @@
 \providecommand{\ie}[1][~]{\textit{i.e.}#1}
 \providecommand{\eg}[1][~]{\textit{e.g.#1}}
 
+%\doi{}
+
 \begin{document}
 
 \special{papersize=8.5in,11in}
@@ -53,7 +55,7 @@
 \begin{abstract}
 
     The Python language is highly dynamic, most notably due to late binding. As
-    a consequence, programs run using Python typically run an order of magnitude
+    a consequence, programs using Python typically run an order of magnitude
     slower than their C counterpart. It is also a high level language whose
     semantic can be made more static without much change from a user point of
     view in the case of mathematical applications. In that case, the language
@@ -131,10 +133,10 @@ Several approaches have been proposed to solve the performance issue of Python:
 using native modules, relying on Ahead-Of-Time (AOT) compilation or
 Just-In-Time (JIT) compilation.
 
-A native module is a shared library whose interface make it callable from the
+A native module is a shared library whose interface makes it callable from the
 Python interpreter using the regular \texttt{import} mechanism. It makes it
 possible to call native code from Python in a transparent way. Typically Python
-object are unboxed when transfered from Python to C, where efficient
+objects are unboxed when transfered from Python to C, where efficient
 computations can happen. Then the result is boxed when getting back to the
 Python world. In between, vectorization can happen. This is the approach taken
 by the \texttt{numpy} module: a native type, the \texttt{ndarray} contains
@@ -651,6 +653,9 @@ Clang version 3.4-1. The compilation flags used are \texttt{-O2} without
 vectorisation support and \texttt{-O2 -march=native -DUSE\_BOOST\_SIMD} with
 vectorisation support. Using \texttt{-O3} or \texttt{-Ofast} actually degraded
 performances.
+
+All the benchmarks use Numpy arrays of \emph{double precision} random floats as
+input, which means a maximum theoritical speedup of $\times4$ using AVX.
 
 The scripts used to perform the measures as well as all other experimental data
 used in this paper are available online at

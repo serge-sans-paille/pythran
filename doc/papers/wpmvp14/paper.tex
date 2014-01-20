@@ -648,14 +648,15 @@ Experiments are run on a computer running a Linux kernel version 3.10. The
 processors are Intel Core i7, so the AVX instruction set is available. Python
 version is 2.7.5, Pythran version is the \texttt{HEAD} of the \texttt{wpmvp14}
 branch of the official Pythran repository
-\url{https://github.com/serge-sans-paille/pythran}. The back-end C++ compiler is
-Clang version 3.4-1. The compilation flags used are \texttt{-O2} without
+\url{https://github.com/serge-sans-paille/pythran}. The back-end C++ compiler
+is Clang version 3.4-1. The compilation flags used are \texttt{-O2} without
 vectorisation support and \texttt{-O2 -march=native -DUSE\_BOOST\_SIMD} with
 vectorisation support. Using \texttt{-O3} or \texttt{-Ofast} actually degraded
-performances.
+performances. Using the compiler automatic vectorizer did not end up with any
+speedup, most probably due to expression templates confusing the vectorizer.
 
 All the benchmarks use Numpy arrays of \emph{double precision} random floats as
-input, which means a maximum theoritical speedup of $\times4$ using AVX.
+input, which means a maximum theoritical speedup of $\times4$ using AVX. 
 
 The scripts used to perform the measures as well as all other experimental data
 used in this paper are available online at

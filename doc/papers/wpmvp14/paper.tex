@@ -1,5 +1,5 @@
 % submit to https://sites.google.com/site/wpmvp2014/home
-\documentclass[preprint]{sigplanconf}
+\documentclass[10pt]{sigplanconf}
 
 % The following \documentclass options may be useful:
 
@@ -11,6 +11,15 @@
 \usepackage{amsmath}
 \usepackage{listings}
 \usepackage{hyperref}
+
+\special{papersize=8.5in,11in}
+\setlength{\pdfpageheight}{\paperheight}
+\setlength{\pdfpagewidth}{\paperwidth}
+
+\conferenceinfo{WPMVP '14}{February 16, 2014, Orlando, FL, USA} 
+\copyrightyear{2014} 
+\copyrightdata{978-1-4503-2653-7/14/02}
+\doi{2568058.2568060}
 
 \lstset{captionpos=b, float}
 
@@ -25,18 +34,9 @@
 \providecommand{\ie}[1][~]{\textit{i.e.}#1}
 \providecommand{\eg}[1][~]{\textit{e.g.#1}}
 
-%\doi{}
 
 \begin{document}
 
-\special{papersize=8.5in,11in}
-\setlength{\pdfpageheight}{\paperheight}
-\setlength{\pdfpagewidth}{\paperwidth}
-
-%\conferenceinfo{CONF 'yy}{Month d--d, 20yy, City, ST, Country} 
-%\copyrightyear{20yy} 
-%\copyrightdata{978-1-nnnn-nnnn-n/yy/mm} 
-%\doi{nnnnnnn.nnnnnnn}
 
 \title{Exploring the Vectorization of Python Constructs Using Pythran and Boost SIMD}
 
@@ -282,19 +282,15 @@ iterator adaptors that turn regular random access iterators into iterators
 suitable for SIMD processing. These adaptors act as free functions taking
 regular iterators as parameters and return iterators that output \texttt{pack}
 whenever dereferenced. These iterators are then usable directly in usual STL
-algorithms such as \texttt{transform} or \texttt{fold} (Listing \ref{stl_example}).
+algorithms such as \texttt{transform} or \texttt{fold} (Listing \ref{lst:tl_example}).
 
-\begin{lstlisting}[language=c++, label={lst:square-cxx}, caption={SIMD Iterator with STL algorithm},label=stl_example]
-std::vector<int,allocator<int> > v(N),r(N);
-
-std::transform ( simd::begin(v.begin())
-               , simd::end(v.end())
-               , simd::begin(r.begin())
-               , [](pack<int> const& p)
-                 { 
-                   return p*p; 
-                 } 
-              );
+\begin{lstlisting}[language=c++, label={lst:stl_example}, caption={SIMD Iterator with STL algorithm},label=stl_example]
+std::vector<int,allocator<int>> v(N),r(N);
+std::transform (
+ simd::begin(v.begin()),simd::end(v.end()),
+ simd::begin(r.begin()),
+ [](pack<int> const& p) { return p*p; } 
+);
 \end{lstlisting}
 
 Previous examples of integration within standard algorithm are still limited.
@@ -310,22 +306,16 @@ like \texttt{transform}. By using the \texttt{boost::simd::transform} algorithm,
 handling alignment, scalar prologue and epilogue is generated.
 
 \begin{lstlisting}[language=c++, label={lst:square-cxx}, caption={Polymorphic SIMD algorithm call},label=stl_poly]
-std::vector<int,allocator<int> > v(128), r(128);
-
-struct f
-{
-  template<class T>
-  auto operator()(T const& p)
-  -> decltype(p * p)
-  {
-    return p * p;
-  }
+std::vector<int,allocator<int>> v(9), r(9);
+struct f {
+ template<class T>
+ auto operator()(T const& p)
+ -> decltype(p*p)
+ { return p * p; }
 };
 
-simd::transform( v.begin(), v.end()
-               , r.begin()
-               , f() 
-               );
+simd::transform( v.begin(), v.end(),
+                 r.begin(), f());
 \end{lstlisting}
 
 
@@ -372,12 +362,9 @@ version uses \emph{dynamic polymorphism} while the C++ version uses
 
 \begin{lstlisting}[language=c++, caption={Simplified Pythran Translation of a Polymorphic Function}, label={lst:simple-pythran-output}]
 struct foo {
-    template<class T>
-    auto operator()(T&& x)
-    -> decltype(3 * x)
-    {
-        return x * 3;
-    }
+ template<class T>
+ auto operator()(T&& x) -> decltype(3*x)
+ { return x * 3; }
 };
 \end{lstlisting}
 
@@ -534,19 +521,7 @@ than for the \texttt{sum} intrinsic due to its variadic number of arguments,
 but it relies on the same concepts.
 
 \begin{lstlisting}[language=python, label={lst:square-python}, caption={Python implementation of the square function.}]
-def square(x):
-  return x * x
-\end{lstlisting}
-
-\begin{lstlisting}[language=c++, label={lst:square-cxx}, caption={C++ meta-implementation of the square function.}]
-struct square {
-    template<class T>
-    auto operator()(T const& x)
-    -> decltype(x * x)
-    {
-      return x * x;
-    }
-};
+square = lambda x: x * x
 \end{lstlisting}
 
 \subsection{List Comprehension}
@@ -591,8 +566,8 @@ array that provides an array language embedded into Python. An example of
 \begin{lstlisting}[language=python, label={lst:numpy-code}, caption={Sample \texttt{numpy} code.}]
 import numpy as np
 def rosen(x):
-  return np.sum(100*(x[1:] - x[:-1] ** 2) ** 2
-                + (1 - x[:-1]) ** 2)
+  return np.sum(100*(x[1:]-x[:-1]**2)**2
+                + (1 - x[:-1])**2)
 \end{lstlisting}
 
 Common features of array language include indexing, slicing, point-to-point
@@ -734,18 +709,18 @@ three expressions are used: \texttt{1. / a + a}, the example from
 Listing~\ref{lst:numpy-code} and a computation of the point-to-point arc
 distance  between random values. Again, all inputs are large randomized
 \texttt{ndarray} of double precision floating point numbers.
-Figure~\ref{fig:numpy-timings} summarizes the results. Because all computations
-are done in native space, there is not much speedup when running them through
-Pythran. The only benefits comes from the elimination of temporary arrays and
-loop fusion. As a consequence, the more elements in the \texttt{numpy}
-expression, the more Pythran accelerates the code. The vectorization speedups
-follow the same process, as larger expression tend to increase the operation
-over memory movement ratio.
+Figures~\ref{fig:numpy-timings} and~\ref{fig:numpy-code-fs} summarize the
+results. Because all computations are done in native space, there is not much
+speedup when running them through Pythran. The only benefits comes from the
+elimination of temporary arrays and loop fusion. As a consequence, the more
+elements in the \texttt{numpy} expression, the more Pythran accelerates the
+code. The vectorization speedups follow the same process, as larger expression
+tend to increase the operation over memory movement ratio.
 
 \begin{figure}[ht]
 
     \includegraphics[width=.5\textwidth]{numexpr}
-    \includegraphics[width=.5\textwidth]{rosen}
+    %\includegraphics[width=.5\textwidth]{rosen}
     \includegraphics[width=.5\textwidth]{arc}
     \caption{Timings of various \texttt{numpy} expressions using CPython, Pythran, and Pythran with vectorization.}
     \label{fig:numpy-timings}

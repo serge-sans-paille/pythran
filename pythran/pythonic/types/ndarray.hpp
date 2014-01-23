@@ -1675,6 +1675,29 @@ struct __combined<pythonic::types::numpy_expr<Op, Arg0, Arg1>, container<K>> {
     typedef pythonic::types::numpy_expr<Op, Arg0, Arg1> type;
 };
 
+template<class Arg0, class Arg1, class Op, class Op2, class Arg2, class Arg3>
+struct __combined<pythonic::types::numpy_expr<Op, Arg0, Arg1>, pythonic::types::numpy_expr<Op2, Arg2, Arg3>> {
+    typedef typename pythonic::types::numpy_expr_to_ndarray<pythonic::types::numpy_expr<Op, Arg0, Arg1>>::type type;
+};
+
+template<class Arg0, class Arg1, class Op, class Op2>
+struct __combined<pythonic::types::numpy_uexpr<Op, Arg0>, pythonic::types::numpy_uexpr<Op2, Arg1>> {
+    typedef typename pythonic::types::numpy_expr_to_ndarray<pythonic::types::numpy_uexpr<Op, Arg0>>::type type;
+};
+
+//
+// PB : This led to poor performance (but I don't understand why)
+//
+//template<class Arg0, class Arg1, class Op, class Arg2, class Arg3>
+//struct __combined<pythonic::types::numpy_expr<Op, Arg0, Arg1>, pythonic::types::numpy_expr<Op, Arg2, Arg3>> {
+//    typedef pythonic::types::numpy_expr<Op, typename __combine<Arg0, Arg2>, typename __combine<Arg1, Arg3>> type;
+//};
+//
+//template<class Arg0, class Arg1, class Op>
+//struct __combined<pythonic::types::numpy_uexpr<Op, Arg0>, pythonic::types::numpy_uexpr<Op, Arg1>> {
+//    typedef pythonic::types::numpy_uexpr<Op, typename __combine<Arg0, Arg1>::type> type;
+//};
+
 /* } */
 
 #include "pythonic/types/numpy_operators.hpp"

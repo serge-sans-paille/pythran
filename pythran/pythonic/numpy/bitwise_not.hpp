@@ -13,10 +13,12 @@ namespace pythonic {
             return not t0;
         }
 
+        template <class A>
+            decltype(~std::declval<A const&>()) bitwise_not(A const& a) {
+                return ~a;
+            }
+
         PROXY(pythonic::numpy, bitwise_not)
-
-        FPROXY(pythonic::operator_, bitwise_not, invert)
-
     }
 
 }

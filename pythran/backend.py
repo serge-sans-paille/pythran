@@ -142,7 +142,7 @@ class Cxx(Backend):
         final_types[modules[self.passmanager.module_name][global_name]]"""
         for node in self.functions:
             # a function's types[2] is its {global: combiner} association
-            for gb in self.types[node][2].keys():
+            for gb in self.get_globals_changed(node):
                 gbnode = self.global_declarations[gb]
                 #if f the function and a the global, produces
                 #decltype(f_global_type<f::combiner_a, self.types[gbnode]>(0))

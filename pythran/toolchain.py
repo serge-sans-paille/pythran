@@ -171,6 +171,32 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
         max_arity = max(4, max(max(map(len, s)) for s in specs.itervalues()))
         mod.add_to_preamble([Define("BOOST_PYTHON_MAX_ARITY", max_arity)])
         mod.add_to_preamble([Define("BOOST_SIMD_NO_STRICT_ALIASING", "1")])
+
+        def get_export_body(func_name, signature):
+            body = pm.module_name + ", " + func_name
+
+            for arg in signature:
+                body += ", " + arg.__name__
+            return body
+
+        #Adds the pythran_export statements, in case the code contains globals
+        #First, include the header that contains the definitions of the
+        # pythran export macros
+        mod.add_to_preamble([Include("pythran/pythran.h")])
+        for func_name, signatures in specs.iteritems():
+            for sigid, signature in enumerate(signatures):
+                if len(signatures) == 1:
+                    prefix = "pythran_export_solo("
+                elif sigid == 0:
+                    prefix = "pythran_export_start("
+                elif sigid == len(signatures) - 1:
+                    prefix = "pythran_export_end("
+                else:
+                    prefix = "pythran_export_multi("
+
+                export = prefix + get_export_body(func_name, signature) + ")"
+                mod.add_to_preamble([Statement(export)])
+
         mod.add_to_preamble(content.body)
         mod.add_to_init([
             Statement('import_array()'),

@@ -61,8 +61,8 @@ namespace  pythonic {
                 typedef core::string value_type;
 
 				// Constructors
-				file() : data(impl::no_memory()) {}
-				file(core::string const& filename, core::string const& strmode = "r") : data(impl::no_memory()), mode(strmode), name(filename), newlines('\n'){
+				file() : data() {}
+				file(core::string const& filename, core::string const& strmode = "r") : data(), mode(strmode), name(filename), newlines('\n'){
 					open(filename, strmode);
 				}
 
@@ -76,7 +76,7 @@ namespace  pythonic {
 					// Python enforces that the mode, after stripping 'U', begins with 'r', 'w' or 'a'.
 					if(*smode=='U') {++smode;}// Not implemented yet
 
-					data = impl::shared_ref<container_type>(filename, smode);
+					data = impl::shared_ref<container_type>::make_ref(filename, smode);
 					if(not **data)
 						throw core::IOError("Couldn't open file " + filename);
 					is_open = true;

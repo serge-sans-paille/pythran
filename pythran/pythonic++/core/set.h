@@ -45,16 +45,16 @@ namespace  pythonic {
                 typedef typename container_type::const_reverse_iterator const_reverse_iterator;
 
                 // constructors
-                set() : data(impl::no_memory()) {}
+                set() : data() {}
                 template<class InputIterator>
                     set(InputIterator start, InputIterator stop) :  data() {
                         std::copy(start, stop, std::back_inserter(*this));
                     }
-                set(empty_set const &) : data() {}
-                set(std::initializer_list<value_type> l) : data(std::move(l)) {}
+                set(empty_set const &) : data(impl::shared_ref<container_type>::make_ref()) {}
+                set(std::initializer_list<value_type> l) : data(impl::shared_ref<container_type>::make_ref(std::move(l))) {}
                 set(set<T> const & other) : data(other.data) {}
                 template<class F>
-                    set(set<F> const & other) :  data(){
+                    set(set<F> const & other) :  data(impl::shared_ref<container_type>::make_ref()){
                         std::copy(other.begin(), other.end(), std::inserter(*data, data->begin()));
                     }
 

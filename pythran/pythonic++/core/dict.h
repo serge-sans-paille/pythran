@@ -109,14 +109,14 @@ namespace  pythonic {
                 typedef typename container_type::const_pointer const_pointer;
 
                 // constructors
-                dict() : data(impl::no_memory()) {}
-                dict(empty_dict const &) : data(DEFAULT_DICT_SIZE) {}
-                dict(std::initializer_list<value_type> l) : data(l.begin(), l.end()) {}
+                dict() : data() {}
+                dict(empty_dict const &) : data(impl::shared_ref<container_type>::make_ref(DEFAULT_DICT_SIZE)) {}
+                dict(std::initializer_list<value_type> l) : data(impl::shared_ref<container_type>::make_ref(l.begin(), l.end())) {}
                 dict(dict<K,V> const & other) : data(other.data) {}
                 template<class Kp, class Vp>
-                    dict(dict<Kp,Vp> const & other) : data(other.item_begin(), other.item_end()) {}
+                    dict(dict<Kp,Vp> const & other) : data(impl::shared_ref<container_type>::make_ref(other.item_begin(), other.item_end())) {}
                 template<class B, class E>
-                    dict(B begin, E end) : data(begin, end) {}
+                    dict(B begin, E end) : data(impl::shared_ref<container_type>::make_ref(begin, end)) {}
 
                 // iterators
                 iterator begin() { return iterator(data->begin()); }

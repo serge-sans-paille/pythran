@@ -1,5 +1,5 @@
 #pythran export average_position(str:(float,float) dict, str:(float,float) dict)
-#runas d = {"e",(1,2) } ; e = {"d",(2,1) } ; average_position(e,d)
+#runas d = {"e":(1,2) } ; e = {"d":(2,1) } ; average_position(e,d)
 
 def average_position(pos1,pos2):
 	pos_avg={}

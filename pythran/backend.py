@@ -8,7 +8,7 @@ import ast
 from cxxgen import *
 from cxxtypes import *
 
-from analysis import LocalDeclarations, GlobalDeclarations, Scope
+from analysis import LocalDeclarations, GlobalDeclarations, Scope, Dependencies
 from analysis import YieldPoints, BoundedExpressions, ArgumentEffects
 from passmanager import Backend
 
@@ -20,7 +20,7 @@ from syntax import PythranSyntaxError
 
 from openmp import OMPDirective
 
-from math import isnan
+from math import isnan, isinf
 
 import cStringIO
 import unparse
@@ -77,10 +77,11 @@ class Cxx(Backend):
     >>> pm = passmanager.PassManager('test')
     >>> r = pm.dump(Cxx, node)
     >>> print r
-    #include <pythran/pythran.h>
+    #include <pythonic/__builtin__/print.hpp>
+    #include <pythonic/__builtin__/str.hpp>
     namespace __pythran_test
     {
-      print(core::string("hello world"));
+      pythonic::__builtin__::print(pythonic::types::str("hello world"));
     }
     '''
 
@@ -95,14 +96,17 @@ class Cxx(Backend):
         self.definitions = list()
         self.break_handlers = list()
         self.result = None
-        super(Cxx, self).__init__(
+        super(Cxx, self).__init__(Dependencies,
                 GlobalDeclarations, BoundedExpressions, Types, ArgumentEffects,
                 Scope)
 
     # mod
     def visit_Module(self, node):
         # build all types
-        header = Include("pythran/pythran.h")
+        def gen_include(t):
+            return "/".join(("pythonic",) + t) + ".hpp"
+        headers = map(Include,
+            sorted(map(gen_include, self.dependencies)))
 
         # remove top-level strings
         fbody = (n for n in node.body if not isinstance(n, ast.Expr))
@@ -110,7 +114,7 @@ class Cxx(Backend):
 
         nsbody = body + self.declarations + self.definitions
         ns = Namespace(pythran_ward + self.passmanager.module_name, nsbody)
-        self.result = CompilationUnit([header, ns])
+        self.result = CompilationUnit(headers + [ns])
 
     # local declaration processing
     def process_locals(self, node, node_visited, *skipped):
@@ -313,22 +317,23 @@ class Cxx(Backend):
                                 Cxx.generator_state_value)])),
                     FunctionBody(
                         FunctionDeclaration(
-                            Value("pythonic::generator_iterator<{0}>".format(
-                                next_name),
+                            Value("pythonic::types::generator_iterator<{0}>"
+                                .format(next_name),
                                 "begin"),
                             []),
                         Block([Statement("next()"),
                             ReturnStatement(
-                                "generator_iterator<{0}>(*this)".format(
-                                    next_name))])),
+                              "pythonic::types::generator_iterator<{0}>(*this)"
+                              .format(next_name))])),
                     FunctionBody(
                         FunctionDeclaration(
-                            Value("pythonic::generator_iterator<{0}>".format(
-                                next_name),
+                            Value("pythonic::types::generator_iterator<{0}>"
+                                .format(next_name),
                                 "end"),
                             []),
                         Block([ReturnStatement(
-                            "generator_iterator<{0}>()".format(next_name))])),
+                            "pythonic::types::generator_iterator<{0}>()"
+                            .format(next_name))])),
                     FunctionBody(
                         FunctionDeclaration(
                             Value("bool", "operator!="),
@@ -386,7 +391,7 @@ class Cxx(Backend):
                     for t in self.types[node][1] if not t.isweak()]
             iterator_typedef = [
                     Typedef(Value(
-                        "pythonic::generator_iterator<{0}>".format(
+                        "pythonic::types::generator_iterator<{0}>".format(
                             "{0}<{1}>".format(
                                 next_name,
                                 ", ".join(t for t in formal_types))
@@ -577,7 +582,7 @@ class Cxx(Backend):
 
     def visit_Print(self, node):
         values = [self.visit(n) for n in node.values]
-        stmt = Statement("print{0}({1})".format(
+        stmt = Statement("pythonic::__builtin__::print{0}({1})".format(
                 "" if node.nl else "_nonl",
                 ", ".join(values))
                 )
@@ -667,7 +672,7 @@ class Cxx(Backend):
         # in that case when can proceed to a reserve
         for comp in metadata.get(node, metadata.Comprehension):
             stmts.insert(1,
-                    Statement("pythonic::reserve({0},{1})".format(
+                    Statement("pythonic::utils::reserve({0},{1})".format(
                         comp.target,
                         local_iter)))
 
@@ -746,7 +751,7 @@ class Cxx(Backend):
     def visit_Assert(self, node):
         params = [self.visit(node.test), node.msg and self.visit(node.msg)]
         sparams = ", ".join(map(strip_exp, filter(None, params)))
-        return Statement("pythran_assert({0})".format(sparams))
+        return Statement("pythonic::pythran_assert({0})".format(sparams))
 
     def visit_Import(self, node):
         return EmptyStatement()  # everything is already #included
@@ -805,12 +810,12 @@ class Cxx(Backend):
 
     def visit_List(self, node):
         if not node.elts:  # empty list
-            return "__builtin__::list()"
+            return "pythonic::__builtin__::list()"
         else:
             elts = [self.visit(n) for n in node.elts]
             # constructor disambiguation, clang++ workaround
             if len(elts) == 1:
-                elts.append('core::single_value()')
+                elts.append('pythonic::types::single_value()')
                 return "{0}({{ {1} }})".format(
                         Assignable(self.types[node]),
                         ", ".join(elts))
@@ -821,7 +826,7 @@ class Cxx(Backend):
 
     def visit_Set(self, node):
         if not node.elts:  # empty set
-            return "__builtin__::set()"
+            return "pythonic::__builtin__::set()"
         else:
             elts = [self.visit(n) for n in node.elts]
             return "{0}({{ {1} }})".format(
@@ -830,7 +835,7 @@ class Cxx(Backend):
 
     def visit_Dict(self, node):
         if not node.keys:  # empty dict
-            return "__builtin__::dict()"
+            return "pythonic::__builtin__::dict()"
         else:
             keys = [self.visit(n) for n in node.keys]
             values = [self.visit(n) for n in node.values]
@@ -841,7 +846,7 @@ class Cxx(Backend):
 
     def visit_Tuple(self, node):
         elts = map(self.visit, node.elts or ())
-        return "core::make_tuple({0})".format(", ".join(elts))
+        return "pythonic::types::make_tuple({0})".format(", ".join(elts))
 
     def visit_Compare(self, node):
         left = self.visit(node.left)
@@ -870,13 +875,15 @@ class Cxx(Backend):
         elif type(node.n) == long:
             return 'pythran_long({0})'.format(node.n)
         elif isnan(node.n):
-            return 'pythonic::nan'
+            return 'pythonic::numpy::nan'
+        elif isinf(node.n):
+            return ('+' if node.n > 0 else '-') + 'pythonic::numpy::inf'
         else:
             return repr(node.n) + type_to_suffix.get(type(node.n), "")
 
     def visit_Str(self, node):
         quoted = node.s.replace('"', '\\"').replace('\n', '\\n"\n"')
-        return 'core::string("{0}")'.format(quoted)
+        return 'pythonic::types::str("{0}")'.format(quoted)
 
     def visit_Attribute(self, node):
         def rec(w, n):
@@ -884,8 +891,13 @@ class Cxx(Backend):
                 return w[n.id], (n.id,)
             elif isinstance(n, ast.Attribute):
                 r = rec(w, n.value)
+                if len(r[1]) > 1:
+                    plast, last = r[1][-2:]
+                    if plast == '__builtin__' and last.startswith('__'):
+                        return r[0][n.attr], r[1][:-2] + r[1][-1:] + (n.attr,)
                 return r[0][n.attr], r[1] + (n.attr,)
         obj, path = rec(modules, node)
+        path = ('pythonic',) + path
         return ('::'.join(path) if obj.isliteral()
                 else ('::'.join(path[:-1]) + '::proxy::' + path[-1] + '{}'))
 
@@ -932,9 +944,10 @@ class Cxx(Backend):
         args = []
         for field in ('lower', 'upper', 'step'):
             nfield = getattr(node, field)
-            arg = self.visit(nfield) if nfield else '__builtin__::None'
+            arg = (self.visit(nfield) if nfield
+                    else 'pythonic::__builtin__::None')
             args.append(arg)
-        return "core::slice({},{},{})".format(*args)
+        return "pythonic::types::slice({},{},{})".format(*args)
 
     def visit_Index(self, node):
         return self.visit(node.value)

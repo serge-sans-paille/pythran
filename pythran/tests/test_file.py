@@ -225,3 +225,7 @@ def _rvalue_close(filename):
     def test_rvalue_seek(self):
             self.tempfile()
             self.run_test("""def _rvalue_seek(filename):\n file(filename, 'a').seek(3)""", self.filename, _rvalue_seek=[str])
+
+    def test_xreadlines(self):
+            self.tempfile()
+            self.run_test("""def _xreadlines(filename):\n f=file(filename)\n return [l for l in f.xreadlines()]""", self.filename, _xreadlines=[str])

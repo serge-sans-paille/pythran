@@ -221,11 +221,12 @@ class Assignable(DependentType):
     * assignable types (typically type of a variable)
 
     >>> Assignable(NamedType("long"))
-    typename assignable<long>::type
+    typename pythonic::assignable<long>::type
     """
 
     def generate(self, ctx):
-        return 'typename assignable<{0}>::type'.format(self.of.generate(ctx))
+        return 'typename pythonic::assignable<{0}>::type'.format(
+                self.of.generate(ctx))
 
 
 class Lazy(DependentType):
@@ -235,11 +236,12 @@ class Lazy(DependentType):
     It is used to make a lazy evaluation of numpy expressions
 
     >>> Lazy(NamedType("long"))
-    typename lazy<long>::type
+    typename pythonic::lazy<long>::type
     """
 
     def generate(self, ctx):
-        return 'typename lazy<{0}>::type'.format(self.of.generate(ctx))
+        return 'typename pythonic::lazy<{0}>::type'.format(
+                self.of.generate(ctx))
 
 
 class DeclType(NamedType):
@@ -262,7 +264,7 @@ class ContentType(DependentType):
     Type of the object in a container
 
     >>> ContentType(DeclType('l'))
-    typename content_of<typename std::remove_cv<\
+    typename pythonic::types::content_of<typename std::remove_cv<\
 typename std::remove_reference<decltype(l)>::type>::type>::type
     '''
 
@@ -270,7 +272,7 @@ typename std::remove_reference<decltype(l)>::type>::type>::type
         # the content of a container can be inferred directly
         if type(self.of) in (ListType, SetType, ContainerType):
             return self.of.of.generate(ctx)
-        return 'typename content_of<{0}>::type'.format(
+        return 'typename pythonic::types::content_of<{0}>::type'.format(
                 ctx(self.of).generate(ctx))
 
 
@@ -278,9 +280,9 @@ class IteratorContentType(DependentType):
     '''
     Type of an iterator over the content of a container
 
-    >>> IteratorContentType(NamedType('string'))
+    >>> IteratorContentType(NamedType('str'))
     typename std::remove_cv<typename std::iterator_traits<\
-typename std::remove_reference<string>::type::iterator>::value_type>::type
+typename std::remove_reference<str>::type::iterator>::value_type>::type
     '''
 
     def generate(self, ctx):
@@ -328,8 +330,8 @@ class ElementType(Type):
     >>> t = TupleType([NamedType('int'), NamedType('str')])
     >>> ElementType(1, t)
     typename std::tuple_element<1,typename std::remove_reference<\
-decltype(core::make_tuple(std::declval<int>(), std::declval<str>()))>\
-::type>::type
+decltype(pythonic::types::make_tuple(std::declval<int>(), \
+std::declval<str>()))>::type>::type
     '''
 
     def __init__(self, index, of):
@@ -353,11 +355,11 @@ class AttributeType(ElementType):
     Type of the ith attribute of an object
 
     >>> AttributeType(0, NamedType('complex'))
-    typename attribute_element<0,complex>::type
+    decltype(getattr<0>(std::declval<complex>()))
     '''
 
     def generate(self, ctx):
-        return 'typename attribute_element<{0},{1}>::type'.format(
+        return 'decltype(getattr<{0}>(std::declval<{1}>()))'.format(
                 self.index,
                 ctx(self.of).generate(ctx))
 
@@ -367,11 +369,11 @@ class ListType(DependentType):
     Type holding a list of stuff of the same type
 
     >>> ListType(NamedType('int'))
-    core::list<int>
+    pythonic::types::list<int>
     '''
 
     def generate(self, ctx):
-        return 'core::list<{0}>'.format(ctx(self.of).generate(ctx))
+        return 'pythonic::types::list<{0}>'.format(ctx(self.of).generate(ctx))
 
 
 class SetType(DependentType):
@@ -379,11 +381,11 @@ class SetType(DependentType):
     Type holding a set of stuff of the same type
 
     >>> SetType(NamedType('int'))
-    core::set<int>
+    pythonic::types::set<int>
     '''
 
     def generate(self, ctx):
-        return 'core::set<{0}>'.format(ctx(self.of).generate(ctx))
+        return 'pythonic::types::set<{0}>'.format(ctx(self.of).generate(ctx))
 
 
 class TupleType(Type):
@@ -391,7 +393,8 @@ class TupleType(Type):
     Type holding a tuple of stuffs of various types
 
     >>> TupleType([NamedType('int'), NamedType('bool')])
-    decltype(core::make_tuple(std::declval<int>(), std::declval<bool>()))
+    decltype(pythonic::types::make_tuple(std::declval<int>(), \
+std::declval<bool>()))
     '''
     def __init__(self, ofs):
         if ofs:
@@ -404,7 +407,8 @@ class TupleType(Type):
     def generate(self, ctx):
         elts = (ctx(of).generate(ctx) for of in self.ofs)
         telts = ('std::declval<{0}>()'.format(elt) for elt in elts)
-        return 'decltype(core::make_tuple({0}))'.format(", ".join(telts))
+        return 'decltype(pythonic::types::make_tuple({0}))'.format(
+                ", ".join(telts))
 
 
 class DictType(Type):
@@ -412,7 +416,7 @@ class DictType(Type):
     Type holding a dict of stuff of the same key and value type
 
     >>> DictType(NamedType('int'), NamedType('float'))
-    core::dict<int,float>
+    pythonic::types::dict<int,float>
     '''
 
     def __init__(self, of_key, of_value):
@@ -423,7 +427,7 @@ class DictType(Type):
                 )
 
     def generate(self, ctx):
-        return 'core::dict<{0},{1}>'.format(
+        return 'pythonic::types::dict<{0},{1}>'.format(
                 ctx(self.of_key).generate(ctx),
                 ctx(self.of_value).generate(ctx))
 

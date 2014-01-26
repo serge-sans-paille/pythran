@@ -40,23 +40,43 @@ if not "has_path" in nx.__dict__:
 def pytype_to_ctype(t):
     '''python -> c++ type binding'''
     if isinstance(t, list):
-        return 'core::list<{0}>'.format(pytype_to_ctype(t[0]))
+        return 'pythonic::types::list<{0}>'.format(pytype_to_ctype(t[0]))
     if isinstance(t, set):
-        return 'core::set<{0}>'.format(pytype_to_ctype(list(t)[0]))
+        return 'pythonic::types::set<{0}>'.format(pytype_to_ctype(list(t)[0]))
     elif isinstance(t, dict):
         tkey, tvalue = t.items()[0]
-        return 'core::dict<{0},{1}>'.format(pytype_to_ctype(tkey),
+        return 'pythonic::types::dict<{0},{1}>'.format(pytype_to_ctype(tkey),
                                             pytype_to_ctype(tvalue))
     elif isinstance(t, tuple):
-        return 'decltype(core::make_tuple({0}))'.format(
+        return 'decltype(pythonic::types::make_tuple({0}))'.format(
                 ", ".join('std::declval<{}>()'.format(
                     pytype_to_ctype(_)) for _ in t)
                 )
     elif isinstance(t, ndarray):
-        return 'core::ndarray<{0},{1}>'.format(pytype_to_ctype(t.flat[0]),
-                                               t.ndim)
+        return 'pythonic::types::ndarray<{0},{1}>'.format(
+                pytype_to_ctype(t.flat[0]), t.ndim)
     elif t in pytype_to_ctype_table:
         return pytype_to_ctype_table[t]
+    else:
+        raise NotImplementedError("{0}:{1}".format(type(t), t))
+
+
+def pytype_to_deps(t):
+    '''python -> c++ type binding'''
+    if isinstance(t, list):
+        return {'pythonic/types/list.hpp'}.union(pytype_to_deps(t[0]))
+    if isinstance(t, set):
+        return {'pythonic/types/set.hpp'}.union(pytype_to_deps(list(t)[0]))
+    elif isinstance(t, dict):
+        tkey, tvalue = t.items()[0]
+        return {'pythonic/types/dict.hpp'}.union(pytype_to_deps(tkey),
+                                                 pytype_to_deps(tvalue))
+    elif isinstance(t, tuple):
+        return {'pythonic/types/tuple.hpp'}.union(*map(pytype_to_deps, t))
+    elif isinstance(t, ndarray):
+        return {'pythonic/types/ndarray.hpp'}
+    elif t in pytype_to_ctype_table:
+        return {'pythonic/types/{}.hpp'.format(t.__name__)}
     else:
         raise NotImplementedError("{0}:{1}".format(type(t), t))
 
@@ -642,8 +662,13 @@ class Types(ModuleAnalysis):
                 return w[n.id], (n.id,)
             elif isinstance(n, ast.Attribute):
                 r = rec(w, n.value)
+                if len(r[1]) > 1:
+                    plast, last = r[1][-2:]
+                    if plast == '__builtin__' and last.startswith('__'):
+                        return r[0][n.attr], r[1][:-2] + r[1][-1:] + (n.attr,)
                 return r[0][n.attr], r[1] + (n.attr,)
         obj, path = rec(modules, node)
+        path = ('pythonic',) + path
         self.result[node] = DeclType(
                 '::'.join(path) if obj.isliteral() else
                 ('::'.join(path[:-1]) + '::proxy::' + path[-1] + '()')
@@ -651,7 +676,7 @@ class Types(ModuleAnalysis):
 
     def visit_Slice(self, node):
         self.generic_visit(node)
-        self.result[node] = NamedType('core::slice')
+        self.result[node] = NamedType('pythonic::types::slice')
 
     def visit_Subscript(self, node):
         self.visit(node.value)
@@ -706,7 +731,7 @@ class Types(ModuleAnalysis):
             for elt in node.elts:
                 self.combine(node, elt, unary_op=ListType)
         else:
-            self.result[node] = NamedType("core::empty_list")
+            self.result[node] = NamedType("pythonic::types::empty_list")
 
     def visit_Set(self, node):
         self.generic_visit(node)
@@ -714,7 +739,7 @@ class Types(ModuleAnalysis):
             for elt in node.elts:
                 self.combine(node, elt, unary_op=SetType)
         else:
-            self.result[node] = NamedType("core::empty_set")
+            self.result[node] = NamedType("pythonic::types::empty_set")
 
     def visit_Dict(self, node):
         self.generic_visit(node)
@@ -723,12 +748,13 @@ class Types(ModuleAnalysis):
                 self.combine(node, key,
                         unary_op=lambda x: DictType(x, self.result[value]))
         else:
-            self.result[node] = NamedType("core::empty_dict")
+            self.result[node] = NamedType("pythonic::types::empty_dict")
 
     def visit_ExceptHandler(self, node):
         if node.type and node.name:
             if not isinstance(node.type, ast.Tuple):
-                tname = NamedType('core::{0}'.format(node.type.attr))
+                tname = NamedType(
+                        'pythonic::types::{0}'.format(node.type.attr))
                 self.result[node.type] = tname
                 self.combine(node.name, node.type, register=True)
         map(self.visit, node.body)

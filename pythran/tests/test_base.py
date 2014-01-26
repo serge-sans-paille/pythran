@@ -545,6 +545,7 @@ def in_set(a):
 
     def test_set_comprehension(self):
         self.run_test("def set_comprehension(l): return { i*i for i in l }", [1 , 2, 1, 3], set_comprehension=[[int]])
+
     def test_slicer(self):
         code="""
 def slicer(l):
@@ -579,11 +580,11 @@ def import_as():
     return MATH.sin(x)**2 + COS(x)**2"""
         self.run_test(code, import_as=[])
 
-    def test_tuple_removal(self):
-        self.run_test("def tuple_removal(t): a,b = t ; return a, b", (1,"e"), tuple_removal=[(int, str)])
+    def test_tuple_unpacking(self):
+        self.run_test("def tuple_unpacking(t): a,b = t ; return a, b", (1,"e"), tuple_unpacking=[(int, str)])
 
-    def test_list_removal(self):
-        self.run_test("def list_removal(t): [a,b] = t ; return a, b", (1,2), list_removal=[(int, int)])
+    def test_list_unpacking(self):
+        self.run_test("def list_unpacking(t): [a,b] = t ; return a, b", (1,2), list_unpacking=[(int, int)])
 
     def test_recursive_attr(self):
         self.run_test("def recursive_attr(): return {1,2,3}.union({1,2}).union({5})", recursive_attr=[])
@@ -593,6 +594,7 @@ def import_as():
         o=[]
         for i in xrange(n, 0, -1): o.append(i)
         return o""", 10, range_negative_step=[int])
+
     def test_reversed_range_negative_step(self):
         self.run_test("""def reversed_range_negative_step(n):
         o=[]
@@ -620,3 +622,6 @@ def add_slice_to_list(l):
     for i in xrange(10):
         p = p + l[:1]
     return p,i''', range(5), add_slice_to_list=[[int]])
+
+    def test_bool_(self):
+        self.run_test("def _bool(d): return bool(d)", 3, _bool=[int])

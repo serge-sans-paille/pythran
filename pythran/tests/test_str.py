@@ -2,7 +2,7 @@ from test_env import TestEnv
 
 class TestStr(TestEnv):
 
-   def test_str_startswith0(self):
+    def test_str_startswith0(self):
         self.run_test("def str_startswith0(s0, s1): return s0.startswith(s1)", "barbapapa", "barba", str_startswith0=[str, str])
 
     def test_str_startswith1(self):

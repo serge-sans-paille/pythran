@@ -176,7 +176,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
             body = pm.module_name + ", " + func_name
 
             for arg in signature:
-                body += ", " + arg.__name__
+                body += ", " + pytype_to_ctype(arg)
             return body
 
         #Adds the pythran_export statements, in case the code contains globals

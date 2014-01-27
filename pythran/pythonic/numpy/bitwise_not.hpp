@@ -2,8 +2,8 @@
 #define PYTHONIC_NUMPY_BITWISENOT_HPP
 
 #include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/ndarray.hpp"
-#include "pythonic/operator_/invert.hpp"
+//#include "pythonic/types/ndarray.hpp"
+//#include "pythonic/operator_/invert.hpp"
 
 namespace pythonic {
 

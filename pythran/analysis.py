@@ -25,6 +25,7 @@ This module provides a few code analysis for the pythran language.
     * Ancestors computes the ancestors of each node
     * Scope computes scope information
     * Dependencies lists the functions and types required by a function
+    * OrderedGlobalDeclarations order all global functions.
 '''
 
 from tables import modules, methods, functions
@@ -521,7 +522,7 @@ class OrderedGlobalDeclarations(ModuleAnalysis):
             for alias in self.strict_aliases[node].aliases:
                 if isinstance(alias, ast.FunctionDef):
                     self.result[self.curr].add(alias)
-                if isinstance(alias, ast.Call):  # this is a bind
+                elif isinstance(alias, ast.Call):  # this is a bind
                     for alias in self.strict_aliases[alias.args[0]].aliases:
                         self.result[self.curr].add(alias)
 
@@ -1393,8 +1394,9 @@ class UseOMP(FunctionAnalysis):
 class LazynessAnalysis(FunctionAnalysis):
     """
     Returns number of time a name is used. +inf if it is use in a
-    loop or if a variable used to compute it is modify before
-    its last use
+    loop, if a variable used to compute it is modify before
+    its last use or if it is use in a function call (as it is not an
+    interprocedural analysis)
     >>> import ast, passmanager, backend
     >>> code = "def foo(): c = 1; a = c + 2; c = 2; b = c + c + a; return b"
     >>> node = ast.parse(code)
@@ -1432,10 +1434,10 @@ class LazynessAnalysis(FunctionAnalysis):
         if node.id in self.use:
             #gather value for alias node and other variables with same name
             state_name_count = filter(self.name_count.__contains__,
-                    state[node.id])
+                                      state[node.id])
             alias_val = map(self.name_count.get, state_name_count)
             alias_val += [value for name, value in self.name_count.iteritems()
-                                    if name.id == node.id]
+                          if name.id == node.id]
             ex_value = max(alias_val)
             if node.id in self.result:
                 ex_value = max(self.result[node.id], ex_value)
@@ -1446,10 +1448,6 @@ class LazynessAnalysis(FunctionAnalysis):
         self.name_count[node] = 0
         self.use[node.id] = set(from_)
         self.modify(node, state)
-
-    def visit_FunctionDef(self, node):
-        self.ids = self.passmanager.gather(Identifiers, node, self.ctx)
-        self.generic_visit(node)
 
     def visit_FunctionDef(self, node):
         self.ids = self.passmanager.gather(Identifiers, node, self.ctx)
@@ -1487,7 +1485,7 @@ class LazynessAnalysis(FunctionAnalysis):
     def visit_Name(self, node):
         if isinstance(node.ctx, ast.Load) and node.id in self.use:
             name_from_id = [name for name in self.name_count.iterkeys()
-                                    if name.id == node.id]
+                            if name.id == node.id]
             for alias in self.aliases[node].aliases.union(set(name_from_id)):
                 # we only care about variable local to the function
                 if isinstance(alias, ast.Name) and alias.id in self.ids:
@@ -1575,6 +1573,7 @@ class LazynessAnalysis(FunctionAnalysis):
     def visit_Call(self, node):
         map(self.visit, node.args)
         #when there is an argument effet, we apply "modify" to the arg
+        #and as it we don't know how it is modify, it is set to inf
         for fun in self.aliases[node.func].aliases:
             if isinstance(fun, ast.Call):
                 fun = fun.args[0]
@@ -1590,6 +1589,8 @@ class LazynessAnalysis(FunctionAnalysis):
                     if arg and len(node.args) > i:
                         self.modify(node.args[i],
                                 self.aliases[node.func].state)
+                        if isinstance(node.args[i], ast.Name): 
+                            self.result[node.args[i].id] = float('inf')
             else:
                 for arg in node.args:
                     self.modify(arg, self.aliases[node.func].state)

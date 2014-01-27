@@ -76,6 +76,9 @@ class TestNumpy(TestEnv):
                            """,
                            1,assign_ndarray=[int])
 
+    def test_bitwise_nan_bool(self):
+        self.run_test("def np_bitwise_nan_bool(): import numpy as np ; a = np.arange(10) ; return ~(a<5)", np_bitwise_nan_bool=[])
+
     def test_frexp0(self):
         self.run_test("def np_frexp0(): import numpy as np ; a = 1.5 ; return np.frexp(a)", np_frexp0=[])
 
@@ -1546,7 +1549,7 @@ unary_ufunc = (
         'exp', 'expm1',
         'fabs', 'floor',
         'isinf', 'isneginf', 'isposinf', 'isnan', 'invert', 'isfinite',
-        'log10', 'log1p', 'log2', 'logical_not',
+        'log', 'log10', 'log1p', 'log2', 'logical_not',
         'negative',
         'rad2deg', 'radians','reciprocal', 'rint', 'round', 'round_',
         'sign', 'signbit',

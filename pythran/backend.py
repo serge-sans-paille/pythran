@@ -617,7 +617,7 @@ class Cxx(Backend):
             for call in calls:
                 combiner = \
                     InstanciatedType("{0}::combiner_{1}".format(callee.name, gb),
-                                     "type",
+                                     "instanciation",
                                      [self.types[x] for x in call] + [combiner],
                                      node.name, {})
 
@@ -626,19 +626,18 @@ class Cxx(Backend):
 
         if gb in direct_global_changes:
             typedef = Typedef(Value(self.types[direct_global_changes[gb]]
-                                    .generate(ctx), "type"))
+                                    .generate(ctx), "instanciation"))
         else:
             #We don't directly change the global in the function, so just use
             #the combiners
             typedef = Typedef(Value(NamedType("or_global_type").generate(ctx),
-                                    "type"))
+                                    "instanciation"))
 
         #the iterable dict is a <global_name, node> assocation
         decl = Struct("combiner_"+gb, [templatize(
             Struct("type", [or_typedef, typedef]),
-            formal_types,
-            default_arg_types,
-            [NamedType("or_type")]
+            [NamedType("or_type")] + formal_types,
+            [None] + default_arg_types
         )])
 
         return decl

@@ -2,6 +2,7 @@
 #define PYTHONIC_BUILTIN_SUM_HPP
 
 #include "pythonic/utils/proxy.hpp"
+#include "pythonic/types/assignable.hpp"
 #include "pythonic/utils/int_.hpp"
 
 #include <utility>
@@ -12,12 +13,13 @@ namespace pythonic {
     namespace __builtin__ {
 
         template<class Iterable, class T>
-            auto sum(Iterable s, T start) -> decltype(start+std::declval<typename Iterable::iterator::value_type>())
+            auto sum(Iterable s, T start) -> decltype(std::accumulate(s.begin(), s.end(), static_cast<typename assignable<decltype(start+*s.begin())>::type>(start)))
             {
-                return std::accumulate(s.begin(), s.end(), (decltype(start+*s.begin()))start);
+                return std::accumulate(s.begin(), s.end(), static_cast<typename assignable<decltype(start+*s.begin())>::type>(start));
             }
+
         template<class Iterable>
-            typename Iterable::iterator::value_type sum(Iterable s)
+            auto sum(Iterable s) -> decltype(sum(s, 0L))
             {
                 return sum(s,0L);
             }

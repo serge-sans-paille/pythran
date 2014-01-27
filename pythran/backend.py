@@ -104,6 +104,23 @@ class Cxx(Backend):
                 GlobalDeclarations, BoundedExpressions, Types, ArgumentEffects,
                 DeclaredGlobals, Scope, Callees)
 
+    def trim_callees(self):
+        """Changes the results of the Callees analysis to remove all
+        cyclic dependencies"""
+        def navigate_graph(acc, node):
+            if node not in self.callees:
+                return
+
+            for func in self.callees[node].keys():
+                if func in acc:
+                    del self.callees[func]
+                else:
+                    navigate_graph(acc + [node], func)
+
+        for node in self.callees.keys():
+            navigate_graph([], node)
+
+
     def get_globals_changed(self, node):
         """Gets the globals changed in the function or sub functions
             node represents the FunctionDef of the function we're interested in.
@@ -120,18 +137,27 @@ class Cxx(Backend):
             getGlobalsChanged(function def of 'a') will return set([y]).
         """
         #First the globals changed directly
-        globals_changed = set(self.types[node][2].keys())
-        #Second the globals changed in the subfunctions:
-        if node in self.callees:
-            for subfunction in self.callees[node].keys():
-                globals_changed |= set(self.types[subfunction][2].keys())
+        globals_changed = [set(self.types[node][2].keys())]
+        #Then the globals changed in the subfunctions:
+        def navigate_graph(node):
+            if node not in self.callees:
+                return
 
-        return globals_changed
+            for func in self.callees[node].keys():
+                globals_changed[0] |= set(self.types[func][2].keys())
+                navigate_graph(func)
+
+        navigate_graph(node)
+
+        return globals_changed[0]
 
     # mod
     def visit_Module(self, node):
         # build all types
         header = Include("pythran/pythran.h")
+
+        #Change results of Callees analysis
+        self.trim_callees()
 
         # remove top-level strings
         fbody = (n for n in node.body if not isinstance(n, ast.Expr))
@@ -611,7 +637,7 @@ class Cxx(Backend):
 
         #Check if sub functions changes the global gb
         for callee, calls in self.callees[node].items():
-            if not (gb in self.types[callee][2]):
+            if gb not in self.get_globals_changed(callee):
                 continue
             #The sub function does change the global gb
             for call in calls:

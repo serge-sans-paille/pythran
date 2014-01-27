@@ -113,7 +113,7 @@ class Cxx(Backend):
 
             for func in self.callees[node].keys():
                 if func in acc:
-                    del self.callees[func]
+                    del self.callees[node][func]
                 else:
                     navigate_graph(acc + [node], func)
 

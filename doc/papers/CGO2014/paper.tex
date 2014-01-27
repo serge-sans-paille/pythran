@@ -1,0 +1,230 @@
+\documentclass[10pt, onecolumn, preprint]{sigplanconf}
+
+% The following \documentclass options may be useful:
+
+% preprint      Remove this option only once the paper is in final form.
+% 10pt          To set in 10-point type instead of 9-point.
+% 11pt          To set in 11-point type instead of 9-point.
+% authoryear    To obtain author/year citation style instead of numeric.
+
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{hyperref}
+
+\special{papersize=8.5in,11in}
+\setlength{\pdfpageheight}{\paperheight}
+\setlength{\pdfpagewidth}{\paperwidth}
+
+\lstset{captionpos=b, float, language=python}
+
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usetikzlibrary{shadows}
+\usetikzlibrary{arrows}
+\usetikzlibrary{shapes}
+
+\providecommand{\boostsimd}{\textsc{Boost.SIMD}}
+\providecommand{\cpp}[1][~]{\textsc{C++}#1}
+\providecommand{\ie}[1][~]{\textit{i.e.}#1}
+\providecommand{\eg}[1][~]{\textit{e.g.#1}}
+
+
+\begin{document}
+
+
+\title{Pythran: Benchmarking parallel Scientific Python Programs}
+
+\authorinfo{Serge Guelton}
+           {T{\'e}l{\'e}com Bretagne}
+           {serge.guelton@telecom-bretagne.eu}
+\authorinfo{Pierrick Brunet}
+           {INRIA/MOAIS}
+           {pierrick.brunet@inria.fr}
+\authorinfo{Mehdi Amini}
+           {SILKAN}
+           {mehdi.amini@silkan.com}
+
+\maketitle
+
+\begin{abstract}
+
+    Turning Python module in native one is a common practice in the Python
+    eco-system to improve performance of computation intensive kernel for
+    scientific modules. Many Python compiler are born in the Python community
+    such as the well known Cython trying bring in Python the holy C
+    performances. To reach this goal, optimisations should be done
+    using as much as possible computer capabilities instead of doing a
+    straightforward conversion. Such optimisations should take into account
+    multi-core architecture and vectorization available in common
+    platforms as numpy - the reference scientific python module - do an
+    intensive use of such functions. Thanks to these optimisation,
+    Python module should be able to achieve higher performances.
+
+    Pythran is an open source static compiler that turns modules written
+    in a subset of Python into native ones~\cite{pythran}. It already apply
+    some optimisations like constant-folding for functions or partial forward
+    substitution. This paper introduce integration of vectorization and
+    parallelism on numpy array based kernel. Pythran already provides
+    possibility to add OpenMP annotation in Python program for explicit
+    parallelism~\cite{pythran-compas} and now, it aims to add it through its
+    C++ runtime library using the Numeric Template Toolbox (NT2) for vectorization
+    and OpenMP for parallelism.
+
+    This approach have been validated though benchmark between Pythran with
+    vectorization and parallelism and Pythran without it. It also compares these
+    measures with others Python compiler like Numba and Coperhead.
+
+\end{abstract}
+
+
+\keywords
+static compilation, parallelization, Python, C++, SIMD
+
+
+%%
+%%
+\section{Introduction}
+
+L'optimisation de performances pour les programmes Python n'est pas récent
+puisque les premiers compilateur de pseudo language proche de Python comme Pyrex
+ont plus de 10 ans maintenant. Certains projets sont aujourd'hui arrété
+alors que d'autre naissent pour apporter toujours plus de performances.
+
+%Cython
+%De nombreux compilateur s'intéresse à la vectorization. automatique. Dans la
+%communauté Python, Cython prévois des améliorations à ce sujet bien que rien ne
+%soit encore implémenté
+%\footnote{\url{https://github.com/cython/cython/wiki/enhancements-simd}}.
+%Pour le multi-core, Cython ajoute une librairy mais ne fait rien
+%automatiquement (donc c'est des annotations cf papier renpar)
+%
+%Nuitka
+%je ne sais pas ce qu'ils font. Rien sur le web, il faudrait regarder le code
+%généré pour savoir... (Dans le code, aucune trace de parallelism SIMD/OpenMP)
+%
+%Numba
+%ne peut faire du parallelism que si il ne repose pas du tout sur Python
+%(qu'il compile tout le code) : \url{http://www.phi-node.com/2013/01/just-in-time-compilers-for-number.html}
+%Ils ont un prange comme Cython pour avoir du parallélisme explicite et ils ont
+%une library de threading a eux...
+%Pour le SIMD, ils font de la fusion d'operateur SI l'utilisateur le demande et
+%specifie correctement les dimensions/profondeur ou on applique la fusion:
+%\url{http://numba.pydata.org/numba-doc/0.13.4/ufuncs.html}
+%Ils font du déroulage partiel de boucle et du vectoriel ensuite mais on a pas
+%beaucoup d'info je trouve... (J'ai trouvé ça dans le code avec du code :
+%oldnumba/minivect/specializers.py:438: rhs = b.vector\_load(data\_pointer, self.sp.vector\_size)
+%Ils prévoient aussi un support openmp apparement : "OpenMP is not yet implemented, only process the 'else' directives. llvm\_codegen.py l.168"
+%Ils ont un bon support cuda par contre : \url{https://developer.nvidia.com/how-to-cuda-python}
+%
+%Numexpr
+%fait de la composition d'opérateur mais pas d'utilisation de vectorization
+%Ils ont un support de parallelisation multicore automatique a base de pthread.
+%
+%Copperhead
+%font du parallelism dans tous les sens :
+%\url{http://www.eecs.berkeley.edu/Pubs/TechRpts/2010/EECS-2010-124.pdf}
+%mais c'est une syntax particuliére. => ils disent ne aps trop se préoccupé des perfs
+%mais plus de la scalabilité
+%The runtime operates on CuArrays, which extend Numpy.ndarray
+%
+%Theano
+%C'est un truc fait pour le parallélisme MAIS
+%197 * SIMD parallelism on the CPU comes from the compiler.                          
+%198 * Multi-core parallelism is only supported by Conv2d(not by default).           
+%199   If the external BLAS implementation supports it,                              
+%200   there are also, gemm, gemv and ger that are parallelized
+%tiré de leurs docs -> D'après le code ils fusionne les opérateur pour que le
+%backend puisse essayer de faire du SIMD avec ça.
+%Pour le parallel : 
+%Multi-core parallelism is only supported by Conv2d(not by default)
+%
+%Shedskin
+%Apparement, pas de SIMD, mais du parallelism explicite a base de Parallel
+%Python ou pprocess (fork)
+%
+%parakeet
+%fusion d'opérateur, OpenMP mais pas de SIMD
+%\url{http://cs.nyu.edu/web/Research/Theses/eric_h.pdf}
+%Attention, ils ont des contraites fortes : si on utilise map, reduce, ..., on
+%concidére que c'est paralléle sans vérification. (2.4 de la thèse)
+%(D'ailleurs dans Pythran, on vérifie la pureté de la fonction mais on ne
+%vérifie pas la sortie :
+%ex a = map(foo, xrange(12)); if a == [foo(0), foo(1), ...]: ....
+%ne fonctionnerait pas avec l'analyse pmap)
+%
+%
+%Numpypy
+%Ils ne font pas ce genre d'optim
+%
+%
+%ATTENTION : le papier risque de faire quand même très répétitif par rapport a WPMVP'14
+
+%TODO ICI UN PARAGRAPH SUR COMMENT LES AUTRES FONT DE la vectorization ET DU PARALLELISME
+
+%TODO un paragraph sur le parallélisme dans numpy
+
+In this papers, we will speak about the Pythran compiler that turn pure Python
+code to C++ to create native module and gather high level information to
+profiter pleinement de la parallélisation des opérations.
+
+This paper highlight two major contributions. We first introduce how vectoriation
+have been added numpy computation intensive kernel thank to
+\boostsimd library provided by NT2. We present performances results for Pythran
+with and without this auto-vectorization to show performances gains.
+Secondly, we introduce parallelization on multi-core architecture for these
+computation intensive kernel and evaluates it.
+
+The remainder of this paper is organized as follows. Section \ref{sec:numpy}
+describes the differents numpy constructs that are highly parallel and how to
+"profiter" from this parallelism. Section \ref{sec:optim} describes how Pythran
+optimisation enhance this parallelism increasing computation kernel. Section 
+\ref{sec:SIMD} introduces how \boostsimd is used to add auto-vectorization in
+Pythran. Section \ref{sec:omp} show use of OpenMP in these kernel for
+mutli-core architecture. We will discuss performance result for those
+optimization using two different hardware configurations in Section
+\ref{sec:perfs}. We finally present some related works in section
+\ref{sec:related-work} before concluding.
+
+\section{Data parallelism in Numpy}
+\label{sec:numpy}
+
+\section{Optimization feed each other}
+\label{sec:optim}
+
+\section{Vectorization using \boostsimd}
+\label{sec:SIMD}
+
+\section{Multi core parallelism using OpenMP}
+\label{sec:omp}
+
+\section{Benchmarks}
+\label{sec:perfs}
+
+\subsection{Pythran with/without Vectorization}
+
+\subsection{Pythran with/without OpenMP}
+
+\subsection{Combining OpenMP and Vectorization}
+
+% Une autre section pour la comparaison avec les autres compilo?
+
+\section{Related works}
+\label{sec:related-work}
+
+% On aura pas le temps pour le papier je pense mais faire une comparaison avec du
+% C pure pour voir ce que les compilo de C arrive a faire.
+
+\section*{Conclusion}
+
+\acks
+
+This project has been partially funded by the CARP Project and the SILKAN
+Company.
+
+% We recommend abbrvnat bibliography style.
+
+\bibliographystyle{abbrvnat}
+\bibliography{biblio}
+
+
+\end{document}

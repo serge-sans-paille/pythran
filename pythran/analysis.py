@@ -7,6 +7,7 @@ This module provides a few code analysis for the pythran language.
     * Locals computes the value of locals()
     * Globals computes the value of globals()
     * ImportedIds gathers identifiers imported by a node
+    * Imports gathers all the import statements with their particulars
     * ConstantExpressions gathers constant expression
     * Aliases gather aliasing informations
     * Identifiers gathers all identifiers used in a node
@@ -473,6 +474,33 @@ class ImportedIds(NodeAnalysis):
             node = ast.If(ast.Num(1), node, [])
         return super(ImportedIds, self).run(node, ctx)
 
+
+class Imports(ModuleAnalysis):
+    """Gets all import statements and returns a dict.
+
+        import a -> result["a"] = {"file": "a"}
+        import a as b -> result["b"] = {"file": "a"}
+        from x import a -> result["a"] = {"file": "a", "from": "x"}
+        from x import a as b -> result["b"] = {"file": "a", "from": "x"}
+        """
+    def __init__(self):
+        self.result = dict()
+        super(Imports, self).__init__()
+
+    def visit_Import(self, node):
+        for alias in node.names:
+            if alias.asname:
+                self.result[alias.asname] = {"file": alias.name}
+            else:
+                self.result[alias.name] = {"file": alias.name}
+
+    def visit_ImportFrom(self, node):
+        for alias in node.names:
+            val = {"file": alias.name, "from": alias.module}
+            if alias.asname:
+                self.result[alias.asname] = val
+            else:
+                self.result[alias.name] = val
 
 ##
 class ConstantExpressions(NodeAnalysis):

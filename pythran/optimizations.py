@@ -9,7 +9,7 @@ optimized pythran code
     * LoopFullUnrolling fully unrolls loops with static bounds
 '''
 
-from analysis import ConstantExpressions, OptimizableComprehension
+from analysis import ConstantExpressions, OptimizableComprehension, Imports
 from analysis import PotentialIterator, Aliases, UseOMP, HasBreak, HasContinue
 from passmanager import Transformation
 from tables import modules, equivalent_iterators
@@ -42,32 +42,14 @@ class ConstantFolding(Transformation):
 
     def prepare(self, node, ctx):
         self.env = {'__builtin__': __import__('__builtin__')}
+        self.imports = self.passmanager.gather(Imports, node, ctx)
 
-        for module_name in modules:
-            #not importing own file
-            if self.passmanager.module_name == module_name:
-                continue
-            not_builtin = ["__builtin__", "__exception__", "__dispatch__",
-                "__iterator__"]
-            # module starting with "__" are pythran internal module and
-            # should not be imported in the Python interpreter
-            if not module_name.startswith('__'):
-                import_name = module_name
-                if module_name == "operator_":
-                    import_name = "operator"
-                self.env[module_name] = __import__(import_name)
-            elif module_name not in not_builtin:
-                try:
-                    self.env[module_name] = __import__(module_name.strip('_'))
-                except:
-                    try:
-                        # should try from another package than builtin,
-                        # e.g. for ndarray
-                        self.env[module_name] = getattr(
-                                self.env['__builtin__'],
-                                module_name.strip('_'))
-                    except:
-                        pass
+        for module, val in self.imports.iteritems():
+            if "from" in val:
+                self.env[module] = __import__(val["from"], {}, {},
+                                              [val["file"]])
+            else:
+                self.env[module] = __import__(val["file"])
 
         try:
             eval(compile(node, '<constant_folding>', 'exec'), self.env)

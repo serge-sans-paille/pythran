@@ -223,6 +223,13 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
                 export = prefix + get_export_body(func_name, signature) + ")"
                 mod.add_to_preamble([Statement(export)])
 
+        #Top level statements put in the __init__ function by the
+        #ExtractTopLevelStatements pass probably contain globals to
+        #be exported.
+        if "__init__" not in specs:
+            export = "pythran_export_solo(" + pm.module_name + ", __init__)"
+            mod.add_to_preamble([Statement(export)])
+
         mod.add_to_preamble(content.body)
         mod.add_to_init([
             Line('#ifdef PYTHONIC_TYPES_NDARRAY_HPP\nimport_array()\n#endif')])

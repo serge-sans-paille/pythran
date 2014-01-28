@@ -82,6 +82,7 @@
     features such as variadic templates, type inference, move semantics and
     perfect forwarding, as well as classical ones such as expression templates.
     % FIXME Expression template is not a "feature" of the language IMO
+    % It is more a classical "use" of the language
     
 
     % FIXME  (explain that annotations can be added to the code?)
@@ -91,6 +92,7 @@
     without the backward compatibility loss of Cython. Numpy expressions
     run faster than when compiled with numexpr or numba, without any change to
     the original code. 
+    % It may be a little too ... untactful?
 
 
 \end{abstract}
@@ -195,7 +197,7 @@ the associated compiler. The input of the Pythran compiler is a Python module
 computation-intensive parts of the program are moved to a module fed to
 Pythran. The module is then translated to polymorphic C++ code through the
 generation of templated classes in place of Python functions. These
-classes are either used from regular C++ % FIXME (not clear what do you mean?)
+classes are either used to generate regular C++ % FIXME (not clear what do you mean?) PB : Better?
 code or instantiated for given types to generate a native Python module.
 
 It is a strong requirement for Pythran to maintain backward compatibility with
@@ -342,11 +344,11 @@ templates.
 As a consequence it requires a C++11 compatible compiler for the native code
 generation. Boost.Python\cite{boostpython2007} is used for the automatic
 Python-to-C++ boilerplate. Generated C++ code is compatible starting with g++ 
-4.7.2 and clang++ 3.2.
+4.8.2 and clang++ 3.3.
 
 It is important to note that all Pythran analyses and optimizations are
-type-agnostic, i.e. they do not assume any type for the variables manipulated
-by the program. The generated C++ template is still type agnostic, the specialization occurs only by generating the template instanciation.
+type-agnostic, \ie{they do not assume any type for the variables manipulated
+by the program}. The generated C++ template is still type agnostic, the specialization occurs only by generating the template instanciation.
 In other words, the Pythran compiler analyzes polymorphic functions and turns
 Python modules into C++ meta-programs.
 
@@ -461,8 +463,9 @@ def outer(outer_argument):
 \end{lstlisting}
 
 A rather high-level analysis is the \texttt{PureFunctions} analysis, that computes the
-set of functions declared in the module that are pure, i.e. whose return value
-only depends on the value of their arguments. This analysis depends on two
+set of functions declared in the module that are pure, \ie{whose return value
+only depends from the value of their arguments and do not change any global state}.
+This analysis depends on two
 other analyses, namely \texttt{GlobalEffects} that computes for each function whether
 this function modifies the global state (including I/O, random generators, etc.)
 and \texttt{ArgumentEffects} that computes for each argument of each function 
@@ -494,6 +497,8 @@ pure function using \texttt{PureFunctions}. In that case the \texttt{map} is
 added to the set of parallel maps, because it can be executed in any order.
 This is the case for the first \texttt{map} in the following snippet, but not
 for the second because \texttt{print b} involves an \textbf{I/O}.
+% Which is not really usefull as there is no way to say pythran we want to execut it in parallel
+% (but logging information is still displayed)
 
 \begin{lstlisting}
 def pure(a):
@@ -510,15 +515,16 @@ map(guilty, l)
 \end{lstlisting}
 
 \texttt{ConstantExpressions} uses function purity to decide whether or not a given expression
-is constant, i.e. its value only depends on literals. For instance the
+is constant, \ie{its value only depends on literals}. For instance the
 expression \texttt{fibo(12)} is a constant expression because \texttt{fibo} is pure and its
 argument is a literal. 
 % FIXME (pourrait etre interressant de repondre a : et t'en fait quoi calcul a la compilation? calcul une fois si appele plusieurs fois ?... ou ref a la transformation qui fait ca)
+% PB : explain later I think.
 
 \texttt{UseDefChains} is a classical analysis from the static compilation world. For
 each variable defined in a function, it computes the chain of \textbf{use} and \textbf{def}.
 The result can be used to drive various code transformations, for instance to
-remove dead code, such as a \textbf{def} followed by aeither nothing or a 
+remove dead code, such as a \textbf{def} followed by either nothing or a 
 \textbf{def} is useless. 
 It is used in Pythran to avoid false polymorphism. An intuitive way to represent
 use-def chains is illustrated on the next code snippet:
@@ -558,12 +564,14 @@ assignment. Using \texttt{U} to denote \textbf{use} and \texttt{D} to denote \te
 
 The fact that all paths finish by a \textbf{def} indicates that the last
 assignment can be removed (but not necessarily its right hand part that could
-have a side-effect) % FIXME example?
-The fact that the last \textbf{use} is always preceded by
-a \textbf{def} that only points to it indicates that these \textbf{def}s can
+have a side-effect). % FIXME example?
+In the use-def Chains, we can gather all nodes tied with a \textbf{use} node or
+preceded by a common \textbf{def} node.
+All these nodes refere to the same variable and can
 safely be renamed from \texttt{a} to \texttt{a}' (thus performing scalar
-renaming).
+renaming). It avoid false polymorphism.
 % FIXME The scalar renaming part is unclear
+% PB : Is it clearer now? I don't speak about UD node but we don't care, do we?
 
 All the above analyses are used by Pythran developers to build code
 transformations that improve the execution time of the generated code.
@@ -587,9 +595,9 @@ front-end, to a looping generator. To avoid this extra cost, Pythran turns
 generator expressions into call to \texttt{imap} and \texttt{ifilter} from the
 \texttt{itertools} module whenever possible, removing the unnecessary goto
 dispatching table. This kind of transformation cannot be made by the C++
-compiler. For instance, the one-liner \texttt{len(set(vec[i]+i for i in cols))}
+compiler. For instance, the one-liner \texttt{len(set(vec[i]i + i for i in cols))}
 extracted from the \texttt{nqueens} benchmarks from the Unladen Swallow project
-is rewritten as \texttt{len(set(itertools.imap(lambda i: vec[i]+i,cols)))}.
+is rewritten as \texttt{len(set(itertools.imap(lambda i: vec[i] + i,cols)))}.
 This new form is less efficient in pure Python (it implies one extra function
 call per iteration), but can be compiled into C++ more efficiently than a
 generic generator.
@@ -607,7 +615,7 @@ the (re) computation, as illustrated in the following code:
 def valid_conversion(n):
     # this map can be converted to imap
     L = map(math.cos, range(n))
-    return sum(l) # sum iterates once on its input
+    return sum(L) # sum iterates once on its input
 
 def invalid_conversion(n):
     # this map cannot be converted to imap
@@ -675,16 +683,16 @@ expressions.
 \section{Library Level Optimizations}
 \label{sec:backend}
 
-Using the proper library, the C++ language provides an abstraction level close
+Using the proper library, the \cpp language provides an abstraction level close
 to what Python proposes. Pythran provides a wrapper library, \texttt{pythonic},
-that leverage on the C++ Standard Template Library (STL), the GNU Multiple
+that leverage on the \cpp Standard Template Library (STL), the GNU Multiple
 Precision Arithmetic Library (GMP) and the Numerical Template Toolbox
 (NT2)\footnote{\url{https://github.com/MetaScale/nt2}} to emulate Python
 standard library. The STL is used to provide a typed version of the standard
 containers (\texttt{list}, \texttt{set}, \texttt{dict} and \texttt{str}), as
 well as reference-based memory management through \texttt{shared\_ptr}. Generic
 algorithms such as \texttt{accumulate} are used when possible. GMP is the
-natural choice to represent Python's \texttt{long} in C++. NT2 provides a generic
+natural choice to represent Python's \texttt{long} in \cpp. NT2 provides a generic
 vector library called \texttt{boost.simd}\cite{esterie2012boost} that enables
 the use of vector instruction units of modern processors in a generic way. It is used
 to efficiently compile Numpy expressions.
@@ -699,6 +707,7 @@ Pythran implements three optimizations on such expressions:
         they aggregate all \texttt{ufunc} into a single expression at compile
         time, they also increase the computation intensity of the loop body,
         and hence increase the impact of the two following optimizations.
+        % what about binary func?
 
     \item Loop vectorization. All modern processors have vector instruction
         units capable of applying the same operation on a vector of data
@@ -729,6 +738,7 @@ d = numpy.sqrt(b*b+c*c)
 
 When benchmarked with the \texttt{timeit} module on an hyper-threaded quad-core 
 i7, the pure Python execution yields: % FIXME sandy-brige? nehalem?...
+% PB : Not sure it is needed as audiance don't really care about it.
 
 \begin{lstlisting}
 >>> %timeit np.sqrt(b*b+c*c)
@@ -756,6 +766,8 @@ performance boost:
 Although the AVX instruction set makes it possible to store 4 double precision
 floats, one does not get a 4x speed up because of the (unaligned) memory transfers
 to and from vector registers.
+% 1.33x speedup is not really good if the best expected is 4x. unaligned explain why it is not better 
+% than 2x but what about the others 0.66?
 
 Finally, using both expression templates, vectorization and OpenMP:
 
@@ -766,8 +778,10 @@ Finally, using both expression templates, vectorization and OpenMP:
 
 The 4 hyper-threaded cores give an extra performance boost. Unfortunately, the
 load is not sufficient to get more than an average 4x speed up compared to the
-vectorized version. In the end, Pythran generates a native module that performs
-roughly 11 times faster than the original version.
+vectorized version.
+% You complain about 4x because you only have 3.98x ???
+In the end, Pythran generates a native module that performs
+roughly 11\times faster than the original version.
 
 As a reference, the \texttt{numexpr} module that performs JIT optimization of the
 expression yields the following timing:
@@ -786,6 +800,8 @@ Many scientific applications can benefit from the parallel execution of their
 kernels. As modern computers generally feature several processors and several
 cores per processor, it is critical for the scientific application developers to
 be able to take advantage of them.
+%Does python programmer really use it? Or people using it may write their native code?
+% They may write it using python only to prototyping?
 
 As explained in the previous section, Pythran takes advantage of multiple cores
 when compiling Numpy expressions. However, when possible, it is often more
@@ -819,16 +835,17 @@ def pi_estimate(darts):
     pi = 4 * (hits / DARTS)
     return pi
 \end{lstlisting}
+% why #? I thought string was enough?
 
 The loop is flagged as parallel, performing a reduction using the \texttt{+}
 operator on the \texttt{hits} variable. Variables \texttt{x}, \texttt{y} and
 \texttt{dist} are automatically made local by Pythran after a
-\texttt{ScopeAnalysis}, and are thus marked as \texttt{private}, i.e. local to
-a thread and not shared with other threads, by OpenMP.
+\texttt{ScopeAnalysis}, and are thus marked as \texttt{private}, \ie{local to
+a thread and not shared with other threads, by OpenMP}.
 
 % FIXME (Ca semble tomber a plat, pas de resultats, pas de conclusion...)
 
-Next section performs an in-depth comparison of Pythran with for Python
+Next section performs an in-depth comparison of Pythran with others Python
 optimizers: Numba, PyPy, ShedSkin and numexpr.
 
 
@@ -843,7 +860,7 @@ https://github.com/serge-sans-paille/pythran in the \texttt{pythran/test/cases}
 directory. The Pythran version used is the \texttt{HEAD} of the \texttt{scipy2013} branch,
 ShedSkin 0.9.2, PyPy 2.0 compiled with the \texttt{-jit} flag, CPython 2.7.3, Cython
 0.19.1 and Numexpr 2.0.1. All timings are made using the \texttt{timeit} module,
-taking the best of all runs. All C++ codes are compiled with g++ 4.7.3, using
+taking the best of all runs. All C++ codes are compiled with g++ 4.8.2, using
 the tool default compiler option, generally \texttt{-O2} plus a few optimizing flags
 depending on the target.
 
@@ -954,6 +971,8 @@ hence the application suffers from the heavy overhead of converting them from C+
 to Python. Running the same benchmark using Numpy arrays as core containers
 confirms this assumption, as illustrated by Table~\ref{tbl:np-hyantes}. This
 table also demonstrates the benefits of manual parallelization using OpenMP.
+% Showing parallelization AND np.array at the same time confuse reader as we
+% don't know how much each optimisation contribute in the speed up
 
 
 \begin{table}
@@ -983,11 +1002,11 @@ def arc_distance(theta_1, phi_1, theta_2, phi_2):
     Calculates the pairwise arc distance
     between all points in vector a and b.
     """
-    temp = (np.sin((theta_2-theta_1)/2)**2
-        + np.cos(theta_1)*np.cos(theta_2)
-          * np.sin((phi_2-phi_1)/2)**2)
+    temp = (np.sin((theta_2 - theta_1) / 2) ** 2
+        + np.cos(theta_1) * np.cos(theta_2)
+          * np.sin((phi_2 - phi_1) / 2) ** 2)
     distance_matrix = 2 * np.arctan2(
-            sqrt(temp),sqrt(1-temp))
+            sqrt(temp), sqrt(1 - temp))
     return distance_matrix
 \end{lstlisting}
 
@@ -1031,6 +1050,7 @@ is written using the \texttt{parallel.prange} feature and compiled with
 \end{table}
 
 It shows a small benefit from using expression templates on their own, most
+% In fact there are small benefits for compiling this code using only pythran without AVX and openMP.
 certainly because the loop control overhead is negligible compared to the
 trigonometric functions. It gets a decent x2.5 speed-up when using AVX over not
 using it. The benefit of OpenMP, although related to the number of cores, makes
@@ -1088,6 +1108,7 @@ high level information to generate efficient code that would be difficult to wri
 
 
 % FIXME (just thinking about it, did you say what CPyhton?)
+% PB : I think it is ok as audience is Python programmers
 
 \acks
 

@@ -3,6 +3,27 @@ from test_env import TestEnv
 import numpy
 
 class TestNumpy(TestEnv):
+    def test_numpy_int16(self):
+        self.run_test("def numpy_int16(n): import numpy ; return numpy.ones(n, numpy.int16)", 5, numpy_int16=[int])
+
+    def test_numpy_uint16(self):
+        self.run_test("def numpy_uint16(n): import numpy ; return numpy.ones(n, numpy.uint16)", 5, numpy_uint16=[int])
+
+    def test_numpy_uint64(self):
+        self.run_test("def numpy_uint64(n): import numpy ; return numpy.ones(n, numpy.uint64)", 5, numpy_uint64=[int])
+
+    def test_numpy_float(self):
+        self.run_test("def numpy_float(n): import numpy ; return numpy.ones(n, numpy.float)", 5, numpy_float=[int])
+
+    def test_numpy_complex(self):
+        self.run_test("def numpy_complex(n): import numpy ; return numpy.ones(n, numpy.complex)", 5, numpy_complex=[int])
+
+    def test_numpy_complex64(self):
+        self.run_test("def numpy_complex64(n): import numpy ; return numpy.ones(n, numpy.complex64)", 5, numpy_complex64=[int])
+
+    def test_numpy_double(self):
+        self.run_test("def numpy_double(n): import numpy ; return numpy.ones(n, numpy.double)", 5, numpy_double=[int])
+
     def test_assign_gsliced_array(self):
         self.run_test("""def assign_gsliced_array():
    import numpy as np;
@@ -21,8 +42,23 @@ class TestNumpy(TestEnv):
    b[2] = -1;
    return c;""", assign_sliced_array=[])
 
-    def test_filter_array(self):
-        self.run_test('def filter_array(n): import numpy ; a = numpy.zeros(n) ; return a[a>1]', 10, filter_array=[int])
+    def test_filter_array_0(self):
+        self.run_test('def filter_array_0(n): import numpy ; a = numpy.zeros(n) ; return a[a>1]', 10, filter_array_0=[int])
+
+    def test_filter_array_1(self):
+        self.run_test('def filter_array_1(n): import numpy ; a = numpy.arange(n) ; return a[a>4]', 10, filter_array_1=[int])
+
+    def test_filter_array_2(self):
+        self.run_test('def filter_array_2(n): import numpy ; a = numpy.arange(n) ; return (a+a)[a>4]', 10, filter_array_2=[int])
+
+    def test_filter_array_3(self):
+        self.run_test('def filter_array_3(n): import numpy ; a = numpy.arange(n) ; return (-a)[a>4]', 10, filter_array_3=[int])
+
+    def test_filter_array_4(self):
+        self.run_test('def filter_array_4(n): import numpy ; a = numpy.arange(n) ; return a[1:-1][a[1:-1]>4]', 10, filter_array_4=[int])
+
+    def test_filter_array_5(self):
+        self.run_test('def filter_array_5(n): import numpy ; a = numpy.arange(n) ; return (a[1:-1])[a[1:-1]>4]', 10, filter_array_5=[int])
 
     def test_assign_ndarray(self):
         self.run_test("""def assign_ndarray(t):
@@ -313,6 +349,7 @@ def np_rosen_der(x):
 
     def test_indices0(self):
         self.run_test("def np_indices0(): from numpy import indices ; s = (2,3) ; return indices(s)", np_indices0=[])
+
     def test_identity0(self):
         self.run_test("def np_identity0(): from numpy import identity ; a = 3; return identity(a)", np_identity0=[])
 
@@ -342,6 +379,9 @@ def np_rosen_der(x):
 
     def test_place1(self):
         self.run_test("def np_place1(): from numpy import place, arange ; x = arange(6).reshape(2,3); place(x, x>1, [57, 58]); return x", np_place1=[])
+
+    def test_product(self):
+        self.run_test("def np_product():\n from numpy import arange,product\n return product(arange(1, 10))", np_product=[])
 
     def test_prod_(self):
         self.run_test("def np_prod_():\n from numpy import arange,prod\n return arange(1, 10).prod()", np_prod_=[])
@@ -618,6 +658,7 @@ def np_rosen_der(x):
 
     def test_digitize1(self):
         self.run_test("def np_digitize1(): from numpy import array, digitize; x = array([0.2, 6.4, 3.0, 1.6]) ; bins = array([ 10.0, 4.0, 2.5, 1.0, 0.0]) ; return digitize(x, bins)", np_digitize1=[])
+
     def test_diff0(self):
         self.run_test("def np_diff0(): from numpy import array, diff ; x = array([1, 2, 4, 7, 0]) ; return diff(x)", np_diff0=[])
 
@@ -825,7 +866,6 @@ def np_trim_zeros2():
     from numpy import arange, where
     a = arange(12).reshape(3,4)
     return where(a>5)""", np_where7=[])
-
 
     def test_cumprod_(self):
         self.run_test("def np_cumprod_():\n from numpy import arange,cumprod\n return arange(10).cumprod()", np_cumprod_=[])
@@ -1060,6 +1100,7 @@ def test_copy0():
 
     def test_append2(self):
         self.run_test("def np_append2(): from numpy import append,array ; a,b = array([1, 2, 3]), array([[4, 5, 6], [7, 8, 9]]) ; return append(a,b)", np_append2=[])
+
     def test_angle0(self):
         self.run_test("def np_angle0(): from numpy import angle, array ; a = [1.0, 1.0j, 1+1j] ; return angle(a)", np_angle0=[])
 
@@ -1083,7 +1124,7 @@ def test_copy0():
 
     def test_array1D_(self):
         self.run_test("def np_array1D_():\n from numpy import array\n return array([1,2,3])", np_array1D_=[])
-       
+
     def test_array2D_(self):
         self.run_test("def np_array2D_():\n from numpy import array\n return array([[1,2],[3,4]])", np_array2D_=[])
 
@@ -1189,6 +1230,12 @@ def test_copy0():
     def test_arange10(self):
         self.run_test("def np_arange10_():\n from numpy import arange\n return arange(-5, -5.5, -0.1)", np_arange10_=[])
 
+    def test_arange11(self):
+        self.run_test("def np_arange11_():\n from numpy import arange, uint8\n return arange(0, 255, 1, uint8)", np_arange11_=[])
+
+    def test_arange12(self):
+        self.run_test("def np_arange12_():\n from numpy import arange, float32\n return arange(0, 25, 1., float32)", np_arange12_=[])
+
     def test_linspace(self):
         self.run_test("def np_linspace_():\n from numpy import linspace\n return linspace(1,4,32)", np_linspace_=[])
 
@@ -1257,6 +1304,9 @@ def test_copy0():
 
     def test_sum5_(self):
         self.run_test("def np_sum5_():\n from numpy import arange,sum\n return arange(10).sum(0)", np_sum5_=[])
+
+    def test_amin_amax(self):
+        self.run_test("def np_amin_amax():\n from numpy import arange,amin,amax\n return amin(arange(10)), amax(arange(10))", np_amin_amax=[])
 
     def test_min_(self):
         self.run_test("def np_min_():\n from numpy import arange,min\n return arange(10).min()", np_min_=[])
@@ -1444,7 +1494,6 @@ def test_copy0():
     def test_sliced9(self):
         self.run_test("def np_sliced9(): from numpy import arange ; a = arange(12).reshape(3,2,2) ; a[1:2] = arange(4).reshape(1,2,2) ; return a", np_sliced9=[])
 
-
     def test_alen0(self):
         self.run_test("def np_alen0(): from numpy import ones, alen ; return alen(ones((5,6)))", np_alen0=[])
 
@@ -1470,22 +1519,21 @@ def test_copy0():
         self.run_test("def np_alltrue1(): from numpy import array, alltrue ; a = array([1, 5, 2, 7]) ; return alltrue(a >= 5)", np_alltrue1=[])
 
 
-#automatic generation of basic test cases for ufunc
+# automatic generation of basic test cases for ufunc
 binary_ufunc = (
         'add','arctan2',
         'bitwise_and', 'bitwise_or', 'bitwise_xor',
         'copysign',
         'divide',
         'equal',
-        #'frexp', # todo
         'floor_divide', 'fmax', 'fmin', 'fmod',
         'greater', 'greater_equal',
         'hypot',
         'ldexp', 'left_shift', 'less', 'less_equal', 'logaddexp', 'logaddexp2', "logical_and", "logical_or", "logical_xor",
         'maximum', 'minimum', 'mod','multiply',
-        'nextafter','not_equal', 
+        'nextafter','not_equal',
         'power',
-        'remainder','right_shift', 
+        'remainder','right_shift',
         'subtract',
         'true_divide',
         )
@@ -1501,9 +1549,9 @@ unary_ufunc = (
         'log10', 'log1p', 'log2', 'logical_not',
         'negative',
         'rad2deg', 'radians','reciprocal', 'rint', 'round', 'round_',
-        'sign', 'signbit', 
-         'sin', 'sinh', 'spacing', 'sqrt', 'square', 
-        'tan', 'tanh','trunc', 
+        'sign', 'signbit',
+         'sin', 'sinh', 'spacing', 'sqrt', 'square',
+        'tan', 'tanh','trunc',
         )
 
 for f in unary_ufunc:

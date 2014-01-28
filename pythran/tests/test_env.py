@@ -79,6 +79,7 @@ class TestEnv(unittest.TestCase):
                 # "a=1; b=2; myfun(a+b,a-b)" => "a=1; b=2; RES=myfun(a+b,a-b)"
                 runas_commands = runas.split(";")
                 begin = ";".join(runas_commands[:-1]+[''])
+                exec code+"\n"+begin in {}  # this just tests the syntax of runas
                 last = self.TEST_RETURNVAL + '=' + runas_commands[-1]
                 runas = begin+"\n"+last
             else:
@@ -145,7 +146,10 @@ class TestEnv(unittest.TestCase):
 
             # Only compare the type of exceptions raised
             if pythran_exception_type != python_exception_type:
-                return AssertionError(
+                if python_exception_type is None:
+                    raise e
+                else:
+                    raise AssertionError(
                     "expected exception was %s, but received %s" %
                     (python_exception_type, pythran_exception_type))
 
@@ -248,7 +252,7 @@ class TestFromDir(TestEnv):
                           if line.startswith(TestFromDir.runas_marker)]
             runas_list = runas_list or [None]
             runcount = 0
-            for runas in runas_list:
+            for n, runas in enumerate(runas_list):
                 if runas:
                     runas = runas.replace(TestFromDir.runas_marker, '')
                     runcount = runcount+1
@@ -262,4 +266,4 @@ class TestFromDir(TestEnv):
                         file(filepath).read(), runas=runas,
                         check_output=(runas is not None), **specs)
 
-                setattr(target, "test_"+name+suffix, func)
+                setattr(target, "test_"+name+suffix+str(n), func)

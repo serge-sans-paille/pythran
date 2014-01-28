@@ -1,4 +1,5 @@
 from test_env import TestEnv
+import unittest
 
 class TestException(TestEnv):
 
@@ -59,6 +60,7 @@ class TestException(TestEnv):
     def test_ArithmeticError(self):
         self.run_test("def ArithmeticError_():\n try: raise ArithmeticError('a','b','c')\n except ArithmeticError as e: return e.args", ArithmeticError_=[])
 
+    @unittest.skip("incompatible with py.test")
     def test_AssertionError(self):
         self.run_test("def AssertionError_():\n try: raise AssertionError('a','b','c')\n except AssertionError as e: return e.args", AssertionError_=[])
 
@@ -246,6 +248,7 @@ class TestException(TestEnv):
     def test_ArithmeticError_register(self):
         self.run_test("def ArithmeticError_():\n raise ArithmeticError('a','b','c')", ArithmeticError_=[])
 
+    @unittest.skip("incompatible with py.test")
     def test_AssertionError_register(self):
         self.run_test("def AssertionError_():\n raise AssertionError('a','b','c')", AssertionError_=[])
 

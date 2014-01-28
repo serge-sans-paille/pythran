@@ -30,5 +30,7 @@ class TestRandom(TestEnv):
         self.run_test("def sample_(n,k): from random import sample ; s = sum(sum(sample(range(n),k)) for x in range(n)) ; return abs(s/float(n*n)) < .05  ", 10**4, 4, sample_=[int, int])
 
     def test_choice(self):
-        self.run_test("def choice_(n): from random import choice ; s= sum(choice(range(n)) for x in xrange(n)) ; return abs(s/n - n/2) < .05", 10**4,  choice_=[int])
+        self.run_test("def choice_(n): from random import choice ; s= sum(choice(range(n)) for x in xrange(n)) ; return abs(s/n - n/2) < .05", 10**5,  choice_=[int])
 
+    def test_random_seed(self):
+        self.run_test("def random_seed(): from random import random, seed ; seed(1) ; a = random() ; seed(1); b = random(); return a == b", random_seed=[])

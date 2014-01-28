@@ -2,6 +2,7 @@ import unittest
 import doctest
 import pythran
 import inspect
+import os
 
 class TestDoctest(unittest.TestCase):
     '''
@@ -15,9 +16,35 @@ class TestDoctest(unittest.TestCase):
         self.assertEqual(failed, 0)
 
     def test_internal(self):
-        failed, _ = doctest.testfile('../../doc/INTERNAL.rst')
+        tmpfile = self.adapt_rst('../../doc/INTERNAL.rst')
+        failed, _ = doctest.testfile(tmpfile, False)
         self.assertEqual(failed, 0)
+        os.remove(tmpfile)
 
+    def test_cli(self):
+        tmpfile = self.adapt_rst('../../doc/CLI.rst')
+        failed, _ = doctest.testfile(tmpfile, False)
+        self.assertEqual(failed, 0)
+        os.remove(tmpfile)
+
+    def adapt_rst(self, relative_path):
+        """
+        replace '$>' with '>>>' and execute theses command lines by creating a shell
+        return the path of the new adapted tmp file
+        """
+        import re
+        from tempfile import NamedTemporaryFile
+        filepath = os.path.join(os.path.dirname(__file__), relative_path)
+        rst_doc = file(filepath).read()
+        rst_doc = re.sub(r'\.\.(\s+>>>)', r'\1', rst_doc)  # hidden doctest
+        sp = re.sub(r'\$>(.*?)$',
+                    r'>>> import subprocess ; print subprocess.check_output("\1", shell=True),',
+                    rst_doc,
+                    flags=re.MULTILINE)
+        f = NamedTemporaryFile(delete=False)
+        f.write(sp)
+        f.close()
+        return f.name
 
 def generic_test_package(self, mod):
     failed, _ = doctest.testmod(mod)

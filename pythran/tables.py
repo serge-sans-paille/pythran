@@ -23,7 +23,7 @@ pytype_to_ctype_table = {
         int: 'long',
         long: 'pythran_long_t',
         float: 'double',
-        str: 'core::string',
+        str: 'pythonic::types::str',
         None: 'void',
         numpy.int64: 'long long',
         numpy.float64: 'double',
@@ -73,7 +73,8 @@ operator_to_lambda = {
         ast.BitXor: lambda l, r: "({0} ^ {1})".format(l, r),
         ast.BitAnd: lambda l, r: "({0} & {1})".format(l, r),
         #** assume from __future__ import division
-        ast.FloorDiv: lambda l, r: "(floordiv({0}, {1}))".format(l, r),
+        ast.FloorDiv: lambda l, r: "(pythonic::floordiv({0}, {1}))"
+                                    .format(l, r),
         # unaryop
         ast.Invert: lambda o: "(~{0})".format(o),
         ast.Not: lambda o: "(not {0})".format(o),
@@ -86,12 +87,12 @@ operator_to_lambda = {
         ast.LtE: lambda l, r: "({0} <= {1})".format(l, r),
         ast.Gt: lambda l, r: "({0} > {1})".format(l, r),
         ast.GtE: lambda l, r: "({0} >= {1})".format(l, r),
-        ast.Is: lambda l, r: ("(__builtin__::id({0}) == "
-            "__builtin__::id({1}))".format(l, r)),
-        ast.IsNot: lambda l, r: ("(__builtin__::id({0}) != "
-            "__builtin__::id({1}))".format(l, r)),
-        ast.In: lambda l, r: "(in({1}, {0}))".format(l, r),
-        ast.NotIn: lambda l, r: "(not in({1}, {0}))".format(l, r),
+        ast.Is: lambda l, r: ("(pythonic::__builtin__::id({0}) == "
+            "pythonic::__builtin__::id({1}))".format(l, r)),
+        ast.IsNot: lambda l, r: ("(pythonic::__builtin__::id({0}) != "
+            "pythonic::__builtin__::id({1}))".format(l, r)),
+        ast.In: lambda l, r: "(pythonic::in({1}, {0}))".format(l, r),
+        ast.NotIn: lambda l, r: "(not pythonic::in({1}, {0}))".format(l, r),
         }
 
 equivalent_iterators = {
@@ -162,7 +163,6 @@ modules = {
             "complex": ConstFunctionIntr(),
             "dict": ReadOnceFunctionIntr(),
             "divmod": ConstFunctionIntr(),
-            "double_": ConstFunctionIntr(),
             "enumerate": ReadOnceFunctionIntr(),
             "file": ConstFunctionIntr(),
             "filter": ReadOnceFunctionIntr(),
@@ -201,7 +201,6 @@ modules = {
         "numpy": {
             "abs": ConstFunctionIntr(),
             "absolute": ConstFunctionIntr(),
-            "accumulate": ConstFunctionIntr(),
             "add": ConstFunctionIntr(),
             "alen": ConstFunctionIntr(),
             "all": ConstMethodIntr(),
@@ -254,12 +253,12 @@ modules = {
             "clip": ConstFunctionIntr(),
             "concatenate": ConstFunctionIntr(),
             "complex": ConstFunctionIntr(),
-            "complex128": ConstFunctionIntr(),
-            "complex32": ConstFunctionIntr(),
+            #"complex128": ConstFunctionIntr(),
             "complex64": ConstFunctionIntr(),
             "conj": ConstFunctionIntr(),
             "conjugate": ConstFunctionIntr(),
             "copy": ConstFunctionIntr(),
+            "copyto": ConstFunctionIntr(),
             "copysign": ConstFunctionIntr(),
             "cos": ConstFunctionIntr(),
             "cosh": ConstFunctionIntr(),
@@ -291,7 +290,7 @@ modules = {
             "flatnonzero": ConstFunctionIntr(),
             "fliplr": ConstFunctionIntr(),
             "flipud": ConstFunctionIntr(),
-            "float128": ConstFunctionIntr(),
+            #"float128": ConstFunctionIntr(),
             "float32": ConstFunctionIntr(),
             "float64": ConstFunctionIntr(),
             "float_": ConstFunctionIntr(),
@@ -579,8 +578,6 @@ modules = {
                 "__div__": ConstFunctionIntr(),
                 "floordiv": ConstFunctionIntr(),
                 "__floordiv__": ConstFunctionIntr(),
-                "index": ConstFunctionIntr(),
-                "__index__": ConstFunctionIntr(),
                 "inv": ConstFunctionIntr(),
                 "invert": ConstFunctionIntr(),
                 "__inv__": ConstFunctionIntr(),
@@ -746,20 +743,6 @@ modules = {
                         node.args[1],
                         register=True)
                     ),
-                 "irepeat": MethodIntr(
-                    lambda self, node:
-                    self.combine(
-                        node.args[0],
-                        node.args[1],
-                        register=True)
-                    ),
-                 "__irepeat__": MethodIntr(
-                    lambda self, node:
-                    self.combine(
-                        node.args[0],
-                        node.args[1],
-                        register=True)
-                    ),
                  "irshift": MethodIntr(
                     lambda self, node:
                     self.combine(
@@ -844,6 +827,7 @@ modules = {
                 "ascii_uppercase": ConstantIntr(),
                 "ascii_letters": ConstantIntr(),
                 "digits": ConstantIntr(),
+                "find": ConstFunctionIntr(),
                 "hexdigits": ConstantIntr(),
                 "octdigits": ConstantIntr(),
                 },
@@ -881,7 +865,7 @@ modules = {
         "__iterator__": {
                 #"next": MethodIntr(), //Dispatched
                 },
-        "__string__": {
+        "__str__": {
                 "capitalize": ConstMethodIntr(),
                 "endswith": ConstMethodIntr(),
                 "startswith": ConstMethodIntr(),

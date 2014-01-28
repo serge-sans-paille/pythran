@@ -171,3 +171,82 @@ scope, and the scope is not attached to the first assignment::
     >>> scopes = pm.gather(analysis.Scope, foo_tree)
     >>> scopes[foo_tree.body[0]]
     set(['s'])
+
+Top level stmt support
+----------------------
+
+..  Small hack to setup the $PATH in a compatible way
+..  >>> import os, pythran, re
+..  >>> if 'lib' in pythran.__file__: os.environ['PATH'] = re.sub(r'(.*)/lib/.*', r'\1/bin:', pythran.__file__) + os.environ['PATH']
+..  >>> os.environ['PATH'] = './scripts:' + os.environ['PATH']
+
+Pythran supports top-level statements. For example, functions can be called::
+
+    $> printf 'print 1\ndef foo():return 2\nprint 1+foo()' > internal_top_level_print.py
+    $> pythran internal_top_level_print.py
+    $> python -c 'import internal_top_level_print'
+    1
+    3
+
+Expression statement can be written at top-level, the example below is just to
+show that Pythran can compile it::
+
+    $> printf '1 + (2 + 2) * 3' > internal_top_level_expr.py
+    $> pythran internal_top_level_expr.py
+    $> python -c 'import internal_top_level_expr'
+
+Assignment and AugAssignment statements at top-level are one of the most common
+cases of Python programs::
+
+    $> printf 'a = 1 + (2 + 2) * 3\nprint a\na += 1\nprint a' > internal_top_level_assign.py
+    $> pythran internal_top_level_assign.py
+    $> python -c 'import internal_top_level_assign'
+    13
+    14
+
+Then let's test Python's flow control keywords: for, while, if-else:
+
+Loop statement at top-level::
+
+    $> printf 's=0\nfor i in range(10):s+=i\nprint s' > internal_top_level_loop.py
+    $> pythran internal_top_level_loop.py
+    $> python -c 'import internal_top_level_loop'
+    45
+
+While statement at top-level::
+
+    $> printf 'i=0\nwhile i<10:i+=1\nprint i' > internal_top_level_while.py
+    $> pythran internal_top_level_while.py
+    $> python -c 'import internal_top_level_while'
+    10
+
+If-else statement at top-level::
+
+    $> printf 'if True: print 1\nelse:pass' > internal_top_level_ifelse.py
+    $> pythran internal_top_level_ifelse.py
+    $> python -c 'import internal_top_level_ifelse'
+    1
+
+Raise an exception and catch an exception written at top-level can also be
+compiled:
+
+Raise an exception ::
+
+    $> printf 'raise Exception()'> internal_top_level_exception.py
+    $> pythran internal_top_level_exception.py
+    $> python -c 'try:import internal_top_level_exception\nexcept:print 111'
+    111
+
+Try-except statement::
+
+    $> printf 'try:raise Exception()\nexcept: print 222'> internal_top_level_exception_tryexcept.py
+    $> pythran internal_top_level_exception_tryexcept.py
+    $> python -c 'import internal_top_level_exception_tryexcept'
+    222
+
+In a word, Pythran supports most kind of Python statements at top-level.
+
+Before leaving, let's clear these examples and you can try out your own
+programs!::
+
+    $> rm -f internal_top_level_*

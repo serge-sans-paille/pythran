@@ -21,6 +21,7 @@ This modules contains code transformation to turn python AST into
 
 from analysis import ImportedIds, Identifiers, YieldPoints, Globals, Locals
 from analysis import UsedDefChain, UseOMP, CFG, GlobalDeclarations
+from analysis import DeclaredGlobals
 from passmanager import Transformation
 from tables import methods, attributes, functions, modules
 from tables import cxx_keywords, namespace
@@ -590,12 +591,13 @@ class NormalizeMethodCalls(Transformation):
     '''
 
     def __init__(self):
-        Transformation.__init__(self, Globals)
+        Transformation.__init__(self, Globals, DeclaredGlobals)
         self.imports = set()
 
     def visit_FunctionDef(self, node):
         self.imports = self.globals.copy()
         [self.imports.discard(arg.id) for arg in node.args.args]
+        [self.imports.discard(x) for x in self.declared_globals]
         self.generic_visit(node)
         return node
 

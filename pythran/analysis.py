@@ -639,16 +639,21 @@ class Aliases(ModuleAnalysis):
 
     @staticmethod
     def access_path(node):
-        def rec(w, n):
+        def rec(w, n, allowdict):
             if isinstance(n, ast.Name):
-                return w.get(n.id, n.id)
+                # all modules are stored with {} as value in the modules
+                # variable, so if it's the case we fall back.
+                res = w.get(n.id, n.id)
+                if isinstance(res, dict) and not allowdict:
+                    res = n.id
+                return res
             elif isinstance(n, ast.Attribute):
-                return rec(w, n.value)[n.attr]
+                return rec(w, n.value, True)[n.attr]
             elif isinstance(n, ast.FunctionDef):
                 return node.name
             else:
                 return node
-        return rec(modules, node)
+        return rec(modules, node, False)
 
     # aliasing created by expressions
     def add(self, node, values=None):

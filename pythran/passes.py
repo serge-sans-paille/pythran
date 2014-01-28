@@ -24,9 +24,7 @@ from analysis import UsedDefChain, UseOMP, CFG, GlobalDeclarations
 from passmanager import Transformation
 from tables import methods, attributes, functions, modules
 from tables import cxx_keywords, namespace
-from operator import itemgetter
 from copy import copy
-import networkx as nx
 import metadata
 import ast
 
@@ -231,6 +229,12 @@ class ExtractTopLevelStmts(Transformation):
                                ast.arguments([], None, None, []),
                                init_body,
                                [])
+
+        # Make all the variables global
+        locs = self.passmanager.gather(Locals, init)
+        gb_decl = ast.Global(list(locs[init.body[-1]]))
+        init.body.insert(0, gb_decl)
+
         module_body.append(init)
         node.body = module_body
         return node

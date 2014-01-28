@@ -222,7 +222,8 @@ class LocalDeclarations(NodeAnalysis):
 
     def visit_For(self, node):
         assert isinstance(node.target, ast.Name)
-        self.result.add(node.target)
+        if node.target.id not in self.declared_globals:
+            self.result.add(node.target)
         map(self.visit, node.body)
 
 

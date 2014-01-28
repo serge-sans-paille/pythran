@@ -78,11 +78,13 @@
     Template Toolbox (NT2) for Numpy support. It takes advantage of modern C++11
     features such as variadic templates, type inference, move semantics and
     perfect forwarding, as well as classical ones such as expression templates.
+    % FIXME Expression template is not a "feature" of the language IMO
+    
 
     The input code remains compatible with the Python interpreter, and output
     code is generally as efficient as the annotated Cython equivalent, if not
     more, without the backward compatibility loss of Cython. Numpy expressions
-    run faster than when compiled with numexpr, or numba, without any change to
+    run faster than when compiled with numexpr or numba, without any change to
     the original code. 
 
 
@@ -114,8 +116,8 @@ The aim may not be to optimize the full Python application, but rather a
 small subset of the application.
 
 Several tools have been proposed by an active community to fill the performance
-gap met when running these computation-intensive piece of code, either through
-static compilation or Just In Time (JIT) compilation.
+gap encountered when running these computation-intensive piece of code, either
+through static compilation or Just In Time (JIT) compilation.
 
 An approach used by Cython\cite{cython2010} is to suppress the interpretation
 overhead by translating Python Programs to C programs calling the Python C
@@ -138,6 +140,7 @@ branch.
 
 To the notable exception of PyPy, these compilers do not apply any of the
 static optimization techniques that have been known for decades and
+% FIXME And Numba? It generates LLVM, which uses static optimization techniques
 successfully applied to statically compiled language such as C or C++.
 Translators to statically compiled languages do take advantage of them
 indirectly, but the quality of generated code may prevent advanced
@@ -158,17 +161,17 @@ classes or any dynamic feature such as introspection or polymorphic variables.
 Unlike existing alternatives, Pythran does not solely perform static typing of
 Python programs. It also performs various compiler optimizations such as
 detection of pure functions, temporary allocation removal or constant folding.
-These transformations are backed up by code analysis such as aliasing,
+These transformations are backed up by code analyses such as aliasing,
 inter-procedural memory effect computations or use-def chains.
 
 The article is structured as follows: Section~\ref{sec:infrastructure}
 introduces the Pythran compiler compilation flow and internal representation.
-Section~\ref{sec:analysis} presents several code analysis while
+Section~\ref{sec:analysis} presents several code analyses while
 Section~\ref{sec:optimizations} focuses on code optimizations.
 Section~\ref{sec:backend} presents back-end optimizations for Numpy
 expressions. Section~\ref{sec:openmp}  briefly introduces OpenMP-like
 annotations for explicit parallelization of Python programs and
-section~\ref{sec:benchmarks} presents the performance obtained on a few
+Section~\ref{sec:benchmarks} presents the performance obtained on a few
 synthetic benchmarks and concludes.
 
 
@@ -272,22 +275,22 @@ similar to Python's duck typing, except that it is checked at compile time, as
 illustrated by the following implementation of a generic dot product in Python:
 
 \begin{lstlisting}
-def dot(l0, l1):
-    return sum(x*y for x,y in zip(l0,l1))
+def dot(L0, L1):
+    return sum(x*y for x,y in zip(L0,L1))
 \end{lstlisting}
 
 \noindent and in C++:
 
 \begin{lstlisting}[language=c++]
 template<class T0, class T1>
-    auto dot(T0&& l0, T1&& l1) -> decltype(/* skipped */)
+    auto dot(T0&& L0, T1&& L1) -> decltype(/* skipped */)
     {
         return pythonic::sum(
             pythonic::map(
                 operator_::multiply(),
                     pythonic::zip(
-                        std::forward<T0>(l0),
-                        std::forward<T1>(l1))
+                        std::forward<T0>(L0),
+                        std::forward<T1>(L1))
             )
         );
     }
@@ -295,7 +298,7 @@ template<class T0, class T1>
 
 Although far more verbose than the Python version, the C++ version also uses a
 form of structural typing: the only assumption these two versions make are that
-\texttt{l0} and \texttt{l1} are iterable, their content can be multiplied and the result of
+\texttt{L0} and \texttt{L1} are iterable, their content can be multiplied and the result of
 the multiplication is accumulatable.
 
 Finally, Pythran computes the set of functions and types used for the processed
@@ -303,32 +306,35 @@ module, and generate the minimal set of headers that need to be included to
 provide the definitions needed to compile the generated C++ code. This step is
 critical to prevent typical slowdown from C++ compilation.
 
-The second step only consists in the instantiation of the top-level functions of the
-module, using user-provided signatures. Template instantiation then triggers the
-different correctly typed instantiations for all functions written in the
+The second step only consists in the instantiation of the top-level functions of
+the module, using user-provided signatures. Template instantiation then triggers
+the different correctly typed instantiations for all functions written in the
 module. Note that the user only needs to provide the type of the functions
 exported outside the module. The possible types of all internal functions are
-then inferred from the call sites.
+then inferred from the call sites. Note that this complex step leverage the 
+C++11 compiler capabilities: Pythran generates only one line using user-provided
+signature to trigger the template instanciation by the C++ compiler.
 
-The last step involves a template library, called \texttt{pythonic} that contains a
-polymorphic implementation of many functions from the Python standard library
-in the form of C++ template functions. Several optimizations, most notably
-expression template, are delegated to this library. Pythran relies on the
-C++11\cite{isocxx11} language, as it makes heavy use of recent features such as
-move semantics, type inference through \texttt{decltype(\dots)} and variadic templates.
-As a consequence it requires a compatible C++ compiler for the native code
+The last step involves a template library, called \texttt{pythonic} that 
+contains a polymorphic implementation of many functions from the Python standard
+library in the form of C++ template functions. Several optimizations, most
+notably using expression template, are delegated to this library. Pythran relies
+on the C++11\cite{isocxx11} language, as it makes heavy use of recent features 
+such as move semantics, type inference through \texttt{decltype(\dots)} and 
+variadic templates.
+As a consequence it requires a C++11 compatible compiler for the native code
 generation. Boost.Python\cite{boostpython2007} is involved for the automatic
-Python-to-C++ boilerplate.  Generated C++ code is compatible with g++ 4.7.2 and
-clang++ 3.2.
+Python-to-C++ boilerplate. Generated C++ code is compatible starting with g++ 
+4.7.2 and clang++ 3.2.
 
 It is important to note that all Pythran analyses and optimizations are
 type-agnostic, i.e. they do not assume any type for the variables manipulated
-by the program. Type specialization is only done in the back-end, right before
-native code generation. Said otherwise, the Pythran compiler analyzes
-polymorphic functions and turns Python modules into C++ meta-programs.
+by the program. The generated C++ template is still type agnostic, the specialization occurs only by generating the template instanciation.
+Said otherwise, the Pythran compiler analyzes polymorphic functions and turns
+Python modules into C++ meta-programs.
 
-Figure\ref{fig:pythran-compiler} summarizes the compilation flow and the involved
-tools.
+Figure~\ref{fig:pythran-compiler} summarizes the compilation flow and the 
+involved tools.
 
 \begin{figure}
 
@@ -368,7 +374,7 @@ tools.
 \label{sec:analysis}
 
 A code analysis is a function that takes a part of the IR (or the whole
-module's IR) as input and returns aggregated high-level information. For
+module's IR) as an input and returns aggregated high-level information. For
 instance, a simple Pythran analysis called \texttt{Identifiers} gathers the set
 of all identifiers used throughout the program. This information is later used
 when the creation of new identifiers is required so that no conflict occurs
@@ -533,9 +539,10 @@ assignment. Using \texttt{U} to denote \textbf{use} and \texttt{D} to denote \te
 The fact that all paths finish by a \textbf{def} indicates that the last
 assignment can be removed (but not necessarily its right hand part that could
 have a side-effect). The fact that the last \textbf{use} is always preceded by
-a \textbf{def}taht only point to it indicates that these \textbf{def}s can
+a \textbf{def} that only point to it indicates that these \textbf{def}s can
 safely be renamed from \texttt{a} to \texttt{a}' (thus performing scalar
 renaming).
+% FIXME The scalar renaming part is unclear
 
 All the above analyses are used by the Pythran developer to build code
 transformations that improve the execution time of the generated code.
@@ -547,7 +554,8 @@ One of the benefits of translating Python code to C++ code is that it removes
 most of the dynamic lookups. It also unveils all the optimizations available at
 C++ level. For instance, a function call is quite costly in Python, which
 advocates in favor of using inlining. This transformation comes at no cost when
-using C++ as the back-end language, as the C++ compiler does it.
+using C++ as the back-end language, as the C++ compiler performs this 
+transformation triggered by fine tuned heuristics.
 
 However, there are some informations available at the Python level that cannot
 be recovered at the C++ level. For instance, Pythran uses functor with an
@@ -577,14 +585,14 @@ the (re) computation, as illustrated in the following code:
 \begin{lstlisting}
 def valid_conversion(n):
     # this map can be converted to imap
-    l = map(math.cos, range(n))
+    L = map(math.cos, range(n))
     return sum(l) # sum iterates once on its input
 
 def invalid_conversion(n):
     # this map cannot be converted to imap
-    l = map(math.cos, range(n))
-    l[0] = 1  # invalid assignment
-    return sum(l) + max(l) # sum iterates once
+    L = map(math.cos, range(n))
+    L[0] = 1  # invalid assignment if converted to imap
+    return sum(L) + max(L) # two iterations over L prevents imap transformation
 \end{lstlisting}
 
 The information concerning constant expressions is used to perform a classical
@@ -766,17 +774,17 @@ directives attached to the code, that describe parallel loops and parallel code
 sections in a shared memory model.
 
 Pythran makes this directives available at the Python level through string
-instructions. The semantic is roughly similar to the original semantics,
-assuming that all variables have function level scope.
+instructions. The semantic is roughly similar to the semantics defined by the
+standard, assuming that all variables have function-level scope.
 
-The following listing gives a simple example of explicit loop-based
-parallelism.  OpenMP 3.0 task-based parallelism form is also supported, the
+The following listing gives a simple example of explicit loop-based 
+parallelism. OpenMP 3.0 task-based parallelism form is also supported, the
 interested reader may refer to~\cite{pyhpc2013} for more details.
 
 \begin{lstlisting}
 def pi_estimate(darts):
     hits = 0
-    #omp parallel for reduction(+:hits)"
+    "#omp parallel for reduction(+:hits)"
     for i in xrange(darts):
         x,y = random(), random()
         dist = sqrt(pow(x, 2) + pow(y, 2))
@@ -800,8 +808,8 @@ optimizers: Numba, PyPy, ShedSkin and numexpr.
 \label{sec:benchmarks}
 
 
-All benchmarks presented in this section are ran on an hyper-threaded quad-core
-i7, using examples shipped along Pythran sources, available at
+All benchmarks presented in this section are run on an hyper-threaded quad-core
+i7, using examples shipped along with Pythran sources, available at
 https://github.com/serge-sans-paille/pythran in the \texttt{pythran/test/cases}
 directory. The Pythran version used is the \texttt{HEAD} of the \texttt{scipy2013} branch,
 ShedSkin 0.9.2, PyPy 2.0 compiled with the \texttt{-jit} flag, CPython 2.7.3, Cython
@@ -815,10 +823,10 @@ binary, one needs to rewrite the original code, while all the considered tools
 are running the very same Python code that remains compatible with CPython. The
 experiment was only done to have a comparison with Numexpr.
 
-Pystone is a Python translation of whetstone, a famous floating point number
+Pystone is a Python translation of Whetstone, a famous floating point number
 benchmarks that dates back to Algol60 and the 70's. Although non representative
 of real applications, it illustrates the general performance of floating point
-number manipulations. Table \ref{tbl:pystone}  illustrates the benchmark
+number manipulations. Table~\ref{tbl:pystone}  illustrates the benchmark
 result for CPython, PyPy, ShedSkin and Pythran, using an input value of
 \texttt{10**3}. Note that the original version has been updated to replace the user
 class by a function call.
@@ -850,7 +858,7 @@ shared pointers.
 
 Nqueen is a benchmark extracted from the former Unladen Swallow\footnote{\url{http://code.google.com/p/unladen-swallow/}} project. It
 is particularly interesting as it makes an intensive use of non-trivial
-generator expressions and integer sets. Table\ref{tbl:nqueen} illustrates
+generator expressions and integer sets. Table~\ref{tbl:nqueen} illustrates
 the benchmark results for CPython, PyPy, ShedSkin and Pythran. The code had to
 be slightly updated to run with ShedSkin because type inference in ShedSkin does
 not support mixed scalar and \textbf{None} variables. The input value is \texttt{9}.
@@ -885,7 +893,7 @@ Hyantes\footnote{\url{http://hyantes.gforge.inria.fr}} is a geomatic application
 using loops instead of generalized expressions. It is helpful to measure the
 performance of direct array indexing.
 
-Table\ref{tbl:hyantes} illustrates the benchmark result for CPython, PyPy,
+Table~\ref{tbl:hyantes} illustrates the benchmark result for CPython, PyPy,
 ShedSkin and Pythran, when using lists as the data container. The output window
 used is \texttt{100x100}.
 
@@ -913,7 +921,7 @@ usage of trigonometric functions, and there is not much gain there. Second, and
 most important, the benchmark produces a big 2D array stored as a list of list,
 so the application suffers from the heavy overhead of converting them from C++
 to Python. Running the same benchmark using Numpy arrays as core containers
-confirms this assumption, as illustrated by Table \ref{tbl:np-hyantes}. This
+confirms this assumption, as illustrated by Table~\ref{tbl:np-hyantes}. This
 table also demonstrates the benefits of manual parallelization using OpenMP.
 
 
@@ -953,9 +961,9 @@ def arc_distance(theta_1, phi_1, theta_2, phi_2):
 \end{lstlisting}
 
 
-Table \ref{tbl:arc-distance} illustrates the benchmark result for CPython,
+Table~\ref{tbl:arc-distance} illustrates the benchmark result for CPython,
 Cython, Numexpr and Pythran, using random input arrays of \texttt{10**6} elements.
-Table \ref{tbl:arc-distance-2} details the Pythran performance. Cython code
+Table~\ref{tbl:arc-distance-2} details the Pythran performance. Cython code
 is written using the \texttt{parallel.prange} feature and compiled with
 \texttt{-fopenmp -O2 -march=native}.
 
@@ -986,7 +994,7 @@ is written using the \texttt{parallel.prange} feature and compiled with
     Speedup&    x1.03      &    x2.54       &    x4.67       &  x11.23         \\
     \hline
 \end{tabular}
-\caption{Benchmarking result on the arc distance kernel, Pythran details.}
+\caption{Detailed benchmarking result on the arc distance kernel for Pythran.}
 \label{tbl:arc-distance-2}
 \end{table}
 
@@ -995,21 +1003,21 @@ certainly because the loop control overhead is negligible in front of the
 trigonometric functions. It gets a decent x2.5 speed-up when using AVX over not
 using it. The benefit of OpenMP, although related to the number of cores, makes
 a whole speedup greater than x11 over the original Numpy version, without
-changing the input code. Quite the opposite, Numexpr requires rewriting the input
-and does not achieve the same level of performance as Pythran when OpenMP and
-AVX are combined.
+changing the input code. Almost on the opposite, Numexpr requires rewriting the 
+input and does not achieve the same level of performance as Pythran when OpenMP
+and AVX are combined.
 
 Writing efficient Cython code requires more work than just typing the variable
 declarations using Cython's specific syntax: it only takes advantage of
 parallelism because we made it explicit. Without explicit parallelization,
 the generated code runs around 176ms instead of 36ms. Cython does not generate
-vectorized code, and \texttt{gcc} does not vectorize the inner loop, which explains
-the better result obtained with Pythran.
+vectorized code, and \texttt{gcc} does not vectorize the inner loop, which 
+explains the better result obtained with Pythran.
 
 \section{Future Work}
 
 Although Pythran focuses on a subset of Python and its standard library, many
-optimizations opportunities are still possible. Using as Domain Specific
+optimizations opportunities are still possible. Using a Domain Specific
 Language(DSL) approach, one could use rewriting rules to optimize several
 Python idioms. For instance, \texttt{len(set(x))} could lead to an optimized
 \texttt{count\_uniq} that would iterate only once on the input sequence.

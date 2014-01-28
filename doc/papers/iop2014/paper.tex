@@ -422,7 +422,7 @@ instance in the following snippet:
 def outer(outer_argument):
     def inner(inner_argument):
         return cos(outer_argument) + inner_argument
-        return inner(3)
+    return inner(3)
 \end{lstlisting}
 
 The \texttt{Globals} analysis called on the \texttt{inner} function definition
@@ -557,7 +557,7 @@ advocates in favor of using inlining. This transformation comes at no cost when
 using C++ as the back-end language, as the C++ compiler performs this 
 transformation triggered by fine tuned heuristics.
 
-However, there are some informations available at the Python level that cannot
+However, there are some information available at the Python level that cannot
 be recovered at the C++ level. For instance, Pythran uses functor with an
 internal state and a goto dispatch table to represent generators. Although
 effective, this approach is not very efficient, especially for trivial cases.

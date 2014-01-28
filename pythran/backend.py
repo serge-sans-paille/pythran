@@ -116,10 +116,10 @@ class Cxx(Backend):
                 if func in acc:
                     del self.callees[node][func]
                 else:
-                    navigate_graph(acc + [node], func)
+                    navigate_graph(acc + [func], func)
 
         for node in self.callees.keys():
-            navigate_graph([], node)
+            navigate_graph([node], node)
 
 
     def get_globals_changed(self, node):

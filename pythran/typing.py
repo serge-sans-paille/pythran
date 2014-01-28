@@ -273,18 +273,18 @@ class Callees(TypeDependencies):
     Gathers all the functions called inside each function, and list the
     list of arguments whit which they are called
 
-    >>> import ast, passmanager, typing
+    >>> import ast, passmanager
     >>> pm = passmanager.PassManager('test')
     >>> source = '''
     ... def b(z):
     ...     global y
     ...     y = z
     ... def a(x):
-    >>>     b(x)
-    >>> '''
+    ...     b(x)
+    ... '''
     >>> gbs = ast.parse(source)
-    >>> res = pm.gather(typing.Callees, gbs)
-    >>> '''Id of the first Arg of the first call of b in a'''
+    >>> res = pm.gather(Callees, gbs)
+    >>> #Id of the first Arg of the first call of b in a
     >>> res[gbs.body[1]][gbs.body[0]][0][0].id
     'x'
     """

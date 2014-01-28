@@ -208,7 +208,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
         mod.add_to_preamble([Include("pythonic/python/core.hpp")])
         mod.add_to_preamble([Include("pythonic/python/export.hpp")])
         mod.add_to_preamble(map(Include, _extract_specs_dependencies(specs)))
-        
+
         for func_name, signatures in specs.iteritems():
             for sigid, signature in enumerate(signatures):
                 if len(signatures) == 1:

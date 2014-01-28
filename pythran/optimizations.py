@@ -46,9 +46,13 @@ class ConstantFolding(Transformation):
 
         for module, val in self.imports.iteritems():
             if "from" in val:
+                if val["from"] == "operator_":
+                    val["from"] = "operator"
                 self.env[module] = __import__(val["from"], {}, {},
                                               [val["file"]])
             else:
+                if val["file"] == "operator_":
+                    val["file"] = "operator"
                 self.env[module] = __import__(val["file"])
 
         try:

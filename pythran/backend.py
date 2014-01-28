@@ -135,7 +135,7 @@ class Cxx(Backend):
             def a(x):
                 b(x)
 
-            getGlobalsChanged(function def of 'a') will return set([y]).
+            get_globals_vhanged(function def of 'a') will return set([y]).
         """
         #First the globals changed directly
         globals_changed = [set(self.types[node][2].keys())]
@@ -188,7 +188,8 @@ class Cxx(Backend):
         default_global_types = (
             [Statement("template<class combiner, class or_type> or_type "
                        "{0}_global_type(...){{}}"
-                       .format(node.name)) for node in self.functions]
+                       .format(node.name)) for node in self.functions
+             if self.get_globals_changed(node)]
         )
 
         #generate global variables declared in the module

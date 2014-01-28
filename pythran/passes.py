@@ -231,9 +231,10 @@ class ExtractTopLevelStmts(Transformation):
                                [])
 
         # Make all the variables global
-        locs = self.passmanager.gather(Locals, init)
-        gb_decl = ast.Global(list(locs[init.body[-1]]))
-        init.body.insert(0, gb_decl)
+        if len(init.body) > 0:
+            locs = self.passmanager.gather(Locals, init)
+            gb_decl = ast.Global(list(locs[init.body[-1]]))
+            init.body.insert(0, gb_decl)
 
         module_body.append(init)
         node.body = module_body

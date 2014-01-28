@@ -327,7 +327,6 @@ class Locals(ModuleAnalysis):
         if self.nesting:
             self.add_local(node.name)
         self.nesting += 1
-        self.add_local(node.name)
         self.handle_locals(node)
         #Store attributes to restore them after handling function body
         saved_locals = self.locals.copy()

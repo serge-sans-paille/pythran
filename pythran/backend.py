@@ -191,7 +191,9 @@ class Cxx(Backend):
 
     # local declaration processing
     def process_locals(self, node, node_visited, *skipped):
-        locals = self.scope[node].difference(skipped)
+        #Scope can also reach globals if they're assigned, so ensure it's a
+        # local
+        locals = self.scope[node].difference(skipped) & self.local_names
         if not locals or self.yields:
             return node_visited  # no processing
 

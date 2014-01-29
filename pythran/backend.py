@@ -270,11 +270,11 @@ class Cxx(Backend):
                     ", ".join(formal_types)) if formal_types else "")
 
             operator_body.append(
-                Statement("{0}: return result_type();".format(
+                Statement("{0}: return;".format(
                     Cxx.final_statement)))
 
             next_declaration = [
-                FunctionDeclaration(Value("result_type", "next"), []),
+                FunctionDeclaration(Value("void", "next"), []),
                 EmptyStatement()]  # empty statement to force a comma ...
 
             # the constructors
@@ -353,10 +353,7 @@ class Cxx(Backend):
                     ]
             next_signature = templatize(
                     FunctionDeclaration(
-                        Value(
-                            "typename {0}::result_type".format(
-                                instanciated_next_name),
-                            "{0}::next".format(instanciated_next_name)),
+                        Value("void", instanciated_next_name + "::next"),
                         []),
                     formal_types)
 
@@ -541,9 +538,7 @@ class Cxx(Backend):
         num, label = self.yields[node]
         return "".join(n for n in Block([
             Assign(Cxx.generator_state_holder, num),
-            ReturnStatement("{0} = {1}".format(
-                Cxx.generator_state_value,
-                self.visit(node.value))),
+            Assign(Cxx.generator_state_value, self.visit(node.value)),
             Statement("{0}:".format(label))
             ]).generate())
 
@@ -947,7 +942,10 @@ class Cxx(Backend):
             arg = (self.visit(nfield) if nfield
                     else 'pythonic::__builtin__::None')
             args.append(arg)
-        return "pythonic::types::slice({},{},{})".format(*args)
+        if node.step is None or type(node.step) is ast.Num and node.step.n == 1:
+            return "pythonic::types::contiguous_slice({},{})".format(*args[0:2])
+        else:
+            return "pythonic::types::slice({},{},{})".format(*args)
 
     def visit_Index(self, node):
         return self.visit(node.value)

@@ -26,14 +26,14 @@ namespace pythonic {
         /* forward declaration */
         struct empty_list;
         template<class T> class list;
-        template<class T> class list_view;
+        template<class T, class S> class sliced_list;
 
         /* for type disambiguification */
         struct single_value {};
 
         /* list view */
-        template<class T>
-            class list_view {
+        template<class T, class S=slice>
+            class sliced_list {
 
                 // data holder
                 typedef  typename std::remove_cv< typename std::remove_reference<T>::type>::type  _type;
@@ -43,7 +43,7 @@ namespace pythonic {
                 template<class U>
                     friend class list;
 
-                normalized_slice slicing;
+                typename S::normalized_type slicing;
 
                 public:
                 //  types
@@ -61,15 +61,15 @@ namespace pythonic {
                 typedef typename container_type::const_reverse_iterator const_reverse_iterator;
 
                 // constructor
-                list_view(): data(utils::no_memory()) {}
-                list_view(list_view<T> const & s): data(s.data), slicing(s.slicing) {}
-                list_view(list<T> & other, slice const & s) : data(other.data), slicing(s.normalize(other.size())) {}
+                sliced_list(): data(utils::no_memory()) {}
+                sliced_list(sliced_list<T,S> const & s): data(s.data), slicing(s.slicing) {}
+                sliced_list(list<T> & other, S const & s) : data(other.data), slicing(s.normalize(other.size())) {}
 
                 // assignment
-                list_view& operator=(list<T> const & );
-                list_view& operator=(list_view<T> const & );
+                sliced_list& operator=(list<T> const & );
+                sliced_list& operator=(sliced_list<T,S> const & );
                 list<T> operator+(list<T> const & );
-                list<T> operator+(list_view<T> const & );
+                list<T> operator+(sliced_list<T,S> const & );
 
                 // iterators
                 iterator begin() { assert(slicing.step==1) ; return data->begin()+slicing.lower; }
@@ -104,8 +104,8 @@ namespace pythonic {
                 typedef std::vector< _type > container_type;
                 utils::shared_ref<container_type> data; 
 
-                template<class U>
-                    friend class list_view;
+                template<class U, class S>
+                    friend class sliced_list;
 
                 template<class U>
                     friend class list;
@@ -150,7 +150,8 @@ namespace pythonic {
                         tuple_dump(t, *this, int_<sizeof...(Types)-1>());
                     }
 #endif
-                list(list_view<T> const & other) : data( other.begin(), other.end()) {}
+                template<class S>
+                list(sliced_list<T,S> const & other) : data( other.begin(), other.end()) {}
 
                 list<T>& operator=(list<T> && other) {
                     data=std::move(other.data);
@@ -165,7 +166,8 @@ namespace pythonic {
                     return *this;
                 }
 
-                list<T>& operator=(list_view<T> const & other) {
+                template<class S>
+                list<T>& operator=(sliced_list<T,S> const & other) {
                     if(other.data == data ) {
                         auto it = std::copy(other.begin(), other.end(), data->begin());
                         data->resize(it - data->begin());
@@ -175,12 +177,14 @@ namespace pythonic {
                     }
                     return *this;
                 }
-                list<T>& operator+=(list_view<T> const & other) {
+                template<class S>
+                list<T>& operator+=(sliced_list<T,S> const & other) {
                     data->resize(data->size() + other.size());
                     std::copy(other.begin(), other.end(), data->begin());
                     return *this;
                 }
-                list<T> operator+(list_view<T> const & other) const {
+                template<class S>
+                list<T> operator+(sliced_list<T,S> const & other) const {
                     list<T> new_list(begin(), end());
                     new_list.reserve(data->size() + other.size());
                     std::copy(other.begin(), other.end(), std::back_inserter(new_list));
@@ -260,9 +264,19 @@ namespace pythonic {
                         out[i] = (*data)[norm.lower + i * norm.step];
                     return out;
                 }
+                list<T> operator[]( contiguous_slice const &s ) const {
+                    contiguous_normalized_slice norm = s.normalize(size());
+                    list<T> out(norm.size());
+                    for(long i = 0; i < out.size() ; i++)
+                        out[i] = (*data)[norm.lower + i];
+                    return out;
+                }
 
-                list_view<T> operator()( slice const &s) const {
-                    return list_view<T>(*const_cast<list<T>*>(this), s); // SG: ugly !
+                sliced_list<T,slice> operator()( slice const &s) const {
+                    return sliced_list<T,slice>(*const_cast<list<T>*>(this), s); // SG: ugly !
+                }
+                sliced_list<T,contiguous_slice> operator()( contiguous_slice const &s) const {
+                    return sliced_list<T,contiguous_slice>(*const_cast<list<T>*>(this), s); // SG: ugly !
                 }
 
                 // modifiers
@@ -307,9 +321,9 @@ namespace pythonic {
                         return clone;
                     }
 
-                template <class F>
-                    list<decltype(std::declval<T>()+std::declval<typename list_view<F>::value_type>())> operator+(list_view<F> const & s) const {
-                        list<decltype(std::declval<T>()+std::declval<typename list_view<F>::value_type>())> clone(data->size()+len(s));
+                template <class F, class S>
+                    list<decltype(std::declval<T>()+std::declval<typename sliced_list<F,S>::value_type>())> operator+(sliced_list<F,S> const & s) const {
+                        list<decltype(std::declval<T>()+std::declval<typename sliced_list<F,S>::value_type>())> clone(data->size()+len(s));
                         std::copy(s.begin(), s.end(), std::copy(begin(), end(), clone.begin()));
                         return clone;
                     }
@@ -348,9 +362,9 @@ namespace pythonic {
             };
 
 
-        /* list_view implementation */
-        template<class T>
-            inline list_view<T>& list_view<T>::operator=(list_view<T> const & s) {
+        /* sliced_list implementation */
+        template<class T,class S>
+            inline sliced_list<T,S>& sliced_list<T,S>::operator=(sliced_list<T,S> const & s) {
                 slicing=s.slicing;
                 if(data != s.data) {
                     data=s.data;
@@ -358,8 +372,8 @@ namespace pythonic {
                 return *this;
             }
 
-        template<class T>
-            list_view<T>& list_view<T>::operator=(list<T> const & seq) {
+        template<class T, class S>
+            sliced_list<T,S>& sliced_list<T,S>::operator=(list<T> const & seq) {
                 if( slicing.step == 1) {
                     data->erase(begin(), end());
                     data->insert(begin(), seq.begin(), seq.end());
@@ -369,14 +383,14 @@ namespace pythonic {
                 }
                 return *this;
             }
-        template<class T>
-            list<T> list_view<T>::operator+(list<T> const & s) {
+        template<class T, class S>
+            list<T> sliced_list<T,S>::operator+(list<T> const & s) {
                 list<T> out(size() + s.size());
                 std::copy(s.begin(), s.end(), std::copy(begin(), end(), out.begin()));
                 return out;
             }
-        template<class T>
-            list<T> list_view<T>::operator+(list_view<T> const & s) {
+        template<class T,class S>
+            list<T> sliced_list<T,S>::operator+(sliced_list<T,S> const & s) {
                 list<T> out(size() + s.size());
                 std::copy(s.begin(), s.end(), std::copy(begin(), end(), out.begin()));
                 return out;
@@ -392,8 +406,8 @@ namespace pythonic {
             typedef empty_iterator const_iterator;
             template<class T>
                 list<T> operator+(list<T> const & s) const { return s; }
-            template<class T>
-                list_view<T> operator+(list_view<T> const & s) const { return s; }
+            template<class T, class S>
+                sliced_list<T,S> operator+(sliced_list<T,S> const & s) const { return s; }
             empty_list operator+(empty_list const &) const { return empty_list(); }
             operator bool() const { return false; }
             template<class T>
@@ -513,8 +527,8 @@ struct __combined<pythonic::types::list<T0>, pythonic::types::list<T1>> {
 #ifdef ENABLE_PYTHON_MODULE
 
 #include "pythonic/python/register_once.hpp"
+#include "pythonic/python/extract.hpp"
 #include <boost/python/numeric.hpp>
-#include <boost/python/extract.hpp>
 #include <boost/python/object.hpp>
 
 namespace pythonic {
@@ -556,20 +570,21 @@ namespace pythonic {
             static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
                 void* storage=((boost::python::converter::rvalue_from_python_storage<types::list<T> >*)(data))->storage.bytes;
                 boost::python::extract<boost::python::numeric::array> extractor(obj_ptr);
-                types::list<T>& v=*(types::list<T>*)(storage);
+                types::list<T>& v = *(types::list<T>*)(storage);
                 if(extractor.check()) {
                     Py_ssize_t l=PySequence_Size(obj_ptr);
                     new (storage) types::list<T>(l);
                     boost::python::numeric::array data = extractor;
+                    auto iter = v.begin();
                     for(Py_ssize_t i=0; i<l; i++)
-                        v[i]=boost::python::extract<T>(data[i]);
+                        *iter++ = boost::python::extract<T>(data[i]);
                 }
                 else {
                     Py_ssize_t l=PySequence_Fast_GET_SIZE(obj_ptr);
                     new (storage) types::list<T>(l);
                     PyObject** core = PySequence_Fast_ITEMS(obj_ptr);
-                    for(Py_ssize_t i=0; i<l; i++)
-                        v[i]=boost::python::extract<T>(*core++);
+                    for(auto& iter:v)
+                        iter = extract<T>(*core++);
                 }
                 data->convertible=storage;
             }

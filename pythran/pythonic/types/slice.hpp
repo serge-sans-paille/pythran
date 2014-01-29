@@ -23,6 +23,7 @@ namespace pythonic {
         };
 
         struct slice {
+            typedef normalized_slice normalized_type;
             none<long> lower, upper, step;
             slice(none<long> lower, none<long> upper, none<long> step = 1)
                 : lower(lower), upper(upper), step(step) {}
@@ -57,6 +58,55 @@ namespace pythonic {
             {
                 assert( not upper.is_none and not lower.is_none and not step.is_none );
                 return std::max(0L, long(ceil(double(upper - lower)/double(step))));
+            }
+        };
+
+        struct contiguous_normalized_slice {
+            long lower, upper;
+            static const long step = 1;
+            contiguous_normalized_slice() {}
+            contiguous_normalized_slice(long lower, long upper)
+                : lower(lower), upper(upper) {}
+
+            long size() const
+            {
+                return std::max(0L, long(ceil(double(upper - lower))));
+            }
+        };
+
+        struct contiguous_slice {
+            typedef contiguous_normalized_slice normalized_type;
+            none<long> lower, upper;
+            static const long step = 1;
+            contiguous_slice(none<long> lower, none<long> upper)
+                : lower(lower), upper(upper) {}
+            contiguous_slice(){}
+
+            /*
+               Normalize change a[:-1] to a[:len(a)-1] to have positif index.
+               It also check for value bigger than len(a) to fit the size of the container
+               */
+            contiguous_normalized_slice normalize(long max_size) const
+            {
+                long normalized_upper;
+                if(upper.is_none) normalized_upper = max_size;
+                else if(upper<0L) normalized_upper = std::max(-1L, max_size + upper);
+                else if(upper> max_size) normalized_upper = max_size;
+                else normalized_upper = (long)upper;
+
+                long normalized_lower = (long)lower;
+                if(lower.is_none) normalized_lower = 0L;
+                else if(lower <0L) normalized_lower = std::max(0L, max_size + lower);
+                else if(lower > max_size) normalized_lower = max_size - 1L;
+                else normalized_lower = (long)lower;
+
+                return contiguous_normalized_slice(normalized_lower, normalized_upper);
+            }
+
+            long size() const
+            {
+                assert(not upper.is_none and not lower.is_none);
+                return std::max(0L, long(ceil(double(upper - lower))));
             }
         };
     }

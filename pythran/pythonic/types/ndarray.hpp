@@ -699,8 +699,8 @@ we assume that M>=N
 
         /* proxy type to hold the return of a slice
         */
-        template<class T>
-            struct sliced_ndarray : normalized_slice {
+        template<class T, class S=slice>
+            struct sliced_ndarray : S::normalized_type {
                 static constexpr size_t value = T::value;
                 typedef typename T::value_type value_type;
                 typedef typename T::reference reference;
@@ -712,31 +712,36 @@ we assume that M>=N
 
                 sliced_ndarray() {}
 
-                sliced_ndarray(T const& data, slice const& s) : normalized_slice(s.normalize(data.shape[0])), shape(data.shape), data(data) {
-                    shape[0] = normalized_slice::size();
-                    jump = 1;
+                sliced_ndarray(T const& data, S const& s) : S::normalized_type(s.normalize(data.shape[0])), shape(data.shape), data(data) {
+                    shape[0] = S::normalized_type::size();
+                    jump = S::normalized_type::lower;
                     for(size_t i=1;i<value; ++i)
                         jump*=shape[i];
                 }
 
+#ifdef USE_BOOST_SIMD
+                auto load(long i) const -> decltype(data.load(i)) {
+                    return data.load(jump + i); // FIXME
+                }
+#endif
                 auto at(long i) const -> decltype(data.at(0)) {
-                    return data.at(jump*lower+i*step);
+                    return data.at(jump + i * S::normalized_type::step);
                 }
                 long size() const { return (data.size() / data.shape[0]) * shape[0] ; }
-                reference operator[](long i) { return data[jump*lower+i*step]; }
-                const_reference operator[](long i) const { return data[jump*lower+i*step]; }
+                reference operator[](long i) { return data[jump+i*S::normalized_type::step]; }
+                const_reference operator[](long i) const { return data[jump+i*S::normalized_type::step]; }
 
-                sliced_ndarray<T> operator[](slice const& s) const {
-                    normalized_slice norm = s.normalize(normalized_slice::size());
-                    return sliced_ndarray(data, slice(lower + step*norm.lower, lower + step*norm.upper, step*norm.step));
+                sliced_ndarray<T,S> operator[](slice const& s) const {
+                    S norm = s.normalize(S::normalized_type::size());
+                    return sliced_ndarray(data, slice(S::normalized_type::lower + S::normalized_type::step*norm.lower, S::normalized_type::lower + S::normalized_type::step*norm.upper, S::normalized_type::step*norm.step));
                 }
-                sliced_ndarray<T> operator[](slice const& s) {
-                    normalized_slice norm = s.normalize(normalized_slice::size());
-                    return sliced_ndarray(data, slice(lower + step*norm.lower, lower + step*norm.upper, step*norm.step));
+                sliced_ndarray<T,S> operator[](slice const& s) {
+                    S norm = s.normalize(S::normalized_type::size());
+                    return sliced_ndarray(data, slice(S::normalized_type::lower + S::normalized_type::step*norm.lower, S::normalized_type::lower + S::normalized_type::step*norm.upper, S::normalized_type::step*norm.step));
                 }
 
-                sliced_ndarray<T>& operator=(sliced_ndarray<T> const& v) {
-                    normalized_slice::operator=(v);
+                sliced_ndarray<T,S>& operator=(sliced_ndarray<T,S> const& v) {
+                    S::normalized_type::operator=(v);
                     shape = v.shape;
                     jump = v.jump;
                     data = v.data;
@@ -744,46 +749,49 @@ we assume that M>=N
                 }
 
                 template<class E>
-                    typename std::enable_if<not is_array<E>::value, sliced_ndarray<T>&>::type operator=(E const& v) {
-                        for(long i =0; i<normalized_slice::size(); i++)
-                            data[lower + i * step] = v;
+                    typename std::enable_if<not is_array<E>::value, sliced_ndarray<T,S>&>::type operator=(E const& v) {
+                        for(long i =0; i<S::normalized_type::size(); i++)
+                            data[S::normalized_type::lower + i * S::normalized_type::step] = v;
                         return *this;
                     }
 
                 template<class E>
-                    typename std::enable_if< (value>1) and is_array<E>::value, sliced_ndarray<T>&>::type operator=(E const& v) {
-                        long slice = v.size()/normalized_slice::size();
-                        for(long i=0, j=0; i<normalized_slice::size(); i++)
+                    typename std::enable_if< (value>1) and is_array<E>::value, sliced_ndarray<T,S>&>::type operator=(E const& v) {
+                        long slice = v.size()/S::normalized_type::size();
+                        for(long i=0, j=0; i<S::normalized_type::size(); i++)
                             for(long k=0;k<slice; ++k, ++j)
-                                data[lower + i * step].at(k) = v.at(j);
+                                data[S::normalized_type::lower + i * S::normalized_type::step].at(k) = v.at(j);
                         return *this;
                     }
                 template<class E>
-                    typename std::enable_if<value==1 and is_array<E>::value, sliced_ndarray<T>&>::type operator=(E const& v) {
-#pragma omp parallel for if(normalized_slice::size() > 10000)
-                        for(long i=0; i<normalized_slice::size(); i++)
-                            data.at(lower + i * step) = v.at(i);
+                    typename std::enable_if<value==1 and is_array<E>::value, sliced_ndarray<T,S>&>::type operator=(E const& v) {
+                        long n =  S::normalized_type::size();
+#pragma omp parallel for if(S::normalized_type::size() > 10000)
+                        for(long i = 0 ; i < n ; ++i)
+                            data.at(S::normalized_type::lower + i * S::normalized_type::step) = v.at(i);
                         return *this;
                     }
 
-                sliced_ndarray<T>& operator+=(value_type v) {
-#pragma omp parallel for if(normalized_slice::size() > 10000)
-                    for(long i=0; i<normalized_slice::size(); i++)
-                        data.at(lower + i * step) += v;
+                sliced_ndarray<T,S>& operator+=(value_type v) {
+                    long n=S::normalized_type::size();
+#pragma omp parallel for if(S::normalized_type::size() > 10000)
+                    for(long i=0 ; i < n; i++)
+                        data.at(S::normalized_type::lower + i * S::normalized_type::step) += v;
                     return *this;
                 }
 
-                sliced_ndarray<T>& operator-=(value_type v) {
-#pragma omp parallel for if(normalized_slice::size() > 10000)
-                    for(long i=0; i<normalized_slice::size(); i++)
-                        data.at(lower + i * step) -= v;
+                sliced_ndarray<T,S>& operator-=(value_type v) {
+                    long n=S::normalized_type::size();
+#pragma omp parallel for if(S::normalized_type::size() > 10000)
+                    for(long i=0; i<n; i++)
+                        data.at(S::normalized_type::lower + i * S::normalized_type::step) -= v;
                     return *this;
                 }
                 template<class E>
-                    typename std::enable_if<is_numpy_expr<E>::value, numpy_fexpr<sliced_ndarray<T>, E> >::type
+                    typename std::enable_if<is_numpy_expr<E>::value, numpy_fexpr<sliced_ndarray<T,S>, E> >::type
                     operator[](E const & expr)
                     {
-                        return numpy_fexpr<sliced_ndarray<T>, E>(*this, expr);
+                        return numpy_fexpr<sliced_ndarray<T,S>, E>(*this, expr);
                     }
             };
 
@@ -957,8 +965,8 @@ we assume that M>=N
                 }
 
                 /* from a slice */
-                template<class E>
-                    ndarray(sliced_ndarray<E> const& expr):
+                template<class E, class S>
+                    ndarray(sliced_ndarray<E,S> const& expr):
                         data_size(expr.shape[0]),
                         mem(expr.size()),
                         buffer(mem->data),
@@ -1110,6 +1118,23 @@ we assume that M>=N
                     return (*this)[s];
                 }
 
+                sliced_ndarray<ndarray<T,N>, contiguous_slice> operator[](contiguous_slice const& s) const
+                {
+                    return sliced_ndarray<ndarray<T,N>, contiguous_slice>(*this, s);
+                }
+                sliced_ndarray<ndarray<T,N>, contiguous_slice> operator[](contiguous_slice const& s)
+                {
+                    return sliced_ndarray<ndarray<T,N>, contiguous_slice>(*this, s);
+                }
+                sliced_ndarray<ndarray<T,N>, contiguous_slice> operator()(contiguous_slice const& s) const
+                {
+                    return (*this)[s];
+                }
+                sliced_ndarray<ndarray<T,N>, contiguous_slice> operator()(contiguous_slice const& s)
+                {
+                    return (*this)[s];
+                }
+
                 /* by extended slice */
                 template<class S0, class S1, class...S>
                     gsliced_ndarray<ndarray<T,N>, count_slices<S0,S1,S...>::value, 2 + sizeof...(S) > operator()(S0 const& s0, S1 const& s1, S const&... s_) const
@@ -1226,10 +1251,10 @@ we assume that M>=N
                 typedef ndarray<T, N> type;
 
             };
-        template<class E>
-            struct numpy_expr_to_ndarray<sliced_ndarray<E>> {
-                typedef typename std::remove_cv<typename std::remove_reference< decltype(std::declval<sliced_ndarray<E>>().at(0)) >::type>::type T;
-                static const size_t N = std::tuple_size< typename std::remove_cv<typename std::remove_reference< decltype(std::declval<sliced_ndarray<E>>().shape) >::type > ::type > ::value;
+        template<class E, class S>
+            struct numpy_expr_to_ndarray<sliced_ndarray<E,S>> {
+                typedef typename std::remove_cv<typename std::remove_reference< decltype(std::declval<sliced_ndarray<E,S>>().at(0)) >::type>::type T;
+                static const size_t N = std::tuple_size< typename std::remove_cv<typename std::remove_reference< decltype(std::declval<sliced_ndarray<E,S>>().shape) >::type > ::type > ::value;
                 typedef ndarray<T, N> type;
 
             };
@@ -1312,8 +1337,8 @@ we assume that M>=N
             struct is_numexpr_arg<ndarray<T,N>> {
                 static constexpr bool value = true;
             };
-        template<class T>
-            struct is_numexpr_arg<sliced_ndarray<T>> {
+        template<class T, class S>
+            struct is_numexpr_arg<sliced_ndarray<T,S>> {
                 static constexpr bool value = true;
             };
         template<class T, size_t N>
@@ -1449,10 +1474,10 @@ namespace std {
     template <size_t i, class t, size_t n>
         auto get( pythonic::types::ndarray<t,n> const& a) -> decltype(a[i]) { return a[i]; }
 
-    template <size_t i, class t>
-        auto get( pythonic::types::sliced_ndarray<t>& a) -> decltype(a[i]) { return a[i]; }
-    template <size_t i, class t>
-        auto get( pythonic::types::sliced_ndarray<t> const& a) -> decltype(a[i]) { return a[i]; }
+    template <size_t i, class t, class s>
+        auto get( pythonic::types::sliced_ndarray<t,s>& a) -> decltype(a[i]) { return a[i]; }
+    template <size_t i, class t, class s>
+        auto get( pythonic::types::sliced_ndarray<t,s> const& a) -> decltype(a[i]) { return a[i]; }
 
     template <size_t i, class t, size_t n>
         auto get( pythonic::types::indexed_ndarray<t,n>& a) -> decltype(a[i]) { return a[i]; }
@@ -1472,8 +1497,8 @@ namespace std {
         struct tuple_element<I, pythonic::types::indexed_ndarray<T,N> > {
             typedef typename pythonic::types::ndarray<T,N>::value_type type;
         };
-    template <size_t I, class T>
-        struct tuple_element<I, pythonic::types::sliced_ndarray<T> > {
+    template <size_t I, class T, class S>
+        struct tuple_element<I, pythonic::types::sliced_ndarray<T,S> > {
             typedef typename T::value_type type;
         };
     template <size_t I, class Op, class Arg0, class Arg1>
@@ -1545,11 +1570,11 @@ namespace pythonic {
 {
     return pythonic::types::__ndarray::getattr<I,pythonic::types::numpy_expr<O,A0,A1>>()(f);
 }
-    template<int I, class E>
-    auto getattr(pythonic::types::sliced_ndarray<E> const& f)
--> decltype(pythonic::types::__ndarray::getattr<I,pythonic::types::sliced_ndarray<E>>()(f))
+    template<int I, class E, class S>
+    auto getattr(pythonic::types::sliced_ndarray<E,S> const& f)
+-> decltype(pythonic::types::__ndarray::getattr<I,pythonic::types::sliced_ndarray<E,S>>()(f))
 {
-    return pythonic::types::__ndarray::getattr<I,pythonic::types::sliced_ndarray<E>>()(f);
+    return pythonic::types::__ndarray::getattr<I,pythonic::types::sliced_ndarray<E,S>>()(f);
 }
     template<int I, class E, size_t N, size_t M>
     auto getattr(pythonic::types::gsliced_ndarray<E,N,M> const& f)
@@ -1798,17 +1823,17 @@ namespace pythonic {
             }
         };
 
-    template<class T>
+    template<class T, class S>
         struct custom_sliced_array_to_ndarray {
-            static PyObject* convert( types::sliced_ndarray<T> n) {
+            static PyObject* convert( types::sliced_ndarray<T,S> n) {
                 return custom_array_to_ndarray<typename T::dtype, T::value>().convert(n);
             }
         };
 
-    template<class T>
-        struct pythran_to_python< types::sliced_ndarray<T> > {
+    template<class T, class S>
+        struct pythran_to_python< types::sliced_ndarray<T,S> > {
             pythran_to_python() {
-                register_once< types::sliced_ndarray<T> , custom_sliced_array_to_ndarray<T> >();
+                register_once< types::sliced_ndarray<T,S> , custom_sliced_array_to_ndarray<T,S> >();
             }
         };
 }

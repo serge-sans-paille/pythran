@@ -16,7 +16,7 @@ from pythran.analysis import DeclaredGlobals
 from tables import operator_to_lambda, modules, type_to_suffix
 from tables import pytype_to_ctype_table
 from tables import pythran_ward
-from typing import Types, Callees
+from typing import Types, AcyclicCallees
 from syntax import PythranSyntaxError
 
 from openmp import OMPDirective
@@ -103,24 +103,7 @@ class Cxx(Backend):
         self.result = None
         super(Cxx, self).__init__(Dependencies,
                 GlobalDeclarations, BoundedExpressions, Types, ArgumentEffects,
-                DeclaredGlobals, Scope, Callees)
-
-    def trim_callees(self):
-        """Changes the results of the Callees analysis to remove all
-        cyclic dependencies"""
-        def navigate_graph(acc, node):
-            if node not in self.callees:
-                return
-
-            for func in self.callees[node].keys():
-                if func in acc:
-                    del self.callees[node][func]
-                else:
-                    navigate_graph(acc + [func], func)
-
-        for node in self.callees.keys():
-            navigate_graph([node], node)
-
+                DeclaredGlobals, Scope, AcyclicCallees)
 
     def get_globals_changed(self, node):
         """Gets the globals changed in the function or sub functions
@@ -141,10 +124,10 @@ class Cxx(Backend):
         globals_changed = [set(self.types[node][2].keys())]
         #Then the globals changed in the subfunctions:
         def navigate_graph(node):
-            if node not in self.callees:
+            if node not in self.acyclic_callees:
                 return
 
-            for func in self.callees[node].keys():
+            for func in self.acyclic_callees[node].keys():
                 globals_changed[0] |= set(self.types[func][2].keys())
                 navigate_graph(func)
 
@@ -159,9 +142,6 @@ class Cxx(Backend):
             return "/".join(("pythonic",) + t) + ".hpp"
         headers = map(Include,
             sorted(map(gen_include, self.dependencies)))
-
-        #Change results of Callees analysis
-        self.trim_callees()
 
         # remove top-level strings
         fbody = (n for n in node.body if not isinstance(n, ast.Expr))
@@ -643,11 +623,11 @@ class Cxx(Backend):
         combiner = NamedType("or_type")  # Default combiner
         direct_global_changes = self.types[node][2]
 
-        if not (node in self.callees):
-            self.callees[node] = {}
+        if not (node in self.acyclic_callees):
+            self.acyclic_callees[node] = {}
 
         #Check if sub functions changes the global gb
-        for callee, calls in self.callees[node].items():
+        for callee, calls in self.acyclic_callees[node].items():
             if gb not in self.get_globals_changed(callee):
                 continue
             #The sub function does change the global gb
@@ -663,8 +643,8 @@ class Cxx(Backend):
         #separate into 2 typedefs because the first expression may have
         # 'or_global_type' in it and then gcc is not happy (but clang is)
         or_typedefs = \
-            [Typedef(Value(combiner.generate(ctx), "dummy_or_global_type")),
-             Typedef(Value("dummy_or_global_type", "or_global_type"))]
+            [Struct("dummy",[Typedef(Value(combiner.generate(ctx), "type"))]),
+             Typedef(Value("typename dummy::type", "or_global_type"))]
 
 
         if gb in direct_global_changes:
@@ -678,7 +658,7 @@ class Cxx(Backend):
 
         #the iterable dict is a <global_name, node> assocation
         decl = Struct("combiner_"+gb, [templatize(
-            Struct("type", [or_typedef, typedef]),
+            Struct("type", or_typedefs + [typedef]),
             [NamedType("or_type")] + formal_types,
             [None] + default_arg_types
         )])

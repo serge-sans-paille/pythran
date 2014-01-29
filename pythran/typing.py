@@ -111,10 +111,10 @@ class TypeDependencies(ModuleAnalysis):
 
     NoDeps = "None"
 
-    def __init__(self):
+    def __init__(self, *deps):
         self.result = nx.DiGraph()
         self.current_function = None
-        ModuleAnalysis.__init__(self, GlobalDeclarations)
+        super(TypeDependencies, self).__init__(GlobalDeclarations, *deps)
 
     def prepare(self, node, ctx):
         super(TypeDependencies, self).prepare(node, ctx)
@@ -288,14 +288,14 @@ class Callees(TypeDependencies):
     >>> res[gbs.body[1]][gbs.body[0]][0][0].id
     'x'
     """
-    def __init__(self):
+    def __init__(self, *deps):
         self.recursion = False
         #In addition to creating the call graph between functions, we also remember
         #with which arguments the functions were called.
         #
         #self.args[function_node][called_function] = [[arg1, arg2], [arg1', arg2'],???] ]
         self.args = {}
-        TypeDependencies.__init__(self)
+        super(Callees, self).__init__(*deps)
 
     def visit(self, node):
         """
@@ -340,13 +340,40 @@ class Callees(TypeDependencies):
         super(Callees, self).run(node, ctx)
         return self.args
 
+
+class AcyclicCallees(Callees):
+    """Same as Callees but arbirtrarily breaks cycles if there are some
+    in the call graph"""
+    def __init__(self):
+        super(AcyclicCallees, self).__init__(Callees)
+
+    def trim_callees(self):
+        """Changes the results of the Callees analysis to remove all
+        cyclic dependencies"""
+        def navigate_graph(acc, node):
+            if node not in self.callees:
+                return
+
+            for func in self.callees[node].keys():
+                if func in acc:
+                    del self.callees[node][func]
+                else:
+                    navigate_graph(acc + [func], func)
+
+        for node in self.callees.keys():
+            navigate_graph([node], node)
+
+    def run(self, node, ctx):
+        super(AcyclicCallees, self).run(node, ctx)
+        self.trim_callees()
+        return self.callees
+
 class Reorder(Transformation):
     '''
     Reorder top-level functions to prevent circular type dependencies
     '''
     def __init__(self):
-        Transformation.__init__(self, TypeDependencies,
-                OrderedGlobalDeclarations)
+        super(Reorder, self).__init__(TypeDependencies, AcyclicCallees)
 
     def prepare(self, node, ctx):
         super(Reorder, self).prepare(node, ctx)
@@ -379,20 +406,44 @@ class Reorder(Transformation):
                 olddef.append(stmt)
             else:
                 newbody.append(stmt)
-            try:
-                newdef = (f for f in nx.topological_sort(
-                    self.type_dependencies,
-                    self.ordered_global_declarations
-                    ))
-                newdef = [f for f in newdef if isinstance(f, ast.FunctionDef)]
 
-            except nx.exception.NetworkXUnfeasible:
-                raise PythranSyntaxError("Infinite function recursion",
-                                        stmt)
+        newdef = self.get_sorted_nodes()
         assert set(newdef) == set(olddef)
         node.body = newbody + newdef
         return node
 
+    def get_sorted_nodes(self):
+        if not nx.is_directed_acyclic_graph(self.type_dependencies):
+            raise PythranSyntaxError("Infinite function recursion")
+
+        nodes = [x for x in self.type_dependencies.nodes()
+                 if isinstance(x, ast.FunctionDef)]
+
+        #Convert the acyclic_callees to an acyclic nx graph
+        ac_graph = nx.DiGraph()
+        [ac_graph.add_node(node) for node in nodes]
+        for k, v in self.acyclic_callees.iteritems():
+            [ac_graph.add_edge(k, c) for c in v.keys()]
+
+        ac_graph.reverse(False)
+        nodes = [f for f in nx.topological_sort(ac_graph)]
+
+        #Now we need to make sure that the order of self.type_dependencies is
+        # still enforced
+
+        #This is an ugly and inefficient way to do it, but usually the previous
+        # sort order is correct
+        done = False
+        while not done:
+            done = True
+            for i in range(len(nodes)):
+                for j in range(i):
+                    if nx.has_path(self.type_dependencies, nodes[i], nodes[j]):
+                        nodes.insert(j, nodes[i])
+                        nodes.pop(i+1)
+                    break
+
+        return nodes
 
 class UnboundableRValue(Exception):
     pass

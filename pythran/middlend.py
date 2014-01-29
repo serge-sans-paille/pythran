@@ -7,7 +7,7 @@ from passes import UnshadowParameters, NormalizeException, ExpandBuiltins
 from passes import NormalizeMethodCalls, NormalizeAttributes, FalsePolymorphism
 from passes import RemoveComprehension, RemoveNestedFunctions, ExpandImports
 from passes import NormalizeCompare, ExpandImportAll
-from optimizations import GenExpToImap, ListCompToMap, ListCompToGenexp, Pow2
+from optimizations import GenExpToImap, ListCompToMap, ListCompToGenexp
 
 
 def refine(pm, node, optimizations):

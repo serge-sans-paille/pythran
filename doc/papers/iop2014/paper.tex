@@ -46,18 +46,18 @@
 \authorinfo{Pierrick Brunet}
            {INRIA/MOAIS}
            {pierrick.brunet@inria.fr}
-\authorinfo{Alan Raynaud}
-           {T{\'e}l{\'e}com Bretagne}
-           {alan.raynaud@telecom-bretagne.eu}
 \authorinfo{Mehdi Amini}
            {SILKAN}
            {mehdi.amini@silkan.com}
 \authorinfo{Adrien Merlini}
            {T{\'e}l{\'e}com Bretagne}
            {adrien.merlini@telecom-bretagne.eu}
-\authorinfo{Eliott Coyac}
+\authorinfo{Xavier Corbillon}
            {T{\'e}l{\'e}com Bretagne}
-           {eliott.coyac@telecom-bretagne.eu}
+           {xavier.corbillon@telecom-bretagne.eu}
+\authorinfo{Alan Raynaud}
+           {T{\'e}l{\'e}com Bretagne}
+           {alan.raynaud@telecom-bretagne.eu}
 
 \maketitle
 
@@ -80,19 +80,13 @@
     % FIXME (phrase trop longuuuuuuuuue) 
     Template Toolbox (NT2) for Numpy support. It takes advantage of modern C++11
     features such as variadic templates, type inference, move semantics and
-    perfect forwarding, as well as classical ones such as expression templates.
-    % FIXME Expression template is not a "feature" of the language IMO
-    % It is more a classical "use" of the language
-    
+    perfect forwarding, as well as classical idioms such as expression templates.
 
     % FIXME  (explain that annotations can be added to the code?)
-    The input code remains compatible with the Python interpreter, and output
-    code is generally as efficient as the annotated Cython equivalent, if not
-    more, % FIXME (cut sentence) 
-    without the backward compatibility loss of Cython. Numpy expressions
-    run faster than when compiled with numexpr or numba, without any change to
-    the original code. 
-    % It may be a little too ... untactful?
+    Unlike the Cython approach , Pythran input code remains compatible with the
+    Python interpreter. Output code is generally as efficient as the annotated
+    Cython equivalent, if not more, but without the backward compatibility
+    loss.
 
 
 \end{abstract}
@@ -113,15 +107,14 @@ several scientific packages.
 
 However, the overhead of running a scientific application written in Python
 compared to the same algorithm written in a statically compiled language such
-as C is high, % FIXME cut sentence
-due to numerous dynamic lookup and interpretation cost inherent
-in high level languages. Additionally, the Python compiler does not perform
-optimization on the byte code, while scientific applications are first-class
-candidates for many of them.
+as C is high. % FIXME cut sentence It is partly due to the interpration cost,
+but also to Python's dynamic binding. Additionally, the Python compiler does
+not perform any optimization on the byte code, while scientific applications
+are first-class candidates for many of them.
 
 Since scientific applications are often told to spend 90\% of their time in
 10\% of the code, it is natural to focus on those computation-intensive pieces 
-of code. The aim % FIXME (of what) 
+of code. The goal of an optimizing compiler % FIXME (of what) 
 may not be to optimize the full Python application, but rather a subset of the application.
 
 Several tools have been developed by an active community to fill the performance
@@ -129,38 +122,36 @@ gap encountered when running these computation-intensive piece of code, either
 % FIXME after? (perfs issues are not on the compilation (except for...))
 through static compilation or Just In Time (JIT) compilation.
 
-One approach, used by Cython \cite{cython2010} is to suppress the interpretation
+One approach, used by Cython~\cite{cython2010} is to suppress the interpretation
 overhead by translating Python Programs to C programs calling the Python C
-API\cite{pythoncapi}. More recently, Nuitka\cite{nuitka}  has taken the same
+API~\cite{pythoncapi}. More recently, Nuitka~\cite{nuitka}  has taken the same
 approach using C++ as a back-end. Going a step further Cython also provides an
 hybrid C/Python language that can efficiently be translated into C code. It 
 relies both on the Python C API and on plain C.
-ShedSkin\cite{shedskin2006} translates implicitly strongly typed Python programs
+ShedSkin~\cite{shedskin2006} translates implicitly strongly typed Python programs
 into C++, without any call to the Python C API, but fails to compile dynamic
 codes or codes for which static type inference is impossible.
 
 The alternate approach consists in writing a JIT compiler, embedded into the
 interpreter, to dynamically turn the computation intensive parts into native
-code. This is what the \texttt{numexpr} module\cite{numexpr} does for Numpy 
+code. This is what the \texttt{numexpr} module~\cite{numexpr} does for Numpy 
 expressions, JIT-compiling them from a string representation to native code.
-Numba\cite{numba} and Parakeet\cite{parakeet2012} extend this approach to
-Numpy-centric applications while PyPy\cite{pypy2009} applies it to the whole
+Numba~\cite{numba} and Parakeet~\cite{parakeet2012} extend this approach to
+Numpy-centric applications while PyPy~\cite{pypy2009} applies it to the whole
 language - including the Numpy module through the in-progress \texttt{numpypy}
 branch.
 
-Except for PyPy, none of these compilers apply any of the
-static optimization techniques that have been known and successfully applied 
+Except for PyPy, none of these compilers apply any of the static optimization
+techniques that have been known and successfully applied 
 % FIXME And Numba? It generates LLVM, which uses static optimization techniques
-for decades to statically compiled language such as C or C++.
-Translators to statically compiled languages do take advantage of them
-indirectly, but the quality of the generated code may prevent advanced
-optimizations, such as vectorization, %FIXME too long
-while they are available at higher level,
-i.e. at the Python level. Taking into account the specificities of the Python
-language can unlock many new transformations. %FIXME sentence without subject
-For instance, PyPy automatically
-converts the \texttt{range} builtin into \texttt{xrange} by using a dedicated
-structure called \texttt{range-list}.
+for decades to statically compiled language such as C or C++.  Translators to
+statically compiled languages do take advantage of them indirectly, but the
+quality of the generated code may prevent advanced optimizations. For instance
+GCC hardly vectorizes the output of Cython, while the array semantic is
+avaialable at the Python level. Taking into account the specificities of the
+Python language can unlock many new transformations.  For instance, PyPy
+automatically converts the \texttt{range} builtin into \texttt{xrange} by using
+a dedicated structure called \texttt{range-list}.
 
 This article presents Pythran, an optimizing compiler for a subset of the
 Python language that turns implicitly statically typed modules into parametric
@@ -196,9 +187,9 @@ the associated compiler. The input of the Pythran compiler is a Python module
 ---not a Python program--- meant to be turned into a native module. Typically,
 computation-intensive parts of the program are moved to a module fed to
 Pythran. The module is then translated to polymorphic C++ code through the
-generation of templated classes in place of Python functions. These
-classes are either used to generate regular C++ % FIXME (not clear what do you mean?) PB : Better?
-code or instantiated for given types to generate a native Python module.
+generation of templated classes in place of Python functions. These classes are
+either used from regular C++ applications, or instantiated for given types to
+generate a native Python module.
 
 It is a strong requirement for Pythran to maintain backward compatibility with
 Python, that is, unlike Cython, all code compilable by Pythran is still
@@ -247,9 +238,8 @@ following:
 
     \item the closure of nested functions is statically computed to turn nested
         functions into global functions taking the closure elements as
-        parameters, and the initial definition is replaced by a \emph{partial
+        parameters. The initial definition is replaced by a \emph{partial
         function} creation, using the \texttt{partial} type from the standard \texttt{functools} module;
-        % FIXME (this sentence makes my head hurt :s maybe cut into smaller sentences)
 
     \item implicit \texttt{return None} are made explicit;
 
@@ -259,8 +249,7 @@ following:
 
     \item implicit \texttt{\_\_builtin\_\_} function calls are made explicit;
 
-    \item \texttt{try \dots finally} constructs are turned into nested \texttt{try \dots except} blocks;
-        % FIXME (Is the difference between construct and block obvious for intended readers?)
+    \item \texttt{try \dots finally} instriuction are turned into nested \texttt{try \dots except} instructions;
 
     \item identifiers whose name may be in conflict with C++ keywords are renamed.
 
@@ -282,14 +271,13 @@ The first step requires to map polymorphic variables and polymorphic functions
 from the Python world to C++. Pythran only supports polymorphic variables for
 functions, i.e. a variable can hold several function objects during its life
 time, but it cannot be assigned to a string if it has already been assigned to
-an integer. % FIXME (not sure if clear enough) 
-As shown later, it is possible to detect several false variable
+an integer.  As shown later, it is possible to detect several false variable
 polymorphism cases using use-def chains. Function polymorphism is achieved
 through template parameters: a template function can be applied to several
-types as long as an implicit structural typing is respected, which is very
-similar to Python's duck typing, except that it is checked at compile time, as
-% FIXME (tooooooooooooooooooooooo long) 
-illustrated by the following implementation of a generic dot product in Python:
+types as long as an implicit structural typing is respected. This technique is
+very similar to Python's duck typing, except that it is checked at compile
+time, as illustrated by the following implementation of a generic dot product
+in Python:
 
 \begin{lstlisting}
 def dot(L0, L1):
@@ -313,11 +301,10 @@ template<class T0, class T1>
     }
 \end{lstlisting}
 
-Although far more verbose % FIXME  (don't think you can use verbose this way)
-than the Python version, the C++ version also uses some
-form of structural typing: the only assumptions these two versions make are that
-\texttt{L0} and \texttt{L1} are iterable, their content can be multiplied and 
-that the result of the multiplication is accumulatable.
+Although more verbose than the Python version, the C++ version also uses some
+form of structural typing: the only assumptions these two versions make are
+that \texttt{L0} and \texttt{L1} are iterable, their content can be multiplied
+and that the result of the multiplication is accumulatable.
 
 Finally, Pythran computes the set of functions and types used for the processed
 module, and generates the minimal set of headers that need to be included to
@@ -326,8 +313,7 @@ critical to prevent typical slowdown during C++ compilation.
 
 The second step only consists in the instantiation of the top-level functions of
 the module, using user-provided signatures. Template instantiation then triggers
-the different correctly typed instantiations for all functions written in the
-module. % FIXME (not only the functions called by top-level functs????)
+the different correctly typed instantiations for all functions called in the
 module. Note that the user only needs to provide the type of the functions
 exported outside the module. The possible types of all internal functions are
 then inferred from the call sites. Note that this complex step leverage the 
@@ -338,11 +324,11 @@ The last step involves a template library, called \texttt{pythonic} that
 contains a polymorphic implementation of many functions of the Python standard
 library in the form of C++ template functions. Several optimizations, most
 notably using expression template, are delegated to this library. Pythran relies
-on the C++11\cite{isocxx11} language and leverage recent features such as
+on the C++11~\cite{isocxx11} language and leverage recent features such as
 move semantics, type inference through \texttt{decltype(\dots)} and variadic
 templates.
 As a consequence it requires a C++11 compatible compiler for the native code
-generation. Boost.Python\cite{boostpython2007} is used for the automatic
+generation. Boost.Python~\cite{boostpython2007} is used for the automatic
 Python-to-C++ boilerplate. Generated C++ code is compatible starting with g++ 
 4.8.2 and clang++ 3.3.
 
@@ -430,13 +416,13 @@ Without this kind of information, even a simple instruction like
 the \texttt{sum} identifiers point to the \texttt{sum} built-in, as it could have been 
 previously stated that \texttt{sum = len}.
 
-When turning Python AST into Pythran IR, nested functions are turned into global
-functions taking their expanded closure as parameter. This closure is computed 
-using the information provided by the \texttt{Globals} analysis which 
-statically computes the state of the dictionary of globals, and 
-\texttt{ImportedIds} that computes the set of % FIXME (too long)
-identifiers used by an instruction but not declared in this instruction. For
-instance in the following snippet:
+When turning Python AST into Pythran IR, nested functions are turned into
+global functions taking their expanded closure as parameter. This closure is
+computed using the information provided by the \texttt{Globals} and
+\texttt{ImportedIds} analyse. The former statically computes the state of the
+dictionary of globals, and the latter computes the set of identifiers used by
+an instruction but not declared in this instruction. For instance in the
+following snippet:
 
 \begin{lstlisting}
 def outer(outer_argument):
@@ -693,7 +679,7 @@ containers (\texttt{list}, \texttt{set}, \texttt{dict} and \texttt{str}), as
 well as reference-based memory management through \texttt{shared\_ptr}. Generic
 algorithms such as \texttt{accumulate} are used when possible. GMP is the
 natural choice to represent Python's \texttt{long} in \cpp. NT2 provides a generic
-vector library called \texttt{boost.simd}\cite{esterie2012boost} that enables
+vector library called \texttt{boost.simd}~\cite{esterie2012boost} that enables
 the use of vector instruction units of modern processors in a generic way. It is used
 to efficiently compile Numpy expressions.
 
@@ -702,12 +688,13 @@ Pythran implements three optimizations on such expressions:
 
 \begin{enumerate}
 
-    \item Expression templates\cite{expression_templates} are used to avoid
+    \item Expression templates~\cite{expression_templates} are used to avoid
         multiple iterations and the creation of intermediate arrays. Because
         they aggregate all \texttt{ufunc} into a single expression at compile
         time, they also increase the computation intensity of the loop body,
         and hence increase the impact of the two following optimizations.
         % what about binary func?
+        % ufunc -> micro function, in numpy ;-)
 
     \item Loop vectorization. All modern processors have vector instruction
         units capable of applying the same operation on a vector of data
@@ -721,7 +708,7 @@ Pythran implements three optimizations on such expressions:
         to be beneficial, as it reduces the number of (costly) loads from the
         main memory to the vector unit.
 
-    \item Loop parallelization through OpenMP\cite{openmp3.1}. Numpy expression
+    \item Loop parallelization through OpenMP~\cite{openmp3.1}. Numpy expression
         computation do not carry any loop-dependency. They are perfect
         candidates for loop parallelization, especially after the expression
         templates aggregation, as OpenMP generally performs better on loops
@@ -807,7 +794,7 @@ profitable to parallelize the outermost loops rather than the inner loops
 the end of each parallel section, and generally offers more computation
 intensive computations.
 
-The OpenMP standard\cite{openmp3.1} is a widely used solution for Fortran, C
+The OpenMP standard~\cite{openmp3.1} is a widely used solution for Fortran, C
 and C++ to describe loop-based and task-based parallelism. It consists of a few
 directives attached to the code, directives that describe parallel loops and parallel code
 sections in a shared memory model.
@@ -816,35 +803,32 @@ Pythran makes this directives available at the Python level through string
 instructions. The semantic is roughly similar to the semantics defined by the
 standard, assuming that all variables have function-level scope.
 
-The following listing gives a simple example of explicit loop-based 
-parallelism. OpenMP 3.0 task-based parallelism form is also supported, the
-interested reader may refer to~\cite{pyhpc2013} for more details.
+The following listing gives a simple example of explicit loop-based parallelism
+(OpenMP 3.0 task-based parallelism form is also supported, the interested
+reader may refer to~\cite{pyhpc2013} for more details). the \texttt{kernel}
+function is pure and computation intensive, making the loop a perfect candidate
+for parallelization. 
 
 \begin{lstlisting}
-def pi_estimate(darts):
-    hits = 0
-    #omp parallel for reduction(+:hits)
-    for i in xrange(darts):
-        x,y = random(), random()
-        dist = sqrt(pow(x, 2) + pow(y, 2))
-        if dist <= 1.0:
-            hits += 1.0
-    pi = 4 * (hits / DARTS)
-    return pi
+def compute_julia(cr, ci, N, bound=1.5, lim=1000., cutoff=1e6):
+    julia = np.empty((N, N), np.uint32)
+    grid_x = np.linspace(-bound, bound, N)
+    #omp parallel for 
+    for i, x in enumerate(grid_x):
+        for j, y in enumerate(grid_x):
+            julia[i,j] = kernel(x, y, cr, ci, lim, cutoff)
+    return julia
 \end{lstlisting}
-% why #? I thought string was enough?
 
-The loop is flagged as parallel, performing a reduction using the \texttt{+}
-operator on the \texttt{hits} variable. Variables \texttt{x}, \texttt{y} and
-\texttt{dist} are automatically made local by Pythran after a
-\texttt{ScopeAnalysis}, and are thus marked as \texttt{private}, \ie{local to
-a thread and not shared with other threads, by OpenMP}.
-
-% FIXME (Ca semble tomber a plat, pas de resultats, pas de conclusion...)
+As in in standard OpenMP, loop indices of the parallel loop are automatically
+made private, and Pythran extends the concept to any random access iterator,
+even after type destructuring. In the example, both \texttt{i} and \texttt{x}
+are private. A scope analysis is used to prove that \texttt{j} and \texttt{y}
+are also local to the loop. In the end, the whole computation achieves a
+perfect speedup of $\times4$
 
 Next section performs an in-depth comparison of Pythran with others Python
-optimizers: Numba, PyPy, ShedSkin and numexpr.
-
+optimizers: Cython and PyPy.
 
 \section{Benchmarks}
 \label{sec:benchmarks}
@@ -927,7 +911,7 @@ loop. Moreover, activating automatic parallelization for Pythran yields an
 additional $\times4$ speedup without a change to the input, while Cython needs
 manual code annotation to achieve a similar result. It seems that PyPy support
 for numpy expression is still note mature for numpy expression, but there is a
-strong ungoing effort of the community to fix this.
+strong on-going effort of the community to fix this.
 
 \begin{table}
     \centering
@@ -985,7 +969,7 @@ consequence there is a costly translation step from a structure that contains
 an array of pointers to generic Python objects to a dense structure involved.
 Results are shown in Table~\ref{tbl:black}. They show that conversion code is
 less efficient in Cython than in Pythran. PyPy also outperforms Cython, because
-it does not suffer from a similar conversion penality.
+it does not suffer from a similar conversion penalty.
 
 \begin{table}
     \centering
@@ -1034,10 +1018,10 @@ multiple-cores--- in its implementation of parts of the \texttt{numpy} package.
 
 This paper gives an overview of the compilation flow, the analyses involved and
 the optimizations used. It also compares the performance of compiled Pythran
-modules against CPython and other optimizers: ShedSkin, PyPy and numexpr.
+modules against CPython and other optimizers like Cython and PyPy.
 
 To conclude, limiting Python to a statically typed subset does not hinders the
-expressivity when it comes to scientific or mathematic computations, but makes
+expressiveness when it comes to scientific or mathematic computations, but makes
 it possible to use a wide variety of classical optimizations to help Python
 match the performances of statically compiled language. Moreover, one can use
 high level information to generate efficient code that would be difficult to
@@ -1049,8 +1033,10 @@ write for the average programmer.
 
 \acks
 
+
 This project has been partially funded by the CARP Project and the SILKAN
-Company.
+Company.  The authors would like to thank Yuancheng Peng and Eliott Coyac for
+their contributions to development of the Pythran compiler.
 
 % We recommend abbrvnat bibliography style.
 

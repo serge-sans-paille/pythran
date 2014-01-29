@@ -219,10 +219,15 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
 
         sorted_exceptions = nx.topological_sort(exceptions)
         mod.add_to_init([
-            Statement(
-                'boost::python::register_exception_translator<' +
-                'pythonic::types::%s>(&pythonic::translate_%s)' %
-                (n.__name__, n.__name__)) for n in sorted_exceptions])
+            # register exception only if they can be raise from C++ world to
+            # Python world. Preprocessors variables are set only if deps
+            # analysis detect that this exception can be raised
+            Line(
+                '#ifdef PYTHONIC_BUILTIN_%s_HPP\n'
+                'boost::python::register_exception_translator<'
+                'pythonic::types::%s>(&pythonic::translate_%s);\n'
+                '#endif' % (n.__name__.upper(), n.__name__, n.__name__)
+                     ) for n in sorted_exceptions])
 
         for function_name, signatures in specs.iteritems():
             internal_func_name = renamings.get(function_name,

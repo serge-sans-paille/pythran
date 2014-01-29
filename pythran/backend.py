@@ -650,7 +650,7 @@ class Cxx(Backend):
                 combiner = \
                     InstanciatedType("{0}::combiner_{1}".format(callee.name, gb),
                                      "instanciation",
-                                     [self.types[x] for x in call] + [combiner],
+                                     [combiner] + [self.types[x] for x in call],
                                      node.name, {})
 
         ctx = lambda x : x

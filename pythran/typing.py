@@ -441,6 +441,9 @@ class Reorder(Transformation):
                     if nx.has_path(self.type_dependencies, nodes[i], nodes[j]):
                         nodes.insert(j, nodes[i])
                         nodes.pop(i+1)
+                        done = False
+                        break
+                if not done:
                     break
 
         return nodes

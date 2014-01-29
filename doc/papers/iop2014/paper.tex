@@ -776,12 +776,9 @@ Finally, using both expression templates, vectorization and OpenMP:
 1000 loops, best of 3: 105 us per loop
 \end{lstlisting}
 
-The 4 hyper-threaded cores give an extra performance boost. Unfortunately, the
-load is not sufficient to get more than an average 4x speed up compared to the
-vectorized version.
-% You complain about 4x because you only have 3.98x ???
-In the end, Pythran generates a native module that performs
-roughly 11\times faster than the original version.
+The 4 hyper-threaded cores give an extra performance boost. In the end, Pythran
+generates a native module that performs roughly $\times11$ faster than the
+original version.
 
 As a reference, the \texttt{numexpr} module that performs JIT optimization of the
 expression yields the following timing:
@@ -826,7 +823,7 @@ interested reader may refer to~\cite{pyhpc2013} for more details.
 \begin{lstlisting}
 def pi_estimate(darts):
     hits = 0
-    "#omp parallel for reduction(+:hits)"
+    #omp parallel for reduction(+:hits)
     for i in xrange(darts):
         x,y = random(), random()
         dist = sqrt(pow(x, 2) + pow(y, 2))
@@ -855,71 +852,62 @@ optimizers: Numba, PyPy, ShedSkin and numexpr.
 
 All benchmarks presented in this section are run on an hyper-threaded quad-core
 i7, % FIXME sandy-brige, nehalem, what?
-using examples shipped along with Pythran sources, available at
-https://github.com/serge-sans-paille/pythran in the \texttt{pythran/test/cases}
-directory. The Pythran version used is the \texttt{HEAD} of the \texttt{scipy2013} branch,
-ShedSkin 0.9.2, PyPy 2.0 compiled with the \texttt{-jit} flag, CPython 2.7.3, Cython
-0.19.1 and Numexpr 2.0.1. All timings are made using the \texttt{timeit} module,
-taking the best of all runs. All C++ codes are compiled with g++ 4.8.2, using
-the tool default compiler option, generally \texttt{-O2} plus a few optimizing flags
-depending on the target.
+using examples shipped along with
+Pythran sources, available at \url{https://github.com/serge-sans-paille/pythran} in
+the \texttt{pythran/test/cases} directory. The Pythran version used is the
+\texttt{HEAD} of the \texttt{iop2014} branch, PyPy 2.0.2 compiled with the
+\texttt{-jit} flag, CPython 2.7.3 and Cython 0.20. All timings are made using
+the \texttt{timeit} module, taking the best of all runs. All C++ codes are
+compiled with g++ 4.8.2, using the tool default compiler option, generally
+\texttt{-O3} plus a few optimizing flags depending on the target. To make a
+fair comparison, no parallelism annotations are added to any code.
 
-Cython is not considered in most benchmarks, because to get an efficient
-binary, one needs to rewrite the original code, while all the considered tools
-are running the very same Python code that remains compatible with CPython. The
-experiment was performed only to obtain a comparison with Numexpr.
+Provided each module has been properly compiled, each experiment is run using
+the following command from a shell:
 
-Pystone is a Python translation of Whetstone, a famous floating point number
-benchmarks that dates back to Algol60 and the 70's. Although non representative
-of real applications, it illustrates the general performance of floating point
-number manipulations. Table~\ref{tbl:pystone}  illustrates the benchmark
-result for CPython, PyPy, ShedSkin and Pythran, using an input value of
-\texttt{10**3}. Note that the original version has been updated to replace the user
-class by a function call.
+\begin{lstlisting}[language=sh]
+python -m timeit -s "${SETUP}" "${RUN}"
+\end{lstlisting}
 
-\begin{table}
-    \centering
+\noindent where \texttt{\$SETUP} and \texttt{\$RUN} depend on the benchmark and
+\texttt{pypy} is substituted to \texttt{python} when needed. The
+\texttt{\$SETUP} and \texttt{\$RUN} values are available to the reader on the
+Git repository in the \texttt{doc/papers/iop/xp/run\_benchamrks.sh} file with
+all the experimental setup.
 
-    \begin{tabular}{|l|c|c|c|c|}
-        \hline
-     Tool    &  CPython    &   Pythran     &     PyPy   &  ShedSkin  \\
-    \hline
-     Timing  &  861ms      &   11.8ms      &     29.1ms &  24.7ms    \\
-    \hline
-     Speedup &  $\times$1         &   $\times$72.9       &    $\times$29.6   &  $\times$34.8     \\
-    \hline
-\end{tabular}
+The same source is used for each benchmark, to the exception of Cython sources
+which needed a manual conversion. For these sources, bound checking and wrap
+around are always disable, all variables are declared using the proper C or C++
+type and all mathematical functions in use come from \texttt{libm}. Some calls
+to the \texttt{zeros\_like} function also have been replaced by calls to
+\texttt{zeros} for the PyPy version.
 
-    \caption{Benchmarking result on the Pystone program.}
-    \label{tbl:pystone}
+\subsection{NQueens}
 
-\end{table}
-
-It comes at no surprise that all tools get more than decent results on this
-benchmark. PyPy generates a code almost as fast % FIXME (dunno if it's efficient) 
-as ShedSkin. Altough both
-generate C++, Pythran outperforms ShedSkin thanks to a higher level generated
-code. For instance all arrays are represented in ShedSkin by pointers to arrays
-that likely disturbs the g++ optimizer, while Pythran uses a vector class wrapping
-shared pointers.
-
-Nqueen is a benchmark extracted from the former Unladen Swallow\footnote{\url{http://code.google.com/p/unladen-swallow/}} project. It
+``Nqueens'' is a benchmark extracted from the former Unladen
+Swallow\footnote{\url{http://code.google.com/p/unladen-swallow/}} project. It
 is particularly interesting as it makes an intensive use of non-trivial
-generator expressions and integer sets. Table~\ref{tbl:nqueen} illustrates
-the benchmark results for CPython, PyPy, ShedSkin and Pythran. The code had to
-be slightly updated to run with ShedSkin because type inference in ShedSkin does
-not support mixed scalar and \textbf{None} variables. The input value is \texttt{9}.
+generator expressions and integer sets.
+
+Table~\ref{tbl:nqueen} illustrates the benchmark results for CPython, Cython,
+PyPy and Pythran.  It showcases the fact that Pythran benefits a lot from
+high-level transformations, for instance \emph{lazy evaluation}, which prevents
+the many allocation / deallocation triggered by Cython and PyPy runs.  A deeper
+look at the Pythran profiling trace shows that more than half of the execution
+time is spent allocating and deallocating a \texttt{set} used in the internal
+loop. There is a memory allocation invariant that could be taken advantage of
+there, but none of the compiler does so.
 
 \begin{table}
     \centering
 
     \begin{tabular}{|l|c|c|c|c|}
         \hline
-     Tool    &  CPython    &   Pythran     &     PyPy   &  ShedSkin \\
+     Tool    &  CPython    &   Cython     &     Pythran   &  PyPy \\
     \hline
-     Timing  &  1904.6ms   &   358.3ms     &    546.1ms &  701.5ms  \\
+    Timing  &  181ms   &   42.3ms     &    \textbf{22.5ms} &  51.3ms  \\
     \hline
-     Speedup &  $\times$1         &    $\times$5.31      &    $\times$3.49   &  $\times$2.71    \\
+    Speedup &  $\times$1         &    $\times$4.27      &    \textbf{$\times$8.04}   &  $\times$3.52    \\
     \hline
 \end{tabular}
 \caption{Benchmarking result on the NQueen program.}
@@ -927,152 +915,100 @@ not support mixed scalar and \textbf{None} variables. The input value is \texttt
 
 \end{table}
 
-It seems that compilers have difficulties to take advantage of high level
-constructs such as generator expressions, as the overall speedup is not
-breathtaking. Pythran benefits from the conversion to \texttt{itertools.imap} here,
-while ShedSkin and PyPy rely on more costly constructs. A deeper look at the
-Pythran profiling trace shows that more than half of the execution time is
-spent allocating and deallocating a \texttt{set} used in the internal loop. There is a
-memory allocation invariant that could be taken advantage of there, but none of
-the compiler does so.
+\subsection{Rosen Der}
 
-Hyantes\footnote{\url{http://hyantes.gforge.inria.fr}} is a geomatic application that exhibits typical usage of arrays
-using loops instead of generalized expressions. It is helpful to measure the
-performance of direct array indexing.
-
-Table~\ref{tbl:hyantes} illustrates the benchmark result for CPython, PyPy,
-ShedSkin and Pythran, when using lists as the data container. The output window
-used is \texttt{100x100}.
+The ``rosen der'' kernel computes a complex numpy expression that accesses
+data through a one dimensional slice. It is interesting to evaluate how much of
+the expression can be compiled to regular, efficient loop while avoiding
+temporaries.  Table~\ref{tbl:rosen} illustrate the benchmark results for
+CPython, Cython, PyPy and Pythran. Cython slightly outperforms Pythran on that
+test case, but Cython code had to be manually transformed into an explicit
+loop. Moreover, activating automatic parallelization for Pythran yields an
+additional $\times4$ speedup without a change to the input, while Cython needs
+manual code annotation to achieve a similar result. It seems that PyPy support
+for numpy expression is still note mature for numpy expression, but there is a
+strong ungoing effort of the community to fix this.
 
 \begin{table}
     \centering
 
     \begin{tabular}{|l|c|c|c|c|}
-
         \hline
-     Tool    &  CPython    &   Pythran     &     PyPy   &  ShedSkin  \\
+     Tool    &  CPython    &   Cython     &     Pythran   &  PyPy \\
     \hline
-     Timing  &  1295.4ms   &   270.5ms     &    277.5ms &  281.5ms   \\
+    Timing  &  22.3ms   &   \textbf{3.39ms}     &    3.81ms &  51.3ms  \\
     \hline
-     Speedup &  x1         &    x4.79      &    x4.67   &  x4.60     \\
+    Speedup &  $\times$1         &    \textbf{$\times$6.57}      &    $\times$5.85   &  $\times$0.43    \\
     \hline
 \end{tabular}
-\caption{Benchmarking result on the hyantes kernel, list version.}
-\label{tbl:hyantes}
+\caption{Benchmarking result on the Rosen der program.}
+\label{tbl:rosen}
 
 \end{table}
 
-The speed ups are not amazing % FIXME (not formal enough, same for previous usage) 
-for a numerical application. There are two
-reasons for these poor speedups. First, the \texttt{hyantes} benchmark makes heavy
-usage of trigonometric functions, and there is not much to gain there. Second, and
-most important, the benchmark produces a big 2D array stored as a list of list,
-hence the application suffers from the heavy overhead of converting them from C++
-to Python. Running the same benchmark using Numpy arrays as core containers
-confirms this assumption, as illustrated by Table~\ref{tbl:np-hyantes}. This
-table also demonstrates the benefits of manual parallelization using OpenMP.
-% Showing parallelization AND np.array at the same time confuse reader as we
-% don't know how much each optimisation contribute in the speed up
+\subsection{Growcut}
+
+The ``growcut'' application is an image processing code where all array indexing
+are explicit. In that sense, this benchmark is complementary of the previous
+one, as it evaluates how well explicit array access are compiled.
+Table~\ref{tbl:growcut} summarizes the results. All compiler yield impressive
+speedups on that benchmark, but this is is merely due to the fact that
+accessing individual elements is extremely slow in numpy, and the direct C
+translation of the Python code is very close to what a C developer would write.
+Pythran appears to outperforms Cython once all access are explicit, most
+certainly due to cleaner code generation.
 
 
 \begin{table}
     \centering
 
     \begin{tabular}{|l|c|c|c|c|}
-
         \hline
-     Tool    &  CPython    &   Pythran     & Pythran+OpenMP   \\
+     Tool    &  CPython    &   Cython     &     Pythran   &  PyPy \\
     \hline
-     Timing  &  450.0ms    &   4.8ms       &      2.3ms       \\
+    Timing  &  398ms   &   991us     &    \textbf{526us} &  5.54ms  \\
     \hline
-     Speedup &  x1         &    x93.8      &    x195.7        \\
+    Speedup &  $\times$1         &    $\times$401.6      &    $\times$756.7   &  $\times$71    \\
     \hline
 \end{tabular}
-\caption{Benchmarking result on the hyantes kernel, numpy version.}
-\label{tbl:np-hyantes}
+\caption{Benchmarking result on the growcut program.}
+\label{tbl:growcut}
+
 \end{table}
 
-Finally, \texttt{arc\_distance} \footnote{The \texttt{arc\_distance} testbed is taken from to \url{https://bitbucket.org/FedericoV/numpy-tip-complex-modeling}.} presents a classical usage of Numpy expression. It
-is typically more efficient than its loop alternative as all the iterations are
-done directly in C. Its code is reproduced below:
+\subsection{Blacksholes}
 
-\begin{lstlisting}
-def arc_distance(theta_1, phi_1, theta_2, phi_2):
-    """
-    Calculates the pairwise arc distance
-    between all points in vector a and b.
-    """
-    temp = (np.sin((theta_2 - theta_1) / 2) ** 2
-        + np.cos(theta_1) * np.cos(theta_2)
-          * np.sin((phi_2 - phi_1) / 2) ** 2)
-    distance_matrix = 2 * np.arctan2(
-            sqrt(temp), sqrt(1 - temp))
-    return distance_matrix
-\end{lstlisting}
-
-
-Table~\ref{tbl:arc-distance} illustrates the benchmark result for CPython,
-Cython, Numexpr and Pythran, using random input arrays of \texttt{10**6} elements.
-Table~\ref{tbl:arc-distance-2} details the Pythran performance. Cython code
-is written using the \texttt{parallel.prange} feature and compiled with
-\texttt{-fopenmp -O2 -march=native}.
-
+The ``blacksholes'' application is a benchmarks that showcases the
+translation cost from the Python space to native space. Indeed we forced the
+use of a \texttt{list} as input of the kernel instead of a numpy array. As a
+consequence there is a costly translation step from a structure that contains
+an array of pointers to generic Python objects to a dense structure involved.
+Results are shown in Table~\ref{tbl:black}. They show that conversion code is
+less efficient in Cython than in Pythran. PyPy also outperforms Cython, because
+it does not suffer from a similar conversion penality.
 
 \begin{table}
     \centering
+
     \begin{tabular}{|l|c|c|c|c|}
+        \hline
+     Tool    &  CPython    &   Cython     &     Pythran   &  PyPy \\
     \hline
-     Tool    &  CPython    &  Cython  &  Numexpr    & Pythran   \\
+    Timing  &  490us   &   74.7us     &    \textbf{34.8us} &  37.3us  \\
     \hline
-     Timing  &  192.2ms    &  36.0ms  &    41.2ms   &  17.1ms   \\
-    \hline
-     Speedup &  x1         &  x5.33   &  x4.67      &  x11.23   \\
+    Speedup &  $\times$1         &    $\times$6.55      &    $\times$14.1   &  $\times$13.1    \\
     \hline
 \end{tabular}
-% FIXME (You changed the order of the compilers, even though pythran is still first why?)
-\caption{Benchmarking result on the arc distance kernel.}
-\label{tbl:arc-distance}
+\caption{Benchmarking result on the blacksholes program.}
+\label{tbl:black}
+
 \end{table}
-
-\begin{table}
-    \centering
-    \begin{tabular}{|l|c|c|c|c|}
-    \hline
-    Tool & Pythran (raw) & Pythran (+AVX) & Pythran (+OMP) & Pythran (full)  \\
-    \hline
-    Timing & 186.3ms     &    75.4ms      &    41.1ms      &  17.1ms         \\
-    \hline
-    Speedup&    x1.03      &    x2.54       &    x4.67       &  x11.23         \\
-    \hline
-\end{tabular}
-\caption{Detailed benchmarking result on the arc distance kernel for Pythran.}
-\label{tbl:arc-distance-2}
-\end{table}
-
-It shows a small benefit from using expression templates on their own, most
-% In fact there are small benefits for compiling this code using only pythran without AVX and openMP.
-certainly because the loop control overhead is negligible compared to the
-trigonometric functions. It gets a decent x2.5 speed-up when using AVX over not
-using it. The benefit of OpenMP, although related to the number of cores, makes
-an overall speedup greater than x11 compared to the original Numpy version, 
-without
-changing the input code. Almost on the opposite, Numexpr requires rewriting the 
-input and does not achieve the same level of performance as Pythran when OpenMP
-and AVX are combined.
-
-Writing efficient Cython code requires more work than just typing the variable
-declarations using Cython's specific syntax: it only takes advantage of
-parallelism because we make it explicit. Without explicit parallelization,
-the generated code runs around 176ms instead of 36ms. %FIXME speedup in x?
-Cython does not generate
-vectorized code, and \texttt{gcc} does not vectorize the inner loop, which 
-explains the better result obtained with Pythran.
 
 \section{Future Work}
 
 Although Pythran focuses on a subset of Python and its standard library, many
-optimizations opportunities are still present. Using a Domain Specific
-Language(DSL) approach, one could use rewriting rules to optimize several
+optimizations opportunities are still available. Using a Domain Specific
+Language (DSL) approach, one could use rewriting rules to optimize several
 Python idioms. For instance, \texttt{len(set(x))} could lead to an optimized
 \texttt{count\_uniq} that would iterate only once on the input sequence.
 
@@ -1104,7 +1040,8 @@ To conclude, limiting Python to a statically typed subset does not hinders the
 expressivity when it comes to scientific or mathematic computations, but makes
 it possible to use a wide variety of classical optimizations to help Python
 match the performances of statically compiled language. Moreover, one can use
-high level information to generate efficient code that would be difficult to write for the average programmer.
+high level information to generate efficient code that would be difficult to
+write for the average programmer.
 
 
 % FIXME (just thinking about it, did you say what CPyhton?)

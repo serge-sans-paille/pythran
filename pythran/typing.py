@@ -543,7 +543,7 @@ class Types(ModuleAnalysis):
     def isargument(self, node):
         """ checks whether node aliases to a parameter"""
         try:
-            node_id, _ = self.node_to_id(node)
+            node_id, _, _ = self.node_to_id(node)
             return (node_id in self.name_to_nodes and
                            any([isinstance(n, ast.Name) and
                            isinstance(n.ctx, ast.Param)
@@ -589,7 +589,7 @@ class Types(ModuleAnalysis):
             else:
                 # only perform inter procedural combination upon stage 0
                 if register and self.isargument(node) and self.stage == 0:
-                    node_id, _ = self.node_to_id(node)
+                    node_id, _, _ = self.node_to_id(node)
                     if node not in self.result:
                         self.result[node] = unary_op(self.result[othernode])
                     assert self.result[node], "found an alias with a type"

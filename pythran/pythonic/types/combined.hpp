@@ -49,6 +49,8 @@ class indexable_container {
     public:
         typedef typename std::remove_cv< typename std::remove_reference<K>::type>::type key_type;
         typedef typename std::remove_cv< typename std::remove_reference<V>::type>::type value_type;
+
+        value_type operator [] (const key_type&);
     private:
         indexable_container();
 };

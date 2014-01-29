@@ -201,6 +201,11 @@ class Cxx(Backend):
         )
 
         nsbody = body + self.declarations + globals + self.definitions
+
+        #Needed as the default global type for global code
+        if len(self.declared_globals) > 0:
+            nsbody = [Typedef(Value("void", "or_global_type"))] + nsbody
+
         ns = Namespace(pythran_ward + self.passmanager.module_name, nsbody)
         self.result = CompilationUnit(headers + [ns])
 
@@ -654,7 +659,13 @@ class Cxx(Backend):
                                      node.name, {})
 
         ctx = lambda x : x
-        or_typedef = Typedef(Value(combiner.generate(ctx), "or_global_type"))
+
+        #separate into 2 typedefs because the first expression may have
+        # 'or_global_type' in it and then gcc is not happy (but clang is)
+        or_typedefs = \
+            [Typedef(Value(combiner.generate(ctx), "dummy_or_global_type")),
+             Typedef(Value("dummy_or_global_type", "or_global_type"))]
+
 
         if gb in direct_global_changes:
             typedef = Typedef(Value(self.types[direct_global_changes[gb]]

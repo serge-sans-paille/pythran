@@ -3,6 +3,7 @@ This module provides a few code analysis for the pythran language.
     * CFG returns the control flow graph of a node
     * DeclaredGlobals gathers globals declared in a function
     * LocalDeclarations gathers declarations local to a node
+    * NonLocals gathers all the variables used in a node but not defined in it
     * GlobalDeclarations gathers top-level declarations
     * Locals computes the value of locals()
     * Globals computes the value of globals()
@@ -225,6 +226,27 @@ class LocalDeclarations(NodeAnalysis):
         if node.target.id not in self.declared_globals:
             self.result.add(node.target)
         map(self.visit, node.body)
+
+
+class NonLocals(NodeAnalysis):
+    """Gathers all the globals used in a function"""
+    def __init__(self):
+        self.result = set()
+        self.args = set()
+        self.current_function = None
+        super(NonLocals, self).__init__(LocalDeclarations)
+
+    def visit_FunctionDef(self, node):
+        if self.current_function:
+            return
+        self.current_function = node
+        self.args = [name.id for name in node.args.args]
+        self.local_declarations = [name.id for name in self.local_declarations]
+        map(self.visit, node.body)
+
+    def visit_Name(self, node):
+        if node.id not in self.local_declarations and node.id not in self.args:
+            self.result.add(node.id)
 
 
 ##

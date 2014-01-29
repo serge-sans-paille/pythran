@@ -12,7 +12,7 @@ from tables import pytype_to_ctype_table, operator_to_lambda
 from tables import modules, methods, functions
 from analysis import GlobalDeclarations, YieldPoints, LocalDeclarations
 from analysis import OrderedGlobalDeclarations, ModuleAnalysis, StrictAliases
-from analysis import LazynessAnalysis, DeclaredGlobals
+from analysis import LazynessAnalysis, DeclaredGlobals, NonLocals
 from passes import Transformation
 from syntax import PythranSyntaxError
 from cxxtypes import *
@@ -412,6 +412,8 @@ class Types(ModuleAnalysis):
         self.global_combiners = dict()
         self.current_global_combiner = dict()
         self.nested = 0  # Are we in a nested function?
+        #used to know if nonlocals are globals or locals from englobing function
+        self.locals_stack=[set()]
         self.max_recompute = 1  # max number of use to be lazy
         ModuleAnalysis.__init__(self, StrictAliases, LazynessAnalysis,
                                 DeclaredGlobals)
@@ -450,8 +452,12 @@ class Types(ModuleAnalysis):
         return False
 
     def node_to_id(self, n, depth=0):
+        ''' Returns id and depth of the node, and whether it's a global.
+        depth of a local is 0. Id of a subscript, like a[x], is 1.
+        a[x][y] has a depth of 2 and so on.
+        '''
         if isinstance(n, ast.Name):
-            return (n.id, -1 if n.id in self.globals else depth)
+            return (n.id, depth, n.id in self.globals)
         elif isinstance(n, ast.Subscript):
             if isinstance(n.slice, ast.Slice):
                 return self.node_to_id(n.value, depth)
@@ -509,10 +515,10 @@ class Types(ModuleAnalysis):
         try:
             if register:  # this comes from an assignment,
                           # so we must check where the value is assigned
-                node_id, depth = self.node_to_id(node)
-                if depth > 0:
+                node_id, depth, is_global = self.node_to_id(node)
+                if depth > 0 and not is_global:
                     node = ast.Name(node_id, ast.Load())
-                elif depth < 0:
+                elif is_global:
                     #It's a global identifier
                     #node = modules[self.passmanager.module_name][node_id]
                     node = self.current_global_combiner[node_id]
@@ -600,7 +606,20 @@ class Types(ModuleAnalysis):
         self.yield_points = self.passmanager.gather(YieldPoints, node)
 
         old_globals = self.globals
-        self.globals = self.passmanager.gather(DeclaredGlobals, node)
+        declared = self.passmanager.gather(DeclaredGlobals, node)
+        locs = {x.id for x in self.passmanager.gather(LocalDeclarations, node)}
+        nonlocals = self.passmanager.gather(NonLocals, node)
+
+        self.globals = nonlocals
+        #remove from globals locals declared in englobing functions
+        self.globals -= self.locals_stack[-1]
+        #add forcefully declared globlas to the globals
+        self.globals |= declared
+        #Make sure that only top level globals count as globals,
+        # not things like __builtin__ or global functions
+        self.globals &= self.declared_globals
+        #complete the stack
+        self.locals_stack.append((locs | self.locals_stack[-1]) - declared)
 
         #If we are NOT in a nested function
         if self.nested == 1:
@@ -647,6 +666,7 @@ class Types(ModuleAnalysis):
         #Restore globals
         self.globals = old_globals
         self.nested -= 1
+        self.locals_stack.pop()
 
     def visit_Return(self, node):
         self.generic_visit(node)

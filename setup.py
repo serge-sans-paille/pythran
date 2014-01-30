@@ -101,7 +101,7 @@ class TestCommand(Command):
         # Do not include current directory, validate using installed pythran
         current_dir = _exclude_current_dir_from_import()
         os.chdir("pythran/tests")
-        where = os.path.join(current_dir, 'pythran', 'tests')
+        where = os.path.join(current_dir, 'pythran')
 
         from pythran import test_compile
         test_compile()
@@ -111,7 +111,7 @@ class TestCommand(Command):
             import xdist
             import multiprocessing
             cpu_count = multiprocessing.cpu_count()
-            args = ["-n", str(cpu_count), where]
+            args = ["-n", str(cpu_count), where, '--pep8']
             if self.failfast:
                 args.insert(0, '-x')
             if self.cov:

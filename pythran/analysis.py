@@ -297,7 +297,7 @@ class Locals(ModuleAnalysis):
         self.result[node] = self.locals.copy()
         self.visit(node.value)
         self.locals.update(t.id for t in node.targets
-                if isinstance(t, ast.Name))
+                           if isinstance(t, ast.Name))
         map(self.visit, node.targets)
 
     def visit_For(self, node):
@@ -352,7 +352,7 @@ class Globals(ModuleAnalysis):
     def run(self, node, ctx):
         super(Globals, self).run(node, ctx)
         return set(self.global_declarations.keys()
-                + [i for i in modules if i.startswith('__')])
+                   + [i for i in modules if i.startswith('__')])
 
 
 ##
@@ -435,7 +435,7 @@ class ConstantExpressions(NodeAnalysis):
     def __init__(self):
         self.result = set()
         super(ConstantExpressions, self).__init__(Globals, Locals,
-                PureFunctions, Aliases)
+                                                  PureFunctions, Aliases)
 
     def add(self, node):
         self.result.add(node)
@@ -473,7 +473,7 @@ class ConstantExpressions(NodeAnalysis):
     def visit_Name(self, node):
         if node in self.aliases:
             pure_fun = all(alias in self.pure_functions
-                    for alias in self.aliases[node].aliases)
+                           for alias in self.aliases[node].aliases)
             return pure_fun and self.add(node)
         else:
             return False
@@ -510,7 +510,7 @@ class OrderedGlobalDeclarations(ModuleAnalysis):
     def __init__(self):
         self.result = dict()
         super(OrderedGlobalDeclarations, self).__init__(
-                StrictAliases, GlobalDeclarations)
+            StrictAliases, GlobalDeclarations)
 
     def visit_FunctionDef(self, node):
         self.curr = node
@@ -538,10 +538,10 @@ class OrderedGlobalDeclarations(ModuleAnalysis):
                 [v.update(self.result[f]) for f in list(v)]
             old_count = new_count
             new_count = reduce(lambda acc, s: acc + len(s),
-                    self.result.itervalues(), 0)
+                               self.result.itervalues(), 0)
         # return functions, the one with the greatest weight first
         return sorted(self.result.iterkeys(), reverse=True,
-                key=lambda s: len(self.result[s]))
+                      key=lambda s: len(self.result[s]))
 
 
 ##
@@ -617,7 +617,8 @@ class Aliases(ModuleAnalysis):
         aliases = set()
         if isinstance(func, ast.Attribute):
             _, signature = methods.get(func.attr,
-                    functions.get(func.attr, [(None, None)])[0])
+                                       functions.get(func.attr,
+                                                     [(None, None)])[0])
             if signature and signature.return_alias:
                 aliases = signature.return_alias(node)
         elif isinstance(func, ast.Name):
@@ -626,8 +627,8 @@ class Aliases(ModuleAnalysis):
                 signature = None
                 if isinstance(func_alias, ast.FunctionDef):
                     _, signature = functions.get(
-                            func_alias.name,
-                            [(None, None)])[0]
+                        func_alias.name,
+                        [(None, None)])[0]
                     if signature and signature.return_alias:
                         aliases.update(signature.return_alias(node))
                 elif hasattr(func_alias, 'return_alias'):
@@ -716,11 +717,11 @@ class Aliases(ModuleAnalysis):
         self.aliases = dict()
         for module in modules:
             self.aliases.update((v, {v})
-                for k, v in modules[module].iteritems())
+                                for k, v in modules[module].iteritems())
         self.aliases.update((f.name, {f})
-            for f in self.global_declarations.itervalues())
+                            for f in self.global_declarations.itervalues())
         self.aliases.update((arg.id, {arg})
-                for arg in node.args.args)
+                            for arg in node.args.args)
         self.generic_visit(node)
 
     def visit_Assign(self, node):
@@ -827,10 +828,10 @@ class BoundedExpressions(ModuleAnalysis):
     '''Gathers all nodes that are bound to an identifier.'''
 
     Boundable = (
-            ast.Name,
-            ast.Subscript,
-            ast.BoolOp,
-            )
+        ast.Name,
+        ast.Subscript,
+        ast.BoolOp,
+        )
 
     def __init__(self):
         self.result = set()
@@ -879,7 +880,7 @@ class ArgumentEffects(ModuleAnalysis):
                 self.update_effects = [False] * len(node.args.args)
             elif isinstance(node, intrinsic.Intrinsic):
                 self.update_effects = [isinstance(x, intrinsic.UpdateEffect)
-                        for x in node.argument_effects]
+                                       for x in node.argument_effects]
             elif isinstance(node, ast.alias):
                 self.update_effects = []
             elif isinstance(node, intrinsic.Class):
@@ -968,17 +969,17 @@ class ArgumentEffects(ModuleAnalysis):
             n = self.argument_index(arg)
             if n >= 0:
                 func_aliases = self.aliases[node].state[
-                        Aliases.access_path(node.func)]
+                    Aliases.access_path(node.func)]
 
                 # expand argument if any
                 func_aliases = reduce(
-                        lambda x, y: x + (
-                            self.all_functions
-                            if (isinstance(y, ast.Name)
-                                and self.argument_index(y) >= 0)
-                            else [y]),
-                        func_aliases,
-                        list())
+                    lambda x, y: x + (
+                        self.all_functions
+                        if (isinstance(y, ast.Name)
+                            and self.argument_index(y) >= 0)
+                        else [y]),
+                    func_aliases,
+                    list())
 
                 for func_alias in func_aliases:
                     # special hook for binded functions
@@ -989,10 +990,10 @@ class ArgumentEffects(ModuleAnalysis):
                     predecessors = self.result.predecessors(func_alias)
                     if self.current_function not in predecessors:
                         self.result.add_edge(
-                                self.current_function,
-                                func_alias,
-                                effective_parameters=[],
-                                formal_parameters=[])
+                            self.current_function,
+                            func_alias,
+                            effective_parameters=[],
+                            formal_parameters=[])
                     edge = self.result.edge[self.current_function][func_alias]
                     edge["effective_parameters"].append(n)
                     edge["formal_parameters"].append(i)
@@ -1065,10 +1066,10 @@ class GlobalEffects(ModuleAnalysis):
         func_aliases = self.aliases[node].state.get(ap, [])
         # expand argument if any
         func_aliases = reduce(
-                lambda x, y: x
-                    + (self.all_functions if isinstance(y, ast.Name) else [y]),
-                func_aliases,
-                list())
+            lambda x, y: x + (self.all_functions
+                              if isinstance(y, ast.Name) else [y]),
+            func_aliases,
+            list())
         for func_alias in func_aliases:
             # special hook for binded functions
             if isinstance(func_alias, ast.Call):
@@ -1182,12 +1183,12 @@ class UsedDefChain(FunctionAnalysis):
                 graph = self.use_only[id]
             if id in prev_node and prev_node[id] != self.continue_[id]:
                 entering_node = [i for j in prev_node[id]
-                                   for i in graph.successors_iter(j)]
+                                 for i in graph.successors_iter(j)]
             else:
                 cond = lambda x: graph.in_degree(x) == 0
                 entering_node = filter(cond, graph)
             graph.add_edges_from(product(self.continue_[id],
-                        entering_node))
+                                 entering_node))
         self.continue_ = dict()
 
     def visit_Name(self, node):
@@ -1200,7 +1201,7 @@ class UsedDefChain(FunctionAnalysis):
                 else:
                     self.use_only[node.id] = nx.DiGraph()
                     self.use_only[node.id].add_node("D0",
-                            action="D", name=node)
+                                                    action="D", name=node)
             else:
                 self.result[node.id] = nx.DiGraph()
                 self.result[node.id].add_node("D0", action="D", name=node)
@@ -1214,7 +1215,7 @@ class UsedDefChain(FunctionAnalysis):
                     isinstance(node.ctx, ast.Param)):
                 if node.id in self.use_only:
                     err = ("identifier {0} has a global linkage and can't"
-                            "be assigned")
+                           "be assigned")
                     raise PythranSyntaxError(err.format(node.id), node)
                 node_name = "D{0}".format(len(graph))
                 graph.add_node(node_name, action="D", name=node)
@@ -1583,13 +1584,13 @@ class LazynessAnalysis(FunctionAnalysis):
                             break
                         elif arg:
                             self.modify(node.args[i],
-                                    self.aliases[node.func].state)
+                                        self.aliases[node.func].state)
             elif fun in self.argument_effects:
                 for i, arg in enumerate(self.argument_effects[fun]):
                     if arg and len(node.args) > i:
                         self.modify(node.args[i],
-                                self.aliases[node.func].state)
-                        if isinstance(node.args[i], ast.Name): 
+                                    self.aliases[node.func].state)
+                        if isinstance(node.args[i], ast.Name):
                             self.result[node.args[i].id] = float('inf')
             else:
                 for arg in node.args:
@@ -1621,7 +1622,7 @@ class PotentialIterator(NodeAnalysis):
     def visit_Call(self, node):
         for i, arg in enumerate(node.args):
             isReadOnce = lambda f: (f in self.argument_read_once
-                                     and self.argument_read_once[f][i] <= 1)
+                                    and self.argument_read_once[f][i] <= 1)
             if all(isReadOnce(alias)
                    for alias in self.aliases[node.func].aliases):
                 self.result.add(arg)
@@ -1771,7 +1772,7 @@ class ArgumentReadOnce(ModuleAnalysis):
         body_deps = map(self.visit, node.body)
         else_deps = map(self.visit, node.orelse)
         return lambda ctx: test_deps(ctx) + max(sum(
-                l(ctx) for l in body_deps), sum(l(ctx) for l in else_deps))
+            l(ctx) for l in body_deps), sum(l(ctx) for l in else_deps))
 
     def visit_Call(self, node):
         l0 = self.generic_visit(node)
@@ -1781,17 +1782,17 @@ class ArgumentReadOnce(ModuleAnalysis):
             n = self.argument_index(arg)
             if n >= 0:
                 func_aliases = self.aliases[node].state[
-                        Aliases.access_path(node.func)]
+                    Aliases.access_path(node.func)]
 
                 # expand argument if any
                 func_aliases = reduce(
-                        lambda x, y: x + (
-                            self.all_functions
-                            if (isinstance(y, ast.Name)
-                                and self.argument_index(y) >= 0)
-                            else [y]),
-                        func_aliases,
-                        list())
+                    lambda x, y: x + (
+                        self.all_functions
+                        if (isinstance(y, ast.Name)
+                            and self.argument_index(y) >= 0)
+                        else [y]),
+                    func_aliases,
+                    list())
 
                 for func_alias in func_aliases:
                     # special hook for binded functions
@@ -1897,7 +1898,7 @@ class Scope(FunctionAnalysis):
             refs = [udgraph.node[n]['name'] for n in udgraph]
             # add OpenMP refs (well, the parent of the holding stmt)
             refs.extend(self.ancestors[d][-3]   # -3 to get the right parent
-                    for d in self.openmp_deps.get(name, []))
+                        for d in self.openmp_deps.get(name, []))
             # get their ancestors
             ancestors = map(self.ancestors.__getitem__, refs)
             # common ancestors

@@ -82,8 +82,9 @@ class Unparser:
     ########################################################
 
     def _Module(self, tree):
-        # Goes through each top-level statement. If the special __init__() function
-        # is found, add a call to it because it's a special Pythran feature.
+        # Goes through each top-level statement. If the special __init__()
+        # function is found, add a call to it because it's a special Pythran
+        # feature.
         has_init = False
         for stmt in tree.body:
             self.dispatch(stmt)
@@ -460,8 +461,8 @@ class Unparser:
         self.write(")")
 
     binop = {"Add": "+", "Sub": "-", "Mult": "*", "Div": "/", "Mod": "%",
-                "LShift": "<<", "RShift": ">>", "BitOr": "|", "BitXor": "^",
-                "BitAnd": "&", "FloorDiv": "//", "Pow": "**"}
+             "LShift": "<<", "RShift": ">>", "BitOr": "|", "BitXor": "^",
+             "BitAnd": "&", "FloorDiv": "//", "Pow": "**"}
 
     def _BinOp(self, t):
         self.write("(")
@@ -471,8 +472,8 @@ class Unparser:
         self.write(")")
 
     cmpops = {"Eq": "==", "NotEq": "!=", "Lt": "<", "LtE": "<=", "Gt": ">",
-                "GtE": ">=", "Is": "is", "IsNot": "is not", "In": "in",
-                "NotIn": "not in"}
+              "GtE": ">=", "Is": "is", "IsNot": "is not", "In": "in",
+              "NotIn": "not in"}
 
     def _Compare(self, t):
         self.write("(")

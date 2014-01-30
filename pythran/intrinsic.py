@@ -18,7 +18,7 @@ class ReadOnceEffect(ReadEffect):
 class Intrinsic(object):
     def __init__(self, **kwargs):
         self.argument_effects = kwargs.get('argument_effects',
-                (UpdateEffect(),) * 11)
+                                           (UpdateEffect(),) * 11)
         self.global_effects = kwargs.get('global_effects', False)
         self.return_alias = kwargs.get('return_alias', lambda x: {None})
 
@@ -39,8 +39,8 @@ class Intrinsic(object):
 
     def isconst(self):
         return not any(
-                isinstance(x, UpdateEffect) for x in self.argument_effects
-                ) and not self.global_effects
+            isinstance(x, UpdateEffect) for x in self.argument_effects
+            ) and not self.global_effects
 
     def isreadonce(self, n):
         return isinstance(self.argument_effects[n], ReadOnceEffect)
@@ -99,7 +99,7 @@ class ReadOnceFunctionIntr(ConstFunctionIntr):
 class MethodIntr(FunctionIntr):
     def __init__(self, *combiners, **kwargs):
         kwargs.setdefault('argument_effects',
-                (UpdateEffect(),) + (ReadEffect(),) * 10)
+                          (UpdateEffect(),) + (ReadEffect(),) * 10)
         kwargs['combiners'] = combiners
         super(MethodIntr, self).__init__(**kwargs)
 
@@ -112,8 +112,9 @@ class MethodIntr(FunctionIntr):
 
 class ConstMethodIntr(MethodIntr):
     def __init__(self, *combiners):
-        super(ConstMethodIntr, self).__init__(*combiners,
-                argument_effects=(ReadEffect(),) * 12)
+        super(ConstMethodIntr, self).__init__(
+            *combiners,
+            argument_effects=(ReadEffect(),) * 12)
 
 
 class AttributeIntr(Intrinsic):

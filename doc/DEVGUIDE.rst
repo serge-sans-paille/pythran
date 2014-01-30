@@ -63,10 +63,19 @@ validation suite is run through the command::
 
     $> python setup.py test
 
-If you have `py.test <http://pytest.org/latest/>`  from debian package
-`python-pytest-xdist` in your ``PYTHONPATH``, the test suite will run using all
+It can be tested using the `py.test <http://pytest.org/latest/>` package::
+
+    $> apt-get install python-pytest
+
+To run it faster you may use the `pytest` extension `xdist` from debian package
+`python-pytest-xdist` , the test suite will run using all
 available cores. Otherwise it might run **very** slowly, something line four
 hours on a decent laptop :'(.
+
+``pep8`` is checked using the `py.test` extension ``pytest-pep8``. It can be
+installed using::
+
+    $> sudo pip install pytest-pep8
 
 Note that it is still possible to use the ``unittest`` module directly, for
 instance to pass a subset of the test suite::

@@ -209,7 +209,7 @@ class ExceptHandler(Generable):
             yield "catch(...)"
         else:
             yield "catch (pythonic::types::%s const& %s)" % (self.name,
-                    self.alias or '')
+                                                             self.alias or '')
         for line in self.body.generate():
             yield line
 
@@ -299,9 +299,8 @@ class AutoFor(Loop):
 
     def intro_line(self):
         return ("for (typename decltype({1})::iterator::reference "
-                "{0}: {1})".format(
-                self.target,
-                self.iter))
+                "{0}: {1})".format(self.target,
+                                   self.iter))
 
 
 # simple statements -----------------------------------------------------------
@@ -477,9 +476,8 @@ class BoostPythonModule(object):
 
         self.mod_body.append(func)
         self.init_body.append(
-                Statement(
-                    "boost::python::def(\"%s\", &%s)" % (
-                        name, func.fdecl.name)))
+            Statement("boost::python::def(\"%s\", &%s)" % (name,
+                                                           func.fdecl.name)))
 
     def generate(self):
         """Generate (i.e. yield) the source code of the

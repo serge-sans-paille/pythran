@@ -190,7 +190,8 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
         mod.use_private_namespace = False
         # very low value for max_arity leads to various bugs
         min_val = 2
-        max_arity = max([min_val] + [max(map(len, s)) for s in specs.itervalues()])
+        specs_max = [max(map(len, s)) for s in specs.itervalues()]
+        max_arity = max([min_val] + specs_max)
         mod.add_to_preamble([Define("BOOST_PYTHON_MAX_ARITY", max_arity)])
         mod.add_to_preamble([Define("BOOST_SIMD_NO_STRICT_ALIASING", "1")])
         mod.add_to_preamble([Include("pythonic/core.hpp")])
@@ -222,12 +223,11 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
             # register exception only if they can be raise from C++ world to
             # Python world. Preprocessors variables are set only if deps
             # analysis detect that this exception can be raised
-            Line(
-                '#ifdef PYTHONIC_BUILTIN_%s_HPP\n'
-                'boost::python::register_exception_translator<'
-                'pythonic::types::%s>(&pythonic::translate_%s);\n'
-                '#endif' % (n.__name__.upper(), n.__name__, n.__name__)
-                     ) for n in sorted_exceptions])
+            Line('#ifdef PYTHONIC_BUILTIN_%s_HPP\n'
+                 'boost::python::register_exception_translator<'
+                 'pythonic::types::%s>(&pythonic::translate_%s);\n'
+                 '#endif' % (n.__name__.upper(), n.__name__, n.__name__)
+                 ) for n in sorted_exceptions])
 
         for function_name, signatures in specs.iteritems():
             internal_func_name = renamings.get(function_name,
@@ -249,7 +249,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
                                + "<typename {0}::result_type>::type".format(
                                  specialized_fname))
                 mod.add_to_init(
-                     [Statement("pythonic::python_to_pythran<{0}>()".format(t))
+                    [Statement("pythonic::python_to_pythran<{0}>()".format(t))
                      for t in _extract_all_constructed_types(signature)])
                 mod.add_to_init([Statement(
                     "pythonic::pythran_to_python<{0}>()".format(result_type))])

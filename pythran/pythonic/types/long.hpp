@@ -8,7 +8,6 @@ typedef long long pythran_long_t;
 #include <gmpxx.h>
 typedef mpz_class pythran_long_t;
 #define pythran_long(a) pythran_long_t(#a)
-#endif
 
 
 namespace pythonic {
@@ -262,6 +261,8 @@ namespace pythonic {
             }
         };
 }
+
+#endif
 
 #endif
 

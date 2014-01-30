@@ -165,13 +165,8 @@ try:
 
     else:  # assume we have a .py input file here
 
-        # Special handling for raw_translate_only, the trick is to provide and
-        # empty specs to avoid compile_pythranfile to auto-generate one
-        specs = {} if args.raw_translate_only else None
-
         pythran.compile_pythranfile(args.input_file,
                                     module_so=args.output_file,
-                                    specs=specs,
                                     cpponly=args.translate_only,
                                     **compile_flags(args))
 

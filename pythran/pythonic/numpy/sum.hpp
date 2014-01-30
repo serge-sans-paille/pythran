@@ -4,6 +4,10 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 
+#ifdef USE_BOOST_SIMD
+#include <boost/simd/include/functions/sum.hpp>
+#endif
+
 namespace pythonic {
 
     namespace numpy {

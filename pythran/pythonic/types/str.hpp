@@ -12,6 +12,7 @@
 #include <boost/format.hpp>
 #include <cassert>
 #include <string>
+#include <cstring>
 #include <sstream>
 #include <stdexcept>
 

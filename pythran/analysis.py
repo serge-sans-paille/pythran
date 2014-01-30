@@ -7,6 +7,8 @@ This module provides a few code analysis for the pythran language.
     * GlobalDeclarations gathers top-level declarations
     * Locals computes the value of locals()
     * Globals computes the value of globals()
+    * Names gathers all the identifiers used in an expression
+    * AssignTargets gathers all the Names changes by an assign
     * ImportedIds gathers identifiers imported by a node
     * Imports gathers all the import statements with their particulars
     * ConstantExpressions gathers constant expression
@@ -205,7 +207,7 @@ class DeclaredGlobals(NodeAnalysis):
         super(DeclaredGlobals, self).__init__()
 
     def visit_Global(self, node):
-        self.result.update(n for n in node.names)
+        self.result |= set(node.names)
 
 ##
 class LocalDeclarations(NodeAnalysis):
@@ -310,8 +312,8 @@ class Locals(ModuleAnalysis):
         self.result = dict()
         self.locals = set()
         self.nesting = 0
-        self.declared_globals = set()
-        super(Locals, self).__init__(DeclaredGlobals)
+        self.function_globals = set()
+        super(Locals, self).__init__()
 
     def generic_visit(self, node):
         super(Locals, self).generic_visit(node)
@@ -328,7 +330,7 @@ class Locals(ModuleAnalysis):
 
     def add_local(self, local):
         #If the same name was declared with 'global' earlier, cancel
-        if local not in self.declared_globals:
+        if local not in self.function_globals:
             self.locals.add(local)
 
     def add_locals(self, locals):
@@ -353,7 +355,9 @@ class Locals(ModuleAnalysis):
         self.handle_locals(node)
         #Store attributes to restore them after handling function body
         saved_locals = self.locals.copy()
-        saved_globals = self.declared_globals.copy()
+        saved_globals = self.function_globals
+
+        self.function_globals = self.passmanager.gather(DeclaredGlobals, node)
 
         #Handle function body, nested scope
         map(self.visit, node.args.defaults)
@@ -362,7 +366,7 @@ class Locals(ModuleAnalysis):
 
         #restore attributes
         self.locals = saved_locals
-        self.declared_globals = saved_globals
+        self.function_globals = saved_globals
         self.nesting -= 1
 
     def visit_Assign(self, node):
@@ -423,6 +427,36 @@ class Globals(ModuleAnalysis):
         super(Globals, self).run(node, ctx)
         return set(self.global_declarations.keys()
                 + [i for i in modules if i.startswith('__')])
+
+
+class Names(NodeAnalysis):
+    '''
+    Gathers the names used in an expression
+    '''
+    def __init__(self):
+        self.result = set()
+        super(Names, self).__init__()
+
+    def visit_Name(self, node):
+        self.result.add(node)
+
+
+class AssignTargets(NodeAnalysis):
+    '''
+    Gathers variables changes by an assign's targets
+    '''
+    def __init__(self):
+        self.result = set()
+        super(AssignTargets, self).__init__()
+
+    def visit_Call(self, node):
+        pass
+
+    def visit_Name(self, node):
+        self.result.add(node)
+
+    def visit_Assign(self, node):
+        map(self.visit, node.targets)
 
 
 ##
@@ -599,46 +633,6 @@ class ConstantExpressions(NodeAnalysis):
 
     def visit_Index(self, node):
         return self.visit(node.value) and self.add(node)
-
-
-##
-class OrderedGlobalDeclarations(ModuleAnalysis):
-    '''Order all global functions according to their callgraph depth'''
-    def __init__(self):
-        self.result = dict()
-        super(OrderedGlobalDeclarations, self).__init__(
-                StrictAliases, GlobalDeclarations)
-
-    def visit_FunctionDef(self, node):
-        self.curr = node
-        self.result[node] = set()
-        self.generic_visit(node)
-
-    def visit_Name(self, node):
-        if node in self.strict_aliases:
-            for alias in self.strict_aliases[node].aliases:
-                if isinstance(alias, ast.FunctionDef):
-                    self.result[self.curr].add(alias)
-                if isinstance(alias, ast.Call):  # this is a bind
-                    for alias in self.strict_aliases[alias.args[0]].aliases:
-                        self.result[self.curr].add(alias)
-
-    def run(self, node, ctx):
-        # compute the weight of each function
-        # the weight of a function is the number functions it references
-        super(OrderedGlobalDeclarations, self).run(node, ctx)
-        old_count = -1
-        new_count = 0
-        # iteratively propagate weights
-        while new_count != old_count:
-            for k, v in self.result.iteritems():
-                [v.update(self.result[f]) for f in list(v)]
-            old_count = new_count
-            new_count = reduce(lambda acc, s: acc + len(s),
-                    self.result.itervalues(), 0)
-        # return functions, the one with the greatest weight first
-        return sorted(self.result.iterkeys(), reverse=True,
-                key=lambda s: len(self.result[s]))
 
 
 ##

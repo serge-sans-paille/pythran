@@ -9,15 +9,14 @@ from numpy import ndarray
 import networkx as nx
 
 from tables import pytype_to_ctype_table, operator_to_lambda
-from tables import modules, methods, functions
+from tables import modules
 from analysis import GlobalDeclarations, YieldPoints, LocalDeclarations
-from analysis import OrderedGlobalDeclarations, ModuleAnalysis, StrictAliases
-from analysis import LazynessAnalysis, DeclaredGlobals, NonLocals
+from analysis import Aliases, ModuleAnalysis, StrictAliases, NonLocals
+from analysis import LazynessAnalysis, DeclaredGlobals, Names, AssignTargets
 from passes import Transformation
 from syntax import PythranSyntaxError
 from cxxtypes import *
 from intrinsic import UserFunction, MethodIntr, ConstantIntr
-import itertools
 import operator
 import metadata
 from config import cfg
@@ -102,25 +101,15 @@ def extract_constructed_types(t):
 
 
 class TypeDependencies(ModuleAnalysis):
-    '''
-    Gathers the callees of each function required for the inference of the return type
-
-    This analyse produces a directed graph with functions as nodes and edges
-    between nodes when a function might call another.
-    '''
-
-    NoDeps = "None"
+    """
+    Similar to Aliases, for each node, gathers all the node that
+    determine its type
+    """
 
     def __init__(self, *deps):
-        self.result = nx.DiGraph()
+        self.result = {}
         self.current_function = None
         super(TypeDependencies, self).__init__(GlobalDeclarations, *deps)
-
-    def prepare(self, node, ctx):
-        super(TypeDependencies, self).prepare(node, ctx)
-        for k, v in self.global_declarations.iteritems():
-            self.result.add_node(v)
-        self.result.add_node(TypeDependencies.NoDeps)
 
     def visit_any_conditionnal(self, node):
         '''
@@ -135,39 +124,10 @@ class TypeDependencies(ModuleAnalysis):
     def visit_FunctionDef(self, node):
         assert self.current_function is None
         self.current_function = node
-        self.result.add_node(node)
         self.naming = dict()
         self.in_cond = False  # True when we are in a if, while or for
         self.generic_visit(node)
         self.current_function = None
-
-    def visit_Return(self, node):
-        '''
-        Gather all the function call that led to the creation of the
-        returned expression and add an edge to each of this function.
-        '''
-        if node.value:
-            self.add_edges(self.visit(node.value))
-
-    def add_edges(self, visit_result):
-        """
-        Adds edges from each called function in the node to the current function
-
-        When visiting an expression, one returns a list of frozensets.  Each
-        element of the list is linked to a possible path, each element of a
-        frozenset is linked to a dependency.
-        """
-        if not visit_result:
-            return
-        for dep_set in visit_result:
-            if dep_set:
-                [self.result.add_edge(dep, self.current_function)
-                 for dep in dep_set]
-            else:
-                self.result.add_edge(TypeDependencies.NoDeps,
-                                        self.current_function)
-
-    visit_Yield = visit_Return
 
     def update_naming(self, name, value):
         '''
@@ -175,7 +135,7 @@ class TypeDependencies(ModuleAnalysis):
         depending on the in_cond state
         '''
         if self.in_cond:
-            self.naming.setdefault(name, []).extend(value)
+            self.naming.setdefault(name, set()).update(value)
         else:
             self.naming[name] = value
 
@@ -192,15 +152,15 @@ class TypeDependencies(ModuleAnalysis):
             self.update_naming(t.id, v)
 
     def visit_For(self, node):
-        self.naming.update({node.target.id: self.visit(node.iter)})
+        self.update_naming(node.target.id, self.visit(node.iter))
         self.visit_any_conditionnal(node)
 
     def visit_BoolOp(self, node):
-        return sum((self.visit(value) for value in node.values), [])
+        return set().union(*[self.visit(value) for value in node.values])
 
     def visit_BinOp(self, node):
         args = map(self.visit, (node.left, node.right))
-        return list({frozenset.union(*x) for x in itertools.product(*args)})
+        return set().union(*args)
 
     def visit_UnaryOp(self, node):
         return self.visit(node.operand)
@@ -209,66 +169,129 @@ class TypeDependencies(ModuleAnalysis):
         assert False
 
     def visit_IfExp(self, node):
-        return self.visit(node.body) + self.visit(node.orelse)
+        return self.visit(node.body).union(self.visit(node.orelse))
 
     def visit_Compare(self, node):
-        return [frozenset()]
+        return set()
 
     def visit_Call(self, node):
         args = map(self.visit, node.args)
         func = self.visit(node.func)
         params = args + [func or []]
-        return list({frozenset.union(*p) for p in itertools.product(*params)})
+        return set.union(*params)
 
     def visit_Num(self, node):
-        return [frozenset()]
+        return set()
 
     def visit_Str(self, node):
-        return [frozenset()]
+        return set()
 
     def visit_Attribute(self, node):
-        return [frozenset()]
+        return set()
 
     def visit_Subscript(self, node):
         return self.visit(node.value)
 
     def visit_Name(self, node):
         if node.id in self.naming:
+            #Todo: maybe if it's a declared global, also return
+            # self.global_declarations[node.id]
             return self.naming[node.id]
         elif node.id in self.global_declarations:
-            return [frozenset([self.global_declarations[node.id]])]
+            return {self.global_declarations[node.id]}
         else:
-            return [frozenset()]
+            return set()
 
     def visit_List(self, node):
         if node.elts:
-            return list(set(sum(map(self.visit, node.elts), [])))
+            return set().union(*map(self.visit, node.elts))
         else:
-            return [frozenset()]
+            return set()
 
     visit_Set = visit_List
 
     def visit_Dict(self, node):
         if node.keys:
             items = node.keys + node.values
-            return list(set(sum(map(self.visit, items), [])))
+            return set().union(*map(self.visit, items))
         else:
-            return [frozenset()]
+            return set()
 
     visit_Tuple = visit_List
 
     def visit_Slice(self, node):
-        return [frozenset()]
+        return set()
 
     def visit_Index(self, node):
-        return [frozenset()]
+        return set()
 
     visit_If = visit_any_conditionnal
     visit_While = visit_any_conditionnal
     visit_Expr = visit_Subscript
 
+    def run(self, node, ctx):
+        super(TypeDependencies, self).run(node, ctx)
+        return self.naming
 
-class Callees(TypeDependencies):
+
+class ReturnTypeDependencies(TypeDependencies):
+    '''
+    Gathers the aliases in each return statement, to deduce what a function's
+    type is dependent on.
+
+    Returns a DiGraph, u -> v means u depends on v
+    '''
+    def __init__(self):
+        self.current_function = None
+        super(ReturnTypeDependencies, self).__init__(GlobalDeclarations)
+        self.result = nx.DiGraph()
+
+    def visit_FunctionDef(self, node):
+        #All functions should have been unnested
+        assert not self.current_function
+        oldfunction = self.current_function
+        self.current_function = node
+        self.result.add_node(node)
+        self.function_globals = self.passmanager.gather(DeclaredGlobals, node)
+        ### FOR SUPER CLASS
+        self.naming = dict()
+        self.in_cond = False  # True when we are in a if, while or for
+        ###
+        self.generic_visit(node)
+        self.current_function = oldfunction
+
+    def visit_Return(self, node):
+        res = self.visit(node.value)
+        #Only keep the aliases if they refer to something global
+        gb_vals = self.global_declarations.values()
+        res = {val for val in res if val in gb_vals}
+        for val in res:
+            if val != self.current_function:
+                self.result.add_edge(self.current_function, val)
+
+    def visit_Assign(self, node):
+        targets = self.passmanager.gather(AssignTargets, node)
+        content = self.visit(node.value)
+
+        #Only keep the aliases if they refer to something global
+        gb_vals = self.global_declarations.values()
+        targets = {self.global_declarations[t.id] for t in targets
+                   if t in self.function_globals}
+        content = {y for y in content if y in gb_vals}
+
+        for x in targets:
+            for y in content:
+                if x != y:
+                    self.result.add_edge(x, y)
+
+    visit_Yield = visit_Return
+
+    def run(self, node, ctx):
+        super(ReturnTypeDependencies, self).run(node, ctx)
+        return self.result
+
+
+class Callees(ModuleAnalysis):
     """
     Gathers all the functions called inside each function, and list the
     list of arguments whit which they are called
@@ -289,114 +312,74 @@ class Callees(TypeDependencies):
     'x'
     """
     def __init__(self, *deps):
-        self.recursion = False
+        self.current_function = None
         #In addition to creating the call graph between functions, we also remember
         #with which arguments the functions were called.
         #
-        #self.args[function_node][called_function] = [[arg1, arg2], [arg1', arg2'],???] ]
-        self.args = {}
-        super(Callees, self).__init__(*deps)
+        #self.result[function_node][called_function] = [[arg1, arg2], [arg1', arg2'],???] ]
+        self.result = {}
+        super(Callees, self).__init__(Aliases, GlobalDeclarations, *deps)
 
-    def visit(self, node):
-        """
-        Instead of just gathering the function calls relevant to the return
-        expression, gathers all.
-        """
-        if self.recursion or not self.current_function:
-            return super(Callees, self).visit(node)
-        else:
-            self.recursion = True
-            result = super(Callees, self).visit(node)
-            self.recursion = False
 
-            self.add_edges(result)
-            return result
+    def visit_FunctionDef(self, node):
+        #All functions should have been unnested
+        assert not self.current_function
+        oldfunction = self.current_function
+        self.current_function = node
+        self.generic_visit(node)
+        self.current_function = oldfunction
 
     def visit_Call(self, node):
-        if self.current_function:
-            #list of set of functions
-            func = self.visit(node.func)
-            if not (self.current_function in self.args):
-                self.args[self.current_function] = {}
-            #Merge the sets and look at each individual element
-            elems =  {e for p in func for e in p}
-            for f in elems:
-                if not (f in self.args[self.current_function]):
-                    self.args[self.current_function][f] = []
-                #Add the call to the list of calls
-                self.args[self.current_function][f].append(node.args)
+        assert  self.current_function
+        res = self.aliases[node.func].aliases
+        #Only keep the aliases if they refer to something global
+        gb_vals = self.global_declarations.values()
+        res = {y for y in res if y in gb_vals}
+        res = {y for y in res if isinstance(y, ast.FunctionDef)}
+        #We now have all the functions the call might be on
+        for func in res:
+            if func not in self.result.setdefault(self.current_function, {}):
+                self.result[self.current_function][func] = []
+            #Add the call to the list of calls
+            self.result[self.current_function][func].append(node.args)
             #We now have the list of each function called, and for each of
             #those the list of various ways it's called in
-            #self.args[f][called_function]
+            #self.func[f][called_function]
 
-        return super(Callees, self).visit_Call(node)
-
-    def run(self, node, ctx):
-        """Instead of returning the DiGraph of TypeDependencies, returns a dict
-        of {function names: {functions called inside: [list of args] }}
-
-        There can be several args object if the function is called several times inside
-        """
-        super(Callees, self).run(node, ctx)
-        return self.args
+            #The types analysis can help deduce what type are the arguments
 
 
-class AcyclicCallees(Callees):
+class AcyclicCallees(ModuleAnalysis):
     """Same as Callees but arbirtrarily breaks cycles if there are some
     in the call graph"""
     def __init__(self):
-        super(AcyclicCallees, self).__init__(Callees)
+        self.result = {}
+        super(AcyclicCallees, self).__init__(Callees, ReturnTypeDependencies)
 
-    def trim_callees(self):
-        """Changes the results of the Callees analysis to remove all
-        cyclic dependencies"""
-        def navigate_graph(acc, node):
-            if node not in self.callees:
-                return
+    def fix_callees(self):
+        if not nx.is_directed_acyclic_graph(self.return_type_dependencies):
+            raise PythranSyntaxError("Infinite function recursion")
 
-            for func in self.callees[node].keys():
-                if func in acc:
-                    del self.callees[node][func]
+        for func in self.callees.keys():
+            for called in self.callees[func].keys():
+                #Make sure this won't create a cycle
+                if not nx.has_path(self.return_type_dependencies, called, func):
+                    self.return_type_dependencies.add_edge(func, called)
                 else:
-                    navigate_graph(acc + [func], func)
-
-        for node in self.callees.keys():
-            navigate_graph([node], node)
+                    del self.callees[func][called]
 
     def run(self, node, ctx):
         super(AcyclicCallees, self).run(node, ctx)
-        self.trim_callees()
-        return self.callees
+        self.fix_callees()
+        return (self.callees, self.return_type_dependencies)
+
 
 class Reorder(Transformation):
-    '''
+    """
     Reorder top-level functions to prevent circular type dependencies
-    '''
+    """
     def __init__(self):
-        super(Reorder, self).__init__(TypeDependencies, AcyclicCallees)
-
-    def prepare(self, node, ctx):
-        super(Reorder, self).prepare(node, ctx)
-        none_successors = self.type_dependencies.successors(
-                TypeDependencies.NoDeps)
-        candidates = sorted(none_successors)
-        while candidates:
-            new_candidates = list()
-            for n in candidates:
-                # remove edges that imply a circular dependency
-                for p in sorted(self.type_dependencies.predecessors(n)):
-                    if nx.has_path(self.type_dependencies, n, p):
-                        try:
-                            while True:  # may be multiple edges
-                                self.type_dependencies.remove_edge(p, n)
-                        except:
-                            pass  # no more edges to remove
-                    # nx.write_dot(self.type_dependencies,"b.dot")
-                if not n in self.type_dependencies.successors(n):
-                    new_candidates.extend(self.type_dependencies.successors(n))
-                else:
-                    pass
-            candidates = new_candidates
+        super(Reorder, self).__init__(ReturnTypeDependencies)
 
     def visit_Module(self, node):
         newbody = list()
@@ -408,45 +391,21 @@ class Reorder(Transformation):
                 newbody.append(stmt)
 
         newdef = self.get_sorted_nodes()
+
         assert set(newdef) == set(olddef)
         node.body = newbody + newdef
         return node
 
     def get_sorted_nodes(self):
-        if not nx.is_directed_acyclic_graph(self.type_dependencies):
+        if not nx.is_directed_acyclic_graph(self.return_type_dependencies):
             raise PythranSyntaxError("Infinite function recursion")
 
-        nodes = [x for x in self.type_dependencies.nodes()
-                 if isinstance(x, ast.FunctionDef)]
-
-        #Convert the acyclic_callees to an acyclic nx graph
-        ac_graph = nx.DiGraph()
-        [ac_graph.add_node(node) for node in nodes]
-        for k, v in self.acyclic_callees.iteritems():
-            [ac_graph.add_edge(k, c) for c in v.keys()]
-
-        ac_graph.reverse(False)
-        nodes = [f for f in nx.topological_sort(ac_graph)]
-
-        #Now we need to make sure that the order of self.type_dependencies is
-        # still enforced
-
-        #This is an ugly and inefficient way to do it, but usually the previous
-        # sort order is correct
-        done = False
-        while not done:
-            done = True
-            for i in range(len(nodes)):
-                for j in range(i):
-                    if nx.has_path(self.type_dependencies, nodes[i], nodes[j]):
-                        nodes.insert(j, nodes[i])
-                        nodes.pop(i+1)
-                        done = False
-                        break
-                if not done:
-                    break
+        self.return_type_dependencies.reverse(False)
+        nodes = nx.topological_sort(self.return_type_dependencies)
+        nodes = [node for node in nodes if isinstance(node, ast.FunctionDef)]
 
         return nodes
+
 
 class UnboundableRValue(Exception):
     pass

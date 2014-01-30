@@ -26,6 +26,7 @@ from math import isnan, isinf
 import cStringIO
 import unparse
 import metadata
+import networkx as nx
 
 
 class Python(Backend):
@@ -100,6 +101,7 @@ class Cxx(Backend):
         self.definitions = list()
         self.break_handlers = list()
         self.functions = list()
+        self.combiners = dict()
         self.result = None
         super(Cxx, self).__init__(Dependencies,
                 GlobalDeclarations, BoundedExpressions, Types, ArgumentEffects,
@@ -124,10 +126,10 @@ class Cxx(Backend):
         globals_changed = [set(self.types[node][2].keys())]
         #Then the globals changed in the subfunctions:
         def navigate_graph(node):
-            if node not in self.acyclic_callees:
+            if node not in self.callees:
                 return
 
-            for func in self.acyclic_callees[node].keys():
+            for func in self.callees[node].keys():
                 globals_changed[0] |= set(self.types[func][2].keys())
                 navigate_graph(func)
 
@@ -137,6 +139,9 @@ class Cxx(Backend):
 
     # mod
     def visit_Module(self, node):
+        self.callees = self.acyclic_callees[0]
+        self.callees_order = self.acyclic_callees[1]
+
         # build all types
         def gen_include(t):
             return "/".join(("pythonic",) + t) + ".hpp"
@@ -158,7 +163,7 @@ class Cxx(Backend):
                 #decltype(f_global_type<f::combiner_a, self.types[gbnode]>(0))
                 self.types[gbnode] = \
                     TemplatedType("{0}_global_type".format(node.name),
-                                  [NamedType("{0}::combiner_{1}".format(
+                                  [NamedType("{0}__combiner_{1}".format(
                                    node.name, gb))] + [self.types[gbnode]])
                 self.types[gbnode] = ReturnType(self.types[gbnode],
                                                 [NamedType("int")], True)
@@ -180,7 +185,13 @@ class Cxx(Backend):
                 for gb in self.declared_globals]
         )
 
-        nsbody = body + self.declarations + globals + self.definitions
+        self.callees_order.reverse(False)
+        combiner_order = nx.topological_sort(self.callees_order)
+        combiners = sum([self.combiners[f] for f in combiner_order
+                     if f in self.combiners], [])
+
+        nsbody = body + combiners + \
+                 self.declarations + globals + self.definitions
 
         #Needed as the default global type for global code
         if len(self.declared_globals) > 0:
@@ -604,9 +615,11 @@ class Cxx(Backend):
             topstruct = Struct(
                     node.name,
                     [callable_type]
-                    + combiners
                     + return_declaration
                     + operator_declaration)
+
+        if len(combiners) > 0:
+            self.combiners[node] = combiners
 
         self.functions.append(node)
         self.declarations.append(topstruct)
@@ -625,17 +638,14 @@ class Cxx(Backend):
         combiner = NamedType("or_type")  # Default combiner
         direct_global_changes = self.types[node][2]
 
-        if not (node in self.acyclic_callees):
-            self.acyclic_callees[node] = {}
-
         #Check if sub functions changes the global gb
-        for callee, calls in self.acyclic_callees[node].items():
+        for callee, calls in self.callees.get(node, {}).items():
             if gb not in self.get_globals_changed(callee):
                 continue
             #The sub function does change the global gb
             for call in calls:
                 combiner = \
-                    InstanciatedType("{0}::combiner_{1}".format(callee.name, gb),
+                    InstanciatedType("{0}__combiner_{1}".format(callee.name, gb),
                                      "instanciation",
                                      [combiner] + [self.types[x] for x in call],
                                      node.name, {})
@@ -659,7 +669,7 @@ class Cxx(Backend):
                                     "instanciation"))
 
         #the iterable dict is a <global_name, node> assocation
-        decl = Struct("combiner_"+gb, [templatize(
+        decl = Struct(node.name+"__combiner_"+gb, [templatize(
             Struct("type", or_typedefs + [typedef]),
             [NamedType("or_type")] + formal_types,
             [None] + default_arg_types

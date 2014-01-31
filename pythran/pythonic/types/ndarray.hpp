@@ -137,7 +137,7 @@ namespace pythonic {
                 }
 #ifdef USE_BOOST_SIMD
                 auto load(long i) const -> decltype(arg0.load(i)) {
-                    return arg0.load(i); // FIXME
+                    return arg0.load(i); // FIXME should declare the function as not vectorizable?
                 }
 #endif
                 auto at(long i) const -> decltype(arg0.at(indices->data[i])) {
@@ -722,6 +722,11 @@ we assume that M>=N
                 auto at(long i) const -> decltype(data.at(0)) {
                     return data.at(jump*lower+i*step);
                 }
+#ifdef USE_BOOST_SIMD
+                auto load(long i) const -> decltype(data.load(jump*lower+i)) {
+                    return data.load(jump*lower+i); // FIXME should prevent vectorization if step != 1
+                }
+#endif
                 long size() const { return (data.size() / data.shape[0]) * shape[0] ; }
                 reference operator[](long i) { return data[jump*lower+i*step]; }
                 const_reference operator[](long i) const { return data[jump*lower+i*step]; }

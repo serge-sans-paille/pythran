@@ -2,6 +2,9 @@
 #define PYTHONIC_OPERATOR_MUL_HPP
 
 #include "pythonic/utils/proxy.hpp"
+#ifdef USE_BOOST_SIMD
+#include <nt2/include/functions/multiplies.hpp>
+#endif
 
 namespace pythonic {
 

@@ -138,6 +138,10 @@ class TestEnv(unittest.TestCase):
                 else:
                     pythran_res = getattr(pymod, self.TEST_RETURNVAL)
                     # Test Results, assert if mismatch
+                    if python_exception_type:
+                        raise AssertionError(
+                                "expected exception was %s, but nothing happend!" %
+                                python_exception_type)
                     self.compare_pythonpythran_results(python_ref, pythran_res)
 
             finally:

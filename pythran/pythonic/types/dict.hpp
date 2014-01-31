@@ -315,8 +315,9 @@ namespace std {
         auto get( pythonic::types::dict<K,V> const & d) -> decltype(d[I]) { return d[I]; }
 
     template <size_t I, class K, class V>
-        struct tuple_element<I, pythonic::types::dict<K,V> > {
-            typedef typename pythonic::types::dict<K,V>::value_type type;
+        class tuple_element<I, pythonic::types::dict<K,V> > {
+            public:
+                typedef typename pythonic::types::dict<K,V>::value_type type;
         };
 }
 

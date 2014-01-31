@@ -33,7 +33,7 @@ namespace pythonic {
             bool operator!=(const_str_view_iterator const& other) const { return data != other.data; }
             char operator*() const { return *data; }
             char operator*() { return *data; }
-            const_str_view_iterator operator-(long n) const { const_str_view_iterator other(*this); other.data += step * n; return other; } 
+            const_str_view_iterator operator-(long n) const { const_str_view_iterator other(*this); other.data += step * n; return other; }
             long operator-(const_str_view_iterator const & other) const { return (data - other.data)/step; }
         };
 
@@ -384,12 +384,14 @@ namespace std {
         typename pythonic::types::str get( pythonic::types::str const &t) { return pythonic::types::str(t[I]); }
 
     template <size_t I>
-        struct tuple_element<I, pythonic::types::str > {
-            typedef typename pythonic::types::str type;
+        class tuple_element<I, pythonic::types::str > {
+            public:
+                typedef typename pythonic::types::str type;
         };
     template <size_t I>
-        struct tuple_element<I, pythonic::types::str_view > {
-            typedef typename pythonic::types::str type;
+        class tuple_element<I, pythonic::types::str_view > {
+            public:
+                typedef typename pythonic::types::str type;
         };
 }
 #ifdef ENABLE_PYTHON_MODULE

@@ -51,7 +51,7 @@ namespace {
                 typedef typename std::tuple_element<index, std::tuple<types...>>::type nexttype;
                 hash_impl<index-1, types...> next;
                 size_t b = std::hash<nexttype>()(std::get<index>(t));
-                return next(hash_combiner(a, b), t); 
+                return next(hash_combiner(a, b), t);
             }
         };
     template<class...types>
@@ -59,7 +59,7 @@ namespace {
             size_t operator()(size_t a, const std::tuple<types...>& t) const {
                 typedef typename std::tuple_element<0, std::tuple<types...>>::type nexttype;
                 size_t b = std::hash<nexttype>()(std::get<0>(t));
-                return hash_combiner(a, b); 
+                return hash_combiner(a, b);
             }
         };
 }
@@ -327,12 +327,14 @@ namespace std {
         typename pythonic::types::array<T,N>::const_reference get( pythonic::types::array<T,N> const & t) { return t[I]; }
 
     template <size_t I, class T, size_t N>
-        struct tuple_element<I, pythonic::types::array<T,N> > {
-            typedef typename pythonic::types::array<T,N>::value_type type;
+        class tuple_element<I, pythonic::types::array<T,N> > {
+            public:
+                typedef typename pythonic::types::array<T,N>::value_type type;
         };
     template<class T, size_t N>
-        struct tuple_size<pythonic::types::array<T,N>> {
-            static const size_t value = N;
+        class tuple_size<pythonic::types::array<T,N>> {
+            public:
+                static const size_t value = N;
         };
 }
 
@@ -350,7 +352,7 @@ namespace std {
             size_t operator()(pythonic::types::array<T,N> const& l) const {
                 size_t seed = 0;
                 hash<T> h;
-                for(auto const &iter: l) 
+                for(auto const &iter: l)
                     seed ^= h(iter) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
                 return seed;
             }

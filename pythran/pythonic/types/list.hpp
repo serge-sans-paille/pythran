@@ -433,8 +433,9 @@ namespace std {
         typename pythonic::types::list<T>::const_reference get( pythonic::types::list<T> const & t) { return t[I]; }
 
     template <size_t I, class T>
-        struct tuple_element<I, pythonic::types::list<T> > {
-            typedef typename pythonic::types::list<T>::value_type type;
+        class tuple_element<I, pythonic::types::list<T> > {
+            public:
+                typedef typename pythonic::types::list<T>::value_type type;
         };
 }
 

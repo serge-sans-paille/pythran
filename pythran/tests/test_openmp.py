@@ -13,11 +13,15 @@ class TestOpenMPLegacy(TestFromDir):
     '''
     path = os.path.join(os.path.dirname(__file__),"openmp.legacy")
 
+    @staticmethod
+    def interface(name, file=None):
+        return { name: [] }
+
 # only activate OpenMP tests if the underlying compiler supports OpenMP
 try:
-    pythran.compile_cxxcode('#include <omp.h>')
+    pythran.compile_cxxcode('#include <omp.h>', cxxflags=['-fopenmp'])
     TestOpenMP.populate(TestOpenMP)
-    TestOpenMPLegacy.populate(TestOpenMP)
+    TestOpenMPLegacy.populate(TestOpenMPLegacy)
 except pythran.CompileError:
     pass
 

@@ -514,8 +514,8 @@ struct __combined<pythonic::types::list<T0>, pythonic::types::list<T1>> {
 #ifdef ENABLE_PYTHON_MODULE
 
 #include "pythonic/python/register_once.hpp"
+#include "pythonic/python/extract.hpp"
 #include <boost/python/numeric.hpp>
-#include <boost/python/extract.hpp>
 #include <boost/python/object.hpp>
 
 namespace pythonic {
@@ -562,15 +562,24 @@ namespace pythonic {
                     Py_ssize_t l=PySequence_Size(obj_ptr);
                     new (storage) types::list<T>(l);
                     boost::python::numeric::array data = extractor;
+                    auto iter = v.begin();
                     for(Py_ssize_t i=0; i<l; i++)
-                        v[i]=boost::python::extract<T>(data[i]);
+                        *iter++ = boost::python::extract<T>(data[i]);
                 }
                 else {
                     Py_ssize_t l=PySequence_Fast_GET_SIZE(obj_ptr);
                     new (storage) types::list<T>(l);
                     PyObject** core = PySequence_Fast_ITEMS(obj_ptr);
-                    for(Py_ssize_t i=0; i<l; i++)
-                        v[i]=boost::python::extract<T>(*core++);
+                    /* Perform extraction using boost version first, has it does more checks
+                     * then go wild and use our custom & faster extractor
+                     */
+                    auto iter = v.begin(), end = v.end();
+                    if(iter != end) {
+                        *iter = boost::python::extract<T>(*core++);
+                        while(++iter != end) {
+                            *iter = extract<T>(*core++);
+                        }
+                    }
                 }
                 data->convertible=storage;
             }

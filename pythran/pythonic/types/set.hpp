@@ -409,7 +409,7 @@ struct __combined<pythonic::types::set<T0>, pythonic::types::set<T1>> {
 #ifdef ENABLE_PYTHON_MODULE
 
 #include "pythonic/python/register_once.hpp"
-#include <boost/python/extract.hpp>
+#include "pythonic/python/extract.hpp"
 #include <boost/python/object.hpp>
 
 namespace pythonic {
@@ -437,7 +437,7 @@ namespace pythonic {
                 PyObject *iterator = PyObject_GetIter(obj_ptr);
                 PyObject *item;
                 while((item = PyIter_Next(iterator))) {
-                    v.add(boost::python::extract<T>(item));
+                    v.add(extract<T>(item));
                     Py_DECREF(item);
                 }
                 Py_DECREF(iterator);

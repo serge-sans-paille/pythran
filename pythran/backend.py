@@ -16,7 +16,7 @@ from pythran.analysis import DeclaredGlobals
 from tables import operator_to_lambda, modules, type_to_suffix
 from tables import pytype_to_ctype_table
 from tables import pythran_ward
-from typing import Types, AcyclicCallees
+from typing import Types, AcyclicCallees, ReturnTypeDependencies
 from syntax import PythranSyntaxError
 
 from openmp import OMPDirective
@@ -97,7 +97,7 @@ class Cxx(Backend):
     final_statement = "that_is_all_folks"
 
     def __init__(self):
-        self.declarations = list()
+        self.declarations = dict()
         self.definitions = list()
         self.break_handlers = list()
         self.functions = list()
@@ -105,7 +105,7 @@ class Cxx(Backend):
         self.result = None
         super(Cxx, self).__init__(Dependencies,
                 GlobalDeclarations, BoundedExpressions, Types, ArgumentEffects,
-                DeclaredGlobals, Scope, AcyclicCallees)
+                DeclaredGlobals, Scope, AcyclicCallees, ReturnTypeDependencies)
 
     def get_globals_changed(self, node):
         """Gets the globals changed in the function or sub functions
@@ -179,19 +179,46 @@ class Cxx(Backend):
 
         #generate global variables declared in the module
         ctx = lambda x: x
-        globals = default_global_types + (
-            [Statement("{0} {1}".format(
+        globals = {
+            self.global_declarations[gb]: Statement("{0} {1}".format(
                 self.types[self.global_declarations[gb]].generate(ctx), gb))
-                for gb in self.declared_globals]
-        )
+            for gb in self.declared_globals
+        }
 
-        self.callees_order.reverse(False)
-        combiner_order = nx.topological_sort(self.callees_order)
-        combiners = sum([self.combiners[f] for f in combiner_order
-                     if f in self.combiners], [])
+        #Get the final order, of globals, functions and combiners
+        #First: Gather function body / global order
+        order = self.return_type_dependencies
 
-        nsbody = body + combiners + \
-                 self.declarations + globals + self.definitions
+        #Then: combiners must appear before their global
+        for combiners in self.combiners.values():
+            for gb, combiner in combiners:
+                order.add_edge(self.global_declarations[gb], combiner)
+
+        #Finally: combiners have an order defined in self.callees_order
+        for edge in self.callees_order.edges():
+            if edge[0] in self.combiners:
+                for _, combiner1 in self.combiners[edge[0]]:
+                    if edge[1] in self.combiners:
+                        for _, combiner2 in self.combiners[edge[1]]:
+                            order.add_edge(combiner1, combiner2)
+
+        #Add missing globals from the order
+        for gb in self.declared_globals:
+            order.add_node(self.global_declarations[gb])
+
+        node_to_declaration = {}
+        for combiners in self.combiners.values():
+            for _, combiner in combiners:
+                node_to_declaration[combiner] = combiner
+        node_to_declaration.update(globals)
+        node_to_declaration.update(self.declarations)
+
+        #If a depends on b, we want b first, so reverse the graph and sort it
+        order.reverse(False)
+        declarations = [node_to_declaration[node]
+                        for node in nx.topological_sort(order)]
+
+        nsbody = body + default_global_types + declarations + self.definitions
 
         #Needed as the default global type for global code
         if len(self.declared_globals) > 0:
@@ -541,7 +568,7 @@ class Cxx(Backend):
                     [topstruct_type, callable_type]
                     + operator_declaration)
 
-            self.declarations.append(next_struct)
+            self.declarations[node] = next_struct
             self.definitions.append(next_definition)
 
         else:  # regular function case
@@ -603,7 +630,7 @@ class Cxx(Backend):
             for gb in globals_changed:
                 combiner = self.get_combiner(node, gb, formal_types,
                                              default_arg_types)
-                combiners.append(combiner)
+                combiners.append((gb, combiner))
 
             return_declaration = [
                     templatize(
@@ -622,7 +649,7 @@ class Cxx(Backend):
             self.combiners[node] = combiners
 
         self.functions.append(node)
-        self.declarations.append(topstruct)
+        self.declarations[node] = topstruct
         self.definitions.append(operator_definition)
 
         return EmptyStatement()

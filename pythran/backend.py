@@ -13,6 +13,7 @@ from analysis import YieldPoints, BoundedExpressions, ArgumentEffects
 from passmanager import Backend
 from pythran.analysis import DeclaredGlobals
 
+from intrinsic import ConstantIntr
 from tables import operator_to_lambda, modules, type_to_suffix
 from tables import pytype_to_ctype_table
 from tables import pythran_ward
@@ -201,6 +202,15 @@ class Cxx(Backend):
                     if edge[1] in self.combiners:
                         for _, combiner2 in self.combiners[edge[1]]:
                             order.add_edge(combiner1, combiner2)
+
+        #Also: When a global's type depend on a function, its combiners must
+        # depend on it too (aslo when global depends on global)
+        for combiners in self.combiners.values():
+            for gb, combiner in combiners:
+                for succ in order.successors(self.global_declarations[gb]):
+                    if isinstance(succ, ast.FunctionDef) or \
+                            isinstance(succ, ConstantIntr):
+                        order.add_edge(combiner, succ)
 
         #Add missing globals from the order
         for gb in self.declared_globals:

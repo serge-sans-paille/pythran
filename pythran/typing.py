@@ -276,7 +276,7 @@ class ReturnTypeDependencies(TypeDependencies):
         #Only keep the aliases if they refer to something global
         gb_vals = self.global_declarations.values()
         targets = {self.global_declarations[t.id] for t in targets
-                   if t in self.function_globals}
+                   if t.id in self.function_globals}
         content = {y for y in content if y in gb_vals}
 
         for x in targets:

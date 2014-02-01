@@ -452,6 +452,9 @@ class AssignTargets(NodeAnalysis):
     def visit_Call(self, node):
         pass
 
+    def visit_Slice(self, node):
+        pass
+
     def visit_Name(self, node):
         self.result.add(node)
 

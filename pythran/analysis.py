@@ -364,10 +364,16 @@ class Locals(ModuleAnalysis):
         self.add_locals(arg.id for arg in node.args.args)
         map(self.visit, node.body)
 
+        #Add the information about the locals at the end of the node
+        self.store_locals((node, "last"))
         #restore attributes
         self.locals = saved_locals
         self.function_globals = saved_globals
         self.nesting -= 1
+
+    @staticmethod
+    def locals_of_func(result, node):
+        return result[(node, "last")]
 
     def visit_Assign(self, node):
         self.handle_locals(node)
@@ -443,7 +449,7 @@ class Names(NodeAnalysis):
 
 class AssignTargets(NodeAnalysis):
     '''
-    Gathers variables changes by an assign's targets
+    Gathers variable changes by an assign's targets
     '''
     def __init__(self):
         self.result = set()

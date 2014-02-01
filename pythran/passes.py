@@ -21,7 +21,7 @@ This modules contains code transformation to turn python AST into
 
 from analysis import ImportedIds, Identifiers, YieldPoints, Globals, Locals
 from analysis import UsedDefChain, UseOMP, CFG, GlobalDeclarations
-from analysis import DeclaredGlobals, LocalDeclarations
+from analysis import DeclaredGlobals
 from passmanager import Transformation
 from tables import methods, attributes, functions, modules
 from tables import cxx_keywords, namespace
@@ -233,8 +233,9 @@ class ExtractTopLevelStmts(Transformation):
 
         # Make all the variables global
         if len(init.body) > 0:
-            locs = self.passmanager.gather(LocalDeclarations, init)
-            locs = [local.id for local in locs]
+            locs = self.passmanager.gather(Locals, init)
+            locs = list(Locals.locals_of_func(locs, init))
+
             gb_decl = ast.Global(locs)
             init.body.insert(0, gb_decl)
 

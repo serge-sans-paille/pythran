@@ -248,7 +248,7 @@ class ReturnTypeDependencies(TypeDependencies):
 
     def visit_FunctionDef(self, node):
         #All functions should have been unnested
-        assert not self.current_function
+        assert self.current_function is None
         oldfunction = self.current_function
         self.current_function = node
         self.result.add_node(node)
@@ -642,8 +642,8 @@ class Types(ModuleAnalysis):
         if self.nested == 1:
             self.global_combiners[node.name] = {arg: ConstantIntr() for arg in
                                         self.globals}
-            self.result.update((v, NamedType("or_global_type")) for k, v in
-                self.global_combiners[node.name].items())
+            self.result.update((v, NamedType("or_global_type", {HasToCombine}))
+                           for k, v in self.global_combiners[node.name].items())
             self.current_global_combiner = self.global_combiners[node.name]
 
         # two stages, one for inter procedural propagation

@@ -1,7 +1,6 @@
 '''
 This module defines classes needed to manipulate c++ types from pythran.
 '''
-import tables
 from config import cfg
 
 
@@ -10,6 +9,14 @@ class Weak:
     Type Qualifier used to represent a weak type
 
     When a weak type is combined with another type, the weak type is suppressed
+    """
+    pass
+
+
+class HasToCombine:
+    """
+    Type Qualifier that means this type has to combine with the other type, no
+    matter if it's weak or not.
     """
     pass
 
@@ -33,6 +40,9 @@ class Type(object):
     def isweak(self):
         return Weak in self.qualifiers
 
+    def hastocombine(self):
+        return HasToCombine in self.qualifiers
+
     def all_types(self):
         return {self}
 
@@ -45,14 +55,19 @@ class Type(object):
             return False
 
     def __add__(self, other):
+        #Before the weak check because before the hastocombine check that is
+        # before the weak check.
+        if self == other:
+            return self
+        if self.hastocombine() or other.hastocombine():
+            return CombinedTypes([self, other])
         if self.isweak() and not other.isweak():
             return other
         if other.isweak() and not self.isweak():
             return self
-        if self == other:
-            return self
         if isinstance(other, CombinedTypes) and self in other.types:
             return other
+        #fixme: do the same check with other & self reversed?
         return CombinedTypes([self, other])
 
     def __repr__(self):
@@ -165,9 +180,16 @@ class CombinedTypes(Type):
     """
 
     def __init__(self, types):
+        qualifiers = set.union(*[t.qualifiers for t in types])
+        if HasToCombine in qualifiers:
+            if not all(t.hastocombine() for t in types):
+                qualifiers.remove(HasToCombine)
+            #The forced combine is not getting undoed by a weak type!
+            if Weak in qualifiers:
+                qualifiers.remove(Weak)
         super(CombinedTypes, self).__init__(
             types=types,
-            qualifiers=set.union(*[t.qualifiers for t in types])
+            qualifiers=qualifiers
             )
 
     def __add__(self, other):

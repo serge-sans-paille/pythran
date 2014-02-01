@@ -261,7 +261,11 @@ class ReturnTypeDependencies(TypeDependencies):
         self.current_function = oldfunction
 
     def visit_Return(self, node):
+        if not node.value:
+            return
+
         res = self.visit(node.value)
+
         #Only keep the aliases if they refer to something global
         gb_vals = self.global_declarations.values()
         res = {val for val in res if val in gb_vals}

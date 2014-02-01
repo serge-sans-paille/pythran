@@ -578,7 +578,7 @@ class Cxx(Backend):
                     [topstruct_type, callable_type]
                     + operator_declaration)
 
-            self.declarations[node] = next_struct
+            topstruct = Module([next_struct, topstruct])
             self.definitions.append(next_definition)
 
         else:  # regular function case
@@ -633,15 +633,6 @@ class Cxx(Backend):
                     )
             extra_typedefs = ctx.typedefs() + extra_typedefs
 
-            #The global combiners
-            combiners = []
-            globals_changed = self.get_globals_changed(node)
-
-            for gb in globals_changed:
-                combiner = self.get_combiner(node, gb, formal_types,
-                                             default_arg_types)
-                combiners.append((gb, combiner))
-
             return_declaration = [
                     templatize(
                         Struct("type", extra_typedefs),
@@ -654,6 +645,15 @@ class Cxx(Backend):
                     [callable_type]
                     + return_declaration
                     + operator_declaration)
+
+        #The global combiners
+        combiners = []
+        globals_changed = self.get_globals_changed(node)
+
+        for gb in globals_changed:
+            combiner = self.get_combiner(node, gb, formal_types,
+                                         default_arg_types)
+            combiners.append((gb, combiner))
 
         if len(combiners) > 0:
             self.combiners[node] = combiners

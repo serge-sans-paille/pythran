@@ -877,6 +877,8 @@ class Types(ModuleAnalysis):
                 self.combine(node, n)
         elif node.id in self.current_global_declarations:
             self.combine(node, self.current_global_declarations[node.id])
+        elif node.id in self.declared_globals:
+            self.result[node] = DeclType(NamedType(node.id), {Weak})
         else:
             self.result[node] = NamedType(node.id, {Weak})
 

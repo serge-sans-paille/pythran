@@ -109,7 +109,9 @@ class TypeDependencies(ModuleAnalysis):
     def __init__(self, *deps):
         self.result = {}
         self.current_function = None
-        super(TypeDependencies, self).__init__(GlobalDeclarations, *deps)
+        self.combiners = {}
+        super(TypeDependencies, self).__init__(GlobalDeclarations, StrictAliases
+                                               , *deps)
 
     def visit_any_conditionnal(self, node):
         '''
@@ -121,9 +123,18 @@ class TypeDependencies(ModuleAnalysis):
         self.generic_visit(node)
         self.in_cond = in_cond
 
+    def prepare(self, node, ctx):
+        for mname, module in modules.iteritems():
+            for fname, function in module.iteritems():
+                if not isinstance(function, ConstantIntr):
+                    self.combiners[function] = function
+
+        super(TypeDependencies, self).prepare(node, ctx)
+
     def visit_FunctionDef(self, node):
         assert self.current_function is None
         self.current_function = node
+        self.function_globals = self.passmanager.gather(DeclaredGlobals, node)
         self.naming = dict()
         self.in_cond = False  # True when we are in a if, while or for
         self.generic_visit(node)
@@ -138,6 +149,8 @@ class TypeDependencies(ModuleAnalysis):
             self.naming.setdefault(name, set()).update(value)
         else:
             self.naming[name] = value
+        if name in self.function_globals:
+            self.naming[name].add(self.global_declarations[name])
 
     def visit_Assign(self, node):
         v = self.visit(node.value)
@@ -177,7 +190,38 @@ class TypeDependencies(ModuleAnalysis):
         return self.visit(node.left).union(*[self.visit(comp)
                                              for comp in node.comparators])
 
+    def combine(self, node1, node2, register=False, unary_op=None):
+        if not register:
+            return
+        assert isinstance(node1, ast.Name)
+        self.update_naming(node1.id, self.naming.get(node1.id, set())
+                           .union(self.visit(node2)))
+
+    def visit(self, node):
+        if node is None:
+            return set()
+        return super(TypeDependencies, self).visit(node)
+
     def visit_Call(self, node):
+        #in x.append(y), the type of x depends on the type of y
+        for alias in self.strict_aliases[node.func].aliases:
+            # this comes from a bind
+            if isinstance(alias, ast.Call):
+                a0 = alias.args[0]
+                bounded_name = a0.id
+                # by construction of the bind construct
+                assert len(self.strict_aliases[a0].aliases) == 1
+                bounded_function = list(self.strict_aliases[a0].aliases)[0]
+                fake_name = ast.Name(bounded_name, ast.Load())
+                fake_node = ast.Call(fake_name, alias.args[1:] + node.args,
+                    [], None, None)
+                if bounded_function in self.combiners:
+                    self.combiners[bounded_function].combiner(self, fake_node)
+            # handle backward type dependencies from function calls
+            else:
+                if alias in self.combiners:
+                    self.combiners[alias].combiner(self, node)
+
         args = map(self.visit, node.args)
         func = self.visit(node.func)
         params = args + [func or []]
@@ -193,12 +237,12 @@ class TypeDependencies(ModuleAnalysis):
         return set()
 
     def visit_Subscript(self, node):
-        return self.visit(node.value)
+        #returned type of a[b] is declval(a)[declval(b)], so need to go inside
+        # the slice
+        return self.visit(node.value).union(self.visit(node.slice))
 
     def visit_Name(self, node):
         if node.id in self.naming:
-            #Todo: maybe if it's a declared global, also return
-            # self.global_declarations[node.id]
             return self.naming[node.id]
         elif node.id in self.global_declarations:
             return {self.global_declarations[node.id]}
@@ -223,14 +267,16 @@ class TypeDependencies(ModuleAnalysis):
     visit_Tuple = visit_List
 
     def visit_Slice(self, node):
-        return set()
+        return self.visit(node.lower).union(self.visit(node.upper))
 
     def visit_Index(self, node):
-        return set()
+        return self.visit(node.value)
 
     visit_If = visit_any_conditionnal
     visit_While = visit_any_conditionnal
-    visit_Expr = visit_Subscript
+
+    def visit_Expr(self, node):
+        return self.visit(node.value)
 
     def run(self, node, ctx):
         super(TypeDependencies, self).run(node, ctx)

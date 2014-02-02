@@ -277,6 +277,8 @@ class ReturnTypeDependencies(TypeDependencies):
                 self.result.add_edge(self.current_function, val)
 
     def visit_Assign(self, node):
+        super(ReturnTypeDependencies, self).visit_Assign(node)
+
         targets = self.passmanager.gather(AssignTargets, node)
         content = self.visit(node.value)
 

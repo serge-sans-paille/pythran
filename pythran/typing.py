@@ -12,7 +12,7 @@ from tables import pytype_to_ctype_table, operator_to_lambda
 from tables import modules
 from analysis import GlobalDeclarations, YieldPoints, LocalDeclarations
 from analysis import Aliases, ModuleAnalysis, StrictAliases, NonLocals
-from analysis import LazynessAnalysis, DeclaredGlobals, Names, AssignTargets
+from analysis import LazynessAnalysis, DeclaredGlobals, Locals, AssignTargets
 from passes import Transformation
 from syntax import PythranSyntaxError
 from cxxtypes import *
@@ -111,7 +111,7 @@ class TypeDependencies(ModuleAnalysis):
         self.current_function = None
         self.combiners = {}
         super(TypeDependencies, self).__init__(GlobalDeclarations, StrictAliases
-                                               , *deps)
+                                               , DeclaredGlobals, Locals, *deps)
 
     def visit_any_conditionnal(self, node):
         '''
@@ -134,11 +134,16 @@ class TypeDependencies(ModuleAnalysis):
     def visit_FunctionDef(self, node):
         assert self.current_function is None
         self.current_function = node
-        self.function_globals = self.passmanager.gather(DeclaredGlobals, node)
         self.naming = dict()
         self.in_cond = False  # True when we are in a if, while or for
         self.generic_visit(node)
         self.current_function = None
+
+    def is_global_variable(self, name):
+        if name in self.declared_globals:
+            if not Locals.is_local(self.locals, self.current_function, name):
+                return True
+        return False
 
     def update_naming(self, name, value):
         '''
@@ -149,7 +154,8 @@ class TypeDependencies(ModuleAnalysis):
             self.naming.setdefault(name, set()).update(value)
         else:
             self.naming[name] = value
-        if name in self.function_globals:
+
+        if self.is_global_variable(name):
             self.naming[name].add(self.global_declarations[name])
 
     def visit_Assign(self, node):
@@ -191,6 +197,15 @@ class TypeDependencies(ModuleAnalysis):
                                              for comp in node.comparators])
 
     def combine(self, node1, node2, register=False, unary_op=None):
+        """
+        When a function is called, list.append, we call its combiner to see if
+        it changes any types
+
+        For example a.append(b) would change a's type based on b, so we use
+        the combiner (in tables.py) of the append function which will call
+        self.combine(arg0, arg1). Then with the code below we mark that the
+        type of arg0 depends on the previous type of arg0 and the type of arg1
+        """
         if not register:
             return
         assert isinstance(node1, ast.Name)
@@ -301,7 +316,6 @@ class ReturnTypeDependencies(TypeDependencies):
         oldfunction = self.current_function
         self.current_function = node
         self.result.add_node(node)
-        self.function_globals = self.passmanager.gather(DeclaredGlobals, node)
         ### FOR SUPER CLASS
         self.naming = dict()
         self.in_cond = False  # True when we are in a if, while or for
@@ -338,7 +352,7 @@ class ReturnTypeDependencies(TypeDependencies):
         #Only keep the aliases if they refer to something global
         gb_vals = self.global_declarations.values()
         targets = {self.global_declarations[t.id] for t in targets
-                   if t.id in self.function_globals}
+                   if self.is_global_variable(t.id)}
         content = {y for y in content if y in gb_vals}
 
         for x in targets:

@@ -375,6 +375,10 @@ class Locals(ModuleAnalysis):
     def locals_of_func(result, node):
         return result[(node, "last")]
 
+    @staticmethod
+    def is_local(result, func, name):
+        return name in Locals.locals_of_func(result, func)
+
     def visit_Assign(self, node):
         self.handle_locals(node)
         self.visit(node.value)
@@ -459,6 +463,9 @@ class AssignTargets(NodeAnalysis):
         pass
 
     def visit_Slice(self, node):
+        pass
+
+    def visit_Index(self, node):
         pass
 
     def visit_Name(self, node):

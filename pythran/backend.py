@@ -926,7 +926,10 @@ class Cxx(Backend):
             arg = (self.visit(nfield) if nfield
                    else 'pythonic::__builtin__::None')
             args.append(arg)
-        return "pythonic::types::slice({},{},{})".format(*args)
+        if node.step is None or type(node.step) is ast.Num and node.step.n == 1:
+            return "pythonic::types::contiguous_slice({},{})".format(*args[0:2])
+        else:
+            return "pythonic::types::slice({},{},{})".format(*args)
 
     def visit_Index(self, node):
         return self.visit(node.value)

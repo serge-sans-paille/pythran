@@ -172,7 +172,10 @@ class TypeDependencies(ModuleAnalysis):
         return self.visit(node.body).union(self.visit(node.orelse))
 
     def visit_Compare(self, node):
-        return set()
+        #Type can depend on operands of a compare expression, for example for
+        # nd arrays
+        return self.visit(node.left).union(*[self.visit(comp)
+                                             for comp in node.comparators])
 
     def visit_Call(self, node):
         args = map(self.visit, node.args)

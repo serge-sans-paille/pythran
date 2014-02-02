@@ -74,6 +74,54 @@ def strip_exp(s):
         return s
 
 
+class CachedTypeVisitor:
+    """ Caches all types and alias them as __type0, __type1, __type2, ...
+            Removes duplicates.
+
+            The alias declarations are returned in typedefs.
+    """
+    class CachedType:
+        def __init__(self, s):
+            self.s = s
+
+        def generate(self, ctx):
+            return self.s
+
+    def __init__(self, other=None):
+        if other:
+            self.cache = other.cache.copy()
+            self.rcache = other.rcache.copy()
+            self.mapping = other.mapping.copy()
+        else:
+            self.cache = dict()
+            self.rcache = dict()
+            self.mapping = dict()
+
+    def __call__(self, node):
+        if node not in self.mapping:
+            t = node.generate(self)
+            if t in self.rcache:
+                self.mapping[node] = self.mapping[self.rcache[t]]
+                self.cache[node] = self.cache[self.rcache[t]]
+            else:
+                self.rcache[t] = node
+                self.mapping[node] = len(self.mapping)
+                self.cache[node] = t
+        return CachedTypeVisitor.CachedType(
+                "__type{0}".format(self.mapping[node]))
+
+    def typedefs(self):
+        l = sorted(self.mapping.items(), key=lambda x: x[1])
+        L = list()
+        visited = set()  # the same value must not be typedefed twice
+        for k, v in l:
+            if v not in visited:
+                typename = "__type" + str(v)
+                L.append(Typedef(Value(self.cache[k], typename)))
+                visited.add(v)
+        return L
+
+
 class Cxx(Backend):
     '''
     Produces a C++ representation of the AST.
@@ -277,53 +325,6 @@ class Cxx(Backend):
 
     # stmt
     def visit_FunctionDef(self, node):
-        """ Caches all types and alias them as __type0, __type1, __type2, ...
-            Removes duplicates.
-
-            The alias declarations are returned in typedefs.
-        """
-        class CachedTypeVisitor:
-            class CachedType:
-                def __init__(self, s):
-                    self.s = s
-
-                def generate(self, ctx):
-                    return self.s
-
-            def __init__(self, other=None):
-                if other:
-                    self.cache = other.cache.copy()
-                    self.rcache = other.rcache.copy()
-                    self.mapping = other.mapping.copy()
-                else:
-                    self.cache = dict()
-                    self.rcache = dict()
-                    self.mapping = dict()
-
-            def __call__(self, node):
-                if node not in self.mapping:
-                    t = node.generate(self)
-                    if t in self.rcache:
-                        self.mapping[node] = self.mapping[self.rcache[t]]
-                        self.cache[node] = self.cache[self.rcache[t]]
-                    else:
-                        self.rcache[t] = node
-                        self.mapping[node] = len(self.mapping)
-                        self.cache[node] = t
-                return CachedTypeVisitor.CachedType(
-                        "__type{0}".format(self.mapping[node]))
-
-            def typedefs(self):
-                l = sorted(self.mapping.items(), key=lambda x: x[1])
-                L = list()
-                visited = set()  # the same value must not be typedefed twice
-                for k, v in l:
-                    if v not in visited:
-                        typename = "__type" + str(v)
-                        L.append(Typedef(Value(self.cache[k], typename)))
-                        visited.add(v)
-                return L
-
         # prepare context and visit function body
         fargs = node.args.args
 
@@ -687,7 +688,7 @@ class Cxx(Backend):
                                      [combiner] + [self.types[x] for x in call],
                                      node.name, {})
 
-        ctx = lambda x : x
+        ctx = CachedTypeVisitor()
 
         #separate into 2 typedefs because the first expression may have
         # 'or_global_type' in it and then gcc is not happy (but clang is)
@@ -707,7 +708,7 @@ class Cxx(Backend):
 
         #the iterable dict is a <global_name, node> assocation
         decl = Struct(node.name+"__combiner_"+gb, [templatize(
-            Struct("type", or_typedefs + [typedef]),
+            Struct("type", or_typedefs + ctx.typedefs() + [typedef]),
             [NamedType("or_type")] + formal_types,
             [None] + default_arg_types
         )])

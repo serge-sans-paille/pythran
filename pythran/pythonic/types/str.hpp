@@ -22,34 +22,35 @@ namespace pythonic {
 
         class str;
 
-        struct const_str_view_iterator : std::iterator< std::random_access_iterator_tag, char >
+        struct const_sliced_str_iterator : std::iterator< std::random_access_iterator_tag, char >
         {
             const char * data;
             long step;
-            const_str_view_iterator(char const *data, long step) : data(data), step(step) {
+            const_sliced_str_iterator(char const *data, long step) : data(data), step(step) {
             }
-            const_str_view_iterator operator++() { data +=step; return *this; }
-            bool operator<(const_str_view_iterator const& other) const { return (step>0)?(data < other.data):(data > other.data); }
-            bool operator==(const_str_view_iterator const& other) const { return data == other.data; }
-            bool operator!=(const_str_view_iterator const& other) const { return data != other.data; }
+            const_sliced_str_iterator operator++() { data +=step; return *this; }
+            bool operator<(const_sliced_str_iterator const& other) const { return (step>0)?(data < other.data):(data > other.data); }
+            bool operator==(const_sliced_str_iterator const& other) const { return data == other.data; }
+            bool operator!=(const_sliced_str_iterator const& other) const { return data != other.data; }
             char operator*() const { return *data; }
             char operator*() { return *data; }
-            const_str_view_iterator operator-(long n) const { const_str_view_iterator other(*this); other.data += step * n; return other; } 
-            long operator-(const_str_view_iterator const & other) const { return (data - other.data)/step; }
+            const_sliced_str_iterator operator-(long n) const { const_sliced_str_iterator other(*this); other.data += step * n; return other; } 
+            long operator-(const_sliced_str_iterator const & other) const { return (data - other.data)/step; }
         };
 
-        class str_view {
+        template<class S=slice>
+        class sliced_str {
             typedef std::string container_type;
             utils::shared_ref<container_type> data;
 
-            normalized_slice slicing;
+            typename S::normalized_type slicing;
 
             public:
             //  types
             typedef container_type::reference reference;
             typedef container_type::const_reference const_reference;
-            typedef const_str_view_iterator iterator;
-            typedef const_str_view_iterator const_iterator;
+            typedef const_sliced_str_iterator iterator;
+            typedef const_sliced_str_iterator const_iterator;
             typedef container_type::size_type size_type;
             typedef container_type::difference_type difference_type;
             typedef container_type::value_type value_type;
@@ -58,19 +59,20 @@ namespace pythonic {
             typedef container_type::const_pointer const_pointer;
 
             // constructor
-            str_view(): data(utils::no_memory()) {}
-            str_view(str_view const & s): data(s.data), slicing(s.slicing) {}
-            str_view(str_view const & s, normalized_slice const& sl): data(s.data), slicing(s.slicing.lower + sl.lower, s.slicing.lower + sl.upper, s.slicing.step * sl.step) {}
-            str_view(types::str & other, normalized_slice const & s);
+            sliced_str(): data(utils::no_memory()) {}
+            sliced_str(sliced_str const & s): data(s.data), slicing(s.slicing) {}
+
+            sliced_str(sliced_str const & s, typename S::normalized_type const& sl): data(s.data), slicing(s.slicing * sl) {}
+            sliced_str(types::str & other, typename S::normalized_type const & s);
 
             // const getter
             container_type const & get_data() const { return *data; }
-            normalized_slice const & get_slice() const { return slicing; }
+            typename S::normalized_type const & get_slice() const { return slicing; }
 
             // assignment
-            str_view& operator=(str const & );
-            str_view& operator=(str_view const & );
-            str operator+(str_view const & );
+            sliced_str& operator=(str const & );
+            sliced_str& operator=(sliced_str const & );
+            str operator+(sliced_str const & );
 
             // iterators
             const_iterator begin() const { return const_iterator(data->c_str() + slicing.lower, slicing.step); }
@@ -82,7 +84,8 @@ namespace pythonic {
             // accessor
             char const & operator[](long i) const { return (*data)[slicing.lower + i*slicing.step];}
             char & operator[](long i) { return (*data)[slicing.lower + i*slicing.step];}
-            str_view operator[](slice const& s) const { return str_view(*this, s.normalize(size())); }
+            sliced_str<slice> operator[](slice const& s) const { return sliced_str<slice>(*this, s.normalize(size())); }
+            sliced_str<contiguous_slice> operator[](contiguous_slice const& s) const { return sliced_str<contiguous_slice>(*this, s.normalize(size())); }
 
             // conversion
             operator long();
@@ -90,7 +93,7 @@ namespace pythonic {
             bool operator!() const { return not bool();}
 
             // io
-            friend std::ostream& operator<<(std::ostream& os, types::str_view const & v) {
+            friend  std::ostream& operator<<(std::ostream& os, types::sliced_str<S> const & v) {
                 for(auto b = v.begin(); b != v.end(); ++b)
                     os << *b;
                 return os;
@@ -98,7 +101,7 @@ namespace pythonic {
         };
 
         class str {
-            friend class str_view;
+            template<class S> friend class sliced_str;
             typedef std::string container_type;
             utils::shared_ref<container_type> data;
 
@@ -115,7 +118,8 @@ namespace pythonic {
             str(const char*s) : data(s) {}
             str(const char*s, size_t n) : data(s,n) {}
             str(char c) : data(1,c) {}
-            str(str_view const & other) : data( other.begin(), other.end()) {}
+            template<class S>
+            str(sliced_str<S> const & other) : data( other.begin(), other.end()) {}
             template<class T>
                 str(T const& begin, T const& end) : data( begin, end) {}
 
@@ -166,7 +170,8 @@ namespace pythonic {
                 }
                 return res;
             }
-            str& operator=(str_view const & other) {
+            template<class S>
+            str& operator=(sliced_str<S> const & other) {
                 if(other.get_data() == *data ) {
                     auto it = std::copy(other.begin(), other.end(), begin());
                     resize(it - this->begin());
@@ -206,7 +211,8 @@ namespace pythonic {
             void reserve(size_t n) { data->reserve(n); }
             str& replace(size_t pos,  size_t len,  str const & str) { data->replace(pos, len, *str.data); return *this; }
 
-            str& operator+=(str_view const & other) {
+            template<class S>
+            str& operator+=(sliced_str<S> const & other) {
                 resize(size() + other.get_data().size());
                 std::copy(other.begin(), other.end(), begin());
                 return *this;
@@ -217,7 +223,8 @@ namespace pythonic {
             bool operator<(str const& other) const { return *data < *other.data; }
             bool operator>=(str const& other) const { return *data >= *other.data; }
             bool operator>(str const& other) const { return *data > *other.data; }
-            bool operator==(str_view const & other) const {
+            template<class S>
+            bool operator==(sliced_str<S> const & other) const {
                 if(size() != other.size())
                     return false;
                 for(size_t i=other.get_slice().lower, j=0L;
@@ -227,7 +234,10 @@ namespace pythonic {
                         return false;
                 return true;
             }
-            str_view operator()( slice const &s) const {
+            sliced_str<slice> operator()( slice const &s) const {
+                return operator[](s);
+            }
+            sliced_str<contiguous_slice> operator()( contiguous_slice const &s) const {
                 return operator[](s);
             }
 
@@ -240,8 +250,11 @@ namespace pythonic {
                 if(i<0) i+= size();
                 return (*data)[i];
             }
-            str_view operator[]( slice const &s ) const {
-                return str_view(*const_cast<str*>(this), s.normalize(size())); // SG: ugly !
+            sliced_str<slice> operator[]( slice const &s ) const {
+                return sliced_str<slice>(*const_cast<str*>(this), s.normalize(size())); // SG: ugly !
+            }
+            sliced_str<contiguous_slice> operator[]( contiguous_slice const &s ) const {
+                return sliced_str<contiguous_slice>(*const_cast<str*>(this), s.normalize(size())); // SG: ugly !
             }
 #ifdef USE_GMP
             char operator[](pythran_long_t const &m) const { return (*this)[m.get_si()];}
@@ -281,7 +294,8 @@ namespace pythonic {
 
         };
 
-        str str_view::operator+(str_view const & s) {
+        template<class S>
+        str sliced_str<S>::operator+(sliced_str<S> const & s) {
             str out(*data);
             std::copy(s.begin(), s.end(), std::copy(begin(), end(), out.begin()));
             return out;
@@ -334,13 +348,15 @@ pythonic::types::str operator*(long t, pythonic::types::str const & s) {
     return s*t;
 }
 
-pythonic::types::str_view& pythonic::types::str_view::operator=(pythonic::types::str_view const & s) {
+template<class S>
+pythonic::types::sliced_str<S>& pythonic::types::sliced_str<S>::operator=(pythonic::types::sliced_str<S> const & s) {
     slicing=s.slicing;
     data=s.data;
     return *this;
 }
 
-pythonic::types::str_view& pythonic::types::str_view::operator=(pythonic::types::str const & s) {
+template<class S>
+pythonic::types::sliced_str<S>& pythonic::types::sliced_str<S>::operator=(pythonic::types::str const & s) {
     if( slicing.step == 1) {
         data->erase(slicing.lower, slicing.upper);
         data->insert(slicing.lower, s.get_data());
@@ -351,10 +367,12 @@ pythonic::types::str_view& pythonic::types::str_view::operator=(pythonic::types:
     return *this;
 }
 
-pythonic::types::str_view::str_view(pythonic::types::str & other, normalized_slice const & s) : data(other.data), slicing(s){}
+template<class S>
+pythonic::types::sliced_str<S>::sliced_str(pythonic::types::str & other, typename S::normalized_type const & s) : data(other.data), slicing(s){}
 
 
-pythonic::types::str_view::operator long() {
+template<class S>
+pythonic::types::sliced_str<S>::operator long() {
     long out;
     std::istringstream iss(pythonic::types::str(*this).get_data());
     iss >> out;
@@ -388,8 +406,8 @@ namespace std {
         struct tuple_element<I, pythonic::types::str > {
             typedef typename pythonic::types::str type;
         };
-    template <size_t I>
-        struct tuple_element<I, pythonic::types::str_view > {
+    template <size_t I, class S>
+        struct tuple_element<I, pythonic::types::sliced_str<S> > {
             typedef typename pythonic::types::str type;
         };
 }
@@ -431,18 +449,21 @@ namespace pythonic {
             }
         };
 
-    struct custom_pythran_str_view_to_str{
-        static PyObject* convert(const types::str_view& v){
+    struct custom_pythran_sliced_str_to_str {
+        static PyObject* convert(const types::sliced_str<types::contiguous_slice>& v){
+            return custom_pythran_string_to_str().convert(v);
+        }
+        static PyObject* convert(const types::sliced_str<types::slice>& v){
             return custom_pythran_string_to_str().convert(v);
         }
     };
 
-    template<>
-        struct pythran_to_python< types::str_view > {
-            pythran_to_python() {
-                register_once< types::str_view, custom_pythran_str_view_to_str >();
-            }
-        };
+    template<class S>
+    struct pythran_to_python< types::sliced_str<S> > {
+        pythran_to_python() {
+            register_once< types::sliced_str<S>, custom_pythran_sliced_str_to_str >();
+        }
+    };
 
 }
 

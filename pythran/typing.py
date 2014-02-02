@@ -269,6 +269,13 @@ class ReturnTypeDependencies(TypeDependencies):
 
         res = self.visit(node.value)
 
+        if isinstance(node, ast.Yield):
+            #For yields, pythran puts all the declared locals in the struct,
+            # so there needs to be a dependency to each of them
+            locs = self.passmanager.gather(LocalDeclarations,
+                                           self.current_function)
+            res.update(*[self.naming.get(l.id, set()) for l in locs])
+
         #Only keep the aliases if they refer to something global
         gb_vals = self.global_declarations.values()
         res = {val for val in res if val in gb_vals}

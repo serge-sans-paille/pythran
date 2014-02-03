@@ -7,6 +7,7 @@ optimized pythran code
     * ListCompToGenexp transforms list comprehension into genexp
     * IterTransformation replaces expressions by iterators when possible.
     * LoopFullUnrolling fully unrolls loops with static bounds
+    * RemoveExtraSlice remove useless extra extended slice information.
 '''
 
 from analysis import ConstantExpressions, OptimizableComprehension
@@ -412,4 +413,29 @@ class LoopFullUnrolling(Transformation):
                                )
                         )
                 return block
+        return node
+
+
+class RemoveExtraSlice(Transformation):
+    """
+    Remove Slices when they are useless to avoid gsliced creation.
+
+    >>> import ast, passmanager, backend
+    >>> node = ast.parse("a[1, 1:2, :] = b[:]; c[:,:,:] = d")
+    >>> pm = passmanager.PassManager("test")
+    >>> node = pm.apply(RemoveExtraSlice, node)
+    >>> print pm.dump(backend.Python, node)
+    a[1, 1:2] = b[:]
+    c = d
+    """
+    @staticmethod
+    def is_empty_slice(s):
+        return (isinstance(s, ast.Slice) and not s.upper and not s.lower
+                and not s.step)
+
+    def visit_ExtSlice(self, node):
+        while len(node.dims) > 1 and RemoveExtraSlice.is_empty_slice(node.dims[-1]):
+            node.dims.pop(-1)
+        if len(node.dims) == 1:
+            return node.dims[0]
         return node

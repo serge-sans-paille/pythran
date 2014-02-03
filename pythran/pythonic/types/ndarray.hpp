@@ -74,7 +74,7 @@ namespace pythonic {
 
 
         /* type trait to store scalar <> vector type binding
-        */
+         */
         template<class T>
             struct vectorized {
                 typedef T type;
@@ -86,7 +86,7 @@ namespace pythonic {
 
 #ifdef USE_BOOST_SIMD
         /* specialized trait for doubles when vectorization is turned on
-        */
+         */
         template<>
             struct vectorized<double> {
                 typedef boost::simd::native<double, BOOST_SIMD_DEFAULT_EXTENSION> type;
@@ -118,7 +118,7 @@ namespace pythonic {
                 }
             };
         /* Expression template for numpy expressions - filter
-        */
+         */
         template<class Arg0, class F>
             struct numpy_fexpr {
                 Arg0 arg0;
@@ -148,7 +148,7 @@ namespace pythonic {
 
                 template<class E>
                     typename std::enable_if<is_numpy_expr<E>::value, numpy_fexpr< numpy_fexpr<Arg0, F>, E > >::type
-                    operator[](E const & expr) 
+                    operator[](E const & expr)
                     {
                         return numpy_fexpr<numpy_fexpr<Arg0, F>, E >(*this, expr);
                     }
@@ -170,7 +170,7 @@ namespace pythonic {
             };
 
         /* Expression template for numpy expressions - unary operators
-        */
+         */
         template<class Op, class Arg0>
             struct numpy_uexpr {
 
@@ -181,6 +181,8 @@ namespace pythonic {
                 numpy_uexpr() {}
                 numpy_uexpr(Arg0 const& arg0) : arg0(arg0), shape(arg0.shape) {
                 }
+                template<class Arg0_ = typename std::conditional<std::is_reference<Arg0>::value, Arg0, Arg0&>::type>
+                    numpy_uexpr(numpy_uexpr<Op, Arg0_> const& expr) : arg0(expr.arg0), shape(expr.arg0.shape) {}
 #ifdef USE_BOOST_SIMD
                 auto load(long i) const -> decltype(Op()(arg0.load(i))) {
                     return Op()(arg0.load(i));
@@ -229,7 +231,7 @@ namespace pythonic {
             };
 
         /* Expression template for numpy expressions - binary operators
-        */
+         */
         template<class Op, class Arg0, class Arg1>
             struct numpy_expr {
                 typedef numpy_iterator<numpy_expr<Op, Arg0, Arg1>> iterator;
@@ -242,6 +244,9 @@ namespace pythonic {
 
                 numpy_expr(Arg0 arg0, Arg1 arg1) : arg0(arg0), arg1(arg1), shape(select_shape(arg0,arg1, utils::int_<value>())) {
                 }
+                template<class Arg0_ = typename std::conditional<std::is_reference<Arg0>::value, Arg0, Arg0&>::type, class Arg1_ = typename std::conditional<std::is_reference<Arg0>::value, Arg1, Arg1&>::type>
+                    numpy_expr(numpy_expr<Op, Arg0_, Arg1_> const& expr) : arg0(expr.arg0), arg1(expr.arg1), shape(select_shape(expr.arg0,expr.arg1, utils::int_<value>())) {}
+
                 iterator begin() const { return iterator(*this, 0); }
                 iterator end() const { return iterator(*this, size()); }
 #ifdef USE_BOOST_SIMD
@@ -301,7 +306,7 @@ namespace pythonic {
 
 
         /* proxy type to hold the return of an index
-        */
+         */
         template <class T, size_t N>
             struct indexed_ndarray : ndarray<T,N> {
                 typedef typename ndarray<T,N>::value_type value_type;
@@ -419,14 +424,14 @@ namespace pythonic {
             };
 
         /* Type converter from index to slice
-        */
+         */
         slice const& as_slice(slice const& s) { return s;}
         slice as_slice(long s) {
             return slice(s,s+1);
         }
 
         /* Meta-Function to count the number of slices in a type list
-        */
+         */
         template<class... Types>
             struct count_slices;
         template<>
@@ -450,7 +455,7 @@ N : number of slices, ex: 1
 M : number of args, ex: 2
 
 we assume that M>=N
-*/
+         */
         template<class T, size_t N, size_t M>
             struct gsliced_ndarray {
                 static_assert(M>=N, "dimension doesn't match in gsliced_ndarray");
@@ -698,7 +703,7 @@ we assume that M>=N
             };
 
         /* proxy type to hold the return of a slice
-        */
+         */
         template<class T>
             struct sliced_ndarray : normalized_slice {
                 static constexpr size_t value = T::value;
@@ -1439,6 +1444,21 @@ we assume that M>=N
         {
             typedef typename types::numpy_expr_to_ndarray<types::numpy_fexpr<Arg, Filter>>::type type;
         };
+    template<class T, size_t N>
+        struct lazy<types::indexed_ndarray<T,N>>
+        {
+            typedef types::indexed_ndarray<T,N> type;
+        };
+    template<class Op, class Arg0>
+        struct lazy<types::numpy_uexpr<Op,Arg0>>
+        {
+            typedef types::numpy_uexpr<Op,typename lazy<Arg0>::type> type;
+        };
+    template<class Op, class Arg0, class Arg1>
+        struct lazy<types::numpy_expr<Op,Arg0,Arg1>>
+        {
+            typedef types::numpy_expr<Op,typename lazy<Arg0>::type, typename lazy<Arg1>::type> type;
+        };
 }
 
 /* std::get overloads */
@@ -1654,6 +1674,29 @@ template<class Arg0, class Arg1, class Op, class K>
 struct __combined<pythonic::types::numpy_expr<Op, Arg0, Arg1>, container<K>> {
     typedef pythonic::types::numpy_expr<Op, Arg0, Arg1> type;
 };
+
+template<class Arg0, class Arg1, class Op, class Op2, class Arg2, class Arg3>
+struct __combined<pythonic::types::numpy_expr<Op, Arg0, Arg1>, pythonic::types::numpy_expr<Op2, Arg2, Arg3>> {
+    typedef typename pythonic::types::numpy_expr_to_ndarray<pythonic::types::numpy_expr<Op, Arg0, Arg1>>::type type;
+};
+
+template<class Arg0, class Arg1, class Op, class Op2>
+struct __combined<pythonic::types::numpy_uexpr<Op, Arg0>, pythonic::types::numpy_uexpr<Op2, Arg1>> {
+    typedef typename pythonic::types::numpy_expr_to_ndarray<pythonic::types::numpy_uexpr<Op, Arg0>>::type type;
+};
+
+//
+// PB : This led to poor performance (but I don't understand why)
+//
+//template<class Arg0, class Arg1, class Op, class Arg2, class Arg3>
+//struct __combined<pythonic::types::numpy_expr<Op, Arg0, Arg1>, pythonic::types::numpy_expr<Op, Arg2, Arg3>> {
+//    typedef pythonic::types::numpy_expr<Op, typename __combine<Arg0, Arg2>, typename __combine<Arg1, Arg3>> type;
+//};
+//
+//template<class Arg0, class Arg1, class Op>
+//struct __combined<pythonic::types::numpy_uexpr<Op, Arg0>, pythonic::types::numpy_uexpr<Op, Arg1>> {
+//    typedef pythonic::types::numpy_uexpr<Op, typename __combine<Arg0, Arg1>::type> type;
+//};
 
 /* } */
 

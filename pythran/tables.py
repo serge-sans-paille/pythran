@@ -333,6 +333,7 @@ modules = {
             "less_equal": ConstFunctionIntr(),
             "lexsort": ConstFunctionIntr(),
             "linspace": ConstFunctionIntr(),
+            "log": ConstFunctionIntr(),
             "log10": ConstFunctionIntr(),
             "log1p": ConstFunctionIntr(),
             "log2": ConstFunctionIntr(),

@@ -2,14 +2,22 @@
 #define PYTHONIC_NUMPY_BITWISENOT_HPP
 
 #include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/ndarray.hpp"
-#include "pythonic/operator_/invert.hpp"
+//#include "pythonic/types/ndarray.hpp"
 
 namespace pythonic {
 
     namespace numpy {
-        FPROXY(pythonic::operator_, bitwise_not, invert)
 
+        template <class A>
+            decltype(~std::declval<A const&>()) bitwise_not(A const& a) {
+                return ~a;
+            }
+
+            bool bitwise_not(bool t0) {
+                return not t0;
+            }
+
+        PROXY(pythonic::numpy, bitwise_not);
     }
 
 }

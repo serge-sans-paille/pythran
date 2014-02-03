@@ -3,7 +3,6 @@
 
 #include "pythonic/operator_/add.hpp"
 #include "pythonic/operator_/and_.hpp"
-#include "pythonic/operator_/inv.hpp"
 #include "pythonic/operator_/or_.hpp"
 #include "pythonic/operator_/__xor__.hpp"
 #include "pythonic/operator_/div.hpp"
@@ -21,6 +20,7 @@
 #include "pythonic/operator_/pos.hpp"
 #include "pythonic/operator_/rshift.hpp"
 #include "pythonic/operator_/sub.hpp"
+#include "pythonic/numpy/bitwise_not.hpp"
 
 namespace pythonic {
     /* operators must live in the same namespace as the associated type */
@@ -34,7 +34,7 @@ namespace pythonic {
 #include "pythonic/types/numpy_binary_expr.hpp"
 
 #define NUMPY_UNARY_FUNC_NAME operator~
-#define NUMPY_UNARY_FUNC_SYM operator_::proxy::invert
+#define NUMPY_UNARY_FUNC_SYM numpy::proxy::bitwise_not
 #include "pythonic/types/numpy_unary_expr.hpp"
 
 #define NUMPY_BINARY_FUNC_NAME operator|

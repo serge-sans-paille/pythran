@@ -132,11 +132,24 @@ class TypeDependencies(ModuleAnalysis):
         super(TypeDependencies, self).prepare(node, ctx)
 
     def visit_FunctionDef(self, node):
+        print "Type dependencies - visiting " + node.name
         assert self.current_function is None
         self.current_function = node
         self.naming = dict()
         self.in_cond = False  # True when we are in a if, while or for
+        #So the args point to something, and when looking up doesn't go back
+        # to the global of the same name as the arg
+        for arg in node.args.args:
+            self.update_naming(arg.id, set())
+
         self.generic_visit(node)
+        arg_deps = UserFunction()
+        for (p, arg) in enumerate(node.args.args):
+            naming = self.naming.get(arg.id, set())
+            arg_deps.add_combiner(lambda s, n:
+                                  s.update_naming(n.args[p].id, naming))
+        self.combiners[node] = arg_deps
+
         self.current_function = None
 
     def is_global_variable(self, name):
@@ -149,6 +162,7 @@ class TypeDependencies(ModuleAnalysis):
         '''
         Update or renew the name <-> dependencies binding
         depending on the in_cond state
+        @rtype : None
         '''
         if self.in_cond:
             self.naming.setdefault(name, set()).update(value)
@@ -311,17 +325,8 @@ class ReturnTypeDependencies(TypeDependencies):
         self.result = nx.DiGraph()
 
     def visit_FunctionDef(self, node):
-        #All functions should have been unnested
-        assert self.current_function is None
-        oldfunction = self.current_function
-        self.current_function = node
         self.result.add_node(node)
-        ### FOR SUPER CLASS
-        self.naming = dict()
-        self.in_cond = False  # True when we are in a if, while or for
-        ###
-        self.generic_visit(node)
-        self.current_function = oldfunction
+        super(ReturnTypeDependencies, self).visit_FunctionDef(node)
 
     def visit_Return(self, node):
         if not node.value:
@@ -458,6 +463,8 @@ class Reorder(Transformation):
         super(Reorder, self).__init__(ReturnTypeDependencies)
 
     def visit_Module(self, node):
+        self.gb_decls = self.passmanager.gather(GlobalDeclarations, node)
+        self.gb_decls = dict((v, k) for k, v in self.gb_decls.items())
         newbody = list()
         olddef = list()
         for stmt in node.body:
@@ -479,6 +486,11 @@ class Reorder(Transformation):
         self.return_type_dependencies.reverse(False)
         nodes = nx.topological_sort(self.return_type_dependencies)
         nodes = [node for node in nodes if isinstance(node, ast.FunctionDef)]
+
+        edges = self.return_type_dependencies.reverse().edges()
+        edges = [(self.gb_decls[edge[0]], self.gb_decls[edge[1]]) for edge in edges]
+        print "edges: " + str(edges)
+        print "reorder order: " + str([node.name for node in nodes])
 
         return nodes
 
@@ -546,7 +558,8 @@ class Types(ModuleAnalysis):
         a[x][y] has a depth of 2 and so on.
         '''
         if isinstance(n, ast.Name):
-            return (n.id, depth, n.id in self.globals)
+            ret = (n.id, depth, n.id in self.globals)
+            return ret
         elif isinstance(n, ast.Subscript):
             if isinstance(n.slice, ast.Slice):
                 return self.node_to_id(n.value, depth)
@@ -688,6 +701,7 @@ class Types(ModuleAnalysis):
 
         The effects the function have on the globals is the types the function
         requires the globals to be."""
+        print "Types - visiting " + node.name
         self.nested += 1
         self.current = node
         self.typedefs = list()

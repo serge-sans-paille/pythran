@@ -474,6 +474,9 @@ class AssignTargets(NodeAnalysis):
     def visit_Assign(self, node):
         map(self.visit, node.targets)
 
+    def visit_AugAssign(self, node):
+        map(self.visit, node.target)
+
 
 ##
 class ImportedIds(NodeAnalysis):

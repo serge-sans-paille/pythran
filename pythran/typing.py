@@ -186,11 +186,7 @@ class TypeDependencies(ModuleAnalysis):
             if isinstance(t, ast.Name):
                 self.update_naming(t.id, v)
 
-    def visit_AugAssign(self, node):
-        v = self.visit(node.value)
-        t = node.target
-        if isinstance(t, ast.Name):
-            self.update_naming(t.id, v)
+    visit_AugAssign = visit_Assign
 
     def visit_For(self, node):
         self.update_naming(node.target.id, self.visit(node.iter))

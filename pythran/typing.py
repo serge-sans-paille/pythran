@@ -150,7 +150,9 @@ class TypeDependencies(ModuleAnalysis):
 
             def interprocedural_generator(p, naming):
                 def interprocedural_combiner(s, n):
-                    s.update_naming(n.args[p].id, naming)
+                    targets = self.passmanager.gather(AssignTargets, n.args[p])
+                    for t in targets:
+                        s.update_naming(t.id, naming)
                 return interprocedural_combiner
 
             arg_deps.add_combiner(interprocedural_generator(p, naming))
@@ -183,8 +185,7 @@ class TypeDependencies(ModuleAnalysis):
         v = self.visit(node.value)
         targets = self.passmanager.gather(AssignTargets, node)
         for t in targets:
-            if isinstance(t, ast.Name):
-                self.update_naming(t.id, v)
+            self.update_naming(t.id, v)
 
     visit_AugAssign = visit_Assign
 
@@ -381,6 +382,12 @@ class ReturnTypeDependencies(TypeDependencies):
 
     def run(self, node, ctx):
         super(ReturnTypeDependencies, self).run(node, ctx)
+
+        gb_decls = dict((v, k) for k, v in self.global_declarations.items())
+        edges = self.result.edges()
+        edges = [(gb_decls[edge[0]], gb_decls[edge[1]]) for edge in edges]
+        print "edges: " + str(edges)
+
         return self.result
 
 
@@ -475,8 +482,6 @@ class Reorder(Transformation):
         super(Reorder, self).__init__(ReturnTypeDependencies)
 
     def visit_Module(self, node):
-        self.gb_decls = self.passmanager.gather(GlobalDeclarations, node)
-        self.gb_decls = dict((v, k) for k, v in self.gb_decls.items())
         newbody = list()
         olddef = list()
         for stmt in node.body:
@@ -498,11 +503,6 @@ class Reorder(Transformation):
         self.return_type_dependencies.reverse(False)
         nodes = nx.topological_sort(self.return_type_dependencies)
         nodes = [node for node in nodes if isinstance(node, ast.FunctionDef)]
-
-        edges = self.return_type_dependencies.reverse().edges()
-        edges = [(self.gb_decls[edge[0]], self.gb_decls[edge[1]]) for edge in edges]
-        print "edges: " + str(edges)
-        print "reorder order: " + str([node.name for node in nodes])
 
         return nodes
 

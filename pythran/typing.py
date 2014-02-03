@@ -144,10 +144,17 @@ class TypeDependencies(ModuleAnalysis):
 
         self.generic_visit(node)
         arg_deps = UserFunction()
+
         for (p, arg) in enumerate(node.args.args):
             naming = self.naming.get(arg.id, set())
-            arg_deps.add_combiner(lambda s, n:
-                                  s.update_naming(n.args[p].id, naming))
+
+            def interprocedural_generator(p, naming):
+                def interprocedural_combiner(s, n):
+                    s.update_naming(n.args[p].id, naming)
+                return interprocedural_combiner
+
+            arg_deps.add_combiner(interprocedural_generator(p, naming))
+
         self.combiners[node] = arg_deps
 
         self.current_function = None
@@ -174,7 +181,8 @@ class TypeDependencies(ModuleAnalysis):
 
     def visit_Assign(self, node):
         v = self.visit(node.value)
-        for t in node.targets:
+        targets = self.passmanager.gather(AssignTargets, node)
+        for t in targets:
             if isinstance(t, ast.Name):
                 self.update_naming(t.id, v)
 
@@ -348,22 +356,30 @@ class ReturnTypeDependencies(TypeDependencies):
             if val != self.current_function:
                 self.result.add_edge(self.current_function, val)
 
-    def visit_Assign(self, node):
-        super(ReturnTypeDependencies, self).visit_Assign(node)
+    def update_naming(self, name, value):
+        '''
+        Update or renew the name <-> dependencies binding
+        depending on the in_cond state
+        @rtype : None
+        '''
+        if self.in_cond:
+            self.naming.setdefault(name, set()).update(value)
+        else:
+            self.naming[name] = value
 
-        targets = self.passmanager.gather(AssignTargets, node)
-        content = self.visit(node.value)
+        if self.is_global_variable(name):
+            self.naming[name].add(self.global_declarations[name])
 
-        #Only keep the aliases if they refer to something global
-        gb_vals = self.global_declarations.values()
-        targets = {self.global_declarations[t.id] for t in targets
-                   if self.is_global_variable(t.id)}
-        content = {y for y in content if y in gb_vals}
+            #If a global's dependencies are modified, add the correct edges in
+            # the resulting directed graph
+            gb_vals = self.global_declarations.values()
+            content = {y for y in value if y in gb_vals}
+            target = self.global_declarations[name]
 
-        for x in targets:
             for y in content:
-                if x != y:
-                    self.result.add_edge(x, y)
+                if y != target and not self.result.has_edge(target, y):
+                    self.result.add_edge(target, y)
+
 
     visit_Yield = visit_Return
 

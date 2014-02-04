@@ -1,7 +1,8 @@
 #!/bin/sh
 set -e
 
-CXX=~/sources/llvm/_build/install/bin/clang++
+#CXX=~/sources/llvm/_build/install/bin/clang++
+CXX=g++
 CXXFLAGS=-O3
 export PATH=../../../../scripts:$PATH
 export PYTHONPATH=../../../..

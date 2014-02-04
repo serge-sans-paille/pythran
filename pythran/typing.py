@@ -100,6 +100,26 @@ def extract_constructed_types(t):
         return []
 
 
+def disjoint_reduce(val1, val2):
+    """
+    Reduces two type of dependencies by combining them. If either set
+    of dependencies can be "independent" (aka there exist a call graph
+    that means it doesn't depend on any other variable/functions), then
+    the resulting dependency can be independent too.
+    """
+    return val1[0] | val2[0], val1[1] or val2[1]
+
+
+def combine_reduce(val1, val2):
+    """
+    Reduces two type of dependencies by combining them. If both set
+    of dependencies can be "independent" (aka there exist a call graph
+    that means it doesn't depend on any other variable/functions), then
+    the resulting dependency can be independent too.
+    """
+    return val1[0] | val2[0], val1[1] and val2[1]
+
+
 class TypeDependencies(ModuleAnalysis):
     """
     Similar to Aliases, for each node, gathers all the node that
@@ -110,6 +130,7 @@ class TypeDependencies(ModuleAnalysis):
         self.result = {}
         self.current_function = None
         self.combiners = {}
+        self.in_cond = False
         super(TypeDependencies, self).__init__(GlobalDeclarations, StrictAliases
                                                , DeclaredGlobals, Locals, *deps)
 
@@ -140,13 +161,13 @@ class TypeDependencies(ModuleAnalysis):
         #So the args point to something, and when looking up doesn't go back
         # to the global of the same name as the arg
         for arg in node.args.args:
-            self.update_naming(arg.id, set())
+            self.update_naming(arg.id, (set(), True))
 
         self.generic_visit(node)
         arg_deps = UserFunction()
 
         for (p, arg) in enumerate(node.args.args):
-            naming = self.naming.get(arg.id, set())
+            naming = self.get_naming(arg.id)
 
             def interprocedural_generator(p, naming):
                 def interprocedural_combiner(s, n):
@@ -173,13 +194,14 @@ class TypeDependencies(ModuleAnalysis):
         depending on the in_cond state
         @rtype : None
         '''
-        if self.in_cond:
-            self.naming.setdefault(name, set()).update(value)
+        if self.in_cond and name in self.naming:
+            self.naming[name] = reduce(disjoint_reduce,
+                                       [value, self.naming[name]])
         else:
             self.naming[name] = value
 
         if self.is_global_variable(name):
-            self.naming[name].add(self.global_declarations[name])
+            self.naming[name][0].add(self.global_declarations[name])
 
     def visit_Assign(self, node):
         v = self.visit(node.value)
@@ -194,11 +216,11 @@ class TypeDependencies(ModuleAnalysis):
         self.visit_any_conditionnal(node)
 
     def visit_BoolOp(self, node):
-        return set().union(*[self.visit(value) for value in node.values])
+        values = [self.visit(value) for value in node.values]
+        return reduce(disjoint_reduce, values)
 
     def visit_BinOp(self, node):
-        args = map(self.visit, (node.left, node.right))
-        return set().union(*args)
+        return reduce(combine_reduce, map(self.visit, (node.left, node.right)))
 
     def visit_UnaryOp(self, node):
         return self.visit(node.operand)
@@ -207,13 +229,14 @@ class TypeDependencies(ModuleAnalysis):
         assert False
 
     def visit_IfExp(self, node):
-        return self.visit(node.body).union(self.visit(node.orelse))
+        return reduce(disjoint_reduce, map(self.visit, (node.body,
+                                                        node.orelse)))
 
     def visit_Compare(self, node):
         #Type can depend on operands of a compare expression, for example for
         # nd arrays
-        return self.visit(node.left).union(*[self.visit(comp)
-                                             for comp in node.comparators])
+        values = map(self.visit, [node.left] + node.comparators)
+        return reduce(disjoint_reduce, values)
 
     def combine(self, node1, node2, register=False, unary_op=None):
         """
@@ -228,12 +251,13 @@ class TypeDependencies(ModuleAnalysis):
         if not register:
             return
         assert isinstance(node1, ast.Name)
-        self.update_naming(node1.id, self.naming.get(node1.id, set())
-                           .union(self.visit(node2)))
+        self.update_naming(node1.id, reduce(disjoint_reduce,
+                                            [self.visit(node1),
+                                             self.visit(node2)]))
 
     def visit(self, node):
         if node is None:
-            return set()
+            return set(), False
         return super(TypeDependencies, self).visit(node)
 
     def visit_Call(self, node):
@@ -259,49 +283,52 @@ class TypeDependencies(ModuleAnalysis):
         args = map(self.visit, node.args)
         func = self.visit(node.func)
         params = args + [func or []]
-        return set.union(*params)
+        return reduce(combine_reduce, params)
 
     def visit_Num(self, node):
-        return set()
+        return set(), True
 
     def visit_Str(self, node):
-        return set()
+        return set(), True
 
     def visit_Attribute(self, node):
-        return set()
+        return set(), True
 
     def visit_Subscript(self, node):
         #returned type of a[b] is declval(a)[declval(b)], so need to go inside
         # the slice
-        return self.visit(node.value).union(self.visit(node.slice))
+        return reduce(combine_reduce, map(self.visit, (node.value, node.slice)))
+
+    def get_naming(self, id):
+        if id in self.naming:
+            return self.naming[id]
+        elif id in self.global_declarations:
+            return {self.global_declarations[id]}, False
+        else:
+            return set(), True
 
     def visit_Name(self, node):
-        if node.id in self.naming:
-            return self.naming[node.id]
-        elif node.id in self.global_declarations:
-            return {self.global_declarations[node.id]}
-        else:
-            return set()
+        return self.get_naming(node.id)
 
     def visit_List(self, node):
         if node.elts:
-            return set().union(*map(self.visit, node.elts))
+            return reduce(combine_reduce, map(self.visit, node.elts))
         else:
-            return set()
+            return set(), True
 
     visit_Set = visit_List
 
     def visit_Dict(self, node):
         if node.keys:
             items = node.keys + node.values
-            return set().union(*map(self.visit, items))
+            return reduce(combine_reduce, map(self.visit, items))
         else:
-            return set()
+            return set(), True
 
     visit_Tuple = visit_List
 
     def visit_Slice(self, node):
-        return self.visit(node.lower).union(self.visit(node.upper))
+        return reduce(combine_reduce, map(self.visit, (node.lower, node.upper)))
 
     def visit_Index(self, node):
         return self.visit(node.value)
@@ -312,10 +339,6 @@ class TypeDependencies(ModuleAnalysis):
     def visit_Expr(self, node):
         return self.visit(node.value)
 
-    def run(self, node, ctx):
-        super(TypeDependencies, self).run(node, ctx)
-        return self.naming
-
 
 class ReturnTypeDependencies(TypeDependencies):
     '''
@@ -324,6 +347,9 @@ class ReturnTypeDependencies(TypeDependencies):
 
     Returns a DiGraph, u -> v means u depends on v
     '''
+
+    NoDeps = "No dependencies"
+
     def __init__(self):
         self.current_function = None
         super(ReturnTypeDependencies, self).__init__(GlobalDeclarations)
@@ -344,14 +370,21 @@ class ReturnTypeDependencies(TypeDependencies):
             # so there needs to be a dependency to each of them
             locs = self.passmanager.gather(LocalDeclarations,
                                            self.current_function)
-            res.update(*[self.naming.get(l.id, set()) for l in locs])
+            res = reduce(combine_reduce, [res] + [self.get_naming(l.id)
+                                                  for l in locs])
 
         #Only keep the aliases if they refer to something global
         gb_vals = self.global_declarations.values()
-        res = {val for val in res if val in gb_vals}
+        independent = res[1]
+        res = {val for val in res[0] if val in gb_vals}
         for val in res:
             if val != self.current_function:
                 self.result.add_edge(self.current_function, val)
+        #If the function can depend on nothing, say it. It will help us break
+        # cyclic dependencies if any
+        if independent:
+            self.result.add_edge(self.current_function,
+                                 ReturnTypeDependencies.NoDeps)
 
     def update_naming(self, name, value):
         '''
@@ -359,18 +392,13 @@ class ReturnTypeDependencies(TypeDependencies):
         depending on the in_cond state
         @rtype : None
         '''
-        if self.in_cond:
-            self.naming.setdefault(name, set()).update(value)
-        else:
-            self.naming[name] = value
+        super(ReturnTypeDependencies, self).update_naming(name, value)
 
         if self.is_global_variable(name):
-            self.naming[name].add(self.global_declarations[name])
-
             #If a global's dependencies are modified, add the correct edges in
             # the resulting directed graph
             gb_vals = self.global_declarations.values()
-            content = {y for y in value if y in gb_vals}
+            content = {y for y in value[0] if y in gb_vals}
             target = self.global_declarations[name]
 
             for y in content:
@@ -384,9 +412,24 @@ class ReturnTypeDependencies(TypeDependencies):
         super(ReturnTypeDependencies, self).run(node, ctx)
 
         gb_decls = dict((v, k) for k, v in self.global_declarations.items())
+        gb_decls[ReturnTypeDependencies.NoDeps] = ReturnTypeDependencies.NoDeps
         edges = self.result.edges()
         edges = [(gb_decls[edge[0]], gb_decls[edge[1]]) for edge in edges]
         print "edges: " + str(edges)
+
+        if not nx.is_directed_acyclic_graph(self.result):
+            #We break the return dependency cycles.
+
+            #For that we consider the functions that can have no dependencies,
+            # and we remove what dependencies they have
+            candidates = self.result.predecessors(ReturnTypeDependencies.NoDeps)
+            for candidate in candidates:
+                for s in self.result.successors(candidate):
+                    if nx.has_path(self.result, s, candidate):
+                        while self.result.has_edge(candidate, s):
+                            self.result.remove_edge(candidate, s)
+
+        self.result.remove_node(ReturnTypeDependencies.NoDeps)
 
         return self.result
 

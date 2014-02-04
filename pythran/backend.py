@@ -693,7 +693,8 @@ class Cxx(Backend):
         #separate into 2 typedefs because the first expression may have
         # 'or_global_type' in it and then gcc is not happy (but clang is)
         or_typedefs = \
-            [Struct("dummy",[Typedef(Value(combiner.generate(ctx), "type"))]),
+            [Struct("dummy",[Typedef(Value(combiner.generate(lambda x: x),
+                                           "type"))]),
              Typedef(Value("typename dummy::type", "or_global_type"))]
 
 

@@ -388,7 +388,8 @@ class Locals(ModuleAnalysis):
     def visit_For(self, node):
         self.handle_locals(node)
         self.visit(node.iter)
-        self.add_local(node.target.id)
+        for name in self.passmanager.gather(Names, node.target):
+            self.add_local(name.id)
         map(self.visit, node.body)
         map(self.visit, node.orelse)
 
@@ -475,7 +476,7 @@ class AssignTargets(NodeAnalysis):
         map(self.visit, node.targets)
 
     def visit_AugAssign(self, node):
-        map(self.visit, node.target)
+        self.visit(node.target)
 
 
 ##

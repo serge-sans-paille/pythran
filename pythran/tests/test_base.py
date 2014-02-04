@@ -1,7 +1,6 @@
 from test_env import TestEnv
 
 class TestBase(TestEnv):
-
     def test_pass(self):
         self.run_test("def pass_(a):pass", 1, pass_=[int])
 
@@ -625,3 +624,16 @@ def add_slice_to_list(l):
 
     def test_bool_(self):
         self.run_test("def _bool(d): return bool(d)", 3, _bool=[int])
+
+    def test_complex_add(self):
+        self.run_test("def complex_add(): a = 1j ; b = 2 ; return a + b", complex_add=[])
+
+    def test_complex_sub(self):
+        self.run_test("def complex_sub(): a = 1j ; b = 2 ; return a - b", complex_sub=[])
+
+    def test_complex_mul(self):
+        self.run_test("def complex_mul(): a = 1j ; b = 2 ; return a * b", complex_mul=[])
+
+    def test_complex_div(self):
+        self.run_test("def complex_div(): a = 1j ; b = 2 ; return a / b", complex_div=[])
+

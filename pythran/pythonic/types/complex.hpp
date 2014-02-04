@@ -10,6 +10,12 @@ namespace std {
     std::complex<double> operator+(long self, std::complex<double> other) {
         return double(self) + other;
     }
+    std::complex<double> operator-(std::complex<double> self, long other) {
+        return self - double(other);
+    }
+    std::complex<double> operator-(long self, std::complex<double> other) {
+        return double(self) - other;
+    }
     std::complex<double> operator*(std::complex<double> self, long other) {
         return self * double(other);
     }

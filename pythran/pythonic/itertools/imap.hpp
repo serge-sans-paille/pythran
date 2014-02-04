@@ -18,10 +18,10 @@ namespace pythonic {
             struct iterator_min;
 
         template<typename T>
-            struct iterator_min<T> {typedef typename T::iterator_category type;};
+            struct iterator_min<T> {typedef typename std::iterator_traits<T>::iterator_category type;};
 
         template<typename T, typename... Iters>
-            struct iterator_min<T, Iters...> {typedef typename std::conditional<std::is_same<typename T::iterator_category, std::forward_iterator_tag>::value, std::forward_iterator_tag, typename iterator_min<Iters...>::type >::type type;};
+            struct iterator_min<T, Iters...> {typedef typename std::conditional<std::is_same<typename std::iterator_traits<T>::iterator_category, std::forward_iterator_tag>::value, std::forward_iterator_tag, typename iterator_min<Iters...>::type >::type type;};
 
     }
 

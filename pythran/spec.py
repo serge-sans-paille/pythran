@@ -19,21 +19,21 @@ class SpecParser:
 
     ## lex part
     reserved = {
-            'pythran': 'PYTHRAN',
-            'export': 'EXPORT',
-            'list': 'LIST',
-            'set': 'SET',
-            'dict': 'DICT',
-            'str': 'STR',
-            'bool': 'BOOL',
-            'complex': 'COMPLEX',
-            'int': 'INT',
-            'long': 'LONG',
-            'float': 'FLOAT',
-            }
+        'pythran': 'PYTHRAN',
+        'export': 'EXPORT',
+        'list': 'LIST',
+        'set': 'SET',
+        'dict': 'DICT',
+        'str': 'STR',
+        'bool': 'BOOL',
+        'complex': 'COMPLEX',
+        'int': 'INT',
+        'long': 'LONG',
+        'float': 'FLOAT',
+        }
     tokens = (['IDENTIFIER', 'SHARP', 'COMMA', 'COLUMN', 'LPAREN', 'RPAREN']
-            + list(reserved.values())
-            + ['LARRAY', 'RARRAY'])
+              + list(reserved.values())
+              + ['LARRAY', 'RARRAY'])
 
     # token <> regexp binding
     t_SHARP = r'\#'
@@ -110,7 +110,7 @@ class SpecParser:
             p[0] = {p[1]: p[3]}
         else:
             raise SyntaxError("Invalid Pythran spec. "
-                    "Unknown text '{0}'".format(p.value))
+                              "Unknown text '{0}'".format(p.value))
 
     def p_term(self, p):
         '''term : STR
@@ -131,10 +131,9 @@ class SpecParser:
 
     def __init__(self, **kwargs):
         self.lexer = lex.lex(module=self, debug=0)
-        self.parser = yacc.yacc(
-                module=self,
-                debug=0,
-                tabmodule='pythran.parsetab')
+        self.parser = yacc.yacc(module=self,
+                                debug=0,
+                                tabmodule='pythran.parsetab')
 
     def __call__(self, path):
         self.exports = dict()
@@ -151,9 +150,8 @@ class SpecParser:
         self.parser.parse(pythran_data, lexer=self.lexer)
         if not self.exports:
             import logging
-            logger = logging.getLogger("pythran")
-            logger.warn("No pythran specification, "
-                        "no function will be exported")
+            logging.warn("No pythran specification, "
+                         "no function will be exported")
         return self.exports
 
 

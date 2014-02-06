@@ -167,7 +167,7 @@ class PassManager(object):
         is displayed.
         '''
         assert any(issubclass(transformation, T) for T in
-                (Transformation, Analysis))
+                   (Transformation, Analysis))
         a = transformation()
         a.passmanager = self
         return a.apply(node, ctx)

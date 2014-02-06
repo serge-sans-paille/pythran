@@ -45,7 +45,7 @@ class ConstantFolding(Transformation):
 
         for module_name in modules:
             not_builtin = ["__builtin__", "__exception__", "__dispatch__",
-                "__iterator__"]
+                           "__iterator__"]
             # module starting with "__" are pythran internal module and
             # should not be imported in the Python interpreter
             if not module_name.startswith('__'):
@@ -61,8 +61,8 @@ class ConstantFolding(Transformation):
                         # should try from another package than builtin,
                         # e.g. for ndarray
                         self.env[module_name] = getattr(
-                                self.env['__builtin__'],
-                                module_name.strip('_'))
+                            self.env['__builtin__'],
+                            module_name.strip('_'))
                     except:
                         pass
 
@@ -79,7 +79,7 @@ class ConstantFolding(Transformation):
             return ast.Num(value)
         elif isinstance(value, bool):
             return ast.Attribute(ast.Name('__builtin__', ast.Load()),
-                    'True' if value else False)
+                                 'True' if value else False)
         elif isinstance(value, str):
             return ast.Str(value)
         elif isinstance(value, list) and len(value) < ConstantFolding.MAX_LEN:
@@ -100,7 +100,7 @@ class ConstantFolding(Transformation):
         if node in self.constant_expressions:
             try:
                 fake_node = ast.Expression(
-                        node.value if isinstance(node, ast.Index) else node)
+                    node.value if isinstance(node, ast.Index) else node)
                 code = compile(fake_node, '<constant folding>', 'eval')
                 value = eval(code, self.env)
                 new_node = self.to_ast(value)
@@ -172,11 +172,11 @@ class GenExpToImap(Transformation):
 
                 iterAST = ast.Call(prodName, iters, [], None, None)
                 varAST = ast.arguments([ast.Tuple(variables, ast.Store())],
-                                   None, None, [])
+                                       None, None, [])
 
             imapName = ast.Attribute(
-                    value=ast.Name(id='itertools', ctx=ast.Load()),
-                    attr='imap', ctx=ast.Load())
+                value=ast.Name(id='itertools', ctx=ast.Load()),
+                attr='imap', ctx=ast.Load())
 
             ldBodyimap = node.elt
             ldimap = ast.Lambda(varAST, ldBodyimap)
@@ -239,7 +239,7 @@ class ListCompToMap(Transformation):
 
                 iterAST = ast.Call(prodName, iterList, [], None, None)
                 varAST = ast.arguments([ast.Tuple(varList, ast.Store())],
-                                   None, None, [])
+                                       None, None, [])
 
             mapName = ast.Attribute(
                 value=ast.Name(id='__builtin__', ctx=ast.Load()),
@@ -313,7 +313,7 @@ def bar(n):                                       \\n\
         if node.func in self.aliases:
             for k, v in self.aliases.iteritems():
                 if (isinstance(k, ast.Attribute)
-                    and isinstance(k.value, ast.Name)):
+                        and isinstance(k.value, ast.Name)):
                     if k.value.id == "__builtin__":
                         if self.aliases[node.func].aliases == v.aliases:
                             return k.attr
@@ -353,15 +353,15 @@ class Pow2(Transformation):
                 and type(node.right) is ast.Num
                 and node.right.n == 2):
             return ast.Call(
-                    ast.Attribute(
-                        ast.Name('__builtin__', ast.Load()),
-                        'pow2',
-                        ast.Load()),
-                    [node.left],
-                    [],
-                    None,
-                    None
-                    )
+                ast.Attribute(
+                    ast.Name('__builtin__', ast.Load()),
+                    'pow2',
+                    ast.Load()),
+                [node.left],
+                [],
+                None,
+                None
+                )
         else:
             return node
 
@@ -393,9 +393,9 @@ class LoopFullUnrolling(Transformation):
         self.generic_visit(node)
         use_omp = self.passmanager.gather(UseOMP, node, self.ctx)
         has_break = any(self.passmanager.gather(HasBreak, n, self.ctx)
-                for n in node.body)
+                        for n in node.body)
         has_cont = any(self.passmanager.gather(HasContinue, n, self.ctx)
-                for n in node.body)
+                       for n in node.body)
         if type(node.iter) is ast.List:
             if (not use_omp and
                     not has_break and
@@ -405,11 +405,11 @@ class LoopFullUnrolling(Transformation):
                 block = []
                 for elt in elts:
                     block.append(
-                            ast.If(ast.Num(1),
-                                [ast.Assign([deepcopy(node.target)], elt)]
-                                + deepcopy(node.body),
-                                []
-                                )
-                            )
+                        ast.If(ast.Num(1),
+                               [ast.Assign([deepcopy(node.target)], elt)]
+                               + deepcopy(node.body),
+                               []
+                               )
+                        )
                 return block
         return node

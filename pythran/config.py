@@ -9,7 +9,7 @@ def init_cfg(sys_file, user_file):
 
     user_config_dir = os.environ.get('XDG_CONFIG_HOME', '~')
     user_config_path = os.path.expanduser(
-            os.path.join(user_config_dir, user_file))
+        os.path.join(user_config_dir, user_file))
 
     cfg = configparser.SafeConfigParser()
     cfg.read([sys_config_path, user_config_path])

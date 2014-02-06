@@ -53,10 +53,9 @@ def templatize(node, types, default_types=None):
         default_types = [None] * len(types)
     if types:
         return Template(
-                ["typename {0} {1}".format(
-                    t, "= {0}".format(d) if d else "")
-                    for t, d in zip(types, default_types)],
-                node)
+            ["typename {0} {1}".format(t, "= {0}".format(d) if d else "")
+             for t, d in zip(types, default_types)],
+            node)
     else:
         return node
 
@@ -96,17 +95,16 @@ class Cxx(Backend):
         self.definitions = list()
         self.break_handlers = list()
         self.result = None
-        super(Cxx, self).__init__(Dependencies,
-                GlobalDeclarations, BoundedExpressions, Types, ArgumentEffects,
-                Scope)
+        super(Cxx, self).__init__(Dependencies, GlobalDeclarations,
+                                  BoundedExpressions, Types, ArgumentEffects,
+                                  Scope)
 
     # mod
     def visit_Module(self, node):
         # build all types
         def gen_include(t):
             return "/".join(("pythonic",) + t) + ".hpp"
-        headers = map(Include,
-            sorted(map(gen_include, self.dependencies)))
+        headers = map(Include, sorted(map(gen_include, self.dependencies)))
 
         # remove top-level strings
         fbody = (n for n in node.body if not isinstance(n, ast.Expr))
@@ -183,7 +181,7 @@ class Cxx(Backend):
                         self.mapping[node] = len(self.mapping)
                         self.cache[node] = t
                 return CachedTypeVisitor.CachedType(
-                        "__type{0}".format(self.mapping[node]))
+                    "__type{0}".format(self.mapping[node]))
 
             def typedefs(self):
                 l = sorted(self.mapping.items(), key=lambda x: x[1])
@@ -217,20 +215,19 @@ class Cxx(Backend):
                        {n.id: n for n in self.ldecls}.iteritems()}
 
         # 0 is used as initial_state, thus the +1
-        self.yields = {k: (1 + v, "yield_point{0}".format(1 + v))
-                for (v, k) in
-                enumerate(self.passmanager.gather(YieldPoints, node))}
+        self.yields = {k: (1 + v, "yield_point{0}".format(1 + v)) for (v, k) in
+                       enumerate(self.passmanager.gather(YieldPoints, node))}
 
         # gather body dump
         operator_body = map(self.visit, node.body)
 
         # compute arg dump
         default_arg_values = (
-                [None] * (len(node.args.args) - len(node.args.defaults))
-                + [self.visit(n) for n in node.args.defaults])
+            [None] * (len(node.args.args) - len(node.args.defaults))
+            + [self.visit(n) for n in node.args.defaults])
         default_arg_types = (
-                [None] * (len(node.args.args) - len(node.args.defaults))
-                + [self.types[n] for n in node.args.defaults])
+            [None] * (len(node.args.args) - len(node.args.defaults))
+            + [self.types[n] for n in node.args.defaults])
 
         # compute type dump
         result_type = self.types[node][0]
@@ -238,7 +235,7 @@ class Cxx(Backend):
         callable_type = Typedef(Value("void", "callable"))
 
         def make_function_declaration(rtype, name, ftypes, fargs,
-            defaults=None, attributes=[]):
+                                      defaults=None, attributes=[]):
             if defaults is None:
                 defaults = [None] * len(ftypes)
             arguments = list()
@@ -249,16 +246,17 @@ class Cxx(Backend):
                     rvalue_ref = "&&"
                 else:
                     rvalue_ref = " const &"
-                argument = Value(t + rvalue_ref,
+                argument = Value(
+                    t + rvalue_ref,
                     "{0}{1}".format(a, "= {0}".format(d) if d else ""))
                 arguments.append(argument)
             return FunctionDeclaration(Value(rtype, name), arguments,
-                *attributes)
+                                       *attributes)
 
         def make_const_function_declaration(rtype, name, ftypes, fargs,
-            defaults=None):
+                                            defaults=None):
             return make_function_declaration(rtype, name, ftypes, fargs,
-                defaults, ["const"])
+                                             defaults, ["const"])
 
         if self.yields:  # generator case
             # a generator has a call operator that returns the iterator
@@ -279,19 +277,18 @@ class Cxx(Backend):
 
             # the constructors
             next_constructors = [
-                    FunctionBody(
-                        FunctionDeclaration(Value("", next_name), []),
-                        Line(': {}(0) {{}}'.format(Cxx.generator_state_holder))
-                        )]
+                FunctionBody(
+                    FunctionDeclaration(Value("", next_name), []),
+                    Line(': {}(0) {{}}'.format(Cxx.generator_state_holder))
+                    )]
             if formal_types:
                 #if all parameters have a default value, we don't need default
                 # constructor
                 if default_arg_values and all(default_arg_values):
                     next_constructors = list()
                 next_constructors.append(FunctionBody(
-                    make_function_declaration("",
-                        next_name, formal_types, formal_args,
-                        default_arg_values),
+                    make_function_declaration("", next_name, formal_types,
+                                              formal_args, default_arg_values),
                     Line("{0} {{ }}".format(
                         ": {0}".format(
                             ", ".join(
@@ -302,153 +299,145 @@ class Cxx(Backend):
                     ))
 
             next_iterator = [
-                    FunctionBody(
-                        FunctionDeclaration(Value("void", "operator++"), []),
-                        Block([Statement("next()")])),
-
-                    FunctionBody(
-                        FunctionDeclaration(
-                            Value("typename {0}::result_type".format(
-                                instanciated_next_name),
-                                "operator*"),
-                            [], "const"),
-                        Block([
-                            ReturnStatement(
-                                Cxx.generator_state_value)])),
-                    FunctionBody(
-                        FunctionDeclaration(
-                            Value("pythonic::types::generator_iterator<{0}>"
-                                .format(next_name),
-                                "begin"),
-                            []),
-                        Block([Statement("next()"),
-                            ReturnStatement(
-                              "pythonic::types::generator_iterator<{0}>(*this)"
-                              .format(next_name))])),
-                    FunctionBody(
-                        FunctionDeclaration(
-                            Value("pythonic::types::generator_iterator<{0}>"
-                                .format(next_name),
-                                "end"),
-                            []),
-                        Block([ReturnStatement(
-                            "pythonic::types::generator_iterator<{0}>()"
-                            .format(next_name))])),
-                    FunctionBody(
-                        FunctionDeclaration(
-                            Value("bool", "operator!="),
-                            [Value("{0} const &".format(next_name), "other")],
-                            "const"),
-                        Block([ReturnStatement(
-                            "{0}!=other.{0}".format(
-                                Cxx.generator_state_holder))])),
-                    FunctionBody(
-                        FunctionDeclaration(
-                            Value("bool", "operator=="),
-                            [Value("{0} const &".format(next_name), "other")],
-                            "const"),
-                        Block([ReturnStatement(
-                            "{0}==other.{0}".format(
-                                Cxx.generator_state_holder))])),
-                    ]
-            next_signature = templatize(
+                FunctionBody(
+                    FunctionDeclaration(Value("void", "operator++"), []),
+                    Block([Statement("next()")])),
+                FunctionBody(
                     FunctionDeclaration(
-                        Value(
-                            "typename {0}::result_type".format(
-                                instanciated_next_name),
-                            "{0}::next".format(instanciated_next_name)),
+                        Value("typename {0}::result_type".format(
+                            instanciated_next_name),
+                            "operator*"),
+                        [], "const"),
+                    Block([
+                        ReturnStatement(
+                            Cxx.generator_state_value)])),
+                FunctionBody(
+                    FunctionDeclaration(
+                        Value("pythonic::types::generator_iterator<{0}>"
+                              .format(next_name),
+                              "begin"),
                         []),
-                    formal_types)
+                    Block([Statement("next()"),
+                           ReturnStatement(
+                               "pythonic::types::generator_iterator<{0}>"
+                               "(*this)".format(next_name))])),
+                FunctionBody(
+                    FunctionDeclaration(
+                        Value("pythonic::types::generator_iterator<{0}>"
+                              .format(next_name),
+                              "end"),
+                        []),
+                    Block([ReturnStatement(
+                        "pythonic::types::generator_iterator<{0}>()"
+                        .format(next_name))])),
+                FunctionBody(
+                    FunctionDeclaration(
+                        Value("bool", "operator!="),
+                        [Value("{0} const &".format(next_name), "other")],
+                        "const"),
+                    Block([ReturnStatement(
+                        "{0}!=other.{0}".format(
+                            Cxx.generator_state_holder))])),
+                FunctionBody(
+                    FunctionDeclaration(
+                        Value("bool", "operator=="),
+                        [Value("{0} const &".format(next_name), "other")],
+                        "const"),
+                    Block([ReturnStatement(
+                        "{0}==other.{0}".format(
+                            Cxx.generator_state_holder))])),
+                ]
+            next_signature = templatize(
+                FunctionDeclaration(
+                    Value(
+                        "typename {0}::result_type".format(
+                            instanciated_next_name),
+                        "{0}::next".format(instanciated_next_name)),
+                    []),
+                formal_types)
 
             next_body = operator_body
             # the dispatch table at the entry point
-            next_body.insert(0,
-                    Statement("switch({0}) {{ {1} }}".format(
-                        Cxx.generator_state_holder,
-                        " ".join("case {0}: goto {1};".format(num, where)
-                            for (num, where) in sorted(
-                                self.yields.itervalues(),
-                                key=lambda x: x[0])))))
+            next_body.insert(0, Statement("switch({0}) {{ {1} }}".format(
+                Cxx.generator_state_holder,
+                " ".join("case {0}: goto {1};".format(num, where)
+                         for (num, where) in sorted(
+                             self.yields.itervalues(),
+                             key=lambda x: x[0])))))
 
             ctx = CachedTypeVisitor(lctx)
-            next_members = (
-                    [Statement("{0} {1}".format(ft, fa))
-                        for (ft, fa) in zip(formal_types, formal_args)]
-                    + [Statement("{0} {1}".format(
-                        self.types[k].generate(ctx),
-                        k.id))
-                        for k in self.ldecls]
-                    + [Statement("{0} {1}".format(v, k))
-                        for k, v in self.extra_declarations]
-                    + [Statement("{0} {1}".format("long",
-                        Cxx.generator_state_holder))]
-                    + [Statement("typename {0}::result_type {1}".format(
-                        instanciated_next_name,
-                        Cxx.generator_state_value))]
-                    )
+            next_members = ([Statement("{0} {1}".format(ft, fa))
+                             for (ft, fa) in zip(formal_types, formal_args)]
+                            + [Statement(
+                                "{0} {1}".format(self.types[k].generate(ctx),
+                                                 k.id))
+                               for k in self.ldecls]
+                            + [Statement("{0} {1}".format(v, k))
+                               for k, v in self.extra_declarations]
+                            + [Statement("{0} {1}".format("long",
+                               Cxx.generator_state_holder))]
+                            + [Statement(
+                                "typename {0}::result_type {1}".format(
+                                    instanciated_next_name,
+                                    Cxx.generator_state_value))])
 
             extern_typedefs = [Typedef(Value(t.generate(ctx), t.name))
-                    for t in self.types[node][1] if not t.isweak()]
+                               for t in self.types[node][1] if not t.isweak()]
             iterator_typedef = [
-                    Typedef(Value(
-                        "pythonic::types::generator_iterator<{0}>".format(
-                            "{0}<{1}>".format(
-                                next_name,
-                                ", ".join(t for t in formal_types))
-                            if formal_types
-                            else next_name),
+                Typedef(
+                    Value("pythonic::types::generator_iterator<{0}>".format(
+                        "{0}<{1}>".format(next_name, ", ".join(formal_types))
+                        if formal_types else next_name),
                         "iterator")),
-                    Typedef(Value(
-                        result_type.generate(ctx),
-                        "value_type"))]
+                Typedef(Value(result_type.generate(ctx),
+                              "value_type"))]
             result_typedef = [
-                    Typedef(Value(result_type.generate(ctx), "result_type"))]
+                Typedef(Value(result_type.generate(ctx), "result_type"))]
             extra_typedefs = (ctx.typedefs()
-                    + extern_typedefs
-                    + iterator_typedef
-                    + result_typedef)
+                              + extern_typedefs
+                              + iterator_typedef
+                              + result_typedef)
 
             next_struct = templatize(
-                    Struct(
-                        next_name,
-                        extra_typedefs
-                        + next_members
-                        + next_constructors
-                        + next_iterator
-                        + next_declaration),
-                    formal_types)
+                Struct(next_name,
+                       extra_typedefs
+                       + next_members
+                       + next_constructors
+                       + next_iterator
+                       + next_declaration),
+                formal_types)
             next_definition = FunctionBody(next_signature, Block(next_body))
 
             operator_declaration = [
-                    templatize(
-                        make_const_function_declaration(
-                            instanciated_next_name,
-                            "operator()",
-                            formal_types,
-                            formal_args,
-                            default_arg_values),
-                        formal_types,
-                        default_arg_types),
-                    EmptyStatement()]
-            operator_signature = make_const_function_declaration(
-                    instanciated_next_name,
-                    "{0}::operator()".format(node.name),
-                    formal_types,
-                    formal_args)
-            operator_definition = FunctionBody(
-                    templatize(operator_signature, formal_types),
-                    Block([ReturnStatement("{0}({1})".format(
+                templatize(
+                    make_const_function_declaration(
                         instanciated_next_name,
-                        ", ".join(formal_args)))])
-                    )
+                        "operator()",
+                        formal_types,
+                        formal_args,
+                        default_arg_values),
+                    formal_types,
+                    default_arg_types),
+                EmptyStatement()]
+            operator_signature = make_const_function_declaration(
+                instanciated_next_name,
+                "{0}::operator()".format(node.name),
+                formal_types,
+                formal_args)
+            operator_definition = FunctionBody(
+                templatize(operator_signature, formal_types),
+                Block([ReturnStatement("{0}({1})".format(
+                    instanciated_next_name,
+                    ", ".join(formal_args)))])
+                )
 
             topstruct_type = templatize(
-                    Struct("type", extra_typedefs),
-                    formal_types)
+                Struct("type", extra_typedefs),
+                formal_types)
             topstruct = Struct(
-                    node.name,
-                    [topstruct_type, callable_type]
-                    + operator_declaration)
+                node.name,
+                [topstruct_type, callable_type]
+                + operator_declaration)
 
             self.declarations.append(next_struct)
             self.definitions.append(next_definition)
@@ -456,66 +445,63 @@ class Cxx(Backend):
         else:  # regular function case
             # a function has a call operator to be called
             # and a default constructor to create instances
-            fscope = "type{0}::".format(
-                    "<{0}>".format(
-                        ", ".join(formal_types))
-                    if formal_types
-                    else "")
+            fscope = "type{0}::".format("<{0}>".format(", ".join(formal_types))
+                                        if formal_types
+                                        else "")
             ffscope = "{0}::{1}".format(node.name, fscope)
 
             operator_declaration = [
-                    templatize(
-                        make_const_function_declaration(
-                            "typename {0}result_type".format(fscope),
-                            "operator()",
-                            formal_types,
-                            formal_args,
-                            default_arg_values),
+                templatize(
+                    make_const_function_declaration(
+                        "typename {0}result_type".format(fscope),
+                        "operator()",
                         formal_types,
-                        default_arg_types),
-                    EmptyStatement()
-                    ]
-            operator_signature = make_const_function_declaration(
-                    "typename {0}result_type".format(ffscope),
-                    "{0}::operator()".format(node.name),
+                        formal_args,
+                        default_arg_values),
                     formal_types,
-                    formal_args)
+                    default_arg_types),
+                EmptyStatement()
+                ]
+            operator_signature = make_const_function_declaration(
+                "typename {0}result_type".format(ffscope),
+                "{0}::operator()".format(node.name),
+                formal_types,
+                formal_args)
             ctx = CachedTypeVisitor(lctx)
             operator_local_declarations = (
-                    [Statement("{0} {1}".format(
-                     self.types[k].generate(ctx), k.id)) for k in self.ldecls]
-                    + [Statement("{0} {1}".format(v, k))
-                       for k, v in self.extra_declarations]
-                    )
+                [Statement("{0} {1}".format(
+                 self.types[k].generate(ctx), k.id)) for k in self.ldecls]
+                + [Statement("{0} {1}".format(v, k))
+                   for k, v in self.extra_declarations]
+                )
             dependent_typedefs = ctx.typedefs()
             operator_definition = FunctionBody(
-                    templatize(operator_signature, formal_types),
-                    Block(dependent_typedefs
-                        + operator_local_declarations
-                        + operator_body)
-                    )
+                templatize(operator_signature, formal_types),
+                Block(dependent_typedefs
+                      + operator_local_declarations
+                      + operator_body)
+                )
 
             ctx = CachedTypeVisitor()
             extra_typedefs = (
-                    [Typedef(Value(t.generate(ctx), t.name))
-                        for t in self.types[node][1] if not t.isweak()]
-                    + [Typedef(Value(
-                        result_type.generate(ctx),
-                        "result_type"))]
-                    )
+                [Typedef(Value(t.generate(ctx), t.name))
+                 for t in self.types[node][1] if not t.isweak()]
+                + [Typedef(Value(
+                    result_type.generate(ctx),
+                    "result_type"))]
+                )
             extra_typedefs = ctx.typedefs() + extra_typedefs
             return_declaration = [
-                    templatize(
-                        Struct("type", extra_typedefs),
-                        formal_types,
-                        default_arg_types
-                        )
-                    ]
-            topstruct = Struct(
-                    node.name,
-                    [callable_type]
-                    + return_declaration
-                    + operator_declaration)
+                templatize(
+                    Struct("type", extra_typedefs),
+                    formal_types,
+                    default_arg_types
+                    )
+                ]
+            topstruct = Struct(node.name,
+                               [callable_type]
+                               + return_declaration
+                               + operator_declaration)
 
         self.declarations.append(topstruct)
         self.definitions.append(operator_definition)
@@ -549,10 +535,10 @@ class Cxx(Backend):
 
     def visit_Assign(self, node):
         if not all(isinstance(n, ast.Name) or isinstance(n, ast.Subscript)
-                for n in node.targets):
+                   for n in node.targets):
             raise PythranSyntaxError(
-                    "Must assign to an identifier or a subscript",
-                    node)
+                "Must assign to an identifier or a subscript",
+                node)
         value = self.visit(node.value)
         targets = [self.visit(t) for t in node.targets]
         alltargets = "= ".join(targets)
@@ -583,16 +569,16 @@ class Cxx(Backend):
     def visit_Print(self, node):
         values = [self.visit(n) for n in node.values]
         stmt = Statement("pythonic::__builtin__::print{0}({1})".format(
-                "" if node.nl else "_nonl",
-                ", ".join(values))
-                )
+            "" if node.nl else "_nonl",
+            ", ".join(values))
+            )
         return self.process_omp_attachements(node, stmt)
 
     def visit_For(self, node):
         if not isinstance(node.target, ast.Name):
             raise PythranSyntaxError(
-                    "Using something other than an identifier as loop target",
-                    node.target)
+                "Using something other than an identifier as loop target",
+                node.target)
         iter = self.visit(node.iter)
         target = self.visit(node.target)
 
@@ -631,50 +617,43 @@ class Cxx(Backend):
 
         auto_for = bool(metadata.get(node.target, metadata.LocalVariable))
         auto_for |= (type(node.target) is ast.Name
-                      and node.target.id in self.scope[node])
+                     and node.target.id in self.scope[node])
         auto_for &= not self.yields and not omp
 
         loop_body = self.process_locals(node, loop_body, node.target.id)
 
         if auto_for:
             self.ldecls = {d for d in self.ldecls if d.id != node.target.id}
-            loop = AutoFor(
-                    target,
-                    local_iter,
-                    loop_body
-                    )
+            loop = AutoFor(target, local_iter, loop_body)
         else:
             if (metadata.get(node.target, metadata.LocalVariable) and
                     not self.yields):
                 local_type = "typename decltype({})::reference ".format(
-                                local_target)
+                    local_target)
             else:
                 local_type = ""
-            loop_body_prelude = Statement(
-                    "{} {}= *{}".format(
-                        local_type,
-                        target,
-                        local_target)
-                    )
+            loop_body_prelude = Statement("{} {}= *{}".format(local_type,
+                                                              target,
+                                                              local_target))
             loop = For(
-                    "{0} {1} = {2}.begin()".format(
-                        local_target_decl,
-                        local_target,
-                        local_iter),
-                    "{0} < {1}.end()".format(
-                        local_target,
-                        local_iter),
-                    "++{0}".format(local_target),
-                    Block([loop_body_prelude, loop_body])
-                    )
+                "{0} {1} = {2}.begin()".format(
+                    local_target_decl,
+                    local_target,
+                    local_iter),
+                "{0} < {1}.end()".format(
+                    local_target,
+                    local_iter),
+                "++{0}".format(local_target),
+                Block([loop_body_prelude, loop_body])
+                )
         stmts = [prelude, loop]
 
         # in that case when can proceed to a reserve
         for comp in metadata.get(node, metadata.Comprehension):
             stmts.insert(1,
-                    Statement("pythonic::utils::reserve({0},{1})".format(
-                        comp.target,
-                        local_iter)))
+                         Statement("pythonic::utils::reserve({0},{1})".format(
+                             comp.target,
+                             local_iter)))
 
         if break_handler:
             orelse = map(self.visit, node.orelse)
@@ -817,12 +796,12 @@ class Cxx(Backend):
             if len(elts) == 1:
                 elts.append('pythonic::types::single_value()')
                 return "{0}({{ {1} }})".format(
-                        Assignable(self.types[node]),
-                        ", ".join(elts))
+                    Assignable(self.types[node]),
+                    ", ".join(elts))
             else:
                 return "{0}({{ {1} }})".format(
-                        Assignable(self.types[node]),
-                        ", ".join(elts))
+                    Assignable(self.types[node]),
+                    ", ".join(elts))
 
     def visit_Set(self, node):
         if not node.elts:  # empty set
@@ -830,8 +809,8 @@ class Cxx(Backend):
         else:
             elts = [self.visit(n) for n in node.elts]
             return "{0}({{ {1} }})".format(
-                    Assignable(self.types[node]),
-                    ", ".join(elts))
+                Assignable(self.types[node]),
+                ", ".join(elts))
 
     def visit_Dict(self, node):
         if not node.keys:  # empty dict
@@ -840,9 +819,9 @@ class Cxx(Backend):
             keys = [self.visit(n) for n in node.keys]
             values = [self.visit(n) for n in node.values]
             return "{0}({{ {1} }})".format(
-                    Assignable(self.types[node]),
-                    ", ".join("{{ {0}, {1} }}".format(k, v)
-                        for k, v in zip(keys, values)))
+                Assignable(self.types[node]),
+                ", ".join("{{ {0}, {1} }}".format(k, v)
+                          for k, v in zip(keys, values)))
 
     def visit_Tuple(self, node):
         elts = map(self.visit, node.elts or ())
@@ -869,9 +848,9 @@ class Cxx(Backend):
     def visit_Num(self, node):
         if type(node.n) == complex:
             return "{0}({1}, {2})".format(
-                    pytype_to_ctype_table[complex],
-                    repr(node.n.real),
-                    repr(node.n.imag))
+                pytype_to_ctype_table[complex],
+                repr(node.n.real),
+                repr(node.n.imag))
         elif type(node.n) == long:
             return 'pythran_long({0})'.format(node.n)
         elif isnan(node.n):
@@ -911,12 +890,12 @@ class Cxx(Backend):
                 and isinstance(node.slice.value, ast.Num)
                 and (node.slice.value.n >= 0)
                 and any(isinstance(node.slice.value.n, t)
-                    for t in (int, long))):
+                        for t in (int, long))):
             return "std::get<{0}>({1})".format(node.slice.value.n, value)
         # slice optimization case
         elif (isinstance(node.slice, ast.Slice)
                 and (isinstance(node.ctx, ast.Store)
-                    or node not in self.bounded_expressions)):
+                     or node not in self.bounded_expressions)):
             slice = self.visit(node.slice)
             return "{1}({0})".format(slice, value)
         # extended slice case
@@ -945,7 +924,7 @@ class Cxx(Backend):
         for field in ('lower', 'upper', 'step'):
             nfield = getattr(node, field)
             arg = (self.visit(nfield) if nfield
-                    else 'pythonic::__builtin__::None')
+                   else 'pythonic::__builtin__::None')
             args.append(arg)
         return "pythonic::types::slice({},{},{})".format(*args)
 

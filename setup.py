@@ -64,7 +64,14 @@ class BuildWithPly(build):
         check_call(['make', '-C', nt2_build_dir, 'install', '-j'])
         for d in ('nt2', 'boost'):
             src = os.path.join(nt2_build_dir, 'include', d)
+
+            # copy to the build tree
             target = os.path.join(self.build_lib, 'pythran', d)
+            shutil.rmtree(target, True)
+            shutil.copytree(src, target)
+
+            # copy them to the source tree too, needed for sdist
+            target = os.path.join('pythran', d)
             shutil.rmtree(target, True)
             shutil.copytree(src, target)
 
@@ -72,7 +79,7 @@ class BuildWithPly(build):
         if not self.dry_run:  # compatibility with the parent options
             self.build_ply()
             self.build_nt2()
-        # regular build done by patent class
+        # regular build done by parent class
         build.run(self, *args, **kwargs)
 
 
@@ -204,6 +211,10 @@ class BenchmarkCommand(Command):
                     print "* Skip '" + candidate + ', no #runas directive'
 
 
+# Cannot use glob here, as the files may not be genrated yet
+nt2_headers = (['nt2/' + '*/' * i + '*.hpp' for i in range(1, 20)] +
+               ['boost/' + '*/' * i + '*.hpp' for i in range(1, 20)])
+
 setup(name='pythran',
       version='0.4.0',
       description='a claimless python to c++ converter',
@@ -211,7 +222,7 @@ setup(name='pythran',
       author_email='serge.guelton@telecom-bretagne.eu',
       url='https://github.com/serge-sans-paille/pythran',
       packages=['pythran', 'omp', 'pythran/pythonic'],
-      package_data={'pythran': ['pythran.cfg'],
+      package_data={'pythran': ['pythran.cfg'] + nt2_headers,
                     'pythran/pythonic': ['*.hpp', '*/*.hpp']},
       scripts=['scripts/pythran'],
       classifiers=[

@@ -63,7 +63,7 @@ namespace pythonic {
             sliced_str(sliced_str const & s): data(s.data), slicing(s.slicing) {}
 
             sliced_str(sliced_str const & s, typename S::normalized_type const& sl): data(s.data), slicing(s.slicing * sl) {}
-            sliced_str(types::str & other, typename S::normalized_type const & s);
+            sliced_str(types::str const & other, typename S::normalized_type const & s);
 
             // const getter
             container_type const & get_data() const { return *data; }
@@ -251,10 +251,10 @@ namespace pythonic {
                 return (*data)[i];
             }
             sliced_str<slice> operator[]( slice const &s ) const {
-                return sliced_str<slice>(*const_cast<str*>(this), s.normalize(size())); // SG: ugly !
+                return sliced_str<slice>(*this, s.normalize(size()));
             }
             sliced_str<contiguous_slice> operator[]( contiguous_slice const &s ) const {
-                return sliced_str<contiguous_slice>(*const_cast<str*>(this), s.normalize(size())); // SG: ugly !
+                return sliced_str<contiguous_slice>(*this, s.normalize(size()));
             }
 #ifdef USE_GMP
             char operator[](pythran_long_t const &m) const { return (*this)[m.get_si()];}
@@ -368,7 +368,7 @@ pythonic::types::sliced_str<S>& pythonic::types::sliced_str<S>::operator=(python
 }
 
 template<class S>
-pythonic::types::sliced_str<S>::sliced_str(pythonic::types::str & other, typename S::normalized_type const & s) : data(other.data), slicing(s){}
+pythonic::types::sliced_str<S>::sliced_str(pythonic::types::str const& other, typename S::normalized_type const & s) : data(other.data), slicing(s){}
 
 
 template<class S>

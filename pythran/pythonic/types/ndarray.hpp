@@ -1139,15 +1139,7 @@ we assume that M>=N
                 {
                     return sliced_ndarray<ndarray<T,N>>(*this, s);
                 }
-                sliced_ndarray<ndarray<T,N>> operator[](slice const& s)
-                {
-                    return sliced_ndarray<ndarray<T,N>>(*this, s);
-                }
                 sliced_ndarray<ndarray<T,N>> operator()(slice const& s) const
-                {
-                    return (*this)[s];
-                }
-                sliced_ndarray<ndarray<T,N>> operator()(slice const& s)
                 {
                     return (*this)[s];
                 }
@@ -1156,15 +1148,7 @@ we assume that M>=N
                 {
                     return sliced_ndarray<ndarray<T,N>, contiguous_slice>(*this, s);
                 }
-                sliced_ndarray<ndarray<T,N>, contiguous_slice> operator[](contiguous_slice const& s)
-                {
-                    return sliced_ndarray<ndarray<T,N>, contiguous_slice>(*this, s);
-                }
                 sliced_ndarray<ndarray<T,N>, contiguous_slice> operator()(contiguous_slice const& s) const
-                {
-                    return (*this)[s];
-                }
-                sliced_ndarray<ndarray<T,N>, contiguous_slice> operator()(contiguous_slice const& s)
                 {
                     return (*this)[s];
                 }

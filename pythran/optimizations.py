@@ -426,7 +426,7 @@ class RemoveExtraSlice(Transformation):
     >>> node = pm.apply(RemoveExtraSlice, node)
     >>> print pm.dump(backend.Python, node)
     a[1, 1:2] = b[:]
-    c = d
+    c[:] = d
     """
     @staticmethod
     def is_empty_slice(s):

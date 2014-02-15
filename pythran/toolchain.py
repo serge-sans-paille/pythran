@@ -172,13 +172,16 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
 
     # instanciate the meta program
     if specs is None:
+
         class Generable:
             def __init__(self, content):
                 self.content = content
 
-            def generate(self):
-                return "\n".join("\n".join(l for l in s.generate())
-                                 for s in self.content)
+            def __str__(self):
+                return str(self.content)
+
+            generate = __str__
+
         mod = Generable(content)
     else:
         # uniform typing
@@ -334,7 +337,8 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
 
     # Autodetect the Pythran spec if not given as parameter
     from spec import spec_parser
-    specs = spec_parser(pythrancode) if specs is None else specs
+    if specs is None:
+        specs = spec_parser(pythrancode)
 
     # Generate C++, get a BoostPythonModule object
     module = generate_cxx(module_name, pythrancode, specs, opts)

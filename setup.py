@@ -224,7 +224,7 @@ setup(name='pythran',
       packages=['pythran', 'omp', 'pythran/pythonic'],
       package_data={'pythran': ['pythran.cfg'] + nt2_headers,
                     'pythran/pythonic': ['*.hpp', '*/*.hpp']},
-      scripts=['scripts/pythran'],
+      scripts=['scripts/pythran', 'scripts/pythran-config'],
       classifiers=[
       'Development Status :: 4 - Beta',
       'Environment :: Console',

@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_BUILTIN_PRINT_HPP
 #define PYTHONIC_BUILTIN_PRINT_HPP
 
-#include <ostream>
+#include <iostream>
 
 namespace pythonic {
 

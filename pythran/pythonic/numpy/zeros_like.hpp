@@ -14,7 +14,7 @@ namespace pythonic {
                 }
 #ifdef USE_BOOST_SIMD
             template<class T>
-                auto zeros_like(boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION> const&) {
+                auto zeros_like(boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION> const&) -> decltype(boost::simd::splat<boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>>(static_cast<T>(0))) {
                     return boost::simd::splat<boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>>(static_cast<T>(0));
                 }
 #endif

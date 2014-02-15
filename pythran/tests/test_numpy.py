@@ -24,6 +24,9 @@ class TestNumpy(TestEnv):
     def test_numpy_double(self):
         self.run_test("def numpy_double(n): import numpy ; return numpy.ones(n, numpy.double)", 5, numpy_double=[int])
 
+    def test_numpy_complex_export(self):
+        self.run_test("def numpy_complex_export(a): import numpy ; return numpy.sum(a)", numpy.array([1+1j]), numpy_complex_export=[numpy.array([complex])])
+
     def test_assign_gsliced_array(self):
         self.run_test("""def assign_gsliced_array():
    import numpy as np;

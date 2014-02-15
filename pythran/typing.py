@@ -74,7 +74,7 @@ def pytype_to_deps(t):
     elif isinstance(t, tuple):
         return {'pythonic/types/tuple.hpp'}.union(*map(pytype_to_deps, t))
     elif isinstance(t, ndarray):
-        return {'pythonic/types/ndarray.hpp'}
+        return {'pythonic/types/ndarray.hpp'}.union(pytype_to_deps(t[0]))
     elif t in pytype_to_ctype_table:
         return {'pythonic/types/{}.hpp'.format(t.__name__)}
     else:

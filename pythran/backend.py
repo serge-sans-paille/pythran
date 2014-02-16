@@ -926,8 +926,10 @@ class Cxx(Backend):
             arg = (self.visit(nfield) if nfield
                    else 'pythonic::__builtin__::None')
             args.append(arg)
-        if node.step is None or type(node.step) is ast.Num and node.step.n == 1:
-            return "pythonic::types::contiguous_slice({},{})".format(*args[0:2])
+        if node.step is None or (type(node.step) is ast.Num
+                                 and node.step.n == 1):
+            return "pythonic::types::contiguous_slice({},{})".format(args[0],
+                                                                     args[1])
         else:
             return "pythonic::types::slice({},{},{})".format(*args)
 

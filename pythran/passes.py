@@ -1083,11 +1083,15 @@ class NormalizeCompare(Transformation):
             body = []  # iteratively fill the body (yeah, feel your body!)
             body.append(ast.Assign([ast.Name('$0', ast.Store())], node.left))
             for i, exp in enumerate(node.comparators):
-                body.append(ast.Assign([ast.Name('${}'.format(i+1), ast.Store())], exp))
+                body.append(ast.Assign([ast.Name('${}'.format(i+1),
+                                                 ast.Store())],
+                                       exp))
                 cond = ast.Compare(ast.Name('${}'.format(i), ast.Load()),
                                    [node.ops[i]],
                                    [ast.Name('${}'.format(i+1), ast.Load())])
-                body.append(ast.If(cond, [ast.Pass()], [ast.Return(ast.Num(0))]))
+                body.append(ast.If(cond,
+                                   [ast.Pass()],
+                                   [ast.Return(ast.Num(0))]))
             body.append(ast.Return(ast.Num(1)))
 
             forged_fdef = ast.FunctionDef(forged_name, args, body, [])

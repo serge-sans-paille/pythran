@@ -676,7 +676,8 @@ class Types(ModuleAnalysis):
 
     def visit_Slice(self, node):
         self.generic_visit(node)
-        if node.step is None or type(node.step) is ast.Num and node.step.n == 1:
+        if node.step is None or (type(node.step) is ast.Num
+                                 and node.step.n == 1):
             self.result[node] = NamedType('pythonic::types::contiguous_slice')
         else:
             self.result[node] = NamedType('pythonic::types::slice')

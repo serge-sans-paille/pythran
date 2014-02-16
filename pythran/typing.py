@@ -74,7 +74,7 @@ def pytype_to_deps(t):
     elif isinstance(t, tuple):
         return {'pythonic/types/tuple.hpp'}.union(*map(pytype_to_deps, t))
     elif isinstance(t, ndarray):
-        return {'pythonic/types/ndarray.hpp'}
+        return {'pythonic/types/ndarray.hpp'}.union(pytype_to_deps(t[0]))
     elif t in pytype_to_ctype_table:
         return {'pythonic/types/{}.hpp'.format(t.__name__)}
     else:
@@ -676,7 +676,8 @@ class Types(ModuleAnalysis):
 
     def visit_Slice(self, node):
         self.generic_visit(node)
-        if node.step is None or type(node.step) is ast.Num and node.step.n == 1:
+        if node.step is None or (type(node.step) is ast.Num
+                                 and node.step.n == 1):
             self.result[node] = NamedType('pythonic::types::contiguous_slice')
         else:
             self.result[node] = NamedType('pythonic::types::slice')

@@ -131,6 +131,8 @@ class TypeDependencies(ModuleAnalysis):
         self.current_function = None
         self.combiners = {}
         self.in_cond = False
+        #used by the combine() function
+        self.nodes = []
         super(TypeDependencies, self).__init__(GlobalDeclarations, StrictAliases
                                                , DeclaredGlobals, Locals, *deps)
 
@@ -251,9 +253,19 @@ class TypeDependencies(ModuleAnalysis):
         if not register:
             return
         assert isinstance(node1, ast.Name)
+        self.nodes = [node1, node2]
+        if unary_op:
+            unary_op(NamedType("int"))
         self.update_naming(node1.id, reduce(disjoint_reduce,
-                                            [self.visit(node1),
-                                             self.visit(node2)]))
+                                            map(self.visit, self.nodes)))
+
+    def get_type(self, node):
+        """
+        If the combiner's unary op needs to use the get_type function,
+        add a dependency to the corresponding node
+        """
+        self.nodes.append(node)
+        return NamedType("int")
 
     def visit(self, node):
         if node is None:
@@ -665,6 +677,10 @@ class Types(ModuleAnalysis):
                            for n in self.name_to_nodes[node_id]]))
         except UnboundableRValue:
                 return False
+
+    def get_type(self, node):
+        """Used by tables.py's dict setdefault's combiner"""
+        return self.result[node]
 
     def combine(self, node, othernode, op=None, unary_op=None, register=False):
         if register and node in self.strict_aliases:

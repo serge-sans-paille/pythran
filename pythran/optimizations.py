@@ -142,7 +142,7 @@ class GenExpToImap(Transformation):
     def make_Iterator(self, gen):
         if gen.ifs:
             ldFilter = ast.Lambda(
-                ast.arguments([ast.Name(gen.target.id, ast.Store())],
+                ast.arguments([ast.Name(gen.target.id, ast.Param())],
                               None, None, []), ast.BoolOp(ast.And(), gen.ifs))
             ifilterName = ast.Attribute(
                 value=ast.Name(id='itertools', ctx=ast.Load()),

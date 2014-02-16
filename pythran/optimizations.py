@@ -79,7 +79,7 @@ class ConstantFolding(Transformation):
             return ast.Num(value)
         elif isinstance(value, bool):
             return ast.Attribute(ast.Name('__builtin__', ast.Load()),
-                                 'True' if value else False)
+                                 'True' if value else 'False', ast.Load())
         elif isinstance(value, str):
             return ast.Str(value)
         elif isinstance(value, list) and len(value) < ConstantFolding.MAX_LEN:

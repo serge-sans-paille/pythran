@@ -215,7 +215,7 @@ class Cxx(Backend):
                                   [NamedType("{0}__combiner_{1}".format(
                                    node.name, gb))] + [self.types[gbnode]])
                 self.types[gbnode] = ReturnType(self.types[gbnode],
-                                                [NamedType("int")], True)
+                                                [NamedType("int")], True, True)
 
         #generate the func_global_type() by default, if the user didn't export
         #the function in the c++ code

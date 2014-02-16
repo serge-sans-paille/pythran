@@ -353,8 +353,9 @@ class ReturnType(Type):
     >>> ReturnType(NamedType('math::cos'), [NamedType('float')])
     decltype(std::declval<math::cos>()(std::declval<float>()))
     '''
-    def __init__(self, ftype, args, is_function_call=False):
+    def __init__(self, ftype, args, is_function_call=False, no_reference=False):
         self.is_function_call = is_function_call
+        self.no_reference = no_reference
         args_qualifiers = [arg.qualifiers for arg in args]
         super(ReturnType, self).__init__(
                 qualifiers=ftype.qualifiers.union(*args_qualifiers),
@@ -371,7 +372,15 @@ class ReturnType(Type):
 
         args = ("std::declval<{0}>()".format(ctx(arg).generate(ctx))
                 for arg in self.args)
-        return 'decltype({0}({1}))'.format(cg, ", ".join(args))
+
+        call = '{0}({1})'.format(cg, ", ".join(args))
+
+        if self.no_reference:
+            call = DeclType(call).generate(ctx)
+        else:
+            call = 'decltype({0})'.format(call)
+
+        return call
 
 
 class ElementType(Type):

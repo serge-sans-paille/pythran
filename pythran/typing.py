@@ -351,9 +351,9 @@ class ReturnTypeDependencies(TypeDependencies):
     NoDeps = "No dependencies"
 
     def __init__(self):
-        self.current_function = None
         super(ReturnTypeDependencies, self).__init__(GlobalDeclarations)
         self.result = nx.DiGraph()
+        self.global_changing_functions = defaultdict(set)
 
     def visit_FunctionDef(self, node):
         self.result.add_node(node)
@@ -405,6 +405,9 @@ class ReturnTypeDependencies(TypeDependencies):
                 if y != target and not self.result.has_edge(target, y):
                     self.result.add_edge(target, y)
 
+            self.global_changing_functions[self.current_function].add(name)
+
+
 
     visit_Yield = visit_Return
 
@@ -433,6 +436,12 @@ class ReturnTypeDependencies(TypeDependencies):
 
         return self.result
 
+
+class GlobalsChangedByFunctions(ReturnTypeDependencies):
+    def run(self, node, ctx):
+        super(GlobalsChangedByFunctions, self).run(node, ctx)
+
+        return self.global_changing_functions
 
 class Callees(ModuleAnalysis):
     """
@@ -572,7 +581,7 @@ class Types(ModuleAnalysis):
         self.locals_stack=[set()]
         self.max_recompute = 1  # max number of use to be lazy
         ModuleAnalysis.__init__(self, StrictAliases, LazynessAnalysis,
-                                DeclaredGlobals)
+                                DeclaredGlobals, GlobalsChangedByFunctions)
 
     def prepare(self, node, ctx):
         self.passmanager.apply(Reorder, node, ctx)
@@ -782,7 +791,7 @@ class Types(ModuleAnalysis):
         #If we are NOT in a nested function
         if self.nested == 1:
             self.global_combiners[node.name] = {arg: ConstantIntr() for arg in
-                                        self.globals}
+                                       self.globals_changed_by_functions[node]}
             self.result.update((v, NamedType("or_global_type", {HasToCombine}))
                            for k, v in self.global_combiners[node.name].items())
             self.current_global_combiner = self.global_combiners[node.name]
@@ -957,6 +966,8 @@ class Types(ModuleAnalysis):
         self.result[node] = NamedType(pytype_to_ctype_table[str])
 
     def visit_Attribute(self, node):
+        qualifiers = set()
+
         def rec(w, n):
             if isinstance(n, ast.Name):
                 return w[n.id], (n.id,)
@@ -966,13 +977,20 @@ class Types(ModuleAnalysis):
                     plast, last = r[1][-2:]
                     if plast == '__builtin__' and last.startswith('__'):
                         return r[0][n.attr], r[1][:-2] + r[1][-1:] + (n.attr,)
+                # In the return type of a function, if one is None (because lack
+                # of return declaration at the end of the function) and the
+                # other is a weak type, then it must be a combination of both.
+                #
+                # See euler_raw/euler44.py
+                if n.attr == "None":
+                    qualifiers.add(Weak)
                 return r[0][n.attr], r[1] + (n.attr,)
         obj, path = rec(modules, node)
         path = ('pythonic',) + path
         self.result[node] = DeclType(
                 '::'.join(path) if obj.isliteral() else
-                ('::'.join(path[:-1]) + '::proxy::' + path[-1] + '()')
-                )
+                ('::'.join(path[:-1]) + '::proxy::' + path[-1] + '()'),
+                qualifiers)
 
     def visit_Slice(self, node):
         self.generic_visit(node)
@@ -1022,7 +1040,7 @@ class Types(ModuleAnalysis):
                 self.combine(node, n)
         elif node.id in self.current_global_declarations:
             self.combine(node, self.current_global_declarations[node.id])
-        elif node.id in self.declared_globals:
+        elif node.id in self.globals:
             self.result[node] = DeclType(NamedType(node.id), {Weak})
         else:
             self.result[node] = NamedType(node.id, {Weak})

@@ -432,17 +432,55 @@ class ReturnTypeDependencies(TypeDependencies):
         edges = [(gb_decls[edge[0]], gb_decls[edge[1]]) for edge in edges]
         print "edges: " + str(edges)
 
+        gb_changing = self.global_changing_functions
+
         if not nx.is_directed_acyclic_graph(self.result):
             #We break the return dependency cycles.
 
             #For that we consider the functions that can have no dependencies,
-            # and we remove what dependencies they have
+            # and we remove what circular dependencies they have
             candidates = self.result.predecessors(ReturnTypeDependencies.NoDeps)
-            for candidate in candidates:
-                for s in self.result.successors(candidate):
-                    if nx.has_path(self.result, s, candidate):
-                        while self.result.has_edge(candidate, s):
-                            self.result.remove_edge(candidate, s)
+            past_candidates = set(candidates)
+            while len(candidates) > 0:
+                new_candidates = set()
+                for candidate in candidates:
+                    for s in self.result.successors(candidate):
+                        if nx.has_path(self.result, s, candidate):
+                            while self.result.has_edge(candidate, s):
+                                self.result.remove_edge(candidate, s)
+                            #If candidate is a global modified by s, remove it
+                            # from the list of the globals modified by s
+                            if s in gb_changing:
+                                for n in gb_changing[s]:
+                                    gb = self.global_declarations[n]
+                                    if gb == candidate:
+                                        gb_changing[s].remove(n)
+                                        break
+                    new_candidates |= set(self.result.predecessors(candidate))
+                    #needed for euler53
+                    #If a function changes a global, then that global doesn't
+                    # need other dependencies
+                    if candidate in gb_changing:
+                        for n in gb_changing[candidate]:
+                            gb = self.global_declarations[n]
+                            if gb in self.result:
+                                new_candidates.add(gb)
+                candidates = new_candidates - past_candidates
+                past_candidates |= candidates
+            """ There's a bad heuristic concerning globals changed by functions.
+
+            We assume that if there is a circular dependency between a function
+            and a global, (aka return type of function depends on global and
+            type of global depends on return type of function), that dependency
+            happens inside the code of the function.
+
+            Making it truly general would mean revisiting the Weak system."""
+
+        gb_decls = dict((v, k) for k, v in self.global_declarations.items())
+        gb_decls[ReturnTypeDependencies.NoDeps] = ReturnTypeDependencies.NoDeps
+        edges = self.result.edges()
+        edges = [(gb_decls[edge[0]], gb_decls[edge[1]]) for edge in edges]
+        print "edges2: " + str(edges)
 
         self.result.remove_node(ReturnTypeDependencies.NoDeps)
 
@@ -704,7 +742,13 @@ class Types(ModuleAnalysis):
                 elif is_global:
                     #It's a global identifier
                     #node = modules[self.passmanager.module_name][node_id]
-                    node = self.current_global_combiner[node_id]
+                    if node_id in self.current_global_combiner:
+                        node = self.current_global_combiner[node_id]
+                    else:
+                        #The globals_changed_by_functions analysis decided to
+                        # break the dependency of this global to the current
+                        # function
+                        return
 
                 self.name_to_nodes.setdefault(node_id, set()).add(node)
 

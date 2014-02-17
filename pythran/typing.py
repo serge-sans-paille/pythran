@@ -593,7 +593,8 @@ class Types(ModuleAnalysis):
         self.locals_stack=[set()]
         self.max_recompute = 1  # max number of use to be lazy
         ModuleAnalysis.__init__(self, StrictAliases, LazynessAnalysis,
-                                DeclaredGlobals, GlobalsChangedByFunctions)
+                                DeclaredGlobals, GlobalsChangedByFunctions,
+                                ReturnTypeDependencies, GlobalDeclarations)
 
     def prepare(self, node, ctx):
         self.passmanager.apply(Reorder, node, ctx)
@@ -982,7 +983,6 @@ class Types(ModuleAnalysis):
         self.result[node] = NamedType(pytype_to_ctype_table[str])
 
     def visit_Attribute(self, node):
-        qualifiers = set()
 
         def rec(w, n):
             if isinstance(n, ast.Name):
@@ -993,20 +993,13 @@ class Types(ModuleAnalysis):
                     plast, last = r[1][-2:]
                     if plast == '__builtin__' and last.startswith('__'):
                         return r[0][n.attr], r[1][:-2] + r[1][-1:] + (n.attr,)
-                # In the return type of a function, if one is None (because lack
-                # of return declaration at the end of the function) and the
-                # other is a weak type, then it must be a combination of both.
-                #
-                # See euler_raw/euler44.py
-                if n.attr == "None":
-                    qualifiers.add(Weak)
                 return r[0][n.attr], r[1] + (n.attr,)
         obj, path = rec(modules, node)
         path = ('pythonic',) + path
         self.result[node] = DeclType(
                 '::'.join(path) if obj.isliteral() else
-                ('::'.join(path[:-1]) + '::proxy::' + path[-1] + '()'),
-                qualifiers)
+                ('::'.join(path[:-1]) + '::proxy::' + path[-1] + '()')
+        )
 
     def visit_Slice(self, node):
         self.generic_visit(node)
@@ -1057,7 +1050,13 @@ class Types(ModuleAnalysis):
         elif node.id in self.current_global_declarations:
             self.combine(node, self.current_global_declarations[node.id])
         elif node.id in self.globals:
-            self.result[node] = DeclType(NamedType(node.id), {Weak})
+            #If the current function depends on the global, it's not a weak
+            # reference
+            if nx.has_path(self.return_type_dependencies, self.current,
+                           self.global_declarations[node.id]):
+                self.result[node] = DeclType(NamedType(node.id))
+            else:
+                self.result[node] = DeclType(NamedType(node.id), {Weak})
         else:
             self.result[node] = NamedType(node.id, {Weak})
 

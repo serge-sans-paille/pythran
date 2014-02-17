@@ -393,10 +393,12 @@ modules = {
         "round_": ConstFunctionIntr(),
         "searchsorted": ConstFunctionIntr(),
         "select": ConstFunctionIntr(),
+        "shape": ConstMethodIntr(),
         "sign": ConstFunctionIntr(),
         "signbit": ConstFunctionIntr(),
         "sin": ConstFunctionIntr(),
         "sinh": ConstFunctionIntr(),
+        "size": ConstMethodIntr(),
         "sometrue": ConstFunctionIntr(),
         "sort": ConstFunctionIntr(),
         "sort_complex": ConstFunctionIntr(),
@@ -1036,8 +1038,8 @@ modules = {
         "itemsize": AttributeIntr(4),
         "nbytes": AttributeIntr(5),
         "ndim": AttributeIntr(1),
-        "shape": AttributeIntr(0),
-        "size": AttributeIntr(3),
+        #"shape": AttributeIntr(0), SG: available as a function from numpy
+        #"size": AttributeIntr(3), SG: available as a function from numpy
         "strides": AttributeIntr(2),
         "T": AttributeIntr(8),
         "tolist": ConstMethodIntr(),

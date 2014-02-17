@@ -1549,9 +1549,6 @@ namespace pythonic {
             template<int I, class E>
                 struct getattr;
 
-            template<class E> struct getattr<0, E> {
-                auto operator()(E const& a) -> decltype(a.shape) { return a.shape; }
-            };
             template<class E> struct getattr<1, E> {
                 long operator()(E const& a) { return numpy_expr_to_ndarray<E>::N; }
             };
@@ -1563,9 +1560,6 @@ namespace pythonic {
                     std::transform(strides.rbegin(), strides.rend() -1, shape.rbegin(), strides.rbegin()+1, std::multiplies<long>());
                     return strides;
                 }
-            };
-            template<class E> struct getattr<3, E> {
-                long operator()(E const& a) { return a.size(); }
             };
             template<class E> struct getattr<4, E> {
                 long operator()(E const& a) { return sizeof(typename numpy_expr_to_ndarray<E>::T); }

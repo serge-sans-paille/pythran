@@ -7,13 +7,17 @@
 namespace pythonic {
 
     namespace __set__ {
-        template<typename T, typename... Types> 
+        template<typename T, typename... Types>
             void difference_update(types::set<T> & set, Types const&... others){
-                return set.difference_update(others...);
+                set.difference_update(others...);
             }
-        template<typename T, typename... Types> 
+        template<typename T, typename... Types>
             void difference_update(types::set<T> && set, Types const&... others){
-                return set.difference_update(others...);
+                //nothing to be done as we work on rvalue
+            }
+        template<typename... Types>
+            void difference_update(types::empty_set const& set, Types const&... others){
+                //nothing can be removed in set
             }
         PROXY(pythonic::__set__, difference_update);
 

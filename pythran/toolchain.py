@@ -172,13 +172,16 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
 
     # instanciate the meta program
     if specs is None:
+
         class Generable:
             def __init__(self, content):
                 self.content = content
 
-            def generate(self):
-                return "\n".join("\n".join(l for l in s.generate())
-                                 for s in self.content)
+            def __str__(self):
+                return str(self.content)
+
+            generate = __str__
+
         mod = Generable(content)
     else:
         # uniform typing
@@ -190,7 +193,8 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
         mod.use_private_namespace = False
         # very low value for max_arity leads to various bugs
         min_val = 2
-        max_arity = max([min_val] + [max(map(len, s)) for s in specs.itervalues()])
+        specs_max = [max(map(len, s)) for s in specs.itervalues()]
+        max_arity = max([min_val] + specs_max)
         mod.add_to_preamble([Define("BOOST_PYTHON_MAX_ARITY", max_arity)])
         mod.add_to_preamble([Define("BOOST_SIMD_NO_STRICT_ALIASING", "1")])
 
@@ -253,10 +257,14 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
 
         sorted_exceptions = nx.topological_sort(exceptions)
         mod.add_to_init([
-            Statement(
-                'boost::python::register_exception_translator<' +
-                'pythonic::types::%s>(&pythonic::translate_%s)' %
-                (n.__name__, n.__name__)) for n in sorted_exceptions])
+            # register exception only if they can be raise from C++ world to
+            # Python world. Preprocessors variables are set only if deps
+            # analysis detect that this exception can be raised
+            Line('#ifdef PYTHONIC_BUILTIN_%s_HPP\n'
+                 'boost::python::register_exception_translator<'
+                 'pythonic::types::%s>(&pythonic::translate_%s);\n'
+                 '#endif' % (n.__name__.upper(), n.__name__, n.__name__)
+                 ) for n in sorted_exceptions])
 
         for function_name, signatures in specs.iteritems():
             internal_func_name = renamings.get(function_name,
@@ -278,7 +286,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
                                + "<typename {0}::result_type>::type".format(
                                  specialized_fname))
                 mod.add_to_init(
-                     [Statement("pythonic::python_to_pythran<{0}>()".format(t))
+                    [Statement("pythonic::python_to_pythran<{0}>()".format(t))
                      for t in _extract_all_constructed_types(signature)])
                 mod.add_to_init([Statement(
                     "pythonic::pythran_to_python<{0}>()".format(result_type))])
@@ -363,7 +371,8 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
 
     # Autodetect the Pythran spec if not given as parameter
     from spec import spec_parser
-    specs = spec_parser(pythrancode) if specs is None else specs
+    if specs is None:
+        specs = spec_parser(pythrancode)
 
     # Generate C++, get a BoostPythonModule object
     module = generate_cxx(module_name, pythrancode, specs, opts)

@@ -39,13 +39,13 @@ class _ConvertToTuple(ast.NodeTransformer):
     def visit_Name(self, node):
         if node.id in self.renamings:
             nnode = reduce(
-                    lambda x, y: ast.Subscript(
-                        x,
-                        ast.Index(ast.Num(y)),
-                        ast.Load()),
-                    self.renamings[node.id],
-                    ast.Name(self.tuple_id, ast.Load())
-                    )
+                lambda x, y: ast.Subscript(
+                    x,
+                    ast.Index(ast.Num(y)),
+                    ast.Load()),
+                self.renamings[node.id],
+                ast.Name(self.tuple_id, ast.Load())
+                )
             nnode.ctx = node.ctx
             return nnode
         return node
@@ -78,7 +78,7 @@ class NormalizeTuples(Transformation):
                 renamings[node.id] = state
         elif isinstance(node, ast.Tuple) or isinstance(node, ast.List):
             [self.traverse_tuples(n, state + (i,), renamings)
-                    for i, n in enumerate(node.elts)]
+             for i, n in enumerate(node.elts)]
         elif isinstance(node, ast.Subscript):
             if state:
                 renamings[node] = state
@@ -90,11 +90,10 @@ class NormalizeTuples(Transformation):
         self.traverse_tuples(node.target, (), renamings)
         if renamings:
             self.counter += 1
-            return (
-                    "{0}{1}".format(
-                        NormalizeTuples.tuple_name,
-                        self.counter),
-                    renamings)
+            return ("{0}{1}".format(
+                NormalizeTuples.tuple_name,
+                self.counter),
+                renamings)
         else:
             return node
 
@@ -107,11 +106,11 @@ class NormalizeTuples(Transformation):
             if isinstance(g, tuple):
                 gtarget = "{0}{1}".format(g[0], i)
                 nnode.generators[i].target = ast.Name(
-                        gtarget,
-                        nnode.generators[i].target.ctx)
+                    gtarget,
+                    nnode.generators[i].target.ctx)
                 metadata.add(
-                        nnode.generators[i].target,
-                        metadata.LocalVariable())
+                    nnode.generators[i].target,
+                    metadata.LocalVariable())
                 nnode = _ConvertToTuple(gtarget, g[1]).visit(nnode)
         for field in fields:
             setattr(node, field, getattr(nnode, field))
@@ -138,8 +137,8 @@ class NormalizeTuples(Transformation):
             if renamings:
                 self.counter += 1
                 nname = "{0}{1}".format(
-                        NormalizeTuples.tuple_name,
-                        self.counter)
+                    NormalizeTuples.tuple_name,
+                    self.counter)
                 node.args.args[i] = ast.Name(nname, ast.Param())
                 node.body = _ConvertToTuple(nname, renamings).visit(node.body)
         return node
@@ -154,24 +153,24 @@ class NormalizeTuples(Transformation):
                 if renamings:
                     self.counter += 1
                     gtarget = "{0}{1}{2}".format(
-                            NormalizeTuples.tuple_name,
-                            self.counter,
-                            i)
+                        NormalizeTuples.tuple_name,
+                        self.counter,
+                        i)
                     node.targets[i] = ast.Name(gtarget, node.targets[i].ctx)
                     metadata.add(node.targets[i], metadata.LocalVariable())
                     for rename, state in sorted(renamings.iteritems()):
                         nnode = reduce(
-                                lambda x, y: ast.Subscript(
-                                    x,
-                                    ast.Index(ast.Num(y)),
-                                    ast.Load()),
-                                state,
-                                ast.Name(gtarget, ast.Load()))
+                            lambda x, y: ast.Subscript(
+                                x,
+                                ast.Index(ast.Num(y)),
+                                ast.Load()),
+                            state,
+                            ast.Name(gtarget, ast.Load()))
                         if isinstance(rename, str):
                             extra_assign.append(
-                                    ast.Assign(
-                                        [ast.Name(rename, ast.Store())],
-                                        nnode))
+                                ast.Assign(
+                                    [ast.Name(rename, ast.Store())],
+                                    nnode))
                         else:
                             extra_assign.append(ast.Assign([rename], nnode))
         return (ast.If(ast.Num(1), extra_assign, [])
@@ -186,25 +185,25 @@ class NormalizeTuples(Transformation):
             if renamings:
                 self.counter += 1
                 gtarget = "{0}{1}".format(
-                        NormalizeTuples.tuple_name,
-                        self.counter
-                        )
+                    NormalizeTuples.tuple_name,
+                    self.counter
+                    )
                 node.target = ast.Name(gtarget, node.target.ctx)
                 metadata.add(node.target, metadata.LocalVariable())
                 for rename, state in sorted(renamings.iteritems()):
                     nnode = reduce(
-                            lambda x, y: ast.Subscript(
-                                x,
-                                ast.Index(ast.Num(y)),
-                                ast.Load()),
-                            state,
-                            ast.Name(gtarget, ast.Load()))
+                        lambda x, y: ast.Subscript(
+                            x,
+                            ast.Index(ast.Num(y)),
+                            ast.Load()),
+                        state,
+                        ast.Name(gtarget, ast.Load()))
                     if isinstance(rename, str):
                         node.body.insert(0,
-                                ast.Assign(
-                                    [ast.Name(rename, ast.Store())],
-                                    nnode)
-                                )
+                                         ast.Assign(
+                                             [ast.Name(rename, ast.Store())],
+                                             nnode)
+                                         )
                     else:
                         node.body.insert(0, ast.Assign([rename], nnode))
 
@@ -281,46 +280,46 @@ class RemoveComprehension(Transformation):
 
         starget = "__target"
         body = reduce(self.nest_reducer,
-                reversed(node.generators),
-                ast.Expr(
-                    ast.Call(
-                        ast.Attribute(
-                            ast.Name(comp_module, ast.Load()),
-                            comp_method,
-                            ast.Load()),
-                        [ast.Name(starget, ast.Load()), node.elt],
-                        [],
-                        None,
-                        None
-                        )
-                    )
-                )
+                      reversed(node.generators),
+                      ast.Expr(
+                          ast.Call(
+                              ast.Attribute(
+                                  ast.Name(comp_module, ast.Load()),
+                                  comp_method,
+                                  ast.Load()),
+                              [ast.Name(starget, ast.Load()), node.elt],
+                              [],
+                              None,
+                              None
+                              )
+                          )
+                      )
         # add extra metadata to this node
         metadata.add(body, metadata.Comprehension(starget))
         init = ast.Assign(
-                [ast.Name(starget, ast.Store())],
-                ast.Call(
-                    ast.Attribute(
-                        ast.Name('__builtin__', ast.Load()),
-                        comp_type,
-                        ast.Load()
-                        ),
-                    [], [], None, None)
-                )
+            [ast.Name(starget, ast.Store())],
+            ast.Call(
+                ast.Attribute(
+                    ast.Name('__builtin__', ast.Load()),
+                    comp_type,
+                    ast.Load()
+                    ),
+                [], [], None, None)
+            )
         result = ast.Return(ast.Name(starget, ast.Load()))
         sargs = sorted(ast.Name(arg, ast.Param()) for arg in args)
         fd = ast.FunctionDef(name,
-                ast.arguments(sargs, None, None, []),
-                [init, body, result],
-                [])
+                             ast.arguments(sargs, None, None, []),
+                             [init, body, result],
+                             [])
         self.ctx.module.body.append(fd)
         return ast.Call(
-                ast.Name(name, ast.Load()),
-                [ast.Name(arg.id, ast.Load()) for arg in sargs],
-                [],
-                None,
-                None
-                )  # no sharing !
+            ast.Name(name, ast.Load()),
+            [ast.Name(arg.id, ast.Load()) for arg in sargs],
+            [],
+            None,
+            None
+            )  # no sharing !
 
     def visit_ListComp(self, node):
         return self.visit_AnyComp(node, "list", "__list__", "append")
@@ -332,9 +331,9 @@ class RemoveComprehension(Transformation):
         # this is a quickfix to match visit_AnyComp signature
         # potential source of improvement there!
         node.elt = ast.List(
-                [ast.Tuple([node.key, node.value], ast.Load())],
-                ast.Load()
-                )
+            [ast.Tuple([node.key, node.value], ast.Load())],
+            ast.Load()
+            )
         return self.visit_AnyComp(node, "dict", "__dispatch__", "update")
 
     def visit_GeneratorExp(self, node):
@@ -345,23 +344,23 @@ class RemoveComprehension(Transformation):
         self.count_iter = 0
 
         body = reduce(self.nest_reducer,
-                reversed(node.generators),
-                ast.Expr(ast.Yield(node.elt))
-                )
+                      reversed(node.generators),
+                      ast.Expr(ast.Yield(node.elt))
+                      )
 
         sargs = sorted(ast.Name(arg, ast.Param()) for arg in args)
         fd = ast.FunctionDef(name,
-                ast.arguments(sargs, None, None, []),
-                [body],
-                [])
+                             ast.arguments(sargs, None, None, []),
+                             [body],
+                             [])
         self.ctx.module.body.append(fd)
         return ast.Call(
-                ast.Name(name, ast.Load()),
-                [ast.Name(arg.id, ast.Load()) for arg in sargs],
-                [],
-                None,
-                None
-                )  # no sharing !
+            ast.Name(name, ast.Load()),
+            [ast.Name(arg.id, ast.Load()) for arg in sargs],
+            [],
+            None,
+            None
+            )  # no sharing !
 
 
 ##
@@ -387,7 +386,7 @@ class _NestedFunctionRemover(Transformation):
         ii = self.passmanager.gather(ImportedIds, node, self.ctx)
         binded_args = [ast.Name(iin, ast.Load()) for iin in sorted(ii)]
         node.args.args = ([ast.Name(iin, ast.Param()) for iin in sorted(ii)]
-                + node.args.args)
+                          + node.args.args)
 
         class Renamer(ast.NodeTransformer):
             def visit_Call(self, node):
@@ -396,10 +395,9 @@ class _NestedFunctionRemover(Transformation):
                         and node.func.id == former_name):
                     node.func.id = new_name
                     node.args = (
-                            [ast.Name(iin, ast.Load())
-                                for iin in sorted(ii)]
-                            + node.args
-                            )
+                        [ast.Name(iin, ast.Load()) for iin in sorted(ii)]
+                        + node.args
+                        )
                 return node
         Renamer().visit(node)
 
@@ -407,19 +405,19 @@ class _NestedFunctionRemover(Transformation):
         proxy_call = ast.Name(new_name, ast.Load())
 
         new_node = ast.Assign(
-                [ast.Name(former_name, ast.Store())],
-                ast.Call(
-                    ast.Attribute(
-                        ast.Name('functools', ast.Load()),
-                        "partial",
-                        ast.Load()
-                        ),
-                    [proxy_call] + binded_args,
-                    [],
-                    None,
-                    None
-                    )
+            [ast.Name(former_name, ast.Store())],
+            ast.Call(
+                ast.Attribute(
+                    ast.Name('functools', ast.Load()),
+                    "partial",
+                    ast.Load()
+                    ),
+                [proxy_call] + binded_args,
+                [],
+                None,
+                None
                 )
+            )
 
         self.generic_visit(node)
         return new_node
@@ -474,8 +472,8 @@ class _LambdaRemover(Transformation):
 
         self.generic_visit(node)
         forged_name = "{0}_lambda{1}".format(
-                self.prefix,
-                len(self.lambda_functions))
+            self.prefix,
+            len(self.lambda_functions))
 
         ii = self.passmanager.gather(ImportedIds, node, self.ctx)
         ii.difference_update(self.lambda_functions)  # remove current lambdas
@@ -483,25 +481,25 @@ class _LambdaRemover(Transformation):
         binded_args = [ast.Name(iin, ast.Load()) for iin in sorted(ii)]
         former_nbargs = len(node.args.args)
         node.args.args = ([ast.Name(iin, ast.Param()) for iin in sorted(ii)]
-                + node.args.args)
+                          + node.args.args)
         forged_fdef = ast.FunctionDef(
-                forged_name,
-                copy(node.args),
-                [ast.Return(node.body)],
-                [])
+            forged_name,
+            copy(node.args),
+            [ast.Return(node.body)],
+            [])
         self.lambda_functions.append(forged_fdef)
         proxy_call = ast.Name(forged_name, ast.Load())
         if binded_args:
             return ast.Call(
-                    ast.Attribute(
-                        ast.Name('functools', ast.Load()),
-                        "partial",
-                        ast.Load()
-                        ),
-                    [proxy_call] + binded_args,
-                    [],
-                    None,
-                    None)
+                ast.Attribute(
+                    ast.Name('functools', ast.Load()),
+                    "partial",
+                    ast.Load()
+                    ),
+                [proxy_call] + binded_args,
+                [],
+                None,
+                None)
         else:
             return proxy_call
 
@@ -565,7 +563,7 @@ class NormalizeReturn(Transformation):
                     node.body.append(ast.Return(None))
                 else:
                     none = ast.Attribute(ast.Name("__builtin__", ast.Load()),
-                            'None', ast.Load())
+                                         'None', ast.Load())
                     node.body.append(ast.Return(none))
                 break
 
@@ -574,7 +572,7 @@ class NormalizeReturn(Transformation):
     def visit_Return(self, node):
         if not node.value and not self.yield_points:
             none = ast.Attribute(ast.Name("__builtin__", ast.Load()),
-                    'None', ast.Load())
+                                 'None', ast.Load())
             node.value = none
         return node
 
@@ -635,9 +633,9 @@ class NormalizeMethodCalls(Transformation):
                 if not ispath or (isname and lhs.id not in self.imports):
                     node.args.insert(0, node.func.value)
                     node.func = ast.Attribute(
-                            ast.Name(methods[node.func.attr][0], ast.Load()),
-                            node.func.attr,
-                            ast.Load())
+                        ast.Name(methods[node.func.attr][0], ast.Load()),
+                        node.func.attr,
+                        ast.Load())
             if node.func.attr in methods or node.func.attr in functions:
                 def renamer(v):
                     name = '__{0}__'.format(v)
@@ -676,9 +674,9 @@ class NormalizeAttributes(Transformation):
     def visit_Attribute(self, node):
         if node.attr in attributes:
             out = ast.Subscript(
-                    node.value,
-                    ast.Index(ast.Num(attributes[node.attr][1].val)),
-                    node.ctx)
+                node.value,
+                ast.Index(ast.Num(attributes[node.attr][1].val)),
+                node.ctx)
             metadata.add(out, metadata.Attribute())
             return out
         else:
@@ -772,12 +770,12 @@ class NormalizeException(Transformation):
     def visit_TryExcept(self, node):
         if node.orelse:
             node.body.append(
-                    ast.TryExcept(
-                        node.orelse,
-                        [ast.ExceptHandler(None, None, [ast.Pass()])],
-                        []
-                        )
+                ast.TryExcept(
+                    node.orelse,
+                    [ast.ExceptHandler(None, None, [ast.Pass()])],
+                    []
                     )
+                )
             node.orelse = []
         return node
 
@@ -785,9 +783,9 @@ class NormalizeException(Transformation):
         node.body.extend(node.finalbody)
         node.finalbody.append(ast.Raise(None, None, None))
         return ast.TryExcept(
-                node.body,
-                [ast.ExceptHandler(None, None, node.finalbody)],
-                [])
+            node.body,
+            [ast.ExceptHandler(None, None, node.finalbody)],
+            [])
 
 
 ##
@@ -816,12 +814,12 @@ class UnshadowParameters(Transformation):
         [self.visit(n) for n in node.body]
         for k, v in self.renaming.iteritems():
             node.body.insert(
-                    0,
-                    ast.Assign(
-                        [ast.Name(v, ast.Store())],
-                        ast.Name(k, ast.Load())
-                        )
+                0,
+                ast.Assign(
+                    [ast.Name(v, ast.Store())],
+                    ast.Name(k, ast.Load())
                     )
+                )
         return node
 
     def update(self, node):
@@ -872,7 +870,7 @@ class ExpandImports(Transformation):
     def visit_Module(self, node):
         node.body = [k for k in (self.visit(n) for n in node.body) if k]
         imports = [ast.Import([ast.alias(i, namespace + "::" + i)])
-                for i in self.imports]
+                   for i in self.imports]
         node.body = imports + node.body
         ast.fix_missing_locations(node)
         return node
@@ -887,9 +885,9 @@ class ExpandImports(Transformation):
         self.imports.add(node.module)
         for alias in node.names:
             self.symbols[alias.asname or alias.name] = (
-                    node.module,
-                    alias.name,
-                    )
+                node.module,
+                alias.name,
+                )
         return None
 
     def visit_FunctionDef(self, node):
@@ -903,16 +901,16 @@ class ExpandImports(Transformation):
     def visit_Assign(self, node):
         new_node = self.generic_visit(node)
         [self.symbols.pop(t.id, None)
-                for t in new_node.targets if isinstance(t, ast.Name)]
+         for t in new_node.targets if isinstance(t, ast.Name)]
         return new_node
 
     def visit_Name(self, node):
         if node.id in self.symbols:
             new_node = reduce(
-                    lambda v, o: ast.Attribute(v, o, ast.Load()),
-                    self.symbols[node.id][1:],
-                    ast.Name(self.symbols[node.id][0], ast.Load())
-                    )
+                lambda v, o: ast.Attribute(v, o, ast.Load()),
+                self.symbols[node.id][1:],
+                ast.Name(self.symbols[node.id][0], ast.Load())
+                )
             new_node.ctx = node.ctx
             ast.copy_location(new_node, node)
             return new_node
@@ -940,7 +938,7 @@ lgamma, erf, erfc, modf, degrees, acos, pi, log1p, sin, gamma
             if alias.name == '*':
                 node.names.pop()
                 node.names.extend(ast.alias(fname, None)
-                        for fname in modules[node.module])
+                                  for fname in modules[node.module])
         return node
 
 
@@ -966,9 +964,9 @@ class ExpandBuiltins(Transformation):
                 and s not in self.globals
                 and s in modules['__builtin__']):
             return ast.Attribute(
-                    ast.Name('__builtin__', ast.Load()),
-                    s,
-                    node.ctx)
+                ast.Name('__builtin__', ast.Load()),
+                s,
+                node.ctx)
         else:
             return node
 
@@ -992,7 +990,7 @@ class FalsePolymorphism(Transformation):
         #function using openmp are ignored
         if not self.use_omp:
             self.identifiers = self.passmanager.gather(Identifiers, node,
-                    self.ctx)
+                                                       self.ctx)
             for name, udgraph in self.used_def_chain.iteritems():
                 group_variable = list()
                 while udgraph:
@@ -1018,7 +1016,7 @@ class FalsePolymorphism(Transformation):
                             to_analyse_pred.update(udgraph.predecessors(n))
                             to_analyse_pred -= to_change
                     nodes_to_change = [udgraph.node[k]['name']
-                                            for k in to_change]
+                                       for k in to_change]
                     group_variable.append(nodes_to_change)
                     udgraph.remove_nodes_from(to_change)
                 if len(group_variable) > 1:
@@ -1042,9 +1040,20 @@ class NormalizeCompare(Transformation):
     >>> node = pm.apply(NormalizeCompare, node)
     >>> print pm.dump(backend.Python, node)
     def foo(a):
-        return foo_compare0(0, (a + 1), 3)
-    def foo_compare0($0, $1, $2):
-        return ($0 < $1 < $2)
+        return foo_compare0(a)
+    def foo_compare0(a):
+        $0 = 0
+        $1 = (a + 1)
+        if ($0 < $1):
+            pass
+        else:
+            return 0
+        $2 = 3
+        if ($1 < $2):
+            pass
+        else:
+            return 0
+        return 1
     '''
 
     def visit_Module(self, node):
@@ -1061,24 +1070,42 @@ class NormalizeCompare(Transformation):
     def visit_Compare(self, node):
         node = self.generic_visit(node)
         if len(node.ops) > 1:
-            forged_name = "{0}_compare{1}".format(
-                    self.prefix,
-                    len(self.compare_functions)
-                    )
-            binded_args = [node.left] + node.comparators
-            args = ast.arguments([ast.Name('${}'.format(i), ast.Param())
-                for i in range(1 + len(node.ops))],
-                None, None, [])
-            node.left = ast.Name('$0', ast.Load())
-            node.comparators = [ast.Name('${}'.format(i), ast.Load())
-                    for i in range(1, 1 + len(node.ops))]
-            forged_fdef = ast.FunctionDef(
-                    forged_name,
-                    args,
-                    [ast.Return(node)],
-                    [])
+            # in case we have more than one compare operator
+            # we generate an auxillary function
+            # that lazily evaluates the needed parameters
+            imported_ids = self.passmanager.gather(ImportedIds, node, self.ctx)
+            imported_ids = sorted(imported_ids)
+            binded_args = [ast.Name(i, ast.Load()) for i in imported_ids]
+
+            # name of the new function
+            forged_name = "{0}_compare{1}".format(self.prefix,
+                                                  len(self.compare_functions))
+
+            # call site
+            call = ast.Call(ast.Name(forged_name, ast.Load()),
+                            binded_args, [], None, None)
+
+            # new function
+            arg_names = [ast.Name(i, ast.Param()) for i in imported_ids]
+            args = ast.arguments(arg_names, None, None, [])
+
+            body = []  # iteratively fill the body (yeah, feel your body!)
+            body.append(ast.Assign([ast.Name('$0', ast.Store())], node.left))
+            for i, exp in enumerate(node.comparators):
+                body.append(ast.Assign([ast.Name('${}'.format(i+1),
+                                                 ast.Store())],
+                                       exp))
+                cond = ast.Compare(ast.Name('${}'.format(i), ast.Load()),
+                                   [node.ops[i]],
+                                   [ast.Name('${}'.format(i+1), ast.Load())])
+                body.append(ast.If(cond,
+                                   [ast.Pass()],
+                                   [ast.Return(ast.Num(0))]))
+            body.append(ast.Return(ast.Num(1)))
+
+            forged_fdef = ast.FunctionDef(forged_name, args, body, [])
             self.compare_functions.append(forged_fdef)
-            return ast.Call(ast.Name(forged_name, ast.Load()),
-                    binded_args, [], None, None)
+
+            return call
         else:
             return node

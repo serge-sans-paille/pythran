@@ -315,8 +315,9 @@ namespace std {
         auto get( pythonic::types::dict<K,V> const & d) -> decltype(d[I]) { return d[I]; }
 
     template <size_t I, class K, class V>
-        struct tuple_element<I, pythonic::types::dict<K,V> > {
-            typedef typename pythonic::types::dict<K,V>::value_type type;
+        class tuple_element<I, pythonic::types::dict<K,V> > {
+            public:
+                typedef typename pythonic::types::dict<K,V>::value_type type;
         };
 }
 
@@ -473,6 +474,7 @@ struct __combined<container<V>, indexable_dict<K>> {
 #ifdef ENABLE_PYTHON_MODULE
 
 #include "pythonic/python/register_once.hpp"
+#include "pythonic/python/extract.hpp"
 #include <boost/python/dict.hpp>
 #include <boost/python/object.hpp>
 
@@ -501,8 +503,14 @@ namespace pythonic {
 
                 PyObject *key, *value;
                 Py_ssize_t pos = 0;
-                while(PyDict_Next(obj_ptr, &pos, &key, &value)) {
-                    v[boost::python::extract<K>(key)]=boost::python::extract<V>(value);
+                /* first round use boost version that performs a lot of check
+                 * then we rely on faster but less secure version
+                 */
+                if(PyDict_Next(obj_ptr, &pos, &key, &value)) {
+                    v[boost::python::extract<K>(key)] = boost::python::extract<V>(value);
+                    while(PyDict_Next(obj_ptr, &pos, &key, &value)) {
+                        v[extract<K>(key)] = extract<V>(value);
+                    }
                 }
                 data->convertible=storage;
             }
@@ -527,8 +535,7 @@ namespace pythonic {
         };
     struct custom_empty_dict_to_dict {
         static PyObject* convert(types::empty_dict const &) {
-            boost::python::dict ret;
-            return boost::python::incref(ret.ptr());
+            return PyDict_New();
         }
     };
     template<>

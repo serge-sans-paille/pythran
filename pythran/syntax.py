@@ -34,7 +34,7 @@ class SyntaxChecker(ast.NodeVisitor):
                 continue
             else:
                 if not any(isinstance(n, getattr(ast, t))
-                        for t in ('FunctionDef', 'Import', 'ImportFrom',)):
+                           for t in ('FunctionDef', 'Import', 'ImportFrom',)):
                     raise PythranSyntaxError(err, n)
         self.generic_visit(node)
 
@@ -46,7 +46,7 @@ class SyntaxChecker(ast.NodeVisitor):
 
     def visit_Suite(self, node):
         raise PythranSyntaxError(
-                "Suites are specific to Jython and not supported", node)
+            "Suites are specific to Jython and not supported", node)
 
     def visit_ClassDef(self, node):
         raise PythranSyntaxError("Classes not supported")
@@ -55,7 +55,7 @@ class SyntaxChecker(ast.NodeVisitor):
         self.generic_visit(node)
         if node.dest:
             raise PythranSyntaxError(
-                    "Printing to a specific stream not supported", node.dest)
+                "Printing to a specific stream not supported", node.dest)
 
     def visit_With(self, node):
         raise PythranSyntaxError("With statements not supported")
@@ -65,9 +65,8 @@ class SyntaxChecker(ast.NodeVisitor):
         if node.keywords:
             raise PythranSyntaxError("Call with keywords not supported", node)
         if node.starargs:
-            raise PythranSyntaxError(
-                    "Call with star arguments not supported",
-                    node)
+            raise PythranSyntaxError("Call with star arguments not supported",
+                                     node)
         if node.kwargs:
             raise PythranSyntaxError("Call with kwargs not supported", node)
 
@@ -76,50 +75,48 @@ class SyntaxChecker(ast.NodeVisitor):
         if node.args.vararg:
             raise PythranSyntaxError("Varargs not supported", node)
         if node.args.kwarg:
-            raise PythranSyntaxError(
-                    "Keyword arguments not supported",
-                    node)
+            raise PythranSyntaxError("Keyword arguments not supported",
+                                     node)
 
     def visit_Raise(self, node):
         self.generic_visit(node)
         if node.tback:
             raise PythranSyntaxError(
-                    "Traceback in raise statements not supported",
-                    node)
+                "Traceback in raise statements not supported",
+                node)
 
     def visit_Attribute(self, node):
         self.generic_visit(node)
         if node.attr not in self.attributes:
             raise PythranSyntaxError(
-                    "Attribute '{0}' unknown".format(node.attr),
-                    node)
+                "Attribute '{0}' unknown".format(node.attr),
+                node)
 
     def visit_Import(self, node):
         for alias in node.names:
             if alias.name not in tables.modules:
                 raise PythranSyntaxError(
-                        "Module '{0}' unknown.".format(alias.name),
-                        node)
+                    "Module '{0}' unknown.".format(alias.name),
+                    node)
 
     def visit_ImportFrom(self, node):
         if node.level != 0:
             raise PythranSyntaxError("Specifying a level in an import", node)
         if not node.module:
-            raise PythranSyntaxError(
-                    "import from without module", node)
+            raise PythranSyntaxError("import from without module", node)
         module = node.module
         if module not in tables.modules:
-            raise PythranSyntaxError(
-                    "Module '{0}' unknown".format(module), node)
+            raise PythranSyntaxError("Module '{0}' unknown".format(module),
+                                     node)
         for alias in node.names:
             if alias.name == '*':
                 continue
             if alias.name not in tables.modules[module]:
                 raise PythranSyntaxError(
-                        "identifier '{0}' not found in module '{1}'".format(
-                            alias.name,
-                            module),
-                        node)
+                    "identifier '{0}' not found in module '{1}'".format(
+                        alias.name,
+                        module),
+                    node)
 
     def visit_Exec(self, node):
         raise PythranSyntaxError("Exec statement not supported", node)

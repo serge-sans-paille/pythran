@@ -44,15 +44,15 @@ def pytype_to_ctype(t):
     elif isinstance(t, dict):
         tkey, tvalue = t.items()[0]
         return 'pythonic::types::dict<{0},{1}>'.format(pytype_to_ctype(tkey),
-                                            pytype_to_ctype(tvalue))
+                                                       pytype_to_ctype(tvalue))
     elif isinstance(t, tuple):
         return 'decltype(pythonic::types::make_tuple({0}))'.format(
-                ", ".join('std::declval<{}>()'.format(
-                    pytype_to_ctype(_)) for _ in t)
-                )
+            ", ".join('std::declval<{}>()'.format(
+                pytype_to_ctype(_)) for _ in t)
+            )
     elif isinstance(t, ndarray):
         return 'pythonic::types::ndarray<{0},{1}>'.format(
-                pytype_to_ctype(t.flat[0]), t.ndim)
+            pytype_to_ctype(t.flat[0]), t.ndim)
     elif t in pytype_to_ctype_table:
         return pytype_to_ctype_table[t]
     else:
@@ -72,7 +72,7 @@ def pytype_to_deps(t):
     elif isinstance(t, tuple):
         return {'pythonic/types/tuple.hpp'}.union(*map(pytype_to_deps, t))
     elif isinstance(t, ndarray):
-        return {'pythonic/types/ndarray.hpp'}
+        return {'pythonic/types/ndarray.hpp'}.union(pytype_to_deps(t[0]))
     elif t in pytype_to_ctype_table:
         return {'pythonic/types/{}.hpp'.format(t.__name__)}
     else:
@@ -634,6 +634,7 @@ class Types(ModuleAnalysis):
                                 DeclaredGlobals, GlobalsChangedByFunctions,
                                 ReturnTypeDependencies, GlobalDeclarations)
 
+
     def prepare(self, node, ctx):
         self.passmanager.apply(Reorder, node, ctx)
         for mname, module in modules.iteritems():
@@ -649,10 +650,7 @@ class Types(ModuleAnalysis):
 
     def run(self, node, ctx):
         super(Types, self).run(node, ctx)
-        final_types = {k: self.result[k]
-                if k in self.result
-                else v
-                for k, v in self.result.iteritems()}
+        final_types = self.result.copy()
         for head in self.current_global_declarations.itervalues():
             if head not in final_types:
                 final_types[head] = "void"
@@ -697,23 +695,20 @@ class Types(ModuleAnalysis):
                 #    _, signature = functions.get(func.attr, [(None, None)])[0]
                 if signature:
                     return_alias = (signature.return_alias
-                            and signature.return_alias(n))
+                                    and signature.return_alias(n))
                     if return_alias:  # else new location -> unboundable
                         assert len(return_alias), 'Too many return aliases'
                         return self.node_to_id(list(return_alias)[0], depth)
-            raise UnboundableRValue()
-
-        else:
-            raise UnboundableRValue()
+        raise UnboundableRValue()
 
     def isargument(self, node):
         """ checks whether node aliases to a parameter"""
         try:
             node_id, _, _ = self.node_to_id(node)
             return (node_id in self.name_to_nodes and
-                           any([isinstance(n, ast.Name) and
-                           isinstance(n.ctx, ast.Param)
-                           for n in self.name_to_nodes[node_id]]))
+                    any([isinstance(n, ast.Name) and
+                         isinstance(n.ctx, ast.Param)
+                         for n in self.name_to_nodes[node_id]]))
         except UnboundableRValue:
                 return False
 
@@ -724,13 +719,13 @@ class Types(ModuleAnalysis):
     def combine(self, node, othernode, op=None, unary_op=None, register=False):
         if register and node in self.strict_aliases:
             self.combine_(node, othernode, op or operator.add,
-                    unary_op or (lambda x: x), register)
+                          unary_op or (lambda x: x), register)
             for a in self.strict_aliases[node].aliases:
                 self.combine_(a, othernode, op or operator.add,
-                        unary_op or (lambda x: x), register)
+                              unary_op or (lambda x: x), register)
         else:
             self.combine_(node, othernode, op or operator.add,
-                    unary_op or (lambda x: x), register)
+                          unary_op or (lambda x: x), register)
 
     def combine_(self, node, othernode, op, unary_op, register):
         try:
@@ -756,7 +751,7 @@ class Types(ModuleAnalysis):
 
                 # update the type to reflect container nesting
                 unary_op = lambda x: reduce(lambda t, n: ContainerType(t),
-                              xrange(depth), former_unary_op(x))
+                                            xrange(depth), former_unary_op(x))
 
             if isinstance(othernode, ast.FunctionDef):
                 new_type = NamedType(othernode.name)
@@ -782,8 +777,9 @@ class Types(ModuleAnalysis):
                                 translated_othernode = ast.Name(
                                     '__fake__', ast.Load())
                                 s.result[translated_othernode] = (
-                                 parametric_type.instanciate(
-                                 s.current, [s.result[arg] for arg in n.args]))
+                                    parametric_type.instanciate(
+                                        s.current,
+                                        [s.result[arg] for arg in n.args]))
                                 # look for modified argument
                                 for p, effective_arg in enumerate(n.args):
                                     formal_arg = args[p]
@@ -792,8 +788,8 @@ class Types(ModuleAnalysis):
                                         break
                                 try:
                                     s.combine(translated_node,
-                                        translated_othernode,
-                                        op, unary_op, register=True)
+                                              translated_othernode,
+                                              op, unary_op, register=True)
                                 except NotImplementedError:
                                     pass
                                     # this may fail when the effective
@@ -828,6 +824,7 @@ class Types(ModuleAnalysis):
         requires the globals to be."""
         print "Types - visiting " + node.name
         self.nested += 1
+
         self.current = node
         self.typedefs = list()
         self.name_to_nodes = {arg.id: {arg} for arg in node.args.args}
@@ -885,11 +882,11 @@ class Types(ModuleAnalysis):
                                         self.current_global_combiner)
 
         for k in self.passmanager.gather(LocalDeclarations, node):
-            lazy_res = self.lazyness_analysis[k.id]
-            if lazy_res <= self.max_recompute:
-                self.result[k] = Lazy(self.result[k])
-            else:
-                self.result[k] = Assignable(self.result[k])
+            self.result[k] = self.get_qualifier(k)(self.result[k])
+
+    def get_qualifier(self, node):
+        lazy_res = self.lazyness_analysis[node.id]
+        return Lazy if lazy_res <= self.max_recompute else Assignable
 
         #Restore globals
         self.globals = old_globals
@@ -912,6 +909,8 @@ class Types(ModuleAnalysis):
         self.visit(node.value)
         for t in node.targets:
             self.combine(t, node.value, register=True)
+            if t in self.locals_stack[-1]:
+                self.result[t] = self.get_qualifier(t)(self.result[t])
             if isinstance(t, ast.Subscript):
                 if self.visit_AssignedSubscript(t):
                     for alias in self.strict_aliases[t.value].aliases:
@@ -921,23 +920,24 @@ class Types(ModuleAnalysis):
     def visit_AugAssign(self, node):
         self.visit(node.value)
         self.combine(node.target, node.value,
-            lambda x, y: x + ExpressionType(operator_to_lambda[type(node.op)],
-                [x, y]), register=True)
+                     lambda x, y: x + ExpressionType(
+                         operator_to_lambda[type(node.op)],
+                         [x, y]), register=True)
         if isinstance(node.target, ast.Subscript):
             if self.visit_AssignedSubscript(node.target):
                 for alias in self.strict_aliases[node.target.value].aliases:
                     fake = ast.Subscript(alias, node.target.value, ast.Store())
                     self.combine(fake,
-                            node.value,
-                            lambda x, y: x + ExpressionType(
-                                operator_to_lambda[type(node.op)],
-                                [x, y]),
-                            register=True)
+                                 node.value,
+                                 lambda x, y: x + ExpressionType(
+                                     operator_to_lambda[type(node.op)],
+                                     [x, y]),
+                                 register=True)
 
     def visit_For(self, node):
         self.visit(node.iter)
         self.combine(node.target, node.iter,
-            unary_op=IteratorContentType, register=True)
+                     unary_op=IteratorContentType, register=True)
         node.body and map(self.visit, node.body)
         node.orelse and map(self.visit, node.orelse)
 
@@ -949,7 +949,7 @@ class Types(ModuleAnalysis):
         self.generic_visit(node)
         wl, wr = [self.result[x].isweak() for x in (node.left, node.right)]
         if (isinstance(node.op, ast.Add) and any([wl, wr])
-            and not all([wl, wr])):
+                and not all([wl, wr])):
         # assumes the + operator always has the same operand type
         # on left and right side
             F = operator.add
@@ -977,10 +977,10 @@ class Types(ModuleAnalysis):
         all_compare = zip(node.ops, node.comparators)
         for op, comp in all_compare:
             self.combine(node, comp,
-                    unary_op=lambda x: ExpressionType(
-                        operator_to_lambda[type(op)],
-                        [self.result[node.left], x])
-                    )
+                         unary_op=lambda x: ExpressionType(
+                             operator_to_lambda[type(op)],
+                             [self.result[node.left], x])
+                         )
 
     def visit_Call(self, node):
         self.generic_visit(node)
@@ -994,12 +994,13 @@ class Types(ModuleAnalysis):
                 bounded_function = list(self.strict_aliases[a0].aliases)[0]
                 fake_name = ast.Name(bounded_name, ast.Load())
                 fake_node = ast.Call(fake_name, alias.args[1:] + node.args,
-                    [], None, None)
+                                     [], None, None)
                 self.combiners[bounded_function].combiner(self, fake_node)
                 # force recombination of binded call
                 for n in self.name_to_nodes[node.func.id]:
                     self.result[n] = ReturnType(self.result[alias.func],
-                        [self.result[arg] for arg in alias.args])
+                                                [self.result[arg]
+                                                 for arg in alias.args])
             # handle backward type dependencies from function calls
             else:
                 self.combiners[alias].combiner(self, node)
@@ -1040,14 +1041,20 @@ class Types(ModuleAnalysis):
                 return r[0][n.attr], r[1] + (n.attr,)
         obj, path = rec(modules, node)
         path = ('pythonic',) + path
-        self.result[node] = DeclType(
-                '::'.join(path) if obj.isliteral() else
-                ('::'.join(path[:-1]) + '::proxy::' + path[-1] + '()')
-        )
+
+        if obj.isliteral():
+            self.result[node] = DeclType('::'.join(path))
+        else:
+            self.result[node] = DeclType(
+                '::'.join(path[:-1]) + '::proxy::' + path[-1] + '()')
 
     def visit_Slice(self, node):
         self.generic_visit(node)
-        self.result[node] = NamedType('pythonic::types::slice')
+        if node.step is None or (type(node.step) is ast.Num
+                                 and node.step.n == 1):
+            self.result[node] = NamedType('pythonic::types::contiguous_slice')
+        else:
+            self.result[node] = NamedType('pythonic::types::slice')
 
     def visit_Subscript(self, node):
         self.visit(node.value)
@@ -1059,30 +1066,30 @@ class Types(ModuleAnalysis):
         elif isinstance(node.slice, ast.Slice):
             self.visit(node.slice)
             f = lambda x:  ExpressionType(
-                    lambda a, b: "{0}[{1}]".format(a, b),
-                    [x, self.result[node.slice]]
-                    )
+                lambda a, b: "{0}[{1}]".format(a, b),
+                [x, self.result[node.slice]]
+                )
         elif isinstance(node.slice.value, ast.Num) and node.slice.value.n >= 0:
             f = lambda t: ElementType(node.slice.value.n, t)
         elif isinstance(node.slice.value, ast.Tuple):
             f = lambda t: reduce(lambda x, y: ContentType(x),
-                    node.slice.value.elts, t)
+                                 node.slice.value.elts, t)
         else:
             self.visit(node.slice)
             f = lambda x: ExpressionType(
-                    lambda a, b: "{0}[{1}]".format(a, b),
-                    [x, self.result[node.slice]]
-                    )
+                lambda a, b: "{0}[{1}]".format(a, b),
+                [x, self.result[node.slice]]
+                )
         f and self.combine(node, node.value, unary_op=f)
 
     def visit_AssignedSubscript(self, node):
         if type(node.slice) not in (ast.Slice, ast.ExtSlice):
             self.visit(node.slice)
             self.combine(node.value, node.slice,
-                    unary_op=IndexableType, register=True)
+                         unary_op=IndexableType, register=True)
             for alias in self.strict_aliases[node.value].aliases:
                 self.combine(alias, node.slice,
-                        unary_op=IndexableType, register=True)
+                             unary_op=IndexableType, register=True)
             return True
         else:
             return False
@@ -1125,7 +1132,8 @@ class Types(ModuleAnalysis):
         if node.keys:
             for key, value in zip(node.keys, node.values):
                 self.combine(node, key,
-                        unary_op=lambda x: DictType(x, self.result[value]))
+                             unary_op=lambda x: DictType(x,
+                                                         self.result[value]))
         else:
             self.result[node] = NamedType("pythonic::types::empty_dict")
 
@@ -1133,7 +1141,7 @@ class Types(ModuleAnalysis):
         if node.type and node.name:
             if not isinstance(node.type, ast.Tuple):
                 tname = NamedType(
-                        'pythonic::types::{0}'.format(node.type.attr))
+                    'pythonic::types::{0}'.format(node.type.attr))
                 self.result[node.type] = tname
                 self.combine(node.name, node.type, register=True)
         map(self.visit, node.body)

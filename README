@@ -28,7 +28,7 @@ Pythran releases are hosted on http://pypi.python.org/pypi/pythran.
    Pythran depends on a few Python modules and several C++ libraries. On a debian-like platform, run::
 
         $> sudo apt-get install libboost-python-dev libgoogle-perftools-dev libgmp-dev libboost-dev git cmake
-        $> sudo apt-get install python-ply python-networkx python-pytest python-numpy
+        $> sudo apt-get install python-ply python-networkx python-numpy
 
 2. Use the install target from setup script, in source directory::
 

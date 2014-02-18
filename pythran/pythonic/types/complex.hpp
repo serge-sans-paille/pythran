@@ -10,6 +10,12 @@ namespace std {
     std::complex<double> operator+(long self, std::complex<double> other) {
         return double(self) + other;
     }
+    std::complex<double> operator-(std::complex<double> self, long other) {
+        return self - double(other);
+    }
+    std::complex<double> operator-(long self, std::complex<double> other) {
+        return double(self) - other;
+    }
     std::complex<double> operator*(std::complex<double> self, long other) {
         return self * double(other);
     }
@@ -26,18 +32,10 @@ namespace std {
 
 #define GET_COMPLEX(T)\
     template <int I>\
-T& getattr( std::complex<T>& );\
-template <>\
-T& getattr<0>( std::complex<T>& t) { return reinterpret_cast<T*>(&t)[0]; }\
-template <>\
-T& getattr<1>( std::complex<T>& t) { return reinterpret_cast<T*>(&t)[1]; }\
+T& getattr( std::complex<T>& t) {return reinterpret_cast<T*>(&t)[I]; }\
 \
 template <int I>\
-T const & getattr( std::complex<T> const & );\
-template <>\
-T const & getattr<0>( std::complex<T> const & t) { return reinterpret_cast<T const *>(&t)[0]; }\
-template <>\
-T const & getattr<1>( std::complex<T> const & t) { return reinterpret_cast<T const *>(&t)[1]; }\
+T getattr( std::complex<T> const &t ) { return I == 0 ? std::real(t) :  std::imag(t); }
 
 GET_COMPLEX(double)
 

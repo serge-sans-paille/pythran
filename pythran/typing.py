@@ -173,6 +173,10 @@ class TypeDependencies(ModuleAnalysis):
 
             def interprocedural_generator(p, naming):
                 def interprocedural_combiner(s, n):
+                    #default arguments mean a call doesn't always have all the
+                    # arguments
+                    if not (p < len(n.args)):
+                        return
                     targets = self.passmanager.gather(AssignTargets, n.args[p])
                     for t in targets:
                         s.update_naming(t.id, naming)

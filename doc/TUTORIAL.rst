@@ -240,7 +240,7 @@ pure functions, i.e. functions that have no side effects::
 
   >>> code = 'def foo():pass\ndef bar(l): print l'
   >>> tree = ast.parse(code)
-  >>> pf = pm.gather(analysis.PureFunctions, tree)
+  >>> pf = pm.gather(analysis.PureExpressions, tree)
   >>> foo = tree.body[0]
   >>> bar = tree.body[1]
   >>> foo in pf

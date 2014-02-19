@@ -134,21 +134,10 @@ class ConstantIntr(Intrinsic):
         return True
 
 
-class Class(object):
+class Class(Intrinsic):
     def __init__(self, d):
+        super(Class, self).__init__()
         self.d = d
-
-    def ismethod(self):
-        return False
-
-    def isattribute(self):
-        return False
-
-    def isstaticfunction(self):
-        return False
-
-    def isliteral(self):
-        return False
 
     def __getitem__(self, key):
         return self.d[key]

@@ -165,6 +165,7 @@ modules = {
         "file": ConstFunctionIntr(),
         "filter": ReadOnceFunctionIntr(),
         "float_": ConstFunctionIntr(),
+        "getattr": ConstFunctionIntr(),
         "hex": ConstFunctionIntr(),
         "id": ConstFunctionIntr(),
         "int_": ConstFunctionIntr(),

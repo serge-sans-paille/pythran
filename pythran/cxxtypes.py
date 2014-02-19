@@ -290,6 +290,26 @@ typename std::remove_reference<str>::type::iterator>::value_type>::type
             )
 
 
+class GetAttr(Type):
+    '''
+    Type of a named attribute
+
+    >>> GetAttr(NamedType('complex'), 'real')
+    decltype(pythonic::__builtin__::getattr<pythonic::types::attr::real>\
+(std::declval<complex>()))
+    '''
+    def __init__(self, param, attr):
+        super(GetAttr, self).__init__(
+            qualifiers=param.qualifiers,
+            param=param,
+            attr=attr)
+
+    def generate(self, ctx):
+        return ('decltype(pythonic::__builtin__::getattr<{}>({}))'
+                .format('pythonic::types::attr::' + self.attr,
+                        'std::declval<' + self.param.generate(ctx) + '>()'))
+
+
 class ReturnType(Type):
     '''
     Return type of a call with arguments
@@ -336,20 +356,6 @@ std::declval<str>()))>::type>::type
                 ctx(self.of).generate(ctx)
                 )
             )
-
-
-class AttributeType(ElementType):
-    '''
-    Type of the ith attribute of an object
-
-    >>> AttributeType(0, NamedType('complex'))
-    decltype(getattr<0>(std::declval<complex>()))
-    '''
-
-    def generate(self, ctx):
-        return 'decltype(getattr<{0}>(std::declval<{1}>()))'.format(
-            self.index,
-            ctx(self.of).generate(ctx))
 
 
 class ListType(DependentType):

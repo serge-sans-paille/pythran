@@ -3,6 +3,15 @@ from test_env import TestEnv
 import numpy
 
 class TestNumpy(TestEnv):
+    def test_numpy_shape_as_function(self):
+         self.run_test("def numpy_shape_as_function(): import numpy ; a = numpy.ones(3, numpy.int16) ; return numpy.shape(a)", numpy_shape_as_function=[])
+
+    def test_numpy_size_as_function(self):
+         self.run_test("def numpy_size_as_function(): import numpy ; a = numpy.ones(3, numpy.int16) ; return numpy.size(a)", numpy_size_as_function=[])
+
+    def test_numpy_ndim_as_function(self):
+         self.run_test("def numpy_ndim_as_function(): import numpy ; a = numpy.ones(3, numpy.int16) ; return numpy.ndim(a)", numpy_ndim_as_function=[])
+
     def test_numpy_int16(self):
         self.run_test("def numpy_int16(n): import numpy ; return numpy.ones(n, numpy.int16)", 5, numpy_int16=[int])
 

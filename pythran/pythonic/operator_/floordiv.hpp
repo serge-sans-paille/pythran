@@ -2,7 +2,6 @@
 #define PYTHONIC_OPERATOR_FLOORDIV_HPP
 
 #include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/exceptions.hpp"
 #include <nt2/include/functions/divfloor.hpp>
 
 namespace pythonic {

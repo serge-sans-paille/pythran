@@ -6,8 +6,11 @@
 #include "pythonic/types/str.hpp"
 #include "pythonic/types/list.hpp"
 #include "pythonic/types/none.hpp"
-#include "pythonic/types/exceptions.hpp"
 #include "pythonic/types/attr.hpp"
+#include "pythonic/__builtin__/IOError.hpp"
+#include "pythonic/__builtin__/ValueError.hpp"
+#include "pythonic/__builtin__/RuntimeError.hpp"
+#include "pythonic/__builtin__/StopIteration.hpp"
 
 #include <fstream>
 #include <iterator>

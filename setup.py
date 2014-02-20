@@ -6,6 +6,8 @@ import sys
 import shutil
 from subprocess import check_call
 
+from pythran import __version__
+
 
 def _exclude_current_dir_from_import():
     """ Prevents Python loading from current directory, so that
@@ -216,7 +218,7 @@ nt2_headers = (['nt2/' + '*/' * i + '*.hpp' for i in range(1, 20)] +
                ['boost/' + '*/' * i + '*.hpp' for i in range(1, 20)])
 
 setup(name='pythran',
-      version='0.4.0',
+      version=__version__,
       description='a claimless python to c++ converter',
       author='Serge Guelton',
       author_email='serge.guelton@telecom-bretagne.eu',

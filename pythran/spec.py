@@ -6,6 +6,10 @@ import ply.lex as lex
 import ply.yacc as yacc
 import os.path
 from numpy import array
+from numpy import uint8, uint16, uint32, uint64
+from numpy import int8, int16, int32, int64
+from numpy import float32, float64
+from numpy import complex64, complex128
 
 
 class SpecParser:
@@ -30,6 +34,18 @@ class SpecParser:
         'int': 'INT',
         'long': 'LONG',
         'float': 'FLOAT',
+        'uint8': 'UINT8',
+        'uint16': 'UINT16',
+        'uint32': 'UINT32',
+        'uint64': 'UINT64',
+        'int8': 'INT8',
+        'int16': 'INT16',
+        'int32': 'INT32',
+        'int64': 'INT64',
+        'float32': 'FLOAT32',
+        'float64': 'FLOAT64',
+        'complex64': 'COMPLEX64',
+        'complex128': 'COMPLEX128',
         }
     tokens = (['IDENTIFIER', 'SHARP', 'COMMA', 'COLUMN', 'LPAREN', 'RPAREN']
               + list(reserved.values())
@@ -118,7 +134,19 @@ class SpecParser:
                 | COMPLEX
                 | INT
                 | LONG
-                | FLOAT'''
+                | FLOAT
+                | UINT8
+                | UINT16
+                | UINT32
+                | UINT64
+                | INT8
+                | INT16
+                | INT32
+                | INT64
+                | FLOAT32
+                | FLOAT64
+                | COMPLEX64
+                | COMPLEX128'''
         p[0] = eval(p[1])
 
     def p_error(self, p):

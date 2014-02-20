@@ -1,0 +1,4 @@
+#ifndef PYTHONIC_TYPES_UINT32_HPP
+#define PYTHONIC_TYPES_UINT32_HPP
+
+#endif

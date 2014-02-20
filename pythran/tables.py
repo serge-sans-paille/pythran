@@ -25,8 +25,18 @@ pytype_to_ctype_table = {
     float: 'double',
     str: 'pythonic::types::str',
     None: 'void',
-    numpy.int64: 'long long',
+    numpy.int8: 'int8_t',
+    numpy.int16: 'int16_t',
+    numpy.int32: 'int32_t',
+    numpy.int64: 'int64_t',
+    numpy.uint8: 'uint8_t',
+    numpy.uint16: 'uint16_t',
+    numpy.uint32: 'uint32_t',
+    numpy.uint64: 'uint64_t',
+    numpy.float32: 'float',
     numpy.float64: 'double',
+    numpy.complex64: 'std::complex<float>',
+    numpy.complex128: 'std::complex<double>',
     }
 
 type_to_suffix = {

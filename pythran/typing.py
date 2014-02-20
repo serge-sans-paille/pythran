@@ -257,11 +257,15 @@ class TypeDependencies(ModuleAnalysis):
         if not register:
             return
         assert isinstance(node1, ast.Name)
-        self.nodes = [node1, node2]
+        self.nodes = [node2]
         if unary_op:
             unary_op(NamedType("int"))
-        self.update_naming(node1.id, reduce(disjoint_reduce,
-                                            map(self.visit, self.nodes)))
+
+        targets = \
+            set(n.id for n in self.passmanager.gather(AssignTargets, node1))
+        for target in targets:
+            self.update_naming(target, reduce(disjoint_reduce,
+                                              map(self.visit, self.nodes)))
 
     def get_type(self, node):
         """

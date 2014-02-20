@@ -1,45 +1,48 @@
-RST2HTML=rst2html --stylesheet-path=os.css --link-stylesheet --cloak-email-addresses --pep-references
+TARGET=pythrandoc
+
 SED=sed
 ZIP=zip
 CP=cp
+LN_S=ln -s
 
-TARGETS=index.html devguide.html manual.html authors.html todo.html tutorial.html license.txt
-EXTRA_DIST=os.css
-ZIPTARGET=pythran.zip
+PAGES=MANUAL CLI DEVGUIDE TUTORIAL INTERNAL LICENSE AUTHORS TODO
 
-all:$(TARGETS)
+all:index.rst $(patsubst %, %.rst, $(PAGES)) pythran.png
+	PYTHONPATH=..:$$PYTHONPATH sphinx-build . $(TARGET)
 
 dist:all
-	$(ZIP) $(ZIPTARGET) $(TARGETS) $(EXTRA_DIST)
+	rm -f $(TARGET).zip
+	cd $(TARGET) && $(ZIP) -r ../$(TARGET).zip *
 
-clean:
-	$(RM) $(TARGETS) $(ZIPTARGET)
+index.rst:../README.rst Makefile
+	$(SED) -r $< $(patsubst %, -e 's/(%)/:doc:`\1`/g', $(PAGES)) \
+		   -e 's,http://pythonhosted.org/pythran/,.. toctree::\n\t:maxdepth: 1\n\n$(patsubst %, \t%\n, $(PAGES)),g' \
+		   > $@
 
-index.html:../README.rst Makefile
-	$(RST2HTML) $< $@
-	$(SED) -i -e 's,MANUAL file,<a href="manual.html">MANUAL</a>,'\
-	          -e 's,DEVGUIDE file,<a href="devguide.html">DEVGUIDE</a>,'\
-			  -e 's,AUTHORS file,<a href="authors.html">AUTHORS</a>,'\
-			  -e 's,TODO file,<a href="todo.html">TODO</a>,'\
-			  -e 's,TUTORIAL file,<a href="tutorial.html">TUTORIAL</a>,'\
-			  -e 's,LICENSE,<a href="license.txt">LICENSE</a>,'\
-			  -e 's,pythran/tests/cases/,<a href="https://github.com/serge-sans-paille/pythran/tree/master/pythran/tests/cases">pythran/tests/cases</a>,'\
-			  $@
+MANUAL.rst:../doc/MANUAL.rst
+	$(LN_S) $<
 
-devguide.html:../doc/DEVGUIDE.rst Makefile
-	$(RST2HTML) $< $@
+CLI.rst:../doc/CLI.rst
+	$(LN_S) $<
 
-manual.html:../doc/MANUAL.rst Makefile
-	$(RST2HTML) $< $@
+DEVGUIDE.rst:../doc/DEVGUIDE.rst
+	$(LN_S) $<
 
-authors.html:../AUTHORS Makefile
-	$(RST2HTML) $< $@
+TUTORIAL.rst:../doc/TUTORIAL.rst
+	$(LN_S) $<
 
-todo.html:../TODO Makefile
-	$(RST2HTML) $< $@
+INTERNAL.rst:../doc/INTERNAL.rst
+	$(LN_S) $<
 
-tutorial.html:../doc/TUTORIAL.rst Makefile
-	$(RST2HTML) $< $@
+LICENSE.rst:../LICENSE Makefile
+	echo "=======\nLICENSE\n=======\n\n" > $@
+	cat $< >> $@
 
-license.txt:../LICENSE
-	$(CP) $< $@
+AUTHORS.rst:../AUTHORS
+	$(LN_S) $< $@
+
+TODO.rst:../TODO
+	$(LN_S) $< $@
+
+pythran.png:../logo.svg Makefile
+	inkscape -f $< --export-height=80 --export-background-opacity=0 --export-png $@

@@ -1,6 +1,6 @@
-==========================
-Pythran Developer Tutorial
-==========================
+==================
+Developer Tutorial
+==================
 
 This is a long tutorial to help new Pythran developer discover the Pythran
 architecture. This is *not* a developer documentation, but it aims at giving a

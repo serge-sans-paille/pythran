@@ -1441,6 +1441,7 @@ class LazynessAnalysis(FunctionAnalysis):
         self.use = dict()
         self.dead = set()
         self.in_loop = False
+        self.in_omp = False  # prevent any form of Forward Substitution in omp
         super(LazynessAnalysis, self).__init__(ArgumentEffects, Aliases,
                                                PureExpressions)
 
@@ -1473,12 +1474,21 @@ class LazynessAnalysis(FunctionAnalysis):
             if node.id in self.result:
                 ex_value = max(self.result[node.id], ex_value)
             self.result[node.id] = ex_value
+            if self.in_omp:
+                self.result[node.id] = float('inf')
             for alias in state[node.id]:
                 if alias in self.name_count:
-                    self.name_count[alias] = 0
-        self.name_count[node] = 0
+                    self.name_count[alias] = float('inf') if self.in_omp else 0
+        self.name_count[node] = float('inf') if self.in_omp else 0
         self.use[node.id] = set(from_)
         self.modify(node, state)
+
+    def visit(self, node):
+        old_omp = self.in_omp
+        if md.get(node, openmp.OMPDirective):
+            self.in_omp = True
+        super(LazynessAnalysis, self).visit(node)
+        self.in_omp = old_omp
 
     def visit_FunctionDef(self, node):
         self.ids = self.passmanager.gather(Identifiers, node, self.ctx)
@@ -1522,11 +1532,11 @@ class LazynessAnalysis(FunctionAnalysis):
             for alias in self.aliases[node].aliases.union(set(name_from_id)):
                 # we only care about variable local to the function
                 if isinstance(alias, ast.Name) and alias.id in self.ids:
-                    if self.in_loop:
-                        self.name_count[alias] = float('inf')
                     if node.id in self.dead:
                         # if a variable is dead, all it's aliases are dead too
                         self.dead.add(alias.id)  # PB: may be not the best
+                        self.name_count[alias] = float('inf')
+                    elif self.in_loop or self.in_omp:
                         self.name_count[alias] = float('inf')
                     elif alias in self.name_count:
                         self.name_count[alias] += 1

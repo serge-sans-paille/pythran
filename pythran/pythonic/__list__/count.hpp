@@ -10,12 +10,12 @@ namespace pythonic {
 
     namespace __list__ {
         template<class T>
-            long count(types::list<T> &seq, T const& x) {
+            long count(types::list<T> const&seq, T const& x) {
                 return std::count(seq.begin(),seq.end(),x);
             }
 
         template<class T>
-            long count(types::list<T> &seq, T &&x) {
+            long count(types::list<T> const&seq, T &&x) {
                 return std::count(seq.begin(),seq.end(),std::forward<T>(x));
             }
         template<class T>

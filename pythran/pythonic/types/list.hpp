@@ -38,7 +38,7 @@ namespace pythonic {
                 // data holder
                 typedef  typename std::remove_cv< typename std::remove_reference<T>::type>::type  _type;
                 typedef std::vector< _type > container_type;
-                utils::shared_ref<container_type> data; 
+                utils::shared_ref<container_type> data;
 
                 template<class U>
                     friend class list;
@@ -445,11 +445,20 @@ namespace std {
         typename pythonic::types::list<T>::reference get( pythonic::types::list<T>& t) { return t[I]; }
     template <size_t I, class T>
         typename pythonic::types::list<T>::const_reference get( pythonic::types::list<T> const & t) { return t[I]; }
+    template <size_t I, class T>
+        typename pythonic::types::sliced_list<T>::reference get( pythonic::types::sliced_list<T>& t) { return t[I]; }
+    template <size_t I, class T>
+        typename pythonic::types::sliced_list<T>::const_reference get( pythonic::types::sliced_list<T> const & t) { return t[I]; }
 
     template <size_t I, class T>
         class tuple_element<I, pythonic::types::list<T> > {
             public:
                 typedef typename pythonic::types::list<T>::value_type type;
+        };
+    template <size_t I, class T>
+        class tuple_element<I, pythonic::types::sliced_list<T> > {
+            public:
+                typedef typename pythonic::types::sliced_list<T>::value_type type;
         };
 }
 

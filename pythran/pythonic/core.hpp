@@ -7,6 +7,5 @@
 
 #include "pythonic/types/int.hpp"
 #include "pythonic/types/float.hpp"
-#include "pythonic/types/exceptions.hpp"
 
 #endif

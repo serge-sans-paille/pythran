@@ -4,6 +4,7 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/assignable.hpp"
 #include "pythonic/types/empty_iterator.hpp"
+#include "pythonic/types/attr.hpp"
 #include "pythonic/utils/nested_container.hpp"
 #include "pythonic/utils/shared_ref.hpp"
 #include "pythonic/utils/reserve.hpp"
@@ -1549,13 +1550,13 @@ namespace pythonic {
             template<int I, class E>
                 struct getattr;
 
-            template<class E> struct getattr<0, E> {
+            template<class E> struct getattr<attr::SHAPE, E> {
                 auto operator()(E const& a) -> decltype(a.shape) { return a.shape; }
             };
-            template<class E> struct getattr<1, E> {
+            template<class E> struct getattr<attr::NDIM, E> {
                 long operator()(E const& a) { return numpy_expr_to_ndarray<E>::N; }
             };
-            template<class E> struct getattr<2, E> {
+            template<class E> struct getattr<attr::STRIDES, E> {
                 array<long, numpy_expr_to_ndarray<E>::N> operator()(E const& a) {
                     array<long,numpy_expr_to_ndarray<E>::N> strides;
                     strides[numpy_expr_to_ndarray<E>::N-1] = sizeof(typename numpy_expr_to_ndarray<E>::T);
@@ -1564,62 +1565,64 @@ namespace pythonic {
                     return strides;
                 }
             };
-            template<class E> struct getattr<3, E> {
+            template<class E> struct getattr<attr::SIZE, E> {
                 long operator()(E const& a) { return a.size(); }
             };
-            template<class E> struct getattr<4, E> {
+            template<class E> struct getattr<attr::ITEMSIZE, E> {
                 long operator()(E const& a) { return sizeof(typename numpy_expr_to_ndarray<E>::T); }
             };
-            template<class E> struct getattr<5, E> {
+            template<class E> struct getattr<attr::NBYTES, E> {
                 long operator()(E const& a) { return a.size() * sizeof(typename numpy_expr_to_ndarray<E>::T); }
             };
-            template<class E> struct getattr<6, E> {
+            template<class E> struct getattr<attr::FLAT, E> {
                 auto operator()(E const& a) -> decltype(a.flat()) { return a.flat(); }
             };
-            template<class E> struct getattr<7, E> {
+            template<class E> struct getattr<attr::DTYPE, E> {
                 typename numpy_expr_to_ndarray<E>::T operator()(E const& a) { return typename numpy_expr_to_ndarray<E>::T(); }
             };
-            template<class E> struct getattr<8, E> {
+            template<class E> struct getattr<attr::T, E> {
                 auto operator()(E const& a) -> decltype(numpy::transpose(a)) { return numpy::transpose(a); }
             };
         }
     }
-}
-    template<int I, class T, size_t N>
-    auto getattr(pythonic::types::ndarray<T,N> const& f)
--> decltype(pythonic::types::__ndarray::getattr<I,pythonic::types::ndarray<T,N>>()(f))
-{
-    return pythonic::types::__ndarray::getattr<I,pythonic::types::ndarray<T,N>>()(f);
-}
-    template<int I, class O, class A>
-    auto getattr(pythonic::types::numpy_uexpr<O,A> const& f)
--> decltype(pythonic::types::__ndarray::getattr<I,pythonic::types::numpy_uexpr<O,A>>()(f))
-{
-    return pythonic::types::__ndarray::getattr<I,pythonic::types::numpy_uexpr<O,A>>()(f);
-}
-    template<int I, class O, class A0, class A1>
-    auto getattr(pythonic::types::numpy_expr<O,A0,A1> const& f)
--> decltype(pythonic::types::__ndarray::getattr<I,pythonic::types::numpy_expr<O,A0,A1>>()(f))
-{
-    return pythonic::types::__ndarray::getattr<I,pythonic::types::numpy_expr<O,A0,A1>>()(f);
-}
-    template<int I, class E, class S>
-    auto getattr(pythonic::types::sliced_ndarray<E,S> const& f)
--> decltype(pythonic::types::__ndarray::getattr<I,pythonic::types::sliced_ndarray<E,S>>()(f))
-{
-    return pythonic::types::__ndarray::getattr<I,pythonic::types::sliced_ndarray<E,S>>()(f);
-}
-    template<int I, class E, size_t N, size_t M>
-    auto getattr(pythonic::types::gsliced_ndarray<E,N,M> const& f)
--> decltype(pythonic::types::__ndarray::getattr<I,pythonic::types::gsliced_ndarray<E,N,M>>()(f))
-{
-    return pythonic::types::__ndarray::getattr<I,pythonic::types::gsliced_ndarray<E,N,M>>()(f);
-}
-    template<int I, class T, size_t N>
-    auto getattr(pythonic::types::indexed_ndarray<T,N> const& f)
--> decltype(pythonic::types::__ndarray::getattr<I,pythonic::types::indexed_ndarray<T,N>>()(f))
-{
-    return pythonic::types::__ndarray::getattr<I,pythonic::types::indexed_ndarray<T,N>>()(f);
+    namespace __builtin__ {
+        template<int I, class T, size_t N>
+            auto getattr(types::ndarray<T,N> const& f)
+            -> decltype(types::__ndarray::getattr<I,types::ndarray<T,N>>()(f))
+            {
+                return types::__ndarray::getattr<I,types::ndarray<T,N>>()(f);
+            }
+        template<int I, class O, class A>
+            auto getattr(types::numpy_uexpr<O,A> const& f)
+            -> decltype(types::__ndarray::getattr<I,types::numpy_uexpr<O,A>>()(f))
+            {
+                return types::__ndarray::getattr<I,types::numpy_uexpr<O,A>>()(f);
+            }
+        template<int I, class O, class A0, class A1>
+            auto getattr(types::numpy_expr<O,A0,A1> const& f)
+            -> decltype(types::__ndarray::getattr<I,types::numpy_expr<O,A0,A1>>()(f))
+            {
+                return types::__ndarray::getattr<I,types::numpy_expr<O,A0,A1>>()(f);
+            }
+        template<int I, class E, class S>
+            auto getattr(types::sliced_ndarray<E,S> const& f)
+            -> decltype(types::__ndarray::getattr<I,types::sliced_ndarray<E,S>>()(f))
+            {
+                return types::__ndarray::getattr<I,types::sliced_ndarray<E,S>>()(f);
+            }
+        template<int I, class E, size_t N, size_t M>
+            auto getattr(types::gsliced_ndarray<E,N,M> const& f)
+            -> decltype(types::__ndarray::getattr<I,types::gsliced_ndarray<E,N,M>>()(f))
+            {
+                return types::__ndarray::getattr<I,types::gsliced_ndarray<E,N,M>>()(f);
+            }
+        template<int I, class T, size_t N>
+            auto getattr(types::indexed_ndarray<T,N> const& f)
+            -> decltype(types::__ndarray::getattr<I,types::indexed_ndarray<T,N>>()(f))
+            {
+                return types::__ndarray::getattr<I,types::indexed_ndarray<T,N>>()(f);
+            }
+    }
 }
 
 /* } */

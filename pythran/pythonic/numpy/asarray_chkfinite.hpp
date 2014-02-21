@@ -2,6 +2,7 @@
 #define PYTHONIC_NUMPY_ASARRAYCHKFINITE_HPP
 
 #include "pythonic/numpy/asarray.hpp"
+#include "pythonic/__builtin__/ValueError.hpp"
 
 namespace pythonic {
 

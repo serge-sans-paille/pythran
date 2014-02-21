@@ -4,6 +4,7 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include <nt2/include/functions/is_nan.hpp>
+#include "pythonic/__builtin__/ValueError.hpp"
 
 namespace pythonic {
 

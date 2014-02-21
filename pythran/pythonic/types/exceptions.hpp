@@ -3,6 +3,7 @@
 
 #include "pythonic/types/str.hpp"
 #include "pythonic/types/list.hpp"
+#include "pythonic/types/attr.hpp"
 #include "pythonic/__builtin__/str.hpp"
 
 #include <stdexcept>
@@ -120,25 +121,28 @@ PROXY(pythonic::__builtin__, name);\
             namespace __##name {\
                 \
                 template <int I> struct getattr;\
-                template <> struct getattr<0> {\
+                template <> struct getattr<attr::ARGS> {\
                     none<list<str>> operator()(name const& e) {\
                         return e.args;\
                     }\
                 };\
             }\
         }\
-    }\
-template<int I>\
-auto getattr(pythonic::types::name const& f) -> decltype(pythonic::types::__##name::getattr<I>()(f)) {\
-    return pythonic::types::__##name::getattr<I>()(f);\
-}
+        namespace __builtin__ {\
+            template<int I>\
+            auto getattr(types::name const& f) -> decltype(types::__##name::getattr<I>()(f)) {\
+                return types::__##name::getattr<I>()(f);\
+            }\
+        }\
+    }
+
 #define DECLARE_EXCEPTION_GETATTR_FULL(name)\
     namespace pythonic {\
         namespace types {\
             namespace __##name {\
                 \
                 template <int I> struct getattr;\
-                template <> struct getattr<0> {\
+                template <> struct getattr<attr::ARGS> {\
                     none<list<str>> operator()(name const& e) {\
                         if (e.args.size()>3 || e.args.size()<2)\
                         return e.args;\
@@ -146,7 +150,7 @@ auto getattr(pythonic::types::name const& f) -> decltype(pythonic::types::__##na
                         return list<str>(e.args.begin(), e.args.begin()+2);\
                     }\
                 };\
-                template <> struct getattr<1> {\
+                template <> struct getattr<attr::ERRNO> {\
                     none<str> operator()(name const& e) {\
                         if (e.args.size()>3 || e.args.size()<2)\
                         return __builtin__::None;\
@@ -154,7 +158,7 @@ auto getattr(pythonic::types::name const& f) -> decltype(pythonic::types::__##na
                         return e.args[0];\
                     }\
                 };\
-                template <> struct getattr<2> {\
+                template <> struct getattr<attr::STRERROR> {\
                     none<str> operator()(name const& e) {\
                         if (e.args.size()>3 || e.args.size()<2)\
                         return __builtin__::None;\
@@ -162,7 +166,7 @@ auto getattr(pythonic::types::name const& f) -> decltype(pythonic::types::__##na
                         return e.args[1];\
                     }\
                 };\
-                template <> struct getattr<3> {\
+                template <> struct getattr<attr::FILENAME> {\
                     none<str> operator()(name const& e) {\
                         if (e.args.size()!=3)\
                         return __builtin__::None;\
@@ -172,11 +176,13 @@ auto getattr(pythonic::types::name const& f) -> decltype(pythonic::types::__##na
                 };\
             }\
         }\
-    }\
-template<int I>\
-auto getattr(pythonic::types::name const& f) -> decltype(pythonic::types::__##name::getattr<I>()(f)) {\
-    return pythonic::types::__##name::getattr<I>()(f);\
-}
+        namespace __builtin__ {\
+            template<int I>\
+                auto getattr(types::name const& f) -> decltype(types::__##name::getattr<I>()(f)) {\
+                    return types::__##name::getattr<I>()(f);\
+                }\
+        }\
+    }
 
 DECLARE_EXCEPTION_GETATTR(BaseException);
 DECLARE_EXCEPTION_GETATTR(SystemExit);

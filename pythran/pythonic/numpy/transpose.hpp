@@ -6,6 +6,7 @@
 #include "pythonic/utils/nested_container.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/numpy_type.hpp"
+#include "pythonic/__builtin__/ValueError.hpp"
 
 namespace pythonic {
 

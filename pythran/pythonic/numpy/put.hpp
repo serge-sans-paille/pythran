@@ -4,6 +4,7 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/utils/numpy_conversion.hpp"
+#include "pythonic/__builtin__/ValueError.hpp"
 
 namespace pythonic {
 

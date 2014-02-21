@@ -2,6 +2,7 @@
 #define PYTHONIC_TYPES_FLOAT_HPP
 
 #include <cmath>
+#include "pythonic/types/attr.hpp"
 
 namespace pythonic {
 
@@ -19,6 +20,15 @@ namespace pythonic {
 
     inline long floordiv(double a, double b) {
         return floor(a/b);
+    }
+}
+
+namespace pythonic {
+    namespace __builtin__ {
+        template <size_t AttributeID>
+            double getattr( double self) {
+                return AttributeID == pythonic::types::attr::REAL ? self : 0.;
+            }
     }
 }
 

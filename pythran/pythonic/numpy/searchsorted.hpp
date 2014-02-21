@@ -6,6 +6,7 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/str.hpp"
 #include "pythonic/__builtin__/None.hpp"
+#include "pythonic/__builtin__/ValueError.hpp"
 #include "pythonic/numpy/asarray.hpp"
 
 #include <algorithm>

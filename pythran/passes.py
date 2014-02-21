@@ -109,9 +109,6 @@ class NormalizeTuples(Transformation):
                 nnode.generators[i].target = ast.Name(
                     gtarget,
                     nnode.generators[i].target.ctx)
-                metadata.add(
-                    nnode.generators[i].target,
-                    metadata.LocalVariable())
                 nnode = _ConvertToTuple(gtarget, g[1]).visit(nnode)
         for field in fields:
             setattr(node, field, getattr(nnode, field))
@@ -158,7 +155,6 @@ class NormalizeTuples(Transformation):
                         self.counter,
                         i)
                     node.targets[i] = ast.Name(gtarget, node.targets[i].ctx)
-                    metadata.add(node.targets[i], metadata.LocalVariable())
                     for rename, state in sorted(renamings.iteritems()):
                         nnode = reduce(
                             lambda x, y: ast.Subscript(
@@ -190,7 +186,6 @@ class NormalizeTuples(Transformation):
                     self.counter
                     )
                 node.target = ast.Name(gtarget, node.target.ctx)
-                metadata.add(node.target, metadata.LocalVariable())
                 for rename, state in sorted(renamings.iteritems()):
                     nnode = reduce(
                         lambda x, y: ast.Subscript(

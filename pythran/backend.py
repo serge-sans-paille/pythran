@@ -106,8 +106,8 @@ class CachedTypeVisitor:
                 self.rcache[t] = node
                 self.mapping[node] = len(self.mapping)
                 self.cache[node] = t
-        return CachedTypeVisitor.CachedType(
-                "__type{0}".format(self.mapping[node]))
+        typestr = "__type{0}".format(self.mapping[node])
+        return CachedTypeVisitor.CachedType(typestr)
 
     def typedefs(self):
         l = sorted(self.mapping.items(), key=lambda x: x[1])
@@ -159,7 +159,7 @@ class Cxx(Backend):
 
     def get_globals_changed(self, node):
         """Gets the globals changed in the function or sub functions
-            node represents the FunctionDef of the function we're interested in.
+            node represents the FunctionDef of the function we're interested in
 
             For example:
 
@@ -174,6 +174,7 @@ class Cxx(Backend):
         """
         #First the globals changed directly
         globals_changed = [set(self.types[node][2].keys())]
+
         #Then the globals changed in the subfunctions:
         def navigate_graph(node):
             if node not in self.callees:
@@ -670,21 +671,20 @@ class Cxx(Backend):
                 continue
             #The sub function does change the global gb
             for call in calls:
-                combiner = \
-                    InstanciatedType("{0}__combiner_{1}".format(callee.name, gb),
-                                     "instanciation",
-                                     [combiner] + [self.types[x] for x in call],
-                                     node.name, {})
+                cb_name = "{0}__combiner_{1}".format(callee.name, gb)
+                types = [combiner] + [self.types[x] for x in call]
+
+                combiner = InstanciatedType(cb_name, "instanciation", types,
+                                            node.name, {})
 
         ctx = CachedTypeVisitor()
 
         #separate into 2 typedefs because the first expression may have
         # 'or_global_type' in it and then gcc is not happy (but clang is)
         or_typedefs = \
-            [Struct("dummy",[Typedef(Value(combiner.generate(lambda x: x),
-                                           "type"))]),
+            [Struct("dummy", [Typedef(Value(combiner.generate(lambda x: x),
+                                            "type"))]),
              Typedef(Value("typename dummy::type", "or_global_type"))]
-
 
         if gb in direct_global_changes:
             typedef = Typedef(Value(self.types[direct_global_changes[gb]]
@@ -952,7 +952,7 @@ class Cxx(Backend):
         stmt = EmptyStatement()
         return self.process_omp_attachements(node, stmt)
 
-    visit_Global = visit_Pass;
+    visit_Global = visit_Pass
 
     def visit_Break(self, node):
         if self.break_handlers[-1]:

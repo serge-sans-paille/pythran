@@ -133,8 +133,9 @@ class TypeDependencies(ModuleAnalysis):
         self.in_cond = False
         #used by the combine() function
         self.nodes = []
-        super(TypeDependencies, self).__init__(GlobalDeclarations, StrictAliases
-                                               , DeclaredGlobals, Locals, *deps)
+        super(TypeDependencies, self).__init__(GlobalDeclarations, Locals,
+                                               DeclaredGlobals,
+                                               StrictAliases, *deps)
 
     def visit_any_conditionnal(self, node):
         '''
@@ -292,7 +293,7 @@ class TypeDependencies(ModuleAnalysis):
                 bounded_function = list(self.strict_aliases[a0].aliases)[0]
                 fake_name = ast.Name(bounded_name, ast.Load())
                 fake_node = ast.Call(fake_name, alias.args[1:] + node.args,
-                    [], None, None)
+                                     [], None, None)
                 if bounded_function in self.combiners:
                     self.combiners[bounded_function].combiner(self, fake_node)
             # handle backward type dependencies from function calls
@@ -317,7 +318,8 @@ class TypeDependencies(ModuleAnalysis):
     def visit_Subscript(self, node):
         #returned type of a[b] is declval(a)[declval(b)], so need to go inside
         # the slice
-        return reduce(combine_reduce, map(self.visit, (node.value, node.slice)))
+        return reduce(combine_reduce, map(self.visit, (node.value,
+                                                       node.slice)))
 
     def get_naming(self, id):
         if id in self.naming:
@@ -348,7 +350,8 @@ class TypeDependencies(ModuleAnalysis):
     visit_Tuple = visit_List
 
     def visit_Slice(self, node):
-        return reduce(combine_reduce, map(self.visit, (node.lower, node.upper)))
+        return reduce(combine_reduce, map(self.visit, (node.lower,
+                                                       node.upper)))
 
     def visit_Index(self, node):
         return self.visit(node.value)
@@ -427,8 +430,6 @@ class ReturnTypeDependencies(TypeDependencies):
 
             self.global_changing_functions[self.current_function].add(name)
 
-
-
     visit_Yield = visit_Return
 
     def run(self, node, ctx):
@@ -447,7 +448,8 @@ class ReturnTypeDependencies(TypeDependencies):
 
             #For that we consider the functions that can have no dependencies,
             # and we remove what circular dependencies they have
-            candidates = self.result.predecessors(ReturnTypeDependencies.NoDeps)
+            nodeps = ReturnTypeDependencies.NoDeps
+            candidates = self.result.predecessors(nodeps)
             past_candidates = set(candidates)
             while len(candidates) > 0:
                 new_candidates = set()
@@ -475,7 +477,7 @@ class ReturnTypeDependencies(TypeDependencies):
                                 new_candidates.add(gb)
                 candidates = new_candidates - past_candidates
                 past_candidates |= candidates
-            """ There's a bad heuristic concerning globals changed by functions.
+            """ There's a bad heuristic concerning globals changed by functions
 
             We assume that if there is a circular dependency between a function
             and a global, (aka return type of function depends on global and
@@ -501,6 +503,7 @@ class GlobalsChangedByFunctions(ReturnTypeDependencies):
 
         return self.global_changing_functions
 
+
 class Callees(ModuleAnalysis):
     """
     Gathers all the functions called inside each function, and list the
@@ -523,13 +526,13 @@ class Callees(ModuleAnalysis):
     """
     def __init__(self, *deps):
         self.current_function = None
-        #In addition to creating the call graph between functions, we also remember
-        #with which arguments the functions were called.
+        #In addition to creating the call graph between functions, we also
+        # remember which arguments the functions were called with.
         #
-        #self.result[function_node][called_function] = [[arg1, arg2], [arg1', arg2'],???] ]
+        #self.result[function_node][called_function] =
+        # [[arg1, arg2], [arg1', arg2'],???] ]
         self.result = {}
         super(Callees, self).__init__(Aliases, GlobalDeclarations, *deps)
-
 
     def visit_FunctionDef(self, node):
         #All functions should have been unnested
@@ -540,7 +543,7 @@ class Callees(ModuleAnalysis):
         self.current_function = oldfunction
 
     def visit_Call(self, node):
-        assert  self.current_function
+        assert self.current_function
         res = self.aliases[node.func].aliases
         #Only keep the aliases if they refer to something global
         gb_vals = self.global_declarations.values()
@@ -573,7 +576,8 @@ class AcyclicCallees(ModuleAnalysis):
         for func in self.callees.keys():
             for called in self.callees[func].keys():
                 #Make sure this won't create a cycle
-                if not nx.has_path(self.return_type_dependencies, called, func):
+                rdeps = self.return_type_dependencies
+                if not nx.has_path(rdeps, called, func):
                     self.return_type_dependencies.add_edge(func, called)
                 else:
                     del self.callees[func][called]
@@ -635,13 +639,13 @@ class Types(ModuleAnalysis):
         self.global_combiners = dict()
         self.current_global_combiner = dict()
         self.nested = 0  # Are we in a nested function?
-        #used to know if nonlocals are globals or locals from englobing function
-        self.locals_stack=[set()]
+        #used to know if nonlocals are globals or locals from englobing
+        # function
+        self.locals_stack = [set()]
         self.max_recompute = 1  # max number of use to be lazy
         ModuleAnalysis.__init__(self, StrictAliases, LazynessAnalysis,
                                 DeclaredGlobals, GlobalsChangedByFunctions,
                                 ReturnTypeDependencies, GlobalDeclarations)
-
 
     def prepare(self, node, ctx):
         self.passmanager.apply(Reorder, node, ctx)
@@ -856,11 +860,13 @@ class Types(ModuleAnalysis):
 
         #If we are NOT in a nested function
         if self.nested == 1:
+            gbchanged = self.globals_changed_by_functions
+            gb_comb = self.global_combiners
             self.global_combiners[node.name] = {arg: ConstantIntr() for arg in
-                                       self.globals_changed_by_functions[node]}
+                                                gbchanged[node]}
             self.result.update((v, NamedType("or_global_type", {HasToCombine}))
-                           for k, v in self.global_combiners[node.name].items())
-            self.current_global_combiner = self.global_combiners[node.name]
+                               for k, v in gb_comb[node.name].items())
+            self.current_global_combiner = gb_comb[node.name]
 
         # two stages, one for inter procedural propagation
         self.stage = 0
@@ -887,7 +893,7 @@ class Types(ModuleAnalysis):
             self.result[node] = (Assignable(return_type), self.typedefs, {})
         else:
             self.result[node] = (Assignable(return_type), self.typedefs,
-                                        self.current_global_combiner)
+                                 self.current_global_combiner)
 
         for k in self.passmanager.gather(LocalDeclarations, node):
             self.result[k] = self.get_qualifier(k)(self.result[k])

@@ -200,7 +200,7 @@ class CFG(FunctionAnalysis):
             raises += nraises
         return currs, raises
 
-##
+
 class DeclaredGlobals(NodeAnalysis):
     """Gathers all globals declared in the function"""
     def __init__(self):
@@ -210,7 +210,7 @@ class DeclaredGlobals(NodeAnalysis):
     def visit_Global(self, node):
         self.result |= set(node.names)
 
-##
+
 class LocalDeclarations(NodeAnalysis):
     """Gathers all local symbols from a function"""
     def __init__(self):
@@ -581,7 +581,7 @@ class Imports(ModuleAnalysis):
             else:
                 self.result[alias.name] = val
 
-##
+
 class ConstantExpressions(NodeAnalysis):
     """Identify constant expressions (dummy implementation)"""
     def __init__(self):
@@ -835,7 +835,7 @@ class Aliases(ModuleAnalysis):
         for module in modules:
             self.aliases.update((v, {v})
                                 for k, v in modules[module].iteritems())
-        for k,v in self.global_declarations.iteritems():
+        for k, v in self.global_declarations.iteritems():
             try:
                 self.aliases[v.name] = {v}
             except AttributeError:
@@ -1336,7 +1336,7 @@ class UsedDefChain(FunctionAnalysis):
                     isinstance(node.ctx, ast.Param)):
                 if node.id in self.use_only:
                     err = ("identifier {0} has a global linkage and can't "
-                            "be assigned")
+                           "be assigned")
                     raise PythranSyntaxError(err.format(node.id), node)
                 node_name = "D{0}".format(len(graph))
                 graph.add_node(node_name, action="D", name=node)

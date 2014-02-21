@@ -163,6 +163,7 @@ class TemplatedType(Type):
             template_params,
             )
 
+
 class CombinedTypes(Type):
     """
     type resulting from the combination of other types
@@ -344,9 +345,9 @@ class ReturnType(Type):
     >>> ReturnType(NamedType('math::cos'), [NamedType('float')])
     decltype(std::declval<math::cos>()(std::declval<float>()))
     '''
-    def __init__(self, ftype, args, is_function_call=False, no_reference=False):
+    def __init__(self, ftype, args, is_function_call=False, no_ref=False):
         self.is_function_call = is_function_call
-        self.no_reference = no_reference
+        self.no_reference = no_ref
         args_qualifiers = [arg.qualifiers for arg in args]
         super(ReturnType, self).__init__(
             qualifiers=ftype.qualifiers.union(*args_qualifiers),

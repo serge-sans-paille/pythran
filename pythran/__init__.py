@@ -31,6 +31,8 @@ Higher level entry points includes:
 
 '''
 
+__version__ = '0.4.0'
+
 from toolchain import (generate_cxx, compile_cxxfile, compile_cxxcode,
                        compile_pythrancode, compile_pythranfile, test_compile,
                        CompileError)

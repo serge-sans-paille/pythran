@@ -1,6 +1,6 @@
-=================
-Pythran TODO list
-=================
+====
+TODO
+====
 
 Plenty of ideas for the brave!  If you want to work on one of these, please
 tell ``pythran@freelists.org`` before, as it is good to discuss before coding!
@@ -34,14 +34,6 @@ Support ``str`` module
 Because current implementation sucks. Not that important for the kind of code
 we target, but still...
 
-Support ``operator`` module
----------------------------
-
-*homework for xmar*
-
-This is an easy one. A good candidate to discover Pythran's runtime internals.
-
-
 Automatic vectorization of list comprehension
 ---------------------------------------------
 
@@ -50,14 +42,6 @@ Because when you see::
     [x*x for x in l]
 
 you **must** think: what a good vectorization opportunity!
-
-Support singly assigned global variables
-----------------------------------------
-
-There is no support for global variables in Pythran, but there is no good point
-for it. This is gonna be tough because it impacts many analysis (including
-aliasing analysis, memory effects and typing) so only advanced pythraners
-should go there.
 
 Support ``import a_user_module``
 --------------------------------
@@ -73,14 +57,6 @@ There is an extension mechanism in ``distutils`` to compile native modules when
 running ``setup.py``. Pythran should provide a compatibility layer. There is a
 first draft in the europar2013 branch, this is an easy go for newcomers.
 
-Jit typing
-----------
-
-*warming-up for joker-eph*
-
-Pythran could be called at runtime (with a huge slowdown :() for each function
-marked with the appropriate decorator. Pretty good job for a new pythraner too.
-
 Pythran tutorial
 ----------------
 
@@ -93,13 +69,6 @@ Named arguments
 ---------------
 
 Named arguments are not supported in Pythran... Yet! Alias aliasing to the rescue!
-
-Automatic generation of (part of) Pythonic
-------------------------------------------
-
-Some part of ``pythonic`` are really boring to write. For instance the
-``PROXY`` macro calls. Developers should be lazy: there must be a way (think
-about it!) to automate part of this work. Good for smart new pythraners!
 
 Performance issues detection
 ----------------------------

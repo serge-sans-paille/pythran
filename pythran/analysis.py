@@ -1508,6 +1508,7 @@ class LazynessAnalysis(FunctionAnalysis):
                 while isinstance(var_name, ast.Subscript):
                     self.visit(var_name.slice)
                     var_name = var_name.value
+                self.modify(var_name, self.aliases[node.value].state)
                 self.result[var_name.id] = float('inf')
             else:
                 raise PythranSyntaxError("Assign to unknown node", node)

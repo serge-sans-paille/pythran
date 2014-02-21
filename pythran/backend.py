@@ -140,7 +140,8 @@ class Cxx(Backend):
                     hasfor = 'for' in directive.s
                     nodefault = 'default' not in directive.s
                     noindexref = all(x.id != target.id for x in directive.deps)
-                    if hasfor and nodefault and noindexref:
+                    if (hasfor and nodefault and noindexref and
+                            target.id not in self.scope[node]):
                         directive.s += ' private({})'
                         directive.deps.append(ast.Name(target.id, ast.Param()))
                 directives.append(directive)
@@ -626,8 +627,9 @@ class Cxx(Backend):
             self.ldecls = {d for d in self.ldecls if d.id != node.target.id}
             loop = AutoFor(target, local_iter, loop_body)
         else:
-            if (metadata.get(node.target, metadata.LocalVariable) and
-                    not self.yields):
+            if node.target.id in self.scope[node] and not self.yields:
+                self.ldecls = {d for d in self.ldecls
+                               if d.id != node.target.id}
                 local_type = "typename decltype({})::reference ".format(
                     local_target)
             else:

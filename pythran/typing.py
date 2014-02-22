@@ -258,7 +258,7 @@ class TypeDependencies(ModuleAnalysis):
         if not register:
             return
 
-        self.nodes = [node2]
+        self.nodes = [node1, node2]
         if unary_op:
             unary_op(NamedType("int"))
 

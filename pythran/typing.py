@@ -257,7 +257,7 @@ class TypeDependencies(ModuleAnalysis):
         """
         if not register:
             return
-        assert isinstance(node1, ast.Name)
+
         self.nodes = [node2]
         if unary_op:
             unary_op(NamedType("int"))

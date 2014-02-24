@@ -450,7 +450,9 @@ class ReturnTypeDependencies(TypeDependencies):
             #For that we consider the functions that can have no dependencies,
             # and we remove what circular dependencies they have
             nodeps = ReturnTypeDependencies.NoDeps
-            candidates = self.result.predecessors(nodeps)
+            #Multiple uses of sorted because the order needs to be consistent
+            # across all usages
+            candidates = sorted(self.result.predecessors(nodeps))
             past_candidates = set(candidates)
             while len(candidates) > 0:
                 new_candidates = set()
@@ -478,6 +480,7 @@ class ReturnTypeDependencies(TypeDependencies):
                                 new_candidates.add(gb)
                 candidates = new_candidates - past_candidates
                 past_candidates |= candidates
+                candidates = sorted(list(candidates))
             """ There's a bad heuristic concerning globals changed by functions
 
             We assume that if there is a circular dependency between a function

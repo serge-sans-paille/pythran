@@ -353,6 +353,9 @@ class TypeDependencies(ModuleAnalysis):
         return reduce(combine_reduce, map(self.visit, (node.lower,
                                                        node.upper)))
 
+    def visit_ExtSlice(self, node):
+        return reduce(combine_reduce, map(self.visit, node.dims))
+
     def visit_Index(self, node):
         return self.visit(node.value)
 

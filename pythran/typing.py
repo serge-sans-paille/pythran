@@ -13,7 +13,6 @@ from tables import modules
 from analysis import GlobalDeclarations, YieldPoints, LocalDeclarations
 from analysis import Aliases, ModuleAnalysis, StrictAliases, NonLocals
 from analysis import LazynessAnalysis, DeclaredGlobals, Locals, AssignTargets
-from analysis import OrderedGlobalDeclarations
 from passes import Transformation
 from syntax import PythranSyntaxError
 from cxxtypes import *
@@ -597,8 +596,7 @@ class Reorder(Transformation):
     Reorder top-level functions to prevent circular type dependencies
     """
     def __init__(self):
-        super(Reorder, self).__init__(ReturnTypeDependencies,
-                                      OrderedGlobalDeclarations)
+        super(Reorder, self).__init__(AcyclicCallees)
 
     def visit_Module(self, node):
         newbody = list()
@@ -616,20 +614,17 @@ class Reorder(Transformation):
         return node
 
     def get_sorted_nodes(self):
-        if not nx.is_directed_acyclic_graph(self.return_type_dependencies):
+        graph = self.acyclic_callees[1]
+        if not nx.is_directed_acyclic_graph(graph):
             raise PythranSyntaxError("Infinite function recursion")
 
-        self.return_type_dependencies.reverse(False)
+        graph.reverse(False)
         #Despite all the ordering we've done, there's something we've not taken
         # into account: when a function modifies the type of the argument from
         # the caller (combiners).
         #
-        #This is seen in test_base/test_complex_append_in_call which can gene-
-        # rate a good result or have a compile error depending on the order
-        # given as a result. With OrderedGlobalDeclarations, it's always a good
-        # result.
-        nodes = nx.topological_sort(self.return_type_dependencies,
-                                    self.ordered_global_declarations)
+        #This is why we use AcyclicCallees instead of ReturnTypeDependencies
+        nodes = nx.topological_sort(graph)
         nodes = [node for node in nodes if isinstance(node, ast.FunctionDef)]
 
         return nodes

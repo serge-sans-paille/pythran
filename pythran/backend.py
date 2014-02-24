@@ -261,6 +261,16 @@ class Cxx(Backend):
                             isinstance(succ, ConstantIntr):
                         order.add_edge(combiner, succ)
 
+        #We need to respect as possible the order in acyclic_callees, in case
+        # a variable passed as an argument has its type deduced from the code
+        # inside the function. Then we need to respect the same order as the
+        # Reorder transformation, which is the order of acyclic_callees
+        #
+        # (See test_base/test_append_in_call test case)
+        for edge in self.callees_order.edges():
+            if not nx.has_path(order, edge[1], edge[0]):
+                order.add_edge(edge[0], edge[1])
+
         #Add missing globals from the order
         for gb in self.declared_globals:
             order.add_node(self.global_declarations[gb])

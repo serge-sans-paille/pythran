@@ -550,7 +550,33 @@ class Callees(ModuleAnalysis):
 
     def visit_Call(self, node):
         assert self.current_function
+
         res = self.aliases[node.func].aliases
+        add_res = set()
+        add_args = defaultdict(list)
+
+        def unbind(x):
+            """
+            @param x: A possibly binded function
+
+            Unbind all the functions like functools.partial(...)
+            and add them to res.
+
+            This is to deal with nested functions, which in pythran
+            are bound locally.
+            """
+            if not isinstance(x, ast.Call):
+                return
+            r = self.aliases[x.args[0]].aliases
+            for f in r:
+                add_args[f] = x.args[1:]
+            add_res.update(r)
+
+        for val in res:
+            unbind(val)
+
+        res |= add_res
+
         #Only keep the aliases if they refer to something global
         gb_vals = self.global_declarations.values()
         res = {y for y in res if y in gb_vals}
@@ -560,7 +586,8 @@ class Callees(ModuleAnalysis):
             if func not in self.result.setdefault(self.current_function, {}):
                 self.result[self.current_function][func] = []
             #Add the call to the list of calls
-            self.result[self.current_function][func].append(node.args)
+            self.result[self.current_function][func].append(add_args[func]+
+                                                            node.args)
             #We now have the list of each function called, and for each of
             #those the list of various ways it's called in
             #self.func[f][called_function]

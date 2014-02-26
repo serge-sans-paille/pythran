@@ -686,7 +686,8 @@ class Reorder(Transformation):
     Reorder top-level functions to prevent circular type dependencies
     """
     def __init__(self):
-        super(Reorder, self).__init__(AcyclicCallees)
+        super(Reorder, self).__init__(AcyclicCallees,
+                                      OrderedGlobalDeclarations)
 
     def visit_Module(self, node):
         newbody = list()
@@ -714,7 +715,14 @@ class Reorder(Transformation):
         # the caller (combiners).
         #
         #This is why we use AcyclicCallees instead of ReturnTypeDependencies
-        nodes = nx.topological_sort(graph)
+        #
+        #Also, in case the type of some variables inside the function depend
+        # on the return type of other functions, we need those other functions
+        # to be defined first, hence why we use orderedglobaldeclarations
+        # (concrete example: in omp_task_untied, current_id= map(lambda), so
+        # lambda isn't caught by the Callees analysis and current_id needs
+        # the return type of the lambda function
+        nodes = nx.topological_sort(graph, self.ordered_global_declarations)
         nodes = [node for node in nodes if isinstance(node, ast.FunctionDef)]
 
         return nodes

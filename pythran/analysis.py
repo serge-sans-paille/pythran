@@ -457,8 +457,12 @@ class AssignTargets(NodeAnalysis):
     '''
     Gathers variable changes by an assign's targets
     '''
+    class Partial:
+        pass
+
     def __init__(self):
         self.result = set()
+        self.partial_assign = False
         super(AssignTargets, self).__init__()
 
     def visit_Call(self, node):
@@ -471,13 +475,24 @@ class AssignTargets(NodeAnalysis):
         pass
 
     def visit_Name(self, node):
+        if self.partial_assign:
+            md.add(node, AssignTargets.Partial())
         self.result.add(node)
+
+    def visit_Subscript(self, node):
+        self.partial_assign = True
+        self.generic_visit(node)
+        self.partial_assign = False
 
     def visit_Assign(self, node):
         map(self.visit, node.targets)
 
     def visit_AugAssign(self, node):
         self.visit(node.target)
+
+    @staticmethod
+    def is_partial_assign(node):
+        return len(md.get(node, AssignTargets.Partial)) > 0
 
 
 ##

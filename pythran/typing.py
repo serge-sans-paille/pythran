@@ -132,6 +132,7 @@ class TypeDependencies(ModuleAnalysis):
         self.current_function = None
         self.combiners = {}
         self.in_cond = False
+        self.partial_assign = False
         self.visiting_functions = False
         #used by the combine() function
         self.nodes = []
@@ -219,7 +220,7 @@ class TypeDependencies(ModuleAnalysis):
         depending on the in_cond state
         @rtype : None
         '''
-        if self.in_cond and name in self.naming:
+        if (self.in_cond or self.partial_assign) and name in self.naming:
             self.naming[name] = reduce(disjoint_reduce,
                                        [value, self.naming[name]])
         else:
@@ -234,7 +235,9 @@ class TypeDependencies(ModuleAnalysis):
         v = self.visit(node.value)
         targets = self.passmanager.gather(AssignTargets, node)
         for t in targets:
+            self.partial_assign = AssignTargets.is_partial_assign(t)
             self.update_naming(t.id, v)
+        self.partial_assign = False
 
     visit_AugAssign = visit_Assign
 

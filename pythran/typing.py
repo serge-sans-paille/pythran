@@ -13,6 +13,7 @@ from tables import modules
 from analysis import GlobalDeclarations, YieldPoints, LocalDeclarations
 from analysis import Aliases, ModuleAnalysis, StrictAliases, NonLocals
 from analysis import LazynessAnalysis, DeclaredGlobals, Locals, AssignTargets
+from analysis import OrderedGlobalDeclarations
 from passes import Transformation
 from syntax import PythranSyntaxError
 from cxxtypes import *
@@ -131,11 +132,23 @@ class TypeDependencies(ModuleAnalysis):
         self.current_function = None
         self.combiners = {}
         self.in_cond = False
+        self.visiting_functions = False
         #used by the combine() function
         self.nodes = []
+        self.combining = False
+        self.modified_naming = set()
+        #When in interprocedural dependency deduction, if the type of the
+        # parameter depends on anything in the function, it should also
+        # depend on the whole call of the function, as it will in the Types
+        # analysis with the PTypes.
+        #
+        #self.current_call is used to store the current call in case there's
+        # a combine, so as to be prepared for such a situation
+        self.current_call = None
         super(TypeDependencies, self).__init__(GlobalDeclarations, Locals,
-                                               DeclaredGlobals,
-                                               StrictAliases, *deps)
+                                               DeclaredGlobals, StrictAliases,
+                                               OrderedGlobalDeclarations,
+                                               *deps)
 
     def visit_any_conditionnal(self, node):
         '''
@@ -156,6 +169,9 @@ class TypeDependencies(ModuleAnalysis):
         super(TypeDependencies, self).prepare(node, ctx)
 
     def visit_FunctionDef(self, node):
+        if not self.visiting_functions:
+            return
+
         print "Type dependencies - visiting " + node.name
         assert self.current_function is None
         self.current_function = node
@@ -165,6 +181,9 @@ class TypeDependencies(ModuleAnalysis):
         # to the global of the same name as the arg
         for arg in node.args.args:
             self.update_naming(arg.id, (set(), True))
+        #Arguments aren't considered "modified" naming, especially since
+        # the goal of the variable is too see which arguments were modified
+        self.modified_naming = set()
 
         self.generic_visit(node)
         arg_deps = UserFunction()
@@ -178,12 +197,11 @@ class TypeDependencies(ModuleAnalysis):
                     # arguments
                     if not (p < len(n.args)):
                         return
-                    targets = self.passmanager.gather(AssignTargets, n.args[p])
-                    for t in targets:
-                        s.update_naming(t.id, naming)
+                    s.combine_(n.args[p], naming)
                 return interprocedural_combiner
 
-            arg_deps.add_combiner(interprocedural_generator(p, naming))
+            if arg.id in self.modified_naming:
+                arg_deps.add_combiner(interprocedural_generator(p, naming))
 
         self.combiners[node] = arg_deps
 
@@ -209,6 +227,8 @@ class TypeDependencies(ModuleAnalysis):
 
         if self.is_global_variable(name):
             self.naming[name][0].add(self.global_declarations[name])
+
+        self.modified_naming.add(name)
 
     def visit_Assign(self, node):
         v = self.visit(node.value)
@@ -258,15 +278,30 @@ class TypeDependencies(ModuleAnalysis):
         if not register:
             return
 
+        # Don't do recursive combining
+        if self.combining:
+            return
+
         self.nodes = [node1, node2]
         if unary_op:
             unary_op(NamedType("int"))
 
+        results = reduce(disjoint_reduce, map(self.visit, self.nodes))
+
+        self.combine_(node1, results)
+
+    def combine_(self, node1, result):
+        if self.combining:
+            return
+        #We don't want infinite recursion by combining inside the current call
+        self.combining = True
+        results = [result, self.visit(self.current_call)]
+        self.combining = False
+
         targets = \
             set(n.id for n in self.passmanager.gather(AssignTargets, node1))
         for target in targets:
-            self.update_naming(target, reduce(disjoint_reduce,
-                                              map(self.visit, self.nodes)))
+            self.update_naming(target, reduce(disjoint_reduce, results))
 
     def get_type(self, node):
         """
@@ -282,6 +317,8 @@ class TypeDependencies(ModuleAnalysis):
         return super(TypeDependencies, self).visit(node)
 
     def visit_Call(self, node):
+        old_call = self.current_call
+        self.current_call = node
         #in x.append(y), the type of x depends on the type of y
         for alias in self.strict_aliases[node.func].aliases:
             # this comes from a bind
@@ -304,6 +341,7 @@ class TypeDependencies(ModuleAnalysis):
         args = map(self.visit, node.args)
         func = self.visit(node.func)
         params = args + [func or []]
+        self.current_call = old_call
         return reduce(combine_reduce, params)
 
     def visit_Num(self, node):
@@ -365,6 +403,24 @@ class TypeDependencies(ModuleAnalysis):
     def visit_Expr(self, node):
         return self.visit(node.value)
 
+    def run(self, node, ctx):
+        """
+        We want to visit the functions in a predetermined "good" order
+        so that when we try to call up a function's combiner, it already
+        exists.
+
+        Aka if function a calls function b we want b to be parsed before a.
+
+        Because when parsing a, we may need to use b's combiner, which will
+        only exist if b was already parsed.
+        """
+        super(TypeDependencies, self).run(node, ctx)
+
+        self.visiting_functions = True
+        self.ordered_global_declarations.reverse()
+        map(self.visit, self.ordered_global_declarations)
+
+        return self.result
 
 class ReturnTypeDependencies(TypeDependencies):
     '''

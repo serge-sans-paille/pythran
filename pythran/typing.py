@@ -422,6 +422,7 @@ class TypeDependencies(ModuleAnalysis):
 
         return self.result
 
+
 class ReturnTypeDependencies(TypeDependencies):
     '''
     Gathers the aliases in each return statement, to deduce what a function's
@@ -642,7 +643,7 @@ class Callees(ModuleAnalysis):
             if func not in self.result.setdefault(self.current_function, {}):
                 self.result[self.current_function][func] = []
             #Add the call to the list of calls
-            self.result[self.current_function][func].append(add_args[func]+
+            self.result[self.current_function][func].append(add_args[func] +
                                                             node.args)
             #We now have the list of each function called, and for each of
             #those the list of various ways it's called in

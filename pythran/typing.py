@@ -1030,7 +1030,7 @@ class Types(ModuleAnalysis):
         self.visit(node.value)
         for t in node.targets:
             self.combine(t, node.value, register=True)
-            if t in self.locals_stack[-1]:
+            if isinstance(t, ast.Name) and t.id in self.locals_stack[-1]:
                 self.result[t] = self.get_qualifier(t)(self.result[t])
             if isinstance(t, ast.Subscript):
                 if self.visit_AssignedSubscript(t):

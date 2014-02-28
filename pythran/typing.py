@@ -173,7 +173,7 @@ class TypeDependencies(ModuleAnalysis):
         if not self.visiting_functions:
             return
 
-        print "Type dependencies - visiting " + node.name
+        #print "Type dependencies - visiting " + node.name
         assert self.current_function is None
         self.current_function = node
         self.naming = dict()
@@ -498,11 +498,12 @@ class ReturnTypeDependencies(TypeDependencies):
     def run(self, node, ctx):
         super(ReturnTypeDependencies, self).run(node, ctx)
 
-        gb_decls = dict((v, k) for k, v in self.global_declarations.items())
-        gb_decls[ReturnTypeDependencies.NoDeps] = ReturnTypeDependencies.NoDeps
-        edges = self.result.edges()
-        edges = [(gb_decls[edge[0]], gb_decls[edge[1]]) for edge in edges]
-        print "edges: " + str(edges)
+        # gb_decls = dict((v, k) for k, v in self.global_declarations.items())
+        # gb_decls[ReturnTypeDependencies.NoDeps] = \
+        #  ReturnTypeDependencies.NoDeps
+        # edges = self.result.edges()
+        # edges = [(gb_decls[edge[0]], gb_decls[edge[1]]) for edge in edges]
+        # print "edges: " + str(edges)
 
         gb_changing = self.global_changing_functions
 
@@ -552,11 +553,12 @@ class ReturnTypeDependencies(TypeDependencies):
 
             Making it truly general would mean revisiting the Weak system."""
 
-        gb_decls = dict((v, k) for k, v in self.global_declarations.items())
-        gb_decls[ReturnTypeDependencies.NoDeps] = ReturnTypeDependencies.NoDeps
-        edges = self.result.edges()
-        edges = [(gb_decls[edge[0]], gb_decls[edge[1]]) for edge in edges]
-        print "edges2: " + str(edges)
+        # gb_decls = dict((v, k) for k, v in self.global_declarations.items())
+        # gb_decls[ReturnTypeDependencies.NoDeps] = \
+        #  ReturnTypeDependencies.NoDeps
+        # edges = self.result.edges()
+        # edges = [(gb_decls[edge[0]], gb_decls[edge[1]]) for edge in edges]
+        # print "edges2: " + str(edges)
 
         self.result.remove_node(ReturnTypeDependencies.NoDeps)
 
@@ -941,7 +943,7 @@ class Types(ModuleAnalysis):
 
         The effects the function have on the globals is the types the function
         requires the globals to be."""
-        print "Types - visiting " + node.name
+        #print "Types - visiting " + node.name
         self.nested += 1
 
         self.current = node

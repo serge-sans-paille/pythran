@@ -7,7 +7,6 @@ This module provides a few code analysis for the pythran language.
     * GlobalDeclarations gathers top-level declarations
     * Locals computes the value of locals()
     * Globals computes the value of globals()
-    * Names gathers all the identifiers used in an expression
     * AssignTargets gathers all the Names changes by an assign
     * ImportedIds gathers identifiers imported by a node
     * Imports gathers all the import statements with their particulars
@@ -389,7 +388,7 @@ class Locals(ModuleAnalysis):
     def visit_For(self, node):
         self.handle_locals(node)
         self.visit(node.iter)
-        for name in self.passmanager.gather(Names, node.target):
+        for name in self.passmanager.gather(AssignTargets, node.target):
             self.add_local(name.id)
         map(self.visit, node.body)
         map(self.visit, node.orelse)
@@ -439,18 +438,6 @@ class Globals(ModuleAnalysis):
         super(Globals, self).run(node, ctx)
         return set(self.global_declarations.keys()
                    + [i for i in modules if i.startswith('__')])
-
-
-class Names(NodeAnalysis):
-    '''
-    Gathers the names used in an expression
-    '''
-    def __init__(self):
-        self.result = set()
-        super(Names, self).__init__()
-
-    def visit_Name(self, node):
-        self.result.add(node)
 
 
 class AssignTargets(NodeAnalysis):

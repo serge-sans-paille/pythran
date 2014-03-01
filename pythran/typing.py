@@ -12,15 +12,14 @@ from tables import pytype_to_ctype_table, operator_to_lambda
 from tables import modules, methods, functions
 from analysis import GlobalDeclarations, YieldPoints, LocalDeclarations
 from analysis import OrderedGlobalDeclarations, ModuleAnalysis, StrictAliases
-from analysis import LazynessAnalysis
+from analysis import LazynessAnalysis, DeclaredGlobals, Locals
+from analysis import AssignTargets
 from passes import Transformation
 from syntax import PythranSyntaxError
 from cxxtypes import *
 from intrinsic import UserFunction, MethodIntr
-import itertools
 import operator
-import metadata
-import intrinsic
+from intrinsic import ConstantIntr
 from config import cfg
 from collections import defaultdict
 
@@ -102,26 +101,72 @@ def extract_constructed_types(t):
         return []
 
 
+def disjoint_reduce(val1, val2):
+    """
+    Reduces two type of dependencies by combining them. If either set
+    of dependencies can be "independent" (aka there exist a call graph
+    that means it doesn't depend on any other variable/functions), then
+    the resulting dependency can be independent too.
+    """
+    return val1[0] | val2[0], val1[1] or val2[1]
+
+
+def combine_reduce(val1, val2):
+    """
+    Reduces two type of dependencies by combining them. If both set
+    of dependencies can be "independent" (aka there exist a call graph
+    that means it doesn't depend on any other variable/functions), then
+    the resulting dependency can be independent too.
+    """
+    return val1[0] | val2[0], val1[1] and val2[1]
+
+
 class TypeDependencies(ModuleAnalysis):
-    '''
-    Gathers the callees of each function required for type inference
+    """
+    Similar to Aliases, for each node, gathers all the node that
+    determine its type
+    """
 
-    This analyse produces a directed graph with functions as nodes and edges
-    between nodes when a function might call another.
-    '''
-
-    NoDeps = "None"
-
-    def __init__(self):
-        self.result = nx.DiGraph()
+    def __init__(self, *deps):
+        self.result = {}
         self.current_function = None
-        ModuleAnalysis.__init__(self, GlobalDeclarations)
-
-    def prepare(self, node, ctx):
-        super(TypeDependencies, self).prepare(node, ctx)
-        for k, v in self.global_declarations.iteritems():
-            self.result.add_node(v)
-        self.result.add_node(TypeDependencies.NoDeps)
+        #Combiners for interprocedural analysis: when a function is analyzed,
+        # its effects on the dependencies of the arguments are stored there.
+        self.combiners = {}
+        self.in_cond = False
+        #When updating the dependencies of a variable, is it a partial update,
+        # or is the variable set to a completely new value?
+        #If it's a partial update, the new dependencies will be the old ones
+        # in addition to the new ones.
+        self.partial_assign = False
+        #During the first "regular" run, nothing is analyzed. That's because
+        # we need to visit the functions in a particular order. So this va-
+        # riable is then set to True and the functions visited in the correct
+        # order (see the run() function)
+        self.visiting_functions = False
+        #Used only by the combine() function. When an external combiner calls
+        # get_type() on the parameter object, will change this variable to add
+        # the new dependency.
+        self.nodes = []
+        #Are we combining? The interprocedural analysis could lead to infinite
+        # recursion, so this is a variable to stop that.
+        self.combining = False
+        #Each time a variable has its naming modified, it's stored in there.
+        #It's used to know which arguments have been "changed" by the function
+        # and need a combiner.
+        self.modified_naming = set()
+        #When in interprocedural dependency deduction, if the type of the
+        # parameter depends on anything in the function, it should also
+        # depend on the whole call of the function, as it will in the Types
+        # analysis with the PTypes.
+        #
+        #self.current_call is used to store the current call in case there's
+        # a combine, so as to be prepared for such a situation
+        self.current_call = None
+        super(TypeDependencies, self).__init__(GlobalDeclarations, Locals,
+                                               DeclaredGlobals, StrictAliases,
+                                               OrderedGlobalDeclarations,
+                                               *deps)
 
     def visit_any_conditionnal(self, node):
         '''
@@ -133,67 +178,119 @@ class TypeDependencies(ModuleAnalysis):
         self.generic_visit(node)
         self.in_cond = in_cond
 
+    def prepare(self, node, ctx):
+        for mname, module in modules.iteritems():
+            for fname, function in module.iteritems():
+                if not isinstance(function, ConstantIntr):
+                    self.combiners[function] = function
+
+        super(TypeDependencies, self).prepare(node, ctx)
+
     def visit_FunctionDef(self, node):
+        if not self.visiting_functions:
+            return
+
+        #print "Type dependencies - visiting " + node.name
         assert self.current_function is None
         self.current_function = node
         self.naming = dict()
         self.in_cond = False  # True when we are in a if, while or for
+        #So the args point to something, and when looking up doesn't go back
+        # to the global of the same name as the arg
+        for arg in node.args.args:
+            self.update_naming(arg.id, (set(), True))
+        #Arguments aren't considered "modified" naming, especially since
+        # the goal of the variable is too see which arguments were modified
+        self.modified_naming = set()
+
+        #add dependencies induced by default arguments
+        if len(node.args.defaults) > 0:
+            for p in range(len(node.args.args)):
+                if len(node.args.defaults) - len(node.args.args) + p >= 0:
+                    i = len(node.args.defaults) - len(node.args.args) + p
+                    default = node.args.defaults[i]
+                    self.add_function_deps(self.visit(default))
+
         self.generic_visit(node)
+        arg_deps = UserFunction()
+
+        for (p, arg) in enumerate(node.args.args):
+            naming = self.get_naming(arg.id)
+
+            def interprocedural_generator(p, naming):
+                def interprocedural_combiner(s, n):
+                    #default arguments mean a call doesn't always have all the
+                    # arguments
+                    if not (p < len(n.args)):
+                        return
+                    s.combine_(n.args[p], naming)
+                return interprocedural_combiner
+
+            if arg.id in self.modified_naming:
+                arg_deps.add_combiner(interprocedural_generator(p, naming))
+
+        self.combiners[node] = arg_deps
         self.current_function = None
 
-    def visit_Return(self, node):
-        '''
-        Gather all the function call that led to the creation of the
-        returned expression and add an edge to each of this function.
+    def add_function_deps(self, values):
+        pass
 
-        When visiting an expression, one returns a list of frozensets.  Each
-        element of the list is linked to a possible path, each element of a
-        frozenset is linked to a dependency.
-        '''
-        if node.value:
-            v = self.visit(node.value)
-            for dep_set in v:
-                if dep_set:
-                    for dep in dep_set:
-                        self.result.add_edge(dep, self.current_function)
-                else:
-                    self.result.add_edge(TypeDependencies.NoDeps,
-                                         self.current_function)
-
-    visit_Yield = visit_Return
+    def is_global_variable(self, name):
+        if name in self.declared_globals:
+            if not Locals.is_local(self.locals, self.current_function, name):
+                return True
+        return False
 
     def update_naming(self, name, value):
         '''
         Update or renew the name <-> dependencies binding
         depending on the in_cond state
+        @rtype : None
         '''
-        if self.in_cond:
-            self.naming.setdefault(name, []).extend(value)
+        if (self.in_cond or self.partial_assign) and name in self.naming:
+            self.naming[name] = reduce(disjoint_reduce,
+                                       [value, self.naming[name]])
         else:
             self.naming[name] = value
 
+        if self.is_global_variable(name):
+            self.naming[name][0].add(self.global_declarations[name])
+
+        self.modified_naming.add(name)
+
     def visit_Assign(self, node):
         v = self.visit(node.value)
-        for t in node.targets:
-            if isinstance(t, ast.Name):
-                self.update_naming(t.id, v)
-
-    def visit_AugAssign(self, node):
-        v = self.visit(node.value)
-        t = node.target
-        if isinstance(t, ast.Name):
+        targets = self.passmanager.gather(AssignTargets, node)
+        for t in targets[0]:
+            self.partial_assign = t not in targets[1]
             self.update_naming(t.id, v)
+        self.partial_assign = False
+
+        #If we have m[x] = 1, makes sure m depends on x
+        if isinstance(node, ast.Assign):
+            targets = node.targets
+        else:
+            assert isinstance(node, ast.AugAssign)
+            targets = [node.target]
+
+        for t in targets:
+            #in a[...], gets ast.Name('a')
+            target = list(self.passmanager.gather(AssignTargets, t)[0])
+            assert(len(target) == 1)
+            self.update_naming(target[0].id, self.visit(t))
+
+    visit_AugAssign = visit_Assign
 
     def visit_For(self, node):
-        self.naming.update({node.target.id: self.visit(node.iter)})
+        self.update_naming(node.target.id, self.visit(node.iter))
         self.visit_any_conditionnal(node)
 
     def visit_BoolOp(self, node):
-        return sum((self.visit(value) for value in node.values), [])
+        values = [self.visit(value) for value in node.values]
+        return reduce(disjoint_reduce, values)
 
     def visit_BinOp(self, node):
-        args = map(self.visit, (node.left, node.right))
-        return list({frozenset.union(*x) for x in itertools.product(*args)})
+        return reduce(combine_reduce, map(self.visit, (node.left, node.right)))
 
     def visit_UnaryOp(self, node):
         return self.visit(node.operand)
@@ -202,62 +299,313 @@ class TypeDependencies(ModuleAnalysis):
         assert False
 
     def visit_IfExp(self, node):
-        return self.visit(node.body) + self.visit(node.orelse)
+        return reduce(disjoint_reduce, map(self.visit, (node.body,
+                                                        node.orelse)))
 
     def visit_Compare(self, node):
-        return [frozenset()]
+        #Type can depend on operands of a compare expression, for example for
+        # nd arrays
+        values = map(self.visit, [node.left] + node.comparators)
+        return reduce(disjoint_reduce, values)
+
+    def combine(self, node1, node2, register=False, unary_op=None):
+        """
+        When a function is called, like list.append, we call its combiner to
+        see if it changes any types
+
+        For example a.append(b) would change a's type based on b, so we use
+        the combiner (in tables.py) of the append function which will call
+        self.combine(arg0, arg1). Then with the code below we mark that the
+        type of arg0 depends on the previous type of arg0 and the type of arg1
+        """
+        if not register:
+            return
+
+        # Don't do recursive combining
+        if self.combining:
+            return
+
+        self.nodes = [node1, node2]
+        if unary_op:
+            unary_op(NamedType("int"))
+
+        results = reduce(disjoint_reduce, map(self.visit, self.nodes))
+
+        self.combine_(node1, results)
+
+    def combine_(self, node1, result):
+        if self.combining:
+            return
+        #We don't want infinite recursion by combining inside the current call
+        self.combining = True
+        results = [result, self.visit(self.current_call)]
+        self.combining = False
+
+        targets = \
+            set(n.id for n in self.passmanager.gather(AssignTargets, node1)[0])
+        for target in targets:
+            self.update_naming(target, reduce(disjoint_reduce, results))
+
+    def get_type(self, node):
+        """
+        If the combiner's unary op needs to use the get_type function,
+        add a dependency to the corresponding node
+        """
+        self.nodes.append(node)
+        return NamedType("int")
+
+    def visit(self, node):
+        if node is None:
+            return set(), False
+        return super(TypeDependencies, self).visit(node)
 
     def visit_Call(self, node):
+        old_call = self.current_call
+        self.current_call = node
+        #in x.append(y), the type of x depends on the type of y
+        for alias in self.strict_aliases[node.func].aliases:
+            # this comes from a bind
+            if isinstance(alias, ast.Call):
+                a0 = alias.args[0]
+                bounded_name = a0.id
+                # by construction of the bind construct
+                assert len(self.strict_aliases[a0].aliases) == 1
+                bounded_function = list(self.strict_aliases[a0].aliases)[0]
+                fake_name = ast.Name(bounded_name, ast.Load())
+                fake_node = ast.Call(fake_name, alias.args[1:] + node.args,
+                                     [], None, None)
+                if bounded_function in self.combiners:
+                    self.combiners[bounded_function].combiner(self, fake_node)
+            # handle backward type dependencies from function calls
+            else:
+                if alias in self.combiners:
+                    self.combiners[alias].combiner(self, node)
+
         args = map(self.visit, node.args)
         func = self.visit(node.func)
         params = args + [func or []]
-        return list({frozenset.union(*p) for p in itertools.product(*params)})
+        self.current_call = old_call
+        return reduce(combine_reduce, params)
 
     def visit_Num(self, node):
-        return [frozenset()]
+        return set(), True
 
     def visit_Str(self, node):
-        return [frozenset()]
+        return set(), True
 
     def visit_Attribute(self, node):
-        return [frozenset()]
+        return set(), True
 
     def visit_Subscript(self, node):
-        return self.visit(node.value)
+        #returned type of a[b] is declval(a)[declval(b)], so need to go inside
+        # the slice
+        return reduce(combine_reduce, map(self.visit, (node.value,
+                                                       node.slice)))
+
+    def get_naming(self, id):
+        if id in self.naming:
+            return self.naming[id]
+        elif id in self.global_declarations:
+            return {self.global_declarations[id]}, False
+        else:
+            return set(), True
 
     def visit_Name(self, node):
-        if node.id in self.naming:
-            return self.naming[node.id]
-        elif node.id in self.global_declarations:
-            return [frozenset([self.global_declarations[node.id]])]
-        else:
-            return [frozenset()]
+        return self.get_naming(node.id)
 
     def visit_List(self, node):
         if node.elts:
-            return list(set(sum(map(self.visit, node.elts), [])))
+            return reduce(combine_reduce, map(self.visit, node.elts))
         else:
-            return [frozenset()]
+            return set(), True
 
     visit_Set = visit_List
 
     def visit_Dict(self, node):
         if node.keys:
             items = node.keys + node.values
-            return list(set(sum(map(self.visit, items), [])))
+            return reduce(combine_reduce, map(self.visit, items))
         else:
-            return [frozenset()]
+            return set(), True
 
     visit_Tuple = visit_List
 
     def visit_Slice(self, node):
-        return [frozenset()]
+        return reduce(combine_reduce, map(self.visit, (node.lower,
+                                                       node.upper)))
+
+    def visit_ExtSlice(self, node):
+        return reduce(combine_reduce, map(self.visit, node.dims))
 
     def visit_Index(self, node):
-        return [frozenset()]
+        return self.visit(node.value)
 
     visit_If = visit_any_conditionnal
     visit_While = visit_any_conditionnal
+
+    def visit_Expr(self, node):
+        return self.visit(node.value)
+
+    def run(self, node, ctx):
+        """
+        We want to visit the functions in a predetermined "good" order
+        so that when we try to call up a function's combiner, it already
+        exists.
+
+        Aka if function a calls function b we want b to be parsed before a.
+
+        Because when parsing a, we may need to use b's combiner, which will
+        only exist if b was already parsed.
+        """
+        super(TypeDependencies, self).run(node, ctx)
+
+        self.visiting_functions = True
+        self.ordered_global_declarations.reverse()
+        map(self.visit, self.ordered_global_declarations)
+
+        return self.result
+
+
+class ReturnTypeDependencies(TypeDependencies):
+    '''
+    Gathers the aliases in each return statement, to deduce what a function's
+    type is dependent on.
+
+    Returns a DiGraph, u -> v means u depends on v
+    '''
+
+    NoDeps = "No dependencies"
+
+    def __init__(self):
+        super(ReturnTypeDependencies, self).__init__(GlobalDeclarations)
+        self.result = nx.DiGraph()
+        self.global_changing_functions = defaultdict(set)
+
+    def visit_FunctionDef(self, node):
+        self.result.add_node(node)
+        super(ReturnTypeDependencies, self).visit_FunctionDef(node)
+
+    def add_function_deps(self, res):
+        #Only keep the aliases if they refer to something global
+        gb_vals = self.global_declarations.values()
+        res = {val for val in res[0] if val in gb_vals}
+        for val in res:
+            if val != self.current_function:
+                self.result.add_edge(self.current_function, val)
+
+    def visit_Return(self, node):
+        if not node.value:
+            return
+
+        res = self.visit(node.value)
+
+        if isinstance(node, ast.Yield):
+            #For yields, pythran puts all the declared locals in the struct,
+            # so there needs to be a dependency to each of them
+            locs = self.passmanager.gather(LocalDeclarations,
+                                           self.current_function)
+            res = reduce(combine_reduce, [res] + [self.get_naming(l.id)
+                                                  for l in locs])
+
+        self.add_function_deps(res)
+        #If the function can depend on nothing, say it. It will help us break
+        # cyclic dependencies if any
+        if res[1]:
+            self.result.add_edge(self.current_function,
+                                 ReturnTypeDependencies.NoDeps)
+
+    def update_naming(self, name, value):
+        '''
+        Update or renew the name <-> dependencies binding
+        depending on the in_cond state
+        @rtype : None
+        '''
+        super(ReturnTypeDependencies, self).update_naming(name, value)
+
+        if self.is_global_variable(name):
+            #If a global's dependencies are modified, add the correct edges in
+            # the resulting directed graph
+            gb_vals = self.global_declarations.values()
+            content = {y for y in value[0] if y in gb_vals}
+            target = self.global_declarations[name]
+
+            for y in content:
+                if y != target and not self.result.has_edge(target, y):
+                    self.result.add_edge(target, y)
+
+            self.global_changing_functions[self.current_function].add(name)
+
+    visit_Yield = visit_Return
+
+    def run(self, node, ctx):
+        super(ReturnTypeDependencies, self).run(node, ctx)
+
+        # gb_decls = dict((v, k) for k, v in self.global_declarations.items())
+        # gb_decls[ReturnTypeDependencies.NoDeps] = \
+        # ReturnTypeDependencies.NoDeps
+        # edges = self.result.edges()
+        # edges = [(gb_decls[edge[0]], gb_decls[edge[1]]) for edge in edges]
+        # print "edges: " + str(edges)
+
+        gb_changing = self.global_changing_functions
+
+        if not nx.is_directed_acyclic_graph(self.result):
+            #We break the return dependency cycles.
+
+            #For that we consider the functions that can have no dependencies,
+            # and we remove what circular dependencies they have
+            nodeps = ReturnTypeDependencies.NoDeps
+            #Multiple uses of sorted because the order needs to be consistent
+            # across all usages
+            candidates = sorted(self.result.predecessors(nodeps))
+            past_candidates = set(candidates)
+            while len(candidates) > 0:
+                new_candidates = set()
+                for candidate in candidates:
+                    for s in self.result.successors(candidate):
+                        if nx.has_path(self.result, s, candidate):
+                            while self.result.has_edge(candidate, s):
+                                self.result.remove_edge(candidate, s)
+                            #If candidate is a global modified by s, remove it
+                            # from the list of the globals modified by s
+                            if s in gb_changing:
+                                for n in gb_changing[s]:
+                                    gb = self.global_declarations[n]
+                                    if gb == candidate:
+                                        gb_changing[s].remove(n)
+                                        break
+                    new_candidates |= set(self.result.predecessors(candidate))
+                    #needed for euler53
+                    #If a function changes a global, then that global doesn't
+                    # need other dependencies
+                    if candidate in gb_changing:
+                        for n in gb_changing[candidate]:
+                            gb = self.global_declarations[n]
+                            if gb in self.result:
+                                new_candidates.add(gb)
+                candidates = new_candidates - past_candidates
+                past_candidates |= candidates
+                candidates = sorted(list(candidates))
+            """ There's a bad heuristic concerning globals changed by functions
+
+            We assume that if there is a circular dependency between a function
+            and a global, (aka return type of function depends on global and
+            type of global depends on return type of function), that dependency
+            happens inside the code of the function.
+
+            Making it truly general would mean revisiting the Weak system."""
+
+        # gb_decls = dict((v, k) for k, v in self.global_declarations.items())
+        # gb_decls[ReturnTypeDependencies.NoDeps] = \
+        #  ReturnTypeDependencies.NoDeps
+        # edges = self.result.edges()
+        # edges = [(gb_decls[edge[0]], gb_decls[edge[1]]) for edge in edges]
+        # print "edges2: " + str(edges)
+
+        if ReturnTypeDependencies.NoDeps in self.result:
+            self.result.remove_node(ReturnTypeDependencies.NoDeps)
+
+        return self.result
 
 
 class Reorder(Transformation):

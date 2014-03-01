@@ -572,7 +572,8 @@ class ReturnTypeDependencies(TypeDependencies):
         # edges = [(gb_decls[edge[0]], gb_decls[edge[1]]) for edge in edges]
         # print "edges2: " + str(edges)
 
-        self.result.remove_node(ReturnTypeDependencies.NoDeps)
+        if ReturnTypeDependencies.NoDeps in self.result:
+            self.result.remove_node(ReturnTypeDependencies.NoDeps)
 
         return self.result
 

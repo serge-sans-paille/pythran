@@ -9,11 +9,11 @@ optimized pythran code
     * LoopFullUnrolling fully unrolls loops with static bounds
 '''
 
-from analysis import ConstantExpressions, OptimizableComprehension
+from analysis import ConstantExpressions, OptimizableComprehension, Imports
 from analysis import PotentialIterator, Aliases, UseOMP, HasBreak, HasContinue
 from passmanager import Transformation
-from tables import modules, equivalent_iterators
-from passes import NormalizeTuples, RemoveNestedFunctions, RemoveLambdas
+from tables import equivalent_iterators, modules
+from passes import NormalizeTuples
 import ast
 from copy import deepcopy
 
@@ -42,18 +42,24 @@ class ConstantFolding(Transformation):
 
     def prepare(self, node, ctx):
         self.env = {'__builtin__': __import__('__builtin__')}
+        self.imports = self.passmanager.gather(Imports, node, ctx)
 
+        for module, (what, item) in self.imports.iteritems():
+            if what == "operator_":
+                what = "operator"
+            if item:
+                self.env[module] = __import__(what, {}, {}, [item])
+            else:
+                self.env[module] = __import__(what)
+
+        #Things like __float__ don't appear in the regular imports, so they're
+        # done manually.
         for module_name in modules:
             not_builtin = ["__builtin__", "__exception__", "__dispatch__",
                            "__iterator__"]
             # module starting with "__" are pythran internal module and
             # should not be imported in the Python interpreter
-            if not module_name.startswith('__'):
-                import_name = module_name
-                if module_name == "operator_":
-                    import_name = "operator"
-                self.env[module_name] = __import__(import_name)
-            elif module_name not in not_builtin:
+            if module_name.startswith('__') and module_name not in not_builtin:
                 try:
                     self.env[module_name] = __import__(module_name.strip('_'))
                 except:
@@ -75,7 +81,7 @@ class ConstantFolding(Transformation):
         super(ConstantFolding, self).prepare(node, ctx)
 
     def to_ast(self, value):
-        if (type(value) in (int, long, float, complex)):
+        if type(value) in (int, long, float, complex):
             return ast.Num(value)
         elif isinstance(value, bool):
             return ast.Attribute(ast.Name('__builtin__', ast.Load()),

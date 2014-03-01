@@ -9,6 +9,7 @@ This module provides a few code analysis for the pythran language.
     * Globals computes the value of globals()
     * AssignTargets gathers all the Names changed by an assign
     * ImportedIds gathers identifiers imported by a node
+    * Imports gathers all the import statements
     * ConstantExpressions gathers constant expression
     * Aliases gather aliasing informations
     * Identifiers gathers all identifiers used in a node
@@ -534,7 +535,33 @@ class ImportedIds(NodeAnalysis):
         return super(ImportedIds, self).run(node, ctx)
 
 
-##
+class Imports(ModuleAnalysis):
+    """Gets all import statements and returns {name: (module, spec)}.
+
+    >>> import ast, passmanager
+    >>> pm = passmanager.PassManager("test")
+    >>> pm.gather(Imports, ast.parse("import a"))
+    {'a': ('a', None)}
+    >>> pm.gather(Imports, ast.parse("import a as b"))
+    {'b': ('a', None)}
+    >>> pm.gather(Imports, ast.parse("from x import a"))
+    {'a': ('x', 'a')}
+    >>> pm.gather(Imports, ast.parse("from x import a as b"))
+    {'b': ('x', 'a')}
+    """
+    def __init__(self):
+        self.result = dict()
+        super(Imports, self).__init__()
+
+    def visit_Import(self, node):
+        for alias in node.names:
+            self.result[alias.asname or alias.name] = (alias.name, None)
+
+    def visit_ImportFrom(self, node):
+        for alias in node.names:
+            self.result[alias.asname or alias.name] = (node.module, alias.name)
+
+
 class ConstantExpressions(NodeAnalysis):
     """Identify constant expressions (dummy implementation)"""
     def __init__(self):

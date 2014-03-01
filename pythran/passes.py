@@ -20,15 +20,15 @@ This modules contains code transformation to turn python AST into
 '''
 
 from analysis import ImportedIds, Identifiers, YieldPoints, Globals, Locals
+from analysis import LocalDeclarations
 from analysis import UsedDefChain, UseOMP, CFG, GlobalDeclarations
 from passmanager import Transformation
 from syntax import PythranSyntaxError
 from tables import methods, attributes, functions, modules
 from tables import cxx_keywords, namespace
 from intrinsic import ConstantIntr
-from operator import itemgetter
 from copy import copy
-import networkx as nx
+from analysis import DeclaredGlobals
 import metadata
 import ast
 
@@ -94,9 +94,7 @@ class NormalizeTuples(Transformation):
         if renamings:
             self.counter += 1
             return ("{0}{1}".format(
-                NormalizeTuples.tuple_name,
-                self.counter),
-                renamings)
+                NormalizeTuples.tuple_name, self.counter), renamings)
         else:
             return node
 
@@ -232,6 +230,16 @@ class ExtractTopLevelStmts(Transformation):
                                ast.arguments([], None, None, []),
                                init_body,
                                [])
+
+        # Make all the variables global
+        if init.body:
+            locs = self.passmanager.gather(LocalDeclarations, init)
+            #remove duplicates then put into a list
+            locs = list({local.id for local in locs})
+
+            gb_decl = ast.Global(locs)
+            init.body.insert(0, gb_decl)
+
         module_body.append(init)
         node.body = module_body
         return node
@@ -597,12 +605,13 @@ class NormalizeMethodCalls(Transformation):
     '''
 
     def __init__(self):
-        Transformation.__init__(self, Globals)
+        Transformation.__init__(self, Globals, DeclaredGlobals)
         self.imports = set()
 
     def visit_FunctionDef(self, node):
         self.imports = self.globals.copy()
         [self.imports.discard(arg.id) for arg in node.args.args]
+        self.imports.difference_update(self.declared_globals)
         self.generic_visit(node)
         return node
 
@@ -746,7 +755,7 @@ class NormalizeIdentifiers(Transformation):
         self.visit(node.value)
         if node.attr in cxx_keywords:
             node.attr += "_"  # cross fingers
-        # Always true as long as we don't have custom classes.
+            # Always true as long as we don't have custom classes.
         return node
 
 

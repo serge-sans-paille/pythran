@@ -186,6 +186,14 @@ class TypeDependencies(ModuleAnalysis):
         # the goal of the variable is too see which arguments were modified
         self.modified_naming = set()
 
+        #add dependencies induced by default arguments
+        if len(node.args.defaults) > 0:
+            for p in range(len(node.args.args)):
+                if len(node.args.defaults) - len(node.args.args) + p >= 0:
+                    i = len(node.args.defaults) - len(node.args.args) + p
+                    default = node.args.defaults[i]
+                    self.add_function_deps(self.visit(default))
+
         self.generic_visit(node)
         arg_deps = UserFunction()
 
@@ -205,8 +213,10 @@ class TypeDependencies(ModuleAnalysis):
                 arg_deps.add_combiner(interprocedural_generator(p, naming))
 
         self.combiners[node] = arg_deps
-
         self.current_function = None
+
+    def add_function_deps(self, values):
+        pass
 
     def is_global_variable(self, name):
         if name in self.declared_globals:
@@ -445,6 +455,14 @@ class ReturnTypeDependencies(TypeDependencies):
         self.result.add_node(node)
         super(ReturnTypeDependencies, self).visit_FunctionDef(node)
 
+    def add_function_deps(self, res):
+        #Only keep the aliases if they refer to something global
+        gb_vals = self.global_declarations.values()
+        res = {val for val in res[0] if val in gb_vals}
+        for val in res:
+            if val != self.current_function:
+                self.result.add_edge(self.current_function, val)
+
     def visit_Return(self, node):
         if not node.value:
             return
@@ -459,16 +477,10 @@ class ReturnTypeDependencies(TypeDependencies):
             res = reduce(combine_reduce, [res] + [self.get_naming(l.id)
                                                   for l in locs])
 
-        #Only keep the aliases if they refer to something global
-        gb_vals = self.global_declarations.values()
-        independent = res[1]
-        res = {val for val in res[0] if val in gb_vals}
-        for val in res:
-            if val != self.current_function:
-                self.result.add_edge(self.current_function, val)
+        self.add_function_deps(res)
         #If the function can depend on nothing, say it. It will help us break
         # cyclic dependencies if any
-        if independent:
+        if res[1]:
             self.result.add_edge(self.current_function,
                                  ReturnTypeDependencies.NoDeps)
 

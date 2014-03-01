@@ -12,7 +12,7 @@ from tables import pytype_to_ctype_table, operator_to_lambda
 from tables import modules, methods, functions
 from analysis import GlobalDeclarations, YieldPoints, LocalDeclarations
 from analysis import OrderedGlobalDeclarations, ModuleAnalysis, StrictAliases
-from analysis import LazynessAnalysis, DeclaredGlobals, Locals
+from analysis import LazynessAnalysis, DeclaredGlobals, Locals, Aliases
 from analysis import AssignTargets
 from passes import Transformation
 from syntax import PythranSyntaxError
@@ -608,34 +608,125 @@ class ReturnTypeDependencies(TypeDependencies):
         return self.result
 
 
-class Reorder(Transformation):
-    '''
-    Reorder top-level functions to prevent circular type dependencies
-    '''
-    def __init__(self):
-        Transformation.__init__(self, TypeDependencies,
-                                OrderedGlobalDeclarations)
+class Callees(ModuleAnalysis):
+    """
+    Gathers all the functions called inside each function, and list the
+    list of arguments whit which they are called
 
-    def prepare(self, node, ctx):
-        super(Reorder, self).prepare(node, ctx)
-        none_successors = self.type_dependencies.successors(
-            TypeDependencies.NoDeps)
-        candidates = sorted(none_successors)
-        while candidates:
-            new_candidates = list()
-            for n in candidates:
-                # remove edges that imply a circular dependency
-                for p in sorted(self.type_dependencies.predecessors(n)):
-                    if nx.has_path(self.type_dependencies, n, p):
-                        try:
-                            while True:  # may be multiple edges
-                                self.type_dependencies.remove_edge(p, n)
-                        except:
-                            pass  # no more edges to remove
-                    # nx.write_dot(self.type_dependencies,"b.dot")
-                if not n in self.type_dependencies.successors(n):
-                    new_candidates.extend(self.type_dependencies.successors(n))
-            candidates = new_candidates
+    >>> import ast, passmanager, passes
+    >>> pm = passmanager.PassManager('test')
+    >>> source = '''
+    ... def b(z):
+    ...     global y
+    ...     y = z
+    ... def a(x):
+    ...     b(x)
+    ... '''
+    >>> gbs = ast.parse(source)
+    >>> gbs = pm.apply(passes.RegisterGlobals, gbs)
+    >>> res = pm.gather(Callees, gbs)
+    >>> #Id of the first Arg of the first call of b in a
+    >>> res[gbs.body[1]][gbs.body[0]][0][0].id
+    'x'
+    """
+    def __init__(self, *deps):
+        self.current_function = None
+        #In addition to creating the call graph between functions, we also
+        # remember which arguments the functions were called with.
+        #
+        #self.result[function_node][called_function] =
+        # [[arg1, arg2], [arg1', arg2'],???] ]
+        self.result = {}
+        super(Callees, self).__init__(Aliases, GlobalDeclarations, *deps)
+
+    def visit_FunctionDef(self, node):
+        #All functions should have been unnested
+        assert not self.current_function
+        oldfunction = self.current_function
+        self.current_function = node
+        self.generic_visit(node)
+        self.current_function = oldfunction
+
+    def visit_Call(self, node):
+        assert self.current_function
+
+        res = self.aliases[node.func].aliases
+        add_res = set()
+        add_args = defaultdict(list)
+
+        def unbind(x):
+            """
+            @param x: A possibly binded function
+
+            Unbind all the functions like functools.partial(...)
+            and add them to res.
+
+            This is to deal with nested functions, which in pythran
+            are bound locally.
+            """
+            if not isinstance(x, ast.Call):
+                return
+            r = self.aliases[x.args[0]].aliases
+            for f in r:
+                add_args[f] = x.args[1:]
+            add_res.update(r)
+
+        for val in res:
+            unbind(val)
+
+        res |= add_res
+
+        #Only keep the aliases if they refer to something global
+        gb_vals = self.global_declarations.values()
+        res = {y for y in res if y in gb_vals}
+        res = {y for y in res if isinstance(y, ast.FunctionDef)}
+        #We now have all the functions the call might be on
+        for func in res:
+            if func not in self.result.setdefault(self.current_function, {}):
+                self.result[self.current_function][func] = []
+            #Add the call to the list of calls
+            self.result[self.current_function][func].append(add_args[func] +
+                                                            node.args)
+            #We now have the list of each function called, and for each of
+            #those the list of various ways it's called in
+            #self.func[f][called_function]
+
+            #The types analysis can help deduce what type are the arguments
+
+
+class AcyclicCallees(ModuleAnalysis):
+    """Same as Callees but arbitrarily breaks cycles if there are some
+    in the call graph"""
+    def __init__(self):
+        self.result = {}
+        super(AcyclicCallees, self).__init__(Callees, ReturnTypeDependencies)
+
+    def fix_callees(self):
+        if not nx.is_directed_acyclic_graph(self.return_type_dependencies):
+            raise PythranSyntaxError("Infinite function recursion")
+
+        for func in self.callees.keys():
+            for called in self.callees[func].keys():
+                #Make sure this won't create a cycle
+                rdeps = self.return_type_dependencies
+                if not nx.has_path(rdeps, called, func):
+                    self.return_type_dependencies.add_edge(func, called)
+                else:
+                    del self.callees[func][called]
+
+    def run(self, node, ctx):
+        super(AcyclicCallees, self).run(node, ctx)
+        self.fix_callees()
+        return (self.callees, self.return_type_dependencies)
+
+
+class Reorder(Transformation):
+    """
+    Reorder top-level functions to prevent circular type dependencies
+    """
+    def __init__(self):
+        super(Reorder, self).__init__(AcyclicCallees,
+                                      OrderedGlobalDeclarations)
 
     def visit_Module(self, node):
         newbody = list()
@@ -645,18 +736,35 @@ class Reorder(Transformation):
                 olddef.append(stmt)
             else:
                 newbody.append(stmt)
-            try:
-                newdef = nx.topological_sort(
-                    self.type_dependencies,
-                    self.ordered_global_declarations)
-                newdef = [f for f in newdef if isinstance(f, ast.FunctionDef)]
 
-            except nx.exception.NetworkXUnfeasible:
-                raise PythranSyntaxError("Infinite function recursion",
-                                         stmt)
+        newdef = self.get_sorted_nodes()
+
         assert set(newdef) == set(olddef)
         node.body = newbody + newdef
         return node
+
+    def get_sorted_nodes(self):
+        graph = self.acyclic_callees[1]
+        if not nx.is_directed_acyclic_graph(graph):
+            raise PythranSyntaxError("Infinite function recursion")
+
+        graph.reverse(False)
+        #Despite all the ordering we've done, there's something we've not taken
+        # into account: when a function modifies the type of the argument from
+        # the caller (combiners).
+        #
+        #This is why we use AcyclicCallees instead of ReturnTypeDependencies
+        #
+        #Also, in case the type of some variables inside the function depend
+        # on the return type of other functions, we need those other functions
+        # to be defined first, hence why we use orderedglobaldeclarations
+        # (concrete example: in omp_task_untied, current_id= map(lambda), so
+        # lambda isn't caught by the Callees analysis and current_id needs
+        # the return type of the lambda function
+        nodes = nx.topological_sort(graph, self.ordered_global_declarations)
+        nodes = [node for node in nodes if isinstance(node, ast.FunctionDef)]
+
+        return nodes
 
 
 class UnboundableRValue(Exception):

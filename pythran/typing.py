@@ -249,6 +249,17 @@ class TypeDependencies(ModuleAnalysis):
             self.update_naming(t.id, v)
         self.partial_assign = False
 
+        #If we have m[x] = 1, makes sure m depends on x
+        if isinstance(node, ast.Assign):
+            targets = node.targets
+        else:
+            assert isinstance(node, ast.AugAssign)
+            targets = [node.target]
+        for t in targets:
+            target = list(self.passmanager.gather(AssignTargets, t))
+            assert(len(target) == 1)
+            self.update_naming(target[0].id, self.visit(t))
+
     visit_AugAssign = visit_Assign
 
     def visit_For(self, node):
@@ -512,7 +523,7 @@ class ReturnTypeDependencies(TypeDependencies):
 
         # gb_decls = dict((v, k) for k, v in self.global_declarations.items())
         # gb_decls[ReturnTypeDependencies.NoDeps] = \
-        #  ReturnTypeDependencies.NoDeps
+        # ReturnTypeDependencies.NoDeps
         # edges = self.result.edges()
         # edges = [(gb_decls[edge[0]], gb_decls[edge[1]]) for edge in edges]
         # print "edges: " + str(edges)

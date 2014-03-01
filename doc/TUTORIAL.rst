@@ -157,6 +157,7 @@ __init__ function::
   def foo():
       return 2
   def __init__():
+      global a
       a = 1
       print a
       print (a + foo())

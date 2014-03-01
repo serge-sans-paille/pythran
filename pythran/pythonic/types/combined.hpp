@@ -21,6 +21,18 @@ struct __combined {
     typedef typename __combined< T0, typename __combined<T1, Types...>::type >::type type;
 };
 
+/* Needed for global type deduction, since they are recursively combined against what's ultimately
+  a void type */
+template <class T0>
+struct __combined<T0, void> {
+    typedef T0 type;
+};
+
+template <class T0>
+struct __combined<void, T0> {
+    typedef T0 type;
+};
+
 template<class T0, class T1>
 struct __combined<T0,T1> {
     typedef decltype(std::declval<T0>()+std::declval<T1>()) type;
@@ -39,6 +51,10 @@ class indexable_container {
     public:
         typedef typename std::remove_cv< typename std::remove_reference<K>::type>::type key_type;
         typedef typename std::remove_cv< typename std::remove_reference<V>::type>::type value_type;
+
+        /* Not implemented anywhere, but declaration here in case a decltype is needed for globals' type
+           deduction */
+        value_type operator [] (const key_type&);
     private:
         indexable_container();
 };

@@ -1163,8 +1163,13 @@ class Types(ModuleAnalysis):
                     self.result[node] = self.result[alias]
                     return
 
+        # special handler for getattr: use the attr name as an enum member
+        if type(node.func) is (ast.Attribute) and node.func.attr == 'getattr':
+            F = lambda f: GetAttr(self.result[node.args[0]], node.args[1].s)
         # default behavior
-        F = lambda f: ReturnType(f, [self.result[arg] for arg in node.args])
+        else:
+            F = lambda f: ReturnType(f,
+                                     [self.result[arg] for arg in node.args])
         # op is used to drop previous value there
         self.combine(node, node.func, op=lambda x, y: y, unary_op=F)
 
@@ -1205,9 +1210,7 @@ class Types(ModuleAnalysis):
 
     def visit_Subscript(self, node):
         self.visit(node.value)
-        if metadata.get(node, metadata.Attribute):
-            f = lambda t: AttributeType(node.slice.value.n, t)
-        elif isinstance(node.slice, ast.ExtSlice):
+        if isinstance(node.slice, ast.ExtSlice):
             d = sum(int(type(dim) is ast.Index) for dim in node.slice.dims)
             f = lambda t: reduce(lambda x, y: ContentType(x), range(d), t)
         elif isinstance(node.slice, ast.Slice):

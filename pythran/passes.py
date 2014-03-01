@@ -9,7 +9,6 @@ This modules contains code transformation to turn python AST into
     * NormalizeReturn adds return statement where relevant
     * NormalizeMethodCalls turns built in method calls into function calls
     * NormalizeCompare turns complex compare into function calls
-    * NormalizeAttributes turns built in attributes into function calls
     * NormalizeIdentifiers prevents conflicts with c++ keywords
     * NormalizeException simplifies try blocks
     * UnshadowParameters prevents the shadow parameter phenomenon
@@ -23,6 +22,7 @@ from analysis import ImportedIds, Identifiers, YieldPoints, Globals, Locals
 from analysis import UsedDefChain, UseOMP, CFG, GlobalDeclarations
 from analysis import DeclaredGlobals
 from passmanager import Transformation
+from syntax import PythranSyntaxError
 from tables import methods, attributes, functions, modules
 from tables import cxx_keywords, namespace
 from copy import copy
@@ -79,7 +79,7 @@ class NormalizeTuples(Transformation):
         elif isinstance(node, ast.Tuple) or isinstance(node, ast.List):
             [self.traverse_tuples(n, state + (i,), renamings)
              for i, n in enumerate(node.elts)]
-        elif isinstance(node, ast.Subscript):
+        elif type(node) in (ast.Subscript, ast.Attribute):
             if state:
                 renamings[node] = state
         else:
@@ -623,6 +623,28 @@ class NormalizeMethodCalls(Transformation):
             node.orelse = [self.visit(n) for n in node.orelse]
         return node
 
+    def visit_Attribute(self, node):
+        node = self.generic_visit(node)
+        # storing in an attribute -> not a getattr
+        if type(node.ctx) is not ast.Load:
+            return node
+        # method name -> not a getattr
+        elif node.attr in methods:
+            return node
+        # imported module -> not a getattr
+        elif type(node.value) is ast.Name and node.value.id in self.imports:
+            return node
+        # not listed as attributed -> not a getattr
+        elif node.attr not in attributes:
+            return node
+        # A getattr !
+        else:
+            return ast.Call(ast.Attribute(ast.Name('__builtin__', ast.Load()),
+                                          'getattr',
+                                          ast.Load()),
+                            [node.value, ast.Str(node.attr.upper())],
+                            [], None, None)
+
     def visit_Call(self, node):
         node = self.generic_visit(node)
         if isinstance(node.func, ast.Attribute):
@@ -656,31 +678,6 @@ class NormalizeMethodCalls(Transformation):
                 rec(node.func.value)
 
         return node
-
-
-##
-class NormalizeAttributes(Transformation):
-    '''
-    Turns built in attributes into tuple subscript.
-
-    >>> import ast, passmanager, backend
-    >>> node = ast.parse("a.real")
-    >>> pm = passmanager.PassManager("test")
-    >>> node = pm.apply(NormalizeAttributes, node)
-    >>> print pm.dump(backend.Python, node)
-    a[0]
-    '''
-
-    def visit_Attribute(self, node):
-        if node.attr in attributes:
-            out = ast.Subscript(
-                node.value,
-                ast.Index(ast.Num(attributes[node.attr][1].val)),
-                node.ctx)
-            metadata.add(out, metadata.Attribute())
-            return out
-        else:
-            return node
 
 
 ##
@@ -963,6 +960,8 @@ class ExpandBuiltins(Transformation):
                 and s not in self.locals[node]
                 and s not in self.globals
                 and s in modules['__builtin__']):
+            if s == 'getattr':
+                raise PythranSyntaxError("You fool! Trying a getattr?", node)
             return ast.Attribute(
                 ast.Name('__builtin__', ast.Load()),
                 s,

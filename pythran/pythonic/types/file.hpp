@@ -6,7 +6,11 @@
 #include "pythonic/types/str.hpp"
 #include "pythonic/types/list.hpp"
 #include "pythonic/types/none.hpp"
-#include "pythonic/types/exceptions.hpp"
+#include "pythonic/types/attr.hpp"
+#include "pythonic/__builtin__/IOError.hpp"
+#include "pythonic/__builtin__/ValueError.hpp"
+#include "pythonic/__builtin__/RuntimeError.hpp"
+#include "pythonic/__builtin__/StopIteration.hpp"
 
 #include <fstream>
 #include <iterator>
@@ -105,7 +109,7 @@ namespace pythonic {
             }
 
             types::str const& getnewlines() const{
-                // Python seems to always return none... Doing the same in getattr<3>
+                // Python seems to always return none... Doing the same in getattr<newlines>
                 return newlines;
             }
 
@@ -256,31 +260,34 @@ namespace pythonic {
             template<int I>
                 struct getattr;
             template<>
-                struct getattr<0> {
+                struct getattr<attr::CLOSED> {
                     bool operator()(file const& f) {return f.closed();}
                 };
 
             template<>
-                struct getattr<1> {
+                struct getattr<attr::MODE> {
                     str const& operator()(file const& f) {return f.getmode();}
                 };
 
             template<>
-                struct getattr<2> {
+                struct getattr<attr::NAME> {
                     str const& operator()(file const& f) {return f.getname();}
                 };
 
             template<>
-                struct getattr<3> {
+                struct getattr<attr::NEWLINES> {
                     // Python seems to always return none... Doing the same.
                     none_type operator()(file const& f) {return __builtin__::None;}
                 };
         }
     }
-}
-template<int I>
-auto getattr(pythonic::types::file const& f) -> decltype(pythonic::types::__file::getattr<I>()(f)) {
-    return pythonic::types::__file::getattr<I>()(f);
+
+    namespace __builtin__ {
+        template<int I>
+            auto getattr(pythonic::types::file const& f) -> decltype(pythonic::types::__file::getattr<I>()(f)) {
+                return pythonic::types::__file::getattr<I>()(f);
+            }
+    }
 }
 
 /* } */

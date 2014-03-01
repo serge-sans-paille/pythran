@@ -2,7 +2,7 @@
 #define PYTHONIC_BUILTIN_NEXT_HPP
 
 #include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/exceptions.hpp"
+#include "pythonic/__builtin__/StopIteration.hpp"
 
 namespace pythonic {
 

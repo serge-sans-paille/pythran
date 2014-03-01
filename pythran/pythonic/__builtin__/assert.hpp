@@ -2,7 +2,7 @@
 #define PYTHONIC_BUILTIN_ASSERT_HPP
 
 #include "pythonic/types/str.hpp"
-#include "pythonic/types/exceptions.hpp"
+#include "pythonic/__builtin__/AssertionError.hpp"
 
 namespace pythonic {
 

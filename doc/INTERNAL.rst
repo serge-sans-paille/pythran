@@ -1,6 +1,6 @@
-=================
-Pythran Internals
-=================
+=========
+Internals
+=========
 
 This document describes some internals of Pythran compiler.
 
@@ -147,9 +147,9 @@ When the scope can be attached to an assignment, Pythran uses this piece of info
     >>> scopes[foo_tree.body[0].body[1].body[0]]
     set(['a'])
 
-Additionnaly, some OpenMP directives, when applied to a single statement, are
+Additionally, some OpenMP directives, when applied to a single statement, are
 treated by Pythran as if they created a bloc, emulated by a dummy
-conditionnal::
+conditional::
 
     >>> def foo(n):
     ...     "omp parallel"
@@ -164,8 +164,8 @@ conditionnal::
             s = 1
         return s
 
-Note that the OpenMP directives are not pretty-printed by the Python backend!
-However the additionnal if bloc makes it clear that ``s`` should have function
+Note that the OpenMP directives are not pretty-printed by the Python back-end!
+However the additional if bloc makes it clear that ``s`` should have function
 scope, and the scope is not attached to the first assignment::
 
     >>> scopes = pm.gather(analysis.Scope, foo_tree)
@@ -254,10 +254,10 @@ programs!::
 Lazyness
 --------
 
-``Expressions templates`` used by numpy internal representation enable lazyness
+``Expressions templates`` used by numpy internal representation enable laziness
 computation. It means that operations will be computed only during assignation
 to avoid intermediate array allocation and improve data locality.
-Lazyness analysis enable Expression template even if there is multiple
+Laziness analysis enable Expression template even if there is multiple
 assignment in some case.
 
 Let's go for some examples.
@@ -268,7 +268,7 @@ for each elements, two operations are apply at once instead of one by one::
     ...     return array * 5 + 3
 
 It also apply for other unary operations with numpy array.
-In this example, lazyness doesn't change anything as is it a typical case for
+In this example, laziness doesn't change anything as is it a typical case for
 Expression templates but peoples may write::
 
     >>> def foo(array):
@@ -309,12 +309,11 @@ In this case, ``b`` can't be lazy so its values is ``inf``::
     >>> lazyness
     {'a': 1, 'array': 2, 'b': inf}
 
-We can notice that a reassignment reinit its value so even if ``a`` is used twice,
-its counters returns ``1``.
-``inf`` also happen in case of subscript use as we need to compute the value to
-subscript on it. AugAssigned values can't be lazy too and variables used in
-loops too.
-Lazyness also cares about aliased values::
+We can notice that a reassignment reinitializes its value so even if ``a`` is
+used twice, its counters returns ``1``.  ``inf`` also happen in case of
+subscript use as we need to compute the value to subscript on it. Updated
+values can't be lazy too and variables used in loops too. Laziness also cares
+about aliased values::
 
     >>> def foo(array):
     ...     a = array * 2

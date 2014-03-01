@@ -3,7 +3,7 @@
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/str.hpp"
-#include "pythonic/types/exceptions.hpp"
+#include "pythonic/__builtin__/TypeError.hpp"
 #include <sstream>
 
 namespace pythonic {

@@ -1055,7 +1055,13 @@ class Cxx(Backend):
     def visit_Call(self, node):
         args = [self.visit(n) for n in node.args]
         func = self.visit(node.func)
-        return "{0}({1})".format(func, ", ".join(args))
+        # special hook for getattr, as we cannot represent it in C++
+        if func == 'pythonic::__builtin__::proxy::getattr{}':
+            return ('pythonic::__builtin__::getattr<{}>({})'
+                    .format('pythonic::types::attr::' + node.args[1].s,
+                            args[0]))
+        else:
+            return "{}({})".format(func, ", ".join(args))
 
     def visit_Num(self, node):
         if type(node.n) == complex:
@@ -1094,11 +1100,8 @@ class Cxx(Backend):
 
     def visit_Subscript(self, node):
         value = self.visit(node.value)
-        # attribute case
-        if metadata.get(node, metadata.Attribute):
-            return "getattr<{0}>({1})".format(node.slice.value.n, value)
         # positive static index case
-        elif (isinstance(node.slice, ast.Index)
+        if (isinstance(node.slice, ast.Index)
                 and isinstance(node.slice.value, ast.Num)
                 and (node.slice.value.n >= 0)
                 and any(isinstance(node.slice.value.n, t)

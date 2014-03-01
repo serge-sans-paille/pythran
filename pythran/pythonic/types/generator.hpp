@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_TYPES_GENERATOR_HPP
 #define PYTHONIC_TYPES_GENERATOR_HPP
 
-#include "pythonic/types/exceptions.hpp"
+#include "pythonic/__builtin__/StopIteration.hpp"
 #include <iterator>
 
 namespace pythonic {

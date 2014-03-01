@@ -23,10 +23,6 @@ class LocalVariable(AST):
     pass
 
 
-class Attribute(AST):
-    pass
-
-
 class Lazy(AST):
     pass
 

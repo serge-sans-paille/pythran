@@ -362,10 +362,17 @@ class Locals(ModuleAnalysis):
         self.add_locals(arg.id for arg in node.args.args)
         map(self.visit, node.body)
 
+        #Add the information about the locals at the end of the node
+        self.store_locals((node, "last"))
+
         #restore attributes
         self.locals = saved_locals
         self.function_globals = saved_globals
         self.nesting -= 1
+
+    @staticmethod
+    def is_local(result, func, name):
+        return name in result[(func, "last")]
 
     def visit_Assign(self, node):
         self.store_locals(node)
@@ -432,6 +439,7 @@ class AssignTargets(NodeAnalysis):
     >>> [x.id for x in res3[1]]
     ['c']
     """
+
     def __init__(self):
         self.result = (set(), set())
         self.partial_assign = False
@@ -461,7 +469,6 @@ class AssignTargets(NodeAnalysis):
         return res[0] | res[1], res[0]
 
 
-##
 class ImportedIds(NodeAnalysis):
     """Gather ids referenced by a node and not declared locally"""
     def __init__(self):
@@ -1541,7 +1548,7 @@ class LazynessAnalysis(FunctionAnalysis):
     loop, if a variable used to compute it is modify before
     its last use or if it is use in a function call (as it is not an
     interprocedural analysis)
-    >>> import ast, passmanager, backend
+    >>> import ast, passmanager
     >>> code = "def foo(): c = 1; a = c + 2; c = 2; b = c + c + a; return b"
     >>> node = ast.parse(code)
     >>> pm = passmanager.PassManager("test")

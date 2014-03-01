@@ -993,7 +993,7 @@ modules = {
                 node.args[1],
                 unary_op=lambda x: cxxtypes.DictType(
                     x,
-                    self.result[node.args[2]]),
+                    self.get_type(node.args[2])),
                 register=True),
             return_alias=lambda node: {
                 ast.Subscript(node.args[0],

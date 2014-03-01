@@ -13,7 +13,7 @@ from tables import modules, methods, functions
 from analysis import GlobalDeclarations, YieldPoints, LocalDeclarations
 from analysis import OrderedGlobalDeclarations, ModuleAnalysis, StrictAliases
 from analysis import LazynessAnalysis, DeclaredGlobals, Locals, Aliases
-from analysis import AssignTargets
+from analysis import AssignTargets, NonLocals
 from passes import Transformation
 from syntax import PythranSyntaxError
 from cxxtypes import *
@@ -608,6 +608,13 @@ class ReturnTypeDependencies(TypeDependencies):
         return self.result
 
 
+class GlobalsChangedByFunctions(ReturnTypeDependencies):
+    def run(self, node, ctx):
+        super(GlobalsChangedByFunctions, self).run(node, ctx)
+
+        return self.global_changing_functions
+
+
 class Callees(ModuleAnalysis):
     """
     Gathers all the functions called inside each function, and list the
@@ -781,17 +788,26 @@ class Types(ModuleAnalysis):
         self.result["bool"] = NamedType("bool")
         self.combiners = defaultdict(UserFunction)
         self.current_global_declarations = dict()
-        self.max_recompute = 1  # max number of use to be lazy
-        ModuleAnalysis.__init__(self, StrictAliases, LazynessAnalysis)
+        self.globals = set()
+        self.global_combiners = dict()
+        self.current_global_combiner = dict()
         self.curr_locals_declaration = None
+        self.max_recompute = 1  # max number of use to be lazy
+        ModuleAnalysis.__init__(self, StrictAliases, LazynessAnalysis,
+                                DeclaredGlobals, GlobalsChangedByFunctions,
+                                ReturnTypeDependencies, GlobalDeclarations)
 
     def prepare(self, node, ctx):
         self.passmanager.apply(Reorder, node, ctx)
         for mname, module in modules.iteritems():
             for fname, function in module.iteritems():
-                tname = 'pythonic::{0}::proxy::{1}'.format(mname, fname)
-                self.result[function] = NamedType(tname)
-                self.combiners[function] = function
+                if not isinstance(function, ConstantIntr):
+                    tname = 'pythonic::{0}::proxy::{1}'.format(mname, fname)
+                    self.result[function] = NamedType(tname)
+                    self.combiners[function] = function
+                else:
+                    self.result[function] = NamedType("void", {Weak})
+
         super(Types, self).prepare(node, ctx)
 
     def run(self, node, ctx):
@@ -800,6 +816,7 @@ class Types(ModuleAnalysis):
         for head in self.current_global_declarations.itervalues():
             if head not in final_types:
                 final_types[head] = "void"
+
         return final_types
 
     def register(self, ptype):
@@ -811,8 +828,13 @@ class Types(ModuleAnalysis):
         return False
 
     def node_to_id(self, n, depth=0):
+        ''' Returns id and depth of the node, and whether it's a global.
+        depth of a local is 0. Id of a subscript, like a[x], is 1.
+        a[x][y] has a depth of 2 and so on.
+        '''
         if isinstance(n, ast.Name):
-            return (n.id, depth)
+            ret = (n.id, depth, n.id in self.globals)
+            return ret
         elif isinstance(n, ast.Subscript):
             if isinstance(n.slice, ast.Slice):
                 return self.node_to_id(n.value, depth)
@@ -844,13 +866,17 @@ class Types(ModuleAnalysis):
     def isargument(self, node):
         """ checks whether node aliases to a parameter"""
         try:
-            node_id, _ = self.node_to_id(node)
+            node_id, _, _ = self.node_to_id(node)
             return (node_id in self.name_to_nodes and
                     any([isinstance(n, ast.Name) and
                          isinstance(n.ctx, ast.Param)
                          for n in self.name_to_nodes[node_id]]))
         except UnboundableRValue:
                 return False
+
+    def get_type(self, node):
+        """Used by tables.py's dict setdefault's combiner"""
+        return self.result[node]
 
     def combine(self, node, othernode, op=None, unary_op=None, register=False):
         if register and node in self.strict_aliases:
@@ -867,9 +893,20 @@ class Types(ModuleAnalysis):
         try:
             if register:  # this comes from an assignment,
                           # so we must check where the value is assigned
-                node_id, depth = self.node_to_id(node)
-                if depth > 0:
+                node_id, depth, is_global = self.node_to_id(node)
+                if depth > 0 and not is_global:
                     node = ast.Name(node_id, ast.Load())
+                elif is_global:
+                    #It's a global identifier
+                    #node = modules[self.passmanager.module_name][node_id]
+                    if node_id in self.current_global_combiner:
+                        node = self.current_global_combiner[node_id]
+                    else:
+                        #The globals_changed_by_functions analysis decided to
+                        # break the dependency of this global to the current
+                        # function
+                        return
+
                 self.name_to_nodes.setdefault(node_id, set()).add(node)
 
                 former_unary_op = unary_op
@@ -885,7 +922,7 @@ class Types(ModuleAnalysis):
             else:
                 # only perform inter procedural combination upon stage 0
                 if register and self.isargument(node) and self.stage == 0:
-                    node_id, _ = self.node_to_id(node)
+                    node_id, _, _ = self.node_to_id(node)
                     if node not in self.result:
                         self.result[node] = unary_op(self.result[othernode])
                     assert self.result[node], "found an alias with a type"
@@ -941,13 +978,36 @@ class Types(ModuleAnalysis):
             raise
 
     def visit_FunctionDef(self, node):
-        self.curr_locals_declaration = self.passmanager.gather(
-            LocalDeclarations,
-            node)
+        """ Returns a tuple of three values: an Assignable, the typedefs in the
+        function, as well as the global effects of the function: the effects
+        the function has on the globals.
+
+        The effects the function have on the globals is the types the function
+        requires the globals to be."""
+        #print "Types - visiting " + node.name
         self.current = node
         self.typedefs = list()
         self.name_to_nodes = {arg.id: {arg} for arg in node.args.args}
         self.yield_points = self.passmanager.gather(YieldPoints, node)
+
+        self.curr_locals_declaration = self.passmanager.gather(
+            LocalDeclarations,
+            node)
+        declared = self.passmanager.gather(DeclaredGlobals, node)
+        nonlocals = self.passmanager.gather(NonLocals, node)
+
+        #self.declared_globals to make sure it's not builtins, but actually
+        # declared global variables
+        self.globals = (nonlocals | declared) & self.declared_globals
+
+        #Initialize the global combiner
+        gbchanged = self.globals_changed_by_functions
+        gb_comb = self.global_combiners
+        self.global_combiners[node.name] = {arg: ConstantIntr() for arg in
+                                            gbchanged[node]}
+        self.result.update((v, NamedType("or_global_type", {HasToCombine}))
+                           for k, v in gb_comb[node.name].items())
+        self.current_global_combiner = gb_comb[node.name]
 
         # two stages, one for inter procedural propagation
         self.stage = 0
@@ -969,7 +1029,10 @@ class Types(ModuleAnalysis):
         self.current_global_declarations[node.name] = node
         # return type may be unset if the function always raises
         return_type = self.result.get(node, NamedType("void"))
-        self.result[node] = (Assignable(return_type), self.typedefs)
+
+        self.result[node] = (Assignable(return_type), self.typedefs,
+                             self.current_global_combiner)
+
         for k in self.passmanager.gather(LocalDeclarations, node):
             self.result[k] = self.get_qualifier(k)(self.result[k])
 
@@ -1117,6 +1180,7 @@ class Types(ModuleAnalysis):
         self.result[node] = NamedType(pytype_to_ctype_table[str])
 
     def visit_Attribute(self, node):
+
         def rec(w, n):
             if isinstance(n, ast.Name):
                 return w[n.id], (n.id,)
@@ -1129,6 +1193,7 @@ class Types(ModuleAnalysis):
                 return r[0][n.attr], r[1] + (n.attr,)
         obj, path = rec(modules, node)
         path = ('pythonic',) + path
+
         if obj.isliteral():
             self.result[node] = DeclType('::'.join(path))
         else:
@@ -1185,6 +1250,14 @@ class Types(ModuleAnalysis):
                 self.combine(node, n)
         elif node.id in self.current_global_declarations:
             self.combine(node, self.current_global_declarations[node.id])
+        elif node.id in self.globals:
+            #If the current function depends on the global, it's not a weak
+            # reference
+            if nx.has_path(self.return_type_dependencies, self.current,
+                           self.global_declarations[node.id]):
+                self.result[node] = DeclType(NamedType(node.id))
+            else:
+                self.result[node] = DeclType(NamedType(node.id), {Weak})
         else:
             self.result[node] = NamedType(node.id, {Weak})
 

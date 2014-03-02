@@ -3,6 +3,20 @@ from imp import load_dynamic
 import unittest
 import os
 from numpy import ndarray
+import sys
+import subprocess
+from cStringIO import StringIO
+
+
+class Capturing(list):
+    """Makes it possible to capture stdout output from python code"""
+    def __enter__(self):
+        self._stdout = sys.stdout
+        sys.stdout = self._stringio = StringIO()
+        return self
+    def __exit__(self, *args):
+        self.extend(self._stringio.getvalue().splitlines())
+        sys.stdout = self._stdout
 
 
 class TestEnv(unittest.TestCase):
@@ -72,7 +86,10 @@ class TestEnv(unittest.TestCase):
         runas = interface.pop('runas', None)
 
         for name in sorted(interface.keys()):
-            if runas:
+            if name == "__init__":
+                #We capture the output of the __init__ function
+                runas = ""
+            elif runas:
                 # runas is a python code string to run the test. By convention
                 # the last statement of the sequence is the value to test.
                 # We insert ourselves a variable to capture this value:
@@ -109,7 +126,10 @@ class TestEnv(unittest.TestCase):
             python_exception_type = None
             pythran_exception_type = None
             try:
-                if check_output:
+                if name == "__init__":
+                    with Capturing() as python_ref:
+                        exec refcode in env
+                elif check_output:
                     exec refcode in env
                     python_ref = env[self.TEST_RETURNVAL]
             except BaseException as e:
@@ -128,21 +148,35 @@ class TestEnv(unittest.TestCase):
 
                 # Caller may requires some cleaning
                 prelude and prelude()
-                pymod = load_dynamic(modname, cxx_compiled)
 
-                try:
-                    # Produce the pythran result, exec in the loaded module ctx
-                    exec runas in pymod.__dict__
-                except BaseException as e:
-                    pythran_exception_type = type(e)
-                else:
-                    pythran_res = getattr(pymod, self.TEST_RETURNVAL)
-                    # Test Results, assert if mismatch
-                    if python_exception_type:
+                #Capture the output produced when loading the module
+                if name == "__init__":
+                    python_code = "from imp import load_dynamic;load_dynamic('"+modname+"','"+cxx_compiled+"')"
+                    proc = subprocess.Popen(["python", "-c", python_code,
+                                             os.path.basename(cxx_compiled)],
+                                            stdout=subprocess.PIPE)
+                    pythran_res = proc.communicate()[0].splitlines()
+                    if proc.returncode < 0:
                         raise AssertionError(
-                                "expected exception was %s, but nothing happend!" %
-                                python_exception_type)
+                            "Pythran subprocess exited with status %d" % proc.returncode
+                        )
                     self.compare_pythonpythran_results(python_ref, pythran_res)
+                else:
+                    pymod = load_dynamic(modname, cxx_compiled)
+
+                    try:
+                        # Produce the pythran result, exec in the loaded module ctx
+                        exec runas in pymod.__dict__
+                    except BaseException as e:
+                        pythran_exception_type = type(e)
+                    else:
+                        pythran_res = getattr(pymod, self.TEST_RETURNVAL)
+                        # Test Results, assert if mismatch
+                        if python_exception_type:
+                            raise AssertionError(
+                                    "expected exception was %s, but nothing happend!" %
+                                    python_exception_type)
+                        self.compare_pythonpythran_results(python_ref, pythran_res)
 
             finally:
                 # Clean temporary DLL
@@ -255,6 +289,8 @@ class TestFromDir(TestEnv):
             runas_list = [line for line in file(filepath).readlines()
                           if line.startswith(TestFromDir.runas_marker)]
             runas_list = runas_list or [None]
+            isinit = "__init__" in specs
+
             runcount = 0
             for n, runas in enumerate(runas_list):
                 if runas:
@@ -268,6 +304,6 @@ class TestFromDir(TestEnv):
                 else:
                     func = TestFromDir.TestFunctor(target, name,
                         file(filepath).read(), runas=runas,
-                        check_output=(runas is not None), **specs)
+                        check_output=(runas is not None or isinit), **specs)
 
                 setattr(target, "test_"+name+suffix+str(n), func)

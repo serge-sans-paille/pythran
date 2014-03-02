@@ -1,7 +1,6 @@
 '''
 This module defines classes needed to manipulate c++ types from pythran.
 '''
-import tables
 from config import cfg
 
 
@@ -10,6 +9,14 @@ class Weak:
     Type Qualifier used to represent a weak type
 
     When a weak type is combined with another type, the weak type is suppressed
+    """
+    pass
+
+
+class HasToCombine:
+    """
+    Type Qualifier that means this type has to combine with the other type, no
+    matter if it's weak or not.
     """
     pass
 
@@ -33,6 +40,9 @@ class Type(object):
     def isweak(self):
         return Weak in self.qualifiers
 
+    def hastocombine(self):
+        return HasToCombine in self.qualifiers
+
     def all_types(self):
         return {self}
 
@@ -45,14 +55,19 @@ class Type(object):
             return False
 
     def __add__(self, other):
+        #Before the weak check because before the hastocombine check that is
+        # before the weak check.
+        if self == other:
+            return self
+        if self.hastocombine() or other.hastocombine():
+            return CombinedTypes([self, other])
         if self.isweak() and not other.isweak():
             return other
         if other.isweak() and not self.isweak():
             return self
-        if self == other:
-            return self
         if isinstance(other, CombinedTypes) and self in other.types:
             return other
+        #fixme: do the same check with other & self reversed?
         return CombinedTypes([self, other])
 
     def __repr__(self):
@@ -118,9 +133,35 @@ class InstanciatedType(Type):
         else:
             template_params = ""
 
-        return "typename {0}::type{1}::{2}".format(self.fun.name,
-                                                   template_params,
-                                                   self.name)
+        arg1 = self.fun if isinstance(self.fun, str) else self.fun.name
+        name = self.name
+        return "typename {0}::type{1}::{2}".format(arg1, template_params, name)
+
+
+class TemplatedType(Type):
+    """
+    A type with template arguments passed in paramemeter
+
+    TemplatedType("a", [NamedType("int"), NamedType("bool")]) -> a<int, bool>
+    """
+    def __init__(self, name, arguments, qualifiers=set()):
+        super(TemplatedType, self).__init__(
+            name=name,
+            arguments=arguments,
+            qualifiers=qualifiers
+            )
+
+    def generate(self, ctx):
+        if self.arguments:
+            args = ", ".join(ctx(arg).generate(ctx) for arg in self.arguments)
+            template_params = "<{0}>".format(args)
+        else:
+            template_params = ""
+
+        return "{0}{1}".format(
+            self.name,
+            template_params,
+            )
 
 
 class CombinedTypes(Type):
@@ -134,9 +175,16 @@ class CombinedTypes(Type):
     """
 
     def __init__(self, types):
+        qualifiers = set.union(*[t.qualifiers for t in types])
+        if HasToCombine in qualifiers:
+            if not all(t.hastocombine() for t in types):
+                qualifiers.remove(HasToCombine)
+            #The forced combine is not getting undoed by a weak type!
+            if Weak in qualifiers:
+                qualifiers.remove(Weak)
         super(CombinedTypes, self).__init__(
             types=types,
-            qualifiers=set.union(*[t.qualifiers for t in types])
+            qualifiers=qualifiers
             )
 
     def __add__(self, other):
@@ -317,7 +365,9 @@ class ReturnType(Type):
     >>> ReturnType(NamedType('math::cos'), [NamedType('float')])
     decltype(std::declval<math::cos>()(std::declval<float>()))
     '''
-    def __init__(self, ftype, args):
+    def __init__(self, ftype, args, is_function_call=False, no_ref=False):
+        self.is_function_call = is_function_call
+        self.no_reference = no_ref
         args_qualifiers = [arg.qualifiers for arg in args]
         super(ReturnType, self).__init__(
             qualifiers=ftype.qualifiers.union(*args_qualifiers),
@@ -327,10 +377,21 @@ class ReturnType(Type):
     def generate(self, ctx):
         # the return type of a constructor is obvious
         cg = self.ftype.generate(ctx)
-        cg = 'std::declval<{0}>()'.format(cg)
+        #Overloaded functions can't be processed by declval
+        if not self.is_function_call:
+            cg = 'std::declval<{0}>()'.format(cg)
+
         args = ("std::declval<{0}>()".format(ctx(arg).generate(ctx))
                 for arg in self.args)
-        return 'decltype({0}({1}))'.format(cg, ", ".join(args))
+
+        call = '{0}({1})'.format(cg, ", ".join(args))
+
+        if self.no_reference:
+            call = DeclType(call).generate(ctx)
+        else:
+            call = 'decltype({0})'.format(call)
+
+        return call
 
 
 class ElementType(Type):

@@ -11,11 +11,13 @@ from cxxtypes import *
 from analysis import LocalDeclarations, GlobalDeclarations, Scope, Dependencies
 from analysis import YieldPoints, BoundedExpressions, ArgumentEffects
 from passmanager import Backend
+from pythran.analysis import DeclaredGlobals
 
+from intrinsic import ConstantIntr
 from tables import operator_to_lambda, modules, type_to_suffix
 from tables import pytype_to_ctype_table
 from tables import pythran_ward
-from typing import Types
+from typing import Types, AcyclicCallees, ReturnTypeDependencies
 from syntax import PythranSyntaxError
 
 from openmp import OMPDirective
@@ -25,6 +27,7 @@ from math import isnan, isinf
 import cStringIO
 import unparse
 import metadata
+import networkx as nx
 
 
 class Python(Backend):
@@ -48,9 +51,12 @@ class Python(Backend):
         self.result = output.getvalue()
 
 
-def templatize(node, types, default_types=None):
+def templatize(node, types, default_types=None, additional_types=None):
     if not default_types:
         default_types = [None] * len(types)
+    if additional_types:
+        types = types + additional_types
+        default_types += [None] * len(additional_types)
     if types:
         return Template(
             ["typename {0} {1}".format(t, "= {0}".format(d) if d else "")
@@ -65,6 +71,54 @@ def strip_exp(s):
         return s[1:-1]
     else:
         return s
+
+
+class CachedTypeVisitor:
+    """ Caches all types and alias them as __type0, __type1, __type2, ...
+            Removes duplicates.
+
+            The alias declarations are returned in typedefs.
+    """
+    class CachedType:
+        def __init__(self, s):
+            self.s = s
+
+        def generate(self, ctx):
+            return self.s
+
+    def __init__(self, other=None):
+        if other:
+            self.cache = other.cache.copy()
+            self.rcache = other.rcache.copy()
+            self.mapping = other.mapping.copy()
+        else:
+            self.cache = dict()
+            self.rcache = dict()
+            self.mapping = dict()
+
+    def __call__(self, node):
+        if node not in self.mapping:
+            t = node.generate(self)
+            if t in self.rcache:
+                self.mapping[node] = self.mapping[self.rcache[t]]
+                self.cache[node] = self.cache[self.rcache[t]]
+            else:
+                self.rcache[t] = node
+                self.mapping[node] = len(self.mapping)
+                self.cache[node] = t
+        typestr = "__type{0}".format(self.mapping[node])
+        return CachedTypeVisitor.CachedType(typestr)
+
+    def typedefs(self):
+        l = sorted(self.mapping.items(), key=lambda x: x[1])
+        L = list()
+        visited = set()  # the same value must not be typedefed twice
+        for k, v in l:
+            if v not in visited:
+                typename = "__type" + str(v)
+                L.append(Typedef(Value(self.cache[k], typename)))
+                visited.add(v)
+        return L
 
 
 class Cxx(Backend):
@@ -91,16 +145,54 @@ class Cxx(Backend):
     final_statement = "that_is_all_folks"
 
     def __init__(self):
-        self.declarations = list()
+        self.declarations = dict()
         self.definitions = list()
         self.break_handlers = list()
+        self.functions = list()
+        self.combiners = dict()
         self.result = None
-        super(Cxx, self).__init__(Dependencies, GlobalDeclarations,
-                                  BoundedExpressions, Types, ArgumentEffects,
-                                  Scope)
+
+        super(Cxx, self).__init__(Dependencies, GlobalDeclarations, Types,
+                                  BoundedExpressions, ArgumentEffects, Scope,
+                                  AcyclicCallees, ReturnTypeDependencies,
+                                  DeclaredGlobals)
+
+    def get_globals_changed(self, node):
+        """Gets the globals changed in the function or sub functions
+            node represents the FunctionDef of the function we're interested in
+
+            For example:
+
+            def b(x):
+                global y
+                y= 1
+
+            def a(x):
+                b(x)
+
+            get_globals_vhanged(function def of 'a') will return set([y]).
+        """
+        #First the globals changed directly
+        globals_changed = [set(self.types[node][2].keys())]
+
+        #Then the globals changed in the subfunctions:
+        def navigate_graph(node):
+            if node not in self.callees:
+                return
+
+            for func in self.callees[node].keys():
+                globals_changed[0] |= set(self.types[func][2].keys())
+                navigate_graph(func)
+
+        navigate_graph(node)
+
+        return globals_changed[0]
 
     # mod
     def visit_Module(self, node):
+        self.callees = self.acyclic_callees[0]
+        self.callees_order = self.acyclic_callees[1]
+
         # build all types
         def gen_include(t):
             return "/".join(("pythonic",) + t) + ".hpp"
@@ -110,13 +202,105 @@ class Cxx(Backend):
         fbody = (n for n in node.body if not isinstance(n, ast.Expr))
         body = map(self.visit, fbody)
 
-        nsbody = body + self.declarations + self.definitions
+        """Now that we've analyzed all the code, handle globals. Merge all the
+        type combiners we have for each globals into one, and put them in
+        final_types[modules[self.passmanager.module_name][global_name]]"""
+        for node in self.functions:
+            # a function's types[2] is its {global: combiner} association
+            for gb in self.get_globals_changed(node):
+                gbnode = self.global_declarations[gb]
+                #if f the function and a the global, produces
+                #decltype(f_global_type<f::combiner_a, self.types[gbnode]>(0))
+                self.types[gbnode] = \
+                    TemplatedType("{0}_global_type".format(node.name),
+                                  [NamedType("{0}__combiner_{1}".format(
+                                   node.name, gb))] + [self.types[gbnode]])
+                self.types[gbnode] = ReturnType(self.types[gbnode],
+                                                [NamedType("int")], True, True)
+
+        #generate the func_global_type() by default, if the user didn't export
+        #the function in the c++ code
+        default_global_types = (
+            [Statement("template<class combiner, class or_type> or_type "
+                       "{0}_global_type(...){{}}"
+                       .format(node.name)) for node in self.functions
+             if self.get_globals_changed(node)]
+        )
+
+        #generate global variables declared in the module
+        ctx = lambda x: x
+        globals = {
+            self.global_declarations[gb]: Statement("{0} {1}".format(
+                self.types[self.global_declarations[gb]].generate(ctx), gb))
+            for gb in self.declared_globals
+        }
+
+        #Get the final order, of globals, functions and combiners
+        #First: Gather function body / global order
+        order = self.return_type_dependencies
+
+        #Then: combiners must appear before their global
+        for combiners in self.combiners.values():
+            for gb, combiner in combiners:
+                order.add_edge(self.global_declarations[gb], combiner)
+
+        #Finally: combiners have an order defined in self.callees_order
+        for edge in self.callees_order.edges():
+            if edge[0] in self.combiners:
+                for _, combiner1 in self.combiners[edge[0]]:
+                    if edge[1] in self.combiners:
+                        for _, combiner2 in self.combiners[edge[1]]:
+                            order.add_edge(combiner1, combiner2)
+
+        #Also: When a global's type depend on a function, its combiners must
+        # depend on it too (aslo when global depends on global)
+        for combiners in self.combiners.values():
+            for gb, combiner in combiners:
+                for succ in order.successors(self.global_declarations[gb]):
+                    if isinstance(succ, ast.FunctionDef) or \
+                            isinstance(succ, ConstantIntr):
+                        order.add_edge(combiner, succ)
+
+        #We need to respect as possible the order in acyclic_callees, in case
+        # a variable passed as an argument has its type deduced from the code
+        # inside the function. Then we need to respect the same order as the
+        # Reorder transformation, which is the order of acyclic_callees
+        #
+        # (See test_base/test_append_in_call test case)
+        for edge in self.callees_order.edges():
+            if not nx.has_path(order, edge[1], edge[0]):
+                order.add_edge(edge[0], edge[1])
+
+        #Add missing globals from the order
+        for gb in self.declared_globals:
+            order.add_node(self.global_declarations[gb])
+
+        node_to_declaration = {}
+        for combiners in self.combiners.values():
+            for _, combiner in combiners:
+                node_to_declaration[combiner] = combiner
+        node_to_declaration.update(globals)
+        node_to_declaration.update(self.declarations)
+
+        #If a depends on b, we want b first, so reverse the graph and sort it
+        order.reverse(False)
+        declarations = [node_to_declaration[node]
+                        for node in nx.topological_sort(order)]
+
+        nsbody = body + default_global_types + declarations + self.definitions
+
+        #Needed as the default global type for global code
+        if len(self.declared_globals) > 0:
+            nsbody = [Typedef(Value("void", "or_global_type"))] + nsbody
+
         ns = Namespace(pythran_ward + self.passmanager.module_name, nsbody)
         self.result = CompilationUnit(headers + [ns])
 
     # local declaration processing
     def process_locals(self, node, node_visited, *skipped):
-        locals = self.scope[node].difference(skipped)
+        #Scope can also reach globals if they're assigned, so ensure it's a
+        # local
+        locals = self.scope[node].difference(skipped) & self.local_names
         if not locals or self.yields:
             return node_visited  # no processing
 
@@ -152,48 +336,6 @@ class Cxx(Backend):
 
     # stmt
     def visit_FunctionDef(self, node):
-        class CachedTypeVisitor:
-            class CachedType:
-                def __init__(self, s):
-                    self.s = s
-
-                def generate(self, ctx):
-                    return self.s
-
-            def __init__(self, other=None):
-                if other:
-                    self.cache = other.cache.copy()
-                    self.rcache = other.rcache.copy()
-                    self.mapping = other.mapping.copy()
-                else:
-                    self.cache = dict()
-                    self.rcache = dict()
-                    self.mapping = dict()
-
-            def __call__(self, node):
-                if node not in self.mapping:
-                    t = node.generate(self)
-                    if t in self.rcache:
-                        self.mapping[node] = self.mapping[self.rcache[t]]
-                        self.cache[node] = self.cache[self.rcache[t]]
-                    else:
-                        self.rcache[t] = node
-                        self.mapping[node] = len(self.mapping)
-                        self.cache[node] = t
-                return CachedTypeVisitor.CachedType(
-                    "__type{0}".format(self.mapping[node]))
-
-            def typedefs(self):
-                l = sorted(self.mapping.items(), key=lambda x: x[1])
-                L = list()
-                visited = set()  # the same value must not be typedefed twice
-                for k, v in l:
-                    if v not in visited:
-                        typename = "__type" + str(v)
-                        L.append(Typedef(Value(self.cache[k], typename)))
-                        visited.add(v)
-                return L
-
         # prepare context and visit function body
         fargs = node.args.args
 
@@ -439,7 +581,7 @@ class Cxx(Backend):
                 [topstruct_type, callable_type]
                 + operator_declaration)
 
-            self.declarations.append(next_struct)
+            topstruct = Module([next_struct, topstruct])
             self.definitions.append(next_definition)
 
         else:  # regular function case
@@ -491,6 +633,7 @@ class Cxx(Backend):
                     "result_type"))]
                 )
             extra_typedefs = ctx.typedefs() + extra_typedefs
+
             return_declaration = [
                 templatize(
                     Struct("type", extra_typedefs),
@@ -503,10 +646,73 @@ class Cxx(Backend):
                                + return_declaration
                                + operator_declaration)
 
-        self.declarations.append(topstruct)
+        #The global combiners
+        combiners = []
+        globals_changed = self.get_globals_changed(node)
+
+        for gb in globals_changed:
+            combiner = self.get_combiner(node, gb, formal_types,
+                                         default_arg_types)
+            combiners.append((gb, combiner))
+
+        if len(combiners) > 0:
+            self.combiners[node] = combiners
+
+        self.functions.append(node)
+        self.declarations[node] = topstruct
         self.definitions.append(operator_definition)
 
         return EmptyStatement()
+
+    def get_combiner(self, node, gb, formal_types, default_arg_types):
+        """
+            Get the combiner for the function of 'node' and the global gb
+
+            The combiner is a structure taking in template parameters
+            the types with which the function is called with, and deduces
+            the type of the globals affected by the function thanks to that.
+        """
+        combiner = NamedType("or_type")  # Default combiner
+        direct_global_changes = self.types[node][2]
+
+        #Check if sub functions changes the global gb
+        for callee, calls in self.callees.get(node, {}).items():
+            if gb not in self.get_globals_changed(callee):
+                continue
+            #The sub function does change the global gb
+            for call in calls:
+                cb_name = "{0}__combiner_{1}".format(callee.name, gb)
+                types = [combiner] + [self.types[x] for x in call]
+
+                combiner = InstanciatedType(cb_name, "instanciation", types,
+                                            node.name, {})
+
+        ctx = CachedTypeVisitor()
+
+        #separate into 2 typedefs because the first expression may have
+        # 'or_global_type' in it and then gcc is not happy (but clang is)
+        or_typedefs = \
+            [Struct("dummy", [Typedef(Value(combiner.generate(lambda x: x),
+                                            "type"))]),
+             Typedef(Value("typename dummy::type", "or_global_type"))]
+
+        if gb in direct_global_changes:
+            typedef = Typedef(Value(self.types[direct_global_changes[gb]]
+                                    .generate(ctx), "instanciation"))
+        else:
+            #We don't directly change the global in the function, so just use
+            #the combiners
+            typedef = Typedef(Value(NamedType("or_global_type").generate(ctx),
+                                    "instanciation"))
+
+        #the iterable dict is a <global_name, node> assocation
+        decl = Struct(node.name+"__combiner_"+gb, [templatize(
+            Struct("type", or_typedefs + ctx.typedefs() + [typedef]),
+            [NamedType("or_type")] + formal_types,
+            [None] + default_arg_types
+        )])
+
+        return decl
 
     def visit_Return(self, node):
         if self.yields:
@@ -544,8 +750,12 @@ class Cxx(Backend):
         alltargets = "= ".join(targets)
         islocal = any(metadata.get(t, metadata.LocalVariable)
                       for t in node.targets)
+
         if len(targets) == 1 and isinstance(node.targets[0], ast.Name):
-            islocal |= node.targets[0].id in self.scope[node]
+            targetid = node.targets[0].id
+            if node in self.scope and targetid not in self.declared_globals:
+                islocal |= targetid in self.scope[node]
+
         if islocal and not self.yields:
             # remove this decl from local decls
             tdecls = {t.id for t in node.targets}
@@ -752,6 +962,8 @@ class Cxx(Backend):
         stmt = EmptyStatement()
         return self.process_omp_attachements(node, stmt)
 
+    visit_Global = visit_Pass
+
     def visit_Break(self, node):
         if self.break_handlers[-1]:
             return Statement("goto {0}".format(self.break_handlers[-1]))
@@ -912,6 +1124,8 @@ class Cxx(Backend):
 
     def visit_Name(self, node):
         if node.id in self.local_names:
+            return node.id
+        elif node.id in self.declared_globals:
             return node.id
         elif node.id in self.global_declarations:
             return "{0}()".format(node.id)

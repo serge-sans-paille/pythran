@@ -1,10 +1,15 @@
 '''
 This module provides a few code analysis for the pythran language.
+    * CFG returns the control flow graph of a node
+    * DeclaredGlobals gathers globals declared in a function
     * LocalDeclarations gathers declarations local to a node
+    * NonLocals gathers all the variables used in a node but not defined in it
     * GlobalDeclarations gathers top-level declarations
     * Locals computes the value of locals()
     * Globals computes the value of globals()
+    * AssignTargets gathers all the Names changes by an assign
     * ImportedIds gathers identifiers imported by a node
+    * Imports gathers all the import statements with their particulars
     * ConstantExpressions gathers constant expression
     * Aliases gather aliasing informations
     * Identifiers gathers all identifiers used in a node
@@ -78,7 +83,7 @@ class CFG(FunctionAnalysis):
     # All these nodes have the same behavior as pass
     visit_Assign = visit_AugAssign = visit_Import = visit_Pass
     visit_Expr = visit_Print = visit_ImportFrom = visit_Pass
-    visit_Yield = visit_Delete = visit_Pass
+    visit_Global = visit_Yield = visit_Delete = visit_Pass
 
     def visit_Return(self, node):
         """OUT = (), RAISES = ()"""
@@ -195,23 +200,55 @@ class CFG(FunctionAnalysis):
         return currs, raises
 
 
-##
+class DeclaredGlobals(NodeAnalysis):
+    """Gathers all globals declared in the function"""
+    def __init__(self):
+        self.result = set()
+        super(DeclaredGlobals, self).__init__()
+
+    def visit_Global(self, node):
+        self.result |= set(node.names)
+
+
 class LocalDeclarations(NodeAnalysis):
     """Gathers all local symbols from a function"""
     def __init__(self):
         self.result = set()
-        super(LocalDeclarations, self).__init__()
+        super(LocalDeclarations, self).__init__(DeclaredGlobals)
 
     def visit_Assign(self, node):
         for t in node.targets:
             assert isinstance(t, ast.Name) or isinstance(t, ast.Subscript)
             if isinstance(t, ast.Name):
-                self.result.add(t)
+                if t.id not in self.declared_globals:
+                    self.result.add(t)
 
     def visit_For(self, node):
         assert isinstance(node.target, ast.Name)
-        self.result.add(node.target)
+        if node.target.id not in self.declared_globals:
+            self.result.add(node.target)
         map(self.visit, node.body)
+
+
+class NonLocals(NodeAnalysis):
+    """Gathers all the globals used in a function"""
+    def __init__(self):
+        self.result = set()
+        self.args = set()
+        self.current_function = None
+        super(NonLocals, self).__init__(LocalDeclarations)
+
+    def visit_FunctionDef(self, node):
+        if self.current_function:
+            return
+        self.current_function = node
+        self.args = [name.id for name in node.args.args]
+        self.local_declarations = [name.id for name in self.local_declarations]
+        map(self.visit, node.body)
+
+    def visit_Name(self, node):
+        if node.id not in self.local_declarations and node.id not in self.args:
+            self.result.add(node.id)
 
 
 ##
@@ -229,7 +266,15 @@ class GlobalDeclarations(ModuleAnalysis):
 
     def visit_FunctionDef(self, node):
         self.result[node.name] = node
-        # no generic visit here, so no diving into function body
+        #needed because of the global keyword
+        map(self.visit, node.body)
+
+    def visit_Global(self, node):
+        for n in node.names:
+            if n not in modules[self.passmanager.module_name]:
+                modules[self.passmanager.module_name][n] = \
+                    intrinsic.ConstantIntr()
+            self.result[n] = modules[self.passmanager.module_name][n]
 
 
 ##
@@ -255,12 +300,19 @@ class Locals(ModuleAnalysis):
     set(['n'])
     >>> l[tree.body[0].body[1]]
     set(['b', 'm', 'n'])
+
+    self.locals contains ALL locals
+    self.result[node] contains the locals at that point in time
+    self.expr_parent contains the parent node of what's being evaluated, so
+      that it may be used to copy over results for some children
+    self.declared_globals is used to know what not to add to locals
     """
 
     def __init__(self):
         self.result = dict()
         self.locals = set()
         self.nesting = 0
+        self.function_globals = set()
         super(Locals, self).__init__()
 
     def generic_visit(self, node):
@@ -268,59 +320,91 @@ class Locals(ModuleAnalysis):
         if node not in self.result:
             self.result[node] = self.result[self.expr_parent]
 
-    def store_and_visit(self, node):
-        self.expr_parent = node
+    #Utilities
+    def store_locals(self, node):
         self.result[node] = self.locals.copy()
+
+    def handle_locals(self, node):
+        self.expr_parent = node
+        self.store_locals(node)
+
+    def add_local(self, local):
+        #If the same name was declared with 'global' earlier, cancel
+        if local not in self.function_globals:
+            self.locals.add(local)
+
+    def add_locals(self, locals):
+        for local in locals:
+            self.add_local(local)
+
+    #General function for statements that do not affect self.locals
+    def store_and_visit(self, node):
+        self.handle_locals(node)
         self.generic_visit(node)
 
+    #Custom handling
     def visit_Module(self, node):
-        self.expr_parent = node
-        self.result[node] = self.locals
+        self.handle_locals(node)
         map(self.visit, node.body)
 
     def visit_FunctionDef(self, node):
         # special case for nested functions
         if self.nesting:
-            self.locals.add(node.name)
+            self.add_local(node.name)
         self.nesting += 1
-        self.expr_parent = node
-        self.result[node] = self.locals.copy()
-        parent_locals = self.locals.copy()
+        self.handle_locals(node)
+        #Store attributes to restore them after handling function body
+        saved_locals = self.locals.copy()
+        saved_globals = self.function_globals
+
+        self.function_globals = self.passmanager.gather(DeclaredGlobals, node)
+
+        #Handle function body, nested scope
         map(self.visit, node.args.defaults)
-        self.locals.update(arg.id for arg in node.args.args)
+        self.add_locals(arg.id for arg in node.args.args)
         map(self.visit, node.body)
-        self.locals = parent_locals
+
+        #Add the information about the locals at the end of the node
+        self.store_locals((node, "last"))
+        #restore attributes
+        self.locals = saved_locals
+        self.function_globals = saved_globals
         self.nesting -= 1
 
+    @staticmethod
+    def locals_of_func(result, node):
+        return result[(node, "last")]
+
+    @staticmethod
+    def is_local(result, func, name):
+        return name in Locals.locals_of_func(result, func)
+
     def visit_Assign(self, node):
-        self.expr_parent = node
-        self.result[node] = self.locals.copy()
+        self.handle_locals(node)
         self.visit(node.value)
-        self.locals.update(t.id for t in node.targets
-                           if isinstance(t, ast.Name))
+        self.add_locals(t.id for t in node.targets if isinstance(t, ast.Name))
         map(self.visit, node.targets)
 
     def visit_For(self, node):
-        self.expr_parent = node
-        self.result[node] = self.locals.copy()
+        self.handle_locals(node)
         self.visit(node.iter)
-        self.locals.add(node.target.id)
+        for name in self.passmanager.gather(AssignTargets, node.target):
+            self.add_local(name.id)
         map(self.visit, node.body)
         map(self.visit, node.orelse)
 
     def visit_Import(self, node):
-        self.result[node] = self.locals.copy()
-        self.locals.update(alias.name for alias in node.names)
+        self.store_locals(node)
+        self.add_locals(alias.name for alias in node.names)
 
     def visit_ImportFrom(self, node):
-        self.result[node] = self.locals.copy()
-        self.locals.update(alias.name for alias in node.names)
+        self.store_locals(node)
+        self.add_locals(alias.name for alias in node.names)
 
     def visit_ExceptHandler(self, node):
-        self.expr_parent = node
-        self.result[node] = self.locals.copy()
+        self.handle_locals(node)
         if node.name:
-            self.locals.add(node.name.id)
+            self.add_local(node.name.id)
         node.type and self.visit(node.type)
         map(self.visit, node.body)
 
@@ -338,6 +422,7 @@ class Locals(ModuleAnalysis):
     visit_Pass = store_and_visit
     visit_Break = store_and_visit
     visit_Continue = store_and_visit
+    visit_Global = store_and_visit
 
 
 ##
@@ -353,6 +438,48 @@ class Globals(ModuleAnalysis):
         super(Globals, self).run(node, ctx)
         return set(self.global_declarations.keys()
                    + [i for i in modules if i.startswith('__')])
+
+
+class AssignTargets(NodeAnalysis):
+    '''
+    Gathers variable changes by an assign's targets
+    '''
+    class Partial:
+        pass
+
+    def __init__(self):
+        self.result = set()
+        self.partial_assign = False
+        super(AssignTargets, self).__init__()
+
+    def visit_Call(self, node):
+        pass
+
+    def visit_Slice(self, node):
+        pass
+
+    def visit_Index(self, node):
+        pass
+
+    def visit_Name(self, node):
+        if self.partial_assign:
+            md.add(node, AssignTargets.Partial())
+        self.result.add(node)
+
+    def visit_Subscript(self, node):
+        self.partial_assign = True
+        self.generic_visit(node)
+        self.partial_assign = False
+
+    def visit_Assign(self, node):
+        map(self.visit, node.targets)
+
+    def visit_AugAssign(self, node):
+        self.visit(node.target)
+
+    @staticmethod
+    def is_partial_assign(node):
+        return len(md.get(node, AssignTargets.Partial)) > 0
 
 
 ##
@@ -429,7 +556,34 @@ class ImportedIds(NodeAnalysis):
         return super(ImportedIds, self).run(node, ctx)
 
 
-##
+class Imports(ModuleAnalysis):
+    """Gets all import statements and returns a dict.
+
+        import a -> result["a"] = {"file": "a"}
+        import a as b -> result["b"] = {"file": "a"}
+        from x import a -> result["a"] = {"file": "a", "from": "x"}
+        from x import a as b -> result["b"] = {"file": "a", "from": "x"}
+        """
+    def __init__(self):
+        self.result = dict()
+        super(Imports, self).__init__()
+
+    def visit_Import(self, node):
+        for alias in node.names:
+            if alias.asname:
+                self.result[alias.asname] = {"file": alias.name}
+            else:
+                self.result[alias.name] = {"file": alias.name}
+
+    def visit_ImportFrom(self, node):
+        for alias in node.names:
+            val = {"file": alias.name, "from": alias.module}
+            if alias.asname:
+                self.result[alias.asname] = val
+            else:
+                self.result[alias.name] = val
+
+
 class ConstantExpressions(NodeAnalysis):
     """Identify constant expressions (dummy implementation)"""
     def __init__(self):
@@ -504,7 +658,6 @@ class ConstantExpressions(NodeAnalysis):
         return self.visit(node.value) and self.add(node)
 
 
-##
 class OrderedGlobalDeclarations(ModuleAnalysis):
     '''Order all global functions according to their callgraph depth'''
     def __init__(self):
@@ -559,21 +712,26 @@ class Aliases(ModuleAnalysis):
 
     def expand_unknown(self, node):
         # should include built-ins too?
-        unkowns = {None}.union(self.global_declarations.values())
-        return unkowns.union(node.args)
+        unknowns = {None}.union(self.global_declarations)
+        return unknowns.union(node.args)
 
     @staticmethod
     def access_path(node):
-        def rec(w, n):
+        def rec(w, n, allowdict):
             if isinstance(n, ast.Name):
-                return w.get(n.id, n.id)
+                # all modules are stored with {} as value in the modules
+                # variable, so if it's the case we fall back.
+                res = w.get(n.id, n.id)
+                if isinstance(res, dict) and not allowdict:
+                    res = n.id
+                return res
             elif isinstance(n, ast.Attribute):
-                return rec(w, n.value)[n.attr]
+                return rec(w, n.value, True)[n.attr]
             elif isinstance(n, ast.FunctionDef):
                 return node.name
             else:
                 return node
-        return rec(modules, node)
+        return rec(modules, node, False)
 
     # aliasing created by expressions
     def add(self, node, values=None):
@@ -718,8 +876,12 @@ class Aliases(ModuleAnalysis):
         for module in modules:
             self.aliases.update((v, {v})
                                 for k, v in modules[module].iteritems())
-        self.aliases.update((f.name, {f})
-                            for f in self.global_declarations.itervalues())
+        for k, v in self.global_declarations.iteritems():
+            try:
+                self.aliases[v.name] = {v}
+            except AttributeError:
+                self.aliases[k] = {v}
+
         self.aliases.update((arg.id, {arg})
                             for arg in node.args.args)
         self.generic_visit(node)
@@ -1165,7 +1327,7 @@ class UsedDefChain(FunctionAnalysis):
         self.in_loop = False
         self.break_ = dict()
         self.continue_ = dict()
-        super(UsedDefChain, self).__init__(Globals)
+        super(UsedDefChain, self).__init__(Globals, DeclaredGlobals)
 
     def merge_dict_set(self, into_, from_):
         for i in from_:
@@ -1198,7 +1360,7 @@ class UsedDefChain(FunctionAnalysis):
                 if node.id not in self.globals:
                     err = "identifier {0} is used before assignment"
                     raise PythranSyntaxError(err.format(node.id), node)
-                else:
+                elif node.id not in self.declared_globals:
                     self.use_only[node.id] = nx.DiGraph()
                     self.use_only[node.id].add_node("D0",
                                                     action="D", name=node)
@@ -1214,7 +1376,7 @@ class UsedDefChain(FunctionAnalysis):
             if (isinstance(node.ctx, ast.Store) or
                     isinstance(node.ctx, ast.Param)):
                 if node.id in self.use_only:
-                    err = ("identifier {0} has a global linkage and can't"
+                    err = ("identifier {0} has a global linkage and can't "
                            "be assigned")
                     raise PythranSyntaxError(err.format(node.id), node)
                 node_name = "D{0}".format(len(graph))
@@ -1646,6 +1808,8 @@ class ArgumentReadOnce(ModuleAnalysis):
             elif isinstance(node, ast.alias):
                 self.read_effects = []
             elif isinstance(node, intrinsic.Class):
+                self.read_effects = []
+            elif isinstance(node, intrinsic.ConstantIntr):
                 self.read_effects = []
             else:
                 raise NotImplementedError

@@ -580,6 +580,28 @@ class NormalizeMethodCalls(Transformation):
     def __init__(self):
         Transformation.__init__(self, Globals)
         self.imports = set()
+        self.to_import = set()
+
+    def visit_Module(self, node):
+        """
+            When we normalize call, we need to add correct import for method
+            to function transformation.
+
+            a.max()
+
+            for numpy array will become:
+
+            numpy.max(a)
+
+            so we have to import numpy.
+        """
+        self.generic_visit(node)
+        new_imports = self.to_import - self.globals
+        imports = [ast.Import(names=[ast.alias(name=mod,
+                                     asname=namespace + "::" + mod)])
+                   for mod in new_imports]
+        node.body = imports + node.body
+        return node
 
     def visit_FunctionDef(self, node):
         self.imports = self.globals.copy()
@@ -640,8 +662,10 @@ class NormalizeMethodCalls(Transformation):
                 ispath = isname or isinstance(lhs, ast.Attribute)
                 if not ispath or (isname and lhs.id not in self.imports):
                     node.args.insert(0, node.func.value)
+                    mod = methods[node.func.attr][0]
+                    self.to_import.add(mod)
                     node.func = ast.Attribute(
-                        ast.Name(methods[node.func.attr][0], ast.Load()),
+                        ast.Name(mod, ast.Load()),
                         node.func.attr,
                         ast.Load())
             if node.func.attr in methods or node.func.attr in functions:

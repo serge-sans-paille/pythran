@@ -659,10 +659,14 @@ class OrderedGlobalDeclarations(ModuleAnalysis):
         if node in self.strict_aliases:
             for alias in self.strict_aliases[node].aliases:
                 if isinstance(alias, ast.FunctionDef):
-                    self.result[self.curr].add(alias)
+                    #Don't add weight for reference to self
+                    if alias != self.curr:
+                        self.result[self.curr].add(alias)
                 elif isinstance(alias, ast.Call):  # this is a bind
                     for alias in self.strict_aliases[alias.args[0]].aliases:
-                        self.result[self.curr].add(alias)
+                        #Don't add weight for reference to self
+                        if alias != self.curr:
+                            self.result[self.curr].add(alias)
 
     def run(self, node, ctx):
         # compute the weight of each function

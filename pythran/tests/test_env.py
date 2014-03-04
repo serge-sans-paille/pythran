@@ -222,7 +222,7 @@ class TestFromDir(TestEnv):
 
         def __call__(self):
             if "unittest.skip" in self.module_code:
-                return self.test_env.skipTest("Marked as skipable")
+                return self.test_env.skipTest("Marked as skippable")
             self.test_env.run_test(self.module_code,
                                    module_name=self.module_name,
                                    check_output=self.check_output,

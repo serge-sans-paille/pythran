@@ -69,10 +69,17 @@ namespace pythonic {
                 return sum(array);
             }
 
-        template<class T, size_t N>
-            typename std::enable_if<N!=1, typename types::ndarray<T,N>::value_type>::type
-            sum( types::ndarray<T,N> const& array, long axis)
+        template<class E>
+            typename std::enable_if<
+                    types::numpy_expr_to_ndarray<E>::N!=1,
+                    typename types::numpy_expr_to_ndarray<E>::type::value_type
+            >::type
+            sum( E const& expr, long axis)
             {
+                const long N = types::numpy_expr_to_ndarray<E>::N;
+                typedef typename types::numpy_expr_to_ndarray<E>::T T;
+                typename types::numpy_expr_to_ndarray<E>::type array = expr;
+
                 if(axis<0 || axis >=long(N))
                     throw types::ValueError("axis out of bounds");
                 auto shape = array.shape;

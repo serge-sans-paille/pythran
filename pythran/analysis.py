@@ -1597,6 +1597,7 @@ class LazynessAnalysis(FunctionAnalysis):
             self.result[id] = float('inf')  # iterate value can't be lazy
         if isinstance(node.target, ast.Name):
             self.assign_to(node.target, ids, self.aliases[node.iter].state)
+            self.result[node.target.id] = float('inf')
         else:
             err = "Assignation in for loop not to a Name"
             raise PythranSyntaxError(err, node)

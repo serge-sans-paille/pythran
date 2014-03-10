@@ -903,20 +903,8 @@ modules = {
             ),
         "discard": MethodIntr(),
         "isdisjoint": ConstMethodIntr(),
-        "union_": ConstMethodIntr(lambda self, node:
-                                  [self.combine(
-                                      node.args[0],
-                                      node_args_k,
-                                      register=True)
-                                   for node_args_k in node.args[1:]]
-                                  ),
-        "intersection": ConstMethodIntr(lambda self, node:
-                                        [self.combine(
-                                            node.args[0],
-                                            node_args_k,
-                                            register=True)
-                                         for node_args_k in node.args[1:]]
-                                        ),
+        "union_": ConstMethodIntr(),
+        "intersection": ConstMethodIntr(),
         "intersection_update": MethodIntr(
             lambda self, node:
             [
@@ -927,16 +915,7 @@ modules = {
                 for node_args_k in node.args[1:]
                 ]
             ),
-        "difference": ConstMethodIntr(
-            lambda self, node:
-            [
-                self.combine(
-                    node.args[0],
-                    node_args_k,
-                    register=True)
-                for node_args_k in node.args[1:]
-                ]
-            ),
+        "difference": ConstMethodIntr(),
         "difference_update": MethodIntr(
             lambda self, node:
             [
@@ -947,16 +926,7 @@ modules = {
                 for node_args_k in node.args[1:]
                 ]
             ),
-        "symmetric_difference": ConstMethodIntr(
-            lambda self, node:
-            [
-                self.combine(
-                    node.args[0],
-                    node_args_k,
-                    register=True)
-                for node_args_k in node.args[1:]
-                ]
-            ),
+        "symmetric_difference": ConstMethodIntr(),
         "symmetric_difference_update": MethodIntr(
             lambda self, node:
             [

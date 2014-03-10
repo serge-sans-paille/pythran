@@ -26,6 +26,41 @@ struct __combined<T0,T1> {
     typedef decltype(std::declval<T0>()+std::declval<T1>()) type;
 };
 
+template<class T0, class T1>
+struct __combined<const T0,T1> {
+    typedef typename std::add_const<typename __combined<T0, T1>::type>::type type;
+};
+
+template<class T0, class T1>
+struct __combined<T0, const T1> {
+    typedef typename std::add_const<typename __combined<T0, T1>::type>::type type;
+};
+
+template<class T0, class T1>
+struct __combined<T0&, T1> {
+    typedef typename __combined<T0, T1>::type type;
+};
+
+template<class T0, class T1>
+struct __combined<T0, T1&> {
+    typedef typename __combined<T0, T1>::type type;
+};
+
+template<class T0, class T1>
+struct __combined<T0&, T1&> {
+    typedef typename std::add_lvalue_reference<typename __combined<T0, T1>::type>::type type;
+};
+
+template<class T0, class T1>
+struct __combined<const T0, const T1> {
+    typedef typename std::add_const<typename __combined<T0, T1>::type>::type type;
+};
+
+template<class T0, class T1>
+struct __combined<const T0&, const T1&> {
+    typedef typename std::add_lvalue_reference<typename std::add_const<typename __combined<T0, T1>::type>::type>::type type;
+};
+
 template<class T>
 class container {
     public:

@@ -1541,10 +1541,12 @@ class LazynessAnalysis(FunctionAnalysis):
                         self.name_count[alias] = float('inf')
                     elif alias in self.name_count:
                         self.name_count[alias] += 1
-        elif (isinstance(node.ctx, ast.Param) or
-                isinstance(node.ctx, ast.Store)):
-            #Store is only for exception
+        elif isinstance(node.ctx, ast.Param):
             self.name_count[node] = 0
+            self.use[node.id] = set()
+        elif isinstance(node.ctx, ast.Store):
+            #Store is only for exception
+            self.name_count[node] = float('inf')
             self.use[node.id] = set()
 
     def visit_If(self, node):

@@ -1,6 +1,6 @@
-#runas solve()
-#pythran export solve()
-def solve():
+#runas solve(100)
+#pythran export solve(int)
+def solve(v):
     '''
     Find the sum of digits in 100!
     '''
@@ -13,6 +13,6 @@ def solve():
         return s
 
     n = 1L
-    for i in xrange(1,100): n = n*i
+    for i in xrange(1,v): n = n*i
     return digits(n)
 

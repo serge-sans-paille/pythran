@@ -1,4 +1,13 @@
 #from http://rosettacode.org/wiki/Gray_code
+#pythran export bin2gray(int list)
+#pythran export gray2bin(int list)
+#pythran export int2bin(int)
+#pythran export bin2int(int list)
+#runas [int2bin(i) for i in xrange(16)]
+#runas [bin2gray(int2bin(i)) for i in xrange(16)]
+#runas [gray2bin(bin2gray(int2bin(i))) for i in xrange(16)]
+#runas [bin2int(gray2bin(bin2gray(int2bin(i)))) for i in xrange(16)]
+
 def bin2gray(bits):
     return bits[:1] + [i ^ ishift for i, ishift in zip(bits[:-1], bits[1:])]
 
@@ -25,12 +34,3 @@ def bin2int(bits):
     for bit in bits:
         i = i * 2 + bit
     return i
-
-def test():
-    for i in range(16):
-        print ( i,
-                int2bin(i),
-                bin2gray(int2bin(i)),
-                gray2bin(bin2gray(int2bin(i))),
-                bin2int(gray2bin(bin2gray(int2bin(i))))
-              )

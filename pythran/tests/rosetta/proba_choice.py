@@ -1,4 +1,7 @@
 #from http://rosettacode.org/wiki/Probabilistic_choice#Python
+#pythran export test()
+#runas test()
+
 import random, bisect
 
 def probchoice(items, probs, bincount=1000):

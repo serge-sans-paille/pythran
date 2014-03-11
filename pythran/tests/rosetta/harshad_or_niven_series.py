@@ -1,11 +1,14 @@
 #from http://rosettacode.org/wiki/Harshad_or_Niven_series#Python
+#pythran export test()
+#runas test()
+#FIXME unittest.skip
 
 import itertools
 def harshad():
     for n in itertools.count(1):
         if n % sum(int(ch) for ch in str(n)) == 0:
             yield n
- 
+
 def test():
     l = list(itertools.islice(harshad(), 0, 20))
     for n in harshad():

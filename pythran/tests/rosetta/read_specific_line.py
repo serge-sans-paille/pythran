@@ -1,11 +1,13 @@
 #from http://rosettacode.org/wiki/Read_a_specific_line_from_a_file#Python
+#pythran export readline(int)
+#runas readline(6)
 
-def test():
+def readline(n):
     from itertools import islice
-     
+
     f = open('read_conf.cfg')
-    linelist = list(islice(f, 6, 7))
-    assert linelist != [], 'Not 6 lines in file'
+    linelist = list(islice(f, n, n + 1))
+    assert linelist != [], 'Not ' + str(n) + ' lines in file'
     line = linelist[0]
     f.close()
     return line

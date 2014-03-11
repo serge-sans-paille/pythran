@@ -1,6 +1,6 @@
-#runas solve()
-#pythran export solve()
-def solve():
+#runas solve(1000000)
+#pythran export solve(int)
+def solve(m):
     '''
     The prime 41, can be written as the sum of six consecutive primes:
     
@@ -45,11 +45,11 @@ def solve():
     def isprime(x):
         ''' Returns 1 if x is prime, 0 if not. Uses a pre-computed dictionary '''
         _refresh(x)                                 # Compute primes up to x (which is a bit wasteful)
-        return prime_dict.get(x, 0)        
-        
+        return prime_dict.get(x, 0)
+
     MAX = 5000
     prime(MAX)
-    
+
     def check_length(n, below):
         maxprime = 0
         for x in xrange(0, below):
@@ -57,9 +57,9 @@ def solve():
             if total > below: break
             if isprime(total): maxprime = total
         return maxprime
-    
+
     for n in xrange(1000, 0, -1):
-        maxprime = check_length(n, 1000000)
+        maxprime = check_length(n, m)
         if maxprime:
             return maxprime
             break

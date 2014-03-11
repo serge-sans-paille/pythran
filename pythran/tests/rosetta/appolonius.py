@@ -1,6 +1,8 @@
 import math
 #from http://rosettacode.org/wiki/Problem_of_Apollonius#Python
-
+#pythran export solveApollonius((float, float, float), (float, float, float), (float, float, float), int, int, int)
+#runas c1, c2, c3 = (0., 0., 1.), (4., 0., 1.), (2., 4., 2.); solveApollonius(c1, c2, c3, 1, 1, 1)
+#runas c1, c2, c3 = (0., 0., 1.), (4., 0., 1.), (2., 4., 2.); solveApollonius(c1, c2, c3, -1, -1, -1)
 
 def solveApollonius(c1, c2, c3, s1, s2, s3):
     '''
@@ -46,8 +48,3 @@ def solveApollonius(c1, c2, c3, s1, s2, s3):
     ys = P+Q*rs
 
     return (xs, ys, rs)
-
-def test():
-    c1, c2, c3 = (0., 0., 1.), (4., 0., 1.), (2., 4., 2.)
-    print(solveApollonius(c1, c2, c3, 1, 1, 1))    #Expects "Circle[x=2.00,y=2.10,r=3.90]" (green circle in image)
-    print(solveApollonius(c1, c2, c3, -1, -1, -1)) #Expects "Circle[x=2.00,y=0.83,r=1.17]" (red circle in image)

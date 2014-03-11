@@ -1,6 +1,7 @@
 #from http://rosettacode.org/wiki/Permutations#Python
+#pythran export test(int)
+#runas test(3)
 
-def test():
+def test(n):
     import itertools
-    for values in itertools.permutations([1,2,3]):
-        print (values)
+    return [values for values in itertools.permutations(range(1, n + 1))]

@@ -1,6 +1,9 @@
 #from http://rosettacode.org/wiki/Hamming_numbers#Python
+#pythran export test(int, int)
+#runas test(20, 1690)
+#FIXME unittest.skip
 from itertools import islice
- 
+
 def hamming2():
     '''\
     This version is based on a snippet from:
@@ -41,5 +44,5 @@ def hamming2():
         #
         yield h
 
-def test():
-    return list(islice(hamming2(), 20)), list(islice(hamming2(), 1690, 1691))
+def test(v1, v2):
+    return list(islice(hamming2(), v1)), list(islice(hamming2(), v2, v2 + 1))

@@ -1,4 +1,8 @@
 #from http://rosettacode.org/wiki/Permutation_test#Python
+#pythran export permutationTest(int list, int list)
+#pythran export permutationTest2(int list, int list)
+#runas permutationTest([85, 88, 75, 66, 25, 29, 83, 39, 97], [68, 41, 10, 49, 16, 65, 32, 92, 28, 98])
+#runas permutationTest2([85, 88, 75, 66, 25, 29, 83, 39, 97], [68, 41, 10, 49, 16, 65, 32, 92, 28, 98])
 from itertools import combinations as comb
 
 def statistic(ab, a):
@@ -22,11 +26,3 @@ def permutationTest2(a, b):
         if sum(perm) <= Tobs:
             under += 1
     return under * 100. / count
-                                         
-def test():
-    treatmentGroup = [85, 88, 75, 66, 25, 29, 83, 39, 97]
-    controlGroup   = [68, 41, 10, 49, 16, 65, 32, 92, 28, 98]
-    under = permutationTest(treatmentGroup, controlGroup)
-    print("under=%.2f%%, over=%.2f%%" % (under, 100. - under))
-    under = permutationTest2(treatmentGroup, controlGroup)
-    print("under=%.2f%%, over=%.2f%%" % (under, 100. - under))

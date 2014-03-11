@@ -1,6 +1,6 @@
-#runas solve()
-#pythran export solve()
-def solve():
+#runas solve(1000000)
+#pythran export solve(int)
+def solve(max_init):
     cache = { 1: 1 }
     def chain(cache, n):
         if not cache.get(n,0):
@@ -9,7 +9,7 @@ def solve():
         return cache[n]
 
     m,n = 0,0
-    for i in xrange(1, 1000000):
+    for i in xrange(1, max_init):
         c = chain(cache, i)
         if c > m: m,n = c,i
 

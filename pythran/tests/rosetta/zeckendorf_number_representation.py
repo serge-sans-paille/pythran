@@ -1,4 +1,10 @@
 #from http://rosettacode.org/wiki/Zeckendorf_number_representation#Python
+#pythran export test(int)
+#pythran export z(int)
+#pythran export zeckendorf(int)
+#runas test(20)
+#runas ['%3i: %8s' % (i, ''.join(str(d) for d in zeckendorf(i))) for i in range(21)]
+#runas ['%3i: %8s' % (i, ''.join(str(d) for d in z(i))) for i in range(21)]
 
 def fib():
     memo = [1, 2]
@@ -43,12 +49,6 @@ def z(n):
             dig += [0]
     return dig if dig[0] else dig[1:]
 
-def test():
-    n = 20
-    r = sequence_down_from_n(n, fib)
-    z0, z1 = [], []
-    for i in range(n + 1):
-        z0.append('%3i: %8s' % (i, ''.join(str(d) for d in zeckendorf(i))))
-        z1.append('%3i: %8s' % (i, ''.join(str(d) for d in z(i))))
-    return r,z0, z1
+def test(n):
+    return sequence_down_from_n(n, fib)
 

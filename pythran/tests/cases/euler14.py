@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # taken from http://www.ripton.net/blog/?p=51
-#pythran export euler14()
-#runas euler14()
+#pythran export euler14(int)
+#runas euler14(1000000)
 
 """Project Euler, problem 14
 
@@ -30,8 +30,7 @@ def series_length(num, lengths):
         lengths[num] = result
         return result
 
-def euler14():
-    MAX_NUM = 1000000
+def euler14(MAX_NUM):
     num_with_max_length = 1
     max_length = 0
     lengths = {1: 0}

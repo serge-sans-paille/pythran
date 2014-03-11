@@ -1,6 +1,6 @@
-#runas solve()
-#pythran export solve()
-def solve():
+#runas solve(5)
+#pythran export solve(int)
+def solve(cons):
     '''
     Find the greatest product of five consecutive digits in the 1000-digit number.
 
@@ -30,7 +30,7 @@ def solve():
     n = 0
     for i in xrange(0, len(s)-4):
         p = 1
-        for j in xrange(i,i+5):
+        for j in xrange(i,i+cons):
             p = p * int(s[j])
         if p > n: n = p
 

@@ -1,4 +1,8 @@
 #from http://rosettacode.org/wiki/Pascal%27s_triangle#Python
+#pythran export pascal(int)
+#pythran export pascal_(int)
+#runas pascal(10)
+#runas pascal_(10)
 
 def pascal(n):
     """Prints out n rows of Pascal's triangle.
@@ -23,8 +27,3 @@ def pascal_(n):
     def nextrow(row, x):
         return [l+r for l,r in zip(row+[0,],[0,]+row)]
     return scan(nextrow, range(n-1), [1,])
-
-def test():
-    pascal(10)
-    for row in pascal_(10):
-        print(row)

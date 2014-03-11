@@ -1,4 +1,6 @@
 #from http://rosettacode.org/wiki/Permutations_by_swapping#Python
+#pythran export test()
+#runas test()
 #unittest.skip requires two-step typing
 
 def s_permutations(seq):

@@ -1,4 +1,8 @@
 #from http://rosettacode.org/wiki/Prime_decomposition#Python
+#pythran export fac(int)
+#runas fac(2**59 - 1)
+#pythran export test_decompose(int)
+#runas test_decompose(2**59 - 1)
 import math
 
 def decompose(n):
@@ -10,6 +14,9 @@ def decompose(n):
             n /=p
     if n > 1:
         yield n
+
+def test_decompose(to):
+    return [i for i in decompose(to)]
 
 def primes(primelist):
     for n in primelist: yield n
@@ -28,26 +35,13 @@ def fac(n):
     step = lambda x: 1 + x*4 - (x/2)*2
     maxq = long(math.floor(math.sqrt(n)))
     d = 1
-    q = n % 2 == 0 and 2 or 3 
+    q = n % 2 == 0 and 2 or 3
     while q <= maxq and n % q != 0:
         q = step(d)
         d += 1
     res = []
     if q <= maxq:
         res.extend(fac(n//q))
-        res.extend(fac(q)) 
+        res.extend(fac(q))
     else: res=[n]
     return res
-
-def test():
-    import time
-    start = time.time()
-    tocalc =  2**59-1
-    print "%s = %s" % (tocalc, fac(tocalc))
-    end = time.time()
-    print "Needed %ss" % (end - start)
-    start = time.time()
-    tocalc =  2**59-1
-    print "%s = %s" % (tocalc, [i for i in decompose(tocalc)])
-    end = time.time()
-    print "Needed %ss" % (end - start)

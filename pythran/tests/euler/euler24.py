@@ -1,5 +1,5 @@
-#runas solve()
-#pythran export solve()
+#runas solve(1000000)
+#pythran export solve(int)
 '''
 A permutation is an ordered arrangement of objects. For example, 3124 is one possible permutation of the digits 1, 2, 3 and 4. If all of the permutations are listed numerically or alphabetically, we call it lexicographic order. The lexicographic permutations of 0, 1 and 2 are:
 
@@ -24,5 +24,5 @@ def permutation(orig_nums, n):
          nums = nums[0:pos] + nums[pos+1:]
      return perm
 
-def solve():
-  return ''.join(str(x) for x in permutation(range(0,10), 999999))
+def solve(perm):
+  return ''.join(str(x) for x in permutation(range(0,10), perm - 1))

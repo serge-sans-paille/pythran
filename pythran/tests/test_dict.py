@@ -6,13 +6,13 @@ class TestDict(TestEnv):
         self.run_test("def dict_(): a=dict()", dict_=[])
 
     def test_assigned_dict(self):
-        self.run_test("def assigned_dict():\n a=dict() ; a['yeah']=18", assigned_dict=[])
+        self.run_test("def assigned_dict(k):\n a=dict() ; a[k]=18", "yeah", assigned_dict=[str])
 
     def test_print_empty_dict(self):
         self.run_test("def print_empty_dict():\n print dict()", print_empty_dict=[])
 
     def test_print_dict(self):
-        self.run_test("def print_dict():\n a= dict() ; a[5]='youpi'\n print a", print_dict=[])
+        self.run_test("def print_dict(k):\n a= dict() ; a[k]='youpi'\n print a", 5, print_dict=[int])
 
     def test_empty_dict(self):
         self.run_test("def empty_dict(): return {}", empty_dict=[])
@@ -40,8 +40,8 @@ class TestDict(TestEnv):
     def test_dict_copy(self):
         code="""
 def dict_copy(a):
-    b=a.copy()
-    c=a
+    b = a.copy()
+    c = a
     a.clear()
     return c,b"""
         self.run_test(code,  {1:2 }, dict_copy=[{int:int}])

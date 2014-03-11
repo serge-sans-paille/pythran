@@ -1,4 +1,6 @@
 #from http://rosettacode.org/wiki/Reduced_row_echelon_form#Python
+#pythran export ToReducedRowEchelonForm(int list list)
+#runas mtx = [ [ 1, 2, -1, -4], [ 2, 3, -1, -11], [-2, 0, -3, 22],]; ToReducedRowEchelonForm(mtx)
 
 def ToReducedRowEchelonForm( M):
     if not M: return
@@ -24,14 +26,3 @@ def ToReducedRowEchelonForm( M):
                 lv = M[i][lead]
                 M[i] = [ iv - lv*rv for rv,iv in zip(M[r],M[i])]
         lead += 1
-
-def test():
-    mtx = [
-    [ 1, 2, -1, -4],
-    [ 2, 3, -1, -11],
-    [-2, 0, -3, 22],]
-
-    ToReducedRowEchelonForm( mtx )
-
-    for rw in mtx:
-        print ', '.join( (str(rv) for rv in rw) )

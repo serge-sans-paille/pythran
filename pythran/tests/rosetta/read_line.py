@@ -1,5 +1,6 @@
 #from http://rosettacode.org/wiki/Read_a_file_line_by_line#Python
+#pythran export readfile()
+#runas readfile()
 
-def test():
-    for line in file("read_conf.cfg"):
-        print line
+def readfile():
+    return [line for line in file("read_conf.cfg")]

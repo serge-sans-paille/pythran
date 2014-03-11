@@ -1,4 +1,8 @@
 #from http://rosettacode.org/wiki/Primality_by_trial_division#Python
+#pythran exprot test()
+#runas test()
+#FIXME unittest.skip
+
 def prime(a):
     return not (a < 2 or any(a % x == 0 for x in xrange(2, int(a**0.5) + 1)))
 
@@ -16,7 +20,7 @@ def prime3(a):
     d, i = 5, 2
     while d <= maxDivisor:
         if a % d == 0: return False
-        d += i 
+        d += i
         i = 6 - i # this modifies 2 into 4 and viceversa
 
     return True

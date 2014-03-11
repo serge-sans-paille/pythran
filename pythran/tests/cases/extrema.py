@@ -26,6 +26,6 @@ def extrema(x, x_id):
 def run_extrema(n,a):
     #import random
     #a = [random.random() for i in xrange(n)]
-    
+
     a_id = extrema_id(0.)
     return extrema(a, a_id)

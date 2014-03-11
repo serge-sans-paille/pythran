@@ -7,7 +7,7 @@ def dists(X,Y):
   for i in xrange(X.shape[0]):
     for j in xrange(Y.shape[0]):
       result[i,j] = np.sum( (X[i,:] - Y[j,:]) ** 2)
-  return result 
+  return result
 
 def allpairs_distances_loops(d):
     #X = np.random.randn(1000,d)

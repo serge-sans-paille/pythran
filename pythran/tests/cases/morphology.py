@@ -5,32 +5,32 @@
 #runas import numpy as np ; image = np.tri(100, 200) /2.0 ; dilate_decompose_loops(image, 4)
 
 from numpy import empty_like
-  
+
 def dilate_decompose_loops(x, k):
   m,n = x.shape
   y = empty_like(x)
   for i in xrange(m):
     for j in xrange(n):
       left_idx = max(0, i-k/2)
-      right_idx = min(m, i+k/2+1) 
+      right_idx = min(m, i+k/2+1)
       currmax = x[left_idx, j]
       for ii in xrange(left_idx+1, right_idx):
         elt = x[ii, j]
         if elt > currmax:
-          currmax = elt 
-      y[i, j] = currmax 
+          currmax = elt
+      y[i, j] = currmax
   z = empty_like(x)
   for i in xrange(m):
     for j in xrange(n):
       left_idx = max(0, j-k/2)
       right_idx = min(n, j+k/2+1)
-      currmax = y[i,left_idx]  
+      currmax = y[i,left_idx]
       for jj in xrange(left_idx+1, right_idx):
         elt = y[i,jj]
         if elt > currmax:
           currmax = elt
       z[i,j] = currmax
-  return z 
+  return z
 
 #def dilate_1d_naive(x_strip,  k):
 #  """

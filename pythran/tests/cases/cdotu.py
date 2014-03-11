@@ -44,7 +44,7 @@ def CDOTU(N,CX,INCX,CY,INCY):
          	IY = 0
 	 	if (INCX < 0):
 			IX = (-N+1)*INCX
-	 	if (INCY < 0): 
+	 	if (INCY < 0):
 			IY = (-N+1)*INCY
 	 	for I in range(N):
             		CTEMP = CTEMP + CX[IX]*CY[IY]

@@ -17,7 +17,7 @@ def solve():
 
     prime_list = [2, 3, 5, 7, 11, 13, 17, 19, 23]   # Ensure that this is initialised with at least 1 prime
     prime_dict = dict.fromkeys(prime_list, 1)
-    
+
     def _isprime(n):
         ''' Raw check to see if n is prime. Assumes that prime_list is already populated '''
         isprime = n >= 2 and 1 or 0
@@ -28,7 +28,7 @@ def solve():
                 break
         if isprime: prime_dict[n] = 1               # Maintain a dictionary for fast lookup
         return isprime
-    
+
     def _refresh(x):
         ''' Refreshes primes upto x '''
         lastn = prime_list[-1]
@@ -36,21 +36,21 @@ def solve():
             lastn = lastn + 1                       # Check the next number
             if _isprime(lastn):
                 prime_list.append(lastn)            # Maintain a list for sequential access
-    
+
     def prime(x):
         ''' Returns the xth prime '''
-        
+
         lastn = prime_list[-1]
         while len(prime_list) <= x:                 # Keep working until we've got the xth prime
             lastn = lastn + 1                       # Check the next number
             if _isprime(lastn):
                 prime_list.append(lastn)            # Maintain a list for sequential access
         return prime_list[x]
-    
+
     MAX = 10000
     squares = dict.fromkeys((x*x for x in xrange(1, MAX)), 1)
     _refresh(MAX)
-    
+
     for x in xrange(35, MAX, 2):
         if not _isprime(x):
             is_goldbach = 0

@@ -45,7 +45,7 @@ def solve():
     '''
 
     ''' From O'Reilly's Python Cookbook '''
-    
+
 
     def num(l):
         s = 0

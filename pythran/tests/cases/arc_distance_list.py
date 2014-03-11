@@ -9,7 +9,7 @@ def arc_distance_list(a, b):
     for theta_1, phi_1 in a:
         temp_matrix = [ 2 * (atan2(sqrt(temp), sqrt(1 - temp))) for temp in [ sin((theta_2 - theta_1) / 2) ** 2 + cos(theta_1) * cos(theta_2) * sin((phi_2 - phi_1) / 2) ** 2  for theta_2, phi_2 in b ] ]
         distance_matrix.append(temp_matrix)
-        
+
     return distance_matrix
 
 #print  arc_distance_list([(12.4,0.5),(-5.6,12.34),(9.21,-5.6),(3.4,2.3),(-23.31,12.6)],[(3.45,1.5),(55.4,567.0),(43.2,56.1),(3.4,1.34),(-56.9,-3.4)])

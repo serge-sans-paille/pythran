@@ -6,7 +6,7 @@ def solve():
     
     Considering natural numbers of the form, a^b, where a, b < 100, what is the maximum digital sum?
     '''
-    
+
     max = 0
     for a in xrange(0, 100):
         for b in xrange(0, 100):

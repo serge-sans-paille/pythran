@@ -7,7 +7,7 @@ class TestCopperhead(TestEnv):
 
     def test_saxpy(self):
         self.run_test("def saxpy(a, x, y): return map(lambda xi, yi: a * xi + yi, x, y)", 1.5, [1,2,3], [0.,2.,4.], saxpy=[float,[int], [float]])
-    
+
     def test_saxpy2(self):
         self.run_test("def saxpy2(a, x, y): return [a*xi+yi for xi,yi in zip(x,y)]", 1.5, [1,2,3], [0.,2.,4.], saxpy2=[float,[int], [float]])
 
@@ -38,7 +38,7 @@ def sxpy(x, y):
     return map(duad, x, y)
 """
         self.run_test(code,  [1,2,3], [0.,2.,4.], sxpy=[[int], [float]])
-    
+
     def test_incr(self):
         self.run_test("def incr(x): return map(lambda xi: xi + 1, x)", [0., 0., 0.], incr=[[float]])
 
@@ -47,18 +47,18 @@ def sxpy(x, y):
 
     def test_idm(self):
         self.run_test("def idm(x): return map(lambda b: b, x)", [1, 2, 3], idm=[[int]])
-    
+
     def test_incr_list(self):
         self.run_test("def incr_list(x): return [xi + 1 for xi in x]", [1., 2., 3.], incr_list=[[float]])
 
 
     def test_idx(self):
-        code=""" 
+        code="""
 def idx(x):
     def id(xi): return xi
     return map(id, x)"""
         self.run_test(code, [1,2,3], idx=[[int]])
-    
+
     def test_rbf(self):
         code="""
 from math import exp
@@ -101,7 +101,7 @@ def scan(f, A):
     return B
 """
         self.run_test(code, [1,2,3], prefix=[[float]])
-        
+
 
 
 # from Copperhead: Compiling an Embedded Data Parallel Language

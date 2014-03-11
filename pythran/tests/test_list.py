@@ -64,7 +64,7 @@ class TestList(TestEnv):
     def test_list_unequal_comparison_different_sizes(self):
         self.run_test("def list_unequal_comparison_different_sizes(l1,l2): return l1!=l2",
                       [1,4,1],[1,4,1,5], list_unequal_comparison_different_sizes=[[int],[int]])
-  
+
     def test_assigned_slice(self):
         self.run_test("def assigned_slice(l): l[0]=l[2][1:3] ; return l",
                       [[1,2,3],[1,4,1],[1,4,8,9]], assigned_slice=[[[int]]])

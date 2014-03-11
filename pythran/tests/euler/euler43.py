@@ -17,7 +17,7 @@ def solve():
     
     Find the sum of all 0 to 9 pandigital numbers with this property.
     '''
-    
+
     def _combinators(_handle, items, n):
         if n==0:
             yield []
@@ -36,14 +36,14 @@ def solve():
     def permutations(items):
         ''' take all items, order matters '''
         return combinations(items, len(items))
-    
+
     def num(l):
         s = 0
         for n in l: s = s * 10 + n
         return s
-    
+
     def subdiv(l, n): return num(l) % n == 0
-    
+
     total = 0
     for perm in permutations((0,1,2,3,4,6,7,8,9)):
         perm.insert(5, 5)               # d6 must be 5
@@ -55,6 +55,6 @@ def solve():
             subdiv(perm[2:5],   3) and
             subdiv(perm[1:4],   2)):
                 total += num(perm)
-    
+
     return total
 

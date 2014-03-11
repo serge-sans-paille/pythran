@@ -8,7 +8,7 @@ def solve():
     
     (Please note that the palindromic number, in either base, may not include leading zeros.)
     '''
-    
+
     def ispalindrome(n, base):
         digits = []
         reverse = []
@@ -18,6 +18,6 @@ def solve():
             reverse.insert(0, d)
             n = n / base
         return digits == reverse
-    
+
     return sum(n for n in xrange(1, 1000000) if ispalindrome(n, 10) and ispalindrome(n, 2))
 

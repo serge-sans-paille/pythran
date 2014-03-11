@@ -8,17 +8,17 @@ def solve(a):
     
     How many circular primes are there below one million?
     '''
-    
+
     sieve = [True] * a
     sieve[0] = sieve[1] = False
-    
+
     def mark(sieve, x):
         for i in xrange(x+x, len(sieve), x):
             sieve[i] = False
-    
+
     for x in xrange(2, int(len(sieve) ** 0.5) + 1):
         mark(sieve, x)
-    
+
     def circular(n):
         digits = []
         while n > 0:
@@ -26,7 +26,7 @@ def solve(a):
             n = n / 10
         for d in xrange(1, len(digits)):
             yield int(''.join(digits[d:] + digits[0:d]))
-    
+
     count = 0
     for n, p in enumerate(sieve):
         if p:
@@ -37,7 +37,5 @@ def solve(a):
                     break
             if iscircularprime:
                 count = count + 1
-    
-    return count
-    
 
+    return count

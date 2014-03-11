@@ -11,14 +11,14 @@ def fib():
     while True:
         memo.append(sum(memo))
         yield memo.pop(0)
- 
+
 def sequence_down_from_n(n, seq_generator):
     seq = []
     for s in seq_generator():
         seq.append(s)
         if s >= n: break
     return seq[::-1]
- 
+
 def zeckendorf(n):
     if n == 0: return [0]
     seq = sequence_down_from_n(n, fib)
@@ -35,7 +35,6 @@ def zeckendorf(n):
         # Remove any zeroes padding L.H.S.
         digits.pop(0)
     return digits
- 
 
 def z(n):
     if n == 0 : return [0]

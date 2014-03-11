@@ -6,7 +6,7 @@ def solve(digit):
     
     Find the largest palindrome made from the product of two 3-digit numbers.
     '''
-    
+
     n = 0
     for a in xrange(10 ** digit - 1, 10 ** (digit - 1), -1):
         for b in xrange(a, 10 ** (digit - 1), -1):
@@ -15,5 +15,5 @@ def solve(digit):
                 s = str(a * b)
                 if s == s[::-1]:
                     n = a * b
-    
+
     return n

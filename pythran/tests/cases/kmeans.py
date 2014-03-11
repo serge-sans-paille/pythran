@@ -6,8 +6,8 @@ import  math, random
 # a cluster is a list of tuple and a point (the centroid)
 
 def calculateCentroid(cluster):
-    reduce_coord = lambda i: reduce(lambda x,p : x + p[i], cluster,0.0)    
-    centroid_coords = [reduce_coord(i)/len(cluster) for i in range(len(cluster[0]))] 
+    reduce_coord = lambda i: reduce(lambda x,p : x + p[i], cluster,0.0)
+    centroid_coords = [reduce_coord(i)/len(cluster) for i in range(len(cluster[0]))]
     return centroid_coords
 
 def kmeans(points, k, cutoff):
@@ -33,7 +33,7 @@ def kmeans(points, k, cutoff):
                 clusters[i] = new_cluster
                 centroids[i] = new_centroid
                 biggest_shift = max(biggest_shift, shift)
-        if biggest_shift < cutoff: 
+        if biggest_shift < cutoff:
             break
     return clusters
 

@@ -8,7 +8,7 @@ def solve(n):
     
     For which value of p < 1000, is the number of solutions maximised?
     '''
-    
+
     maxp, maxsol = 0, 0
     for p in xrange(12, n + 1, 2):
         solutions = 0
@@ -19,6 +19,5 @@ def solve(n):
                 c = p - a - b
                 if a2 + b*b == c*c: solutions = solutions + 1
         if solutions > maxsol: maxp, maxsol = p, solutions
-    
-    return maxp
 
+    return maxp

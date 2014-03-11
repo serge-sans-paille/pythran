@@ -17,7 +17,7 @@ def solve():
     
     In the first one-thousand expansions, how many fractions contain a numerator with more digits than denominator?
     '''
-    
+
     num, den, count = 3L, 2L, 0
     for iter in xrange(0, 1000):
         num, den = num + den + den, num + den

@@ -19,7 +19,7 @@ def solve():
     4 digit < + 9000 * 4
     5 digit < + 90000 * 5
     '''
-    
+
     def digit_at(n):
         digits = 1
         n = n - 1
@@ -30,6 +30,6 @@ def solve():
             digits = digits + 1
         num = n / digits + pow(10L, digits-1)
         return int(str(num)[n % digits])
-    
+
     return digit_at(1) * digit_at(10) * digit_at(100) * digit_at(1000) * digit_at(10000) * digit_at(100000) * digit_at(1000000)
 

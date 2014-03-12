@@ -3,6 +3,7 @@ This modules contains code transformation to turn python AST into
     pythran AST
     * NormalizeTuples removes implicit variable -> tuple conversion
     * ExtractTopLevelStmts moves top level statements into __init__
+    * RegisterGlobals registers all globals into the modules variable
     * RemoveComprehension turns list comprehension into function calls
     * RemoveNestedFunctions turns nested function into top-level functions
     * RemoveLambdas turns lambda into regular functions
@@ -24,6 +25,7 @@ from passmanager import Transformation
 from syntax import PythranSyntaxError
 from tables import methods, attributes, functions, modules
 from tables import cxx_keywords, namespace
+from intrinsic import ConstantIntr
 from operator import itemgetter
 from copy import copy
 import networkx as nx
@@ -232,6 +234,18 @@ class ExtractTopLevelStmts(Transformation):
                                [])
         module_body.append(init)
         node.body = module_body
+        return node
+
+
+class RegisterGlobals(Transformation):
+    """
+    Register global variables in modules
+    """
+    def visit_Global(self, node):
+        module = modules[self.passmanager.module_name]
+        for n in node.names:
+            if n not in module:
+                module[n] = ConstantIntr()
         return node
 
 

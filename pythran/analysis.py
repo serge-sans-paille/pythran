@@ -1326,7 +1326,7 @@ class UsedDefChain(FunctionAnalysis):
         self.in_loop = False
         self.break_ = dict()
         self.continue_ = dict()
-        super(UsedDefChain, self).__init__(Globals)
+        super(UsedDefChain, self).__init__(Globals, DeclaredGlobals)
 
     def merge_dict_set(self, into_, from_):
         for i in from_:
@@ -1359,7 +1359,7 @@ class UsedDefChain(FunctionAnalysis):
                 if node.id not in self.globals:
                     err = "identifier {0} is used before assignment"
                     raise PythranSyntaxError(err.format(node.id), node)
-                else:
+                elif node.id not in self.declared_globals:
                     self.use_only[node.id] = nx.DiGraph()
                     self.use_only[node.id].add_node("D0",
                                                     action="D", name=node)

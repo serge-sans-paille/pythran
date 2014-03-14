@@ -287,12 +287,9 @@ somehow easier to turn a sequential program into a multi-threaded one. Pythran
 translates OpenMP-like code annotation into OpenMP directives::
 
     r=0
-    "omp parallel for reduction(+:r) private(x,y)"
+    "omp parallel for reduction(+:r)"
     for x,y in zip(l1,l2):
         r+=x*y
-
-Note that as in python, all variables have function-level scope, ``x`` and
-``y`` must be explicitly listed as private variables.
 
 OpenMP directive parsing is enabled by ``-fopenmp`` when using ``g++`` as the
 back-end compiler.
@@ -302,6 +299,16 @@ Alternatively, one can run the great::
     pythran -ppythran.analysis.ParallelMaps -e as.py
 
 which runs a code analyzer that displays extra information concerning parallel ``map`` found in the code.
+
+You may want a more "OpenMP" way to write annotation with::
+
+    r=0
+    #omp parallel for reduction(+:r)
+    for x,y in zip(l1,l2):
+        r+=x*y
+
+Be careful with the indentation. It has to be correct.
+
 
 Getting Pure C++
 ----------------

@@ -38,11 +38,11 @@ class TestNumpy(TestEnv):
 
     def test_assign_gsliced_array(self):
         self.run_test("""def assign_gsliced_array():
-   import numpy as np;
+   import numpy as np
    a = np.array([[[1,2],[3,4]],[[5,6],[7,8]]])
    b = np.array([[[9,10],[11,12]],[[13,14],[15,16]]])
    a[:,:] = b[:,:]
-   return a,b;""", assign_gsliced_array=[])
+   return a,b""", assign_gsliced_array=[])
 
     def test_assign_sliced_array(self):
         self.run_test("""def assign_sliced_array():

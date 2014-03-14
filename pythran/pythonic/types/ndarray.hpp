@@ -708,6 +708,7 @@ we assume that M>=N
 
             };
 
+
         /* proxy type to hold the return of a slice
         */
         template<class T, class S=slice>
@@ -829,6 +830,13 @@ we assume that M>=N
                         return numpy_fexpr<sliced_ndarray<T,S>, E>(*this, expr);
                     }
             };
+
+
+        template<class T, class S=slice>
+        struct lvalue_sliced_ndarray: public sliced_ndarray<T, S>
+        {
+            lvalue_sliced_ndarray(T const& a, S const& s): sliced_ndarray<T, S>(a, s) {}
+        };
 
         /* Multidimensional array of values
          *
@@ -1136,20 +1144,20 @@ we assume that M>=N
                     }
 
                 /* by slice */
-                sliced_ndarray<ndarray<T,N>> operator[](slice const& s) const
+                lvalue_sliced_ndarray<ndarray<T,N>> operator[](slice const& s) const
                 {
-                    return sliced_ndarray<ndarray<T,N>>(*this, s);
+                    return lvalue_sliced_ndarray<ndarray<T,N>>(*this, s);
                 }
-                sliced_ndarray<ndarray<T,N>> operator()(slice const& s) const
+                lvalue_sliced_ndarray<ndarray<T,N>> operator()(slice const& s) const
                 {
                     return (*this)[s];
                 }
 
-                sliced_ndarray<ndarray<T,N>, contiguous_slice> operator[](contiguous_slice const& s) const
+                lvalue_sliced_ndarray<ndarray<T,N>, contiguous_slice> operator[](contiguous_slice const& s) const
                 {
-                    return sliced_ndarray<ndarray<T,N>, contiguous_slice>(*this, s);
+                    return lvalue_sliced_ndarray<ndarray<T,N>, contiguous_slice>(*this, s);
                 }
-                sliced_ndarray<ndarray<T,N>, contiguous_slice> operator()(contiguous_slice const& s) const
+                lvalue_sliced_ndarray<ndarray<T,N>, contiguous_slice> operator()(contiguous_slice const& s) const
                 {
                     return (*this)[s];
                 }
@@ -1472,6 +1480,11 @@ we assume that M>=N
         struct assignable<types::numpy_expr<Op, Arg0, Arg1>>
         {
             typedef typename types::numpy_expr_to_ndarray<types::numpy_expr<Op, Arg0, Arg1>>::type type;
+        };
+    template<class T, class S>
+        struct assignable<types::lvalue_sliced_ndarray<T, S>>
+        {
+            typedef types::sliced_ndarray<T, S> type;
         };
     template<class Op, class Arg0>
         struct assignable<types::numpy_uexpr<Op, Arg0>>

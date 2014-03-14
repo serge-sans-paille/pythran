@@ -146,7 +146,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
     '''
     pm = PassManager(module_name)
     # hacky way to turn OpenMP comments into strings
-    code = re.sub(r'(\s*)#(omp\s[^\n]+)', r'\1"\2"', code)
+    code = re.sub(r'(\s*)#\s*(omp\s[^\n]+)', r'\1"\2"', code)
 
     # front end
     ir = ast.parse(code)

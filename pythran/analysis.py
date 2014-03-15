@@ -25,7 +25,8 @@ This module provides a few code analysis for the pythran language.
     * Ancestors computes the ancestors of each node
     * Scope computes scope information
     * Dependencies lists the functions and types required by a function
-    * OrderedGlobalDeclarations order all global functions.
+    * OrderedGlobalDeclarations orders all global functions.
+    * Literals lists nodes that are only literals
 '''
 
 from tables import modules, methods, functions
@@ -2057,3 +2058,22 @@ class Dependencies(ModuleAnalysis):
         attr = rec(modules, node)
 
         attr and self.result.add(attr)
+
+
+class Literals(ModuleAnalysis):
+    """
+        Store variable that save only Literals (with no construction cost)
+    """
+    def __init__(self):
+        self.result = set()
+        super(Literals, self).__init__()
+
+    def visit_Assign(self, node):
+        # list, dict, set and other are not considered as Literals as they have
+        # a constructor which may be costly and they can be updated using
+        # function call
+        basic_type = (ast.Num, ast.Lambda, ast.Str)
+        if any(isinstance(node.value, type) for type in basic_type):
+            targets_id = {target.id for target in node.targets
+                          if isinstance(target, ast.Name)}
+            self.result.update(targets_id)

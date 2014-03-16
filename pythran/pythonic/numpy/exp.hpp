@@ -9,16 +9,9 @@
 namespace pythonic {
 
     namespace numpy {
-        using nt2::exp;
-
-        namespace wrapper {
-            PROXY(pythonic::numpy, exp)
-
-        }
 #define NUMPY_UNARY_FUNC_NAME exp
-#define NUMPY_UNARY_FUNC_SYM wrapper::proxy::exp
+#define NUMPY_UNARY_FUNC_SYM nt2::exp
 #include "pythonic/types/numpy_unary_expr.hpp"
-        PROXY(pythonic::numpy, exp)
 
     }
 

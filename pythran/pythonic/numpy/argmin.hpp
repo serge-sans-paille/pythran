@@ -3,6 +3,7 @@
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
+#include "pythonic/numpy/asarray.hpp"
 #include "pythonic/__builtin__/ValueError.hpp"
 
 namespace pythonic {
@@ -10,19 +11,11 @@ namespace pythonic {
     namespace numpy {
         template<class E>
             long argmin(E&& expr) {
-                long sz = expr.size();
+                auto arr = asarray(expr);
+                long sz = arr.size();
                 if(not sz) 
                     throw types::ValueError("empty sequence");
-                auto res = expr.at(0);
-                long index = 0;
-                for(long i = 1; i< sz ; ++i) {
-                    auto e_i = expr.at(i);
-                    if(e_i< res) {
-                        res = e_i;
-                        index = i;
-                    }
-                }
-                return index;
+                return std::min_element(arr.fbegin(), arr.fend()) - arr.fbegin();
             }
         PROXY(pythonic::numpy, argmin);
 

@@ -3,38 +3,172 @@ from test_env import TestEnv
 import numpy
 
 class TestNumpy(TestEnv):
+    def test_broadcast0(self):
+        self.run_test('def numpy_broadcast0(a): a[0] = 1 ; return a',
+                      numpy.arange(100).reshape((10, 10)),
+                      numpy_broadcast0=[numpy.array([numpy.array([int])])])
+
+    def test_broadcast1(self):
+        self.run_test('def numpy_broadcast1(a): a[1:-1] = 1 ; return a',
+                      numpy.arange(100).reshape((10, 10)),
+                      numpy_broadcast1=[numpy.array([numpy.array([int])])])
+
+    def test_broadcast2(self):
+        self.run_test('def numpy_broadcast2(a): a[1:-1,1:-1] = 1 ; return a',
+                      numpy.arange(100).reshape((10, 10)),
+                      numpy_broadcast2=[numpy.array([numpy.array([int])])])
+
+    def test_broadcast3(self):
+        self.run_test('def numpy_broadcast3(a): a[1:-1,1] = 1 ; return a',
+                      numpy.arange(100).reshape((10, 10)),
+                      numpy_broadcast3=[numpy.array([numpy.array([int])])])
+
+    def test_broadcast4(self):
+        self.run_test('def numpy_broadcast4(a): a[:,1,1] = 1 ; return a',
+                      numpy.arange(100).reshape((5,5,4)),
+                      numpy_broadcast4=[numpy.array([numpy.array([numpy.array([int])])])])
+
+    def test_extended_slicing0(self):
+        self.run_test("def numpy_extended_slicing0(a): return a[2,1:-1]",
+                      numpy.arange(100).reshape((10, 10)),
+                      numpy_extended_slicing0=[numpy.array([numpy.array([int])])])
+
+    def test_extended_slicing1(self):
+        self.run_test("def numpy_extended_slicing1(a): return a[1:-1,2]",
+                      numpy.arange(100).reshape((10, 10)),
+                      numpy_extended_slicing1=[numpy.array([numpy.array([int])])])
+
+    def test_extended_slicing2(self):
+        self.run_test("def numpy_extended_slicing2(a): return a[2,1:-1]",
+                      numpy.arange(30).reshape((3,5,2)),
+                      numpy_extended_slicing2=[numpy.array([numpy.array([numpy.array([int])])])])
+
+    def test_extended_slicing3(self):
+        self.run_test("def numpy_extended_slicing3(a): return a[1:-1,2]",
+                      numpy.arange(30).reshape((3,5,2)),
+                      numpy_extended_slicing3=[numpy.array([numpy.array([numpy.array([int])])])])
+
+    def test_extended_slicing4(self):
+        self.run_test("def numpy_extended_slicing4(a): return a[1:-1,2:-2]",
+                      numpy.arange(100).reshape((10, 10)),
+                      numpy_extended_slicing4=[numpy.array([numpy.array([int])])])
+
+    def test_extended_slicing5(self):
+        self.run_test("def numpy_extended_slicing5(a): return a[1:-1]",
+                      numpy.arange(100).reshape((10, 10)),
+                      numpy_extended_slicing5=[numpy.array([numpy.array([int])])])
+
+    def test_extended_slicing6(self):
+        self.run_test("def numpy_extended_slicing6(a): return a[1:-1,2:-2, 3:-3]",
+                      numpy.arange(60).reshape((3,5,4)),
+                      numpy_extended_slicing6=[numpy.array([numpy.array([numpy.array([int])])])])
+
+    def test_extended_slicing7(self):
+        self.run_test("def numpy_extended_slicing7(a): return a[1:-1, 2, 1]",
+                      numpy.arange(120).reshape((3,5,4,2)),
+                      numpy_extended_slicing7=[numpy.array([numpy.array([numpy.array([numpy.array([int])])])])])
+
+    def test_extended_slicing8(self):
+        self.run_test("def numpy_extended_slicing8(a): return a[1:-1,2:-2, 1:2]",
+                      numpy.arange(60).reshape((3,5,4)),
+                      numpy_extended_slicing8=[numpy.array([numpy.array([numpy.array([int])])])])
+
+    def test_extended_slicing9(self):
+        self.run_test("def numpy_extended_slicing9(a): return a[1:-1, 2, 1, 1:2]",
+                      numpy.arange(120).reshape((3,5,2,4)),
+                      numpy_extended_slicing9=[numpy.array([numpy.array([numpy.array([numpy.array([int])])])])])
+
+    def test_extended_slicing10(self):
+        self.run_test("def numpy_extended_slicing10(a): return a[1, 2, 1:-1]",
+                      numpy.arange(120).reshape((3,5,4,2)),
+                      numpy_extended_slicing10=[numpy.array([numpy.array([numpy.array([numpy.array([int])])])])])
+
+    def test_extended_slicing11(self):
+        self.run_test("def numpy_extended_slicing11(a): return a[1, 2, 1:-1, 1]",
+                      numpy.arange(120).reshape((3,5,4,2)),
+                      numpy_extended_slicing11=[numpy.array([numpy.array([numpy.array([numpy.array([int])])])])])
+
+    def test_extended_sum0(self):
+        self.run_test("def numpy_extended_sum0(a): import numpy ; return numpy.sum(a)",
+                      numpy.arange(120).reshape((3,5,4,2)),
+                      numpy_extended_sum0=[numpy.array([numpy.array([numpy.array([numpy.array([int])])])])])
+
+    def test_extended_sum1(self):
+        self.run_test("def numpy_extended_sum1(a): import numpy ; return numpy.sum(a[1])",
+                      numpy.arange(120).reshape((3,5,4,2)),
+                      numpy_extended_sum1=[numpy.array([numpy.array([numpy.array([numpy.array([int])])])])])
+
+    def test_extended_sum2(self):
+        self.run_test("def numpy_extended_sum2(a): import numpy ; return numpy.sum(a[1,0])",
+                      numpy.arange(120).reshape((3,5,4,2)),
+                      numpy_extended_sum2=[numpy.array([numpy.array([numpy.array([numpy.array([int])])])])])
+
+    def test_extended_sum3(self):
+        self.run_test("def numpy_extended_sum3(a): import numpy ; return numpy.sum(a[1:-1])",
+                      numpy.arange(120).reshape((3,5,4,2)),
+                      numpy_extended_sum3=[numpy.array([numpy.array([numpy.array([numpy.array([int])])])])])
+
+    def test_extended_sum4(self):
+        self.run_test("def numpy_extended_sum4(a): import numpy ; return numpy.sum(a[1:-1,0])",
+                      numpy.arange(120).reshape((3,5,4,2)),
+                      numpy_extended_sum4=[numpy.array([numpy.array([numpy.array([numpy.array([int])])])])])
+
+    def test_extended_sum5(self):
+        self.run_test("def numpy_extended_sum5(a): import numpy ; return numpy.sum(a)",
+                      numpy.arange(120).reshape((3,5,4,2)),
+                      numpy_extended_sum5=[numpy.array([numpy.array([numpy.array([numpy.array([int])])])])])
+
     def test_numpy_shape_as_function(self):
-         self.run_test("def numpy_shape_as_function(): import numpy ; a = numpy.ones(3, numpy.int16) ; return numpy.shape(a)", numpy_shape_as_function=[])
+         self.run_test("def numpy_shape_as_function(): import numpy ; a = numpy.ones(3, numpy.int16) ; return numpy.shape(a)",
+                       numpy_shape_as_function=[])
 
     def test_numpy_size_as_function(self):
-         self.run_test("def numpy_size_as_function(): import numpy ; a = numpy.ones(3, numpy.int16) ; return numpy.size(a)", numpy_size_as_function=[])
+         self.run_test("def numpy_size_as_function(): import numpy ; a = numpy.ones(3, numpy.int16) ; return numpy.size(a)",
+                       numpy_size_as_function=[])
 
     def test_numpy_ndim_as_function(self):
-         self.run_test("def numpy_ndim_as_function(): import numpy ; a = numpy.ones(3, numpy.int16) ; return numpy.ndim(a)", numpy_ndim_as_function=[])
+         self.run_test("def numpy_ndim_as_function(): import numpy ; a = numpy.ones(3, numpy.int16) ; return numpy.ndim(a)",
+                       numpy_ndim_as_function=[])
 
     def test_numpy_int16(self):
-        self.run_test("def numpy_int16(n): import numpy ; return numpy.ones(n, numpy.int16)", 5, numpy_int16=[int])
+        self.run_test("def numpy_int16(n): import numpy ; return numpy.ones(n, numpy.int16)",
+                      5,
+                      numpy_int16=[int])
 
     def test_numpy_uint16(self):
-        self.run_test("def numpy_uint16(n): import numpy ; return numpy.ones(n, numpy.uint16)", 5, numpy_uint16=[int])
+        self.run_test("def numpy_uint16(n): import numpy ; return numpy.ones(n, numpy.uint16)",
+                      5,
+                      numpy_uint16=[int])
 
     def test_numpy_uint64(self):
-        self.run_test("def numpy_uint64(n): import numpy ; return numpy.ones(n, numpy.uint64)", 5, numpy_uint64=[int])
+        self.run_test("def numpy_uint64(n): import numpy ; return numpy.ones(n, numpy.uint64)",
+                      5,
+                      numpy_uint64=[int])
 
     def test_numpy_float(self):
-        self.run_test("def numpy_float(n): import numpy ; return numpy.ones(n, numpy.float)", 5, numpy_float=[int])
+        self.run_test("def numpy_float(n): import numpy ; return numpy.ones(n, numpy.float)",
+                      5,
+                      numpy_float=[int])
 
     def test_numpy_complex(self):
-        self.run_test("def numpy_complex(n): import numpy ; return numpy.ones(n, numpy.complex)", 5, numpy_complex=[int])
+        self.run_test("def numpy_complex(n): import numpy ; return numpy.ones(n, numpy.complex)",
+                      5,
+                      numpy_complex=[int])
 
     def test_numpy_complex64(self):
-        self.run_test("def numpy_complex64(n): import numpy ; return numpy.ones(n, numpy.complex64)", 5, numpy_complex64=[int])
+        self.run_test("def numpy_complex64(n): import numpy ; return numpy.ones(n, numpy.complex64)",
+                      5,
+                      numpy_complex64=[int])
 
     def test_numpy_double(self):
-        self.run_test("def numpy_double(n): import numpy ; return numpy.ones(n, numpy.double)", 5, numpy_double=[int])
+        self.run_test("def numpy_double(n): import numpy ; return numpy.ones(n, numpy.double)",
+                      5,
+                      numpy_double=[int])
 
     def test_numpy_complex_export(self):
-        self.run_test("def numpy_complex_export(a): import numpy ; return numpy.sum(a)", numpy.array([1+1j]), numpy_complex_export=[numpy.array([complex])])
+        self.run_test("def numpy_complex_export(a): import numpy ; return numpy.sum(a)",
+                      numpy.array([1+1j]),
+                      numpy_complex_export=[numpy.array([complex])])
 
     def test_assign_gsliced_array(self):
         self.run_test("""def assign_gsliced_array():
@@ -55,95 +189,128 @@ class TestNumpy(TestEnv):
    return c;""", assign_sliced_array=[])
 
     def test_filter_array_0(self):
-        self.run_test('def filter_array_0(n): import numpy ; a = numpy.zeros(n) ; return a[a>1]', 10, filter_array_0=[int])
+        self.run_test('def filter_array_0(n): import numpy ; a = numpy.zeros(n) ; return a[a>1]',
+                      10,
+                      filter_array_0=[int])
 
     def test_filter_array_1(self):
-        self.run_test('def filter_array_1(n): import numpy ; a = numpy.arange(n) ; return a[a>4]', 10, filter_array_1=[int])
+        self.run_test('def filter_array_1(n): import numpy ; a = numpy.arange(n) ; return a[a>4]',
+                      10,
+                      filter_array_1=[int])
 
     def test_filter_array_2(self):
-        self.run_test('def filter_array_2(n): import numpy ; a = numpy.arange(n) ; return (a+a)[a>4]', 10, filter_array_2=[int])
+        self.run_test('def filter_array_2(n): import numpy ; a = numpy.arange(n) ; return (a+a)[a>4]',
+                      10,
+                      filter_array_2=[int])
 
     def test_filter_array_3(self):
-        self.run_test('def filter_array_3(n): import numpy ; a = numpy.arange(n) ; return (-a)[a>4]', 10, filter_array_3=[int])
+        self.run_test('def filter_array_3(n): import numpy ; a = numpy.arange(n) ; return (-a)[a>4]',
+                      10,
+                      filter_array_3=[int])
 
     def test_filter_array_4(self):
-        self.run_test('def filter_array_4(n): import numpy ; a = numpy.arange(n) ; return a[1:-1][a[1:-1]>4]', 10, filter_array_4=[int])
+        self.run_test('def filter_array_4(n): import numpy ; a = numpy.arange(n) ; return a[1:-1][a[1:-1]>4]',
+                      10,
+                      filter_array_4=[int])
 
     def test_filter_array_5(self):
-        self.run_test('def filter_array_5(n): import numpy ; a = numpy.arange(n) ; return (a[1:-1])[a[1:-1]>4]', 10, filter_array_5=[int])
+        self.run_test('def filter_array_5(n): import numpy ; a = numpy.arange(n) ; return (a[1:-1])[a[1:-1]>4]',
+                      10,
+                      filter_array_5=[int])
 
     def test_assign_ndarray(self):
-        self.run_test("""def assign_ndarray(t):
-                           import numpy as np;
-                           a = np.array([1,2,3]);
-                           b = np.array([1,2,3]);
-                           if t:
-                             c = a;
-                           else:
-                             c=b;
-                           if t:
-                             c=b;
-                           b[0] = -1;
-                           return c;
-                           """,
-                           1,assign_ndarray=[int])
+        code = """
+def assign_ndarray(t):
+    import numpy as np;
+    a = np.array([1,2,3]);
+    b = np.array([1,2,3]);
+    if t:
+      c = a;
+    else:
+      c=b;
+    if t:
+      c=b;
+    b[0] = -1;
+    return c;"""
+        self.run_test(code,
+                      1,
+                      assign_ndarray=[int])
 
     def test_bitwise_nan_bool(self):
-        self.run_test("def np_bitwise_nan_bool(): import numpy as np ; a = np.arange(10) ; return ~(a<5)", np_bitwise_nan_bool=[])
+        self.run_test("def np_bitwise_nan_bool(): import numpy as np ; a = np.arange(10) ; return ~(a<5)",
+                      np_bitwise_nan_bool=[])
 
     def test_frexp0(self):
-        self.run_test("def np_frexp0(): import numpy as np ; a = 1.5 ; return np.frexp(a)", np_frexp0=[])
+        self.run_test("def np_frexp0(): import numpy as np ; a = 1.5 ; return np.frexp(a)",
+                      np_frexp0=[])
 
     def test_frexp1(self):
-        self.run_test("def np_frexp1(): import numpy as np ; a = np.array([1.1,2.2,3.3]) ; return np.frexp(a)", np_frexp1=[])
+        self.run_test("def np_frexp1(): import numpy as np ; a = np.array([1.1,2.2,3.3]) ; return np.frexp(a)",
+                      np_frexp1=[])
 
     def test_frexp2(self):
-        self.run_test("def np_frexp2(): import numpy as np ; a = np.array([1.1,2.2,3.3]) ; return np.frexp(a+a)", np_frexp2=[])
+        self.run_test("def np_frexp2(): import numpy as np ; a = np.array([1.1,2.2,3.3]) ; return np.frexp(a+a)",
+                      np_frexp2=[])
 
     def test_gslice0(self):
-        self.run_test("def np_gslice0(): import numpy as np ; a = np.array(range(10*9)).reshape(10,9) ; return a[1:9,5:7]", np_gslice0=[])
+        self.run_test("def np_gslice0(): import numpy as np ; a = np.array(range(10*9)).reshape(10,9) ; return a[1:9,5:7]",
+                      np_gslice0=[])
 
     def test_gslice1(self):
-        self.run_test("def np_gslice1(): import numpy as np ; a = np.array(range(10*9*8)).reshape(10,9,8) ; return a[1:9,0:1, 3:6]", np_gslice1=[])
+        self.run_test("def np_gslice1(): import numpy as np ; a = np.array(range(10*9*8)).reshape(10,9,8) ; return a[1:9,0:1, 3:6]",
+                      np_gslice1=[])
 
     def test_gslice2(self):
-        self.run_test("def np_gslice2(): import numpy as np ; a = np.array(range(10*9*8)).reshape(10,9,8) ; return a[:,0:1, 3:6]", np_gslice2=[])
+        self.run_test("def np_gslice2(): import numpy as np ; a = np.array(range(10*9*8)).reshape(10,9,8) ; return a[:,0:1, 3:6]",
+                      np_gslice2=[])
 
     def test_gslice3(self):
-        self.run_test("def np_gslice3(): import numpy as np ; a = np.array(range(10*9*8)).reshape(10,9,8) ; return a[:-1,0:-1, -3:7]", np_gslice3=[])
+        self.run_test("def np_gslice3(): import numpy as np ; a = np.array(range(10*9*8)).reshape(10,9,8) ; return a[:-1,0:-1, -3:7]",
+                      np_gslice3=[])
 
     def test_gslice4(self):
-        self.run_test("def np_gslice4(): import numpy as np ; a = np.array(range(10*9*8)).reshape(10,9,8) ; return a[1,0:-1, -3:7]", np_gslice4=[])
+        self.run_test("def np_gslice4(): import numpy as np ; a = np.array(range(10*9*8)).reshape(10,9,8) ; return a[1,0:-1, -3:7]",
+                      np_gslice4=[])
 
     def test_gslice5(self):
-        self.run_test("def np_gslice5(): import numpy as np ; a = np.array(range(10*9*8)).reshape(10,9,8) ; return a[1,0:-1, 7]", np_gslice5=[])
+        self.run_test("def np_gslice5(): import numpy as np ; a = np.array(range(10*9*8)).reshape(10,9,8) ; return a[1,0:-1, 7]",
+                      np_gslice5=[])
 
     def test_ndindex0(self):
-        self.run_test("def np_ndindex0(): import numpy as np ; return [x for x in np.ndindex(5,6)]", np_ndindex0=[])
+        self.run_test("def np_ndindex0(): import numpy as np ; return [x for x in np.ndindex(5,6)]",
+                      np_ndindex0=[])
 
     def test_ndindex1(self):
-        self.run_test("def np_ndindex1(): import numpy as np ; a = 3 ; return [x for x in np.ndindex(a)]", np_ndindex1=[])
+        self.run_test("def np_ndindex1(): import numpy as np ; a = 3 ; return [x for x in np.ndindex(a)]",
+                      np_ndindex1=[])
 
     def test_ndenumerate0(self):
-        self.run_test("def np_ndenumerate0(): import numpy as np ; a = np.array([[1, 2], [3, 4]]) ; return [x for x in np.ndenumerate(a)]", np_ndenumerate0=[])
+        self.run_test("def np_ndenumerate0(): import numpy as np ; a = np.array([[1, 2], [3, 4]]) ; return [x for x in np.ndenumerate(a)]",
+                      np_ndenumerate0=[])
 
     def test_ndenumerate1(self):
-        self.run_test("def np_ndenumerate1(): import numpy as np ; a = np.array([1, 2, 3, 4]) ; return [x for x in np.ndenumerate(a)]", np_ndenumerate1=[])
+        self.run_test("def np_ndenumerate1(): import numpy as np ; a = np.array([1, 2, 3, 4]) ; return [x for x in np.ndenumerate(a)]",
+                      np_ndenumerate1=[])
 
     def test_nansum0(self):
-        self.run_test("def np_nansum0(): import numpy as np ; a = np.array([[1, 2], [3, np.nan]]) ; return np.nansum(a)" , np_nansum0=[])
+        self.run_test("def np_nansum0(): import numpy as np ; a = np.array([[1, 2], [3, np.nan]]) ; return np.nansum(a)" ,
+                      np_nansum0=[])
 
     def test_nansum1(self):
-        self.run_test("def np_nansum1(): import numpy as np ; a = np.array([[1, 2], [np.NINF, np.nan]]) ; return np.nansum(a)" , np_nansum1=[])
+        self.run_test("def np_nansum1(): import numpy as np ; a = np.array([[1, 2], [np.NINF, np.nan]]) ; return np.nansum(a)" ,
+                      np_nansum1=[])
 
     def test_nansum2(self):
-        self.run_test("def np_nansum2(): import numpy as np ; a= [1, np.nan] ; return np.nansum(a)", np_nansum2=[])
+        self.run_test("def np_nansum2(): import numpy as np ; a= [1, np.nan] ; return np.nansum(a)",
+                      np_nansum2=[])
 
     def test_nanmin0(self):
-        self.run_test("def np_nanmin0(): import numpy as np ; a = np.array([[1, 2], [3, np.nan]]) ; return np.nanmin(a)" , np_nanmin0=[])
+        self.run_test("def np_nanmin0(): import numpy as np ; a = np.array([[1, 2], [3, np.nan]]) ; return np.nanmin(a)",
+                      np_nanmin0=[])
 
     def test_nanmin1(self):
-        self.run_test("def np_nanmin1(): import numpy as np ; a = np.array([[1, 2], [np.NINF, np.nan]]) ; return np.nanmin(a)" , np_nanmin1=[])
+        self.run_test("def np_nanmin1(): import numpy as np ; a = np.array([[1, 2], [np.NINF, np.nan]]) ; return np.nanmin(a)",
+                      np_nanmin1=[])
 
     def test_nanmax0(self):
         self.run_test("def np_nanmax0(): import numpy as np ; a = np.array([[1, 2], [3, np.nan]]) ; return np.nanmax(a)" , np_nanmax0=[])
@@ -307,13 +474,15 @@ def np_rosen_der(x):
     def test_item3(self):
         self.run_test("def np_item3(): from numpy import array ; a = array([[3, 1, 7],[2, 8, 3],[8, 5, 3]]) ; return a.item((2,2))", np_item3=[])
 
+    def test_item4(self):
+        self.run_test("def np_item4(): from numpy import array ; a = array([[3, 1, 7],[2, 8, 3],[8, 5, 3]]) ; return a.item(-2)", np_item4=[])
+
     def test_issctype0(self):
         self.run_test("def np_issctype0(): from numpy import issctype, int32 ; a = int32 ; return issctype(a)", np_issctype0=[])
 
     def test_issctype1(self):
         self.run_test("def np_issctype1(): from numpy import issctype ; a = list ; return issctype(a)", np_issctype1=[])
 
-    @unittest.skip('NIY')
     def test_issctype2(self):
         self.run_test("def np_issctype2(): from numpy import issctype ; a = 3.1 ; return issctype(a)", np_issctype2=[])
 
@@ -417,13 +586,13 @@ def np_rosen_der(x):
         self.run_test("def np_prod5_():\n from numpy import arange,prod\n return arange(1, 11).prod(0)", np_prod5_=[])
 
     def test_ptp0(self):
-        self.run_test("def np_ptp0(): from numpy import ptp, arange ; x = arange(4).reshape(2,2); return ptp(x)", np_ptp0=[])
+        self.run_test("def np_ptp0(): from numpy import ptp, arange ; x = arange(12).reshape(4,3); return ptp(x)", np_ptp0=[])
 
     def test_ptp1(self):
-        self.run_test("def np_ptp1(): from numpy import ptp, arange ; x = arange(4).reshape(2,2); return ptp(x,0)", np_ptp1=[])
+        self.run_test("def np_ptp1(): from numpy import ptp, arange ; x = arange(12).reshape(4,3); return ptp(x, 0)", np_ptp1=[])
 
     def test_ptp2(self):
-        self.run_test("def np_ptp2(): from numpy import ptp, arange ; x = arange(4).reshape(2,2); return ptp(x,1)", np_ptp2=[])
+        self.run_test("def np_ptp2(): from numpy import ptp, arange ; x = arange(12).reshape(4,3); return ptp(x,1)", np_ptp2=[])
 
     def test_put0(self):
         self.run_test("def np_put0(): from numpy import put, arange ; x = arange(5); put(x, [0,2], [-44, -55]); return x", np_put0=[])
@@ -445,6 +614,9 @@ def np_rosen_der(x):
 
     def test_repeat(self):
         self.run_test("def np_repeat(): from numpy import repeat, arange ; x = arange(3); return repeat(x, 3)", np_repeat=[])
+
+    def test_resize4(self):
+        self.run_test("def np_resize4(): from numpy import resize, arange ; x = arange(24).reshape(2,3,4); return resize(x, (6,7))", np_resize4=[])
 
     def test_resize3(self):
         self.run_test("def np_resize3(): from numpy import resize, arange ; x = arange(24).reshape(2,3,4); return resize(x, (6,6))", np_resize3=[])
@@ -610,6 +782,9 @@ def np_rosen_der(x):
 
     def test_flatnonzero0(self):
         self.run_test("def np_flatnonzero0(): from numpy import arange, flatnonzero ; x = arange(-2, 3) ; return flatnonzero(x)", np_flatnonzero0=[])
+
+    def test_flatnonzero1(self):
+        self.run_test("def np_flatnonzero1(): from numpy import arange, flatnonzero ; x = arange(-2, 3) ; return flatnonzero(x[1:-1])", np_flatnonzero1=[])
 
     def test_fix0(self):
         self.run_test("def np_fix0(): from numpy import fix, array ; x = 3.14 ; return fix(x)", np_fix0=[])
@@ -1058,7 +1233,6 @@ def test_copy0():
     def test_array_equal4(self):
         self.run_test("def np_array_equal4(): from numpy import array, array_equal ;  a,b = array([1,2]), array([1,2,3]) ; return array_equal(a,b)", np_array_equal4=[])
 
-
     def test_array2string0(self):
         self.run_test("def np_array2string0(): from numpy import arange, array2string ; x = arange(3) ; return array2string(x)", np_array2string0=[])
 
@@ -1480,22 +1654,22 @@ def test_copy0():
         self.run_test("def np_arctan21(): from numpy import arctan2 ; a, b = 1., .5 ; return arctan2(a , b)", np_arctan21=[])
 
     def test_sliced0(self):
-        self.run_test("def np_sliced0(): from numpy import ones ; a = ones(20) ; return a[2:12]", np_sliced0=[])
+        self.run_test("def np_sliced0(): from numpy import arange ; a = arange(20) ; return a[2:12]", np_sliced0=[])
 
     def test_sliced1(self):
-        self.run_test("def np_sliced1(): from numpy import ones ; a = ones(20) ; return a[2:12:3]", np_sliced1=[])
+        self.run_test("def np_sliced1(): from numpy import arange ; a = arange(20) ; return a[2:12:3]", np_sliced1=[])
 
     def test_sliced2(self):
-        self.run_test("def np_sliced2(): from numpy import ones ; a = ones(20) ; return -a[2:12:3]", np_sliced2=[])
+        self.run_test("def np_sliced2(): from numpy import arange ; a = arange(20) ; return -a[2:12:3]", np_sliced2=[])
 
     def test_sliced3(self):
-        self.run_test("def np_sliced3(): from numpy import ones ; a = ones(20) ; return a[1:11:3] -a[2:12:3]", np_sliced3=[])
+        self.run_test("def np_sliced3(): from numpy import arange ; a = arange(20) ; return a[1:11:3] -a[2:12:3]", np_sliced3=[])
 
     def test_sliced4(self):
-        self.run_test("def np_sliced4(): from numpy import ones ; a = ones(20) ; return a[1:11] -a[2:12]", np_sliced4=[])
+        self.run_test("def np_sliced4(): from numpy import arange ; a = arange(20) ; return a[1:11] -a[2:12]", np_sliced4=[])
 
     def test_sliced5(self):
-        self.run_test("def np_sliced5(): from numpy import ones ; a = ones(20) ; return (-a[1:11]) + 3*a[2:12]", np_sliced5=[])
+        self.run_test("def np_sliced5(): from numpy import arange ; a = arange(20) ; return (-a[1:11]) + 3*a[2:12]", np_sliced5=[])
 
     def test_sliced6(self):
         self.run_test("def np_sliced6(): from numpy import arange ; a = arange(12).reshape(6,2) ; return a[3:4]", np_sliced6=[])
@@ -1508,6 +1682,18 @@ def test_copy0():
 
     def test_sliced9(self):
         self.run_test("def np_sliced9(): from numpy import arange ; a = arange(12).reshape(3,2,2) ; a[1:2] = arange(4).reshape(1,2,2) ; return a", np_sliced9=[])
+
+    def test_sliced10(self):
+        self.run_test("def np_sliced10(): from numpy import arange ; a = arange(12).reshape(3,2,2) ; a[1:-1:2] = arange(4).reshape(1,2,2) ; return a", np_sliced10=[])
+
+    def test_sliced11(self):
+        self.run_test("def np_sliced11(): from numpy import arange ; a = arange(12).reshape(3,2,2) ; return a[1::-2]", np_sliced11=[])
+
+    def test_sliced12(self):
+        self.run_test("def np_sliced12(): from numpy import arange ; a = arange(12) ; return a[1::-2]", np_sliced12=[])
+
+    def test_sliced13(self):
+        self.run_test("def np_sliced13(): from numpy import arange ; a = arange(11) ; return a[3::-3]", np_sliced13=[])
 
     def test_alen0(self):
         self.run_test("def np_alen0(): from numpy import ones, alen ; return alen(ones((5,6)))", np_alen0=[])
@@ -1572,15 +1758,19 @@ unary_ufunc = (
 for f in unary_ufunc:
     if 'bitwise_' in f or 'invert' in f:
         setattr(TestNumpy, 'test_' + f, eval("lambda self: self.run_test('def np_{0}(): from numpy import ones, int32, {0} ; a = ones(10, int32) ; return {0}(a)', np_{0}=[])".format(f)))
+        setattr(TestNumpy, 'test_' + f + '_matrix', eval("lambda self: self.run_test('def np_{0}_matrix(): from numpy import ones, int32, {0} ; a = ones(10, int32).reshape(5,2) ; return {0}(a)', np_{0}_matrix=[])".format(f)))
         setattr(TestNumpy, 'test_' + f + '_scalar', eval("lambda self: self.run_test('def np_{0}_scalar(): from numpy import {0} ; a = 1 ; return {0}(a)', np_{0}_scalar=[])".format(f)))
     else:
         setattr(TestNumpy, 'test_' + f, eval("lambda self: self.run_test('def np_{0}(): from numpy import ones, {0} ; a = ones(10) ; return {0}(a)', np_{0}=[])".format(f)))
+        setattr(TestNumpy, 'test_' + f + '_matrix', eval("lambda self: self.run_test('def np_{0}_matrix(): from numpy import ones, {0} ; a = ones((5,2)) ; return {0}(a)', np_{0}_matrix=[])".format(f)))
         setattr(TestNumpy, 'test_' + f + '_scalar', eval("lambda self: self.run_test('def np_{0}_scalar(): from numpy import {0} ; a = 0.5 ; return {0}(a+0.5)', np_{0}_scalar=[])".format(f)))
 
 for f in binary_ufunc:
     if 'bitwise_' in f or 'ldexp' in f or '_shift' in f :
         setattr(TestNumpy, 'test_' + f, eval("lambda self: self.run_test('def np_{0}(): from numpy import ones, int32, {0} ; a = ones(10, int32) ; return {0}(a,a)', np_{0}=[])".format(f)))
+        setattr(TestNumpy, 'test_' + f + '_matrix', eval("lambda self: self.run_test('def np_{0}_matrix(): from numpy import ones, int32, {0} ; a = ones(10, int32).reshape(5,2) ; return {0}(a,a)', np_{0}_matrix=[])".format(f)))
         setattr(TestNumpy, 'test_' + f + '_scalar', eval("lambda self: self.run_test('def np_{0}_scalar(): from numpy import {0} ; a = 1 ; return {0}(a, a-1)', np_{0}_scalar=[])".format(f)))
     else:
         setattr(TestNumpy, 'test_' + f, eval("lambda self: self.run_test('def np_{0}(): from numpy import ones, {0} ; a = ones(10) ; return {0}(a,a)', np_{0}=[])".format(f)))
+        setattr(TestNumpy, 'test_' + f + '_matrix', eval("lambda self: self.run_test('def np_{0}_matrix(): from numpy import ones, {0} ; a = ones((2,5)) ; return {0}(a,a)', np_{0}_matrix=[])".format(f)))
         setattr(TestNumpy, 'test_' + f + '_scalar', eval("lambda self: self.run_test('def np_{0}_scalar(): from numpy import {0} ; a = 0.5 ; return {0}(a+0.5, a+0.5)', np_{0}_scalar=[])".format(f)))

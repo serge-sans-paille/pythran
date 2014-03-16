@@ -9,16 +9,9 @@
 namespace pythonic {
 
     namespace numpy {
-        using nt2::sqrt;
-
-        namespace wrapper {
-            PROXY(pythonic::numpy, sqrt)
-
-        }
 #define NUMPY_UNARY_FUNC_NAME sqrt
-#define NUMPY_UNARY_FUNC_SYM wrapper::proxy::sqrt
+#define NUMPY_UNARY_FUNC_SYM nt2::sqrt
 #include "pythonic/types/numpy_unary_expr.hpp"
-        PROXY(pythonic::numpy, sqrt)
     }
 }
 

@@ -4,12 +4,13 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/utils/numpy_conversion.hpp"
+#include "pythonic/numpy/asarray.hpp"
 
 namespace pythonic {
 
     namespace numpy {
         template<class T>
-            types::ndarray<T,1> diag(types::ndarray<T,2> a, long k=0) {
+            types::ndarray<T,1> diag(types::ndarray<T,2> const &a, long k=0) {
                 T* buffer = new T[std::max(a.shape[0], a.shape[1])];
                 long shape[1] = {0};
                 auto iter = buffer;
@@ -24,16 +25,22 @@ namespace pythonic {
             }
 
         template<class T>
-            types::ndarray<T,2> diag(types::ndarray<T,1> a, long k=0) {
+            types::ndarray<T,2> diag(types::ndarray<T,1> const &a, long k=0) {
                 long n = a.size() + std::abs(k);
                 types::ndarray<T,2> out(types::make_tuple(n,n), 0);
                 if(k>=0)
                     for(long i=0,j =k ; i< n and j<n ;++i,++j)
-                        out[i][j] = a.buffer[i];
+                        out[i][j] = a[i];
                 else
                     for(long i=-k,j =0 ; i< n and j<n ;++i,++j)
-                        out[i][j] = a.buffer[j];
+                        out[i][j] = a[j];
                 return out;
+            }
+        template<class T>
+            auto diag(types::list<T> const &a, long k=0) 
+            -> decltype(diag(asarray(a), k))
+            {
+                return diag(asarray(a), k);
             }
 
         NUMPY_EXPR_TO_NDARRAY0(diag);

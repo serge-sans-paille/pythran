@@ -31,10 +31,8 @@ namespace pythonic {
                     >::type,
                     1> out(types::make_tuple(nsize), __builtin__::None);
                 size_t i=0;
-                for(i=0;i<nto.size();++i)
-                    out.at(i) = nto.at(i);
-                for(size_t j=0;j<ndata.size();++j)
-                    out.at(i+j) = ndata.at(j);
+                auto out_back = std::copy(nto.fbegin(), nto.fend(), out.fbegin());
+                std::copy(ndata.fbegin(), ndata.fend(), out_back);
                 return out;
             }
         template<class T, class F>

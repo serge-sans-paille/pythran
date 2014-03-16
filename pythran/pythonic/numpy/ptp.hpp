@@ -10,7 +10,9 @@ namespace pythonic {
         template<class E>
             auto ptp(E const& expr, long axis) -> decltype(max(expr, axis) - min(expr, axis))
             {
-                return max(expr, axis) - min(expr, axis);
+                auto min_ =  min(expr, axis);
+                auto max_ = max(expr, axis);
+                return max_ - min_;
             }
 
         template<class E>

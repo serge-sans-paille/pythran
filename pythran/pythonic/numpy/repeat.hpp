@@ -13,8 +13,10 @@ namespace pythonic {
             types::ndarray<T,1> repeat(types::ndarray<T,N> const& expr, int repeats)
             {
                 types::ndarray<T,1> out(types::array<long, N>{{expr.size() * repeats}}, __builtin__::None);
-                for(int i=0; i<out.size(); ++i)
-                    out.at(i) = expr.at(i / expr.size());
+                auto out_iter = out.fbegin();
+                for(auto iter = expr.fbegin(), end = expr.fend(); iter != end; ++iter)
+                    for(int i = 0; i< repeats; ++i)
+                        *out_iter++ = *iter;
                 return out;
             }
 

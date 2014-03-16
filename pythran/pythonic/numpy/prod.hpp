@@ -11,25 +11,38 @@
 namespace pythonic {
 
     namespace numpy {
+        template<class E, class F>
+            void _prod(E begin, E end, F& prod, utils::int_<1>)
+            {
+                for(; begin != end; ++begin)
+                    prod *= *begin;
+            }
+        template<class E, class F, size_t N>
+            void _prod(E begin, E end, F& prod, utils::int_<N>)
+            {
+                for(; begin != end; ++begin)
+                    _prod((*begin).begin(), (*begin).end(), prod, utils::int_<N - 1>());
+            }
+            
         template<class E>
-            typename types::numpy_expr_to_ndarray<E>::type::dtype
-            prod(E const& expr, types::none_type axis=__builtin__::None) {
-                auto p = typename types::numpy_expr_to_ndarray<E>::type::dtype(1);
-                for(long i=0, n = expr.size() ; i<n; ++i)
-                    p *= expr.at(i);
+            typename types::numpy_expr_to_ndarray<E>::T
+            prod(E const& expr, types::none_type _ = types::none_type()) {
+                typename types::numpy_expr_to_ndarray<E>::T p = 1;
+                _prod(expr.begin(), expr.end(), p, utils::int_<types::numpy_expr_to_ndarray<E>::N>());
                 return p;
             }
 
         template<class T>
-            T prod( types::ndarray<T,1> const& array, long axis)
+            T prod(types::ndarray<T,1> const& array, long axis)
             {
-                if(axis!=0)
+                if(axis != 0)
                     throw types::ValueError("axis out of bounds");
                 return prod(array);
             }
 
         template<class T, size_t N>
-            typename types::ndarray<T,N>::value_type prod( types::ndarray<T,N> const& array, long axis)
+            typename types::ndarray<T,N>::value_type
+            prod(types::ndarray<T,N> const& array, long axis)
             {
                 if(axis<0 || axis >=long(N))
                     throw types::ValueError("axis out of bounds");

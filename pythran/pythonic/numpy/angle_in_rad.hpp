@@ -8,19 +8,16 @@
 namespace pythonic {
 
     namespace numpy {
-        template<class T >
-            auto angle_in_rad(T const& t) -> decltype(arctan(std::imag(t)/std::real(t))) {
-                if(std::real(t)) return arctan(std::imag(t)/std::real(t));
-                else return M_PI/2;
-            }
         namespace wrapper {
-            PROXY(pythonic::numpy, angle_in_rad)
-
+            template<class T >
+                auto angle_in_rad(T const& t) -> decltype(nt2::atan(std::imag(t)/std::real(t))) {
+                    if(std::real(t)) return nt2::atan(std::imag(t)/std::real(t));
+                    else return M_PI/2;
+                }
         }
 #define NUMPY_UNARY_FUNC_NAME angle_in_rad
-#define NUMPY_UNARY_FUNC_SYM wrapper::proxy::angle_in_rad
+#define NUMPY_UNARY_FUNC_SYM wrapper::angle_in_rad
 #include "pythonic/types/numpy_unary_expr.hpp"
-        PROXY(pythonic::numpy, angle_in_rad)
 
     }
 

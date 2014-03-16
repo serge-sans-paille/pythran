@@ -8,15 +8,9 @@
 namespace pythonic {
 
     namespace numpy {
-        ALIAS(spacing, nt2::eps)
-            namespace wrapper {
-                PROXY(pythonic::numpy, spacing)
-
-            }
 #define NUMPY_UNARY_FUNC_NAME spacing
-#define NUMPY_UNARY_FUNC_SYM wrapper::proxy::spacing
+#define NUMPY_UNARY_FUNC_SYM nt2::eps
 #include "pythonic/types/numpy_unary_expr.hpp"
-        PROXY(pythonic::numpy, spacing)
 
     }
 

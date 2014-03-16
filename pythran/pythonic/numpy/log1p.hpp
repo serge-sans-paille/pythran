@@ -8,17 +8,9 @@
 namespace pythonic {
 
     namespace numpy {
-        using nt2::log1p;
-
-        namespace wrapper {
-            PROXY(pythonic::numpy, log1p)
-
-        }
 #define NUMPY_UNARY_FUNC_NAME log1p
-#define NUMPY_UNARY_FUNC_SYM wrapper::proxy::log1p
+#define NUMPY_UNARY_FUNC_SYM nt2::log1p
 #include "pythonic/types/numpy_unary_expr.hpp"
-        PROXY(pythonic::numpy, log1p)
-
     }
 
 }

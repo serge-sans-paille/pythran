@@ -4,6 +4,7 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/pi.hpp"
+#include "pythonic/numpy/asarray.hpp"
 
 #include <nt2/include/functions/max.hpp>
 
@@ -15,14 +16,17 @@ namespace pythonic {
             {
                 discont = nt2::max(discont, pi);
                 types::ndarray<double, types::numpy_expr_to_ndarray<E>::N> out(expr.shape, __builtin__::None);
-                out.buffer[0] = expr.at(0);
-                for(size_t i=1; i<out.size(); ++i)
+                auto arr = asarray(expr);
+                auto iter = arr.fbegin();
+                auto out_iter = out.fbegin();
+                *out_iter++ = *iter++;
+                for(auto end = arr.fend() ; iter != end; ++iter, ++out_iter)
                 {
-                    auto val = expr.at(i);
-                    if(nt2::abs(out.buffer[i-1] - val) > discont)
-                        out.buffer[i] = val + 2*pi * int((out.buffer[i-1] - val) / (discont));
+                    auto val = *iter;
+                    if(nt2::abs(*(out_iter - 1) - val) > discont)
+                        *out_iter = val + 2*pi * int((*(out_iter - 1) - val) / (discont));
                     else
-                        out.buffer[i] = val;
+                        *out_iter = val;
                 }
                 return out;
             }

@@ -9,15 +9,9 @@
 namespace pythonic {
 
     namespace numpy {
-        ALIAS(absolute, nt2::abs)
-            namespace wrapper {
-                PROXY(pythonic::numpy, absolute)
-
-            }
 #define NUMPY_UNARY_FUNC_NAME absolute
-#define NUMPY_UNARY_FUNC_SYM wrapper::proxy::absolute
+#define NUMPY_UNARY_FUNC_SYM nt2::abs
 #include "pythonic/types/numpy_unary_expr.hpp"
-        PROXY(pythonic::numpy, absolute)
 
     }
 

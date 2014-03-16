@@ -8,22 +8,29 @@
 namespace pythonic {
 
     namespace numpy {
-        template<class U, class V>
-            bool allclose(U&& u, V&& v, double rtol=1e-5, double atol=1e-8) {
-                long u_s = u.size(),
-                     v_s = v.size();
-                if( u_s == v_s ) {
-                    for(long i=0;i < u_s; ++i) {
-                        auto v_i = v.at(i);
-                        auto u_i = u.at(i);
-                        if( nt2::is_nan(v_i) ||
-                                nt2::is_nan(u_i) ||
-                                std::abs(u.at(i)-v_i) > (atol + rtol * std::abs(v_i)))
-                            return false;
+        template<class I0, class I1>
+            void _allclose(I0 begin, I0 end, I1 ibegin, bool& close,  double rtol, double atol, utils::int_<1>)
+            {
+                for(; begin != end; ++begin, ++ibegin) {
+                    auto u = *begin;
+                    auto v = *ibegin;
+                    if(nt2::is_nan(v) || nt2::is_nan(u) || std::abs(u-v) > (atol + rtol * std::abs(v))) {
+                        close = false;
+                        return;
                     }
-                    return true;
                 }
-                return false;
+            }
+        template<class I0, class I1, size_t N>
+            void _allclose(I0 begin, I0 end, I1 ibegin, bool& close,  double rtol, double atol, utils::int_<N>)
+            {
+                for(; close and begin != end; ++begin, ++ibegin)
+                    _allclose((*begin).begin(), (*begin).end(), (*ibegin).begin(), close, rtol, atol, utils::int_<N - 1>());
+            }
+        template<class U, class V>
+            bool allclose(U const& u, V const& v, double rtol=1e-5, double atol=1e-8) {
+                bool close = true;
+                _allclose(u.begin(), u.end(), v.begin(), close, rtol, atol, utils::int_<types::numpy_expr_to_ndarray<U>::N>());
+                return close;
             }
 
         PROXY(pythonic::numpy, allclose);

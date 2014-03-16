@@ -8,16 +8,9 @@
 namespace pythonic {
 
     namespace numpy {
-        ALIAS(rint, nt2::iround)
-
-            namespace wrapper {
-                PROXY(pythonic::numpy, rint)
-
-            }
 #define NUMPY_UNARY_FUNC_NAME rint
-#define NUMPY_UNARY_FUNC_SYM wrapper::proxy::rint
+#define NUMPY_UNARY_FUNC_SYM nt2::iround
 #include "pythonic/types/numpy_unary_expr.hpp"
-        PROXY(pythonic::numpy, rint)
     }
 
 }

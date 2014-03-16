@@ -10,28 +10,31 @@
 namespace pythonic {
 
     namespace numpy {
-        template<class E>
-            auto nanmin(E&& expr) -> typename std::remove_reference<decltype(expr.at(0))>::type {
-                long n = expr.size();
-                if(not n) 
-                    throw types::ValueError("empty sequence");
-                long i = 0;
-                auto e_i = expr.at(i);
-                while( nt2::is_nan(e_i) and i < n )
-                    e_i = expr.at(++i);
-                if(i == n) {
-                    throw types::ValueError("nan sequence");
-                }
-                else {
-                    auto res = e_i;
-                    for(; i< n ; ++i) {
-                        auto e_i = expr.at(i);
-                        if(e_i< res and not nt2::is_nan(e_i))
-                            res = e_i;
-                    }
-                    return res;
+        template<class E, class F>
+            void _nanmin(E begin, E end, F& min, utils::int_<1>)
+            {
+                for(; begin != end; ++begin)
+                {
+                    auto curr = *begin;
+                    if(not nt2::is_nan(curr) and curr < min)
+                        min = curr;
                 }
             }
+        template<class E, class F, size_t N>
+            void _nanmin(E begin, E end, F& min, utils::int_<N>)
+            {
+                for(; begin != end; ++begin)
+                    _nanmin((*begin).begin(), (*begin).end(), min, utils::int_<N - 1>());
+            }
+            
+        template<class E>
+            typename types::numpy_expr_to_ndarray<E>::T
+            nanmin(E const& expr) {
+                typename types::numpy_expr_to_ndarray<E>::T min = std::numeric_limits<typename types::numpy_expr_to_ndarray<E>::T>::max();
+                _nanmin(expr.begin(), expr.end(), min, utils::int_<types::numpy_expr_to_ndarray<E>::N>());
+                return min;
+            }
+
         PROXY(pythonic::numpy, nanmin);
 
     }

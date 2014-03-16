@@ -21,7 +21,7 @@ namespace pythonic {
                 T* buffer = new T[n];
                 T* iter = buffer;
                 for(auto const& a : ai) 
-                    iter = std::copy(a.buffer, a.buffer + a.size(), iter);
+                    iter = std::copy(a.fbegin(), a.fend(), iter);
 
                 return types::ndarray<T,N>(buffer, shape);
             }

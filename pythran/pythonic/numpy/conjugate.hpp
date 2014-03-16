@@ -8,17 +8,9 @@
 namespace pythonic {
 
     namespace numpy {
-        ALIAS(conjugate, nt2::conj)
-
-            namespace wrapper {
-                PROXY(pythonic::numpy, conjugate)
-
-            }
 #define NUMPY_UNARY_FUNC_NAME conjugate
-#define NUMPY_UNARY_FUNC_SYM wrapper::proxy::conjugate
+#define NUMPY_UNARY_FUNC_SYM nt2::conj
 #include "pythonic/types/numpy_unary_expr.hpp"
-        PROXY(pythonic::numpy, conjugate)
-
     }
 
 }

@@ -8,16 +8,9 @@
 namespace pythonic {
 
     namespace numpy {
-        ALIAS(rad2deg, nt2::indeg)
-
-            namespace wrapper {
-                PROXY(pythonic::numpy, rad2deg)
-
-            }
 #define NUMPY_UNARY_FUNC_NAME rad2deg
-#define NUMPY_UNARY_FUNC_SYM wrapper::proxy::rad2deg
+#define NUMPY_UNARY_FUNC_SYM nt2::indeg
 #include "pythonic/types/numpy_unary_expr.hpp"
-        PROXY(pythonic::numpy, rad2deg)
 
     }
 

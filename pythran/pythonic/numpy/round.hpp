@@ -6,7 +6,9 @@
 namespace pythonic {
 
     namespace numpy {
-        FPROXY(pythonic::numpy, round, rint)
+#define NUMPY_UNARY_FUNC_NAME round
+#define NUMPY_UNARY_FUNC_SYM nt2::iround
+#include "pythonic/types/numpy_unary_expr.hpp"
 
     }
 

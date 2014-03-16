@@ -8,16 +8,9 @@
 namespace pythonic {
 
     namespace numpy {
-        using nt2::tan;
-
-        namespace wrapper {
-            PROXY(pythonic::numpy, tan)
-
-        }
 #define NUMPY_UNARY_FUNC_NAME tan
-#define NUMPY_UNARY_FUNC_SYM wrapper::proxy::tan
+#define NUMPY_UNARY_FUNC_SYM nt2::tan
 #include "pythonic/types/numpy_unary_expr.hpp"
-        PROXY(pythonic::numpy, tan)
     }
 }
 

@@ -11,27 +11,27 @@ namespace pythonic {
 
         /* cas : array_like, array_like, array_like */
         template<class E, class X, class Y>
-            typename std::enable_if<types::is_array_like<typename std::remove_reference<typename std::remove_cv<E>::type>::type>::value && 
-            types::is_array_like<typename std::remove_reference<typename std::remove_cv<X>::type>::type>::value &&
-            types::is_array_like<typename std::remove_reference<typename std::remove_cv<Y>::type>::type>::value,
+            typename std::enable_if<types::is_numexpr_arg<typename std::remove_reference<typename std::remove_cv<E>::type>::type>::value && 
+            types::is_numexpr_arg<typename std::remove_reference<typename std::remove_cv<X>::type>::type>::value &&
+            types::is_numexpr_arg<typename std::remove_reference<typename std::remove_cv<Y>::type>::type>::value,
             types::ndarray<
                 decltype(std::declval<
                         typename utils::nested_container_value_type<
                         typename std::remove_reference<typename std::remove_cv<X>::type>::type,
-                        types::is_array_like<
+                        types::is_numexpr_arg<
                         typename std::remove_reference<typename std::remove_cv<X>::type>::type
                         >::value * std::numeric_limits<size_t>::max()
                         >::type>() +
                         std::declval<
                         typename utils::nested_container_value_type<
                         typename std::remove_reference<typename std::remove_cv<Y>::type>::type,
-                        types::is_array_like<
+                        types::is_numexpr_arg<
                         typename std::remove_reference<typename std::remove_cv<Y>::type>::type
                         >::value * std::numeric_limits<size_t>::max()
                         >::type>()),
             utils::nested_container_depth<
                 typename std::conditional<
-                types::is_array_like<typename std::remove_reference<typename std::remove_cv<E>::type>::type>::value,
+                types::is_numexpr_arg<typename std::remove_reference<typename std::remove_cv<E>::type>::type>::value,
             typename std::remove_reference<typename std::remove_cv<E>::type>::type,
             bool
                 >::type
@@ -53,32 +53,32 @@ namespace pythonic {
                             typename std::remove_reference<typename std::remove_cv<E>::type>::type
                             >::value
                             > out(condition.shape, __builtin__::None);
-                    auto out_iter = out.buffer;
+                    auto out_iter = out.fbegin();
                     for(long i=0, n=condition.size(); i<n; ++i) {
-                        if(condition.at(i))
-                            *out_iter++ = x_.at(i);
+                        if(*(condition.fbegin()+i))
+                            *out_iter++ = *(x_.fbegin()+i);
                         else
-                            *out_iter++ = y_.at(i);
+                            *out_iter++ = *(y_.fbegin()+i);
                     }
                     return out;
                 }
 
         /* cas : array_like, value, array_like */
         template<class E, class X, class Y>
-            typename std::enable_if<types::is_array_like<typename std::remove_reference<typename std::remove_cv<E>::type>::type>::value && 
-            !types::is_array_like<typename std::remove_reference<typename std::remove_cv<X>::type>::type>::value &&
-            types::is_array_like<typename std::remove_reference<typename std::remove_cv<Y>::type>::type>::value,
+            typename std::enable_if<types::is_numexpr_arg<typename std::remove_reference<typename std::remove_cv<E>::type>::type>::value && 
+            !types::is_numexpr_arg<typename std::remove_reference<typename std::remove_cv<X>::type>::type>::value &&
+            types::is_numexpr_arg<typename std::remove_reference<typename std::remove_cv<Y>::type>::type>::value,
             types::ndarray<
                 decltype(std::declval<X>() +
                         std::declval<
                         typename utils::nested_container_value_type<
                         typename std::remove_reference<typename std::remove_cv<Y>::type>::type,
-                        types::is_array_like<
+                        types::is_numexpr_arg<
                         typename std::remove_reference<typename std::remove_cv<Y>::type>::type
                         >::value * std::numeric_limits<size_t>::max()>::type>()),
             utils::nested_container_depth<
                 typename std::conditional<
-                types::is_array_like<typename std::remove_reference<typename std::remove_cv<E>::type>::type>::value,
+                types::is_numexpr_arg<typename std::remove_reference<typename std::remove_cv<E>::type>::type>::value,
             typename std::remove_reference<typename std::remove_cv<E>::type>::type,
             bool
                 >::type
@@ -98,31 +98,31 @@ namespace pythonic {
                             > out(condition.shape, __builtin__::None);
                     auto out_iter = out.buffer;
                     for(long i=0, n=condition.size(); i<n; ++i) {
-                        if(condition.at(i))
+                        if(*(condition.fbegin()+i))
                             *out_iter++ = x;
                         else
-                            *out_iter++ = y_.at(i);
+                            *out_iter++ = *(y_.fbegin()+i);
                     }
                     return out;
                 }
 
         /* cas : array_like, array_like, value */
         template<class E, class X, class Y>
-            typename std::enable_if<types::is_array_like<typename std::remove_reference<typename std::remove_cv<E>::type>::type>::value && 
-            types::is_array_like<typename std::remove_reference<typename std::remove_cv<X>::type>::type>::value &&
-            !types::is_array_like<typename std::remove_reference<typename std::remove_cv<Y>::type>::type>::value,
+            typename std::enable_if<types::is_numexpr_arg<typename std::remove_reference<typename std::remove_cv<E>::type>::type>::value && 
+            types::is_numexpr_arg<typename std::remove_reference<typename std::remove_cv<X>::type>::type>::value &&
+            !types::is_numexpr_arg<typename std::remove_reference<typename std::remove_cv<Y>::type>::type>::value,
             types::ndarray<
                 decltype(std::declval<Y>() +
                         std::declval<
                         typename utils::nested_container_value_type<
                         typename std::remove_reference<typename std::remove_cv<X>::type>::type,
-                        types::is_array_like<
+                        types::is_numexpr_arg<
                         typename std::remove_reference<typename std::remove_cv<X>::type>::type
                         >::value * std::numeric_limits<size_t>::max()
                         >::type>()),
             utils::nested_container_depth<
                 typename std::conditional<
-                types::is_array_like<typename std::remove_reference<typename std::remove_cv<E>::type>::type>::value,
+                types::is_numexpr_arg<typename std::remove_reference<typename std::remove_cv<E>::type>::type>::value,
             typename std::remove_reference<typename std::remove_cv<E>::type>::type,
             bool
                 >::type
@@ -142,8 +142,8 @@ namespace pythonic {
                             > out(condition.shape, __builtin__::None);
                     auto out_iter = out.buffer;
                     for(long i=0, n=condition.size(); i<n; ++i) {
-                        if(condition.at(i))
-                            *out_iter++ = x_.at(i);
+                        if(*(condition.fbegin()+i))
+                            *out_iter++ = *(x_.fbegin()+i);
                         else
                             *out_iter++ = y;
                     }
@@ -152,14 +152,14 @@ namespace pythonic {
 
         /* cas : array_like, value, value */
         template<class E, class X, class Y>
-            typename std::enable_if<types::is_array_like<typename std::remove_reference<typename std::remove_cv<E>::type>::type>::value && 
-            !types::is_array_like<typename std::remove_reference<typename std::remove_cv<X>::type>::type>::value &&
-            !types::is_array_like<typename std::remove_reference<typename std::remove_cv<Y>::type>::type>::value,
+            typename std::enable_if<types::is_numexpr_arg<typename std::remove_reference<typename std::remove_cv<E>::type>::type>::value && 
+            !types::is_numexpr_arg<typename std::remove_reference<typename std::remove_cv<X>::type>::type>::value &&
+            !types::is_numexpr_arg<typename std::remove_reference<typename std::remove_cv<Y>::type>::type>::value,
             types::ndarray<
                 decltype(std::declval<Y>() + std::declval<X>()),
             utils::nested_container_depth<
                 typename std::conditional<
-                types::is_array_like<typename std::remove_reference<typename std::remove_cv<E>::type>::type>::value,
+                types::is_numexpr_arg<typename std::remove_reference<typename std::remove_cv<E>::type>::type>::value,
             typename std::remove_reference<typename std::remove_cv<E>::type>::type,
             bool
                 >::type
@@ -174,7 +174,7 @@ namespace pythonic {
                             > out(condition.shape, __builtin__::None);
                     auto out_iter = out.buffer;
                     for(long i=0, n=condition.size(); i<n; ++i) {
-                        if(condition.at(i))
+                        if(*(condition.fbegin()+i))
                             *out_iter++ = x;
                         else
                             *out_iter++ = y;
@@ -184,21 +184,21 @@ namespace pythonic {
 
         /* cas : value, value, array_like */
         template<class E, class X, class Y>
-            typename std::enable_if<!types::is_array_like<typename std::remove_reference<typename std::remove_cv<E>::type>::type>::value && 
-            !types::is_array_like<typename std::remove_reference<typename std::remove_cv<X>::type>::type>::value &&
-            types::is_array_like<typename std::remove_reference<typename std::remove_cv<Y>::type>::type>::value,
+            typename std::enable_if<!types::is_numexpr_arg<typename std::remove_reference<typename std::remove_cv<E>::type>::type>::value && 
+            !types::is_numexpr_arg<typename std::remove_reference<typename std::remove_cv<X>::type>::type>::value &&
+            types::is_numexpr_arg<typename std::remove_reference<typename std::remove_cv<Y>::type>::type>::value,
             types::ndarray<
                 decltype(std::declval<X>() +
                         std::declval<
                         typename utils::nested_container_value_type<
                         typename std::remove_reference<typename std::remove_cv<Y>::type>::type,
-                        types::is_array_like<
+                        types::is_numexpr_arg<
                         typename std::remove_reference<typename std::remove_cv<Y>::type>::type
                         >::value * std::numeric_limits<size_t>::max()
                         >::type>()),
             utils::nested_container_depth<
                 typename std::conditional<
-                types::is_array_like<typename std::remove_reference<typename std::remove_cv<Y>::type>::type>::value,
+                types::is_numexpr_arg<typename std::remove_reference<typename std::remove_cv<Y>::type>::type>::value,
             typename std::remove_reference<typename std::remove_cv<Y>::type>::type,
             bool
                 >::type
@@ -222,20 +222,20 @@ namespace pythonic {
 
         /* cas : value, array_like, value */
         template<class E, class X, class Y>
-            typename std::enable_if<!types::is_array_like<typename std::remove_reference<typename std::remove_cv<E>::type>::type>::value && 
-            types::is_array_like<typename std::remove_reference<typename std::remove_cv<X>::type>::type>::value &&
-            !types::is_array_like<typename std::remove_reference<typename std::remove_cv<Y>::type>::type>::value,
+            typename std::enable_if<!types::is_numexpr_arg<typename std::remove_reference<typename std::remove_cv<E>::type>::type>::value && 
+            types::is_numexpr_arg<typename std::remove_reference<typename std::remove_cv<X>::type>::type>::value &&
+            !types::is_numexpr_arg<typename std::remove_reference<typename std::remove_cv<Y>::type>::type>::value,
             types::ndarray<decltype(std::declval<Y>() +
                     std::declval<
                     typename utils::nested_container_value_type<
                     typename std::remove_reference<typename std::remove_cv<X>::type>::type,
-                    types::is_array_like<
+                    types::is_numexpr_arg<
                     typename std::remove_reference<typename std::remove_cv<X>::type>::type
                     >::value * std::numeric_limits<size_t>::max()
                     >::type>()),
             utils::nested_container_depth<
                 typename std::conditional<
-                types::is_array_like<
+                types::is_numexpr_arg<
                 typename std::remove_reference<typename std::remove_cv<X>::type>::type
                 >::value,
             typename std::remove_reference<typename std::remove_cv<X>::type>::type,
@@ -252,24 +252,24 @@ namespace pythonic {
 
         /* cas : value, array_like, array_like */
         template<class E, class X, class Y>
-            typename std::enable_if<!types::is_array_like<typename std::remove_reference<typename std::remove_cv<E>::type>::type>::value && 
-            types::is_array_like<typename std::remove_reference<typename std::remove_cv<X>::type>::type>::value &&
-            types::is_array_like<typename std::remove_reference<typename std::remove_cv<Y>::type>::type>::value,
+            typename std::enable_if<!types::is_numexpr_arg<typename std::remove_reference<typename std::remove_cv<E>::type>::type>::value && 
+            types::is_numexpr_arg<typename std::remove_reference<typename std::remove_cv<X>::type>::type>::value &&
+            types::is_numexpr_arg<typename std::remove_reference<typename std::remove_cv<Y>::type>::type>::value,
             types::ndarray<decltype(std::declval<
                     typename utils::nested_container_value_type<
                     typename std::remove_reference<typename std::remove_cv<Y>::type>::type,
-                    types::is_array_like<
+                    types::is_numexpr_arg<
                     typename std::remove_reference<typename std::remove_cv<Y>::type>::type
                     >::value * std::numeric_limits<size_t>::max()>::type>() +
                     std::declval<
                     typename utils::nested_container_value_type<
                     typename std::remove_reference<typename std::remove_cv<X>::type>::type,
-                    types::is_array_like<
+                    types::is_numexpr_arg<
                     typename std::remove_reference<typename std::remove_cv<X>::type>::type
                     >::value * std::numeric_limits<size_t>::max()>::type>()),
             utils::nested_container_depth<
                 typename std::conditional<
-                types::is_array_like<typename std::remove_reference<typename std::remove_cv<X>::type>::type>::value,
+                types::is_numexpr_arg<typename std::remove_reference<typename std::remove_cv<X>::type>::type>::value,
             typename std::remove_reference<typename std::remove_cv<X>::type>::type,
             bool
                 >::type

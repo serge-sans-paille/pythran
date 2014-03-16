@@ -15,19 +15,21 @@ namespace pythonic {
 
     namespace numpy {
         template<class E, class T>
-            typename std::enable_if<types::is_array_like<E>::value, types::ndarray<long, types::numpy_expr_to_ndarray<E>::N>>::type searchsorted(types::ndarray<T,1> const& a, E const& v, types::str const & side = "left")
+            typename std::enable_if<types::is_numexpr_arg<E>::value, types::ndarray<long, types::numpy_expr_to_ndarray<E>::N>>::type searchsorted(types::ndarray<T,1> const& a, E const& v, types::str const & side = "left")
             {
                 types::ndarray<T,types::numpy_expr_to_ndarray<E>::N> to_search = asarray(v);
                 types::ndarray<long, types::numpy_expr_to_ndarray<E>::N> out(to_search.shape, __builtin__::None);
                 if(side[0]=='l')
                 {
-                    for(int i=0; i<out.size(); ++i)
-                        out.at(i) = std::lower_bound(a.buffer, a.buffer + a.size(), to_search.at(i)) - a.buffer;
+                    auto itosearch = to_search.fbegin();
+                    for(auto iout = out.fbegin(), end = out.fend(); iout != end; ++iout, ++itosearch)
+                        *iout = std::lower_bound(a.fbegin(), a.fend(), *itosearch) - a.fbegin();
                 }
                 else if(side[0]=='r')
                 {
-                    for(int i=0; i<out.size(); ++i)
-                        out.at(i) = std::upper_bound(a.buffer, a.buffer + a.size(), to_search.at(i)) - a.buffer;
+                    auto itosearch = to_search.fbegin();
+                    for(auto iout = out.fbegin(), end = out.fend(); iout != end; ++iout, ++itosearch)
+                        *iout = std::upper_bound(a.fbegin(), a.fend(), *itosearch) - a.fbegin();
                 }
                 else
                     throw types::ValueError("'" + side + "' is an invalid value for keyword 'side'");
@@ -39,11 +41,11 @@ namespace pythonic {
             {
                 if(side[0]=='l')
                 {
-                    return std::lower_bound(a.buffer, a.buffer + a.size(), v) - a.buffer;
+                    return std::lower_bound(a.fbegin(), a.fend(), v) - a.buffer;
                 }
                 else if(side[0]=='r')
                 {
-                    return std::upper_bound(a.buffer, a.buffer + a.size(), v) - a.buffer;
+                    return std::upper_bound(a.fbegin(), a.fend(), v) - a.buffer;
                 }
                 else
                     throw types::ValueError("'" + side + "' is an invalid value for keyword 'side'");

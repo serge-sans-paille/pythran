@@ -4,30 +4,39 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/__builtin__/None.hpp"
+#include "pythonic/numpy/asarray.hpp"
 
 namespace pythonic {
 
     namespace numpy {
-        template<class T, size_t N, class E,class F>
-            types::none_type place(types::ndarray<T,N> & expr, E const& mask, F const& values)
+        template<class T, size_t N, class Tp, size_t Np, class F>
+            types::none_type place(types::ndarray<T,N> & expr, types::ndarray<Tp,Np> const& mask, F const& values)
             {
-                int j=0;
-                int first = -1;
-                for(size_t i=0; i<expr.size(); ++i)
+                auto first = expr.fend();
+                auto viter = values.begin(), vend = values.end();
+                auto miter = mask.fbegin();
+                for(auto iter = expr.fbegin(), end = expr.fend(); iter != end; ++iter, ++miter)
                 {
-                    if(mask.at(i))
+                    if(*miter)
                     {
-                        if(first==-1)
-                            first = i;
-                        if(j<values.size())
-                            expr.at(i) = values.at(j++);
+                        if(first == expr.fend())
+                            first = iter;
+                        if(viter != vend) {
+                            *iter = *viter;
+                            ++viter;
+                        }
                         else
                         {
-                            expr.at(i) = expr.at(first);
+                            *iter = *first;
                         }
                     }
                 }
                 return __builtin__::None;
+            }
+        template<class T, size_t N, class M, class F>
+            types::none_type place(types::ndarray<T,N> & expr, M const& mask, F const& values)
+            {
+                return place(expr, asarray(mask), values);
             }
         PROXY(pythonic::numpy, place);
 

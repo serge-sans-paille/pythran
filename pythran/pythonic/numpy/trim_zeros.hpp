@@ -14,11 +14,11 @@ namespace pythonic {
                 int begin = 0;
                 int end = expr.size();
                 if(trim.find("f") != std::string::npos)
-                    begin = std::find_if(expr.buffer, expr.buffer + end, [](T i){return i!=0;}) - expr.buffer;
+                    begin = std::find_if(expr.fbegin(), expr.fend(), [](T i){return i!=0;}) - expr.fbegin();
                 if(trim.find("b") != std::string::npos)
-                    while(*(expr.buffer + --end) != 0); // Ugly, ndarray miss real iterator
+                    while(*(expr.fbegin() + --end) != 0);
                 types::ndarray<T,1> out(types::array<long,1>{{end - begin}}, __builtin__::None);
-                std::copy(expr.buffer + begin, expr.buffer + end, out.buffer);
+                std::copy(expr.fbegin() + begin, expr.fbegin() + end, out.fbegin());
                 return out;
             }
         NUMPY_EXPR_TO_NDARRAY0(trim_zeros)

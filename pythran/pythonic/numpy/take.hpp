@@ -11,8 +11,9 @@ namespace pythonic {
             typename types::numpy_expr_to_ndarray<F>::type take(types::ndarray<T,N> const & expr, F const& indices)
             {
                 typename types::numpy_expr_to_ndarray<F>::type out = asarray(indices);
-                for(size_t i=0; i<out.size(); ++i)
-                    out.buffer[i] = expr.at(out.buffer[i]);
+                auto expr_iter = expr.fbegin();
+                for(auto out_iter = out.fbegin(), out_end = out.fend(); out_iter != out_end; ++out_iter)
+                    *out_iter = *(expr_iter + *out_iter);
                 return out;
             }
         NUMPY_EXPR_TO_NDARRAY0(take);

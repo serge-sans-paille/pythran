@@ -253,9 +253,6 @@ namespace pythonic {
                 const_reference operator[]( long n ) const {
                     return (*data)[(n>=0)?n : (data->size() + n)];
                 }
-                const_reference at( long n ) const {
-                    return (*data)[n];
-                }
 
                 list<T> operator[]( slice const &s ) const {
                     normalized_slice norm = s.normalize(size());

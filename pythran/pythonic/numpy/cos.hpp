@@ -8,16 +8,9 @@
 namespace pythonic {
 
     namespace numpy {
-        using nt2::cos;
-
-        namespace wrapper {
-            PROXY(pythonic::numpy, cos)
-
-        }
 #define NUMPY_UNARY_FUNC_NAME cos
-#define NUMPY_UNARY_FUNC_SYM wrapper::proxy::cos
+#define NUMPY_UNARY_FUNC_SYM nt2::cos
 #include "pythonic/types/numpy_unary_expr.hpp"
-        PROXY(pythonic::numpy, cos)
     }
 }
 

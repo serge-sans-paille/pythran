@@ -11,12 +11,21 @@ namespace pythonic {
             struct numpy_type {
                 typedef decltype(std::declval<T>()()) type;
             };
-        template<> struct numpy_type<bool> { typedef bool type; };
-        template<> struct numpy_type<int> { typedef int type; };
-        template<> struct numpy_type<long> { typedef long type; };
-        template<> struct numpy_type<double> { typedef double type; };
-        template<> struct numpy_type<std::complex<long>> { typedef std::complex<long> type; };
-        template<> struct numpy_type<std::complex<double>> { typedef std::complex<double> type; };
+#define SPECIALIZE_NUMPY_TYPE(TYPE) template<> struct numpy_type<TYPE> { typedef TYPE type; }
+        SPECIALIZE_NUMPY_TYPE(bool);
+        SPECIALIZE_NUMPY_TYPE(int8_t);
+        SPECIALIZE_NUMPY_TYPE(int16_t);
+        SPECIALIZE_NUMPY_TYPE(int32_t);
+        SPECIALIZE_NUMPY_TYPE(int64_t);
+        SPECIALIZE_NUMPY_TYPE(uint8_t);
+        SPECIALIZE_NUMPY_TYPE(uint16_t);
+        SPECIALIZE_NUMPY_TYPE(uint32_t);
+        SPECIALIZE_NUMPY_TYPE(uint64_t);
+        SPECIALIZE_NUMPY_TYPE(float);
+        SPECIALIZE_NUMPY_TYPE(double);
+        SPECIALIZE_NUMPY_TYPE(std::complex<float>);
+        SPECIALIZE_NUMPY_TYPE(std::complex<double>);
+#undef SPECIALIZE_NUMPY_TYPE
     }
 
 }

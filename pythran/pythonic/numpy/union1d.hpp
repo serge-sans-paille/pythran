@@ -7,15 +7,26 @@
 namespace pythonic {
 
     namespace numpy {
+        template<class I, class O>
+            void _union1d(I begin, I end, O& out, utils::int_<1>)
+            {
+                for(; begin != end; ++begin)
+                    out.insert(*begin);
+            }
+        template<class I, class O, size_t N>
+            void _union1d(I begin, I end, O& out, utils::int_<N>)
+            {
+                for(; begin != end; ++begin)
+                    _union1d((*begin).begin(), (*begin).end(), out, utils::int_<N - 1>());
+            }
         template<class E, class F>
-            types::ndarray<decltype(std::declval<typename types::numpy_expr_to_ndarray<E>::T>() + std::declval<typename types::numpy_expr_to_ndarray<F>::T>()), 1> union1d(E const& e, F const& f)
+            types::ndarray<decltype(std::declval<typename types::numpy_expr_to_ndarray<E>::T>() + std::declval<typename types::numpy_expr_to_ndarray<F>::T>()), 1>
+            union1d(E const& e, F const& f)
             {
                 std::set<decltype(std::declval<typename types::numpy_expr_to_ndarray<E>::T>() + std::declval<typename types::numpy_expr_to_ndarray<F>::T>())> res;
-                for(size_t i=0; i<e.size(); ++i)
-                    res.insert(e.at(i));
-                for(size_t i=0; i<f.size(); ++i)
-                    res.insert(f.at(i));
-                return types::ndarray<decltype(std::declval<typename types::numpy_expr_to_ndarray<E>::T>() + std::declval<typename types::numpy_expr_to_ndarray<F>::T>()), 1>(res);
+                _union1d(e.begin(), e.end(), res, utils::int_<types::numpy_expr_to_ndarray<E>::N>());
+                _union1d(f.begin(), f.end(), res, utils::int_<types::numpy_expr_to_ndarray<F>::N>());
+                return res;
             }
 
         PROXY(pythonic::numpy, union1d)

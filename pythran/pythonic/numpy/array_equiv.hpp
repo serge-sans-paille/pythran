@@ -2,6 +2,7 @@
 #define PYTHONIC_NUMPY_ARRAYEQUIV_HPP
 
 #include "pythonic/numpy/array_equal.hpp"
+#include "pythonic/numpy/asarray.hpp"
 
 namespace pythonic {
 
@@ -15,13 +16,12 @@ namespace pythonic {
                     return array_equiv(v,u);
                 }
                 else if(v.size()%u.size() ==0) {
-                    long vs = v.size(),
-                         us = u.size();
-                    for(long vi = 0; vi < vs ; ) {
-                        for(long ui=0;ui<us; ++ui,++vi)
-                            if(u.at(ui) != v.at(vi))
+                    auto uu = asarray(u);
+                    auto vv = asarray(v);
+                    for(auto vi = vv.fbegin(), ve = vv.fend(); vi != ve;)
+                        for(auto ui = uu.fbegin(), ue = uu.fend(); ui != ue; ++ui, ++vi)
+                            if(*ui != *vi)
                                 return false;
-                    }
                     return true;
                 }
                 return false;

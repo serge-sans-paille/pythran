@@ -8,16 +8,9 @@
 namespace pythonic {
 
     namespace numpy {
-        ALIAS(isinf, nt2::is_inf)
-
-            namespace wrapper {
-                PROXY(pythonic::numpy, isinf)
-
-            }
 #define NUMPY_UNARY_FUNC_NAME isinf
-#define NUMPY_UNARY_FUNC_SYM wrapper::proxy::isinf
+#define NUMPY_UNARY_FUNC_SYM nt2::is_inf
 #include "pythonic/types/numpy_unary_expr.hpp"
-        PROXY(pythonic::numpy, isinf)
 
     }
 

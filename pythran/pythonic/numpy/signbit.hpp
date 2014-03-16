@@ -8,15 +8,9 @@
 namespace pythonic {
 
     namespace numpy {
-        ALIAS(signbit, nt2::bitofsign)
-            namespace wrapper {
-                PROXY(pythonic::numpy, signbit)
-
-            }
 #define NUMPY_UNARY_FUNC_NAME signbit
-#define NUMPY_UNARY_FUNC_SYM wrapper::proxy::signbit
+#define NUMPY_UNARY_FUNC_SYM nt2::bitofsign
 #include "pythonic/types/numpy_unary_expr.hpp"
-        PROXY(pythonic::numpy, signbit)
 
     }
 

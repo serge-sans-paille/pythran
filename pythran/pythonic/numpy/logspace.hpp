@@ -8,9 +8,9 @@ namespace pythonic {
 
     namespace numpy {
         auto logspace(double start, double stop, long num=50, bool endpoint = true, double base=10.0)
-            -> decltype(power(base, linspace(start, stop, num, endpoint)))
+            -> decltype(proxy::power()(base, proxy::linspace()(start, stop, num, endpoint)))
             {
-                return power(base, linspace(start, stop, num, endpoint));
+                return proxy::power()(base, proxy::linspace()(start, stop, num, endpoint));
             }
 
         PROXY(pythonic::numpy, logspace);

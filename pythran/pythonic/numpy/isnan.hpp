@@ -8,15 +8,9 @@
 namespace pythonic {
 
     namespace numpy {
-        ALIAS(isnan, nt2::is_nan)
-            namespace wrapper {
-                PROXY(pythonic::numpy, isnan)
-
-            }
 #define NUMPY_UNARY_FUNC_NAME isnan
-#define NUMPY_UNARY_FUNC_SYM wrapper::proxy::isnan
+#define NUMPY_UNARY_FUNC_SYM nt2::is_nan
 #include "pythonic/types/numpy_unary_expr.hpp"
-        PROXY(pythonic::numpy, isnan)
 
     }
 

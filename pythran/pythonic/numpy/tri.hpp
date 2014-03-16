@@ -17,7 +17,7 @@ namespace pythonic {
                 for(int i=0; i<N; ++i)
                     for(long j=0 ; j<M; ++j)
                         if( j - i <= k)
-                            out.buffer[i * M + j] = 1;
+                            out[i][j] = 1;
                 return out;
             }
 

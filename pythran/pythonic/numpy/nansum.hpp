@@ -10,16 +10,28 @@
 namespace pythonic {
 
     namespace numpy {
-        template<class E>
-            typename types::numpy_expr_to_ndarray<E>::type::dtype
-            nansum(E const& expr) {
-                typename types::numpy_expr_to_ndarray<E>::type::dtype s=0;
-                long n = expr.size();
-                for(long i=0;i<n;++i) {
-                    auto e_i = expr.at(i);
-                    if(not nt2::is_nan(e_i))
-                        s += e_i ;
+        template<class E, class F>
+            void _nansum(E begin, E end, F& sum, utils::int_<1>)
+            {
+                for(; begin != end; ++begin)
+                {
+                    auto curr = *begin;
+                    if(not nt2::is_nan(curr))
+                        sum += curr;
                 }
+            }
+        template<class E, class F, size_t N>
+            void _nansum(E begin, E end, F& sum, utils::int_<N>)
+            {
+                for(; begin != end; ++begin)
+                    _nansum((*begin).begin(), (*begin).end(), sum, utils::int_<N - 1>());
+            }
+            
+        template<class E>
+            typename types::numpy_expr_to_ndarray<E>::T
+            nansum(E const& expr) {
+                typename types::numpy_expr_to_ndarray<E>::T s = 0;
+                _nansum(expr.begin(), expr.end(), s, utils::int_<types::numpy_expr_to_ndarray<E>::N>());
                 return s;
             }
 

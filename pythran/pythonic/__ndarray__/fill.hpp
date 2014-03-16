@@ -10,7 +10,7 @@ namespace pythonic {
     namespace __ndarray__ {
         template<class E, class F>
             types::none_type fill(E&& e, F f) {
-                std::fill(e.buffer, e.buffer + e.size(), f);
+                std::fill(e.fbegin(), e.fend(), f);
                 return __builtin__::None;
             }
 

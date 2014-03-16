@@ -8,16 +8,9 @@
 namespace pythonic {
 
     namespace numpy {
-        using nt2::floor;
-
-        namespace wrapper {
-            PROXY(pythonic::numpy, floor)
-
-        }
 #define NUMPY_UNARY_FUNC_NAME floor
-#define NUMPY_UNARY_FUNC_SYM wrapper::proxy::floor
+#define NUMPY_UNARY_FUNC_SYM nt2::floor
 #include "pythonic/types/numpy_unary_expr.hpp"
-        PROXY(pythonic::numpy, floor)
 
     }
 

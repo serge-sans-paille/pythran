@@ -8,16 +8,9 @@
 namespace pythonic {
 
     namespace numpy {
-        ALIAS(arctan, nt2::atan)
-
-            namespace wrapper {
-                PROXY(pythonic::numpy, arctan)
-
-            }
 #define NUMPY_UNARY_FUNC_NAME arctan
-#define NUMPY_UNARY_FUNC_SYM wrapper::proxy::arctan
+#define NUMPY_UNARY_FUNC_SYM nt2::atan
 #include "pythonic/types/numpy_unary_expr.hpp"
-        PROXY(pythonic::numpy, arctan)
     }
 }
 

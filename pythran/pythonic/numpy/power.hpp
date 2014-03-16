@@ -8,15 +8,9 @@
 namespace pythonic {
 
     namespace numpy {
-        ALIAS(power, nt2::pow)
-
-            namespace wrapper {
-                PROXY(pythonic::numpy, power)
-            }
 #define NUMPY_BINARY_FUNC_NAME power
-#define NUMPY_BINARY_FUNC_SYM wrapper::proxy::power
+#define NUMPY_BINARY_FUNC_SYM nt2::pow
 #include "pythonic/types/numpy_binary_expr.hpp"
-        PROXY(pythonic::numpy, power)
     }
 }
 

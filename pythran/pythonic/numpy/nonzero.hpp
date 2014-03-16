@@ -7,36 +7,51 @@
 namespace pythonic {
 
     namespace numpy {
+        template<class I, class O, size_t M>
+            void _nonzero(I begin, I end, O& out, types::array<long, M>& curr, utils::int_<1>)
+            {
+                I start = begin;
+                for(; begin != end; ++begin) {
+                    curr[M - 1] = begin - start;
+                    if(*begin) {
+                        for(size_t i = 0; i < M; ++i) {
+                            *(out[i]) = curr[i];
+                            ++out[i];
+                        }
+                    }
+                }
+            }
+        template<class I, class O, size_t M, size_t N>
+            void _nonzero(I begin, I end, O& out, types::array<long, M>& curr, utils::int_<N>)
+            {
+                I start = begin;
+                for(; begin != end; ++begin) {
+                    curr[M - N] = begin - start;
+                    _nonzero((*begin).begin(), (*begin).end(), out, curr, utils::int_<N - 1>());
+                }
+            }
+
         template<class E>
             auto nonzero(E const& expr) -> types::array<types::ndarray<long,1>, types::numpy_expr_to_ndarray<E>::N>
             {
                 constexpr long N = types::numpy_expr_to_ndarray<E>::N;
                 typedef types::array<types::ndarray<long,1>, N> out_type;
                 long sz = expr.size();
-                auto eshape = expr.shape;
-                long *buffer = new long[N * sz]; // too much memory used
-                long *buffer_iter = buffer;
-                long real_sz = 0;
-                for(long i=0; i< sz; ++i) {
-                    if(expr.at(i)) {
-                        ++real_sz;
-                        long mult = 1;
-                        for(long j=N-1; j>0; j--) {
-                            buffer_iter[j] = (i/mult)%eshape[j];
-                            mult*=eshape[j];
-                        }
-                        buffer_iter[0] = i/mult;
-                        buffer_iter+=N;
-                    }
-                }
+
+                types::array<long *, N> out_buffers;
+                types::array<long *, N> out_iters;
+                for(size_t i = 0; i < N ; ++i)
+                    out_iters[i] = out_buffers[i] = new long[sz]; // too much memory used
+
+                types::array<long, N> indices;
+                _nonzero(expr.begin(), expr.end(), out_iters, indices, utils::int_<N>());
+
+                long shape[] = { out_iters[0] - out_buffers[0] };
+
                 out_type out;
-                types::array<long, 1> shape{{real_sz}};
-                for(long i=0; i<N; ++i)
-                {
-                    out[i] = types::ndarray<long, 1>(shape, __builtin__::None);
-                    for(long j=0; j<real_sz; ++j)
-                        out[i][j] = buffer[j * N + i];
-                }
+                for(size_t i = 0; i < N ; ++i)
+                    out[i] = types::ndarray<long, 1>(out_buffers[i], shape);
+
                 return out;
             }
 

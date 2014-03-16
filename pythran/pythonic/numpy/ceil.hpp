@@ -8,16 +8,9 @@
 namespace pythonic {
 
     namespace numpy {
-        using nt2::ceil;
-
-        namespace wrapper {
-            PROXY(pythonic::numpy, ceil)
-
-        }
 #define NUMPY_UNARY_FUNC_NAME ceil
-#define NUMPY_UNARY_FUNC_SYM wrapper::proxy::ceil
+#define NUMPY_UNARY_FUNC_SYM nt2::ceil
 #include "pythonic/types/numpy_unary_expr.hpp"
-        PROXY(pythonic::numpy, ceil)
 
     }
 

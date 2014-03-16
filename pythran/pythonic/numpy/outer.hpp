@@ -4,18 +4,40 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/__builtin__/None.hpp"
+#include "pythonic/numpy/asarray.hpp"
 
 namespace pythonic {
 
     namespace numpy {
-        template<class E, class F>
-            types::ndarray<typename types::numpy_expr_to_ndarray<E>::T, 2> outer(E const& a, F const& b)
+        template<class T0, size_t N0, class T1, size_t N1>
+            types::ndarray<decltype(std::declval<T0>() + std::declval<T1>()), 2>
+            outer(types::ndarray<T0, N0> const& a, types::ndarray<T1, N1> const& b)
             {
-                types::ndarray<typename types::numpy_expr_to_ndarray<E>::T, 2> out(types::array<long, 2>{{a.size(), b.size()}}, __builtin__::None);
-                for(size_t i=0; i<a.size(); ++i)
-                    for(size_t j=0; j<b.size(); ++j)
-                        out.buffer[i * b.size() + j] = a.at(i) * b.at(j);
+                types::ndarray<decltype(std::declval<T0>() + std::declval<T1>()), 2> out(types::array<long, 2>{{a.size(), b.size()}}, __builtin__::None);
+                auto iter = out.fbegin();
+                for(auto iter_a = a.fbegin(), end_a = a.fend(); iter_a != end_a; ++iter_a) {
+                    auto val_a = *iter_a;
+                    iter = std::transform(b.fbegin(),  b.fend(), iter, [=](T1 val) { return val_a * val; });
+                }
                 return out;
+            }
+        template<class T0, size_t N0, class E1>
+            auto outer(types::ndarray<T0, N0> const& a, E1 const& b)
+            -> decltype(outer(a, asarray(b)))
+            {
+                return outer(a, asarray(b));
+            }
+        template<class E0, class T1, size_t N1>
+            auto outer(E0 const& a, types::ndarray<T1, N1> const& b)
+            -> decltype(outer(asarray(a), b))
+            {
+                return outer(asarray(a), b);
+            }
+        template<class E0, class E1>
+            auto outer(E0 const& a, E1 const& b)
+            -> decltype(outer(asarray(a), asarray(b)))
+            {
+                return outer(asarray(a), asarray(b));
             }
 
         PROXY(pythonic::numpy, outer);

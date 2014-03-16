@@ -8,16 +8,9 @@
 namespace pythonic {
 
     namespace numpy {
-        using nt2::trunc;
-
-        namespace wrapper {
-            PROXY(pythonic::numpy, trunc)
-
-        }
 #define NUMPY_UNARY_FUNC_NAME trunc
-#define NUMPY_UNARY_FUNC_SYM wrapper::proxy::trunc
+#define NUMPY_UNARY_FUNC_SYM nt2::trunc
 #include "pythonic/types/numpy_unary_expr.hpp"
-        PROXY(pythonic::numpy, trunc)
     }
 }
 

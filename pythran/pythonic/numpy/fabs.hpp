@@ -8,16 +8,9 @@
 namespace pythonic {
 
     namespace numpy {
-        ALIAS(fabs, nt2::abs)
-
-            namespace wrapper {
-                PROXY(pythonic::numpy, fabs)
-
-            }
 #define NUMPY_UNARY_FUNC_NAME fabs
-#define NUMPY_UNARY_FUNC_SYM wrapper::proxy::fabs
+#define NUMPY_UNARY_FUNC_SYM nt2::abs
 #include "pythonic/types/numpy_unary_expr.hpp"
-        PROXY(pythonic::numpy, fabs)
 
     }
 

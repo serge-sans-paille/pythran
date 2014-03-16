@@ -8,15 +8,9 @@
 namespace pythonic {
 
     namespace numpy {
-        ALIAS(arcsinh, nt2::asinh)
-
-            namespace wrapper {
-                PROXY(pythonic::numpy, arcsinh)
-            }
 #define NUMPY_UNARY_FUNC_NAME arcsinh
-#define NUMPY_UNARY_FUNC_SYM wrapper::proxy::arcsinh
+#define NUMPY_UNARY_FUNC_SYM nt2::asinh
 #include "pythonic/types/numpy_unary_expr.hpp"
-        PROXY(pythonic::numpy, arcsinh)
 
     }
 

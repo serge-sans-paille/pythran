@@ -9,18 +9,15 @@
 namespace pythonic {
 
     namespace numpy {
-        template<class T>
-            auto isposinf(T const& t) -> decltype(nt2::is_inf(t) and nt2::is_positive(t)) {
-                return nt2::is_inf(t) and nt2::is_positive(t);
-            }
         namespace wrapper {
-            PROXY(pythonic::numpy, isposinf)
-
+            template<class T>
+                auto isposinf(T const& t) -> decltype(nt2::is_inf(t) and nt2::is_positive(t)) {
+                    return nt2::is_inf(t) and nt2::is_positive(t);
+                }
         }
 #define NUMPY_UNARY_FUNC_NAME isposinf
-#define NUMPY_UNARY_FUNC_SYM wrapper::proxy::isposinf
+#define NUMPY_UNARY_FUNC_SYM wrapper::isposinf
 #include "pythonic/types/numpy_unary_expr.hpp"
-        PROXY(pythonic::numpy, isposinf)
 
     }
 

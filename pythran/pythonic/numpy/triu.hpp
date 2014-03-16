@@ -15,9 +15,9 @@ namespace pythonic {
                 for(int i=0; i<expr.shape[0]; ++i)
                     for(long j=0 ; j<expr.shape[1]; ++j)
                         if( j - i >= k)
-                            out.buffer[i * expr.shape[1] + j] = expr.buffer[i * expr.shape[1] + j];
+                            out[i][j] = expr[i][j];
                         else
-                            out.buffer[i * expr.shape[1] + j] = 0;
+                            out[i][j] = 0;
                 return out;
 
             }

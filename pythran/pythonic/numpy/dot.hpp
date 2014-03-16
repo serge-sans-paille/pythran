@@ -19,15 +19,13 @@ namespace pythonic {
                 }
 
         template<class E, class F>
-            typename std::enable_if<
-            types::is_array<E>::value and types::is_array<F>::value and
-            types::numpy_expr_to_ndarray<E>::N == 1 and types::numpy_expr_to_ndarray<F>::N ==1,
-            decltype(std::declval<typename types::numpy_expr_to_ndarray<E>::type::dtype>()*std::declval<typename types::numpy_expr_to_ndarray<F>::type::dtype>())
-                >::type
+            typename std::enable_if<types::is_numexpr_arg<E>::value and types::is_numexpr_arg<F>::value
+                                    and types::numpy_expr_to_ndarray<E>::N == 1 and types::numpy_expr_to_ndarray<F>::N ==1,
+                                    decltype(std::declval<typename types::numpy_expr_to_ndarray<E>::T>()*std::declval<typename types::numpy_expr_to_ndarray<F>::T>())
+                                   >::type
                 dot(E const& e, F const& f) {
                     return sum(e*f);
                 }
-
         template<class E, class F>
             typename std::enable_if<
             (std::is_scalar<E>::value or types::is_complex<E>::value) and (std::is_scalar<E>::value or types::is_complex<E>::value),
@@ -40,8 +38,8 @@ namespace pythonic {
         template<class E, class F>
             typename std::enable_if<
             (std::is_scalar<E>::value or types::is_complex<E>::value) and
-            types::is_array<F>::value and types::numpy_expr_to_ndarray<F>::N ==1,
-            decltype(std::declval<E>()*std::declval<typename types::numpy_expr_to_ndarray<F>::type::dtype>())
+            types::is_numexpr_arg<F>::value and types::numpy_expr_to_ndarray<F>::N ==1,
+            decltype(std::declval<E>()*std::declval<typename types::numpy_expr_to_ndarray<F>::T>())
                 >::type
                 dot(F const& f,types::list<E> const& e) {
                     return dot(f, asarray(e));
@@ -50,8 +48,8 @@ namespace pythonic {
         template<class E, class F>
             typename std::enable_if<
             (std::is_scalar<E>::value or types::is_complex<E>::value) and
-            types::is_array<F>::value and types::numpy_expr_to_ndarray<F>::N ==1,
-            decltype(std::declval<E>()*std::declval<typename types::numpy_expr_to_ndarray<F>::type::dtype>())
+            types::is_numexpr_arg<F>::value and types::numpy_expr_to_ndarray<F>::N ==1,
+            decltype(std::declval<E>()*std::declval<typename types::numpy_expr_to_ndarray<F>::T>())
                 >::type
                 dot(types::list<E> const& e, F const& f) {
                     return dot(asarray(e), f);

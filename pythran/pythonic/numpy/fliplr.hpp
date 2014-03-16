@@ -11,7 +11,7 @@ namespace pythonic {
             types::ndarray<T,N> fliplr(types::ndarray<T,N> const& a) {
                 static_assert(N>=2, "fliplr only works on array of dimension >= 2");
                 types::ndarray<T,N> out(a.shape, __builtin__::None);
-                std::copy(a.buffer, a.buffer + a.size(), out.buffer);
+                std::copy(a.fbegin(), a.fend(), out.fbegin());
                 for(auto col : out)
                     std::reverse(col.begin(), col.end());
                 return out;

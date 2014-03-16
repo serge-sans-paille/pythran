@@ -14,11 +14,7 @@ namespace pythonic {
                 while(shift<0) shift+=expr.size();
                 shift %=expr.size();;
                 types::ndarray<T,N> out(expr.shape, __builtin__::None);
-                for(int i=shift; i<expr.size(); ++i)
-                    out.at(i) = expr.at(i - shift);
-                for(int i=0; i<shift; ++i)
-                    out.at(i) = expr.at(i + expr.size() - shift);
-
+                std::copy(expr.fbegin(), expr.fend() - shift, std::copy(expr.fend() - shift, expr.fend(), out.fbegin()));
                 return out;
             }
         NUMPY_EXPR_TO_NDARRAY0(roll)

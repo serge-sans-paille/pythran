@@ -8,15 +8,9 @@
 namespace pythonic {
 
     namespace numpy {
-        ALIAS(maximum, nt2::max)
-
-            namespace wrapper {
-                PROXY(pythonic::numpy, maximum)
-            }
 #define NUMPY_BINARY_FUNC_NAME maximum
-#define NUMPY_BINARY_FUNC_SYM wrapper::proxy::maximum
+#define NUMPY_BINARY_FUNC_SYM nt2::max
 #include "pythonic/types/numpy_binary_expr.hpp"
-        PROXY(pythonic::numpy, maximum)
 
     }
 

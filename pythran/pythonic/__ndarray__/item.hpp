@@ -7,10 +7,12 @@
 namespace pythonic {
 
     namespace __ndarray__ {
-        template<class E>
-            auto item(E&& expr, long i) -> decltype(expr.at(i))
+
+        template<class T, size_t N>
+            T item(types::ndarray<T, N> const& expr, long i)
             {
-                return expr.at(i);
+                if(i<0) i += expr.size();
+                return *(expr.fbegin() + i);
             }
         template<class E, size_t N>
             auto item(E&& expr, types::array<long, N> const& i) -> decltype(expr[i])

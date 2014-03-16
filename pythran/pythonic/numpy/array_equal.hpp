@@ -3,6 +3,7 @@
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
+#include "pythonic/numpy/all.hpp"
 
 namespace pythonic {
 
@@ -10,11 +11,7 @@ namespace pythonic {
         template<class U, class V>
             typename std::enable_if<types::has_shape<U>::value and types::has_shape<V>::value,bool>::type array_equal(U const& u, V const&v) {
                 if(u.shape == v.shape) {
-                    long n = u.size();
-                    for(long i=0;i<n;++i)
-                        if(u.at(i) != v.at(i))
-                            return false;
-                    return true;
+                    return all(u == v);
                 }
                 return false;
             }

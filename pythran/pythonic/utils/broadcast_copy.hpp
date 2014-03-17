@@ -37,7 +37,7 @@ namespace pythonic {
 
 
         /* generic function to copy an array to another
-         * implements array broadcasting in addtion to regular copy
+         * implements array broadcasting in addition to regular copy
          */
         template<class E, class F>
             E& broadcast_copy(E& self, F const& other, utils::int_<0>) {

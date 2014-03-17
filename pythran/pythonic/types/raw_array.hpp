@@ -10,7 +10,7 @@ namespace pythonic {
          */
         template<class T>
             class raw_array {
-                raw_array(raw_array<T> const& );
+                raw_array(raw_array<T> const& ) = delete;
 
                 public:
                 typedef T* pointer_type;

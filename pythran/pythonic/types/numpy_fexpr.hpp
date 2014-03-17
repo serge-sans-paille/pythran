@@ -36,9 +36,16 @@ namespace pythonic {
                 utils::shared_ref<raw_array<long>> indices;
                 long *buffer;
 
-                numpy_fexpr() {}
+                numpy_fexpr() = default;
                 numpy_fexpr(numpy_fexpr const&) = default;
                 numpy_fexpr(numpy_fexpr&&) = default;
+                numpy_fexpr(Arg const &arg, F const& filter) : arg(arg), indices(arg.size()), buffer(indices->data)
+                {
+                    auto iter = buffer;
+                    long index = 0;
+                    _copy_mask(filter.begin(), filter.end(), iter, index, utils::int_<Arg::value>());
+                    shape[0] = { iter - buffer };
+                }
 
                 template<class FIter, class O>
                 void _copy_mask(FIter fiter, FIter fend, O& out, long &index, utils::int_<1>) {
@@ -52,14 +59,6 @@ namespace pythonic {
                     for(; fiter != fend; ++fiter) {
                         _copy_mask((*fiter).begin(), (*fiter).end(), out, index, utils::int_<N-1>());
                     }
-                }
-
-                numpy_fexpr(Arg const &arg, F const& filter) : arg(arg), indices(arg.size()), buffer(indices->data)
-                {
-                    auto iter = buffer;
-                    long index = 0;
-                    _copy_mask(filter.begin(), filter.end(), iter, index, utils::int_<Arg::value>());
-                    shape[0] = { iter - buffer };
                 }
 
                 template<class E>

@@ -47,7 +47,7 @@ namespace pythonic {
 
     namespace types {
 
-        struct foreign {}; // used to mark memory as foreigned memory, that is allocated outside of pythonic
+        struct foreign {}; // used to mark memory as foreign memory, that is allocated outside of pythonic
 
         template<class Expr>
             struct is_array;
@@ -91,6 +91,8 @@ namespace pythonic {
                 typedef nditerator<ndarray<T,N>> iterator;
                 typedef const_nditerator<ndarray<T,N>> const_iterator;
 
+                type_helper() = delete; // Not intended to be instantiated
+
                 static iterator make_iterator(ndarray<T,N>& n, long i) { return iterator(n, i); }
                 static const_iterator make_iterator(ndarray<T,N> const & n, long i) { return const_iterator(n, i); }
 
@@ -115,6 +117,8 @@ namespace pythonic {
 
                 typedef T* iterator;
                 typedef T const * const_iterator;
+
+                type_helper() = delete; // Not intended to be instantiated
 
                 static iterator make_iterator(ndarray<T,1>& n, long i) { return n.buffer + i; }
                 static const_iterator make_iterator(ndarray<T,1> const & n, long i) { return n.buffer + i; }
@@ -163,7 +167,7 @@ namespace pythonic {
             struct ndarray {
 
                 /* types */
-                static const size_t value;
+                static constexpr size_t value = N;
                 typedef T dtype;
                 typedef typename type_helper<ndarray<T, N>>::type value_type;
                 typedef value_type& reference;
@@ -207,7 +211,7 @@ namespace pythonic {
 
                 /* from a seed */
                 ndarray(array<long, N> const& shape, none_type init ):
-                    mem(std::accumulate(shape.begin() + 1, shape.end(), *shape.begin(), std::multiplies<long>())),
+                    mem(std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<long>())),
                     buffer(mem->data),
                     shape(shape)
                 {
@@ -228,7 +232,7 @@ namespace pythonic {
 
                 ndarray(T* data, long * pshape, foreign const&): ndarray(data, pshape)
                 {
-                    mem.external(); // make sure we do not releas the pointer
+                    mem.external(); // make sure we do not release the pointer
                 }
                 template<class Iterable,
                     class = typename std::enable_if<
@@ -401,7 +405,7 @@ namespace pythonic {
                 flat_iterator fend() { return buffer + size(); }
 
                 /* member functions */
-                long size() const { return std::accumulate(shape.begin() + 1, shape.end(), *shape.begin(), std::multiplies<long>()); }
+                long size() const { return std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<long>()); }
                 template<size_t M>
                     ndarray<T,M> reshape(array<long,M> const& shape) const {
                         return ndarray<T, M>(mem, shape);
@@ -410,7 +414,7 @@ namespace pythonic {
                     return ndarray<T, 1>(mem, array<long, 1>{{size()}});
                 }
                 ndarray<T,N> copy() const {
-                    auto res = ndarray<T,N>(shape, __builtin__::None);
+                    ndarray<T,N> res(shape, __builtin__::None);
                     std::copy(fbegin(), fend(), res.fbegin());
                     return res;
                 }
@@ -419,11 +423,6 @@ namespace pythonic {
                 }
 
             };
-
-        template<class T, size_t N>
-            size_t const ndarray<T,N>::value = N;
-
-
 
 
 

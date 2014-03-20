@@ -1412,7 +1412,7 @@ class LazynessAnalysis(FunctionAnalysis):
         self.use = dict()
         self.dead = set()
         self.in_loop = False
-        super(LazynessAnalysis, self).__init__(ArgumentEffects, Aliases)
+        super(LazynessAnalysis, self).__init__(ArgumentEffects, Aliases, Scope, Ancestors)
 
     def modify(self, node, state):
         #if we modify a variable, all variables that needed it
@@ -1483,6 +1483,50 @@ class LazynessAnalysis(FunctionAnalysis):
         else:
             raise PythranSyntaxError("AugAssign to unknown node", node)
 
+    def is_in_loop_and_not_local(self, node):
+        '''
+        Checks if ``node'' is enclosed in a loop and not local to this loop
+
+        To do so we rely on Scope analysis and ancestors. traversing the
+        ancestor in a bottom-up manner, if we first find a statement that
+        locally defines this variable, then the variable is local. If we first
+        find a loop, then it is enclosed in a loop and not local. However the
+        Scope analysis associates names and statement that defines them, so we
+        need to agglomerate the scopes of child nodes. For instance:
+
+            for i in l:    # S0
+                j = i + 1  # S1
+                k = j + 2  # S2
+
+        The statement that defines j is S1 but the parent of j from S2 is S0,
+        so in order to check if j is local to S0, we need to compute the union
+        of variables locally defined in S0, {j, k} in our case.
+
+        Afterward, its clear that j is local to the enclosing loop.
+        '''
+        node_ancestors = self.ancestors[node] + [node]
+        node_ancestors.reverse()
+        for i, ancestor in enumerate(node_ancestors):
+            local_variables = self.scope[ancestor]
+            # helper to update the set of local variables
+            def update(v):
+                if node_ancestors[i-1] in v:
+                    local_variables.update(*[self.scope[s] for s in v])
+            # for, if and while define a block, with the same structure
+            if type(ancestor) in (ast.If, ast.While, ast.For):
+                update(ancestor.body)
+                update(ancestor.orelse)
+            # so do try...except, but with a different structure
+            elif isinstance(ancestor, ast.TryFinally):
+                update(ancestor.body)
+                update(ancestor.finalbody)
+            if node.id in local_variables:
+                return False
+            if type(ancestor) is ast.For:
+                return True
+        return False
+
+
     def visit_Name(self, node):
         if isinstance(node.ctx, ast.Load) and node.id in self.use:
             name_from_id = [name for name in self.name_count.iterkeys()
@@ -1490,7 +1534,7 @@ class LazynessAnalysis(FunctionAnalysis):
             for alias in self.aliases[node].aliases.union(set(name_from_id)):
                 # we only care about variable local to the function
                 if isinstance(alias, ast.Name) and alias.id in self.ids:
-                    if self.in_loop:
+                    if self.is_in_loop_and_not_local(node):
                         self.name_count[alias] = float('inf')
                     if node.id in self.dead:
                         # if a variable is dead, all it's aliases are dead too

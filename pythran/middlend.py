@@ -6,12 +6,15 @@ from passes import RemoveLambdas, NormalizeTuples, NormalizeReturn
 from passes import UnshadowParameters, NormalizeException, ExpandBuiltins
 from passes import NormalizeMethodCalls, FalsePolymorphism
 from passes import RemoveComprehension, RemoveNestedFunctions, ExpandImports
-from passes import NormalizeCompare, ExpandImportAll
+from passes import NormalizeCompare, ExpandImportAll, RegisterGlobals
 from optimizations import GenExpToImap, ListCompToMap, ListCompToGenexp, Pow2
 
 
 def refine(pm, node, optimizations):
     """refine node in place until it matches pythran's expectations"""
+
+    #register globals
+    pm.apply(RegisterGlobals, node)
 
     # sanitize input
     pm.apply(ExpandImportAll, node)

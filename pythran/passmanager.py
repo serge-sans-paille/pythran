@@ -12,6 +12,9 @@ There are two kinds of passes: transformations and analysis.
 
 import ast
 import re
+from tables import modules
+import logging
+logger = logging.getLogger("pythran")
 
 
 def uncamel(name):
@@ -142,6 +145,12 @@ class PassManager(object):
     '''
     def __init__(self, module_name):
         self.module_name = module_name
+
+        if module_name in modules:
+            logger.warn("Passmanager called on already processed module: "
+                        + module_name)
+        else:
+            modules[module_name] = {}
 
     def gather(self, analysis, node, ctx=None):
         '''High-level function to call an `analysis' on a `node', eventually

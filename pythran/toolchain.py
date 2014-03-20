@@ -24,9 +24,8 @@ from typing import extract_constructed_types, pytype_to_ctype, pytype_to_deps
 from tables import pythran_ward, functions
 from intrinsic import ConstExceptionIntr
 
-from os import devnull
-from subprocess import check_call, check_output, STDOUT, CalledProcessError
-from tempfile import mkstemp, NamedTemporaryFile
+from subprocess import check_output, STDOUT, CalledProcessError
+from tempfile import mkstemp
 import networkx as nx
 
 
@@ -197,9 +196,43 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
         max_arity = max([min_val] + specs_max)
         mod.add_to_preamble([Define("BOOST_PYTHON_MAX_ARITY", max_arity)])
         mod.add_to_preamble([Define("BOOST_SIMD_NO_STRICT_ALIASING", "1")])
+
+        def get_export_body(func_name, signature):
+            body_elems = [pm.module_name, func_name]
+            body_elems.extend(map(pytype_to_ctype, signature))
+
+            #module, function, arg1, arg2, ...,, argn
+            return ', '.join(body_elems)
+
+        #Adds the pythran_export statements, in case the code contains globals
+        #First, include the header that contains the definitions of the
+        # pythran export macros
         mod.add_to_preamble([Include("pythonic/core.hpp")])
         mod.add_to_preamble([Include("pythonic/python/core.hpp")])
+        mod.add_to_preamble([Include("pythonic/python/export.hpp")])
         mod.add_to_preamble(map(Include, _extract_specs_dependencies(specs)))
+
+        for func_name, signatures in specs.iteritems():
+            for sigid, signature in enumerate(signatures):
+                if len(signatures) == 1:
+                    prefix = "pythran_export_solo("
+                elif sigid == 0:
+                    prefix = "pythran_export_start("
+                elif sigid == len(signatures) - 1:
+                    prefix = "pythran_export_end("
+                else:
+                    prefix = "pythran_export_multi("
+
+                export = prefix + get_export_body(func_name, signature) + ")"
+                mod.add_to_preamble([Statement(export)])
+
+        #Top level statements put in the __init__ function by the
+        #ExtractTopLevelStatements pass probably contain globals to
+        #be exported.
+        if "__init__" not in specs:
+            export = "pythran_export_solo(" + pm.module_name + ", __init__)"
+            mod.add_to_preamble([Statement(export)])
+
         mod.add_to_preamble(content.body)
         mod.add_to_init([
             Line('#ifdef PYTHONIC_TYPES_NDARRAY_HPP\nimport_array()\n#endif')])

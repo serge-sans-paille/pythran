@@ -5,6 +5,7 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/__builtin__/None.hpp"
 #include "pythonic/__builtin__/ValueError.hpp"
+#include "pythonic/numpy/add.hpp"
 
 #include <algorithm>
 
@@ -41,7 +42,7 @@ namespace pythonic {
             }
 
         template<class T, size_t N>
-            typename types::ndarray<T,N>::value_type
+            types::ndarray<T,N-1>
             sum(types::ndarray<T,N> const& array, long axis)
             {
                 if(axis<0 || axis >=long(N))
@@ -49,7 +50,7 @@ namespace pythonic {
                 auto shape = array.shape;
                 if(axis==0)
                 {
-                    return std::accumulate(array.begin() + 1, array.end(), *array.begin(), std::plus<typename types::ndarray<T,N>::value_type>());
+                    return std::accumulate(array.begin() + 1, array.end(), *array.begin(), proxy::add());
                 }
                 else
                 {

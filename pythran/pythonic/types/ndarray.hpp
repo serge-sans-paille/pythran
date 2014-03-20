@@ -87,7 +87,7 @@ namespace pythonic {
 
         template<class T, size_t N>
             struct type_helper<ndarray<T,N>> {
-                typedef ndarray<T,N-1> type;
+                typedef numpy_iexpr<ndarray<T,N> const &> type;
 
                 typedef nditerator<ndarray<T,N>> iterator;
                 typedef const_nditerator<ndarray<T,N>> const_iterator;
@@ -99,7 +99,7 @@ namespace pythonic {
                     static T* initialize_from_iterable(S& shape, T* from, Iter&& iter) {
                         shape[std::tuple_size<S>::value - N] = iter.size();
                         for(auto content : iter) {
-                            from = type_helper<type>::initialize_from_iterable(shape, from, content);
+                            from = type_helper<ndarray<T,N - 1>>::initialize_from_iterable(shape, from, content);
                         }
                         return from;
                     }
@@ -176,9 +176,9 @@ namespace pythonic {
                 typedef T const * const_flat_iterator;
 
                 /* members */
-                utils::shared_ref<raw_array<T>> mem;     // shared data pointer
+                utils::shared_ref<raw_array<T>> mem;    // shared data pointer
                 T* buffer;                              // pointer to the first data stored in the equivalent flat array
-                array<long, N> shape;             // shape of the multidimensional array
+                array<long, N> shape;                   // shape of the multidimensional array
 
                 /* constructors */
                 ndarray() : mem(utils::no_memory()), buffer(nullptr), shape() {}
@@ -657,6 +657,10 @@ namespace std {
     template <size_t I, class T, size_t N>
         struct tuple_element<I, pythonic::types::ndarray<T,N> > {
             typedef typename pythonic::types::ndarray<T,N>::value_type type;
+        };
+    template <size_t I, class E>
+        struct tuple_element<I, pythonic::types::numpy_iexpr<E> > {
+            typedef decltype(std::declval<pythonic::types::numpy_iexpr<E>>()[0]) type;
         };
     template <size_t I, class Op, class Arg0, class Arg1>
         struct tuple_element<I, pythonic::types::numpy_expr<Op,Arg0, Arg1> > {

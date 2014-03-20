@@ -25,8 +25,8 @@ namespace pythonic {
                 iterator begin() const { return iterator(*this, 0); }
                 iterator end() const { return iterator(*this, shape[0]); }
 
-                auto fast(long i) const -> decltype(Op()(arg[i])) {
-                    return Op()(arg[i]);
+                auto fast(long i) const -> decltype(Op()(arg.fast(i))) {
+                    return Op()(arg.fast(i));
                 }
                 auto operator[](long i) const -> decltype(this->fast(i)) {
                     if(i<0) i += shape[0];

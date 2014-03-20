@@ -39,7 +39,7 @@ namespace pythonic {
             }
 
         template<class T, size_t N>
-            typename types::ndarray<T,N>::value_type
+            types::ndarray<T,N - 1>
             min(types::ndarray<T,N> const& array, long axis)
             {
                 if(axis<0 || axis >=long(N))

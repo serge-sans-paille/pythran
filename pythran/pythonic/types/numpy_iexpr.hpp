@@ -21,8 +21,8 @@ namespace pythonic {
         template<class Arg>
             struct numpy_iexpr {
                 static constexpr size_t value = std::remove_reference<Arg>::type::value - 1;
-                typedef typename std::remove_reference<decltype(std::declval<typename std::remove_reference<Arg>::type::value_type>()[0L])>::type value_type;
                 typedef typename std::remove_reference<Arg>::type::dtype dtype;
+                typedef typename std::remove_reference<decltype(numpy_iexpr_helper<value>::get(std::declval<numpy_iexpr>(), 0L))>::type value_type;
 
                 typedef nditerator<numpy_iexpr> iterator;
                 typedef const_nditerator<numpy_iexpr> const_iterator;

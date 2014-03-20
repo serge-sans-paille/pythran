@@ -63,9 +63,9 @@ namespace pythonic {
         template<class Arg, class... S>
             struct numpy_gexpr {
 
-                typedef typename std::remove_reference<decltype(std::declval<typename nth_value_type<typename std::remove_reference<Arg>::type, count_long<S...>::value>::type>()[0L])>::type value_type;
                 typedef typename std::remove_reference<Arg>::type::dtype dtype;
                 static constexpr size_t value = std::remove_reference<Arg>::type::value - count_long<S...>::value;
+                typedef typename std::remove_reference<decltype(numpy_gexpr_helper<Arg, S...>::get(std::declval<numpy_gexpr>(), 0L))>::type value_type;
 
                 typedef nditerator<numpy_gexpr<Arg, S...>> iterator;
                 typedef const_nditerator<numpy_gexpr<Arg, S...>> const_iterator;

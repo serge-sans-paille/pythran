@@ -40,7 +40,7 @@ namespace pythonic {
             }
 
         template<class T, size_t N>
-            typename types::ndarray<bool,N>::value_type
+            types::ndarray<bool,N - 1>
             all(types::ndarray<T,N> const& array, long axis)
             {
                 if(axis<0 || axis >=long(N))

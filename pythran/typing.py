@@ -690,8 +690,11 @@ class Types(ModuleAnalysis):
     def visit_Subscript(self, node):
         self.visit(node.value)
         if isinstance(node.slice, ast.ExtSlice):
-            d = sum(int(type(dim) is ast.Index) for dim in node.slice.dims)
-            f = lambda t: reduce(lambda x, y: ContentType(x), range(d), t)
+            self.visit(node.slice)
+            f = lambda t: ExpressionType(
+                lambda a, *b: "{0}({1})".format(a, ", ".join(b)),
+                [t] + [self.result[d] for d in node.slice.dims]
+                )
         elif isinstance(node.slice, ast.Slice):
             self.visit(node.slice)
             f = lambda x:  ExpressionType(

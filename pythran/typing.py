@@ -689,21 +689,22 @@ class Types(ModuleAnalysis):
 
     def visit_Subscript(self, node):
         self.visit(node.value)
+        # type of a[1:2, 3, 4:1] is the type of: declval(a)(slice, long, slice)
         if isinstance(node.slice, ast.ExtSlice):
-            d = sum(int(type(dim) is ast.Index) for dim in node.slice.dims)
-            f = lambda t: reduce(lambda x, y: ContentType(x), range(d), t)
-        elif isinstance(node.slice, ast.Slice):
             self.visit(node.slice)
-            f = lambda x:  ExpressionType(
-                lambda a, b: "{0}[{1}]".format(a, b),
-                [x, self.result[node.slice]]
+            f = lambda t: ExpressionType(
+                lambda a, *b: "{0}({1})".format(a, ", ".join(b)),
+                [t] + [self.result[d] for d in node.slice.dims]
                 )
-        elif isinstance(node.slice.value, ast.Num) and node.slice.value.n >= 0:
+        elif (type(node.slice) is (ast.Index)
+                and type(node.slice.value) is ast.Num
+                and node.slice.value.n >= 0):
+            # type of a[2] is the type of an elements of a
+            # this special case is to make type inference easier
+            # for the back end compiler
             f = lambda t: ElementType(node.slice.value.n, t)
-        elif isinstance(node.slice.value, ast.Tuple):
-            f = lambda t: reduce(lambda x, y: ContentType(x),
-                                 node.slice.value.elts, t)
         else:
+            # type of a[i] is the return type of the matching function
             self.visit(node.slice)
             f = lambda x: ExpressionType(
                 lambda a, b: "{0}[{1}]".format(a, b),

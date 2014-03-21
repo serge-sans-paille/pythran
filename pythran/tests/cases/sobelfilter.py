@@ -32,10 +32,10 @@ def sobelFilter(original_image, cols, rows):
             sum_y += original_image[ix - 1 + (iy + 1) * cols] * 1
             sum_y += original_image[ix + 1 + (iy + 1) * cols] * -1
             sum_y = min(255, max(0, sum_y))
-     
+
             #GRADIENT MAGNITUDE APPROXIMATION
             sum = abs(sum_x) + abs(sum_y)
-     
+
             #make edges black and background white
             edge_image[ix + iy * cols] = 255 - (255 & sum)
     return edge_image

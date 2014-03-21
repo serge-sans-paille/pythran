@@ -1,4 +1,6 @@
 #from http://rosettacode.org/wiki/Range_expansion#Python
+#pythran export rangeexpand(str)
+#runas rangeexpand('-6,-3--1,3-5,7-11,14,15,17-20')
 
 def rangeexpand(txt):
     lst = []
@@ -9,7 +11,3 @@ def rangeexpand(txt):
         else:
             lst.append(int(r))
     return lst
-
-def test():
-    s = '-6,-3--1,3-5,7-11,14,15,17-20'
-    return rangeexpand(s)

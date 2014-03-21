@@ -9,7 +9,7 @@ def solve():
     
     Find the smallest prime which, by replacing part of the number (not necessarily adjacent digits) with the same digit, is part of an eight prime value family.
     '''
-    
+
     prime_list = [2, 3, 5, 7, 11, 13, 17, 19, 23]   # Ensure that this is initialised with at least 1 prime
     prime_dict = dict.fromkeys(prime_list, 1)
     lastn      = prime_list[-1]
@@ -43,7 +43,7 @@ def solve():
     def isprime(x):
         ''' Returns 1 if x is prime, 0 if not. Uses a pre-computed dictionary '''
         _refresh(x)                                 # Compute primes up to x (which is a bit wasteful)
-        return prime_dict.get(x, 0)        
+        return prime_dict.get(x, 0)
 
     def _combinators(_handle, items, n):
         if n==0:
@@ -59,15 +59,15 @@ def solve():
         def afterIthItem(items, i):
             return items[i+1:]
         return _combinators(afterIthItem, items, n)
-    
+
     cache = {}
     def prime_family_length(n, digits):
         if cache.has_key((n, digits)): return cache[n, digits]
-    
+
         num, nums, count = list(str(n)), [], 0
         if len(dict.fromkeys(num[d] for d in digits).keys()) > 1:
             return cache.setdefault((n, digits), 0)                                # The digits must have the same number
-    
+
         for d in range(0 in digits and 1 or 0, 10):                                 # Ensure 0 is not the first digit
             for x in digits: num[x] = str(d)
             n = int(''.join(num))
@@ -75,9 +75,9 @@ def solve():
             nums.append(n)
         for n in nums: cache[n, digits] = count
         return count
-    
+
     prime._refresh(100000)
-    
+
     n, max, max_count, combos = 10, 0, 0, {}
     while max_count < 8:
         p = prime.prime(n)
@@ -89,6 +89,5 @@ def solve():
                 count = prime_family_length(p, pat)
                 if count > max_count: max, max_count = p, count
         n += 1
-    
-    return p
 
+    return p

@@ -29,7 +29,7 @@ namespace pythonic {
                 // data holder
                 typedef  typename std::remove_cv< typename std::remove_reference<T>::type>::type  _type;
                 typedef std::set< _type > container_type;
-                utils::shared_ref<container_type> data; 
+                utils::shared_ref<container_type> data;
 
                 public:
 
@@ -114,17 +114,17 @@ namespace pythonic {
 
 
                 template<class U>
-                    bool isdisjoint(set<U> const & other) const {
+                    bool isdisjoint(U const & other) const {
                         //Return true if the this has no elements in common with other.
                         for(iterator it=begin(); it!=end(); ++it){
-                            if(other.data->find(*it)!=other.end())
+                            if(in(other, *it))
                                 return false;
                         }
                         return true;
                     }
 
                 template<class U>
-                    bool issubset(set<U> const& other) const{
+                    bool issubset(U const& other) const{
                         //Test whether every element in the set is in other.
                         for(iterator it=begin(); it!=end(); ++it){
                             if(not in(other, *it))
@@ -134,7 +134,7 @@ namespace pythonic {
                     }
 
                 template<class U>
-                    bool issuperset(set<U> const& other) const{
+                    bool issuperset(U const& other) const{
                         //    Test whether every element in other is in the set.
                         return other.issubset(*this);
                     }
@@ -348,6 +348,14 @@ namespace pythonic {
 template <class A, class B>
 struct __combined<container<A> , pythonic::types::set<B> > {
     typedef pythonic::types::set<typename __combined<A,B>::type> type;
+};
+template <class B>
+struct __combined<pythonic::types::empty_set, pythonic::types::set<B> > {
+    typedef pythonic::types::set<B> type;
+};
+template <class B>
+struct __combined<pythonic::types::set<B>, pythonic::types::empty_set> {
+    typedef pythonic::types::set<B> type;
 };
 template <class A, class B>
 struct __combined<pythonic::types::set<B> , container<A> > {

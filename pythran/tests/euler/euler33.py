@@ -1,6 +1,6 @@
-#runas solve()
-#pythran export solve()
-def solve():
+#runas solve(2)
+#pythran export solve(int)
+def solve(digit):
     '''
     The fraction 49/98 is a curious fraction, as an inexperienced mathematician in attempting to simplify it may incorrectly believe that 49/98 = 4/8, which is correct, is obtained by cancelling the 9s.
 
@@ -12,8 +12,8 @@ def solve():
     '''
 
     def fractions():
-        for numerator in map(str, xrange(10, 100)):
-            for denominator in map(str, xrange(int(numerator)+1, 100)):
+        for numerator in map(str, xrange(10 ** (digit - 1), 10 ** digit)):
+            for denominator in map(str, xrange(int(numerator)+1, 10 ** digit)):
                 if numerator == denominator: continue
                 if numerator[1] == denominator[1] and numerator[1] == '0': continue
                 if numerator[0] == denominator[0] and int(numerator) * int(denominator[1]) == int(denominator) * int(numerator[1]): yield(int(numerator), int(denominator))

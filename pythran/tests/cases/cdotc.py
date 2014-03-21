@@ -40,7 +40,7 @@ def CDOTC(N,CX,INCX,CY,INCY):
 #
          	IX = 0
          	IY = 0
-		if (INCX < 0): 
+		if (INCX < 0):
 			IX = (-N+1)*INCX
 		if (INCY < 0):
 			IY = (-N+1)*INCY

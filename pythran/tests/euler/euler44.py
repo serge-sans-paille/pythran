@@ -10,11 +10,11 @@ def solve():
     
     Find the pair of pentagonal numbers, P_j and P_k, for which their sum and difference is pentagonal and D = |P_k - P_j| is minimised; what is the value of D?
     '''
-    
+
     MAX = 2000
     pent = [ n * (3*n - 1) / 2 for n in xrange(1, 2*MAX) ]
     pdic = dict.fromkeys(pent)
-    
+
     def main2():
         for j in xrange(0, MAX):
             for k in xrange(j+1, 2*MAX-1):
@@ -24,6 +24,6 @@ def solve():
                 p_diff = p_k - p_j
                 if pdic.has_key(p_sum) and pdic.has_key(p_diff):
                     return p_diff
-    
+
     return main2()
 

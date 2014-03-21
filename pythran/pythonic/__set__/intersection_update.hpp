@@ -7,13 +7,17 @@
 namespace pythonic {
 
     namespace __set__ {
-        template<typename T, typename... Types> 
+        template<typename T, typename... Types>
             void intersection_update(types::set<T> & set, Types const&... others){
-                return set.intersection_update(others...);
+                set.intersection_update(others...);
             }
-        template<typename T, typename... Types> 
+        template<typename T, typename... Types>
             void intersection_update(types::set<T> && set, Types const&... others){
-                return set.intersection_update(others...);
+                //If it is an rvalue, we don't really want to update
+            }
+        template<typename... Types>
+            void intersection_update(types::empty_set && set, Types const&... others){
+                //If it is an empty_set, it is not really updated otherwise we have a typing issue
             }
         PROXY(pythonic::__set__, intersection_update);
 

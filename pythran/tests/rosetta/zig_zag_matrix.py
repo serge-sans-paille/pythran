@@ -1,5 +1,9 @@
 #from http://rosettacode.org/wiki/Zig-zag_matrix#Python
-#pythran export test()
+#pythran export zigzag(int)
+#pythran export czigzag(int)
+#runas zigzag(5)
+#runas czigzag(5)
+
 def zigzag(n):
     def move(i, j):
         if j < (n - 1):
@@ -36,8 +40,3 @@ def czigzag(COLS):
             t.append(next(ran[y]))
         r.append(t)
     return r
-
-def test():
-    z0 = zigzag(5)
-    z1 = czigzag(5)
-    return z0, z1

@@ -1,5 +1,5 @@
-#runas solve()
-#pythran export solve()
+#runas solve(5)
+#pythran export solve(int)
 
 '''
 Surprisingly there are only three numbers that can be written as the sum of fourth powers of their digits:
@@ -23,6 +23,6 @@ def power_of_digits(n, p):
     return s
 
 
-def solve():
- return sum(n for n in xrange(2, 200000) if power_of_digits(n, 5) == n)
+def solve(p):
+ return sum(n for n in xrange(2, 200000) if power_of_digits(n, p) == n)
 

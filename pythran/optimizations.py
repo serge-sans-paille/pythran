@@ -11,6 +11,7 @@ optimized pythran code
 
 from analysis import ConstantExpressions, OptimizableComprehension
 from analysis import PotentialIterator, Aliases, UseOMP, HasBreak, HasContinue
+from analysis import LazynessAnalysis, UsedDefChain
 from passmanager import Transformation
 from tables import modules, equivalent_iterators
 from passes import NormalizeTuples, RemoveNestedFunctions, RemoveLambdas
@@ -142,7 +143,7 @@ class GenExpToImap(Transformation):
     def make_Iterator(self, gen):
         if gen.ifs:
             ldFilter = ast.Lambda(
-                ast.arguments([ast.Name(gen.target.id, ast.Store())],
+                ast.arguments([ast.Name(gen.target.id, ast.Param())],
                               None, None, []), ast.BoolOp(ast.And(), gen.ifs))
             ifilterName = ast.Attribute(
                 value=ast.Name(id='itertools', ctx=ast.Load()),
@@ -412,4 +413,70 @@ class LoopFullUnrolling(Transformation):
                                )
                         )
                 return block
+        return node
+
+
+class _LazyRemover(Transformation):
+    """
+        Helper removing D node and replacing U node by D node assigned value.
+        Search value of the D (define) node provided in the constructor (which
+        is in an Assign) and replace the U node provided in the constructor too
+        by this value.
+
+        Assign Stmt is removed if only one value was assigned.
+    """
+    def __init__(self, ctx, U, D):
+        super(_LazyRemover, self).__init__()
+        self.U = U
+        self.ctx = ctx
+        self.D = D
+        self.capture = None
+
+    def visit_Name(self, node):
+        if node == self.U:
+            return self.capture
+        return node
+
+    def visit_Assign(self, node):
+        self.generic_visit(node)
+        if self.D in node.targets:
+            self.capture = node.value
+            if len(node.targets) == 1:
+                return None
+            node.targets.remove(self.D)
+        return node
+
+
+class ForwardSubstitution(Transformation):
+    """
+        Replace variable that can be lazy evaluated and used only once by their
+        full computation code.
+
+        >>> import ast, passmanager, backend
+        >>> node = ast.parse("def foo(): a = 2; print a")
+        >>> pm = passmanager.PassManager("test")
+        >>> node = pm.apply(ForwardSubstitution, node)
+        >>> print pm.dump(backend.Python, node)
+        def foo():
+            print 2
+    """
+    def __init__(self):
+        super(ForwardSubstitution, self).__init__(LazynessAnalysis,
+                                                  UsedDefChain)
+
+    def visit_FunctionDef(self, node):
+        for name, udgraph in self.used_def_chain.iteritems():
+            # check if the useddefchains have only two nodes (a def and an use)
+            # and if it can be forwarded (lazyness == 1 means variables used to
+            # define the variable are not modified and the variable is use only
+            # once
+            if len(udgraph.nodes()) == 2 and self.lazyness_analysis[name] == 1:
+                def get(action):
+                    return [udgraph.node[n]['name'] for n in udgraph.nodes()
+                            if udgraph.node[n]['action'] == action][0]
+                U = get("U")
+                D = get("D")
+                # Function parameters can't be forwarded
+                if not isinstance(D.ctx, ast.Param):
+                    node = _LazyRemover(self.ctx, U, D).visit(node)
         return node

@@ -1,5 +1,6 @@
 #from http://rosettacode.org/wiki/Remove_duplicate_elements#Python
+#pythran export unique(int list)
+#runas unique([1, 2, 3, 2, 3, 4])
 
-def test():
-    items = [1, 2, 3, 2, 3, 4]
-    print list(set(items))
+def unique(items):
+    return list(set(items))

@@ -1,6 +1,6 @@
-#runas solve()
-#pythran export solve()
-def solve():
+#runas solve(16384)
+#pythran export solve(int)
+def solve(max_route):
     '''
     By starting at the top of the triangle below and moving to adjacent numbers on the row below, the maximum total from top to bottom is 23.
 
@@ -59,5 +59,4 @@ def solve():
             s = s + triangle[row][col]
         return s
 
-    return max(path(triangle, n) for n in xrange(0, 16384))
-
+    return max(path(triangle, n) for n in xrange(0, max_route))

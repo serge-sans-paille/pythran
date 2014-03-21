@@ -1,4 +1,8 @@
 #from http://rosettacode.org/wiki/Pi#Python
+#pythran export test()
+#runas test()
+#FIXME unittest.skip
+
 def calcPi():
     q, r, t, k, n, l = 1, 0, 1, 1, 3, 3
     while True:

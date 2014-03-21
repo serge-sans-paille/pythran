@@ -14,7 +14,7 @@ namespace pythonic {
             }
         template<class T, class F>
             void add(types::set<T> &&s, F const& value) {
-                s.add(value);
+                // nothing have to be done as we work on rvalue
             }
         PROXY(pythonic::__set__, add);
 

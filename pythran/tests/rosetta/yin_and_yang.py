@@ -1,4 +1,7 @@
 # from http://rosettacode.org/wiki/Yin_and_yang#Python
+#pythran export yinyang(int)
+#runas yinyang(4)
+
 import math
 def yinyang(n=3):
         radii   = [i * n for i in [1, 3, 6]]
@@ -20,6 +23,3 @@ def yinyang(n=3):
                 m[(x,y+3*n)] = '.'
                 m[(x,y-3*n)] = '*'
         return '\n'.join(''.join(m[(x,y)] for x in reversed(ranges[-1])) for y in ranges[-1])
-
-def test():
-    return yinyang()

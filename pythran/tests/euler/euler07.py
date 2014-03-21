@@ -1,6 +1,6 @@
-#runas solve()
-#pythran export solve()
-def solve():
+#pythran export solve(int)
+#runas solve(10001)
+def solve(p):
     '''
     By listing the first six prime numbers: 2, 3, 5, 7, 11, and 13, we can see that the 6th prime is 13.
 
@@ -23,7 +23,7 @@ def solve():
 
     def prime(x):
         ''' Returns the xth prime '''
-        
+
         lastn = prime_list[-1]
         while len(prime_list) <= x:                 # Keep working until we've got the xth prime
             lastn = lastn + 1                       # Check the next number
@@ -31,4 +31,4 @@ def solve():
                 prime_list.append(lastn)            # Maintain a list for sequential access
         return prime_list[x]
 
-    return prime(10000)
+    return prime(p - 1)

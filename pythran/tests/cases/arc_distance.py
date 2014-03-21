@@ -3,7 +3,7 @@
 
 import numpy as np
 def arc_distance(theta_1, phi_1,
-                       theta_2, phi_2):
+                 theta_2, phi_2):
     """
     Calculates the pairwise arc distance between all points in vector a and b.
     """

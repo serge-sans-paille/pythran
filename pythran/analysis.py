@@ -12,7 +12,7 @@ This module provides a few code analysis for the pythran language.
     * BoundedExpressions gathers temporary objects
     * ArgumentEffects computes write effect on arguments
     * GlobalEffects computes function effect on global state
-    * PureFunctions detects functions without side-effects.
+    * PureExpressions detects functions without side-effects.
     * ParallelMaps detects parallel map(...)
     * UsedDefChain build used-define chains analysis for each variable.
     * UseOMP detects if a function use OpenMP
@@ -431,11 +431,11 @@ class ImportedIds(NodeAnalysis):
 
 ##
 class ConstantExpressions(NodeAnalysis):
-    """Identify constant expressions (dummy implementation)"""
+    """Identify constant expressions"""
     def __init__(self):
         self.result = set()
         super(ConstantExpressions, self).__init__(Globals, Locals,
-                                                  PureFunctions, Aliases)
+                                                  PureExpressions, Aliases)
 
     def add(self, node):
         self.result.add(node)
@@ -472,7 +472,11 @@ class ConstantExpressions(NodeAnalysis):
 
     def visit_Name(self, node):
         if node in self.aliases:
-            pure_fun = all(alias in self.pure_functions
+            is_function = lambda x: (isinstance(x, intrinsic.Intrinsic) or
+                                     isinstance(x, ast.FunctionDef) or
+                                     isinstance(x, ast.alias))
+            pure_fun = all(alias in self.pure_expressions and
+                           is_function(alias)
                            for alias in self.aliases[node].aliases)
             return pure_fun and self.add(node)
         else:
@@ -1081,20 +1085,45 @@ class GlobalEffects(ModuleAnalysis):
 
 
 ##
-class PureFunctions(ModuleAnalysis):
-    '''Yields the set of pure functions'''
+class PureExpressions(ModuleAnalysis):
+    '''Yields the set of pure expressions'''
     def __init__(self):
         self.result = set()
-        super(PureFunctions, self).__init__(ArgumentEffects, GlobalEffects)
+        super(PureExpressions, self).__init__(ArgumentEffects, GlobalEffects,
+                                              Aliases)
+
+    def visit_FunctionDef(self, node):
+        map(self.visit, node.body)
+        # Pure functions are already compute, we don't need to add them again
+        return False
+
+    def generic_visit(self, node):
+        is_pure = all(map(self.visit, ast.iter_child_nodes(node)))
+        if is_pure:
+            self.result.add(node)
+        return is_pure
+
+    def visit_Call(self, node):
+        # check if all arguments are Pures
+        is_pure = all(self.visit(arg) for arg in node.args)
+        # check if all possible function used are Pures
+        func_aliases = self.aliases[node.func].aliases
+        is_pure &= func_aliases.issubset(self.result)
+        # check for chained call
+        is_pure &= self.visit(node.func)
+        if is_pure:
+            self.result.add(node)
+        return is_pure
 
     def run(self, node, ctx):
-        super(PureFunctions, self).run(node, ctx)
+        super(PureExpressions, self).prepare(node, ctx)
         no_arg_effect = set()
         for func, ae in self.argument_effects.iteritems():
             if not any(ae):
                 no_arg_effect.add(func)
-        pure_functions = no_arg_effect.difference(self.global_effects)
-        return pure_functions
+        self.result = no_arg_effect.difference(self.global_effects)
+        self.visit(node)
+        return self.result
 
 
 ##
@@ -1102,12 +1131,12 @@ class ParallelMaps(ModuleAnalysis):
     '''Yields the est of maps that could be parallel'''
     def __init__(self):
         self.result = set()
-        super(ParallelMaps, self).__init__(PureFunctions, Aliases)
+        super(ParallelMaps, self).__init__(PureExpressions, Aliases)
 
     def visit_Call(self, node):
         if all(alias == modules['__builtin__']['map']
                 for alias in self.aliases[node.func].aliases):
-            if all(self.pure_functions.__contains__(f)
+            if all(self.pure_expressions.__contains__(f)
                     for f in self.aliases[node.args[0]].aliases):
                 self.result.add(node)
 
@@ -1412,7 +1441,9 @@ class LazynessAnalysis(FunctionAnalysis):
         self.use = dict()
         self.dead = set()
         self.in_loop = False
-        super(LazynessAnalysis, self).__init__(ArgumentEffects, Aliases)
+        self.in_omp = False  # prevent any form of Forward Substitution in omp
+        super(LazynessAnalysis, self).__init__(ArgumentEffects, Aliases,
+                                               PureExpressions)
 
     def modify(self, node, state):
         #if we modify a variable, all variables that needed it
@@ -1443,12 +1474,21 @@ class LazynessAnalysis(FunctionAnalysis):
             if node.id in self.result:
                 ex_value = max(self.result[node.id], ex_value)
             self.result[node.id] = ex_value
+            if self.in_omp:
+                self.result[node.id] = float('inf')
             for alias in state[node.id]:
                 if alias in self.name_count:
-                    self.name_count[alias] = 0
-        self.name_count[node] = 0
+                    self.name_count[alias] = float('inf') if self.in_omp else 0
+        self.name_count[node] = float('inf') if self.in_omp else 0
         self.use[node.id] = set(from_)
         self.modify(node, state)
+
+    def visit(self, node):
+        old_omp = self.in_omp
+        if md.get(node, openmp.OMPDirective):
+            self.in_omp = True
+        super(LazynessAnalysis, self).visit(node)
+        self.in_omp = old_omp
 
     def visit_FunctionDef(self, node):
         self.ids = self.passmanager.gather(Identifiers, node, self.ctx)
@@ -1460,12 +1500,15 @@ class LazynessAnalysis(FunctionAnalysis):
         for target in node.targets:
             if isinstance(target, ast.Name):
                 self.assign_to(target, ids, self.aliases[node.value].state)
+                if node.value not in self.pure_expressions:
+                    self.result[target.id] = float('inf')
             elif isinstance(target, ast.Subscript):
                 #if we modify just a part of a variable, it can't be lazy
                 var_name = target.value
                 while isinstance(var_name, ast.Subscript):
                     self.visit(var_name.slice)
                     var_name = var_name.value
+                self.modify(var_name, self.aliases[node.value].state)
                 self.result[var_name.id] = float('inf')
             else:
                 raise PythranSyntaxError("Assign to unknown node", node)
@@ -1490,18 +1533,20 @@ class LazynessAnalysis(FunctionAnalysis):
             for alias in self.aliases[node].aliases.union(set(name_from_id)):
                 # we only care about variable local to the function
                 if isinstance(alias, ast.Name) and alias.id in self.ids:
-                    if self.in_loop:
-                        self.name_count[alias] = float('inf')
                     if node.id in self.dead:
                         # if a variable is dead, all it's aliases are dead too
                         self.dead.add(alias.id)  # PB: may be not the best
                         self.name_count[alias] = float('inf')
+                    elif self.in_loop or self.in_omp:
+                        self.name_count[alias] = float('inf')
                     elif alias in self.name_count:
                         self.name_count[alias] += 1
-        elif (isinstance(node.ctx, ast.Param) or
-                isinstance(node.ctx, ast.Store)):
-            #Store is only for exception
+        elif isinstance(node.ctx, ast.Param):
             self.name_count[node] = 0
+            self.use[node.id] = set()
+        elif isinstance(node.ctx, ast.Store):
+            #Store is only for exception
+            self.name_count[node] = float('inf')
             self.use[node.id] = set()
 
     def visit_If(self, node):
@@ -1552,6 +1597,7 @@ class LazynessAnalysis(FunctionAnalysis):
             self.result[id] = float('inf')  # iterate value can't be lazy
         if isinstance(node.target, ast.Name):
             self.assign_to(node.target, ids, self.aliases[node.iter].state)
+            self.result[node.target.id] = float('inf')
         else:
             err = "Assignation in for loop not to a Name"
             raise PythranSyntaxError(err, node)

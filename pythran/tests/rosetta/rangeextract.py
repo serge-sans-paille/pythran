@@ -1,4 +1,6 @@
 #from http://rosettacode.org/wiki/Range_extraction#Python
+#pythran export test_range_extract(int list list)
+#runas test_range_extract([[-8, -7, -6, -3, -2, -1, 0, 1, 3, 4, 5, 7, 8, 9, 10, 11, 14, 15, 17, 18, 19, 20], [0, 1, 2, 4, 6, 7, 8, 11, 12, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 27, 28, 29, 30, 31, 32, 33, 35, 36, 37, 38, 39]]])
 
 def range_extract(lst):
     'Yield 2-tuple ranges or 1-tuple single elements from list of increasing ints'
@@ -17,9 +19,5 @@ def range_extract(lst):
             yield [low]
         i += 1
 
-def test():
-    for lst in [[-8, -7, -6, -3, -2, -1, 0, 1, 3, 4, 5, 7,
-    8, 9, 10, 11, 14, 15, 17, 18, 19, 20],
-    [0, 1, 2, 4, 6, 7, 8, 11, 12, 14, 15, 16, 17, 18, 19, 20, 21, 22,
-    23, 24, 25, 27, 28, 29, 30, 31, 32, 33, 35, 36, 37, 38, 39]]:
-        print(list(range_extract(lst)))
+def test_range_extract(on):
+    [range_extract(i) for i in on]

@@ -19,7 +19,7 @@ def montecarlo_integration(xmin, xmax, numSteps,rand,randsize):
         y = f(x)
         if y < ymin: ymin = y
         if y > ymax: ymax = y
-    
+
     # Monte Carlo
     rectArea = (xmax - xmin) * (ymax - ymin)
     numPoints = numSteps # bigger the better but slower!
@@ -32,6 +32,6 @@ def montecarlo_integration(xmin, xmax, numSteps,rand,randsize):
                 ctr += 1 # area over x-axis is positive
             if f(x) < 0 and y < 0 and y >= f(x):
                 ctr -= 1 # area under x-axis is negative
-    
+
     fnArea = rectArea * float(ctr) / numPoints
     return fnArea

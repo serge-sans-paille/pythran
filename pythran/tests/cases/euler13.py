@@ -1,6 +1,6 @@
-#runas solve()
-#pythran export solve()
-def solve():
+#pythran export solve(int)
+#runas solve(0)
+def solve(v):
     t = (
     37107287533902102798797998220837590246510135740250,
     46376937677490009712648124896970078050417018260538,
@@ -104,5 +104,5 @@ def solve():
     53503534226472524250874054075591789781264330331690,
     )
     # prevent constant evaluation
-    return str(sum(t))[0:10]
+    return str(sum(t) + v)[0:10]
 

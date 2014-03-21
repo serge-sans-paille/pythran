@@ -1,7 +1,15 @@
 #from http://rosettacode.org/wiki/100_doors#Python
+#pythran export unoptimized()
+#runas unoptimized()
+#pythran export optimized()
+#runas optimized()
+#pythran export one_liner_list_comprehension()
+#runas one_liner_list_comprehension()
+#pythran export one_liner_generator_comprehension()
+#runas one_liner_generator_comprehension()
 
 def unoptimized():
-    doors = [False] * 100 
+    doors = [False] * 100
     for i in xrange(100):
         for j in xrange(i, 100, i+1):
             doors[j] = not doors[j]
@@ -17,9 +25,3 @@ def one_liner_list_comprehension():
 
 def one_liner_generator_comprehension():
     print '\n'.join('Door %s is %s' % (i, 'closed' if i**0.5 % 1 else 'open') for i in range(1, 101))
-
-def test():
-    unoptimized()
-    optimized()
-    one_liner_list_comprehension()
-    one_liner_generator_comprehension()

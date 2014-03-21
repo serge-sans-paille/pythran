@@ -312,9 +312,12 @@ class TestOperator(TestEnv):
 
     def test_indexOf(self):
         self.run_test("def indexOf(a,b):\n from operator import indexOf\n return indexOf(a,b)", [4,3,2,1], 4, indexOf=[[int],int])
+         
     def test_itemgetter(self):
         self.run_test("def itemgetter(i,a):\n from operator import itemgetter\n g = itemgetter(i)\n return g(a)", 2, [4,3,2,1], itemgetter=[int,[int]])
+
     def test_itemgetter2(self):
        self.run_test("def foo():\n from operator import itemgetter\n g = itemgetter(1)", foo=[])
+
     def test_itemgetter3(self):
         self.run_test("def itemgetter3(i,j,k,a):\n from operator import itemgetter\n g = itemgetter(i,j,k)\n return g(a)", 2, 3, 4, [4,3,2,1,0], itemgetter3=[int,int,int,[int]])

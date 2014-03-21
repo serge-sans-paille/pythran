@@ -13,7 +13,11 @@ namespace pythonic {
             }
         template<class T, class U>
             void discard(types::set<T> && set, U const& elem){
-                set.discard(elem);
+                //nothing to be done for lvalue
+            }
+        template<class U>
+            void discard(types::empty_set const& set, U const& elem){
+                //nothing to remove in an empty_set
             }
         PROXY(pythonic::__set__, discard);
 

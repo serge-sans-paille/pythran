@@ -38,10 +38,9 @@ def solve():
             lastn = lastn + 1                       # Check the next number
             if _isprime(lastn):
                 prime_list.append(lastn)            # Maintain a list for sequential access
-   
 
     _refresh(50000)
-    
+
     width, diagonal, base, primes = 1, 1, 1, 0
     while True:
         width = width + 2

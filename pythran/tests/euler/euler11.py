@@ -1,6 +1,6 @@
-#runas solve()
-#pythran export solve()
-def solve():
+#runas solve(4)
+#pythran export solve(int)
+def solve(adj):
     nums = [
         [ 8, 2,22,97,38,15, 0,40, 0,75, 4, 5, 7,78,52,12,50,77,91, 8,],
         [49,49,99,40,17,81,18,57,60,87,17,40,98,43,69,48, 4,56,62, 0,],
@@ -25,10 +25,10 @@ def solve():
     ]
 
     def seqs(nums, row, col):
-        if row + 4 <= len(nums):                                yield list(nums[i][col] for i in xrange(row, row+4))
-        if col + 4 <= len(nums[row]):                           yield list(nums[row][i] for i in xrange(col, col+4))
-        if row + 4 <= len(nums) and col + 4 <= len(nums[row]):  yield list(nums[row+i][col+i] for i in xrange(0,4))
-        if row + 4 <= len(nums) and col >= 3:                   yield list(nums[row+i][col-i] for i in xrange(0,4))
+        if row + adj <= len(nums):                                yield list(nums[i][col] for i in xrange(row, row+adj))
+        if col + adj <= len(nums[row]):                           yield list(nums[row][i] for i in xrange(col, col+adj))
+        if row + adj <= len(nums) and col + adj <= len(nums[row]):yield list(nums[row+i][col+i] for i in xrange(0,adj))
+        if row + adj <= len(nums) and col >= adj - 1:             yield list(nums[row+i][col-i] for i in xrange(0,adj))
 
     def product(seq):
         n = 1

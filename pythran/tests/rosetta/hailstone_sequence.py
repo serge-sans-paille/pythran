@@ -1,4 +1,7 @@
 #from http://rosettacode.org/wiki/Hailstone_sequence#Python
+#pythran export hailstone(int)
+#runas hailstone(27)
+#runas max((len(hailstone(i)), i) for i in range(1,100000)))
 
 def hailstone(n):
     seq = [n]
@@ -6,9 +9,3 @@ def hailstone(n):
         n = 3*n + 1 if n & 1 else n//2
         seq.append(n)
     return seq
- 
-def test():
-    h = hailstone(27)
-    assert len(h)==112 and h[:4]==[27, 82, 41, 124] and h[-4:]==[8, 4, 2, 1]
-    return ("Maximum length %i was found for hailstone(%i) for numbers <100,000" %
-          max((len(hailstone(i)), i) for i in range(1,100000)))

@@ -1,4 +1,6 @@
 #from http://rosettacode.org/wiki/Real_constants_and_functions#Python
+#pythran export test()
+#runas test()
 
 def test():
     import math

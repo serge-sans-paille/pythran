@@ -15,7 +15,7 @@ def solve():
     prime_list = [2, 3, 5, 7, 11, 13, 17, 19, 23]   # Ensure that this is initialised with at least 1 prime
     prime_dict = dict.fromkeys(prime_list, 1)
     lastn      = prime_list[-1]
-    def _isprime(n):    
+    def _isprime(n):
         ''' Raw check to see if n is prime. Assumes that prime_list is already populated '''
         isprime = n >= 2 and 1 or 0
         for prime in prime_list:                    # Check for factors with all primes

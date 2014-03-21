@@ -1630,9 +1630,9 @@ namespace pythonic {
 /* type inference stuff  {*/
 #include "pythonic/types/combined.hpp"
 
-template<size_t N, class T, size_t M>
-struct __combined<pythonic::types::ndarray<T,N>, pythonic::types::ndarray<T,M>> {
-    typedef pythonic::types::ndarray<T,N> type;
+template<class T1, class T2, size_t N, size_t M>
+struct __combined<pythonic::types::ndarray<T1,N>, pythonic::types::ndarray<T2,M>> {
+    typedef pythonic::types::ndarray<typename __combined<T1, T2>::type, N> type;
 };
 template<size_t N, class T, class O>
 struct __combined<pythonic::types::ndarray<T,N>, O> {

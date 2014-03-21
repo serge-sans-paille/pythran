@@ -21,4 +21,4 @@ class TestBase(TestEnv):
         self.run_test("import math\ndef shadow_import4(math): math.add(1)", {1}, shadow_import4=[{int}])
 
     def test_builtin_support0(self):
-        self.run_test("def builtin_support0(): return __builtin__.list([1,2])", builtin_support0=[])
+        self.run_test("def builtin_support0(a): return __builtin__.list(a)", [1, 2],  builtin_support0=[[int]])

@@ -1,6 +1,6 @@
 #pythran export conv(float[][], float[][])
 #runas import numpy as np ; x = np.tri(300,300)*0.5 ; w = np.tri(5,5)*0.25 ; conv(x,w)
-import numpy as np 
+import numpy as np
 
 def clamp(i, offset, maxval):
     j = max(0, i + offset)
@@ -10,7 +10,7 @@ def clamp(i, offset, maxval):
 def reflect(pos, offset, bound):
     idx = pos+offset
     return min(2*(bound-1)-idx,max(idx,-idx))
- 
+
 
 def conv(x, weights):
     sx = x.shape
@@ -21,5 +21,5 @@ def conv(x, weights):
             for ii in xrange(sw[0]):
                 for jj in xrange(sw[1]):
                     idx = clamp(i,ii-sw[0]/2,sw[0]), clamp(j,jj-sw[0]/2,sw[0])
-                    result[i,j] += x[idx] * weights[ii,jj] 
+                    result[i,j] += x[idx] * weights[ii,jj]
     return result

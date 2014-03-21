@@ -2,6 +2,9 @@
 from itertools import permutations
 import math
 
+#pythran export test(int, int, int)
+#runas test(4, 10, 20)
+
 def derangements(n):
     'All deranged permutations of the integers 0..n-1 inclusive'
     return ( perm for perm in permutations(range(n))
@@ -26,14 +29,12 @@ def _iterlen(iter):
         l += 1
     return l
 
-def test():
-    n = 4
-    print("Derangements of %s" % range(n))
-    for d in derangements(n):
+def test(n1, n2, n3):
+    print("Derangements of %s" % range(n1))
+    for d in derangements(n1):
         print("  %s" % (d,))
     print("\nTable of n vs counted vs calculated derangements")
-    for n in range(10):
+    for n in range(n2):
         print("%2i %-5i %-5i" %
               (n, _iterlen(derangements(n)), subfact(n)))
-    n = 20
-    print("\n!%i = %i" % (n, subfact(n)))
+    print("\n!%i = %i" % (n3, subfact(n3)))

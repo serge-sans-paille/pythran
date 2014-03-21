@@ -15,7 +15,7 @@ def guerre(a,n,z,err,nter):
     for i in range(1,n):
         azz[i-1]=float(i)*az[i]
     dz=err+1
-    itera=0    
+    itera=0
     jter=0
     while abs(dz)>err and itera<nter:
         p=a[n-1]+a[n]*z

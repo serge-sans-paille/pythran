@@ -1,5 +1,9 @@
 #from http://rosettacode.org/wiki/Gamma_function#Python
-def test():
+#pythran export test(int)
+#FIXME unittest.skip
+#runas test(11)
+
+def test(end):
     _a =    [ 1.00000000000000000000, 0.57721566490153286061, -0.65587807152025388108,
              -0.04200263503409523553, 0.16653861138229148950, -0.04219773455554433675,
              -0.00962197152787697356, 0.00721894324666309954, -0.00116516759185906511,
@@ -11,11 +15,11 @@ def test():
               0.00000000000000122678, -0.00000000000000011813, 0.00000000000000000119,
               0.00000000000000000141, -0.00000000000000000023, 0.00000000000000000002
            ]
-    def gamma (x): 
+    def gamma (x):
        y  = float(x) - 1.0;
        sm = _a[-1];
        for an in _a[-2::-1]:
           sm = sm * y + an;
        return 1.0 / sm;
 
-    return [ gamma(i/3.0) for i in range(1,11)]
+    return [ gamma(i/3.0) for i in range(1,end)]

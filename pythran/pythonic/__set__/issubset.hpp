@@ -8,8 +8,12 @@ namespace pythonic {
 
     namespace __set__ {
         template<class T, class U>
-            bool issubset(types::set<T> const& set, types::set<U> const& other){
+            bool issubset(types::set<T> const& set, U const& other){
                 return set.issubset(other);
+            }
+        template<class U>
+            bool issubset(types::empty_set const& set, U const& other){
+                return true;
             }
         PROXY(pythonic::__set__, issubset);
 

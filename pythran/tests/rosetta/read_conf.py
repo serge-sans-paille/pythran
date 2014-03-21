@@ -1,4 +1,6 @@
 #from http://rosettacode.org/wiki/Read_a_configuration_file#Python
+#pythran export readconf(str)
+#runas readconf("read_conf.cfg")
 
 def readconf(fn):
     ret = {}
@@ -28,9 +30,3 @@ def readconf(fn):
         ret[k.lower()] = v
     fp.close()
     return ret
-
-
-def test():
-    conf = readconf("read_conf.cfg")
-    for k, v in sorted(conf.items()):
-        print k, '=', v

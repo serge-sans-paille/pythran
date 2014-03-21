@@ -1,6 +1,6 @@
-#runas solve()
-#pythran export solve()
-def solve():
+#runas solve(1000000)
+#pythran export solve(int)
+def solve(m):
     '''
     There are exactly ten ways of selecting three from five, 12345:
     
@@ -16,14 +16,14 @@ def solve():
     
     How many, not necessarily distinct, values of  nCr, for 1 <= n <= 100, are greater than one-million?
     '''
-    
+
     fact_c = { 0: 1L, 1: 1L }
     def fact(n): return fact_c.has_key(n) and fact_c[n] or fact_c.setdefault(n, n * fact(n-1))
-    
+
     count = 0
     for n in xrange(1, 101):
         for r in xrange(0, n):
             ncr = fact(n) / fact(r) / fact(n-r)
-            if ncr > 1000000: count += 1
+            if ncr > m: count += 1
     return count
 

@@ -7,9 +7,9 @@ class TestAdvanced(TestEnv):
         code = '''
 def dummy_generator(l):
     for i in l: yield i
-def generator_enumeration():
-    return [i for i in enumerate(dummy_generator(range(2,10)))]'''
-        self.run_test(code, generator_enumeration=[])
+def generator_enumeration(begin, end):
+    return [i for i in enumerate(dummy_generator(range(begin,end)))]'''
+        self.run_test(code, 2, 10, generator_enumeration=[int, int])
 
     def test_augassign_floordiv(self):
         self.run_test("def augassign_floordiv(i,j): k=i ; k//=j; return k",
@@ -20,7 +20,7 @@ def generator_enumeration():
                 [1.5, 2.5], builtin_constructors=[[float]])
 
     def test_tuple_sum(self):
-        self.run_test("def tuple_sum(): return sum((1,2,3.5))", tuple_sum=[])
+        self.run_test("def tuple_sum(tpl): return sum(tpl)", (1, 2, 3.5), tuple_sum=[(int, int, float)])
 
     def test_minus_unary_minus(self):
         self.run_test("def minus_unary_minus(a): return a - -1", 1, minus_unary_minus=[int])
@@ -71,7 +71,7 @@ def ultra_nested_function(n):
 		return bar(y)
 	return foo(n)'''
         self.run_test(code, 42, ultra_nested_function=[int])
-        
+
     def test_generator_sum(self):
         code = '''
 def generator_sum(l0,l1):
@@ -87,23 +87,23 @@ def generator_sum(l0,l1):
     def test_tuple_unpacking_in_generator(self):
         code = '''
 def foo(l):
-    a,b= 1,0
+    a, b = 1,0
     yield a
     yield b
-def tuple_unpacking_in_generator():
-    f = foo(range(10))
+def tuple_unpacking_in_generator(n):
+    f = foo(range(n))
     return 0 in f'''
-        self.run_test(code, tuple_unpacking_in_generator=[])
+        self.run_test(code, 10, tuple_unpacking_in_generator=[int])
 
     def test_loop_tuple_unpacking_in_generator(self):
         code= '''
 def foo(l):
     for i,j in enumerate(l):
         yield i,j
-def loop_tuple_unpacking_in_generator():
-    f = foo(range(10))
+def loop_tuple_unpacking_in_generator(n):
+    f = foo(range(n))
     return (0,0) in f'''
-        self.run_test(code, loop_tuple_unpacking_in_generator=[])
+        self.run_test(code, 10, loop_tuple_unpacking_in_generator=[int])
 
     def test_assign_in_except(self):
         code = '''
@@ -137,7 +137,7 @@ def combiner_on_empty_list():
         self.run_test('def map(): return 5', map=[])
 
     def test_multiple_compares(self):
-        self.run_test('def multiple_compares(x): return 1 < x <2, 1< x+1 < 2', 0.5, multiple_compares=[float])
+        self.run_test('def multiple_compares(x): return 1 < x < 2, 1 < x + 1 < 2', 0.5, multiple_compares=[float])
 
     def test_default_arg0(self):
         self.run_test('def default_arg0(n=12): return n', default_arg0=[])

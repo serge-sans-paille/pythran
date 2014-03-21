@@ -1,6 +1,6 @@
-#runas solve()
-#pythran export solve()
-def solve():
+#runas solve(10000)
+#pythran export solve(int)
+def solve(e):
     '''
     If we take 47, reverse and add, 47 + 74 = 121, which is palindromic.
     
@@ -20,13 +20,13 @@ def solve():
     
     NOTE: Wording was modified slightly on 24 April 2007 to emphasise the theoretical nature of Lychrel numbers.
     '''
-    
+
     def is_lychrel(n):
         #n = str(n)
         for count in xrange(0, 50):
             n = str(int(n) + int(n[::-1]))
             if n == n[::-1]: return False
         return True
-    
-    return sum(1 for n in xrange(0, 10000) if is_lychrel(str(n)))
+
+    return sum(1 for n in xrange(0, e) if is_lychrel(str(n)))
 

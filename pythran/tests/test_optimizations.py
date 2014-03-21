@@ -25,14 +25,14 @@ def foo(f,l):
 def alias_readonce(n): 
     map = foo
     return map(lambda (x,y): x*y < 50, zip(xrange(n), xrange(n)))
-""", 10, alias_readonce=[int]) 
+""", 10, alias_readonce=[int])
 
     def test_replace_aliased_map(self):
         self.run_test("""
 def alias_replaced(n): 
     map = filter
     return list(map(lambda x : x < 5, xrange(n)))
-""", 10, alias_replaced=[int]) 
+""", 10, alias_replaced=[int])
 
     def test_listcomptomap_alias(self):
         self.run_test("""
@@ -41,7 +41,7 @@ def foo(f,l):
 def listcomptomap_alias(n): 
     map = foo
     return list([x for x in xrange(n)])
-""", 10, listcomptomap_alias=[int]) 
+""", 10, listcomptomap_alias=[int])
 
     def test_readonce_return(self):
         self.run_test("""

@@ -4,7 +4,7 @@ def solve():
     '''
     Find the first four consecutive integers to have four distinct prime factors
     '''
-    
+
     prime_list = [2, 3, 5, 7, 11, 13, 17, 19, 23]   # Ensure that this is initialised with at least 1 prime
     prime_dict = dict.fromkeys(prime_list, 1)
 
@@ -37,14 +37,14 @@ def solve():
             else:
                 x = x + 1
                 xp = prime_list[x]
-        return f 
+        return f
 
     def distinct_factors(n): return len(dict.fromkeys(primes_factors(n)).keys())
-    
+
     factors = [0, 1, distinct_factors(2), distinct_factors(3)]
     while True:
         if factors[-4::] == [4,4,4,4]: break
         else: factors.append(distinct_factors(len(factors)))
-    
+
     return len(factors)-4
 

@@ -9,7 +9,7 @@
  '''
 
 
-def worth(name): 
+def worth(name):
 	return sum(ord(letter) - ord('A') + 1 for letter in name)
 def solve():
  names = open('euler/names22.txt').read().replace('"', '').split(',')

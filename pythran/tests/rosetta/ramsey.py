@@ -1,4 +1,6 @@
 #from http://rosettacode.org/wiki/Ramsey%27s_theorem#Python
+#pythran export test()
+#runas test()
 
 def test():
     range17 =  range(17)

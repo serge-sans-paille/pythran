@@ -9,5 +9,3 @@ def score_text(txt,kwdict):
 		if string.find(txt,kw)>-1:
 			score+=kwdict[kw]
 	return score
-
-	

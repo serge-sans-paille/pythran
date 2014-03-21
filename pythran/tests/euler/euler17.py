@@ -1,6 +1,7 @@
-#runas solve()
-#pythran export solve()
-def solve():
+#runas solve(1, 1000)
+#pythran export solve(int, int)
+#FIXME unittest.skip conflicting name for end
+def solve(start, end):
     '''
     How many letters would be needed to write all the numbers in words from 1 to 1000?
     '''
@@ -51,5 +52,5 @@ def solve():
                     break
         return word
 
-    return sum(len(word) for n in xrange(1, 1001) for word in spell(n, words))
+    return sum(len(word) for n in xrange(start, end + 1) for word in spell(n, words))
 

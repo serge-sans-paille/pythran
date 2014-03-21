@@ -1,4 +1,6 @@
 #from http://rosettacode.org/wiki/Repeat_a_string
+#pythran export test(int)
+#runas test(5)
 
-def test():
-    return "ha" * 5, 5 * "ha"
+def test(n):
+    return "ha" * n, n * "ha"

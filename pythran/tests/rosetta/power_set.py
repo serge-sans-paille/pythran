@@ -1,4 +1,12 @@
 #from http://rosettacode.org/wiki/Power_set#Python
+#pythran export p(int list)
+#pythran export list_powerset(int list)
+#pythran export list_powerset2(int list)
+#runas p([1,2,3])
+#runas list_powerset([1,2,3])
+#runas list_powerset2([1,2,3])
+
+
 def list_powerset(lst):
     # the power set of the empty set has one element, the empty set
     result = [[]]
@@ -20,7 +28,3 @@ def list_powerset2(lst):
 def p(l):
     if not l: return [[]]
     return p(l[1:]) + [[l[0]] + x for x in p(l[1:])]
-
-def test():
-    init = [1,2,3]
-    return list_powerset(init), list_powerset2(init), p(init)

@@ -1457,6 +1457,12 @@ def test_copy0(x):
     def test_sum_(self):
         self.run_test("def np_sum_(a): return a.sum()", numpy.arange(10), np_sum_=[numpy.array([int])])
 
+    def test_sum_bool(self):
+        self.run_test("def np_sum_bool(a): return (a > 2).sum()", numpy.arange(10), np_sum_bool=[numpy.array([int])])
+
+    def test_sum_bool2(self):
+        self.run_test("def np_sum_bool2(a): return a.sum()", numpy.ones(10,dtype=bool).reshape(2,5), np_sum_bool2=[numpy.array([bool])])
+
     def test_sum_expr(self):
         self.run_test("def np_sum_expr(a):\n from numpy import ones\n return (a + ones(10)).sum()", numpy.arange(10), np_sum_expr=[numpy.array([int])])
 

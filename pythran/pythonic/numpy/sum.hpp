@@ -15,7 +15,7 @@ namespace pythonic {
         template<class E, class F>
             void _sum(E begin, E end, F& sum, utils::int_<1>)
             {
-                sum = std::accumulate(begin, end, sum, std::plus<typename std::iterator_traits<E>::value_type>());
+                sum = std::accumulate(begin, end, sum, std::plus<F>());
             }
         template<class E, class F, size_t N>
             void _sum(E begin, E end, F& sum, utils::int_<N>)
@@ -25,15 +25,23 @@ namespace pythonic {
             }
             
         template<class E>
-            typename types::numpy_expr_to_ndarray<E>::T
+            typename
+            std::conditional<std::is_same<typename E::dtype, bool>::value,
+                             long,
+                             typename E::dtype
+                            >::type
             sum(E const& expr, types::none_type _ = types::none_type()) {
-                typename types::numpy_expr_to_ndarray<E>::T p = 0;
+                typename std::conditional<std::is_same<typename E::dtype, bool>::value,
+                                          long,
+                                          typename E::dtype
+                                         >::type p = 0;
                 _sum(expr.begin(), expr.end(), p, utils::int_<types::numpy_expr_to_ndarray<E>::N>());
                 return p;
             }
 
         template<class T>
-            T sum(types::ndarray<T,1> const& array, long axis)
+            auto sum(types::ndarray<T,1> const& array, long axis)
+            -> decltype(sum(array))
             {
                 if(axis != 0)
                     throw types::ValueError("axis out of bounds");

@@ -13,6 +13,7 @@ from passmanager import Transformation
 keywords = {
     'atomic',
     'barrier',
+    'capture',
     'collapse',
     'copyin',
     'copyprivate',
@@ -25,6 +26,7 @@ keywords = {
     'if',
     'lastprivate',
     'master',
+    'mergeable',
     'none',
     'nowait',
     'num_threads',
@@ -32,6 +34,7 @@ keywords = {
     'ordered',
     'parallel',
     'private',
+    'read',
     'reduction',
     'schedule',
     'section',
@@ -43,6 +46,8 @@ keywords = {
     'taskyield',
     'threadprivate',
     'untied',
+    'update',
+    'write'
 }
 
 reserved_contex = {

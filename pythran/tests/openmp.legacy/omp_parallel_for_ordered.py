@@ -7,7 +7,7 @@ def omp_parallel_for_ordered():
         last_i = i_
         return islarger
 
-    'omp parallel for schedule(static, 1) private(i, ii) ordered'
+    'omp parallel for schedule(static, 1) ordered'
     for i in xrange(1,100):
         ii = i
         if 'omp ordered':

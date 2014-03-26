@@ -213,6 +213,7 @@ class LocalDeclarations(NodeAnalysis):
         assert isinstance(node.target, ast.Name)
         self.result.add(node.target)
         map(self.visit, node.body)
+        map(self.visit, node.orelse)
 
 
 ##
@@ -296,6 +297,7 @@ class Locals(ModuleAnalysis):
     def visit_Assign(self, node):
         self.expr_parent = node
         self.result[node] = self.locals.copy()
+        md.visit(self, node)
         self.visit(node.value)
         self.locals.update(t.id for t in node.targets
                            if isinstance(t, ast.Name))
@@ -304,6 +306,7 @@ class Locals(ModuleAnalysis):
     def visit_For(self, node):
         self.expr_parent = node
         self.result[node] = self.locals.copy()
+        md.visit(self, node)
         self.visit(node.iter)
         self.locals.add(node.target.id)
         map(self.visit, node.body)
@@ -394,6 +397,7 @@ class ImportedIds(NodeAnalysis):
     def visit_Assign(self, node):
         #order matter as an assignation
         #is evaluted before being assigned
+        md.visit(self, node)
         self.visit(node.value)
         map(self.visit, node.targets)
 
@@ -591,9 +595,6 @@ class Aliases(ModuleAnalysis):
         self.result[node] = Aliases.Info(self.aliases.copy(), values)
         return values
 
-    def visit_OMPDirective(self, node):
-        pass
-
     def visit_BoolOp(self, node):
         return self.add(node, set.union(*map(self.visit, node.values)))
 
@@ -730,6 +731,7 @@ class Aliases(ModuleAnalysis):
         self.generic_visit(node)
 
     def visit_Assign(self, node):
+        md.visit(self, node)
         value_aliases = self.visit(node.value)
         for t in node.targets:
             if isinstance(t, ast.Name):
@@ -756,6 +758,7 @@ class Aliases(ModuleAnalysis):
             self.generic_visit(node)
 
     def visit_If(self, node):
+        md.visit(self, node)
         self.visit(node.test)
         false_aliases = {k: v.copy() for k, v in self.aliases.iteritems()}
         try:  # first try the true branch
@@ -1260,12 +1263,14 @@ class UsedDefChain(FunctionAnalysis):
             self.current_node[node.id] = set([node_name])
 
     def visit_Assign(self, node):
+        md.visit(self, node)
         # in assignation, left expression is compute before the assignation
         # to the right expression
         self.visit(node.value)
         map(self.visit, node.targets)
 
     def visit_AugAssign(self, node):
+        md.visit(self, node)
         self.visit(node.value)
         self.visit(node.target)
         var = node.target
@@ -1281,6 +1286,7 @@ class UsedDefChain(FunctionAnalysis):
         self.current_node[var] = set([last_node])
 
     def visit_If(self, node):
+        md.visit(self, node)
         swap = False
         self.visit(node.test)
 
@@ -1307,6 +1313,7 @@ class UsedDefChain(FunctionAnalysis):
         self.merge_dict_set(self.current_node, new_node)
 
     def visit_IfExp(self, node):
+        md.visit(self, node)
         swap = False
         self.visit(node.test)
 
@@ -1333,12 +1340,15 @@ class UsedDefChain(FunctionAnalysis):
         self.merge_dict_set(self.current_node, new_node)
 
     def visit_Break(self, node):
+        md.visit(self, node)
         self.merge_dict_set(self.break_, self.current_node)
 
     def visit_Continue(self, node):
+        md.visit(self, node)
         self.merge_dict_set(self.continue_, self.current_node)
 
     def visit_While(self, node):
+        md.visit(self, node)
         prev_node = {i: set(j) for i, j in self.current_node.iteritems()}
         self.visit(node.test)
         #body
@@ -1359,6 +1369,7 @@ class UsedDefChain(FunctionAnalysis):
         self.break_ = dict()
 
     def visit_For(self, node):
+        md.visit(self, node)
         self.visit(node.iter)
 
         #body
@@ -1380,6 +1391,7 @@ class UsedDefChain(FunctionAnalysis):
         self.break_ = dict()
 
     def visit_TryExcept(self, node):
+        md.visit(self, node)
 
         #body
         all_node = dict()
@@ -1496,6 +1508,7 @@ class LazynessAnalysis(FunctionAnalysis):
         self.generic_visit(node)
 
     def visit_Assign(self, node):
+        md.visit(self, node)
         self.visit(node.value)
         ids = self.passmanager.gather(Identifiers, node.value, self.ctx)
         for target in node.targets:
@@ -1515,6 +1528,7 @@ class LazynessAnalysis(FunctionAnalysis):
                 raise PythranSyntaxError("Assign to unknown node", node)
 
     def visit_AugAssign(self, node):
+        md.visit(self, node)
         #augassigned variable can't be lazy
         self.visit(node.value)
         if isinstance(node.target, ast.Name):
@@ -1551,6 +1565,7 @@ class LazynessAnalysis(FunctionAnalysis):
             self.use[node.id] = set()
 
     def visit_If(self, node):
+        md.visit(self, node)
         self.visit(node.test)
         old_count = dict(self.name_count)
         old_dead = set(self.dead)
@@ -1593,6 +1608,7 @@ class LazynessAnalysis(FunctionAnalysis):
     visit_IfExp = visit_If
 
     def visit_For(self, node):
+        md.visit(self, node)
         ids = self.passmanager.gather(Identifiers, node.iter, self.ctx)
         for id in ids:
             self.result[id] = float('inf')  # iterate value can't be lazy
@@ -1610,6 +1626,7 @@ class LazynessAnalysis(FunctionAnalysis):
         map(self.visit, node.orelse)
 
     def visit_While(self, node):
+        md.visit(self, node)
         self.visit(node.test)
 
         self.in_loop = True
@@ -1619,6 +1636,7 @@ class LazynessAnalysis(FunctionAnalysis):
         map(self.visit, node.orelse)
 
     def visit_Call(self, node):
+        md.visit(self, node)
         map(self.visit, node.args)
         #when there is an argument effet, we apply "modify" to the arg
         #and as it we don't know how it is modify, it is set to inf

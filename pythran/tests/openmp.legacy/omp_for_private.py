@@ -8,7 +8,7 @@ def omp_for_private():
     sum = 0
     sum0 = 0
     LOOPCOUNT = 1000
-    if 'omp parallel private(sum1)':
+    if 'omp parallel':
         sum1 = 0
         'omp for private(sum0) schedule(static,1)'
         for i in range(1, LOOPCOUNT+1):

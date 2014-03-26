@@ -4,7 +4,7 @@ def omp_single():
     nr_iterations = 0
     LOOPCOUNT = 1000
 
-    if 'omp parallel private(i)':
+    if 'omp parallel':
         for i in xrange(LOOPCOUNT):
             if 'omp single':
                 'omp flush'

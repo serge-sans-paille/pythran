@@ -1,4 +1,4 @@
-def omp_sections_reduction(): 
+def omp_sections_reduction():
     import math
     dt = 0.5
     rounding_error = 1.E-9
@@ -12,19 +12,20 @@ def omp_sections_reduction():
     logic_or = 0
     bit_and = 1
     bit_or = 0
+    i = 0
     exclusiv_bit_or = 0
 
     known_sum = (1000 * 999) / 2 + 7
 
     if 'omp parallel':
         if 'omp sections private(i) reduction(+:sum)':
-            if 'omp section':   
+            if 'omp section':
                 for i in xrange(1,300):
                     sum += i
-            if 'omp section':   
+            if 'omp section':
                 for i in xrange(300,700):
                     sum += i
-            if 'omp section':   
+            if 'omp section':
                 for i in xrange(700,1000):
                     sum += i
 
@@ -36,13 +37,13 @@ def omp_sections_reduction():
 
     if 'omp parallel':
         if 'omp sections private(i) reduction(-:diff)':
-            if 'omp section':   
+            if 'omp section':
                 for i in xrange(1,300):
                     diff -= i
-            if 'omp section':   
+            if 'omp section':
                 for i in xrange(300,700):
                     diff -= i
-            if 'omp section':   
+            if 'omp section':
                 for i in xrange(700,1000):
                     diff -= i
 

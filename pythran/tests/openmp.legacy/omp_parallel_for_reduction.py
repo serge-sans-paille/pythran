@@ -1,4 +1,4 @@
-def omp_parallel_for_reduction(): 
+def omp_parallel_for_reduction():
     import math
     dt = 0.5
     rounding_error = 1.E-9
@@ -13,6 +13,7 @@ def omp_parallel_for_reduction():
     bit_and = 1
     bit_or = 0
     exclusiv_bit_or = 0
+    i = 0
 
     known_sum = (1000 * (1000 + 1)) / 2
 

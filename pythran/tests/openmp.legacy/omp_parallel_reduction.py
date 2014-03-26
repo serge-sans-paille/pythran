@@ -1,4 +1,4 @@
-def omp_parallel_reduction(): 
+def omp_parallel_reduction():
     import math
     dt = 0.5
     rounding_error = 1.E-9
@@ -16,7 +16,7 @@ def omp_parallel_reduction():
 
     known_sum = (1000 * (1000 + 1)) / 2
 
-    'omp parallel for schedule(dynamic,1) private(i) reduction(+:sum)'
+    'omp parallel for schedule(dynamic,1) reduction(+:sum)'
     for i in xrange(1,1001):
         sum += i
 
@@ -26,7 +26,7 @@ def omp_parallel_reduction():
 
     diff = (1000 * (1000 + 1)) / 2
 
-    'omp parallel for schedule(dynamic,1) private(i) reduction(-:diff)'
+    'omp parallel for schedule(dynamic,1) reduction(-:diff)'
     for i in xrange(1,1001):
         diff -= i
 
@@ -40,7 +40,7 @@ def omp_parallel_reduction():
         dpt *= dt
     dknown_sum = (1 - dpt) / (1 - dt)
 
-    'omp parallel for schedule(dynamic,1) private(i) reduction(+:dsum)'
+    'omp parallel for schedule(dynamic,1) reduction(+:dsum)'
     for i in xrange(0,20):
         dsum += math.pow(dt, i)
 
@@ -54,7 +54,7 @@ def omp_parallel_reduction():
         dpt *= dt
     ddiff = (1 - dpt) / (1 - dt)
 
-    'omp parallel for schedule(dynamic,1) private(i) reduction(-:ddiff)'
+    'omp parallel for schedule(dynamic,1) reduction(-:ddiff)'
     for i in xrange(0,20):
         ddiff -= math.pow(dt, i)
 
@@ -62,7 +62,7 @@ def omp_parallel_reduction():
         print "E: reduction(-:ddiff)"
         result = False
 
-    'omp parallel for schedule(dynamic,1) private(i) reduction(*:product)'
+    'omp parallel for schedule(dynamic,1) reduction(*:product)'
     for i in xrange(1,11):
         product *= i
 
@@ -74,7 +74,7 @@ def omp_parallel_reduction():
 
     logics = [1 for i in xrange(0,1000)]
 
-    'omp parallel for schedule(dynamic,1) private(i) reduction(&&:logic_and)'
+    'omp parallel for schedule(dynamic,1) reduction(&&:logic_and)'
     for i in xrange(0, 1000):
         logic_and = (logic_and and logics[i])
 
@@ -85,7 +85,7 @@ def omp_parallel_reduction():
     logic_and = 1;
     logics[1000/2]=0
 
-    'omp parallel for schedule(dynamic,1) private(i) reduction(&&:logic_and)'
+    'omp parallel for schedule(dynamic,1) reduction(&&:logic_and)'
     for i in xrange(0, 1000):
         logic_and = (logic_and and logics[i])
 
@@ -95,7 +95,7 @@ def omp_parallel_reduction():
 
     logics = [0 for i in xrange(0,1000)]
 
-    'omp parallel for schedule(dynamic,1) private(i) reduction(||:logic_or)'
+    'omp parallel for schedule(dynamic,1) reduction(||:logic_or)'
     for i in xrange(0, 1000):
         logic_or = (logic_or or logics[i])
 
@@ -106,7 +106,7 @@ def omp_parallel_reduction():
     logic_or = 0;
     logics[1000/2]=1
 
-    'omp parallel for schedule(dynamic,1) private(i) reduction(||:logic_or)'
+    'omp parallel for schedule(dynamic,1) reduction(||:logic_or)'
     for i in xrange(0, 1000):
         logic_or = (logic_or or logics[i])
 
@@ -116,7 +116,7 @@ def omp_parallel_reduction():
 
     logics = [1 for i in xrange(0,1000)]
 
-    'omp parallel for schedule(dynamic,1) private(i) reduction(&:bit_and)'
+    'omp parallel for schedule(dynamic,1) reduction(&:bit_and)'
     for i in xrange(0, 1000):
         bit_and = (bit_and & logics[i])
 
@@ -127,7 +127,7 @@ def omp_parallel_reduction():
     bit_and = 1;
     logics[1000/2]=0
 
-    'omp parallel for schedule(dynamic,1) private(i) reduction(&:bit_and)'
+    'omp parallel for schedule(dynamic,1) reduction(&:bit_and)'
     for i in xrange(0, 1000):
         bit_and = (bit_and & logics[i])
 
@@ -137,7 +137,7 @@ def omp_parallel_reduction():
 
     logics = [0 for i in xrange(0,1000)]
 
-    'omp parallel for schedule(dynamic,1) private(i) reduction(|:bit_or)'
+    'omp parallel for schedule(dynamic,1) reduction(|:bit_or)'
     for i in xrange(0, 1000):
         bit_or = (bit_or | logics[i])
 
@@ -148,7 +148,7 @@ def omp_parallel_reduction():
     bit_or = 0;
     logics[1000/2]=1
 
-    'omp parallel for schedule(dynamic,1) private(i) reduction(|:bit_or)'
+    'omp parallel for schedule(dynamic,1) reduction(|:bit_or)'
     for i in xrange(0, 1000):
         bit_or = (bit_or | logics[i])
 
@@ -158,7 +158,7 @@ def omp_parallel_reduction():
 
     logics = [0 for i in xrange(0,1000)]
 
-    'omp parallel for schedule(dynamic,1) private(i) reduction(^:exclusiv_bit_or)'
+    'omp parallel for schedule(dynamic,1) reduction(^:exclusiv_bit_or)'
     for i in xrange(0, 1000):
         exclusiv_bit_or = (exclusiv_bit_or ^ logics[i])
 
@@ -169,7 +169,7 @@ def omp_parallel_reduction():
     exclusiv_bit_or = 0;
     logics[1000/2]=1
 
-    'omp parallel for schedule(dynamic,1) private(i) reduction(^:exclusiv_bit_or)'
+    'omp parallel for schedule(dynamic,1) reduction(^:exclusiv_bit_or)'
     for i in xrange(0, 1000):
         exclusiv_bit_or = (exclusiv_bit_or ^ logics[i])
 

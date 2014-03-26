@@ -6,7 +6,7 @@ def omp_for_schedule_dynamic():
     tmp_count = 0
     result = 0
     import omp
-    if 'omp parallel private(tid) shared(tids)':
+    if 'omp parallel shared(tids)':
         tid = omp.get_thread_num()
         'omp for schedule(dynamic, chunk_size)'
         for i in range(CFDMAX_SIZE):

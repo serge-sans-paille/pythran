@@ -45,3 +45,8 @@ def get(node, class_):
         return [s for s in getattr(node, 'metadata') if isinstance(s, class_)]
     else:
         return []
+
+
+def visit(self, node):
+    if hasattr(node, 'metadata'):
+        self.visit(node.metadata)

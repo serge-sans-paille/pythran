@@ -1,6 +1,6 @@
 def omp_critical():
     sum = 0
-    if 'omp parallel private(mysum)':
+    if 'omp parallel':
         mysum = 0
         'omp for'
         for i in range(1000):

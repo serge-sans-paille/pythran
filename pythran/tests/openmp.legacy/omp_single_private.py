@@ -4,7 +4,7 @@ def omp_single_private():
     result = 0
     LOOPCOUNT = 1000
 
-    if 'omp parallel private(i, myit, myresult)':
+    if 'omp parallel':
         myresult = 0
         myit = 0
         for i in xrange(LOOPCOUNT):

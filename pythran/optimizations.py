@@ -476,7 +476,7 @@ class ForwardSubstitution(Transformation):
             # use) and if it can be forwarded (lazyness == 1 means variables
             # used to define the variable are not modified and the variable is
             # use only once
-            # 2. Check if variable is forwardable and if it has a literal
+            # 2. Check if variable is forwardable and if it is literal
             if ((len(udgraph.nodes()) == 2 and
                  self.lazyness_analysis[name] == 1) or
                 (self.lazyness_analysis[name] != float('inf') and

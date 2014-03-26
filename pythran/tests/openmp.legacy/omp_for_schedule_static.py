@@ -1,5 +1,3 @@
-unittest.skip
-#failed as pytest already use many threads and distubs each other
 import omp
 from time import sleep
 
@@ -23,7 +21,7 @@ def omp_for_schedule_static():
 
     tids[CFSMAX_SIZE] = -1
 
-    if 'omp parallel shared(tids, count, tid, j)':
+    if 'omp parallel shared(tids)':
         tid = omp.get_thread_num()
 
         'omp for nowait schedule(static,chunk_size)'

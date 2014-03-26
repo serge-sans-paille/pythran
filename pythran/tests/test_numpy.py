@@ -629,6 +629,15 @@ def np_rosen_der(x):
     def test_rollaxis0(self):
         self.run_test("def np_rollaxis0(x): from numpy import rollaxis; return rollaxis(x, 1)", numpy.arange(24).reshape(2,3,4), np_rollaxis0=[numpy.array([[[int]]])])
 
+    def test_roll5(self):
+        self.run_test("def np_roll5(x): from numpy import roll; return roll(x, -1, 2)", numpy.arange(24).reshape(2,3,4), np_roll5=[numpy.array([[int]])])
+
+    def test_roll4(self):
+        self.run_test("def np_roll4(x): from numpy import roll; return roll(x, 1, 1)", numpy.arange(24).reshape(2,3,4), np_roll4=[numpy.array([[int]])])
+
+    def test_roll3(self):
+        self.run_test("def np_roll3(x): from numpy import roll; return roll(x, -1, 0)", numpy.arange(24).reshape(2,3,4), np_roll3=[numpy.array([[int]])])
+
     def test_roll2(self):
         self.run_test("def np_roll2(x): from numpy import roll; return roll(x, -1)", numpy.arange(24).reshape(2,3,4), np_roll2=[numpy.array([[int]])])
 

@@ -442,7 +442,7 @@ class _LazyRemover(Transformation):
         if self.D in node.targets:
             self.capture = node.value
             if len(node.targets) == 1:
-                return None
+                return ast.Pass()
             node.targets.remove(self.D)
         return node
 
@@ -458,11 +458,13 @@ class ForwardSubstitution(Transformation):
         >>> node = pm.apply(ForwardSubstitution, node)
         >>> print pm.dump(backend.Python, node)
         def foo():
+            pass
             print [2, 3]
         >>> node = ast.parse("def foo(): a = 2; print a + a")
         >>> node = pm.apply(ForwardSubstitution, node)
         >>> print pm.dump(backend.Python, node)
         def foo():
+            pass
             print (2 + 2)
     """
     def __init__(self):

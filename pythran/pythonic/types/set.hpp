@@ -18,10 +18,89 @@
 #include <iterator>
 
 namespace pythonic {
-
     namespace types {
 
         struct empty_set;
+
+        template<class T>
+            class set;
+    }
+}
+
+/* type inference stuff  {*/
+#include "pythonic/types/combined.hpp"
+template <class A, class B>
+struct __combined<container<A> , pythonic::types::set<B> > {
+    typedef pythonic::types::set<typename __combined<A,B>::type> type;
+};
+template <class B>
+struct __combined<pythonic::types::empty_set, pythonic::types::set<B> > {
+    typedef pythonic::types::set<B> type;
+};
+template <class B>
+struct __combined<pythonic::types::set<B>, pythonic::types::empty_set> {
+    typedef pythonic::types::set<B> type;
+};
+template <class A, class B>
+struct __combined<pythonic::types::set<B> , container<A> > {
+    typedef pythonic::types::set<typename __combined<A,B>::type> type;
+};
+
+template <class A, class B>
+struct __combined<pythonic::types::list<A> , pythonic::types::set<B> > {
+    typedef pythonic::types::set<typename __combined<A,B>::type> type;
+};
+
+template <class A, class B>
+struct __combined<pythonic::types::set<B> , pythonic::types::list<A> > {
+    typedef pythonic::types::set<typename __combined<A,B>::type> type;
+};
+template <class A>
+struct __combined<pythonic::types::list<A> , pythonic::types::empty_set > {
+    typedef pythonic::types::set<A> type;
+};
+
+template <class A>
+struct __combined<pythonic::types::empty_set , pythonic::types::list<A> > {
+    typedef pythonic::types::set<A> type;
+};
+template<class K>
+struct __combined<indexable<K>, pythonic::types::empty_set> {
+    typedef indexable<K> type;
+};
+
+template<class K>
+struct __combined<pythonic::types::empty_set, indexable<K>> {
+    typedef indexable<K> type;
+};
+template <class K, class V>
+struct __combined<indexable<K>, pythonic::types::set<V>> {
+    typedef pythonic::types::set<V> type;
+};
+
+template <class K, class V>
+struct __combined<pythonic::types::set<V>, indexable<K>> {
+    typedef pythonic::types::set<V> type;
+};
+template <class K, class V1, class V2>
+struct __combined<indexable_container<K,V1>, pythonic::types::set<V2>> {
+    typedef pythonic::types::set<decltype(std::declval<V1>()+std::declval<V2>())> type;
+};
+
+template <class K, class V1, class V2>
+struct __combined<pythonic::types::set<V2>, indexable_container<K,V1>> {
+    typedef pythonic::types::set<decltype(std::declval<V1>()+std::declval<V2>())> type;
+};
+template<class T0, class T1>
+struct __combined<pythonic::types::set<T0>, pythonic::types::set<T1>> {
+    typedef pythonic::types::set<typename __combined<T0,T1>::type> type;
+};
+
+/* } */
+
+namespace pythonic {
+
+    namespace types {
 
         template<class T>
             class set {
@@ -104,7 +183,6 @@ namespace pythonic {
                 operator bool() { return not data->empty(); }
 
                 long size() const { return data->size(); }
-                set<T> operator+(empty_set const &) { return copy(); }
 
                 // Misc
 
@@ -143,29 +221,27 @@ namespace pythonic {
                     return set<T>(begin(), end());
                 }
 
-                template<typename U, typename... Types> 
-                    set<T> union_(U && other, Types &&... others) const{
-                        set<T> tmp = union_(std::forward<Types...>(others)...);
+                template<typename U, typename... Types>
+                    typename __combined<set<T>, U, Types...>::type union_(U && other, Types &&... others) const{
+                        typename __combined<set<T>, U, Types...>::type tmp = union_(std::forward<Types...>(others)...);
                         tmp.data->insert(other.begin(), other.end());
                         return tmp;
                     }
-                template<class U>
-                    set<T> operator+(set<U> const &other) { return union_(other); }
 
-                template<typename... Types> 
+                template<typename... Types>
                     void update(Types &&... others) {
-                        *this=union_(std::forward<Types>(others)...);
+                        *this = union_(std::forward<Types>(others)...);
                     }
 
                 set<T> intersection() const{
                     return set<T>(begin(), end());
                 }
 
-                template<typename U, typename... Types> 
-                    set<T> intersection(U const& other, Types const&... others) const{
+                template<typename U, typename... Types>
+                    typename __combined<set<T>, U, Types...>::type intersection(U const& other, Types const&... others) const{
                         //Return a new set with elements common to the set and all others.
-                        set<T> tmp = intersection(others...);
-                        for(iterator it=tmp.begin(); it!=tmp.end();++it){
+                        typename __combined<set<T>, U, Types...>::type tmp = intersection(others...);
+                        for(auto it=tmp.begin(); it!=tmp.end();++it){
                             if(not in(other, *it))
                                 tmp.discard(*it); //faster than remove() but not direct interaction with data
                         }
@@ -173,16 +249,16 @@ namespace pythonic {
                     }
 
 
-                template<typename... Types> 
+                template<typename... Types>
                     void intersection_update(Types const&... others) {
-                        *this=intersection(others...);
+                        *this = intersection(others...);
                     }
 
                 set<T> difference() const{
                     return set<T>(begin(), end());
                 }
 
-                template<typename U, typename... Types> 
+                template<typename U, typename... Types>
                     set<T> difference(U const& other, Types const&... others) const{
                         //Return a new set with elements in the set that are not in the others.
                         set<T> tmp = difference(others...);
@@ -203,30 +279,30 @@ namespace pythonic {
                         return data->find(v) != data->end();
                     }
 
-                template<typename... Types> 
+                template<typename... Types>
                     void difference_update(Types const&... others) {
                         *this=difference(others...);
                     }
 
-                template<typename U> 
-                    set<T> symmetric_difference(set<U> const& other) const{
+                template<typename U>
+                    set<typename __combined<T, U>::type> symmetric_difference(set<U> const& other) const{
                         //Return a new set with elements in either the set or other but not both.
                         //return ((*this-other) | (other-*this));
 
-                        //We must use fcts and not operators because fcts have to handle any itarable objects and operators only sets (cf pyhton ref)
+                        //We must use fcts and not operators because fcts have to handle any iterable objects and operators only sets (cf python ref)
                         return (this->difference(other)).union_(other.difference(*this));
                     }
 
-                template<typename U> 
-                    set<T> symmetric_difference(U const& other) const{
+                template<typename U>
+                    typename __combined<U, set<T>>::type symmetric_difference(U const& other) const{
                         //Return a new set with elements in either the set or other but not both.
                         set<typename U::iterator::value_type> tmp(other.begin(), other.end());
 
-                        //We must use fcts and not operators because fcts have to handle any itarable objects and operators only sets (cf pyhton ref)
+                        //We must use fcts and not operators because fcts have to handle any iterable objects and operators only sets (cf python ref)
                         return (this->difference(other)).union_(tmp.difference(*this));
                     }
 
-                template<typename U> 
+                template<typename U>
                     void symmetric_difference_update(U const& other) {
                         *this=symmetric_difference(other);
                     }
@@ -262,7 +338,7 @@ namespace pythonic {
                     }
 
                 template<class U>
-                    set<T> operator|(set<U> const& other) const {
+                    set<typename __combined<T, U>::type> operator|(set<U> const& other) const {
                         return union_(other);
                     }
 
@@ -272,7 +348,7 @@ namespace pythonic {
                     }
 
                 template<class U>
-                    set<T> operator&(set<U> const& other) const {
+                    set<typename __combined<U, T>::type> operator&(set<U> const& other) const {
                         return intersection(other);
                     }
 
@@ -292,7 +368,7 @@ namespace pythonic {
                     }
 
                 template<class U>
-                    set<T> operator^(set<U> const& other) const {
+                    set<typename __combined<U, T>::type> operator^(set<U> const& other) const {
                         return symmetric_difference(other);
                     }
 
@@ -312,20 +388,15 @@ namespace pythonic {
             typedef empty_iterator iterator;
             typedef empty_iterator const_iterator;
 
-            template<class T> 
-                set<T> operator+(set<T> const & s) { return s; }
-            empty_set operator+(empty_set const &) { return empty_set(); }
             empty_set operator|(empty_set const &) { return empty_set(); }
-            template<class T> 
+            template<class T>
                 set<T> operator|(set<T> const & s) { return s; }
-            empty_set operator&(empty_set const &) { return empty_set(); }
-            template<class T> 
-                empty_set operator&(set<T> const & s) { return empty_set(); }
-            empty_set operator-(empty_set const &) { return empty_set(); }
-            template<class T> 
-                set<T> operator-(set<T> const & s) { return s; }
+            template<class U>
+                empty_set operator&(U const & s) { return empty_set(); }
+            template<class U>
+                empty_set operator-(U const & s) { return empty_set(); }
             empty_set operator^(empty_set const &) { return empty_set(); }
-            template<class T> 
+            template<class T>
                 set<T> operator^(set<T> const & s) { return s; }
 
             operator bool() { return false; }
@@ -343,76 +414,6 @@ namespace pythonic {
         };
 
 }
-/* type inference stuff  {*/
-#include "pythonic/types/combined.hpp"
-template <class A, class B>
-struct __combined<container<A> , pythonic::types::set<B> > {
-    typedef pythonic::types::set<typename __combined<A,B>::type> type;
-};
-template <class B>
-struct __combined<pythonic::types::empty_set, pythonic::types::set<B> > {
-    typedef pythonic::types::set<B> type;
-};
-template <class B>
-struct __combined<pythonic::types::set<B>, pythonic::types::empty_set> {
-    typedef pythonic::types::set<B> type;
-};
-template <class A, class B>
-struct __combined<pythonic::types::set<B> , container<A> > {
-    typedef pythonic::types::set<typename __combined<A,B>::type> type;
-};
-
-template <class A, class B>
-struct __combined<pythonic::types::list<A> , pythonic::types::set<B> > {
-    typedef pythonic::types::set<typename __combined<A,B>::type> type;
-};
-
-template <class A, class B>
-struct __combined<pythonic::types::set<B> , pythonic::types::list<A> > {
-    typedef pythonic::types::set<typename __combined<A,B>::type> type;
-};
-template <class A>
-struct __combined<pythonic::types::list<A> , pythonic::types::empty_set > {
-    typedef pythonic::types::set<A> type;
-};
-
-template <class A>
-struct __combined<pythonic::types::empty_set , pythonic::types::list<A> > {
-    typedef pythonic::types::set<A> type;
-};
-template<class K>
-struct __combined<indexable<K>, pythonic::types::empty_set> {
-    typedef indexable<K> type;
-};
-
-template<class K>
-struct __combined<pythonic::types::empty_set, indexable<K>> {
-    typedef indexable<K> type;
-};
-template <class K, class V>
-struct __combined<indexable<K>, pythonic::types::set<V>> {
-    typedef pythonic::types::set<V> type;
-};
-
-template <class K, class V>
-struct __combined<pythonic::types::set<V>, indexable<K>> {
-    typedef pythonic::types::set<V> type;
-};
-template <class K, class V1, class V2>
-struct __combined<indexable_container<K,V1>, pythonic::types::set<V2>> {
-    typedef pythonic::types::set<decltype(std::declval<V1>()+std::declval<V2>())> type;
-};
-
-template <class K, class V1, class V2>
-struct __combined<pythonic::types::set<V2>, indexable_container<K,V1>> {
-    typedef pythonic::types::set<decltype(std::declval<V1>()+std::declval<V2>())> type;
-};
-template<class T0, class T1>
-struct __combined<pythonic::types::set<T0>, pythonic::types::set<T1>> {
-    typedef pythonic::types::set<typename __combined<T0,T1>::type> type;
-};
-
-/* } */
 
 #ifdef ENABLE_PYTHON_MODULE
 

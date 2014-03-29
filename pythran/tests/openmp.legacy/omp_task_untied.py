@@ -6,7 +6,7 @@ def omp_task_untied():
     current_id = [0 for _ in xrange(NUM_TASKS)]
     count = 0
 
-    if 'omp parallel firstprivate(i)':
+    if 'omp parallel':
         if 'omp single':
             for i in xrange(NUM_TASKS):
                 myi = i

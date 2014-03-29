@@ -20,7 +20,7 @@ def compute_julia(cr, ci, N, bound=1.5, lim=1000., cutoff=1e6):
     julia = np.empty((N, N), np.uint32)
     grid_x = np.linspace(-bound, bound, N)
     t0 = time()
-    "omp parallel for private(i,x,j,y) default(none) shared(grid_x, cr, ci, lim, cutoff, julia)"
+    "omp parallel for default(none) shared(grid_x, cr, ci, lim, cutoff, julia)"
     for i, x in enumerate(grid_x):
         for j, y in enumerate(grid_x):
             julia[i,j] = kernel(x, y, cr, ci, lim, cutoff)

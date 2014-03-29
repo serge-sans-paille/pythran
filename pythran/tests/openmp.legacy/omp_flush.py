@@ -5,7 +5,7 @@ from time import sleep
 def omp_flush():
     result1 = 0
     result2 = 0
-    if 'omp parallel private(rank)':
+    if 'omp parallel':
         rank = omp.get_thread_num()
         'omp barrier'
         if rank == 1:

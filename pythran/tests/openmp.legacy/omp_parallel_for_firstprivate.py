@@ -2,7 +2,7 @@ def omp_parallel_for_firstprivate():
     sum = 0
     i2 = 3
 
-    'omp parallel for reduction(+:sum) private(i) firstprivate(i2)'
+    'omp parallel for reduction(+:sum) firstprivate(i2)'
     for i in xrange(1,1001):
         sum += i + i2
 

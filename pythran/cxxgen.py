@@ -339,8 +339,9 @@ class AnnotatedStatement(Generable):
         self.annotations = annotations
 
     def generate(self):
-        for a in self.annotations:
-            yield "#pragma %s" % (a)
+        for directive in self.annotations:
+            pragma = "#pragma " + directive.s
+            yield pragma.format(*directive.deps)
         for s in self.stmt.generate():
             yield s
 

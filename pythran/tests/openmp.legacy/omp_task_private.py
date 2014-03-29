@@ -9,7 +9,7 @@ def omp_task_private():
     if 'omp parallel':
         if 'omp single':
             for i in xrange(0, NUM_TASKS):
-                if 'omp task private(sum, j) shared(result, known_sum)':
+                if 'omp task private(sum) shared(result, known_sum)':
                     sum = 0
                     for j in xrange(0, LOOPCOUNT + 1):
                         'omp flush'

@@ -2,7 +2,7 @@ def omp_parallel_sections_lastprivate():
     sum =0
     sum0 = 0
     i0 = -1
-    if 'omp parallel sections private(i,sum0) lastprivate(i0)':
+    if 'omp parallel sections private(sum0) lastprivate(i0)':
         if 'omp section':
             sum0 = 0
             for i in xrange(1, 400):

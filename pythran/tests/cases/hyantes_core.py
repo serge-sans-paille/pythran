@@ -3,7 +3,7 @@
 import math
 def run(xmin, ymin, xmax, ymax, step, range_, range_x, range_y, t):
     pt = [ [0]*range_y for _ in range(range_x)]
-    "omp parallel for private(i,j,k,tmp,s)"
+    "omp parallel for"
     for i in xrange(range_x):
         for j in xrange(range_y):
             s = 0

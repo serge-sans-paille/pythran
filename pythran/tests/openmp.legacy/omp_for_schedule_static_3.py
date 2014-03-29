@@ -20,7 +20,7 @@ def omp_for_schedule_static_3():
 
     tids[1000] = -1
 
-    if 'omp parallel shared(tids) private(count, tid, j)':
+    if 'omp parallel shared(tids)':
         tid = omp.get_thread_num()
         'omp for nowait schedule(static,chunk_size)'
         for j in xrange(1000):
@@ -69,7 +69,7 @@ found before the end.\n"
     tids = range(1000)
     tids2 = range(1000)
 
-    if 'omp parallel private(n, m)':
+    if 'omp parallel':
         'omp for schedule(static) nowait'
         for n in xrange(1000):
             if 1000 == n + 1:

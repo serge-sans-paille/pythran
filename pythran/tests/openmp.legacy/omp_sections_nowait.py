@@ -4,7 +4,7 @@ def omp_sections_nowait():
     result = False
     count = 0
 
-    if 'omp parallel private(rank)':
+    if 'omp parallel':
         rank = omp.get_thread_num()
 
         if 'omp sections nowait':

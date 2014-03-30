@@ -3,7 +3,7 @@ def omp_barrier():
     from time import sleep
     result1 = 0
     result2 = 0
-    if 'omp parallel private(rank)':
+    if 'omp parallel':
         rank = omp.get_thread_num()
         if rank == 1:
             sleep(0.5)

@@ -8,7 +8,7 @@ def omp_task_imp_firstprivate():
     if 'omp parallel firstprivate(i)':
         if 'omp single':
             for k in xrange(NUM_TASKS):
-                if 'omp task  shared(result, task_result) private(j)':
+                if 'omp task  shared(result, task_result)':
                     if i != 5:
                         task_result = 0
 

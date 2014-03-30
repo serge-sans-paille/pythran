@@ -11,7 +11,7 @@ optimized pythran code
 
 from analysis import ConstantExpressions, OptimizableComprehension
 from analysis import PotentialIterator, Aliases, UseOMP, HasBreak, HasContinue
-from analysis import LazynessAnalysis, UsedDefChain
+from analysis import LazynessAnalysis, UsedDefChain, Literals
 from passmanager import Transformation
 from tables import modules, equivalent_iterators
 from passes import NormalizeTuples, RemoveNestedFunctions, RemoveLambdas
@@ -433,7 +433,7 @@ class _LazyRemover(Transformation):
         self.capture = None
 
     def visit_Name(self, node):
-        if node == self.U:
+        if node in self.U:
             return self.capture
         return node
 
@@ -442,7 +442,7 @@ class _LazyRemover(Transformation):
         if self.D in node.targets:
             self.capture = node.value
             if len(node.targets) == 1:
-                return None
+                return ast.Pass()
             node.targets.remove(self.D)
         return node
 
@@ -453,30 +453,44 @@ class ForwardSubstitution(Transformation):
         full computation code.
 
         >>> import ast, passmanager, backend
-        >>> node = ast.parse("def foo(): a = 2; print a")
         >>> pm = passmanager.PassManager("test")
+        >>> node = ast.parse("def foo(): a = [2, 3]; print a")
         >>> node = pm.apply(ForwardSubstitution, node)
         >>> print pm.dump(backend.Python, node)
         def foo():
-            print 2
+            pass
+            print [2, 3]
+        >>> node = ast.parse("def foo(): a = 2; print a + a")
+        >>> node = pm.apply(ForwardSubstitution, node)
+        >>> print pm.dump(backend.Python, node)
+        def foo():
+            pass
+            print (2 + 2)
     """
     def __init__(self):
         super(ForwardSubstitution, self).__init__(LazynessAnalysis,
-                                                  UsedDefChain)
+                                                  UsedDefChain,
+                                                  Literals)
 
     def visit_FunctionDef(self, node):
         for name, udgraph in self.used_def_chain.iteritems():
-            # check if the useddefchains have only two nodes (a def and an use)
-            # and if it can be forwarded (lazyness == 1 means variables used to
-            # define the variable are not modified and the variable is use only
-            # once
-            if len(udgraph.nodes()) == 2 and self.lazyness_analysis[name] == 1:
+            # 1. check if the useddefchains have only two nodes (a def and an
+            # use) and if it can be forwarded (lazyness == 1 means variables
+            # used to define the variable are not modified and the variable is
+            # use only once
+            # 2. Check if variable is forwardable and if it is literal
+            if ((len(udgraph.nodes()) == 2 and
+                 self.lazyness_analysis[name] == 1) or
+                (self.lazyness_analysis[name] != float('inf') and
+                 name in self.literals)):
                 def get(action):
                     return [udgraph.node[n]['name'] for n in udgraph.nodes()
-                            if udgraph.node[n]['action'] == action][0]
+                            if udgraph.node[n]['action'] == action]
                 U = get("U")
                 D = get("D")
-                # Function parameters can't be forwarded
-                if not isinstance(D.ctx, ast.Param):
-                    node = _LazyRemover(self.ctx, U, D).visit(node)
+                # we can't forward if multiple definition for a variable are
+                # possible or if this variable is a parameter from a function
+                if (len(D) == 1 and len(get("UD")) == 0 and
+                        not isinstance(D[0].ctx, ast.Param)):
+                    node = _LazyRemover(self.ctx, U, D[0]).visit(node)
         return node

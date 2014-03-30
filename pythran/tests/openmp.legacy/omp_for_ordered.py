@@ -2,7 +2,7 @@ def omp_for_ordered():
     sum = 0
     is_larger = 1
     last_i = 0
-    if 'omp parallel private(i, my_is_larger)':
+    if 'omp parallel':
         my_is_larger = 1
         'omp for schedule(static,1) ordered'
         for i in range(1,100):

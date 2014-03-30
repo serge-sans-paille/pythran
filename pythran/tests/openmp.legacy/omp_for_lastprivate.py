@@ -2,7 +2,7 @@ def omp_for_lastprivate():
     sum = 0
     i0 = -1
     LOOPCOUNT = 1000
-    if 'omp parallel private(sum0)':
+    if 'omp parallel':
         sum0 = 0
         'omp for schedule(static,7) lastprivate(i0)'
         for i in range(1, LOOPCOUNT + 1):

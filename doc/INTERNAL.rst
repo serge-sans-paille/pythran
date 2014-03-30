@@ -106,6 +106,7 @@ But if one adds a
 
     >>> def foo(n):
     ...     s = 0
+    ...     a = 0
     ...     "omp parallel for reduction(*:s) lastprivate(a)"
     ...     for i in __builtin__.range(n):
     ...         if i:
@@ -113,7 +114,7 @@ But if one adds a
     ...         else:
     ...             a = 2
     ...         s += a
-    ...     return s
+    ...     return s, a
     >>> foo_tree = getast(foo)
 
 The scope information change. Pythran first needs to understand OpenMP
@@ -125,7 +126,7 @@ directives, using a dedicated pass::
 Then let's have a look to ::
 
     >>> scopes = pm.gather(analysis.Scope, foo_tree)
-    >>> scopes[foo_tree.body[0].body[1]] # 2nd element: omp got parsed
+    >>> scopes[foo_tree.body[0].body[2]] # 3nd element: omp got parsed
     set(['i'])
     >>> scopes[foo_tree.body[0]]
     set(['a', 's', 'n'])

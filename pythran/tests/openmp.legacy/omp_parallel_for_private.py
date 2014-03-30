@@ -9,7 +9,7 @@ def omp_parallel_for_private():
     sum = 0
     i2 = 0
 
-    'omp parallel for reduction(+: sum) schedule(static, 1) private(i) private(i2)'
+    'omp parallel for reduction(+: sum) schedule(static, 1) private(i2)'
     for i in xrange(1, 1001):
         i2 = i
         'omp flush'

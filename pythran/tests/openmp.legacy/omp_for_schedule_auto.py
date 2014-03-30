@@ -3,7 +3,7 @@ def omp_for_schedule_auto():
     sum = 0
     sum0 = 12345
     sum1 = 0
-    if 'omp parallel private(i, sum1)':
+    if 'omp parallel private(sum1)':
         if 'omp single':
             threadsnum = omp.get_num_threads()
         'omp for firstprivate(sum0) schedule(auto)'

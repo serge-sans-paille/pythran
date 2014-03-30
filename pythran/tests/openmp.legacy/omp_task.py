@@ -3,8 +3,8 @@ def omp_task():
     from time import sleep
     NUM_TASKS = 25
     tids = range(NUM_TASKS)
-    
-    if 'omp parallel private(myi)':
+
+    if 'omp parallel':
         for i in xrange(NUM_TASKS):
             myi = i
             if 'omp task':

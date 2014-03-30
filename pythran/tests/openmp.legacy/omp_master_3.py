@@ -3,8 +3,8 @@ def omp_master_3():
     tid_result = 0
     nthreads = 0
     executing_thread = -1
-    
-    if 'omp parallel private(tid)':
+
+    if 'omp parallel':
         if 'omp master':
             tid = omp.get_thread_num()
             if tid != 0:

@@ -3,7 +3,7 @@ def omp_parallel_default():
     sum = 0
     known_sum = (1000 * (1000 + 1)) / 2
 
-    if "omp parallel default(shared) private(i) private(mysum)":
+    if "omp parallel default(shared)":
         mysum = 0
         'omp for'
         for i in xrange(1, 1001):

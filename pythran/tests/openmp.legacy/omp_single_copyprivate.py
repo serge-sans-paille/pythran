@@ -2,8 +2,9 @@ def omp_single_copyprivate():
     result = 0
     nr_iterations = 0
     LOOPCOUNT = 1000
+    j = 0
 
-    if 'omp parallel private(i, j)':
+    if 'omp parallel private(j)':
         for i in xrange(LOOPCOUNT):
             if 'omp single copyprivate(j)':
                 nr_iterations += 1

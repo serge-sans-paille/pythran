@@ -143,7 +143,8 @@ class Cxx(Backend):
                     if (hasfor and nodefault and noindexref and
                             target.id not in self.scope[node]):
                         directive.s += ' private({})'
-                        directive.deps.append(ast.Name(target.id, ast.Param()))
+                        directive.deps.append(ast.Name(target.id, ast.Load()))
+                directive.deps = map(self.visit, directive.deps)
                 directives.append(directive)
             if index is None:
                 stmt = AnnotatedStatement(stmt, directives)

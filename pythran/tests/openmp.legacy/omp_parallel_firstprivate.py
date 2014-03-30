@@ -3,7 +3,7 @@ def omp_parallel_firstprivate():
     sum1 = 7
     num_threads = 0
 
-    if 'omp parallel firstprivate(sum1) private(i)':
+    if 'omp parallel firstprivate(sum1)':
         'omp for'
         for i in xrange(1,1000):
             sum1 += i

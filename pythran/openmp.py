@@ -13,6 +13,7 @@ from passmanager import Transformation
 keywords = {
     'atomic',
     'barrier',
+    'capture',
     'collapse',
     'copyin',
     'copyprivate',
@@ -25,6 +26,7 @@ keywords = {
     'if',
     'lastprivate',
     'master',
+    'mergeable',
     'none',
     'nowait',
     'num_threads',
@@ -32,6 +34,7 @@ keywords = {
     'ordered',
     'parallel',
     'private',
+    'read',
     'reduction',
     'schedule',
     'section',
@@ -43,6 +46,8 @@ keywords = {
     'taskyield',
     'threadprivate',
     'untied',
+    'update',
+    'write'
 }
 
 reserved_contex = {
@@ -86,7 +91,7 @@ class OMPDirective(AST):
                         in_reserved_context = word in reserved_contex
                     else:
                         v = '{}'
-                        self.deps.append(ast.Name(word, ast.Param()))
+                        self.deps.append(ast.Name(word, ast.Load()))
                         out += v
                 elif s[curr_index] == '(':
                     par_count += 1
@@ -107,9 +112,6 @@ class OMPDirective(AST):
 
         self.s = tokenize(args[0])
         self._fields = ('deps',)
-
-    def __str__(self):
-        return self.s.format(*[n.id for n in self.deps])
 
 
 ##

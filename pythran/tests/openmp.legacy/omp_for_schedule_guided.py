@@ -15,7 +15,7 @@ def omp_for_schedule_guided():
         print "This test only works with at least two threads"
         result = False
 
-    if 'omp parallel shared(tids, maxiter) private(count, tid, j)':
+    if 'omp parallel shared(tids, maxiter)':
         tid = omp.get_num_threads()
         'omp for nowait schedule(guided)'
         for j in xrange(1000):
@@ -63,7 +63,7 @@ def omp_for_schedule_guided():
             local_chunknr[last_threadnr] += 1
             last_threadnr = tids[i]
             determined_chunksize = 1
-        
+
     expected_chunk_size = openwork / threads
     c = chuncksize[0] / expected_chunk_size
 
@@ -73,5 +73,5 @@ def omp_for_schedule_guided():
         if abs(chuncksize[i] - expected_chunk_size) >= 2:
             result = False
 
-        openwork -=chuncksize[i]
+        openwork -= chuncksize[i]
     return result

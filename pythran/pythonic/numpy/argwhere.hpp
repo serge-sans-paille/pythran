@@ -3,6 +3,7 @@
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
+#include "pythonic/numpy/asarray.hpp"
 
 namespace pythonic {
 
@@ -12,13 +13,17 @@ namespace pythonic {
             argwhere(E const& expr) {
                 typedef typename types::ndarray<long, 2> out_type;
                 constexpr long N = types::numpy_expr_to_ndarray<E>::N;
-                long sz = expr.size();
-                auto eshape = expr.shape;
+                auto arr = asarray(expr);
+                long sz = arr.size();
+                auto eshape = arr.shape;
+
                 long *buffer = new long[N * sz]; // too much memory used
                 long *buffer_iter = buffer;
+
                 long real_sz = 0;
-                for(long i=0; i< sz; ++i) {
-                    if(expr.at(i)) {
+                auto iter = arr.fbegin();
+                for(long i=0; i< sz; ++i, ++iter) {
+                    if(*iter) {
                         ++real_sz;
                         long mult = 1;
                         for(long j=N-1; j>0; j--) {

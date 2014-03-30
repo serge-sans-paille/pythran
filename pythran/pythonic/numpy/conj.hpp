@@ -8,16 +8,9 @@
 namespace pythonic {
 
     namespace numpy {
-        using nt2::conj;
-
-        namespace wrapper {
-            PROXY(pythonic::numpy, conj)
-
-        }
 #define NUMPY_UNARY_FUNC_NAME conj
-#define NUMPY_UNARY_FUNC_SYM wrapper::proxy::conj
+#define NUMPY_UNARY_FUNC_SYM nt2::conj
 #include "pythonic/types/numpy_unary_expr.hpp"
-        PROXY(pythonic::numpy, conj)
 
     }
 

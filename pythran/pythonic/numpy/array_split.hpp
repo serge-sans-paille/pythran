@@ -17,9 +17,9 @@ namespace pythonic {
                 types::list<types::ndarray<T,N>> out(nb_split);
                 long index = 0;
                 for(long i=0;i<nb_full_split; ++i, index+=n)
-                    out[i] = a[types::slice(index, index+n)];
+                    out[i] = a[types::contiguous_slice(index, index+n)];
                 for(long i=nb_full_split;i<nb_split; ++i, index+=(n-1))
-                    out[i] = a[types::slice(index, index + n - 1)];
+                    out[i] = a[types::contiguous_slice(index, index + n - 1)];
 
                 return out;
             }
@@ -32,10 +32,10 @@ namespace pythonic {
                 long index = 0;
                 auto inserter = out.begin();
                 for(auto next_index: split_mask) {
-                    *inserter++ = a[types::slice(index, next_index)];
+                    *inserter++ = a[types::contiguous_slice(index, next_index)];
                     index = next_index;
                 }
-                *inserter = a[types::slice(index, sz)];
+                *inserter = a[types::contiguous_slice(index, sz)];
                 return out;
             }
 

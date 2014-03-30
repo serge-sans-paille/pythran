@@ -11,6 +11,13 @@
 namespace pythonic {
 
     namespace numpy {
+
+        template<class T>
+            types::numpy_texpr<types::ndarray<T, 2>>
+            transpose(types::ndarray<T, 2> const& arr) {
+                return types::numpy_texpr<types::ndarray<T, 2>>(arr);
+            }
+
         template<class T, unsigned long N, class... C>
             types::ndarray<T,N> _transpose(types::ndarray<T,N> const & a, long const l[N])
             {

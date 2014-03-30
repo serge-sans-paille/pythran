@@ -12,12 +12,15 @@ namespace pythonic {
             types::ndarray<T,2> tril(types::ndarray<T,2> const& expr, int k = 0)
             {
                 types::ndarray<T,2> out(expr.shape, __builtin__::None);
-                for(int i=0; i<expr.shape[0]; ++i)
+                for(int i=0; i<expr.shape[0]; ++i) {
+                    auto out_i = out[i];
+                    auto expr_i = expr[i];
                     for(long j=0 ; j<expr.shape[1]; ++j)
                         if( j - i <= k)
-                            out.buffer[i * expr.shape[1] + j] = expr.buffer[i * expr.shape[1] + j];
+                            out_i[j] = expr_i[j];
                         else
-                            out.buffer[i * expr.shape[1] + j] = 0;
+                            out_i[j] = 0;
+                }
                 return out;
             }
 

@@ -20,7 +20,7 @@ namespace pythonic {
                     std::iota(iter_indices, iter_indices + last_axis, 0L);
                     // sort the index using the value from a
                     std::sort(iter_indices, iter_indices + last_axis,
-                            [&a,j](long i1, long i2) {return a.at(j+i1) < a.at(j+i2);});
+                            [&a,j](long i1, long i2) {return *(a.fbegin() + j + i1) < *(a.fbegin() + j + i2);});
                 }
                 return indices;
             }

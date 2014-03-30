@@ -8,16 +8,9 @@
 namespace pythonic {
 
     namespace numpy {
-        using nt2::sign;
-
-        namespace wrapper {
-            PROXY(pythonic::numpy, sign)
-
-        }
 #define NUMPY_UNARY_FUNC_NAME sign
-#define NUMPY_UNARY_FUNC_SYM wrapper::proxy::sign
+#define NUMPY_UNARY_FUNC_SYM nt2::sign
 #include "pythonic/types/numpy_unary_expr.hpp"
-        PROXY(pythonic::numpy, sign)
 
     }
 

@@ -16,19 +16,30 @@ namespace pythonic {
                 T significand = std::frexp(val, &exp);
                 return std::make_tuple(significand, exp);
             }
+
+        template<class E, class F, class G>
+            void _frexp(E begin, E end, F significands_iter, G exps_iter, utils::int_<1>)
+            {
+                for(; begin != end; ++ begin, ++significands_iter, ++exps_iter)
+                    *significands_iter = std::frexp(*begin, exps_iter);
+            }
+        template<class E, class F, class G, size_t N>
+            void _frexp(E begin, E end, F significands_iter, G exps_iter, utils::int_<N>)
+            {
+                for(; begin != end; ++ begin, ++significands_iter, ++exps_iter)
+                    _frexp((*begin).begin(), (*begin).end(), (*significands_iter).begin(), (*exps_iter).begin(), utils::int_<N-1>());
+            }
+
         template<class E>
             typename std::enable_if<
-            not std::is_scalar<E>::value and not types::is_complex<E>::value,
-                std::tuple<
-                    types::ndarray<typename types::numpy_expr_to_ndarray<E>::type::dtype, types::numpy_expr_to_ndarray<E>::N>,
-                types::ndarray<int, types::numpy_expr_to_ndarray<E>::N>
-                    >
-                    >::type
-                    frexp(E const& arr) {
-                        types::ndarray<typename types::numpy_expr_to_ndarray<E>::type::dtype, types::numpy_expr_to_ndarray<E>::N> significands(arr.shape, __builtin__::None);
+                not std::is_scalar<E>::value and not types::is_complex<E>::value,
+                std::tuple<typename types::numpy_expr_to_ndarray<E>::type,
+                           types::ndarray<int, types::numpy_expr_to_ndarray<E>::N>>
+            >::type
+            frexp(E const& arr) {
+                        typename types::numpy_expr_to_ndarray<E>::type significands(arr.shape, __builtin__::None);
                         types::ndarray<int, types::numpy_expr_to_ndarray<E>::N> exps(arr.shape, __builtin__::None);
-                        for(long i=0,n=arr.size(); i<n; ++i)
-                            significands.buffer[i] = std::frexp(arr.at(i), exps.buffer + i);
+                        _frexp(arr.begin(), arr.end(), significands.begin(), exps.begin(), utils::int_<E::value>());
                         return std::make_tuple(significands, exps);
                     }
         PROXY(pythonic::numpy, frexp);

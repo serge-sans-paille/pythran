@@ -3,20 +3,20 @@
 
 #include "pythonic/numpy/angle_in_deg.hpp"
 #include "pythonic/numpy/angle_in_rad.hpp"
+#include "pythonic/types/assignable.hpp"
 
 namespace pythonic {
 
     namespace numpy {
         template<class T>
-            auto angle(T const& t, bool in_deg) -> decltype(typename types::numpy_expr_to_ndarray<T>::type(angle_in_rad(typename types::numpy_expr_to_ndarray<T>::type(t)))) {
+            auto angle(T const& t, bool in_deg = false)
+            -> typename assignable<decltype(proxy::angle_in_rad()(t))>::type
+            // assignable to find a common type between the two expression templaes
+            {
                 if(in_deg)
-                    return typename types::numpy_expr_to_ndarray<T>::type(angle_in_deg(typename types::numpy_expr_to_ndarray<T>::type(t)));
+                    return proxy::angle_in_deg()(t);
                 else
-                    return typename types::numpy_expr_to_ndarray<T>::type(angle_in_rad(typename types::numpy_expr_to_ndarray<T>::type(t)));
-            }
-        template<class T>
-            auto angle(T const& t) -> typename std::enable_if<not types::is_numpy_expr<T>::value,decltype(angle(t,false))>::type {
-                return angle(t,false);
+                    return proxy::angle_in_rad()(t);
             }
         PROXY(pythonic::numpy, angle);
 

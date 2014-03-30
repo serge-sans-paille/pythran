@@ -14,7 +14,7 @@ namespace pythonic {
                 T res = 0;
                 long size = std::min(expr.shape[0] + std::min(offset, 0), expr.shape[1] - std::max(0, offset));
                 for(int i=0; i<size; ++i)
-                    res += expr.buffer[i * expr.shape[1] + i + offset];
+                    res += expr[i][i + offset];
                 return res;
             }
         NUMPY_EXPR_TO_NDARRAY0(trace)

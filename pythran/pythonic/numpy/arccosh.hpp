@@ -8,14 +8,9 @@
 namespace pythonic {
 
     namespace numpy {
-        ALIAS(arccosh, nt2::acosh)
-            namespace wrapper {
-                PROXY(pythonic::numpy, arccosh)
-            }
 #define NUMPY_UNARY_FUNC_NAME arccosh
-#define NUMPY_UNARY_FUNC_SYM wrapper::proxy::arccosh
+#define NUMPY_UNARY_FUNC_SYM nt2::acosh
 #include "pythonic/types/numpy_unary_expr.hpp"
-        PROXY(pythonic::numpy, arccosh)
 
     }
 

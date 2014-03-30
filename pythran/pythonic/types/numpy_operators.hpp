@@ -27,83 +27,83 @@ namespace pythonic {
     namespace types {
 #define NUMPY_BINARY_FUNC_NAME operator+
 #define NUMPY_BINARY_FUNC_SYM operator_::proxy::add
-#include "pythonic/types/numpy_binary_expr.hpp"
+#include "pythonic/types/numpy_binary_op.hpp"
 
 #define NUMPY_BINARY_FUNC_NAME operator&
 #define NUMPY_BINARY_FUNC_SYM operator_::proxy::and_
-#include "pythonic/types/numpy_binary_expr.hpp"
+#include "pythonic/types/numpy_binary_op.hpp"
 
 #define NUMPY_UNARY_FUNC_NAME operator~
 #define NUMPY_UNARY_FUNC_SYM numpy::proxy::bitwise_not
-#include "pythonic/types/numpy_unary_expr.hpp"
+#include "pythonic/types/numpy_unary_op.hpp"
 
 #define NUMPY_BINARY_FUNC_NAME operator|
 #define NUMPY_BINARY_FUNC_SYM operator_::proxy::or_
-#include "pythonic/types/numpy_binary_expr.hpp"
+#include "pythonic/types/numpy_binary_op.hpp"
 
 #define NUMPY_BINARY_FUNC_NAME operator^
 #define NUMPY_BINARY_FUNC_SYM operator_::proxy::__xor__
-#include "pythonic/types/numpy_binary_expr.hpp"
+#include "pythonic/types/numpy_binary_op.hpp"
 
 #define NUMPY_BINARY_FUNC_NAME operator/
 #define NUMPY_BINARY_FUNC_SYM operator_::proxy::div
-#include "pythonic/types/numpy_binary_expr.hpp"
+#include "pythonic/types/numpy_binary_op.hpp"
 
 #define NUMPY_BINARY_FUNC_NAME operator==
 #define NUMPY_BINARY_FUNC_SYM operator_::proxy::eq
-#include "pythonic/types/numpy_binary_expr.hpp"
+#include "pythonic/types/numpy_binary_op.hpp"
 
 #define NUMPY_BINARY_FUNC_NAME operator%
 #define NUMPY_BINARY_FUNC_SYM operator_::proxy::mod
-#include "pythonic/types/numpy_binary_expr.hpp"
+#include "pythonic/types/numpy_binary_op.hpp"
 
 #define NUMPY_BINARY_FUNC_NAME operator>
 #define NUMPY_BINARY_FUNC_SYM operator_::proxy::gt
-#include "pythonic/types/numpy_binary_expr.hpp"
+#include "pythonic/types/numpy_binary_op.hpp"
 
 #define NUMPY_BINARY_FUNC_NAME operator>=
 #define NUMPY_BINARY_FUNC_SYM operator_::proxy::ge
-#include "pythonic/types/numpy_binary_expr.hpp"
+#include "pythonic/types/numpy_binary_op.hpp"
 
 #define NUMPY_BINARY_FUNC_NAME operator<<
 #define NUMPY_BINARY_FUNC_SYM operator_::proxy::lshift
-#include "pythonic/types/numpy_binary_expr.hpp"
+#include "pythonic/types/numpy_binary_op.hpp"
 
 #define NUMPY_BINARY_FUNC_NAME operator<
 #define NUMPY_BINARY_FUNC_SYM operator_::proxy::lt
-#include "pythonic/types/numpy_binary_expr.hpp"
+#include "pythonic/types/numpy_binary_op.hpp"
 
 #define NUMPY_BINARY_FUNC_NAME operator<=
 #define NUMPY_BINARY_FUNC_SYM operator_::proxy::le
-#include "pythonic/types/numpy_binary_expr.hpp"
+#include "pythonic/types/numpy_binary_op.hpp"
 
 #define NUMPY_BINARY_FUNC_NAME operator*
 #define NUMPY_BINARY_FUNC_SYM operator_::proxy::mul
-#include "pythonic/types/numpy_binary_expr.hpp"
+#include "pythonic/types/numpy_binary_op.hpp"
 
 #define NUMPY_UNARY_FUNC_NAME operator-
 #define NUMPY_UNARY_FUNC_SYM operator_::proxy::neg
-#include "pythonic/types/numpy_unary_expr.hpp"
+#include "pythonic/types/numpy_unary_op.hpp"
 
 #define NUMPY_BINARY_FUNC_NAME operator!=
 #define NUMPY_BINARY_FUNC_SYM operator_::proxy::ne
-#include "pythonic/types/numpy_binary_expr.hpp"
+#include "pythonic/types/numpy_binary_op.hpp"
 
 #define NUMPY_UNARY_FUNC_NAME operator+
 #define NUMPY_UNARY_FUNC_SYM operator_::proxy::pos
-#include "pythonic/types/numpy_unary_expr.hpp"
+#include "pythonic/types/numpy_unary_op.hpp"
 
 #define NUMPY_UNARY_FUNC_NAME operator!
 #define NUMPY_UNARY_FUNC_SYM operator_::proxy::not_
-#include "pythonic/types/numpy_unary_expr.hpp"
+#include "pythonic/types/numpy_unary_op.hpp"
 
 #define NUMPY_BINARY_FUNC_NAME operator>>
 #define NUMPY_BINARY_FUNC_SYM operator_::proxy::rshift
-#include "pythonic/types/numpy_binary_expr.hpp"
+#include "pythonic/types/numpy_binary_op.hpp"
 
 #define NUMPY_BINARY_FUNC_NAME operator-
 #define NUMPY_BINARY_FUNC_SYM operator_::proxy::sub
-#include "pythonic/types/numpy_binary_expr.hpp"
+#include "pythonic/types/numpy_binary_op.hpp"
 
     }
 }

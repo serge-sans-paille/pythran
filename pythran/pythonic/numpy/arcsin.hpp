@@ -8,16 +8,9 @@
 namespace pythonic {
 
     namespace numpy {
-        ALIAS(arcsin, nt2::asin)
-
-            namespace wrapper {
-                PROXY(pythonic::numpy, arcsin)
-
-            }
 #define NUMPY_UNARY_FUNC_NAME arcsin
-#define NUMPY_UNARY_FUNC_SYM wrapper::proxy::arcsin
+#define NUMPY_UNARY_FUNC_SYM nt2::asin
 #include "pythonic/types/numpy_unary_expr.hpp"
-        PROXY(pythonic::numpy, arcsin)
     }
 }
 

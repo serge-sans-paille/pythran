@@ -8,15 +8,9 @@
 namespace pythonic {
 
     namespace numpy {
-        using nt2::ldexp;
-
-        namespace wrapper {
-            PROXY(pythonic::numpy, ldexp)
-        }
 #define NUMPY_BINARY_FUNC_NAME ldexp
-#define NUMPY_BINARY_FUNC_SYM wrapper::proxy::ldexp
+#define NUMPY_BINARY_FUNC_SYM nt2::ldexp
 #include "pythonic/types/numpy_binary_expr.hpp"
-        PROXY(pythonic::numpy, ldexp)
 
     }
 

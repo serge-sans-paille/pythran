@@ -8,17 +8,9 @@
 namespace pythonic {
 
     namespace numpy {
-        using nt2::remainder;
-
-        namespace wrapper {
-            PROXY(pythonic::numpy, remainder)
-
-        }
 #define NUMPY_BINARY_FUNC_NAME remainder
-#define NUMPY_BINARY_FUNC_SYM wrapper::proxy::remainder
+#define NUMPY_BINARY_FUNC_SYM nt2::remainder
 #include "pythonic/types/numpy_binary_expr.hpp"
-        PROXY(pythonic::numpy, remainder)
-
     }
 
 }

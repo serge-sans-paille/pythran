@@ -7,17 +7,16 @@ namespace pythonic {
 
     namespace numpy {
         template<class E>
-            types::ndarray<typename types::numpy_expr_to_ndarray<E>::type::dtype, 1>
+            types::ndarray<typename types::numpy_expr_to_ndarray<E>::T, 1>
             ediff1d(E const& expr)
             {
-                long n = expr.size() -1 ;
-                types::ndarray<typename types::numpy_expr_to_ndarray<E>::type::dtype, 1> out(types::make_tuple(n), __builtin__::None);
-                auto prev = expr.at(0);
-                for(long i=0; i< n ; ++i) {
-                    auto next = expr.at(i+1);
-                    out.at(i) = next - prev;
-                    prev = next;
-                }
+                auto arr = asarray(expr);
+                long n = arr.size() -1 ;
+                types::ndarray<typename types::numpy_expr_to_ndarray<E>::T, 1> out(types::make_tuple(n), __builtin__::None);
+                // Compute adjacent difference except for the first element
+                std::adjacent_difference (arr.fbegin() + 1, arr.fend(), out.fbegin());
+                // First element can be done now
+                (*out.fbegin()) = *(arr.fbegin()+1) - *(arr.fbegin());
                 return out;
             }
 

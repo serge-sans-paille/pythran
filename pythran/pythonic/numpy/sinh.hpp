@@ -8,16 +8,9 @@
 namespace pythonic {
 
     namespace numpy {
-        using nt2::sinh;
-
-        namespace wrapper {
-            PROXY(pythonic::numpy, sinh)
-
-        }
 #define NUMPY_UNARY_FUNC_NAME sinh
-#define NUMPY_UNARY_FUNC_SYM wrapper::proxy::sinh
+#define NUMPY_UNARY_FUNC_SYM nt2::sinh
 #include "pythonic/types/numpy_unary_expr.hpp"
-        PROXY(pythonic::numpy, sinh)
 
     }
 

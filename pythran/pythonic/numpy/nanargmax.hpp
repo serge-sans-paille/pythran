@@ -10,31 +10,38 @@
 namespace pythonic {
 
     namespace numpy {
-        template<class E>
-            long nanargmax(E&& expr) {
-                long sz = expr.size();
-                if(not sz) 
-                    throw types::ValueError("empty sequence");
-                long i = 0;
-                auto e_i = expr.at(i);
-                while(i< sz and nt2::is_nan(e_i)) {
-                    e_i = expr.at(++i);
-                }
-                if( i < sz) {
-                    auto res = e_i;
-                    auto index = i;
-                    for(; i< sz ; ++i) {
-                        auto e_i = expr.at(i);
-                        if(e_i > res and not nt2::is_nan(e_i)) {
-                            res = e_i;
-                            index = i;
-                        }
+        template<class E, class F>
+            void _nanargmax(E begin, E end, F& max, long& index, long& where,utils::int_<1>)
+            {
+                for(; begin != end; ++begin, ++index)
+                {
+                    auto curr = *begin;
+                    if(not nt2::is_nan(curr) and curr > max) {
+                        max = curr;
+                        where = index;
                     }
-                    return index;
                 }
+            }
+        template<class E, class F, size_t N>
+            void _nanargmax(E begin, E end, F& max, long& index, long& where, utils::int_<N>)
+            {
+                for(; begin != end; ++begin)
+                    _nanargmax((*begin).begin(), (*begin).end(), max, index, where, utils::int_<N - 1>());
+            }
+            
+        template<class E>
+            typename types::numpy_expr_to_ndarray<E>::T
+            nanargmax(E const& expr) {
+                typename types::numpy_expr_to_ndarray<E>::T max = - std::numeric_limits<typename types::numpy_expr_to_ndarray<E>::T>::infinity();
+                long where = -1;
+                long index = 0;
+                _nanargmax(expr.begin(), expr.end(), max, index, where, utils::int_<types::numpy_expr_to_ndarray<E>::N>());
+                if(where >= 0)
+                    return where;
                 else
                     throw types::ValueError("empty sequence");
             }
+
         PROXY(pythonic::numpy, nanargmax);
 
     }

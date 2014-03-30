@@ -8,15 +8,9 @@
 namespace pythonic {
 
     namespace numpy {
-        ALIAS(minimum, nt2::min)
-
-            namespace wrapper {
-                PROXY(pythonic::numpy, minimum)
-            }
 #define NUMPY_BINARY_FUNC_NAME minimum
-#define NUMPY_BINARY_FUNC_SYM wrapper::proxy::minimum
+#define NUMPY_BINARY_FUNC_SYM nt2::min
 #include "pythonic/types/numpy_binary_expr.hpp"
-        PROXY(pythonic::numpy, minimum)
 
     }
 

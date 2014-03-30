@@ -9,20 +9,55 @@ namespace pythonic {
 
     namespace numpy {
         template<class T, size_t N>
-            types::ndarray<T,N> roll(types::ndarray<T,N> const& expr, int shift)
+            types::ndarray<T,N> roll(types::ndarray<T,N> const& expr, long shift)
             {
                 while(shift<0) shift+=expr.size();
-                shift %=expr.size();;
+                shift %=expr.size();
                 types::ndarray<T,N> out(expr.shape, __builtin__::None);
-                for(int i=shift; i<expr.size(); ++i)
-                    out.at(i) = expr.at(i - shift);
-                for(int i=0; i<shift; ++i)
-                    out.at(i) = expr.at(i + expr.size() - shift);
-
+                std::copy(expr.fbegin(), expr.fend() - shift, std::copy(expr.fend() - shift, expr.fend(), out.fbegin()));
                 return out;
             }
-        NUMPY_EXPR_TO_NDARRAY0(roll)
-            PROXY(pythonic::numpy, roll);
+
+        template<class To, class From, size_t N>
+            To _roll(To to, From from, long , long , types::array<long, N> const&, utils::int_<0>)
+            {
+                *to = *from;
+                return to + 1;
+            }
+        template<class To, class From, size_t N, size_t M>
+            To _roll(To to, From from, long shift, long axis, types::array<long, N> const & shape, utils::int_<M>)
+            {
+                long n =  shape[N - M];
+                long offset = std::accumulate(shape.begin() + N - M + 1, shape.end(), 1L, std::multiplies<long>());
+                if(axis == N - M) {
+                    for(long i = 0; i < shift; ++i) {
+                        to = _roll(to, from + (n - shift + i) * offset, shift, axis, shape, utils::int_<M - 1>());
+                    }
+                    for(long i = shift; i < n; ++i) {
+                        to = _roll(to, from + (i - shift) *  offset, shift, axis, shape, utils::int_<M - 1>());
+                    }
+                }
+                else {
+                    for(From end = from + n * offset; from != end; from += offset) {
+                        to = _roll(to, from, shift, axis, shape, utils::int_<M - 1>());
+                    }
+                }
+                return to;
+
+            }
+
+
+        template<class T, size_t N>
+            types::ndarray<T,N> roll(types::ndarray<T,N> const& expr, long shift, long axis)
+            {
+                while(shift<0) shift+=expr.shape[axis];
+                types::ndarray<T,N> out(expr.shape, __builtin__::None);
+                _roll(out.fbegin(), expr.fbegin(), shift, axis, expr.shape, utils::int_<N>());
+                return out;
+
+            }
+        NUMPY_EXPR_TO_NDARRAY0(roll);
+        PROXY(pythonic::numpy, roll);
 
     }
 

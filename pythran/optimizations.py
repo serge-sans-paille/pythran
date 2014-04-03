@@ -1,7 +1,7 @@
 '''
 This modules contains code transformation to turn pythran code into
 optimized pythran code
-    * ConstantUnfolding performs some kind of partial evaluation.
+    * ConstantFolding performs some kind of partial evaluation.
     * GenExpToImap transforms generator expressions into iterators
     * ListCompToMap transforms list comprehension into intrinsics.
     * ListCompToGenexp transforms list comprehension into genexp
@@ -34,7 +34,9 @@ class ConstantFolding(Transformation):
         return 4
     '''
 
-    MAX_LEN = 2 ** 16
+    # maximum length of folded sequences
+    # containers larger than this are not unfolded to limit code size growth
+    MAX_LEN = 2 ** 8
 
     class ConversionError(Exception):
         pass

@@ -180,7 +180,7 @@ namespace pythonic {
                     }
 
                 // set interface
-                operator bool() { return not data->empty(); }
+                operator bool() const { return not data->empty(); }
 
                 long size() const { return data->size(); }
 

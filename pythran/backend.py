@@ -562,7 +562,7 @@ class Cxx(Backend):
         value = self.visit(node.value)
         target = self.visit(node.target)
         l = operator_to_lambda[type(node.op)]
-        if type(node.op) in (ast.FloorDiv,):
+        if type(node.op) in (ast.FloorDiv, ast.Mod, ast.Pow):
             stmt = Assign(target, l(target, value))
         else:
             stmt = Statement(l(target, '')[1:-2] + '= {0}'.format(value))

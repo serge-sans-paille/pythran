@@ -279,8 +279,41 @@ def lambda_():
     def test_multi_tuple(self):
         self.run_test("def multi_tuple(): return (1,('e',2.0),[1,2,3])", multi_tuple=[])
 
-    def test_augmented_assign(self):
-        self.run_test("def augmented_assign():\n a=0\n a+=1.5\n return a", augmented_assign=[])
+    def test_augmented_assign0(self):
+        self.run_test("def augmented_assign0(a):\n a+=1.5\n return a", 12, augmented_assign0=[int])
+
+    def test_augmented_assign1(self):
+        self.run_test("def augmented_assign1(a):\n a-=1.5\n return a", 12, augmented_assign1=[int])
+
+    def test_augmented_assign2(self):
+        self.run_test("def augmented_assign2(a):\n a*=1.5\n return a", 12, augmented_assign2=[int])
+
+    def test_augmented_assign3(self):
+        self.run_test("def augmented_assign3(a):\n a/=1.5\n return a", 12, augmented_assign3=[int])
+
+    def test_augmented_assign4(self):
+        self.run_test("def augmented_assign4(a):\n a %= 5\n return a", 12, augmented_assign4=[int])
+
+    def test_augmented_assign5(self):
+        self.run_test("def augmented_assign5(a):\n a//=2\n return a", 12, augmented_assign5=[int])
+
+    def test_augmented_assign6(self):
+        self.run_test("def augmented_assign6(a):\n a**=5\n return a", 12, augmented_assign6=[int])
+
+    def test_augmented_assign7(self):
+        self.run_test("def augmented_assign7(a):\n a<<=1\n return a", 12, augmented_assign7=[int])
+
+    def test_augmented_assign8(self):
+        self.run_test("def augmented_assign8(a):\n a>>=1\n return a", 12, augmented_assign8=[int])
+
+    def test_augmented_assign9(self):
+        self.run_test("def augmented_assign9(a):\n a^=1\n return a", 12, augmented_assign9=[int])
+
+    def test_augmented_assignA(self):
+        self.run_test("def augmented_assignA(a):\n a|=1\n return a", 12, augmented_assignA=[int])
+
+    def test_augmented_assignB(self):
+        self.run_test("def augmented_assignB(a):\n a&=1\n return a", 12, augmented_assignB=[int])
 
     def test_augmented_list_assign(self):
         self.run_test("def augmented_list_assign(l):\n a=list()\n a+=l\n return a", [1,2], augmented_list_assign=[[int]])

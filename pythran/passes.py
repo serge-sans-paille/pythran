@@ -213,11 +213,13 @@ class ExtractTopLevelStmts(Transformation):
     Turns top level statements into __init__.
     """
 
+    TYPEDEFS = (ast.ClassDef, ast.FunctionDef, ast.Import, ast.ImportFrom)
+
     def visit_Module(self, node):
         module_body = list()
         init_body = list()
         for stmt in node.body:
-            if type(stmt) in (ast.FunctionDef, ast.Import, ast.ImportFrom):
+            if type(stmt) in ExtractTopLevelStmts.TYPEDEFS:
                 module_body.append(stmt)
             else:
                 init_body.append(stmt)

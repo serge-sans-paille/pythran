@@ -865,7 +865,7 @@ modules = {
         #"pop": MethodIntr(), forwarded
         "reverse": MethodIntr(),
         "sort": MethodIntr(),
-        "count": ConstMethodIntr(),
+        #"count": ConstMethodIntr(), dispatched
         "insert": MethodIntr(
             lambda self, node:
             self.combine(
@@ -881,6 +881,7 @@ modules = {
         },
     "__str__": {
         "capitalize": ConstMethodIntr(),
+        #"count": ConstMethodIntr(), dispatched
         "endswith": ConstMethodIntr(),
         "startswith": ConstMethodIntr(),
         "find": ConstMethodIntr(),
@@ -1032,6 +1033,7 @@ modules = {
     "__dispatch__": {
         "clear": MethodIntr(),
         "copy": ConstMethodIntr(),
+        "count": ConstMethodIntr(),
         "next": MethodIntr(),
         "pop": MethodIntr(),
         "remove": MethodIntr(),

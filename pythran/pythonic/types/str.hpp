@@ -282,6 +282,18 @@ namespace pythonic {
                     (fmt(fmter, a, utils::int_<N>() ));
                     return fmter.str();
                 }
+
+            long count(types::str const & sub) const {
+                long counter = 0;
+                for(size_t z = find(sub);           // begin by looking for sub
+                    z != npos;                      // as long as we don't reach the end
+                    z = find(sub, z + sub.size()))  // look for another one
+                {
+                    ++counter;
+                }
+                return counter;
+            }
+
             private:
             template<class Tuple, size_t I>
                 void fmt(boost::format & f, Tuple const & a, utils::int_<I>) const {

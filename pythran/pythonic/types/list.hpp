@@ -354,7 +354,9 @@ namespace pythonic {
                     return reinterpret_cast<intptr_t>(&(*data));
                 }
 
-
+                long count(T const& x) const {
+                    return std::count(begin(), end(), x);
+                }
 
             };
 

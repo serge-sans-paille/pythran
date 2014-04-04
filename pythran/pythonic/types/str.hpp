@@ -110,6 +110,8 @@ namespace pythonic {
 
             typedef types::str value_type;
             typedef container_type::iterator iterator;
+            typedef container_type::reverse_iterator reverse_iterator;
+            typedef container_type::const_reverse_iterator const_reverse_iterator;
 
             str() : data() {}
             str(std::string const & s) : data(s) {}
@@ -191,8 +193,12 @@ namespace pythonic {
             size_t size() const { return data->size(); }
             auto begin() const -> decltype(data->begin()) { return data->begin(); }
             auto begin() -> decltype(data->begin()) { return data->begin(); }
+            auto rbegin() const -> decltype(data->rbegin()) { return data->rbegin(); }
+            auto rbegin() -> decltype(data->rbegin()) { return data->rbegin(); }
             auto end() const -> decltype(data->end()) { return data->end(); }
             auto end() -> decltype(data->end()) { return data->end(); }
+            auto rend() const -> decltype(data->rend()) { return data->rend(); }
+            auto rend() -> decltype(data->rend()) { return data->rend(); }
             auto c_str() const -> decltype(data->c_str()) { return data->c_str(); }
             auto resize(long n) -> decltype(data->resize(n)) { return data->resize(n); }
             size_t find(str const &s, size_t pos = 0) const {

@@ -92,6 +92,9 @@ class TestStr(TestEnv):
     def test_str_find1(self):
         self.run_test("def str_find1(s): return s.find('pap')", "popop", str_find1=[str])
 
+    def test_str_reversal(self):
+        self.run_test("def str_reversal(s): return map(ord,reversed(s))", "dear", str_reversal=[str])
+
     def test_str_substring_iteration(self):
         self.run_test("def str_substring_iteration(s): return map(ord, s[1:-1])", "pythran", str_substring_iteration=[str])
 

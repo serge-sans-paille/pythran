@@ -22,7 +22,7 @@ namespace pythonic {
 
         class str;
 
-        struct const_sliced_str_iterator : std::iterator< std::random_access_iterator_tag, char >
+        struct const_sliced_str_iterator : std::iterator< std::random_access_iterator_tag, char, ptrdiff_t, char*, char >
         {
             const char * data;
             long step;
@@ -33,7 +33,6 @@ namespace pythonic {
             bool operator==(const_sliced_str_iterator const& other) const { return data == other.data; }
             bool operator!=(const_sliced_str_iterator const& other) const { return data != other.data; }
             char operator*() const { return *data; }
-            char operator*() { return *data; }
             const_sliced_str_iterator operator-(long n) const { const_sliced_str_iterator other(*this); other.data -= step * n; return other; }
             long operator-(const_sliced_str_iterator const & other) const { return (data - other.data)/step; }
         };

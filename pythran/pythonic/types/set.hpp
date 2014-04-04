@@ -380,6 +380,15 @@ namespace pythonic {
                 intptr_t id() const {
                     return reinterpret_cast<intptr_t>(&(*data));
                 }
+                friend std::ostream& operator<<(std::ostream& os, set<T> const & v) {
+                    os << "set([";
+                    const char *commaSeparator = "";
+                    for(const auto &e : v) {
+                        os << commaSeparator << e;
+                        commaSeparator = ", ";
+                    }
+                    return os << "])";
+                }
             };
 
 

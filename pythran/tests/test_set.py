@@ -183,3 +183,10 @@ def are_equal(s1):
     def test_set_to_bool_conversion(self):
         self.run_test("def set_to_bool_conversion(s, t): return (1 if s else 0), (t if t else set())",
                       set(), {1, 2},set_to_bool_conversion=[{int}, {int}])
+
+    def test_print_set(self):
+        self.run_test("def print_set(s): return str(s)", {1, 2}, print_set=[{int}])
+
+    def test_print_empty_set(self):
+        self.run_test("def print_empty_set(s): return str(s)", set(), print_empty_set=[{int}])
+

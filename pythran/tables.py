@@ -862,7 +862,7 @@ modules = {
                 register=True)
             ),
         "index": ConstMethodIntr(),
-        #"pop": MethodIntr(), forwarded
+        #"pop": MethodIntr(), dispatched
         "reverse": MethodIntr(),
         "sort": MethodIntr(),
         #"count": ConstMethodIntr(), dispatched
@@ -877,7 +877,7 @@ modules = {
         },
 
     "__iterator__": {
-        #"next": MethodIntr(), //Dispatched
+        #"next": MethodIntr(), dispatched
         },
     "__str__": {
         "capitalize": ConstMethodIntr(),
@@ -967,7 +967,7 @@ modules = {
         "iterkeys": MethodIntr(),
         "itervalues": MethodIntr(),
         "keys": MethodIntr(),
-        #"pop": MethodIntr(), forwarded
+        #"pop": MethodIntr(), dispatched
         "popitem": MethodIntr(),
         "setdefault": MethodIntr(
             lambda self, node:
@@ -1001,7 +1001,7 @@ modules = {
         "flush": MethodIntr(global_effects=True),
         "fileno": MethodIntr(),
         "isatty": MethodIntr(),
-        #"next": MethodIntr(global_effects=True), //Dispatched
+        #"next": MethodIntr(global_effects=True), dispatched
         "read": MethodIntr(global_effects=True),
         "readline": MethodIntr(global_effects=True),
         "readlines": MethodIntr(global_effects=True),

@@ -885,6 +885,8 @@ modules = {
         "endswith": ConstMethodIntr(),
         "startswith": ConstMethodIntr(),
         "find": ConstMethodIntr(),
+        "isalpha": ConstMethodIntr(),
+        "isdigit": ConstMethodIntr(),
         "join": ConstMethodIntr(),
         "lower": ConstMethodIntr(),
         "replace": ConstMethodIntr(),

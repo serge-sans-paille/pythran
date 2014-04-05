@@ -1,16 +1,14 @@
 from pythran import compile_pythrancode
-from pythran.passes import NormalizeIdentifiers, ExtractTopLevelStmts
-from pythran.openmp import GatherOMPData
-from pythran.middlend import refine
-from pythran.syntax import check_syntax
-from pythran.toolchain import _parse_optimization
 from pythran.backend import Python
+from pythran.middlend import refine
+from pythran.passmanager import PassManager
+from pythran.toolchain import _parse_optimization
+import pythran.frontend as frontend
 from imp import load_dynamic
 import unittest
 import os
 import re
 from numpy import ndarray
-from pythran.passmanager import PassManager
 import ast
 
 
@@ -172,8 +170,8 @@ class TestEnv(unittest.TestCase):
 
             Parameters
             ----------
-            node : ast.AST
-                node to be checked
+            code : str
+                code we want to check after refine and optimizations
             ref : str
                 The expected dump for the AST
             optimizations : [optimization]
@@ -185,17 +183,12 @@ class TestEnv(unittest.TestCase):
                 Raise if the result is not the one expected.
         """
         pm = PassManager("testing")
-        #frontend
-        code = re.sub(r'(\s*)#\s*(omp\s[^\n]+)', r'\1"\2"', code)
-        ir = ast.parse(code)
-        pm.apply(ExtractTopLevelStmts, ir)
-        pm.apply(GatherOMPData, ir)
-        renamings = pm.apply(NormalizeIdentifiers, ir)
-        check_syntax(ir)
 
-        # middle-end
+        ir, _ = frontend.parse(pm, code)
+
         optimizations = map(_parse_optimization, optimizations)
         refine(pm, ir, optimizations)
+
         content = pm.dump(Python, ir)
 
         if content != ref:

@@ -344,8 +344,14 @@ class TestFromDir(TestEnv):
         def __call__(self):
             if "unittest.skip" in self.module_code:
                 return self.test_env.skipTest("Marked as skippable")
+
+            # resolve import locally to where the tests are located
+            sys.path.insert(0, self.test_env.path)
+
             self.test_env.run_test_case(self.module_code, self.module_name,
                                         self.runas, **self.specs)
+            # restore import path
+            sys.path.pop(0)
 
     @staticmethod
     def populate(target, stub=True):

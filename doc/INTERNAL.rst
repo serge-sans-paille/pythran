@@ -162,10 +162,11 @@ conditional::
     >>> print pm.dump(backend.Python, foo_tree)
     def foo(n):
         if 1:
+            'omp parallel'
+            'omp single'
             s = 1
         return s
 
-Note that the OpenMP directives are not pretty-printed by the Python back-end!
 However the additional if bloc makes it clear that ``s`` should have function
 scope, and the scope is not attached to the first assignment::
 

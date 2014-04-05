@@ -1448,63 +1448,59 @@ class LazynessAnalysis(FunctionAnalysis):
     >>> res['a'], res['b'], res['c']
     (inf, 1, 2)
     """
+    INF = float('inf')
+
     def __init__(self):
+        # map variable with maximum count of use in the programm
         self.result = dict()
+        # map variable with current count of use
         self.name_count = dict()
+        # map variable to variables needed to compute it
         self.use = dict()
+        # gather variables which can't be compute later. (variables used
+        # to compute it have changed
         self.dead = set()
+        # prevent any form of Forward Substitution for variables used in loops
         self.in_loop = False
-        self.in_omp = set()  # prevent Forward Substitution at omp frontier
+        # prevent any form of Forward Substitution at omp frontier
+        self.in_omp = set()
         super(LazynessAnalysis, self).__init__(ArgumentEffects, Aliases,
                                                PureExpressions)
 
-    def modify(self, node, state):
-        #if we modify a variable, all variables that needed it
-        #to be compute are dead and its aliases too
-        if isinstance(node, ast.Name):
-            for var, deps in self.use.iteritems():
-                for dep in deps:
-                    if dep == node.id:
-                        self.dead.add(var)
-                        for alias in state[dep]:
-                            self.dead.add(alias)
-                        break
+    def modify(self, name, loc):
+        # if we modify a variable, all variables that needed it
+        # to be compute are dead and its aliases too
+        dead_vars = [var for var, deps in self.use.iteritems() if name in deps]
+        self.dead.update(dead_vars)
+        for var in dead_vars:
+            dead_aliases = [alias.id for alias in self.aliases[loc].state[var]
+                            if isinstance(alias, ast.Name)]
+            self.dead.update(dead_aliases)
 
-    def assign_to(self, node, from_, state):
+    def assign_to(self, node, from_, loc):
         # a reassigned variable is not dead anymore
         if node.id in self.dead:
             self.dead.remove(node.id)
-        # when we reassign a variable, we reinit all of its aliases
-        # and save the result as a possible worse case
-        if node.id in self.use:
-            #gather value for alias node and other variables with same name
-            state_name_count = filter(self.name_count.__contains__,
-                                      state[node.id])
-            alias_val = map(self.name_count.get, state_name_count)
-            alias_val += [value for name, value in self.name_count.iteritems()
-                          if name.id == node.id]
-            ex_value = max(alias_val)
-            if node.id in self.result:
-                ex_value = max(self.result[node.id], ex_value)
-            self.result[node.id] = ex_value
-            self.in_omp.discard(node.id)
-            for alias in state[node.id]:
-                if alias in self.name_count:
-                    self.in_omp.discard(node.id)
-                    self.name_count[alias] = 0
-        self.name_count[node] = 0
+        # we keep the bigger possible number of use
+        self.result[node.id] = max(self.result.get(node.id, 0),
+                                   self.name_count.get(node.id, 0))
+        # assign variable don't come from before omp pragma anymore
+        self.in_omp.discard(node.id)
+        # note this variable as modified
+        self.modify(node.id, loc)
+        # prepare a new variable count
+        self.name_count[node.id] = 0
         self.use[node.id] = set(from_)
-        self.modify(node, state)
 
     def visit(self, node):
         old_omp = self.in_omp
         omp_nodes = md.get(node, openmp.OMPDirective)
         if omp_nodes:
-            self.in_omp = set(name.id for name in self.name_count.keys())
+            self.in_omp = set(self.name_count.keys())
         super(LazynessAnalysis, self).visit(node)
         if omp_nodes:
             new_nodes = set(self.name_count).difference(self.in_omp)
-            self.dead.update({name.id for name in new_nodes})
+            self.dead.update(new_nodes)
         self.in_omp = old_omp
 
     def visit_FunctionDef(self, node):
@@ -1517,56 +1513,70 @@ class LazynessAnalysis(FunctionAnalysis):
         ids = self.passmanager.gather(Identifiers, node.value, self.ctx)
         for target in node.targets:
             if isinstance(target, ast.Name):
-                self.assign_to(target, ids, self.aliases[node.value].state)
+                self.assign_to(target, ids, node.value)
                 if node.value not in self.pure_expressions:
-                    self.result[target.id] = float('inf')
+                    self.result[target.id] = LazynessAnalysis.INF
             elif isinstance(target, ast.Subscript):
-                #if we modify just a part of a variable, it can't be lazy
+                # if we modify just a part of a variable, it can't be lazy
                 var_name = target.value
                 while isinstance(var_name, ast.Subscript):
                     self.visit(var_name.slice)
                     var_name = var_name.value
-                self.modify(var_name, self.aliases[node.value].state)
-                self.result[var_name.id] = float('inf')
+                # variable is modified so other variables that use it dies
+                self.modify(var_name.id, node.value)
+                # and this variable can't be lazy
+                self.result[var_name.id] = LazynessAnalysis.INF
             else:
                 raise PythranSyntaxError("Assign to unknown node", node)
 
     def visit_AugAssign(self, node):
         md.visit(self, node)
-        #augassigned variable can't be lazy
+        # augassigned variable can't be lazy
         self.visit(node.value)
         if isinstance(node.target, ast.Name):
-            self.result[node.target.id] = float('inf')
+            # variable is modified so other variables that use it dies
+            self.modify(node.target.id, node.value)
+            # and this variable can't be lazy
+            self.result[node.target.id] = LazynessAnalysis.INF
         elif isinstance(node.target, ast.Subscript):
             var_name = node.target.value
             while isinstance(var_name, ast.Subscript):
                 var_name = var_name.value
-            self.result[var_name.id] = float('inf')
+            # variable is modified so other variables that use it dies
+            self.modify(var_name.id, node.value)
+            # and this variable can't be lazy
+            self.result[var_name.id] = LazynessAnalysis.INF
         else:
             raise PythranSyntaxError("AugAssign to unknown node", node)
 
     def visit_Name(self, node):
         if isinstance(node.ctx, ast.Load) and node.id in self.use:
-            name_from_id = [name for name in self.name_count.iterkeys()
-                            if name.id == node.id]
-            for alias in self.aliases[node].aliases.union(set(name_from_id)):
-                # we only care about variable local to the function
-                if isinstance(alias, ast.Name) and alias.id in self.ids:
-                    if node.id in self.dead:
-                        # if a variable is dead, all it's aliases are dead too
-                        self.dead.add(alias.id)  # PB: may be not the best
-                        self.name_count[alias] = float('inf')
-                    elif self.in_loop or node.id in self.in_omp:
-                        self.name_count[alias] = float('inf')
-                    elif alias in self.name_count:
-                        self.name_count[alias] += 1
+            # we only care about variable local to the function
+            is_loc_var = lambda x: isinstance(x, ast.Name) and x.id in self.ids
+            alias_names = filter(is_loc_var, self.aliases[node].aliases)
+            alias_names = {x.id for x in alias_names}
+            alias_names.add(node.id)
+            for alias in alias_names:
+                if (node.id in self.dead or
+                        self.in_loop or
+                        node.id in self.in_omp):
+                    self.result[alias] = LazynessAnalysis.INF
+                elif alias in self.name_count:
+                    self.name_count[alias] += 1
+                else:
+                    # a variable may alias to assigned value (with a = b, 'b'
+                    # alias on 'a' as modifying 'a' will modify 'b' too)
+                    pass
         elif isinstance(node.ctx, ast.Param):
-            self.name_count[node] = 0
+            self.name_count[node.id] = 0
             self.use[node.id] = set()
         elif isinstance(node.ctx, ast.Store):
-            #Store is only for exception
-            self.name_count[node] = float('inf')
+            # Store is only for exception
+            self.name_count[node.id] = LazynessAnalysis.INF
             self.use[node.id] = set()
+        else:
+            # we ignore globals
+            pass
 
     def visit_If(self, node):
         md.visit(self, node)
@@ -1615,10 +1625,11 @@ class LazynessAnalysis(FunctionAnalysis):
         md.visit(self, node)
         ids = self.passmanager.gather(Identifiers, node.iter, self.ctx)
         for id in ids:
-            self.result[id] = float('inf')  # iterate value can't be lazy
+            # iterate value can't be lazy
+            self.result[id] = LazynessAnalysis.INF
         if isinstance(node.target, ast.Name):
-            self.assign_to(node.target, ids, self.aliases[node.iter].state)
-            self.result[node.target.id] = float('inf')
+            self.assign_to(node.target, ids, node.iter)
+            self.result[node.target.id] = LazynessAnalysis.INF
         else:
             err = "Assignation in for loop not to a Name"
             raise PythranSyntaxError(err, node)
@@ -1639,37 +1650,36 @@ class LazynessAnalysis(FunctionAnalysis):
 
         map(self.visit, node.orelse)
 
+    def func_args_lazyness(self, func_name, args, node):
+        for fun in self.aliases[func_name].aliases:
+            if isinstance(fun, ast.Call):  # call to partial functions
+                self.func_args_lazyness(fun.args[0], fun.args[1:] + args, node)
+            elif fun in self.argument_effects:
+                # when there is an argument effet, we apply "modify" to the arg
+                for i, arg in enumerate(self.argument_effects[fun]):
+                    # check len of args as default is 11 args
+                    if arg and len(args) > i:
+                        if isinstance(args[i], ast.Name):
+                            self.modify(args[i].id, node)
+            elif isinstance(fun, ast.Name):
+                # it may be a variable to a function. Lazyness will be compute
+                # correctly thanks to aliasing
+                continue
+            else:
+                raise PythranSyntaxError("Bad call in LazynessAnalysis", node)
+
     def visit_Call(self, node):
         md.visit(self, node)
         map(self.visit, node.args)
-        #when there is an argument effet, we apply "modify" to the arg
-        #and as it we don't know how it is modify, it is set to inf
-        for fun in self.aliases[node.func].aliases:
-            if isinstance(fun, ast.Call):
-                fun = fun.args[0]
-                for fun1 in self.aliases[fun].aliases:
-                    for i, arg in enumerate(self.argument_effects[fun1]):
-                        if len(node.args) != i:
-                            break
-                        elif arg:
-                            self.modify(node.args[i],
-                                        self.aliases[node.func].state)
-            elif fun in self.argument_effects:
-                for i, arg in enumerate(self.argument_effects[fun]):
-                    if arg and len(node.args) > i:
-                        self.modify(node.args[i],
-                                    self.aliases[node.func].state)
-                        if isinstance(node.args[i], ast.Name):
-                            self.result[node.args[i].id] = float('inf')
-            else:
-                for arg in node.args:
-                    self.modify(arg, self.aliases[node.func].state)
+        self.func_args_lazyness(node.func, node.args, node)
 
     def run(self, node, ctx):
         super(LazynessAnalysis, self).run(node, ctx)
+
+        # update result with last name_count values
         for name, val in self.name_count.iteritems():
-            old_val = self.result.get(name.id, 0)
-            self.result[name.id] = max(old_val, val)
+            old_val = self.result.get(name, 0)
+            self.result[name] = max(old_val, val)
         return self.result
 
 

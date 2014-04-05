@@ -2,7 +2,7 @@
 #pythran export analytical(int)
 #pythran export testing(int, int)
 #runas analytical(10)
-#runas testing(10, 100)
+#runas avg = testing(10, 10**5); theory = analytical(10); abs((avg / theory - 1) * 100) < 0.1
 
 #from __future__ import division # Only necessary for Python 2.X
 from math import factorial

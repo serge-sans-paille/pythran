@@ -14,6 +14,7 @@ from cxxgen import *
 import ast
 from middlend import refine
 from backend import Cxx
+import frontend
 from syntax import check_syntax
 from passes import NormalizeIdentifiers, ExtractTopLevelStmts
 from openmp import GatherOMPData
@@ -145,21 +146,9 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
 
     '''
     pm = PassManager(module_name)
-    # hacky way to turn OpenMP comments into strings
-    code = re.sub(r'(\s*)#\s*(omp\s[^\n]+)', r'\1"\2"', code)
 
     # front end
-    ir = ast.parse(code)
-
-    # remove top - level statements
-    pm.apply(ExtractTopLevelStmts, ir)
-
-    # parse openmp directive
-    pm.apply(GatherOMPData, ir)
-
-    # avoid conflicts with cxx keywords
-    renamings = pm.apply(NormalizeIdentifiers, ir)
-    check_syntax(ir)
+    ir, renamings = frontend.parse(pm, code)
 
     # middle-end
     optimizations = (optimizations or

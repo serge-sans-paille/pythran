@@ -1,8 +1,15 @@
 from pythran import compile_pythrancode
+from pythran.backend import Python
+from pythran.middlend import refine
+from pythran.passmanager import PassManager
+from pythran.toolchain import _parse_optimization
+import pythran.frontend as frontend
 from imp import load_dynamic
 import unittest
 import os
+import re
 from numpy import ndarray
+import ast
 
 
 class TestEnv(unittest.TestCase):
@@ -156,6 +163,38 @@ class TestEnv(unittest.TestCase):
                     raise AssertionError(
                     "expected exception was %s, but received %s" %
                     (python_exception_type, pythran_exception_type))
+
+    def check_ast(self, code, ref, optimizations):
+        """
+            Check if a final node is the same as expected
+
+            Parameters
+            ----------
+            code : str
+                code we want to check after refine and optimizations
+            ref : str
+                The expected dump for the AST
+            optimizations : [optimization]
+                list of optimisation to apply
+
+            Raises
+            ------
+            is_same : AssertionError
+                Raise if the result is not the one expected.
+        """
+        pm = PassManager("testing")
+
+        ir, _ = frontend.parse(pm, code)
+
+        optimizations = map(_parse_optimization, optimizations)
+        refine(pm, ir, optimizations)
+
+        content = pm.dump(Python, ir)
+
+        if content != ref:
+            raise AssertionError(
+            "AST is not the one expected. Reference was %s,"
+            "but received %s" % (repr(ref), repr(content)))
 
 
 class TestFromDir(TestEnv):

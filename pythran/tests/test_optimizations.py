@@ -1,7 +1,7 @@
 from test_env import TestEnv
 
 
-class TestBase(TestEnv):
+class TestOptimization(TestEnv):
 
     def test_genexp(self):
         self.run_test("def test_genexp(n): return sum((x*x for x in xrange(n)))", 5, test_genexp=[int])
@@ -214,3 +214,62 @@ def full_unroll0():
     for i,j in zip([1,2,3],[4,5,6]): k.append((i,j))
     return k""", full_unroll0=[])
 
+    def test_omp_forwarding(self):
+        init = """
+def foo():
+    a = 2
+    #omp parallel
+    if 1:
+        print a
+"""
+        ref = """import itertools
+def foo():
+    a = 2
+    'omp parallel'
+    if 1:
+        print a
+    return __builtin__.None
+def __init__():
+    return __builtin__.None
+__init__()"""
+        self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution"])
+
+    def test_omp_forwarding2(self):
+        init = """
+def foo():
+    #omp parallel
+    if 1:
+        a = 2
+        print a
+"""
+        ref = """import itertools
+def foo():
+    'omp parallel'
+    if 1:
+        pass
+        print 2
+    return __builtin__.None
+def __init__():
+    return __builtin__.None
+__init__()"""
+        self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution"])
+
+    def test_omp_forwarding3(self):
+        init = """
+def foo():
+    #omp parallel
+    if 1:
+        a = 2
+    print a
+"""
+        ref = """import itertools
+def foo():
+    'omp parallel'
+    if 1:
+        a = 2
+    print a
+    return __builtin__.None
+def __init__():
+    return __builtin__.None
+__init__()"""
+        self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution"])

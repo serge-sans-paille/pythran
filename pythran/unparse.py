@@ -10,6 +10,8 @@ import sys
 import ast
 import cStringIO
 import os
+import metadata
+import openmp
 
 
 # Large float and imaginary literals get turned into infinities in the AST.
@@ -67,6 +69,18 @@ class Unparser:
 
     def dispatch(self, tree):
         "Dispatcher function, dispatching tree type T to method _T."
+        #display omp directive in python dump
+        for omp in metadata.get(tree, openmp.OMPDirective):
+            deps = list()
+            for dep in omp.deps:
+                old_file = self.f
+                self.f = cStringIO.StringIO()
+                self.dispatch(dep)
+                deps.append(self.f.getvalue())
+                self.f = old_file
+            directive = omp.s.format(*deps)
+            self._Expr(ast.Expr(ast.Str(s=directive)))
+
         if isinstance(tree, list):
             for t in tree:
                 self.dispatch(t)

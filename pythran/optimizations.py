@@ -7,11 +7,12 @@ optimized pythran code
     * ListCompToGenexp transforms list comprehension into genexp
     * IterTransformation replaces expressions by iterators when possible.
     * LoopFullUnrolling fully unrolls loops with static bounds
+    * DeadCodeElimination remove useless code
 '''
 
 from analysis import ConstantExpressions, OptimizableComprehension
 from analysis import PotentialIterator, Aliases, UseOMP, HasBreak, HasContinue
-from analysis import LazynessAnalysis, UsedDefChain, Literals
+from analysis import LazynessAnalysis, UsedDefChain, Literals, PureExpressions
 from passmanager import Transformation
 from tables import modules, equivalent_iterators
 from passes import NormalizeTuples, RemoveNestedFunctions, RemoveLambdas
@@ -493,4 +494,66 @@ class ForwardSubstitution(Transformation):
                 if (len(D) == 1 and len(get("UD")) == 0 and
                         not isinstance(D[0].ctx, ast.Param)):
                     node = _LazyRemover(self.ctx, U, D[0]).visit(node)
+        return node
+
+
+class DeadCodeElimination(Transformation):
+    """
+        Remove useless statement like:
+            - assignment to unused variables
+            - remove alone pure statement
+
+        >>> import ast, passmanager, backend
+        >>> pm = passmanager.PassManager("test")
+        >>> node = ast.parse("def foo(): a = [2, 3]; return 1")
+        >>> node = pm.apply(DeadCodeElimination, node)
+        >>> print pm.dump(backend.Python, node)
+        def foo():
+            pass
+            return 1
+        >>> node = ast.parse("def foo(): 'a simple string'; return 1")
+        >>> node = pm.apply(DeadCodeElimination, node)
+        >>> print pm.dump(backend.Python, node)
+        def foo():
+            pass
+            return 1
+        >>> node = ast.parse('''
+        ... def bar(a):
+        ...     return a
+        ... def foo(a):
+        ...    bar(a)
+        ...    return 1''')
+        >>> node = pm.apply(DeadCodeElimination, node)
+        >>> print pm.dump(backend.Python, node)
+        def bar(a):
+            return a
+        def foo(a):
+            pass
+            return 1
+    """
+    def __init__(self):
+        super(DeadCodeElimination, self).__init__(PureExpressions,
+                                                  UsedDefChain)
+
+    def used_target(self, node):
+        if isinstance(node, ast.Name):
+            udc = self.used_def_chain[node.id]
+            is_use = lambda x: udc.node[x]['action'] in ("U", "UD")
+            use_count = len(filter(is_use, udc.nodes()))
+            return use_count != 0
+        return True
+
+    def visit_Assign(self, node):
+        node.targets = filter(self.used_target, node.targets)
+        if node.targets:
+            return node
+        elif node.value in self.pure_expressions:
+            return ast.Pass()
+        else:
+            return ast.Expr(value=node.value)
+
+    def visit_Expr(self, node):
+        if (node in self.pure_expressions and
+                not isinstance(node.value, ast.Yield)):
+            return ast.Pass()
         return node

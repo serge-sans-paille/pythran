@@ -81,8 +81,8 @@ namespace pythonic {
                 size_type size() const { return slicing.size(); }
 
                 // accessor
-                T const & operator[](long i) const { return (*data)[slicing.lower + i*slicing.step];}
-                T & operator[](long i) { return (*data)[slicing.lower + i*slicing.step];}
+                T const & operator[](long i) const { return (*data)[slicing.get(i)];}
+                T & operator[](long i) { return (*data)[slicing.get(i)];}
 
                 // comparison
                 template <class K>
@@ -258,14 +258,14 @@ namespace pythonic {
                     normalized_slice norm = s.normalize(size());
                     list<T> out(norm.size());
                     for(long i = 0; i < out.size() ; i++)
-                        out[i] = (*data)[norm.lower + i * norm.step];
+                        out[i] = (*data)[norm.get(i)];
                     return out;
                 }
                 list<T> operator[]( contiguous_slice const &s ) const {
                     contiguous_normalized_slice norm = s.normalize(size());
                     list<T> out(norm.size());
                     for(long i = 0; i < out.size() ; i++)
-                        out[i] = (*data)[norm.lower + i];
+                        out[i] = (*data)[norm.get(i)];
                     return out;
                 }
 

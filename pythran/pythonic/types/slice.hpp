@@ -25,6 +25,11 @@ namespace pythonic {
             {
                 return std::max(0L, long(ceil(double(upper - lower)/double(step))));
             }
+
+            inline long get(long i) const
+            {
+                return lower + i * step;
+            }
         };
 
         struct slice {
@@ -49,7 +54,7 @@ namespace pythonic {
 
                 long normalized_upper;
                 if(upper.is_none and normalized_step>0L) normalized_upper = max_size;
-                else if(upper.is_none and normalized_step<0L) normalized_upper = -1L; 
+                else if(upper.is_none and normalized_step<0L) normalized_upper = -1L;
                 else if(upper<0L) normalized_upper = std::max(-1L, max_size + upper);
                 else if(upper> max_size) normalized_upper = max_size;
                 else normalized_upper = (long)upper;
@@ -67,6 +72,12 @@ namespace pythonic {
             {
                 assert( not upper.is_none and not lower.is_none and not step.is_none );
                 return std::max(0L, long(ceil(double(upper - lower)/double(step))));
+            }
+
+            inline long get(long i) const
+            {
+                assert(not lower.is_none);
+                return int(lower) + i * int(step);
             }
         };
 
@@ -88,6 +99,11 @@ namespace pythonic {
             long size() const
             {
                 return std::max(0L, long(ceil(double(upper - lower))));
+            }
+
+            inline long get(long i) const
+            {
+                return lower + i;
             }
         };
 
@@ -132,6 +148,12 @@ namespace pythonic {
             {
                 assert(not upper.is_none and not lower.is_none);
                 return std::max(0L, long(ceil(double(upper - lower))));
+            }
+
+            inline long get(long i) const
+            {
+                assert(not lower.is_none);
+                return int(lower) + i;
             }
         };
     }

@@ -232,7 +232,7 @@ namespace pythonic {
                     types::slice norm = s.normalize(size());
                     list<T> out(norm.size());
                     for(long i=0; i< out.size(); i++)
-                        out[i] = buffer[norm.lower + i * norm.step];
+                        out[i] = buffer[norm.get(i)];
                     return out;
                 }
 

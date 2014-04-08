@@ -34,7 +34,7 @@ namespace pythonic {
             bool operator!=(const_sliced_str_iterator const& other) const { return data != other.data; }
             char operator*() const { return *data; }
             char operator*() { return *data; }
-            const_sliced_str_iterator operator-(long n) const { const_sliced_str_iterator other(*this); other.data += step * n; return other; } 
+            const_sliced_str_iterator operator-(long n) const { const_sliced_str_iterator other(*this); other.data -= step * n; return other; }
             long operator-(const_sliced_str_iterator const & other) const { return (data - other.data)/step; }
         };
 
@@ -82,8 +82,8 @@ namespace pythonic {
             size_type size() const { return slicing.size(); }
 
             // accessor
-            char const & operator[](long i) const { return (*data)[slicing.lower + i*slicing.step];}
-            char & operator[](long i) { return (*data)[slicing.lower + i*slicing.step];}
+            char const & operator[](long i) const { return (*data)[slicing.get(i)];}
+            char & operator[](long i) { return (*data)[slicing.get(i)];}
             sliced_str<slice> operator[](slice const& s) const { return sliced_str<slice>(*this, s.normalize(size())); }
             sliced_str<contiguous_slice> operator[](contiguous_slice const& s) const { return sliced_str<contiguous_slice>(*this, s.normalize(size())); }
 

@@ -1,7 +1,7 @@
 '''
 This modules contains code transformation to turn pythran code into
 optimized pythran code
-    * ConstantUnfolding performs some kind of partial evaluation.
+    * ConstantFolding performs some kind of partial evaluation.
     * GenExpToImap transforms generator expressions into iterators
     * ListCompToMap transforms list comprehension into intrinsics.
     * ListCompToGenexp transforms list comprehension into genexp
@@ -10,13 +10,15 @@ optimized pythran code
     * DeadCodeElimination remove useless code
 '''
 
-from analysis import ConstantExpressions, OptimizableComprehension
+from analysis import ConstantExpressions, OptimizableComprehension, NodeCount
 from analysis import PotentialIterator, Aliases, UseOMP, HasBreak, HasContinue
 from analysis import LazynessAnalysis, UsedDefChain, Literals, PureExpressions
 from passmanager import Transformation
 from tables import modules, equivalent_iterators
 from passes import NormalizeTuples, RemoveNestedFunctions, RemoveLambdas
+from openmp import OMPDirective
 import ast
+import metadata
 from copy import deepcopy
 
 
@@ -34,7 +36,9 @@ class ConstantFolding(Transformation):
         return 4
     '''
 
-    MAX_LEN = 2 ** 16
+    # maximum length of folded sequences
+    # containers larger than this are not unfolded to limit code size growth
+    MAX_LEN = 2 ** 8
 
     class ConversionError(Exception):
         pass
@@ -378,42 +382,39 @@ class LoopFullUnrolling(Transformation):
     >>> pm = passmanager.PassManager("test")
     >>> node = pm.apply(LoopFullUnrolling, node)
     >>> print pm.dump(backend.Python, node)
-    if 1:
-        j = 1
-        i += j
-    if 1:
-        j = 2
-        i += j
-    if 1:
-        j = 3
-        i += j
+    j = 1
+    i += j
+    j = 2
+    i += j
+    j = 3
+    i += j
     '''
 
-    MAX_ITER = 64
+    MAX_NODE_COUNT = 512
 
     def visit_For(self, node):
+        # first unroll children if needed or possible
         self.generic_visit(node)
-        use_omp = self.passmanager.gather(UseOMP, node, self.ctx)
+
+        # if the user added some OpenMP directive, trust him and no unroll
+        has_omp = metadata.get(node, OMPDirective)
+        # a break or continue in the loop prevents unrolling too
         has_break = any(self.passmanager.gather(HasBreak, n, self.ctx)
                         for n in node.body)
         has_cont = any(self.passmanager.gather(HasContinue, n, self.ctx)
                        for n in node.body)
+        # do not unroll too much to prevent code growth
+        node_count = self.passmanager.gather(NodeCount, node, self.ctx)
+
         if type(node.iter) is ast.List:
-            if (not use_omp and
-                    not has_break and
-                    not has_cont and
-                    len(node.iter.elts) < LoopFullUnrolling.MAX_ITER):
-                elts = node.iter.elts
-                block = []
-                for elt in elts:
-                    block.append(
-                        ast.If(ast.Num(1),
-                               [ast.Assign([deepcopy(node.target)], elt)]
-                               + deepcopy(node.body),
-                               []
-                               )
-                        )
-                return block
+            isvalid = not(has_omp or has_break or has_cont)
+            total_count = node_count * len(node.iter.elts)
+            issmall = total_count < LoopFullUnrolling.MAX_NODE_COUNT
+            if isvalid and issmall:
+                def unroll(elt):
+                    return ([ast.Assign([deepcopy(node.target)], elt)]
+                            + deepcopy(node.body))
+                return reduce(list.__add__, map(unroll, node.iter.elts))
         return node
 
 

@@ -207,13 +207,6 @@ def readonce_cycle2(n):
     return foo(range(n),0)
 """, 5, readonce_cycle2=[int])
 
-    def test_full_unroll0(self):
-        self.run_test("""
-def full_unroll0():
-    k = []
-    for i,j in zip([1,2,3],[4,5,6]): k.append((i,j))
-    return k""", full_unroll0=[])
-
     def test_omp_forwarding(self):
         init = """
 def foo():
@@ -273,3 +266,45 @@ def __init__():
     return __builtin__.None
 __init__()"""
         self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution"])
+
+    def test_full_unroll0(self):
+        init = """
+def full_unroll0():
+    k = []
+    for i,j in zip([1,2,3],[4,5,6]): k.append((i,j))
+    return k"""
+
+        ref = """import itertools
+def full_unroll0():
+    k = []
+    __tuple1 = (1, 4)
+    j = __tuple1[1]
+    i = __tuple1[0]
+    __list__.append(k, (i, j))
+    __tuple1 = (2, 5)
+    j = __tuple1[1]
+    i = __tuple1[0]
+    __list__.append(k, (i, j))
+    __tuple1 = (3, 6)
+    j = __tuple1[1]
+    i = __tuple1[0]
+    __list__.append(k, (i, j))
+    return k
+def __init__():
+    return __builtin__.None
+__init__()"""
+
+        self.check_ast(init, ref, ["pythran.optimizations.ConstantFolding", "pythran.optimizations.LoopFullUnrolling"])
+
+
+    def test_full_unroll1(self):
+        self.run_test("""
+def full_unroll1():
+    c = 0
+    for i in range(3):
+        for j in range(3):
+            for k in range(3):
+                for l in range(3):
+                    for m in range(3):
+                        c += 1
+    return c""", full_unroll1=[])

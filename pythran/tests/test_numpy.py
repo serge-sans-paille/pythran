@@ -629,23 +629,26 @@ def np_rosen_der(x):
     def test_rollaxis0(self):
         self.run_test("def np_rollaxis0(x): from numpy import rollaxis; return rollaxis(x, 1)", numpy.arange(24).reshape(2,3,4), np_rollaxis0=[numpy.array([[[int]]])])
 
+    def test_roll6(self):
+        self.run_test("def np_roll6(x): from numpy import roll; return roll(x[:,:,:-1], -1, 2)", numpy.arange(24).reshape(2,3,4), np_roll6=[numpy.array([[[int]]])])
+
     def test_roll5(self):
-        self.run_test("def np_roll5(x): from numpy import roll; return roll(x, -1, 2)", numpy.arange(24).reshape(2,3,4), np_roll5=[numpy.array([[int]])])
+        self.run_test("def np_roll5(x): from numpy import roll; return roll(x, -1, 2)", numpy.arange(24).reshape(2,3,4), np_roll5=[numpy.array([[[int]]])])
 
     def test_roll4(self):
-        self.run_test("def np_roll4(x): from numpy import roll; return roll(x, 1, 1)", numpy.arange(24).reshape(2,3,4), np_roll4=[numpy.array([[int]])])
+        self.run_test("def np_roll4(x): from numpy import roll; return roll(x, 1, 1)", numpy.arange(24).reshape(2,3,4), np_roll4=[numpy.array([[[int]]])])
 
     def test_roll3(self):
-        self.run_test("def np_roll3(x): from numpy import roll; return roll(x, -1, 0)", numpy.arange(24).reshape(2,3,4), np_roll3=[numpy.array([[int]])])
+        self.run_test("def np_roll3(x): from numpy import roll; return roll(x, -1, 0)", numpy.arange(24).reshape(2,3,4), np_roll3=[numpy.array([[[int]]])])
 
     def test_roll2(self):
-        self.run_test("def np_roll2(x): from numpy import roll; return roll(x, -1)", numpy.arange(24).reshape(2,3,4), np_roll2=[numpy.array([[int]])])
+        self.run_test("def np_roll2(x): from numpy import roll; return roll(x, -1)", numpy.arange(24).reshape(2,3,4), np_roll2=[numpy.array([[[int]]])])
 
     def test_roll1(self):
-        self.run_test("def np_roll1(x): from numpy import roll; return roll(x, 10)", numpy.arange(24).reshape(2,3,4), np_roll1=[numpy.array([[int]])])
+        self.run_test("def np_roll1(x): from numpy import roll; return roll(x, 10)", numpy.arange(24).reshape(2,3,4), np_roll1=[numpy.array([[[int]]])])
 
     def test_roll0(self):
-        self.run_test("def np_roll0(x): from numpy import roll; return roll(x, 3)", numpy.arange(24).reshape(2,3,4), np_roll0=[numpy.array([[int]])])
+        self.run_test("def np_roll0(x): from numpy import roll; return roll(x, 3)", numpy.arange(24).reshape(2,3,4), np_roll0=[numpy.array([[[int]]])])
 
     def test_searchsorted3(self):
         self.run_test("def np_searchsorted3(x): from numpy import searchsorted; return searchsorted(x, [[3,4],[1,87]])", numpy.arange(6), np_searchsorted3=[numpy.array([int])])

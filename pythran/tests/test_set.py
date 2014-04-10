@@ -77,13 +77,13 @@ def are_equal(s1):
         self.run_test("def _operator_union(b, c):\n a={1.}\n return (a | b | c)", {1,3,4,5,6}, {1.,2.,4.}, _operator_union=[{int},{float}])
 
     def test_update(self):
-        self.run_test("def _update(b, c):\n a={1.}\n return a.update(b, c)", {1,3}, {1.,3.,4.,5.,6.} , _update=[{int},{float}])
+        self.run_test("def _update(b, c):\n a={1.}\n a.update(b, c)\n return a", {1,3}, {1.,3.,4.,5.,6.} , _update=[{int},{float}])
 
     def test_update_list(self):
-        self.run_test("def _update_list(b, c):\n a={1.}\n return a.update(b, c)", {1,3}, [1.,3.,4.,5.,6.] , _update_list=[{int},[float]])
+        self.run_test("def _update_list(b, c):\n a={1.}; a.update(b, c); return a", {1,3}, [1.,3.,4.,5.,6.] , _update_list=[{int},[float]])
 
     def test_update_empty_set_list(self):
-        self.run_test("def _update_empty_set_list(b, c):\n a=set()\n return a.update(b, c)", {1,3}, [1.,3.,4.,5.,6.] , _update_empty_set_list=[{int},[float]])
+        self.run_test("def _update_empty_set_list(b, c):\n a=set()\n a.update(b, c)\n return a", {1,3}, [1.,3.,4.,5.,6.] , _update_empty_set_list=[{int},[float]])
 
     def test_operator_update(self):
         self.run_test("def _operator_update(b, c):\n a={1.,10.}\n a |= b | c\n return a", {1,3,4,5,6}, {1.,2.,4.}, _operator_update=[{int},{float}])

@@ -408,6 +408,10 @@ namespace pythonic {
             template<class T>
                 set<T> operator^(set<T> const & s) { return s; }
 
+            template<class... Types>
+                void update(Types&&...) {
+                }
+
             operator bool() { return false; }
             iterator begin() const { return empty_iterator(); }
             iterator end() const { return empty_iterator(); }

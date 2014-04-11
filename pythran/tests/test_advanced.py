@@ -157,3 +157,6 @@ def combiner_on_empty_list():
     @skip("lists as zeros parameter are not supported")
     def test_list_as_zeros_parameter(self):
         self.run_test('def list_as_zeros_parameter(n): from numpy import zeros ; return zeros([n,n])', 3, list_as_zeros_parameter=[int])
+
+    def test_add_arrays(self):
+        self.run_test('def add_arrays(s): return (s,s) + (s,)', 1, add_arrays=[int])

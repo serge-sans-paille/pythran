@@ -218,6 +218,13 @@ namespace pythonic {
                     bool operator<(array<T, M> const& other) const {
                         return std::lexicographical_compare(begin(), end(), other.begin(), other.end());
                     }
+                template<size_t M>
+                    array<T, N + M> operator+(array<T, M> const& other) const {
+                        array<T, N + M> result;
+                        auto next = std::copy(begin(), end(), result.begin());
+                        std::copy(other.begin(), other.end(), next);
+                        return result;
+                    }
 
                 template<class... Types>
                     operator std::tuple<Types...>() const {

@@ -180,7 +180,7 @@ namespace pythonic {
                     }
 
                 // set interface
-                operator bool() { return not data->empty(); }
+                operator bool() const { return not data->empty(); }
 
                 long size() const { return data->size(); }
 
@@ -380,6 +380,15 @@ namespace pythonic {
                 intptr_t id() const {
                     return reinterpret_cast<intptr_t>(&(*data));
                 }
+                friend std::ostream& operator<<(std::ostream& os, set<T> const & v) {
+                    os << "set([";
+                    const char *commaSeparator = "";
+                    for(const auto &e : v) {
+                        os << commaSeparator << e;
+                        commaSeparator = ", ";
+                    }
+                    return os << "])";
+                }
             };
 
 
@@ -398,6 +407,10 @@ namespace pythonic {
             empty_set operator^(empty_set const &) { return empty_set(); }
             template<class T>
                 set<T> operator^(set<T> const & s) { return s; }
+
+            template<class... Types>
+                void update(Types&&...) {
+                }
 
             operator bool() { return false; }
             iterator begin() const { return empty_iterator(); }

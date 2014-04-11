@@ -22,7 +22,7 @@ namespace pythonic {
 
         class str;
 
-        struct const_sliced_str_iterator : std::iterator< std::random_access_iterator_tag, char >
+        struct const_sliced_str_iterator : std::iterator< std::random_access_iterator_tag, char, ptrdiff_t, char*, char >
         {
             const char * data;
             long step;
@@ -33,7 +33,6 @@ namespace pythonic {
             bool operator==(const_sliced_str_iterator const& other) const { return data == other.data; }
             bool operator!=(const_sliced_str_iterator const& other) const { return data != other.data; }
             char operator*() const { return *data; }
-            char operator*() { return *data; }
             const_sliced_str_iterator operator-(long n) const { const_sliced_str_iterator other(*this); other.data -= step * n; return other; }
             long operator-(const_sliced_str_iterator const & other) const { return (data - other.data)/step; }
         };
@@ -111,6 +110,8 @@ namespace pythonic {
 
             typedef types::str value_type;
             typedef container_type::iterator iterator;
+            typedef container_type::reverse_iterator reverse_iterator;
+            typedef container_type::const_reverse_iterator const_reverse_iterator;
 
             str() : data() {}
             str(std::string const & s) : data(s) {}
@@ -192,8 +193,12 @@ namespace pythonic {
             size_t size() const { return data->size(); }
             auto begin() const -> decltype(data->begin()) { return data->begin(); }
             auto begin() -> decltype(data->begin()) { return data->begin(); }
+            auto rbegin() const -> decltype(data->rbegin()) { return data->rbegin(); }
+            auto rbegin() -> decltype(data->rbegin()) { return data->rbegin(); }
             auto end() const -> decltype(data->end()) { return data->end(); }
             auto end() -> decltype(data->end()) { return data->end(); }
+            auto rend() const -> decltype(data->rend()) { return data->rend(); }
+            auto rend() -> decltype(data->rend()) { return data->rend(); }
             auto c_str() const -> decltype(data->c_str()) { return data->c_str(); }
             auto resize(long n) -> decltype(data->resize(n)) { return data->resize(n); }
             size_t find(str const &s, size_t pos = 0) const {
@@ -282,6 +287,18 @@ namespace pythonic {
                     (fmt(fmter, a, utils::int_<N>() ));
                     return fmter.str();
                 }
+
+            long count(types::str const & sub) const {
+                long counter = 0;
+                for(size_t z = find(sub);           // begin by looking for sub
+                    z != npos;                      // as long as we don't reach the end
+                    z = find(sub, z + sub.size()))  // look for another one
+                {
+                    ++counter;
+                }
+                return counter;
+            }
+
             private:
             template<class Tuple, size_t I>
                 void fmt(boost::format & f, Tuple const & a, utils::int_<I>) const {

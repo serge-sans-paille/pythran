@@ -862,10 +862,10 @@ modules = {
                 register=True)
             ),
         "index": ConstMethodIntr(),
-        #"pop": MethodIntr(), forwarded
+        #"pop": MethodIntr(), dispatched
         "reverse": MethodIntr(),
         "sort": MethodIntr(),
-        "count": ConstMethodIntr(),
+        #"count": ConstMethodIntr(), dispatched
         "insert": MethodIntr(
             lambda self, node:
             self.combine(
@@ -877,13 +877,16 @@ modules = {
         },
 
     "__iterator__": {
-        #"next": MethodIntr(), //Dispatched
+        #"next": MethodIntr(), dispatched
         },
     "__str__": {
         "capitalize": ConstMethodIntr(),
+        #"count": ConstMethodIntr(), dispatched
         "endswith": ConstMethodIntr(),
         "startswith": ConstMethodIntr(),
         "find": ConstMethodIntr(),
+        "isalpha": ConstMethodIntr(),
+        "isdigit": ConstMethodIntr(),
         "join": ConstMethodIntr(),
         "lower": ConstMethodIntr(),
         "replace": ConstMethodIntr(),
@@ -964,7 +967,7 @@ modules = {
         "iterkeys": MethodIntr(),
         "itervalues": MethodIntr(),
         "keys": MethodIntr(),
-        #"pop": MethodIntr(), forwarded
+        #"pop": MethodIntr(), dispatched
         "popitem": MethodIntr(),
         "setdefault": MethodIntr(
             lambda self, node:
@@ -998,7 +1001,7 @@ modules = {
         "flush": MethodIntr(global_effects=True),
         "fileno": MethodIntr(),
         "isatty": MethodIntr(),
-        #"next": MethodIntr(global_effects=True), //Dispatched
+        #"next": MethodIntr(global_effects=True), dispatched
         "read": MethodIntr(global_effects=True),
         "readline": MethodIntr(global_effects=True),
         "readlines": MethodIntr(global_effects=True),
@@ -1032,6 +1035,7 @@ modules = {
     "__dispatch__": {
         "clear": MethodIntr(),
         "copy": ConstMethodIntr(),
+        "count": ConstMethodIntr(),
         "next": MethodIntr(),
         "pop": MethodIntr(),
         "remove": MethodIntr(),

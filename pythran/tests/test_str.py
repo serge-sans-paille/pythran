@@ -91,3 +91,20 @@ class TestStr(TestEnv):
 
     def test_str_find1(self):
         self.run_test("def str_find1(s): return s.find('pap')", "popop", str_find1=[str])
+
+    def test_str_reversal(self):
+        self.run_test("def str_reversal(s): return map(ord,reversed(s))", "dear", str_reversal=[str])
+
+    def test_str_substring_iteration(self):
+        self.run_test("def str_substring_iteration(s): return map(ord, s[1:-1])", "pythran", str_substring_iteration=[str])
+
+    def test_str_isalpha(self):
+        self.run_test("def str_isalpha(s, t, u): return s.isalpha(), t.isalpha(), u.isalpha()", "e", "1", "", str_isalpha=[str,str, str])
+
+    def test_str_isdigit(self):
+        self.run_test("def str_isdigit(s, t, u): return s.isdigit(), t.isdigit(), u.isdigit()", "e", "1", "", str_isdigit=[str,str, str])
+
+    def test_str_count(self):
+        self.run_test("def str_count(s, t, u, v): return s.count(t), s.count(u), s.count(v)",
+                      "pythran is good for health", "py", "niet", "t",
+                      str_count=[str, str, str, str])

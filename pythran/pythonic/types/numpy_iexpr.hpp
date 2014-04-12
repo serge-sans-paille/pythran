@@ -4,6 +4,8 @@
 #include "pythonic/types/nditerator.hpp"
 #include "pythonic/types/tuple.hpp"
 
+#include <numeric>
+
 namespace pythonic {
 
     namespace types {

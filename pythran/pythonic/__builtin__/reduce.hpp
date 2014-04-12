@@ -3,8 +3,9 @@
 
 #include "pythonic/utils/proxy.hpp"
 
-#include <utility>
 #include <algorithm>
+#include <utility>
+#include <numeric>
 
 namespace pythonic {
 

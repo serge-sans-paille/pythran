@@ -4,6 +4,8 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/numpy_type.hpp"
 
+#include <numeric>
+
 namespace pythonic {
 
     namespace numpy {

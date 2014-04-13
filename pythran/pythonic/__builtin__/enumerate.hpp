@@ -9,7 +9,7 @@ namespace pythonic {
 
     namespace __builtin__ {
         template<class Iterator>
-            struct enumerate_iterator : std::iterator<Iterator,
+            struct enumerate_iterator : public std::iterator<typename std::iterator_traits<Iterator>::iterator_category,
             std::tuple<long, typename std::iterator_traits<Iterator>::value_type>,
             ptrdiff_t,
             std::tuple<long, typename std::iterator_traits<Iterator>::value_type>*,

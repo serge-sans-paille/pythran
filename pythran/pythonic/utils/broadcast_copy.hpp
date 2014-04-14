@@ -9,31 +9,23 @@ namespace pythonic {
         /* helper function to get the dimension of an array
          * yields 0 for scalar types
          */
-        template <class T>
+        template <class T, typename EnableDefault = void>
         struct dim_of {
             static const size_t value = T::value;
         };
 
+        template<class T, int N>
+        struct dim_of<types::array<T,N>> {
+            static const size_t value = 1 + dim_of<T>::value;
+        };
+        template<class T>
+        struct dim_of<T, typename std::enable_if<std::is_fundamental<T>::value>::type> {
+            static const size_t value = 0;
+        };
 #define SPECIALIZE_DIM_OF(TYPE) template<> struct dim_of<TYPE> { static const size_t value = 0; }
-        SPECIALIZE_DIM_OF(bool);
-        SPECIALIZE_DIM_OF(int8_t);
-        SPECIALIZE_DIM_OF(int16_t);
-        SPECIALIZE_DIM_OF(int32_t);
-        SPECIALIZE_DIM_OF(int64_t);
-        SPECIALIZE_DIM_OF(uint8_t);
-        SPECIALIZE_DIM_OF(uint16_t);
-        SPECIALIZE_DIM_OF(uint32_t);
-        SPECIALIZE_DIM_OF(uint64_t);
-        SPECIALIZE_DIM_OF(float);
-        SPECIALIZE_DIM_OF(double);
         SPECIALIZE_DIM_OF(std::complex<float>);
         SPECIALIZE_DIM_OF(std::complex<double>);
 #undef SPECIALIZE_DIM_OF
-
-        template<class T, size_t N>
-            struct dim_of<types::array<T,N>> {
-                static const size_t value = 1 + dim_of<T>::value;
-            };
 
 
         /* generic function to copy an array to another

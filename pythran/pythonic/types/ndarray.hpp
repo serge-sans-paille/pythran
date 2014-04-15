@@ -308,6 +308,32 @@ namespace pythonic {
                     initialize_from_expr(expr);
                 }
 
+                /* update operators */
+                template<class Expr>
+                    ndarray& operator+=(Expr const& expr) {
+                        return (*this) = (*this) + expr;
+                    }
+                template<class Expr>
+                    ndarray& operator-=(Expr const& expr) {
+                        return (*this) = (*this) - expr;
+                    }
+                template<class Expr>
+                    ndarray& operator*=(Expr const& expr) {
+                        return (*this) = (*this) * expr;
+                    }
+                template<class Expr>
+                    ndarray& operator/=(Expr const& expr) {
+                        return (*this) = (*this) / expr;
+                    }
+                template<class Expr>
+                    ndarray& operator&=(Expr const& expr) {
+                        return (*this) = (*this) & expr;
+                    }
+                template<class Expr>
+                    ndarray& operator|=(Expr const& expr) {
+                        return (*this) = (*this) | expr;
+                    }
+
                 /* element indexing */
                 auto fast(long i) const -> decltype(type_helper<ndarray<T,N>>::get(*this, i))
                 {

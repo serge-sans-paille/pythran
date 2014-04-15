@@ -65,7 +65,7 @@ namespace pythonic {
                 template <class C> static no _test(...);
                 static const bool value = sizeof( _test<T>(nullptr)) == sizeof(yes);
             };
-        /* trait to check if the type as a shape member { */
+        /* trait to check if the type has a shape member { */
 
         template<typename T>
             struct has_shape
@@ -77,7 +77,13 @@ namespace pythonic {
                 template <class C> static no _test(...);
                 static const bool value = sizeof( _test<T>(nullptr)) == sizeof(yes);
             };
+        /* } */
 
+        /* trait to check if the type has a static size { */
+        template<class T>
+            struct len_of {
+                static long constexpr value = -1;
+            };
         /* } */
 
     }

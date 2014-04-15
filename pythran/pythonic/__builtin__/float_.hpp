@@ -19,6 +19,9 @@ namespace pythonic {
                 return mpz_get_d(a.get_mpz_t());
             }
 #endif
+        double float_() {
+            return 0.f;
+        }
         PROXY(pythonic::__builtin__, float_);
 
     }

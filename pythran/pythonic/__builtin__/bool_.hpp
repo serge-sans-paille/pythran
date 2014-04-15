@@ -9,6 +9,9 @@ namespace pythonic {
     namespace __builtin__ {
         template<class T>
             bool bool_(T&& val) { return val; }
+
+        bool bool_() { return false; }
+
         PROXY(pythonic::__builtin__, bool_);
     }
 

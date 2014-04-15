@@ -133,6 +133,21 @@ class TestNumpy(TestEnv):
                        numpy.ones(3, numpy.int16),
                        numpy_ndim_as_function=[numpy.array([numpy.int16])])
 
+    def test_numpy_bool(self):
+        self.run_test("def numpy_bool(n): import numpy ; return numpy.ones(n, bool)",
+                      5,
+                      numpy_bool=[int])
+
+    def test_numpy_int(self):
+        self.run_test("def numpy_int(n): import numpy ; return numpy.ones(n, int)",
+                      5,
+                      numpy_int=[int])
+
+    def test_numpy_float(self):
+        self.run_test("def numpy_float(n): import numpy ; return numpy.ones(n, float)",
+                      5,
+                      numpy_float=[int])
+
     def test_numpy_int16(self):
         self.run_test("def numpy_int16(n): import numpy ; return numpy.ones(n, numpy.int16)",
                       5,

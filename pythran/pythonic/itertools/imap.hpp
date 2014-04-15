@@ -2,6 +2,7 @@
 #define PYTHONIC_ITERTOOLS_IMAP_HPP
 
 #include "pythonic/types/none.hpp"
+#include "pythonic/types/traits.hpp"
 #include "pythonic/itertools/common.hpp"
 
 #include <iterator>
@@ -44,8 +45,7 @@ namespace pythonic {
                         imap_iterator_data() {}
                         template<class First, class... Types>
                             imap_iterator_data(Op _op, First&& _seq, Types&&... _iters) : iterator_ref(_seq), iter(iterator_ref.begin()), rec_iters(_op, std::forward<Types>(_iters)...) {}
-                        template<class First, class... Types>
-                            imap_iterator_data(npos, Op _op, First&& _seq, Types&&... _iters) : iterator_ref(_seq), iter(iterator_ref.end()), rec_iters(npos(), _op, std::forward<Types>(_iters)...) {}
+                        imap_iterator_data(npos, imap_iterator_data& beg) : iterator_ref(beg.iterator_ref), iter(beg.iterator_ref.end()), rec_iters(npos(), beg.rec_iters) {}
 
                         template<typename... Types> 
                             auto next_value(Types&& ... params) const
@@ -95,8 +95,7 @@ namespace pythonic {
                         template<class First>
                             imap_iterator_data(Op _op, First&& _seq) : op(_op), iterator_ref(_seq), iter(iterator_ref.begin()) {
                             }
-                        template<class First>
-                            imap_iterator_data(npos, Op _op, First&& _seq) : op(_op), iterator_ref(_seq), iter(iterator_ref.end()) {
+                            imap_iterator_data(npos, imap_iterator_data& beg) : op(beg.op), iterator_ref(beg.iterator_ref), iter(beg.iterator_ref.end()) {
                             }
 
                         template<typename... Types, typename O = Op, typename = typename std::enable_if<!std::is_same<types::none_type, O>::value, O>::type>
@@ -145,9 +144,13 @@ namespace pythonic {
 
                 imap_iterator() {}
                 template<class... Types>
-                    imap_iterator(Operator _op, Types&&... _iters)  : it_data(_op, std::forward<Types>(_iters)...) {}
+                    imap_iterator(Operator _op, Types&&... _iters)  : it_data(_op, std::forward<Types>(_iters)...) {
+                    }
+                // constructor for the end iterator. Note how it uses a reference to another iterator to initialize itself
+                // that way we are sure to always iterate on the same data
                 template<class... Types>
-                    imap_iterator(npos, Operator _op,Types&&... _iters)  : it_data(npos(), _op, std::forward<Types>(_iters)...) {}
+                    imap_iterator(npos, imap_iterator& beg)  : it_data(npos(), beg.it_data) {
+                    }
 
                 typename imap_iterator::reference operator*() const { 
                     return it_data.next_value(); //value; 
@@ -198,8 +201,11 @@ namespace pythonic {
                 template<class... Types>
                     _imap(Operator&& _op, Types&&... _iters) :
                         imap_iterator<ResultType, Operator, Iters...>(_op, std::forward<Types>(_iters)...),
-                        end_iter(npos(), _op, std::forward<Types>(_iters)...)
-                {}
+                        end_iter(npos(), *this) // NOTE: end_iter is initialised using npos to distinguish it from begin,
+                                                // and using a reference to begin (i.e. this) to avoid iterating over different
+                                                // objects.
+                {
+                }
 
                 iterator& begin() { return *this; }
                 iterator const& begin() const { return *this; }
@@ -224,6 +230,21 @@ namespace pythonic {
 
         PROXY(pythonic::itertools,imap);
 
+    }
+
+    namespace types {
+        template<class O, class Op, class Iter>
+            struct len_of<pythonic::itertools::_imap<O, Op, Iter>>
+            {
+                static constexpr long value = len_of<typename std::remove_cv<typename std::remove_reference<Iter>::type>::type>::value;
+            };
+        template<class O, class Op, class I0, class I1, class... Iter>
+            struct len_of<pythonic::itertools::_imap<O, Op, I0, I1, Iter...>>
+            {
+                static constexpr long _head = len_of<typename std::remove_cv<typename std::remove_reference<I0>::type>::type>::value;
+                static constexpr long _tail = len_of<pythonic::itertools::_imap<O, Op,I1, Iter...>>::value;
+                static constexpr long value = (_head < _tail ? _head : _tail); // take the minimal value. If one is negative, it will be automatically selected
+            };
     }
 
 }

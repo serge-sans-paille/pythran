@@ -1733,6 +1733,9 @@ def test_copy0(x):
     def test_alltrue1(self):
         self.run_test("def np_alltrue1(a): from numpy import alltrue ; return alltrue(a >= 5)", numpy.array([1, 5, 2, 7]), np_alltrue1=[numpy.array([int])])
 
+    def test_negative_mod(self):
+        self.run_test("def np_negative_mod(a): return a % 5", numpy.array([-1, -5, -2, 7]), np_negative_mod=[numpy.array([int])])
+
 
 # automatic generation of basic test cases for ufunc
 binary_ufunc = (

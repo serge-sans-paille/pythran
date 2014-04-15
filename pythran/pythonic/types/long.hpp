@@ -13,19 +13,21 @@ typedef mpz_class pythran_long_t;
 namespace pythonic {
 
     /* some math overloads { */
-    template<class T0, class T1>
-        auto mod(T0&& t0, T1&& t1) -> decltype( t0 % t1 ) {
-            return t0 % t1;
-        }
 
-    template<class T, class U>
-        auto floordiv(__gmp_expr<T,U> const& a, long b) -> decltype(a/b) {
-            return a/b;
-        }
-    template<class T, class U, class Tp, class Up>
-        auto floordiv(__gmp_expr<T,U> const& a, __gmp_expr<Tp,Up> const& b) -> decltype(a/b) {
-            return a/b;
-        }
+    namespace operator_ {
+        template<class T, class U, class T1>
+            auto mod(__gmp_expr<T,U> const& t0, T1 const& t1) -> decltype( t0 % t1 ) {
+                return t0 % t1;
+            }
+        template<class T, class U>
+            auto floordiv(__gmp_expr<T,U> const& a, long b) -> decltype(a/b) {
+                return a/b;
+            }
+        template<class T, class U, class Tp, class Up>
+            auto floordiv(__gmp_expr<T,U> const& a, __gmp_expr<Tp,Up> const& b) -> decltype(a/b) {
+                return a/b;
+            }
+    }
     /* } */
 
     template<class T,class U>

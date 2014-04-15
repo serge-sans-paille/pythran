@@ -296,6 +296,9 @@ def assign_ndarray(t):
     def test_ndindex1(self):
         self.run_test("def np_ndindex1(a): import numpy as np ; return [x for x in np.ndindex(a)]", 3, np_ndindex1=[int])
 
+    def test_ndindex2(self):
+        self.run_test("def np_ndindex2(n): import numpy as np ; return [x for x in np.ndindex((n,n))]", 3, np_ndindex2=[int])
+
     def test_ndenumerate0(self):
         self.run_test("def np_ndenumerate0(a): import numpy as np ; return [x for x in np.ndenumerate(a)]", numpy.array([[1, 2], [3, 4]]), np_ndenumerate0=[numpy.array([[int]])])
 

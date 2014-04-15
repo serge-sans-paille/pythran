@@ -15,9 +15,6 @@ import ast
 from middlend import refine
 from backend import Cxx
 import frontend
-from syntax import check_syntax
-from passes import NormalizeIdentifiers, ExtractTopLevelStmts
-from openmp import GatherOMPData
 from config import cfg
 from passmanager import PassManager
 from numpy import get_include

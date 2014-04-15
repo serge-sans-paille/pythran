@@ -92,9 +92,9 @@ the representation from Python AST to the simpler Pythran AST. For instance
 there is no tuple unpacking in Pythran, so Pythran provides an adequate
 transformation::
 
-  >>> from pythran import passes
+  >>> from pythran import transformations
   >>> tree = ast.parse("a,b = 1,3.5")
-  >>> _ = pm.apply(passes.NormalizeTuples, tree)  # in-place
+  >>> _ = pm.apply(transformations.NormalizeTuples, tree)  # in-place
   >>> print pm.dump(backend.Python, tree)
   if 1:
       __tuple10 = (1, 3.5)
@@ -110,7 +110,7 @@ understanding it.
 There are many small passes used iteratively to produce the Pythran AST. For instance the implicit return at the end of every function is made explicit::
 
   >>> tree = ast.parse('def foo():pass')
-  >>> _ = pm.apply(passes.NormalizeReturn, tree)
+  >>> _ = pm.apply(transformations.NormalizeReturn, tree)
   >>> print pm.dump(backend.Python, tree)
   def foo():
       pass
@@ -119,7 +119,7 @@ There are many small passes used iteratively to produce the Pythran AST. For ins
 There are many other passes in Pythran. For instance one can prevent clashes with C++ keywords::
 
   >>> tree = ast.parse('namespace_ = new = 1\nnamespace = namespace_ + new')
-  >>> _ = pm.apply(passes.NormalizeIdentifiers, tree)  # out is a renaming table
+  >>> _ = pm.apply(transformations.NormalizeIdentifiers, tree)  # out is a renaming table
   >>> print pm.dump(backend.Python, tree)
   namespace_ = new_ = 1
   namespace__ = (namespace_ + new_)
@@ -152,7 +152,7 @@ __init__ function::
 
   >>> code = 'a=1\nprint a\ndef foo(): return 2\nprint a+foo()'
   >>> tree = ast.parse(code)
-  >>> _ = pm.apply(passes.ExtractTopLevelStmts, tree)
+  >>> _ = pm.apply(transformations.ExtractTopLevelStmts, tree)
   >>> print pm.dump(backend.Python, tree)
   def foo():
       return 2

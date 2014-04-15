@@ -1,11 +1,11 @@
 """
     This module contains pythran frontend
 """
-import re
 import ast
-from passes import NormalizeIdentifiers, ExtractTopLevelStmts
+import re
 from openmp import GatherOMPData
 from syntax import check_syntax
+from transformations import ExtractTopLevelStmts, NormalizeIdentifiers
 
 
 def parse(pm, code):

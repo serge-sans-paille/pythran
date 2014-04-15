@@ -15,7 +15,7 @@ from analysis import PotentialIterator, Aliases, UseOMP, HasBreak, HasContinue
 from analysis import LazynessAnalysis, UsedDefChain, Literals, PureExpressions
 from passmanager import Transformation
 from tables import modules, equivalent_iterators
-from passes import NormalizeTuples, RemoveNestedFunctions, RemoveLambdas
+from transformations import NormalizeTuples
 from openmp import OMPDirective
 import ast
 import metadata

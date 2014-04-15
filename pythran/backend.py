@@ -8,8 +8,8 @@ import ast
 from cxxgen import *
 from cxxtypes import *
 
-from analysis import LocalDeclarations, GlobalDeclarations, Scope, Dependencies
-from analysis import YieldPoints, BoundedExpressions, ArgumentEffects
+from analyses import LocalDeclarations, GlobalDeclarations, Scope, Dependencies
+from analyses import YieldPoints, BoundedExpressions, ArgumentEffects
 from passmanager import Backend
 
 from tables import operator_to_lambda, modules, type_to_suffix

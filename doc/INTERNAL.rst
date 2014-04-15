@@ -6,7 +6,7 @@ This document describes some internals of Pythran compiler.
 
 Pythran pass management is used throughout the document::
 
-    >>> from pythran import passmanager, analysis, passes, optimizations, backend
+    >>> from pythran import passmanager, analyses, optimizations, backend
     >>> pm = passmanager.PassManager('dummy')
 
 To retrieve the code source from a function definition, the ``inspect`` module
@@ -41,11 +41,11 @@ variable ``a`` has to be declared outside of the ``if`` statement::
     ...     else:
     ...         a = 2
     ...     return n*a
-        
+
 When computing variable scope, one gets a dictionary binding nodes to variable names::
 
     >>> foo_tree = getast(foo)
-    >>> scopes = pm.gather(analysis.Scope, foo_tree)
+    >>> scopes = pm.gather(analyses.Scope, foo_tree)
 
 ``n`` is a formal parameter, so it has function scope::
 
@@ -68,7 +68,7 @@ Now let's see what happen if we add a loop to the function::
     ...         s *= a
     ...     return s
     >>> foo_tree = getast(foo)
-    >>> scopes = pm.gather(analysis.Scope, foo_tree)
+    >>> scopes = pm.gather(analyses.Scope, foo_tree)
 
 Variable ``a`` is only used in the loop body, so one can declare it inside the
 loop::
@@ -97,7 +97,7 @@ this whenever possible::
 Without scoping directive, both ``i`` and ``a`` are private::
 
     >>> foo_tree = getast(foo)
-    >>> scopes = pm.gather(analysis.Scope, foo_tree)
+    >>> scopes = pm.gather(analyses.Scope, foo_tree)
     >>> scopes[foo_tree.body[0].body[2]]  # 3rd element: omp is not parsed
     set(['i', 'a'])
 
@@ -125,7 +125,7 @@ directives, using a dedicated pass::
 
 Then let's have a look to ::
 
-    >>> scopes = pm.gather(analysis.Scope, foo_tree)
+    >>> scopes = pm.gather(analyses.Scope, foo_tree)
     >>> scopes[foo_tree.body[0].body[2]] # 3nd element: omp got parsed
     set(['i'])
     >>> scopes[foo_tree.body[0]]
@@ -144,7 +144,7 @@ When the scope can be attached to an assignment, Pythran uses this piece of info
     ...     return s
     >>> foo_tree = getast(foo)
     >>> _ = pm.apply(openmp.GatherOMPData, foo_tree)
-    >>> scopes = pm.gather(analysis.Scope, foo_tree)
+    >>> scopes = pm.gather(analyses.Scope, foo_tree)
     >>> scopes[foo_tree.body[0].body[1].body[0]]
     set(['a'])
 
@@ -170,7 +170,7 @@ conditional::
 However the additional if bloc makes it clear that ``s`` should have function
 scope, and the scope is not attached to the first assignment::
 
-    >>> scopes = pm.gather(analysis.Scope, foo_tree)
+    >>> scopes = pm.gather(analyses.Scope, foo_tree)
     >>> scopes[foo_tree.body[0]]
     set(['s'])
 
@@ -285,7 +285,7 @@ evaluated ``ndarray``.
 Now, have a look at the lazyness analysis's result::
 
     >>> foo_tree = getast(foo)
-    >>> lazyness = pm.gather(analysis.LazynessAnalysis, foo_tree)
+    >>> lazyness = pm.gather(analyses.LazynessAnalysis, foo_tree)
 
 ``array`` is a parameter so even if we count use, it can't be lazy::
 
@@ -307,7 +307,7 @@ before the use of ``b``.
 In this case, ``b`` can't be lazy so its values is ``inf``::
 
     >>> foo_tree = getast(foo)
-    >>> lazyness = pm.gather(analysis.LazynessAnalysis, foo_tree)
+    >>> lazyness = pm.gather(analyses.LazynessAnalysis, foo_tree)
     >>> lazyness
     {'a': 1, 'array': 2, 'b': inf}
 
@@ -323,6 +323,6 @@ about aliased values::
     ...     a_ = b * 5
     ...     return a_
     >>> foo_tree = getast(foo)
-    >>> lazyness = pm.gather(analysis.LazynessAnalysis, foo_tree)
+    >>> lazyness = pm.gather(analyses.LazynessAnalysis, foo_tree)
     >>> lazyness
     {'a': 2, 'array': 1, 'b': 1, 'a_': 1}

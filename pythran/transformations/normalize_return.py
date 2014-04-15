@@ -2,7 +2,7 @@
 NormalizeReturn adds return statement where relevant
 """
 import ast
-from pythran.analysis import CFG, YieldPoints
+from pythran.analyses import CFG, YieldPoints
 from pythran.passmanager import Transformation
 
 

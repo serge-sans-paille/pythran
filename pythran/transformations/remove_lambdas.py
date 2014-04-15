@@ -3,7 +3,7 @@ RemoveLambdas turns lambda into regular functions
 """
 import ast
 from copy import copy
-from pythran.analysis import GlobalDeclarations, ImportedIds
+from pythran.analyses import GlobalDeclarations, ImportedIds
 from pythran.passmanager import Transformation
 from pythran.tables import modules
 

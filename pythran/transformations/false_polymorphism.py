@@ -3,7 +3,7 @@ FalsePolymorphism rename variable if possible to avoid false polymorphism
 """
 import ast
 from pythran.passmanager import Transformation
-from pythran.analysis import UsedDefChain, UseOMP, Globals, Identifiers
+from pythran.analyses import UseDefChain, UseOMP, Globals, Identifiers
 
 
 class FalsePolymorphism(Transformation):
@@ -19,14 +19,14 @@ class FalsePolymorphism(Transformation):
         a_ = 'babar'
     """
     def __init__(self):
-        super(FalsePolymorphism, self).__init__(UsedDefChain, UseOMP)
+        super(FalsePolymorphism, self).__init__(UseDefChain, UseOMP)
 
     def visit_FunctionDef(self, node):
         #function using openmp are ignored
         if not self.use_omp:
             self.identifiers = self.passmanager.gather(Identifiers, node,
                                                        self.ctx)
-            for name, udgraph in self.used_def_chain.iteritems():
+            for name, udgraph in self.use_def_chain.iteritems():
                 group_variable = list()
                 while udgraph:
                     e = udgraph.nodes_iter().next()

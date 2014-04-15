@@ -2,7 +2,7 @@
 ExpandBuiltins replaces builtins by their full paths
 """
 import ast
-from pythran.analysis import Globals, Locals
+from pythran.analyses import Globals, Locals
 from pythran.passmanager import Transformation
 from pythran.tables import modules
 

@@ -10,9 +10,10 @@ optimized pythran code
     * DeadCodeElimination remove useless code
 '''
 
-from analysis import ConstantExpressions, OptimizableComprehension, NodeCount
-from analysis import PotentialIterator, Aliases, UseOMP, HasBreak, HasContinue
-from analysis import LazynessAnalysis, UsedDefChain, Literals, PureExpressions
+from analyses import (ConstantExpressions, OptimizableComprehension, NodeCount,
+                      PotentialIterator, Aliases, UseOMP, HasBreak,
+                      HasContinue, LazynessAnalysis, UseDefChain, Literals,
+                      PureExpressions)
 from passmanager import Transformation
 from tables import modules, equivalent_iterators
 from transformations import NormalizeTuples
@@ -471,12 +472,12 @@ class ForwardSubstitution(Transformation):
     """
     def __init__(self):
         super(ForwardSubstitution, self).__init__(LazynessAnalysis,
-                                                  UsedDefChain,
+                                                  UseDefChain,
                                                   Literals)
 
     def visit_FunctionDef(self, node):
-        for name, udgraph in self.used_def_chain.iteritems():
-            # 1. check if the useddefchains have only two nodes (a def and an
+        for name, udgraph in self.use_def_chain.iteritems():
+            # 1. check if the usedefchains have only two nodes (a def and an
             # use) and if it can be forwarded (lazyness == 1 means variables
             # used to define the variable are not modified and the variable is
             # use only once
@@ -534,11 +535,11 @@ class DeadCodeElimination(Transformation):
     """
     def __init__(self):
         super(DeadCodeElimination, self).__init__(PureExpressions,
-                                                  UsedDefChain)
+                                                  UseDefChain)
 
     def used_target(self, node):
         if isinstance(node, ast.Name):
-            udc = self.used_def_chain[node.id]
+            udc = self.use_def_chain[node.id]
             is_use = lambda x: udc.node[x]['action'] in ("U", "UD")
             use_count = len(filter(is_use, udc.nodes()))
             return use_count != 0

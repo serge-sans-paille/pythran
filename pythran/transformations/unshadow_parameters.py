@@ -2,7 +2,7 @@
 UnshadowParameters prevents the shadow parameter phenomenon
 """
 import ast
-from pythran.analysis import Identifiers
+from pythran.analyses import Identifiers
 from pythran.passmanager import Transformation
 
 

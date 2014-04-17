@@ -188,6 +188,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
         mod.add_to_preamble([Define("BOOST_SIMD_NO_STRICT_ALIASING", "1")])
         mod.add_to_preamble([Include("pythonic/core.hpp")])
         mod.add_to_preamble([Include("pythonic/python/core.hpp")])
+        mod.add_to_preamble([Line("#ifdef _OPENMP\n#include <omp.h>\n#endif")])
         mod.add_to_preamble(map(Include, _extract_specs_dependencies(specs)))
         mod.add_to_preamble(content.body)
         mod.add_to_init([
@@ -220,6 +221,12 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
                  'pythonic::types::%s>(&pythonic::translate_%s);\n'
                  '#endif' % (n.__name__.upper(), n.__name__, n.__name__)
                  ) for n in sorted_exceptions])
+
+        mod.add_to_init([
+            # make sure we get no nested parallelism that wreaks havoc in perf
+            Line('#ifdef _OPENMP\n'
+                 'omp_set_max_active_levels(1);\n'
+                 '#endif')])
 
         for function_name, signatures in specs.iteritems():
             internal_func_name = renamings.get(function_name,

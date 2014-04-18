@@ -553,6 +553,28 @@ namespace pythonic {
             }
         };
 
+  /*
+   This specialization is a workaround for a boost::python bug triggered when
+   using std::vector<bool> and libc++.
+   Indeed v[i] returns a wrapper class to keep a reference to the bit in the 
+   bitset. The issue is that operator& is overloaded and prevent taking the
+   address of the wrapper class.
+   This is a copy paste of the generic case, plus a cast to (bool) to get rid
+   of the wrapper.
+   The cast can't be added to the generic version because casting may trigger
+   an extra copy that is not what we want for heavy objects
+   */
+    template<>
+        struct custom_pythran_list_to_list<bool> {
+            static PyObject* convert(const types::list<bool>& v){
+                Py_ssize_t n = v.size();
+                PyObject* ret = PyList_New(n);
+                for(Py_ssize_t i=0;i<n;i++)
+                    PyList_SET_ITEM(ret, i, boost::python::incref(boost::python::object((bool)v[i]).ptr()));
+                return ret;
+            }
+        };
+
     template<typename T>
         struct pythran_to_python< types::list<T> > {
             pythran_to_python() {

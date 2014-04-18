@@ -1,5 +1,6 @@
 #pythran export pi_estimate(int,float list, int)
 #runas pi_estimate(4000,[x/100. for x in range(100)],100)
+#bench pi_estimate(2200000,[x/1000. for x in range(1000)],1000)
 from math import sqrt, pow
 from random import random
 

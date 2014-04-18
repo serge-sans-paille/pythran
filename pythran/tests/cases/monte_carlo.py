@@ -3,6 +3,7 @@
 # FB - 201006137
 #pythran export montecarlo_integration(float, float, int, float list, int)
 #runas montecarlo_integration(1.,10.,100,[x/100. for x in range(100)],100)
+#bench montecarlo_integration(1.,10.,650000,[x/100. for x in range(100)],100)
 import math
 
 

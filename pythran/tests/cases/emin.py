@@ -1,5 +1,6 @@
 #from https://gist.github.com/andersx/6061586
-#runas: run()
+#runas run()
+#bench run()
 #pythran export run()
 
 # A simple energy minimization program that uses steepest descent 
@@ -46,7 +47,7 @@ def Eandg(rOH,thetaHOH):
 
 def run():
     c = 0.005
-    n_steps = 2000000
+    n_steps = 1000000
 
     #starting geometry
     rOH = 10.0

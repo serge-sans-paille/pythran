@@ -1,6 +1,7 @@
 #from http://stackoverflow.com/questions/19367488/converting-function-to-numbapro-cuda
 #pythran export fdtd(float[][], int)
 #runas import numpy ; a = numpy.ones((1000,1000)); fdtd(a,20)
+#bench import numpy ; a = numpy.arange(10000.).reshape(100,100); fdtd(a,25)
 import numpy as np
 
 def fdtd(input_grid, steps):

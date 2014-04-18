@@ -1,4 +1,5 @@
 #runas BlackScholes(range(1,100), range(1,100), range(1,100), 0.5, 0.76, 12)
+#bench BlackScholes(range(1,400001), range(1,400001), range(1,400001), 0.5, 0.76, 400000)
 #pythran export BlackScholes(float list, float list, float list, float, float, int)
 import math
 

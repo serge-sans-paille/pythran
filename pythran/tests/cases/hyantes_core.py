@@ -1,4 +1,5 @@
 #pythran export run(float, float, float, float, float, float, int, int, float list list)
+#bench run(0,0,90,90, 1, 100, 80, 80, [ [i/10., i/10., i/20.] for i in xrange(160) ])
 #runas run(0,0,90,90, 1, 100, 80, 80, [ [i/10., i/10., i/20.] for i in xrange(80) ])
 import math
 def run(xmin, ymin, xmax, ymax, step, range_, range_x, range_y, t):

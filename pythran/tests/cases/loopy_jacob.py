@@ -1,5 +1,6 @@
 #pythran export loopy(int list list, int, int, int)
 #runas data = [[1, 45, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0], [0, 60, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0]] ; loopy(data, 0, 100, 100)
+#skip.bench data = [[1, 45, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0]] + [[0, 60, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0]] * 200 ; loopy(data, 0, 100, 100) TOO_SLOW
 def _WarningErrorHandler(msg,fatal, _WarningCount):
     if _WarningCount > 200:
         raise RuntimeError(msg)

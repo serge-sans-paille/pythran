@@ -1,6 +1,7 @@
 #from http://www.parakeetpython.com/
 #pythran export smoothing(float[], float)
 #runas import numpy as np ; a = np.arange(0,1,10e-3) ; smoothing(a, .4)
+#bench import numpy as np ; a = np.arange(0,1,1.5e-6) ;smoothing(a, .4)
 
 def smoothing(x, alpha):
   """

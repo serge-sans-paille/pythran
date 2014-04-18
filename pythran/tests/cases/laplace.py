@@ -1,4 +1,5 @@
 #runas calc(60,100)
+#bench calc(120,200)
 #pythran export calc(int, int)
 def update(u):
     dx = 0.1

@@ -1,5 +1,6 @@
 #pythran export whetstone(int)
 #runas whetstone(2*10**2)
+#bench whetstone(1500)
 """
 /*
  * C Converted Whetstone Double Precision Benchmark

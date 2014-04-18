@@ -1,6 +1,7 @@
 import numpy as np
 #pythran export sqr_dists(float[][], float[][])
 #pythran export sqr_dists_loops(float[][], float[][])
+#bench u = 300; d = 300; import numpy as np; b = np.ones((u,d)); a = np.ones((u,d)); sqr_dists(a, b)
 
 def sqr_dists(X,Y):
   return np.array([[np.sum( (x-y) ** 2) for x in X] for y in Y])

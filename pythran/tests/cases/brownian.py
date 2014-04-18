@@ -1,5 +1,6 @@
 #pythran export brownian_bridge(int, int, float, float, int)
 #runas brownian_bridge(1,5,1.35,2.65,4)
+#bench brownian_bridge(1,5,0.35,4.65,100000)
 
 import random
 from math import sqrt

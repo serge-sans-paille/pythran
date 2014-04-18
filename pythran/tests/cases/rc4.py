@@ -1,5 +1,6 @@
 #from http://www.emoticode.net/python/python-implementation-of-rc4-algorithm.html
-#runas: data = "e"*100 ; key = "f"*3 ; rc4_crypt(e, f)
+#runas data = "e"*100 ; key = "f"*3 ; rc4_crypt(data, key)
+#bench data = "e"*2000000 ; key = "f"*3 ; rc4_crypt(data, key)
 #pythran export rc4_crypt(str, str)
 
 #RC4 Implementation

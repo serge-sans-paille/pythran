@@ -4,6 +4,7 @@ from unittest import TextTestRunner, TestLoader
 import os
 import sys
 import shutil
+import numpy
 from subprocess import check_call
 
 from pythran import __version__
@@ -141,7 +142,7 @@ class TestCommand(Command):
 class BenchmarkCommand(Command):
     '''Scan the test directory for any runnable test, and benchmark them.'''
 
-    default_nb_iter = 11
+    default_nb_iter = 30
     description = 'run the benchmark suite for the package'
     user_options = [
         ('nb-iter=', None,
@@ -151,7 +152,7 @@ class BenchmarkCommand(Command):
          'mode to use (cpython, pythran, pythran' '+omp)')
     ]
 
-    runas_marker = '#runas '
+    runas_marker = '#bench '
 
     def __init__(self, *args, **kwargs):
         Command.__init__(self, *args, **kwargs)
@@ -167,18 +168,17 @@ class BenchmarkCommand(Command):
     def run(self):
         import glob
         import timeit
+        from pythran import test_compile, compile_pythranfile
 
         # Do not include current directory, validate using installed pythran
         current_dir = _exclude_current_dir_from_import()
         os.chdir("pythran/tests")
         where = os.path.join(current_dir, 'pythran', 'tests', 'cases')
 
-        from pythran import test_compile, compile_pythranfile
         test_compile()
 
         candidates = glob.glob(os.path.join(where, '*.py'))
         sys.path.append(where)
-        median = lambda x: sorted(x)[len(x) / 2]
         for candidate in candidates:
             with file(candidate) as content:
                 runas = [line for line in content.readlines()
@@ -206,12 +206,16 @@ class BenchmarkCommand(Command):
                         compile_pythranfile(candidate,
                                             cxxflags=cxxflags)
 
-                    print modname + " running ...",
+                    print modname + " running ..."
                     sys.stdout.flush()
-                    timing = median(ti.repeat(self.nb_iter, number=1))
-                    print timing
+                    timing = numpy.array(ti.repeat(self.nb_iter, number=1))
+                    print "median :", numpy.median(timing)
+                    print "min :", numpy.min(timing)
+                    print "max :", numpy.max(timing)
+                    print "std :", numpy.std(timing)
+                    del sys.modules[modname]
                 else:
-                    print "* Skip '" + candidate + ', no #runas directive'
+                    print "* Skip " + candidate + ', no ' + BenchmarkCommand.runas_marker + ' directive'
 
 
 # Cannot use glob here, as the files may not be genrated yet

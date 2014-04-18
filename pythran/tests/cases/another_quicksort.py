@@ -1,5 +1,6 @@
 #pythran export QuickSort(float list)
 #runas QuickSort(range(10))
+#bench a = range(200000); QuickSort(a)
 
 # swap two value of the list
 def swap (l, idx1, idx2):

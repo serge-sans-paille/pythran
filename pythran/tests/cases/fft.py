@@ -1,5 +1,6 @@
 #pythran export fft(complex [])
 #runas from numpy import ones ; a = ones(2**10, dtype=complex) ; fft(a)
+#bench from numpy import ones ; a = ones(2**14, dtype=complex) ; fft(a)
 
 import math, numpy as np
 

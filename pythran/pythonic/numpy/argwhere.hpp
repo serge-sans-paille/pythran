@@ -17,7 +17,7 @@ namespace pythonic {
                 long sz = arr.size();
                 auto eshape = arr.shape;
 
-                long *buffer = new long[N * sz]; // too much memory used
+                long *buffer = (long*)malloc(sz * N * sizeof(long)); // too much memory used
                 long *buffer_iter = buffer;
 
                 long real_sz = 0;

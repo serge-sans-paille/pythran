@@ -41,7 +41,7 @@ namespace pythonic {
                 types::array<long *, N> out_buffers;
                 types::array<long *, N> out_iters;
                 for(size_t i = 0; i < N ; ++i)
-                    out_iters[i] = out_buffers[i] = new long[sz]; // too much memory used
+                    out_iters[i] = out_buffers[i] = (long*)malloc(sz * sizeof(long)); // too much memory used
 
                 types::array<long, N> indices;
                 _nonzero(expr.begin(), expr.end(), out_iters, indices, utils::int_<N>());

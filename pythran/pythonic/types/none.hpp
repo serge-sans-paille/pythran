@@ -198,7 +198,8 @@ struct __combined<pythonic::types::none_type, pythonic::types::none_type>  {
 namespace pythonic {
     struct custom_none_type_to_none {
         static PyObject* convert(types::none_type const&) {
-            return boost::python::incref(boost::python::object().ptr());
+            Py_INCREF(Py_None);
+            return Py_None;
         }
     };
 
@@ -211,8 +212,11 @@ namespace pythonic {
     template <typename T>
         struct custom_none_to_any {
             static PyObject* convert( types::none<T> const& n) {
-                if(n.is_none) return boost::python::incref(boost::python::object().ptr());
-                else return boost::python::incref(boost::python::object(static_cast<T const&>(n)).ptr());
+                if(n.is_none) {
+                    Py_INCREF(Py_None);
+                    return Py_None;
+                } else
+                    return boost::python::incref(boost::python::object(static_cast<T const&>(n)).ptr());
             }
         };
 

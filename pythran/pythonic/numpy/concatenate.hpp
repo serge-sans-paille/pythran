@@ -18,7 +18,7 @@ namespace pythonic {
                 }
                 std::copy(ai[0].shape.begin() +1 , ai[0].shape.end(), &shape[1]);
 
-                T* buffer = new T[n];
+                T* buffer = (T*)malloc(sizeof(T) * n);
                 T* iter = buffer;
                 for(auto const& a : ai) 
                     iter = std::copy(a.fbegin(), a.fend(), iter);

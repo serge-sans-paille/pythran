@@ -18,7 +18,7 @@ namespace pythonic {
                     return types::ndarray<T,1>(buffer);
                 }
                 else {
-                    T* buffer = new T[count];
+                    T* buffer = (T*)malloc(count * sizeof(T));
                     std::copy_n(iterable.begin(), count, buffer);
                     long shape [1] = { count };
                     return types::ndarray<T,1>(buffer, shape);

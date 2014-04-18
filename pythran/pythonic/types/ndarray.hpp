@@ -33,6 +33,13 @@
 #include <initializer_list>
 #include <numeric>
 
+#ifdef ENABLE_PYTHON_MODULE
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+#include "arrayobject.h"
+
+#include <boost/python/object.hpp>
+#endif
+
 #include <boost/simd/sdk/simd/logical.hpp>
 
 #ifdef USE_BOOST_SIMD
@@ -46,8 +53,6 @@
 namespace pythonic {
 
     namespace types {
-
-        struct foreign {}; // used to mark memory as foreign memory, that is allocated outside of pythonic
 
         template<class Expr>
             struct is_array;
@@ -284,10 +289,15 @@ namespace pythonic {
                     std::copy(pshape, pshape + N, shape.begin());
                 }
 
-                ndarray(T* data, long * pshape, foreign const&): ndarray(data, pshape)
+#ifdef ENABLE_PYTHON_MODULE
+
+                ndarray(T* data, long * pshape, PyObject* obj_ptr): ndarray(data, pshape)
                 {
-                    mem.external(); // make sure we do not release the pointer
+                    mem.external(obj_ptr); // mark memory as external to decref at the end of its lifetime
                 }
+
+#endif
+
                 template<class Iterable,
                     class = typename std::enable_if<
                         !is_array<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type>::value
@@ -816,12 +826,7 @@ struct __combined<O, pythonic::types::ndarray<T,N>> {
 #include "pythonic/types/numpy_operators.hpp"
 
 #ifdef ENABLE_PYTHON_MODULE
-
 #include "pythonic/python/register_once.hpp"
-#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
-#include "arrayobject.h"
-
-#include <boost/python/object.hpp>
 
 namespace pythonic {
 
@@ -924,7 +929,7 @@ namespace pythonic {
 
             static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
                 void* storage=((boost::python::converter::rvalue_from_python_storage<types::ndarray<T,N>>*)(data))->storage.bytes;
-                new (storage) types::ndarray< T, N>((T*)PyArray_BYTES(reinterpret_cast<PyArrayObject*>(obj_ptr)), PyArray_DIMS(reinterpret_cast<PyArrayObject*>(obj_ptr)), types::foreign());
+                new (storage) types::ndarray< T, N>((T*)PyArray_BYTES(reinterpret_cast<PyArrayObject*>(obj_ptr)), PyArray_DIMS(reinterpret_cast<PyArrayObject*>(obj_ptr)), obj_ptr);
                 Py_INCREF(obj_ptr);
                 data->convertible=storage;
             }
@@ -944,11 +949,36 @@ namespace pythonic {
     template<class T, size_t N>
         struct custom_array_to_ndarray {
             static PyObject* convert( types::ndarray<T,N> n) {
-                n.mem.forget();
-                PyObject* result = PyArray_SimpleNewFromData(N, n.shape.data(), c_type_to_numpy_type<T>::value, n.buffer);
-                if (!result)
-                    return nullptr;
-                return result;
+                if(n.mem.foreign)
+                {
+                    n.mem.forget();
+                    PyObject* p = n.mem.foreign;
+                    PyArrayObject *arr = reinterpret_cast<PyArrayObject*>(p);
+                    auto pshape = PyArray_DIMS(arr);
+                    Py_INCREF(p);
+                    if(std::equal(n.shape.begin(), n.shape.end(), pshape))
+                    {
+                        return p;
+                    }
+                    else
+                    {
+                        Py_INCREF(PyArray_DESCR(arr));
+                        return PyArray_NewFromDescr(Py_TYPE(arr),
+                                PyArray_DESCR(arr),
+                                N, n.shape.data(),
+                                NULL,
+                                PyArray_DATA(arr),
+                                PyArray_FLAGS(arr) & ~NPY_ARRAY_OWNDATA, p);
+                    }
+                } else {
+                    PyObject* result = PyArray_SimpleNewFromData(N, n.shape.data(), c_type_to_numpy_type<T>::value, n.buffer);
+                    n.mem.foreign = result;
+                    n.mem.forget();
+                    if (!result)
+                        return nullptr;
+                    PyArray_ENABLEFLAGS(reinterpret_cast<PyArrayObject*>(result), NPY_ARRAY_OWNDATA);
+                    return result;
+                }
             }
         };
     template<class E>

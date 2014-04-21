@@ -12,6 +12,7 @@ class DeadCodeElimination(Transformation):
         Remove useless statement like:
             - assignment to unused variables
             - remove alone pure statement
+            - remove empty if
 
         >>> import ast, passmanager, backend
         >>> pm = passmanager.PassManager("test")
@@ -66,4 +67,23 @@ class DeadCodeElimination(Transformation):
         if (node in self.pure_expressions and
                 not isinstance(node.value, ast.Yield)):
             return ast.Pass()
+        self.generic_visit(node)
+        return node
+
+    def visit_If(self, node):
+        self.generic_visit(node)
+        have_body = any(not isinstance(x, ast.Pass) for x in node.body)
+        have_else = any(not isinstance(x, ast.Pass) for x in node.orelse)
+        # If the "body" is empty but "else content" is useful, switch branches
+        # and remove else content
+        if not have_body and have_else:
+            test = ast.UnaryOp(op=ast.Not(), operand=node.test)
+            return ast.If(test=test, body=node.orelse, orelse=list())
+        # if neither "if" and "else" are useful, keep test if it is not pure
+        elif not have_body:
+            if node.test in self.pure_expressions:
+                return ast.Pass()
+            else:
+                node = ast.Expr(value=node.test)
+                self.generic_visit(node)
         return node

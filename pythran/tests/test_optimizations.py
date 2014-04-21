@@ -308,3 +308,39 @@ def full_unroll1():
                     for m in range(3):
                         c += 1
     return c""", full_unroll1=[])
+
+    def test_deadcodeelimination(self):
+        init = """
+def bar(a):
+    print a
+    return 10
+def foo(a):
+    if 1 < bar(a):
+        b = 2
+    return b"""
+        ref = """import itertools
+def bar(a):
+    print a
+    return 10
+def foo(a):
+    (1 < bar(a))
+    return 2
+def __init__():
+    return __builtin__.None
+__init__()"""
+        self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution", "pythran.optimizations.DeadCodeElimination"])
+
+    def test_deadcodeelimination2(self):
+        init = """
+def foo(a):
+    if 1 < max(a, 2):
+        b = 2
+    return b"""
+        ref = """import itertools
+def foo(a):
+    pass
+    return 2
+def __init__():
+    return __builtin__.None
+__init__()"""
+        self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution", "pythran.optimizations.DeadCodeElimination"])

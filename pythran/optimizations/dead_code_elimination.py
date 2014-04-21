@@ -87,3 +87,14 @@ class DeadCodeElimination(Transformation):
                 node = ast.Expr(value=node.test)
                 self.generic_visit(node)
         return node
+
+    def visit(self, node):
+        """
+            Add OMPDirective from the old node to the new one
+        """
+        old_omp = metadata.get(node, OMPDirective)
+        node = super(DeadCodeElimination, self).visit(node)
+        if not metadata.get(node, OMPDirective):
+            for omp_directive in old_omp:
+                metadata.add(node, omp_directive)
+        return node

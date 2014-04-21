@@ -344,3 +344,23 @@ def __init__():
     return __builtin__.None
 __init__()"""
         self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution", "pythran.optimizations.DeadCodeElimination"])
+
+    def test_deadcodeelimination3(self):
+        init = """
+def bar(a):
+    return a
+def foo(a):
+    "omp flush"
+    bar(a)
+    return 2"""
+        ref = """import itertools
+def bar(a):
+    return a
+def foo(a):
+    'omp flush'
+    pass
+    return 2
+def __init__():
+    return __builtin__.None
+__init__()"""
+        self.check_ast(init, ref, ["pythran.optimizations.DeadCodeElimination"])

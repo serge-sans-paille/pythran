@@ -182,3 +182,21 @@ def ifilter_with_nested_lambdas(N):
                       "  return list(permutations(l0,a))",
                       [0,1,2,3,4,5], 2,
                       permutations_=[[int],int])
+
+    def test_imap_over_array(self):
+        self.run_test("def imap_over_array(l):"
+                      "  from itertools import imap ;"
+                      "  from numpy import arange ;"
+                      "  t = tuple(imap(lambda x: 1, (l,l))) ;"
+                      "  return arange(10).reshape(5,2)[t]",
+                      3,
+                      imap_over_array=[int])
+
+    def test_imap_over_several_arrays(self):
+        self.run_test("def imap_over_several_arrays(l):"
+                      "  from itertools import imap ;"
+                      "  from numpy import arange ;"
+                      "  t = tuple(imap(lambda x,y: 1, (l,l), (l, l, l))) ;"
+                      "  return arange(10).reshape(5,2)[t]",
+                      3,
+                      imap_over_several_arrays=[int])

@@ -12,6 +12,9 @@ namespace pythonic {
             pythran_long_t long_(T&& t) {
                 return t;
             }
+        pythran_long_t long_() {
+            return 0;
+        }
         PROXY(pythonic::__builtin__, long_);
 
     }

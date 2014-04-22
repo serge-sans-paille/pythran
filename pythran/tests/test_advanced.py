@@ -160,3 +160,18 @@ def combiner_on_empty_list():
 
     def test_add_arrays(self):
         self.run_test('def add_arrays(s): return (s,s) + (s,)', 1, add_arrays=[int])
+
+    def test_tuple_to_tuple(self):
+        self.run_test('def tuple_to_tuple(t): return tuple((1, t))',
+                      '2',
+                      tuple_to_tuple=[str])
+
+    def test_array_to_tuple(self):
+        self.run_test('def array_to_tuple(t): return tuple((1, t))',
+                      2,
+                      array_to_tuple=[int])
+
+    def test_list_to_tuple(self):
+        self.run_test('def list_to_tuple(t): return tuple([1, t])',
+                      2,
+                      list_to_tuple=[int])

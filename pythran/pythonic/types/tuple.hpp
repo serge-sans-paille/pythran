@@ -5,6 +5,7 @@
 #include "pythonic/types/slice.hpp"
 #include "pythonic/types/list.hpp" // because of [] operator that returns a list
 #include "pythonic/types/content_of.hpp"
+#include "pythonic/types/traits.hpp"
 #include "pythonic/utils/int_.hpp"
 
 
@@ -488,6 +489,18 @@ namespace pythonic {
                 print_tuple(os, t, utils::int_<sizeof...(Args)-1>());
                 return os << ')';
             }
+
+        template<class T, size_t N>
+            struct len_of<array<T,N>>
+            {
+                static constexpr long value = N;
+            };
+
+        template<class... Types>
+            struct len_of<std::tuple<Types...>>
+            {
+                static constexpr long value = sizeof...(Types);
+            };
     }
 }
 

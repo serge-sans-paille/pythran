@@ -670,3 +670,42 @@ def add_slice_to_list(l):
     def test_complex_div(self):
         self.run_test("def complex_div(): a = 1j ; b = 2 ; return a / b", complex_div=[])
 
+    def test_modulo_int0(self):
+        self.run_test("def modulo_int0(n): return n%3, (-n)%3",
+                      5,
+                      modulo_int0=[int])
+
+    def test_modulo_int1(self):
+        self.run_test("def modulo_int1(n): return n%3, (-n)%3",
+                      3,
+                      modulo_int1=[int])
+
+    def test_modulo_float0(self):
+        self.run_test("def modulo_float0(n): return n%3, (-n)%3",
+                      5.4,
+                      modulo_float0=[float])
+
+    def test_modulo_float1(self):
+        self.run_test("def modulo_float1(n): return n%3, (-n)%3",
+                      3.5,
+                      modulo_float1=[float])
+
+    def test_floordiv_int0(self):
+        self.run_test("def floordiv_int0(n): return n%3, (-n)%3",
+                      5,
+                      floordiv_int0=[int])
+
+    def test_floordiv_int1(self):
+        self.run_test("def floordiv_int1(n): return n//2, (-n)//2",
+                      3,
+                      floordiv_int1=[int])
+
+    def test_floordiv_float0(self):
+        self.run_test("def floordiv_float0(n): return n//2, (-n)//2",
+                      5.4,
+                      floordiv_float0=[float])
+
+    def test_floordiv_float1(self):
+        self.run_test("def floordiv_float1(n): return n//2, (-n)//2",
+                      3.5,
+                      floordiv_float1=[float])

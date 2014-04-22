@@ -22,8 +22,8 @@ namespace pythonic {
             static const size_t value = T::value;
         };
 
-        template<class T, int N>
-        struct dim_of<types::array<T,N>> {
+        template<class T, size_t N>
+        struct dim_of<types::array<T,N>, void> {
             static const size_t value = 1 + dim_of<T>::value;
         };
         template<class T>

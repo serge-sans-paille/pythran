@@ -3,6 +3,36 @@ from test_env import TestEnv
 import numpy
 
 class TestNumpy(TestEnv):
+    def test_numpy_augassign0(self):
+        self.run_test('def numpy_augassign0(a): a+=1; return a',
+                      numpy.arange(100).reshape((10, 10)),
+                      numpy_augassign0=[numpy.array([numpy.array([int])])])
+
+    def test_numpy_augassign1(self):
+        self.run_test('def numpy_augassign1(a): a*=2; return a',
+                      numpy.arange(100).reshape((10, 10)),
+                      numpy_augassign1=[numpy.array([numpy.array([int])])])
+
+    def test_numpy_augassign2(self):
+        self.run_test('def numpy_augassign2(a): a-=2; return a',
+                      numpy.arange(100).reshape((10, 10)),
+                      numpy_augassign2=[numpy.array([numpy.array([int])])])
+
+    def test_numpy_augassign3(self):
+        self.run_test('def numpy_augassign3(a): a/=2; return a',
+                      numpy.arange(100).reshape((10, 10)),
+                      numpy_augassign3=[numpy.array([numpy.array([int])])])
+
+    def test_numpy_augassign4(self):
+        self.run_test('def numpy_augassign4(a): a|=2; return a',
+                      numpy.arange(100).reshape((10, 10)),
+                      numpy_augassign4=[numpy.array([numpy.array([int])])])
+
+    def test_numpy_augassign5(self):
+        self.run_test('def numpy_augassign5(a): a&=2; return a',
+                      numpy.arange(100).reshape((10, 10)),
+                      numpy_augassign5=[numpy.array([numpy.array([int])])])
+
     def test_broadcast0(self):
         self.run_test('def numpy_broadcast0(a): a[0] = 1 ; return a',
                       numpy.arange(100).reshape((10, 10)),
@@ -132,6 +162,21 @@ class TestNumpy(TestEnv):
          self.run_test("def numpy_ndim_as_function(a): import numpy ; return numpy.ndim(a)",
                        numpy.ones(3, numpy.int16),
                        numpy_ndim_as_function=[numpy.array([numpy.int16])])
+
+    def test_numpy_bool(self):
+        self.run_test("def numpy_bool(n): import numpy ; return numpy.ones(n, bool)",
+                      5,
+                      numpy_bool=[int])
+
+    def test_numpy_int(self):
+        self.run_test("def numpy_int(n): import numpy ; return numpy.ones(n, int)",
+                      5,
+                      numpy_int=[int])
+
+    def test_numpy_float(self):
+        self.run_test("def numpy_float(n): import numpy ; return numpy.ones(n, float)",
+                      5,
+                      numpy_float=[int])
 
     def test_numpy_int16(self):
         self.run_test("def numpy_int16(n): import numpy ; return numpy.ones(n, numpy.int16)",
@@ -280,6 +325,9 @@ def assign_ndarray(t):
 
     def test_ndindex1(self):
         self.run_test("def np_ndindex1(a): import numpy as np ; return [x for x in np.ndindex(a)]", 3, np_ndindex1=[int])
+
+    def test_ndindex2(self):
+        self.run_test("def np_ndindex2(n): import numpy as np ; return [x for x in np.ndindex((n,n))]", 3, np_ndindex2=[int])
 
     def test_ndenumerate0(self):
         self.run_test("def np_ndenumerate0(a): import numpy as np ; return [x for x in np.ndenumerate(a)]", numpy.array([[1, 2], [3, 4]]), np_ndenumerate0=[numpy.array([[int]])])
@@ -1714,6 +1762,9 @@ def test_copy0(x):
 
     def test_alltrue1(self):
         self.run_test("def np_alltrue1(a): from numpy import alltrue ; return alltrue(a >= 5)", numpy.array([1, 5, 2, 7]), np_alltrue1=[numpy.array([int])])
+
+    def test_negative_mod(self):
+        self.run_test("def np_negative_mod(a): return a % 5", numpy.array([-1, -5, -2, 7]), np_negative_mod=[numpy.array([int])])
 
 
 # automatic generation of basic test cases for ufunc

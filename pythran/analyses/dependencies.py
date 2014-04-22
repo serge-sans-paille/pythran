@@ -60,6 +60,12 @@ class Dependencies(ModuleAnalysis):
         self.result.add(('types', 'generator'))
         self.generic_visit(node)
 
+    def visit_Mod(self, node):
+        self.result.add(('operator_', 'mod'))
+
+    def visit_FloorDiv(self, node):
+        self.result.add(('operator_', 'floordiv'))
+
     def visit_Num(self, node):
         if type(node.n) is complex:
             self.result.add(('types', 'complex'))

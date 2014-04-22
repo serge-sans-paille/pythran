@@ -18,6 +18,10 @@ namespace pythonic {
             return t - '0';
         }
 
+        long int_() {
+            return 0L;
+        }
+
         PROXY(pythonic::__builtin__, int_);
 
     }

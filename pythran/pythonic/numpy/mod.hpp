@@ -3,13 +3,13 @@
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
-#include <nt2/include/functions/mod.hpp>
+#include "pythonic/operator_/mod.hpp"
 
 namespace pythonic {
 
     namespace numpy {
 #define NUMPY_BINARY_FUNC_NAME mod
-#define NUMPY_BINARY_FUNC_SYM nt2::mod
+#define NUMPY_BINARY_FUNC_SYM operator_::mod
 #include "pythonic/types/numpy_binary_expr.hpp"
 
     }

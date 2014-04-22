@@ -750,6 +750,11 @@ namespace pythonic {
         };
 
     template<>
+        struct c_type_to_numpy_type<unsigned long long> {
+            static const int value = NPY_ULONGLONG;
+        };
+
+    template<>
         struct c_type_to_numpy_type<int> {
             static const int value = NPY_INT;
         };

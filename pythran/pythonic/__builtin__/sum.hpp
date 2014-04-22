@@ -5,8 +5,9 @@
 #include "pythonic/types/assignable.hpp"
 #include "pythonic/utils/int_.hpp"
 
-#include <utility>
 #include <algorithm>
+#include <numeric>
+#include <utility>
 
 namespace pythonic {
 

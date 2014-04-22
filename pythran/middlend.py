@@ -2,12 +2,13 @@
 This module turns a python AST into an optimized, pythran compatible ast
 '''
 
-from passes import RemoveLambdas, NormalizeTuples, NormalizeReturn
-from passes import UnshadowParameters, NormalizeException, ExpandBuiltins
-from passes import NormalizeMethodCalls, FalsePolymorphism
-from passes import RemoveComprehension, RemoveNestedFunctions, ExpandImports
-from passes import NormalizeCompare, ExpandImportAll
-from optimizations import GenExpToImap, ListCompToMap, ListCompToGenexp, Pow2
+from optimizations import GenExpToImap, ListCompToMap, ListCompToGenexp
+from transformations import (ExpandBuiltins, ExpandImports, ExpandImportAll,
+                             FalsePolymorphism, NormalizeCompare,
+                             NormalizeException, NormalizeMethodCalls,
+                             NormalizeReturn, NormalizeTuples,
+                             RemoveComprehension, RemoveNestedFunctions,
+                             RemoveLambdas, UnshadowParameters)
 
 
 def refine(pm, node, optimizations):

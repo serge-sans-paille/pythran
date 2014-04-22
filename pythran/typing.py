@@ -8,12 +8,12 @@ import ast
 from numpy import ndarray
 import networkx as nx
 
-from tables import pytype_to_ctype_table, operator_to_lambda
-from tables import modules, methods, functions
-from analysis import GlobalDeclarations, YieldPoints, LocalDeclarations
-from analysis import OrderedGlobalDeclarations, ModuleAnalysis, StrictAliases
-from analysis import LazynessAnalysis
-from passes import Transformation
+from tables import (pytype_to_ctype_table, operator_to_lambda, modules,
+                    methods, functions)
+from analyses import (GlobalDeclarations, YieldPoints, LocalDeclarations,
+                      OrderedGlobalDeclarations, StrictAliases,
+                      LazynessAnalysis)
+from passmanager import ModuleAnalysis, Transformation
 from syntax import PythranSyntaxError
 from cxxtypes import *
 from intrinsic import UserFunction, MethodIntr

@@ -92,9 +92,9 @@ the representation from Python AST to the simpler Pythran AST. For instance
 there is no tuple unpacking in Pythran, so Pythran provides an adequate
 transformation::
 
-  >>> from pythran import passes
+  >>> from pythran import transformations
   >>> tree = ast.parse("a,b = 1,3.5")
-  >>> _ = pm.apply(passes.NormalizeTuples, tree)  # in-place
+  >>> _ = pm.apply(transformations.NormalizeTuples, tree)  # in-place
   >>> print pm.dump(backend.Python, tree)
   if 1:
       __tuple10 = (1, 3.5)
@@ -110,7 +110,7 @@ understanding it.
 There are many small passes used iteratively to produce the Pythran AST. For instance the implicit return at the end of every function is made explicit::
 
   >>> tree = ast.parse('def foo():pass')
-  >>> _ = pm.apply(passes.NormalizeReturn, tree)
+  >>> _ = pm.apply(transformations.NormalizeReturn, tree)
   >>> print pm.dump(backend.Python, tree)
   def foo():
       pass
@@ -119,7 +119,7 @@ There are many small passes used iteratively to produce the Pythran AST. For ins
 There are many other passes in Pythran. For instance one can prevent clashes with C++ keywords::
 
   >>> tree = ast.parse('namespace_ = new = 1\nnamespace = namespace_ + new')
-  >>> _ = pm.apply(passes.NormalizeIdentifiers, tree)  # out is a renaming table
+  >>> _ = pm.apply(transformations.NormalizeIdentifiers, tree)  # out is a renaming table
   >>> print pm.dump(backend.Python, tree)
   namespace_ = new_ = 1
   namespace__ = (namespace_ + new_)
@@ -152,7 +152,7 @@ __init__ function::
 
   >>> code = 'a=1\nprint a\ndef foo(): return 2\nprint a+foo()'
   >>> tree = ast.parse(code)
-  >>> _ = pm.apply(passes.ExtractTopLevelStmts, tree)
+  >>> _ = pm.apply(transformations.ExtractTopLevelStmts, tree)
   >>> print pm.dump(backend.Python, tree)
   def foo():
       return 2
@@ -180,10 +180,10 @@ Python code.
 A simple analyse gathers informations concerning used identifiers across the
 module. It can be used, for instance, to generate new unique identifiers::
 
-  >>> from pythran import analysis
+  >>> from pythran import analyses
   >>> code = 'a = b = 1'
   >>> tree = ast.parse(code)
-  >>> pm.apply(analysis.Identifiers, tree)
+  >>> pm.apply(analyses.Identifiers, tree)
   set(['a', 'b'])
 
 One can also computes the state of ``globals()``::
@@ -191,12 +191,12 @@ One can also computes the state of ``globals()``::
   >>> code = 'import math\n'
   >>> code += 'def foo(a): b = math.cos(a) ; return [b] * 3'
   >>> tree = ast.parse(code)
-  >>> pm.gather(analysis.Globals, tree)
+  >>> pm.gather(analyses.Globals, tree)
   set(['__list__', '__complex___', '__str__', '__set__', '__builtin__', '__finfo__', '__exception__', '__dispatch__', '__ndarray__', '__dict__', '__iterator__', 'foo', '__file__', 'math', '__float__'])
 
 One can also compute the state of ``locals()`` at any point of the program::
 
-  >>> l = pm.gather(analysis.Locals, tree)
+  >>> l = pm.gather(analyses.Locals, tree)
   >>> fdef = tree.body[-1]
   >>> freturn = fdef.body[-1]
   >>> l[freturn]
@@ -206,7 +206,7 @@ The ``ConstantFolding`` pass relies on the eponymous analyse that flags all
 constant expressions. In the previous code, there is only two constant
 *expressions* but only one can be evaluate::
 
-  >>> ce = pm.gather(analysis.ConstantExpressions, tree)
+  >>> ce = pm.gather(analyses.ConstantExpressions, tree)
   >>> sorted(map(ast.dump, ce))
   ["Attribute(value=Name(id='math', ctx=Load()), attr='cos', ctx=Load())", 'Num(n=3)']
 
@@ -216,7 +216,7 @@ variable, and one that computes an under set. ``Aliases`` computes an over-set::
 
   >>> code = 'def foo(c, d): b= c or d ; return b'
   >>> tree = ast.parse(code)
-  >>> al = pm.gather(analysis.Aliases, tree)
+  >>> al = pm.gather(analyses.Aliases, tree)
   >>> returned = tree.body[-1].body[-1].value
   >>> print ast.dump(returned)
   Name(id='b', ctx=Load())
@@ -228,7 +228,7 @@ are updated, for instance using an augmented assign, or the ``append`` method::
 
   >>> code = 'def foo(l,a): l+=[a]\ndef bar(g): foo(g, 1)'
   >>> tree = ast.parse(code)
-  >>> ae = pm.gather(analysis.ArgumentEffects, tree)
+  >>> ae = pm.gather(analyses.ArgumentEffects, tree)
   >>> foo, bar = tree.body[0], tree.body[1]
   >>> ae[foo]
   [True, False]
@@ -240,7 +240,7 @@ pure functions, i.e. functions that have no side effects::
 
   >>> code = 'def foo():pass\ndef bar(l): print l'
   >>> tree = ast.parse(code)
-  >>> pf = pm.gather(analysis.PureExpressions, tree)
+  >>> pf = pm.gather(analyses.PureExpressions, tree)
   >>> foo = tree.body[0]
   >>> bar = tree.body[1]
   >>> foo in pf
@@ -254,6 +254,6 @@ application of a pure functions using a map results in a parallel ``map``::
   >>> code = 'def foo(x): return x*x\n'
   >>> code += '__builtin__.map(foo, __builtin__.range(100))'
   >>> tree = ast.parse(code)
-  >>> pmaps = pm.gather(analysis.ParallelMaps, tree)
+  >>> pmaps = pm.gather(analyses.ParallelMaps, tree)
   >>> len(pmaps)
   1

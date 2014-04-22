@@ -3,8 +3,9 @@ DeadCodeElimination remove useless code
 """
 import ast
 from pythran.analyses import PureExpressions, UseDefChain
-
 from pythran.passmanager import Transformation
+from pythran.openmp import OMPDirective
+import pythran.metadata as metadata
 
 
 class DeadCodeElimination(Transformation):

@@ -9,6 +9,6 @@ def dists(X,Y):
 def allpairs_distances(d):
     #X = np.random.randn(1000,d)
     #Y = np.random.randn(200,d)
-    X = np.arange(600*d).reshape(600,d)
-    Y = np.arange(200*d).reshape(200,d)
+    X = np.arange(600*d).reshape((600,d))
+    Y = np.arange(200*d).reshape((200,d))
     return dists(X,Y)

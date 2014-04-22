@@ -92,7 +92,7 @@ class NormalizeMethodCalls(Transformation):
             return ast.Call(ast.Attribute(ast.Name('__builtin__', ast.Load()),
                                           'getattr',
                                           ast.Load()),
-                            [node.value, ast.Str(node.attr.upper())],
+                            [node.value, ast.Str(node.attr)],
                             [], None, None)
 
     def visit_Call(self, node):

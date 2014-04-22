@@ -330,25 +330,25 @@ def assign_ndarray(t):
         self.run_test("def np_frexp2(a): import numpy as np ; return np.frexp(a+a)", numpy.array([1.1,2.2,3.3]), np_frexp2=[numpy.array([float])])
 
     def test_gslice0(self):
-        self.run_test("def np_gslice0(a): import numpy as np; return a[1:9,5:7]", numpy.array(range(10*9)).reshape(10,9), np_gslice0=[numpy.array([[int]])])
+        self.run_test("def np_gslice0(a): import numpy as np; return a[1:9,5:7]", numpy.array(range(10*9)).reshape((10,9)), np_gslice0=[numpy.array([[int]])])
 
     def test_gslice1(self):
-        self.run_test("def np_gslice1(a): import numpy as np ; return a[1:9,0:1, 3:6]", numpy.array(range(10*9*8)).reshape(10,9,8), np_gslice1=[numpy.array([[[int]]])])
+        self.run_test("def np_gslice1(a): import numpy as np ; return a[1:9,0:1, 3:6]", numpy.array(range(10*9*8)).reshape((10,9,8)), np_gslice1=[numpy.array([[[int]]])])
 
     def test_gslice2(self):
-        self.run_test("def np_gslice2(a): import numpy as np ; return a[:,0:1, 3:6]", numpy.array(range(10*9*8)).reshape(10,9,8), np_gslice2=[numpy.array([[[int]]])])
+        self.run_test("def np_gslice2(a): import numpy as np ; return a[:,0:1, 3:6]", numpy.array(range(10*9*8)).reshape((10,9,8)), np_gslice2=[numpy.array([[[int]]])])
 
     def test_gslice3(self):
-        self.run_test("def np_gslice3(a): import numpy as np ; return a[:-1,0:-1, -3:7]", numpy.array(range(10*9*8)).reshape(10,9,8), np_gslice3=[numpy.array([[[int]]])])
+        self.run_test("def np_gslice3(a): import numpy as np ; return a[:-1,0:-1, -3:7]", numpy.array(range(10*9*8)).reshape((10,9,8)), np_gslice3=[numpy.array([[[int]]])])
 
     def test_gslice4(self):
-        self.run_test("def np_gslice4(a): import numpy as np ; return a[1,0:-1, -3:7]", numpy.array(range(10*9*8)).reshape(10,9,8), np_gslice4=[numpy.array([[[int]]])])
+        self.run_test("def np_gslice4(a): import numpy as np ; return a[1,0:-1, -3:7]", numpy.array(range(10*9*8)).reshape((10,9,8)), np_gslice4=[numpy.array([[[int]]])])
 
     def test_gslice5(self):
-        self.run_test("def np_gslice5(a): import numpy as np ; return a[1,0:-1, 7]", numpy.array(range(10*9*8)).reshape(10,9,8), np_gslice5=[numpy.array([[[int]]])])
+        self.run_test("def np_gslice5(a): import numpy as np ; return a[1,0:-1, 7]", numpy.array(range(10*9*8)).reshape((10,9,8)), np_gslice5=[numpy.array([[[int]]])])
 
     def test_gslice6(self):
-        self.run_test("def np_gslice6(a): import numpy as np ; return a[:-1, :][1:,:]", numpy.array(range(10*9*8)).reshape(10,9,8), np_gslice6=[numpy.array([[[int]]])])
+        self.run_test("def np_gslice6(a): import numpy as np ; return a[:-1, :][1:,:]", numpy.array(range(10*9*8)).reshape((10,9,8)), np_gslice6=[numpy.array([[[int]]])])
 
     def test_ndindex0(self):
         self.run_test("def np_ndindex0(): import numpy as np ; return [x for x in np.ndindex(5,6)]",
@@ -568,19 +568,19 @@ def np_rosen_der(x):
         self.run_test("def np_isrealobj0(a): from numpy import isrealobj ; return isrealobj(a)", numpy.array([1,2,3.]), np_isrealobj0=[numpy.array([float])])
 
     def test_isrealobj1(self):
-        self.run_test("def np_isrealobj1(a): from numpy import isrealobj ; return isrealobj(a)", numpy.array([1,2,3.,4 + 1j]).reshape(2,2), np_isrealobj1=[numpy.array([[complex]])])
+        self.run_test("def np_isrealobj1(a): from numpy import isrealobj ; return isrealobj(a)", numpy.array([1,2,3.,4 + 1j]).reshape((2,2)), np_isrealobj1=[numpy.array([[complex]])])
 
     def test_isreal0(self):
         self.run_test("def np_isreal0(a): from numpy import isreal ; return isreal(a)", numpy.array([1,2,3.]), np_isreal0=[numpy.array([float])])
 
     def test_isreal1(self):
-        self.run_test("def np_isreal1(a): from numpy import isreal ; return isreal(a)", numpy.array([1,2,3.,4 + 1j]).reshape(2,2), np_isreal1=[numpy.array([[complex]])])
+        self.run_test("def np_isreal1(a): from numpy import isreal ; return isreal(a)", numpy.array([1,2,3.,4 + 1j]).reshape((2,2)), np_isreal1=[numpy.array([[complex]])])
 
     def test_iscomplex0(self):
         self.run_test("def np_iscomplex0(a): from numpy import iscomplex ; return iscomplex(a)", numpy.array([1, 2, 3.]), np_iscomplex0=[numpy.array([float])])
 
     def test_iscomplex1(self):
-        self.run_test("def np_iscomplex1(a): from numpy import iscomplex ; return iscomplex(a)", numpy.array([1,2,3.,4 + 1j]).reshape(2,2), np_iscomplex1=[numpy.array([[complex]])])
+        self.run_test("def np_iscomplex1(a): from numpy import iscomplex ; return iscomplex(a)", numpy.array([1,2,3.,4 + 1j]).reshape((2,2)), np_iscomplex1=[numpy.array([[complex]])])
 
     def test_intersect1d0(self):
         self.run_test("def np_intersect1d0(a): from numpy import intersect1d ; b = [3, 1, 2, 1] ; return intersect1d(a,b)", [1, 3, 4, 3], np_intersect1d0=[[int]])
@@ -625,13 +625,13 @@ def np_rosen_der(x):
         self.run_test("def np_outer0(x): from numpy import outer ; return outer(x, x+2)", numpy.arange(6).reshape(2,3), np_outer0=[numpy.array([[int]])])
 
     def test_outer1(self):
-        self.run_test("def np_outer1(x): from numpy import outer; return outer(x, range(6))", numpy.arange(6).reshape(2,3), np_outer1=[numpy.array([[int]])])
+        self.run_test("def np_outer1(x): from numpy import outer; return outer(x, range(6))", numpy.arange(6).reshape((2,3)), np_outer1=[numpy.array([[int]])])
 
     def test_place0(self):
-        self.run_test("def np_place0(x): from numpy import place, ravel ; place(x, x>1, ravel(x**2)); return x", numpy.arange(6).reshape(2,3), np_place0=[numpy.array([[int]])])
+        self.run_test("def np_place0(x): from numpy import place, ravel ; place(x, x>1, ravel(x**2)); return x", numpy.arange(6).reshape((2,3)), np_place0=[numpy.array([[int]])])
 
     def test_place1(self):
-        self.run_test("def np_place1(x): from numpy import place ; place(x, x>1, [57, 58]); return x", numpy.arange(6).reshape(2,3), np_place1=[numpy.array([[int]])])
+        self.run_test("def np_place1(x): from numpy import place ; place(x, x>1, [57, 58]); return x", numpy.arange(6).reshape((2,3)), np_place1=[numpy.array([[int]])])
 
     def test_product(self):
         self.run_test("def np_product(x):\n from numpy import product\n return product(x)", numpy.arange(1, 10), np_product=[numpy.array([int])])
@@ -643,55 +643,55 @@ def np_rosen_der(x):
         self.run_test("def np_prod_expr(x):\n from numpy import ones, prod\n return (x + ones(10)).prod()", numpy.arange(10), np_prod_expr=[numpy.array([int])])
 
     def test_prod2_(self):
-        self.run_test("def np_prod2_(x):\n from numpy import prod\n return x.prod()", numpy.arange(1, 11).reshape(2,5), np_prod2_=[numpy.array([[int]])])
+        self.run_test("def np_prod2_(x):\n from numpy import prod\n return x.prod()", numpy.arange(1, 11).reshape((2,5)), np_prod2_=[numpy.array([[int]])])
 
     def test_prod3_(self):
-        self.run_test("def np_prod3_(x):\n from numpy import prod\n return x.prod(1)", numpy.arange(1, 11).reshape(2,5), np_prod3_=[numpy.array([[int]])])
+        self.run_test("def np_prod3_(x):\n from numpy import prod\n return x.prod(1)", numpy.arange(1, 11).reshape((2,5)), np_prod3_=[numpy.array([[int]])])
 
     def test_prod4_(self):
-        self.run_test("def np_prod4_(x):\n from numpy import prod\n return x.prod(0)", numpy.arange(1, 11).reshape(2,5), np_prod4_=[numpy.array([[int]])])
+        self.run_test("def np_prod4_(x):\n from numpy import prod\n return x.prod(0)", numpy.arange(1, 11).reshape((2,5)), np_prod4_=[numpy.array([[int]])])
 
     def test_prod5_(self):
         self.run_test("def np_prod5_(x):\n from numpy import prod\n return x.prod(0)", numpy.arange(1, 11), np_prod5_=[numpy.array([int])])
 
     def test_ptp0(self):
-        self.run_test("def np_ptp0(x): from numpy import ptp ; return ptp(x)", numpy.arange(4).reshape(2,2), np_ptp0=[numpy.array([[int]])])
+        self.run_test("def np_ptp0(x): from numpy import ptp ; return ptp(x)", numpy.arange(4).reshape((2,2)), np_ptp0=[numpy.array([[int]])])
 
     def test_ptp1(self):
-        self.run_test("def np_ptp1(x): from numpy import ptp ; return ptp(x,0)", numpy.arange(4).reshape(2,2), np_ptp1=[numpy.array([[int]])])
+        self.run_test("def np_ptp1(x): from numpy import ptp ; return ptp(x,0)", numpy.arange(4).reshape((2,2)), np_ptp1=[numpy.array([[int]])])
 
     def test_ptp2(self):
-        self.run_test("def np_ptp2(x): from numpy import ptp ; return ptp(x,1)", numpy.arange(4).reshape(2,2), np_ptp2=[numpy.array([[int]])])
+        self.run_test("def np_ptp2(x): from numpy import ptp ; return ptp(x,1)", numpy.arange(4).reshape((2,2)), np_ptp2=[numpy.array([[int]])])
 
     def test_put0(self):
         self.run_test("def np_put0(x): from numpy import put ; put(x, [0,2], [-44, -55]); return x", numpy.arange(5), np_put0=[numpy.array([int])])
 
     def test_put1(self):
-        self.run_test("def np_put1(x): from numpy import put ; put(x, [0,2,3], [57, 58]); return x", numpy.arange(6).reshape(2, 3), np_put1=[numpy.array([[int]])])
+        self.run_test("def np_put1(x): from numpy import put ; put(x, [0,2,3], [57, 58]); return x", numpy.arange(6).reshape((2, 3)), np_put1=[numpy.array([[int]])])
 
     def test_put2(self):
-        self.run_test("def np_put2(x): from numpy import put ; put(x, 2, 57); return x", numpy.arange(6).reshape(2,3), np_put2=[numpy.array([[int]])])
+        self.run_test("def np_put2(x): from numpy import put ; put(x, 2, 57); return x", numpy.arange(6).reshape((2,3)), np_put2=[numpy.array([[int]])])
 
     def test_putmask0(self):
-        self.run_test("def np_putmask0(x): from numpy import putmask ; putmask(x, x>1, x**2); return x", numpy.arange(6).reshape(2,3), np_putmask0=[numpy.array([[int]])])
+        self.run_test("def np_putmask0(x): from numpy import putmask ; putmask(x, x>1, x**2); return x", numpy.arange(6).reshape((2,3)), np_putmask0=[numpy.array([[int]])])
 
     def test_putmask1(self):
-        self.run_test("def np_putmask1(x): from numpy import putmask; putmask(x, x>1, [57, 58]); return x", numpy.arange(6).reshape(2,3), np_putmask1=[numpy.array([[int]])])
+        self.run_test("def np_putmask1(x): from numpy import putmask; putmask(x, x>1, [57, 58]); return x", numpy.arange(6).reshape((2,3)), np_putmask1=[numpy.array([[int]])])
 
     def test_ravel(self):
-        self.run_test("def np_ravel(x): from numpy import ravel ; return ravel(x)", numpy.arange(6).reshape(2,3), np_ravel=[numpy.array([[int]])])
+        self.run_test("def np_ravel(x): from numpy import ravel ; return ravel(x)", numpy.arange(6).reshape((2,3)), np_ravel=[numpy.array([[int]])])
 
     def test_repeat(self):
         self.run_test("def np_repeat(x): from numpy import repeat; return repeat(x, 3)", numpy.arange(3), np_repeat=[numpy.array([int])])
 
     def test_resize4(self):
-        self.run_test("def np_resize4(x): from numpy import resize ; return resize(x, (6,7))", numpy.arange(24).reshape(2,3,4), np_resize4=[numpy.array([[[int]]])])
+        self.run_test("def np_resize4(x): from numpy import resize ; return resize(x, (6,7))", numpy.arange(24).reshape((2,3,4)), np_resize4=[numpy.array([[[int]]])])
 
     def test_resize3(self):
-        self.run_test("def np_resize3(x): from numpy import resize; return resize(x, (6,6))", numpy.arange(24).reshape(2,3,4), np_resize3=[numpy.array([[[int]]])])
+        self.run_test("def np_resize3(x): from numpy import resize; return resize(x, (6,6))", numpy.arange(24).reshape((2,3,4)), np_resize3=[numpy.array([[[int]]])])
 
     def test_resize2(self):
-        self.run_test("def np_resize2(x): from numpy import resize; return resize(x, (3,3))", numpy.arange(24).reshape(2,3,4), np_resize2=[numpy.array([[[int]]])])
+        self.run_test("def np_resize2(x): from numpy import resize; return resize(x, (3,3))", numpy.arange(24).reshape((2,3,4)), np_resize2=[numpy.array([[[int]]])])
 
     def test_resize1(self):
         self.run_test("def np_resize1(x): from numpy import resize; return resize(x, 32)", numpy.arange(24), np_resize1=[numpy.array([int])])
@@ -700,7 +700,7 @@ def np_rosen_der(x):
         self.run_test("def np_resize0(x): from numpy import resize; return resize(x, 12)", numpy.arange(24), np_resize0=[numpy.array([int])])
 
     def test_rollaxis2(self):
-        self.run_test("def np_rollaxis2(x): from numpy import rollaxis; return rollaxis(x, 2)", numpy.arange(24).reshape(2,3,4), np_rollaxis2=[numpy.array([[[int]]])])
+        self.run_test("def np_rollaxis2(x): from numpy import rollaxis; return rollaxis(x, 2)", numpy.arange(24).reshape((2,3,4)), np_rollaxis2=[numpy.array([[[int]]])])
 
     def test_rollaxis1(self):
         self.run_test("def np_rollaxis1(x): from numpy import rollaxis; return rollaxis(x, 1, 2)", numpy.arange(24).reshape(2,3,4), np_rollaxis1=[numpy.array([[[int]]])])
@@ -1083,7 +1083,7 @@ def np_trim_zeros2(x):
     def test_where0(self):
         self.run_test("""def np_where0(a):
     from numpy import arange, where
-    b = arange(5, 17).reshape(3,4)
+    b = arange(5, 17).reshape((3,4))
     c = [[0, 1, 1, 1], [0, 0, 1, 1], [1, 0, 0, 0]]
     return where(c , a, b)""", numpy.arange(12).reshape(3,4), np_where0=[numpy.array([[int]])])
 
@@ -1114,7 +1114,7 @@ def np_trim_zeros2(x):
     def test_where5(self):
         self.run_test("""def np_where5(a):
     from numpy import arange, where
-    b = arange(5, 17).reshape(3,4)
+    b = arange(5, 17).reshape((3,4))
     return where(a>5 , a, b)""", numpy.arange(12).reshape(3,4), np_where5=[numpy.array([[int]])])
 
     def test_where6(self):
@@ -1525,7 +1525,7 @@ def test_copy0(x):
         self.run_test("def np_empty_like_(a):\n from numpy import empty_like, array\n return empty_like(array(a)).shape", [[i,j,k,l] for i in xrange(5) for j in xrange(4) for k in xrange(6) for l in xrange(8)], np_empty_like_=[[[int]]])
 
     def test_reshape_(self):
-        self.run_test("def np_reshape_(a): return a.reshape(2,5)", numpy.arange(10), np_reshape_=[numpy.array([int])], check_refcount=True)
+        self.run_test("def np_reshape_(a): return a.reshape((2,5))", numpy.arange(10), np_reshape_=[numpy.array([int])], check_refcount=True)
 
     def test_duplicate(self):
         self.run_test("def np_duplicate(a): return a, a", numpy.arange(10), np_duplicate=[numpy.array([int])], check_refcount=True)
@@ -1534,10 +1534,10 @@ def test_copy0(x):
         self.run_test("def np_broadcast(): import numpy; a = numpy.arange(3); return a, a", np_broadcast=[], check_refcount=True)
 
     def test_broadcast_dup(self):
-        self.run_test("def np_broadcast_dup(): import numpy; a = numpy.arange(10); return a, a.reshape(2,5)", np_broadcast_dup=[], check_refcount=True)
+        self.run_test("def np_broadcast_dup(): import numpy; a = numpy.arange(10); return a, a.reshape((2,5))", np_broadcast_dup=[], check_refcount=True)
 
     def test_reshape_expr(self):
-        self.run_test("def np_reshape_expr(a): return (a + a).reshape(2,5)", numpy.ones(10), np_reshape_expr=[numpy.array([float])])
+        self.run_test("def np_reshape_expr(a): return (a + a).reshape((2,5))", numpy.ones(10), np_reshape_expr=[numpy.array([float])])
 
     def test_cumsum_(self):
         self.run_test("def np_cumsum_(a): return a.cumsum()", numpy.arange(10), np_cumsum_=[numpy.array([int])])
@@ -1765,10 +1765,10 @@ def test_copy0(x):
         self.run_test("def np_sliced8(a): a[1:2] = 1 ; return a", numpy.arange(12).reshape(3,2,2), np_sliced8=[numpy.array([[[int]]])])
 
     def test_sliced9(self):
-        self.run_test("def np_sliced9(a): from numpy import arange ; a[1:2] = arange(4).reshape(1,2,2) ; return a", numpy.arange(12).reshape(3,2,2), np_sliced9=[numpy.array([[[int]]])])
+        self.run_test("def np_sliced9(a): from numpy import arange ; a[1:2] = arange(4).reshape((1,2,2)) ; return a", numpy.arange(12).reshape(3,2,2), np_sliced9=[numpy.array([[[int]]])])
 
     def test_sliced10(self):
-        self.run_test("def np_sliced10(a): from numpy import arange ; a[1:-1:2] = arange(4).reshape(1,2,2) ; return a", numpy.arange(12).reshape(3,2,2), np_sliced10=[numpy.array([[[int]]])])
+        self.run_test("def np_sliced10(a): from numpy import arange ; a[1:-1:2] = arange(4).reshape((1,2,2)) ; return a", numpy.arange(12).reshape(3,2,2), np_sliced10=[numpy.array([[[int]]])])
 
     def test_sliced11(self):
         self.run_test("def np_sliced11(a): return a[1::-2]", numpy.arange(12).reshape(3,2,2), np_sliced11=[numpy.array([[[int]]])])

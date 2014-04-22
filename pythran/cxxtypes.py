@@ -295,7 +295,7 @@ class GetAttr(Type):
     Type of a named attribute
 
     >>> GetAttr(NamedType('complex'), 'real')
-    decltype(pythonic::__builtin__::getattr<pythonic::types::attr::real>\
+    decltype(pythonic::__builtin__::getattr<pythonic::types::attr::REAL>\
 (std::declval<complex>()))
     '''
     def __init__(self, param, attr):
@@ -306,7 +306,7 @@ class GetAttr(Type):
 
     def generate(self, ctx):
         return ('decltype(pythonic::__builtin__::getattr<{}>({}))'
-                .format('pythonic::types::attr::' + self.attr,
+                .format('pythonic::types::attr::' + self.attr.upper(),
                         'std::declval<' + self.param.generate(ctx) + '>()'))
 
 

@@ -8,12 +8,13 @@ namespace pythonic {
 
     namespace operator_ {
 
-        //SG: we have to deal with python modulo that always return a positive value
-        //but without using conditional because this function is also used for expression
-        //templates at the numpy level
         template <class A, class B>
-            auto mod(A const& a, B const& b) -> decltype(((a % b) + b) % b) {
-                return ((a % b) + b) % b;
+            auto mod(A const& a, B const& b)
+            -> typename std::enable_if<std::is_fundamental<A>::value and std::is_fundamental<B>::value,
+                                       decltype(a % b)>::type
+            {
+                auto t = a % b;
+                return t < 0 ? (t + b) : t;
             }
         inline double mod(double a, long b) {
             auto t = std::fmod(a, double(b));
@@ -23,12 +24,13 @@ namespace pythonic {
             auto t = std::fmod(a, b);
             return t < 0 ? (t + b) : t;
         }
-        template<class T>
-        inline auto mod(types::str const& s, T const& b)
-        -> decltype(s%b)
-        {
-            return s % b;
-        }
+        template<class A, class B>
+            auto mod(A const& a, B const& b) // for ndarrays
+            -> typename std::enable_if<not std::is_fundamental<A>::value or not std::is_fundamental<B>::value,
+                                       decltype(a%b)>::type
+            {
+                return a % b;
+            }
         PROXY(pythonic::operator_, mod);
     }
 

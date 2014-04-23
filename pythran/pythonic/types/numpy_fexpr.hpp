@@ -77,6 +77,38 @@ namespace pythonic {
                     std::copy(expr.begin(), expr.end(), begin());
                     return *this;
                 }
+                template<class E>
+                numpy_fexpr& operator+=(E const& expr) {
+                    return *(this) = *this + expr;
+                }
+                template<class E>
+                numpy_fexpr& operator-=(E const& expr) {
+                    return *(this) = *this - expr;
+                }
+                template<class E>
+                numpy_fexpr& operator*=(E const& expr) {
+                    return *(this) = *this * expr;
+                }
+                template<class E>
+                numpy_fexpr& operator/=(E const& expr) {
+                    return *(this) = *this / expr;
+                }
+                template<class E>
+                numpy_fexpr& operator&=(E const& expr) {
+                    return *(this) = *this & expr;
+                }
+                template<class E>
+                numpy_fexpr& operator|=(E const& expr) {
+                    return *(this) = *this | expr;
+                }
+                template<class E>
+                numpy_fexpr& operator>>=(E const& expr) {
+                    return *(this) = *this >> expr;
+                }
+                template<class E>
+                numpy_fexpr& operator<<=(E const& expr) {
+                    return *(this) = *this << expr;
+                }
 
                 const_iterator begin() const { return const_iterator(*this, 0); }
                 const_iterator end() const { return const_iterator(*this, shape[0]); }

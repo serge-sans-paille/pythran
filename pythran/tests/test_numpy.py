@@ -33,6 +33,37 @@ class TestNumpy(TestEnv):
                       numpy.arange(100).reshape((10, 10)),
                       numpy_augassign5=[numpy.array([numpy.array([int])])])
 
+
+    def test_numpy_faugassign0(self):
+        self.run_test('def numpy_faugassign0(a): a[a>5]+=1; return a',
+                      numpy.arange(100),
+                      numpy_faugassign0=[numpy.array([int])])
+
+    def test_numpy_faugassign1(self):
+        self.run_test('def numpy_faugassign1(a): a[a>3]*=2; return a',
+                      numpy.arange(100),
+                      numpy_faugassign1=[numpy.array([int])])
+
+    def test_numpy_faugassign2(self):
+        self.run_test('def numpy_faugassign2(a): a[a>30]-=2; return a',
+                      numpy.arange(100),
+                      numpy_faugassign2=[numpy.array([int])])
+
+    def test_numpy_faugassign3(self):
+        self.run_test('def numpy_faugassign3(a): a[a<40]/=2; return a',
+                      numpy.arange(100),
+                      numpy_faugassign3=[numpy.array([int])])
+
+    def test_numpy_faugassign4(self):
+        self.run_test('def numpy_faugassign4(a): a[a<4]|=2; return a',
+                      numpy.arange(100),
+                      numpy_faugassign4=[numpy.array([int])])
+
+    def test_numpy_faugassign5(self):
+        self.run_test('def numpy_faugassign5(a): a[a>8]&=2; return a',
+                      numpy.arange(100),
+                      numpy_faugassign5=[numpy.array([int])])
+
     def test_broadcast0(self):
         self.run_test('def numpy_broadcast0(a): a[0] = 1 ; return a',
                       numpy.arange(100).reshape((10, 10)),

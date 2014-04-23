@@ -2,7 +2,6 @@
 #define PYTHONIC_NUMPY_BITWISENOT_HPP
 
 #include "pythonic/utils/proxy.hpp"
-//#include "pythonic/types/ndarray.hpp"
 
 namespace pythonic {
 

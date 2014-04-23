@@ -12,8 +12,10 @@ namespace pythonic {
         //but without using conditional because this function is also used for expression
         //templates at the numpy level
         template <class A, class B>
-            auto mod(A const& a, B const& b) -> decltype(((a % b) + b) % b) {
-                return ((a % b) + b) % b;
+            auto mod(A const& a, B const& b)
+            -> typename std::enable_if<std::is_fundamental<A>::value, decltype(a % b)>::value {
+                auto t = a % b;
+                return t < 0 ? (t + b) : t;
             }
         inline double mod(double a, long b) {
             auto t = std::fmod(a, double(b));

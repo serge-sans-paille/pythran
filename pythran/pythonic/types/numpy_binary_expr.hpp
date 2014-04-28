@@ -1,4 +1,4 @@
-#ifndef NUMPY_BINARY_FUNC_NAME        
+#ifndef NUMPY_BINARY_FUNC_NAME
 #error NUMPY_BINARY_FUNC_NAME undefined
 #endif
 #ifndef NUMPY_BINARY_FUNC_SYM

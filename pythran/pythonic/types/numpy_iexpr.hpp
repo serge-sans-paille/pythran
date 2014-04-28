@@ -98,6 +98,12 @@ namespace pythonic {
                 iterator begin() { return iterator(*this, 0); }
                 iterator end() { return iterator(*this, shape[0]); }
 
+                dtype const * fbegin() const { return buffer; }
+                dtype const * fend() const { return buffer + size(); }
+
+                dtype * fbegin() { return buffer; }
+                dtype const * fend() { return buffer + size(); }
+
                 auto fast(long i) const -> decltype(numpy_iexpr_helper<value>::get(*this, i)) {
                     return numpy_iexpr_helper<value>::get(*this, i);
                 }

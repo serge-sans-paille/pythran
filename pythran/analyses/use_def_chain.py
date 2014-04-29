@@ -8,6 +8,7 @@ from globals_analysis import Globals
 from imported_ids import ImportedIds
 import pythran.metadata as md
 from pythran.passmanager import FunctionAnalysis
+from pythran.syntax import PythranSyntaxError
 
 
 class UseDefChain(FunctionAnalysis):

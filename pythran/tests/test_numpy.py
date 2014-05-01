@@ -131,7 +131,6 @@ class TestNumpy(TestEnv):
                       numpy.arange(60).reshape((3,5,4)),
                       numpy_extended_slicing6=[numpy.array([numpy.array([numpy.array([int])])])])
 
-    @unittest.skip("segfault")
     def test_extended_slicing7(self):
         self.run_test("def numpy_extended_slicing7(a): return a[1:-1, 2, 1]",
                       numpy.arange(120).reshape((3,5,4,2)),
@@ -142,55 +141,46 @@ class TestNumpy(TestEnv):
                       numpy.arange(60).reshape((3,5,4)),
                       numpy_extended_slicing8=[numpy.array([numpy.array([numpy.array([int])])])])
 
-    @unittest.skip("segfault")
     def test_extended_slicing9(self):
         self.run_test("def numpy_extended_slicing9(a): return a[1:-1, 2, 1, 1:2]",
                       numpy.arange(120).reshape((3,5,2,4)),
                       numpy_extended_slicing9=[numpy.array([numpy.array([numpy.array([numpy.array([int])])])])])
 
-    @unittest.skip("segfault")
     def test_extended_slicing10(self):
         self.run_test("def numpy_extended_slicing10(a): return a[1, 2, 1:-1]",
                       numpy.arange(120).reshape((3,5,4,2)),
                       numpy_extended_slicing10=[numpy.array([numpy.array([numpy.array([numpy.array([int])])])])])
 
-    @unittest.skip("segfault")
     def test_extended_slicing11(self):
         self.run_test("def numpy_extended_slicing11(a): return a[1, 2, 1:-1, 1]",
                       numpy.arange(120).reshape((3,5,4,2)),
                       numpy_extended_slicing11=[numpy.array([numpy.array([numpy.array([numpy.array([int])])])])])
 
-    @unittest.skip("segfault")
     def test_extended_sum0(self):
         self.run_test("def numpy_extended_sum0(a): import numpy ; return numpy.sum(a)",
                       numpy.arange(120).reshape((3,5,4,2)),
                       numpy_extended_sum0=[numpy.array([numpy.array([numpy.array([numpy.array([int])])])])])
 
-    @unittest.skip("segfault")
     def test_extended_sum1(self):
         self.run_test("def numpy_extended_sum1(a): import numpy ; return numpy.sum(a[1])",
                       numpy.arange(120).reshape((3,5,4,2)),
                       numpy_extended_sum1=[numpy.array([numpy.array([numpy.array([numpy.array([int])])])])])
 
-    @unittest.skip("segfault")
     def test_extended_sum2(self):
         self.run_test("def numpy_extended_sum2(a): import numpy ; return numpy.sum(a[1,0])",
                       numpy.arange(120).reshape((3,5,4,2)),
                       numpy_extended_sum2=[numpy.array([numpy.array([numpy.array([numpy.array([int])])])])])
 
-    @unittest.skip("segfault")
     def test_extended_sum3(self):
         self.run_test("def numpy_extended_sum3(a): import numpy ; return numpy.sum(a[1:-1])",
                       numpy.arange(120).reshape((3,5,4,2)),
                       numpy_extended_sum3=[numpy.array([numpy.array([numpy.array([numpy.array([int])])])])])
 
-    @unittest.skip("segfault")
     def test_extended_sum4(self):
         self.run_test("def numpy_extended_sum4(a): import numpy ; return numpy.sum(a[1:-1,0])",
                       numpy.arange(120).reshape((3,5,4,2)),
                       numpy_extended_sum4=[numpy.array([numpy.array([numpy.array([numpy.array([int])])])])])
 
-    @unittest.skip("segfault")
     def test_extended_sum5(self):
         self.run_test("def numpy_extended_sum5(a): import numpy ; return numpy.sum(a)",
                       numpy.arange(120).reshape((3,5,4,2)),
@@ -700,39 +690,30 @@ def np_rosen_der(x):
     def test_ravel(self):
         self.run_test("def np_ravel(x): from numpy import ravel ; return ravel(x)", numpy.arange(6).reshape(2,3), np_ravel=[numpy.array([[int]])])
 
-    @unittest.skip("segfault")
     def test_repeat(self):
         self.run_test("def np_repeat(x): from numpy import repeat; return repeat(x, 3)", numpy.arange(3), np_repeat=[numpy.array([int])])
 
-    @unittest.skip("segfault")
     def test_resize4(self):
         self.run_test("def np_resize4(x): from numpy import resize ; return resize(x, (6,7))", numpy.arange(24).reshape(2,3,4), np_resize4=[numpy.array([[[int]]])])
 
-    @unittest.skip("segfault")
     def test_resize3(self):
         self.run_test("def np_resize3(x): from numpy import resize; return resize(x, (6,6))", numpy.arange(24).reshape(2,3,4), np_resize3=[numpy.array([[[int]]])])
 
-    @unittest.skip("segfault")
     def test_resize2(self):
         self.run_test("def np_resize2(x): from numpy import resize; return resize(x, (3,3))", numpy.arange(24).reshape(2,3,4), np_resize2=[numpy.array([[[int]]])])
 
-    @unittest.skip("segfault")
     def test_resize1(self):
         self.run_test("def np_resize1(x): from numpy import resize; return resize(x, 32)", numpy.arange(24), np_resize1=[numpy.array([int])])
 
-    @unittest.skip("segfault")
     def test_resize0(self):
         self.run_test("def np_resize0(x): from numpy import resize; return resize(x, 12)", numpy.arange(24), np_resize0=[numpy.array([int])])
 
-    @unittest.skip("segfault")
     def test_rollaxis2(self):
         self.run_test("def np_rollaxis2(x): from numpy import rollaxis; return rollaxis(x, 2)", numpy.arange(24).reshape(2,3,4), np_rollaxis2=[numpy.array([[[int]]])])
 
-    @unittest.skip("segfault")
     def test_rollaxis1(self):
         self.run_test("def np_rollaxis1(x): from numpy import rollaxis; return rollaxis(x, 1, 2)", numpy.arange(24).reshape(2,3,4), np_rollaxis1=[numpy.array([[[int]]])])
 
-    @unittest.skip("segfault")
     def test_rollaxis0(self):
         self.run_test("def np_rollaxis0(x): from numpy import rollaxis; return rollaxis(x, 1)", numpy.arange(24).reshape(2,3,4), np_rollaxis0=[numpy.array([[[int]]])])
 
@@ -757,19 +738,15 @@ def np_rosen_der(x):
     def test_roll0(self):
         self.run_test("def np_roll0(x): from numpy import roll; return roll(x, 3)", numpy.arange(24).reshape(2,3,4), np_roll0=[numpy.array([[[int]]])])
 
-    @unittest.skip("segfault")
     def test_searchsorted3(self):
         self.run_test("def np_searchsorted3(x): from numpy import searchsorted; return searchsorted(x, [[3,4],[1,87]])", numpy.arange(6), np_searchsorted3=[numpy.array([int])])
 
-    @unittest.skip("segfault")
     def test_searchsorted2(self):
         self.run_test("def np_searchsorted2(x): from numpy import searchsorted; return searchsorted(x, [[3,4],[1,87]], 'right')", numpy.arange(6), np_searchsorted2=[numpy.array([int])])
 
-    @unittest.skip("segfault")
     def test_searchsorted1(self):
         self.run_test("def np_searchsorted1(x): from numpy import searchsorted; return searchsorted(x, 3)", numpy.arange(6), np_searchsorted1=[numpy.array([int])])
 
-    @unittest.skip("segfault")
     def test_searchsorted0(self):
         self.run_test("def np_searchsorted0(x): from numpy import searchsorted; return searchsorted(x, 3, 'right')", numpy.arange(6), np_searchsorted0=[numpy.array([int])])
 
@@ -779,15 +756,12 @@ def np_rosen_der(x):
     def test_rank0(self):
         self.run_test("def np_rank0(x): from numpy import rank; return rank(x)", numpy.arange(6), np_rank0=[numpy.array([int])])
 
-    @unittest.skip("segfault")
     def test_rot904(self):
         self.run_test("def np_rot904(x): from numpy import rot90; return rot90(x, 4)", numpy.arange(24).reshape(2,3,4), np_rot904=[numpy.array([[[int]]])])
 
-    @unittest.skip("segfault")
     def test_rot903(self):
         self.run_test("def np_rot903(x): from numpy import rot90; return rot90(x, 2)", numpy.arange(24).reshape(2,3,4), np_rot903=[numpy.array([[[int]]])])
 
-    @unittest.skip("segfault")
     def test_rot902(self):
         self.run_test("def np_rot902(x): from numpy import rot90; return rot90(x, 3)", numpy.arange(24).reshape(2,3,4), np_rot902=[numpy.array([[[int]]])])
 
@@ -846,15 +820,12 @@ def np_rosen_der(x):
     def test_split2(self):
         self.run_test("def np_split2(a): from numpy import split, array2string; return map(array2string,split(a, [0,1,5]))", numpy.arange(12).reshape(6,2), np_split2=[numpy.array([[int]])])
 
-    @unittest.skip("segfault")
     def test_take0(self):
         self.run_test("def np_take0(a):\n from numpy import take\n return take(a, [0,1])", numpy.arange(24).reshape(2,3,4), np_take0=[numpy.array([[[int]]])])
 
-    @unittest.skip("segfault")
     def test_take1(self):
         self.run_test("def np_take1(a):\n from numpy import take\n return take(a, [[0,0,2,2],[1,0,1,2]])", numpy.arange(24).reshape(2,3,4), np_take1=[numpy.array([[[int]]])])
 
-    @unittest.skip("segfault")
     def test_swapaxes_(self):
         self.run_test("def np_swapaxes_(a):\n from numpy import swapaxes\n return swapaxes(a, 1, 2)", numpy.arange(24).reshape(2,3,4), np_swapaxes_=[numpy.array([[[int]]])])
 
@@ -989,11 +960,9 @@ def np_rosen_der(x):
     def test_trace0(self):
         self.run_test("def np_trace0(x): from numpy import trace; return trace(x)", numpy.arange(9).reshape(3,3), np_trace0=[numpy.array([[int]])])
 
-    @unittest.skip("segfault")
     def test_trace1(self):
         self.run_test("def np_trace1(x): from numpy import trace; return trace(x, 1)", numpy.arange(12).reshape(3,4), np_trace1=[numpy.array([[int]])])
 
-    @unittest.skip("segfault")
     def test_trace2(self):
         self.run_test("def np_trace2(x): from numpy import trace; return trace(x, 1)", numpy.arange(12).reshape(3,4), np_trace2=[numpy.array([[int]])])
 
@@ -1015,14 +984,12 @@ def np_trim_zeros0(x):
     from numpy import array, trim_zeros
     return trim_zeros(x)""", numpy.array((0, 0, 0, 1, 2, 3, 0, 2, 1, 0)), np_trim_zeros0=[numpy.array([int])])
 
-    @unittest.skip("segfault")
     def test_trim_zeros1(self):
         self.run_test("""
 def np_trim_zeros1(x):
     from numpy import array, trim_zeros
     return trim_zeros(x, "f")""", numpy.array((0, 0, 0, 1, 2, 3, 0, 2, 1, 0)), np_trim_zeros1=[numpy.array([int])])
 
-    @unittest.skip("segfault")
     def test_trim_zeros2(self):
         self.run_test("""
 def np_trim_zeros2(x):
@@ -1032,22 +999,18 @@ def np_trim_zeros2(x):
     def test_triu0(self):
         self.run_test("def np_triu0(x): from numpy import triu; return triu(x)", numpy.arange(12).reshape(3,4), np_triu0=[numpy.array([[int]])])
 
-    @unittest.skip("segfault")
     def test_triu1(self):
         self.run_test("def np_triu1(x): from numpy import triu; return triu(x, 1)", numpy.arange(12).reshape(3,4), np_triu1=[numpy.array([[int]])])
 
-    @unittest.skip("segfault")
     def test_triu2(self):
         self.run_test("def np_triu2(x): from numpy import triu; return triu(x, -1)", numpy.arange(12).reshape(3,4), np_triu2=[numpy.array([[int]])])
 
     def test_tril0(self):
         self.run_test("def np_tril0(x): from numpy import tril; return tril(x)", numpy.arange(12).reshape(3,4), np_tril0=[numpy.array([[int]])])
 
-    @unittest.skip("segfault")
     def test_tril1(self):
         self.run_test("def np_tril1(x): from numpy import tril; return tril(x, 1)", numpy.arange(12).reshape(3,4), np_tril1=[numpy.array([[int]])])
 
-    @unittest.skip("segfault")
     def test_tril2(self):
         self.run_test("def np_tril2(x): from numpy import tril; return tril(x, -1)", numpy.arange(12).reshape(3,4), np_tril2=[numpy.array([[int]])])
 
@@ -1614,7 +1577,6 @@ def test_copy0(x):
     def test_sum_bool2(self):
         self.run_test("def np_sum_bool2(a): return a.sum()", numpy.ones(10,dtype=bool).reshape(2,5), np_sum_bool2=[numpy.array([bool])])
 
-    @unittest.skip("segfault")
     def test_sum_expr(self):
         self.run_test("def np_sum_expr(a):\n from numpy import ones\n return (a + ones(10)).sum()", numpy.arange(10), np_sum_expr=[numpy.array([int])])
 
@@ -1684,7 +1646,6 @@ def test_copy0(x):
     def test_transpose_expr(self):
         self.run_test("def np_transpose_expr(a): return (a + a).transpose()", numpy.ones(24).reshape(2,3,4), np_transpose_expr=[numpy.array([[[float]]])])
 
-    @unittest.skip("segfault")
     def test_transpose2_(self):
         self.run_test("def np_transpose2_(a): return a.transpose((2,0,1))", numpy.arange(24).reshape(2,3,4), np_transpose2_=[numpy.array([[[int]]])])
 

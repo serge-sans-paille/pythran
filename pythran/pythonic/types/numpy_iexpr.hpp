@@ -17,7 +17,7 @@ namespace pythonic {
 
         /* Expression template for numpy expressions - indexing
          */
-        template<size_t N>
+        template<class T, size_t N>
             struct numpy_iexpr_helper;
 
         template<class Arg>
@@ -25,7 +25,7 @@ namespace pythonic {
                 // wrapper around another numpy expression to skip first dimension using a given value.
                 static constexpr size_t value = std::remove_reference<Arg>::type::value - 1;
                 typedef typename std::remove_reference<Arg>::type::dtype dtype;
-                typedef typename std::remove_reference<decltype(numpy_iexpr_helper<value>::get(std::declval<numpy_iexpr>(), 0L))>::type value_type;
+                typedef typename std::remove_reference<decltype(numpy_iexpr_helper<numpy_iexpr, value>::get(std::declval<numpy_iexpr>(), 0L))>::type value_type;
 
                 typedef nditerator<numpy_iexpr> iterator;
                 typedef const_nditerator<numpy_iexpr> const_iterator;
@@ -46,7 +46,16 @@ namespace pythonic {
                 {
                 }
 
-                numpy_iexpr(Arg const &arg, long index) : arg(arg), buffer(arg.buffer)
+                numpy_iexpr(Arg const & arg, long index) : arg(arg), buffer(arg.buffer)
+                {
+                    auto siter = shape.begin();
+                    //accumulate the shape to jump to index position. Not done with std::accumulate
+                    //as we want to copy the shape at the same time.
+                    for(auto iter = arg.shape.begin() + 1, end = arg.shape.end(); iter != end; ++iter, ++siter)
+                        index *= *siter = *iter;
+                    buffer += index;
+                }
+                numpy_iexpr(typename std::remove_reference<Arg>::type &&arg, long index) : arg(std::move(arg)), buffer(arg.buffer)
                 {
                     auto siter = shape.begin();
                     //accumulate the shape to jump to index position. Not done with std::accumulate
@@ -104,25 +113,35 @@ namespace pythonic {
                 dtype * fbegin() { return buffer; }
                 dtype const * fend() { return buffer + size(); }
 
-                auto fast(long i) const -> decltype(numpy_iexpr_helper<value>::get(*this, i)) {
-                    return numpy_iexpr_helper<value>::get(*this, i);
+                auto fast(long i) const &-> decltype(numpy_iexpr_helper<numpy_iexpr, value>::get(*this, i)) {
+                    return numpy_iexpr_helper<numpy_iexpr, value>::get(*this, i);
                 }
-                auto fast(long i) -> decltype(numpy_iexpr_helper<value>::get(*this, i)) {
-                    return numpy_iexpr_helper<value>::get(*this, i);
+                auto fast(long i) &-> decltype(numpy_iexpr_helper<numpy_iexpr, value>::get(*this, i)) {
+                    return numpy_iexpr_helper<numpy_iexpr, value>::get(*this, i);
                 }
-                auto operator[](long i) const -> decltype(this->fast(i)) {
+                auto fast(long i) &&-> decltype(numpy_iexpr_helper<numpy_iexpr, value>::get(std::move(*this), i)) {
+                    return numpy_iexpr_helper<numpy_iexpr, value>::get(std::move(*this), i);
+                }
+                auto operator[](long i) const &-> decltype(this->fast(i)) {
                     if(i<0) i += shape[0];
                     return fast(i);
                 }
-                auto operator[](long i) -> decltype(this->fast(i)) {
+                auto operator[](long i) &-> decltype(this->fast(i)) {
                     if(i<0) i += shape[0];
                     return fast(i);
                 }
-                auto operator()(long i) const -> decltype((*this)[i]) {
+                auto operator[](long i) && -> decltype(std::move(*this).fast(i)) {
+                    if(i<0) i += shape[0];
+                    return std::move(*this).fast(i);
+                }
+                auto operator()(long i) const &-> decltype((*this)[i]) {
                     return (*this)[i];
                 }
-                auto operator()(long i) -> decltype((*this)[i]) {
+                auto operator()(long i) &-> decltype((*this)[i]) {
                     return (*this)[i];
+                }
+                auto operator()(long i) &&-> decltype(std::move(*this)[i]) {
+                    return std::move(*this)[i];
                 }
                 numpy_gexpr<numpy_iexpr, slice> operator()(slice const& s0) const
                 {
@@ -151,7 +170,7 @@ namespace pythonic {
                         return numpy_gexpr<numpy_iexpr, contiguous_slice, S...>(*this, s0, s...);
                     }
                 template<class ...S>
-                    auto operator()(long s0, S const&... s) const -> decltype( (*this)[s0](s...))
+                    auto operator()(long s0, S const&... s) const -> decltype(std::declval<numpy_iexpr<numpy_iexpr>>()(s...))
                     {
                         return (*this)[s0](s...);
                     }
@@ -164,21 +183,24 @@ namespace pythonic {
                 long size() const { return /*arg.size()*/ std::accumulate(shape.begin() + 1, shape.end(), *shape.begin(), std::multiplies<long>()); }
             };
 
-        template <size_t N>
+        template <class T, size_t N>
             struct numpy_iexpr_helper {
-                template<class E>
-                static numpy_iexpr<E> get(E && e, long i) { return numpy_iexpr<E>(e, i);}
+                static numpy_iexpr<T> get(T const& e, long i) {
+                    return numpy_iexpr<T>(e, i);
+                }
             };
 
-        template <>
-            struct numpy_iexpr_helper<1> {
-                template<class E>
-                static typename E::dtype get(E const & e, long i)
+        template <class T>
+            struct numpy_iexpr_helper<T, 1> {
+                static typename T::dtype get(T const & e, long i)
                 {
                     return e.buffer[i];
                 }
-                template<class E>
-                static typename E::dtype & get(E & e, long i)
+                static typename T::dtype & get(T && e, long i)
+                {
+                    return e.buffer[i];
+                }
+                static typename T::dtype & get(T & e, long i)
                 {
                     return e.buffer[i];
                 }
@@ -204,5 +226,11 @@ namespace pythonic {
         };
 
 }
+/* type inference stuff  {*/
+#include "pythonic/types/combined.hpp"
+template<class E, class K>
+struct __combined<pythonic::types::numpy_iexpr<E>, K> {
+    typedef pythonic::types::numpy_iexpr<E> type;
+};
 
 #endif

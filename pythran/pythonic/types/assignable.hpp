@@ -9,7 +9,15 @@ namespace pythonic {
 
     template<class T>
         struct assignable {
-            typedef typename std::remove_cv<typename std::remove_reference<T>::type>::type type;
+            typedef T type;
+        };
+    template<class T>
+        struct assignable<T const&> {
+            typedef typename assignable<T>::type type;
+        };
+    template<class T>
+        struct assignable<T &> {
+            typedef typename assignable<T>::type type;
         };
 
     template<class T>

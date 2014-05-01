@@ -3,8 +3,6 @@
 namespace pythonic {
 
     namespace types {
-        template<class T, size_t N>
-            struct ndarray;
         template<class Arg, class... S>
             struct numpy_gexpr;
         template<class Arg, class F>

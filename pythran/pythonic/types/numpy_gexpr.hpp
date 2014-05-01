@@ -350,15 +350,15 @@ namespace pythonic {
                 struct finalize_numpy_gexpr_helper<N, Arg, long> {
                     template<class E, class F>
                         static auto get(E const& e, F const & f)
-                        -> decltype(numpy_iexpr_helper<Arg::value>::get(f, 0))
+                        -> decltype(numpy_iexpr_helper<F, Arg::value>::get(f, 0))
                         {
-                            return numpy_iexpr_helper<Arg::value>::get(f, e.indices[N]);
+                            return numpy_iexpr_helper<F, Arg::value>::get(f, e.indices[N]);
                         }
                     template<class E, class F>
                         static auto get(E const& e, F & f)
-                        -> decltype(numpy_iexpr_helper<Arg::value>::get(f, 0))
+                        -> decltype(numpy_iexpr_helper<F, Arg::value>::get(f, 0))
                         {
-                            return numpy_iexpr_helper<Arg::value>::get(f, e.indices[N]);
+                            return numpy_iexpr_helper<F, Arg::value>::get(f, e.indices[N]);
                         }
                 };
         }
@@ -382,20 +382,20 @@ namespace pythonic {
         template <class Arg, class S>
             struct numpy_gexpr_helper<Arg, S, long> {
                 static auto get(numpy_gexpr<Arg, S, long> const& e, long i)
-                    -> decltype(numpy_iexpr_helper<numpy_iexpr<Arg>::value>::get(std::declval<numpy_iexpr<Arg>>(), 0))
+                    -> decltype(numpy_iexpr_helper<numpy_iexpr<Arg>, numpy_iexpr<Arg>::value>::get(std::declval<numpy_iexpr<Arg>>(), 0))
                 {
-                    return numpy_iexpr_helper<numpy_iexpr<Arg>::value>::get(numpy_iexpr<Arg>(e.arg, i), e.indices[0]);
+                    return numpy_iexpr_helper<numpy_iexpr<Arg>, numpy_iexpr<Arg>::value>::get(numpy_iexpr<Arg>(e.arg, i), e.indices[0]);
                 }
                 static auto get(numpy_gexpr<Arg, S, long> & e, long i)
-                    -> decltype(numpy_iexpr_helper<numpy_iexpr<Arg>::value>::get(std::declval<numpy_iexpr<Arg>&>(), 0))
+                    -> decltype(numpy_iexpr_helper<numpy_iexpr<Arg>, numpy_iexpr<Arg>::value>::get(std::declval<numpy_iexpr<Arg>&>(), 0))
                 {
                     numpy_iexpr<Arg> iexpr(e.arg, i);
-                    return numpy_iexpr_helper<numpy_iexpr<Arg>::value>::get(iexpr, e.indices[0]);
+                    return numpy_iexpr_helper<numpy_iexpr<Arg>, numpy_iexpr<Arg>::value>::get(iexpr, e.indices[0]);
                 }
             };
 
         template <class Arg, class S>
-            struct numpy_gexpr_helper<Arg, S> : numpy_iexpr_helper<numpy_gexpr<Arg, S>::value> {
+            struct numpy_gexpr_helper<Arg, S> : numpy_iexpr_helper<numpy_gexpr<Arg, S>, numpy_gexpr<Arg, S>::value> {
             };
 
     }

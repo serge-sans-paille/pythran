@@ -9,6 +9,7 @@ from pure_expressions import PureExpressions
 import pythran.metadata as md
 import pythran.openmp as openmp
 from pythran.passmanager import FunctionAnalysis
+from pythran.syntax import PythranSyntaxError
 
 
 class LazynessAnalysis(FunctionAnalysis):

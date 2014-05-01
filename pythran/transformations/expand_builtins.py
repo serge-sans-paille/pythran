@@ -5,6 +5,7 @@ import ast
 from pythran.analyses import Globals, Locals
 from pythran.passmanager import Transformation
 from pythran.tables import modules
+from pythran.syntax import PythranSyntaxError
 
 
 class ExpandBuiltins(Transformation):

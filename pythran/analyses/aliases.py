@@ -8,6 +8,7 @@ import pythran.metadata as md
 from pythran.passmanager import ModuleAnalysis
 from pythran.syntax import PythranSyntaxError
 from pythran.tables import functions, methods, modules
+from pythran.syntax import PythranSyntaxError
 
 
 class Aliases(ModuleAnalysis):

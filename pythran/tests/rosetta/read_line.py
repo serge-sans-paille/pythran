@@ -3,4 +3,4 @@
 #runas readfile()
 
 def readfile():
-    return [line for line in file("read_conf.cfg")]
+    return [line for line in file("rosetta/read_conf.cfg")]

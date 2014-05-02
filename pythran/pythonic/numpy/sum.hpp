@@ -23,7 +23,7 @@ namespace pythonic {
                 for(; begin != end; ++begin)
                     _sum((*begin).begin(), (*begin).end(), sum, utils::int_<N - 1>());
             }
-            
+
         template<class E>
             typename
             std::conditional<std::is_same<typename E::dtype, bool>::value,

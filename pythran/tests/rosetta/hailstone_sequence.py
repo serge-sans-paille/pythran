@@ -1,7 +1,7 @@
 #from http://rosettacode.org/wiki/Hailstone_sequence#Python
 #pythran export hailstone(int)
 #runas hailstone(27)
-#runas max((len(hailstone(i)), i) for i in range(1,100000)))
+#runas max((len(hailstone(i)), i) for i in range(1,100000))
 
 def hailstone(n):
     seq = [n]

@@ -12,7 +12,7 @@
 def worth(name):
 	return sum(ord(letter) - ord('A') + 1 for letter in name)
 def solve():
- names = open('euler/names22.txt').read().replace('"', '').split(',')
+ names = open('tests/euler/names22.txt').read().replace('"', '').split(',')
  names.sort()
 
  return sum((i+1) * worth(names[i]) for i in xrange(0, len(names)))

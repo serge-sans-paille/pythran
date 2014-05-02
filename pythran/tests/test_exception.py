@@ -177,12 +177,16 @@ class TestException(TestEnv):
 
     def test_str1_exception(self):
         self.run_test("def str1_exception_():\n try:\n  raise EnvironmentError('a')\n except EnvironmentError as e:\n  return str(e)", str1_exception_=[])
+
     def test_str2_exception(self):
         self.run_test("def str2_exception_():\n try:\n  raise EnvironmentError('a','b')\n except EnvironmentError as e:\n  return str(e)", str2_exception_=[])
+
     def test_str3_exception(self):
         self.run_test("def str3_exception_():\n try:\n  raise EnvironmentError('a','b','c')\n except EnvironmentError as e:\n  return str(e)", str3_exception_=[])
+
     def test_str4_exception(self):
         self.run_test("def str4_exception_():\n try:\n  raise EnvironmentError('a','b','c','d')\n except EnvironmentError as e:\n  return str(e)", str4_exception_=[])
+
     def test_str5_exception(self):
         self.run_test("def str5_exception_():\n try:\n  raise EnvironmentError('a','b','c','d','e')\n except EnvironmentError as e:\n  return str(e)", str5_exception_=[])
 
@@ -192,175 +196,179 @@ class TestException(TestEnv):
 # test if exception translators are registered in pythran
 
     def test_BaseException_register(self):
-        self.run_test("def BaseException_(): raise BaseException('abc')", BaseException_=[])
+        self.run_test("def BaseException_(): raise BaseException('abc')", BaseException_=[], check_exception=True)
 
     def test_SystemExit_register(self):
-        self.run_test("def SystemExit_():\n raise SystemExit('a','b','c')", SystemExit_=[])
+        self.run_test("def SystemExit_():\n raise SystemExit('a','b','c')", SystemExit_=[], check_exception=True)
 
     def test_KeyboardInterrupt_register(self):
-        self.run_test("def KeyboardInterrupt_():\n raise KeyboardInterrupt('a','b','c')", KeyboardInterrupt_=[])
+        self.run_test("def KeyboardInterrupt_():\n raise KeyboardInterrupt('a','b','c')", KeyboardInterrupt_=[], check_exception=True)
 
     def test_GeneratorExit_register(self):
-        self.run_test("def GeneratorExit_():\n raise GeneratorExit('a','b','c')", GeneratorExit_=[])
+        self.run_test("def GeneratorExit_():\n raise GeneratorExit('a','b','c')", GeneratorExit_=[], check_exception=True)
 
     def test_Exception_register(self):
-        self.run_test("def Exception_():\n raise Exception('a','b','c')", Exception_=[])
+        self.run_test("def Exception_():\n raise Exception('a','b','c')", Exception_=[], check_exception=True)
 
     def test_StopIteration_register(self):
-        self.run_test("def StopIteration_():\n raise StopIteration('a','b','c')", StopIteration_=[])
+        self.run_test("def StopIteration_():\n raise StopIteration('a','b','c')", StopIteration_=[], check_exception=True)
 
     def test_StandardError_register(self):
-        self.run_test("def StandardError_():\n raise StandardError('a','b','c')", StandardError_=[])
+        self.run_test("def StandardError_():\n raise StandardError('a','b','c')", StandardError_=[], check_exception=True)
 
     def test_Warning_register(self):
-        self.run_test("def Warning_():\n raise Warning('a','b','c')", Warning_=[])
+        self.run_test("def Warning_():\n raise Warning('a','b','c')", Warning_=[], check_exception=True)
 
     def test_BytesWarning_register(self):
-        self.run_test("def BytesWarning_():\n raise BytesWarning('a','b','c')", BytesWarning_=[])
+        self.run_test("def BytesWarning_():\n raise BytesWarning('a','b','c')", BytesWarning_=[], check_exception=True)
 
     def test_UnicodeWarning_register(self):
-        self.run_test("def UnicodeWarning_():\n raise UnicodeWarning('a','b','c')", UnicodeWarning_=[])
+        self.run_test("def UnicodeWarning_():\n raise UnicodeWarning('a','b','c')", UnicodeWarning_=[], check_exception=True)
 
     def test_ImportWarning_register(self):
-        self.run_test("def ImportWarning_():\n raise ImportWarning('a','b','c')", ImportWarning_=[])
+        self.run_test("def ImportWarning_():\n raise ImportWarning('a','b','c')", ImportWarning_=[], check_exception=True)
 
     def test_FutureWarning_register(self):
-        self.run_test("def FutureWarning_():\n raise FutureWarning('a','b','c')", FutureWarning_=[])
+        self.run_test("def FutureWarning_():\n raise FutureWarning('a','b','c')", FutureWarning_=[], check_exception=True)
 
     def test_UserWarning_register(self):
-        self.run_test("def UserWarning_():\n raise UserWarning('a','b','c')", UserWarning_=[])
+        self.run_test("def UserWarning_():\n raise UserWarning('a','b','c')", UserWarning_=[], check_exception=True)
 
     def test_SyntaxWarning_register(self):
-        self.run_test("def SyntaxWarning_():\n raise SyntaxWarning('a','b','c')", SyntaxWarning_=[])
+        self.run_test("def SyntaxWarning_():\n raise SyntaxWarning('a','b','c')", SyntaxWarning_=[], check_exception=True)
 
     def test_RuntimeWarning_register(self):
-        self.run_test("def RuntimeWarning_():\n raise RuntimeWarning('a','b','c')", RuntimeWarning_=[])
+        self.run_test("def RuntimeWarning_():\n raise RuntimeWarning('a','b','c')", RuntimeWarning_=[], check_exception=True)
 
     def test_PendingDeprecationWarning_register(self):
-        self.run_test("def PendingDeprecationWarning_():\n raise PendingDeprecationWarning('a','b','c')", PendingDeprecationWarning_=[])
+        self.run_test("def PendingDeprecationWarning_():\n raise PendingDeprecationWarning('a','b','c')", PendingDeprecationWarning_=[], check_exception=True)
 
     def test_DeprecationWarning_register(self):
-        self.run_test("def DeprecationWarning_():\n raise DeprecationWarning('a','b','c')", DeprecationWarning_=[])
+        self.run_test("def DeprecationWarning_():\n raise DeprecationWarning('a','b','c')", DeprecationWarning_=[], check_exception=True)
 
     def test_BufferError_register(self):
-        self.run_test("def BufferError_():\n raise BufferError('a','b','c')", BufferError_=[])
+        self.run_test("def BufferError_():\n raise BufferError('a','b','c')", BufferError_=[], check_exception=True)
 
     def test_ArithmeticError_register(self):
-        self.run_test("def ArithmeticError_():\n raise ArithmeticError('a','b','c')", ArithmeticError_=[])
+        self.run_test("def ArithmeticError_():\n raise ArithmeticError('a','b','c')", ArithmeticError_=[], check_exception=True)
 
     @unittest.skip("incompatible with py.test")
     def test_AssertionError_register(self):
-        self.run_test("def AssertionError_():\n raise AssertionError('a','b','c')", AssertionError_=[])
+        self.run_test("def AssertionError_():\n raise AssertionError('a','b','c')", AssertionError_=[], check_exception=True)
 
     def test_AttributeError_register(self):
-        self.run_test("def AttributeError_():\n raise AttributeError('a','b','c')", AttributeError_=[])
+        self.run_test("def AttributeError_():\n raise AttributeError('a','b','c')", AttributeError_=[], check_exception=True)
 
     def test_EnvironmentError4_register(self):
-        self.run_test("def EnvironmentError4_():\n raise EnvironmentError('a','b','c','d')", EnvironmentError4_=[])
+        self.run_test("def EnvironmentError4_():\n raise EnvironmentError('a','b','c','d')", EnvironmentError4_=[], check_exception=True)
 
     def test_EnvironmentError3_register(self):
-        self.run_test("def EnvironmentError3_():\n raise EnvironmentError('a','b','c')", EnvironmentError3_=[])
+        self.run_test("def EnvironmentError3_():\n raise EnvironmentError('a','b','c')", EnvironmentError3_=[], check_exception=True)
 
     def test_EnvironmentError2_register(self):
-        self.run_test("def EnvironmentError2_():\n raise EnvironmentError('a','b')", EnvironmentError2_=[])
+        self.run_test("def EnvironmentError2_():\n raise EnvironmentError('a','b')", EnvironmentError2_=[], check_exception=True)
 
     def test_EnvironmentError1_register(self):
-        self.run_test("def EnvironmentError1_():\n raise EnvironmentError('a')", EnvironmentError1_=[])
+        self.run_test("def EnvironmentError1_():\n raise EnvironmentError('a')", EnvironmentError1_=[], check_exception=True)
 
     def test_EOFError_register(self):
-        self.run_test("def EOFError_():\n raise EOFError('a','b','c')", EOFError_=[])
+        self.run_test("def EOFError_():\n raise EOFError('a','b','c')", EOFError_=[], check_exception=True)
 
     def test_ImportError_register(self):
-        self.run_test("def ImportError_():\n raise ImportError('a','b','c')", ImportError_=[])
+        self.run_test("def ImportError_():\n raise ImportError('a','b','c')", ImportError_=[], check_exception=True)
 
     def test_LookupError_register(self):
-        self.run_test("def LookupError_():\n raise LookupError('a','b','c')", LookupError_=[])
+        self.run_test("def LookupError_():\n raise LookupError('a','b','c')", LookupError_=[], check_exception=True)
 
     def test_MemoryError_register(self):
-        self.run_test("def MemoryError_():\n raise MemoryError('a','b','c')", MemoryError_=[])
+        self.run_test("def MemoryError_():\n raise MemoryError('a','b','c')", MemoryError_=[], check_exception=True)
 
     def test_NameError_register(self):
-        self.run_test("def NameError_():\n raise NameError('a','b','c')", NameError_=[])
+        self.run_test("def NameError_():\n raise NameError('a','b','c')", NameError_=[], check_exception=True)
 
     def test_ReferenceError_register(self):
-        self.run_test("def ReferenceError_():\n raise ReferenceError('a','b','c')", ReferenceError_=[])
+        self.run_test("def ReferenceError_():\n raise ReferenceError('a','b','c')", ReferenceError_=[], check_exception=True)
 
     def test_RuntimeError_register(self):
-        self.run_test("def RuntimeError_():\n raise RuntimeError('a','b','c')", RuntimeError_=[])
+        self.run_test("def RuntimeError_():\n raise RuntimeError('a','b','c')", RuntimeError_=[], check_exception=True)
 
     def test_SyntaxError_register(self):
-        self.run_test("def SyntaxError_():\n raise SyntaxError('a','b','c')", SyntaxError_=[])
+        self.run_test("def SyntaxError_():\n raise SyntaxError('a','b','c')", SyntaxError_=[], check_exception=True)
 
     def test_SystemError_register(self):
-        self.run_test("def SystemError_():\n raise SystemError('a','b','c')", SystemError_=[])
+        self.run_test("def SystemError_():\n raise SystemError('a','b','c')", SystemError_=[], check_exception=True)
 
     def test_TypeError_register(self):
-        self.run_test("def TypeError_():\n raise TypeError('a','b','c')", TypeError_=[])
+        self.run_test("def TypeError_():\n raise TypeError('a','b','c')", TypeError_=[], check_exception=True)
 
     def test_ValueError_register(self):
-        self.run_test("def ValueError_():\n raise ValueError('a','b','c')", ValueError_=[])
+        self.run_test("def ValueError_():\n raise ValueError('a','b','c')", ValueError_=[], check_exception=True)
 
     def test_FloatingPointError_register(self):
-        self.run_test("def FloatingPointError_():\n raise FloatingPointError('a','b','c')", FloatingPointError_=[])
+        self.run_test("def FloatingPointError_():\n raise FloatingPointError('a','b','c')", FloatingPointError_=[], check_exception=True)
 
     def test_OverflowError_register(self):
-        self.run_test("def OverflowError_():\n raise OverflowError('a','b','c')", OverflowError_=[])
+        self.run_test("def OverflowError_():\n raise OverflowError('a','b','c')", OverflowError_=[], check_exception=True)
 
     def test_ZeroDivisionError_register(self):
-        self.run_test("def ZeroDivisionError_():\n raise ZeroDivisionError('a','b','c')", ZeroDivisionError_=[])
+        self.run_test("def ZeroDivisionError_():\n raise ZeroDivisionError('a','b','c')", ZeroDivisionError_=[], check_exception=True)
 
     def test_IOError_register(self):
-        self.run_test("def IOError_():\n raise IOError('a','b','c')", IOError_=[])
+        self.run_test("def IOError_():\n raise IOError('a','b','c')", IOError_=[], check_exception=True)
 
     def test_OSError_register(self):
-        self.run_test("def OSError_():\n raise OSError('a','b','c')", OSError_=[])
+        self.run_test("def OSError_():\n raise OSError('a','b','c')", OSError_=[], check_exception=True)
 
     def test_IndexError_register(self):
-        self.run_test("def IndexError_():\n raise IndexError('a','b','c')", IndexError_=[])
+        self.run_test("def IndexError_():\n raise IndexError('a','b','c')", IndexError_=[], check_exception=True)
 
     def test_KeyError_register(self):
-        self.run_test("def KeyError_():\n raise KeyError('a','b','c')", KeyError_=[])
+        self.run_test("def KeyError_():\n raise KeyError('a','b','c')", KeyError_=[], check_exception=True)
 
     def test_UnboundLocalError_register(self):
-        self.run_test("def UnboundLocalError_():\n raise UnboundLocalError('a','b','c')", UnboundLocalError_=[])
+        self.run_test("def UnboundLocalError_():\n raise UnboundLocalError('a','b','c')", UnboundLocalError_=[], check_exception=True)
 
     def test_NotImplementedError_register(self):
-        self.run_test("def NotImplementedError_():\n raise NotImplementedError('a','b','c')", NotImplementedError_=[])
+        self.run_test("def NotImplementedError_():\n raise NotImplementedError('a','b','c')", NotImplementedError_=[], check_exception=True)
 
     def test_IndentationError_register(self):
-        self.run_test("def IndentationError_():\n raise IndentationError('a','b','c')", IndentationError_=[])
+        self.run_test("def IndentationError_():\n raise IndentationError('a','b','c')", IndentationError_=[], check_exception=True)
 
     def test_TabError_register(self):
-        self.run_test("def TabError_():\n raise TabError('a','b','c')", TabError_=[])
+        self.run_test("def TabError_():\n raise TabError('a','b','c')", TabError_=[], check_exception=True)
 
     def test_UnicodeError_register(self):
-        self.run_test("def UnicodeError_():\n raise UnicodeError('a','b','c')", UnicodeError_=[])
+        self.run_test("def UnicodeError_():\n raise UnicodeError('a','b','c')", UnicodeError_=[], check_exception=True)
 
     def test_multiple_exception_register(self):
-        self.run_test("def multiple_exception_():\n raise OverflowError('a','b','c')", multiple_exception_=[])
+        self.run_test("def multiple_exception_():\n raise OverflowError('a','b','c')", multiple_exception_=[], check_exception=True)
 
     def test_multiple_tuple_exception_register(self):
-        self.run_test("def multiple_tuple_exception_():\n raise OverflowError('a','b','c')", multiple_tuple_exception_=[])
+        self.run_test("def multiple_tuple_exception_():\n raise OverflowError('a','b','c')", multiple_tuple_exception_=[], check_exception=True)
 
     def test_reraise_exception_register(self):
-        self.run_test("def reraise_exception_():\n raise OverflowError('a','b','c')", reraise_exception_=[])
+        self.run_test("def reraise_exception_():\n raise OverflowError('a','b','c')", reraise_exception_=[], check_exception=True)
 
     def test_raiseinst_exception_register(self):
-        self.run_test("def raiseinst_exception_():\n raise OverflowError, ('a','b','c')", raiseinst_exception_=[])
+        self.run_test("def raiseinst_exception_():\n raise OverflowError, ('a','b','c')", raiseinst_exception_=[], check_exception=True)
 
     def test_enverror_exception_register(self):
-        self.run_test("def enverror_exception_():\n raise EnvironmentError('a','b','c')", enverror_exception_=[])
+        self.run_test("def enverror_exception_():\n raise EnvironmentError('a','b','c')", enverror_exception_=[], check_exception=True)
 
     def test_str1_exception_register(self):
-        self.run_test("def str1_exception_():\n raise EnvironmentError('a')", str1_exception_=[])
+        self.run_test("def str1_exception_():\n raise EnvironmentError('a')", str1_exception_=[], check_exception=True)
+
     def test_str2_exception_register(self):
-        self.run_test("def str2_exception_():\n raise EnvironmentError('a','b')", str2_exception_=[])
-    def test_str3_exception_register(self):
-        self.run_test("def str3_exception_():\n raise EnvironmentError('a','b','c')", str3_exception_=[])
+        self.run_test("def str2_exception_():\n raise EnvironmentError('a','b')", str2_exception_=[], check_exception=True)
+
+    def test_str3_exception_register(self), check_exception=True:
+        self.run_test("def str3_exception_():\n raise EnvironmentError('a','b','c')", str3_exception_=[], check_exception=True)
+
     def test_str4_exception_register(self):
-        self.run_test("def str4_exception_():\n raise EnvironmentError('a','b','c','d')", str4_exception_=[])
+        self.run_test("def str4_exception_():\n raise EnvironmentError('a','b','c','d')", str4_exception_=[], check_exception=True)
+
     def test_str5_exception_register(self):
-        self.run_test("def str5_exception_():\n raise EnvironmentError('a','b','c','d','e')", str5_exception_=[])
+        self.run_test("def str5_exception_():\n raise EnvironmentError('a','b','c','d','e')", str5_exception_=[], check_exception=True)
 
     def test_no_msg_exception_register(self):
-        self.run_test("def no_msg_exception_():\n raise IndexError()", no_msg_exception_=[])
+        self.run_test("def no_msg_exception_():\n raise IndexError()", no_msg_exception_=[], check_exception=True)

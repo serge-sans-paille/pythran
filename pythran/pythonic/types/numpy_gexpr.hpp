@@ -166,7 +166,7 @@ namespace pythonic {
                     std::tuple<S const&...> values(s...);
                     init_shape(values, std::get<0>(values), utils::int_<sizeof...(S)>(), utils::int_<0>());
                     for(size_t i = sizeof...(S) - count_long<S...>::value; i < value; ++i)
-                        shape[i] = arg.shape[i];
+                        shape[i] = arg.shape[i + count_long<S...>::value];
                     fix_shape(arg); // This is specialized for numpy_gexpr only
                 }
 

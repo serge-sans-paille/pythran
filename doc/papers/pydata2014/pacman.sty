@@ -1,0 +1,126 @@
+%
+% This package provides a fancy pacman slide counter for beamer
+%
+% author: Serge « sans paille » Guelton <serge.guelton@telecom-bretagne.eu>
+%
+% usage: \usepackage{pacman} redefines the navigation symbols
+%
+% note: the pacman color is the same as the one used by the \struct{} command
+%
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{pacman}
+
+\RequirePackage{pgf}
+\RequirePackage{tikz}
+
+%
+%% body
+
+\newcommand{\drawpacman}[1]{
+ \pgfmathsetmacro{\r}{1}
+ \pgfmathsetmacro{\x}{#1 - 3.7}
+ \draw[draw=structure] (\x*1mm,\r mm) arc [start angle=90, delta angle=180, x radius=\r mm, y radius=\r mm] -- (\x*1mm,-\r mm) ;
+ \draw[draw=structure] (\x*1mm,\r mm) arc [start angle=90, delta angle=-60, x radius=\r mm, y radius=\r mm] -- (\x*1mm,0);
+ \draw[draw=structure] (\x*1mm,-\r mm) arc [start angle=-90, delta angle=60, x radius=\r mm, y radius=\r mm] -- (\x*1mm,0);
+}
+
+\newcommand{\drawpacmanclose}[1]{
+ \pgfmathsetmacro{\r}{1}
+ \pgfmathsetmacro{\x}{#1 - 3.7}
+ \pgfmathsetmacro{\ratio}{\r/1}
+ \draw[draw=structure] (\x*1mm,\ratio mm) arc [start angle=90, delta angle=180, x radius=\r mm, y radius=\r mm] -- (\x*1mm,-\ratio mm) ;
+ \draw[draw=structure] (\x*1mm,\ratio mm) arc [start angle=90, delta angle=-80, x radius=\r mm, y radius=\r mm] -- (\x*1mm,0);
+ \draw[draw=structure] (\x*1mm,-\ratio mm) arc [start angle=-90, delta angle=80, x radius=\r mm, y radius=\r mm] -- (\x*1mm,0);
+}
+
+\makeatletter
+\usenavigationsymbolstemplate{%
+  \ifbeamer@draftmode % donothing under draft mode to save precious time
+  \else % and nothing at the front page
+    \ifnum\insertframestartpage=\insertpagenumber
+      \hypertarget{Frame\insertframenumber}{}
+    \fi
+
+    \ifnum\c@framenumber>1
+      \color{beamerstructure}
+      \resizebox{1.12\linewidth}{!}{
+      \begin{tikzpicture}[font=\tiny]
+        \pgfmathsetmacro{\mynumber}{\inserttotalframenumber}
+        \pgfmathsetmacro{\lastpagenumber}{\mynumber-1}
+        \pgfmathsetmacro{\mylistnumber}{\mynumber-2}
+        \pgfmathsetmacro{\mywidth}{128/(\mynumber+1)}
+        \pgfmathsetmacro{\mycurr}{\insertframenumber}
+        \pgfmathsetmacro{\mynextcurr}{\mycurr+1}
+        \pgfmathsetmacro{\myprevcurr}{\mycurr-1}
+        \pgfmathsetmacro{\intcurr}{floor(\mycurr-1)}
+        \pgfmathsetmacro{\xlast}{\mynumber*\mywidth+2}
+        %HACK offset for 16/10
+        \pgfmathsetmacro{\x}{\mycurr*\mywidth}
+        
+        \pgfmathparse{int(\lastpagenumber)}
+        \pgfmathtruncatemacro\intlastpagenumber{\pgfmathresult}
+        
+        \pgfmathparse{int(\mycurr-2)}
+        \edef\myprevprevcurr{\pgfmathresult}
+        
+        \pgfmathparse{(\intcurr<10) ? "1.4mm" : "1.4mm"}
+        \edef\rpage{\pgfmathresult}
+        \node[text=structure] at (\x*1mm,0)  {  \pgfmathprintnumber{\intcurr}  } ;
+        \draw [red, thick, dotted] (\x*1mm,0) circle [radius=\rpage];
+        \draw [white] (-1*1mm,0) circle [radius=0.0001];
+        
+        \pgfmathparse{mod(\insertpagenumber,2) ? 0 : 1}
+        \pgfmathtruncatemacro\m{\pgfmathresult}
+        \ifnum \m = 0
+          \drawpacmanclose{\x-1}
+        \else
+          \drawpacman{\x-1}
+        \fi
+              
+        \ifnum\c@framenumber<\mynumber
+          % Last frame number
+  
+          \node[text=structure] at (\xlast*1mm+0.4mm,0mm) {  {\hyperlink{Frame\intlastpagenumber}{\pgfmathprintnumber{\lastpagenumber}  } }};
+
+%          \draw [red, thick, dashed] (\xlast*1mm,0) circle (1.4mm); 
+          % Draw small bullet link for each frame
+          \pgfmathparse{(\mynextcurr<=\mylistnumber) ? 1 : 0}
+          \pgfmathtruncatemacro\m{\pgfmathresult}
+          \ifnum \m = 1
+          \foreach \x in {\mycurr,..., \mylistnumber} {
+            \pgfmathparse{mod(\x,10) ? ".4mm" : ".4mm"}
+            \edef\r{\pgfmathresult}
+            \pgfmathparse{int(\x+1)}
+            \edef\f{\pgfmathresult}
+            \pgfmathparse{int(\x)}
+            \edef\intx{\pgfmathresult}
+            \node at (\f*\mywidth*1mm, 0)
+            {\hyperlink{Frame\intx}{\tikz{\draw[draw=structure] (\f*\mywidth*1mm, 0) circle (\r);}}};
+          }
+          \fi
+        \fi
+
+        \pgfmathparse{(\mycurr>2) ? 1 : 0}
+        \pgfmathtruncatemacro\notfirst{\pgfmathresult}
+        \ifnum \notfirst = 1
+        \foreach \x in {1, ..., \myprevprevcurr} {
+          \pgfmathparse{mod(\x,10) ? ".2mm" : ".2mm"}
+          \edef\r{\pgfmathresult}
+          \pgfmathparse{int(\x+1)}
+          \edef\f{\pgfmathresult}
+          \pgfmathparse{int(\x)}
+          \edef\intx{\pgfmathresult}
+          \node at (\f*\mywidth*1mm, 0)
+          {\hyperlink{Frame\intx}{\tikz{\draw[draw=structure] (\f*\mywidth*1mm, 0) circle (\r);}}};
+        }
+        \fi
+      \end{tikzpicture}
+      }
+    \fi
+  \fi
+}
+\makeatother
+
+\ProcessOptions% evenf if none :-)
+\endinput

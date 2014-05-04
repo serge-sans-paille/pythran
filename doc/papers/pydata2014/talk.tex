@@ -621,11 +621,13 @@ def create_fractal(min_x, max_x, min_y, max_y, image, iters):
         \hline
      Tool    &  CPython    &   Numba    &   Pythran  \\
         \hline
-     Timing  &  8170ms   &    56ms       &   83ms  \\
+     Timing  &  8170ms   &    56ms       &   47.2ms  \\
         \hline
-     Speedup & $\times$1 & $\times$145 & $\times$98 \\
+     Speedup & $\times$1 & $\times$145 & $\times$173 \\
     \hline
 \end{tabular}
+
+\scriptsize{"g++ -Ofast" here}
 \end{frame}
 
 \begin{frame}[fragile]

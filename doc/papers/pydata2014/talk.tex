@@ -30,7 +30,7 @@
 
 \title[\texttt{pythran}]{\texttt{Pythran} -- C++ for Snakes\\\emph{\small Static Compiler for High Performance}}
 
-\date{PyData - May 4th 2014}
+\date{\small{PyData - May 4th 2014}}
 
 \institute{}
 
@@ -38,9 +38,9 @@
 
 \begin{frame}
   \maketitle
-
+\vspace{-0.5cm}
   \begin{center}
-    \includegraphics[height=3em]{logo}
+    \includegraphics[height=6em]{logo}
   \end{center}
   \vfill
   \hfill
@@ -307,7 +307,7 @@ template <class Op, class S0, class... SN>
 
 \begin{frame}[fragile]
     \frametitle{Static Compilation}
-    \begin{block}{Buys time for many time-consuming analyse}
+    \begin{block}{Buys time for many time-consuming analyses}
         Points-to, used-def, variable scope, memory effects, function purity\dots
     \end{block}
     \begin{block}{Unleashes powerful C++ optimizations}
@@ -457,7 +457,7 @@ Turn them into Code Optimizations\\
             \begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
 def hyantes(xmin, ymin, xmax, ymax, step, range_, range_x, range_y, t):
   pt = [[0]*range_y for _ in range(range_x)]
-  "omp parallel for"
+  "#omp parallel for"
   for i in xrange(range_x):
     for j in xrange(range_y):
       s = 0
@@ -554,7 +554,7 @@ def run_julia(cr, ci, N, bound, lim, cutoff):
     julia = np.empty((N, N), np.uint32)
     grid_x = np.linspace(-bound, bound, N)
     t0 = time()
-    "omp parallel for"
+    "#omp parallel for"
     for i, x in enumerate(grid_x):
         for j, y in enumerate(grid_x):
             julia[i,j] = kernel(x, y, cr, ci, lim, cutoff)
@@ -784,7 +784,8 @@ def stddev(partitions):
   \hline
   CPython  & 127s       &   150ms  &   54.3ms  & 53.8ms    & 47.6ms & 8.2ms  \\
   \hline
-  Pythran  & 1.38s      &   4.7ms  &   4.8ms   &  5.8ms    &  4.7ms & 1.7ms \\
+  
+  Pythran  & \uncover<2-> {1.38s}      &   \uncover<3-> {4.7ms}  &   \uncover<4-> {4.8ms}   &  \uncover<5-> {5.8ms}    &  \uncover<6-> {4.7ms} & \uncover<7-> {1.7ms} \\
         \hline
     \end{tabular}
 
@@ -815,12 +816,12 @@ def stddev(partitions):
         \uncover<2-> {
         What next: 
         \begin{itemize}
-          \item<+-> Release the PyData version (ooops we're late)
-          \item<+-> User module import (pull request already issued)
-          \item<+-> Set-up an daily performance regression test bot (ongoing work with codespeed)
-          \item<+-> Re-enable vectorization through boost::simd and nt2 (soon)
-          \item<+-> More Numpy support, start looking into Scipy
-          \item<+-> Polyhedral transformations (for my next life...)
+          \item<3-> Release the PyData version \scriptsize{(ooops we're late)}
+          \item<4-> User module import \scriptsize{(pull request already issued)}
+          \item<5-> Set-up an daily performance regression test bot \scriptsize{(ongoing work with codespeed)}
+          \item<6-> Re-enable vectorization through boost::simd and nt2 \scriptsize{(soon)}
+          \item<7-> More Numpy support, start looking into Scipy
+          \item<8-> Polyhedral transformations \scriptsize{(in another life...)}
         \end{itemize}
         }
         \vfill

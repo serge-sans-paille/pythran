@@ -11,7 +11,12 @@ namespace pythonic {
         {
             if(not self)
                 return self;
-            return types::str(self.begin() + self.find_first_not_of(to_del), self.begin() + self.find_last_not_of(to_del) + 1);
+            auto first = self.find_first_not_of(to_del);
+            if(first == types::str::npos)
+                return types::str();
+            else {
+            return types::str(self.begin() + first, self.begin() + self.find_last_not_of(to_del)+ 1);
+            }
         }
         PROXY(pythonic::__str__, strip);
 

@@ -20,4 +20,4 @@ def range_extract(lst):
         i += 1
 
 def test_range_extract(on):
-    return [range_extract(i) for i in on]
+    return [list(range_extract(i)) for i in on]

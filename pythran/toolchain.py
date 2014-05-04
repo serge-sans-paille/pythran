@@ -234,9 +234,11 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
                                                     internal_func_name,
                                                     "<{0}>".format(args_list)
                                                     if has_arguments else "")
-                result_type = ("typename std::remove_reference"
+                result_type = ("typename std::remove_cv<"
+                               + "typename std::remove_reference"
                                + "<typename {0}::result_type>::type".format(
-                                 specialized_fname))
+                                 specialized_fname)
+                               + ">::type")
                 mod.add_to_init(
                     [Statement("pythonic::python_to_pythran<{0}>()".format(t))
                      for t in _extract_all_constructed_types(signature)])

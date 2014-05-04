@@ -6,6 +6,7 @@
 \usepackage{amsmath, amsfonts, wasysym}
 \usepackage{xcolor}
 \usepackage{listings}
+\usepackage{ulem}
 \definecolor{darkgreen}{rgb}{.1,.7,.1}
 \definecolor{darkred}{rgb}{.7,.1,.1}
 \definecolor{darkblue}{rgb}{.1,.1,.7}
@@ -64,10 +65,10 @@
 \begin{frame}[fragile]
     \frametitle{Disclaimer}
 
-All timings were performed using OSX 10.9, an i7-3740QM CPU @ 2.70GHz, Python 2.7.6, current Pythran (c7de8b9c), pypy 2.2.1, numba 0.13.1, gcc 4.8, Clang r207887.
+Timings were performed using OSX 10.9, an i7-3740QM CPU @ 2.70GHz, Python 2.7.6, current Pythran (branch Pydata2014), pypy 2.2.1, numba 0.13.1, gcc 4.8, Clang r207887.
 \vfill
 I am \textbf{not} Pythonista, but I'm interested in performance in general. 
-Daily job: driver-level C code, assembly, multi-threaded C++, GPU, ...
+\\ Daily job: driver-level C code, assembly, multi-threaded C++, GPU, ...
 \vfill
 \uncover<2->{
 \begin{minipage}{0.4\textwidth}
@@ -82,9 +83,11 @@ about how awful Python is! ;-)}
 \end{minipage}
 }
 \vfill
-\uncover<4->{
+\uncover<3->{
+\scriptsize{
   By the way this talk is written in Latex and takes more than 10 seconds to
-  \textbf{compile}. 
+  \textbf{compile}.
+}
 }
 \end{frame}
 
@@ -457,7 +460,7 @@ Turn them into Code Optimizations\\
             \begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
 def hyantes(xmin, ymin, xmax, ymax, step, range_, range_x, range_y, t):
   pt = [[0]*range_y for _ in range(range_x)]
-  "#omp parallel for"
+  #omp parallel for
   for i in xrange(range_x):
     for j in xrange(range_y):
       s = 0
@@ -554,7 +557,7 @@ def run_julia(cr, ci, N, bound, lim, cutoff):
     julia = np.empty((N, N), np.uint32)
     grid_x = np.linspace(-bound, bound, N)
     t0 = time()
-    "#omp parallel for"
+    #omp parallel for
     for i, x in enumerate(grid_x):
         for j, y in enumerate(grid_x):
             julia[i,j] = kernel(x, y, cr, ci, lim, cutoff)
@@ -808,17 +811,18 @@ def stddev(partitions):
     Available on PyPI, using Python 2.7, +2000 test cases, PEP8 approved, clang++ \& g++ ($>=4.8$) friendly, Linux and OSX validated.
 \end{frame}
 
-\begin{frame}{Conclusions}
-    \hfill\tiny{\url{http://pythonhosted.org/pythran/}}
+\begin{frame}[fragile]{Conclusion}
     \normalsize
-    \begin{center}
         \vfill
         Compiling Python means more than typing and translating\\
         \vfill
         \uncover<2-> {
+        \vfill
         What next: 
+        \vfill
         \begin{itemize}
-          \item<3-> Release the PyData version \scriptsize{(ooops we're late)}
+          \item<2-> Release the PyData version  
+          \only<3>{\scriptsize{(ooops we're late)}} \only<4-> {\scriptsize{(\sout{ooops we're late} I did not specify which year)}}
           \item<4-> User module import \scriptsize{(pull request already issued)}
           \item<5-> Set-up an daily performance regression test bot \scriptsize{(ongoing work with codespeed)}
           \item<6-> Re-enable vectorization through boost::simd and nt2 \scriptsize{(soon)}
@@ -831,7 +835,7 @@ def stddev(partitions):
         %     Need a compiler guy / HPC Engineer? I am looking for a job!\\
         % }
         \vfill
-    \end{center}
+    \hfill\tiny{\url{http://pythonhosted.org/pythran/}}
 \end{frame}
 
 

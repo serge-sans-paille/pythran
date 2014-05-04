@@ -1,6 +1,6 @@
 #from http://rosettacode.org/wiki/Read_a_configuration_file#Python
 #pythran export readconf(str)
-#runas readconf("read_conf.cfg")
+#runas readconf("tests/rosetta/read_conf.cfg")
 
 def readconf(fn):
     ret = {}

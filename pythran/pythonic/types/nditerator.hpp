@@ -20,7 +20,7 @@ namespace pythonic {
                 /* we would like to return E::value_type, but this currently fails. So let's the auto magic do the trick */
                 auto operator*() -> decltype(data.fast(index)) { return data.fast(index); }
                 nditerator<E>& operator++() { ++index; return *this;}
-                nditerator<E>& operator--() { ++index; return *this;}
+                nditerator<E>& operator--() { --index; return *this;}
                 nditerator<E>& operator+=(long i) { index += i; return *this;}
                 nditerator<E>& operator-=(long i) { index -= i; return *this;}
                 nditerator<E> operator+(long i) const { nditerator<E> other(*this); other += i; return other; }
@@ -51,12 +51,12 @@ namespace pythonic {
                 // TODO: This "auto" is different than E::value_type, which is weird (if not wrong)
                 auto operator*() -> decltype(data.fast(index)) { return data.fast(index); }
                 const_nditerator<E>& operator++() { ++index; return *this;}
-                const_nditerator<E>& operator--() { ++index; return *this;}
+                const_nditerator<E>& operator--() { --index; return *this;}
                 const_nditerator<E>& operator+=(long i) { index +=  i; return *this;}
                 const_nditerator<E>& operator-=(long i) { index -=  i; return *this;}
                 const_nditerator<E> operator+(long i) const { const_nditerator<E> other(*this); other += i; return other; }
                 const_nditerator<E> operator-(long i) const { const_nditerator<E> other(*this); other -= i; return other; }
-                long operator-(const_nditerator<E> const& other) const { 
+                long operator-(const_nditerator<E> const& other) const {
                     return index - other.index;
                 }
                 bool operator!=(const_nditerator<E> const& other) const {

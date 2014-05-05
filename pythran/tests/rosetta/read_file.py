@@ -3,4 +3,4 @@
 #runas readfile()
 
 def readfile():
-    return open("read_conf.cfg").read()
+    return open("rosetta/read_conf.cfg").read()

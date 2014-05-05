@@ -166,13 +166,13 @@ namespace pythonic {
                     std::tuple<S const&...> values(s...);
                     init_shape(values, std::get<0>(values), utils::int_<sizeof...(S)>(), utils::int_<0>());
                     for(size_t i = sizeof...(S) - count_long<S...>::value; i < value; ++i)
-                        shape[i] = arg.shape[i];
+                        shape[i] = arg.shape[i + count_long<S...>::value];
                     fix_shape(arg); // This is specialized for numpy_gexpr only
                 }
 
 
                 template<class Argp, class... Sp>
-                numpy_gexpr(numpy_gexpr<Argp, Sp...> const &expr, Arg &&arg) : arg(std::move(arg)), buffer(arg.buffer) {
+                numpy_gexpr(numpy_gexpr<Argp, Sp...> const &expr, Arg &&arg) : arg(std::forward<Arg>(arg)), buffer(arg.buffer) {
                     std::copy(expr.shape.begin()+1, expr.shape.end(), shape.begin());
                     std::copy(expr.lower.begin()+1, expr.lower.end(), lower.begin());
                     std::copy(expr.step.begin()+1, expr.step.end(), step.begin());
@@ -180,7 +180,7 @@ namespace pythonic {
                 }
 
                 template<class G>
-                numpy_gexpr(G const &expr, Arg &&arg) : arg(std::move(arg)), buffer(arg.buffer) {
+                numpy_gexpr(G const &expr, Arg &&arg) : arg(std::forward<Arg>(arg)), buffer(arg.buffer) {
                     std::copy(expr.shape.begin()+1, expr.shape.end(), shape.begin());
                     std::copy(expr.lower.begin()+1, expr.lower.end(), lower.begin());
                     std::copy(expr.step.begin()+1, expr.step.end(), step.begin());
@@ -311,7 +311,7 @@ namespace pythonic {
                     typedef numpy_gexpr<Arg, contiguous_slice, S...> type;
                     template<class E, class F>
                         static type get(E const& e, F && f) {
-                            return type(e, std::move(f));
+                            return type(e, std::forward<F>(f));
                         }
                 };
 
@@ -322,7 +322,7 @@ namespace pythonic {
                     typedef numpy_gexpr<Arg, slice, S...> type;
                     template<class E, class F>
                         static type get(E const& e, F && f) {
-                            return type(e, std::move(f));
+                            return type(e, std::forward<F>(f));
                         }
                 };
 
@@ -334,13 +334,13 @@ namespace pythonic {
                         static auto get(E const& e, F && f)
                         -> decltype(finalize_numpy_gexpr_helper<N + 1, numpy_iexpr<Arg>, S...>::get(e, std::declval<numpy_iexpr<Arg>>()))
                         {
-                            return finalize_numpy_gexpr_helper<N + 1, numpy_iexpr<Arg>, S...>::get(e, numpy_iexpr<Arg>(std::move(f), e.indices[N]));
+                            return finalize_numpy_gexpr_helper<N + 1, numpy_iexpr<Arg>, S...>::get(e, numpy_iexpr<Arg>(std::forward<F>(f), e.indices[N]));
                         }
                     template<class E, class F>
                         static auto get(E & e, F && f)
                         -> decltype(finalize_numpy_gexpr_helper<N + 1, numpy_iexpr<Arg>, S...>::get(e, std::declval<numpy_iexpr<Arg>&>()))
                         {
-                            numpy_iexpr<Arg> iexpr(std::move(f), e.indices[N]);
+                            numpy_iexpr<Arg> iexpr(std::forward<F>(f), e.indices[N]);
                             return finalize_numpy_gexpr_helper<N + 1, numpy_iexpr<Arg>, S...>::get(e, iexpr);
                         }
                 };
@@ -350,15 +350,15 @@ namespace pythonic {
                 struct finalize_numpy_gexpr_helper<N, Arg, long> {
                     template<class E, class F>
                         static auto get(E const& e, F const & f)
-                        -> decltype(numpy_iexpr_helper<Arg::value>::get(f, 0))
+                        -> decltype(numpy_iexpr_helper<F, Arg::value>::get(f, 0))
                         {
-                            return numpy_iexpr_helper<Arg::value>::get(f, e.indices[N]);
+                            return numpy_iexpr_helper<F, Arg::value>::get(f, e.indices[N]);
                         }
                     template<class E, class F>
                         static auto get(E const& e, F & f)
-                        -> decltype(numpy_iexpr_helper<Arg::value>::get(f, 0))
+                        -> decltype(numpy_iexpr_helper<F, Arg::value>::get(f, 0))
                         {
-                            return numpy_iexpr_helper<Arg::value>::get(f, e.indices[N]);
+                            return numpy_iexpr_helper<F, Arg::value>::get(f, e.indices[N]);
                         }
                 };
         }
@@ -382,29 +382,29 @@ namespace pythonic {
         template <class Arg, class S>
             struct numpy_gexpr_helper<Arg, S, long> {
                 static auto get(numpy_gexpr<Arg, S, long> const& e, long i)
-                    -> decltype(numpy_iexpr_helper<numpy_iexpr<Arg>::value>::get(std::declval<numpy_iexpr<Arg>>(), 0))
+                    -> decltype(numpy_iexpr_helper<numpy_iexpr<Arg>, numpy_iexpr<Arg>::value>::get(std::declval<numpy_iexpr<Arg>>(), 0))
                 {
-                    return numpy_iexpr_helper<numpy_iexpr<Arg>::value>::get(numpy_iexpr<Arg>(e.arg, i), e.indices[0]);
+                    return numpy_iexpr_helper<numpy_iexpr<Arg>, numpy_iexpr<Arg>::value>::get(numpy_iexpr<Arg>(e.arg, i), e.indices[0]);
                 }
                 static auto get(numpy_gexpr<Arg, S, long> & e, long i)
-                    -> decltype(numpy_iexpr_helper<numpy_iexpr<Arg>::value>::get(std::declval<numpy_iexpr<Arg>&>(), 0))
+                    -> decltype(numpy_iexpr_helper<numpy_iexpr<Arg>, numpy_iexpr<Arg>::value>::get(std::declval<numpy_iexpr<Arg>&>(), 0))
                 {
                     numpy_iexpr<Arg> iexpr(e.arg, i);
-                    return numpy_iexpr_helper<numpy_iexpr<Arg>::value>::get(iexpr, e.indices[0]);
+                    return numpy_iexpr_helper<numpy_iexpr<Arg>, numpy_iexpr<Arg>::value>::get(iexpr, e.indices[0]);
                 }
             };
 
         template <class Arg, class S>
-            struct numpy_gexpr_helper<Arg, S> : numpy_iexpr_helper<numpy_gexpr<Arg, S>::value> {
+            struct numpy_gexpr_helper<Arg, S> : numpy_iexpr_helper<numpy_gexpr<Arg, S>, numpy_gexpr<Arg, S>::value> {
             };
 
     }
-
     template<class Arg, class...S>
         struct assignable<types::numpy_gexpr<Arg, S...>>
         {
             typedef types::numpy_gexpr<typename assignable<Arg>::type, S...> type;
         };
+
     template<class Arg, class... S>
         struct lazy<types::numpy_gexpr<Arg, S...>>
         {

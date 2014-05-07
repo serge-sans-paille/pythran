@@ -341,7 +341,7 @@ namespace pythonic {
                 /* from a  numpy expression */
                 template<class E>
                     void initialize_from_expr(E const & expr) {
-                        std::copy(expr.begin(), expr.end(), begin());
+                        utils::broadcast_copy(*this, expr, utils::int_<0>());
                     }
 
                 template<class Op, class Arg0, class Arg1>

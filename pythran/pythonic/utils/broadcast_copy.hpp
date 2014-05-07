@@ -3,9 +3,17 @@
 
 #include "pythonic/types/tuple.hpp"
 
+#ifdef _OPENMP
+#include <omp.h>
+#ifndef PYTHRAN_OPENMP_MIN_ITERATION_COUNT
+#define PYTHRAN_OPENMP_MIN_ITERATION_COUNT 1000
+#endif
+#endif
+
 namespace pythonic {
 
     namespace utils {
+
         /* helper function to get the dimension of an array
          * yields 0 for scalar types
          */
@@ -33,15 +41,42 @@ namespace pythonic {
          */
         template<class E, class F>
             E& broadcast_copy(E& self, F const& other, utils::int_<0>) {
-                auto siter = self.begin(), send = self.end();
-                do {
-                    siter = std::copy(other.begin(), other.end(), siter);
-                } while(siter != send);
+#ifdef _OPENMP
+                size_t n = self.end() - self.begin();
+                size_t m = other.end() - other.begin();
+                if(n>=PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
+                {
+                    //TODO Check if specialisation for self.length() == other.length() is not better...
+                    #pragma omp parallel for collapse(2)
+                    for(size_t i = 0; i < n/m; ++i)
+                        for(size_t j = 0; j < m; ++j)
+                            self[i*m+j] = other[j];
+                }
+                else
+#endif
+                {
+                    auto siter = self.begin(), send = self.end();
+                    do {
+                        siter = std::copy(other.begin(), other.end(), siter);
+                    } while(siter != send);
+                }
                 return self;
             }
         template<class E, class F, size_t N>
             E& broadcast_copy(E& self, F const& other, utils::int_<N>) {
+#ifdef _OPENMP
+                size_t n = self.end() - self.begin();
+                if(n>=PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
+                {
+                #pragma omp parallel for
+                for(size_t i = 0; i< n; ++i)
+                    self[i] = other;
+                }
+                else
+                    std::fill(self.begin(), self.end(), other);
+#else
                 std::fill(self.begin(), self.end(), other);
+#endif
                 return self;
             }
 

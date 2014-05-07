@@ -3,9 +3,17 @@
 
 #include "pythonic/types/tuple.hpp"
 
+#ifdef _OPENMP
+#include <omp.h>
+#ifndef PYTHRAN_OPENMP_MIN_ITERATION_COUNT
+#define PYTHRAN_OPENMP_MIN_ITERATION_COUNT 1000
+#endif
+#endif
+
 namespace pythonic {
 
     namespace utils {
+
         /* helper function to get the dimension of an array
          * yields 0 for scalar types
          */
@@ -33,12 +41,36 @@ namespace pythonic {
          */
         template<class E, class F>
             E& broadcast_copy(E& self, F const& other, utils::int_<0>) {
+#ifdef _OPENMP
+                size_t n = self.end() - self.begin();
+                if(n>=PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
+                {
+                    #pragma omp parallel for
+                    for(size_t i = 0; i< n; ++i)
+                        self[i] = other[i];
+                }
+                else
+                    std::copy(other.begin(), other.end(), self.begin());
+#else
                 std::copy(other.begin(), other.end(), self.begin());
+#endif
                 return self;
             }
         template<class E, class F, size_t N>
             E& broadcast_copy(E& self, F const& other, utils::int_<N>) {
+#ifdef _OPENMP
+                size_t n = self.end() - self.begin();
+                if(n>=PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
+                {
+                #pragma omp parallel for
+                for(size_t i = 0; i< n; ++i)
+                    self[i] = other;
+                }
+                else
+                    std::fill(self.begin(), self.end(), other);
+#else
                 std::fill(self.begin(), self.end(), other);
+#endif
                 return self;
             }
 

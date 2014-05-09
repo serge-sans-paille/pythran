@@ -65,6 +65,23 @@ class ConstantFolding(Transformation):
                         self.env['__builtin__'],
                         module_name.strip('_'))
 
+            # hack to handle int_, bool_, ... builtins functions
+            builtin_types = ("__list__", "__set__", "__dict__", "__str__",
+                             "__file__", "__exception__", "__dispatch__",
+                             "__iterator__")
+            if module_name not in builtin_types:
+                for fun in modules[module_name]:
+                    if fun == "__theitemgetter__":
+                        # I have no idea about how return_call work and what is
+                        # the trick here...
+                        continue
+                    # Set attributs pointing to another for C++ keyword
+                    # case of __builtin__.int_ that point on __builtin__.int
+                    elif (not hasattr(self.env[module_name], fun)
+                          and fun.endswith("_")):
+                        setattr(self.env[module_name], fun,
+                                getattr(self.env[module_name], fun.strip("_")))
+
         # we need to parse the whole code to be able to apply user-defined pure
         # function but import are resolved before so we remove them to avoid
         # ImportError (for operator_ for example)
@@ -152,9 +169,8 @@ class ConstantFolding(Transformation):
             except ConstantFolding.ToNotEval:
                 return Transformation.generic_visit(self, node)
             except AttributeError as e:
-                # FIXME expression that use int, bool, float, ... operators
-                # are not processed by constant folding
-                if e.args[0][-2] == "_":
+                # FIXME union_ function is not handle by constant folding
+                if "union_" in e.args[0]:
                     return Transformation.generic_visit(self, node)
                 raise
             except NameError as e:

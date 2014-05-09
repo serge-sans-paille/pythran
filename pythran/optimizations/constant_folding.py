@@ -42,6 +42,7 @@ class ConstantFolding(Transformation):
         Transformation.__init__(self, ConstantExpressions, Aliases)
 
     def prepare(self, node, ctx):
+        assert(isinstance(node, ast.Module))
         self.env = {'__builtin__': __import__('__builtin__')}
 
         for module_name in modules:
@@ -56,29 +57,21 @@ class ConstantFolding(Transformation):
                     import_name = module_name[:-1]
                 self.env[module_name] = __import__(import_name)
             elif module_name not in not_builtin:
-                if module_name == "__ndarray__":
-                    self.env["numpy"] = __import__("numpy")
-                    self.env[module_name] = numpy.ndarray
+                if module_name in ("__ndarray__", "__finfo__"):
+                    self.env[module_name] = \
+                        eval("numpy." + module_name.strip("_"))
                 else:
-                    try:
-                        self.env[module_name] = \
-                            __import__(module_name.strip('_'))
-                    except:
-                        try:
-                            # should try from another package than builtin,
-                            # e.g. for ndarray
-                            self.env[module_name] = getattr(
-                                self.env['__builtin__'],
-                                module_name.strip('_'))
-                        except:
-                            pass
+                    self.env[module_name] = getattr(
+                        self.env['__builtin__'],
+                        module_name.strip('_'))
 
-        try:
-            eval(compile(node, '<constant_folding>', 'exec'), self.env)
-        except Exception as e:
-            print ast.dump(node)
-            print 'error in constant folding: ', e
-            pass
+        # we need to parse the whole code to be able to apply user-defined pure
+        # function but import are resolved before so we remove them to avoid
+        # ImportError (for operator_ for example)
+        dummy_module = ast.Module([s for s in node.body
+                                   if not isinstance(s, ast.Import)])
+        eval(compile(dummy_module, '<constant_folding>', 'exec'), self.env)
+
         super(ConstantFolding, self).prepare(node, ctx)
 
     def to_ast(self, value):

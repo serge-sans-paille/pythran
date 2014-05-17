@@ -1,0 +1,21 @@
+2014-05-17 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+
+	* Improved C++ compilation time (twice as fast)
+
+	* Efficient extended slicing
+
+	* Support most numpy dtype ([u]int8,..., [u]int64, float32, float64)
+
+	* Support indexing array through boolean array
+
+	* Add a nice Pythran logo :-)
+
+	* Improve validation *a lot*
+
+	* Reduce native module loading overhead
+
+	* Forward substitution implementation
+
+	* More numpy support and *many* bug fixes!
+
+	* Remove array auto vectorization/parallelization

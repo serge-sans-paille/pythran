@@ -1,6 +1,5 @@
 #from http://rosettacode.org/wiki/Pick_random_element#Python
 #pythran export test()
-#runas test()
 
 def test():
     import random

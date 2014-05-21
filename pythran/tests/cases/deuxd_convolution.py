@@ -1,5 +1,6 @@
 #pythran export conv(float[][], float[][])
 #runas import numpy as np ; x = np.tri(300,300)*0.5 ; w = np.tri(5,5)*0.25 ; conv(x,w)
+#bench import numpy as np ; x = np.tri(150,150)*0.5 ; w = np.tri(5,5)*0.25 ; conv(x,w)
 import numpy as np
 
 def clamp(i, offset, maxval):

@@ -1,5 +1,6 @@
 # from https://github.com/sklam/numba-example-wavephysics
 #runas test(50)
+#bench test(55000)
 import numpy as np
 from math import ceil
 

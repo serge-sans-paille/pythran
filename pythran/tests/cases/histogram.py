@@ -1,5 +1,6 @@
 #pythran export histogram(float list, int)
 #runas histogram([ (i*1.1+j*2.3)%10 for i in xrange(100) for j in xrange(100) ],10)
+#bench histogram([ (i*1.1+j*2.3)%10 for i in xrange(1000) for j in xrange(2000) ],10)
 def histogram(data, bin_width):
     lower_bound, upper_bound = min(data), max(data)
     out_data=[0]*(1+bin_width)

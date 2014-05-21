@@ -1,6 +1,7 @@
 # Reference: http://continuum.io/blog/the-python-and-the-complied-python
 #pythran export diffusePurePython(float [][], float [][], int)
 #runas import numpy as np;lx,ly=(2**7,2**7);u=np.zeros([lx,ly],dtype=np.double);u[lx/2,ly/2]=1000.0;tempU=np.zeros([lx,ly],dtype=np.double);diffusePurePython(u,tempU,500)
+#bench import numpy as np;lx,ly=(2**6,2**6);u=np.zeros([lx,ly],dtype=np.double);u[lx/2,ly/2]=1000.0;tempU=np.zeros([lx,ly],dtype=np.double);diffusePurePython(u,tempU,55)
 
 import numpy as np
 

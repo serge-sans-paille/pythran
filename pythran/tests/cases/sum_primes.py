@@ -1,6 +1,7 @@
 # taken from http://oddbloke.uwcs.co.uk/parallel_benchmarks/
 #pythran export sum_primes(int)
 #runas sum_primes(200)
+#bench sum_primes(320000)
 import math
 def isprime(n):
     """Returns True if n is prime and False otherwise"""

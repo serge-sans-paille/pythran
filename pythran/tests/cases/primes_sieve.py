@@ -3,6 +3,7 @@
 
 #pythran export primes_sieve(int)
 #runas primes_sieve(100)
+#bench primes_sieve(6000000)
 def primes_sieve(limit):
     a = [True] * limit                          # Initialize the primality list
     a[0] = a[1] = False

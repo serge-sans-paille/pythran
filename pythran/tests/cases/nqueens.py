@@ -1,3 +1,4 @@
+#bench n_queens(9)
 #runas n_queens(6)
 #pythran export n_queens(int)
 

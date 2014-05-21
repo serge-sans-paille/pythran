@@ -1,5 +1,7 @@
 #from http://continuum.io/blog/numba_performance
 #runas test(50)
+#bench test(28)
+
 import math
 import numpy as np
 def window_floor(idx, radius):
@@ -65,4 +67,4 @@ def test(N):
     # colony 0 is strength 0 at all other positions
     state[0, 0, 0] = 1
     state[0, 0, 1] = 1
-    python_kernel(image, state, state_next, 10)
+    return python_kernel(image, state, state_next, 10)

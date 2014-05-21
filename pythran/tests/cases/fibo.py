@@ -1,5 +1,6 @@
 #pythran export test(int)
 #runas test(12)
+#bench test(33)
 def rfibo(n):
     if n < 2: return n
     else:

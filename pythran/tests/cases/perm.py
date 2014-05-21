@@ -1,5 +1,6 @@
 #pythran export permutations(int list)
 #runas permutations([1,4,5,6,12])
+#bench in_ = range(9); permutations(in_)
 def permutations(iterable):
     """permutations(range(3), 2) --> (0,1) (0,2) (1,0) (1,2) (2,0) (2,1)"""
     out=[]

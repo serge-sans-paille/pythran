@@ -1,5 +1,6 @@
 #from parakeet testbed
 #runas import numpy as np ; M, N = 4, 6 ; I = np.arange(M*N, dtype=np.float64).reshape(M,N) ; harris(I)
+#bench import numpy as np ; M, N = 6000, 4000 ; I = np.arange(M*N, dtype=np.float64).reshape(M,N) ; harris(I)
 
 #pythran export harris(float64[][])
 import numpy as np

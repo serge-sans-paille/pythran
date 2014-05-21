@@ -1,4 +1,5 @@
 #runas run_extrema(10,[1.2,3.4,5.6,7.8,9.0,2.1,4.3,5.4,6.5,7.8])
+#bench import random; n=3000000; a = [random.random() for i in xrange(n)]; run_extrema(n, a)
 #pythran export run_extrema(int, float list)
 def extrema_op(a, b):
     a_min_idx, a_min_val, a_max_idx, a_max_val = a

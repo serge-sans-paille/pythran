@@ -2,6 +2,7 @@
 
 #pythran export factorize_naive(long)
 #runas factorize_naive(12222L)
+#bench factorize_naive(3241618756762348687L)
 def factorize_naive(n):
     """ A naive factorization method. Take integer 'n', return list of
         factors.

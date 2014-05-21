@@ -2,6 +2,7 @@
 # taken from http://www.ripton.net/blog/?p=51
 #pythran export euler14(int)
 #runas euler14(1000000)
+#bench euler14(650000)
 
 """Project Euler, problem 14
 

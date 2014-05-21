@@ -3,6 +3,7 @@
 #skip.pythran export dilate_decompose_interior(int[][], int[][])
 #skip.runas import numpy as np ; image = np.random.randint(0, 256,  (width, height)) / 256.0 ; dilate_decompose_loops(image)
 #runas import numpy as np ; image = np.tri(100, 200) /2.0 ; dilate_decompose_loops(image, 4)
+#bench import numpy as np ; image = np.tri(500, 600) /2.0 ; dilate_decompose_loops(image, 4)
 
 from numpy import empty_like
 

@@ -46,23 +46,14 @@ namespace pythonic {
                 {
                 }
 
-                void init_buffer(long index) {
-                    auto siter = shape.begin();
-                    //accumulate the shape to jump to index position. Not done with std::accumulate
-                    //as we want to copy the shape at the same time.
-                    for(auto iter = arg.shape.begin() + 1, end = arg.shape.end(); iter != end; ++iter, ++siter)
-                        index *= *siter = *iter;
-                    buffer += index;
-                }
-
                 numpy_iexpr(Arg const & arg, long index) : arg(arg), buffer(arg.buffer)
                 {
-                    init_buffer(index);
+                    buffer += buffer_offset(index, utils::int_<value>());
                 }
                 // force the move. Using universal reference here does not work (because of reference collapsing ?)
                 numpy_iexpr(typename std::remove_reference<Arg>::type &&arg, long index) : arg(std::move(arg)), buffer(arg.buffer)
                 {
-                    init_buffer(index);
+                    buffer += buffer_offset(index, utils::int_<value>());
                 }
 
                 template<class E>
@@ -196,6 +187,22 @@ namespace pythonic {
                     }
 
                 long size() const { return /*arg.size()*/ std::accumulate(shape.begin() + 1, shape.end(), *shape.begin(), std::multiplies<long>()); }
+
+                private:
+
+                /* compute the buffer offset, returning the offset between the
+                 * first element of the iexpr and the start of the buffer.
+                 * This used to be a plain loop, but g++ fails to unroll it, while it unrolls it with the template version...
+                 */
+                long buffer_offset(long index, utils::int_<0>) { return index;
+                }
+
+                template<size_t N>
+                long buffer_offset(long index, utils::int_<N>) {
+                    shape[value - N] = arg.shape[value - N + 1];
+                    return buffer_offset(index * arg.shape[value - N + 1], utils::int_<N - 1>());
+                }
+
             };
 
         // Indexing an numpy_iexpr that has a dimension greater than one yields a new numpy_iexpr

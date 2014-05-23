@@ -10,11 +10,7 @@ namespace pythonic {
         template<class T, size_t N>
             types::ndarray<T, 1>
             flatten(types::ndarray<T,N> const& a) {
-                long n = a.size();
-                T *buffer = new T[n];
-                std::copy(a.buffer, a.buffer + n, buffer);
-                long shape[1] = {n};
-                return types::ndarray<T, 1>(buffer, shape);
+                return types::ndarray<T, 1>(a.mem, {a.size()});
             }
 
         PROXY(pythonic::__ndarray__, flatten);

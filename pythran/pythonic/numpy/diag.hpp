@@ -11,7 +11,7 @@ namespace pythonic {
     namespace numpy {
         template<class T>
             types::ndarray<T,1> diag(types::ndarray<T,2> const &a, long k=0) {
-                T* buffer = new T[std::max(a.shape[0], a.shape[1])];
+                T* buffer = (T*)malloc(std::max(a.shape[0], a.shape[1]) * sizeof(T));
                 long shape[1] = {0};
                 auto iter = buffer;
                 if(k>=0)

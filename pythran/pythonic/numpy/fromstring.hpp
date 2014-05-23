@@ -34,7 +34,7 @@ namespace pythonic {
                 else {
                     if(count <0) count = string.size();
                     long shape[1] = { count };
-                    typename types::numpy_type<dtype>::type* buffer = new typename types::numpy_type<dtype>::type[shape[0]];
+                    typename types::numpy_type<dtype>::type* buffer = (typename types::numpy_type<dtype>::type*)malloc(shape[0] * sizeof(typename types::numpy_type<dtype>::type));
                     typename types::numpy_type<dtype>::type const* tstring = reinterpret_cast<typename types::numpy_type<dtype>::type const*>(string.c_str());
                     std::copy(tstring, tstring + shape[0], buffer);
                     return types::ndarray<typename types::numpy_type<dtype>::type,1>(buffer, shape);

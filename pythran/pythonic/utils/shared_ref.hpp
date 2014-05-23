@@ -3,17 +3,27 @@
 
 #include <memory>
 #include <utility>
+#include <unordered_map>
 #ifdef _OPENMP
 #include <atomic>
 #endif
+#ifdef ENABLE_PYTHON_MODULE
+#include <boost/python/object.hpp>
+#endif
 
 namespace pythonic {
+#ifdef ENABLE_PYTHON_MODULE
+    typedef PyObject* extern_type;
+#else
+    typedef void* extern_type;
+#endif
 
 #ifdef _OPENMP
     typedef std::atomic_size_t atomic_size_t;
 #else
     typedef size_t atomic_size_t;
 #endif
+
 
     namespace utils {
 
@@ -38,36 +48,38 @@ namespace pythonic {
                     } *mem;
 
                 public:
+                    //This attributs exists for non-Python code to avoid #ifdef everywhere
+                    extern_type foreign;
 
                     // Uninitialized ctor
                     shared_ref(no_memory const&) noexcept
-                        : mem(nullptr)
+                        : mem(nullptr), foreign(nullptr)
                         {}
                     // Uninitialized ctor (rvalue ref)
                     shared_ref(no_memory &&) noexcept
-                        : mem(nullptr)
+                        : mem(nullptr), foreign(nullptr)
                         {}
 
                     // Ctor allocate T and forward all arguments to T ctor
                     template<class... Types>
                         shared_ref(Types&&... args)
-                        : mem( new memory(std::forward<Types>(args)...) )
+                        : mem( new memory(std::forward<Types>(args)...) ), foreign(nullptr)
                         {}
 
                     // Move Ctor
                     shared_ref(shared_ref<T>&& p) noexcept
-                        : mem(p.mem)
+                        : mem(p.mem), foreign(p.foreign)
                         {p.mem=nullptr;}
 
                     // Copy Ctor
                     shared_ref(shared_ref<T> const& p) noexcept
-                        : mem(p.mem)
+                        : mem(p.mem), foreign(p.foreign)
                         {if(mem) acquire();}
 
                     // Copy Ctor, again
                     // Without a non-const copy-ctor here, the greedy variadic template ctor takes over
                     shared_ref(shared_ref<T> & p) noexcept
-                        : mem(p.mem)
+                        : mem(p.mem), foreign(p.foreign)
                         {if(mem) acquire();}
 
                     ~shared_ref() noexcept
@@ -77,6 +89,7 @@ namespace pythonic {
                     void swap(shared_ref<T> & rhs) noexcept {
                         using std::swap;
                         swap(mem, rhs.mem);
+                        swap(foreign, rhs.foreign);
                     }
 
                     // Takes by copy so that acquire/release is handle by ctor
@@ -96,10 +109,10 @@ namespace pythonic {
                         return mem != other.mem;
                     }
 
-                    // Bump the count so that the object is NEVER deleted.
-                    // OK this is a very bad design but it helps ndarray...
-                    void external() {
-                        ++mem->count;
+                    // Save pointer to the external object to decref once we doesn't
+                    // use it anymore
+                    void external(extern_type obj_ptr) {
+                        foreign = obj_ptr;
                     }
 
                     // FIXME The interface is screwed, you won't be able to delete
@@ -115,7 +128,12 @@ namespace pythonic {
                     {
                         if(mem and --mem->count == 0)
                         {
-                            delete mem;
+                            if(foreign){
+#ifdef ENABLE_PYTHON_MODULE
+                                Py_DECREF(foreign);
+#endif
+                            } else
+                                delete mem;
                             mem = nullptr;
                         }
                     }

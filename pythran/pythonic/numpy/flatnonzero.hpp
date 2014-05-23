@@ -24,7 +24,7 @@ namespace pythonic {
         template<class E>
             types::ndarray<long, 1> flatnonzero(E const& expr) {
                 long n = expr.size();
-                long *buffer = new long[n];
+                long *buffer = (long*)malloc(sizeof(long) * n);
                 long *iter = buffer;
                 long i = 0;
                 _flatnonzero(expr.begin(), expr.end(), iter, i, utils::int_<types::numpy_expr_to_ndarray<E>::N>());

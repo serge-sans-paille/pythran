@@ -17,13 +17,13 @@ namespace pythonic {
 
                 T* data;
                 raw_array() : data(nullptr) {}
-                raw_array(size_t n) : data(new T[n]) {}
+                raw_array(size_t n) : data((T*)malloc(sizeof(T) * n)) {}
                 raw_array(T* d) : data(d) {}
                 raw_array(raw_array<T>&& d) : data(d.data) { d.data = nullptr; }
 
                 ~raw_array() {
                     if(data)
-                        delete [] data;
+                        free(data);
                 }
             };
 

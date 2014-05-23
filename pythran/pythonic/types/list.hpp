@@ -537,7 +537,6 @@ struct __combined<pythonic::types::list<T0>, pythonic::types::list<T1>> {
 
 #include "pythonic/python/register_once.hpp"
 #include "pythonic/python/extract.hpp"
-#include <boost/python/numeric.hpp>
 #include <boost/python/object.hpp>
 
 namespace pythonic {
@@ -600,38 +599,25 @@ namespace pythonic {
             }
             static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
                 void* storage=((boost::python::converter::rvalue_from_python_storage<types::list<T> >*)(data))->storage.bytes;
-                boost::python::extract<boost::python::numeric::array> extractor(obj_ptr);
-                types::list<T>& v = *(types::list<T>*)(storage);
-                if(extractor.check()) {
-                    Py_ssize_t l=PySequence_Size(obj_ptr);
-                    new (storage) types::list<T>(l);
-                    boost::python::numeric::array data = extractor;
-                    auto iter = v.begin();
-                    for(Py_ssize_t i=0; i<l; i++)
-                        *iter++ = boost::python::extract<T>(data[i]);
-                }
-                else {
-                    Py_ssize_t l=PySequence_Fast_GET_SIZE(obj_ptr);
-                    new (storage) types::list<T>(l);
-                    PyObject** core = PySequence_Fast_ITEMS(obj_ptr);
-                    /* Perform extraction using boost version first, has it does more checks
-                     * then go wild and use our custom & faster extractor
-                     */
-                    auto iter = v.begin(), end = v.end();
-                    if(iter != end) {
-                        *iter = boost::python::extract<T>(*core++);
-                        while(++iter != end) {
-                            *iter = extract<T>(*core++);
-                        }
+                Py_ssize_t l = PySequence_Fast_GET_SIZE(obj_ptr);
+                types::list<T>& v = *(new (storage) types::list<T>(l));
+                PyObject** core = PySequence_Fast_ITEMS(obj_ptr);
+                /* Perform extraction using boost version first, has it does more checks
+                 * then go wild and use our custom & faster extractor
+                 */
+                auto iter = v.begin(), end = v.end();
+                if(iter != end) {
+                    *iter = boost::python::extract<T>(*core++);
+                    while(++iter != end) {
+                        *iter = extract<T>(*core++);
                     }
                 }
-                data->convertible=storage;
+                data->convertible = storage;
             }
         };
     struct custom_empty_list_to_list {
         static PyObject* convert(types::empty_list const &) {
-            boost::python::list ret;
-            return boost::python::incref(ret.ptr());
+            return PyList_New(0);
         }
     };
     template<>

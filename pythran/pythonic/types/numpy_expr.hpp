@@ -50,7 +50,7 @@ namespace pythonic {
                 iterator end() const { return iterator(*this, shape[0]); }
 
                 auto fast(long i) const -> decltype(Op()(arg0.fast(i), arg1.fast(i))) {
-                    return Op()(arg0.fast(i), arg1.fast(i));
+                    return Op()(arg0.fast(i), arg1.fast(i)); //FIXME: broadcasting can be achieved here through a modulus, but that's terribly costly
                 }
                 auto operator[](long i) const -> decltype(this->fast(i)) {
                     if(i<0) i += shape[0];

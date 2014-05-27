@@ -35,6 +35,11 @@ namespace pythonic {
                 bool operator<(nditerator<E> const& other) const {
                     return index < other.index;
                 }
+                nditerator& operator=(nditerator const& other) {
+                  assert(&data == &other.data);
+                  index = other.index;
+                  return *this;
+                }
             };
 
         /* Const iterator over whatever provides a fast(long) method to access its element
@@ -68,6 +73,7 @@ namespace pythonic {
                 bool operator<(const_nditerator<E> const& other) const {
                     return  index <  other.index;
                 }
+                const_nditerator& operator=(const_nditerator const& other) { index = other.index; return *this;}
             };
 
 

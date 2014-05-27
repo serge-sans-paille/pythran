@@ -87,7 +87,12 @@ class TestNumpy(TestEnv):
     def test_broadcast4(self):
         self.run_test('def numpy_broadcast4(a): a[:,1,1] = 1 ; return a',
                       numpy.arange(100).reshape((5,5,4)),
-                      numpy_broadcast4=[numpy.array([numpy.array([numpy.array([int])])])])
+                      numpy_broadcast4=[numpy.array([[[int]]])])
+
+    def test_broadcast5(self):
+        self.run_test('def numpy_broadcast5(a): import numpy as np ; return a + np.array([1,2,3,4])',
+                      numpy.arange(20).reshape((5,4)),
+                      numpy_broadcast5=[numpy.array([[int]])])
 
     def test_extended_slicing0(self):
         self.run_test("def numpy_extended_slicing0(a): return a[2,1:-1]",

@@ -59,6 +59,32 @@ namespace pythonic {
         template<class T>
             struct type_helper;
 
+        /* Type adaptor for broadcasted array values
+         *
+         * Used when the args of a binary operator do not have the same dimensions:
+         * in that case their first dimension always yields a copy
+         */
+        template<class T>
+            struct broadcasted {
+                typedef typename T::dtype dtype;
+                typedef typename T::value_type value_type;
+                static constexpr size_t value = T::value + 1;
+
+                T const & ref;
+                array<long, value> shape;
+
+                broadcasted(T const& ref) : ref(ref), shape() {
+                    shape[0] = 1;
+                    std::copy(ref.shape.begin(), ref.shape.end(), shape.begin() + 1);
+                }
+
+                T const & operator[](long i) const { return ref;}
+                T const & fast(long i) const { return ref;}
+
+                long size() const { return 0;}
+
+
+            };
 
         /* Type adaptor for scalar values
          *

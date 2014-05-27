@@ -1584,11 +1584,116 @@ def test_copy0(x):
     def test_sum5_(self):
         self.run_test("def np_sum5_(a): return a.sum(0)", numpy.arange(10), np_sum5_=[numpy.array([int])])
 
+    def test_sum6_(self):
+        self.run_test("def np_sum6_(a): return a.sum(0)", numpy.arange(12).reshape(2,3,2), np_sum6_=[numpy.array([[[int]]])])
+
+    def test_sum7_(self):
+        self.run_test("def np_sum7_(a): return a.sum(1)", numpy.arange(12).reshape(2,3,2), np_sum7_=[numpy.array([[[int]]])])
+
+    def test_sum8_(self):
+        self.run_test("def np_sum8_(a): return a.sum(2)", numpy.arange(12).reshape(2,3,2), np_sum8_=[numpy.array([[[int]]])])
+
+    def test_sum9_(self):
+        self.run_test("def np_sum9_(a): import numpy as np ; return np.sum(a*a,0)", numpy.arange(12).reshape(2,3,2), np_sum9_=[numpy.array([[[int]]])])
+
+    def test_sum10_(self):
+        self.run_test("def np_sum10_(a): import numpy as np ; return np.sum(a-a,1)", numpy.arange(12).reshape(2,3,2), np_sum10_=[numpy.array([[[int]]])])
+
+    def test_sum11_(self):
+        self.run_test("def np_sum11_(a): import numpy as np ; return np.sum(a+a,2)", numpy.arange(12).reshape(2,3,2), np_sum11_=[numpy.array([[[int]]])])
+
+    def test_prod_(self):
+        self.run_test("def np_prod_(a): return a.prod()", numpy.arange(10), np_prod_=[numpy.array([int])])
+
+    def test_prod_bool(self):
+        self.run_test("def np_prod_bool(a): return (a > 2).prod()", numpy.arange(10), np_prod_bool=[numpy.array([int])])
+
+    def test_prod_bool2(self):
+        self.run_test("def np_prod_bool2(a): return a.prod()", numpy.ones(10,dtype=bool).reshape(2,5), np_prod_bool2=[numpy.array([[bool]])])
+
+    def test_prod_expr(self):
+        self.run_test("def np_prod_expr(a):\n from numpy import ones\n return (a + ones(10)).prod()", numpy.arange(10), np_prod_expr=[numpy.array([int])])
+
+    def test_prod2_(self):
+        self.run_test("def np_prod2_(a): return a.prod()", numpy.arange(10).reshape(2,5), np_prod2_=[numpy.array([[int]])])
+
+    def test_prod3_(self):
+        self.run_test("def np_prod3_(a): return a.prod(1)", numpy.arange(10).reshape(2,5), np_prod3_=[numpy.array([[int]])])
+
+    def test_prod4_(self):
+        self.run_test("def np_prod4_(a): return a.prod(0)", numpy.arange(10).reshape(2,5), np_prod4_=[numpy.array([[int]])])
+
+    def test_prod5_(self):
+        self.run_test("def np_prod5_(a): return a.prod(0)", numpy.arange(10), np_prod5_=[numpy.array([int])])
+
+    def test_prod6_(self):
+        self.run_test("def np_prod6_(a): return a.prod(0)", numpy.arange(12).reshape(2,3,2), np_prod6_=[numpy.array([[[int]]])])
+
+    def test_prod7_(self):
+        self.run_test("def np_prod7_(a): return a.prod(1)", numpy.arange(12).reshape(2,3,2), np_prod7_=[numpy.array([[[int]]])])
+
+    def test_prod8_(self):
+        self.run_test("def np_prod8_(a): return a.prod(2)", numpy.arange(12).reshape(2,3,2), np_prod8_=[numpy.array([[[int]]])])
+
+    def test_prod9_(self):
+        self.run_test("def np_prod9_(a): import numpy as np ; return np.prod(a*a,0)", numpy.arange(12).reshape(2,3,2), np_prod9_=[numpy.array([[[int]]])])
+
+    def test_prod10_(self):
+        self.run_test("def np_prod10_(a): import numpy as np ; return np.prod(a-a,1)", numpy.arange(12).reshape(2,3,2), np_prod10_=[numpy.array([[[int]]])])
+
+    def test_prod11_(self):
+        self.run_test("def np_prod11_(a): import numpy as np ; return np.prod(a+a,2)", numpy.arange(12).reshape(2,3,2), np_prod11_=[numpy.array([[[int]]])])
+
+    def test_prod_(self):
+        self.run_test("def np_prod_(a): return a.prod()", numpy.arange(10), np_prod_=[numpy.array([int])])
+
+    def test_prod_bool(self):
+        self.run_test("def np_prod_bool(a): return (a > 2).prod()", numpy.arange(10), np_prod_bool=[numpy.array([int])])
+
+    def test_prod_bool2(self):
+        self.run_test("def np_prod_bool2(a): return a.prod()", numpy.ones(10,dtype=bool).reshape(2,5), np_prod_bool2=[numpy.array([[bool]])])
+
+    def test_prod_expr(self):
+        self.run_test("def np_prod_expr(a):\n from numpy import ones\n return (a + ones(10)).prod()", numpy.arange(10), np_prod_expr=[numpy.array([int])])
+
+    def test_prod2_(self):
+        self.run_test("def np_prod2_(a): return a.prod()", numpy.arange(10).reshape(2,5), np_prod2_=[numpy.array([[int]])])
+
+    def test_prod3_(self):
+        self.run_test("def np_prod3_(a): return a.prod(1)", numpy.arange(10).reshape(2,5), np_prod3_=[numpy.array([[int]])])
+
+    def test_prod4_(self):
+        self.run_test("def np_prod4_(a): return a.prod(0)", numpy.arange(10).reshape(2,5), np_prod4_=[numpy.array([[int]])])
+
+    def test_prod5_(self):
+        self.run_test("def np_prod5_(a): return a.prod(0)", numpy.arange(10), np_prod5_=[numpy.array([int])])
+
+    def test_prod6_(self):
+        self.run_test("def np_prod6_(a): return a.prod(0)", numpy.arange(12).reshape(2,3,2), np_prod6_=[numpy.array([[[int]]])])
+
+    def test_prod7_(self):
+        self.run_test("def np_prod7_(a): return a.prod(1)", numpy.arange(12).reshape(2,3,2), np_prod7_=[numpy.array([[[int]]])])
+
+    def test_prod8_(self):
+        self.run_test("def np_prod8_(a): return a.prod(2)", numpy.arange(12).reshape(2,3,2), np_prod8_=[numpy.array([[[int]]])])
+
+    def test_prod9_(self):
+        self.run_test("def np_prod9_(a): import numpy as np ; return np.prod(a*a,0)", numpy.arange(12).reshape(2,3,2), np_prod9_=[numpy.array([[[int]]])])
+
+    def test_prod10_(self):
+        self.run_test("def np_prod10_(a): import numpy as np ; return np.prod(a-a,1)", numpy.arange(12).reshape(2,3,2), np_prod10_=[numpy.array([[[int]]])])
+
+    def test_prod11_(self):
+        self.run_test("def np_prod11_(a): import numpy as np ; return np.prod(a+a,2)", numpy.arange(12).reshape(2,3,2), np_prod11_=[numpy.array([[[int]]])])
+
     def test_amin_amax(self):
         self.run_test("def np_amin_amax(a):\n from numpy import amin,amax\n return amin(a), amax(a)",numpy.arange(10),  np_amin_amax=[numpy.array([int])])
 
     def test_min_(self):
         self.run_test("def np_min_(a): return a.min()", numpy.arange(10), np_min_=[numpy.array([int])])
+
+    def test_min1_(self):
+        self.run_test("def np_min1_(a): return (a+a).min()", numpy.arange(10), np_min1_=[numpy.array([int])])
 
     def test_min2_(self):
         self.run_test("def np_min2_(a): return a.min()", numpy.arange(10).reshape(2,5), np_min2_=[numpy.array([[int]])])
@@ -1602,8 +1707,17 @@ def test_copy0(x):
     def test_min5_(self):
         self.run_test("def np_min5_(a): return a.min(0)", numpy.arange(10), np_min5_=[numpy.array([int])])
 
+    def test_min6_(self):
+        self.run_test("def np_min6_(a): return a.min(1)", numpy.arange(30).reshape(2,5,3), np_min6_=[numpy.array([[[int]]])])
+
+    def test_min7_(self):
+        self.run_test("def np_min7_(a): return (a+a).min(1)", numpy.arange(30).reshape(2,5,3), np_min7_=[numpy.array([[[int]]])])
+
     def test_max_(self):
         self.run_test("def np_max_(a): return a.max()", numpy.arange(10), np_max_=[numpy.array([int])])
+
+    def test_max1_(self):
+        self.run_test("def np_max1_(a): return (a+a).max()", numpy.arange(10), np_max1_=[numpy.array([int])])
 
     def test_max2_(self):
         self.run_test("def np_max2_(a): return a.max()", numpy.arange(10).reshape(2,5), np_max2_=[numpy.array([[int]])])
@@ -1616,6 +1730,12 @@ def test_copy0(x):
 
     def test_max5_(self):
         self.run_test("def np_max5_(a): return a.max(0)", numpy.arange(10), np_max5_=[numpy.array([int])])
+
+    def test_max6_(self):
+        self.run_test("def np_max6_(a): return a.max(1)", numpy.arange(30).reshape(2,5,3), np_max6_=[numpy.array([[[int]]])])
+
+    def test_max7_(self):
+        self.run_test("def np_max7_(a): return (a+a).max(1)", numpy.arange(30).reshape(2,5,3), np_max7_=[numpy.array([[[int]]])])
 
     def test_all_(self):
         self.run_test("def np_all_(a): return a.all()", numpy.arange(10), np_all_=[numpy.array([int])])

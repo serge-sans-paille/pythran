@@ -702,8 +702,11 @@ def np_rosen_der(x):
     def test_ravel(self):
         self.run_test("def np_ravel(x): from numpy import ravel ; return ravel(x)", numpy.arange(6).reshape((2,3)), np_ravel=[numpy.array([[int]])])
 
-    def test_repeat(self):
-        self.run_test("def np_repeat(x): from numpy import repeat; return repeat(x, 3)", numpy.arange(3), np_repeat=[numpy.array([int])])
+    def test_repeat0(self):
+        self.run_test("def np_repeat0(x): from numpy import repeat; return repeat(x, 3)", numpy.arange(3), np_repeat0=[numpy.array([int])])
+
+    def test_repeat1(self):
+        self.run_test("def np_repeat1(x): from numpy import repeat; return repeat(x, 3)", numpy.arange(6).reshape(2,3), np_repeat1=[numpy.array([[int]])])
 
     def test_resize4(self):
         self.run_test("def np_resize4(x): from numpy import resize ; return resize(x, (6,7))", numpy.arange(24).reshape((2,3,4)), np_resize4=[numpy.array([[[int]]])])
@@ -1545,8 +1548,11 @@ def test_copy0(x):
     def test_empty_like_(self):
         self.run_test("def np_empty_like_(a):\n from numpy import empty_like, array\n return empty_like(array(a)).shape", [[i,j,k,l] for i in xrange(5) for j in xrange(4) for k in xrange(6) for l in xrange(8)], np_empty_like_=[[[int]]])
 
-    def test_reshape_(self):
-        self.run_test("def np_reshape_(a): return a.reshape((2,5))", numpy.arange(10), np_reshape_=[numpy.array([int])], check_refcount=True)
+    def test_reshape0(self):
+        self.run_test("def np_reshape0(a): return a.reshape((2,5))", numpy.arange(10), np_reshape0=[numpy.array([int])], check_refcount=True)
+
+    def test_reshape1(self):
+        self.run_test("def np_reshape1(a): return a.reshape((2,-1))", numpy.arange(10), np_reshape1=[numpy.array([int])], check_refcount=True)
 
     def test_duplicate(self):
         self.run_test("def np_duplicate(a): return a, a", numpy.arange(10), np_duplicate=[numpy.array([int])], check_refcount=True)

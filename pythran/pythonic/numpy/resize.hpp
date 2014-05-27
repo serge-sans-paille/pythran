@@ -27,6 +27,12 @@ namespace pythonic {
         template<class T, size_t N, size_t M>
             types::ndarray<T,M> resize(types::ndarray<T,N> const& expr, types::array<long, M> const& new_shape)
             {
+                auto where = std::find(new_shape.begin(), new_shape.end(), -1);
+                if(where != new_shape.end()) {
+                    types::array<long, M> auto_shape(new_shape);
+                    auto_shape[where - new_shape.begin()] = expr.size() / std::accumulate(new_shape.begin(), new_shape.end(), -1L, std::multiplies<long>());
+                    return resize(expr, auto_shape);
+                }
                 types::ndarray<T,M> out(new_shape, __builtin__::None);
                 auto nshape = out.size();
                 auto n = expr.size();

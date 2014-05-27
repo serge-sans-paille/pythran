@@ -522,6 +522,21 @@ def np_rosen_der(x):
     def test_mean0(self):
         self.run_test("def np_mean0(a): from numpy import mean ; return mean(a)", numpy.array([[1, 2], [3, 4]]), np_mean0=[numpy.array([[int]])])
 
+    def test_mean1(self):
+        self.run_test("def np_mean1(a): from numpy import mean ; return mean(a, 1)", numpy.array([[1, 2], [3, 4.]]), np_mean1=[numpy.array([[float]])])
+
+    def test_mean2(self):
+        self.run_test("def np_mean2(a): from numpy import mean ; return mean(a)", numpy.array([[[1, 2], [3, 4.]]]), np_mean2=[numpy.array([[[float]]])])
+
+    def test_mean3(self):
+        self.run_test("def np_mean3(a): from numpy import mean ; return mean(a, 0)", numpy.array([[[1, 2], [3, 4.]]]), np_mean3=[numpy.array([[[float]]])])
+
+    def test_mean4(self):
+        self.run_test("def np_mean4(a): from numpy import mean ; return mean(a, 1)", numpy.array([[[1, 2], [3, 4.]]]), np_mean4=[numpy.array([[[float]]])])
+
+    def test_mean5(self):
+        self.run_test("def np_mean5(a): from numpy import mean ; return mean(a, 2)", numpy.array([[[1, 2], [3, 4.]]]), np_mean5=[numpy.array([[[float]]])])
+
     def test_logspace0(self):
         self.run_test("def np_logspace0(start, stop): from numpy import logspace ; start, stop = 3., 4. ; return logspace(start, stop, 4)", 3., 4., np_logspace0=[float, float])
 

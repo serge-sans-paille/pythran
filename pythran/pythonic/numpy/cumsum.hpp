@@ -9,23 +9,42 @@
 namespace pythonic {
 
     namespace numpy {
-        template<class T, size_t N, class dtype=T>
-            types::ndarray<typename types::numpy_type<dtype>::type,1> cumsum(types::ndarray<T,N> const& expr, dtype d = dtype()) {
+        template<class E, class O, class F>
+            F _partial_sum(E begin, E end, O& out, F psum, utils::int_<1>)
+            {
+                for(; begin != end ; ++begin, ++out)
+                    *out = psum += *begin;
+                return psum;
+            }
+        template<class E, class O, class F, size_t N>
+            F _partial_sum(E begin, E end, O& out, F psum, utils::int_<N>)
+            {
+                for(; begin != end ; ++begin)
+                    psum = _partial_sum((*begin).begin(), (*begin).end(), out, psum, utils::int_<N - 1>());
+                return psum;
+            }
+        template<class E, class dtype=typename E::dtype>
+            types::ndarray<typename types::numpy_type<dtype>::type,1> cumsum(E const& expr, dtype d = dtype()) {
                 long count = expr.size();
                 types::ndarray<typename types::numpy_type<dtype>::type,1> cumsumy(types::make_tuple(count), __builtin__::None);
-                std::partial_sum(expr.buffer, expr.buffer + count, cumsumy.buffer);
+                auto oiter = cumsumy.fbegin();
+                _partial_sum(expr.begin(), expr.end(), oiter, typename types::numpy_type<dtype>::type(0), utils::int_<types::numpy_expr_to_ndarray<E>::N>());
                 return cumsumy;
             }
 
-        template<class T, class dtype=T>
-            types::ndarray<typename types::numpy_type<dtype>::type,1> cumsum(types::ndarray<T,1> const& expr, long axis, dtype d = dtype()) {
+        template<class E, class dtype=typename E::dtype>
+            auto cumsum(E const& expr, long axis, dtype d = dtype())
+            -> typename std::enable_if<E::value == 1, decltype(cumsum(expr))>::type
+            {
                 if(axis !=0)
                     throw types::ValueError("axis out of bounds");
                 return cumsum(expr);
             }
 
         template<class T, size_t N, class dtype=T>
-            types::ndarray<typename types::numpy_type<dtype>::type,N> cumsum(types::ndarray<T,N> const& expr, long axis, dtype d = dtype()) {
+            auto cumsum(types::ndarray<T,N> const& expr, long axis, dtype d = dtype())
+            -> typename std::enable_if<N != 1,  types::ndarray<typename types::numpy_type<dtype>::type,N>>::type
+            {
                 if(axis<0 || axis >=long(N))
                     throw types::ValueError("axis out of bounds");
 

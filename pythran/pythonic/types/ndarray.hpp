@@ -526,10 +526,17 @@ namespace pythonic {
                     }
 
                 /* element filtering */
-                template<class F>
-                    typename std::enable_if<is_numexpr_arg<F>::value, numpy_fexpr<ndarray, F>>::type
+                template<class F> // indexing through an array of boolean -- a mask
+                    typename std::enable_if<is_numexpr_arg<F>::value and std::is_same<bool, typename F::dtype>::value, numpy_fexpr<ndarray, F>>::type
                     operator[](F const& filter) const {
                         return numpy_fexpr<ndarray, F>(*this, filter);
+                    }
+                template<class F> // indexing through an array of indices -- a view
+                    typename std::enable_if<is_numexpr_arg<F>::value and not std::is_same<bool, typename F::dtype>::value, ndarray<T, 1>>::type
+                    operator[](F const& filter) const {
+                        ndarray<T,1> out(array<long, 1>{{filter.size()}}, none_type());
+                        std::transform(filter.begin(), filter.end(), out.begin(), [this](typename F::dtype index) { return fast(index); });
+                        return out;
                     }
 
                 /* through iterators */

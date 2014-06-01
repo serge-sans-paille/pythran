@@ -350,6 +350,12 @@ def assign_ndarray(t):
     def test_gslice6(self):
         self.run_test("def np_gslice6(a): import numpy as np ; return a[:-1, :][1:,:]", numpy.array(range(10*9*8)).reshape(10,9,8), np_gslice6=[numpy.array([[[int]]])])
 
+    def test_iexpr0(self):
+        self.run_test("def np_iexpr0(a,i): return a[i][0,0]", numpy.array(range(10*9*8)).reshape(10,9,8), 0, np_iexpr0=[numpy.array([[[int]]]), int])
+
+    def test_iexpr1(self):
+        self.run_test("def np_iexpr1(a,i): return a[i,0][0]", numpy.array(range(10*9*8)).reshape(10,9,8), 0, np_iexpr1=[numpy.array([[[int]]]), int])
+
     def test_ndindex0(self):
         self.run_test("def np_ndindex0(): import numpy as np ; return [x for x in np.ndindex(5,6)]",
                       np_ndindex0=[])

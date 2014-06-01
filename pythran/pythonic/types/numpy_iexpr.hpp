@@ -195,6 +195,21 @@ namespace pythonic {
                         return numpy_fexpr<numpy_iexpr, F>(*this, filter);
                     }
 
+                dtype const &operator[](array<long, value> const& indices) const
+                {
+                    size_t offset = indices[value-1];
+                    long mult = shape[value-1];
+                    for(size_t i = value - 2; i > 0; --i) {
+                        offset +=  indices[i] * mult;
+                        mult *= shape[i];
+                    }
+                    return buffer[offset + indices[0] * mult];
+                }
+                dtype& operator[](array<long, value> const& indices)
+                {
+                    return const_cast<dtype&>(const_cast<numpy_iexpr const&>(*this)[indices]);
+                }
+
                 long size() const { return /*arg.size()*/ std::accumulate(shape.begin() + 1, shape.end(), *shape.begin(), std::multiplies<long>()); }
             };
 

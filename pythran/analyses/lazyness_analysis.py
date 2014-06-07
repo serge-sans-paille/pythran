@@ -18,6 +18,7 @@ class LazynessAnalysis(FunctionAnalysis):
     loop, if a variable used to compute it is modify before
     its last use or if it is use in a function call (as it is not an
     interprocedural analysis)
+
     >>> import ast, passmanager, backend
     >>> code = "def foo(): c = 1; a = c + 2; c = 2; b = c + c + a; return b"
     >>> node = ast.parse(code)
@@ -25,6 +26,30 @@ class LazynessAnalysis(FunctionAnalysis):
     >>> res = pm.gather(LazynessAnalysis, node)
     >>> res['a'], res['b'], res['c']
     (inf, 1, 2)
+    >>> code = '''
+    ... def foo():
+    ...     k = 2
+    ...     for i in [1, 2]:
+    ...         print k
+    ...         k = i
+    ...     print k'''
+    >>> node = ast.parse(code)
+    >>> pm = passmanager.PassManager("test")
+    >>> res = pm.gather(LazynessAnalysis, node)
+    >>> res['i'], res['k']
+    (inf, 1)
+    >>> code = '''
+    ... def foo():
+    ...     k = 2
+    ...     for i in [1, 2]:
+    ...         print k
+    ...         k = i
+    ...         print k'''
+    >>> node = ast.parse(code)
+    >>> pm = passmanager.PassManager("test")
+    >>> res = pm.gather(LazynessAnalysis, node)
+    >>> res['i'], res['k']
+    (inf, 2)
     """
     INF = float('inf')
 
@@ -38,8 +63,9 @@ class LazynessAnalysis(FunctionAnalysis):
         # gather variables which can't be compute later. (variables used
         # to compute it have changed
         self.dead = set()
-        # prevent any form of Forward Substitution for variables used in loops
-        self.in_loop = False
+        # count use of variable before first assignation in the loop
+        # {variable: (count, is_assigned)}
+        self.pre_loop_count = dict()
         # prevent any form of Forward Substitution at omp frontier
         self.in_omp = set()
         super(LazynessAnalysis, self).__init__(ArgumentEffects, Aliases,
@@ -64,6 +90,10 @@ class LazynessAnalysis(FunctionAnalysis):
                                    self.name_count.get(node.id, 0))
         # assign variable don't come from before omp pragma anymore
         self.in_omp.discard(node.id)
+        # count number of use in the loop before first reassign
+        pre_loop = self.pre_loop_count.get(node.id, (0, True))
+        if not pre_loop[1]:
+            self.pre_loop_count[node.id] = (pre_loop[0], True)
         # note this variable as modified
         self.modify(node.id, loc)
         # prepare a new variable count
@@ -136,11 +166,14 @@ class LazynessAnalysis(FunctionAnalysis):
             alias_names.add(node.id)
             for alias in alias_names:
                 if (node.id in self.dead or
-                        self.in_loop or
                         node.id in self.in_omp):
                     self.result[alias] = LazynessAnalysis.INF
                 elif alias in self.name_count:
                     self.name_count[alias] += 1
+                    # init value as pre_use variable and count it
+                    pre_loop = self.pre_loop_count.get(alias, (0, False))
+                    if not pre_loop[1]:
+                        self.pre_loop_count[alias] = (pre_loop[0] + 1, False)
                 else:
                     # a variable may alias to assigned value (with a = b, 'b'
                     # alias on 'a' as modifying 'a' will modify 'b' too)
@@ -199,6 +232,36 @@ class LazynessAnalysis(FunctionAnalysis):
 
     visit_IfExp = visit_If
 
+    def visit_loop(self, body):
+        # we start a new loop so we init the "at start of loop use" counter
+        old_pre_count = self.pre_loop_count
+        self.pre_loop_count = dict()
+
+        # do visit body
+        map(self.visit, body)
+
+        # variable use in loop but not assigned are no lazy
+        no_assign = [n for n, (c, a) in self.pre_loop_count.iteritems()
+                     if not a]
+        self.result.update(zip(no_assign,
+                               [LazynessAnalysis.INF] * len(no_assign)))
+        # lazyness value is the max of previous lazyness and lazyness for one
+        # iteration in the loop
+        for k, v in self.pre_loop_count.iteritems():
+            loop_value = v[0] + self.name_count[k]
+            self.result[k] = max(self.result.get(k, 0), loop_value)
+        # variable dead at the end of the loop but use at the beginning of it
+        # can't be lazy
+        dead = self.dead.intersection(self.pre_loop_count)
+        self.result.update(zip(dead, [LazynessAnalysis.INF] * len(dead)))
+        # merge previous count of "use at start of loop" and current state.
+        for k, v in old_pre_count.iteritems():
+            if v[1] or k not in self.pre_loop_count:
+                self.pre_loop_count[k] = v
+            else:
+                self.pre_loop_count[k] = (v[0] + self.pre_loop_count[k][0],
+                                          self.pre_loop_count[k][1])
+
     def visit_For(self, node):
         md.visit(self, node)
         ids = self.passmanager.gather(Identifiers, node.iter, self.ctx)
@@ -212,9 +275,7 @@ class LazynessAnalysis(FunctionAnalysis):
             err = "Assignation in for loop not to a Name"
             raise PythranSyntaxError(err, node)
 
-        self.in_loop = True
-        map(self.visit, node.body)
-        self.in_loop = False
+        self.visit_loop(node.body)
 
         map(self.visit, node.orelse)
 
@@ -222,9 +283,7 @@ class LazynessAnalysis(FunctionAnalysis):
         md.visit(self, node)
         self.visit(node.test)
 
-        self.in_loop = True
-        map(self.visit, node.body)
-        self.in_loop = False
+        self.visit_loop(node.body)
 
         map(self.visit, node.orelse)
 

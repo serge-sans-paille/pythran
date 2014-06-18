@@ -6,7 +6,7 @@ from aliases import Aliases
 from globals_analysis import Globals
 from locals_analysis import Locals
 from pure_expressions import PureExpressions
-from pythran.intrinsic import Intrinsic
+from pythran.intrinsic import FunctionIntr
 from pythran.passmanager import NodeAnalysis
 from pythran.tables import modules
 
@@ -53,13 +53,26 @@ class ConstantExpressions(NodeAnalysis):
 
     def visit_Name(self, node):
         if node in self.aliases:
-            is_function = lambda x: (isinstance(x, Intrinsic) or
+            # params and store are not constants
+            if not isinstance(node.ctx, ast.Load):
+                return False
+            # if we can alias on multiple value, it is not constant
+            elif len(self.aliases[node].aliases) > 1:
+                return False
+            # if it is not a globals, it depends on variable so it is not
+            # constant
+            elif node.id not in self.globals:
+                return False
+            # if it is defined in the current function, it is not constant
+            elif node.id in self.locals[node]:
+                return False
+            is_function = lambda x: (isinstance(x, FunctionIntr) or
                                      isinstance(x, ast.FunctionDef) or
                                      isinstance(x, ast.alias))
             pure_fun = all(alias in self.pure_expressions and
                            is_function(alias)
                            for alias in self.aliases[node].aliases)
-            return pure_fun and self.add(node)
+            return pure_fun
         else:
             return False
 

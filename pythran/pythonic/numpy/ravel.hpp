@@ -10,7 +10,7 @@ namespace pythonic {
         template<class T, size_t N>
             types::ndarray<T,1> ravel(types::ndarray<T,N> const& expr)
             {
-                return reshape(expr, (long)expr.size());
+                return reshape(expr, types::array<long, 1>{{expr.size()}});
             }
 
         NUMPY_EXPR_TO_NDARRAY0(ravel);

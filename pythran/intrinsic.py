@@ -2,6 +2,10 @@
 This module contains all classes used to model intrinsics behavior.
 '''
 
+from pythran.conversion import to_ast
+
+import ast
+
 
 class UpdateEffect(object):
     pass
@@ -16,11 +20,29 @@ class ReadOnceEffect(ReadEffect):
 
 
 class Intrinsic(object):
+    '''
+    Model any Method/Function
+
+    Its member variables are:
+
+    - argument_effects that describes the effect of the function on its
+      argument (either UpdateEffect, ReadEffect or ReadOnceEffect)
+    - global_effects that describes wether the function has side effects
+    - return_alias that describes the aliasing between the return value
+      and the parameters. The lambda returns an ast expression, generally
+      depending on the node arguments (see dict.setdefault)
+    - args that describes the name and default value of each arg, using the
+      same representation as ast.FunctionDef, i.e. ast.arguments
+    '''
     def __init__(self, **kwargs):
         self.argument_effects = kwargs.get('argument_effects',
                                            (UpdateEffect(),) * 11)
         self.global_effects = kwargs.get('global_effects', False)
         self.return_alias = kwargs.get('return_alias', lambda x: {None})
+        self.args = ast.arguments([ast.Name(n, ast.Param())
+                                   for n in kwargs.get('args', [])],
+                                  None, None,
+                                  map(to_ast, kwargs.get('defaults', [])))
 
     def isliteral(self):
         return False

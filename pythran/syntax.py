@@ -63,8 +63,6 @@ class SyntaxChecker(ast.NodeVisitor):
 
     def visit_Call(self, node):
         self.generic_visit(node)
-        if node.keywords:
-            raise PythranSyntaxError("Call with keywords not supported", node)
         if node.starargs:
             raise PythranSyntaxError("Call with star arguments not supported",
                                      node)

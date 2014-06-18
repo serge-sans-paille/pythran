@@ -6,11 +6,13 @@ from pythran.intrinsic import Class, ReadOnceFunctionIntr, ConstExceptionIntr
 from pythran.intrinsic import ConstFunctionIntr, FunctionIntr, UpdateEffect
 from pythran.intrinsic import ConstMethodIntr, MethodIntr, AttributeIntr
 from pythran.intrinsic import ReadEffect, ConstantIntr
+from pythran.conversion import to_ast
 import pythran.cxxtypes as cxxtypes
 
 import ast
 import numpy
 import sys
+import inspect
 
 pythran_ward = '__pythran_'
 
@@ -444,7 +446,8 @@ modules = {
         "unwrap": ConstFunctionIntr(),
         "var": ConstMethodIntr(),
         "where": ConstFunctionIntr(),
-        "zeros": ConstFunctionIntr(),
+        "zeros": ConstFunctionIntr(args=('shape', 'dtype'),
+                                   defaults=("numpy.float64",)),
         "zeros_like": ConstFunctionIntr(),
         },
     "time": {
@@ -1090,3 +1093,24 @@ for module, elems in modules.iteritems():
         if signature.isattribute():
             assert elem not in attributes  # we need unicity
             attributes[elem] = (module, signature,)
+
+# populate argument description through introspection
+for module, elems in modules.iteritems():
+    if not module.startswith('__'):
+        for elem, signature in elems.iteritems():
+            # use introspection to get the Python obj
+            try:
+                themodule = __import__(module)
+                obj = getattr(themodule, elem)
+                spec = inspect.getargspec(obj)
+                assert not signature.args.args
+                signature.args.args = [ast.Name(arg, ast.Param())
+                                       for arg in spec.args]
+                if spec.defaults:
+                    signature.args.defaults = map(to_ast, spec.defaults)
+            except AttributeError:
+                pass
+            except ImportError:
+                pass
+            except TypeError as e:
+                pass

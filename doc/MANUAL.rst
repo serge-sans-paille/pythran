@@ -4,7 +4,7 @@ User Manual
 
 So you want to write algorithms that are easy to maintain as in python and
 you want performance as in FORTRAN or C++? Let give a try to Pythran!
-Pythran is a python-to-c++ translator that turns python module into native 
+Pythran is a python-to-c++ translator that turns python module into native
 c++11 module. From a user point of view, you still ``import`` your module, but
 under the hood... There is much more happening!
 
@@ -38,7 +38,7 @@ Python and to have them run faster. Nuff said.
 Prerequisite
 ------------
 
-Let us assume you're running a Debian/Ubuntu distrib. In that case, all you 
+Let us assume you're running a Debian/Ubuntu distrib. In that case, all you
 have to do is::
 
     $> sudo apt-get install libboost-python-dev libgoogle-perftools-dev libgmp-dev libboost-dev git cmake
@@ -252,6 +252,19 @@ Once done, you can pythranize your code from the IPython shell::
     #pythran export foo()
     def foo(): print 'hello'
 
+Distutils Integration
+---------------------
+
+When distributing a Python application with Pythran modules, you can either:
+
+* declare the module as a regular Python module. After all, they are 100% Python compatible.
+
+* declare them as a ``PythranExtension`` and Pythran will compile them::
+
+    from distutils.core import setup
+    from pythran.dist import PythranExtension
+    setup(...,
+          ext_modules=[PythranExtension("mymodule", ["mymodule.py"])])
 
 Advanced Usage
 --------------

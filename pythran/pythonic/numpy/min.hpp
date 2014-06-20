@@ -21,44 +21,45 @@ namespace pythonic {
                 for(; begin != end; ++begin)
                     _min((*begin).begin(), (*begin).end(), min, utils::int_<N - 1>());
             }
-            
+
         template<class E>
-            typename types::numpy_expr_to_ndarray<E>::T
+            typename E::dtype
             min(E const& expr, types::none_type _ = types::none_type()) {
-                typename types::numpy_expr_to_ndarray<E>::T p = std::numeric_limits<typename types::numpy_expr_to_ndarray<E>::T>::max();
-                _min(expr.begin(), expr.end(), p, utils::int_<types::numpy_expr_to_ndarray<E>::N>());
+                typename E::dtype p = std::numeric_limits<typename E::dtype>::max();
+                _min(expr.begin(), expr.end(), p, utils::int_<E::value>());
                 return p;
             }
 
-        template<class T>
-            T min(types::ndarray<T,1> const& array, long axis)
+        template<class E>
+            auto min(E const& array, long axis)
+            -> typename std::enable_if<E::value == 1, decltype(min(array))>::type
             {
                 if(axis != 0)
                     throw types::ValueError("axis out of bounds");
                 return min(array);
             }
 
-        template<class T, size_t N>
-            types::ndarray<T,N - 1>
-            min(types::ndarray<T,N> const& array, long axis)
+        template<class E>
+            typename std::enable_if<E::value != 1, types::ndarray<typename E::dtype, E::value - 1>>::type
+            min(E const& array, long axis)
             {
-                if(axis<0 || axis >=long(N))
+                if(axis<0 || axis >= E::value)
                     throw types::ValueError("axis out of bounds");
                 auto shape = array.shape;
                 if(axis==0)
                 {
-                    types::array<long, N> shp;
-                    shp[0] = 1;
-                    std::copy(shape.begin() + 1, shape.end(), shp.begin() + 1);
-                    types::ndarray<T,N> out(shp, std::numeric_limits<T>::max());
-                    return std::accumulate(array.begin(), array.end(), *out.begin(), numpy::proxy::minimum());
+                    types::array<long, E::value - 1> shp;
+                    std::copy(shape.begin() + 1, shape.end(), shp.begin());
+                    types::ndarray<typename E::dtype, E::value - 1> out(shp, std::numeric_limits<typename E::dtype>::max());
+                    return std::accumulate(array.begin(), array.end(), out, proxy::minimum());
                 }
                 else
                 {
-                    types::array<long, N-1> shp;
-                    std::copy(shape.begin(), shape.end() - 1, shp.begin());
-                    types::ndarray<T,N-1> miny(shp, __builtin__::None);
-                    std::transform(array.begin(), array.end(), miny.begin(), [=](types::ndarray<T,N-1> const& other) {return min(other, axis-1);});
+                    types::array<long, E::value-1> shp;
+                    auto next = std::copy(shape.begin(), shape.begin() + axis, shp.begin());
+                    std::copy(shape.begin() + axis + 1, shape.end(), next);
+                    types::ndarray<typename E::dtype,E::value-1> miny(shp, __builtin__::None);
+                    std::transform(array.begin(), array.end(), miny.begin(), [axis](decltype((*array.begin())) other) {return min(other, axis-1);});
                     return miny;
                 }
             }

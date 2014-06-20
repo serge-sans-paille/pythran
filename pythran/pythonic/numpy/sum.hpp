@@ -39,45 +39,38 @@ namespace pythonic {
                 return p;
             }
 
-        template<class T>
-            auto sum(types::ndarray<T,1> const& array, long axis)
-            -> decltype(sum(array))
+        template<class E>
+            auto sum(E const& array, long axis)
+            -> typename std::enable_if<E::value == 1, decltype(sum(array))>::type
             {
                 if(axis != 0)
                     throw types::ValueError("axis out of bounds");
                 return sum(array);
             }
 
-        template<class T, size_t N>
-            types::ndarray<T,N-1>
-            sum(types::ndarray<T,N> const& array, long axis)
+        template<class E>
+            typename std::enable_if<E::value != 1, types::ndarray<typename E::dtype, E::value - 1>>::type
+            sum(E const& array, long axis)
             {
-                if(axis<0 || axis >=long(N))
+                if(axis<0 || axis >= E::value)
                     throw types::ValueError("axis out of bounds");
                 auto shape = array.shape;
                 if(axis==0)
                 {
-                    types::array<long, N> shp;
-                    shp[0] = 1;
-                    std::copy(shape.begin() + 1, shape.end(), shp.begin() + 1);
-                    types::ndarray<T,N> out(shp, 0);
-                    return std::accumulate(array.begin(), array.end(), *out.begin(), proxy::add());
+                    types::array<long, E::value - 1> shp;
+                    std::copy(shape.begin() + 1, shape.end(), shp.begin());
+                    types::ndarray<typename E::dtype, E::value - 1> out(shp, 0);
+                    return std::accumulate(array.begin(), array.end(), out, proxy::add());
                 }
                 else
                 {
-                    types::array<long, N-1> shp;
-                    std::copy(shape.begin(), shape.end() - 1, shp.begin());
-                    types::ndarray<T,N-1> sumy(shp, __builtin__::None);
-                    std::transform(array.begin(), array.end(), sumy.begin(), [=](types::ndarray<T,N-1> const& other) {return sum(other, axis-1);});
+                    types::array<long, E::value-1> shp;
+                    auto next = std::copy(shape.begin(), shape.begin() + axis, shp.begin());
+                    std::copy(shape.begin() + axis + 1, shape.end(), next);
+                    types::ndarray<typename E::dtype, E::value-1> sumy(shp, __builtin__::None);
+                    std::transform(array.begin(), array.end(), sumy.begin(), [axis](decltype((*array.begin())) other) { return sum(other, axis - 1); });
                     return sumy;
                 }
-            }
-
-        template<class E>
-            auto sum(E const& expr, long axis)
-            -> decltype(sum(typename types::numpy_expr_to_ndarray<E>::type(expr), axis))
-            {
-                return sum(typename types::numpy_expr_to_ndarray<E>::type(expr), axis);
             }
 
         PROXY(pythonic::numpy, sum);

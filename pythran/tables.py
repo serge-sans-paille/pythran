@@ -442,6 +442,7 @@ modules = {
         "union1d": ConstFunctionIntr(),
         "unique": ConstFunctionIntr(),
         "unwrap": ConstFunctionIntr(),
+        "var": ConstMethodIntr(),
         "where": ConstFunctionIntr(),
         "zeros": ConstFunctionIntr(),
         "zeros_like": ConstFunctionIntr(),

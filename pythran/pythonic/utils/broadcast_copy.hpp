@@ -33,7 +33,10 @@ namespace pythonic {
          */
         template<class E, class F>
             E& broadcast_copy(E& self, F const& other, utils::int_<0>) {
-                std::copy(other.begin(), other.end(), self.begin());
+                auto siter = self.begin(), send = self.end();
+                do {
+                    siter = std::copy(other.begin(), other.end(), siter);
+                } while(siter != send);
                 return self;
             }
         template<class E, class F, size_t N>

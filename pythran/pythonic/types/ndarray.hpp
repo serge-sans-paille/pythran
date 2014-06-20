@@ -59,6 +59,32 @@ namespace pythonic {
         template<class T>
             struct type_helper;
 
+        /* Type adaptor for broadcasted array values
+         *
+         * Used when the args of a binary operator do not have the same dimensions:
+         * in that case their first dimension always yields a copy
+         */
+        template<class T>
+            struct broadcasted {
+                typedef typename T::dtype dtype;
+                typedef typename T::value_type value_type;
+                static constexpr size_t value = T::value + 1;
+
+                T const & ref;
+                array<long, value> shape;
+
+                broadcasted(T const& ref) : ref(ref), shape() {
+                    shape[0] = 1;
+                    std::copy(ref.shape.begin(), ref.shape.end(), shape.begin() + 1);
+                }
+
+                T const & operator[](long i) const { return ref;}
+                T const & fast(long i) const { return ref;}
+
+                long size() const { return 0;}
+
+
+            };
 
         /* Type adaptor for scalar values
          *
@@ -500,10 +526,17 @@ namespace pythonic {
                     }
 
                 /* element filtering */
-                template<class F>
-                    typename std::enable_if<is_numexpr_arg<F>::value, numpy_fexpr<ndarray, F>>::type
+                template<class F> // indexing through an array of boolean -- a mask
+                    typename std::enable_if<is_numexpr_arg<F>::value and std::is_same<bool, typename F::dtype>::value, numpy_fexpr<ndarray, F>>::type
                     operator[](F const& filter) const {
                         return numpy_fexpr<ndarray, F>(*this, filter);
+                    }
+                template<class F> // indexing through an array of indices -- a view
+                    typename std::enable_if<is_numexpr_arg<F>::value and not std::is_same<bool, typename F::dtype>::value, ndarray<T, 1>>::type
+                    operator[](F const& filter) const {
+                        ndarray<T,1> out(array<long, 1>{{filter.size()}}, none_type());
+                        std::transform(filter.begin(), filter.end(), out.begin(), [this](typename F::dtype index) { return fast(index); });
+                        return out;
                     }
 
                 /* through iterators */

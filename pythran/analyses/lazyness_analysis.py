@@ -50,6 +50,19 @@ class LazynessAnalysis(FunctionAnalysis):
     >>> res = pm.gather(LazynessAnalysis, node)
     >>> res['i'], res['k']
     (inf, 2)
+    >>> code = '''
+    ... def foo():
+    ...     d = 0
+    ...     for i in range(2):
+    ...         for j in range(2):
+    ...             k = 1
+    ...             d += k * 2
+    ...     return d'''
+    >>> node = ast.parse(code)
+    >>> pm = passmanager.PassManager("test")
+    >>> res = pm.gather(LazynessAnalysis, node)
+    >>> res['k']
+    (1,)
     """
     INF = float('inf')
 
@@ -91,7 +104,7 @@ class LazynessAnalysis(FunctionAnalysis):
         # assign variable don't come from before omp pragma anymore
         self.in_omp.discard(node.id)
         # count number of use in the loop before first reassign
-        pre_loop = self.pre_loop_count.get(node.id, (0, True))
+        pre_loop = self.pre_loop_count.setdefault(node.id, (0, True))
         if not pre_loop[1]:
             self.pre_loop_count[node.id] = (pre_loop[0], True)
         # note this variable as modified
@@ -171,7 +184,8 @@ class LazynessAnalysis(FunctionAnalysis):
                 elif alias in self.name_count:
                     self.name_count[alias] += 1
                     # init value as pre_use variable and count it
-                    pre_loop = self.pre_loop_count.get(alias, (0, False))
+                    pre_loop = self.pre_loop_count.setdefault(alias,
+                                                              (0, False))
                     if not pre_loop[1]:
                         self.pre_loop_count[alias] = (pre_loop[0] + 1, False)
                 else:

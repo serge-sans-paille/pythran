@@ -13,7 +13,8 @@ class GenExpToImap(Transformation):
     '''
     Transforms generator expressions into iterators.
 
-    >>> import ast, passmanager, backend
+    >>> import ast
+    >>> from pythran import passmanager, backend
     >>> node = ast.parse("(x*x for x in range(10))")
     >>> pm = passmanager.PassManager("test")
     >>> node = pm.apply(GenExpToImap, node)

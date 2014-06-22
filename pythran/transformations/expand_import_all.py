@@ -12,7 +12,8 @@ class ExpandImportAll(Transformation):
     '''
     Expands all import when '*' detected
 
-    >>> import ast, passmanager, backend
+    >>> import ast
+    >>> from pythran import passmanager, backend
     >>> node = ast.parse("from math import *")
     >>> pm = passmanager.PassManager("test")
     >>> node = pm.apply(ExpandImportAll, node)

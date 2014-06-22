@@ -42,23 +42,24 @@ class _LazyRemover(Transformation):
 
 class ForwardSubstitution(Transformation):
     """
-        Replace variable that can be lazy evaluated and used only once by their
-        full computation code.
+    Replace variable that can be lazy evaluated and used only once by their
+    full computation code.
 
-        >>> import ast, passmanager, backend
-        >>> pm = passmanager.PassManager("test")
-        >>> node = ast.parse("def foo(): a = [2, 3]; print a")
-        >>> node = pm.apply(ForwardSubstitution, node)
-        >>> print pm.dump(backend.Python, node)
-        def foo():
-            pass
-            print [2, 3]
-        >>> node = ast.parse("def foo(): a = 2; print a + a")
-        >>> node = pm.apply(ForwardSubstitution, node)
-        >>> print pm.dump(backend.Python, node)
-        def foo():
-            pass
-            print (2 + 2)
+    >>> import ast
+    >>> from pythran import passmanager, backend
+    >>> pm = passmanager.PassManager("test")
+    >>> node = ast.parse("def foo(): a = [2, 3]; print a")
+    >>> node = pm.apply(ForwardSubstitution, node)
+    >>> print pm.dump(backend.Python, node)
+    def foo():
+        pass
+        print [2, 3]
+    >>> node = ast.parse("def foo(): a = 2; print a + a")
+    >>> node = pm.apply(ForwardSubstitution, node)
+    >>> print pm.dump(backend.Python, node)
+    def foo():
+        pass
+        print (2 + 2)
     """
     def __init__(self):
         super(ForwardSubstitution, self).__init__(LazynessAnalysis,

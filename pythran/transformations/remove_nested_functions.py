@@ -74,7 +74,8 @@ class RemoveNestedFunctions(Transformation):
     and a call to a bind intrinsic that
     generates a local function with some arguments binded.
 
-    >>> import ast, passmanager, backend
+    >>> import ast
+    >>> from pythran import passmanager, backend
     >>> node = ast.parse("def foo(x):\\n def bar(y): return x+y\\n bar(12)")
     >>> pm = passmanager.PassManager("test")
     >>> node = pm.apply(RemoveNestedFunctions, node)

@@ -12,7 +12,8 @@ class UnshadowParameters(Transformation):
     '''
     Prevents parameter shadowing by creating new variable.
 
-    >>> import ast, passmanager, backend
+    >>> import ast
+    >>> from pythran import passmanager, backend
     >>> node = ast.parse("def foo(a): a=None")
     >>> pm = passmanager.PassManager("test")
     >>> node = pm.apply(UnshadowParameters, node)

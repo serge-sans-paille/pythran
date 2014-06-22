@@ -13,7 +13,8 @@ class IterTransformation(Transformation):
     '''
     Replaces expressions by iterators when possible.
 
-    >>> import ast, passmanager, backend
+    >>> import ast
+    >>> from pythran import passmanager, backend
     >>> node = ast.parse("""                      \\n\
 def foo(l):                                       \\n\
     return __builtin__.sum(l)                     \\n\

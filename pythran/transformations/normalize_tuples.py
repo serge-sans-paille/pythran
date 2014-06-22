@@ -31,7 +31,8 @@ class NormalizeTuples(Transformation):
     """
     Remove implicit tuple -> variable conversion.
 
-    >>> import ast, passmanager, backend
+    >>> import ast
+    >>> from pythran import passmanager, backend
     >>> node = ast.parse("a=(1,2.) ; i,j = a")
     >>> pm = passmanager.PassManager("test")
     >>> node = pm.apply(NormalizeTuples, node)

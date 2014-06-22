@@ -9,7 +9,8 @@ from pythran.analyses import UseDefChain, UseOMP, Identifiers
 class FalsePolymorphism(Transformation):
     """
     Rename variable when possible to avoid false polymorphism.
-    >>> import ast, passmanager, backend
+    >>> import ast
+    >>> from pythran import passmanager, backend
     >>> node = ast.parse("def foo(): a = 12; a = 'babar'")
     >>> pm = passmanager.PassManager("test")
     >>> node = pm.apply(FalsePolymorphism, node)

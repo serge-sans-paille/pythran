@@ -17,7 +17,8 @@ class ConstantFolding(Transformation):
     '''
     Replace constant expression by their evaluation.
 
-    >>> import ast, passmanager, backend
+    >>> import ast
+    >>> from pythran import passmanager, backend
     >>> node = ast.parse("def foo(): return 1+3")
     >>> pm = passmanager.PassManager("test")
     >>> node = pm.apply(ConstantFolding, node)

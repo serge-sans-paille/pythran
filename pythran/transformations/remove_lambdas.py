@@ -65,7 +65,8 @@ class RemoveLambdas(Transformation):
     '''
     Turns lambda into top-level functions.
 
-    >>> import ast, passmanager, backend
+    >>> import ast
+    >>> from pythran import passmanager, backend
     >>> node = ast.parse("def foo(y): lambda x:y+x")
     >>> pm = passmanager.PassManager("test")
     >>> node = pm.apply(RemoveLambdas, node)

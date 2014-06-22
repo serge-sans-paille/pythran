@@ -22,7 +22,8 @@ class LazynessAnalysis(FunctionAnalysis):
     its last use or if it is use in a function call (as it is not an
     interprocedural analysis)
 
-    >>> import ast, passmanager, backend
+    >>> import ast
+    >>> from pythran import passmanager, backend
     >>> code = "def foo(): c = 1; a = c + 2; c = 2; b = c + c + a; return b"
     >>> node = ast.parse(code)
     >>> pm = passmanager.PassManager("test")

@@ -12,7 +12,8 @@ class ExpandImports(Transformation):
     '''
     Expands all imports into full paths.
 
-    >>> import ast, passmanager, backend
+    >>> import ast
+    >>> from pythran import passmanager, backend
     >>> node = ast.parse("from math import cos ; cos(2)")
     >>> pm = passmanager.PassManager("test")
     >>> node = pm.apply(ExpandImports, node)

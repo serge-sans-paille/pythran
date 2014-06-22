@@ -12,7 +12,8 @@ class NormalizeCompare(Transformation):
     '''
     Turns multiple compare into a function with proper temporaries.
 
-    >>> import ast, passmanager, backend
+    >>> import ast
+    >>> from pythran import passmanager, backend
     >>> node = ast.parse("def foo(a): return 0 < a + 1 < 3")
     >>> pm = passmanager.PassManager("test")
     >>> node = pm.apply(NormalizeCompare, node)

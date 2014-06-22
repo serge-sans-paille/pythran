@@ -15,7 +15,8 @@ class LoopFullUnrolling(Transformation):
     '''
     Fully unroll loops with static bounds
 
-    >>> import ast, passmanager, backend
+    >>> import ast
+    >>> from pythran import passmanager, backend
     >>> node = ast.parse('for j in [1,2,3]: i += j')
     >>> pm = passmanager.PassManager("test")
     >>> node = pm.apply(LoopFullUnrolling, node)

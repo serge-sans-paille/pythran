@@ -13,7 +13,8 @@ class RemoveComprehension(Transformation):
     """
     Turns all list comprehension from a node into new function calls.
 
-    >>> import ast, passmanager, backend
+    >>> import ast
+    >>> from pythran import passmanager, backend
     >>> node = ast.parse("[x*x for x in (1,2,3)]")
     >>> pm = passmanager.PassManager("test")
     >>> node = pm.apply(RemoveComprehension, node)

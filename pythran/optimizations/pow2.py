@@ -11,7 +11,8 @@ class Pow2(Transformation):
     '''
     Replaces **2 by a call to pow2
 
-    >>> import ast, passmanager, backend
+    >>> import ast
+    >>> from pythran import passmanager, backend
     >>> node = ast.parse('a**2')
     >>> pm = passmanager.PassManager("test")
     >>> node = pm.apply(Pow2, node)

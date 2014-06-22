@@ -11,7 +11,8 @@ class NormalizeException(Transformation):
     '''
     Transform else statement in try except block in nested try except.
 
-    >>> import ast, passmanager, backend
+    >>> import ast
+    >>> from pythran import passmanager, backend
     >>> node = ast.parse("try:print 't'\\nexcept: print 'x'\\nelse: print 'e'")
     >>> pm = passmanager.PassManager("test")
     >>> node = pm.apply(NormalizeException, node)

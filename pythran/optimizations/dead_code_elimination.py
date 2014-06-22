@@ -12,38 +12,39 @@ import ast
 
 class DeadCodeElimination(Transformation):
     """
-        Remove useless statement like:
-            - assignment to unused variables
-            - remove alone pure statement
-            - remove empty if
+    Remove useless statement like:
+        - assignment to unused variables
+        - remove alone pure statement
+        - remove empty if
 
-        >>> import ast, passmanager, backend
-        >>> pm = passmanager.PassManager("test")
-        >>> node = ast.parse("def foo(): a = [2, 3]; return 1")
-        >>> node = pm.apply(DeadCodeElimination, node)
-        >>> print pm.dump(backend.Python, node)
-        def foo():
-            pass
-            return 1
-        >>> node = ast.parse("def foo(): 'a simple string'; return 1")
-        >>> node = pm.apply(DeadCodeElimination, node)
-        >>> print pm.dump(backend.Python, node)
-        def foo():
-            pass
-            return 1
-        >>> node = ast.parse('''
-        ... def bar(a):
-        ...     return a
-        ... def foo(a):
-        ...    bar(a)
-        ...    return 1''')
-        >>> node = pm.apply(DeadCodeElimination, node)
-        >>> print pm.dump(backend.Python, node)
-        def bar(a):
-            return a
-        def foo(a):
-            pass
-            return 1
+    >>> import ast
+    >>> from pythran import passmanager, backend
+    >>> pm = passmanager.PassManager("test")
+    >>> node = ast.parse("def foo(): a = [2, 3]; return 1")
+    >>> node = pm.apply(DeadCodeElimination, node)
+    >>> print pm.dump(backend.Python, node)
+    def foo():
+        pass
+        return 1
+    >>> node = ast.parse("def foo(): 'a simple string'; return 1")
+    >>> node = pm.apply(DeadCodeElimination, node)
+    >>> print pm.dump(backend.Python, node)
+    def foo():
+        pass
+        return 1
+    >>> node = ast.parse('''
+    ... def bar(a):
+    ...     return a
+    ... def foo(a):
+    ...    bar(a)
+    ...    return 1''')
+    >>> node = pm.apply(DeadCodeElimination, node)
+    >>> print pm.dump(backend.Python, node)
+    def bar(a):
+        return a
+    def foo(a):
+        pass
+        return 1
     """
     def __init__(self):
         super(DeadCodeElimination, self).__init__(PureExpressions,

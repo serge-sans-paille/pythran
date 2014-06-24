@@ -5,6 +5,11 @@
 #include "pythonic/types/ndarray.hpp"
 #include <nt2/include/functions/cos.hpp>
 
+namespace nt2 {
+double cos(long l) { return cos(static_cast<double>(l)); }
+}
+
+
 namespace pythonic {
 
     namespace numpy {

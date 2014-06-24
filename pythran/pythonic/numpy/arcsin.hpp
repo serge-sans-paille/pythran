@@ -5,6 +5,10 @@
 #include "pythonic/types/ndarray.hpp"
 #include <nt2/include/functions/asin.hpp>
 
+namespace nt2 {
+double asin(long l) { return asin(static_cast<double>(l)); }
+}
+
 namespace pythonic {
 
     namespace numpy {

@@ -41,10 +41,6 @@ class BuildWithPly(build):
             print 'nt2 git repository not setup, cloning it'
             cmd = 'git clone https://github.com/MetaScale/nt2.git -b release'
             check_call(cmd.split())
-            # retreive previous nt2 release
-            os.chdir('nt2')
-            check_call('git reset --hard 9024abe687'.split())
-            os.chdir('..')
 
         nt2_build_dir = os.path.join(self.build_temp, nt2_dir)
         if not os.path.isdir(nt2_build_dir):

@@ -271,6 +271,7 @@ modules = {
         "copyto": FunctionIntr(argument_effects=[UpdateEffect(), ReadEffect(),
                                                  ReadEffect(), ReadEffect()]),
         "copysign": ConstFunctionIntr(),
+        "count_nonzero": ConstFunctionIntr(),
         "cos": ConstFunctionIntr(),
         "cosh": ConstFunctionIntr(),
         "cumprod": ConstMethodIntr(),

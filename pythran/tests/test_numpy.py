@@ -1977,6 +1977,29 @@ def test_copy0(x):
     def test_negative_mod(self):
         self.run_test("def np_negative_mod(a): return a % 5", numpy.array([-1, -5, -2, 7]), np_negative_mod=[numpy.array([int])])
 
+    def test_count_nonzero0(self):
+        self.run_test("def np_count_nonzero(a): from numpy import count_nonzero; return count_nonzero(a)",
+                      numpy.array([[-1, -5, -2, 7], [9, 3, 0, -0]]), np_count_nonzero=[numpy.array([[int]])])
+
+    def test_count_nonzero1(self):
+        self.run_test("def np_count_nonzero(a): from numpy import count_nonzero; return count_nonzero(a)",
+                       numpy.array([-1, 5, -2, 0]), np_count_nonzero=[numpy.array([int])])
+
+    def test_count_nonzero2(self):
+        self.run_test("def np_count_nonzero(a): from numpy import count_nonzero; return count_nonzero(a)",
+                      numpy.array([-1., 0., -2., -1e-20]), np_count_nonzero=[numpy.array([float])])
+
+    def test_count_nonzero3(self):
+        self.run_test("def np_count_nonzero(a): from numpy import count_nonzero; return count_nonzero(a)",
+                      numpy.array([[0, 2, 0., 4 + 1j], [0.+0.j, 0.+4j, 1.+0j, 1j]]), np_count_nonzero=[numpy.array([[complex]])])
+
+    def test_count_nonzero4(self):
+        self.run_test("def np_count_nonzero(a): from numpy import count_nonzero; return count_nonzero(a)",
+                      numpy.array([[True, False], [False, False]]), np_count_nonzero=[numpy.array([[bool]])])
+
+    def test_count_nonzero5(self):
+        self.run_test("def np_count_nonzero(a): from numpy import count_nonzero; return count_nonzero(a*2)",
+                      numpy.array([[-1, -5, -2, 7], [9, 3, 0, -0]]), np_count_nonzero=[numpy.array([[int]])])
 
 # automatic generation of basic test cases for ufunc
 binary_ufunc = (

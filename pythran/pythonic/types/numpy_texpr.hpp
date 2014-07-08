@@ -21,6 +21,7 @@ namespace pythonic {
             //
             // for N = 2
             struct numpy_texpr<ndarray<T, 2>> {
+                static const bool is_vectorizable = false;
                 typedef ndarray<T, 2> Arg;
 
                 typedef nditerator<numpy_texpr<Arg>> iterator;
@@ -57,6 +58,12 @@ namespace pythonic {
                 {
                     return arg(contiguous_slice(pythonic::__builtin__::None,pythonic::__builtin__::None), i);
                 }
+#ifdef USE_BOOST_SIMD
+                template<class I>
+                void load(I) const {
+                  typedef typename T::this_should_never_happen omg;
+                }
+#endif
 
                 auto operator[](long i) const -> decltype(this->fast(i)) {
                     if(i<0) i += shape[0];
@@ -76,7 +83,6 @@ namespace pythonic {
                 long size() const {
                     return arg.size();
                 }
-
             };
 
     }

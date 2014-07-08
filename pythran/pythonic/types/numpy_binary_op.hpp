@@ -52,22 +52,22 @@ typename std::enable_if<
 types::is_numexpr_arg<E>::value
 and
 std::is_scalar<S>::value,
-    types::numpy_expr<NUMPY_BINARY_FUNC_SYM, E,  types::broadcast<S>>
+    types::numpy_expr<NUMPY_BINARY_FUNC_SYM, E,  types::broadcast<typename E::dtype, S>>
     >::type
 NUMPY_BINARY_FUNC_NAME(E const& self, S other)
 {
-    return types::numpy_expr<NUMPY_BINARY_FUNC_SYM, E,  types::broadcast<S>>(self, types::broadcast<S>(other));
+    return types::numpy_expr<NUMPY_BINARY_FUNC_SYM, E,  types::broadcast<typename E::dtype, S>>(self, types::broadcast<typename E::dtype, S>(other));
 }
 template<class E, class S>
 typename std::enable_if<
 types::is_numexpr_arg<E>::value
 and
 std::is_scalar<S>::value,
-    types::numpy_expr<NUMPY_BINARY_FUNC_SYM, types::broadcast<S>, E>
+    types::numpy_expr<NUMPY_BINARY_FUNC_SYM, types::broadcast<typename E::dtype, S>, E>
     >::type
 NUMPY_BINARY_FUNC_NAME(S other, E const& self)
 {
-    return types::numpy_expr<NUMPY_BINARY_FUNC_SYM, types::broadcast<S>, E>(types::broadcast<S>(other), self);
+    return types::numpy_expr<NUMPY_BINARY_FUNC_SYM, types::broadcast<typename E::dtype, S>, E>(types::broadcast<typename E::dtype, S>(other), self);
 }
 
 

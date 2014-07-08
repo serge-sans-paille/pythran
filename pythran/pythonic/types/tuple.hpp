@@ -182,9 +182,15 @@ namespace pythonic {
                 reference
                     operator[](size_type __n)
                     { return buffer[__n]; }
+                reference
+                    fast(size_type __n)
+                    { return buffer[__n]; }
 
                 constexpr const_reference
                     operator[](size_type __n) const noexcept
+                    { return buffer[__n]; }
+                constexpr const_reference
+                    fast(size_type __n) const noexcept
                     { return buffer[__n]; }
 
                 reference 

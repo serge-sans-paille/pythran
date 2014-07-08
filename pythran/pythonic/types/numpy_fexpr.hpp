@@ -14,6 +14,7 @@ namespace pythonic {
             // where filters information is True so that we can jump to the correct value 
             // in the ndarray buffer in O(1)
             struct numpy_fexpr {
+                static const bool is_vectorizable = false;
                 //TODO accept multidimensionnal filtered expression
                 //>>> a = numpy.arange(2*3*4).reshape(2,3,4)
                 //array([[[ 0,  1,  2,  3],
@@ -125,6 +126,12 @@ namespace pythonic {
                 {
                     return *(arg.fbegin() + buffer[i]);
                 }
+#ifdef USE_BOOST_SIMD
+                template<class I> // template to prevent automatic instantiation when the type is not vectorizable
+                void load(I) const {
+                  typedef typename I::this_should_never_happen omg;
+                }
+#endif
                 auto operator[](long i) const -> decltype(this->fast(i))
                 {
                     if(i<0) i += shape[0];

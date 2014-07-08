@@ -23,7 +23,7 @@ namespace pythonic {
                 }
                 return true;
             }
-            
+
         template<class E>
             bool
             all(E const& expr, types::none_type _ = types::none_type()) {
@@ -47,11 +47,10 @@ namespace pythonic {
                 auto shape = array.shape;
                 if(axis==0)
                 {
-                    types::array<long, N> shp;
-                    shp[0] = 1;
-                    std::copy(shape.begin() + 1, shape.end(), shp.begin() + 1);
-                    types::ndarray<bool,N> out(shp, true);
-                    return std::accumulate(array.begin(), array.end(), *out.begin(), numpy::proxy::multiply());
+                    types::array<long, N - 1> shp;
+                    std::copy(shape.begin() + 1, shape.end(), shp.begin());
+                    types::ndarray<bool,N-1> out(shp, true);
+                    return std::accumulate(array.begin(), array.end(), out, proxy::multiply());
                 }
                 else
                 {

@@ -8,6 +8,8 @@ namespace pythonic {
          */
         template<class Op, class Arg>
             struct numpy_uexpr {
+                static const bool is_vectorizable = std::remove_reference<Arg>::type::is_vectorizable
+                                                    and types::is_vector_op<Op>::value;
                 typedef const_nditerator<numpy_uexpr<Op, Arg>> iterator;
                 static constexpr size_t value = std::remove_reference<Arg>::type::value;
                 typedef decltype(Op()(std::declval<typename std::remove_reference<Arg>::type::value_type>())) value_type;
@@ -28,6 +30,12 @@ namespace pythonic {
                 auto fast(long i) const -> decltype(Op()(arg.fast(i))) {
                     return Op()(arg.fast(i));
                 }
+#ifdef USE_BOOST_SIMD
+                template<class I> // template to prevent automatic instantiation
+                auto load(I i) const -> decltype(Op()(arg.load(i))) {
+                  return Op()(arg.load(i));
+                }
+#endif
                 auto operator[](long i) const -> decltype(this->fast(i)) {
                     if(i<0) i += shape[0];
                     return fast(i);

@@ -10,7 +10,7 @@ namespace pythonic {
 
         namespace wrapper {
             template<class T>
-                auto square(T const& t) -> typename std::enable_if<std::is_scalar<T>::value, decltype(t*t)>::type
+                auto square(T const& t) -> decltype(t*t)
                 {
                     return t*t;
                 }

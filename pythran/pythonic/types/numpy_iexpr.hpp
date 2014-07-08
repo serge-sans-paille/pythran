@@ -4,6 +4,11 @@
 #include "pythonic/types/nditerator.hpp"
 #include "pythonic/types/tuple.hpp"
 
+#ifdef USE_BOOST_SIMD
+#include <boost/simd/sdk/simd/native.hpp>
+#include <boost/simd/include/functions/store.hpp>
+#endif
+
 #include <numeric>
 
 namespace pythonic {
@@ -20,10 +25,11 @@ namespace pythonic {
         template<class T, size_t N>
             struct numpy_iexpr_helper;
 
-        template<class Arg>
+        template<class Arg> // Arg often is a reference, e.g. for something as simple as a[i]
             struct numpy_iexpr {
                 // wrapper around another numpy expression to skip first dimension using a given value.
                 static constexpr size_t value = std::remove_reference<Arg>::type::value - 1;
+                static const bool is_vectorizable = std::remove_reference<Arg>::type::is_vectorizable;
                 typedef typename std::remove_reference<Arg>::type::dtype dtype;
                 typedef typename std::remove_reference<decltype(numpy_iexpr_helper<numpy_iexpr, value>::get(std::declval<numpy_iexpr>(), 0L))>::type value_type;
 
@@ -58,10 +64,10 @@ namespace pythonic {
 
                 template<class E>
                 numpy_iexpr& operator=(E const& expr) {
-                    return utils::broadcast_copy(*this, expr, utils::int_<value - utils::dim_of<E>::value>());
+                    return utils::broadcast_copy<numpy_iexpr&, E, value, value - utils::dim_of<E>::value, false/*NIY*/>(*this, expr);
                 }
                 numpy_iexpr& operator=(numpy_iexpr const& expr) {
-                    return utils::broadcast_copy(*this, expr, utils::int_<value - utils::dim_of<numpy_iexpr>::value>());
+                    return utils::broadcast_copy<numpy_iexpr&, numpy_iexpr, value, value - utils::dim_of<numpy_iexpr>::value, false/*NIY*/>(*this, expr);
                 }
                 template<class E>
                 numpy_iexpr& operator+=(E const& expr) {
@@ -128,6 +134,22 @@ namespace pythonic {
                 auto fast(long i) &&-> decltype(numpy_iexpr_helper<numpy_iexpr, value>::get(std::move(*this), i)) {
                     return numpy_iexpr_helper<numpy_iexpr, value>::get(std::move(*this), i);
                 }
+#ifdef USE_BOOST_SIMD
+                template<class I>
+                auto load(I i) const
+                -> decltype(boost::simd::load<boost::simd::native<dtype, BOOST_SIMD_DEFAULT_EXTENSION>>(this->buffer, i))
+                {
+                  typedef dtype T;
+                  typedef typename boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION> vT;
+                  return boost::simd::load<vT>(buffer, i);
+                }
+                template<class V>
+                void store(V &&v, long i) {
+                  typedef dtype T;
+                  typedef typename boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION> vT;
+                  boost::simd::store<vT>(v, buffer, i);
+                }
+#endif
                 auto operator[](long i) const &-> decltype(this->fast(i)) {
                     if(i<0) i += shape[0];
                     return fast(i);

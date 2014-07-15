@@ -1,10 +1,12 @@
 """
 NormalizeMethodCalls turns built in method calls into function calls
 """
-import ast
+
 from pythran.analyses import Globals
 from pythran.passmanager import Transformation
 from pythran.tables import attributes, functions, methods, modules, namespace
+
+import ast
 
 
 class NormalizeMethodCalls(Transformation):

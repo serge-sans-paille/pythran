@@ -1,8 +1,8 @@
 """
 Globals computes the value of globals()
 """
-import ast
-from global_declarations import GlobalDeclarations
+
+from pythran.analyses.global_declarations import GlobalDeclarations
 from pythran.passmanager import ModuleAnalysis
 from pythran.tables import modules
 

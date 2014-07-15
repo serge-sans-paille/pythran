@@ -1,10 +1,12 @@
 """
 GenExpToImap transforms generator expressions into iterators
 """
-import ast
+
 from pythran.analyses import OptimizableComprehension
 from pythran.passmanager import Transformation
 from pythran.transformations import NormalizeTuples
+
+import ast
 
 
 class GenExpToImap(Transformation):

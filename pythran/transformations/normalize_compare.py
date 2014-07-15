@@ -1,9 +1,11 @@
 """
 NormalizeCompare turns complex compare into function calls
 """
-import ast
+
 from pythran.analyses import ImportedIds
 from pythran.passmanager import Transformation
+
+import ast
 
 
 class NormalizeCompare(Transformation):

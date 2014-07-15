@@ -1,10 +1,12 @@
 """
 ListCompToMap transforms list comprehension into intrinsics.
 """
-import ast
+
 from pythran.analyses import OptimizableComprehension
 from pythran.passmanager import Transformation
 from pythran.transformations import NormalizeTuples
+
+import ast
 
 
 class ListCompToMap(Transformation):

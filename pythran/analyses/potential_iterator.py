@@ -1,10 +1,12 @@
 """
 PotentialIterator finds if it is possible to use an iterator.
 """
-import ast
-from aliases import Aliases
-from argument_read_once import ArgumentReadOnce
+
+from pythran.analyses.aliases import Aliases
+from pythran.analyses.argument_read_once import ArgumentReadOnce
 from pythran.passmanager import NodeAnalysis
+
+import ast
 
 
 class PotentialIterator(NodeAnalysis):

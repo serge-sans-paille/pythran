@@ -1,9 +1,11 @@
 """
 ExpandImports replaces imports by their full paths
 """
-import ast
+
 from pythran.passmanager import Transformation
 from pythran.tables import namespace
+
+import ast
 
 
 class ExpandImports(Transformation):

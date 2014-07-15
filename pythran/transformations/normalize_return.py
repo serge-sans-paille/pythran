@@ -1,9 +1,11 @@
 """
 NormalizeReturn adds return statement where relevant
 """
-import ast
+
 from pythran.analyses import CFG, YieldPoints
 from pythran.passmanager import Transformation
+
+import ast
 
 
 class NormalizeReturn(Transformation):

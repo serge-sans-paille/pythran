@@ -4,11 +4,12 @@ This modules contains OpenMP-related stuff.
     * GatherOMPData turns OpenMP-like string annotations into metadata
 '''
 
-import metadata
+from pythran.passmanager import Transformation
+import pythran.metadata as metadata
+
 from ast import AST
 import ast
 import re
-from passmanager import Transformation
 
 keywords = {
     'atomic',

@@ -1,11 +1,13 @@
 """
 ParallelMaps detects parallel map(...)
 """
-import ast
-from aliases import Aliases
-from pure_expressions import PureExpressions
+
+from pythran.analyses.aliases import Aliases
+from pythran.analyses.pure_expressions import PureExpressions
 from pythran.passmanager import ModuleAnalysis
 from pythran.tables import modules
+
+import ast
 
 
 class ParallelMaps(ModuleAnalysis):

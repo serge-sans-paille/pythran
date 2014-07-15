@@ -1,11 +1,13 @@
 """
 RemoveLambdas turns lambda into regular functions
 """
-import ast
-from copy import copy
+
 from pythran.analyses import GlobalDeclarations, ImportedIds
 from pythran.passmanager import Transformation
 from pythran.tables import modules
+
+from copy import copy
+import ast
 
 
 class _LambdaRemover(Transformation):

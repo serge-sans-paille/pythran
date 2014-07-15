@@ -2,30 +2,31 @@
 This module contains all the stuff to make your way from python code to
 a dynamic library, see __init__.py for exported interfaces.
 '''
-import sys
-import re
-import os.path
-import sysconfig
-import shutil
-import logging
-logger = logging.getLogger(__name__)
 
-from cxxgen import *
-import ast
-from middlend import refine
-from backend import Cxx
-import frontend
-from config import cfg
-from passmanager import PassManager
+from pythran.backend import Cxx
+from pythran.config import cfg
+from pythran.cxxgen import BoostPythonModule, Define, Include, Line, Statement
+from pythran.cxxgen import FunctionBody, FunctionDeclaration, Value, Block
+from pythran.intrinsic import ConstExceptionIntr
+from pythran.middlend import refine
+from pythran.passmanager import PassManager
+from pythran.tables import pythran_ward, functions
+from pythran.typing import extract_constructed_types, pytype_to_ctype
+from pythran.typing import pytype_to_deps
+import pythran.frontend as frontend
+
 from numpy import get_include
-from typing import extract_constructed_types, pytype_to_ctype, pytype_to_deps
-from tables import pythran_ward, functions
-from intrinsic import ConstExceptionIntr
-
-from os import devnull
-from subprocess import check_call, check_output, STDOUT, CalledProcessError
-from tempfile import mkstemp, NamedTemporaryFile
+from subprocess import check_output, STDOUT, CalledProcessError
+from tempfile import mkstemp
+import ast
+import logging
 import networkx as nx
+import os.path
+import shutil
+import sys
+import sysconfig
+
+logger = logging.getLogger(__name__)
 
 
 def _format_cmdline(cmd):

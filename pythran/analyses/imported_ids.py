@@ -1,11 +1,13 @@
 """
 ImportedIds gathers identifiers imported by a node
 """
-import ast
-from globals_analysis import Globals
-from locals_analysis import Locals
-import pythran.metadata as md
+
+from pythran.analyses.globals_analysis import Globals
+from pythran.analyses.locals_analysis import Locals
 from pythran.passmanager import NodeAnalysis
+import pythran.metadata as md
+
+import ast
 
 
 class ImportedIds(NodeAnalysis):

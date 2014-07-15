@@ -1,12 +1,14 @@
 """
 Scope computes scope information
 """
-import ast
-from ancestors import Ancestors
-from collections import defaultdict
-import pythran.openmp as openmp
+
+from pythran.analyses.ancestors import Ancestors
+from pythran.analyses.use_def_chain import UseDefChain
 from pythran.passmanager import FunctionAnalysis
-from use_def_chain import UseDefChain
+import pythran.openmp as openmp
+
+from collections import defaultdict
+import ast
 
 
 class Scope(FunctionAnalysis):

@@ -1,7 +1,7 @@
 """
 Ancestors computes the ancestors of each node
 """
-import ast
+
 from pythran.passmanager import ModuleAnalysis
 
 

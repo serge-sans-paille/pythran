@@ -1,8 +1,10 @@
 """
 NormalizeException simplifies try blocks
 """
-import ast
+
 from pythran.passmanager import Transformation
+
+import ast
 
 
 class NormalizeException(Transformation):

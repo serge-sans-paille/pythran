@@ -6,12 +6,13 @@ License.
 "Usage: unparse.py <path to source file>"
 
 
-import sys
+import pythran.metadata as metadata
+import pythran.openmp as openmp
+
 import ast
 import cStringIO
 import os
-import metadata
-import openmp
+import sys
 
 
 # Large float and imaginary literals get turned into infinities in the AST.

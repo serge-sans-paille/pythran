@@ -1,8 +1,10 @@
 """
 LocalDeclarations gathers declarations local to a node
 """
-import ast
+
 from pythran.passmanager import NodeAnalysis
+
+import ast
 
 
 class LocalDeclarations(NodeAnalysis):

@@ -1,15 +1,17 @@
 """
 LazynessAnalysis returns number of time a name is use.
 """
-import ast
-from aliases import Aliases
-from argument_effects import ArgumentEffects
-from identifiers import Identifiers
-from pure_expressions import PureExpressions
-import pythran.metadata as md
-import pythran.openmp as openmp
+
+from pythran.analyses.aliases import Aliases
+from pythran.analyses.argument_effects import ArgumentEffects
+from pythran.analyses.identifiers import Identifiers
+from pythran.analyses.pure_expressions import PureExpressions
 from pythran.passmanager import FunctionAnalysis
 from pythran.syntax import PythranSyntaxError
+import pythran.metadata as md
+import pythran.openmp as openmp
+
+import ast
 
 
 class LazynessAnalysis(FunctionAnalysis):

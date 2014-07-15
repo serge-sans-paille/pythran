@@ -1,8 +1,10 @@
 """
 Replaces **2 by a call to pow2
 """
-import ast
+
 from pythran.passmanager import Transformation
+
+import ast
 
 
 class Pow2(Transformation):

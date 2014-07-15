@@ -1,8 +1,10 @@
 """
 NormalizeTuples removes implicit variable -> tuple conversion
 """
-import ast
+
 from pythran.passmanager import Transformation
+
+import ast
 
 
 class _ConvertToTuple(ast.NodeTransformer):

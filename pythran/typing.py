@@ -4,25 +4,26 @@ This module performs the return type inference, according to symbolic types,
     * type_all generates a node -> type binding
 '''
 
-import ast
-from numpy import ndarray
-import networkx as nx
+from pythran.analyses import (GlobalDeclarations, LazynessAnalysis,
+                              LocalDeclarations, OrderedGlobalDeclarations,
+                              StrictAliases, YieldPoints)
+from pythran.config import cfg
+from pythran.cxxtypes import NamedType, ContainerType, PType, Assignable, Lazy
+from pythran.cxxtypes import ExpressionType, IteratorContentType, ReturnType
+from pythran.cxxtypes import GetAttr, DeclType, ElementType, IndexableType
+from pythran.cxxtypes import Weak, ListType, SetType, DictType, TupleType
+from pythran.cxxtypes import ArgumentType
+from pythran.intrinsic import UserFunction, MethodIntr
+from pythran.passmanager import ModuleAnalysis, Transformation
+from pythran.syntax import PythranSyntaxError
+from pythran.tables import pytype_to_ctype_table, operator_to_lambda, modules
 
-from tables import (pytype_to_ctype_table, operator_to_lambda, modules,
-                    methods, functions)
-from analyses import (GlobalDeclarations, YieldPoints, LocalDeclarations,
-                      OrderedGlobalDeclarations, StrictAliases,
-                      LazynessAnalysis)
-from passmanager import ModuleAnalysis, Transformation
-from syntax import PythranSyntaxError
-from cxxtypes import *
-from intrinsic import UserFunction, MethodIntr
-import itertools
-import operator
-import metadata
-import intrinsic
-from config import cfg
 from collections import defaultdict
+from numpy import ndarray
+import ast
+import itertools
+import networkx as nx
+import operator
 
 
 # networkx backward compatibility

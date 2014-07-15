@@ -14,8 +14,8 @@ from ancestors import Ancestors
 from argument_effects import ArgumentEffects
 from argument_read_once import ArgumentReadOnce
 from bounded_expressions import BoundedExpressions
-from constant_expressions import ConstantExpressions
 from cfg import CFG
+from constant_expressions import ConstantExpressions
 from dependencies import Dependencies
 from global_declarations import GlobalDeclarations
 from global_effects import GlobalEffects
@@ -35,6 +35,6 @@ from parallel_maps import ParallelMaps
 from potential_iterator import PotentialIterator
 from pure_expressions import PureExpressions
 from scope import Scope
-from use_omp import UseOMP
 from use_def_chain import UseDefChain
+from use_omp import UseOMP
 from yield_points import YieldPoints

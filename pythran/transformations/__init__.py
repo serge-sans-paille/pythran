@@ -12,8 +12,8 @@ import transformations.xxxxx
 
 
 from expand_builtins import ExpandBuiltins
-from expand_imports import ExpandImports
 from expand_import_all import ExpandImportAll
+from expand_imports import ExpandImports
 from extract_top_level_stmts import ExtractTopLevelStmts
 from false_polymorphism import FalsePolymorphism
 from normalize_compare import NormalizeCompare

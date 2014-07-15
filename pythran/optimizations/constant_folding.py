@@ -1,14 +1,15 @@
 """
 ConstantFolding performs some kind of partial evaluation.
 """
-import ast
-import types
-import numpy
-import itertools
+
 from pythran.analyses import ConstantExpressions, Aliases
 from pythran.passmanager import Transformation
 from pythran.tables import modules, cxx_keywords
-from pythran.transformations import NormalizeTuples
+import types
+
+import ast
+import itertools
+import numpy
 
 
 class ConstantFolding(Transformation):

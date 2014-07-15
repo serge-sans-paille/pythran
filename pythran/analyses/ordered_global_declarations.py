@@ -1,11 +1,12 @@
 """
 OrderedGlobalDeclarations orders all global functions.
 """
-import ast
+
+from pythran.analyses.aliases import StrictAliases
+from pythran.analyses.global_declarations import GlobalDeclarations
 from pythran.passmanager import ModuleAnalysis
-from aliases import StrictAliases
-from globals_analysis import Globals
-from global_declarations import GlobalDeclarations
+
+import ast
 
 
 class OrderedGlobalDeclarations(ModuleAnalysis):

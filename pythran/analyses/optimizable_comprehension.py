@@ -1,9 +1,9 @@
 """
 OptimizableComp finds whether a comprehension can be optimized.
 """
-import ast
+
+from pythran.analyses.identifiers import Identifiers
 from pythran.passmanager import NodeAnalysis
-from identifiers import Identifiers
 
 
 class OptimizableComprehension(NodeAnalysis):

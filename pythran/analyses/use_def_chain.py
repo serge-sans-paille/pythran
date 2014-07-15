@@ -1,14 +1,16 @@
 """
 UsedDefChain build used-define chains analysis for each variable.
 """
-import ast
-from itertools import product
-import networkx as nx
-from globals_analysis import Globals
-from imported_ids import ImportedIds
-import pythran.metadata as md
+
+from pythran.analyses.imported_ids import ImportedIds
+from pythran.analyses.globals_analysis import Globals
 from pythran.passmanager import FunctionAnalysis
 from pythran.syntax import PythranSyntaxError
+import pythran.metadata as md
+
+from itertools import product
+import ast
+import networkx as nx
 
 
 class UseDefChain(FunctionAnalysis):

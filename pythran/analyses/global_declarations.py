@@ -1,7 +1,7 @@
 """
 GlobalDeclarations gathers top-level declarations
 """
-import ast
+
 from pythran.passmanager import ModuleAnalysis
 
 

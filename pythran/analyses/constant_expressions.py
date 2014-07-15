@@ -1,14 +1,16 @@
 """
 ConstantExpressions gathers constant expression
 """
-import ast
-from aliases import Aliases
-from globals_analysis import Globals
-from locals_analysis import Locals
-from pure_expressions import PureExpressions
+
+from pythran.analyses.aliases import Aliases
+from pythran.analyses.globals_analysis import Globals
+from pythran.analyses.locals_analysis import Locals
+from pythran.analyses.pure_expressions import PureExpressions
 from pythran.intrinsic import FunctionIntr
 from pythran.passmanager import NodeAnalysis
 from pythran.tables import modules
+
+import ast
 
 
 class ConstantExpressions(NodeAnalysis):

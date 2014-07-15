@@ -1,8 +1,10 @@
 """
 Literals lists nodes that are only literals
 """
-import ast
+
 from pythran.passmanager import ModuleAnalysis
+
+import ast
 
 
 class Literals(ModuleAnalysis):

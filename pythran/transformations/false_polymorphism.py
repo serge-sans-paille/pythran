@@ -1,9 +1,9 @@
 """
 FalsePolymorphism rename variable if possible to avoid false polymorphism
 """
-import ast
+
 from pythran.passmanager import Transformation
-from pythran.analyses import UseDefChain, UseOMP, Globals, Identifiers
+from pythran.analyses import UseDefChain, UseOMP, Identifiers
 
 
 class FalsePolymorphism(Transformation):

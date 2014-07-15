@@ -1,11 +1,13 @@
 """
 ExpandBuiltins replaces builtins by their full paths
 """
-import ast
+
 from pythran.analyses import Globals, Locals
 from pythran.passmanager import Transformation
-from pythran.tables import modules
 from pythran.syntax import PythranSyntaxError
+from pythran.tables import modules
+
+import ast
 
 
 class ExpandBuiltins(Transformation):

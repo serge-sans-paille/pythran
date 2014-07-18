@@ -1968,6 +1968,9 @@ def test_copy0(x):
     def test_allclose3(self):
         self.run_test("def np_allclose3(a): from numpy import allclose; return allclose(a, a)", [1.0, numpy.nan], np_allclose3=[[float]])
 
+    def test_allclose4(self):
+        self.run_test("def np_allclose2(a): from numpy import array, allclose; return allclose(array([-float('inf'),float('inf'),-float('inf')]), a)", numpy.array([float("inf"),float("inf"),-float('inf')]), np_allclose2=[numpy.array([float])])
+
     def test_alltrue0(self):
         self.run_test("def np_alltrue0(b): from numpy import alltrue ; return alltrue(b)", numpy.array([True, False, True, True]), np_alltrue0=[numpy.array([bool])])
 

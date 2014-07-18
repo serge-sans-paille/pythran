@@ -328,6 +328,7 @@ modules = {
         "int64": ConstFunctionIntr(),
         "int8": ConstFunctionIntr(),
         "invert": ConstFunctionIntr(),
+        "isclose": ConstFunctionIntr(),
         "iscomplex": ConstFunctionIntr(),
         "isfinite": ConstFunctionIntr(),
         "isinf": ConstFunctionIntr(),

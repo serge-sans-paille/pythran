@@ -1,9 +1,11 @@
 """
 ExpandImportAll replaces import * by all their modules
 """
-import ast
+
 from pythran.passmanager import Transformation
 from pythran.tables import modules
+
+import ast
 
 
 class ExpandImportAll(Transformation):

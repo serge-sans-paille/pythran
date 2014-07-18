@@ -4,8 +4,9 @@ It checks the conformance of the input code to Pythran specific
 constraints.
 '''
 
+import pythran.tables as tables
+
 import ast
-import tables
 
 
 class PythranSyntaxError(SyntaxError):

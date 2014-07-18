@@ -1,8 +1,8 @@
 '''
 This module defines classes needed to manipulate c++ types from pythran.
 '''
-import tables
-from config import cfg
+
+from pythran.config import cfg
 
 
 class Weak:

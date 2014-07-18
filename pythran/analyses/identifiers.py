@@ -1,7 +1,7 @@
 """
 Identifiers gathers all identifiers used in a node
 """
-import ast
+
 from pythran.passmanager import NodeAnalysis
 
 

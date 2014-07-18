@@ -1,12 +1,14 @@
 """
 LoopFullUnrolling fully unrolls loops with static bounds
 """
-import ast
-from copy import deepcopy
+
 from pythran import metadata
 from pythran.analyses import HasBreak, HasContinue, NodeCount
 from pythran.openmp import OMPDirective
 from pythran.passmanager import Transformation
+
+from copy import deepcopy
+import ast
 
 
 class LoopFullUnrolling(Transformation):

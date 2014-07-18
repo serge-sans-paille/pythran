@@ -1,6 +1,7 @@
 """
 UseOMP detects if a function use OpenMP
 """
+
 from pythran.passmanager import FunctionAnalysis
 
 

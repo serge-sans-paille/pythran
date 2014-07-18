@@ -1,6 +1,7 @@
 """
 HasContinue detects if a loop has a direct continue
 """
+
 from pythran.passmanager import NodeAnalysis
 
 

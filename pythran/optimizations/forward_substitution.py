@@ -2,9 +2,11 @@
 Replace variable that can be lazy evaluated and used only once by their full
 computation code.
 """
-import ast
+
 from pythran.analyses import LazynessAnalysis, UseDefChain, Literals
 from pythran.passmanager import Transformation
+
+import ast
 
 
 class _LazyRemover(Transformation):

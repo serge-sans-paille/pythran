@@ -2,14 +2,13 @@
 This modules provides the translation tables from python to c++.
 '''
 
-import ast
-import cxxtypes
+from pythran.intrinsic import Class, ReadOnceFunctionIntr, ConstExceptionIntr
+from pythran.intrinsic import ConstFunctionIntr, FunctionIntr, UpdateEffect
+from pythran.intrinsic import ConstMethodIntr, MethodIntr, AttributeIntr
+from pythran.intrinsic import ReadEffect, ConstantIntr
+import pythran.cxxtypes as cxxtypes
 
-from intrinsic import Class
-from intrinsic import ConstFunctionIntr, FunctionIntr, ReadOnceFunctionIntr
-from intrinsic import ConstMethodIntr, MethodIntr, AttributeIntr, ConstantIntr
-from intrinsic import ConstExceptionIntr
-from intrinsic import UpdateEffect, ReadEffect
+import ast
 import numpy
 import sys
 

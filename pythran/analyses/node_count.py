@@ -1,7 +1,7 @@
 """
 NodeCount counts the number of nodes in a node
 """
-import ast
+
 from pythran.passmanager import NodeAnalysis
 
 

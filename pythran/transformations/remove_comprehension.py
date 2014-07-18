@@ -1,10 +1,12 @@
 """
 RemoveComprehension turns list comprehension into function calls
 """
-import ast
+
 from pythran import metadata
 from pythran.analyses import ImportedIds
 from pythran.passmanager import Transformation
+
+import ast
 
 
 class RemoveComprehension(Transformation):

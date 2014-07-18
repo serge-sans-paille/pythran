@@ -1,13 +1,15 @@
 """
 ArgumentEffects computes write effect on arguments
 """
-import ast
-import networkx as nx
-from aliases import Aliases
-from global_declarations import GlobalDeclarations
-import pythran.intrinsic as intrinsic
+
+from pythran.analyses.aliases import Aliases
+from pythran.analyses.global_declarations import GlobalDeclarations
 from pythran.passmanager import ModuleAnalysis
 from pythran.tables import modules
+import pythran.intrinsic as intrinsic
+
+import ast
+import networkx as nx
 
 
 class ArgumentEffects(ModuleAnalysis):

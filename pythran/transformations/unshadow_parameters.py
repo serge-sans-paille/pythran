@@ -1,9 +1,11 @@
 """
 UnshadowParameters prevents the shadow parameter phenomenon
 """
-import ast
+
 from pythran.analyses import Identifiers
 from pythran.passmanager import Transformation
+
+import ast
 
 
 class UnshadowParameters(Transformation):

@@ -1,6 +1,7 @@
 """
 HasBreak detects if a loop has a direct break
 """
+
 from pythran.passmanager import NodeAnalysis
 
 

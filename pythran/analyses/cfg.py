@@ -1,9 +1,11 @@
 """
 Computes the Control Flow Graph of a function
 """
+
+from pythran.passmanager import FunctionAnalysis
+
 import ast
 import networkx as nx
-from pythran.passmanager import FunctionAnalysis
 
 
 class CFG(FunctionAnalysis):

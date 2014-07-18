@@ -1,7 +1,7 @@
 """
 NormalizeIdentifiers prevents conflicts with c++ keywords
 """
-import ast
+
 from pythran.analyses import Identifiers
 from pythran.passmanager import Transformation
 from pythran.tables import cxx_keywords

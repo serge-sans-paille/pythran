@@ -1,10 +1,12 @@
 """
 Dependencies lists the functions and types required by a function
 """
-import ast
-import math
+
 from pythran.passmanager import ModuleAnalysis
 from pythran.tables import modules
+
+import ast
+import math
 
 
 class Dependencies(ModuleAnalysis):

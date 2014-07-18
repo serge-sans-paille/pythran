@@ -1,8 +1,10 @@
 """
 ExtractTopLevelStmts moves top level statements into __init__
 """
-import ast
+
 from pythran.passmanager import Transformation
+
+import ast
 
 
 class ExtractTopLevelStmts(Transformation):

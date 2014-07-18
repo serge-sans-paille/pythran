@@ -1,14 +1,15 @@
 """
 Aliases gather aliasing informations
 """
-import ast
-from global_declarations import GlobalDeclarations
+
+from pythran.analyses.global_declarations import GlobalDeclarations
 from pythran.intrinsic import Intrinsic
-import pythran.metadata as md
 from pythran.passmanager import ModuleAnalysis
 from pythran.syntax import PythranSyntaxError
 from pythran.tables import functions, methods, modules
-from pythran.syntax import PythranSyntaxError
+import pythran.metadata as md
+
+import ast
 
 
 class Aliases(ModuleAnalysis):

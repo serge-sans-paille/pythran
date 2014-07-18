@@ -1,10 +1,12 @@
 """
 ListCompToGenexp transforms list comprehension into genexp
 """
-import ast
+
 from pythran.analyses import PotentialIterator
 from pythran.passmanager import Transformation
 from pythran.transformations import NormalizeTuples
+
+import ast
 
 
 class ListCompToGenexp(Transformation):

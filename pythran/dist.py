@@ -3,9 +3,10 @@ This modules contains a distutils extension mechanism for Pythran
     * PythranExtension: is used as distutils's Extension
 '''
 
+import pythran.toolchain as tc
+
 from distutils.core import Extension
 import os.path
-import toolchain as tc
 
 
 class PythranExtension(Extension):

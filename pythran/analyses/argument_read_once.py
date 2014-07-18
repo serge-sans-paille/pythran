@@ -1,13 +1,14 @@
 """
 ArgumentReadOnce counts the usages of each argument of each function
 """
-import ast
-from aliases import Aliases
-from global_declarations import GlobalDeclarations
-import networkx as nx
-import pythran.intrinsic as intrinsic
+
+from pythran.analyses.aliases import Aliases
+from pythran.analyses.global_declarations import GlobalDeclarations
 from pythran.passmanager import ModuleAnalysis
 from pythran.tables import modules
+import pythran.intrinsic as intrinsic
+
+import ast
 
 
 class ArgumentReadOnce(ModuleAnalysis):

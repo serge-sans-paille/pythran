@@ -2,14 +2,15 @@
 This module provides a dummy parser for pythran annotations.
     * spec_parser reads the specs from a python module and returns them.
 '''
+
+from numpy import array
+from numpy import complex64, complex128
+from numpy import float32, float64
+from numpy import int8, int16, int32, int64
+from numpy import uint8, uint16, uint32, uint64
+import os.path
 import ply.lex as lex
 import ply.yacc as yacc
-import os.path
-from numpy import array
-from numpy import uint8, uint16, uint32, uint64
-from numpy import int8, int16, int32, int64
-from numpy import float32, float64
-from numpy import complex64, complex128
 
 
 class SpecParser:

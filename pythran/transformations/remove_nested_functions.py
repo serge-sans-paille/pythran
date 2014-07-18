@@ -1,10 +1,12 @@
 """
 RemoveNestedFunctions turns nested function into top-level functions
 """
-import ast
+
 from pythran.analyses import GlobalDeclarations, ImportedIds
 from pythran.passmanager import Transformation
 from pythran.tables import modules
+
+import ast
 
 
 class _NestedFunctionRemover(Transformation):

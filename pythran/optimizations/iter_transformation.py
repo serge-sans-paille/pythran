@@ -1,10 +1,12 @@
 """
 IterTransformation replaces expressions by iterators when possible.
 """
-import ast
+
 from pythran.analyses import PotentialIterator, Aliases
 from pythran.passmanager import Transformation
 from pythran.tables import equivalent_iterators
+
+import ast
 
 
 class IterTransformation(Transformation):

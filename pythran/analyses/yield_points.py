@@ -1,7 +1,7 @@
 """
 YieldPoints gathers all yield points from a node
 """
-import ast
+
 from pythran.passmanager import FunctionAnalysis
 
 

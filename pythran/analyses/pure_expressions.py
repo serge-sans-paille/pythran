@@ -1,11 +1,13 @@
 """
 PureExpressions detects functions without side-effects.
 """
-import ast
-from argument_effects import ArgumentEffects
-from global_effects import GlobalEffects
-from aliases import Aliases
+
+from pythran.analyses.aliases import Aliases
+from pythran.analyses.argument_effects import ArgumentEffects
+from pythran.analyses.global_effects import GlobalEffects
 from pythran.passmanager import ModuleAnalysis
+
+import ast
 
 
 class PureExpressions(ModuleAnalysis):

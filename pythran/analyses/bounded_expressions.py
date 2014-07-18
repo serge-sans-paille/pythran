@@ -1,7 +1,9 @@
 """
 BoundedExpressions gathers temporary objects
 """
+
 from pythran.passmanager import ModuleAnalysis
+
 import ast
 
 

@@ -1,9 +1,11 @@
 """
 Locals computes the value of locals()
 """
-import ast
-import pythran.metadata as md
+
 from pythran.passmanager import ModuleAnalysis
+import pythran.metadata as md
+
+import ast
 
 
 class Locals(ModuleAnalysis):

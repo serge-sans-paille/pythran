@@ -4,27 +4,27 @@ This module contains all pythran backends.
     * Python dumps the AST into Python code
 '''
 
-import ast
-from cxxgen import *
-from cxxtypes import *
-
-from analyses import LocalDeclarations, GlobalDeclarations, Scope, Dependencies
-from analyses import YieldPoints, BoundedExpressions, ArgumentEffects
-from passmanager import Backend
-
-from tables import operator_to_lambda, modules, type_to_suffix
-from tables import pytype_to_ctype_table
-from tables import pythran_ward
-from typing import Types
-from syntax import PythranSyntaxError
-
-from openmp import OMPDirective
+from pythran.analyses import ArgumentEffects, BoundedExpressions, Dependencies
+from pythran.analyses import LocalDeclarations, GlobalDeclarations, Scope
+from pythran.analyses import YieldPoints
+from pythran.cxxgen import Template, Include, Namespace, CompilationUnit
+from pythran.cxxgen import Statement, Block, AnnotatedStatement, Typedef
+from pythran.cxxgen import Value, FunctionDeclaration, EmptyStatement
+from pythran.cxxgen import FunctionBody, Line, ReturnStatement, Struct, Assign
+from pythran.cxxgen import For, While, TryExcept, ExceptHandler, If, AutoFor
+from pythran.cxxtypes import Assignable, DeclType, NamedType
+from pythran.openmp import OMPDirective
+from pythran.passmanager import Backend
+from pythran.syntax import PythranSyntaxError
+from pythran.tables import operator_to_lambda, modules, type_to_suffix
+from pythran.tables import pytype_to_ctype_table, pythran_ward
+from pythran.typing import Types
+import pythran.metadata as metadata
+import pythran.unparse as unparse
 
 from math import isnan, isinf
-
+import ast
 import cStringIO
-import unparse
-import metadata
 
 
 class Python(Backend):

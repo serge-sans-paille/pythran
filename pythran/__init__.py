@@ -33,7 +33,7 @@ Higher level entry points includes:
 
 __version__ = '0.5.0'
 
-from toolchain import (generate_cxx, compile_cxxfile, compile_cxxcode,
-                       compile_pythrancode, compile_pythranfile, test_compile,
-                       CompileError)
-from spec import spec_parser
+from pythran.toolchain import (generate_cxx, compile_cxxfile, compile_cxxcode,
+                               compile_pythrancode, compile_pythranfile,
+                               test_compile, CompileError)
+from pythran.spec import spec_parser

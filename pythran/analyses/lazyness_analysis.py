@@ -12,6 +12,7 @@ import pythran.metadata as md
 import pythran.openmp as openmp
 
 import ast
+import sys
 
 
 class LazynessAnalysis(FunctionAnalysis):
@@ -65,8 +66,18 @@ class LazynessAnalysis(FunctionAnalysis):
     >>> res = pm.gather(LazynessAnalysis, node)
     >>> res['k']
     (1,)
+    >>> code = '''
+    ... def foo():
+    ...     k = 2
+    ...     for i in [1, 2]:
+    ...         print k'''
+    >>> node = ast.parse(code)
+    >>> res = pm.gather(LazynessAnalysis, node)
+    >>> res['k'] == sys.maxint
+    True
     """
     INF = float('inf')
+    MANY = sys.maxint
 
     def __init__(self):
         # map variable with maximum count of use in the programm
@@ -260,7 +271,7 @@ class LazynessAnalysis(FunctionAnalysis):
         no_assign = [n for n, (c, a) in self.pre_loop_count.iteritems()
                      if not a]
         self.result.update(zip(no_assign,
-                               [LazynessAnalysis.INF] * len(no_assign)))
+                               [LazynessAnalysis.MANY] * len(no_assign)))
         # lazyness value is the max of previous lazyness and lazyness for one
         # iteration in the loop
         for k, v in self.pre_loop_count.iteritems():

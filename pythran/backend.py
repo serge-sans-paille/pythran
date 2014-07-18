@@ -139,7 +139,8 @@ class Cxx(Backend):
                     target = node.target
                     hasfor = 'for' in directive.s
                     nodefault = 'default' not in directive.s
-                    noindexref = all(x.id != target.id for x in directive.deps)
+                    noindexref = all(isinstance(x, ast.Name) and
+                                     x.id != target.id for x in directive.deps)
                     if (hasfor and nodefault and noindexref and
                             target.id not in self.scope[node]):
                         directive.s += ' private({})'

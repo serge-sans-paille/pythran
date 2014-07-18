@@ -1285,7 +1285,7 @@ def test_copy0(x):
         self.run_test("def np_asscalar0(a): from numpy import asscalar; return asscalar(a)", numpy.array([1], numpy.int32), np_asscalar0=[numpy.array([numpy.int32])])
 
     def test_asscalar1(self):
-        self.run_test("def np_asscalar1(a): from numpy import asscalar; return asscalar(a)", numpy.array([[1]], numpy.int64), np_asscalar1=[numpy.array([numpy.int64])])
+        self.run_test("def np_asscalar1(a): from numpy import asscalar; return asscalar(a)", numpy.array([[1]], numpy.int64), np_asscalar1=[numpy.array([[numpy.int64]])])
 
     def test_ascontiguousarray0(self):
         self.run_test("def np_ascontiguousarray0(a):\n from numpy import ascontiguousarray\n return ascontiguousarray(a)", (1,2,3), np_ascontiguousarray0=[(int, int, int)])

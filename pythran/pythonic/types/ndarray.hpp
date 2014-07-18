@@ -955,14 +955,21 @@ namespace pythonic {
             }
             //reinterpret_cast needed to fit BOOST Python API. Check is done by template and PyArray_Check
             static void* convertible(PyObject* obj_ptr){
-                if(!PyArray_Check(obj_ptr) or PyArray_TYPE(reinterpret_cast<PyArrayObject*>(obj_ptr)) != c_type_to_numpy_type<T>::value )
+                if(!PyArray_Check(obj_ptr))
+                 return 0;
+                // the array must have the same dtype and the same number of dimensions
+                PyArrayObject* arr_ptr = reinterpret_cast<PyArrayObject*>(obj_ptr);
+                if(PyArray_TYPE(arr_ptr) != c_type_to_numpy_type<T>::value)
+                  return 0;
+                if(PyArray_NDIM(arr_ptr) != N)
                     return 0;
                 return obj_ptr;
             }
 
             static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
                 void* storage=((boost::python::converter::rvalue_from_python_storage<types::ndarray<T,N>>*)(data))->storage.bytes;
-                new (storage) types::ndarray< T, N>((T*)PyArray_BYTES(reinterpret_cast<PyArrayObject*>(obj_ptr)), PyArray_DIMS(reinterpret_cast<PyArrayObject*>(obj_ptr)), obj_ptr);
+                PyArrayObject* arr_ptr = reinterpret_cast<PyArrayObject*>(obj_ptr);
+                new (storage) types::ndarray< T, N>((T*)PyArray_BYTES(arr_ptr), PyArray_DIMS(arr_ptr), obj_ptr);
                 Py_INCREF(obj_ptr);
                 data->convertible=storage;
             }

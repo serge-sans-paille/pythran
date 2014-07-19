@@ -331,12 +331,26 @@ class Types(ModuleAnalysis):
         self.curr_locals_declaration = None
 
     def prepare(self, node, ctx):
+        """
+        Initialise values to prepare typing computation.
+
+        Reorder functions to avoid dependencies issues and prepare typing
+        computation setting typing values for Pythonic functions.
+        """
         self.passmanager.apply(Reorder, node, ctx)
-        for mname, module in modules.iteritems():
+
+        def register(name, module):
+            """ Recursively save function typing and combiners for Pythonic."""
             for fname, function in module.iteritems():
-                tname = 'pythonic::{0}::proxy::{1}'.format(mname, fname)
-                self.result[function] = NamedType(tname)
-                self.combiners[function] = function
+                if isinstance(function, dict):
+                    register(name + "::" + fname, function)
+                else:
+                    tname = 'pythonic::{0}::proxy::{1}'.format(name, fname)
+                    self.result[function] = NamedType(tname)
+                    self.combiners[function] = function
+
+        for mname, module in modules.iteritems():
+            register(mname, module)
         super(Types, self).prepare(node, ctx)
 
     def run(self, node, ctx):

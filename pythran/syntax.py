@@ -19,13 +19,27 @@ class PythranSyntaxError(SyntaxError):
 
 class SyntaxChecker(ast.NodeVisitor):
     '''
-    Visit an AST and raise a PythranSyntaxError upon unsupported construct
+    Visit an AST and raise a PythranSyntaxError upon unsupported construct.
+
+    Attributes
+    ----------
+    attributes : {str}
+        Possible attributes from Pythonic modules/submodules.
     '''
 
     def __init__(self):
+        """ Gather attributes from tables.modules content. """
         self.attributes = set()
-        for module in tables.modules.itervalues():
+
+        def save_attribute(module):
+            """ Recursively save Pythonic keywords as possible attributes. """
             self.attributes.update(module.iterkeys())
+            for signature in module.itervalues():
+                if isinstance(signature, dict):
+                    save_attribute(signature)
+
+        for module in tables.modules.itervalues():
+            save_attribute(module)
 
     def visit_Module(self, node):
         err = ("Top level statements can only be strings, functions, comments"
@@ -92,25 +106,48 @@ class SyntaxChecker(ast.NodeVisitor):
                 node)
 
     def visit_Import(self, node):
+        """ Check if imported module exists in tables.modules. """
         for alias in node.names:
-            if alias.name not in tables.modules:
-                raise PythranSyntaxError(
-                    "Module '{0}' unknown.".format(alias.name),
-                    node)
+            current_module = tables.modules
+            # Recursive check for submodules
+            for path in alias.name.split('.'):
+                if path not in current_module:
+                    raise PythranSyntaxError(
+                        "Module '{0}' unknown.".format(alias.name),
+                        node)
+                else:
+                    current_module = current_module[path]
 
     def visit_ImportFrom(self, node):
+        """
+            Check validity of imported functions.
+
+            Check:
+                - no level specific value are provided.
+                - a module is provided
+                - module/submodule exists in tables.modules
+                - imported function exists in the given module/submodule
+        """
         if node.level != 0:
             raise PythranSyntaxError("Specifying a level in an import", node)
         if not node.module:
             raise PythranSyntaxError("import from without module", node)
         module = node.module
-        if module not in tables.modules:
-            raise PythranSyntaxError("Module '{0}' unknown".format(module),
-                                     node)
+        current_module = tables.modules
+        # Check if module exists
+        for path in module.split('.'):
+            if path not in current_module:
+                raise PythranSyntaxError(
+                    "Module '{0}' unknown.".format(module),
+                    node)
+            else:
+                current_module = current_module[path]
+
+        # Check if imported functions exist
         for alias in node.names:
             if alias.name == '*':
                 continue
-            if alias.name not in tables.modules[module]:
+            elif alias.name not in current_module:
                 raise PythranSyntaxError(
                     "identifier '{0}' not found in module '{1}'".format(
                         alias.name,

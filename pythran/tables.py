@@ -1073,45 +1073,80 @@ modules['__builtin__']['__list__'] = Class(modules['__list__'])
 modules['__builtin__']['__complex___'] = Class(modules['__complex___'])
 
 # a method name to module binding
+# {method_name : ((full module path), signature)}
 methods = {}
-for module, elems in modules.iteritems():
-    for elem, signature in elems.iteritems():
-        if signature.ismethod():
+
+
+def save_method(elements, module_path):
+    """ Recursively save methods with module name and signature. """
+    for elem, signature in elements.iteritems():
+        if isinstance(signature, dict):  # Submodule case
+            save_method(signature, module_path + (elem,))
+        elif signature.ismethod():
             assert elem not in methods  # we need unicity
-            methods[elem] = (module, signature)
+            methods[elem] = (module_path, signature)
+
+for module, elems in modules.iteritems():
+    save_method(elems, (module,))
 
 # a function name to module binding
+# {function_name : [((full module path), signature)]}
 functions = {}
+
+
+def save_function(elements, module_path):
+    """ Recursively save functions with module name and signature. """
+    for elem, signature in elements.iteritems():
+        if isinstance(signature, dict):  # Submodule case
+            save_function(signature, module_path + (elem,))
+        elif signature.isstaticfunction():
+            functions.setdefault(elem, []).append((module_path, signature,))
+
 for module, elems in modules.iteritems():
-    for elem, signature in elems.iteritems():
-        if signature.isstaticfunction():
-            functions.setdefault(elem, []).append((module, signature,))
+    save_function(elems, (module,))
 
 # a attribute name to module binding
+# {attribute_name : ((full module path), signature)}
 attributes = {}
-for module, elems in modules.iteritems():
-    for elem, signature in elems.iteritems():
-        if signature.isattribute():
+
+
+def save_attribut(elements, module_path):
+    """ Recursively save attributes with module name and signature. """
+    for elem, signature in elements.iteritems():
+        if isinstance(signature, dict):  # Submodule case
+            save_attribut(signature, module_path + (elem,))
+        elif signature.isattribute():
             assert elem not in attributes  # we need unicity
-            attributes[elem] = (module, signature,)
+            attributes[elem] = (module_path, signature,)
+
+for module, elems in modules.iteritems():
+    save_attribut(elems, (module,))
+
 
 # populate argument description through introspection
+def save_arguments(module_name, elements):
+    """ Recursively save arguments name and default value. """
+    if not module_name.startswith('__'):
+        for elem, signature in elements.iteritems():
+            if isinstance(signature, dict):  # Submodule case
+                save_arguments(".".join((module_name, elem)), signature)
+            else:
+                # use introspection to get the Python obj
+                try:
+                    themodule = __import__(module_name)
+                    obj = getattr(themodule, elem)
+                    spec = inspect.getargspec(obj)
+                    assert not signature.args.args
+                    signature.args.args = [ast.Name(arg, ast.Param())
+                                           for arg in spec.args]
+                    if spec.defaults:
+                        signature.args.defaults = map(to_ast, spec.defaults)
+                except AttributeError:
+                    pass
+                except ImportError:
+                    pass
+                except TypeError:
+                    pass
+
 for module, elems in modules.iteritems():
-    if not module.startswith('__'):
-        for elem, signature in elems.iteritems():
-            # use introspection to get the Python obj
-            try:
-                themodule = __import__(module)
-                obj = getattr(themodule, elem)
-                spec = inspect.getargspec(obj)
-                assert not signature.args.args
-                signature.args.args = [ast.Name(arg, ast.Param())
-                                       for arg in spec.args]
-                if spec.defaults:
-                    signature.args.defaults = map(to_ast, spec.defaults)
-            except AttributeError:
-                pass
-            except ImportError:
-                pass
-            except TypeError as e:
-                pass
+    save_arguments(module, elems)

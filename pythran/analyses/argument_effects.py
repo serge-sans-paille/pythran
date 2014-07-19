@@ -40,17 +40,30 @@ class ArgumentEffects(ModuleAnalysis):
         super(ArgumentEffects, self).__init__(Aliases, GlobalDeclarations)
 
     def prepare(self, node, ctx):
+        """
+        Initialise arguments effects as this analyse is inter-procedural.
+
+        Initialisation done for Pythonic functions and default value set for
+        user defined functions.
+        """
         super(ArgumentEffects, self).prepare(node, ctx)
         for n in self.global_declarations.itervalues():
             fe = ArgumentEffects.FunctionEffects(n)
             self.node_to_functioneffect[n] = fe
             self.result.add_node(fe)
+
+        def save_function_effect(module):
+            """ Recursively save function effect for pythonic functions. """
+            for intr in module.itervalues():
+                if isinstance(intr, dict):  # Submodule case
+                    save_function_effect(intr)
+                else:
+                    fe = ArgumentEffects.FunctionEffects(intr)
+                    self.node_to_functioneffect[intr] = fe
+                    self.result.add_node(fe)
+
         for m in modules:
-            for name, intrinsic in modules[m].iteritems():
-                fe = ArgumentEffects.FunctionEffects(intrinsic)
-                self.node_to_functioneffect[intrinsic] = fe
-                self.result.add_node(fe)
-        self.all_functions = [fe.func for fe in self.result]
+            save_function_effect(modules[m])
 
     def run(self, node, ctx):
         super(ArgumentEffects, self).run(node, ctx)
@@ -115,7 +128,7 @@ class ArgumentEffects(ModuleAnalysis):
                 # expand argument if any
                 func_aliases = reduce(
                     lambda x, y: x + (
-                        self.all_functions
+                        self.node_to_functioneffect.keys()  # all functions
                         if (isinstance(y, ast.Name)
                             and self.argument_index(y) >= 0)
                         else [y]),

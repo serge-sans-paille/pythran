@@ -202,7 +202,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
             for mname, symbol in v:
                 if isinstance(symbol, ConstExceptionIntr):
                     exceptions.add_node(
-                        getattr(sys.modules[mname], function_name))
+                        getattr(sys.modules[".".join(mname)], function_name))
 
         # add edges based on class relationships
         for n in exceptions:

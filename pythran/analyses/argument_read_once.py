@@ -12,7 +12,17 @@ import ast
 
 
 class ArgumentReadOnce(ModuleAnalysis):
-    '''Counts the usages of each argument of each function'''
+
+    """
+    Counts the usages of each argument of each function.
+
+    Attributes
+    ----------
+    result : {FunctionEffects}
+        Number of use for each argument of each function.
+    node_to_functioneffect : {???: ???}
+        FunctionDef ast node to function effect binding.
+    """
 
     class FunctionEffects(object):
         def __init__(self, node):
@@ -45,22 +55,38 @@ class ArgumentReadOnce(ModuleAnalysis):
             self.global_dependencies = global_dependencies
 
     def __init__(self):
+        """ Basic initialiser for class attributes. """
         self.result = set()
         self.node_to_functioneffect = dict()
         super(ArgumentReadOnce, self).__init__(Aliases, GlobalDeclarations)
 
     def prepare(self, node, ctx):
+        """
+        Initialise arguments effects as this analysis in inter-procedural.
+
+        Initialisation done for Pythonic functions and default values set for
+        user defined functions.
+        """
         super(ArgumentReadOnce, self).prepare(node, ctx)
+        # global functions init
         for n in self.global_declarations.itervalues():
             fe = ArgumentReadOnce.FunctionEffects(n)
             self.node_to_functioneffect[n] = fe
             self.result.add(fe)
+
+        # Pythonic functions init
+        def save_effect(module):
+            """ Recursively save read once effect for Pythonic functions. """
+            for intr in module.itervalues():
+                if isinstance(intr, dict):  # Submodule case
+                    save_effect(intr)
+                else:
+                    fe = ArgumentReadOnce.FunctionEffects(intr)
+                    self.node_to_functioneffect[intr] = fe
+                    self.result.add(fe)
+
         for m in modules:
-            for name, intrinsic in modules[m].iteritems():
-                fe = ArgumentReadOnce.FunctionEffects(intrinsic)
-                self.node_to_functioneffect[intrinsic] = fe
-                self.result.add(fe)
-        self.all_functions = [fe.func for fe in self.result]
+            save_effect(modules[m])
 
     def run(self, node, ctx):
         ModuleAnalysis.run(self, node, ctx)
@@ -168,7 +194,7 @@ class ArgumentReadOnce(ModuleAnalysis):
                 # expand argument if any
                 func_aliases = reduce(
                     lambda x, y: x + (
-                        self.all_functions
+                        self.node_to_functioneffect.keys()  # all functions
                         if (isinstance(y, ast.Name)
                             and self.argument_index(y) >= 0)
                         else [y]),

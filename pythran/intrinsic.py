@@ -163,3 +163,7 @@ class Class(Intrinsic):
 
     def __getitem__(self, key):
         return self.d[key]
+
+    def __contains__(self, key):
+        """ Forward key content to aliased module. """
+        return key in self.d

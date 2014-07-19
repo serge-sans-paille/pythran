@@ -178,10 +178,26 @@ class Aliases(ModuleAnalysis):
     # aliasing created by statements
 
     def visit_FunctionDef(self, node):
+        """
+        Initialise aliasing default value before visiting.
+
+        Add aliasing values for :
+            - Pythonic
+            - globals declarations
+            - current function arguments
+        """
         self.aliases = dict()
+
+        def save_intrinsic_alias(module):
+            """ Recursively save default aliases for pythonic functions. """
+            for v in module.itervalues():
+                if isinstance(v, dict):  # Submodules case
+                    save_intrinsic_alias(v)
+                else:
+                    self.aliases[v] = {v}
+
         for module in modules:
-            self.aliases.update((v, {v})
-                                for k, v in modules[module].iteritems())
+            save_intrinsic_alias(modules[module])
         self.aliases.update((f.name, {f})
                             for f in self.global_declarations.itervalues())
         self.aliases.update((arg.id, {arg})

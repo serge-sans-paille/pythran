@@ -950,6 +950,11 @@ modules = {
         "issuperset": ConstMethodIntr(),
         "issubset": ConstMethodIntr(),
         },
+    "os": {
+        "path": {
+            "join": ConstFunctionIntr(),
+            }
+        },
     "__exception__": {
         "args": AttributeIntr(0),
         "errno": AttributeIntr(1),

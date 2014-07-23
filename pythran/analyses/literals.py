@@ -2,12 +2,12 @@
 Literals lists nodes that are only literals
 """
 
-from pythran.passmanager import ModuleAnalysis
+from pythran.passmanager import FunctionAnalysis
 
 import ast
 
 
-class Literals(ModuleAnalysis):
+class Literals(FunctionAnalysis):
     """
         Store variable that save only Literals (with no construction cost)
     """

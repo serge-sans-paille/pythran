@@ -12,6 +12,7 @@ import pythran.metadata as md
 import pythran.openmp as openmp
 
 import ast
+import sys
 
 
 class LazynessAnalysis(FunctionAnalysis):
@@ -52,8 +53,31 @@ class LazynessAnalysis(FunctionAnalysis):
     >>> res = pm.gather(LazynessAnalysis, node)
     >>> res['i'], res['k']
     (inf, 2)
+    >>> code = '''
+    ... def foo():
+    ...     d = 0
+    ...     for i in range(2):
+    ...         for j in range(2):
+    ...             k = 1
+    ...             d += k * 2
+    ...     return d'''
+    >>> node = ast.parse(code)
+    >>> pm = passmanager.PassManager("test")
+    >>> res = pm.gather(LazynessAnalysis, node)
+    >>> res['k']
+    (1,)
+    >>> code = '''
+    ... def foo():
+    ...     k = 2
+    ...     for i in [1, 2]:
+    ...         print k'''
+    >>> node = ast.parse(code)
+    >>> res = pm.gather(LazynessAnalysis, node)
+    >>> res['k'] == sys.maxint
+    True
     """
     INF = float('inf')
+    MANY = sys.maxint
 
     def __init__(self):
         # map variable with maximum count of use in the programm
@@ -93,7 +117,7 @@ class LazynessAnalysis(FunctionAnalysis):
         # assign variable don't come from before omp pragma anymore
         self.in_omp.discard(node.id)
         # count number of use in the loop before first reassign
-        pre_loop = self.pre_loop_count.get(node.id, (0, True))
+        pre_loop = self.pre_loop_count.setdefault(node.id, (0, True))
         if not pre_loop[1]:
             self.pre_loop_count[node.id] = (pre_loop[0], True)
         # note this variable as modified
@@ -173,7 +197,8 @@ class LazynessAnalysis(FunctionAnalysis):
                 elif alias in self.name_count:
                     self.name_count[alias] += 1
                     # init value as pre_use variable and count it
-                    pre_loop = self.pre_loop_count.get(alias, (0, False))
+                    pre_loop = self.pre_loop_count.setdefault(alias,
+                                                              (0, False))
                     if not pre_loop[1]:
                         self.pre_loop_count[alias] = (pre_loop[0] + 1, False)
                 else:
@@ -246,7 +271,7 @@ class LazynessAnalysis(FunctionAnalysis):
         no_assign = [n for n, (c, a) in self.pre_loop_count.iteritems()
                      if not a]
         self.result.update(zip(no_assign,
-                               [LazynessAnalysis.INF] * len(no_assign)))
+                               [LazynessAnalysis.MANY] * len(no_assign)))
         # lazyness value is the max of previous lazyness and lazyness for one
         # iteration in the loop
         for k, v in self.pre_loop_count.iteritems():

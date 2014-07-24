@@ -168,6 +168,7 @@ class BenchmarkCommand(Command):
         import glob
         import timeit
         from pythran import test_compile, compile_pythranfile
+        import random
 
         # Do not include current directory, validate using installed pythran
         current_dir = _exclude_current_dir_from_import()
@@ -178,6 +179,7 @@ class BenchmarkCommand(Command):
 
         candidates = glob.glob(os.path.join(where, '*.py'))
         sys.path.append(where)
+        random.shuffle(candidates)
         for candidate in candidates:
             with file(candidate) as content:
                 runas = [line for line in content.readlines()

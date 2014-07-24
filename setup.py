@@ -139,13 +139,14 @@ class BenchmarkCommand(Command):
     '''Scan the test directory for any runnable test, and benchmark them.'''
 
     default_nb_iter = 30
+    modes = ("cpython", "pythran", "pythran+omp")
     description = 'run the benchmark suite for the package'
     user_options = [
         ('nb-iter=', None,
          'number of times the benchmark is run'
          '(default={0})'.format(default_nb_iter)),
         ('mode=', None,
-         'mode to use (cpython, pythran, pythran' '+omp)')
+         'mode to use ' + str(modes))
     ]
 
     runas_marker = '#bench '
@@ -160,11 +161,14 @@ class BenchmarkCommand(Command):
 
     def finalize_options(self):
         self.nb_iter = int(self.nb_iter)
+        if self.mode not in BenchmarkCommand.modes:
+            raise RuntimeError("Unknown mode : '{}'".format(self.mode))
 
     def run(self):
         import glob
         import timeit
         from pythran import test_compile, compile_pythranfile
+        import random
 
         # Do not include current directory, validate using installed pythran
         current_dir = _exclude_current_dir_from_import()
@@ -175,6 +179,7 @@ class BenchmarkCommand(Command):
 
         candidates = glob.glob(os.path.join(where, '*.py'))
         sys.path.append(where)
+        random.shuffle(candidates)
         for candidate in candidates:
             with file(candidate) as content:
                 runas = [line for line in content.readlines()
@@ -196,7 +201,8 @@ class BenchmarkCommand(Command):
 
                     # pythran part
                     if self.mode.startswith('pythran'):
-                        cxxflags = ["-Ofast", "-DNDEBUG"]
+                        cxxflags = ["-O2", "-DNDEBUG", "-DUSE_BOOST_SIMD",
+                                    "-march=native"]
                         if self.mode == "pythran+omp":
                             cxxflags.append("-fopenmp")
                         compile_pythranfile(candidate,

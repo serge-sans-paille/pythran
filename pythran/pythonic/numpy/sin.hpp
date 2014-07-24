@@ -5,6 +5,9 @@
 #include "pythonic/types/ndarray.hpp"
 #include <nt2/include/functions/sin.hpp>
 
+namespace nt2 {
+double sin(long l) { return sin(static_cast<double>(l)); }
+}
 namespace pythonic {
 
     namespace numpy {

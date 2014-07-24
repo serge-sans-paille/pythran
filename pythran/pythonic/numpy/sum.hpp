@@ -7,6 +7,10 @@
 #include "pythonic/__builtin__/ValueError.hpp"
 #include "pythonic/numpy/add.hpp"
 
+#ifdef USE_BOOST_SIMD
+#include <boost/simd/include/functions/sum.hpp>
+#endif
+
 #include <algorithm>
 
 namespace pythonic {
@@ -24,6 +28,44 @@ namespace pythonic {
                     _sum((*begin).begin(), (*begin).end(), sum, utils::int_<N - 1>());
             }
 
+#ifdef USE_BOOST_SIMD
+      template <bool vector_form> struct _vsum;
+
+      template <> struct _vsum<false> {
+        template <class E, class F, size_t N>
+        void operator()(E const &e, F &sum, utils::int_<N> n) {
+          _sum(e.begin(), e.end(), sum, n);
+        }
+      };
+
+      template <> struct _vsum<true> {
+
+        template <class E, class F>
+        void operator()(E const &e, F &sum, utils::int_<1>) {
+          typedef typename E::dtype T;
+          typedef typename boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION> vT;
+          static const std::size_t vN = boost::simd::meta::cardinal_of<vT>::value;
+          const long n = e.shape[0];
+          const long bound = n / vN * vN;
+          vT vsum = boost::simd::Zero<vT>();
+
+          long i;
+          for (i = 0; i < bound; i += vN)
+            vsum += e.load(i);
+          sum += boost::simd::sum(vsum);
+          for(;i< n; ++i)
+              sum += e.fast(i);
+        }
+
+        template <class E, class F, size_t N>
+        void operator()(E const &e, F &sum, utils::int_<N>) {
+          auto begin = e.begin(), end = e.end();
+          for (; begin != end; ++begin)
+            (*this)(*begin, sum, utils::int_<N - 1>());
+        }
+      };
+#endif
+
         template<class E>
             typename
             std::conditional<std::is_same<typename E::dtype, bool>::value,
@@ -35,7 +77,12 @@ namespace pythonic {
                                           long,
                                           typename E::dtype
                                          >::type p = 0;
+
+#ifdef USE_BOOST_SIMD
+                _vsum<E::is_vectorizable and not std::is_same<typename E::dtype, bool>::value >{}(expr, p, utils::int_<types::numpy_expr_to_ndarray<E>::N>());
+#else
                 _sum(expr.begin(), expr.end(), p, utils::int_<types::numpy_expr_to_ndarray<E>::N>());
+#endif
                 return p;
             }
 

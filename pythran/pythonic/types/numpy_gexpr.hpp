@@ -69,6 +69,19 @@ namespace pythonic {
 
                 typedef typename std::remove_reference<Arg>::type::dtype dtype;
                 static constexpr size_t value = std::remove_reference<Arg>::type::value - count_long<S...>::value;
+
+                // It is not possible to vectorize everything. We only vectorize if the last dimension is contiguous, which happens if
+                // 1. Arg is an ndarray (this is too strict)
+                // 2. the size of the gexpr is lower than the dim of arg, or it's the same, but the last slice is contiguous
+                static const bool is_vectorizable =
+                  std::is_same<ndarray<typename std::remove_reference<Arg>::type::dtype, std::remove_reference<Arg>::type::value>,
+                               typename std::remove_cv<typename std::remove_reference<Arg>::type>::type
+                              >::value and
+                  (
+                    sizeof...(S) < std::remove_reference<Arg>::type::value or
+                    std::is_same<contiguous_slice, typename std::tuple_element<sizeof...(S) - 1, std::tuple<S...>>::type>::value
+                  );
+
                 typedef typename std::remove_reference<decltype(numpy_gexpr_helper<Arg, S...>::get(std::declval<numpy_gexpr>(), 0L))>::type value_type;
 
                 typedef nditerator<numpy_gexpr<Arg, S...>> iterator;
@@ -188,10 +201,10 @@ namespace pythonic {
 
                 template<class E>
                 numpy_gexpr& operator=(E const& expr) {
-                    return utils::broadcast_copy(*this, expr, utils::int_<value - utils::dim_of<E>::value>());
+                    return utils::broadcast_copy<numpy_gexpr&, E, value, value - utils::dim_of<E>::value, false/*NIY*/>(*this, expr);
                 }
                 numpy_gexpr& operator=(numpy_gexpr const& expr) {
-                    return utils::broadcast_copy(*this, expr, utils::int_<value - utils::dim_of<numpy_gexpr>::value>());
+                    return utils::broadcast_copy<numpy_gexpr&, numpy_gexpr, value, value - utils::dim_of<numpy_gexpr>::value, false/*NIY*/>(*this, expr);
                 }
                 template<class E>
                 numpy_gexpr& operator+=(E const& expr) {
@@ -234,6 +247,19 @@ namespace pythonic {
                 auto fast(long i) -> decltype(numpy_gexpr_helper<Arg, S...>::get(*this, i)) {
                     return numpy_gexpr_helper<Arg, S...>::get(*this, lower[0] + (is_contiguous<S...>::value ? i : step[0] * i));
                 }
+
+#ifdef USE_BOOST_SIMD
+                template<class I>
+                auto load(I i) const
+                -> decltype(boost::simd::load<boost::simd::native<dtype, BOOST_SIMD_DEFAULT_EXTENSION>>(this->buffer, i))
+                {
+                  typedef dtype T;
+                  typedef typename boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION> vT;
+                  return boost::simd::load<vT>(buffer, lower[0] + i);
+                }
+
+#endif
+
                 auto operator[](long i) const -> decltype(this->fast(i)) {
                     if(i<0) i += shape[0];
                     return fast(i);

@@ -16,6 +16,7 @@
 #include "pythonic/types/list.hpp"
 #include "pythonic/types/raw_array.hpp"
 
+#include "pythonic/types/vectorizable_type.hpp"
 #include "pythonic/types/numexpr_to_ndarray.hpp"
 #include "pythonic/types/numpy_fexpr.hpp"
 #include "pythonic/types/numpy_expr.hpp"
@@ -44,8 +45,6 @@
 
 #ifdef USE_BOOST_SIMD
 #include <boost/simd/sdk/simd/native.hpp>
-#include <boost/simd/include/functions/unaligned_load.hpp>
-#include <boost/simd/include/functions/unaligned_store.hpp>
 #include <boost/simd/include/functions/load.hpp>
 #include <boost/simd/include/functions/store.hpp>
 #endif
@@ -66,6 +65,7 @@ namespace pythonic {
          */
         template<class T>
             struct broadcasted {
+                static const bool is_vectorizable = false;
                 typedef typename T::dtype dtype;
                 typedef typename T::value_type value_type;
                 static constexpr size_t value = T::value + 1;
@@ -80,32 +80,57 @@ namespace pythonic {
 
                 T const & operator[](long i) const { return ref;}
                 T const & fast(long i) const { return ref;}
+#ifdef USE_BOOST_SIMD
+                template<class I> // template to prevent automatic instantiation, but the declaration is still needed
+                void load(I) const {
+                  typedef typename T::this_should_never_happen omg;
+                }
+#endif
 
                 long size() const { return 0;}
-
 
             };
 
         /* Type adaptor for scalar values
          *
          * Have them behave like infinite arrays of that value
+         *
+         * B is the original type of the broadcast value, and T is the type of the expression it is combined with
+         * if both B and T are integer types, we choose T instead of B to prevent automatic conversion into larger types
+         *
+         * That way, np.ones(10, dtype=np.uint8) + 1 yields an array of np.uint8, although 1 is of type long
          */
-        template<class T>
+        template<class T, class B>
             struct broadcast {
-                typedef T dtype;
-                typedef T value_type;
+                // Perform the type conversion here if it seems valid (although it is not always)
+                typedef typename std::conditional<std::numeric_limits<T>::is_integer and std::numeric_limits<B>::is_integer,
+                                          T,
+                                          typename __combined<T, B>::type>::type dtype;
+                static const bool is_vectorizable = types::is_vectorizable<dtype>::value;
+                typedef dtype value_type;
                 static constexpr size_t value = 0;
-                T __value;
+                dtype _value;
+#ifdef USE_BOOST_SIMD
+                boost::simd::native<dtype, BOOST_SIMD_DEFAULT_EXTENSION> _splated ;
+#endif
 
                 broadcast() {}
-                broadcast(T v) : __value(v) {}
+                broadcast(dtype v) : _value(v)
+#ifdef USE_BOOST_SIMD
+                                     , _splated(boost::simd::splat<boost::simd::native<dtype, BOOST_SIMD_DEFAULT_EXTENSION>>(_value))
+#endif
+                                     {}
 
-                T operator[](long ) const {
-                    return __value;
+                dtype operator[](long ) const {
+                    return _value;
                 }
-                T fast(long ) const {
-                    return __value;
+                dtype fast(long ) const {
+                    return _value;
                 }
+#ifdef USE_BOOST_SIMD
+                template<class I>
+                auto load(I) const -> decltype(this -> _splated) { return _splated; }
+#endif
                 long size() const { return 0; }
             };
 
@@ -250,6 +275,7 @@ namespace pythonic {
          */
         template<class T, size_t N>
             struct ndarray {
+                static const bool is_vectorizable = types::is_vectorizable<T>::value;
 
                 /* types */
                 static constexpr size_t value = N;
@@ -341,7 +367,7 @@ namespace pythonic {
                 /* from a  numpy expression */
                 template<class E>
                     void initialize_from_expr(E const & expr) {
-                        utils::broadcast_copy(*this, expr, utils::int_<0>());
+                        utils::broadcast_copy<ndarray&, E, value, 0, is_vectorizable and E::is_vectorizable>(*this, expr);
                     }
 
                 template<class Op, class Arg0, class Arg1>
@@ -482,6 +508,16 @@ namespace pythonic {
                     {
                         return nget<M-1>()(std::move(*this), indices);
                     }
+#ifdef USE_BOOST_SIMD
+                auto load(long i) const -> decltype(boost::simd::load<boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>>(buffer, i)) {
+                    return boost::simd::load<boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>>(buffer,i);
+                }
+                template<class V>
+                void store(V &&v, long i) {
+                  typedef typename boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION> vT;
+                  boost::simd::store<vT>(v, buffer, i);
+                }
+#endif
 
                 /* slice indexing */
                 numpy_gexpr<ndarray const &, slice> operator[](slice const& s) const

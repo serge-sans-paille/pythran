@@ -31,6 +31,11 @@ namespace pythonic {
          */
         template<class Op, class Arg0, class Arg1>
             struct numpy_expr {
+                static const bool is_vectorizable = std::remove_reference<Arg0>::type::is_vectorizable and std::remove_reference<Arg1>::type::is_vectorizable
+                  and std::is_same<typename std::remove_cv<typename std::remove_reference<Arg0>::type>::type::dtype,
+                                   typename std::remove_cv<typename std::remove_reference<Arg1>::type>::type::dtype
+                                  >::value
+                  and types::is_vector_op<Op>::value;
                 typedef const_nditerator<numpy_expr<Op, Arg0, Arg1>> iterator;
                 static constexpr size_t value = std::remove_reference<Arg0>::type::value>std::remove_reference<Arg1>::type::value?std::remove_reference<Arg0>::type::value: std::remove_reference<Arg1>::type::value;
                 typedef decltype(Op()(std::declval<typename std::remove_reference<Arg0>::type::value_type>(), std::declval<typename std::remove_reference<Arg1>::type::value_type>())) value_type;
@@ -52,10 +57,17 @@ namespace pythonic {
                 auto fast(long i) const -> decltype(Op()(arg0.fast(i), arg1.fast(i))) {
                     return Op()(arg0.fast(i), arg1.fast(i)); //FIXME: broadcasting can be achieved here through a modulus, but that's terribly costly
                 }
+
                 auto operator[](long i) const -> decltype(this->fast(i)) {
                     if(i<0) i += shape[0];
                     return fast(i);
                 }
+#ifdef USE_BOOST_SIMD
+                template<class I> // template to prevent automatic instantiation when the type is not vectorizable
+                auto load(I i) const -> decltype(Op()(arg0.load(i), arg1.load(i))) {
+                  return Op()(arg0.load(i), arg1.load(i));
+                }
+#endif
 
                 template<class... S>
                 numpy_expr<Op, numpy_gexpr<Arg0, contiguous_slice, S...>, numpy_gexpr<Arg1, contiguous_slice, S...>>

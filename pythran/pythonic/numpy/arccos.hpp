@@ -5,6 +5,11 @@
 #include "pythonic/types/ndarray.hpp"
 #include <nt2/include/functions/acos.hpp>
 
+namespace nt2 {
+double acos(long l) { return acos(static_cast<double>(l)); }
+}
+
+
 namespace pythonic {
 
     namespace numpy {

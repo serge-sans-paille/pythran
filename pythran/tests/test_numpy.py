@@ -126,7 +126,7 @@ class TestNumpy(TestEnv):
 
     def test_extended_slicing6(self):
         self.run_test("def numpy_extended_slicing6(a): return a[1:-1,2:-2, 3:-3]",
-                      numpy.arange(60).reshape((3,5,4)),
+                      numpy.arange(5*6*7).reshape((5,6,7)),
                       numpy_extended_slicing6=[numpy.array([numpy.array([numpy.array([int])])])])
 
     def test_extended_slicing7(self):

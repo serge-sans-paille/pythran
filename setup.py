@@ -201,7 +201,8 @@ class BenchmarkCommand(Command):
 
                     # pythran part
                     if self.mode.startswith('pythran'):
-                        cxxflags = ["-Ofast", "-DNDEBUG"]
+                        cxxflags = ["-O2", "-DNDEBUG", "-DUSE_BOOST_SIMD",
+                                    "-march=native"]
                         if self.mode == "pythran+omp":
                             cxxflags.append("-fopenmp")
                         compile_pythranfile(candidate,

@@ -13,7 +13,8 @@ class NormalizeMethodCalls(Transformation):
     '''
     Turns built in method calls into function calls.
 
-    >>> import ast, passmanager, backend
+    >>> import ast
+    >>> from pythran import passmanager, backend
     >>> node = ast.parse("l.append(12)")
     >>> pm = passmanager.PassManager("test")
     >>> node = pm.apply(NormalizeMethodCalls, node)

@@ -1,6 +1,7 @@
 import unittest
 import doctest
 import pythran
+from pythran import transformations, analyses, optimizations
 import inspect
 import os
 
@@ -50,13 +51,18 @@ def generic_test_package(self, mod):
     failed, _ = doctest.testmod(mod)
     self.assertEqual(failed, 0)
 
-def add_module_doctest(module_name):
-    module = getattr(pythran, module_name)
+def add_module_doctest(base, module_name):
+    module = getattr(base, module_name)
     if inspect.ismodule(module):
         setattr(TestDoctest, 'test_' + module_name,
             lambda self: generic_test_package(self, module))
 
-map(add_module_doctest, dir(pythran))
+# doctest does not goes through imported variables,
+# so manage the tests manually here
+map(lambda x: add_module_doctest(pythran, x), dir(pythran))
+map(lambda x: add_module_doctest(transformations, x), dir(transformations))
+map(lambda x: add_module_doctest(analyses, x), dir(analyses))
+map(lambda x: add_module_doctest(optimizations, x), dir(optimizations))
 
 if __name__ == '__main__':
     unittest.main()

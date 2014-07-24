@@ -13,7 +13,8 @@ class NormalizeReturn(Transformation):
     Adds Return statement when they are implicit,
     and adds the None return value when not set
 
-    >>> import ast, passmanager, backend
+    >>> import ast
+    >>> from pythran import passmanager, backend
     >>> node = ast.parse("def foo(y): print y")
     >>> pm = passmanager.PassManager("test")
     >>> node = pm.apply(NormalizeReturn, node)

@@ -16,7 +16,8 @@ class Locals(ModuleAnalysis):
     *before* this node.
 
     Following snippet illustrates its behavior:
-    >>> import ast, passmanager
+    >>> import ast
+    >>> from pythran import passmanager
     >>> pm = passmanager.PassManager('test')
     >>> code = '''
     ... def b(n):

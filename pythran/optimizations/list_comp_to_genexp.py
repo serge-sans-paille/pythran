@@ -12,7 +12,8 @@ import ast
 class ListCompToGenexp(Transformation):
     '''
     Transforms list comprehension into genexp
-    >>> import ast, passmanager, backend
+    >>> import ast
+    >>> from pythran import passmanager, backend
     >>> node = ast.parse("""                      \\n\
 def foo(l):                                       \\n\
     return __builtin__.sum(l)                     \\n\

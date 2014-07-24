@@ -13,7 +13,8 @@ import ast
 class ExpandBuiltins(Transformation):
     '''
     Expands all builtins into full paths.
-    >>> import ast, passmanager, backend
+    >>> import ast
+    >>> from pythran import passmanager, backend
     >>> node = ast.parse("def foo(): return list()")
     >>> pm = passmanager.PassManager("test")
     >>> node = pm.apply(ExpandBuiltins, node)

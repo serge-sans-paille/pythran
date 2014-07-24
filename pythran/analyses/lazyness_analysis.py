@@ -22,7 +22,8 @@ class LazynessAnalysis(FunctionAnalysis):
     its last use or if it is use in a function call (as it is not an
     interprocedural analysis)
 
-    >>> import ast, passmanager, backend
+    >>> import ast, sys
+    >>> from pythran import passmanager, backend
     >>> code = "def foo(): c = 1; a = c + 2; c = 2; b = c + c + a; return b"
     >>> node = ast.parse(code)
     >>> pm = passmanager.PassManager("test")
@@ -39,8 +40,8 @@ class LazynessAnalysis(FunctionAnalysis):
     >>> node = ast.parse(code)
     >>> pm = passmanager.PassManager("test")
     >>> res = pm.gather(LazynessAnalysis, node)
-    >>> res['i'], res['k']
-    (inf, 1)
+    >>> (res['i'], res['k']) == (sys.maxint, 1)
+    True
     >>> code = '''
     ... def foo():
     ...     k = 2
@@ -51,13 +52,13 @@ class LazynessAnalysis(FunctionAnalysis):
     >>> node = ast.parse(code)
     >>> pm = passmanager.PassManager("test")
     >>> res = pm.gather(LazynessAnalysis, node)
-    >>> res['i'], res['k']
-    (inf, 2)
+    >>> (res['i'], res['k']) == (sys.maxint, 2)
+    True
     >>> code = '''
     ... def foo():
     ...     d = 0
-    ...     for i in range(2):
-    ...         for j in range(2):
+    ...     for i in [0, 1]:
+    ...         for j in [0, 1]:
     ...             k = 1
     ...             d += k * 2
     ...     return d'''
@@ -65,7 +66,7 @@ class LazynessAnalysis(FunctionAnalysis):
     >>> pm = passmanager.PassManager("test")
     >>> res = pm.gather(LazynessAnalysis, node)
     >>> res['k']
-    (1,)
+    1
     >>> code = '''
     ... def foo():
     ...     k = 2

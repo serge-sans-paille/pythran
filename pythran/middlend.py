@@ -9,7 +9,7 @@ from pythran.transformations import (ExpandBuiltins, ExpandImports,
                                      NormalizeMethodCalls, NormalizeReturn,
                                      NormalizeTuples, RemoveComprehension,
                                      RemoveNestedFunctions, RemoveLambdas,
-                                     UnshadowParameters)
+                                     UnshadowParameters, RemoveNamedArguments)
 
 
 def refine(pm, node, optimizations):
@@ -33,6 +33,7 @@ def refine(pm, node, optimizations):
     pm.apply(RemoveNestedFunctions, node)
     pm.apply(ListCompToGenexp, node)
     pm.apply(RemoveComprehension, node)
+    pm.apply(RemoveNamedArguments, node)
 
     # sanitize input
     pm.apply(NormalizeTuples, node)

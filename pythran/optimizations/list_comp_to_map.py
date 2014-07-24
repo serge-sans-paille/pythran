@@ -12,7 +12,8 @@ import ast
 class ListCompToMap(Transformation):
     '''
     Transforms list comprehension into intrinsics.
-    >>> import ast, passmanager, backend
+    >>> import ast
+    >>> from pythran import passmanager, backend
     >>> node = ast.parse("[x*x for x in range(10)]")
     >>> pm = passmanager.PassManager("test")
     >>> node = pm.apply(ListCompToMap, node)

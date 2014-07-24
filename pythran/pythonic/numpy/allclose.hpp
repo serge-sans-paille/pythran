@@ -3,7 +3,7 @@
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
-#include <nt2/include/functions/is_nan.hpp>
+#include <nt2/include/functions/is_finite.hpp>
 
 namespace pythonic {
 
@@ -14,7 +14,8 @@ namespace pythonic {
                 for(; begin != end; ++begin, ++ibegin) {
                     auto u = *begin;
                     auto v = *ibegin;
-                    if(nt2::is_nan(v) || nt2::is_nan(u) || std::abs(u-v) > (atol + rtol * std::abs(v))) {
+                    if(((!nt2::is_finite(u) || !nt2::is_finite(v)) && u != v) ||  // Infinite and NaN cases
+                        std::abs(u-v) > (atol + rtol * std::abs(v))) {
                         return false;
                     }
                 }

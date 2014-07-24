@@ -139,13 +139,14 @@ class BenchmarkCommand(Command):
     '''Scan the test directory for any runnable test, and benchmark them.'''
 
     default_nb_iter = 30
+    modes = ("cpython", "pythran", "pythran+omp")
     description = 'run the benchmark suite for the package'
     user_options = [
         ('nb-iter=', None,
          'number of times the benchmark is run'
          '(default={0})'.format(default_nb_iter)),
         ('mode=', None,
-         'mode to use (cpython, pythran, pythran' '+omp)')
+         'mode to use ' + str(modes))
     ]
 
     runas_marker = '#bench '
@@ -160,6 +161,8 @@ class BenchmarkCommand(Command):
 
     def finalize_options(self):
         self.nb_iter = int(self.nb_iter)
+        if self.mode not in BenchmarkCommand.modes:
+            raise RuntimeError("Unknown mode : '{}'".format(self.mode))
 
     def run(self):
         import glob

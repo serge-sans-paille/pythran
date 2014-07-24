@@ -6,6 +6,11 @@
 #include <nt2/include/functions/is_nan.hpp>
 #include <nt2/include/functions/is_finite.hpp>
 
+// nt2 does not handle bool specialization, which is indeed a corner case...
+namespace nt2 {
+  constexpr bool is_finite(bool) { return true;}
+  constexpr bool is_nan(bool) { return false;}
+}
 
 namespace pythonic {
 

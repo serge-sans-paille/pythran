@@ -98,38 +98,94 @@ class NormalizeMethodCalls(Transformation):
                             [node.value, ast.Str(node.attr)],
                             [], None, None)
 
-    def visit_Call(self, node):
-        node = self.generic_visit(node)
-        if isinstance(node.func, ast.Attribute):
-            lhs = node.func.value
-            if node.func.attr in methods:
-                isname = isinstance(lhs, ast.Name)
-                ispath = isname or isinstance(lhs, ast.Attribute)
-                if not ispath or (isname and lhs.id not in self.imports):
-                    node.args.insert(0, node.func.value)
-                    mod = methods[node.func.attr][0]
-                    self.to_import.add(mod)
-                    node.func = ast.Attribute(
-                        ast.Name(mod, ast.Load()),
-                        node.func.attr,
-                        ast.Load())
-            if node.func.attr in methods or node.func.attr in functions:
-                def renamer(v):
-                    name = '__{0}__'.format(v)
-                    if name in modules:
-                        return name
-                    else:
-                        name += '_'
-                        if name in modules:
-                            return name
-                    return v
+    @staticmethod
+    def renamer(v, cur_module):
+        """
+        Rename function path to fit Pythonic naming.
 
-                def rec(n):
-                    if isinstance(n, ast.Attribute):
-                        n.attr = renamer(n.attr)
-                        rec(n.value)
-                    elif isinstance(n, ast.Name):
-                        n.id = renamer(n.id)
-                rec(node.func.value)
+        As it is a path, we prefer __module__ syntax to differentiate
+        __builtin__.list() and __builtin__.__list__.append(a, 1)
+        """
+        name = '__{0}__'.format(v)
+        if name in cur_module:
+            return name
+        else:
+            name += '_'
+            if name in cur_module:
+                return name
+        return v
+
+    def visit_Call(self, node):
+        """
+        Transform call site to have normal function call.
+
+        Examples
+        --------
+        For methods:
+        >> a = [1, 2, 3]
+
+        >> a.append(1)
+
+        Becomes
+
+        >> __list__.append(a, 1)
+
+
+        For functions:
+        >> __builtin__.dict.fromkeys([1, 2, 3])
+
+        Becomes
+
+        >> __builtin__.__dict__.fromkeys([1, 2, 3])
+        """
+        node = self.generic_visit(node)
+        # Only attributes function can be Pythonic and should be normalized
+        if isinstance(node.func, ast.Attribute):
+            if node.func.attr in methods:
+                # Get object targeted by methods
+                obj = lhs = node.func.value
+                # Get the most left identifier to check if it is not an
+                # imported module
+                while isinstance(obj, ast.Attribute):
+                    obj = obj.value
+                is_not_module = (not isinstance(obj, ast.Name) or
+                                 obj.id not in self.imports)
+
+                if is_not_module:
+                    # As it was a methods call, push targeted object as first
+                    # arguments and add correct module prefix
+                    node.args.insert(0, lhs)
+                    mod = methods[node.func.attr][0]
+                    # Submodules import full module
+                    self.to_import.add(mod[0])
+                    node.func = reduce(
+                        lambda v, o: ast.Attribute(v, o, ast.Load()),
+                        mod[1:] + (node.func.attr,),
+                        ast.Name(mod[0], ast.Load())
+                        )
+                # else methods have been called using function syntax
+            if node.func.attr in methods or node.func.attr in functions:
+                # Now, methods and function have both function syntax
+                def rec(path, cur_module):
+                    """
+                    Recursively rename path content looking in matching module.
+
+                    Prefers __module__ to module if it exists.
+                    This recursion is done as modules are visited top->bottom
+                    while attributes have to be visited bottom->top.
+                    """
+                    err = "Function path is chained attributes and name"
+                    assert isinstance(path, (ast.Name, ast.Attribute)), err
+                    if isinstance(path, ast.Attribute):
+                        new_node, cur_module = rec(path.value, cur_module)
+                        new_id = self.renamer(path.attr, cur_module)
+                        return (ast.Attribute(new_node, new_id, ast.Load()),
+                                cur_module[new_id])
+                    else:
+                        new_id = self.renamer(path.id, cur_module)
+                        return ast.Name(new_id, ast.Load()), cur_module[new_id]
+
+                # Rename module path to avoid naming issue.
+                node.func.value, _ = rec(node.func.value, modules)
 
         return node

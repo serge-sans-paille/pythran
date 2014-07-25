@@ -38,17 +38,27 @@ class GlobalEffects(ModuleAnalysis):
         super(GlobalEffects, self).__init__(Aliases, GlobalDeclarations)
 
     def prepare(self, node, ctx):
+        """
+        Initialise globals effects as this analyse is inter-procedural.
+
+        Initialisation done for Pythonic functions and default value set for
+        user defined functions.
+        """
         super(GlobalEffects, self).prepare(node, ctx)
 
-        def register_node(n):
-            fe = GlobalEffects.FunctionEffect(n)
-            self.node_to_functioneffect[n] = fe
-            self.result.add_node(fe)
+        def register_node(module):
+            """ Recursively save globals effect for all functions. """
+            for v in module.itervalues():
+                if isinstance(v, dict):  # Submodule case
+                    register_node(v)
+                else:
+                    fe = GlobalEffects.FunctionEffect(v)
+                    self.node_to_functioneffect[v] = fe
+                    self.result.add_node(fe)
 
-        map(register_node, self.global_declarations.itervalues())
+        register_node(self.global_declarations)
         for m in modules:
-            map(register_node, modules[m].itervalues())
-        self.all_functions = [fe.func for fe in self.result]
+            register_node(modules[m])
 
     def run(self, node, ctx):
         super(GlobalEffects, self).run(node, ctx)
@@ -77,7 +87,7 @@ class GlobalEffects(ModuleAnalysis):
         func_aliases = self.aliases[node].state.get(ap, [])
         # expand argument if any
         func_aliases = reduce(
-            lambda x, y: x + (self.all_functions
+            lambda x, y: x + (self.node_to_functioneffect.keys()  # all funcs
                               if isinstance(y, ast.Name) else [y]),
             func_aliases,
             list())

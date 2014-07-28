@@ -125,6 +125,7 @@ namespace pythonic {
 
         SPECIALIZE_NONE(size_t);
         SPECIALIZE_NONE(long);
+        SPECIALIZE_NONE(int);
         SPECIALIZE_NONE(long long);
         SPECIALIZE_NONE(double);
 

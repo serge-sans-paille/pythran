@@ -5,7 +5,7 @@ import os
 import sys
 import shutil
 import numpy
-from subprocess import check_call
+from subprocess import check_call, check_output
 
 from pythran import __version__
 
@@ -41,6 +41,10 @@ class BuildWithPly(build):
             print 'nt2 git repository not setup, cloning it'
             cmd = 'git clone https://github.com/MetaScale/nt2.git -b release'
             check_call(cmd.split())
+        else:
+            cmd = 'git fetch && git checkout origin/release'
+            check_call(cmd, shell=True, cwd=nt2_dir)
+            print 'nt2 git repository updated'
 
         nt2_build_dir = os.path.join(self.build_temp, nt2_dir)
         if not os.path.isdir(nt2_build_dir):
@@ -60,7 +64,8 @@ class BuildWithPly(build):
             check_call(build_cmd)
             os.chdir(cwd)
 
-        check_call(['make', '-C', nt2_build_dir, 'install', '-j'])
+        print "Compile and install nt2"
+        check_output(['make', '-C', nt2_build_dir, 'install', '-j'])
         for d in ('nt2', 'boost'):
             src = os.path.join(nt2_build_dir, 'include', d)
 

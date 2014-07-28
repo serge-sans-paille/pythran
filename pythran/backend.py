@@ -71,6 +71,11 @@ class Cxx(Backend):
     '''
     Produces a C++ representation of the AST.
 
+    Attributes
+    ----------
+    ldecls : {ast.Name}
+        set of local declarations.
+
     >>> import ast, passmanager
     >>> node = ast.parse("print 'hello world'")
     >>> pm = passmanager.PassManager('test')
@@ -95,6 +100,7 @@ class Cxx(Backend):
         self.definitions = list()
         self.break_handlers = list()
         self.result = None
+        self.ldecls = set()
         super(Cxx, self).__init__(Dependencies, GlobalDeclarations,
                                   BoundedExpressions, Types, ArgumentEffects,
                                   Scope)
@@ -537,7 +543,22 @@ class Cxx(Backend):
             ]).generate())
 
     def visit_Assign(self, node):
-        if not all(isinstance(n, ast.Name) or isinstance(n, ast.Subscript)
+        """
+        Create Assign node for final Cxx representation.
+
+        It tries to handle multi assignment like:
+
+        >> a = b = c = 2
+
+        If only one local variable is assigned, typing is added:
+
+        >> int a = 2;
+
+        TODO: Handle case of multi-assignement for some local variables.
+
+        Finally, process OpenMP clause like #pragma omp atomic
+        """
+        if not all(isinstance(n, (ast.Name, ast.Subscript))
                    for n in node.targets):
             raise PythranSyntaxError(
                 "Must assign to an identifier or a subscript",
@@ -545,10 +566,8 @@ class Cxx(Backend):
         value = self.visit(node.value)
         targets = [self.visit(t) for t in node.targets]
         alltargets = "= ".join(targets)
-        islocal = any(metadata.get(t, metadata.LocalVariable)
-                      for t in node.targets)
-        if len(targets) == 1 and isinstance(node.targets[0], ast.Name):
-            islocal |= node.targets[0].id in self.scope[node]
+        islocal = (len(targets) == 1 and isinstance(node.targets[0], ast.Name)
+                   and node.targets[0].id in self.scope[node])
         if islocal and not self.yields:
             # remove this decl from local decls
             tdecls = {t.id for t in node.targets}
@@ -578,6 +597,11 @@ class Cxx(Backend):
         return self.process_omp_attachements(node, stmt)
 
     def visit_For(self, node):
+        """
+        Create For representation for Cxx generation.
+
+        TODO: Rework this function which is really too long.
+        """
         if not isinstance(node.target, ast.Name):
             raise PythranSyntaxError(
                 "Using something other than an identifier as loop target",
@@ -615,12 +639,10 @@ class Cxx(Backend):
                     directive.deps.append(ast.Name(local_iter, ast.Param()))
 
         prelude = Statement("{0} {1} = {2}".format(
-            local_iter_decl, local_iter, iter)
-            )
+            local_iter_decl, local_iter, iter))
 
-        auto_for = bool(metadata.get(node.target, metadata.LocalVariable))
-        auto_for |= (type(node.target) is ast.Name
-                     and node.target.id in self.scope[node])
+        auto_for = (type(node.target) is ast.Name
+                    and node.target.id in self.scope[node])
         auto_for &= not self.yields and not omp
 
         loop_body = self.process_locals(node, loop_body, node.target.id)

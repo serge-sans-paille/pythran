@@ -19,10 +19,6 @@ class Metadata(AST):
         self.data.append(data)
 
 
-class LocalVariable(AST):
-    pass
-
-
 class Lazy(AST):
     pass
 

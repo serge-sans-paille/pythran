@@ -6,7 +6,7 @@ from pythran.intrinsic import Class, ReadOnceFunctionIntr, ConstExceptionIntr
 from pythran.intrinsic import ConstFunctionIntr, FunctionIntr, UpdateEffect
 from pythran.intrinsic import ConstMethodIntr, MethodIntr, AttributeIntr
 from pythran.intrinsic import ReadEffect, ConstantIntr
-from pythran.conversion import to_ast
+from pythran.conversion import to_ast, ToNotEval
 import pythran.cxxtypes as cxxtypes
 
 import ast
@@ -1146,11 +1146,7 @@ def save_arguments(module_name, elements):
                                            for arg in spec.args]
                     if spec.defaults:
                         signature.args.defaults = map(to_ast, spec.defaults)
-                except AttributeError:
-                    pass
-                except ImportError:
-                    pass
-                except TypeError:
+                except (AttributeError, ImportError, TypeError, ToNotEval):
                     pass
 
 for module, elems in modules.iteritems():

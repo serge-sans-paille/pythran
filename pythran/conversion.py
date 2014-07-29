@@ -41,10 +41,12 @@ def to_ast(value):
                   numpy.uint64, numpy.int8, numpy.int16, numpy.int32,
                   numpy.int64, numpy.intp, numpy.intc, numpy.int_,
                   numpy.bool_)
+    itertools_t = [getattr(itertools, fun) for fun in dir(itertools)
+                   if isinstance(getattr(itertools, fun), types.TypeType)]
     unfolded_type = (types.BuiltinFunctionType, types.BuiltinMethodType,
                      types.FunctionType, types.TypeType, types.XRangeType,
                      numpy.ufunc, type(list.append), types.FileType,
-                     BaseException, types.GeneratorType, itertools.count)
+                     BaseException, types.GeneratorType) + tuple(itertools_t)
     if (type(value) in (int, long, float, complex)):
         return ast.Num(value)
     elif value is None:

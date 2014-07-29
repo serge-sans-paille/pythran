@@ -13,6 +13,17 @@ typename std::enable_if< pythonic::types::is_callable<T>::value, T>::type operat
 
 /* } */
 
+/* specialize remove_cv */                                                      
+namespace std {                                                                 
+
+    template <class K, class V>                                                 
+        struct remove_cv< std::pair<const K, V> > {                             
+            typedef std::pair<K, V> type;                                       
+        };                                                                      
+}
+/* specialize remove_cv */                                                      
+
+
 /* type inference stuff
 */
 

@@ -25,6 +25,7 @@ from has_break import HasBreak
 from has_continue import HasContinue
 from identifiers import Identifiers
 from imported_ids import ImportedIds
+from is_assign import IsAssign
 from lazyness_analysis import LazynessAnalysis
 from literals import Literals
 from local_declarations import LocalDeclarations

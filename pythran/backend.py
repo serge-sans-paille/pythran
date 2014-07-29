@@ -6,7 +6,8 @@ This module contains all pythran backends.
 
 from pythran.analyses import ArgumentEffects, BoundedExpressions, Dependencies
 from pythran.analyses import LocalDeclarations, GlobalDeclarations, Scope
-from pythran.analyses import YieldPoints
+from pythran.analyses import YieldPoints, IsAssign, ASTMatcher, AST_no_cond
+from pythran.analyses import AST_or
 from pythran.cxxgen import Template, Include, Namespace, CompilationUnit
 from pythran.cxxgen import Statement, Block, AnnotatedStatement, Typedef
 from pythran.cxxgen import Value, FunctionDeclaration, EmptyStatement
@@ -159,7 +160,7 @@ class Cxx(Backend):
         self.ldecls = set()
         super(Cxx, self).__init__(Dependencies, GlobalDeclarations,
                                   BoundedExpressions, Types, ArgumentEffects,
-                                  Scope)
+                                  Scope, IsAssign)
 
     # mod
     def visit_Module(self, node):
@@ -687,14 +688,6 @@ class Cxx(Backend):
             self.extra_declarations.append((local_target, local_target_decl,))
             local_target_decl = ""
 
-        # Eventually add local_iter in a shared clause as iterable is
-        # shared in the for loop (for every clause with datasharing)
-        for directive in metadata.get(node, OMPDirective):
-            if any(key in ('single', 'parallel', 'section', 'task', 'for')
-                   for key in directive.s):
-                directive.s += ' shared({})'
-                directive.deps.append(ast.Name(local_iter, ast.Load()))
-
         # If variable is local to the for body it's a ref to the iterator value
         # type
         if node.target.id in self.scope[node] and not self.yields:
@@ -711,13 +704,54 @@ class Cxx(Backend):
                                                           local_target))
 
         # Create the loop
-        loop = For("{0} {1} = {2}.begin()".format(local_target_decl,
-                                                  local_target,
-                                                  local_iter),
-                   "{0} < {1}.end()".format(local_target, local_iter),
-                   "++{0}".format(local_target),
-                   Block([loop_body_prelude, loop_body]))
-        return loop
+        return [For("{0} {1} = {2}.begin()".format(local_target_decl,
+                                                   local_target,
+                                                   local_iter),
+                    "{0} < {1}.end()".format(local_target, local_iter),
+                    "++{0}".format(local_target),
+                    Block([loop_body_prelude, loop_body]))]
+
+    def gen_int_for(self, node, target, upper_bound, loop_body):
+        """
+        Create For classical representation for Cxx generation.
+
+        Examples
+        --------
+        >> for i in xrange(10):
+        >>     ... do things ...
+
+        Becomes
+
+        >> long __targetX = 10;
+        >> for(long i = 0; i < __targetX; i += 1)
+        >>     ... do things ...
+
+        It the case of not local variable, typing for `i` disappear
+        """
+        args = node.iter.args
+        step = 1 if len(args) <= 2 else self.visit(args[2])
+        lower_bound = 0 if len(args) == 1 else self.visit(args[0])
+
+        # If variable is local to the for body it's a ref to the iterator
+        # value type
+        if node.target.id in self.scope[node] and not self.yields:
+            self.ldecls = {d for d in self.ldecls
+                           if d.id != node.target.id}
+            local_type = "long "
+            back_iter = list()
+        else:
+            local_type = ""
+            # Back one step to keep Python behavior
+            back_iter = [If("{} == {}".format(target, upper_bound),
+                            Statement("{} -= {}".format(target, step)))]
+
+        return [For("{0} {1} = {2}".format(local_type,
+                                           target,
+                                           lower_bound),
+                    "{1} < {0}".format(upper_bound,
+                                       target),
+                    "{0} += {1}".format(target, step),
+                    loop_body)] + back_iter
 
     @cxx_loop
     def visit_For(self, node):
@@ -739,9 +773,10 @@ class Cxx(Backend):
 
         This function also handle assignment for local variables.
 
-        We can notice that two kind of loop are possible :
-        - Normal for loop  on iterator
+        We can notice that three kind of loop are possible:
+        - Normal for loop on iterator
         - Autofor loop.
+        - Normal for loop using integer variable iteration
         Kind of loop used depend on OpenMP, yield use and variable scope.
         """
         if not isinstance(node.target, ast.Name):
@@ -755,18 +790,16 @@ class Cxx(Backend):
         local_iter = "__iter{0}".format(len(self.break_handlers))
         local_iter_decl = Assignable(DeclType(iterable))
 
-        # For yield function, all variables are globals.
-        if self.yields:
-            self.extra_declarations.append((local_iter, local_iter_decl,))
-            local_iter_decl = ""
-
         # Handle the body of the for loop
         loop_body = Block(map(self.visit, node.body))
 
-        # Assign iterable
-        prelude = Statement("{0} {1} = {2}".format(local_iter_decl,
-                                                   local_iter,
-                                                   iterable))
+        # Eventually add local_iter in a shared clause as iterable is
+        # shared in the for loop (for every clause with datasharing)
+        for directive in metadata.get(node, OMPDirective):
+            if any(key in directive.s
+                   for key in (' parallel ', ' task ', ' parallel for ')):
+                directive.s += ' shared({})'
+                directive.deps.append(ast.Name(local_iter, ast.Load()))
 
         # To use auto_for, iterator should have local scope, yield should not
         # be use and OpenMP pragma should not be use
@@ -778,24 +811,52 @@ class Cxx(Backend):
         # Declare local variables at the top of the loop body
         loop_body = self.process_locals(node, loop_body, node.target.id)
 
-        if auto_for:
+        assert isinstance(node.target, ast.Name)
+        int_loop = not self.is_assign[node.target.id]
+
+        pattern = ast.Call(func=ast.Attribute(value=ast.Name(id='__builtin__',
+                                                             ctx=ast.Load()),
+                                              attr='xrange', ctx=ast.Load()),
+                           args=AST_or([AST_no_cond(), AST_no_cond()],
+                                       [AST_no_cond()]),
+                           keywords=[], starargs=None, kwargs=None)
+        int_loop &= node.iter in ASTMatcher(pattern).get(node.iter)
+
+        if int_loop:
+            args = node.iter.args
+            if len(args) > 1:
+                iterable = self.visit(args[1])
+            else:
+                iterable = self.visit(args[0])
+            local_iter_decl = "long "
+
+        # For yield function, all variables are globals.
+        if self.yields:
+            self.extra_declarations.append((local_iter, local_iter_decl,))
+            local_iter_decl = ""
+
+        # Assign iterable
+        stmts = [Statement("{0} {1} = {2}".format(local_iter_decl,
+                                                  local_iter,
+                                                  iterable))]
+
+        if int_loop:
+            loop = self.gen_int_for(node, target, local_iter, loop_body)
+        elif auto_for:
             self.ldecls = {d for d in self.ldecls if d.id != node.target.id}
-            loop = AutoFor(target, local_iter, loop_body)
+            loop = [AutoFor(target, local_iter, loop_body)]
         else:
             loop = self.gen_for(node, target, local_iter, local_iter_decl,
                                 loop_body)
 
-        stmts = [prelude, loop]
-
         # For xxxComprehension, it is replaced by a for loop. In this case,
         # pre-allocate size of container.
         for comp in metadata.get(node, metadata.Comprehension):
-            stmts.insert(1,
-                         Statement("pythonic::utils::reserve({0},{1})".format(
-                             comp.target,
-                             local_iter)))
+            stmts.append(Statement("pythonic::utils::reserve({0},{1})".format(
+                comp.target,
+                local_iter)))
 
-        return Block(self.process_omp_attachements(node, stmts, 1))
+        return Block(self.process_omp_attachements(node, stmts + loop, 1))
 
     @cxx_loop
     def visit_While(self, node):

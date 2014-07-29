@@ -42,7 +42,7 @@ namespace pythonic {
         template<class T, class E, class M, size_t N>
             void _enlarge_copy_minus(T&& t, E const& e, M const& m, long axis, utils::int_<N>)
             {
-                for(long i = 0, j = 0, n = e.shape[0], p = m.shape[0]; i < n ; ) {
+                for(long i = 0, n = e.shape[0], p = m.shape[0]; i < n ; ) {
                     for(long j = 0; j < p; ++j, ++i) {
                         _enlarge_copy_minus(t.fast(i), e.fast(i), m.fast(j), axis, utils::int_<N - 1>());
                     }

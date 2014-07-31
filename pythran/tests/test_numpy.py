@@ -2,6 +2,8 @@ import unittest
 from test_env import TestEnv
 import numpy
 
+
+@TestEnv.module
 class TestNumpy(TestEnv):
     def test_numpy_augassign0(self):
         self.run_test('def numpy_augassign0(a): a+=1; return a',

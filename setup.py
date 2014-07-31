@@ -1,6 +1,5 @@
 from distutils.core import setup, Command
 from distutils.command.build import build
-from unittest import TextTestRunner, TestLoader
 import os
 import sys
 import shutil
@@ -88,56 +87,55 @@ class BuildWithPly(build):
 
 
 class TestCommand(Command):
-    '''Scan the test directory for any tests, and run them.'''
+
+    """Scan the test directory for any tests, and run them."""
 
     description = 'run the test suite for the package'
     user_options = [('failfast', None, 'Stop upon first fail'),
                     ('cov', None, 'Perform coverage analysis'),
-                    ('num-threads=', None, 'Number of thread to execute tests')]
+                    ('num-threads=', None,
+                     'Number of threads to execute tests')]
 
     def initialize_options(self):
+        """ Initialize default value to command line arguments. """
         self.failfast = False
         self.cov = False
         import multiprocessing
         self.num_threads = multiprocessing.cpu_count()
 
     def finalize_options(self):
-        pass
+        """ Check arguments validity. """
+        assert self.num_threads > 0, "Not enough threads for tests."
 
     def run(self):
+        """
+        Run tests using the PYTHONPATH path to load pythran.
+
+        It also check third party library installation before running tests.
+        """
         # Do not include current directory, validate using installed pythran
         current_dir = _exclude_current_dir_from_import()
-        os.chdir("pythran/tests")
         where = os.path.join(current_dir, 'pythran')
 
         from pythran import test_compile
         test_compile()
 
-        try:
-            import py
-            import xdist
-            args = ["-n", str(self.num_threads), where, '--pep8']
-            if self.failfast:
-                args.insert(0, '-x')
-            if self.cov:
-                try:
-                    import pytest_cov
-                    args = ["--cov-report", "html",
-                            "--cov-report", "annotate",
-                            "--cov", "pythran"] + args
-                except ImportError:
-                    print ("W: Skipping coverage analysis, pytest_cov"
-                           "not found")
-            if py.test.cmdline.main(args) == 0:
-                print "\\_o<"
-        except ImportError:
-            print ("W: Using only one thread, "
-                   "try to install pytest-xdist package")
-            loader = TestLoader()
-            t = TextTestRunner(failfast=self.failfast)
-            t.run(loader.discover(where))
-            if t.wasSuccessful():
-                print "\\_o<"
+        import pytest
+        args = ["-n", str(self.num_threads), where, '--pep8']
+        if self.failfast:
+            args.insert(0, '-x')
+        if self.cov:
+            try:
+                # Avoid loading unused module
+                __import__('imp').find_module('pytest_cov')
+                args = ["--cov-report", "html",
+                        "--cov-report", "annotate",
+                        "--cov", "pythran"] + args
+            except ImportError:
+                print ("W: Skipping coverage analysis, pytest_cov"
+                       "not found")
+        if pytest.main(args) == 0:
+            print "\\_o<"
 
 
 class BenchmarkCommand(Command):

@@ -1,5 +1,7 @@
 from test_env import TestEnv
 
+
+@TestEnv.module
 class TestRandom(TestEnv):
 
     def test_random_(self):

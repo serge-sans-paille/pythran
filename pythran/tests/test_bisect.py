@@ -1,6 +1,8 @@
 import unittest
 from test_env import TestEnv
 
+
+@TestEnv.module
 class TestBisect(TestEnv):
 
     def test_bisect_left0(self):

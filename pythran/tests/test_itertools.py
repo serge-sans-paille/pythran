@@ -1,6 +1,8 @@
 import unittest
 from test_env import TestEnv
 
+
+@TestEnv.module
 class TestItertools(TestEnv):
 
     def test_imap(self):
@@ -20,40 +22,40 @@ class TestItertools(TestEnv):
 
     def test_imap_none(self):
         self.run_test("""
-def imap_none(l0): 
+def imap_none(l0):
     from itertools import imap
     t= 0
-    for a in imap(None, l0) : 
+    for a in imap(None, l0) :
         t += a[0]
     return t
 """, [0,1,2], imap_none=[[int]])
 
     def test_imap_none2(self):
         self.run_test("""
-def imap_none2(l0): 
+def imap_none2(l0):
     from itertools import imap
-    t=0 
-    for a in imap(None, l0, l0) : 
+    t=0
+    for a in imap(None, l0, l0) :
         t += sum(a)
     return t
 """, [0,1,2], imap_none2=[[int]])
 
     def test_imap_none_on_generators(self):
         self.run_test("""
-def imap_none_g(l0): 
+def imap_none_g(l0):
     from itertools import imap
     t= 0
-    for a in imap(None, (y for x in l0 for y in xrange(x))) : 
+    for a in imap(None, (y for x in l0 for y in xrange(x))) :
         t += a[0]
     return t
 """, [0,1,2], imap_none_g=[[int]])
 
     def test_imap_none2_on_generators(self):
         self.run_test("""
-def imap_none2_g(l0): 
+def imap_none2_g(l0):
     from itertools import imap
-    t=0 
-    for a in imap(None, (z for x in l0 for z in xrange(x)), (z for y in l0 for z in xrange(y))) : 
+    t=0
+    for a in imap(None, (z for x in l0 for z in xrange(x)), (z for y in l0 for z in xrange(y))) :
         t += sum(a)
     return t
 """, [0,1,2], imap_none2_g=[[int]])
@@ -69,8 +71,8 @@ def imap_none2_g(l0):
 
     def test_ifilter_none(self):
         self.run_test("""
-def ifiltern_(l0): 
-  from itertools import ifilter; 
+def ifiltern_(l0):
+  from itertools import ifilter;
   s = 0
   for b in (ifilter(None, l0)):
     s += 1

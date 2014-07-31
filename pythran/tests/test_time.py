@@ -1,5 +1,7 @@
 from test_env import TestEnv
 
+
+@TestEnv.module
 class TestTime(TestEnv):
 
     def test_time_and_sleep(self):

@@ -1,5 +1,7 @@
 from test_env import TestEnv
 
+
+@TestEnv.module
 class TestMath(TestEnv):
 
     def test_cos_(self):

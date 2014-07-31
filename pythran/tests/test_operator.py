@@ -1,6 +1,8 @@
 import unittest
 from test_env import TestEnv
 
+
+@TestEnv.module
 class TestOperator(TestEnv):
 
     def test_lt(self):
@@ -312,7 +314,7 @@ class TestOperator(TestEnv):
 
     def test_indexOf(self):
         self.run_test("def indexOf(a,b):\n from operator import indexOf\n return indexOf(a,b)", [4,3,2,1], 4, indexOf=[[int],int])
-         
+
     def test_itemgetter(self):
         self.run_test("def itemgetter(i,a):\n from operator import itemgetter\n g = itemgetter(i)\n return g(a)", 2, [4,3,2,1], itemgetter=[int,[int]])
 

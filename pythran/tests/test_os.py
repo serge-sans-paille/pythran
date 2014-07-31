@@ -1,5 +1,7 @@
 from test_env import TestEnv
 
+
+@TestEnv.module
 class TestOs(TestEnv):
 
     def test_os_path(self):

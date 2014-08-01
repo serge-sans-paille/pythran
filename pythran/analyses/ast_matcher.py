@@ -9,11 +9,28 @@ class AST_no_cond(object):
     """ Class to specify we don't care about a field value in ast. """
 
 
+class AST_or(object):
+
+    """
+    Class to specify multiple possibles value for a given field in ast.
+
+    Attributes
+    ----------
+    args: [ast field value]
+        List of possible value for a field of an ast.
+    """
+
+    def __init__(self, *args):
+        """ Initialiser to keep track of arguments. """
+        self.args = args
+
+
 def match(node, pattern):
     """
     Check matching between an ast.Node and a pattern.
 
-    AST_no_cond permit to specify we don't care about a field value
+    AST_no_cond permit to specify we don't care about a field value while
+    AST_or permit to specify multiple possible value for a field value.
     """
     if node.__class__.__name__ != pattern.__class__.__name__:
         return False
@@ -22,21 +39,28 @@ def match(node, pattern):
         if isinstance(value_p, AST_no_cond):
             # We don't check this field
             continue
-        elif type(value_n) != type(value_p):
-            # Type mismatch, so node differ
-            return False
-
-        bad_list_matching = (isinstance(value_n, list) and
-                             not list_matching(value_n, value_p))
-        bad_ast_matching = (isinstance(value_n, AST) and
-                            not match(value_n, value_p))
-        bad_matching = value_n != value_p
-
-        # If values are not matching list, matching ast node or equal value
-        # pattern and node differ
-        if bad_list_matching and bad_ast_matching and bad_matching:
+        elif isinstance(value_p, AST_or):
+            # for AST_or, check for at least one matching pattern
+            if not any(field_matching(value_n, value_or)
+                       for value_or in value_p.args):
+                return False
+        elif not field_matching(value_n, value_p):
             return False
     return True
+
+
+def field_matching(value_n, value_p):
+    """ Check for matching between two fields values. """
+    if type(value_n) != type(value_p):
+        # Type mismatch, so node differ
+        return False
+
+    if isinstance(value_n, list):
+        return list_matching(value_n, value_p)
+    elif isinstance(value_n, AST):
+        return match(value_n, value_p)
+    else:
+        return value_n == value_p
 
 
 def list_matching(node_list, pattern_list):
@@ -63,6 +87,13 @@ class ASTMatcher(ast.NodeVisitor):
     >>> import ast
     >>> code = "[(i, j) for i in xrange(a) for j in xrange(b)]"
     >>> pattern = ast.Call(func=ast.Name(id='xrange', ctx=ast.Load()),
+    ...                    args=AST_no_cond(), keywords=[],
+    ...                    starargs=None, kwargs=None)
+    >>> len(ASTMatcher(pattern).get(ast.parse(code)))
+    2
+    >>> code = "[(i, j) for i in range(a) for j in xrange(b)]"
+    >>> pattern = ast.Call(func=ast.Name(id=AST_or('xrange', 'range'),
+    ...                                  ctx=ast.Load()),
     ...                    args=AST_no_cond(), keywords=[],
     ...                    starargs=None, kwargs=None)
     >>> len(ASTMatcher(pattern).get(ast.parse(code)))

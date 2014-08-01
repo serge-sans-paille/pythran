@@ -293,9 +293,6 @@ class LazynessAnalysis(FunctionAnalysis):
     def visit_For(self, node):
         md.visit(self, node)
         ids = self.passmanager.gather(Identifiers, node.iter, self.ctx)
-        for id in ids:
-            # iterate value can't be lazy
-            self.result[id] = LazynessAnalysis.INF
         if isinstance(node.target, ast.Name):
             self.assign_to(node.target, ids, node.iter)
             self.result[node.target.id] = LazynessAnalysis.INF

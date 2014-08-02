@@ -704,12 +704,13 @@ class Cxx(Backend):
                                                           local_target))
 
         # Create the loop
-        return [For("{0} {1} = {2}.begin()".format(local_target_decl,
-                                                   local_target,
-                                                   local_iter),
-                    "{0} < {1}.end()".format(local_target, local_iter),
-                    "++{0}".format(local_target),
-                    Block([loop_body_prelude, loop_body]))]
+        loop = For("{0} {1} = {2}.begin()".format(local_target_decl,
+                                                  local_target,
+                                                  local_iter),
+                   "{0} < {1}.end()".format(local_target, local_iter),
+                   "++{0}".format(local_target),
+                   Block([loop_body_prelude, loop_body]))
+        return [self.process_omp_attachements(node, loop)]
 
     def gen_int_for(self, node, target, upper_bound, loop_body):
         """
@@ -741,17 +742,37 @@ class Cxx(Backend):
             back_iter = list()
         else:
             local_type = ""
-            # Back one step to keep Python behavior
+            # Back one step to keep Python behavior (except for break)
             back_iter = [If("{} == {}".format(target, upper_bound),
                             Statement("{} -= {}".format(target, step)))]
 
-        return [For("{0} {1} = {2}".format(local_type,
-                                           target,
-                                           lower_bound),
-                    "{1} < {0}".format(upper_bound,
-                                       target),
-                    "{0} += {1}".format(target, step),
-                    loop_body)] + back_iter
+        try:
+            int(step)
+            comparison = "{} < {}" if int(step) > 0 else "{} > {}"
+            comparison = comparison.format(target, upper_bound)
+            cmp_init = []
+        except ValueError:
+            cmp_type = "std::function<bool(long, long)> "
+            cmp_op = "__cmp{}".format(len(self.break_handlers))
+
+            # For yield function, all variables are globals.
+            if self.yields:
+                self.extra_declarations.append((cmp_op, cmp_type))
+                cmp_type = ""
+
+            cmp_init = [Statement("{} {} = std::less<long>()".format(cmp_type,
+                                                                     cmp_op)),
+                        If("{} < {}".format(upper_bound, lower_bound),
+                           Statement("{} = std::greater<long>()".format(
+                               cmp_op)))]
+            comparison = "{0}({2}, {1})".format(cmp_op, upper_bound, target)
+
+        loop = For("{0} {1} = {2}".format(local_type, target, lower_bound),
+                   comparison,
+                   "{0} += {1}".format(target, step),
+                   loop_body)
+        loop = [self.process_omp_attachements(node, loop)]
+        return cmp_init + loop + back_iter
 
     @cxx_loop
     def visit_For(self, node):
@@ -817,10 +838,19 @@ class Cxx(Backend):
         pattern = ast.Call(func=ast.Attribute(value=ast.Name(id='__builtin__',
                                                              ctx=ast.Load()),
                                               attr='xrange', ctx=ast.Load()),
-                           args=AST_or([AST_no_cond(), AST_no_cond()],
-                                       [AST_no_cond()]),
-                           keywords=[], starargs=None, kwargs=None)
+                           args=AST_no_cond(), keywords=[], starargs=None,
+                           kwargs=None)
         int_loop &= node.iter in ASTMatcher(pattern).get(node.iter)
+
+        if int_loop:
+            args = node.iter.args
+            step = 1 if len(args) <= 2 else self.visit(args[2])
+            try:
+                int(step)
+                if metadata.get(node, OMPDirective):
+                    int_loop = False
+            except ValueError:
+                int_loop = False
 
         if int_loop:
             args = node.iter.args
@@ -844,7 +874,10 @@ class Cxx(Backend):
             loop = self.gen_int_for(node, target, local_iter, loop_body)
         elif auto_for:
             self.ldecls = {d for d in self.ldecls if d.id != node.target.id}
-            loop = [AutoFor(target, local_iter, loop_body)]
+            loop = [self.process_omp_attachements(node,
+                                                  AutoFor(target,
+                                                          local_iter,
+                                                          loop_body))]
         else:
             loop = self.gen_for(node, target, local_iter, local_iter_decl,
                                 loop_body)
@@ -856,7 +889,7 @@ class Cxx(Backend):
                 comp.target,
                 local_iter)))
 
-        return Block(self.process_omp_attachements(node, stmts + loop, 1))
+        return Block(stmts + loop)
 
     @cxx_loop
     def visit_While(self, node):

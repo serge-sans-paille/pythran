@@ -1,0 +1,6 @@
+python      7.583504
+cython      0.008373
+numba       0.032684
+parakeet    0.005661
+pythran     0.009196
+pythran+OMP 0.003464

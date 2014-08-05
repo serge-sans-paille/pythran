@@ -13,7 +13,8 @@ from aliases import Aliases, StrictAliases
 from ancestors import Ancestors
 from argument_effects import ArgumentEffects
 from argument_read_once import ArgumentReadOnce
-from ast_matcher import ASTMatcher, AST_no_cond, AST_or
+from ast_matcher import ASTMatcher, AST_no_cond, AST_or, BaseMatcher
+from ast_matcher import Placeholder
 from bounded_expressions import BoundedExpressions
 from cfg import CFG
 from constant_expressions import ConstantExpressions

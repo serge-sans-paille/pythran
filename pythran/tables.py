@@ -115,6 +115,9 @@ equivalent_iterators = {
 # each module consist in a module_name <> set of symbols
 modules = {
     "__builtin__": {
+        "pythran": {
+            "len_set": ConstFunctionIntr()
+        },
         "abs": ConstFunctionIntr(),
         "BaseException": ConstExceptionIntr(),
         "SystemExit": ConstExceptionIntr(),

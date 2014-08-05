@@ -22,14 +22,14 @@ class TestOptimization(TestEnv):
         self.run_test("""
 def foo(f,l):
     return map(f,l[1:])
-def alias_readonce(n): 
+def alias_readonce(n):
     map = foo
     return map(lambda (x,y): x*y < 50, zip(xrange(n), xrange(n)))
 """, 10, alias_readonce=[int])
 
     def test_replace_aliased_map(self):
         self.run_test("""
-def alias_replaced(n): 
+def alias_replaced(n):
     map = filter
     return list(map(lambda x : x < 5, xrange(n)))
 """, 10, alias_replaced=[int])
@@ -38,7 +38,7 @@ def alias_replaced(n):
         self.run_test("""
 def foo(f,l):
     return map(f,l[3:])
-def listcomptomap_alias(n): 
+def listcomptomap_alias(n):
     map = foo
     return list([x for x in xrange(n)])
 """, 10, listcomptomap_alias=[int])
@@ -166,7 +166,7 @@ def foo(l,n):
         return foo(l,n+1)
     else:
         return sum(l)
-def readonce_recursive(n): 
+def readonce_recursive(n):
     return foo(range(n),0)
 """, 5, readonce_recursive=[int])
 
@@ -177,7 +177,7 @@ def foo(l,n):
         return foo(l,n+1)
     else:
         return sum(l[1:])
-def readonce_recursive2(n): 
+def readonce_recursive2(n):
     return foo(range(n),0)
 """, 5, readonce_recursive2=[int])
 
@@ -190,7 +190,7 @@ def foo(l,n):
         return sum(l)
 def bar(l,n):
     return foo(l, n+1)
-def readonce_cycle(n): 
+def readonce_cycle(n):
     return foo(range(n),0)
 """, 5, readonce_cycle=[int])
 
@@ -203,7 +203,7 @@ def foo(l,n):
         return sum(l)
 def bar(l,n):
     return foo(l, n+1)
-def readonce_cycle2(n): 
+def readonce_cycle2(n):
     return foo(range(n),0)
 """, 5, readonce_cycle2=[int])
 
@@ -364,3 +364,15 @@ def __init__():
     return __builtin__.None
 __init__()"""
         self.check_ast(init, ref, ["pythran.optimizations.DeadCodeElimination"])
+
+    def test_patternmatching(self):
+        init = """
+def foo(a):
+    return len(set(range(len(set(a)))))"""
+        ref = """import itertools
+def foo(a):
+    return __builtin__.pythran.len_set(__builtin__.range(__builtin__.pythran.len_set(a)))
+def __init__():
+    return __builtin__.None
+__init__()"""
+        self.check_ast(init, ref, ["pythran.optimizations.PatternTransform"])

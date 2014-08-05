@@ -376,3 +376,27 @@ def __init__():
     return __builtin__.None
 __init__()"""
         self.check_ast(init, ref, ["pythran.optimizations.PatternTransform"])
+
+    def test_patternmatching2(self):
+        init = """
+def foo(a):
+    return reversed(xrange(len(set(a))))"""
+        ref = """import itertools
+def foo(a):
+    return __builtin__.xrange((__builtin__.pythran.len_set(a) - 1), (-1), (-1))
+def __init__():
+    return __builtin__.None
+__init__()"""
+        self.check_ast(init, ref, ["pythran.optimizations.PatternTransform"])
+
+    def test_patternmatching3(self):
+        init = """
+def foo(a):
+    return a * a"""
+        ref = """import itertools
+def foo(a):
+    return (a ** 2)
+def __init__():
+    return __builtin__.None
+__init__()"""
+        self.check_ast(init, ref, ["pythran.optimizations.PatternTransform"])

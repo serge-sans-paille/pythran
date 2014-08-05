@@ -28,7 +28,32 @@ know_pattern = [
                                                 ctx=ast.Load()),
                                  attr="pythran", ctx=ast.Load()),
              attr="len_set", ctx=ast.Load()),
-         args=[Placeholder(0)], keywords=[], starargs=None, kwargs=None))]
+         args=[Placeholder(0)], keywords=[], starargs=None, kwargs=None)),
+    # __builtin__.reversed(__builtin__.xrange(X)) =>
+    # __builtin__.xrange(X-1, -1, -1)
+    (ast.Call(func=ast.Attribute(value=ast.Name(id='__builtin__',
+                                                ctx=ast.Load()),
+                                 attr="reversed", ctx=ast.Load()),
+              args=[ast.Call(
+                  func=ast.Attribute(
+                      value=ast.Name(id='__builtin__',
+                                     ctx=ast.Load()),
+                      attr="xrange", ctx=ast.Load()),
+                  args=[Placeholder(0)],
+                  keywords=[], starargs=None, kwargs=None)],
+              keywords=[], starargs=None, kwargs=None),
+     lambda: ast.Call(
+         func=ast.Attribute(value=ast.Name(id='__builtin__',
+                                           ctx=ast.Load()),
+                            attr="xrange", ctx=ast.Load()),
+         args=[ast.BinOp(left=Placeholder(0), op=ast.Sub(),
+                         right=ast.Num(n=1)),
+               ast.Num(n=-1),
+               ast.Num(n=-1)],
+         keywords=[], starargs=None, kwargs=None)),
+    # X * X => X ** 2
+    (ast.BinOp(left=Placeholder(0), op=ast.Mult(), right=Placeholder(0)),
+     lambda: ast.BinOp(left=Placeholder(0), op=ast.Pow(), right=ast.Num(n=2)))]
 
 
 class PlaceholderReplace(Transformation):

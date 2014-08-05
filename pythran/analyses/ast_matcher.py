@@ -1,6 +1,7 @@
 """ Module to looks for a specified pattern in a given AST. """
 
 from ast import AST, iter_fields
+from itertools import imap
 import ast
 
 
@@ -48,30 +49,47 @@ class BaseMatcher(object):
         self.placeholders = dict()
         super(BaseMatcher, self).__init__()
 
+    def jocker_match(self, (key_n, value_n), (key_p, value_p)):
+        """
+        Check matching between node and placeholders/Jockers.
+
+        AST_no_cond permit to specify we don't care about a field value while
+        AST_or permit to specify multiple possible value for a field value.
+        Placeholder have to be always the same and store value.
+        """
+        if key_n != key_p:
+            return False
+        elif isinstance(value_p, AST_no_cond):
+            # We don't check this field
+            return True
+        elif isinstance(value_p, AST_or):
+            # for AST_or, check for at least one matching pattern
+            return any(self.field_matching(value_n, value_or)
+                       for value_or in value_p.args)
+        elif isinstance(value_p, Placeholder):
+            if (value_p.id in self.placeholders and
+                    not self.field_matching(value_n,
+                                            self.placeholders[value_p.id])):
+                return False
+            else:
+                self.placeholders[value_p.id] = value_n
+                return True
+        else:
+            return self.field_matching(value_n, value_p)
+
     def match(self, node, pattern):
         """
         Check matching between an ast.Node and a pattern.
 
-        AST_no_cond permit to specify we don't care about a field value while
-        AST_or permit to specify multiple possible value for a field value.
+        It matchs if node are same are fields are matching too.
         """
         if node.__class__.__name__ != pattern.__class__.__name__:
             return False
-        zipped_nodes = zip(iter_fields(node), iter_fields(pattern))
-        for (_, value_n), (_, value_p) in zipped_nodes:
-            if isinstance(value_p, AST_no_cond):
-                # We don't check this field
-                continue
-            elif isinstance(value_p, AST_or):
-                # for AST_or, check for at least one matching pattern
-                if not any(self.field_matching(value_n, value_or)
-                           for value_or in value_p.args):
-                    return False
-            elif isinstance(value_p, Placeholder):
-                self.placeholders[value_p.id] = value_n
-            elif not self.field_matching(value_n, value_p):
-                return False
-        return True
+        if len(list(iter_fields(node))) != len(list(iter_fields(pattern))):
+            return False
+
+        return all(imap(self.jocker_match, iter_fields(node),
+                        iter_fields(pattern)))
 
     def field_matching(self, value_n, value_p):
         """ Check for matching between two fields values. """

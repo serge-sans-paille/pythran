@@ -193,7 +193,6 @@ modules = {
         "ord": ConstFunctionIntr(),
         "open": ConstFunctionIntr(),
         "pow": ConstFunctionIntr(),
-        "pow2": ConstFunctionIntr(),
         "range": ConstFunctionIntr(),
         "reduce": ReadOnceFunctionIntr(),
         "reversed": ReadOnceFunctionIntr(),

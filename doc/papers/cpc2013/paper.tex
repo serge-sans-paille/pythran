@@ -1,0 +1,60 @@
+\documentclass{llncs}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+
+\begin{document}
+\title{Hybrid compiler-library approach to efficiently compile Numpy expressions}
+
+\author{Serge Guelton\inst{1} \and Pierrick Brunet\inst{2} \and Pierre Esterie\inst{3}\\
+ \and Mathias Gaunard\inst{4} \and Joël Falcou\inst{3} }
+\institute{ENS ULM, Paris, France \and Télécom Bretagne, Plouzané, France \and LRI, University Paris Sud XI, France  \and MetaScale SAS, Orsay, France}
+
+\maketitle
+
+\begin{abstract}
+
+    The Numpy module for the Python language is growing in popularity among the
+    scientific community as a scientific computing tool. It most noticeably
+    provides a N-dimensional array object and a set of mathematical operators
+    using this structure that provide efficient computations thanks to the use
+    of natively compiled implementation.
+
+    Experiments shows that although more efficient than interpreted Python code,
+    this module does not optimize complex array expressions and does not fully
+    take advantage of multi-core machines with powerful vector instruction
+    units. This paper examines the aggregation of complex Numpy expressions and
+    their static compilation to efficient, hardware-aware native code to
+    speedup mathematical computations.
+
+    It shows that the combination of expression templates with a generic
+    vectorisation library and OpenMP constructs can be used to turn the
+    multiple sequential loops involved in complex Numpy expressions into a
+    single parallel, vectorized loop that efficiently take advantage of the
+    hardware capability.
+    
+    The proposed techniques are used to turn polymorphic Python functions to
+    polymorphic C++ functions through template meta-programming. Specialization
+    for given types is done during C++ template instantiation by the C++
+    compiler.
+    
+    As the efficiency of the operator aggregation highly depends on the memory
+    accesses over number of operations ratio, the paper also evaluates the
+    relevancy of using forward substitution and eventually introducing
+    redundant computations to increase computation intensity and hiding the
+    memory latency implied by the multiple loads and stores to and from vector
+    registers.
+
+    The ideas presented in the paper are implemented in the Pythran compiler
+    infrastructure using the Numeric Template Toolbox(NT$^2$). The static
+    approach is compared with the Just-In-Time approach taken by the Numba
+    compiler and the numexpr module, two tools used to dynamically optimize
+    Numpy expressions. 
+
+\end{abstract}
+
+%\bibliographystyle{splncs}
+%\bibliography{biblio}
+
+\end{document}
+
+% vim:spell spelllang=en

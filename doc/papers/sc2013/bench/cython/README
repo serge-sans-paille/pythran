@@ -1,0 +1,39 @@
+convolution:
+
+import convolution, numpy
+a = numpy.ones((1000, 1000))
+%timeit convolution.convolution(a)
+
+fbcorr:
+
+from random import random
+imgs = [[[[random() for i in xrange(8)] for j in xrange(32)] for j in xrange(32)] for k in xrange(32)]
+filters = [[[[random() for i in xrange(8)] for j in xrange(5)] for j in xrange(5)] for k in xrange(6)]
+import numpy
+imgs = numpy.array(imgs)
+filters = numpy.array(filters)
+import fbcorr
+%timeit fbcorr.fbcorr(imgs, filters)
+
+pi_buffon:
+
+import pi_buffon
+%timeit pi_buffon.pi_estimate(40000000)
+
+mandel:
+
+import mandel
+%timeit mandel.mandel(800, 0, 0, 800)
+
+matmul:
+
+import matmul
+import numpy
+a = numpy.array([[float(i) for i in xrange(600)] for j in xrange(600)])
+%timeit matmul.matrix_multiply(a, a)
+
+pairwise:
+
+import random, numpy, pairwise
+X = numpy.array([[random.random() for i in xrange(10000) ] for j in xrange(30) ])
+%timeit pairwise.pairwise(X)

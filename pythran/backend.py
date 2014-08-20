@@ -67,9 +67,69 @@ def strip_exp(s):
         return s
 
 
+def cxx_loop(fun):
+    """
+    Decorator for loop node (For and While) to handle "else" branching.
+
+    Decorated node will save flags for a goto statement used instead of usual
+    break and add this flag at the end of the else statements.
+
+    Examples
+    --------
+    >> for i in xrange(12):
+    >>     if i == 5:
+    >>         break
+    >> else:
+    >>     ... some code ...
+
+    Becomes
+
+    >> for(type i : xrange(12))
+    >>     if(i==5)
+    >>         goto __no_breaking0;
+    >> ... some code ...
+    >> __no_breaking0;
+    """
+    def loop_visitor(self, node):
+        """
+        New decorate function.
+
+        It push the breaking flag, run the visitor and add "else" statements.
+        """
+        if node.orelse:
+            break_handler = "__no_breaking{0}".format(len(self.break_handlers))
+        else:
+            break_handler = None
+        self.break_handlers.append(break_handler)
+
+        res = fun(self, node)
+
+        self.break_handlers.pop()
+
+        # handle the body of the for loop
+        if break_handler:
+            orelse = map(self.visit, node.orelse)
+            orelse_label = Statement("{0}:".format(break_handler))
+            return Block([res] + orelse + [orelse_label])
+        else:
+            return res
+    return loop_visitor
+
+
 class Cxx(Backend):
-    '''
+
+    """
     Produces a C++ representation of the AST.
+
+    Attributes
+    ----------
+    ldecls : {ast.Name}
+        set of local declarations.
+    break_handler : [str]
+        It contains flags for goto statements to jump on break in case of
+        orelse statement in loop. None means there are no orelse statement so
+        no jump are requiered.
+        (else in loop means : don't execute if loop is terminated with a break)
 
     >>> import ast, passmanager
     >>> node = ast.parse("print 'hello world'")
@@ -82,7 +142,7 @@ class Cxx(Backend):
     {
       pythonic::__builtin__::print(pythonic::types::str("hello world"));
     }
-    '''
+    """
 
     # recover previous generator state
     generator_state_holder = "__generator_state"
@@ -91,10 +151,12 @@ class Cxx(Backend):
     final_statement = "that_is_all_folks"
 
     def __init__(self):
+        """ Basic initialiser gathering analysis informations. """
         self.declarations = list()
         self.definitions = list()
         self.break_handlers = list()
         self.result = None
+        self.ldecls = set()
         super(Cxx, self).__init__(Dependencies, GlobalDeclarations,
                                   BoundedExpressions, Types, ArgumentEffects,
                                   Scope)
@@ -116,16 +178,21 @@ class Cxx(Backend):
 
     # local declaration processing
     def process_locals(self, node, node_visited, *skipped):
-        locals = self.scope[node].difference(skipped)
-        if not locals or self.yields:
+        """
+        Declare variable local to node and insert declaration before.
+
+        Not possible for function yielding values.
+        """
+        local_vars = self.scope[node].difference(skipped)
+        if not local_vars or self.yields:
             return node_visited  # no processing
 
         locals_visited = []
-        for varname in locals:
+        for varname in local_vars:
             vartype = self.local_types[varname]
             decl = Statement("{} {}".format(vartype, varname))
             locals_visited.append(decl)
-        self.ldecls = [ld for ld in self.ldecls if ld.id not in locals]
+        self.ldecls = {ld for ld in self.ldecls if ld.id not in local_vars}
         return Block(locals_visited + [node_visited])
 
     # openmp processing
@@ -203,7 +270,7 @@ class Cxx(Backend):
         formal_args = [arg.id for arg in fargs]
         formal_types = ["argument_type" + str(i) for i in xrange(len(fargs))]
 
-        self.ldecls = self.passmanager.gather(LocalDeclarations, node)
+        self.ldecls = set(self.passmanager.gather(LocalDeclarations, node))
 
         self.local_names = {sym.id for sym in self.ldecls}.union(formal_args)
         self.extra_declarations = []
@@ -214,8 +281,7 @@ class Cxx(Backend):
         self.local_types.update((n.id, t) for n, t in self.local_types.items())
 
         # choose one node among all the ones with the same name for each name
-        self.ldecls = {n for _, n in
-                       {n.id: n for n in self.ldecls}.iteritems()}
+        self.ldecls = set({n.id: n for n in self.ldecls}.itervalues())
 
         # 0 is used as initial_state, thus the +1
         self.yields = {k: (1 + v, "yield_point{0}".format(1 + v)) for (v, k) in
@@ -537,7 +603,22 @@ class Cxx(Backend):
             ]).generate())
 
     def visit_Assign(self, node):
-        if not all(isinstance(n, ast.Name) or isinstance(n, ast.Subscript)
+        """
+        Create Assign node for final Cxx representation.
+
+        It tries to handle multi assignment like:
+
+        >> a = b = c = 2
+
+        If only one local variable is assigned, typing is added:
+
+        >> int a = 2;
+
+        TODO: Handle case of multi-assignement for some local variables.
+
+        Finally, process OpenMP clause like #pragma omp atomic
+        """
+        if not all(isinstance(n, (ast.Name, ast.Subscript))
                    for n in node.targets):
             raise PythranSyntaxError(
                 "Must assign to an identifier or a subscript",
@@ -545,10 +626,8 @@ class Cxx(Backend):
         value = self.visit(node.value)
         targets = [self.visit(t) for t in node.targets]
         alltargets = "= ".join(targets)
-        islocal = any(metadata.get(t, metadata.LocalVariable)
-                      for t in node.targets)
-        if len(targets) == 1 and isinstance(node.targets[0], ast.Name):
-            islocal |= node.targets[0].id in self.scope[node]
+        islocal = (len(targets) == 1 and isinstance(node.targets[0], ast.Name)
+                   and node.targets[0].id in self.scope[node])
         if islocal and not self.yields:
             # remove this decl from local decls
             tdecls = {t.id for t in node.targets}
@@ -577,116 +656,158 @@ class Cxx(Backend):
             )
         return self.process_omp_attachements(node, stmt)
 
+    def gen_for(self, node, target, local_iter, local_iter_decl, loop_body):
+        """
+        Create For representation on iterator for Cxx generation.
+
+        Examples
+        --------
+        >> "omp parallel for"
+        >> for i in xrange(10):
+        >>     ... do things ...
+
+        Becomes
+
+        >> "omp parallel for shared(__iterX)"
+        >> for(decltype(__iterX)::iterator __targetX = __iterX.begin();
+               __targetX < __iterX.end(); ++__targetX)
+        >>         typename decltype(__targetX)::reference i = *__targetX;
+        >>     ... do things ...
+
+        It the case of not local variable, typing for `i` disappear and typing
+        is removed for iterator in case of yields statement in function.
+        """
+        # Choose target variable for iterator (which is iterator type)
+        local_target = "__target{0}".format(len(self.break_handlers))
+        local_target_decl = NamedType("typename decltype({0})::iterator".
+                                      format(local_iter))
+
+        # For yield function, all variables are globals.
+        if self.yields:
+            self.extra_declarations.append((local_target, local_target_decl,))
+            local_target_decl = ""
+
+        # Eventually add local_iter in a shared clause as iterable is
+        # shared in the for loop (for every clause with datasharing)
+        for directive in metadata.get(node, OMPDirective):
+            if any(key in ('single', 'parallel', 'section', 'task', 'for')
+                   for key in directive.s):
+                directive.s += ' shared({})'
+                directive.deps.append(ast.Name(local_iter, ast.Load()))
+
+        # If variable is local to the for body it's a ref to the iterator value
+        # type
+        if node.target.id in self.scope[node] and not self.yields:
+            self.ldecls = {d for d in self.ldecls
+                           if d.id != node.target.id}
+            local_type = "typename decltype({})::reference ".format(
+                local_target)
+        else:
+            local_type = ""
+
+        # Assign iterable value
+        loop_body_prelude = Statement("{} {}= *{}".format(local_type,
+                                                          target,
+                                                          local_target))
+
+        # Create the loop
+        loop = For("{0} {1} = {2}.begin()".format(local_target_decl,
+                                                  local_target,
+                                                  local_iter),
+                   "{0} < {1}.end()".format(local_target, local_iter),
+                   "++{0}".format(local_target),
+                   Block([loop_body_prelude, loop_body]))
+        return loop
+
+    @cxx_loop
     def visit_For(self, node):
+        """
+        Create For representation for Cxx generation.
+
+        Examples
+        --------
+        >> for i in xrange(10):
+        >>     ... work ...
+
+        Becomes
+
+        >> typename assignable<decltype(__builtin__.xrange(10))>::type __iterX
+           = __builtin__.xrange(10);
+        >> ... possible container size reservation ...
+        >> for (typename decltype(__iterX)::iterator::reference i: __iterX)
+        >>     ... the work ...
+
+        This function also handle assignment for local variables.
+
+        We can notice that two kind of loop are possible :
+        - Normal for loop  on iterator
+        - Autofor loop.
+        Kind of loop used depend on OpenMP, yield use and variable scope.
+        """
         if not isinstance(node.target, ast.Name):
             raise PythranSyntaxError(
                 "Using something other than an identifier as loop target",
                 node.target)
-        iter = self.visit(node.iter)
+        iterable = self.visit(node.iter)
         target = self.visit(node.target)
 
-        if node.orelse:
-            break_handler = "__no_breaking{0}".format(len(self.break_handlers))
-        else:
-            break_handler = None
-        self.break_handlers.append(break_handler)
-
+        # Iterator declaration
         local_iter = "__iter{0}".format(len(self.break_handlers))
-        local_target = "__target{0}".format(len(self.break_handlers))
+        local_iter_decl = Assignable(DeclType(iterable))
 
-        local_iter_decl = Assignable(DeclType(iter))
-        local_target_decl = NamedType("{0}::iterator".format(local_iter_decl))
+        # For yield function, all variables are globals.
         if self.yields:
             self.extra_declarations.append((local_iter, local_iter_decl,))
-            self.extra_declarations.append((local_target, local_target_decl,))
-            local_target_decl = ""
             local_iter_decl = ""
 
+        # Handle the body of the for loop
         loop_body = Block(map(self.visit, node.body))
 
-        self.break_handlers.pop()
+        # Assign iterable
+        prelude = Statement("{0} {1} = {2}".format(local_iter_decl,
+                                                   local_iter,
+                                                   iterable))
 
-        # eventually add local_iter in a shared clause
-        omp = metadata.get(node, OMPDirective)
-        if omp:
-            for directive in omp:
-                if 'parallel' in directive.s:
-                    directive.s += ' shared({})'
-                    directive.deps.append(ast.Name(local_iter, ast.Param()))
+        # To use auto_for, iterator should have local scope, yield should not
+        # be use and OpenMP pragma should not be use
+        auto_for = (type(node.target) is ast.Name
+                    and node.target.id in self.scope[node])
+        auto_for &= not self.yields
+        auto_for &= not metadata.get(node, OMPDirective)
 
-        prelude = Statement("{0} {1} = {2}".format(
-            local_iter_decl, local_iter, iter)
-            )
-
-        auto_for = bool(metadata.get(node.target, metadata.LocalVariable))
-        auto_for |= (type(node.target) is ast.Name
-                     and node.target.id in self.scope[node])
-        auto_for &= not self.yields and not omp
-
+        # Declare local variables at the top of the loop body
         loop_body = self.process_locals(node, loop_body, node.target.id)
 
         if auto_for:
             self.ldecls = {d for d in self.ldecls if d.id != node.target.id}
             loop = AutoFor(target, local_iter, loop_body)
         else:
-            if node.target.id in self.scope[node] and not self.yields:
-                self.ldecls = {d for d in self.ldecls
-                               if d.id != node.target.id}
-                local_type = "typename decltype({})::reference ".format(
-                    local_target)
-            else:
-                local_type = ""
-            loop_body_prelude = Statement("{} {}= *{}".format(local_type,
-                                                              target,
-                                                              local_target))
-            loop = For(
-                "{0} {1} = {2}.begin()".format(
-                    local_target_decl,
-                    local_target,
-                    local_iter),
-                "{0} < {1}.end()".format(
-                    local_target,
-                    local_iter),
-                "++{0}".format(local_target),
-                Block([loop_body_prelude, loop_body])
-                )
+            loop = self.gen_for(node, target, local_iter, local_iter_decl,
+                                loop_body)
+
         stmts = [prelude, loop]
 
-        # in that case when can proceed to a reserve
+        # For xxxComprehension, it is replaced by a for loop. In this case,
+        # pre-allocate size of container.
         for comp in metadata.get(node, metadata.Comprehension):
             stmts.insert(1,
                          Statement("pythonic::utils::reserve({0},{1})".format(
                              comp.target,
                              local_iter)))
 
-        if break_handler:
-            orelse = map(self.visit, node.orelse)
-            orelse_label = Statement("{0}:".format(break_handler))
-            stmts.append(Block(orelse + [orelse_label]))
-
         return Block(self.process_omp_attachements(node, stmts, 1))
 
+    @cxx_loop
     def visit_While(self, node):
+        """
+        Create While node for Cxx generation.
+
+        It is a cxx_loop to handle else clause.
+        """
         test = self.visit(node.test)
-
-        if node.orelse:
-            break_handler = "__no_breaking{0}".format(len(self.break_handlers))
-        else:
-            break_handler = None
-        self.break_handlers.append(break_handler)
-
         body = [self.visit(n) for n in node.body]
-
-        self.break_handlers.pop()
-
-        while_ = While(test, Block(body))
-
-        if break_handler:
-            orelse = map(self.visit, node.orelse)
-            orelse_label = Statement("{0}:".format(break_handler))
-            return Block([while_] + orelse + [orelse_label])
-        else:
-            return while_
+        stmt = While(test, Block(body))
+        return self.process_omp_attachements(node, stmt)
 
     def visit_TryExcept(self, node):
         body = [self.visit(n) for n in node.body]
@@ -757,6 +878,11 @@ class Cxx(Backend):
         return self.process_omp_attachements(node, stmt)
 
     def visit_Break(self, node):
+        """
+        Generate break statement in most case and goto for orelse clause.
+
+        See Also : cxx_loop
+        """
         if self.break_handlers[-1]:
             return Statement("goto {0}".format(self.break_handlers[-1]))
         else:

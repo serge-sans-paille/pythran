@@ -324,14 +324,6 @@ namespace pythonic {
         };
 
 }
-/* specialize remove_cv */
-namespace std {
-
-    template <class K, class V>
-        struct remove_cv< std::pair<const K, V> > {
-            typedef std::pair<K, V> type;
-        };
-}
 
 /* specialize std::get */
 namespace std {

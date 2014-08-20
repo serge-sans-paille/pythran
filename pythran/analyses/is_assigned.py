@@ -6,7 +6,7 @@ from collections import defaultdict
 import ast
 
 
-class IsAssign(NodeAnalysis):
+class IsAssigned(NodeAnalysis):
 
     """
     Gather variable that change in given node.
@@ -18,7 +18,7 @@ class IsAssign(NodeAnalysis):
     def __init__(self):
         """ Basic initialiser. """
         self.result = defaultdict(bool)
-        super(IsAssign, self).__init__()
+        super(IsAssigned, self).__init__()
 
     def visit_Name(self, node):
         """ Stored variable have new value. """

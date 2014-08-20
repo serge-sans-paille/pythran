@@ -15,7 +15,7 @@ class Placeholder(AST):
         super(Placeholder, self).__init__()
 
 
-class AST_no_cond(object):
+class AST_any(object):
 
     """ Class to specify we don't care about a field value in ast. """
 
@@ -39,7 +39,7 @@ class AST_or(object):
 class BaseMatcher(object):
 
     """
-    Matcher to check matching between a pattern and a note saving.
+    Matcher to check matching between a pattern.
 
     It saves information for placeholders.
     """
@@ -53,29 +53,29 @@ class BaseMatcher(object):
         """
         Check matching between node and placeholders/Jockers.
 
-        AST_no_cond permit to specify we don't care about a field value while
+        AST_any permit to specify we don't care about a field value while
         AST_or permit to specify multiple possible value for a field value.
         Placeholder have to be always the same and store value.
         """
         if key_n != key_p:
             return False
-        elif isinstance(value_p, AST_no_cond):
+        elif isinstance(value_p, AST_any):
             # We don't check this field
             return True
         elif isinstance(value_p, AST_or):
             # for AST_or, check for at least one matching pattern
-            return any(self.field_matching(value_n, value_or)
+            return any(self.field_match(value_n, value_or)
                        for value_or in value_p.args)
         elif isinstance(value_p, Placeholder):
             if (value_p.id in self.placeholders and
-                    not self.field_matching(value_n,
-                                            self.placeholders[value_p.id])):
+                    not self.field_match(value_n,
+                                         self.placeholders[value_p.id])):
                 return False
             else:
                 self.placeholders[value_p.id] = value_n
                 return True
         else:
-            return self.field_matching(value_n, value_p)
+            return self.field_match(value_n, value_p)
 
     def match(self, node, pattern):
         """
@@ -83,7 +83,7 @@ class BaseMatcher(object):
 
         It matchs if node are same are fields are matching too.
         """
-        if node.__class__.__name__ != pattern.__class__.__name__:
+        if type(node) != type(pattern):
             return False
         if len(list(iter_fields(node))) != len(list(iter_fields(pattern))):
             return False
@@ -91,25 +91,25 @@ class BaseMatcher(object):
         return all(imap(self.jocker_match, iter_fields(node),
                         iter_fields(pattern)))
 
-    def field_matching(self, value_n, value_p):
+    def field_match(self, value_n, value_p):
         """ Check for matching between two fields values. """
         if type(value_n) != type(value_p):
             # Type mismatch, so node differ
             return False
 
         if isinstance(value_n, list):
-            return self.list_matching(value_n, value_p)
+            return self.list_match(value_n, value_p)
         elif isinstance(value_n, AST):
             return self.match(value_n, value_p)
         else:
             return value_n == value_p
 
-    def list_matching(self, node_list, pattern_list):
+    def list_match(self, node_list, pattern_list):
         """ Check matching between nodes and patterns of ast.Node. """
         if len(node_list) != len(pattern_list):
             return False
         for item_n, item_p in zip(node_list, pattern_list):
-            if isinstance(item_p, AST_no_cond):
+            if isinstance(item_p, AST_any):
                 continue
             elif isinstance(item_p, Placeholder):
                 self.placeholders[item_p.id] = item_n
@@ -130,16 +130,16 @@ class ASTMatcher(ast.NodeVisitor, BaseMatcher):
     >>> import ast
     >>> code = "[(i, j) for i in xrange(a) for j in xrange(b)]"
     >>> pattern = ast.Call(func=ast.Name(id='xrange', ctx=ast.Load()),
-    ...                    args=AST_no_cond(), keywords=[],
+    ...                    args=AST_any(), keywords=[],
     ...                    starargs=None, kwargs=None)
-    >>> len(ASTMatcher(pattern).get(ast.parse(code)))
+    >>> len(ASTMatcher(pattern).search(ast.parse(code)))
     2
     >>> code = "[(i, j) for i in range(a) for j in xrange(b)]"
     >>> pattern = ast.Call(func=ast.Name(id=AST_or('xrange', 'range'),
     ...                                  ctx=ast.Load()),
-    ...                    args=AST_no_cond(), keywords=[],
+    ...                    args=AST_any(), keywords=[],
     ...                    starargs=None, kwargs=None)
-    >>> len(ASTMatcher(pattern).get(ast.parse(code)))
+    >>> len(ASTMatcher(pattern).search(ast.parse(code)))
     2
     """
 
@@ -159,7 +159,7 @@ class ASTMatcher(ast.NodeVisitor, BaseMatcher):
             self.result.add(node)
         self.generic_visit(node)
 
-    def get(self, node):
+    def search(self, node):
         """ Facility to get values of the matcher for a given node. """
         self.visit(node)
         return self.result

@@ -6,7 +6,7 @@ This module contains all pythran backends.
 
 from pythran.analyses import ArgumentEffects, BoundedExpressions, Dependencies
 from pythran.analyses import LocalDeclarations, GlobalDeclarations, Scope
-from pythran.analyses import YieldPoints
+from pythran.analyses import YieldPoints, IsAssign, ASTMatcher, AST_no_cond
 from pythran.cxxgen import Template, Include, Namespace, CompilationUnit
 from pythran.cxxgen import Statement, Block, AnnotatedStatement, Typedef
 from pythran.cxxgen import Value, FunctionDeclaration, EmptyStatement
@@ -159,7 +159,7 @@ class Cxx(Backend):
         self.ldecls = set()
         super(Cxx, self).__init__(Dependencies, GlobalDeclarations,
                                   BoundedExpressions, Types, ArgumentEffects,
-                                  Scope)
+                                  Scope, IsAssign)
 
     # mod
     def visit_Module(self, node):
@@ -195,23 +195,17 @@ class Cxx(Backend):
         self.ldecls = {ld for ld in self.ldecls if ld.id not in local_vars}
         return Block(locals_visited + [node_visited])
 
-    # openmp processing
     def process_omp_attachements(self, node, stmt, index=None):
-        l = metadata.get(node, OMPDirective)
-        if l:
+        """
+        Add OpenMP pragma on the correct stmt in the correct order.
+
+        stmt may be a list. On this case, index have to be specify to add
+        OpenMP on the correct statement.
+        """
+        omp_directives = metadata.get(node, OMPDirective)
+        if omp_directives:
             directives = list()
-            for directive in reversed(l):
-                # special hook for default for index scope
-                if isinstance(node, ast.For):
-                    target = node.target
-                    hasfor = 'for' in directive.s
-                    nodefault = 'default' not in directive.s
-                    noindexref = all(isinstance(x, ast.Name) and
-                                     x.id != target.id for x in directive.deps)
-                    if (hasfor and nodefault and noindexref and
-                            target.id not in self.scope[node]):
-                        directive.s += ' private({})'
-                        directive.deps.append(ast.Name(target.id, ast.Load()))
+            for directive in reversed(omp_directives):
                 directive.deps = map(self.visit, directive.deps)
                 directives.append(directive)
             if index is None:
@@ -687,14 +681,6 @@ class Cxx(Backend):
             self.extra_declarations.append((local_target, local_target_decl,))
             local_target_decl = ""
 
-        # Eventually add local_iter in a shared clause as iterable is
-        # shared in the for loop (for every clause with datasharing)
-        for directive in metadata.get(node, OMPDirective):
-            if any(key in ('single', 'parallel', 'section', 'task', 'for')
-                   for key in directive.s):
-                directive.s += ' shared({})'
-                directive.deps.append(ast.Name(local_iter, ast.Load()))
-
         # If variable is local to the for body it's a ref to the iterator value
         # type
         if node.target.id in self.scope[node] and not self.yields:
@@ -717,7 +703,207 @@ class Cxx(Backend):
                    "{0} < {1}.end()".format(local_target, local_iter),
                    "++{0}".format(local_target),
                    Block([loop_body_prelude, loop_body]))
-        return loop
+        return [self.process_omp_attachements(node, loop)]
+
+    def handle_real_loop_comparison(self, args, stmts, target, upper_bound,
+                                    step):
+        """
+        Handle comparison for real loops.
+
+        Add the correct comparison operator if possible or set a runtime __cmp
+        comparison.
+        """
+        # order is 1 for increasing loop, -1 for decreasing loop and 0 if it is
+        # not known at compile time
+        if len(args) <= 2:
+            order = 1
+        elif isinstance(args[2], ast.Num):
+            order = -1 + 2 * (int(args[2].n) > 0)
+        elif isinstance(args[1], ast.Num) and isinstance(args[0], ast.Num):
+            order = -1 + 2 * (int(args[1].n) > int(args[0].n))
+        else:
+            order = 0
+
+        if order:
+            comparison = "{} < {}" if order == 1 else "{} > {}"
+            comparison = comparison.format(target, upper_bound)
+            for_pos = 0
+        else:
+            cmp_type = "std::function<bool(long, long)> "
+            cmp_op = "__cmp{}".format(len(self.break_handlers))
+
+            # For yield function, all variables are globals.
+            if self.yields:
+                self.extra_declarations.append((cmp_op, cmp_type))
+                cmp_type = ""
+
+            stmts.insert(0, Statement("{} {} = std::less<long>()".format(
+                cmp_type, cmp_op)))
+            stmts.insert(1, If("{} < 0L".format(step),
+                               Statement("{} = std::greater<long>()".format(
+                                   cmp_op))))
+            for_pos = 2
+            comparison = "{0}({1}, {2})".format(cmp_op, target, upper_bound)
+        return comparison, for_pos
+
+    def gen_c_for(self, node, target, loop_body):
+        """
+        Create C For representation for Cxx generation.
+
+        Examples
+        --------
+        >> for i in xrange(10):
+        >>     ... do things ...
+
+        Becomes
+
+        >> for(long i = 0, __targetX = 10; i < __targetX; i += 1)
+        >>     ... do things ...
+
+        Or
+
+        >> for i in xrange(10, 0, -1):
+        >>     ... do things ...
+
+        Becomes
+
+        >> for(long i = 10, __targetX = 0; i > __targetX; i += -1)
+        >>     ... do things ...
+
+        Or
+
+        >> for i in xrange(a, b, c):
+        >>     ... do things ...
+
+        Becomes
+
+        >> std::function<bool(int, int)> __cmpX = std::less<long>();
+        >> if(c < 0)
+        >>     __cmpX = std::greater<long>();
+        >> for(long i = a, __targetX = b; __cmpX(i, __targetX); i += c)
+        >>     ... do things ...
+
+        It the case of not local variable, typing for `i` disappear
+        """
+        args = node.iter.args
+        step = "1L" if len(args) <= 2 else self.visit(args[2])
+        if len(args) == 1:
+            lower_bound = "0L"
+            upper_value = self.visit(args[0])
+        else:
+            lower_bound = self.visit(args[0])
+            upper_value = self.visit(args[1])
+
+        upper_bound = "__target{0}".format(len(self.break_handlers))
+
+        upper_type = iter_type = "long "
+
+        # If variable is local to the for body keep it local...
+        if node.target.id in self.scope[node] and not self.yields:
+            self.ldecls = {d for d in self.ldecls if d.id != node.target.id}
+            stmts = list()
+        else:
+            # For yield function, upper_bound is globals.
+            if self.yields:
+                self.extra_declarations.append((upper_bound, upper_type))
+                upper_type = ""
+            iter_type = ""
+            # Back one step to keep Python behavior (except for break)
+            stmts = [If("{} == {}".format(target, upper_bound),
+                        Statement("{} -= {}".format(target, step)))]
+
+        comparison, for_pos = self.handle_real_loop_comparison(args, stmts,
+                                                               target,
+                                                               upper_bound,
+                                                               step)
+
+        stmts.insert(for_pos,
+                     For("{0} {1} = {2}".format(iter_type, target,
+                                                lower_bound),
+                         comparison,
+                         "{0} += {1}".format(target, step),
+                         loop_body))
+        # Store upper bound value
+        stmts = ["{0} {1} = {2}".format(upper_type, upper_bound,
+                                        upper_value)] + stmts
+        return self.process_omp_attachements(node, stmts, for_pos)
+
+    def handle_omp_for(self, node, local_iter):
+        """
+        Fix OpenMP directives on For loops.
+
+        Add the target as private variable as a new variable may have been
+        introduce to handle cxx iterator.
+
+        Also, add the iterator as shared variable as all 'parallel for chunck'
+        have to use the same iterator.
+        """
+        for directive in metadata.get(node, OMPDirective):
+            if any(key in directive.s for key in (' parallel ', ' task ')):
+                # Eventually add local_iter in a shared clause as iterable is
+                # shared in the for loop (for every clause with datasharing)
+                directive.s += ' shared({})'
+                directive.deps.append(ast.Name(local_iter, ast.Load()))
+
+            target = node.target
+            assert isinstance(target, ast.Name)
+            hasfor = 'for' in directive.s
+            nodefault = 'default' not in directive.s
+            noindexref = all(isinstance(x, ast.Name) and
+                             x.id != target.id for x in directive.deps)
+            if (hasfor and nodefault and noindexref and
+                    target.id not in self.scope[node]):
+                # Target is private by default in omp but iterator use may
+                # introduce an extra variable
+                directive.s += ' private({})'
+                directive.deps.append(ast.Name(target.id, ast.Load()))
+
+    def can_use_autofor(self, node):
+        """
+        Check if given for Node can use autoFor syntax.
+
+        To use auto_for:
+            - iterator should have local scope
+            - yield should not be use
+            - OpenMP pragma should not be use
+
+        TODO : Yield should block only if it is use in the for loop, not in the
+               whole function.
+        """
+        auto_for = (type(node.target) is ast.Name
+                    and node.target.id in self.scope[node])
+        auto_for &= not self.yields
+        auto_for &= not metadata.get(node, OMPDirective)
+        return auto_for
+
+    def can_use_c_for(self, node):
+        """
+        Check if a for loop can use classic C syntax.
+
+        To use C syntax:
+            - target should not be assign in the loop
+            - xrange should be use as iterator
+            - order have to be known at compile time or OpenMP should not be
+              use
+
+        """
+        assert isinstance(node.target, ast.Name)
+        pattern = ast.Call(func=ast.Attribute(value=ast.Name(id='__builtin__',
+                                                             ctx=ast.Load()),
+                                              attr='xrange', ctx=ast.Load()),
+                           args=AST_no_cond(), keywords=[], starargs=None,
+                           kwargs=None)
+        if (node.iter not in ASTMatcher(pattern).get(node.iter) or
+                self.is_assign[node.target.id]):
+            return False
+
+        args = node.iter.args
+        if (len(args) > 2 and (not isinstance(args[2], ast.Num) and
+                               not (isinstance(args[1], ast.Num) and
+                                    isinstance(args[0], ast.Num))) and
+                metadata.get(node, OMPDirective)):
+            return False
+        return True
 
     @cxx_loop
     def visit_For(self, node):
@@ -739,63 +925,65 @@ class Cxx(Backend):
 
         This function also handle assignment for local variables.
 
-        We can notice that two kind of loop are possible :
-        - Normal for loop  on iterator
+        We can notice that three kind of loop are possible:
+        - Normal for loop on iterator
         - Autofor loop.
+        - Normal for loop using integer variable iteration
         Kind of loop used depend on OpenMP, yield use and variable scope.
         """
         if not isinstance(node.target, ast.Name):
             raise PythranSyntaxError(
                 "Using something other than an identifier as loop target",
                 node.target)
-        iterable = self.visit(node.iter)
         target = self.visit(node.target)
-
-        # Iterator declaration
-        local_iter = "__iter{0}".format(len(self.break_handlers))
-        local_iter_decl = Assignable(DeclType(iterable))
-
-        # For yield function, all variables are globals.
-        if self.yields:
-            self.extra_declarations.append((local_iter, local_iter_decl,))
-            local_iter_decl = ""
 
         # Handle the body of the for loop
         loop_body = Block(map(self.visit, node.body))
 
-        # Assign iterable
-        prelude = Statement("{0} {1} = {2}".format(local_iter_decl,
-                                                   local_iter,
-                                                   iterable))
-
-        # To use auto_for, iterator should have local scope, yield should not
-        # be use and OpenMP pragma should not be use
-        auto_for = (type(node.target) is ast.Name
-                    and node.target.id in self.scope[node])
-        auto_for &= not self.yields
-        auto_for &= not metadata.get(node, OMPDirective)
-
         # Declare local variables at the top of the loop body
         loop_body = self.process_locals(node, loop_body, node.target.id)
 
-        if auto_for:
-            self.ldecls = {d for d in self.ldecls if d.id != node.target.id}
-            loop = AutoFor(target, local_iter, loop_body)
+        if self.can_use_c_for(node):
+            loop = self.gen_c_for(node, target, loop_body)
+            stmts = list()
         else:
-            loop = self.gen_for(node, target, local_iter, local_iter_decl,
-                                loop_body)
+            iterable = self.visit(node.iter)
 
-        stmts = [prelude, loop]
+            # Iterator declaration
+            local_iter = "__iter{0}".format(len(self.break_handlers))
+            local_iter_decl = Assignable(DeclType(iterable))
+
+            self.handle_omp_for(node, local_iter)
+
+            # For yield function, iterable is globals.
+            if self.yields:
+                self.extra_declarations.append((local_iter, local_iter_decl,))
+                local_iter_decl = ""
+
+            # Assign iterable
+            # For C loop, it avoid issue if upper bound is reassign in the loop
+            stmts = [Statement("{0} {1} = {2}".format(local_iter_decl,
+                                                      local_iter,
+                                                      iterable))]
+            if self.can_use_autofor(node):
+                self.ldecls = {d for d in self.ldecls
+                               if d.id != node.target.id}
+                loop = [self.process_omp_attachements(node,
+                                                      AutoFor(target,
+                                                              local_iter,
+                                                              loop_body))]
+            else:
+                loop = self.gen_for(node, target, local_iter, local_iter_decl,
+                                    loop_body)
 
         # For xxxComprehension, it is replaced by a for loop. In this case,
         # pre-allocate size of container.
         for comp in metadata.get(node, metadata.Comprehension):
-            stmts.insert(1,
-                         Statement("pythonic::utils::reserve({0},{1})".format(
-                             comp.target,
-                             local_iter)))
+            stmts.append(Statement("pythonic::utils::reserve({0},{1})".format(
+                comp.target,
+                local_iter)))
 
-        return Block(self.process_omp_attachements(node, stmts, 1))
+        return Block(stmts + loop)
 
     @cxx_loop
     def visit_While(self, node):

@@ -13,6 +13,7 @@ from aliases import Aliases, StrictAliases
 from ancestors import Ancestors
 from argument_effects import ArgumentEffects
 from argument_read_once import ArgumentReadOnce
+from ast_matcher import ASTMatcher, AST_no_cond, AST_or
 from bounded_expressions import BoundedExpressions
 from cfg import CFG
 from constant_expressions import ConstantExpressions
@@ -24,6 +25,7 @@ from has_break import HasBreak
 from has_continue import HasContinue
 from identifiers import Identifiers
 from imported_ids import ImportedIds
+from is_assign import IsAssign
 from lazyness_analysis import LazynessAnalysis
 from literals import Literals
 from local_declarations import LocalDeclarations

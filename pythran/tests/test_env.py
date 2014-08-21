@@ -12,6 +12,7 @@ import sys
 from numpy import ndarray
 import numpy.testing as npt
 import ast
+import pytest
 
 
 class TestEnv(unittest.TestCase):
@@ -19,6 +20,7 @@ class TestEnv(unittest.TestCase):
     Test environment to validate a pythran execution against python
     """
 
+    module = pytest.mark.module
     # default options used for the c++ compiler
     PYTHRAN_CXX_FLAGS = ['-O0', '-fopenmp',
                          '-Wall', '-Wno-unknown-pragmas']

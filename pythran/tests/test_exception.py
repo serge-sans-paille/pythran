@@ -361,7 +361,7 @@ class TestException(TestEnv):
     def test_str2_exception_register(self):
         self.run_test("def str2_exception_():\n raise EnvironmentError('a','b')", str2_exception_=[], check_exception=True)
 
-    def test_str3_exception_register(self), check_exception=True:
+    def test_str3_exception_register(self):
         self.run_test("def str3_exception_():\n raise EnvironmentError('a','b','c')", str3_exception_=[], check_exception=True)
 
     def test_str4_exception_register(self):

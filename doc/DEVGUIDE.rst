@@ -92,30 +92,30 @@ validation suite is run through the command::
 
     $> python setup.py test
 
-It can be tested using the `py.test <http://pytest.org/latest/>` package::
+It is tested using the `pytest <http://pytest.org/latest/>` package::
 
     $> apt-get install python-pytest
 
-To run it faster you may use the `pytest` extension `xdist` from debian package
+To run it faster we use the `pytest` extension `xdist` from debian package
 `python-pytest-xdist` , the test suite will run using all
-available cores. Otherwise it might run **very** slowly, something line four
+available cores. Otherwise it might run **very** slowly, something like four
 hours on a decent laptop :'(.
 
-``pep8`` is checked using the `py.test` extension ``pytest-pep8``. It can be
+``pep8`` is checked using the `pytest` extension ``pytest-pep8``. It can be
 installed using::
 
     $> sudo pip install pytest-pep8
 
-Note that it is still possible to use the ``unittest`` module directly, for
+Note that it is still possible to use the ``pytest`` module directly, for
 instance to pass a subset of the test suite::
 
-    $> PYTHONPATH=.:pythran/tests:$PYTHONPATH python -m unittest test_math
+    $> PYTHONPATH=. pytest -n 8 pythran/tests/test_list.py
 
-runs all the tests found in ``pythran/tests/test_math.py``. The command::
+runs all the tests found in ``pythran/tests/test_list.py``.
 
-    $> PYTHONPATH=. py.test -n 8 pythran/tests/test_list.py
+Only compiler tests can be check using test filtering::
 
-does almost the same with ``py.test``.
+   $> PYTHONPATH=. pytest -n 8 pythran/tests -m "not module"
 
 There are two kinds of tests in ``pythran``:
 

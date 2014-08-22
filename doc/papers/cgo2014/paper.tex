@@ -1,0 +1,209 @@
+\documentclass[10pt, preprint]{sigplanconf}
+
+% The following \documentclass options may be useful:
+
+% preprint      Remove this option only once the paper is in final form.
+% 10pt          To set in 10-point type instead of 9-point.
+% 11pt          To set in 11-point type instead of 9-point.
+% authoryear    To obtain author/year citation style instead of numeric.
+
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{hyperref}
+
+\special{papersize=8.5in,11in}
+\setlength{\pdfpageheight}{\paperheight}
+\setlength{\pdfpagewidth}{\paperwidth}
+
+\lstset{captionpos=b, float, language=python}
+
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usetikzlibrary{shadows}
+\usetikzlibrary{arrows}
+\usetikzlibrary{shapes}
+
+\providecommand{\boostsimd}{\textsc{Boost.SIMD}}
+\providecommand{\cpp}[1][~]{\textsc{C++}#1}
+\providecommand{\ie}[1][~]{\textit{i.e.}#1}
+\providecommand{\eg}[1][~]{\textit{e.g.#1}}
+
+
+\begin{document}
+
+
+\title{Efficient Compilation of High Level Python Numerical Programs with Pythran}
+
+\authorinfo{Serge Guelton}
+           {T{\'e}l{\'e}com Bretagne}
+           {serge.guelton@telecom-bretagne.eu}
+\authorinfo{Pierrick Brunet}
+           {INRIA/MOAIS}
+           {pierrick.brunet@inria.fr}
+\authorinfo{Mehdi Amini}
+           {SILKAN}
+           {mehdi.amini@silkan.com}
+
+\maketitle
+
+\begin{abstract}
+
+    For decades, FORTRAN and C(++) have dominated the landscape of High
+    Performance Computing languages, leaving interpreted language like Matlab,
+    R, Python or more recently Julia for experimentation and prototyping.
+
+    As more scientists use these scripting language, there is an on-going
+    research effort to compile them into efficient native code. However the
+    computations kernels often differ from classical ones as these languages
+    favors an high-level coding style, where loops are often replaced by calls
+    to the relevant toolbox/module/library/package. As a consequence, classical
+    loop optimization techniques like loop fusion, tiling and related
+    vectorization or parallelization techniques are not directly applicable.
+
+    This papers focuses on the case of the Python language and especially the
+    Numpy package that provides core array data structure and basic linear
+    algebra routines. It first conducts a case study based on Numpy user
+    questions from the stackoverflow question and answer website, then studies
+    existing compilers for numerical Python. Optimization opportunities,
+    including parallelization and vectorization, and their implementation in
+    the Pythran compiler are presented and illustrated through several
+    benchmarks, showing very interesting speedup over the standard Python
+    interpreter. Speedup of factor greater than 10 are achieved despite the
+    fact the considered benchmarks mostly call Numpy routines that run C code.
+
+\end{abstract}
+
+
+\keywords
+static compilation, parallelization, Python, C++, SIMD
+
+
+%%
+%%
+\section{Introduction}
+% On aura pas le temps pour le papier je pense mais faire une comparaison avec du
+% C pure pour voir ce que les compilo de C arrive a faire.
+
+\cite{rossum97, scipy}
+
+%%
+%%
+\section{A Crowd-Sourced Numpy Benchmark}
+
+%%
+%%
+\section{Optimizations Opportunities in a Typical Numpy Kernel}
+
+\subsection{Temporaries Elemination}
+
+\subsection{Operator Fusion}
+
+\subsection{Loop Vectorization}
+
+\subsection{Loop Parallelization}
+
+%%
+%%
+\section{Existing Compilation Approach}
+
+\subsection{Numpy}
+\cite{oliphant2007,numpyarray2011}
+
+\subsection{Cython}
+\cite{cython2010}
+
+\subsection{Numba}
+\cite{numba}
+
+\subsection{Parakeet}
+\cite{parakeet2012}
+
+\subsection{Copperhead}
+\cite{copperhead2011}
+
+\subsection{PyPy}
+\cite{pypy2009}
+
+%%
+%%
+\section{Compiler - Runtime Cooperation}
+
+\subsection{Expression Templates}
+
+\cite{expression_templates}
+
+\subsection{Forward Substitution}
+
+\subsection{Range Analysis}
+
+\subsection{Constant Propagation and Loop Unrolling}
+
+\subsection{Vectorization and Parallelization}
+
+\cite{esterie2012boost, pyhpc2013, wpmvp2014}
+
+%%
+%%
+\section{Experiments}
+
+\subsection{The Pythran Compiler}
+\cite{pythran2013,isocxx11}
+
+
+\begin{figure}
+
+    \centering
+    \begin{tikzpicture}[
+            file/.style={draw=black!50,fill=black!10,rectangle, drop shadow, align=center,
+            node distance=0.7cm},
+            tool/.style={draw=black!50,fill=black!10,ellipse, align=center, node
+        distance=0.7cm}]
+        \node[file] (python) {\textbf{Python Module [\texttt{.py}]}};
+        \node[tool] (pythran) [below=of python] {\textbf{Pythran}};
+        \node[file] (meta-cxx) [below=of pythran] {\textbf{C++} Meta Program};
+        \node[tool] (gxx) [yshift=-1.5em, below=of meta-cxx] {\textbf{g++}};
+        \node (empty) [xshift=-1em, left=of gxx] {};
+        \node[file] (pythonic) [left=of empty] {\textbf{\texttt{pythonic}}};
+        \node[file] (annotation)     [above=of pythonic] {\textbf{Type Info}};
+        \node[file] (boost) [below=of pythonic] {\textbf{\texttt{boost::python}}};
+        \node[file] (so) [yshift=-1.5em, below=of gxx] {\textbf{Native Module [\texttt{.so}]}};
+
+        \draw[very thick, ->] (python) -- (pythran);
+        \draw[very thick] (annotation) -| (empty.center);
+        \draw[very thick, ->] (pythran) -- (meta-cxx);
+        \draw[very thick, ->] (meta-cxx) -- (gxx);
+        \draw[very thick] (boost) -| (empty.center);
+        \draw[very thick, ->] (pythonic) -- (gxx);
+        \draw[very thick, ->] (gxx) -- (so);
+    \end{tikzpicture}
+
+    \caption{Pythran compilation flow.}
+    \label{fig:pythran-compiler}
+
+\end{figure}
+
+
+\subsection{Expermimental Setup}
+
+\subsection{Results and Analysis}
+
+%%
+%%
+\section*{Conclusion}
+
+\acks
+
+The Pythran project is an independent Open Source initiative that has been
+partially funded by the CARP Project and the SILKAN Company.
+
+Several Students of Télécom Bretagne, namely Adrien Merlini, Alan Raynaud,
+Xavier Corbillon, Yuancheng Peng and Eliott Coyacc, have made significant
+contributions to the project.
+
+% We recommend abbrvnat bibliography style.
+
+\bibliographystyle{abbrvnat}
+\bibliography{biblio}
+
+
+\end{document}

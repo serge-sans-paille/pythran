@@ -90,6 +90,57 @@ static compilation, parallelization, Python, C++, SIMD
 %%
 \section{A Crowd-Sourced Numpy Benchmark}
 
+One of the first steps required when designing an optimizing compiler is to
+gather enough test cases, or benchmarks, in order to drive the optimization
+process toward realistic examples. To achieve this goal, we have gathered a few
+exemple from existing compiler sources, but these may have been modified to
+overcome some compiler limitations. A less biased source of benchmarks should
+be independant from the compiler community and focused on matching user needs.
+To achieve that goal, we collected synthetic scientifc kernels from the
+stackoverflow website.
+
+StackOverflow~\footnote{\url{http://stackoverflow.com/}} is a question and
+answer site for programmers. Any registered user can submit questions and other
+users may answer. A voting system is then used to sort the answers. Said
+otherwise, the website provides a database of question and answers on
+programming topics, including Python.
+
+A query using the terms \emph{numpy} and \emph{slow} yields many results, many
+of which use the pattern ``Q: my code is slow'' followed by an upvoted answer
+``A: rewrite it that way'', where the original code performs explicit looping
+over an array, and the rewritten code uses the relevant combination of numpy
+function.
+
+For instance, question \url{http://stackoverflow.com/questions/7741878}
+proposes to use an explicit loop to iteratively compute the $L^2$ norm of each
+row of a matrix, as illustrated in Listing~\ref{lst:l2norm-loopy}, and one of
+the proposed answer is to use the more compact version presented in
+Listing~\ref{lst:l2norm}. This answer no longer uses any explicit loops and
+roughly achieves a $times 4$ speedup over the loop version.
+
+\begin{lstlisting}[language=python,caption={Per row version of $L^2$ norm with loop in numpy.}, float, label={lst:l2norm-loopy}]
+def slow(x):
+    r = np.empty(x.shape[0])
+    for i in xrange(x.shape[0]):
+        r[i] = np.sum(np.abs(x[i])**2)
+    return r
+\end{lstlisting}
+
+\begin{lstlisting}[language=python,caption={Per row version of $L^2$ norm without loop in numpy.}, float, label={lst:l2norm}]
+import numpy as np
+def l2norm(x):
+    return np.sum(np.abs(x)**2, axis=1)
+\end{lstlisting}
+
+Our guess is that new Numpy user are more likely to write loops and code
+similar to Listing~\ref{lst:l2norm-loopy}, but as their knowledge of the numpy
+API and of the good programming practice grows, they get to write code similar
+to Listing~\ref{lst:l2norm}. A direct consequence is that a compiler should
+focus on optimizing high-level constructs rather loops, both to encourage good
+practice with respect to Numpy code, and because that's the kind of code Numpy
+user ultimately write.
+
+
 %%
 %%
 \section{Optimizations Opportunities in a Typical Numpy Kernel}

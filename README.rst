@@ -67,6 +67,12 @@ Depending on your setup, you may need to add the following to your \\~/.pythranr
     [user]
     cxx=g++-4.9
 
+ArchLinux
+=========
+
+Using `yaourt`::
+
+    $> yaourt pythran
 
 Other Platform
 ==============

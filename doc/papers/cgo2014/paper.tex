@@ -84,11 +84,35 @@ static compilation, parallelization, Python, C++, SIMD
 % On aura pas le temps pour le papier je pense mais faire une comparaison avec du
 % C pure pour voir ce que les compilo de C arrive a faire.
 
-\cite{rossum97, scipy}
+The Python language~\cite{rossum97} now provides a full toolkit to carry out
+scientific experiments~\cite{scipy}, from core scientific routines with the
+Numpy package, to scientific packages with the Scipy package, plotting
+facilities with the Matplotlib package, enhanced terminal and notebooks with
+IPython. As a consequence, there has been a move from historical languages like
+Fortran to Python, as showcased by the success of the Scipy conference.
+
+As Python based scientific tools gets widely used, the question of High
+performance Computing naturally arises, and it is the focus of many recent
+research. Indeed, although there is a great gain in productivity when using
+these tools, there is also a performance gap that needs to be filled.
+
+This paper focuses on compilation techniques that are relevant for the
+optimization of high-level numerical kernels written in Python using the Numpy
+package. Section~\ref{sec:stackoverflow} presents a case study based on user
+input gathered on the stackoverflow question and answer site.
+Section~\ref{sec:optimize} focuses on a simple yet representative kernel and
+showcases the optimization opportunities typically found in Numpy-based
+kernels. Existing compilation approach to optimize such kernels are discussed
+in Section~\ref{sec:compilers}, then Section~\ref{sec:pythran} emphasises on a
+compiler-runtime cooperative approach to solve the performance issues.
+Experimentations showcasing important performance gains are detailed in
+Section~\ref{sec:xp}.
+
 
 %%
 %%
 \section{A Crowd-Sourced Numpy Benchmark}
+\label{sec:stackoverflow}
 
 One of the first steps required when designing an optimizing compiler is to
 gather enough test cases, or benchmarks, in order to drive the optimization
@@ -140,10 +164,14 @@ focus on optimizing high-level constructs rather than raw loops. Both to encoura
 practice with respect to Numpy code, and because this is the kind of code Numpy
 users ultimately write.
 
+The benchmark is publicly available on
+\url{https://github.com/serge-sans-paille/numpy-benchmarks}.
+
 
 %%
 %%
 \section{Optimizations Opportunities in a Typical Numpy Kernel}
+\label{sec:optimize}
 
 Let us consider the kernel illustrated in Listing~\ref{lst:rosen} and adapated
 from the Scipy source code for \texttt{scipy.optimize.rosen}. This kernel makes
@@ -205,6 +233,7 @@ of the array operations.
 %%
 %%
 \section{Existing Compilation Approach}
+\label{sec:compilers}
 
 \subsection{Numpy}
 \cite{oliphant2007,numpyarray2011}
@@ -227,6 +256,7 @@ of the array operations.
 %%
 %%
 \section{Compiler - Runtime Cooperation}
+\label{sec:pythran}
 
 \subsection{Typing}
 
@@ -247,6 +277,7 @@ of the array operations.
 %%
 %%
 \section{Experiments}
+\label{sec:xp}
 
 \subsection{The Pythran Compiler}
 \cite{pythran2013,isocxx11}
@@ -284,8 +315,9 @@ of the array operations.
 
 \end{figure}
 
+\subsection{Experimental Setup}
 
-\subsection{Expermimental Setup}
+\subsection{Performance of the rosenbrock Function}
 
 \subsection{Results and Analysis}
 

@@ -52,24 +52,24 @@
     Performance Computing languages, leaving interpreted language like Matlab,
     R, Python or more recently Julia for experimentation and prototyping.
 
-    As more scientists use these scripting language, there is an on-going
+    As more scientists use these scripting languages, there is an on-going
     research effort to compile them into efficient native code. However the
-    computations kernels often differ from classical ones as these languages
-    favors an high-level coding style, where loops are often replaced by calls
-    to the relevant toolbox/module/library/package. As a consequence, classical
+    computation kernels often differ from the classical ones as these languages
+    favor a high-level coding style, where loops are often replaced by calls
+    to the relevant toolbox/module/library/package. As a consequence, traditional
     loop optimization techniques like loop fusion, tiling and related
     vectorization or parallelization techniques are not directly applicable.
 
     This papers focuses on the case of the Python language and especially the
     Numpy package that provides core array data structure and basic linear
-    algebra routines. It first conducts a case study based on Numpy user
-    questions from the stackoverflow question and answer website, then studies
+    algebra routines. It first conducts a case study based on Numpy use
+    cases from the stackoverflow question and answer website, then studies
     existing compilers for numerical Python. Optimization opportunities,
     including parallelization and vectorization, and their implementation in
     the Pythran compiler are presented and illustrated through several
-    benchmarks, showing very interesting speedup over the standard Python
-    interpreter. Speedup of factor greater than 10 are achieved despite the
-    fact the considered benchmarks mostly call Numpy routines that run C code.
+    benchmarks, showing very interesting speedups over the standard Python
+    interpreter. Speedup greater than a factor of 10 are achieved despite the
+    fact that the considered benchmarks mostly call Numpy routines that run C code.
 
 \end{abstract}
 
@@ -93,7 +93,7 @@ static compilation, parallelization, Python, C++, SIMD
 One of the first steps required when designing an optimizing compiler is to
 gather enough test cases, or benchmarks, in order to drive the optimization
 process toward realistic examples. To achieve this goal, we have gathered a few
-exemple from existing compiler sources, but these may have been modified to
+example from existing compilers' testsuite, but these may have been modified to
 overcome some compiler limitations. A less biased source of benchmarks should
 be independant from the compiler community and focused on matching user needs.
 To achieve that goal, we collected synthetic scientifc kernels from the
@@ -111,7 +111,7 @@ of which use the pattern ``Q: my code is slow'' followed by an upvoted answer
 over an array, and the rewritten code uses the relevant combination of numpy
 function.
 
-For instance, question \url{http://stackoverflow.com/questions/7741878}
+For instance, question \href{http://stackoverflow.com/questions/7741878}{7741878}
 proposes to use an explicit loop to iteratively compute the $L^2$ norm of each
 row of a matrix, as illustrated in Listing~\ref{lst:l2norm-loopy}, and one of
 the proposed answer is to use the more compact version presented in
@@ -132,13 +132,13 @@ def l2norm(x):
     return np.sum(np.abs(x)**2, axis=1)
 \end{lstlisting}
 
-Our guess is that new Numpy user are more likely to write loops and code
+Our guess is that beginner Numpy users are more likely to make use of raw loops
 similar to Listing~\ref{lst:l2norm-loopy}, but as their knowledge of the numpy
 API and of the good programming practice grows, they get to write code similar
-to Listing~\ref{lst:l2norm}. A direct consequence is that a compiler should
-focus on optimizing high-level constructs rather loops, both to encourage good
-practice with respect to Numpy code, and because that's the kind of code Numpy
-user ultimately write.
+to Listing~\ref{lst:l2norm}. As a direct consequence, a compiler should
+focus on optimizing high-level constructs rather than raw loops. Both to encourage good
+practice with respect to Numpy code, and because this is the kind of code Numpy
+users ultimately write.
 
 
 %%

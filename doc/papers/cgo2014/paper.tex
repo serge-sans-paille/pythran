@@ -145,13 +145,62 @@ user ultimately write.
 %%
 \section{Optimizations Opportunities in a Typical Numpy Kernel}
 
-\subsection{Temporaries Elemination}
+Let us consider the kernel illustrated in Listing~\ref{lst:rosen} and adapated
+from the Scipy source code for \texttt{scipy.optimize.rosen}. This kernel makes
+use of Numpy's \texttt{sum} function, Python's square notation and Numpy's
+array slicing. It is a good example of high-level Python kernel, altohough
+using the function \texttt{scipy.optimize.rosen} would naturally make sense.
+
+\begin{lstlisting}[language=python, caption={High-level implementation of the rosenbrock function in Numpy}, float, label={lst:rosen}]
+def rosen(x):
+    t0 = 100 * (x[1:] - x[:-1] ** 2) ** 2
+    t1 = (1 - x[:-1]) ** 2
+    return numpy.sum(t0 + t1)
+\end{lstlisting}
+
+This section goes through all the optimization opportunities in
+Listing~\ref{lst:rosen} as a showcase of what an optimizing compiler could do.
+
+
+\subsection{Temporaries Elimination}
+
+In Numpy, all point-to-point array operations allocate a new array that holds
+the computation result. This behavior is consistent with many Python standard
+module, but it is a very inefficient design choice, as it keeps on polluting
+the cache with potentially large fresh storage. In the rosen expression from
+Listing~\ref{lst:rosen}, 7 temporary arrays are allocated (slicing does not
+create a temporary array but a view) to hold intermidiate steps. had the
+computation been lazy, then no temporary would have been needed.
 
 \subsection{Operator Fusion}
 
-\subsection{Loop Vectorization}
+As Numpy is a native library mostly written in C, each operator computation is
+performed by a function is implemented as a loop performing a single operation,
+while the operator chaining is done at the interpreter level. This a typical
+problem in library design: if only a small set of functions is provided, it
+prevents the optimization of multiple operators into a signle specialized
+operator, and provided many operator combinations as part of the library yields
+better performance to the price of API bloat. In that case, a loop is used for
+each temporary computation, plus an extra loop for the \texttt{numpy.sum}
+reduction, where a single loop would have been needed.
 
-\subsection{Loop Parallelization}
+\subsection{Loop Vectorization and Parallelization}
+
+Even if compiled with vectorization flags on, there would be very little
+benefit to generate SIMD instructions for the respective array operations used
+by each operator, as the memory load store would have dominated, especially as
+Numpy typically operates on double precision floats. In a similar manner,
+parallelization of each operator would yield terrible speedups because a
+synchronization fence would need to be issued between each temporary
+computation and the loop computation intensity would be very low compared to
+the memory pressure implied by two array reads and one array write for a single
+binary operator.
+
+On the opposite, if all computation were merged into a single loop, the whole
+loop would be triially vectorizable and parallelizable. No dependency checks
+are needed as parallelization and vectorization are deduced from the semantics
+of the array operations.
+
 
 %%
 %%

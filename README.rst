@@ -23,6 +23,9 @@ Pythran sources are hosted on https://github.com/serge-sans-paille/pythran.
 
 Pythran releases are hosted on http://pypi.python.org/pypi/pythran.
 
+Debian/Ubuntu
+=============
+
 1. Gather dependencies:
 
    Pythran depends on a few Python modules and several C++ libraries. On a debian-like platform, run::
@@ -30,14 +33,9 @@ Pythran releases are hosted on http://pypi.python.org/pypi/pythran.
         $> sudo apt-get install libboost-python-dev libgoogle-perftools-dev libgmp-dev libboost-dev git cmake
         $> sudo apt-get install python-ply python-networkx python-numpy
 
-2. Use the install target from setup script, in source directory::
+2. Use ``easy_install`` or ``pip``::
 
-		$> python setup.py install --prefix=<my_prefix>
-
-3. Write your environment in stone::
-		
-		$> export PYTHONPATH=<my_prefix>/lib/python<my_version>/site-packages
-		$> export PATH=<my_prefix>/bin:$PATH
+		$> easy_install pythran
 
 **or**
 
@@ -48,6 +46,32 @@ Pythran releases are hosted on http://pypi.python.org/pypi/pythran.
 
 		$> sudo apt-get update
 		$> sudo apt-get install pythran
+
+Mac OSX
+=======
+
+Using brew (http://brew.sh/)::
+
+    $> brew reinstall boost --with-python
+    $> brew install gmp
+    $> brew install cmake
+
+    $> easy_install ply
+    $> easy_install networkx
+    $> easy_install numpy
+
+    $> easy_install pythran
+
+Depending on your setup, you may need to add the following to your \\~/.pythranrc`` file::
+
+    [user]
+    cxx=g++-4.9
+
+
+Other Platform
+==============
+
+See MANUAL file.
 
 
 Basic Usage
@@ -92,7 +116,7 @@ Examples
 --------
 
 See the ``pythran/tests/cases/`` directory from the sources.
-	
+
 
 Contact
 -------

@@ -7,18 +7,23 @@ import sys
 import glob
 from ctypes.util import find_library
 import ctypes
+from subprocess import check_output
+
+try:
+    from pythran import config
+    cxx = config.cfg.get('user', 'cxx')
+except ImportError:
+    cxx = 'c++'
 
 
 class omp(object):
-    paths = (
-        # find_library() does not search automatically LD_LIBRARY_PATH
-        os.environ.get('LD_LIBRARY_PATH', '').split(':')
-        + [  # Default gcc path on debian/ubuntu (?)
-            "/usr/lib/x86_64-linux-gnu/",
-        ]
-        # MacPorts install gcc in a "non standard" path on OSX
-        + glob.glob("/opt/local/lib/gcc*/")
-    )
+    # find_library() does not search automatically LD_LIBRARY_PATH
+    paths = os.environ.get('LD_LIBRARY_PATH', '').split(':')
+    for gomp in ('libgomp.so', 'libgomp.dylib'):
+        cmd = [cxx, '-print-file-name=' + gomp]
+        path = os.path.dirname(check_output(cmd).strip())
+        if path:
+            paths.append(path)
 
     def __init__(self):
         # Try to load find libgomp shared library using loader search dirs

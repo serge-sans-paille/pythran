@@ -142,7 +142,7 @@ the proposed answer is to use the more compact version presented in
 Listing~\ref{lst:l2norm}. This answer no longer uses any explicit loops and
 roughly achieves a $times 4$ speedup over the loop version.
 
-\begin{lstlisting}[language=python,caption={Per row version of $L^2$ norm with loop in numpy.}, float, label={lst:l2norm-loopy}]
+\begin{lstlisting}[language=python,caption={Per row version of $L^2$ norm with loop in numpy.}, label={lst:l2norm-loopy}]
 def slow(x):
     r = np.empty(x.shape[0])
     for i in xrange(x.shape[0]):
@@ -150,7 +150,7 @@ def slow(x):
     return r
 \end{lstlisting}
 
-\begin{lstlisting}[language=python,caption={Per row version of $L^2$ norm without loop in numpy.}, float, label={lst:l2norm}]
+\begin{lstlisting}[language=python,caption={Per row version of $L^2$ norm without loop in numpy.}, label={lst:l2norm}]
 import numpy as np
 def l2norm(x):
     return np.sum(np.abs(x)**2, axis=1)
@@ -179,7 +179,7 @@ use of Numpy's \texttt{sum} function, Python's square notation and Numpy's
 array slicing. It is a good example of high-level Python kernel, although
 using the function \texttt{scipy.optimize.rosen} would naturally make sense.
 
-\begin{lstlisting}[language=python, caption={High-level implementation of the rosenbrock function in Numpy}, float, label={lst:rosen}]
+\begin{lstlisting}[language=python, caption={High-level implementation of the rosenbrock function in Numpy}, label={lst:rosen}]
 def rosen(x):
     t0 = 100 * (x[1:] - x[:-1] ** 2) ** 2
     t1 = (1 - x[:-1]) ** 2
@@ -191,6 +191,7 @@ Listing~\ref{lst:rosen} as a showcase of what an optimizing compiler could do.
 
 
 \subsection{Temporaries Elimination}
+\label{sec:temporaries-elimination}
 
 In Numpy, all point-to-point array operations allocate a new array that holds
 the computation result. This behavior is consistent with many Python standard
@@ -201,6 +202,7 @@ create a temporary array but a view) to hold intermediate steps. Had the
 computation been lazy, no temporary would have been needed.
 
 \subsection{Operator Fusion}
+\label{sec:operator-fusion}
 
 As Numpy is a native library mostly written in C, each operator computation is
 performed by a function implemented as a loop performing a single operation,
@@ -311,14 +313,49 @@ heading toward STM for parallelism support.
 
 %%
 %%
-\section{Compiler - Runtime Cooperation}
+\section{Compilers Cooperation}
 \label{sec:pythran}
 
-\subsection{Typing}
+C/C++ have been at the hearth of high performance computing for many years.
+Compiler infrasturctures for these languages also have a long history and
+implement many optimizations on the control flow graph, basic blocks or
+loops~\cite{Aho2006} that limit usage of assembly code to a few hot spots.
+Language extensions like OpenMP~\cite{openmp4} provide a convenient parallel
+programming model and libraries like Boost.SIMD~\cite{boostsimd} provide good
+abstractions for explicit vectorization. Many highly tuned kernels are
+available in the form of thid-party libraies like GotoBlas~\cite{gotoblas2008}.
+
+There is no need to reinvent the wheel when compiling numerical Python kernels.
+A more profitable approach is to map Python concept to existing ones, or
+translate them into existing them. As a consequence, this section focuses on
+the translation of Python constructs to efficient C++ constructs. The choice of
+C++ instead of C is motivated by the opportunities offered by meta programming
+and the interesting similarities between C++11~\cite{isocxx11} features and
+Python constructs.
 
 \subsection{Expression Templates}
 
-\cite{expression_templates, et2012}
+Many C++ linear algebra libraries~\cite{eigen,ublas} use \emph{expression
+templates}~\cite{expression_templates, et2012} as a way to efficently describe high
+level matrix expressions while avoid the creation of intermediate storage.
+Additionnaly, it has the same effect as loop fusion, solving the issues
+described in \S~\cite{sec:temporaries-elimination} and
+\S~\ref{sec:operator-fusion}.
+
+Thanks to variadic templates introduced in C++11, it is possible to write a
+generic C++ meta-class that implements the same API as numpy array and provides
+all unary and binary operators, as well as the various form of indexing and
+slicing. Listing~\ref{lst:rosen-cxx} illustrates the translation of the Python
+code from Listing~\ref{lst:rosen} into C++. Altough this version is more
+verbose than the Python one, the translation from one to the other does not
+raise any particular issue.
+
+\begin{lstlisting}[language=c++, caption={C++11 translated version of Python version for the rosenbrock kernel.}, label={lst:rosen-cxx}, breaklines=true]
+constexpr size_t N = x::ndim;
+ndarray<N> t0 = 100L * numpy::square{}(x[slice(1L, None)] - numpy::square{}(x[slice(None,-1L)]));
+ndarray<N> t1 = numpy::square{}(1L - x[slice(None,-1L)]);
+return numpy::sum{}((t0 + t1));
+\end{lstlisting}
 
 \subsection{Forward Substitution}
 

@@ -240,23 +240,74 @@ from the semantic of the array operations.
 \section{Existing Compilation Approach}
 \label{sec:compilers}
 
+The success of Python and the development of its large ecosystem triggered
+several attempts to improve its execution speed. The most significant basic 
+block for high performance numerical simulations is certainly Numpy, a 
+numerical library to manipulate dense arrays. Numerous routines are exposed in 
+Python and implemented in C, offering close-to-native performance in some cases.
+% FIXME: Numpy is part of this section but somehow covered earlier???
+% 
+However, this library-like approach has inherent limitations that were exposed 
+in the previous section. To address these limitations, several compiler-based 
+approaches were proposed.
+
 \subsection{Numpy}
 \cite{oliphant2007,numpyarray2011}
+
+% Not sure what to add here because of the previous section.
 
 \subsection{Cython}
 \cite{cython2010}
 
-\subsection{Numba}
-\cite{numba}
+% 
+Cython~\cite{cython2010} is an hybrid Python/C dialect. It extends the Python
+syntax with typing information, calls to native functions from third party
+libraries, and a limited set of parallelism constructs, such as the possibility
+to define parallel loops, but no task parallelism. When possible, it unboxes
+Python variables to improve performance. Without type annotations, the
+performance improvement is not terrific, but given enough type annotation,
+Cython can generates code that runs as fast as its C equivalent, while
+maintaining a syntax close to Python.
 
-\subsection{Parakeet}
-\cite{parakeet2012}
+
+\subsection{Numba and Parakeet}
+
+
+The numba~\footnote{\emph{cf}.\ \texttt{https://github.com/numba/numba}}~\cite{numba}
+compiler uses additional type information to generate sequential LLVM bytecode.
+Parakeet~\cite{parakeet2012} follows an approach similar to numba, that is
+Python to LLVM bytecode translation, but limits its scope to the numpy package,
+only supporting a small subset of the Python language. Additionally, it supports
+implicit parallelism using an implicit mapping between numpy functions and a set
+of parallel primitives including \texttt{map}s \texttt{scan}s and
+\texttt{reduce}s. These two approaches use Just-In-Time(JIT) compilation and do
+not suffer from backward-incompatibility issues. When meeting an unsupported
+construct, numba falls back to Python C-API calls, while parakeet raises an
+exception.
+
+
 
 \subsection{Copperhead}
 \cite{copperhead2011}
 
+Copperhead~\cite{copperhead2011} is a functional, data parallel language
+embedded in Python. It uses $n$-uplets, NumPy arrays and lists as its core data
+structure and prohibits usage of many control-flow operators such as loops,
+enforcing the use of the \texttt{map}, \texttt{filter} or \texttt{reduce}
+intrinsics to exhibit parallelism. But it can be efficiently compiled to either
+CUDA or C++ with calls to the Thrust\footnote{\emph{cf}.
+\texttt{http://thrust.github.com/}} library. Python decorators are used to
+identify hot-spots that are JIT-compiled to native code.
+
+
 \subsection{PyPy}
 \cite{pypy2009}
+
+Tools such as PyPy~\cite{pypy2009}, a Python interpreter with a tracing JIT, or
+Shed~Skin~\cite{shedskin2006}, a Python to C++ compiler are also viable ways to
+enhance Python performance. However Shed~Skin does not provide support for
+fine-grained parallelism beyond what the standard library proposes. PyPy is
+heading toward STM for parallelism support.
 
 %%
 %%

@@ -121,9 +121,18 @@ class TestCommand(Command):
         test_compile()
 
         import pytest
-        args = ["-n", str(self.num_threads), where, '--pep8']
+        args = [where, '--pep8']
+
+        # try a parallel run
+        try:
+            import xdist
+            args = ["-n", str(self.num_threads)] + args
+        except ImportError:
+            print ("W: Skipping parallel run, pytest_xdist not found")
+
         if self.failfast:
             args.insert(0, '-x')
+
         if self.cov:
             try:
                 # Avoid loading unused module

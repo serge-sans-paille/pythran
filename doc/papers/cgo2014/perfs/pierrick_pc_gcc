@@ -1,0 +1,160 @@
+multiple_sum parakeet 7803 8081 136
+grouping parakeet unsupported
+local_maxima pypy 57007 57665 599
+rosen pythran 1409 1460 128
+allpairs_distances pythran 1685 1703 19
+allpairs_distances pypy 37332 37815 761
+allpairs_distances_loops Python 50030 50124 59
+grouping Python 1972 1991 11
+harris pythran 4574 4586 8
+mandel pypy 417913 423992 5088
+mandel pythran 5317 5319 1
+growcut Python 1759335 1769470 8102
+conv parakeet 1985 2545 593
+mandel parakeet unsupported
+growcut numba unsupported
+smoothing parakeet 6123 6304 418
+periodic_dist pypy 1711 1747 19
+create_grid Python 8224 8246 15
+wdist Python 82256 82768 376
+lstsqr pythran 2577 2589 8
+fdtd Python 1502350 1507692 4231
+wave numba unsupported
+specialconvolve parakeet 9816 9972 370
+repeating pypy 1390 1398 10
+cronbach numba unsupported
+vibr_energy pythran 1141 1151 12
+grouping pythran 1076 1108 30
+l2norm pypy 6514 7012 593
+reverse_cumsum numba unsupported
+create_grid parakeet unsupported
+arc_distance pythran 750 759 13
+smoothing numba unsupported
+conv pypy 1758563 1772418 8352
+hyantes parakeet 2175 2700 606
+vibr_energy numba unsupported
+hasting pythran 1 1 0
+smoothing pypy 845789 851227 3825
+mandel Python 407469 411967 7677
+local_maxima pythran 4956 5035 135
+hyantes pypy 236686 237528 1018
+slowparts numba unsupported
+arc_distance parakeet 1623 2193 529
+reverse_cumsum pythran 4143 4162 11
+arc_distance pypy 1421 1448 33
+reverse_cumsum Python 2588 2599 4
+rosen pypy 19470 19703 162
+lstsqr Python 8295 8467 173
+allpairs_distances_loops pythran 1698 1716 13
+allpairs_distances parakeet 1739 1991 303
+arc_distance numba unsupported
+slowparts pythran 754 760 11
+wdist parakeet 1400 1453 50
+reverse_cumsum parakeet unsupported
+wdist pythran 1475 1480 8
+harris numba unsupported
+diffusion pythran 7176 7222 55
+diffusion pypy 27781 28079 212
+allpairs_distances_loops numba unsupported
+allpairs_distances_loops parakeet 1736 2265 554
+periodic_dist pythran 805 922 84
+cronbach pythran 1381 1406 35
+pairwise Python 3872886 3901402 30548
+smoothing Python 891611 897284 4068
+hasting Python 8 8 0
+repeating parakeet unsupported
+hasting numba unsupported
+evolve parakeet unsupported
+julia pythran 2398 2420 41
+hyantes pythran 1948 1964 20
+specialconvolve numba unsupported
+slowparts pypy 5559 5650 133
+evolve Python 5028 5093 88
+hasting parakeet 59 59 0
+rosen numba unsupported
+allpairs_distances_loops pypy 51577 52842 1165
+periodic_dist parakeet unsupported
+vibr_energy parakeet 1921 2349 493
+conv numba unsupported
+grouping pypy 1962 1985 12
+fdtd numba unsupported
+pairwise numba unsupported
+fdtd parakeet unsupported
+allpairs_distances numba unsupported
+cronbach Python 1460 1482 19
+julia numba unsupported
+multiple_sum numba unsupported
+fft pypy 25318 25667 353
+l2norm numba unsupported
+cronbach pypy 1474 1493 14
+conv Python 1786138 1796337 3957
+local_maxima parakeet unsupported
+wave parakeet unsupported
+mandel numba unsupported
+diffusion Python 27540 27581 25
+vibr_energy pypy 2375 2383 5
+create_grid numba unsupported
+conv pythran 1834 1836 5
+lstsqr pypy 8030 8169 54
+multiple_sum pypy 2883 2899 10
+wdist numba unsupported
+pairwise pypy 3861629 3906993 33642
+vibr_energy Python 2382 2433 93
+arc_distance Python 1433 1454 13
+hasting pypy 8 8 0
+specialconvolve Python 9047 9427 229
+cronbach parakeet unsupported
+harris Python 7334 8140 831
+repeating numba unsupported
+harris parakeet 4806 5062 520
+growcut pypy 1773300 1810102 30050
+pairwise parakeet 3494 3747 377
+l2norm Python 6474 6583 59
+hyantes numba unsupported
+hyantes Python 250587 257961 7114
+fdtd pythran 1156 1162 5
+fft Python 24699 24808 108
+specialconvolve pythran 2332 2348 11
+smoothing pythran 5479 5510 18
+rosen Python 19681 19738 41
+wave Python 51977 52175 135
+periodic_dist Python 1730 1745 10
+wdist pypy 80042 80366 228
+evolve pythran 4139 4183 29
+evolve numba unsupported
+grouping numba unsupported
+l2norm pythran 865 867 1
+fft numba unsupported
+julia pypy 2969169 3011347 38939
+reverse_cumsum pypy 2588 2799 125
+create_grid pythran 8262 8547 339
+julia Python 2672765 2707288 32448
+evolve pypy 5137 5217 92
+wave pythran 804 804 0
+slowparts parakeet 1304 1671 301
+multiple_sum Python 2912 2931 11
+rosen parakeet 1551 2077 457
+fft parakeet unsupported
+growcut parakeet 2239 2792 648
+lstsqr parakeet unsupported
+slowparts Python 5375 5397 27
+pairwise pythran 3236 3241 11
+diffusion parakeet 19131 19151 22
+repeating Python 1388 1394 9
+repeating pythran 614 618 2
+lstsqr numba unsupported
+allpairs_distances Python 36386 36609 227
+periodic_dist numba unsupported
+growcut pythran 3680 3686 5
+l2norm parakeet 12462 12564 188
+julia parakeet 2690 3047 502
+create_grid pypy 8299 8350 30
+fft pythran 757 762 5
+diffusion numba unsupported
+wave pypy 51265 51486 146
+multiple_sum pythran 1610 1613 3
+local_maxima numba unsupported
+fdtd pypy 1540223 1547678 9818
+local_maxima Python 54104 54218 90
+harris pypy 7251 7275 19
+specialconvolve pypy 9079 9131 44

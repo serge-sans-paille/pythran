@@ -227,9 +227,9 @@ the memory pressure implied by two array reads and one array write for a single
 binary operator.
 
 On the opposite, if all computation were merged into a single loop, the whole
-loop would be trivially vectorizable and parallelizable. 
+loop would be trivially vectorizable and parallelizable.
 %% I don't get the logic in the previous sentence...
-No dependency check is needed as parallelization and vectorization are deduced 
+No dependency check is needed as parallelization and vectorization are deduced
 from the semantic of the array operations.
 %% you still need a dependency test in the absolute, don't you?
 %% I'm not sure about what you mean by "deduced"
@@ -243,14 +243,14 @@ from the semantic of the array operations.
 \label{sec:compilers}
 
 The success of Python and the development of its large ecosystem triggered
-several attempts to improve its execution speed. The most significant basic 
-block for high performance numerical simulations is certainly Numpy, a 
-numerical library to manipulate dense arrays. Numerous routines are exposed in 
+several attempts to improve its execution speed. The most significant basic
+block for high performance numerical simulations is certainly Numpy, a
+numerical library to manipulate dense arrays. Numerous routines are exposed in
 Python and implemented in C, offering close-to-native performance in some cases.
 % FIXME: Numpy is part of this section but somehow covered earlier???
-% 
-However, this library-like approach has inherent limitations that were exposed 
-in the previous section. To address these limitations, several compiler-based 
+%
+However, this library-like approach has inherent limitations that were exposed
+in the previous section. To address these limitations, several compiler-based
 approaches were proposed.
 
 \subsection{Numpy}
@@ -261,7 +261,7 @@ approaches were proposed.
 \subsection{Cython}
 \cite{cython2010}
 
-% 
+%
 Cython~\cite{cython2010} is an hybrid Python/C dialect. It extends the Python
 syntax with typing information, calls to native functions from third party
 libraries, and a limited set of parallelism constructs, such as the possibility
@@ -371,6 +371,27 @@ return numpy::sum{}((t0 + t1));
 %%
 \section{Experiments}
 \label{sec:xp}
+
+% The first one holds 8 AMD Magny Cours processors for a
+% total of 48 cores. Each core has access to 64\,KB of L1 cache,
+% 512\,KB of L2 cache. Both L1 and L2 caches are private, while L3 cache
+% is shared between the 6 cores of a processor. This configuration
+% provides a total of 256\,GB (32\,GB per NUMA node) of main memory. It supports
+% up to SSE4. We
+% will refer to this configuration as \textbf{AMD48}.
+% On AMD48, backend compilers are gcc (Debian 4.7.2-5) and the clang-omp version
+% from intel~\footnote{\url{http://clang-omp.github.io/}} to be able to benefits
+% from OpenMP improvement. This clang version is based on clang 3.4 release
+% (LLVM:233b1e3f034, clang-omp:6f358bcd87).
+
+% The second one holds 8 Intel(R) Xeon(R) CPU E5-2650 0 @ 2.00GHz for a ttal of
+% 8 cores (multithreading is not used). Each node can access to  64\,KB of L1 cache,
+% 256\,KB of L2 cache. Both L1 and L2 caches are private, while L3 cache
+% is shared between the 8 processors. This configuration
+% provides a total of 63\,GB of main memory. It supports up to AVX. We will
+% refer to this configuration as \textbf{Intel8}.
+% On Intel8, backend compilers are gcc 4.9 (20140528) and the clang-omp version
+% from intel.
 
 \subsection{The Pythran Compiler}
 \cite{pythran2013,isocxx11}

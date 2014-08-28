@@ -1,0 +1,64 @@
+create_grid parakeet unsupported
+cronbach pythran 3447 3461 12
+pairwise pythran 8127 8412 210
+hasting parakeet 111 111 0
+specialconvolve pythran 10101 10117 9
+multiple_sum pythran 3907 3998 37
+l2norm parakeet 28549 28670 86
+hasting pythran 3 3 0
+hyantes pythran 5578 5581 2
+repeating pythran 1636 1638 1
+grouping pythran 2243 3183 336
+reverse_cumsum parakeet unsupported
+fdtd parakeet unsupported
+fft pythran 5416 5424 6
+allpairs_distances_loops parakeet 3855 3856 2
+pairwise parakeet 8061 8065 2
+allpairs_distances pythran 4109 4110 0
+smoothing parakeet 14397 14675 295
+rosen pythran 3625 3627 1
+vibr_energy pythran 429 429 0
+julia parakeet 91 99 13
+lstsqr pythran 7146 7156 5
+allpairs_distances_loops pythran 4384 4570 79
+arc_distance parakeet 8952 9016 72
+l2norm pythran 2245 2246 0
+julia pythran 6346 6347 1
+wave parakeet unsupported
+arc_distance pythran 291 291 0
+conv parakeet 3589 3597 6
+fdtd pythran 3086 3087 0
+vibr_energy parakeet 8630 8654 16
+slowparts parakeet 2320 2337 14
+mandel pythran 12832 12833 1
+repeating parakeet unsupported
+specialconvolve parakeet 11586 11848 186
+fft parakeet unsupported
+diffusion pythran 21258 21474 338
+periodic_dist parakeet unsupported
+evolve pythran 17389 17406 9
+mandel parakeet unsupported
+cronbach parakeet unsupported
+evolve parakeet unsupported
+wave pythran 4357 4370 11
+hyantes parakeet 12866 12875 10
+slowparts pythran 2446 2447 0
+growcut parakeet 8409 8429 11
+rosen parakeet 4697 4699 2
+harris parakeet 6252 6278 35
+grouping parakeet unsupported
+periodic_dist pythran 2819 2827 4
+lstsqr parakeet unsupported
+wdist pythran 2975 2975 0
+smoothing pythran 11396 11741 273
+harris pythran 8291 8750 359
+wdist parakeet 2917 2919 4
+multiple_sum parakeet 12895 12980 47
+local_maxima pythran 9179 9180 0
+local_maxima parakeet unsupported
+create_grid pythran 9933 11097 452
+growcut pythran 14895 14896 2
+conv pythran 3971 3978 7
+allpairs_distances parakeet 3950 4219 238
+diffusion parakeet 11475 11509 55
+reverse_cumsum pythran 5596 5600 2

@@ -334,6 +334,7 @@ and the interesting similarities between C++11~\cite{isocxx11} features and
 Python constructs.
 
 \subsection{Expression Templates}
+\label{sec:expression-templates}
 
 Many C++ linear algebra libraries~\cite{eigen,ublas} use \emph{expression
 templates}~\cite{expression_templates, et2012} as a way to efficently describe high
@@ -350,14 +351,56 @@ code from Listing~\ref{lst:rosen} into C++. Altough this version is more
 verbose than the Python one, the translation from one to the other does not
 raise any particular issue.
 
+This version does not supress all intermediate computations: typically, the
+assignments to \texttt{t0} and \texttt{t1} trigger the computation of the right
+hand side expression, thus creating two intermediates array. This usual
+limitation is motivated by the inability to prove that \texttt{x} is not
+modified before \texttt{t0} is read.
+
 \begin{lstlisting}[language=c++, caption={C++11 translated version of Python version for the rosenbrock kernel.}, label={lst:rosen-cxx}, breaklines=true]
+typedef typename x::dtype T;
 constexpr size_t N = x::ndim;
-ndarray<N> t0 = 100L * numpy::square{}(x[slice(1L, None)] - numpy::square{}(x[slice(None,-1L)]));
-ndarray<N> t1 = numpy::square{}(1L - x[slice(None,-1L)]);
+ndarray<T, N> t0 = 100L * numpy::square{}(x[slice(1L, None)] - numpy::square{}(x[slice(None,-1L)]));
+ndarray<T, N> t1 = numpy::square{}(1L - x[slice(None,-1L)]);
 return numpy::sum{}((t0 + t1));
 \end{lstlisting}
 
 \subsection{Forward Substitution}
+
+The limitation of expression templates presented in
+\S~\ref{sec:expression-templates} is easy to solve at the Python compiler
+level, using forward substitution. Typically, forward substitution is
+supported by the computation of a dependency graph that itself relies on
+read-write effects and alias analysis.
+
+Alias analysis is impossible for Python programs in general, because of late
+binding and possible monkey patching. In the context of a static compiler for
+numerical programs, it can be assumed that binding is done statically and no
+monkey patching is done.  In that context, it is relatively easy to design an
+intra-procedural alias analysis thanks to the absence of pointer arithmetic:
+the only language construction that can create aliasing is the assignment, thus
+a simple control-flow base alias analysis yields accurate results.
+
+The computation of read-write effects involve the annotation of numpy functions
+so that the Python compiler knows that most of them do not modify their
+argument, and the computation of argument effects for user functions. This can
+be done by considering each function individually and looking for the two kind
+of constructs that can modify a function argument: indexing and further
+function calls.
+
+To interprocedurally compute the read-write effects, intraprocedrual effects
+are first computed. Then we create a directed graph $G$ with as many nodes as
+functions. Each node contains a list of integer representing the indices of the
+formal argument that are modified intra-procedurally. Then we add an edge
+between two nodes, labeeld by an integer tuple $(i, j)$ if $i^\text{th}$ formal
+argument of the source is passed as $j^\text{th}$ effective argument of the
+sink. The goal is to prune all edges from $G$. To do so, given a node $n$ that
+writes $i$, an outcoming edge $(i,j)$ can be safely removed, as we know for
+sure that the $i^\text{th}$ parameter is written.  Similarly, an incoming edge
+$(j,i)$ can be removed and $j$ is added to the source's list. Iteratively
+applying this process removes all edges that can propagate a write, the only
+remaining edges propagate a read and can be ultmately removed.
+
 
 \subsection{Range Analysis}
 

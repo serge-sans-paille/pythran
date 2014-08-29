@@ -38,21 +38,19 @@ Python and to have them run faster. Nuff said.
 Prerequisite
 ------------
 
-Let us assume you're running a Debian/Ubuntu distrib. In that case, all you
-have to do is::
+Pythran depends on the following packages:
 
-    $> sudo apt-get install libboost-python-dev libgoogle-perftools-dev libgmp-dev libboost-dev git cmake
-    $> sudo apt-get install python-ply python-networkx python-pytest python-numpy
+- boost (including boost python): http://www.boost.org/
+- GMP: https://gmplib.org/
+- git: http://git-scm.com/
+- cmake: http://www.cmake.org/
+- ply: http://www.dabeaz.com/ply/
+- networkx: https://networkx.github.io/
+- numpy: http://www.numpy.org/
 
-If you prefer the ``easy_install`` way, from ``setuptools``
-(``python-setuptools`` package under Debian), the way to go is::
+and optionnaly
 
-	$>  PYTHONPATH=<my_prefix>/lib/python<my_version>/site-packages \
-			easy_install --prefix <my_prefix> ply networkx
-
-and set your ``PYTHONPATH`` appropriately, something like::
-
-	$> export  PYTHONPATH=<my_prefix>/lib/python<my_version>/site-packages
+- Google's perftools https://code.google.com/p/gperftools/
 
 You also need a modern C++11 enabled compiler (e.g. g++>=4.8), that supports
 for instance atomic operations (N3290) or variadic template (N2555).
@@ -61,7 +59,11 @@ for instance atomic operations (N3290) or variadic template (N2555).
 Installation
 ------------
 
-You're almost done! From the source directory, run::
+First get the sources::
+
+    $> git clone https://github.com/serge-sans-paille/pythran
+
+The from the source directory, run::
 
 	$> python setup.py install --prefix=<my_prefix>
 
@@ -86,14 +88,6 @@ compares the performance of Pythran-generated code with CPython.
 
 If these tests fail, you are likely missing some of the requirements. You can
 set site specific flags in your ``~/.pythranrc``::
-
-    [sys]
-    cppflags = -DENABLE_PYTHON_MODULE
-    cxxflags = -std=c++11
-    # update your library names here
-    ldflags =   -lboost_python
-                -lgmp
-                -lgmpxx
 
     [user]
 

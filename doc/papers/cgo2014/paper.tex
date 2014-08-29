@@ -324,8 +324,8 @@ Compiler infrasturctures for these languages also have a long history and
 implement many optimizations on the control flow graph, basic blocks or
 loops~\cite{Aho2006} that limit usage of assembly code to a few hot spots.
 Language extensions like OpenMP~\cite{openmp4} provide a convenient parallel
-programming model and libraries like Boost.SIMD~\cite{boostsimd} provide good
-abstractions for explicit vectorization. Many highly tuned kernels are
+programming model and libraries like Boost.SIMD~\cite{esterie2012boost} provide 
+good abstractions for explicit vectorization. Many highly tuned kernels are
 available in the form of thid-party libraies like GotoBlas~\cite{gotoblas2008}.
 
 There is no need to reinvent the wheel when compiling numerical Python kernels.
@@ -343,7 +343,7 @@ Many C++ linear algebra libraries~\cite{eigen,ublas} use \emph{expression
 templates}~\cite{expression_templates, et2012} as a way to efficently describe high
 level matrix expressions while avoid the creation of intermediate storage.
 Additionnaly, it has the same effect as loop fusion, solving the issues
-described in \S~\cite{sec:temporaries-elimination} and
+described in \S~\ref{sec:temporaries-elimination} and
 \S~\ref{sec:operator-fusion}.
 
 Thanks to variadic templates introduced in C++11, it is possible to write a

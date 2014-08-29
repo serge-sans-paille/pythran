@@ -8,8 +8,10 @@
 % authoryear    To obtain author/year citation style instead of numeric.
 
 \usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{listings}
 \usepackage{hyperref}
+\usepackage{subcaption}
 
 \special{papersize=8.5in,11in}
 \setlength{\pdfpageheight}{\paperheight}
@@ -22,6 +24,7 @@
 \usetikzlibrary{shadows}
 \usetikzlibrary{arrows}
 \usetikzlibrary{shapes}
+\usetikzlibrary{calc}
 
 \providecommand{\boostsimd}{\textsc{Boost.SIMD}}
 \providecommand{\cpp}[1][~]{\textsc{C++}#1}
@@ -366,6 +369,7 @@ return numpy::sum{}((t0 + t1));
 \end{lstlisting}
 
 \subsection{Forward Substitution}
+\label{sec:fs}
 
 The limitation of expression templates presented in
 \S~\ref{sec:expression-templates} is easy to solve at the Python compiler
@@ -395,16 +399,138 @@ formal argument that are modified intra-procedurally. Then we add an edge
 between two nodes, labeeld by an integer tuple $(i, j)$ if $i^\text{th}$ formal
 argument of the source is passed as $j^\text{th}$ effective argument of the
 sink. The goal is to prune all edges from $G$. To do so, given a node $n$ that
-writes $i$, an outcoming edge $(i,j)$ can be safely removed, as we know for
+writes $i$, any outcoming edge $(i,j)$ can be safely removed, as we know for
 sure that the $i^\text{th}$ parameter is written.  Similarly, an incoming edge
 $(j,i)$ can be removed and $j$ is added to the source's list. Iteratively
 applying this process removes all edges that can propagate a write, the only
 remaining edges propagate a read and can be ultmately removed.
 
+Let us illustrate the algorithm on a simple case. Python code source and the
+initial effect graphs are illustrated on Figure~\ref{fig:argument-effects}. The
+only node wis write effects is \texttt{bar} that writes \texttt{n} through a
+subscript. Outcoming edges (1) and (2) can be removed because they are
+outcoming edges of \texttt{bar} starting by \texttt{n}. In coming edge (0) ends
+by \texttt{n} that is written by \texttt{bar} so it is possible to prune it
+while adding the start \texttt{n} to node \texttt{root}. No edge left, and we
+know that both \texttt{root} and \texttt{bar} update their argument, but not
+\texttt{foo}.
+
+\begin{figure}
+
+    \begin{subfigure}{.5\textwidth}
+        \begin{lstlisting}[language=python]
+def foo(s):
+  return s * 2
+
+def bar(n, m):
+  if m:
+    n[0] = bar(n, m / 2)
+  return foo(n)
+
+def root(r):
+  return bar(r, r[0])
+        \end{lstlisting}
+        \caption{Input Python program.}
+        \label{fig:argument-effects-code}
+    \end{subfigure}
+
+    \begin{subfigure}{.5\textwidth}
+        \centering
+        \begin{tikzpicture}[node/.style={rectangle, draw=black}]
+            \node[node]  (foo)  {$\texttt{foo} \rightarrow \varnothing$};
+            \node[node]  (bar) [above=of foo] {$\texttt{bar} \rightarrow \{\texttt{n}\}$};
+            \node[node]  (root) [above=of bar] {$\texttt{root} \rightarrow \{\texttt{r}\}$};
+
+            \draw[->] (bar) -- node[right] {$(\texttt{n,s})$} node[left] {(2)} (foo);
+            \draw[->] (bar.east) node[right, yshift=-1em] {(1)} -| ($(bar.east) + (.5,.75)$) node[right, yshift=-.8em] {$(\texttt{n,n})$} -| (bar.north) ;
+            \draw[->] (root) -- node[right, yshift=.8em] {$(\texttt{r,n})$} node[left, yshift=.8em] {(0)} (bar);
+        \end{tikzpicture}
+        \caption{Initial argument effect graph..}
+        \label{fig:argument-effects-graph}
+    \end{subfigure}
+
+    \caption{Illustration of the argument effect graph (\ref{fig:argument-effects-graph}) of a simple Python program~(\ref{fig:argument-effects-code}).}
+    \label{fig:argument-effects}
+
+\end{figure}
+
 
 \subsection{Range Analysis}
 
 \subsection{Constant Propagation and Loop Unrolling}
+
+There are very few values that are considered as constant in Python, to the
+notable exception of strings and tuples. However thare are a lot of constant
+propagation opportunities, the most remarkable one being calls to the
+\texttt{range} builtin with literal parameters.
+
+A naïve translation of such call to a generic C++ function would generate a
+call to a C++ function that would allocate enough memory to hold three integer,
+fill the corresponding buffer and return it. A smarter version would generate a
+static array holding the relevant values. Figure~\ref{fig:unroll-range}
+compares two translation of a Python snippet that iterates over a fixed-size
+list. The Clang compiler successfully turns Listing~\ref{lst:stat} into a
+single constant. It also statically computes the return value for
+Listing~\ref{lst:dyna}, but still generates the intiialization code for the
+\texttt{std::vector}. The GCC compiler fails to statically compute the return
+value in both cases. This example shows that constant propagation should be
+done at a higher level than C++, and so be part of the Python optimizer.
+
+The argument effect analysis described in \S~\ref{sec:fs} can be extended to
+global variables to determine if a function as side effects on its argument or
+on global variables (including I/O). This information makes it possible to flag
+some function as pure, and to statically evaluate pure function calls with
+constant arguments. This evaluation is especially easy in Python thanks to the
+abitlity of the language to turn an AST expression into bytecode, evaluate it
+and retreive its constant value. For instance, this makes it possible to turn a
+call to \texttt{range(3)} into \texttt{[0, 1, 2]}, but also to compute the
+value of \texttt{fibonnaci(4)} at compile-time.
+
+
+\begin{figure}
+
+    \begin{subfigure}{.5\textwidth}
+    \begin{lstlisting}[language=python]
+s = 0
+for i in [0,1,2]:
+    s += i
+return s
+\end{lstlisting}
+\caption{Python version.}
+\end{subfigure}
+
+    \begin{subfigure}{.5\textwidth}
+\begin{lstlisting}[language=c++]
+long s = 0;
+for(auto i: std::vector<long>{{0,1,2}}:
+    s += i;
+return s;
+\end{lstlisting}
+\caption{C++ version with dynamic allocation.}
+\label{lst:unroll-dyna}
+\end{subfigure}
+
+    \begin{subfigure}{.5\textwidth}
+\begin{lstlisting}[language=c++]
+long s = 0;
+for(auto i: std::array<long, 3>{{0,1,2}}:
+    s += i;
+return s;
+\end{lstlisting}
+\caption{C++ version with static allocation.}
+\label{lst:unroll-stat}
+\end{subfigure}
+
+    \caption{Different implementations of an iteration over a fixed size container.}
+    \label{fig:unroll-range}
+
+\end{figure}
+
+Once interprocedural constant evaluation is done (eventually followed by
+forward substitution), iteration over fixed size lists may appear, giving an
+opportunity to fully unroll these loops at the Python level, thus avoiding the
+suboptimal C++ translation observed for Listing~\ref{lst:unroll-stat}
+and~\ref{lst:unroll-dyna}.
 
 \subsection{Vectorization and Parallelization}
 

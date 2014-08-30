@@ -6,7 +6,7 @@ This module contains all pythran backends.
 
 from pythran.analyses import ArgumentEffects, BoundedExpressions, Dependencies
 from pythran.analyses import LocalDeclarations, GlobalDeclarations, Scope
-from pythran.analyses import YieldPoints, IsAssign, ASTMatcher, AST_no_cond
+from pythran.analyses import YieldPoints, IsAssigned, ASTMatcher, AST_any
 from pythran.cxxgen import Template, Include, Namespace, CompilationUnit
 from pythran.cxxgen import Statement, Block, AnnotatedStatement, Typedef
 from pythran.cxxgen import Value, FunctionDeclaration, EmptyStatement
@@ -159,7 +159,7 @@ class Cxx(Backend):
         self.ldecls = set()
         super(Cxx, self).__init__(Dependencies, GlobalDeclarations,
                                   BoundedExpressions, Types, ArgumentEffects,
-                                  Scope, IsAssign)
+                                  Scope, IsAssigned)
 
     # mod
     def visit_Module(self, node):
@@ -891,10 +891,10 @@ class Cxx(Backend):
         pattern = ast.Call(func=ast.Attribute(value=ast.Name(id='__builtin__',
                                                              ctx=ast.Load()),
                                               attr='xrange', ctx=ast.Load()),
-                           args=AST_no_cond(), keywords=[], starargs=None,
+                           args=AST_any(), keywords=[], starargs=None,
                            kwargs=None)
-        if (node.iter not in ASTMatcher(pattern).get(node.iter) or
-                self.is_assign[node.target.id]):
+        if (node.iter not in ASTMatcher(pattern).search(node.iter) or
+                self.is_assigned[node.target.id]):
             return False
 
         args = node.iter.args

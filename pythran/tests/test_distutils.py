@@ -18,25 +18,26 @@ class TestDistutils(unittest.TestCase):
         check_call(['python', 'setup.py', 'clean'],
                    cwd=os.path.join(cwd, 'test_distutils'))
         shutil.rmtree(os.path.join(cwd, 'test_distutils', 'demo_install'))
+        shutil.rmtree(os.path.join(cwd, 'test_distutils', 'build'))
 
 
     def test_setup_sdist_install(self):
-        check_call(['python', 'setup.py', 'sdist'],
+        check_call(['python', 'setup.py', 'sdist', "--dist-dir=sdist"],
                    cwd=os.path.join(cwd, 'test_distutils'))
         check_call(['tar', 'xzf', 'demo-1.0.tar.gz'],
-                   cwd=os.path.join(cwd, 'test_distutils', 'dist'))
+                   cwd=os.path.join(cwd, 'test_distutils', 'sdist'))
         check_call(['python', 'setup.py', 'install', '--prefix=demo_install'],
-                   cwd=os.path.join(cwd, 'test_distutils', 'dist', 'demo-1.0'))
-        shutil.rmtree(os.path.join(cwd, 'test_distutils', 'dist',
-                                   'demo-1.0', 'demo_install'))
+                   cwd=os.path.join(cwd, 'test_distutils', 'sdist', 'demo-1.0'))
+        shutil.rmtree(os.path.join(cwd, 'test_distutils', 'sdist'))
 
     def test_setup_bdist_install(self):
-        check_call(['python', 'setup.py', 'bdist'],
+        check_call(['python', 'setup.py', 'bdist', "--dist-dir=bdist"],
                    cwd=os.path.join(cwd, 'test_distutils'))
-        check_call(['tar', 'xzf', 'demo-1.0.tar.gz'],
-                   cwd=os.path.join(cwd, 'test_distutils', 'dist'))
-        check_call(['python', 'setup.py', 'install', '--prefix=demo_install'],
-                   cwd=os.path.join(cwd, 'test_distutils', 'dist', 'demo-1.0'))
-        shutil.rmtree(os.path.join(cwd, 'test_distutils', 'dist',
-                                   'demo-1.0', 'demo_install'))
-
+        dist_path = os.path.join(cwd, 'test_distutils', 'bdist')
+        tgz = [f for f in os.listdir(dist_path) if f.endswith(".tar.gz")][0]
+        check_call(['tar', 'xzf', tgz], cwd=dist_path)
+        self.assertTrue(os.path.exists(os.path.join(dist_path, "usr", "local",
+                                                    "lib", "python2.7",
+                                                    "dist-packages",
+                                                    "demo.so")))
+        shutil.rmtree(dist_path)

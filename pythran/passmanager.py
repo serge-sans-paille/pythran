@@ -32,14 +32,18 @@ class AnalysisContext(object):
 
 
 class ContextManager(object):
-    '''
-    Class to be inherited from to add automatic update of
-       AnalysisContext `ctx' to a node visitor.
-       The optional analysis dependencies are listed in `dependencies'.
-    '''
+
+    """
+    Class to be inherited from to add automatic update of context.
+
+    The optional analysis dependencies are listed in `dependencies'.
+    """
+
     def __init__(self, *dependencies):
+        """ Create default context and save all dependencies. """
         self.deps = dependencies
         self.ctx = AnalysisContext()
+        super(ContextManager, self).__init__()
 
     def visit(self, node):
         if isinstance(node, ast.Module):

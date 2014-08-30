@@ -1,6 +1,4 @@
-"""
-ArgumentReadOnce counts the usages of each argument of each function
-"""
+""" ArgumentReadOnce counts the usages of each argument of each function. """
 
 from pythran.analyses.aliases import Aliases
 from pythran.analyses.global_declarations import GlobalDeclarations
@@ -96,7 +94,7 @@ class ArgumentReadOnce(ModuleAnalysis):
         return {f.func: f.read_effects for f in self.result}
 
     def recursive_weight(self, function, index, predecessors):
-        #TODO : Find out why it happens in some cases
+        # TODO : Find out why it happens in some cases
         if len(function.read_effects) <= index:
             return 0
         if function.read_effects[index] == -1:

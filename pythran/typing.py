@@ -26,18 +26,6 @@ import networkx as nx
 import operator
 
 
-# networkx backward compatibility
-if not "has_path" in nx.__dict__:
-    def has_path(G, source, target):
-        try:
-            nx.shortest_path(G, source, target)
-        except nx.NetworkXNoPath:
-            return False
-        return True
-    nx.has_path = has_path
-
-
-##
 def pytype_to_ctype(t):
     '''python -> c++ type binding'''
     if isinstance(t, list):
@@ -286,7 +274,7 @@ class Reorder(Transformation):
                         except:
                             pass  # no more edges to remove
                     # nx.write_dot(self.type_dependencies,"b.dot")
-                if not n in self.type_dependencies.successors(n):
+                if n not in self.type_dependencies.successors(n):
                     new_candidates.extend(self.type_dependencies.successors(n))
             candidates = new_candidates
 
@@ -317,9 +305,8 @@ class UnboundableRValue(Exception):
 
 
 class Types(ModuleAnalysis):
-    '''
-    Infer symbolic type for all AST node
-    '''
+
+    """ Infer symbolic type for all AST node. """
 
     def __init__(self):
         self.result = dict()
@@ -385,13 +372,6 @@ class Types(ModuleAnalysis):
                 signature = None
                 if isinstance(alias, MethodIntr):
                     signature = alias
-                #if isinstance(alias, ast.Attribute):
-                #    _, signature = methods.get(
-                #            func.attr,
-                #            functions.get(func.attr, [(None, None)])[0]
-                #            )
-                #elif isinstance(alias, ast.Name):
-                #    _, signature = functions.get(func.attr, [(None, None)])[0]
                 if signature:
                     return_alias = (signature.return_alias
                                     and signature.return_alias(n))
@@ -409,7 +389,7 @@ class Types(ModuleAnalysis):
                          isinstance(n.ctx, ast.Param)
                          for n in self.name_to_nodes[node_id]]))
         except UnboundableRValue:
-                return False
+            return False
 
     def combine(self, node, othernode, op=None, unary_op=None, register=False):
         if register and node in self.strict_aliases:
@@ -424,8 +404,8 @@ class Types(ModuleAnalysis):
 
     def combine_(self, node, othernode, op, unary_op, register):
         try:
-            if register:  # this comes from an assignment,
-                          # so we must check where the value is assigned
+            if register:    # this comes from an assignment,
+                            # so we must check where the value is assigned
                 node_id, depth = self.node_to_id(node)
                 if depth > 0:
                     node = ast.Name(node_id, ast.Load())
@@ -477,11 +457,11 @@ class Types(ModuleAnalysis):
                                 except NotImplementedError:
                                     pass
                                     # this may fail when the effective
-                                    #parameter is an expression
+                                    # parameter is an expression
                                 except UnboundLocalError:
                                     pass
                                     # this may fail when translated_node
-                                    #is a default parameter
+                                    # is a default parameter
                             return interprocedural_type_translator
                         translator = translator_generator(
                             self.current.args.args,
@@ -495,9 +475,6 @@ class Types(ModuleAnalysis):
                         self.result[node] = op(self.result[node], new_type)
         except UnboundableRValue:
             pass
-        except:
-            #print ast.dump(othernode)
-            raise
 
     def visit_FunctionDef(self, node):
         self.curr_locals_declaration = self.passmanager.gather(
@@ -593,8 +570,8 @@ class Types(ModuleAnalysis):
         wl, wr = [self.result[x].isweak() for x in (node.left, node.right)]
         if (isinstance(node.op, ast.Add) and any([wl, wr])
                 and not all([wl, wr])):
-        # assumes the + operator always has the same operand type
-        # on left and right side
+            # assumes the + operator always has the same operand type
+            # on left and right side
             F = operator.add
         else:
             F = lambda x, y: ExpressionType(

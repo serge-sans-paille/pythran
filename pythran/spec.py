@@ -14,7 +14,10 @@ import ply.yacc as yacc
 
 
 class SpecParser:
-    """ A parser that scans a file lurking for lines such as the one below.
+
+    """
+    A parser that scans a file lurking for lines such as the one below.
+
     It then generates a pythran-compatible signature to inject into compile.
 #pythran export a((float,(int,long),str list) list list)
 #pythran export a(str)
@@ -22,7 +25,7 @@ class SpecParser:
 #pythran export a( {str} )
 """
 
-    ## lex part
+    # lex part
     reserved = {
         'pythran': 'PYTHRAN',
         'export': 'EXPORT',
@@ -83,7 +86,7 @@ class SpecParser:
         r'\n+'
         t.lexer.lineno += len(t.value)
 
-    ## yacc part
+    # yacc part
 
     def p_exports(self, p):
         '''exports :
@@ -173,9 +176,11 @@ class SpecParser:
                 data = fd.read()
         else:
             data = path
-        # filter out everything that does not start with a #pythran
-        pythran_data = "\n".join((line if line.startswith('#pythran') else ''
-                                  for line in data.split('\n')))
+        # filter out everything that does not start with:
+        # #pythran or # pythran
+        is_pythran_spec = lambda x: (x.startswith('#pythran') or
+                                     x.startswith('# pythran'))
+        pythran_data = "\n".join(filter(is_pythran_spec, data.split('\n')))
         self.parser.parse(pythran_data, lexer=self.lexer)
         if not self.exports:
             import logging

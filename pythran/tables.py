@@ -1,6 +1,4 @@
-'''
-This modules provides the translation tables from python to c++.
-'''
+""" This modules provides the translation tables from python to c++. """
 
 from pythran.intrinsic import Class, ReadOnceFunctionIntr, ConstExceptionIntr
 from pythran.intrinsic import ConstFunctionIntr, FunctionIntr, UpdateEffect
@@ -82,7 +80,7 @@ operator_to_lambda = {
     ast.BitOr: lambda l, r: "({0} | {1})".format(l, r),
     ast.BitXor: lambda l, r: "({0} ^ {1})".format(l, r),
     ast.BitAnd: lambda l, r: "({0} & {1})".format(l, r),
-    #** assume from __future__ import division
+    # assume from __future__ import division
     ast.FloorDiv: lambda l, r: ("(pythonic::operator_::floordiv"
                                 "({0}, {1}))".format(l, r)),
     # unaryop
@@ -266,7 +264,6 @@ modules = {
         "clip": ConstFunctionIntr(),
         "concatenate": ConstFunctionIntr(),
         "complex": ConstFunctionIntr(),
-        #"complex128": ConstFunctionIntr(),
         "complex64": ConstFunctionIntr(),
         "conj": ConstFunctionIntr(),
         "conjugate": ConstFunctionIntr(),
@@ -305,7 +302,6 @@ modules = {
         "flatnonzero": ConstFunctionIntr(),
         "fliplr": ConstFunctionIntr(),
         "flipud": ConstFunctionIntr(),
-        #"float128": ConstFunctionIntr(),
         "float32": ConstFunctionIntr(),
         "float64": ConstFunctionIntr(),
         "float_": ConstFunctionIntr(),
@@ -870,10 +866,10 @@ modules = {
                 register=True)
             ),
         "index": ConstMethodIntr(),
-        #"pop": MethodIntr(), dispatched
+        # "pop": MethodIntr(), dispatched
         "reverse": MethodIntr(),
         "sort": MethodIntr(),
-        #"count": ConstMethodIntr(), dispatched
+        # "count": ConstMethodIntr(), dispatched
         "insert": MethodIntr(
             lambda self, node:
             self.combine(
@@ -885,11 +881,11 @@ modules = {
         },
 
     "__iterator__": {
-        #"next": MethodIntr(), dispatched
+        # "next": MethodIntr(), dispatched
         },
     "__str__": {
         "capitalize": ConstMethodIntr(),
-        #"count": ConstMethodIntr(), dispatched
+        # "count": ConstMethodIntr(), dispatched
         "endswith": ConstMethodIntr(),
         "startswith": ConstMethodIntr(),
         "find": ConstMethodIntr(),
@@ -980,7 +976,7 @@ modules = {
         "iterkeys": MethodIntr(),
         "itervalues": MethodIntr(),
         "keys": MethodIntr(),
-        #"pop": MethodIntr(), dispatched
+        # "pop": MethodIntr(), dispatched
         "popitem": MethodIntr(),
         "setdefault": MethodIntr(
             lambda self, node:
@@ -1014,7 +1010,7 @@ modules = {
         "flush": MethodIntr(global_effects=True),
         "fileno": MethodIntr(),
         "isatty": MethodIntr(),
-        #"next": MethodIntr(global_effects=True), dispatched
+        # "next": MethodIntr(global_effects=True), dispatched
         "read": MethodIntr(global_effects=True),
         "readline": MethodIntr(global_effects=True),
         "readlines": MethodIntr(global_effects=True),

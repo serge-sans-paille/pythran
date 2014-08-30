@@ -1,6 +1,4 @@
-"""
-ImportedIds gathers identifiers imported by a node
-"""
+""" ImportedIds gathers identifiers imported by a node. """
 
 from pythran.analyses.globals_analysis import Globals
 from pythran.analyses.locals_analysis import Locals
@@ -11,7 +9,9 @@ import ast
 
 
 class ImportedIds(NodeAnalysis):
-    """Gather ids referenced by a node and not declared locally"""
+
+    """Gather ids referenced by a node and not declared locally."""
+
     def __init__(self):
         self.result = set()
         self.current_locals = set()
@@ -45,8 +45,8 @@ class ImportedIds(NodeAnalysis):
     visit_GeneratorExp = visit_AnyComp
 
     def visit_Assign(self, node):
-        #order matter as an assignation
-        #is evaluted before being assigned
+        # order matter as an assignation
+        # is evaluted before being assigned
         md.visit(self, node)
         self.visit(node.value)
         map(self.visit, node.targets)

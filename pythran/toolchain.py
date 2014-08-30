@@ -36,7 +36,7 @@ def _format_cmdline(cmd):
 
 def _extract_all_constructed_types(v):
     return sorted(set(reduce(lambda x, y: x + y,
-                            (extract_constructed_types(t) for t in v), [])),
+                             (extract_constructed_types(t) for t in v), [])),
                   key=len)
 
 

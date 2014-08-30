@@ -1,6 +1,4 @@
-"""
-UsedDefChain build used-define chains analysis for each variable.
-"""
+""" UsedDefChain build used-define chains analysis for each variable. """
 
 from pythran.analyses.imported_ids import ImportedIds
 from pythran.analyses.globals_analysis import Globals
@@ -14,16 +12,19 @@ import networkx as nx
 
 
 class UseDefChain(FunctionAnalysis):
-    """Build use-define chains analysis for each variable.
 
-       This analyse visit ast and build nodes each time it encounters an
-       ast.Name node. It is a U (use) node when context is store and D (define)
-       when context is Load or Param.
-       This node is linked to all previous possible states in the program.
-       Multiple state can happen when we use if-else statement, and loop
-       can happen too with for and while statement.
-       Result is a dictionary which associate a graph to the matching name.
     """
+    Build use-define chains analysis for each variable.
+
+    This analyse visit ast and build nodes each time it encounters an
+    ast.Name node. It is a U (use) node when context is store and D (define)
+    when context is Load or Param.
+    This node is linked to all previous possible states in the program.
+    Multiple state can happen when we use if-else statement, and loop
+    can happen too with for and while statement.
+    Result is a dictionary which associate a graph to the matching name.
+    """
+
     def __init__(self):
         self.result = dict()
         self.current_node = dict()
@@ -123,18 +124,18 @@ class UseDefChain(FunctionAnalysis):
         swap = False
         self.visit(node.test)
 
-        #if an identifier is first used in orelse and we are in a loop,
-        #we swap orelse and body
+        # if an identifier is first used in orelse and we are in a loop,
+        # we swap orelse and body
         undef = self.passmanager.gather(ImportedIds, node.body, self.ctx)
         if not all(i in self.current_node for i in undef) and self.in_loop:
             node.body, node.orelse = node.orelse, node.body
             swap = True
 
-        #body
+        # body
         old_node = {i: set(j) for i, j in self.current_node.iteritems()}
         map(self.visit, node.body)
 
-        #orelse
+        # orelse
         new_node = self.current_node
         self.current_node = old_node
         map(self.visit, node.orelse)
@@ -142,7 +143,7 @@ class UseDefChain(FunctionAnalysis):
         if swap:
             node.body, node.orelse = node.orelse, node.body
 
-        #merge result
+        # merge result
         self.merge_dict_set(self.current_node, new_node)
 
     def visit_IfExp(self, node):
@@ -150,18 +151,18 @@ class UseDefChain(FunctionAnalysis):
         swap = False
         self.visit(node.test)
 
-        #if an identifier is first used in orelse and we are in a loop,
-        #we swap orelse and body
+        # if an identifier is first used in orelse and we are in a loop,
+        # we swap orelse and body
         undef = self.passmanager.gather(ImportedIds, node.body, self.ctx)
         if undef and self.in_loop:
             node.body, node.orelse = node.orelse, node.body
             swap = True
 
-        #body
+        # body
         old_node = {i: set(j) for i, j in self.current_node.iteritems()}
         self.visit(node.body)
 
-        #orelse
+        # orelse
         new_node = self.current_node
         self.current_node = old_node
         self.visit(node.orelse)
@@ -169,7 +170,7 @@ class UseDefChain(FunctionAnalysis):
         if swap:
             node.body, node.orelse = node.orelse, node.body
 
-        #merge result
+        # merge result
         self.merge_dict_set(self.current_node, new_node)
 
     def visit_Break(self, node):
@@ -184,19 +185,19 @@ class UseDefChain(FunctionAnalysis):
         md.visit(self, node)
         prev_node = {i: set(j) for i, j in self.current_node.iteritems()}
         self.visit(node.test)
-        #body
+        # body
         self.in_loop = True
         old_node = {i: set(j) for i, j in self.current_node.iteritems()}
         map(self.visit, node.body)
         self.add_loop_edges(prev_node)
         self.in_loop = False
 
-        #orelse
+        # orelse
         new_node = self.current_node
         self.merge_dict_set(self.current_node, old_node)
         map(self.visit, node.orelse)
 
-        #merge result
+        # merge result
         self.merge_dict_set(self.current_node, new_node)
         self.merge_dict_set(self.current_node, self.break_)
         self.break_ = dict()
@@ -205,7 +206,7 @@ class UseDefChain(FunctionAnalysis):
         md.visit(self, node)
         self.visit(node.iter)
 
-        #body
+        # body
         self.in_loop = True
         old_node = {i: set(j) for i, j in self.current_node.iteritems()}
         self.visit(node.target)
@@ -213,12 +214,12 @@ class UseDefChain(FunctionAnalysis):
         self.add_loop_edges(old_node)
         self.in_loop = False
 
-        #orelse
+        # orelse
         new_node = self.current_node
         self.merge_dict_set(self.current_node, old_node)
         map(self.visit, node.orelse)
 
-        #merge result
+        # merge result
         self.merge_dict_set(self.current_node, new_node)
         self.merge_dict_set(self.current_node, self.break_)
         self.break_ = dict()
@@ -226,7 +227,7 @@ class UseDefChain(FunctionAnalysis):
     def visit_TryExcept(self, node):
         md.visit(self, node)
 
-        #body
+        # body
         all_node = dict()
         for stmt in node.body:
             self.visit(stmt)
@@ -238,12 +239,12 @@ class UseDefChain(FunctionAnalysis):
 
         no_except = self.current_node
 
-        #except
+        # except
         for ex in node.handlers:
             self.current_node = dict(all_node)
             self.visit(ex)
 
-            #merge result
+            # merge result
             self.merge_dict_set(no_except, self.current_node)
 
         self.current_node = no_except
@@ -253,5 +254,6 @@ class UseDefChain(FunctionAnalysis):
             raise PythranSyntaxError(err, node)
 
     def visit_TryFinally(self, node):
+        """ Assert TryFinally node are already removed before use_def_chain."""
         err = ("This node should have been removed in previous passes")
         raise PythranSyntaxError(err, node)

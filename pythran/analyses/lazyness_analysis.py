@@ -1,6 +1,4 @@
-"""
-LazynessAnalysis returns number of time a name is use.
-"""
+""" LazynessAnalysis returns number of time a name is use. """
 
 from pythran.analyses.aliases import Aliases
 from pythran.analyses.argument_effects import ArgumentEffects
@@ -240,7 +238,7 @@ class LazynessAnalysis(FunctionAnalysis):
         else:
             self.visit(node.orelse)
 
-        #merge use variable
+        # merge use variable
         for key in self.use:
             if key in mid_deps:
                 self.use[key].update(mid_deps[key])
@@ -248,14 +246,14 @@ class LazynessAnalysis(FunctionAnalysis):
             if key not in self.use:
                 self.use[key] = set(mid_deps[key])
 
-        #value is the worse case of both branches
+        # value is the worse case of both branches
         names = set(self.name_count.keys() + mid_count.keys())
         for name in names:
             val_body = mid_count.get(name, 0)
             val_else = self.name_count.get(name, 0)
             self.name_count[name] = max(val_body, val_else)
 
-        #dead var are still dead
+        # dead var are still dead
         self.dead.update(mid_dead)
 
     visit_IfExp = visit_If

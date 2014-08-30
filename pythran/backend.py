@@ -345,7 +345,7 @@ class Cxx(Backend):
                     Line(': {}(0) {{}}'.format(Cxx.generator_state_holder))
                     )]
             if formal_types:
-                #if all parameters have a default value, we don't need default
+                # If all parameters have a default value, we don't need default
                 # constructor
                 if default_arg_values and all(default_arg_values):
                     next_constructors = list()

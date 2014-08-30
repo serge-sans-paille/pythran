@@ -1,6 +1,4 @@
-'''
-This module turns a python AST into an optimized, pythran compatible ast
-'''
+"""This module turns a python AST into an optimized, pythran compatible ast."""
 
 from pythran.optimizations import GenExpToImap, ListCompToMap, ListCompToGenexp
 from pythran.transformations import (ExpandBuiltins, ExpandImports,
@@ -13,9 +11,8 @@ from pythran.transformations import (ExpandBuiltins, ExpandImports,
 
 
 def refine(pm, node, optimizations):
-    """refine node in place until it matches pythran's expectations"""
-
-    # sanitize input
+    """ Refine node in place until it matches pythran's expectations. """
+    # Sanitize input
     pm.apply(ExpandImportAll, node)
     pm.apply(NormalizeTuples, node)
     pm.apply(ExpandBuiltins, node)
@@ -23,7 +20,7 @@ def refine(pm, node, optimizations):
     pm.apply(NormalizeException, node)
     pm.apply(NormalizeMethodCalls, node)
 
-    #Some early optimizations
+    # Some early optimizations
     pm.apply(ListCompToMap, node)
     pm.apply(GenExpToImap, node)
 

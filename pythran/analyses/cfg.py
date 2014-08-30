@@ -1,6 +1,4 @@
-"""
-Computes the Control Flow Graph of a function
-"""
+""" Computes the Control Flow Graph of a function. """
 
 from pythran.passmanager import FunctionAnalysis
 
@@ -10,7 +8,7 @@ import networkx as nx
 
 class CFG(FunctionAnalysis):
     """
-    Computes the Control Flow Graph of a function
+    Computes the Control Flow Graph of a function.
 
     The processing of a node yields a pair containing
     * the OUT nodes, to be linked with the IN nodes of the successor
@@ -34,8 +32,6 @@ class CFG(FunctionAnalysis):
         self.result.add_node(None)
         for curr in currs:
             self.result.add_edge(curr, None)
-        #nx.draw_graphviz(self.result)
-        #nx.write_dot(self.result, node.name + '.dot')
 
     def visit_Pass(self, node):
         """OUT = node, RAISES = ()"""

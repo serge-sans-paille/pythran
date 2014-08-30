@@ -1,14 +1,14 @@
-"""
-FalsePolymorphism rename variable if possible to avoid false polymorphism
-"""
+""" FalsePolymorphism try to rename variable to avoid false polymorphism."""
 
 from pythran.passmanager import Transformation
 from pythran.analyses import UseDefChain, UseOMP, Identifiers
 
 
 class FalsePolymorphism(Transformation):
+
     """
     Rename variable when possible to avoid false polymorphism.
+
     >>> import ast
     >>> from pythran import passmanager, backend
     >>> node = ast.parse("def foo(): a = 12; a = 'babar'")
@@ -19,11 +19,12 @@ class FalsePolymorphism(Transformation):
         a = 12
         a_ = 'babar'
     """
+
     def __init__(self):
         super(FalsePolymorphism, self).__init__(UseDefChain, UseOMP)
 
     def visit_FunctionDef(self, node):
-        #function using openmp are ignored
+        # function using openmp are ignored
         if not self.use_omp:
             self.identifiers = self.passmanager.gather(Identifiers, node,
                                                        self.ctx)

@@ -65,12 +65,12 @@ class Unparser:
         self._indent += 1
 
     def leave(self):
-        "Decrease the indentation level."
+        """Decrease the indentation level."""
         self._indent -= 1
 
     def dispatch(self, tree):
-        "Dispatcher function, dispatching tree type T to method _T."
-        #display omp directive in python dump
+        """Dispatcher function, dispatching tree type T to method _T."""
+        # display omp directive in python dump
         for omp in metadata.get(tree, openmp.OMPDirective):
             deps = list()
             for dep in omp.deps:
@@ -89,12 +89,12 @@ class Unparser:
         meth = getattr(self, "_" + tree.__class__.__name__)
         meth(tree)
 
-    ############### Unparsing methods ######################
+    # ############# Unparsing methods ######################
     # There should be one method per concrete grammar type #
     # Constructors should be grouped by sum type. Ideally, #
     # this would follow the order in the grammar, but      #
     # currently doesn't.                                   #
-    ########################################################
+    # ######################################################
 
     def _Module(self, tree):
         # Goes through each top-level statement. If the special __init__()
@@ -466,7 +466,7 @@ class Unparser:
         # This is necessary: -2147483648 is different from -(2147483648) on
         # a 32-bit machine (the first is an int, the second a long), and
         # -7j is different from -(7j).  (The first has real part 0.0, the
-        #second has real part -0.0.)
+        # second has real part -0.0.)
         if isinstance(t.op, ast.USub) and isinstance(t.operand, ast.Num):
             self.write("(")
             self.dispatch(t.operand)

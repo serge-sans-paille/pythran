@@ -5,6 +5,21 @@ import numpy
 
 @TestEnv.module
 class TestNumpy(TestEnv):
+    def test_numpy_pow0(self):
+        self.run_test('def numpy_pow0(a): return a ** 2',
+                      numpy.arange(100).reshape((10, 10)),
+                      numpy_pow0=[numpy.array([[int]])])
+
+    def test_numpy_pow1(self):
+        self.run_test('def numpy_pow1(a): return a ** 2',
+                      numpy.arange(100, dtype=float).reshape((10, 10)),
+                      numpy_pow1=[numpy.array([[float]])])
+
+    def test_numpy_pow2(self):
+        self.run_test('def numpy_pow2(a): return a ** 2.2',
+                      numpy.arange(100, dtype=float).reshape((10, 10)),
+                      numpy_pow2=[numpy.array([[float]])])
+
     def test_numpy_augassign0(self):
         self.run_test('def numpy_augassign0(a): a+=1; return a',
                       numpy.arange(100).reshape((10, 10)),

@@ -5,7 +5,7 @@
 def readline(n):
     from itertools import islice
 
-    f = open('rosetta/read_conf.cfg')
+    f = open('pythran/tests/rosetta/read_conf.cfg')
     linelist = list(islice(f, n, n + 1))
     assert linelist != [], 'Not ' + str(n) + ' lines in file'
     line = linelist[0]

@@ -3,4 +3,4 @@
 #runas readfile()
 
 def readfile():
-    return open("rosetta/read_conf.cfg").read()
+    return open("pythran/tests/rosetta/read_conf.cfg").read()

@@ -11,16 +11,6 @@ class TestTyping(TestEnv):
         with self.assertRaises(pythran.syntax.PythranSyntaxError):
             pythran.compile_pythrancode("dumbo", code)
 
-    def test_ndarray_bad_dimension(self):
-        code = 'def ndarray_bad_dimension(a): return a'
-        with self.assertRaises(BaseException):
-            self.run_test(code, np.ones((10,10)), ndarray_bad_dimension=[np.array([float])])
-
-    def test_ndarray_bad_dtype(self):
-        code = 'def ndarray_bad_dtype(a): return a'
-        with self.assertRaises(BaseException):
-            self.run_test(code, np.ones((10,10)), ndarray_bad_dtype=[np.array([[np.uint8]])])
-
     def test_list_of_set(self):
         code = '''
 def list_of_set():

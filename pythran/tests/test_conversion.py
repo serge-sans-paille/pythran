@@ -1,5 +1,4 @@
 from test_env import TestEnv
-from unittest import skip
 import numpy as np
 
 class TestConversion(TestEnv):
@@ -31,3 +30,19 @@ class TestConversion(TestEnv):
     def test_dict_of_complex64_and_complex_128(self):
         self.run_test('def dict_of_complex64_and_complex_128(l): return l.keys(), l.values()', {np.complex64(3.1+1.1j):4.5+5.5j}, dict_of_complex64_and_complex_128=[{np.complex64:np.complex128}])
 
+    def test_ndarray_bad_dimension(self):
+        code = 'def ndarray_bad_dimension(a): return a'
+        with self.assertRaises(BaseException):
+            self.run_test(code, np.ones((10,10)), ndarray_bad_dimension=[np.array([float])])
+
+    def test_ndarray_bad_dtype(self):
+        code = 'def ndarray_bad_dtype(a): return a'
+        with self.assertRaises(BaseException):
+            self.run_test(code, np.ones((10,10)), ndarray_bad_dtype=[np.array([[np.uint8]])])
+
+    def test_ndarray_bad_stride_type(self):
+        """ Check an error is raised when pythran input is strided. """
+        code = 'def ndarray_bad_stride_type(a): return a'
+        with self.assertRaises(BaseException):
+            self.run_test(code, np.ones((10, 10))[1:5],
+                          ndarray_bad_stride_type=[np.array([[np.uint8]])])

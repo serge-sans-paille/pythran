@@ -567,7 +567,7 @@ for(auto i: std::vector<long>{{0,1,2}}:
 return s;
 \end{lstlisting}
 \caption{C++ version with dynamic allocation.}
-\label{lst:unroll-dyna}
+\label{lst:dyna}
 \end{subfigure}
 
     \begin{subfigure}{.5\textwidth}
@@ -578,7 +578,7 @@ for(auto i: std::array<long, 3>{{0,1,2}}:
 return s;
 \end{lstlisting}
 \caption{C++ version with static allocation.}
-\label{lst:unroll-stat}
+\label{lst:stat}
 \end{subfigure}
 
     \caption{Different implementations of an iteration over a fixed size container.}
@@ -589,8 +589,8 @@ return s;
 Once interprocedural constant evaluation is done (eventually followed by
 forward substitution), iteration over fixed size lists may appear, giving an
 opportunity to fully unroll these loops at the Python level, thus avoiding the
-suboptimal C++ translation observed for Listing~\ref{lst:unroll-stat}
-and~\ref{lst:unroll-dyna}.
+suboptimal C++ translation observed for Listing~\ref{lst:stat}
+and~\ref{lst:dyna}.
 
 \subsection{Vectorization and Parallelization}
 

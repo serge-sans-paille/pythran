@@ -79,7 +79,7 @@
 
 
 \keywords
-static compilation, parallelization, Python, C++, SIMD
+static compilation, parallelization, Python, C++, SIMD, runtime
 
 
 %%
@@ -103,7 +103,10 @@ these tools, there is also a performance gap that needs to be filled.
 
 This paper focuses on compilation techniques that are relevant for the
 optimization of high-level numerical kernels written in Python using the Numpy
-package. Section~\ref{sec:stackoverflow} presents a case study based on user
+package. Its shows an implementation of these techniques through the Pythran
+compiler and provided a benchmarks testsuite for performance measures with
+others Python compilers.
+Section~\ref{sec:stackoverflow} presents a case study based on user
 input gathered on the StackOverflow question and answer site.
 Section~\ref{sec:optimize} focuses on a simple yet representative kernel and
 showcases the optimization opportunities typically found in Numpy-based
@@ -124,8 +127,8 @@ gather enough test cases, or benchmarks, in order to drive the optimization
 process toward realistic examples. To achieve this goal, we have gathered a few
 example from existing compilers' testsuite, but these may have been modified to
 overcome some compiler limitations. A less biased source of benchmarks should
-be independant from the compiler community and focused on matching user needs.
-To achieve that goal, we collected synthetic scientifc kernels from the
+be independent from the compiler community and focused on matching user needs.
+To achieve that goal, we collected synthetic scientific kernels from the
 StackOverflow website.
 
 StackOverflow~\footnote{\url{http://stackoverflow.com/}} is a question and
@@ -201,7 +204,8 @@ Listing~\ref{lst:rosen} as a showcase of what an optimizing compiler could do.
 In Numpy, all point-to-point array operations allocate a new array that holds
 the computation result. This behavior is consistent with many Python standard
 module, but it is a very inefficient design choice, as it keeps on polluting
-the cache with potentially large fresh storage. In the rosen expression from
+the cache with potentially large fresh storage and add an extra
+allocation/disallocation costly operation. In the rosen expression from
 Listing~\ref{lst:rosen}, 7 temporary arrays are allocated (slicing does not
 create a temporary array but a view) to hold intermediate steps. Had the
 computation been lazy, no temporary would have been needed.
@@ -213,11 +217,11 @@ As Numpy is a native library mostly written in C, each operator computation is
 performed by a function implemented as a loop performing a single operation,
 and the operator chaining is done at the interpreter level. This a typical
 problem in library design: if only a small set of functions is provided, it
-prevents the optimization of multiple operators into a signle specialized
+prevents the optimization of merging multiple operators into a single specialized
 operator, and provided many operator combinations as part of the library yields
-better performance to the price of API bloat. In that case, a loop is used for
+better performance to the price of API bloat. With a smamm set of functions, a loop is used for
 each temporary computation, plus an extra loop for the \texttt{numpy.sum}
-reduction, where a single loop would have been needed.
+reduction, where a single loop would have been needed with operator fusion.
 
 \subsection{Loop Vectorization and Parallelization}
 
@@ -231,16 +235,10 @@ computation and the loop computation intensity would be very low compared to
 the memory pressure implied by two array reads and one array write for a single
 binary operator.
 
-On the opposite, if all computation were merged into a single loop, the whole
-loop would be trivially vectorizable and parallelizable.
-%% I don't get the logic in the previous sentence...
-No dependency check is needed as parallelization and vectorization are deduced
-from the semantic of the array operations.
-%% you still need a dependency test in the absolute, don't you?
-%% I'm not sure about what you mean by "deduced"
-%% I guess the only reason that allows to get rid of any dependency test is that
-%% memory is never updated but new arrays are created?
-%% The question is to which point is it still true after "fusion"
+At the opposite, if all computation were merged into a single loop using
+Temporaries Elimination and Operator fusion as described above, parallelization
+would be applicable as barrier between binary operation are removed and only
+one load and one store will be use for multiple operations.
 
 %%
 %%
@@ -258,9 +256,9 @@ To address these limitations, several compiler-based approaches were proposed.
 
 Numpy programs typically makes use of high-level programming, mostly using
 array broadcasting techniques as shown listing~\ref{lst:pairwise}. This level
-of programming can be very efficiemt with Numpy when compared to regular Python
+of programming can be very efficient with Numpy when compared to regular Python
 code. However the main limitation is that the Numpy library approach comes with
-numerous temporary arrays allocated implicitely.
+numerous temporary arrays implicitly allocated.
 
 \begin{lstlisting}[language=python, caption={\textit{pairwise} function that
   exhibits array broadcasting.}, label={lst:pairwise}, breaklines=true]]
@@ -299,7 +297,7 @@ def pairwise_python(X):
 Cython~\cite{cython2010} is an hybrid Python/C dialect. It extends the Python
 syntax with typing information, calls to native functions from third party
 libraries, and a limited set of parallelism constructs, such as the possibility
-to define parallel loops, but no task parallelism. When possible, it unboxes
+to define parallel loops, but no task parallelism. When possible, it unboxes % ref?
 Python variables to improve performance. Without type annotations, the
 performance improvement is not terrific, but given enough type annotation,
 Cython can generates code that runs as fast as its C equivalent.
@@ -354,7 +352,9 @@ Python to LLVM bytecode translation, but limits its scope to the Numpy package,
 only supporting a small subset of the Python language. Additionally, it supports
 implicit parallelism using an implicit mapping between Numpy functions and a set
 of parallel primitives including \texttt{map}s \texttt{scan}s and
-\texttt{reduce}s. 
+\texttt{reduce}s. As it applies optimizations like operator fusion, it
+encourages programmer to express their code using the higher-level construct
+available with Numpy.
 
 \subsection{Copperhead}
 
@@ -365,15 +365,19 @@ enforcing the use of the \texttt{map}, \texttt{filter} or \texttt{reduce}
 intrinsics to exhibit parallelism. But it can be efficiently compiled to either
 CUDA or C++ with calls to the Thrust\footnote{\emph{cf}.
 \texttt{http://thrust.github.com/}} library. Python decorators are used to
-identify hot-spots that are JIT-compiled to native code.
+identify hot-spots that are JIT-compiled to native code. As it requires to write
+functional code, it needs code modifications of \textit{Pythonic} code
 
-\subsection{PyPy}
+\subsection{PyPy and Shed~Skin}
 
 PyPy~\cite{pypy2009}, a Python interpreter with a tracing JIT, or
 Shed~Skin~\cite{shedskin2006}, a Python to C++ compiler are also viable ways to
 enhance Python performance. However Shed~Skin does not provide support for
 fine-grained parallelism beyond what the standard library proposes. PyPy is
-heading toward STM for parallelism support.
+heading toward STM for parallelism support. As it supports most of the python
+construct, python code can be directly use with performance gain but not all
+performance optimizations can be applied.
+% STM?
 
 %%
 %%
@@ -381,13 +385,15 @@ heading toward STM for parallelism support.
 \label{sec:pythran}
 
 C/C++ have been at the hearth of high performance computing for many years.
-Compiler infrasturctures for these languages also have a long history and
+Compiler infrastructures for these languages also have a long history and
 implement many optimizations on the control flow graph, basic blocks or
 loops~\cite{Aho2006} that limit usage of assembly code to a few hot spots.
+% You are speaking about user written assembly code? Or generated code?
 Language extensions like OpenMP~\cite{openmp4} provide a convenient parallel
 programming model and libraries like Boost.SIMD~\cite{esterie2012boost} provides
 good abstractions for explicit vectorization. Many highly tuned kernels are
-available in the form of thid-party libraies like GotoBlas~\cite{gotoblas2008}.
+available in the form of third-party libraries like GotoBlas~\cite{gotoblas2008}.
+% pas de nt2?
 
 There is no need to reinvent the wheel when compiling numerical Python kernels.
 A more profitable approach is to map Python concept to existing ones, or
@@ -401,9 +407,9 @@ Python constructs.
 \label{sec:expression-templates}
 
 Many C++ linear algebra libraries~\cite{eigen,ublas} use \emph{expression
-templates}~\cite{expression_templates, et2012} as a way to efficently describe high
+templates}~\cite{expression_templates, et2012} as a way to efficiently describe high
 level matrix expressions while avoid the creation of intermediate storage.
-Additionnaly, it has the same effect as loop fusion, solving the issues
+Additionally, it has the same effect as loop fusion, solving the issues
 described in \S~\ref{sec:temporaries-elimination} and
 \S~\ref{sec:operator-fusion}.
 
@@ -411,16 +417,16 @@ Thanks to variadic templates introduced in C++11, it is possible to write a
 generic C++ meta-class that implements the same API as numpy array and provides
 all unary and binary operators, as well as the various form of indexing and
 slicing. Listing~\ref{lst:rosen-cxx} illustrates the translation of the Python
-code from Listing~\ref{lst:rosen} into C++. Altough this version is more
+code from Listing~\ref{lst:rosen} into C++. Although this version is more
 verbose than the Python one, the translation from one to the other does not
 raise any particular issue.
 
 Note that turning such Numpy expressions into expression templates is
 equivalent to converting from a strict evaluation to a non-strict, or lazy,
-evaluation. This is always legal in the contect of Numpy because none of the
+evaluation. This is always legal in the context of Numpy because none of the
 computations considered for expression template conversion have side effect.
 
-This version does not supress all intermediate computations: typically, the
+This version does not suppress all intermediate computations: typically, the
 assignments to \texttt{t0} and \texttt{t1} trigger the computation of the right
 hand side expression, thus creating two intermediates array. This usual
 limitation is motivated by the inability to prove that \texttt{x} is not
@@ -446,15 +452,16 @@ read-write effects and alias analysis.
 
 Alias analysis is impossible for Python programs in general, because of late
 binding and possible monkey patching. In the context of a static compiler for
+% What is monkey patching?
 numerical programs, it can be assumed that binding is done statically and no
-monkey patching is done.  In that context, it is relatively easy to design an
+monkey patching is done. In that context, it is relatively easy to design an
 intra-procedural alias analysis thanks to the absence of pointer arithmetic:
 the only language construction that can create aliasing is the assignment, thus
 a simple control-flow base alias analysis yields accurate results.
 
 The computation of read-write effects involve the annotation of numpy functions
 so that the Python compiler knows that most of them do not modify their
-argument, and the computation of argument effects for user functions. This can
+arguments, and the computation of argument effects for user functions. This can
 be done by considering each function individually and looking for the two kind
 of constructs that can modify a function argument: indexing and further
 function calls.
@@ -463,24 +470,24 @@ To interprocedurally compute the read-write effects, intraprocedrual effects
 are first computed. Then we create a directed graph $G$ with as many nodes as
 functions. Each node contains a list of integer representing the indices of the
 formal argument that are modified intra-procedurally. Then we add an edge
-between two nodes, labeeld by an integer tuple $(i, j)$ if $i^\text{th}$ formal
+between two nodes, labeled by an integer tuple $(i, j)$ if $i^\text{th}$ formal
 argument of the source is passed as $j^\text{th}$ effective argument of the
 sink. The goal is to prune all edges from $G$. To do so, given a node $n$ that
-writes $i$, any outcoming edge $(i,j)$ can be safely removed, as we know for
-sure that the $i^\text{th}$ parameter is written.  Similarly, an incoming edge
-$(j,i)$ can be removed and $j$ is added to the source's list. Iteratively
+writes $i$, any outcoming edge $(i, j)$ can be safely removed, as we know for
+sure that the $i^\text{th}$ parameter is written. Similarly, an incoming edge
+$(j, i)$ can be removed and $j$ is added to the source's list. Iteratively
 applying this process removes all edges that can propagate a write, the only
-remaining edges propagate a read and can be ultmately removed.
+remaining edges propagate a read and can be ultimately removed.
 
 Let us illustrate the algorithm on a simple case. Python code source and the
 initial effect graphs are illustrated on Figure~\ref{fig:argument-effects}. The
-only node wis write effects is \texttt{bar} that writes \texttt{n} through a
+only node with write effects is \texttt{bar} that writes \texttt{n} through a
 subscript. Outcoming edges (1) and (2) can be removed because they are
 outcoming edges of \texttt{bar} starting by \texttt{n}. In coming edge (0) ends
 by \texttt{n} that is written by \texttt{bar} so it is possible to prune it
 while adding the start \texttt{n} to node \texttt{root}. No edge left, and we
-know that both \texttt{root} and \texttt{bar} update their argument, but not
-\texttt{foo}.
+know that both \texttt{root} update \texttt{r} and \texttt{bar} update \texttt{n},
+but \texttt{foo} doesn't update its argument.
 
 \begin{figure}
 
@@ -521,13 +528,17 @@ def root(r):
 
 \end{figure}
 
+Thanks to these analysis, we are able to say that \texttt{t0} and \texttt{t1}
+can be forwarded in the Listing~\ref{lst:rosen}.
+
 
 \subsection{Range Analysis}
 
 \subsection{Constant Propagation and Loop Unrolling}
 
+% Cette partie n'a pas déjà été écrite dans un autre papier?
 There are very few values that are considered as constant in Python, to the
-notable exception of strings and tuples. However thare are a lot of constant
+notable exception of strings and tuples. However there are a lot of constant
 propagation opportunities, the most remarkable one being calls to the
 \texttt{range} builtin with literal parameters.
 
@@ -538,7 +549,7 @@ static array holding the relevant values. Figure~\ref{fig:unroll-range}
 compares two translation of a Python snippet that iterates over a fixed-size
 list. The Clang compiler successfully turns Listing~\ref{lst:stat} into a
 single constant. It also statically computes the return value for
-Listing~\ref{lst:dyna}, but still generates the intiialization code for the
+Listing~\ref{lst:dyna}, but still generates the initialization code for the
 \texttt{std::vector}. The GCC compiler fails to statically compute the return
 value in both cases. This example shows that constant propagation should be
 done at a higher level than C++, and so be part of the Python optimizer.
@@ -548,8 +559,8 @@ global variables to determine if a function as side effects on its argument or
 on global variables (including I/O). This information makes it possible to flag
 some function as pure, and to statically evaluate pure function calls with
 constant arguments. This evaluation is especially easy in Python thanks to the
-abitlity of the language to turn an AST expression into bytecode, evaluate it
-and retreive its constant value. For instance, this makes it possible to turn a
+ability of the language to turn an AST expression into bytecode, evaluate it
+and retrieve its constant value. For instance, this makes it possible to turn a
 call to \texttt{range(3)} into \texttt{[0, 1, 2]}, but also to compute the
 value of \texttt{fibonnaci(4)} at compile-time.
 
@@ -587,6 +598,7 @@ return s;
 \caption{C++ version with static allocation.}
 \label{lst:stat}
 \end{subfigure}
+% Hum, on dirait du pattern transform : list => tuple pour l'iterable du for
 
     \caption{Different implementations of an iteration over a fixed size container.}
     \label{fig:unroll-range}
@@ -637,25 +649,50 @@ void eval(A& to, E const& from, D<Dim>)
 
 \subsubsection{Parallelisation of Expression templates}
 
-A naive way to parallelize the parameteric loop nest from
+A naive way to parallelize the parametric loop nest from
 Listing~\ref{lst:eval-et} is to use a \texttt{parallel} directive from the
 OpenMP~\cite{openmp4} standard. Depending on the number of dimension of the
 input array, this may lead to nested parallel regions. When OpenMP nested
-parallel regions are activated, each parallel region spaws as many thread as
-possible, which leads to oversubscription and generally bad performances. When
+parallel regions are activated, each parallel region spawns as many thread as
+possible up to the runtime upper bound, which leads to oversubscription with 
+more common implementation (libgomp and libiomp) and generally bad performances. When
 disabled, only the first parallel region spawns threads, which is likely to be
 inefficient depending on the input array shape, e.g. $(1,100000)$. Moreover,
 even if they do not start new threads, each nested parallel region implies a
-costly overhead. The \texttt{collapse} clause is not compatible with the
-parametric loop version.
+costly overhead for scheduling computation and datasharing. An easy way to solve
+the issue with small then large dimension is to use the \texttt{collapse}
+clause but it is not compatible with the parametric loop version.
 
-A first approach would be to use recursieve tasks and manual loop chunking. \todo{pierrick? c'est bête comme idée ?}
+A first approach would be to use recursive tasks and manual loop chunking. \todo{pierrick? c'est bête comme idée ?}
+% Les taches sont en général plus lente que les boucles for (malheureusement)
+% et il y a des fois ou on ne pourra jamais être plus rapide si on passe par
+% des taches.
+% Souvent, c'est a cause du scheduling static qui permet d'optimiser le cache
+% et aussi parce que les compilos, quand ils voient un omp for static, ils
+% font directement du déroulage de boucle. (Jusqu'au full unrolling des fois
+% avec autant de tache que de thread). 
+%
+% Dans notre cas, on ne connait pas forcement la taille de l'espace d'iteration
+% a la compilation. On ne pourra donc pas faire trop de unrolling mais bon, on
+% doit pouvoir faire comme gcc. Par contre, pour l'optimisation du cache, les
+% boucles for assurent que c'est le même noeud qui exécute le même "chunk" entre
+% les boucles for et ça, on le perd avec les taches. Je ne sais pas si ça joue
+% vraiment.
+% Autre problem. On va créé des taches en assez grande quantité. Ce que libgomp
+% supporte assez mal. Aussi, on va créé du datasharing pour des petites taches
+% (iteration de longueur 1 dans le cas du (1, 1000000)) ce qui est couteux et
+% assez mal supporté par libgomp. Il faudra voir comment ça se passe avec libiomp
+% qui est utilisé par clang.
+%
+% Au final : Ca doit être jouable. Il y a plusieurs raisons qui peuvent faire
+% qu'on a de mauvaise perfs mais sans mesures, on ne sait pas.
 
 A conservative approach is to only start a parallel region if the loop trip
 count is large enough. We avoid by using the \texttt{if} clause for parallel
 regions to do so in order to prevent the unnecessary overhead. Instead the loop
 statement is duplicated and guarded by the appropriate check, where only one
 loop holds the parallel annotations.
+% usuellement appelé : manual if
 
 Note that this parallelization scheme is compatible with the manual
 parallelization of Python programs proposed in~\cite{pyhpc2013}.

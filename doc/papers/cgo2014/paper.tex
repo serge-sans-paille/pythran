@@ -12,6 +12,7 @@
 \usepackage{listings}
 \usepackage{hyperref}
 \usepackage{subcaption}
+\usepackage{todo}
 
 \special{papersize=8.5in,11in}
 \setlength{\pdfpageheight}{\paperheight}
@@ -384,7 +385,7 @@ Compiler infrasturctures for these languages also have a long history and
 implement many optimizations on the control flow graph, basic blocks or
 loops~\cite{Aho2006} that limit usage of assembly code to a few hot spots.
 Language extensions like OpenMP~\cite{openmp4} provide a convenient parallel
-programming model and libraries like Boost.SIMD~\cite{esterie2012boost} provide 
+programming model and libraries like Boost.SIMD~\cite{esterie2012boost} provides
 good abstractions for explicit vectorization. Many highly tuned kernels are
 available in the form of thid-party libraies like GotoBlas~\cite{gotoblas2008}.
 
@@ -414,6 +415,11 @@ code from Listing~\ref{lst:rosen} into C++. Altough this version is more
 verbose than the Python one, the translation from one to the other does not
 raise any particular issue.
 
+Note that turning such Numpy expressions into expression templates is
+equivalent to converting from a strict evaluation to a non-strict, or lazy,
+evaluation. This is always legal in the contect of Numpy because none of the
+computations considered for expression template conversion have side effect.
+
 This version does not supress all intermediate computations: typically, the
 assignments to \texttt{t0} and \texttt{t1} trigger the computation of the right
 hand side expression, thus creating two intermediates array. This usual
@@ -427,6 +433,7 @@ ndarray<T, N> t0 = 100L * numpy::square{}(x[slice(1L, None)] - numpy::square{}(x
 ndarray<T, N> t1 = numpy::square{}(1L - x[slice(None,-1L)]);
 return numpy::sum{}((t0 + t1));
 \end{lstlisting}
+
 
 \subsection{Forward Substitution}
 \label{sec:fs}
@@ -592,9 +599,70 @@ opportunity to fully unroll these loops at the Python level, thus avoiding the
 suboptimal C++ translation observed for Listing~\ref{lst:stat}
 and~\ref{lst:dyna}.
 
-\subsection{Vectorization and Parallelization}
+\subsection{Parallelization and Vectorization}
 
-\cite{esterie2012boost, pyhpc2013, wpmvp2014}
+A simplified version of the evaluation loop for an expression template is
+illustrated on Listing~\ref{lst:eval-et}. The loop over each dimension of the
+target array expression \texttt{to} is made explicit through a recursive
+template call. The computation of the origin expression is only triggered for
+the innermost loop.
+
+By construction of the expression template, the \texttt{eval} method used in
+\texttt{from.eval(i)} does not have side effects, and the Python to C++
+compiler can assert there is no shared memory between \texttt{to} and any
+component of \texttt{from}. In that case, all loops can be made parallel, and
+the innermost loop is eventually vectorizable.
+
+\begin{lstlisting}[language=c++, label={lst:eval-et}, caption={Evaluation body of an expression template}]
+template<size_t N> struct D {};
+
+// real evaluation loop
+template<class A, class E>
+void eval(A& to, E const& from, D<1>)
+{
+  size_t n = to.shape[A::ndims-1];
+  for(size_t i = 0; i < n; ++i)
+    to[i] = from.eval(i);
+}
+
+// recursive evaluation loops
+template<class A, class E, size_t Dim>
+void eval(A& to, E const& from, D<Dim>)
+{
+  size_t n = to.shape[A::ndims-Dim];
+  for(size_t i = 0; i < n; ++i)
+    eval(to[i], from[i], D<Dim-1>);
+}
+\end{lstlisting}
+
+\subsubsection{Parallelisation of Expression templates}
+
+A naive way to parallelize the parameteric loop nest from
+Listing~\ref{lst:eval-et} is to use a \texttt{parallel} directive from the
+OpenMP~\cite{openmp4} standard. Depending on the number of dimension of the
+input array, this may lead to nested parallel regions. When OpenMP nested
+parallel regions are activated, each parallel region spaws as many thread as
+possible, which leads to oversubscription and generally bad performances. When
+disabled, only the first parallel region spawns threads, which is likely to be
+inefficient depending on the input array shape, e.g. $(1,100000)$. Moreover,
+even if they do not start new threads, each nested parallel region implies a
+costly overhead. The \texttt{collapse} clause is not compatible with the
+parametric loop version.
+
+A first approach would be to use recursieve tasks and manual loop chunking. \todo{pierrick? c'est bête comme idée ?}
+
+A conservative approach is to only start a parallel region if the loop trip
+count is large enough. We avoid by using the \texttt{if} clause for parallel
+regions to do so in order to prevent the unnecessary overhead. Instead the loop
+statement is duplicated and guarded by the appropriate check, where only one
+loop holds the parallel annotations.
+
+Note that this parallelization scheme is compatible with the manual
+parallelization of Python programs proposed in~\cite{pyhpc2013}.
+
+\subsubsection{Vectorization of Expression Templates}
+
+A first exploration of vectorization of Python constructs is done in~\cite{wpmvp2014}.
 
 %%
 %%

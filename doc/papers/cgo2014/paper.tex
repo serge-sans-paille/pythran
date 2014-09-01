@@ -104,7 +104,7 @@ these tools, there is also a performance gap that needs to be filled.
 This paper focuses on compilation techniques that are relevant for the
 optimization of high-level numerical kernels written in Python using the Numpy
 package. Its shows an implementation of these techniques through the Pythran
-compiler and provided a benchmarks testsuite for performance measures with
+compiler and provided a benchmarks test suite for performance measures with
 others Python compilers.
 Section~\ref{sec:stackoverflow} presents a case study based on user
 input gathered on the StackOverflow question and answer site.
@@ -125,7 +125,7 @@ Section~\ref{sec:xp}.
 One of the first steps required when designing an optimizing compiler is to
 gather enough test cases, or benchmarks, in order to drive the optimization
 process toward realistic examples. To achieve this goal, we have gathered a few
-example from existing compilers' testsuite, but these may have been modified to
+examples from existing compilers' test suite, but these may have been modified to
 overcome some compiler limitations. A less biased source of benchmarks should
 be independent from the compiler community and focused on matching user needs.
 To achieve that goal, we collected synthetic scientific kernels from the
@@ -137,7 +137,7 @@ users may answer. A voting system is then used to sort the answers. Said
 otherwise, the website provides a database of question and answers on
 programming topics, including Python.
 
-A query using the terms \emph{numpy} and \emph{slow} yields many results, many
+A query using the terms \emph{numpy} and \emph{slow} yields a lot of results, many
 of which use the pattern ``Q: my code is slow'' followed by an upvoted answer
 ``A: rewrite it that way'', where the original code performs explicit looping
 over an array, and the rewritten code uses the relevant combination of Numpy
@@ -164,18 +164,16 @@ def l2norm(x):
     return np.sum(np.abs(x)**2, axis=1)
 \end{lstlisting}
 
-Newcommers to Python with a prior C or Fortran experience are likely to make 
-use of raw loops similar to Listing~\ref{lst:l2norm-loopy}, but as their 
-knowledge of the Numpy API and of the good programming practice grows, they get to write code similar
-to Listing~\ref{lst:l2norm}. As a direct consequence, 
-\todo{Serge: don't you think we should also says that high-level constructs 
-enable better optimizations for the compiler?}
-a compiler should focus on optimizing high-level constructs rather than raw 
-loops. Both to encourage good practice with respect to Numpy code, and because 
+Newcomers to Python with a prior C or Fortran experience are likely to make
+use of raw loops similar to Listing~\ref{lst:l2norm-loopy}, but as their
+command of the Numpy API and of good programming practices grows, they get to write code similar
+to Listing~\ref{lst:l2norm}. The fact that in Numpy, high-level constructs run faster is also a strong motivation. As a direct consequence, a compiler should focus on optimizing high-level constructs rather than raw
+loops. Both to encourage good practice with respect to Numpy code, and because
 this is the kind of code Numpy users ultimately write.
 
-The benchmark is publicly available on
-\url{https://github.com/serge-sans-paille/numpy-benchmarks}.
+The benchmarks collected during this process are publicly available on
+\url{https://github.com/serge-sans-paille/numpy-benchmarks}, with a set of
+benchmarking routine specialized for major Python/Numpy compilers.
 
 
 %%
@@ -184,12 +182,12 @@ The benchmark is publicly available on
 \label{sec:optimize}
 
 Let us consider the kernel illustrated in Listing~\ref{lst:rosen} and adapted
-from the Scipy source code for \texttt{scipy.optimize.rosen}. This kernel makes
+from the Scipy source code of \texttt{scipy.optimize.rosen}. This kernel makes
 use of Numpy's \texttt{sum} function, Python's square notation and Numpy's
 array slicing. It is a good example of high-level Python kernel, although
-using the function \texttt{scipy.optimize.rosen} would naturally make sense.
+using the function \texttt{scipy.optimize.rosen} directly would naturally make sense.
 
-\begin{lstlisting}[language=python, caption={High-level implementation of the Rosenbrock function in Numpy}, label={lst:rosen}]
+\begin{lstlisting}[language=python, caption={High-level implementation of the Rosenbrock function in Numpy.}, label={lst:rosen}]
 def rosen(x):
     t0 = 100 * (x[1:] - x[:-1] ** 2) ** 2
     t1 = (1 - x[:-1]) ** 2
@@ -207,7 +205,7 @@ In Numpy, all point-to-point array operations allocate a new array that holds
 the computation result. This behavior is consistent with many Python standard
 module, but it is a very inefficient design choice, as it keeps on polluting
 the cache with potentially large fresh storage and add an extra
-allocation/disallocation costly operation. In the \textit{rosen} function from
+allocation/deallocation costly operation. In the \textit{rosen} function from
 Listing~\ref{lst:rosen}, 7 temporary arrays are allocated (slicing does not
 create a temporary array but a view) to hold intermediate steps. Had the
 computation been lazy, no temporary would have been needed.
@@ -228,15 +226,15 @@ reduction, where a single loop would have been needed with operator fusion.
 
 \subsection{Loop Vectorization and Parallelization}
 
-Without operator fusion, there would be very little benefit to generate SIMD 
+Without operator fusion, there would be very little benefit to generate SIMD
 instructions for the respective array operations used by each operator, as the
-memory load store would have dominated. This is even more important as
-Numpy typically operates on double precision floats. Parallelization also 
-suffers from the lack of operator fusion: a synchronization fence is needed
-between each temporary computation. 
-Hence the loop computation intensity would be very low compared to
-the memory pressure implied by two array reads and one array write for a single
-binary operator.
+memory load and store would have dominated the execution time. This is even more important as
+Numpy typically operates on double precision floats, which means only two (SSE) to four (AVX) scalar per vector registers.
+
+Parallelization also suffers from the lack of operator fusion: a
+synchronization fence is needed between each temporary computation.  Hence the
+loop computation intensity would be very low compared to the memory pressure
+implied by two array reads and one array write for a single binary operator.
 
 On the opposite, if all computations were merged into a single loop using
 temporaries elimination and operator fusion, parallelization would be more
@@ -252,16 +250,17 @@ The success of Python and the development of its large ecosystem triggered
 several attempts to improve its execution speed. The most significant basic
 block for high performance numerical simulations is certainly Numpy, a
 numerical library to manipulate dense arrays. However, this library-like
-approach has inherent limitations that were exposed in the previous section.
-To address these limitations, several compiler-based approaches were proposed.
+approach has inherent limitations that have been exposed in \S~\ref{sec:optimize}.
+To address these limitations, several compiler-based approaches have been proposed.
 
-\subsection{Numpy Limitations}
+\subsection{Numpy}
 
-Numpy programs typically makes use of high-level programming, mostly using
-array broadcasting techniques as shown listing~\ref{lst:pairwise}. This level
-of programming can be very efficient with Numpy when compared to regular Python
-code. However the main limitation is that the Numpy library approach comes with
-numerous temporary arrays implicitly allocated.
+The reference implementation of Numpy is a native Module, written mostly in C. It uses the BLAS API whenever possible and provides a relatively efficient array abstraction in the form of the \texttt{ndarray} data structure. This data structures makes it possible to use various styles of slicing and broadcasting, as illustrated in Listing~\ref{lst:pairwise}.
+
+It also enforces a high-level programming style but it's very inefficient when
+explicit subscripts are used.  For instance, raw loops are used in
+Listing~\ref{lst:pairwise-raw}. It avoids the creation of temporary arrays but
+runs almost 100 times slower due to the Python interpreter overhead and the C to Python conversion involved in every subscript.
 
 \begin{lstlisting}[language=python, caption={\textit{pairwise} function that
   exhibits array broadcasting.}, label={lst:pairwise}, breaklines=true]]
@@ -269,9 +268,6 @@ def pairwise_numpy(X):
     return np.sqrt(((X[:, None, :] - X) ** 2).sum(-1))
 \end{lstlisting}
 
-A solution to avoid temporary allocation can be to revert to a programming style
-using explicit raw loops as shown listing~/ref{lst:pairwise-raw}. Unfortunately
-this code runs almost 100 times slower due to the Python interpreter overhead.
 
 \begin{lstlisting}[language=python, caption={\textit{pairwise} function
   using raw loops.}, label={lst:pairwise-raw}]
@@ -289,26 +285,20 @@ def pairwise_python(X):
     return D
 \end{lstlisting}
 
-
-
-\begin{lstlisting}[language=python]
-
-\end{lstlisting}
-
 \subsection{Cython}
 %
 Cython~\cite{cython2010} is an hybrid Python/C dialect. It extends the Python
-syntax with typing information, calls to native functions from third party
+syntax with typing information, calls to native functions from third party C
 libraries, and a limited set of parallelism constructs, such as the possibility
-to define parallel loops, but no task parallelism. When possible, it unboxes % ref?
-Python variables to improve performance. Without type annotations, the
-performance improvement is not terrific, but given enough type annotation,
+to define parallel loops, but no task parallelism. When possible, it unboxes %
+ref?  Python variables to improve performance. Without type annotations, the
+performance improvement is not significant, but given enough type annotation,
 Cython can generates code that runs as fast as its C equivalent.
 
-The drawback is that the programmer has to avoid \textit{Pythonic}-like
-high-level constructs and instead expresses his algorithm using raw loops.
-The \textit{pairwise} function rewritten for Cython is shown 
-listing~\ref{lst:pairwise-cython}.
+The drawback is that the programmer has to avoid high-level constructs and
+instead expresses his algorithm using raw loops.  The \textit{pairwise}
+function rewritten for Cython is shown listing~\ref{lst:pairwise-cython},
+showing usage of compiler annotations in the form of function decorators.
 
 \begin{lstlisting}[language=python, caption={\textit{pairwise} function 
   rewritten for Cython.}, label={lst:pairwise-cython}]
@@ -338,26 +328,29 @@ def pairwise_cython(double[:, ::1] X):
 \subsection{Numba}
 
 
-The numba 
-compiler uses additional type information to generate sequential LLVM bytecode.
-Numba uses Just-In-Time(JIT) compilation and do not suffer from
-backward-incompatibility issues. When meeting an unsupported construct, numba
-falls back to Python C-API calls.
+The Numba compiler uses additional type information collected at run-time to
+generate sequential LLVM bytecode.  Numba uses Just-In-Time(JIT) compilation
+and does not suffer from backward-incompatibility issues: a single
+\texttt{@jit} decorator is used to flag kernels to optimize. When meeting an
+unsupported construct, Numba silently falls back to Python C-API calls.
 
-Unfortunately, at that time Numba is providing its best speedup on code with 
-raw loops, which is not encouraging programmers to express their code using 
-the higher-level construct available with Numpy.
+Like Python, Numba is providing its best speedup on code with raw loops, which
+is not encouraging programmers to express their code using the higher-level
+construct available with Numpy. However, when input constraint are met, it
+exhibits performance close to Cython, or even better when conversion to GPU
+code is possible.
 
 \subsection{Parakeet}
 
-Parakeet~\cite{parakeet2012} follows an approach similar to Numba, that is
-Python to LLVM bytecode translation, but limits its scope to the Numpy package,
-only supporting a small subset of the Python language. Additionally, it supports
-implicit parallelism using an implicit mapping between Numpy functions and a set
-of parallel primitives including \texttt{map}, \texttt{scan}, and
-\texttt{reduce}. As it applies optimizations such as operator fusion, it
-encourages programmer to express their code using the higher-level construct
-available with Numpy.
+Parakeet~\cite{parakeet2012} follows an approach similar to Numba, that is JIT
+compilation of selected kernels. It uses C annotated with OpenMP directives as
+a target language, but limits its scope to the Numpy package, only supporting
+the subset of the Python language required to use Numpy functions.
+Additionally, it supports implicit parallelism using an implicit mapping
+between Numpy functions and a set of parallel primitives including
+\texttt{map}, \texttt{scan}, and \texttt{reduce}.  As it applies optimizations
+such as operator fusion, it encourages programmer to express their code using
+the higher-level construct available with Numpy.
 
 \subsection{Copperhead}
 
@@ -367,30 +360,31 @@ structure and prohibits usage of many control-flow operators such as loops,
 enforcing the use of the \texttt{map}, \texttt{filter} or \texttt{reduce}
 intrinsics to exhibit parallelism. But it can be efficiently compiled to either
 CUDA or C++ with calls to the Thrust\footnote{\emph{cf}.
-\texttt{http://thrust.github.com/}} library. Python decorators are used to
-identify hot-spots that are JIT-compiled to native code. As it requires to write
-functional code, it needs code modifications of \textit{Pythonic} code
+\texttt{http://thrust.github.com/}} library. Like Numba and Parakeet, it uses
+Python decorators to identify hot-spots that are JIT-compiled to native code.
+As it requires to write functional code, it is not compatible with the Numpy
+interface, although several Numpy functions could be rewritten in terms of
+Copperhead intrinsics.
 
 \subsection{PyPy and Shed~Skin}
 
 PyPy~\cite{pypy2009}, a Python interpreter with a tracing JIT, or
 Shed~Skin~\cite{shedskin2006}, a Python to C++ compiler are also viable ways to
-enhance Python performance. However Shed~Skin does not provide support for
-fine-grained parallelism beyond what the standard library proposes. PyPy is
-heading toward STM for parallelism support. As it supports most of the python
-construct, python code can be directly use with performance gain but not all
-performance optimizations can be applied.
-% STM?
+enhance Python performance. However Shed~Skin does not provide support for the
+Numpy module. The is an important work in progress from the PyPy community to
+support Numpy, but it implies a partial rewrite of the Numpy API in RPython,
+the language used by PyPy, to enable PyPy's optimization.
+
 
 %%
 %%
 \section{Compilers Cooperation}
 \label{sec:pythran}
 
-C/C++ have been at the hearth of high performance computing for many years.
+Fortran/C/C++ have been at the hearth of high performance computing for many years.
 Compiler infrastructures for these languages also have a long history and
 implement many optimizations on the control flow graph, basic blocks or
-loops~\cite{Aho2006} that limit usage of assembly code to a few hot spots.
+loops~\cite{Aho2006} that limit usage of hand-written assembly to a few hot spots.
 % You are speaking about user written assembly code? Or generated code?
 Language extensions like OpenMP~\cite{openmp4} provide a convenient parallel
 programming model and libraries like Boost.SIMD~\cite{esterie2012boost} provides
@@ -454,8 +448,7 @@ supported by the computation of a dependency graph that itself relies on
 read-write effects and alias analysis.
 
 Alias analysis is impossible for Python programs in general, because of late
-binding and possible monkey patching. In the context of a static compiler for
-% What is monkey patching?
+binding and possible monkey patching---a way to modify the code of dynamic languages at run-time. In the context of a static compiler for
 numerical programs, it can be assumed that binding is done statically and no
 monkey patching is done. In that context, it is relatively easy to design an
 intra-procedural alias analysis thanks to the absence of pointer arithmetic:
@@ -469,7 +462,7 @@ be done by considering each function individually and looking for the two kind
 of constructs that can modify a function argument: indexing and further
 function calls.
 
-To interprocedurally compute the read-write effects, intraprocedrual effects
+To inter procedurally compute the read-write effects, intra procedural effects
 are first computed. Then we create a directed graph $G$ with as many nodes as
 functions. Each node contains a list of integer representing the indices of the
 formal argument that are modified intra-procedurally. Then we add an edge
@@ -540,10 +533,11 @@ can be forwarded in the Listing~\ref{lst:rosen}.
 \subsection{Constant Propagation and Loop Unrolling}
 
 % Cette partie n'a pas déjà été écrite dans un autre papier?
+%SG: non
 There are very few values that are considered as constant in Python, to the
 notable exception of strings and tuples. However there are a lot of constant
 propagation opportunities, the most remarkable one being calls to the
-\texttt{range} builtin with literal parameters.
+\texttt{range} built-in with literal parameters.
 
 A naïve translation of such call to a generic C++ function would generate a
 call to a C++ function that would allocate enough memory to hold three integer,
@@ -608,7 +602,7 @@ return s;
 
 \end{figure}
 
-Once interprocedural constant evaluation is done (eventually followed by
+Once inter procedural constant evaluation is done (eventually followed by
 forward substitution), iteration over fixed size lists may appear, giving an
 opportunity to fully unroll these loops at the Python level, thus avoiding the
 suboptimal C++ translation observed for Listing~\ref{lst:stat}
@@ -650,19 +644,19 @@ void eval(A& to, E const& from, D<Dim>)
 }
 \end{lstlisting}
 
-\subsubsection{Parallelisation of Expression templates}
+\subsubsection{Parallelization of Expression templates}
 
 A naive way to parallelize the parametric loop nest from
 Listing~\ref{lst:eval-et} is to use a \texttt{parallel} directive from the
 OpenMP~\cite{openmp4} standard. Depending on the number of dimension of the
 input array, this may lead to nested parallel regions. When OpenMP nested
 parallel regions are activated, each parallel region spawns as many thread as
-possible up to the runtime upper bound, which leads to oversubscription with 
+possible up to the runtime upper bound, which leads to oversubscription with
 more common implementation (libgomp and libiomp) and generally bad performances. When
 disabled, only the first parallel region spawns threads, which is likely to be
 inefficient depending on the input array shape, e.g. $(1,100000)$. Moreover,
 even if they do not start new threads, each nested parallel region implies a
-costly overhead for scheduling computation and datasharing. An easy way to solve
+costly overhead for scheduling computation and data sharing. An easy way to solve
 the issue with small then large dimension is to use the \texttt{collapse}
 clause but it is not compatible with the parametric loop version.
 
@@ -693,10 +687,9 @@ A first approach would be to use recursive tasks and manual loop chunking.
 
 A conservative approach is to only start a parallel region if the loop trip
 count is large enough. We avoid by using the \texttt{if} clause for parallel
-regions to do so in order to prevent the unnecessary overhead. Instead the loop
-statement is duplicated and guarded by the appropriate check, where only one
-loop holds the parallel annotations.
-% usuellement appelé : manual if
+regions to do so in order to prevent the unnecessary overhead. Instead a manual
+if is used: the loop statement is duplicated and guarded by the appropriate
+check, where only one loop holds the parallel annotations.
 
 Note that this parallelization scheme is compatible with the manual
 parallelization of Python programs proposed in~\cite{pyhpc2013}.

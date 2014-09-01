@@ -57,11 +57,12 @@
     R, Python or more recently Julia for experimentation and prototyping.
 
     As more scientists use these scripting languages, there is an on-going
-    research effort to compile them into efficient native code. However the
-    computation kernels often differ from the classical ones as these languages
-    favor a high-level coding style, where loops are often replaced by calls
-    to the relevant toolbox/module/library/package. As a consequence, traditional
-    loop optimization techniques like loop fusion, tiling and related
+    research effort to compile them into efficient native code. However as 
+    these languages favor a high-level coding style, the computation kernels are
+    different from what we use to see in traditional C or Fortran programs:
+    explicit raw loops are replaced by high-level constructs and calls to the 
+    relevant toolbox/module/library/package. As a consequence, traditional
+    loop optimization techniques like fusion, tiling and related
     vectorization or parallelization techniques are not directly applicable.
 
     This papers focuses on the case of the Python language and especially the
@@ -81,20 +82,19 @@
 \keywords
 static compilation, parallelization, Python, C++, SIMD, runtime
 
-
 %%
 %%
 \section{Introduction}
 % On aura pas le temps pour le papier je pense mais faire une comparaison avec
 % du C pure pour voir ce que les compilo de C arrive a faire.
 
-The Python language~\cite{rossum97} now provides a full toolkit to carry out
-scientific experiments~\cite{scipy}, from core scientific routines with the
-Numpy package\cite{oliphant2007,numpyarray2011}, to scientific packages with
-the Scipy package, plotting facilities with the Matplotlib package, enhanced
-terminal and notebooks with IPython. As a consequence, there has been a move
-from historical languages like Fortran to Python, as showcased by the success
-of the Scipy conference.
+The Python language~\cite{rossum97} has a rich ecosystem that now provides a 
+full toolkit to carry out scientific experiments, from core scientific routines 
+with the Numpy package\cite{oliphant2007,numpyarray2011}, to scientific 
+packages with the Scipy package~\cite{scipy}, plotting facilities with the 
+Matplotlib package, enhanced terminal and notebooks with IPython. As a 
+consequence, there has been a move from historical languages like Fortran to 
+Python, as showcased by the success of the Scipy conference.
 
 As Python based scientific tools gets widely used, the question of High
 performance Computing naturally arises, and it is the focus of many recent
@@ -140,7 +140,7 @@ programming topics, including Python.
 A query using the terms \emph{numpy} and \emph{slow} yields many results, many
 of which use the pattern ``Q: my code is slow'' followed by an upvoted answer
 ``A: rewrite it that way'', where the original code performs explicit looping
-over an array, and the rewritten code uses the relevant combination of numpy
+over an array, and the rewritten code uses the relevant combination of Numpy
 function.
 
 For instance, question \href{http://stackoverflow.com/questions/7741878}{7741878}
@@ -148,9 +148,9 @@ proposes to use an explicit loop to iteratively compute the $L^2$ norm of each
 row of a matrix, as illustrated in Listing~\ref{lst:l2norm-loopy}, and one of
 the proposed answer is to use the more compact version presented in
 Listing~\ref{lst:l2norm}. This answer no longer uses any explicit loops and
-roughly achieves a $times 4$ speedup over the loop version.
+roughly achieves a $\times 4$ speedup over the loop version.
 
-\begin{lstlisting}[language=python,caption={Per row version of $L^2$ norm with loop in numpy.}, label={lst:l2norm-loopy}]
+\begin{lstlisting}[language=python,caption={Per row version of $L^2$ norm with loop in Numpy.}, label={lst:l2norm-loopy}]
 def slow(x):
     r = np.empty(x.shape[0])
     for i in xrange(x.shape[0]):
@@ -158,19 +158,21 @@ def slow(x):
     return r
 \end{lstlisting}
 
-\begin{lstlisting}[language=python,caption={Per row version of $L^2$ norm without loop in numpy.}, label={lst:l2norm}]
+\begin{lstlisting}[language=python,caption={Per row version of $L^2$ norm without loop in Numpy.}, label={lst:l2norm}]
 import numpy as np
 def l2norm(x):
     return np.sum(np.abs(x)**2, axis=1)
 \end{lstlisting}
 
-Our guess is that beginner Numpy users are more likely to make use of raw loops
-similar to Listing~\ref{lst:l2norm-loopy}, but as their knowledge of the numpy
-API and of the good programming practice grows, they get to write code similar
-to Listing~\ref{lst:l2norm}. As a direct consequence, a compiler should
-focus on optimizing high-level constructs rather than raw loops. Both to encourage good
-practice with respect to Numpy code, and because this is the kind of code Numpy
-users ultimately write.
+Newcommers to Python with a prior C or Fortran experience are likely to make 
+use of raw loops similar to Listing~\ref{lst:l2norm-loopy}, but as their 
+knowledge of the Numpy API and of the good programming practice grows, they get to write code similar
+to Listing~\ref{lst:l2norm}. As a direct consequence, 
+\todo{Serge: don't you think we should also says that high-level constructs 
+enable better optimizations for the compiler?}
+a compiler should focus on optimizing high-level constructs rather than raw 
+loops. Both to encourage good practice with respect to Numpy code, and because 
+this is the kind of code Numpy users ultimately write.
 
 The benchmark is publicly available on
 \url{https://github.com/serge-sans-paille/numpy-benchmarks}.
@@ -187,7 +189,7 @@ use of Numpy's \texttt{sum} function, Python's square notation and Numpy's
 array slicing. It is a good example of high-level Python kernel, although
 using the function \texttt{scipy.optimize.rosen} would naturally make sense.
 
-\begin{lstlisting}[language=python, caption={High-level implementation of the rosenbrock function in Numpy}, label={lst:rosen}]
+\begin{lstlisting}[language=python, caption={High-level implementation of the Rosenbrock function in Numpy}, label={lst:rosen}]
 def rosen(x):
     t0 = 100 * (x[1:] - x[:-1] ** 2) ** 2
     t1 = (1 - x[:-1]) ** 2
@@ -205,7 +207,7 @@ In Numpy, all point-to-point array operations allocate a new array that holds
 the computation result. This behavior is consistent with many Python standard
 module, but it is a very inefficient design choice, as it keeps on polluting
 the cache with potentially large fresh storage and add an extra
-allocation/disallocation costly operation. In the rosen expression from
+allocation/disallocation costly operation. In the \textit{rosen} function from
 Listing~\ref{lst:rosen}, 7 temporary arrays are allocated (slicing does not
 create a temporary array but a view) to hold intermediate steps. Had the
 computation been lazy, no temporary would have been needed.
@@ -219,26 +221,27 @@ and the operator chaining is done at the interpreter level. This a typical
 problem in library design: if only a small set of functions is provided, it
 prevents the optimization of merging multiple operators into a single specialized
 operator, and provided many operator combinations as part of the library yields
-better performance to the price of API bloat. With a smamm set of functions, a loop is used for
+better performance to the price of API bloat. The Listing~\ref{lst:rosen} 
+illustrates the use of a small set of functions: a loop is used for
 each temporary computation, plus an extra loop for the \texttt{numpy.sum}
 reduction, where a single loop would have been needed with operator fusion.
 
 \subsection{Loop Vectorization and Parallelization}
 
-Even if compiled with vectorization flags on, there would be very little
-benefit to generate SIMD instructions for the respective array operations used
-by each operator, as the memory load store would have dominated, especially as
-Numpy typically operates on double precision floats. In a similar manner,
-parallelization of each operator would yield a terrible speedup because a
-synchronization fence would need to be issued between each temporary
-computation and the loop computation intensity would be very low compared to
+Without operator fusion, there would be very little benefit to generate SIMD 
+instructions for the respective array operations used by each operator, as the
+memory load store would have dominated. This is even more important as
+Numpy typically operates on double precision floats. Parallelization also 
+suffers from the lack of operator fusion: a synchronization fence is needed
+between each temporary computation. 
+Hence the loop computation intensity would be very low compared to
 the memory pressure implied by two array reads and one array write for a single
 binary operator.
 
-At the opposite, if all computation were merged into a single loop using
-Temporaries Elimination and Operator fusion as described above, parallelization
-would be applicable as barrier between binary operation are removed and only
-one load and one store will be use for multiple operations.
+On the opposite, if all computations were merged into a single loop using
+temporaries elimination and operator fusion, parallelization would be more
+effective as barrier between binary operations are no longer needed and loads
+and stores will be used to perform multiple operations.
 
 %%
 %%
@@ -335,7 +338,7 @@ def pairwise_cython(double[:, ::1] X):
 \subsection{Numba}
 
 
-The numba~\footnote{\emph{cf}.\ \texttt{https://github.com/numba/numba}}~\cite{numba}
+The numba 
 compiler uses additional type information to generate sequential LLVM bytecode.
 Numba uses Just-In-Time(JIT) compilation and do not suffer from
 backward-incompatibility issues. When meeting an unsupported construct, numba
@@ -351,15 +354,15 @@ Parakeet~\cite{parakeet2012} follows an approach similar to Numba, that is
 Python to LLVM bytecode translation, but limits its scope to the Numpy package,
 only supporting a small subset of the Python language. Additionally, it supports
 implicit parallelism using an implicit mapping between Numpy functions and a set
-of parallel primitives including \texttt{map}s \texttt{scan}s and
-\texttt{reduce}s. As it applies optimizations like operator fusion, it
+of parallel primitives including \texttt{map}, \texttt{scan}, and
+\texttt{reduce}. As it applies optimizations such as operator fusion, it
 encourages programmer to express their code using the higher-level construct
 available with Numpy.
 
 \subsection{Copperhead}
 
 Copperhead~\cite{copperhead2011} is a functional, data parallel language
-embedded in Python. It uses $n$-uplets, NumPy arrays and lists as its core data
+embedded in Python. It uses $n$-uplets, Numpy arrays and lists as its core data
 structure and prohibits usage of many control-flow operators such as loops,
 enforcing the use of the \texttt{map}, \texttt{filter} or \texttt{reduce}
 intrinsics to exhibit parallelism. But it can be efficiently compiled to either
@@ -414,7 +417,7 @@ described in \S~\ref{sec:temporaries-elimination} and
 \S~\ref{sec:operator-fusion}.
 
 Thanks to variadic templates introduced in C++11, it is possible to write a
-generic C++ meta-class that implements the same API as numpy array and provides
+generic C++ meta-class that implements the same API as Numpy array and provides
 all unary and binary operators, as well as the various form of indexing and
 slicing. Listing~\ref{lst:rosen-cxx} illustrates the translation of the Python
 code from Listing~\ref{lst:rosen} into C++. Although this version is more
@@ -432,7 +435,7 @@ hand side expression, thus creating two intermediates array. This usual
 limitation is motivated by the inability to prove that \texttt{x} is not
 modified before \texttt{t0} is read.
 
-\begin{lstlisting}[language=c++, caption={C++11 translated version of Python version for the rosenbrock kernel.}, label={lst:rosen-cxx}, breaklines=true]
+\begin{lstlisting}[language=c++, caption={C++11 translated version of Python version for the Rosenbrock kernel.}, label={lst:rosen-cxx}, breaklines=true]
 typedef typename x::dtype T;
 constexpr size_t N = x::ndim;
 ndarray<T, N> t0 = 100L * numpy::square{}(x[slice(1L, None)] - numpy::square{}(x[slice(None,-1L)]));
@@ -459,7 +462,7 @@ intra-procedural alias analysis thanks to the absence of pointer arithmetic:
 the only language construction that can create aliasing is the assignment, thus
 a simple control-flow base alias analysis yields accurate results.
 
-The computation of read-write effects involve the annotation of numpy functions
+The computation of read-write effects involve the annotation of Numpy functions
 so that the Python compiler knows that most of them do not modify their
 arguments, and the computation of argument effects for user functions. This can
 be done by considering each function individually and looking for the two kind
@@ -663,7 +666,8 @@ costly overhead for scheduling computation and datasharing. An easy way to solve
 the issue with small then large dimension is to use the \texttt{collapse}
 clause but it is not compatible with the parametric loop version.
 
-A first approach would be to use recursive tasks and manual loop chunking. \todo{pierrick? c'est bête comme idée ?}
+A first approach would be to use recursive tasks and manual loop chunking.
+\todo{pierrick ? c'est bête comme idée ?}
 % Les taches sont en général plus lente que les boucles for (malheureusement)
 % et il y a des fois ou on ne pourra jamais être plus rapide si on passe par
 % des taches.
@@ -765,7 +769,7 @@ A first exploration of vectorization of Python constructs is done in~\cite{wpmvp
 
 \subsection{Experimental Setup}
 
-\subsection{Performance of the rosenbrock Function}
+\subsection{Performance of the Rosenbrock Function}
 
 \subsection{Results and Analysis}
 

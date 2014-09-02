@@ -57,10 +57,10 @@
     R, Python or more recently Julia for experimentation and prototyping.
 
     As more scientists use these scripting languages, there is an on-going
-    research effort to compile them into efficient native code. However as 
+    research effort to compile them into efficient native code. However as
     these languages favor a high-level coding style, the computation kernels are
     different from what we use to see in traditional C or Fortran programs:
-    explicit raw loops are replaced by high-level constructs and calls to the 
+    explicit raw loops are replaced by high-level constructs and calls to the
     relevant toolbox/module/library/package. As a consequence, traditional
     loop optimization techniques like fusion, tiling and related
     vectorization or parallelization techniques are not directly applicable.
@@ -88,12 +88,12 @@ static compilation, parallelization, Python, C++, SIMD, runtime
 % On aura pas le temps pour le papier je pense mais faire une comparaison avec
 % du C pure pour voir ce que les compilo de C arrive a faire.
 
-The Python language~\cite{rossum97} has a rich ecosystem that now provides a 
-full toolkit to carry out scientific experiments, from core scientific routines 
-with the Numpy package\cite{oliphant2007,numpyarray2011}, to scientific 
-packages with the Scipy package~\cite{scipy}, plotting facilities with the 
-Matplotlib package, enhanced terminal and notebooks with IPython. As a 
-consequence, there has been a move from historical languages like Fortran to 
+The Python language~\cite{rossum97} has a rich ecosystem that now provides a
+full toolkit to carry out scientific experiments, from core scientific routines
+with the Numpy package\cite{oliphant2007,numpyarray2011}, to scientific
+packages with the Scipy package~\cite{scipy}, plotting facilities with the
+Matplotlib package, enhanced terminal and notebooks with IPython. As a
+consequence, there has been a move from historical languages like Fortran to
 Python, as showcased by the success of the Scipy conference.
 
 As Python based scientific tools gets widely used, the question of High
@@ -167,7 +167,9 @@ def l2norm(x):
 Newcomers to Python with a prior C or Fortran experience are likely to make
 use of raw loops similar to Listing~\ref{lst:l2norm-loopy}, but as their
 command of the Numpy API and of good programming practices grows, they get to write code similar
-to Listing~\ref{lst:l2norm}. The fact that in Numpy, high-level constructs run faster is also a strong motivation. As a direct consequence, a compiler should focus on optimizing high-level constructs rather than raw
+to Listing~\ref{lst:l2norm}. The fact that in Numpy, high-level constructs run faster is also a
+strong motivation. As a direct consequence, a compiler should focus on optimizing
+high-level constructs rather than raw
 loops. Both to encourage good practice with respect to Numpy code, and because
 this is the kind of code Numpy users ultimately write.
 
@@ -215,11 +217,11 @@ computation been lazy, no temporary would have been needed.
 
 As Numpy is a native library mostly written in C, each operator computation is
 performed by a function implemented as a loop performing a single operation,
-and the operator chaining is done at the interpreter level. This a typical
+and the operator chaining is done at the interpreter level. This is a typical
 problem in library design: if only a small set of functions is provided, it
 prevents the optimization of merging multiple operators into a single specialized
 operator, and provided many operator combinations as part of the library yields
-better performance to the price of API bloat. The Listing~\ref{lst:rosen} 
+better performance to the price of API bloat. The Listing~\ref{lst:rosen}
 illustrates the use of a small set of functions: a loop is used for
 each temporary computation, plus an extra loop for the \texttt{numpy.sum}
 reduction, where a single loop would have been needed with operator fusion.
@@ -229,7 +231,8 @@ reduction, where a single loop would have been needed with operator fusion.
 Without operator fusion, there would be very little benefit to generate SIMD
 instructions for the respective array operations used by each operator, as the
 memory load and store would have dominated the execution time. This is even more important as
-Numpy typically operates on double precision floats, which means only two (SSE) to four (AVX) scalar per vector registers.
+Numpy typically operates on double precision floats, which means only two (SSE)
+to four (AVX) scalar per vector registers.
 
 Parallelization also suffers from the lack of operator fusion: a
 synchronization fence is needed between each temporary computation.  Hence the
@@ -255,12 +258,17 @@ To address these limitations, several compiler-based approaches have been propos
 
 \subsection{Numpy}
 
-The reference implementation of Numpy is a native Module, written mostly in C. It uses the BLAS API whenever possible and provides a relatively efficient array abstraction in the form of the \texttt{ndarray} data structure. This data structures makes it possible to use various styles of slicing and broadcasting, as illustrated in Listing~\ref{lst:pairwise}.
+The reference implementation of Numpy is a native Module, written mostly in C.
+It uses the BLAS API whenever possible and provides a relatively efficient array
+abstraction in the form of the \texttt{ndarray} data structure. This data
+structures makes it possible to use various styles of slicing and broadcasting,
+as illustrated in Listing~\ref{lst:pairwise}.
 
 It also enforces a high-level programming style but it's very inefficient when
 explicit subscripts are used.  For instance, raw loops are used in
 Listing~\ref{lst:pairwise-raw}. It avoids the creation of temporary arrays but
-runs almost 100 times slower due to the Python interpreter overhead and the C to Python conversion involved in every subscript.
+runs almost 100 times slower due to the Python interpreter overhead and the C
+to Python conversion involved in every subscript.
 
 \begin{lstlisting}[language=python, caption={\textit{pairwise} function that
   exhibits array broadcasting.}, label={lst:pairwise}, breaklines=true]]
@@ -290,8 +298,8 @@ def pairwise_python(X):
 Cython~\cite{cython2010} is an hybrid Python/C dialect. It extends the Python
 syntax with typing information, calls to native functions from third party C
 libraries, and a limited set of parallelism constructs, such as the possibility
-to define parallel loops, but no task parallelism. When possible, it unboxes %
-ref?  Python variables to improve performance. Without type annotations, the
+to define parallel loops, but no task parallelism. When possible, it unboxes % ref?
+Python variables to improve performance. Without type annotations, the
 performance improvement is not significant, but given enough type annotation,
 Cython can generates code that runs as fast as its C equivalent.
 
@@ -300,7 +308,7 @@ instead expresses his algorithm using raw loops.  The \textit{pairwise}
 function rewritten for Cython is shown listing~\ref{lst:pairwise-cython},
 showing usage of compiler annotations in the form of function decorators.
 
-\begin{lstlisting}[language=python, caption={\textit{pairwise} function 
+\begin{lstlisting}[language=python, caption={\textit{pairwise} function
   rewritten for Cython.}, label={lst:pairwise-cython}]
 %%cython
 import numpy as np
@@ -387,7 +395,6 @@ Fortran/C/C++ have been at the hearth of high performance computing for many yea
 Compiler infrastructures for these languages also have a long history and
 implement many optimizations on the control flow graph, basic blocks or
 loops~\cite{Aho2006} that limit usage of hand-written assembly to a few hot spots.
-% You are speaking about user written assembly code? Or generated code?
 Language extensions like OpenMP~\cite{openmp4} provide a convenient parallel
 programming model and libraries like Boost.SIMD~\cite{esterie2012boost} provides
 good abstractions for explicit vectorization. Many highly tuned kernels are
@@ -450,7 +457,8 @@ supported by the computation of a dependency graph that itself relies on
 read-write effects and alias analysis.
 
 Alias analysis is impossible for Python programs in general, because of late
-binding and possible monkey patching---a way to modify the code of dynamic languages at run-time. In the context of a static compiler for
+binding and possible monkey patching---a way to modify the code of dynamic
+languages at run-time. In the context of a static compiler for
 numerical programs, it can be assumed that binding is done statically and no
 monkey patching is done. In that context, it is relatively easy to design an
 intra-procedural alias analysis thanks to the absence of pointer arithmetic:
@@ -554,7 +562,7 @@ value in both cases. This example shows that constant propagation should be
 done at a higher level than C++, and so be part of the Python optimizer.
 
 The argument effect analysis described in \S~\ref{sec:fs} can be extended to
-global variables to determine if a function as side effects on its argument or
+global variables to determine if a function has side effects on its argument or
 on global variables (including I/O). This information makes it possible to flag
 some function as pure, and to statically evaluate pure function calls with
 constant arguments. This evaluation is especially easy in Python thanks to the
@@ -662,15 +670,15 @@ costly overhead for scheduling computation and data sharing. An easy way to solv
 the issue with small then large dimension is to use the \texttt{collapse}
 clause but it is not compatible with the parametric loop version.
 
-A first approach would be to use recursive tasks and manual loop chunking.
-\todo{pierrick ? c'est bête comme idée ?}
+%A first approach would be to use recursive tasks and manual loop chunking.
+%\todo{pierrick ? c'est bête comme idée ?}
 % Les taches sont en général plus lente que les boucles for (malheureusement)
 % et il y a des fois ou on ne pourra jamais être plus rapide si on passe par
 % des taches.
 % Souvent, c'est a cause du scheduling static qui permet d'optimiser le cache
 % et aussi parce que les compilos, quand ils voient un omp for static, ils
 % font directement du déroulage de boucle. (Jusqu'au full unrolling des fois
-% avec autant de tache que de thread). 
+% avec autant de tache que de thread).
 %
 % Dans notre cas, on ne connait pas forcement la taille de l'espace d'iteration
 % a la compilation. On ne pourra donc pas faire trop de unrolling mais bon, on
@@ -731,38 +739,17 @@ it is legal. The choice is statically made at compile time.
 %%
 \section{Experiments} \label{sec:xp}
 
-% The first one holds 8 AMD Magny Cours processors for a
-% total of 48 cores. Each core has access to 64\,KB of L1 cache,
-% 512\,KB of L2 cache. Both L1 and L2 caches are private, while L3 cache
-% is shared between the 6 cores of a processor. This configuration
-% provides a total of 256\,GB (32\,GB per NUMA node) of main memory. It supports
-% up to SSE4. We
-% will refer to this configuration as \textbf{AMD48}.
-% On AMD48, backend compilers are gcc (Debian 4.7.2-5) and the clang-omp version
-% from intel~\footnote{\url{http://clang-omp.github.io/}} to be able to benefits
-% from OpenMP improvement. This clang version is based on clang 3.4 release
-% (LLVM:233b1e3f034, clang-omp:6f358bcd87).
-
-% The second one holds 8 Intel(R) Xeon(R) CPU E5-2650 0 @ 2.00GHz for a ttal of
-% 8 cores (multithreading is not used). Each node can access to  64\,KB of L1 cache,
-% 256\,KB of L2 cache. Both L1 and L2 caches are private, while L3 cache
-% is shared between the 8 processors. This configuration
-% provides a total of 63\,GB of main memory. It supports up to AVX. We will
-% refer to this configuration as \textbf{Intel8}.
-% On Intel8, backend compilers are gcc 4.9 (20140528) and the clang-omp version
-% from intel.
-
 \subsection{The Pythran Compiler}
 
-The ideas described in this paper are implemnted in the Pythran
+The ideas described in this paper are implemented in the Pythran
 compiler~\cite{pythran2013}, a translator from a subset of Python to
-C++11~\cite{isocxx11}. The architecture of the compiler is briefely described
+C++11~\cite{isocxx11}. The architecture of the compiler is briefly described
 in Figure~\ref{fig:pythran-compiler}. The input is a Python module written in
 the Pythran subset. Pythran translates it in its internal representation, a
 simplified Python AST. It performs various optimization then outputs either
 Python code, in a source-to-source fashion, or C++ template code that makes
 call to the pythonic library that typically implements the \texttt{ndarray}
-interface. User annotations can be used to instanciate this code for the proper
+interface. User annotations can be used to instantiate this code for the proper
 types and generate a native library. This library relies on Boost.Python
 library to match Python's C API.
 
@@ -803,9 +790,122 @@ license~\footnote{\url{http://pythonhosted.org/pythran/}}.
 
 \subsection{Experimental Setup}
 
+As introduce in \S~\ref{sec:stackoverflow}, we use the numpy-benchmark test suite
+to evaluate these optimisation. It is use with Pythran (commit: 488b7ba)
+with optimization enabled/disabled. Finally, we compare result with Pypy (???),
+Parakeet (commit: 4e55810), Numba (commit: b8a79c5) and Python 2.7.
+
+Benchmarking is done one two architecture with different backend compilers.
+
+The first one holds 8 AMD Magny Cours processors for a
+total of 48 cores. Each core has access to 64\,KB of L1 cache,
+512\,KB of L2 cache. Both L1 and L2 caches are private, while L3 cache
+is shared between the 6 cores of a processor. This configuration
+provides a total of 256\,GB (32\,GB per NUMA node) of main memory. It supports
+up to SSE4. We will refer to this configuration as \textbf{AMD48}.
+On AMD48, backend compilers are gcc (Debian 4.7.2-5) and the clang-omp version
+from intel~\footnote{\url{http://clang-omp.github.io/}} to be able to benefits
+from OpenMP improvement. This clang version is based on clang 3.4 release
+(LLVM:233b1e3f034, clang-omp:6f358bcd87).
+
+The second one holds 8 Intel(R) Xeon(R) CPU E5-2650 0 @ 2.00GHz for a total of
+8 cores (multithreading is not used). Each node can access to  64\,KB of L1 cache,
+256\,KB of L2 cache. Both L1 and L2 caches are private, while L3 cache
+is shared between the 8 processors. This configuration
+provides a total of 63\,GB of main memory. It supports up to AVX. We will
+refer to this configuration as \textbf{Intel8}.
+On Intel8, backend compilers is gcc 4.9 (20140528).
+
+
 \subsection{Performance of the Rosenbrock Function}
 
-\subsection{Results and Analysis}
+% For performance comparison between different Pythran version
+To compare optimisation result, we run the numpy-benchmarks test suite multiple
+time on the rosen.py benchmark. Results on Figure~\ref{rosenamd48.png} and \ref{rosenintel8.png} show difference
+one speed which could be explain by AVX support on the intel8 architecture while amd48
+support up to SSE4 only.
+% Haaaaa, I don't understand why OMP is not use...
+% tODO : I have to redo mesures without forward substitution to show difference.
+
+\begin{figure}[t]
+\centering
+\includegraphics[scale=0.4]{rosen_amd48.png}
+\caption{Rosen on AMD48}
+\label{fig:rosenamd48}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[scale=0.4]{rosen_intel8.png}
+\caption{Rosen on Intel8}
+\label{fig:rosenintel8}
+\end{figure}
+
+
+\subsection{Comparison with others Python compiler}
+
+Figure~\ref{fig:arc_distance} is a typical example where we can make intensive
+use of technique described in this paper. As we can see, both SIMD instruction
+and parallelization have an impact on execution time. We can notice that SIMD
+contribution is not as good as it could be on AMD48 as it doesn't have AVX support.
+Also, we can notice that gcc as a backend compiler have more optimization opportunity.
+
+\begin{figure}[t]
+\centering
+\includegraphics[scale=0.4]{arc_distance_amd48.png}
+\caption{Arc distance on AMD48}
+\label{fig:arc_distance}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[scale=0.4]{arc_distance_intel8.png}
+\caption{Arc distance on Intel8}
+\label{fig:arc_distance_intel8}
+\end{figure}
+
+At the opposite, Figure~\ref{fig:diffusion} show that clang is better when generated
+code make a more intensive use of templates (heavily use with gsliced\_ndarray).
+gsliced\_ndarray is a non aligned view on an array in this case so SIMD optimization
+can't be applied on the second dimension even if loop fusion and temporary
+elimination is performed.  We can notice that Parakeet perform really well on
+extensive gslice use.
+%TODO IL faut refaire les mesures en changeant la limite OpenMP. Parce qu'on a
+%pas du tout de parallelisme la. On note par contre l"overhead libgomp...
+
+\begin{figure}[t]
+\centering
+\includegraphics[scale=0.4]{diffusion_amd48.png}
+\caption{Diffusion on AMD48}
+\label{fig:diffusion}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[scale=0.4]{diffusion_intel8.png}
+\caption{Diffusion on Intel8}
+\label{fig:diffusion_intel8}
+\end{figure}
+
+Finally, Figure~\ref{fig:l2norme} show the l2norme algorithm introduce in
+\S~\ref{sec:stackoverflow}. Comparison with other compiler show that Pythran approach
+is correct for these kind of functions.
+%TODO IL faut refaire les mesures en changeant la limite OpenMP. Parce qu'on a
+%pas du tout de parallelisme la. On note par contre l"overhead libgomp...
+
+\begin{figure}[t]
+\centering
+\includegraphics[scale=0.4]{l2norm_amd48.png}
+\caption{L2norm on AMD48}
+\label{fig:l2norme}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[scale=0.4]{l2norm_intel8.png}
+\caption{L2norm on Intel8}
+\label{fig:l2norm_intel8}
+\end{figure}
 
 %%
 %%

@@ -1,0 +1,10 @@
+l2norm Python 5677 5687 17
+l2norm numba 6357 6372 32
+l2norm parakeet 9054 9172 62
+l2norm pypy 6409 6436 24
+l2norm pythran 1509 1509 0
+l2norm pythran_omp_4 1509 1509 0
+l2norm pythran_omp_4_simd 553 553 0
+l2norm pythran_omp_8 1503 1503 0
+l2norm pythran_omp_8_simd 553 553 0
+l2norm pythran_simd 550 551 0

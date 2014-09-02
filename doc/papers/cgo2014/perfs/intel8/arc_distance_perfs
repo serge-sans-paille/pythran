@@ -1,0 +1,9 @@
+arc_distance pypy 2793 2798 4
+arc_distance Python 2847 2862 7
+arc_distance numba 2791 2802 9
+arc_distance pythran 1372 1378 3
+arc_distance pythran_omp_4 383 384 0
+arc_distance pythran_omp_4_simd 200 201 0
+arc_distance pythran_omp_8 195 195 0
+arc_distance pythran_omp_8_simd 102 102 0
+arc_distance pythran_simd 740 742 3

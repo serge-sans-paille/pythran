@@ -1,64 +1,64 @@
-wdist pythran 2975 2975 0
+wdist pythran_omp_4_gcc 2975 2975 0
 grouping parakeet unsupported
-evolve pythran 17349 17354 6
+evolve pythran_omp_4_gcc 17349 17354 6
 multiple_sum parakeet 11966 12033 89
-cronbach pythran 3451 3466 7
-hyantes pythran 5578 5580 2
+cronbach pythran_omp_4_gcc 3451 3466 7
+hyantes pythran_omp_4_gcc 5578 5580 2
 vibr_energy parakeet 8649 8664 18
 local_maxima parakeet unsupported
-reverse_cumsum pythran 5874 5878 3
-conv pythran 3971 3978 6
-vibr_energy pythran 854 854 0
+reverse_cumsum pythran_omp_4_gcc 5874 5878 3
+conv pythran_omp_4_gcc 3971 3978 6
+vibr_energy pythran_omp_4_gcc 854 854 0
 harris parakeet 6215 6252 38
 wave parakeet unsupported
 specialconvolve parakeet 11355 11724 188
 repeating parakeet unsupported
-julia pythran 6346 6347 0
+julia pythran_omp_4_gcc 6346 6347 0
 smoothing parakeet 14280 14970 338
-specialconvolve pythran 8347 8358 8
+specialconvolve pythran_omp_4_gcc 8347 8358 8
 allpairs_distances_loops parakeet 3854 3857 3
-fft pythran 5417 5424 5
-mandel pythran 12830 12832 1
-diffusion pythran 21168 21503 638
-wave pythran 4291 4327 17
+fft pythran_omp_4_gcc 5417 5424 5
+mandel pythran_omp_4_gcc 12830 12832 1
+diffusion pythran_omp_4_gcc 21168 21503 638
+wave pythran_omp_4_gcc 4291 4327 17
 lstsqr parakeet unsupported
 fft parakeet unsupported
-l2norm pythran 2208 2214 8
-local_maxima pythran 9179 9179 0
-periodic_dist pythran 2825 2827 2
+l2norm pythran_omp_4_gcc 2208 2214 8
+local_maxima pythran_omp_4_gcc 9179 9179 0
+periodic_dist pythran_omp_4_gcc 2825 2827 2
 evolve parakeet unsupported
 julia parakeet 91 98 13
 mandel parakeet unsupported
 slowparts parakeet 2318 2336 16
 rosen parakeet 4689 4692 2
-allpairs_distances pythran 4098 4098 0
-smoothing pythran 11088 11324 238
+allpairs_distances pythran_omp_4_gcc 4098 4098 0
+smoothing pythran_omp_4_gcc 11088 11324 238
 wdist parakeet 2916 2917 3
-harris pythran 8106 9032 379
-arc_distance pythran 562 565 2
+harris pythran_omp_4_gcc 8106 9032 379
+arc_distance pythran_omp_4_gcc 562 565 2
 cronbach parakeet unsupported
-pairwise pythran 8125 8494 212
-repeating pythran 1609 1622 6
-grouping pythran 2248 3181 333
+pairwise pythran_omp_4_gcc 8125 8494 212
+repeating pythran_omp_4_gcc 1609 1622 6
+grouping pythran_omp_4_gcc 2248 3181 333
 growcut parakeet 8415 8428 9
 l2norm parakeet 28639 28764 86
-rosen pythran 3624 3625 1
-slowparts pythran 2445 2462 29
+rosen pythran_omp_4_gcc 3624 3625 1
+slowparts pythran_omp_4_gcc 2445 2462 29
 fdtd parakeet unsupported
-hasting pythran 3 3 0
+hasting pythran_omp_4_gcc 3 3 0
 allpairs_distances parakeet 3855 4068 168
 create_grid parakeet unsupported
 arc_distance parakeet 8943 9024 52
-create_grid pythran 10084 11082 383
-lstsqr pythran 6912 6917 3
+create_grid pythran_omp_4_gcc 10084 11082 383
+lstsqr pythran_omp_4_gcc 6912 6917 3
 pairwise parakeet 8063 8064 1
-allpairs_distances_loops pythran 4012 4761 281
+allpairs_distances_loops pythran_omp_4_gcc 4012 4761 281
 hasting parakeet 111 111 0
-growcut pythran 14892 14894 1
+growcut pythran_omp_4_gcc 14892 14894 1
 diffusion parakeet 11500 11656 123
-fdtd pythran 3076 3078 3
+fdtd pythran_omp_4_gcc 3076 3078 3
 conv parakeet 3591 3597 6
 reverse_cumsum parakeet unsupported
 periodic_dist parakeet unsupported
-multiple_sum pythran 4058 4066 5
+multiple_sum pythran_omp_4_gcc 4058 4066 5
 hyantes parakeet 12866 12870 7

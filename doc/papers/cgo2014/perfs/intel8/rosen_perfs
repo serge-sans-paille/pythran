@@ -1,0 +1,6 @@
+rosen pythran 2559 2559 0
+rosen pythran_omp_4 2557 2558 1
+rosen pythran_omp_4_simd 993 994 0
+rosen pythran_omp_8 2548 2550 3
+rosen pythran_omp_8_simd 999 999 0
+rosen pythran_simd 1005 1005 0

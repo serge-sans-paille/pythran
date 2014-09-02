@@ -394,16 +394,19 @@ of the Numpy API in RPython, the language used by PyPy.
 Fortran/C/C++ have been at the hearth of high performance computing for many years.
 Compiler infrastructures for these languages also have a long history and
 implement many optimizations on the control flow graph, basic blocks or
-loops~\cite{Aho2006} that limit usage of hand-written assembly to a few hot spots.
-Language extensions like OpenMP~\cite{openmp4} provide a convenient parallel
-programming model and libraries like Boost.SIMD~\cite{esterie2012boost} provides
-good abstractions for explicit vectorization. Many highly tuned kernels are
-available in the form of third-party libraries like GotoBlas~\cite{gotoblas2008}.
+loops~\cite{Aho2006} that limit the need of hand-written assembly to a few hot 
+spots.
+Language extensions like OpenMP~\cite{openmp4} provide a basic support for 
+parallel programming, while libraries like Boost.SIMD~\cite{esterie2012boost} 
+offer good abstractions for explicit vectorization. Many highly tuned kernels 
+are available in the form of third-party libraries like 
+GotoBlas~\cite{gotoblas2008}.
 % pas de nt2?
 
 There is no need to reinvent the wheel when compiling numerical Python kernels.
-A more profitable approach is to map Python concept to existing ones, or
-translate them into existing them. As a consequence, this section focuses on
+A profitable approach is to map Python high-level to existing ones, or
+translate them into existing them.\todo{Mehdi: the previous sentence makes no sense to me}
+As a consequence, this section focuses on
 the translation of Python constructs to efficient C++ constructs. The choice of
 C++ instead of C is motivated by the opportunities offered by meta programming
 and the interesting similarities between C++11~\cite{isocxx11} features and
@@ -438,11 +441,19 @@ hand side expression, thus creating two intermediates array. This usual
 limitation is motivated by the inability to prove that \texttt{x} is not
 modified before \texttt{t0} is read.
 
-\begin{lstlisting}[language=c++, caption={C++11 translated version of Python version for the Rosenbrock kernel.}, label={lst:rosen-cxx}, breaklines=true]
+\begin{lstlisting}[language=c++, 
+  caption={C++11 translated version of Python version for the Rosenbrock 
+           kernel.}, 
+  label={lst:rosen-cxx}, 
+  breaklines=true,
+  basicstyle=\small]
 typedef typename x::dtype T;
 constexpr size_t N = x::ndim;
-ndarray<T, N> t0 = 100L * numpy::square{}(x[slice(1L, None)] - numpy::square{}(x[slice(None,-1L)]));
-ndarray<T, N> t1 = numpy::square{}(1L - x[slice(None,-1L)]);
+ndarray<T, N> t0 = 100L * 
+  numpy::square{}(x[slice(1L, None)] - 
+  numpy::square{}(x[slice(None,-1L)]));
+ndarray<T, N> t1 = 
+  numpy::square{}(1L - x[slice(None,-1L)]);
 return numpy::sum{}((t0 + t1));
 \end{lstlisting}
 
@@ -465,9 +476,10 @@ intra-procedural alias analysis thanks to the absence of pointer arithmetic:
 the only language construction that can create aliasing is the assignment, thus
 a simple control-flow base alias analysis yields accurate results.
 
-The computation of read-write effects involve the annotation of Numpy functions
+The computation of read-write effects involves the computation of argument 
+effects for user functions, and the annotation of Numpy functions
 so that the Python compiler knows that most of them do not modify their
-arguments, and the computation of argument effects for user functions. This can
+arguments. This can
 be done by considering each function individually and looking for the two kind
 of constructs that can modify a function argument: indexing and further
 function calls.
@@ -479,7 +491,7 @@ formal argument that are modified intra-procedurally. Then we add an edge
 between two nodes, labeled by an integer tuple $(i, j)$ if $i^\text{th}$ formal
 argument of the source is passed as $j^\text{th}$ effective argument of the
 sink. The goal is to prune all edges from $G$. To do so, given a node $n$ that
-writes $i$, any outcoming edge $(i, j)$ can be safely removed, as we know for
+writes $i$, any outgoing edge $(i, j)$ can be safely removed, as we know for
 sure that the $i^\text{th}$ parameter is written. Similarly, an incoming edge
 $(j, i)$ can be removed and $j$ is added to the source's list. Iteratively
 applying this process removes all edges that can propagate a write, the only
@@ -488,8 +500,8 @@ remaining edges propagate a read and can be ultimately removed.
 Let us illustrate the algorithm on a simple case. Python code source and the
 initial effect graphs are illustrated on Figure~\ref{fig:argument-effects}. The
 only node with write effects is \texttt{bar} that writes \texttt{n} through a
-subscript. Outcoming edges (1) and (2) can be removed because they are
-outcoming edges of \texttt{bar} starting by \texttt{n}. In coming edge (0) ends
+subscript. Outgoing edges (1) and (2) can be removed because they are
+outgoing edges of \texttt{bar} starting by \texttt{n}. Incoming edge (0) ends
 by \texttt{n} that is written by \texttt{bar} so it is possible to prune it
 while adding the start \texttt{n} to node \texttt{root}. No edge left, and we
 know that both \texttt{root} update \texttt{r} and \texttt{bar} update \texttt{n},
@@ -562,7 +574,7 @@ value in both cases. This example shows that constant propagation should be
 done at a higher level than C++, and so be part of the Python optimizer.
 
 The argument effect analysis described in \S~\ref{sec:fs} can be extended to
-global variables to determine if a function has side effects on its argument or
+global variables to determine if a function has side effects on its arguments or
 on global variables (including I/O). This information makes it possible to flag
 some function as pure, and to statically evaluate pure function calls with
 constant arguments. This evaluation is especially easy in Python thanks to the
@@ -791,7 +803,7 @@ license~\footnote{\url{http://pythonhosted.org/pythran/}}.
 \subsection{Experimental Setup}
 
 As introduce in \S~\ref{sec:stackoverflow}, we use the numpy-benchmark test suite
-to evaluate these optimisation. It is use with Pythran (commit: 488b7ba)
+to evaluate these optimizations. It is use with Pythran (commit: 488b7ba)
 with optimization enabled/disabled. Finally, we compare result with Pypy (???),
 Parakeet (commit: 4e55810), Numba (commit: b8a79c5) and Python 2.7.
 
@@ -820,10 +832,11 @@ On Intel8, backend compilers is gcc 4.9 (20140528).
 \subsection{Performance of the Rosenbrock Function}
 
 % For performance comparison between different Pythran version
-To compare optimisation result, we run the numpy-benchmarks test suite multiple
-time on the rosen.py benchmark. Results on Figure~\ref{rosenamd48.png} and \ref{rosenintel8.png} show difference
-one speed which could be explain by AVX support on the intel8 architecture while amd48
-support up to SSE4 only.
+To compare the different optimization schemes, we run the numpy-benchmarks test 
+suite multiple time on the \textit{rosen} benchmark.
+Figures~\ref{fig:rosenamd48} and \ref{fig:rosenintel8} illustrate the results.
+The difference between the two architectures can be explain by AVX support on 
+the Intel8 architecture while AMD48 support up to SSE4 only.
 % Haaaaa, I don't understand why OMP is not use...
 % tODO : I have to redo mesures without forward substitution to show difference.
 

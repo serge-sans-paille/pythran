@@ -820,29 +820,32 @@ license~\footnote{\url{http://pythonhosted.org/pythran/}}.
 
 \subsection{Experimental Setup}
 
-As introduce in \S~\ref{sec:stackoverflow}, we use the numpy-benchmark test suite
-to evaluate these optimizations. It is use with Pythran (commit: 488b7ba)
-with optimization enabled/disabled. Finally, we compare result with Pypy (???),
+As introduced in \S~\ref{sec:stackoverflow}, we use the numpy-benchmark test suite
+to evaluate the optimizations described in\S~\ref{sec:pythran}. It uses Pythran (commit: 488b7ba)
+with optimization enabled/disabled. The results are compared with Pypy \todo{add}(???),
 Parakeet (commit: 4e55810), Numba (commit: b8a79c5) and Python 2.7.
 
-Benchmarking is done one two architecture with different backend compilers.
+Benchmarking is done on two architectures with different backend compilers. The
+\texttt{timeit} module is used to perform the measurments, taking the average
+execution time over several runs.
 
 The first one holds 8 AMD Magny Cours processors for a
 total of 48 cores. Each core has access to 64\,KB of L1 cache,
 512\,KB of L2 cache. Both L1 and L2 caches are private, while L3 cache
 is shared between the 6 cores of a processor. This configuration
 provides a total of 256\,GB (32\,GB per NUMA node) of main memory. It supports
-up to SSE4. We will refer to this configuration as \textbf{AMD48}.
+up to SSE4. We refer to this configuration as \textbf{AMD48}.
 On AMD48, backend compilers are gcc (Debian 4.7.2-5) and the clang-omp version
 from intel~\footnote{\url{http://clang-omp.github.io/}} to be able to benefits
 from OpenMP improvement. This clang version is based on clang 3.4 release
 (LLVM:233b1e3f034, clang-omp:6f358bcd87).
 
+%FIXME: je me demande si on devrait pas utiliser juste cette archi. Qu'est ce que l'autre apporte ? On sous utilise complètement les 48 coeurs...
 The second one holds 8 Intel(R) Xeon(R) CPU E5-2650 0 @ 2.00GHz for a total of
 8 cores (multithreading is not used). Each node can access to  64\,KB of L1 cache,
 256\,KB of L2 cache. Both L1 and L2 caches are private, while L3 cache
 is shared between the 8 processors. This configuration
-provides a total of 63\,GB of main memory. It supports up to AVX. We will
+provides a total of 63\,GB of main memory. It supports up to AVX. We
 refer to this configuration as \textbf{Intel8}.
 On Intel8, backend compilers is gcc 4.9 (20140528).
 
@@ -850,25 +853,26 @@ On Intel8, backend compilers is gcc 4.9 (20140528).
 \subsection{Performance of the Rosenbrock Function}
 
 % For performance comparison between different Pythran version
-To compare the different optimization schemes, we run the numpy-benchmarks test 
+To compare the different optimization schemes, we run the numpy-benchmarks test
 suite multiple time on the \textit{rosen} benchmark.
-Figures~\ref{fig:rosenamd48} and \ref{fig:rosenintel8} illustrate the results.
-The difference between the two architectures can be explain by AVX support on 
-the Intel8 architecture while AMD48 support up to SSE4 only.
+Figures~\ref{fig:rosenamd48} and~\ref{fig:rosenintel8} illustrate the results.
+The difference between the two architectures can be explain by AVX support on
+the Intel8 architecture while AMD48 supports up to SSE4 only.
 % Haaaaa, I don't understand why OMP is not use...
 % tODO : I have to redo mesures without forward substitution to show difference.
+% SG: may be the number of iteration is not enough? what array size did you use? (it should be specified in the text secion, BTW
 
 \begin{figure}[t]
 \centering
-\includegraphics[scale=0.4]{rosen_amd48.png}
-\caption{Rosen on AMD48}
+\includegraphics[width=0.5\textwidth]{rosen_amd48.png}
+\caption{Execution time of the rosen kernel on AMD48.}
 \label{fig:rosenamd48}
 \end{figure}
 
 \begin{figure}[t]
 \centering
-\includegraphics[scale=0.4]{rosen_intel8.png}
-\caption{Rosen on Intel8}
+\includegraphics[width=.5\textwidth]{rosen_intel8.png}
+\caption{Execution time of the rosen kernel on Intel8.}
 \label{fig:rosenintel8}
 \end{figure}
 
@@ -876,45 +880,48 @@ the Intel8 architecture while AMD48 support up to SSE4 only.
 \subsection{Comparison with others Python compiler}
 
 Figure~\ref{fig:arc_distance} is a typical example where we can make intensive
-use of technique described in this paper. As we can see, both SIMD instruction
+use of the techniques described in this paper. As we can see, both SIMD instruction
 and parallelization have an impact on execution time. We can notice that SIMD
 contribution is not as good as it could be on AMD48 as it doesn't have AVX support.
-Also, we can notice that gcc as a backend compiler have more optimization opportunity.
+Also, we can notice that gcc as a backend compiler finds more optimization opportunities.
+%FIXME: mehdi propose de n'utiliser qu'un backend pour centrer le propos sur Pythran/Numpy.
+% ça allègera aussi les graphes...
 
 \begin{figure}[t]
 \centering
-\includegraphics[scale=0.4]{arc_distance_amd48.png}
-\caption{Arc distance on AMD48}
+\includegraphics[width=0.5\textwidth]{arc_distance_amd48.png}
+\caption{Execution time of the arc distance kernel on AMD48.}
 \label{fig:arc_distance}
 \end{figure}
 
 \begin{figure}[t]
 \centering
-\includegraphics[scale=0.4]{arc_distance_intel8.png}
-\caption{Arc distance on Intel8}
+\includegraphics[width=0.5\textwidth]{arc_distance_intel8.png}
+\caption{Execution time of the arc distance kernel on Intel8.}
 \label{fig:arc_distance_intel8}
 \end{figure}
 
-At the opposite, Figure~\ref{fig:diffusion} show that clang is better when generated
-code make a more intensive use of templates (heavily use with gsliced\_ndarray).
-gsliced\_ndarray is a non aligned view on an array in this case so SIMD optimization
+At the opposite, Figure~\ref{fig:diffusion} shows that clang is better when generated
+code make a more intensive use of templates (heavily used with \texttt{gsliced\_ndarray}).
+\texttt{gsliced\_ndarray} is a non aligned view on an array in this case so SIMD optimization
 can't be applied on the second dimension even if loop fusion and temporary
-elimination is performed.  We can notice that Parakeet perform really well on
+elimination is performed.  We can notice that Parakeet performs really well on
 extensive gslice use.
 %TODO IL faut refaire les mesures en changeant la limite OpenMP. Parce qu'on a
 %pas du tout de parallelisme la. On note par contre l"overhead libgomp...
+%SG: +1
 
 \begin{figure}[t]
 \centering
-\includegraphics[scale=0.4]{diffusion_amd48.png}
-\caption{Diffusion on AMD48}
+\includegraphics[width=0.5\textwidth]{diffusion_amd48.png}
+\caption{Execution time of the diffusion kernel on AMD48.}
 \label{fig:diffusion}
 \end{figure}
 
 \begin{figure}[t]
 \centering
-\includegraphics[scale=0.4]{diffusion_intel8.png}
-\caption{Diffusion on Intel8}
+\includegraphics[width=0.5\textwidth]{diffusion_intel8.png}
+\caption{Execution time of the diffusion kernel on Intel8.}
 \label{fig:diffusion_intel8}
 \end{figure}
 
@@ -923,18 +930,18 @@ Finally, Figure~\ref{fig:l2norme} show the l2norme algorithm introduce in
 is correct for these kind of functions.
 %TODO IL faut refaire les mesures en changeant la limite OpenMP. Parce qu'on a
 %pas du tout de parallelisme la. On note par contre l"overhead libgomp...
-
+%SG: +1
 \begin{figure}[t]
 \centering
-\includegraphics[scale=0.4]{l2norm_amd48.png}
-\caption{L2norm on AMD48}
+\includegraphics[width=0.5\textwidth]{l2norm_amd48.png}
+\caption{Execution time of the l2norm kernel on AMD48.}
 \label{fig:l2norme}
 \end{figure}
 
 \begin{figure}[t]
 \centering
-\includegraphics[scale=0.4]{l2norm_intel8.png}
-\caption{L2norm on Intel8}
+\includegraphics[width=0.5\textwidth]{l2norm_intel8.png}
+\caption{Execution time of the l2norm kernel on Intel8.}
 \label{fig:l2norm_intel8}
 \end{figure}
 

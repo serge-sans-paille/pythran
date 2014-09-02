@@ -499,28 +499,34 @@ arguments. This can be done by considering each function individually and
 looking for the two kind of constructs that can modify a function argument: 
 indexing and further function calls.
 
-To inter procedurally compute the read-write effects, intra procedural effects
+To interprocedurally compute the read-write effects, intra procedural effects
 are first computed. Then we create a directed graph $G$ with as many nodes as
-functions. Each node contains a list of integer representing the indices of the
-formal argument that are modified intra-procedurally. Then we add an edge
-between two nodes, labeled by an integer tuple $(i, j)$ if $i^\text{th}$ formal
+functions, and with as many edges as formal parameters between two nodes. Local
+variables used as arguments do not trigger an edge.
+Edges are labeled by an integer tuple $(i, j)$ if $i^\text{th}$ formal
 argument of the source is passed as $j^\text{th}$ effective argument of the
-sink. The goal is to prune all edges from $G$. To do so, given a node $n$ that
-writes $i$, any outgoing edge $(i, j)$ can be safely removed, as we know for
-sure that the $i^\text{th}$ parameter is written. Similarly, an incoming edge
-$(j, i)$ can be removed and $j$ is added to the source's list. Iteratively
-applying this process removes all edges that can propagate a write, the only
-remaining edges propagate a read and can be ultimately removed.
+sink. The analysis is iteratively pruning all edges from $G$ by considering any
+node for which the intraprocedural analysis shown that an argument $i$ is 
+written. Since the parameter is modified, any outgoing edge $(i, j)$ for this 
+node will not add any information to the analysis and then can be safely 
+removed. Incoming edges $(j, i)$ are used to propagate the effects along the 
+call graph: $j$ is added to the source's list of argument written and the source
+node is added to the list of nodes waiting to be processed. Iteratively
+applying this process removes all edges that can propagate a write, when no edge
+can be removed, the remaining ones propagate a read and can be ultimately 
+removed.
 
 Let us illustrate the algorithm on a simple case. Python code source and the
 initial effect graphs are illustrated on Figure~\ref{fig:argument-effects}. The
-only node with write effects is \texttt{bar} that writes \texttt{n} through a
+only node with write effects is \texttt{bar} that modifies \texttt{n} through a
 subscript. Outgoing edges (1) and (2) can be removed because they are
 outgoing edges of \texttt{bar} starting by \texttt{n}. Incoming edge (0) ends
-by \texttt{n} that is written by \texttt{bar} so it is possible to prune it
-while adding the start \texttt{n} to node \texttt{root}. No edge left, and we
-know that both \texttt{root} update \texttt{r} and \texttt{bar} update \texttt{n},
-but \texttt{foo} doesn't update its argument.
+by \texttt{n} that is written by \texttt{bar}, so it propagates the write 
+effects to the source node corresponding to the function \texttt{root}. After
+removing this edge, the only remaining edges are propagating read and the 
+analysis ands. The analysis informs that both \texttt{root} update \texttt{r} 
+and \texttt{bar} update \texttt{n}, but \texttt{foo} doesn't update its 
+argument.
 
 \begin{figure}
 

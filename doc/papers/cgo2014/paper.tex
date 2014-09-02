@@ -462,27 +462,42 @@ return numpy::sum{}((t0 + t1));
 \label{sec:fs}
 
 The limitation of expression templates presented in
-\S~\ref{sec:expression-templates} is easy to solve at the Python compiler
-level, using forward substitution. Typically, forward substitution is
-supported by the computation of a dependency graph that itself relies on
-read-write effects and alias analysis.
+\S~\ref{sec:expression-templates} can be solved using forward substitution at 
+the Python compiler level. This optimization leverages the 
+\textit{def-use} chains~\cite{defuse} as well as interprocedural read-write 
+effects and alias analysis presented in the next sections. 
+Thanks to these analyses, the forward substitution implementation is quite 
+simple: \todo{it is not THAT simple indeed, there is "lazyness" analysis 
+involved}....
+
+This optimization is able to forward \texttt{t0} and \texttt{t1} in 
+Listing~\ref{lst:rosen}, avoiding a temporary allocation and providing more
+arithmetic intensity at the same time.
+
+
+\subsection{Alias Analysis}
+\label{sec:alias}
 
 Alias analysis is impossible for Python programs in general, because of late
 binding and possible monkey patching---a way to modify the code of dynamic
 languages at run-time. In the context of a static compiler for
 numerical programs, it can be assumed that binding is done statically and no
-monkey patching is done. In that context, it is relatively easy to design an
-intra-procedural alias analysis thanks to the absence of pointer arithmetic:
+monkey patching is done. Indeed the Pythran compiler operates on a subset of 
+Python that forbid this kind of dynamic patching. 
+In this context, it becomes possible to design an intra-procedural alias 
+analysis thanks to the absence of pointer arithmetic:
 the only language construction that can create aliasing is the assignment, thus
-a simple control-flow base alias analysis yields accurate results.
+a simple control-flow based alias analysis yields accurate results.
+
+\subsection{Interprocedural Effects Analysis}
+\label{sec:effects}
 
 The computation of read-write effects involves the computation of argument 
 effects for user functions, and the annotation of Numpy functions
 so that the Python compiler knows that most of them do not modify their
-arguments. This can
-be done by considering each function individually and looking for the two kind
-of constructs that can modify a function argument: indexing and further
-function calls.
+arguments. This can be done by considering each function individually and 
+looking for the two kind of constructs that can modify a function argument: 
+indexing and further function calls.
 
 To inter procedurally compute the read-write effects, intra procedural effects
 are first computed. Then we create a directed graph $G$ with as many nodes as
@@ -545,9 +560,6 @@ def root(r):
     \label{fig:argument-effects}
 
 \end{figure}
-
-Thanks to these analysis, we are able to say that \texttt{t0} and \texttt{t1}
-can be forwarded in the Listing~\ref{lst:rosen}.
 
 
 %\subsection{Range Analysis}

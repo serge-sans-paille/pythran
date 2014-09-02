@@ -368,12 +368,14 @@ Copperhead intrinsics.
 
 \subsection{PyPy and Shed~Skin}
 
-PyPy~\cite{pypy2009}, a Python interpreter with a tracing JIT, or
-Shed~Skin~\cite{shedskin2006}, a Python to C++ compiler are also viable ways to
-enhance Python performance. However Shed~Skin does not provide support for the
-Numpy module. The is an important work in progress from the PyPy community to
-support Numpy, but it implies a partial rewrite of the Numpy API in RPython,
-the language used by PyPy, to enable PyPy's optimization.
+PyPy~\cite{pypy2009}, a fully compatible Python interpreter with a tracing JIT,
+or Shed~Skin~\cite{shedskin2006}, a Python to C++ compiler, are also viable
+ways to enhance Python performance. However Shed~Skin does not provide support
+for the Numpy module. PyPy faces the issue of calling native libraries that
+cannot be optimized by a Python JIT compiler. There is an important work in
+progress from the community to support Numpy, but it implies a partial rewrite
+of the Numpy API in RPython, the language used by PyPy.
+
 
 
 %%
@@ -403,7 +405,7 @@ Python constructs.
 \subsection{Expression Templates}
 \label{sec:expression-templates}
 
-Many C++ linear algebra libraries~\cite{eigen,ublas} use \emph{expression
+Many C++ linear algebra libraries~\cite{eigen,ublas,esterie2014} use \emph{expression
 templates}~\cite{expression_templates, et2012} as a way to efficiently describe high
 level matrix expressions while avoid the creation of intermediate storage.
 Additionally, it has the same effect as loop fusion, solving the issues
@@ -528,7 +530,7 @@ Thanks to these analysis, we are able to say that \texttt{t0} and \texttt{t1}
 can be forwarded in the Listing~\ref{lst:rosen}.
 
 
-\subsection{Range Analysis}
+%\subsection{Range Analysis}
 
 \subsection{Constant Propagation and Loop Unrolling}
 
@@ -696,12 +698,38 @@ parallelization of Python programs proposed in~\cite{pyhpc2013}.
 
 \subsubsection{Vectorization of Expression Templates}
 
-A first exploration of vectorization of Python constructs is done in~\cite{wpmvp2014}.
+A first exploration of vectorization of Python constructs is done
+in~\cite{wpmvp2014}. It shows that language constructs like list comprehension
+offer many vectorization opportunities. This section focuses on the
+vectorization of complex Numpy expressions. In order to vectorize a numpy
+expression, the last dimension of the expression must be contiguous. This can
+be checked at compile time using type traits. The general form of a subscripted
+array can be expressed in C++ using a template type, say \texttt{numpy\_gexpr}.
+For instance the Numpy subscript \lstinline|a[:,0,::2]| on a 3D float matrix is
+represented by the C++ type in Listing~\ref{lst:gexpr}.
+
+\begin{lstlisting}[language=c++, caption={C++ type corresponding to the Numpy subscript \lstinline|a[:,0,::2]| on a 3D float matrix}, label={lst:gexpr}]
+numpy_gexpr<ndarray<double, 3>,
+            contiguous_slice,
+            long, slice>
+\end{lstlisting}
+
+This representation makes it easy to
+statically compute, in a vectorizable type trait, wether the last dimension of
+a subscript is contiguous or not. It can be generalized to the other array
+manipulations. BOOST.simd~\cite{esterie2012boost} provides a
+machine-independant abstraction for vector operation and supports all the C99
+math library. Thanks to this abstraction, all Numpy binary and unary functions
+and operators can be vectorized.
+
+The loop described in Listing~\ref{lst:eval-et} can be specialized using this
+vectorizable type trait, to automatically vectorize the innermost loop whenever
+it is legal. The choice is statically made at compile time.
+
 
 %%
 %%
-\section{Experiments}
-\label{sec:xp}
+\section{Experiments} \label{sec:xp}
 
 % The first one holds 8 AMD Magny Cours processors for a
 % total of 48 cores. Each core has access to 64\,KB of L1 cache,
@@ -725,8 +753,21 @@ A first exploration of vectorization of Python constructs is done in~\cite{wpmvp
 % from intel.
 
 \subsection{The Pythran Compiler}
-\cite{pythran2013,isocxx11}
 
+The ideas described in this paper are implemnted in the Pythran
+compiler~\cite{pythran2013}, a translator from a subset of Python to
+C++11~\cite{isocxx11}. The architecture of the compiler is briefely described
+in Figure~\ref{fig:pythran-compiler}. The input is a Python module written in
+the Pythran subset. Pythran translates it in its internal representation, a
+simplified Python AST. It performs various optimization then outputs either
+Python code, in a source-to-source fashion, or C++ template code that makes
+call to the pythonic library that typically implements the \texttt{ndarray}
+interface. User annotations can be used to instanciate this code for the proper
+types and generate a native library. This library relies on Boost.Python
+library to match Python's C API.
+
+The Pythran compiler is an open source project publicly released under the BSD
+license~\footnote{\url{http://pythonhosted.org/pythran/}}.
 
 \begin{figure}
 
@@ -739,7 +780,7 @@ A first exploration of vectorization of Python constructs is done in~\cite{wpmvp
         \node[file] (python) {\textbf{Python Module [\texttt{.py}]}};
         \node[tool] (pythran) [below=of python] {\textbf{Pythran}};
         \node[file] (meta-cxx) [below=of pythran] {\textbf{C++} Meta Program};
-        \node[tool] (gxx) [yshift=-1.5em, below=of meta-cxx] {\textbf{g++}};
+        \node[tool] (gxx) [yshift=-1.5em, below=of meta-cxx] {\textbf{c++}};
         \node (empty) [xshift=-1em, left=of gxx] {};
         \node[file] (pythonic) [left=of empty] {\textbf{\texttt{pythonic}}};
         \node[file] (annotation)     [above=of pythonic] {\textbf{Type Info}};

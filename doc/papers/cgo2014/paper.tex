@@ -956,6 +956,51 @@ approach taken by Pythran is relevant for these kind of functions.
 \label{fig:l2norm_intel8}
 \end{figure}
 
+\begin{table*}
+
+    \centering{
+\begin{tabular}{|l||c|c|c|c|c|}
+\hline
+& Python & numba & parakeet & pypy & pythran \\
+\hline
+\hline
+       allpairs\_distances &   37727 &             0 &          1768 &         36855 & \textbf{1079} \\
+allpairs\_distances\_loops &   49799 &         55867 &          1781 &         50253 & \textbf{1758} \\
+             arc\_distance &    1365 &          1401 &          1596 &          1364 &  \textbf{494} \\
+                      conv & 1926454 &       2356675 &          2032 &       1899006 & \textbf{1944} \\
+              create\_grid &    3867 &          3950 &             0 & \textbf{3833} &          5512 \\
+                  cronbach &    1637 &          1681 &             0 &          1756 & \textbf{1136} \\
+                 diffusion &   22511 &         23564 &         21167 &         22450 & \textbf{9606} \\
+                    evolve &    5762 &             0 &             0 &          5522 & \textbf{3841} \\
+                      fdtd & 1558799 &       1824395 &             0 &       1538692 & \textbf{1198} \\
+                       fft &   25720 &             0 &             0 &         24771 & \textbf{1211} \\
+                  grouping &    2095 &             0 &             0 &          2104 &  \textbf{839} \\
+                   growcut & 1807849 &          5573 & \textbf{2200} &       1860926 &          3930 \\
+                    harris &    5516 &          5258 &          5084 &          5500 & \textbf{2994} \\
+                   hyantes &  259268 &             0 & \textbf{1865} &        261074 &          2359 \\
+                     julia & 2716770 &          2716 &          2930 &       2776183 & \textbf{2636} \\
+                    l2norm &    6057 &          6008 &         12574 &          6069 &  \textbf{540} \\
+             local\_maxima &   59822 &             0 &             0 &         60504 & \textbf{5084} \\
+                    lstsqr &    7886 &          8652 &             0 &          7891 & \textbf{1680} \\
+                    mandel &  437908 & \textbf{4361} &             0 &        439827 &          5075 \\
+             multiple\_sum &    2981 &          3194 &          8206 &          2975 & \textbf{2007} \\
+                  pairwise & 3888235 &          5777 &          3699 &       3873927 & \textbf{3435} \\
+            periodic\_dist &    1848 &          1983 &             0 &          1863 &  \textbf{951} \\
+                 repeating &    1216 &          1228 &             0 &          1226 &  \textbf{568} \\
+           reverse\_cumsum &    2620 &          2629 &             0 &          2614 & \textbf{2389} \\
+                     rosen &   14693 &         19419 &          1557 &         14611 &  \textbf{894} \\
+                 slowparts &    5687 &             0 & \textbf{1223} &          5900 &          1537 \\
+                 smoothing &  911126 & \textbf{4858} &          6258 &        935202 &          4924 \\
+           specialconvolve &    8211 &          6665 &         10340 &          8140 & \textbf{2449} \\
+              vibr\_energy &    2563 &          2450 &          2488 &          2548 & \textbf{1112} \\
+                      wave &   54234 &         54529 &             0 &         51471 & \textbf{1886} \\
+                     wdist &   82669 &         90274 & \textbf{1457} &         80406 &          1469 \\
+\hline
+\end{tabular}
+}
+\caption{Average execution times for all kernels of the numpy-benchamrks.}
+\end{table*}
+
 %%
 %%
 \section*{Conclusion}

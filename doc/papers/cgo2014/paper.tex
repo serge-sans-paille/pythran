@@ -829,12 +829,13 @@ license~\footnote{\url{http://pythonhosted.org/pythran/}}.
 As introduced in \S~\ref{sec:stackoverflow}, we use the numpy-benchmark test 
 suite to evaluate the optimizations described in\S~\ref{sec:pythran}. 
 Pythran is used (commit: 488b7ba) with and without SIMD optimization. 
-The results are compared with Pypy \todo{add}(???), Parakeet (commit: 4e55810), 
+The results are compared with Pypy (commit: 632c832bd32f), Parakeet (commit: 4e55810), 
 Numba (commit: b8a79c5) and Python 2.7.
 
-Benchmarking is done on two architectures with different backend compilers. The
-\texttt{timeit} module is used to perform the measurments, taking the average
-execution time over several runs.
+numpy-benchmarks run 11 times benchmarks with an execution time around 1 seconde.
+THe best time, average time and standard deviation is return from these 11 runs.
+
+Benchmarking is done on two architectures with different backend compilers.
 
 The first one holds 8 AMD Magny Cours processors for a
 total of 48 cores. Each core has access to 64\,KB of L1 cache,
@@ -842,15 +843,10 @@ total of 48 cores. Each core has access to 64\,KB of L1 cache,
 is shared between the 6 cores of a processor. This configuration
 provides a total of 256\,GB (32\,GB per NUMA node) of main memory. It supports
 up to SSE4. We refer to this configuration as \textbf{AMD48}.
-On AMD48, the backend compilers are GCC (Debian 4.7.2-5) and the clang-omp
+On AMD48, the backend compilers is the clang-omp
 version from intel~\footnote{\url{http://clang-omp.github.io/}} to be able to
 benefits from OpenMP improvements. This Clang version is based on Clang 3.4
 release (LLVM:233b1e3f034, clang-omp:6f358bcd87).
-
-\todo{je me demande si on devrait pas utiliser juste cette archi. 
-Qu'est ce que l'autre apporte ? On sous utilise complètement les 48 coeurs...}
-\todo{Mehdi: agree, sauf si on peut avoir UN exemple avec 48 threads qui scale 
-"correctement"}
 
 The second one holds one Intel(R) Xeon(R) CPU E5-2650 0 @ 2.00GHz for a total of
 8 cores (multithreading is not used). Each node can access to 64\,KB of L1
@@ -858,20 +854,21 @@ cache, 256\,KB of L2 cache. Both L1 and L2 caches are private, while L3 cache
 is shared between the 8 cores. This configuration provides a total of 64\,GB of 
 main memory. It supports up to AVX. We refer to this configuration as
 \textbf{Intel8}.
-On Intel8, backend compilers is GCC 4.9 (20140528).
+On Intel8, backend compilers is GCC 4.9 (20140528) with libgomp.
 
 
 \subsection{Performance of the Rosenbrock Function}
 
 % For performance comparison between different Pythran version
 To compare the different optimization schemes, we run the numpy-benchmarks test
-suite multiple times on the \textit{rosen} benchmark.
+suite multiple times on the \textit{rosen} benchmark. The algorithm is the one
+on Listing~\ref{lst:rosen} and input is a raw array of 1,000,000 of double elements.
 Figures~\ref{fig:rosenamd48} and \ref{fig:rosenintel8} illustrate the results.
-The difference between the two architectures can be explain by AVX support on
+The speedup difference between the two architectures can be explain by AVX support on
 the Intel8 architecture while AMD48 supports up to SSE4 only.
-% Haaaaa, I don't understand why OMP is not use...
-\todo{I have to redo mesures without forward substitution to show difference.}
-% SG: may be the number of iteration is not enough? what array size did you use? (it should be specified in the text secion, BTW
+We can also notice importance of forward substitution on this benchmarks as
+we avoid extra loop, 2 temporary array assignment and avoid some load/store for
+SIMD instructions.
 
 \begin{figure}[t]
 \centering
@@ -891,12 +888,17 @@ the Intel8 architecture while AMD48 supports up to SSE4 only.
 \subsection{Comparison with others Python compiler}
 
 Figure~\ref{fig:arc_distance} is a typical example where we can make intensive
-use of the techniques described in this paper. As we can see, both vectorization
+use of the techniques described in this paper. It measures performances on the
+arc\_distance benchmark. It is a kernel with intensive points to points computation
+and trigonometrics use. As we can see, both vectorization
 and parallelization have an impact on execution time. We can notice that SIMD
 contribution is not as good on AMD48 as it is on Intel8, because it does not
-support AVX.
+support AVX. This program also benefits from OpenMP. Input is 10000 elements 
+double raw array.
+
 %FIXME: mehdi propose de n'utiliser qu'un backend pour centrer le propos sur Pythran/Numpy.
 % ça allègera aussi les graphes...
+% On change juste le jeu de donnée plutot que de supprimer une archi
 
 \begin{figure}[t]
 \centering

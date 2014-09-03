@@ -1,6 +1,8 @@
-rosen pythran 2559 2559 0
-rosen pythran_omp_4 2557 2558 1
-rosen pythran_omp_4_simd 993 994 0
-rosen pythran_omp_8 2548 2550 3
-rosen pythran_omp_8_simd 999 999 0
-rosen pythran_simd 1005 1005 0
+rosen Python 16105 16124 21
+rosen pypy 16041 16056 16
+rosen numba 13572 13662 228
+rosen parakeet 2757 2760 3
+rosen pythran_no_fs 7584 7597 14
+rosen pythran_simd_no_fs 7169 7215 19
+rosen pythran 2550 2550 0
+rosen pythran_simd 939 939 0

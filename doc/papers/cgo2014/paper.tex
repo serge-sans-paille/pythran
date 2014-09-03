@@ -62,6 +62,7 @@
     different from what we use to see in traditional C or Fortran programs:
     explicit raw loops are replaced by high-level constructs and calls to the
     relevant toolbox/module/library/package. As a consequence, traditional
+    algorithms to perform
     loop optimization techniques like fusion, tiling and related
     vectorization or parallelization techniques are not directly applicable.
 
@@ -80,7 +81,7 @@
 
 
 \keywords
-static compilation, parallelization, Python, C++, SIMD, runtime
+Static Compilation, Parallelization, Python, C++, SIMD, Runtime
 
 %%
 %%
@@ -394,23 +395,25 @@ of the Numpy API in RPython, the language used by PyPy.
 Fortran/C/C++ have been at the hearth of high performance computing for many years.
 Compiler infrastructures for these languages also have a long history and
 implement many optimizations on the control flow graph, basic blocks or
-loops~\cite{Aho2006} that limit the need of hand-written assembly to a few hot 
+loops~\cite{Aho2006} that limit the need of hand-written assembly to a few hot
 spots.
-Language extensions like OpenMP~\cite{openmp4} provide a basic support for 
-parallel programming, while libraries like Boost.SIMD~\cite{esterie2012boost} 
-offer good abstractions for explicit vectorization. Many highly tuned kernels 
-are available in the form of third-party libraries like 
+Language extensions like OpenMP~\cite{openmp4} provide a basic support for
+parallel programming, while libraries like Boost.SIMD~\cite{esterie2012boost}
+offer good abstractions for explicit vectorization. Many highly tuned kernels
+are available in the form of third-party libraries like
 GotoBlas~\cite{gotoblas2008}.
 % pas de nt2?
 
 There is no need to reinvent the wheel when compiling numerical Python kernels.
 A profitable approach is to map Python high-level to existing ones, or
 translate them into existing them.\todo{Mehdi: the previous sentence makes no sense to me}
-As a consequence, this section focuses on
-the translation of Python constructs to efficient C++ constructs. The choice of
+As a consequence, this section focuses on the translation of Python constructs
+to efficient C++ constructs. The choice of
 C++ instead of C is motivated by the opportunities offered by meta programming
 and the interesting similarities between C++11~\cite{isocxx11} features and
 Python constructs.
+The meta-programming part of C++ makes it more than a traditional compiler
+runtime, closer to a code generator backend.
 
 \subsection{Expression Templates}
 \label{sec:expression-templates}
@@ -441,18 +444,18 @@ hand side expression, thus creating two intermediates array. This usual
 limitation is motivated by the inability to prove that \texttt{x} is not
 modified before \texttt{t0} is read.
 
-\begin{lstlisting}[language=c++, 
-  caption={C++11 translated version of Python version for the Rosenbrock 
-           kernel.}, 
-  label={lst:rosen-cxx}, 
+\begin{lstlisting}[language=c++,
+  caption={C++11 translated version of Python version for the Rosenbrock
+           kernel.},
+  label={lst:rosen-cxx},
   breaklines=true,
   basicstyle=\small]
 typedef typename x::dtype T;
 constexpr size_t N = x::ndim;
-ndarray<T, N> t0 = 100L * 
-  numpy::square{}(x[slice(1L, None)] - 
+ndarray<T, N> t0 = 100L *
+  numpy::square{}(x[slice(1L, None)] -
   numpy::square{}(x[slice(None,-1L)]));
-ndarray<T, N> t1 = 
+ndarray<T, N> t1 =
   numpy::square{}(1L - x[slice(None,-1L)]);
 return numpy::sum{}((t0 + t1));
 \end{lstlisting}
@@ -462,15 +465,15 @@ return numpy::sum{}((t0 + t1));
 \label{sec:fs}
 
 The limitation of expression templates presented in
-\S~\ref{sec:expression-templates} can be solved using forward substitution at 
-the Python compiler level. This optimization leverages the 
-\textit{def-use} chains~\cite{defuse} as well as interprocedural read-write 
-effects and alias analysis presented in the next sections. 
-Thanks to these analyses, the forward substitution implementation is quite 
-simple: \todo{it is not THAT simple indeed, there is "lazyness" analysis 
+\S~\ref{sec:expression-templates} can be solved using forward substitution at
+the Python compiler level. This optimization leverages the
+\textit{def-use} chains~\cite{defuse} as well as interprocedural read-write
+effects and alias analysis presented in the next sections.
+Thanks to these analyses, the forward substitution implementation is quite
+simple: \todo{it is not THAT simple indeed, there is "lazyness" analysis
 involved}....
 
-This optimization is able to forward \texttt{t0} and \texttt{t1} in 
+This optimization is able to forward \texttt{t0} and \texttt{t1} in
 Listing~\ref{lst:rosen}, avoiding a temporary allocation and providing more
 arithmetic intensity at the same time.
 
@@ -482,9 +485,9 @@ Alias analysis is impossible for Python programs in general, because of late
 binding and possible monkey patching---a way to modify the code of dynamic
 languages at run-time. In the context of a static compiler for
 numerical programs, it can be assumed that binding is done statically and no
-monkey patching is done. Indeed the Pythran compiler operates on a subset of 
-Python that forbid this kind of dynamic patching. 
-In this context, it becomes possible to design an intra-procedural alias 
+monkey patching is done. Indeed the Pythran compiler operates on a subset of
+Python that forbid this kind of dynamic patching.
+In this context, it becomes possible to design an intra-procedural alias
 analysis thanks to the absence of pointer arithmetic:
 the only language construction that can create aliasing is the assignment, thus
 a simple control-flow based alias analysis yields accurate results.
@@ -492,11 +495,11 @@ a simple control-flow based alias analysis yields accurate results.
 \subsection{Interprocedural Effects Analysis}
 \label{sec:effects}
 
-The computation of read-write effects involves the computation of argument 
+The computation of read-write effects involves the computation of argument
 effects for user functions, and the annotation of Numpy functions
 so that the Python compiler knows that most of them do not modify their
-arguments. This can be done by considering each function individually and 
-looking for the two kind of constructs that can modify a function argument: 
+arguments. This can be done by considering each function individually and
+looking for the two kind of constructs that can modify a function argument:
 indexing and further function calls.
 
 To interprocedurally compute the read-write effects, intra procedural effects
@@ -506,14 +509,14 @@ variables used as arguments do not trigger an edge.
 Edges are labeled by an integer tuple $(i, j)$ if $i^\text{th}$ formal
 argument of the source is passed as $j^\text{th}$ effective argument of the
 sink. The analysis is iteratively pruning all edges from $G$ by considering any
-node for which the intraprocedural analysis shown that an argument $i$ is 
-written. Since the parameter is modified, any outgoing edge $(i, j)$ for this 
-node will not add any information to the analysis and then can be safely 
-removed. Incoming edges $(j, i)$ are used to propagate the effects along the 
+node for which the intraprocedural analysis shown that an argument $i$ is
+written. Since the parameter is modified, any outgoing edge $(i, j)$ for this
+node will not add any information to the analysis and then can be safely
+removed. Incoming edges $(j, i)$ are used to propagate the effects along the
 call graph: $j$ is added to the source's list of argument written and the source
 node is added to the list of nodes waiting to be processed. Iteratively
 applying this process removes all edges that can propagate a write, when no edge
-can be removed, the remaining ones propagate a read and can be ultimately 
+can be removed, the remaining ones propagate a read and can be ultimately
 removed.
 
 Let us illustrate the algorithm on a simple case. Python code source and the
@@ -521,11 +524,11 @@ initial effect graphs are illustrated on Figure~\ref{fig:argument-effects}. The
 only node with write effects is \texttt{bar} that modifies \texttt{n} through a
 subscript. Outgoing edges (1) and (2) can be removed because they are
 outgoing edges of \texttt{bar} starting by \texttt{n}. Incoming edge (0) ends
-by \texttt{n} that is written by \texttt{bar}, so it propagates the write 
+by \texttt{n} that is written by \texttt{bar}, so it propagates the write
 effects to the source node corresponding to the function \texttt{root}. After
-removing this edge, the only remaining edges are propagating read and the 
-analysis ands. The analysis informs that both \texttt{root} update \texttt{r} 
-and \texttt{bar} update \texttt{n}, but \texttt{foo} doesn't update its 
+removing this edge, the only remaining edges are propagating read and the
+analysis ands. The analysis informs that both \texttt{root} update \texttt{r}
+and \texttt{bar} update \texttt{n}, but \texttt{foo} doesn't update its
 argument.
 
 \begin{figure}
@@ -579,11 +582,11 @@ notable exception of strings and tuples. However there are a lot of constant
 propagation opportunities, the most remarkable one being calls to the
 \texttt{range} built-in with literal parameters.
 
-A naïve translation of such call to a generic C++ function would generate a
-call to a C++ function that would allocate enough memory to hold three integer,
+A naive translation of such call to a generic C++ function would generate a
+call to a C++ function that would allocate enough memory to hold three integers,
 fill the corresponding buffer and return it. A smarter version would generate a
 static array holding the relevant values. Figure~\ref{fig:unroll-range}
-compares two translation of a Python snippet that iterates over a fixed-size
+compares two translations of a Python snippet that iterates over a fixed-size
 list. The Clang compiler successfully turns Listing~\ref{lst:stat} into a
 single constant. It also statically computes the return value for
 Listing~\ref{lst:dyna}, but still generates the initialization code for the
@@ -595,8 +598,8 @@ The argument effect analysis described in \S~\ref{sec:fs} can be extended to
 global variables to determine if a function has side effects on its arguments or
 on global variables (including I/O). This information makes it possible to flag
 some function as pure, and to statically evaluate pure function calls with
-constant arguments. This evaluation is especially easy in Python thanks to the
-ability of the language to turn an AST expression into bytecode, evaluate it
+constant arguments. This evaluation is especially feasible in Python thanks to
+the ability of the language to turn an AST expression into bytecode, evaluate it
 and retrieve its constant value. For instance, this makes it possible to turn a
 call to \texttt{range(3)} into \texttt{[0, 1, 2]}, but also to compute the
 value of \texttt{fibonnaci(4)} at compile-time.
@@ -642,8 +645,8 @@ return s;
 
 \end{figure}
 
-Once inter procedural constant evaluation is done (eventually followed by
-forward substitution), iteration over fixed size lists may appear, giving an
+Once interprocedural constant evaluation is done (eventually followed by
+forward substitution), iteration over fixed size lists may be exposed, giving an
 opportunity to fully unroll these loops at the Python level, thus avoiding the
 suboptimal C++ translation observed for Listing~\ref{lst:stat}
 and~\ref{lst:dyna}.
@@ -653,8 +656,8 @@ and~\ref{lst:dyna}.
 A simplified version of the evaluation loop for an expression template is
 illustrated on Listing~\ref{lst:eval-et}. The loop over each dimension of the
 target array expression \texttt{to} is made explicit through a recursive
-template call. The computation of the origin expression is only triggered for
-the innermost loop.
+template call. The computation of the \texttt{from} expression is only triggered
+for the innermost loop.
 
 By construction of the expression template, the \texttt{eval} method used in
 \texttt{from.eval(i)} does not have side effects, and the Python to C++
@@ -688,9 +691,9 @@ void eval(A& to, E const& from, D<Dim>)
 
 A naive way to parallelize the parametric loop nest from
 Listing~\ref{lst:eval-et} is to use a \texttt{parallel} directive from the
-OpenMP~\cite{openmp4} standard. Depending on the number of dimension of the
+OpenMP~\cite{openmp4} standard. Depending on the number of dimensions of the
 input array, this may lead to nested parallel regions. When OpenMP nested
-parallel regions are activated, each parallel region spawns as many thread as
+parallel regions are activated, each parallel region spawns as many threads as
 possible up to the runtime upper bound, which leads to oversubscription with
 more common implementation (libgomp and libiomp) and generally bad performances. When
 disabled, only the first parallel region spawns threads, which is likely to be
@@ -730,35 +733,38 @@ count is large enough. We avoid by using the \texttt{if} clause for parallel
 regions to do so in order to prevent the unnecessary overhead. Instead a manual
 if is used: the loop statement is duplicated and guarded by the appropriate
 check, where only one loop holds the parallel annotations.
+\todo{this paragraph seems to be about a particular runtime issue, this shouldn't matter.
+Moreover, how is it relevant to this paper? It is an "implementation detail"}
 
 Note that this parallelization scheme is compatible with the manual
 parallelization of Python programs proposed in~\cite{pyhpc2013}.
+\todo{I think a specific section could be made on this topic}
 
 \subsubsection{Vectorization of Expression Templates}
 
 A first exploration of vectorization of Python constructs is done
 in~\cite{wpmvp2014}. It shows that language constructs like list comprehension
 offer many vectorization opportunities. This section focuses on the
-vectorization of complex Numpy expressions. In order to vectorize a numpy
+vectorization of complex Numpy expressions. In order to vectorize a Numpy
 expression, the last dimension of the expression must be contiguous. This can
 be checked at compile time using type traits. The general form of a subscripted
 array can be expressed in C++ using a template type, say \texttt{numpy\_gexpr}.
 For instance the Numpy subscript \lstinline|a[:,0,::2]| on a 3D float matrix is
 represented by the C++ type in Listing~\ref{lst:gexpr}.
 
-\begin{lstlisting}[language=c++, caption={C++ type corresponding to the Numpy subscript \lstinline|a[:,0,::2]| on a 3D float matrix}, label={lst:gexpr}]
+\begin{lstlisting}[language=c++, caption={C++ type corresponding to the Numpy subscript \lstinline{a[:,0,::2]} on a 3D float matrix}, label={lst:gexpr}]
 numpy_gexpr<ndarray<double, 3>,
             contiguous_slice,
             long, slice>
 \end{lstlisting}
 
 This representation makes it easy to
-statically compute, in a vectorizable type trait, wether the last dimension of
+statically compute, in a vectorizable type trait, whether the last dimension of
 a subscript is contiguous or not. It can be generalized to the other array
 manipulations. BOOST.simd~\cite{esterie2012boost} provides a
 machine-independant abstraction for vector operation and supports all the C99
-math library. Thanks to this abstraction, all Numpy binary and unary functions
-and operators can be vectorized.
+math library. This abstraction helps to vectorize all Numpy binary and unary
+functions and operators in Pythran's runtime.
 
 The loop described in Listing~\ref{lst:eval-et} can be specialized using this
 vectorizable type trait, to automatically vectorize the innermost loop whenever
@@ -820,10 +826,11 @@ license~\footnote{\url{http://pythonhosted.org/pythran/}}.
 
 \subsection{Experimental Setup}
 
-As introduced in \S~\ref{sec:stackoverflow}, we use the numpy-benchmark test suite
-to evaluate the optimizations described in\S~\ref{sec:pythran}. It uses Pythran (commit: 488b7ba)
-with optimization enabled/disabled. The results are compared with Pypy \todo{add}(???),
-Parakeet (commit: 4e55810), Numba (commit: b8a79c5) and Python 2.7.
+As introduced in \S~\ref{sec:stackoverflow}, we use the numpy-benchmark test 
+suite to evaluate the optimizations described in\S~\ref{sec:pythran}. 
+Pythran is used (commit: 488b7ba) with and without SIMD optimization. 
+The results are compared with Pypy \todo{add}(???), Parakeet (commit: 4e55810), 
+Numba (commit: b8a79c5) and Python 2.7.
 
 Benchmarking is done on two architectures with different backend compilers. The
 \texttt{timeit} module is used to perform the measurments, taking the average
@@ -835,31 +842,35 @@ total of 48 cores. Each core has access to 64\,KB of L1 cache,
 is shared between the 6 cores of a processor. This configuration
 provides a total of 256\,GB (32\,GB per NUMA node) of main memory. It supports
 up to SSE4. We refer to this configuration as \textbf{AMD48}.
-On AMD48, backend compilers are gcc (Debian 4.7.2-5) and the clang-omp version
-from intel~\footnote{\url{http://clang-omp.github.io/}} to be able to benefits
-from OpenMP improvement. This clang version is based on clang 3.4 release
-(LLVM:233b1e3f034, clang-omp:6f358bcd87).
+On AMD48, the backend compilers are GCC (Debian 4.7.2-5) and the clang-omp
+version from intel~\footnote{\url{http://clang-omp.github.io/}} to be able to
+benefits from OpenMP improvements. This Clang version is based on Clang 3.4
+release (LLVM:233b1e3f034, clang-omp:6f358bcd87).
 
-%FIXME: je me demande si on devrait pas utiliser juste cette archi. Qu'est ce que l'autre apporte ? On sous utilise complètement les 48 coeurs...
-The second one holds 8 Intel(R) Xeon(R) CPU E5-2650 0 @ 2.00GHz for a total of
-8 cores (multithreading is not used). Each node can access to  64\,KB of L1 cache,
-256\,KB of L2 cache. Both L1 and L2 caches are private, while L3 cache
-is shared between the 8 processors. This configuration
-provides a total of 63\,GB of main memory. It supports up to AVX. We
-refer to this configuration as \textbf{Intel8}.
-On Intel8, backend compilers is gcc 4.9 (20140528).
+\todo{je me demande si on devrait pas utiliser juste cette archi. 
+Qu'est ce que l'autre apporte ? On sous utilise complètement les 48 coeurs...}
+\todo{Mehdi: agree, sauf si on peut avoir UN exemple avec 48 threads qui scale 
+"correctement"}
+
+The second one holds one Intel(R) Xeon(R) CPU E5-2650 0 @ 2.00GHz for a total of
+8 cores (multithreading is not used). Each node can access to 64\,KB of L1
+cache, 256\,KB of L2 cache. Both L1 and L2 caches are private, while L3 cache
+is shared between the 8 cores. This configuration provides a total of 64\,GB of 
+main memory. It supports up to AVX. We refer to this configuration as
+\textbf{Intel8}.
+On Intel8, backend compilers is GCC 4.9 (20140528).
 
 
 \subsection{Performance of the Rosenbrock Function}
 
 % For performance comparison between different Pythran version
 To compare the different optimization schemes, we run the numpy-benchmarks test
-suite multiple time on the \textit{rosen} benchmark.
-Figures~\ref{fig:rosenamd48} and~\ref{fig:rosenintel8} illustrate the results.
+suite multiple times on the \textit{rosen} benchmark.
+Figures~\ref{fig:rosenamd48} and \ref{fig:rosenintel8} illustrate the results.
 The difference between the two architectures can be explain by AVX support on
 the Intel8 architecture while AMD48 supports up to SSE4 only.
 % Haaaaa, I don't understand why OMP is not use...
-% tODO : I have to redo mesures without forward substitution to show difference.
+\todo{I have to redo mesures without forward substitution to show difference.}
 % SG: may be the number of iteration is not enough? what array size did you use? (it should be specified in the text secion, BTW
 
 \begin{figure}[t]
@@ -880,10 +891,10 @@ the Intel8 architecture while AMD48 supports up to SSE4 only.
 \subsection{Comparison with others Python compiler}
 
 Figure~\ref{fig:arc_distance} is a typical example where we can make intensive
-use of the techniques described in this paper. As we can see, both SIMD instruction
+use of the techniques described in this paper. As we can see, both vectorization
 and parallelization have an impact on execution time. We can notice that SIMD
-contribution is not as good as it could be on AMD48 as it doesn't have AVX support.
-Also, we can notice that gcc as a backend compiler finds more optimization opportunities.
+contribution is not as good on AMD48 as it is on Intel8, because it does not
+support AVX.
 %FIXME: mehdi propose de n'utiliser qu'un backend pour centrer le propos sur Pythran/Numpy.
 % ça allègera aussi les graphes...
 
@@ -901,11 +912,11 @@ Also, we can notice that gcc as a backend compiler finds more optimization oppor
 \label{fig:arc_distance_intel8}
 \end{figure}
 
-At the opposite, Figure~\ref{fig:diffusion} shows that clang is better when generated
-code make a more intensive use of templates (heavily used with \texttt{gsliced\_ndarray}).
-\texttt{gsliced\_ndarray} is a non aligned view on an array in this case so SIMD optimization
-can't be applied on the second dimension even if loop fusion and temporary
-elimination is performed.  We can notice that Parakeet performs really well on
+Figure~\ref{fig:diffusion} show how Clang generated code is more performant
+when handling \lstinline{gsliced_ndarray}.
+This structure is a non aligned view on an array which prevent SIMD optimization
+on the second dimension even if loop fusion and temporary elimination is
+performed.  We can notice that Parakeet performs really well on
 extensive gslice use.
 %TODO IL faut refaire les mesures en changeant la limite OpenMP. Parce qu'on a
 %pas du tout de parallelisme la. On note par contre l"overhead libgomp...
@@ -925,9 +936,9 @@ extensive gslice use.
 \label{fig:diffusion_intel8}
 \end{figure}
 
-Finally, Figure~\ref{fig:l2norme} show the l2norme algorithm introduce in
-\S~\ref{sec:stackoverflow}. Comparison with other compiler show that Pythran approach
-is correct for these kind of functions.
+Finally, Figure~\ref{fig:l2norme} shows the L2norm algorithm introduced in
+\S~\ref{sec:stackoverflow}. Comparison with other compilers illustrates how the
+approach taken by Pythran is relevant for these kind of functions.
 %TODO IL faut refaire les mesures en changeant la limite OpenMP. Parce qu'on a
 %pas du tout de parallelisme la. On note par contre l"overhead libgomp...
 %SG: +1

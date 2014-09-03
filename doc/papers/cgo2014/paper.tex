@@ -862,7 +862,7 @@ On Intel8, backend compilers is GCC 4.9 (20140528) with libgomp.
 % For performance comparison between different Pythran version
 To compare the different optimization schemes, we run the numpy-benchmarks test
 suite multiple times on the \textit{rosen} benchmark. The algorithm is the one
-on Listing~\ref{lst:rosen} and input is a raw array of 1,000,000 of double elements.
+on Listing~\ref{lst:rosen} and input is a raw array of 1,000,000 double elements.
 Figures~\ref{fig:rosenamd48} and \ref{fig:rosenintel8} illustrate the results.
 The speedup difference between the two architectures can be explain by AVX support on
 the Intel8 architecture while AMD48 supports up to SSE4 only.
@@ -886,64 +886,37 @@ SIMD instructions.
 
 
 \subsection{Comparison with others Python compiler}
+\todo{a better title have to be found}
 
-Figure~\ref{fig:arc_distance} is a typical example where we can make intensive
+Figure~\ref{fig:arc_distance} and \ref{fig:arc_distance_intel8} are typicals
+example where we can make intensive
 use of the techniques described in this paper. It measures performances on the
 arc\_distance benchmark. It is a kernel with intensive points to points computation
 and trigonometrics use. As we can see, both vectorization
 and parallelization have an impact on execution time. We can notice that SIMD
 contribution is not as good on AMD48 as it is on Intel8, because it does not
-support AVX. This program also benefits from OpenMP. Input is 10000 elements 
-double raw array.
-
-%FIXME: mehdi propose de n'utiliser qu'un backend pour centrer le propos sur Pythran/Numpy.
-% ça allègera aussi les graphes...
-% On change juste le jeu de donnée plutot que de supprimer une archi
+support AVX. This program also benefits from OpenMP and is scalable up to 20 cores.
+The input is a raw array of 10,000,000 double elements.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.5\textwidth]{arc_distance_amd48.png}
-\caption{Execution time of the arc distance kernel on AMD48.}
+\caption{Speed up for the arc distance kernel on AMD48.}
 \label{fig:arc_distance}
 \end{figure}
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.5\textwidth]{arc_distance_intel8.png}
-\caption{Execution time of the arc distance kernel on Intel8.}
+\caption{Speed up for the arc distance kernel on Intel48.}
 \label{fig:arc_distance_intel8}
 \end{figure}
 
-Figure~\ref{fig:diffusion} show how Clang generated code is more performant
-when handling \lstinline{gsliced_ndarray}.
-This structure is a non aligned view on an array which prevent SIMD optimization
-on the second dimension even if loop fusion and temporary elimination is
-performed.  We can notice that Parakeet performs really well on
-extensive gslice use.
-%TODO IL faut refaire les mesures en changeant la limite OpenMP. Parce qu'on a
-%pas du tout de parallelisme la. On note par contre l"overhead libgomp...
-%SG: +1
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.5\textwidth]{diffusion_amd48.png}
-\caption{Execution time of the diffusion kernel on AMD48.}
-\label{fig:diffusion}
-\end{figure}
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.5\textwidth]{diffusion_intel8.png}
-\caption{Execution time of the diffusion kernel on Intel8.}
-\label{fig:diffusion_intel8}
-\end{figure}
-
-Finally, Figure~\ref{fig:l2norme} shows the L2norm algorithm introduced in
+Finally, Figure~\ref{fig:l2norme} and \ref{fig:l2norm_intel8} shows the L2norm algorithm introduced in
 \S~\ref{sec:stackoverflow}. Comparison with other compilers illustrates how the
-approach taken by Pythran is relevant for these kind of functions.
-%TODO IL faut refaire les mesures en changeant la limite OpenMP. Parce qu'on a
-%pas du tout de parallelisme la. On note par contre l"overhead libgomp...
-%SG: +1
+approach taken by Pythran is relevant for these kind of functions. Just like for
+the arc\_distance benchmarks, we can notice use of AVX when it is available.
+
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.5\textwidth]{l2norm_amd48.png}

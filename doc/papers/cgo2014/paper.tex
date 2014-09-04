@@ -888,48 +888,24 @@ SIMD instructions.
 \subsection{Comparison with others Python compiler}
 \todo{a better title have to be found}
 
-Figure~\ref{fig:arc_distance} and \ref{fig:arc_distance_intel8} are typicals
-example where we can make intensive
-use of the techniques described in this paper. It measures performances on the
-arc\_distance benchmark. It is a kernel with intensive points to points computation
-and trigonometrics use. As we can see, both vectorization
-and parallelization have an impact on execution time. We can notice that SIMD
-contribution is not as good on AMD48 as it is on Intel8, because it does not
-support AVX. This program also benefits from OpenMP and is scalable up to 20 cores.
-The input is a raw array of 10,000,000 double elements.
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.5\textwidth]{arc_distance_amd48.png}
-\caption{Speed up for the arc distance kernel on AMD48.}
-\label{fig:arc_distance}
-\end{figure}
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.5\textwidth]{arc_distance_intel8.png}
-\caption{Speed up for the arc distance kernel on Intel48.}
-\label{fig:arc_distance_intel8}
-\end{figure}
-
-Finally, Figure~\ref{fig:l2norme} and \ref{fig:l2norm_intel8} shows the L2norm algorithm introduced in
-\S~\ref{sec:stackoverflow}. Comparison with other compilers illustrates how the
-approach taken by Pythran is relevant for these kind of functions. Just like for
-the arc\_distance benchmarks, we can notice use of AVX when it is available.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.5\textwidth]{l2norm_amd48.png}
-\caption{Execution time of the l2norm kernel on AMD48.}
-\label{fig:l2norme}
-\end{figure}
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.5\textwidth]{l2norm_intel8.png}
-\caption{Execution time of the l2norm kernel on Intel8.}
-\label{fig:l2norm_intel8}
-\end{figure}
+Table~\ref{tbl:overview} presents the average execution time for each kernel
+and each compiler, with the lowest values highlighted in
+bold font. Zeros are used when the given compiler failed to
+compile the kernel. Concerning the Numba compiler, this
+benchmarks conﬁrms that it works best on explicit loops. It
+gives non performance gain when run on high-level kernels,
+either falling back to the generation of calls to Python C
+API, or stopping compilation. PyPy is the most robust of
+the compilers, but to a few exceptions, it does not generate
+code more efﬁcient than the original version. This reﬂects
+the fact that Numpy support is still a work-in-progress task.
+Parakeet performs extremely well on high-level benchmarks.
+Although it does not supports some Numpy constructs, it
+successfully parallelize many of them, and also generates
+efﬁcient code for explicit loops. Pythran still performs better
+than Parakeet on some kernels, whenever it successfully
+vectorizes operations.
 
 \begin{table*}
 
@@ -974,7 +950,53 @@ allpairs\_distances\_loops &   49799 &         55867 &          1781 &         5
 \end{tabular}
 }
 \caption{Average execution times for all kernels of the numpy-benchamrks.}
+\label{tbl:overview}
 \end{table*}
+
+
+Figure~\ref{fig:arc_distance} and \ref{fig:arc_distance_intel8} are typicals
+example where we can make intensive
+use of the techniques described in this paper. It measures performances on the
+arc\_distance benchmark. It is a kernel with intensive points to points computation
+and trigonometrics use. As we can see, both vectorization
+and parallelization have an impact on execution time. We can notice that SIMD
+contribution is not as good on AMD48 as it is on Intel8, because it does not
+support AVX. This program also benefits from OpenMP and is scalable up to 20 cores.
+The input is a raw array of 10,000,000 double elements.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.5\textwidth]{arc_distance_amd48.png}
+\caption{Speed up for the arc distance kernel on AMD48.}
+\label{fig:arc_distance}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.5\textwidth]{arc_distance_intel8.png}
+\caption{Speed up for the arc distance kernel on Intel48.}
+\label{fig:arc_distance_intel8}
+\end{figure}
+
+Finally, Figure~\ref{fig:l2norme} and \ref{fig:l2norm_intel8} shows the L2norm algorithm introduced in
+\S~\ref{sec:stackoverflow}. Comparison with other compilers illustrates how the
+approach taken by Pythran is relevant for these kind of functions. Just like for
+the arc\_distance benchmarks, we can notice use of AVX when it is available.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.5\textwidth]{l2norm_amd48.png}
+\caption{Execution time of the l2norm kernel on AMD48.}
+\label{fig:l2norme}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.5\textwidth]{l2norm_intel8.png}
+\caption{Execution time of the l2norm kernel on Intel8.}
+\label{fig:l2norm_intel8}
+\end{figure}
+
 
 %%
 %%

@@ -915,54 +915,52 @@ vectorizes operations.
 & Python & numba & parakeet & pypy & pythran \\
 \hline
 \hline
-       allpairs\_distances &   37727 &             0 &          1768 &         36855 & \textbf{1079} \\
-allpairs\_distances\_loops &   49799 &         55867 &          1781 &         50253 & \textbf{1758} \\
-             arc\_distance &    1365 &          1401 &          1596 &          1364 &  \textbf{494} \\
-                      conv & 1926454 &       2356675 &          2032 &       1899006 & \textbf{1944} \\
-              create\_grid &    3867 &          3950 &             0 & \textbf{3833} &          5512 \\
-                  cronbach &    1637 &          1681 &             0 &          1756 & \textbf{1136} \\
-                 diffusion &   22511 &         23564 &         21167 &         22450 & \textbf{9606} \\
-                    evolve &    5762 &             0 &             0 &          5522 & \textbf{3841} \\
-                      fdtd & 1558799 &       1824395 &             0 &       1538692 & \textbf{1198} \\
-                       fft &   25720 &             0 &             0 &         24771 & \textbf{1211} \\
-                  grouping &    2095 &             0 &             0 &          2104 &  \textbf{839} \\
-                   growcut & 1807849 &          5573 & \textbf{2200} &       1860926 &          3930 \\
-                    harris &    5516 &          5258 &          5084 &          5500 & \textbf{2994} \\
-                   hyantes &  259268 &             0 & \textbf{1865} &        261074 &          2359 \\
-                     julia & 2716770 &          2716 &          2930 &       2776183 & \textbf{2636} \\
-                    l2norm &    6057 &          6008 &         12574 &          6069 &  \textbf{540} \\
-             local\_maxima &   59822 &             0 &             0 &         60504 & \textbf{5084} \\
-                    lstsqr &    7886 &          8652 &             0 &          7891 & \textbf{1680} \\
-                    mandel &  437908 & \textbf{4361} &             0 &        439827 &          5075 \\
-             multiple\_sum &    2981 &          3194 &          8206 &          2975 & \textbf{2007} \\
-                  pairwise & 3888235 &          5777 &          3699 &       3873927 & \textbf{3435} \\
-            periodic\_dist &    1848 &          1983 &             0 &          1863 &  \textbf{951} \\
-                 repeating &    1216 &          1228 &             0 &          1226 &  \textbf{568} \\
-           reverse\_cumsum &    2620 &          2629 &             0 &          2614 & \textbf{2389} \\
-                     rosen &   14693 &         19419 &          1557 &         14611 &  \textbf{894} \\
-                 slowparts &    5687 &             0 & \textbf{1223} &          5900 &          1537 \\
-                 smoothing &  911126 & \textbf{4858} &          6258 &        935202 &          4924 \\
-           specialconvolve &    8211 &          6665 &         10340 &          8140 & \textbf{2449} \\
-              vibr\_energy &    2563 &          2450 &          2488 &          2548 & \textbf{1112} \\
-                      wave &   54234 &         54529 &             0 &         51471 & \textbf{1886} \\
-                     wdist &   82669 &         90274 & \textbf{1457} &         80406 &          1469 \\
+         allpairs\_distances &   58293 &             0 &          3170 &   59232 & \textbf{1583} \\
+  allpairs\_distances\_loops &   64137 &         72748 &          3158 &   65287 & \textbf{3146} \\
+               arc\_distance &    2796 &          2792 &          3084 &    2791 &  \textbf{103} \\
+                        conv & 3260079 &             0 & \textbf{3284} & 3268298 &          3420 \\
+                create\_grid &    5231 & \textbf{5044} &             0 &    5240 &          5587 \\
+                    cronbach &    1905 &          2016 &             0 &    1909 & \textbf{1890} \\
+                   diffusion &   42998 &         45030 & \textbf{8843} &   43238 &         21704 \\
+                      evolve &    8236 &             0 &             0 &    8319 & \textbf{6242} \\
+                        fdtd & 1940884 &       1498849 &             0 & 2007839 & \textbf{2294} \\
+                         fft &   27120 &             0 &             0 &   27009 & \textbf{2151} \\
+                    grouping &    3739 &             0 &             0 &    3740 & \textbf{1747} \\
+                     growcut & 2112332 &         11617 & \textbf{5485} & 2141571 &         10338 \\
+                      harris &    7173 &          9116 & \textbf{4240} &    7322 &          4889 \\
+                     hyantes &  288852 &             0 & \textbf{2834} &  289074 &          3522 \\
+                       julia & 1744357 &          5168 &  \textbf{109} & 1771329 &          4255 \\
+                      l2norm &    5966 &          5948 &          9210 &    6559 &  \textbf{551} \\
+               local\_maxima &  132237 &             0 &             0 &  132047 & \textbf{8561} \\
+                      lstsqr &    9254 &          7528 &             0 &    8992 & \textbf{1414} \\
+                      mandel &  951612 & \textbf{8175} &             0 &  951687 &         10341 \\
+               multiple\_sum &    5477 &          5813 &          9805 &    5475 & \textbf{3503} \\
+                    pairwise & 3362150 &         10764 &          6199 & 3347574 & \textbf{6015} \\
+              periodic\_dist &    2559 &          2675 &             0 &    2562 & \textbf{2292} \\
+                   repeating &    2808 &          2836 &             0 &    2795 &  \textbf{810} \\
+             reverse\_cumsum &    4583 &          4828 &             0 &    4583 & \textbf{2379} \\
+                       rosen &   15382 &         14309 &          2763 &   16065 &  \textbf{939} \\
+                   slowparts &    8302 &             0 & \textbf{1610} &    8241 &          1927 \\
+                   smoothing &  834057 &          8478 &          9771 &  819827 & \textbf{8254} \\
+             specialconvolve &   12537 &         11978 &          6039 &   12570 & \textbf{5572} \\
+                vibr\_energy &    5277 &          5275 &          5334 &    5416 &  \textbf{146} \\
+                        wave &   72394 &         67590 &             0 &   72300 & \textbf{5186} \\
+                       wdist &  108572 &        119211 &          4197 &  108283 & \textbf{4010} \\
 \hline
 \end{tabular}
 }
-\caption{Average execution times for all kernels of the numpy-benchamrks.}
 \label{tbl:overview}
+\caption{Average execution times for all kernels of the numpy-benchamrks on Intel8 with OpenMP (8 threads) and SIMD extension.}
 \end{table*}
 
 
 Figure~\ref{fig:arc_distance} and \ref{fig:arc_distance_intel8} are typicals
 example where we can make intensive
-use of the techniques described in this paper. It measures performances on the
-arc\_distance benchmark. It is a kernel with intensive points to points computation
-and trigonometrics use. As we can see, both vectorization
-and parallelization have an impact on execution time. We can notice that SIMD
-contribution is not as good on AMD48 as it is on Intel8, because it does not
-support AVX. This program also benefits from OpenMP and is scalable up to 20 cores.
-The input is a raw array of 10,000,000 double elements.
+use of the techniques described in this paper. It shows speedup compare to one
+thread execution for the arc\_distance benchmark.This kernel performs intensive
+points to points computation and trigonometrics use. We can see that OpenMP
+improvement is scalable up to 20 threads with a raw array of 10,000,000 double
+elements as input.
 
 \begin{figure}[t]
 \centering

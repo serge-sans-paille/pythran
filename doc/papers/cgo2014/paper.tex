@@ -532,13 +532,9 @@ return numpy::sum{}((t0 + t1));
 The limitation of expression templates presented in
 \S~\ref{sec:expression-templates} can be solved using forward substitution at
 the Python compiler level. This optimization leverages the
-\textit{def-use} chains as well as interprocedural read-write
+\textit{def-use} chains as well as inter-procedural read-write
 effects and alias analysis presented in the next sections.
-Thanks to these analyses, the forward substitution implementation is quite
-simple: \todo{it is not THAT simple indeed, there is "lazyness" analysis
-involved}....
-
-This optimization is able to forward \texttt{t0} and \texttt{t1} in
+It is able to forward \texttt{t0} and \texttt{t1} in
 Listing~\ref{lst:rosen}, avoiding a temporary allocation and providing more
 arithmetic intensity at the same time.
 
@@ -552,12 +548,12 @@ languages at run-time. In the context of a static compiler for
 numerical programs, it can be assumed that binding is done statically and no
 monkey patching is done. Indeed the Pythran compiler operates on a subset of
 Python that forbid this kind of dynamic patching.
-In this context, it becomes possible to design an intra-procedural alias
+In this context, it becomes possible to design an intra procedural alias
 analysis thanks to the absence of pointer arithmetic:
 the only language construction that can create aliasing is the assignment, thus
 a simple control-flow based alias analysis yields accurate results.
 
-\subsection{Interprocedural Effects Analysis}
+\subsection{Inter-procedural Effects Analysis}
 \label{sec:effects}
 
 The computation of read-write effects involves the computation of argument
@@ -567,14 +563,14 @@ arguments. This can be done by considering each function individually and
 looking for the two kind of constructs that can modify a function argument:
 indexing and further function calls.
 
-To interprocedurally compute the read-write effects, intra procedural effects
+To inter-procedurally compute the read-write effects, intra procedural effects
 are first computed. Then we create a directed graph $G$ with as many nodes as
 functions, and with as many edges as formal parameters between two nodes. Local
 variables used as arguments do not trigger an edge.
 Edges are labeled by an integer tuple $(i, j)$ if $i^\text{th}$ formal
 argument of the source is passed as $j^\text{th}$ effective argument of the
 sink. The analysis is iteratively pruning all edges from $G$ by considering any
-node for which the intraprocedural analysis shown that an argument $i$ is
+node for which the intra procedural analysis shown that an argument $i$ is
 written. Since the parameter is modified, any outgoing edge $(i, j)$ for this
 node will not add any information to the analysis and then can be safely
 removed. Incoming edges $(j, i)$ are used to propagate the effects along the
@@ -667,7 +663,7 @@ constant arguments. This evaluation is especially feasible in Python thanks to
 the ability of the language to turn an AST expression into bytecode, evaluate it
 and retrieve its constant value. For instance, this makes it possible to turn a
 call to \texttt{range(3)} into \texttt{[0, 1, 2]}, but also to compute the
-value of \texttt{fibonnaci(4)} at compile-time.
+value of \texttt{Fibonacci(4)} at compile-time.
 
 
 \begin{figure}
@@ -710,7 +706,7 @@ return s;
 
 \end{figure}
 
-Once interprocedural constant evaluation is done (eventually followed by
+Once inter-procedural constant evaluation is done (eventually followed by
 forward substitution), iteration over fixed size lists may be exposed, giving an
 opportunity to fully unroll these loops at the Python level, thus avoiding the
 suboptimal C++ translation observed for Listing~\ref{lst:stat}
@@ -870,7 +866,7 @@ release (LLVM:233b1e3f034, clang-omp:6f358bcd87).
 The second configuration holds one Intel(R) Xeon(R) CPU E5-2650 0 @ 2.00GHz for a total of
 8 cores (multithreading is not used). Each node has access to 64\,KB of L1
 cache, 256\,KB of L2 cache. Both L1 and L2 caches are private, while L3 cache
-is shared between the 8 cores. This configuration provides a total of 64\,GB of 
+is shared between the 8 cores. This configuration provides a total of 64\,GB of
 main memory. It supports up to AVX. We refer to this configuration as
 \textbf{Intel8}.
 On Intel8, backend compilers is GCC 4.9 (20140528) with libgomp.
@@ -957,62 +953,73 @@ floating point elements as input.
 & Python & numba & parakeet & pypy & pythran \\
 \hline
 \hline
-         allpairs\_distances &   58293 &             0 &          3170 &   59232 & \textbf{1583} \\
+         allpairs\_distances &   58293 &             N/A &          3170 &   59232 & \textbf{1583} \\
   allpairs\_distances\_loops &   64137 &         72748 &          3158 &   65287 & \textbf{3146} \\
                arc\_distance &    2796 &          2792 &          3084 &    2791 &  \textbf{103} \\
-                        conv & 3260079 &             0 & \textbf{3284} & 3268298 &          3420 \\
-                create\_grid &    5231 & \textbf{5044} &             0 &    5240 &          5587 \\
-                    cronbach &    1905 &          2016 &             0 &    1909 & \textbf{1890} \\
+                        conv & 3260079 &             N/A & \textbf{3284} & 3268298 &          3420 \\
+                create\_grid &    5231 & \textbf{5044} &             N/A &    5240 &          5587 \\
+                    cronbach &    1905 &          2016 &             N/A &    1909 & \textbf{1890} \\
                    diffusion &   42998 &         45030 & \textbf{8843} &   43238 &         21704 \\
-                      evolve &    8236 &             0 &             0 &    8319 & \textbf{6242} \\
-                        fdtd & 1940884 &       1498849 &             0 & 2007839 & \textbf{2294} \\
-                         fft &   27120 &             0 &             0 &   27009 & \textbf{2151} \\
-                    grouping &    3739 &             0 &             0 &    3740 & \textbf{1747} \\
+                      evolve &    8236 &             N/A &             N/A &    8319 & \textbf{6242} \\
+                        fdtd & 1940884 &       1498849 &             N/A & 2007839 & \textbf{2294} \\
+                         fft &   27120 &             N/A &             N/A &   27009 & \textbf{2151} \\
+                    grouping &    3739 &             N/A &             N/A &    3740 & \textbf{1747} \\
                      growcut & 2112332 &         11617 & \textbf{5485} & 2141571 &         10338 \\
                       harris &    7173 &          9116 & \textbf{4240} &    7322 &          4889 \\
-                     hyantes &  288852 &             0 & \textbf{2834} &  289074 &          3522 \\
+                     hyantes &  288852 &             N/A & \textbf{2834} &  289074 &          3522 \\
                        julia & 1744357 &          5168 &  \textbf{109} & 1771329 &          4255 \\
                       l2norm &    5966 &          5948 &          9210 &    6559 &  \textbf{551} \\
-               local\_maxima &  132237 &             0 &             0 &  132047 & \textbf{8561} \\
-                      lstsqr &    9254 &          7528 &             0 &    8992 & \textbf{1414} \\
-                      mandel &  951612 & \textbf{8175} &             0 &  951687 &         10341 \\
+               local\_maxima &  132237 &             N/A &             N/A &  132047 & \textbf{8561} \\
+                      lstsqr &    9254 &          7528 &             N/A &    8992 & \textbf{1414} \\
+                      mandel &  951612 & \textbf{8175} &             N/A &  951687 &         10341 \\
                multiple\_sum &    5477 &          5813 &          9805 &    5475 & \textbf{3503} \\
                     pairwise & 3362150 &         10764 &          6199 & 3347574 & \textbf{6015} \\
-              periodic\_dist &    2559 &          2675 &             0 &    2562 & \textbf{2292} \\
-                   repeating &    2808 &          2836 &             0 &    2795 &  \textbf{810} \\
-             reverse\_cumsum &    4583 &          4828 &             0 &    4583 & \textbf{2379} \\
+              periodic\_dist &    2559 &          2675 &             N/A &    2562 & \textbf{2292} \\
+                   repeating &    2808 &          2836 &             N/A &    2795 &  \textbf{810} \\
+             reverse\_cumsum &    4583 &          4828 &             N/A &    4583 & \textbf{2379} \\
                        rosen &   15382 &         14309 &          2763 &   16065 &  \textbf{939} \\
-                   slowparts &    8302 &             0 & \textbf{1610} &    8241 &          1927 \\
+                   slowparts &    8302 &             N/A & \textbf{1610} &    8241 &          1927 \\
                    smoothing &  834057 &          8478 &          9771 &  819827 & \textbf{8254} \\
              specialconvolve &   12537 &         11978 &          6039 &   12570 & \textbf{5572} \\
                 vibr\_energy &    5277 &          5275 &          5334 &    5416 &  \textbf{146} \\
-                        wave &   72394 &         67590 &             0 &   72300 & \textbf{5186} \\
+                        wave &   72394 &         67590 &             N/A &   72300 & \textbf{5186} \\
                        wdist &  108572 &        119211 &          4197 &  108283 & \textbf{4010} \\
 \hline
 \end{tabular}
 }
-\caption{Average execution times for all kernels of the numpy-benchamrks on Intel8 with OpenMP (8 threads) and SIMD extension.}
+\caption{Average execution times for all kernels of the numpy-benchmarks on Intel8 with OpenMP (8 threads) and SIMD extension.}
 \label{tbl:overview}
 \end{table*}
 
 Table~\ref{tbl:overview} presents the average execution time for each kernel
-and each compiler, with the lowest values highlighted in
-bold font. Zeros are used when the given compiler failed to
-compile the kernel. Concerning the Numba compiler, this
-benchmarks confirms that it works best on explicit loops. It
-gives no performance gain when run on high-level kernels,
-either falling back to the generation of calls to Python C
-API, or stopping compilation. PyPy is the most robust of
-the compilers, but to a few exceptions, it does not generate
-code more efficient than the original version. This reflects
-the fact that Numpy support is still a work-in-progress.
-Parakeet performs extremely well on high-level benchmarks.
-Although it does not supports some Numpy constructs, it
-successfully parallelizes many of them, and also generates
-efficient code for explicit loops. Pythran still performs better
-than Parakeet on some kernels, whenever it successfully
-vectorizes operations.
+and each compiler, with the lowest values highlighted in bold font. N/A are
+used when the given compiler failed to compile the kernel. Standard deviations
+are not presented in the table, as the result computation were very stable, to
+the notable exception of \texttt{periodic\_dist} for parakeet. It comes out
+that parakeet leaks the memory of some of the \texttt{ndarray} it allocates,
+which results in the kernel swapping.
 
+Concerning the Numba compiler, this benchmarks confirms that it works best on
+explicit loops (benchmarks \texttt{growcut}, \texttt{mandel},
+\texttt{pariwise}). It does not show any significant improvements on high-level
+kernels (\texttt{l2norm}, \texttt{multiple\_sum}\dots), either falling back to
+the generation of calls to Python C API, or stopping compilation.
+
+PyPy is the most robust of the compilers, but to a few exceptions, it does not
+generate code more efficient than the original version. This reflects the fact
+that Numpy support is still a work-in-progress.
+
+Parakeet performs extremely well on both high-level benchmarks and explicit
+loops. Although it does not supports some Numpy constructs (e.g. it does no
+support calling the \texttt{numpy.cumsum} function in \texttt{reverse\_cumsum})
+, it successfully parallelizes many of them. It does not vectorize them though,
+which explains while Pythran still performs better by more than a factor of
+$\times2$ on some kernels.
+
+Pythran outperforms the other compilers, sometimes by a factor greater than
+$\times2$, thanks to the combination of vectorization and parallelization. Code
+generation for explicit loops can still be improved, as shown by the poor
+performance on the \texttt{growcut} kernel and \texttt{hyantes} kernels.
 
 
 
@@ -1020,10 +1027,21 @@ vectorizes operations.
 %%
 \section*{Conclusion}
 
+This paper presents a study of the optimization of Python/Numpy high level
+kernels in the context of high performance computing. It uses a set of
+realistic benchmarks adapted from the question and answers on the StackOverflow
+website to identify optimization opportunities. It focuses on the efficient
+implementation and optimization of array expressions within the ahead-of-time
+Pythran compiler, showing that a compilation step at Python level before
+generation of lower-level code makes it possible to generate vectorized,
+parallel C++ code. A comparison with existing JIT compiler for scientific
+Python validates the approach, showing significant performance improvements
+over the state of the art.
+
 \acks
 
-The Pythran project is an independent Open Source initiative that has been
-partially funded by the CARP Project and the SILKAN Company.
+The Pythran project is an independent Open Source initiative partially funded
+by the CARP Project and the SILKAN Company.
 
 Several Students of Télécom Bretagne, namely Adrien Merlini, Alan Raynaud,
 Xavier Corbillon, Yuancheng Peng and Eliott Coyacc, have made significant

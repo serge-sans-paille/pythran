@@ -69,7 +69,7 @@
     This papers focuses on the case of the Python language and especially the
     Numpy package that provides core array data structure and basic linear
     algebra routines. It first conducts a case study based on Numpy use
-    cases from the StackOverflow question and answer website, then studies
+    cases from the StackOverflow questions and answers website, then studies
     existing compilers for numerical Python. Optimization opportunities,
     including parallelization and vectorization, and their implementation in
     the Pythran compiler are presented and illustrated through several
@@ -104,17 +104,17 @@ these tools, there is also a performance gap that needs to be filled.
 
 This paper focuses on compilation techniques that are relevant for the
 optimization of high-level numerical kernels written in Python using the Numpy
-package. Its shows an implementation of these techniques through the Pythran
-compiler and provided a benchmarks test suite for performance measures with
-others Python compilers.
+package. Its introduces the implementation of these techniques in the Pythran
+compiler and provides a benchmarks test suite for performance measures along
+several Python compilers.
 Section~\ref{sec:stackoverflow} presents a case study based on user
-input gathered on the StackOverflow question and answer site.
+input gathered on the StackOverflow questions and answers website.
 Section~\ref{sec:optimize} focuses on a simple yet representative kernel and
 showcases the optimization opportunities typically found in Numpy-based
-kernels. Existing compilation approach to optimize such kernels are discussed
-in Section~\ref{sec:compilers}, then Section~\ref{sec:pythran} emphasises on a
+kernels. Existing compilation approaches to optimize such kernels are discussed
+in Section~\ref{sec:compilers}. Section~\ref{sec:pythran} emphasises on a
 compiler-runtime cooperative approach to solve the performance issues.
-Experimentations showcasing important performance gains are detailed in
+Finally, experimentations showcasing important performance gains are detailed in
 Section~\ref{sec:xp}.
 
 
@@ -135,11 +135,11 @@ StackOverflow website.
 StackOverflow~\footnote{\url{http://stackoverflow.com/}} is a question and
 answer site for programmers. Any registered user can submit questions and other
 users may answer. A voting system is then used to sort the answers. Said
-otherwise, the website provides a database of question and answers on
+otherwise, the website provides a database of questions and answers on
 programming topics, including Python.
 
 A query using the terms \emph{numpy} and \emph{slow} yields a lot of results, many
-of which use the pattern ``Q: my code is slow'' followed by an upvoted answer
+of which expose the pattern ``Q: my code is slow'' followed by an upvoted answer
 ``A: rewrite it that way'', where the original code performs explicit looping
 over an array, and the rewritten code uses the relevant combination of Numpy
 function.
@@ -152,7 +152,7 @@ Listing~\ref{lst:l2norm}. This answer no longer uses any explicit loops and
 roughly achieves a $\times 4$ speedup over the loop version.
 
 \begin{lstlisting}[language=python,caption={Per row version of $L^2$ norm with loop in Numpy.}, label={lst:l2norm-loopy}]
-def slow(x):
+def l2norm_slow(x):
     r = np.empty(x.shape[0])
     for i in xrange(x.shape[0]):
         r[i] = np.sum(np.abs(x[i])**2)
@@ -161,15 +161,16 @@ def slow(x):
 
 \begin{lstlisting}[language=python,caption={Per row version of $L^2$ norm without loop in Numpy.}, label={lst:l2norm}]
 import numpy as np
-def l2norm(x):
+def l2norm_fast(x):
     return np.sum(np.abs(x)**2, axis=1)
 \end{lstlisting}
 
 Newcomers to Python with a prior C or Fortran experience are likely to make
 use of raw loops similar to Listing~\ref{lst:l2norm-loopy}, but as their
-command of the Numpy API and of good programming practices grows, they get to write code similar
-to Listing~\ref{lst:l2norm}. The fact that in Numpy, high-level constructs run faster is also a
-strong motivation. As a direct consequence, a compiler should focus on optimizing
+knowledge of the Numpy API and of good programming practices grows, they get to 
+write code similar to Listing~\ref{lst:l2norm}. 
+The fact that in Numpy, high-level constructs run faster is also a strong 
+motivation. As a direct consequence, a compiler should focus on optimizing
 high-level constructs rather than raw
 loops. Both to encourage good practice with respect to Numpy code, and because
 this is the kind of code Numpy users ultimately write.
@@ -242,7 +243,7 @@ implied by two array reads and one array write for a single binary operator.
 
 On the opposite, if all computations were merged into a single loop using
 temporaries elimination and operator fusion, parallelization would be more
-effective as barrier between binary operations are no longer needed and loads
+effective as barriers between binary operations are no longer needed and loads
 and stores will be used to perform multiple operations.
 
 %%
@@ -467,7 +468,7 @@ return numpy::sum{}((t0 + t1));
 The limitation of expression templates presented in
 \S~\ref{sec:expression-templates} can be solved using forward substitution at
 the Python compiler level. This optimization leverages the
-\textit{def-use} chains~\cite{defuse} as well as interprocedural read-write
+\textit{def-use} chains as well as interprocedural read-write
 effects and alias analysis presented in the next sections.
 Thanks to these analyses, the forward substitution implementation is quite
 simple: \todo{it is not THAT simple indeed, there is "lazyness" analysis

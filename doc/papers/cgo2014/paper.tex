@@ -57,14 +57,14 @@
     R, Python or more recently Julia for experimentation and prototyping.
 
     As more scientists use these scripting languages, there is an on-going
-    research effort to compile them into efficient native code. However as
-    these languages favor a high-level coding style, the computation kernels are
-    different from what we use to see in traditional C or Fortran programs:
+    research effort to compile them into efficient native code. However these
+    languages favor a high-level coding style, so the computation kernels are
+    different from those used in traditional C or Fortran programs:
     explicit raw loops are replaced by high-level constructs and calls to the
     relevant toolbox/module/library/package. As a consequence, traditional
-    algorithms to perform
-    loop optimization techniques like fusion, tiling and related
-    vectorization or parallelization techniques are not directly applicable.
+    algorithms to perform loop optimization techniques like fusion, tiling and
+    related vectorization or parallelization techniques are not directly
+    applicable.
 
     This papers focuses on the case of the Python language and especially the
     Numpy package that provides core array data structure and basic linear
@@ -92,12 +92,12 @@ Static Compilation, Parallelization, Python, C++, SIMD, Runtime
 The Python language~\cite{rossum97} has a rich ecosystem that now provides a
 full toolkit to carry out scientific experiments, from core scientific routines
 with the Numpy package\cite{oliphant2007,numpyarray2011}, to scientific
-packages with the Scipy package~\cite{scipy}, plotting facilities with the
+packages with Scipy~\cite{scipy}, plotting facilities with the
 Matplotlib package, enhanced terminal and notebooks with IPython. As a
 consequence, there has been a move from historical languages like Fortran to
 Python, as showcased by the success of the Scipy conference.
 
-As Python based scientific tools gets widely used, the question of High
+As Python based scientific tools get widely used, the question of High
 performance Computing naturally arises, and it is the focus of many recent
 research. Indeed, although there is a great gain in productivity when using
 these tools, there is also a performance gap that needs to be filled.
@@ -105,15 +105,15 @@ these tools, there is also a performance gap that needs to be filled.
 This paper focuses on compilation techniques that are relevant for the
 optimization of high-level numerical kernels written in Python using the Numpy
 package. Its introduces the implementation of these techniques in the Pythran
-compiler and provides a benchmarks test suite for performance measures along
+compiler and provides a benchmark test suite for performance measures along
 several Python compilers.
 Section~\ref{sec:stackoverflow} presents a case study based on user
-input gathered on the StackOverflow questions and answers website.
+input gathered from the StackOverflow questions and answers website.
 Section~\ref{sec:optimize} focuses on a simple yet representative kernel and
 showcases the optimization opportunities typically found in Numpy-based
 kernels. Existing compilation approaches to optimize such kernels are discussed
-in Section~\ref{sec:compilers}. Section~\ref{sec:pythran} emphasises on a
-compiler-runtime cooperative approach to solve the performance issues.
+in Section~\ref{sec:compilers}. Section~\ref{sec:pythran} emphasises on
+compiler-runtime cooperation to solve the performance issues.
 Finally, experimentations showcasing important performance gains are detailed in
 Section~\ref{sec:xp}.
 
@@ -126,13 +126,13 @@ Section~\ref{sec:xp}.
 One of the first steps required when designing an optimizing compiler is to
 gather enough test cases, or benchmarks, in order to drive the optimization
 process toward realistic examples. To achieve this goal, we have gathered a few
-examples from existing compilers' test suite, but these may have been modified to
+examples from existing compilers' test suites, but these may have been modified to
 overcome some compiler limitations. A less biased source of benchmarks should
-be independent from the compiler community and focused on matching user needs.
+be independent from the compiler community and showed focus on matching user needs.
 To achieve that goal, we collected synthetic scientific kernels from the
 StackOverflow website.
 
-StackOverflow~\footnote{\url{http://stackoverflow.com/}} is a question and
+StackOverflow\footnote{\url{http://stackoverflow.com/}} is a question and
 answer site for programmers. Any registered user can submit questions and other
 users may answer. A voting system is then used to sort the answers. Said
 otherwise, the website provides a database of questions and answers on
@@ -148,7 +148,7 @@ For instance, question \href{http://stackoverflow.com/questions/7741878}{7741878
 proposes to use an explicit loop to iteratively compute the $L^2$ norm of each
 row of a matrix, as illustrated in Listing~\ref{lst:l2norm-loopy}, and one of
 the proposed answer is to use the more compact version presented in
-Listing~\ref{lst:l2norm}. This answer no longer uses any explicit loops and
+Listing~\ref{lst:l2norm}. This answer no longer uses any explicit loop and
 roughly achieves a $\times 4$ speedup over the loop version.
 
 \begin{lstlisting}[language=python,caption={Per row version of $L^2$ norm with loop in Numpy.}, label={lst:l2norm-loopy}]
@@ -169,15 +169,18 @@ Newcomers to Python with a prior C or Fortran experience are likely to make
 use of raw loops similar to Listing~\ref{lst:l2norm-loopy}, but as their
 knowledge of the Numpy API and of good programming practices grows, they get to 
 write code similar to Listing~\ref{lst:l2norm}. 
-The fact that in Numpy, high-level constructs run faster is also a strong 
+The fact that Numpy high-level constructs runs faster is also a strong 
 motivation. As a direct consequence, a compiler should focus on optimizing
 high-level constructs rather than raw
 loops. Both to encourage good practice with respect to Numpy code, and because
 this is the kind of code Numpy users ultimately write.
 
-The benchmarks collected during this process are publicly available on
+A selection of benchmarks collected during this process, selected for their
+conciseness and representativity of high-level calls, are publicly available on
 \url{https://github.com/serge-sans-paille/numpy-benchmarks}, with a set of
-benchmarking routine specialized for major Python/Numpy compilers.
+benchmarking routines specialized for major Python/Numpy compilers. This
+benchmark is used in \S~\ref{sec:xp} to evaluate the validity of the approach
+described in this paper.
 
 
 %%
@@ -185,78 +188,9 @@ benchmarking routine specialized for major Python/Numpy compilers.
 \section{Optimizations Opportunities in a Typical Numpy Kernel}
 \label{sec:optimize}
 
-Let us consider the kernel illustrated in Listing~\ref{lst:rosen} and adapted
-from the Scipy source code of \texttt{scipy.optimize.rosen}. This kernel makes
-use of Numpy's \texttt{sum} function, Python's square notation and Numpy's
-array slicing. It is a good example of high-level Python kernel, although
-using the function \texttt{scipy.optimize.rosen} directly would naturally make sense.
-
-\begin{lstlisting}[language=python, caption={High-level implementation of the Rosenbrock function in Numpy.}, label={lst:rosen}]
-def rosen(x):
-    t0 = 100 * (x[1:] - x[:-1] ** 2) ** 2
-    t1 = (1 - x[:-1]) ** 2
-    return numpy.sum(t0 + t1)
-\end{lstlisting}
-
-This section goes through all the optimization opportunities in
-Listing~\ref{lst:rosen} as a showcase of what an optimizing compiler could do.
-
-
-\subsection{Temporaries Elimination}
-\label{sec:temporaries-elimination}
-
-In Numpy, all point-to-point array operations allocate a new array that holds
-the computation result. This behavior is consistent with many Python standard
-module, but it is a very inefficient design choice, as it keeps on polluting
-the cache with potentially large fresh storage and add an extra
-allocation/deallocation costly operation. In the \textit{rosen} function from
-Listing~\ref{lst:rosen}, 7 temporary arrays are allocated (slicing does not
-create a temporary array but a view) to hold intermediate steps. Had the
-computation been lazy, no temporary would have been needed.
-
-\subsection{Operator Fusion}
-\label{sec:operator-fusion}
-
-As Numpy is a native library mostly written in C, each operator computation is
-performed by a function implemented as a loop performing a single operation,
-and the operator chaining is done at the interpreter level. This is a typical
-problem in library design: if only a small set of functions is provided, it
-prevents the optimization of merging multiple operators into a single specialized
-operator, and provided many operator combinations as part of the library yields
-better performance to the price of API bloat. The Listing~\ref{lst:rosen}
-illustrates the use of a small set of functions: a loop is used for
-each temporary computation, plus an extra loop for the \texttt{numpy.sum}
-reduction, where a single loop would have been needed with operator fusion.
-
-\subsection{Loop Vectorization and Parallelization}
-
-Without operator fusion, there would be very little benefit to generate SIMD
-instructions for the respective array operations used by each operator, as the
-memory load and store would have dominated the execution time. This is even more important as
-Numpy typically operates on double precision floats, which means only two (SSE)
-to four (AVX) scalar per vector registers.
-
-Parallelization also suffers from the lack of operator fusion: a
-synchronization fence is needed between each temporary computation.  Hence the
-loop computation intensity would be very low compared to the memory pressure
-implied by two array reads and one array write for a single binary operator.
-
-On the opposite, if all computations were merged into a single loop using
-temporaries elimination and operator fusion, parallelization would be more
-effective as barriers between binary operations are no longer needed and loads
-and stores will be used to perform multiple operations.
-
-%%
-%%
-\section{Existing Compilation Approach}
-\label{sec:compilers}
-
-The success of Python and the development of its large ecosystem triggered
-several attempts to improve its execution speed. The most significant basic
-block for high performance numerical simulations is certainly Numpy, a
-numerical library to manipulate dense arrays. However, this library-like
-approach has inherent limitations that have been exposed in \S~\ref{sec:optimize}.
-To address these limitations, several compiler-based approaches have been proposed.
+This section briefly presents the core concepts of the Numpy package, then goes
+through all the optimization opportunities in a small kernel as a showcase of
+the optimization opportunities.
 
 \subsection{Numpy}
 
@@ -295,19 +229,98 @@ def pairwise_python(X):
     return D
 \end{lstlisting}
 
+\subsection{The Rosenbrock Function}
+
+This section uses the kernel illustrated in Listing~\ref{lst:rosen} and adapted
+from the Scipy source code of \texttt{scipy.optimize.rosen}. It uses Numpy's
+\texttt{sum} function, Python's square notation and Numpy's array slicing. It
+is a good example of high-level Python kernel, although using the function
+\texttt{scipy.optimize.rosen} directly would naturally make sense.
+
+Note that due to dynamic typing, this function can take arrays of different
+shapes and types as input.
+
+\begin{lstlisting}[language=python, caption={High-level implementation of the Rosenbrock function in Numpy.}, label={lst:rosen}]
+def rosen(x):
+    t0 = 100 * (x[1:] - x[:-1] ** 2) ** 2
+    t1 = (1 - x[:-1]) ** 2
+    return numpy.sum(t0 + t1)
+\end{lstlisting}
+
+
+\subsection{Temporaries Elimination}
+\label{sec:temporaries-elimination}
+
+In Numpy, any point-to-point array operation allocates a new array that holds
+the computation result. This behavior is consistent with many Python standard
+module, but it is a very inefficient design choice, as it keeps on polluting
+the cache with potentially large fresh storage and adds extra
+allocation/deallocation operations, that have a very bad caching effect. In the
+\textit{rosen} function from Listing~\ref{lst:rosen}, 7 temporary arrays are
+allocated (slicing does not create a temporary array but a view) to hold
+intermediate steps. Had the expression been evaluated lazily, no temporary
+would have been needed.
+
+\subsection{Operator Fusion}
+\label{sec:operator-fusion}
+
+As Numpy is a native library mostly written in C, each operator computation is
+performed by a function implemented as a loop performing a single operation,
+and the operator chaining is done at the interpreter level. This is a typical
+problem in library design: if only a small set of functions is provided, it
+prevents the optimization of merging multiple operators into a single specialized
+operator. On the contrary, providing many operator combinations as part of the library yields
+better performance to the price of API bloat. Listing~\ref{lst:rosen}
+illustrates the use of a small set of functions: a loop is generated for
+each temporary computation, plus an extra loop for the \texttt{numpy.sum}
+reduction, whereas a single loop would have been necessary with operator fusion.
+
+\subsection{Loop Vectorization and Parallelization}
+
+Without operator fusion, there would be very little benefit to generate SIMD
+instructions for the respective array operations used by each operator, as the
+memory loads and stores would have dominated the execution time. This is even more important as
+Numpy typically operates on double precision floats, which means only two (SSE)
+to four (AVX) scalars per vector registers.
+
+Parallelization would also suffer from the lack of operator fusion: a
+synchronization fence is needed between each temporary computation.  Hence the
+loop computation intensity would be very low compared to the memory pressure
+implied by two array reads and one array write for a single binary operator.
+
+On the opposite, if all computations were merged into a single loop using
+temporaries elimination and operator fusion, parallelization would be more
+effective as barriers between binary operations are no longer needed and loads
+and stores are counterbalanced by several operations.
+
+%%
+%%
+\section{Existing Compilation Approaches}
+\label{sec:compilers}
+
+The success of Python and the development of its large ecosystem triggered
+several attempts to improve its execution speed. The most significant basic
+block for high performance numerical simulations is certainly Numpy, a
+numerical library to manipulate dense arrays. However, this library-like
+approach has inherent limitations that have been exposed in \S~\ref{sec:optimize}.
+To address these limitations, several compiler-based approaches have been proposed.
+
+
 \subsection{Cython}
 %
 Cython~\cite{cython2010} is an hybrid Python/C dialect. It extends the Python
 syntax with typing information, calls to native functions from third party C
 libraries, and a limited set of parallelism constructs, such as the possibility
-to define parallel loops, but no task parallelism. When possible, it unboxes % ref?
-Python variables to improve performance. Without type annotations, the
-performance improvement is not significant, but given enough type annotation,
-Cython can generates code that runs as fast as its C equivalent.
+to define parallel loops, but no task parallelism. When possible, it unboxes
+Python variables to improve performance, i.e. it removes the generic object
+layer around a variable to turn it into a native type. Without type
+annotations, the performance improvement is not significant, but given enough
+type annotations, Cython can generate code that runs as fast as its C
+equivalent.
 
 The drawback is that the programmer has to avoid high-level constructs and
-instead expresses his algorithm using raw loops.  The \textit{pairwise}
-function rewritten for Cython is shown listing~\ref{lst:pairwise-cython},
+must instead express his algorithm using raw loops.  The \textit{pairwise}
+function rewritten for Cython is shown in Listing~\ref{lst:pairwise-cython},
 showing usage of compiler annotations in the form of function decorators.
 
 \begin{lstlisting}[language=python, caption={\textit{pairwise} function
@@ -338,15 +351,15 @@ def pairwise_cython(double[:, ::1] X):
 \subsection{Numba}
 
 
-The Numba compiler uses additional type information collected at run-time to
+The Numba compiler collects additional type information at run-time to
 generate sequential LLVM bytecode.  Numba uses Just-In-Time(JIT) compilation
 and does not suffer from backward-incompatibility issues: a single
-\texttt{@jit} decorator is used to flag kernels to optimize. When meeting an
+\texttt{@jit} decorator is provided to flag kernels to optimize. When meeting an
 unsupported construct, Numba silently falls back to Python C-API calls.
 
-Like Python, Numba is providing its best speedup on code with raw loops, which
-is not encouraging programmers to express their code using the higher-level
-construct available with Numpy. However, when input constraint are met, it
+Like Cython, Numba achieves its best speedups on codes with raw loops, which
+does not encourage programmers to express their codes using the higher-level
+constructs available within Numpy. However, when input constraints are met, it
 exhibits performance close to Cython, or even better when conversion to GPU
 code is possible.
 
@@ -360,13 +373,13 @@ Additionally, it supports implicit parallelism using an implicit mapping
 between Numpy functions and a set of parallel primitives including
 \texttt{map}, \texttt{scan}, and \texttt{reduce}.  As it applies optimizations
 such as operator fusion, it encourages programmer to express their code using
-the higher-level construct available with Numpy.
+the higher-level constructs available within Numpy.
 
 \subsection{Copperhead}
 
 Copperhead~\cite{copperhead2011} is a functional, data parallel language
-embedded in Python. It uses $n$-uplets, Numpy arrays and lists as its core data
-structure and prohibits usage of many control-flow operators such as loops,
+embedded in Python. It accepts $n$-uplets, Numpy arrays and lists as its core data
+structures and prohibits usage of many control-flow operators such as loops,
 enforcing the use of the \texttt{map}, \texttt{filter} or \texttt{reduce}
 intrinsics to exhibit parallelism. But it can be efficiently compiled to either
 CUDA or C++ with calls to the Thrust\footnote{\emph{cf}.
@@ -386,6 +399,59 @@ cannot be optimized by a Python JIT compiler. There is an important work in
 progress from the community to support Numpy, but it implies a partial rewrite
 of the Numpy API in RPython, the language used by PyPy.
 
+\subsection{The Pythran Compiler}
+
+The ideas described in this paper are implemented in the Pythran
+compiler~\cite{pythran2013}, a translator from a subset of Python to
+C++11~\cite{isocxx11}. The architecture of the compiler is briefly described
+in Figure~\ref{fig:pythran-compiler}. The input is a Python module written in
+the subset accepted by the compiler. Pythran translates it in its internal representation, a
+simplified Python AST. It performs various optimizations then outputs either
+Python code, in a source-to-source fashion, or C++ templated code calling the pythonic library that typically implements the \texttt{ndarray}
+interface. User annotations can be used to instantiate this code for the proper
+types and generate a native library. This library relies on Boost.Python
+library to match Python's C API.
+
+The Pythran compiler is an open source project publicly released under the BSD
+license\footnote{\url{http://pythonhosted.org/pythran/}}.
+
+\begin{figure}
+
+    \centering
+    \begin{tikzpicture}[
+            file/.style={draw=black!50,fill=black!10,rectangle, drop shadow, align=center,
+            node distance=0.7cm},
+            tool/.style={draw=black!50,fill=black!10,ellipse, align=center, node
+        distance=0.7cm}]
+        \node[file] (python) {\textbf{Python Module [\texttt{.py}]}};
+        \node[tool] (pythran) [below=of python] {\textbf{Pythran}};
+        \node[file] (meta-cxx) [below=of pythran] {\textbf{C++} Meta Program};
+        \node[tool] (gxx) [yshift=-1.5em, below=of meta-cxx] {\textbf{c++}};
+        \node (empty) [xshift=-1em, left=of gxx] {};
+        \node[file] (pythonic) [left=of empty] {\textbf{\texttt{pythonic}}};
+        \node[file] (annotation)     [above=of pythonic] {\textbf{Type Info}};
+        \node[file] (boost) [below=of pythonic] {\textbf{\texttt{boost::python}}};
+        \node[file] (so) [yshift=-1.5em, below=of gxx] {\textbf{Native Module [\texttt{.so}]}};
+
+        \draw[very thick, ->] (python) -- (pythran);
+        \draw[very thick] (annotation) -| (empty.center);
+        \draw[very thick, ->] (pythran) -- (meta-cxx);
+        \draw[very thick, ->] (meta-cxx) -- (gxx);
+        \draw[very thick] (boost) -| (empty.center);
+        \draw[very thick, ->] (pythonic) -- (gxx);
+        \draw[very thick, ->] (gxx) -- (so);
+    \end{tikzpicture}
+
+    \caption{Pythran compilation flow.}
+    \label{fig:pythran-compiler}
+
+\end{figure}
+
+Pythran keeps the static compilation approach used by Cython---JIT compilation
+is mainly used to statically type kernels before code generation by Numba and
+parakeet. Unlike Cython, it maintains full Python backward compatibility.
+Following the Parakeet approach, it focuses on high-level constructs, while
+still generating efficient code for explicit loop and subscripts.
 
 
 %%
@@ -406,22 +472,20 @@ GotoBlas~\cite{gotoblas2008}.
 % pas de nt2?
 
 There is no need to reinvent the wheel when compiling numerical Python kernels.
-A profitable approach is to map Python high-level to existing ones, or
-translate them into existing them.\todo{Mehdi: the previous sentence makes no sense to me}
+A profitable approach is to map Python high-level functions to existing ones.
 As a consequence, this section focuses on the translation of Python constructs
-to efficient C++ constructs. The choice of
-C++ instead of C is motivated by the opportunities offered by meta programming
-and the interesting similarities between C++11~\cite{isocxx11} features and
-Python constructs.
-The meta-programming part of C++ makes it more than a traditional compiler
-runtime, closer to a code generator backend.
+to efficient C++ constructs. The choice of C++ instead of C is motivated by the
+opportunities offered by meta programming and the interesting similarities
+between C++11~\cite{isocxx11} features and Python constructs.  The
+meta-programming part of C++ makes it more than a traditional compiler runtime,
+closer to a code generator back-end.
 
 \subsection{Expression Templates}
 \label{sec:expression-templates}
 
 Many C++ linear algebra libraries~\cite{eigen,ublas,esterie2014} use \emph{expression
 templates}~\cite{expression_templates, et2012} as a way to efficiently describe high
-level matrix expressions while avoid the creation of intermediate storage.
+level matrix expressions while avoiding the creation of intermediate storage.
 Additionally, it has the same effect as loop fusion, solving the issues
 described in \S~\ref{sec:temporaries-elimination} and
 \S~\ref{sec:operator-fusion}.
@@ -437,7 +501,7 @@ raise any particular issue.
 Note that turning such Numpy expressions into expression templates is
 equivalent to converting from a strict evaluation to a non-strict, or lazy,
 evaluation. This is always legal in the context of Numpy because none of the
-computations considered for expression template conversion have side effect.
+computations considered for expression template conversion have side effects.
 
 This version does not suppress all intermediate computations: typically, the
 assignments to \texttt{t0} and \texttt{t1} trigger the computation of the right
@@ -524,12 +588,12 @@ Let us illustrate the algorithm on a simple case. Python code source and the
 initial effect graphs are illustrated on Figure~\ref{fig:argument-effects}. The
 only node with write effects is \texttt{bar} that modifies \texttt{n} through a
 subscript. Outgoing edges (1) and (2) can be removed because they are
-outgoing edges of \texttt{bar} starting by \texttt{n}. Incoming edge (0) ends
+outgoing edges of \texttt{bar} starting by \texttt{n}, which is already locally written by bar. Incoming edge (0) ends
 by \texttt{n} that is written by \texttt{bar}, so it propagates the write
 effects to the source node corresponding to the function \texttt{root}. After
-removing this edge, the only remaining edges are propagating read and the
-analysis ands. The analysis informs that both \texttt{root} update \texttt{r}
-and \texttt{bar} update \texttt{n}, but \texttt{foo} doesn't update its
+removing this edge, the only remaining edges are propagating reads and the
+analysis ends. The analysis informs that \texttt{root} updates \texttt{r}
+and \texttt{bar} updates \texttt{n}, but \texttt{foo} doesn't update its
 argument.
 
 \begin{figure}
@@ -559,7 +623,7 @@ def root(r):
             \node[node]  (root) [above=of bar] {$\texttt{root} \rightarrow \{\texttt{r}\}$};
 
             \draw[->] (bar) -- node[right] {$(\texttt{n,s})$} node[left] {(2)} (foo);
-            \draw[->] (bar.east) node[right, yshift=-1em] {(1)} -| ($(bar.east) + (.5,.75)$) node[right, yshift=-.8em] {$(\texttt{n,n})$} -| (bar.north) ;
+            \draw[->] (bar.east) node[right, yshift=-1em] {(1)} -| ($(bar.east) + (.5,.75)$) node[right, yshift=-.8em] {$(\texttt{n,n})$} -| ($(bar.north) + (.5,0)$) ;
             \draw[->] (root) -- node[right, yshift=.8em] {$(\texttt{r,n})$} node[left, yshift=.8em] {(0)} (bar);
         \end{tikzpicture}
         \caption{Initial argument effect graph..}
@@ -583,7 +647,7 @@ notable exception of strings and tuples. However there are a lot of constant
 propagation opportunities, the most remarkable one being calls to the
 \texttt{range} built-in with literal parameters.
 
-A naive translation of such call to a generic C++ function would generate a
+A naive translation of such a call would generate a
 call to a C++ function that would allocate enough memory to hold three integers,
 fill the corresponding buffer and return it. A smarter version would generate a
 static array holding the relevant values. Figure~\ref{fig:unroll-range}
@@ -650,7 +714,7 @@ Once interprocedural constant evaluation is done (eventually followed by
 forward substitution), iteration over fixed size lists may be exposed, giving an
 opportunity to fully unroll these loops at the Python level, thus avoiding the
 suboptimal C++ translation observed for Listing~\ref{lst:stat}
-and~\ref{lst:dyna}.
+and~\ref{lst:dyna} only.
 
 \subsection{Parallelization and Vectorization}
 
@@ -664,7 +728,7 @@ By construction of the expression template, the \texttt{eval} method used in
 \texttt{from.eval(i)} does not have side effects, and the Python to C++
 compiler can assert there is no shared memory between \texttt{to} and any
 component of \texttt{from}. In that case, all loops can be made parallel, and
-the innermost loop is eventually vectorizable.
+the innermost loop may be vectorized.
 
 \begin{lstlisting}[language=c++, label={lst:eval-et}, caption={Evaluation body of an expression template}]
 template<size_t N> struct D {};
@@ -729,17 +793,18 @@ clause but it is not compatible with the parametric loop version.
 % Au final : Ca doit être jouable. Il y a plusieurs raisons qui peuvent faire
 % qu'on a de mauvaise perfs mais sans mesures, on ne sait pas.
 
-A conservative approach is to only start a parallel region if the loop trip
-count is large enough. We avoid by using the \texttt{if} clause for parallel
-regions to do so in order to prevent the unnecessary overhead. Instead a manual
-if is used: the loop statement is duplicated and guarded by the appropriate
-check, where only one loop holds the parallel annotations.
-\todo{this paragraph seems to be about a particular runtime issue, this shouldn't matter.
-Moreover, how is it relevant to this paper? It is an "implementation detail"}
+A conservative approach is to start a parallel region if the loop trip
+count is large enough. We avoid using the \texttt{if} clause for parallel
+regions in order to prevent the unnecessary overhead. Instead a manual
+\texttt{if} is used: the loop statement is duplicated and guarded by the appropriate
+check, and only one loop holds the parallel annotations.
+%\todo{this paragraph seems to be about a particular runtime issue, this shouldn't matter.
+%Moreover, how is it relevant to this paper? It is an "implementation detail"}
 
 Note that this parallelization scheme is compatible with the manual
-parallelization of Python programs proposed in~\cite{pyhpc2013}.
-\todo{I think a specific section could be made on this topic}
+parallelization of Python programs using OpenMP directives ported to the Python
+language as proposed in~\cite{pyhpc2013}.
+%\todo{I think a specific section could be made on this topic} SG: I lack time
 
 \subsubsection{Vectorization of Expression Templates}
 
@@ -776,67 +841,20 @@ it is legal. The choice is statically made at compile time.
 %%
 \section{Experiments} \label{sec:xp}
 
-\subsection{The Pythran Compiler}
-
-The ideas described in this paper are implemented in the Pythran
-compiler~\cite{pythran2013}, a translator from a subset of Python to
-C++11~\cite{isocxx11}. The architecture of the compiler is briefly described
-in Figure~\ref{fig:pythran-compiler}. The input is a Python module written in
-the Pythran subset. Pythran translates it in its internal representation, a
-simplified Python AST. It performs various optimization then outputs either
-Python code, in a source-to-source fashion, or C++ template code that makes
-call to the pythonic library that typically implements the \texttt{ndarray}
-interface. User annotations can be used to instantiate this code for the proper
-types and generate a native library. This library relies on Boost.Python
-library to match Python's C API.
-
-The Pythran compiler is an open source project publicly released under the BSD
-license~\footnote{\url{http://pythonhosted.org/pythran/}}.
-
-\begin{figure}
-
-    \centering
-    \begin{tikzpicture}[
-            file/.style={draw=black!50,fill=black!10,rectangle, drop shadow, align=center,
-            node distance=0.7cm},
-            tool/.style={draw=black!50,fill=black!10,ellipse, align=center, node
-        distance=0.7cm}]
-        \node[file] (python) {\textbf{Python Module [\texttt{.py}]}};
-        \node[tool] (pythran) [below=of python] {\textbf{Pythran}};
-        \node[file] (meta-cxx) [below=of pythran] {\textbf{C++} Meta Program};
-        \node[tool] (gxx) [yshift=-1.5em, below=of meta-cxx] {\textbf{c++}};
-        \node (empty) [xshift=-1em, left=of gxx] {};
-        \node[file] (pythonic) [left=of empty] {\textbf{\texttt{pythonic}}};
-        \node[file] (annotation)     [above=of pythonic] {\textbf{Type Info}};
-        \node[file] (boost) [below=of pythonic] {\textbf{\texttt{boost::python}}};
-        \node[file] (so) [yshift=-1.5em, below=of gxx] {\textbf{Native Module [\texttt{.so}]}};
-
-        \draw[very thick, ->] (python) -- (pythran);
-        \draw[very thick] (annotation) -| (empty.center);
-        \draw[very thick, ->] (pythran) -- (meta-cxx);
-        \draw[very thick, ->] (meta-cxx) -- (gxx);
-        \draw[very thick] (boost) -| (empty.center);
-        \draw[very thick, ->] (pythonic) -- (gxx);
-        \draw[very thick, ->] (gxx) -- (so);
-    \end{tikzpicture}
-
-    \caption{Pythran compilation flow.}
-    \label{fig:pythran-compiler}
-
-\end{figure}
 
 \subsection{Experimental Setup}
 
-As introduced in \S~\ref{sec:stackoverflow}, we use the numpy-benchmark test 
-suite to evaluate the optimizations described in\S~\ref{sec:pythran}. 
-Pythran is used (commit: 488b7ba) with and without SIMD optimization. 
-The results are compared with Pypy (commit: 632c832bd32f), Parakeet (commit: 4e55810), 
+As introduced in \S~\ref{sec:stackoverflow}, we use the numpy-benchmark test
+suite to evaluate the optimizations described in\S~\ref{sec:pythran}.
+Pythran (commit: 488b7ba) is used  with and without SIMD optimization.
+The results are compared with Pypy (commit: 632c832bd32f), Parakeet (commit: 4e55810),
 Numba (commit: b8a79c5) and Python 2.7.
 
-numpy-benchmarks run 11 times benchmarks with an execution time around 1 seconde.
-THe best time, average time and standard deviation is return from these 11 runs.
+The evaluation process consists in  11 runs for each benchmark. The execution
+time of a single run is around 1 second.  The best time, average time and
+standard deviation are computed from these sequences.
 
-Benchmarking is done on two architectures with different backend compilers.
+Benchmarking is done on two architectures with different back-end compilers.
 
 The first one holds 8 AMD Magny Cours processors for a
 total of 48 cores. Each core has access to 64\,KB of L1 cache,
@@ -844,13 +862,13 @@ total of 48 cores. Each core has access to 64\,KB of L1 cache,
 is shared between the 6 cores of a processor. This configuration
 provides a total of 256\,GB (32\,GB per NUMA node) of main memory. It supports
 up to SSE4. We refer to this configuration as \textbf{AMD48}.
-On AMD48, the backend compilers is the clang-omp
-version from intel~\footnote{\url{http://clang-omp.github.io/}} to be able to
-benefits from OpenMP improvements. This Clang version is based on Clang 3.4
+On AMD48, the back-end compiler is the clang-omp
+version from Intel\footnote{\url{http://clang-omp.github.io/}} to be able to
+benefit from OpenMP improvements. This Clang version is based on Clang 3.4
 release (LLVM:233b1e3f034, clang-omp:6f358bcd87).
 
-The second one holds one Intel(R) Xeon(R) CPU E5-2650 0 @ 2.00GHz for a total of
-8 cores (multithreading is not used). Each node can access to 64\,KB of L1
+The second configuration holds one Intel(R) Xeon(R) CPU E5-2650 0 @ 2.00GHz for a total of
+8 cores (multithreading is not used). Each node has access to 64\,KB of L1
 cache, 256\,KB of L2 cache. Both L1 and L2 caches are private, while L3 cache
 is shared between the 8 cores. This configuration provides a total of 64\,GB of 
 main memory. It supports up to AVX. We refer to this configuration as
@@ -861,14 +879,12 @@ On Intel8, backend compilers is GCC 4.9 (20140528) with libgomp.
 \subsection{Performance of the Rosenbrock Function}
 
 % For performance comparison between different Pythran version
-To compare the different optimization schemes, we run the numpy-benchmarks test
-suite multiple times on the \textit{rosen} benchmark. The algorithm is the one
-on Listing~\ref{lst:rosen} and input is a raw array of 1,000,000 double elements.
+To compare the different optimization schemes proposed in \S~\ref{sec:pythran} and their effect with respect to the leading example from \S~\ref{sec:optimize}, we evaluated different optimization combination for Listing~\ref{lst:rosen}. The input is a raw array of 1,000,000 single precision floating point elements.
 Figures~\ref{fig:rosenamd48} and \ref{fig:rosenintel8} illustrate the results.
-The speedup difference between the two architectures can be explain by AVX support on
+The speedup difference between the two architectures are explained by AVX support on
 the Intel8 architecture while AMD48 supports up to SSE4 only.
-We can also notice importance of forward substitution on this benchmarks as
-we avoid extra loop, 2 temporary array assignment and avoid some load/store for
+We can also notice the importance of forward substitution on this benchmark as
+we avoid one extra loop, two temporary array assignments and some load/store for
 SIMD instructions.
 
 \begin{figure}[t]
@@ -885,29 +901,55 @@ SIMD instructions.
 \label{fig:rosenintel8}
 \end{figure}
 
+\subsection{Benefits of Implicit Parallelism}
+
+The \texttt{arc\_distance} benchmark is a typical example for which we can make
+intensive use of the techniques described in this paper. This kernel performs
+intensive points to points computation and trigonometric use.
+Figures~\ref{fig:arc_distance} and~\ref{fig:arc_distance_intel8} show speedups
+compared to one thread execution. We can see that OpenMP improvement is
+scalable up to 20 threads with a raw array of 10,000,000 double precision
+floating point elements as input.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.5\textwidth]{arc_distance_amd48.png}
+\caption{Speed up for the \texttt{arc\_distance} kernel on AMD48.}
+\label{fig:arc_distance}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.5\textwidth]{arc_distance_intel8.png}
+\caption{Speed up for the \texttt{arc\_distance} kernel on Intel48.}
+\label{fig:arc_distance_intel8}
+\end{figure}
+
+%Finally, Figure~\ref{fig:l2norme} and \ref{fig:l2norm_intel8} illustrate the
+%execution time for the \texttt{l2norm} kernel introduced in
+%\S~\ref{sec:stackoverflow}. Comparison with other compilers shows that the
+%approach taken by Pythran is relevant for these kind of functions. Just like
+%for the \texttt{arc\_distance} benchmark, we notice the benefits of using the
+%AVX instruction set when available.
+%
+%\begin{figure}[t]
+%\centering
+%\includegraphics[width=0.5\textwidth]{l2norm_amd48.png}
+%\caption{Execution time of the l2norm kernel on AMD48.}
+%\label{fig:l2norme}
+%\end{figure}
+%
+%\begin{figure}[t]
+%\centering
+%\includegraphics[width=0.5\textwidth]{l2norm_intel8.png}
+%\caption{Execution time of the l2norm kernel on Intel8.}
+%\label{fig:l2norm_intel8}
+%\end{figure}
 
 \subsection{Comparison with others Python compiler}
 
 
-Table~\ref{tbl:overview} presents the average execution time for each kernel
-and each compiler, with the lowest values highlighted in
-bold font. Zeros are used when the given compiler failed to
-compile the kernel. Concerning the Numba compiler, this
-benchmarks conﬁrms that it works best on explicit loops. It
-gives non performance gain when run on high-level kernels,
-either falling back to the generation of calls to Python C
-API, or stopping compilation. PyPy is the most robust of
-the compilers, but to a few exceptions, it does not generate
-code more efﬁcient than the original version. This reﬂects
-the fact that Numpy support is still a work-in-progress task.
-Parakeet performs extremely well on high-level benchmarks.
-Although it does not supports some Numpy constructs, it
-successfully parallelize many of them, and also generates
-efﬁcient code for explicit loops. Pythran still performs better
-than Parakeet on some kernels, whenever it successfully
-vectorizes operations.
-
-\begin{table*}
+\begin{table*}[t]
 
     \centering{
 \begin{tabular}{|l||c|c|c|c|c|}
@@ -953,47 +995,25 @@ vectorizes operations.
 \label{tbl:overview}
 \end{table*}
 
+Table~\ref{tbl:overview} presents the average execution time for each kernel
+and each compiler, with the lowest values highlighted in
+bold font. Zeros are used when the given compiler failed to
+compile the kernel. Concerning the Numba compiler, this
+benchmarks confirms that it works best on explicit loops. It
+gives no performance gain when run on high-level kernels,
+either falling back to the generation of calls to Python C
+API, or stopping compilation. PyPy is the most robust of
+the compilers, but to a few exceptions, it does not generate
+code more efficient than the original version. This reflects
+the fact that Numpy support is still a work-in-progress.
+Parakeet performs extremely well on high-level benchmarks.
+Although it does not supports some Numpy constructs, it
+successfully parallelizes many of them, and also generates
+efficient code for explicit loops. Pythran still performs better
+than Parakeet on some kernels, whenever it successfully
+vectorizes operations.
 
-Figure~\ref{fig:arc_distance} and \ref{fig:arc_distance_intel8} are typicals
-example where we can make intensive
-use of the techniques described in this paper. It shows speedup compare to one
-thread execution for the arc\_distance benchmark.This kernel performs intensive
-points to points computation and trigonometrics use. We can see that OpenMP
-improvement is scalable up to 20 threads with a raw array of 10,000,000 double
-elements as input.
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.5\textwidth]{arc_distance_amd48.png}
-\caption{Speed up for the arc distance kernel on AMD48.}
-\label{fig:arc_distance}
-\end{figure}
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.5\textwidth]{arc_distance_intel8.png}
-\caption{Speed up for the arc distance kernel on Intel48.}
-\label{fig:arc_distance_intel8}
-\end{figure}
-
-Finally, Figure~\ref{fig:l2norme} and \ref{fig:l2norm_intel8} shows the L2norm algorithm introduced in
-\S~\ref{sec:stackoverflow}. Comparison with other compilers illustrates how the
-approach taken by Pythran is relevant for these kind of functions. Just like for
-the arc\_distance benchmarks, we can notice use of AVX when it is available.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.5\textwidth]{l2norm_amd48.png}
-\caption{Execution time of the l2norm kernel on AMD48.}
-\label{fig:l2norme}
-\end{figure}
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.5\textwidth]{l2norm_intel8.png}
-\caption{Execution time of the l2norm kernel on Intel8.}
-\label{fig:l2norm_intel8}
-\end{figure}
 
 
 %%
@@ -1008,6 +1028,8 @@ partially funded by the CARP Project and the SILKAN Company.
 Several Students of Télécom Bretagne, namely Adrien Merlini, Alan Raynaud,
 Xavier Corbillon, Yuancheng Peng and Eliott Coyacc, have made significant
 contributions to the project.
+
+The authors are very grateful to Béatrice Creusillet for her careful proof reading.
 
 % We recommend abbrvnat bibliography style.
 

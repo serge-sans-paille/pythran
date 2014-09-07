@@ -109,13 +109,13 @@ installed using::
 Note that it is still possible to use the ``pytest`` module directly, for
 instance to pass a subset of the test suite::
 
-    $> PYTHONPATH=. pytest -n 8 pythran/tests/test_list.py
+    $> PYTHONPATH=. py.test -n 8 pythran/tests/test_list.py
 
 runs all the tests found in ``pythran/tests/test_list.py``.
 
 Only compiler tests can be check using test filtering::
 
-   $> PYTHONPATH=. pytest -n 8 pythran/tests -m "not module"
+   $> PYTHONPATH=. py.test -n 8 pythran/tests -m "not module"
 
 There are two kinds of tests in ``pythran``:
 

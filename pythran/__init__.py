@@ -37,3 +37,4 @@ from pythran.toolchain import (generate_cxx, compile_cxxfile, compile_cxxcode,
                                compile_pythrancode, compile_pythranfile,
                                test_compile, CompileError)
 from pythran.spec import spec_parser
+import pythran.dist

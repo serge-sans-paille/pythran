@@ -1,8 +1,15 @@
 from test_env import TestEnv
 import unittest
 import numpy as np
+import pythran
 
 class TestTyping(TestEnv):
+
+    def test_module_bad_attribute(self):
+        code = 'def module_bad_attribute(): import random as m; return m.real'
+
+        with self.assertRaises(pythran.syntax.PythranSyntaxError):
+            pythran.compile_pythrancode("dumbo", code)
 
     def test_ndarray_bad_dimension(self):
         code = 'def ndarray_bad_dimension(a): return a'

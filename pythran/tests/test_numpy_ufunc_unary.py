@@ -4,7 +4,7 @@ import numpy
 
 
 @TestEnv.module
-class TestNumpyUFunc(TestEnv):
+class TestNumpyUFuncUnary(TestEnv):
     def test_numpy_pow0(self):
         self.run_test('def numpy_pow0(a): return a ** 2',
                       numpy.arange(100).reshape((10, 10)),
@@ -127,23 +127,6 @@ class TestNumpyUFunc(TestEnv):
 
 
 # automatic generation of basic test cases for ufunc
-binary_ufunc = (
-        'add','arctan2',
-        'bitwise_and', 'bitwise_or', 'bitwise_xor',
-        'copysign',
-        'divide',
-        'equal',
-        'floor_divide', 'fmax', 'fmin', 'fmod',
-        'greater', 'greater_equal',
-        'hypot',
-        'ldexp', 'left_shift', 'less', 'less_equal', 'logaddexp', 'logaddexp2', "logical_and", "logical_or", "logical_xor",
-        'maximum', 'minimum', 'mod','multiply',
-        'nextafter','not_equal',
-        'power',
-        'remainder','right_shift',
-        'subtract',
-        'true_divide',
-        )
 
 unary_ufunc = (
         'abs', 'absolute', 'arccos', 'arccosh', 'arcsin', 'arcsinh', 'arctan', 'arctanh',
@@ -163,20 +146,11 @@ unary_ufunc = (
 
 for f in unary_ufunc:
     if 'bitwise_' in f or 'invert' in f:
-        setattr(TestNumpyUFunc, 'test_' + f, eval("lambda self: self.run_test('def np_{0}(a): from numpy import {0} ; return {0}(a)', numpy.ones(10, numpy.int32), np_{0}=[numpy.array([numpy.int32])])".format(f)))
-        setattr(TestNumpyUFunc, 'test_' + f + '_scalar', eval("lambda self: self.run_test('def np_{0}_scalar(a): from numpy import {0} ; return {0}(a)', 1, np_{0}_scalar=[int])".format(f)))
-        setattr(TestNumpyUFunc, 'test_' + f + '_matrix', eval("lambda self: self.run_test('def np_{0}_matrix(a): from numpy import {0} ; return {0}(a)', numpy.ones((5,2), numpy.int32), np_{0}_matrix=[numpy.array([numpy.array([numpy.int32])])])".format(f)))
+        setattr(TestNumpyUFuncUnary, 'test_' + f, eval("lambda self: self.run_test('def np_{0}(a): from numpy import {0} ; return {0}(a)', numpy.ones(10, numpy.int32), np_{0}=[numpy.array([numpy.int32])])".format(f)))
+        setattr(TestNumpyUFuncUnary, 'test_' + f + '_scalar', eval("lambda self: self.run_test('def np_{0}_scalar(a): from numpy import {0} ; return {0}(a)', 1, np_{0}_scalar=[int])".format(f)))
+        setattr(TestNumpyUFuncUnary, 'test_' + f + '_matrix', eval("lambda self: self.run_test('def np_{0}_matrix(a): from numpy import {0} ; return {0}(a)', numpy.ones((5,2), numpy.int32), np_{0}_matrix=[numpy.array([numpy.array([numpy.int32])])])".format(f)))
     else:
-        setattr(TestNumpyUFunc, 'test_' + f, eval("lambda self: self.run_test('def np_{0}(a): from numpy import {0} ; return {0}(a)', numpy.ones(10), np_{0}=[numpy.array([float])])".format(f)))
-        setattr(TestNumpyUFunc, 'test_' + f + '_scalar', eval("lambda self: self.run_test('def np_{0}_scalar(a): from numpy import {0} ; return {0}(a+0.5)', 0.5, np_{0}_scalar=[float])".format(f)))
-        setattr(TestNumpyUFunc, 'test_' + f + '_matrix', eval("lambda self: self.run_test('def np_{0}_matrix(a): from numpy import {0} ; return {0}(a)', numpy.ones((2,5)), np_{0}_matrix=[numpy.array([numpy.array([float])])])".format(f)))
+        setattr(TestNumpyUFuncUnary, 'test_' + f, eval("lambda self: self.run_test('def np_{0}(a): from numpy import {0} ; return {0}(a)', numpy.ones(10), np_{0}=[numpy.array([float])])".format(f)))
+        setattr(TestNumpyUFuncUnary, 'test_' + f + '_scalar', eval("lambda self: self.run_test('def np_{0}_scalar(a): from numpy import {0} ; return {0}(a+0.5)', 0.5, np_{0}_scalar=[float])".format(f)))
+        setattr(TestNumpyUFuncUnary, 'test_' + f + '_matrix', eval("lambda self: self.run_test('def np_{0}_matrix(a): from numpy import {0} ; return {0}(a)', numpy.ones((2,5)), np_{0}_matrix=[numpy.array([numpy.array([float])])])".format(f)))
 
-for f in binary_ufunc:
-    if 'bitwise_' in f or 'ldexp' in f or '_shift' in f :
-        setattr(TestNumpyUFunc, 'test_' + f, eval("lambda self: self.run_test('def np_{0}(a): from numpy import {0} ; return {0}(a,a)', numpy.ones(10, numpy.int32), np_{0}=[numpy.array([numpy.int32])])".format(f)))
-        setattr(TestNumpyUFunc, 'test_' + f + '_scalar', eval("lambda self: self.run_test('def np_{0}_scalar(a): from numpy import {0} ; return {0}(a, a-1)', 1, np_{0}_scalar=[int])".format(f)))
-        setattr(TestNumpyUFunc, 'test_' + f + '_matrix', eval("lambda self: self.run_test('def np_{0}_matrix(a): from numpy import {0} ; return {0}(a,a)', numpy.ones((2,5), numpy.int32), np_{0}_matrix=[numpy.array([numpy.array([numpy.int32])])])".format(f)))
-    else:
-        setattr(TestNumpyUFunc, 'test_' + f, eval("lambda self: self.run_test('def np_{0}(a): from numpy import {0} ; return {0}(a,a)', numpy.ones(10), np_{0}=[numpy.array([float])])".format(f)))
-        setattr(TestNumpyUFunc, 'test_' + f + '_scalar', eval("lambda self: self.run_test('def np_{0}_scalar(a): from numpy import {0} ; return {0}(a+0.5, a+0.5)', 0.5, np_{0}_scalar=[float])".format(f)))
-        setattr(TestNumpyUFunc, 'test_' + f + '_matrix', eval("lambda self: self.run_test('def np_{0}_matrix(a): from numpy import {0} ; return {0}(a,a)', numpy.ones((2,5)) - 0.2 , np_{0}_matrix=[numpy.array([numpy.array([float])])])".format(f)))

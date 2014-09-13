@@ -1025,10 +1025,10 @@ namespace pythonic {
     template<class T, size_t N>
         struct custom_array_to_ndarray {
             static PyObject* convert( types::ndarray<T,N> n) {
-                if(n.mem.foreign)
+                if(n.mem.get_foreign())
                 {
+                    PyObject* p = n.mem.get_foreign();
                     n.mem.forget();
-                    PyObject* p = n.mem.foreign;
                     PyArrayObject *arr = reinterpret_cast<PyArrayObject*>(p);
                     auto pshape = PyArray_DIMS(arr);
                     Py_INCREF(p);
@@ -1048,7 +1048,7 @@ namespace pythonic {
                     }
                 } else {
                     PyObject* result = PyArray_SimpleNewFromData(N, n.shape.data(), c_type_to_numpy_type<T>::value, n.buffer);
-                    n.mem.foreign = result;
+                    n.mem.external(result);
                     n.mem.forget();
                     if (!result)
                         return nullptr;

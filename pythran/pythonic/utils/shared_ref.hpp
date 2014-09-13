@@ -41,45 +41,46 @@ namespace pythonic {
                     struct memory {
                         T ptr;
                         atomic_size_t count;
+                        extern_type foreign;
                         template<class... Types>
-                            memory(Types&&... args)
-                            : ptr( std::forward<Types>(args)... ), count(1)
+                            memory(Types&&... args):
+                                ptr( std::forward<Types>(args)... ), count(1),
+                                foreign(nullptr)
                             {}
                     } *mem;
 
                 public:
                     //This attributs exists for non-Python code to avoid #ifdef everywhere
-                    extern_type foreign;
 
                     // Uninitialized ctor
                     shared_ref(no_memory const&) noexcept
-                        : mem(nullptr), foreign(nullptr)
+                        : mem(nullptr)
                         {}
                     // Uninitialized ctor (rvalue ref)
                     shared_ref(no_memory &&) noexcept
-                        : mem(nullptr), foreign(nullptr)
+                        : mem(nullptr)
                         {}
 
                     // Ctor allocate T and forward all arguments to T ctor
                     template<class... Types>
                         shared_ref(Types&&... args)
-                        : mem( new memory(std::forward<Types>(args)...) ), foreign(nullptr)
+                        : mem( new memory(std::forward<Types>(args)...) )
                         {}
 
                     // Move Ctor
                     shared_ref(shared_ref<T>&& p) noexcept
-                        : mem(p.mem), foreign(p.foreign)
+                        : mem(p.mem)
                         {p.mem=nullptr;}
 
                     // Copy Ctor
                     shared_ref(shared_ref<T> const& p) noexcept
-                        : mem(p.mem), foreign(p.foreign)
+                        : mem(p.mem)
                         {if(mem) acquire();}
 
                     // Copy Ctor, again
                     // Without a non-const copy-ctor here, the greedy variadic template ctor takes over
                     shared_ref(shared_ref<T> & p) noexcept
-                        : mem(p.mem), foreign(p.foreign)
+                        : mem(p.mem)
                         {if(mem) acquire();}
 
                     ~shared_ref() noexcept
@@ -89,7 +90,6 @@ namespace pythonic {
                     void swap(shared_ref<T> & rhs) noexcept {
                         using std::swap;
                         swap(mem, rhs.mem);
-                        swap(foreign, rhs.foreign);
                     }
 
                     // Takes by copy so that acquire/release is handle by ctor
@@ -112,7 +112,7 @@ namespace pythonic {
                     // Save pointer to the external object to decref once we doesn't
                     // use it anymore
                     void external(extern_type obj_ptr) {
-                        foreign = obj_ptr;
+                        mem->foreign = obj_ptr;
                     }
 
                     // FIXME The interface is screwed, you won't be able to delete
@@ -123,14 +123,18 @@ namespace pythonic {
                         return ptr;
                     }
 
+                    inline extern_type get_foreign() {
+                        return mem->foreign;
+                    }
+
                 private:
                     void dispose()
                     {
                         if(mem and --mem->count == 0)
                         {
-                            if(foreign){
+                            if(mem->foreign){
 #ifdef ENABLE_PYTHON_MODULE
-                                Py_DECREF(foreign);
+                                Py_DECREF(mem->foreign);
 #endif
                             } else
                                 delete mem;

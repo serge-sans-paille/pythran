@@ -5,6 +5,7 @@ import shutil
 
 cwd = os.path.dirname(__file__)
 
+
 class TestDistutils(unittest.TestCase):
 
     def test_setup_build(self):
@@ -12,14 +13,13 @@ class TestDistutils(unittest.TestCase):
                    cwd=os.path.join(cwd, 'test_distutils'))
         check_call(['python', 'setup.py', 'install', '--prefix=demo_install'],
                    cwd=os.path.join(cwd, 'test_distutils'))
-        check_call(['python', '-c', 'import demo'],
+        check_call(['python', '-c', '"import demo"'],
                    cwd=os.path.join(cwd, 'test_distutils', 'demo_install',
                                     'lib', 'python2.7', 'site-packages'))
         check_call(['python', 'setup.py', 'clean'],
                    cwd=os.path.join(cwd, 'test_distutils'))
         shutil.rmtree(os.path.join(cwd, 'test_distutils', 'demo_install'))
         shutil.rmtree(os.path.join(cwd, 'test_distutils', 'build'))
-
 
     def test_setup_sdist_install(self):
         check_call(['python', 'setup.py', 'sdist', "--dist-dir=sdist"],
@@ -38,7 +38,7 @@ class TestDistutils(unittest.TestCase):
         check_call(['tar', 'xzf', tgz], cwd=dist_path)
 
         def find(name, path):
-            for root, dirs, files in os.walk(path):
+            for root, _, files in os.walk(path):
                 if name in files:
                     return os.path.join(root, name)
         demo_so = find("demo.so", dist_path)

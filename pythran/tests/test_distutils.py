@@ -1,5 +1,5 @@
 import unittest
-import os.path
+import os
 from subprocess import check_call
 import shutil
 
@@ -36,8 +36,11 @@ class TestDistutils(unittest.TestCase):
         dist_path = os.path.join(cwd, 'test_distutils', 'bdist')
         tgz = [f for f in os.listdir(dist_path) if f.endswith(".tar.gz")][0]
         check_call(['tar', 'xzf', tgz], cwd=dist_path)
-        self.assertTrue(os.path.exists(os.path.join(dist_path, "usr", "local",
-                                                    "lib", "python2.7",
-                                                    "dist-packages",
-                                                    "demo.so")))
+
+        def find(name, path):
+            for root, dirs, files in os.walk(path):
+                if name in files:
+                    return os.path.join(root, name)
+        demo_so = find("demo.so", dist_path)
+        self.assertIsNotNone(demo_so)
         shutil.rmtree(dist_path)

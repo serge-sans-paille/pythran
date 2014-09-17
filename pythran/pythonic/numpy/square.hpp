@@ -5,6 +5,18 @@
 #include "pythonic/types/ndarray.hpp"
 #include <nt2/include/functions/sqr.hpp>
 
+#ifdef USE_GMP
+#include "pythonic/types/long.hpp"
+
+namespace nt2 {
+    template<class T, class U>
+        auto sqr(__gmp_expr<T,U> const& a) -> decltype(a * a) {
+            return a * a;
+        }
+}
+
+#endif
+
 namespace pythonic {
 
     namespace numpy {

@@ -124,13 +124,13 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
 
     def test_rrange2(self):
         self.run_test("def rrange2_(b,e): return set(reversed(range(b,e)))", 1, 3, rrange2_=[int,int])
-    
+
     def test_rrange3(self):
         self.run_test("def rrange3_(b,e,s): return list(reversed(range(b,e,s)))", 8,3,-2, rrange3_=[int,int,int])
-    
+
     def test_rrange4(self):
         self.run_test("def rrange4_(b,e,s): return set(reversed(range(b,e,s)))", 8,2,-2, rrange4_=[int,int,int])
-    
+
     def test_rrange5(self):
         self.run_test("def rrange5_(b,e,s): return list(reversed(range(b,e,s)))", 3,8,1, rrange5_=[int,int,int])
 
@@ -512,6 +512,13 @@ def forelse():
 
     def test_long(self):
         self.run_test("def _long(a): return a+34",111111111111111L, _long=[long])
+
+    def test_long_square(self):
+        """ Check square function on gmp number. """
+        self.run_test("""
+def _long_square(a):
+    return a ** 2
+        """, 111111111111111L, _long_square=[long])
 
     def test_reversed_slice(self):
         self.run_test("def reversed_slice(l): return l[::-2]", [0,1,2,3,4], reversed_slice=[[int]])

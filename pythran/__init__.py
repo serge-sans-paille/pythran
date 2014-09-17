@@ -27,7 +27,7 @@ Higher level entry points includes:
 >>> dll_file = compile_pythranfile("my_python_file.py")
 >>> cpp_file = compile_pythranfile("my_python_file.py",cpponly=True)
 >>> dll_file = compile_pythrancode("... /* python code here */ ...")
->>> dll_file = compile_cxxfile("my_cpp_file.cpp"):
+>>> dll_file = compile_cxxfile("my_cpp_file.cpp")
 
 '''
 
@@ -37,3 +37,4 @@ from pythran.toolchain import (generate_cxx, compile_cxxfile, compile_cxxcode,
                                compile_pythrancode, compile_pythranfile,
                                test_compile, CompileError)
 from pythran.spec import spec_parser
+from pythran.dist import PythranExtension

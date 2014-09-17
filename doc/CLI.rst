@@ -44,7 +44,7 @@ Pythran can also generate raw C++ code, using the ``-e`` switch::
 
   $> pythran -e cli_foo.py -o cli_foo.hpp
   $> printf '#include \"cli_foo.hpp\"\nusing namespace __pythran_cli_foo ; int main() { foo()(); return 0 ; }' > cli_foo.cpp
-  $> g++ cli_foo.cpp `pythran-config --cflags --libs` -o cli_foo
+  $> `pythran-config --compiler` cli_foo.cpp `pythran-config --cflags --libs` -o cli_foo
   $> ./cli_foo
   hello world
 

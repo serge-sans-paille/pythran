@@ -75,8 +75,10 @@ def _pythran_cppflags():
 
 
 def _python_ldflags():
-    return ["-L" + sysconfig.get_config_var("LIBPL"),
-            "-lpython" + sysconfig.get_config_var('VERSION')]
+    pylibs = sysconfig.get_config_var('LIBS').split()
+    return (["-L" + sysconfig.get_config_var("LIBPL")]
+            + pylibs
+            + ["-lpython" + sysconfig.get_config_var('VERSION')])
 
 
 def _get_temp(content, suffix=".cpp"):
@@ -114,6 +116,11 @@ class CompileError(Exception):
                                        "\n******** Output :  ********\n",
                                        self.output])
             super(CompileError, self).__init__(self._message)
+
+
+def default_compiler():
+    """The C++ compiler used by Pythran"""
+    return cfg.get('user', 'cxx')
 
 
 def cxxflags():
@@ -279,7 +286,7 @@ def compile_cxxfile(cxxfile, module_so=None, **kwargs):
 
     '''
     # FIXME: not sure about overriding the user defined compiler here...
-    compiler = kwargs.get('cxx', cfg.get('user', 'cxx'))
+    compiler = kwargs.get('cxx', default_compiler())
 
     _cppflags = cppflags() + kwargs.get('cppflags', [])
     _cxxflags = cxxflags() + kwargs.get('cxxflags', [])

@@ -1,5 +1,5 @@
 from distutils.core import setup, Extension
-from pythran.dist import PythranExtension
+from pythran import PythranExtension
 
 module1 = PythranExtension('demo', sources = ['a.py'])
 

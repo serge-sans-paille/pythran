@@ -8,6 +8,9 @@ parser = argparse.ArgumentParser(prog='pythran-config',
                                  epilog="It's a megablast!"
                                  )
 
+parser.add_argument('--compiler', action='store_true', 
+                    help='print default compiler')
+
 parser.add_argument('--cflags', action='store_true', 
                     help='print compilation flags')
 
@@ -17,6 +20,10 @@ parser.add_argument('--libs', action='store_true',
 args = parser.parse_args(sys.argv[1:])
 
 output = []
+
+if args.compiler:
+    output.append(tc.default_compiler())
+
 if args.cflags:
     output.extend(tc.cppflags() + tc.cxxflags())
 

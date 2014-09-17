@@ -66,8 +66,10 @@ cxx_keywords = {
 
 operator_to_lambda = {
     # boolop
-    ast.And: lambda l, r: "(pythonic::__builtin__::bool_({0})?({1}):({0}))".format(l, r),
-    ast.Or: lambda l, r: "(pythonic::__builtin__::bool_({0})?({0}):({1}))".format(l, r),
+    ast.And: lambda l, r: "(pythonic::__builtin__::bool_"
+                          "({0})?({1}):({0}))".format(l, r),
+    ast.Or: lambda l, r: "(pythonic::__builtin__::bool_"
+                         "({0})?({0}):({1}))".format(l, r),
     # operator
     ast.Add: lambda l, r: "({0} + {1})".format(l, r),
     ast.Sub: lambda l, r: "({0} - {1})".format(l, r),
@@ -96,7 +98,7 @@ operator_to_lambda = {
     ast.Gt: lambda l, r: "({0} > {1})".format(l, r),
     ast.GtE: lambda l, r: "({0} >= {1})".format(l, r),
     ast.Is: lambda l, r: ("(pythonic::__builtin__::id({0}) == "
-                          "pythonic::__builtin__::id({1}))".format(l, r)),
+                           "pythonic::__builtin__::id({1}))".format(l, r)),
     ast.IsNot: lambda l, r: ("(pythonic::__builtin__::id({0}) != "
                              "pythonic::__builtin__::id({1}))".format(l, r)),
     ast.In: lambda l, r: "(pythonic::in({1}, {0}))".format(l, r),

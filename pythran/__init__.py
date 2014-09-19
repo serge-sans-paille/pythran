@@ -10,18 +10,16 @@ This package provides several entry points
        * test_compile: passthrough compile test, raises CompileError Exception.
 
 Basic scenario is to turn a Python AST into C++ code:
->>> from ast import parse
 >>> code = "def foo(x): return x * 2"
->>> tree = parse(code)
->>> cxx = generate_cxx('my_module', tree) # gets a BoostPythonModule
+>>> cxx = generate_cxx('my_module', code) # gets a BoostPythonModule
 >>> print cxx.generate()
 
 To generate a native module, one need to add type information:
->>> cxx = generate_cxx('my_module', tree, {'foo':([[int]],)})
+>>> cxx = generate_cxx('my_module', code, {'foo':([[int]],)})
 
 Eventually, the type information can be translated from a string:
 >>> spec = spec_parser('#pythran export foo(int list)')
->>> cxx = generate_cxx('my_module', tree, spec)
+>>> cxx = generate_cxx('my_module', code, spec)
 
 Higher level entry points includes:
 >>> dll_file = compile_pythranfile("my_python_file.py")

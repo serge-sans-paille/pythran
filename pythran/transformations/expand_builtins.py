@@ -17,7 +17,7 @@ class ExpandBuiltins(Transformation):
     >>> from pythran import passmanager, backend
     >>> node = ast.parse("def foo(): return list()")
     >>> pm = passmanager.PassManager("test")
-    >>> node = pm.apply(ExpandBuiltins, node)
+    >>> _, node = pm.apply(ExpandBuiltins, node)
     >>> print pm.dump(backend.Python, node)
     def foo():
         return __builtin__.list()

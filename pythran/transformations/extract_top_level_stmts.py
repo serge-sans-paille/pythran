@@ -1,6 +1,4 @@
-"""
-ExtractTopLevelStmts moves top level statements into __init__
-"""
+""" ExtractTopLevelStmts moves top level statements into __init__. """
 
 from pythran.passmanager import Transformation
 
@@ -8,9 +6,8 @@ import ast
 
 
 class ExtractTopLevelStmts(Transformation):
-    """
-    Turns top level statements into __init__.
-    """
+
+    """ Turns top level statements into __init__.  """
 
     TYPEDEFS = (ast.ClassDef, ast.FunctionDef, ast.Import, ast.ImportFrom)
 

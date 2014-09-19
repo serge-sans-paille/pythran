@@ -1,6 +1,4 @@
-"""
-NormalizeCompare turns complex compare into function calls
-"""
+""" NormalizeCompare turns complex compare into function calls. """
 
 from pythran.analyses import ImportedIds
 from pythran.passmanager import Transformation
@@ -16,7 +14,7 @@ class NormalizeCompare(Transformation):
     >>> from pythran import passmanager, backend
     >>> node = ast.parse("def foo(a): return 0 < a + 1 < 3")
     >>> pm = passmanager.PassManager("test")
-    >>> node = pm.apply(NormalizeCompare, node)
+    >>> _, node = pm.apply(NormalizeCompare, node)
     >>> print pm.dump(backend.Python, node)
     def foo(a):
         return foo_compare0(a)

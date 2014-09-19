@@ -1,6 +1,4 @@
-"""
-NormalizeException simplifies try blocks
-"""
+""" NormalizeException simplifies try blocks. """
 
 from pythran.passmanager import Transformation
 
@@ -15,7 +13,7 @@ class NormalizeException(Transformation):
     >>> from pythran import passmanager, backend
     >>> node = ast.parse("try:print 't'\\nexcept: print 'x'\\nelse: print 'e'")
     >>> pm = passmanager.PassManager("test")
-    >>> node = pm.apply(NormalizeException, node)
+    >>> _, node = pm.apply(NormalizeException, node)
     >>> print pm.dump(backend.Python, node)
     try:
         print 't'

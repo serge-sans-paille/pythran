@@ -1,6 +1,4 @@
-"""
-NormalizeReturn adds return statement where relevant
-"""
+""" NormalizeReturn adds return statement where relevant. """
 
 from pythran.analyses import CFG, YieldPoints
 from pythran.passmanager import Transformation
@@ -17,7 +15,7 @@ class NormalizeReturn(Transformation):
     >>> from pythran import passmanager, backend
     >>> node = ast.parse("def foo(y): print y")
     >>> pm = passmanager.PassManager("test")
-    >>> node = pm.apply(NormalizeReturn, node)
+    >>> _, node = pm.apply(NormalizeReturn, node)
     >>> print pm.dump(backend.Python, node)
     def foo(y):
         print y

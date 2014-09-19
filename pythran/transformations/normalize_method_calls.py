@@ -1,6 +1,4 @@
-"""
-NormalizeMethodCalls turns built in method calls into function calls
-"""
+""" NormalizeMethodCalls turns built in method calls into function calls. """
 
 from pythran.analyses import Globals
 from pythran.passmanager import Transformation
@@ -18,7 +16,7 @@ class NormalizeMethodCalls(Transformation):
     >>> from pythran import passmanager, backend
     >>> node = ast.parse("l.append(12)")
     >>> pm = passmanager.PassManager("test")
-    >>> node = pm.apply(NormalizeMethodCalls, node)
+    >>> _, node = pm.apply(NormalizeMethodCalls, node)
     >>> print pm.dump(backend.Python, node)
     __list__.append(l, 12)
     '''

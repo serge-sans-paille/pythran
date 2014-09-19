@@ -16,7 +16,7 @@ class UnshadowParameters(Transformation):
     >>> from pythran import passmanager, backend
     >>> node = ast.parse("def foo(a): a=None")
     >>> pm = passmanager.PassManager("test")
-    >>> node = pm.apply(UnshadowParameters, node)
+    >>> _, node = pm.apply(UnshadowParameters, node)
     >>> print pm.dump(backend.Python, node)
     def foo(a):
         a_ = a
@@ -42,7 +42,7 @@ class UnshadowParameters(Transformation):
                 )
         return node
 
-    def update(self, node):
+    def update_name(self, node):
         if isinstance(node, ast.Name) and node.id in self.argsid:
             if node.id not in self.renaming:
                 new_name = node.id
@@ -51,7 +51,7 @@ class UnshadowParameters(Transformation):
                 self.renaming[node.id] = new_name
 
     def visit_Assign(self, node):
-        map(self.update, node.targets)
+        map(self.update_name, node.targets)
         try:
             self.generic_visit(node)
         except AttributeError:
@@ -59,7 +59,7 @@ class UnshadowParameters(Transformation):
         return node
 
     def visit_AugAssign(self, node):
-        self.update(node.target)
+        self.update_name(node.target)
         return self.generic_visit(node)
 
     def visit_Name(self, node):

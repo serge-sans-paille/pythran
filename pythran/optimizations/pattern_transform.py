@@ -92,4 +92,5 @@ class PatternTransform(Transformation):
             check = Check(node, dict())
             if check.visit(pattern):
                 node = PlaceholderReplace(check.placeholders).visit(replace())
+                self.update = True
         return super(PatternTransform, self).visit(node)

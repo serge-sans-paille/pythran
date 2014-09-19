@@ -24,12 +24,12 @@ class ExpandImports(Transformation):
     >>> from pythran import passmanager, backend
     >>> node = ast.parse("from math import cos ; cos(2)")
     >>> pm = passmanager.PassManager("test")
-    >>> node = pm.apply(ExpandImports, node)
+    >>> _, node = pm.apply(ExpandImports, node)
     >>> print pm.dump(backend.Python, node)
     import math as pythonic::math
     math.cos(2)
     >>> node = ast.parse("from os.path import join ; join('a', 'b')")
-    >>> node = pm.apply(ExpandImports, node)
+    >>> _, node = pm.apply(ExpandImports, node)
     >>> print pm.dump(backend.Python, node)
     import os as pythonic::os
     os.path.join('a', 'b')

@@ -1,6 +1,4 @@
-"""
-RemoveLambdas turns lambda into regular functions
-"""
+""" RemoveLambdas turns lambda into regular functions.  """
 
 from pythran.analyses import GlobalDeclarations, ImportedIds
 from pythran.passmanager import Transformation
@@ -69,7 +67,7 @@ class RemoveLambdas(Transformation):
     >>> from pythran import passmanager, backend
     >>> node = ast.parse("def foo(y): lambda x:y+x")
     >>> pm = passmanager.PassManager("test")
-    >>> node = pm.apply(RemoveLambdas, node)
+    >>> _, node = pm.apply(RemoveLambdas, node)
     >>> print pm.dump(backend.Python, node)
     import functools
     def foo(y):

@@ -40,5 +40,8 @@ def refine(pm, node, optimizations):
     pm.apply(FalsePolymorphism, node)
 
     # some extra optimizations
-    for optimization in optimizations:
-        pm.apply(optimization, node)
+    apply_optimisation = True
+    while apply_optimisation:
+        apply_optimisation = False
+        for optimization in optimizations:
+            apply_optimisation |= pm.apply(optimization, node)[0]

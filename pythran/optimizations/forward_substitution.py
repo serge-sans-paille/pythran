@@ -41,32 +41,35 @@ class _LazyRemover(Transformation):
 
 
 class ForwardSubstitution(Transformation):
+
     """
-    Replace variable that can be lazy evaluated and used only once by their
-    full computation code.
+    Replace variable that can be compute later.
 
     >>> import ast
     >>> from pythran import passmanager, backend
     >>> pm = passmanager.PassManager("test")
     >>> node = ast.parse("def foo(): a = [2, 3]; print a")
-    >>> node = pm.apply(ForwardSubstitution, node)
+    >>> _, node = pm.apply(ForwardSubstitution, node)
     >>> print pm.dump(backend.Python, node)
     def foo():
         pass
         print [2, 3]
     >>> node = ast.parse("def foo(): a = 2; print a + a")
-    >>> node = pm.apply(ForwardSubstitution, node)
+    >>> _, node = pm.apply(ForwardSubstitution, node)
     >>> print pm.dump(backend.Python, node)
     def foo():
         pass
         print (2 + 2)
     """
+
     def __init__(self):
+        """ Satisfy dependencies on others analyses. """
         super(ForwardSubstitution, self).__init__(LazynessAnalysis,
                                                   UseDefChain,
                                                   Literals)
 
     def visit_FunctionDef(self, node):
+        """ Forward variable in the function when it is possible. """
         for name, udgraph in self.use_def_chain.iteritems():
             # 1. check if the usedefchains have only two nodes (a def and an
             # use) and if it can be forwarded (lazyness == 1 means variables
@@ -75,9 +78,10 @@ class ForwardSubstitution(Transformation):
             # 2. Check if variable is forwardable and if it is literal
             if ((len(udgraph.nodes()) == 2 and
                  self.lazyness_analysis[name] == 1) or
-                (self.lazyness_analysis[name] != float('inf') and
-                 name in self.literals)):
+                    (self.lazyness_analysis[name] != float('inf') and
+                     name in self.literals)):
                 def get(action):
+                    """ Return list of used/def variables. """
                     return [udgraph.node[n]['name'] for n in udgraph.nodes()
                             if udgraph.node[n]['action'] == action]
                 U = get("U")
@@ -87,4 +91,5 @@ class ForwardSubstitution(Transformation):
                 if (len(D) == 1 and len(get("UD")) == 0 and
                         not isinstance(D[0].ctx, ast.Param)):
                     node = _LazyRemover(self.ctx, U, D[0]).visit(node)
+                    self.update = True
         return node

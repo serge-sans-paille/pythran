@@ -1,6 +1,6 @@
 """ Module to looks for a specified pattern in a given AST. """
 
-from ast import AST, iter_fields, NodeVisitor, Dict
+from ast import AST, iter_fields, NodeVisitor, Dict, Set
 from itertools import permutations
 
 
@@ -89,6 +89,12 @@ class Check(NodeVisitor):
         return any(self.field_match(self.node, value_or)
                    for value_or in pattern.args)
 
+    def visit_Set(self, pattern):
+        """ Set have unordered values. """
+        return (isinstance(self.node, Set) and
+                any(self.check_list(self.node.elts, pattern_elts)
+                    for pattern_elts in permutations(pattern.elts)))
+
     def visit_Dict(self, pattern):
         """ Dict can match with unordered values. """
         if not isinstance(self.node, Dict):
@@ -157,6 +163,10 @@ class ASTMatcher(NodeVisitor):
     >>> code = "{1:2, 3:4}"
     >>> pattern = ast.Dict(keys=[ast.Num(n=3), ast.Num(n=1)],
     ...                    values=[ast.Num(n=4), ast.Num(n=2)])
+    >>> len(ASTMatcher(pattern).search(ast.parse(code)))
+    1
+    >>> code = "{1, 2, 3}"
+    >>> pattern = ast.Set(elts=[ast.Num(n=3), ast.Num(n=2), ast.Num(n=1)])
     >>> len(ASTMatcher(pattern).search(ast.parse(code)))
     1
     """

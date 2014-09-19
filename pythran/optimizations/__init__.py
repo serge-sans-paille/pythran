@@ -20,3 +20,4 @@ from list_comp_to_map import ListCompToMap
 from loop_full_unrolling import LoopFullUnrolling
 from square import Square
 from pattern_transform import PatternTransform
+from range_loop_unfolding import RangeLoopUnfolding

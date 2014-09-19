@@ -1,7 +1,9 @@
 #ifndef PYTHONIC_TYPES_TRAITS_HPP
 #define PYTHONIC_TYPES_TRAITS_HPP
 
-#include <complex>
+namespace std {
+template <class T> class complex;
+}
 
 namespace pythonic {
 

@@ -9,7 +9,7 @@ import unittest
 import os
 import re
 import sys
-from numpy import ndarray
+from numpy import ndarray, isnan, isinf, isneginf, complex128, complex64
 import numpy.testing as npt
 import ast
 import pytest
@@ -26,6 +26,10 @@ class TestEnv(unittest.TestCase):
     TEST_RETURNVAL = "TEST_RETURNVAL"
 
     def assertAlmostEqual(self, ref, res):
+        '''
+        Improved version of assertEqual that supports nan, complex, ndarray
+        '''
+        # special case for iterable
         if hasattr(ref, '__iter__'):
             if isinstance(ref, ndarray):
                 npt.assert_array_almost_equal(ref, res)
@@ -34,6 +38,21 @@ class TestEnv(unittest.TestCase):
                 for iref, ires in zip(ref, res):
                     self.assertAlmostEqual(iref, ires)
         else:
+            # special case for nan and inf
+            try:
+                if isinf(ref) and isinf(res):
+                    self.assertAlmostEqual(isneginf(ref), isneginf(res))
+                    return
+                if isnan(ref) and isnan(res):
+                    return
+            except TypeError:
+                pass
+            # special case for complex numbers
+            if (type(ref) is type(res)) and isinstance(ref, (complex, complex64, complex128)):
+                self.assertAlmostEqual(ref.real, res.real)
+                self.assertAlmostEqual(ref.imag, res.imag)
+                return
+            # regular checks
             try:
                 unittest.TestCase.assertAlmostEqual(self, ref, res)
             except TypeError:
@@ -113,7 +132,10 @@ class TestEnv(unittest.TestCase):
                          # repr preserve the "L" suffix for long
                         param = repr(p)
                     attributes.append(param.replace("nan", "float('nan')")
-                                           .replace("inf", "float('inf')"))
+                                           .replace("inf", "float('inf')")
+                                           .replace("float('nan')j", "float('nan')*1j")
+                                           .replace("float('inf')j", "float('inf')*1j")
+                                     )
                 arglist = ",".join(attributes)
                 function_call = "{0}({1})".format(name, arglist)
                 runas += self.TEST_RETURNVAL + '=' + function_call

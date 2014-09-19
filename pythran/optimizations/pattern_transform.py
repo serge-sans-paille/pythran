@@ -1,6 +1,6 @@
 """ Optimization for Python costly pattern. """
 
-from pythran.analyses import BaseMatcher, Placeholder
+from pythran.analyses import Check, Placeholder
 from pythran.passmanager import Transformation
 
 import ast
@@ -31,6 +31,7 @@ know_pattern = [
          args=[Placeholder(0)], keywords=[], starargs=None, kwargs=None)),
     # __builtin__.reversed(__builtin__.xrange(X)) =>
     # __builtin__.xrange(X-1, -1, -1)
+    # FIXME : We should do it even when begin/end/step are given
     (ast.Call(func=ast.Attribute(value=ast.Name(id='__builtin__',
                                                 ctx=ast.Load()),
                                  attr="reversed", ctx=ast.Load()),
@@ -73,7 +74,7 @@ class PlaceholderReplace(Transformation):
             return super(PlaceholderReplace, self).visit(node)
 
 
-class PatternTransform(BaseMatcher, Transformation):
+class PatternTransform(Transformation):
 
     """
     Replace all known pattern by pythran function call.
@@ -88,6 +89,7 @@ class PatternTransform(BaseMatcher, Transformation):
     def visit(self, node):
         """ Try to replace if node match the given pattern or keep going. """
         for pattern, replace in know_pattern:
-            if self.match(node, pattern):
-                node = PlaceholderReplace(self.placeholders).visit(replace())
+            check = Check(node, dict())
+            if check.visit(pattern):
+                node = PlaceholderReplace(check.placeholders).visit(replace())
         return super(PatternTransform, self).visit(node)

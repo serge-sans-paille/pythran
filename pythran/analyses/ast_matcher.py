@@ -1,6 +1,7 @@
 """ Module to looks for a specified pattern in a given AST. """
 
-from ast import AST, iter_fields, NodeVisitor
+from ast import AST, iter_fields, NodeVisitor, Dict
+from itertools import permutations
 
 
 class Placeholder(AST):
@@ -88,6 +89,20 @@ class Check(NodeVisitor):
         return any(self.field_match(self.node, value_or)
                    for value_or in pattern.args)
 
+    def visit_Dict(self, pattern):
+        """ Dict can match with unordered values. """
+        if not isinstance(self.node, Dict):
+            return False
+        for permutation in permutations(xrange(len(self.node.keys))):
+            for i, value in enumerate(permutation):
+                if not self.field_match(self.node.keys[i],
+                                        pattern.keys[value]):
+                    break
+            else:
+                return self.check_list(self.node.values,
+                                       [pattern.values[i] for i in permutation])
+        return False
+
     def field_match(self, node_field, pattern_field):
         """
         Check if two fields match.
@@ -139,6 +154,11 @@ class ASTMatcher(NodeVisitor):
     ...                    starargs=None, kwargs=None)
     >>> len(ASTMatcher(pattern).search(ast.parse(code)))
     2
+    >>> code = "{1:2, 3:4}"
+    >>> pattern = ast.Dict(keys=[ast.Num(n=3), ast.Num(n=1)],
+    ...                    values=[ast.Num(n=4), ast.Num(n=2)])
+    >>> len(ASTMatcher(pattern).search(ast.parse(code)))
+    1
     """
 
     def __init__(self, pattern):

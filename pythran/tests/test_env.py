@@ -9,7 +9,7 @@ import unittest
 import os
 import re
 import sys
-from numpy import ndarray
+from numpy import ndarray, isnan, isinf, copysign, complex128, complex64
 import numpy.testing as npt
 import ast
 import pytest
@@ -34,6 +34,13 @@ class TestEnv(unittest.TestCase):
                 for iref, ires in zip(ref, res):
                     self.assertAlmostEqual(iref, ires)
         else:
+            if (isnan(ref) and isnan(res)) or (isinf(ref) and isinf(res)):
+                # how to check for the sign?
+                return
+            if (type(ref) is type(res)) and isinstance(ref, (complex, complex64, complex128)):
+                self.assertAlmostEqual(ref.real, res.real)
+                self.assertAlmostEqual(ref.imag, res.imag)
+                return
             try:
                 unittest.TestCase.assertAlmostEqual(self, ref, res)
             except TypeError:
@@ -113,7 +120,10 @@ class TestEnv(unittest.TestCase):
                          # repr preserve the "L" suffix for long
                         param = repr(p)
                     attributes.append(param.replace("nan", "float('nan')")
-                                           .replace("inf", "float('inf')"))
+                                           .replace("inf", "float('inf')")
+                                           .replace("float('nan')j", "float('nan')*1j")
+                                           .replace("float('inf')j", "float('inf')*1j")
+                                     )
                 arglist = ",".join(attributes)
                 function_call = "{0}({1})".format(name, arglist)
                 runas += self.TEST_RETURNVAL + '=' + function_call

@@ -10,6 +10,7 @@ namespace pythonic {
             struct numpy_uexpr {
                 static const bool is_vectorizable = std::remove_reference<Arg>::type::is_vectorizable
                                                     and types::is_vector_op<Op>::value;
+                static const bool is_strided = std::remove_reference<Arg>::type::is_strided;
                 typedef const_nditerator<numpy_uexpr<Op, Arg>> iterator;
                 static constexpr size_t value = std::remove_reference<Arg>::type::value;
                 typedef decltype(Op()(std::declval<typename std::remove_reference<Arg>::type::value_type>())) value_type;

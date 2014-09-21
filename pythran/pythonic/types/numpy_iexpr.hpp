@@ -33,8 +33,18 @@ namespace pythonic {
                 typedef typename std::remove_reference<Arg>::type::dtype dtype;
                 typedef typename std::remove_reference<decltype(numpy_iexpr_helper<numpy_iexpr, value>::get(std::declval<numpy_iexpr>(), 0L))>::type value_type;
 
-                typedef nditerator<numpy_iexpr> iterator;
-                typedef const_nditerator<numpy_iexpr> const_iterator;
+                static constexpr bool is_strided = std::remove_reference<Arg>::type::is_strided;
+
+                typedef typename std::conditional<
+                  is_strided or value != 1,
+                  nditerator<numpy_iexpr>,
+                  dtype*
+                >::type iterator;
+                typedef typename std::conditional<
+                  is_strided or value != 1,
+                  const_nditerator<numpy_iexpr>,
+                  dtype const*
+                >::type const_iterator;
 
                 Arg arg;
                 dtype* buffer;
@@ -98,11 +108,11 @@ namespace pythonic {
                     return (*this) = (*this) / expr;
                 }
 
-                const_iterator begin() const { return const_iterator(*this, 0); }
-                const_iterator end() const { return const_iterator(*this, shape[0]); }
+                const_iterator begin() const { return make_const_nditerator<is_strided or value != 1>()(*this, 0); }
+                const_iterator end() const { return make_const_nditerator<is_strided or value != 1>()(*this, shape[0]); }
 
-                iterator begin() { return iterator(*this, 0); }
-                iterator end() { return iterator(*this, shape[0]); }
+                iterator begin() { return make_nditerator<is_strided or value != 1>()(*this, 0); }
+                iterator end() { return make_nditerator<is_strided or value != 1>()(*this, shape[0]); }
 
                 dtype const * fbegin() const { return buffer; }
                 dtype const * fend() const { return buffer + size(); }

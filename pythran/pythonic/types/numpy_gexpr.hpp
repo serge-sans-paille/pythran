@@ -81,11 +81,24 @@ namespace pythonic {
                     sizeof...(S) < std::remove_reference<Arg>::type::value or
                     std::is_same<contiguous_slice, typename std::tuple_element<sizeof...(S) - 1, std::tuple<S...>>::type>::value
                   );
+                static const bool is_strided = std::remove_reference<Arg>::type::is_strided or
+                    (sizeof...(S) >= std::remove_reference<Arg>::type::value and
+                    not std::is_same<contiguous_slice, typename std::tuple_element<sizeof...(S) - 1, std::tuple<S...>>::type>::value)
+                  ;
+
 
                 typedef typename std::remove_reference<decltype(numpy_gexpr_helper<Arg, S...>::get(std::declval<numpy_gexpr>(), 0L))>::type value_type;
 
-                typedef nditerator<numpy_gexpr<Arg, S...>> iterator;
-                typedef const_nditerator<numpy_gexpr<Arg, S...>> const_iterator;
+                typedef typename std::conditional<
+                  is_strided or value != 1,
+                  nditerator<numpy_gexpr>,
+                  dtype*
+                >::type iterator;
+                typedef typename std::conditional<
+                  is_strided or value != 1,
+                  const_nditerator<numpy_gexpr>,
+                  dtype const*
+                >::type const_iterator;
 
                 Arg arg;
                 dtype* buffer;
@@ -235,11 +248,11 @@ namespace pythonic {
                     return (*this) = (*this) / expr;
                 }
 
-                const_iterator begin() const { return const_iterator(*this, 0); }
-                const_iterator end() const { return const_iterator(*this, shape[0]); }
+                const_iterator begin() const { return make_const_nditerator<is_strided or value != 1>()(*this, 0); }
+                const_iterator end() const { return make_const_nditerator<is_strided or value != 1>()(*this, shape[0]); }
 
-                iterator begin() { return iterator(*this, 0); }
-                iterator end() { return iterator(*this, shape[0]); }
+                iterator begin() { return make_nditerator<is_strided or value != 1>()(*this, 0); }
+                iterator end() { return make_nditerator<is_strided or value != 1>()(*this, shape[0]); }
 
                 auto fast(long i) const -> decltype(numpy_gexpr_helper<Arg, S...>::get(*this, i)) {
                     return numpy_gexpr_helper<Arg, S...>::get(*this, lower[0] + (is_contiguous<S...>::value ? i : step[0] * i));

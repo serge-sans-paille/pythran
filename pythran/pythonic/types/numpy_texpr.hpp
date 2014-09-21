@@ -22,6 +22,7 @@ namespace pythonic {
             // for N = 2
             struct numpy_texpr<ndarray<T, 2>> {
                 static const bool is_vectorizable = false;
+                static const bool is_strided = true;
                 typedef ndarray<T, 2> Arg;
 
                 typedef nditerator<numpy_texpr<Arg>> iterator;

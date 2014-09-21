@@ -26,7 +26,7 @@ namespace pythonic {
                 for(; begin != end; ++begin)
                     _nansum((*begin).begin(), (*begin).end(), sum, utils::int_<N - 1>());
             }
-            
+
         template<class E>
             typename types::numpy_expr_to_ndarray<E>::T
             nansum(E const& expr) {

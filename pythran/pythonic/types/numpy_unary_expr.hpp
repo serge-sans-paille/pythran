@@ -5,6 +5,11 @@
 #error NUMPY_UNARY_FUNC_SYM undefined
 #endif
 
+namespace types {
+    template <class Expr>
+        struct is_numexpr_arg;
+}
+
 namespace proxy {
 
     struct NUMPY_UNARY_FUNC_NAME {

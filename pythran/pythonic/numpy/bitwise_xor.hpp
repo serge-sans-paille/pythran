@@ -8,7 +8,11 @@
 namespace pythonic {
 
     namespace numpy {
-        FPROXY(pythonic::operator_, bitwise_xor, __xor__)
+
+    #define NUMPY_BINARY_FUNC_NAME bitwise_xor
+    #define NUMPY_BINARY_FUNC_SYM pythonic::operator_::__xor__
+    #include "pythonic/types/numpy_binary_expr.hpp"
+
     }
 }
 

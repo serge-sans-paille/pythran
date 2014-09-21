@@ -8,7 +8,9 @@
 namespace pythonic {
 
     namespace numpy {
-        FPROXY(pythonic::operator_, not_equal, ne)
+    #define NUMPY_BINARY_FUNC_NAME not_equal
+    #define NUMPY_BINARY_FUNC_SYM pythonic::operator_::ne
+    #include "pythonic/types/numpy_binary_expr.hpp"
 
     }
 

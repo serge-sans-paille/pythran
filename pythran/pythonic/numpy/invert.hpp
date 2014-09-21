@@ -8,7 +8,10 @@
 namespace pythonic {
 
     namespace numpy {
-        FPROXY(pythonic::operator_, invert, invert)
+
+    #define NUMPY_UNARY_FUNC_NAME invert
+    #define NUMPY_UNARY_FUNC_SYM operator_::invert
+    #include "pythonic/types/numpy_unary_expr.hpp"
 
     }
 

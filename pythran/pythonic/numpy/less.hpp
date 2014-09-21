@@ -8,7 +8,10 @@
 namespace pythonic {
 
     namespace numpy {
-        FPROXY(pythonic::operator_, less, lt)
+
+    #define NUMPY_BINARY_FUNC_NAME less
+    #define NUMPY_BINARY_FUNC_SYM pythonic::operator_::lt
+    #include "pythonic/types/numpy_binary_expr.hpp"
 
     }
 

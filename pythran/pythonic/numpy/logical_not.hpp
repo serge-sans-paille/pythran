@@ -8,7 +8,11 @@
 namespace pythonic {
 
     namespace numpy {
-        FPROXY(pythonic::operator_, logical_not, not_)
+
+    #define NUMPY_UNARY_FUNC_NAME logical_not
+    #define NUMPY_UNARY_FUNC_SYM pythonic::operator_::not_
+    #include "pythonic/types/numpy_unary_expr.hpp"
+
     }
 
 }

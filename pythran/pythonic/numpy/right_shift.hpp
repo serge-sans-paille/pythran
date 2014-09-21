@@ -8,7 +8,9 @@
 namespace pythonic {
 
     namespace numpy {
-        FPROXY(pythonic::operator_, right_shift, rshift)
+    #define NUMPY_BINARY_FUNC_NAME right_shift
+    #define NUMPY_BINARY_FUNC_SYM operator_::rshift
+    #include "pythonic/types/numpy_binary_expr.hpp"
     }
 
 }

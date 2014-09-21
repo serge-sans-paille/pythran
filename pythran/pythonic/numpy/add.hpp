@@ -9,7 +9,10 @@ namespace pythonic {
 
     namespace numpy {
 
-        PROXY(pythonic::operator_, add)
+    #define NUMPY_BINARY_FUNC_NAME add
+    #define NUMPY_BINARY_FUNC_SYM pythonic::operator_::add
+    #include "pythonic/types/numpy_binary_expr.hpp"
+
     }
 
 }

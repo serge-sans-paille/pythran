@@ -26,7 +26,7 @@ namespace pythonic {
                 for(; begin != end; ++begin)
                     _nanmin((*begin).begin(), (*begin).end(), min, utils::int_<N - 1>());
             }
-            
+
         template<class E>
             typename types::numpy_expr_to_ndarray<E>::T
             nanmin(E const& expr) {

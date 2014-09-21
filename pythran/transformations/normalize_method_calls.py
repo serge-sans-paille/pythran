@@ -4,6 +4,7 @@ NormalizeMethodCalls turns built in method calls into function calls
 
 from pythran.analyses import Globals
 from pythran.passmanager import Transformation
+from pythran.syntax import PythranSyntaxError
 from pythran.tables import attributes, functions, methods, modules, namespace
 
 import ast
@@ -86,6 +87,10 @@ class NormalizeMethodCalls(Transformation):
             return node
         # imported module -> not a getattr
         elif type(node.value) is ast.Name and node.value.id in self.imports:
+            if node.attr not in modules[node.value.id]:
+                msg = ("`" + node.attr + "' is not a member of "
+                       + node.value.id + " or Pythran does not support it")
+                raise PythranSyntaxError(msg, node)
             return node
         # not listed as attributed -> not a getattr
         elif node.attr not in attributes:

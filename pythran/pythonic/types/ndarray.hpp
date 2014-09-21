@@ -818,6 +818,55 @@ namespace pythonic {
             template<class E> struct getattr<attr::T, E> {
                 auto operator()(E const& a) -> decltype(numpy::transpose(a)) { return numpy::transpose(a); }
             };
+
+            namespace {
+              template <size_t N>
+              struct _build_gexpr {
+                template<class E, class... S>
+                  auto operator()(E const& a, S &&... slices)
+                  -> decltype(_build_gexpr<N-1>{}(a, contiguous_slice(), std::forward<S>(slices)...))
+                  {
+                    return _build_gexpr<N-1>{}(a, contiguous_slice(__builtin__::None, __builtin__::None), std::forward<S>(slices)...);
+                  }
+              };
+              template <>
+              struct _build_gexpr<1> {
+                template<class E, class... S>
+                  numpy_gexpr<E, S...> operator()(E const& a, S &&... slices)
+                  {
+                    return a(std::forward<S>(slices)...);
+                  }
+              };
+            }
+
+            template<class E> struct getattr<attr::REAL, E> {
+                auto operator()(E const & a)
+                -> decltype(_build_gexpr<E::value>{}(ndarray<typename E::dtype::value_type, E::value>{},
+                                                     slice{0,0,2}))
+                {
+                  typedef typename E::dtype::value_type stype;
+                  auto new_shape = a.shape;
+                  new_shape[E::value-1] *= 2;
+                  // this is tricky and dangerous!
+                  auto translated_mem = reinterpret_cast<utils::shared_ref<raw_array<stype>>const&>(a.mem);
+                  ndarray<stype,E::value> translated{translated_mem, new_shape};
+                  return _build_gexpr<E::value>{}(translated, slice{0, new_shape[E::value - 1], 2});
+                }
+            };
+            template<class E> struct getattr<attr::IMAG, E> {
+                auto operator()(E const & a)
+                -> decltype(_build_gexpr<E::value>{}(ndarray<typename E::dtype::value_type, E::value>{},
+                                                     slice{0,0,2}))
+                {
+                  typedef typename E::dtype::value_type stype;
+                  auto new_shape = a.shape;
+                  new_shape[E::value-1] *= 2;
+                  // this is tricky and dangerous!
+                  auto translated_mem = reinterpret_cast<utils::shared_ref<raw_array<stype>>const&>(a.mem);
+                  ndarray<stype,E::value>translated{translated_mem, new_shape};
+                  return _build_gexpr<E::value>{}(translated, slice{1, new_shape[E::value - 1], 2});
+                }
+            };
         }
     }
     namespace __builtin__ {
@@ -912,6 +961,11 @@ namespace pythonic {
     template<>
         struct c_type_to_numpy_type<float> {
             static const int value = NPY_FLOAT;
+        };
+
+    template<>
+        struct c_type_to_numpy_type<std::complex<float>> {
+            static const int value = NPY_CFLOAT;
         };
 
     template<>

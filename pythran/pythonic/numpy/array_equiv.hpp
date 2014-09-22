@@ -7,33 +7,52 @@
 namespace pythonic {
 
     namespace numpy {
+        template<class I0, class U>
+            bool _array_equiv(I0 vbegin, I0 vend, U const& uu);
+
         template<class U, class V>
-            typename std::enable_if<types::has_shape<U>::value and types::has_shape<V>::value,bool>::type array_equiv(U const& u, V const&v) {
-                if(u.shape == v.shape) {
-                    return array_equal(u,v);
-                }
-                else if(u.size() > v.size()) {
-                    return array_equiv(v,u);
-                }
-                else if(v.size()%u.size() ==0) {
-                    auto uu = asarray(u);
-                    auto vv = asarray(v);
-                    for(auto vi = vv.fbegin(), ve = vv.fend(); vi != ve;)
-                        for(auto ui = uu.fbegin(), ue = uu.fend(); ui != ue; ++ui, ++vi)
-                            if(*ui != *vi)
-                                return false;
-                    return true;
+            typename std::enable_if<types::numpy_expr_to_ndarray<U>::N == types::numpy_expr_to_ndarray<V>::N, bool>::type
+            array_equiv(U const& u, V const &v) {
+                return array_equal(u, v);
+            }
+
+        template<class U, class V>
+            typename std::enable_if<types::numpy_expr_to_ndarray<U>::N < types::numpy_expr_to_ndarray<V>::N, bool>::type
+            array_equiv(U const& u, V const &v) {
+                if(v.size() % u.size() == 0) {
+                    // requires allocation for u' as it is used multiple times.
+                    return _array_equiv(v.begin(), v.end(), asarray(u));
                 }
                 return false;
             }
+
+        template<class U, class V>
+            typename std::enable_if<(types::numpy_expr_to_ndarray<U>::N > types::numpy_expr_to_ndarray<V>::N), bool>::type
+            array_equiv(U const& u, V const &v) {
+                    return array_equiv(v,u);
+            }
+
+        template<class I0, class U>
+            bool _array_equiv(I0 vbegin, I0 vend, U const& uu)
+            {
+                for(; vbegin != vend; ++vbegin){
+                    if(not array_equiv(uu, *vbegin))
+                        return false;
+                }
+                return true;
+            }
+
+
         template<class U, class V>
             typename std::enable_if<types::has_shape<V>::value,bool>::type array_equiv(types::list<U> const& u, V const&v) {
                 return array_equiv(typename types::numpy_expr_to_ndarray<types::list<U>>::type(u), v);
             }
+
         template<class U, class V>
             typename std::enable_if<types::has_shape<U>::value,bool>::type array_equiv(U const& u, types::list<V> const&v) {
                 return array_equiv(u, typename types::numpy_expr_to_ndarray<types::list<V>>::type(v));
             }
+
         template<class U, class V>
             bool array_equiv(types::list<U> const& u, types::list<V> const&v) {
                 return array_equiv(typename types::numpy_expr_to_ndarray<types::list<U>>::type(u), typename types::numpy_expr_to_ndarray<types::list<V>>::type(v));

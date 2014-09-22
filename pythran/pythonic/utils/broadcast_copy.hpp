@@ -103,8 +103,7 @@ namespace pythonic {
                 self.fast(i) = self.fast(0);
             else
 #endif
-              for(long i = 1; i < n; ++i)
-                self.fast(i) = self.fast(0);
+              std::fill(self.begin() + 1, self.end(), self.fast(0));
         }
       };
 
@@ -190,8 +189,7 @@ namespace pythonic {
                 self.fast(i) = self.fast(0);
             else
 #endif
-              for(long i = 1; i < n; ++i)
-                self.fast(i) = self.fast(0);
+              std::fill(self.begin() + 1, self.end(), self.fast(0));
         }
 
       };

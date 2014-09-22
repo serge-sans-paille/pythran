@@ -332,11 +332,11 @@ namespace pythonic {
                 }
                 ndarray(array<long, N> const& shape, T init ): ndarray(shape, none_type())
                 {
-                    std::fill(fbegin(), fend(), init);
+                  std::fill(fbegin(), fend(), init);
                 }
 
                 /* from a foreign pointer */
-                ndarray(T* data, long * pshape):
+                ndarray(T* data, long const* pshape):
                     mem(data),
                     buffer(mem->data),
                     shape()

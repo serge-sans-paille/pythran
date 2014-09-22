@@ -10,7 +10,10 @@ namespace pythonic {
     namespace numpy {
         template<size_t N, class dtype=double>
             types::ndarray<typename types::numpy_type<dtype>::type, N> zeros(types::array<long, N> const& shape, dtype d=dtype()) {
-                return types::ndarray<typename types::numpy_type<dtype>::type, N>(shape, typename types::numpy_type<dtype>::type(0));
+              typedef typename types::numpy_type<dtype>::type T;
+              // use calloc even if we have a non integer type. This looks ok on modern architecture, although not really standard
+              T* buffer = (T*)calloc(std::accumulate(shape.begin(), shape.end(), 1L, std::multiplies<long>()), sizeof(T));
+              return types::ndarray<T, N>{buffer, shape.data()};
             }
 
         template<class dtype=double>

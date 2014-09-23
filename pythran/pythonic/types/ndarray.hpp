@@ -1053,6 +1053,17 @@ namespace pythonic {
                   return 0;
                 if(PyArray_NDIM(arr_ptr) != N)
                     return 0;
+                long * stride = PyArray_STRIDES(arr_ptr);
+                long * dims = PyArray_DIMS(arr_ptr);
+                long current_stride = PyArray_ITEMSIZE(arr_ptr);
+                for(long i=N-1; i>=0; i--)
+                {
+                    if(stride[i] != current_stride) {
+                        std::cerr << "Not implemented : sliced array as input" << std::endl;
+                        return 0;
+                    }
+                    current_stride *= dims[i];
+                }
                 return obj_ptr;
             }
 

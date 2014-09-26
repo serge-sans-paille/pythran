@@ -126,36 +126,26 @@ namespace pythonic {
                 {
                 }
 
-                template<size_t J>
-                void init_shape(std::tuple<S const &...> const& values, contiguous_slice const& cs, utils::int_<1>, utils::int_<J>) {
-                    contiguous_normalized_slice cns = cs.normalize(arg.shape[sizeof...(S) - 1]);
-                    lower[J] = cns.lower;
-                    step[J] = cns.step;
-                    shape[J] = cns.size();
+                template<size_t J, class Slice>
+                typename std::enable_if<std::is_same<Slice, slice>::value
+                                          or std::is_same<Slice, contiguous_slice>::value,
+                                        void>::type
+                init_shape(std::tuple<S const &...> const& values, Slice const& s, utils::int_<1>, utils::int_<J>) {
+                    auto ns = s.normalize(arg.shape[sizeof...(S) - 1]);
+                    lower[J] = ns.lower;
+                    step[J] = ns.step;
+                    shape[J] = ns.size();
                 }
 
-                template<size_t I, size_t J>
-                    void init_shape(std::tuple<S const&...> const & values, contiguous_slice const& cs, utils::int_<I>, utils::int_<J>) {
-                        contiguous_normalized_slice cns = cs.normalize(arg.shape[sizeof...(S) - I]);
-                        lower[J] = cns.lower;
-                        step[J] = cns.step;
-                        shape[J] = cns.size();
-                        init_shape(values, std::get<sizeof...(S) - I + 1>(values), utils::int_<I - 1>(), utils::int_<J + 1>());
-                    }
-                template<size_t J>
-                void init_shape(std::tuple<S const &...> const& values, slice const& cs, utils::int_<1>, utils::int_<J>) {
-                    normalized_slice cns = cs.normalize(arg.shape[sizeof...(S) - 1]);
-                    lower[J] = cns.lower;
-                    step[J] = cns.step;
-                    shape[J] = cns.size();
-                }
-
-                template<size_t I, size_t J>
-                    void init_shape(std::tuple<S const&...> const & values, slice const& cs, utils::int_<I>, utils::int_<J>) {
-                        normalized_slice cns = cs.normalize(arg.shape[sizeof...(S) - I]);
-                        lower[J] = cns.lower;
-                        step[J] = cns.step;
-                        shape[J] = cns.size();
+                template<size_t I, size_t J, class Slice>
+                    typename std::enable_if<std::is_same<Slice, slice>::value
+                                              or std::is_same<Slice, contiguous_slice>::value,
+                                            void>::type
+                    init_shape(std::tuple<S const&...> const & values, Slice const& s, utils::int_<I>, utils::int_<J>) {
+                        auto ns = s.normalize(arg.shape[sizeof...(S) - I]);
+                        lower[J] = ns.lower;
+                        step[J] = ns.step;
+                        shape[J] = ns.size();
                         init_shape(values, std::get<sizeof...(S) - I + 1>(values), utils::int_<I - 1>(), utils::int_<J + 1>());
                     }
 

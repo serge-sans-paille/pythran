@@ -4,6 +4,7 @@ from pythran.analyses import ConstantExpressions, Aliases, ASTMatcher
 from pythran.passmanager import Transformation
 from pythran.tables import modules, cxx_keywords
 from pythran.conversion import to_ast, ConversionError, ToNotEval
+from pythran.analyses.ast_matcher import DamnTooLongPattern
 
 import ast
 import numpy
@@ -28,7 +29,7 @@ class ConstantFolding(Transformation):
         Transformation.__init__(self, ConstantExpressions, Aliases)
 
     def prepare(self, node, ctx):
-        assert(isinstance(node, ast.Module))
+        assert isinstance(node, ast.Module)
         self.env = {'__builtin__': __import__('__builtin__')}
 
         for module_name in modules:
@@ -88,8 +89,11 @@ class ConstantFolding(Transformation):
                 if (isinstance(node, ast.Index)
                         and not isinstance(new_node, ast.Index)):
                     new_node = ast.Index(new_node)
-                if not ASTMatcher(node).search(new_node):
-                    self.update = True
+                try:
+                    if not ASTMatcher(node).search(new_node):
+                        self.update = True
+                except DamnTooLongPattern as e:
+                    print "W: ", e, " Assume no update happened."
                 return new_node
             except ConversionError as e:
                 print ast.dump(node)

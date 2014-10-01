@@ -3,6 +3,12 @@
 from ast import AST, iter_fields, NodeVisitor, Dict, Set
 from itertools import permutations
 
+MAX_UNORDERED_LENGTH = 10
+
+
+class DamnTooLongPattern(Exception):
+
+    """ Exception for long dict/set comparison to reduce compile time. """
 
 class Placeholder(AST):
 
@@ -91,6 +97,8 @@ class Check(NodeVisitor):
 
     def visit_Set(self, pattern):
         """ Set have unordered values. """
+        if len(pattern.elts) > MAX_UNORDERED_LENGTH:
+            raise DamnTooLongPattern("Pattern for Set is too long")
         return (isinstance(self.node, Set) and
                 any(self.check_list(self.node.elts, pattern_elts)
                     for pattern_elts in permutations(pattern.elts)))
@@ -99,6 +107,8 @@ class Check(NodeVisitor):
         """ Dict can match with unordered values. """
         if not isinstance(self.node, Dict):
             return False
+        if len(pattern.keys) > MAX_UNORDERED_LENGTH:
+            raise DamnTooLongPattern("Pattern for Dict is too long")
         for permutation in permutations(xrange(len(self.node.keys))):
             for i, value in enumerate(permutation):
                 if not self.field_match(self.node.keys[i],

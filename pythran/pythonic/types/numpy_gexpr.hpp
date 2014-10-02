@@ -4,6 +4,11 @@
 namespace pythonic {
 
     namespace types {
+        /* manually unrolled copy function
+         */
+        template <size_t I> struct flat_copy;
+        template<> struct flat_copy<0> { void operator()(long*, long const*){}};
+        template<size_t I> struct flat_copy { void operator()(long* to, long const* from){ to[I-1] = from[I-1] ; flat_copy<I-1>()(to, from); }};
 
         /* Meta-Function to count the number of slices in a type list
          */
@@ -81,11 +86,23 @@ namespace pythonic {
                     sizeof...(S) < std::remove_reference<Arg>::type::value or
                     std::is_same<contiguous_slice, typename std::tuple_element<sizeof...(S) - 1, std::tuple<S...>>::type>::value
                   );
+                static const bool is_strided =
+                    std::remove_reference<Arg>::type::is_strided or
+                    (((sizeof...(S) - count_long<S...>::value) == value)
+                    and  not std::is_same<contiguous_slice, typename std::tuple_element<sizeof...(S) - 1, std::tuple<S...>>::type>::value);
 
                 typedef typename std::remove_reference<decltype(numpy_gexpr_helper<Arg, S...>::get(std::declval<numpy_gexpr>(), 0L))>::type value_type;
 
-                typedef nditerator<numpy_gexpr<Arg, S...>> iterator;
-                typedef const_nditerator<numpy_gexpr<Arg, S...>> const_iterator;
+                typedef typename std::conditional<
+                  is_strided or value != 1,
+                  nditerator<numpy_gexpr>,
+                  dtype*
+                >::type iterator;
+                typedef typename std::conditional<
+                  is_strided or value != 1,
+                  const_nditerator<numpy_gexpr>,
+                  dtype const*
+                >::type const_iterator;
 
                 Arg arg;
                 dtype* buffer;
@@ -109,36 +126,26 @@ namespace pythonic {
                 {
                 }
 
-                template<size_t J>
-                void init_shape(std::tuple<S const &...> const& values, contiguous_slice const& cs, utils::int_<1>, utils::int_<J>) {
-                    contiguous_normalized_slice cns = cs.normalize(arg.shape[sizeof...(S) - 1]);
-                    lower[J] = cns.lower;
-                    step[J] = cns.step;
-                    shape[J] = cns.size();
+                template<size_t J, class Slice>
+                typename std::enable_if<std::is_same<Slice, slice>::value
+                                          or std::is_same<Slice, contiguous_slice>::value,
+                                        void>::type
+                init_shape(std::tuple<S const &...> const& values, Slice const& s, utils::int_<1>, utils::int_<J>) {
+                    auto ns = s.normalize(arg.shape[sizeof...(S) - 1]);
+                    lower[J] = ns.lower;
+                    step[J] = ns.step;
+                    shape[J] = ns.size();
                 }
 
-                template<size_t I, size_t J>
-                    void init_shape(std::tuple<S const&...> const & values, contiguous_slice const& cs, utils::int_<I>, utils::int_<J>) {
-                        contiguous_normalized_slice cns = cs.normalize(arg.shape[sizeof...(S) - I]);
-                        lower[J] = cns.lower;
-                        step[J] = cns.step;
-                        shape[J] = cns.size();
-                        init_shape(values, std::get<sizeof...(S) - I + 1>(values), utils::int_<I - 1>(), utils::int_<J + 1>());
-                    }
-                template<size_t J>
-                void init_shape(std::tuple<S const &...> const& values, slice const& cs, utils::int_<1>, utils::int_<J>) {
-                    normalized_slice cns = cs.normalize(arg.shape[sizeof...(S) - 1]);
-                    lower[J] = cns.lower;
-                    step[J] = cns.step;
-                    shape[J] = cns.size();
-                }
-
-                template<size_t I, size_t J>
-                    void init_shape(std::tuple<S const&...> const & values, slice const& cs, utils::int_<I>, utils::int_<J>) {
-                        normalized_slice cns = cs.normalize(arg.shape[sizeof...(S) - I]);
-                        lower[J] = cns.lower;
-                        step[J] = cns.step;
-                        shape[J] = cns.size();
+                template<size_t I, size_t J, class Slice>
+                    typename std::enable_if<std::is_same<Slice, slice>::value
+                                              or std::is_same<Slice, contiguous_slice>::value,
+                                            void>::type
+                    init_shape(std::tuple<S const&...> const & values, Slice const& s, utils::int_<I>, utils::int_<J>) {
+                        auto ns = s.normalize(arg.shape[sizeof...(S) - I]);
+                        lower[J] = ns.lower;
+                        step[J] = ns.step;
+                        shape[J] = ns.size();
                         init_shape(values, std::get<sizeof...(S) - I + 1>(values), utils::int_<I - 1>(), utils::int_<J + 1>());
                     }
 
@@ -186,17 +193,17 @@ namespace pythonic {
 
                 template<class Argp, class... Sp>
                 numpy_gexpr(numpy_gexpr<Argp, Sp...> const &expr, Arg &&arg) : arg(std::forward<Arg>(arg)), buffer(arg.buffer) {
-                    std::copy(expr.shape.begin()+1, expr.shape.end(), shape.begin());
-                    std::copy(expr.lower.begin()+1, expr.lower.end(), lower.begin());
-                    std::copy(expr.step.begin()+1, expr.step.end(), step.begin());
-                    std::copy(expr.indices.begin(), expr.indices.end(), indices.begin());
+                  flat_copy<value>()(&shape[0], &expr.shape[1]);
+                  flat_copy<value>()(&lower[0], &expr.lower[1]);
+                  flat_copy<value>()(&step[0], &expr.step[1]);
+                  flat_copy<std::remove_reference<Arg>::type::value - value>()(&indices[0], &expr.indices[0]);
                 }
 
                 template<class G>
                 numpy_gexpr(G const &expr, Arg &&arg) : arg(std::forward<Arg>(arg)), buffer(arg.buffer) {
-                    std::copy(expr.shape.begin()+1, expr.shape.end(), shape.begin());
-                    std::copy(expr.lower.begin()+1, expr.lower.end(), lower.begin());
-                    std::copy(expr.step.begin()+1, expr.step.end(), step.begin());
+                  flat_copy<value>()(&shape[0], &expr.shape[1]);
+                  flat_copy<value>()(&lower[0], &expr.lower[1]);
+                  flat_copy<value>()(&step[0], &expr.step[1]);
                 }
 
                 template<class E>
@@ -235,11 +242,12 @@ namespace pythonic {
                     return (*this) = (*this) / expr;
                 }
 
-                const_iterator begin() const { return const_iterator(*this, 0); }
-                const_iterator end() const { return const_iterator(*this, shape[0]); }
+                const_iterator begin() const {
+                  return make_const_nditerator<is_strided or value != 1>()(*this, (is_strided or value != 1) ?0 : lower[0]); }
+                const_iterator end() const { return make_const_nditerator<is_strided or value != 1>()(*this, ((is_strided or value != 1) ?0 : lower[0]) + shape[0]); }
 
-                iterator begin() { return iterator(*this, 0); }
-                iterator end() { return iterator(*this, shape[0]); }
+                iterator begin() { return make_nditerator<is_strided or value != 1>()(*this, (is_strided or value != 1) ?0 : lower[0]); }
+                iterator end() { return make_nditerator<is_strided or value != 1>()(*this, ((is_strided or value != 1) ?0 : lower[0]) + shape[0]); }
 
                 auto fast(long i) const -> decltype(numpy_gexpr_helper<Arg, S...>::get(*this, i)) {
                     return numpy_gexpr_helper<Arg, S...>::get(*this, lower[0] + (is_contiguous<S...>::value ? i : step[0] * i));

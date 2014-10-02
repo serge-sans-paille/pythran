@@ -15,6 +15,7 @@ namespace pythonic {
             // in the ndarray buffer in O(1)
             struct numpy_fexpr {
                 static const bool is_vectorizable = false;
+                static const bool is_strided = true;
                 //TODO accept multidimensionnal filtered expression
                 //>>> a = numpy.arange(2*3*4).reshape(2,3,4)
                 //array([[[ 0,  1,  2,  3],

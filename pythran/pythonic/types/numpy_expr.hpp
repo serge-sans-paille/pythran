@@ -36,6 +36,7 @@ namespace pythonic {
                                    typename std::remove_cv<typename std::remove_reference<Arg1>::type>::type::dtype
                                   >::value
                   and types::is_vector_op<Op>::value;
+                static const bool is_strided = std::remove_reference<Arg0>::type::is_strided or std::remove_reference<Arg1>::type::is_strided;
                 typedef const_nditerator<numpy_expr<Op, Arg0, Arg1>> iterator;
                 static constexpr size_t value = std::remove_reference<Arg0>::type::value>std::remove_reference<Arg1>::type::value?std::remove_reference<Arg0>::type::value: std::remove_reference<Arg1>::type::value;
                 typedef decltype(Op()(std::declval<typename std::remove_reference<Arg0>::type::value_type>(), std::declval<typename std::remove_reference<Arg1>::type::value_type>())) value_type;

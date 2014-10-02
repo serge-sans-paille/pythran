@@ -66,6 +66,7 @@ namespace pythonic {
         template<class T>
             struct broadcasted {
                 static const bool is_vectorizable = false;
+                static const bool is_strided = false;
                 typedef typename T::dtype dtype;
                 typedef typename T::value_type value_type;
                 static constexpr size_t value = T::value + 1;
@@ -107,6 +108,7 @@ namespace pythonic {
                                           T,
                                           typename __combined<T, B>::type>::type dtype;
                 static const bool is_vectorizable = types::is_vectorizable<dtype>::value;
+                static const bool is_strided = false;
                 typedef dtype value_type;
                 static constexpr size_t value = 0;
                 dtype _value;
@@ -276,6 +278,7 @@ namespace pythonic {
         template<class T, size_t N>
             struct ndarray {
                 static const bool is_vectorizable = types::is_vectorizable<T>::value;
+                static const bool is_strided = false;
 
                 /* types */
                 static constexpr size_t value = N;
@@ -329,11 +332,11 @@ namespace pythonic {
                 }
                 ndarray(array<long, N> const& shape, T init ): ndarray(shape, none_type())
                 {
-                    std::fill(fbegin(), fend(), init);
+                  std::fill(fbegin(), fend(), init);
                 }
 
                 /* from a foreign pointer */
-                ndarray(T* data, long * pshape):
+                ndarray(T* data, long const* pshape):
                     mem(data),
                     buffer(mem->data),
                     shape()

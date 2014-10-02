@@ -75,9 +75,7 @@ namespace pythonic {
                 self.fast(i) = other.fast(i);
             else
 #endif
-              for(long i = 0; i < other_size; ++i)
-                self.fast(i) = other.fast(i);
-
+              std::copy(other.begin(), other.end(), self.begin());
 
             // eventually repeat the pattern
             size_t n = self_size / other_size;
@@ -105,8 +103,7 @@ namespace pythonic {
                 self.fast(i) = self.fast(0);
             else
 #endif
-              for(long i = 1; i < n; ++i)
-                self.fast(i) = self.fast(0);
+              std::fill(self.begin() + 1, self.end(), self.fast(0));
         }
       };
 
@@ -192,8 +189,7 @@ namespace pythonic {
                 self.fast(i) = self.fast(0);
             else
 #endif
-              for(long i = 1; i < n; ++i)
-                self.fast(i) = self.fast(0);
+              std::fill(self.begin() + 1, self.end(), self.fast(0));
         }
 
       };

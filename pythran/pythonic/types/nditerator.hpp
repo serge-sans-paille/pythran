@@ -76,6 +76,34 @@ namespace pythonic {
                 const_nditerator& operator=(const_nditerator const& other) { index = other.index; return *this;}
             };
 
+        template<bool is_strided>
+          struct make_nditerator {
+            template<class T>
+              auto operator()(T& self, long i) -> decltype(nditerator<T>(self, i)) const {
+                return nditerator<T>(self, i);
+              }
+          };
+        template<>
+          struct make_nditerator<false> {
+            template<class T>
+              typename T::dtype * operator()(T& self, long i) const {
+                return self.buffer + i;
+              }
+          };
+        template<bool is_strided>
+          struct make_const_nditerator {
+            template<class T>
+              auto operator()(T const& self, long i) -> decltype(const_nditerator<T>(self, i)) const {
+                return const_nditerator<T>(self, i);
+              }
+          };
+        template<>
+          struct make_const_nditerator<false> {
+            template<class T>
+              typename T::dtype const* operator()(T const& self, long i) const {
+                return self.buffer + i;
+              }
+          };
 
     }
 

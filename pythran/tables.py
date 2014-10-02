@@ -270,8 +270,8 @@ modules = {
         "concatenate": ConstFunctionIntr(),
         "complex": ConstFunctionIntr(),
         "complex64": ConstFunctionIntr(),
-        "conj": ConstFunctionIntr(),
-        "conjugate": ConstFunctionIntr(),
+        "conj": ConstMethodIntr(),
+        #"conjugate": ConstMethodIntr(), dispatched
         "copy": ConstFunctionIntr(),
         "copyto": FunctionIntr(argument_effects=[UpdateEffect(), ReadEffect(),
                                                  ReadEffect(), ReadEffect()]),
@@ -970,9 +970,9 @@ modules = {
         "is_integer": ConstMethodIntr(),
         },
     "__complex___": {
+        # "conjugate": ConstMethodIntr(), dispatched
         "real": AttributeIntr(0),
         "imag": AttributeIntr(1),
-        "conjugate": ConstMethodIntr(),
         },
     "__dict__": {
         "fromkeys": ConstFunctionIntr(),
@@ -1051,6 +1051,7 @@ modules = {
     "__dispatch__": {
         "clear": MethodIntr(),
         "copy": ConstMethodIntr(),
+        "conjugate": ConstMethodIntr(),
         "count": ConstMethodIntr(),
         "next": MethodIntr(),
         "pop": MethodIntr(),

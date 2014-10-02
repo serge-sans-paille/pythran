@@ -34,7 +34,7 @@ namespace proxy {
             typename std::enable_if<
             types::is_numexpr_arg<E>::value
             and
-            std::is_scalar<S>::value,
+            (std::is_scalar<S>::value or types::is_complex<S>::value),
             types::numpy_expr<NUMPY_BINARY_FUNC_NAME, E,  pythonic::types::broadcast<typename E::dtype, S>>
                 >::type
                 operator()(E const& self, S other)
@@ -45,7 +45,7 @@ namespace proxy {
             typename std::enable_if<
             types::is_numexpr_arg<E>::value
             and
-            std::is_scalar<S>::value,
+            (std::is_scalar<S>::value or types::is_complex<S>::value),
             types::numpy_expr<NUMPY_BINARY_FUNC_NAME, pythonic::types::broadcast<typename E::dtype, S>, E>
                 >::type
                 operator()(S other, E const& self)

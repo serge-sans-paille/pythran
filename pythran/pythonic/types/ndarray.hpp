@@ -24,6 +24,7 @@
 #include "pythonic/types/numpy_texpr.hpp"
 #include "pythonic/types/numpy_iexpr.hpp"
 #include "pythonic/types/numpy_gexpr.hpp"
+#include "pythonic/utils/numpy_traits.hpp"
 
 #include "pythonic/__builtin__/len.hpp"
 
@@ -53,8 +54,6 @@ namespace pythonic {
 
     namespace types {
 
-        template<class Expr>
-            struct is_array;
         template<class T>
             struct type_helper;
 
@@ -607,61 +606,6 @@ namespace pythonic {
                     return reinterpret_cast<intptr_t>(&(*mem));
                 }
 
-            };
-
-
-        template<class T>
-            struct is_ndarray {
-                static constexpr bool value = false;
-            };
-        template<class T, size_t N>
-            struct is_ndarray<ndarray<T,N>> {
-                static constexpr bool value = true;
-            };
-
-        /* Type trait that checks if a type is a potential numpy expression parameter
-         *
-         * Only used to write concise expression templates
-         */
-        template<class T>
-            struct is_array {
-                static constexpr bool value = false;
-            };
-        template<class T, size_t N>
-            struct is_array<ndarray<T,N>> {
-                static constexpr bool value = true;
-            };
-        template<class A>
-            struct is_array<numpy_iexpr<A>> {
-                static constexpr bool value = true;
-            };
-        template<class A, class F>
-            struct is_array<numpy_fexpr<A,F>> {
-                static constexpr bool value = true;
-            };
-        template<class A, class... S>
-            struct is_array<numpy_gexpr<A,S...>> {
-                static constexpr bool value = true;
-            };
-        template<class O, class A>
-            struct is_array<numpy_uexpr<O,A>> {
-                static constexpr bool value = true;
-            };
-        template<class A>
-            struct is_array<numpy_texpr<A>> {
-                static constexpr bool value = true;
-            };
-        template<class O, class A0, class A1>
-            struct is_array<numpy_expr<O,A0,A1>> {
-                static constexpr bool value = true;
-            };
-
-        template<class T>
-            struct is_numexpr_arg : is_array<T> {
-            };
-        template<class T>
-            struct is_numexpr_arg<list<T>> {
-                static constexpr bool value = true;
             };
 
         /* pretty printing { */

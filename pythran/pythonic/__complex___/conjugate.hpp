@@ -7,14 +7,8 @@
 namespace pythonic {
 
     namespace __complex___ {
-        template<class T>
-            auto conjugate(T&& t)
-            -> decltype(numpy::proxy::conjugate{}(std::forward<T>(t)))
-            {
-                return numpy::proxy::conjugate{}(std::forward<T>(t));
-            }
+        ALIAS(conjugate, numpy::proxy::conjugate{});
         PROXY(pythonic::__complex___, conjugate);
-
     }
 
 }

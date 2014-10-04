@@ -95,15 +95,15 @@ namespace pythonic {
         template <class E, class F, size_t N, size_t D>
         void operator()(E &&self, F const &other, utils::int_<N>, utils::int_<D>) {
           self.fast(0) = other;
-          long n = self.shape[0];
 #ifdef _OPENMP
-            if (n >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
-              #pragma omp parallel for
-              for(long i = 1; i < n; ++i)
-                self.fast(i) = self.fast(0);
-            else
+          long n = self.shape[0];
+          if (n >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
+            #pragma omp parallel for
+            for(long i = 1; i < n; ++i)
+              self.fast(i) = self.fast(0);
+          else
 #endif
-              std::fill(self.begin() + 1, self.end(), self.fast(0));
+          std::fill(self.begin() + 1, self.end(), self.fast(0));
         }
       };
 
@@ -181,8 +181,8 @@ namespace pythonic {
         template <class E, class F, size_t N, size_t D>
         void operator()(E &&self, F const &other, utils::int_<N>, utils::int_<D>) {
           (*this)(self.fast(0), other, utils::int_<N - 1>(), utils::int_<D - 1>());
-          long n = self.shape[0];
 #ifdef _OPENMP
+            long n = self.shape[0];
             if (n >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
               #pragma omp parallel for
               for(long i = 1; i < n; ++i)

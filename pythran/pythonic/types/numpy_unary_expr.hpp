@@ -39,6 +39,7 @@ namespace proxy {
             {
                 return pythonic::types::numpy_uexpr<NUMPY_UNARY_FUNC_NAME, E>(self);
             }
+
         template<class T>
             pythonic::types::numpy_uexpr<
                 NUMPY_UNARY_FUNC_NAME,

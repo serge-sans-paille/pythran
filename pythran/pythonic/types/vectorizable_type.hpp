@@ -13,6 +13,7 @@ namespace numpy {
     struct mod;
     struct logaddexp2;
     struct nan_to_num;
+    struct asarray_chkfinite;
   }
 }
 
@@ -32,7 +33,8 @@ template<class O>
                               not std::is_same<O, operator_::proxy::mod>::value and
                               not std::is_same<O, numpy::proxy::logaddexp2>::value and
                               // conditional processing doesn't permit SIMD
-                              not std::is_same<O, numpy::proxy::nan_to_num>::value;
+                              not std::is_same<O, numpy::proxy::nan_to_num>::value and
+                              not std::is_same<O, numpy::proxy::asarray_chkfinite>::value;
   };
 
 }

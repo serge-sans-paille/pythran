@@ -8,7 +8,6 @@
 #include <nt2/include/functions/is_nan.hpp>
 #include <nt2/include/functions/is_inf.hpp>
 #include <nt2/include/functions/is_positive.hpp>
-#include <nt2/include/functions/is_negative.hpp>
 
 namespace pythonic {
 

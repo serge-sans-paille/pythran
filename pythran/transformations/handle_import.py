@@ -21,6 +21,7 @@ def is_builtin_function(func_name):
 
 def is_builtin_module_name(module_name):
     """Test if a module is a builtin module (numpy, math, ...)"""
+    module_name = module_name.split(".")[0]
     return (module_name in modules or
             (module_name in cxx_keywords and module_name + "_" in modules))
 

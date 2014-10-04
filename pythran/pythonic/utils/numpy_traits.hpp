@@ -1,8 +1,6 @@
 #ifndef PYTHONIC_UTILS_NUMPY_TRAITS_HPP
 #define PYTHONIC_UTILS_NUMPY_TRAITS_HPP
 
-#include "pythonic/types/numexpr_to_ndarray.hpp"
-
 namespace pythonic {
     namespace types {
 

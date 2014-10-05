@@ -5,6 +5,8 @@
 #error NUMPY_BINARY_FUNC_SYM undefined
 #endif
 
+#include "pythonic/types/numpy_broadcast.hpp"
+
 namespace proxy {
 
     struct NUMPY_BINARY_FUNC_NAME {
@@ -35,22 +37,22 @@ namespace proxy {
             types::is_numexpr_arg<E>::value
             and
             std::is_scalar<S>::value,
-            types::numpy_expr<NUMPY_BINARY_FUNC_NAME, E,  types::broadcast<typename E::dtype, S>>
+            types::numpy_expr<NUMPY_BINARY_FUNC_NAME, E,  pythonic::types::broadcast<typename E::dtype, S>>
                 >::type
                 operator()(E const& self, S other)
                 {
-                    return types::numpy_expr<NUMPY_BINARY_FUNC_NAME, E,  types::broadcast<typename E::dtype, S>>(self, types::broadcast<typename E::dtype, S>(other));
+                    return types::numpy_expr<NUMPY_BINARY_FUNC_NAME, E,  pythonic::types::broadcast<typename E::dtype, S>>(self, pythonic::types::broadcast<typename E::dtype, S>(other));
                 }
         template<class E, class S>
             typename std::enable_if<
             types::is_numexpr_arg<E>::value
             and
             std::is_scalar<S>::value,
-            types::numpy_expr<NUMPY_BINARY_FUNC_NAME, types::broadcast<typename E::dtype, S>, E>
+            types::numpy_expr<NUMPY_BINARY_FUNC_NAME, pythonic::types::broadcast<typename E::dtype, S>, E>
                 >::type
                 operator()(S other, E const& self)
                 {
-                    return types::numpy_expr<NUMPY_BINARY_FUNC_NAME, types::broadcast<typename E::dtype, S>, E>(types::broadcast<typename E::dtype, S>(other), self);
+                    return types::numpy_expr<NUMPY_BINARY_FUNC_NAME, pythonic::types::broadcast<typename E::dtype, S>, E>(pythonic::types::broadcast<typename E::dtype, S>(other), self);
                 }
     };
 

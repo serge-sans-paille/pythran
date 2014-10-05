@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_TYPES_NUMEXPR_TO_NDARRAY_HPP
 #define PYTHONIC_TYPES_NUMEXPR_TO_NDARRAY_HPP
 
+#include "pythonic/utils/nested_container.hpp"
+
 namespace pythonic {
 
     namespace types {
@@ -9,6 +11,8 @@ namespace pythonic {
             struct ndarray;
         template<class T>
             struct is_numexpr_arg;
+        template<class T>
+            struct list;
 
 /*
          * 3 informations are available:

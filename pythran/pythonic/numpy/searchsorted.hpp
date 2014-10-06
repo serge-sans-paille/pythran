@@ -3,6 +3,7 @@
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/utils/numpy_conversion.hpp"
+#include "pythonic/utils/int_.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/str.hpp"
 #include "pythonic/__builtin__/None.hpp"
@@ -31,18 +32,18 @@ namespace pythonic {
                     throw types::ValueError("'" + side + "' is an invalid value for keyword 'side'");
             }
         template<class E, class I0, class I1>
-            void _search_sorted(E const& a, I0 ibegin, I0 iend, I1 obegin, types::str const &side, int_<1>)
+            void _search_sorted(E const& a, I0 ibegin, I0 iend, I1 obegin, types::str const &side, utils::int_<1>)
             {
                 for(;ibegin != iend; ++ibegin, ++obegin)
                     *obegin = searchsorted(a, *ibegin, side);
             }
 
         template<class E, class I0, class I1, size_t N>
-            void _search_sorted(E const& a, I0 ibegin, I0 iend, I1 obegin, types::str const &side, int_<N>)
+            void _search_sorted(E const& a, I0 ibegin, I0 iend, I1 obegin, types::str const &side, utils::int_<N>)
             {
                 for(;ibegin != iend; ++ibegin, ++obegin)
                     _search_sorted(a, (*ibegin).begin(), (*ibegin).end(),
-                                   (*obegin).begin(), side, int_<N - 1>());
+                                   (*obegin).begin(), side, utils::int_<N - 1>());
             }
 
         template<class E, class T>
@@ -55,7 +56,7 @@ namespace pythonic {
 
                 types::ndarray<long, types::numpy_expr_to_ndarray<E>::N> out(asarray(v).shape, __builtin__::None);
                 _search_sorted(a, v.begin(), v.end(), out.begin(), side,
-                               int_<types::numpy_expr_to_ndarray<E>::N>());
+                               utils::int_<types::numpy_expr_to_ndarray<E>::N>());
                 return out;
             }
 

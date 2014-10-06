@@ -1,6 +1,4 @@
-"""
-NormalizeTuples removes implicit variable -> tuple conversion
-"""
+""" NormalizeTuples removes implicit variable -> tuple conversion. """
 
 from pythran.passmanager import Transformation
 
@@ -35,7 +33,7 @@ class NormalizeTuples(Transformation):
     >>> from pythran import passmanager, backend
     >>> node = ast.parse("a=(1,2.) ; i,j = a")
     >>> pm = passmanager.PassManager("test")
-    >>> node = pm.apply(NormalizeTuples, node)
+    >>> _, node = pm.apply(NormalizeTuples, node)
     >>> print pm.dump(backend.Python, node)
     a = (1, 2.0)
     if 1:

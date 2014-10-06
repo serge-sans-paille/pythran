@@ -1,6 +1,4 @@
-"""
-GenExpToImap transforms generator expressions into iterators
-"""
+""" GenExpToImap transforms generator expressions into iterators. """
 
 from pythran.analyses import OptimizableComprehension
 from pythran.passmanager import Transformation
@@ -17,7 +15,7 @@ class GenExpToImap(Transformation):
     >>> from pythran import passmanager, backend
     >>> node = ast.parse("(x*x for x in range(10))")
     >>> pm = passmanager.PassManager("test")
-    >>> node = pm.apply(GenExpToImap, node)
+    >>> _, node = pm.apply(GenExpToImap, node)
     >>> print pm.dump(backend.Python, node)
     import itertools
     itertools.imap((lambda x: (x * x)), range(10))

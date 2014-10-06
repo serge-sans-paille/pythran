@@ -1,6 +1,4 @@
-"""
-ListCompToMap transforms list comprehension into intrinsics.
-"""
+""" ListCompToMap transforms list comprehension into intrinsics.  """
 
 from pythran.analyses import OptimizableComprehension
 from pythran.passmanager import Transformation
@@ -16,7 +14,7 @@ class ListCompToMap(Transformation):
     >>> from pythran import passmanager, backend
     >>> node = ast.parse("[x*x for x in range(10)]")
     >>> pm = passmanager.PassManager("test")
-    >>> node = pm.apply(ListCompToMap, node)
+    >>> _, node = pm.apply(ListCompToMap, node)
     >>> print pm.dump(backend.Python, node)
     __builtin__.map((lambda x: (x * x)), range(10))
     '''

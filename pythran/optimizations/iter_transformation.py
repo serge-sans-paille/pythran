@@ -1,6 +1,4 @@
-"""
-IterTransformation replaces expressions by iterators when possible.
-"""
+""" IterTransformation replaces expressions by iterators when possible.  """
 
 from pythran.analyses import PotentialIterator, Aliases
 from pythran.passmanager import Transformation
@@ -22,7 +20,7 @@ def bar(n):                                       \\n\
     return foo(__builtin__.range(n)) \
 """)
     >>> pm = passmanager.PassManager("test")
-    >>> node = pm.apply(IterTransformation, node)
+    >>> _, node = pm.apply(IterTransformation, node)
     >>> print pm.dump(backend.Python, node)
     import itertools
     def foo(l):
@@ -55,4 +53,5 @@ def bar(n):                                       \\n\
                 node.func = ast.Attribute(
                     value=ast.Name(id=ns, ctx=ast.Load()),
                     attr=new, ctx=ast.Load())
+                self.update = True
         return self.generic_visit(node)

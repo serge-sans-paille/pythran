@@ -1,6 +1,4 @@
-"""
-DeadCodeElimination remove useless code
-"""
+""" DeadCodeElimination remove useless code. """
 
 from pythran.analyses import PureExpressions, UseDefChain
 from pythran.openmp import OMPDirective
@@ -21,13 +19,13 @@ class DeadCodeElimination(Transformation):
     >>> from pythran import passmanager, backend
     >>> pm = passmanager.PassManager("test")
     >>> node = ast.parse("def foo(): a = [2, 3]; return 1")
-    >>> node = pm.apply(DeadCodeElimination, node)
+    >>> _, node = pm.apply(DeadCodeElimination, node)
     >>> print pm.dump(backend.Python, node)
     def foo():
         pass
         return 1
     >>> node = ast.parse("def foo(): 'a simple string'; return 1")
-    >>> node = pm.apply(DeadCodeElimination, node)
+    >>> _, node = pm.apply(DeadCodeElimination, node)
     >>> print pm.dump(backend.Python, node)
     def foo():
         pass
@@ -38,7 +36,7 @@ class DeadCodeElimination(Transformation):
     ... def foo(a):
     ...    bar(a)
     ...    return 1''')
-    >>> node = pm.apply(DeadCodeElimination, node)
+    >>> _, node = pm.apply(DeadCodeElimination, node)
     >>> print pm.dump(backend.Python, node)
     def bar(a):
         return a
@@ -62,7 +60,8 @@ class DeadCodeElimination(Transformation):
         node.targets = filter(self.used_target, node.targets)
         if node.targets:
             return node
-        elif node.value in self.pure_expressions:
+        self.update = True
+        if node.value in self.pure_expressions:
             return ast.Pass()
         else:
             return ast.Expr(value=node.value)
@@ -70,6 +69,7 @@ class DeadCodeElimination(Transformation):
     def visit_Expr(self, node):
         if (node in self.pure_expressions and
                 not isinstance(node.value, ast.Yield)):
+            self.update = True
             return ast.Pass()
         self.generic_visit(node)
         return node
@@ -82,9 +82,11 @@ class DeadCodeElimination(Transformation):
         # and remove else content
         if not have_body and have_else:
             test = ast.UnaryOp(op=ast.Not(), operand=node.test)
+            self.update = True
             return ast.If(test=test, body=node.orelse, orelse=list())
         # if neither "if" and "else" are useful, keep test if it is not pure
         elif not have_body:
+            self.update = True
             if node.test in self.pure_expressions:
                 return ast.Pass()
             else:
@@ -93,9 +95,7 @@ class DeadCodeElimination(Transformation):
         return node
 
     def visit(self, node):
-        """
-            Add OMPDirective from the old node to the new one
-        """
+        """ Add OMPDirective from the old node to the new one. """
         old_omp = metadata.get(node, OMPDirective)
         node = super(DeadCodeElimination, self).visit(node)
         if not metadata.get(node, OMPDirective):

@@ -1,6 +1,4 @@
-"""
-Replaces **2 by a call to numpy.square
-"""
+""" Replaces **2 by a call to numpy.square. """
 
 from pythran.passmanager import Transformation
 
@@ -8,18 +6,19 @@ import ast
 
 
 class Square(Transformation):
-    '''
-    Replaces **2 by a call to numpy.square
+
+    """
+    Replaces **2 by a call to numpy.square.
 
     >>> import ast
     >>> from pythran import passmanager, backend
     >>> node = ast.parse('a**2')
     >>> pm = passmanager.PassManager("test")
-    >>> node = pm.apply(Square, node)
+    >>> _, node = pm.apply(Square, node)
     >>> print pm.dump(backend.Python, node)
     import numpy
     numpy.square(a)
-    '''
+    """
 
     def visit_Module(self, node):
         self.need_import = False
@@ -35,6 +34,7 @@ class Square(Transformation):
                 and type(node.right) is ast.Num
                 and node.right.n == 2):
             self.need_import = True
+            self.update = True
             return ast.Call(
                 ast.Attribute(
                     ast.Name('numpy', ast.Load()),

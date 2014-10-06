@@ -1,6 +1,4 @@
-"""
-RemoveNestedFunctions turns nested function into top-level functions
-"""
+""" RemoveNestedFunctions turns nested function into top-level functions. """
 
 from pythran.analyses import GlobalDeclarations, ImportedIds
 from pythran.passmanager import Transformation
@@ -78,7 +76,7 @@ class RemoveNestedFunctions(Transformation):
     >>> from pythran import passmanager, backend
     >>> node = ast.parse("def foo(x):\\n def bar(y): return x+y\\n bar(12)")
     >>> pm = passmanager.PassManager("test")
-    >>> node = pm.apply(RemoveNestedFunctions, node)
+    >>> _, node = pm.apply(RemoveNestedFunctions, node)
     >>> print pm.dump(backend.Python, node)
     import functools
     def foo(x):

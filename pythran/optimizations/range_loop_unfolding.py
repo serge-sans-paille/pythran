@@ -1,5 +1,5 @@
 """
-RangeLoopUnfolding turns unfolded range of non unrolled loops back to range
+RangeLoopUnfolding turns unfolded range of non unrolled loops back to range.
 """
 
 from pythran.passmanager import Transformation
@@ -8,18 +8,18 @@ import ast
 
 
 class RangeLoopUnfolding(Transformation):
-    '''
+    """
     Turns iteration over an incrementing list of literals into a range
 
     >>> import ast
     >>> from pythran import passmanager, backend
     >>> node = ast.parse("for i in [1,2,3]: print i")
     >>> pm = passmanager.PassManager("test")
-    >>> node = pm.apply(RangeLoopUnfolding, node)
+    >>> _, node = pm.apply(RangeLoopUnfolding, node)
     >>> print pm.dump(backend.Python, node)
     for i in __builtin__.xrange(1, 4, 1):
         print i
-    '''
+    """
 
     def isrange(self, elts):
         if not elts:
@@ -49,4 +49,5 @@ class RangeLoopUnfolding(Transformation):
                     node.iter.ctx),
                     map(ast.Num, range_params),
                     [], None, None)
+                self.update = True
         return self.generic_visit(node)

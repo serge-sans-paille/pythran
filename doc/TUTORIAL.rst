@@ -183,7 +183,7 @@ module. It can be used, for instance, to generate new unique identifiers::
   >>> from pythran import analyses
   >>> code = 'a = b = 1'
   >>> tree = ast.parse(code)
-  >>> pm.apply(analyses.Identifiers, tree)
+  >>> pm.gather(analyses.Identifiers, tree)
   set(['a', 'b'])
 
 One can also computes the state of ``globals()``::

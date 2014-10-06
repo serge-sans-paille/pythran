@@ -1,7 +1,14 @@
 """ Module to looks for a specified pattern in a given AST. """
 
-from ast import AST, iter_fields, NodeVisitor
+from ast import AST, iter_fields, NodeVisitor, Dict, Set
+from itertools import permutations
 
+MAX_UNORDERED_LENGTH = 10
+
+
+class DamnTooLongPattern(Exception):
+
+    """ Exception for long dict/set comparison to reduce compile time. """
 
 class Placeholder(AST):
 
@@ -88,6 +95,30 @@ class Check(NodeVisitor):
         return any(self.field_match(self.node, value_or)
                    for value_or in pattern.args)
 
+    def visit_Set(self, pattern):
+        """ Set have unordered values. """
+        if len(pattern.elts) > MAX_UNORDERED_LENGTH:
+            raise DamnTooLongPattern("Pattern for Set is too long")
+        return (isinstance(self.node, Set) and
+                any(self.check_list(self.node.elts, pattern_elts)
+                    for pattern_elts in permutations(pattern.elts)))
+
+    def visit_Dict(self, pattern):
+        """ Dict can match with unordered values. """
+        if not isinstance(self.node, Dict):
+            return False
+        if len(pattern.keys) > MAX_UNORDERED_LENGTH:
+            raise DamnTooLongPattern("Pattern for Dict is too long")
+        for permutation in permutations(xrange(len(self.node.keys))):
+            for i, value in enumerate(permutation):
+                if not self.field_match(self.node.keys[i],
+                                        pattern.keys[value]):
+                    break
+            else:
+                return self.check_list(self.node.values,
+                                       [pattern.values[i] for i in permutation])
+        return False
+
     def field_match(self, node_field, pattern_field):
         """
         Check if two fields match.
@@ -139,6 +170,15 @@ class ASTMatcher(NodeVisitor):
     ...                    starargs=None, kwargs=None)
     >>> len(ASTMatcher(pattern).search(ast.parse(code)))
     2
+    >>> code = "{1:2, 3:4}"
+    >>> pattern = ast.Dict(keys=[ast.Num(n=3), ast.Num(n=1)],
+    ...                    values=[ast.Num(n=4), ast.Num(n=2)])
+    >>> len(ASTMatcher(pattern).search(ast.parse(code)))
+    1
+    >>> code = "{1, 2, 3}"
+    >>> pattern = ast.Set(elts=[ast.Num(n=3), ast.Num(n=2), ast.Num(n=1)])
+    >>> len(ASTMatcher(pattern).search(ast.parse(code)))
+    1
     """
 
     def __init__(self, pattern):

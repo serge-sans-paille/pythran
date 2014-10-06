@@ -13,7 +13,7 @@ class FalsePolymorphism(Transformation):
     >>> from pythran import passmanager, backend
     >>> node = ast.parse("def foo(): a = 12; a = 'babar'")
     >>> pm = passmanager.PassManager("test")
-    >>> node = pm.apply(FalsePolymorphism, node)
+    >>> _, node = pm.apply(FalsePolymorphism, node)
     >>> print pm.dump(backend.Python, node)
     def foo():
         a = 12

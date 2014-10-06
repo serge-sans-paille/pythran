@@ -1,6 +1,4 @@
-"""
-ExpandImportAll replaces import * by all their modules
-"""
+""" ExpandImportAll replaces import * by all their modules. """
 
 from pythran.passmanager import Transformation
 from pythran.tables import modules
@@ -16,7 +14,7 @@ class ExpandImportAll(Transformation):
     >>> from pythran import passmanager, backend
     >>> node = ast.parse("from math import *")
     >>> pm = passmanager.PassManager("test")
-    >>> node = pm.apply(ExpandImportAll, node)
+    >>> _, node = pm.apply(ExpandImportAll, node)
     >>> print pm.dump(backend.Python, node)
     from math import asinh, atan2, fmod, atan, isnan, factorial, pow, \
 copysign, cos, cosh, ldexp, hypot, isinf, floor, sinh, acosh, tan, ceil, exp, \

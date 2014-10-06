@@ -1,6 +1,4 @@
-"""
-RemoveNamedArguments turns named arguments into regular ones
-"""
+""" RemoveNamedArguments turns named arguments into regular ones.  """
 
 from pythran.analyses import Aliases
 from pythran.passmanager import Transformation
@@ -18,7 +16,7 @@ class RemoveNamedArguments(Transformation):
     >>> code = 'def foo(x, y): return x + y\\ndef bar(z): return foo(y=z, x=0)'
     >>> node = ast.parse(code)
     >>> pm = passmanager.PassManager("test")
-    >>> node = pm.apply(RemoveNamedArguments, node)
+    >>> _, node = pm.apply(RemoveNamedArguments, node)
     >>> print pm.dump(backend.Python, node)
     def foo(x, y):
         return (x + y)

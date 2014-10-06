@@ -1,6 +1,4 @@
-"""
-LoopFullUnrolling fully unrolls loops with static bounds
-"""
+""" LoopFullUnrolling fully unrolls loops with static bounds. """
 
 from pythran import metadata
 from pythran.analyses import HasBreak, HasContinue, NodeCount
@@ -19,7 +17,7 @@ class LoopFullUnrolling(Transformation):
     >>> from pythran import passmanager, backend
     >>> node = ast.parse('for j in [1,2,3]: i += j')
     >>> pm = passmanager.PassManager("test")
-    >>> node = pm.apply(LoopFullUnrolling, node)
+    >>> _, node = pm.apply(LoopFullUnrolling, node)
     >>> print pm.dump(backend.Python, node)
     j = 1
     i += j
@@ -53,5 +51,6 @@ class LoopFullUnrolling(Transformation):
                 def unroll(elt):
                     return ([ast.Assign([deepcopy(node.target)], elt)]
                             + deepcopy(node.body))
+                self.update = True
                 return reduce(list.__add__, map(unroll, node.iter.elts))
         return node

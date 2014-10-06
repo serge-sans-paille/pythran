@@ -1,5 +1,6 @@
-'''
+"""
 This module provides classes and functions for pass management.
+
 There are two kinds of passes: transformations and analysis.
     * ModuleAnalysis, FunctionAnalysis and NodeAnalysis are to be
       subclassed by any pass that collects information about the AST.
@@ -8,7 +9,7 @@ There are two kinds of passes: transformations and analysis.
     * dump is used to dump (!) the AST using the given backend.
     * Transformation is to be sub-classed by any pass that updates the AST.
     * apply is used to apply (sic) a transformation on an AST node.
-'''
+"""
 
 import ast
 import re
@@ -129,15 +130,24 @@ class Backend(ModuleAnalysis):
 
 
 class Transformation(ContextManager, ast.NodeTransformer):
-    '''A pass that updates its content.'''
+
+    """A pass that updates its content."""
+
+    def __init__(self, *args, **kwargs):
+        """ Initialize the update used to know if update happened. """
+        super(Transformation, self).__init__(*args, **kwargs)
+        self.update = False
 
     def run(self, node, ctx):
+        """ Apply transformation and dependencies and fix new node location."""
         n = super(Transformation, self).run(node, ctx)
         ast.fix_missing_locations(n)
         return n
 
     def apply(self, node, ctx):
-        return self.run(node, ctx)
+        """ Apply transformation and return if an update happened. """
+        new_node = self.run(node, ctx)
+        return self.update, new_node
 
 
 class PassManager(object):

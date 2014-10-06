@@ -1,6 +1,4 @@
-"""
-RemoveComprehension turns list comprehension into function calls
-"""
+""" RemoveComprehension turns list comprehension into function calls. """
 
 from pythran import metadata
 from pythran.analyses import ImportedIds
@@ -17,7 +15,7 @@ class RemoveComprehension(Transformation):
     >>> from pythran import passmanager, backend
     >>> node = ast.parse("[x*x for x in (1,2,3)]")
     >>> pm = passmanager.PassManager("test")
-    >>> node = pm.apply(RemoveComprehension, node)
+    >>> _, node = pm.apply(RemoveComprehension, node)
     >>> print pm.dump(backend.Python, node)
     list_comprehension0()
     def list_comprehension0():

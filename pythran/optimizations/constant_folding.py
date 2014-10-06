@@ -1,37 +1,35 @@
-"""
-ConstantFolding performs some kind of partial evaluation.
-"""
+""" ConstantFolding performs some kind of partial evaluation.  """
 
-from pythran.analyses import ConstantExpressions, Aliases
+from pythran.analyses import ConstantExpressions, Aliases, ASTMatcher
 from pythran.passmanager import Transformation
 from pythran.tables import modules, cxx_keywords
 from pythran.conversion import to_ast, ConversionError, ToNotEval
+from pythran.analyses.ast_matcher import DamnTooLongPattern
 
-import types
 import ast
-import itertools
 import numpy
 
 
 class ConstantFolding(Transformation):
-    '''
+
+    """
     Replace constant expression by their evaluation.
 
     >>> import ast
     >>> from pythran import passmanager, backend
     >>> node = ast.parse("def foo(): return 1+3")
     >>> pm = passmanager.PassManager("test")
-    >>> node = pm.apply(ConstantFolding, node)
+    >>> _, node = pm.apply(ConstantFolding, node)
     >>> print pm.dump(backend.Python, node)
     def foo():
         return 4
-    '''
+    """
 
     def __init__(self):
         Transformation.__init__(self, ConstantExpressions, Aliases)
 
     def prepare(self, node, ctx):
-        assert(isinstance(node, ast.Module))
+        assert isinstance(node, ast.Module)
         self.env = {'__builtin__': __import__('__builtin__')}
 
         for module_name in modules:
@@ -91,6 +89,11 @@ class ConstantFolding(Transformation):
                 if (isinstance(node, ast.Index)
                         and not isinstance(new_node, ast.Index)):
                     new_node = ast.Index(new_node)
+                try:
+                    if not ASTMatcher(node).search(new_node):
+                        self.update = True
+                except DamnTooLongPattern as e:
+                    print "W: ", e, " Assume no update happened."
                 return new_node
             except ConversionError as e:
                 print ast.dump(node)
@@ -101,6 +104,10 @@ class ConstantFolding(Transformation):
             except AttributeError as e:
                 # FIXME union_ function is not handle by constant folding
                 if "union_" in e.args[0]:
+                    return Transformation.generic_visit(self, node)
+                elif "pythran" in e.args[0]:
+                    # FIXME: Can be fix giving a Python implementation for
+                    # these functions.
                     return Transformation.generic_visit(self, node)
                 raise
             except NameError as e:

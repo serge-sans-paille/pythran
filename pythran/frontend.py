@@ -24,6 +24,6 @@ def parse(pm, code):
     pm.apply(GatherOMPData, ir)
 
     # avoid conflicts with cxx keywords
-    renamings = pm.apply(NormalizeIdentifiers, ir)
+    _, renamings = pm.apply(NormalizeIdentifiers, ir)
     check_syntax(ir)
     return ir, renamings

@@ -1,6 +1,4 @@
-"""
-NormalizeIdentifiers prevents conflicts with c++ keywords
-"""
+""" NormalizeIdentifiers prevents conflicts with c++ keywords. """
 
 from pythran.analyses import Identifiers
 from pythran.passmanager import Transformation
@@ -16,7 +14,7 @@ class NormalizeIdentifiers(Transformation):
     >>> from pythran import passmanager, backend
     >>> node = ast.parse("def namespace(union):pass")
     >>> pm = passmanager.PassManager("test")
-    >>> d = pm.apply(NormalizeIdentifiers, node)
+    >>> _ = pm.apply(NormalizeIdentifiers, node)
     >>> print pm.dump(backend.Python, node)
     def namespace_(union_):
         pass

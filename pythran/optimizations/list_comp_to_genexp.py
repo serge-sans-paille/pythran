@@ -1,6 +1,4 @@
-"""
-ListCompToGenexp transforms list comprehension into genexp
-"""
+""" ListCompToGenexp transforms list comprehension into genexp. """
 
 from pythran.analyses import PotentialIterator
 from pythran.passmanager import Transformation
@@ -21,7 +19,7 @@ def bar(n):                                       \\n\
     return foo([x for x in __builtin__.range(n)]) \
 """)
     >>> pm = passmanager.PassManager("test")
-    >>> node = pm.apply(ListCompToGenexp, node)
+    >>> _, node = pm.apply(ListCompToGenexp, node)
     >>> print pm.dump(backend.Python, node)
     def foo(l):
         return __builtin__.sum(l)

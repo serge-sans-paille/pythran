@@ -190,13 +190,12 @@ namespace pythonic {
                     fix_shape(arg); // This is specialized for numpy_gexpr only
                 }
 
-
                 template<class Argp, class... Sp>
-                numpy_gexpr(numpy_gexpr<Argp, Sp...> const &expr, Arg &&arg) : arg(std::forward<Arg>(arg)), buffer(arg.buffer) {
+                numpy_gexpr(numpy_gexpr<Argp, Sp...> const &expr, Arg arg) : arg(arg), buffer(arg.buffer) {
                   flat_copy<value>()(&shape[0], &expr.shape[1]);
                   flat_copy<value>()(&lower[0], &expr.lower[1]);
                   flat_copy<value>()(&step[0], &expr.step[1]);
-                  flat_copy<std::remove_reference<Arg>::type::value - value>()(&indices[0], &expr.indices[0]);
+                  flat_copy<Arg::value - value>()(&indices[0], &expr.indices[0]);
                 }
 
                 template<class G>

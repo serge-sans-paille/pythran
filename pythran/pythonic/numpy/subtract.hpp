@@ -2,7 +2,9 @@
 #define PYTHONIC_NUMPY_SUBTRACT_HPP
 
 #include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/ndarray.hpp"
+#include"pythonic/types/ndarray.hpp"
+#include "pythonic/types/numpy_broadcast.hpp"
+#include "pythonic/utils/numpy_traits.hpp"
 #include "pythonic/operator_/sub.hpp"
 
 namespace pythonic {

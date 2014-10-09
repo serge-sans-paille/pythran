@@ -3,8 +3,6 @@
 
 #include <array>
 
-#include <boost/simd/sdk/simd/logical.hpp>
-
 #ifdef USE_BOOST_SIMD
 #include <boost/simd/sdk/simd/native.hpp>
 #include <boost/simd/include/functions/load.hpp>

@@ -5,8 +5,6 @@
 #error NUMPY_BINARY_FUNC_SYM undefined
 #endif
 
-#include "pythonic/types/numpy_broadcast.hpp"
-
 namespace proxy {
 
     struct NUMPY_BINARY_FUNC_NAME {

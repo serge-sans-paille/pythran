@@ -2,6 +2,9 @@
 #define PYTHONIC_NUMPY_ASARRAYCHKFINITE_HPP
 
 #include "pythonic/__builtin__/ValueError.hpp"
+#include "pythonic/types/ndarray.hpp"
+#include "pythonic/types/numexpr_to_ndarray.hpp"
+#include "pythonic/utils/numpy_traits.hpp"
 #include <nt2/include/functions/is_finite.hpp>
 
 namespace pythonic {

@@ -5,8 +5,6 @@
 #error NUMPY_UNARY_FUNC_SYM undefined
 #endif
 
-#include "pythonic/utils/numpy_traits.hpp"
-
 namespace proxy {
 
     struct NUMPY_UNARY_FUNC_NAME {
@@ -15,7 +13,7 @@ namespace proxy {
         template<typename E>
             auto operator()(E&& arg) const
             -> typename std::enable_if<
-                not pythonic::types::is_numexpr_arg<
+                not types::is_numexpr_arg<
                     typename std::remove_cv<
                         typename std::remove_reference<E>::type
                         >::type
@@ -28,31 +26,28 @@ namespace proxy {
 
         template<class E>
             typename std::enable_if<
-                pythonic::types::is_numexpr_arg<
+                types::is_numexpr_arg<
                     typename std::remove_cv<
                         typename std::remove_reference<E>::type
                         >::type
                     >::value,
-                pythonic::types::numpy_uexpr<NUMPY_UNARY_FUNC_NAME, E>
+                types::numpy_uexpr<NUMPY_UNARY_FUNC_NAME, E>
                 >::type
             operator()(E const & self) const
             {
-                return pythonic::types::numpy_uexpr<NUMPY_UNARY_FUNC_NAME, E>(self);
+                return types::numpy_uexpr<NUMPY_UNARY_FUNC_NAME, E>(self);
             }
 
         template<class T>
-            pythonic::types::numpy_uexpr<
+            types::numpy_uexpr<
                 NUMPY_UNARY_FUNC_NAME,
-                typename pythonic::types::numpy_expr_to_ndarray<
-                    pythonic::types::list<T>
-                    >::type
+                typename types::numpy_expr_to_ndarray<types::list<T>>::type
                 >
-            operator()(pythonic::types::list<T> const& self) const
+            operator()(types::list<T> const& self) const
             {
-                using arr2list = typename pythonic::types::numpy_expr_to_ndarray<
-                    pythonic::types::list<T>>::type;
+                using arr2list = typename types::numpy_expr_to_ndarray<types::list<T>>::type;
 
-                return pythonic::types::numpy_uexpr<NUMPY_UNARY_FUNC_NAME, arr2list>(arr2list(self));
+                return types::numpy_uexpr<NUMPY_UNARY_FUNC_NAME, arr2list>(arr2list(self));
             }
     };
 

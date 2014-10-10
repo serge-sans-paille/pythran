@@ -2,6 +2,8 @@
 #define PYTHONIC_NUMPY_BITWISENOT_HPP
 
 #include "pythonic/utils/proxy.hpp"
+#include "pythonic/types/numexpr_to_ndarray.hpp"
+#include "pythonic/utils/numpy_traits.hpp"
 
 namespace pythonic {
     namespace numpy {
@@ -24,6 +26,9 @@ namespace pythonic {
     }
 
 }
+
+//ndarray have to be include after as bitwise_not is used as a numpy_operator
+#include"pythonic/types/ndarray.hpp"
 
 #endif
 

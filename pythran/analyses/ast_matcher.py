@@ -10,6 +10,7 @@ class DamnTooLongPattern(Exception):
 
     """ Exception for long dict/set comparison to reduce compile time. """
 
+
 class Placeholder(AST):
 
     """ Class to save information from ast while check for pattern. """
@@ -115,8 +116,8 @@ class Check(NodeVisitor):
                                         pattern.keys[value]):
                     break
             else:
-                return self.check_list(self.node.values,
-                                       [pattern.values[i] for i in permutation])
+                pattern_values = [pattern.values[i] for i in permutation]
+                return self.check_list(self.node.values, pattern_values)
         return False
 
     def field_match(self, node_field, pattern_field):

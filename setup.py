@@ -4,7 +4,11 @@ import os
 import sys
 import shutil
 import numpy
+import logging
 from subprocess import check_call, check_output
+
+logger = logging.getLogger("pythran")
+logger.addHandler(logging.StreamHandler())
 
 from pythran import __version__
 

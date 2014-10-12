@@ -2,7 +2,6 @@
 import sys
 import os
 import argparse
-import pythran
 import logging
 logger = logging.getLogger("pythran")
 
@@ -28,6 +27,7 @@ except ImportError:
     logging.basicConfig(format='%(levelname)s: %(message)s')
     logger.warn("Disabling color, you really want to install colorlog.")
 
+import pythran
 
 def convert_arg_line_to_args(arg_line):
     """Read argument from file in a prettier way"""

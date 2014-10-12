@@ -11,6 +11,9 @@ import ast
 import numpy
 import sys
 import inspect
+import logging
+
+logger = logging.getLogger("pythran")
 
 pythran_ward = '__pythran_'
 
@@ -1078,6 +1081,13 @@ modules['__builtin__']['__set__'] = Class(modules['__set__'])
 modules['__builtin__']['__dict__'] = Class(modules['__dict__'])
 modules['__builtin__']['__list__'] = Class(modules['__list__'])
 modules['__builtin__']['__complex___'] = Class(modules['__complex___'])
+
+# detect and prune unsupported modules
+try:
+    __import__("omp")
+except EnvironmentError:
+    logger.warn("Pythran support disabled for module: omp")
+    del modules["omp"]
 
 # a method name to module binding
 # {method_name : ((full module path), signature)}

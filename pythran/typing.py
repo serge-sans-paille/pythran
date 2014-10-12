@@ -13,7 +13,7 @@ from pythran.cxxtypes import ExpressionType, IteratorContentType, ReturnType
 from pythran.cxxtypes import GetAttr, DeclType, ElementType, IndexableType
 from pythran.cxxtypes import Weak, ListType, SetType, DictType, TupleType
 from pythran.cxxtypes import ArgumentType
-from pythran.intrinsic import UserFunction, MethodIntr
+from pythran.intrinsic import UserFunction, MethodIntr, Class
 from pythran.passmanager import ModuleAnalysis, Transformation
 from pythran.syntax import PythranSyntaxError
 from pythran.tables import pytype_to_ctype_table, operator_to_lambda, modules
@@ -335,6 +335,8 @@ class Types(ModuleAnalysis):
                     tname = 'pythonic::{0}::proxy::{1}'.format(name, fname)
                     self.result[function] = NamedType(tname)
                     self.combiners[function] = function
+                    if isinstance(function, Class):
+                        register(name + "::" + fname, function.fields)
 
         for mname, module in modules.iteritems():
             register(mname, module)
@@ -658,10 +660,6 @@ class Types(ModuleAnalysis):
                 return w[n.id], (n.id,)
             elif isinstance(n, ast.Attribute):
                 r = rec(w, n.value)
-                if len(r[1]) > 1:
-                    plast, last = r[1][-2:]
-                    if plast == '__builtin__' and last.startswith('__'):
-                        return r[0][n.attr], r[1][:-2] + r[1][-1:] + (n.attr,)
                 return r[0][n.attr], r[1] + (n.attr,)
         obj, path = rec(modules, node)
         path = ('pythonic',) + path

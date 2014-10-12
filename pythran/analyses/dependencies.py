@@ -91,12 +91,7 @@ class Dependencies(ModuleAnalysis):
             if isinstance(n, ast.Name):
                 return (n.id,)
             elif isinstance(n, ast.Attribute):
-                id = rec(w, n.value)
-                if len(id) > 1:
-                    plast, last = id[-2:]
-                    if plast == '__builtin__' and last.startswith('__'):
-                        id = id[:-2] + id[-1:]
-                return id + (n.attr,)
+                return rec(w, n.value) + (n.attr,)
         attr = rec(modules, node)
 
         attr and self.result.add(attr)

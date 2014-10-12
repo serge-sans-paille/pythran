@@ -105,7 +105,7 @@ class ConstFunctionIntr(FunctionIntr):
         super(ConstFunctionIntr, self).__init__(**kwargs)
 
 
-class ConstExceptionIntr(FunctionIntr):
+class ConstExceptionIntr(ConstFunctionIntr):
     def __init__(self, **kwargs):
         kwargs.setdefault('argument_effects',
                           (ReadEffect(),) * 10)
@@ -157,13 +157,28 @@ class ConstantIntr(Intrinsic):
 
 
 class Class(Intrinsic):
-    def __init__(self, d):
-        super(Class, self).__init__()
-        self.d = d
+    def __init__(self, d, *args, **kwargs):
+        super(Class, self).__init__(*args, **kwargs)
+        self.fields = d
 
     def __getitem__(self, key):
-        return self.d[key]
+        return self.fields[key]
 
     def __contains__(self, key):
         """ Forward key content to aliased module. """
-        return key in self.d
+        return key in self.fields
+
+
+class ClassWithReadOnceConstructor(Class, ReadOnceFunctionIntr):
+    def __init__(self, d, *args, **kwargs):
+        super(ClassWithReadOnceConstructor, self).__init__(d, *args, **kwargs)
+
+
+class ClassWithConstConstructor(Class, ConstFunctionIntr):
+    def __init__(self, d, *args, **kwargs):
+        super(ClassWithConstConstructor, self).__init__(d, *args, **kwargs)
+
+
+class ExceptionClass(Class, ConstExceptionIntr):
+    def __init__(self, d, *args, **kwargs):
+        super(ExceptionClass, self).__init__(d, *args, **kwargs)

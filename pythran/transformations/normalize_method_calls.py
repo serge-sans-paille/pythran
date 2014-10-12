@@ -18,7 +18,7 @@ class NormalizeMethodCalls(Transformation):
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(NormalizeMethodCalls, node)
     >>> print pm.dump(backend.Python, node)
-    __list__.append(l, 12)
+    __builtin__.list.append(l, 12)
     '''
 
     def __init__(self):
@@ -105,18 +105,12 @@ class NormalizeMethodCalls(Transformation):
     def renamer(v, cur_module):
         """
         Rename function path to fit Pythonic naming.
-
-        As it is a path, we prefer __module__ syntax to differentiate
-        __builtin__.list() and __builtin__.__list__.append(a, 1)
         """
-        name = '__{0}__'.format(v)
+        name = v + '_'
         if name in cur_module:
             return name
         else:
-            name += '_'
-            if name in cur_module:
-                return name
-        return v
+            return v
 
     def visit_Call(self, node):
         """

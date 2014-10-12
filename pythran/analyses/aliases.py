@@ -3,7 +3,7 @@ Aliases gather aliasing informations
 """
 
 from pythran.analyses.global_declarations import GlobalDeclarations
-from pythran.intrinsic import Intrinsic
+from pythran.intrinsic import Intrinsic, Class
 from pythran.passmanager import ModuleAnalysis
 from pythran.syntax import PythranSyntaxError
 from pythran.tables import functions, methods, modules
@@ -195,6 +195,8 @@ class Aliases(ModuleAnalysis):
                     save_intrinsic_alias(v)
                 else:
                     self.aliases[v] = {v}
+                    if isinstance(v, Class):
+                        save_intrinsic_alias(v.fields)
 
         for module in modules:
             save_intrinsic_alias(modules[module])

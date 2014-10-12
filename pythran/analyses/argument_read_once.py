@@ -34,8 +34,6 @@ class ArgumentReadOnce(ModuleAnalysis):
                     else 2 for x in node.argument_effects]
             elif isinstance(node, ast.alias):
                 self.read_effects = []
-            elif isinstance(node, intrinsic.Class):
-                self.read_effects = []
             else:
                 raise NotImplementedError
 
@@ -82,6 +80,8 @@ class ArgumentReadOnce(ModuleAnalysis):
                     fe = ArgumentReadOnce.FunctionEffects(intr)
                     self.node_to_functioneffect[intr] = fe
                     self.result.add(fe)
+                    if isinstance(intr, intrinsic.Class):  # Class case
+                        save_effect(intr.fields)
 
         for m in modules:
             save_effect(modules[m])

@@ -10,7 +10,7 @@
 namespace pythonic {
 
     namespace __builtin__ {
-
+        namespace {
         types::empty_dict dict() {
             return types::empty_dict();
         }
@@ -25,6 +25,7 @@ namespace pythonic {
                         out[std::get<0>(i)] = std::get<1>(i);
                     return out;
                 }
+        }
 
         PROXY(pythonic::__builtin__,dict);
 

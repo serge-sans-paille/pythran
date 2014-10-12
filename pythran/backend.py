@@ -1112,7 +1112,7 @@ class Cxx(Backend):
 
     def visit_List(self, node):
         if not node.elts:  # empty list
-            return "pythonic::__builtin__::list()"
+            return "pythonic::__builtin__::proxy::list{}()"
         else:
             elts = [self.visit(n) for n in node.elts]
             # constructor disambiguation, clang++ workaround
@@ -1128,7 +1128,7 @@ class Cxx(Backend):
 
     def visit_Set(self, node):
         if not node.elts:  # empty set
-            return "pythonic::__builtin__::set()"
+            return "pythonic::__builtin__::proxy::set{}()"
         else:
             elts = [self.visit(n) for n in node.elts]
             return "{0}({{ {1} }})".format(
@@ -1137,7 +1137,7 @@ class Cxx(Backend):
 
     def visit_Dict(self, node):
         if not node.keys:  # empty dict
-            return "pythonic::__builtin__::dict()"
+            return "pythonic::__builtin__::proxy::dict{}()"
         else:
             keys = [self.visit(n) for n in node.keys]
             values = [self.visit(n) for n in node.values]
@@ -1199,10 +1199,6 @@ class Cxx(Backend):
                 return w[n.id], (n.id,)
             elif isinstance(n, ast.Attribute):
                 r = rec(w, n.value)
-                if len(r[1]) > 1:
-                    plast, last = r[1][-2:]
-                    if plast == '__builtin__' and last.startswith('__'):
-                        return r[0][n.attr], r[1][:-2] + r[1][-1:] + (n.attr,)
                 return r[0][n.attr], r[1] + (n.attr,)
         obj, path = rec(modules, node)
         path = ('pythonic',) + path

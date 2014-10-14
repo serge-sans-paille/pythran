@@ -539,10 +539,6 @@ class Types(ModuleAnalysis):
 
     def visit_AugAssign(self, node):
         self.visit(node.value)
-        self.combine(node.target, node.value,
-                     lambda x, y: x + ExpressionType(
-                         operator_to_lambda[type(node.op)],
-                         [x, y]), register=True)
         if isinstance(node.target, ast.Subscript):
             if self.visit_AssignedSubscript(node.target):
                 for alias in self.strict_aliases[node.target.value].aliases:
@@ -553,6 +549,10 @@ class Types(ModuleAnalysis):
                                      operator_to_lambda[type(node.op)],
                                      [x, y]),
                                  register=True)
+        self.combine(node.target, node.value,
+                     lambda x, y: x + ExpressionType(
+                         operator_to_lambda[type(node.op)],
+                         [x, y]), register=True)
 
     def visit_For(self, node):
         self.visit(node.iter)

@@ -6,6 +6,7 @@
 #include "pythonic/utils/shared_ref.hpp"
 #include "pythonic/utils/reserve.hpp"
 #include "pythonic/types/slice.hpp"
+#include "pythonic/__builtin__/len.hpp"
 
 #include <cassert>
 #include <iostream>
@@ -424,9 +425,9 @@ namespace pythonic {
     namespace utils {
 
         template <class T, class From>
-            void reserve(types::list<T> & l, From const &f, typename From::const_iterator p=typename From::const_iterator())
+            void reserve(types::list<T> & l, From const &f, typename From::const_iterator *p=nullptr)
             {
-                l.reserve(len(f));
+                l.reserve(__builtin__::len(f));
             }
 
     }

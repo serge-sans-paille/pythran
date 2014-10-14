@@ -159,7 +159,7 @@ class Cxx(Backend):
         self.ldecls = set()
         super(Cxx, self).__init__(Dependencies, GlobalDeclarations,
                                   BoundedExpressions, Types, ArgumentEffects,
-                                  Scope, IsAssigned)
+                                  Scope)
 
     # mod
     def visit_Module(self, node):
@@ -746,7 +746,7 @@ class Cxx(Backend):
             comparison = "{0}({1}, {2})".format(cmp_op, target, upper_bound)
         return comparison, for_pos
 
-    def gen_c_for(self, node, target, loop_body):
+    def gen_c_for(self, node, local_iter, loop_body):
         """
         Create C For representation for Cxx generation.
 
@@ -801,7 +801,7 @@ class Cxx(Backend):
         # If variable is local to the for body keep it local...
         if node.target.id in self.scope[node] and not self.yields:
             self.ldecls = {d for d in self.ldecls if d.id != node.target.id}
-            stmts = list()
+            loop = list()
         else:
             # For yield function, upper_bound is globals.
             if self.yields:
@@ -809,24 +809,26 @@ class Cxx(Backend):
                 upper_type = ""
             iter_type = ""
             # Back one step to keep Python behavior (except for break)
-            stmts = [If("{} == {}".format(target, upper_bound),
-                        Statement("{} -= {}".format(target, step)))]
+            loop = [If("{} == {}".format(local_iter, upper_bound),
+                    Statement("{} -= {}".format(local_iter, step)))]
 
-        comparison, for_pos = self.handle_real_loop_comparison(args, stmts,
-                                                               target,
+        comparison, for_pos = self.handle_real_loop_comparison(args, loop,
+                                                               local_iter,
                                                                upper_bound,
                                                                step)
 
-        stmts.insert(for_pos,
-                     For("{0} {1} = {2}".format(iter_type, target,
-                                                lower_bound),
-                         comparison,
-                         "{0} += {1}".format(target, step),
-                         loop_body))
+        forloop = For("{0} {1} = {2}".format(iter_type, local_iter,
+                                             lower_bound),
+                      comparison,
+                      "{0} += {1}".format(local_iter, step),
+                      loop_body)
+
+        loop.insert(for_pos, self.process_omp_attachements(node, forloop))
+
         # Store upper bound value
-        stmts = ["{0} {1} = {2}".format(upper_type, upper_bound,
-                                        upper_value)] + stmts
-        return self.process_omp_attachements(node, stmts, for_pos)
+        header = [Statement("{0} {1} = {2}".format(upper_type, upper_bound,
+                                                   upper_value))]
+        return header, loop
 
     def handle_omp_for(self, node, local_iter):
         """
@@ -893,8 +895,12 @@ class Cxx(Backend):
                                               attr='xrange', ctx=ast.Load()),
                            args=AST_any(), keywords=[], starargs=None,
                            kwargs=None)
+        is_assigned = {node.target.id: False}
+        [is_assigned.update(self.passmanager.gather(IsAssigned, stmt))
+         for stmt in node.body]
+
         if (node.iter not in ASTMatcher(pattern).search(node.iter) or
-                self.is_assigned[node.target.id]):
+                is_assigned[node.target.id]):
             return False
 
         args = node.iter.args
@@ -942,12 +948,11 @@ class Cxx(Backend):
 
         # Declare local variables at the top of the loop body
         loop_body = self.process_locals(node, loop_body, node.target.id)
+        iterable = self.visit(node.iter)
 
         if self.can_use_c_for(node):
-            loop = self.gen_c_for(node, target, loop_body)
-            stmts = list()
+            header, loop = self.gen_c_for(node, target, loop_body)
         else:
-            iterable = self.visit(node.iter)
 
             # Iterator declaration
             local_iter = "__iter{0}".format(len(self.break_handlers))
@@ -962,28 +967,26 @@ class Cxx(Backend):
 
             # Assign iterable
             # For C loop, it avoid issue if upper bound is reassign in the loop
-            stmts = [Statement("{0} {1} = {2}".format(local_iter_decl,
-                                                      local_iter,
-                                                      iterable))]
+            header = [Statement("{0} {1} = {2}".format(local_iter_decl,
+                                                       local_iter,
+                                                       iterable))]
             if self.can_use_autofor(node):
                 self.ldecls = {d for d in self.ldecls
                                if d.id != node.target.id}
-                loop = [self.process_omp_attachements(node,
-                                                      AutoFor(target,
-                                                              local_iter,
-                                                              loop_body))]
+                autofor = AutoFor(target, local_iter, loop_body)
+                loop = [self.process_omp_attachements(node, autofor)]
             else:
-                loop = self.gen_for(node, target, local_iter, local_iter_decl,
-                                    loop_body)
+                loop = self.gen_for(node, target, local_iter,
+                                    local_iter_decl, loop_body)
 
         # For xxxComprehension, it is replaced by a for loop. In this case,
         # pre-allocate size of container.
         for comp in metadata.get(node, metadata.Comprehension):
-            stmts.append(Statement("pythonic::utils::reserve({0},{1})".format(
+            header.append(Statement("pythonic::utils::reserve({0},{1})".format(
                 comp.target,
-                local_iter)))
+                iterable)))
 
-        return Block(stmts + loop)
+        return Block(header + loop)
 
     @cxx_loop
     def visit_While(self, node):

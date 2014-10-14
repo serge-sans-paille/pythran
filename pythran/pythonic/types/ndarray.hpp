@@ -268,6 +268,23 @@ namespace pythonic {
                     }
             };
 
+        template<size_t L>
+            struct noffset {
+                template <class A, size_t M>
+                    long operator()(A && self, array<long, M> const& indices) const
+                    {
+                        return noffset<L-1>{}(std::forward<A>(self), indices) * std::forward<A>(self).shape[L] + indices[L];
+                    }
+            };
+        template<>
+            struct noffset<0> {
+                template<class A, size_t M>
+                    long operator()(A && self, array<long, M> const& indices) const
+                    {
+                        return indices[0];
+                    }
+            };
+
         /* Multidimensional array of values
          *
          * An ndarray wraps a raw array pointers and manages multiple dimensions casted overt the raw data.
@@ -484,19 +501,14 @@ namespace pythonic {
                     return std::move(*this)[i];
                 }
 
+
                 T const &operator[](array<long, N> const& indices) const
                 {
-                    size_t offset = indices[N-1];
-                    long mult = shape[N-1];
-                    for(size_t i = N - 2; i > 0; --i) {
-                        offset +=  indices[i] * mult;
-                        mult *= shape[i];
-                    }
-                    return buffer[offset + indices[0] * mult];
+                  return *(buffer+noffset<N-1>{}(*this, indices));
                 }
                 T& operator[](array<long, N> const& indices)
                 {
-                    return const_cast<T&>(const_cast<ndarray const&>(*this)[indices]);
+                  return *(buffer+noffset<N-1>{}(*this, indices));
                 }
 
                 template<size_t M>

@@ -689,6 +689,7 @@ operator/(const complex<_Tp>& __z, const complex<_Tp>& __w)
     _Tp __b = __z.imag();
     _Tp __c = __w.real();
     _Tp __d = __w.imag();
+#if 0 // not required by numpy
     _Tp __logbw = logb(fmax(fabs(__c), fabs(__d)));
     if (isfinite(__logbw))
     {
@@ -699,7 +700,6 @@ operator/(const complex<_Tp>& __z, const complex<_Tp>& __w)
     _Tp __denom = __c * __c + __d * __d;
     _Tp __x = scalbn((__a * __c + __b * __d) / __denom, -__ilogbw);
     _Tp __y = scalbn((__b * __c - __a * __d) / __denom, -__ilogbw);
-#if 0 // not required by numpy
     if (isnan(__x) && isnan(__y))
     {
         if ((__denom == _Tp(0)) && (!isnan(__a) || !isnan(__b)))
@@ -722,8 +722,11 @@ operator/(const complex<_Tp>& __z, const complex<_Tp>& __w)
             __y = _Tp(0) * (__b * __c - __a * __d);
         }
     }
-#endif
     return complex<_Tp>(__x, __y);
+#else
+    _Tp __e = __c * __c + __d * __d;
+    return complex<_Tp>(__c * __a + __d * __b, __c * __b - __d * __a) / __e;
+#endif
 }
 
 template<class _Tp>

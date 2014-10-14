@@ -759,9 +759,9 @@ namespace std {
 
     template <size_t I, class E>
         auto get( E&& a)
-        -> typename std::enable_if<pythonic::types::is_array<typename std::remove_cv<typename std::remove_reference<E>::type>::type>::value, decltype(a[I])>::type
+        -> typename std::enable_if<pythonic::types::is_array<typename std::remove_cv<typename std::remove_reference<E>::type>::type>::value, decltype(std::forward<E>(a)[I])>::type
         {
-            return a[I];
+            return std::forward<E>(a)[I];
         }
 
     template <size_t I, class T, size_t N>

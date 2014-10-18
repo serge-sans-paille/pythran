@@ -288,9 +288,9 @@ namespace pythonic {
             };
         template<class... Types>
             struct _make_tuple<true, Types...> {
-                types::array<typename are_same<Types...>::type, sizeof...(Types)> operator()(Types... types) {
+                types::array<typename are_same<Types...>::type, sizeof...(Types)> operator()(Types &&... types) {
                     typedef typename are_same<Types...>::type T;
-                    return types::array<T, sizeof...(Types)>{{types...}};
+                    return types::array<T, sizeof...(Types)>{{std::forward<Types>(types)...}};
                 }
             };
 

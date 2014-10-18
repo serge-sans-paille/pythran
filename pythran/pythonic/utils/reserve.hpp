@@ -5,7 +5,7 @@ namespace pythonic {
     namespace utils {
 
         template <class Container, class From>
-            void reserve(Container & , From &) //do nothing unless specialized
+            void reserve(Container & , From &&) //do nothing unless specialized
             {
             }
     }

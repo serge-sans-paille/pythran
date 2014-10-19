@@ -2,17 +2,13 @@
 #define PYTHONIC_COMPLEX_CONJUGATE_HPP
 
 #include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/complex.hpp"
+#include "pythonic/numpy/conjugate.hpp"
 
 namespace pythonic {
 
     namespace __complex___ {
-        template<class T>
-            std::complex<T> conjugate(std::complex<T> const &c) {
-                return std::conj(c);
-            }
+        ALIAS(conjugate, numpy::proxy::conjugate{});
         PROXY(pythonic::__complex___, conjugate);
-
     }
 
 }

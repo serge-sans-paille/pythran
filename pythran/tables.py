@@ -115,6 +115,16 @@ equivalent_iterators = {
     "zip": ("itertools", "izip")
     }
 
+update_effects = (lambda self, node:
+                  [
+                      self.combine(
+                          node.args[0],
+                          node_args_k,
+                          register=True)
+                      for node_args_k in node.args[1:]
+                  ]
+                 )
+
 # each module consist in a module_name <> set of symbols
 modules = {
     "__builtin__": {
@@ -270,9 +280,9 @@ modules = {
         "concatenate": ConstFunctionIntr(),
         "complex": ConstFunctionIntr(),
         "complex64": ConstFunctionIntr(),
-        "conj": ConstFunctionIntr(),
-        "conjugate": ConstFunctionIntr(),
-        "copy": ConstFunctionIntr(),
+        "conj": ConstMethodIntr(),
+        "conjugate": ConstMethodIntr(),
+        "copy": ConstMethodIntr(),
         "copyto": FunctionIntr(argument_effects=[UpdateEffect(), ReadEffect(),
                                                  ReadEffect(), ReadEffect()]),
         "copysign": ConstFunctionIntr(),
@@ -873,10 +883,11 @@ modules = {
                 register=True)
             ),
         "index": ConstMethodIntr(),
-        # "pop": MethodIntr(), dispatched
+        "pop": MethodIntr(),
         "reverse": MethodIntr(),
         "sort": MethodIntr(),
-        # "count": ConstMethodIntr(), dispatched
+        "count": ConstMethodIntr(),
+        "remove": MethodIntr(),
         "insert": MethodIntr(
             lambda self, node:
             self.combine(
@@ -888,11 +899,11 @@ modules = {
         },
 
     "__iterator__": {
-        # "next": MethodIntr(), dispatched
+        "next": MethodIntr(),
         },
     "__str__": {
         "capitalize": ConstMethodIntr(),
-        # "count": ConstMethodIntr(), dispatched
+        "count": ConstMethodIntr(),
         "endswith": ConstMethodIntr(),
         "startswith": ConstMethodIntr(),
         "find": ConstMethodIntr(),
@@ -916,9 +927,13 @@ modules = {
                 unary_op=lambda f: cxxtypes.SetType(f),
                 register=True)
             ),
+        "clear": MethodIntr(),
+        "copy": ConstMethodIntr(),
         "discard": MethodIntr(),
+        "remove": MethodIntr(),
         "isdisjoint": ConstMethodIntr(),
         "union_": ConstMethodIntr(),
+        "update": MethodIntr(update_effects),
         "intersection": ConstMethodIntr(),
         "intersection_update": MethodIntr(
             lambda self, node:
@@ -970,12 +985,14 @@ modules = {
         "is_integer": ConstMethodIntr(),
         },
     "__complex___": {
+        "conjugate": ConstMethodIntr(),
         "real": AttributeIntr(0),
         "imag": AttributeIntr(1),
-        "conjugate": ConstMethodIntr(),
         },
     "__dict__": {
         "fromkeys": ConstFunctionIntr(),
+        "clear": MethodIntr(),
+        "copy": ConstMethodIntr(),
         "get": ConstMethodIntr(),
         "has_key": ConstMethodIntr(),
         "items": MethodIntr(),
@@ -983,7 +1000,7 @@ modules = {
         "iterkeys": MethodIntr(),
         "itervalues": MethodIntr(),
         "keys": MethodIntr(),
-        # "pop": MethodIntr(), dispatched
+        "pop": MethodIntr(),
         "popitem": MethodIntr(),
         "setdefault": MethodIntr(
             lambda self, node:
@@ -1001,6 +1018,7 @@ modules = {
                               ast.Load())
                 }
             ),
+        "update": MethodIntr(update_effects),
         "values": MethodIntr(),
         "viewitems": MethodIntr(),
         "viewkeys": MethodIntr(),
@@ -1017,7 +1035,7 @@ modules = {
         "flush": MethodIntr(global_effects=True),
         "fileno": MethodIntr(),
         "isatty": MethodIntr(),
-        # "next": MethodIntr(global_effects=True), dispatched
+        "next": MethodIntr(global_effects=True),
         "read": MethodIntr(global_effects=True),
         "readline": MethodIntr(global_effects=True),
         "readlines": MethodIntr(global_effects=True),
@@ -1050,21 +1068,13 @@ modules = {
     # conflicting method names must be listed here
     "__dispatch__": {
         "clear": MethodIntr(),
+        "conjugate": ConstMethodIntr(),
         "copy": ConstMethodIntr(),
         "count": ConstMethodIntr(),
-        "next": MethodIntr(),
+        "next": MethodIntr(global_effects=True), # because file.next has a side effect
         "pop": MethodIntr(),
         "remove": MethodIntr(),
-        "update": MethodIntr(
-            lambda self, node:
-            [
-                self.combine(
-                    node.args[0],
-                    node_args_k,
-                    register=True)
-                for node_args_k in node.args[1:]
-                ]
-            ),
+        "update": MethodIntr(update_effects),
         },
     }
 
@@ -1078,7 +1088,9 @@ if 'WindowsError' in sys.modules['__builtin__'].__dict__:
 
 # create symlinks for classes
 modules['__builtin__']['__set__'] = Class(modules['__set__'])
+modules['__builtin__']['__str__'] = Class(modules['__str__'])
 modules['__builtin__']['__dict__'] = Class(modules['__dict__'])
+modules['__builtin__']['__file__'] = Class(modules['__file__'])
 modules['__builtin__']['__list__'] = Class(modules['__list__'])
 modules['__builtin__']['__complex___'] = Class(modules['__complex___'])
 
@@ -1100,8 +1112,14 @@ def save_method(elements, module_path):
         if isinstance(signature, dict):  # Submodule case
             save_method(signature, module_path + (elem,))
         elif signature.ismethod():
-            assert elem not in methods  # we need unicity
-            methods[elem] = (module_path, signature)
+            # in case of duplicates, there must be a __dispatch__ record
+            # and it is the only recorded one
+            if elem in methods and module_path[0] != '__dispatch__':
+                assert elem in modules['__dispatch__']
+                path = ('__dispatch__',)
+                methods[elem] = (path, modules['__dispatch__'][elem])
+            else:
+                methods[elem] = (module_path, signature)
 
 for module, elems in modules.iteritems():
     save_method(elems, (module,))

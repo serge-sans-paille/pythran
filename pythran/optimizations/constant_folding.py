@@ -103,7 +103,7 @@ class ConstantFolding(Transformation):
                 return Transformation.generic_visit(self, node)
             except AttributeError as e:
                 # FIXME union_ function is not handle by constant folding
-                if "union_" in e.args[0]:
+                if "union_" in e.args[0] or "method-wrapper" in e.args[0]:
                     return Transformation.generic_visit(self, node)
                 elif "pythran" in e.args[0]:
                     # FIXME: Can be fix giving a Python implementation for

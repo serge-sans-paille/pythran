@@ -1,9 +1,12 @@
 #ifndef PYTHONIC_NUMPY_FMAX_HPP
 #define PYTHONIC_NUMPY_FMAX_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/ndarray.hpp"
 #include <nt2/include/functions/max.hpp>
+
+#include "pythonic/utils/proxy.hpp"
+#include"pythonic/types/ndarray.hpp"
+#include "pythonic/types/numpy_broadcast.hpp"
+#include "pythonic/utils/numpy_traits.hpp"
 
 namespace pythonic {
 

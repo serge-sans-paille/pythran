@@ -9,7 +9,7 @@ namespace pythonic {
 
     namespace numpy {
         template<class T>
-            auto angle(T const& t, bool in_deg = false)
+            auto angle(T const& t, bool in_deg)
             -> typename assignable<decltype(proxy::angle_in_rad()(t))>::type
             // assignable to find a common type between the two expression templaes
             {
@@ -18,6 +18,14 @@ namespace pythonic {
                 else
                     return proxy::angle_in_rad()(t);
             }
+
+        // Numpy_expr can be use if only the first argument is given.
+        template<class T>
+            auto angle(T const& t) -> decltype(proxy::angle_in_rad()(t))
+            {
+                return proxy::angle_in_rad()(t);
+            }
+
         PROXY(pythonic::numpy, angle);
 
     }

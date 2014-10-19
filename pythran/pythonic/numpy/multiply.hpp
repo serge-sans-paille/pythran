@@ -2,13 +2,18 @@
 #define PYTHONIC_NUMPY_MULTIPLY_HPP
 
 #include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/ndarray.hpp"
+#include"pythonic/types/ndarray.hpp"
+#include "pythonic/types/numpy_broadcast.hpp"
+#include "pythonic/utils/numpy_traits.hpp"
 #include "pythonic/operator_/mul.hpp"
 
 namespace pythonic {
 
     namespace numpy {
-        FPROXY(pythonic::operator_, multiply, mul)
+
+    #define NUMPY_BINARY_FUNC_NAME multiply
+    #define NUMPY_BINARY_FUNC_SYM pythonic::operator_::mul
+    #include "pythonic/types/numpy_binary_expr.hpp"
 
     }
 

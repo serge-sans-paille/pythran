@@ -1,6 +1,7 @@
 #ifndef PYTHONIC_TYPES_NUMPY_OPERATORS_HPP
 #define PYTHONIC_TYPES_NUMPY_OPERATORS_HPP
 
+#include "pythonic/types/numpy_broadcast.hpp"
 #include "pythonic/operator_/add.hpp"
 #include "pythonic/operator_/and_.hpp"
 #include "pythonic/operator_/or_.hpp"

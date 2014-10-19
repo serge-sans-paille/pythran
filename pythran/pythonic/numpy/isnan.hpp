@@ -2,7 +2,10 @@
 #define PYTHONIC_NUMPY_ISNAN_HPP
 
 #include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/ndarray.hpp"
+#include"pythonic/types/ndarray.hpp"
+#include "pythonic/types/numexpr_to_ndarray.hpp"
+#include "pythonic/utils/numpy_traits.hpp"
+
 #include <nt2/include/functions/is_nan.hpp>
 
 namespace pythonic {

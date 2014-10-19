@@ -26,7 +26,7 @@ namespace pythonic {
                 for(; begin != end; ++begin)
                     _nanmax((*begin).begin(), (*begin).end(), max, utils::int_<N - 1>());
             }
-            
+
         template<class E>
             typename types::numpy_expr_to_ndarray<E>::T
             nanmax(E const& expr) {

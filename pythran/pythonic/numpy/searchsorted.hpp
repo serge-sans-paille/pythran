@@ -3,6 +3,7 @@
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/utils/numpy_conversion.hpp"
+#include "pythonic/utils/int_.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/str.hpp"
 #include "pythonic/__builtin__/None.hpp"
@@ -14,44 +15,51 @@
 namespace pythonic {
 
     namespace numpy {
-        template<class E, class T>
-            typename std::enable_if<types::is_numexpr_arg<E>::value, types::ndarray<long, types::numpy_expr_to_ndarray<E>::N>>::type searchsorted(types::ndarray<T,1> const& a, E const& v, types::str const & side = "left")
+
+        template<class T, class U>
+            typename std::enable_if<!types::is_numexpr_arg<T>::value, long>::type
+            searchsorted(U const& a, T const& v, types::str const &side = "left")
             {
-                types::ndarray<T,types::numpy_expr_to_ndarray<E>::N> to_search = asarray(v);
-                types::ndarray<long, types::numpy_expr_to_ndarray<E>::N> out(to_search.shape, __builtin__::None);
                 if(side[0]=='l')
                 {
-                    auto itosearch = to_search.fbegin();
-                    for(auto iout = out.fbegin(), end = out.fend(); iout != end; ++iout, ++itosearch)
-                        *iout = std::lower_bound(a.fbegin(), a.fend(), *itosearch) - a.fbegin();
+                    return std::lower_bound(a.begin(), a.end(), v) - a.begin();
                 }
                 else if(side[0]=='r')
                 {
-                    auto itosearch = to_search.fbegin();
-                    for(auto iout = out.fbegin(), end = out.fend(); iout != end; ++iout, ++itosearch)
-                        *iout = std::upper_bound(a.fbegin(), a.fend(), *itosearch) - a.fbegin();
+                    return std::upper_bound(a.begin(), a.end(), v) - a.begin();
                 }
                 else
                     throw types::ValueError("'" + side + "' is an invalid value for keyword 'side'");
+            }
+        template<class E, class I0, class I1>
+            void _search_sorted(E const& a, I0 ibegin, I0 iend, I1 obegin, types::str const &side, utils::int_<1>)
+            {
+                for(;ibegin != iend; ++ibegin, ++obegin)
+                    *obegin = searchsorted(a, *ibegin, side);
+            }
+
+        template<class E, class I0, class I1, size_t N>
+            void _search_sorted(E const& a, I0 ibegin, I0 iend, I1 obegin, types::str const &side, utils::int_<N>)
+            {
+                for(;ibegin != iend; ++ibegin, ++obegin)
+                    _search_sorted(a, (*ibegin).begin(), (*ibegin).end(),
+                                   (*obegin).begin(), side, utils::int_<N - 1>());
+            }
+
+        template<class E, class T>
+            typename std::enable_if<types::is_numexpr_arg<E>::value,
+                                    types::ndarray<long, types::numpy_expr_to_ndarray<E>::N>>::type
+            searchsorted(T const& a, E const& v, types::str const & side = "left")
+            {
+                static_assert(types::numpy_expr_to_ndarray<T>::N == 1,
+                              "Not Implemented : searchsorted for dimension != 1");
+
+                types::ndarray<long, types::numpy_expr_to_ndarray<E>::N> out(asarray(v).shape, __builtin__::None);
+                _search_sorted(a, v.begin(), v.end(), out.begin(), side,
+                               utils::int_<types::numpy_expr_to_ndarray<E>::N>());
                 return out;
             }
 
-        template<class T>
-            long searchsorted(types::ndarray<T,1> const& a, T const& v, types::str const &side = "left")
-            {
-                if(side[0]=='l')
-                {
-                    return std::lower_bound(a.fbegin(), a.fend(), v) - a.buffer;
-                }
-                else if(side[0]=='r')
-                {
-                    return std::upper_bound(a.fbegin(), a.fend(), v) - a.buffer;
-                }
-                else
-                    throw types::ValueError("'" + side + "' is an invalid value for keyword 'side'");
-            }
-
-        NUMPY_EXPR_TO_NDARRAY0(searchsorted)
             PROXY(pythonic::numpy, searchsorted);
 
     }

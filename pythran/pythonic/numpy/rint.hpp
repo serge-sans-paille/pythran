@@ -2,7 +2,9 @@
 #define PYTHONIC_NUMPY_RINT_HPP
 
 #include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/ndarray.hpp"
+#include"pythonic/types/ndarray.hpp"
+#include "pythonic/types/numexpr_to_ndarray.hpp"
+#include "pythonic/utils/numpy_traits.hpp"
 #include <nt2/include/functions/iround2even.hpp>
 
 namespace pythonic {

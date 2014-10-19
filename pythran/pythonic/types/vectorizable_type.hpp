@@ -3,16 +3,18 @@
 namespace pythonic {
 
 namespace operator_ {
-namespace proxy {
-struct mod;
-}
+  namespace proxy {
+    struct mod;
+  }
 }
 
 namespace numpy {
-namespace proxy {
-struct mod;
-struct logaddexp2;
-}
+  namespace proxy {
+    struct mod;
+    struct logaddexp2;
+    struct nan_to_num;
+    struct asarray_chkfinite;
+  }
 }
 
 namespace types {
@@ -29,7 +31,10 @@ template<class O>
     // vectorization, and SG did not invest enough time in those
     static const bool value = not std::is_same<O, numpy::proxy::mod>::value and
                               not std::is_same<O, operator_::proxy::mod>::value and
-                              not std::is_same<O, numpy::proxy::logaddexp2>::value;
+                              not std::is_same<O, numpy::proxy::logaddexp2>::value and
+                              // conditional processing doesn't permit SIMD
+                              not std::is_same<O, numpy::proxy::nan_to_num>::value and
+                              not std::is_same<O, numpy::proxy::asarray_chkfinite>::value;
   };
 
 }

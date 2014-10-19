@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_NUMPY_ATLEAST2D_HPP
 #define PYTHONIC_NUMPY_ATLEAST2D_HPP
 
-#include "pythonic/numpy/asarray.hpp"
+#include "pythonic/types/ndarray.hpp"
 
 namespace pythonic {
 
@@ -14,22 +14,22 @@ namespace pythonic {
         template<class T>
             auto atleast_2d(T const& t)
             -> typename std::enable_if<
-            not(std::is_scalar<T>::value or types::is_complex<T>::value) and types::numpy_expr_to_ndarray<T>::type::value < 2,
+            not(std::is_scalar<T>::value or types::is_complex<T>::value) and types::numpy_expr_to_ndarray<T>::N < 2,
             types::ndarray<typename types::numpy_expr_to_ndarray<T>::type::dtype,2>
                 > ::type
                 {
-                    auto r = asarray(t);
-                    return r.reshape(types::make_tuple(1L, r.shape[0]));
+                    return t.reshape(types::make_tuple(1L, t.shape[0]));
                 }
 
         template<class T>
-            auto atleast_2d(T const& t)
+            auto atleast_2d(T && t)
             -> typename std::enable_if<
-            not(std::is_scalar<T>::value or types::is_complex<T>::value) and types::numpy_expr_to_ndarray<T>::type::value >= 2,
-            decltype(asarray(t))
+                    not(std::is_scalar<T>::value or types::is_complex<T>::value) and
+                    types::numpy_expr_to_ndarray<typename std::remove_cv<typename std::remove_reference<T>::type>::type>::N >= 2,
+                    decltype(std::forward<T>(t))
                 > ::type
                 {
-                    return asarray(t);
+                    return std::forward<T>(t);
                 }
 
         PROXY(pythonic::numpy, atleast_2d);

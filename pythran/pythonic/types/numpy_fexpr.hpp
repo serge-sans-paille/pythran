@@ -2,6 +2,7 @@
 #define PYTHONIC_TYPES_NUMPY_FEXPR_HPP
 
 #include "pythonic/types/nditerator.hpp"
+#include "pythonic/types/numexpr_to_ndarray.hpp"
 
 namespace pythonic {
 
@@ -45,7 +46,7 @@ namespace pythonic {
                 {
                     auto iter = buffer;
                     long index = 0;
-                    _copy_mask(filter.begin(), filter.end(), iter, index, utils::int_<Arg::value>());
+                    _copy_mask(filter.begin(), filter.end(), iter, index, utils::int_<std::remove_reference<typename std::remove_cv<Arg>::type>::type::value>());
                     shape[0] = { iter - buffer };
                 }
 

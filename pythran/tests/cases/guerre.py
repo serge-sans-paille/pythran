@@ -37,7 +37,7 @@ def guerre(a,n,z,err,nter):
         else:
             dz=float(-n)/(f-h)
         itera=itera+1
-#   Rotate by 90 degrees to avoid limit cycles. 
+#   Rotate by 90 degrees to avoid limit cycles.
         jter=jter+1
         if jter==10:
             jter=1

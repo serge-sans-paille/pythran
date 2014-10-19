@@ -1,11 +1,17 @@
-# todo: check http://code.google.com/p/unladen-swallow/wiki/Benchmarks
-import unittest
-from test_env import TestFromDir
+""" Tests for test cases directory. """
+
+# TODO: check http://code.google.com/p/unladen-swallow/wiki/Benchmarks
 import os
+import unittest
+
+from test_env import TestFromDir
+
 
 class TestCases(TestFromDir):
 
-    path = os.path.join(os.path.dirname(__file__),"cases")
+    """ Class to check all tests in the cases directory. """
+
+    path = os.path.join(os.path.dirname(__file__), "cases")
 
 
 TestCases.populate(TestCases)

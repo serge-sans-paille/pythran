@@ -10,8 +10,15 @@
 namespace pythonic {
 
     namespace numpy {
+        namespace wrapper {
+            template<class T, class U>
+                double ldexp(T const& v, U const& u)
+                {
+                    return nt2::ldexp(v, u);
+                }
+        }
 #define NUMPY_BINARY_FUNC_NAME ldexp
-#define NUMPY_BINARY_FUNC_SYM nt2::ldexp
+#define NUMPY_BINARY_FUNC_SYM wrapper::ldexp
 #include "pythonic/types/numpy_binary_expr.hpp"
 
     }

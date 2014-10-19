@@ -28,12 +28,19 @@ class TestBase(TestEnv):
     def test_expression(self):
         self.run_test("def expression(a,b,c): a+b*c", 1,2,3.3, expression=[int,int, float])
 
-    def test_recursion(self):
+    def test_recursion1(self):
         code="""
 def fibo(n): return n if n <2 else fibo(n-1) + fibo(n-2)
 def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
 """
-        self.run_test(code, 4, fibo=[int], fibo2=[float])
+        self.run_test(code, 4, fibo=[int])
+
+    def test_recursion2(self):
+        code="""
+def fibo(n): return n if n <2 else fibo(n-1) + fibo(n-2)
+def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
+"""
+        self.run_test(code, 4, fibo2=[float])
 
     def test_manual_list_comprehension(self):
         self.run_test("def f(l):\n ll=list()\n for k in l:\n  ll+=[k]\n return ll\ndef manual_list_comprehension(l): return f(l)", [1,2,3], manual_list_comprehension=[[int]])

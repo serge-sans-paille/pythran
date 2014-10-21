@@ -7,9 +7,11 @@
 namespace pythonic {
 
     namespace __builtin__ {
+    namespace {
         types::file file(types::str const& filename, types::str const& strmode = "r") {
             return types::file(filename, strmode);
         } 
+    }
         PROXY(pythonic::__builtin__, file);
 
     }

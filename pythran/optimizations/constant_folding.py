@@ -33,39 +33,24 @@ class ConstantFolding(Transformation):
         self.env = {'__builtin__': __import__('__builtin__')}
 
         for module_name in modules:
-            not_builtin = ["__builtin__", "__exception__", "__dispatch__",
-                           "__iterator__"]
-            # module starting with "__" are pythran internal module and
-            # should not be imported in the Python interpreter
-            if not module_name.startswith('__'):
+            # __dispatch__ is the only fake top-level module
+            if module_name != '__dispatch__':
                 import_name = module_name
+
+                # handle module name conflicting with c++ keywords
                 if (module_name.endswith("_")
                         and module_name[:-1] in cxx_keywords):
                     import_name = module_name[:-1]
                 self.env[module_name] = __import__(import_name)
-            elif module_name not in not_builtin:
-                if module_name in ("__ndarray__", "__finfo__"):
-                    self.env[module_name] = \
-                        eval("numpy." + module_name.strip("_"))
-                else:
-                    self.env[module_name] = getattr(
-                        self.env['__builtin__'],
-                        module_name.strip('_'))
 
-            # hack to handle int_, bool_, ... builtins functions
-            builtin_types = ("__list__", "__set__", "__dict__", "__str__",
-                             "__file__", "__exception__", "__dispatch__",
-                             "__iterator__")
-            if module_name not in builtin_types:
+                # handle functions conflicting with c++ keywords
                 for fun in modules[module_name]:
-                    if fun == "__theitemgetter__":
-                        # I have no idea about how return_call work and what is
-                        # the trick here...
+                    if fun in ("__theitemgetter__", "pythran"):
+                        # these ones do not exist in Python
                         continue
                     # Set attributs pointing to another for C++ keyword
                     # case of __builtin__.int_ that point on __builtin__.int
-                    elif (not hasattr(self.env[module_name], fun)
-                          and fun.endswith("_")):
+                    if not hasattr(self.env[module_name], fun):
                         setattr(self.env[module_name], fun,
                                 getattr(self.env[module_name], fun.strip("_")))
 

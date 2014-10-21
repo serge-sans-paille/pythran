@@ -55,6 +55,8 @@ class GlobalEffects(ModuleAnalysis):
                     fe = GlobalEffects.FunctionEffect(v)
                     self.node_to_functioneffect[v] = fe
                     self.result.add_node(fe)
+                    if isinstance(v, intrinsic.Class):
+                        register_node(v.fields)
 
         register_node(self.global_declarations)
         for m in modules:

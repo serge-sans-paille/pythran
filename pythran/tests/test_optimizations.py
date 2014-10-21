@@ -280,15 +280,15 @@ def full_unroll0():
     __tuple1 = (1, 4)
     j = __tuple1[1]
     i = __tuple1[0]
-    __list__.append(k, (i, j))
+    __builtin__.list.append(k, (i, j))
     __tuple1 = (2, 5)
     j = __tuple1[1]
     i = __tuple1[0]
-    __list__.append(k, (i, j))
+    __builtin__.list.append(k, (i, j))
     __tuple1 = (3, 6)
     j = __tuple1[1]
     i = __tuple1[0]
-    __list__.append(k, (i, j))
+    __builtin__.list.append(k, (i, j))
     return k
 def __init__():
     return __builtin__.None

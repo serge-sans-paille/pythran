@@ -8,7 +8,7 @@
 namespace pythonic {
 
     namespace __builtin__ {
-
+    namespace {
         types::empty_set set() {
             return types::empty_set();
         }
@@ -17,6 +17,7 @@ namespace pythonic {
             types::set<typename std::remove_reference<Iterable>::type::iterator::value_type > set(Iterable&& t) {
                 return types::set<typename std::remove_reference<Iterable>::type::iterator::value_type >(t.begin(), t.end());
             } 
+    }
         PROXY(pythonic::__builtin__,set);
     }
 

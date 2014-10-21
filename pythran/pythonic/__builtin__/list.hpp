@@ -11,7 +11,7 @@
 namespace pythonic {
 
     namespace __builtin__ {
-
+    namespace {
         types::empty_list list() {
             return types::empty_list();
         }
@@ -33,6 +33,7 @@ namespace pythonic {
            return res;
            }
            */
+    }
 
         PROXY(pythonic::__builtin__,list);
 

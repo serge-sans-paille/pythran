@@ -5,6 +5,7 @@ constraints.
 '''
 
 import pythran.tables as tables
+from pythran.intrinsic import Class
 
 import ast
 
@@ -37,6 +38,8 @@ class SyntaxChecker(ast.NodeVisitor):
             for signature in module.itervalues():
                 if isinstance(signature, dict):
                     save_attribute(signature)
+                elif isinstance(signature, Class):
+                    save_attribute(signature.fields)
 
         for module in tables.modules.itervalues():
             save_attribute(module)

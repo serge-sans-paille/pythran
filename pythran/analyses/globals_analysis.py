@@ -17,5 +17,5 @@ class Globals(ModuleAnalysis):
 
     def run(self, node, ctx):
         super(Globals, self).run(node, ctx)
-        return set(self.global_declarations.keys()
-                   + [i for i in modules if i.startswith('__')])
+        return {'__builtin__',
+                '__dispatch__'}.union(self.global_declarations.keys())

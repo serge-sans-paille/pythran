@@ -61,6 +61,8 @@ class ArgumentEffects(ModuleAnalysis):
                     fe = ArgumentEffects.FunctionEffects(intr)
                     self.node_to_functioneffect[intr] = fe
                     self.result.add_node(fe)
+                    if isinstance(intr, intrinsic.Class):
+                        save_function_effect(intr.fields)
 
         for m in modules:
             save_function_effect(modules[m])

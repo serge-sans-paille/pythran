@@ -21,7 +21,7 @@ class RemoveComprehension(Transformation):
     def list_comprehension0():
         __target = __builtin__.list()
         for x in (1, 2, 3):
-            __list__.append(__target, (x * x))
+            __builtin__.list.append(__target, (x * x))
         return __target
     """
 
@@ -70,7 +70,7 @@ class RemoveComprehension(Transformation):
             return reduce(lambda n, if_: ast.If(if_, [n], []), ifs, node)
         return ast.For(g.target, g.iter, [wrap_in_ifs(x, g.ifs)], [])
 
-    def visit_AnyComp(self, node, comp_type, comp_module, comp_method):
+    def visit_AnyComp(self, node, comp_type, *path):
         node.elt = self.visit(node.elt)
         name = "{0}_comprehension{1}".format(comp_type, self.count)
         self.count += 1
@@ -82,10 +82,10 @@ class RemoveComprehension(Transformation):
                       reversed(node.generators),
                       ast.Expr(
                           ast.Call(
-                              ast.Attribute(
-                                  ast.Name(comp_module, ast.Load()),
-                                  comp_method,
-                                  ast.Load()),
+                              reduce(lambda x, y: ast.Attribute(x, y,
+                                                                ast.Load()),
+                                     path[1:],
+                                     ast.Name(path[0], ast.Load())),
                               [ast.Name(starget, ast.Load()), node.elt],
                               [],
                               None,
@@ -121,10 +121,11 @@ class RemoveComprehension(Transformation):
             )  # no sharing !
 
     def visit_ListComp(self, node):
-        return self.visit_AnyComp(node, "list", "__list__", "append")
+        return self.visit_AnyComp(node, "list",
+                                  "__builtin__", "list", "append")
 
     def visit_SetComp(self, node):
-        return self.visit_AnyComp(node, "set", "__set__", "add")
+        return self.visit_AnyComp(node, "set", "__builtin__", "set", "add")
 
     def visit_DictComp(self, node):
         # this is a quickfix to match visit_AnyComp signature

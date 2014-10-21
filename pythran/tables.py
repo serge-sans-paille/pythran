@@ -1,6 +1,8 @@
 """ This modules provides the translation tables from python to c++. """
 
 from pythran.intrinsic import Class, ReadOnceFunctionIntr, ConstExceptionIntr
+from pythran.intrinsic import ClassWithConstConstructor, ExceptionClass
+from pythran.intrinsic import ClassWithReadOnceConstructor
 from pythran.intrinsic import ConstFunctionIntr, FunctionIntr, UpdateEffect
 from pythran.intrinsic import ConstMethodIntr, MethodIntr, AttributeIntr
 from pythran.intrinsic import ReadEffect, ConstantIntr
@@ -115,6 +117,204 @@ equivalent_iterators = {
     "zip": ("itertools", "izip")
     }
 
+update_effects = (lambda self, node:
+                  [self.combine(node.args[0], node_args_k, register=True)
+                   for node_args_k in node.args[1:]
+                   ])
+
+classes = {
+    "list": {
+        "append": MethodIntr(
+            lambda self, node:
+            self.combine(
+                node.args[0],
+                node.args[1],
+                unary_op=lambda f: cxxtypes.ListType(f),
+                register=True)
+            ),
+        "extend": MethodIntr(
+            lambda self, node:
+            self.combine(
+                node.args[0],
+                node.args[1],
+                register=True)
+            ),
+        "index": ConstMethodIntr(),
+        "pop": MethodIntr(),
+        "reverse": MethodIntr(),
+        "sort": MethodIntr(),
+        "count": ConstMethodIntr(),
+        "remove": MethodIntr(),
+        "insert": MethodIntr(
+            lambda self, node:
+            self.combine(
+                node.args[0],
+                node.args[2],
+                unary_op=lambda f: cxxtypes.ListType(f),
+                register=True)
+            ),
+        },
+    "str": {
+        "capitalize": ConstMethodIntr(),
+        "count": ConstMethodIntr(),
+        "endswith": ConstMethodIntr(),
+        "startswith": ConstMethodIntr(),
+        "find": ConstMethodIntr(),
+        "isalpha": ConstMethodIntr(),
+        "isdigit": ConstMethodIntr(),
+        "join": ConstMethodIntr(),
+        "lower": ConstMethodIntr(),
+        "replace": ConstMethodIntr(),
+        "split": ConstMethodIntr(),
+        "strip": ConstMethodIntr(),
+        "lstrip": ConstMethodIntr(),
+        "rstrip": ConstMethodIntr(),
+        "upper": ConstMethodIntr(),
+    },
+    "set": {
+        "add": MethodIntr(
+            lambda self, node:
+            self.combine(
+                node.args[0],
+                node.args[1],
+                unary_op=lambda f: cxxtypes.SetType(f),
+                register=True)
+        ),
+        "clear": MethodIntr(),
+        "copy": ConstMethodIntr(),
+        "discard": MethodIntr(),
+        "remove": MethodIntr(),
+        "isdisjoint": ConstMethodIntr(),
+        "union_": ConstMethodIntr(),
+        "update": MethodIntr(update_effects),
+        "intersection": ConstMethodIntr(),
+        "intersection_update": MethodIntr(
+            lambda self, node:
+            [
+                self.combine(
+                    node.args[0],
+                    node_args_k,
+                    register=True)
+                for node_args_k in node.args[1:]
+            ]
+        ),
+        "difference": ConstMethodIntr(),
+        "difference_update": MethodIntr(
+            lambda self, node:
+            [
+                self.combine(
+                    node.args[0],
+                    node_args_k,
+                    register=True)
+                for node_args_k in node.args[1:]
+            ]
+        ),
+        "symmetric_difference": ConstMethodIntr(),
+        "symmetric_difference_update": MethodIntr(
+            lambda self, node:
+            [
+                self.combine(
+                    node.args[0],
+                    node_args_k,
+                    register=True)
+                for node_args_k in node.args[1:]
+            ]
+        ),
+        "issuperset": ConstMethodIntr(),
+        "issubset": ConstMethodIntr(),
+    },
+    "Exception": {
+        "args": AttributeIntr(0),
+        "errno": AttributeIntr(1),
+        "strerror": AttributeIntr(2),
+        "filename": AttributeIntr(3),
+    },
+    "float": {
+        "is_integer": ConstMethodIntr(),
+    },
+    "complex": {
+        "conjugate": ConstMethodIntr(),
+        "real": AttributeIntr(0),
+        "imag": AttributeIntr(1),
+    },
+    "dict": {
+        "fromkeys": ConstFunctionIntr(),
+        "clear": MethodIntr(),
+        "copy": ConstMethodIntr(),
+        "get": ConstMethodIntr(),
+        "has_key": ConstMethodIntr(),
+        "items": MethodIntr(),
+        "iteritems": MethodIntr(),
+        "iterkeys": MethodIntr(),
+        "itervalues": MethodIntr(),
+        "keys": MethodIntr(),
+        "pop": MethodIntr(),
+        "popitem": MethodIntr(),
+        "setdefault": MethodIntr(
+            lambda self, node:
+            len(node.args) == 3 and
+            self.combine(
+                node.args[0],
+                node.args[1],
+                unary_op=lambda x: cxxtypes.DictType(
+                    x,
+                    self.result[node.args[2]]),
+                register=True),
+            return_alias=lambda node: {
+                ast.Subscript(node.args[0],
+                              ast.Index(node.args[1]),
+                              ast.Load())
+            }
+        ),
+        "update": MethodIntr(update_effects),
+        "values": MethodIntr(),
+        "viewitems": MethodIntr(),
+        "viewkeys": MethodIntr(),
+        "viewvalues": MethodIntr(),
+    },
+    "file": {
+        # Member variables
+        "closed": AttributeIntr(0),
+        "mode": AttributeIntr(1),
+        "name": AttributeIntr(2),
+        "newlines": AttributeIntr(3),
+        # Member functions
+        "close": MethodIntr(global_effects=True),
+        "flush": MethodIntr(global_effects=True),
+        "fileno": MethodIntr(),
+        "isatty": MethodIntr(),
+        "next": MethodIntr(global_effects=True),
+        "read": MethodIntr(global_effects=True),
+        "readline": MethodIntr(global_effects=True),
+        "readlines": MethodIntr(global_effects=True),
+        "xreadlines": MethodIntr(global_effects=True),
+        "seek": MethodIntr(global_effects=True),
+        "tell": MethodIntr(),
+        "truncate": MethodIntr(global_effects=True),
+        "write": MethodIntr(global_effects=True),
+        "writelines": MethodIntr(global_effects=True),
+    },
+    "finfo": {
+        "eps": AttributeIntr(0),
+    },
+    "ndarray": {
+        "dtype": AttributeIntr(7),
+        "fill": MethodIntr(),
+        "flat": AttributeIntr(6),
+        "flatten": MethodIntr(),
+        "item": MethodIntr(),
+        "itemsize": AttributeIntr(4),
+        "nbytes": AttributeIntr(5),
+        "ndim": AttributeIntr(1),
+        "shape": AttributeIntr(0),
+        "size": AttributeIntr(3),
+        "strides": AttributeIntr(2),
+        "T": AttributeIntr(8),
+        "tolist": ConstMethodIntr(),
+        "tostring": ConstMethodIntr(),
+    },
+}
+
 # each module consist in a module_name <> set of symbols
 modules = {
     "__builtin__": {
@@ -126,7 +326,7 @@ modules = {
         "SystemExit": ConstExceptionIntr(),
         "KeyboardInterrupt": ConstExceptionIntr(),
         "GeneratorExit": ConstExceptionIntr(),
-        "Exception": ConstExceptionIntr(),
+        "Exception": ExceptionClass(classes["Exception"]),
         "StopIteration": ConstExceptionIntr(),
         "StandardError": ConstExceptionIntr(),
         "Warning": ConstExceptionIntr(),
@@ -176,20 +376,20 @@ modules = {
         "bool_": ConstFunctionIntr(),
         "chr": ConstFunctionIntr(),
         "cmp": ConstFunctionIntr(),
-        "complex": ConstFunctionIntr(),
-        "dict": ReadOnceFunctionIntr(),
+        "complex": ClassWithConstConstructor(classes['complex']),
+        "dict": ClassWithReadOnceConstructor(classes['dict']),
         "divmod": ConstFunctionIntr(),
         "enumerate": ReadOnceFunctionIntr(),
-        "file": ConstFunctionIntr(),
+        "file": ClassWithConstConstructor(classes['file']),
         "filter": ReadOnceFunctionIntr(),
-        "float_": ConstFunctionIntr(),
+        "float_": ClassWithConstConstructor(classes['float']),
         "getattr": ConstFunctionIntr(),
         "hex": ConstFunctionIntr(),
         "id": ConstFunctionIntr(),
         "int_": ConstFunctionIntr(),
         "iter": FunctionIntr(),  # not const
         "len": ConstFunctionIntr(),
-        "list": ReadOnceFunctionIntr(),
+        "list": ClassWithReadOnceConstructor(classes['list']),
         "long_": ConstFunctionIntr(),
         "map": ReadOnceFunctionIntr(),
         "max": ReadOnceFunctionIntr(),
@@ -203,9 +403,9 @@ modules = {
         "reduce": ReadOnceFunctionIntr(),
         "reversed": ReadOnceFunctionIntr(),
         "round": ConstFunctionIntr(),
-        "set": ReadOnceFunctionIntr(),
+        "set": ClassWithReadOnceConstructor(classes['set']),
         "sorted": ConstFunctionIntr(),
-        "str": ConstFunctionIntr(),
+        "str": ClassWithConstConstructor(classes['str']),
         "sum": ReadOnceFunctionIntr(),
         "tuple": ReadOnceFunctionIntr(),
         "xrange": ConstFunctionIntr(),
@@ -270,9 +470,9 @@ modules = {
         "concatenate": ConstFunctionIntr(),
         "complex": ConstFunctionIntr(),
         "complex64": ConstFunctionIntr(),
-        "conj": ConstFunctionIntr(),
-        "conjugate": ConstFunctionIntr(),
-        "copy": ConstFunctionIntr(),
+        "conj": ConstMethodIntr(),
+        "conjugate": ConstMethodIntr(),
+        "copy": ConstMethodIntr(),
         "copyto": FunctionIntr(argument_effects=[UpdateEffect(), ReadEffect(),
                                                  ReadEffect(), ReadEffect()]),
         "copysign": ConstFunctionIntr(),
@@ -302,7 +502,7 @@ modules = {
         "expm1": ConstFunctionIntr(),
         "eye": ConstFunctionIntr(),
         "fabs": ConstFunctionIntr(),
-        "finfo": ConstFunctionIntr(),
+        "finfo": ClassWithConstConstructor(classes['finfo']),
         "fix": ConstFunctionIntr(),
         "flatnonzero": ConstFunctionIntr(),
         "fliplr": ConstFunctionIntr(),
@@ -378,6 +578,7 @@ modules = {
         "nanmin": ConstFunctionIntr(),
         "nansum": ConstFunctionIntr(),
         "ndenumerate": ConstFunctionIntr(),
+        "ndarray": ClassWithConstConstructor(classes["ndarray"]),
         "ndindex": ConstFunctionIntr(),
         "ndim": ConstFunctionIntr(),
         "negative": ConstFunctionIntr(),
@@ -856,215 +1057,21 @@ modules = {
         "hexdigits": ConstantIntr(),
         "octdigits": ConstantIntr(),
         },
-    "__list__": {
-        "append": MethodIntr(
-            lambda self, node:
-            self.combine(
-                node.args[0],
-                node.args[1],
-                unary_op=lambda f: cxxtypes.ListType(f),
-                register=True)
-            ),
-        "extend": MethodIntr(
-            lambda self, node:
-            self.combine(
-                node.args[0],
-                node.args[1],
-                register=True)
-            ),
-        "index": ConstMethodIntr(),
-        # "pop": MethodIntr(), dispatched
-        "reverse": MethodIntr(),
-        "sort": MethodIntr(),
-        # "count": ConstMethodIntr(), dispatched
-        "insert": MethodIntr(
-            lambda self, node:
-            self.combine(
-                node.args[0],
-                node.args[2],
-                unary_op=lambda f: cxxtypes.ListType(f),
-                register=True)
-            ),
-        },
-
-    "__iterator__": {
-        # "next": MethodIntr(), dispatched
-        },
-    "__str__": {
-        "capitalize": ConstMethodIntr(),
-        # "count": ConstMethodIntr(), dispatched
-        "endswith": ConstMethodIntr(),
-        "startswith": ConstMethodIntr(),
-        "find": ConstMethodIntr(),
-        "isalpha": ConstMethodIntr(),
-        "isdigit": ConstMethodIntr(),
-        "join": ConstMethodIntr(),
-        "lower": ConstMethodIntr(),
-        "replace": ConstMethodIntr(),
-        "split": ConstMethodIntr(),
-        "strip": ConstMethodIntr(),
-        "lstrip": ConstMethodIntr(),
-        "rstrip": ConstMethodIntr(),
-        "upper": ConstMethodIntr(),
-        },
-    "__set__": {
-        "add": MethodIntr(
-            lambda self, node:
-            self.combine(
-                node.args[0],
-                node.args[1],
-                unary_op=lambda f: cxxtypes.SetType(f),
-                register=True)
-            ),
-        "discard": MethodIntr(),
-        "isdisjoint": ConstMethodIntr(),
-        "union_": ConstMethodIntr(),
-        "intersection": ConstMethodIntr(),
-        "intersection_update": MethodIntr(
-            lambda self, node:
-            [
-                self.combine(
-                    node.args[0],
-                    node_args_k,
-                    register=True)
-                for node_args_k in node.args[1:]
-                ]
-            ),
-        "difference": ConstMethodIntr(),
-        "difference_update": MethodIntr(
-            lambda self, node:
-            [
-                self.combine(
-                    node.args[0],
-                    node_args_k,
-                    register=True)
-                for node_args_k in node.args[1:]
-                ]
-            ),
-        "symmetric_difference": ConstMethodIntr(),
-        "symmetric_difference_update": MethodIntr(
-            lambda self, node:
-            [
-                self.combine(
-                    node.args[0],
-                    node_args_k,
-                    register=True)
-                for node_args_k in node.args[1:]
-                ]
-            ),
-        "issuperset": ConstMethodIntr(),
-        "issubset": ConstMethodIntr(),
-        },
     "os": {
         "path": {
             "join": ConstFunctionIntr(),
             }
         },
-    "__exception__": {
-        "args": AttributeIntr(0),
-        "errno": AttributeIntr(1),
-        "strerror": AttributeIntr(2),
-        "filename": AttributeIntr(3),
-        },
-    "__float__": {
-        "is_integer": ConstMethodIntr(),
-        },
-    "__complex___": {
-        "real": AttributeIntr(0),
-        "imag": AttributeIntr(1),
-        "conjugate": ConstMethodIntr(),
-        },
-    "__dict__": {
-        "fromkeys": ConstFunctionIntr(),
-        "get": ConstMethodIntr(),
-        "has_key": ConstMethodIntr(),
-        "items": MethodIntr(),
-        "iteritems": MethodIntr(),
-        "iterkeys": MethodIntr(),
-        "itervalues": MethodIntr(),
-        "keys": MethodIntr(),
-        # "pop": MethodIntr(), dispatched
-        "popitem": MethodIntr(),
-        "setdefault": MethodIntr(
-            lambda self, node:
-            len(node.args) == 3 and
-            self.combine(
-                node.args[0],
-                node.args[1],
-                unary_op=lambda x: cxxtypes.DictType(
-                    x,
-                    self.result[node.args[2]]),
-                register=True),
-            return_alias=lambda node: {
-                ast.Subscript(node.args[0],
-                              ast.Index(node.args[1]),
-                              ast.Load())
-                }
-            ),
-        "values": MethodIntr(),
-        "viewitems": MethodIntr(),
-        "viewkeys": MethodIntr(),
-        "viewvalues": MethodIntr(),
-        },
-    "__file__": {
-        # Member variables
-        "closed": AttributeIntr(0),
-        "mode": AttributeIntr(1),
-        "name": AttributeIntr(2),
-        "newlines": AttributeIntr(3),
-        # Member functions
-        "close": MethodIntr(global_effects=True),
-        "flush": MethodIntr(global_effects=True),
-        "fileno": MethodIntr(),
-        "isatty": MethodIntr(),
-        # "next": MethodIntr(global_effects=True), dispatched
-        "read": MethodIntr(global_effects=True),
-        "readline": MethodIntr(global_effects=True),
-        "readlines": MethodIntr(global_effects=True),
-        "xreadlines": MethodIntr(global_effects=True),
-        "seek": MethodIntr(global_effects=True),
-        "tell": MethodIntr(),
-        "truncate": MethodIntr(global_effects=True),
-        "write": MethodIntr(global_effects=True),
-        "writelines": MethodIntr(global_effects=True),
-        },
-    "__finfo__": {
-        "eps": AttributeIntr(0),
-        },
-    "__ndarray__": {
-        "dtype": AttributeIntr(7),
-        "fill": MethodIntr(),
-        "flat": AttributeIntr(6),
-        "flatten": MethodIntr(),
-        "item": MethodIntr(),
-        "itemsize": AttributeIntr(4),
-        "nbytes": AttributeIntr(5),
-        "ndim": AttributeIntr(1),
-        "shape": AttributeIntr(0),
-        "size": AttributeIntr(3),
-        "strides": AttributeIntr(2),
-        "T": AttributeIntr(8),
-        "tolist": ConstMethodIntr(),
-        "tostring": ConstMethodIntr(),
-        },
     # conflicting method names must be listed here
     "__dispatch__": {
         "clear": MethodIntr(),
+        "conjugate": ConstMethodIntr(),
         "copy": ConstMethodIntr(),
         "count": ConstMethodIntr(),
-        "next": MethodIntr(),
+        "next": MethodIntr(global_effects=True),  # because of file.next
         "pop": MethodIntr(),
         "remove": MethodIntr(),
-        "update": MethodIntr(
-            lambda self, node:
-            [
-                self.combine(
-                    node.args[0],
-                    node_args_k,
-                    register=True)
-                for node_args_k in node.args[1:]
-                ]
-            ),
+        "update": MethodIntr(update_effects),
         },
     }
 
@@ -1075,12 +1082,6 @@ if 'VMSError' in sys.modules['__builtin__'].__dict__:
 # WindowsError is only available on Windows
 if 'WindowsError' in sys.modules['__builtin__'].__dict__:
     modules['__builtin__']['WindowsError'] = ConstExceptionIntr()
-
-# create symlinks for classes
-modules['__builtin__']['__set__'] = Class(modules['__set__'])
-modules['__builtin__']['__dict__'] = Class(modules['__dict__'])
-modules['__builtin__']['__list__'] = Class(modules['__list__'])
-modules['__builtin__']['__complex___'] = Class(modules['__complex___'])
 
 # detect and prune unsupported modules
 try:
@@ -1099,9 +1100,17 @@ def save_method(elements, module_path):
     for elem, signature in elements.iteritems():
         if isinstance(signature, dict):  # Submodule case
             save_method(signature, module_path + (elem,))
+        elif isinstance(signature, Class):
+            save_method(signature.fields, module_path + (elem,))
         elif signature.ismethod():
-            assert elem not in methods  # we need unicity
-            methods[elem] = (module_path, signature)
+            # in case of duplicates, there must be a __dispatch__ record
+            # and it is the only recorded one
+            if elem in methods and module_path[0] != '__dispatch__':
+                assert elem in modules['__dispatch__']
+                path = ('__dispatch__',)
+                methods[elem] = (path, modules['__dispatch__'][elem])
+            else:
+                methods[elem] = (module_path, signature)
 
 for module, elems in modules.iteritems():
     save_method(elems, (module,))
@@ -1118,6 +1127,8 @@ def save_function(elements, module_path):
             save_function(signature, module_path + (elem,))
         elif signature.isstaticfunction():
             functions.setdefault(elem, []).append((module_path, signature,))
+        elif isinstance(signature, Class):
+            save_function(signature.fields, module_path + (elem,))
 
 for module, elems in modules.iteritems():
     save_function(elems, (module,))
@@ -1127,39 +1138,40 @@ for module, elems in modules.iteritems():
 attributes = {}
 
 
-def save_attribut(elements, module_path):
+def save_attribute(elements, module_path):
     """ Recursively save attributes with module name and signature. """
     for elem, signature in elements.iteritems():
         if isinstance(signature, dict):  # Submodule case
-            save_attribut(signature, module_path + (elem,))
+            save_attribute(signature, module_path + (elem,))
         elif signature.isattribute():
             assert elem not in attributes  # we need unicity
             attributes[elem] = (module_path, signature,)
+        elif isinstance(signature, Class):
+            save_attribute(signature.fields, module_path + (elem,))
 
 for module, elems in modules.iteritems():
-    save_attribut(elems, (module,))
+    save_attribute(elems, (module,))
 
 
 # populate argument description through introspection
 def save_arguments(module_name, elements):
     """ Recursively save arguments name and default value. """
-    if not module_name.startswith('__'):
-        for elem, signature in elements.iteritems():
-            if isinstance(signature, dict):  # Submodule case
-                save_arguments(".".join((module_name, elem)), signature)
-            else:
-                # use introspection to get the Python obj
-                try:
-                    themodule = __import__(module_name)
-                    obj = getattr(themodule, elem)
-                    spec = inspect.getargspec(obj)
-                    assert not signature.args.args
-                    signature.args.args = [ast.Name(arg, ast.Param())
-                                           for arg in spec.args]
-                    if spec.defaults:
-                        signature.args.defaults = map(to_ast, spec.defaults)
-                except (AttributeError, ImportError, TypeError, ToNotEval):
-                    pass
+    for elem, signature in elements.iteritems():
+        if isinstance(signature, dict):  # Submodule case
+            save_arguments(".".join((module_name, elem)), signature)
+        else:
+            # use introspection to get the Python obj
+            try:
+                themodule = __import__(module_name)
+                obj = getattr(themodule, elem)
+                spec = inspect.getargspec(obj)
+                assert not signature.args.args
+                signature.args.args = [ast.Name(arg, ast.Param())
+                                       for arg in spec.args]
+                if spec.defaults:
+                    signature.args.defaults = map(to_ast, spec.defaults)
+            except (AttributeError, ImportError, TypeError, ToNotEval):
+                pass
 
 for module, elems in modules.iteritems():
     save_arguments(module, elems)

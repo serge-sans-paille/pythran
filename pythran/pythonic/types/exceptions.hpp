@@ -285,7 +285,7 @@ namespace pythonic {
 /* } */
 #ifdef ENABLE_PYTHON_MODULE
 #define REGISTER_EXCEPTION_TRANSLATOR(name) \
-    void translate_##name(types::name const& e) { PyErr_SetString(PyExc_##name, __builtin__::str(e.args).c_str()); }
+    void translate_##name(types::name const& e) { PyErr_SetString(PyExc_##name, __builtin__::proxy::str{}(e.args).c_str()); }
 namespace pythonic {
     REGISTER_EXCEPTION_TRANSLATOR(BaseException);
     REGISTER_EXCEPTION_TRANSLATOR(SystemExit);

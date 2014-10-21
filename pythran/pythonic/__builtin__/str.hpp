@@ -9,6 +9,7 @@
 namespace pythonic {
 
     namespace __builtin__ {
+    namespace {
         template <class T>
             types::str str(T&& t) {
                 std::ostringstream oss;
@@ -44,6 +45,7 @@ namespace pythonic {
             snprintf(buffer, sizeof(buffer), "%g", l);
             return buffer;
         }
+    }
 
         PROXY(pythonic::__builtin__, str);
 

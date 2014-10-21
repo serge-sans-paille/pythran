@@ -11,8 +11,15 @@
 namespace pythonic {
 
     namespace numpy {
+        namespace wrapper {
+            template<class T>
+                bool isnan(T const& v)
+                {
+                    return nt2::is_nan(v);
+                }
+        }
 #define NUMPY_UNARY_FUNC_NAME isnan
-#define NUMPY_UNARY_FUNC_SYM nt2::is_nan
+#define NUMPY_UNARY_FUNC_SYM wrapper::isnan
 #include "pythonic/types/numpy_unary_expr.hpp"
 
     }

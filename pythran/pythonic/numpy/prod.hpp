@@ -25,7 +25,10 @@ namespace pythonic {
             }
 
         template<class E>
-            typename types::numpy_expr_to_ndarray<E>::T
+            typename std::conditional<std::is_same<typename types::numpy_expr_to_ndarray<E>::T, bool>::value,
+                                      long,
+                                      typename types::numpy_expr_to_ndarray<E>::T
+                                     >::type
             prod(E const& expr, types::none_type _ = types::none_type()) {
                 typename types::numpy_expr_to_ndarray<E>::T p = 1;
                 _prod(expr.begin(), expr.end(), p, utils::int_<types::numpy_expr_to_ndarray<E>::N>());

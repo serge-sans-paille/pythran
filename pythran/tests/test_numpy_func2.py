@@ -383,7 +383,7 @@ def test_copy0(x):
         self.run_test("def np_flat_ones_(a): from numpy import ones; return ones(a)", 5, np_flat_ones_=[int])
 
     def test_input_array_(self):
-        self.run_test("import numpy\n\ndef input_array_(a):\n return a.shape", runas="import numpy; input_array_(numpy.array([[1,2],[3,4]]))", input_array_=[numpy.array([[int]])])
+        self.run_test("import numpy\n\ndef input_array_(a):\n return a.shape", numpy.array([[1,2],[3,4]]), input_array_=[numpy.array([[int]])])
 
     def test_change_array1D_(self):
         self.run_test("def np_change_array1D_(a):\n a[0,0,0] = 36\n return a", numpy.array([[[1,2],[3,4]],[[5,6],[7,8]]]), np_change_array1D_=[numpy.array([[[int]]])])
@@ -467,19 +467,39 @@ def test_copy0(x):
         self.run_test("def np_empty_like_(a):\n from numpy import empty_like, array\n return empty_like(array(a)).shape", [[i,j,k,l] for i in xrange(5) for j in xrange(4) for k in xrange(6) for l in xrange(8)], np_empty_like_=[[[int]]])
 
     def test_reshape0(self):
-        self.run_test("def np_reshape0(a): return a.reshape((2,5))", numpy.arange(10), np_reshape0=[numpy.array([int])], check_refcount=True)
+        self.run_test("def np_reshape0(a): return a.reshape((2,5))", numpy.arange(10), np_reshape0=[numpy.array([int])])
 
     def test_reshape1(self):
-        self.run_test("def np_reshape1(a): return a.reshape((2,-1))", numpy.arange(10), np_reshape1=[numpy.array([int])], check_refcount=True)
+        """Check reshaping with -1 argument."""
+        code = """
+def np_reshape1(a):
+    return a.reshape((2,-1))"""
+        self.run_test(code, numpy.arange(10), np_reshape1=[numpy.array([int])])
 
     def test_duplicate(self):
-        self.run_test("def np_duplicate(a): return a, a", numpy.arange(10), np_duplicate=[numpy.array([int])], check_refcount=True)
+        """Check array forwarded twice doesn't double free. """
+        code = """
+def np_duplicate(a):
+    return a, a"""
+        self.run_test(code, numpy.arange(10), np_duplicate=[numpy.array([int])])
 
     def test_broadcast(self):
-        self.run_test("def np_broadcast(): import numpy; a = numpy.arange(3); return a, a", np_broadcast=[], check_refcount=True)
+        """Check that ndarray returned twice doesn't double free. """
+        code = """
+def np_broadcast():
+    import numpy
+    a = numpy.arange(3)
+    return a, a"""
+        self.run_test(code, np_broadcast=[])
 
     def test_broadcast_dup(self):
-        self.run_test("def np_broadcast_dup(): import numpy; a = numpy.arange(10); return a, a.reshape((2,5))", np_broadcast_dup=[], check_refcount=True)
+        """Check that ndarray returned twice doesn't double free (reshaping)."""
+        code = """
+def np_broadcast_dup():
+    import numpy
+    a = numpy.arange(10)
+    return a, a.reshape((2,5))"""
+        self.run_test(code, np_broadcast_dup=[])
 
     def test_reshape_expr(self):
         self.run_test("def np_reshape_expr(a): return (a + a).reshape((2,5))", numpy.ones(10), np_reshape_expr=[numpy.array([float])])

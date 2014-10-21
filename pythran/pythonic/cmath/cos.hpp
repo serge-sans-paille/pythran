@@ -7,7 +7,18 @@
 namespace pythonic {
 
     namespace cmath {
-        using std::cos;
+        template<class T>
+            std::complex<T> cos(std::complex<T> const& v)
+            {
+                return std::cos(v);
+            }
+
+            template<class T>
+            std::complex<T> cos(T const& v)
+            {
+                return std::cos(v);
+            }
+
         PROXY(pythonic::cmath, cos);
     }
 

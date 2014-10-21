@@ -10,15 +10,15 @@ namespace pythonic {
         long floordiv(long a, long b) {
             return std::floor(static_cast<double>(a)/b);
         }
-        long floordiv(double a, long b) {
+        double floordiv(double a, long b) {
             return std::floor(a/b);
         }
 
-        long floordiv(long a, double b) {
+        double floordiv(long a, double b) {
             return std::floor(a/b);
         }
 
-        long floordiv(double a, double b) {
+        double floordiv(double a, double b) {
             return std::floor(a/b);
         }
         PROXY(pythonic::operator_, floordiv);

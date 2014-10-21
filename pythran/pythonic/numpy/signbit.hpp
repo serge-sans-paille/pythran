@@ -10,8 +10,15 @@
 namespace pythonic {
 
     namespace numpy {
+        namespace wrapper {
+            template<class T>
+                bool signbit(T const& v)
+                {
+                    return nt2::bitofsign(v);
+                }
+        }
 #define NUMPY_UNARY_FUNC_NAME signbit
-#define NUMPY_UNARY_FUNC_SYM nt2::bitofsign
+#define NUMPY_UNARY_FUNC_SYM wrapper::signbit
 #include "pythonic/types/numpy_unary_expr.hpp"
 
     }

@@ -10,9 +10,15 @@
 namespace pythonic {
 
     namespace numpy {
-
+        namespace wrapper {
+            template<class T>
+            double fix(T const& v)
+            {
+                return nt2::trunc(v);
+            }
+        }
 #define NUMPY_UNARY_FUNC_NAME fix
-#define NUMPY_UNARY_FUNC_SYM nt2::trunc
+#define NUMPY_UNARY_FUNC_SYM wrapper::fix
 #include "pythonic/types/numpy_unary_expr.hpp"
 
     }

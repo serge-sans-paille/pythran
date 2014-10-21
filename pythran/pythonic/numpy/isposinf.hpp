@@ -14,7 +14,7 @@ namespace pythonic {
     namespace numpy {
         namespace wrapper {
             template<class T>
-                auto isposinf(T const& t) -> decltype(nt2::is_inf(t) and nt2::is_positive(t)) {
+                bool isposinf(T const& t) {
                     return nt2::is_inf(t) and nt2::is_positive(t);
                 }
         }

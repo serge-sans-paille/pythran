@@ -1,5 +1,5 @@
 #from http://rosettacode.org/wiki/Primality_by_trial_division#Python
-#pythran exprot test()
+#pythran export test()
 #runas test()
 #FIXME unittest.skip
 
@@ -13,7 +13,7 @@ def prime2(a):
 
 def prime3(a):
     if a < 2: return False
-    if a == 2 or a == 3: return True # manually test 2 and 3   
+    if a == 2 or a == 3: return True # manually test 2 and 3
     if a % 2 == 0 or a % 3 == 0: return False # exclude multiples of 2 and 3
 
     maxDivisor = a**0.5

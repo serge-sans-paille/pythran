@@ -12,7 +12,12 @@ namespace proxy {
 
         template<typename T0, typename T1>
         auto operator()(T0&& arg0, T1&& arg1) const
-        -> decltype(NUMPY_BINARY_FUNC_SYM(std::forward<T0>(arg0), std::forward<T1>(arg1)))
+        ->  typename std::enable_if<
+                not types::is_numexpr_arg<typename std::remove_cv<typename std::remove_reference<T1>::type>::type>::value
+                and
+                not types::is_numexpr_arg<typename std::remove_cv<typename std::remove_reference<T0>::type>::type>::value,
+                decltype(NUMPY_BINARY_FUNC_SYM(std::forward<T0>(arg0), std::forward<T1>(arg1)))
+            >::type
         {
             return NUMPY_BINARY_FUNC_SYM(std::forward<T0>(arg0), std::forward<T1>(arg1));
         }

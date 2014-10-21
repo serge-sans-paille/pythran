@@ -262,5 +262,5 @@ env:
   - PEP8=false TESTCASE=pythran/tests/test_typing.py CXX=clang++-3.5 CXXFLAGS="-DUSE_BOOST_SIMD -march=native -fopenmp"
   - PEP8=true
 
-    script:
-      - sh ./scripts/travis_test.sh
+script:
+  - sh ./pythran/tests/travis_test.sh

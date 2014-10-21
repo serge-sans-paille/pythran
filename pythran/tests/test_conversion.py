@@ -1,5 +1,7 @@
-from test_env import TestEnv
 import numpy as np
+import unittest
+
+from test_env import TestEnv
 
 class TestConversion(TestEnv):
 
@@ -24,11 +26,24 @@ class TestConversion(TestEnv):
     def test_list_of_float64(self):
         self.run_test('def list_of_float64(l): return [2 * _ for _ in l]', [1,2], list_of_float64=[[np.float64]])
 
+    @unittest.skip("No np.float32 python_to_pythran converter exists.")
     def test_set_of_float32(self):
-        self.run_test('def set_of_float32(l): return { _ / 2 for _ in l}', {np.float32(1),np.float32(2)}, set_of_float32=[{np.float32}])
+        """ Check np.float32 conversion. """
+        code = """
+def set_of_float32(l):
+    return { _ / 2 for _ in l}"""
+        self.run_test(code, {np.float32(1), np.float32(2)},
+                      set_of_float32=[{np.float32}])
 
+    @unittest.skip("No np.complex64 python_to_pythran converter exists.")
     def test_dict_of_complex64_and_complex_128(self):
-        self.run_test('def dict_of_complex64_and_complex_128(l): return l.keys(), l.values()', {np.complex64(3.1+1.1j):4.5+5.5j}, dict_of_complex64_and_complex_128=[{np.complex64:np.complex128}])
+        """ Check numpy complex type conversion. """
+        code = """
+def dict_of_complex64_and_complex_128(l):
+    return l.keys(), l.values()"""
+        interface = [{np.complex64: np.complex128}]
+        self.run_test(code, {np.complex64(3.1 + 1.1j): 4.5 + 5.5j},
+                      dict_of_complex64_and_complex_128=interface)
 
     def test_ndarray_bad_dimension(self):
         code = 'def ndarray_bad_dimension(a): return a'

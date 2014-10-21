@@ -10,8 +10,15 @@
 namespace pythonic {
 
     namespace numpy {
+        namespace wrapper {
+            template<class T>
+                bool isinf(T const& v)
+                {
+                    return nt2::is_inf(v);
+                }
+        }
 #define NUMPY_UNARY_FUNC_NAME isinf
-#define NUMPY_UNARY_FUNC_SYM nt2::is_inf
+#define NUMPY_UNARY_FUNC_SYM wrapper::isinf
 #include "pythonic/types/numpy_unary_expr.hpp"
 
     }

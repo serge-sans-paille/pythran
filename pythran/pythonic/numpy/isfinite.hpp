@@ -10,8 +10,15 @@
 namespace pythonic {
 
     namespace numpy {
+        namespace wrapper {
+            template<class T>
+                bool isfinite(T const& v)
+                {
+                    return nt2::is_finite(v);
+                }
+        }
 #define NUMPY_UNARY_FUNC_NAME isfinite
-#define NUMPY_UNARY_FUNC_SYM nt2::is_finite
+#define NUMPY_UNARY_FUNC_SYM wrapper::isfinite
 #include "pythonic/types/numpy_unary_expr.hpp"
 
     }

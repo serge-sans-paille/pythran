@@ -169,8 +169,8 @@ def np_rosen_hess_p(x, p):
     Hp[-1] = -400*x[-2]*p[-2] + 200*p[-1]
     return Hp
 """,
-                      runas="""
-import numpy; np_rosen_hess_p(numpy.array([1.3, 0.7, 0.8, 1.9, 1.2]), numpy.array([2.3, 1.7, 1.8, 2.9, 2.2]))""",
+                      numpy.array([1.3, 0.7, 0.8, 1.9, 1.2]),
+                      numpy.array([2.3, 1.7, 1.8, 2.9, 2.2]),
                       np_rosen_hess_p=[numpy.array([float]), numpy.array([float])])
 
     def test_rosen_hess(self):
@@ -185,7 +185,7 @@ def np_rosen_hess(x):
     H = H + numpy.diag(diagonal)
     return H
 """,
-                      runas="import numpy; np_rosen_hess(numpy.array([1.3, 0.7, 0.8, 1.9, 1.2]))",
+                      numpy.array([1.3, 0.7, 0.8, 1.9, 1.2]),
                       np_rosen_hess=[numpy.array([float])])
 
     def test_rosen_der(self):
@@ -200,12 +200,12 @@ def np_rosen_der(x):
     der[-1] = 200*(x[-1]-x[-2]**2)
     return der
 """,
-                      runas="import numpy; np_rosen_der( numpy.array([1.3, 0.7, 0.8, 1.9, 1.2]))",
+                      numpy.array([1.3, 0.7, 0.8, 1.9, 1.2]),
                       np_rosen_der=[numpy.array([float])])
 
     def test_rosen(self):
         self.run_test("import numpy\ndef np_rosen(x): return sum(100.0*(x[1:]-x[:-1]**2.0)**2.0 + (1-x[:-1])**2.0)",
-                      runas="import numpy; np_rosen(numpy.array([1.3, 0.7, 0.8, 1.9, 1.2]))",
+                      numpy.array([1.3, 0.7, 0.8, 1.9, 1.2]),
                       np_rosen=[numpy.array([float])])
 
     def test_nanargmax0(self):

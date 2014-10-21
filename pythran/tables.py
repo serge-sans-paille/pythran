@@ -225,18 +225,20 @@ classes = {
         "issubset": ConstMethodIntr(),
     },
     "Exception": {
-        "args": AttributeIntr(0, return_type=NamedType("pythonic::types::str")),
-        "errno": AttributeIntr(1, return_type=NamedType("pythonic::types::str")),
-        "strerror": AttributeIntr(2, return_type=NamedType("pythonic::types::str")),
-        "filename": AttributeIntr(3, return_type=NamedType("pythonic::types::str")),
+        "args": AttributeIntr(return_type=NamedType("pythonic::types::str")),
+        "errno": AttributeIntr(return_type=NamedType("pythonic::types::str")),
+        "strerror": AttributeIntr(
+            return_type=NamedType("pythonic::types::str")),
+        "filename": AttributeIntr(
+            return_type=NamedType("pythonic::types::str")),
     },
     "float": {
         "is_integer": ConstMethodIntr(),
     },
     "complex": {
         "conjugate": ConstMethodIntr(),
-        "real": AttributeIntr(0, return_type=NamedType("double")),
-        "imag": AttributeIntr(1, return_type=NamedType("double")),
+        "real": AttributeIntr(return_type=NamedType("double")),
+        "imag": AttributeIntr(return_type=NamedType("double")),
     },
     "dict": {
         "fromkeys": ConstFunctionIntr(),
@@ -275,13 +277,11 @@ classes = {
     },
     "file": {
         # Member variables
-        "closed": AttributeIntr(0, return_type=NamedType("bool")),
-        "mode": AttributeIntr(1,
-                              return_type=NamedType("pythonic::types::str")),
-        "name": AttributeIntr(2,
-                              return_type=NamedType("pythonic::types::str")),
+        "closed": AttributeIntr(return_type=NamedType("bool")),
+        "mode": AttributeIntr(return_type=NamedType("pythonic::types::str")),
+        "name": AttributeIntr(return_type=NamedType("pythonic::types::str")),
         "newlines": AttributeIntr(
-            3, return_type=NamedType("pythonic::types::str")),
+            return_type=NamedType("pythonic::types::str")),
         # Member functions
         "close": MethodIntr(global_effects=True),
         "flush": MethodIntr(global_effects=True),
@@ -299,21 +299,21 @@ classes = {
         "writelines": MethodIntr(global_effects=True),
     },
     "finfo": {
-        "eps": AttributeIntr(0),
+        "eps": AttributeIntr(),
     },
     "ndarray": {
-        "dtype": AttributeIntr(7),
+        "dtype": AttributeIntr(),
         "fill": MethodIntr(),
-        "flat": AttributeIntr(6),
+        "flat": AttributeIntr(),
         "flatten": MethodIntr(),
         "item": MethodIntr(),
-        "itemsize": AttributeIntr(4, return_type=NamedType("long")),
-        "nbytes": AttributeIntr(5, return_type=NamedType("long")),
-        "ndim": AttributeIntr(1, return_type=NamedType("long")),
-        "shape": AttributeIntr(0),
-        "size": AttributeIntr(3, return_type=NamedType("long")),
-        "strides": AttributeIntr(2),#, return_type=(int,)),
-        "T": AttributeIntr(8),
+        "itemsize": AttributeIntr(return_type=NamedType("long")),
+        "nbytes": AttributeIntr(return_type=NamedType("long")),
+        "ndim": AttributeIntr(return_type=NamedType("long")),
+        "shape": AttributeIntr(),
+        "size": AttributeIntr(return_type=NamedType("long")),
+        "strides": AttributeIntr(),
+        "T": AttributeIntr(),
         "tolist": ConstMethodIntr(),
         "tostring": ConstMethodIntr(),
     },

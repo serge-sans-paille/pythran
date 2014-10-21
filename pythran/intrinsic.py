@@ -141,11 +141,21 @@ class ConstMethodIntr(MethodIntr):
 
 
 class AttributeIntr(Intrinsic):
-    def __init__(self, val, **kwargs):
-        self.val = val
+
+    """
+    Internal representation for any attributes.
+
+    Examples
+    --------
+    >> math.pi, a.real
+    """
+
+    def __init__(self, **kwargs):
+        """ Forward arguments. """
         super(AttributeIntr, self).__init__(**kwargs)
 
     def isattribute(self):
+        """ Mark this intrinsic is an attribute. """
         return True
 
 

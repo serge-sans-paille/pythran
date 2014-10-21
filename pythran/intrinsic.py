@@ -39,6 +39,7 @@ class Intrinsic(object):
                                            (UpdateEffect(),) * 11)
         self.global_effects = kwargs.get('global_effects', False)
         self.return_alias = kwargs.get('return_alias', lambda x: {None})
+        self.return_type = kwargs.get('return_type', None)
         self.args = ast.arguments([ast.Name(n, ast.Param())
                                    for n in kwargs.get('args', [])],
                                   None, None,
@@ -140,17 +141,18 @@ class ConstMethodIntr(MethodIntr):
 
 
 class AttributeIntr(Intrinsic):
-    def __init__(self, val):
+    def __init__(self, val, **kwargs):
         self.val = val
-        super(AttributeIntr, self).__init__()
+        super(AttributeIntr, self).__init__(**kwargs)
 
     def isattribute(self):
         return True
 
 
 class ConstantIntr(Intrinsic):
-    def __init__(self):
-        super(ConstantIntr, self).__init__(argument_effects=())
+    def __init__(self, **kwargs):
+        kwargs["argument_effects"] = ()
+        super(ConstantIntr, self).__init__(**kwargs)
 
     def isliteral(self):
         return True

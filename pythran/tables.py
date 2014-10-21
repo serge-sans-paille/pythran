@@ -7,6 +7,7 @@ from pythran.intrinsic import ConstFunctionIntr, FunctionIntr, UpdateEffect
 from pythran.intrinsic import ConstMethodIntr, MethodIntr, AttributeIntr
 from pythran.intrinsic import ReadEffect, ConstantIntr
 from pythran.conversion import to_ast, ToNotEval
+from pythran.cxxtypes import NamedType
 import pythran.cxxtypes as cxxtypes
 
 import ast
@@ -224,18 +225,18 @@ classes = {
         "issubset": ConstMethodIntr(),
     },
     "Exception": {
-        "args": AttributeIntr(0),
-        "errno": AttributeIntr(1),
-        "strerror": AttributeIntr(2),
-        "filename": AttributeIntr(3),
+        "args": AttributeIntr(0, return_type=NamedType("pythonic::types::str")),
+        "errno": AttributeIntr(1, return_type=NamedType("pythonic::types::str")),
+        "strerror": AttributeIntr(2, return_type=NamedType("pythonic::types::str")),
+        "filename": AttributeIntr(3, return_type=NamedType("pythonic::types::str")),
     },
     "float": {
         "is_integer": ConstMethodIntr(),
     },
     "complex": {
         "conjugate": ConstMethodIntr(),
-        "real": AttributeIntr(0),
-        "imag": AttributeIntr(1),
+        "real": AttributeIntr(0, return_type=NamedType("double")),
+        "imag": AttributeIntr(1, return_type=NamedType("double")),
     },
     "dict": {
         "fromkeys": ConstFunctionIntr(),
@@ -274,10 +275,13 @@ classes = {
     },
     "file": {
         # Member variables
-        "closed": AttributeIntr(0),
-        "mode": AttributeIntr(1),
-        "name": AttributeIntr(2),
-        "newlines": AttributeIntr(3),
+        "closed": AttributeIntr(0, return_type=NamedType("bool")),
+        "mode": AttributeIntr(1,
+                              return_type=NamedType("pythonic::types::str")),
+        "name": AttributeIntr(2,
+                              return_type=NamedType("pythonic::types::str")),
+        "newlines": AttributeIntr(
+            3, return_type=NamedType("pythonic::types::str")),
         # Member functions
         "close": MethodIntr(global_effects=True),
         "flush": MethodIntr(global_effects=True),
@@ -303,12 +307,12 @@ classes = {
         "flat": AttributeIntr(6),
         "flatten": MethodIntr(),
         "item": MethodIntr(),
-        "itemsize": AttributeIntr(4),
-        "nbytes": AttributeIntr(5),
-        "ndim": AttributeIntr(1),
+        "itemsize": AttributeIntr(4, return_type=NamedType("long")),
+        "nbytes": AttributeIntr(5, return_type=NamedType("long")),
+        "ndim": AttributeIntr(1, return_type=NamedType("long")),
         "shape": AttributeIntr(0),
-        "size": AttributeIntr(3),
-        "strides": AttributeIntr(2),
+        "size": AttributeIntr(3, return_type=NamedType("long")),
+        "strides": AttributeIntr(2),#, return_type=(int,)),
         "T": AttributeIntr(8),
         "tolist": ConstMethodIntr(),
         "tostring": ConstMethodIntr(),
@@ -410,9 +414,10 @@ modules = {
         "tuple": ReadOnceFunctionIntr(),
         "xrange": ConstFunctionIntr(),
         "zip": ReadOnceFunctionIntr(),
-        "False": ConstantIntr(),
-        "None": ConstantIntr(),
-        "True": ConstantIntr(),
+        "False": ConstantIntr(return_type=NamedType("bool")),
+        "None": ConstantIntr(
+            return_type=NamedType("pythonic::types::none_type")),
+        "True": ConstantIntr(return_type=NamedType("bool")),
         },
     "numpy": {
         "abs": ConstFunctionIntr(),
@@ -493,7 +498,7 @@ modules = {
         "divide": ConstFunctionIntr(),
         "dot": ConstFunctionIntr(),
         "double_": ConstFunctionIntr(),
-        "e": ConstantIntr(),
+        "e": ConstantIntr(return_type=NamedType("double")),
         "ediff1d": ConstFunctionIntr(),
         "empty": ConstFunctionIntr(),
         "empty_like": ConstFunctionIntr(),
@@ -525,7 +530,7 @@ modules = {
         "identity": ConstFunctionIntr(),
         "imag": FunctionIntr(),
         "indices": ConstFunctionIntr(),
-        "inf": ConstantIntr(),
+        "inf": ConstantIntr(return_type=NamedType("double")),
         "inner": ConstFunctionIntr(),
         "insert": ConstFunctionIntr(),
         "intersect1d": ConstFunctionIntr(),
@@ -570,7 +575,7 @@ modules = {
         "minimum": ConstFunctionIntr(),
         "mod": ConstFunctionIntr(),
         "multiply": ConstFunctionIntr(),
-        "nan": ConstantIntr(),
+        "nan": ConstantIntr(return_type=NamedType("double")),
         "nan_to_num": ConstFunctionIntr(),
         "nanargmax": ConstFunctionIntr(),
         "nanargmin": ConstFunctionIntr(),
@@ -583,13 +588,13 @@ modules = {
         "ndim": ConstFunctionIntr(),
         "negative": ConstFunctionIntr(),
         "nextafter": ConstFunctionIntr(),
-        "NINF": ConstantIntr(),
+        "NINF": ConstantIntr(return_type=NamedType("double")),
         "nonzero": ConstFunctionIntr(),
         "not_equal": ConstFunctionIntr(),
         "ones": ConstFunctionIntr(),
         "ones_like": ConstFunctionIntr(),
         "outer": ConstFunctionIntr(),
-        "pi": ConstantIntr(),
+        "pi": ConstantIntr(return_type=NamedType("double")),
         "place": FunctionIntr(),
         "power": ConstFunctionIntr(),
         "prod": ConstMethodIntr(),
@@ -701,8 +706,8 @@ modules = {
         "ceil": ConstFunctionIntr(),
         "floor": ConstFunctionIntr(),
         "pow": ConstFunctionIntr(),
-        "pi": ConstantIntr(),
-        "e": ConstantIntr(),
+        "pi": ConstantIntr(return_type=NamedType("double")),
+        "e": ConstantIntr(return_type=NamedType("double")),
         },
     "functools": {
         "partial": FunctionIntr(),
@@ -719,8 +724,8 @@ modules = {
         "sqrt": FunctionIntr(),
         "log10": FunctionIntr(),
         "isnan": FunctionIntr(),
-        "pi": ConstantIntr(),
-        "e": ConstantIntr(),
+        "pi": ConstantIntr(return_type=NamedType("double")),
+        "e": ConstantIntr(return_type=NamedType("double")),
         },
     "itertools": {
         "count": ReadOnceFunctionIntr(),
@@ -1049,13 +1054,19 @@ modules = {
 
     },
     "string": {
-        "ascii_lowercase": ConstantIntr(),
-        "ascii_uppercase": ConstantIntr(),
-        "ascii_letters": ConstantIntr(),
-        "digits": ConstantIntr(),
+        "ascii_lowercase": ConstantIntr(
+            return_type=NamedType("pythonic::types::str")),
+        "ascii_uppercase": ConstantIntr(
+            return_type=NamedType("pythonic::types::str")),
+        "ascii_letters": ConstantIntr(
+            return_type=NamedType("pythonic::types::str")),
+        "digits": ConstantIntr(
+            return_type=NamedType("pythonic::types::str")),
         "find": ConstFunctionIntr(),
-        "hexdigits": ConstantIntr(),
-        "octdigits": ConstantIntr(),
+        "hexdigits": ConstantIntr(
+            return_type=NamedType("pythonic::types::str")),
+        "octdigits": ConstantIntr(
+            return_type=NamedType("pythonic::types::str")),
         },
     "os": {
         "path": {

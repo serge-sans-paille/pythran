@@ -661,15 +661,22 @@ class Types(ModuleAnalysis):
         self.result[node] = NamedType(pytype_to_ctype_table[str])
 
     def visit_Attribute(self, node):
-        def rec(w, n):
-            if isinstance(n, ast.Name):
-                return w[n.id], (n.id,)
-            elif isinstance(n, ast.Attribute):
-                r = rec(w, n.value)
-                return r[0][n.attr], r[1] + (n.attr,)
-        obj, path = rec(modules, node)
+        """ Compute typing for an attribute node. """
+        def get_intrinsic_path(modules, attr):
+            """ Get function path and intrinsic from an ast.Attributs.  """
+            if isinstance(attr, ast.Name):
+                return modules[attr.id], (attr.id,)
+            elif isinstance(attr, ast.Attribute):
+                module, path = get_intrinsic_path(modules, attr.value)
+                return module[attr.attr], path + (attr.attr,)
+        # Get the intrinsic object and its path as path is use in Pythonic
+        # hierarchy and obj may give additional information
+        obj, path = get_intrinsic_path(modules, node)
         path = ('pythonic',) + path
-        if obj.isliteral():
+        # If no type is given, use a decltype
+        if obj.return_type:
+            self.result[node] = obj.return_type
+        elif obj.isliteral():
             self.result[node] = DeclType('::'.join(path))
         else:
             self.result[node] = DeclType(

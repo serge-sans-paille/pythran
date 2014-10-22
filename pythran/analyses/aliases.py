@@ -6,7 +6,7 @@ from pythran.analyses.global_declarations import GlobalDeclarations
 from pythran.intrinsic import Intrinsic, Class
 from pythran.passmanager import ModuleAnalysis
 from pythran.syntax import PythranSyntaxError
-from pythran.tables import functions, methods, modules
+from pythran.tables import functions, methods, MODULES
 import pythran.metadata as md
 
 import ast
@@ -40,7 +40,7 @@ class Aliases(ModuleAnalysis):
                 return node.name
             else:
                 return node
-        return rec(modules, node)
+        return rec(MODULES, node)
 
     # aliasing created by expressions
     def add(self, node, values=None):
@@ -198,8 +198,8 @@ class Aliases(ModuleAnalysis):
                     if isinstance(v, Class):
                         save_intrinsic_alias(v.fields)
 
-        for module in modules:
-            save_intrinsic_alias(modules[module])
+        for module in MODULES.itervalues():
+            save_intrinsic_alias(module)
         self.aliases.update((f.name, {f})
                             for f in self.global_declarations.itervalues())
         self.aliases.update((arg.id, {arg})

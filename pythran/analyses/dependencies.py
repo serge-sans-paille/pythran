@@ -3,7 +3,7 @@ Dependencies lists the functions and types required by a function
 """
 
 from pythran.passmanager import ModuleAnalysis
-from pythran.tables import modules
+from pythran.tables import MODULES
 
 import ast
 import math
@@ -92,6 +92,6 @@ class Dependencies(ModuleAnalysis):
                 return (n.id,)
             elif isinstance(n, ast.Attribute):
                 return rec(w, n.value) + (n.attr,)
-        attr = rec(modules, node)
+        attr = rec(MODULES, node)
 
         attr and self.result.add(attr)

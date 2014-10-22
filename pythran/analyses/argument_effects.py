@@ -1,11 +1,9 @@
-"""
-ArgumentEffects computes write effect on arguments
-"""
+""" ArgumentEffects computes write effect on arguments. """
 
 from pythran.analyses.aliases import Aliases
 from pythran.analyses.global_declarations import GlobalDeclarations
 from pythran.passmanager import ModuleAnalysis
-from pythran.tables import modules
+from pythran.tables import MODULES
 import pythran.intrinsic as intrinsic
 
 import ast
@@ -13,7 +11,9 @@ import networkx as nx
 
 
 class ArgumentEffects(ModuleAnalysis):
-    '''Gathers inter-procedural effects on function arguments.'''
+
+    """Gathers inter-procedural effects on function arguments."""
+
     class FunctionEffects(object):
         def __init__(self, node):
             self.func = node
@@ -64,8 +64,8 @@ class ArgumentEffects(ModuleAnalysis):
                     if isinstance(intr, intrinsic.Class):
                         save_function_effect(intr.fields)
 
-        for m in modules:
-            save_function_effect(modules[m])
+        for module in MODULES.itervalues():
+            save_function_effect(module)
 
     def run(self, node, ctx):
         super(ArgumentEffects, self).run(node, ctx)

@@ -2,7 +2,7 @@
 
 from pythran.analyses import GlobalDeclarations, ImportedIds
 from pythran.passmanager import Transformation
-from pythran.tables import modules
+from pythran.tables import MODULES
 
 from copy import copy
 import ast
@@ -20,10 +20,10 @@ class _LambdaRemover(Transformation):
         self.global_declarations = pm.gather(GlobalDeclarations, ctx.module)
 
     def visit_Lambda(self, node):
-        if modules['functools'] not in self.global_declarations.values():
+        if MODULES['functools'] not in self.global_declarations.values():
             import_ = ast.Import([ast.alias('functools', None)])
             self.imports.append(import_)
-            self.global_declarations['functools'] = modules['functools']
+            self.global_declarations['functools'] = MODULES['functools']
 
         self.generic_visit(node)
         forged_name = "{0}_lambda{1}".format(
@@ -34,7 +34,6 @@ class _LambdaRemover(Transformation):
         ii.difference_update(self.lambda_functions)  # remove current lambdas
 
         binded_args = [ast.Name(iin, ast.Load()) for iin in sorted(ii)]
-        former_nbargs = len(node.args.args)
         node.args.args = ([ast.Name(iin, ast.Param()) for iin in sorted(ii)]
                           + node.args.args)
         forged_fdef = ast.FunctionDef(
@@ -60,7 +59,8 @@ class _LambdaRemover(Transformation):
 
 
 class RemoveLambdas(Transformation):
-    '''
+
+    """
     Turns lambda into top-level functions.
 
     >>> import ast
@@ -74,7 +74,7 @@ class RemoveLambdas(Transformation):
         functools.partial(foo_lambda0, y)
     def foo_lambda0(y, x):
         return (y + x)
-    '''
+    """
 
     def visit_Module(self, node):
         self.lambda_functions = list()

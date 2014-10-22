@@ -16,7 +16,7 @@ from pythran.cxxtypes import Assignable, DeclType, NamedType
 from pythran.openmp import OMPDirective
 from pythran.passmanager import Backend
 from pythran.syntax import PythranSyntaxError
-from pythran.tables import operator_to_lambda, modules, type_to_suffix
+from pythran.tables import operator_to_lambda, MODULES, type_to_suffix
 from pythran.tables import pytype_to_ctype_table, pythran_ward
 from pythran.typing import Types
 import pythran.metadata as metadata
@@ -1200,7 +1200,7 @@ class Cxx(Backend):
             elif isinstance(n, ast.Attribute):
                 r = rec(w, n.value)
                 return r[0][n.attr], r[1] + (n.attr,)
-        obj, path = rec(modules, node)
+        obj, path = rec(MODULES, node)
         path = ('pythonic',) + path
         return ('::'.join(path) if obj.isliteral()
                 else ('::'.join(path[:-1]) + '::proxy::' + path[-1] + '{}'))

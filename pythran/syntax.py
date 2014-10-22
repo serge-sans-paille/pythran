@@ -4,7 +4,7 @@ It checks the conformance of the input code to Pythran specific
 constraints.
 '''
 
-import pythran.tables as tables
+from pythran.tables import MODULES
 from pythran.intrinsic import Class
 
 import ast
@@ -19,17 +19,18 @@ class PythranSyntaxError(SyntaxError):
 
 
 class SyntaxChecker(ast.NodeVisitor):
-    '''
+
+    """
     Visit an AST and raise a PythranSyntaxError upon unsupported construct.
 
     Attributes
     ----------
     attributes : {str}
         Possible attributes from Pythonic modules/submodules.
-    '''
+    """
 
     def __init__(self):
-        """ Gather attributes from tables.modules content. """
+        """ Gather attributes from MODULES content. """
         self.attributes = set()
 
         def save_attribute(module):
@@ -41,7 +42,7 @@ class SyntaxChecker(ast.NodeVisitor):
                 elif isinstance(signature, Class):
                     save_attribute(signature.fields)
 
-        for module in tables.modules.itervalues():
+        for module in MODULES.itervalues():
             save_attribute(module)
 
     def visit_Module(self, node):
@@ -109,9 +110,9 @@ class SyntaxChecker(ast.NodeVisitor):
                 node)
 
     def visit_Import(self, node):
-        """ Check if imported module exists in tables.modules. """
+        """ Check if imported module exists in MODULES. """
         for alias in node.names:
-            current_module = tables.modules
+            current_module = MODULES
             # Recursive check for submodules
             for path in alias.name.split('.'):
                 if path not in current_module:
@@ -128,7 +129,7 @@ class SyntaxChecker(ast.NodeVisitor):
             Check:
                 - no level specific value are provided.
                 - a module is provided
-                - module/submodule exists in tables.modules
+                - module/submodule exists in MODULES
                 - imported function exists in the given module/submodule
         """
         if node.level != 0:
@@ -136,7 +137,7 @@ class SyntaxChecker(ast.NodeVisitor):
         if not node.module:
             raise PythranSyntaxError("import from without module", node)
         module = node.module
-        current_module = tables.modules
+        current_module = MODULES
         # Check if module exists
         for path in module.split('.'):
             if path not in current_module:

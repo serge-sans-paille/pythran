@@ -1,18 +1,18 @@
-"""
-ExpandBuiltins replaces builtins by their full paths
-"""
+""" ExpandBuiltins replaces builtins by their full paths. """
 
 from pythran.analyses import Globals, Locals
 from pythran.passmanager import Transformation
 from pythran.syntax import PythranSyntaxError
-from pythran.tables import modules
+from pythran.tables import MODULES
 
 import ast
 
 
 class ExpandBuiltins(Transformation):
-    '''
+
+    """
     Expands all builtins into full paths.
+
     >>> import ast
     >>> from pythran import passmanager, backend
     >>> node = ast.parse("def foo(): return list()")
@@ -21,7 +21,7 @@ class ExpandBuiltins(Transformation):
     >>> print pm.dump(backend.Python, node)
     def foo():
         return __builtin__.list()
-    '''
+    """
 
     def __init__(self):
         Transformation.__init__(self, Locals, Globals)
@@ -31,7 +31,7 @@ class ExpandBuiltins(Transformation):
         if (isinstance(node.ctx, ast.Load)
                 and s not in self.locals[node]
                 and s not in self.globals
-                and s in modules['__builtin__']):
+                and s in MODULES['__builtin__']):
             if s == 'getattr':
                 raise PythranSyntaxError("You fool! Trying a getattr?", node)
             return ast.Attribute(

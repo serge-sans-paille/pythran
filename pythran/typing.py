@@ -16,7 +16,7 @@ from pythran.cxxtypes import ArgumentType
 from pythran.intrinsic import UserFunction, MethodIntr, Class
 from pythran.passmanager import ModuleAnalysis, Transformation
 from pythran.syntax import PythranSyntaxError
-from pythran.tables import pytype_to_ctype_table, operator_to_lambda, modules
+from pythran.tables import pytype_to_ctype_table, operator_to_lambda, MODULES
 
 from collections import defaultdict
 from numpy import ndarray
@@ -344,7 +344,7 @@ class Types(ModuleAnalysis):
                     if isinstance(function, Class):
                         register(name + "::" + fname, function.fields)
 
-        for mname, module in modules.iteritems():
+        for mname, module in MODULES.iteritems():
             register(mname, module)
         super(Types, self).prepare(node, ctx)
 
@@ -671,7 +671,7 @@ class Types(ModuleAnalysis):
                 return module[attr.attr], path + (attr.attr,)
         # Get the intrinsic object and its path as path is use in Pythonic
         # hierarchy and obj may give additional information
-        obj, path = get_intrinsic_path(modules, node)
+        obj, path = get_intrinsic_path(MODULES, node)
         path = ('pythonic',) + path
         # If no type is given, use a decltype
         if obj.return_type:

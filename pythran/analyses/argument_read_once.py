@@ -3,7 +3,7 @@
 from pythran.analyses.aliases import Aliases
 from pythran.analyses.global_declarations import GlobalDeclarations
 from pythran.passmanager import ModuleAnalysis
-from pythran.tables import modules
+from pythran.tables import MODULES
 import pythran.intrinsic as intrinsic
 
 import ast
@@ -83,8 +83,8 @@ class ArgumentReadOnce(ModuleAnalysis):
                     if isinstance(intr, intrinsic.Class):  # Class case
                         save_effect(intr.fields)
 
-        for m in modules:
-            save_effect(modules[m])
+        for module in MODULES.itervalues():
+            save_effect(module)
 
     def run(self, node, ctx):
         ModuleAnalysis.run(self, node, ctx)

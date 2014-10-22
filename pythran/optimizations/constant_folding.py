@@ -2,7 +2,7 @@
 
 from pythran.analyses import ConstantExpressions, Aliases, ASTMatcher
 from pythran.passmanager import Transformation
-from pythran.tables import modules, cxx_keywords
+from pythran.tables import MODULES, cxx_keywords
 from pythran.conversion import to_ast, ConversionError, ToNotEval
 from pythran.analyses.ast_matcher import DamnTooLongPattern
 
@@ -32,7 +32,7 @@ class ConstantFolding(Transformation):
         assert isinstance(node, ast.Module)
         self.env = {'__builtin__': __import__('__builtin__')}
 
-        for module_name in modules:
+        for module_name in MODULES:
             # __dispatch__ is the only fake top-level module
             if module_name != '__dispatch__':
                 import_name = module_name
@@ -44,7 +44,7 @@ class ConstantFolding(Transformation):
                 self.env[module_name] = __import__(import_name)
 
                 # handle functions conflicting with c++ keywords
-                for fun in modules[module_name]:
+                for fun in MODULES[module_name]:
                     if fun in ("__theitemgetter__", "pythran"):
                         # these ones do not exist in Python
                         continue

@@ -320,7 +320,7 @@ classes = {
 }
 
 # each module consist in a module_name <> set of symbols
-modules = {
+MODULES = {
     "__builtin__": {
         "pythran": {
             "len_set": ConstFunctionIntr()
@@ -1049,7 +1049,7 @@ modules = {
         "__theitemgetter__": ConstFunctionIntr(),
         "itemgetter": MethodIntr(
             return_alias=lambda node: {
-                modules['operator_']['__theitemgetter__']}
+                MODULES['operator_']['__theitemgetter__']}
             ),
 
     },
@@ -1088,18 +1088,18 @@ modules = {
 
 # VMSError is only available on VMS
 if 'VMSError' in sys.modules['__builtin__'].__dict__:
-    modules['__builtin__']['VMSError'] = ConstExceptionIntr()
+    MODULES['__builtin__']['VMSError'] = ConstExceptionIntr()
 
 # WindowsError is only available on Windows
 if 'WindowsError' in sys.modules['__builtin__'].__dict__:
-    modules['__builtin__']['WindowsError'] = ConstExceptionIntr()
+    MODULES['__builtin__']['WindowsError'] = ConstExceptionIntr()
 
 # detect and prune unsupported modules
 try:
     __import__("omp")
 except EnvironmentError:
     logger.warn("Pythran support disabled for module: omp")
-    del modules["omp"]
+    del MODULES["omp"]
 
 # a method name to module binding
 # {method_name : ((full module path), signature)}
@@ -1117,13 +1117,13 @@ def save_method(elements, module_path):
             # in case of duplicates, there must be a __dispatch__ record
             # and it is the only recorded one
             if elem in methods and module_path[0] != '__dispatch__':
-                assert elem in modules['__dispatch__']
+                assert elem in MODULES['__dispatch__']
                 path = ('__dispatch__',)
-                methods[elem] = (path, modules['__dispatch__'][elem])
+                methods[elem] = (path, MODULES['__dispatch__'][elem])
             else:
                 methods[elem] = (module_path, signature)
 
-for module, elems in modules.iteritems():
+for module, elems in MODULES.iteritems():
     save_method(elems, (module,))
 
 # a function name to module binding
@@ -1141,7 +1141,7 @@ def save_function(elements, module_path):
         elif isinstance(signature, Class):
             save_function(signature.fields, module_path + (elem,))
 
-for module, elems in modules.iteritems():
+for module, elems in MODULES.iteritems():
     save_function(elems, (module,))
 
 # a attribute name to module binding
@@ -1160,7 +1160,7 @@ def save_attribute(elements, module_path):
         elif isinstance(signature, Class):
             save_attribute(signature.fields, module_path + (elem,))
 
-for module, elems in modules.iteritems():
+for module, elems in MODULES.iteritems():
     save_attribute(elems, (module,))
 
 
@@ -1184,5 +1184,5 @@ def save_arguments(module_name, elements):
             except (AttributeError, ImportError, TypeError, ToNotEval):
                 pass
 
-for module, elems in modules.iteritems():
+for module, elems in MODULES.iteritems():
     save_arguments(module, elems)

@@ -1,6 +1,4 @@
-"""
-ConstantExpressions gathers constant expression
-"""
+""" ConstantExpressions gathers constant expression.  """
 
 from pythran.analyses.aliases import Aliases
 from pythran.analyses.globals_analysis import Globals
@@ -8,13 +6,15 @@ from pythran.analyses.locals_analysis import Locals
 from pythran.analyses.pure_expressions import PureExpressions
 from pythran.intrinsic import FunctionIntr
 from pythran.passmanager import NodeAnalysis
-from pythran.tables import modules
+from pythran.tables import MODULES
 
 import ast
 
 
 class ConstantExpressions(NodeAnalysis):
-    """Identify constant expressions"""
+
+    """Identify constant expressions."""
+
     def __init__(self):
         self.result = set()
         super(ConstantExpressions, self).__init__(Globals, Locals,
@@ -84,7 +84,7 @@ class ConstantExpressions(NodeAnalysis):
                 return w[n.id]
             elif isinstance(n, ast.Attribute):
                 return rec(w, n.value)[n.attr]
-        return rec(modules, node).isconst() and self.add(node)
+        return rec(MODULES, node).isconst() and self.add(node)
 
     def visit_Dict(self, node):
         rec = all(map(self.visit, node.keys + node.values))

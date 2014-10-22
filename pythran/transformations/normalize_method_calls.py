@@ -3,7 +3,7 @@
 from pythran.analyses import Globals
 from pythran.passmanager import Transformation
 from pythran.syntax import PythranSyntaxError
-from pythran.tables import attributes, functions, methods, modules, namespace
+from pythran.tables import attributes, functions, methods, MODULES, namespace
 
 import ast
 
@@ -85,7 +85,7 @@ class NormalizeMethodCalls(Transformation):
             return node
         # imported module -> not a getattr
         elif type(node.value) is ast.Name and node.value.id in self.imports:
-            if node.attr not in modules[node.value.id]:
+            if node.attr not in MODULES[node.value.id]:
                 msg = ("`" + node.attr + "' is not a member of "
                        + node.value.id + " or Pythran does not support it")
                 raise PythranSyntaxError(msg, node)
@@ -183,6 +183,6 @@ class NormalizeMethodCalls(Transformation):
                         return ast.Name(new_id, ast.Load()), cur_module[new_id]
 
                 # Rename module path to avoid naming issue.
-                node.func.value, _ = rec(node.func.value, modules)
+                node.func.value, _ = rec(node.func.value, MODULES)
 
         return node

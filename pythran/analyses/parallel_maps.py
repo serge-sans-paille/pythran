@@ -1,24 +1,22 @@
-"""
-ParallelMaps detects parallel map(...)
-"""
+""" ParallelMaps detects parallel map(...).  """
 
 from pythran.analyses.aliases import Aliases
 from pythran.analyses.pure_expressions import PureExpressions
 from pythran.passmanager import ModuleAnalysis
-from pythran.tables import modules
-
-import ast
+from pythran.tables import MODULES
 
 
 class ParallelMaps(ModuleAnalysis):
-    '''Yields the est of maps that could be parallel'''
+
+    """Yields the est of maps that could be parallel."""
+
     def __init__(self):
         self.result = set()
         super(ParallelMaps, self).__init__(PureExpressions, Aliases)
 
     def visit_Call(self, node):
-        if all(alias == modules['__builtin__']['map']
-                for alias in self.aliases[node.func].aliases):
+        if all(alias == MODULES['__builtin__']['map']
+               for alias in self.aliases[node.func].aliases):
             if all(self.pure_expressions.__contains__(f)
                     for f in self.aliases[node.args[0]].aliases):
                 self.result.add(node)

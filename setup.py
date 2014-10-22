@@ -1,11 +1,12 @@
-from distutils.core import setup, Command
 from distutils.command.build import build
-import os
-import sys
-import shutil
-import numpy
-import logging
+from distutils.core import setup, Command
 from subprocess import check_call, check_output
+import logging
+import numpy
+import os
+import shutil
+import sys
+import time
 
 logger = logging.getLogger("pythran")
 logger.addHandler(logging.StreamHandler())
@@ -152,7 +153,8 @@ class TestCommand(Command):
 
 
 class BenchmarkCommand(Command):
-    '''Scan the test directory for any runnable test, and benchmark them.'''
+
+    """Scan the test directory for any runnable test, and benchmark them."""
 
     default_nb_iter = 30
     modes = ("cpython", "pythran", "pythran+omp")
@@ -215,16 +217,19 @@ class BenchmarkCommand(Command):
 
                     ti = timeit.Timer(runas_command, runas_context)
 
+                    print modname + " running ..."
+
                     # pythran part
                     if self.mode.startswith('pythran'):
                         cxxflags = ["-O2", "-DNDEBUG", "-DUSE_BOOST_SIMD",
                                     "-march=native"]
                         if self.mode == "pythran+omp":
                             cxxflags.append("-fopenmp")
+                        begin = time.time()
                         compile_pythranfile(candidate,
                                             cxxflags=cxxflags)
+                        print "Compilation in : ", (time.time() - begin)
 
-                    print modname + " running ..."
                     sys.stdout.flush()
                     timing = numpy.array(ti.repeat(self.nb_iter, number=1))
                     print "median :", numpy.median(timing)
@@ -233,10 +238,11 @@ class BenchmarkCommand(Command):
                     print "std :", numpy.std(timing)
                     del sys.modules[modname]
                 else:
-                    print "* Skip " + candidate + ', no ' + BenchmarkCommand.runas_marker + ' directive'
+                    print "* Skip ", candidate, ', no ',
+                    print BenchmarkCommand.runas_marker, ' directive'
 
 
-# Cannot use glob here, as the files may not be genrated yet
+# Cannot use glob here, as the files may not be generated yet
 nt2_headers = (['nt2/' + '*/' * i + '*.hpp' for i in range(1, 20)] +
                ['boost/' + '*/' * i + '*.hpp' for i in range(1, 20)])
 

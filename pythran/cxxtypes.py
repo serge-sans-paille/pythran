@@ -452,13 +452,15 @@ class IndexableType(DependentType):
 
 
 class ExpressionType(Type):
-    '''
-    Result type of an operator call
+
+    """
+    Result type of an operator call.
 
     >>> op = lambda x,y: x + '+' + y
     >>> ExpressionType(op, [NamedType('long'), NamedType('int')])
     decltype(std::declval<long>()+std::declval<int>())
-    '''
+    """
+
     def __init__(self, op, exprs):
         super(ExpressionType, self).__init__(
             qualifiers=set.union(*[expr.qualifiers for expr in exprs]),

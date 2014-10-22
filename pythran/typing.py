@@ -522,14 +522,15 @@ class Types(ModuleAnalysis):
         return Lazy if lazy_res <= self.max_recompute else Assignable
 
     def visit_Return(self, node):
+        """ Compute return type and merges with others possible return type."""
         self.generic_visit(node)
+        # No merge are done if the function is a generator.
         if not self.yield_points:
-            if node.value:
-                self.combine(self.current, node.value)
-            else:
-                self.result[self.current] = NamedType("none_type")
+            assert node.value, "Values were added in each return statement."
+            self.combine(self.current, node.value)
 
     def visit_Yield(self, node):
+        """ Compute yield type and merges it with others yield type. """
         self.generic_visit(node)
         self.combine(self.current, node.value)
 
@@ -570,7 +571,15 @@ class Types(ModuleAnalysis):
         node.orelse and map(self.visit, node.orelse)
 
     def visit_BoolOp(self, node):
+        """
+        Merge BoolOp operand type.
+
+        BoolOp are "and" and "or" and may return any of these results so all
+        operands should have the combinable type.
+        """
+        # Visit subnodes
         self.generic_visit(node)
+        # Merge all operands types.
         [self.combine(node, value) for value in node.values]
 
     def visit_BinOp(self, node):
@@ -655,9 +664,16 @@ class Types(ModuleAnalysis):
         self.combine(node, node.func, op=lambda x, y: y, unary_op=F)
 
     def visit_Num(self, node):
+        """
+        Set type for number.
+
+        It could be int, long or float so we use the default python to pythonic
+        type converter.
+        """
         self.result[node] = NamedType(pytype_to_ctype_table[type(node.n)])
 
     def visit_Str(self, node):
+        """ Set the pythonic string type. """
         self.result[node] = NamedType(pytype_to_ctype_table[str])
 
     def visit_Attribute(self, node):
@@ -683,8 +699,13 @@ class Types(ModuleAnalysis):
                 '::'.join(path[:-1]) + '::proxy::' + path[-1] + '()')
 
     def visit_Slice(self, node):
+        """
+        Set slicing type using continuous information if provided.
+
+        Also visit subnodes as they may contains relevant typing information.
+        """
         self.generic_visit(node)
-        if node.step is None or (type(node.step) is ast.Num
+        if node.step is None or (isinstance(node.step, ast.Num)
                                  and node.step.n == 1):
             self.result[node] = NamedType('pythonic::types::contiguous_slice')
         else:
@@ -737,6 +758,7 @@ class Types(ModuleAnalysis):
             self.result[node] = NamedType(node.id, {Weak})
 
     def visit_List(self, node):
+        """ Define list type from all elements type (or empty_list type). """
         self.generic_visit(node)
         if node.elts:
             for elt in node.elts:
@@ -745,6 +767,7 @@ class Types(ModuleAnalysis):
             self.result[node] = NamedType("pythonic::types::empty_list")
 
     def visit_Set(self, node):
+        """ Define set type from all elements type (or empty_set type). """
         self.generic_visit(node)
         if node.elts:
             for elt in node.elts:
@@ -753,6 +776,7 @@ class Types(ModuleAnalysis):
             self.result[node] = NamedType("pythonic::types::empty_set")
 
     def visit_Dict(self, node):
+        """ Define set type from all elements type (or empty_dict type). """
         self.generic_visit(node)
         if node.keys:
             for key, value in zip(node.keys, node.values):

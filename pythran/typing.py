@@ -42,8 +42,14 @@ def pytype_to_ctype(t):
                 pytype_to_ctype(_)) for _ in t)
             )
     elif isinstance(t, ndarray):
-        return 'pythonic::types::ndarray<{0},{1}>'.format(
-            pytype_to_ctype(t.flat[0]), t.ndim)
+        dtype = pytype_to_ctype(t.flat[0])
+        ndim = t.ndim
+        arr = 'pythonic::types::ndarray<{0},{1}>'.format(dtype, ndim)
+        if any(x < 0 for x in t.strides):
+            slices = ", ".join(['pythonic::types::slice'] * ndim)
+            return 'pythonic::types::numpy_gexpr<{0},{1}>'.format(arr, slices)
+        else:
+            return arr
     elif t in pytype_to_ctype_table:
         return pytype_to_ctype_table[t]
     else:
@@ -71,7 +77,7 @@ def pytype_to_deps(t):
 
 
 def extract_constructed_types(t):
-    if isinstance(t, list) or isinstance(t, ndarray):
+    if isinstance(t, (list, ndarray)):
         return [pytype_to_ctype(t)] + extract_constructed_types(t[0])
     elif isinstance(t, set):
         return [pytype_to_ctype(t)] + extract_constructed_types(list(t)[0])

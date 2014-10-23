@@ -59,5 +59,45 @@ def dict_of_complex64_and_complex_128(l):
         """ Check an error is raised when pythran input is strided. """
         code = 'def ndarray_bad_stride_type(a): return a'
         with self.assertRaises(BaseException):
-            self.run_test(code, np.ones((10, 10))[1:5],
+            self.run_test(code, np.ones((10, 10), dtype=np.uint8)[::2],
                           ndarray_bad_stride_type=[np.array([[np.uint8]])])
+
+    def test_ndarray_with_stride_type(self):
+        code = 'def ndarray_with_stride_type(a): return a'
+        self.run_test(code, np.arange((10), dtype=np.uint8)[::2],
+                      ndarray_with_stride_type=[np.array([np.uint8])[::-1]])
+
+    def test_ndarray_with_stride_and_offset(self):
+        code = 'def ndarray_with_stride_and_offset(a): return a'
+        self.run_test(code, np.arange((10), dtype=np.uint8)[1::2],
+                      ndarray_with_stride_and_offset=[np.array([np.uint8])[::-1]])
+
+    def test_ndarray_with_negative_stride(self):
+        code = 'def ndarray_with_negative_stride(a): return a'
+        with self.assertRaises(BaseException):
+            self.run_test(code, np.arange((10), dtype=np.uint8)[::-2],
+                          ndarray_with_negative_stride=[np.array([np.uint8])[::-1]])
+
+
+    def test_ndarray_with_strides_and_offsets(self):
+        code = 'def ndarray_with_strides_and_offsets(a): return a'
+        self.run_test(code, np.array(np.arange((128), dtype=np.uint8).reshape((16,8)))[1::3,2::2],
+                      ndarray_with_strides_and_offsets=[np.array([[np.uint8]])[::-1]])
+
+
+    def test_ndarray_with_stride_and_offset_and_end(self):
+        code = 'def ndarray_with_stride_and_offset_and_end(a): return a'
+        self.run_test(code, np.arange((10), dtype=np.uint8)[1:6:2],
+                      ndarray_with_stride_and_offset_and_end=[np.array([np.uint8])[::-1]])
+
+    def test_ndarray_with_multi_strides(self):
+        code = 'def ndarray_with_multi_strides(a): return a'
+        self.run_test(code, np.array(np.arange((128), dtype=np.uint8).reshape((16,8)))[:,1::3],
+                      ndarray_with_multi_strides=[np.array([[np.uint8]])[::-1]])
+
+    def test_ndarray_unsupported_reshaped_array_with_stride(self):
+        code = 'def ndarray_unsupported_reshaped_array_with_stride(a): return a'
+        with self.assertRaises(BaseException):
+            self.run_test(code, np.arange((128), dtype=np.uint8).reshape((16,8))[1::3,2::2],
+                          ndarray_unsupported_reshaped_array_with_stride=[np.array([[np.uint8]])[::-1]])
+

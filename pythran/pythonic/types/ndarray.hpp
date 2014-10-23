@@ -634,6 +634,7 @@ namespace pythonic {
 
 }
 
+
 /* std::get overloads */
 namespace std {
 
@@ -750,7 +751,7 @@ namespace pythonic {
             template<class E> struct getattr<attr::IMAG, E> {
 
                 typename numpy_expr_to_ndarray<E>::type make_imag(E const& a, utils::int_<0>){
-                  // cannot use numpy.zero: foward declaration issue
+                  // cannot use numpy.zero: forward declaration issue
                   typedef typename numpy_expr_to_ndarray<E>::type T;
                   return T((typename T::dtype*)calloc(a.size(), sizeof(typename E::dtype)), a.shape.data());
                 }
@@ -950,21 +951,20 @@ namespace pythonic {
             //reinterpret_cast needed to fit BOOST Python API. Check is done by template and PyArray_Check
             static void* convertible(PyObject* obj_ptr){
                 if(!PyArray_Check(obj_ptr))
-                 return 0;
+                 return nullptr;
                 // the array must have the same dtype and the same number of dimensions
                 PyArrayObject* arr_ptr = reinterpret_cast<PyArrayObject*>(obj_ptr);
                 if(PyArray_TYPE(arr_ptr) != c_type_to_numpy_type<T>::value)
-                  return 0;
+                  return nullptr;
                 if(PyArray_NDIM(arr_ptr) != N)
-                    return 0;
+                    return nullptr;
                 long * stride = PyArray_STRIDES(arr_ptr);
                 long * dims = PyArray_DIMS(arr_ptr);
                 long current_stride = PyArray_ITEMSIZE(arr_ptr);
                 for(long i=N-1; i>=0; i--)
                 {
                     if(stride[i] != current_stride) {
-                        std::cerr << "Not implemented : sliced array as input" << std::endl;
-                        return 0;
+                        return nullptr;
                     }
                     current_stride *= dims[i];
                 }
@@ -975,6 +975,115 @@ namespace pythonic {
                 void* storage=((boost::python::converter::rvalue_from_python_storage<types::ndarray<T,N>>*)(data))->storage.bytes;
                 PyArrayObject* arr_ptr = reinterpret_cast<PyArrayObject*>(obj_ptr);
                 new (storage) types::ndarray< T, N>((T*)PyArray_BYTES(arr_ptr), PyArray_DIMS(arr_ptr), obj_ptr);
+                Py_INCREF(obj_ptr);
+                data->convertible=storage;
+            }
+        };
+
+    template<class T>
+    std::tuple<types::slice> make_slices(long const* strides, long const* offsets, long const* dims, utils::int_<1>) {
+      return std::tuple<types::slice>(types::slice(*offsets, *offsets + *dims * *strides, *strides / sizeof(T)));
+    }
+    template<class T, size_t N>
+      auto make_slices(long const* strides, long const* offsets, long const * dims, utils::int_<N>)
+        -> decltype(std::tuple_cat(make_slices<T>(strides, offsets, dims,  utils::int_<1>()),
+                                   make_slices<T>(strides + 1, offsets + 1, dims +1, utils::int_<N-1>())))
+      {
+        return std::tuple_cat(make_slices<T>(strides, offsets, dims, utils::int_<1>()),
+                              make_slices<T>(strides + 1, offsets + 1, dims + 1, utils::int_<N-1>()));
+      }
+
+    template<typename T, size_t N, class... S>
+        struct python_to_pythran< types::numpy_gexpr<types::ndarray<T, N>, S...> >{
+            python_to_pythran(){
+                static bool registered=false;
+                python_to_pythran<T>();
+                if(not registered) {
+                    registered=true;
+                    boost::python::converter::registry::push_back(&convertible,&construct,boost::python::type_id< types::numpy_gexpr<types::ndarray<T,N>, S...> >());
+                }
+            }
+            //reinterpret_cast needed to fit BOOST Python API. Check is done by template and PyArray_Check
+            static void* convertible(PyObject* obj_ptr){
+                if(!PyArray_Check(obj_ptr))
+                 return nullptr;
+                // the array must have the same dtype and the same number of dimensions
+                PyArrayObject* arr_ptr = reinterpret_cast<PyArrayObject*>(obj_ptr);
+                if(PyArray_TYPE(arr_ptr) != c_type_to_numpy_type<T>::value)
+                  return nullptr;
+
+                if(PyArray_NDIM(arr_ptr) != N)
+                    return nullptr;
+
+                PyObject* base_obj_ptr = PyArray_BASE(arr_ptr);
+                if(!PyArray_Check(base_obj_ptr))
+                 return nullptr;
+                PyArrayObject* base_arr_ptr = reinterpret_cast<PyArrayObject*>(base_obj_ptr);
+
+
+                long * stride = PyArray_STRIDES(arr_ptr);
+                long * dims = PyArray_DIMS(arr_ptr);
+
+
+                /* FIXME If we have at least one stride, we convert the whole
+                 * array to a numpy_gexpr, without trying to be smarter with
+                 * contiguous slices
+                 */
+                long current_stride = PyArray_ITEMSIZE(arr_ptr);
+                bool at_least_one_stride = false;
+                for(long i=N-1; i>=0; i--)
+                {
+                    if(stride[i] < 0) {
+                      std::cerr << "array with negative strides are not supported" << std::endl;
+                      return nullptr;
+                    }
+                    else if(stride[i] != current_stride) {
+                      at_least_one_stride = true;
+                      break;
+                    }
+                    current_stride *= dims[i];
+                }
+                if (at_least_one_stride) {
+                  if (PyArray_NDIM(base_arr_ptr) != N) {
+                    std::cerr << "reshaped array are not supported" << std::endl;
+                    return nullptr;
+                  }
+                  return obj_ptr;
+                }
+                else
+                  return nullptr;
+            }
+
+            static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
+                void* storage=((boost::python::converter::rvalue_from_python_storage<types::ndarray<T,N>>*)(data))->storage.bytes;
+                PyArrayObject* arr_ptr = reinterpret_cast<PyArrayObject*>(obj_ptr);
+                PyArrayObject* base_arr_ptr = reinterpret_cast<PyArrayObject*>(PyArray_BASE(arr_ptr));
+
+                /* from the base array pointer and this array pointer, we can recover the full slice informations
+                 * unfortunately, the PyArray representation is different from our.
+                 * - PyArray_BYTES gives the start of the base pointer
+                 * - PyArray_Dims give the dimension array (the shape)
+                 * - PyArray_STRIDES gives the stride information, but relative to the base pointer and not relative to the lower dimension
+                 */
+                long offsets[N];
+                long strides[N];
+                long const* base_dims = PyArray_DIMS(base_arr_ptr);
+
+                long full_offset = PyArray_BYTES(arr_ptr) - PyArray_BYTES(base_arr_ptr);
+                long const * arr_strides = PyArray_STRIDES(arr_ptr);
+                long accumulated_dim = 1 ;
+                offsets[N - 1] = full_offset % base_dims[N-1];
+                strides[N-1] = arr_strides[N-1];
+                for(int i = N - 2; i >= 0 ; --i) {
+                  accumulated_dim *= base_dims[i+1];
+                  offsets[i] = full_offset / accumulated_dim;
+                  strides[i] = arr_strides[i] / accumulated_dim;
+                }
+
+                types::ndarray< T, N> base_array((T*)PyArray_BYTES(base_arr_ptr), PyArray_DIMS(base_arr_ptr), obj_ptr);
+                auto slices = make_slices<T>(strides, offsets, PyArray_DIMS(arr_ptr), utils::int_<N>());
+                new (storage) types::numpy_gexpr< types::ndarray<T, N>, S... >(base_array, slices);
+
                 Py_INCREF(obj_ptr);
                 data->convertible=storage;
             }

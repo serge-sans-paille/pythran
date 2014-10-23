@@ -29,7 +29,7 @@ Higher level entry points includes:
 
 '''
 
-__version__ = '0.5.0'
+__version__ = '0.6.0'
 
 from pythran.toolchain import (generate_cxx, compile_cxxfile, compile_cxxcode,
                                compile_pythrancode, compile_pythranfile,

@@ -1,3 +1,37 @@
+2014-10-22 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+
+	* Full SIMD support! Almost all numpy expressions are vectorized
+
+	* Better memory management at the Python/C++ layer, esp. when sharing
+
+	* Support named parameters
+
+	* Better complex numbers support
+
+	* A lot of internal code cleaning
+
+	* Better code generation for regular loops
+
+	* MacOS install guide & ArchLinux packages
+
+	* Travis run the test suite, w and w/ SIMD, w and w/ OpenMP
+
+	* Many performance improvements at the numpy expression level
+
+	* Faster array copies, including slices
+
+	* Much better constant folding
+
+	* Distutils support through a PythranExtension
+
+	* Improve implementation of many numpy functions
+
+	* Improve forward substitution
+
+	* Use most recent nt2 version
+
+	* Make dependency on libgomp optional
+
 2014-05-17 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Improved C++ compilation time (twice as fast)

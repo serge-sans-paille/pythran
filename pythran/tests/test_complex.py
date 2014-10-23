@@ -57,3 +57,17 @@ class TestComplex(TestEnv):
         self.run_test('def test_complex_array_mul_i(e): return e + 1j * e',
                       np.array([[3.,2.,4.]]),
                       test_complex_array_mul_i=[np.array([[float]])])
+    def test_complex_array_mul_i(self):
+        self.run_test('def test_complex_array_mul_i(e): return e + 1j * e',
+                      np.array([[3.,2.,4.]]),
+                      test_complex_array_mul_i=[np.array([[float]])])
+
+    def test_non_complex_array_real_imag(self):
+        self.run_test('def test_non_complex_array_real_imag(e): return e.real + e.imag',
+                      np.array([[3.,2.,4.]]),
+                      test_non_complex_array_real_imag=[np.array([[float]])])
+
+    def test_complex_array_real_imag(self):
+        self.run_test('def test_complex_array_real_imag(e): return e.real + e.imag',
+                      np.array([[3.,2.,4.]], dtype=complex),
+                      test_complex_array_real_imag=[np.array([[complex]])])

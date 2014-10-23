@@ -723,11 +723,15 @@ namespace pythonic {
             }
 
             template<class E> struct getattr<attr::REAL, E> {
-                auto operator()(E const & a)
-                -> decltype(_build_gexpr<E::value>{}(ndarray<typename E::dtype::value_type, E::value>{},
-                                                     slice{0,0,2}))
+
+                E make_real(E const& a, utils::int_<0>){
+                  return a;
+                }
+
+                auto make_real(E const& a, utils::int_<1>)
+                -> decltype(_build_gexpr<E::value>{}(ndarray<typename types::is_complex<typename E::dtype>::type, E::value>{}, slice{0,0,2}))
                 {
-                  typedef typename E::dtype::value_type stype;
+                  typedef typename types::is_complex<typename E::dtype>::type stype;
                   auto new_shape = a.shape;
                   new_shape[E::value-1] *= 2;
                   // this is tricky and dangerous!
@@ -735,19 +739,36 @@ namespace pythonic {
                   ndarray<stype,E::value> translated{translated_mem, new_shape};
                   return _build_gexpr<E::value>{}(translated, slice{0, new_shape[E::value - 1], 2});
                 }
-            };
-            template<class E> struct getattr<attr::IMAG, E> {
-                auto operator()(E const & a)
-                -> decltype(_build_gexpr<E::value>{}(ndarray<typename E::dtype::value_type, E::value>{},
-                                                     slice{0,0,2}))
+
+                auto operator()(E const & a) -> decltype(this->make_real(a, utils::int_<types::is_complex<typename E::dtype>::value>{}))
                 {
-                  typedef typename E::dtype::value_type stype;
+                return make_real(a, utils::int_<types::is_complex<typename E::dtype>::value>{});
+                }
+
+            };
+
+            template<class E> struct getattr<attr::IMAG, E> {
+
+                typename numpy_expr_to_ndarray<E>::type make_imag(E const& a, utils::int_<0>){
+                  // cannot use numpy.zero: foward declaration issue
+                  typedef typename numpy_expr_to_ndarray<E>::type T;
+                  return T((typename T::dtype*)calloc(a.size(), sizeof(typename E::dtype)), a.shape.data());
+                }
+
+                auto make_imag(E const& a, utils::int_<1>)
+                -> decltype(_build_gexpr<E::value>{}(ndarray<typename types::is_complex<typename E::dtype>::type, E::value>{}, slice{0,0,2}))
+                {
+                  typedef typename types::is_complex<typename E::dtype>::type stype;
                   auto new_shape = a.shape;
                   new_shape[E::value-1] *= 2;
                   // this is tricky and dangerous!
                   auto translated_mem = reinterpret_cast<utils::shared_ref<raw_array<stype>>const&>(a.mem);
                   ndarray<stype,E::value>translated{translated_mem, new_shape};
                   return _build_gexpr<E::value>{}(translated, slice{1, new_shape[E::value - 1], 2});
+                }
+                auto operator()(E const & a) -> decltype(this->make_imag(a, utils::int_<types::is_complex<typename E::dtype>::value>{}))
+                {
+                return make_imag(a, utils::int_<types::is_complex<typename E::dtype>::value>{});
                 }
             };
         }

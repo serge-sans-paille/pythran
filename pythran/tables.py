@@ -8,6 +8,7 @@ from pythran.intrinsic import ConstMethodIntr, MethodIntr, AttributeIntr
 from pythran.intrinsic import ReadEffect, ConstantIntr
 from pythran.conversion import to_ast, ToNotEval
 from pythran.cxxtypes import NamedType
+from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE
 import pythran.cxxtypes as cxxtypes
 
 import ast
@@ -386,10 +387,9 @@ MODULES = {
         "tuple": ReadOnceFunctionIntr(),
         "xrange": ConstFunctionIntr(),
         "zip": ReadOnceFunctionIntr(),
-        "False": ConstantIntr(return_type=NamedType("bool")),
-        "None": ConstantIntr(
-            return_type=NamedType("pythonic::types::none_type")),
-        "True": ConstantIntr(return_type=NamedType("bool")),
+        "False": ConstantIntr(),
+        "None": ConstantIntr(),
+        "True": ConstantIntr(),
         },
     "numpy": {
         "abs": ConstFunctionIntr(),
@@ -470,7 +470,7 @@ MODULES = {
         "divide": ConstFunctionIntr(),
         "dot": ConstFunctionIntr(),
         "double_": ConstFunctionIntr(),
-        "e": ConstantIntr(return_type=NamedType("double")),
+        "e": ConstantIntr(),
         "ediff1d": ConstFunctionIntr(),
         "empty": ConstFunctionIntr(),
         "empty_like": ConstFunctionIntr(),
@@ -502,7 +502,7 @@ MODULES = {
         "identity": ConstFunctionIntr(),
         "imag": FunctionIntr(),
         "indices": ConstFunctionIntr(),
-        "inf": ConstantIntr(return_type=NamedType("double")),
+        "inf": ConstantIntr(),
         "inner": ConstFunctionIntr(),
         "insert": ConstFunctionIntr(),
         "intersect1d": ConstFunctionIntr(),
@@ -547,7 +547,7 @@ MODULES = {
         "minimum": ConstFunctionIntr(),
         "mod": ConstFunctionIntr(),
         "multiply": ConstFunctionIntr(),
-        "nan": ConstantIntr(return_type=NamedType("double")),
+        "nan": ConstantIntr(),
         "nan_to_num": ConstFunctionIntr(),
         "nanargmax": ConstFunctionIntr(),
         "nanargmin": ConstFunctionIntr(),
@@ -560,13 +560,13 @@ MODULES = {
         "ndim": ConstFunctionIntr(),
         "negative": ConstFunctionIntr(),
         "nextafter": ConstFunctionIntr(),
-        "NINF": ConstantIntr(return_type=NamedType("double")),
+        "NINF": ConstantIntr(),
         "nonzero": ConstFunctionIntr(),
         "not_equal": ConstFunctionIntr(),
         "ones": ConstFunctionIntr(),
         "ones_like": ConstFunctionIntr(),
         "outer": ConstFunctionIntr(),
-        "pi": ConstantIntr(return_type=NamedType("double")),
+        "pi": ConstantIntr(),
         "place": FunctionIntr(),
         "power": ConstFunctionIntr(),
         "prod": ConstMethodIntr(),
@@ -678,8 +678,8 @@ MODULES = {
         "ceil": ConstFunctionIntr(),
         "floor": ConstFunctionIntr(),
         "pow": ConstFunctionIntr(),
-        "pi": ConstantIntr(return_type=NamedType("double")),
-        "e": ConstantIntr(return_type=NamedType("double")),
+        "pi": ConstantIntr(),
+        "e": ConstantIntr(),
         },
     "functools": {
         "partial": FunctionIntr(),
@@ -696,8 +696,8 @@ MODULES = {
         "sqrt": FunctionIntr(),
         "log10": FunctionIntr(),
         "isnan": FunctionIntr(),
-        "pi": ConstantIntr(return_type=NamedType("double")),
-        "e": ConstantIntr(return_type=NamedType("double")),
+        "pi": ConstantIntr(),
+        "e": ConstantIntr(),
         },
     "itertools": {
         "count": ReadOnceFunctionIntr(),
@@ -1026,19 +1026,13 @@ MODULES = {
 
     },
     "string": {
-        "ascii_lowercase": ConstantIntr(
-            return_type=NamedType("pythonic::types::str")),
-        "ascii_uppercase": ConstantIntr(
-            return_type=NamedType("pythonic::types::str")),
-        "ascii_letters": ConstantIntr(
-            return_type=NamedType("pythonic::types::str")),
-        "digits": ConstantIntr(
-            return_type=NamedType("pythonic::types::str")),
+        "ascii_lowercase": ConstantIntr(),
+        "ascii_uppercase": ConstantIntr(),
+        "ascii_letters": ConstantIntr(),
+        "digits": ConstantIntr(),
         "find": ConstFunctionIntr(),
-        "hexdigits": ConstantIntr(
-            return_type=NamedType("pythonic::types::str")),
-        "octdigits": ConstantIntr(
-            return_type=NamedType("pythonic::types::str")),
+        "hexdigits": ConstantIntr(),
+        "octdigits": ConstantIntr(),
         },
     "os": {
         "path": {
@@ -1158,3 +1152,18 @@ def save_arguments(module_name, elements):
 
 for module, elems in MODULES.iteritems():
     save_arguments(module, elems)
+
+
+# Fill return_type field for constants
+def fill_constants_types(module_name, elements):
+    """ Recursively save arguments name and default value. """
+    for elem, intrinsic in elements.iteritems():
+        if isinstance(intrinsic, dict):  # Submodule case
+            fill_constants_types(module_name + (elem,), intrinsic)
+        elif isinstance(intrinsic, ConstantIntr):
+            # use introspection to get the Python constants types
+            cst = getattr(__import__(".".join(module_name)), elem)
+            intrinsic.return_type = NamedType(PYTYPE_TO_CTYPE_TABLE[type(cst)])
+
+for module, elems in MODULES.iteritems():
+    fill_constants_types((module,), elems)

@@ -660,11 +660,10 @@ class Types(ModuleAnalysis):
         # hierarchy and obj may give additional information
         obj, path = get_intrinsic_path(MODULES, node)
         path = ('pythonic',) + path
+        assert not obj.isliteral() or obj.return_type, "Constants are known."
         # If no type is given, use a decltype
         if obj.return_type:
             self.result[node] = obj.return_type
-        elif obj.isliteral():
-            self.result[node] = DeclType('::'.join(path))
         else:
             self.result[node] = DeclType(
                 '::'.join(path[:-1]) + '::proxy::' + path[-1] + '()')

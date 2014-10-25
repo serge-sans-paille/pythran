@@ -1,8 +1,7 @@
-'''
-This module contains all classes used to model intrinsics behavior.
-'''
+""" This module contains all classes used to model intrinsics behavior.  """
 
 from pythran.conversion import to_ast
+from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE
 
 import ast
 
@@ -147,7 +146,7 @@ class AttributeIntr(Intrinsic):
 
     Examples
     --------
-    >> math.pi, a.real
+    >> a.real
     """
 
     def __init__(self, **kwargs):
@@ -155,16 +154,27 @@ class AttributeIntr(Intrinsic):
         super(AttributeIntr, self).__init__(**kwargs)
 
     def isattribute(self):
-        """ Mark this intrinsic is an attribute. """
+        """ Mark this intrinsic as an attribute. """
         return True
 
 
 class ConstantIntr(Intrinsic):
+
+    """
+    Internal representation for any constant.
+
+    Examples
+    --------
+    >> math.pi
+    """
+
     def __init__(self, **kwargs):
+        """ Forward arguments and remove arguments effects. """
         kwargs["argument_effects"] = ()
         super(ConstantIntr, self).__init__(**kwargs)
 
     def isliteral(self):
+        """ Mark this intrinsic as a literal. """
         return True
 
 

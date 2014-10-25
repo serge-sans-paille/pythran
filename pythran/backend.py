@@ -16,8 +16,8 @@ from pythran.cxxtypes import Assignable, DeclType, NamedType
 from pythran.openmp import OMPDirective
 from pythran.passmanager import Backend
 from pythran.syntax import PythranSyntaxError
-from pythran.tables import operator_to_lambda, MODULES, type_to_suffix
-from pythran.tables import pytype_to_ctype_table, pythran_ward
+from pythran.tables import operator_to_lambda, MODULES, pythran_ward
+from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE, TYPE_TO_SUFFIX
 from pythran.typing import Types
 import pythran.metadata as metadata
 import pythran.unparse as unparse
@@ -1177,7 +1177,7 @@ class Cxx(Backend):
     def visit_Num(self, node):
         if type(node.n) == complex:
             return "{0}({1}, {2})".format(
-                pytype_to_ctype_table[complex],
+                PYTYPE_TO_CTYPE_TABLE[complex],
                 repr(node.n.real),
                 repr(node.n.imag))
         elif type(node.n) == long:
@@ -1187,7 +1187,7 @@ class Cxx(Backend):
         elif isinf(node.n):
             return ('+' if node.n > 0 else '-') + 'pythonic::numpy::inf'
         else:
-            return repr(node.n) + type_to_suffix.get(type(node.n), "")
+            return repr(node.n) + TYPE_TO_SUFFIX.get(type(node.n), "")
 
     def visit_Str(self, node):
         quoted = node.s.replace('"', '\\"').replace('\n', '\\n"\n"')

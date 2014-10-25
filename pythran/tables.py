@@ -11,7 +11,6 @@ from pythran.cxxtypes import NamedType
 import pythran.cxxtypes as cxxtypes
 
 import ast
-import numpy
 import sys
 import inspect
 import logging
@@ -21,33 +20,6 @@ logger = logging.getLogger("pythran")
 pythran_ward = '__pythran_'
 
 namespace = "pythonic"
-
-pytype_to_ctype_table = {
-    complex: 'std::complex<double>',
-    bool: 'bool',
-    int: 'long',
-    long: 'pythran_long_t',
-    float: 'double',
-    str: 'pythonic::types::str',
-    None: 'void',
-    numpy.int8: 'int8_t',
-    numpy.int16: 'int16_t',
-    numpy.int32: 'int32_t',
-    numpy.int64: 'int64_t',
-    numpy.uint8: 'uint8_t',
-    numpy.uint16: 'uint16_t',
-    numpy.uint32: 'uint32_t',
-    numpy.uint64: 'uint64_t',
-    numpy.float32: 'float',
-    numpy.float64: 'double',
-    numpy.complex64: 'std::complex<float>',
-    numpy.complex128: 'std::complex<double>',
-    }
-
-type_to_suffix = {
-    int: "L",
-    long: "LL",
-    }
 
 cxx_keywords = {
     'and', 'and_eq', 'asm', 'auto', 'bitand', 'bitor',

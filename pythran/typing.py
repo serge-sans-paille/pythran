@@ -16,7 +16,8 @@ from pythran.cxxtypes import ArgumentType
 from pythran.intrinsic import UserFunction, MethodIntr, Class
 from pythran.passmanager import ModuleAnalysis, Transformation
 from pythran.syntax import PythranSyntaxError
-from pythran.tables import pytype_to_ctype_table, operator_to_lambda, MODULES
+from pythran.tables import operator_to_lambda, MODULES
+from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE, pytype_to_ctype
 
 from collections import defaultdict
 from numpy import ndarray
@@ -26,41 +27,11 @@ import networkx as nx
 import operator
 
 
-def pytype_to_ctype(t):
-    '''python -> c++ type binding'''
-    if isinstance(t, list):
-        return 'pythonic::types::list<{0}>'.format(pytype_to_ctype(t[0]))
-    if isinstance(t, set):
-        return 'pythonic::types::set<{0}>'.format(pytype_to_ctype(list(t)[0]))
-    elif isinstance(t, dict):
-        tkey, tvalue = t.items()[0]
-        return 'pythonic::types::dict<{0},{1}>'.format(pytype_to_ctype(tkey),
-                                                       pytype_to_ctype(tvalue))
-    elif isinstance(t, tuple):
-        return 'decltype(pythonic::types::make_tuple({0}))'.format(
-            ", ".join('std::declval<{}>()'.format(
-                pytype_to_ctype(_)) for _ in t)
-            )
-    elif isinstance(t, ndarray):
-        dtype = pytype_to_ctype(t.flat[0])
-        ndim = t.ndim
-        arr = 'pythonic::types::ndarray<{0},{1}>'.format(dtype, ndim)
-        if any(x < 0 for x in t.strides):
-            slices = ", ".join(['pythonic::types::slice'] * ndim)
-            return 'pythonic::types::numpy_gexpr<{0},{1}>'.format(arr, slices)
-        else:
-            return arr
-    elif t in pytype_to_ctype_table:
-        return pytype_to_ctype_table[t]
-    else:
-        raise NotImplementedError("{0}:{1}".format(type(t), t))
-
-
 def pytype_to_deps(t):
-    '''python -> c++ type binding'''
+    """python -> pythonic type include."""
     if isinstance(t, list):
         return {'pythonic/types/list.hpp'}.union(pytype_to_deps(t[0]))
-    if isinstance(t, set):
+    elif isinstance(t, set):
         return {'pythonic/types/set.hpp'}.union(pytype_to_deps(list(t)[0]))
     elif isinstance(t, dict):
         tkey, tvalue = t.items()[0]
@@ -70,7 +41,7 @@ def pytype_to_deps(t):
         return {'pythonic/types/tuple.hpp'}.union(*map(pytype_to_deps, t))
     elif isinstance(t, ndarray):
         return {'pythonic/types/ndarray.hpp'}.union(pytype_to_deps(t[0]))
-    elif t in pytype_to_ctype_table:
+    elif t in PYTYPE_TO_CTYPE_TABLE:
         return {'pythonic/types/{}.hpp'.format(t.__name__)}
     else:
         raise NotImplementedError("{0}:{1}".format(type(t), t))
@@ -670,11 +641,11 @@ class Types(ModuleAnalysis):
         It could be int, long or float so we use the default python to pythonic
         type converter.
         """
-        self.result[node] = NamedType(pytype_to_ctype_table[type(node.n)])
+        self.result[node] = NamedType(PYTYPE_TO_CTYPE_TABLE[type(node.n)])
 
     def visit_Str(self, node):
         """ Set the pythonic string type. """
-        self.result[node] = NamedType(pytype_to_ctype_table[str])
+        self.result[node] = NamedType(PYTYPE_TO_CTYPE_TABLE[str])
 
     def visit_Attribute(self, node):
         """ Compute typing for an attribute node. """

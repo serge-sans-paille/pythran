@@ -1,5 +1,7 @@
 """ This module provides way to convert a Python value into an ast. """
 
+from __future__ import absolute_import
+
 import ast
 import itertools
 import numpy

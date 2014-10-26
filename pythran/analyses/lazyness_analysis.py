@@ -14,8 +14,11 @@ import sys
 
 
 class LazynessAnalysis(FunctionAnalysis):
+
     """
-    Returns number of time a name is used. +inf if it is use in a
+    Returns number of time a name is used.
+
+    +inf if it is use in a
     loop, if a variable used to compute it is modify before
     its last use or if it is use in a function call (as it is not an
     interprocedural analysis)
@@ -36,7 +39,6 @@ class LazynessAnalysis(FunctionAnalysis):
     ...         k = i
     ...     print k'''
     >>> node = ast.parse(code)
-    >>> pm = passmanager.PassManager("test")
     >>> res = pm.gather(LazynessAnalysis, node)
     >>> (res['i'], res['k']) == (sys.maxint, 1)
     True
@@ -48,7 +50,6 @@ class LazynessAnalysis(FunctionAnalysis):
     ...         k = i
     ...         print k'''
     >>> node = ast.parse(code)
-    >>> pm = passmanager.PassManager("test")
     >>> res = pm.gather(LazynessAnalysis, node)
     >>> (res['i'], res['k']) == (sys.maxint, 2)
     True
@@ -61,7 +62,6 @@ class LazynessAnalysis(FunctionAnalysis):
     ...             d += k * 2
     ...     return d'''
     >>> node = ast.parse(code)
-    >>> pm = passmanager.PassManager("test")
     >>> res = pm.gather(LazynessAnalysis, node)
     >>> res['k']
     1
@@ -74,7 +74,16 @@ class LazynessAnalysis(FunctionAnalysis):
     >>> res = pm.gather(LazynessAnalysis, node)
     >>> res['k'] == sys.maxint
     True
+    >>> code = '''
+    ... def foo():
+    ...     k = __builtin__.sum
+    ...     print k([1, 2])'''
+    >>> node = ast.parse(code)
+    >>> res = pm.gather(LazynessAnalysis, node)
+    >>> res['k']
+    1
     """
+
     INF = float('inf')
     MANY = sys.maxint
 
@@ -267,7 +276,7 @@ class LazynessAnalysis(FunctionAnalysis):
         map(self.visit, body)
 
         # variable use in loop but not assigned are no lazy
-        no_assign = [n for n, (c, a) in self.pre_loop_count.iteritems()
+        no_assign = [n for n, (_, a) in self.pre_loop_count.iteritems()
                      if not a]
         self.result.update(zip(no_assign,
                                [LazynessAnalysis.MANY] * len(no_assign)))
@@ -329,9 +338,17 @@ class LazynessAnalysis(FunctionAnalysis):
                 raise PythranSyntaxError("Bad call in LazynessAnalysis", node)
 
     def visit_Call(self, node):
+        """
+        Compute use of variables in a function call.
+
+        Each arg is use once and function name too.
+        Information about modified arguments is forwarded to
+        func_args_lazyness.
+        """
         md.visit(self, node)
         map(self.visit, node.args)
         self.func_args_lazyness(node.func, node.args, node)
+        self.visit(node.func)
 
     def run(self, node, ctx):
         super(LazynessAnalysis, self).run(node, ctx)

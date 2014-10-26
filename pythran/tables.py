@@ -45,44 +45,41 @@ cxx_keywords = {
 
 operator_to_lambda = {
     # boolop
-    ast.And: lambda l, r: "(pythonic::__builtin__::bool_"
-                          "({0})?({1}):({0}))".format(l, r),
-    ast.Or: lambda l, r: "(pythonic::__builtin__::bool_"
-                         "({0})?({0}):({1}))".format(l, r),
+    ast.And: "(pythonic::__builtin__::bool_({0})?({1}):({0}))".format,
+    ast.Or: "(pythonic::__builtin__::bool_({0})?({0}):({1}))".format,
     # operator
-    ast.Add: lambda l, r: "({0} + {1})".format(l, r),
-    ast.Sub: lambda l, r: "({0} - {1})".format(l, r),
-    ast.Mult: lambda l, r: "({0} * {1})".format(l, r),
-    ast.Div: lambda l, r: "({0} / {1})".format(l, r),
-    ast.Mod: lambda l, r: "(pythonic::operator_::mod({0}, {1}))".format(l, r),
-    ast.Pow: lambda l, r: "pythonic::__builtin__::pow({0}, {1})".format(l, r),
-    ast.LShift: lambda l, r: "({0} << {1})".format(l, r),
-    ast.RShift: lambda l, r: "({0} >> {1})".format(l, r),
-    ast.BitOr: lambda l, r: "({0} | {1})".format(l, r),
-    ast.BitXor: lambda l, r: "({0} ^ {1})".format(l, r),
-    ast.BitAnd: lambda l, r: "({0} & {1})".format(l, r),
+    ast.Add: "({0} + {1})".format,
+    ast.Sub: "({0} - {1})".format,
+    ast.Mult: "({0} * {1})".format,
+    ast.Div: "({0} / {1})".format,
+    ast.Mod: "(pythonic::operator_::mod({0}, {1}))".format,
+    ast.Pow: "(pythonic::__builtin__::pow({0}, {1}))".format,
+    ast.LShift: "({0} << {1})".format,
+    ast.RShift: "({0} >> {1})".format,
+    ast.BitOr: "({0} | {1})".format,
+    ast.BitXor: "({0} ^ {1})".format,
+    ast.BitAnd: "({0} & {1})".format,
     # assume from __future__ import division
-    ast.FloorDiv: lambda l, r: ("(pythonic::operator_::floordiv"
-                                "({0}, {1}))".format(l, r)),
+    ast.FloorDiv: "(pythonic::operator_::floordiv({0}, {1}))".format,
     # unaryop
-    ast.Invert: lambda o: "(~{0})".format(o),
-    ast.Not: lambda o: "(not {0})".format(o),
-    ast.UAdd: lambda o: "(+{0})".format(o),
-    ast.USub: lambda o: "(-{0})".format(o),
+    ast.Invert: "(~{0})".format,
+    ast.Not: "(not {0})".format,
+    ast.UAdd: "(+{0})".format,
+    ast.USub: "(-{0})".format,
     # cmpop
-    ast.Eq: lambda l, r: "({0} == {1})".format(l, r),
-    ast.NotEq: lambda l, r: "({0} != {1})".format(l, r),
-    ast.Lt: lambda l, r: "({0} < {1})".format(l, r),
-    ast.LtE: lambda l, r: "({0} <= {1})".format(l, r),
-    ast.Gt: lambda l, r: "({0} > {1})".format(l, r),
-    ast.GtE: lambda l, r: "({0} >= {1})".format(l, r),
-    ast.Is: lambda l, r: ("(pythonic::__builtin__::id({0}) == "
-                           "pythonic::__builtin__::id({1}))".format(l, r)),
-    ast.IsNot: lambda l, r: ("(pythonic::__builtin__::id({0}) != "
-                             "pythonic::__builtin__::id({1}))".format(l, r)),
-    ast.In: lambda l, r: "(pythonic::in({1}, {0}))".format(l, r),
-    ast.NotIn: lambda l, r: "(not pythonic::in({1}, {0}))".format(l, r),
-    }
+    ast.Eq: "({0} == {1})".format,
+    ast.NotEq: "({0} != {1})".format,
+    ast.Lt: "({0} < {1})".format,
+    ast.LtE: "({0} <= {1})".format,
+    ast.Gt: "({0} > {1})".format,
+    ast.GtE: "({0} >= {1})".format,
+    ast.Is: ("(pythonic::__builtin__::id({0}) == "
+             "pythonic::__builtin__::id({1}))").format,
+    ast.IsNot: ("(pythonic::__builtin__::id({0}) != "
+                "pythonic::__builtin__::id({1}))").format,
+    ast.In: "(pythonic::in({1}, {0}))".format,
+    ast.NotIn: "(not pythonic::in({1}, {0}))".format,
+}
 
 equivalent_iterators = {
     "range": ("__builtin__", "xrange"),

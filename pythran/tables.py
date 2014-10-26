@@ -81,13 +81,6 @@ operator_to_lambda = {
     ast.NotIn: "(not pythonic::in({1}, {0}))".format,
 }
 
-equivalent_iterators = {
-    "range": ("__builtin__", "xrange"),
-    "filter": ("itertools", "ifilter"),
-    "map": ("itertools", "imap"),
-    "zip": ("itertools", "izip")
-    }
-
 update_effects = (lambda self, node:
                   [self.combine(node.args[0], node_args_k, register=True)
                    for node_args_k in node.args[1:]

@@ -1,6 +1,4 @@
-"""
-Aliases gather aliasing informations
-"""
+""" Aliases gather aliasing informations. """
 
 from pythran.analyses.global_declarations import GlobalDeclarations
 from pythran.intrinsic import Intrinsic, Class
@@ -215,6 +213,7 @@ class Aliases(ModuleAnalysis):
                 for alias in list(value_aliases):
                     if isinstance(alias, ast.Name):
                         self.aliases[alias.id].add(t)
+                self.add(t, self.aliases[t.id].copy())
             else:
                 self.visit(t)
 

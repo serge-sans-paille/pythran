@@ -82,7 +82,8 @@ operator_to_lambda = {
 }
 
 update_effects = (lambda self, node:
-                  [self.combine(node.args[0], node_args_k, register=True)
+                  [self.combine(node.args[0], node_args_k, register=True,
+                                aliasing_type=True)
                    for node_args_k in node.args[1:]
                    ])
 
@@ -94,14 +95,16 @@ classes = {
                 node.args[0],
                 node.args[1],
                 unary_op=lambda f: cxxtypes.ListType(f),
-                register=True)
+                register=True,
+                aliasing_type=True)
             ),
         "extend": MethodIntr(
             lambda self, node:
             self.combine(
                 node.args[0],
                 node.args[1],
-                register=True)
+                register=True,
+                aliasing_type=True)
             ),
         "index": ConstMethodIntr(),
         "pop": MethodIntr(),
@@ -115,7 +118,8 @@ classes = {
                 node.args[0],
                 node.args[2],
                 unary_op=lambda f: cxxtypes.ListType(f),
-                register=True)
+                register=True,
+                aliasing_type=True)
             ),
         },
     "str": {
@@ -142,7 +146,8 @@ classes = {
                 node.args[0],
                 node.args[1],
                 unary_op=lambda f: cxxtypes.SetType(f),
-                register=True)
+                register=True,
+                aliasing_type=True)
         ),
         "clear": MethodIntr(),
         "copy": ConstMethodIntr(),
@@ -158,7 +163,8 @@ classes = {
                 self.combine(
                     node.args[0],
                     node_args_k,
-                    register=True)
+                    register=True,
+                    aliasing_type=True)
                 for node_args_k in node.args[1:]
             ]
         ),
@@ -169,7 +175,8 @@ classes = {
                 self.combine(
                     node.args[0],
                     node_args_k,
-                    register=True)
+                    register=True,
+                    aliasing_type=True)
                 for node_args_k in node.args[1:]
             ]
         ),
@@ -180,7 +187,8 @@ classes = {
                 self.combine(
                     node.args[0],
                     node_args_k,
-                    register=True)
+                    register=True,
+                    aliasing_type=True)
                 for node_args_k in node.args[1:]
             ]
         ),
@@ -225,7 +233,8 @@ classes = {
                 unary_op=lambda x: cxxtypes.DictType(
                     x,
                     self.result[node.args[2]]),
-                register=True),
+                register=True,
+                aliasing_type=True),
             return_alias=lambda node: {
                 ast.Subscript(node.args[0],
                               ast.Index(node.args[1]),
@@ -801,203 +810,232 @@ MODULES = {
             self.combine(
                 node.args[0],
                 node.args[1],
-                register=True)
+                register=True,
+                aliasing_type=True)
             ),
         "__iadd__": MethodIntr(
             lambda self, node:
             self.combine(
                 node.args[0],
                 node.args[1],
-                register=True)
+                register=True,
+                aliasing_type=True)
             ),
         "iand": MethodIntr(
             lambda self, node:
             self.combine(
                 node.args[0],
                 node.args[1],
-                register=True)
+                register=True,
+                aliasing_type=True)
             ),
         "__iand__": MethodIntr(
             lambda self, node:
             self.combine(
                 node.args[0],
                 node.args[1],
-                register=True)
+                register=True,
+                aliasing_type=True)
             ),
         "iconcat": MethodIntr(
             lambda self, node:
             self.combine(
                 node.args[0],
                 node.args[1],
-                register=True)
+                register=True,
+                aliasing_type=True)
             ),
         "__iconcat__": MethodIntr(
             lambda self, node:
             self.combine(
                 node.args[0],
                 node.args[1],
-                register=True)
+                register=True,
+                aliasing_type=True)
             ),
         "idiv": MethodIntr(
             lambda self, node:
             self.combine(
                 node.args[0],
                 node.args[1],
-                register=True)
+                register=True,
+                aliasing_type=True)
             ),
         "__idiv__": MethodIntr(
             lambda self, node:
             self.combine(
                 node.args[0],
                 node.args[1],
-                register=True)
+                register=True,
+                aliasing_type=True)
             ),
         "ifloordiv": MethodIntr(
             lambda self, node:
             self.combine(
                 node.args[0],
                 node.args[1],
-                register=True)
+                register=True,
+                aliasing_type=True)
             ),
         "__ifloordiv__": MethodIntr(
             lambda self, node:
             self.combine(
                 node.args[0],
                 node.args[1],
-                register=True)
+                register=True,
+                aliasing_type=True)
             ),
         "ilshift": MethodIntr(
             lambda self, node:
             self.combine(
                 node.args[0],
                 node.args[1],
-                register=True)
+                register=True,
+                aliasing_type=True)
             ),
         "__ilshift__": MethodIntr(
             lambda self, node:
             self.combine(
                 node.args[0],
                 node.args[1],
-                register=True)
+                register=True,
+                aliasing_type=True)
             ),
         "imod": MethodIntr(
             lambda self, node:
             self.combine(
                 node.args[0],
                 node.args[1],
-                register=True)
+                register=True,
+                aliasing_type=True)
             ),
         "__imod__": MethodIntr(
             lambda self, node:
             self.combine(
                 node.args[0],
                 node.args[1],
-                register=True)
+                register=True,
+                aliasing_type=True)
             ),
         "imul": MethodIntr(
             lambda self, node:
             self.combine(
                 node.args[0],
                 node.args[1],
-                register=True)
+                register=True,
+                aliasing_type=True)
             ),
         "__imul__": MethodIntr(
             lambda self, node:
             self.combine(
                 node.args[0],
                 node.args[1],
-                register=True)
+                register=True,
+                aliasing_type=True)
             ),
         "ior": MethodIntr(
             lambda self, node:
             self.combine(
                 node.args[0],
                 node.args[1],
-                register=True)
+                register=True,
+                aliasing_type=True)
             ),
         "__ior__": MethodIntr(
             lambda self, node:
             self.combine(
                 node.args[0],
                 node.args[1],
-                register=True)
+                register=True,
+                aliasing_type=True)
             ),
         "ipow": MethodIntr(
             lambda self, node:
             self.combine(
                 node.args[0],
                 node.args[1],
-                register=True)
+                register=True,
+                aliasing_type=True)
             ),
         "__ipow__": MethodIntr(
             lambda self, node:
             self.combine(
                 node.args[0],
                 node.args[1],
-                register=True)
+                register=True,
+                aliasing_type=True)
             ),
         "irshift": MethodIntr(
             lambda self, node:
             self.combine(
                 node.args[0],
                 node.args[1],
-                register=True)
+                register=True,
+                aliasing_type=True)
             ),
         "__irshift__": MethodIntr(
             lambda self, node:
             self.combine(
                 node.args[0],
                 node.args[1],
-                register=True)
+                register=True,
+                aliasing_type=True)
             ),
         "isub": MethodIntr(
             lambda self, node:
             self.combine(
                 node.args[0],
                 node.args[1],
-                register=True)
+                register=True,
+                aliasing_type=True)
             ),
         "__isub__": MethodIntr(
             lambda self, node:
             self.combine(
                 node.args[0],
                 node.args[1],
-                register=True)
+                register=True,
+                aliasing_type=True)
             ),
         "itruediv": MethodIntr(
             lambda self, node:
             self.combine(
                 node.args[0],
                 node.args[1],
-                register=True)
+                register=True,
+                aliasing_type=True)
             ),
         "__itruediv__": MethodIntr(
             lambda self, node:
             self.combine(
                 node.args[0],
                 node.args[1],
-                register=True)
+                register=True,
+                aliasing_type=True)
             ),
         "ixor": MethodIntr(
             lambda self, node:
             self.combine(
                 node.args[0],
                 node.args[1],
-                register=True)
+                register=True,
+                aliasing_type=True)
             ),
         "__ixor__": MethodIntr(
             lambda self, node:
             self.combine(
                 node.args[0],
                 node.args[1],
-                register=True)
+                register=True,
+                aliasing_type=True)
             ),
         "contains": MethodIntr(
             lambda self, node:
             self.combine(
                 node.args[0],
                 node.args[1],
-                register=True)
+                register=True,
+                aliasing_type=True)
             ),
         "__contains__": ConstFunctionIntr(),
         "countOf": ConstFunctionIntr(),

@@ -69,11 +69,6 @@ class SpecParser:
         t.type = SpecParser.reserved.get(t.value, 'IDENTIFIER')
         return t
 
-    def t_NUMBER(self, t):
-        r'[0-9]+'
-        t.type = 'NUMBER'
-        return t
-
     # skipped characters
     t_ignore = ' \t\r'
 
@@ -114,6 +109,7 @@ class SpecParser:
                 | type LIST
                 | type SET
                 | type LARRAY RARRAY
+                | type LARRAY COLUMN COLUMN RARRAY
                 | type COLUMN type DICT
                 | LPAREN types RPAREN'''
         if len(p) == 2:
@@ -122,12 +118,14 @@ class SpecParser:
             p[0] = [p[1]]
         elif len(p) == 3 and p[2] == 'set':
             p[0] = {p[1]}
-        elif len(p) == 4 and p[3] == ')':
-            p[0] = tuple(p[2])
         elif len(p) == 4 and p[3] == ']':
             p[0] = array([p[1]])
+        elif len(p) == 6 and p[5] == ']':
+            p[0] = array([p[1]])[::-1]
         elif len(p) == 5:
             p[0] = {p[1]: p[3]}
+        elif len(p) == 4 and p[3] == ')':
+            p[0] = tuple(p[2])
         else:
             raise SyntaxError("Invalid Pythran spec. "
                               "Unknown text '{0}'".format(p.value))

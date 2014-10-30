@@ -182,12 +182,13 @@ namespace pythonic {
                 // the last dimension (4) is missing from slice information
                 // Finally, if origin expression was already sliced, lower bound and step have to 
                 // be increased
-                numpy_gexpr(Arg const &arg, S const &...s) : arg(arg), buffer(arg.buffer) {
-                    std::tuple<S const&...> values(s...);
+                numpy_gexpr(Arg const &arg, std::tuple<S const &...> const& values) : arg(arg), buffer(arg.buffer) {
                     init_shape(values, std::get<0>(values), utils::int_<sizeof...(S)>(), utils::int_<0>());
                     for(size_t i = sizeof...(S) - count_long<S...>::value; i < value; ++i)
                         shape[i] = arg.shape[i + count_long<S...>::value];
                     fix_shape(arg); // This is specialized for numpy_gexpr only
+                }
+                numpy_gexpr(Arg const &arg, S const &...s) : numpy_gexpr(arg, std::tuple<S const&...>(s...)) {
                 }
 
                 template<class Argp, class... Sp>

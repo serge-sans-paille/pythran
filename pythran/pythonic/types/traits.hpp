@@ -13,10 +13,12 @@ namespace pythonic {
         template<class T>
             struct is_complex {
                 static const bool value = false;
+                typedef T type;
             };
         template<class T>
             struct is_complex<std::complex<T>> {
                 static const bool value = true;
+                typedef T type;
             };
 
         /* trait to check if a type is iterable { */

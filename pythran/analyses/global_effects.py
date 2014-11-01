@@ -1,11 +1,9 @@
-"""
-GlobalEffects computes function effect on global state
-"""
+""" GlobalEffects computes function effect on global state. """
 
 from pythran.analyses.aliases import Aliases
 from pythran.analyses.global_declarations import GlobalDeclarations
 from pythran.passmanager import ModuleAnalysis
-from pythran.tables import modules
+from pythran.tables import MODULES
 import pythran.intrinsic as intrinsic
 
 import ast
@@ -13,6 +11,7 @@ import networkx as nx
 
 
 class GlobalEffects(ModuleAnalysis):
+
     """Add a flag on each function that updates a global variable."""
 
     class FunctionEffect(object):
@@ -59,8 +58,8 @@ class GlobalEffects(ModuleAnalysis):
                         register_node(v.fields)
 
         register_node(self.global_declarations)
-        for m in modules:
-            register_node(modules[m])
+        for module in MODULES.itervalues():
+            register_node(module)
 
     def run(self, node, ctx):
         super(GlobalEffects, self).run(node, ctx)

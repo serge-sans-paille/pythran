@@ -11,8 +11,8 @@ from pythran.intrinsic import ConstExceptionIntr
 from pythran.middlend import refine
 from pythran.passmanager import PassManager
 from pythran.tables import pythran_ward, functions
-from pythran.typing import extract_constructed_types, pytype_to_ctype
-from pythran.typing import pytype_to_deps
+from pythran.typing import extract_constructed_types, pytype_to_deps
+from pythran.types.conversion import pytype_to_ctype
 import pythran.frontend as frontend
 
 from numpy import get_include

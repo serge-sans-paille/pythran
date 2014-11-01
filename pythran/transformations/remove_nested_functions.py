@@ -2,7 +2,7 @@
 
 from pythran.analyses import GlobalDeclarations, ImportedIds
 from pythran.passmanager import Transformation
-from pythran.tables import modules
+from pythran.tables import MODULES
 
 import ast
 
@@ -15,15 +15,14 @@ class _NestedFunctionRemover(Transformation):
         self.global_declarations = pm.gather(GlobalDeclarations, ctx.module)
 
     def visit_FunctionDef(self, node):
-        if modules['functools'] not in self.global_declarations.values():
+        if MODULES['functools'] not in self.global_declarations.values():
             import_ = ast.Import([ast.alias('functools', None)])
             self.ctx.module.body.insert(0, import_)
-            self.global_declarations['functools'] = modules['functools']
+            self.global_declarations['functools'] = MODULES['functools']
 
         self.ctx.module.body.append(node)
 
         former_name = node.name
-        former_nbargs = len(node.args.args)
         new_name = "pythran_{0}".format(former_name)
 
         ii = self.passmanager.gather(ImportedIds, node, self.ctx)
@@ -67,9 +66,11 @@ class _NestedFunctionRemover(Transformation):
 
 
 class RemoveNestedFunctions(Transformation):
-    '''
-    Replace nested function by top-level functions
-    and a call to a bind intrinsic that
+
+    """
+    Replace nested function by top-level functions.
+
+    Also add a call to a bind intrinsic that
     generates a local function with some arguments binded.
 
     >>> import ast
@@ -84,7 +85,7 @@ class RemoveNestedFunctions(Transformation):
         bar(12)
     def pythran_bar(x, y):
         return (x + y)
-    '''
+    """
 
     def visit_Module(self, node):
         map(self.visit, node.body)

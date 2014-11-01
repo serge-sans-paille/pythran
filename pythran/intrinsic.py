@@ -1,8 +1,7 @@
-'''
-This module contains all classes used to model intrinsics behavior.
-'''
+""" This module contains all classes used to model intrinsics behavior.  """
 
 from pythran.conversion import to_ast
+from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE
 
 import ast
 
@@ -39,6 +38,7 @@ class Intrinsic(object):
                                            (UpdateEffect(),) * 11)
         self.global_effects = kwargs.get('global_effects', False)
         self.return_alias = kwargs.get('return_alias', lambda x: {None})
+        self.return_type = kwargs.get('return_type', None)
         self.args = ast.arguments([ast.Name(n, ast.Param())
                                    for n in kwargs.get('args', [])],
                                   None, None,
@@ -140,19 +140,41 @@ class ConstMethodIntr(MethodIntr):
 
 
 class AttributeIntr(Intrinsic):
-    def __init__(self, val):
-        self.val = val
-        super(AttributeIntr, self).__init__()
+
+    """
+    Internal representation for any attributes.
+
+    Examples
+    --------
+    >> a.real
+    """
+
+    def __init__(self, **kwargs):
+        """ Forward arguments. """
+        super(AttributeIntr, self).__init__(**kwargs)
 
     def isattribute(self):
+        """ Mark this intrinsic as an attribute. """
         return True
 
 
 class ConstantIntr(Intrinsic):
-    def __init__(self):
-        super(ConstantIntr, self).__init__(argument_effects=())
+
+    """
+    Internal representation for any constant.
+
+    Examples
+    --------
+    >> math.pi
+    """
+
+    def __init__(self, **kwargs):
+        """ Forward arguments and remove arguments effects. """
+        kwargs["argument_effects"] = ()
+        super(ConstantIntr, self).__init__(**kwargs)
 
     def isliteral(self):
+        """ Mark this intrinsic as a literal. """
         return True
 
 

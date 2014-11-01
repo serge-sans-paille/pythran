@@ -7,10 +7,11 @@ from pythran.intrinsic import ConstFunctionIntr, FunctionIntr, UpdateEffect
 from pythran.intrinsic import ConstMethodIntr, MethodIntr, AttributeIntr
 from pythran.intrinsic import ReadEffect, ConstantIntr
 from pythran.conversion import to_ast, ToNotEval
+from pythran.cxxtypes import NamedType
+from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE
 import pythran.cxxtypes as cxxtypes
 
 import ast
-import numpy
 import sys
 import inspect
 import logging
@@ -20,33 +21,6 @@ logger = logging.getLogger("pythran")
 pythran_ward = '__pythran_'
 
 namespace = "pythonic"
-
-pytype_to_ctype_table = {
-    complex: 'std::complex<double>',
-    bool: 'bool',
-    int: 'long',
-    long: 'pythran_long_t',
-    float: 'double',
-    str: 'pythonic::types::str',
-    None: 'void',
-    numpy.int8: 'int8_t',
-    numpy.int16: 'int16_t',
-    numpy.int32: 'int32_t',
-    numpy.int64: 'int64_t',
-    numpy.uint8: 'uint8_t',
-    numpy.uint16: 'uint16_t',
-    numpy.uint32: 'uint32_t',
-    numpy.uint64: 'uint64_t',
-    numpy.float32: 'float',
-    numpy.float64: 'double',
-    numpy.complex64: 'std::complex<float>',
-    numpy.complex128: 'std::complex<double>',
-    }
-
-type_to_suffix = {
-    int: "L",
-    long: "LL",
-    }
 
 cxx_keywords = {
     'and', 'and_eq', 'asm', 'auto', 'bitand', 'bitor',
@@ -224,18 +198,20 @@ classes = {
         "issubset": ConstMethodIntr(),
     },
     "Exception": {
-        "args": AttributeIntr(0),
-        "errno": AttributeIntr(1),
-        "strerror": AttributeIntr(2),
-        "filename": AttributeIntr(3),
+        "args": AttributeIntr(return_type=NamedType("pythonic::types::str")),
+        "errno": AttributeIntr(return_type=NamedType("pythonic::types::str")),
+        "strerror": AttributeIntr(
+            return_type=NamedType("pythonic::types::str")),
+        "filename": AttributeIntr(
+            return_type=NamedType("pythonic::types::str")),
     },
     "float": {
         "is_integer": ConstMethodIntr(),
     },
     "complex": {
         "conjugate": ConstMethodIntr(),
-        "real": AttributeIntr(0),
-        "imag": AttributeIntr(1),
+        "real": AttributeIntr(return_type=NamedType("double")),
+        "imag": AttributeIntr(return_type=NamedType("double")),
     },
     "dict": {
         "fromkeys": ConstFunctionIntr(),
@@ -274,10 +250,11 @@ classes = {
     },
     "file": {
         # Member variables
-        "closed": AttributeIntr(0),
-        "mode": AttributeIntr(1),
-        "name": AttributeIntr(2),
-        "newlines": AttributeIntr(3),
+        "closed": AttributeIntr(return_type=NamedType("bool")),
+        "mode": AttributeIntr(return_type=NamedType("pythonic::types::str")),
+        "name": AttributeIntr(return_type=NamedType("pythonic::types::str")),
+        "newlines": AttributeIntr(
+            return_type=NamedType("pythonic::types::str")),
         # Member functions
         "close": MethodIntr(global_effects=True),
         "flush": MethodIntr(global_effects=True),
@@ -295,28 +272,28 @@ classes = {
         "writelines": MethodIntr(global_effects=True),
     },
     "finfo": {
-        "eps": AttributeIntr(0),
+        "eps": AttributeIntr(),
     },
     "ndarray": {
-        "dtype": AttributeIntr(7),
+        "dtype": AttributeIntr(),
         "fill": MethodIntr(),
-        "flat": AttributeIntr(6),
+        "flat": AttributeIntr(),
         "flatten": MethodIntr(),
         "item": MethodIntr(),
-        "itemsize": AttributeIntr(4),
-        "nbytes": AttributeIntr(5),
-        "ndim": AttributeIntr(1),
-        "shape": AttributeIntr(0),
-        "size": AttributeIntr(3),
-        "strides": AttributeIntr(2),
-        "T": AttributeIntr(8),
+        "itemsize": AttributeIntr(return_type=NamedType("long")),
+        "nbytes": AttributeIntr(return_type=NamedType("long")),
+        "ndim": AttributeIntr(return_type=NamedType("long")),
+        "shape": AttributeIntr(),
+        "size": AttributeIntr(return_type=NamedType("long")),
+        "strides": AttributeIntr(),
+        "T": AttributeIntr(),
         "tolist": ConstMethodIntr(),
         "tostring": ConstMethodIntr(),
     },
 }
 
 # each module consist in a module_name <> set of symbols
-modules = {
+MODULES = {
     "__builtin__": {
         "pythran": {
             "len_set": ConstFunctionIntr()
@@ -1044,7 +1021,7 @@ modules = {
         "__theitemgetter__": ConstFunctionIntr(),
         "itemgetter": MethodIntr(
             return_alias=lambda node: {
-                modules['operator_']['__theitemgetter__']}
+                MODULES['operator_']['__theitemgetter__']}
             ),
 
     },
@@ -1077,18 +1054,18 @@ modules = {
 
 # VMSError is only available on VMS
 if 'VMSError' in sys.modules['__builtin__'].__dict__:
-    modules['__builtin__']['VMSError'] = ConstExceptionIntr()
+    MODULES['__builtin__']['VMSError'] = ConstExceptionIntr()
 
 # WindowsError is only available on Windows
 if 'WindowsError' in sys.modules['__builtin__'].__dict__:
-    modules['__builtin__']['WindowsError'] = ConstExceptionIntr()
+    MODULES['__builtin__']['WindowsError'] = ConstExceptionIntr()
 
 # detect and prune unsupported modules
 try:
     __import__("omp")
 except EnvironmentError:
     logger.warn("Pythran support disabled for module: omp")
-    del modules["omp"]
+    del MODULES["omp"]
 
 # a method name to module binding
 # {method_name : ((full module path), signature)}
@@ -1106,13 +1083,13 @@ def save_method(elements, module_path):
             # in case of duplicates, there must be a __dispatch__ record
             # and it is the only recorded one
             if elem in methods and module_path[0] != '__dispatch__':
-                assert elem in modules['__dispatch__']
+                assert elem in MODULES['__dispatch__']
                 path = ('__dispatch__',)
-                methods[elem] = (path, modules['__dispatch__'][elem])
+                methods[elem] = (path, MODULES['__dispatch__'][elem])
             else:
                 methods[elem] = (module_path, signature)
 
-for module, elems in modules.iteritems():
+for module, elems in MODULES.iteritems():
     save_method(elems, (module,))
 
 # a function name to module binding
@@ -1130,7 +1107,7 @@ def save_function(elements, module_path):
         elif isinstance(signature, Class):
             save_function(signature.fields, module_path + (elem,))
 
-for module, elems in modules.iteritems():
+for module, elems in MODULES.iteritems():
     save_function(elems, (module,))
 
 # a attribute name to module binding
@@ -1149,7 +1126,7 @@ def save_attribute(elements, module_path):
         elif isinstance(signature, Class):
             save_attribute(signature.fields, module_path + (elem,))
 
-for module, elems in modules.iteritems():
+for module, elems in MODULES.iteritems():
     save_attribute(elems, (module,))
 
 
@@ -1173,5 +1150,20 @@ def save_arguments(module_name, elements):
             except (AttributeError, ImportError, TypeError, ToNotEval):
                 pass
 
-for module, elems in modules.iteritems():
+for module, elems in MODULES.iteritems():
     save_arguments(module, elems)
+
+
+# Fill return_type field for constants
+def fill_constants_types(module_name, elements):
+    """ Recursively save arguments name and default value. """
+    for elem, intrinsic in elements.iteritems():
+        if isinstance(intrinsic, dict):  # Submodule case
+            fill_constants_types(module_name + (elem,), intrinsic)
+        elif isinstance(intrinsic, ConstantIntr):
+            # use introspection to get the Python constants types
+            cst = getattr(__import__(".".join(module_name)), elem)
+            intrinsic.return_type = NamedType(PYTYPE_TO_CTYPE_TABLE[type(cst)])
+
+for module, elems in MODULES.iteritems():
+    fill_constants_types((module,), elems)

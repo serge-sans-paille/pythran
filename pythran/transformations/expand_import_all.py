@@ -1,7 +1,7 @@
 """ ExpandImportAll replaces import * by all their modules. """
 
 from pythran.passmanager import Transformation
-from pythran.tables import modules
+from pythran.tables import MODULES
 
 import ast
 
@@ -27,5 +27,5 @@ lgamma, erf, erfc, modf, degrees, acos, pi, log1p, sin, gamma
             if alias.name == '*':
                 node.names.pop()
                 node.names.extend(ast.alias(fname, None)
-                                  for fname in modules[node.module])
+                                  for fname in MODULES[node.module])
         return node

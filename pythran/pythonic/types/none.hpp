@@ -128,6 +128,7 @@ namespace pythonic {
         SPECIALIZE_NONE(int);
         SPECIALIZE_NONE(long long);
         SPECIALIZE_NONE(double);
+        SPECIALIZE_NONE(bool);
 
         template<class T> struct none;
         template<class T>

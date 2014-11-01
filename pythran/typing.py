@@ -16,7 +16,8 @@ from pythran.cxxtypes import ArgumentType
 from pythran.intrinsic import UserFunction, MethodIntr, Class
 from pythran.passmanager import ModuleAnalysis, Transformation
 from pythran.syntax import PythranSyntaxError
-from pythran.tables import pytype_to_ctype_table, operator_to_lambda, modules
+from pythran.tables import operator_to_lambda, MODULES
+from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE, pytype_to_ctype
 
 from collections import defaultdict
 from numpy import ndarray
@@ -26,41 +27,11 @@ import networkx as nx
 import operator
 
 
-def pytype_to_ctype(t):
-    '''python -> c++ type binding'''
-    if isinstance(t, list):
-        return 'pythonic::types::list<{0}>'.format(pytype_to_ctype(t[0]))
-    if isinstance(t, set):
-        return 'pythonic::types::set<{0}>'.format(pytype_to_ctype(list(t)[0]))
-    elif isinstance(t, dict):
-        tkey, tvalue = t.items()[0]
-        return 'pythonic::types::dict<{0},{1}>'.format(pytype_to_ctype(tkey),
-                                                       pytype_to_ctype(tvalue))
-    elif isinstance(t, tuple):
-        return 'decltype(pythonic::types::make_tuple({0}))'.format(
-            ", ".join('std::declval<{}>()'.format(
-                pytype_to_ctype(_)) for _ in t)
-            )
-    elif isinstance(t, ndarray):
-        dtype = pytype_to_ctype(t.flat[0])
-        ndim = t.ndim
-        arr = 'pythonic::types::ndarray<{0},{1}>'.format(dtype, ndim)
-        if any(x < 0 for x in t.strides):
-            slices = ", ".join(['pythonic::types::slice'] * ndim)
-            return 'pythonic::types::numpy_gexpr<{0},{1}>'.format(arr, slices)
-        else:
-            return arr
-    elif t in pytype_to_ctype_table:
-        return pytype_to_ctype_table[t]
-    else:
-        raise NotImplementedError("{0}:{1}".format(type(t), t))
-
-
 def pytype_to_deps(t):
-    '''python -> c++ type binding'''
+    """python -> pythonic type include."""
     if isinstance(t, list):
         return {'pythonic/types/list.hpp'}.union(pytype_to_deps(t[0]))
-    if isinstance(t, set):
+    elif isinstance(t, set):
         return {'pythonic/types/set.hpp'}.union(pytype_to_deps(list(t)[0]))
     elif isinstance(t, dict):
         tkey, tvalue = t.items()[0]
@@ -70,7 +41,7 @@ def pytype_to_deps(t):
         return {'pythonic/types/tuple.hpp'}.union(*map(pytype_to_deps, t))
     elif isinstance(t, ndarray):
         return {'pythonic/types/ndarray.hpp'}.union(pytype_to_deps(t[0]))
-    elif t in pytype_to_ctype_table:
+    elif t in PYTYPE_TO_CTYPE_TABLE:
         return {'pythonic/types/{}.hpp'.format(t.__name__)}
     else:
         raise NotImplementedError("{0}:{1}".format(type(t), t))
@@ -344,7 +315,7 @@ class Types(ModuleAnalysis):
                     if isinstance(function, Class):
                         register(name + "::" + fname, function.fields)
 
-        for mname, module in modules.iteritems():
+        for mname, module in MODULES.iteritems():
             register(mname, module)
         super(Types, self).prepare(node, ctx)
 
@@ -522,14 +493,15 @@ class Types(ModuleAnalysis):
         return Lazy if lazy_res <= self.max_recompute else Assignable
 
     def visit_Return(self, node):
+        """ Compute return type and merges with others possible return type."""
         self.generic_visit(node)
+        # No merge are done if the function is a generator.
         if not self.yield_points:
-            if node.value:
-                self.combine(self.current, node.value)
-            else:
-                self.result[self.current] = NamedType("none_type")
+            assert node.value, "Values were added in each return statement."
+            self.combine(self.current, node.value)
 
     def visit_Yield(self, node):
+        """ Compute yield type and merges it with others yield type. """
         self.generic_visit(node)
         self.combine(self.current, node.value)
 
@@ -570,7 +542,15 @@ class Types(ModuleAnalysis):
         node.orelse and map(self.visit, node.orelse)
 
     def visit_BoolOp(self, node):
+        """
+        Merge BoolOp operand type.
+
+        BoolOp are "and" and "or" and may return any of these results so all
+        operands should have the combinable type.
+        """
+        # Visit subnodes
         self.generic_visit(node)
+        # Merge all operands types.
         [self.combine(node, value) for value in node.values]
 
     def visit_BinOp(self, node):
@@ -655,29 +635,47 @@ class Types(ModuleAnalysis):
         self.combine(node, node.func, op=lambda x, y: y, unary_op=F)
 
     def visit_Num(self, node):
-        self.result[node] = NamedType(pytype_to_ctype_table[type(node.n)])
+        """
+        Set type for number.
+
+        It could be int, long or float so we use the default python to pythonic
+        type converter.
+        """
+        self.result[node] = NamedType(PYTYPE_TO_CTYPE_TABLE[type(node.n)])
 
     def visit_Str(self, node):
-        self.result[node] = NamedType(pytype_to_ctype_table[str])
+        """ Set the pythonic string type. """
+        self.result[node] = NamedType(PYTYPE_TO_CTYPE_TABLE[str])
 
     def visit_Attribute(self, node):
-        def rec(w, n):
-            if isinstance(n, ast.Name):
-                return w[n.id], (n.id,)
-            elif isinstance(n, ast.Attribute):
-                r = rec(w, n.value)
-                return r[0][n.attr], r[1] + (n.attr,)
-        obj, path = rec(modules, node)
+        """ Compute typing for an attribute node. """
+        def get_intrinsic_path(modules, attr):
+            """ Get function path and intrinsic from an ast.Attributs.  """
+            if isinstance(attr, ast.Name):
+                return modules[attr.id], (attr.id,)
+            elif isinstance(attr, ast.Attribute):
+                module, path = get_intrinsic_path(modules, attr.value)
+                return module[attr.attr], path + (attr.attr,)
+        # Get the intrinsic object and its path as path is use in Pythonic
+        # hierarchy and obj may give additional information
+        obj, path = get_intrinsic_path(MODULES, node)
         path = ('pythonic',) + path
-        if obj.isliteral():
-            self.result[node] = DeclType('::'.join(path))
+        assert not obj.isliteral() or obj.return_type, "Constants are known."
+        # If no type is given, use a decltype
+        if obj.return_type:
+            self.result[node] = obj.return_type
         else:
             self.result[node] = DeclType(
                 '::'.join(path[:-1]) + '::proxy::' + path[-1] + '()')
 
     def visit_Slice(self, node):
+        """
+        Set slicing type using continuous information if provided.
+
+        Also visit subnodes as they may contains relevant typing information.
+        """
         self.generic_visit(node)
-        if node.step is None or (type(node.step) is ast.Num
+        if node.step is None or (isinstance(node.step, ast.Num)
                                  and node.step.n == 1):
             self.result[node] = NamedType('pythonic::types::contiguous_slice')
         else:
@@ -730,6 +728,7 @@ class Types(ModuleAnalysis):
             self.result[node] = NamedType(node.id, {Weak})
 
     def visit_List(self, node):
+        """ Define list type from all elements type (or empty_list type). """
         self.generic_visit(node)
         if node.elts:
             for elt in node.elts:
@@ -738,6 +737,7 @@ class Types(ModuleAnalysis):
             self.result[node] = NamedType("pythonic::types::empty_list")
 
     def visit_Set(self, node):
+        """ Define set type from all elements type (or empty_set type). """
         self.generic_visit(node)
         if node.elts:
             for elt in node.elts:
@@ -746,6 +746,7 @@ class Types(ModuleAnalysis):
             self.result[node] = NamedType("pythonic::types::empty_set")
 
     def visit_Dict(self, node):
+        """ Define set type from all elements type (or empty_dict type). """
         self.generic_visit(node)
         if node.keys:
             for key, value in zip(node.keys, node.values):

@@ -1,10 +1,7 @@
-"""
-Globals computes the value of globals()
-"""
+""" Globals computes the value of globals(). """
 
 from pythran.analyses.global_declarations import GlobalDeclarations
 from pythran.passmanager import ModuleAnalysis
-from pythran.tables import modules
 
 
 class Globals(ModuleAnalysis):

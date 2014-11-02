@@ -1,9 +1,13 @@
 """ This module contains all classes used to model intrinsics behavior.  """
 
 from pythran.conversion import to_ast
-from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE
 
 import ast
+
+
+class NewMem(ast.AST):
+
+    """ Class to represent new location for aliasing. """
 
 
 class UpdateEffect(object):
@@ -19,8 +23,9 @@ class ReadOnceEffect(ReadEffect):
 
 
 class Intrinsic(object):
-    '''
-    Model any Method/Function
+
+    """
+    Model any Method/Function.
 
     Its member variables are:
 
@@ -32,12 +37,13 @@ class Intrinsic(object):
       depending on the node arguments (see dict.setdefault)
     - args that describes the name and default value of each arg, using the
       same representation as ast.FunctionDef, i.e. ast.arguments
-    '''
+    """
+
     def __init__(self, **kwargs):
         self.argument_effects = kwargs.get('argument_effects',
                                            (UpdateEffect(),) * 11)
         self.global_effects = kwargs.get('global_effects', False)
-        self.return_alias = kwargs.get('return_alias', lambda x: {None})
+        self.return_alias = kwargs.get('return_alias', lambda x: {NewMem()})
         self.return_type = kwargs.get('return_type', None)
         self.args = ast.arguments([ast.Name(n, ast.Param())
                                    for n in kwargs.get('args', [])],
@@ -93,7 +99,6 @@ class FunctionIntr(Intrinsic):
 
 class UserFunction(FunctionIntr):
     def __init__(self, *combiners, **kwargs):
-        kwargs.setdefault('return_alias', lambda x: {None})
         kwargs['combiners'] = combiners
         super(UserFunction, self).__init__(**kwargs)
 

@@ -352,15 +352,13 @@ class Types(ModuleAnalysis):
                 if isinstance(alias, MethodIntr):
                     signature = alias
                 if signature:
-                    return_alias = (signature.return_alias
-                                    and signature.return_alias(n))
+                    return_alias = signature.return_alias(n)
                     if return_alias:  # else new location -> unboundable
-                        assert len(return_alias), 'Too many return aliases'
                         return self.node_to_id(list(return_alias)[0], depth)
         raise UnboundableRValue()
 
     def isargument(self, node):
-        """ checks whether node aliases to a parameter"""
+        """ checks whether node aliases to a parameter."""
         try:
             node_id, _ = self.node_to_id(node)
             return (node_id in self.name_to_nodes and

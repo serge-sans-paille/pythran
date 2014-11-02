@@ -19,6 +19,10 @@ namespace pythonic {
         struct assignable<T &> {
             typedef typename assignable<T>::type type;
         };
+    template<class T>
+        struct assignable<T &&> {
+            typedef typename assignable<T>::type type;
+        };
 
     template<class T>
         struct lazy{

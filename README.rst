@@ -72,7 +72,7 @@ ArchLinux
 
 Using `yaourt`::
 
-    # yaourt -S pythran-git
+    $> sudo yaourt -S pythran-git
 
 Other Platform
 ==============

@@ -103,7 +103,7 @@ class Analysis(ContextManager, ast.NodeVisitor):
         return self.result
 
     def display(self, data):
-        print data
+        print(data)
 
     def apply(self, node, ctx):
         self.display(self.run(node, ctx))

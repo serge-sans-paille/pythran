@@ -1,3 +1,4 @@
+from __future__ import print_function
 from distutils.command.build import build
 from distutils.core import setup, Command
 from subprocess import check_call, check_output
@@ -42,20 +43,20 @@ class BuildWithPly(build):
     def build_nt2(self):
         nt2_dir = 'nt2'
         if not os.path.isdir(nt2_dir):
-            print 'nt2 git repository not setup, cloning it'
+            print('nt2 git repository not setup, cloning it')
             cmd = 'git clone https://github.com/MetaScale/nt2.git -b release'
             check_call(cmd.split())
         else:
             cmd = 'git fetch && git checkout origin/release'
             check_call(cmd, shell=True, cwd=nt2_dir)
-            print 'nt2 git repository updated'
+            print('nt2 git repository updated')
 
         nt2_build_dir = os.path.join(self.build_temp, nt2_dir)
         if not os.path.isdir(nt2_build_dir):
             os.makedirs(nt2_build_dir)
 
         if not os.path.exists(os.path.join(nt2_build_dir, 'Makefile')):
-            print 'nt2 not already configured, configuring it'
+            print('nt2 not already configured, configuring it')
 
             cwd = os.getcwd()
             abs_nt2_dir = os.path.join(cwd, nt2_dir)
@@ -68,7 +69,7 @@ class BuildWithPly(build):
             check_call(build_cmd)
             os.chdir(cwd)
 
-        print "Compile and install nt2"
+        print('Compile and install nt2')
         check_output(['make', '-C', nt2_build_dir, 'install', '-j'])
         for d in ('nt2', 'boost'):
             src = os.path.join(nt2_build_dir, 'include', d)
@@ -133,7 +134,7 @@ class TestCommand(Command):
             import xdist
             args = ["-n", str(self.num_threads)] + args
         except ImportError:
-            print ("W: Skipping parallel run, pytest_xdist not found")
+            print('W: Skipping parallel run, pytest_xdist not found')
 
         if self.failfast:
             args.insert(0, '-x')
@@ -146,10 +147,10 @@ class TestCommand(Command):
                         "--cov-report", "annotate",
                         "--cov", "pythran"] + args
             except ImportError:
-                print ("W: Skipping coverage analysis, pytest_cov"
-                       "not found")
+                print('W: Skipping coverage analysis, pytest_cov'
+                       'not found')
         if pytest.main(args) == 0:
-            print "\\_o<"
+            print('\\_o<')
 
 
 class BenchmarkCommand(Command):
@@ -217,7 +218,7 @@ class BenchmarkCommand(Command):
 
                     ti = timeit.Timer(runas_command, runas_context)
 
-                    print modname + " running ..."
+                    print(modname + ' running ...')
 
                     # pythran part
                     if self.mode.startswith('pythran'):
@@ -228,18 +229,18 @@ class BenchmarkCommand(Command):
                         begin = time.time()
                         compile_pythranfile(candidate,
                                             cxxflags=cxxflags)
-                        print "Compilation in : ", (time.time() - begin)
+                        print('Compilation in : ', (time.time() - begin))
 
                     sys.stdout.flush()
                     timing = numpy.array(ti.repeat(self.nb_iter, number=1))
-                    print "median :", numpy.median(timing)
-                    print "min :", numpy.min(timing)
-                    print "max :", numpy.max(timing)
-                    print "std :", numpy.std(timing)
+                    print('median :', numpy.median(timing))
+                    print('min :', numpy.min(timing))
+                    print('max :', numpy.max(timing))
+                    print('std :', numpy.std(timing))
                     del sys.modules[modname]
                 else:
-                    print "* Skip ", candidate, ', no ',
-                    print BenchmarkCommand.runas_marker, ' directive'
+                    print('* Skip ', candidate, ', no ',end='')
+                    print(BenchmarkCommand.runas_marker, ' directive')
 
 
 # Cannot use glob here, as the files may not be generated yet

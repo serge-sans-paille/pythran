@@ -3,6 +3,10 @@
 from numpy import ndarray, int8, int16, int32, int64, uint8, uint16, uint32
 from numpy import float64, float32, complex64, complex128, uint64
 
+import sys
+if sys.version_info[0]>2:
+    long = int
+
 PYTYPE_TO_CTYPE_TABLE = {
     complex: 'std::complex<double>',
     bool: 'bool',

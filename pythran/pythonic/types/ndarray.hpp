@@ -193,16 +193,16 @@ namespace pythonic {
 
         template<size_t L>
             struct noffset {
-                template <class A, size_t M>
-                    long operator()(A && self, array<long, M> const& indices) const
+                template <size_t M>
+                    long operator()(array<long, M> const& shape, array<long, M> const& indices) const
                     {
-                        return noffset<L-1>{}(std::forward<A>(self), indices) * std::forward<A>(self).shape[L] + indices[L];
+                        return noffset<L-1>{}(shape, indices) * shape[L] + indices[L];
                     }
             };
         template<>
             struct noffset<0> {
-                template<class A, size_t M>
-                    long operator()(A && self, array<long, M> const& indices) const
+                template<size_t M>
+                    long operator()(array<long, M> const&, array<long, M> const& indices) const
                     {
                         return indices[0];
                     }
@@ -427,11 +427,11 @@ namespace pythonic {
 
                 T const &operator[](array<long, N> const& indices) const
                 {
-                  return *(buffer+noffset<N-1>{}(*this, indices));
+                  return *(buffer+noffset<N-1>{}(shape, indices));
                 }
                 T& operator[](array<long, N> const& indices)
                 {
-                  return *(buffer+noffset<N-1>{}(*this, indices));
+                  return *(buffer+noffset<N-1>{}(shape, indices));
                 }
 
                 template<size_t M>

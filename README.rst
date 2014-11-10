@@ -2,6 +2,9 @@
 Pythran
 =======
 
+.. image:: https://travis-ci.org/serge-sans-paille/pythran.png?branch=master
+        :target: https://travis-ci.org/serge-sans-paille/pythran
+
 http://pythonhosted.org/pythran/
 
 What is it?

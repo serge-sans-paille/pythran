@@ -3,7 +3,7 @@
 from pythran.analyses import Globals
 from pythran.passmanager import Transformation
 from pythran.syntax import PythranSyntaxError
-from pythran.tables import attributes, functions, methods, MODULES, namespace
+from pythran.tables import attributes, functions, methods, MODULES
 
 import ast
 
@@ -41,8 +41,7 @@ class NormalizeMethodCalls(Transformation):
         """
         self.generic_visit(node)
         new_imports = self.to_import - self.globals
-        imports = [ast.Import(names=[ast.alias(name=mod,
-                                     asname=namespace + "::" + mod)])
+        imports = [ast.Import(names=[ast.alias(name=mod, asname=None)])
                    for mod in new_imports]
         node.body = imports + node.body
         return node

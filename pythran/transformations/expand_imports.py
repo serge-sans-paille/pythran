@@ -2,6 +2,7 @@
 
 from pythran.passmanager import Transformation
 from pythran.tables import namespace
+from pythran.utils import path_to_attr
 
 import ast
 
@@ -26,12 +27,12 @@ class ExpandImports(Transformation):
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(ExpandImports, node)
     >>> print pm.dump(backend.Python, node)
-    import math as pythonic::math
+    import math
     math.cos(2)
     >>> node = ast.parse("from os.path import join ; join('a', 'b')")
     >>> _, node = pm.apply(ExpandImports, node)
     >>> print pm.dump(backend.Python, node)
-    import os as pythonic::os
+    import os
     os.path.join('a', 'b')
     """
 
@@ -45,24 +46,15 @@ class ExpandImports(Transformation):
         """
         Visit the whole module and add all import at the top level.
 
-        >> import math
-
-        Becomes
-
-        >> import math as pythonic::math
-
-        And
-
         >> import numpy.linalg
 
         Becomes
 
-        >> import numpy as pythonic::numpy
+        >> import numpy
 
         """
         node.body = [k for k in (self.visit(n) for n in node.body) if k]
-        imports = [ast.Import([ast.alias(i, namespace + "::" + i)])
-                   for i in self.imports]
+        imports = [ast.Import([ast.alias(i, None)]) for i in self.imports]
         node.body = imports + node.body
         ast.fix_missing_locations(node)
         return node
@@ -139,11 +131,7 @@ class ExpandImports(Transformation):
         >> numpy.linalg.det(a)
         """
         if node.id in self.symbols:
-            new_node = reduce(
-                lambda v, o: ast.Attribute(v, o, ast.Load()),
-                self.symbols[node.id][1:],
-                ast.Name(self.symbols[node.id][0], ast.Load())
-                )
+            new_node = path_to_attr(self.symbols[node.id])
             new_node.ctx = node.ctx
             ast.copy_location(new_node, node)
             return new_node

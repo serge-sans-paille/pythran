@@ -16,17 +16,21 @@ import re
 
 
 def uncamel(name):
-    '''Transforms CamelCase naming convention into C-ish convention'''
+    """Transform CamelCase naming convention into C-ish convention."""
     s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
     return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
 
 
 class AnalysisContext(object):
-    '''
-    Class that stores the hierarchy of node visited:
+
+    """
+    Class that stores the hierarchy of node visited.
+
+    Contains:
         * parent module
         * parent function
-    '''
+    """
+
     def __init__(self):
         self.module = None
         self.function = None
@@ -80,16 +84,15 @@ class ContextManager(object):
             setattr(self, uncamel(D.__name__), d.run(rnode, ctx))
 
     def run(self, node, ctx):
-        '''Override this to add special pre or post processing handlers.'''
+        """Override this to add special pre or post processing handlers."""
         self.prepare(node, ctx)
         return self.visit(node)
 
 
 class Analysis(ContextManager, ast.NodeVisitor):
-    '''
-    A pass that does not change its content but gathers informations
-    about it.
-    '''
+    """
+    A pass that does not change its content but gathers informations about it.
+    """
     def __init__(self, *dependencies):
         '''`dependencies' holds the type of all analysis required by this
             analysis. `self.result' must be set prior to calling this
@@ -110,23 +113,23 @@ class Analysis(ContextManager, ast.NodeVisitor):
 
 
 class ModuleAnalysis(Analysis):
-    '''An analysis that operates on a whole module.'''
-    pass
+
+    """An analysis that operates on a whole module."""
 
 
 class FunctionAnalysis(Analysis):
-    '''An analysis that operates on a function.'''
-    pass
+
+    """An analysis that operates on a function."""
 
 
 class NodeAnalysis(Analysis):
-    '''An analysis that operates on any node.'''
-    pass
+
+    """An analysis that operates on any node."""
 
 
 class Backend(ModuleAnalysis):
-    '''A pass that produces code from an AST.'''
-    pass
+
+    """A pass that produces code from an AST."""
 
 
 class Transformation(ContextManager, ast.NodeTransformer):
@@ -180,8 +183,7 @@ class PassManager(object):
         If the transformation is an analysis, the result of the analysis
         is displayed.
         '''
-        assert any(issubclass(transformation, T) for T in
-                   (Transformation, Analysis))
+        assert issubclass(transformation, (Transformation, Analysis))
         a = transformation()
         a.passmanager = self
         return a.apply(node, ctx)

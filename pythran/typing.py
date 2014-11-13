@@ -352,15 +352,13 @@ class Types(ModuleAnalysis):
                 if isinstance(alias, MethodIntr):
                     signature = alias
                 if signature:
-                    return_alias = (signature.return_alias
-                                    and signature.return_alias(n))
+                    return_alias = signature.return_alias(n)
                     if return_alias:  # else new location -> unboundable
-                        assert len(return_alias), 'Too many return aliases'
                         return self.node_to_id(list(return_alias)[0], depth)
         raise UnboundableRValue()
 
     def isargument(self, node):
-        """ checks whether node aliases to a parameter"""
+        """ checks whether node aliases to a parameter."""
         try:
             node_id, _ = self.node_to_id(node)
             return (node_id in self.name_to_nodes and
@@ -370,8 +368,17 @@ class Types(ModuleAnalysis):
         except UnboundableRValue:
             return False
 
-    def combine(self, node, othernode, op=None, unary_op=None, register=False):
-        if register and node in self.strict_aliases:
+    def combine(self, node, othernode, op=None, unary_op=None, register=False,
+                aliasing_type=False):
+        """
+        Change `node` typing with combination of `node` and `othernode`.
+
+        Parameters
+        ----------
+        aliasing_type : bool
+            All node aliasing to `node` have to be updated too.
+        """
+        if aliasing_type:
             self.combine_(node, othernode, op or operator.add,
                           unary_op or (lambda x: x), register)
             for a in self.strict_aliases[node].aliases:
@@ -432,7 +439,8 @@ class Types(ModuleAnalysis):
                                 try:
                                     s.combine(translated_node,
                                               translated_othernode,
-                                              op, unary_op, register=True)
+                                              op, unary_op, register=True,
+                                              aliasing_type=True)
                                 except NotImplementedError:
                                     pass
                                     # this may fail when the effective
@@ -508,7 +516,9 @@ class Types(ModuleAnalysis):
     def visit_Assign(self, node):
         self.visit(node.value)
         for t in node.targets:
-            self.combine(t, node.value, register=True)
+            # We don't support subscript aliasing
+            self.combine(t, node.value, register=True,
+                         aliasing_type=isinstance(t, ast.Name))
             if t in self.curr_locals_declaration:
                 self.result[t] = self.get_qualifier(t)(self.result[t])
             if isinstance(t, ast.Subscript):
@@ -523,21 +533,25 @@ class Types(ModuleAnalysis):
             if self.visit_AssignedSubscript(node.target):
                 for alias in self.strict_aliases[node.target.value].aliases:
                     fake = ast.Subscript(alias, node.target.value, ast.Store())
+                    # We don't check more aliasing as it is a fake node.
                     self.combine(fake,
                                  node.value,
                                  lambda x, y: x + ExpressionType(
                                      operator_to_lambda[type(node.op)],
                                      [x, y]),
                                  register=True)
+        # We don't support aliasing on subscript
         self.combine(node.target, node.value,
                      lambda x, y: x + ExpressionType(
                          operator_to_lambda[type(node.op)],
-                         [x, y]), register=True)
+                         [x, y]),
+                     register=True,
+                     aliasing_type=isinstance(node.target, ast.Name))
 
     def visit_For(self, node):
         self.visit(node.iter)
-        self.combine(node.target, node.iter,
-                     unary_op=IteratorContentType, register=True)
+        self.combine(node.target, node.iter, unary_op=IteratorContentType,
+                     aliasing_type=True, register=True)
         node.body and map(self.visit, node.body)
         node.orelse and map(self.visit, node.orelse)
 
@@ -709,11 +723,8 @@ class Types(ModuleAnalysis):
     def visit_AssignedSubscript(self, node):
         if type(node.slice) not in (ast.Slice, ast.ExtSlice):
             self.visit(node.slice)
-            self.combine(node.value, node.slice,
-                         unary_op=IndexableType, register=True)
-            for alias in self.strict_aliases[node.value].aliases:
-                self.combine(alias, node.slice,
-                             unary_op=IndexableType, register=True)
+            self.combine(node.value, node.slice, unary_op=IndexableType,
+                         aliasing_type=True, register=True)
             return True
         else:
             return False
@@ -762,7 +773,8 @@ class Types(ModuleAnalysis):
                 tname = NamedType(
                     'pythonic::types::{0}'.format(node.type.attr))
                 self.result[node.type] = tname
-                self.combine(node.name, node.type, register=True)
+                self.combine(node.name, node.type, aliasing_type=True,
+                             register=True)
         map(self.visit, node.body)
 
     def visit_Tuple(self, node):

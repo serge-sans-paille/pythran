@@ -1,9 +1,7 @@
-"""
-Aliases gather aliasing informations
-"""
+""" Aliases gather aliasing informations. """
 
 from pythran.analyses.global_declarations import GlobalDeclarations
-from pythran.intrinsic import Intrinsic, Class
+from pythran.intrinsic import Intrinsic, Class, NewMem
 from pythran.passmanager import ModuleAnalysis
 from pythran.syntax import PythranSyntaxError
 from pythran.tables import functions, methods, MODULES
@@ -26,7 +24,7 @@ class Aliases(ModuleAnalysis):
 
     def expand_unknown(self, node):
         # should include built-ins too?
-        unkowns = {None}.union(self.global_declarations.values())
+        unkowns = {NewMem()}.union(self.global_declarations.values())
         return unkowns.union(node.args)
 
     @staticmethod
@@ -83,7 +81,7 @@ class Aliases(ModuleAnalysis):
             _, signature = methods.get(func.attr,
                                        functions.get(func.attr,
                                                      [(None, None)])[0])
-            if signature and signature.return_alias:
+            if signature:
                 aliases = signature.return_alias(node)
         elif isinstance(func, ast.Name):
             func_aliases = self.result[func].aliases
@@ -93,7 +91,7 @@ class Aliases(ModuleAnalysis):
                     _, signature = functions.get(
                         func_alias.name,
                         [(None, None)])[0]
-                    if signature and signature.return_alias:
+                    if signature:
                         aliases.update(signature.return_alias(node))
                 elif hasattr(func_alias, 'return_alias'):
                     aliases.update(func_alias.return_alias(node))
@@ -113,8 +111,8 @@ class Aliases(ModuleAnalysis):
             # expand collected aliases
             all_aliases = set()
             for value in return_alias:
-                if value is None:
-                    all_aliases.add(None)
+                if isinstance(value, NewMem):
+                    all_aliases.add(value)
                 elif value in self.result:
                     all_aliases.update(self.result[value].aliases)
                 else:
@@ -124,9 +122,7 @@ class Aliases(ModuleAnalysis):
                     except NotImplementedError:
                         # should we do something better here?
                         all_aliases.add(value)
-                        pass
-            return_alias = all_aliases
-            return self.add(node, return_alias)
+            return self.add(node, all_aliases)
 
     visit_Num = visit_UnaryOp
     visit_Str = visit_UnaryOp
@@ -215,6 +211,7 @@ class Aliases(ModuleAnalysis):
                 for alias in list(value_aliases):
                     if isinstance(alias, ast.Name):
                         self.aliases[alias.id].add(t)
+                self.add(t, self.aliases[t.id].copy())
             else:
                 self.visit(t)
 

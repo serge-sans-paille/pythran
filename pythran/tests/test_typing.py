@@ -5,6 +5,10 @@ import pythran
 
 class TestTyping(TestEnv):
 
+    def test_index_dict_with_constant(self):
+        code = 'def index_dict_with_constant(d): return d[0]'
+        return self.run_test(code, {0:2}, index_dict_with_constant=[{int:int}])
+
     def test_module_bad_attribute(self):
         code = 'def module_bad_attribute(): import random as m; return m.real'
 

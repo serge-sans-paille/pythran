@@ -317,7 +317,7 @@ namespace std {
     template <size_t I, class K, class V>
         class tuple_element<I, pythonic::types::dict<K,V> > {
             public:
-                typedef typename pythonic::types::dict<K,V>::value_type type;
+                typedef V type;
         };
 }
 

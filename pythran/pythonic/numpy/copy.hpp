@@ -9,42 +9,32 @@
 namespace pythonic {
 
     namespace numpy {
-
-        template<class E, class I0, class I1>
-            void _copy(I0 ibegin, I0 iend, I1 obegin, utils::int_<1>)
-            {
-                for(;ibegin != iend; ++ibegin, ++obegin)
-                    *obegin = *ibegin;
-            }
-
-        template<class E, class I0, class I1, size_t N>
-            void _copy(I0 ibegin, I0 iend, I1 obegin, utils::int_<N>)
-            {
-                for(;ibegin != iend; ++ibegin, ++obegin)
-                    _copy((*ibegin).begin(), (*ibegin).end(),
-                          (*obegin).begin(), utils::int_<N - 1>());
-            }
-
+        // list case
         template<class E>
-            typename std::enable_if<!types::is_array<E>::value,
+            typename std::enable_if<!types::is_array<E>::value and !std::is_scalar<E>::value and !types::is_complex<E>::value,
                                     typename types::numpy_expr_to_ndarray<E>::type
                                     >::type
             copy(E const& v)
             {
-                typename types::numpy_expr_to_ndarray<E>::type out(v, __builtin__::None);
-                _copy(v.begin(), v.end(), out.begin(),
-                      utils::int_<types::numpy_expr_to_ndarray<E>::N>());
-                return out;
+                return typename types::numpy_expr_to_ndarray<E>::type{v};
+            }
+
+        // scalar / complex case
+        template<class E>
+            auto copy(E const &v) -> typename std::enable_if<std::is_scalar<E>::value or types::is_complex<E>::value, E>::type
+            {
+              return v;
             }
 
 
-        // No copy is requiered for numpy_expr
+        // No copy is required for numpy_expr
         template<class E>
             auto copy(E && v) -> typename std::enable_if<types::is_array<E>::value, decltype(std::forward<E>(v))>::type
             {
                 return std::forward<E>(v);
             }
 
+        // ndarray case
         template<class T, size_t N>
             types::ndarray<T,N> copy(types::ndarray<T,N> const& a) {
                 return a.copy();

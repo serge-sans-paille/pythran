@@ -1,5 +1,5 @@
 from test_env import TestEnv
-import unittest 
+import unittest
 
 class TestAnalyses(TestEnv):
 
@@ -18,6 +18,7 @@ class TestAnalyses(TestEnv):
     def test_used_def_chains2(self):
         self.run_test("def use_def_chain2(a):\n i=a\n for i in xrange(4):\n  print i\n  i='lala'\n  print i\n  i = 4\n return i", 3, use_def_chain2=[int])
 
+    @unittest.skip("Variable defined in a branch in loops are not accepted.")
     def test_importedids(self):
         self.run_test("def importedids(a):\n i=a\n for i in xrange(4):\n  if i==0:\n   b = []\n  else:\n   b.append(i)\n return b", 3, importedids=[int])
 

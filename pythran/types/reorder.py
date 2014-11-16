@@ -1,3 +1,5 @@
+""" Reorder top-level functions to prevent circular type dependencies.  """
+
 import ast
 
 import networkx as nx

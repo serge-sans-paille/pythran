@@ -132,6 +132,22 @@ def test_copy0(x):
     return x[0], y[0], z[0]'''
         self.run_test(code, numpy.array([1, 2, 3]), test_copy0=[numpy.array([int])])
 
+    def test_copy1(self):
+        code="def test_copy1(n): import numpy as np ; r = np.ones((n,n)); g = np.copy(r); return g"
+        self.run_test(code, 10, test_copy1=[int])
+
+    def test_copy2(self):
+        code="def test_copy2(n): import numpy as np ; r = np.ones((n,n)); g0 = np.copy(r); g1 = np.copy(r); g0[0] = 1 ; g1[0] = 2 ; return g0, g1"
+        self.run_test(code, 10, test_copy2=[int])
+
+    def test_copy3(self):
+        code="def test_copy3(n): import numpy as np ; r = [[1]*n for _ in range(n)]; g = np.copy(r) ; return g"
+        self.run_test(code, 10, test_copy3=[int])
+
+    def test_copy4(self):
+        code="def test_copy4(n): import numpy as np ; r = n; g = np.copy(r) ; return g"
+        self.run_test(code, 10, test_copy4=[int])
+
     def test_clip0(self):
         self.run_test("def np_clip0(a): from numpy import clip ; return clip(a,1,8)", numpy.arange(10), np_clip0=[numpy.array([int])])
 

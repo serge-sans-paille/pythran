@@ -18,7 +18,7 @@ from pythran.passmanager import Backend
 from pythran.syntax import PythranSyntaxError
 from pythran.tables import operator_to_lambda, MODULES, pythran_ward
 from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE, TYPE_TO_SUFFIX
-from pythran.typing import Types
+from pythran.types.types import Types
 import pythran.metadata as metadata
 import pythran.unparse as unparse
 

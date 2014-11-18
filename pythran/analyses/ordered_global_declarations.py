@@ -1,6 +1,4 @@
-"""
-OrderedGlobalDeclarations orders all global functions.
-"""
+""" OrderedGlobalDeclarations orders all global functions. """
 
 from pythran.analyses.aliases import StrictAliases
 from pythran.analyses.global_declarations import GlobalDeclarations

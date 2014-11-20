@@ -29,7 +29,7 @@ namespace pythonic {
                 static constexpr size_t value = T::value + 1;
 
                 T const & ref;
-                std::array<long, value> shape;
+                array<long, value> shape;
 
                 broadcasted(T const& ref) : ref(ref), shape() {
                     shape[0] = 1;

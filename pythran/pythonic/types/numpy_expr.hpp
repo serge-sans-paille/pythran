@@ -9,24 +9,6 @@ namespace pythonic {
         template<class Expr, class... Slice>
             struct numpy_gexpr;
 
-        /* utility to pick the right shape */
-        template<class U, class V, size_t N>
-            typename std::enable_if<U::value!=0 and U::value == N, array<long, U::value>>::type select_shape(U const& u, V const&, utils::int_<N> ) {
-                return u.shape;
-            }
-        template<class U, class V, size_t N>
-            typename std::enable_if<U::value!=0 and U::value != N, array<long, V::value>>::type select_shape(U const& , V const& v, utils::int_<N> ) {
-                return v.shape;
-            }
-        template<class U, class V, size_t N>
-            typename std::enable_if<U::value==0 and V::value!=0, array<long, V::value>>::type select_shape(U const& , V const&v, utils::int_<N> ) {
-                return v.shape;
-            }
-        template<class U, class V>
-            array<long, 0> select_shape(U const& u, V const&, utils::int_<0> ) {
-                return array<long, 0>();
-            }
-
         /* Expression template for numpy expressions - binary operators
          */
         template<class Op, class Arg0, class Arg1>
@@ -37,7 +19,7 @@ namespace pythonic {
                                   >::value
                   and types::is_vector_op<Op>::value;
                 static const bool is_strided = std::remove_reference<Arg0>::type::is_strided or std::remove_reference<Arg1>::type::is_strided;
-                typedef const_nditerator<numpy_expr<Op, Arg0, Arg1>> iterator;
+                typedef const_ndbiterator<numpy_expr<Op, Arg0, Arg1>> iterator;
                 static constexpr size_t value = std::remove_reference<Arg0>::type::value>std::remove_reference<Arg1>::type::value?std::remove_reference<Arg0>::type::value: std::remove_reference<Arg1>::type::value;
                 typedef decltype(Op()(std::declval<typename std::remove_reference<Arg0>::type::value_type>(), std::declval<typename std::remove_reference<Arg1>::type::value_type>())) value_type;
                 typedef decltype(Op()(std::declval<typename std::remove_reference<Arg0>::type::dtype>(), std::declval<typename std::remove_reference<Arg1>::type::dtype>())) dtype;
@@ -45,18 +27,27 @@ namespace pythonic {
                 typename std::remove_reference<Arg0>::type arg0;
                 typename std::remove_reference<Arg1>::type arg1;
                 array<long, value> shape;
+                long _size;
 
                 numpy_expr() {}
                 numpy_expr(numpy_expr const&) = default;
                 numpy_expr(numpy_expr &&) = default;
 
-                numpy_expr(Arg0 const &arg0, Arg1 const &arg1) : arg0(arg0), arg1(arg1), shape(select_shape(arg0,arg1, utils::int_<value>())) {}
+                numpy_expr(Arg0 const &arg0, Arg1 const &arg1) : arg0(arg0), arg1(arg1) {
+                  for(int i=0; i < value; ++i)
+                    shape[i] = std::max(arg0.shape[i], arg1.shape[i]);
+                  _size = std::accumulate(shape.begin(), shape.end(), 1L, std::multiplies<long>());
+                }
 
-                iterator begin() const { return iterator(*this, 0); }
-                iterator end() const { return iterator(*this, shape[0]); }
+                iterator begin() const { return iterator(*this, 0, arg0.shape[0], arg1.shape[0]); }
+                iterator end() const { return iterator(*this, shape[0], arg0.shape[0], arg1.shape[0]); }
+
+                auto fast(long i, long j) const -> decltype(Op()(arg0.fast(i), arg1.fast(j))) {
+                  return Op()(arg0.fast(i), arg1.fast(j));
+                }
 
                 auto fast(long i) const -> decltype(Op()(arg0.fast(i), arg1.fast(i))) {
-                    return Op()(arg0.fast(i), arg1.fast(i)); //FIXME: broadcasting can be achieved here through a modulus, but that's terribly costly
+                  return Op()(arg0.fast(i%arg0.shape[0]), arg1.fast(i % arg1.shape[0])); //FIXME: broadcasting is achieved here through a modulus, but that's terribly costly
                 }
 
                 auto operator[](long i) const -> decltype(this->fast(i)) {
@@ -108,7 +99,7 @@ namespace pythonic {
                         return numpy_fexpr<numpy_expr, F>(*this, filter);
                     }
 
-                long size() const { return std::max(arg0.size(), arg1.size()); }
+                long size() const { return _size; }
             };
 
     }

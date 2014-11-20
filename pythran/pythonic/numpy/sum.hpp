@@ -99,6 +99,7 @@ namespace pythonic {
             typename std::enable_if<E::value != 1, types::ndarray<typename E::dtype, E::value - 1>>::type
             sum(E const& array, long axis)
             {
+                if(axis < 0) axis += E::value;
                 if(axis<0 || axis >= E::value)
                     throw types::ValueError("axis out of bounds");
                 auto shape = array.shape;

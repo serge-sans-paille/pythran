@@ -17,7 +17,7 @@ namespace pythonic {
                 typedef decltype(Op()(std::declval<typename std::remove_reference<Arg>::type::dtype>())) dtype;
 
                 Arg arg;
-                array<long, value> shape;
+                array<long, value> const shape;
 
                 numpy_uexpr() {}
                 numpy_uexpr(numpy_uexpr const &) =default;

@@ -197,20 +197,20 @@ namespace pythonic {
                 {
                     return numpy_gexpr<numpy_iexpr, contiguous_slice>(*this, s0);
                 }
-                template<class ...S>
-                    numpy_gexpr<numpy_iexpr, slice, S...> operator()(slice const& s0, S const&... s) const
+                template<class S1, class ...S>
+                    numpy_gexpr<numpy_iexpr, slice, S1, S...> operator()(slice const& s0, S1 const& s1, S const&... s) const
                     {
-                        return numpy_gexpr<numpy_iexpr, slice, S...>(*this, s0, s...);
+                        return numpy_gexpr<numpy_iexpr, slice, S1, S...>(*this, s0, s1, s...);
                     }
-                template<class ...S>
-                    numpy_gexpr<numpy_iexpr, contiguous_slice, S...> operator()(contiguous_slice const& s0, S const&... s) const
+                template<class S1, class ...S>
+                    numpy_gexpr<numpy_iexpr, contiguous_slice, S1, S...> operator()(contiguous_slice const& s0, S1 const& s1, S const&... s) const
                     {
-                        return numpy_gexpr<numpy_iexpr, contiguous_slice, S...>(*this, s0, s...);
+                        return numpy_gexpr<numpy_iexpr, contiguous_slice, S1, S...>(*this, s0, s1, s...);
                     }
-                template<class ...S>
-                    auto operator()(long s0, S const&... s) const -> decltype(std::declval<numpy_iexpr<numpy_iexpr>>()(s...))
+                template<class S1, class ...S>
+                    auto operator()(long s0, S1 const& s1, S const&... s) const -> decltype(std::declval<numpy_iexpr<numpy_iexpr>>()(s1, s...))
                     {
-                        return (*this)[s0](s...);
+                        return (*this)[s0](s1, s...);
                     }
                 template<class F>
                     typename std::enable_if<is_numexpr_arg<F>::value, numpy_fexpr<numpy_iexpr, F>>::type

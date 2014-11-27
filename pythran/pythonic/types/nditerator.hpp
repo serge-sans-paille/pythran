@@ -19,6 +19,7 @@ namespace pythonic {
 
                 /* we would like to return E::value_type, but this currently fails. So let's the auto magic do the trick */
                 auto operator*() -> decltype(data.fast(index)) { return data.fast(index); }
+                auto operator*() const -> decltype(data.fast(index)) { return data.fast(index); }
                 nditerator<E>& operator++() { ++index; return *this;}
                 nditerator<E>& operator--() { --index; return *this;}
                 nditerator<E>& operator+=(long i) { index += i; return *this;}
@@ -54,7 +55,7 @@ namespace pythonic {
 
 
                 // TODO: This "auto" is different than E::value_type, which is weird (if not wrong)
-                auto operator*() -> decltype(data.fast(index)) { return data.fast(index); }
+                auto operator*() const -> decltype(data.fast(index)) { return data.fast(index); }
                 const_nditerator<E>& operator++() { ++index; return *this;}
                 const_nditerator<E>& operator--() { --index; return *this;}
                 const_nditerator<E>& operator+=(long i) { index +=  i; return *this;}
@@ -74,51 +75,6 @@ namespace pythonic {
                     return  index <  other.index;
                 }
                 const_nditerator& operator=(const_nditerator const& other) { index = other.index; return *this;}
-            };
-        /* Const iterator over whatever provides a fast(long) method to access its element
-         */
-        template<class E>
-            struct const_ndbiterator : public std::iterator<std::random_access_iterator_tag,
-                                                           typename E::value_type> {
-                enum mode_t { NO_BROADCAST, BROADCAST_SHAPE0, BROADCAST_SHAPE1};
-                E const &data;
-                mode_t const mode;
-                long index0;
-                long index1;
-                long shape;
-                const_ndbiterator(E const& data, long index, long shape0, long shape1) : data(data), mode(shape0==shape1?NO_BROADCAST : (shape0<shape1?BROADCAST_SHAPE0:BROADCAST_SHAPE1)), index0(mode==BROADCAST_SHAPE0?index%shape0:index), index1(mode==BROADCAST_SHAPE1?index % shape1:index), shape(mode==BROADCAST_SHAPE0?shape0:shape1) {
-                }
-
-
-                // TODO: This "auto" is different than E::value_type, which is weird (if not wrong)
-                auto operator*() -> decltype(data.fast(index0, index1)) {
-                  return data.fast(index0, index1);
-                }
-
-                const_ndbiterator& operator++() {
-                  ++index0; ++index1;
-                  if(mode == NO_BROADCAST);
-                  else if(mode == BROADCAST_SHAPE0) {if(index0==shape) index0=0;}
-                  else if(mode == BROADCAST_SHAPE1) {if(index1==shape) index1=0;}
-                  return *this;
-                }
-                const_ndbiterator& operator+=(long i) { index0 +=  i; index1+=i; return *this;}
-                const_ndbiterator& operator-=(long i) { index0 -=  i; index1-=i; return *this;}
-                const_ndbiterator operator+(long i) const { const_ndbiterator other(*this); other += i; return other; }
-                const_ndbiterator operator-(long i) const { const_ndbiterator other(*this); other -= i; return other; }
-                long operator-(const_ndbiterator const& other) const {
-                    return mode == BROADCAST_SHAPE1 ? index0 - other.index0 : index1 - other.index1;
-                }
-                bool operator!=(const_ndbiterator const& other) const {
-                    return mode == BROADCAST_SHAPE1 ? index0 != other.index0 : index1 != other.index1;
-                }
-                bool operator==(const_ndbiterator const& other) const {
-                    return mode == BROADCAST_SHAPE1 ? index0 == other.index0 : index1 == other.index1;
-                }
-                bool operator<(const_ndbiterator const& other) const {
-                    return mode == BROADCAST_SHAPE1 ? index0 < other.index0 : index1 < other.index1;
-                }
-                const_ndbiterator& operator=(const_ndbiterator const& other) = default;
             };
 
         template<bool is_strided>

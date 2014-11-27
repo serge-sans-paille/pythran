@@ -9,6 +9,57 @@ namespace pythonic {
         template<class Expr, class... Slice>
             struct numpy_gexpr;
 
+        template<class Op, class I0, class I1>
+            struct const_expr_iterator : public std::iterator<std::random_access_iterator_tag,
+                                                              decltype(std::declval<Op>()(std::declval<typename std::iterator_traits<I0>::value_type>(),
+                                                                                          std::declval<typename std::iterator_traits<I1>::value_type>()))>
+            {
+                enum { NO_BROADCAST, BROADCAST_SHAPE0, BROADCAST_SHAPE1} const mode;
+                I0 index0, beg0, end0;
+                I1 index1, beg1, end1;
+
+                const_expr_iterator(I0 const& index0, I0 const& end0, I1 const& index1, I1 const& end1) :
+                  mode{(end1 - index1) == (end0 - index0) ? NO_BROADCAST : (end1 - index1) > (end0 - index0) ? BROADCAST_SHAPE0 : BROADCAST_SHAPE1},
+                  index0{index0}, beg0{index0}, end0{end0}, index1{index1}, beg1{index1}, end1{end1}
+                {
+                }
+
+
+                // TODO: This "auto" is different than E::value_type, which is weird (if not wrong)
+                auto operator*() const -> decltype(Op{}(*index0, *index1)) {
+                  return Op{}(*index0, *index1);
+                }
+                const_expr_iterator& operator++() {
+                  ++index0; ++index1;
+                  if(mode == NO_BROADCAST);
+                  else if(mode == BROADCAST_SHAPE0) {if(index0==end0) index0=beg0;}
+                  else if(mode == BROADCAST_SHAPE1) {if(index1==end1) index1=beg1;}
+                  return *this;
+                }
+                long operator-(const_expr_iterator const &other) const {
+                  return std::max(index0 - other.index0, index1 - other.index1);
+                }
+                bool operator!=(const_expr_iterator const& other) const {
+                    return mode == BROADCAST_SHAPE1 ? index0 != other.index0 : index1 != other.index1;
+                }
+                bool operator==(const_expr_iterator const& other) const {
+                    return mode == BROADCAST_SHAPE1 ? index0 == other.index0 : index1 == other.index1;
+                }
+                bool operator<(const_expr_iterator const& other) const {
+                    return mode == BROADCAST_SHAPE1 ? index0 < other.index0 : index1 < other.index1;
+                }
+                const_expr_iterator& operator=(const_expr_iterator const& that) {
+                  assert(that.beg0 == beg0);
+                  assert(that.end0 == end0);
+                  assert(that.beg1 == beg1);
+                  assert(that.end1 == end1);
+                  assert(that.mode == mode);
+                  index0 = that.index0;
+                  index1 = that.index1;
+                  return *this;
+                }
+            };
+
         /* Expression template for numpy expressions - binary operators
          */
         template<class Op, class Arg0, class Arg1>
@@ -19,8 +70,10 @@ namespace pythonic {
                                   >::value
                   and types::is_vector_op<Op>::value;
                 static const bool is_strided = std::remove_reference<Arg0>::type::is_strided or std::remove_reference<Arg1>::type::is_strided;
-                typedef const_ndbiterator<numpy_expr<Op, Arg0, Arg1>> iterator;
-                static constexpr size_t value = std::remove_reference<Arg0>::type::value>std::remove_reference<Arg1>::type::value?std::remove_reference<Arg0>::type::value: std::remove_reference<Arg1>::type::value;
+                typedef const_expr_iterator<Op, typename Arg0::const_iterator, typename Arg1::const_iterator> const_iterator;
+                static constexpr size_t value = (std::remove_reference<Arg0>::type::value > std::remove_reference<Arg1>::type::value)
+                                               ?(std::remove_reference<Arg0>::type::value)
+                                               :(std::remove_reference<Arg1>::type::value);
                 typedef decltype(Op()(std::declval<typename std::remove_reference<Arg0>::type::value_type>(), std::declval<typename std::remove_reference<Arg1>::type::value_type>())) value_type;
                 typedef decltype(Op()(std::declval<typename std::remove_reference<Arg0>::type::dtype>(), std::declval<typename std::remove_reference<Arg1>::type::dtype>())) dtype;
 
@@ -34,13 +87,22 @@ namespace pythonic {
                 numpy_expr(numpy_expr &&) = default;
 
                 numpy_expr(Arg0 const &arg0, Arg1 const &arg1) : arg0(arg0), arg1(arg1) {
-                  for(int i=0; i < value; ++i)
-                    shape[i] = std::max(arg0.shape[i], arg1.shape[i]);
+                  for(size_t i=0; i < value; ++i) {
+                    // handle shape broadcasting here
+                    if(i < std::remove_reference<Arg0>::type::value and i < std::remove_reference<Arg1>::type::value)
+                      shape[i] = std::max(arg0.shape[i], arg1.shape[i]);
+                    else if(i < std::remove_reference<Arg0>::type::value)
+                      shape[i] = arg0.shape[i];
+                    else if(i < std::remove_reference<Arg1>::type::value)
+                      shape[i] = arg1.shape[i];
+                    else
+                      assert(false);
+                  }
                   _size = std::accumulate(shape.begin(), shape.end(), 1L, std::multiplies<long>());
                 }
 
-                iterator begin() const { return iterator(*this, 0, arg0.shape[0], arg1.shape[0]); }
-                iterator end() const { return iterator(*this, shape[0], arg0.shape[0], arg1.shape[0]); }
+                const_iterator begin() const { return const_iterator(arg0.begin(), arg0.end(), arg1.begin(), arg1.end()); }
+                const_iterator end() const { return const_iterator(arg0.end(), arg0.end(), arg1.end(), arg1.end()); }
 
                 auto fast(long i, long j) const -> decltype(Op()(arg0.fast(i), arg1.fast(j))) {
                   return Op()(arg0.fast(i), arg1.fast(j));

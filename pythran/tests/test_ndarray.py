@@ -137,6 +137,31 @@ class TestNdarray(TestEnv):
                       numpy.arange(20).reshape((5,4)),
                       numpy_broadcast5=[numpy.array([[int]])])
 
+    def test_broadcast6(self):
+        self.run_test('def numpy_broadcast6(a): import numpy as np ; return a[None]',
+                      numpy.arange(20).reshape((5,4)),
+                      numpy_broadcast6=[numpy.array([[int]])])
+
+    def test_broadcast7(self):
+        self.run_test('def numpy_broadcast7(a): import numpy as np ; return a[None,:]',
+                      numpy.arange(20).reshape((5,4)),
+                      numpy_broadcast7=[numpy.array([[int]])])
+
+    def test_broadcast8(self):
+        self.run_test('def numpy_broadcast8(a): import numpy as np ; return a[:,None,:]',
+                      numpy.arange(20).reshape((5,4)),
+                      numpy_broadcast8=[numpy.array([[int]])])
+
+    def test_broadcast9(self):
+        self.run_test('def numpy_broadcast9(a): import numpy as np ; return a[:,None,:] + a',
+                      numpy.arange(20).reshape((5,4)),
+                      numpy_broadcast9=[numpy.array([[int]])])
+
+    def test_broadcast10(self):
+        self.run_test('def numpy_broadcast10(a): import numpy as np ; return a[None,:] + a',
+                      numpy.arange(20).reshape((5,4)),
+                      numpy_broadcast10=[numpy.array([[int]])])
+
     def test_extended_slicing0(self):
         self.run_test("def numpy_extended_slicing0(a): return a[2,1:-1]",
                       numpy.arange(100).reshape((10, 10)),

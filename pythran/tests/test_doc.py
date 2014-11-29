@@ -1,7 +1,7 @@
 import unittest
 import doctest
 import pythran
-from pythran import transformations, analyses, optimizations
+from pythran import transformations, analyses, optimizations, types
 import inspect
 import os
 
@@ -63,6 +63,7 @@ map(lambda x: add_module_doctest(pythran, x), dir(pythran))
 map(lambda x: add_module_doctest(transformations, x), dir(transformations))
 map(lambda x: add_module_doctest(analyses, x), dir(analyses))
 map(lambda x: add_module_doctest(optimizations, x), dir(optimizations))
+map(lambda x: add_module_doctest(types, x), dir(types))
 
 if __name__ == '__main__':
     unittest.main()

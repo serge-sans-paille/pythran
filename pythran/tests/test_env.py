@@ -1,12 +1,13 @@
 """ Base file for all Pythran tests. """
 
 from imp import load_dynamic
-from numpy import ndarray, isnan, isinf, isneginf, complex128, complex64, bool_
 from numpy import int32
+from numpy import ndarray, isnan, isinf, isneginf, complex128, complex64, bool_
 import copy
 import glob
 import numpy.testing as npt
 import os
+import sys
 import unittest
 
 import pytest

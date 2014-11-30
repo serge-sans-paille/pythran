@@ -1,48 +1,52 @@
-"""
-HandleImport transformation takes care of importing user-defined modules.
-"""
+"""HandleImport transformation takes care of importing user-defined modules."""
 from pythran.passmanager import Transformation
-from pythran.tables import cxx_keywords, modules
+from pythran.tables import cxx_keywords, MODULES
 
 import ast
 import importlib
 import inspect
 
+
 def mangle_imported_function_name(module_name, func_name):
-    """Mangling naming scheme for imported functions"""
+    """Mangling naming scheme for imported functions."""
     return "pythran_imported__" + module_name + "_" + func_name
 
 
 def is_builtin_function(func_name):
-    """Test if a function is a builtin (like len(), map(), ...)"""
-    return (func_name in modules["__builtin__"] or
+    """Test if a function is a builtin (like len(), map(), ...)."""
+    return (func_name in MODULES["__builtin__"] or
             (func_name in cxx_keywords and
-             func_name + "_" in modules["__builtin__"]))
+             func_name + "_" in MODULES["__builtin__"]))
+
 
 def is_builtin_module_name(module_name):
-    """Test if a module is a builtin module (numpy, math, ...)"""
+    """Test if a module is a builtin module (numpy, math, ...)."""
     module_name = module_name.split(".")[0]
-    return (module_name in modules or
-            (module_name in cxx_keywords and module_name + "_" in modules))
+    return (module_name in MODULES or
+            (module_name in cxx_keywords and module_name + "_" in MODULES))
+
 
 def is_builtin_module(module):
-    """Test if a module is a builtin module (numpy, math, ...)"""
+    """Test if a module is a builtin module (numpy, math, ...)."""
     return is_builtin_module_name(module.name)
 
 
 def filter_builtinIn_import(import_node):
-        """Filter out import list to keep only builtin modules"""
-        import_node.names = filter(is_builtin_module, import_node.names)
-        return import_node
+    """Filter out import list to keep only builtin modules."""
+    import_node.names = filter(is_builtin_module, import_node.names)
+    return import_node
 
 
 class ImportFunction(ast.NodeTransformer):
-    """AST transformer that operates on a function that we need to import.
+
+    """
+    AST transformer that operates on a function that we need to import.
 
     It visits each call inside the function and recursively import the
     callees. The call site is modified to call the new imported function,
     using name mangling.
     """
+
     def __init__(self, registry, module, func_name):
         self.registry = registry
         self.module = module
@@ -50,14 +54,16 @@ class ImportFunction(ast.NodeTransformer):
         self.nested_functions = dict()
 
     def visit_FunctionDef(self, func_node):
-        """Keep track of nested Function"""
+        """Keep track of nested Function."""
         self.nested_functions[func_node.name] = func_node
         self.generic_visit(func_node)
         return func_node
 
     def visit_Import(self, import_node):
-        """Track local import. This is "wrong" because we add these import like
-        if they were global.
+        """
+        Track local import.
+
+        This is "wrong" because we add these import like if they were global.
         """
         for alias in import_node.names:
             asname = alias.asname or alias.name
@@ -65,8 +71,10 @@ class ImportFunction(ast.NodeTransformer):
         return filter_builtinIn_import(import_node)
 
     def visit_ImportFrom(self, importfrom_node):
-        """Track local import. This is "wrong" because we add these import like
-        if they were global.
+        """
+        Track local import.
+
+        This is "wrong" because we add these import like if they were global.
         """
         module_name = importfrom_node.module
         for alias in importfrom_node.names:
@@ -83,14 +91,14 @@ class ImportFunction(ast.NodeTransformer):
         as part of the import.
         """
         self.generic_visit(call_node)
-        if (isinstance(call_node.func, ast.Name)):
+        if isinstance(call_node.func, ast.Name):
             # Direct call, resolve in the current module.
             # Note: the function is not necessarily locally defined, it could
             # be imported in the form "from bar import foo"
             func_name = call_node.func.id
             if func_name in self.nested_functions:
-                #Don't need to do anything in this case, nested function are
-                #implicitly imported with the current function
+                # Don't need to do anything in this case, nested function are
+                # implicitly imported with the current function
                 return call_node
 
             # Import the function now, imply a recursion to import the callee
@@ -126,10 +134,14 @@ class ImportFunction(ast.NodeTransformer):
 
 
 class ImportedModule(object):
-    """Represent a user-defined imported module and offer an interface to
-    import a function from this module, handling automatically the import of
-    all callees in the function.
+
     """
+    Represent a user-defined imported module.
+
+    It offer an interface to import a function from this module, handling
+    automatically the import of all callees in the function.
+    """
+
     def __init__(self, name, module=None):
         """Parameters are the name for the module (mandatory), and the
         ast.Module node (optional) in the case the current module is the main
@@ -143,7 +155,7 @@ class ImportedModule(object):
             self.is_main_module = False
             imported_module = importlib.import_module(name)
             self.node = ast.parse(inspect.getsource(eval("imported_module")))
-            assert(isinstance(self.node, ast.Module))
+            assert isinstance(self.node, ast.Module)
         # Mangle function imported, unless it is the main module
         self.to_be_mangled = not self.is_main_module
         self.name = name
@@ -201,11 +213,11 @@ class ImportedModule(object):
         return self.import_function(registry, func_name)
 
     def import_function(self, registry, func_name):
-        """Called to import a function locally defined in this module.
+        """
+        Called to import a function locally defined in this module.
 
         Return the mangled name to be used at call site.
         """
-
         if func_name in self.exported_functions:  # Caching: already registered
             return self.exported_functions[func_name].name
 
@@ -233,10 +245,14 @@ class ImportedModule(object):
 
 
 class BuiltinModule(object):
-    """Represent a builtin module and offer the same interface as
-    ImportedModule class, but do not try to validate function imported from
-    here.
+
     """
+    Represent a builtin module.
+
+    it offer the same interface as ImportedModule class, but do not try to
+    validate function imported from here.
+    """
+
     def __init__(self, name):
         self.name = name
         self.is_main_module = False
@@ -247,9 +263,9 @@ class BuiltinModule(object):
         self.dependent_modules = dict()
 
     def call_function(self, registry, func_name):
-        #There was a direct call to a function from this builtin. It means it
-        #was imported in the caller module in the form: from builtin import foo
-        #We need to add such node to be imported
+        # There was a direct call to a function from this builtin. It means it
+        # was imported in the caller module in the form: from builtin import
+        # foo. We need to add such node to be imported
         importFrom = ast.ImportFrom(module=self.name,
                                     names=[ast.alias(name=func_name,
                                                      asname=None)],
@@ -263,10 +279,15 @@ class BuiltinModule(object):
 
 
 class ImportRegistry(object):
-    """Keep track of already imported modules, avoid duplication in case of
-    diamond or reflective import. It keeps a single ImportedModule() instance
-    per module. Import has to use the canonical name (not the aliased one).
+
     """
+    Keep track of already imported modules.
+
+    It avoid duplication in case of diamond or reflective import. It keeps a
+    single ImportedModule() instance per module. Import has to use the
+    canonical name (not the aliased one).
+    """
+
     def __init__(self):
         self.modules = dict()  # List of modules already imported
 
@@ -288,9 +309,7 @@ class ImportRegistry(object):
         return mod
 
     def generate_ImportList(self):
-        """Concatenate the list of imported function, to be added to the main
-        module.
-        """
+        """List of imported functions to be added to the main module.  """
         import_list = []
         for _, mod in self.modules.items():
             if mod.is_main_module:
@@ -308,6 +327,7 @@ class ImportRegistry(object):
 
 
 class HandleImport(Transformation):
+
     """This pass handle user-defined import, mangling name for function from
     other modules and include them in the current module, patching all call
     site accordingly.
@@ -318,28 +338,30 @@ class HandleImport(Transformation):
         self.registry = ImportRegistry()
 
     def visit_Module(self, module):
-        """Entry point for the module"""
-        #Do not use registry.import_module because this is the main module and
-        #ImportedModule takes an extra parameter in this case
+        """Entry point for the module."""
+        # Do not use registry.import_module because this is the main module and
+        # ImportedModule takes an extra parameter in this case
         self.module = ImportedModule(self.passmanager.module_name, module)
         self.registry.modules[self.passmanager.module_name] = self.module
         self.generic_visit(module)
 
-        #Patch module body: prepend all imported function and import nodes
+        # Patch module body: prepend all imported function and import nodes
         module.body = self.registry.generate_ImportList() + module.body
         return module
 
-    def visit_Import(self, import_node):
-        """Filter out import node to keep only builtin modules"""
+    @staticmethod
+    def visit_Import(import_node):
+        """Filter out import node to keep only builtin modules."""
         return filter_builtinIn_import(import_node)
 
-    def visit_ImportFrom(self, import_node):
-        """Filter out import node to keep only builtin modules"""
+    @staticmethod
+    def visit_ImportFrom(import_node):
+        """Filter out import node to keep only builtin modules."""
         module_name = import_node.module
         if is_builtin_module_name(module_name):
             return import_node
 
     def visit_FunctionDef(self, func):
-        """Triggers dependent import for this function's body"""
+        """Trigger dependent import for this function's body."""
         self.module.call_function(self.registry, func.name)
         return func

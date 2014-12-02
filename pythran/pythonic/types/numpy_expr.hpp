@@ -14,12 +14,12 @@ namespace pythonic {
                                                               decltype(std::declval<Op>()(std::declval<typename std::iterator_traits<I0>::value_type>(),
                                                                                           std::declval<typename std::iterator_traits<I1>::value_type>()))>
             {
-//                enum { NO_BROADCAST, BROADCAST_SHAPE0, BROADCAST_SHAPE1} const mode;
+                enum { NO_BROADCAST, BROADCAST_SHAPE0, BROADCAST_SHAPE1} const mode;
                 I0 index0, beg0, end0;
                 I1 index1, beg1, end1;
 
                 const_expr_iterator(I0 const& index0, I0 const& end0, I1 const& index1, I1 const& end1) :
- //                 mode{(end1 - index1) == (end0 - index0) ? NO_BROADCAST : (end1 - index1) > (end0 - index0) ? BROADCAST_SHAPE0 : BROADCAST_SHAPE1},
+                  mode{(end1 - index1) == (end0 - index0) ? NO_BROADCAST : (end1 - index1) > (end0 - index0) ? BROADCAST_SHAPE0 : BROADCAST_SHAPE1},
                   index0{index0}, beg0{index0}, end0{end0}, index1{index1}, beg1{index1}, end1{end1}
                 {
                 }
@@ -31,22 +31,22 @@ namespace pythonic {
                 }
                 const_expr_iterator& operator++() {
                   ++index0; ++index1;
-                  //if(mode == NO_BROADCAST);
-                  //else if(mode == BROADCAST_SHAPE0) {if(index0==end0) index0=beg0;}
-                  //else if(mode == BROADCAST_SHAPE1) {if(index1==end1) index1=beg1;}
+                  if(mode == NO_BROADCAST);
+                  else if(mode == BROADCAST_SHAPE0) {if(index0==end0) index0=beg0;}
+                  else if(mode == BROADCAST_SHAPE1) {if(index1==end1) index1=beg1;}
                   return *this;
                 }
                 long operator-(const_expr_iterator const &other) const {
                   return std::max(index0 - other.index0, index1 - other.index1);
                 }
                 bool operator!=(const_expr_iterator const& other) const {
-                    return /*mode == BROADCAST_SHAPE1 ? index0 != other.index0 :*/ index1 != other.index1;
+                    return mode == BROADCAST_SHAPE1 ? index0 != other.index0 : index1 != other.index1;
                 }
                 bool operator==(const_expr_iterator const& other) const {
-                    return /*mode == BROADCAST_SHAPE1 ? index0 == other.index0 :*/ index1 == other.index1;
+                    return mode == BROADCAST_SHAPE1 ? index0 == other.index0 : index1 == other.index1;
                 }
                 bool operator<(const_expr_iterator const& other) const {
-                    return /*mode == BROADCAST_SHAPE1 ? index0 < other.index0 :*/ index1 < other.index1;
+                    return mode == BROADCAST_SHAPE1 ? index0 < other.index0 : index1 < other.index1;
                 }
                 const_expr_iterator& operator=(const_expr_iterator const& that) {
                   assert(that.beg0 == beg0);

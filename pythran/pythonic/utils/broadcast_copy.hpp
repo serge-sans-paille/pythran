@@ -64,10 +64,9 @@ namespace pythonic {
       template <bool vector_form> struct _broadcast_copy {
 
         template <class E, class F, size_t N>
-        void operator()(E &&self, F const &other, utils::int_<N>, utils::int_<0>) {
+        __attribute__((force_always_inline)) void operator()(E &&self, F const &other, utils::int_<N>, utils::int_<0>) {
           long self_size = std::distance(self.begin(), self.end()),
                other_size = std::distance(other.begin(), other.end());
-          if (other_size > 0) { // empty array sometimes happen when filtering
 #ifdef _OPENMP
             if (other_size >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
               #pragma omp parallel for
@@ -78,22 +77,20 @@ namespace pythonic {
               std::copy(other.begin(), other.end(), self.begin());
 
             // eventually repeat the pattern
-            size_t n = self_size / other_size;
 #ifdef _OPENMP
-            if (n >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
+            if (other_size > 0 and self_size / other_size >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
               #pragma omp parallel for
-              for (size_t i = 1; i < n; ++i)
-                std::copy_n(self.begin(), other_size, self.begin() + i * other_size);
+              for (size_t i = other_size; i < self_size; i+=other_size)
+                std::copy_n(self.begin(), other_size, self.begin() + i);
             else
 #endif
-              for (size_t i = 1; i < n; ++i)
-                std::copy_n(self.begin(), other_size, self.begin() + i * other_size);
-          }
+              for (size_t i = other_size; i < self_size; i+= other_size)
+                std::copy_n(self.begin(), other_size, self.begin() + i);
         }
 
         // ``D'' is not ``0'' so we should broadcast
         template <class E, class F, size_t N, size_t D>
-        void operator()(E &&self, F const &other, utils::int_<N>, utils::int_<D>) {
+        __attribute__((force_always_inline)) void operator()(E &&self, F const &other, utils::int_<N>, utils::int_<D>) {
           self.fast(0) = other;
 #ifdef _OPENMP
           long n = self.shape[0];
@@ -112,13 +109,12 @@ namespace pythonic {
       // otherwise use the std::copy fallback
       template <> struct _broadcast_copy<true> {
         template <class E, class F>
-        void operator()(E &&self, F const &other, utils::int_<1>, utils::int_<0>) {
+        __attribute__((force_always_inline)) void operator()(E &&self, F const &other, utils::int_<1>, utils::int_<0>) {
           typedef typename F::dtype T;
           typedef typename boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION> vT;
           long self_size = std::distance(self.begin(), self.end()),
                other_size = std::distance(other.begin(), other.end());
 
-          if (other_size > 0) { // empty array sometimes happen when filtering
             static const std::size_t vN = boost::simd::meta::cardinal_of<vT>::value;
             const long bound = other_size / vN * vN;
 
@@ -135,24 +131,22 @@ namespace pythonic {
             for (; i < other_size; ++i)
               self.fast(i) = other.fast(i);
 
-            size_t n = self_size / other_size;
 #ifdef _OPENMP
-            if (n >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
+            if (other_size > 0 and self_size / other_size >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
               #pragma omp parallel for
-              for (size_t i = 1; i < n; ++i)
-                std::copy_n(self.begin(), other_size, self.begin() + i * other_size);
+              for (size_t i = other_size; i < self_size; i+=other_size)
+                std::copy_n(self.begin(), other_size, self.begin() + i);
             else
 #endif
-              for (size_t i = 1; i < n; ++i)
-                std::copy_n(self.begin(), other_size, self.begin() + i * other_size);
+              for (size_t i = other_size; i < self_size; i+= other_size)
+                std::copy_n(self.begin(), other_size, self.begin() + i );
           }
         }
 
         template <class E, class F, size_t N>
-        void operator()(E &&self, F const &other, utils::int_<N>, utils::int_<0>) {
+        __attribute__((force_always_inline)) void operator()(E &&self, F const &other, utils::int_<N>, utils::int_<0>) {
           long self_size = std::distance(self.begin(), self.end()),
                other_size = std::distance(other.begin(), other.end());
-          if (other_size > 0) { // empty array sometimes happen when filtering
 #ifdef _OPENMP
             if (other_size >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
               #pragma omp parallel for
@@ -163,23 +157,22 @@ namespace pythonic {
               for(long i = 0; i < other_size; ++i)
                 (*this)(self.fast(i), other.fast(i), utils::int_<N - 1>(), utils::int_<0>());
 
-            // eventually repeat the pattern
-            size_t n = self_size / other_size;
 #ifdef _OPENMP
+            size_t n = self_size / other_size;
             if (n >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
               #pragma omp parallel for
-              for (size_t i = 1; i < n; ++i)
-                std::copy_n(self.begin(), other_size, self.begin() + i * other_size);
+              for (size_t i = other_size; i < self_size; i+=other_size)
+                std::copy_n(self.begin(), other_size, self.begin() + i);
             else
 #endif
-              for (size_t i = 1; i < n; ++i)
-                std::copy_n(self.begin(), other_size, self.begin() + i * other_size);
+              for (size_t i = other_size; i < self_size; i+=other_size)
+                std::copy_n(self.begin(), other_size, self.begin() + i);
           }
         }
 
         // ``D'' is not ``0'' so we should broadcast
         template <class E, class F, size_t N, size_t D>
-        void operator()(E &&self, F const &other, utils::int_<N>, utils::int_<D>) {
+        __attribute__((force_always_inline)) void operator()(E &&self, F const &other, utils::int_<N>, utils::int_<D>) {
           (*this)(self.fast(0), other, utils::int_<N - 1>(), utils::int_<D - 1>());
 #ifdef _OPENMP
             long n = self.shape[0];
@@ -196,7 +189,7 @@ namespace pythonic {
 #endif
 
       template <class E, class F, size_t N, size_t D, bool vector_form>
-      E& broadcast_copy(E &self, F const &other) {
+      __attribute__((force_always_inline)) E& broadcast_copy(E &self, F const &other) {
         _broadcast_copy<vector_form> {} (self, other, utils::int_<N>(), utils::int_<D>());
         return self;
       }

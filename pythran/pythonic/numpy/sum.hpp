@@ -106,15 +106,15 @@ namespace pythonic {
                 if(axis==0)
                 {
                     types::array<long, E::value - 1> shp;
-                    std::copy(shape.begin() + 1, shape.end(), shp.begin());
+                    std::copy(&shape[1], &shape[E::value], shp.begin());
                     types::ndarray<typename E::dtype, E::value - 1> out(shp, 0);
                     return std::accumulate(array.begin(), array.end(), out, proxy::add());
                 }
                 else
                 {
                     types::array<long, E::value-1> shp;
-                    auto next = std::copy(shape.begin(), shape.begin() + axis, shp.begin());
-                    std::copy(shape.begin() + axis + 1, shape.end(), next);
+                    auto next = std::copy(&shape[0], &shape[axis], shp.begin());
+                    std::copy(&shape[axis + 1], &shape[E::value], next);
                     types::ndarray<typename E::dtype, E::value-1> sumy(shp, __builtin__::None);
                     std::transform(array.begin(), array.end(), sumy.begin(), [axis](decltype((*array.begin())) other) { return sum(other, axis - 1); });
                     return sumy;

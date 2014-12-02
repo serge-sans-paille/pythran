@@ -217,6 +217,8 @@ namespace pythonic {
                     data() const noexcept
                     { return &(buffer[0]); }
 
+                operator const_pointer() const noexcept { return data(); }
+
                 template<size_t M>
                     bool operator==(array<T, M> const& other) const {
                         return N == M and std::equal(begin(), end(), other.begin()); 

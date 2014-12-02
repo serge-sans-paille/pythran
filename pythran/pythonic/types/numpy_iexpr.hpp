@@ -48,7 +48,7 @@ namespace pythonic {
 
                 Arg arg;
                 dtype* buffer;
-                array<long, value> shape;
+                long const* shape;
 
                 numpy_iexpr() {}
                 numpy_iexpr(numpy_iexpr const &) = default;
@@ -62,7 +62,7 @@ namespace pythonic {
                 {
                 }
 
-                numpy_iexpr(Arg const & arg, long index) : arg(arg), buffer(arg.buffer)
+                numpy_iexpr(Arg const & arg, long index) : arg(arg), buffer(arg.buffer), shape(&arg.shape[1])
                 {
                     buffer += buffer_offset(index, utils::int_<value>());
                 }
@@ -109,10 +109,10 @@ namespace pythonic {
                 }
 
                 const_iterator begin() const { return make_const_nditerator<is_strided or value != 1>()(*this, 0); }
-                const_iterator end() const { return make_const_nditerator<is_strided or value != 1>()(*this, shape[0]); }
+                const_iterator end() const { return make_const_nditerator<is_strided or value != 1>()(*this, *shape); }
 
                 iterator begin() { return make_nditerator<is_strided or value != 1>()(*this, 0); }
-                iterator end() { return make_nditerator<is_strided or value != 1>()(*this, shape[0]); }
+                iterator end() { return make_nditerator<is_strided or value != 1>()(*this, *shape); }
 
                 dtype const * fbegin() const { return buffer; }
                 dtype const * fend() const { return buffer + size(); }
@@ -161,15 +161,15 @@ namespace pythonic {
                 }
 #endif
                 auto operator[](long i) const &-> decltype(this->fast(i)) {
-                    if(i<0) i += shape[0];
+                    if(i<0) i += *shape;
                     return fast(i);
                 }
                 auto operator[](long i) &-> decltype(this->fast(i)) {
-                    if(i<0) i += shape[0];
+                    if(i<0) i += *shape;
                     return fast(i);
                 }
                 auto operator[](long i) && -> decltype(std::move(*this).fast(i)) {
-                    if(i<0) i += shape[0];
+                    if(i<0) i += *shape;
                     return std::move(*this).fast(i);
                 }
                 auto operator()(long i) const &-> decltype((*this)[i]) {
@@ -233,7 +233,7 @@ namespace pythonic {
                     return const_cast<dtype&>(const_cast<numpy_iexpr const&>(*this)[indices]);
                 }
 
-                long size() const { return /*arg.size()*/ std::accumulate(shape.begin() + 1, shape.end(), *shape.begin(), std::multiplies<long>()); }
+                long size() const { return /*arg.size()*/ std::accumulate(shape + 1, shape + value, *shape, std::multiplies<long>()); }
 
                 private:
 
@@ -246,7 +246,6 @@ namespace pythonic {
 
                 template<size_t N>
                 long buffer_offset(long index, utils::int_<N>) {
-                    shape[value - N] = arg.shape[value - N + 1];
                     return buffer_offset(index * arg.shape[value - N + 1], utils::int_<N - 1>());
                 }
 

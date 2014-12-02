@@ -26,6 +26,7 @@ namespace pythonic {
         long operator-(broadcast_iterator) const { return 0; }
         bool operator!=(broadcast_iterator) const { return true;}
         bool operator==(broadcast_iterator) const { return false;}
+        broadcast_iterator operator-=(size_t) const { return *this;}
         bool operator<(broadcast_iterator) const { return true;}
         broadcast_iterator& operator=(broadcast_iterator const& that) {
           assert(&ref == &that.ref);

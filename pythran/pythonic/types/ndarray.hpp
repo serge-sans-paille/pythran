@@ -393,9 +393,9 @@ namespace pythonic {
                 template<class Op, class Arg>
                     ndarray(numpy_uexpr<Op, Arg> const & expr) :
                         mem(expr.size()),
-                        buffer(mem->data),
-                        shape(expr.shape)
+                        buffer(mem->data)
                 {
+                    for(size_t i = 0; i < N; ++i) shape[i] = expr.shape[i];
                     initialize_from_expr(expr);
                 }
 
@@ -411,9 +411,9 @@ namespace pythonic {
                 template<class Arg>
                     ndarray(numpy_iexpr<Arg> const & expr) :
                         mem(expr.size()),
-                        buffer(mem->data),
-                        shape(expr.shape)
+                        buffer(mem->data)
                 {
+                    for(size_t i = 0; i < N; ++i) shape[i] = expr.shape[i];
                     initialize_from_expr(expr);
                 }
 

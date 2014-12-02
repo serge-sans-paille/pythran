@@ -29,6 +29,7 @@ namespace pythonic {
                     return  index <  other.index;
                 }
                 const_uexpr_iterator& operator=(const_uexpr_iterator const& other) { index = other.index; return *this;}
+                const_uexpr_iterator& operator-=(size_t n) { index -= n; return *this;}
             };
         /* Expression template for numpy expressions - unary operators
          */
@@ -43,7 +44,7 @@ namespace pythonic {
                 typedef decltype(Op()(std::declval<typename std::remove_reference<Arg>::type::dtype>())) dtype;
 
                 Arg arg;
-                array<long, value> const shape;
+                long const *shape;
 
                 numpy_uexpr() {}
                 numpy_uexpr(numpy_uexpr const &) =default;
@@ -64,7 +65,7 @@ namespace pythonic {
                 }
 #endif
                 auto operator[](long i) const -> decltype(this->fast(i)) {
-                    if(i<0) i += shape[0];
+                    if(i<0) i += *shape;
                     return fast(i);
                 }
                 template<class F>

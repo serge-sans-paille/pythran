@@ -1,20 +1,21 @@
 """ This modules provides the translation tables from python to c++. """
 
-from pythran.intrinsic import Class, ReadOnceFunctionIntr, ConstExceptionIntr
+import ast
+import inspect
+import logging
+import sys
+
+from pythran import cxxtypes
+from pythran.conversion import to_ast, ToNotEval
+from pythran.cxxtypes import NamedType
+from pythran.intrinsic import Class
 from pythran.intrinsic import ClassWithConstConstructor, ExceptionClass
 from pythran.intrinsic import ClassWithReadOnceConstructor
 from pythran.intrinsic import ConstFunctionIntr, FunctionIntr, UpdateEffect
 from pythran.intrinsic import ConstMethodIntr, MethodIntr, AttributeIntr
 from pythran.intrinsic import ReadEffect, ConstantIntr
-from pythran.conversion import to_ast, ToNotEval
-from pythran.cxxtypes import NamedType
+from pythran.intrinsic import ReadOnceFunctionIntr, ConstExceptionIntr
 from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE
-import pythran.cxxtypes as cxxtypes
-
-import ast
-import sys
-import inspect
-import logging
 
 logger = logging.getLogger("pythran")
 
@@ -81,31 +82,31 @@ operator_to_lambda = {
     ast.NotIn: "(not pythonic::in({1}, {0}))".format,
 }
 
-update_effects = (lambda self, node:
-                  [self.combine(node.args[0], node_args_k, register=True,
-                                aliasing_type=True)
-                   for node_args_k in node.args[1:]
-                   ])
 
-classes = {
+def update_effects(self, node):
+    """
+    Combiner when we update the fisrst argument of a function.
+
+    It turn type of first parameter in combination of all others
+    parameters types.
+    """
+    return [self.combine(node.args[0], node_args_k, register=True,
+                         aliasing_type=True)
+            for node_args_k in node.args[1:]]
+
+
+CLASSES = {
     "list": {
         "append": MethodIntr(
             lambda self, node:
             self.combine(
                 node.args[0],
                 node.args[1],
-                unary_op=lambda f: cxxtypes.ListType(f),
+                unary_op=cxxtypes.ListType,
                 register=True,
                 aliasing_type=True)
             ),
-        "extend": MethodIntr(
-            lambda self, node:
-            self.combine(
-                node.args[0],
-                node.args[1],
-                register=True,
-                aliasing_type=True)
-            ),
+        "extend": MethodIntr(update_effects),
         "index": ConstMethodIntr(),
         "pop": MethodIntr(),
         "reverse": MethodIntr(),
@@ -117,7 +118,7 @@ classes = {
             self.combine(
                 node.args[0],
                 node.args[2],
-                unary_op=lambda f: cxxtypes.ListType(f),
+                unary_op=cxxtypes.ListType,
                 register=True,
                 aliasing_type=True)
             ),
@@ -145,7 +146,7 @@ classes = {
             self.combine(
                 node.args[0],
                 node.args[1],
-                unary_op=lambda f: cxxtypes.SetType(f),
+                unary_op=cxxtypes.SetType,
                 register=True,
                 aliasing_type=True)
         ),
@@ -157,41 +158,11 @@ classes = {
         "union_": ConstMethodIntr(),
         "update": MethodIntr(update_effects),
         "intersection": ConstMethodIntr(),
-        "intersection_update": MethodIntr(
-            lambda self, node:
-            [
-                self.combine(
-                    node.args[0],
-                    node_args_k,
-                    register=True,
-                    aliasing_type=True)
-                for node_args_k in node.args[1:]
-            ]
-        ),
+        "intersection_update": MethodIntr(update_effects),
         "difference": ConstMethodIntr(),
-        "difference_update": MethodIntr(
-            lambda self, node:
-            [
-                self.combine(
-                    node.args[0],
-                    node_args_k,
-                    register=True,
-                    aliasing_type=True)
-                for node_args_k in node.args[1:]
-            ]
-        ),
+        "difference_update": MethodIntr(update_effects),
         "symmetric_difference": ConstMethodIntr(),
-        "symmetric_difference_update": MethodIntr(
-            lambda self, node:
-            [
-                self.combine(
-                    node.args[0],
-                    node_args_k,
-                    register=True,
-                    aliasing_type=True)
-                for node_args_k in node.args[1:]
-            ]
-        ),
+        "symmetric_difference_update": MethodIntr(update_effects),
         "issuperset": ConstMethodIntr(),
         "issubset": ConstMethodIntr(),
     },
@@ -302,7 +273,7 @@ MODULES = {
         "SystemExit": ConstExceptionIntr(),
         "KeyboardInterrupt": ConstExceptionIntr(),
         "GeneratorExit": ConstExceptionIntr(),
-        "Exception": ExceptionClass(classes["Exception"]),
+        "Exception": ExceptionClass(CLASSES["Exception"]),
         "StopIteration": ConstExceptionIntr(),
         "StandardError": ConstExceptionIntr(),
         "Warning": ConstExceptionIntr(),
@@ -352,20 +323,20 @@ MODULES = {
         "bool_": ConstFunctionIntr(),
         "chr": ConstFunctionIntr(),
         "cmp": ConstFunctionIntr(),
-        "complex": ClassWithConstConstructor(classes['complex']),
-        "dict": ClassWithReadOnceConstructor(classes['dict']),
+        "complex": ClassWithConstConstructor(CLASSES['complex']),
+        "dict": ClassWithReadOnceConstructor(CLASSES['dict']),
         "divmod": ConstFunctionIntr(),
         "enumerate": ReadOnceFunctionIntr(),
-        "file": ClassWithConstConstructor(classes['file']),
+        "file": ClassWithConstConstructor(CLASSES['file']),
         "filter": ReadOnceFunctionIntr(),
-        "float_": ClassWithConstConstructor(classes['float']),
+        "float_": ClassWithConstConstructor(CLASSES['float']),
         "getattr": ConstFunctionIntr(),
         "hex": ConstFunctionIntr(),
         "id": ConstFunctionIntr(),
         "int_": ConstFunctionIntr(),
         "iter": FunctionIntr(),  # not const
         "len": ConstFunctionIntr(),
-        "list": ClassWithReadOnceConstructor(classes['list']),
+        "list": ClassWithReadOnceConstructor(CLASSES['list']),
         "long_": ConstFunctionIntr(),
         "map": ReadOnceFunctionIntr(),
         "max": ReadOnceFunctionIntr(),
@@ -379,9 +350,9 @@ MODULES = {
         "reduce": ReadOnceFunctionIntr(),
         "reversed": ReadOnceFunctionIntr(),
         "round": ConstFunctionIntr(),
-        "set": ClassWithReadOnceConstructor(classes['set']),
+        "set": ClassWithReadOnceConstructor(CLASSES['set']),
         "sorted": ConstFunctionIntr(),
-        "str": ClassWithConstConstructor(classes['str']),
+        "str": ClassWithConstConstructor(CLASSES['str']),
         "sum": ReadOnceFunctionIntr(),
         "tuple": ReadOnceFunctionIntr(),
         "xrange": ConstFunctionIntr(),
@@ -405,14 +376,10 @@ MODULES = {
         "append": ConstFunctionIntr(),
         "arange": ConstFunctionIntr(),
         "arccos": ConstFunctionIntr(),
-        "arccos": ConstFunctionIntr(),
         "arccosh": ConstFunctionIntr(),
-        "arcsin": ConstFunctionIntr(),
         "arcsin": ConstFunctionIntr(),
         "arcsinh": ConstFunctionIntr(),
         "arctan": ConstFunctionIntr(),
-        "arctan": ConstFunctionIntr(),
-        "arctan2": ConstFunctionIntr(),
         "arctan2": ConstFunctionIntr(),
         "arctanh": ConstFunctionIntr(),
         "argmax": ConstFunctionIntr(),
@@ -479,7 +446,7 @@ MODULES = {
         "expm1": ConstFunctionIntr(),
         "eye": ConstFunctionIntr(),
         "fabs": ConstFunctionIntr(),
-        "finfo": ClassWithConstConstructor(classes['finfo']),
+        "finfo": ClassWithConstConstructor(CLASSES['finfo']),
         "fix": ConstFunctionIntr(),
         "flatnonzero": ConstFunctionIntr(),
         "fliplr": ConstFunctionIntr(),
@@ -555,7 +522,7 @@ MODULES = {
         "nanmin": ConstFunctionIntr(),
         "nansum": ConstFunctionIntr(),
         "ndenumerate": ConstFunctionIntr(),
-        "ndarray": ClassWithConstConstructor(classes["ndarray"]),
+        "ndarray": ClassWithConstConstructor(CLASSES["ndarray"]),
         "ndindex": ConstFunctionIntr(),
         "ndim": ConstFunctionIntr(),
         "negative": ConstFunctionIntr(),
@@ -806,238 +773,35 @@ MODULES = {
         "__xor__": ConstFunctionIntr(),
         "concat": ConstFunctionIntr(),
         "__concat__": ConstFunctionIntr(),
-        "iadd": MethodIntr(
-            lambda self, node:
-            self.combine(
-                node.args[0],
-                node.args[1],
-                register=True,
-                aliasing_type=True)
-            ),
-        "__iadd__": MethodIntr(
-            lambda self, node:
-            self.combine(
-                node.args[0],
-                node.args[1],
-                register=True,
-                aliasing_type=True)
-            ),
-        "iand": MethodIntr(
-            lambda self, node:
-            self.combine(
-                node.args[0],
-                node.args[1],
-                register=True,
-                aliasing_type=True)
-            ),
-        "__iand__": MethodIntr(
-            lambda self, node:
-            self.combine(
-                node.args[0],
-                node.args[1],
-                register=True,
-                aliasing_type=True)
-            ),
-        "iconcat": MethodIntr(
-            lambda self, node:
-            self.combine(
-                node.args[0],
-                node.args[1],
-                register=True,
-                aliasing_type=True)
-            ),
-        "__iconcat__": MethodIntr(
-            lambda self, node:
-            self.combine(
-                node.args[0],
-                node.args[1],
-                register=True,
-                aliasing_type=True)
-            ),
-        "idiv": MethodIntr(
-            lambda self, node:
-            self.combine(
-                node.args[0],
-                node.args[1],
-                register=True,
-                aliasing_type=True)
-            ),
-        "__idiv__": MethodIntr(
-            lambda self, node:
-            self.combine(
-                node.args[0],
-                node.args[1],
-                register=True,
-                aliasing_type=True)
-            ),
-        "ifloordiv": MethodIntr(
-            lambda self, node:
-            self.combine(
-                node.args[0],
-                node.args[1],
-                register=True,
-                aliasing_type=True)
-            ),
-        "__ifloordiv__": MethodIntr(
-            lambda self, node:
-            self.combine(
-                node.args[0],
-                node.args[1],
-                register=True,
-                aliasing_type=True)
-            ),
-        "ilshift": MethodIntr(
-            lambda self, node:
-            self.combine(
-                node.args[0],
-                node.args[1],
-                register=True,
-                aliasing_type=True)
-            ),
-        "__ilshift__": MethodIntr(
-            lambda self, node:
-            self.combine(
-                node.args[0],
-                node.args[1],
-                register=True,
-                aliasing_type=True)
-            ),
-        "imod": MethodIntr(
-            lambda self, node:
-            self.combine(
-                node.args[0],
-                node.args[1],
-                register=True,
-                aliasing_type=True)
-            ),
-        "__imod__": MethodIntr(
-            lambda self, node:
-            self.combine(
-                node.args[0],
-                node.args[1],
-                register=True,
-                aliasing_type=True)
-            ),
-        "imul": MethodIntr(
-            lambda self, node:
-            self.combine(
-                node.args[0],
-                node.args[1],
-                register=True,
-                aliasing_type=True)
-            ),
-        "__imul__": MethodIntr(
-            lambda self, node:
-            self.combine(
-                node.args[0],
-                node.args[1],
-                register=True,
-                aliasing_type=True)
-            ),
-        "ior": MethodIntr(
-            lambda self, node:
-            self.combine(
-                node.args[0],
-                node.args[1],
-                register=True,
-                aliasing_type=True)
-            ),
-        "__ior__": MethodIntr(
-            lambda self, node:
-            self.combine(
-                node.args[0],
-                node.args[1],
-                register=True,
-                aliasing_type=True)
-            ),
-        "ipow": MethodIntr(
-            lambda self, node:
-            self.combine(
-                node.args[0],
-                node.args[1],
-                register=True,
-                aliasing_type=True)
-            ),
-        "__ipow__": MethodIntr(
-            lambda self, node:
-            self.combine(
-                node.args[0],
-                node.args[1],
-                register=True,
-                aliasing_type=True)
-            ),
-        "irshift": MethodIntr(
-            lambda self, node:
-            self.combine(
-                node.args[0],
-                node.args[1],
-                register=True,
-                aliasing_type=True)
-            ),
-        "__irshift__": MethodIntr(
-            lambda self, node:
-            self.combine(
-                node.args[0],
-                node.args[1],
-                register=True,
-                aliasing_type=True)
-            ),
-        "isub": MethodIntr(
-            lambda self, node:
-            self.combine(
-                node.args[0],
-                node.args[1],
-                register=True,
-                aliasing_type=True)
-            ),
-        "__isub__": MethodIntr(
-            lambda self, node:
-            self.combine(
-                node.args[0],
-                node.args[1],
-                register=True,
-                aliasing_type=True)
-            ),
-        "itruediv": MethodIntr(
-            lambda self, node:
-            self.combine(
-                node.args[0],
-                node.args[1],
-                register=True,
-                aliasing_type=True)
-            ),
-        "__itruediv__": MethodIntr(
-            lambda self, node:
-            self.combine(
-                node.args[0],
-                node.args[1],
-                register=True,
-                aliasing_type=True)
-            ),
-        "ixor": MethodIntr(
-            lambda self, node:
-            self.combine(
-                node.args[0],
-                node.args[1],
-                register=True,
-                aliasing_type=True)
-            ),
-        "__ixor__": MethodIntr(
-            lambda self, node:
-            self.combine(
-                node.args[0],
-                node.args[1],
-                register=True,
-                aliasing_type=True)
-            ),
-        "contains": MethodIntr(
-            lambda self, node:
-            self.combine(
-                node.args[0],
-                node.args[1],
-                register=True,
-                aliasing_type=True)
-            ),
+        "iadd": MethodIntr(update_effects),
+        "__iadd__": MethodIntr(update_effects),
+        "iand": MethodIntr(update_effects),
+        "__iand__": MethodIntr(update_effects),
+        "iconcat": MethodIntr(update_effects),
+        "__iconcat__": MethodIntr(update_effects),
+        "idiv": MethodIntr(update_effects),
+        "__idiv__": MethodIntr(update_effects),
+        "ifloordiv": MethodIntr(update_effects),
+        "__ifloordiv__": MethodIntr(update_effects),
+        "ilshift": MethodIntr(update_effects),
+        "__ilshift__": MethodIntr(update_effects),
+        "imod": MethodIntr(update_effects),
+        "__imod__": MethodIntr(update_effects),
+        "imul": MethodIntr(update_effects),
+        "__imul__": MethodIntr(update_effects),
+        "ior": MethodIntr(update_effects),
+        "__ior__": MethodIntr(update_effects),
+        "ipow": MethodIntr(update_effects),
+        "__ipow__": MethodIntr(update_effects),
+        "irshift": MethodIntr(update_effects),
+        "__irshift__": MethodIntr(update_effects),
+        "isub": MethodIntr(update_effects),
+        "__isub__": MethodIntr(update_effects),
+        "itruediv": MethodIntr(update_effects),
+        "__itruediv__": MethodIntr(update_effects),
+        "ixor": MethodIntr(update_effects),
+        "__ixor__": MethodIntr(update_effects),
+        "contains": MethodIntr(update_effects),
         "__contains__": ConstFunctionIntr(),
         "countOf": ConstFunctionIntr(),
         "delitem": FunctionIntr(
@@ -1081,6 +845,7 @@ MODULES = {
         },
     }
 
+
 # VMSError is only available on VMS
 if 'VMSError' in sys.modules['__builtin__'].__dict__:
     MODULES['__builtin__']['VMSError'] = ConstExceptionIntr()
@@ -1092,10 +857,46 @@ if 'WindowsError' in sys.modules['__builtin__'].__dict__:
 # detect and prune unsupported modules
 try:
     __import__("omp")
-except EnvironmentError:
+except ImportError:
     logger.warn("Pythran support disabled for module: omp")
     del MODULES["omp"]
 
+
+# populate argument description through introspection
+def save_arguments(module_name, elements):
+    """ Recursively save arguments name and default value. """
+    for elem, signature in elements.iteritems():
+        if isinstance(signature, dict):  # Submodule case
+            save_arguments(module_name + (elem,), signature)
+        else:
+            # use introspection to get the Python obj
+            try:
+                themodule = __import__(".".join(module_name))
+                obj = getattr(themodule, elem)
+                spec = inspect.getargspec(obj)
+                assert not signature.args.args
+                signature.args.args = [ast.Name(arg, ast.Param())
+                                       for arg in spec.args]
+                if spec.defaults:
+                    signature.args.defaults = map(to_ast, spec.defaults)
+            except (AttributeError, ImportError, TypeError, ToNotEval):
+                pass
+
+save_arguments((), MODULES)
+
+
+# Fill return_type field for constants
+def fill_constants_types(module_name, elements):
+    """ Recursively save arguments name and default value. """
+    for elem, intrinsic in elements.iteritems():
+        if isinstance(intrinsic, dict):  # Submodule case
+            fill_constants_types(module_name + (elem,), intrinsic)
+        elif isinstance(intrinsic, ConstantIntr):
+            # use introspection to get the Python constants types
+            cst = getattr(__import__(".".join(module_name)), elem)
+            intrinsic.return_type = NamedType(PYTYPE_TO_CTYPE_TABLE[type(cst)])
+
+fill_constants_types((), MODULES)
 # a method name to module binding
 # {method_name : ((full module path), signature)}
 methods = {}
@@ -1118,8 +919,7 @@ def save_method(elements, module_path):
             else:
                 methods[elem] = (module_path, signature)
 
-for module, elems in MODULES.iteritems():
-    save_method(elems, (module,))
+save_method(MODULES, ())
 
 # a function name to module binding
 # {function_name : [((full module path), signature)]}
@@ -1136,8 +936,7 @@ def save_function(elements, module_path):
         elif isinstance(signature, Class):
             save_function(signature.fields, module_path + (elem,))
 
-for module, elems in MODULES.iteritems():
-    save_function(elems, (module,))
+save_function(MODULES, ())
 
 # a attribute name to module binding
 # {attribute_name : ((full module path), signature)}
@@ -1155,44 +954,4 @@ def save_attribute(elements, module_path):
         elif isinstance(signature, Class):
             save_attribute(signature.fields, module_path + (elem,))
 
-for module, elems in MODULES.iteritems():
-    save_attribute(elems, (module,))
-
-
-# populate argument description through introspection
-def save_arguments(module_name, elements):
-    """ Recursively save arguments name and default value. """
-    for elem, signature in elements.iteritems():
-        if isinstance(signature, dict):  # Submodule case
-            save_arguments(".".join((module_name, elem)), signature)
-        else:
-            # use introspection to get the Python obj
-            try:
-                themodule = __import__(module_name)
-                obj = getattr(themodule, elem)
-                spec = inspect.getargspec(obj)
-                assert not signature.args.args
-                signature.args.args = [ast.Name(arg, ast.Param())
-                                       for arg in spec.args]
-                if spec.defaults:
-                    signature.args.defaults = map(to_ast, spec.defaults)
-            except (AttributeError, ImportError, TypeError, ToNotEval):
-                pass
-
-for module, elems in MODULES.iteritems():
-    save_arguments(module, elems)
-
-
-# Fill return_type field for constants
-def fill_constants_types(module_name, elements):
-    """ Recursively save arguments name and default value. """
-    for elem, intrinsic in elements.iteritems():
-        if isinstance(intrinsic, dict):  # Submodule case
-            fill_constants_types(module_name + (elem,), intrinsic)
-        elif isinstance(intrinsic, ConstantIntr):
-            # use introspection to get the Python constants types
-            cst = getattr(__import__(".".join(module_name)), elem)
-            intrinsic.return_type = NamedType(PYTYPE_TO_CTYPE_TABLE[type(cst)])
-
-for module, elems in MODULES.iteritems():
-    fill_constants_types((module,), elems)
+save_attribute(MODULES, ())

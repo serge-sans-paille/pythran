@@ -56,7 +56,7 @@ and
     >::type
 NUMPY_BINARY_FUNC_NAME(E const& self, S other)
 {
-    return types::numpy_expr<NUMPY_BINARY_FUNC_SYM, E,  types::broadcast<typename E::dtype, S>>(self, types::broadcast<typename E::dtype, S>(other));
+    return types::numpy_expr<NUMPY_BINARY_FUNC_SYM, E,  types::broadcast<typename E::dtype, S>>(self, types::broadcast<typename E::dtype, S>(other, self.shape[0]));
 }
 template<class E, class S>
 typename std::enable_if<
@@ -67,7 +67,7 @@ and
     >::type
 NUMPY_BINARY_FUNC_NAME(S other, E const& self)
 {
-    return types::numpy_expr<NUMPY_BINARY_FUNC_SYM, types::broadcast<typename E::dtype, S>, E>(types::broadcast<typename E::dtype, S>(other), self);
+    return types::numpy_expr<NUMPY_BINARY_FUNC_SYM, types::broadcast<typename E::dtype, S>, E>(types::broadcast<typename E::dtype, S>(other, self.shape[0]), self);
 }
 
 

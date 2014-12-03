@@ -51,8 +51,8 @@ namespace pythonic {
                 T const & ref;
                 array<long, value> shape;
 
-                broadcasted(T const& ref) : ref(ref), shape() {
-                    shape[0] = 1;
+                broadcasted(T const& ref, long wide) : ref(ref), shape() {
+                    shape[0] = wide;
                     std::copy(ref.shape.begin(), ref.shape.end(), shape.begin() + 1);
                 }
 
@@ -67,7 +67,7 @@ namespace pythonic {
                 const_iterator begin() const { return const_iterator(ref); }
                 const_iterator end() const { return const_iterator(ref); }
 
-                long size() const { return 0;}
+                long size() const { return std::accumulate(shape.begin(), shape.end(), 0L, std::multiplies<long>{});}
 
             };
 
@@ -91,7 +91,7 @@ namespace pythonic {
                 typedef dtype value_type;
                 static constexpr size_t value = 0;
                 dtype _value;
-                std::array<long, 1> const shape{{1L}};
+                std::array<long, 1> const shape;
                 typedef broadcast_iterator<dtype> const_iterator;
                 const_iterator begin() const { return const_iterator(_value); }
                 const_iterator end() const { return const_iterator(_value); }
@@ -100,7 +100,7 @@ namespace pythonic {
 #endif
 
                 broadcast() {}
-                broadcast(dtype v) : _value(v)
+                broadcast(dtype v, long shape) : _value(v), shape{{shape}}
 #ifdef USE_BOOST_SIMD
                                      , _splated(boost::simd::splat<boost::simd::native<dtype, BOOST_SIMD_DEFAULT_EXTENSION>>(_value))
 #endif
@@ -116,7 +116,7 @@ namespace pythonic {
                 template<class I>
                 auto load(I) const -> decltype(this -> _splated) { return _splated; }
 #endif
-                long size() const { return 0; }
+                long size() const { return shape[0]; }
             };
     }
 }

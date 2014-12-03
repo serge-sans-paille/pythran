@@ -17,10 +17,8 @@ namespace pythonic {
                 enum { NO_BROADCAST, BROADCAST_SHAPE0, BROADCAST_SHAPE1} const mode;
                 I0 index0;
                 I1 index1;
-                size_t curr;
-                size_t const stop;
-
-                void (*next)(const_expr_iterator);
+                long curr;
+                long const stop;
 
                 const_expr_iterator(I0 const& index0, I0 const& end0, I1 const& index1, I1 const& end1) :
                   mode{(end1 - index1) == (end0 - index0) ? NO_BROADCAST : (end1 - index1) > (end0 - index0) ? BROADCAST_SHAPE0 : BROADCAST_SHAPE1},
@@ -35,10 +33,10 @@ namespace pythonic {
                   return Op{}(*index0, *index1);
                 }
                 const_expr_iterator& operator++() {
-                  ++index0; ++index1; ++curr;
+                  ++index0; ++index1;
                   if(mode == NO_BROADCAST);
-                  else if(mode == BROADCAST_SHAPE0) {if(curr==stop) index0-=stop;}
-                  else if(mode == BROADCAST_SHAPE1) {if(curr==stop) index1-=stop;}
+                  else if(mode == BROADCAST_SHAPE0) {if(++curr==stop) {index0-=stop; curr=0;}}
+                  else if(mode == BROADCAST_SHAPE1) {if(++curr==stop) {index1-=stop; curr=0;}}
                   return *this;
                 }
                 long operator-(const_expr_iterator const &other) const {

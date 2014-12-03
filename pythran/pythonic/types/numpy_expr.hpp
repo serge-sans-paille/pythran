@@ -27,7 +27,6 @@ namespace pythonic {
                 {
                 }
 
-
                 // TODO: This "auto" is different than E::value_type, which is weird (if not wrong)
                 auto operator*() const -> decltype(Op{}(*index0, *index1)) {
                   return Op{}(*index0, *index1);
@@ -38,6 +37,9 @@ namespace pythonic {
                   else if(mode == BROADCAST_SHAPE0) {if(++curr==stop) {index0-=stop; curr=0;}}
                   else if(mode == BROADCAST_SHAPE1) {if(++curr==stop) {index1-=stop; curr=0;}}
                   return *this;
+                }
+                void next() {
+                  utils::next(index0); utils::next(index1);
                 }
                 long operator-(const_expr_iterator const &other) const {
                   return std::max(index0 - other.index0, index1 - other.index1);
@@ -122,6 +124,10 @@ namespace pythonic {
                     if(i<0) i += shape[0];
                     return fast(i);
                 }
+                bool is_broadcasting() const {
+                  return arg0.shape[0] != arg1.shape[0] or arg0.is_broadcasting() or arg1.is_broadcasting();
+                }
+
 #ifdef USE_BOOST_SIMD
                 template<class I> // template to prevent automatic instantiation when the type is not vectorizable
                 auto load(I i) const -> decltype(Op()(arg0.load(i), arg1.load(i))) {
@@ -171,7 +177,6 @@ namespace pythonic {
             };
 
     }
-
 
     template<class Op, class Arg0, class Arg1>
         struct assignable<types::numpy_expr<Op, Arg0, Arg1>>

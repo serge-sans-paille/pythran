@@ -642,6 +642,7 @@ namespace pythonic {
                 flat_iterator fend() { return buffer + size(); }
 
                 /* member functions */
+                bool is_broadcasting() const { return false; }
                 long size() const { return std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<long>()); }
                 template<size_t M>
                     ndarray<T,M> reshape(array<long,M> const& shape) const {

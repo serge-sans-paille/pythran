@@ -16,6 +16,7 @@ namespace pythonic {
                 // TODO: This "auto" is different than E::value_type, which is weird (if not wrong)
                 auto operator*() const -> decltype(Op{}(*index)) { return Op{}(*index); }
                 const_uexpr_iterator& operator++() { ++index; return *this;}
+                void next() { utils::next(index); }
                 long operator-(const_uexpr_iterator const& other) const {
                     return index - other.index;
                 }
@@ -54,6 +55,8 @@ namespace pythonic {
 
                 const_iterator begin() const { return const_iterator(arg.begin()); }
                 const_iterator end() const { return const_iterator(arg.end()); }
+
+                bool is_broadcasting() const { return arg.is_broadcasting(); }
 
                 auto fast(long i) const -> decltype(Op()(arg.fast(i))) {
                     return Op()(arg.fast(i));

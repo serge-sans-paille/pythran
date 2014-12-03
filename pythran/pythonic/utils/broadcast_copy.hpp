@@ -41,6 +41,41 @@ namespace pythonic {
         SPECIALIZE_DIM_OF(std::complex<double>);
 #undef SPECIALIZE_DIM_OF
 
+        template<class T>
+          struct _next {
+            void operator()(T & iter) {
+              iter.next();
+            }
+          };
+        template<class T>
+          struct _next<T const*> {
+            void operator()(T const* & iter) {
+              ++iter;
+            }
+          };
+        template<class T>
+          struct _next<T *> {
+            void operator()(T * & iter) {
+              ++iter;
+            }
+          };
+
+        template<class T>
+          void next(T& iter) {
+            return _next<T>{}(iter);
+          }
+
+        template<class I, class O>
+        void copy(I const& in, O& out) {
+          if(in.is_broadcasting())
+            std::copy(in.begin(), in.end(), out.begin());
+          else {
+            auto out_iter = out.begin();
+            for(auto iter = in.begin(), end = in.end(); iter != end; ::pythonic::utils::next(iter), ++out_iter)
+              *out_iter = *iter;
+          }
+        }
+
       /* helper for specialization of the broadcasting, vectorizing copy operator
        * due to expression templates, this may also triggers a lot of computations!
        *
@@ -74,7 +109,7 @@ namespace pythonic {
                 self.fast(i) = other.fast(i);
             else
 #endif
-              std::copy(other.begin(), other.end(), self.begin());
+            copy(other, self);
 
             // eventually repeat the pattern
 #ifdef _OPENMP

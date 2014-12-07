@@ -43,21 +43,22 @@ namespace pythonic {
             typename std::enable_if<E::value != 1, types::ndarray<typename E::dtype, E::value - 1>>::type
             max(E const& array, long axis)
             {
-                if(axis<0 || axis >= E::value)
+                if(axis < 0) axis += E::value;
+                if(axis<0 || size_t(axis) >= E::value)
                     throw types::ValueError("axis out of bounds");
                 auto shape = array.shape;
                 if(axis==0)
                 {
                     types::array<long, E::value - 1> shp;
-                    std::copy(shape.begin() + 1, shape.end(), shp.begin());
+                    std::copy(&shape[1], &shape[E::value], shp.begin());
                     types::ndarray<typename E::dtype, E::value - 1> out(shp, std::numeric_limits<typename E::dtype>::lowest());
                     return std::accumulate(array.begin(), array.end(), out, proxy::maximum());
                 }
                 else
                 {
                     types::array<long, E::value-1> shp;
-                    auto next = std::copy(shape.begin(), shape.begin() + axis, shp.begin());
-                    std::copy(shape.begin() + axis + 1, shape.end(), next);
+                    auto next = std::copy(&shape[0], &shape[axis], shp.begin());
+                    std::copy(&shape[axis + 1], &shape[E::value], next);
                     types::ndarray<typename E::dtype,E::value-1> maxy(shp, __builtin__::None);
                     std::transform(array.begin(), array.end(), maxy.begin(), [axis](decltype((*array.begin())) other) {return max(other, axis-1);});
                     return maxy;

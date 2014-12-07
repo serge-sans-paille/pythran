@@ -316,6 +316,8 @@ namespace pythonic {
                 long size() const {
                     return std::accumulate(shape.begin() + 1, shape.end(), *shape.begin(), std::multiplies<long>());
                 }
+
+                bool is_broadcasting() const { return arg.is_broadcasting(); }
             };
 
         // As gexpr have to begin with a slice. When we access it, we need to forward the firsts accessed information

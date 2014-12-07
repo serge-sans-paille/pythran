@@ -71,8 +71,12 @@ namespace pythonic {
             std::copy(in.begin(), in.end(), out.begin());
           else {
             auto out_iter = out.begin();
-            for(auto iter = in.begin(), end = in.end(); iter != end; ::pythonic::utils::next(iter), ++out_iter)
+            auto iter = in.begin(), iter_end = in.end();
+            auto n = iter_end - iter;
+            while(n--) {
               *out_iter = *iter;
+              ::pythonic::utils::next(iter), ++out_iter;
+            }
           }
         }
 
@@ -119,7 +123,7 @@ namespace pythonic {
                 std::copy_n(self.begin(), other_size, self.begin() + i);
             else
 #endif
-              for (size_t i = other_size; i < self_size; i+= other_size)
+              for (long i = other_size; i < self_size; i+= other_size)
                 std::copy_n(self.begin(), other_size, self.begin() + i);
         }
 

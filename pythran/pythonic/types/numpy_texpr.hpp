@@ -84,6 +84,7 @@ namespace pythonic {
                 long size() const {
                     return arg.size();
                 }
+                bool is_broadcasting() const { return arg.is_broadcasting(); }
             };
 
     }

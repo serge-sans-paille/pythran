@@ -51,7 +51,8 @@ namespace pythonic {
                 numpy_uexpr(numpy_uexpr const &) =default;
                 numpy_uexpr(numpy_uexpr &&) = default;
 
-                numpy_uexpr(Arg const &arg) : arg(arg), shape(arg.shape) {}
+                numpy_uexpr(Arg const &arg) : arg(arg), shape(&this->arg.shape[0]) {
+                }
 
                 const_iterator begin() const { return const_iterator(arg.begin()); }
                 const_iterator end() const { return const_iterator(arg.end()); }

@@ -23,6 +23,7 @@ namespace pythonic {
 
         T const& operator*() const { return ref; }
         broadcast_iterator operator++() { return *this; }
+        void next() {}
         long operator-(broadcast_iterator) const { return 0; }
         bool operator!=(broadcast_iterator) const { return true;}
         bool operator==(broadcast_iterator) const { return false;}
@@ -66,6 +67,7 @@ namespace pythonic {
 #endif
                 const_iterator begin() const { return const_iterator(ref); }
                 const_iterator end() const { return const_iterator(ref); }
+                bool is_broadcasting() const { return false; }
 
                 long size() const { return std::accumulate(shape.begin(), shape.end(), 0L, std::multiplies<long>{});}
 
@@ -117,6 +119,7 @@ namespace pythonic {
                 auto load(I) const -> decltype(this -> _splated) { return _splated; }
 #endif
                 long size() const { return shape[0]; }
+                bool is_broadcasting() const { return false; }
             };
     }
 }

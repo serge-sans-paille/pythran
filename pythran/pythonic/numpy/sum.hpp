@@ -100,7 +100,7 @@ namespace pythonic {
             sum(E const& array, long axis)
             {
                 if(axis < 0) axis += E::value;
-                if(axis<0 || axis >= E::value)
+                if(axis<0 || size_t(axis) >= E::value)
                     throw types::ValueError("axis out of bounds");
                 auto shape = array.shape;
                 if(axis==0)

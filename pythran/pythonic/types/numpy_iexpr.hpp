@@ -67,7 +67,7 @@ namespace pythonic {
                     buffer += buffer_offset(index, utils::int_<value>());
                 }
                 // force the move. Using universal reference here does not work (because of reference collapsing ?)
-                numpy_iexpr(typename std::remove_reference<Arg>::type &&arg, long index) : arg(std::move(arg)), buffer(arg.buffer)
+                numpy_iexpr(typename std::remove_reference<Arg>::type &&arg, long index) : arg(std::move(arg)), buffer(arg.buffer), shape(&arg.shape[1])
                 {
                     buffer += buffer_offset(index, utils::int_<value>());
                 }
@@ -144,6 +144,8 @@ namespace pythonic {
                 auto fast(long i) &&-> decltype(numpy_iexpr_helper<numpy_iexpr, value>::get(std::move(*this), i)) {
                     return numpy_iexpr_helper<numpy_iexpr, value>::get(std::move(*this), i);
                 }
+
+                bool is_broadcasting() const { return arg.is_broadcasting(); }
 #ifdef USE_BOOST_SIMD
                 template<class I>
                 auto load(I i) const

@@ -145,6 +145,7 @@ namespace pythonic {
                     return fast(i);
                 }
                 long size() const { return shape[0]; }
+                bool is_broadcasting() const { return false; }
             };
 
     }

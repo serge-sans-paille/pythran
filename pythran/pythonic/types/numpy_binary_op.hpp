@@ -30,7 +30,7 @@ E0::value < E1::value,
     >::type
 NUMPY_BINARY_FUNC_NAME(E0 const& self, E1 const& other)
 {
-    return types::numpy_expr<NUMPY_BINARY_FUNC_SYM, broadcasted<E0>, E1>(self, other);
+    return types::numpy_expr<NUMPY_BINARY_FUNC_SYM, broadcasted<E0>, E1>(broadcasted<E0>{self, other.shape[0]}, other);
 }
 
 template<class E0, class E1>
@@ -44,7 +44,7 @@ and
     >::type
 NUMPY_BINARY_FUNC_NAME(E0 const& self, E1 const& other)
 {
-    return types::numpy_expr<NUMPY_BINARY_FUNC_SYM, E0, broadcasted<E1>>(self, other);
+    return types::numpy_expr<NUMPY_BINARY_FUNC_SYM, E0, broadcasted<E1>>(self, broadcasted<E1>{other, self.shape[0]});
 }
 
 template<class E, class S>

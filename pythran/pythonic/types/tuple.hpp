@@ -217,12 +217,16 @@ namespace pythonic {
                     data() const noexcept
                     { return &(buffer[0]); }
 
-                operator const_pointer() const noexcept { return data(); }
+                explicit operator const_pointer() const noexcept { return data(); }
 
                 template<size_t M>
                     bool operator==(array<T, M> const& other) const {
                         return N == M and std::equal(begin(), end(), other.begin()); 
                     }
+
+                bool operator==(T const* other) const {
+                  return std::equal(begin(), end(), other);
+                }
                 template<size_t M>
                     bool operator<(array<T, M> const& other) const {
                         return std::lexicographical_compare(begin(), end(), other.begin(), other.end());
@@ -243,6 +247,7 @@ namespace pythonic {
                 auto to_tuple() const -> decltype(to_tuple_impl<N>()(*this)) {
                     return to_tuple_impl<N>()(*this);
                 }
+                bool is_broadcasting() const { return false; }
 
                 list<T> operator[](types::slice const& s){
                     types::slice norm = s.normalize(size());
@@ -264,6 +269,10 @@ namespace pythonic {
                     return os << ')';
                 }
             };
+        template <class T, size_t N>
+          bool operator==(T const* self, array<T, N> const & other) {
+            return other == self;
+          }
 
         template<class... Types>
             struct are_same;
@@ -343,6 +352,14 @@ namespace std {
         class tuple_size<pythonic::types::array<T,N>> {
             public:
                 static const size_t value = N;
+        };
+    template <size_t I, class T>
+        T const get( T const* t) { return t[I]; }
+
+    template <size_t I, class T>
+        class tuple_element<I, T const* > {
+            public:
+                typedef T type;
         };
 }
 

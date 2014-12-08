@@ -1,6 +1,6 @@
 """HandleImport transformation takes care of importing user-defined modules."""
 from pythran.passmanager import Transformation
-from pythran.tables import cxx_keywords, MODULES
+from pythran.tables import cxx_keywords, MODULES, pythran_ward
 
 import ast
 import importlib
@@ -9,7 +9,7 @@ import inspect
 
 def mangle_imported_function_name(module_name, func_name):
     """Mangling naming scheme for imported functions."""
-    return "pythran_imported__" + module_name + "_" + func_name
+    return pythran_ward + "imported__" + module_name + "_" + func_name
 
 
 def is_builtin_function(func_name):

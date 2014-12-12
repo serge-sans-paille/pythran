@@ -7,11 +7,11 @@
 namespace pythonic {
 
     namespace numpy {
-        template<class E>
-            auto empty_like(E const&expr)
-            -> decltype(empty(expr.shape))
+        template<class E, class dtype=double>
+            auto empty_like(E const&expr, dtype d=dtype())
+            -> decltype(empty(expr.shape, d))
             {
-                return empty(expr.shape);
+                return empty(expr.shape, d);
             }
         PROXY(pythonic::numpy, empty_like)
     }

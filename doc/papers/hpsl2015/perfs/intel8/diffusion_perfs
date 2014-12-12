@@ -1,0 +1,10 @@
+diffusion Python 43167 43198 36
+diffusion numba 45060 45114 105
+diffusion parakeet 8829 8834 6
+diffusion pypy 43315 43361 77
+diffusion pythran 12601 12958 388
+diffusion pythran_omp_4 16206 16723 562
+diffusion pythran_omp_4_simd 21668 21671 3
+diffusion pythran_omp_8 16194 16777 626
+diffusion pythran_omp_8_simd 21640 21650 12
+diffusion pythran_simd 13463 13805 373

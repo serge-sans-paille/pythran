@@ -1,0 +1,6 @@
+l2norm Python 16532 16615 95
+l2norm pypy 16488 16568 91
+l2norm numba 16079 16098 10
+l2norm parakeet 28639 28764 86
+l2norm pythran 2200 2201 0
+l2norm pythran_simd 2004 2005 0

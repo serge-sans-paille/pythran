@@ -1,0 +1,16 @@
+diffusion Python 71931 71951 11
+diffusion numba 61017 61036 18
+diffusion parakeet 11454 11462 7
+diffusion pypy 71211 71236 26
+diffusion pythran_clang 20013 20015 2
+diffusion pythran_gcc 17135 17137 3
+diffusion pythran_omp_4_clang 16644 16645 0                                                 
+diffusion pythran_omp_4_gcc 21168 21503 638
+diffusion pythran_omp_4_simd_clang 17057 17099 22
+diffusion pythran_omp_4_simd_gcc 25544 25618 90
+diffusion pythran_omp_8_clang 16486 16515 47
+diffusion pythran_omp_8_gcc 21258 21474 338
+diffusion pythran_omp_8_simd_clang 17069 17092 14
+diffusion pythran_omp_8_simd_gcc 25572 25671 125
+diffusion pythran_simd_clang 20192 20196 1
+diffusion pythran_simd_gcc 17143 17147 4

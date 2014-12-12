@@ -1,0 +1,8 @@
+rosen Python 16105 16124 21
+rosen pypy 16041 16056 16
+rosen numba 13572 13662 228
+rosen parakeet 2757 2760 3
+rosen pythran_no_fs 7584 7597 14
+rosen pythran_simd_no_fs 7169 7215 19
+rosen pythran 2550 2550 0
+rosen pythran_simd 939 939 0

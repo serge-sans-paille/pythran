@@ -1,0 +1,3 @@
+arc_distance pythran_omp1 1526 1529 2
+arc_distance pythran_omp4 385 386 1
+arc_distance pythran_omp8 193 193 0

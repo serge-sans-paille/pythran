@@ -1,5 +1,5 @@
-"""The transformation submodule contains all the transformations passes offered
-in Pythran.
+"""
+This submodule contains all the transformations passes offered in Pythran.
 
 This file is just for convenience and turns the import from
 
@@ -16,6 +16,7 @@ from .expand_import_all import ExpandImportAll
 from .expand_imports import ExpandImports
 from .extract_top_level_stmts import ExtractTopLevelStmts
 from .false_polymorphism import FalsePolymorphism
+from .handle_import import HandleImport
 from .normalize_compare import NormalizeCompare
 from .normalize_exception import NormalizeException
 from .normalize_identifiers import NormalizeIdentifiers

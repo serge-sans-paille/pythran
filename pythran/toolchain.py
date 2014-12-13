@@ -14,6 +14,7 @@ from pythran.tables import pythran_ward, functions
 from pythran.types.types import extract_constructed_types
 from pythran.types.type_dependencies import pytype_to_deps
 from pythran.types.conversion import pytype_to_ctype
+from pythran.syntax import check_specs
 import pythran.frontend as frontend
 
 from numpy import get_include
@@ -184,6 +185,9 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
         for fname, signatures in specs.items():
             if not isinstance(signatures, tuple):
                 specs[fname] = (signatures,)
+
+        # verify the pythran export are compatible with the code
+        check_specs(ir, specs)
 
         mod = BoostPythonModule(module_name)
         mod.use_private_namespace = False

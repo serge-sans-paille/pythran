@@ -168,3 +168,36 @@ class SyntaxChecker(ast.NodeVisitor):
 def check_syntax(node):
     '''Does nothing but raising PythranSyntaxError when needed'''
     SyntaxChecker().visit(node)
+
+
+class SpecsChecker(ast.NodeVisitor):
+    '''
+    Verify the arity of each function (incl. defaults)
+    and raise a PythranSyntaxError if they are incompatible with the
+    #pythran export specs
+    '''
+
+    def __init__(self, specs):
+        self.specs = specs
+
+    def visit_FunctionDef(self, node):
+        max_arg_count = len(node.args.args)
+        min_arg_count = max_arg_count - len(node.args.defaults)
+
+        signatures = self.specs.get(node.name, ())
+        for signature in signatures:
+            # just verify the arity
+            arg_count = len(signature)
+            if min_arg_count <= arg_count <= max_arg_count:
+                pass
+            else:
+                msg = 'export for function {} incompatible with its definition'
+                raise PythranSyntaxError(msg.format(node.name), node)
+
+
+def check_specs(mod, specs):
+    '''
+    Does nothing but raising PythranSyntaxError if specs
+    are incompatible with the actual code
+    '''
+    SpecsChecker(specs).visit(mod)

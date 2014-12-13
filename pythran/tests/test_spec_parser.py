@@ -1,5 +1,5 @@
 import unittest
-from pythran import spec_parser
+import pythran
 import os.path
 
 #pythran export a((float,(int,long),str list) list list)
@@ -34,4 +34,14 @@ class TestSpecParser(unittest.TestCase):
 
     def test_parser(self):
         real_path = os.path.splitext(os.path.realpath(__file__))[0]+".py"
-        print spec_parser(real_path)
+        print pythran.spec_parser(real_path)
+
+    def test_invalid_specs0(self):
+        code = '#pythran export foo()\ndef foo(n): return n'
+        with self.assertRaises(pythran.syntax.PythranSyntaxError):
+            pythran.compile_pythrancode("dumber", code)
+
+    def test_invalid_specs1(self):
+        code = '#pythran export foo(int)\ndef foo(): pass'
+        with self.assertRaises(pythran.syntax.PythranSyntaxError):
+            pythran.compile_pythrancode("dumber", code)

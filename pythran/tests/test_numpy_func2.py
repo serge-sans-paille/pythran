@@ -487,7 +487,12 @@ def test_copy0(x):
         code = """
 def np_empty_like_(a):
     from numpy import empty_like
-    return empty_like(a).shape"""
+    b = empty_like(a)
+    for i in xrange(2):
+        for j in xrange(3):
+            for k in xrange(4):
+                b[i, j, k] = i + j + k
+    return b"""
         self.run_test(code,
                       numpy.arange(2 * 3 * 4).reshape(2, 3, 4),
                       np_empty_like_=[numpy.array([[[int]]])])
@@ -497,7 +502,12 @@ def np_empty_like_(a):
         code = """
 def np_empty_like_(a):
     from numpy import empty_like
-    return empty_like(a, dtype=int).shape"""
+    b = empty_like(a, dtype=float)
+    for i in xrange(2):
+        for j in xrange(3):
+            for k in xrange(4):
+                b[i, j, k] = i + j + k
+    return b"""
         self.run_test(code,
                       numpy.arange(2 * 3 * 4).reshape(2, 3, 4),
                       np_empty_like_=[numpy.array([[[int]]])])

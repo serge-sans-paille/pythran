@@ -65,7 +65,7 @@ class Dependencies(ModuleAnalysis):
         self.generic_visit(node)
 
     def visit_Yield(self, node):
-        self.result.add(('types', 'generator'))
+        self.result.add(('utils', 'yield'))
         self.generic_visit(node)
 
     def visit_Mod(self, node):

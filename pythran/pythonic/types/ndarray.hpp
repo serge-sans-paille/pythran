@@ -1016,7 +1016,7 @@ namespace pythonic {
                     return nullptr;
 
                 PyObject* base_obj_ptr = PyArray_BASE(arr_ptr);
-                if(!PyArray_Check(base_obj_ptr))
+                if(!base_obj_ptr or !PyArray_Check(base_obj_ptr))
                  return nullptr;
                 PyArrayObject* base_arr_ptr = reinterpret_cast<PyArrayObject*>(base_obj_ptr);
 

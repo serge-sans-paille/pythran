@@ -168,9 +168,7 @@ class Cxx(Backend):
             return "/".join(("pythonic",) + t) + ".hpp"
         headers = map(Include, sorted(map(gen_include, self.dependencies)))
 
-        # remove top-level strings
-        fbody = (n for n in node.body if not isinstance(n, ast.Expr))
-        body = map(self.visit, fbody)
+        body = map(self.visit, node.body)
 
         nsbody = body + self.declarations + self.definitions
         ns = Namespace(pythran_ward + self.passmanager.module_name, nsbody)

@@ -482,8 +482,35 @@ def test_copy0(x):
     def test_zeros_like_(self):
         self.run_test("def np_zeros_like_(a):\n from numpy import zeros_like, array\n return zeros_like(array(a))", [[i,j,k,l] for i in xrange(5) for j in xrange(4) for k in xrange(6) for l in xrange(8)], np_zeros_like_=[[[int]]])
 
-    def test_empty_like_(self):
-        self.run_test("def np_empty_like_(a):\n from numpy import empty_like, array\n return empty_like(array(a)).shape", [[i,j,k,l] for i in xrange(5) for j in xrange(4) for k in xrange(6) for l in xrange(8)], np_empty_like_=[[[int]]])
+    def test_empty_like_1(self):
+        """ Check empty_like numpy function without specified dtype. """
+        code = """
+def np_empty_like_(a):
+    from numpy import empty_like
+    b = empty_like(a)
+    for i in xrange(2):
+        for j in xrange(3):
+            for k in xrange(4):
+                b[i, j, k] = i + j + k
+    return b"""
+        self.run_test(code,
+                      numpy.arange(2 * 3 * 4).reshape(2, 3, 4),
+                      np_empty_like_=[numpy.array([[[int]]])])
+
+    def test_empty_like_2(self):
+        """ Check empty_like numpy function with specific dtype argument. """
+        code = """
+def np_empty_like_(a):
+    from numpy import empty_like
+    b = empty_like(a, dtype=float)
+    for i in xrange(2):
+        for j in xrange(3):
+            for k in xrange(4):
+                b[i, j, k] = i + j + k
+    return b"""
+        self.run_test(code,
+                      numpy.arange(2 * 3 * 4).reshape(2, 3, 4),
+                      np_empty_like_=[numpy.array([[[int]]])])
 
     def test_reshape0(self):
         self.run_test("def np_reshape0(a): return a.reshape((2,5))", numpy.arange(10), np_reshape0=[numpy.array([int])])

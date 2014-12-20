@@ -340,7 +340,7 @@ class Cxx(Backend):
             next_constructors = [
                 FunctionBody(
                     FunctionDeclaration(Value("", next_name), []),
-                    Line(': {}(0) {{}}'.format(Cxx.generator_state_holder))
+                    Line(': pythonic::yielder() {}')
                     )]
             if formal_types:
                 # If all parameters have a default value, we don't need default
@@ -350,13 +350,9 @@ class Cxx(Backend):
                 next_constructors.append(FunctionBody(
                     make_function_declaration("", next_name, formal_types,
                                               formal_args, default_arg_values),
-                    Line("{0} {{ }}".format(
-                        ": {0}".format(
-                            ", ".join(
-                                ["{0}({0})".format(fa) for fa in formal_args]
-                                +
-                                ["{0}(0)".format(
-                                    Cxx.generator_state_holder)]))))
+                    Line(": {0} {{ }}".format(
+                        ", ".join(["pythonic::yielder()"] +
+                                  map("{0}({0})".format, formal_args))))
                     ))
 
             next_iterator = [
@@ -390,23 +386,7 @@ class Cxx(Backend):
                         []),
                     Block([ReturnStatement(
                         "pythonic::types::generator_iterator<{0}>()"
-                        .format(next_name))])),
-                FunctionBody(
-                    FunctionDeclaration(
-                        Value("bool", "operator!="),
-                        [Value("{0} const &".format(next_name), "other")],
-                        "const"),
-                    Block([ReturnStatement(
-                        "{0}!=other.{0}".format(
-                            Cxx.generator_state_holder))])),
-                FunctionBody(
-                    FunctionDeclaration(
-                        Value("bool", "operator=="),
-                        [Value("{0} const &".format(next_name), "other")],
-                        "const"),
-                    Block([ReturnStatement(
-                        "{0}==other.{0}".format(
-                            Cxx.generator_state_holder))])),
+                        .format(next_name))]))
                 ]
             next_signature = templatize(
                 FunctionDeclaration(
@@ -435,8 +415,6 @@ class Cxx(Backend):
                                for k in self.ldecls]
                             + [Statement("{0} {1}".format(v, k))
                                for k, v in self.extra_declarations]
-                            + [Statement("{0} {1}".format("long",
-                               Cxx.generator_state_holder))]
                             + [Statement(
                                 "typename {0}::result_type {1}".format(
                                     instanciated_next_name,
@@ -465,7 +443,7 @@ class Cxx(Backend):
                        + next_members
                        + next_constructors
                        + next_iterator
-                       + next_declaration),
+                       + next_declaration, "pythonic::yielder"),
                 formal_types)
             next_definition = FunctionBody(next_signature, Block(next_body))
 

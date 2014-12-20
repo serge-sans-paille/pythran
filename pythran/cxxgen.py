@@ -152,27 +152,40 @@ class FunctionDeclaration(NestedDeclarator):
         return sub_tp, ("%s(%s) %s" % (
             sub_decl,
             ", ".join(ad.inline() for ad in self.arg_decls),
-            " ".join(self.attributes))
-            )
+            " ".join(self.attributes)))
 
 
 class Struct(Declarator):
-    """A structure declarator."""
 
-    def __init__(self, tpname, fields):
-        """Initialize the structure declarator.
-        *tpname* is the name of the structure.
-        *fields* is a list of :class:`Declarator` instances.
-        """
+    """
+    A structure declarator.
+
+    Attributes
+    ----------
+    tpname : str
+        Name of the structure. (None for unnamed struct)
+    fields : [Declarator]
+        Content of the structure.
+    inherit : str
+        Parent class of current structure.
+    """
+
+    def __init__(self, tpname, fields, inherit=None):
+        """Initialize the structure declarator.  """
         self.tpname = tpname
         self.fields = fields
+        self.inherit = inherit
 
     def get_decl_pair(self):
+        """ See Declarator.get_decl_pair."""
         def get_tp():
+            """ Iterator generating lines for struct definition. """
+            decl = "struct "
             if self.tpname is not None:
-                yield "struct %s" % self.tpname
-            else:
-                yield "struct"
+                decl += self.tpname
+                if self.inherit is not None:
+                    decl += " : " + self.inherit
+            yield decl
             yield "{"
             for f in self.fields:
                 for f_line in f.generate():

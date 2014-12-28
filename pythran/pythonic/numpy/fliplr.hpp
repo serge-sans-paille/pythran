@@ -7,17 +7,14 @@
 namespace pythonic {
 
     namespace numpy {
-        template<class T, size_t N>
-            types::ndarray<T,N> fliplr(types::ndarray<T,N> const& a) {
-                static_assert(N>=2, "fliplr only works on array of dimension >= 2");
-                types::ndarray<T,N> out(a.shape, __builtin__::None);
-                std::copy(a.fbegin(), a.fend(), out.fbegin());
-                for(auto col : out)
-                    std::reverse(col.begin(), col.end());
-                return out;
+        template<class E>
+            auto fliplr(E&& expr)
+            -> decltype(std::forward<E>(expr)(types::contiguous_slice{__builtin__::None, __builtin__::None}, types::slice{__builtin__::None, __builtin__::None, -1}))
+            {
+              return std::forward<E>(expr)(types::contiguous_slice{__builtin__::None, __builtin__::None}, types::slice{__builtin__::None, __builtin__::None, -1});
             }
 
-        PROXY(pythonic::numpy, fliplr); // does not return a view...
+        PROXY(pythonic::numpy, fliplr);
 
     }
 

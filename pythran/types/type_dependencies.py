@@ -27,7 +27,11 @@ def pytype_to_deps_hpp(t):
     elif isinstance(t, tuple):
         return {'tuple.hpp'}.union(*map(pytype_to_deps_hpp, t))
     elif isinstance(t, ndarray):
-        return {'ndarray.hpp'}.union(pytype_to_deps_hpp(t[0]))
+        out = {'ndarray.hpp'}
+        # it's a transpose!
+        if t.flags.f_contiguous and not t.flags.c_contiguous:
+            out.add('numpy_texpr.hpp')
+        return out.union(pytype_to_deps_hpp(t[0]))
     elif t in PYTYPE_TO_CTYPE_TABLE:
         return {'{}.hpp'.format(t.__name__)}
     else:

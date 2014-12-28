@@ -16,11 +16,10 @@ namespace pythonic {
         template<class A, class ...S>
             class numpy_gexpr;
 
-        template<class O, class A>
-            class numpy_uexpr;
-
         template<class A>
             class numpy_texpr;
+        template<class A>
+            class numpy_texpr_2;
 
         template<class O, class A0, class A1>
             class numpy_expr;
@@ -61,12 +60,12 @@ namespace pythonic {
           struct is_array<numpy_gexpr<A,S...>> {
             static constexpr bool value = true;
           };
-        template<class O, class A>
-          struct is_array<numpy_uexpr<O,A>> {
+        template<class A>
+          struct is_array<numpy_texpr<A>> {
             static constexpr bool value = true;
           };
         template<class A>
-          struct is_array<numpy_texpr<A>> {
+          struct is_array<numpy_texpr_2<A>> {
             static constexpr bool value = true;
           };
         template<class O, class A0, class A1>

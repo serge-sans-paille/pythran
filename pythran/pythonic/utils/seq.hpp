@@ -16,6 +16,14 @@ namespace pythonic {
                 typedef seq<S...> type;
             };
 
+        template<int N, int ...S>
+            struct rgens : rgens<N-1, sizeof...(S), S...> { };
+
+        template<int ...S>
+            struct rgens<1, S...> {
+                typedef seq<S...> type;
+            };
+
     }
 
 }

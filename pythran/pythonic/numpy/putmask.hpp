@@ -21,6 +21,11 @@ namespace pythonic {
                         *(iexpr + i) = *(avalues.fbegin() + i % n);
                 return __builtin__::None;
             }
+        template<class E, class M, class F>
+            types::none_type putmask(E & , M const& , F const& )
+            {
+              throw std::runtime_error("putmask only partially implemented");
+            }
         PROXY(pythonic::numpy, putmask);
 
     }

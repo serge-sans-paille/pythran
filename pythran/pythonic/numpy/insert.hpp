@@ -47,6 +47,11 @@ namespace pythonic {
                 return insert(in, types::list<I>({indices}), types::list<F>({data}), axis);
             }
 
+        template<class E, class... Args>
+          E insert(E const&, Args const&...) {
+            throw std::runtime_error("insert only partially supported");
+          }
+
         PROXY(pythonic::numpy, insert);
 
     }

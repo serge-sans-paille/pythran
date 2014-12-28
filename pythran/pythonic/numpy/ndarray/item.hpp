@@ -14,10 +14,20 @@ namespace pythonic { namespace numpy  {
                 if(i<0) i += expr.size();
                 return *(expr.fbegin() + i);
             }
+
+
         template<class E, size_t N>
             auto item(E&& expr, types::array<long, N> const& i) -> decltype(expr[i])
             {
                 return expr[i];
+            }
+        // only for compatibility purpose, very bad impl
+        template<class E>
+            typename types::numpy_expr_to_ndarray<typename std::remove_reference<E>::type>::type::dtype
+            item(E&& expr, long i)
+            {
+                if(i<0) i += expr.size();
+                return typename types::numpy_expr_to_ndarray<typename std::remove_reference<E>::type>::type{std::forward<E>(expr)}.flat()[i];
             }
         PROXY(pythonic::numpy::ndarray, item);
 

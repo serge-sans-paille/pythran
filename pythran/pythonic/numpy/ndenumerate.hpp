@@ -42,16 +42,23 @@ namespace pythonic {
                 iterator end_iter;
 
                 _ndenumerate() {}
-                _ndenumerate( E const& expr) :  ndenumerate_iterator<E>(expr, 0), expr(expr), end_iter(expr, expr.size()) {}
+                _ndenumerate(E const &expr) :  ndenumerate_iterator<E>(expr, 0), expr(expr), end_iter(expr, expr.size()) {}
                 iterator & begin() { return *this; }
                 iterator const & begin() const { return *this; }
                 iterator end() const { return end_iter; }
             };
 
-        template<class E>
-            _ndenumerate<E> ndenumerate(E const& expr) {
-                return _ndenumerate<E>(expr);
+        template<class T, size_t N>
+            _ndenumerate<types::ndarray<T,N>> ndenumerate(types::ndarray<T,N> const& expr) {
+                return _ndenumerate<types::ndarray<T,N>>{expr};
             }
+        NUMPY_EXPR_TO_NDARRAY0(ndenumerate);
+        /*
+        template<class E>
+            _ndenumerate<typename types::numpy_expr_to_ndarray<E>::type> ndenumerate(E const& expr) {
+                return _ndenumerate<typename types::numpy_expr_to_ndarray<E>::type>(expr);
+            }
+            */
 
         PROXY(pythonic::numpy, ndenumerate);
 

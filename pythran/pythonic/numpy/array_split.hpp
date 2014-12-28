@@ -39,6 +39,7 @@ namespace pythonic {
                 return out;
             }
 
+        NUMPY_EXPR_TO_NDARRAY0(array_split);
         PROXY(pythonic::numpy, array_split);
 
     }

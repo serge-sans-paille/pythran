@@ -25,6 +25,8 @@ namespace pythonic {
                 return indices;
             }
 
+        NUMPY_EXPR_TO_NDARRAY0(argsort);
+
         PROXY(pythonic::numpy, argsort);
 
     }

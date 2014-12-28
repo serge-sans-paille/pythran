@@ -49,7 +49,11 @@ def pytype_to_ctype(t):
         dtype = pytype_to_ctype(t.flat[0])
         ndim = t.ndim
         arr = 'pythonic::types::ndarray<{0},{1}>'.format(dtype, ndim)
-        if any(x < 0 for x in t.strides):
+        # cannot use f_contiguous as one element arrays are both c_ and f_
+        # the trick is to use transposed array of two elements for texpr
+        if t.flags.f_contiguous and not t.flags.c_contiguous and ndim == 2:
+            return 'pythonic::types::numpy_texpr<{0}>'.format(arr)
+        elif any(x < 0 for x in t.strides):
             slices = ", ".join(['pythonic::types::slice'] * ndim)
             return 'pythonic::types::numpy_gexpr<{0},{1}>'.format(arr, slices)
         else:

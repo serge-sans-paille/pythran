@@ -23,25 +23,28 @@ namespace pythonic {
                 }
                 return false;
             }
-            
+
         template<class E>
             bool
             any(E const& expr, types::none_type _ = types::none_type()) {
                 return _any(expr.begin(), expr.end(), utils::int_<types::numpy_expr_to_ndarray<E>::N>());
             }
 
-        template<class T>
-            bool any(types::ndarray<T,1> const& array, long axis)
+        template<class E>
+            auto any(E const& array, long axis)
+            -> typename std::enable_if<E::value == 1, decltype(any(array))>::type
             {
                 if(axis != 0)
                     throw types::ValueError("axis out of bounds");
                 return any(array);
             }
 
-        template<class T, size_t N>
-            types::ndarray<bool,N - 1>
-            any(types::ndarray<T,N> const& array, long axis)
+        template<class E>
+            typename std::enable_if<E::value != 1, types::ndarray<typename E::dtype, E::value - 1>>::type
+            any(E const& array, long axis)
             {
+                constexpr long N = E::value;
+                typedef typename E::dtype T;
                 if(axis<0 || axis >=long(N))
                     throw types::ValueError("axis out of bounds");
                 auto shape = array.shape;

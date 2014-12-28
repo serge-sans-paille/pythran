@@ -13,6 +13,8 @@ namespace pythonic {
             return partial_sum<operator_::proxy::imul>(std::forward<E>(e), std::forward<Opts>(opts)...);
           }
 
+        NUMPY_EXPR_TO_NDARRAY0(cumprod);
+
         PROXY(pythonic::numpy, cumprod);
 
     }

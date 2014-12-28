@@ -27,7 +27,7 @@ namespace pythonic {
             }
 
         template<class T, size_t N>
-            types::none_type put(types::ndarray<T,N> & expr, int ind, T const& v)
+            types::none_type put(types::ndarray<T,N> & expr, long int ind, T const& v)
             {
                 if(ind>=expr.size() || ind <0)
                     throw types::ValueError("indice out of bound");
@@ -35,7 +35,10 @@ namespace pythonic {
                 return __builtin__::None;
             }
 
-        NUMPY_EXPR_TO_NDARRAY0(put);
+        template<class E, class M, class V>
+          types::none_type put(E&, M const&, V const&) {
+            throw std::runtime_error("put only partially implemented");
+          }
         PROXY(pythonic::numpy, put);
 
     }

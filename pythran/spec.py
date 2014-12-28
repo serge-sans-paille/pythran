@@ -3,11 +3,12 @@ This module provides a dummy parser for pythran annotations.
     * spec_parser reads the specs from a python module and returns them.
 '''
 
-from numpy import array
+from numpy import array, ndarray
 from numpy import complex64, complex128
 from numpy import float32, float64
 from numpy import int8, int16, int32, int64
 from numpy import uint8, uint16, uint32, uint64
+
 import os.path
 import ply.lex as lex
 import ply.yacc as yacc
@@ -185,6 +186,39 @@ class SpecParser:
             logging.warn("No pythran specification, "
                          "no function will be exported")
         return self.exports
+
+
+def expand_specs(specs):
+    '''
+    Expand a spec in its various variant
+
+    for a generic spec description, generate the possible variants,
+    esp. for ndarrays
+    '''
+    def spec_expander(args):
+        n = len(args)
+        if n == 0:
+            return [[]]
+        elif n == 1:
+            arg = args[0]
+            # handle f_contiguous storage as a transpose of two elements
+            # currently only supported by pythonic for 2D matrices :-/
+            # the trick is to use an array of two elements and transpose it
+            # so that its storage becomes f_contiguous only
+            if isinstance(arg, ndarray) and arg.ndim == 2:
+                return [[arg], [arg.repeat(2, axis=0).T]]
+            else:
+                return [[arg]]
+        else:
+            return [x + y for x in spec_expander(args[:1])
+                    for y in spec_expander(args[1:])]
+    all_specs = {}
+    for function, signatures in specs.items():
+        expanded_signatures = []
+        for signature in signatures:
+            expanded_signatures.extend(spec_expander(signature))
+        all_specs[function] = tuple(expanded_signatures)
+    return all_specs
 
 
 def spec_parser(input):

@@ -105,6 +105,8 @@ namespace pythonic {
                 }
           };
 
+        template<size_t L>
+            struct nget;
         /* manually unrolled copy function
          */
         template <size_t I> struct flat_copy;
@@ -408,6 +410,18 @@ namespace pythonic {
                     other.lower[0] += ns.lower;
                     return other;
                 }
+                template<size_t M>
+                    auto operator[](array<long, M> const& indices) const &
+                    -> decltype(nget<M-1>()(*this, indices))
+                    {
+                        return nget<M-1>()(*this, indices);
+                    }
+                template<size_t M>
+                    auto operator[](array<long, M> const& indices) &&
+                    -> decltype(nget<M-1>()(std::move(*this), indices))
+                    {
+                        return nget<M-1>()(std::move(*this), indices);
+                    }
                 template<class F>
                     typename std::enable_if<is_numexpr_arg<F>::value, numpy_fexpr<numpy_gexpr, F>>::type
                     operator[](F const& filter) const {

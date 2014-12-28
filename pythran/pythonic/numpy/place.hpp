@@ -38,6 +38,12 @@ namespace pythonic {
             {
                 return place(expr, asarray(mask), values);
             }
+
+        template<class E, class M, class F>
+            types::none_type place(E & , M const& , F const& )
+            {
+              throw std::runtime_error("place only partially implemented");
+            }
         PROXY(pythonic::numpy, place);
 
     }

@@ -20,6 +20,12 @@ namespace pythonic {
                 return array_split(a, split_mask);
             }
 
+        template<class E, class I>
+            types::list<types::ndarray<typename E::dtype, E::value>>
+            split(E const& a, I const& ) {
+                throw std::runtime_error("split only partially implemented");
+            }
+
         PROXY(pythonic::numpy, split);
 
     }

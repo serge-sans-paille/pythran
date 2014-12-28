@@ -30,6 +30,9 @@ namespace pythonic {
                 return out;
             }
 
+
+        NUMPY_EXPR_TO_NDARRAY0(delete_);
+
         PROXY(pythonic::numpy, delete_);
 
     }

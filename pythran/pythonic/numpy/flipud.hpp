@@ -7,11 +7,11 @@
 namespace pythonic {
 
     namespace numpy {
-        template<class T, size_t N>
-            types::ndarray<T,N> flipud(types::ndarray<T,N> const& a) {
-                types::ndarray<T,N> out(a.shape, __builtin__::None);
-                std::reverse_copy(a.begin(), a.end(), out.begin());
-                return out;
+        template<class E>
+            auto flipud(E&& expr)
+            -> decltype(std::forward<E>(expr)[types::slice{__builtin__::None, __builtin__::None, -1}])
+            {
+                return std::forward<E>(expr)[types::slice{__builtin__::None, __builtin__::None, -1}];
             }
         PROXY(pythonic::numpy, flipud);
 

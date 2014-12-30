@@ -60,6 +60,8 @@ namespace pythonic {
         template<class T>
             struct type_helper;
 
+
+
         /* Helper for dimension-specific part of ndarray
          *
          * Instead of specializing the whole ndarray class, the dimension-specific behavior are stored here.
@@ -458,6 +460,16 @@ namespace pythonic {
 #endif
 
                 /* slice indexing */
+                ndarray<T, N + 1> operator[](none_type) const {
+                  array<long, N + 1> new_shape;
+                  new_shape[0] = 1;
+                  std::copy(shape.begin(), shape.end(), new_shape.begin() + 1);
+                  return reshape(new_shape);
+                }
+                auto operator()(none_type const& n) const -> decltype((*this)[n]) {
+                  return (*this)[n];
+                }
+
                 numpy_gexpr<ndarray const &, slice> operator[](slice const& s) const
                 {
                     return numpy_gexpr<ndarray const &, slice>(*this, s);
@@ -478,25 +490,17 @@ namespace pythonic {
                 }
 
                 /* extended slice indexing */
-                template<class ...S>
-                    numpy_gexpr<ndarray const &, slice, S...> operator()(slice const& s0, S const&... s) const
+                template<class S0, class ...S>
+                    auto operator()(S0 const& s0, S const&... s) const
+                    -> decltype(extended_slice<count_new_axis<S0, S...>::value>{}((*this), s0, s...))
                     {
-                        return numpy_gexpr<ndarray const &, slice, S...>(*this, s0, s...);
+                      return extended_slice<count_new_axis<S0, S...>::value>{}((*this), s0, s...);
                     }
-                template<class ...S>
-                    numpy_gexpr<ndarray const &, contiguous_slice, S...> operator()(contiguous_slice const& s0, S const&... s) const
+                template<class S0, class ...S>
+                    auto operator()(S0 const & s0, S const&... s) &&
+                    -> decltype(extended_slice<count_new_axis<S0, S...>::value>{}(std::move(*this), s0, s...))
                     {
-                        return numpy_gexpr<ndarray const &, contiguous_slice, S...>(*this, s0, s...);
-                    }
-                template<class ...S>
-                    auto operator()(long s0, S const&... s) const -> decltype((*this)[s0](s...))
-                    {
-                        return (*this)[s0](s...);
-                    }
-                template<class ...S>
-                    auto operator()(long s0, S const&... s) && -> decltype(std::declval<numpy_iexpr<ndarray>>()(s...))
-                    {
-                        return std::move(*this)[s0](s...);
+                      return extended_slice<count_new_axis<S0, S...>::value>{}(std::move(*this), s0, s...);
                     }
 
                 /* element filtering */

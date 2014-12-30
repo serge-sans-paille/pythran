@@ -473,3 +473,34 @@ def assign_ndarray(t):
         self.run_test("def np_count_nonzero(a): from numpy import count_nonzero; return count_nonzero(a*2)",
                       numpy.array([[-1, -5, -2, 7], [9, 3, 0, -0]]), np_count_nonzero=[numpy.array([[int]])])
 
+    def test_newaxis0(self):
+        self.run_test("def np_newaxis0(a): return a[None]",
+                      numpy.ones(5), np_newaxis0=[numpy.array([float])])
+
+    def test_newaxis1(self):
+        self.run_test("def np_newaxis1(a): from numpy import newaxis; return a[newaxis]",
+                      numpy.ones(5), np_newaxis1=[numpy.array([float])])
+
+    def test_newaxis2(self):
+        self.run_test("def np_newaxis2(a): from numpy import newaxis; return a[newaxis,:,newaxis]",
+                      numpy.ones(5), np_newaxis2=[numpy.array([float])])
+
+    def test_newaxis3(self):
+        self.run_test("def np_newaxis3(a): from numpy import newaxis; return a[:,newaxis]",
+                      numpy.ones(5), np_newaxis3=[numpy.array([float])])
+
+    def test_newaxis4(self):
+                      self.run_test("def np_newaxis4(a): from numpy import newaxis; return a[newaxis,:,:]",
+                      numpy.ones((2,3)), np_newaxis4=[numpy.array([[float]])])
+
+    def test_newaxis5(self):
+        self.run_test("def np_newaxis5(a): from numpy import newaxis; return a[:,newaxis,:]",
+                      numpy.ones((2,3)), np_newaxis5=[numpy.array([[float]])])
+
+    def test_newaxis6(self):
+        self.run_test("def np_newaxis6(a): from numpy import newaxis; return a[:,:,newaxis]",
+                      numpy.ones((2,3)), np_newaxis6=[numpy.array([[float]])])
+
+    def test_newaxis7(self):
+        self.run_test("def np_newaxis7(a): from numpy import newaxis; return a[newaxis,1:,newaxis,:1,newaxis]",
+                      numpy.ones((2,3)), np_newaxis7=[numpy.array([[float]])])

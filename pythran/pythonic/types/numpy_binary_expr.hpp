@@ -44,7 +44,7 @@ namespace proxy {
                 >::type
                 operator()(E const& self, S other)
                 {
-                    return types::numpy_expr<NUMPY_BINARY_FUNC_NAME, E,  pythonic::types::broadcast<typename E::dtype, S>>(self, pythonic::types::broadcast<typename E::dtype, S>(other));
+                    return types::numpy_expr<NUMPY_BINARY_FUNC_NAME, E,  pythonic::types::broadcast<typename E::dtype, S>>(self, pythonic::types::broadcast<typename E::dtype, S>(other, self.shape[0]));
                 }
         template<class E, class S>
             typename std::enable_if<
@@ -55,7 +55,7 @@ namespace proxy {
                 >::type
                 operator()(S other, E const& self)
                 {
-                    return types::numpy_expr<NUMPY_BINARY_FUNC_NAME, pythonic::types::broadcast<typename E::dtype, S>, E>(pythonic::types::broadcast<typename E::dtype, S>(other), self);
+                    return types::numpy_expr<NUMPY_BINARY_FUNC_NAME, pythonic::types::broadcast<typename E::dtype, S>, E>(pythonic::types::broadcast<typename E::dtype, S>(other, self.shape[0]), self);
                 }
     };
 

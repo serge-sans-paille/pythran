@@ -19,7 +19,7 @@ namespace pythonic {
             struct _asarray<types::ndarray<T,N>> {
                 template<class F>
                     types::ndarray<T,N> operator()(F&& a) {
-                        return a;
+                        return std::forward<F>(a);
                     }
             };
 

@@ -150,6 +150,7 @@ namespace pythonic {
                         return numpy_fexpr<numpy_fexpr, E>(*this, expr);
                     }
                 long size() const { return shape[0]; }
+                bool is_broadcasting() const { return false; }
             };
 
     }

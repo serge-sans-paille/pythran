@@ -60,6 +60,65 @@ namespace pythonic {
         template<class T>
             struct type_helper;
 
+        template<class... S> struct count_new_axis;
+
+        template<> struct count_new_axis<> {
+          static const size_t value = 0;
+        };
+        template<> struct count_new_axis<none_type> {
+          static const size_t value = 1;
+        };
+        template<class T> struct count_new_axis<T> {
+          static const size_t value = 0;
+        };
+        template<class T, class... S> struct count_new_axis<T, S...> {
+          static const size_t value = count_new_axis<T>::value + count_new_axis<S...>::value;
+        };
+
+        template<size_t I, class...S>
+          struct initialize_new_args;
+        template<size_t I> struct initialize_new_args<I> {
+          template<class NA, class A>
+          void operator()(NA& new_args, A const& args) {}
+        };
+        template<size_t I, class... S> struct initialize_new_args<I, none_type, S...> {
+          template<class NA, class A>
+          void operator()(NA& new_args, A const& args) {
+            std::get<I>(new_args) = {none_type{}, none_type{}};
+            initialize_new_args<I+1, S...>{}(new_args, args);
+          }
+        };
+        template<size_t I, class S0, class... S> struct initialize_new_args<I, S0, S...> {
+          template<class NA, class A>
+          void operator()(NA& new_args, A const& args) {
+            std::get<I>(new_args) = std::get<I>(args);
+            initialize_new_args<I+1, S...>{}(new_args, args);
+          }
+        };
+
+        template<class...S>
+          struct initialize_new_axis;
+
+        template <> struct initialize_new_axis<> {
+          void operator()(long *, long const *) {}
+        };
+
+        template <class... S> struct initialize_new_axis<none_type, S...> {
+          void operator()(long *new_shape, long const *shape) {
+            *new_shape = 1;
+            initialize_new_axis<S...>{}(new_shape + 1, shape);
+          }
+        };
+
+        template <class T, class... S> struct initialize_new_axis<T, S...> {
+          void operator()(long *new_shape, long const *shape) {
+            *new_shape = *shape;
+            initialize_new_axis<S...>{}(new_shape + 1, shape + 1);
+          }
+        };
+
+
+
         /* Helper for dimension-specific part of ndarray
          *
          * Instead of specializing the whole ndarray class, the dimension-specific behavior are stored here.
@@ -334,9 +393,9 @@ namespace pythonic {
                 template<class Op, class Arg>
                     ndarray(numpy_uexpr<Op, Arg> const & expr) :
                         mem(expr.size()),
-                        buffer(mem->data),
-                        shape(expr.shape)
+                        buffer(mem->data)
                 {
+                    for(size_t i = 0; i < N; ++i) shape[i] = expr.shape[i];
                     initialize_from_expr(expr);
                 }
 
@@ -352,9 +411,9 @@ namespace pythonic {
                 template<class Arg>
                     ndarray(numpy_iexpr<Arg> const & expr) :
                         mem(expr.size()),
-                        buffer(mem->data),
-                        shape(expr.shape)
+                        buffer(mem->data)
                 {
+                    for(size_t i = 0; i < N; ++i) shape[i] = expr.shape[i];
                     initialize_from_expr(expr);
                 }
 
@@ -458,6 +517,14 @@ namespace pythonic {
 #endif
 
                 /* slice indexing */
+                ndarray<T, N + 1> operator[](none_type const& s) const
+                {
+                    array<long, N+1> new_shape;
+                    new_shape[0] = 1;
+                    for(unsigned i = 0; i < N; ++i)
+                      new_shape[i+1] = shape[i];
+                    return reshape(new_shape);
+                }
                 numpy_gexpr<ndarray const &, slice> operator[](slice const& s) const
                 {
                     return numpy_gexpr<ndarray const &, slice>(*this, s);
@@ -466,6 +533,10 @@ namespace pythonic {
                 numpy_gexpr<ndarray const &, contiguous_slice> operator[](contiguous_slice const& s) const
                 {
                     return numpy_gexpr<ndarray const &, contiguous_slice>(*this, s);
+                }
+                auto operator()(none_type const& s) const -> decltype((*this)[s])
+                {
+                  return (*this)[s];
                 }
                 numpy_gexpr<ndarray const &, slice> operator()(slice const& s) const
                 {
@@ -477,17 +548,41 @@ namespace pythonic {
                     return numpy_gexpr<ndarray const &, contiguous_slice>(*this, s);
                 }
 
+
+
                 /* extended slice indexing */
+                template<class...S>
+                  numpy_gexpr<ndarray const &, slice, S...> make_gexpr(utils::int_<0 /*no new axis*/>, slice const& s0, S const&... s) const
+                  {
+                    return numpy_gexpr<ndarray const &, slice, S...>(*this, s0, s...);
+                  }
+                template<class...S>
+                  numpy_gexpr<ndarray const &, contiguous_slice, S...> make_gexpr(utils::int_<0 /*no new axis*/>, contiguous_slice const& s0, S const&... s) const
+                  {
+                    return numpy_gexpr<ndarray const &, contiguous_slice, S...>(*this, s0, s...);
+                  }
+                template<size_t M, class...S>
+                  auto make_gexpr(utils::int_<M /*some new axis*/>, S const&... s) const -> decltype((*this)[std::make_tuple(s...)])
+                  {
+                    return (*this)[std::make_tuple(s...)];
+                  }
+
                 template<class ...S>
-                    numpy_gexpr<ndarray const &, slice, S...> operator()(slice const& s0, S const&... s) const
+                    auto operator()(slice const& s0, S const&... s) const -> decltype(this->make_gexpr(utils::int_<count_new_axis<S...>::value>{}, s0, s...))
                     {
-                        return numpy_gexpr<ndarray const &, slice, S...>(*this, s0, s...);
+                      return make_gexpr(utils::int_<count_new_axis<S...>::value>{}, s0, s...);
                     }
                 template<class ...S>
-                    numpy_gexpr<ndarray const &, contiguous_slice, S...> operator()(contiguous_slice const& s0, S const&... s) const
+                    auto operator()(contiguous_slice const& s0, S const&... s) const -> decltype(this->make_gexpr(utils::int_<count_new_axis<S...>::value>{}, s0, s...))
                     {
-                        return numpy_gexpr<ndarray const &, contiguous_slice, S...>(*this, s0, s...);
+                      return make_gexpr(utils::int_<count_new_axis<S...>::value>{}, s0, s...);
                     }
+                template<class ...S>
+                    auto operator()(none_type s0, S const&... s) const -> decltype((*this)[std::make_tuple(s0, s...)])
+                    {
+                        return (*this)[std::make_tuple(s0, s...)];
+                    }
+
                 template<class ...S>
                     auto operator()(long s0, S const&... s) const -> decltype((*this)[s0](s...))
                     {
@@ -498,6 +593,28 @@ namespace pythonic {
                     {
                         return std::move(*this)[s0](s...);
                     }
+
+                /* extended slice with new axis */
+                template<class ...S>
+                    numpy_gexpr<ndarray<T, N + count_new_axis<S...>::value>,
+                                typename std::conditional<std::is_same<S, none_type>::value, contiguous_slice, S>::type...>
+                    operator[](std::tuple<S...>const& args) const
+                    {
+                      array<long, N + count_new_axis<S...>::value> new_shape;
+                      std::tuple<typename std::conditional<std::is_same<S, none_type>::value, contiguous_slice, S>::type...> new_args;
+                      initialize_new_axis<S...>{}(new_shape.begin(), shape.begin());
+                      initialize_new_args<0,S...>{}(new_args, args);
+                      for(size_t i = sizeof...(S); i < N + count_new_axis<S...>::value; ++i)
+                        new_shape[i] = shape[i - count_new_axis<S...>::value];
+                      return numpy_gexpr<ndarray<T, N + count_new_axis<S...>::value>,
+                             typename std::conditional<std::is_same<S, none_type>::value, contiguous_slice, S>::type...>{reshape(new_shape), new_args};
+                    }
+                template<class ...S>
+                    auto operator()(std::tuple<S...> const& args) const -> decltype((*this)[args])
+                    {
+                      return (*this)[args];
+                    }
+
 
                 /* element filtering */
                 template<class F> // indexing through an array of boolean -- a mask
@@ -525,6 +642,7 @@ namespace pythonic {
                 flat_iterator fend() { return buffer + size(); }
 
                 /* member functions */
+                bool is_broadcasting() const { return false; }
                 long size() const { return std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<long>()); }
                 template<size_t M>
                     ndarray<T,M> reshape(array<long,M> const& shape) const {

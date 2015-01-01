@@ -28,7 +28,7 @@ namespace pythonic {
                 typedef char yes;
                 typedef struct { char _[2]; } no;
 
-                template <class C> static yes _test(typename C::iterator*);
+                template <class C> static yes _test(typename C::const_iterator*);
                 template <class C> static no _test(...);
                 static const bool value = sizeof( _test<typename std::remove_reference<T>::type>(nullptr)) == sizeof(yes);
             };

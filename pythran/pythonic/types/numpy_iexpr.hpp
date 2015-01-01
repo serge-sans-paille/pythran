@@ -48,7 +48,7 @@ namespace pythonic {
 
                 Arg arg;
                 dtype* buffer;
-                array<long, value> shape;
+                long const* shape;
 
                 numpy_iexpr() {}
                 numpy_iexpr(numpy_iexpr const &) = default;
@@ -62,12 +62,12 @@ namespace pythonic {
                 {
                 }
 
-                numpy_iexpr(Arg const & arg, long index) : arg(arg), buffer(arg.buffer)
+                numpy_iexpr(Arg const & arg, long index) : arg(arg), buffer(arg.buffer), shape(&arg.shape[1])
                 {
                     buffer += buffer_offset(index, utils::int_<value>());
                 }
                 // force the move. Using universal reference here does not work (because of reference collapsing ?)
-                numpy_iexpr(typename std::remove_reference<Arg>::type &&arg, long index) : arg(std::move(arg)), buffer(arg.buffer)
+                numpy_iexpr(typename std::remove_reference<Arg>::type &&arg, long index) : arg(std::move(arg)), buffer(arg.buffer), shape(&arg.shape[1])
                 {
                     buffer += buffer_offset(index, utils::int_<value>());
                 }
@@ -77,7 +77,7 @@ namespace pythonic {
                     return utils::broadcast_copy<numpy_iexpr&, E, value, value - utils::dim_of<E>::value, false/*NIY*/>(*this, expr);
                 }
                 numpy_iexpr& operator=(numpy_iexpr const& expr) {
-                    return utils::broadcast_copy<numpy_iexpr&, numpy_iexpr, value, value - utils::dim_of<numpy_iexpr>::value, false/*NIY*/>(*this, expr);
+                    return utils::broadcast_copy<numpy_iexpr&, numpy_iexpr const &, value, value - utils::dim_of<numpy_iexpr>::value, false/*NIY*/>(*this, expr);
                 }
                 template<class E>
                 numpy_iexpr& operator+=(E const& expr) {
@@ -109,10 +109,10 @@ namespace pythonic {
                 }
 
                 const_iterator begin() const { return make_const_nditerator<is_strided or value != 1>()(*this, 0); }
-                const_iterator end() const { return make_const_nditerator<is_strided or value != 1>()(*this, shape[0]); }
+                const_iterator end() const { return make_const_nditerator<is_strided or value != 1>()(*this, *shape); }
 
                 iterator begin() { return make_nditerator<is_strided or value != 1>()(*this, 0); }
-                iterator end() { return make_nditerator<is_strided or value != 1>()(*this, shape[0]); }
+                iterator end() { return make_nditerator<is_strided or value != 1>()(*this, *shape); }
 
                 dtype const * fbegin() const { return buffer; }
                 dtype const * fend() const { return buffer + size(); }
@@ -144,6 +144,8 @@ namespace pythonic {
                 auto fast(long i) &&-> decltype(numpy_iexpr_helper<numpy_iexpr, value>::get(std::move(*this), i)) {
                     return numpy_iexpr_helper<numpy_iexpr, value>::get(std::move(*this), i);
                 }
+
+                bool is_broadcasting() const { return arg.is_broadcasting(); }
 #ifdef USE_BOOST_SIMD
                 template<class I>
                 auto load(I i) const
@@ -161,15 +163,15 @@ namespace pythonic {
                 }
 #endif
                 auto operator[](long i) const &-> decltype(this->fast(i)) {
-                    if(i<0) i += shape[0];
+                    if(i<0) i += *shape;
                     return fast(i);
                 }
                 auto operator[](long i) &-> decltype(this->fast(i)) {
-                    if(i<0) i += shape[0];
+                    if(i<0) i += *shape;
                     return fast(i);
                 }
                 auto operator[](long i) && -> decltype(std::move(*this).fast(i)) {
-                    if(i<0) i += shape[0];
+                    if(i<0) i += *shape;
                     return std::move(*this).fast(i);
                 }
                 auto operator()(long i) const &-> decltype((*this)[i]) {
@@ -197,20 +199,20 @@ namespace pythonic {
                 {
                     return numpy_gexpr<numpy_iexpr, contiguous_slice>(*this, s0);
                 }
-                template<class ...S>
-                    numpy_gexpr<numpy_iexpr, slice, S...> operator()(slice const& s0, S const&... s) const
+                template<class S1, class ...S>
+                    numpy_gexpr<numpy_iexpr, slice, S1, S...> operator()(slice const& s0, S1 const& s1, S const&... s) const
                     {
-                        return numpy_gexpr<numpy_iexpr, slice, S...>(*this, s0, s...);
+                        return numpy_gexpr<numpy_iexpr, slice, S1, S...>(*this, s0, s1, s...);
                     }
-                template<class ...S>
-                    numpy_gexpr<numpy_iexpr, contiguous_slice, S...> operator()(contiguous_slice const& s0, S const&... s) const
+                template<class S1, class ...S>
+                    numpy_gexpr<numpy_iexpr, contiguous_slice, S1, S...> operator()(contiguous_slice const& s0, S1 const& s1, S const&... s) const
                     {
-                        return numpy_gexpr<numpy_iexpr, contiguous_slice, S...>(*this, s0, s...);
+                        return numpy_gexpr<numpy_iexpr, contiguous_slice, S1, S...>(*this, s0, s1, s...);
                     }
-                template<class ...S>
-                    auto operator()(long s0, S const&... s) const -> decltype(std::declval<numpy_iexpr<numpy_iexpr>>()(s...))
+                template<class S1, class ...S>
+                    auto operator()(long s0, S1 const& s1, S const&... s) const -> decltype(std::declval<numpy_iexpr<numpy_iexpr>>()(s1, s...))
                     {
-                        return (*this)[s0](s...);
+                        return (*this)[s0](s1, s...);
                     }
                 template<class F>
                     typename std::enable_if<is_numexpr_arg<F>::value, numpy_fexpr<numpy_iexpr, F>>::type
@@ -233,7 +235,7 @@ namespace pythonic {
                     return const_cast<dtype&>(const_cast<numpy_iexpr const&>(*this)[indices]);
                 }
 
-                long size() const { return /*arg.size()*/ std::accumulate(shape.begin() + 1, shape.end(), *shape.begin(), std::multiplies<long>()); }
+                long size() const { return /*arg.size()*/ std::accumulate(shape + 1, shape + value, *shape, std::multiplies<long>()); }
 
                 private:
 
@@ -246,7 +248,6 @@ namespace pythonic {
 
                 template<size_t N>
                 long buffer_offset(long index, utils::int_<N>) {
-                    shape[value - N] = arg.shape[value - N + 1];
                     return buffer_offset(index * arg.shape[value - N + 1], utils::int_<N - 1>());
                 }
 

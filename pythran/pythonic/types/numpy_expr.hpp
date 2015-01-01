@@ -9,23 +9,64 @@ namespace pythonic {
         template<class Expr, class... Slice>
             struct numpy_gexpr;
 
-        /* utility to pick the right shape */
-        template<class U, class V, size_t N>
-            typename std::enable_if<U::value!=0 and U::value == N, array<long, U::value>>::type select_shape(U const& u, V const&, utils::int_<N> ) {
-                return u.shape;
-            }
-        template<class U, class V, size_t N>
-            typename std::enable_if<U::value!=0 and U::value != N, array<long, V::value>>::type select_shape(U const& , V const& v, utils::int_<N> ) {
-                return v.shape;
-            }
-        template<class U, class V, size_t N>
-            typename std::enable_if<U::value==0 and V::value!=0, array<long, V::value>>::type select_shape(U const& , V const&v, utils::int_<N> ) {
-                return v.shape;
-            }
-        template<class U, class V>
-            array<long, 0> select_shape(U const& u, V const&, utils::int_<0> ) {
-                return array<long, 0>();
-            }
+        template<class Op, class I0, class I1>
+            struct const_expr_iterator : public std::iterator<std::random_access_iterator_tag,
+                                                              decltype(std::declval<Op>()(std::declval<typename std::iterator_traits<I0>::value_type>(),
+                                                                                          std::declval<typename std::iterator_traits<I1>::value_type>()))>
+            {
+                enum { NO_BROADCAST, BROADCAST_SHAPE0, BROADCAST_SHAPE1} const mode;
+                I0 index0;
+                I1 index1;
+                long curr;
+                long const stop;
+
+                const_expr_iterator(I0 const& index0, I0 const& end0, I1 const& index1, I1 const& end1) :
+                  mode{(end1 - index1) == (end0 - index0) ? NO_BROADCAST : (end1 - index1) > (end0 - index0) ? BROADCAST_SHAPE0 : BROADCAST_SHAPE1},
+                  index0{index0}, index1{index1},
+                  curr{0}, stop{BROADCAST_SHAPE0 ? (end0 - index0) : (end1 - index1)}
+                {
+                }
+
+                // TODO: This "auto" is different than E::value_type, which is weird (if not wrong)
+                auto operator*() const -> decltype(Op{}(*index0, *index1)) {
+                  return Op{}(*index0, *index1);
+                }
+                const_expr_iterator& operator++() {
+                  ++index0; ++index1;
+                  if(mode == NO_BROADCAST);
+                  else if(mode == BROADCAST_SHAPE0) {if(++curr==stop) {index0-=stop; curr=0;}}
+                  else if(mode == BROADCAST_SHAPE1) {if(++curr==stop) {index1-=stop; curr=0;}}
+                  return *this;
+                }
+                void next() {
+                  utils::next(index0); utils::next(index1);
+                }
+                long operator-(const_expr_iterator const &other) const {
+                  return std::max(index0 - other.index0, index1 - other.index1);
+                }
+                bool operator!=(const_expr_iterator const& other) const {
+                    return mode == BROADCAST_SHAPE1 ? index0 != other.index0 : index1 != other.index1;
+                }
+                bool operator==(const_expr_iterator const& other) const {
+                    return mode == BROADCAST_SHAPE1 ? index0 == other.index0 : index1 == other.index1;
+                }
+                bool operator<(const_expr_iterator const& other) const {
+                    return mode == BROADCAST_SHAPE1 ? index0 < other.index0 : index1 < other.index1;
+                }
+                const_expr_iterator& operator=(const_expr_iterator const& that) {
+                  assert(that.beg0 == beg0);
+                  assert(that.beg1 == beg1);
+                  assert(that.mode == mode);
+                  index0 = that.index0;
+                  index1 = that.index1;
+                  return *this;
+                }
+                const_expr_iterator& operator-=(size_t n) {
+                  index0 -= n;
+                  index1 -= n;
+                  return *this;
+                }
+            };
 
         /* Expression template for numpy expressions - binary operators
          */
@@ -37,32 +78,56 @@ namespace pythonic {
                                   >::value
                   and types::is_vector_op<Op>::value;
                 static const bool is_strided = std::remove_reference<Arg0>::type::is_strided or std::remove_reference<Arg1>::type::is_strided;
-                typedef const_nditerator<numpy_expr<Op, Arg0, Arg1>> iterator;
-                static constexpr size_t value = std::remove_reference<Arg0>::type::value>std::remove_reference<Arg1>::type::value?std::remove_reference<Arg0>::type::value: std::remove_reference<Arg1>::type::value;
+                typedef const_expr_iterator<Op, typename Arg0::const_iterator, typename Arg1::const_iterator> const_iterator;
+                static constexpr size_t value = (std::remove_reference<Arg0>::type::value > std::remove_reference<Arg1>::type::value)
+                                               ?(std::remove_reference<Arg0>::type::value)
+                                               :(std::remove_reference<Arg1>::type::value);
                 typedef decltype(Op()(std::declval<typename std::remove_reference<Arg0>::type::value_type>(), std::declval<typename std::remove_reference<Arg1>::type::value_type>())) value_type;
                 typedef decltype(Op()(std::declval<typename std::remove_reference<Arg0>::type::dtype>(), std::declval<typename std::remove_reference<Arg1>::type::dtype>())) dtype;
 
                 typename std::remove_reference<Arg0>::type arg0;
                 typename std::remove_reference<Arg1>::type arg1;
                 array<long, value> shape;
+                long _size;
 
                 numpy_expr() {}
                 numpy_expr(numpy_expr const&) = default;
                 numpy_expr(numpy_expr &&) = default;
 
-                numpy_expr(Arg0 const &arg0, Arg1 const &arg1) : arg0(arg0), arg1(arg1), shape(select_shape(arg0,arg1, utils::int_<value>())) {}
+                numpy_expr(Arg0 const &arg0, Arg1 const &arg1) : arg0(arg0), arg1(arg1) {
+                  for(size_t i=0; i < value; ++i) {
+                    // handle shape broadcasting here
+                    if(i < std::remove_reference<Arg0>::type::value and i < std::remove_reference<Arg1>::type::value)
+                      shape[i] = std::max(arg0.shape[i], arg1.shape[i]);
+                    else if(i < std::remove_reference<Arg0>::type::value)
+                      shape[i] = arg0.shape[i];
+                    else if(i < std::remove_reference<Arg1>::type::value)
+                      shape[i] = arg1.shape[i];
+                    else
+                      assert(false);
+                  }
+                  _size = std::accumulate(shape.begin(), shape.end(), 1L, std::multiplies<long>());
+                }
 
-                iterator begin() const { return iterator(*this, 0); }
-                iterator end() const { return iterator(*this, shape[0]); }
+                const_iterator begin() const { return const_iterator(arg0.begin(), arg0.end(), arg1.begin(), arg1.end()); }
+                const_iterator end() const { return const_iterator(arg0.end(), arg0.end(), arg1.end(), arg1.end()); }
+
+                auto fast(long i, long j) const -> decltype(Op()(arg0.fast(i), arg1.fast(j))) {
+                  return Op()(arg0.fast(i), arg1.fast(j));
+                }
 
                 auto fast(long i) const -> decltype(Op()(arg0.fast(i), arg1.fast(i))) {
-                    return Op()(arg0.fast(i), arg1.fast(i)); //FIXME: broadcasting can be achieved here through a modulus, but that's terribly costly
+                  return Op()(arg0.fast(i%arg0.shape[0]), arg1.fast(i % arg1.shape[0])); //FIXME: broadcasting is achieved here through a modulus, but that's terribly costly
                 }
 
                 auto operator[](long i) const -> decltype(this->fast(i)) {
                     if(i<0) i += shape[0];
                     return fast(i);
                 }
+                bool is_broadcasting() const {
+                  return arg0.shape[0] != arg1.shape[0] or arg0.is_broadcasting() or arg1.is_broadcasting();
+                }
+
 #ifdef USE_BOOST_SIMD
                 template<class I> // template to prevent automatic instantiation when the type is not vectorizable
                 auto load(I i) const -> decltype(Op()(arg0.load(i), arg1.load(i))) {
@@ -108,11 +173,10 @@ namespace pythonic {
                         return numpy_fexpr<numpy_expr, F>(*this, filter);
                     }
 
-                long size() const { return std::max(arg0.size(), arg1.size()); }
+                long size() const { return _size; }
             };
 
     }
-
 
     template<class Op, class Arg0, class Arg1>
         struct assignable<types::numpy_expr<Op, Arg0, Arg1>>

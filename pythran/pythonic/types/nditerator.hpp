@@ -19,7 +19,9 @@ namespace pythonic {
 
                 /* we would like to return E::value_type, but this currently fails. So let's the auto magic do the trick */
                 auto operator*() -> decltype(data.fast(index)) { return data.fast(index); }
+                auto operator*() const -> decltype(data.fast(index)) { return data.fast(index); }
                 nditerator<E>& operator++() { ++index; return *this;}
+                void next() { ++index; }
                 nditerator<E>& operator--() { --index; return *this;}
                 nditerator<E>& operator+=(long i) { index += i; return *this;}
                 nditerator<E>& operator-=(long i) { index -= i; return *this;}
@@ -54,8 +56,9 @@ namespace pythonic {
 
 
                 // TODO: This "auto" is different than E::value_type, which is weird (if not wrong)
-                auto operator*() -> decltype(data.fast(index)) { return data.fast(index); }
+                auto operator*() const -> decltype(data.fast(index)) { return data.fast(index); }
                 const_nditerator<E>& operator++() { ++index; return *this;}
+                void next() { ++index; }
                 const_nditerator<E>& operator--() { --index; return *this;}
                 const_nditerator<E>& operator+=(long i) { index +=  i; return *this;}
                 const_nditerator<E>& operator-=(long i) { index -=  i; return *this;}

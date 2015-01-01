@@ -197,6 +197,11 @@ class TestNdarray(TestEnv):
                       numpy.arange(120).reshape((3,5,4,2)),
                       numpy_extended_slicing11=[numpy.array([numpy.array([numpy.array([numpy.array([int])])])])])
 
+    def test_numpy_mask0(self):
+        self.run_test("def numpy_mask0(n): import numpy ; return n[n>0][ n[n>0] < 1]",
+                      numpy.cos(numpy.arange(10)),
+                      numpy_mask0=[numpy.array([float])])
+
     def test_numpy_bool(self):
         self.run_test("def numpy_bool(n): import numpy ; return numpy.ones(n, bool)",
                       5,

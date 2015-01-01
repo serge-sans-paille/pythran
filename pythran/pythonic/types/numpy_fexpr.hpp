@@ -144,6 +144,11 @@ namespace pythonic {
                     if(i<0) i += shape[0];
                     return fast(i);
                 }
+                template<class E>
+                    typename std::enable_if<is_numexpr_arg<E>::value, numpy_fexpr<numpy_fexpr, E>>::type
+                    operator[](E const& expr) const {
+                        return numpy_fexpr<numpy_fexpr, E>(*this, expr);
+                    }
                 long size() const { return shape[0]; }
             };
 

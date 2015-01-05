@@ -276,7 +276,8 @@ namespace pythonic {
                 }
 
                 /* from a foreign pointer */
-                ndarray(T* data, long const* pshape):
+                template <class S>
+                ndarray(T* data, S const* pshape):
                     mem(data),
                     buffer(mem->data),
                     shape()
@@ -285,8 +286,8 @@ namespace pythonic {
                 }
 
 #ifdef ENABLE_PYTHON_MODULE
-
-                ndarray(T* data, long * pshape, PyObject* obj_ptr): ndarray(data, pshape)
+                template<class S>
+                ndarray(T* data, S const* pshape, PyObject* obj_ptr): ndarray(data, pshape)
                 {
                     mem.external(obj_ptr); // mark memory as external to decref at the end of its lifetime
                 }
@@ -958,8 +959,8 @@ namespace pythonic {
                   return nullptr;
                 if(PyArray_NDIM(arr_ptr) != N)
                     return nullptr;
-                long * stride = PyArray_STRIDES(arr_ptr);
-                long * dims = PyArray_DIMS(arr_ptr);
+                auto const* stride = PyArray_STRIDES(arr_ptr);
+                auto const* dims = PyArray_DIMS(arr_ptr);
                 long current_stride = PyArray_ITEMSIZE(arr_ptr);
                 for(long i=N-1; i>=0; i--)
                 {
@@ -1021,8 +1022,8 @@ namespace pythonic {
                 PyArrayObject* base_arr_ptr = reinterpret_cast<PyArrayObject*>(base_obj_ptr);
 
 
-                long * stride = PyArray_STRIDES(arr_ptr);
-                long * dims = PyArray_DIMS(arr_ptr);
+                auto const * stride = PyArray_STRIDES(arr_ptr);
+                auto const * dims = PyArray_DIMS(arr_ptr);
 
 
                 /* FIXME If we have at least one stride, we convert the whole
@@ -1067,10 +1068,10 @@ namespace pythonic {
                  */
                 long offsets[N];
                 long strides[N];
-                long const* base_dims = PyArray_DIMS(base_arr_ptr);
+                auto const* base_dims = PyArray_DIMS(base_arr_ptr);
 
-                long full_offset = PyArray_BYTES(arr_ptr) - PyArray_BYTES(base_arr_ptr);
-                long const * arr_strides = PyArray_STRIDES(arr_ptr);
+                auto full_offset = PyArray_BYTES(arr_ptr) - PyArray_BYTES(base_arr_ptr);
+                auto const * arr_strides = PyArray_STRIDES(arr_ptr);
                 long accumulated_dim = 1 ;
                 offsets[N - 1] = full_offset % base_dims[N-1];
                 strides[N-1] = arr_strides[N-1];
@@ -1100,6 +1101,40 @@ namespace pythonic {
             pythran_to_python() { register_once< boost::simd::logical<T>, custom_boost_simd_logical<T> >(); }
         };
 
+    /* wrapper around Python array creation
+     * its purpose is to hide the difference between the shape stored in pythran (aka long) and the shape stored in numpy (aka npy_intp)
+     * it should work (with an extra copy) on 32 bit architecture and without copy on 64 bits architecture
+     */
+    template<class T, size_t N>
+    struct pyarray_new {
+
+      static_assert(!std::is_same<T, npy_intp>::value, "correctly specialized");
+
+      PyObject *from_descr(PyTypeObject *subtype, PyArray_Descr *descr, T *dims,
+                           void *data, int flags, PyObject *obj) {
+        npy_intp shape[N];
+        std::copy(dims, dims + N, shape);
+        return pyarray_new<npy_intp, N>{}.from_descr(subtype, descr, shape, flags, obj);
+      }
+      PyObject *from_data(T *dims, int typenum, void *data) {
+        npy_intp shape[N];
+        std::copy(dims, dims + N, shape);
+        return pyarray_new<npy_intp, N>{}.from_data(shape, typenum, data);
+      }
+    };
+    template<size_t N>
+    struct pyarray_new<npy_intp, N> {
+
+      PyObject *from_descr(PyTypeObject *subtype, PyArray_Descr *descr,
+                           npy_intp *dims, void *data, int flags, PyObject *obj) {
+        return PyArray_NewFromDescr(subtype, descr, N, dims, nullptr, data, flags,
+                                    obj);
+      }
+      PyObject *from_data(npy_intp *dims, int typenum, void *data) {
+        return PyArray_SimpleNewFromData(N, dims, typenum, data);
+      }
+    };
+
     template<class T, size_t N>
         struct custom_array_to_ndarray {
             static PyObject* convert( types::ndarray<T,N> n) {
@@ -1108,7 +1143,7 @@ namespace pythonic {
                     PyObject* p = n.mem.get_foreign();
                     n.mem.forget();
                     PyArrayObject *arr = reinterpret_cast<PyArrayObject*>(p);
-                    auto pshape = PyArray_DIMS(arr);
+                    auto const *pshape = PyArray_DIMS(arr);
                     Py_INCREF(p);
                     if(std::equal(n.shape.begin(), n.shape.end(), pshape))
                     {
@@ -1117,15 +1152,15 @@ namespace pythonic {
                     else
                     {
                         Py_INCREF(PyArray_DESCR(arr));
-                        return PyArray_NewFromDescr(Py_TYPE(arr),
+                        return pyarray_new<long, N>{}.from_descr(
+                                Py_TYPE(arr),
                                 PyArray_DESCR(arr),
-                                N, n.shape.data(),
-                                NULL,
+                                n.shape.data(),
                                 PyArray_DATA(arr),
                                 PyArray_FLAGS(arr) & ~NPY_ARRAY_OWNDATA, p);
                     }
                 } else {
-                    PyObject* result = PyArray_SimpleNewFromData(N, n.shape.data(), c_type_to_numpy_type<T>::value, n.buffer);
+                    PyObject* result = pyarray_new<long, N>{}.from_data(n.shape.data(), c_type_to_numpy_type<T>::value, n.buffer);
                     n.mem.external(result);
                     n.mem.forget();
                     if (!result)

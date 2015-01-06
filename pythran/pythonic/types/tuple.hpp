@@ -3,7 +3,6 @@
 
 #include "pythonic/types/assignable.hpp"
 #include "pythonic/types/slice.hpp"
-#include "pythonic/types/list.hpp" // because of [] operator that returns a list
 #include "pythonic/types/content_of.hpp"
 #include "pythonic/types/traits.hpp"
 #include "pythonic/utils/int_.hpp"
@@ -68,6 +67,8 @@ namespace {
 namespace pythonic {
 
     namespace types {
+        template<class T>
+            struct list; // forward declared for array slicing
 
         template<class T, size_t N>
             struct array;
@@ -242,13 +243,7 @@ namespace pythonic {
                     return to_tuple_impl<N>()(*this);
                 }
 
-                list<T> operator[](types::slice const& s){
-                    types::slice norm = s.normalize(size());
-                    list<T> out(norm.size());
-                    for(long i=0; i< out.size(); i++)
-                        out[i] = buffer[norm.get(i)];
-                    return out;
-                }
+                list<T> operator[](types::slice const& s); // definition in list.hpp
 
                 /* array */
                 friend std::ostream& operator<<(std::ostream& os, types::array<T, N> const & v) {
@@ -507,6 +502,7 @@ namespace pythonic {
 #ifdef ENABLE_PYTHON_MODULE
 
 #include "pythonic/python/register_once.hpp"
+#include "pythonic/python/extract.hpp"
 #include "pythonic/utils/seq.hpp"
 #include "pythonic/utils/fwd.hpp"
 

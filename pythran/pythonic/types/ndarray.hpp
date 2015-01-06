@@ -615,6 +615,11 @@ namespace pythonic {
             }
 
         /* } */
+        template<class T>
+          list<T>& list<T>::operator=(ndarray<T, 1> const & other) {
+            data=utils::shared_ref<T>(other.begin(),other.end());
+            return *this;
+          }
     }
 
     /* make sure the size method from ndarray is not used */
@@ -862,10 +867,11 @@ template<size_t N, class T, class O>
 struct __combined<pythonic::types::ndarray<T,N>, O> {
     typedef pythonic::types::ndarray<T,N> type;
 };
-//template<size_t N, class T, class O>
-//struct __combined<O, pythonic::types::ndarray<T,N>> {
-//    typedef pythonic::types::ndarray<T,N> type;
-//};
+
+template<size_t N, class T, class C, class I>
+struct __combined<indexable_container<C,I>, pythonic::types::ndarray<T,N>> {
+    typedef pythonic::types::ndarray<T,N> type;
+};
 
 /* } */
 

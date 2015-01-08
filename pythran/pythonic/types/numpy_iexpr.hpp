@@ -77,7 +77,7 @@ namespace pythonic {
                     return utils::broadcast_copy<numpy_iexpr&, E, value, value - utils::dim_of<E>::value, false/*NIY*/>(*this, expr);
                 }
                 numpy_iexpr& operator=(numpy_iexpr const& expr) {
-                    return utils::broadcast_copy<numpy_iexpr&, numpy_iexpr, value, value - utils::dim_of<numpy_iexpr>::value, false/*NIY*/>(*this, expr);
+                    return utils::broadcast_copy<numpy_iexpr&, numpy_iexpr const &, value, value - utils::dim_of<numpy_iexpr>::value, false/*NIY*/>(*this, expr);
                 }
                 template<class E>
                 numpy_iexpr& operator+=(E const& expr) {

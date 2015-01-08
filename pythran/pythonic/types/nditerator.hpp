@@ -10,15 +10,18 @@ namespace pythonic {
          */
         template<class E>
             struct nditerator : public std::iterator<std::random_access_iterator_tag,
-                                                     typename E::value_type,
+                                                     typename std::remove_reference<decltype(std::declval<E&>().fast(0))>::type,
                                                      ptrdiff_t,
-                                                     typename E::value_type *, typename E::value_type /* no ref here */> {
+                                                     typename std::remove_reference<decltype(std::declval<E&>().fast(0))>::type*,
+                                                     typename std::remove_reference<decltype(std::declval<E&>().fast(0))>::type /* no ref here, becasue we return a proxy object */
+                                                     >
+            {
                 E & data;
                 long index;
                 nditerator(E & data, long index) : data(data), index(index) {}
 
-                /* we would like to return E::value_type, but this currently fails. So let's the auto magic do the trick */
                 auto operator*() -> decltype(data.fast(index)) { return data.fast(index); }
+                auto operator*() const -> decltype(data.fast(index)) { return data.fast(index); }
                 nditerator<E>& operator++() { ++index; return *this;}
                 nditerator<E>& operator--() { --index; return *this;}
                 nditerator<E>& operator+=(long i) { index += i; return *this;}
@@ -46,15 +49,14 @@ namespace pythonic {
          */
         template<class E>
             struct const_nditerator : public std::iterator<std::random_access_iterator_tag,
-                                                           typename E::value_type> {
+                                                           typename std::remove_reference<decltype(std::declval<E&>().fast(0))>::type>
+            {
                 E const &data;
                 long index;
                 const_nditerator(E const& data, long index) : data(data), index(index) {
                 }
 
-
-                // TODO: This "auto" is different than E::value_type, which is weird (if not wrong)
-                auto operator*() -> decltype(data.fast(index)) { return data.fast(index); }
+                auto operator*() const -> decltype(data.fast(index)) { return data.fast(index); }
                 const_nditerator<E>& operator++() { ++index; return *this;}
                 const_nditerator<E>& operator--() { --index; return *this;}
                 const_nditerator<E>& operator+=(long i) { index +=  i; return *this;}
@@ -76,6 +78,7 @@ namespace pythonic {
                 const_nditerator& operator=(const_nditerator const& other) { index = other.index; return *this;}
             };
 
+        // build an iterator over T, selecting a raw pointer if possible
         template<bool is_strided>
           struct make_nditerator {
             template<class T>

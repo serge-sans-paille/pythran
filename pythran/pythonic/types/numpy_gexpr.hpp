@@ -4,6 +4,107 @@
 namespace pythonic {
 
     namespace types {
+
+        /* helper to count new axis
+         */
+        template <class... T> struct count_new_axis;
+
+        template <> struct count_new_axis<types::none_type> {
+          static constexpr size_t value = 1;
+        };
+        template <class T> struct count_new_axis<T> {
+          static constexpr size_t value = 0;
+        };
+        template <class T0, class... T> struct count_new_axis<T0, T...> {
+          static constexpr size_t value =
+              count_new_axis<T0>::value + count_new_axis<T...>::value;
+        };
+
+        /* helper to turn a new axis into a slice
+         */
+        template<class T>
+          struct to_slice {
+            typedef T type;
+            static constexpr bool is_new_axis = false;
+            T operator()(T value) { return value; }
+          };
+        template<>
+          struct to_slice<none_type> {
+            typedef contiguous_slice type;
+            static constexpr bool is_new_axis = true;
+            contiguous_slice operator()(none_type) { return contiguous_slice{none_type{}, none_type{}}; }
+          };
+
+        /* helper to build a new shape out of a shape and a slice with new axis
+         */
+        template<size_t N, size_t M, size_t C>
+          array<long, N> make_reshape(array<long, M> const& shape, array<bool, C> const& is_new_axis) {
+            array<long, N> new_shape;
+            size_t j = 0;
+            for(size_t i = 0; i < C; ++i)
+              if(is_new_axis[i])
+                new_shape[i] = 1;
+              else
+                new_shape[i] = shape [j++];
+            for(size_t i = C; i < N; ++i)
+              new_shape[i] = shape [i + j - C];
+            return new_shape;
+          };
+
+
+        /* helper to build an extended slice aka numpy_gexpr out of a subscript
+         */
+        template<size_t C>
+          struct extended_slice {
+            template<class T, size_t N, class... S>
+              numpy_gexpr<ndarray<T, N + C>, typename to_slice<S>::type...> operator()(ndarray<T,N>&& a, S const&... s)
+              {
+                return numpy_gexpr<ndarray<T, N + C>, typename to_slice<S>::type...>{
+                  std::move(a).reshape(
+                      make_reshape<N + C>(a.shape,
+                                          array<bool, sizeof...(S)>{to_slice<S>::is_new_axis...})
+                      ),
+                  to_slice<S>{}(s)...
+                };
+              }
+            template<class T, size_t N, class... S>
+              numpy_gexpr<ndarray<T, N + C>, typename to_slice<S>::type...> operator()(ndarray<T,N> const& a, S const&... s)
+              {
+                return numpy_gexpr<ndarray<T, N + C>, typename to_slice<S>::type...>{
+                  a.reshape(
+                      make_reshape<N + C>(a.shape,
+                                          array<bool, sizeof...(S)>{to_slice<S>::is_new_axis...})
+                      ),
+                  to_slice<S>{}(s)...
+                };
+              }
+          };
+        template<>
+          struct extended_slice<0> {
+            template<class T, size_t N, class... S>
+              auto operator()(ndarray<T,N>&& a, long s0, S const&... s)
+              -> decltype(std::declval<numpy_iexpr<ndarray<T,N>>>()(s...))
+              {
+                return std::move(a)[s0](s...);
+              }
+            template<class T, size_t N, class... S>
+              auto operator()(ndarray<T,N> const& a, long s0, S const&... s)
+              -> decltype(a[s0](s...))
+              {
+                return a[s0](s...);
+              }
+            template<class T, size_t N, class ...S>
+                numpy_gexpr<ndarray<T,N> const &, slice, S...> operator()(ndarray<T,N> const& a, slice const& s0, S const&... s)
+                {
+                    return numpy_gexpr<ndarray<T,N> const &, slice, S...>(a, s0, s...);
+                }
+            template<class T, size_t N, class ...S>
+                numpy_gexpr<ndarray<T,N> const &, contiguous_slice, S...> operator()(ndarray<T,N> const& a, contiguous_slice const& s0, S const&... s)
+                {
+                    return numpy_gexpr<ndarray<T,N> const &, contiguous_slice, S...>(a, s0, s...);
+                }
+          };
+
         /* manually unrolled copy function
          */
         template <size_t I> struct flat_copy;

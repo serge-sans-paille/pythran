@@ -527,6 +527,7 @@ MODULES = {
         "ndindex": ConstFunctionIntr(),
         "ndim": ConstFunctionIntr(),
         "negative": ConstFunctionIntr(),
+        "newaxis": ConstantIntr(),
         "nextafter": ConstFunctionIntr(),
         "NINF": ConstantIntr(),
         "nonzero": ConstFunctionIntr(),

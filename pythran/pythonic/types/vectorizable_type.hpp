@@ -24,6 +24,7 @@ namespace numpy {
     struct signbit;
     struct nan_to_num;
     struct asarray_chkfinite;
+    struct angle_in_rad;
   }
 }
 
@@ -43,6 +44,7 @@ template<class O>
                               not std::is_same<O, operator_::proxy::mod>::value and
                               not std::is_same<O, numpy::proxy::logaddexp2>::value and
                               // Return type for generic function should be generic
+                              not std::is_same<O, numpy::proxy::angle_in_rad>::value and
                               not std::is_same<O, numpy::proxy::ldexp>::value and
                               not std::is_same<O, numpy::proxy::isfinite>::value and
                               not std::is_same<O, numpy::proxy::fix>::value and

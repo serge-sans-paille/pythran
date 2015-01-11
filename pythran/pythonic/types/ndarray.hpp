@@ -316,8 +316,8 @@ namespace pythonic {
                         utils::broadcast_copy<ndarray&, E, value, 0, is_vectorizable and E::is_vectorizable>(*this, expr);
                     }
 
-                template<class Op, class Arg0, class Arg1>
-                    ndarray(numpy_expr<Op, Arg0, Arg1> const & expr) :
+                template<class Op, class... Args>
+                    ndarray(numpy_expr<Op, Args...> const & expr) :
                         mem(expr.size()),
                         buffer(mem->data),
                         shape(expr.shape)
@@ -635,9 +635,9 @@ namespace pythonic {
 
     namespace utils {
 
-        template<class Op, class Arg0, class Arg1>
-            struct nested_container_depth<types::numpy_expr<Op, Arg0, Arg1>> {
-                static const int  value = types::numpy_expr<Op, Arg0, Arg1>::value;
+        template<class Op, class... Args>
+            struct nested_container_depth<types::numpy_expr<Op, Args...>> {
+                static const int  value = types::numpy_expr<Op, Args...>::value;
             };
     }
 
@@ -659,9 +659,9 @@ namespace std {
         struct tuple_element<I, pythonic::types::ndarray<T,N> > {
             typedef typename pythonic::types::ndarray<T,N>::value_type type;
         };
-    template <size_t I, class Op, class Arg0, class Arg1>
-        struct tuple_element<I, pythonic::types::numpy_expr<Op,Arg0, Arg1> > {
-            typedef typename pythonic::types::numpy_expr_to_ndarray<pythonic::types::numpy_expr<Op,Arg0, Arg1>>::type::value_type type;
+    template <size_t I, class Op, class... Args>
+        struct tuple_element<I, pythonic::types::numpy_expr<Op,Args...> > {
+            typedef typename pythonic::types::numpy_expr_to_ndarray<pythonic::types::numpy_expr<Op,Args...>>::type::value_type type;
         };
     template <size_t I, class E>
         struct tuple_element<I, pythonic::types::numpy_iexpr<E> > {
@@ -817,11 +817,11 @@ namespace pythonic {
                 return types::__ndarray::getattr<I,types::ndarray<T,N>>()(f);
             }
 
-        template<int I, class O, class A0, class A1>
-            auto getattr(types::numpy_expr<O,A0,A1> const& f)
-            -> decltype(types::__ndarray::getattr<I,types::numpy_expr<O,A0,A1>>()(f))
+        template<int I, class O, class... Args>
+            auto getattr(types::numpy_expr<O,Args...> const& f)
+            -> decltype(types::__ndarray::getattr<I,types::numpy_expr<O,Args...>>()(f))
             {
-                return types::__ndarray::getattr<I,types::numpy_expr<O,A0,A1>>()(f);
+                return types::__ndarray::getattr<I,types::numpy_expr<O,Args...>>()(f);
             }
 
         template<int I, class A, class F>
@@ -870,6 +870,10 @@ struct __combined<pythonic::types::ndarray<T,N>, O> {
 
 template<size_t N, class T, class C, class I>
 struct __combined<indexable_container<C,I>, pythonic::types::ndarray<T,N>> {
+    typedef pythonic::types::ndarray<T,N> type;
+};
+template<size_t N, class T, class C>
+struct __combined<indexable<C>, pythonic::types::ndarray<T,N>> {
     typedef pythonic::types::ndarray<T,N> type;
 };
 

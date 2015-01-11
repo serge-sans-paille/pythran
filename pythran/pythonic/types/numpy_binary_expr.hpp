@@ -1,3 +1,4 @@
+
 #ifndef NUMPY_BINARY_FUNC_NAME
 #error NUMPY_BINARY_FUNC_NAME undefined
 #endif
@@ -11,7 +12,7 @@ namespace proxy {
         typedef void callable;
 
         template<typename T0, typename T1>
-        auto operator()(T0&& arg0, T1&& arg1) const
+        auto operator()(T0 && arg0, T1 && arg1) const
         ->  typename std::enable_if<
                 not types::is_numexpr_arg<typename std::remove_cv<typename std::remove_reference<T1>::type>::type>::value
                 and
@@ -22,41 +23,15 @@ namespace proxy {
             return NUMPY_BINARY_FUNC_SYM(std::forward<T0>(arg0), std::forward<T1>(arg1));
         }
 
-
         template<class E0, class E1>
-            typename std::enable_if<
-            types::is_numexpr_arg<E0>::value
-            and
-            types::is_numexpr_arg<E1>::value,
-            types::numpy_expr<NUMPY_BINARY_FUNC_NAME, E0, E1>
-                >::type
-                operator()(E0 const& self, E1 const& other) const
-                {
-                    return types::numpy_expr<NUMPY_BINARY_FUNC_NAME, E0, E1>(self, other);
-                }
+        typename std::enable_if<types::valid_numexpr_parameters<E0, E1>::value,
+                                types::numpy_expr<NUMPY_BINARY_FUNC_NAME, typename types::adapt_type<E0,E1>::type, typename types::adapt_type<E1, E0>::type>
+                               >::type
+        operator()(E0 const& self, E1 const& other) const
+        {
+            return {self, other};
+        }
 
-        template<class E, class S>
-            typename std::enable_if<
-            types::is_numexpr_arg<E>::value
-            and
-            (std::is_scalar<S>::value or types::is_complex<S>::value),
-            types::numpy_expr<NUMPY_BINARY_FUNC_NAME, E,  pythonic::types::broadcast<typename E::dtype, S>>
-                >::type
-                operator()(E const& self, S other)
-                {
-                    return types::numpy_expr<NUMPY_BINARY_FUNC_NAME, E,  pythonic::types::broadcast<typename E::dtype, S>>(self, pythonic::types::broadcast<typename E::dtype, S>(other));
-                }
-        template<class E, class S>
-            typename std::enable_if<
-            types::is_numexpr_arg<E>::value
-            and
-            (std::is_scalar<S>::value or types::is_complex<S>::value),
-            types::numpy_expr<NUMPY_BINARY_FUNC_NAME, pythonic::types::broadcast<typename E::dtype, S>, E>
-                >::type
-                operator()(S other, E const& self)
-                {
-                    return types::numpy_expr<NUMPY_BINARY_FUNC_NAME, pythonic::types::broadcast<typename E::dtype, S>, E>(pythonic::types::broadcast<typename E::dtype, S>(other), self);
-                }
     };
 
 }

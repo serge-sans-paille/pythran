@@ -21,7 +21,7 @@ namespace pythonic {
         template<class A>
             class numpy_texpr_2;
 
-        template<class O, class A0, class A1>
+        template<class O, class... Args>
             class numpy_expr;
 
         template<class T>
@@ -68,8 +68,8 @@ namespace pythonic {
           struct is_array<numpy_texpr_2<A>> {
             static constexpr bool value = true;
           };
-        template<class O, class A0, class A1>
-          struct is_array<numpy_expr<O,A0,A1>> {
+        template<class O, class... Args>
+          struct is_array<numpy_expr<O,Args...>> {
             static constexpr bool value = true;
           };
 

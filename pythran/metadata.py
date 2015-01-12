@@ -1,8 +1,9 @@
-'''
+"""
 This module provides a way to pass information between passes as metadata.
-    * add attaches a metadata to a node
-    * get retrieves all metadata from a particular class attached to a node
-'''
+
+* add attaches a metadata to a node
+* get retrieves all metadata from a particular class attached to a node
+"""
 
 from ast import AST  # so that metadata are walkable as regular ast nodes
 
@@ -20,7 +21,8 @@ class Metadata(AST):
 
 
 class Lazy(AST):
-    pass
+
+    """ Metadata to mark variable which doesn't need to be evaluated now. """
 
 
 class Comprehension(AST):

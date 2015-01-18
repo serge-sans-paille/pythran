@@ -21,7 +21,7 @@ namespace pythonic {
                 typedef T type;
             };
 
-        /* trait to check if a type is iterable { */
+        /* trait to check if a type is iterable*/
         template<typename T>
             struct is_iterable
             {
@@ -41,6 +41,18 @@ namespace pythonic {
                 typedef struct { char _[2]; } no;
 
                 template <class C> static yes _test(typename C::callable*);
+                template <class C> static no _test(...);
+                static const bool value = sizeof( _test<T>(nullptr)) == sizeof(yes);
+            };
+
+        /* trait to check if a type is pure */
+        template<typename T>
+            struct is_pure
+            {
+                typedef char yes;
+                typedef struct { char _[2]; } no;
+
+                template <class C> static yes _test(typename C::pure*);
                 template <class C> static no _test(...);
                 static const bool value = sizeof( _test<T>(nullptr)) == sizeof(yes);
             };
@@ -92,6 +104,6 @@ namespace pythonic {
 
     }
 
-    }
+}
 
 #endif

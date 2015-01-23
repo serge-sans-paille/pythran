@@ -26,8 +26,8 @@ namespace pythonic {
             types::ndarray< long, 1 >
             digitize(E const& expr, F const& b) {
                 auto bins = asarray(b);
-                bool is_increasing = bins.size() > 1 and *bins.fbegin() < *(bins.fbegin() +1);
-                types::ndarray<long, 1> out(types::make_tuple(long(expr.size())), __builtin__::None);
+                bool is_increasing = bins.flat_size() > 1 and *bins.fbegin() < *(bins.fbegin() +1);
+                types::ndarray<long, 1> out(types::make_tuple(long(expr.flat_size())), __builtin__::None);
                 auto out_iter = out.fbegin();
                 if(is_increasing) {
                     _digitize(expr.begin(), expr.end(), out_iter, bins, operator_::proxy::lt(), utils::int_<types::numpy_expr_to_ndarray<E>::N>());

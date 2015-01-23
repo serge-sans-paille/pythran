@@ -108,7 +108,7 @@ namespace pythonic {
 
             static const size_t npos = std::string::npos;
 
-            typedef types::str value_type;
+            typedef str value_type; // in Python, a string contains... strings
             typedef container_type::iterator iterator;
             typedef container_type::reverse_iterator reverse_iterator;
             typedef container_type::const_reverse_iterator const_reverse_iterator;

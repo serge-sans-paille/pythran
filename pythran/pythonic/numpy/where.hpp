@@ -54,7 +54,7 @@ namespace pythonic {
                             >::value
                             > out(condition.shape, __builtin__::None);
                     auto out_iter = out.fbegin();
-                    for(long i=0, n=condition.size(); i<n; ++i) {
+                    for(long i=0, n=condition.flat_size(); i<n; ++i) {
                         if(*(condition.fbegin()+i))
                             *out_iter++ = *(x_.fbegin()+i);
                         else
@@ -97,7 +97,7 @@ namespace pythonic {
                             >::value
                             > out(condition.shape, __builtin__::None);
                     auto out_iter = out.buffer;
-                    for(long i=0, n=condition.size(); i<n; ++i) {
+                    for(long i=0, n=condition.flat_size(); i<n; ++i) {
                         if(*(condition.fbegin()+i))
                             *out_iter++ = x;
                         else
@@ -141,7 +141,7 @@ namespace pythonic {
                             >::value
                             > out(condition.shape, __builtin__::None);
                     auto out_iter = out.buffer;
-                    for(long i=0, n=condition.size(); i<n; ++i) {
+                    for(long i=0, n=condition.flat_size(); i<n; ++i) {
                         if(*(condition.fbegin()+i))
                             *out_iter++ = *(x_.fbegin()+i);
                         else
@@ -173,7 +173,7 @@ namespace pythonic {
                             >::value
                             > out(condition.shape, __builtin__::None);
                     auto out_iter = out.buffer;
-                    for(long i=0, n=condition.size(); i<n; ++i) {
+                    for(long i=0, n=condition.flat_size(); i<n; ++i) {
                         if(*(condition.fbegin()+i))
                             *out_iter++ = x;
                         else

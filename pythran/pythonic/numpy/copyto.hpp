@@ -7,7 +7,7 @@ namespace pythonic {
     namespace numpy {
         template<class T, size_t N>
             types::ndarray<T,N> copyto(types::ndarray<T,N>& out, types::ndarray<T,N> const& a) {
-                std::copy(a.buffer, a.buffer + a.size(), out.buffer);
+                std::copy(a.fbegin(), a.fend(), out.fbegin());
                 return out;
             }
         PROXY(pythonic::numpy, copyto);

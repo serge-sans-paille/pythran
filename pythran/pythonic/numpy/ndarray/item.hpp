@@ -11,7 +11,7 @@ namespace pythonic { namespace numpy  {
         template<class T, size_t N>
             T item(types::ndarray<T, N> const& expr, long i)
             {
-                if(i<0) i += expr.size();
+                if(i<0) i += expr.flat_size();
                 return *(expr.fbegin() + i);
             }
 
@@ -26,7 +26,7 @@ namespace pythonic { namespace numpy  {
             typename types::numpy_expr_to_ndarray<typename std::remove_reference<E>::type>::type::dtype
             item(E&& expr, long i)
             {
-                if(i<0) i += expr.size();
+                if(i<0) i += expr.flat_size();
                 return typename types::numpy_expr_to_ndarray<typename std::remove_reference<E>::type>::type{std::forward<E>(expr)}.flat()[i];
             }
         PROXY(pythonic::numpy::ndarray, item);

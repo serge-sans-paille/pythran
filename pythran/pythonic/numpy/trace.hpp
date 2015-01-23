@@ -17,8 +17,8 @@ namespace pythonic {
                 typename types::numpy_expr_to_ndarray<T>::T res = 0;
                 long y_offset = std::max(-offset, 0);
                 long x_offset = std::max(0, offset);
-                long size = std::min(expr.size() - y_offset,
-                                     expr.fast(0).size() - x_offset);
+                long size = std::min(expr.flat_size() - y_offset,
+                                     expr.fast(0).flat_size() - x_offset);
                 if(offset < 0)
                     for(long i=0; i<size; i++)
                         res += expr.fast(i + offset).fast(i);

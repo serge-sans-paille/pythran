@@ -19,7 +19,7 @@ namespace pythonic {
         template<class U, class V>
             typename std::enable_if<types::numpy_expr_to_ndarray<U>::N < types::numpy_expr_to_ndarray<V>::N, bool>::type
             array_equiv(U const& u, V const &v) {
-                if(v.size() % u.size() == 0) {
+                if(v.flat_size() % u.flat_size() == 0) {
                     // requires allocation for u' as it is used multiple times.
                     return _array_equiv(v.begin(), v.end(), asarray(u));
                 }

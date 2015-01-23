@@ -10,7 +10,7 @@ namespace pythonic {
         template<class T, size_t N>
             types::ndarray<long, N> argsort(types::ndarray<T,N> const& a) {
                 size_t last_axis = a.shape[N-1];
-                size_t n = a.size();
+                size_t n = a.flat_size();
                 types::ndarray<long, N> indices(a.shape, __builtin__::None);
                 for(long j=0, * iter_indices = indices.buffer, *end_indices = indices.buffer + n;
                         iter_indices != end_indices;

@@ -16,8 +16,8 @@ namespace pythonic {
                 types::ndarray<R, 1> a(types::make_tuple((long)size), __builtin__::None);
                 if(size)
                 {
-                    auto prev = a.buffer,
-                         end = a.buffer + a.size();
+                    auto prev = a.fbegin(),
+                         end = a.fend();
                     *prev = begin;
                     for(auto iter = prev + 1; iter!=end; ++iter) {
                         *iter = *prev + step;

@@ -32,14 +32,14 @@ namespace pythonic {
                             utils::int_<N - 1>());
                     if(v>=0)
                         current_maxarg = current_pos + v;
-                    current_pos += (*begin).size();
+                    current_pos += (*begin).flat_size();
                 }
                 return current_maxarg;
             }
 
         template<class E>
             long argmax(E const& expr) {
-                if(not expr.size()) 
+                if(not expr.flat_size()) 
                     throw types::ValueError("empty sequence");
                 using elt_type = typename types::numpy_expr_to_ndarray<E>::T;
                 elt_type argmax_value = std::numeric_limits<elt_type>::lowest();;

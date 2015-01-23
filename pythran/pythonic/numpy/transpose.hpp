@@ -37,7 +37,7 @@ namespace pythonic {
                 std::transform(old_strides.rbegin(), old_strides.rend() -1, shape.rbegin(), old_strides.rbegin() + 1, std::multiplies<long>());
 
                 auto iter = a.buffer,
-                     iter_end = a.buffer + a.size();
+                     iter_end = a.buffer + a.flat_size();
                 for(long i=0; iter!=iter_end; ++iter, ++i) {
                     long offset = 0;
                     for(unsigned long s=0; s<N; s++)

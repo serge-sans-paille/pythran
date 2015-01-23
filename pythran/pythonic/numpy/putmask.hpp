@@ -15,8 +15,8 @@ namespace pythonic {
                 auto amask = asarray(mask);
                 auto avalues = asarray(values);
                 auto iexpr = expr.fbegin();
-                auto n = avalues.size();
-                for(size_t i=0; i<expr.size(); ++i)
+                auto n = avalues.flat_size();
+                for(size_t i=0; i<expr.flat_size(); ++i)
                     if(*(amask.fbegin() +i))
                         *(iexpr + i) = *(avalues.fbegin() + i % n);
                 return __builtin__::None;

@@ -26,7 +26,7 @@ namespace pythonic {
 
         template<class T>
             types::ndarray<T,2> diag(types::ndarray<T,1> const &a, long k=0) {
-                long n = a.size() + std::abs(k);
+                long n = a.flat_size() + std::abs(k);
                 types::ndarray<T,2> out(types::make_tuple(n,n), 0);
                 if(k>=0)
                     for(long i=0,j =k ; i< n and j<n ;++i,++j)

@@ -5,27 +5,22 @@
 #include "pythonic/types/traits.hpp"
 
 namespace pythonic {
+    namespace types { class str; }
 
     namespace utils {
 
 
         /* compute nested container depth and memory size*/
-        template<class T>
+        template<class T, bool next = types::is_iterable<typename std::remove_reference<T>::type>::value>
             struct nested_container_depth {
-                static const int value = 1 + nested_container_depth<
-                    typename std::conditional<
-                    types::is_iterable<typename std::remove_reference<T>::type>::value,
-                    typename std::conditional<
-                        std::is_scalar<typename std::remove_reference<T>::type::value_type>::value or types::is_complex<typename std::remove_reference<T>::type::value_type>::value,
-                    bool,
-                    typename std::remove_reference<T>::type::value_type
-                        >::type,
-                    bool
-                        >::type
-                        >::value;
+                static const int value = 1 + nested_container_depth<typename std::remove_reference<T>::type::value_type>::value;
             };
-        template<>
-            struct nested_container_depth<bool> {
+        template<class T>
+            struct nested_container_depth<T, false> {
+                static const int value = 0;
+            };
+        template<> // need for str, as str iterates over... str
+            struct nested_container_depth<types::str, true> {
                 static const int value = 0;
             };
 
@@ -37,7 +32,7 @@ namespace pythonic {
         template<class T>
             struct nested_container_size {
                 typedef typename std::remove_cv<typename std::remove_reference<T>::type>::type Type;
-                static size_t size(T const& t) {
+                static size_t flat_size(T const& t) {
                     return t.size()
                         *
                         nested_container_size<
@@ -49,18 +44,18 @@ namespace pythonic {
                            bool,
                            typename Type::value_type
                                >::type
-                               >::size(*t.begin());
+                               >::flat_size(*t.begin());
                 }
             };
         /* Recursion stops on bool */
         template<>
             struct nested_container_size<bool> {
                 template<class F>
-                    static size_t size(F) { return 1; }
+                    static size_t flat_size(F) { return 1; }
             };
 
         /* Statically define (by recursion) the type of element inside nested constainers */
-        template<class T, size_t end=std::numeric_limits<size_t>::max()>
+        template<class T, size_t end=nested_container_depth<T>::value>
             struct nested_container_value_type {
                 typedef typename nested_container_value_type<typename T::value_type, ((std::is_scalar<typename T::value_type>::value or types::is_complex<typename T::value_type>::value)?0:end-1)>::type type;
             };

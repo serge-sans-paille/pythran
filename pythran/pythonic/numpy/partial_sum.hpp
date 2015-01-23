@@ -42,7 +42,7 @@ namespace pythonic {
     template<class Op, class E, class dtype=typename E::dtype>
       types::ndarray<typename types::numpy_type<dtype>::type,1>
       partial_sum(E const& expr, dtype d = dtype()) {
-        const long count = expr.size();
+        const long count = expr.flat_size();
         types::ndarray<typename types::numpy_type<dtype>::type, 1> the_partial_sum{types::make_tuple(count), __builtin__::None};
         auto const p = utils::neutral<Op, typename E::dtype>::value;
         auto iter = the_partial_sum.begin();

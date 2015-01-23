@@ -88,8 +88,14 @@ namespace pythonic {
                     }
 
                 template<int... I>
-                long _size(utils::seq<I...>) const { std::array<long, sizeof...(I)> sizes = {std::get<I-1>(args).size()...}; return *std::max_element(sizes.begin(), sizes.end()); }
-                long size() const { return _size(typename utils::gens<1+sizeof...(Args)>::type{}); }
+                long _flat_size(utils::seq<I...>) const {
+                  std::array<long, sizeof...(I)> sizes = {
+                    std::get<I-1>(args).flat_size()...
+                  };
+                  return *std::max_element(sizes.begin(), sizes.end());
+                }
+                long flat_size() const {
+                  return _flat_size(typename utils::gens<1+sizeof...(Args)>::type{}); }
             };
 
     }

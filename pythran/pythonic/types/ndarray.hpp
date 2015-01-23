@@ -258,7 +258,7 @@ namespace pythonic {
                 /* from other array */
                 template<class Tp, size_t Np>
                     ndarray(ndarray<Tp, Np> const& other):
-                        mem(other.size()),
+                        mem(other.flat_size()),
                         buffer(mem->data),
                         shape(other.shape)
                 {
@@ -303,7 +303,7 @@ namespace pythonic {
                     void>::type
                         >
                         ndarray(Iterable&& iterable):
-                            mem(utils::nested_container_size<Iterable>::size(std::forward<Iterable>(iterable))),
+                            mem(utils::nested_container_size<Iterable>::flat_size(std::forward<Iterable>(iterable))),
                             buffer(mem->data),
                             shape()
                 {
@@ -318,7 +318,7 @@ namespace pythonic {
 
                 template<class Op, class... Args>
                     ndarray(numpy_expr<Op, Args...> const & expr) :
-                        mem(expr.size()),
+                        mem(expr.flat_size()),
                         buffer(mem->data),
                         shape(expr.shape)
                 {
@@ -327,25 +327,25 @@ namespace pythonic {
 
                 template<class Arg>
                     ndarray(numpy_texpr<Arg> const & expr) :
-                        mem(expr.size()),
+                        mem(expr.flat_size()),
+                        buffer(mem->data),
+                        shape(expr.shape)
+                {
+                    initialize_from_expr(expr);
+                }
+                template<class Arg>
+                    ndarray(numpy_texpr_2<Arg> const & expr) :
+                        mem(expr.flat_size()),
                         buffer(mem->data),
                         shape(expr.shape)
                 {
                     initialize_from_expr(expr);
                 }
 
-                template<class Op, class Arg>
-                    ndarray(numpy_uexpr<Op, Arg> const & expr) :
-                        mem(expr.size()),
-                        buffer(mem->data),
-                        shape(expr.shape)
-                {
-                    initialize_from_expr(expr);
-                }
 
                 template<class Arg, class... S>
                     ndarray(numpy_gexpr<Arg, S...> const & expr) :
-                        mem(expr.size()),
+                        mem(expr.flat_size()),
                         buffer(mem->data),
                         shape(expr.shape)
                 {
@@ -354,7 +354,7 @@ namespace pythonic {
 
                 template<class Arg>
                     ndarray(numpy_iexpr<Arg> const & expr) :
-                        mem(expr.size()),
+                        mem(expr.flat_size()),
                         buffer(mem->data),
                         shape(expr.shape)
                 {
@@ -363,7 +363,7 @@ namespace pythonic {
 
                 template<class Arg, class F>
                     ndarray(numpy_fexpr<Arg, F> const & expr) :
-                        mem(expr.size()),
+                        mem(expr.flat_size()),
                         buffer(mem->data),
                         shape(expr.shape)
                 {
@@ -513,7 +513,7 @@ namespace pythonic {
                 template<class F> // indexing through an array of indices -- a view
                     typename std::enable_if<is_numexpr_arg<F>::value and not std::is_same<bool, typename F::dtype>::value, ndarray<T, 1>>::type
                     operator[](F const& filter) const {
-                        ndarray<T,1> out(array<long, 1>{{filter.size()}}, none_type());
+                        ndarray<T,1> out(array<long, 1>{{filter.flat_size()}}, none_type());
                         std::transform(filter.begin(), filter.end(), out.begin(), [this](typename F::dtype index) { return fast(index); });
                         return out;
                     }
@@ -525,18 +525,18 @@ namespace pythonic {
                 const_iterator end() const { return type_helper<ndarray>::make_iterator(*this, shape[0]); }
 
                 const_flat_iterator fbegin() const { return buffer; }
-                const_flat_iterator fend() const { return buffer + size(); }
+                const_flat_iterator fend() const { return buffer + flat_size(); }
                 flat_iterator fbegin() { return buffer; }
-                flat_iterator fend() { return buffer + size(); }
+                flat_iterator fend() { return buffer + flat_size(); }
 
                 /* member functions */
-                long size() const { return std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<long>()); }
+                long flat_size() const { return std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<long>()); }
                 template<size_t M>
                     ndarray<T,M> reshape(array<long,M> const& shape) const {
                         return ndarray<T, M>(mem, shape);
                     }
                 ndarray<T,1> flat() const {
-                    return ndarray<T, 1>(mem, array<long, 1>{{size()}});
+                    return ndarray<T, 1>(mem, array<long, 1>{{flat_size()}});
                 }
                 ndarray<T,N> copy() const {
                     ndarray<T,N> res(shape, __builtin__::None);
@@ -562,7 +562,7 @@ namespace pythonic {
                 size_t depth = N;
                 int step = -1;
                 std::ostringstream oss;
-                if( e.size())
+                if( e.flat_size())
                     oss << *std::max_element(e.fbegin(), e.fend());
                 int size = oss.str().length();
                 auto iter = e.fbegin();
@@ -633,15 +633,6 @@ namespace pythonic {
 
     }
 
-    namespace utils {
-
-        template<class Op, class... Args>
-            struct nested_container_depth<types::numpy_expr<Op, Args...>> {
-                static const int  value = types::numpy_expr<Op, Args...>::value;
-            };
-    }
-
-
 }
 
 
@@ -703,13 +694,13 @@ namespace pythonic {
                 }
             };
             template<class E> struct getattr<attr::SIZE, E> {
-                long operator()(E const& a) { return a.size(); }
+                long operator()(E const& a) { return a.flat_size(); }
             };
             template<class E> struct getattr<attr::ITEMSIZE, E> {
                 long operator()(E const& a) { return sizeof(typename numpy_expr_to_ndarray<E>::T); }
             };
             template<class E> struct getattr<attr::NBYTES, E> {
-                long operator()(E const& a) { return a.size() * sizeof(typename numpy_expr_to_ndarray<E>::T); }
+                long operator()(E const& a) { return a.flat_size() * sizeof(typename numpy_expr_to_ndarray<E>::T); }
             };
             template<class E> struct getattr<attr::FLAT, E> {
                 auto operator()(E const& a) -> decltype(a.flat()) { return a.flat(); }
@@ -780,7 +771,7 @@ namespace pythonic {
                 typename numpy_expr_to_ndarray<E>::type make_imag(E const& a, utils::int_<0>){
                   // cannot use numpy.zero: forward declaration issue
                   typedef typename numpy_expr_to_ndarray<E>::type T;
-                  return T((typename T::dtype*)calloc(a.size(), sizeof(typename E::dtype)), a.shape.data());
+                  return T((typename T::dtype*)calloc(a.flat_size(), sizeof(typename E::dtype)), a.shape.data());
                 }
 
                 auto make_imag(E const& a, utils::int_<1>)

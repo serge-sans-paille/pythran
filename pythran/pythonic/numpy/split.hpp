@@ -9,7 +9,7 @@ namespace pythonic {
     namespace numpy {
         template<class T, size_t N>
             types::list<types::ndarray<T,N>> split(types::ndarray<T,N> const& a, long nb_split) {
-                if(a.size()%nb_split != 0)
+                if(a.flat_size()%nb_split != 0)
                     throw types::ValueError("array split does not result in an equal division");
                 return  array_split(a, nb_split);
             }

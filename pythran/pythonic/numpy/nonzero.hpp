@@ -36,7 +36,7 @@ namespace pythonic {
             {
                 constexpr long N = types::numpy_expr_to_ndarray<E>::N;
                 typedef types::array<types::ndarray<long,1>, N> out_type;
-                long sz = expr.size();
+                long sz = expr.flat_size();
 
                 types::array<long *, N> out_buffers;
                 types::array<long *, N> out_iters;

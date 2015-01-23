@@ -14,7 +14,7 @@ namespace pythonic {
                               "Not implemented : trim_zeroes only works for 1D array");
 
                 int begin = 0;
-                int end = expr.size();
+                int end = expr.flat_size();
                 if(trim.find("f") != std::string::npos)
                     begin = std::find_if(expr.begin(), expr.end(),
                                          [](typename types::numpy_expr_to_ndarray<T>::T i){return i!=0;}) - expr.begin();

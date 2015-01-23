@@ -428,7 +428,7 @@ namespace pythonic {
                         return numpy_fexpr<numpy_gexpr, F>(*this, filter);
                     }
 
-                long size() const {
+                long flat_size() const {
                     return std::accumulate(shape.begin() + 1, shape.end(), *shape.begin(), std::multiplies<long>());
                 }
             };

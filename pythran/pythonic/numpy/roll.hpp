@@ -11,8 +11,8 @@ namespace pythonic {
         template<class T, size_t N>
             types::ndarray<T,N> roll(types::ndarray<T,N> const& expr, long shift)
             {
-                while(shift<0) shift+=expr.size();
-                shift %=expr.size();
+                while(shift<0) shift+=expr.flat_size();
+                shift %=expr.flat_size();
                 types::ndarray<T,N> out(expr.shape, __builtin__::None);
                 std::copy(expr.fbegin(), expr.fend() - shift, std::copy(expr.fend() - shift, expr.fend(), out.fbegin()));
                 return out;

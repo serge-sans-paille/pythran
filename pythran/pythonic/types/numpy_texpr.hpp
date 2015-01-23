@@ -145,8 +145,8 @@ namespace pythonic {
                   return _reverse_index(std::tuple<S0 const&, S const&...>{s0, s...}, typename utils::rgens<1 + sizeof...(S)>::type{});
                 }
 
-                long size() const {
-                    return arg.size();
+                long flat_size() const {
+                    return arg.flat_size();
                 }
                 intptr_t id() const {
                   return arg.id();

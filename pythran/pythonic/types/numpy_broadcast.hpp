@@ -45,7 +45,7 @@ namespace pythonic {
                 }
 #endif
 
-                long size() const { return 0;}
+                long flat_size() const { return 0;}
 
             };
 
@@ -90,7 +90,7 @@ namespace pythonic {
                 template<class I>
                 auto load(I) const -> decltype(this -> _splated) { return _splated; }
 #endif
-                long size() const { return 0; }
+                long flat_size() const { return 0; }
             };
     }
 }

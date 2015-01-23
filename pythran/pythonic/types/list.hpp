@@ -5,6 +5,7 @@
 #include "pythonic/types/empty_iterator.hpp"
 #include "pythonic/utils/shared_ref.hpp"
 #include "pythonic/utils/reserve.hpp"
+#include "pythonic/utils/nested_container.hpp"
 #include "pythonic/types/slice.hpp"
 #include "pythonic/types/tuple.hpp"
 #include "pythonic/__builtin__/len.hpp"
@@ -35,6 +36,9 @@ namespace pythonic {
         template<class T> class list;
         template<class T, class S> class sliced_list;
         template<class T, size_t N> struct ndarray;
+        template<class T> struct is_list { static const bool value = false; };
+        template<class T> struct is_list<list<T>> { static const bool value = true; };
+        template<class T, class S> struct is_list<sliced_list<T,S>> { static const bool value = true; };
 
         /* for type disambiguification */
         struct single_value {};
@@ -69,8 +73,8 @@ namespace pythonic {
                 typedef typename container_type::const_reverse_iterator const_reverse_iterator;
 
                 // minimal ndarray interface
-                typedef value_type dtype;
-                static const size_t value = 1;
+                typedef typename utils::nested_container_value_type<sliced_list>::type dtype;
+                static const size_t value = utils::nested_container_depth<sliced_list>::value;
                 static const bool is_vectorizable = false; // overly cautious \simeq lazy
 
                 // constructor
@@ -140,15 +144,24 @@ namespace pythonic {
                 typedef typename container_type::const_reverse_iterator const_reverse_iterator;
 
                 // minimal ndarray interface
-                typedef value_type dtype;
-                static const size_t value = 1;
+                typedef typename utils::nested_container_value_type<list>::type dtype;
+                static const size_t value = utils::nested_container_depth<list>::value;
                 static const bool is_vectorizable = true;
                 static const bool is_strided = false;
                 struct fake_shape {
                   list const & the_list;
                   fake_shape(list const & the_list) : the_list{the_list}{}
-                  operator array<long,1>() const {
-                    return array<long, 1>{{the_list.size()}};
+                  template<class E> void init_shape(array<long, value>& res, E const& e, utils::int_<1>) const {
+                    res[value - 1] = e.size();
+                  }
+                  template<class E, size_t L> void init_shape(array<long, value>& res, E const& e, utils::int_<L>) const {
+                    res[value - L] = e.size();
+                    init_shape(res, e[0], utils::int_<L-1>{});
+                  }
+                  operator array<long, value>() const {
+                    array<long, value> res;
+                    init_shape(res, the_list, utils::int_<value>{});
+                    return res;
                   }
                 } shape;
 
@@ -393,6 +406,13 @@ namespace pythonic {
                         return *this;
                     }
                 long size() const { return data->size(); }
+                  template<class E> long _flat_size(E const& e, utils::int_<1>) const {
+                    return std::distance(e.begin(), e.end());
+                  }
+                  template<class E, size_t L> long _flat_size(E const& e, utils::int_<L>) const {
+                    return std::distance(e.begin(), e.end()) * _flat_size(e[0], utils::int_<L-1>{});
+                  }
+                long flat_size() const { return _flat_size(*this, utils::int_<value>{}); }
 
                 template<class V>
                     bool contains(V const & v) const {
@@ -449,6 +469,7 @@ namespace pythonic {
 
         /* empty list implementation */
         struct empty_list {
+            typedef void value_type;
             typedef empty_iterator iterator;
             typedef empty_iterator const_iterator;
             template<class T>

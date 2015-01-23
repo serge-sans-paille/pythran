@@ -12,7 +12,7 @@ namespace pythonic {
             types::ndarray<T,1> resize(types::ndarray<T,N> const& expr, int new_shape)
             {
                 types::ndarray<T,1> out(types::array<long, N>{{new_shape}}, __builtin__::None);
-                auto n = expr.size();
+                auto n = expr.flat_size();
                 if(n < new_shape) {
                     auto iter = std::copy(expr.fbegin(), expr.fend(), out.fbegin());
                     for(size_t i = 1; i < new_shape / n; ++i)
@@ -30,12 +30,12 @@ namespace pythonic {
                 auto where = std::find(new_shape.begin(), new_shape.end(), -1);
                 if(where != new_shape.end()) {
                     types::array<long, M> auto_shape(new_shape);
-                    auto_shape[where - new_shape.begin()] = expr.size() / std::accumulate(new_shape.begin(), new_shape.end(), -1L, std::multiplies<long>());
+                    auto_shape[where - new_shape.begin()] = expr.flat_size() / std::accumulate(new_shape.begin(), new_shape.end(), -1L, std::multiplies<long>());
                     return resize(expr, auto_shape);
                 }
                 types::ndarray<T,M> out(new_shape, __builtin__::None);
-                auto nshape = out.size();
-                auto n = expr.size();
+                auto nshape = out.flat_size();
+                auto n = expr.flat_size();
                 if(n < nshape) {
                     auto iter = std::copy(expr.fbegin(), expr.fend(), out.fbegin());
                     for(size_t i = 1; i < nshape / n; ++i) {

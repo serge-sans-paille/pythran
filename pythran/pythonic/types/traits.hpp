@@ -12,12 +12,12 @@ namespace pythonic {
         /* could overload is_scalar to consider complex has scalar types */
         template<class T>
             struct is_complex {
-                static const bool value = false;
+                static constexpr bool value = false;
                 typedef T type;
             };
         template<class T>
             struct is_complex<std::complex<T>> {
-                static const bool value = true;
+                static constexpr bool value = true;
                 typedef T type;
             };
 
@@ -28,9 +28,9 @@ namespace pythonic {
                 typedef char yes;
                 typedef struct { char _[2]; } no;
 
-                template <class C> static yes _test(typename C::iterator*);
-                template <class C> static no _test(...);
-                static const bool value = sizeof( _test<typename std::remove_reference<T>::type>(nullptr)) == sizeof(yes);
+                template <class C> static constexpr yes _test(typename C::iterator*) { return yes{}; }
+                template <class C> static constexpr no _test(...) { return no{}; }
+                static constexpr bool value = std::is_same<decltype(_test<typename std::remove_reference<T>::type>(nullptr)), yes>::value;
             };
 
         /* trait to check if a type is callable */
@@ -42,7 +42,7 @@ namespace pythonic {
 
                 template <class C> static yes _test(typename C::callable*);
                 template <class C> static no _test(...);
-                static const bool value = sizeof( _test<T>(nullptr)) == sizeof(yes);
+                static constexpr bool value = std::is_same<decltype(_test<T>(nullptr)), yes>::value;
             };
 
         /* trait to check if the type has a size member */
@@ -54,7 +54,7 @@ namespace pythonic {
 
                 template <class C> static yes _test(decltype(&C::size));
                 template <class C> static no _test(...);
-                static const bool value = sizeof( _test<T>(nullptr)) == sizeof(yes);
+                static constexpr bool value = std::is_same<decltype(_test<T>(nullptr)), yes>::value;
             };
 
         /* trait to check if the type has a contains member */
@@ -67,7 +67,7 @@ namespace pythonic {
                 template <class C> static yes _test(decltype(&C::template contains<V>));
                 template <class C> static yes _test(decltype(&C::contains));
                 template <class C> static no _test(...);
-                static const bool value = sizeof( _test<T>(nullptr)) == sizeof(yes);
+                static constexpr bool value = std::is_same<decltype(_test<T>(nullptr)), yes>::value;
             };
         /* trait to check if the type has a shape member { */
 
@@ -79,7 +79,7 @@ namespace pythonic {
 
                 template <class C> static yes _test(decltype(std::declval<C>().shape)*);
                 template <class C> static no _test(...);
-                static const bool value = sizeof( _test<T>(nullptr)) == sizeof(yes);
+                static constexpr bool value = std::is_same<decltype(_test<T>(nullptr)), yes>::value;
             };
         /* } */
 

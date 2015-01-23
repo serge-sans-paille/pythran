@@ -42,7 +42,7 @@ namespace pythonic {
                 iterator end_iter;
 
                 _ndenumerate() {}
-                _ndenumerate(E const &expr) :  ndenumerate_iterator<E>(expr, 0), expr(expr), end_iter(expr, expr.size()) {}
+                _ndenumerate(E const &expr) :  ndenumerate_iterator<E>(expr, 0), expr(expr), end_iter(expr, expr.flat_size()) {}
                 iterator & begin() { return *this; }
                 iterator const & begin() const { return *this; }
                 iterator end() const { return end_iter; }

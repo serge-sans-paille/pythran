@@ -9,6 +9,7 @@
 #include <boost/simd/include/functions/store.hpp>
 #endif
 
+//#include "pythonic/types/tuple.hpp"
 #include "pythonic/types/vectorizable_type.hpp"
 
 namespace pythonic {
@@ -74,7 +75,8 @@ namespace pythonic {
 #endif
 
                 broadcast() {}
-                broadcast(dtype v) : _value(v)
+                template<class V>
+                broadcast(V v) : _value(v)
 #ifdef USE_BOOST_SIMD
                                      , _splated(boost::simd::splat<boost::simd::native<dtype, BOOST_SIMD_DEFAULT_EXTENSION>>(_value))
 #endif

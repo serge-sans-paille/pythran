@@ -7,6 +7,7 @@ This module contains all pythran backends.
 from pythran.analyses import ArgumentEffects, BoundedExpressions, Dependencies
 from pythran.analyses import LocalDeclarations, GlobalDeclarations, Scope
 from pythran.analyses import YieldPoints, IsAssigned, ASTMatcher, AST_any
+from pythran.analyses import RangeValues
 from pythran.cxxgen import Template, Include, Namespace, CompilationUnit
 from pythran.cxxgen import Statement, Block, AnnotatedStatement, Typedef
 from pythran.cxxgen import Value, FunctionDeclaration, EmptyStatement
@@ -19,8 +20,7 @@ from pythran.syntax import PythranSyntaxError
 from pythran.tables import operator_to_lambda, MODULES, pythran_ward
 from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE, TYPE_TO_SUFFIX
 from pythran.types.types import Types
-import pythran.metadata as metadata
-import pythran.unparse as unparse
+from pythran import metadata, unparse
 
 from math import isnan, isinf
 import ast
@@ -159,7 +159,7 @@ class Cxx(Backend):
         self.ldecls = set()
         super(Cxx, self).__init__(Dependencies, GlobalDeclarations,
                                   BoundedExpressions, Types, ArgumentEffects,
-                                  Scope)
+                                  Scope, RangeValues)
 
     # mod
     def visit_Module(self, node):
@@ -1200,6 +1200,12 @@ class Cxx(Backend):
         elif isinstance(node.slice, ast.ExtSlice):
             slice = self.visit(node.slice)
             return "{1}({0})".format(','.join(slice), value)
+        # positive indexing case
+        elif (isinstance(node.slice, ast.Index)
+              and isinstance(node.slice.value, ast.Name)
+              and self.range_values[node.slice.value.id].low >= 0):
+            slice = self.visit(node.slice)
+            return "{1}.fast({0})".format(slice, value)
         # standard case
         else:
             slice = self.visit(node.slice)

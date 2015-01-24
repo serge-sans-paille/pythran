@@ -147,8 +147,11 @@ namespace  pythonic {
 
                 // dict interface
                 operator bool() { return not data->empty(); }
-                V& operator[](K const & key) { return (*data)[key]; }
-                V const & operator[](K const & key) const { return (*data)[key]; }
+                V& operator[](K const & key) { return fast(key); }
+                V const & operator[](K const & key) const { return fast(key); }
+
+                V& fast(K const & key) { return (*data)[key]; }
+                V const & fast(K const & key) const { return (*data)[key]; }
 
                 item_const_iterator find(K const & key) const { return item_const_iterator(data->find(key)); }
 

@@ -34,6 +34,7 @@ from .node_count import NodeCount
 from .optimizable_comprehension import OptimizableComprehension
 from .ordered_global_declarations import OrderedGlobalDeclarations
 from .parallel_maps import ParallelMaps
+from .range_values import RangeValues
 from .potential_iterator import PotentialIterator
 from .pure_expressions import PureExpressions
 from .scope import Scope

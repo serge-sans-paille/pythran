@@ -249,10 +249,17 @@ namespace pythonic {
 
                 // element access
                 reference operator[]( long n ) {
-                    return (*data)[(n>=0)?n : (data->size() + n)];
+                    return fast((n>=0)?n : (data->size() + n));
                 }
                 const_reference operator[]( long n ) const {
-                    return (*data)[(n>=0)?n : (data->size() + n)];
+                    return fast((n>=0)?n : (data->size() + n));
+                }
+
+                reference fast( long n ) {
+                    return (*data)[n];
+                }
+                const_reference fast( long n ) const {
+                    return (*data)[n];
                 }
 
                 list<T> operator[]( slice const &s ) const {

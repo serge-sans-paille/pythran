@@ -1,6 +1,7 @@
 """ This module contains all classes used to model intrinsics behavior.  """
 
 from pythran.conversion import to_ast
+from pythran.range import UNKNOWN_RANGE
 
 import ast
 
@@ -49,6 +50,10 @@ class Intrinsic(object):
                                    for n in kwargs.get('args', [])],
                                   None, None,
                                   map(to_ast, kwargs.get('defaults', [])))
+        self.return_range = kwargs.get("return_range",
+                                       lambda call: UNKNOWN_RANGE)
+        self.return_range_content = kwargs.get("return_ange_content",
+                                               lambda c: UNKNOWN_RANGE)
 
     def isliteral(self):
         return False
@@ -118,9 +123,9 @@ class ConstExceptionIntr(ConstFunctionIntr):
 
 
 class ReadOnceFunctionIntr(ConstFunctionIntr):
-    def __init__(self):
+    def __init__(self, **kwargs):
         super(ReadOnceFunctionIntr, self).__init__(
-            argument_effects=(ReadOnceEffect(),) * 11)
+            argument_effects=(ReadOnceEffect(),) * 11, **kwargs)
 
 
 class MethodIntr(FunctionIntr):
@@ -138,10 +143,10 @@ class MethodIntr(FunctionIntr):
 
 
 class ConstMethodIntr(MethodIntr):
-    def __init__(self, *combiners):
+    def __init__(self, *combiners, **kwargs):
         super(ConstMethodIntr, self).__init__(
             *combiners,
-            argument_effects=(ReadEffect(),) * 12)
+            argument_effects=(ReadEffect(),) * 12, **kwargs)
 
 
 class AttributeIntr(Intrinsic):

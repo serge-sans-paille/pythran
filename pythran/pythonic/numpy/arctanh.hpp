@@ -10,9 +10,9 @@
 namespace pythonic {
 
     namespace numpy {
-#define NUMPY_UNARY_FUNC_NAME arctanh
-#define NUMPY_UNARY_FUNC_SYM nt2::atanh
-#include "pythonic/types/numpy_unary_expr.hpp"
+#define NUMPY_NARY_FUNC_NAME arctanh
+#define NUMPY_NARY_FUNC_SYM nt2::atanh
+#include "pythonic/types/numpy_nary_expr.hpp"
 
     }
 

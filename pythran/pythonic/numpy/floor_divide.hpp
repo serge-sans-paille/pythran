@@ -10,9 +10,9 @@
 namespace pythonic {
 
     namespace numpy {
-#define NUMPY_BINARY_FUNC_NAME floor_divide
-#define NUMPY_BINARY_FUNC_SYM nt2::divfloor
-#include "pythonic/types/numpy_binary_expr.hpp"
+#define NUMPY_NARY_FUNC_NAME floor_divide
+#define NUMPY_NARY_FUNC_SYM nt2::divfloor
+#include "pythonic/types/numpy_nary_expr.hpp"
 
     }
 

@@ -18,9 +18,9 @@ namespace pythonic {
                     return nt2::is_inf(t) and nt2::is_positive(t);
                 }
         }
-#define NUMPY_UNARY_FUNC_NAME isposinf
-#define NUMPY_UNARY_FUNC_SYM wrapper::isposinf
-#include "pythonic/types/numpy_unary_expr.hpp"
+#define NUMPY_NARY_FUNC_NAME isposinf
+#define NUMPY_NARY_FUNC_SYM wrapper::isposinf
+#include "pythonic/types/numpy_nary_expr.hpp"
 
     }
 

@@ -15,9 +15,9 @@ double cos(long l) { return cos(static_cast<double>(l)); }
 namespace pythonic {
 
     namespace numpy {
-#define NUMPY_UNARY_FUNC_NAME cos
-#define NUMPY_UNARY_FUNC_SYM nt2::cos
-#include "pythonic/types/numpy_unary_expr.hpp"
+#define NUMPY_NARY_FUNC_NAME cos
+#define NUMPY_NARY_FUNC_SYM nt2::cos
+#include "pythonic/types/numpy_nary_expr.hpp"
     }
 }
 

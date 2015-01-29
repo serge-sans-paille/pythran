@@ -11,9 +11,9 @@
 namespace pythonic {
 
     namespace numpy {
-#define NUMPY_UNARY_FUNC_NAME exp
-#define NUMPY_UNARY_FUNC_SYM nt2::exp
-#include "pythonic/types/numpy_unary_expr.hpp"
+#define NUMPY_NARY_FUNC_NAME exp
+#define NUMPY_NARY_FUNC_SYM nt2::exp
+#include "pythonic/types/numpy_nary_expr.hpp"
 
     }
 

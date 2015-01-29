@@ -16,9 +16,9 @@ namespace pythonic {
                 return t0 and t1;
             }
         }
-#define NUMPY_BINARY_FUNC_NAME logical_and
-#define NUMPY_BINARY_FUNC_SYM wrapper::logical_and
-#include "pythonic/types/numpy_binary_expr.hpp"
+#define NUMPY_NARY_FUNC_NAME logical_and
+#define NUMPY_NARY_FUNC_SYM wrapper::logical_and
+#include "pythonic/types/numpy_nary_expr.hpp"
 
     }
 

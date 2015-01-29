@@ -19,9 +19,9 @@ namespace pythonic {
             }
 
         }
-#define NUMPY_BINARY_FUNC_NAME logaddexp
-#define NUMPY_BINARY_FUNC_SYM wrapper::logaddexp
-#include "pythonic/types/numpy_binary_expr.hpp"
+#define NUMPY_NARY_FUNC_NAME logaddexp
+#define NUMPY_NARY_FUNC_SYM wrapper::logaddexp
+#include "pythonic/types/numpy_nary_expr.hpp"
 
     }
 

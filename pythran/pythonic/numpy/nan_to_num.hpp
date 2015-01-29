@@ -32,9 +32,9 @@ namespace pythonic {
                 }
         }
 
-    #define NUMPY_UNARY_FUNC_NAME nan_to_num
-    #define NUMPY_UNARY_FUNC_SYM wrapper::nan_to_num
-    #include "pythonic/types/numpy_unary_expr.hpp"
+    #define NUMPY_NARY_FUNC_NAME nan_to_num
+    #define NUMPY_NARY_FUNC_SYM wrapper::nan_to_num
+    #include "pythonic/types/numpy_nary_expr.hpp"
 
     }
 

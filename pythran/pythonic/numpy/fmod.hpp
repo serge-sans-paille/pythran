@@ -11,9 +11,9 @@
 namespace pythonic {
 
     namespace numpy {
-#define NUMPY_BINARY_FUNC_NAME fmod
-#define NUMPY_BINARY_FUNC_SYM nt2::mod
-#include "pythonic/types/numpy_binary_expr.hpp"
+#define NUMPY_NARY_FUNC_NAME fmod
+#define NUMPY_NARY_FUNC_SYM nt2::mod
+#include "pythonic/types/numpy_nary_expr.hpp"
 
     }
 

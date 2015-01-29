@@ -11,9 +11,9 @@ namespace pythonic {
 
     namespace numpy {
 
-#define NUMPY_BINARY_FUNC_NAME arctan2
-#define NUMPY_BINARY_FUNC_SYM nt2::atan2
-#include "pythonic/types/numpy_binary_expr.hpp"
+#define NUMPY_NARY_FUNC_NAME arctan2
+#define NUMPY_NARY_FUNC_SYM nt2::atan2
+#include "pythonic/types/numpy_nary_expr.hpp"
 
     }
 

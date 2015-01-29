@@ -20,9 +20,9 @@ namespace pythonic {
                     return nt2::indeg(angle_in_rad(t));
                 }
         }
-#define NUMPY_UNARY_FUNC_NAME angle_in_deg
-#define NUMPY_UNARY_FUNC_SYM wrapper::angle_in_deg
-#include "pythonic/types/numpy_unary_expr.hpp"
+#define NUMPY_NARY_FUNC_NAME angle_in_deg
+#define NUMPY_NARY_FUNC_SYM wrapper::angle_in_deg
+#include "pythonic/types/numpy_nary_expr.hpp"
 
     }
 

@@ -17,9 +17,9 @@ namespace pythonic {
                     return nt2::iround2even(v);
                 }
         }
-#define NUMPY_UNARY_FUNC_NAME rint
-#define NUMPY_UNARY_FUNC_SYM wrapper::rint
-#include "pythonic/types/numpy_unary_expr.hpp"
+#define NUMPY_NARY_FUNC_NAME rint
+#define NUMPY_NARY_FUNC_SYM wrapper::rint
+#include "pythonic/types/numpy_nary_expr.hpp"
     }
 
 }

@@ -23,9 +23,9 @@ namespace pythonic {
 
     namespace numpy {
 
-#define NUMPY_UNARY_FUNC_NAME square
-#define NUMPY_UNARY_FUNC_SYM nt2::sqr
-#include "pythonic/types/numpy_unary_expr.hpp"
+#define NUMPY_NARY_FUNC_NAME square
+#define NUMPY_NARY_FUNC_SYM nt2::sqr
+#include "pythonic/types/numpy_nary_expr.hpp"
 
     }
 

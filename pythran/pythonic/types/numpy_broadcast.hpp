@@ -30,7 +30,7 @@ namespace pythonic {
                 static constexpr size_t value = T::value + 1;
 
                 T const & ref;
-                std::array<long, value> shape;
+                array<long, value> shape;
 
                 broadcasted(T const& ref) : ref(ref), shape() {
                     shape[0] = 1;
@@ -59,39 +59,45 @@ namespace pythonic {
          *
          * That way, np.ones(10, dtype=np.uint8) + 1 yields an array of np.uint8, although 1 is of type long
          */
+        template<class dtype, bool is_vectorizable> struct broadcast_base {
+          dtype _value;
+          template<class V> broadcast_base(V v) : _value(v) {}
+          template<class I> void load(I) const { static_assert(sizeof(I) != sizeof(I), "this method should never be instantiated");}
+        };
+#ifdef USE_BOOST_SIMD
+        template<class dtype> struct broadcast_base<dtype, true> {
+          dtype _value;
+          boost::simd::native<dtype, BOOST_SIMD_DEFAULT_EXTENSION> _splated ;
+          template<class V> broadcast_base(V v) : _value(v), _splated(boost::simd::splat<boost::simd::native<dtype, BOOST_SIMD_DEFAULT_EXTENSION>>(_value))
+          {}
+          template<class I> auto load(I) const -> decltype(this -> _splated) { return _splated; }
+        };
+#endif
         template<class T, class B>
             struct broadcast {
                 // Perform the type conversion here if it seems valid (although it is not always)
-                typedef typename std::conditional<std::numeric_limits<T>::is_integer and std::numeric_limits<B>::is_integer,
+                typedef typename std::conditional<std::is_integral<T>::value and std::is_integral<B>::value,
                                           T,
                                           typename __combined<T, B>::type>::type dtype;
                 static const bool is_vectorizable = types::is_vectorizable<dtype>::value;
                 static const bool is_strided = false;
                 typedef dtype value_type;
                 static constexpr size_t value = 0;
-                dtype _value;
-#ifdef USE_BOOST_SIMD
-                boost::simd::native<dtype, BOOST_SIMD_DEFAULT_EXTENSION> _splated ;
-#endif
 
-                broadcast() {}
+                broadcast_base<dtype, is_vectorizable> _base;
+
+                broadcast() = default;
                 template<class V>
-                broadcast(V v) : _value(v)
-#ifdef USE_BOOST_SIMD
-                                     , _splated(boost::simd::splat<boost::simd::native<dtype, BOOST_SIMD_DEFAULT_EXTENSION>>(_value))
-#endif
-                                     {}
+                broadcast(V v) : _base(v) {}
 
                 dtype operator[](long ) const {
-                    return _value;
+                    return _base._value;
                 }
                 dtype fast(long ) const {
-                    return _value;
+                    return _base._value;
                 }
-#ifdef USE_BOOST_SIMD
                 template<class I>
-                auto load(I) const -> decltype(this -> _splated) { return _splated; }
-#endif
+                auto load(I i) const -> decltype(this -> _base.load(i)) { return _base.load(i); }
                 long flat_size() const { return 0; }
             };
     }

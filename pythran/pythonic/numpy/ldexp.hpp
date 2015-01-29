@@ -17,9 +17,9 @@ namespace pythonic {
                     return nt2::ldexp(v, u);
                 }
         }
-#define NUMPY_BINARY_FUNC_NAME ldexp
-#define NUMPY_BINARY_FUNC_SYM wrapper::ldexp
-#include "pythonic/types/numpy_binary_expr.hpp"
+#define NUMPY_NARY_FUNC_NAME ldexp
+#define NUMPY_NARY_FUNC_SYM wrapper::ldexp
+#include "pythonic/types/numpy_nary_expr.hpp"
 
     }
 

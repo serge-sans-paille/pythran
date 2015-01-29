@@ -5,10 +5,20 @@
 #error NUMPY_NARY_FUNC_SYM undefined
 #endif
 
+#ifndef NUMPY_NARY_RESHAPE_MODE
+#define NUMPY_NARY_RESHAPE_MODE adapt_type
+#endif
+
+#ifndef NUMPY_NARY_EXTRA_METHOD
+#define NUMPY_NARY_EXTRA_METHOD
+#endif
+
 namespace proxy {
 
     struct NUMPY_NARY_FUNC_NAME {
         typedef void callable;
+
+        NUMPY_NARY_EXTRA_METHOD
 
         template<typename... T>
         auto operator()(T &&... args) const
@@ -21,7 +31,7 @@ namespace proxy {
 
         template<class... E>
         typename std::enable_if<types::valid_numexpr_parameters<E...>::value,
-                                types::numpy_expr<NUMPY_NARY_FUNC_NAME, typename types::adapt_type<E,E...>::type...>
+                                types::numpy_expr<NUMPY_NARY_FUNC_NAME, typename types::NUMPY_NARY_RESHAPE_MODE<E,E...>::type...>
                                >::type
         operator()(E const&... args) const
         {
@@ -34,4 +44,6 @@ namespace proxy {
 
 #undef NUMPY_NARY_FUNC_NAME
 #undef NUMPY_NARY_FUNC_SYM
+#undef NUMPY_NARY_RESHAPE_MODE
+#undef NUMPY_NARY_EXTRA_METHOD
 

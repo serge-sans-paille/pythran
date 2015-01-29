@@ -15,9 +15,9 @@ double acos(long l) { return acos(static_cast<double>(l)); }
 namespace pythonic {
 
     namespace numpy {
-#define NUMPY_UNARY_FUNC_NAME arccos
-#define NUMPY_UNARY_FUNC_SYM nt2::acos
-#include "pythonic/types/numpy_unary_expr.hpp"
+#define NUMPY_NARY_FUNC_NAME arccos
+#define NUMPY_NARY_FUNC_SYM nt2::acos
+#include "pythonic/types/numpy_nary_expr.hpp"
     }
 }
 

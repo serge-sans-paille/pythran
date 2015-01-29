@@ -15,9 +15,9 @@ namespace pythonic {
                 return (t0 and not t1) or (t1 and not t0);
             }
         }
-#define NUMPY_BINARY_FUNC_NAME logical_xor
-#define NUMPY_BINARY_FUNC_SYM wrapper::logical_xor
-#include "pythonic/types/numpy_binary_expr.hpp"
+#define NUMPY_NARY_FUNC_NAME logical_xor
+#define NUMPY_NARY_FUNC_SYM wrapper::logical_xor
+#include "pythonic/types/numpy_nary_expr.hpp"
 
     }
 

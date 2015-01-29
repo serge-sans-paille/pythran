@@ -11,9 +11,9 @@ namespace pythonic {
 
     namespace numpy {
 
-    #define NUMPY_UNARY_FUNC_NAME negative
-    #define NUMPY_UNARY_FUNC_SYM pythonic::operator_::neg
-    #include "pythonic/types/numpy_unary_expr.hpp"
+    #define NUMPY_NARY_FUNC_NAME negative
+    #define NUMPY_NARY_FUNC_SYM pythonic::operator_::neg
+    #include "pythonic/types/numpy_nary_expr.hpp"
 
     }
 

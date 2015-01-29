@@ -11,9 +11,9 @@ namespace pythonic {
 
     namespace numpy {
 
-    #define NUMPY_BINARY_FUNC_NAME less_equal
-    #define NUMPY_BINARY_FUNC_SYM pythonic::operator_::le
-    #include "pythonic/types/numpy_binary_expr.hpp"
+    #define NUMPY_NARY_FUNC_NAME less_equal
+    #define NUMPY_NARY_FUNC_SYM pythonic::operator_::le
+    #include "pythonic/types/numpy_nary_expr.hpp"
 
     }
 

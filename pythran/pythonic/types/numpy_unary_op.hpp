@@ -11,7 +11,7 @@ typename std::enable_if<types::valid_numexpr_parameters<E>::value,
     >::type
 NUMPY_UNARY_FUNC_NAME(E const & self)
 {
-    return types::numpy_expr<NUMPY_UNARY_FUNC_SYM, E>(self);
+    return {self};
 }
 
 #undef NUMPY_UNARY_FUNC_NAME

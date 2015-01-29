@@ -11,9 +11,9 @@
 namespace pythonic {
 
     namespace numpy {
-#define NUMPY_UNARY_FUNC_NAME cosh
-#define NUMPY_UNARY_FUNC_SYM nt2::cosh
-#include "pythonic/types/numpy_unary_expr.hpp"
+#define NUMPY_NARY_FUNC_NAME cosh
+#define NUMPY_NARY_FUNC_SYM nt2::cosh
+#include "pythonic/types/numpy_nary_expr.hpp"
 
     }
 

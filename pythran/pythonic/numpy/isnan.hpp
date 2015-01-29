@@ -18,9 +18,9 @@ namespace pythonic {
                     return nt2::is_nan(v);
                 }
         }
-#define NUMPY_UNARY_FUNC_NAME isnan
-#define NUMPY_UNARY_FUNC_SYM wrapper::isnan
-#include "pythonic/types/numpy_unary_expr.hpp"
+#define NUMPY_NARY_FUNC_NAME isnan
+#define NUMPY_NARY_FUNC_SYM wrapper::isnan
+#include "pythonic/types/numpy_nary_expr.hpp"
 
     }
 

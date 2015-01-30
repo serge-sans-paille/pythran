@@ -962,7 +962,22 @@ namespace pythonic {
         };
 
     template<typename T, size_t N>
-        struct python_to_pythran< types::ndarray<T, N> >{
+      struct basic_array_checks {
+        static PyArrayObject *check_array_type_and_dims(PyObject *obj_ptr) {
+          if (!PyArray_Check(obj_ptr))
+            return nullptr;
+          // the array must have the same dtype and the same number of dimensions
+          PyArrayObject *arr_ptr = reinterpret_cast<PyArrayObject *>(obj_ptr);
+          if (PyArray_TYPE(arr_ptr) != c_type_to_numpy_type<T>::value)
+            return nullptr;
+          if (PyArray_NDIM(arr_ptr) != N)
+            return nullptr;
+          return arr_ptr;
+        }
+      };
+
+    template<typename T, size_t N>
+        struct python_to_pythran< types::ndarray<T, N> > : basic_array_checks<T, N> {
             python_to_pythran(){
                 static bool registered=false;
                 python_to_pythran<T>();
@@ -973,13 +988,8 @@ namespace pythonic {
             }
             //reinterpret_cast needed to fit BOOST Python API. Check is done by template and PyArray_Check
             static void* convertible(PyObject* obj_ptr){
-                if(!PyArray_Check(obj_ptr))
-                 return nullptr;
-                // the array must have the same dtype and the same number of dimensions
-                PyArrayObject* arr_ptr = reinterpret_cast<PyArrayObject*>(obj_ptr);
-                if(PyArray_TYPE(arr_ptr) != c_type_to_numpy_type<T>::value)
-                  return nullptr;
-                if(PyArray_NDIM(arr_ptr) != N)
+                PyArrayObject* arr_ptr =  python_to_pythran::check_array_type_and_dims(obj_ptr);
+                if(not arr_ptr)
                     return nullptr;
                 auto const* stride = PyArray_STRIDES(arr_ptr);
                 auto const* dims = PyArray_DIMS(arr_ptr);
@@ -1021,7 +1031,7 @@ namespace pythonic {
       }
 
     template<typename T, size_t N, class... S>
-        struct python_to_pythran< types::numpy_gexpr<types::ndarray<T, N>, S...> >{
+        struct python_to_pythran< types::numpy_gexpr<types::ndarray<T, N>, S...> > : basic_array_checks<T, N> {
             python_to_pythran(){
                 static bool registered=false;
                 python_to_pythran<T>();
@@ -1032,15 +1042,9 @@ namespace pythonic {
             }
             //reinterpret_cast needed to fit BOOST Python API. Check is done by template and PyArray_Check
             static void* convertible(PyObject* obj_ptr){
-                if(!PyArray_Check(obj_ptr))
-                 return nullptr;
-                // the array must have the same dtype and the same number of dimensions
-                PyArrayObject* arr_ptr = reinterpret_cast<PyArrayObject*>(obj_ptr);
-                if(PyArray_TYPE(arr_ptr) != c_type_to_numpy_type<T>::value)
+                PyArrayObject* arr_ptr =  python_to_pythran::check_array_type_and_dims(obj_ptr);
+                if(not arr_ptr)
                   return nullptr;
-
-                if(PyArray_NDIM(arr_ptr) != N)
-                    return nullptr;
 
                 PyObject* base_obj_ptr = PyArray_BASE(arr_ptr);
                 if(!base_obj_ptr or !PyArray_Check(base_obj_ptr))
@@ -1116,7 +1120,7 @@ namespace pythonic {
             }
         };
     template<typename E>
-        struct python_to_pythran< types::numpy_texpr<E> >{
+        struct python_to_pythran< types::numpy_texpr<E> > : basic_array_checks<typename E::dtype, E::value> {
             typedef typename E::dtype T;
             static constexpr size_t N = E::value;
 
@@ -1130,16 +1134,11 @@ namespace pythonic {
             }
             //reinterpret_cast needed to fit BOOST Python API. Check is done by template and PyArray_Check
             static void* convertible(PyObject* obj_ptr){
-                if(!PyArray_Check(obj_ptr))
-                 return nullptr;
-                // the array must have the same dtype and the same number of dimensions
-                PyArrayObject* arr_ptr = reinterpret_cast<PyArrayObject*>(obj_ptr);
-                if(PyArray_TYPE(arr_ptr) != c_type_to_numpy_type<T>::value)
-                  return nullptr;
-
-                if(PyArray_NDIM(arr_ptr) != N)
+                PyArrayObject* arr_ptr =  python_to_pythran::check_array_type_and_dims(obj_ptr);
+                if(not arr_ptr)
                     return nullptr;
 
+                // check strides. Note that because it's a texpr, the check is done in the opposite direction compared to ndarrays
                 auto const * stride = PyArray_STRIDES(arr_ptr);
                 auto const * dims = PyArray_DIMS(arr_ptr);
                 long current_stride = PyArray_ITEMSIZE(arr_ptr);

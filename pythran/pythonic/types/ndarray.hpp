@@ -867,6 +867,10 @@ template<size_t N, class T, class C>
 struct __combined<indexable<C>, pythonic::types::ndarray<T,N>> {
     typedef pythonic::types::ndarray<T,N> type;
 };
+template<size_t N, class T, class C>
+struct __combined<container<C>, pythonic::types::ndarray<T,N>> {
+    typedef pythonic::types::ndarray<T,N> type;
+};
 
 /* } */
 

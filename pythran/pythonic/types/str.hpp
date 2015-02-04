@@ -201,15 +201,15 @@ namespace pythonic {
             auto rend() -> decltype(data->rend()) { return data->rend(); }
             auto c_str() const -> decltype(data->c_str()) { return data->c_str(); }
             auto resize(long n) -> decltype(data->resize(n)) { return data->resize(n); }
-            size_t find(str const &s, size_t pos = 0) const {
+            long find(str const &s, size_t pos = 0) const {
                 const char * res =  strstr(c_str() + pos, s.c_str());
-                return res ? res - c_str() : npos;
+                return res ? res - c_str() : -1;
             }
-            bool contains(str const& v) const { return find(v) != npos; }
-            size_t find_first_of(str const &s, size_t pos = 0) const { return data-> find_first_of(*s.data, pos); }
-            size_t find_first_of(const char* s, size_t pos = 0) const { return data-> find_first_of(s, pos); }
-            size_t find_first_not_of(str const &s, size_t pos = 0) const { return data->find_first_not_of(*s.data, pos); }
-            size_t find_last_not_of(str const &s, size_t pos = npos) const { return data-> find_last_not_of(*s.data, pos); }
+            bool contains(str const& v) const { return find(v) != -1; }
+            long find_first_of(str const &s, size_t pos = 0) const { return data-> find_first_of(*s.data, pos); }
+            long find_first_of(const char* s, size_t pos = 0) const { return data-> find_first_of(s, pos); }
+            long find_first_not_of(str const &s, size_t pos = 0) const { return data->find_first_not_of(*s.data, pos); }
+            long find_last_not_of(str const &s, size_t pos = npos) const { return data-> find_last_not_of(*s.data, pos); }
             str substr(size_t pos = 0, size_t len = npos) const { return data->substr(pos, len); }
             bool empty() const { return data->empty(); }
             int compare(size_t pos, size_t len, str const & str) const { return data->compare(pos, len, *str.data); }
@@ -290,8 +290,8 @@ namespace pythonic {
 
             long count(types::str const & sub) const {
                 long counter = 0;
-                for(size_t z = find(sub);           // begin by looking for sub
-                    z != npos;                      // as long as we don't reach the end
+                for(long z = find(sub);           // begin by looking for sub
+                    z != -1;                      // as long as we don't reach the end
                     z = find(sub, z + sub.size()))  // look for another one
                 {
                     ++counter;

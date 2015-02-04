@@ -9,13 +9,13 @@ namespace pythonic {
 
     namespace numpy {
         template<class T, size_t N>
-            types::ndarray<T,1> resize(types::ndarray<T,N> const& expr, int new_shape)
+            types::ndarray<T,1> resize(types::ndarray<T,N> const& expr, long new_shape)
             {
                 types::ndarray<T,1> out(types::array<long, N>{{new_shape}}, __builtin__::None);
                 auto n = expr.flat_size();
                 if(n < new_shape) {
                     auto iter = std::copy(expr.fbegin(), expr.fend(), out.fbegin());
-                    for(size_t i = 1; i < new_shape / n; ++i)
+                    for(long i = 1; i < new_shape / n; ++i)
                         iter = std::copy(out.fbegin(), out.fbegin() + n, iter);
                     std::copy(out.fbegin(), out.fbegin() + new_shape % n, iter);
                 }
@@ -38,7 +38,7 @@ namespace pythonic {
                 auto n = expr.flat_size();
                 if(n < nshape) {
                     auto iter = std::copy(expr.fbegin(), expr.fend(), out.fbegin());
-                    for(size_t i = 1; i < nshape / n; ++i) {
+                    for(long i = 1; i < nshape / n; ++i) {
                         iter = std::copy(out.fbegin(), out.fbegin() + n, iter);
                     }
                     std::copy(out.fbegin(), out.fbegin() + nshape % n, iter);

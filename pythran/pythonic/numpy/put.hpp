@@ -16,7 +16,7 @@ namespace pythonic {
             {
                 auto vind = asarray(ind);
                 auto vv = asarray(v);
-                for(size_t i=0; i<ind.flat_size(); ++i)
+                for(long i=0; i<ind.flat_size(); ++i)
                 {
                     auto val = *(vind.fbegin() + i);
                     if(val>=expr.flat_size() || val <0)

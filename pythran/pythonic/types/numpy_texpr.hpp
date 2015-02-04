@@ -66,7 +66,7 @@ namespace pythonic {
 #ifdef USE_BOOST_SIMD
                 template<class I>
                 void load(I) const {
-                  typedef typename E::this_should_never_happen omg;
+                  static_assert(I::this_should_never_happen, "this is *not* vectorizable");
                 }
 #endif
 

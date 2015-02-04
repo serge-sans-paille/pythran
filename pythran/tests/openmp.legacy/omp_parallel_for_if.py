@@ -1,5 +1,4 @@
-def omp_parallel_for_if():
-    using = 0
+def omp_parallel_for_if(using=0):
     num_threads = 0
     import omp
     sum = 0

@@ -42,7 +42,7 @@ std::tuple<Types0..., Types1...> operator+(std::tuple<Types0...> && t0, std::tup
 
 /* hashable tuples, as proposed in http://stackoverflow.com/questions/7110301/generic-hash-for-tuples-in-unordered-map-unordered-set */
 namespace {
-    size_t hash_combiner(size_t left, size_t right) //replacable
+    inline size_t hash_combiner(size_t left, size_t right) //replacable
     { return left^right;}
 
     template<size_t index, class...types>
@@ -68,7 +68,7 @@ namespace pythonic {
 
     namespace types {
         template<class T>
-            struct list; // forward declared for array slicing
+            class list; // forward declared for array slicing
 
         template<class T, size_t N>
             struct array;

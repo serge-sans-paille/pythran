@@ -587,7 +587,7 @@ def in_set(a):
         self.run_test("def raw_set(): return { 1, 1., 2 }", raw_set=[])
 
     def test_iter_set(self):
-        self.run_test("def iter_set(s):\n l=0\n for k in s: l+=1\n return l", { "a", "b", "c" } , iter_set=[{str}])
+        self.run_test("def iter_set(s):\n l=0\n for k in s: l+=k\n return l", { 1, 2, 3 } , iter_set=[{int}])
 
     def test_set_comprehension(self):
         self.run_test("def set_comprehension(l): return { i*i for i in l }", [1 , 2, 1, 3], set_comprehension=[[int]])

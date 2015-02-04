@@ -95,7 +95,7 @@ namespace pythonic {
                 const_iterator end() const { assert(slicing.step==1) ; return data->begin()+slicing.upper; }
 
                 // size
-                size_type size() const { return slicing.size(); }
+                long size() const { return slicing.size(); }
 
                 // accessor
                 T const & operator[](long i) const { return (*data)[slicing.get(i)];}
@@ -340,7 +340,7 @@ namespace pythonic {
 
                 // modifiers
                 void push_back( T const & x) { data->push_back(x); }
-                void insert(size_t i, T const & x) {
+                void insert(long i, T const & x) {
                     if(i==size()) data->push_back(x);
                     else data->insert(data->begin()+i, x);
                 }
@@ -530,12 +530,12 @@ namespace std {
         typename pythonic::types::sliced_list<T>::const_reference get( pythonic::types::sliced_list<T> const & t) { return t[I]; }
 
     template <size_t I, class T>
-        class tuple_element<I, pythonic::types::list<T> > {
+        struct tuple_element<I, pythonic::types::list<T> > {
             public:
                 typedef typename pythonic::types::list<T>::value_type type;
         };
     template <size_t I, class T>
-        class tuple_element<I, pythonic::types::sliced_list<T> > {
+        struct tuple_element<I, pythonic::types::sliced_list<T> > {
             public:
                 typedef typename pythonic::types::sliced_list<T>::value_type type;
         };

@@ -1,5 +1,5 @@
-#ifndef PYTHONIC_OPERATOR_ISNOT;_HPP
-#define PYTHONIC_OPERATOR_ISNOT;_HPP
+#ifndef PYTHONIC_OPERATOR_ISNOT_HPP
+#define PYTHONIC_OPERATOR_ISNOT_HPP
 
 #include "pythonic/utils/proxy.hpp"
 

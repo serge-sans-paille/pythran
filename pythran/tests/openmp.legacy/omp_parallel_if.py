@@ -1,5 +1,4 @@
-def omp_parallel_if():
-    control = 1
+def omp_parallel_if(control=1):
     sum = 0
     known_sum = (1000 * (1000 + 1)) / 2
     if 'omp parallel if(control==0)':

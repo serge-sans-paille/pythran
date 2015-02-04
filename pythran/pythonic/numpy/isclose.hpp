@@ -3,6 +3,7 @@
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
+#include <nt2/include/functions/abs.hpp>
 #include <nt2/include/functions/is_nan.hpp>
 #include <nt2/include/functions/is_finite.hpp>
 
@@ -15,14 +16,18 @@ namespace nt2 {
 namespace pythonic {
 
     namespace numpy {
+        // workaround a nt2 bug with the bool specialisation
+        template<class T> auto fixed_abs(T&& v) -> decltype(nt2::abs(std::forward<T>(v))) { return nt2::abs(std::forward<T>(v)); }
+        bool fixed_abs(bool v) { return v; }
+
         template<class I0, class I1, class O>
             void _isclose(I0 begin, I0 end, I1 ibegin, O obegin, double rtol, double atol, bool equal_nan, utils::int_<1>)
             {
                 for(; begin != end; ++begin, ++ibegin, ++obegin) {
-                    auto u = *begin;
-                    auto v = *ibegin;
+                    auto const u = *begin;
+                    auto const v = *ibegin;
                     if (nt2::is_finite(u) && nt2::is_finite(v))
-                        *obegin = std::abs(u-v) <= (atol + rtol * std::abs(v));
+                        *obegin = fixed_abs(u-v) <= (atol + rtol * fixed_abs(v));
                     else if(nt2::is_nan(u) && nt2::is_nan(v))
                         *obegin = equal_nan;
                     else

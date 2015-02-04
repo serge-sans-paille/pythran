@@ -73,7 +73,7 @@ namespace pythonic {
                 return numpy_gexpr<ndarray<T, N + C>, typename to_slice<S>::type...>{
                   a.reshape(
                       make_reshape<N + C>(a.shape,
-                                          array<bool, sizeof...(S)>{to_slice<S>::is_new_axis...})
+                                          array<bool, sizeof...(S)>{{to_slice<S>::is_new_axis...}})
                       ),
                   to_slice<S>{}(s)...
                 };

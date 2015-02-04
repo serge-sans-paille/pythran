@@ -11,11 +11,12 @@ namespace pythonic {
 
     namespace __builtin__ {
         namespace {
-        types::empty_dict dict() {
+        inline types::empty_dict dict() {
             return types::empty_dict();
         }
 
         template<class Iterable>
+            inline
             types::dict<typename std::tuple_element<0, typename std::remove_reference<Iterable>::type::iterator::value_type>::type ,
             typename std::tuple_element<1, typename std::remove_reference<Iterable>::type::iterator::value_type>::type >
                 dict( Iterable&& iterable) {

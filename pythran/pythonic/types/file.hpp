@@ -134,7 +134,7 @@ namespace pythonic {
 
             types::str next() {
                 if(not is_open) throw ValueError("I/O operation on closed file");
-                if (feof(**data) && mode.find_first_of("ra") == std::string::npos) {
+                if (feof(**data) && mode.find_first_of("ra") == -1) {
                     // If we are at eof on reading mode throw exception
                     throw StopIteration("file.next() : EOF reached.");
                 }
@@ -143,9 +143,9 @@ namespace pythonic {
 
             types::str read(int size = -1) {
                 if(not is_open) throw ValueError("I/O operation on closed file");
-                if (mode.find_first_of("r+") == std::string::npos)
+                if (mode.find_first_of("r+") == -1)
                     throw IOError("File not open for reading");
-                if (size == 0 or (feof(**data) && mode.find_first_of("ra") == std::string::npos) ) return types::str();
+                if (size == 0 or (feof(**data) && mode.find_first_of("ra") == -1) ) return types::str();
                 int curr_pos = tell();
                 seek(0, SEEK_END);
                 size = size < 0 ? tell() - curr_pos : size;
@@ -159,7 +159,7 @@ namespace pythonic {
 
             types::str readline(ssize_t size=std::numeric_limits<ssize_t>::max()) {
                 if(not is_open) throw ValueError("I/O operation on closed file");
-                if (mode.find_first_of("r+") == std::string::npos)
+                if (mode.find_first_of("r+") == -1)
                     throw IOError("File not open for reading");
                 if(size == 0) return types::str();
                 // if(size < 0) return readline(); // Already checked in module/file.h
@@ -199,7 +199,7 @@ namespace pythonic {
 
             void truncate(int size = -1){
                 if(not is_open) throw ValueError("I/O operation on closed file");
-                if (mode.find_first_of("wa+") == std::string::npos) 
+                if (mode.find_first_of("wa+") == -1) 
                     throw IOError("file.write() :  File not opened for writing.");
                 if (size <0) size = this->tell();
                 int error = ftruncate(fileno(), size);
@@ -209,7 +209,7 @@ namespace pythonic {
 
             void write(types::str const& str){
                 if(not is_open) throw ValueError("I/O operation on closed file");
-                if (mode.find_first_of("wa+") == std::string::npos) 
+                if (mode.find_first_of("wa+") == -1) 
                     throw IOError("file.write() :  File not opened for writing.");
                 fwrite(str.c_str(), sizeof(char), str.size(), **data);
             }

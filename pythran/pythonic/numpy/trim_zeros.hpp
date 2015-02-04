@@ -13,12 +13,12 @@ namespace pythonic {
                 static_assert(types::numpy_expr_to_ndarray<T>::N == 1,
                               "Not implemented : trim_zeroes only works for 1D array");
 
-                int begin = 0;
-                int end = expr.flat_size();
-                if(trim.find("f") != std::string::npos)
+                long begin = 0;
+                long end = expr.flat_size();
+                if(trim.find("f") != -1)
                     begin = std::find_if(expr.begin(), expr.end(),
                                          [](typename types::numpy_expr_to_ndarray<T>::T i){return i!=0;}) - expr.begin();
-                if(trim.find("b") != std::string::npos)
+                if(trim.find("b") != -1)
                     while(*(expr.begin() + --end) != 0);
                 return types::numpy_gexpr<T, types::contiguous_slice>(expr, types::contiguous_slice(begin, end));
             }

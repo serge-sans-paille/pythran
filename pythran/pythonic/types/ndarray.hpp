@@ -55,7 +55,7 @@ namespace pythonic {
     namespace types {
 
         template<class T, size_t N>
-            class ndarray;
+            struct ndarray;
 
         template<class T>
             struct type_helper;
@@ -1110,7 +1110,7 @@ namespace pythonic {
                 long accumulated_dim = 1 ;
                 offsets[N - 1] = full_offset % base_dims[N-1];
                 strides[N-1] = arr_strides[N-1];
-                for(int i = N - 2; i >= 0 ; --i) {
+                for(ssize_t i = N - 2; i >= 0 ; --i) {
                   accumulated_dim *= base_dims[i+1];
                   offsets[i] = full_offset / accumulated_dim;
                   strides[i] = arr_strides[i] / accumulated_dim;

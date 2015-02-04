@@ -1,7 +1,6 @@
-def omp_task_if():
+def omp_task_if(condition_false=False):
     from time import sleep
     count = 0
-    condition_false = False
     result = False
 
     if 'omp parallel':

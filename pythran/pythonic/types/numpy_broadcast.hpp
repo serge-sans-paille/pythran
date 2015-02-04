@@ -42,7 +42,7 @@ namespace pythonic {
 #ifdef USE_BOOST_SIMD
                 template<class I> // template to prevent automatic instantiation, but the declaration is still needed
                 void load(I) const {
-                  typedef typename T::this_should_never_happen omg;
+                  static_assert(I::this_should_never_happen, "this is *not* vectorizable");
                 }
 #endif
 

@@ -7,7 +7,7 @@ This module contains all pythran backends.
 from pythran.analyses import ArgumentEffects, BoundedExpressions, Dependencies
 from pythran.analyses import LocalDeclarations, GlobalDeclarations, Scope
 from pythran.analyses import YieldPoints, IsAssigned, ASTMatcher, AST_any
-from pythran.analyses import RangeValues
+from pythran.analyses import RangeValues, PureExpressions
 from pythran.cxxgen import Template, Include, Namespace, CompilationUnit
 from pythran.cxxgen import Statement, Block, AnnotatedStatement, Typedef
 from pythran.cxxgen import Value, FunctionDeclaration, EmptyStatement
@@ -132,7 +132,7 @@ class Cxx(Backend):
         (else in loop means : don't execute if loop is terminated with a break)
 
     >>> import ast, passmanager
-    >>> node = ast.parse("print 'hello world'")
+    >>> node = ast.parse("def foo(): print 'hello world'")
     >>> pm = passmanager.PassManager('test')
     >>> r = pm.dump(Cxx, node)
     >>> print r
@@ -140,7 +140,22 @@ class Cxx(Backend):
     #include <pythonic/__builtin__/str.hpp>
     namespace __pythran_test
     {
-      pythonic::__builtin__::print(pythonic::types::str("hello world"));
+      ;
+      struct foo
+      {
+        typedef void callable;
+        ;
+        struct type
+        {
+          typedef typename pythonic::assignable<void>::type result_type;
+        }  ;
+        typename type::result_type operator()() const;
+        ;
+      }  ;
+      typename foo::type::result_type foo::operator()() const
+      {
+        pythonic::__builtin__::print(pythonic::types::str("hello world"));
+      }
     }
     """
 
@@ -159,7 +174,7 @@ class Cxx(Backend):
         self.ldecls = set()
         super(Cxx, self).__init__(Dependencies, GlobalDeclarations,
                                   BoundedExpressions, Types, ArgumentEffects,
-                                  Scope, RangeValues)
+                                  Scope, RangeValues, PureExpressions)
 
     # mod
     def visit_Module(self, node):
@@ -294,6 +309,8 @@ class Cxx(Backend):
         result_type = self.types[node][0]
 
         callable_type = Typedef(Value("void", "callable"))
+        pure_type = (Typedef(Value("void", "pure"))
+                     if node in self.pure_expressions else EmptyStatement())
 
         def make_function_declaration(rtype, name, ftypes, fargs,
                                       defaults=None, attributes=[]):
@@ -475,7 +492,7 @@ class Cxx(Backend):
                 formal_types)
             topstruct = Struct(
                 node.name,
-                [topstruct_type, callable_type]
+                [topstruct_type, callable_type, pure_type]
                 + operator_declaration)
 
             self.declarations.append(next_struct)
@@ -538,7 +555,7 @@ class Cxx(Backend):
                     )
                 ]
             topstruct = Struct(node.name,
-                               [callable_type]
+                               [callable_type, pure_type]
                                + return_declaration
                                + operator_declaration)
 

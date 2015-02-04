@@ -4,32 +4,54 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/__builtin__/None.hpp"
+#include "pythonic/utils/tags.hpp"
 
 namespace pythonic {
 
     namespace numpy {
-        template<class F, size_t N, class dtype>
+        template<class F, size_t N, class dtype, class Tags>
             struct fromfunction_helper;
 
-        template<class F, class dtype>
-            struct fromfunction_helper<F,1,dtype> {
-                types::ndarray<typename std::remove_cv<typename std::remove_reference<decltype(std::declval<F>()(dtype()))>::type>::type, 1>
+        template<class F, class dtype, class purity_tag>
+            struct fromfunction_helper<F,1,dtype, purity_tag> {
+                types::ndarray<typename std::remove_cv<typename std::remove_reference<typename std::result_of<F(dtype)>::type>::type>::type, 1>
                     operator()(F&& f, types::array<long,1> const& shape, dtype d = dtype()) {
-                        types::ndarray<typename std::remove_cv<typename std::remove_reference<decltype(f(dtype()))>::type>::type, 1> out(shape, __builtin__::None);
-                        for(dtype i=0, n= out.shape[0]; i<n; ++i)
+                        types::ndarray<typename std::remove_cv<typename std::remove_reference<typename std::result_of<F(dtype)>::type>::type>::type, 1> out(shape, __builtin__::None);
+                        long n = out.shape[0];
+#ifdef _OPENMP
+                        if(std::is_same<purity_tag, purity::pure_tag>::value
+                           and n >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
+#pragma omp parallel for
+                            for(long i=0; i<n; ++i)
+                                out[i] = f(i);
+                        else
+#endif
+                        for(long i=0; i<n; ++i)
                             out[i] = f(i);
                         return out;
                     }
             };
 
-        template<class F, class dtype>
-            struct fromfunction_helper<F,2,dtype> {
-                types::ndarray<typename std::remove_cv<typename std::remove_reference<decltype(std::declval<F>()(dtype(), dtype()))>::type>::type, 2>
+        template<class F, class dtype, class purity_tag>
+            struct fromfunction_helper<F,2,dtype, purity_tag> {
+                types::ndarray<typename std::remove_cv<typename std::remove_reference<typename std::result_of<F(dtype, dtype)>::type>::type>::type, 2>
                     operator()(F&& f, types::array<long,2> const& shape, dtype d = dtype()) {
-                        types::ndarray<typename std::remove_cv<typename std::remove_reference<decltype(f(dtype(), dtype()))>::type>::type, 2> out(shape, __builtin__::None);
-                        for(dtype i=0, n= out.shape[0]; i<n; ++i)
-                            for(dtype j=0, m= out.shape[1]; j<m; ++j)
-                                out[i][j] = f(i,j);
+                        types::ndarray<typename std::remove_cv<typename std::remove_reference<typename std::result_of<F(dtype, dtype)>::type>::type>::type, 2> out(shape, __builtin__::None);
+                        long n = out.shape[0];
+                        long m = out.shape[1];
+#ifdef _OPENMP
+                        if(std::is_same<purity_tag, purity::pure_tag>::value
+                           and (m * n) >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
+                        {
+                            #pragma omp parallel for collapse(2)
+                            for(long i=0; i<n; ++i)
+                                for(long j=0; j<m; ++j)
+                                    out[i][j] = f(i,j);
+                        } else
+#endif
+                            for(long i=0; i<n; ++i)
+                                for(long j=0; j<m; ++j)
+                                    out[i][j] = f(i,j);
                         return out;
                     }
             };
@@ -37,8 +59,8 @@ namespace pythonic {
 
         template<class F, size_t N, class dtype=double>
             auto fromfunction(F&& f, types::array<long, N> const& shape, dtype d = dtype())
-            -> decltype(fromfunction_helper<F, N, dtype>()(std::forward<F>(f), shape)) {
-                return fromfunction_helper<F, N, dtype>()(std::forward<F>(f), shape);
+            -> decltype(fromfunction_helper<F, N, dtype, typename pythonic::purity_of<F>::type>()(std::forward<F>(f), shape)) {
+                return fromfunction_helper<F, N, dtype, typename pythonic::purity_of<F>::type>()(std::forward<F>(f), shape);
             }
 
         /* must specialize for higher order */

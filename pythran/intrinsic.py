@@ -196,6 +196,9 @@ class Class(Intrinsic):
     def __getitem__(self, key):
         return self.fields[key]
 
+    def __iter__(self):
+        return self.fields.__iter__()
+
     def __contains__(self, key):
         """ Forward key content to aliased module. """
         return key in self.fields

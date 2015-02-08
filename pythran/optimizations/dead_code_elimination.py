@@ -51,7 +51,9 @@ class DeadCodeElimination(Transformation):
     def used_target(self, node):
         if isinstance(node, ast.Name):
             udc = self.use_def_chain[node.id]
-            is_use = lambda x: udc.node[x]['action'] in ("U", "UD")
+
+            def is_use(x):
+                return udc.node[x]['action'] in ("U", "UD")
             use_count = len(filter(is_use, udc.nodes()))
             return use_count != 0
         return True

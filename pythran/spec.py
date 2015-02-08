@@ -174,10 +174,12 @@ class SpecParser:
                 data = fd.read()
         else:
             data = path
+
         # filter out everything that does not start with:
         # #pythran or # pythran
-        is_pythran_spec = lambda x: (x.startswith('#pythran') or
-                                     x.startswith('# pythran'))
+        def is_pythran_spec(x):
+            return (x.startswith('#pythran') or
+                    x.startswith('# pythran'))
         pythran_data = "\n".join(filter(is_pythran_spec, data.split('\n')))
         self.parser.parse(pythran_data, lexer=self.lexer)
         if not self.exports:

@@ -168,8 +168,9 @@ class Types(ModuleAnalysis):
                 former_unary_op = unary_op
 
                 # update the type to reflect container nesting
-                unary_op = lambda x: reduce(lambda t, n: ContainerType(t),
-                                            xrange(depth), former_unary_op(x))
+                def unary_op(x):
+                    return reduce(lambda t, n: ContainerType(t),
+                                  xrange(depth), former_unary_op(x))
 
             if isinstance(othernode, ast.FunctionDef):
                 new_type = NamedType(othernode.name)
@@ -344,8 +345,9 @@ class Types(ModuleAnalysis):
             # on left and right side
             F = operator.add
         else:
-            F = lambda x, y: ExpressionType(
-                operator_to_lambda[type(node.op)], [x, y])
+            def F(x, y):
+                return ExpressionType(operator_to_lambda[type(node.op)],
+                                      [x, y])
 
         fake_node = ast.Name("#", ast.Param())
         self.combine(fake_node, node.left, F)
@@ -355,7 +357,9 @@ class Types(ModuleAnalysis):
 
     def visit_UnaryOp(self, node):
         self.generic_visit(node)
-        f = lambda x: ExpressionType(operator_to_lambda[type(node.op)], [x])
+
+        def f(x):
+            return ExpressionType(operator_to_lambda[type(node.op)], [x])
         self.combine(node, node.operand, unary_op=f)
 
     def visit_IfExp(self, node):
@@ -408,11 +412,12 @@ class Types(ModuleAnalysis):
 
         # special handler for getattr: use the attr name as an enum member
         if type(node.func) is (ast.Attribute) and node.func.attr == 'getattr':
-            F = lambda f: GetAttr(self.result[node.args[0]], node.args[1].s)
+            def F(f):
+                return GetAttr(self.result[node.args[0]], node.args[1].s)
         # default behavior
         else:
-            F = lambda f: ReturnType(f,
-                                     [self.result[arg] for arg in node.args])
+            def F(f):
+                return ReturnType(f, [self.result[arg] for arg in node.args])
         # op is used to drop previous value there
         self.combine(node, node.func, op=lambda x, y: y, unary_op=F)
 
@@ -468,24 +473,27 @@ class Types(ModuleAnalysis):
         # type of a[1:2, 3, 4:1] is the type of: declval(a)(slice, long, slice)
         if isinstance(node.slice, ast.ExtSlice):
             self.visit(node.slice)
-            f = lambda t: ExpressionType(
-                lambda a, *b: "{0}({1})".format(a, ", ".join(b)),
-                [t] + [self.result[d] for d in node.slice.dims]
-                )
+
+            def f(t):
+                def et(a, *b):
+                    return "{0}({1})".format(a, ", ".join(b))
+                dim_types = [self.result[d] for d in node.slice.dims]
+                return ExpressionType(et, [t] + dim_types)
         elif (type(node.slice) is (ast.Index)
                 and type(node.slice.value) is ast.Num
                 and node.slice.value.n >= 0):
             # type of a[2] is the type of an elements of a
             # this special case is to make type inference easier
             # for the back end compiler
-            f = lambda t: ElementType(node.slice.value.n, t)
+            def f(t):
+                return ElementType(node.slice.value.n, t)
         else:
             # type of a[i] is the return type of the matching function
             self.visit(node.slice)
-            f = lambda x: ExpressionType(
-                lambda a, b: "{0}[{1}]".format(a, b),
-                [x, self.result[node.slice]]
-                )
+
+            def f(x):
+                return ExpressionType(lambda a, b: "{0}[{1}]".format(a, b),
+                                      [x, self.result[node.slice]])
         f and self.combine(node, node.value, unary_op=f)
 
     def visit_AssignedSubscript(self, node):

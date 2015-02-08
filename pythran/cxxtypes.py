@@ -39,7 +39,7 @@ class Type(object):
     def __eq__(self, other):
         havesameclass = self.__class__ == other.__class__
         if havesameclass:
-            same = lambda x, y: getattr(self, x) == getattr(other, y)
+            def same(x, y): return getattr(self, x) == getattr(other, y)
             return all(same(x, y) for x, y in zip(self.fields, other.fields))
         else:
             return False
@@ -160,9 +160,16 @@ class CombinedTypes(Type):
         # gather all underlying types and make sure they do not appear twice
         mct = cfg.getint('typing', 'max_container_type')
         all_types = self.all_types()
-        fot0 = lambda t:  type(t) is IndexableType
-        fot1 = lambda t: type(t) is ContainerType
-        fit = lambda t: not fot0(t) and not fot1(t)
+
+        def fot0(t):
+            return type(t) is IndexableType
+
+        def fot1(t):
+            return type(t) is ContainerType
+
+        def fit(t):
+            return not fot0(t) and not fot1(t)
+
         it = filter(fit, all_types)
         ot0 = filter(fot0, all_types)
         ot1 = filter(fot1, all_types)

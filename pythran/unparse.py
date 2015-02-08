@@ -1,9 +1,9 @@
 """
 This code is extracted from the python source tree, and thus under the PSF
 License.
-"""
 
-"Usage: unparse.py <path to source file>"
+Usage: unparse.py <path to source file>
+"""
 
 
 import pythran.metadata as metadata

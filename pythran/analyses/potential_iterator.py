@@ -26,8 +26,10 @@ class PotentialIterator(NodeAnalysis):
 
     def visit_Call(self, node):
         for i, arg in enumerate(node.args):
-            isReadOnce = lambda f: (f in self.argument_read_once
-                                    and self.argument_read_once[f][i] <= 1)
+
+            def isReadOnce(f):
+                return (f in self.argument_read_once
+                        and self.argument_read_once[f][i] <= 1)
             if all(isReadOnce(alias)
                    for alias in self.aliases[node.func].aliases):
                 self.result.add(arg)

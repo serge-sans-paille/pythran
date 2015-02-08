@@ -68,9 +68,12 @@ class ConstantExpressions(NodeAnalysis):
             # if it is defined in the current function, it is not constant
             elif node.id in self.locals[node]:
                 return False
-            is_function = lambda x: (isinstance(x, FunctionIntr) or
-                                     isinstance(x, ast.FunctionDef) or
-                                     isinstance(x, ast.alias))
+
+            def is_function(x):
+                return isinstance(x, (FunctionIntr,
+                                      ast.FunctionDef,
+                                      ast.alias))
+
             pure_fun = all(alias in self.pure_expressions and
                            is_function(alias)
                            for alias in self.aliases[node].aliases)

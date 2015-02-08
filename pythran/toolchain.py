@@ -72,7 +72,9 @@ def _numpy_cppflags():
 
 def _pythran_cppflags():
     curr_dir = os.path.dirname(os.path.dirname(__file__))
-    get = lambda *x: '-I' + os.path.join(curr_dir, *x)
+
+    def get(*x):
+        return '-I' + os.path.join(curr_dir, *x)
     return [get('.'), get('pythran'),
             get('pythran', 'pythonic', 'patch')]
 

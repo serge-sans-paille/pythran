@@ -194,7 +194,9 @@ class LazynessAnalysis(FunctionAnalysis):
     def visit_Name(self, node):
         if isinstance(node.ctx, ast.Load) and node.id in self.use:
             # we only care about variable local to the function
-            is_loc_var = lambda x: isinstance(x, ast.Name) and x.id in self.ids
+
+            def is_loc_var(x):
+                return isinstance(x, ast.Name) and x.id in self.ids
             alias_names = filter(is_loc_var, self.aliases[node].aliases)
             alias_names = {x.id for x in alias_names}
             alias_names.add(node.id)

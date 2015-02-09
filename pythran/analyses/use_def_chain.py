@@ -52,7 +52,8 @@ class UseDefChain(FunctionAnalysis):
                 entering_node = [i for j in prev_node[id]
                                  for i in graph.successors_iter(j)]
             else:
-                cond = lambda x: graph.in_degree(x) == 0
+                def cond(x):
+                    return graph.in_degree(x) == 0
                 entering_node = filter(cond, graph)
             graph.add_edges_from(product(self.continue_[id],
                                  entering_node))

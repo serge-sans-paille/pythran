@@ -29,10 +29,11 @@ Higher level entry points includes:
 
 '''
 
-__version__ = '0.6.0'
 
 from pythran.toolchain import (generate_cxx, compile_cxxfile, compile_cxxcode,
                                compile_pythrancode, compile_pythranfile,
                                test_compile, CompileError)
 from pythran.spec import spec_parser
 from pythran.dist import PythranExtension
+
+__version__ = '0.6.0'

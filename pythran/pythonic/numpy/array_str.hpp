@@ -3,21 +3,13 @@
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
+#include "pythonic/numpy/array2string.hpp"
 
 namespace pythonic {
-
     namespace numpy {
-        template<class T, size_t N>
-            types::str array_str(types::ndarray<T,N> const& a) {
-                std::ostringstream oss;
-                oss << a;
-                return oss.str();
-            }
-
+        ALIAS(array_str, array2string);
         PROXY(pythonic::numpy, array_str);
-
     }
-
 }
 
 #endif

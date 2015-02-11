@@ -61,16 +61,6 @@ namespace pythonic {
                 return out;
             }
         NUMPY_EXPR_TO_NDARRAY0(sort);
-        /*
-        template<class E>
-            typename types::numpy_expr_to_ndarray<typename std::remove_cv<typename std::remove_reference<E>::type>::type>::type
-            sort(E && expr, long axis=-1)
-            {
-                typename types::numpy_expr_to_ndarray<typename std::remove_cv<typename std::remove_reference<E>::type>::type>::type out{std::forward<E>(expr)};
-                _sort(out, axis);
-                return out;
-            }
-            */
             PROXY(pythonic::numpy, sort);
 
     }

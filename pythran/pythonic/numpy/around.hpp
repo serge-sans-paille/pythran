@@ -28,11 +28,6 @@ namespace pythonic {
                 return a / (long)nt2::pow(typename types::numpy_expr_to_ndarray<E>::type::dtype(10),std::max(0L,-decimals)) * (long)nt2::pow(typename types::numpy_expr_to_ndarray<E>::type::dtype(10), std::max(0L,-decimals));
             }
 
-        template<class T>
-            typename types::numpy_expr_to_ndarray<types::list<T>>::type around(types::list<T> const& l, long decimals=0) {
-                return around(typename types::numpy_expr_to_ndarray<types::list<T>>::type(l), decimals);
-            }
-
         PROXY(pythonic::numpy, around);
 
     }

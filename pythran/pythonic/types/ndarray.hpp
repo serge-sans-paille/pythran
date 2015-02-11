@@ -490,6 +490,11 @@ namespace pythonic {
                     return make_gexpr(*this, s);
                 }
 
+                long size() const
+                {
+                    return _shape[0];
+                }
+
                 /* extended slice indexing */
                 template<class S0, class ...S>
                     auto operator()(S0 const& s0, S const&... s) const

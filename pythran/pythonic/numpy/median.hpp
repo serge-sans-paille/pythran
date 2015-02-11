@@ -29,12 +29,6 @@ namespace pythonic {
             }
 
         NUMPY_EXPR_TO_NDARRAY0(median);
-        /*
-        template<class E>
-            decltype(std::declval<typename std::remove_reference<E>::type::dtype>()+1.) median(E&& expr) {
-              return median(asarray(std::forward<E>(expr)));
-            }
-            */
 
         PROXY(pythonic::numpy, median);
 

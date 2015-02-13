@@ -1022,12 +1022,12 @@ namespace pythonic {
             }
         };
 
-    template<class T>
-    std::tuple<types::slice> make_slices(long const* strides, long const* offsets, long const* dims, utils::int_<1>) {
+    template<class T, class S>
+    std::tuple<types::slice> make_slices(long const* strides, long const* offsets, S const* dims, utils::int_<1>) {
       return std::tuple<types::slice>(types::slice(*offsets, *offsets + *dims * *strides, *strides / sizeof(T)));
     }
-    template<class T, size_t N>
-      auto make_slices(long const* strides, long const* offsets, long const * dims, utils::int_<N>)
+    template<class T, class S, size_t N>
+      auto make_slices(long const* strides, long const* offsets, S const * dims, utils::int_<N>)
         -> decltype(std::tuple_cat(make_slices<T>(strides, offsets, dims,  utils::int_<1>()),
                                    make_slices<T>(strides + 1, offsets + 1, dims +1, utils::int_<N-1>())))
       {
@@ -1199,7 +1199,7 @@ namespace pythonic {
                            void *data, int flags, PyObject *obj) {
         npy_intp shape[N];
         std::copy(dims, dims + N, shape);
-        return pyarray_new<npy_intp, N>{}.from_descr(subtype, descr, shape, flags, obj);
+        return pyarray_new<npy_intp, N>{}.from_descr(subtype, descr, shape, data, flags, obj);
       }
       PyObject *from_data(T *dims, int typenum, void *data) {
         npy_intp shape[N];
@@ -1242,7 +1242,8 @@ namespace pythonic {
                                 PyArray_DESCR(arr),
                                 n.shape.data(),
                                 PyArray_DATA(arr),
-                                PyArray_FLAGS(arr) & ~NPY_ARRAY_OWNDATA, p);
+                                PyArray_FLAGS(arr) & ~NPY_ARRAY_OWNDATA,
+                                p);
                     }
                 } else {
                     PyObject* result = pyarray_new<long, N>{}.from_data(n.shape.data(), c_type_to_numpy_type<T>::value, n.buffer);

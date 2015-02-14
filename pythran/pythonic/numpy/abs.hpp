@@ -16,9 +16,21 @@ namespace nt2 {
 namespace pythonic {
 
     namespace numpy {
+        namespace wrapper{
+            template<class T>
+                T abs(T const& t)
+                {
+                    return nt2::abs(t);
+                }
+            template<class T>
+                T abs(std::complex<T> const& t)
+                {
+                    return nt2::abs(t);
+                }
+        }
 
 #define NUMPY_NARY_FUNC_NAME abs
-#define NUMPY_NARY_FUNC_SYM nt2::abs
+#define NUMPY_NARY_FUNC_SYM wrapper::abs
 #include "pythonic/types/numpy_nary_expr.hpp"
     }
 }

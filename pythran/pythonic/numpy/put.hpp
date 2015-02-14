@@ -16,10 +16,10 @@ namespace pythonic {
             {
                 auto vind = asarray(ind);
                 auto vv = asarray(v);
-                for(long i=0; i<ind.flat_size(); ++i)
+                for(size_t i=0; i<ind.flat_size(); ++i)
                 {
                     auto val = *(vind.fbegin() + i);
-                    if(val>=expr.flat_size() || val <0)
+                    if(static_cast<size_t>(val) >= expr.flat_size() || val <0)
                         throw types::ValueError("indice out of bound");
                     *(expr.fbegin() + val) = *(vv.fbegin() + i%vv.flat_size());
                 }
@@ -27,9 +27,9 @@ namespace pythonic {
             }
 
         template<class T, size_t N>
-            types::none_type put(types::ndarray<T,N> & expr, long int ind, T const& v)
+            types::none_type put(types::ndarray<T,N> & expr, long ind, T const& v)
             {
-                if(ind>=expr.flat_size() || ind <0)
+                if(static_cast<size_t>(ind) >= expr.flat_size() || ind <0)
                     throw types::ValueError("indice out of bound");
                 *(expr.fbegin() + ind) = v;
                 return __builtin__::None;

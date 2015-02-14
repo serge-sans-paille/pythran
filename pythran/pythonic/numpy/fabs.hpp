@@ -8,7 +8,7 @@ namespace pythonic {
 
     namespace numpy {
 
-            ALIAS(fabs, abs)
+            ALIAS(fabs, proxy::abs())
             PROXY(pythonic::numpy, fabs);
 
     }

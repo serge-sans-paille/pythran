@@ -145,7 +145,7 @@ namespace pythonic {
                   return _reverse_index(std::tuple<S0 const&, S const&...>{s0, s...}, typename utils::rgens<1 + sizeof...(S)>::type{});
                 }
 
-                long flat_size() const {
+                size_t flat_size() const {
                     return arg.flat_size();
                 }
                 intptr_t id() const {
@@ -198,6 +198,16 @@ namespace pythonic {
 template<class E, class K>
 struct __combined<pythonic::types::numpy_texpr<E>, K> {
     typedef pythonic::types::numpy_texpr<E> type;
+};
+
+template<class E, class T, size_t N>
+struct __combined<pythonic::types::numpy_texpr<E>, pythonic::types::ndarray<T, N>> {
+    typedef pythonic::types::ndarray<T, N> type;
+};
+
+template<class E, class T, size_t N>
+struct __combined<pythonic::types::ndarray<T, N>, pythonic::types::numpy_texpr<E>> {
+    typedef pythonic::types::ndarray<T, N> type;
 };
 
 #endif

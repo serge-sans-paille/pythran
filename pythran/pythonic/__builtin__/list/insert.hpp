@@ -10,7 +10,7 @@ namespace pythonic { namespace __builtin__  {
     namespace list {
         template<class T, class F>
             types::none_type insert(types::list<T> &seq, long n, F const& value) {
-                n = n%(1+seq.size());
+                n = n%(1+static_cast<long>(seq.size()));
                 if (n<0) n+=seq.size();
                 seq.insert(n, value);
                 return __builtin__::None;
@@ -18,7 +18,7 @@ namespace pythonic { namespace __builtin__  {
 
         template<class T, class F>
             types::none_type insert(types::list<T> &seq, long n, F && value) {
-                n = n%(1+seq.size()); // +1 because we want to be able to insert at the end of seq
+                n = n%(1+static_cast<long>(seq.size())); // +1 because we want to be able to insert at the end of seq
                 if (n<0) n+=seq.size();
                 seq.insert(n, value);
                 return __builtin__::None;

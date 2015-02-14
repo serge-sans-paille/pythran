@@ -11,8 +11,8 @@ namespace pythonic {
 
     namespace types {
 
-
-
+        template<class T>
+        struct numpy_iexpr;
 
         /* helper to count new axis
          */
@@ -612,8 +612,8 @@ namespace pythonic {
                         return fast(filter);
                     }
 
-                long flat_size() const {
-                    return std::accumulate(shape.begin() + 1, shape.end(), *shape.begin(), std::multiplies<long>());
+                size_t flat_size() const {
+                    return std::accumulate(shape.begin() + 1, shape.end(), *shape.begin(), std::multiplies<size_t>());
                 }
             };
 
@@ -799,6 +799,39 @@ struct __combined<pythonic::types::ndarray<T,N>, pythonic::types::numpy_gexpr<Ar
   using type = pythonic::types::ndarray<T,N>;
 };
 
+/* type inference stuff  {*/
+#include "pythonic/types/combined.hpp"
+template<class Array, class K, class... Slices>
+struct __combined<pythonic::types::numpy_gexpr<Array, Slices...>, indexable<K>> {
+    typedef pythonic::types::numpy_gexpr<Array, Slices...> type;
+};
+
+template<class Array, class K, class... Slices>
+struct __combined<indexable<K>, pythonic::types::numpy_gexpr<Array, Slices...>> {
+    typedef pythonic::types::numpy_gexpr<Array, Slices...> type;
+};
+
+template<class Array, class K, class V, class... Slices>
+struct __combined<pythonic::types::numpy_gexpr<Array, Slices...>, indexable_container<K,V>> {
+    typedef pythonic::types::numpy_gexpr<Array, Slices...> type;
+};
+
+template<class Array, class K, class V, class... Slices>
+struct __combined<indexable_container<K,V>, pythonic::types::numpy_gexpr<Array, Slices...>> {
+    typedef pythonic::types::numpy_gexpr<Array, Slices...> type;
+};
+
+template<class Array, class K, class... Slices>
+struct __combined<container<K>, pythonic::types::numpy_gexpr<Array, Slices...>> {
+    typedef pythonic::types::numpy_gexpr<Array, Slices...> type;
+};
+
+template<class Array, class K, class... Slices>
+struct __combined<pythonic::types::numpy_gexpr<Array, Slices...>, container<K>> {
+    typedef pythonic::types::numpy_gexpr<Array, Slices...> type;
+};
+
+/*}*/
 
 #endif
 

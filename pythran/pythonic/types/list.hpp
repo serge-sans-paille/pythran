@@ -1,6 +1,7 @@
 #ifndef PYTHONIC_TYPES_LIST_HPP
 #define PYTHONIC_TYPES_LIST_HPP
 
+#include "pythonic/types/array_like.hpp"
 #include "pythonic/types/assignable.hpp"
 #include "pythonic/types/empty_iterator.hpp"
 #include "pythonic/utils/shared_ref.hpp"
@@ -95,7 +96,7 @@ namespace pythonic {
                 const_iterator end() const { assert(slicing.step==1) ; return data->begin()+slicing.upper; }
 
                 // size
-                long size() const { return slicing.size(); }
+                size_t size() const { return slicing.size(); }
 
                 // accessor
                 T const & operator[](long i) const { return (*data)[slicing.get(i)];}
@@ -114,7 +115,18 @@ namespace pythonic {
 
         /* list */
         template<class T>
-            class list {
+            class list : public ArrayLike<typename utils::nested_container_value_type<list<T>>::type,
+                                          utils::nested_container_depth<list<T>>::value, true, false, T,
+                                          typename std::vector<typename std::remove_cv<typename std::remove_reference<T>::type>::type>::reference> {
+
+                using parent = ArrayLike<typename utils::nested_container_value_type<list<T>>::type, // Inner type
+                                         utils::nested_container_depth<list<T>>::value, // depth
+                                         true, // vectorizable
+                                         false, // strided
+                                         T, // value_type
+                                         typename std::vector<typename std::remove_cv<typename std::remove_reference<T>::type>::type>::reference // reference to contente type
+                                        >;
+
 
                 // data holder
                 typedef  typename std::remove_cv< typename std::remove_reference<T>::type>::type  _type;
@@ -130,70 +142,59 @@ namespace pythonic {
                 public:
 
                 // types
-                typedef typename container_type::reference reference;
                 typedef typename container_type::const_reference const_reference;
                 typedef typename container_type::iterator iterator;
                 typedef typename container_type::const_iterator const_iterator;
                 typedef typename container_type::size_type size_type;
                 typedef typename container_type::difference_type difference_type;
-                typedef typename container_type::value_type value_type;
                 typedef typename container_type::allocator_type allocator_type;
                 typedef typename container_type::pointer pointer;
                 typedef typename container_type::const_pointer const_pointer;
                 typedef typename container_type::reverse_iterator reverse_iterator;
                 typedef typename container_type::const_reverse_iterator const_reverse_iterator;
 
-                // minimal ndarray interface
-                typedef typename utils::nested_container_value_type<list>::type dtype;
-                static const size_t value = utils::nested_container_depth<list>::value;
-                static const bool is_vectorizable = true;
-                static const bool is_strided = false;
-                array<long, value> shape;
-
                 // constructors
-                list() : data(utils::no_memory()), shape{{0}} {}
+                list() : parent(0), data(utils::no_memory()) {}
                 template<class InputIterator>
                     list(InputIterator start, InputIterator stop) : data() {
                         data->reserve(DEFAULT_LIST_CAPACITY);
                         std::copy(start, stop, std::back_inserter(*data));
-                        init_shape(*this, utils::int_<value>{});
+                        init_shape(*this, utils::int_<parent::value>{});
                     }
-                list(empty_list const&) :data(0), shape{{0}} {}
-                list(size_type sz) :data(sz), shape{{static_cast<long>(sz)}} {}
-                list(T const& value, single_value) : data(1), shape{{1}} { (*data)[0] = value; }
+                list(empty_list const&) : parent(0), data(0) {}
+                list(size_type sz) : parent(sz), data(sz) {}
+                list(T const& value, single_value) : parent(1), data(1) { (*data)[0] = value; }
                 list(std::initializer_list<T> l) : data(std::move(l)) {
-                    init_shape(*this, utils::int_<value>{});
+                    init_shape(*this, utils::int_<parent::value>{});
                 }
-                list(list<T> && other) : data(std::move(other.data)), shape(std::move(other.shape)) { }
-
-                list(list<T> const & other) : data(other.data), shape(other.shape) { }
-
+                list(list<T> && other) : parent(std::move(other.shape)), data(std::move(other.data)) {}
+                list(list<T> const & other) : parent(other.shape), data(other.data) {}
                 template<class F>
                     list(list<F> const & other) : data(other.size()) {
-                        auto end = std::copy(other.shape.begin(), other.shape.end(), shape.begin());
-                        std::fill(end, shape.end(), 0);
+                        auto end = std::copy(other.shape.begin(), other.shape.end(), parent::shape.begin());
+                        std::fill(end, parent::shape.end(), 0);
                         std::copy(other.begin(), other.end(), begin());
                     }
                 template<class S>
                 list(sliced_list<T,S> const & other) : data(other.begin(), other.end()) {
-                    init_shape(*this, utils::int_<value>{});
+                    init_shape(*this, utils::int_<parent::value>{});
                 }
 
                 list<T>& operator=(list<T> && other) {
                     data=std::move(other.data);
-                    shape=std::move(other.shape);
+                    parent::shape=std::move(other.shape);
                     return *this;
                 }
                 template<class F>
                 list<T>& operator=(list<F> const& other) {
-                    shape=other.shape;
+                    parent::shape=other.shape;
                     data = utils::shared_ref<container_type>{other.size()};
                     std::copy(other.begin(), other.end(), begin());
                     return *this;
                 }
                 list<T>& operator=(list<T> const & other) {
                     data=other.data;
-                    shape=other.shape;
+                    parent::shape=other.shape;
                     return *this;
                 }
                 list<T>& operator=(empty_list const & ) {
@@ -231,11 +232,11 @@ namespace pythonic {
 
                 template<class E>
                     void init_shape(E const& e, utils::int_<1>) {
-                        shape[value - 1] = e.size();
+                        parent::shape[parent::value - 1] = e.size();
                     }
                 template<class E, size_t L>
                     void init_shape(E const& e, utils::int_<L>) {
-                        shape[value - L] = e.size();
+                        parent::shape[parent::value - L] = e.size();
                         init_shape(e[0], utils::int_<L-1>{});
                     }
 
@@ -305,13 +306,14 @@ namespace pythonic {
                   boost::simd::store(v, data->data(), i);
                 }
 #endif
-                reference fast(long n) { return (*data)[n]; }
-                reference operator[]( long n ) {
+                typename parent::reference fast(long n) { return (*data)[n]; }
+                typename parent::reference operator[]( long n ) {
                   if(n < 0) n += data->size();
                   return fast(n);
                 }
-                const_reference fast(long n) const { return (*data)[n]; }
-                const_reference operator[]( long n ) const {
+
+                typename parent::reference const fast(long n) const { return (*data)[n]; }
+                typename parent::reference const operator[]( long n ) const {
                   if(n < 0) n += data->size();
                   return fast(n);
                 }
@@ -319,14 +321,14 @@ namespace pythonic {
                 list<T> operator[]( slice const &s ) const {
                     normalized_slice norm = s.normalize(size());
                     list<T> out(norm.size());
-                    for(long i = 0; i < out.size() ; i++)
+                    for(size_t i = 0; i < out.size() ; i++)
                         out[i] = (*data)[norm.get(i)];
                     return out;
                 }
                 list<T> operator[]( contiguous_slice const &s ) const {
                     contiguous_normalized_slice norm = s.normalize(size());
                     list<T> out(norm.size());
-                    for(long i = 0; i < out.size() ; i++)
+                    for(size_t i = 0; i < out.size() ; i++)
                         out[i] = (*data)[norm.get(i)];
                     return out;
                 }
@@ -340,8 +342,8 @@ namespace pythonic {
 
                 // modifiers
                 void push_back( T const & x) { data->push_back(x); }
-                void insert(long i, T const & x) {
-                    if(i==size()) data->push_back(x);
+                void insert(size_t i, T const & x) {
+                    if(static_cast<size_t>(i)==size()) data->push_back(x);
                     else data->insert(data->begin()+i, x);
                 }
 
@@ -350,9 +352,10 @@ namespace pythonic {
                 iterator erase(size_t n) { return data->erase(data->begin()+n); }
 
                 T pop(long x = -1) {
-                    x = x%size();
-                    if (x<0) x+=size();
-                    T res = (*this)[x];
+                    long sz = size();
+                    x = x%sz;
+                    if (x<0) x+=sz;
+                    T res = fast(x);
                     erase(x);
                     return res;
                 }
@@ -405,14 +408,14 @@ namespace pythonic {
                         std::copy(s.begin(), s.end(), std::back_inserter(*this));
                         return *this;
                     }
-                long size() const { return data->size(); }
+                size_t size() const { return data->size(); }
                   template<class E> long _flat_size(E const& e, utils::int_<1>) const {
                     return std::distance(e.begin(), e.end());
                   }
                   template<class E, size_t L> long _flat_size(E const& e, utils::int_<L>) const {
                     return std::distance(e.begin(), e.end()) * _flat_size(e[0], utils::int_<L-1>{});
                   }
-                long flat_size() const { return _flat_size(*this, utils::int_<value>{}); }
+                size_t flat_size() const { return _flat_size(*this, utils::int_<parent::value>{}); }
 
                 template<class V>
                     bool contains(V const & v) const {

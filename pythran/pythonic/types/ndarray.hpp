@@ -530,7 +530,7 @@ namespace pythonic {
                 template<class F> // indexing through an array of indices -- a view
                     typename std::enable_if<is_numexpr_arg<F>::value and not std::is_same<bool, typename F::dtype>::value, ndarray<T, 1>>::type
                     fast(F const& filter) const {
-                        ndarray<T,1> out(array<long, 1>{{filter.flat_size()}}, none_type());
+                        ndarray<T,1> out(array<long, 1>{{static_cast<long>(filter.flat_size())}}, none_type());
                         std::transform(filter.begin(), filter.end(), out.begin(), [this](typename F::dtype index) { return fast(index); });
                         return out;
                     }
@@ -547,13 +547,13 @@ namespace pythonic {
                 flat_iterator fend() { return buffer + flat_size(); }
 
                 /* member functions */
-                long flat_size() const { return std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<long>()); }
+                size_t flat_size() const { return std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<size_t>()); }
                 template<size_t M>
                     ndarray<T,M> reshape(array<long,M> const& shape) const {
                         return ndarray<T, M>(mem, shape);
                     }
                 ndarray<T,1> flat() const {
-                    return ndarray<T, 1>(mem, array<long, 1>{{flat_size()}});
+                    return ndarray<T, 1>(mem, array<long, 1>{{static_cast<long>(flat_size())}});
                 }
                 ndarray<T,N> copy() const {
                     ndarray<T,N> res(shape, __builtin__::None);
@@ -634,7 +634,7 @@ namespace pythonic {
         /* } */
         template<class T>
           list<T>& list<T>::operator=(ndarray<T, 1> const & other) {
-            shape=other.shape;
+            this->shape=other.shape;
             data=utils::shared_ref<T>(other.begin(),other.end());
             return *this;
           }
@@ -877,16 +877,8 @@ struct __combined<pythonic::types::ndarray<T,N>, O> {
     typedef pythonic::types::ndarray<T,N> type;
 };
 
-template<size_t N, class T, class C, class I>
-struct __combined<indexable_container<C,I>, pythonic::types::ndarray<T,N>> {
-    typedef pythonic::types::ndarray<T,N> type;
-};
-template<size_t N, class T, class C>
-struct __combined<indexable<C>, pythonic::types::ndarray<T,N>> {
-    typedef pythonic::types::ndarray<T,N> type;
-};
-template<size_t N, class T, class C>
-struct __combined<container<C>, pythonic::types::ndarray<T,N>> {
+template<size_t N, class T, class O>
+struct __combined<O, pythonic::types::ndarray<T,N>> {
     typedef pythonic::types::ndarray<T,N> type;
 };
 

@@ -19,7 +19,7 @@ namespace pythonic {
         template<class T, size_t N, class I>
             typename std::enable_if<!std::is_scalar<I>::value, types::ndarray<T,1>>::type
             delete_(types::ndarray<T,N> const& in, I const& indices, types::none_type axis=__builtin__::None) {
-                types::ndarray<T,1> out(types::make_tuple(long(in.flat_size())-indices.flat_size()), __builtin__::None);
+                types::ndarray<T,1> out(types::make_tuple(long(in.flat_size()-indices.flat_size())), __builtin__::None);
                 auto out_iter = out.buffer;
                 auto in_iter = in.buffer;
                 for(long index : indices) {

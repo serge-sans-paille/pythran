@@ -11,6 +11,9 @@ namespace pythonic {
         template<class dtype = double>
             types::ndarray<typename types::numpy_type<dtype>::type, 2> eye(long N, long M, long k=0, dtype d=dtype())
             {
+                if(M < 0 or N < 0)
+                    throw types::ValueError("negative dimensions are not allowed");
+
                 types::ndarray<typename types::numpy_type<dtype>::type, 2> out = zeros(types::make_tuple(N, M), d);
                 if(k>=0)
                     for(int i=0, j = k; i< N and j < M; ++i, ++j)

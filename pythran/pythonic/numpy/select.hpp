@@ -53,13 +53,13 @@ namespace pythonic {
             types::ndarray<T,N> select(types::list<types::ndarray<U,N>> const& condlist, types::list<types::ndarray<T,N>> const& choicelist, T _default = 0)
             {
                 types::ndarray<T,N> out(choicelist[0].shape, _default);
-                for(long i=0; i<out.flat_size(); ++i)
+                for(size_t i=0; i<out.flat_size(); ++i)
                 {
-                    for(long j=0; j<condlist.size(); ++j)
+                    for(size_t j=0; j<condlist.size(); ++j)
                     {
                         if(condlist[j].buffer[i])
                         {
-                            out.buffer[i] = choicelist[j].buffer[i];
+                            out.buffer[i] = choicelist.fast(j).buffer[i];
                             break;
                         }
                     }

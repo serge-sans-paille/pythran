@@ -238,7 +238,7 @@ namespace pythonic {
                     return const_cast<dtype&>(const_cast<numpy_iexpr const&>(*this)[indices]);
                 }
 
-                long flat_size() const { return std::accumulate(shape.begin() + 1, shape.end(), *shape.begin(), std::multiplies<long>()); }
+                size_t flat_size() const { return std::accumulate(shape.begin() + 1, shape.end(), *shape.begin(), std::multiplies<size_t>()); }
 
                 private:
 

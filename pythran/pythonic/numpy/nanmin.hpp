@@ -4,8 +4,7 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/__builtin__/ValueError.hpp"
-
-#include <nt2/include/functions/is_nan.hpp>
+#include "pythonic/numpy/isnan.hpp"
 
 namespace pythonic {
 
@@ -16,7 +15,7 @@ namespace pythonic {
                 for(; begin != end; ++begin)
                 {
                     auto curr = *begin;
-                    if(not nt2::is_nan(curr) and curr < min)
+                    if(not proxy::isnan()(curr) and curr < min)
                         min = curr;
                 }
             }

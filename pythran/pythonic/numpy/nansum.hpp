@@ -4,8 +4,7 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/numpy_type.hpp"
-
-#include <nt2/include/functions/is_nan.hpp>
+#include "pythonic/numpy/isnan.hpp"
 
 namespace pythonic {
 
@@ -16,7 +15,7 @@ namespace pythonic {
                 for(; begin != end; ++begin)
                 {
                     auto curr = *begin;
-                    if(not nt2::is_nan(curr))
+                    if(not proxy::isnan()(curr))
                         sum += curr;
                 }
             }

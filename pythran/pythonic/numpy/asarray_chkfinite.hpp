@@ -5,7 +5,7 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/numexpr_to_ndarray.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
-#include <nt2/include/functions/is_finite.hpp>
+#include "pythonic/numpy/isfinite.hpp"
 
 namespace pythonic {
 
@@ -15,7 +15,7 @@ namespace pythonic {
             template<class I>
                 I asarray_chkfinite(I const& a)
                 {
-                    if(not nt2::is_finite(a))
+                    if(not proxy::isfinite()(a))
                         throw types::ValueError("array must not contain infs or NaNs");
                     return a;
                 }

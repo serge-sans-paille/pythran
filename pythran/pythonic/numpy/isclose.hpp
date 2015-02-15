@@ -3,14 +3,8 @@
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
-#include <nt2/include/functions/is_nan.hpp>
-#include <nt2/include/functions/is_finite.hpp>
-
-// nt2 does not handle bool specialization, which is indeed a corner case...
-namespace nt2 {
-  constexpr bool is_finite(bool) { return true;}
-  constexpr bool is_nan(bool) { return false;}
-}
+#include "pythonic/numpy/isfinite.hpp"
+#include "pythonic/numpy/isnan.hpp"
 
 namespace pythonic {
 
@@ -21,9 +15,9 @@ namespace pythonic {
                 for(; begin != end; ++begin, ++ibegin, ++obegin) {
                     auto u = *begin;
                     auto v = *ibegin;
-                    if (nt2::is_finite(u) && nt2::is_finite(v))
+                    if (proxy::isfinite()(u) && proxy::isfinite()(v))
                         *obegin = std::abs(u-v) <= (atol + rtol * std::abs(v));
-                    else if(nt2::is_nan(u) && nt2::is_nan(v))
+                    else if(proxy::isnan()(u) && proxy::isnan()(v))
                         *obegin = equal_nan;
                     else
                         *obegin = (u == v);

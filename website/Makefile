@@ -5,7 +5,7 @@ ZIP=zip
 CP=cp
 LN_S=ln -s
 
-PAGES=MANUAL CLI DEVGUIDE TUTORIAL INTERNAL LICENSE AUTHORS TODO Changelog
+PAGES=MANUAL CLI SUPPORT DEVGUIDE TUTORIAL INTERNAL LICENSE AUTHORS TODO Changelog
 
 all:index.rst $(patsubst %, %.rst, $(PAGES)) pythran.png
 	PYTHONPATH=..:$$PYTHONPATH sphinx-build . $(TARGET)
@@ -43,6 +43,10 @@ AUTHORS.rst:../AUTHORS
 
 TODO.rst:../TODO
 	$(LN_S) $< $@
+
+SUPPORT.rst:support.py ../pythran/tables.py
+	./$< > $@
+
 
 Changelog.rst:../Changelog
 	echo "=========\nChangelog\n=========\n\n" > $@

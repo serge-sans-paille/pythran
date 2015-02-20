@@ -94,7 +94,7 @@ namespace  pythonic {
                 typedef  typename std::remove_cv< typename std::remove_reference<K>::type>::type  _key_type;
                 typedef  typename std::remove_cv< typename std::remove_reference<V>::type>::type  _value_type;
                 typedef boost::unordered_map< _key_type, _value_type > container_type;
-                utils::shared_ref<container_type> data; 
+                utils::shared_ref<container_type> data;
 
 
                 public:
@@ -202,7 +202,7 @@ namespace  pythonic {
                     }
 
                 template <class W>
-                    decltype(std::declval<V>()+std::declval<W>()) pop(K const& key, W d) {
+                    typename __combined<V,W>::type pop(K const& key, W d) {
                         auto ivalue = data->find(key);
                         if(ivalue != data->end()) {
                             auto tmp = ivalue->second;

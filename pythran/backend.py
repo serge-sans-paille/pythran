@@ -154,7 +154,7 @@ class Cxx(Backend):
       }  ;
       typename foo::type::result_type foo::operator()() const
       {
-        pythonic::__builtin__::print(pythonic::types::str("hello world"));
+        pythonic::__builtin__::print("hello world");
       }
     }
     """
@@ -1090,6 +1090,10 @@ class Cxx(Backend):
     def visit_BinOp(self, node):
         left = self.visit(node.left)
         right = self.visit(node.right)
+        if isinstance(node.left, ast.Str):
+            left = "pythonic::types::str({})".format(left)
+        elif isinstance(node.right, ast.Str):
+            right = "pythonic::types::str({})".format(right)
         return operator_to_lambda[type(node.op)](left, right)
 
     def visit_UnaryOp(self, node):
@@ -1185,7 +1189,7 @@ class Cxx(Backend):
 
     def visit_Str(self, node):
         quoted = node.s.replace('"', '\\"').replace('\n', '\\n"\n"')
-        return 'pythonic::types::str("{0}")'.format(quoted)
+        return '"' + quoted + '"'
 
     def visit_Attribute(self, node):
         def rec(w, n):
@@ -1201,6 +1205,9 @@ class Cxx(Backend):
 
     def visit_Subscript(self, node):
         value = self.visit(node.value)
+        # we cannot overload the [] operator in that case
+        if isinstance(node.value, ast.Str):
+            value = 'pythonic::types::str({})'.format(value)
         # positive static index case
         if (isinstance(node.slice, ast.Index) and
             isinstance(node.slice.value, ast.Num) and

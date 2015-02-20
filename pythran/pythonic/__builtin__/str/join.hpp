@@ -8,10 +8,11 @@
 namespace pythonic { namespace __builtin__  {
 
     namespace str {
+        // specialization for str.join(str)
         template <class S>
         types::str
         join(S const &s, types::str const& iterable) {
-          long ssize = std::distance(std::begin(s), std::end(s)) - std::is_same<S, types::str>::value ? 0 : 1;
+          long ssize = std::distance(std::begin(s), std::end(s)) - (std::is_same<S, types::str>::value ? 0 : 1);
           /* first iterate over iterable to gather sizes */
           size_t n = ssize * (iterable.size() - 1) + iterable.size();
 
@@ -27,10 +28,12 @@ namespace pythonic { namespace __builtin__  {
                 *oter++ = *iter;
               }
             else
-              std::copy(iter, iterable.end(), oter);
+              return iterable;
           }
-          return std::move(out);
+          return {std::move(out)};
         }
+
+        // specialization when the iterable is a random access iterator
         template <class S, class Iterable>
         typename std::enable_if<
             not std::is_same<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type, types::str>::value and
@@ -70,6 +73,7 @@ namespace pythonic { namespace __builtin__  {
           return std::move(out);
         }
 
+        // default implementation
         template<class S, class Iterable>
             typename std::enable_if<
             not std::is_same<

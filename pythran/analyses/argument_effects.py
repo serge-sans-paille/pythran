@@ -74,18 +74,18 @@ class ArgumentEffects(ModuleAnalysis):
             keep_going = False
             for function in self.result:
                 for ue in enumerate(function.update_effects):
-                    update_effect_index, update_effect = ue
+                    update_effect_idx, update_effect = ue
                     if not update_effect:
                         continue
                     for pred in self.result.predecessors(function):
                         edge = self.result.edge[pred][function]
                         for fp in enumerate(edge["formal_parameters"]):
-                            i, formal_parameter_index = fp
+                            i, formal_parameter_idx = fp
                             # propagate the impurity backward if needed.
                             # Afterward we may need another graph iteration
                             ith_effectiv = edge["effective_parameters"][i]
-                            if (formal_parameter_index == update_effect_index
-                                    and not pred.update_effects[ith_effectiv]):
+                            if(formal_parameter_idx == update_effect_idx and
+                               not pred.update_effects[ith_effectiv]):
                                 pred.update_effects[ith_effectiv] = True
                                 keep_going = True
 
@@ -131,8 +131,8 @@ class ArgumentEffects(ModuleAnalysis):
                 func_aliases = reduce(
                     lambda x, y: x + (
                         self.node_to_functioneffect.keys()  # all functions
-                        if (isinstance(y, ast.Name)
-                            and self.argument_index(y) >= 0)
+                        if (isinstance(y, ast.Name) and
+                            self.argument_index(y) >= 0)
                         else [y]),
                     func_aliases,
                     list())

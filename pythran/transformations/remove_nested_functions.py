@@ -27,18 +27,18 @@ class _NestedFunctionRemover(Transformation):
 
         ii = self.passmanager.gather(ImportedIds, node, self.ctx)
         binded_args = [ast.Name(iin, ast.Load()) for iin in sorted(ii)]
-        node.args.args = ([ast.Name(iin, ast.Param()) for iin in sorted(ii)]
-                          + node.args.args)
+        node.args.args = ([ast.Name(iin, ast.Param()) for iin in sorted(ii)] +
+                          node.args.args)
 
         class Renamer(ast.NodeTransformer):
             def visit_Call(self, node):
                 self.generic_visit(node)
-                if (isinstance(node.func, ast.Name)
-                        and node.func.id == former_name):
+                if (isinstance(node.func, ast.Name) and
+                        node.func.id == former_name):
                     node.func.id = new_name
                     node.args = (
-                        [ast.Name(iin, ast.Load()) for iin in sorted(ii)]
-                        + node.args
+                        [ast.Name(iin, ast.Load()) for iin in sorted(ii)] +
+                        node.args
                         )
                 return node
         Renamer().visit(node)

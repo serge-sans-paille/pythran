@@ -28,8 +28,8 @@ class PotentialIterator(NodeAnalysis):
         for i, arg in enumerate(node.args):
 
             def isReadOnce(f):
-                return (f in self.argument_read_once
-                        and self.argument_read_once[f][i] <= 1)
+                return (f in self.argument_read_once and
+                        self.argument_read_once[f][i] <= 1)
             if all(isReadOnce(alias)
                    for alias in self.aliases[node.func].aliases):
                 self.result.add(arg)

@@ -18,8 +18,8 @@ class OptimizableComprehension(NodeAnalysis):
 
         for it in iters:
             ids = self.passmanager.gather(Identifiers, it, self.ctx)
-            optimizable &= all(((ident == it.target.id)
-                                | (ident not in targets)) for ident in ids)
+            optimizable &= all(((ident == it.target.id) |
+                                (ident not in targets)) for ident in ids)
 
         return optimizable
 

@@ -34,8 +34,8 @@ class _LambdaRemover(Transformation):
         ii.difference_update(self.lambda_functions)  # remove current lambdas
 
         binded_args = [ast.Name(iin, ast.Load()) for iin in sorted(ii)]
-        node.args.args = ([ast.Name(iin, ast.Param()) for iin in sorted(ii)]
-                          + node.args.args)
+        node.args.args = ([ast.Name(iin, ast.Param()) for iin in sorted(ii)] +
+                          node.args.args)
         forged_fdef = ast.FunctionDef(
             forged_name,
             copy(node.args),

@@ -72,8 +72,8 @@ class ExpandImports(Transformation):
         module_path = tuple(node.module.split('.'))
         self.imports.add(module_path[0])
         for alias in node.names:
-            self.symbols[alias.asname
-                         or alias.name] = module_path + (alias.name,)
+            self.symbols[alias.asname or
+                         alias.name] = module_path + (alias.name,)
         return None
 
     def visit_FunctionDef(self, node):

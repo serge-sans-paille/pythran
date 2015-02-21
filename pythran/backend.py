@@ -299,11 +299,11 @@ class Cxx(Backend):
 
         # compute arg dump
         default_arg_values = (
-            [None] * (len(node.args.args) - len(node.args.defaults))
-            + [self.visit(n) for n in node.args.defaults])
+            [None] * (len(node.args.args) - len(node.args.defaults)) +
+            [self.visit(n) for n in node.args.defaults])
         default_arg_types = (
-            [None] * (len(node.args.args) - len(node.args.defaults))
-            + [self.types[n] for n in node.args.defaults])
+            [None] * (len(node.args.args) - len(node.args.defaults)) +
+            [self.types[n] for n in node.args.defaults])
 
         # compute type dump
         result_type = self.types[node][0]
@@ -425,14 +425,14 @@ class Cxx(Backend):
 
             ctx = CachedTypeVisitor(lctx)
             next_members = ([Statement("{0} {1}".format(ft, fa))
-                             for (ft, fa) in zip(formal_types, formal_args)]
-                            + [Statement(
+                             for (ft, fa) in zip(formal_types, formal_args)] +
+                            [Statement(
                                 "{0} {1}".format(self.types[k].generate(ctx),
                                                  k.id))
-                               for k in self.ldecls]
-                            + [Statement("{0} {1}".format(v, k))
-                               for k, v in self.extra_declarations]
-                            + [Statement(
+                                for k in self.ldecls] +
+                            [Statement("{0} {1}".format(v, k))
+                             for k, v in self.extra_declarations] +
+                            [Statement(
                                 "typename {0}::result_type {1}".format(
                                     instanciated_next_name,
                                     Cxx.generator_state_value))])
@@ -449,18 +449,18 @@ class Cxx(Backend):
                               "value_type"))]
             result_typedef = [
                 Typedef(Value(result_type.generate(ctx), "result_type"))]
-            extra_typedefs = (ctx.typedefs()
-                              + extern_typedefs
-                              + iterator_typedef
-                              + result_typedef)
+            extra_typedefs = (ctx.typedefs() +
+                              extern_typedefs +
+                              iterator_typedef +
+                              result_typedef)
 
             next_struct = templatize(
                 Struct(next_name,
-                       extra_typedefs
-                       + next_members
-                       + next_constructors
-                       + next_iterator
-                       + next_declaration, "pythonic::yielder"),
+                       extra_typedefs +
+                       next_members +
+                       next_constructors +
+                       next_iterator +
+                       next_declaration, "pythonic::yielder"),
                 formal_types)
             next_definition = FunctionBody(next_signature, Block(next_body))
 
@@ -492,8 +492,8 @@ class Cxx(Backend):
                 formal_types)
             topstruct = Struct(
                 node.name,
-                [topstruct_type, callable_type, pure_type]
-                + operator_declaration)
+                [topstruct_type, callable_type, pure_type] +
+                operator_declaration)
 
             self.declarations.append(next_struct)
             self.definitions.append(next_definition)
@@ -526,26 +526,26 @@ class Cxx(Backend):
             ctx = CachedTypeVisitor(lctx)
             operator_local_declarations = (
                 [Statement("{0} {1}".format(
-                 self.types[k].generate(ctx), k.id)) for k in self.ldecls]
-                + [Statement("{0} {1}".format(v, k))
-                   for k, v in self.extra_declarations]
-                )
+                    self.types[k].generate(ctx), k.id)) for k in self.ldecls] +
+                [Statement("{0} {1}".format(v, k))
+                 for k, v in self.extra_declarations]
+            )
             dependent_typedefs = ctx.typedefs()
             operator_definition = FunctionBody(
                 templatize(operator_signature, formal_types),
-                Block(dependent_typedefs
-                      + operator_local_declarations
-                      + operator_body)
+                Block(dependent_typedefs +
+                      operator_local_declarations +
+                      operator_body)
                 )
 
             ctx = CachedTypeVisitor()
             extra_typedefs = (
                 [Typedef(Value(t.generate(ctx), t.name))
-                 for t in self.types[node][1] if not t.isweak()]
-                + [Typedef(Value(
+                 for t in self.types[node][1] if not t.isweak()] +
+                [Typedef(Value(
                     result_type.generate(ctx),
                     "result_type"))]
-                )
+            )
             extra_typedefs = ctx.typedefs() + extra_typedefs
             return_declaration = [
                 templatize(
@@ -555,9 +555,9 @@ class Cxx(Backend):
                     )
                 ]
             topstruct = Struct(node.name,
-                               [callable_type, pure_type]
-                               + return_declaration
-                               + operator_declaration)
+                               [callable_type, pure_type] +
+                               return_declaration +
+                               operator_declaration)
 
         self.declarations.append(topstruct)
         self.definitions.append(operator_definition)
@@ -613,8 +613,9 @@ class Cxx(Backend):
         value = self.visit(node.value)
         targets = [self.visit(t) for t in node.targets]
         alltargets = "= ".join(targets)
-        islocal = (len(targets) == 1 and isinstance(node.targets[0], ast.Name)
-                   and node.targets[0].id in self.scope[node])
+        islocal = (len(targets) == 1 and
+                   isinstance(node.targets[0], ast.Name) and
+                   node.targets[0].id in self.scope[node])
         if islocal and not self.yields:
             # remove this decl from local decls
             tdecls = {t.id for t in node.targets}
@@ -865,8 +866,8 @@ class Cxx(Backend):
         TODO : Yield should block only if it is use in the for loop, not in the
                whole function.
         """
-        auto_for = (type(node.target) is ast.Name
-                    and node.target.id in self.scope[node])
+        auto_for = (type(node.target) is ast.Name and
+                    node.target.id in self.scope[node])
         auto_for &= not self.yields
         auto_for &= not metadata.get(node, OMPDirective)
         return auto_for
@@ -1201,16 +1202,16 @@ class Cxx(Backend):
     def visit_Subscript(self, node):
         value = self.visit(node.value)
         # positive static index case
-        if (isinstance(node.slice, ast.Index)
-                and isinstance(node.slice.value, ast.Num)
-                and (node.slice.value.n >= 0)
-                and any(isinstance(node.slice.value.n, t)
-                        for t in (int, long))):
+        if (isinstance(node.slice, ast.Index) and
+            isinstance(node.slice.value, ast.Num) and
+            (node.slice.value.n >= 0) and
+            any(isinstance(node.slice.value.n, t)
+                for t in (int, long))):
             return "std::get<{0}>({1})".format(node.slice.value.n, value)
         # slice optimization case
-        elif (isinstance(node.slice, ast.Slice)
-                and (isinstance(node.ctx, ast.Store)
-                     or node not in self.bounded_expressions)):
+        elif (isinstance(node.slice, ast.Slice) and
+              (isinstance(node.ctx, ast.Store) or
+               node not in self.bounded_expressions)):
             slice = self.visit(node.slice)
             return "{1}({0})".format(slice, value)
         # extended slice case
@@ -1218,9 +1219,9 @@ class Cxx(Backend):
             slice = self.visit(node.slice)
             return "{1}({0})".format(','.join(slice), value)
         # positive indexing case
-        elif (isinstance(node.slice, ast.Index)
-              and isinstance(node.slice.value, ast.Name)
-              and self.range_values[node.slice.value.id].low >= 0):
+        elif (isinstance(node.slice, ast.Index) and
+              isinstance(node.slice.value, ast.Name) and
+              self.range_values[node.slice.value.id].low >= 0):
             slice = self.visit(node.slice)
             return "{1}.fast({0})".format(slice, value)
         # standard case
@@ -1247,8 +1248,8 @@ class Cxx(Backend):
             arg = (self.visit(nfield) if nfield
                    else 'pythonic::__builtin__::None')
             args.append(arg)
-        if node.step is None or (type(node.step) is ast.Num
-                                 and node.step.n == 1):
+        if node.step is None or (type(node.step) is ast.Num and
+                                 node.step.n == 1):
             return "pythonic::types::contiguous_slice({},{})".format(args[0],
                                                                      args[1])
         else:

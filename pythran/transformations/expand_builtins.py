@@ -28,10 +28,10 @@ class ExpandBuiltins(Transformation):
 
     def visit_Name(self, node):
         s = node.id
-        if (isinstance(node.ctx, ast.Load)
-                and s not in self.locals[node]
-                and s not in self.globals
-                and s in MODULES['__builtin__']):
+        if(isinstance(node.ctx, ast.Load) and
+           s not in self.locals[node] and
+           s not in self.globals and
+           s in MODULES['__builtin__']):
             if s == 'getattr':
                 raise PythranSyntaxError("You fool! Trying a getattr?", node)
             return ast.Attribute(

@@ -22,8 +22,8 @@ class ImportedIds(NodeAnalysis):
     def visit_Name(self, node):
         if isinstance(node.ctx, ast.Store) and not self.in_augassign:
             self.current_locals.add(node.id)
-        elif (node.id not in self.visible_globals
-                and node.id not in self.current_locals):
+        elif (node.id not in self.visible_globals and
+              node.id not in self.current_locals):
             self.result.add(node.id)
 
     def visit_FunctionDef(self, node):

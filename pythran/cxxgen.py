@@ -204,8 +204,8 @@ class Template(NestedDeclarator):
         yield "template <%s>" % ", ".join(self.template_spec)
         for i in self.subdecl.generate(with_semicolon):
             yield i
-        if(not isinstance(self.subdecl, FunctionDeclaration)
-                and not isinstance(self.subdecl, Template)):
+        if(not isinstance(self.subdecl, FunctionDeclaration) and
+           not isinstance(self.subdecl, Template)):
             yield ";"
 
 
@@ -497,10 +497,10 @@ class BoostPythonModule(object):
         """Generate (i.e. yield) the source code of the
         module line-by-line.
         """
-        body = (self.preamble + [Line()]
-                + self.mod_body
-                + [Line(), Line("BOOST_PYTHON_MODULE(%s)" % self.name)]
-                + [Block(self.init_body)])
+        body = (self.preamble + [Line()] +
+                self.mod_body +
+                [Line(), Line("BOOST_PYTHON_MODULE(%s)" % self.name)] +
+                [Block(self.init_body)])
 
         return Module(body)
 

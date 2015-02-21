@@ -86,8 +86,8 @@ class OMPDirective(AST):
                 if m:
                     word = m.group(0)
                     curr_index += len(word)
-                    if (in_reserved_context
-                            or (par_count == 0 and word in keywords)):
+                    if(in_reserved_context or
+                       (par_count == 0 and word in keywords)):
                         out += word
                         in_reserved_context = word in reserved_contex
                     else:
@@ -165,9 +165,9 @@ class GatherOMPData(Transformation):
         # add a Pass to hold some directives
         for field_name, field in ast.iter_fields(node):
             if field_name in GatherOMPData.statement_lists:
-                if (field
-                        and isinstance(field[-1], ast.Expr)
-                        and self.isompdirective(field[-1].value)):
+                if(field and
+                   isinstance(field[-1], ast.Expr) and
+                   self.isompdirective(field[-1].value)):
                     field.append(ast.Pass())
         self.generic_visit(node)
 

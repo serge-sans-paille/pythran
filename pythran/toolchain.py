@@ -81,9 +81,9 @@ def _pythran_cppflags():
 
 def _python_ldflags():
     pylibs = sysconfig.get_config_var('LIBS').split()
-    return (["-L" + sysconfig.get_config_var("LIBPL")]
-            + pylibs
-            + ["-lpython" + sysconfig.get_config_var('VERSION')])
+    return (["-L" + sysconfig.get_config_var("LIBPL")] +
+            pylibs +
+            ["-lpython" + sysconfig.get_config_var('VERSION')])
 
 
 def _get_temp(content, suffix=".cpp"):
@@ -303,11 +303,11 @@ def compile_cxxfile(cxxfile, module_so=None, **kwargs):
     # Get output filename from input filename if not set
     module_so = module_so or (os.path.splitext(cxxfile)[0] + ".so")
     try:
-        cmd = ([compiler, cxxfile]
-               + _cppflags
-               + _cxxflags
-               + ["-shared", "-o", module_so]
-               + _ldflags)
+        cmd = ([compiler, cxxfile] +
+               _cppflags +
+               _cxxflags +
+               ["-shared", "-o", module_so] +
+               _ldflags)
         logger.info("Command line: " + _format_cmdline(cmd))
         output = check_output(cmd, stderr=STDOUT)
     except CalledProcessError as e:

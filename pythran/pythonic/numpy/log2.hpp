@@ -10,9 +10,9 @@
 namespace pythonic {
 
     namespace numpy {
-#define NUMPY_UNARY_FUNC_NAME log2
-#define NUMPY_UNARY_FUNC_SYM nt2::log2
-#include "pythonic/types/numpy_unary_expr.hpp"
+#define NUMPY_NARY_FUNC_NAME log2
+#define NUMPY_NARY_FUNC_SYM nt2::log2
+#include "pythonic/types/numpy_nary_expr.hpp"
 
     }
 

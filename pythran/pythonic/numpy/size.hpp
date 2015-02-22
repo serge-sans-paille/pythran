@@ -9,8 +9,8 @@ namespace pythonic {
     namespace numpy {
 
         template <class E>
-            auto size(E const& e) -> decltype(e.size()) {
-                return e.size();
+            auto size(E const& e) -> decltype(e.flat_size()) {
+                return e.flat_size();
             }
 
         PROXY(pythonic::numpy, size)

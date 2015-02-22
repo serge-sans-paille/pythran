@@ -28,7 +28,7 @@ namespace pythonic {
             typename std::enable_if<types::is_iterable<I>::value, types::list<types::ndarray<T,N>>>::type
             array_split(types::ndarray<T,N> const& a, I const& split_mask) {
                 long sz = std::distance(a.begin(), a.end());
-                types::list<types::ndarray<T,N>> out(1+split_mask.size());
+                types::list<types::ndarray<T,N>> out(1+split_mask.flat_size());
                 long index = 0;
                 auto inserter = out.begin();
                 for(auto next_index: split_mask) {
@@ -39,6 +39,7 @@ namespace pythonic {
                 return out;
             }
 
+        NUMPY_EXPR_TO_NDARRAY0(array_split);
         PROXY(pythonic::numpy, array_split);
 
     }

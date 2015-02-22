@@ -10,8 +10,13 @@ namespace pythonic { namespace numpy  {
     namespace ndarray {
         template<class E, class F>
             types::none_type fill(E&& e, F f) {
-                std::fill(e.fbegin(), e.fend(), f);
-                return __builtin__::None;
+              std::fill(e.begin(), e.end(), f);
+              return __builtin__::None;
+            }
+        template<class T, size_t N, class F>
+            types::none_type fill(types::ndarray<T, N>& e, F f) {
+              std::fill(e.fbegin(), e.fend(), f);
+              return __builtin__::None;
             }
 
         PROXY(pythonic::numpy::ndarray, fill);

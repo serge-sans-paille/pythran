@@ -14,9 +14,9 @@ double asin(long l) { return asin(static_cast<double>(l)); }
 namespace pythonic {
 
     namespace numpy {
-#define NUMPY_UNARY_FUNC_NAME arcsin
-#define NUMPY_UNARY_FUNC_SYM nt2::asin
-#include "pythonic/types/numpy_unary_expr.hpp"
+#define NUMPY_NARY_FUNC_NAME arcsin
+#define NUMPY_NARY_FUNC_SYM nt2::asin
+#include "pythonic/types/numpy_nary_expr.hpp"
     }
 }
 

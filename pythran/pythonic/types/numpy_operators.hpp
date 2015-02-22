@@ -22,6 +22,7 @@
 #include "pythonic/operator_/sub.hpp"
 #include "pythonic/numpy/mod.hpp"
 #include "pythonic/numpy/bitwise_not.hpp"
+#include "pythonic/types/numpy_op_helper.hpp"
 
 namespace pythonic {
     /* operators must live in the same namespace as the associated type */

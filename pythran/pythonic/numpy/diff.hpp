@@ -20,7 +20,7 @@ namespace pythonic {
                 auto slice = expr.shape[types::numpy_expr_to_ndarray<E>::N-1];
                 auto iter = arr.fbegin();
                 auto out_iter = out.fbegin();
-                for(long i = 0, sz = expr.size(); i< sz ; i+=slice) {
+                for(long i = 0, sz = expr.flat_size(); i< sz ; i+=slice) {
                     auto prev = *(iter + i);
                     for(long k = 1; k< slice ; ++k, ++out_iter) {
                         auto nprev = *(iter+i+k);

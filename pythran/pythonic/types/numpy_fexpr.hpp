@@ -42,7 +42,7 @@ namespace pythonic {
                 numpy_fexpr() = default;
                 numpy_fexpr(numpy_fexpr const&) = default;
                 numpy_fexpr(numpy_fexpr&&) = default;
-                numpy_fexpr(Arg const &arg, F const& filter) : arg(arg), indices(arg.size()), buffer(indices->data)
+                numpy_fexpr(Arg const &arg, F const& filter) : arg(arg), indices(arg.flat_size()), buffer(indices->data)
                 {
                     auto iter = buffer;
                     long index = 0;
@@ -149,7 +149,7 @@ namespace pythonic {
                     operator[](E const& expr) const {
                         return numpy_fexpr<numpy_fexpr, E>(*this, expr);
                     }
-                long size() const { return shape[0]; }
+                long flat_size() const { return shape[0]; }
             };
 
     }

@@ -17,10 +17,10 @@ namespace pythonic {
                 for(size_t n=0; n<N; ++n) 
                     iters[n]=out[n].buffer;
                 size_t lens[N];
-                lens[0] = out.size() / shape[0];
+                lens[0] = out.flat_size() / shape[0];
                 for(size_t n=1; n<N; ++n) 
                     lens[n] = lens[n-1] / shape[n];
-                for(long i=0, n=out.size()/N; i<n;++i) {
+                for(long i=0, n=out.flat_size()/N; i<n;++i) {
                     long mult = 1;
                     for(long n=N-1; n>0; n--) {
                         *(iters[n]++) = (i/mult)%shape[n];

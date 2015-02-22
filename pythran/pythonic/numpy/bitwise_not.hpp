@@ -4,6 +4,7 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/numexpr_to_ndarray.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
+#include "pythonic/types/numpy_op_helper.hpp"
 
 namespace pythonic {
     namespace numpy {
@@ -20,9 +21,9 @@ namespace pythonic {
 
         }
 
-        #define NUMPY_UNARY_FUNC_NAME bitwise_not
-        #define NUMPY_UNARY_FUNC_SYM wrapper::bitwise_not
-        #include "pythonic/types/numpy_unary_expr.hpp"
+        #define NUMPY_NARY_FUNC_NAME bitwise_not
+        #define NUMPY_NARY_FUNC_SYM wrapper::bitwise_not
+        #include "pythonic/types/numpy_nary_expr.hpp"
     }
 
 }

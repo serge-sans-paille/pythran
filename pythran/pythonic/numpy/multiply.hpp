@@ -11,9 +11,9 @@ namespace pythonic {
 
     namespace numpy {
 
-    #define NUMPY_BINARY_FUNC_NAME multiply
-    #define NUMPY_BINARY_FUNC_SYM pythonic::operator_::mul
-    #include "pythonic/types/numpy_binary_expr.hpp"
+    #define NUMPY_NARY_FUNC_NAME multiply
+    #define NUMPY_NARY_FUNC_SYM pythonic::operator_::mul
+    #include "pythonic/types/numpy_nary_expr.hpp"
 
     }
 

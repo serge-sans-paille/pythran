@@ -23,7 +23,7 @@ namespace pythonic { namespace numpy  {
         template<class T>
             types::list<T> tolist(types::ndarray<T,1> const& expr)
             {
-                return types::list<T>(expr.buffer, expr.buffer + expr.size());
+                return types::list<T>(expr.fbegin(), expr.fend());
             }
 
         template<class T, size_t N>

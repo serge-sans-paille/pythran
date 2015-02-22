@@ -23,9 +23,9 @@ namespace pythonic {
                     return nt2::is_finite(v);
                 }
         }
-#define NUMPY_UNARY_FUNC_NAME isfinite
-#define NUMPY_UNARY_FUNC_SYM wrapper::isfinite
-#include "pythonic/types/numpy_unary_expr.hpp"
+#define NUMPY_NARY_FUNC_NAME isfinite
+#define NUMPY_NARY_FUNC_SYM wrapper::isfinite
+#include "pythonic/types/numpy_nary_expr.hpp"
 
     }
 

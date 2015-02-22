@@ -21,9 +21,9 @@ namespace pythonic {
                     else return M_PI/2;
                 }
         }
-#define NUMPY_UNARY_FUNC_NAME angle_in_rad
-#define NUMPY_UNARY_FUNC_SYM wrapper::angle_in_rad
-#include "pythonic/types/numpy_unary_expr.hpp"
+#define NUMPY_NARY_FUNC_NAME angle_in_rad
+#define NUMPY_NARY_FUNC_SYM wrapper::angle_in_rad
+#include "pythonic/types/numpy_nary_expr.hpp"
 
     }
 

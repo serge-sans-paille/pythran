@@ -16,9 +16,9 @@ namespace pythonic {
             }
 
         }
-#define NUMPY_BINARY_FUNC_NAME logical_or
-#define NUMPY_BINARY_FUNC_SYM wrapper::logical_or
-#include "pythonic/types/numpy_binary_expr.hpp"
+#define NUMPY_NARY_FUNC_NAME logical_or
+#define NUMPY_NARY_FUNC_SYM wrapper::logical_or
+#include "pythonic/types/numpy_nary_expr.hpp"
 
     }
 

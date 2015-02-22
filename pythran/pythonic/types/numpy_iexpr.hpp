@@ -115,10 +115,10 @@ namespace pythonic {
                 iterator end() { return make_nditerator<is_strided or value != 1>()(*this, shape[0]); }
 
                 dtype const * fbegin() const { return buffer; }
-                dtype const * fend() const { return buffer + size(); }
+                dtype const * fend() const { return buffer + flat_size(); }
 
                 dtype * fbegin() { return buffer; }
-                dtype const * fend() { return buffer + size(); }
+                dtype const * fend() { return buffer + flat_size(); }
 
                 /* There are three kind of indexing operator: fast(long), [long] and (long):
                  * - fast does not perform automatic bound wrapping
@@ -233,7 +233,7 @@ namespace pythonic {
                     return const_cast<dtype&>(const_cast<numpy_iexpr const&>(*this)[indices]);
                 }
 
-                long size() const { return /*arg.size()*/ std::accumulate(shape.begin() + 1, shape.end(), *shape.begin(), std::multiplies<long>()); }
+                long flat_size() const { return std::accumulate(shape.begin() + 1, shape.end(), *shape.begin(), std::multiplies<long>()); }
 
                 private:
 

@@ -14,7 +14,7 @@ namespace pythonic {
                 shape[0] = 0L;
                 for(auto const& a : ai) {
                     shape[0] += a.shape[0];
-                    n += a.size();
+                    n += a.flat_size();
                 }
                 std::copy(ai[0].shape.begin() +1 , ai[0].shape.end(), &shape[1]);
 

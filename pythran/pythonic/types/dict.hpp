@@ -260,6 +260,7 @@ namespace  pythonic {
 
         struct empty_dict {
 
+            typedef void value_type;
             typedef empty_iterator iterator;
             typedef empty_iterator const_iterator;
 

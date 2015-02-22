@@ -13,7 +13,7 @@ namespace pythonic {
                 auto where = std::find(new_shape.begin(), new_shape.end(), -1);
                 if(where != new_shape.end()) {
                     auto auto_shape = new_shape;
-                    auto_shape[where - new_shape.begin()] = expr.size() / std::accumulate(new_shape.begin(), new_shape.end(), -1L, std::multiplies<long>());
+                    auto_shape[where - new_shape.begin()] = expr.flat_size() / std::accumulate(new_shape.begin(), new_shape.end(), -1L, std::multiplies<long>());
                     return expr.reshape(auto_shape);
                 }
                 else

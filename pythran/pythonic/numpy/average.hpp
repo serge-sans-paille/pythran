@@ -9,7 +9,7 @@ namespace pythonic {
     namespace numpy {
         template<class E>
             auto average(E const & expr, types::none_type const& axis=__builtin__::None) -> decltype(sum(expr, axis)/1.) {
-                return sum(expr, axis) / double(expr.size());
+                return sum(expr, axis) / double(expr.flat_size());
             }
 
         template<class E>

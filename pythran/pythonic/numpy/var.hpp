@@ -26,7 +26,7 @@ namespace pythonic {
             {
                 auto m = mean(expr);
                 auto t = expr - m;
-                return sum(t*t) / var_type<E>(expr.size() - ddof);
+                return sum(t*t) / var_type<E>(expr.flat_size() - ddof);
             }
 
         // this is a workaround for the lack of efficient support for broadcasting in pythonic

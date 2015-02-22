@@ -17,9 +17,9 @@ namespace pythonic {
                 return nt2::trunc(v);
             }
         }
-#define NUMPY_UNARY_FUNC_NAME fix
-#define NUMPY_UNARY_FUNC_SYM wrapper::fix
-#include "pythonic/types/numpy_unary_expr.hpp"
+#define NUMPY_NARY_FUNC_NAME fix
+#define NUMPY_NARY_FUNC_SYM wrapper::fix
+#include "pythonic/types/numpy_nary_expr.hpp"
 
     }
 

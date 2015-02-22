@@ -5,7 +5,9 @@
 #include "pythonic/types/empty_iterator.hpp"
 #include "pythonic/utils/shared_ref.hpp"
 #include "pythonic/utils/reserve.hpp"
+#include "pythonic/utils/nested_container.hpp"
 #include "pythonic/types/slice.hpp"
+#include "pythonic/types/tuple.hpp"
 #include "pythonic/__builtin__/len.hpp"
 
 #include <cassert>
@@ -17,6 +19,11 @@
 #include <algorithm>
 #include <iterator>
 
+#ifdef USE_BOOST_SIMD
+#include <boost/simd/sdk/simd/native.hpp>
+#include <boost/simd/include/functions/load.hpp>
+#include <boost/simd/include/functions/store.hpp>
+#endif
 
 namespace pythonic {
 
@@ -28,6 +35,10 @@ namespace pythonic {
         struct empty_list;
         template<class T> class list;
         template<class T, class S> class sliced_list;
+        template<class T, size_t N> struct ndarray;
+        template<class T> struct is_list { static const bool value = false; };
+        template<class T> struct is_list<list<T>> { static const bool value = true; };
+        template<class T, class S> struct is_list<sliced_list<T,S>> { static const bool value = true; };
 
         /* for type disambiguification */
         struct single_value {};
@@ -60,6 +71,11 @@ namespace pythonic {
                 typedef typename container_type::const_pointer const_pointer;
                 typedef typename container_type::reverse_iterator reverse_iterator;
                 typedef typename container_type::const_reverse_iterator const_reverse_iterator;
+
+                // minimal ndarray interface
+                typedef typename utils::nested_container_value_type<sliced_list>::type dtype;
+                static const size_t value = utils::nested_container_depth<sliced_list>::value;
+                static const bool is_vectorizable = false; // overly cautious \simeq lazy
 
                 // constructor
                 sliced_list(): data(utils::no_memory()) {}
@@ -127,22 +143,45 @@ namespace pythonic {
                 typedef typename container_type::reverse_iterator reverse_iterator;
                 typedef typename container_type::const_reverse_iterator const_reverse_iterator;
 
+                // minimal ndarray interface
+                typedef typename utils::nested_container_value_type<list>::type dtype;
+                static const size_t value = utils::nested_container_depth<list>::value;
+                static const bool is_vectorizable = true;
+                static const bool is_strided = false;
+                struct fake_shape {
+                  list const & the_list;
+                  fake_shape(list const & the_list) : the_list{the_list}{}
+                  template<class E> void init_shape(array<long, value>& res, E const& e, utils::int_<1>) const {
+                    res[value - 1] = e.size();
+                  }
+                  template<class E, size_t L> void init_shape(array<long, value>& res, E const& e, utils::int_<L>) const {
+                    res[value - L] = e.size();
+                    init_shape(res, e[0], utils::int_<L-1>{});
+                  }
+                  operator array<long, value>() const {
+                    array<long, value> res;
+                    init_shape(res, the_list, utils::int_<value>{});
+                    return res;
+                  }
+                } shape;
+
+
 
                 // constructors
-                list() : data(utils::no_memory()) {}
+                list() : data(utils::no_memory()), shape(*this) {}
                 template<class InputIterator>
-                    list(InputIterator start, InputIterator stop) : data() {
+                    list(InputIterator start, InputIterator stop) : data(), shape(*this) {
                         data->reserve(DEFAULT_LIST_CAPACITY);
                         std::copy(start, stop, std::back_inserter(*data));
                     }
-                list(empty_list const&) :data(0) {}
-                list(size_type sz) :data(sz) {}
-                list(T const& value, single_value) : data(1) { (*data)[0] = value; }
-                list(std::initializer_list<T> l) : data(std::move(l)) {}
-                list(list<T> && other) : data(std::move(other.data)) {}
-                list(list<T> const & other) : data(other.data) {}
+                list(empty_list const&) :data(0), shape(*this) {}
+                list(size_type sz) :data(sz), shape(*this) {}
+                list(T const& value, single_value) : data(1), shape(*this) { (*data)[0] = value; }
+                list(std::initializer_list<T> l) : data(std::move(l)), shape(*this) {}
+                list(list<T> && other) : data(std::move(other.data)), shape(*this) {}
+                list(list<T> const & other) : data(other.data), shape(*this) {}
                 template<class F>
-                    list(list<F> const & other) : data(other.size()) {
+                    list(list<F> const & other) : data(other.size()), shape(*this) {
                         std::copy(other.begin(), other.end(), begin());
                     }
 #if 0
@@ -152,10 +191,16 @@ namespace pythonic {
                     }
 #endif
                 template<class S>
-                list(sliced_list<T,S> const & other) : data( other.begin(), other.end()) {}
+                list(sliced_list<T,S> const & other) : data( other.begin(), other.end()), shape(*this) {}
 
                 list<T>& operator=(list<T> && other) {
                     data=std::move(other.data);
+                    return *this;
+                }
+                template<class F>
+                list<T>& operator=(list<F> const& other) {
+                    data = utils::shared_ref<container_type>{other.size()};
+                    std::copy(other.begin(), other.end(), begin());
                     return *this;
                 }
                 list<T>& operator=(list<T> const & other) {
@@ -178,6 +223,7 @@ namespace pythonic {
                     }
                     return *this;
                 }
+                list& operator=(ndarray<T,1> const & ); // implemented in ndarray.hpp
                 template<class S>
                 list<T>& operator+=(sliced_list<T,S> const & other) {
                     data->resize(data->size() + other.size());
@@ -248,18 +294,26 @@ namespace pythonic {
                 }
 
                 // element access
+#ifdef USE_BOOST_SIMD
+                auto load(long i) const -> decltype(boost::simd::load<boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>>((*this->data),i))
+                {
+                    return boost::simd::load<boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>>(data->data(),i);
+                }
+                template<class V>
+                void store(V &&v, long i) {
+                  typedef typename boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION> vT;
+                  boost::simd::store<vT>(v, data->data(), i);
+                }
+#endif
+                reference fast(long n) { return (*data)[n]; }
                 reference operator[]( long n ) {
-                    return fast((n>=0)?n : (data->size() + n));
+                  if(n < 0) n += data->size();
+                  return fast(n);
                 }
+                const_reference fast(long n) const { return (*data)[n]; }
                 const_reference operator[]( long n ) const {
-                    return fast((n>=0)?n : (data->size() + n));
-                }
-
-                reference fast( long n ) {
-                    return (*data)[n];
-                }
-                const_reference fast( long n ) const {
-                    return (*data)[n];
+                  if(n < 0) n += data->size();
+                  return fast(n);
                 }
 
                 list<T> operator[]( slice const &s ) const {
@@ -336,15 +390,14 @@ namespace pythonic {
                 list<T> operator+(empty_list const &) const {
                     return list<T>(begin(), end());
                 }
-                template<class F>
-                    list<T> operator*(F const& t) const {
-                        size_t n = t;
-                        list<T> r(data->size()*n);
-                        auto start = r.begin();
-                        for(size_t i=0;i<n;i++, start+=data->size()) 
-                            std::copy(this->begin(), this->end(),start);
-                        return r;
-                    }
+                list<T> operator*(long t) const {
+                    const size_t n = t;
+                    list<T> r(data->size()*n);
+                    auto start = r.begin();
+                    for(size_t i=0;i<n;i++, start+=data->size()) 
+                        std::copy(this->begin(), this->end(),start);
+                    return r;
+                }
 
                 template <class F>
                     list<T>& operator+=(list<F> const & s) {
@@ -353,6 +406,13 @@ namespace pythonic {
                         return *this;
                     }
                 long size() const { return data->size(); }
+                  template<class E> long _flat_size(E const& e, utils::int_<1>) const {
+                    return std::distance(e.begin(), e.end());
+                  }
+                  template<class E, size_t L> long _flat_size(E const& e, utils::int_<L>) const {
+                    return std::distance(e.begin(), e.end()) * _flat_size(e[0], utils::int_<L-1>{});
+                  }
+                long flat_size() const { return _flat_size(*this, utils::int_<value>{}); }
 
                 template<class V>
                     bool contains(V const & v) const {
@@ -409,6 +469,7 @@ namespace pythonic {
 
         /* empty list implementation */
         struct empty_list {
+            typedef void value_type;
             typedef empty_iterator iterator;
             typedef empty_iterator const_iterator;
             template<class T>
@@ -424,6 +485,17 @@ namespace pythonic {
 
         std::ostream& operator<<(std::ostream& os, empty_list const & ) {
             return os << "[]";
+        }
+
+        // declared here and not in list to avoid dependency hell
+        template <class T, size_t N>
+        list<T> array<T, N>::operator[](types::slice const &s)
+        {
+          types::slice norm = s.normalize(size());
+          list<T> out(norm.size());
+          for (long i = 0; i < out.size(); i++)
+            out[i] = buffer[norm.get(i)];
+          return out;
         }
 
     }

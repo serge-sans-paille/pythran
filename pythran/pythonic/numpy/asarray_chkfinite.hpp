@@ -21,9 +21,9 @@ namespace pythonic {
                 }
         }
 
-    #define NUMPY_UNARY_FUNC_NAME asarray_chkfinite
-    #define NUMPY_UNARY_FUNC_SYM wrapper::asarray_chkfinite
-    #include "pythonic/types/numpy_unary_expr.hpp"
+    #define NUMPY_NARY_FUNC_NAME asarray_chkfinite
+    #define NUMPY_NARY_FUNC_SYM wrapper::asarray_chkfinite
+    #include "pythonic/types/numpy_nary_expr.hpp"
 
     }
 

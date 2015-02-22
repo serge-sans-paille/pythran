@@ -17,9 +17,9 @@ namespace pythonic {
                 return nt2::log2(nt2::pow(T0(2),t0) + nt2::pow(T1(2),t1));
             }
         }
-#define NUMPY_BINARY_FUNC_NAME logaddexp2
-#define NUMPY_BINARY_FUNC_SYM wrapper::logaddexp2
-#include "pythonic/types/numpy_binary_expr.hpp"
+#define NUMPY_NARY_FUNC_NAME logaddexp2
+#define NUMPY_NARY_FUNC_SYM wrapper::logaddexp2
+#include "pythonic/types/numpy_nary_expr.hpp"
 
     }
 

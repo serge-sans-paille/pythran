@@ -17,9 +17,9 @@ long pow(long n, long m) { return std::pow(n, m); }
 namespace pythonic {
 
     namespace numpy {
-#define NUMPY_BINARY_FUNC_NAME power
-#define NUMPY_BINARY_FUNC_SYM nt2::pow
-#include "pythonic/types/numpy_binary_expr.hpp"
+#define NUMPY_NARY_FUNC_NAME power
+#define NUMPY_NARY_FUNC_SYM nt2::pow
+#include "pythonic/types/numpy_nary_expr.hpp"
     }
 }
 

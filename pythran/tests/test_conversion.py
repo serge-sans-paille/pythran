@@ -101,3 +101,28 @@ def dict_of_complex64_and_complex_128(l):
             self.run_test(code, np.arange((128), dtype=np.uint8).reshape((16,8))[1::3,2::2],
                           ndarray_unsupported_reshaped_array_with_stride=[np.array([[np.uint8]])[::-1]])
 
+    def test_transposed_arg0(self):
+        self.run_test("def np_transposed_arg0(a): return a", np.arange(9).reshape(3,3).T, np_transposed_arg0=[np.array([[int]]).T])
+
+    def test_transposed_arg1(self):
+        self.run_test("def np_transposed_arg1(a): return a", np.arange(12).reshape(3,4).T, np_transposed_arg1=[np.array([[int]]).T])
+
+    def test_transposed_arg2(self):
+        self.run_test("def np_transposed_arg2(a): return a", np.arange(12, dtype=complex).reshape(3,4).T, np_transposed_arg2=[np.array([[complex]]).T])
+
+    def test_broadcasted_int8(self):
+        self.run_test('def broadcasted_int8(l): return l + 4', np.ones(10,dtype=np.int8).reshape(5,2), broadcasted_int8=[np.array([[np.int8]])])
+
+    def test_broadcasted_uint8(self):
+        self.run_test('def broadcasted_uint8(l): return l - 4', np.ones(10,dtype=np.uint8).reshape(5,2), broadcasted_uint8=[np.array([[np.uint8]])])
+
+    def test_broadcasted_int16(self):
+        self.run_test('def broadcasted_int16(l): return l * 4', np.ones(10,dtype=np.int16).reshape(5,2), broadcasted_int16=[np.array([[np.int16]])])
+
+    def test_broadcasted_uint16(self):
+        self.run_test('def broadcasted_uint16(l): return l / 4', np.ones(10,dtype=np.uint16).reshape(5,2), broadcasted_uint16=[np.array([[np.uint16]])])
+
+    @unittest.skip("no dynamic type promotion in pythran :-/")
+    def test_broadcasted_large_int8(self):
+        self.run_test('def broadcasted_large_int8(l): return l + 400', np.ones(10,dtype=np.int8).reshape(5,2), broadcasted_large_int8=[np.array([[np.int8]])])
+

@@ -18,9 +18,9 @@
 
 #include "pythonic/types/vectorizable_type.hpp"
 #include "pythonic/types/numexpr_to_ndarray.hpp"
+#include "pythonic/types/numpy_op_helper.hpp"
 #include "pythonic/types/numpy_fexpr.hpp"
 #include "pythonic/types/numpy_expr.hpp"
-#include "pythonic/types/numpy_uexpr.hpp"
 #include "pythonic/types/numpy_texpr.hpp"
 #include "pythonic/types/numpy_iexpr.hpp"
 #include "pythonic/types/numpy_gexpr.hpp"
@@ -258,7 +258,7 @@ namespace pythonic {
                 /* from other array */
                 template<class Tp, size_t Np>
                     ndarray(ndarray<Tp, Np> const& other):
-                        mem(other.size()),
+                        mem(other.flat_size()),
                         buffer(mem->data),
                         shape(other.shape)
                 {
@@ -303,7 +303,7 @@ namespace pythonic {
                     void>::type
                         >
                         ndarray(Iterable&& iterable):
-                            mem(utils::nested_container_size<Iterable>::size(std::forward<Iterable>(iterable))),
+                            mem(utils::nested_container_size<Iterable>::flat_size(std::forward<Iterable>(iterable))),
                             buffer(mem->data),
                             shape()
                 {
@@ -316,9 +316,9 @@ namespace pythonic {
                         utils::broadcast_copy<ndarray&, E, value, 0, is_vectorizable and E::is_vectorizable>(*this, expr);
                     }
 
-                template<class Op, class Arg0, class Arg1>
-                    ndarray(numpy_expr<Op, Arg0, Arg1> const & expr) :
-                        mem(expr.size()),
+                template<class Op, class... Args>
+                    ndarray(numpy_expr<Op, Args...> const & expr) :
+                        mem(expr.flat_size()),
                         buffer(mem->data),
                         shape(expr.shape)
                 {
@@ -327,25 +327,25 @@ namespace pythonic {
 
                 template<class Arg>
                     ndarray(numpy_texpr<Arg> const & expr) :
-                        mem(expr.size()),
+                        mem(expr.flat_size()),
+                        buffer(mem->data),
+                        shape(expr.shape)
+                {
+                    initialize_from_expr(expr);
+                }
+                template<class Arg>
+                    ndarray(numpy_texpr_2<Arg> const & expr) :
+                        mem(expr.flat_size()),
                         buffer(mem->data),
                         shape(expr.shape)
                 {
                     initialize_from_expr(expr);
                 }
 
-                template<class Op, class Arg>
-                    ndarray(numpy_uexpr<Op, Arg> const & expr) :
-                        mem(expr.size()),
-                        buffer(mem->data),
-                        shape(expr.shape)
-                {
-                    initialize_from_expr(expr);
-                }
 
                 template<class Arg, class... S>
                     ndarray(numpy_gexpr<Arg, S...> const & expr) :
-                        mem(expr.size()),
+                        mem(expr.flat_size()),
                         buffer(mem->data),
                         shape(expr.shape)
                 {
@@ -354,7 +354,7 @@ namespace pythonic {
 
                 template<class Arg>
                     ndarray(numpy_iexpr<Arg> const & expr) :
-                        mem(expr.size()),
+                        mem(expr.flat_size()),
                         buffer(mem->data),
                         shape(expr.shape)
                 {
@@ -363,7 +363,7 @@ namespace pythonic {
 
                 template<class Arg, class F>
                     ndarray(numpy_fexpr<Arg, F> const & expr) :
-                        mem(expr.size()),
+                        mem(expr.flat_size()),
                         buffer(mem->data),
                         shape(expr.shape)
                 {
@@ -513,7 +513,7 @@ namespace pythonic {
                 template<class F> // indexing through an array of indices -- a view
                     typename std::enable_if<is_numexpr_arg<F>::value and not std::is_same<bool, typename F::dtype>::value, ndarray<T, 1>>::type
                     operator[](F const& filter) const {
-                        ndarray<T,1> out(array<long, 1>{{filter.size()}}, none_type());
+                        ndarray<T,1> out(array<long, 1>{{filter.flat_size()}}, none_type());
                         std::transform(filter.begin(), filter.end(), out.begin(), [this](typename F::dtype index) { return fast(index); });
                         return out;
                     }
@@ -525,18 +525,18 @@ namespace pythonic {
                 const_iterator end() const { return type_helper<ndarray>::make_iterator(*this, shape[0]); }
 
                 const_flat_iterator fbegin() const { return buffer; }
-                const_flat_iterator fend() const { return buffer + size(); }
+                const_flat_iterator fend() const { return buffer + flat_size(); }
                 flat_iterator fbegin() { return buffer; }
-                flat_iterator fend() { return buffer + size(); }
+                flat_iterator fend() { return buffer + flat_size(); }
 
                 /* member functions */
-                long size() const { return std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<long>()); }
+                long flat_size() const { return std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<long>()); }
                 template<size_t M>
                     ndarray<T,M> reshape(array<long,M> const& shape) const {
                         return ndarray<T, M>(mem, shape);
                     }
                 ndarray<T,1> flat() const {
-                    return ndarray<T, 1>(mem, array<long, 1>{{size()}});
+                    return ndarray<T, 1>(mem, array<long, 1>{{flat_size()}});
                 }
                 ndarray<T,N> copy() const {
                     ndarray<T,N> res(shape, __builtin__::None);
@@ -562,7 +562,7 @@ namespace pythonic {
                 size_t depth = N;
                 int step = -1;
                 std::ostringstream oss;
-                if( e.size())
+                if( e.flat_size())
                     oss << *std::max_element(e.fbegin(), e.fend());
                 int size = oss.str().length();
                 auto iter = e.fbegin();
@@ -615,6 +615,11 @@ namespace pythonic {
             }
 
         /* } */
+        template<class T>
+          list<T>& list<T>::operator=(ndarray<T, 1> const & other) {
+            data=utils::shared_ref<T>(other.begin(),other.end());
+            return *this;
+          }
     }
 
     /* make sure the size method from ndarray is not used */
@@ -627,15 +632,6 @@ namespace pythonic {
             };
 
     }
-
-    namespace utils {
-
-        template<class Op, class Arg0, class Arg1>
-            struct nested_container_depth<types::numpy_expr<Op, Arg0, Arg1>> {
-                static const int  value = types::numpy_expr<Op, Arg0, Arg1>::value;
-            };
-    }
-
 
 }
 
@@ -654,13 +650,21 @@ namespace std {
         struct tuple_element<I, pythonic::types::ndarray<T,N> > {
             typedef typename pythonic::types::ndarray<T,N>::value_type type;
         };
-    template <size_t I, class Op, class Arg0, class Arg1>
-        struct tuple_element<I, pythonic::types::numpy_expr<Op,Arg0, Arg1> > {
-            typedef typename pythonic::types::numpy_expr_to_ndarray<pythonic::types::numpy_expr<Op,Arg0, Arg1>>::type::value_type type;
+    template <size_t I, class Op, class... Args>
+        struct tuple_element<I, pythonic::types::numpy_expr<Op,Args...> > {
+            typedef typename pythonic::types::numpy_expr_to_ndarray<pythonic::types::numpy_expr<Op,Args...>>::type::value_type type;
         };
     template <size_t I, class E>
         struct tuple_element<I, pythonic::types::numpy_iexpr<E> > {
             typedef decltype(std::declval<pythonic::types::numpy_iexpr<E>>()[0]) type;
+        };
+    template <size_t I, class E>
+        struct tuple_element<I, pythonic::types::numpy_texpr<E> > {
+            typedef decltype(std::declval<pythonic::types::numpy_texpr<E>>()[0]) type;
+        };
+    template <size_t I, class E, class...S>
+        struct tuple_element<I, pythonic::types::numpy_gexpr<E, S...> > {
+            typedef decltype(std::declval<pythonic::types::numpy_gexpr<E, S...>>()[0]) type;
         };
 
 }
@@ -690,13 +694,13 @@ namespace pythonic {
                 }
             };
             template<class E> struct getattr<attr::SIZE, E> {
-                long operator()(E const& a) { return a.size(); }
+                long operator()(E const& a) { return a.flat_size(); }
             };
             template<class E> struct getattr<attr::ITEMSIZE, E> {
                 long operator()(E const& a) { return sizeof(typename numpy_expr_to_ndarray<E>::T); }
             };
             template<class E> struct getattr<attr::NBYTES, E> {
-                long operator()(E const& a) { return a.size() * sizeof(typename numpy_expr_to_ndarray<E>::T); }
+                long operator()(E const& a) { return a.flat_size() * sizeof(typename numpy_expr_to_ndarray<E>::T); }
             };
             template<class E> struct getattr<attr::FLAT, E> {
                 auto operator()(E const& a) -> decltype(a.flat()) { return a.flat(); }
@@ -748,7 +752,16 @@ namespace pythonic {
 
                 auto operator()(E const & a) -> decltype(this->make_real(a, utils::int_<types::is_complex<typename E::dtype>::value>{}))
                 {
-                return make_real(a, utils::int_<types::is_complex<typename E::dtype>::value>{});
+                  return make_real(a, utils::int_<types::is_complex<typename E::dtype>::value>{});
+                }
+
+            };
+            template<class E> struct getattr<attr::REAL, types::numpy_texpr<E>> {
+
+                auto operator()(types::numpy_texpr<E> const & a) -> decltype(types::numpy_texpr<decltype(getattr<attr::REAL, E>{}(a.arg))>{getattr<attr::REAL, E>{}(a.arg)})
+                {
+                  auto ta = getattr<attr::REAL, E>{}(a.arg);
+                  return types::numpy_texpr<decltype(ta)>{ta};
                 }
 
             };
@@ -758,7 +771,7 @@ namespace pythonic {
                 typename numpy_expr_to_ndarray<E>::type make_imag(E const& a, utils::int_<0>){
                   // cannot use numpy.zero: forward declaration issue
                   typedef typename numpy_expr_to_ndarray<E>::type T;
-                  return T((typename T::dtype*)calloc(a.size(), sizeof(typename E::dtype)), a.shape.data());
+                  return T((typename T::dtype*)calloc(a.flat_size(), sizeof(typename E::dtype)), a.shape.data());
                 }
 
                 auto make_imag(E const& a, utils::int_<1>)
@@ -777,6 +790,14 @@ namespace pythonic {
                 return make_imag(a, utils::int_<types::is_complex<typename E::dtype>::value>{});
                 }
             };
+            template<class E> struct getattr<attr::IMAG, types::numpy_texpr<E>> {
+
+                auto operator()(types::numpy_texpr<E> const & a) -> decltype(types::numpy_texpr<decltype(getattr<attr::IMAG, E>{}(a.arg))>{getattr<attr::IMAG, E>{}(a.arg)})
+                {
+                  auto ta = getattr<attr::IMAG, E>{}(a.arg);
+                  return types::numpy_texpr<decltype(ta)>{ta};
+                }
+            };
         }
     }
     namespace __builtin__ {
@@ -787,11 +808,11 @@ namespace pythonic {
                 return types::__ndarray::getattr<I,types::ndarray<T,N>>()(f);
             }
 
-        template<int I, class O, class A0, class A1>
-            auto getattr(types::numpy_expr<O,A0,A1> const& f)
-            -> decltype(types::__ndarray::getattr<I,types::numpy_expr<O,A0,A1>>()(f))
+        template<int I, class O, class... Args>
+            auto getattr(types::numpy_expr<O,Args...> const& f)
+            -> decltype(types::__ndarray::getattr<I,types::numpy_expr<O,Args...>>()(f))
             {
-                return types::__ndarray::getattr<I,types::numpy_expr<O,A0,A1>>()(f);
+                return types::__ndarray::getattr<I,types::numpy_expr<O,Args...>>()(f);
             }
 
         template<int I, class A, class F>
@@ -821,13 +842,6 @@ namespace pythonic {
                 return types::__ndarray::getattr<I,types::numpy_texpr<A>>()(f);
             }
 
-        template<int I, class O, class A>
-            auto getattr(types::numpy_uexpr<O,A> const& f)
-            -> decltype(types::__ndarray::getattr<I,types::numpy_uexpr<O,A>>()(f))
-            {
-                return types::__ndarray::getattr<I,types::numpy_uexpr<O,A>>()(f);
-            }
-
     }
 }
 
@@ -844,8 +858,17 @@ template<size_t N, class T, class O>
 struct __combined<pythonic::types::ndarray<T,N>, O> {
     typedef pythonic::types::ndarray<T,N> type;
 };
-template<size_t N, class T, class O>
-struct __combined<O, pythonic::types::ndarray<T,N>> {
+
+template<size_t N, class T, class C, class I>
+struct __combined<indexable_container<C,I>, pythonic::types::ndarray<T,N>> {
+    typedef pythonic::types::ndarray<T,N> type;
+};
+template<size_t N, class T, class C>
+struct __combined<indexable<C>, pythonic::types::ndarray<T,N>> {
+    typedef pythonic::types::ndarray<T,N> type;
+};
+template<size_t N, class T, class C>
+struct __combined<container<C>, pythonic::types::ndarray<T,N>> {
     typedef pythonic::types::ndarray<T,N> type;
 };
 
@@ -944,7 +967,22 @@ namespace pythonic {
         };
 
     template<typename T, size_t N>
-        struct python_to_pythran< types::ndarray<T, N> >{
+      struct basic_array_checks {
+        static PyArrayObject *check_array_type_and_dims(PyObject *obj_ptr) {
+          if (!PyArray_Check(obj_ptr))
+            return nullptr;
+          // the array must have the same dtype and the same number of dimensions
+          PyArrayObject *arr_ptr = reinterpret_cast<PyArrayObject *>(obj_ptr);
+          if (PyArray_TYPE(arr_ptr) != c_type_to_numpy_type<T>::value)
+            return nullptr;
+          if (PyArray_NDIM(arr_ptr) != N)
+            return nullptr;
+          return arr_ptr;
+        }
+      };
+
+    template<typename T, size_t N>
+        struct python_to_pythran< types::ndarray<T, N> > : basic_array_checks<T, N> {
             python_to_pythran(){
                 static bool registered=false;
                 python_to_pythran<T>();
@@ -955,13 +993,8 @@ namespace pythonic {
             }
             //reinterpret_cast needed to fit BOOST Python API. Check is done by template and PyArray_Check
             static void* convertible(PyObject* obj_ptr){
-                if(!PyArray_Check(obj_ptr))
-                 return nullptr;
-                // the array must have the same dtype and the same number of dimensions
-                PyArrayObject* arr_ptr = reinterpret_cast<PyArrayObject*>(obj_ptr);
-                if(PyArray_TYPE(arr_ptr) != c_type_to_numpy_type<T>::value)
-                  return nullptr;
-                if(PyArray_NDIM(arr_ptr) != N)
+                PyArrayObject* arr_ptr =  python_to_pythran::check_array_type_and_dims(obj_ptr);
+                if(not arr_ptr)
                     return nullptr;
                 auto const* stride = PyArray_STRIDES(arr_ptr);
                 auto const* dims = PyArray_DIMS(arr_ptr);
@@ -973,7 +1006,11 @@ namespace pythonic {
                     }
                     current_stride *= dims[i];
                 }
-                return obj_ptr;
+                // this is supposed to be a texpr
+                if(PyArray_FLAGS(arr_ptr) & NPY_ARRAY_F_CONTIGUOUS && N > 1)
+                  return nullptr;
+                else
+                  return obj_ptr;
             }
 
             static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
@@ -999,7 +1036,7 @@ namespace pythonic {
       }
 
     template<typename T, size_t N, class... S>
-        struct python_to_pythran< types::numpy_gexpr<types::ndarray<T, N>, S...> >{
+        struct python_to_pythran< types::numpy_gexpr<types::ndarray<T, N>, S...> > : basic_array_checks<T, N> {
             python_to_pythran(){
                 static bool registered=false;
                 python_to_pythran<T>();
@@ -1010,15 +1047,9 @@ namespace pythonic {
             }
             //reinterpret_cast needed to fit BOOST Python API. Check is done by template and PyArray_Check
             static void* convertible(PyObject* obj_ptr){
-                if(!PyArray_Check(obj_ptr))
-                 return nullptr;
-                // the array must have the same dtype and the same number of dimensions
-                PyArrayObject* arr_ptr = reinterpret_cast<PyArrayObject*>(obj_ptr);
-                if(PyArray_TYPE(arr_ptr) != c_type_to_numpy_type<T>::value)
+                PyArrayObject* arr_ptr =  python_to_pythran::check_array_type_and_dims(obj_ptr);
+                if(not arr_ptr)
                   return nullptr;
-
-                if(PyArray_NDIM(arr_ptr) != N)
-                    return nullptr;
 
                 PyObject* base_obj_ptr = PyArray_BASE(arr_ptr);
                 if(!base_obj_ptr or !PyArray_Check(base_obj_ptr))
@@ -1089,6 +1120,56 @@ namespace pythonic {
                 auto slices = make_slices<T>(strides, offsets, PyArray_DIMS(arr_ptr), utils::int_<N>());
                 new (storage) types::numpy_gexpr< types::ndarray<T, N>, S... >(base_array, slices);
 
+                Py_INCREF(obj_ptr);
+                data->convertible=storage;
+            }
+        };
+    template<typename E>
+        struct python_to_pythran< types::numpy_texpr<E> > : basic_array_checks<typename E::dtype, E::value> {
+            typedef typename E::dtype T;
+            static constexpr size_t N = E::value;
+
+            python_to_pythran(){
+                static bool registered=false;
+                python_to_pythran<T>();
+                if(not registered) {
+                    registered=true;
+                    boost::python::converter::registry::push_back(&convertible,&construct,boost::python::type_id< types::numpy_texpr<E> >());
+                }
+            }
+            //reinterpret_cast needed to fit BOOST Python API. Check is done by template and PyArray_Check
+            static void* convertible(PyObject* obj_ptr){
+                PyArrayObject* arr_ptr =  python_to_pythran::check_array_type_and_dims(obj_ptr);
+                if(not arr_ptr)
+                    return nullptr;
+
+                // check strides. Note that because it's a texpr, the check is done in the opposite direction compared to ndarrays
+                auto const * stride = PyArray_STRIDES(arr_ptr);
+                auto const * dims = PyArray_DIMS(arr_ptr);
+                long current_stride = PyArray_ITEMSIZE(arr_ptr);
+                for(size_t i=0; i<N; i++)
+                {
+                    if(stride[i] != current_stride) {
+                        return nullptr;
+                    }
+                    current_stride *= dims[i];
+                }
+
+                if(PyArray_FLAGS(arr_ptr) & NPY_ARRAY_F_CONTIGUOUS && N > 1)
+                  return obj_ptr;
+                else
+                  return nullptr;
+            }
+
+            static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
+                void* storage=((boost::python::converter::rvalue_from_python_storage<types::ndarray<T,N>>*)(data))->storage.bytes;
+                PyArrayObject* arr_ptr = reinterpret_cast<PyArrayObject*>(obj_ptr);
+                std::array<long, N> shape;
+                auto const * dims = PyArray_DIMS(arr_ptr);
+                for(size_t i = 0; i < N; ++i)
+                  shape[i] = dims[N - 1 - i];
+                types::ndarray< T, N> base_array((T*)PyArray_BYTES(arr_ptr), shape.data(), obj_ptr);
+                new (storage) types::numpy_texpr< types::ndarray<T, N> >(base_array);
                 Py_INCREF(obj_ptr);
                 data->convertible=storage;
             }

@@ -212,9 +212,9 @@ namespace pythonic {
                 array<long, value> shape;
                 array<long, value> lower;
                 array<long, value> step;
-                array<long, std::remove_reference<Arg>::type::value - value> indices;
+                static_assert(std::remove_reference<Arg>::type::value >= value, "indexing does not generate an empty array");
+                array<long, 1 + std::remove_reference<Arg>::type::value - value> indices;
 
-                numpy_gexpr() {}
                 numpy_gexpr(numpy_gexpr const & ) = default;
                 numpy_gexpr(numpy_gexpr && ) = default;
 
@@ -283,7 +283,7 @@ namespace pythonic {
                 // >>> a = numpy.arange(2*3*4).reshape(2,3,4)
                 // >>> a[:, 1]
                 // the last dimension (4) is missing from slice information
-                // Finally, if origin expression was already sliced, lower bound and step have to 
+                // Finally, if origin expression was already sliced, lower bound and step have to
                 // be increased
                 numpy_gexpr(Arg const &arg, std::tuple<S const &...> const& values) : arg(arg), buffer(arg.buffer) {
                     init_shape(values, std::get<0>(values), utils::int_<sizeof...(S)>(), utils::int_<0>());

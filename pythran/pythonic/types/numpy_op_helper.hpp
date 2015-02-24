@@ -9,6 +9,9 @@ namespace pythonic {
 
 namespace types {
 
+template<class T, size_t N> struct ndarray;
+template<class T> class list;
+
 
 template<class T0, class... Types>
 struct all_valid_arg {
@@ -27,6 +30,14 @@ template<class T>
 struct any_numexpr_arg<T> {
   static constexpr bool value = is_numexpr_arg<T>::value;
 };
+template<class T0, class... Types>
+struct any_array {
+  static constexpr bool value = is_array<T0>::value or any_array<Types...>::value;
+};
+template<class T>
+struct any_array<T> {
+  static constexpr bool value = is_array<T>::value;
+};
 
 template<class... Types>
 struct valid_numexpr_parameters {
@@ -35,11 +46,16 @@ struct valid_numexpr_parameters {
 
 
 template<class T0, class T1,
-         bool numexprarg = valid_numexpr_parameters<T0, T1>::value,
-         bool T0_scalar = std::is_scalar<T0>::value or is_complex<T0>::value,
-         bool T1_scalar = std::is_scalar<T1>::value or is_complex<T1>::value>
+         bool numexprarg = valid_numexpr_parameters<typename std::remove_cv<typename std::remove_reference<T0>::type>::type,
+                                                    typename std::remove_cv<typename std::remove_reference<T1>::type>::type
+                                                   >::value,
+         bool T0_scalar = std::is_scalar<typename std::remove_reference<T0>::type>::value or is_complex<typename std::remove_reference<T0>::type>::value,
+         bool T1_scalar = std::is_scalar<typename std::remove_reference<T1>::type>::value or is_complex<typename std::remove_reference<T1>::type>::value>
 struct the_common_type {
-  using type = typename std::conditional < T0::value<T1::value, T1, T0>::type;
+  using type = typename std::conditional <std::remove_reference<T0>::type::value< std::remove_reference<T1>::type::value,
+                                          T1,
+                                          T0
+                                         >::type;
 };
 template<class T0, class T1>
 struct the_common_type<T0, T1, true, false, true> {
@@ -49,16 +65,7 @@ template<class T0, class T1>
 struct the_common_type<T0, T1, true, true, false> {
   using type = T1;
 };
-/*
-template<class T0, class T1>
-struct the_common_type<T0, T1, true, true, true> {
-  using type = broadcast<int,int>; // should never happen
-};
-template<class T0, class T1, bool b0, bool b1>
-struct the_common_type<T0, T1, false, b0, b1> {
-  using type = broadcast<int,int>; // should never happen
-};
-*/
+
 template<class T0, class T1, bool b0, bool b1>
 struct the_common_type<T0, T1, false, b0, b1> {
   using type = T0; // keep the first one! It's important for the type adaptation to avoid type promotion
@@ -88,25 +95,36 @@ struct common_type<T0, T1, Types...> {
 /* An adapted type creates a type that has the same shape as C and the same dtype as T
  * to the exception of broadcasted constants that may take the dtype of C instead
  */
+template<class T> struct is_array_reference : std::integral_constant<bool, false> {};
+template<class T, size_t N> struct is_array_reference<ndarray<T,N> const &> : std::integral_constant<bool, true> {};
+template<class T, size_t N> struct is_array_reference<ndarray<T,N> &> : std::integral_constant<bool, true> {};
+template<class T> struct is_array_reference<list<T> const &> : std::integral_constant<bool, true> {};
+template<class T> struct is_array_reference<list<T> &> : std::integral_constant<bool, true> {};
+
 template<class T, class C, bool same, bool scalar> struct adapated_type;
 template<class T, class C, bool scalar>
 struct adapated_type<T,C, true, scalar> {
-  using type = T;
+  using type = typename std::conditional<is_array_reference<T>::value,
+                                         T,
+                                         typename std::remove_cv<typename std::remove_reference<T>::type>::type
+                                        >::type;
 };
 template<class T, class C>
 struct adapated_type<T,C, false, true> {
-  using type = broadcast<typename C::dtype, T>;
+  using type = broadcast<typename std::remove_reference<C>::type::dtype, typename std::remove_cv<typename std::remove_reference<T>::type>::type>;
 };
 template<class T, class C>
 struct adapated_type<T,C, false, false> {
-  using type = broadcasted<T>;
+  using type = broadcasted<typename std::remove_cv<typename std::remove_reference<T>::type>::type>;
 };
 
 template <class T, class... OtherTypes>
 struct adapt_type {
+  using T_raw = typename std::remove_cv<typename std::remove_reference<T>::type>::type;
   using ctype = typename common_type<T, OtherTypes...>::type;
-  static constexpr bool isdtype = std::is_scalar<T>::value or is_complex<T>::value;
-  using type = typename adapated_type<T, ctype, std::is_same<T, ctype>::value, isdtype>::type;
+  using ctype_raw = typename std::remove_cv<typename std::remove_reference<ctype>::type>::type;
+  static constexpr bool isdtype = std::is_scalar<T_raw>::value or is_complex<T_raw>::value;
+  using type = typename adapated_type<T, ctype, std::is_same<T_raw, ctype_raw>::value, isdtype>::type;
 };
 
 /* A reshaped type create a type that has the same shape as C and the same dtype as T

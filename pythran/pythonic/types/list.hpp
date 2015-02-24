@@ -390,13 +390,21 @@ namespace pythonic {
                 list<T> operator+(empty_list const &) const {
                     return list<T>(begin(), end());
                 }
-                list<T> operator*(long t) const {
+                list<T> operator*(long t) const & {
                     const size_t n = t;
                     list<T> r(data->size()*n);
                     auto start = r.begin();
-                    for(size_t i=0;i<n;i++, start+=data->size()) 
+                    for(size_t i=0;i<n;i++, start+=data->size())
                         std::copy(this->begin(), this->end(),start);
                     return r;
+                }
+                list<T> operator*(long t) && {
+                    const size_t n = t, old_size = data->size();
+                    data->reserve(n * old_size);
+                    auto beg = data->begin(), end = data->end();
+                    for(size_t i=1;i<n;i++)
+                      data->insert(data->end(), beg, end);
+                    return *this;
                 }
 
                 template <class F>
@@ -480,6 +488,7 @@ namespace pythonic {
             operator bool() const { return false; }
             template<class T>
                 operator list<T>() const { return list<T>(0); }
+            long size() const { return 0; }
         };
 
 
@@ -603,6 +612,15 @@ struct __combined<indexable_container<K,V>, pythonic::types::empty_list> {
 
 template <class K, class V>
 struct __combined<pythonic::types::empty_list, indexable_container<K,V>> {
+    typedef pythonic::types::list<V> type;
+};
+template <class V>
+struct __combined<pythonic::types::list<V>, pythonic::types::empty_list> {
+    typedef pythonic::types::list<V> type;
+};
+
+template <class V>
+struct __combined<pythonic::types::empty_list, pythonic::types::list<V>> {
     typedef pythonic::types::list<V> type;
 };
 

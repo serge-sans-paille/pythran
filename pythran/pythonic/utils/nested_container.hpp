@@ -8,6 +8,7 @@
 namespace pythonic {
     namespace types {
       template<class T> class list;
+      struct empty_list;
       template<class T, size_t N> struct array;
     }
 
@@ -26,6 +27,10 @@ namespace pythonic {
         template<class T>
             struct nested_container_depth {
                 static const int value = nested_container_depth_helper<T, types::is_array<T>::value>::value;
+            };
+        template<>
+            struct nested_container_depth<types::empty_list> {
+                static const int value = 0;
             };
         template<class T>
             struct nested_container_depth<types::list<T>> {
@@ -63,6 +68,10 @@ namespace pythonic {
                                >::flat_size(*t.begin());
                 }
             };
+        template<>
+            struct nested_container_size<types::empty_list> {
+              static size_t flat_size(types::empty_list const&) { return 0; }
+            };
         /* Recursion stops on bool */
         template<>
             struct nested_container_size<bool> {
@@ -81,6 +90,10 @@ namespace pythonic {
         template<class T>
             struct nested_container_value_type {
               using type = typename nested_container_value_type_helper<T, types::is_array<T>::value>::type;
+            };
+        template<>
+            struct nested_container_value_type<types::empty_list> {
+              using type = void;
             };
         template<class T>
             struct nested_container_value_type<types::list<T>> {

@@ -28,14 +28,14 @@ namespace pythonic {
                 typedef decltype(Op()(std::declval<typename std::remove_reference<Args>::type::value_type>()...)) value_type;
                 typedef decltype(Op()(std::declval<typename std::remove_reference<Args>::type::dtype>()...)) dtype;
 
-                std::tuple<typename std::remove_reference<Args>::type...> args;
+                std::tuple<Args...> args;
                 array<long, value> shape;
 
                 numpy_expr() {}
                 numpy_expr(numpy_expr const&) = default;
                 numpy_expr(numpy_expr &&) = default;
 
-                numpy_expr(Args const &...args) : args(args...), shape(std::get<utils::max_element<Args::value...>::index>(this->args).shape) {
+                numpy_expr(Args ...args) : args(args...), shape(std::get<utils::max_element<std::remove_reference<Args>::type::value...>::index>(this->args).shape) {
                 }
 
                 iterator begin() const { return iterator(*this, 0); }
@@ -141,6 +141,15 @@ struct __combined<container<K>, pythonic::types::numpy_expr<Op, Args...>> {
 
 template<class Op, class K, class... Args>
 struct __combined<pythonic::types::numpy_expr<Op, Args...>, container<K>> {
+    typedef pythonic::types::numpy_expr<Op, Args...> type;
+};
+
+template<class Op, class... Args>
+struct __combined<pythonic::types::numpy_expr<Op, Args...>, pythonic::types::empty_list> {
+    typedef pythonic::types::numpy_expr<Op, Args...> type;
+};
+template<class Op, class... Args>
+struct __combined<pythonic::types::empty_list, pythonic::types::numpy_expr<Op, Args...>> {
     typedef pythonic::types::numpy_expr<Op, Args...> type;
 };
 

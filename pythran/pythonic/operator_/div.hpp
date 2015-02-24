@@ -11,8 +11,8 @@ namespace pythonic {
 
     namespace operator_ {
         template <class A, class B>
-            auto div(A const& a, B const& b) -> decltype(a/b) {
-                return a/b;
+            auto div(A && a, B && b) -> decltype(std::forward<A>(a)/std::forward<B>(b)) {
+                return std::forward<A>(a)/std::forward<B>(b);
             }
         DEFINE_ALL_OPERATOR_OVERLOADS(div,/)
         PROXY(pythonic::operator_, div);

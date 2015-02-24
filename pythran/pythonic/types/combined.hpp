@@ -13,15 +13,15 @@ typename std::enable_if< pythonic::types::is_callable<T>::value, T>::type operat
 
 /* } */
 
-/* specialize remove_cv */                                                      
-namespace std {                                                                 
+/* specialize remove_cv */
+namespace std {
 
-    template <class K, class V>                                                 
-        struct remove_cv< std::pair<const K, V> > {                             
-            typedef std::pair<K, V> type;                                       
-        };                                                                      
+    template <class K, class V>
+        struct remove_cv< std::pair<const K, V> > {
+            typedef std::pair<K, V> type;
+        };
 }
-/* specialize remove_cv */                                                      
+/* specialize remove_cv */
 
 
 /* type inference stuff
@@ -34,7 +34,13 @@ struct __combined {
 
 template<class T0, class T1>
 struct __combined<T0,T1> {
-    typedef decltype(std::declval<T0>()+std::declval<T1>()) type;
+#if 0
+    typedef typename std::enable_if<(std::is_scalar<T0>::value or pythonic::types::is_complex<T0>::value) and (std::is_scalar<T1>::value or pythonic::types::is_complex<T1>::value),
+                                    decltype(std::declval<T0>()+std::declval<T1>())
+                                   >::type type;
+#else
+    using type = decltype(std::declval<T0>()+std::declval<T1>());
+#endif
 };
 
 template<class T0, class T1>

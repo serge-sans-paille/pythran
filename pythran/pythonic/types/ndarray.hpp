@@ -617,7 +617,7 @@ namespace pythonic {
         /* } */
         template<class T>
           list<T>& list<T>::operator=(ndarray<T, 1> const & other) {
-            data=utils::shared_ref<T>(other.begin(),other.end());
+            data=utils::shared_ref<container_type>(other.begin(),other.end());
             return *this;
           }
     }

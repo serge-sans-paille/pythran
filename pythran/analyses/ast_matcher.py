@@ -129,11 +129,11 @@ class Check(NodeVisitor):
             - If if is a node, recursively check it.
             - Otherwise, check values are equal.
         """
-        is_good_list = (isinstance(pattern_field, list)
-                        and self.check_list(node_field, pattern_field))
-        is_good_node = (isinstance(pattern_field, AST)
-                        and Check(node_field,
-                                  self.placeholders).visit(pattern_field))
+        is_good_list = (isinstance(pattern_field, list) and
+                        self.check_list(node_field, pattern_field))
+        is_good_node = (isinstance(pattern_field, AST) and
+                        Check(node_field,
+                              self.placeholders).visit(pattern_field))
         is_same = pattern_field == node_field
         return is_good_list or is_good_node or is_same
 
@@ -145,9 +145,9 @@ class Check(NodeVisitor):
             - type match
             - all field match
         """
-        return (isinstance(pattern, type(self.node))
-                and all(self.field_match(value, getattr(pattern, field))
-                        for field, value in iter_fields(self.node)))
+        return (isinstance(pattern, type(self.node)) and
+                all(self.field_match(value, getattr(pattern, field))
+                    for field, value in iter_fields(self.node)))
 
 
 class ASTMatcher(NodeVisitor):

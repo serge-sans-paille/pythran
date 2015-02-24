@@ -193,8 +193,8 @@ class ArgumentReadOnce(ModuleAnalysis):
                 func_aliases = reduce(
                     lambda x, y: x + (
                         self.node_to_functioneffect.keys()  # all functions
-                        if (isinstance(y, ast.Name)
-                            and self.argument_index(y) >= 0)
+                        if (isinstance(y, ast.Name) and
+                            self.argument_index(y) >= 0)
                         else [y]),
                     func_aliases,
                     list())

@@ -218,9 +218,9 @@ class RangeValues(FunctionAnalysis):
         res = self.visit(node.operand)
         if isinstance(node.op, ast.Not):
             return Range(0, 1)
-        elif (isinstance(node.op, ast.Invert)
-              and isinstance(res.high, int)
-              and isinstance(res.low, int)):
+        elif(isinstance(node.op, ast.Invert) and
+             isinstance(res.high, int) and
+             isinstance(res.low, int)):
             return Range(~res.high, ~res.low)
         elif isinstance(node.op, ast.UAdd):
             return res

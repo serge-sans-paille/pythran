@@ -31,12 +31,12 @@ def extract_constructed_types(t):
         return [pytype_to_ctype(t)] + extract_constructed_types(list(t)[0])
     elif isinstance(t, dict):
         tkey, tvalue = t.items()[0]
-        return ([pytype_to_ctype(t)]
-                + extract_constructed_types(tkey)
-                + extract_constructed_types(tvalue))
+        return ([pytype_to_ctype(t)] +
+                extract_constructed_types(tkey) +
+                extract_constructed_types(tvalue))
     elif isinstance(t, tuple):
-        return ([pytype_to_ctype(t)]
-                + sum(map(extract_constructed_types, t), []))
+        return ([pytype_to_ctype(t)] +
+                sum(map(extract_constructed_types, t), []))
     elif t == long:
         return [pytype_to_ctype(t)]
     elif t == str:
@@ -339,8 +339,8 @@ class Types(ModuleAnalysis):
     def visit_BinOp(self, node):
         self.generic_visit(node)
         wl, wr = [self.result[x].isweak() for x in (node.left, node.right)]
-        if (isinstance(node.op, ast.Add) and any([wl, wr])
-                and not all([wl, wr])):
+        if(isinstance(node.op, ast.Add) and any([wl, wr]) and
+           not all([wl, wr])):
             # assumes the + operator always has the same operand type
             # on left and right side
             F = operator.add
@@ -462,8 +462,8 @@ class Types(ModuleAnalysis):
         Also visit subnodes as they may contains relevant typing information.
         """
         self.generic_visit(node)
-        if node.step is None or (isinstance(node.step, ast.Num)
-                                 and node.step.n == 1):
+        if node.step is None or (isinstance(node.step, ast.Num) and
+                                 node.step.n == 1):
             self.result[node] = NamedType('pythonic::types::contiguous_slice')
         else:
             self.result[node] = NamedType('pythonic::types::slice')
@@ -479,9 +479,9 @@ class Types(ModuleAnalysis):
                     return "{0}({1})".format(a, ", ".join(b))
                 dim_types = [self.result[d] for d in node.slice.dims]
                 return ExpressionType(et, [t] + dim_types)
-        elif (type(node.slice) is (ast.Index)
-                and type(node.slice.value) is ast.Num
-                and node.slice.value.n >= 0):
+        elif (type(node.slice) is (ast.Index) and
+              type(node.slice.value) is ast.Num and
+              node.slice.value.n >= 0):
             # type of a[2] is the type of an elements of a
             # this special case is to make type inference easier
             # for the back end compiler

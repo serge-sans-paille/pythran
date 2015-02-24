@@ -49,8 +49,8 @@ class LoopFullUnrolling(Transformation):
             issmall = total_count < LoopFullUnrolling.MAX_NODE_COUNT
             if isvalid and issmall:
                 def unroll(elt):
-                    return ([ast.Assign([deepcopy(node.target)], elt)]
-                            + deepcopy(node.body))
+                    return ([ast.Assign([deepcopy(node.target)], elt)] +
+                            deepcopy(node.body))
                 self.update = True
                 return reduce(list.__add__, map(unroll, node.iter.elts))
         return node

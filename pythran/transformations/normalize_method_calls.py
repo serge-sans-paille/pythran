@@ -85,8 +85,8 @@ class NormalizeMethodCalls(Transformation):
         # imported module -> not a getattr
         elif type(node.value) is ast.Name and node.value.id in self.imports:
             if node.attr not in MODULES[node.value.id]:
-                msg = ("`" + node.attr + "' is not a member of "
-                       + node.value.id + " or Pythran does not support it")
+                msg = ("`" + node.attr + "' is not a member of " +
+                       node.value.id + " or Pythran does not support it")
                 raise PythranSyntaxError(msg, node)
             return node
         # not listed as attributed -> not a getattr

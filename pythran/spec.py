@@ -52,9 +52,9 @@ class SpecParser:
         'complex64': 'COMPLEX64',
         'complex128': 'COMPLEX128',
         }
-    tokens = (['IDENTIFIER', 'SHARP', 'COMMA', 'COLUMN', 'LPAREN', 'RPAREN']
-              + list(reserved.values())
-              + ['LARRAY', 'RARRAY'])
+    tokens = (['IDENTIFIER', 'SHARP', 'COMMA', 'COLUMN', 'LPAREN', 'RPAREN'] +
+              list(reserved.values()) +
+              ['LARRAY', 'RARRAY'])
 
     # token <> regexp binding
     t_SHARP = r'\#'

@@ -38,8 +38,8 @@ class ConstantFolding(Transformation):
                 import_name = module_name
 
                 # handle module name conflicting with c++ keywords
-                if (module_name.endswith("_")
-                        and module_name[:-1] in cxx_keywords):
+                if(module_name.endswith("_") and
+                   module_name[:-1] in cxx_keywords):
                     import_name = module_name[:-1]
                 self.env[module_name] = __import__(import_name)
 
@@ -71,8 +71,8 @@ class ConstantFolding(Transformation):
                 code = compile(fake_node, '<constant folding>', 'eval')
                 value = eval(code, self.env)
                 new_node = to_ast(value)
-                if (isinstance(node, ast.Index)
-                        and not isinstance(new_node, ast.Index)):
+                if(isinstance(node, ast.Index) and
+                   not isinstance(new_node, ast.Index)):
                     new_node = ast.Index(new_node)
                 try:
                     if not ASTMatcher(node).search(new_node):

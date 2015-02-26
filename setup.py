@@ -44,7 +44,7 @@ class BuildWithPly(build):
         nt2_dir = 'nt2'
         if not os.path.isdir(nt2_dir):
             print('nt2 git repository not setup, cloning it')
-            cmd = 'git clone https://github.com/MetaScale/nt2.git -b release'
+            cmd = 'git clone https://github.com/NumScale/nt2.git -b release'
             check_call(cmd.split())
         else:
             cmd = 'git fetch && git checkout origin/release'

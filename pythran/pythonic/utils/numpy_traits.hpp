@@ -26,6 +26,8 @@ namespace pythonic {
 
         template<class T>
             class list;
+        template<class T, size_t N>
+            struct array;
 
         template<class T>
             struct is_ndarray {
@@ -78,6 +80,10 @@ namespace pythonic {
           };
         template<class T>
           struct is_numexpr_arg<list<T>> {
+            static constexpr bool value = true;
+          };
+        template<class T, size_t N>
+          struct is_numexpr_arg<array<T,N>> {
             static constexpr bool value = true;
           };
     }

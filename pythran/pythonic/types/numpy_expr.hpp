@@ -11,6 +11,31 @@ namespace pythonic {
         template<class Expr, class... Slice>
             struct numpy_gexpr;
 
+        /* hook for array -> they don't have a shape member
+         * Should disappear after PB's harmonization of shape()
+         */
+        template<class T>
+          auto get_shape(T const& t) -> decltype(t.shape)
+          {
+            return t.shape;
+          }
+        template<class T>
+          void _get_shape(long* out, T const& curr, utils::int_<1>) {
+            *out = curr.size();
+          }
+        template<class T, size_t N>
+          void _get_shape(long* out, T const& curr, utils::int_<N>) {
+            *out = curr.size();
+            _get_shape(out + 1, curr[0], utils::int_<N-1>{});
+          }
+        template<class T, size_t N>
+           array<long, array<T,N>::value> get_shape(array<T,N> const& t) {
+             array<long, array<T,N>::value> out;
+             _get_shape(out.begin(), t, utils::int_<array<T,N>::value>{});
+             return out;
+           }
+
+
         /* Expression template for numpy expressions - binary operators
          */
         template<class Op, class... Args>
@@ -35,7 +60,7 @@ namespace pythonic {
                 numpy_expr(numpy_expr const&) = default;
                 numpy_expr(numpy_expr &&) = default;
 
-                numpy_expr(Args const &...args) : args(args...), shape(std::get<utils::max_element<Args::value...>::index>(this->args).shape) {
+                numpy_expr(Args const &...args) : args(args...), shape(get_shape(std::get<utils::max_element<Args::value...>::index>(this->args))) {
                 }
 
                 iterator begin() const { return iterator(*this, 0); }

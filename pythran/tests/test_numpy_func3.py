@@ -244,4 +244,21 @@ def np_trim_zeros2(x):
     def test_negative_mod(self):
         self.run_test("def np_negative_mod(a): return a % 5", numpy.array([-1, -5, -2, 7]), np_negative_mod=[numpy.array([int])])
 
+    def test_binary_op_list0(self):
+        self.run_test("def np_binary_op_list0(n): return n + [1,2,3]", numpy.array([4,5,6]), np_binary_op_list0=[numpy.array([int])])
+
+    def test_binary_op_list1(self):
+        self.run_test("def np_binary_op_list1(n): return [1,2,3] + n", numpy.array([4,5,6]), np_binary_op_list1=[numpy.array([int])])
+
+    def test_binary_op_list2(self):
+        self.run_test("def np_binary_op_list2(n): return [[1],[2],[3]] + n", numpy.array([[4],[5],[6]]), np_binary_op_list2=[numpy.array([[int]])])
+
+    def test_binary_op_array0(self):
+        self.run_test("def np_binary_op_array0(n): return n + (1,2,3)", numpy.array([4,5,6]), np_binary_op_array0=[numpy.array([int])])
+
+    def test_binary_op_array1(self):
+        self.run_test("def np_binary_op_array1(n): return (1,2,3) + n", numpy.array([4,5,6]), np_binary_op_array1=[numpy.array([int])])
+
+    def test_binary_op_array2(self):
+        self.run_test("def np_binary_op_array2(n): return ((1,2,3),) + n", numpy.array([[4,5,6]]), np_binary_op_array2=[numpy.array([[int]])])
 

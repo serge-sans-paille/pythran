@@ -27,7 +27,7 @@ namespace pythonic {
         types::str binary_repr(long number, long width) {
             types::str out = binary_repr(std::abs(number));
             if(number>=0) {
-                return base_repr(std::abs(number), 2, width - out.size());
+                return base_repr(number, 2, width - out.size());
             }
             else {
                 char * mem = new char[width+1];

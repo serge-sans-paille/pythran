@@ -490,6 +490,11 @@ namespace pythonic {
                     return numpy_gexpr<ndarray const &, contiguous_slice>(*this, s);
                 }
 
+                size_t size() const
+                {
+                    return shape[0];
+                }
+
                 /* extended slice indexing */
                 template<class S0, class ...S>
                     auto operator()(S0 const& s0, S const&... s) const
@@ -617,6 +622,7 @@ namespace pythonic {
         /* } */
         template<class T>
           list<T>& list<T>::operator=(ndarray<T, 1> const & other) {
+            shape=other.shape;
             data=utils::shared_ref<T>(other.begin(),other.end());
             return *this;
           }

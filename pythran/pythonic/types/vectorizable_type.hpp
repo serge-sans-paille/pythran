@@ -12,6 +12,7 @@ namespace numpy {
   namespace proxy {
     struct angle_in_rad;
     struct asarray_chkfinite;
+    struct clip;
     struct fix;
     struct isfinite;
     struct isinf;
@@ -59,6 +60,7 @@ template<class O>
                               // conditional processing doesn't permit SIMD
                               not std::is_same<O, numpy::proxy::nan_to_num>::value and
                               not std::is_same<O, numpy::proxy::asarray_chkfinite>::value and
+                              not std::is_same<O, numpy::proxy::clip>::value and
                               not std::is_same<O, numpy::proxy::where>::value
                               ;
   };

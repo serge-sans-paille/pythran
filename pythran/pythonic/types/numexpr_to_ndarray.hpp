@@ -10,9 +10,11 @@ namespace pythonic {
         template<class T, size_t N>
             struct ndarray;
         template<class T>
-            struct is_numexpr_arg;
+            class list;
+        template<class T, size_t N>
+            struct array;
         template<class T>
-            struct list;
+            struct is_numexpr_arg;
 
 /*
          * 3 informations are available:
@@ -26,6 +28,12 @@ namespace pythonic {
             struct numpy_expr_to_ndarray {
                 typedef typename E::dtype T;
                 static const size_t N = E::value;
+                typedef ndarray<T, N> type;
+            };
+        template <class L, size_t M, class _>
+            struct numpy_expr_to_ndarray<array<L, M>, _> {
+                typedef typename utils::nested_container_value_type<array<L, M>>::type T;
+                static const size_t N = utils::nested_container_depth<array<L, M>>::value;
                 typedef ndarray<T, N> type;
             };
         template <class L, class _>

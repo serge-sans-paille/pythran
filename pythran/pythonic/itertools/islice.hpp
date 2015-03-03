@@ -11,9 +11,9 @@ namespace pythonic {
     namespace itertools {
         template <typename Iterable>
             struct islice_iterator : std::iterator< typename Iterable::iterator::iterator_category, typename Iterable::iterator::value_type > {
+                __builtin__::xrange xr_ref;
                 typename std::remove_reference<typename std::remove_cv<Iterable>::type>::type iterable_ref;
                 typename std::remove_reference<typename std::remove_cv<Iterable>::type>::type::iterator iterable;
-                __builtin__::xrange xr_ref;
                 __builtin__::xrange_iterator state;
                 __builtin__::xrange_iterator::value_type prev;
 

@@ -49,7 +49,7 @@ namespace pythonic {
 
                     permutations_iterator() {}
                     permutations_iterator(std::vector<typename T::value_type> const& iter,
-                            int num_elts,
+                            size_t num_elts,
                             bool end) :
                         pool(iter), curr_permut(__builtin__::range(pool.size())), _size(num_elts), end(end)
                     {
@@ -61,7 +61,7 @@ namespace pythonic {
                     /** Build the permutation visible from the "outside" */
                     types::list<typename T::value_type> operator*() const {
                         types::list<typename T::value_type> res(_size);
-                        for(int i =0; i<_size; i++)
+                        for(size_t i =0; i<_size; i++)
                         {
                             res[i] = pool[curr_permut[i]]; // Ok because types::list is indeed a vector
                         }

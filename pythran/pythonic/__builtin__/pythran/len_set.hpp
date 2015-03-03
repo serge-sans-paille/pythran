@@ -10,7 +10,7 @@ namespace pythonic {
         namespace pythran {
 
             template <class Iterable>
-                size_t len_set(Iterable const& s) {
+                long len_set(Iterable const& s) {
                     return std::set<typename Iterable::iterator::value_type>(s.begin(), s.end()).size();
                 }
 

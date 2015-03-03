@@ -56,7 +56,7 @@ namespace pythonic {
             {
                 if(end!=other.end)
                     return end>other.end;
-                for(int i=0; i<iterable.size(); i++)
+                for(long i = 0, n = iterable.size(); i< n; i++)
                     if(other.curr_permut[i] < curr_permut[i])
                         return false;
                     else if(other.curr_permut[i] > curr_permut[i])

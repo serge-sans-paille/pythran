@@ -6,6 +6,13 @@
 #include "pythonic/types/content_of.hpp"
 #include "pythonic/types/traits.hpp"
 #include "pythonic/utils/int_.hpp"
+#include "pythonic/utils/nested_container.hpp"
+
+#ifdef USE_BOOST_SIMD
+#include <boost/simd/sdk/simd/native.hpp>
+#include <boost/simd/include/functions/load.hpp>
+#include <boost/simd/include/functions/store.hpp>
+#endif
 
 
 #include <tuple>
@@ -42,7 +49,7 @@ std::tuple<Types0..., Types1...> operator+(std::tuple<Types0...> && t0, std::tup
 
 /* hashable tuples, as proposed in http://stackoverflow.com/questions/7110301/generic-hash-for-tuples-in-unordered-map-unordered-set */
 namespace {
-    size_t hash_combiner(size_t left, size_t right) //replacable
+    inline size_t hash_combiner(size_t left, size_t right) //replacable
     { return left^right;}
 
     template<size_t index, class...types>
@@ -68,7 +75,7 @@ namespace pythonic {
 
     namespace types {
         template<class T>
-            struct list; // forward declared for array slicing
+            class list; // forward declared for array slicing
 
         template<class T, size_t N>
             struct array;
@@ -110,6 +117,21 @@ namespace pythonic {
                 typedef std::ptrdiff_t difference_type;
                 typedef std::reverse_iterator<iterator> reverse_iterator;
                 typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+
+                // minimal ndarray interface
+                typedef typename utils::nested_container_value_type<array>::type dtype;
+                static const size_t value = utils::nested_container_depth<array>::value;
+                static const bool is_vectorizable = true;
+                static const bool is_strided = false;
+
+                template<class E> long _flat_size(E const& e, utils::int_<1>) const {
+                  return N;
+                }
+                template<class E, size_t L> long _flat_size(E const& e, utils::int_<L>) const {
+                  return N * _flat_size(e[0], utils::int_<L-1>{});
+                }
+                long flat_size() const { return _flat_size(*this, utils::int_<value>{}); }
+
 
                 // Support for zero-sized arrays mandatory.
                 value_type buffer[N ? N : 1];
@@ -180,6 +202,20 @@ namespace pythonic {
                     empty() const noexcept { return size() == 0; }
 
                 // Element access.
+                reference fast(long n) { return buffer[n];}
+                constexpr const_reference fast(long n) const noexcept { return buffer[n];}
+#ifdef USE_BOOST_SIMD
+                auto load(long i) const -> decltype(boost::simd::load<boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>>(&buffer[0],i))
+                {
+                    return boost::simd::load<boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>>(&buffer[0],i);
+                }
+                template<class V>
+                void store(V &&v, long i) {
+                  typedef typename boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION> vT;
+                  boost::simd::store<vT>(v, &buffer[0], i);
+                }
+#endif
+
                 reference
                     operator[](size_type __n)
                     { return buffer[__n]; }

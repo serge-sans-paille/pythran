@@ -131,7 +131,7 @@ namespace pythonic {
 #ifdef USE_BOOST_SIMD
                 template<class I> // template to prevent automatic instantiation when the type is not vectorizable
                 void load(I) const {
-                  typedef typename I::this_should_never_happen omg;
+                  static_assert(I::this_should_never_happen, "this is *not* vectorizable");
                 }
 #endif
                 auto operator[](long i) const -> decltype(this->fast(i))

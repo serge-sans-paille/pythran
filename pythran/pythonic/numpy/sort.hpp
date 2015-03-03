@@ -34,7 +34,7 @@ namespace pythonic {
                 const long step = std::accumulate(out.shape.begin() + axis,
                                                   out.shape.end(), 1L,
                                                   std::multiplies<long>());
-                for(size_t i=0; i < out.flat_size() / out.shape[axis] * step; i += step)
+                for(long i=0; i < out.flat_size() / out.shape[axis] * step; i += step)
                 {
                     std::vector<T> to_sort;
                     T* iter = out.buffer + (i%out.flat_size() + i/out.flat_size());

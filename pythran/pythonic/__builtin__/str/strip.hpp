@@ -12,7 +12,7 @@ namespace pythonic { namespace __builtin__  {
             if(not self)
                 return self;
             auto first = self.find_first_not_of(to_del);
-            if(first == types::str::npos)
+            if(first == -1)
                 return types::str();
             else {
             return types::str(self.begin() + first, self.begin() + self.find_last_not_of(to_del)+ 1);

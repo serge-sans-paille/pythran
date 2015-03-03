@@ -246,6 +246,9 @@ class TryExcept(Generable):
 
 class If(Generable):
     def __init__(self, condition, then_, else_=None):
+        if condition[0] == '(' and condition[-1] == ')':
+            condition = condition[1:-1]
+
         self.condition = condition
 
         assert isinstance(then_, Generable)
@@ -281,6 +284,8 @@ class Loop(Generable):
 
 class While(Loop):
     def __init__(self, condition, body):
+        if condition[0] == '(' and condition[-1] == ')':
+            condition = condition[1:-1]
         self.condition = condition
         assert isinstance(body, Generable)
         self.body = body

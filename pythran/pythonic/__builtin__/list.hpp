@@ -12,10 +12,10 @@ namespace pythonic {
 
     namespace __builtin__ {
     namespace {
-        types::empty_list list() {
+        inline types::empty_list list() {
             return types::empty_list();
         }
-        types::empty_list list(types::empty_list) {
+        inline types::empty_list list(types::empty_list) {
             return types::empty_list();
         }
 

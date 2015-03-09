@@ -218,16 +218,17 @@ namespace pythonic {
          *
          */
         template<class T, size_t N>
-            struct ndarray {
-                static const bool is_vectorizable = types::is_vectorizable<T>::value;
-                static const bool is_strided = false;
+            struct ndarray : public ArrayLike<T, N, types::is_vectorizable<T>::value, false, typename type_helper<ndarray<T, N>>::type>
+            {
+                using parent = ArrayLike<T,
+                                         N,
+                                         types::is_vectorizable<T>::value,
+                                         false,
+                                         typename type_helper<ndarray>::type
+                                        >;
 
                 /* types */
-                static constexpr size_t value = N;
-                typedef T dtype;
-                typedef typename type_helper<ndarray>::type value_type;
-                typedef value_type& reference;
-                typedef value_type const & const_reference;
+                typedef typename parent::value_type const & const_reference;
 
                 typedef typename type_helper<ndarray>::iterator iterator;
                 typedef typename type_helper<ndarray>::const_iterator const_iterator;
@@ -237,10 +238,9 @@ namespace pythonic {
                 /* members */
                 utils::shared_ref<raw_array<T>> mem;    // shared data pointer
                 T* buffer;                              // pointer to the first data stored in the equivalent flat array
-                array<long, N> shape;                   // shape of the multidimensional array
 
                 /* constructors */
-                ndarray() : mem(utils::no_memory()), buffer(nullptr), shape() {}
+                ndarray() : parent(), mem(utils::no_memory()), buffer(nullptr) {}
                 ndarray(ndarray const & ) = default;
                 ndarray(ndarray && ) = default;
 
@@ -249,27 +249,27 @@ namespace pythonic {
 
                 /* from other memory */
                 ndarray(utils::shared_ref<raw_array<T>> const &mem, array<long,N> const& shape):
+                    parent(shape),
                     mem(mem),
-                    buffer(mem->data),
-                    shape(shape)
+                    buffer(mem->data)
                 {
                 }
 
                 /* from other array */
                 template<class Tp, size_t Np>
                     ndarray(ndarray<Tp, Np> const& other):
+                        parent(other.shape),
                         mem(other.flat_size()),
-                        buffer(mem->data),
-                        shape(other.shape)
+                        buffer(mem->data)
                 {
                     std::copy(other.fbegin(), other.fend(), fbegin());
                 }
 
                 /* from a seed */
                 ndarray(array<long, N> const& shape, none_type init ):
+                    parent(shape),
                     mem(std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<long>())),
-                    buffer(mem->data),
-                    shape(shape)
+                    buffer(mem->data)
                 {
                 }
                 ndarray(array<long, N> const& shape, T init ): ndarray(shape, none_type())
@@ -280,11 +280,11 @@ namespace pythonic {
                 /* from a foreign pointer */
                 template <class S>
                 ndarray(T* data, S const* pshape):
+                    parent(),
                     mem(data),
-                    buffer(mem->data),
-                    shape()
+                    buffer(mem->data)
                 {
-                    std::copy(pshape, pshape + N, shape.begin());
+                    std::copy(pshape, pshape + N, parent::shape.begin());
                 }
 
 #ifdef ENABLE_PYTHON_MODULE
@@ -303,41 +303,41 @@ namespace pythonic {
                     void>::type
                         >
                         ndarray(Iterable&& iterable):
+                            parent(),
                             mem(utils::nested_container_size<Iterable>::flat_size(std::forward<Iterable>(iterable))),
-                            buffer(mem->data),
-                            shape()
+                            buffer(mem->data)
                 {
-                    type_helper<ndarray>::initialize_from_iterable(shape, mem->data, std::forward<Iterable>(iterable));
+                    type_helper<ndarray>::initialize_from_iterable(parent::shape, mem->data, std::forward<Iterable>(iterable));
                 }
 
                 /* from a  numpy expression */
                 template<class E>
                     void initialize_from_expr(E const & expr) {
-                        utils::broadcast_copy<ndarray&, E, value, 0, is_vectorizable and E::is_vectorizable>(*this, expr);
+                        utils::broadcast_copy<ndarray&, E, parent::value, 0, parent::is_vectorizable and E::is_vectorizable>(*this, expr);
                     }
 
                 template<class Op, class... Args>
                     ndarray(numpy_expr<Op, Args...> const & expr) :
+                        parent(expr.shape),
                         mem(expr.flat_size()),
-                        buffer(mem->data),
-                        shape(expr.shape)
+                        buffer(mem->data)
                 {
                     initialize_from_expr(expr);
                 }
 
                 template<class Arg>
                     ndarray(numpy_texpr<Arg> const & expr) :
+                        parent(expr.shape),
                         mem(expr.flat_size()),
-                        buffer(mem->data),
-                        shape(expr.shape)
+                        buffer(mem->data)
                 {
                     initialize_from_expr(expr);
                 }
                 template<class Arg>
                     ndarray(numpy_texpr_2<Arg> const & expr) :
+                        parent(expr.shape),
                         mem(expr.flat_size()),
-                        buffer(mem->data),
-                        shape(expr.shape)
+                        buffer(mem->data)
                 {
                     initialize_from_expr(expr);
                 }
@@ -345,27 +345,27 @@ namespace pythonic {
 
                 template<class Arg, class... S>
                     ndarray(numpy_gexpr<Arg, S...> const & expr) :
+                        parent(expr.shape),
                         mem(expr.flat_size()),
-                        buffer(mem->data),
-                        shape(expr.shape)
+                        buffer(mem->data)
                 {
                     initialize_from_expr(expr);
                 }
 
                 template<class Arg>
                     ndarray(numpy_iexpr<Arg> const & expr) :
+                        parent(expr.shape),
                         mem(expr.flat_size()),
-                        buffer(mem->data),
-                        shape(expr.shape)
+                        buffer(mem->data)
                 {
                     initialize_from_expr(expr);
                 }
 
                 template<class Arg, class F>
                     ndarray(numpy_fexpr<Arg, F> const & expr) :
+                        parent(expr.shape),
                         mem(expr.flat_size()),
-                        buffer(mem->data),
-                        shape(expr.shape)
+                        buffer(mem->data)
                 {
                     initialize_from_expr(expr);
                 }
@@ -410,12 +410,12 @@ namespace pythonic {
 
                 auto operator[](long i) const & -> decltype(this->fast(i))
                 {
-                    if(i<0) i += shape[0];
+                    if(i<0) i += parent::shape[0];
                     return fast(i);
                 }
                 auto operator[](long i) && -> decltype(std::move(*this).fast(i))
                 {
-                    if(i<0) i += shape[0];
+                    if(i<0) i += parent::shape[0];
                     return std::move(*this).fast(i);
                 }
                 auto operator()(long i) const & -> decltype((*this)[i])
@@ -430,11 +430,11 @@ namespace pythonic {
 
                 T const &operator[](array<long, N> const& indices) const
                 {
-                  return *(buffer+noffset<N-1>{}(shape, indices));
+                  return *(buffer+noffset<N-1>{}(parent::shape, indices));
                 }
                 T& operator[](array<long, N> const& indices)
                 {
-                  return *(buffer+noffset<N-1>{}(shape, indices));
+                  return *(buffer+noffset<N-1>{}(parent::shape, indices));
                 }
 
                 template<size_t M>
@@ -464,7 +464,7 @@ namespace pythonic {
                 ndarray<T, N + 1> operator[](none_type) const {
                   array<long, N + 1> new_shape;
                   new_shape[0] = 1;
-                  std::copy(shape.begin(), shape.end(), new_shape.begin() + 1);
+                  std::copy(parent::shape.begin(), parent::shape.end(), new_shape.begin() + 1);
                   return reshape(new_shape);
                 }
                 auto operator()(none_type const& n) const -> decltype((*this)[n]) {
@@ -492,7 +492,7 @@ namespace pythonic {
 
                 size_t size() const
                 {
-                    return shape[0];
+                    return parent::shape[0];
                 }
 
                 /* extended slice indexing */
@@ -538,8 +538,8 @@ namespace pythonic {
                 /* through iterators */
                 iterator begin() { return type_helper<ndarray>::make_iterator(*this, 0); }
                 const_iterator begin() const { return type_helper<ndarray>::make_iterator(*this, 0); }
-                iterator end() { return type_helper<ndarray>::make_iterator(*this, shape[0]); }
-                const_iterator end() const { return type_helper<ndarray>::make_iterator(*this, shape[0]); }
+                iterator end() { return type_helper<ndarray>::make_iterator(*this, parent::shape[0]); }
+                const_iterator end() const { return type_helper<ndarray>::make_iterator(*this, parent::shape[0]); }
 
                 const_flat_iterator fbegin() const { return buffer; }
                 const_flat_iterator fend() const { return buffer + flat_size(); }
@@ -547,7 +547,7 @@ namespace pythonic {
                 flat_iterator fend() { return buffer + flat_size(); }
 
                 /* member functions */
-                size_t flat_size() const { return std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<size_t>()); }
+                size_t flat_size() const { return std::accumulate(parent::shape.begin(), parent::shape.end(), 1, std::multiplies<size_t>()); }
                 template<size_t M>
                     ndarray<T,M> reshape(array<long,M> const& shape) const {
                         return ndarray<T, M>(mem, shape);
@@ -556,7 +556,7 @@ namespace pythonic {
                     return ndarray<T, 1>(mem, array<long, 1>{{static_cast<long>(flat_size())}});
                 }
                 ndarray<T,N> copy() const {
-                    ndarray<T,N> res(shape, __builtin__::None);
+                    ndarray<T,N> res(parent::shape, __builtin__::None);
                     std::copy(fbegin(), fend(), res.fbegin());
                     return res;
                 }

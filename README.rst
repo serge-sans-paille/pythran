@@ -75,7 +75,7 @@ ArchLinux
 
 Using `yaourt`::
 
-    $> sudo yaourt -S python2-pythran-git
+    $> yaourt -S python2-pythran-git
 
 Other Platform
 ==============

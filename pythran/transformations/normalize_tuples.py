@@ -1,5 +1,6 @@
 """ NormalizeTuples removes implicit variable -> tuple conversion. """
 
+from pythran.analyses import Identifiers
 from pythran.passmanager import Transformation
 
 import ast
@@ -31,21 +32,30 @@ class NormalizeTuples(Transformation):
 
     >>> import ast
     >>> from pythran import passmanager, backend
-    >>> node = ast.parse("a=(1,2.) ; i,j = a")
+    >>> node = ast.parse("def foo(): a=(1,2.) ; i,j = a")
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(NormalizeTuples, node)
     >>> print pm.dump(backend.Python, node)
-    a = (1, 2.0)
-    if 1:
-        __tuple10 = a
-        i = __tuple10[0]
-        j = __tuple10[1]
+    def foo():
+        a = (1, 2.0)
+        __tuple0 = a
+        i = __tuple0[0]
+        j = __tuple0[1]
     """
     tuple_name = "__tuple"
 
     def __init__(self):
-        self.counter = 0
         Transformation.__init__(self)
+
+    def get_new_id(self):
+        i = 0
+        while 1:
+            new_id = "{}{}".format(NormalizeTuples.tuple_name, i)
+            if new_id not in self.ids:
+                self.ids.add(new_id)
+                return new_id
+            else:
+                i += 1
 
     def traverse_tuples(self, node, state, renamings):
         if isinstance(node, ast.Name):
@@ -64,11 +74,7 @@ class NormalizeTuples(Transformation):
         renamings = dict()
         self.traverse_tuples(node.target, (), renamings)
         if renamings:
-            self.counter += 1
-            return ("{0}{1}".format(
-                NormalizeTuples.tuple_name,
-                self.counter),
-                renamings)
+            return self.get_new_id(), renamings
         else:
             return node
 
@@ -107,10 +113,7 @@ class NormalizeTuples(Transformation):
             renamings = dict()
             self.traverse_tuples(arg, (), renamings)
             if renamings:
-                self.counter += 1
-                nname = "{0}{1}".format(
-                    NormalizeTuples.tuple_name,
-                    self.counter)
+                nname = self.get_new_id()
                 node.args.args[i] = ast.Name(nname, ast.Param())
                 node.body = _ConvertToTuple(nname, renamings).visit(node.body)
         return node
@@ -123,11 +126,7 @@ class NormalizeTuples(Transformation):
                 renamings = dict()
                 self.traverse_tuples(t, (), renamings)
                 if renamings:
-                    self.counter += 1
-                    gtarget = "{0}{1}{2}".format(
-                        NormalizeTuples.tuple_name,
-                        self.counter,
-                        i)
+                    gtarget = self.get_new_id()
                     node.targets[i] = ast.Name(gtarget, node.targets[i].ctx)
                     for rename, state in sorted(renamings.iteritems()):
                         nnode = reduce(
@@ -144,9 +143,7 @@ class NormalizeTuples(Transformation):
                                     nnode))
                         else:
                             extra_assign.append(ast.Assign([rename], nnode))
-        return (ast.If(ast.Num(1), extra_assign, [])
-                if len(extra_assign) > 1
-                else extra_assign)
+        return extra_assign
 
     def visit_For(self, node):
         target = node.target
@@ -154,11 +151,7 @@ class NormalizeTuples(Transformation):
             renamings = dict()
             self.traverse_tuples(target, (), renamings)
             if renamings:
-                self.counter += 1
-                gtarget = "{0}{1}".format(
-                    NormalizeTuples.tuple_name,
-                    self.counter
-                    )
+                gtarget = self.get_new_id()
                 node.target = ast.Name(gtarget, node.target.ctx)
                 for rename, state in sorted(renamings.iteritems()):
                     nnode = reduce(
@@ -179,3 +172,7 @@ class NormalizeTuples(Transformation):
 
         self.generic_visit(node)
         return node
+
+    def visit_FunctionDef(self, node):
+        self.ids = self.passmanager.gather(Identifiers, node, self.ctx)
+        return self.generic_visit(node)

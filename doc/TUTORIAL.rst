@@ -93,13 +93,13 @@ there is no tuple unpacking in Pythran, so Pythran provides an adequate
 transformation::
 
   >>> from pythran import transformations
-  >>> tree = ast.parse("a,b = 1,3.5")
+  >>> tree = ast.parse("def foo(): a,b = 1,3.5")
   >>> _ = pm.apply(transformations.NormalizeTuples, tree)  # in-place
   >>> print pm.dump(backend.Python, tree)
-  if 1:
-      __tuple10 = (1, 3.5)
-      a = __tuple10[0]
-      b = __tuple10[1]
+  def foo():
+      __tuple0 = (1, 3.5)
+      a = __tuple0[0]
+      b = __tuple0[1]
 
 Note that Pythran wraps the sequence of assignment into a dummy if condition.
 This ensures that a single instruction from the input code maps to a single

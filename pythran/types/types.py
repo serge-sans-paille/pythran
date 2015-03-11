@@ -11,7 +11,7 @@ from pythran.cxxtypes import NamedType, ContainerType, PType, Assignable, Lazy
 from pythran.cxxtypes import ExpressionType, IteratorContentType, ReturnType
 from pythran.cxxtypes import GetAttr, DeclType, ElementType, IndexableType
 from pythran.cxxtypes import Weak, ListType, SetType, DictType, TupleType
-from pythran.cxxtypes import ArgumentType
+from pythran.cxxtypes import ArgumentType, Returnable
 from pythran.intrinsic import UserFunction, MethodIntr, Class
 from pythran.passmanager import ModuleAnalysis
 from pythran.tables import operator_to_lambda, MODULES
@@ -261,7 +261,7 @@ class Types(ModuleAnalysis):
         self.current_global_declarations[node.name] = node
         # return type may be unset if the function always raises
         return_type = self.result.get(node, NamedType("void"))
-        self.result[node] = (Assignable(return_type), self.typedefs)
+        self.result[node] = (Returnable(return_type), self.typedefs)
         for k in self.passmanager.gather(LocalDeclarations, node):
             self.result[k] = self.get_qualifier(k)(self.result[k])
 

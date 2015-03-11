@@ -45,7 +45,7 @@ namespace pythonic {
               for (i = vN; i < bound; i += vN)
                 Op{}(vacc, e.load(i));
               alignas(sizeof(vT)) T stored[vN];
-              boost::simd::store<vT>(vacc, &stored[0]);
+              boost::simd::store(vacc, &stored[0]);
               for(size_t j=0; j<vN; ++j)
                 Op{}(acc, stored[j]);
             }

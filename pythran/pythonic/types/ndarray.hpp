@@ -455,8 +455,7 @@ namespace pythonic {
                 }
                 template<class V>
                 void store(V &&v, long i) {
-                  typedef typename boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION> vT;
-                  boost::simd::store<vT>(v, buffer, i);
+                  boost::simd::store(v, buffer, i);
                 }
 #endif
 

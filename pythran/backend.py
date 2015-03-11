@@ -147,7 +147,7 @@ class Cxx(Backend):
         ;
         struct type
         {
-          typedef typename pythonic::assignable<void>::type result_type;
+          typedef typename pythonic::returnable<void>::type result_type;
         }  ;
         typename type::result_type operator()() const;
         ;
@@ -917,7 +917,7 @@ class Cxx(Backend):
 
         Becomes
 
-        >> typename assignable<decltype(__builtin__.xrange(10))>::type __iterX
+        >> typename returnable<decltype(__builtin__.xrange(10))>::type __iterX
            = __builtin__.xrange(10);
         >> ... possible container size reservation ...
         >> for (typename decltype(__iterX)::iterator::reference i: __iterX)

@@ -352,6 +352,15 @@ namespace pythonic {
         struct assignable<pythonic::types::array<T,N> >{
             typedef pythonic::types::array<typename assignable<T>::type, N> type;
         };
+    template<class... Types>
+        struct returnable<std::tuple<Types...>>{
+            typedef std::tuple<typename returnable<Types>::type...> type;
+        };
+
+    template<class T, size_t N>
+        struct returnable<pythonic::types::array<T,N> >{
+            typedef pythonic::types::array<typename returnable<T>::type, N> type;
+        };
 
 }
 

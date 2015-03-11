@@ -549,6 +549,23 @@ namespace pythonic {
 
     }
     template<class Arg, class...S>
+        struct returnable<types::numpy_gexpr<Arg, S...>>
+        {
+            typedef types::numpy_gexpr<typename returnable<Arg>::type, S...> type;
+        };
+
+    template<class T, size_t N, class...S>
+        struct assignable<types::numpy_gexpr<types::ndarray<T,N> const &, S...>>
+        {
+            typedef types::numpy_gexpr<types::ndarray<T,N> const &, S...> type;
+        };
+    template<class T, size_t N, class...S>
+        struct assignable<types::numpy_gexpr<types::ndarray<T,N> &, S...>>
+        {
+            typedef types::numpy_gexpr<types::ndarray<T,N> &, S...> type;
+        };
+
+    template<class Arg, class...S>
         struct assignable<types::numpy_gexpr<Arg, S...>>
         {
             typedef types::numpy_gexpr<typename assignable<Arg>::type, S...> type;

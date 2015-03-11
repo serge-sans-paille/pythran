@@ -286,6 +286,22 @@ namespace pythonic {
         {
             typedef types::numpy_iexpr<typename assignable<Arg>::type> type;
         };
+    template<class T, size_t N>
+        struct assignable<types::numpy_iexpr<types::ndarray<T,N> &>>
+        {
+            typedef types::numpy_iexpr<types::ndarray<T,N> &> type;
+        };
+    template<class T, size_t N>
+        struct assignable<types::numpy_iexpr<types::ndarray<T,N> const &>>
+        {
+            typedef types::numpy_iexpr<types::ndarray<T,N> const &> type;
+        };
+
+    template<class Arg>
+        struct returnable<types::numpy_iexpr<Arg>>
+        {
+            typedef types::numpy_iexpr<typename returnable<Arg>::type> type;
+        };
     template<class Arg>
         struct lazy<types::numpy_iexpr<Arg>>
         {

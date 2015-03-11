@@ -227,6 +227,23 @@ class Assignable(DependentType):
             self.of.generate(ctx))
 
 
+class Returnable(DependentType):
+    """
+    A type which can be returned
+
+    It is used to make the difference between
+    * returned types (that cannot hold a reference to avoid dangling reference)
+    * assignable types (local to a function)
+
+    >>> Returnable(NamedType("long"))
+    typename pythonic::returnable<long>::type
+    """
+
+    def generate(self, ctx):
+        return 'typename pythonic::returnable<{0}>::type'.format(
+            self.of.generate(ctx))
+
+
 class Lazy(DependentType):
     """
     A type which can be a reference

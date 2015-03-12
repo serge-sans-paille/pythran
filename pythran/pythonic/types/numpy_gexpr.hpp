@@ -583,6 +583,22 @@ namespace pythonic {
         };
 
 }
+/* type inference stuff  {*/
+#include "pythonic/types/combined.hpp"
+
+template<class Arg, class... S>
+struct __combined<pythonic::types::numpy_gexpr<Arg,S...>, pythonic::types::numpy_gexpr<Arg,S...>> {
+  using type = pythonic::types::numpy_gexpr<Arg,S...>;
+};
+
+template<class Arg, class... S, class O>
+struct __combined<pythonic::types::numpy_gexpr<Arg,S...>, O> {
+  using type = pythonic::types::numpy_gexpr<Arg,S...>;
+};
+template<class Arg, class... S, class O>
+struct __combined<O, pythonic::types::numpy_gexpr<Arg,S...>> {
+  using type = pythonic::types::numpy_gexpr<Arg,S...>;
+};
 
 
 #endif

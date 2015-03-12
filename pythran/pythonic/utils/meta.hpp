@@ -6,6 +6,8 @@ namespace pythonic {
 namespace utils {
 
 template<bool... V> struct all_of;
+template<> struct all_of<> : std::integral_constant<bool, true> {};
+
 template<bool V0, bool... V> struct all_of<V0, V...> {
   static constexpr bool value = V0 and all_of<V...>::value;
 };

@@ -374,10 +374,12 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
 
 def compile_pythranfile(file_path, module_so=None, module_name=None,
                         cpponly=False, **kwargs):
-    '''Pythran file -> c++ file -> native module
+    """
+    Pythran file -> c++ file -> native module.
+
     Returns the generated .so (or .cpp if `cpponly` is set to true).
 
-    '''
+    """
     if not module_so:
         # derive module name from input file name
         basedir, basename = os.path.split(file_path)
@@ -390,8 +392,11 @@ def compile_pythranfile(file_path, module_so=None, module_name=None,
         _, basename = os.path.split(module_so)
         module_name = module_name or os.path.splitext(basename)[0]
 
-    dl = compile_pythrancode(module_name, file(file_path).read(),
-                             module_so=module_so, cpponly=cpponly, **kwargs)
+    # Add compiled module path to search for imported modules
+    sys.path.append(os.path.dirname(file_path))
+
+    compile_pythrancode(module_name, file(file_path).read(),
+                        module_so=module_so, cpponly=cpponly, **kwargs)
     return module_so
 
 

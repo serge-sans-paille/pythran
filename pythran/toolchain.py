@@ -192,7 +192,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
 
         # verify the pythran export are compatible with the code
         specs = expand_specs(specs)
-        check_specs(ir, specs)
+        check_specs(ir, specs, renamings)
 
         mod = BoostPythonModule(module_name)
         mod.use_private_namespace = False

@@ -18,50 +18,73 @@ namespace pythonic {
             types::list<typename T::value_type> /*no ref*/
                                           >
         {
-            std::vector<typename T::value_type> iterable;
-            std::vector<bool> curr_permut;
-            bool end;
+            std::vector<typename T::value_type> pool;
+            std::vector<long> indices;
+            long r;
+            bool stopped;
+            types::list<typename T::value_type> result;
+
             combination_iterator() {}
-            combination_iterator(std::vector<typename T::value_type> const& iter, int num_elts, bool end) : iterable(iter), end(end)
+            template<class Iter>
+            combination_iterator(Iter && pool, long r) :
+              pool(pool.begin(), pool.end()), indices(r), r(r), stopped(r > long(this->pool.size()))
             {
-                curr_permut.resize(iterable.size());
-                std::fill(curr_permut.begin() + num_elts, curr_permut.end(), true);
+              assert(r >= 0 and "r must be non-negative");
+              if(not stopped) {
+                std::iota(indices.begin(), indices.end(), 0);
+                result = types::list<typename T::value_type>(this->pool.begin(), this->pool.begin() + r);
+              }
+            }
+            combination_iterator(bool) :
+              stopped(true)
+            {
             }
             types::list<typename T::value_type> operator*() const {
-                types::list<typename T::value_type> res(0);
-                int i=0;
-                for(auto const& iter : iterable)
-                {
-                    if(!curr_permut[i++])
-                        res.push_back(iter);
-                }
-                return res;
+              assert(not stopped && "not stopped");
+              return {result.begin(), result.end()};
             }
             combination_iterator& operator++()
             {
-                end = std::next_permutation(curr_permut.begin(), curr_permut.end());
+                /* Scan indices right-to-left until finding one that is not
+                   at its maximum (i + n - r). */
+                long i, n = pool.size();
+                for (i = r - 1; i >= 0 && indices[i] == i + n - r; i--)
+                  ;
+
+                /* If i is negative, then the indices are all at
+                   their maximum value and we're done. */
+                if (i < 0)
+                  stopped = true;
+                else {
+                  /* Increment the current index which we know is not at its
+                     maximum.  Then move back to the right setting each index
+                     to its lowest possible value (one higher than the index
+                     to its left -- this maintains the sort order invariant). */
+                  indices[i]++;
+                  for (long j = i + 1; j < r; j++)
+                    indices[j] = indices[j - 1] + 1;
+
+                  /* Update the result tuple for the new indices
+                     starting with i, the leftmost index that changed */
+                  for (; i < r; i++) {
+                    result[i] = pool[indices[i]];
+                  }
+                }
                 return *this;
             }
             bool operator!=(combination_iterator const& other) const
             {
-                return !(*this==other);
+              assert(stopped or other.stopped);
+              return !(*this==other);
             }
             bool operator==(combination_iterator const& other) const
             {
-                if(other.end != end)
-                    return false;
-                return std::equal(curr_permut.begin(), curr_permut.end(), other.curr_permut.begin());
+              assert(stopped or other.stopped);
+              return other.stopped == stopped;
             }
             bool operator<(combination_iterator const& other) const
             {
-                if(end!=other.end)
-                    return end>other.end;
-                for(long i = 0, n = iterable.size(); i< n; i++)
-                    if(other.curr_permut[i] < curr_permut[i])
-                        return false;
-                    else if(other.curr_permut[i] > curr_permut[i])
-                        return true;
-                return false;
+              return stopped!=other.stopped;
             }
         };
 
@@ -69,9 +92,10 @@ namespace pythonic {
             struct _combination: combination_iterator<T> {
                 typedef T value_type;
                 typedef combination_iterator<T> iterator;
-                size_t num_elts;
+                long num_elts;
                 _combination() {}
-                _combination(T iter, int elts): iterator(std::vector<typename T::value_type>(iter.begin(), iter.end()), elts, true), num_elts(elts){}
+                template<class Iter>
+                _combination(Iter&& iter, long elts): iterator(std::forward<Iter>(iter), elts), num_elts(elts){}
                 iterator const& begin() const {
                     return *this;
                 }
@@ -79,12 +103,12 @@ namespace pythonic {
                     return *this;
                 }
                 iterator end() const {
-                    return combination_iterator<T>(combination_iterator<T>::iterable, num_elts, false);
+                    return combination_iterator<T>(true);
                 }
             };
 
         template <typename T0>
-            _combination<T0> combinations(T0 iter, int num_elts) {
+            _combination<T0> combinations(T0 iter, long num_elts) {
                 return _combination<T0>(iter, num_elts);
             }
 

@@ -54,7 +54,20 @@ know_pattern = [
          keywords=[], starargs=None, kwargs=None)),
     # X * X => X ** 2
     (ast.BinOp(left=Placeholder(0), op=ast.Mult(), right=Placeholder(0)),
-     lambda: ast.BinOp(left=Placeholder(0), op=ast.Pow(), right=ast.Num(n=2)))]
+     lambda: ast.BinOp(left=Placeholder(0), op=ast.Pow(), right=ast.Num(n=2))),
+    # a + "..." + b => "...".join((a, b))
+    (ast.BinOp(left=ast.BinOp(left=Placeholder(0),
+                              op=ast.Add(),
+                              right=ast.Str(Placeholder(1))),
+               op=ast.Add(),
+               right=Placeholder(2)),
+     lambda: ast.Call(func=ast.Attribute(
+         ast.Attribute(ast.Name('__builtin__', ast.Load()), 'str', ast.Load()),
+         'join', ast.Load()),
+         args=[ast.Str(Placeholder(1)),
+               ast.Tuple([Placeholder(0), Placeholder(2)], ast.Load())],
+         keywords=[], starargs=None, kwargs=None)),
+]
 
 
 class PlaceholderReplace(Transformation):

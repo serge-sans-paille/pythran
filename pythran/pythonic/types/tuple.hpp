@@ -19,14 +19,15 @@
 #include <algorithm>
 
 namespace std {
-    template<class F, class S>
-        bool operator==(pair<F,S> const& self, tuple<F,S> const& other) {
+    template<class F0, class S0, class F1, class S1>
+        bool operator==(pair<F0,S0> const& self, tuple<F1,S1> const& other) {
             return self.first == get<0>(other) and self.second == get<1>(other);
         }
-    template<class F, class S>
-        bool operator==(pair<const F,S> const& self, tuple<F,S> const& other) {
+    template<class F0, class S0, class F1, class S1>
+        bool operator==(pair<const F0,S0> const& self, tuple<F1,S1> const& other) {
             return self.first == get<0>(other) and self.second == get<1>(other);
         }
+
 }
 
 template<class... Types0, class... Types1>
@@ -79,6 +80,7 @@ namespace pythonic {
 
         template<class T, size_t N>
             struct array;
+        struct str;
 
         template<size_t I>
             struct to_tuple_impl {
@@ -294,22 +296,55 @@ namespace pythonic {
                 }
             };
 
+        namespace details {
+
+        template <class... Types> struct alike;
+        template <> struct alike<> {
+          static bool const value = false;
+          using type = void;
+        };
+        template <class T> struct alike<T> {
+          static bool const value = true;
+          using type =
+              typename std::remove_cv<typename std::remove_reference<T>::type>::type;
+        };
+        template <class T0, class T1> struct alike<T0, T1> {
+          static bool const value = std::is_same<T0, T1>::value;
+          using type = typename std::conditional<value, T0, void>::type;
+        };
+
+        // specialization to make static string alike types::str
+        template <size_t N> struct alike<char [N], str> {
+          static bool const value = true;
+          using type = str;
+        };
+        template <size_t N> struct alike<str, char [N]> {
+          static bool const value = true;
+          using type = str;
+        };
+        template <size_t N, size_t M> struct alike<char[M], char [N]> {
+          static bool const value = true;
+          using type = str;
+        };
+        template<class T, size_t N, class... Types>
+          struct alike<std::tuple<Types...>, array<T,N>> {
+            static bool const value = sizeof...(Types) == N and alike<T, typename std::remove_cv<typename std::remove_reference<Types>::type>::type...>::value;
+            using type = typename std::conditional<value, typename alike<T, typename std::remove_cv<typename std::remove_reference<Types>::type>::type...>::type, void>::type;
+          };
+        template<class T, size_t N, class... Types>
+          struct alike<array<T,N>, std::tuple<Types...>> : alike<std::tuple<Types...>, array<T,N>> {
+          };
+
+        template <class T, class... Types> struct alike<T, Types...> {
+          static bool const value = alike<Types...>::value and
+                                    alike<T, typename alike<Types...>::type>::value;
+          using type = typename alike<T, typename alike<Types...>::type>::type;
+        };
+        }
+
         template<class... Types>
-            struct are_same;
-        template<>
-            struct are_same<> {
-                static bool const value = false;
-            };
-        template<class T>
-            struct are_same<T> {
-                static bool const value = true;
-                typedef typename std::remove_cv<typename std::remove_reference<T>::type>::type type;
-            };
-        template<class T, class... Types>
-            struct are_same<T, Types...> {
-                static bool const value = are_same<Types...>::value and std::is_same<typename std::remove_cv<typename std::remove_reference<T>::type>::type, typename are_same<Types...>::type>::value;
-                typedef typename std::remove_cv<typename std::remove_reference<T>::type>::type type;
-            };
+          struct alike : details::alike<typename std::remove_cv<typename std::remove_reference<Types>::type>::type...> {
+          };
 
         template<bool Same, class... Types>
             struct _make_tuple {
@@ -319,15 +354,18 @@ namespace pythonic {
             };
         template<class... Types>
             struct _make_tuple<true, Types...> {
-                types::array<typename are_same<Types...>::type, sizeof...(Types)> operator()(Types &&... types) {
-                    typedef typename are_same<Types...>::type T;
+                types::array<typename alike<Types...>::type, sizeof...(Types)>
+                operator()(Types &&... types) {
+                    typedef typename alike<Types...>::type T;
                     return types::array<T, sizeof...(Types)>{{std::forward<Types>(types)...}};
                 }
             };
 
+
         template<class... Types>
-            auto make_tuple(Types&&... types) -> decltype(_make_tuple<are_same<Types...>::value, Types...>()(std::forward<Types>(types)...)) {
-                return _make_tuple<are_same<Types...>::value, Types...>()(std::forward<Types>(types)...);
+            auto make_tuple(Types&&... types)
+            -> decltype(_make_tuple<alike<Types...>::value, Types...>()(std::forward<Types>(types)...)) {
+                return _make_tuple<alike<Types...>::value, Types...>()(std::forward<Types>(types)...);
             }
 
         template<class T, size_t N, class... Types>

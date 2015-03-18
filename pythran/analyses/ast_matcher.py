@@ -2,6 +2,7 @@
 
 from ast import AST, iter_fields, NodeVisitor, Dict, Set
 from itertools import permutations
+from math import isnan
 
 MAX_UNORDERED_LENGTH = 10
 
@@ -134,7 +135,14 @@ class Check(NodeVisitor):
         is_good_node = (isinstance(pattern_field, AST) and
                         Check(node_field,
                               self.placeholders).visit(pattern_field))
-        is_same = pattern_field == node_field
+
+        def strict_eq(f0, f1):
+            try:
+                return f0 == f1 or (isnan(f0) and isnan(f1))
+            except TypeError:
+                return f0 == f1
+
+        is_same = strict_eq(pattern_field, node_field)
         return is_good_list or is_good_node or is_same
 
     def generic_visit(self, pattern):

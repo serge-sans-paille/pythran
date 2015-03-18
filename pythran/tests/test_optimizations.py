@@ -3,6 +3,10 @@ from test_env import TestEnv
 
 class TestOptimization(TestEnv):
 
+    def test_constant_fold_nan(self):
+        code = "def constant_fold_nan(a): from numpy import nan; a[0] = nan; return a"
+        self.run_test(code, [1., 2.], constant_fold_nan=[[float]])
+
     def test_genexp(self):
         self.run_test("def test_genexp(n): return sum((x*x for x in xrange(n)))", 5, test_genexp=[int])
 

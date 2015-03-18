@@ -14,6 +14,7 @@ class PythranSyntaxError(SyntaxError):
     def __init__(self, msg, node=None):
         SyntaxError.__init__(self, msg)
         if node:
+            self.filename = getattr(node, 'filename', None)
             self.lineno = node.lineno
             self.offset = node.col_offset
 

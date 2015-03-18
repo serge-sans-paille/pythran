@@ -91,6 +91,9 @@ namespace pythonic {
             explicit operator bool() const {return size() > 0;}
             bool operator!() const { return not bool();}
 
+            size_t find(str const &s, size_t pos = 0) const;
+            bool contains(str const& v) const { return find(v) != std::string::npos; }
+
             // io
             friend  std::ostream& operator<<(std::ostream& os, types::sliced_str<S> const & v) {
                 for(auto b = v.begin(); b != v.end(); ++b)
@@ -120,9 +123,9 @@ namespace pythonic {
             str(const char*s, size_t n) : data(s,n) {}
             str(char c) : data(1,c) {}
             template<class S>
-            str(sliced_str<S> const & other) : data( other.begin(), other.end()) {}
+            str(sliced_str<S> const & other) : data(other.begin(), other.end()) {}
             template<class T>
-                str(T const& begin, T const& end) : data( begin, end) {}
+                str(T const& begin, T const& end) : data(begin, end) {}
 
             explicit operator char() const {
                 assert(size() == 1);
@@ -317,18 +320,31 @@ namespace pythonic {
             std::copy(s.begin(), s.end(), std::copy(begin(), end(), out.begin()));
             return out;
         }
+        template<class S>
+        size_t sliced_str<S>::find(str const &s, size_t pos) const {
+          return str(*this).find(s); // quite inefficient
+        }
 
         str operator+(str const& self, str const& other) {
             return str(self.get_data() + other.get_data());
         }
-
-        str operator+(str const& self, char const *s) {
-            return str(self.get_data() + s);
+        template<size_t N>
+        str operator+(str const& self, char const (&other)[N]) {
+          std::string s;
+          s.reserve(self.size() + N);
+          s += self.get_data();
+          s += other;
+          return std::move(s);
+        }
+        template<size_t N>
+        str operator+(char const (&self)[N], str const& other) {
+          std::string s;
+          s.reserve(other.size() + N);
+          s += self;
+          s += other.get_data();
+          return std::move(s);
         }
 
-        str operator+(char const *s, str const& other) {
-            return str(s + other.get_data());
-        }
         bool operator==(char c, str const& s) {
             return s.size() == 1 and s[0] == c;
         }
@@ -347,6 +363,18 @@ namespace pythonic {
 
     }
 
+
+}
+
+namespace pythonic {
+
+namespace operator_ {
+
+    template<size_t N, class Arg>
+    auto mod(const char (&fmt) [N], Arg&& arg) -> decltype(pythonic::types::str(fmt)%std::forward<Arg>(arg)) {
+      return pythonic::types::str(fmt)%std::forward<Arg>(arg);
+    }
+}
 
 }
 
@@ -485,6 +513,19 @@ namespace pythonic {
     };
 
 }
+/* type inference stuff  {*/
+#include "pythonic/types/combined.hpp"
+
+template <>
+struct __combined<char const *, pythonic::types::str> {
+    typedef pythonic::types::str type;
+};
+template <>
+struct __combined<pythonic::types::str, char const *> {
+    typedef pythonic::types::str type;
+};
+
+/* } */
 
 #endif
 

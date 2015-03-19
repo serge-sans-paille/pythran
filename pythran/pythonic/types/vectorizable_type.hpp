@@ -46,6 +46,12 @@ template<class T>
     static const bool value = std::is_fundamental<T>::value and not std::is_same<T, bool>::value;
   };
 
+/* trait to check if is T is an array-like type that supports vectorization
+ */
+template<class T, bool scalar = std::is_scalar<T>::value or is_complex<T>::value> struct is_vectorizable_array;
+template<class T> struct is_vectorizable_array<T, true> : std::integral_constant<bool, false> {};
+template<class T> struct is_vectorizable_array<T, false> : std::integral_constant<bool, T::is_vectorizable> {};
+
 template<class O>
   struct is_vector_op {
 

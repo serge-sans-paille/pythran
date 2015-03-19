@@ -106,13 +106,19 @@ namespace pythonic {
 }
 
 #include "pythonic/utils/proxy.hpp"
-#define PYTHONIC_EXCEPTION(name)\
+#define PYTHONIC_EXCEPTION_IMPL(name)\
     template<typename ... Types>\
 types::name name(Types ... args) {\
     return types::name(args ...);\
 }\
 \
-PROXY(pythonic::__builtin__, name);\
+PROXY_IMPL(pythonic::__builtin__, name);\
+
+#define PYTHONIC_EXCEPTION_DECL(name)\
+    template<typename ... Types>\
+types::name name(Types ... args);\
+\
+PROXY_DECL(pythonic::__builtin__, name);\
 
 /* pythran attribute system { */
 #define DECLARE_EXCEPTION_GETATTR(name)\

@@ -3,25 +3,32 @@
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/list.hpp"
+#include "pythonic/include/__builtin__/sorted.hpp"
 
 #include <algorithm>
 
 namespace pythonic {
 
     namespace __builtin__ {
+
         template <class Iterable>
-            types::list<typename std::remove_cv<typename Iterable::iterator::value_type>::type> sorted(Iterable const& seq) {
+            types::list<typename std::remove_cv<typename Iterable::iterator::value_type>::type>
+            sorted(Iterable const& seq)
+            {
                 types::list<typename std::remove_cv<typename Iterable::iterator::value_type>::type> out(seq.begin(), seq.end());
                 std::sort(out.begin(), out.end());
                 return out;
             }
         template <class Iterable, class C>
-            types::list<typename std::remove_cv<typename Iterable::iterator::value_type>::type> sorted(Iterable const& seq, C const& cmp) {
+            types::list<typename std::remove_cv<typename Iterable::iterator::value_type>::type>
+            sorted(Iterable const& seq, C const& cmp)
+            {
                 types::list<typename std::remove_cv<typename Iterable::iterator::value_type>::type> out(seq.begin(), seq.end());
                 std::sort(out.begin(), out.end(), cmp);
                 return out;
             }
-        PROXY(pythonic::__builtin__, sorted);
+
+        PROXY_IMPL(pythonic::__builtin__, sorted);
 
     }
 

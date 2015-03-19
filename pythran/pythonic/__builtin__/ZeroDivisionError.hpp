@@ -2,12 +2,13 @@
 #define PYTHONIC_BUILTIN_ZERODIVISIONERROR_HPP
 
 #include "pythonic/types/exceptions.hpp"
+#include "pythran/pythonic/include/__builtin__/ZeroDivisionError.hpp"
 
 namespace pythonic {
 
     namespace __builtin__ {
 
-        PYTHONIC_EXCEPTION(ZeroDivisionError)
+        PYTHONIC_EXCEPTION_IMPL(ZeroDivisionError)
 
     }
 

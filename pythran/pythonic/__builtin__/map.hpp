@@ -6,6 +6,7 @@
 #include "pythonic/types/list.hpp"
 #include "pythonic/__builtin__/len.hpp"
 #include "pythonic/types/tuple.hpp"
+#include "pythonic/include/__builtin__/map.hpp"
 
 #include <utility>
 
@@ -19,7 +20,8 @@ namespace pythonic {
             {
                 types::list< decltype(op(*seq.begin(), *iterators...)) > s(0);
                 s.reserve(len(seq));
-                for(auto const& iseq : seq) {
+                for(auto const& iseq : seq)
+                {
                     s.push_back(op(iseq, *iterators...));
                     utils::fwd(++iterators...);
                 }
@@ -28,12 +30,13 @@ namespace pythonic {
 
 
         template <typename List0, typename... Iterators>
-            auto _map(types::none_type, List0 && seq, Iterators... iterators) 
-            -> types::list< std::tuple< typename std::remove_reference<List0>::type::iterator::value_type,  typename Iterators::value_type... > >
+            types::list< std::tuple< typename std::remove_reference<List0>::type::iterator::value_type,  typename Iterators::value_type... > >
+            _map(types::none_type, List0 && seq, Iterators... iterators) 
             {
                 types::list< std::tuple< typename std::remove_reference<List0>::type::iterator::value_type,  typename Iterators::value_type... > > s(0);
                 s.reserve(len(seq));
-                for(auto const& iseq : seq) {
+                for(auto const& iseq : seq)
+                {
                     s.push_back(std::make_tuple( iseq, *iterators... ));
                     utils::fwd(++iterators...);
                 }
@@ -41,8 +44,8 @@ namespace pythonic {
             }
 
         template <typename List0>
-            auto _map(types::none_type, List0 && seq)
-            -> types::list< typename std::remove_reference<List0>::type::iterator::value_type >
+            types::list< typename std::remove_reference<List0>::type::iterator::value_type >
+            _map(types::none_type, List0 && seq)
             {
                 types::list< typename std::remove_reference<List0>::type::iterator::value_type > s(0);
                 s.reserve(len(seq));
@@ -58,7 +61,7 @@ namespace pythonic {
                 return _map(op, std::forward<List0>(seq), lists.begin()...);
             }
 
-        PROXY(pythonic::__builtin__,map);
+        PROXY_IMPL(pythonic::__builtin__,map);
 
     }
 

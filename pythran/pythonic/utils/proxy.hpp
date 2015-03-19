@@ -44,6 +44,7 @@
 #define PROXY_IMPL(ns,f) FPROXY_IMPL(ns, f, f)
 
 // create a function named `f' from function `g'
+#define ALIAS_DECL(f, g) template <class... Types> auto f(Types &&... args) -> decltype(g(std::forward<Types>(args)...));
 #define ALIAS(f, g) template <class... Types> auto f(Types &&... args) -> decltype(g(std::forward<Types>(args)...)) { return g(std::forward<Types>(args)...); }
 
 

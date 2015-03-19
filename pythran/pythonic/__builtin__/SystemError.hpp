@@ -2,12 +2,13 @@
 #define PYTHONIC_BUILTIN_SYSTEMERROR_HPP
 
 #include "pythonic/types/exceptions.hpp"
+#include "pythran/pythonic/include/__builtin__/SystemError.hpp"
 
 namespace pythonic {
 
     namespace __builtin__ {
 
-        PYTHONIC_EXCEPTION(SystemError)
+        PYTHONIC_EXCEPTION_IMPL(SystemError)
 
     }
 

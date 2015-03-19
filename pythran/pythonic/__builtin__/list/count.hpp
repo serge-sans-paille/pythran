@@ -1,18 +1,23 @@
-#ifndef PYTHONIC_LIST_COUNT_HPP
-#define PYTHONIC_LIST_COUNT_HPP
+#ifndef PYTHONIC_BUILTIN_LIST_COUNT_HPP
+#define PYTHONIC_BUILTIN_LIST_COUNT_HPP
 
 #include "pythonic/__dispatch__/count.hpp"
 
-namespace pythonic { namespace __builtin__  {
+#include "pythonic/include/__builtin__/list/count.hpp"
 
-    namespace list {
-        ALIAS(count, pythonic::__dispatch__::count);
-        PROXY(pythonic::__builtin__::list, count);
+namespace pythonic {
+
+    namespace __builtin__  {
+
+        namespace list {
+
+            ALIAS(count, pythonic::__dispatch__::count);
+
+            PROXY_IMPL(pythonic::__builtin__::list, count);
+        }
+
     }
-}
 
 }
+
 #endif
-
-
-

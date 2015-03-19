@@ -2,6 +2,7 @@
 #define PYTHONIC_BUILTIN_REDUCE_HPP
 
 #include "pythonic/utils/proxy.hpp"
+#include "pythonic/include/__builtin__/reduce.hpp"
 
 #include <algorithm>
 #include <utility>
@@ -13,7 +14,7 @@ namespace pythonic {
 
         template<class Iterable, class Operator>
             auto reduce(Operator op, Iterable s)
-            -> decltype( op( std::declval< typename Iterable::iterator::value_type >(), std::declval< typename Iterable::iterator::value_type >() ) )
+            -> decltype(op(std::declval< typename Iterable::iterator::value_type >(), std::declval< typename Iterable::iterator::value_type >()))
             {
                 auto iter = s.begin();
                 auto r = *iter;
@@ -29,7 +30,7 @@ namespace pythonic {
             {
                 return std::accumulate(s.begin(), s.end(), static_cast<decltype(op(init,std::declval<typename Iterable::iterator::value_type>()))>(init), op);
             }
-        PROXY(pythonic::__builtin__,reduce);
+        PROXY_IMPL(pythonic::__builtin__,reduce);
 
     }
 

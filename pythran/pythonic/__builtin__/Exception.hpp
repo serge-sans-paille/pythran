@@ -2,12 +2,13 @@
 #define PYTHONIC_BUILTIN_EXCEPTION_HPP
 
 #include "pythonic/types/exceptions.hpp"
+#include "pythonic/include/__builtin__/Exception.hpp"
 
 namespace pythonic {
 
     namespace __builtin__ {
 
-        PYTHONIC_EXCEPTION(Exception)
+        PYTHONIC_EXCEPTION_IMPL(Exception)
 
     }
 

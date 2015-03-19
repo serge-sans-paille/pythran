@@ -1,24 +1,30 @@
-#ifndef PYTHONIC_STR_ENDSWITH_HPP
-#define PYTHONIC_STR_ENDSWITH_HPP
+#ifndef PYTHONIC_BUILTIN_STR_ENDSWITH_HPP
+#define PYTHONIC_BUILTIN_STR_ENDSWITH_HPP
+
+#include "pythonic/include/__builtin__/str/endswith.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/str.hpp"
 
-namespace pythonic { namespace __builtin__  {
+namespace pythonic {
 
-    namespace str {
-        bool endswith(types::str const& s, types::str const& suffix, long start=0, size_t end=std::string::npos) {
-            if(end == std::string::npos)
-                end = s.size();
-            long rstart = end - suffix.size();
-            return rstart >= start and s.compare(rstart, suffix.size(), suffix) == 0;
+    namespace __builtin__  {
+
+        namespace str {
+
+            bool endswith(types::str const& s, types::str const& suffix, long start, size_t end)
+            {
+                if(end == std::string::npos)
+                    end = s.size();
+                long rstart = end - suffix.size();
+                return rstart >= start and s.compare(rstart, suffix.size(), suffix) == 0;
+            }
+
+            PROXY_IMPL(pythonic::__builtin__::str, endswith);
+
         }
-        PROXY(pythonic::__builtin__::str, endswith);
 
     }
 
 }
-
-}
 #endif
-

@@ -600,6 +600,16 @@ struct __combined<O, pythonic::types::numpy_gexpr<Arg,S...>> {
   using type = pythonic::types::numpy_gexpr<Arg,S...>;
 };
 
+/* combined are sorted such that the assigned type comes first */
+template<class Arg, class... S, class T, size_t N>
+struct __combined<pythonic::types::numpy_gexpr<Arg,S...>, pythonic::types::ndarray<T,N>> {
+  using type = pythonic::types::numpy_gexpr<Arg,S...>;
+};
+template<class Arg, class... S, class T, size_t N>
+struct __combined<pythonic::types::ndarray<T,N>, pythonic::types::numpy_gexpr<Arg,S...>> {
+  using type = pythonic::types::ndarray<T,N>;
+};
+
 
 #endif
 

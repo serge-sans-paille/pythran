@@ -295,6 +295,8 @@ class Types(ModuleAnalysis):
                     for alias in self.strict_aliases[t.value].aliases:
                         fake = ast.Subscript(alias, t.value, ast.Store())
                         self.combine(fake, node.value, register=True)
+            else:
+                self.result[t].iscore = True
 
     def visit_AugAssign(self, node):
         self.visit(node.value)

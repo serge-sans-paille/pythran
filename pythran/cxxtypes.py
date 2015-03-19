@@ -29,6 +29,7 @@ class Type(object):
             setattr(self, k, v)
         self.qualifiers = self.qualifiers.copy()  # avoid sharing
         self.fields = tuple(sorted(kwargs.keys()))
+        self.iscore = False
 
     def isweak(self):
         return Weak in self.qualifiers
@@ -171,11 +172,13 @@ class CombinedTypes(Type):
             return not fot0(t) and not fot1(t)
 
         it = filter(fit, all_types)
+        it = sorted(it, key=lambda t: t.iscore, reverse=True)
         ot0 = filter(fot0, all_types)
         ot1 = filter(fot1, all_types)
-        icombined = sorted(set(ctx(t).generate(ctx) for t in it))
-        lcombined0 = sorted(set(ctx(t).generate(ctx) for t in ot0))[-mct:]
-        lcombined1 = sorted(set(ctx(t).generate(ctx) for t in ot1))[-mct:]
+        icombined = sorted({ctx(t).generate(ctx) for t in it if t.iscore})
+        icombined += sorted({ctx(t).generate(ctx) for t in it if not t.iscore})
+        lcombined0 = sorted({ctx(t).generate(ctx) for t in ot0})[-mct:]
+        lcombined1 = sorted({ctx(t).generate(ctx) for t in ot1})[-mct:]
         combined = icombined + lcombined0 + lcombined1
         if len(combined) == 1:
             return combined[0]

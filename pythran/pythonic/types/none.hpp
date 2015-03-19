@@ -59,28 +59,28 @@ namespace pythonic {
             friend std::ostream& operator<<(std::ostream&, none<T> const &);\
             friend T operator+(none<T> const& t0, T const &t1)         ;\
             friend T operator+(T const &t0, none<T> const& t1)         ;\
-            friend T operator+(none<T> const &t0, none<T> const& t1)   ;\
-            friend T operator>(none<T> const& t0, T const &t1)         ;\
-            friend T operator>(T const &t0, none<T> const& t1)         ;\
-            friend T operator>(none<T> const &t0, none<T> const& t1)   ;\
-            friend T operator>=(none<T> const& t0, T const &t1)        ;\
-            friend T operator>=(T const &t0, none<T> const& t1)        ;\
-            friend T operator>=(none<T> const &t0, none<T> const& t1)  ;\
-            friend T operator<(none<T> const& t0, T const &t1)         ;\
-            friend T operator<(T const &t0, none<T> const& t1)         ;\
-            friend T operator<(none<T> const &t0, none<T> const& t1)   ;\
-            friend T operator<=(none<T> const& t0, T const &t1)        ;\
-            friend T operator<=(T const &t0, none<T> const& t1)        ;\
-            friend T operator<=(none<T> const &t0, none<T> const& t1)  ;\
+            friend none<T> operator+(none<T> const &t0, none<T> const& t1)   ;\
+            friend bool operator>(none<T> const& t0, T const &t1)         ;\
+            friend bool operator>(T const &t0, none<T> const& t1)         ;\
+            friend none<bool> operator>(none<T> const &t0, none<T> const& t1)   ;\
+            friend bool operator>=(none<T> const& t0, T const &t1)        ;\
+            friend bool operator>=(T const &t0, none<T> const& t1)        ;\
+            friend none<bool> operator>=(none<T> const &t0, none<T> const& t1)  ;\
+            friend bool operator<(none<T> const& t0, T const &t1)         ;\
+            friend bool operator<(T const &t0, none<T> const& t1)         ;\
+            friend none<bool> operator<(none<T> const &t0, none<T> const& t1)   ;\
+            friend bool operator<=(none<T> const& t0, T const &t1)        ;\
+            friend bool operator<=(T const &t0, none<T> const& t1)        ;\
+            friend none<bool> operator<=(none<T> const &t0, none<T> const& t1)  ;\
             friend T operator-(none<T> const& t0, T const &t1)         ;\
             friend T operator-(T const &t0, none<T> const& t1)         ;\
-            friend T operator-(none<T> const &t0, none<T> const& t1)   ;\
+            friend none<T> operator-(none<T> const &t0, none<T> const& t1)   ;\
             friend T operator*(none<T> const& t0, T const &t1)         ;\
             friend T operator*(T const &t0, none<T> const& t1)         ;\
-            friend T operator*(none<T> const &t0, none<T> const& t1)   ;\
+            friend none<T> operator*(none<T> const &t0, none<T> const& t1)   ;\
             friend T operator/(none<T> const& t0, T const &t1)         ;\
             friend T operator/(T const &t0, none<T> const& t1)         ;\
-            friend T operator/(none<T> const &t0, none<T> const& t1)   ;\
+            friend none<T> operator/(none<T> const &t0, none<T> const& t1)   ;\
             public:\
                    bool is_none;\
             none() : data(), is_none(false) {}\
@@ -99,36 +99,36 @@ namespace pythonic {
         };\
         T operator+(none<T> const& t0, T const &t1)         { return t0.data + t1     ; }\
         T operator+(T const &t0, none<T> const& t1)         { return t0      + t1.data; }\
-        T operator+(none<T> const &t0, none<T> const& t1)   { return t0.data + t1.data; }\
-        T operator>(none<T> const& t0, T const &t1)         { return t0.data > t1     ; }\
-        T operator>(T const &t0, none<T> const& t1)         { return t0      > t1.data; }\
-        T operator>(none<T> const &t0, none<T> const& t1)   { return t0.data > t1.data; }\
-        T operator>=(none<T> const& t0, T const &t1)        { return t0.data >= t1    ; }\
-        T operator>=(T const &t0, none<T> const& t1)        { return t0      >= t1.data;}\
-        T operator>=(none<T> const &t0, none<T> const& t1)  { return t0.data >= t1.data;}\
-        T operator<(none<T> const& t0, T const &t1)         { return t0.data < t1     ; }\
-        T operator<(T const &t0, none<T> const& t1)         { return t0      < t1.data; }\
-        T operator<(none<T> const &t0, none<T> const& t1)   { return t0.data < t1.data; }\
-        T operator<=(none<T> const& t0, T const &t1)        { return t0.data <= t1    ; }\
-        T operator<=(T const &t0, none<T> const& t1)        { return t0      <= t1.data;}\
-        T operator<=(none<T> const &t0, none<T> const& t1)  { return t0.data <= t1.data;}\
+        none<T> operator+(none<T> const &t0, none<T> const& t1)   { if(t0.is_none and t1.is_none) return  none_type{}; else return {t0.data + t1.data}; }\
+        bool operator>(none<T> const& t0, T const &t1)         { return t0.data > t1     ; }\
+        bool operator>(T const &t0, none<T> const& t1)         { return t0      > t1.data; }\
+        none<bool> operator>(none<T> const &t0, none<T> const& t1)   { if(t0.is_none and t1.is_none) return  none_type{}; else return {t0.data > t1.data}; }\
+        bool operator>=(none<T> const& t0, T const &t1)        { return t0.data >= t1    ; }\
+        bool operator>=(T const &t0, none<T> const& t1)        { return t0      >= t1.data;}\
+        none<bool> operator>=(none<T> const &t0, none<T> const& t1)  { if(t0.is_none and t1.is_none) return  none_type{}; else return {t0.data >= t1.data}; }\
+        bool operator<(none<T> const& t0, T const &t1)         { return t0.data < t1     ; }\
+        bool operator<(T const &t0, none<T> const& t1)         { return t0      < t1.data; }\
+        none<bool> operator<(none<T> const &t0, none<T> const& t1)   { if(t0.is_none and t1.is_none) return  none_type{}; else return {t0.data < t1.data}; }\
+        bool operator<=(none<T> const& t0, T const &t1)        { return t0.data <= t1    ; }\
+        bool operator<=(T const &t0, none<T> const& t1)        { return t0      <= t1.data;}\
+        none<bool> operator<=(none<T> const &t0, none<T> const& t1)  { if(t0.is_none and t1.is_none) return  none_type{}; else return {t0.data <= t1.data}; }\
         T operator-(none<T> const& t0, T const &t1)         { return t0.data - t1     ; }\
         T operator-(T const &t0, none<T> const& t1)         { return t0      - t1.data; }\
-        T operator-(none<T> const &t0, none<T> const& t1)   { return t0.data - t1.data; }\
+        none<T> operator-(none<T> const &t0, none<T> const& t1)   { if(t0.is_none and t1.is_none) return  none_type{}; else return {t0.data - t1.data}; }\
         T operator*(none<T> const& t0, T const &t1)         { return t0.data * t1     ; }\
         T operator*(T const &t0, none<T> const& t1)         { return t0      * t1.data; }\
-        T operator*(none<T> const &t0, none<T> const& t1)   { return t0.data * t1.data; }\
+        none<T> operator*(none<T> const &t0, none<T> const& t1)   { if(t0.is_none and t1.is_none) return  none_type{}; else return {t0.data * t1.data}; }\
         T operator/(none<T> const& t0, T const &t1)         { return t0.data / t1     ; }\
         T operator/(T const &t0, none<T> const& t1)         { return t0      / t1.data; }\
-        T operator/(none<T> const &t0, none<T> const& t1)   { return t0.data / t1.data; }\
+        none<T> operator/(none<T> const &t0, none<T> const& t1)   { if(t0.is_none and t1.is_none) return  none_type{}; else return {t0.data / t1.data}; }\
         std::ostream& operator<<(std::ostream& os, none<T> const & v) { if(v.is_none) return os << "None"; else return os << v.data; }
 
+        SPECIALIZE_NONE(bool);
         SPECIALIZE_NONE(size_t);
         SPECIALIZE_NONE(long);
         SPECIALIZE_NONE(int);
         SPECIALIZE_NONE(long long);
         SPECIALIZE_NONE(double);
-        SPECIALIZE_NONE(bool);
 
         template<class T> struct none;
         template<class T>

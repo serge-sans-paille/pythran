@@ -1,9 +1,18 @@
 #ifndef PYTHONIC_TYPES_NUMPY_GEXPR_HPP
 #define PYTHONIC_TYPES_NUMPY_GEXPR_HPP
 
+#include "pythonic/utils/meta.hpp"
+#ifdef USE_BOOST_SIMD
+#include <boost/simd/sdk/simd/native.hpp>
+#include <boost/simd/include/functions/store.hpp>
+#endif
+
 namespace pythonic {
 
     namespace types {
+
+
+
 
         /* helper to count new axis
          */
@@ -101,7 +110,7 @@ namespace pythonic {
             template<class T, size_t N, class ...S>
                 numpy_gexpr<ndarray<T,N> const &, contiguous_slice, S...> operator()(ndarray<T,N> const& a, contiguous_slice const& s0, S const&... s)
                 {
-                    return numpy_gexpr<ndarray<T,N> const &, contiguous_slice, S...>(a, s0, s...);
+                    return make_gexpr(a, s0, s...);
                 }
           };
 
@@ -161,6 +170,148 @@ namespace pythonic {
                 static const bool value = true;
             };
 
+        /* numpy_gexpr factory
+         *
+         * replaces the constructor, in order to properly merge gexpr composition into a single gexpr
+         */
+        namespace details {
+
+          // this struct is specialized for every type combination and takes care of the slice merge
+          template<class T, class Tp>
+            struct merge_gexpr;
+
+          template<>
+          struct merge_gexpr<std::tuple<>, std::tuple<>> {
+              std::tuple<> const& operator()(std::tuple<> const &t0, std::tuple<> const&)
+              {
+                return t0;
+              }
+            };
+
+          template <class... T0>
+          struct merge_gexpr<std::tuple<T0...>, std::tuple<>> {
+              std::tuple<T0...> const &operator()(std::tuple<T0...> const &t0, std::tuple<>) {
+                return t0;
+              }
+          };
+
+          template <class... T1>
+          struct merge_gexpr<std::tuple<>, std::tuple<T1...>> {
+            std::tuple<T1...> const & operator()(std::tuple<>, std::tuple<T1...> const &t1) {
+              return t1;
+            }
+          };
+
+          template <class S0, class... T0, class S1, class... T1>
+          struct merge_gexpr<std::tuple<S0, T0...>, std::tuple<S1, T1...>> {
+            auto operator()(std::tuple<S0, T0...> const &t0,
+                             std::tuple<S1, T1...> const &t1)
+                -> decltype(std::tuple_cat(std::make_tuple(std::get<0>(t0) *
+                                                           std::get<0>(t1)),
+                                           merge_gexpr<std::tuple<T0...>, std::tuple<T1...>>{}(tuple_tail(t0), tuple_tail(t1))))
+            {
+              return std::tuple_cat(std::make_tuple(std::get<0>(t0) * std::get<0>(t1)),
+                                    merge_gexpr<std::tuple<T0...>, std::tuple<T1...>>{}(tuple_tail(t0), tuple_tail(t1)));
+            }
+          };
+
+          template <class... T0, class S1, class... T1>
+          struct merge_gexpr<std::tuple<long, T0...>, std::tuple<S1, T1...>> {
+            auto operator()(std::tuple<long, T0...> const &t0, std::tuple<S1, T1...> const &t1)
+            -> decltype(std::tuple_cat(std::make_tuple(std::get<0>(t0)),
+                                           merge_gexpr<std::tuple<T0...>, std::tuple< S1, T1...>>{}(tuple_tail(t0), t1)))
+            {
+              return std::tuple_cat(std::make_tuple(std::get<0>(t0)),
+                                    merge_gexpr<std::tuple<T0...>, std::tuple<S1, T1...>>{}(tuple_tail(t0), t1));
+            }
+          };
+
+          template <class S0, class... T0, class... T1>
+            struct merge_gexpr<std::tuple<S0, T0...>, std::tuple<long, T1...>>
+            {
+              auto operator()(std::tuple<S0, T0...> const &t0, std::tuple<long, T1...> const &t1)
+              -> decltype(std::tuple_cat(
+                      std::make_tuple(std::get<0>(t1) * std::get<0>(t0).step + std::get<0>(t0).lower),
+                      merge_gexpr<std::tuple<T0...>, std::tuple<T1...>>{}(tuple_tail(t0), tuple_tail(t1))))
+              {
+                return std::tuple_cat(std::make_tuple(std::get<0>(t1) * std::get<0>(t0).step + std::get<0>(t0).lower),
+                                      merge_gexpr<std::tuple<T0...>, std::tuple<T1...>>{}(tuple_tail(t0), tuple_tail(t1)));
+              }
+            };
+
+          template <class... T0, class... T1>
+            struct merge_gexpr<std::tuple<long, T0...>, std::tuple<long, T1...>> {
+              auto operator()(std::tuple<long, T0...> const &t0,
+                              std::tuple<long, T1...> const &t1)
+              -> decltype(std::tuple_cat(std::make_tuple(std::get<0>(t0)),
+                                         merge_gexpr<std::tuple<T0...>, std::tuple<long, T1...>>{}(tuple_tail(t0), t1)))
+              {
+                return std::tuple_cat(std::make_tuple(std::get<0>(t0)),
+                                      merge_gexpr<std::tuple<T0...>, std::tuple<long, T1...>>{}(tuple_tail(t0), t1));
+              }
+            };
+
+          template <class Arg, class... Sp>
+          numpy_gexpr<Arg, Sp...> _make_gexpr(Arg arg, std::tuple<Sp...> const &t) {
+            return {arg, t};
+          }
+
+          template<class Arg, class... S>
+            struct make_gexpr {
+              numpy_gexpr<Arg, S...> operator()(Arg arg, S const&...s) {
+                return {arg, s...};
+              }
+            };
+          // this specialization is in charge of merging gexpr
+          template<class Arg, class...S, class... Sp>
+            struct make_gexpr<numpy_gexpr<Arg,S...> const&, Sp...> {
+              auto operator()(numpy_gexpr<Arg,S...> const& arg, Sp const&...s)
+              -> decltype(_make_gexpr(std::declval<Arg>(), merge_gexpr<std::tuple<S...>, std::tuple<Sp...>>{}(std::tuple<S...>(),  std::tuple<Sp...>())))
+              { return {arg.arg, merge_gexpr<std::tuple<S...>, std::tuple<Sp...>>{}(arg.slices, std::make_tuple(s...))}; }
+            };
+
+        }
+
+        template<class Arg, class... S>
+          auto make_gexpr(Arg && arg, S const&...s)
+          -> decltype(details::make_gexpr<Arg, S...>{}(std::forward<Arg>(arg), s...))
+          { return details::make_gexpr<Arg, S...>{}(std::forward<Arg>(arg), s...); }
+
+
+        /* type-based compile time overlapping detection: detect if a type may overlap with another
+         * the goal is to detect whether the following operation
+         *
+         * a[...] = b
+         *
+         * requires a copy.
+         *
+         * It requires a copy if b = a[...], as in
+         *
+         * a[1:] = a[:-1]
+         *
+         * because this is *not* equivalent to for i in range(0, n-1): a[i+1] = a[i]
+         *
+         * to avoid the copy, we rely on the lhs type
+         */
+
+        template<class E>
+          struct may_overlap_gexpr : std::integral_constant<bool, not std::is_scalar<E>::value and not is_complex<E>::value> {};
+        template<class E>
+          struct may_overlap_gexpr<E&> : may_overlap_gexpr<E> {};
+        template<class E>
+          struct may_overlap_gexpr<E const &> : may_overlap_gexpr<E> {};
+        template<class T, size_t N>
+          struct may_overlap_gexpr<ndarray<T,N>> : std::false_type {};
+        template<class E>
+          struct may_overlap_gexpr<numpy_iexpr<E>> : may_overlap_gexpr<E> {};
+        template<class E>
+          struct may_overlap_gexpr<numpy_texpr<E>> : may_overlap_gexpr<E> {};
+        template<class E>
+          struct may_overlap_gexpr<list<E>> : may_overlap_gexpr<E> {};
+        template<class E, size_t N>
+          struct may_overlap_gexpr<array<E, N>> : may_overlap_gexpr<E> {};
+        template<class Op, class... Args>
+          struct may_overlap_gexpr<numpy_expr<Op, Args...>> : utils::any_of<may_overlap_gexpr<Args>::value...> {};
 
         template <class Arg, class... S>
             struct numpy_gexpr_helper;
@@ -208,6 +359,7 @@ namespace pythonic {
                 >::type const_iterator;
 
                 Arg arg;
+                std::tuple<S...> slices;
                 dtype* buffer;
                 array<long, value> shape;
                 array<long, value> lower;
@@ -221,12 +373,15 @@ namespace pythonic {
                 template<class Argp> // not using the default one, to make it possible to accept reference and non reference version of Argp
                 numpy_gexpr(numpy_gexpr<Argp, S...> const& other) :
                     arg(other.arg),
+                    slices(other.slices),
                     buffer(other.buffer),
                     shape(other.shape),
                     lower(other.lower),
                     step(other.step),
                     indices(other.indices)
                 {
+                  static_assert(std::is_same<typename returnable<Arg>::type, typename returnable<Argp>::type>::value,
+                     "this constructor is only here to adapt reference / non reference type, nothing else");
                 }
 
                 template<size_t J, class Slice>
@@ -265,17 +420,17 @@ namespace pythonic {
                         init_shape(values, std::get<sizeof...(S) - I + 1>(values), utils::int_<I - 1>(), utils::int_<J>());
                     }
 
+
+              // private because we must use the make_gexpr factory to create a gexpr
+              private:
+                template<class _Arg, class... _S>
+                friend struct details::make_gexpr;
+
                 template<class E>
-                    void fix_shape(E const&) {
-                    }
-                template<class Argp, class... Sp>
-                    void fix_shape(numpy_gexpr<Argp, Sp...> const& arg) {
-                        for(size_t i=0; i< value; ++i)
-                        {
-                            lower[i] += arg.lower[i];
-                            step[i] *= arg.step[i];
-                        }
-                    }
+                friend struct ::pythonic::python_to_pythran;
+
+                template<size_t C>
+                friend struct extended_slice;
 
                 // When we create a new numpy_gexpr, we deduce step, lower and shape from slices
                 // and indices from long value.
@@ -283,19 +438,20 @@ namespace pythonic {
                 // >>> a = numpy.arange(2*3*4).reshape(2,3,4)
                 // >>> a[:, 1]
                 // the last dimension (4) is missing from slice information
-                // Finally, if origin expression was already sliced, lower bound and step have to 
+                // Finally, if origin expression was already sliced, lower bound and step have to
                 // be increased
-                numpy_gexpr(Arg const &arg, std::tuple<S const &...> const& values) : arg(arg), buffer(arg.buffer) {
+                numpy_gexpr(Arg const &arg, std::tuple<S const &...> const& values) : arg(arg), slices(values), buffer(arg.buffer) {
                     init_shape(values, std::get<0>(values), utils::int_<sizeof...(S)>(), utils::int_<0>());
                     for(size_t i = sizeof...(S) - count_long<S...>::value; i < value; ++i)
                         shape[i] = arg.shape[i + count_long<S...>::value];
-                    fix_shape(arg); // This is specialized for numpy_gexpr only
                 }
                 numpy_gexpr(Arg const &arg, S const &...s) : numpy_gexpr(arg, std::tuple<S const&...>(s...)) {
                 }
 
+              public:
+
                 template<class Argp, class... Sp>
-                numpy_gexpr(numpy_gexpr<Argp, Sp...> const &expr, Arg arg) : arg(arg), buffer(arg.buffer) {
+                numpy_gexpr(numpy_gexpr<Argp, Sp...> const &expr, Arg arg) : arg(arg), slices(tuple_pop(expr.slices)), buffer(arg.buffer) {
                   flat_copy<value>()(&shape[0], &expr.shape[1]);
                   flat_copy<value>()(&lower[0], &expr.lower[1]);
                   flat_copy<value>()(&step[0], &expr.step[1]);
@@ -303,18 +459,31 @@ namespace pythonic {
                 }
 
                 template<class G>
-                numpy_gexpr(G const &expr, Arg &&arg) : arg(std::forward<Arg>(arg)), buffer(arg.buffer) {
+                numpy_gexpr(G const &expr, Arg &&arg) : arg(std::forward<Arg>(arg)), slices(tuple_pop(expr.slices)), buffer(arg.buffer) {
                   flat_copy<value>()(&shape[0], &expr.shape[1]);
                   flat_copy<value>()(&lower[0], &expr.lower[1]);
                   flat_copy<value>()(&step[0], &expr.step[1]);
                 }
 
                 template<class E>
+                  typename std::enable_if<may_overlap_gexpr<E>::value, numpy_gexpr&>::type
+                  _copy(E const& expr) {
+                    return utils::broadcast_copy<numpy_gexpr&, ndarray<typename E::dtype, E::value>, value, value - utils::dim_of<E>::value,
+                                                 is_vectorizable>(*this, ndarray<typename E::dtype, E::value>{expr});
+                  }
+                template<class E>
+                  typename std::enable_if<not may_overlap_gexpr<E>::value, numpy_gexpr&>::type
+                  _copy(E const& expr) {
+                    return utils::broadcast_copy<numpy_gexpr&, E, value, value - utils::dim_of<E>::value,
+                                                 is_vectorizable and is_vectorizable_array<E>::value>(*this, expr);
+                  }
+
+                template<class E>
                 numpy_gexpr& operator=(E const& expr) {
-                    return utils::broadcast_copy<numpy_gexpr&, E, value, value - utils::dim_of<E>::value, false/*NIY*/>(*this, expr);
+                  return _copy(expr);
                 }
                 numpy_gexpr& operator=(numpy_gexpr const& expr) {
-                    return utils::broadcast_copy<numpy_gexpr&, numpy_gexpr, value, value - utils::dim_of<numpy_gexpr>::value, false/*NIY*/>(*this, expr);
+                  return _copy(expr);
                 }
                 template<class E>
                 numpy_gexpr& operator+=(E const& expr) {
@@ -368,6 +537,10 @@ namespace pythonic {
                   typedef typename boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION> vT;
                   return boost::simd::load<vT>(buffer, lower[0] + i);
                 }
+                template<class V>
+                void store(V &&v, long i) {
+                  boost::simd::store(v, buffer, lower[0] + i);
+                }
 
 #endif
 
@@ -387,29 +560,35 @@ namespace pythonic {
                 }
 
                 template<class... Sp>
-                numpy_gexpr<numpy_gexpr, contiguous_slice, Sp...> operator()(contiguous_slice const& s0, Sp const&... s) const
+                auto operator()(contiguous_slice const& s0, Sp const&... s) const
+                -> decltype(make_gexpr(*this, s0, s...))
                 {
-                    return numpy_gexpr<numpy_gexpr, contiguous_slice, Sp...>(*this, s0, s...);
+                  return make_gexpr(*this, s0, s...);
+                }
+                auto operator[](contiguous_slice const& s0) const
+                -> decltype(make_gexpr(*this, s0))
+                {
+                  return make_gexpr(*this, s0);
                 }
 
-                //sliced array from sliced array is just a sliced array with modified first sliced dimension
-                numpy_gexpr operator[](slice const& s) const
+                template<class... Sp>
+                auto operator()(slice const& s0, Sp const&... s) const
+                -> decltype(make_gexpr(*this, s0, s...))
                 {
-                    normalized_slice ns = s.normalize(shape[0]);
-                    numpy_gexpr other = (*this);
-                    other.shape[0] = ns.size();
-                    other.lower[0] += ns.lower;
-                    other.step[0] *= ns.step;
-                    return other;
+                  return make_gexpr(*this, s0, s...);
                 }
-                numpy_gexpr operator[](contiguous_slice const& s) const
+                auto operator[](slice const& s0) const
+                -> decltype(make_gexpr(*this, s0))
                 {
-                    contiguous_normalized_slice ns = s.normalize(shape[0]);
-                    numpy_gexpr other = (*this);
-                    other.shape[0] = ns.size();
-                    other.lower[0] += ns.lower;
-                    return other;
+                  return make_gexpr(*this, s0);
                 }
+                template<class... Sp>
+                auto operator()(long i, Sp const&... s) const
+                -> decltype(std::declval<value_type>()(s...))
+                {
+                  return (*this)[i](s...);
+                }
+
                 template<size_t M>
                     auto operator[](array<long, M> const& indices) const &
                     -> decltype(nget<M-1>()(*this, indices))
@@ -433,7 +612,7 @@ namespace pythonic {
                 }
             };
 
-        // As gexpr have to begin with a slice. When we access it, we need to forward the firsts accessed information
+        // As gexpr has to begin with a slice. When we access it, we need to forward the firsts accessed information
         // to an iexpr until the value in S... is a slice again.
         template <class Arg, class S0, class S1, class...S>
             struct numpy_gexpr_helper<Arg, S0, S1, S...> {
@@ -588,6 +767,11 @@ namespace pythonic {
 
 template<class Arg, class... S>
 struct __combined<pythonic::types::numpy_gexpr<Arg,S...>, pythonic::types::numpy_gexpr<Arg,S...>> {
+  using type = pythonic::types::numpy_gexpr<Arg,S...>;
+};
+
+template<class Arg, class... S, class Argp, class... Sp>
+struct __combined<pythonic::types::numpy_gexpr<Arg,S...>, pythonic::types::numpy_gexpr<Argp,Sp...>> {
   using type = pythonic::types::numpy_gexpr<Arg,S...>;
 };
 

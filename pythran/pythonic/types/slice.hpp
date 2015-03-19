@@ -41,7 +41,7 @@ namespace pythonic {
 
             template<class S>
             slice operator*(S const& other) const {
-                return slice(lower + step * other.lower, lower + step * other.upper, step * other.step);
+                return slice(lower + step * other.lower, ((upper < 0L and other.upper < 0L) ? (upper) : (lower)) + step * other.upper, step * other.step);
             }
 
             /*
@@ -83,7 +83,7 @@ namespace pythonic {
 
         struct contiguous_normalized_slice {
             long lower, upper;
-            static const long step = 1;
+            static constexpr long step = 1;
             contiguous_normalized_slice() {}
             contiguous_normalized_slice(long lower, long upper)
                 : lower(lower), upper(upper) {
@@ -110,16 +110,21 @@ namespace pythonic {
         struct contiguous_slice {
             typedef contiguous_normalized_slice normalized_type;
             none<long> lower, upper;
-            static const long step = 1;
+            static const long step;
             contiguous_slice(none<long> lower, none<long> upper)
                 : lower(lower), upper(upper) {}
             contiguous_slice(){}
 
             contiguous_slice operator*(contiguous_slice const& other) const {
+              if(upper < 0L and other.upper < 0L)
+                  return contiguous_slice(lower + other.lower, upper + other.upper);
+              else if(upper.is_none or other.upper.is_none)
+                  return contiguous_slice(lower + other.lower, upper + other.upper);
+              else
                 return contiguous_slice(lower + other.lower, lower + other.upper);
             }
             slice operator*(slice const& other) const {
-                return slice(lower + other.lower, lower + other.upper, other.step);
+                return slice(lower + other.lower, ((upper < 0L and other.upper < 0L) ? (upper) : (lower)) + other.upper, other.step);
             }
 
 
@@ -156,6 +161,8 @@ namespace pythonic {
                 return int(lower) + i;
             }
         };
+
+        const long contiguous_slice::step = 1;
     }
 }
 

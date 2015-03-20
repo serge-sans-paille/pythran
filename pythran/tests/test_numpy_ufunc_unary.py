@@ -14,14 +14,15 @@ unary_ufunc = (
         'ceil', 'conj', 'conjugate', 'cos', 'cosh',
         'deg2rad', 'degrees',
         'exp', 'expm1',
-        'fabs', 'floor',
-        'isinf', 'isneginf', 'isposinf', 'isnan', 'invert', 'isfinite',
+        'fabs', 'float32', 'float64', 'floor',
+        'int8', 'int16', 'int32', 'int64', 'isinf', 'isneginf', 'isposinf', 'isnan', 'invert', 'isfinite',
         'log', 'log10', 'log1p', 'log2', 'logical_not',
         'negative',
         'rad2deg', 'radians','reciprocal', 'rint', 'round', 'round_',
         'sign', 'signbit',
          'sin', 'sinh', 'spacing', 'sqrt', 'square',
         'tan', 'tanh','trunc',
+        'uint8', 'uint16', 'uint32', 'uint64'
         )
 
 for f in unary_ufunc:

@@ -311,7 +311,7 @@ class ImportRegistry(object):
     def generate_ImportList(self):
         """List of imported functions to be added to the main module.  """
         import_list = []
-        for _, mod in self.modules.items():
+        for mod in self.modules.values():
             if mod.is_main_module:
                 # don't need to import anything from the main module
                 continue
@@ -319,10 +319,9 @@ class ImportRegistry(object):
                 import_node = ast.Import(names=[ast.alias(name=module_name,
                                                           asname=alias)])
                 import_list.append(import_node)
-            for _, func in mod.exported_functions.items():
-                # Here we import the function itself (FunctionDef node)
-                # In case of builtin module, it is an ImportFrom node.
-                import_list += [func]
+            # Here we import the function itself (FunctionDef node)
+            # In case of builtin module, it is an ImportFrom node.
+            import_list += mod.exported_functions.values()
         return import_list
 
 

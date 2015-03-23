@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+
+""" Script to run Pythran file compilation with specified g++ like flags. """
+
 import sys
 import os
 import argparse
@@ -12,11 +15,11 @@ try:
     formatter = ColoredFormatter(
         "%(log_color)s%(levelname)-8s%(reset)s %(blue)s%(message)s",
         log_colors={
-        'DEBUG':    'cyan',
-        'INFO':     'green',
-        'WARNING':  'yellow',
-        'ERROR':    'red',
-        'CRITICAL': 'red',
+            'DEBUG':    'cyan',
+            'INFO':     'green',
+            'WARNING':  'yellow',
+            'ERROR':    'red',
+            'CRITICAL': 'red',
         }
     )
     stream = logging.StreamHandler()
@@ -29,8 +32,9 @@ except ImportError:
 
 import pythran
 
+
 def convert_arg_line_to_args(arg_line):
-    """Read argument from file in a prettier way"""
+    """Read argument from file in a prettier way."""
     for arg in arg_line.split():
         if not arg.strip():
             continue
@@ -38,11 +42,12 @@ def convert_arg_line_to_args(arg_line):
 
 
 def compile_flags(args):
-    """Build a dictionnary with an entry for cppflags, ldflags, and cxxflags
-    according to the command line defined options
+    """
+    Build a dictionnary with an entry for cppflags, ldflags, and cxxflags.
+
+    These options are filled according to the command line defined options
 
     """
-
     cppflags = ['-I{0}'.format(n) for n in args.extra_Iflags]
     cppflags += ['-D{0}'.format(n) for n in args.extra_Dflags]
 
@@ -70,8 +75,7 @@ parser = argparse.ArgumentParser(prog='pythran',
                                  description='pythran: a python to C++ '
                                  'compiler',
                                  epilog="It's a megablast!",
-                                 fromfile_prefix_chars="@"
-                                 )
+                                 fromfile_prefix_chars="@")
 
 parser.add_argument('input_file', type=str,
                     help='the pythran module to compile, either a .py or a '

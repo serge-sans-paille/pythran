@@ -7,6 +7,11 @@ import importlib
 import inspect
 
 
+def add_filename_field(node, filename):
+    for descendant in ast.walk(node):
+        descendant.filename = filename
+
+
 def mangle_imported_function_name(module_name, func_name):
     """Mangling naming scheme for imported functions."""
     return pythran_ward + "imported__" + module_name + "_" + func_name
@@ -156,6 +161,10 @@ class ImportedModule(object):
             imported_module = importlib.import_module(name)
             self.node = ast.parse(inspect.getsource(eval("imported_module")))
             assert isinstance(self.node, ast.Module)
+
+        # Recursively add filename information to all nodes, for debug msg
+        add_filename_field(self.node, name + ".py")
+
         # Mangle function imported, unless it is the main module
         self.to_be_mangled = not self.is_main_module
         self.name = name

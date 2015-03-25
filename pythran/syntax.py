@@ -14,6 +14,7 @@ class PythranSyntaxError(SyntaxError):
     def __init__(self, msg, node=None):
         SyntaxError.__init__(self, msg)
         if node:
+            self.filename = getattr(node, 'filename', None)
             self.lineno = node.lineno
             self.offset = node.col_offset
 
@@ -177,14 +178,17 @@ class SpecsChecker(ast.NodeVisitor):
     #pythran export specs
     '''
 
-    def __init__(self, specs):
-        self.specs = specs
+    def __init__(self, specs, renamings):
+        self.specs = {renamings.get(k, k): v for k, v in specs.items()}
+        self.funcs = set()
 
     def visit_FunctionDef(self, node):
+        fname = node.name
+        self.funcs.add(fname)
         max_arg_count = len(node.args.args)
         min_arg_count = max_arg_count - len(node.args.defaults)
 
-        signatures = self.specs.get(node.name, ())
+        signatures = self.specs.get(fname, ())
         for signature in signatures:
             # just verify the arity
             arg_count = len(signature)
@@ -194,10 +198,17 @@ class SpecsChecker(ast.NodeVisitor):
                 msg = 'export for function {} incompatible with its definition'
                 raise PythranSyntaxError(msg.format(node.name), node)
 
+    def visit_Module(self, node):
+        self.generic_visit(node)
+        for fname, _ in self.specs.items():
+            if fname not in self.funcs:
+                msg = 'exporting undefined function {}'
+                raise PythranSyntaxError(msg.format(fname))
 
-def check_specs(mod, specs):
+
+def check_specs(mod, specs, renamings):
     '''
     Does nothing but raising PythranSyntaxError if specs
     are incompatible with the actual code
     '''
-    SpecsChecker(specs).visit(mod)
+    SpecsChecker(specs, renamings).visit(mod)

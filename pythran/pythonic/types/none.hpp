@@ -104,6 +104,21 @@ namespace pythonic
     return data;                                                               \
   }                                                                            \
                                                                                \
+  none<T>::operator char() const                                               \
+  {                                                                            \
+    return data;                                                               \
+  }                                                                            \
+                                                                               \
+  none<T>::operator short() const                                              \
+  {                                                                            \
+    return data;                                                               \
+  }                                                                            \
+                                                                               \
+  none<T>::operator int() const                                                \
+  {                                                                            \
+    return data;                                                               \
+  }                                                                            \
+                                                                               \
   none<T>::operator long() const                                               \
   {                                                                            \
     return data;                                                               \

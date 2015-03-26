@@ -88,6 +88,9 @@ namespace pythonic
     bool operator==(O const &t) const;                                         \
     operator bool() const;                                                     \
     operator size_t() const;                                                   \
+    operator char() const;                                                     \
+    operator short() const;                                                    \
+    operator int() const;                                                      \
     operator long() const;                                                     \
     operator long long() const;                                                \
     operator double() const;                                                   \

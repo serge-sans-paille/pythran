@@ -146,7 +146,7 @@ namespace pythonic
 
     template <typename ResultType, typename Operator, typename... Iters>
     template <typename Op, typename L0>
-    template <typename... Types, typename O, typename>
+    template <typename... Types, typename O, typename, int>
     auto imap_iterator<ResultType, Operator, Iters...>::imap_iterator_data<
         Op, L0>::next_value(Types &&... params) const
         -> decltype(op(std::forward<Types>(params)..., *iter))

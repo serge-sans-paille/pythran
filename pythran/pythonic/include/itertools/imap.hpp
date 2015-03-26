@@ -93,7 +93,8 @@ namespace pythonic
 
         template <typename... Types, typename O = Op,
                   typename = typename std::enable_if<
-                      !std::is_same<types::none_type, O>::value, O>::type>
+                      !std::is_same<types::none_type, O>::value, O>::type,
+                  /* workaround to make it working on MSVC 18.0 */ int = 0>
         auto next_value(Types &&... params) const
             -> decltype(op(std::forward<Types>(params)..., *iter));
         template <typename... Types, typename O = Op,

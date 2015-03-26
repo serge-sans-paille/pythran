@@ -1,59 +1,99 @@
 #ifndef PYTHONIC_NUMPY_DOT_HPP
 #define PYTHONIC_NUMPY_DOT_HPP
 
-#include "pythonic/numpy/asarray.hpp"
+#include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/sum.hpp"
+#include "pythonic/types/numpy_expr.hpp"
 #include "pythonic/types/traits.hpp"
+
+#include <nt2/linalg/details/blas/mm.hpp>
+
+template <class T>
+    struct is_blas_type : pythonic::types::is_complex<T>
+    {};
+
+template<>
+    struct is_blas_type<float> : std::integral_constant<bool, true>
+    {};
+
+template<>
+    struct is_blas_type<double> : std::integral_constant<bool, true>
+    {};
+
 
 namespace pythonic {
 
     namespace numpy {
         template<class E, class F>
-            typename std::enable_if<
-            (std::is_scalar<E>::value or types::is_complex<E>::value) and (std::is_scalar<F>::value or types::is_complex<F>::value),
-            decltype(std::declval<E>()*std::declval<F>())
-                >::type
+            typename std::enable_if<(std::is_scalar<E>::value or types::is_complex<E>::value)
+                                    and (std::is_scalar<F>::value or types::is_complex<F>::value),
+                                    decltype(std::declval<E>()*std::declval<F>())
+                                    >::type
                 dot(E const& e, F const& f)
                 {
                     return e*f;
                 }
 
         template<class E, class F>
-            typename std::enable_if<types::is_numexpr_arg<E>::value and types::is_numexpr_arg<F>::value
-                                    and types::numpy_expr_to_ndarray<E>::N == 1 and types::numpy_expr_to_ndarray<F>::N ==1,
-                                    decltype(std::declval<typename types::numpy_expr_to_ndarray<E>::T>()*std::declval<typename types::numpy_expr_to_ndarray<F>::T>())
+            typename std::enable_if<types::is_numexpr_arg<E>::value and types::is_numexpr_arg<F>::value // Arguments are array_like
+                                    and E::value == 1 and F::value ==1, // It is a two vectors.
+                                    typename __combined<typename E::dtype, typename F::dtype>::type
+                                   >::type
+                dot(E const& e, F const& f)
+                {
+                    return sum(types::numpy_expr<operator_::proxy::mul, E, F>(e, f));
+                }
+
+        /// Matrix / Matrix multiplication
+
+        // The trick is to use the transpose arguments to reflect C order.
+        // We want to perform A * B in C order but blas order is F order.
+        // So we compute B'A' == (AB)'. As this equality is perform with F order
+        // We doesn't have to return a texpr because we want a C order matrice!!
+        template<class E>
+            typename std::enable_if<is_blas_type<E>::value,
+                                    types::ndarray<E, 2>
+                                    >::type
+            dot(types::ndarray<E, 2> const& a, types::ndarray<E, 2> const& b)
+            {
+                E al = 1, be = 0;
+                int m = b.shape[1], n = a.shape[0], k = b.shape[0];
+                types::ndarray<E, 2> out(types::array<long, 2>{{m, n}}, __builtin__::None);
+                nt2::details::gemm("N", "N", &m, &n, &k, &al, b.buffer, &m, a.buffer, &k, &be, out.buffer, &m);
+                return out;
+            }
+
+        // If arguments could be sue with blas, we evaluate them as we need pointer on array for blas
+        template<class E, class F>
+            typename std::enable_if<types::is_numexpr_arg<E>::value and types::is_numexpr_arg<F>::value // It is an array_like
+                                    and not (types::is_ndarray<E>::value and types::is_ndarray<F>::value)
+                                    and is_blas_type<typename E::dtype>::value and is_blas_type<typename F::dtype>::value // With dtype compatible with blas
+                                    and E::value == 2 and F::value == 2, // And both are matrix
+                                    types::ndarray<typename __combined<typename E::dtype, typename F::dtype>::type, 2>
                                    >::type
                 dot(E const& e, F const& f) {
-                    return sum(e*f);
-                }
-        template<class E, class F>
-            typename std::enable_if<
-            (std::is_scalar<E>::value or types::is_complex<E>::value) and (std::is_scalar<F>::value or types::is_complex<F>::value),
-            decltype(std::declval<E>()*std::declval<F>())
-                >::type
-                dot(types::list<E> const& e, types::list<F> const& f) {
-                    return dot(asarray(e), asarray(f));
+                    types::ndarray<typename __combined<typename E::dtype, typename F::dtype>::type, 2> e_ = e;
+                    types::ndarray<typename __combined<typename E::dtype, typename F::dtype>::type, 2> f_ = f;
+                    return dot(e_, f_);
                 }
 
+        // If one of the arg doesn't have a "blas compatible type", we use a slow matrix multiplication.
         template<class E, class F>
-            typename std::enable_if<
-            (std::is_scalar<E>::value or types::is_complex<E>::value) and
-            types::is_numexpr_arg<F>::value and types::numpy_expr_to_ndarray<F>::N ==1,
-            decltype(std::declval<E>()*std::declval<typename types::numpy_expr_to_ndarray<F>::T>())
-                >::type
-                dot(F const& f,types::list<E> const& e) {
-                    return dot(f, asarray(e));
-                }
-
-        template<class E, class F>
-            typename std::enable_if<
-            (std::is_scalar<E>::value or types::is_complex<E>::value) and
-            types::is_numexpr_arg<F>::value and types::numpy_expr_to_ndarray<F>::N ==1,
-            decltype(std::declval<E>()*std::declval<typename types::numpy_expr_to_ndarray<F>::T>())
-                >::type
-                dot(types::list<E> const& e, F const& f) {
-                    return dot(asarray(e), f);
-                }
+            typename std::enable_if<(not is_blas_type<typename E::dtype>::value or not is_blas_type<typename F::dtype>::value)
+                                    and E::value == 2 and F::value == 2, // And it is matrix / matrix
+                                    types::ndarray<typename __combined<typename E::dtype, typename F::dtype>::type, 2>
+                                    >::type
+            dot(E const& e, F const& f)
+            {
+                types::ndarray<typename __combined<typename E::dtype, typename F::dtype>::type, 2> out(types::array<long, 2>{{e.shape[0], f.shape[1]}}, 0);
+                for(long i=0; i<out.shape[0]; i++)
+                    for(long j=0; j<out.shape[1]; j++)
+                        for(long k=0; k<e.shape[1]; k++)
+                            out[types::array<long, 2>{{i, j}}] += e[types::array<long, 2>{{i, k}}] * f[types::array<long, 2>{{k, j}}];
+                        //out[types::array<long, 2>{{i, j}}] = sum(e[i] * f[types::contiguous_slice{__builtin__::None, __builtin__::None}, j]);
+                        //This doesn't work ... wrong values...
+                return out;
+            }
 
         PROXY(pythonic::numpy, dot);
 

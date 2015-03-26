@@ -32,6 +32,8 @@ template<class... Types>
 struct valid_numexpr_parameters {
   static constexpr bool value = any_numexpr_arg<Types...>::value and all_valid_arg<Types...>::value;
 };
+template<>
+struct valid_numexpr_parameters<> : std::integral_constant<bool, false> {};
 
 
 template<class T0, class T1,

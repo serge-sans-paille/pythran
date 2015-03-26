@@ -26,6 +26,16 @@ namespace numpy {
     struct round_;
     struct signbit;
     struct where;
+    struct int8;
+    struct int16;
+    struct int32;
+    struct int64;
+    struct uint8;
+    struct uint16;
+    struct uint32;
+    struct uint64;
+    struct float32;
+    struct float64;
   }
 }
 
@@ -59,7 +69,20 @@ template<class O>
                               // conditional processing doesn't permit SIMD
                               not std::is_same<O, numpy::proxy::nan_to_num>::value and
                               not std::is_same<O, numpy::proxy::asarray_chkfinite>::value and
-                              not std::is_same<O, numpy::proxy::where>::value
+                              not std::is_same<O, numpy::proxy::where>::value and
+                              // transtyping
+                              not std::is_same<O, numpy::proxy::int8>::value and
+                              not std::is_same<O, numpy::proxy::int16>::value and
+                              not std::is_same<O, numpy::proxy::int32>::value and
+                              not std::is_same<O, numpy::proxy::int64>::value and
+                              not std::is_same<O, numpy::proxy::uint8>::value and
+                              not std::is_same<O, numpy::proxy::uint16>::value and
+                              not std::is_same<O, numpy::proxy::uint32>::value and
+                              not std::is_same<O, numpy::proxy::uint64>::value and
+                              not std::is_same<O, numpy::proxy::float32>::value and
+                              not std::is_same<O, numpy::proxy::float64>::value and
+                              //
+                              true
                               ;
   };
 

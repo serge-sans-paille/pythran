@@ -1,7 +1,8 @@
 """ Base file for all Pythran tests. """
 
 from imp import load_dynamic
-from numpy import int32
+from numpy import int8, int16, int32, int64, uint8, uint16, uint32, uint64
+from numpy import float32, float64
 from numpy import ndarray, isnan, isinf, isneginf, complex128, complex64, bool_
 import copy
 import glob
@@ -35,11 +36,13 @@ class TestEnv(unittest.TestCase):
         print "Type of Pythran res : ", type(res)
         print "Type of Python ref : ", type(ref)
         type_matching = (((list, tuple), (list, tuple)),
-                         (float, (int, float)),
+                         (float, (int, float, float32, float64)),
+                         (float32, (int, float, float32)),
+                         (float64, (int, float, float32, float64)),
                          (long, (int, long)),
                          (bool, (bool, bool_)),
                          # FIXME combiner for boolean doesn't work
-                         (int, (int, bool, bool_, int32)))
+                         (int, (int, bool, bool_, int8, int16, int32, int64, uint8, uint16, uint32, uint64)))
         if isinstance(ref, ndarray):
             # res can be an ndarray of dim 0 because of isneginf call
             if ref.ndim == 0 and (not isinstance(res, ndarray)

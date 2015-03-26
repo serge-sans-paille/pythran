@@ -25,33 +25,29 @@ namespace pythonic
 #define MEMBER_TYPE_TRAIT(check_struct, member)                                \
   template <typename T>                                                        \
   struct check_struct {                                                        \
-    using yes = char;                                                          \
-    using no = struct {                                                        \
-      char _[2];                                                               \
-    };                                                                         \
     template <class C>                                                         \
-    static yes _test(typename C::member *);                                    \
-    template <class C>                                                         \
-    static no _test(...);                                                      \
+    static auto _test(int)                                                     \
+        -> decltype(std::declval<typename C::member>(), std::true_type());     \
+    template <class>                                                           \
+    static auto _test(...) -> std::false_type;                                 \
     static const bool value =                                                  \
-        sizeof(_test<typename std::remove_reference<T>::type>(nullptr)) ==     \
-        sizeof(yes);                                                           \
+        std::is_same<decltype(                                                 \
+                         _test<typename std::remove_reference<T>::type>(0)),   \
+                     std::true_type>::value;                                   \
   };
 
-#define MEMBER_ATTR_TRAIT(check_struct, member)                                \
+#define MEMBER_ATTR_TRAIT(check_struct, member, ...)                           \
   template <typename T>                                                        \
   struct check_struct {                                                        \
-    using yes = char;                                                          \
-    using no = struct {                                                        \
-      char _[2];                                                               \
-    };                                                                         \
     template <class C>                                                         \
-    static yes _test(decltype(&C::member));                                    \
-    template <class C>                                                         \
-    static no _test(...);                                                      \
+    static auto _test(int)                                                     \
+        -> decltype(std::declval<C>().member(__VA_ARGS__), std::true_type());  \
+    template <class>                                                           \
+    static auto _test(...) -> std::false_type;                                 \
     static const bool value =                                                  \
-        sizeof(_test<typename std::remove_reference<T>::type>(nullptr)) ==     \
-        sizeof(yes);                                                           \
+        std::is_same<decltype(                                                 \
+                         _test<typename std::remove_reference<T>::type>(0)),   \
+                     std::true_type>::value;                                   \
   };
 
     /* trait to check if a type is iterable*/
@@ -69,19 +65,16 @@ namespace pythonic
     /* trait to check if the type has a contains member */
     template <typename T, class V>
     struct has_contains {
-      using yes = char;
-      using no = struct {
-        char _[2];
-      };
       template <class C>
-      static yes _test(decltype(&C::contains));
-      template <class C>
-      static yes _test(decltype(&C::template contains<V>));
-      template <class C>
-      static no _test(...);
+      static auto _test(int)
+          -> decltype(std::declval<C>().contains(std::declval<V>()),
+                      std::true_type());
+      template <class>
+      static auto _test(...) -> std::false_type;
       static const bool value =
-          sizeof(_test<typename std::remove_reference<T>::type>(nullptr)) ==
-          sizeof(yes);
+          std::is_same<decltype(
+                           _test<typename std::remove_reference<T>::type>(0)),
+                       std::true_type>::value;
     };
 
     /* trait to check if the type has a shape member */

@@ -24,6 +24,7 @@ from tempfile import mkstemp
 import ast
 import logging
 import networkx as nx
+import numpy.distutils.system_info as numpy_sys
 import os.path
 import shutil
 import sys
@@ -85,8 +86,10 @@ def _pythran_cppflags():
 
 def _python_ldflags():
     pylibs = sysconfig.get_config_var('LIBS').split()
-    return (["-L" + sysconfig.get_config_var("LIBPL")] +
-            pylibs +
+    numpy_blas = numpy_sys.get_info("blas")
+    return (["-L" + sysconfig.get_config_var("LIBPL")] + pylibs +
+            ["-L{}".format(lib) for lib in numpy_blas['library_dirs']] +
+            ["-l{}".format(lib) for lib in numpy_blas['libraries']] +
             ["-lpython" + sysconfig.get_config_var('VERSION')])
 
 

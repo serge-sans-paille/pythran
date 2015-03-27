@@ -881,79 +881,75 @@ struct __combined<container<C>, pythonic::types::ndarray<T,N>> {
 
 namespace pythonic {
 
+    namespace details {
+      constexpr int signed_int_types[] = {0, NPY_INT8, NPY_INT16, 0, NPY_INT32, 0, 0, 0, NPY_INT64};
+      constexpr int unsigned_int_types[] = {0, NPY_UINT8, NPY_UINT16, 0, NPY_UINT32, 0, 0, 0, NPY_UINT64};
+    }
+
     template<class T>
-        struct c_type_to_numpy_type {
-            static const int value = c_type_to_numpy_type<decltype(std::declval<T>()())>::value;
+        struct c_type_to_numpy_type : c_type_to_numpy_type<decltype(std::declval<T>()())> {
         };
 
     template<>
-        struct c_type_to_numpy_type<double> {
-            static const int value = NPY_DOUBLE;
-        };
+        struct c_type_to_numpy_type<double> : std::integral_constant<int, NPY_DOUBLE> {};
 
     template<>
-        struct c_type_to_numpy_type<float> {
-            static const int value = NPY_FLOAT;
-        };
+        struct c_type_to_numpy_type<float> : std::integral_constant<int, NPY_FLOAT> {};
 
     template<>
-        struct c_type_to_numpy_type<std::complex<float>> {
-            static const int value = NPY_CFLOAT;
-        };
+        struct c_type_to_numpy_type<std::complex<float>> : std::integral_constant<int, NPY_CFLOAT> {};
 
     template<>
-        struct c_type_to_numpy_type<std::complex<double>> {
-            static const int value = NPY_CDOUBLE;
-        };
+        struct c_type_to_numpy_type<std::complex<double>> : std::integral_constant<int, NPY_CDOUBLE> {};
 
     template<>
-        struct c_type_to_numpy_type<long int> {
-            static const int value = NPY_LONG;
-        };
-
-    template<>
-        struct c_type_to_numpy_type<long unsigned int> {
-            static const int value = NPY_ULONG;
-        };
-
-    template<>
-        struct c_type_to_numpy_type<long long> {
-            static const int value = NPY_LONGLONG;
+        struct c_type_to_numpy_type<signed long long> {
+            static const int value = details::signed_int_types[sizeof(signed long long)];
         };
 
     template<>
         struct c_type_to_numpy_type<unsigned long long> {
-            static const int value = NPY_ULONGLONG;
+            static const int value = details::unsigned_int_types[sizeof(unsigned long long)];
         };
 
     template<>
-        struct c_type_to_numpy_type<int> {
-            static const int value = NPY_INT;
+        struct c_type_to_numpy_type<signed long> {
+            static const int value = details::signed_int_types[sizeof(signed long)];
+        };
+
+    template<>
+        struct c_type_to_numpy_type<unsigned long> {
+            static const int value = details::unsigned_int_types[sizeof(unsigned long)];
+        };
+
+    template<>
+        struct c_type_to_numpy_type<signed int> {
+            static const int value = details::signed_int_types[sizeof(signed int)];
         };
 
     template<>
         struct c_type_to_numpy_type<unsigned int> {
-            static const int value = NPY_UINT;
+            static const int value = details::unsigned_int_types[sizeof(unsigned int)];
         };
+
     template<>
-        struct c_type_to_numpy_type<short> {
-            static const int value = NPY_SHORT;
+        struct c_type_to_numpy_type<signed short> {
+            static const int value = details::signed_int_types[sizeof(signed short)];
         };
 
     template<>
         struct c_type_to_numpy_type<unsigned short> {
-            static const int value = NPY_USHORT;
+            static const int value = details::unsigned_int_types[sizeof(unsigned short)];
         };
-
 
     template<>
         struct c_type_to_numpy_type<signed char> {
-            static const int value = NPY_INT8;
+            static const int value = details::signed_int_types[sizeof(signed char)];
         };
 
     template<>
         struct c_type_to_numpy_type<unsigned char> {
-            static const int value = NPY_UINT8;
+            static const int value = details::unsigned_int_types[sizeof(unsigned char)];
         };
 
     template<>
@@ -1022,12 +1018,12 @@ namespace pythonic {
             }
         };
 
-    template<class T>
-    std::tuple<types::slice> make_slices(long const* strides, long const* offsets, long const* dims, utils::int_<1>) {
+    template<class T, class S>
+    std::tuple<types::slice> make_slices(long const* strides, long const* offsets, S const* dims, utils::int_<1>) {
       return std::tuple<types::slice>(types::slice(*offsets, *offsets + *dims * *strides, *strides / sizeof(T)));
     }
-    template<class T, size_t N>
-      auto make_slices(long const* strides, long const* offsets, long const * dims, utils::int_<N>)
+    template<class T, class S, size_t N>
+      auto make_slices(long const* strides, long const* offsets, S const * dims, utils::int_<N>)
         -> decltype(std::tuple_cat(make_slices<T>(strides, offsets, dims,  utils::int_<1>()),
                                    make_slices<T>(strides + 1, offsets + 1, dims +1, utils::int_<N-1>())))
       {
@@ -1199,7 +1195,7 @@ namespace pythonic {
                            void *data, int flags, PyObject *obj) {
         npy_intp shape[N];
         std::copy(dims, dims + N, shape);
-        return pyarray_new<npy_intp, N>{}.from_descr(subtype, descr, shape, flags, obj);
+        return pyarray_new<npy_intp, N>{}.from_descr(subtype, descr, shape, data, flags, obj);
       }
       PyObject *from_data(T *dims, int typenum, void *data) {
         npy_intp shape[N];
@@ -1242,7 +1238,8 @@ namespace pythonic {
                                 PyArray_DESCR(arr),
                                 n.shape.data(),
                                 PyArray_DATA(arr),
-                                PyArray_FLAGS(arr) & ~NPY_ARRAY_OWNDATA, p);
+                                PyArray_FLAGS(arr) & ~NPY_ARRAY_OWNDATA,
+                                p);
                     }
                 } else {
                     PyObject* result = pyarray_new<long, N>{}.from_data(n.shape.data(), c_type_to_numpy_type<T>::value, n.buffer);

@@ -1,7 +1,7 @@
 from __future__ import print_function
 from distutils.command.build import build
 from distutils.core import setup, Command
-from subprocess import check_call, check_output
+from subprocess import check_call, check_output, CalledProcessError
 import logging
 import numpy
 import os
@@ -66,7 +66,11 @@ class BuildWithPly(build):
                          '-DCMAKE_INSTALL_PREFIX=.',
                          '-DNT2_FIND_REPOSITORIES='
                          'git://github.com/MetaScale/nt2-modules.git']
-            check_call(build_cmd)
+            try:
+            	check_call(build_cmd)
+            except Exception:
+                print("configure failed upon: " + " " .join(build_cmd))
+                raise
             os.chdir(cwd)
 
         print('Compile and install nt2')

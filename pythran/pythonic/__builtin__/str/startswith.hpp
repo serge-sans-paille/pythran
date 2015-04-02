@@ -15,10 +15,17 @@ namespace pythonic {
             bool
             startswith(types::str const& s, types::str const& prefix, long start, long end)
             {
-                if(end == std::string::npos)
-                    end = s.size();
-                return (end - start) >= prefix.size() and s.compare(start, prefix.size(), prefix) == 0;
+                if(end < 0)
+                    end += s.size();
+                return (end - start) >= static_cast<long>(prefix.size()) and s.compare(start, prefix.size(), prefix) == 0;
             }
+
+            bool
+            startswith(types::str const& s, types::str const& prefix, long start)
+            {
+                return startswith(s, prefix, start, s.size());
+            }
+
 
             PROXY_IMPL(pythonic::__builtin__::str, startswith);
         }

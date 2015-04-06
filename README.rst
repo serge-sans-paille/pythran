@@ -55,7 +55,7 @@ Mac OSX
 
 Using brew (http://brew.sh/)::
 
-    $> brew reinstall boost --with-python
+    $> brew install boost-python
     $> brew install gmp
     $> brew install cmake
 

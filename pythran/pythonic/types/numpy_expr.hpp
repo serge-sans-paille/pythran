@@ -93,16 +93,20 @@ namespace pythonic {
                 }
 #endif
                 template<int... I, class... S>
-                numpy_expr<Op, numpy_gexpr<Args, S...>...>
-                _get(utils::seq<I...>, S const&... s) const {
-                  return {std::get<I-1>(args)(s...)...};
+                auto
+                _get(utils::seq<I...>, S const&... s) const
+                -> decltype(Op{}(std::get<I-1>(args)(s...)...))
+                {
+                  return Op{}(std::get<I-1>(args)(s...)...);
                 }
 
                 template<class S0, class... S>
+                auto operator()(S0 const& s0, S const&... s) const
+                ->
                 typename std::enable_if<not std::is_scalar<S0>::value,
-                                        numpy_expr<Op, numpy_gexpr<Args, S0, S...>...>
+                                        decltype(this->_get(typename utils::gens<1+sizeof...(Args)>::type{}, s0, s...))
                                        >::type
-                operator()(S0 const& s0, S const&... s) const {
+                {
                     return _get(typename utils::gens<1+sizeof...(Args)>::type{}, s0, s...);
                 }
 

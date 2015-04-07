@@ -278,25 +278,25 @@ def full_unroll0():
     for i,j in zip([1,2,3],[4,5,6]): k.append((i,j))
     return k"""
 
-        ref = """import itertools
+        ref = '''import itertools
 def full_unroll0():
     k = []
-    __tuple1 = (1, 4)
-    j = __tuple1[1]
-    i = __tuple1[0]
+    __tuple0 = (1, 4)
+    j = __tuple0[1]
+    i = __tuple0[0]
     __builtin__.list.append(k, (i, j))
-    __tuple1 = (2, 5)
-    j = __tuple1[1]
-    i = __tuple1[0]
+    __tuple0 = (2, 5)
+    j = __tuple0[1]
+    i = __tuple0[0]
     __builtin__.list.append(k, (i, j))
-    __tuple1 = (3, 6)
-    j = __tuple1[1]
-    i = __tuple1[0]
+    __tuple0 = (3, 6)
+    j = __tuple0[1]
+    i = __tuple0[0]
     __builtin__.list.append(k, (i, j))
     return k
 def __init__():
     return __builtin__.None
-__init__()"""
+__init__()'''
 
         self.check_ast(init, ref, ["pythran.optimizations.ConstantFolding", "pythran.optimizations.LoopFullUnrolling"])
 

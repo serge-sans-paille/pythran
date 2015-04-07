@@ -455,8 +455,7 @@ namespace pythonic {
                 }
                 template<class V>
                 void store(V &&v, long i) {
-                  typedef typename boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION> vT;
-                  boost::simd::store<vT>(v, buffer, i);
+                  boost::simd::store(v, buffer, i);
                 }
 #endif
 
@@ -473,21 +472,21 @@ namespace pythonic {
 
                 numpy_gexpr<ndarray const &, slice> operator[](slice const& s) const
                 {
-                    return numpy_gexpr<ndarray const &, slice>(*this, s);
+                    return make_gexpr(*this, s);
                 }
 
                 numpy_gexpr<ndarray const &, contiguous_slice> operator[](contiguous_slice const& s) const
                 {
-                    return numpy_gexpr<ndarray const &, contiguous_slice>(*this, s);
+                    return make_gexpr(*this, s);
                 }
                 numpy_gexpr<ndarray const &, slice> operator()(slice const& s) const
                 {
-                    return numpy_gexpr<ndarray const &, slice>(*this, s);
+                    return make_gexpr(*this, s);
                 }
 
                 numpy_gexpr<ndarray const &, contiguous_slice> operator()(contiguous_slice const& s) const
                 {
-                    return numpy_gexpr<ndarray const &, contiguous_slice>(*this, s);
+                    return make_gexpr(*this, s);
                 }
 
                 /* extended slice indexing */

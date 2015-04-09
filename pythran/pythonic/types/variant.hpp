@@ -18,7 +18,7 @@ namespace pythonic {
                 variant(Type const& t) : t(new (mem) Type(t)) {}
                 variant(variant<Type> const& t) : t(t.t?new (mem) Type(*t.t):t.t) {}
                 template<class OtherType>
-                    variant(variant<OtherType> const& t) : t(nullptr) {}
+                    variant(variant<OtherType> const&) : t(nullptr) {}
 
                 template <class... Args>
                     auto operator()(Args&&... args) -> decltype( std::declval<Type>()(std::forward<Args>(args)...) ) {

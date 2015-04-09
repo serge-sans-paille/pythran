@@ -68,6 +68,7 @@ class NamedType(Type):
     """
     def __init__(self, repr, qualifiers=set()):
         super(NamedType, self).__init__(repr=repr, qualifiers=qualifiers)
+        self.isdependantname = False
 
     def generate(self, ctx):
         return self.repr
@@ -87,6 +88,7 @@ class PType(Type):
                                     qualifiers=type.qualifiers,
                                     name=PType.prefix.format(PType.count))
         PType.count += 1
+        self.isdependantname = type.isdependantname
 
     def generate(self, ctx):
         return ctx(self.type).generate(ctx)
@@ -108,6 +110,7 @@ class InstanciatedType(Type):
                                                name=name,
                                                arguments=arguments,
                                                qualifiers=qualifiers)
+        self.isdependantname = any(arg.isdependantname for arg in arguments)
         if fun == caller:
             self.qualifiers.add(Weak)
 
@@ -118,9 +121,10 @@ class InstanciatedType(Type):
         else:
             template_params = ""
 
-        return "typename {0}::type{1}::{2}".format(self.fun.name,
-                                                   template_params,
-                                                   self.name)
+        tn = "typename " * self.isdependantname
+        return tn + "{0}::type{1}::{2}".format(self.fun.name,
+                                               template_params,
+                                               self.name)
 
 
 class CombinedTypes(Type):
@@ -130,7 +134,7 @@ class CombinedTypes(Type):
     >>> NamedType('long') + NamedType('long')
     long
     >>> NamedType('long') + NamedType('char')
-    typename __combined<char,long>::type
+    __combined<char,long>::type
     """
 
     def __init__(self, types):
@@ -138,6 +142,7 @@ class CombinedTypes(Type):
             types=types,
             qualifiers=set.union(*[t.qualifiers for t in types])
             )
+        self.isdependantname = any(t.isdependantname for t in types)
 
     def __add__(self, other):
         if isinstance(other, CombinedTypes):
@@ -180,7 +185,8 @@ class CombinedTypes(Type):
         if len(combined) == 1:
             return combined[0]
         else:
-            return 'typename __combined<{0}>::type'.format(",".join(combined))
+            tn = "typename " * self.isdependantname
+            return tn + '__combined<{0}>::type'.format(",".join(combined))
 
 
 class ArgumentType(Type):
@@ -188,12 +194,13 @@ class ArgumentType(Type):
     A type to hold function arguments
 
     >>> ArgumentType(4)
-    typename std::remove_cv<\
-typename std::remove_reference<argument_type4>::type>::type
+    typename std::remove_cv<typename \
+std::remove_reference<argument_type4>::type>::type
     """
     def __init__(self, num, qualifiers=set()):
         super(ArgumentType, self).__init__(num=num,
                                            qualifiers=qualifiers)
+        self.isdependantname = True
 
     def generate(self, ctx):
         argtype = "argument_type{0}".format(self.num)
@@ -208,6 +215,7 @@ class DependentType(Type):
     def __init__(self, of):
         super(DependentType, self).__init__(of=of,
                                             qualifiers=of.qualifiers)
+        self.isdependantname = of.isdependantname
 
 
 class Assignable(DependentType):
@@ -219,11 +227,12 @@ class Assignable(DependentType):
     * assignable types (typically type of a variable)
 
     >>> Assignable(NamedType("long"))
-    typename pythonic::assignable<long>::type
+    pythonic::assignable<long>::type
     """
 
     def generate(self, ctx):
-        return 'typename pythonic::assignable<{0}>::type'.format(
+        tn = "typename " * self.of.isdependantname
+        return tn + 'pythonic::assignable<{0}>::type'.format(
             self.of.generate(ctx))
 
 
@@ -234,11 +243,12 @@ class Lazy(DependentType):
     It is used to make a lazy evaluation of numpy expressions
 
     >>> Lazy(NamedType("long"))
-    typename pythonic::lazy<long>::type
+    pythonic::lazy<long>::type
     """
 
     def generate(self, ctx):
-        return 'typename pythonic::lazy<{0}>::type'.format(
+        tn = "typename " * self.of.isdependantname
+        return tn + 'pythonic::lazy<{0}>::type'.format(
             self.of.generate(ctx))
 
 
@@ -250,6 +260,9 @@ class DeclType(NamedType):
     typename std::remove_cv<\
 typename std::remove_reference<decltype(toto)>::type>::type
     """
+    def __init__(self, of):
+        super(DeclType, self).__init__(of)
+        self.isdependantname = True
 
     def generate(self, ctx):
         return ('typename std::remove_cv<'
@@ -261,16 +274,15 @@ class ContentType(DependentType):
     '''
     Type of the object in a container
 
-    >>> ContentType(DeclType('l'))
-    typename pythonic::types::content_of<typename std::remove_cv<\
-typename std::remove_reference<decltype(l)>::type>::type>::type
+    >>> ContentType(NamedType('list'))
+    pythonic::types::content_of<list>::type
     '''
 
     def generate(self, ctx):
         # the content of a container can be inferred directly
         if type(self.of) in (ListType, SetType, ContainerType):
             return self.of.of.generate(ctx)
-        return 'typename pythonic::types::content_of<{0}>::type'.format(
+        return 'pythonic::types::content_of<{0}>::type'.format(
             ctx(self.of).generate(ctx))
 
 
@@ -279,8 +291,8 @@ class IteratorContentType(DependentType):
     Type of an iterator over the content of a container
 
     >>> IteratorContentType(NamedType('str'))
-    typename std::remove_cv<typename std::iterator_traits<\
-typename std::remove_reference<str>::type::iterator>::value_type>::type
+    std::remove_cv<std::iterator_traits<\
+std::remove_reference<str>::type::iterator>::value_type>::type
     '''
 
     def generate(self, ctx):
@@ -289,9 +301,10 @@ typename std::remove_reference<str>::type::iterator>::value_type>::type
             if self.of.ftype.repr == '__builtin__::proxy::xrange()':
                 return ctx(NamedType('long')).generate(ctx)
         iterator_value_type = ctx(self.of).generate(ctx)
-        return 'typename std::remove_cv<{0}>::type'.format(
-            'typename std::iterator_traits<{0}>::value_type'.format(
-                'typename std::remove_reference<{0}>::type::iterator'.format(
+        tn = "typename " * self.isdependantname
+        return tn + 'std::remove_cv<{0}>::type'.format(
+            tn + 'std::iterator_traits<{0}>::value_type'.format(
+                tn + 'std::remove_reference<{0}>::type::iterator'.format(
                     iterator_value_type)
                 )
             )
@@ -310,6 +323,7 @@ class GetAttr(Type):
             qualifiers=param.qualifiers,
             param=param,
             attr=attr)
+        self.isdependantname = param.isdependantname
 
     def generate(self, ctx):
         return ('decltype(pythonic::__builtin__::getattr<{}>({}))'
@@ -330,6 +344,7 @@ class ReturnType(Type):
             qualifiers=ftype.qualifiers.union(*args_qualifiers),
             ftype=ftype,
             args=args)
+        self.isdependantname = any(t.isdependantname for t in args + [ftype])
 
     def generate(self, ctx):
         # the return type of a constructor is obvious
@@ -346,7 +361,7 @@ class ElementType(Type):
 
     >>> t = TupleType([NamedType('int'), NamedType('str')])
     >>> ElementType(1, t)
-    typename std::tuple_element<1,typename std::remove_reference<\
+    std::tuple_element<1,std::remove_reference<\
 decltype(pythonic::types::make_tuple(std::declval<int>(), \
 std::declval<str>()))>::type>::type
     '''
@@ -355,11 +370,13 @@ std::declval<str>()))>::type>::type
         super(ElementType, self).__init__(qualifiers=of.qualifiers,
                                           of=of,
                                           index=index)
+        self.isdependantname = of.isdependantname
 
     def generate(self, ctx):
-        return 'typename std::tuple_element<{0},{1}>::type'.format(
+        tn = "typename " * self.isdependantname
+        return tn + 'std::tuple_element<{0},{1}>::type'.format(
             self.index,
-            'typename std::remove_reference<{0}>::type'.format(
+            tn + 'std::remove_reference<{0}>::type'.format(
                 ctx(self.of).generate(ctx)
                 )
             )
@@ -404,6 +421,7 @@ std::declval<bool>()))
             qualifiers = set()
 
         super(TupleType, self).__init__(ofs=ofs, qualifiers=qualifiers)
+        self.isdependantname = any(of.isdependantname for of in ofs)
 
     def generate(self, ctx):
         elts = (ctx(of).generate(ctx) for of in self.ofs)
@@ -426,6 +444,8 @@ class DictType(Type):
             of_key=of_key,
             of_value=of_value
             )
+        self.isdependantname = (of_key.isdependantname or
+                                of_value.isdependantname)
 
     def generate(self, ctx):
         return 'pythonic::types::dict<{0},{1}>'.format(
@@ -438,11 +458,12 @@ class ContainerType(DependentType):
     Type of any container of stuff of the same type
 
     >>> ContainerType(NamedType('int'))
-    container<typename std::remove_reference<int>::type>
+    container<std::remove_reference<int>::type>
     '''
 
     def generate(self, ctx):
-        return 'container<typename std::remove_reference<{0}>::type>'.format(
+        tn = "typename " * self.isdependantname
+        return 'container<' + tn + 'std::remove_reference<{0}>::type>'.format(
             ctx(self.of).generate(ctx))
 
 
@@ -473,6 +494,7 @@ class ExpressionType(Type):
             qualifiers=set.union(*[expr.qualifiers for expr in exprs]),
             op=op,
             exprs=exprs)
+        self.isdependantname = any(expr.isdependantname for expr in exprs)
 
     def generate(self, ctx):
         texprs = (ctx(expr).generate(ctx) for expr in self.exprs)

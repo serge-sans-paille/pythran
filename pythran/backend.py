@@ -147,7 +147,7 @@ class Cxx(Backend):
         ;
         struct type
         {
-          typedef typename pythonic::assignable<void>::type result_type;
+          typedef pythonic::assignable<void>::type result_type;
         }  ;
         typename type::result_type operator()() const;
         ;

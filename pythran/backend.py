@@ -149,10 +149,10 @@ class Cxx(Backend):
         {
           typedef pythonic::assignable<void>::type result_type;
         }  ;
-        typename type::result_type operator()() const;
+        type::result_type operator()() const;
         ;
       }  ;
-      typename foo::type::result_type foo::operator()() const
+      foo::type::result_type foo::operator()() const
       {
         pythonic::__builtin__::print("hello world");
       }
@@ -506,10 +506,11 @@ class Cxx(Backend):
                                         else "")
             ffscope = "{0}::{1}".format(node.name, fscope)
 
+            tn = "typename " if formal_args else ""
             operator_declaration = [
                 templatize(
                     make_const_function_declaration(
-                        "typename {0}result_type".format(fscope),
+                        tn + "{0}result_type".format(fscope),
                         "operator()",
                         formal_types,
                         formal_args,
@@ -519,7 +520,7 @@ class Cxx(Backend):
                 EmptyStatement()
                 ]
             operator_signature = make_const_function_declaration(
-                "typename {0}result_type".format(ffscope),
+                tn + "{0}result_type".format(ffscope),
                 "{0}::operator()".format(node.name),
                 formal_types,
                 formal_args)

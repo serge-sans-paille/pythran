@@ -252,24 +252,6 @@ class Lazy(DependentType):
             self.of.generate(ctx))
 
 
-class DeclType(NamedType):
-    """
-    Gather the type of a variable
-
-    >>> DeclType("toto")
-    typename std::remove_cv<\
-typename std::remove_reference<decltype(toto)>::type>::type
-    """
-    def __init__(self, of):
-        super(DeclType, self).__init__(of)
-        self.isdependantname = True
-
-    def generate(self, ctx):
-        return ('typename std::remove_cv<'
-                'typename std::remove_reference<'
-                'decltype({0})>::type>::type'.format(self.repr))
-
-
 class ContentType(DependentType):
     '''
     Type of the object in a container
@@ -296,10 +278,6 @@ std::remove_reference<str>::type::iterator>::value_type>::type
     '''
 
     def generate(self, ctx):
-        # special hook to avoid delegating this trivial computation to c++
-        if type(self.of) is ReturnType and type(self.of.ftype) is DeclType:
-            if self.of.ftype.repr == '__builtin__::proxy::xrange()':
-                return ctx(NamedType('long')).generate(ctx)
         iterator_value_type = ctx(self.of).generate(ctx)
         tn = "typename " * self.isdependantname
         return tn + 'std::remove_cv<{0}>::type'.format(

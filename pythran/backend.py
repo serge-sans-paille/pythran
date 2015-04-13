@@ -372,13 +372,14 @@ class Cxx(Backend):
                                   map("{0}({0})".format, formal_args))))
                     ))
 
+            tn = 'typename ' if formal_types else ''
             next_iterator = [
                 FunctionBody(
                     FunctionDeclaration(Value("void", "operator++"), []),
                     Block([Statement("next()")])),
                 FunctionBody(
                     FunctionDeclaration(
-                        Value("typename {0}::result_type".format(
+                        Value(tn + "{0}::result_type".format(
                             instanciated_next_name),
                             "operator*"),
                         [], "const"),
@@ -408,7 +409,7 @@ class Cxx(Backend):
             next_signature = templatize(
                 FunctionDeclaration(
                     Value(
-                        "typename {0}::result_type".format(
+                        tn + "{0}::result_type".format(
                             instanciated_next_name),
                         "{0}::next".format(instanciated_next_name)),
                     []),
@@ -433,7 +434,7 @@ class Cxx(Backend):
                             [Statement("{0} {1}".format(v, k))
                              for k, v in self.extra_declarations] +
                             [Statement(
-                                "typename {0}::result_type {1}".format(
+                                tn + "{0}::result_type {1}".format(
                                     instanciated_next_name,
                                     Cxx.generator_state_value))])
 
@@ -951,7 +952,7 @@ class Cxx(Backend):
 
             # Iterator declaration
             local_iter = "__iter{0}".format(len(self.break_handlers))
-            local_iter_decl = Assignable(DeclType(iterable))
+            local_iter_decl = Assignable(self.types[node.iter])
 
             self.handle_omp_for(node, local_iter)
 

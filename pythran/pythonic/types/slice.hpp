@@ -3,6 +3,10 @@
 
 #include "pythonic/__builtin__/None.hpp"
 
+#ifdef NDEBUG
+#include <nt2/include/functions/bitofsign.hpp>
+#endif
+
 #include <cassert>
 #include <stdexcept>
 #include <iostream>
@@ -13,6 +17,17 @@ namespace pythonic {
     namespace types {
 
         struct contiguous_slice;
+
+        namespace details {
+
+            long roundup_divide(long a, long b)
+            {
+                if(b > 0)
+                    return (a + b - 1) / b;
+                else
+                    return (a + b + 1) / b;
+            }
+        }
 
         struct normalized_slice {
             long lower, upper, step;
@@ -27,7 +42,7 @@ namespace pythonic {
 
             long size() const
             {
-                return std::max(0L, long(ceil(double(upper - lower)/double(step))));
+                return std::max(0L, details::roundup_divide(upper - lower, step));
             }
 
             inline long get(long i) const
@@ -48,9 +63,9 @@ namespace pythonic {
             slice(){}
 
             slice operator*(slice const& other) const {
-                // We do not implement these because it required to know the "end"
+                // We do not implement these because it requires to know the "end"
                 // value of the slice which is not possible if it is not "step == 1" slice
-                // TODO : We can skip these constraints if we know begin, end and step.
+                // TODO: We can skip these constraints if we know begin, end and step.
                 if((other.step < 0 or static_cast<long>(other.upper) < 0 or
                             static_cast<long>(other.lower) < 0) and step != 1 and step != -1)
                     throw std::runtime_error("not implemented");
@@ -145,14 +160,23 @@ namespace pythonic {
                 return {normalized_lower, normalized_upper, step};
             }
 
+            /*
+             * An assert is raised when we can't compute the size without more
+             * informations.
+             */
             long size() const
             {
-                if(upper.is_none and step * lower < 0)
-                    return ceil(static_cast<double>(lower) / static_cast<double>(step));
-                if(lower.is_none and step * upper > 0)
-                    return ceil(static_cast<double>(upper) / static_cast<double>(step));
-                assert(not upper.is_none and not lower.is_none);
-                return std::max(0L, long(ceil(double(upper - lower)/double(step))));
+                assert(not (upper.is_none and lower.is_none));
+                long len;
+                if(upper.is_none) {
+                    assert(nt2::bitofsign(step) != nt2::bitofsign(lower));
+                    len = -(long)lower;
+                } else if(lower.is_none) {
+                    assert(nt2::bitofsign(step) = nt2::bitofsign(upper));
+                    len = upper;
+                } else
+                    len = upper - lower;
+                return std::max(0L, details::roundup_divide(len, step));
             }
 
             long get(long i) const
@@ -179,7 +203,7 @@ namespace pythonic {
 
             long size() const
             {
-                return std::max(0L, long(ceil(double(upper - lower))));
+                return std::max(0L, upper - lower);
             }
 
             inline long get(long i) const
@@ -281,8 +305,13 @@ namespace pythonic {
 
             long size() const
             {
-                assert(not upper.is_none);
-                return std::max(0L, long(ceil(double(upper - lower))));
+                long len;
+                if(upper.is_none) {
+                    assert(lower < 0);
+                    len = -lower;
+                } else
+                    len = upper - lower;
+                return std::max(0L, len);
             }
 
             inline long get(long i) const
@@ -294,9 +323,9 @@ namespace pythonic {
         const long contiguous_slice::step = 1;
 
         slice slice::operator*(contiguous_slice const& other) const {
-            // We do not implement these because it required to know the "end"
+            // We do not implement these because it requires to know the "end"
             // value of the slice which is not possible if it is not "step == 1" slice
-            // TODO : We can skip these constraints if we know begin, end and step.
+            // TODO: We can skip these constraints if we know begin, end and step.
             if((static_cast<long>(other.upper) < 0 or
                 static_cast<long>(other.lower) < 0) and step != 1 and step != -1)
                 throw std::runtime_error("not implemented");

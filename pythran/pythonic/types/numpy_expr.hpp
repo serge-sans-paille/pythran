@@ -108,8 +108,13 @@ namespace pythonic {
 
                 template<class F>
                     typename std::enable_if<is_numexpr_arg<F>::value, numpy_fexpr<numpy_expr, F>>::type
-                    operator[](F const& filter) const {
+                    fast(F const& filter) const {
                         return numpy_fexpr<numpy_expr, F>(*this, filter);
+                    }
+                template<class F>
+                    typename std::enable_if<is_numexpr_arg<F>::value, numpy_fexpr<numpy_expr, F>>::type
+                    operator[](F const& filter) const {
+                        return fast(filter);
                     }
 
                 template<int... I>

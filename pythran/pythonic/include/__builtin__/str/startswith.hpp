@@ -11,7 +11,7 @@ namespace pythonic {
         namespace str {
 
             bool
-            startswith(types::str const& s, types::str const& prefix, long start=0, size_t end=std::string::npos);
+            startswith(types::str const& s, types::str const& prefix, long start=0, long end=-1);
 
             PROXY_DECL(pythonic::__builtin__::str, startswith);
         }

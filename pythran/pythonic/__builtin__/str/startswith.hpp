@@ -13,9 +13,9 @@ namespace pythonic {
         namespace str {
 
             bool
-            startswith(types::str const& s, types::str const& prefix, long start, size_t end)
+            startswith(types::str const& s, types::str const& prefix, long start, long end)
             {
-                if(end == std::string::npos)
+                if(end < 0)
                     end = s.size();
                 return (end - start) >= prefix.size() and s.compare(start, prefix.size(), prefix) == 0;
             }

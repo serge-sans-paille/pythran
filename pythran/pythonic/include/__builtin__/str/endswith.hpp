@@ -10,7 +10,7 @@ namespace pythonic {
 
         namespace str {
 
-            bool endswith(types::str const& s, types::str const& suffix, long start=0, size_t end=std::string::npos);
+            bool endswith(types::str const& s, types::str const& suffix, long start=0, long end=-1);
 
             PROXY_DECL(pythonic::__builtin__::str, endswith);
 

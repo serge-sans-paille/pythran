@@ -232,7 +232,7 @@ class TestNdarray(TestEnv):
                       5,
                       numpy_uint64=[int])
 
-    def test_numpy_float(self):
+    def test_numpy_np_float(self):
         self.run_test("def numpy_float(n): import numpy ; return numpy.ones(n, numpy.float)",
                       5,
                       numpy_float=[int])
@@ -509,3 +509,86 @@ def assign_ndarray(t):
     def test_newaxis7(self):
         self.run_test("def np_newaxis7(a): from numpy import newaxis; return a[newaxis,1:,newaxis,:1,newaxis]",
                       numpy.ones((2,3)), np_newaxis7=[numpy.array([[float]])])
+
+    def test_gexpr_composition0(self):
+        self.run_test("def gexpr_composition0(a): return a[:,:,:][1]",
+                      numpy.arange(16).reshape(2,2,2,2),
+                      gexpr_composition0=[numpy.array([[[[int]]]])])
+
+    def test_gexpr_composition1(self):
+        self.run_test("def gexpr_composition1(a): return a[:,:,:][1,:]",
+                      numpy.arange(16).reshape(2,2,2,2),
+                      gexpr_composition1=[numpy.array([[[[int]]]])])
+
+    def test_gexpr_composition2(self):
+        self.run_test("def gexpr_composition2(a): return a[:,:,:][1,:,:]",
+                      numpy.arange(16).reshape(2,2,2,2),
+                      gexpr_composition2=[numpy.array([[[[int]]]])])
+
+    def test_gexpr_composition3(self):
+        self.run_test("def gexpr_composition3(a): return a[:,1,:][:,:,:]",
+                      numpy.arange(16).reshape(2,2,2,2),
+                      gexpr_composition3=[numpy.array([[[[int]]]])])
+
+    def test_gexpr_composition4(self):
+        self.run_test("def gexpr_composition4(a): return a[:,:,1][:,:,:]",
+                      numpy.arange(16).reshape(2,2,2,2),
+                      gexpr_composition4=[numpy.array([[[[int]]]])])
+
+    def test_gexpr_composition5(self):
+        self.run_test("def gexpr_composition5(a): return a[:,1,:][:,1,:]",
+                      numpy.arange(16).reshape(2,2,2,2),
+                      gexpr_composition5=[numpy.array([[[[int]]]])])
+
+    def test_gexpr_composition6(self):
+        self.run_test("def gexpr_composition6(a): return a[:,:,1][:,1,:]",
+                      numpy.arange(16).reshape(2,2,2,2),
+                      gexpr_composition6=[numpy.array([[[[int]]]])])
+
+    def test_gexpr_composition7(self):
+        self.run_test("def gexpr_composition7(a): return a[::2][::2]",
+                      numpy.arange(16),
+                      gexpr_composition7=[numpy.array([int])])
+
+    def test_gexpr_composition8(self):
+        self.run_test("def gexpr_composition8(a): return a[1::2][2::2]",
+                      numpy.arange(16),
+                      gexpr_composition8=[numpy.array([int])])
+
+    def test_gexpr_composition9(self):
+        self.run_test("def gexpr_composition9(a): return a[:1:2][:2:2]",
+                      numpy.arange(16),
+                      gexpr_composition9=[numpy.array([int])])
+
+    @unittest.skip("Unknown slice combination")
+    def test_gexpr_composition10(self):
+        self.run_test("def gexpr_composition10(a): return a[:-1:2][:-2:2]",
+                      numpy.arange(16),
+                      gexpr_composition10=[numpy.array([int])])
+
+    @unittest.skip("Unknown slice combination")
+    def test_gexpr_composition11(self):
+        self.run_test("def gexpr_composition11(a): return a[::2][::-2]",
+                      numpy.arange(17),
+                      gexpr_composition11=[numpy.array([int])])
+
+    @unittest.skip("Unknown slice combination")
+    def test_gexpr_composition12(self):
+        self.run_test("def gexpr_composition12(a): return a[::-2][::-2]",
+                      numpy.arange(13),
+                      gexpr_composition12=[numpy.array([int])])
+
+    def test_gexpr_composition13(self):
+        self.run_test("def gexpr_composition13(a): return a[::-3][::2]",
+                      numpy.arange(17),
+                      gexpr_composition13=[numpy.array([int])])
+
+    def test_gexpr_composition14(self):
+        self.run_test("def gexpr_composition14(a): return a[:,::2][:,1,::-2]",
+                      numpy.arange(16).reshape(1,4,4),
+                      gexpr_composition14=[numpy.array([[[int]]])])
+
+    def test_gexpr_composition15(self):
+        self.run_test("def gexpr_composition15(a): return a[:,1,1:-1][:,:-1]",
+                      numpy.arange(16).reshape(1,4,4),
+                      gexpr_composition15=[numpy.array([[[int]]])])

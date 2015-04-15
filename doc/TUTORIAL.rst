@@ -75,7 +75,7 @@ subset of Python AST) into a C++ AST::
   >>> from pythran import backend
   >>> cxx = pm.dump(backend.Cxx, tree)
   >>> str(cxx)
-  '#include <pythonic/__builtin__/bool_.hpp>\nnamespace __pythran_tutorial_module\n{\n  ;\n  struct fib\n  {\n    typedef void callable;\n    typedef void pure;\n    template <typename argument_type0 >\n    struct type\n    {\n      typedef typename pythonic::assignable<typename std::remove_cv<typename std::remove_reference<argument_type0>::type>::type>::type result_type;\n    }  \n    ;\n    template <typename argument_type0 >\n    typename type<argument_type0>::result_type operator()(argument_type0 const & n) const\n    ;\n  }  ;\n  template <typename argument_type0 >\n  typename fib::type<argument_type0>::result_type fib::operator()(argument_type0 const & n) const\n  {\n    return (pythonic::__builtin__::bool_((n < 2L)) ? n : (fib()((n - 1L)) + fib()((n - 2L))));\n  }\n}'
+  '#include <pythonic/__builtin__/bool_.hpp>\nnamespace __pythran_tutorial_module\n{\n  ;\n  struct fib\n  {\n    typedef void callable;\n    typedef void pure;\n    template <typename argument_type0 >\n    struct type\n    {\n      typedef typename pythonic::returnable<typename std::remove_cv<typename std::remove_reference<argument_type0>::type>::type>::type result_type;\n    }  \n    ;\n    template <typename argument_type0 >\n    typename type<argument_type0>::result_type operator()(argument_type0 const & n) const\n    ;\n  }  ;\n  template <typename argument_type0 >\n  typename fib::type<argument_type0>::result_type fib::operator()(argument_type0 const & n) const\n  {\n    return (pythonic::__builtin__::bool_((n < 2L)) ? n : (fib()((n - 1L)) + fib()((n - 2L))));\n  }\n}'
 
 The above string is understandable by a C++11 compiler, but it quickly reaches the limit of our developer brain, so most of the time, we are more comfortable with the Python backend::
 
@@ -93,13 +93,13 @@ there is no tuple unpacking in Pythran, so Pythran provides an adequate
 transformation::
 
   >>> from pythran import transformations
-  >>> tree = ast.parse("a,b = 1,3.5")
+  >>> tree = ast.parse("def foo(): a,b = 1,3.5")
   >>> _ = pm.apply(transformations.NormalizeTuples, tree)  # in-place
   >>> print pm.dump(backend.Python, tree)
-  if 1:
-      __tuple10 = (1, 3.5)
-      a = __tuple10[0]
-      b = __tuple10[1]
+  def foo():
+      __tuple0 = (1, 3.5)
+      a = __tuple0[0]
+      b = __tuple0[1]
 
 Note that Pythran wraps the sequence of assignment into a dummy if condition.
 This ensures that a single instruction from the input code maps to a single

@@ -29,6 +29,7 @@ class Type(object):
             setattr(self, k, v)
         self.qualifiers = self.qualifiers.copy()  # avoid sharing
         self.fields = tuple(sorted(kwargs.keys()))
+        self.iscore = False
 
     def isweak(self):
         return Weak in self.qualifiers
@@ -171,11 +172,13 @@ class CombinedTypes(Type):
             return not fot0(t) and not fot1(t)
 
         it = filter(fit, all_types)
+        it = sorted(it, key=lambda t: t.iscore, reverse=True)
         ot0 = filter(fot0, all_types)
         ot1 = filter(fot1, all_types)
-        icombined = sorted(set(ctx(t).generate(ctx) for t in it))
-        lcombined0 = sorted(set(ctx(t).generate(ctx) for t in ot0))[-mct:]
-        lcombined1 = sorted(set(ctx(t).generate(ctx) for t in ot1))[-mct:]
+        icombined = sorted({ctx(t).generate(ctx) for t in it if t.iscore})
+        icombined += sorted({ctx(t).generate(ctx) for t in it if not t.iscore})
+        lcombined0 = sorted({ctx(t).generate(ctx) for t in ot0})[-mct:]
+        lcombined1 = sorted({ctx(t).generate(ctx) for t in ot1})[-mct:]
         combined = icombined + lcombined0 + lcombined1
         if len(combined) == 1:
             return combined[0]
@@ -224,6 +227,23 @@ class Assignable(DependentType):
 
     def generate(self, ctx):
         return 'typename pythonic::assignable<{0}>::type'.format(
+            self.of.generate(ctx))
+
+
+class Returnable(DependentType):
+    """
+    A type which can be returned
+
+    It is used to make the difference between
+    * returned types (that cannot hold a reference to avoid dangling reference)
+    * assignable types (local to a function)
+
+    >>> Returnable(NamedType("long"))
+    typename pythonic::returnable<long>::type
+    """
+
+    def generate(self, ctx):
+        return 'typename pythonic::returnable<{0}>::type'.format(
             self.of.generate(ctx))
 
 

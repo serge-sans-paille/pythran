@@ -12,22 +12,29 @@ namespace pythonic {
             typedef T type;
         };
     template<class T>
-        struct assignable<T const&> {
-            typedef typename assignable<T>::type type;
-        };
-    template<class T>
-        struct assignable<T &> {
-            typedef typename assignable<T>::type type;
-        };
-    template<class T>
-        struct assignable<T &&> {
-            typedef typename assignable<T>::type type;
-        };
+        struct assignable<T const&> : assignable<T> {};
 
     template<class T>
-        struct lazy{
-            typedef typename assignable<T>::type type;  // very conservative :-)
-        };
+        struct assignable<T &> : assignable<T> {};
+
+    template<class T>
+        struct assignable<T &&> : assignable<T> {};
+
+    template<class T>
+        struct lazy : assignable<T> {}; // very conservative
+
+    template<class T>
+        struct returnable : assignable<T> {};
+
+    template<class T>
+        struct returnable<T const&> : assignable<typename returnable<T>::type> {};
+
+    template<class T>
+        struct returnable<T &> : assignable<typename returnable<T>::type> {};
+
+    template<class T>
+        struct returnable<T &&> : assignable<typename returnable<T>::type> {};
+
 }
 
 #endif

@@ -41,17 +41,16 @@ namespace pythonic {
             typedef typename gmp_compo<T,U>::type type;
             static_assert(!std::is_same<type,double>::value,"Cannot combine long and float.");
         };
-    template<class T, class U>
-        struct lazy<__gmp_expr<T,U> >
-        {
-            typedef typename assignable<__gmp_expr<T,U>>::type type;
-        };
-
     template<class T>
         struct assignable<__gmp_expr<T,T> >
         {
             typedef typename gmp_type<T>::type type;
         };
+    template<class T, class U>
+        struct lazy<__gmp_expr<T,U> > : assignable<__gmp_expr<T,U>>
+        {
+        };
+
 
     //GMP_COMPO
 

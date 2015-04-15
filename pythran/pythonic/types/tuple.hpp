@@ -6,6 +6,7 @@
 #include "pythonic/types/content_of.hpp"
 #include "pythonic/types/traits.hpp"
 #include "pythonic/utils/int_.hpp"
+#include "pythonic/utils/seq.hpp"
 #include "pythonic/utils/nested_container.hpp"
 
 #ifdef USE_BOOST_SIMD
@@ -103,6 +104,28 @@ namespace pythonic {
                         return std::tuple<>();
                     }
             };
+
+        /* helper to extract the tail of a tuple, and pop the head
+         */
+        template<int Offset, class T, int... N>
+        auto make_tuple_tail(T const& t, utils::seq<N...>) -> decltype(std::make_tuple(std::get<Offset + N>(t)...)) {
+          return std::make_tuple(std::get<Offset + N>(t)...);
+        }
+
+        template<class S, class... Stail>
+        std::tuple<Stail...> tuple_tail(std::tuple<S, Stail...> const& t) {
+          return make_tuple_tail<0>(t, typename utils::gens<sizeof...(Stail)+1>::type{});
+        }
+
+        template<class... S> struct count_trailing_long : std::integral_constant<size_t, 0> {};
+        template<class... S> struct count_trailing_long<long, S...> : std::integral_constant<size_t, 1 + count_trailing_long<S...>::value> {};
+
+        template<class S, class... Stail>
+        auto tuple_pop(std::tuple<S, Stail...> const& t)
+        -> decltype(make_tuple_tail<count_trailing_long<Stail...>::value>(t, typename utils::gens<sizeof...(Stail)+1-count_trailing_long<Stail...>::value>::type{}))
+        {
+          return make_tuple_tail<count_trailing_long<Stail...>::value>(t, typename utils::gens<sizeof...(Stail)+1-count_trailing_long<Stail...>::value>::type{});
+        }
 
         /* inspired by std::array implementation */
         template<typename T, size_t N>
@@ -213,8 +236,7 @@ namespace pythonic {
                 }
                 template<class V>
                 void store(V &&v, long i) {
-                  typedef typename boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION> vT;
-                  boost::simd::store<vT>(v, &buffer[0], i);
+                  boost::simd::store(v, &buffer[0], i);
                 }
 #endif
 
@@ -390,6 +412,15 @@ namespace pythonic {
     template<class T, size_t N>
         struct assignable<pythonic::types::array<T,N> >{
             typedef pythonic::types::array<typename assignable<T>::type, N> type;
+        };
+    template<class... Types>
+        struct returnable<std::tuple<Types...>>{
+            typedef std::tuple<typename returnable<Types>::type...> type;
+        };
+
+    template<class T, size_t N>
+        struct returnable<pythonic::types::array<T,N> >{
+            typedef pythonic::types::array<typename returnable<T>::type, N> type;
         };
 
 }

@@ -14,7 +14,7 @@ namespace pythonic {
 
             bool endswith(types::str const& s, types::str const& suffix, long start, long end)
             {
-                if(end == std::string::npos)
+                if(end == -1)
                     end = s.size();
                 long rstart = end - suffix.size();
                 return rstart >= start and s.compare(rstart, suffix.size(), suffix) == 0;

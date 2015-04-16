@@ -1,3 +1,42 @@
+2015-04-06 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+
+	* Various numpy.* function implementation improvement (incl. concatenate,
+	  str.join, itertools.combinations)
+
+	* Better error detection during install step
+
+	* 32 bit compatibility
+
+	* Complete rewrite of the expression engine
+
+	* Improved support of numpy extended expression
+
+	* Better user feedback on invalid pythran spec
+
+	* More efficient support of string litterals
+
+	* Faster exponentiation when index is an integer
+
+	* NT2 revision bump
+
+	* No-copy list as numpy expression parameters
+
+	* Accept C and fortran layout for input arrays
+
+	* Range value analysis and boundcheck removal
+
+	* Newaxis style indexing
+
+	* Better array-of-complex support
+
+	* Glimpses of python3 support
+
+	* Support for importing user defined modules
+
+	* Archlinux support
+
+	* Accept strided array as exported function input
+
 2014-10-22 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Full SIMD support! Almost all numpy expressions are vectorized

@@ -1,14 +1,15 @@
 #ifndef PYTHONIC_CMATH_EXP_HPP
 #define PYTHONIC_CMATH_EXP_HPP
 
+#include "pythonic/include/cmath/exp.hpp"
 #include "pythonic/utils/proxy.hpp"
 #include <cmath>
 
 namespace pythonic {
 
     namespace cmath {
-        using std::exp;
-        PROXY(pythonic::cmath, exp);
+        ALIAS(exp ,std::exp);
+        PROXY_IMPL(pythonic::cmath, exp);
     }
 
 }

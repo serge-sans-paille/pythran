@@ -9,8 +9,8 @@ namespace pythonic {
     namespace numpy {
 
         template <class E>
-            auto shape(E const& e) -> decltype(e.shape) {
-                return e.shape;
+            auto shape(E const& e) -> decltype(e.shape()) {
+                return e.shape();
             }
 
         PROXY(pythonic::numpy, shape)

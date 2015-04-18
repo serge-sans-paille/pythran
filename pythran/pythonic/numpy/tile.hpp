@@ -36,8 +36,9 @@ namespace pythonic {
             {
                 size_t n = expr.flat_size();
                 types::array<long, N> shape;
+                auto && expr_shape = expr.shape();
                 for(size_t i=0; i<N; ++i)
-                    shape[N - i - 1] = reps[N - i - 1] * ((E::value > i)?expr.shape[i]:1);
+                    shape[N - i - 1] = reps[N - i - 1] * ((E::value > i)?expr_shape[i]:1);
                 types::ndarray<typename types::numpy_expr_to_ndarray<E>::T, N> out(shape, __builtin__::None);
                 auto out_iter = out.fbegin();
                 _tile(expr.begin(), expr.end(), out_iter, utils::int_<types::numpy_expr_to_ndarray<E>::N>());

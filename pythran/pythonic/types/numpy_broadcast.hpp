@@ -30,11 +30,13 @@ namespace pythonic {
                 static constexpr size_t value = T::value + 1;
 
                 T const & ref;
-                array<long, value> shape;
+                array<long, value> _shape;
+                array<long, value> const& shape() const { return _shape; }
 
-                broadcasted(T const& ref) : ref(ref), shape() {
-                    shape[0] = 1;
-                    std::copy(ref.shape.begin(), ref.shape.end(), shape.begin() + 1);
+                broadcasted(T const& ref) : ref(ref), _shape() {
+                    _shape[0] = 1;
+                    auto&& ref_shape = ref.shape();
+                    std::copy(ref_shape.begin(), ref_shape.end(), _shape.begin() + 1);
                 }
 
                 T const & operator[](long i) const { return ref;}

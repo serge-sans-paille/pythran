@@ -37,7 +37,7 @@ namespace pythonic {
             typedef typename E::dtype T;
             typedef typename boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION> vT;
             static const size_t vN = boost::simd::meta::cardinal_of<vT>::value;
-            const long n = e.shape[0];
+            const long n = e.shape()[0];
             const long bound = n / vN * vN;
             long i = 0;
             if(bound > 0) {
@@ -99,7 +99,7 @@ namespace pythonic {
             {
                 if(axis<0 || size_t(axis) >= E::value)
                     throw types::ValueError("axis out of bounds");
-                auto shape = array.shape;
+                auto shape = array.shape();
                 if(axis==0)
                 {
                     types::array<long, E::value - 1> shp;

@@ -14,7 +14,7 @@ namespace pythonic {
 
         template<class E>
             auto average(E const & expr, long axis) -> decltype(sum(expr, axis)/1.) {
-                auto shape = expr.shape;
+                auto shape = expr.shape();
                 return sum(expr, axis) / double(shape[axis]);
             }
 

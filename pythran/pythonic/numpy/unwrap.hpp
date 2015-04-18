@@ -36,7 +36,7 @@ namespace pythonic {
             types::ndarray<double, types::numpy_expr_to_ndarray<E>::N> unwrap(E const& expr, double discont = pi)
             {
                 discont = nt2::max(discont, pi);
-                types::ndarray<double, types::numpy_expr_to_ndarray<E>::N> out(expr.shape, __builtin__::None);
+                types::ndarray<double, types::numpy_expr_to_ndarray<E>::N> out(expr.shape(), __builtin__::None);
                 _unwrap(expr.begin(), expr.end(), out.begin(), discont, utils::int_<types::numpy_expr_to_ndarray<E>::N>());
                 return out;
             }

@@ -237,10 +237,10 @@ namespace pythonic {
                 /* members */
                 utils::shared_ref<raw_array<T>> mem;    // shared data pointer
                 T* buffer;                              // pointer to the first data stored in the equivalent flat array
-                array<long, N> shape;                   // shape of the multidimensional array
+                array<long, N> _shape;                   // shape of the multidimensional array
 
                 /* constructors */
-                ndarray() : mem(utils::no_memory()), buffer(nullptr), shape() {}
+                ndarray() : mem(utils::no_memory()), buffer(nullptr), _shape() {}
                 ndarray(ndarray const & ) = default;
                 ndarray(ndarray && ) = default;
 
@@ -251,7 +251,7 @@ namespace pythonic {
                 ndarray(utils::shared_ref<raw_array<T>> const &mem, array<long,N> const& shape):
                     mem(mem),
                     buffer(mem->data),
-                    shape(shape)
+                    _shape(shape)
                 {
                 }
 
@@ -260,7 +260,7 @@ namespace pythonic {
                     ndarray(ndarray<Tp, Np> const& other):
                         mem(other.flat_size()),
                         buffer(mem->data),
-                        shape(other.shape)
+                        _shape(other._shape)
                 {
                     std::copy(other.fbegin(), other.fend(), fbegin());
                 }
@@ -269,7 +269,7 @@ namespace pythonic {
                 ndarray(array<long, N> const& shape, none_type init ):
                     mem(std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<long>())),
                     buffer(mem->data),
-                    shape(shape)
+                    _shape(shape)
                 {
                 }
                 ndarray(array<long, N> const& shape, T init ): ndarray(shape, none_type())
@@ -282,9 +282,9 @@ namespace pythonic {
                 ndarray(T* data, S const* pshape):
                     mem(data),
                     buffer(mem->data),
-                    shape()
+                    _shape()
                 {
-                    std::copy(pshape, pshape + N, shape.begin());
+                    std::copy(pshape, pshape + N, _shape.begin());
                 }
 
 #ifdef ENABLE_PYTHON_MODULE
@@ -305,9 +305,9 @@ namespace pythonic {
                         ndarray(Iterable&& iterable):
                             mem(utils::nested_container_size<Iterable>::flat_size(std::forward<Iterable>(iterable))),
                             buffer(mem->data),
-                            shape()
+                            _shape()
                 {
-                    type_helper<ndarray>::initialize_from_iterable(shape, mem->data, std::forward<Iterable>(iterable));
+                    type_helper<ndarray>::initialize_from_iterable(_shape, mem->data, std::forward<Iterable>(iterable));
                 }
 
                 /* from a  numpy expression */
@@ -320,7 +320,7 @@ namespace pythonic {
                     ndarray(numpy_expr<Op, Args...> const & expr) :
                         mem(expr.flat_size()),
                         buffer(mem->data),
-                        shape(expr.shape)
+                        _shape(expr.shape())
                 {
                     initialize_from_expr(expr);
                 }
@@ -329,7 +329,7 @@ namespace pythonic {
                     ndarray(numpy_texpr<Arg> const & expr) :
                         mem(expr.flat_size()),
                         buffer(mem->data),
-                        shape(expr.shape)
+                        _shape(expr.shape())
                 {
                     initialize_from_expr(expr);
                 }
@@ -337,7 +337,7 @@ namespace pythonic {
                     ndarray(numpy_texpr_2<Arg> const & expr) :
                         mem(expr.flat_size()),
                         buffer(mem->data),
-                        shape(expr.shape)
+                        _shape(expr.shape())
                 {
                     initialize_from_expr(expr);
                 }
@@ -347,7 +347,7 @@ namespace pythonic {
                     ndarray(numpy_gexpr<Arg, S...> const & expr) :
                         mem(expr.flat_size()),
                         buffer(mem->data),
-                        shape(expr.shape)
+                        _shape(expr.shape())
                 {
                     initialize_from_expr(expr);
                 }
@@ -356,7 +356,7 @@ namespace pythonic {
                     ndarray(numpy_iexpr<Arg> const & expr) :
                         mem(expr.flat_size()),
                         buffer(mem->data),
-                        shape(expr.shape)
+                        _shape(expr.shape())
                 {
                     initialize_from_expr(expr);
                 }
@@ -365,7 +365,7 @@ namespace pythonic {
                     ndarray(numpy_fexpr<Arg, F> const & expr) :
                         mem(expr.flat_size()),
                         buffer(mem->data),
-                        shape(expr.shape)
+                        _shape(expr.shape())
                 {
                     initialize_from_expr(expr);
                 }
@@ -410,12 +410,12 @@ namespace pythonic {
 
                 auto operator[](long i) const & -> decltype(this->fast(i))
                 {
-                    if(i<0) i += shape[0];
+                    if(i<0) i += _shape[0];
                     return fast(i);
                 }
                 auto operator[](long i) && -> decltype(std::move(*this).fast(i))
                 {
-                    if(i<0) i += shape[0];
+                    if(i<0) i += _shape[0];
                     return std::move(*this).fast(i);
                 }
                 auto operator()(long i) const & -> decltype((*this)[i])
@@ -430,11 +430,11 @@ namespace pythonic {
 
                 T const &operator[](array<long, N> const& indices) const
                 {
-                  return *(buffer+noffset<N-1>{}(shape, indices));
+                  return *(buffer+noffset<N-1>{}(_shape, indices));
                 }
                 T& operator[](array<long, N> const& indices)
                 {
-                  return *(buffer+noffset<N-1>{}(shape, indices));
+                  return *(buffer+noffset<N-1>{}(_shape, indices));
                 }
 
                 template<size_t M>
@@ -464,7 +464,7 @@ namespace pythonic {
                 ndarray<T, N + 1> operator[](none_type) const {
                   array<long, N + 1> new_shape;
                   new_shape[0] = 1;
-                  std::copy(shape.begin(), shape.end(), new_shape.begin() + 1);
+                  std::copy(_shape.begin(), _shape.end(), new_shape.begin() + 1);
                   return reshape(new_shape);
                 }
                 auto operator()(none_type const& n) const -> decltype((*this)[n]) {
@@ -533,8 +533,8 @@ namespace pythonic {
                 /* through iterators */
                 iterator begin() { return type_helper<ndarray>::make_iterator(*this, 0); }
                 const_iterator begin() const { return type_helper<ndarray>::make_iterator(*this, 0); }
-                iterator end() { return type_helper<ndarray>::make_iterator(*this, shape[0]); }
-                const_iterator end() const { return type_helper<ndarray>::make_iterator(*this, shape[0]); }
+                iterator end() { return type_helper<ndarray>::make_iterator(*this, _shape[0]); }
+                const_iterator end() const { return type_helper<ndarray>::make_iterator(*this, _shape[0]); }
 
                 const_flat_iterator fbegin() const { return buffer; }
                 const_flat_iterator fend() const { return buffer + flat_size(); }
@@ -542,7 +542,7 @@ namespace pythonic {
                 flat_iterator fend() { return buffer + flat_size(); }
 
                 /* member functions */
-                long flat_size() const { return std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<long>()); }
+                long flat_size() const { return std::accumulate(_shape.begin(), _shape.end(), 1, std::multiplies<long>()); }
                 template<size_t M>
                     ndarray<T,M> reshape(array<long,M> const& shape) const {
                         return ndarray<T, M>(mem, shape);
@@ -551,13 +551,14 @@ namespace pythonic {
                     return ndarray<T, 1>(mem, array<long, 1>{{flat_size()}});
                 }
                 ndarray<T,N> copy() const {
-                    ndarray<T,N> res(shape, __builtin__::None);
+                    ndarray<T,N> res(_shape, __builtin__::None);
                     std::copy(fbegin(), fend(), res.fbegin());
                     return res;
                 }
                 intptr_t id() const {
                     return reinterpret_cast<intptr_t>(&(*mem));
                 }
+                array<long, N> const &shape() const { return _shape; }
 
             };
 
@@ -566,7 +567,7 @@ namespace pythonic {
             std::ostream& operator<<(std::ostream& os, ndarray<T,N> const& e)
             {
                 std::array<long, N> strides;
-                auto shape = e.shape;
+                auto shape = e.shape();
                 strides[N-1] = shape[N-1];
                 if(strides[N-1]==0)
                     return os << "[]";
@@ -639,7 +640,7 @@ namespace pythonic {
         template <class T, size_t N, class I>
             struct _len<types::ndarray<T,N>, I, true> {
                 long operator()(types::ndarray<T,N> const &t) {
-                    return t.shape[0];
+                    return t.shape()[0];
                 }
             };
 
@@ -691,7 +692,7 @@ namespace pythonic {
                 struct getattr;
 
             template<class E> struct getattr<attr::SHAPE, E> {
-                auto operator()(E const& a) -> decltype(a.shape) { return a.shape; }
+                auto operator()(E const& a) -> decltype(a.shape()) { return a.shape(); }
             };
             template<class E> struct getattr<attr::NDIM, E> {
                 long operator()(E const& a) { return numpy_expr_to_ndarray<E>::N; }
@@ -700,7 +701,7 @@ namespace pythonic {
                 array<long, numpy_expr_to_ndarray<E>::N> operator()(E const& a) {
                     array<long,numpy_expr_to_ndarray<E>::N> strides;
                     strides[numpy_expr_to_ndarray<E>::N-1] = sizeof(typename numpy_expr_to_ndarray<E>::T);
-                    auto shape = a.shape;
+                    auto shape = a.shape();
                     std::transform(strides.rbegin(), strides.rend() -1, shape.rbegin(), strides.rbegin()+1, std::multiplies<long>());
                     return strides;
                 }
@@ -754,7 +755,7 @@ namespace pythonic {
                 -> decltype(_build_gexpr<E::value>{}(ndarray<typename types::is_complex<typename E::dtype>::type, E::value>{}, slice{0,0,2}))
                 {
                   typedef typename types::is_complex<typename E::dtype>::type stype;
-                  auto new_shape = a.shape;
+                  auto new_shape = a.shape();
                   new_shape[E::value-1] *= 2;
                   // this is tricky and dangerous!
                   auto translated_mem = reinterpret_cast<utils::shared_ref<raw_array<stype>>const&>(a.mem);
@@ -783,14 +784,14 @@ namespace pythonic {
                 typename numpy_expr_to_ndarray<E>::type make_imag(E const& a, utils::int_<0>){
                   // cannot use numpy.zero: forward declaration issue
                   typedef typename numpy_expr_to_ndarray<E>::type T;
-                  return T((typename T::dtype*)calloc(a.flat_size(), sizeof(typename E::dtype)), a.shape.data());
+                  return T((typename T::dtype*)calloc(a.flat_size(), sizeof(typename E::dtype)), a.shape().data());
                 }
 
                 auto make_imag(E const& a, utils::int_<1>)
                 -> decltype(_build_gexpr<E::value>{}(ndarray<typename types::is_complex<typename E::dtype>::type, E::value>{}, slice{0,0,2}))
                 {
                   typedef typename types::is_complex<typename E::dtype>::type stype;
-                  auto new_shape = a.shape;
+                  auto new_shape = a.shape();
                   new_shape[E::value-1] *= 2;
                   // this is tricky and dangerous!
                   auto translated_mem = reinterpret_cast<utils::shared_ref<raw_array<stype>>const&>(a.mem);
@@ -1238,7 +1239,7 @@ namespace pythonic {
                     PyArrayObject *arr = reinterpret_cast<PyArrayObject*>(p);
                     auto const *pshape = PyArray_DIMS(arr);
                     Py_INCREF(p);
-                    if(std::equal(n.shape.begin(), n.shape.end(), pshape))
+                    if(std::equal(n.shape().begin(), n.shape().end(), pshape))
                     {
                         return p;
                     }
@@ -1248,13 +1249,13 @@ namespace pythonic {
                         return pyarray_new<long, N>{}.from_descr(
                                 Py_TYPE(arr),
                                 PyArray_DESCR(arr),
-                                n.shape.data(),
+                                n._shape.data(),
                                 PyArray_DATA(arr),
                                 PyArray_FLAGS(arr) & ~NPY_ARRAY_OWNDATA,
                                 p);
                     }
                 } else {
-                    PyObject* result = pyarray_new<long, N>{}.from_data(n.shape.data(), c_type_to_numpy_type<T>::value, n.buffer);
+                    PyObject* result = pyarray_new<long, N>{}.from_data(n._shape.data(), c_type_to_numpy_type<T>::value, n.buffer);
                     n.mem.external(result);
                     n.mem.forget();
                     if (!result)

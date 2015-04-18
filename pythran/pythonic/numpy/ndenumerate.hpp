@@ -17,7 +17,7 @@ namespace pythonic {
                 }
                 std::tuple<types::array<long, types::numpy_expr_to_ndarray<E>::N>, typename types::numpy_expr_to_ndarray<E>::type::dtype> operator*() {
                     types::array<long, types::numpy_expr_to_ndarray<E>::N> out;
-                    auto shape = expr.shape;
+                    auto shape = expr.shape();
                     constexpr long N = types::numpy_expr_to_ndarray<E>::N;
                     long mult = 1;
                     for(long j=N-1; j>0; j--) {

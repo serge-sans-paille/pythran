@@ -31,24 +31,25 @@ namespace pythonic {
                 while(axis<0)
                     axis += N;
                 axis = axis % N;
-                const long step = std::accumulate(out.shape.begin() + axis,
-                                                  out.shape.end(), 1L,
+                auto && out_shape = out.shape();
+                const long step = std::accumulate(out_shape.begin() + axis,
+                                                  out_shape.end(), 1L,
                                                   std::multiplies<long>());
-                for(long i=0; i < out.flat_size() / out.shape[axis] * step; i += step)
+                for(long i=0; i < out.flat_size() / out_shape[axis] * step; i += step)
                 {
                     std::vector<T> to_sort;
                     T* iter = out.buffer + (i%out.flat_size() + i/out.flat_size());
                     while(iter!=out.buffer + (i%out.flat_size() + i/out.flat_size()) + step)
                     {
                         to_sort.push_back(*iter);
-                        iter+=step/out.shape[axis];
+                        iter+=step/out_shape[axis];
                     }
                     std::sort(to_sort.begin(), to_sort.end(), static_cast<bool(*)(T const&, T const&)>(_comp));
                     iter = out.buffer + (i%out.flat_size() + i/out.flat_size());
                     for(auto val: to_sort)
                     {
                         *iter = val;
-                        iter += step/out.shape[axis];
+                        iter += step/out_shape[axis];
                     }
                 }
             }

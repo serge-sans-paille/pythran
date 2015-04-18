@@ -54,7 +54,7 @@ namespace pythonic {
                 static_assert(types::numpy_expr_to_ndarray<T>::N == 1,
                               "Not Implemented : searchsorted for dimension != 1");
 
-                types::ndarray<long, types::numpy_expr_to_ndarray<E>::N> out(asarray(v).shape, __builtin__::None);
+                types::ndarray<long, types::numpy_expr_to_ndarray<E>::N> out(asarray(v).shape(), __builtin__::None);
                 _search_sorted(a, v.begin(), v.end(), out.begin(), side,
                                utils::int_<types::numpy_expr_to_ndarray<E>::N>());
                 return out;

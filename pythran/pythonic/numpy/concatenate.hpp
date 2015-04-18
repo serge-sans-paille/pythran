@@ -14,10 +14,11 @@ namespace pythonic {
                 long shape[N];
                 shape[0] = 0L;
                 for(auto const& a : ai) {
-                    shape[0] += a.shape[0];
+                    shape[0] += a.shape()[0];
                     n += a.flat_size();
                 }
-                std::copy(ai[0].shape.begin() +1 , ai[0].shape.end(), &shape[1]);
+                auto&& ai0_shape = ai[0].shape();
+                std::copy(ai0_shape.begin() +1 , ai0_shape.end(), &shape[1]);
 
                 T* buffer = (T*)malloc(sizeof(T) * n);
                 T* iter = buffer;
@@ -55,7 +56,7 @@ namespace pythonic {
             template<class... Types, int... I>
                 size_t concatenate_size(std::tuple<Types...> const& args, utils::seq<I...>)
                 {
-                    return __builtin__::sum(std::make_tuple(first_dim<std::tuple_element<0, std::tuple<Types...>>::type::value>(std::get<I-1>(args).shape)...));
+                    return __builtin__::sum(std::make_tuple(first_dim<std::tuple_element<0, std::tuple<Types...>>::type::value>(std::get<I-1>(args).shape())...));
                 }
 
         }
@@ -67,7 +68,7 @@ namespace pythonic {
                 using return_type = typename assignable<typename __combined<Types...>::type>::type;
                 using T = typename return_type::dtype;
 
-                types::array<long, return_type::value> shape = std::get<0>(args).shape;
+                types::array<long, return_type::value> shape = std::get<0>(args).shape();
                 size_t n = shape[0];
                 shape[0] = details::concatenate_size(args, typename utils::gens<1+sizeof...(Types)>::type{});
                 n = size_t(std::get<0>(args).flat_size() * shape[0] / double(n));

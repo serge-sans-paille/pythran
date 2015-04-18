@@ -9,9 +9,9 @@ namespace pythonic {
     namespace numpy {
         template<class E>
             auto ones_like(E const&expr)
-            -> decltype(ones(expr.shape))
+            -> decltype(ones(expr.shape()))
             {
-                return ones(expr.shape);
+                return ones(expr.shape());
             }
 
         PROXY(pythonic::numpy, ones_like)

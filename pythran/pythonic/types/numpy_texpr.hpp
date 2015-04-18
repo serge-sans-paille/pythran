@@ -37,20 +37,21 @@ namespace pythonic {
                 typedef typename E::dtype dtype;
 
                 Arg arg;
-                array<long, 2> shape;
+                array<long, 2> _shape;
+                array<long, 2> const& shape() const { return _shape; }
 
                 numpy_texpr_2() {}
                 numpy_texpr_2(numpy_texpr_2 const&) = default;
                 numpy_texpr_2(numpy_texpr_2 &&) = default;
 
-                numpy_texpr_2(Arg const& arg) : arg(arg), shape{{arg.shape[1], arg.shape[0]}}
+                numpy_texpr_2(Arg const& arg) : arg(arg), _shape{{arg.shape()[1], arg.shape()[0]}}
                 {
                 }
                 const_iterator begin() const { return const_iterator(*this, 0); }
-                const_iterator end() const { return const_iterator(*this, shape[0]); }
+                const_iterator end() const { return const_iterator(*this, _shape[0]); }
 
                 iterator begin() { return iterator(*this, 0); }
-                iterator end() { return iterator(*this, shape[0]); }
+                iterator end() { return iterator(*this, _shape[0]); }
 
                 auto fast(long i) const
                     -> decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,pythonic::__builtin__::None), i))
@@ -71,11 +72,11 @@ namespace pythonic {
 #endif
 
                 auto operator[](long i) const -> decltype(this->fast(i)) {
-                    if(i<0) i += shape[0];
+                    if(i<0) i += _shape[0];
                     return fast(i);
                 }
                 auto operator[](long i) -> decltype(this->fast(i)) {
-                    if(i<0) i += shape[0];
+                    if(i<0) i += _shape[0];
                     return fast(i);
                 }
                 auto operator()(long i) const -> decltype((*this)[i]) {

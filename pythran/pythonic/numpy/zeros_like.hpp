@@ -10,9 +10,9 @@ namespace pythonic {
 
         template<class E>
             auto zeros_like(E const&expr)
-            -> decltype(zeros(expr.shape))
+            -> decltype(zeros(expr.shape()))
             {
-                return zeros(expr.shape);
+                return zeros(expr.shape());
             }
 
         PROXY(pythonic::numpy, zeros_like)

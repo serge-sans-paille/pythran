@@ -13,7 +13,7 @@ namespace pythonic {
             {
                 while(shift<0) shift+=expr.flat_size();
                 shift %=expr.flat_size();
-                types::ndarray<T,N> out(expr.shape, __builtin__::None);
+                types::ndarray<T,N> out(expr.shape(), __builtin__::None);
                 std::copy(expr.fbegin(), expr.fend() - shift, std::copy(expr.fend() - shift, expr.fend(), out.fbegin()));
                 return out;
             }
@@ -50,9 +50,10 @@ namespace pythonic {
         template<class T, size_t N>
             types::ndarray<T,N> roll(types::ndarray<T,N> const& expr, long shift, long axis)
             {
-                while(shift<0) shift+=expr.shape[axis];
-                types::ndarray<T,N> out(expr.shape, __builtin__::None);
-                _roll(out.fbegin(), expr.fbegin(), shift, axis, expr.shape, utils::int_<N>());
+                auto&& expr_shape = expr.shape();
+                while(shift<0) shift+=expr_shape[axis];
+                types::ndarray<T,N> out(expr_shape, __builtin__::None);
+                _roll(out.fbegin(), expr.fbegin(), shift, axis, expr_shape, utils::int_<N>());
                 return out;
 
             }

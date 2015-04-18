@@ -41,18 +41,19 @@ namespace pythonic {
             typename types::numpy_expr_to_ndarray<U>::type select(types::list<T> const& condlist, types::list<U> const& choicelist, typename types::numpy_expr_to_ndarray<U>::T _default=0)
             {
                 constexpr size_t N = types::numpy_expr_to_ndarray<U>::N;
-                types::ndarray<T,N> out(choicelist[0].shape, _default);
-                types::ndarray<T,N> selected(choicelist[0].shape, false);
+                auto&& choicelist0_shape = choicelist[0].shape();
+                types::ndarray<T,N> out(choicelist0_shape, _default);
+                types::ndarray<T,N> selected(choicelist0_shape(), false);
                 long size = selected.flat_size();
                 for(long i=0; i<condlist.size() && size != 0; i++)
                     size = _select(choicelist[i].begin(), choicelist[i].end(), out.begin(), selected.begin(), condlist.begin(), size, utils::int_<N>());
-                return out; 
+                return out;
             }
 
         template<class T, size_t N, class U>
             types::ndarray<T,N> select(types::list<types::ndarray<U,N>> const& condlist, types::list<types::ndarray<T,N>> const& choicelist, T _default = 0)
             {
-                types::ndarray<T,N> out(choicelist[0].shape, _default);
+                types::ndarray<T,N> out(choicelist[0].shape(), _default);
                 for(long i=0; i<out.flat_size(); ++i)
                 {
                     for(long j=0; j<condlist.size(); ++j)

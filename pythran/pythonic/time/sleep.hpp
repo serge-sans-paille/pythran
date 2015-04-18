@@ -1,6 +1,7 @@
 #ifndef PYTHONIC_TIME_SLEEP_HPP
 #define PYTHONIC_TIME_SLEEP_HPP
 
+#include "pythonic/include/time/sleep.hpp"
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/__builtin__/None.hpp"
 
@@ -10,6 +11,7 @@
 namespace pythonic {
 
     namespace time {
+
         types::none_type sleep(double const value)
         {
             struct timespec t;
@@ -18,11 +20,11 @@ namespace pythonic {
             nanosleep(&t, nullptr);
             return __builtin__::None;
         }    
-        PROXY(pythonic::time, sleep)
+
+        PROXY_IMPL(pythonic::time, sleep)
 
     }
 
 }
 
 #endif
-

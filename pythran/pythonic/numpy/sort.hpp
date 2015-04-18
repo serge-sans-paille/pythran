@@ -34,7 +34,7 @@ namespace pythonic {
                 const long step = std::accumulate(out.shape.begin() + axis,
                                                   out.shape.end(), 1L,
                                                   std::multiplies<long>());
-                for(long i=0; i < out.flat_size() / out.shape[axis] * step; i += step)
+                for(size_t i=0; i < out.flat_size() / out.shape[axis] * step; i += step)
                 {
                     std::vector<T> to_sort;
                     T* iter = out.buffer + (i%out.flat_size() + i/out.flat_size());
@@ -61,16 +61,6 @@ namespace pythonic {
                 return out;
             }
         NUMPY_EXPR_TO_NDARRAY0(sort);
-        /*
-        template<class E>
-            typename types::numpy_expr_to_ndarray<typename std::remove_cv<typename std::remove_reference<E>::type>::type>::type
-            sort(E && expr, long axis=-1)
-            {
-                typename types::numpy_expr_to_ndarray<typename std::remove_cv<typename std::remove_reference<E>::type>::type>::type out{std::forward<E>(expr)};
-                _sort(out, axis);
-                return out;
-            }
-            */
             PROXY(pythonic::numpy, sort);
 
     }

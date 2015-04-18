@@ -73,7 +73,7 @@ namespace pythonic {
             std::tuple<types::ndarray<typename types::numpy_expr_to_ndarray<E>::T, 1>, types::ndarray<long, 1>, types::ndarray<long, 1>> unique(E const& expr, bool return_index, bool return_inverse) {
                 std::set<typename types::numpy_expr_to_ndarray<E>::T> res;
                 std::vector<long> return_index_res;
-                types::ndarray<long, 1> return_inverse_res(types::array<long,1>{{expr.flat_size()}}, __builtin__::None);
+                types::ndarray<long, 1> return_inverse_res(types::array<long,1>{{static_cast<long>(expr.flat_size())}}, __builtin__::None);
                 long i = 0;
                 _unique3(expr.begin(), expr.end(), res, return_index_res, return_inverse_res, i, utils::int_<types::numpy_expr_to_ndarray<E>::N>());
                 return std::make_tuple(types::ndarray<typename types::numpy_expr_to_ndarray<E>::T, 1>(res), types::ndarray<long, 1>(return_index_res), return_inverse_res);

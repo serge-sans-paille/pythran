@@ -5,30 +5,32 @@
 
 #include "pythonic/types/tuple.hpp"
 #include "pythonic/types/list.hpp"
+#include "pythonic/include/__builtin__/tuple.hpp"
 
 namespace pythonic {
 
     namespace __builtin__ {
 
         template<class... Types>
-            std::tuple<Types...> tuple(std::tuple<Types...> const& t) {
+            std::tuple<Types...> tuple(std::tuple<Types...> const& t)
+            {
                 return t;
             }
 
 
         template <class Iterable>
-            struct _tuple {
-                types::list<typename Iterable::value_type> operator()(Iterable i) {
-                    return types::list<typename Iterable::value_type>(i.begin(), i.end());
-                }
-            };
+            types::list<typename Iterable::value_type>
+            _tuple<Iterable>::operator()(Iterable i)
+            {
+                return types::list<typename Iterable::value_type>(i.begin(), i.end());
+            }
 
         template <class T>
-            struct _tuple<types::list<T>> {
-                types::list<T> operator()(types::list<T> const& i) {
-                    return types::list<T>(i.begin(), i.end());
-                }
-            };
+            types::list<T>
+            _tuple<types::list<T>>::operator()(types::list<T> const& i)
+            {
+                return types::list<T>(i.begin(), i.end());
+            }
 
         template <class Iterable> /* this is far from perfect, but how to cope with the difference between python tuples and c++ ones ? */
             typename std::enable_if<types::len_of<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type>::value < 0,
@@ -52,9 +54,10 @@ namespace pythonic {
                 return res;
             }
 
-        PROXY(pythonic::__builtin__, tuple);
+        PROXY_IMPL(pythonic::__builtin__, tuple);
 
     }
 
 }
+
 #endif

@@ -13,9 +13,9 @@ namespace pythonic {
             {
                 types::ndarray<T,1> out(types::array<long, N>{{new_shape}}, __builtin__::None);
                 auto n = expr.flat_size();
-                if(n < new_shape) {
+                if(n < static_cast<size_t>(new_shape)) {
                     auto iter = std::copy(expr.fbegin(), expr.fend(), out.fbegin());
-                    for(long i = 1; i < new_shape / n; ++i)
+                    for(size_t i = 1; i < new_shape / n; ++i)
                         iter = std::copy(out.fbegin(), out.fbegin() + n, iter);
                     std::copy(out.fbegin(), out.fbegin() + new_shape % n, iter);
                 }
@@ -38,7 +38,7 @@ namespace pythonic {
                 auto n = expr.flat_size();
                 if(n < nshape) {
                     auto iter = std::copy(expr.fbegin(), expr.fend(), out.fbegin());
-                    for(long i = 1; i < nshape / n; ++i) {
+                    for(size_t i = 1; i < nshape / n; ++i) {
                         iter = std::copy(out.fbegin(), out.fbegin() + n, iter);
                     }
                     std::copy(out.fbegin(), out.fbegin() + nshape % n, iter);

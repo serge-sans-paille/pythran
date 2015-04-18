@@ -40,7 +40,7 @@ namespace pythonic {
                 return S(lower + step * other.lower, lower + step * other.upper, step * other.step);
             }
 
-            long size() const
+            size_t size() const
             {
                 return std::max(0L, details::roundup_divide(upper - lower, step));
             }
@@ -164,7 +164,7 @@ namespace pythonic {
              * An assert is raised when we can't compute the size without more
              * informations.
              */
-            long size() const
+            size_t size() const
             {
                 assert(not (upper.is_none and lower.is_none));
                 long len;
@@ -201,7 +201,7 @@ namespace pythonic {
                 return normalized_slice(lower + step * other.lower, lower + step * other.upper, step * other.step);
             }
 
-            long size() const
+            size_t size() const
             {
                 return std::max(0L, upper - lower);
             }
@@ -303,7 +303,7 @@ namespace pythonic {
                 return contiguous_normalized_slice(normalized_lower, normalized_upper);
             }
 
-            long size() const
+            size_t size() const
             {
                 long len;
                 if(upper.is_none) {

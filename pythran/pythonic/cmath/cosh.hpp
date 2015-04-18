@@ -1,14 +1,15 @@
 #ifndef PYTHONIC_CMATH_COSH_HPP
 #define PYTHONIC_CMATH_COSH_HPP
 
+#include "pythonic/include/cmath/cosh.hpp"
 #include "pythonic/utils/proxy.hpp"
 #include <cmath>
 
 namespace pythonic {
 
     namespace cmath {
-        using std::cosh;
-        PROXY(pythonic::cmath, cosh);
+        ALIAS(cosh, std::cosh);
+        PROXY_IMPL(pythonic::cmath, cosh);
     }
 
 }

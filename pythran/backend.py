@@ -1082,9 +1082,11 @@ class Cxx(Backend):
         if node in self.bounded_expressions:
             op = operator_to_lambda[type(node.op)]
         elif isinstance(node.op, ast.And):
-            def op(l, r): return '({0} and {1})'.format(l, r)
+            def op(l, r):
+                return '({0} and {1})'.format(l, r)
         elif isinstance(node.op, ast.Or):
-            def op(l, r): return '({0} or {1})'.format(l, r)
+            def op(l, r):
+                return '({0} or {1})'.format(l, r)
         return reduce(op, values)
 
     def visit_BinOp(self, node):

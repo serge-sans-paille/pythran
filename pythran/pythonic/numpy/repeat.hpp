@@ -10,9 +10,9 @@ namespace pythonic {
 
     namespace numpy {
         template<class T, size_t N>
-            types::ndarray<T,1> repeat(types::ndarray<T,N> const& expr, int repeats)
+            types::ndarray<T,1> repeat(types::ndarray<T,N> const& expr, long repeats)
             {
-                types::ndarray<T,1> out(types::array<long, 1>{{expr.flat_size() * repeats}}, __builtin__::None);
+                types::ndarray<T,1> out(types::array<long, 1>{{static_cast<long>(expr.flat_size()) * repeats}}, __builtin__::None);
                 auto out_iter = out.fbegin();
                 for(auto iter = expr.fbegin(), end = expr.fend(); iter != end; ++iter)
                     for(int i = 0; i< repeats; ++i)

@@ -154,7 +154,7 @@ namespace pythonic {
                     operator[](E const& expr) const {
                         return fast(expr);
                     }
-                long flat_size() const { return shape[0]; }
+                size_t flat_size() const { return shape[0]; }
             };
 
     }

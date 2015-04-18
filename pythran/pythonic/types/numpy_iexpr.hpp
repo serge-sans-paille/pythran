@@ -72,6 +72,8 @@ namespace pythonic {
                     buffer += buffer_offset(index, utils::int_<value>());
                 }
 
+                size_t size() const { return shape[0]; }
+
                 template<class E>
                 numpy_iexpr& operator=(E const& expr) {
                     return utils::broadcast_copy<numpy_iexpr&, E, value, value - utils::dim_of<E>::value, false/*NIY*/>(*this, expr);
@@ -236,7 +238,7 @@ namespace pythonic {
                     return const_cast<dtype&>(const_cast<numpy_iexpr const&>(*this)[indices]);
                 }
 
-                long flat_size() const { return std::accumulate(shape.begin() + 1, shape.end(), *shape.begin(), std::multiplies<long>()); }
+                size_t flat_size() const { return std::accumulate(shape.begin() + 1, shape.end(), *shape.begin(), std::multiplies<size_t>()); }
 
                 private:
 
@@ -244,8 +246,7 @@ namespace pythonic {
                  * first element of the iexpr and the start of the buffer.
                  * This used to be a plain loop, but g++ fails to unroll it, while it unrolls it with the template version...
                  */
-                long buffer_offset(long index, utils::int_<0>) { return index;
-                }
+                long buffer_offset(long index, utils::int_<0>) { return index; }
 
                 template<size_t N>
                 long buffer_offset(long index, utils::int_<N>) {

@@ -1,14 +1,15 @@
 #ifndef PYTHONIC_CMATH_TAN_HPP
 #define PYTHONIC_CMATH_TAN_HPP
 
+#include "pythonic/include/cmath/tan.hpp"
 #include "pythonic/utils/proxy.hpp"
 #include <cmath>
 
 namespace pythonic {
 
     namespace cmath {
-        using std::tan;
-        PROXY(pythonic::cmath, tan);
+        ALIAS(tan, std::tan);
+        PROXY_IMPL(pythonic::cmath, tan);
     }
 
 }

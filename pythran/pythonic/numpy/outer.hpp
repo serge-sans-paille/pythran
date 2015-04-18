@@ -13,7 +13,7 @@ namespace pythonic {
             types::ndarray<decltype(std::declval<T0>() + std::declval<T1>()), 2>
             outer(types::ndarray<T0, N0> const& a, types::ndarray<T1, N1> const& b)
             {
-                types::ndarray<decltype(std::declval<T0>() + std::declval<T1>()), 2> out(types::array<long, 2>{{a.flat_size(), b.flat_size()}}, __builtin__::None);
+                types::ndarray<decltype(std::declval<T0>() + std::declval<T1>()), 2> out(types::array<long, 2>{{static_cast<long>(a.flat_size()), static_cast<long>(b.flat_size())}}, __builtin__::None);
                 auto iter = out.fbegin();
                 for(auto iter_a = a.fbegin(), end_a = a.fend(); iter_a != end_a; ++iter_a) {
                     auto val_a = *iter_a;

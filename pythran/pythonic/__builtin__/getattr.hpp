@@ -1,16 +1,6 @@
 #ifndef PYTHONIC_BUILTIN_GETATTR_HPP
 #define PYTHONIC_BUILTIN_GETATTR_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/attr.hpp"
+#include "pythonic/include/__builtin__/getattr.hpp"
 
-namespace pythonic {
-
-    namespace __builtin__ {
-
-        template<class T, size_t AttributeID>
-            void getattr(T const & self);
-    }
-
-}
 #endif

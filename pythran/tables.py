@@ -873,6 +873,13 @@ except ImportError:
     logger.warn("Pythran support disabled for module: omp")
     del MODULES["omp"]
 
+# check and delete unimplemented numpy methods
+for method in MODULES['numpy'].keys():
+    if (method not in sys.modules['numpy'].__dict__ and not
+            (method[-1:] == '_' and method[:-1] in cxx_keywords and
+                method[:-1] in sys.modules['numpy'].__dict__)):
+        del MODULES['numpy'][method]
+
 
 # populate argument description through introspection
 def save_arguments(module_name, elements):

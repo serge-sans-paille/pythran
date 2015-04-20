@@ -80,7 +80,8 @@ The ``setup.py`` scripts automates this. The ``test`` target, as in::
 
     python setup.py test
 
-runs a whole (and long) validation suite. The ``bench`` target, as in::
+runs a whole (and long) validation suite (you will need to install the ``pytest`` module first to use it).
+The ``bench`` target, as in::
 
     python setup.py bench
 

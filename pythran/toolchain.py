@@ -315,6 +315,10 @@ def compile_cxxfile(cxxfile, module_so=None, **kwargs):
         output = check_output(cmd, stderr=STDOUT)
     except CalledProcessError as e:
         raise CompileError(e.cmd, e.output)
+    except Exception:
+        print("E: Error encountered while running:")
+        print(''.join(cmd))
+        raise
     logger.info("Generated module: " + module_so)
     logger.info("Output: " + output)
 

@@ -592,3 +592,9 @@ def assign_ndarray(t):
         self.run_test("def gexpr_composition15(a): return a[:,1,1:-1][:,:-1]",
                       numpy.arange(16).reshape(1,4,4),
                       gexpr_composition15=[numpy.array([[[int]]])])
+
+    def test_gexpr_copy0(self):
+        self.run_test("def gexpr_copy0(a,b): a[:,0] = b[:,0]; return a",
+                      numpy.arange(16).reshape(8,2), numpy.arange(16).reshape(8,2),
+                      gexpr_copy0=[numpy.array([[int]]), numpy.array([[int]])])
+

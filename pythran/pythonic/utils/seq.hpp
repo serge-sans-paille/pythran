@@ -24,7 +24,7 @@ namespace pythonic {
             struct rgens : rgens<N-1, sizeof...(S), S...> { };
 
         template<int ...S>
-            struct rgens<1, S...> {
+            struct rgens<0, S...> {
                 typedef seq<S...> type;
             };
 

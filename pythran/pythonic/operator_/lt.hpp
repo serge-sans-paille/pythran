@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_OPERATOR_LT_HPP
 #define PYTHONIC_OPERATOR_LT_HPP
 
+#include "pythran/pythonic/include/operator_/lt.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 
 namespace pythonic {
@@ -9,12 +11,12 @@ namespace pythonic {
 
         template <class A, class B>
             auto lt(A const& a, B const& b) -> decltype(a<b) {
-                return a<b;
+              return a < b ;
             }
-        PROXY(pythonic::operator_, lt);
+
+        PROXY_IMPL(pythonic::operator_, lt);
     }
 
 }
 
 #endif
-

@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_OPERATOR_MUL_HPP
 #define PYTHONIC_OPERATOR_MUL_HPP
 
+#include "pythran/pythonic/include/operator_/mul.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/operator_/overloads.hpp"
 #ifdef USE_BOOST_SIMD
@@ -12,14 +14,16 @@ namespace pythonic {
     namespace operator_ {
 
         template <class A, class B>
-            auto mul(A const& a, B const& b) -> decltype(a*b) {
+            auto mul(A const& a, B const& b) -> decltype(a*b)
+            {
                 return a*b;
             }
+
         DEFINE_ALL_OPERATOR_OVERLOADS(mul,*)
-        PROXY(pythonic::operator_, mul);
+
+        PROXY_IMPL(pythonic::operator_, mul);
     }
 
 }
 
 #endif
-

@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_OPERATOR_MOD_HPP
 #define PYTHONIC_OPERATOR_MOD_HPP
 
+#include "pythran/pythonic/include/operator_/mod.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/str.hpp"
 
@@ -16,14 +18,19 @@ namespace pythonic {
                 auto t = a % b;
                 return t < 0 ? (t + b) : t;
             }
-        inline double mod(double a, long b) {
+
+        inline double mod(double a, long b)
+        {
             auto t = std::fmod(a, double(b));
             return t < 0 ? (t + b) : t;
         }
-        inline double mod(double a, double b) {
+
+        inline double mod(double a, double b)
+        {
             auto t = std::fmod(a, b);
             return t < 0 ? (t + b) : t;
         }
+
         template<class A, class B>
             auto mod(A const& a, B const& b) // for ndarrays
             -> typename std::enable_if<not std::is_fundamental<A>::value or not std::is_fundamental<B>::value,
@@ -31,10 +38,10 @@ namespace pythonic {
             {
                 return a % b;
             }
-        PROXY(pythonic::operator_, mod);
+
+        PROXY_IMPL(pythonic::operator_, mod);
     }
 
 }
 
 #endif
-

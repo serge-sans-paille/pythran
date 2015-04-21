@@ -28,16 +28,16 @@ namespace pythonic {
 
                     template<int...S, typename... Types>
                         auto call(utils::seq<S...>, Types &&... types) const
-                        -> decltype(std::get<0>(closure)(std::get<S>(closure)..., std::forward<Types>(types)...))
+                        -> decltype(std::get<0>(closure)(std::get<S+1>(closure)..., std::forward<Types>(types)...))
                         {
-                            return std::get<0>(closure)(std::get<S>(closure)..., std::forward<Types>(types)...);
+                            return std::get<0>(closure)(std::get<S+1>(closure)..., std::forward<Types>(types)...);
                         }
 
                     template<typename... Types>
                         auto operator()(Types &&... types) const
-                        -> decltype(this->call(typename utils::gens<sizeof...(ClosureTypes)>::type(), std::forward<Types>(types)...))
+                        -> decltype(this->call(typename utils::gens<sizeof...(ClosureTypes)-1>::type(), std::forward<Types>(types)...))
                         {
-                            return call(typename utils::gens<sizeof...(ClosureTypes)>::type(), std::forward<Types>(types)...);
+                            return call(typename utils::gens<sizeof...(ClosureTypes)-1>::type(), std::forward<Types>(types)...);
                         }
                 };
         }

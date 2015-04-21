@@ -56,7 +56,7 @@ namespace pythonic {
             template<class... Types, int... I>
                 size_t concatenate_size(std::tuple<Types...> const& args, utils::seq<I...>)
                 {
-                    return __builtin__::sum(std::make_tuple(first_dim<std::tuple_element<0, std::tuple<Types...>>::type::value>(std::get<I-1>(args).shape())...));
+                    return __builtin__::sum(std::make_tuple(first_dim<std::tuple_element<0, std::tuple<Types...>>::type::value>(std::get<I>(args).shape())...));
                 }
 
         }
@@ -70,7 +70,7 @@ namespace pythonic {
 
                 types::array<long, return_type::value> shape = std::get<0>(args).shape();
                 size_t n = shape[0];
-                shape[0] = details::concatenate_size(args, typename utils::gens<1+sizeof...(Types)>::type{});
+                shape[0] = details::concatenate_size(args, typename utils::gens<sizeof...(Types)>::type{});
                 n = size_t(std::get<0>(args).flat_size() * shape[0] / double(n));
 
                 T* buffer = (T*)malloc(sizeof(T) * n);

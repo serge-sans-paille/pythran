@@ -96,13 +96,13 @@ namespace pythonic {
         /* helper to extract the tail of a tuple, and pop the head
          */
         template<int Offset, class T, int... N>
-        auto make_tuple_tail(T const& t, utils::seq<N...>) -> decltype(std::make_tuple(std::get<Offset + N>(t)...)) {
-          return std::make_tuple(std::get<Offset + N>(t)...);
+        auto make_tuple_tail(T const& t, utils::seq<N...>) -> decltype(std::make_tuple(std::get<Offset + 1 + N>(t)...)) {
+          return std::make_tuple(std::get<Offset + 1 + N>(t)...);
         }
 
         template<class S, class... Stail>
         std::tuple<Stail...> tuple_tail(std::tuple<S, Stail...> const& t) {
-          return make_tuple_tail<0>(t, typename utils::gens<sizeof...(Stail)+1>::type{});
+          return make_tuple_tail<0>(t, typename utils::gens<sizeof...(Stail)>::type{});
         }
 
         template<class... S> struct count_trailing_long : std::integral_constant<size_t, 0> {};
@@ -110,9 +110,9 @@ namespace pythonic {
 
         template<class S, class... Stail>
         auto tuple_pop(std::tuple<S, Stail...> const& t)
-        -> decltype(make_tuple_tail<count_trailing_long<Stail...>::value>(t, typename utils::gens<sizeof...(Stail)+1-count_trailing_long<Stail...>::value>::type{}))
+        -> decltype(make_tuple_tail<count_trailing_long<Stail...>::value>(t, typename utils::gens<sizeof...(Stail)-count_trailing_long<Stail...>::value>::type{}))
         {
-          return make_tuple_tail<count_trailing_long<Stail...>::value>(t, typename utils::gens<sizeof...(Stail)+1-count_trailing_long<Stail...>::value>::type{});
+          return make_tuple_tail<count_trailing_long<Stail...>::value>(t, typename utils::gens<sizeof...(Stail)-count_trailing_long<Stail...>::value>::type{});
         }
 
         template<class A, int... I>
@@ -630,12 +630,12 @@ namespace pythonic {
             template<int ...S>
                 static void do_construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data, utils::seq<S...>){
                     void* storage=((boost::python::converter::rvalue_from_python_storage<std::tuple<Types...>>*)(data))->storage.bytes;
-                    new (storage) std::tuple<Types...>( boost::python::extract< typename std::tuple_element<S-1, std::tuple<Types...> >::type >(PyTuple_GetItem(obj_ptr,S-1))...);
+                    new (storage) std::tuple<Types...>( boost::python::extract< typename std::tuple_element<S, std::tuple<Types...> >::type >(PyTuple_GetItem(obj_ptr,S))...);
                     data->convertible=storage;
                 }
 
             static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
-                do_construct(obj_ptr, data, typename utils::gens< std::tuple_size<std::tuple<Types...> >::value + 1>::type());
+                do_construct(obj_ptr, data, typename utils::gens<std::tuple_size<std::tuple<Types...> >::value>::type());
             }
         };
 
@@ -657,12 +657,12 @@ namespace pythonic {
             template<int ...S>
                 static void do_construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data, utils::seq<S...>){
                     void* storage=((boost::python::converter::rvalue_from_python_storage<types::array<T,N>>*)(data))->storage.bytes;
-                    new (storage) types::array<T,N>{{boost::python::extract<T>(PyTuple_GetItem(obj_ptr,S - 1))...}};
+                    new (storage) types::array<T,N>{{boost::python::extract<T>(PyTuple_GetItem(obj_ptr,S))...}};
                     data->convertible=storage;
                 }
 
             static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
-                do_construct(obj_ptr, data, typename utils::gens<N + 1>::type());
+                do_construct(obj_ptr, data, typename utils::gens<N>::type());
             }
         };
     template<typename K, typename V>
@@ -687,10 +687,10 @@ namespace pythonic {
         struct custom_tuple_to_tuple {
             template<int ...S>
                 static PyObject* do_convert( std::tuple<Types...> const & t, utils::seq<S...>) {
-                    return PyTuple_Pack(sizeof...(Types), boost::python::incref(boost::python::object(std::get<S - 1>(t)).ptr())...);
+                    return PyTuple_Pack(sizeof...(Types), boost::python::incref(boost::python::object(std::get<S>(t)).ptr())...);
                 }
             static PyObject* convert(std::tuple<Types...> const & t) {
-                return do_convert(t, typename utils::gens< 1 + sizeof...(Types) >::type());
+                return do_convert(t, typename utils::gens<sizeof...(Types)>::type());
             }
         };
 

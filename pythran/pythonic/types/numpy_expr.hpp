@@ -42,11 +42,11 @@ namespace pythonic {
                 iterator end() const { return iterator(*this, _shape[0]); }
 
                 template<int... I>
-                auto _fast(long i, utils::seq<I...>) const -> decltype(Op()(std::get<I-1>(args).fast(i)...)) {
-                    return Op()(std::get<I-1>(args).fast(i)...); //FIXME: broadcasting can be achieved here through a modulus, but that's terribly costly
+                auto _fast(long i, utils::seq<I...>) const -> decltype(Op()(std::get<I>(args).fast(i)...)) {
+                    return Op()(std::get<I>(args).fast(i)...); //FIXME: broadcasting can be achieved here through a modulus, but that's terribly costly
                 }
-                auto fast(long i) const -> decltype(this->_fast(i, typename utils::gens<1+sizeof...(Args)>::type{})) {
-                    return _fast(i, typename utils::gens<1+sizeof...(Args)>::type{});
+                auto fast(long i) const -> decltype(this->_fast(i, typename utils::gens<sizeof...(Args)>::type{})) {
+                    return _fast(i, typename utils::gens<sizeof...(Args)>::type{});
                 }
 
                 auto operator[](long i) const -> decltype(this->fast(i)) {
@@ -60,30 +60,30 @@ namespace pythonic {
                 array<long, value> const& shape() const {return _shape;}
 #ifdef USE_BOOST_SIMD
                 template<int... I>
-                auto _load(long i, utils::seq<I...>) const -> decltype(Op()(std::get<I-1>(args).load(i)...)) {
-                  return Op()(std::get<I-1>(args).load(i)...);
+                auto _load(long i, utils::seq<I...>) const -> decltype(Op()(std::get<I>(args).load(i)...)) {
+                  return Op()(std::get<I>(args).load(i)...);
                 }
                 template<class I> // template to prevent automatic instantiation when the type is not vectorizable
-                auto load(I i) const -> decltype(this->_load(i, typename utils::gens<1+sizeof...(Args)>::type{})) {
-                  return _load(i, typename utils::gens<1+sizeof...(Args)>::type{});
+                auto load(I i) const -> decltype(this->_load(i, typename utils::gens<sizeof...(Args)>::type{})) {
+                  return _load(i, typename utils::gens<sizeof...(Args)>::type{});
                 }
 #endif
                 template<int... I, class... S>
                 auto
                 _get(utils::seq<I...>, S const&... s) const
-                -> decltype(Op{}(std::get<I-1>(args)(s...)...))
+                -> decltype(Op{}(std::get<I>(args)(s...)...))
                 {
-                  return Op{}(std::get<I-1>(args)(s...)...);
+                  return Op{}(std::get<I>(args)(s...)...);
                 }
 
                 template<class S0, class... S>
                 auto operator()(S0 const& s0, S const&... s) const
                 ->
                 typename std::enable_if<not std::is_scalar<S0>::value,
-                                        decltype(this->_get(typename utils::gens<1+sizeof...(Args)>::type{}, s0, s...))
+                                        decltype(this->_get(typename utils::gens<sizeof...(Args)>::type{}, s0, s...))
                                        >::type
                 {
-                    return _get(typename utils::gens<1+sizeof...(Args)>::type{}, s0, s...);
+                    return _get(typename utils::gens<sizeof...(Args)>::type{}, s0, s...);
                 }
 
                 template<class F>
@@ -99,11 +99,11 @@ namespace pythonic {
 
                 template<int... I>
                 long _flat_size(utils::seq<I...>) const {
-                  long const sizes[] = {std::get<I-1>(args).flat_size()...};
+                  long const sizes[] = {std::get<I>(args).flat_size()...};
                   return *std::max_element(std::begin(sizes), std::end(sizes));
                 }
                 long flat_size() const {
-                  return _flat_size(typename utils::gens<1+sizeof...(Args)>::type{}); }
+                  return _flat_size(typename utils::gens<sizeof...(Args)>::type{}); }
             };
 
     }

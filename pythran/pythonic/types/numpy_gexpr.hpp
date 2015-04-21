@@ -476,7 +476,7 @@ namespace pythonic {
                 template<class E>
                   typename std::enable_if<not may_overlap_gexpr<E>::value, numpy_gexpr&>::type
                   _copy(E const& expr) {
-                    //static_assert(value>=  utils::dim_of<E>::value, "dimensions match");
+                    static_assert(value>=  utils::dim_of<E>::value, "dimensions match");
                     return utils::broadcast_copy<numpy_gexpr&, E, value, value - utils::dim_of<E>::value,
                                                  is_vectorizable and is_vectorizable_array<E>::value>(*this, expr);
                   }

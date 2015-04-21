@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_RANDOM_SAMPLE_HPP
 #define PYTHONIC_RANDOM_SAMPLE_HPP
 
+#include "pythonic/include/random/sample.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/random/random.hpp"
 
@@ -10,9 +12,14 @@ namespace pythonic {
 
     namespace random {
         template<class Iterable>
-            types::list<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type::iterator::value_type>
-            sample(Iterable&& s, size_t k) {
-                typedef typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type::iterator::value_type value_type;
+            types::list<
+                typename std::remove_cv<
+                    typename std::remove_reference<Iterable>::type
+                    >::type::iterator::value_type
+                >
+            sample(Iterable&& s, size_t k)
+            {
+                using value_type = typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type::iterator::value_type;
                 types::list<value_type> tmp(s);
                 std::vector<size_t> indices(tmp.size());
                 std::iota(indices.begin(), indices.end(), 0);
@@ -22,11 +29,11 @@ namespace pythonic {
                     out[i] = tmp[ indices[i] ];
                 return out;
             }
-        PROXY(pythonic::random, sample);
+
+        PROXY_IMPL(pythonic::random, sample);
 
     }
 
 }
 
 #endif
-

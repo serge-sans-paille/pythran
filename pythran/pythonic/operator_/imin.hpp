@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_OPERATOR_IMIN_HPP
 #define PYTHONIC_OPERATOR_IMIN_HPP
 
+#include "pythran/pythonic/include/operator_/imin.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/numpy/minimum.hpp"
 
@@ -19,11 +21,10 @@ namespace pythonic {
             {
                 return a = numpy::proxy::minimum{}(a, std::forward<B>(b));
             }
-        PROXY(pythonic::operator_, imin);
+
+        PROXY_IMPL(pythonic::operator_, imin);
     }
 
 }
 
 #endif
-
-

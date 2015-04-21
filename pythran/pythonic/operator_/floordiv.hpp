@@ -1,31 +1,37 @@
 #ifndef PYTHONIC_OPERATOR_FLOORDIV_HPP
 #define PYTHONIC_OPERATOR_FLOORDIV_HPP
 
+#include "pythran/pythonic/include/operator_/floordiv.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include <nt2/include/functions/divfloor.hpp>
 
 namespace pythonic {
 
     namespace operator_ {
-        long floordiv(long a, long b) {
+        long floordiv(long a, long b)
+        {
             return std::floor(static_cast<double>(a)/b);
         }
-        double floordiv(double a, long b) {
+        double floordiv(double a, long b)
+        {
             return std::floor(a/b);
         }
 
-        double floordiv(long a, double b) {
+        double floordiv(long a, double b)
+        {
             return std::floor(a/b);
         }
 
-        double floordiv(double a, double b) {
+        double floordiv(double a, double b)
+        {
             return std::floor(a/b);
         }
-        PROXY(pythonic::operator_, floordiv);
+
+        PROXY_IMPL(pythonic::operator_, floordiv);
 
     }
 
 }
 
 #endif
-

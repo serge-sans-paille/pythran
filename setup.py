@@ -131,7 +131,7 @@ class TestCommand(Command):
         test_compile()
 
         import pytest
-        args = [where, '--pep8']
+        args = [where]
 
         # try a parallel run
         try:
@@ -139,6 +139,13 @@ class TestCommand(Command):
             args = ["-n", str(self.num_threads)] + args
         except ImportError:
             print('W: Skipping parallel run, pytest_xdist not found')
+
+        # try a parallel run
+        try:
+            import pytest_pep8
+            args = ["--pep8"] + args
+        except ImportError:
+            print('W: Skipping pep8 checks, pytest_pep8 not found')
 
         if self.failfast:
             args.insert(0, '-x')

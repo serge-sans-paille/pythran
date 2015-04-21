@@ -13,11 +13,11 @@ namespace pythonic {
             typename types::numpy_expr_to_ndarray<E>::type
             diff(E const& expr, long n=1) {
                 auto arr = asarray(expr);
-                auto shape = expr.shape;
+                auto shape = expr.shape();
                 --shape[types::numpy_expr_to_ndarray<E>::N-1];
 
                 typename types::numpy_expr_to_ndarray<E>::type out(shape, __builtin__::None);
-                auto slice = expr.shape[types::numpy_expr_to_ndarray<E>::N-1];
+                auto slice = expr.shape()[types::numpy_expr_to_ndarray<E>::N-1];
                 auto iter = arr.fbegin();
                 auto out_iter = out.fbegin();
                 for(long i = 0, sz = expr.flat_size(); i< sz ; i+=slice) {

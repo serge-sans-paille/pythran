@@ -27,7 +27,7 @@ namespace pythonic {
             }
         template<class E, class Mi, class Ma>
             typename types::numpy_expr_to_ndarray<E>::type clip(E const& e, Mi a_min, Ma a_max) {
-                typename types::numpy_expr_to_ndarray<E>::type out(e.shape, __builtin__::None);
+                typename types::numpy_expr_to_ndarray<E>::type out(e.shape(), __builtin__::None);
                 _clip(e.begin(), e.end(), out.fbegin(), a_min, a_max, utils::int_<types::numpy_expr_to_ndarray<E>::N>());
                 return out;
             }

@@ -33,7 +33,7 @@ namespace pythonic {
         template<class T, class E, class M>
             void _enlarge_copy_minus(T&& t, E const& e, M const& m, long axis, utils::int_<1>)
             {
-                for(long i = 0, n = e.shape[0], p = m.shape[0]; i < n ;) {
+                for(long i = 0, n = e.shape()[0], p = m.shape()[0]; i < n ;) {
                     for(long j = 0; j < p; ++j, ++i)
                         t.fast(i) = e.fast(i) - m.fast(j);
                 }
@@ -42,7 +42,7 @@ namespace pythonic {
         template<class T, class E, class M, size_t N>
             void _enlarge_copy_minus(T&& t, E const& e, M const& m, long axis, utils::int_<N>)
             {
-                for(long i = 0, n = e.shape[0], p = m.shape[0]; i < n ; ) {
+                for(long i = 0, n = e.shape()[0], p = m.shape()[0]; i < n ; ) {
                     for(long j = 0; j < p; ++j, ++i) {
                         _enlarge_copy_minus(t.fast(i), e.fast(i), m.fast(j), axis, utils::int_<N - 1>());
                     }
@@ -57,17 +57,18 @@ namespace pythonic {
                 auto m = mean(expr, axis);
                 if(axis == 0) {
                     auto t = expr - m ;
-                    return sum(t*t, axis) /= var_type<E>(expr.shape[axis] - ddof);
+                    return sum(t*t, axis) /= var_type<E>(expr.shape()[axis] - ddof);
                 }
                 else {
                     types::array<long, E::value> shp;
-                    std::copy(expr.shape.begin(), expr.shape.end(), shp.begin());
+                    auto&& expr_shape = expr.shape();
+                    std::copy(expr_shape.begin(), expr_shape.end(), shp.begin());
                     shp[axis] = 1;
                     auto mp = m.reshape(shp);
 
-                    typename assignable<E>::type t{expr.shape, __builtin__::None};
+                    typename assignable<E>::type t{expr_shape, __builtin__::None};
                     _enlarge_copy_minus(t, expr, mp, axis, utils::int_<E::value>());
-                    return sum(t*t, axis) /= var_type<E>(expr.shape[axis] - ddof);
+                    return sum(t*t, axis) /= var_type<E>(expr_shape[axis] - ddof);
                 }
             }
 

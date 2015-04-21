@@ -76,34 +76,22 @@ namespace {
 namespace pythonic {
 
     namespace types {
+
+        namespace details {
+            template<class E, size_t Value> void init_shape(array<long, Value>& res, E const& e, utils::int_<1>) {
+              res[Value - 1] = e.size();
+            }
+            template<class E, size_t Value, size_t L> void init_shape(array<long, Value>& res, E const& e, utils::int_<L>) {
+              res[Value - L] = e.size();
+              init_shape(res, e[0], utils::int_<L-1>{});
+            }
+        }
         template<class T>
             class list; // forward declared for array slicing
 
         template<class T, size_t N>
             struct array;
         struct str;
-
-        template<size_t I>
-            struct to_tuple_impl {
-                template<class T, size_t N>
-                    auto operator()(types::array<T,N> const& l) const -> decltype(std::tuple_cat(to_tuple_impl<I-1>()(l), std::tuple<T>(l[I-1]))) {
-                        return std::tuple_cat(to_tuple_impl<I-1>()(l), std::tuple<T>(l[I-1]));
-                    }
-            };
-        template<>
-            struct to_tuple_impl<1> {
-                template<class T, size_t N>
-                    std::tuple<T> operator()(types::array<T,N> const& l) const {
-                        return std::tuple<T>(l[0]);
-                    }
-            };
-        template<>
-            struct to_tuple_impl<0> {
-                template<class T, size_t N>
-                    std::tuple<> operator()(types::array<T,N> const& l) const {
-                        return std::tuple<>();
-                    }
-            };
 
         /* helper to extract the tail of a tuple, and pop the head
          */
@@ -126,6 +114,11 @@ namespace pythonic {
         {
           return make_tuple_tail<count_trailing_long<Stail...>::value>(t, typename utils::gens<sizeof...(Stail)+1-count_trailing_long<Stail...>::value>::type{});
         }
+
+        template<class A, int... I>
+          auto array_to_tuple(A const& a, utils::seq<I...>) -> decltype(std::make_tuple(a[I-1]...)) {
+            return std::make_tuple(a[I-1]...);
+          }
 
         /* inspired by std::array implementation */
         template<typename T, size_t N>
@@ -296,11 +289,11 @@ namespace pythonic {
 
                 template<class... Types>
                     operator std::tuple<Types...>() const {
-                        return std::tuple<Types...>(to_tuple_impl<N>()(*this));
+                        return array_to_tuple(*this, typename utils::gens<N+1>::type{});
                     }
 
-                auto to_tuple() const -> decltype(to_tuple_impl<N>()(*this)) {
-                    return to_tuple_impl<N>()(*this);
+                auto to_tuple() const -> decltype(array_to_tuple(*this, typename utils::gens<N+1>::type{})) {
+                  return array_to_tuple(*this, typename utils::gens<N+1>::type{});
                 }
 
                 list<T> operator[](types::slice const& s); // definition in list.hpp
@@ -315,6 +308,12 @@ namespace pythonic {
                         os << *iter;
                     }
                     return os << ')';
+                }
+
+                array<long, value> shape() const {
+                    array<long, value> res;
+                    details::init_shape(res, *this, utils::int_<value>{});
+                    return res;
                 }
             };
 

@@ -45,7 +45,7 @@ namespace pythonic {
                                     types::ndarray<bool, types::numpy_expr_to_ndarray<V>::N>
                                    >::type
             isclose(U const& u, V const& v, double rtol=1e-5, double atol=1e-8, bool equal_nan=false) {
-                types::ndarray<bool, types::numpy_expr_to_ndarray<U>::N> out(u.shape, false);
+                types::ndarray<bool, types::numpy_expr_to_ndarray<U>::N> out(u.shape(), false);
                 _isclose(u.begin(), u.end(), v.begin(), out.begin(), rtol, atol, equal_nan, utils::int_<types::numpy_expr_to_ndarray<U>::N>());
                 return out;
             }

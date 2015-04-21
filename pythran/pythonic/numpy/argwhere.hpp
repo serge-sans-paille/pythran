@@ -15,7 +15,7 @@ namespace pythonic {
                 constexpr long N = types::numpy_expr_to_ndarray<E>::N;
                 auto arr = asarray(expr);
                 long sz = arr.flat_size();
-                auto eshape = arr.shape;
+                auto eshape = arr.shape();
 
                 long *buffer = (long*)malloc(sz * N * sizeof(long)); // too much memory used
                 long *buffer_iter = buffer;

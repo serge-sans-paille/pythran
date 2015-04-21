@@ -10,7 +10,7 @@ namespace pythonic {
     namespace numpy {
         template<class U, class V>
             typename std::enable_if<types::has_shape<U>::value and types::has_shape<V>::value,bool>::type array_equal(U const& u, V const&v) {
-                if(u.shape == v.shape) {
+                if(u.shape() == v.shape()) {
                     return all(u == v);
                 }
                 return false;

@@ -21,7 +21,7 @@ namespace pythonic {
             mean(E const& expr, long axis, dtype d=dtype())
             -> decltype(sum(expr, axis))
             {
-                return sum(expr, axis) /= typename types::numpy_type<dtype>::type(expr.shape[axis]);
+                return sum(expr, axis) /= typename types::numpy_type<dtype>::type(expr.shape()[axis]);
             }
 
         PROXY(pythonic::numpy, mean);

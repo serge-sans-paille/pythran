@@ -11,9 +11,10 @@ namespace pythonic {
         template<class T>
             types::ndarray<T,2> triu(types::ndarray<T,2> const& expr, int k = 0)
             {
-                types::ndarray<T,2> out(expr.shape, __builtin__::None);
-                for(int i=0; i<expr.shape[0]; ++i)
-                    for(long j=0 ; j<expr.shape[1]; ++j)
+                auto && expr_shape = expr.shape();
+                types::ndarray<T,2> out(expr_shape, __builtin__::None);
+                for(int i=0; i<expr_shape[0]; ++i)
+                    for(long j=0 ; j<expr_shape[1]; ++j)
                         if( j - i >= k)
                             out[i][j] = expr[i][j];
                         else

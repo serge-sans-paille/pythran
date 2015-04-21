@@ -35,7 +35,8 @@ namespace pythonic {
                 typedef const_nditerator<numpy_fexpr> const_iterator;
 
                 typename assignable<typename std::remove_reference<Arg>::type>::type arg;
-                array<long, value> shape;
+                array<long, value> _shape;
+                array<long, value> const& shape() const { return _shape; }
                 utils::shared_ref<raw_array<long>> indices;
                 long *buffer;
 
@@ -47,7 +48,7 @@ namespace pythonic {
                     auto iter = buffer;
                     long index = 0;
                     _copy_mask(filter.begin(), filter.end(), iter, index, utils::int_<std::remove_reference<typename std::remove_cv<Arg>::type>::type::value>());
-                    shape[0] = { iter - buffer };
+                    _shape[0] = { iter - buffer };
                 }
 
                 template<class FIter, class O>
@@ -114,10 +115,10 @@ namespace pythonic {
                 }
 
                 const_iterator begin() const { return const_iterator(*this, 0); }
-                const_iterator end() const { return const_iterator(*this, shape[0]); }
+                const_iterator end() const { return const_iterator(*this, _shape[0]); }
 
                 iterator begin() { return iterator(*this, 0); }
-                iterator end() { return iterator(*this, shape[0]); }
+                iterator end() { return iterator(*this, _shape[0]); }
 
 
                 dtype fast(long i) const
@@ -136,12 +137,12 @@ namespace pythonic {
 #endif
                 auto operator[](long i) const -> decltype(this->fast(i))
                 {
-                    if(i<0) i += shape[0];
+                    if(i<0) i += _shape[0];
                     return fast(i);
                 }
                 auto operator[](long i) -> decltype(this->fast(i))
                 {
-                    if(i<0) i += shape[0];
+                    if(i<0) i += _shape[0];
                     return fast(i);
                 }
                 template<class E>
@@ -154,7 +155,7 @@ namespace pythonic {
                     operator[](E const& expr) const {
                         return fast(expr);
                     }
-                long flat_size() const { return shape[0]; }
+                long flat_size() const { return _shape[0]; }
             };
 
     }

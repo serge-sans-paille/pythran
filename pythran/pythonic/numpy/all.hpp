@@ -47,7 +47,7 @@ namespace pythonic {
                 typedef typename E::dtype T;
                 if(axis<0 || axis >=long(N))
                     throw types::ValueError("axis out of bounds");
-                auto shape = array.shape;
+                auto shape = array.shape();
                 if(axis==0)
                 {
                     types::array<long, N - 1> shp;

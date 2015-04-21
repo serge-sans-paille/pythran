@@ -18,7 +18,7 @@ namespace pythonic {
             types::ndarray<typename types::numpy_expr_to_ndarray<T>::type::dtype,2>
                 > ::type
                 {
-                    return t.reshape(types::make_tuple(1L, t.shape[0]));
+                    return t.reshape(types::make_tuple(1L, t.shape()[0]));
                 }
 
         template<class T>

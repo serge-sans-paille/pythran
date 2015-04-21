@@ -19,7 +19,7 @@ namespace pythonic {
                 > ::type
                 {
                     auto r = asarray(t);
-                    auto shape = r.shape;
+                    auto shape = r.shape();
                     if(shape.size() == 1)
                         return r.reshape(types::make_tuple(1L, shape[0],1L));
                     else

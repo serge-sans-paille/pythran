@@ -148,40 +148,29 @@ namespace pythonic {
                 static const size_t value = utils::nested_container_depth<list>::value;
                 static const bool is_vectorizable = true;
                 static const bool is_strided = false;
-                struct fake_shape {
-                  list const & the_list;
-                  fake_shape(list const & the_list) : the_list{the_list}{}
-                  template<class E> void init_shape(array<long, value>& res, E const& e, utils::int_<1>) const {
-                    res[value - 1] = e.size();
-                  }
-                  template<class E, size_t L> void init_shape(array<long, value>& res, E const& e, utils::int_<L>) const {
-                    res[value - L] = e.size();
-                    init_shape(res, e[0], utils::int_<L-1>{});
-                  }
-                  operator array<long, value>() const {
-                    array<long, value> res;
-                    init_shape(res, the_list, utils::int_<value>{});
-                    return res;
-                  }
-                } shape;
 
+                array<long, value> shape() const {
+                    array<long, value> res;
+                    details::init_shape(res, *this, utils::int_<value>{});
+                    return res;
+                }
 
 
                 // constructors
-                list() : data(utils::no_memory()), shape(*this) {}
+                list() : data(utils::no_memory()) {}
                 template<class InputIterator>
-                    list(InputIterator start, InputIterator stop) : data(), shape(*this) {
+                    list(InputIterator start, InputIterator stop) : data() {
                         data->reserve(DEFAULT_LIST_CAPACITY);
                         std::copy(start, stop, std::back_inserter(*data));
                     }
-                list(empty_list const&) :data(0), shape(*this) {}
-                list(size_type sz) :data(sz), shape(*this) {}
-                list(T const& value, single_value) : data(1), shape(*this) { (*data)[0] = value; }
-                list(std::initializer_list<T> l) : data(std::move(l)), shape(*this) {}
-                list(list<T> && other) : data(std::move(other.data)), shape(*this) {}
-                list(list<T> const & other) : data(other.data), shape(*this) {}
+                list(empty_list const&) :data(0) {}
+                list(size_type sz) :data(sz) {}
+                list(T const& value, single_value) : data(1) { (*data)[0] = value; }
+                list(std::initializer_list<T> l) : data(std::move(l)) {}
+                list(list<T> && other) : data(std::move(other.data)) {}
+                list(list<T> const & other) : data(other.data) {}
                 template<class F>
-                    list(list<F> const & other) : data(other.size()), shape(*this) {
+                    list(list<F> const & other) : data(other.size()) {
                         std::copy(other.begin(), other.end(), begin());
                     }
 #if 0
@@ -191,7 +180,7 @@ namespace pythonic {
                     }
 #endif
                 template<class S>
-                list(sliced_list<T,S> const & other) : data( other.begin(), other.end()), shape(*this) {}
+                list(sliced_list<T,S> const & other) : data( other.begin(), other.end()) {}
 
                 list<T>& operator=(list<T> && other) {
                     data=std::move(other.data);

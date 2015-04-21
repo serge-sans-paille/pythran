@@ -21,7 +21,7 @@ namespace pythonic {
         template<class T, unsigned long N, class... C>
             types::ndarray<T,N> _transpose(types::ndarray<T,N> const & a, long const l[N])
             {
-                auto shape = a.shape;
+                auto shape = a.shape();
                 types::array<long, N> shp;
                 for(unsigned long i=0; i<N; ++i)
                     shp[i] = shape[l[i]];

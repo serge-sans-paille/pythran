@@ -69,7 +69,7 @@ namespace pythonic {
         if(axis<0 || size_t(axis) >= E::value)
             throw types::ValueError("axis out of bounds");
 
-        auto shape = expr.shape;
+        auto shape = expr.shape();
         partial_sum_type<E, dtype> the_partial_sum{shape, __builtin__::None};
         if(axis==0) {
           auto iter = the_partial_sum.begin();

@@ -1,6 +1,4 @@
-"""
-LocalDeclarations gathers declarations local to a node
-"""
+""" LocalDeclarations gathers declarations local to a node. """
 
 from pythran.passmanager import NodeAnalysis
 
@@ -8,19 +6,34 @@ import ast
 
 
 class LocalDeclarations(NodeAnalysis):
-    """Gathers all local symbols from a function"""
+
+    """
+    Gathers all local symbols from a function.
+
+    It should not be use from outside a function.
+
+    >>> import ast
+    >>> from pythran import passmanager, backend
+    >>> node = ast.parse('''
+    ... def foo(a):
+    ...     b = a + 1''')
+    >>> pm = passmanager.PassManager("test")
+    >>> [name.id for name in pm.gather(LocalDeclarations, node)]
+    ['b']
+    >>> node = ast.parse('''
+    ... for c in xrange(n):
+    ...     b = a + 1''')
+    >>> pm = passmanager.PassManager("test")
+    >>> sorted([name.id for name in pm.gather(LocalDeclarations, node)])
+    ['b', 'c']
+    """
+
     def __init__(self):
+        """ Initialize empty set as the result. """
         self.result = set()
         super(LocalDeclarations, self).__init__()
 
-    def visit_Assign(self, node):
-        for t in node.targets:
-            assert isinstance(t, ast.Name) or isinstance(t, ast.Subscript)
-            if isinstance(t, ast.Name):
-                self.result.add(t)
-
-    def visit_For(self, node):
-        assert isinstance(node.target, ast.Name)
-        self.result.add(node.target)
-        map(self.visit, node.body)
-        map(self.visit, node.orelse)
+    def visit_Name(self, node):
+        """ Any node with Store context is a new declaration. """
+        if isinstance(node.ctx, ast.Store):
+            self.result.add(node)

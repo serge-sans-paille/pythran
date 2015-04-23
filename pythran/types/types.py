@@ -18,6 +18,7 @@ from pythran.tables import operator_to_lambda, MODULES
 from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE, pytype_to_ctype
 from pythran.types.reorder import Reorder
 from pythran.utils import attr_to_path
+from pythran import metadata
 
 from collections import defaultdict
 from functools import partial
@@ -264,6 +265,7 @@ class Types(ModuleAnalysis):
         # return type may be unset if the function always raises
         return_type = self.result.get(node,
                                       NamedType("pythonic::types::none_type"))
+
         self.result[node] = (Returnable(return_type), self.typedefs)
         for k in self.passmanager.gather(LocalDeclarations, node):
             self.result[k] = self.get_qualifier(k)(self.result[k])

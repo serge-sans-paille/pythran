@@ -30,6 +30,7 @@ from .is_assigned import IsAssigned
 from .lazyness_analysis import LazynessAnalysis
 from .literals import Literals
 from .local_declarations import LocalDeclarations
+from .local_decl import LocalDecl
 from .locals_analysis import Locals
 from .node_count import NodeCount
 from .optimizable_comprehension import OptimizableComprehension

@@ -9,15 +9,21 @@ from ast import AST  # so that metadata are walkable as regular ast nodes
 
 
 class Metadata(AST):
+
+    """ Base class to add information on a node to improve code generation. """
+
     def __init__(self):
-        super(Metadata, self).__init__()
+        """ Initialize content of these metadata. """
         self.data = list()
         self._fields = ('data',)
+        super(Metadata, self).__init__()
 
     def __iter__(self):
+        """ Enable iteration over every metadata informations. """
         return iter(self.data)
 
     def append(self, data):
+        """ Add a metadata information. """
         self.data.append(data)
 
 
@@ -31,6 +37,11 @@ class Comprehension(AST):
         super(Comprehension, self).__init__()
         if args:
             self.target = args[0]
+
+
+class StaticReturn(AST):
+
+    """ Metadata to mark return with a constant value. """
 
 
 def add(node, data):

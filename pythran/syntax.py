@@ -54,7 +54,8 @@ class SyntaxChecker(ast.NodeVisitor):
                 continue
             else:
                 if not any(isinstance(n, getattr(ast, t))
-                           for t in ('FunctionDef', 'Import', 'ImportFrom',)):
+                           for t in ('FunctionDef', 'Import', 'ImportFrom',
+                                     'Assign')):
                     raise PythranSyntaxError(err, n)
         self.generic_visit(node)
 

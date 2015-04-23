@@ -9,9 +9,31 @@ class ExtractTopLevelStmts(Transformation):
 
     """ Turns top level statements into __init__.  """
 
-    TYPEDEFS = (ast.ClassDef, ast.FunctionDef, ast.Import, ast.ImportFrom)
+    TYPEDEFS = (ast.ClassDef, ast.FunctionDef, ast.Import, ast.ImportFrom,
+                ast.Assign)
 
-    def visit_Module(self, node):
+    @staticmethod
+    def visit_Module(node):
+        """
+        Move TYPEDEFS type expressions from global namespace to init function.
+
+        >>> import ast
+        >>> from pythran import passmanager, backend
+        >>> node = ast.parse('''
+        ... a = 'ok'
+        ... print a
+        ... def foo():
+        ...     return list()''')
+        >>> pm = passmanager.PassManager("test")
+        >>> _, node = pm.apply(ExtractTopLevelStmts, node)
+        >>> print pm.dump(backend.Python, node)
+        a = 'ok'
+        def foo():
+            return list()
+        def __init__():
+            print a
+        __init__()
+        """
         module_body = list()
         init_body = list()
         for stmt in node.body:

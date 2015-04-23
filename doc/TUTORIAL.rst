@@ -27,8 +27,9 @@ target, a ``ast.Name`` with the identifier ``a``, of the literal value ``1``.
 
 Eventually, one needs to parse more complex codes, and things get a bit more cryptic, but you get the idea::
 
-  >>> fib_src = "def fib(n):"
-  >>> fib_src += "return n if n< 2 else fib(n-1) + fib(n-2)"
+  >>> fib_src = """
+  ... def fib(n):
+  ...     return n if n< 2 else fib(n-1) + fib(n-2)"""
   >>> tree = ast.parse(fib_src)
   >>> print ast.dump(tree)
   Module(body=[FunctionDef(name='fib', args=arguments(args=[Name(id='n', ctx=Param())], vararg=None, kwarg=None, defaults=[]), body=[Return(value=IfExp(test=Compare(left=Name(id='n', ctx=Load()), ops=[Lt()], comparators=[Num(n=2)]), body=Name(id='n', ctx=Load()), orelse=BinOp(left=Call(func=Name(id='fib', ctx=Load()), args=[BinOp(left=Name(id='n', ctx=Load()), op=Sub(), right=Num(n=1))], keywords=[], starargs=None, kwargs=None), op=Add(), right=Call(func=Name(id='fib', ctx=Load()), args=[BinOp(left=Name(id='n', ctx=Load()), op=Sub(), right=Num(n=2))], keywords=[], starargs=None, kwargs=None))))], decorator_list=[])])
@@ -153,10 +154,10 @@ __init__ function::
   >>> tree = ast.parse(code)
   >>> _ = pm.apply(transformations.ExtractTopLevelStmts, tree)
   >>> print pm.dump(backend.Python, tree)
+  a = 1
   def foo():
       return 2
   def __init__():
-      a = 1
       print a
       print (a + foo())
   __init__()

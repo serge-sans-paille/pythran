@@ -3,6 +3,7 @@
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
+#include "pythonic/numpy/abs.hpp"
 #include "pythonic/numpy/isfinite.hpp"
 
 namespace pythonic {
@@ -15,7 +16,7 @@ namespace pythonic {
                     auto u = *begin;
                     auto v = *ibegin;
                     if(((!proxy::isfinite()(u) || !proxy::isfinite()(v)) && u != v) ||  // Infinite and NaN cases
-                        std::abs(u-v) > (atol + rtol * std::abs(v))) {
+                        proxy::abs()(u-v) > (atol + rtol * proxy::abs()(v))) {
                         return false;
                     }
                 }

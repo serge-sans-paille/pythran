@@ -8,10 +8,10 @@
 namespace pythonic {
 
     namespace numpy {
-        template<class T, size_t N>
-            types::str array2string(types::ndarray<T,N> const& a) {
+        template<class E>
+            types::str array2string(E && a) {
                 std::ostringstream oss;
-                oss << a;
+                oss << std::forward<E>(a);
                 return oss.str();
             }
 

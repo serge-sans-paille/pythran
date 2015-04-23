@@ -31,12 +31,6 @@ namespace pythonic {
                 long shape[1] = { iter - buffer };
                 return types::ndarray<long, 1>(buffer, shape);
             }
-        template<class E>
-            auto flatnonzero(types::list<E> const & l)
-            -> decltype(flatnonzero(asarray(l)))
-            {
-                return flatnonzero(asarray(l));
-            }
 
         PROXY(pythonic::numpy, flatnonzero);
 

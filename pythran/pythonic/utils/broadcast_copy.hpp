@@ -75,7 +75,7 @@ namespace pythonic {
                 self.fast(i) = other.fast(i);
             else
 #endif
-              std::copy(other.begin(), other.end(), self.begin());
+                std::copy(other.begin(), other.end(), self.begin());
 
             // eventually repeat the pattern
             size_t n = self_size / other_size;

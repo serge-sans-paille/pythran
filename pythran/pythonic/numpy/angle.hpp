@@ -11,7 +11,7 @@ namespace pythonic {
         template<class T>
             auto angle(T const& t, bool in_deg)
             -> typename assignable<decltype(proxy::angle_in_rad()(t))>::type
-            // assignable to find a common type between the two expression templaes
+            // assignable to find a common type between the two expression templates
             {
                 if(in_deg)
                     return proxy::angle_in_deg()(t);

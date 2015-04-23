@@ -203,23 +203,24 @@ cases of Python programs::
     $> pythran internal_top_level_assign.py
     $> python -c 'import internal_top_level_assign'
     13
-    14
 
 Then let's test Python's flow control keywords: for, while, if-else:
 
 Loop statement at top-level::
 
-    $> printf 's=0\nfor i in range(10): print s' > internal_top_level_loop.py
+    $> printf 's=0\nfor i in range(2): print s' > internal_top_level_loop.py
     $> pythran internal_top_level_loop.py
     $> python -c 'import internal_top_level_loop'
-    45
+    0
+    0
 
 While statement at top-level::
 
     $> printf 'i=0\nwhile True:\n print i\n break\nprint i' > internal_top_level_while.py
     $> pythran internal_top_level_while.py
     $> python -c 'import internal_top_level_while'
-    10
+    0
+    0
 
 If-else statement at top-level::
 

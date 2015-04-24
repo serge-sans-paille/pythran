@@ -25,7 +25,7 @@ install:
     - "pip install pytest-pep8"
     - "pip install pytest-xdist"
 
-    - "python setup.py install --user 1> /dev/null"
+    - "python setup.py install --user"
 
 env:
     # to generate the following:

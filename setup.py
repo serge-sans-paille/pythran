@@ -1,7 +1,7 @@
 from __future__ import print_function
 from distutils.command.build import build
 from distutils.core import setup, Command
-from subprocess import check_call, check_output, CalledProcessError
+from subprocess import check_call, check_output
 import logging
 import numpy
 import os
@@ -28,27 +28,41 @@ def _exclude_current_dir_from_import():
 
 
 class BuildWithPly(build):
-    '''Use ply to generate parsetab before building module.'''
+
+    """Use ply to generate parsetab before building module."""
 
     def build_ply(self):
+        """ Generate the parsetab.py file in pythran folder and install it. """
         from pythran.spec import SpecParser
         SpecParser()  # this forces the generation of the parsetab file
         self.mkpath(os.path.join(self.build_lib, 'pythran'))
         for p in ('parsetab.py',):
             target = os.path.join(self.build_lib, 'pythran', p)
-            if os.path.exists(p):
-                os.rename(p, target)
-            assert os.path.exists(target)
+            os.rename(os.path.join("pythran", p), target)
 
     def build_nt2(self):
+        """ Build nt2 and moves it to the build directory. """
         nt2_dir = 'nt2'
+        git_hash = 'origin/release'
         if not os.path.isdir(nt2_dir):
             print('nt2 git repository not setup, cloning it')
-            cmd = 'git clone https://github.com/NumScale/nt2.git -b release'
+            cmd = 'git clone https://github.com/NumScale/nt2.git'
             check_call(cmd.split())
-        else:
-            cmd = 'git fetch && git checkout origin/release'
+            cmd = "git checkout {}".format(git_hash)
+            check_call(cmd.split(), cwd=nt2_dir)
+            cmd = 'git config --global user.email "you@example.com"'
             check_call(cmd, shell=True, cwd=nt2_dir)
+            cmd = 'git config --global user.name "Your Name"'
+            check_call(cmd, shell=True, cwd=nt2_dir)
+            cmd = "git cherry-pick 3d01f3699d11080fe846e841133d4fc689252ae7"
+            check_call(cmd, shell=True, cwd=nt2_dir)
+            print(check_output("git log -n 3", shell=True, cwd=nt2_dir))
+        else:
+            cmd = 'git fetch && git checkout {}'.format(git_hash)
+            check_call(cmd, shell=True, cwd=nt2_dir)
+            cmd = "git cherry-pick 3d01f3699d11080fe846e841133d4fc689252ae7"
+            check_call(cmd.split(), cwd=nt2_dir)
+            print(check_output("git log -n 3", shell=True, cwd=nt2_dir))
             print('nt2 git repository updated')
 
         nt2_build_dir = os.path.join(self.build_temp, nt2_dir)
@@ -67,7 +81,7 @@ class BuildWithPly(build):
                          '-DNT2_FIND_REPOSITORIES='
                          'git://github.com/MetaScale/nt2-modules.git']
             try:
-            	check_call(build_cmd)
+                check_call(build_cmd)
             except Exception:
                 print("configure failed upon: " + " " .join(build_cmd))
                 raise
@@ -250,7 +264,7 @@ class BenchmarkCommand(Command):
                     print('std :', numpy.std(timing))
                     del sys.modules[modname]
                 else:
-                    print('* Skip ', candidate, ', no ',end='')
+                    print('* Skip ', candidate, ', no ', end='')
                     print(BenchmarkCommand.runas_marker, ' directive')
 
 

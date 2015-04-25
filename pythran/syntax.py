@@ -46,19 +46,6 @@ class SyntaxChecker(ast.NodeVisitor):
         for module in MODULES.itervalues():
             save_attribute(module)
 
-    def visit_Module(self, node):
-        err = ("Top level statements can only be strings, functions, comments"
-               " or imports")
-        for n in node.body:
-            if isinstance(n, ast.Expr) and isinstance(n.value, ast.Str):
-                continue
-            else:
-                if not any(isinstance(n, getattr(ast, t))
-                           for t in ('FunctionDef', 'Import', 'ImportFrom',
-                                     'Assign')):
-                    raise PythranSyntaxError(err, n)
-        self.generic_visit(node)
-
     def visit_Interactive(self, node):
         raise PythranSyntaxError("Interactive session not supported", node)
 

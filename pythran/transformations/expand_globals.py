@@ -6,6 +6,7 @@ It also turn globals assignment in function definition.
 
 from pythran.analyses import LocalDecl
 from pythran.passmanager import Transformation
+from pythran import metadata
 
 import ast
 
@@ -57,6 +58,7 @@ class ExpandGlobals(Transformation):
                         ast.FunctionDef(target.id,
                                         ast.arguments([], None, None, []),
                                         [ast.Return(value=cst_value)], []))
+                    metadata.add(module_body[-1].body[0], metadata.StaticReturn())
             else:
                 self.local_decl = self.passmanager.gather(LocalDecl, stmt,
                                                           self.ctx)

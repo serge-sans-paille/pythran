@@ -12,8 +12,7 @@ class ExtractTopLevelStmts(Transformation):
     TYPEDEFS = (ast.ClassDef, ast.FunctionDef, ast.Import, ast.ImportFrom,
                 ast.Assign)
 
-    @staticmethod
-    def visit_Module(node):
+    def visit_Module(self, node):
         """
         Move TYPEDEFS type expressions from global namespace to init function.
 

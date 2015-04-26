@@ -56,7 +56,7 @@ def dict_copy(a):
         return self.run_test("def dict_get_none(a): return a.get(1)", {1.5:2 }, dict_get_none=[{float:int}])
 
     def test_dict_has_key(self):
-        return self.run_test("def dict_has_key(a): return (a.has_key(False), a.has_key(True))", {False:0}, dict_has_key=[{bool:int}])
+        return self.run_test("def dict_has_key(a): return (a.has_key(False), a.has_key(True))", {False:2}, dict_has_key=[{bool:int}])
 
     def test_dict_items(self):
         return self.run_test("def dict_items(a): return sorted(a.items())", { 'a':1, 'e': 2 }, dict_items=[{str:int}])

@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_OPERATOR_ITEMGETTER_HPP
 #define PYTHONIC_OPERATOR_ITEMGETTER_HPP
 
+#include "pythran/pythonic/include/operator_/itemgetter.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/tuple.hpp"
 #include "pythonic/utils/int_.hpp"
@@ -8,15 +10,16 @@
 namespace pythonic {
 
     namespace operator_ {
-        struct itemgetter_return {
-            long i;
-            itemgetter_return(long const& item=-1) : i(item){}
-            template<class A>
-                auto operator()(A const& a) const -> decltype(a[i]) {
-                    return a[i];
-                }
-        };
 
+        itemgetter_return::itemgetter_return(long const& item) :
+            i(item)
+        {}
+
+        template<class A>
+            auto itemgetter_return::operator()(A const& a) const -> decltype(a[i])
+            {
+                return a[i];
+            }
 
         itemgetter_return itemgetter(long item)
         {
@@ -24,44 +27,48 @@ namespace pythonic {
         }
 
         template<typename... Types>
-            struct itemgetter_tuple_return {
+            itemgetter_tuple_return<Types...>::itemgetter_tuple_return(Types... items) :
+                items(items...)
+            {}
 
-                std::tuple<Types...> items;
+        template<typename... Types>
+            itemgetter_tuple_return<Types...>::itemgetter_tuple_return()
+            {}
 
-                itemgetter_tuple_return(Types... items) : items(items...) {
-                }
-
-                itemgetter_tuple_return(){
-                }
-
-                template<class T, class A, size_t I>
-                    void helper(T & t, A const& a, utils::int_<I>) const {
-                        std::get<I>(t) = a[std::get<I>(items)];
-                        helper(t,a, utils::int_<I-1>());
-                    }
-                template<class T, class A>
-                    void helper(T& t, A const& a, utils::int_<0>) const {
-                        std::get<0>(t) = a[std::get<0>(items)];
-                    }
-
-                template<class A>
-                    auto operator()(A const& a) const -> std::tuple< typename std::remove_cv<typename std::remove_reference<decltype(a[std::declval<Types>()])>::type>::type ... > {
-                        std::tuple< typename std::remove_cv<typename std::remove_reference<decltype(a[std::declval<Types>()])>::type>::type ... > t;
-                        helper(t, a, utils::int_<sizeof...(Types)-1>());
-                        return t;
-                    }
-            };
-
-        template<class... L>
-            auto itemgetter(long const& item1, long const& item2, L ... items) -> itemgetter_tuple_return<long,long, L...>
+        template<typename... Types>
+        template<class T, class A, size_t I>
+            void itemgetter_tuple_return<Types...>::helper(T & t, A const& a, utils::int_<I>) const
             {
-                return itemgetter_tuple_return<long,long , L...>(item1, item2, items...);
+                std::get<I>(t) = a[std::get<I>(items)];
+                helper(t,a, utils::int_<I-1>());
             }
 
-        PROXY(pythonic::operator_, itemgetter);
+        template<typename... Types>
+        template<class T, class A>
+            void itemgetter_tuple_return<Types...>::helper(T& t, A const& a, utils::int_<0>) const
+            {
+                std::get<0>(t) = a[std::get<0>(items)];
+            }
+
+        template<typename... Types>
+        template<class A>
+            auto itemgetter_tuple_return<Types...>::operator()(A const& a) const
+            -> std::tuple< typename std::remove_cv<typename std::remove_reference<decltype(a[std::declval<Types>()])>::type>::type ... >
+            {
+                std::tuple< typename std::remove_cv<typename std::remove_reference<decltype(a[std::declval<Types>()])>::type>::type ... > t;
+                helper(t, a, utils::int_<sizeof...(Types)-1>());
+                return t;
+            }
+
+        template<class... L>
+            itemgetter_tuple_return<long,long, L...> itemgetter(long const& item1, long const& item2, L ... items)
+            {
+                return {item1, item2, items...};
+            }
+
+        PROXY_IMPL(pythonic::operator_, itemgetter);
     }
 
 }
 
 #endif
-

@@ -4,31 +4,39 @@
 #include "pythonic/utils/proxy.hpp"
 
 #include "pythonic/types/dict.hpp"
+#include "pythonic/include/__builtin__/dict.hpp"
 
 #include <utility>
 
 namespace pythonic {
 
     namespace __builtin__ {
+
         namespace {
-        inline types::empty_dict dict() {
-            return types::empty_dict();
+            inline types::empty_dict dict()
+            {
+                return types::empty_dict();
+            }
+
+            template<class Iterable>
+                inline
+                types::dict<
+                    typename std::tuple_element<0, typename std::remove_reference<Iterable>::type::iterator::value_type>::type,
+                    typename std::tuple_element<1, typename std::remove_reference<Iterable>::type::iterator::value_type>::type
+                    >
+                dict(Iterable&& iterable)
+                {
+                    types::dict<
+                        typename std::tuple_element<0, typename std::remove_reference<Iterable>::type::iterator::value_type>::type,
+                        typename std::tuple_element<1, typename std::remove_reference<Iterable>::type::iterator::value_type>::type
+                        > out = types::empty_dict();
+                        for(auto const & i : iterable)
+                            out[std::get<0>(i)] = std::get<1>(i);
+                        return out;
+                    }
         }
 
-        template<class Iterable>
-            inline
-            types::dict<typename std::tuple_element<0, typename std::remove_reference<Iterable>::type::iterator::value_type>::type ,
-            typename std::tuple_element<1, typename std::remove_reference<Iterable>::type::iterator::value_type>::type >
-                dict( Iterable&& iterable) {
-                    types::dict<typename std::tuple_element<0, typename std::remove_reference<Iterable>::type::iterator::value_type>::type ,
-                    typename std::tuple_element<1, typename std::remove_reference<Iterable>::type::iterator::value_type>::type > out=types::empty_dict();
-                    for(auto const & i : iterable)
-                        out[std::get<0>(i)] = std::get<1>(i);
-                    return out;
-                }
-        }
-
-        PROXY(pythonic::__builtin__,dict);
+        PROXY_IMPL(pythonic::__builtin__,dict);
 
     }
 

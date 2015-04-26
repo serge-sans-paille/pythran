@@ -1,6 +1,7 @@
 #ifndef PYTHONIC_CMATH_COS_HPP
 #define PYTHONIC_CMATH_COS_HPP
 
+#include "pythonic/include/cmath/cos.hpp"
 #include "pythonic/utils/proxy.hpp"
 #include <cmath>
 
@@ -13,13 +14,13 @@ namespace pythonic {
                 return std::cos(v);
             }
 
-            template<class T>
+        template<class T>
             std::complex<T> cos(T const& v)
             {
                 return std::cos(v);
             }
 
-        PROXY(pythonic::cmath, cos);
+        PROXY_IMPL(pythonic::cmath, cos);
     }
 
 }

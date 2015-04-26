@@ -1,14 +1,16 @@
 #ifndef PYTHONIC_MATH_ASINH_HPP
 #define PYTHONIC_MATH_ASINH_HPP
 
+#include "pythran/pythonic/include/math/asinh.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include <cmath>
 
 namespace pythonic {
 
     namespace math {
-        using std::asinh;
-        PROXY(pythonic::math, asinh);
+        ALIAS(asinh, std::asinh);
+        PROXY_IMPL(pythonic::math, asinh);
     }
 
 }

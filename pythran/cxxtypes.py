@@ -40,7 +40,8 @@ class Type(object):
     def __eq__(self, other):
         havesameclass = self.__class__ == other.__class__
         if havesameclass:
-            def same(x, y): return getattr(self, x) == getattr(other, y)
+            def same(x, y):
+                return getattr(self, x) == getattr(other, y)
             return all(same(x, y) for x, y in zip(self.fields, other.fields))
         else:
             return False

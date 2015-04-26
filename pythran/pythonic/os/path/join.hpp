@@ -1,17 +1,23 @@
 #ifndef PYTHONIC_OS_PATH_JOIN_HPP
 #define PYTHONIC_OS_PATH_JOIN_HPP
+
+#include "pythonic/include/os/path/join.hpp"
+
 #include "pythonic/types/str.hpp"
+
 namespace pythonic {
     namespace os {
         namespace path {
 
             template<class T>
-                size_t sizeof_string(T const& s) {
+                size_t sizeof_string(T const& s)
+                {
                     return s.size();
                 }
 
             template<class T, class... Types>
-                size_t sizeof_string(T const& s, Types&&... tail) {
+                size_t sizeof_string(T const& s, Types&&... tail)
+                {
                     return s.size() + sizeof_string(std::forward<Types>(tail)...);
                 }
 
@@ -46,11 +52,9 @@ namespace pythonic {
                   return p;
                 }
         
-            PROXY(pythonic::os::path, join);
+            PROXY_IMPL(pythonic::os::path, join);
         }
     }
 }
 
 #endif
-
-

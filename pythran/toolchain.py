@@ -76,8 +76,11 @@ def _pythran_cppflags():
 
     def get(*x):
         return '-I' + os.path.join(curr_dir, *x)
-    return [get('.'), get('pythran'),
-            get('pythran', 'pythonic', 'patch')]
+    flags = [get('.'), get('pythran')]
+    if cfg.getboolean('pythran', 'complex_hook'):
+        # the patch is *not* portable
+        flags.append(get('pythran', 'pythonic', 'patch'))
+    return flags
 
 
 def _python_ldflags():

@@ -13,7 +13,7 @@ install:
     - sudo apt-get install --allow-unauthenticated -qq clang-3.5
     - sudo apt-get install -qq g++-4.8 gcc-4.8
 
-    - sudo apt-get install -qq libboost-python1.53-dev libgoogle-perftools-dev libgmp-dev libboost1.53-dev git cmake
+    - sudo apt-get install -qq libboost-python1.53-dev libgmp-dev libboost1.53-dev git cmake
 
     - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 80 --slave /usr/bin/g++ g++ /usr/bin/g++-4.8
 

@@ -4,6 +4,7 @@ from imp import load_dynamic
 from numpy import int8, int16, int32, int64, uint8, uint16, uint32, uint64
 from numpy import float32, float64
 from numpy import ndarray, isnan, isinf, isneginf, complex128, complex64, bool_
+from textwrap import dedent
 import copy
 import glob
 import numpy.testing as npt
@@ -231,6 +232,8 @@ class TestEnv(unittest.TestCase):
 
         name = interface.keys()[0]
         modname = "test_" + name
+
+        code = dedent(code)
 
         cxx_compiled = compile_pythrancode(modname, code, interface,
                                            cxxflags=self.PYTHRAN_CXX_FLAGS)

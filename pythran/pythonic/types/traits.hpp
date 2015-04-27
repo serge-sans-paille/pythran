@@ -2,7 +2,8 @@
 #define PYTHONIC_TYPES_TRAITS_HPP
 
 namespace std {
-template <class T> class complex;
+    template <class T>
+        class complex;
 }
 
 namespace pythonic {
@@ -11,14 +12,15 @@ namespace pythonic {
 
         /* could overload is_scalar to consider complex has scalar types */
         template<class T>
-            struct is_complex {
-                static constexpr bool value = false;
-                typedef T type;
+            struct is_complex : std::integral_constant<bool, false>
+            {
+                using type = T;
             };
+
         template<class T>
-            struct is_complex<std::complex<T>> {
-                static constexpr bool value = true;
-                typedef T type;
+            struct is_complex<std::complex<T>> : std::integral_constant<bool, true>
+            {
+                using type = T;
             };
 
 #define MEMBER_TYPE_TRAIT(check_struct, member)\

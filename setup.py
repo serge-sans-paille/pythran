@@ -3,7 +3,6 @@ from distutils.command.build import build
 from distutils.core import setup, Command
 from subprocess import check_call, check_output
 import logging
-import numpy
 import os
 import shutil
 import sys
@@ -12,7 +11,7 @@ import time
 logger = logging.getLogger("pythran")
 logger.addHandler(logging.StreamHandler())
 
-from pythran import __version__
+execfile(os.path.join('pythran', 'version.py'))
 
 
 def _exclude_current_dir_from_import():
@@ -212,6 +211,7 @@ class BenchmarkCommand(Command):
         import timeit
         from pythran import test_compile, compile_pythranfile
         import random
+        import numpy
 
         # Do not include current directory, validate using installed pythran
         current_dir = _exclude_current_dir_from_import()
@@ -295,7 +295,6 @@ setup(name='pythran',
                    'Programming Language :: C++',
                    'Topic :: Software Development :: Code Generators'],
       license="BSD 3-Clause",
-      requires=['ply (>=3.4)', 'networkx (>=1.5)', 'numpy', 'colorlog'],
       cmdclass={'build': BuildWithPly,
                 'test': TestCommand,
                 'bench': BenchmarkCommand}

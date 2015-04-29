@@ -38,7 +38,7 @@ Debian/Ubuntu
 
 2. Use ``easy_install`` or ``pip``::
 
-		$> easy_install pythran
+		$> pip install pythran
 
 **or**
 
@@ -59,11 +59,9 @@ Using brew (http://brew.sh/)::
     $> brew install gmp
     $> brew install cmake
 
-    $> easy_install ply
-    $> easy_install networkx
-    $> easy_install numpy
+    $> easy_install pip
 
-    $> easy_install pythran
+    $> pip install pythran
 
 Depending on your setup, you may need to add the following to your \\~/.pythranrc`` file::
 

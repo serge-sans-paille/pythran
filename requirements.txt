@@ -1,0 +1,5 @@
+ply>=3.6
+networkx>=1.5
+numpy
+colorlog
+decorator

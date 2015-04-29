@@ -1,7 +1,7 @@
 from __future__ import print_function
 from distutils.command.build import build
 from distutils.core import setup, Command
-from subprocess import check_call, check_output, CalledProcessError
+from subprocess import check_call, check_output
 import logging
 import numpy
 import os
@@ -28,17 +28,30 @@ def _exclude_current_dir_from_import():
 
 
 class BuildWithPly(build):
-    '''Use ply to generate parsetab before building module.'''
+
+    """
+    Set up Pythran dependencies.
+
+    * generate parsetab file for ply module
+    * install nt2
+    * install boost.simd
+    """
 
     def build_ply(self):
+        """
+        Generate parsing file for the Pythran grammar.
+
+        Yacc have to generate a parsetab.py file to quicken futher parsing.
+        This file have to be generated before the first use as it is generated
+        in the pythran package so it could be a root folder.
+
+        Also, it has to be generated from the "in build" module as we don't
+        want create a parsetab file for the "already installed" module.
+        """
+        sys.path.insert(0, os.path.abspath(self.build_lib))
         from pythran.spec import SpecParser
         SpecParser()  # this forces the generation of the parsetab file
-        self.mkpath(os.path.join(self.build_lib, 'pythran'))
-        for p in ('parsetab.py',):
-            target = os.path.join(self.build_lib, 'pythran', p)
-            if os.path.exists(p):
-                os.rename(p, target)
-            assert os.path.exists(target)
+        sys.path.pop(0)
 
     def build_nt2(self):
         nt2_dir = 'nt2'
@@ -89,11 +102,11 @@ class BuildWithPly(build):
             shutil.copytree(src, target)
 
     def run(self, *args, **kwargs):
+        # regular build done by parent class
+        build.run(self, *args, **kwargs)
         if not self.dry_run:  # compatibility with the parent options
             self.build_ply()
             self.build_nt2()
-        # regular build done by parent class
-        build.run(self, *args, **kwargs)
 
 
 class TestCommand(Command):

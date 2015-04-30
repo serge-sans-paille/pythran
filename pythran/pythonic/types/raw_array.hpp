@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_TYPES_RAW_ARRAY_HPP
 #define PYTHONIC_TYPES_RAW_ARRAY_HPP
 
+#include "pythonic/include/types/raw_array.hpp"
+
 namespace pythonic {
 
     namespace types {
@@ -9,23 +11,33 @@ namespace pythonic {
          * for internal use only, meant to be stored in a shared_ptr
          */
         template<class T>
-            class raw_array {
-                raw_array(raw_array<T> const& ) = delete;
+            raw_array<T>::raw_array() :
+                data(nullptr)
+            {}
 
-                public:
-                typedef T* pointer_type;
+        template<class T>
+            raw_array<T>::raw_array(size_t n) :
+                data((T*)malloc(sizeof(T) * n))
+            {}
 
-                T* data;
-                raw_array() : data(nullptr) {}
-                raw_array(size_t n) : data((T*)malloc(sizeof(T) * n)) {}
-                raw_array(T* d) : data(d) {}
-                raw_array(raw_array<T>&& d) : data(d.data) { d.data = nullptr; }
+        template<class T>
+            raw_array<T>::raw_array(T* d) :
+                data(d)
+            {}
 
-                ~raw_array() {
-                    if(data)
-                        free(data);
-                }
-            };
+        template<class T>
+            raw_array<T>::raw_array(raw_array<T>&& d) :
+                data(d.data)
+            {
+                d.data = nullptr;
+            }
+
+        template<class T>
+            raw_array<T>::~raw_array()
+            {
+                if(data)
+                    free(data);
+            }
 
     }
 }

@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_TYPES_EXCEPTIONS_HPP
 #define PYTHONIC_TYPES_EXCEPTIONS_HPP
 
+#include "pythonic/include/types/exceptions.hpp"
+
 #include "pythonic/types/str.hpp"
 #include "pythonic/types/list.hpp"
 #include "pythonic/types/attr.hpp"
@@ -11,238 +13,233 @@
 namespace pythonic {
 
     namespace types {
-        namespace BaseError{
-            template<size_t I>
-                struct Type
-                {
-                    typedef str type;
-                };
+        BaseException::BaseException(const BaseException &e) :
+            args(e.args)
+        {}
 
-            template<>
-                struct Type<0>
-                {
-                    typedef list<str> type;
-                };
-        }
-        class BaseException: public std::exception
+        template<typename ... Types>
+            BaseException::BaseException(str const& first, Types ... types)
+            {
+                args = empty_list();
+                init(first, types ...);
+            }
+
+        BaseException::BaseException()
         {
-            public:
-                BaseException(const BaseException &e) : args(e.args){}
-                template<typename ... Types>
-                    BaseException(str const& first,Types ... types) { args = empty_list() ; init(first, types ...);}
-                BaseException() { args = empty_list();}
-                virtual ~BaseException() noexcept {}
-                list<str> args;
-            protected:
-                template<typename T, typename ... Types>
-                    void init(T& first, Types ... others){ args.push_back(first); init(others ...);}
-                template<typename T>
-                    void init(T& first){args.push_back(first);}
-        };
+            args = empty_list();
+        }
 
+        BaseException::~BaseException() noexcept
+        {}
 
+        template<typename T, typename ... Types>
+            void BaseException::init(T& first, Types ... others)
+            {
+                args.push_back(first);
+                init(others ...);
+            }
+
+        template<typename T>
+            void BaseException::init(T& first)
+            {
+                args.push_back(first);
+            }
 
         // Use this to create a python exception class
-#define CLASS_EXCEPTION(name,parent) \
-        class name:public parent \
-        { \
-            public: \
-                    name(const name& e):parent(e){} \
-            template<class ... Types> \
-            name(str const& first, Types ... types): parent(first, types ...){} \
-            name():parent(){} \
-            virtual ~name() noexcept {} \
-        };
+#define CLASS_EXCEPTION_IMPL(name, parent)                                     \
+        name::name(const name& e):                                             \
+            parent(e)                                                          \
+        {}                                                                     \
+                                                                               \
+        template<class ... Types>                                              \
+            name::name(str const& first, Types ... types):                     \
+                parent(first, types ...)                                       \
+            {}                                                                 \
+                                                                               \
+        name::name():                                                          \
+            parent()                                                           \
+        {}                                                                     \
+                                                                               \
+        name::~name() noexcept                                                 \
+        {}
 
-        CLASS_EXCEPTION(SystemExit,BaseException);
-        CLASS_EXCEPTION(KeyboardInterrupt,BaseException);
-        CLASS_EXCEPTION(GeneratorExit,BaseException);
-        CLASS_EXCEPTION(Exception,BaseException);
-        CLASS_EXCEPTION(StopIteration,Exception);
-        CLASS_EXCEPTION(StandardError,Exception);
-        CLASS_EXCEPTION(Warning,Exception);
-        CLASS_EXCEPTION(BytesWarning,Warning);
-        CLASS_EXCEPTION(UnicodeWarning,Warning);
-        CLASS_EXCEPTION(ImportWarning,Warning);
-        CLASS_EXCEPTION(FutureWarning,Warning);
-        CLASS_EXCEPTION(UserWarning,Warning);
-        CLASS_EXCEPTION(SyntaxWarning,Warning);
-        CLASS_EXCEPTION(RuntimeWarning,Warning);
-        CLASS_EXCEPTION(PendingDeprecationWarning,Warning);
-        CLASS_EXCEPTION(DeprecationWarning,Warning);
-        CLASS_EXCEPTION(BufferError,StandardError);
-        CLASS_EXCEPTION(ArithmeticError,StandardError);
-        CLASS_EXCEPTION(AssertionError,StandardError);
-        CLASS_EXCEPTION(AttributeError,StandardError);
-        CLASS_EXCEPTION(EnvironmentError,StandardError);
-        CLASS_EXCEPTION(EOFError,StandardError);
-        CLASS_EXCEPTION(ImportError,StandardError);
-        CLASS_EXCEPTION(LookupError,StandardError);
-        CLASS_EXCEPTION(MemoryError,StandardError);
-        CLASS_EXCEPTION(NameError,StandardError);
-        CLASS_EXCEPTION(ReferenceError,StandardError);
-        CLASS_EXCEPTION(RuntimeError,StandardError);
-        CLASS_EXCEPTION(SyntaxError,StandardError);
-        CLASS_EXCEPTION(SystemError,StandardError);
-        CLASS_EXCEPTION(TypeError,StandardError);
-        CLASS_EXCEPTION(ValueError,StandardError);
-        CLASS_EXCEPTION(FloatingPointError,ArithmeticError);
-        CLASS_EXCEPTION(OverflowError,ArithmeticError);
-        CLASS_EXCEPTION(ZeroDivisionError,ArithmeticError);
-        CLASS_EXCEPTION(IOError,EnvironmentError);
-        CLASS_EXCEPTION(OSError,EnvironmentError);
-        CLASS_EXCEPTION(WindowsError,OSError);
-        CLASS_EXCEPTION(VMSError,OSError);
-        CLASS_EXCEPTION(IndexError,LookupError);
-        CLASS_EXCEPTION(KeyError,LookupError);
-        CLASS_EXCEPTION(UnboundLocalError,NameError);
-        CLASS_EXCEPTION(NotImplementedError,RuntimeError);
-        CLASS_EXCEPTION(IndentationError,SyntaxError);
-        CLASS_EXCEPTION(TabError,IndentationError);
-        CLASS_EXCEPTION(UnicodeError,ValueError);
+        CLASS_EXCEPTION_IMPL(SystemExit,BaseException);
+        CLASS_EXCEPTION_IMPL(KeyboardInterrupt,BaseException);
+        CLASS_EXCEPTION_IMPL(GeneratorExit,BaseException);
+        CLASS_EXCEPTION_IMPL(Exception,BaseException);
+        CLASS_EXCEPTION_IMPL(StopIteration,Exception);
+        CLASS_EXCEPTION_IMPL(StandardError,Exception);
+        CLASS_EXCEPTION_IMPL(Warning,Exception);
+        CLASS_EXCEPTION_IMPL(BytesWarning,Warning);
+        CLASS_EXCEPTION_IMPL(UnicodeWarning,Warning);
+        CLASS_EXCEPTION_IMPL(ImportWarning,Warning);
+        CLASS_EXCEPTION_IMPL(FutureWarning,Warning);
+        CLASS_EXCEPTION_IMPL(UserWarning,Warning);
+        CLASS_EXCEPTION_IMPL(SyntaxWarning,Warning);
+        CLASS_EXCEPTION_IMPL(RuntimeWarning,Warning);
+        CLASS_EXCEPTION_IMPL(PendingDeprecationWarning,Warning);
+        CLASS_EXCEPTION_IMPL(DeprecationWarning,Warning);
+        CLASS_EXCEPTION_IMPL(BufferError,StandardError);
+        CLASS_EXCEPTION_IMPL(ArithmeticError,StandardError);
+        CLASS_EXCEPTION_IMPL(AssertionError,StandardError);
+        CLASS_EXCEPTION_IMPL(AttributeError,StandardError);
+        CLASS_EXCEPTION_IMPL(EnvironmentError,StandardError);
+        CLASS_EXCEPTION_IMPL(EOFError,StandardError);
+        CLASS_EXCEPTION_IMPL(ImportError,StandardError);
+        CLASS_EXCEPTION_IMPL(LookupError,StandardError);
+        CLASS_EXCEPTION_IMPL(MemoryError,StandardError);
+        CLASS_EXCEPTION_IMPL(NameError,StandardError);
+        CLASS_EXCEPTION_IMPL(ReferenceError,StandardError);
+        CLASS_EXCEPTION_IMPL(RuntimeError,StandardError);
+        CLASS_EXCEPTION_IMPL(SyntaxError,StandardError);
+        CLASS_EXCEPTION_IMPL(SystemError,StandardError);
+        CLASS_EXCEPTION_IMPL(TypeError,StandardError);
+        CLASS_EXCEPTION_IMPL(ValueError,StandardError);
+        CLASS_EXCEPTION_IMPL(FloatingPointError,ArithmeticError);
+        CLASS_EXCEPTION_IMPL(OverflowError,ArithmeticError);
+        CLASS_EXCEPTION_IMPL(ZeroDivisionError,ArithmeticError);
+        CLASS_EXCEPTION_IMPL(IOError,EnvironmentError);
+        CLASS_EXCEPTION_IMPL(OSError,EnvironmentError);
+        CLASS_EXCEPTION_IMPL(WindowsError,OSError);
+        CLASS_EXCEPTION_IMPL(VMSError,OSError);
+        CLASS_EXCEPTION_IMPL(IndexError,LookupError);
+        CLASS_EXCEPTION_IMPL(KeyError,LookupError);
+        CLASS_EXCEPTION_IMPL(UnboundLocalError,NameError);
+        CLASS_EXCEPTION_IMPL(NotImplementedError,RuntimeError);
+        CLASS_EXCEPTION_IMPL(IndentationError,SyntaxError);
+        CLASS_EXCEPTION_IMPL(TabError,IndentationError);
+        CLASS_EXCEPTION_IMPL(UnicodeError,ValueError);
 
     }
 
 }
 
 #include "pythonic/utils/proxy.hpp"
-#define PYTHONIC_EXCEPTION_IMPL(name)\
-    template<typename ... Types>\
-types::name name(Types ... args) {\
-    return types::name(args ...);\
-}\
-\
-PROXY_IMPL(pythonic::__builtin__, name);\
-
-#define PYTHONIC_EXCEPTION_DECL(name)\
-    template<typename ... Types>\
-types::name name(Types ... args);\
-\
-PROXY_DECL(pythonic::__builtin__, name);\
+#define PYTHONIC_EXCEPTION_IMPL(name)                                          \
+template<typename ... Types>                                                   \
+types::name name(Types ... args)                                               \
+{                                                                              \
+    return types::name(args ...);                                              \
+}                                                                              \
+                                                                               \
+PROXY_IMPL(pythonic::__builtin__, name);
 
 /* pythran attribute system { */
-#define DECLARE_EXCEPTION_GETATTR(name)\
-    namespace pythonic {\
-        namespace types {\
-            namespace __##name {\
-                \
-                template <int I> struct getattr;\
-                template <> struct getattr<attr::ARGS> {\
-                    none<list<str>> operator()(name const& e) {\
-                        return e.args;\
-                    }\
-                };\
-            }\
-        }\
-        namespace __builtin__ {\
-            template<int I>\
-            auto getattr(types::name const& f) -> decltype(types::__##name::getattr<I>()(f)) {\
-                return types::__##name::getattr<I>()(f);\
-            }\
-        }\
+#define IMPL_EXCEPTION_GETATTR(name)                                           \
+    namespace pythonic {                                                       \
+        namespace types {                                                      \
+            namespace __##name {                                               \
+                                                                               \
+                    none<list<str>>                                            \
+                    getattr<attr::ARGS>::operator()(name const& e)             \
+                    {                                                          \
+                        return e.args;                                         \
+                    }                                                          \
+            }                                                                  \
+        }                                                                      \
+        namespace __builtin__ {                                                \
+            template<int I>                                                    \
+                auto getattr(types::name const& f)                             \
+                -> decltype(types::__##name::getattr<I>()(f))                  \
+                {                                                              \
+                    return types::__##name::getattr<I>()(f);                   \
+                }                                                              \
+        }                                                                      \
     }
 
-#define DECLARE_EXCEPTION_GETATTR_FULL(name)\
-    namespace pythonic {\
-        namespace types {\
-            namespace __##name {\
-                \
-                template <int I> struct getattr;\
-                template <> struct getattr<attr::ARGS> {\
-                    none<list<str>> operator()(name const& e) {\
-                        if (e.args.size()>3 || e.args.size()<2)\
-                        return e.args;\
-                        else\
-                        return list<str>(e.args.begin(), e.args.begin()+2);\
-                    }\
-                };\
-                template <> struct getattr<attr::ERRNO> {\
-                    none<str> operator()(name const& e) {\
-                        if (e.args.size()>3 || e.args.size()<2)\
-                        return __builtin__::None;\
-                        else\
-                        return e.args[0];\
-                    }\
-                };\
-                template <> struct getattr<attr::STRERROR> {\
-                    none<str> operator()(name const& e) {\
-                        if (e.args.size()>3 || e.args.size()<2)\
-                        return __builtin__::None;\
-                        else\
-                        return e.args[1];\
-                    }\
-                };\
-                template <> struct getattr<attr::FILENAME> {\
-                    none<str> operator()(name const& e) {\
-                        if (e.args.size()!=3)\
-                        return __builtin__::None;\
-                        else\
-                        return e.args[2];\
-                    }\
-                };\
-            }\
-        }\
-        namespace __builtin__ {\
-            template<int I>\
-                auto getattr(types::name const& f) -> decltype(types::__##name::getattr<I>()(f)) {\
-                    return types::__##name::getattr<I>()(f);\
-                }\
-        }\
+#define IMPL_EXCEPTION_GETATTR_FULL(name)                                      \
+    namespace pythonic {                                                       \
+        namespace types {                                                      \
+            namespace __##name {                                               \
+                                                                               \
+                    none<list<str>>                                            \
+                    getattr<attr::ARGS>::operator()(name const& e)             \
+                    {                                                          \
+                        if (e.args.size()>3 || e.args.size()<2)                \
+                            return e.args;                                     \
+                        else                                                   \
+                            return list<str>(e.args.begin(), e.args.begin()+2);\
+                    }                                                          \
+                    none<str> getattr<attr::ERRNO>::operator()(name const& e)  \
+                    {                                                          \
+                        if (e.args.size()>3 || e.args.size()<2)                \
+                            return __builtin__::None;                          \
+                        else                                                   \
+                            return e.args[0];                                  \
+                    }                                                          \
+                    none<str>                                                  \
+                    getattr<attr::STRERROR>::operator()(name const& e)         \
+                    {                                                          \
+                        if (e.args.size()>3 || e.args.size()<2)                \
+                            return __builtin__::None;                          \
+                        else                                                   \
+                            return e.args[1];                                  \
+                    }                                                          \
+                    none<str>                                                  \
+                    getattr<attr::FILENAME>::operator()(name const& e)         \
+                    {                                                          \
+                        if (e.args.size()!=3)                                  \
+                            return __builtin__::None;                          \
+                        else                                                   \
+                            return e.args[2];                                  \
+                    }                                                          \
+            }                                                                  \
+        }                                                                      \
+        namespace __builtin__ {                                                \
+            template<int I>                                                    \
+                auto getattr(types::name const& f)                             \
+                -> decltype(types::__##name::getattr<I>()(f))                  \
+                {                                                              \
+                    return types::__##name::getattr<I>()(f);                   \
+                }                                                              \
+        }                                                                      \
     }
 
-DECLARE_EXCEPTION_GETATTR(BaseException);
-DECLARE_EXCEPTION_GETATTR(SystemExit);
-DECLARE_EXCEPTION_GETATTR(KeyboardInterrupt);
-DECLARE_EXCEPTION_GETATTR(GeneratorExit);
-DECLARE_EXCEPTION_GETATTR(Exception);
-DECLARE_EXCEPTION_GETATTR(StopIteration);
-DECLARE_EXCEPTION_GETATTR(StandardError);
-DECLARE_EXCEPTION_GETATTR(Warning);
-DECLARE_EXCEPTION_GETATTR(BytesWarning);
-DECLARE_EXCEPTION_GETATTR(UnicodeWarning);
-DECLARE_EXCEPTION_GETATTR(ImportWarning);
-DECLARE_EXCEPTION_GETATTR(FutureWarning);
-DECLARE_EXCEPTION_GETATTR(UserWarning);
-DECLARE_EXCEPTION_GETATTR(SyntaxWarning);
-DECLARE_EXCEPTION_GETATTR(RuntimeWarning);
-DECLARE_EXCEPTION_GETATTR(PendingDeprecationWarning);
-DECLARE_EXCEPTION_GETATTR(DeprecationWarning);
-DECLARE_EXCEPTION_GETATTR(BufferError);
-DECLARE_EXCEPTION_GETATTR(ArithmeticError);
-DECLARE_EXCEPTION_GETATTR(AssertionError);
-DECLARE_EXCEPTION_GETATTR(AttributeError);
-DECLARE_EXCEPTION_GETATTR(EOFError);
-DECLARE_EXCEPTION_GETATTR(ImportError);
-DECLARE_EXCEPTION_GETATTR(LookupError);
-DECLARE_EXCEPTION_GETATTR(MemoryError);
-DECLARE_EXCEPTION_GETATTR(NameError);
-DECLARE_EXCEPTION_GETATTR(ReferenceError);
-DECLARE_EXCEPTION_GETATTR(RuntimeError);
-DECLARE_EXCEPTION_GETATTR(SyntaxError);
-DECLARE_EXCEPTION_GETATTR(SystemError);
-DECLARE_EXCEPTION_GETATTR(TypeError);
-DECLARE_EXCEPTION_GETATTR(ValueError);
-DECLARE_EXCEPTION_GETATTR(FloatingPointError);
-DECLARE_EXCEPTION_GETATTR(OverflowError);
-DECLARE_EXCEPTION_GETATTR(ZeroDivisionError);
-DECLARE_EXCEPTION_GETATTR(IndexError);
-DECLARE_EXCEPTION_GETATTR(KeyError);
-DECLARE_EXCEPTION_GETATTR(UnboundLocalError);
-DECLARE_EXCEPTION_GETATTR(NotImplementedError);
-DECLARE_EXCEPTION_GETATTR(IndentationError);
-DECLARE_EXCEPTION_GETATTR(TabError);
-DECLARE_EXCEPTION_GETATTR(UnicodeError);
-DECLARE_EXCEPTION_GETATTR_FULL(IOError);
-DECLARE_EXCEPTION_GETATTR_FULL(EnvironmentError);
-DECLARE_EXCEPTION_GETATTR_FULL(OSError);
-
-#ifdef __VMS
-REGISTER_EXCEPTION_TRANSLATOR(VMSError);
-#endif
-
-#ifdef MS_WINDOWS
-REGISTER_EXCEPTION_TRANSLATOR(WindowsError);
-#endif
+IMPL_EXCEPTION_GETATTR(BaseException);
+IMPL_EXCEPTION_GETATTR(SystemExit);
+IMPL_EXCEPTION_GETATTR(KeyboardInterrupt);
+IMPL_EXCEPTION_GETATTR(GeneratorExit);
+IMPL_EXCEPTION_GETATTR(Exception);
+IMPL_EXCEPTION_GETATTR(StopIteration);
+IMPL_EXCEPTION_GETATTR(StandardError);
+IMPL_EXCEPTION_GETATTR(Warning);
+IMPL_EXCEPTION_GETATTR(BytesWarning);
+IMPL_EXCEPTION_GETATTR(UnicodeWarning);
+IMPL_EXCEPTION_GETATTR(ImportWarning);
+IMPL_EXCEPTION_GETATTR(FutureWarning);
+IMPL_EXCEPTION_GETATTR(UserWarning);
+IMPL_EXCEPTION_GETATTR(SyntaxWarning);
+IMPL_EXCEPTION_GETATTR(RuntimeWarning);
+IMPL_EXCEPTION_GETATTR(PendingDeprecationWarning);
+IMPL_EXCEPTION_GETATTR(DeprecationWarning);
+IMPL_EXCEPTION_GETATTR(BufferError);
+IMPL_EXCEPTION_GETATTR(ArithmeticError);
+IMPL_EXCEPTION_GETATTR(AssertionError);
+IMPL_EXCEPTION_GETATTR(AttributeError);
+IMPL_EXCEPTION_GETATTR(EOFError);
+IMPL_EXCEPTION_GETATTR(ImportError);
+IMPL_EXCEPTION_GETATTR(LookupError);
+IMPL_EXCEPTION_GETATTR(MemoryError);
+IMPL_EXCEPTION_GETATTR(NameError);
+IMPL_EXCEPTION_GETATTR(ReferenceError);
+IMPL_EXCEPTION_GETATTR(RuntimeError);
+IMPL_EXCEPTION_GETATTR(SyntaxError);
+IMPL_EXCEPTION_GETATTR(SystemError);
+IMPL_EXCEPTION_GETATTR(TypeError);
+IMPL_EXCEPTION_GETATTR(ValueError);
+IMPL_EXCEPTION_GETATTR(FloatingPointError);
+IMPL_EXCEPTION_GETATTR(OverflowError);
+IMPL_EXCEPTION_GETATTR(ZeroDivisionError);
+IMPL_EXCEPTION_GETATTR(IndexError);
+IMPL_EXCEPTION_GETATTR(KeyError);
+IMPL_EXCEPTION_GETATTR(UnboundLocalError);
+IMPL_EXCEPTION_GETATTR(NotImplementedError);
+IMPL_EXCEPTION_GETATTR(IndentationError);
+IMPL_EXCEPTION_GETATTR(TabError);
+IMPL_EXCEPTION_GETATTR(UnicodeError);
+IMPL_EXCEPTION_GETATTR_FULL(IOError);
+IMPL_EXCEPTION_GETATTR_FULL(EnvironmentError);
+IMPL_EXCEPTION_GETATTR_FULL(OSError);
 
 namespace pythonic {
 
@@ -276,9 +273,10 @@ namespace pythonic {
                 // Generate "('a', 'b', 'c', 'd') if a,b,c, and d are in e.args
                 std::string listsep = "";
                 o << "(";
-                for(auto arg : e.args) {
+                for(auto& arg : e.args)
+                {
                     o << listsep << "'" << arg << "'";
-                    listsep=", ";
+                    listsep = ", ";
                 }
                 o << ")";
                 return o;
@@ -290,62 +288,67 @@ namespace pythonic {
 
 /* } */
 #ifdef ENABLE_PYTHON_MODULE
-#define REGISTER_EXCEPTION_TRANSLATOR(name) \
-    void translate_##name(types::name const& e) { PyErr_SetString(PyExc_##name, __builtin__::proxy::str{}(e.args).c_str()); }
+#define REGISTER_EXCEPTION_TRANSLATOR_IMPL(name)                               \
+    void translate_##name(types::name const& e)                                \
+    {                                                                          \
+        PyErr_SetString(PyExc_##name, __builtin__::proxy::str{}(e.args).c_str());\
+    }
+
 namespace pythonic {
-    REGISTER_EXCEPTION_TRANSLATOR(BaseException);
-    REGISTER_EXCEPTION_TRANSLATOR(SystemExit);
-    REGISTER_EXCEPTION_TRANSLATOR(KeyboardInterrupt);
-    REGISTER_EXCEPTION_TRANSLATOR(GeneratorExit);
-    REGISTER_EXCEPTION_TRANSLATOR(Exception);
-    REGISTER_EXCEPTION_TRANSLATOR(StopIteration);
-    REGISTER_EXCEPTION_TRANSLATOR(StandardError);
-    REGISTER_EXCEPTION_TRANSLATOR(Warning);
-    REGISTER_EXCEPTION_TRANSLATOR(BytesWarning);
-    REGISTER_EXCEPTION_TRANSLATOR(UnicodeWarning);
-    REGISTER_EXCEPTION_TRANSLATOR(ImportWarning);
-    REGISTER_EXCEPTION_TRANSLATOR(FutureWarning);
-    REGISTER_EXCEPTION_TRANSLATOR(UserWarning);
-    REGISTER_EXCEPTION_TRANSLATOR(SyntaxWarning);
-    REGISTER_EXCEPTION_TRANSLATOR(RuntimeWarning);
-    REGISTER_EXCEPTION_TRANSLATOR(PendingDeprecationWarning);
-    REGISTER_EXCEPTION_TRANSLATOR(DeprecationWarning);
-    REGISTER_EXCEPTION_TRANSLATOR(BufferError);
-    REGISTER_EXCEPTION_TRANSLATOR(ArithmeticError);
-    REGISTER_EXCEPTION_TRANSLATOR(AssertionError);
-    REGISTER_EXCEPTION_TRANSLATOR(AttributeError);
-    REGISTER_EXCEPTION_TRANSLATOR(EOFError);
-    REGISTER_EXCEPTION_TRANSLATOR(ImportError);
-    REGISTER_EXCEPTION_TRANSLATOR(LookupError);
-    REGISTER_EXCEPTION_TRANSLATOR(MemoryError);
-    REGISTER_EXCEPTION_TRANSLATOR(NameError);
-    REGISTER_EXCEPTION_TRANSLATOR(ReferenceError);
-    REGISTER_EXCEPTION_TRANSLATOR(RuntimeError);
-    REGISTER_EXCEPTION_TRANSLATOR(SyntaxError);
-    REGISTER_EXCEPTION_TRANSLATOR(SystemError);
-    REGISTER_EXCEPTION_TRANSLATOR(TypeError);
-    REGISTER_EXCEPTION_TRANSLATOR(ValueError);
-    REGISTER_EXCEPTION_TRANSLATOR(FloatingPointError);
-    REGISTER_EXCEPTION_TRANSLATOR(OverflowError);
-    REGISTER_EXCEPTION_TRANSLATOR(ZeroDivisionError);
-    REGISTER_EXCEPTION_TRANSLATOR(IndexError);
-    REGISTER_EXCEPTION_TRANSLATOR(KeyError);
-    REGISTER_EXCEPTION_TRANSLATOR(UnboundLocalError);
-    REGISTER_EXCEPTION_TRANSLATOR(NotImplementedError);
-    REGISTER_EXCEPTION_TRANSLATOR(IndentationError);
-    REGISTER_EXCEPTION_TRANSLATOR(TabError);
-    REGISTER_EXCEPTION_TRANSLATOR(UnicodeError);
-    REGISTER_EXCEPTION_TRANSLATOR(IOError);
-    REGISTER_EXCEPTION_TRANSLATOR(EnvironmentError);
-    REGISTER_EXCEPTION_TRANSLATOR(OSError);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(BaseException);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(SystemExit);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(KeyboardInterrupt);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(GeneratorExit);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(Exception);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(StopIteration);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(StandardError);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(Warning);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(BytesWarning);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(UnicodeWarning);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(ImportWarning);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(FutureWarning);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(UserWarning);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(SyntaxWarning);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(RuntimeWarning);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(PendingDeprecationWarning);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(DeprecationWarning);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(BufferError);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(ArithmeticError);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(AssertionError);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(AttributeError);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(EOFError);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(ImportError);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(LookupError);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(MemoryError);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(NameError);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(ReferenceError);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(RuntimeError);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(SyntaxError);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(SystemError);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(TypeError);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(ValueError);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(FloatingPointError);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(OverflowError);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(ZeroDivisionError);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(IndexError);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(KeyError);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(UnboundLocalError);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(NotImplementedError);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(IndentationError);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(TabError);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(UnicodeError);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(IOError);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(EnvironmentError);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(OSError);
 
 #ifdef __VMS
-    REGISTER_EXCEPTION_TRANSLATOR(VMSError);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(VMSError);
 #endif
 
 #ifdef MS_WINDOWS
-    REGISTER_EXCEPTION_TRANSLATOR(WindowsError);
+    REGISTER_EXCEPTION_TRANSLATOR_IMPL(WindowsError);
 #endif
+
 }
 
 

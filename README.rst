@@ -33,12 +33,12 @@ Debian/Ubuntu
 
    Pythran depends on a few Python modules and several C++ libraries. On a debian-like platform, run::
 
-        $> sudo apt-get install libboost-python-dev libgoogle-perftools-dev libgmp-dev libboost-dev git cmake
+        $> sudo apt-get install libboost-python-dev libgmp-dev libboost-dev git cmake
         $> sudo apt-get install python-ply python-networkx python-numpy
 
 2. Use ``easy_install`` or ``pip``::
 
-		$> easy_install pythran
+		$> pip install pythran
 
 **or**
 
@@ -59,11 +59,9 @@ Using brew (http://brew.sh/)::
     $> brew install gmp
     $> brew install cmake
 
-    $> easy_install ply
-    $> easy_install networkx
-    $> easy_install numpy
+    $> easy_install pip
 
-    $> easy_install pythran
+    $> pip install pythran
 
 Depending on your setup, you may need to add the following to your \\~/.pythranrc`` file::
 

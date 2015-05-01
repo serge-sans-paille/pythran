@@ -48,10 +48,6 @@ Pythran depends on the following packages:
 - networkx: https://networkx.github.io/
 - numpy: http://www.numpy.org/
 
-and optionnaly
-
-- Google's perftools https://code.google.com/p/gperftools/
-
 You also need a modern C++11 enabled compiler (e.g. g++>=4.8), that supports
 for instance atomic operations (N3290) or variadic template (N2555).
 
@@ -326,6 +322,81 @@ Pythran can be used to generate raw templated C++ code, without any python
 glue. To do so use the ``-e`` switch. It will turn the python code into c++
 code you can call from a C++ code. In that case there is **no** need for a
 particular Pythran specification.
+
+Customizing Your ``.pythranrc``
+-------------------------------
+
+Pythran checks for a file named ``.pythranrc`` and loads additionnal
+configuration info from it. Here are a few tricks!
+
+``[sys]`` and ``[user]``
+========================
+
+These sections contains compiler flags configuration:
+
+:``cxx``:
+
+    Path to the compiler to use
+
+:``cppflags``:
+
+    Additionnal preprocessor flags (``-I``, ``-D``, ``-U``). Pythran is
+    sensible to ``-DUSE_BOOST_SIMD`` and ``-DPYTHRAN_OPENMP_MIN_ITERATION_COUNT``. The former turns on
+    Boost.simd vectorization and the latter controls the mimimal loop trip count to turn a sequential loop in a parallel loop.
+
+:``cxxflags``:
+
+    Additionnal compiler flags (``-f``, ``-O``). Optimization flags generally
+    go there.
+
+:``ldflags``:
+
+    Additionnal linker flags, (``-L``, ``-l``). A typical choice is to add
+    ``-ltcmalloc_minimal`` to use the allocator from
+    https://code.google.com/p/gperftools/.
+
+Both sections accept the same set of entries. ``sys`` contains general flags
+that are more critical to the system configuration, and should generally not be
+changed. ``user`` is more related to your local customization, say optimization
+flags, extra libraries and the likes.
+
+``[pythran]``
+=============
+
+This one contains internal configuration settings. Play with it at your own risk!
+
+:``optimizations``:
+
+    A list of import path pointing to transformation classes. This contains the
+    optimization pipeline of Pythran! If you design your own optimizations,
+    register them here!
+
+:``complex_hook``:
+
+    Set this to ``True`` for faster and still numpy-compliant complex
+    multiplications. Not very portable, but generally works on Linux.
+
+``[typing]``
+============
+
+Another internal setting stuff. This controls the accuracy of the typing phase. An extract from the default setting file should convince you not to touch it::
+
+    [typing]
+
+    # maximum number of container access taken into account during type inference
+    # increasing this value inreases typing accuracy
+    # but slows down compilation time, to the point of making g++ crash
+    max_container_type = 2
+
+    # maximum number of combiner per user function
+    # increasing this value inreases typing accuracy
+    # but slows down compilation time, to the point of making g++ crash
+    max_combiner = 2
+
+    # set this to true to enable a costly yet more accurate type inference algorithm
+    # This algorithms generates code difficult to compile for g++, but not clang++
+    enable_two_steps_typing = False
+
 
 F.A.Q.
 ------

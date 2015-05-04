@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_POWER_HPP
 #define PYTHONIC_NUMPY_POWER_HPP
 
+#include "pythonic/include/numpy/power.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include"pythonic/types/ndarray.hpp"
 #include "pythonic/types/numpy_broadcast.hpp"

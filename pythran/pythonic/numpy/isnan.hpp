@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_ISNAN_HPP
 #define PYTHONIC_NUMPY_ISNAN_HPP
 
+#include "pythonic/include/numpy/isnan.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/numexpr_to_ndarray.hpp"
@@ -10,7 +12,10 @@
 
 // nt2 does not handle bool specialization, which is indeed a corner case...
 namespace nt2 {
-  constexpr bool is_nan(bool) { return false;}
+    constexpr bool is_nan(bool)
+    {
+        return false;
+    }
 }
 
 
@@ -24,6 +29,7 @@ namespace pythonic {
                     return nt2::is_nan(v);
                 }
         }
+
 #define NUMPY_NARY_FUNC_NAME isnan
 #define NUMPY_NARY_FUNC_SYM wrapper::isnan
 #include "pythonic/types/numpy_nary_expr.hpp"

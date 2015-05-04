@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_TANH_HPP
 #define PYTHONIC_NUMPY_TANH_HPP
 
+#include "pythonic/include/numpy/tanh.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include"pythonic/types/ndarray.hpp"
 #include "pythonic/types/numexpr_to_ndarray.hpp"

@@ -7,7 +7,11 @@ namespace pythonic {
 
     namespace numpy {
 
-        float float_() {return float();}
+        float float_()
+        {
+            return float();
+        }
+
         PROXY(pythonic::numpy, float_);
 
     }

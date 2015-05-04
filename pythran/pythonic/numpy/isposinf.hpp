@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_ISPOSINF_HPP
 #define PYTHONIC_NUMPY_ISPOSINF_HPP
 
+#include "pythonic/include/numpy/isposinf.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include"pythonic/types/ndarray.hpp"
 #include "pythonic/types/numexpr_to_ndarray.hpp"
@@ -14,7 +16,8 @@ namespace pythonic {
     namespace numpy {
         namespace wrapper {
             template<class T>
-                bool isposinf(T const& t) {
+                bool isposinf(T const& t)
+                {
                     return nt2::is_inf(t) and nt2::is_positive(t);
                 }
         }

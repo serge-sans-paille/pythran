@@ -1,0 +1,25 @@
+#ifndef PYTHONIC_INCLUDE_NUMPY_SIGNBIT_HPP
+#define PYTHONIC_INCLUDE_NUMPY_SIGNBIT_HPP
+
+#include "pythonic/utils/proxy.hpp"
+#include"pythonic/types/ndarray.hpp"
+#include "pythonic/types/numexpr_to_ndarray.hpp"
+#include "pythonic/utils/numpy_traits.hpp"
+#include <nt2/include/functions/bitofsign.hpp>
+
+namespace pythonic {
+
+    namespace numpy {
+        namespace wrapper {
+            template<class T>
+                bool signbit(T const& v);
+        }
+#define NUMPY_NARY_FUNC_NAME signbit
+#define NUMPY_NARY_FUNC_SYM wrapper::signbit
+#include "pythonic/include/types/numpy_nary_expr.hpp"
+
+    }
+
+}
+
+#endif

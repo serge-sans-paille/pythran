@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_SIN_HPP
 #define PYTHONIC_NUMPY_SIN_HPP
 
+#include "pythonic/include/numpy/sin.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include"pythonic/types/ndarray.hpp"
 #include "pythonic/types/numexpr_to_ndarray.hpp"
@@ -8,8 +10,12 @@
 #include <nt2/include/functions/sin.hpp>
 
 namespace nt2 {
-double sin(long l) { return sin(static_cast<double>(l)); }
+    double sin(long l)
+    {
+        return sin(static_cast<double>(l));
+    }
 }
+
 namespace pythonic {
 
     namespace numpy {

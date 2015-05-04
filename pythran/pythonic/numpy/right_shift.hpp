@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_RIGHTSHIFT_HPP
 #define PYTHONIC_NUMPY_RIGHTSHIFT_HPP
 
+#include "pythonic/include/numpy/right_shift.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include"pythonic/types/ndarray.hpp"
 #include "pythonic/types/numpy_broadcast.hpp"

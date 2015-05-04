@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_RINT_HPP
 #define PYTHONIC_NUMPY_RINT_HPP
 
+#include "pythonic/include/numpy/rint.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include"pythonic/types/ndarray.hpp"
 #include "pythonic/types/numexpr_to_ndarray.hpp"
@@ -11,6 +13,7 @@ namespace pythonic {
 
     namespace numpy {
         namespace wrapper {
+
             template<class T>
                 T rint(T const& v)
                 {

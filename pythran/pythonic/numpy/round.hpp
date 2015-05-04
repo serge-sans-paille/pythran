@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_ROUND_HPP
 #define PYTHONIC_NUMPY_ROUND_HPP
 
+#include "pythonic/include/numpy/round.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include"pythonic/types/ndarray.hpp"
 #include "pythonic/types/numexpr_to_ndarray.hpp"
@@ -17,6 +19,7 @@ namespace pythonic {
                     return nt2::iround2even(v);
                 }
         }
+
 #define NUMPY_NARY_FUNC_NAME round
 #define NUMPY_NARY_FUNC_SYM wrapper::round
 #include "pythonic/types/numpy_nary_expr.hpp"
@@ -26,4 +29,3 @@ namespace pythonic {
 }
 
 #endif
-

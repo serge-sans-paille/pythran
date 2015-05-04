@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_COS_HPP
 #define PYTHONIC_NUMPY_COS_HPP
 
+#include "pythonic/include/numpy/cos.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include"pythonic/types/ndarray.hpp"
 #include "pythonic/types/numexpr_to_ndarray.hpp"
@@ -8,7 +10,10 @@
 #include <nt2/include/functions/cos.hpp>
 
 namespace nt2 {
-double cos(long l) { return cos(static_cast<double>(l)); }
+    double cos(long l)
+    {
+        return cos(static_cast<double>(l));
+    }
 }
 
 

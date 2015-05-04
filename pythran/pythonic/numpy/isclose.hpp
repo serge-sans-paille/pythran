@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_ISCLOSE_HPP
 #define PYTHONIC_NUMPY_ISCLOSE_HPP
 
+#include "pythonic/include/numpy/isclose.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/abs.hpp"
@@ -12,7 +14,7 @@ namespace pythonic {
 
         namespace wrapper {
             template<class T0, class T1>
-                bool isclose(T0 const& u, T1 const& v, double rtol=1e-5, double atol=1e-8, bool equal_nan=false)
+                bool isclose(T0 const& u, T1 const& v, double rtol, double atol, bool equal_nan)
                 {
                     if (proxy::isfinite()(u) && proxy::isfinite()(v))
                         return proxy::abs()(u-v) <= (atol + rtol * proxy::abs()(v));
@@ -30,4 +32,3 @@ namespace pythonic {
 }
 
 #endif
-

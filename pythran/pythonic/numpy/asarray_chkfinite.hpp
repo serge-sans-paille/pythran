@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_ASARRAYCHKFINITE_HPP
 #define PYTHONIC_NUMPY_ASARRAYCHKFINITE_HPP
 
+#include "pythonic/include/numpy/asarray_chkfinite.hpp"
+
 #include "pythonic/__builtin__/ValueError.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/numexpr_to_ndarray.hpp"
@@ -30,4 +32,3 @@ namespace pythonic {
 }
 
 #endif
-

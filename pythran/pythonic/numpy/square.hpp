@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_SQUARE_HPP
 #define PYTHONIC_NUMPY_SQUARE_HPP
 
+#include "pythonic/include/numpy/square.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include"pythonic/types/ndarray.hpp"
 #include "pythonic/types/numexpr_to_ndarray.hpp"
@@ -12,7 +14,8 @@
 
 namespace nt2 {
     template<class T, class U>
-        auto sqr(__gmp_expr<T,U> const& a) -> decltype(a * a) {
+        auto sqr(__gmp_expr<T,U> const& a) -> decltype(a * a)
+        {
             return a * a;
         }
 }
@@ -32,4 +35,3 @@ namespace pythonic {
 }
 
 #endif
-

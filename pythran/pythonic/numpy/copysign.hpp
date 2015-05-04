@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_COPYSIGN_HPP
 #define PYTHONIC_NUMPY_COPYSIGN_HPP
 
+#include "pythonic/include/numpy/copysign.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include"pythonic/types/ndarray.hpp"
 #include "pythonic/types/numpy_broadcast.hpp"

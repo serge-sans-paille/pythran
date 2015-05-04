@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_BITWISENOT_HPP
 #define PYTHONIC_NUMPY_BITWISENOT_HPP
 
+#include "pythonic/include/numpy/bitwise_not.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/numexpr_to_ndarray.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
@@ -11,11 +13,13 @@ namespace pythonic {
 
         namespace wrapper {
             template <class A>
-                decltype(~std::declval<A const&>()) bitwise_not(A const& a) {
+                decltype(~std::declval<A const&>()) bitwise_not(A const& a)
+                {
                     return ~a;
                 }
 
-            bool bitwise_not(bool t0) {
+            bool bitwise_not(bool t0)
+            {
                 return not t0;
             }
 

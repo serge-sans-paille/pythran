@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_ABS_HPP
 #define PYTHONIC_NUMPY_ABS_HPP
 
+#include "pythonic/include/numpy/abs.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/numexpr_to_ndarray.hpp"
@@ -10,7 +12,10 @@
 
 // nt2 does not handle bool specialization, which is indeed a corner case...
 namespace nt2 {
-    constexpr bool abs(bool v) { return v;}
+    constexpr bool abs(bool v)
+    { 
+        return v;
+    }
 }
 
 namespace pythonic {

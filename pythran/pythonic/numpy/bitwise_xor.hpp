@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_BITWISE_XOR_HPP
 #define PYTHONIC_NUMPY_BITWISE_XOR_HPP
 
+#include "pythonic/include/numpy/bitwise_xor.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include"pythonic/types/ndarray.hpp"
 #include "pythonic/types/numpy_broadcast.hpp"

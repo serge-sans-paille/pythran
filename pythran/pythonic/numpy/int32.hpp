@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_INT32_HPP
 #define PYTHONIC_NUMPY_INT32_HPP
 
+#include "pythonic/include/numpy/int32.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/utils/meta.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
@@ -10,11 +12,19 @@ namespace pythonic {
 
     namespace numpy {
 
-    namespace details {
+        namespace details {
 
-        int32_t int32() {return int32_t();}
-        template<class V> int32_t int32(V v) {return v;}
-    }
+            int32_t int32()
+            {
+                return int32_t();
+            }
+
+            template<class V>
+                int32_t int32(V v)
+                {
+                    return v;
+                }
+        }
 
 #define NUMPY_NARY_FUNC_NAME int32
 #define NUMPY_NARY_FUNC_SYM details::int32

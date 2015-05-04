@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_CONJ_HPP
 #define PYTHONIC_NUMPY_CONJ_HPP
 
+#include "pythonic/include/numpy/conj.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include"pythonic/types/ndarray.hpp"
 #include "pythonic/types/numexpr_to_ndarray.hpp"

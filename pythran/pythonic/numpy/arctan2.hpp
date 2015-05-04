@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_ARCTAN2_HPP
 #define PYTHONIC_NUMPY_ARCTAN2_HPP
 
+#include "pythonic/include/numpy/arctan2.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include"pythonic/types/ndarray.hpp"
 #include "pythonic/types/numpy_broadcast.hpp"

@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_ANGLEINDEG_HPP
 #define PYTHONIC_NUMPY_ANGLEINDEG_HPP
 
+#include "pythonic/include/numpy/angle_in_deg.hpp"
+
 #include "pythonic/numpy/angle_in_rad.hpp"
 #include "pythonic/types/numexpr_to_ndarray.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
@@ -16,7 +18,9 @@ namespace pythonic {
 
         namespace wrapper {
             template<class T >
-                auto angle_in_deg(T const& t) -> decltype(nt2::indeg(angle_in_rad(t))) {
+                auto angle_in_deg(T const& t)
+                -> decltype(nt2::indeg(angle_in_rad(t)))
+                {
                     return nt2::indeg(angle_in_rad(t));
                 }
         }
@@ -29,4 +33,3 @@ namespace pythonic {
 }
 
 #endif
-

@@ -34,7 +34,7 @@ Debian/Ubuntu
    Pythran depends on a few Python modules and several C++ libraries. On a debian-like platform, run::
 
         $> sudo apt-get install libboost-python-dev libgmp-dev libboost-dev git cmake
-        $> sudo apt-get install python-ply python-networkx python-numpy
+        $> sudo apt-get install python-dev python-ply python-networkx python-numpy
 
 2. Use ``easy_install`` or ``pip``::
 

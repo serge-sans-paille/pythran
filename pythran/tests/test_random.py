@@ -31,6 +31,15 @@ class TestRandom(TestEnv):
     def test_sample_(self):
         self.run_test("def sample_(n,k): from random import sample ; s = sum(sum(sample(range(n),k)) for x in range(n)) ; return abs(s/float(n*n)) < .05  ", 10**4, 4, sample_=[int, int])
 
+    def test_shuffle1(self):
+        self.run_test("def shuffle1(n): from random import shuffle ; r = range(n); shuffle(r); return len(r) == n and r != range(n) and sorted(r) == range(n)" , 10**4,  shuffle1=[int])
+
+    def test_shuffle2(self):
+        self.run_test("def shuffle2(n): from random import shuffle, random ; r = range(n); shuffle(r, lambda: 0); return len(r) == n and r != range(n)  and sorted(r) == range(n)" , 10**4,  shuffle2=[int])
+
+    def test_shuffle3(self):
+        self.run_test("def shuffle2(n): from random import shuffle, random ; r = range(n); shuffle(r, random); return len(r) == n and r != range(n)  and sorted(r) == range(n)" , 10**4,  shuffle2=[int])
+
     def test_choice(self):
         self.run_test("def choice_(n): from random import choice ; s= sum(choice(range(n)) for x in xrange(n)) ; return abs(s/n - n/2) < .05", 10**5,  choice_=[int])
 

@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_PLACE_HPP
 #define PYTHONIC_NUMPY_PLACE_HPP
 
+#include "pythonic/include/numpy/place.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/__builtin__/None.hpp"
@@ -21,18 +23,17 @@ namespace pythonic {
                     {
                         if(first == expr.fend())
                             first = iter;
-                        if(viter != vend) {
+                        if(viter != vend)
+                        {
                             *iter = *viter;
                             ++viter;
-                        }
-                        else
-                        {
+                        } else
                             *iter = *first;
-                        }
                     }
                 }
                 return __builtin__::None;
             }
+
         template<class T, size_t N, class M, class F>
             types::none_type place(types::ndarray<T,N> & expr, M const& mask, F const& values)
             {
@@ -44,11 +45,11 @@ namespace pythonic {
             {
               throw std::runtime_error("place only partially implemented");
             }
-        PROXY(pythonic::numpy, place);
+
+        PROXY_IMPL(pythonic::numpy, place);
 
     }
 
 }
 
 #endif
-

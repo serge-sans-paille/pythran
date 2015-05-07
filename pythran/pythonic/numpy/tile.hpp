@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_TILE_HPP
 #define PYTHONIC_NUMPY_TILE_HPP
 
+#include "pythonic/include/numpy/tile.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 
@@ -12,6 +14,7 @@ namespace pythonic {
             {
                 out = std::copy(begin, end, out);
             }
+
         template<class I, class O, size_t N>
             void _tile(I begin, I end, O& out, utils::int_<N>)
             {
@@ -49,11 +52,10 @@ namespace pythonic {
                 return out;
             }
 
-        PROXY(pythonic::numpy, tile);
+        PROXY_IMPL(pythonic::numpy, tile);
 
     }
 
 }
 
 #endif
-

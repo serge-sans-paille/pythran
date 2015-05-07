@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_TRACE_HPP
 #define PYTHONIC_NUMPY_TRACE_HPP
 
+#include "pythonic/include/numpy/trace.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/numexpr_to_ndarray.hpp"
 
@@ -9,7 +11,7 @@ namespace pythonic {
     namespace numpy {
 
         template<class T>
-            typename types::numpy_expr_to_ndarray<T>::T trace(T const& expr, int offset=0)
+            typename types::numpy_expr_to_ndarray<T>::T trace(T const& expr, int offset)
             {
                 static_assert(types::numpy_expr_to_ndarray<T>::N == 2,
                               "Not Implemented : Trace for dimension != 2");
@@ -31,11 +33,10 @@ namespace pythonic {
                 return res;
             }
 
-        PROXY(pythonic::numpy, trace)
+        PROXY_IMPL(pythonic::numpy, trace)
 
     }
 
 }
 
 #endif
-

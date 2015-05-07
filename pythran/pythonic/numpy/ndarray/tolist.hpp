@@ -1,30 +1,23 @@
-#ifndef PYTHONIC_NDARRAY_TOLIST_HPP
-#define PYTHONIC_NDARRAY_TOLIST_HPP
+#ifndef PYTHONIC_NUMPY_NDARRAY_TOLIST_HPP
+#define PYTHONIC_NUMPY_NDARRAY_TOLIST_HPP
+
+#include "pythonic/include/numpy/ndarray/tolist.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/utils/numpy_conversion.hpp"
 #include "pythonic/types/ndarray.hpp"
 
-namespace pythonic { namespace numpy  {
+namespace pythonic {
+    
+    namespace numpy  {
 
-    namespace ndarray {
-        template<class T, size_t N>
-            struct tolist_type
-            {
-                typedef types::list<typename tolist_type<T, N-1>::type> type;
-            };
+        namespace ndarray {
 
-        template<class T>
-            struct tolist_type<T, 1>
-            {
-                typedef types::list<T> type;
-            };
-
-        template<class T>
-            types::list<T> tolist(types::ndarray<T,1> const& expr)
-            {
-                return types::list<T>(expr.fbegin(), expr.fend());
-            }
+            template<class T>
+                types::list<T> tolist(types::ndarray<T,1> const& expr)
+                {
+                    return {expr.fbegin(), expr.fend()};
+                }
 
         template<class T, size_t N>
             typename tolist_type<T, N>::type tolist(types::ndarray<T,N> const& expr)
@@ -34,13 +27,14 @@ namespace pythonic { namespace numpy  {
                     out.push_back(tolist(elts));
                 return out;
             }
-        NUMPY_EXPR_TO_NDARRAY0(tolist);
-        PROXY(pythonic::numpy::ndarray, tolist);
+
+        NUMPY_EXPR_TO_NDARRAY0_IMPL(tolist);
+        PROXY_IMPL(pythonic::numpy::ndarray, tolist);
+
+        }
 
     }
 
 }
 
-}
 #endif
-

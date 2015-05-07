@@ -1,5 +1,8 @@
 #ifndef PYTHONIC_NUMPY_VAR_HPP
 #define PYTHONIC_NUMPY_VAR_HPP
+
+#include "pythonic/include/numpy/var.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/__builtin__/None.hpp"
@@ -14,14 +17,10 @@
 namespace pythonic {
 
     namespace numpy {
-        template<class E>
-            using var_type = typename std::conditional<std::is_integral<typename E::dtype>::value,
-                                                       double,
-                                                       typename E::dtype>::type;
 
         template<class E>
             auto
-            var(E const& expr, types::none_type axis = __builtin__::None, types::none_type dtype = __builtin__::None, types::none_type out = __builtin__::None, long ddof = 0)
+            var(E const& expr, types::none_type axis, types::none_type dtype, types::none_type out, long ddof)
             -> decltype(var_type<E>(mean(expr)))
             {
                 auto m = mean(expr);
@@ -33,33 +32,30 @@ namespace pythonic {
         template<class T, class E, class M>
             void _enlarge_copy_minus(T&& t, E const& e, M const& m, long axis, utils::int_<1>)
             {
-                for(long i = 0, n = e.shape()[0], p = m.shape()[0]; i < n ;) {
+                for(long i = 0, n = e.shape()[0], p = m.shape()[0]; i < n ;)
                     for(long j = 0; j < p; ++j, ++i)
                         t.fast(i) = e.fast(i) - m.fast(j);
-                }
             }
 
         template<class T, class E, class M, size_t N>
             void _enlarge_copy_minus(T&& t, E const& e, M const& m, long axis, utils::int_<N>)
             {
-                for(long i = 0, n = e.shape()[0], p = m.shape()[0]; i < n ; ) {
-                    for(long j = 0; j < p; ++j, ++i) {
+                for(long i = 0, n = e.shape()[0], p = m.shape()[0]; i < n ; )
+                    for(long j = 0; j < p; ++j, ++i)
                         _enlarge_copy_minus(t.fast(i), e.fast(i), m.fast(j), axis, utils::int_<N - 1>());
-                    }
-                }
             }
 
         template<class E>
             auto
-            var(E const& expr, long axis, types::none_type dtype = __builtin__::None, types::none_type out = __builtin__::None, long ddof = 0)
+            var(E const& expr, long axis, types::none_type dtype, types::none_type out, long ddof)
             -> typename assignable<decltype(var_type<E>() * mean(expr, axis))>::type
             {
                 auto m = mean(expr, axis);
-                if(axis == 0) {
+                if(axis == 0)
+                {
                     auto t = expr - m ;
                     return sum(t*t, axis) /= var_type<E>(expr.shape()[axis] - ddof);
-                }
-                else {
+                } else {
                     types::array<long, E::value> shp;
                     auto&& expr_shape = expr.shape();
                     std::copy(expr_shape.begin(), expr_shape.end(), shp.begin());
@@ -72,7 +68,7 @@ namespace pythonic {
                 }
             }
 
-        PROXY(pythonic::numpy, var);
+        PROXY_IMPL(pythonic::numpy, var);
     }
 
 }

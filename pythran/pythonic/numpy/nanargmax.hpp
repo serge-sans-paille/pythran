@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_NANARGMAX_HPP
 #define PYTHONIC_NUMPY_NANARGMAX_HPP
 
+#include "pythonic/include/numpy/nanargmax.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/__builtin__/ValueError.hpp"
@@ -15,12 +17,14 @@ namespace pythonic {
                 for(; begin != end; ++begin, ++index)
                 {
                     auto curr = *begin;
-                    if(not proxy::isnan()(curr) and curr > max) {
+                    if(not proxy::isnan()(curr) and curr > max)
+                    {
                         max = curr;
                         where = index;
                     }
                 }
             }
+
         template<class E, class F, size_t N>
             void _nanargmax(E begin, E end, F& max, long& index, long& where, utils::int_<N>)
             {
@@ -30,7 +34,8 @@ namespace pythonic {
             
         template<class E>
             typename types::numpy_expr_to_ndarray<E>::T
-            nanargmax(E const& expr) {
+            nanargmax(E const& expr)
+            {
                 typename types::numpy_expr_to_ndarray<E>::T max = - std::numeric_limits<typename types::numpy_expr_to_ndarray<E>::T>::infinity();
                 long where = -1;
                 long index = 0;
@@ -41,11 +46,10 @@ namespace pythonic {
                     throw types::ValueError("empty sequence");
             }
 
-        PROXY(pythonic::numpy, nanargmax);
+        PROXY_IMPL(pythonic::numpy, nanargmax);
 
     }
 
 }
 
 #endif
-

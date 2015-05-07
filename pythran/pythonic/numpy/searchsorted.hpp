@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_SEARCHSORTED_HPP
 #define PYTHONIC_NUMPY_SEARCHSORTED_HPP
 
+#include "pythonic/include/numpy/searchsorted.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/utils/numpy_conversion.hpp"
 #include "pythonic/utils/int_.hpp"
@@ -18,19 +20,16 @@ namespace pythonic {
 
         template<class T, class U>
             typename std::enable_if<!types::is_numexpr_arg<T>::value, long>::type
-            searchsorted(U const& a, T const& v, types::str const &side = "left")
+            searchsorted(U const& a, T const& v, types::str const &side)
             {
                 if(side[0]=='l')
-                {
                     return std::lower_bound(a.begin(), a.end(), v) - a.begin();
-                }
                 else if(side[0]=='r')
-                {
                     return std::upper_bound(a.begin(), a.end(), v) - a.begin();
-                }
                 else
                     throw types::ValueError("'" + side + "' is an invalid value for keyword 'side'");
             }
+
         template<class E, class I0, class I1>
             void _search_sorted(E const& a, I0 ibegin, I0 iend, I1 obegin, types::str const &side, utils::int_<1>)
             {
@@ -49,7 +48,7 @@ namespace pythonic {
         template<class E, class T>
             typename std::enable_if<types::is_numexpr_arg<E>::value,
                                     types::ndarray<long, types::numpy_expr_to_ndarray<E>::N>>::type
-            searchsorted(T const& a, E const& v, types::str const & side = "left")
+            searchsorted(T const& a, E const& v, types::str const & side)
             {
                 static_assert(types::numpy_expr_to_ndarray<T>::N == 1,
                               "Not Implemented : searchsorted for dimension != 1");
@@ -60,11 +59,10 @@ namespace pythonic {
                 return out;
             }
 
-            PROXY(pythonic::numpy, searchsorted);
+            PROXY_IMPL(pythonic::numpy, searchsorted);
 
     }
 
 }
 
 #endif
-

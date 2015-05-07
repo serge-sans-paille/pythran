@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_ROLLAXIS_HPP
 #define PYTHONIC_NUMPY_ROLLAXIS_HPP
 
+#include "pythonic/include/numpy/rollaxis.hpp"
+
 #include "pythonic/numpy/transpose.hpp"
 #include "pythonic/numpy/copy.hpp"
 
@@ -8,7 +10,7 @@ namespace pythonic {
 
     namespace numpy {
         template<class T, size_t N>
-            types::ndarray<T,N> rollaxis(types::ndarray<T,N> const & a, long axis, long start=0)
+            types::ndarray<T,N> rollaxis(types::ndarray<T,N> const & a, long axis, long start)
             {
                 if(start>=axis)
                     return copy(a);
@@ -23,12 +25,11 @@ namespace pythonic {
                 return _transpose(a, t);
             }
 
-        NUMPY_EXPR_TO_NDARRAY0(rollaxis);
-        PROXY(pythonic::numpy, rollaxis);
+        NUMPY_EXPR_TO_NDARRAY0_IMPL(rollaxis);
+        PROXY_IMPL(pythonic::numpy, rollaxis);
 
     }
 
 }
 
 #endif
-

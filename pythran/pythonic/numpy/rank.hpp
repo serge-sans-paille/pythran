@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_RANK_HPP
 #define PYTHONIC_NUMPY_RANK_HPP
 
+#include "pythonic/include/numpy/rank.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 
@@ -13,11 +15,10 @@ namespace pythonic {
                 return E::value;
             }
 
-        PROXY(pythonic::numpy, rank);
+        PROXY_IMPL(pythonic::numpy, rank);
 
     }
 
 }
 
 #endif
-

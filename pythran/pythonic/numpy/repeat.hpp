@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_REPEAT_HPP
 #define PYTHONIC_NUMPY_REPEAT_HPP
 
+#include "pythonic/include/numpy/repeat.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/utils/numpy_conversion.hpp"
 #include "pythonic/types/ndarray.hpp"
@@ -20,12 +22,11 @@ namespace pythonic {
                 return out;
             }
 
-        NUMPY_EXPR_TO_NDARRAY0(repeat);
-        PROXY(pythonic::numpy, repeat);
+        NUMPY_EXPR_TO_NDARRAY0_IMPL(repeat);
+        PROXY_IMPL(pythonic::numpy, repeat);
 
     }
 
 }
 
 #endif
-

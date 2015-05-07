@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_COPY_HPP
 #define PYTHONIC_NUMPY_COPY_HPP
 
+#include "pythonic/include/numpy/copy.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/utils/numpy_conversion.hpp"
 #include "pythonic/types/ndarray.hpp"
@@ -36,12 +38,13 @@ namespace pythonic {
 
         // ndarray case
         template<class T, size_t N>
-            types::ndarray<T,N> copy(types::ndarray<T,N> const& a) {
+            types::ndarray<T,N> copy(types::ndarray<T,N> const& a)
+            {
                 return a.copy();
             }
-        PROXY(pythonic::numpy, copy);
+
+        PROXY_IMPL(pythonic::numpy, copy);
     }
 }
 
 #endif
-

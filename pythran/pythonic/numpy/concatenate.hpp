@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_CONCATENATE_HPP
 #define PYTHONIC_NUMPY_CONCATENATE_HPP
 
+#include "pythonic/include/numpy/concatenate.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/__builtin__/sum.hpp"
@@ -9,11 +11,13 @@ namespace pythonic {
 
     namespace numpy {
         template<class T, size_t N, size_t M>
-            types::ndarray<T,N> concatenate(types::array<types::ndarray<T,N>, M> const & ai) {
+            types::ndarray<T,N> concatenate(types::array<types::ndarray<T,N>, M> const & ai)
+            {
                 long n = 0;
                 long shape[N];
                 shape[0] = 0L;
-                for(auto const& a : ai) {
+                for(auto const& a : ai)
+                {
                     shape[0] += a.shape()[0];
                     n += a.flat_size();
                 }
@@ -22,9 +26,8 @@ namespace pythonic {
 
                 T* buffer = (T*)malloc(sizeof(T) * n);
                 T* iter = buffer;
-                for(auto const& a : ai) {
+                for(auto const& a : ai)
                     iter = std::copy(a.fbegin(), a.fend(), iter);
-                }
 
                 return types::ndarray<T,N>(buffer, shape);
             }
@@ -63,8 +66,8 @@ namespace pythonic {
 
         template<class... Types>
             typename assignable<typename __combined<Types...>::type>::type
-            concatenate(std::tuple<Types...> const& args) {
-
+            concatenate(std::tuple<Types...> const& args)
+            {
                 using return_type = typename assignable<typename __combined<Types...>::type>::type;
                 using T = typename return_type::dtype;
 
@@ -79,7 +82,7 @@ namespace pythonic {
                 return types::ndarray<T,return_type::value>(buffer, shape);
             }
 
-        PROXY(pythonic::numpy, concatenate);
+        PROXY_IMPL(pythonic::numpy, concatenate);
 
     }
 

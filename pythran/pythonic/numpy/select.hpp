@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_SELECT_HPP
 #define PYTHONIC_NUMPY_SELECT_HPP
 
+#include "pythonic/include/numpy/select.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/utils/int_.hpp"
 
@@ -38,7 +40,7 @@ namespace pythonic {
             }
 
         template<class T, class U>
-            typename types::numpy_expr_to_ndarray<U>::type select(types::list<T> const& condlist, types::list<U> const& choicelist, typename types::numpy_expr_to_ndarray<U>::T _default=0)
+            typename types::numpy_expr_to_ndarray<U>::type select(types::list<T> const& condlist, types::list<U> const& choicelist, typename types::numpy_expr_to_ndarray<U>::T _default)
             {
                 constexpr size_t N = types::numpy_expr_to_ndarray<U>::N;
                 auto&& choicelist0_shape = choicelist[0].shape();
@@ -51,26 +53,21 @@ namespace pythonic {
             }
 
         template<class T, size_t N, class U>
-            types::ndarray<T,N> select(types::list<types::ndarray<U,N>> const& condlist, types::list<types::ndarray<T,N>> const& choicelist, T _default = 0)
+            types::ndarray<T,N> select(types::list<types::ndarray<U,N>> const& condlist, types::list<types::ndarray<T,N>> const& choicelist, T _default)
             {
                 types::ndarray<T,N> out(choicelist[0].shape(), _default);
                 for(long i=0; i<out.flat_size(); ++i)
-                {
                     for(long j=0; j<condlist.size(); ++j)
-                    {
                         if(condlist[j].buffer[i])
                         {
                             out.buffer[i] = choicelist[j].buffer[i];
                             break;
                         }
-                    }
-                }
                 return out;
             }
 
-            PROXY(pythonic::numpy, select);
+            PROXY_IMPL(pythonic::numpy, select);
     }
 }
 
 #endif
-

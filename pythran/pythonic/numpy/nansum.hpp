@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_NANSUM_HPP
 #define PYTHONIC_NUMPY_NANSUM_HPP
 
+#include "pythonic/include/numpy/nansum.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/numpy_type.hpp"
@@ -28,17 +30,17 @@ namespace pythonic {
 
         template<class E>
             typename types::numpy_expr_to_ndarray<E>::T
-            nansum(E const& expr) {
+            nansum(E const& expr)
+            {
                 typename types::numpy_expr_to_ndarray<E>::T s = 0;
                 _nansum(expr.begin(), expr.end(), s, utils::int_<types::numpy_expr_to_ndarray<E>::N>());
                 return s;
             }
 
-        PROXY(pythonic::numpy, nansum);
+        PROXY_IMPL(pythonic::numpy, nansum);
 
     }
 
 }
 
 #endif
-

@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_APPEND_HPP
 #define PYTHONIC_NUMPY_APPEND_HPP
 
+#include "pythonic/include/numpy/append.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 
@@ -9,15 +11,17 @@ namespace pythonic {
     namespace numpy {
         template<class T, size_t N, class F>
             types::ndarray<
-            typename std::remove_cv<
-            typename std::remove_reference<
-            decltype(
-                    std::declval<T>()
-                    +
-                    std::declval<typename utils::nested_container_value_type<F>::type>())
-            >::type
-            >::type,
-            1> append(types::ndarray<T,N> const& nto, F const& data) {
+                typename std::remove_cv<
+                    typename std::remove_reference<
+                        decltype(
+                            std::declval<T>()
+                            +
+                            std::declval<typename utils::nested_container_value_type<F>::type>())
+                        >::type
+                    >::type,
+                1>
+            append(types::ndarray<T,N> const& nto, F const& data)
+            {
                 typename types::numpy_expr_to_ndarray<F>::type ndata(data);
                 long nsize = nto.flat_size() + ndata.flat_size();
                 types::ndarray<
@@ -34,25 +38,27 @@ namespace pythonic {
                 std::copy(ndata.fbegin(), ndata.fend(), out_back);
                 return out;
             }
+
         template<class T, class F>
             types::ndarray<
-            typename std::remove_cv<
-            typename std::remove_reference<
-            decltype(
-                    std::declval<typename utils::nested_container_value_type<types::list<T>>::type>()
-                    +
-                    std::declval<typename utils::nested_container_value_type<F>::type>())
-            >::type
-            >::type,
-            1> append(types::list<T> const& to, F const& data) {
+                typename std::remove_cv<
+                    typename std::remove_reference<
+                        decltype(
+                            std::declval<typename utils::nested_container_value_type<types::list<T>>::type>()
+                            +
+                            std::declval<typename utils::nested_container_value_type<F>::type>())
+                        >::type
+                    >::type,
+                1>
+            append(types::list<T> const& to, F const& data)
+            {
                 return append(typename types::numpy_expr_to_ndarray<types::list<T>>::type(to), data);
             }
 
-        PROXY(pythonic::numpy, append);
+        PROXY_IMPL(pythonic::numpy, append);
 
     }
 
 }
 
 #endif
-

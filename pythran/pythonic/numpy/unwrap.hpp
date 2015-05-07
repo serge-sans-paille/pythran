@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_UNWRAP_HPP
 #define PYTHONIC_NUMPY_UNWRAP_HPP
 
+#include "pythonic/include/numpy/unwrap.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/utils/int_.hpp"
 #include "pythonic/types/ndarray.hpp"
@@ -33,7 +35,7 @@ namespace pythonic {
             }
 
         template<class E>
-            types::ndarray<double, types::numpy_expr_to_ndarray<E>::N> unwrap(E const& expr, double discont = pi)
+            types::ndarray<double, types::numpy_expr_to_ndarray<E>::N> unwrap(E const& expr, double discont)
             {
                 discont = nt2::max(discont, pi);
                 types::ndarray<double, types::numpy_expr_to_ndarray<E>::N> out(expr.shape(), __builtin__::None);
@@ -41,7 +43,7 @@ namespace pythonic {
                 return out;
             }
 
-        PROXY(pythonic::numpy, unwrap)
+        PROXY_IMPL(pythonic::numpy, unwrap)
     }
 }
 

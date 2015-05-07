@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_PUTMASK_HPP
 #define PYTHONIC_NUMPY_PUTMASK_HPP
 
+#include "pythonic/include/numpy/putmask.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/asarray.hpp"
@@ -21,16 +23,17 @@ namespace pythonic {
                         *(iexpr + i) = *(avalues.fbegin() + i % n);
                 return __builtin__::None;
             }
+
         template<class E, class M, class F>
             types::none_type putmask(E & , M const& , F const& )
             {
-              throw std::runtime_error("putmask only partially implemented");
+                throw std::runtime_error("putmask only partially implemented");
             }
-        PROXY(pythonic::numpy, putmask);
+
+        PROXY_IMPL(pythonic::numpy, putmask);
 
     }
 
 }
 
 #endif
-

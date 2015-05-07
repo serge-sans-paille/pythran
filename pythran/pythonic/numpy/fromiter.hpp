@@ -1,34 +1,35 @@
 #ifndef PYTHONIC_NUMPY_FROMITER_HPP
 #define PYTHONIC_NUMPY_FROMITER_HPP
 
+#include "pythonic/include/numpy/fromiter.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 
 namespace pythonic {
 
     namespace numpy {
-        template<class Iterable, class dtype=double>
+        template<class Iterable, class dtype>
             types::ndarray<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type::value_type, 1>
-            fromiter(Iterable&& iterable, dtype d=dtype(), long count = -1)
+            fromiter(Iterable&& iterable, dtype d, long count)
             {
-                typedef typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type::value_type T;
+                using T = typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type::value_type;
                 if(count < 0) {
                     types::list<T> buffer(0);
                     std::copy(iterable.begin(), iterable.end(), std::back_inserter(buffer));
-                    return types::ndarray<T,1>(buffer);
-                }
-                else {
+                    return {buffer};
+                } else {
                     T* buffer = (T*)malloc(count * sizeof(T));
                     std::copy_n(iterable.begin(), count, buffer);
                     long shape [1] = { count };
-                    return types::ndarray<T,1>(buffer, shape);
+                    return {buffer, shape};
                 }
             }
-        PROXY(pythonic::numpy, fromiter);
+
+        PROXY_IMPL(pythonic::numpy, fromiter);
 
     }
 
 }
 
 #endif
-

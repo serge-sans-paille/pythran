@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_ANGLE_HPP
 #define PYTHONIC_NUMPY_ANGLE_HPP
 
+#include "pythonic/include/numpy/angle.hpp"
+
 #include "pythonic/numpy/angle_in_deg.hpp"
 #include "pythonic/numpy/angle_in_rad.hpp"
 #include "pythonic/types/assignable.hpp"
@@ -26,11 +28,10 @@ namespace pythonic {
                 return proxy::angle_in_rad()(t);
             }
 
-        PROXY(pythonic::numpy, angle);
+        PROXY_IMPL(pythonic::numpy, angle);
 
     }
 
 }
 
 #endif
-

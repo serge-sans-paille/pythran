@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_ALL_HPP
 #define PYTHONIC_NUMPY_ALL_HPP
 
+#include "pythonic/include/numpy/all.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/__builtin__/ValueError.hpp"
@@ -14,19 +16,20 @@ namespace pythonic {
             {
                 return std::all_of(begin, end, [](typename std::iterator_traits<E>::value_type e) -> bool { return e; });
             }
+
         template<class E, size_t N>
             bool _all(E begin, E end, utils::int_<N>)
             {
-                for( ;begin != end; ++begin) {
+                for( ;begin != end; ++begin)
                     if(not _all((*begin).begin(), (*begin).end(), utils::int_<N - 1>()))
                         return false;
-                }
                 return true;
             }
 
         template<class E>
             bool
-            all(E const& expr, types::none_type _ = types::none_type()) {
+            all(E const& expr, types::none_type)
+            {
                 return _all(expr.begin(), expr.end(), utils::int_<types::numpy_expr_to_ndarray<E>::N>());
             }
 
@@ -54,9 +57,7 @@ namespace pythonic {
                     std::copy(shape.begin() + 1, shape.end(), shp.begin());
                     types::ndarray<bool,N-1> out(shp, true);
                     return std::accumulate(array.begin(), array.end(), out, proxy::multiply());
-                }
-                else
-                {
+                } else {
                     types::array<long, N-1> shp;
                     std::copy(shape.begin(), shape.end() - 1, shp.begin());
                     types::ndarray<bool ,N-1> ally(shp, __builtin__::None);
@@ -65,11 +66,10 @@ namespace pythonic {
                 }
             }
 
-        PROXY(pythonic::numpy, all);
+        PROXY_IMPL(pythonic::numpy, all);
 
     }
 
 }
 
 #endif
-

@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_ARGMIN_HPP
 #define PYTHONIC_NUMPY_ARGMIN_HPP
 
+#include "pythonic/include/numpy/argmin.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/asarray.hpp"
@@ -13,7 +15,8 @@ namespace pythonic {
             long _argmin(I0 begin, I0 end, T& min_elts, utils::int_<1>)
             {
                 auto local_min_elts = std::min_element(begin, end);
-                if(*local_min_elts < min_elts) {
+                if(*local_min_elts < min_elts)
+                {
                     min_elts = *local_min_elts;
                     return local_min_elts - begin;
                 }
@@ -26,7 +29,8 @@ namespace pythonic {
             {
                 long current_pos = 0;
                 long current_minarg = 0;
-                for(; begin != end; ++begin){
+                for(; begin != end; ++begin)
+                {
                     long v = _argmin((*begin).begin(), (*begin).end(), min_elts,
                             utils::int_<N - 1>());
                     if(v>=0)
@@ -37,7 +41,8 @@ namespace pythonic {
             }
 
         template<class E>
-            long argmin(E const& expr) {
+            long argmin(E const& expr)
+            {
                 if(not expr.flat_size()) 
                     throw types::ValueError("empty sequence");
                 using elt_type = typename types::numpy_expr_to_ndarray<E>::T;
@@ -45,10 +50,10 @@ namespace pythonic {
                 return _argmin(expr.begin(), expr.end(), argmin_value,
                                utils::int_<types::numpy_expr_to_ndarray<E>::N>());
             }
-        PROXY(pythonic::numpy, argmin);
+
+        PROXY_IMPL(pythonic::numpy, argmin);
 
     }
 }
 
 #endif
-

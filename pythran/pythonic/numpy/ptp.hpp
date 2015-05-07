@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_PTP_HPP
 #define PYTHONIC_NUMPY_PTP_HPP
 
+#include "pythonic/include/numpy/ptp.hpp"
+
 #include "pythonic/numpy/min.hpp"
 #include "pythonic/numpy/max.hpp"
 
@@ -19,11 +21,10 @@ namespace pythonic {
                 return max(expr) - min(expr);
             }
 
-        PROXY(pythonic::numpy, ptp);
+        PROXY_IMPL(pythonic::numpy, ptp);
 
     }
 
 }
 
 #endif
-

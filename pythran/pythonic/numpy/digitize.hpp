@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_DIGITIZE_HPP
 #define PYTHONIC_NUMPY_DIGITIZE_HPP
 
+#include "pythonic/include/numpy/digitize.hpp"
+
 #include "pythonic/numpy/asarray.hpp"
 #include "pythonic/__builtin__/None.hpp"
 #include "pythonic/operator_/gt.hpp"
@@ -15,6 +17,7 @@ namespace pythonic {
                 for(; begin != end; ++begin, ++out)
                     *out = std::lower_bound(bins.begin(), bins.end(), *begin, op) - bins.begin();
             }
+
         template<class I, class O, class B, class Op, size_t N>
             void _digitize(I begin, I end, O& out, B& bins, Op const& op, utils::int_<N>)
             {
@@ -24,25 +27,23 @@ namespace pythonic {
 
         template<class E, class F>
             types::ndarray< long, 1 >
-            digitize(E const& expr, F const& b) {
+            digitize(E const& expr, F const& b)
+            {
                 auto bins = asarray(b);
                 bool is_increasing = bins.flat_size() > 1 and *bins.fbegin() < *(bins.fbegin() +1);
                 types::ndarray<long, 1> out(types::make_tuple(long(expr.flat_size())), __builtin__::None);
                 auto out_iter = out.fbegin();
-                if(is_increasing) {
+                if(is_increasing)
                     _digitize(expr.begin(), expr.end(), out_iter, bins, operator_::proxy::lt(), utils::int_<types::numpy_expr_to_ndarray<E>::N>());
-                }
-                else {
+                else
                     _digitize(expr.begin(), expr.end(), out_iter, bins, operator_::proxy::gt(), utils::int_<types::numpy_expr_to_ndarray<E>::N>());
-                }
                 return out;
             }
 
-        PROXY(pythonic::numpy, digitize);
+        PROXY_IMPL(pythonic::numpy, digitize);
 
     }
 
 }
 
 #endif
-

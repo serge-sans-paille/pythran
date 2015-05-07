@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_TRI_HPP
 #define PYTHONIC_NUMPY_TRI_HPP
 
+#include "pythonic/include/numpy/tri.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/numpy_type.hpp"
 #include "pythonic/types/ndarray.hpp"
@@ -8,8 +10,9 @@
 namespace pythonic {
 
     namespace numpy {
-        template<class dtype = double>
-            types::ndarray<typename types::numpy_type<dtype>::type, 2> tri(int N, int M=-1, int k=0, dtype d=dtype())
+        template<class dtype>
+            types::ndarray<typename types::numpy_type<dtype>::type, 2>
+            tri(int N, int M, int k, dtype d)
             {
                 if(M==-1)
                     M = N;
@@ -21,11 +24,10 @@ namespace pythonic {
                 return out;
             }
 
-        PROXY(pythonic::numpy, tri)
+        PROXY_IMPL(pythonic::numpy, tri)
 
     }
 
 }
 
 #endif
-

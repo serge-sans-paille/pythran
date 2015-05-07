@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_TRIMZEROS_HPP
 #define PYTHONIC_NUMPY_TRIMZEROS_HPP
 
+#include "pythonic/include/numpy/trim_zeros.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/numpy_gexpr.hpp"
 
@@ -8,7 +10,7 @@ namespace pythonic {
 
     namespace numpy {
         template<class T>
-            types::numpy_gexpr<T, types::contiguous_slice> trim_zeros(T const& expr, types::str const& trim = "fb")
+            types::numpy_gexpr<T, types::contiguous_slice> trim_zeros(T const& expr, types::str const& trim)
             {
                 static_assert(types::numpy_expr_to_ndarray<T>::N == 1,
                               "Not implemented : trim_zeroes only works for 1D array");
@@ -23,11 +25,10 @@ namespace pythonic {
                 return make_gexpr(expr, types::contiguous_slice(begin, end));
             }
 
-            PROXY(pythonic::numpy, trim_zeros)
+            PROXY_IMPL(pythonic::numpy, trim_zeros)
 
     }
 
 }
 
 #endif
-

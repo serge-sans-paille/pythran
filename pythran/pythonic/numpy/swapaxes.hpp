@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_SWAPAXES_HPP
 #define PYTHONIC_NUMPY_SWAPAXES_HPP
 
+#include "pythonic/include/numpy/swapaxes.hpp"
+
 #include "pythonic/numpy/transpose.hpp"
 
 namespace pythonic {
@@ -19,11 +21,10 @@ namespace pythonic {
                 return _transpose(std::forward<T>(a), t);
             }
 
-        PROXY(pythonic::numpy, swapaxes);
+        PROXY_IMPL(pythonic::numpy, swapaxes);
 
     }
 
 }
 
 #endif
-

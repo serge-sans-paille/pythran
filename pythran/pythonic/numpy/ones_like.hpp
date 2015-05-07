@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_ONESLIKE_HPP
 #define PYTHONIC_NUMPY_ONESLIKE_HPP
 
+#include "pythonic/include/numpy/ones_like.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/numpy/ones.hpp"
 
@@ -14,11 +16,10 @@ namespace pythonic {
                 return ones(expr.shape());
             }
 
-        PROXY(pythonic::numpy, ones_like)
+        PROXY_IMPL(pythonic::numpy, ones_like)
 
     }
 
 }
 
 #endif
-

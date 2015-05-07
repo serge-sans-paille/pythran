@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_PUT_HPP
 #define PYTHONIC_NUMPY_PUT_HPP
 
+#include "pythonic/include/numpy/put.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/asarray.hpp"
@@ -36,14 +38,15 @@ namespace pythonic {
             }
 
         template<class E, class M, class V>
-          types::none_type put(E&, M const&, V const&) {
-            throw std::runtime_error("put only partially implemented");
+          types::none_type put(E&, M const&, V const&)
+          {
+              throw std::runtime_error("put only partially implemented");
           }
-        PROXY(pythonic::numpy, put);
+
+        PROXY_IMPL(pythonic::numpy, put);
 
     }
 
 }
 
 #endif
-

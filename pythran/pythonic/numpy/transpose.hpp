@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_TRANSPOSE_HPP
 #define PYTHONIC_NUMPY_TRANSPOSE_HPP
 
+#include "pythonic/include/numpy/transpose.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/utils/numpy_conversion.hpp"
 #include "pythonic/utils/nested_container.hpp"
@@ -14,8 +16,9 @@ namespace pythonic {
 
         template<class T>
             types::numpy_texpr<types::ndarray<T, 2>>
-            transpose(types::ndarray<T, 2> const& arr) {
-                return types::numpy_texpr<types::ndarray<T, 2>>(arr);
+            transpose(types::ndarray<T, 2> const& arr)
+            {
+                return {arr};
             }
 
         template<class T, unsigned long N, class... C>
@@ -38,7 +41,8 @@ namespace pythonic {
 
                 auto iter = a.buffer,
                      iter_end = a.buffer + a.flat_size();
-                for(long i=0; iter!=iter_end; ++iter, ++i) {
+                for(long i=0; iter!=iter_end; ++iter, ++i)
+                {
                     long offset = 0;
                     for(unsigned long s=0; s<N; s++)
                         offset += ((i/old_strides[l[s]]) % shape[l[s]])*new_strides[s];
@@ -56,6 +60,7 @@ namespace pythonic {
                     t[N-1-i] = i;
                 return _transpose(a, t);
             }
+
         template<class T, size_t N, size_t M>
             types::ndarray<T,N> transpose(types::ndarray<T,N> const & a, types::array<long, M> const& t)
             {
@@ -67,12 +72,11 @@ namespace pythonic {
                 return _transpose(a, &t[0]);
             }
 
-        NUMPY_EXPR_TO_NDARRAY0(transpose);
-        PROXY(pythonic::numpy, transpose);
+        NUMPY_EXPR_TO_NDARRAY0_IMPL(transpose);
+        PROXY_IMPL(pythonic::numpy, transpose);
 
     }
 
 }
 
 #endif
-

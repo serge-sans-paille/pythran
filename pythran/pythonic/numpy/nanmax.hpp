@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_NANMAX_HPP
 #define PYTHONIC_NUMPY_NANMAX_HPP
 
+#include "pythonic/include/numpy/nanmax.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/__builtin__/ValueError.hpp"
@@ -35,11 +37,10 @@ namespace pythonic {
                 return max;
             }
 
-        PROXY(pythonic::numpy, nanmax);
+        PROXY_IMPL(pythonic::numpy, nanmax);
 
     }
 
 }
 
 #endif
-

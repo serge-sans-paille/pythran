@@ -1,16 +1,23 @@
 #ifndef PYTHONIC_NUMPY_BASEREPR_HPP
 #define PYTHONIC_NUMPY_BASEREPR_HPP
 
+#include "pythonic/include/numpy/base_repr.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 
 namespace pythonic {
 
     namespace numpy {
-        namespace {
-            char* itoa( int value, char* result, int base ) {
+        namespace details {
+            char* itoa( int value, char* result, int base)
+            {
                 // check that the base if valid
-                if (base < 2 || base > 16) { *result = 0; return result; }
+                if (base < 2 || base > 16)
+                {
+                    *result = 0;
+                    return result;
+                }
 
                 char* out = result;
                 int quotient = abs(value);
@@ -23,27 +30,29 @@ namespace pythonic {
                 } while ( quotient );
 
                 // Apply negative sign
-                if ( value < 0) *out++ = '-';
+                if ( value < 0)
+                    *out++ = '-';
 
                 std::reverse( result, out );
                 *out = 0;
                 return result;
             }
         }
-        types::str base_repr(long number, long base=2, long padding=0) {
+
+        types::str base_repr(long number, long base, long padding)
+        {
             char * mem = new char[sizeof(number)*8+1 + padding];
             std::fill(mem, mem+padding, '0');
-            itoa(number, mem + padding, base);
+            details::itoa(number, mem + padding, base);
             auto res = types::str(mem);
             delete [] mem;
             return res;
         }
 
-        PROXY(pythonic::numpy, base_repr);
+        PROXY_IMPL(pythonic::numpy, base_repr);
 
     }
 
 }
 
 #endif
-

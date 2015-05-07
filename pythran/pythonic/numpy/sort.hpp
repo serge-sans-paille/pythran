@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_SORT_HPP
 #define PYTHONIC_NUMPY_SORT_HPP
 
+#include "pythonic/include/numpy/sort.hpp"
+
 #include <algorithm>
 
 #include "pythonic/utils/proxy.hpp"
@@ -55,18 +57,18 @@ namespace pythonic {
             }
 
         template<class T, size_t N>
-            types::ndarray<T,N> sort(types::ndarray<T, N> const& expr, long axis=-1)
+            types::ndarray<T,N> sort(types::ndarray<T, N> const& expr, long axis)
             {
                 types::ndarray<T,N> out = expr.copy();
                 _sort(out, axis);
                 return out;
             }
-        NUMPY_EXPR_TO_NDARRAY0(sort);
-            PROXY(pythonic::numpy, sort);
+
+        NUMPY_EXPR_TO_NDARRAY0_IMPL(sort);
+        PROXY_IMPL(pythonic::numpy, sort);
 
     }
 
 }
 
 #endif
-

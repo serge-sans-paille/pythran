@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_EDIFF1D_HPP
 #define PYTHONIC_NUMPY_EDIFF1D_HPP
 
+#include "pythonic/include/numpy/ediff1d.hpp"
+
 #include "pythonic/numpy/asarray.hpp"
 
 namespace pythonic {
@@ -21,15 +23,15 @@ namespace pythonic {
             }
 
         template<class E>
-            auto ediff1d(types::list<E> const & expr) -> decltype(ediff1d(asarray(expr))) {
+            auto ediff1d(types::list<E> const & expr) -> decltype(ediff1d(asarray(expr)))
+            {
                 return ediff1d(asarray(expr));
             }
 
-        PROXY(pythonic::numpy, ediff1d);
+        PROXY_IMPL(pythonic::numpy, ediff1d);
 
     }
 
 }
 
 #endif
-

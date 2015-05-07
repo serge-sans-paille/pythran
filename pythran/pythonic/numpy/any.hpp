@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_ANY_HPP
 #define PYTHONIC_NUMPY_ANY_HPP
 
+#include "pythonic/include/numpy/any.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/__builtin__/ValueError.hpp"
@@ -14,19 +16,20 @@ namespace pythonic {
             {
                 return std::any_of(begin, end, [](typename std::iterator_traits<E>::value_type e) -> bool { return e; });
             }
+
         template<class E, size_t N>
             bool _any(E begin, E end, utils::int_<N>)
             {
-                for(; begin != end; ++begin) {
+                for(; begin != end; ++begin)
                     if(_any((*begin).begin(), (*begin).end(), utils::int_<N - 1>()))
                         return true;
-                }
                 return false;
             }
 
         template<class E>
             bool
-            any(E const& expr, types::none_type _ = types::none_type()) {
+            any(E const& expr, types::none_type)
+            {
                 return _any(expr.begin(), expr.end(), utils::int_<types::numpy_expr_to_ndarray<E>::N>());
             }
 
@@ -44,7 +47,7 @@ namespace pythonic {
             any(E const& array, long axis)
             {
                 constexpr long N = E::value;
-                typedef typename E::dtype T;
+                using T = typename E::dtype;
                 if(axis<0 || axis >=long(N))
                     throw types::ValueError("axis out of bounds");
                 auto shape = array.shape();
@@ -55,9 +58,7 @@ namespace pythonic {
                     std::copy(shape.begin() + 1, shape.end(), shp.begin() + 1);
                     types::ndarray<bool,N> out(shp, false);
                     return std::accumulate(array.begin(), array.end(), *out.begin(), numpy::proxy::add());
-                }
-                else
-                {
+                } else {
                     types::array<long, N-1> shp;
                     std::copy(shape.begin(), shape.end() - 1, shp.begin());
                     types::ndarray<bool,N-1> anyy(shp, __builtin__::None);
@@ -67,11 +68,10 @@ namespace pythonic {
             }
 
 
-        PROXY(pythonic::numpy, any);
+        PROXY_IMPL(pythonic::numpy, any);
 
     }
 
 }
 
 #endif
-

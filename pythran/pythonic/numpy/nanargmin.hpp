@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_NANARGMIN_HPP
 #define PYTHONIC_NUMPY_NANARGMIN_HPP
 
+#include "pythonic/include/numpy/nanargmin.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/__builtin__/ValueError.hpp"
@@ -15,12 +17,14 @@ namespace pythonic {
                 for(; begin != end; ++begin, ++index)
                 {
                     auto curr = *begin;
-                    if(not proxy::isnan()(curr) and curr < min) {
+                    if(not proxy::isnan()(curr) and curr < min)
+                    {
                         min = curr;
                         where = index;
                     }
                 }
             }
+
         template<class E, class F, size_t N>
             void _nanargmin(E begin, E end, F& min, long& index, long& where, utils::int_<N>)
             {
@@ -40,11 +44,11 @@ namespace pythonic {
                 else
                     throw types::ValueError("empty sequence");
             }
-        PROXY(pythonic::numpy, nanargmin);
+
+        PROXY_IMPL(pythonic::numpy, nanargmin);
 
     }
 
 }
 
 #endif
-

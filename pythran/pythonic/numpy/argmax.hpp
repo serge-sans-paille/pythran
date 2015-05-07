@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_ARGMAX_HPP
 #define PYTHONIC_NUMPY_ARGMAX_HPP
 
+#include "pythonic/include/numpy/argmax.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/asarray.hpp"
@@ -14,7 +16,8 @@ namespace pythonic {
             long _argmax(I0 begin, I0 end, T& max_elts, utils::int_<1>)
             {
                 auto local_max_elts = std::max_element(begin, end);
-                if(*local_max_elts > max_elts) {
+                if(*local_max_elts > max_elts)
+                {
                     max_elts = *local_max_elts;
                     return local_max_elts - begin;
                 }
@@ -27,7 +30,8 @@ namespace pythonic {
             {
                 long current_pos = 0;
                 long current_maxarg = 0;
-                for(; begin != end; ++begin){
+                for(; begin != end; ++begin)
+                {
                     long v = _argmax((*begin).begin(), (*begin).end(), max_elts,
                             utils::int_<N - 1>());
                     if(v>=0)
@@ -38,7 +42,8 @@ namespace pythonic {
             }
 
         template<class E>
-            long argmax(E const& expr) {
+            long argmax(E const& expr) 
+            {
                 if(not expr.flat_size()) 
                     throw types::ValueError("empty sequence");
                 using elt_type = typename types::numpy_expr_to_ndarray<E>::T;
@@ -46,10 +51,10 @@ namespace pythonic {
                 return _argmax(expr.begin(), expr.end(), argmax_value,
                                utils::int_<types::numpy_expr_to_ndarray<E>::N>());
             }
-        PROXY(pythonic::numpy, argmax);
+
+        PROXY_IMPL(pythonic::numpy, argmax);
 
     }
 }
 
 #endif
-

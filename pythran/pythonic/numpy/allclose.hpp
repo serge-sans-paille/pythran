@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_ALLCLOSE_HPP
 #define PYTHONIC_NUMPY_ALLCLOSE_HPP
 
+#include "pythonic/include/numpy/allclose.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/abs.hpp"
@@ -12,7 +14,8 @@ namespace pythonic {
         template<class I0, class I1>
             bool _allclose(I0 begin, I0 end, I1 ibegin, double rtol, double atol, utils::int_<1>)
             {
-                for(; begin != end; ++begin, ++ibegin) {
+                for(; begin != end; ++begin, ++ibegin)
+                {
                     auto u = *begin;
                     auto v = *ibegin;
                     if(((!proxy::isfinite()(u) || !proxy::isfinite()(v)) && u != v) ||  // Infinite and NaN cases
@@ -22,6 +25,7 @@ namespace pythonic {
                 }
                 return true;
             }
+
         template<class I0, class I1, size_t N>
             bool _allclose(I0 begin, I0 end, I1 ibegin,  double rtol, double atol, utils::int_<N>)
             {
@@ -30,16 +34,17 @@ namespace pythonic {
                         return false;
                 return true;
             }
+
         template<class U, class V>
-            bool allclose(U const& u, V const& v, double rtol=1e-5, double atol=1e-8) {
+            bool allclose(U const& u, V const& v, double rtol, double atol)
+            {
                 return _allclose(u.begin(), u.end(), v.begin(), rtol, atol, utils::int_<types::numpy_expr_to_ndarray<U>::N>());
             }
 
-        PROXY(pythonic::numpy, allclose);
+        PROXY_IMPL(pythonic::numpy, allclose);
 
     }
 
 }
 
 #endif
-

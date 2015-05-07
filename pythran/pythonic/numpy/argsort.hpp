@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_ARGSORT_HPP
 #define PYTHONIC_NUMPY_ARGSORT_HPP
 
+#include "pythonic/include/numpy/argsort.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 
@@ -8,7 +10,8 @@ namespace pythonic {
 
     namespace numpy {
         template<class T, size_t N>
-            types::ndarray<long, N> argsort(types::ndarray<T,N> const& a) {
+            types::ndarray<long, N> argsort(types::ndarray<T,N> const& a) 
+            {
                 size_t last_axis = a.shape()[N-1];
                 size_t n = a.flat_size();
                 types::ndarray<long, N> indices(a.shape(), __builtin__::None);
@@ -25,13 +28,12 @@ namespace pythonic {
                 return indices;
             }
 
-        NUMPY_EXPR_TO_NDARRAY0(argsort);
+        NUMPY_EXPR_TO_NDARRAY0_IMPL(argsort);
 
-        PROXY(pythonic::numpy, argsort);
+        PROXY_IMPL(pythonic::numpy, argsort);
 
     }
 
 }
 
 #endif
-

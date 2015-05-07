@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_FLATNONZERO_HPP
 #define PYTHONIC_NUMPY_FLATNONZERO_HPP
 
+#include "pythonic/include/numpy/flatnonzero.hpp"
+
 #include "pythonic/numpy/asarray.hpp"
 
 namespace pythonic {
@@ -10,10 +12,10 @@ namespace pythonic {
             void _flatnonzero(I begin, I end, O& out, long& i, utils::int_<1>)
             {
                 for(; begin != end; ++begin, ++i)
-                    if(*begin) {
+                    if(*begin)
                         *out++ = i;
-                    }
             }
+
         template<class I, class O, size_t N>
             void _flatnonzero(I begin, I end, O& out, long& i, utils::int_<N>)
             {
@@ -22,7 +24,8 @@ namespace pythonic {
             }
 
         template<class E>
-            types::ndarray<long, 1> flatnonzero(E const& expr) {
+            types::ndarray<long, 1> flatnonzero(E const& expr)
+            {
                 long n = expr.flat_size();
                 long *buffer = (long*)malloc(sizeof(long) * n);
                 long *iter = buffer;
@@ -32,11 +35,10 @@ namespace pythonic {
                 return types::ndarray<long, 1>(buffer, shape);
             }
 
-        PROXY(pythonic::numpy, flatnonzero);
+        PROXY_IMPL(pythonic::numpy, flatnonzero);
 
     }
 
 }
 
 #endif
-

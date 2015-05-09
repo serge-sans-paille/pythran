@@ -1,5 +1,6 @@
 from __future__ import print_function
 from distutils.command.build import build
+from distutils.command.install import install
 from distutils.core import setup, Command
 from subprocess import check_call, check_output
 from urllib import urlopen
@@ -302,10 +303,10 @@ pythonic_headers = ['*/' * i + '*.hpp' for i in range(9)] + ['patch/*']
 
 setup(name='pythran',
       version=__version__,
-      description='a claimless python to c++ converter',
+      description=__descr__,
       author='Serge Guelton',
       author_email='serge.guelton@telecom-bretagne.eu',
-      url='https://github.com/serge-sans-paille/pythran',
+      url=__url__,
       packages=['pythran', 'pythran.analyses', 'pythran.transformations',
                 'pythran.optimizations', 'omp', 'pythran/pythonic',
                 'pythran.types'],

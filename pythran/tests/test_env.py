@@ -189,7 +189,7 @@ class TestEnv(unittest.TestCase):
 
             # Compile the code using pythran
             cxx_compiled = compile_pythrancode(modname, code, None,
-                                               cxxflags=self.PYTHRAN_CXX_FLAGS)
+                                               extra_compile_args=self.PYTHRAN_CXX_FLAGS)
 
             if not runas:
                 continue
@@ -233,7 +233,7 @@ class TestEnv(unittest.TestCase):
         modname = "test_" + name
 
         cxx_compiled = compile_pythrancode(modname, code, interface,
-                                           cxxflags=self.PYTHRAN_CXX_FLAGS)
+                                           extra_compile_args=self.PYTHRAN_CXX_FLAGS)
 
         # FIXME Check should be done on input parameters after function call
         python_ref = self.run_python(code, (name, copy.deepcopy(params)),

@@ -84,17 +84,7 @@ The ``bench`` target, as in::
 compares the performance of Pythran-generated code with CPython.
 
 If these tests fail, you are likely missing some of the requirements. You can
-set site specific flags in your ``~/.pythranrc``::
-
-    [user]
-
-    cxx = c++
-    cppflags =
-    cxxflags = -O2 -g
-    # update your library paths here
-    ldflags = -fPIC -ltcmalloc_minimal
-
-Be careful, the `user` section is overwritten by the command-line flags!
+set site specific flags in your ``~/.pythranrc``, read the doc a bit further!
 
 First Steps
 -----------
@@ -272,7 +262,8 @@ sensible to the ``-DNDEBUG`` switch too.
 Tired of typing the same compiler switches again and again? Store them in
 ``$XDG_CONFIG_HOME/.pythranrc``!
 
-Wants to try your own compiler? Update the `c++` field from your `pythranrc`!
+Wants to try your own compiler? Update the `CC` and `CXX` fields from your
+`pythranrc`, or set the same env variables to the right compilers.
 
 The careful reader might have noticed the ``-p`` flag from the command line. It
 makes it possible to define your own optimization sequence::
@@ -326,39 +317,61 @@ particular Pythran specification.
 Customizing Your ``.pythranrc``
 -------------------------------
 
-Pythran checks for a file named ``.pythranrc`` and loads additionnal
-configuration info from it. Here are a few tricks!
+Pythran checks for a file named ``.pythranrc`` and use it to *replace* the site
+configuration. Here are a few tricks!
 
-``[sys]`` and ``[user]``
-========================
 
-These sections contains compiler flags configuration:
+``[compiler]``
+==============
 
-:``cxx``:
+These sections contains compiler flags configuration. For education purpose, the default linux configuration is
 
-    Path to the compiler to use
+.. literalinclude:: ../pythran/pythran-linux2.cfg
 
-:``cppflags``:
+:``CC``:
 
-    Additionnal preprocessor flags (``-I``, ``-D``, ``-U``). Pythran is
-    sensible to ``-DUSE_BOOST_SIMD`` and ``-DPYTHRAN_OPENMP_MIN_ITERATION_COUNT``. The former turns on
-    Boost.simd vectorization and the latter controls the mimimal loop trip count to turn a sequential loop in a parallel loop.
+    Path to the C compiler to use
 
-:``cxxflags``:
+:``CXX``:
 
-    Additionnal compiler flags (``-f``, ``-O``). Optimization flags generally
-    go there.
+    Path to the C++ compiler to use
+
+:``defines``:
+
+    Preprocessor definitions. Pythran is sensible to ``USE_BOOST_SIMD`` and
+    ``PYTHRAN_OPENMP_MIN_ITERATION_COUNT``. The former turns on Boost.simd
+    vectorization and the latter controls the mimimal loop trip count to turn a
+    sequential loop in a parallel loop. The default is to set ``USE_GMP``, so
+    that Python's long are represented using GMP.
+
+:``undefs``:
+
+    Some preprocessor definitions to remove.
+
+:``include_dirs``:
+
+    Additionnal include directories to search for headers.
+
+:``cflags``:
+
+    Additionnal random compiler flags (``-f``, ``-O``). Optimization flags generally
+    go there. The default is to set ``-std=c++11`` for C++11 support.
+
+:``libs``:
+
+    Libraries to use during the link process. It should at least contain a way
+    to link to `Boost.Python`, tyically ``boost_python``. A typical extension
+    is to add ``tcmalloc_minimal`` to use the allocator from
+    https://code.google.com/p/gperftools/.
+
+:``library_dirs``:
+
+    Extra libraries directories to search for required libraries.
 
 :``ldflags``:
 
-    Additionnal linker flags, (``-L``, ``-l``). A typical choice is to add
-    ``-ltcmalloc_minimal`` to use the allocator from
-    https://code.google.com/p/gperftools/.
+    Additionnal random linker flags.
 
-Both sections accept the same set of entries. ``sys`` contains general flags
-that are more critical to the system configuration, and should generally not be
-changed. ``user`` is more related to your local customization, say optimization
-flags, extra libraries and the likes.
 
 ``[pythran]``
 =============

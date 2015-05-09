@@ -4,7 +4,7 @@ a dynamic library, see __init__.py for exported interfaces.
 '''
 
 from pythran.backend import Cxx
-from pythran.config import cfg
+from pythran.config import cfg, make_extension
 from pythran.cxxgen import BoostPythonModule, Define, Include, Line, Statement
 from pythran.cxxgen import FunctionBody, FunctionDeclaration, Value, Block
 from pythran.intrinsic import ConstExceptionIntr
@@ -18,24 +18,41 @@ from pythran.spec import expand_specs
 from pythran.syntax import check_specs
 import pythran.frontend as frontend
 
-from numpy import get_include
+from distutils.errors import CompileError
+from numpy.distutils.core import setup
+from numpy.distutils.extension import Extension
+import numpy.distutils.ccompiler
+
 from subprocess import check_output, STDOUT, CalledProcessError
-from tempfile import mkstemp
+from tempfile import mkstemp, mkdtemp
 import ast
 import logging
 import networkx as nx
-import numpy.distutils.system_info as numpy_sys
 import os.path
 import shutil
 import sys
 import sysconfig
+import glob
 
 logger = logging.getLogger(__name__)
 
 
-def _format_cmdline(cmd):
-    """No comma when printing a command line allows for copy/paste. """
-    return "'" + "' '".join(cmd) + "'"
+# hook taken from numpy.distutils.compiler
+# with useless steps  and warning removed
+def CCompiler_customize(self, dist, need_cxx=0):
+    logger.info('customize %s' % (self.__class__.__name__))
+    numpy.distutils.ccompiler.customize_compiler(self)
+    if need_cxx:
+        # In general, distutils uses -Wstrict-prototypes, but this option is
+        # not valid for C++ code, only for C.  Remove it if it's there to
+        # avoid a spurious warning on every compilation.
+        try:
+            self.compiler_so.remove('-Wstrict-prototypes')
+        except (AttributeError, ValueError):
+            pass
+
+numpy.distutils.ccompiler.replace_method(numpy.distutils.ccompiler.CCompiler,
+                                         'customize', CCompiler_customize)
 
 
 def _extract_all_constructed_types(v):
@@ -69,35 +86,6 @@ def _parse_optimization(optimization):
     return reduce(getattr, splitted[1:], __import__(splitted[0]))
 
 
-def _python_cppflags():
-    return ["-I" + sysconfig.get_config_var("INCLUDEPY")]
-
-
-def _numpy_cppflags():
-    return ["-I" + os.path.join(get_include(), 'numpy')]
-
-
-def _pythran_cppflags():
-    curr_dir = os.path.dirname(os.path.dirname(__file__))
-
-    def get(*x):
-        return '-I' + os.path.join(curr_dir, *x)
-    flags = [get('pythran')]
-    if cfg.getboolean('pythran', 'complex_hook'):
-        # the patch is *not* portable
-        flags.append(get('pythran', 'pythonic', 'patch'))
-    return flags
-
-
-def _python_ldflags():
-    pylibs = sysconfig.get_config_var('LIBS').split()
-    numpy_blas = numpy_sys.get_info("blas")
-    return (["-L" + sysconfig.get_config_var("LIBPL")] + pylibs +
-            ["-L{}".format(lib) for lib in numpy_blas['library_dirs']] +
-            ["-l{}".format(lib) for lib in numpy_blas['libraries']] +
-            ["-lpython" + sysconfig.get_config_var('VERSION')])
-
-
 def _get_temp(content, suffix=".cpp"):
     '''Get a temporary file for given content, default extension is .cpp
        It is user's responsability to delete when done.'''
@@ -119,47 +107,6 @@ class HasArgument(ast.NodeVisitor):
         return False
 
 # PUBLIC INTERFACE STARTS HERE
-
-
-class CompileError(Exception):
-    """ Holds an exception when the C++ compilation failed"""
-
-    def __init__(self, cmdline, output):
-            self.cmdline = _format_cmdline(cmdline)
-            self.output = output
-            self._message = "\n".join(["Compile error!\n",
-                                       "******** Command line was: ********",
-                                       self.cmdline,
-                                       "\n******** Output :  ********\n",
-                                       self.output])
-            super(CompileError, self).__init__(self._message)
-
-
-def default_compiler():
-    """The C++ compiler used by Pythran"""
-    return cfg.get('user', 'cxx')
-
-
-def cxxflags():
-    """The C++ flags to compile a Pythran generated cpp file"""
-    return (cfg.get('user', 'cxxflags').split() +
-            cfg.get('sys', 'cxxflags').split())
-
-
-def cppflags():
-    """The C++ flags to preprocess a Pythran generated cpp file"""
-    return (_python_cppflags() +
-            _numpy_cppflags() +
-            _pythran_cppflags() +
-            cfg.get('sys', 'cppflags').split() +
-            cfg.get('user', 'cppflags').split())
-
-
-def ldflags():
-    """The linker flags to link a Pythran code into a shared library"""
-    return (_python_ldflags() +
-            cfg.get('sys', 'ldflags').split() +
-            cfg.get('user', 'ldflags').split())
 
 
 def generate_cxx(module_name, code, specs=None, optimizations=None):
@@ -307,31 +254,48 @@ def compile_cxxfile(cxxfile, module_so=None, **kwargs):
     Raises CompileError on failure
 
     '''
-    # FIXME: not sure about overriding the user defined compiler here...
-    compiler = kwargs.get('cxx', default_compiler())
+    if module_so:
+        module_name, _ = os.path.splitext(os.path.basename(module_so))
+    else:
+        module_name, _ = os.path.splitext(os.path.basename(cxxfile))
 
-    _cppflags = cppflags() + kwargs.get('cppflags', [])
-    _cxxflags = cxxflags() + kwargs.get('cxxflags', [])
-    _ldflags = ldflags() + kwargs.get('ldflags', [])
+    builddir = mkdtemp()
+    buildtmp = mkdtemp()
 
-    # Get output filename from input filename if not set
-    module_so = module_so or (os.path.splitext(cxxfile)[0] + ".so")
+    extension_args = make_extension(**kwargs)
+
+    extension = Extension(module_name,
+                          [cxxfile],
+                          language="c++",
+                          **extension_args)
+
     try:
-        cmd = ([compiler, cxxfile] +
-               _cppflags +
-               _cxxflags +
-               ["-shared", "-o", module_so] +
-               _ldflags)
-        logger.info("Command line: " + _format_cmdline(cmd))
-        output = check_output(cmd, stderr=STDOUT)
-    except CalledProcessError as e:
-        raise CompileError(e.cmd, e.output)
-    except Exception:
-        print("E: Error encountered while running:")
-        print(''.join(cmd))
-        raise
-    logger.info("Generated module: " + module_so)
-    logger.info("Output: " + output)
+        setup(name=module_name,
+              ext_modules=[extension],
+              # fake CLI call
+              script_name='setup.py',
+              script_args=['--verbose'
+                           if logger.isEnabledFor(logging.INFO)
+                           else '--quiet',
+                           'build_ext',
+                           '--build-lib', builddir,
+                           '--build-temp', buildtmp,
+                           ]
+              )
+    except SystemExit as e:
+        raise CompileError(e.args)
+
+    [target] = glob.glob(os.path.join(builddir, module_name + "*"))
+    if module_so:
+        shutil.move(target, module_so)
+    else:
+        shutil.move(target, os.getcwd())
+        module_so = os.path.join(os.getcwd(), os.path.basename(target))
+    shutil.rmtree(builddir)
+    shutil.rmtree(buildtmp)
+
+    logger.info("Generated module: " + module_name)
+    logger.info("Output: " + module_so)
 
     return module_so
 

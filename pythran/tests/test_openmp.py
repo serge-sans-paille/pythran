@@ -1,4 +1,5 @@
 import unittest
+from distutils.errors import CompileError
 from test_env import TestFromDir
 import os
 import pythran
@@ -19,10 +20,10 @@ class TestOpenMPLegacy(TestFromDir):
 
 # only activate OpenMP tests if the underlying compiler supports OpenMP
 try:
-    pythran.compile_cxxcode('#include <omp.h>', cxxflags=['-fopenmp'])
+    pythran.compile_cxxcode('#include <omp.h>', extra_compile_args=['-fopenmp'], extra_link_args=['-fopenmp'])
     TestOpenMP.populate(TestOpenMP)
     TestOpenMPLegacy.populate(TestOpenMPLegacy)
-except pythran.CompileError:
+except CompileError:
     pass
 
 

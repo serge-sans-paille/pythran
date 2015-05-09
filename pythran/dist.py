@@ -3,6 +3,7 @@ This modules contains a distutils extension mechanism for Pythran
     * PythranExtension: is used as distutils's Extension
 '''
 
+import pythran.config as cfg
 import pythran.toolchain as tc
 
 from distutils.core import Extension
@@ -52,13 +53,5 @@ class PythranExtension(Extension):
                                        module_name=name, cpponly=True)
             cxx_sources.append(output_file)
 
-        # in both cases, setup the flags in a pythran-compatible way.
-        kwargs['language'] = 'c++'
-        kwargs.setdefault('extra_compile_args', []).extend(tc.cppflags() +
-                                                           tc.cxxflags())
-        # FIXME: force the compiler to be pythran's ones
-        # I cannot find a way to do this in a less intrusive manner
-        os.environ['CC'] = tc.default_compiler()
-        os.environ['CXX'] = tc.default_compiler()
-        kwargs.setdefault('extra_link_args', []).extend(tc.ldflags())
-        Extension.__init__(self, name, cxx_sources, **kwargs)
+        extension_args = cfg.make_extension()
+        Extension.__init__(self, name, cxx_sources, **extension_args)

@@ -6,6 +6,9 @@ import sys
 import os
 import argparse
 import logging
+
+from distutils.errors import CompileError
+
 logger = logging.getLogger("pythran")
 
 # Initialize logging
@@ -32,7 +35,6 @@ except ImportError:
 
 import pythran
 
-
 def convert_arg_line_to_args(arg_line):
     """Read argument from file in a prettier way."""
     for arg in arg_line.split():
@@ -48,24 +50,14 @@ def compile_flags(args):
     These options are filled according to the command line defined options
 
     """
-    cppflags = ['-I{0}'.format(n) for n in args.extra_Iflags]
-    cppflags += ['-D{0}'.format(n) for n in args.extra_Dflags]
 
-    cxxflags = ['-O{0}'.format(n) for n in args.extra_Oflags]
-    cxxflags += ['-m{0}'.format(n) for n in args.extra_mflags]
-    cxxflags += ['-f{0}'.format(n) for n in args.extra_fflags]
-    if args.debug_flag:
-        cxxflags += ['-g']
-
-    ldflags = ['-L{0}'.format(n) for n in args.extra_Lflags]
-
-    compiler_options = {}
-    if cppflags:
-        compiler_options['cppflags'] = cppflags
-    if ldflags:
-        compiler_options['ldflags'] = ldflags
-    if cxxflags:
-        compiler_options['cxxflags'] = cxxflags
+    compiler_options = {
+        'define_macros': args.defines,
+        'include_dirs': args.include_dirs,
+        'extra_compile_args': args.extra_flags,
+        'library_dirs': args.libraries_dir,
+        'extra_link_args': args.extra_flags,
+    }
     if args.opts:
         compiler_options['opts'] = args.opts
 
@@ -90,12 +82,6 @@ parser.add_argument('-E', dest='translate_only', action='store_true',
 parser.add_argument('-e', dest='raw_translate_only', action='store_true',
                     help='similar to -E, but does not generate python glue')
 
-parser.add_argument('-f', dest='extra_fflags', metavar='flag',
-                    action='append',
-                    help='any compiler switch relevant to the underlying C++ '
-                    'compiler',
-                    default=list())
-
 parser.add_argument('-v', dest='verbose', action='store_true',
                     help='be verbose')
 
@@ -105,42 +91,27 @@ parser.add_argument('-p', dest='opts', metavar='pass',
                     'generation',
                     default=list())
 
-parser.add_argument('-m', dest='extra_mflags', metavar='machine',
-                    action='append',
-                    help='any machine flag relevant to the underlying C++ '
-                    'compiler',
-                    default=list())
-
-parser.add_argument('-I', dest='extra_Iflags', metavar='include_dir',
+parser.add_argument('-I', dest='include_dirs', metavar='include_dir',
                     action='append',
                     help='any include dir relevant to the underlying C++ '
                     'compiler',
                     default=list())
 
-parser.add_argument('-L', dest='extra_Lflags', metavar='ldflags',
+parser.add_argument('-L', dest='libraries_dir', metavar='ldflags',
                     action='append',
                     help='any search dir relevant to the linker',
                     default=list())
 
-parser.add_argument('-D', dest='extra_Dflags', metavar='macro_definition',
+parser.add_argument('-D', dest='defines', metavar='macro_definition',
                     action='append',
                     help='any macro definition relevant to the underlying C++ '
                     'compiler',
                     default=list())
 
-parser.add_argument('-O', dest='extra_Oflags', metavar='level',
-                    action='append',
-                    help='any optimization level relevant to the underlying '
-                    'C++ compiler',
-                    default=['2'])
-
-parser.add_argument('-g', dest='debug_flag', action='store_true',
-                    help='any debug level relevant to the underlying C++ '
-                    'compiler')
-
 parser.convert_arg_line_to_args = convert_arg_line_to_args
 
-args = parser.parse_args(sys.argv[1:])
+args, extra = parser.parse_known_args(sys.argv[1:])
+args.extra_flags = extra
 if args.raw_translate_only:
     args.translate_only = True
 
@@ -188,9 +159,8 @@ except SyntaxError as e:
                     "to match Pythran's constraints...\n"
                     "E: " + str(e))
     sys.exit(1)
-except pythran.CompileError as e:
-    logger.critical("Leave the vessel! Women and children first!\n"
-                    "C++ compiler failed to compile translated code.\n"
+except CompileError as e:
+    logger.critical("Cover me Jack. Jack? Jaaaaack!!!!\n"
                     "E: " + str(e))
     sys.exit(1)
 except NotImplementedError as e:

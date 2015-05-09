@@ -44,7 +44,7 @@ Pythran can also generate raw C++ code, using the ``-e`` switch::
 
   $> pythran -e cli_foo.py -o cli_foo.hpp
   $> printf '#include \"cli_foo.hpp\"\nusing namespace __pythran_cli_foo ; int main() { foo()(); return 0 ; }' > cli_foo.cpp
-  $> `pythran-config --compiler` cli_foo.cpp `pythran-config --cflags --libs` -o cli_foo
+  $> `pythran-config --compiler` -std=c++11 cli_foo.cpp `pythran-config --cflags --libs` -o cli_foo -DNDEBUG
   $> ./cli_foo
   hello world
 
@@ -55,7 +55,7 @@ code can propagate constants using the Pythran ConstantFolding optimization::
 
 If you want to specify the path of generated file::
 
-  $> pythran cli_foo.py -o /tmp/cli_foo.so
+  $> pythran cli_foo.py -o /tmp/cli_foo.so -DNDEBUG
   $> ls /tmp/cli_foo.so
   /tmp/cli_foo.so
 

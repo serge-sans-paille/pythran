@@ -7,10 +7,12 @@ import os
 import sys
 
 try:
-    from pythran import config
-    cxx = config.cfg.get('user', 'cxx')
+    # there may be an environ modification when loading config
+    from pythran.config import compiler
 except ImportError:
-    cxx = 'c++'
+    def compiler():
+        return os.environ.get('CXX', 'c++')
+cxx = compiler()
 
 
 class OpenMP(object):
@@ -18,8 +20,8 @@ class OpenMP(object):
     """
     Internal representation of the OpenMP module.
 
-    Custom class is used to dynamically add omp runtime function to this library
-    whe function is called.
+    Custom class is used to dynamically add omp runtime function
+    to this library when function is called.
     """
 
     def __init__(self):

@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_MATH_EXP_HPP
 #define PYTHONIC_MATH_EXP_HPP
 
-#include "pythran/pythonic/include/math/exp.hpp"
+#include "pythonic/include/math/exp.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 #include <cmath>

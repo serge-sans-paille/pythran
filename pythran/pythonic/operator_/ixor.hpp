@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_OPERATOR_IXOR_HPP
 #define PYTHONIC_OPERATOR_IXOR_HPP
 
-#include "pythran/pythonic/include/operator_/ixor.hpp"
+#include "pythonic/include/operator_/ixor.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 

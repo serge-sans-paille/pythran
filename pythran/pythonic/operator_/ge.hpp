@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_OPERATOR_GE_HPP
 #define PYTHONIC_OPERATOR_GE_HPP
 
-#include "pythran/pythonic/include/operator_/ge.hpp"
+#include "pythonic/include/operator_/ge.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 

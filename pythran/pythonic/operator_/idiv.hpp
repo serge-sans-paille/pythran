@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_OPERATOR_IDIV_HPP
 #define PYTHONIC_OPERATOR_IDIV_HPP
 
-#include "pythran/pythonic/include/operator_/idiv.hpp"
+#include "pythonic/include/operator_/idiv.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 

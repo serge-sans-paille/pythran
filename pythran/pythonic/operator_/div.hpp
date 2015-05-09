@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_OPERATOR_DIV_HPP
 #define PYTHONIC_OPERATOR_DIV_HPP
 
-#include "pythran/pythonic/include/operator_/div.hpp"
+#include "pythonic/include/operator_/div.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/operator_/overloads.hpp"

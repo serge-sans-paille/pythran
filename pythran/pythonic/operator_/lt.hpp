@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_OPERATOR_LT_HPP
 #define PYTHONIC_OPERATOR_LT_HPP
 
-#include "pythran/pythonic/include/operator_/lt.hpp"
+#include "pythonic/include/operator_/lt.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 

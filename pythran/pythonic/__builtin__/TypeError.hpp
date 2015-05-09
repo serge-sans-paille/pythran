@@ -2,7 +2,7 @@
 #define PYTHONIC_BUILTIN_TYPEERROR_HPP
 
 #include "pythonic/types/exceptions.hpp"
-#include "pythran/pythonic/include/__builtin__/TypeError.hpp"
+#include "pythonic/include/__builtin__/TypeError.hpp"
 
 namespace pythonic {
 

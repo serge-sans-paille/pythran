@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_OPERATOR_INVERT_HPP
 #define PYTHONIC_OPERATOR_INVERT_HPP
 
-#include "pythran/pythonic/include/operator_/invert.hpp"
+#include "pythonic/include/operator_/invert.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 

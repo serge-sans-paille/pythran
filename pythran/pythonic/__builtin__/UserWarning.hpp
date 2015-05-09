@@ -2,7 +2,7 @@
 #define PYTHONIC_BUILTIN_USERWARNING_HPP
 
 #include "pythonic/types/exceptions.hpp"
-#include "pythran/pythonic/include/__builtin__/UserWarning.hpp"
+#include "pythonic/include/__builtin__/UserWarning.hpp"
 
 namespace pythonic {
 

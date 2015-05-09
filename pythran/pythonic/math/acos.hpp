@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_MATH_ACOS_HPP
 #define PYTHONIC_MATH_ACOS_HPP
 
-#include "pythran/pythonic/include/math/acos.hpp"
+#include "pythonic/include/math/acos.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 #include <cmath>

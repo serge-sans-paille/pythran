@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_MATH_FABS_HPP
 #define PYTHONIC_MATH_FABS_HPP
 
-#include "pythran/pythonic/include/math/fabs.hpp"
+#include "pythonic/include/math/fabs.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 #include <cmath>

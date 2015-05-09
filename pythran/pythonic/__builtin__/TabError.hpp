@@ -2,7 +2,7 @@
 #define PYTHONIC_BUILTIN_TABERROR_HPP
 
 #include "pythonic/types/exceptions.hpp"
-#include "pythran/pythonic/include/__builtin__/TabError.hpp"
+#include "pythonic/include/__builtin__/TabError.hpp"
 
 namespace pythonic {
 

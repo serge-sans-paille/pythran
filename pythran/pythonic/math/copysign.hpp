@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_MATH_COPYSIGN_HPP
 #define PYTHONIC_MATH_COPYSIGN_HPP
 
-#include "pythran/pythonic/include/math/copysign.hpp"
+#include "pythonic/include/math/copysign.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 #include <cmath>

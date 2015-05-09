@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_OPERATOR_XOR__HPP
 #define PYTHONIC_OPERATOR_XOR__HPP
 
-#include "pythran/pythonic/include/operator_/__xor__.hpp"
+#include "pythonic/include/operator_/__xor__.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 

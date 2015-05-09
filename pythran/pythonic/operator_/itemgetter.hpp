@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_OPERATOR_ITEMGETTER_HPP
 #define PYTHONIC_OPERATOR_ITEMGETTER_HPP
 
-#include "pythran/pythonic/include/operator_/itemgetter.hpp"
+#include "pythonic/include/operator_/itemgetter.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/tuple.hpp"

@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_OPERATOR_IADD_HPP
 #define PYTHONIC_OPERATOR_IADD_HPP
 
-#include "pythran/pythonic/include/operator_/iadd.hpp"
+#include "pythonic/include/operator_/iadd.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/list.hpp"

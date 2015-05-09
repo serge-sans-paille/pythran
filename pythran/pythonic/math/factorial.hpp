@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_MATH_FACTORIAL_HPP
 #define PYTHONIC_MATH_FACTORIAL_HPP
 
-#include "pythran/pythonic/include/math/factorial.hpp"
+#include "pythonic/include/math/factorial.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 

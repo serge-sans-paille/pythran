@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_MATH_MODF_HPP
 #define PYTHONIC_MATH_MODF_HPP
 
-#include "pythran/pythonic/include/math/modf.hpp"
+#include "pythonic/include/math/modf.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/tuple.hpp"

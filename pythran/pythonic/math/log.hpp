@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_MATH_LOG_HPP
 #define PYTHONIC_MATH_LOG_HPP
 
-#include "pythran/pythonic/include/math/log.hpp"
+#include "pythonic/include/math/log.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 #include <cmath>

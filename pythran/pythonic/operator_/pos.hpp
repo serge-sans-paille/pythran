@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_OPERATOR_POS_HPP
 #define PYTHONIC_OPERATOR_POS_HPP
 
-#include "pythran/pythonic/include/operator_/pos.hpp"
+#include "pythonic/include/operator_/pos.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 

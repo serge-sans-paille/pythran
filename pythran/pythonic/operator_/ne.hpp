@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_OPERATOR_NE_HPP
 #define PYTHONIC_OPERATOR_NE_HPP
 
-#include "pythran/pythonic/include/operator_/ne.hpp"
+#include "pythonic/include/operator_/ne.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 

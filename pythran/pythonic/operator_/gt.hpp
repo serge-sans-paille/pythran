@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_OPERATOR_GT_HPP
 #define PYTHONIC_OPERATOR_GT_HPP
 
-#include "pythran/pythonic/include/operator_/gt.hpp"
+#include "pythonic/include/operator_/gt.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 

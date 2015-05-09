@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_MATH_ATANH_HPP
 #define PYTHONIC_MATH_ATANH_HPP
 
-#include "pythran/pythonic/include/math/atanh.hpp"
+#include "pythonic/include/math/atanh.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 #include <cmath>

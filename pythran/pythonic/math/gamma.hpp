@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_MATH_GAMMA_HPP
 #define PYTHONIC_MATH_GAMMA_HPP
 
-#include "pythran/pythonic/include/math/gamma.hpp"
+#include "pythonic/include/math/gamma.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/utils/wrap.hpp"

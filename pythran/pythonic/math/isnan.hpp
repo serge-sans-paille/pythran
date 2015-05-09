@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_MATH_ISNAN_HPP
 #define PYTHONIC_MATH_ISNAN_HPP
 
-#include "pythran/pythonic/include/math/isnan.hpp"
+#include "pythonic/include/math/isnan.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 #include <cmath>

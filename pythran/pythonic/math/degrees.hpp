@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_MATH_DEGREES_HPP
 #define PYTHONIC_MATH_DEGREES_HPP
 
-#include "pythran/pythonic/include/math/degrees.hpp"
+#include "pythonic/include/math/degrees.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/math/pi.hpp"

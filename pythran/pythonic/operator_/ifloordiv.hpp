@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_OPERATOR_IFLOORDIV_HPP
 #define PYTHONIC_OPERATOR_IFLOORDIV_HPP
 
-#include "pythran/pythonic/include/operator_/ifloordiv.hpp"
+#include "pythonic/include/operator_/ifloordiv.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 

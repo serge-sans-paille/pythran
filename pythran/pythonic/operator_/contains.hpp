@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_OPERATOR_CONTAINS_HPP
 #define PYTHONIC_OPERATOR_CONTAINS_HPP
 
-#include "pythran/pythonic/include/operator_/contains.hpp"
+#include "pythonic/include/operator_/contains.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/__builtin__/in.hpp"

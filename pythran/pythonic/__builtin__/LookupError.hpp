@@ -2,7 +2,7 @@
 #define PYTHONIC_BUILTIN_LOOKUPERROR_HPP
 
 #include "pythonic/types/exceptions.hpp"
-#include "pythran/pythonic/include/__builtin__/LookupError.hpp"
+#include "pythonic/include/__builtin__/LookupError.hpp"
 
 namespace pythonic {
 

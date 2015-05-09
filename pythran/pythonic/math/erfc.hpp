@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_MATH_ERFC_HPP
 #define PYTHONIC_MATH_ERFC_HPP
 
-#include "pythran/pythonic/include/math/erfc.hpp"
+#include "pythonic/include/math/erfc.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 #include <cmath>

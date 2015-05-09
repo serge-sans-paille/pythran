@@ -2,7 +2,7 @@
 #define PYTHONIC_BUILTIN_RUNTIMEWARNING_HPP
 
 #include "pythonic/types/exceptions.hpp"
-#include "pythran/pythonic/include/__builtin__/RuntimeWarning.hpp"
+#include "pythonic/include/__builtin__/RuntimeWarning.hpp"
 
 namespace pythonic {
 

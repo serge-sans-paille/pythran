@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_MATH_FMOD_HPP
 #define PYTHONIC_MATH_FMOD_HPP
 
-#include "pythran/pythonic/include/math/fmod.hpp"
+#include "pythonic/include/math/fmod.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 #include <cmath>

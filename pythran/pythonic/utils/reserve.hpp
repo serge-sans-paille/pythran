@@ -1,5 +1,8 @@
 #ifndef PYTHONIC_UTILS_RESERVE_HPP
 #define PYTHONIC_UTILS_RESERVE_HPP
+
+#include "pythonic/include/utils/reserve.hpp"
+
 namespace pythonic {
 
     namespace utils {
@@ -11,4 +14,5 @@ namespace pythonic {
     }
 
 }
+
 #endif

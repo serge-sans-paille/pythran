@@ -4,7 +4,6 @@
 #include "pythonic/include/math/gamma.hpp"
 
 #include "pythonic/utils/proxy.hpp"
-#include "pythonic/utils/wrap.hpp"
 #include <cmath>
 
 namespace pythonic {

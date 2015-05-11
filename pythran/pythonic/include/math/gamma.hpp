@@ -2,7 +2,6 @@
 #define PYTHONIC_INCLUDE_MATH_GAMMA_HPP
 
 #include "pythonic/utils/proxy.hpp"
-#include "pythonic/utils/wrap.hpp"
 #include <cmath>
 
 namespace pythonic {

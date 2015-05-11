@@ -55,7 +55,8 @@ namespace pythonic {
                     return dot(asarray(e), f);
                 }
 
-        PROXY(pythonic::numpy, dot);
+        PROXY_IMPL(pythonic::numpy, dot);
+        PROXY_DECL(pythonic::numpy, dot);
 
     }
 

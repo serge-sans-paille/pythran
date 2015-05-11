@@ -14,6 +14,8 @@ namespace pythonic {
         template <class A, class B>
             auto mul(A const& a, B const& b) -> decltype(a*b);
 
+        DEFINE_ALL_OPERATOR_OVERLOADS_DECL(mul, *)
+
         PROXY_DECL(pythonic::operator_, mul);
     }
 

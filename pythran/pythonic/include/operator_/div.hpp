@@ -13,7 +13,7 @@ namespace pythonic {
         template <class A, class B>
             auto div(A const& a, B const& b) -> decltype(a/b);
 
-        DEFINE_ALL_OPERATOR_OVERLOADS(div,/)
+        DEFINE_ALL_OPERATOR_OVERLOADS_DECL(div, /)
 
         PROXY_DECL(pythonic::operator_, div);
 

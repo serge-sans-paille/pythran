@@ -15,7 +15,7 @@ namespace pythonic {
                 return a + b;
             }
 
-        DEFINE_ALL_OPERATOR_OVERLOADS(add, +)
+        DEFINE_ALL_OPERATOR_OVERLOADS_IMPL(add, +)
 
         PROXY_IMPL(pythonic::operator_, add);
     }

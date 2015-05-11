@@ -18,6 +18,8 @@ namespace pythonic {
                 return a/b;
             }
 
+        DEFINE_ALL_OPERATOR_OVERLOADS_IMPL(div, /)
+
         PROXY_IMPL(pythonic::operator_, div);
 
     }

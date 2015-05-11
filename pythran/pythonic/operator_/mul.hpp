@@ -19,7 +19,7 @@ namespace pythonic {
                 return a*b;
             }
 
-        DEFINE_ALL_OPERATOR_OVERLOADS(mul,*)
+        DEFINE_ALL_OPERATOR_OVERLOADS_IMPL(mul, *)
 
         PROXY_IMPL(pythonic::operator_, mul);
     }

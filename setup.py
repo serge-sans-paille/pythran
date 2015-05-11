@@ -76,16 +76,14 @@ class BuildWithPly(build):
             tn.write(version)
 
     def build_nt2(self):
-        """
-        Install NT2 from the github-generated archive
-        """
+        """ Install NT2 from the github-generated archive. """
         nt2_dir = 'nt2'
         nt2_version = '1.2.3-pythran'  # fake!
         cwd = os.getcwd()
         nt2_src_dir = os.path.join(cwd, self.build_temp, nt2_dir + '_src')
         if not os.path.isdir(nt2_src_dir):
             print('nt2 archive needed, downloading it')
-            url = 'https://github.com/NumScale/nt2/archive/release.zip'
+            url = 'https://github.com/pbrunet/nt2/archive/gemv_release.zip'
             location = urlopen(url)
             zipfile = ZipFile(StringIO(location.read()))
             zipfile.extractall(self.build_temp)

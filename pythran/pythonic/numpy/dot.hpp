@@ -44,9 +44,9 @@ namespace pythonic {
                                     >::type
             dot(types::ndarray<E, 2> const& f, types::ndarray<E, 1> const& e)
             {
-                types::ndarray<E, 1> out(types::array<long, 1>{{f.shape[0]}}, __builtin__::None);
+                types::ndarray<E, 1> out(types::array<long, 1>{{f.shape()[0]}}, __builtin__::None);
                 E al = 1, be = 0;
-                const int m = f.shape[1], n = f.shape[0], inc = 1;
+                const int m = f.shape()[1], n = f.shape()[0], inc = 1;
                 nt2::details::gemv("T", &m, &n, &al, f.buffer, &m, e.buffer, &inc, &be, out.buffer, &inc);
                 return out;
             }
@@ -58,9 +58,9 @@ namespace pythonic {
                                     >::type
             dot(types::ndarray<E, 1> const& e, types::ndarray<E, 2> const& f)
             {
-                types::ndarray<E, 1> out(types::array<long, 1>{{f.shape[1]}}, __builtin__::None);
+                types::ndarray<E, 1> out(types::array<long, 1>{{f.shape()[1]}}, __builtin__::None);
                 E al = 1, be = 0;
-                const int m = f.shape[1], n = f.shape[0], inc = 1;
+                const int m = f.shape()[1], n = f.shape()[0], inc = 1;
                 nt2::details::gemv("N", &m, &n, &al, f.buffer, &m, e.buffer, &inc, &be, out.buffer, &inc);
                 return out;
             }
@@ -101,9 +101,9 @@ namespace pythonic {
                                     >::type
             dot(E const& e, F const& f)
             {
-                types::ndarray<typename __combined<typename E::dtype, typename F::dtype>::type, 1> out(types::array<long, 1>{{f.shape[1]}}, 0);
-                for(long i=0; i<out.shape[0]; i++)
-                    for(long j=0; j<f.shape[0]; j++)
+                types::ndarray<typename __combined<typename E::dtype, typename F::dtype>::type, 1> out(types::array<long, 1>{{f.shape()[1]}}, 0);
+                for(long i=0; i<out.shape()[0]; i++)
+                    for(long j=0; j<f.shape()[0]; j++)
                         out[i] += e[j] * f[types::array<long, 2>{{j, i}}];
                 return out;
             }
@@ -116,9 +116,9 @@ namespace pythonic {
                                     >::type
             dot(E const& e, F const& f)
             {
-                types::ndarray<typename __combined<typename E::dtype, typename F::dtype>::type, 1> out(types::array<long, 1>{{e.shape[0]}}, 0);
-                for(long i=0; i<out.shape[0]; i++)
-                    for(long j=0; j<f.shape[0]; j++)
+                types::ndarray<typename __combined<typename E::dtype, typename F::dtype>::type, 1> out(types::array<long, 1>{{e.shape()[0]}}, 0);
+                for(long i=0; i<out.shape()[0]; i++)
+                    for(long j=0; j<f.shape()[0]; j++)
                         out[i] += e[types::array<long, 2>{{i, j}}] * f[j];
                 return out;
             }
@@ -136,7 +136,7 @@ namespace pythonic {
             dot(types::ndarray<E, 2> const& a, types::ndarray<E, 2> const& b)
             {
                 E al = 1, be = 0;
-                int m = b.shape[1], n = a.shape[0], k = b.shape[0];
+                int m = b.shape()[1], n = a.shape()[0], k = b.shape()[0];
                 types::ndarray<E, 2> out(types::array<long, 2>{{m, n}}, __builtin__::None);
                 nt2::details::gemm("N", "N", &m, &n, &k, &al, b.buffer, &m, a.buffer, &k, &be, out.buffer, &m);
                 return out;
@@ -164,10 +164,10 @@ namespace pythonic {
                                     >::type
             dot(E const& e, F const& f)
             {
-                types::ndarray<typename __combined<typename E::dtype, typename F::dtype>::type, 2> out(types::array<long, 2>{{e.shape[0], f.shape[1]}}, 0);
-                for(long i=0; i<out.shape[0]; i++)
-                    for(long j=0; j<out.shape[1]; j++)
-                        for(long k=0; k<e.shape[1]; k++)
+                types::ndarray<typename __combined<typename E::dtype, typename F::dtype>::type, 2> out(types::array<long, 2>{{e.shape()[0], f.shape()[1]}}, 0);
+                for(long i=0; i<out.shape()[0]; i++)
+                    for(long j=0; j<out.shape()[1]; j++)
+                        for(long k=0; k<e.shape()[1]; k++)
                             out[types::array<long, 2>{{i, j}}] += e[types::array<long, 2>{{i, k}}] * f[types::array<long, 2>{{k, j}}];
                 return out;
             }

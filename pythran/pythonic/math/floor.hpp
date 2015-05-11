@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_MATH_FLOOR_HPP
 #define PYTHONIC_MATH_FLOOR_HPP
 
-#include "pythran/pythonic/include/math/floor.hpp"
+#include "pythonic/include/math/floor.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 #include <cmath>

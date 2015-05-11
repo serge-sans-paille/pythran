@@ -2,7 +2,7 @@
 #define PYTHONIC_BUILTIN_IMPORTERROR_HPP
 
 #include "pythonic/types/exceptions.hpp"
-#include "pythran/pythonic/include/__builtin__/ImportError.hpp"
+#include "pythonic/include/__builtin__/ImportError.hpp"
 
 namespace pythonic {
 

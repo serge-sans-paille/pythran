@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_MATH_SQRT_HPP
 #define PYTHONIC_MATH_SQRT_HPP
 
-#include "pythran/pythonic/include/math/sqrt.hpp"
+#include "pythonic/include/math/sqrt.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 #include <cmath>

@@ -2,7 +2,7 @@
 #define PYTHONIC_BUILTIN_VALUEERROR_HPP
 
 #include "pythonic/types/exceptions.hpp"
-#include "pythran/pythonic/include/__builtin__/ValueError.hpp"
+#include "pythonic/include/__builtin__/ValueError.hpp"
 
 namespace pythonic {
 

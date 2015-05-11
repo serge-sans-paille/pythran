@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_OPERATOR_ISUB_HPP
 #define PYTHONIC_OPERATOR_ISUB_HPP
 
-#include "pythran/pythonic/include/operator_/isub.hpp"
+#include "pythonic/include/operator_/isub.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 

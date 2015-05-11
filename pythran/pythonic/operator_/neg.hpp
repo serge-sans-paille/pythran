@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_OPERATOR_NEG_HPP
 #define PYTHONIC_OPERATOR_NEG_HPP
 
-#include "pythran/pythonic/include/operator_/neg.hpp"
+#include "pythonic/include/operator_/neg.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 

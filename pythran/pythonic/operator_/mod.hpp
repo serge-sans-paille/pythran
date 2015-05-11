@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_OPERATOR_MOD_HPP
 #define PYTHONIC_OPERATOR_MOD_HPP
 
-#include "pythran/pythonic/include/operator_/mod.hpp"
+#include "pythonic/include/operator_/mod.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/str.hpp"

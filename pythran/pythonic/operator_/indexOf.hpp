@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_OPERATOR_INDEXOF_HPP
 #define PYTHONIC_OPERATOR_INDEXOF_HPP
 
-#include "pythran/pythonic/include/operator_/indexOf.hpp"
+#include "pythonic/include/operator_/indexOf.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 

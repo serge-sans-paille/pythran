@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_MATH_SIN_HPP
 #define PYTHONIC_MATH_SIN_HPP
 
-#include "pythran/pythonic/include/math/sin.hpp"
+#include "pythonic/include/math/sin.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 #include <cmath>

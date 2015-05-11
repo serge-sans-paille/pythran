@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_OPERATOR_IAND_HPP
 #define PYTHONIC_OPERATOR_IAND_HPP
 
-#include "pythran/pythonic/include/operator_/iand.hpp"
+#include "pythonic/include/operator_/iand.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 

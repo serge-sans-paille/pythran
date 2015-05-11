@@ -2,7 +2,7 @@
 #define PYTHONIC_BUILTIN_KEYERROR_HPP
 
 #include "pythonic/types/exceptions.hpp"
-#include "pythran/pythonic/include/__builtin__/KeyError.hpp"
+#include "pythonic/include/__builtin__/KeyError.hpp"
 
 namespace pythonic {
 

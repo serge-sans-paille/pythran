@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_OPERATOR_IMOD_HPP
 #define PYTHONIC_OPERATOR_IMOD_HPP
 
-#include "pythran/pythonic/include/operator_/imod.hpp"
+#include "pythonic/include/operator_/imod.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 

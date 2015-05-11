@@ -2,7 +2,7 @@
 #define PYTHONIC_BUILTIN_INDENTATIONERROR_HPP
 
 #include "pythonic/types/exceptions.hpp"
-#include "pythran/pythonic/include/__builtin__/IndentationError.hpp"
+#include "pythonic/include/__builtin__/IndentationError.hpp"
 
 namespace pythonic {
 

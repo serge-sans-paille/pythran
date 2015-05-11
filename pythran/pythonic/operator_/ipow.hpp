@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_OPERATOR_IPOW_HPP
 #define PYTHONIC_OPERATOR_IPOW_HPP
 
-#include "pythran/pythonic/include/operator_/ipow.hpp"
+#include "pythonic/include/operator_/ipow.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/__builtin__/pow.hpp"

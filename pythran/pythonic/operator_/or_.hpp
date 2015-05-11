@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_OPERATOR_OR_HPP
 #define PYTHONIC_OPERATOR_OR_HPP
 
-#include "pythran/pythonic/include/operator_/or_.hpp"
+#include "pythonic/include/operator_/or_.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 

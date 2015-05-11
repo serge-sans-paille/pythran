@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_OPERATOR_IMUL_HPP
 #define PYTHONIC_OPERATOR_IMUL_HPP
 
-#include "pythran/pythonic/include/operator_/imul.hpp"
+#include "pythonic/include/operator_/imul.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 

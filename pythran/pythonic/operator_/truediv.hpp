@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_OPERATOR_TRUEDIV_HPP
 #define PYTHONIC_OPERATOR_TRUEDIV_HPP
 
-#include "pythran/pythonic/include/operator_/truediv.hpp"
+#include "pythonic/include/operator_/truediv.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 

@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_MATH_ASIN_HPP
 #define PYTHONIC_MATH_ASIN_HPP
 
-#include "pythran/pythonic/include/math/asin.hpp"
+#include "pythonic/include/math/asin.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 #include <cmath>

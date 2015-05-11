@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_OPERATOR_ICONCAT_HPP
 #define PYTHONIC_OPERATOR_ICONCAT_HPP
 
-#include "pythran/pythonic/include/operator_/iconcat.hpp"
+#include "pythonic/include/operator_/iconcat.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/list.hpp"

@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_OPERATOR_MUL_HPP
 #define PYTHONIC_OPERATOR_MUL_HPP
 
-#include "pythran/pythonic/include/operator_/mul.hpp"
+#include "pythonic/include/operator_/mul.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/operator_/overloads.hpp"

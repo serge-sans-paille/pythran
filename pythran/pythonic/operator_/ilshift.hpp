@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_OPERATOR_ILSHIFT_HPP
 #define PYTHONIC_OPERATOR_ILSHIFT_HPP
 
-#include "pythran/pythonic/include/operator_/ilshift.hpp"
+#include "pythonic/include/operator_/ilshift.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 

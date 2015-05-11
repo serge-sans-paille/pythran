@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_MATH_POW_HPP
 #define PYTHONIC_MATH_POW_HPP
 
-#include "pythran/pythonic/include/math/pow.hpp"
+#include "pythonic/include/math/pow.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 #include <cmath>

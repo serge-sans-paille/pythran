@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_MATH_HYPOT_HPP
 #define PYTHONIC_MATH_HYPOT_HPP
 
-#include "pythran/pythonic/include/math/hypot.hpp"
+#include "pythonic/include/math/hypot.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 #include <cmath>

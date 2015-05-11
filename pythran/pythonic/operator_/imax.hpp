@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_OPERATOR_IMAX_HPP
 #define PYTHONIC_OPERATOR_IMAX_HPP
 
-#include "pythran/pythonic/include/operator_/imax.hpp"
+#include "pythonic/include/operator_/imax.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/numpy/maximum.hpp"

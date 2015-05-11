@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_MATH_ISINF_HPP
 #define PYTHONIC_MATH_ISINF_HPP
 
-#include "pythran/pythonic/include/math/isinf.hpp"
+#include "pythonic/include/math/isinf.hpp"
 
 #include "pythonic/utils/proxy.hpp"
 #include <cmath>

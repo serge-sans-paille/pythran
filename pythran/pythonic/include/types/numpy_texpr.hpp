@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_NUMPY_TEXPR_HPP
 #define PYTHONIC_INCLUDE_TYPES_NUMPY_TEXPR_HPP
 
-#include "pythonic/types/ndarray.hpp"
+#include "pythonic/include/types/ndarray.hpp"
 
 namespace pythonic {
 

@@ -9,16 +9,16 @@ namespace pythonic {
 
     namespace __builtin__ {
 
-        namespace {
+        namespace anonymous {
             inline types::empty_set set();
 
-        template <class Iterable>
-            inline
-            types::set<typename std::remove_reference<Iterable>::type::iterator::value_type>
-            set(Iterable&& t);
+            template <class Iterable>
+                inline
+                types::set<typename std::remove_reference<Iterable>::type::iterator::value_type>
+                set(Iterable&& t);
         }
 
-        PROXY_DECL(pythonic::__builtin__,set);
+        PROXY_DECL(pythonic::__builtin__::anonymous, set);
     }
 
 }

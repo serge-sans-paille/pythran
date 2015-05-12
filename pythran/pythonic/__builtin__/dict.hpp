@@ -12,7 +12,7 @@ namespace pythonic {
 
     namespace __builtin__ {
 
-        namespace {
+        namespace anonymous {
             inline types::empty_dict dict()
             {
                 return types::empty_dict();
@@ -36,7 +36,7 @@ namespace pythonic {
                     }
         }
 
-        PROXY_IMPL(pythonic::__builtin__,dict);
+        PROXY_IMPL(pythonic::__builtin__::anonymous, dict);
 
     }
 

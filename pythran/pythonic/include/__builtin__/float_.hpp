@@ -12,22 +12,22 @@ namespace pythonic {
 
     namespace __builtin__ {
 
-        template<class T>
-            double float_(T&& t);
+        namespace anonymous {
+            template<class T>
+                double float_(T&& t);
 
-        double float_();
+            double float_();
 
 #ifdef USE_GMP
-        template<class T, class U>
-            double float_(__gmp_expr<T,U> const& a);
+            template<class T, class U>
+                double float_(__gmp_expr<T,U> const& a);
 #endif
+        }
 
-        PROXY_DECL(pythonic::__builtin__, float_);
+        PROXY_DECL(pythonic::__builtin__::anonymous, float_);
 
     }
 
 }
 
 #endif
-
-

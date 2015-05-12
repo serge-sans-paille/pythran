@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 
 def _format_cmdline(cmd):
-    """No comma when printing a command line allows for copy/paste"""
+    """No comma when printing a command line allows for copy/paste. """
     return "'" + "' '".join(cmd) + "'"
 
 
@@ -45,12 +45,17 @@ def _extract_all_constructed_types(v):
 
 
 def _extract_specs_dependencies(specs):
+    """ Extract types dependencies from specs for each exported signature. """
     deps = set()
-    for _, signatures in specs.iteritems():
-        for _, signature in enumerate(signatures):
+    # for each function
+    for signatures in specs.values():
+        # for each signature
+        for signature in signatures:
+            # for each argument
             for t in signature:
                 deps.update(pytype_to_deps(t))
-    return deps
+    # Keep "include" first
+    return sorted(deps, key=lambda x: "include" not in x)
 
 
 def _parse_optimization(optimization):

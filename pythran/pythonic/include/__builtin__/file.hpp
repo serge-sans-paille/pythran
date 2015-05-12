@@ -9,11 +9,11 @@ namespace pythonic {
 
     namespace __builtin__ {
 
-        namespace {
+        namespace anonymous {
             types::file file(types::str const& filename, types::str const& strmode="r");
         }
 
-        PROXY_DECL(pythonic::__builtin__, file);
+        PROXY_DECL(pythonic::__builtin__::anonymous, file);
 
     }
 

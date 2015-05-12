@@ -10,14 +10,14 @@ namespace pythonic {
 
     namespace __builtin__ {
 
-        namespace {
+        namespace anonymous {
             types::file file(types::str const& filename, types::str const& strmode)
             {
                 return types::file(filename, strmode);
             } 
         }
 
-        PROXY_IMPL(pythonic::__builtin__, file);
+        PROXY_IMPL(pythonic::__builtin__::anonymous, file);
 
     }
 

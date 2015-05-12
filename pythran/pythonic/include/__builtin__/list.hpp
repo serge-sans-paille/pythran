@@ -12,7 +12,7 @@ namespace pythonic {
 
     namespace __builtin__ {
 
-        namespace {
+        namespace anonymous {
 
             inline types::empty_list list();
             inline types::empty_list list(types::empty_list);
@@ -23,7 +23,7 @@ namespace pythonic {
 
         }
 
-        PROXY_DECL(pythonic::__builtin__,list);
+        PROXY_DECL(pythonic::__builtin__::anonymous ,list);
 
     }
 

@@ -17,7 +17,7 @@ namespace pythonic {
                 return {shape, __builtin__::None};
             }
 
-        template<class dtype=double>
+        template<class dtype>
             types::ndarray<dtype, 1> empty(long size, dtype d)
             {
                 return empty(types::make_tuple(size), d);

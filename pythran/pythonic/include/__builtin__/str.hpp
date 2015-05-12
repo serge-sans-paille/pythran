@@ -8,7 +8,7 @@ namespace pythonic {
 
     namespace __builtin__ {
 
-        namespace {
+        namespace anonymous {
             template <class T>
                 types::str str(T&& t);
 
@@ -16,7 +16,7 @@ namespace pythonic {
             inline types::str str(double l);
         }
 
-        PROXY_DECL(pythonic::__builtin__, str);
+        PROXY_DECL(pythonic::__builtin__::anonymous, str);
     }
 
 }

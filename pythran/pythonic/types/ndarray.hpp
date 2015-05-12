@@ -56,7 +56,7 @@ namespace pythonic {
 
     namespace types {
 
-        template<class T, size_t N>
+        template <class T, size_t N>
             typename type_helper<ndarray<T,N>>::iterator
             type_helper<ndarray<T,N>>::make_iterator(ndarray<T,N>& n, long i)
             {

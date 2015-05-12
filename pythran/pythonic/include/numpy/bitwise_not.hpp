@@ -24,7 +24,7 @@ namespace pythonic {
 }
 
 //ndarray have to be include after as bitwise_not is used as a numpy_operator
-#include"pythonic/types/ndarray.hpp"
+#include"pythonic/include/types/ndarray.hpp"
 
 #endif
 

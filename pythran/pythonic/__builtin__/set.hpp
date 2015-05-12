@@ -10,7 +10,7 @@ namespace pythonic {
 
     namespace __builtin__ {
 
-        namespace {
+        namespace anonymous {
 
             inline types::empty_set set()
             {
@@ -26,7 +26,7 @@ namespace pythonic {
                 }
         }
 
-        PROXY_IMPL(pythonic::__builtin__,set);
+        PROXY_IMPL(pythonic::__builtin__::anonymous ,set);
     }
 
 }

@@ -21,7 +21,7 @@
 #include "pythonic/types/numpy_op_helper.hpp"
 #include "pythonic/types/numpy_fexpr.hpp"
 #include "pythonic/types/numpy_expr.hpp"
-#include "pythonic/types/numpy_texpr.hpp"
+#include "pythonic/include/types/numpy_texpr.hpp"
 #include "pythonic/types/numpy_iexpr.hpp"
 #include "pythonic/types/numpy_gexpr.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
@@ -467,7 +467,7 @@ namespace std {
 }
 
 /* pythran attribute system { */
-#include "pythonic/numpy/transpose.hpp"
+#include "pythonic/include/numpy/transpose.hpp"
 namespace pythonic {
     namespace types {
         namespace __ndarray {
@@ -653,7 +653,7 @@ template<size_t N, class T, class C>
 
 /* } */
 
-#include "pythonic/types/numpy_operators.hpp"
+#include "pythonic/include/types/numpy_operators.hpp"
 
 #ifdef ENABLE_PYTHON_MODULE
 #include "pythonic/python/register_once.hpp"

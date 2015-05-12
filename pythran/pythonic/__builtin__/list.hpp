@@ -1,10 +1,10 @@
 #ifndef PYTHONIC_BUILTIN_LIST_HPP
 #define PYTHONIC_BUILTIN_LIST_HPP
 
-#include "pythonic/types/list.hpp"
-
-#include "pythonic/utils/proxy.hpp"
 #include "pythonic/include/__builtin__/list.hpp"
+
+#include "pythonic/types/list.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 #include <iterator>
 #include <type_traits>
@@ -13,12 +13,13 @@ namespace pythonic {
 
     namespace __builtin__ {
 
-        namespace {
+        namespace anonymous {
 
             inline types::empty_list list()
             {
                 return types::empty_list();
             }
+
             inline types::empty_list list(types::empty_list)
             {
                 return types::empty_list();
@@ -33,7 +34,7 @@ namespace pythonic {
 
         }
 
-        PROXY_IMPL(pythonic::__builtin__,list);
+        PROXY_IMPL(pythonic::__builtin__::anonymous, list);
 
     }
 

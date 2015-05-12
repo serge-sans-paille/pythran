@@ -9,7 +9,7 @@ namespace pythonic {
 
     namespace __builtin__ {
 
-        namespace {
+        namespace anonymous {
             inline types::empty_dict dict();
 
             template<class Iterable>
@@ -21,7 +21,7 @@ namespace pythonic {
                     dict(Iterable&& iterable);
         }
 
-        PROXY_DECL(pythonic::__builtin__, dict);
+        PROXY_DECL(pythonic::__builtin__::anonymous, dict);
 
     }
 

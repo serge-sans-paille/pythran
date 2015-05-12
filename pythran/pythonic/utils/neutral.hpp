@@ -4,4 +4,3 @@
 #include "pythonic/include/utils/neutral.hpp"
 
 #endif
-

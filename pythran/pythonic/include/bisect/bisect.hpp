@@ -3,16 +3,16 @@
 
 #include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace bisect {
-        template <class X, class A>
-            size_t bisect(X const& x, A const& a, long lo=0, long hi=-1);
+  namespace bisect
+  {
+    template <class X, class A>
+    size_t bisect(X const &x, A const &a, long lo = 0, long hi = -1);
 
-        PROXY_DECL(pythonic::bisect, bisect);
-
-    }
-
+    PROXY_DECL(pythonic::bisect, bisect);
+  }
 }
 
 #endif

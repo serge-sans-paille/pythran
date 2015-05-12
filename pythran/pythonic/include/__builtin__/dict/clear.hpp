@@ -3,18 +3,20 @@
 
 #include "pythonic/__dispatch__/clear.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        namespace dict {
+    namespace dict
+    {
 
-            ALIAS_DECL(clear, pythonic::__dispatch__::clear);
+      ALIAS_DECL(clear, pythonic::__dispatch__::clear);
 
-            PROXY_DECL(pythonic::__builtin__::dict, clear);
-        }
+      PROXY_DECL(pythonic::__builtin__::dict, clear);
     }
+  }
 }
 
 #endif
-

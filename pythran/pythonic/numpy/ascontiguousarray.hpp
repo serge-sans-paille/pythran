@@ -5,14 +5,14 @@
 
 #include "pythonic/numpy/asarray.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
+  namespace numpy
+  {
 
-        FPROXY_IMPL(pythonic::numpy, ascontiguousarray, asarray);
-
-    }
-
+    FPROXY_IMPL(pythonic::numpy, ascontiguousarray, asarray);
+  }
 }
 
 #endif

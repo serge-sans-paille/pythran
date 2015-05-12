@@ -3,17 +3,18 @@
 
 #include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        template <class T>
-            typename std::remove_reference<decltype(*std::declval<T>())>::type
-            next(T&& y);
+    template <class T>
+    typename std::remove_reference<decltype(*std::declval<T>())>::type
+    next(T &&y);
 
-        PROXY_DECL(pythonic::__builtin__, next);
-    }
-
+    PROXY_DECL(pythonic::__builtin__, next);
+  }
 }
 
 #endif

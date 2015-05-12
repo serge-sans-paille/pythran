@@ -3,10 +3,10 @@
 
 #include "pythonic/types/str.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    void pythran_assert(bool cond, types::str const& what="");
-
+  void pythran_assert(bool cond, types::str const &what = "");
 }
 
 #endif

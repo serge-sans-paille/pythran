@@ -4,18 +4,18 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/list.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        template<class F, class Iterable>
-            types::list<typename Iterable::iterator::value_type>
-            filter(F const& f, Iterable const& iterable);
+    template <class F, class Iterable>
+    types::list<typename Iterable::iterator::value_type>
+    filter(F const &f, Iterable const &iterable);
 
-        PROXY_DECL(pythonic::__builtin__, filter);
-
-    }
-
+    PROXY_DECL(pythonic::__builtin__, filter);
+  }
 }
 
 #endif

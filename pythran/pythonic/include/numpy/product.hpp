@@ -3,13 +3,13 @@
 
 #include "pythonic/numpy/prod.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
-        FPROXY_DECL(pythonic::numpy, product, prod);
-
-    }
-
+  namespace numpy
+  {
+    FPROXY_DECL(pythonic::numpy, product, prod);
+  }
 }
 
 #endif

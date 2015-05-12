@@ -6,40 +6,40 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/include/__builtin__/id.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        template <class T>
-            intptr_t id(T const & t)
-            {
-                return t.id();
-            }
-
-        intptr_t id(pythran_long_t const &t)
-        {
-            return reinterpret_cast<intptr_t>(&t);
-        }
-
-        intptr_t id(long const &t)
-        {
-            return reinterpret_cast<intptr_t>(&t);
-        }
-
-        intptr_t id(double const &t)
-        {
-            return reinterpret_cast<intptr_t>(&t);
-        }
-
-        intptr_t id(bool const &t)
-        {
-            return reinterpret_cast<intptr_t>(&t);
-        }
-
-        PROXY_IMPL(pythonic::__builtin__, id);
-
+    template <class T>
+    intptr_t id(T const &t)
+    {
+      return t.id();
     }
 
+    intptr_t id(pythran_long_t const &t)
+    {
+      return reinterpret_cast<intptr_t>(&t);
+    }
+
+    intptr_t id(long const &t)
+    {
+      return reinterpret_cast<intptr_t>(&t);
+    }
+
+    intptr_t id(double const &t)
+    {
+      return reinterpret_cast<intptr_t>(&t);
+    }
+
+    intptr_t id(bool const &t)
+    {
+      return reinterpret_cast<intptr_t>(&t);
+    }
+
+    PROXY_IMPL(pythonic::__builtin__, id);
+  }
 }
 
 #endif

@@ -6,19 +6,21 @@
 
 #include <algorithm>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace bisect {
-        template <class X, class A>
-            size_t bisect_left(X const& x, A const& a, long lo, long hi) {
-                if(hi<0) hi = x.end() - x.begin();
-                return std::lower_bound(x.begin()+lo, x.begin()+hi, a) - x.begin();
-            }
-
-        PROXY_IMPL(pythonic::bisect, bisect_left);
-
+  namespace bisect
+  {
+    template <class X, class A>
+    size_t bisect_left(X const &x, A const &a, long lo, long hi)
+    {
+      if (hi < 0)
+        hi = x.end() - x.begin();
+      return std::lower_bound(x.begin() + lo, x.begin() + hi, a) - x.begin();
     }
 
+    PROXY_IMPL(pythonic::bisect, bisect_left);
+  }
 }
 
 #endif

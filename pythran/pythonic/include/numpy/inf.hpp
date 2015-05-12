@@ -2,14 +2,14 @@
 #define PYTHONIC_INCLUDE_NUMPY_INF_HPP
 #include <limits>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
+  namespace numpy
+  {
 
-        double const inf = std::numeric_limits<double>::infinity();
-
-    }
-
+    double const inf = std::numeric_limits<double>::infinity();
+  }
 }
 
 #endif

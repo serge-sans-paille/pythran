@@ -5,14 +5,14 @@
 
 #include "pythonic/numpy/prod.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
+  namespace numpy
+  {
 
-        FPROXY_IMPL(pythonic::numpy, product, prod);
-
-    }
-
+    FPROXY_IMPL(pythonic::numpy, product, prod);
+  }
 }
 
 #endif

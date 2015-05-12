@@ -6,31 +6,29 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/set.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace set {
+    namespace set
+    {
 
-            template<class T, class U>
-                bool
-                isdisjoint(types::set<T> const& calling_set, U const& arg_set)
-                {
-                    return calling_set.isdisjoint(arg_set);
-                }
+      template <class T, class U>
+      bool isdisjoint(types::set<T> const &calling_set, U const &arg_set)
+      {
+        return calling_set.isdisjoint(arg_set);
+      }
 
-            template<class U>
-                bool
-                isdisjoint(types::empty_set const& calling_set, U const& arg_set)
-                {
-                    return true;
-                }
+      template <class U>
+      bool isdisjoint(types::empty_set const &calling_set, U const &arg_set)
+      {
+        return true;
+      }
 
-            PROXY_IMPL(pythonic::__builtin__::set, isdisjoint);
-
-        }
-
+      PROXY_IMPL(pythonic::__builtin__::set, isdisjoint);
     }
-
+  }
 }
-#endif 
+#endif

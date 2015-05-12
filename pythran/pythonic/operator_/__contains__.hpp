@@ -5,14 +5,14 @@
 
 #include "pythonic/operator_/contains.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
+  namespace operator_
+  {
 
-        FPROXY_IMPL(pythonic::operator_, __contains__, contains);
-
-    }
-
+    FPROXY_IMPL(pythonic::operator_, __contains__, contains);
+  }
 }
 
 #endif

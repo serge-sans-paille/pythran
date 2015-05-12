@@ -6,17 +6,18 @@
 #include <omp.h>
 #include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace omp {
-        long get_wtick()
-        {
-            return omp_get_wtick();
-        }
-
-        PROXY_IMPL(pythonic::omp, get_wtick);
+  namespace omp
+  {
+    long get_wtick()
+    {
+      return omp_get_wtick();
     }
 
+    PROXY_IMPL(pythonic::omp, get_wtick);
+  }
 }
 
 #endif

@@ -5,19 +5,20 @@
 
 #include "pythonic/include/__builtin__/list/count.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace list {
+    namespace list
+    {
 
-            ALIAS(count, pythonic::__dispatch__::count);
+      ALIAS(count, pythonic::__dispatch__::count);
 
-            PROXY_IMPL(pythonic::__builtin__::list, count);
-        }
-
+      PROXY_IMPL(pythonic::__builtin__::list, count);
     }
-
+  }
 }
 
 #endif

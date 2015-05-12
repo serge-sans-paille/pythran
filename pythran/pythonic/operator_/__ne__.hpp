@@ -5,14 +5,13 @@
 
 #include "pythonic/operator_/ne.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
-        FPROXY_IMPL(pythonic::operator_, __ne__, ne);
-
-    }
-
+  namespace operator_
+  {
+    FPROXY_IMPL(pythonic::operator_, __ne__, ne);
+  }
 }
 
 #endif
-

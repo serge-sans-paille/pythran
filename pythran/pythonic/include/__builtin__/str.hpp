@@ -4,21 +4,23 @@
 #include "pythonic/types/str.hpp"
 #include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        namespace anonymous {
-            template <class T>
-                types::str str(T&& t);
+    namespace anonymous
+    {
+      template <class T>
+      types::str str(T &&t);
 
-            inline types::str str(long value);
-            inline types::str str(double l);
-        }
-
-        PROXY_DECL(pythonic::__builtin__::anonymous, str);
+      inline types::str str(long value);
+      inline types::str str(double l);
     }
 
+    PROXY_DECL(pythonic::__builtin__::anonymous, str);
+  }
 }
 
 #endif

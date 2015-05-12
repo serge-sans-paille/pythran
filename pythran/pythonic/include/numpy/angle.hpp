@@ -5,21 +5,21 @@
 #include "pythonic/numpy/angle_in_rad.hpp"
 #include "pythonic/types/assignable.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
-        template<class T>
-            auto angle(T const& t, bool in_deg)
-            -> typename assignable<decltype(proxy::angle_in_rad()(t))>::type;
+  namespace numpy
+  {
+    template <class T>
+    auto angle(T const &t, bool in_deg) ->
+        typename assignable<decltype(proxy::angle_in_rad()(t))>::type;
 
-        // Numpy_expr can be use if only the first argument is given.
-        template<class T>
-            auto angle(T const& t) -> decltype(proxy::angle_in_rad()(t));
+    // Numpy_expr can be use if only the first argument is given.
+    template <class T>
+    auto angle(T const &t) -> decltype(proxy::angle_in_rad()(t));
 
-        PROXY_DECL(pythonic::numpy, angle);
-
-    }
-
+    PROXY_DECL(pythonic::numpy, angle);
+  }
 }
 
 #endif

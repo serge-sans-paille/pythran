@@ -5,19 +5,20 @@
 
 #include "pythonic/numpy/arange.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
-        types::ndarray<double, 1> linspace(double start, double stop, long num, bool endpoint)
-        {
-            double step = (stop - start) / (num - (endpoint?1:0)) ;
-            return arange(start, stop + (endpoint?step*.5:0), step);
-        }
-
-        PROXY_IMPL(pythonic::numpy, linspace);
-
+  namespace numpy
+  {
+    types::ndarray<double, 1> linspace(double start, double stop, long num,
+                                       bool endpoint)
+    {
+      double step = (stop - start) / (num - (endpoint ? 1 : 0));
+      return arange(start, stop + (endpoint ? step * .5 : 0), step);
     }
 
+    PROXY_IMPL(pythonic::numpy, linspace);
+  }
 }
 
 #endif

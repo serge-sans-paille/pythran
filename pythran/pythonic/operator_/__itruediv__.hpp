@@ -5,14 +5,13 @@
 
 #include "pythonic/operator_/itruediv.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
-        FPROXY_IMPL(pythonic::operator_, __itruediv__, itruediv);
-
-    }
-
+  namespace operator_
+  {
+    FPROXY_IMPL(pythonic::operator_, __itruediv__, itruediv);
+  }
 }
 
 #endif
-

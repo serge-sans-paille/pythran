@@ -6,29 +6,29 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/set.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace set {
+    namespace set
+    {
 
-            template<class T, class U>
-                bool issuperset(types::set<T> const& set, U const& other)
-                {
-                    return set.issuperset(other);
-                }
+      template <class T, class U>
+      bool issuperset(types::set<T> const &set, U const &other)
+      {
+        return set.issuperset(other);
+      }
 
-            template<class U>
-                bool issuperset(types::empty_set const& set, U const& other)
-                {
-                    return false;
-                }
+      template <class U>
+      bool issuperset(types::empty_set const &set, U const &other)
+      {
+        return false;
+      }
 
-            PROXY_IMPL(pythonic::__builtin__::set, issuperset);
-
-        }
-
+      PROXY_IMPL(pythonic::__builtin__::set, issuperset);
     }
-
+  }
 }
-#endif 
+#endif

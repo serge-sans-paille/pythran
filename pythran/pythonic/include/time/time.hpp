@@ -5,16 +5,16 @@
 
 #include <sys/time.h>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace time {
+  namespace time
+  {
 
-        double time();
+    double time();
 
-        PROXY_DECL(pythonic::time, time)
-
-    }
-
+    PROXY_DECL(pythonic::time, time)
+  }
 }
 
 #endif

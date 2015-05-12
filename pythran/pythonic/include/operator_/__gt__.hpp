@@ -3,14 +3,13 @@
 
 #include "pythonic/operator_/gt.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
-        FPROXY_DECL(pythonic::operator_, __gt__, gt);
-
-    }
-
+  namespace operator_
+  {
+    FPROXY_DECL(pythonic::operator_, __gt__, gt);
+  }
 }
 
 #endif
-

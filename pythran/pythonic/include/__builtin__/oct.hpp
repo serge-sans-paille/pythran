@@ -4,16 +4,16 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/str.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
-        template <class T>
-            types::str oct(T const & v);
+  namespace __builtin__
+  {
+    template <class T>
+    types::str oct(T const &v);
 
-        PROXY_DECL(pythonic::__builtin__, oct);
-
-    }
-
+    PROXY_DECL(pythonic::__builtin__, oct);
+  }
 }
 
 #endif

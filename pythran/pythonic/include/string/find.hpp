@@ -4,17 +4,17 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/str.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace string {
+  namespace string
+  {
 
-        template<class T>
-            long find(types::str const& s, T&& val);
+    template <class T>
+    long find(types::str const &s, T &&val);
 
-        PROXY_DECL(pythonic::string, find);
-
-    }
-
+    PROXY_DECL(pythonic::string, find);
+  }
 }
 
 #endif

@@ -4,15 +4,15 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/__builtin__/None.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace time {
-        types::none_type sleep(double const value);
+  namespace time
+  {
+    types::none_type sleep(double const value);
 
-        PROXY_DECL(pythonic::time, sleep)
-
-    }
-
+    PROXY_DECL(pythonic::time, sleep)
+  }
 }
 
 #endif

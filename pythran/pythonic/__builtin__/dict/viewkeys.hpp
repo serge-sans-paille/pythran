@@ -5,23 +5,24 @@
 #include "pythonic/types/dict.hpp"
 #include "pythonic/include/__builtin__/dict/viewkeys.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        namespace dict {
+    namespace dict
+    {
 
-            template<class K, class V>
-                types::dict_keys<types::dict<K,V>> viewkeys(types::dict<K,V> const &d)
-                {
-                    return d.viewkeys();
-                }
+      template <class K, class V>
+      types::dict_keys<types::dict<K, V>> viewkeys(types::dict<K, V> const &d)
+      {
+        return d.viewkeys();
+      }
 
-            PROXY_IMPL(pythonic::__builtin__::dict, viewkeys);
-        }
-
+      PROXY_IMPL(pythonic::__builtin__::dict, viewkeys);
     }
-
+  }
 }
 
 #endif

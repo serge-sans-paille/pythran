@@ -4,14 +4,13 @@
 #include "pythonic/utils/proxy.hpp"
 #include <cmath>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace math {
-        double constexpr e = std::exp(1);
-
-    }
-
+  namespace math
+  {
+    double constexpr e = std::exp(1);
+  }
 }
 
 #endif
-

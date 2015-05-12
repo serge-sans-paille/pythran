@@ -3,14 +3,13 @@
 
 #include "pythonic/operator_/pos.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
-        FPROXY_DECL(pythonic::operator_, __pos__, pos);
-
-    }
-
+  namespace operator_
+  {
+    FPROXY_DECL(pythonic::operator_, __pos__, pos);
+  }
 }
 
 #endif
-

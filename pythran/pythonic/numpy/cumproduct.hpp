@@ -5,14 +5,14 @@
 
 #include "pythonic/numpy/cumprod.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
+  namespace numpy
+  {
 
-        FPROXY_IMPL(pythonic::numpy, cumproduct, cumprod);
-
-    }
-
+    FPROXY_IMPL(pythonic::numpy, cumproduct, cumprod);
+  }
 }
 
 #endif

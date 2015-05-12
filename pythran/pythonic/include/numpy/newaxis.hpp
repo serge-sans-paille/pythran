@@ -3,14 +3,14 @@
 
 #include "pythonic/types/none.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
+  namespace numpy
+  {
 
-        auto const& newaxis = __builtin__::None;
-
-    }
-
+    auto const &newaxis = __builtin__::None;
+  }
 }
 
 #endif

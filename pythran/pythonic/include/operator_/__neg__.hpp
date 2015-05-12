@@ -3,14 +3,13 @@
 
 #include "pythonic/operator_/neg.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
-        FPROXY_DECL(pythonic::operator_, __neg__, neg);
-
-    }
-
+  namespace operator_
+  {
+    FPROXY_DECL(pythonic::operator_, __neg__, neg);
+  }
 }
 
 #endif
-

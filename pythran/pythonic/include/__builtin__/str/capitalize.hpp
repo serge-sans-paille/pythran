@@ -4,19 +4,19 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/str.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace str {
+    namespace str
+    {
 
-            types::str capitalize(types::str const & s);
+      types::str capitalize(types::str const &s);
 
-            PROXY_DECL(pythonic::__builtin__::str, capitalize);
-
-        }
-
+      PROXY_DECL(pythonic::__builtin__::str, capitalize);
     }
-
+  }
 }
 #endif

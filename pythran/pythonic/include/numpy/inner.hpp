@@ -3,14 +3,14 @@
 
 #include "pythonic/numpy/dot.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
+  namespace numpy
+  {
 
-        FPROXY_DECL(pythonic::numpy, inner, dot);
-
-    }
-
+    FPROXY_DECL(pythonic::numpy, inner, dot);
+  }
 }
 
 #endif

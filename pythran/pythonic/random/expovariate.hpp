@@ -6,18 +6,18 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/random/random.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace random {
-        double expovariate(double l)
-        {
-            return std::exponential_distribution<>(l)(__random_generator);
-        }
-
-        PROXY_IMPL(pythonic::random, expovariate);
-
+  namespace random
+  {
+    double expovariate(double l)
+    {
+      return std::exponential_distribution<>(l)(__random_generator);
     }
 
+    PROXY_IMPL(pythonic::random, expovariate);
+  }
 }
 
 #endif

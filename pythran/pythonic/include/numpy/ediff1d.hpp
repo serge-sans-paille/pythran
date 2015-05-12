@@ -3,21 +3,21 @@
 
 #include "pythonic/numpy/asarray.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
-        template<class E>
-            types::ndarray<typename types::numpy_expr_to_ndarray<E>::T, 1>
-            ediff1d(E const& expr);
+  namespace numpy
+  {
+    template <class E>
+    types::ndarray<typename types::numpy_expr_to_ndarray<E>::T, 1>
+    ediff1d(E const &expr);
 
-        template<class E>
-            auto ediff1d(types::list<E> const & expr)
-            -> decltype(ediff1d(asarray(expr)));
+    template <class E>
+    auto ediff1d(types::list<E> const &expr)
+        -> decltype(ediff1d(asarray(expr)));
 
-        PROXY_DECL(pythonic::numpy, ediff1d);
-
-    }
-
+    PROXY_DECL(pythonic::numpy, ediff1d);
+  }
 }
 
 #endif

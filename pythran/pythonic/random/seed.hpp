@@ -9,25 +9,25 @@
 
 #include <ctime>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace random {
-        types::none_type seed(long s)
-        {
-            __random_generator.seed(s);
-            return __builtin__::None;
-        }
-
-        types::none_type seed()
-        {
-            __random_generator.seed(time(nullptr));
-            return __builtin__::None;
-        }
-
-        PROXY_IMPL(pythonic::random, seed);
-
+  namespace random
+  {
+    types::none_type seed(long s)
+    {
+      __random_generator.seed(s);
+      return __builtin__::None;
     }
 
+    types::none_type seed()
+    {
+      __random_generator.seed(time(nullptr));
+      return __builtin__::None;
+    }
+
+    PROXY_IMPL(pythonic::random, seed);
+  }
 }
 
 #endif

@@ -4,16 +4,16 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
-        template<class T>
-            long alen(T&& expr);
+  namespace numpy
+  {
+    template <class T>
+    long alen(T &&expr);
 
-        PROXY_DECL(pythonic::numpy, alen);
-
-    }
-
+    PROXY_DECL(pythonic::numpy, alen);
+  }
 }
 
 #endif

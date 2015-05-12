@@ -6,25 +6,24 @@
 #include "pythonic/utils/numpy_traits.hpp"
 #include "pythonic/types/numpy_op_helper.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
+  namespace numpy
+  {
 
-        namespace details {
+    namespace details
+    {
 
-            uint64_t uint64();
-            template<class V>
-                uint64_t uint64(V v);
-        }
+      uint64_t uint64();
+      template <class V>
+      uint64_t uint64(V v);
+    }
 
 #define NUMPY_NARY_FUNC_NAME uint64
 #define NUMPY_NARY_FUNC_SYM details::uint64
 #include "pythonic/include/types/numpy_nary_expr.hpp"
-
-
-    }
-
+  }
 }
 
 #endif
-

@@ -6,21 +6,22 @@
 #include "pythonic/types/str.hpp"
 #include "pythonic/include/__builtin__/file.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        namespace anonymous {
-            types::file file(types::str const& filename, types::str const& strmode)
-            {
-                return types::file(filename, strmode);
-            } 
-        }
-
-        PROXY_IMPL(pythonic::__builtin__::anonymous, file);
-
+    namespace anonymous
+    {
+      types::file file(types::str const &filename, types::str const &strmode)
+      {
+        return types::file(filename, strmode);
+      }
     }
 
+    PROXY_IMPL(pythonic::__builtin__::anonymous, file);
+  }
 }
 
 #endif

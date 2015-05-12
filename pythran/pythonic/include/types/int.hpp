@@ -2,6 +2,6 @@
 #define PYTHONIC_INCLUDE_TYPES_INT_HPP
 
 template <int I>
-    long getattr( long const & );
+long getattr(long const &);
 
 #endif

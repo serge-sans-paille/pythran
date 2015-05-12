@@ -32,6 +32,8 @@ namespace pythonic
       return zeros(types::make_tuple(size), d);
     }
 
+    PROXY_IMPL(pythonic::numpy, zeros);
+  }
 }
 
 #endif

@@ -3,14 +3,14 @@
 
 #include "pythonic/types/exceptions.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        PYTHONIC_EXCEPTION_DECL(BytesWarning)
-
-    }
-
+    PYTHONIC_EXCEPTION_DECL(BytesWarning)
+  }
 }
 
 #endif

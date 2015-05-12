@@ -4,14 +4,14 @@
 #include "pythonic/types/exceptions.hpp"
 #include "pythonic/include/__builtin__/ArithmeticError.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        PYTHONIC_EXCEPTION_IMPL(ArithmeticError)
-
-    }
-
+    PYTHONIC_EXCEPTION_IMPL(ArithmeticError)
+  }
 }
 
 #endif

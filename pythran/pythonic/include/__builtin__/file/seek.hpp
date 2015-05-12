@@ -4,22 +4,22 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/file.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace file {
+    namespace file
+    {
 
-            void seek(types::file &f, long offset);
-            void seek(types::file &&f, long offset);
-            void seek(types::file &f, long offset, long whence);
-            void seek(types::file &&f, long offset, long whence);
+      void seek(types::file &f, long offset);
+      void seek(types::file &&f, long offset);
+      void seek(types::file &f, long offset, long whence);
+      void seek(types::file &&f, long offset, long whence);
 
-            PROXY_DECL(pythonic::__builtin__::file, seek);
-
-        }
-
+      PROXY_DECL(pythonic::__builtin__::file, seek);
     }
-
+  }
 }
 #endif

@@ -6,15 +6,14 @@
 
 #include <cmath>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace math {
-        std::tuple<double,long> frexp(double x);
-        PROXY_DECL(pythonic::math,frexp);
-
-    }
-
+  namespace math
+  {
+    std::tuple<double, long> frexp(double x);
+    PROXY_DECL(pythonic::math, frexp);
+  }
 }
 
 #endif
-

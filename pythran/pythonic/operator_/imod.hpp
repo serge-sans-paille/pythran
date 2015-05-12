@@ -5,19 +5,20 @@
 
 #include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
+  namespace operator_
+  {
 
-        template <class A, class B>
-            A imod(A a, B const& b)
-            {
-                return a%=b;
-            }
-
-        PROXY_IMPL(pythonic::operator_, imod);
+    template <class A, class B>
+    A imod(A a, B const &b)
+    {
+      return a %= b;
     }
 
+    PROXY_IMPL(pythonic::operator_, imod);
+  }
 }
 
 #endif

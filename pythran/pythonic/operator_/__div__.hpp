@@ -5,14 +5,14 @@
 
 #include "pythonic/operator_/div.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
+  namespace operator_
+  {
 
-        FPROXY_IMPL(pythonic::operator_, __div__, div);
-
-    }
-
+    FPROXY_IMPL(pythonic::operator_, __div__, div);
+  }
 }
 
 #endif

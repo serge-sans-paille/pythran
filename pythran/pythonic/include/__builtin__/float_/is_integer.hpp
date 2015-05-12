@@ -3,19 +3,20 @@
 
 #include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        namespace float_ {
+    namespace float_
+    {
 
-            bool is_integer(double d);
+      bool is_integer(double d);
 
-            PROXY_DECL(pythonic::__builtin__::float_, is_integer);
-
-        }
+      PROXY_DECL(pythonic::__builtin__::float_, is_integer);
     }
-
+  }
 }
 
 #endif

@@ -5,17 +5,20 @@
 
 #include "pythonic/__dispatch__/pop.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        namespace dict {
+    namespace dict
+    {
 
-            ALIAS_DECL(pop, pythonic::__dispatch__::pop);
+      ALIAS_DECL(pop, pythonic::__dispatch__::pop);
 
-            PROXY_DECL(pythonic::__builtin__::dict, pop);
-        }
+      PROXY_DECL(pythonic::__builtin__::dict, pop);
     }
+  }
 }
 
 #endif

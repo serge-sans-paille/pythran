@@ -5,22 +5,24 @@
 #include "pythonic/utils/numpy_conversion.hpp"
 #include "pythonic/types/ndarray.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
-        template<class T, size_t N, size_t M>
-            types::ndarray<T, M> reshape( types::ndarray<T,N> const& expr, types::array<long, M> const& new_shape);
+  namespace numpy
+  {
+    template <class T, size_t N, size_t M>
+    types::ndarray<T, M> reshape(types::ndarray<T, N> const &expr,
+                                 types::array<long, M> const &new_shape);
 
-        template<class T, size_t N, class...S>
-          auto reshape(types::ndarray<T,N> const& expr, S &&... indices)
-          -> decltype(reshape(expr, types::array<long, sizeof...(S)>{{std::forward<S>(indices)...}}));
+    template <class T, size_t N, class... S>
+    auto reshape(types::ndarray<T, N> const &expr, S &&... indices)
+        -> decltype(reshape(expr, types::array<long, sizeof...(S)>{
+                                      {std::forward<S>(indices)...}}));
 
-        NUMPY_EXPR_TO_NDARRAY0_DECL(reshape);
+    NUMPY_EXPR_TO_NDARRAY0_DECL(reshape);
 
-        PROXY_DECL(pythonic::numpy, reshape);
-
-    }
-
+    PROXY_DECL(pythonic::numpy, reshape);
+  }
 }
 
 #endif

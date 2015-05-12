@@ -4,17 +4,17 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
-        template<class E>
-            auto real(E&& expr)
-            -> decltype(__builtin__::getattr<types::attr::REAL>(std::forward<E>(expr)));
+  namespace numpy
+  {
+    template <class E>
+    auto real(E &&expr) -> decltype(
+        __builtin__::getattr<types::attr::REAL>(std::forward<E>(expr)));
 
-        PROXY_DECL(pythonic::numpy, real);
-
-    }
-
+    PROXY_DECL(pythonic::numpy, real);
+  }
 }
 
 #endif

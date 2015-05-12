@@ -4,4 +4,3 @@
 #include "pythonic/include/types/combined.hpp"
 
 #endif
-

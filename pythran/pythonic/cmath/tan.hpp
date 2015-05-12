@@ -5,14 +5,14 @@
 #include "pythonic/utils/proxy.hpp"
 #include <cmath>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace cmath {
-        ALIAS(tan, std::tan);
-        PROXY_IMPL(pythonic::cmath, tan);
-    }
-
+  namespace cmath
+  {
+    ALIAS(tan, std::tan);
+    PROXY_IMPL(pythonic::cmath, tan);
+  }
 }
 
 #endif
-

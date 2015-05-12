@@ -5,18 +5,18 @@
 
 #include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
-        double double_()
-        {
-            return double();
-        }
-
-        PROXY_IMPL(pythonic::numpy, double_);
-
+  namespace numpy
+  {
+    double double_()
+    {
+      return double();
     }
 
+    PROXY_IMPL(pythonic::numpy, double_);
+  }
 }
 
 #endif

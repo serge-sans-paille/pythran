@@ -4,15 +4,15 @@
 #include "pythonic/include/types/int.hpp"
 
 template <>
-    long getattr<0>( long const & l)
-    {
-        return l;
-    }
+long getattr<0>(long const &l)
+{
+  return l;
+}
 
 template <>
-    long getattr<1>( long const & )
-    {
-        return 0L;
-    }
+long getattr<1>(long const &)
+{
+  return 0L;
+}
 
 #endif

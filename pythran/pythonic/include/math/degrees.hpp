@@ -4,18 +4,17 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/math/pi.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace math {
+  namespace math
+  {
 
-        template<class T>
-            double degrees(T x);
+    template <class T>
+    double degrees(T x);
 
-        PROXY_DECL(pythonic::math,degrees);
-
-    }
-
+    PROXY_DECL(pythonic::math, degrees);
+  }
 }
 
 #endif
-

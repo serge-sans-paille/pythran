@@ -6,22 +6,23 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/str.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace str {
+    namespace str
+    {
 
-            types::str lstrip(types::str const& self, types::str const& to_del)
-            {
-                return types::str(self.begin() + self.find_first_not_of(to_del), self.end());
-            }
+      types::str lstrip(types::str const &self, types::str const &to_del)
+      {
+        return types::str(self.begin() + self.find_first_not_of(to_del),
+                          self.end());
+      }
 
-            PROXY_IMPL(pythonic::__builtin__::str, lstrip);
-        }
-
+      PROXY_IMPL(pythonic::__builtin__::str, lstrip);
     }
-
+  }
 }
 #endif
-

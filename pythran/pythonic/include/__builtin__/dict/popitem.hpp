@@ -5,20 +5,21 @@
 #include "pythonic/types/dict.hpp"
 #include "pythonic/types/tuple.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        namespace dict {
+    namespace dict
+    {
 
-            template<class K, class V>
-                std::tuple<K,V> popitem(types::dict<K,V> d);
+      template <class K, class V>
+      std::tuple<K, V> popitem(types::dict<K, V> d);
 
-            PROXY_DECL(pythonic::__builtin__::dict, popitem);
-        }
-
+      PROXY_DECL(pythonic::__builtin__::dict, popitem);
     }
-
+  }
 }
 
 #endif

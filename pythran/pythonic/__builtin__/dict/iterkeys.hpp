@@ -5,22 +5,23 @@
 #include "pythonic/types/dict.hpp"
 #include "pythonic/include/__builtin__/dict/iterkeys.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        namespace dict {
-            template<class K, class V>
-                auto iterkeys(types::dict<K,V> d) -> decltype(d.iterkeys())
-                {
-                    return d.iterkeys();
-                }
+    namespace dict
+    {
+      template <class K, class V>
+      auto iterkeys(types::dict<K, V> d) -> decltype(d.iterkeys())
+      {
+        return d.iterkeys();
+      }
 
-            PROXY_IMPL(pythonic::__builtin__::dict, iterkeys);
-        }
-
+      PROXY_IMPL(pythonic::__builtin__::dict, iterkeys);
     }
-
+  }
 }
 
 #endif

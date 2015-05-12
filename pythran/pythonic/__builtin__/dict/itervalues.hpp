@@ -5,23 +5,24 @@
 #include "pythonic/types/dict.hpp"
 #include "pythonic/include/__builtin__/dict/itervalues.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        namespace dict {
+    namespace dict
+    {
 
-            template<class K, class V>
-                auto itervalues(types::dict<K,V> d) -> decltype(d.itervalues())
-                {
-                    return d.itervalues();
-                }
+      template <class K, class V>
+      auto itervalues(types::dict<K, V> d) -> decltype(d.itervalues())
+      {
+        return d.itervalues();
+      }
 
-            PROXY_IMPL(pythonic::__builtin__::dict, itervalues);
-        }
-
+      PROXY_IMPL(pythonic::__builtin__::dict, itervalues);
     }
-
+  }
 }
 
 #endif

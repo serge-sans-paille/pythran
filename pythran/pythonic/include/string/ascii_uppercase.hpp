@@ -3,11 +3,13 @@
 
 #include "pythonic/types/str.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace string {
-        types::str constexpr ascii_uppercase("ABCDEFGHIJKLMNOPQRSTUVWXYZ"); 
-    }
+  namespace string
+  {
+    types::str constexpr ascii_uppercase("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+  }
 }
 
 #endif

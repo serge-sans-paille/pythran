@@ -3,5 +3,4 @@
 
 #include "pythonic/include/itertools/common.hpp"
 
-
 #endif

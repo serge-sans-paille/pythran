@@ -3,16 +3,16 @@
 
 #include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
-        template <class Iterable>
-            bool any(Iterable && s);
+  namespace __builtin__
+  {
+    template <class Iterable>
+    bool any(Iterable &&s);
 
-        PROXY_DECL(pythonic::__builtin__, any);
-
-    }
-
+    PROXY_DECL(pythonic::__builtin__, any);
+  }
 }
 
 #endif

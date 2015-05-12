@@ -4,18 +4,18 @@
 #include "pythonic/utils/proxy.hpp"
 #include <cmath>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace cmath {
-        template<class T>
-            std::complex<T> cos(std::complex<T> const& v);
-        template<class T>
-            std::complex<T> cos(T const& v);
+  namespace cmath
+  {
+    template <class T>
+    std::complex<T> cos(std::complex<T> const &v);
+    template <class T>
+    std::complex<T> cos(T const &v);
 
-        PROXY_DECL(pythonic::cmath, cos);
-    }
-
+    PROXY_DECL(pythonic::cmath, cos);
+  }
 }
 
 #endif
-

@@ -3,14 +3,14 @@
 
 #include "pythonic/operator_/imul.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
+  namespace operator_
+  {
 
-        FPROXY_DECL(pythonic::operator_, __imul__, imul);
-    }
-
+    FPROXY_DECL(pythonic::operator_, __imul__, imul);
+  }
 }
 
 #endif
-

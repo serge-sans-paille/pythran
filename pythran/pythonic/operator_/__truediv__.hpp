@@ -5,14 +5,13 @@
 
 #include "pythonic/operator_/truediv.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
-        FPROXY_IMPL(pythonic::operator_, __truediv__, truediv);
-
-    }
-
+  namespace operator_
+  {
+    FPROXY_IMPL(pythonic::operator_, __truediv__, truediv);
+  }
 }
 
 #endif
-

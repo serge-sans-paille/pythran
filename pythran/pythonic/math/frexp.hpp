@@ -8,20 +8,19 @@
 
 #include <cmath>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace math {
-        std::tuple<double,long> frexp(double x)
-        {
-            int exp;
-            double sig = std::frexp(x,&exp);
-            return std::tuple<double,long>(sig,exp);
-        }
-        PROXY_IMPL(pythonic::math,frexp);
-
+  namespace math
+  {
+    std::tuple<double, long> frexp(double x)
+    {
+      int exp;
+      double sig = std::frexp(x, &exp);
+      return std::tuple<double, long>(sig, exp);
     }
-
+    PROXY_IMPL(pythonic::math, frexp);
+  }
 }
 
 #endif
-

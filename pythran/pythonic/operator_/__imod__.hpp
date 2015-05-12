@@ -5,14 +5,14 @@
 
 #include "pythonic/operator_/imod.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
+  namespace operator_
+  {
 
-        FPROXY_IMPL(pythonic::operator_, __imod__, imod);
-    }
-
+    FPROXY_IMPL(pythonic::operator_, __imod__, imod);
+  }
 }
 
 #endif
-

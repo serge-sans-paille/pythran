@@ -4,19 +4,19 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/long.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        template<class T>
-            pythran_long_t long_(T&& t);
+    template <class T>
+    pythran_long_t long_(T &&t);
 
-        pythran_long_t long_();
+    pythran_long_t long_();
 
-        PROXY_DECL(pythonic::__builtin__, long_);
-
-    }
-
+    PROXY_DECL(pythonic::__builtin__, long_);
+  }
 }
 
 #endif

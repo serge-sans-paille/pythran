@@ -4,16 +4,16 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
-        template<class E>
-            size_t rank(E const& expr);
+  namespace numpy
+  {
+    template <class E>
+    size_t rank(E const &expr);
 
-        PROXY_DECL(pythonic::numpy, rank);
-
-    }
-
+    PROXY_DECL(pythonic::numpy, rank);
+  }
 }
 
 #endif

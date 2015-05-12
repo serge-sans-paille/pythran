@@ -4,19 +4,20 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/str.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace str {
+    namespace str
+    {
 
-            bool endswith(types::str const& s, types::str const& suffix, long start=0, long end=-1);
+      bool endswith(types::str const &s, types::str const &suffix,
+                    long start = 0, long end = -1);
 
-            PROXY_DECL(pythonic::__builtin__::str, endswith);
-
-        }
-
+      PROXY_DECL(pythonic::__builtin__::str, endswith);
     }
-
+  }
 }
 #endif

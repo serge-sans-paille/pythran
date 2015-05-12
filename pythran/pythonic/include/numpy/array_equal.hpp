@@ -5,17 +5,17 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/all.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
+  namespace numpy
+  {
 
-        template<class U, class V>
-            bool array_equal(U const& u, V const&v);
+    template <class U, class V>
+    bool array_equal(U const &u, V const &v);
 
-        PROXY_DECL(pythonic::numpy, array_equal);
-
-    }
-
+    PROXY_DECL(pythonic::numpy, array_equal);
+  }
 }
 
 #endif

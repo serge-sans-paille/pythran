@@ -6,28 +6,31 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/include/__builtin__/set.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        namespace anonymous {
+    namespace anonymous
+    {
 
-            inline types::empty_set set()
-            {
-                return types::empty_set();
-            }
+      inline types::empty_set set()
+      {
+        return types::empty_set();
+      }
 
-            template <class Iterable>
-                inline
-                types::set<typename std::remove_reference<Iterable>::type::iterator::value_type >
-                set(Iterable&& t)
-                {
-                    return types::set<typename std::remove_reference<Iterable>::type::iterator::value_type >(t.begin(), t.end());
-                }
-        }
-
-        PROXY_IMPL(pythonic::__builtin__::anonymous ,set);
+      template <class Iterable>
+      inline types::set<
+          typename std::remove_reference<Iterable>::type::iterator::value_type>
+      set(Iterable &&t)
+      {
+        return types::set<typename std::remove_reference<
+            Iterable>::type::iterator::value_type>(t.begin(), t.end());
+      }
     }
 
+    PROXY_IMPL(pythonic::__builtin__::anonymous, set);
+  }
 }
 #endif

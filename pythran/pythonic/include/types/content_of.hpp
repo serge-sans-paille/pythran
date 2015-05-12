@@ -1,17 +1,17 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_CONTENT_OF_HPP
 #define PYTHONIC_INCLUDE_TYPES_CONTENT_OF_HPP
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace types {
+  namespace types
+  {
 
-        template<class T>
-            struct content_of
-            {
-                using type = typename T::value_type;
-            };
-
-    }
+    template <class T>
+    struct content_of {
+      using type = typename T::value_type;
+    };
+  }
 }
 
 #endif

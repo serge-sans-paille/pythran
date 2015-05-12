@@ -9,21 +9,21 @@
 #include <nt2/include/functions/divides.hpp>
 #endif
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
-        template <class A, class B>
-            auto div(A const& a, B const& b) -> decltype(a/b)
-            {
-                return a/b;
-            }
-
-        DEFINE_ALL_OPERATOR_OVERLOADS_IMPL(div, /)
-
-        PROXY_IMPL(pythonic::operator_, div);
-
+  namespace operator_
+  {
+    template <class A, class B>
+    auto div(A const &a, B const &b) -> decltype(a / b)
+    {
+      return a / b;
     }
 
+    DEFINE_ALL_OPERATOR_OVERLOADS_IMPL(div, / )
+
+    PROXY_IMPL(pythonic::operator_, div);
+  }
 }
 
 #endif

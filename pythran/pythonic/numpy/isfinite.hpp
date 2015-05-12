@@ -11,30 +11,32 @@
 #include <nt2/include/functions/is_finite.hpp>
 
 // nt2 does not handle bool specialization, which is indeed a corner case...
-namespace nt2 {
-    constexpr bool is_finite(bool)
-    {
-        return true;
-    }
+namespace nt2
+{
+  constexpr bool is_finite(bool)
+  {
+    return true;
+  }
 }
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
-        namespace wrapper {
-            template<class T>
-                bool isfinite(T const& v)
-                {
-                    return nt2::is_finite(v);
-                }
-        }
+  namespace numpy
+  {
+    namespace wrapper
+    {
+      template <class T>
+      bool isfinite(T const &v)
+      {
+        return nt2::is_finite(v);
+      }
+    }
 
 #define NUMPY_NARY_FUNC_NAME isfinite
 #define NUMPY_NARY_FUNC_SYM wrapper::isfinite
 #include "pythonic/types/numpy_nary_expr.hpp"
-
-    }
-
+  }
 }
 
 #endif

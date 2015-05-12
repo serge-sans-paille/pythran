@@ -6,25 +6,23 @@
 #include "pythonic/types/list.hpp"
 #include "pythonic/types/none.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace list {
+    namespace list
+    {
 
-            template<class T, class F>
-                types::none_type
-                insert(types::list<T> &seq, long n, F const& value);
+      template <class T, class F>
+      types::none_type insert(types::list<T> &seq, long n, F const &value);
 
-            template<class T, class F>
-                types::none_type
-                insert(types::list<T> &seq, long n, F && value);
+      template <class T, class F>
+      types::none_type insert(types::list<T> &seq, long n, F &&value);
 
-            PROXY_DECL(pythonic::__builtin__::list, insert);
-
-        }
-
+      PROXY_DECL(pythonic::__builtin__::list, insert);
     }
-
+  }
 }
 #endif

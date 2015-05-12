@@ -5,17 +5,19 @@
 
 #include "pythonic/__dispatch__/count.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace str {
+    namespace str
+    {
 
-            ALIAS(count, pythonic::__dispatch__::count);
+      ALIAS(count, pythonic::__dispatch__::count);
 
-            PROXY_IMPL(pythonic::__builtin__::str, count);
-        }
+      PROXY_IMPL(pythonic::__builtin__::str, count);
     }
-
+  }
 }
 #endif

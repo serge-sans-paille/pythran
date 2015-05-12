@@ -5,18 +5,20 @@
 #include "pythonic/types/file.hpp"
 #include "pythonic/types/str.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        namespace anonymous {
-            types::file file(types::str const& filename, types::str const& strmode="r");
-        }
-
-        PROXY_DECL(pythonic::__builtin__::anonymous, file);
-
+    namespace anonymous
+    {
+      types::file file(types::str const &filename,
+                       types::str const &strmode = "r");
     }
 
+    PROXY_DECL(pythonic::__builtin__::anonymous, file);
+  }
 }
 
 #endif

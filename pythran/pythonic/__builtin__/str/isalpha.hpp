@@ -6,21 +6,23 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/str.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace str {
+    namespace str
+    {
 
-            bool isalpha(types::str const& s)
-            {
-                return not s.empty() and std::all_of(s.begin(), s.end(), (int (*)(int))std::isalpha);
-            }
+      bool isalpha(types::str const &s)
+      {
+        return not s.empty() and
+               std::all_of(s.begin(), s.end(), (int (*)(int))std::isalpha);
+      }
 
-            PROXY_IMPL(pythonic::__builtin__::str, isalpha)
-
-        }
+      PROXY_IMPL(pythonic::__builtin__::str, isalpha)
     }
+  }
 }
 #endif
-

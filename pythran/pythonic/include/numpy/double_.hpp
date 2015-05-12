@@ -3,15 +3,15 @@
 
 #include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
-        double double_();
+  namespace numpy
+  {
+    double double_();
 
-        PROXY_DECL(pythonic::numpy, double_);
-
-    }
-
+    PROXY_DECL(pythonic::numpy, double_);
+  }
 }
 
 #endif

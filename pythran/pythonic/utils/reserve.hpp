@@ -3,16 +3,17 @@
 
 #include "pythonic/include/utils/reserve.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace utils {
+  namespace utils
+  {
 
-        template <class Container, class From>
-            void reserve(Container & , From &&) //do nothing unless specialized
-            {
-            }
+    template <class Container, class From>
+    void reserve(Container &, From &&) // do nothing unless specialized
+    {
     }
-
+  }
 }
 
 #endif

@@ -3,18 +3,19 @@
 
 #include "pythonic/__dispatch__/next.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace file {
+    namespace file
+    {
 
-            ALIAS_DECL(next, pythonic::__dispatch__::next);
+      ALIAS_DECL(next, pythonic::__dispatch__::next);
 
-            PROXY_DECL(pythonic::__builtin__::file, next);
-        }
-
+      PROXY_DECL(pythonic::__builtin__::file, next);
     }
-
+  }
 }
 #endif

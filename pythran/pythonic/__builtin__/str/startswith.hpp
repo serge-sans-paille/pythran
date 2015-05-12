@@ -6,25 +6,26 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/str.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace str {
+    namespace str
+    {
 
-            bool
-            startswith(types::str const& s, types::str const& prefix, long start, long end)
-            {
-                if(end < 0)
-                    end = s.size();
-                return (end - start) >= prefix.size() and s.compare(start, prefix.size(), prefix) == 0;
-            }
+      bool startswith(types::str const &s, types::str const &prefix, long start,
+                      long end)
+      {
+        if (end < 0)
+          end = s.size();
+        return (end - start) >= prefix.size() and
+               s.compare(start, prefix.size(), prefix) == 0;
+      }
 
-            PROXY_IMPL(pythonic::__builtin__::str, startswith);
-        }
-
+      PROXY_IMPL(pythonic::__builtin__::str, startswith);
     }
-
+  }
 }
 #endif
-

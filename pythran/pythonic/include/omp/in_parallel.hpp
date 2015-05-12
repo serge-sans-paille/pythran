@@ -4,14 +4,15 @@
 #include <omp.h>
 #include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace omp {
-        bool in_parallel();
+  namespace omp
+  {
+    bool in_parallel();
 
-        PROXY_DECL(pythonic::omp, in_parallel);
-    }
-
+    PROXY_DECL(pythonic::omp, in_parallel);
+  }
 }
 
 #endif

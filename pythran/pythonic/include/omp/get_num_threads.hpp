@@ -5,16 +5,16 @@
 
 #include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace omp {
+  namespace omp
+  {
 
-        long get_num_threads();
+    long get_num_threads();
 
-        PROXY_DECL(pythonic::omp, get_num_threads);
-    }
-
+    PROXY_DECL(pythonic::omp, get_num_threads);
+  }
 }
 
 #endif
-

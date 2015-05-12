@@ -4,15 +4,15 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/random/random.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace random {
-        double expovariate(double l);
+  namespace random
+  {
+    double expovariate(double l);
 
-        PROXY_DECL(pythonic::random, expovariate);
-
-    }
-
+    PROXY_DECL(pythonic::random, expovariate);
+  }
 }
 
 #endif

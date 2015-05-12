@@ -4,17 +4,17 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/random/random.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace random {
+  namespace random
+  {
 
-        template<class Seq>
-            typename Seq::value_type choice(Seq const& seq);
+    template <class Seq>
+    typename Seq::value_type choice(Seq const &seq);
 
-        PROXY_DECL(pythonic::random, choice);
-
-    }
-
+    PROXY_DECL(pythonic::random, choice);
+  }
 }
 
 #endif

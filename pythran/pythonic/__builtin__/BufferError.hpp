@@ -4,14 +4,14 @@
 #include "pythonic/types/exceptions.hpp"
 #include "pythonic/include/__builtin__/BufferError.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        PYTHONIC_EXCEPTION_IMPL(BufferError)
-
-    }
-
+    PYTHONIC_EXCEPTION_IMPL(BufferError)
+  }
 }
 
 #endif

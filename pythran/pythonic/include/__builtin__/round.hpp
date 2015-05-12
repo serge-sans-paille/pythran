@@ -3,16 +3,16 @@
 
 #include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
-        template <class T>
-            double round(T const & v, size_t n=0);
+  namespace __builtin__
+  {
+    template <class T>
+    double round(T const &v, size_t n = 0);
 
-        PROXY_DECL(pythonic::__builtin__, round);
-
-    }
-
+    PROXY_DECL(pythonic::__builtin__, round);
+  }
 }
 
 #endif

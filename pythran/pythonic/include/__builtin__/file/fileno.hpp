@@ -4,19 +4,19 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/file.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace file {
+    namespace file
+    {
 
-            int fileno(types::file const& f);
+      int fileno(types::file const &f);
 
-            PROXY_DECL(pythonic::__builtin__::file, fileno);
-
-        }
-
+      PROXY_DECL(pythonic::__builtin__::file, fileno);
     }
-
+  }
 }
 #endif

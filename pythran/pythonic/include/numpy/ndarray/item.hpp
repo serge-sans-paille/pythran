@@ -4,29 +4,30 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 
-namespace pythonic {
-    
-    namespace numpy  {
+namespace pythonic
+{
 
-        namespace ndarray {
+  namespace numpy
+  {
 
-            template<class T, size_t N>
-                T item(types::ndarray<T, N> const& expr, long i);
+    namespace ndarray
+    {
 
-            template<class E, size_t N>
-                auto item(E&& expr, types::array<long, N> const& i) -> decltype(expr[i]);
+      template <class T, size_t N>
+      T item(types::ndarray<T, N> const &expr, long i);
 
-            // only for compatibility purpose, very bad impl
-            template<class E>
-                typename types::numpy_expr_to_ndarray<typename std::remove_reference<E>::type>::type::dtype
-                item(E&& expr, long i);
+      template <class E, size_t N>
+      auto item(E &&expr, types::array<long, N> const &i) -> decltype(expr[i]);
 
-            PROXY_DECL(pythonic::numpy::ndarray, item);
+      // only for compatibility purpose, very bad impl
+      template <class E>
+      typename types::numpy_expr_to_ndarray<
+          typename std::remove_reference<E>::type>::type::dtype
+      item(E &&expr, long i);
 
-        }
-
+      PROXY_DECL(pythonic::numpy::ndarray, item);
     }
-
+  }
 }
 
 #endif

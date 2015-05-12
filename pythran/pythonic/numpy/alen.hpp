@@ -6,19 +6,19 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
-        template<class T>
-            long alen(T&& expr)
-            {
-                return expr.shape()[0];
-            }
-
-        PROXY_IMPL(pythonic::numpy, alen);
-
+  namespace numpy
+  {
+    template <class T>
+    long alen(T &&expr)
+    {
+      return expr.shape()[0];
     }
 
+    PROXY_IMPL(pythonic::numpy, alen);
+  }
 }
 
 #endif

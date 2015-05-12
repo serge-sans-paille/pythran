@@ -6,15 +6,14 @@
 
 #include <cmath>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace math {
-        std::tuple<double,double> modf(double x);
-        PROXY_DECL(pythonic::math,modf);
-
-    }
-
+  namespace math
+  {
+    std::tuple<double, double> modf(double x);
+    PROXY_DECL(pythonic::math, modf);
+  }
 }
 
 #endif
-

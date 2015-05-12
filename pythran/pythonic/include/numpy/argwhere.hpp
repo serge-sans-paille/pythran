@@ -5,17 +5,16 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/asarray.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
-        template<class E>
-            typename types::ndarray<long, 2>
-            argwhere(E const& expr);
+  namespace numpy
+  {
+    template <class E>
+    typename types::ndarray<long, 2> argwhere(E const &expr);
 
-        PROXY_DECL(pythonic::numpy, argwhere);
-
-    }
-
+    PROXY_DECL(pythonic::numpy, argwhere);
+  }
 }
 
 #endif

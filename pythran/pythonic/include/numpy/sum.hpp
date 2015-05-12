@@ -10,20 +10,23 @@
 
 #include <algorithm>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
+  namespace numpy
+  {
 
-        template<class E>
-            auto sum(E&& e) -> decltype(reduce<operator_::proxy::iadd>(std::forward<E>(e)));
+    template <class E>
+    auto sum(E &&e)
+        -> decltype(reduce<operator_::proxy::iadd>(std::forward<E>(e)));
 
-        template<class E, class Opt>
-            auto sum(E&& e, Opt&& opt) -> decltype(reduce<operator_::proxy::iadd>(std::forward<E>(e), std::forward<Opt>(opt)));
+    template <class E, class Opt>
+    auto sum(E &&e, Opt &&opt)
+        -> decltype(reduce<operator_::proxy::iadd>(std::forward<E>(e),
+                                                   std::forward<Opt>(opt)));
 
-        PROXY_DECL(pythonic::numpy, sum);
-
-    }
-
+    PROXY_DECL(pythonic::numpy, sum);
+  }
 }
 
 #endif

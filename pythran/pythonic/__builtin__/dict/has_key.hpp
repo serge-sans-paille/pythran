@@ -5,22 +5,22 @@
 #include "pythonic/types/dict.hpp"
 #include "pythonic/include/__builtin__/dict/has_key.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        namespace dict {
-            template<class K, class V, class W>
-                bool has_key(types::dict<K,V> const &d, W const& k)
-                {
-                    return d.find(k) != d.item_end();
-                }
-            PROXY_IMPL(pythonic::__builtin__::dict, has_key);
-        }
-
+    namespace dict
+    {
+      template <class K, class V, class W>
+      bool has_key(types::dict<K, V> const &d, W const &k)
+      {
+        return d.find(k) != d.item_end();
+      }
+      PROXY_IMPL(pythonic::__builtin__::dict, has_key);
     }
-
+  }
 }
 
 #endif
-

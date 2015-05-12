@@ -4,13 +4,16 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 
-namespace pythonic {
-    namespace numpy {
-        template<class T, size_t N>
-            types::ndarray<T,N> copyto(types::ndarray<T,N>& out, types::ndarray<T,N> const& a);
+namespace pythonic
+{
+  namespace numpy
+  {
+    template <class T, size_t N>
+    types::ndarray<T, N> copyto(types::ndarray<T, N> &out,
+                                types::ndarray<T, N> const &a);
 
-        PROXY_DECL(pythonic::numpy, copyto);
-    }
+    PROXY_DECL(pythonic::numpy, copyto);
+  }
 }
 
 #endif

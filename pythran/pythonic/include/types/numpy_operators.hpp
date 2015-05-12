@@ -24,9 +24,11 @@
 #include "pythonic/include/numpy/bitwise_not.hpp"
 #include "pythonic/include/types/numpy_op_helper.hpp"
 
-namespace pythonic {
-    /* operators must live in the same namespace as the associated type */
-    namespace types {
+namespace pythonic
+{
+  /* operators must live in the same namespace as the associated type */
+  namespace types
+  {
 #define NUMPY_BINARY_FUNC_NAME operator+
 #define NUMPY_BINARY_FUNC_SYM operator_::proxy::add
 #include "pythonic/include/types/numpy_binary_op.hpp"
@@ -106,8 +108,7 @@ namespace pythonic {
 #define NUMPY_BINARY_FUNC_NAME operator-
 #define NUMPY_BINARY_FUNC_SYM operator_::proxy::sub
 #include "pythonic/include/types/numpy_binary_op.hpp"
-
-    }
+  }
 }
 
 #endif

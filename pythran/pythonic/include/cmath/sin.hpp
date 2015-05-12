@@ -4,14 +4,14 @@
 #include "pythonic/utils/proxy.hpp"
 #include <cmath>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace cmath {
-        ALIAS_DECL(sin ,std::sin);
-        PROXY_DECL(pythonic::cmath, sin);
-    }
-
+  namespace cmath
+  {
+    ALIAS_DECL(sin, std::sin);
+    PROXY_DECL(pythonic::cmath, sin);
+  }
 }
 
 #endif
-

@@ -3,14 +3,14 @@
 
 #include "pythonic/numpy/max.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
+  namespace numpy
+  {
 
-        FPROXY_DECL(pythonic::numpy, amax, max);
-
-    }
-
+    FPROXY_DECL(pythonic::numpy, amax, max);
+  }
 }
 
 #endif

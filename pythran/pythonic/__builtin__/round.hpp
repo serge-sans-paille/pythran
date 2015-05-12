@@ -7,21 +7,21 @@
 
 #include <cmath>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        template <class T>
-            double round(T const & v, size_t n)
-            {
-                T p = proxy::pow()(10, n);
-                return std::lround(v * p) / p;
-            }
-
-        PROXY_IMPL(pythonic::__builtin__, round);
-
+    template <class T>
+    double round(T const &v, size_t n)
+    {
+      T p = proxy::pow()(10, n);
+      return std::lround(v * p) / p;
     }
 
+    PROXY_IMPL(pythonic::__builtin__, round);
+  }
 }
 
 #endif

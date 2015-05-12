@@ -6,17 +6,17 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/__builtin__/None.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
-        template<class T, size_t N>
-            types::ndarray<T,1> repeat(types::ndarray<T,N> const& expr, int repeats);
+  namespace numpy
+  {
+    template <class T, size_t N>
+    types::ndarray<T, 1> repeat(types::ndarray<T, N> const &expr, int repeats);
 
-        NUMPY_EXPR_TO_NDARRAY0_DECL(repeat);
-        PROXY_DECL(pythonic::numpy, repeat);
-
-    }
-
+    NUMPY_EXPR_TO_NDARRAY0_DECL(repeat);
+    PROXY_DECL(pythonic::numpy, repeat);
+  }
 }
 
 #endif

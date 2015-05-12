@@ -3,14 +3,14 @@
 
 #include "pythonic/numpy/cumprod.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
+  namespace numpy
+  {
 
-        FPROXY_DECL(pythonic::numpy, cumproduct, cumprod);
-
-    }
-
+    FPROXY_DECL(pythonic::numpy, cumproduct, cumprod);
+  }
 }
 
 #endif

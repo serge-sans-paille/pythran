@@ -4,15 +4,14 @@
 #include "pythonic/types/exceptions.hpp"
 #include "pythonic/include/__builtin__/KeyError.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        PYTHONIC_EXCEPTION_IMPL(KeyError)
-
-    }
-
+    PYTHONIC_EXCEPTION_IMPL(KeyError)
+  }
 }
 
 #endif
-

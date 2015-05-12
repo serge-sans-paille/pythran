@@ -3,13 +3,13 @@
 
 #include <limits>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
-        double const nan = std::numeric_limits<double>::quiet_NaN();
-
-    }
-
+  namespace numpy
+  {
+    double const nan = std::numeric_limits<double>::quiet_NaN();
+  }
 }
 
 #endif

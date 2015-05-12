@@ -7,26 +7,27 @@
 #include "pythonic/types/str.hpp"
 #include "pythonic/types/file.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace file {
+    namespace file
+    {
 
-            void write(types::file & f, types::str const& str)
-            {
-                f.write(str);
-            }
+      void write(types::file &f, types::str const &str)
+      {
+        f.write(str);
+      }
 
-            void write(types::file && f, types::str const& str)
-            {
-                f.write(str);
-            }
+      void write(types::file &&f, types::str const &str)
+      {
+        f.write(str);
+      }
 
-            PROXY_IMPL(pythonic::__builtin__::file, write);
-        }
-
+      PROXY_IMPL(pythonic::__builtin__::file, write);
     }
-
+  }
 }
 #endif

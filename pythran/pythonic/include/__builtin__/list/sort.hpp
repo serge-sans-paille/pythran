@@ -5,20 +5,20 @@
 #include "pythonic/types/list.hpp"
 #include "pythonic/types/none.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace list {
+    namespace list
+    {
 
-            template<class T>
-                types::none_type sort(types::list<T> &seq);
+      template <class T>
+      types::none_type sort(types::list<T> &seq);
 
-            PROXY_DECL(pythonic::__builtin__::list, sort);
-
-        }
-
+      PROXY_DECL(pythonic::__builtin__::list, sort);
     }
-
+  }
 }
 #endif

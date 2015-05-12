@@ -8,25 +8,26 @@
 #include <iterator>
 #include <type_traits>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        namespace anonymous {
+    namespace anonymous
+    {
 
-            inline types::empty_list list();
-            inline types::empty_list list(types::empty_list);
+      inline types::empty_list list();
+      inline types::empty_list list(types::empty_list);
 
-            template <class Iterable>
-                types::list<typename std::iterator_traits<typename std::remove_reference<Iterable>::type::iterator>::value_type>
-                list(Iterable && t);
-
-        }
-
-        PROXY_DECL(pythonic::__builtin__::anonymous ,list);
-
+      template <class Iterable>
+      types::list<typename std::iterator_traits<
+          typename std::remove_reference<Iterable>::type::iterator>::value_type>
+      list(Iterable &&t);
     }
 
+    PROXY_DECL(pythonic::__builtin__::anonymous, list);
+  }
 }
 
 #endif

@@ -4,16 +4,16 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/random/random.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace random {
+  namespace random
+  {
 
-        double gauss(double mu, double sigma);
+    double gauss(double mu, double sigma);
 
-        PROXY_DECL(pythonic::random, gauss);
-
-    }
-
+    PROXY_DECL(pythonic::random, gauss);
+  }
 }
 
 #endif

@@ -5,19 +5,19 @@
 #include "pythonic/types/str.hpp"
 #include "pythonic/include/__builtin__/chr.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
-        template<class T>
-            types::str chr(T const &v)
-            {
-                return types::str((char)v);
-            }
-
-        PROXY_IMPL(pythonic::__builtin__, chr);
-
+  namespace __builtin__
+  {
+    template <class T>
+    types::str chr(T const &v)
+    {
+      return types::str((char)v);
     }
 
+    PROXY_IMPL(pythonic::__builtin__, chr);
+  }
 }
 
 #endif

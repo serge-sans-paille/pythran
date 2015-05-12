@@ -6,32 +6,31 @@
 
 #include <cassert>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        template<class T>
-            long int_(T&& t)
-            {
-                return t;
-            }
-
-        long int_(char t)
-        {
-            assert( t >= '0' and t <= '9' );
-            return t - '0';
-        }
-
-        long int_()
-        {
-            return 0L;
-        }
-
-        PROXY_IMPL(pythonic::__builtin__, int_);
-
+    template <class T>
+    long int_(T &&t)
+    {
+      return t;
     }
 
+    long int_(char t)
+    {
+      assert(t >= '0' and t <= '9');
+      return t - '0';
+    }
+
+    long int_()
+    {
+      return 0L;
+    }
+
+    PROXY_IMPL(pythonic::__builtin__, int_);
+  }
 }
 
 #endif
-

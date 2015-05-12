@@ -8,23 +8,24 @@
 
 #include "pythonic/include/__builtin__/dict/keys.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        namespace dict {
+    namespace dict
+    {
 
-            template<class K, class V>
-                types::list<K> keys(types::dict<K,V> const &d)
-                {
-                    return types::list<K>(d.key_begin(), d.key_end());
-                }
+      template <class K, class V>
+      types::list<K> keys(types::dict<K, V> const &d)
+      {
+        return types::list<K>(d.key_begin(), d.key_end());
+      }
 
-            PROXY_IMPL(pythonic::__builtin__::dict, keys);
-        }
-
+      PROXY_IMPL(pythonic::__builtin__::dict, keys);
     }
-
+  }
 }
 
 #endif

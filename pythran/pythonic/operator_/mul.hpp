@@ -9,21 +9,22 @@
 #include <nt2/include/functions/multiplies.hpp>
 #endif
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
+  namespace operator_
+  {
 
-        template <class A, class B>
-            auto mul(A const& a, B const& b) -> decltype(a*b)
-            {
-                return a*b;
-            }
-
-        DEFINE_ALL_OPERATOR_OVERLOADS_IMPL(mul, *)
-
-        PROXY_IMPL(pythonic::operator_, mul);
+    template <class A, class B>
+    auto mul(A const &a, B const &b) -> decltype(a *b)
+    {
+      return a * b;
     }
 
+    DEFINE_ALL_OPERATOR_OVERLOADS_IMPL(mul, *)
+
+    PROXY_IMPL(pythonic::operator_, mul);
+  }
 }
 
 #endif

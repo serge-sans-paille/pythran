@@ -5,14 +5,15 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/array2string.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
+  namespace numpy
+  {
 
-        ALIAS_DECL(array_str, array2string);
-        PROXY_DECL(pythonic::numpy, array_str);
-
-    }
+    ALIAS_DECL(array_str, array2string);
+    PROXY_DECL(pythonic::numpy, array_str);
+  }
 }
 
 #endif

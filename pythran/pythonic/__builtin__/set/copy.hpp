@@ -5,18 +5,19 @@
 
 #include "pythonic/__dispatch__/copy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace set {
+    namespace set
+    {
 
-            ALIAS(copy, pythonic::__dispatch__::copy);
+      ALIAS(copy, pythonic::__dispatch__::copy);
 
-            PROXY_IMPL(pythonic::__builtin__::set, copy);
-        }
-
+      PROXY_IMPL(pythonic::__builtin__::set, copy);
     }
-
+  }
 }
-#endif 
+#endif

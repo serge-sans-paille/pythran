@@ -4,28 +4,28 @@
 #include "pythonic/include/numpy/isinf.hpp"
 
 #include "pythonic/utils/proxy.hpp"
-#include"pythonic/types/ndarray.hpp"
+#include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/numexpr_to_ndarray.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
 #include <nt2/include/functions/is_inf.hpp>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
-        namespace wrapper {
-            template<class T>
-                bool isinf(T const& v)
-                {
-                    return nt2::is_inf(v);
-                }
-        }
+  namespace numpy
+  {
+    namespace wrapper
+    {
+      template <class T>
+      bool isinf(T const &v)
+      {
+        return nt2::is_inf(v);
+      }
+    }
 #define NUMPY_NARY_FUNC_NAME isinf
 #define NUMPY_NARY_FUNC_SYM wrapper::isinf
 #include "pythonic/types/numpy_nary_expr.hpp"
-
-    }
-
+  }
 }
 
 #endif
-

@@ -3,27 +3,28 @@
 
 #include <iostream>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        namespace detail {
-            template<class T>
-                std::ostream& print(std::ostream& os, T const & t);
-        }
-
-        void print_nonl();
-
-        template< typename T, typename... Types>
-            void print_nonl(T const& value, Types const&... values);
-
-        void print();
-
-        template< typename T, typename... Types>
-            void print(T const& value, Types const&... values);
-
+    namespace detail
+    {
+      template <class T>
+      std::ostream &print(std::ostream &os, T const &t);
     }
 
+    void print_nonl();
+
+    template <typename T, typename... Types>
+    void print_nonl(T const &value, Types const &... values);
+
+    void print();
+
+    template <typename T, typename... Types>
+    void print(T const &value, Types const &... values);
+  }
 }
 
 #endif

@@ -16,97 +16,97 @@
 
 #endif
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace utils {
+  namespace utils
+  {
 
-        /* helper function to get the dimension of an array
-         * yields 0 for scalar types
-         */
-        template <class T, typename EnableDefault = void>
-            struct dim_of
-            {
-                static const size_t value = T::value;
-            };
+    /* helper function to get the dimension of an array
+     * yields 0 for scalar types
+     */
+    template <class T, typename EnableDefault = void>
+    struct dim_of {
+      static const size_t value = T::value;
+    };
 
-        template<class T, size_t N>
-            struct dim_of<types::array<T,N>, void>
-            {
-                static const size_t value = 1 + dim_of<T>::value;
-            };
+    template <class T, size_t N>
+    struct dim_of<types::array<T, N>, void> {
+      static const size_t value = 1 + dim_of<T>::value;
+    };
 
-        template<class T>
-            struct dim_of<T, typename std::enable_if<std::is_fundamental<T>::value>::type>
-            {
-                static const size_t value = 0;
-            };
+    template <class T>
+    struct dim_of<
+        T, typename std::enable_if<std::is_fundamental<T>::value>::type> {
+      static const size_t value = 0;
+    };
 
-#define SPECIALIZE_DIM_OF(TYPE)                                                 \
-        template<>                                                              \
-            struct dim_of<TYPE>                                                 \
-            {                                                                   \
-                static const size_t value = 0;                                  \
-            }
+#define SPECIALIZE_DIM_OF(TYPE)                                                \
+  template <>                                                                  \
+  struct dim_of<TYPE> {                                                        \
+    static const size_t value = 0;                                             \
+  }
 
-        SPECIALIZE_DIM_OF(std::complex<float>);
-        SPECIALIZE_DIM_OF(std::complex<double>);
+    SPECIALIZE_DIM_OF(std::complex<float>);
+    SPECIALIZE_DIM_OF(std::complex<double>);
 
 #undef SPECIALIZE_DIM_OF
 
-        /* helper for specialization of the broadcasting, vectorizing copy operator
-         * due to expression templates, this may also triggers a lot of computations!
-         *
-         * ``vector_form'' is set to true if the operation can be done using Boost.SIMD
-         *
-         * the call operator has four template parameters:
-         *
-         * template <class E, class F, size_t N>
-         * void operator()(E &&self, F const &other, utils::int_<N>, utils::int_<M>)
-         *
-         * ``E'' is the type of the object to which the data are copied
-         *
-         * ``F'' is the type of the object from which the data are copied
-         *
-         * ``N'' is the depth of the loop nest. When it reaches ``1'', we have a raw loop
-         *       that may be vectorizable
-         *
-         * ``D'' is the delta between the number of dimensions of E and F. When set to a
-         *       value greater than ``0'', some broadcasting is needed
-         */
-        template <bool vector_form>
-            struct _broadcast_copy
-            {
+    /* helper for specialization of the broadcasting, vectorizing copy operator
+     * due to expression templates, this may also triggers a lot of
+     *computations!
+     *
+     * ``vector_form'' is set to true if the operation can be done using
+     *Boost.SIMD
+     *
+     * the call operator has four template parameters:
+     *
+     * template <class E, class F, size_t N>
+     * void operator()(E &&self, F const &other, utils::int_<N>, utils::int_<M>)
+     *
+     * ``E'' is the type of the object to which the data are copied
+     *
+     * ``F'' is the type of the object from which the data are copied
+     *
+     * ``N'' is the depth of the loop nest. When it reaches ``1'', we have a raw
+     *loop
+     *       that may be vectorizable
+     *
+     * ``D'' is the delta between the number of dimensions of E and F. When set
+     *to a
+     *       value greater than ``0'', some broadcasting is needed
+     */
+    template <bool vector_form>
+    struct _broadcast_copy {
 
-                template <class E, class F, size_t N>
-                    void operator()(E &&self, F const &other, utils::int_<N>, utils::int_<0>);
+      template <class E, class F, size_t N>
+      void operator()(E &&self, F const &other, utils::int_<N>, utils::int_<0>);
 
-                // ``D'' is not ``0'' so we should broadcast
-                template <class E, class F, size_t N, size_t D>
-                    void operator()(E &&self, F const &other, utils::int_<N>, utils::int_<D>);
-            };
+      // ``D'' is not ``0'' so we should broadcast
+      template <class E, class F, size_t N, size_t D>
+      void operator()(E &&self, F const &other, utils::int_<N>, utils::int_<D>);
+    };
 
 #ifdef USE_BOOST_SIMD
-        // specialize for SIMD only if available
-        // otherwise use the std::copy fallback
-        template <>
-            struct _broadcast_copy<true>
-            {
-                template <class E, class F>
-                    void operator()(E &&self, F const &other, utils::int_<1>, utils::int_<0>);
+    // specialize for SIMD only if available
+    // otherwise use the std::copy fallback
+    template <>
+    struct _broadcast_copy<true> {
+      template <class E, class F>
+      void operator()(E &&self, F const &other, utils::int_<1>, utils::int_<0>);
 
-                template <class E, class F, size_t N>
-                    void operator()(E &&self, F const &other, utils::int_<N>, utils::int_<0>);
+      template <class E, class F, size_t N>
+      void operator()(E &&self, F const &other, utils::int_<N>, utils::int_<0>);
 
-                // ``D'' is not ``0'' so we should broadcast
-                template <class E, class F, size_t N, size_t D>
-                    void operator()(E &&self, F const &other, utils::int_<N>, utils::int_<D>);
-
-            };
+      // ``D'' is not ``0'' so we should broadcast
+      template <class E, class F, size_t N, size_t D>
+      void operator()(E &&self, F const &other, utils::int_<N>, utils::int_<D>);
+    };
 #endif
 
-        template <class E, class F, size_t N, size_t D, bool vector_form>
-            E& broadcast_copy(E &self, F const &other);
-    }
+    template <class E, class F, size_t N, size_t D, bool vector_form>
+    E &broadcast_copy(E &self, F const &other);
+  }
 }
 
 #endif

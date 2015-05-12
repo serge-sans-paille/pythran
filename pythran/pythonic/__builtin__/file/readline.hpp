@@ -7,27 +7,27 @@
 #include "pythonic/types/str.hpp"
 #include "pythonic/types/file.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace file {
+    namespace file
+    {
 
-            types::str readline(types::file &f, long size)
-            {
-                return size < 0 ? f.readline() : f.readline(size);
-            }
+      types::str readline(types::file &f, long size)
+      {
+        return size < 0 ? f.readline() : f.readline(size);
+      }
 
-            types::str readline(types::file &&f, long size)
-            {
-                return size < 0 ? f.readline() : f.readline(size);
-            }
+      types::str readline(types::file &&f, long size)
+      {
+        return size < 0 ? f.readline() : f.readline(size);
+      }
 
-            PROXY_IMPL(pythonic::__builtin__::file, readline);
-
-        }
-
+      PROXY_IMPL(pythonic::__builtin__::file, readline);
     }
-
+  }
 }
 #endif

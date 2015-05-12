@@ -3,17 +3,19 @@
 
 #include "pythonic/__dispatch__/remove.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace list {
+    namespace list
+    {
 
-            ALIAS_DECL(remove, pythonic::__dispatch__::remove);
+      ALIAS_DECL(remove, pythonic::__dispatch__::remove);
 
-            PROXY_DECL(pythonic::__builtin__::list, remove);
-        }
+      PROXY_DECL(pythonic::__builtin__::list, remove);
     }
-
+  }
 }
 #endif

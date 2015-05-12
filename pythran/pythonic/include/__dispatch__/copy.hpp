@@ -3,16 +3,16 @@
 
 #include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __dispatch__ {
-        template<class Any>
-            auto copy(Any const& any) -> decltype(any.copy());
+  namespace __dispatch__
+  {
+    template <class Any>
+    auto copy(Any const &any) -> decltype(any.copy());
 
-        PROXY_DECL(pythonic::__dispatch__, copy);
-
-    }
-
+    PROXY_DECL(pythonic::__dispatch__, copy);
+  }
 }
 
 #endif

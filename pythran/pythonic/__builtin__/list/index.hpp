@@ -6,29 +6,29 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/list.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace list {
-            //TODO: have to raise a valueError
-            template<class T>
-                long index(types::list<T> &seq, T const& x)
-                {
-                    return seq.index(x);
-                }
+    namespace list
+    {
+      // TODO: have to raise a valueError
+      template <class T>
+      long index(types::list<T> &seq, T const &x)
+      {
+        return seq.index(x);
+      }
 
-            template<class T>
-                long index(types::list<T> &&seq, T const& x)
-                {
-                    return seq.index(x);
-                }
+      template <class T>
+      long index(types::list<T> &&seq, T const &x)
+      {
+        return seq.index(x);
+      }
 
-            PROXY_IMPL(pythonic::__builtin__::list, index);
-
-        }
-
+      PROXY_IMPL(pythonic::__builtin__::list, index);
     }
-
+  }
 }
 #endif

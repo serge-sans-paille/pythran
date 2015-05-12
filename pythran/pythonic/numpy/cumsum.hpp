@@ -6,20 +6,23 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/numpy/partial_sum.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
+  namespace numpy
+  {
 
-        template<class E, class... Opts>
-          auto cumsum(E&& e, Opts&&... opts) -> decltype(partial_sum<operator_::proxy::iadd>(std::forward<E>(e), std::forward<Opts>(opts)...))
-          {
-              return partial_sum<operator_::proxy::iadd>(std::forward<E>(e), std::forward<Opts>(opts)...);
-          }
-
-        PROXY_IMPL(pythonic::numpy, cumsum);
-
+    template <class E, class... Opts>
+    auto cumsum(E &&e, Opts &&... opts)
+        -> decltype(partial_sum<operator_::proxy::iadd>(
+            std::forward<E>(e), std::forward<Opts>(opts)...))
+    {
+      return partial_sum<operator_::proxy::iadd>(std::forward<E>(e),
+                                                 std::forward<Opts>(opts)...);
     }
 
+    PROXY_IMPL(pythonic::numpy, cumsum);
+  }
 }
 
 #endif

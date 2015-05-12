@@ -8,22 +8,23 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/str.hpp"
 
-namespace pythonic {
-    
-    namespace numpy  {
+namespace pythonic
+{
 
-        namespace ndarray {
-            template<class T, size_t N>
-                types::str tostring(types::ndarray<T,N> const& expr)
-                {
-                    return types::str(reinterpret_cast<const char*>(expr.buffer), expr.flat_size() * sizeof(T));
-                }
-            NUMPY_EXPR_TO_NDARRAY0_IMPL(tostring);
-            PROXY_IMPL(pythonic::numpy::ndarray, tostring);
+  namespace numpy
+  {
 
-        }
-
+    namespace ndarray
+    {
+      template <class T, size_t N>
+      types::str tostring(types::ndarray<T, N> const &expr)
+      {
+        return types::str(reinterpret_cast<const char *>(expr.buffer),
+                          expr.flat_size() * sizeof(T));
+      }
+      NUMPY_EXPR_TO_NDARRAY0_IMPL(tostring);
+      PROXY_IMPL(pythonic::numpy::ndarray, tostring);
     }
-
+  }
 }
 #endif

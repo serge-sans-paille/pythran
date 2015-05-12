@@ -6,19 +6,19 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/random/random.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace random {
+  namespace random
+  {
 
-        double gauss(double mu, double sigma)
-        {
-            return std::normal_distribution<>(mu, sigma)(__random_generator);
-        }
-
-        PROXY_IMPL(pythonic::random, gauss);
-
+    double gauss(double mu, double sigma)
+    {
+      return std::normal_distribution<>(mu, sigma)(__random_generator);
     }
 
+    PROXY_IMPL(pythonic::random, gauss);
+  }
 }
 
 #endif

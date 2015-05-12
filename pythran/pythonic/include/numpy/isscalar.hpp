@@ -7,17 +7,17 @@
 
 #include <type_traits>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
+  namespace numpy
+  {
 
-        template<class E>
-            constexpr bool isscalar(E const&);
+    template <class E>
+    constexpr bool isscalar(E const &);
 
-        PROXY_DECL(pythonic::numpy, isscalar);
-
-    }
-
+    PROXY_DECL(pythonic::numpy, isscalar);
+  }
 }
 
 #endif

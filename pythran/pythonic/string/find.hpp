@@ -6,20 +6,20 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/str.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace string {
+  namespace string
+  {
 
-        template<class T>
-            long find(types::str const& s, T&& val)
-            {
-                return s.find(std::forward<T>(val));
-            }
-
-        PROXY_IMPL(pythonic::string, find);
-
+    template <class T>
+    long find(types::str const &s, T &&val)
+    {
+      return s.find(std::forward<T>(val));
     }
 
+    PROXY_IMPL(pythonic::string, find);
+  }
 }
 
 #endif

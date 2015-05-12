@@ -6,23 +6,24 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/str.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace str {
+    namespace str
+    {
 
-            types::str upper(types::str const & s)
-            {
-                types::str copy = s;
-                std::transform(s.begin(),s.end(), copy.begin(), ::toupper);
-                return copy;
-            }
+      types::str upper(types::str const &s)
+      {
+        types::str copy = s;
+        std::transform(s.begin(), s.end(), copy.begin(), ::toupper);
+        return copy;
+      }
 
-            PROXY_IMPL(pythonic::__builtin__::str, upper);
-        }
-
+      PROXY_IMPL(pythonic::__builtin__::str, upper);
     }
-
+  }
 }
 #endif

@@ -5,17 +5,19 @@
 
 #include "pythonic/__dispatch__/clear.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace set {
+    namespace set
+    {
 
-            ALIAS(clear, pythonic::__dispatch__::clear);
+      ALIAS(clear, pythonic::__dispatch__::clear);
 
-            PROXY_IMPL(pythonic::__builtin__::set, clear);
-        }
+      PROXY_IMPL(pythonic::__builtin__::set, clear);
     }
-
+  }
 }
-#endif 
+#endif

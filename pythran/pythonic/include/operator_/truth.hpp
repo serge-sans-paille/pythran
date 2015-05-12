@@ -3,14 +3,15 @@
 
 #include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
-        bool truth(bool const& a);
+  namespace operator_
+  {
+    bool truth(bool const &a);
 
-        PROXY_DECL(pythonic::operator_, truth);
-    }
-
+    PROXY_DECL(pythonic::operator_, truth);
+  }
 }
 
 #endif

@@ -4,14 +4,14 @@
 #include "pythonic/utils/proxy.hpp"
 #include <cmath>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace math {
-        double gamma(double x);
-        PROXY_DECL(pythonic::math, gamma);
-    }
-
+  namespace math
+  {
+    double gamma(double x);
+    PROXY_DECL(pythonic::math, gamma);
+  }
 }
 
 #endif
-

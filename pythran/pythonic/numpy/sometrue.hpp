@@ -5,14 +5,14 @@
 
 #include "pythonic/numpy/any.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
+  namespace numpy
+  {
 
-        FPROXY_IMPL(pythonic::numpy, sometrue, any);
-
-    }
-
+    FPROXY_IMPL(pythonic::numpy, sometrue, any);
+  }
 }
 
 #endif

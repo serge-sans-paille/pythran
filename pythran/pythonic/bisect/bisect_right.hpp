@@ -6,21 +6,20 @@
 
 #include "pythonic/bisect/bisect.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace bisect {
+  namespace bisect
+  {
 
-        template<class X, class A>
-            size_t bisect_right(X const& x, A const& a, long lo, long hi)
-            {
-                return bisect(x, a, lo, hi);
-            }
-
-        PROXY_IMPL(pythonic::bisect, bisect_right);
-
+    template <class X, class A>
+    size_t bisect_right(X const &x, A const &a, long lo, long hi)
+    {
+      return bisect(x, a, lo, hi);
     }
 
+    PROXY_IMPL(pythonic::bisect, bisect_right);
+  }
 }
 
 #endif
-

@@ -5,18 +5,18 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/asarray.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
+  namespace numpy
+  {
 
-        template<class E>
-            typename types::numpy_expr_to_ndarray<E>::type
-            diff(E const& expr, long n=1);
+    template <class E>
+    typename types::numpy_expr_to_ndarray<E>::type diff(E const &expr,
+                                                        long n = 1);
 
-        PROXY_DECL(pythonic::numpy, diff);
-
-    }
-
+    PROXY_DECL(pythonic::numpy, diff);
+  }
 }
 
 #endif

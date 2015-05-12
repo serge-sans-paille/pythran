@@ -6,16 +6,16 @@
 #include "pythonic/numpy/asarray.hpp"
 #include "pythonic/__builtin__/ValueError.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
-        template<class E>
-            typename E::dtype asscalar(E const& expr);
+  namespace numpy
+  {
+    template <class E>
+    typename E::dtype asscalar(E const &expr);
 
-        PROXY_DECL(pythonic::numpy, asscalar);
-
-    }
-
+    PROXY_DECL(pythonic::numpy, asscalar);
+  }
 }
 
 #endif

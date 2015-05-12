@@ -3,16 +3,17 @@
 
 #include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
+  namespace operator_
+  {
 
-        template <class A, class B>
-            auto is_not(A const& a, B const& b) -> decltype(a != b);
+    template <class A, class B>
+    auto is_not(A const &a, B const &b) -> decltype(a != b);
 
-        PROXY_DECL(pythonic::operator_, is_not);
-    }
-
+    PROXY_DECL(pythonic::operator_, is_not);
+  }
 }
 
 #endif

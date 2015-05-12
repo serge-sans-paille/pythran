@@ -3,16 +3,16 @@
 
 #include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
+  namespace numpy
+  {
 
-        float float_();
+    float float_();
 
-        PROXY_DECL(pythonic::numpy, float_);
-
-    }
-
+    PROXY_DECL(pythonic::numpy, float_);
+  }
 }
 
 #endif

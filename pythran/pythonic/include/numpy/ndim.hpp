@@ -4,15 +4,18 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
+  namespace numpy
+  {
 
-        template <class E>
-            auto ndim(E const& e) -> decltype(__builtin__::getattr<types::attr::NDIM>(e));
+    template <class E>
+    auto ndim(E const &e)
+        -> decltype(__builtin__::getattr<types::attr::NDIM>(e));
 
-        PROXY_DECL(pythonic::numpy, ndim)
-    }
+    PROXY_DECL(pythonic::numpy, ndim)
+  }
 }
 
 #endif

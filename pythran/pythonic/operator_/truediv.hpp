@@ -5,19 +5,19 @@
 
 #include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
-        template <class A, class B>
-            auto truediv(A const& a, B const& b) -> decltype(a/(double)b)
-            {
-                return a/((double)b);
-            }
-
-        PROXY_IMPL(pythonic::operator_, truediv);
-
+  namespace operator_
+  {
+    template <class A, class B>
+    auto truediv(A const &a, B const &b) -> decltype(a / (double)b)
+    {
+      return a / ((double)b);
     }
 
+    PROXY_IMPL(pythonic::operator_, truediv);
+  }
 }
 
 #endif

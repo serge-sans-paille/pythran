@@ -4,19 +4,19 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/include/__builtin__/cmp.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
-        template<class T0, class T1>
-            long cmp(T0 const& v0, T1 const& v1)
-            {
-                return v0 == v1 ? 0 : ( v0 < v1 ? -1 : 1 );
-            }
-
-        PROXY_IMPL(pythonic::__builtin__, cmp);
-
+  namespace __builtin__
+  {
+    template <class T0, class T1>
+    long cmp(T0 const &v0, T1 const &v1)
+    {
+      return v0 == v1 ? 0 : (v0 < v1 ? -1 : 1);
     }
 
+    PROXY_IMPL(pythonic::__builtin__, cmp);
+  }
 }
 
 #endif

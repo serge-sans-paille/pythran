@@ -5,14 +5,14 @@
 
 #include "pythonic/numpy/diag.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
+  namespace numpy
+  {
 
-        FPROXY_IMPL(pythonic::numpy, diagonal, diag);
-
-    }
-
+    FPROXY_IMPL(pythonic::numpy, diagonal, diag);
+  }
 }
 
 #endif

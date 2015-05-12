@@ -3,17 +3,20 @@
 
 #include "pythonic/__dispatch__/copy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        namespace dict {
+    namespace dict
+    {
 
-            ALIAS_DECL(copy, pythonic::__dispatch__::copy);
+      ALIAS_DECL(copy, pythonic::__dispatch__::copy);
 
-            PROXY_DECL(pythonic::__builtin__::dict, copy);
-        }
+      PROXY_DECL(pythonic::__builtin__::dict, copy);
     }
+  }
 }
 
 #endif

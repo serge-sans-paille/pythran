@@ -14,28 +14,29 @@
 #define NUMPY_NARY_EXTRA_METHOD
 #endif
 
-namespace proxy {
+namespace proxy
+{
 
-    struct NUMPY_NARY_FUNC_NAME {
-        using callable = void;
+  struct NUMPY_NARY_FUNC_NAME {
+    using callable = void;
 
-        // We accept implementation here
-        NUMPY_NARY_EXTRA_METHOD
+    // We accept implementation here
+    NUMPY_NARY_EXTRA_METHOD
 
-        template<typename... T>
-        auto operator()(T &&... args) const
-        ->  typename std::enable_if<utils::all_of<not types::is_numexpr_arg<typename std::remove_cv<typename std::remove_reference<T>::type>::type>::value...>::value,
-                decltype(NUMPY_NARY_FUNC_SYM(std::forward<T>(args)...))
-            >::type;
+    template <typename... T>
+    auto operator()(T &&... args) const -> typename std::enable_if<
+        utils::all_of<not types::is_numexpr_arg<typename std::remove_cv<
+            typename std::remove_reference<T>::type>::type>::value...>::value,
+        decltype(NUMPY_NARY_FUNC_SYM(std::forward<T>(args)...))>::type;
 
-        template<class... E>
-        typename std::enable_if<types::valid_numexpr_parameters<E...>::value,
-                                types::numpy_expr<NUMPY_NARY_FUNC_NAME, typename types::NUMPY_NARY_RESHAPE_MODE<E,E...>::type...>
-                               >::type
-        operator()(E const&... args) const;
-
-    };
-
+    template <class... E>
+    typename std::enable_if<
+        types::valid_numexpr_parameters<E...>::value,
+        types::numpy_expr<
+            NUMPY_NARY_FUNC_NAME,
+            typename types::NUMPY_NARY_RESHAPE_MODE<E, E...>::type...>>::type
+    operator()(E const &... args) const;
+  };
 }
 
 #undef NUMPY_NARY_FUNC_NAME

@@ -8,30 +8,30 @@
 #include "pythonic/utils/numpy_traits.hpp"
 #include "pythonic/types/numpy_op_helper.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
-        namespace details {
+  namespace numpy
+  {
+    namespace details
+    {
 
-            double float64()
-            {
-                return double();
-            }
+      double float64()
+      {
+        return double();
+      }
 
-            template<class V>
-                double float64(V v)
-                {
-                    return v;
-                }
-        }
+      template <class V>
+      double float64(V v)
+      {
+        return v;
+      }
+    }
 
 #define NUMPY_NARY_FUNC_NAME float64
 #define NUMPY_NARY_FUNC_SYM details::float64
 #include "pythonic/types/numpy_nary_expr.hpp"
-
-    }
-
+  }
 }
 
 #endif
-

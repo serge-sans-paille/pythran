@@ -4,16 +4,15 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/math/pi.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace math {
-        template<class T>
-            double radians(T x);
-        PROXY_DECL(pythonic::math,radians);
-
-    }
-
+  namespace math
+  {
+    template <class T>
+    double radians(T x);
+    PROXY_DECL(pythonic::math, radians);
+  }
 }
 
 #endif
-

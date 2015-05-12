@@ -6,19 +6,19 @@
 #include "pythonic/utils/proxy.hpp"
 #include <algorithm>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
-        template <class A, class B>
-            long countOf(A const& a, B const& b)
-            {
-                return std::count(a.begin(), a.end(), b);
-            }
-
-        PROXY_IMPL(pythonic::operator_, countOf);
-
+  namespace operator_
+  {
+    template <class A, class B>
+    long countOf(A const &a, B const &b)
+    {
+      return std::count(a.begin(), a.end(), b);
     }
 
+    PROXY_IMPL(pythonic::operator_, countOf);
+  }
 }
 
 #endif

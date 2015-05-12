@@ -5,15 +5,15 @@
 
 #include <nt2/include/functions/abs.hpp>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        ALIAS_DECL(abs, nt2::abs);
-        PROXY_DECL(pythonic::__builtin__, abs);
-
-    }
-
+    ALIAS_DECL(abs, nt2::abs);
+    PROXY_DECL(pythonic::__builtin__, abs);
+  }
 }
 
 #endif

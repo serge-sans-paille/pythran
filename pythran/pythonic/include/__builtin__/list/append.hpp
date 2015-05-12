@@ -5,25 +5,26 @@
 #include "pythonic/types/list.hpp"
 #include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace  list {
+    namespace list
+    {
 
-            template<class T, class F>
-                types::none_type append(types::list<T> &seq, F const& value);
+      template <class T, class F>
+      types::none_type append(types::list<T> &seq, F const &value);
 
-            template<class T, class F>
-                types::none_type append(types::list<T> &seq, F&& value);
+      template <class T, class F>
+      types::none_type append(types::list<T> &seq, F &&value);
 
-            template<class F>
-                types::none_type append(types::empty_list &seq, F&& value);
+      template <class F>
+      types::none_type append(types::empty_list &seq, F &&value);
 
-            PROXY_DECL(pythonic::__builtin__::list, append);
-
-        }
-
+      PROXY_DECL(pythonic::__builtin__::list, append);
     }
+  }
 }
 #endif

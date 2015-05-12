@@ -4,17 +4,16 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/numpy/conjugate.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __dispatch__ {
-        template<class Any>
-            auto conjugate(Any const& any)
-            -> decltype(numpy::proxy::conjugate{}(any));
+  namespace __dispatch__
+  {
+    template <class Any>
+    auto conjugate(Any const &any) -> decltype(numpy::proxy::conjugate{}(any));
 
-        PROXY_DECL(pythonic::__dispatch__, conjugate);
-
-    }
-
+    PROXY_DECL(pythonic::__dispatch__, conjugate);
+  }
 }
 
 #endif

@@ -6,17 +6,17 @@
 
 #include <cmath>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace random {
-        long randrange(long stop);
-        long randrange(long start, long stop);
-        long randrange(long start, long stop, long step);
+  namespace random
+  {
+    long randrange(long stop);
+    long randrange(long start, long stop);
+    long randrange(long start, long stop, long step);
 
-        PROXY_DECL(pythonic::random, randrange)
-
-    }
-
+    PROXY_DECL(pythonic::random, randrange)
+  }
 }
 
 #endif

@@ -6,25 +6,28 @@
 
 #include <random>
 
-namespace pythonic {
-    namespace numpy {
-        namespace random {
+namespace pythonic
+{
+  namespace numpy
+  {
+    namespace random
+    {
 
-            namespace details {
-                std::default_random_engine generator;
-            }
+      namespace details
+      {
+        std::default_random_engine generator;
+      }
 
-            template<size_t N>
-                types::ndarray<double, N> random(types::array<long, N> const& shape);
+      template <size_t N>
+      types::ndarray<double, N> random(types::array<long, N> const &shape);
 
-            auto random(long size) -> decltype(random(types::array<long, 1>{{size}}));
+      auto random(long size) -> decltype(random(types::array<long, 1>{{size}}));
 
-            double random(types::none_type d = types::none_type());
+      double random(types::none_type d = types::none_type());
 
-            PROXY_DECL(pythonic::numpy::random, random);
-
-        }
+      PROXY_DECL(pythonic::numpy::random, random);
     }
+  }
 }
 
 #endif

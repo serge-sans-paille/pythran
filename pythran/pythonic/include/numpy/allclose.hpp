@@ -6,22 +6,25 @@
 #include "pythonic/numpy/abs.hpp"
 #include "pythonic/numpy/isfinite.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
-        template<class I0, class I1>
-            bool _allclose(I0 begin, I0 end, I1 ibegin, double rtol, double atol, utils::int_<1>);
+  namespace numpy
+  {
+    template <class I0, class I1>
+    bool _allclose(I0 begin, I0 end, I1 ibegin, double rtol, double atol,
+                   utils::int_<1>);
 
-        template<class I0, class I1, size_t N>
-            bool _allclose(I0 begin, I0 end, I1 ibegin,  double rtol, double atol, utils::int_<N>);
+    template <class I0, class I1, size_t N>
+    bool _allclose(I0 begin, I0 end, I1 ibegin, double rtol, double atol,
+                   utils::int_<N>);
 
-        template<class U, class V>
-            bool allclose(U const& u, V const& v, double rtol=1e-5, double atol=1e-8);
+    template <class U, class V>
+    bool allclose(U const &u, V const &v, double rtol = 1e-5,
+                  double atol = 1e-8);
 
-        PROXY_DECL(pythonic::numpy, allclose);
-
-    }
-
+    PROXY_DECL(pythonic::numpy, allclose);
+  }
 }
 
 #endif

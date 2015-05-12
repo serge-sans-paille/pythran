@@ -1,15 +1,15 @@
 #ifndef PYTHONIC_INCLUDE_UTILS_FWD_HPP
 #define PYTHONIC_INCLUDE_UTILS_FWD_HPP
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace utils {
+  namespace utils
+  {
 
-        template<typename... Types>
-            void fwd(Types const&... types);
-
-    }
-
+    template <typename... Types>
+    void fwd(Types const &... types);
+  }
 }
 
 #endif

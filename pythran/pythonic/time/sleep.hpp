@@ -8,23 +8,23 @@
 #include <cmath>
 #include <sys/time.h>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace time {
+  namespace time
+  {
 
-        types::none_type sleep(double const value)
-        {
-            struct timespec t;
-            t.tv_sec = std::fabs(value);
-            t.tv_nsec = std::fabs((value - t.tv_sec) * 1e+9);
-            nanosleep(&t, nullptr);
-            return __builtin__::None;
-        }    
-
-        PROXY_IMPL(pythonic::time, sleep)
-
+    types::none_type sleep(double const value)
+    {
+      struct timespec t;
+      t.tv_sec = std::fabs(value);
+      t.tv_nsec = std::fabs((value - t.tv_sec) * 1e+9);
+      nanosleep(&t, nullptr);
+      return __builtin__::None;
     }
 
+    PROXY_IMPL(pythonic::time, sleep)
+  }
 }
 
 #endif

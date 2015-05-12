@@ -8,40 +8,40 @@
 #include "pythonic/__builtin__/ValueError.hpp"
 #include "pythonic/numpy/isnan.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
-        template<class E, class F>
-            void _nanmin(E begin, E end, F& min, utils::int_<1>)
-            {
-                for(; begin != end; ++begin)
-                {
-                    auto curr = *begin;
-                    if(not proxy::isnan()(curr) and curr < min)
-                        min = curr;
-                }
-            }
-
-        template<class E, class F, size_t N>
-            void _nanmin(E begin, E end, F& min, utils::int_<N>)
-            {
-                for(; begin != end; ++begin)
-                    _nanmin((*begin).begin(), (*begin).end(), min, utils::int_<N - 1>());
-            }
-
-        template<class E>
-            typename types::numpy_expr_to_ndarray<E>::T
-            nanmin(E const& expr)
-            {
-                typename types::numpy_expr_to_ndarray<E>::T min = std::numeric_limits<typename types::numpy_expr_to_ndarray<E>::T>::max();
-                _nanmin(expr.begin(), expr.end(), min, utils::int_<types::numpy_expr_to_ndarray<E>::N>());
-                return min;
-            }
-
-        PROXY_IMPL(pythonic::numpy, nanmin);
-
+  namespace numpy
+  {
+    template <class E, class F>
+    void _nanmin(E begin, E end, F &min, utils::int_<1>)
+    {
+      for (; begin != end; ++begin) {
+        auto curr = *begin;
+        if (not proxy::isnan()(curr) and curr < min)
+          min = curr;
+      }
     }
 
+    template <class E, class F, size_t N>
+    void _nanmin(E begin, E end, F &min, utils::int_<N>)
+    {
+      for (; begin != end; ++begin)
+        _nanmin((*begin).begin(), (*begin).end(), min, utils::int_<N - 1>());
+    }
+
+    template <class E>
+    typename types::numpy_expr_to_ndarray<E>::T nanmin(E const &expr)
+    {
+      typename types::numpy_expr_to_ndarray<E>::T min = std::numeric_limits<
+          typename types::numpy_expr_to_ndarray<E>::T>::max();
+      _nanmin(expr.begin(), expr.end(), min,
+              utils::int_<types::numpy_expr_to_ndarray<E>::N>());
+      return min;
+    }
+
+    PROXY_IMPL(pythonic::numpy, nanmin);
+  }
 }
 
 #endif

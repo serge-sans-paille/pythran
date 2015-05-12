@@ -5,14 +5,14 @@
 #include "pythonic/utils/proxy.hpp"
 #include <cmath>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace cmath {
-        ALIAS(sqrt, std::sqrt);
-        PROXY_IMPL(pythonic::cmath, sqrt);
-    }
-
+  namespace cmath
+  {
+    ALIAS(sqrt, std::sqrt);
+    PROXY_IMPL(pythonic::cmath, sqrt);
+  }
 }
 
 #endif
-

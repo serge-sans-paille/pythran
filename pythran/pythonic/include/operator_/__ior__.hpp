@@ -3,14 +3,13 @@
 
 #include "pythonic/operator_/ior.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
-        FPROXY_DECL(pythonic::operator_, __ior__, ior);
-
-    }
-
+  namespace operator_
+  {
+    FPROXY_DECL(pythonic::operator_, __ior__, ior);
+  }
 }
 
 #endif
-

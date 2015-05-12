@@ -4,18 +4,19 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/numpy/conjugate.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace complex {
+    namespace complex
+    {
 
-            ALIAS_DECL(conjugate, numpy::proxy::conjugate{});
+      ALIAS_DECL(conjugate, numpy::proxy::conjugate{});
 
-            PROXY_DECL(pythonic::__builtin__::complex, conjugate);
-        }
-
+      PROXY_DECL(pythonic::__builtin__::complex, conjugate);
     }
-
+  }
 }
 #endif

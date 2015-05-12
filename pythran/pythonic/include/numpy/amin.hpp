@@ -3,14 +3,14 @@
 
 #include "pythonic/numpy/min.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
+  namespace numpy
+  {
 
-        FPROXY_DECL(pythonic::numpy, amin, min);
-
-    }
-
+    FPROXY_DECL(pythonic::numpy, amin, min);
+  }
 }
 
 #endif

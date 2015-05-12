@@ -3,14 +3,13 @@
 
 #include "pythonic/operator_/irshift.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
-        FPROXY_DECL(pythonic::operator_, __irshift__, irshift);
-
-    }
-
+  namespace operator_
+  {
+    FPROXY_DECL(pythonic::operator_, __irshift__, irshift);
+  }
 }
 
 #endif
-

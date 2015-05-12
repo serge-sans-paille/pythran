@@ -3,14 +3,13 @@
 
 #include "pythonic/operator_/iadd.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
-        FPROXY_DECL(pythonic::operator_, __iadd__, iadd);
-
-    }
-
+  namespace operator_
+  {
+    FPROXY_DECL(pythonic::operator_, __iadd__, iadd);
+  }
 }
 
 #endif
-

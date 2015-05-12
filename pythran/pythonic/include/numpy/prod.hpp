@@ -4,20 +4,23 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/numpy/reduce.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
+  namespace numpy
+  {
 
-        template<class E>
-            auto prod(E&& e) -> decltype(reduce<operator_::proxy::imul>(std::forward<E>(e)));
+    template <class E>
+    auto prod(E &&e)
+        -> decltype(reduce<operator_::proxy::imul>(std::forward<E>(e)));
 
-        template<class E, class Opt>
-            auto prod(E&& e, Opt&& opt) -> decltype(reduce<operator_::proxy::imul>(std::forward<E>(e), std::forward<Opt>(opt)));
+    template <class E, class Opt>
+    auto prod(E &&e, Opt &&opt)
+        -> decltype(reduce<operator_::proxy::imul>(std::forward<E>(e),
+                                                   std::forward<Opt>(opt)));
 
-        PROXY_DECL(pythonic::numpy, prod);
-
-    }
-
+    PROXY_DECL(pythonic::numpy, prod);
+  }
 }
 
 #endif

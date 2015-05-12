@@ -7,14 +7,15 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/array2string.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
+  namespace numpy
+  {
 
-        ALIAS(array_str, array2string);
-        PROXY_IMPL(pythonic::numpy, array_str);
-
-    }
+    ALIAS(array_str, array2string);
+    PROXY_IMPL(pythonic::numpy, array_str);
+  }
 }
 
 #endif

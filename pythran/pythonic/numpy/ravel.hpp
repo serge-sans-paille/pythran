@@ -6,20 +6,20 @@
 #include "pythonic/numpy/reshape.hpp"
 #include "pythonic/utils/numpy_conversion.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
-        template<class T, size_t N>
-            types::ndarray<T,1> ravel(types::ndarray<T,N> const& expr)
-            {
-                return reshape(expr, types::array<long, 1>{{expr.flat_size()}});
-            }
-
-        NUMPY_EXPR_TO_NDARRAY0_IMPL(ravel);
-        PROXY_IMPL(pythonic::numpy, ravel);
-
+  namespace numpy
+  {
+    template <class T, size_t N>
+    types::ndarray<T, 1> ravel(types::ndarray<T, N> const &expr)
+    {
+      return reshape(expr, types::array<long, 1>{{expr.flat_size()}});
     }
 
+    NUMPY_EXPR_TO_NDARRAY0_IMPL(ravel);
+    PROXY_IMPL(pythonic::numpy, ravel);
+  }
 }
 
 #endif

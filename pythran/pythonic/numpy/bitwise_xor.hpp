@@ -4,21 +4,21 @@
 #include "pythonic/include/numpy/bitwise_xor.hpp"
 
 #include "pythonic/utils/proxy.hpp"
-#include"pythonic/types/ndarray.hpp"
+#include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/numpy_broadcast.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
 #include "pythonic/operator_/__xor__.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
+  namespace numpy
+  {
 
-    #define NUMPY_NARY_FUNC_NAME bitwise_xor
-    #define NUMPY_NARY_FUNC_SYM pythonic::operator_::__xor__
-    #include "pythonic/types/numpy_nary_expr.hpp"
-
-    }
+#define NUMPY_NARY_FUNC_NAME bitwise_xor
+#define NUMPY_NARY_FUNC_SYM pythonic::operator_::__xor__
+#include "pythonic/types/numpy_nary_expr.hpp"
+  }
 }
 
 #endif
-

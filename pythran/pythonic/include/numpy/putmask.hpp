@@ -6,19 +6,20 @@
 #include "pythonic/numpy/asarray.hpp"
 #include "pythonic/__builtin__/None.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
-        template<class T, size_t N, class E,class F>
-            types::none_type putmask(types::ndarray<T,N> & expr, E const& mask, F const& values);
+  namespace numpy
+  {
+    template <class T, size_t N, class E, class F>
+    types::none_type putmask(types::ndarray<T, N> &expr, E const &mask,
+                             F const &values);
 
-        template<class E, class M, class F>
-            types::none_type putmask(E & , M const& , F const& );
+    template <class E, class M, class F>
+    types::none_type putmask(E &, M const &, F const &);
 
-        PROXY_DECL(pythonic::numpy, putmask);
-
-    }
-
+    PROXY_DECL(pythonic::numpy, putmask);
+  }
 }
 
 #endif

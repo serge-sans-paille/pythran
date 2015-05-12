@@ -3,12 +3,13 @@
 
 #include <limits>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
-        double const NINF = - std::numeric_limits<double>::infinity();
-    }
-
+  namespace numpy
+  {
+    double const NINF = -std::numeric_limits<double>::infinity();
+  }
 }
 
 #endif

@@ -6,23 +6,24 @@
 #include "pythonic/types/list.hpp"
 #include "pythonic/include/__builtin__/dict/values.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        namespace dict {
+    namespace dict
+    {
 
-            template<class K, class V>
-                types::list<V> values(types::dict<K,V> const &d)
-                {
-                    return {d.value_begin(), d.value_end()};
-                }
+      template <class K, class V>
+      types::list<V> values(types::dict<K, V> const &d)
+      {
+        return {d.value_begin(), d.value_end()};
+      }
 
-            PROXY_IMPL(pythonic::__builtin__::dict, values);
-        }
-
+      PROXY_IMPL(pythonic::__builtin__::dict, values);
     }
-
+  }
 }
 
 #endif

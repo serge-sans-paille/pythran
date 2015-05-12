@@ -3,16 +3,18 @@
 
 #include "pythonic/types/numpy_fexpr.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
-        template<class F, class T>
-            auto take(T && expr, F && indices)
-            -> decltype(types::numpy_fexpr<T, F>(std::forward<T>(expr), std::forward<F>(indices)));
+  namespace numpy
+  {
+    template <class F, class T>
+    auto take(T &&expr, F &&indices)
+        -> decltype(types::numpy_fexpr<T, F>(std::forward<T>(expr),
+                                             std::forward<F>(indices)));
 
-        PROXY_DECL(pythonic::numpy, take);
-
-    }
+    PROXY_DECL(pythonic::numpy, take);
+  }
 }
 
 #endif

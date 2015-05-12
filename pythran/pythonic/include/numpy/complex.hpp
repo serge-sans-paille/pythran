@@ -4,16 +4,16 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/complex.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
+  namespace numpy
+  {
 
-        std::complex<double> complex();
+    std::complex<double> complex();
 
-        PROXY_DECL(pythonic::numpy, complex);
-
-    }
-
+    PROXY_DECL(pythonic::numpy, complex);
+  }
 }
 
 #endif

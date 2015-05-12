@@ -3,21 +3,21 @@
 
 #include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        template<class T>
-            long int_(T&& t);
+    template <class T>
+    long int_(T &&t);
 
-        long int_(char t);
+    long int_(char t);
 
-        long int_();
+    long int_();
 
-        PROXY_DECL(pythonic::__builtin__, int_);
-
-    }
-
+    PROXY_DECL(pythonic::__builtin__, int_);
+  }
 }
 
 #endif

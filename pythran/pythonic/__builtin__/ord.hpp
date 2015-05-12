@@ -8,30 +8,30 @@
 #include "pythonic/__builtin__/TypeError.hpp"
 #include <sstream>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        long ord(types::str const & v)
-        {
-            if(v.size() != 1)
-            {
-                std::ostringstream oss;
-                oss << "ord() expected a character, but string of length " << v.size() << " found";
-                throw types::TypeError(oss.str());
-            }
-            return (long)v[0];
-        }
-
-        long ord(char v)
-        {
-            return v;
-        }
-
-        PROXY_IMPL(pythonic::__builtin__, ord);
+    long ord(types::str const &v)
+    {
+      if (v.size() != 1) {
+        std::ostringstream oss;
+        oss << "ord() expected a character, but string of length " << v.size()
+            << " found";
+        throw types::TypeError(oss.str());
+      }
+      return (long)v[0];
     }
 
+    long ord(char v)
+    {
+      return v;
+    }
+
+    PROXY_IMPL(pythonic::__builtin__, ord);
+  }
 }
 
 #endif
-

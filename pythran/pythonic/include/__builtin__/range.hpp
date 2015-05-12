@@ -5,20 +5,20 @@
 
 #include "pythonic/types/list.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        types::list<long> _range(xrange & xr);
+    types::list<long> _range(xrange &xr);
 
-        types::list<long> range(long e);
+    types::list<long> range(long e);
 
-        types::list<long> range(long b, long e, long s=1);
+    types::list<long> range(long b, long e, long s = 1);
 
-        PROXY_DECL(pythonic::__builtin__,range);
-
-    }
-
+    PROXY_DECL(pythonic::__builtin__, range);
+  }
 }
 
 #endif

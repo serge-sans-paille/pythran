@@ -3,17 +3,17 @@
 
 #include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __dispatch__ {
+  namespace __dispatch__
+  {
 
-        template<class Any>
-            auto next(Any&& any) -> decltype(any.next());
+    template <class Any>
+    auto next(Any &&any) -> decltype(any.next());
 
-        PROXY_DECL(pythonic::__dispatch__, next);
-
-    }
-
+    PROXY_DECL(pythonic::__dispatch__, next);
+  }
 }
 
 #endif

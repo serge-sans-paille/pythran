@@ -6,22 +6,22 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/file.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace file {
+    namespace file
+    {
 
-            int fileno(types::file const& f)
-            {
-                return f.fileno();
-            }
+      int fileno(types::file const &f)
+      {
+        return f.fileno();
+      }
 
-            PROXY_IMPL(pythonic::__builtin__::file, fileno);
-
-        }
-
+      PROXY_IMPL(pythonic::__builtin__::file, fileno);
     }
-
+  }
 }
 #endif

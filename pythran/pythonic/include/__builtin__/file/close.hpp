@@ -4,20 +4,20 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/file.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace file {
+    namespace file
+    {
 
-            void close(types::file &f);
-            void close(types::file &&f);
+      void close(types::file &f);
+      void close(types::file &&f);
 
-            PROXY_DECL(pythonic::__builtin__::file, close);
-
-        }
-
+      PROXY_DECL(pythonic::__builtin__::file, close);
     }
-
+  }
 }
 #endif

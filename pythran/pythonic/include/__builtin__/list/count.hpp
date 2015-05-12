@@ -3,18 +3,20 @@
 
 #include "pythonic/__dispatch__/count.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace list {
+    namespace list
+    {
 
-            ALIAS_DECL(count, pythonic::__dispatch__::count);
+      ALIAS_DECL(count, pythonic::__dispatch__::count);
 
-            PROXY_DECL(pythonic::__builtin__::list, count);
-        }
+      PROXY_DECL(pythonic::__builtin__::list, count);
     }
-
+  }
 }
 
 #endif

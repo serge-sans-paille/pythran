@@ -9,21 +9,21 @@
 
 #include "pythonic/types/generator.hpp"
 
-namespace pythonic {
-    yielder::yielder() :
-        __generator_state(0)
-    {}
+namespace pythonic
+{
+  yielder::yielder() : __generator_state(0)
+  {
+  }
 
-    bool yielder::operator!=(yielder const & other) const
-    {
-        return __generator_state != other.__generator_state;
-    }
+  bool yielder::operator!=(yielder const &other) const
+  {
+    return __generator_state != other.__generator_state;
+  }
 
-    bool yielder::operator==(yielder const & other) const
-    {
-        return __generator_state == other.__generator_state;
-    }
-
+  bool yielder::operator==(yielder const &other) const
+  {
+    return __generator_state == other.__generator_state;
+  }
 }
 
 #endif

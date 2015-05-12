@@ -5,23 +5,25 @@
 #include "pythonic/types/dict.hpp"
 #include "pythonic/include/__builtin__/dict/viewvalues.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        namespace dict {
+    namespace dict
+    {
 
-            template<class K, class V>
-                types::dict_values<types::dict<K,V>> viewvalues(types::dict<K,V> const &d)
-                {
-                    return d.viewvalues();
-                }
+      template <class K, class V>
+      types::dict_values<types::dict<K, V>>
+      viewvalues(types::dict<K, V> const &d)
+      {
+        return d.viewvalues();
+      }
 
-            PROXY_IMPL(pythonic::__builtin__::dict, viewvalues);
-        }
-
+      PROXY_IMPL(pythonic::__builtin__::dict, viewvalues);
     }
-
+  }
 }
 
 #endif

@@ -4,16 +4,15 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/random/random.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace random {
-        double uniform(double a, double b);
+  namespace random
+  {
+    double uniform(double a, double b);
 
-        PROXY_DECL(pythonic::random, uniform);
-
-
-    }
-
+    PROXY_DECL(pythonic::random, uniform);
+  }
 }
 
 #endif

@@ -4,20 +4,21 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/dict.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        namespace dict {
+    namespace dict
+    {
 
-            template<class K, class V, class W>
-                bool has_key(types::dict<K,V> const &d, W const& k);
+      template <class K, class V, class W>
+      bool has_key(types::dict<K, V> const &d, W const &k);
 
-            PROXY_DECL(pythonic::__builtin__::dict, has_key);
-        }
-
+      PROXY_DECL(pythonic::__builtin__::dict, has_key);
     }
-
+  }
 }
 
 #endif

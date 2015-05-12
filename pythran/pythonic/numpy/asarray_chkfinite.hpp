@@ -9,26 +9,27 @@
 #include "pythonic/utils/numpy_traits.hpp"
 #include "pythonic/numpy/isfinite.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
+  namespace numpy
+  {
 
-        namespace wrapper {
-            template<class I>
-                I asarray_chkfinite(I const& a)
-                {
-                    if(not proxy::isfinite()(a))
-                        throw types::ValueError("array must not contain infs or NaNs");
-                    return a;
-                }
-        }
-
-    #define NUMPY_NARY_FUNC_NAME asarray_chkfinite
-    #define NUMPY_NARY_FUNC_SYM wrapper::asarray_chkfinite
-    #include "pythonic/types/numpy_nary_expr.hpp"
-
+    namespace wrapper
+    {
+      template <class I>
+      I asarray_chkfinite(I const &a)
+      {
+        if (not proxy::isfinite()(a))
+          throw types::ValueError("array must not contain infs or NaNs");
+        return a;
+      }
     }
 
+#define NUMPY_NARY_FUNC_NAME asarray_chkfinite
+#define NUMPY_NARY_FUNC_SYM wrapper::asarray_chkfinite
+#include "pythonic/types/numpy_nary_expr.hpp"
+  }
 }
 
 #endif

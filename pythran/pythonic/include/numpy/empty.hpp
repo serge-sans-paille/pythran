@@ -5,19 +5,20 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/numpy_type.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
-        template<size_t N, class dtype=double>
-            types::ndarray<typename types::numpy_type<dtype>::type, N> empty(types::array<long, N>const& shape, dtype d=dtype());
+  namespace numpy
+  {
+    template <size_t N, class dtype = double>
+    types::ndarray<typename types::numpy_type<dtype>::type, N>
+    empty(types::array<long, N> const &shape, dtype d = dtype());
 
-        template<class dtype=double>
-            types::ndarray<dtype, 1> empty(long size, dtype d=dtype());
+    template <class dtype = double>
+    types::ndarray<dtype, 1> empty(long size, dtype d = dtype());
 
-        PROXY_DECL(pythonic::numpy, empty);
-
-    }
-
+    PROXY_DECL(pythonic::numpy, empty);
+  }
 }
 
 #endif

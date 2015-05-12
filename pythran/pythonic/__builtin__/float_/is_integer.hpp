@@ -6,23 +6,24 @@
 
 #include <cmath>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        namespace float_ {
+    namespace float_
+    {
 
-            bool is_integer(double d)
-            {
-                double intpart;
-                return std::modf(d, &intpart) == d;
-            }
+      bool is_integer(double d)
+      {
+        double intpart;
+        return std::modf(d, &intpart) == d;
+      }
 
-            PROXY_IMPL(pythonic::__builtin__::float_, is_integer);
-
-        }
+      PROXY_IMPL(pythonic::__builtin__::float_, is_integer);
     }
-
+  }
 }
 
 #endif

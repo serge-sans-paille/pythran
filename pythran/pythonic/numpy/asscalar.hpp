@@ -8,21 +8,22 @@
 #include "pythonic/numpy/asarray.hpp"
 #include "pythonic/__builtin__/ValueError.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
-        template<class E>
-            typename E::dtype asscalar(E const& expr)
-            {
-                if(expr.flat_size() != 1)
-                    throw types::ValueError("can only convert an array  of size 1 to a Python scalar");
-                return *asarray(expr).fbegin();
-            }
-
-        PROXY_IMPL(pythonic::numpy, asscalar);
-
+  namespace numpy
+  {
+    template <class E>
+    typename E::dtype asscalar(E const &expr)
+    {
+      if (expr.flat_size() != 1)
+        throw types::ValueError(
+            "can only convert an array  of size 1 to a Python scalar");
+      return *asarray(expr).fbegin();
     }
 
+    PROXY_IMPL(pythonic::numpy, asscalar);
+  }
 }
 
 #endif

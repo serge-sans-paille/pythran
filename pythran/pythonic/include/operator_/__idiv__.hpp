@@ -3,14 +3,14 @@
 
 #include "pythonic/operator_/idiv.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
+  namespace operator_
+  {
 
-        FPROXY_DECL(pythonic::operator_, __idiv__, idiv);
-    }
-
+    FPROXY_DECL(pythonic::operator_, __idiv__, idiv);
+  }
 }
 
 #endif
-

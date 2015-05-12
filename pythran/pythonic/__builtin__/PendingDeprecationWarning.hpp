@@ -4,15 +4,14 @@
 #include "pythonic/types/exceptions.hpp"
 #include "pythonic/include/__builtin__/PendingDeprecationWarning.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        PYTHONIC_EXCEPTION_IMPL(PendingDeprecationWarning)
-
-    }
-
+    PYTHONIC_EXCEPTION_IMPL(PendingDeprecationWarning)
+  }
 }
 
 #endif
-

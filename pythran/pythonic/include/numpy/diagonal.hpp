@@ -3,14 +3,14 @@
 
 #include "pythonic/numpy/diag.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
+  namespace numpy
+  {
 
-        FPROXY_DECL(pythonic::numpy, diagonal, diag);
-
-    }
-
+    FPROXY_DECL(pythonic::numpy, diagonal, diag);
+  }
 }
 
 #endif

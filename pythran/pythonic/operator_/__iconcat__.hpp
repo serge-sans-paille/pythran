@@ -5,14 +5,14 @@
 
 #include "pythonic/operator_/iconcat.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
+  namespace operator_
+  {
 
-        FPROXY_IMPL(pythonic::operator_, __iconcat__, iconcat);
-    }
-
+    FPROXY_IMPL(pythonic::operator_, __iconcat__, iconcat);
+  }
 }
 
 #endif
-

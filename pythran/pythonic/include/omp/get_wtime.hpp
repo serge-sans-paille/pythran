@@ -4,15 +4,16 @@
 #include <omp.h>
 #include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace omp {
+  namespace omp
+  {
 
-        long get_wtime();
+    long get_wtime();
 
-        PROXY_DECL(pythonic::omp, get_wtime);
-    }
-
+    PROXY_DECL(pythonic::omp, get_wtime);
+  }
 }
 
 #endif

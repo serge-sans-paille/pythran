@@ -6,20 +6,20 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/__builtin__/abs.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
+  namespace operator_
+  {
 
-        template <class A>
-            auto __abs__(A const& a) -> decltype(__builtin__::abs(a))
-            {
-                return __builtin__::abs(a);
-            }
-
-        PROXY_IMPL(pythonic::operator_, __abs__);
-
+    template <class A>
+    auto __abs__(A const &a) -> decltype(__builtin__::abs(a))
+    {
+      return __builtin__::abs(a);
     }
 
+    PROXY_IMPL(pythonic::operator_, __abs__);
+  }
 }
 
 #endif

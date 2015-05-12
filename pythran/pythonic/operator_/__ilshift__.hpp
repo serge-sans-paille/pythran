@@ -5,14 +5,14 @@
 
 #include "pythonic/operator_/ilshift.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
+  namespace operator_
+  {
 
-        FPROXY_IMPL(pythonic::operator_, __ilshift__, ilshift);
-    }
-
+    FPROXY_IMPL(pythonic::operator_, __ilshift__, ilshift);
+  }
 }
 
 #endif
-

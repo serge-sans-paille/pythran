@@ -3,35 +3,34 @@
 
 #include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        template <class Iterable>
-            struct _reversed {
+    template <class Iterable>
+    struct _reversed {
 
-                using value_type = typename Iterable::value_type;
-                using iterator = typename Iterable::reverse_iterator;
-                using const_iterator = typename Iterable::const_reverse_iterator;
+      using value_type = typename Iterable::value_type;
+      using iterator = typename Iterable::reverse_iterator;
+      using const_iterator = typename Iterable::const_reverse_iterator;
 
-                Iterable iterable;
+      Iterable iterable;
 
-                _reversed();
-                _reversed(Iterable const& iterable);
-                iterator begin();
-                iterator end();
-                const_iterator begin() const;
-                const_iterator end() const;
-            };
+      _reversed();
+      _reversed(Iterable const &iterable);
+      iterator begin();
+      iterator end();
+      const_iterator begin() const;
+      const_iterator end() const;
+    };
 
+    template <class Iterable>
+    _reversed<Iterable> reversed(Iterable const &iterable);
 
-        template <class Iterable>
-            _reversed<Iterable> reversed(Iterable const& iterable);
-
-        PROXY_DECL(pythonic::__builtin__, reversed);
-
-    }
-
+    PROXY_DECL(pythonic::__builtin__, reversed);
+  }
 }
 
 #endif

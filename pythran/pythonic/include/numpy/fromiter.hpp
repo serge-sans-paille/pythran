@@ -4,17 +4,19 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
-        template<class Iterable, class dtype=double>
-            types::ndarray<typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type::value_type, 1>
-            fromiter(Iterable&& iterable, dtype d=dtype(), long count=-1);
+  namespace numpy
+  {
+    template <class Iterable, class dtype = double>
+    types::ndarray<typename std::remove_cv<typename std::remove_reference<
+                       Iterable>::type>::type::value_type,
+                   1>
+    fromiter(Iterable &&iterable, dtype d = dtype(), long count = -1);
 
-        PROXY_DECL(pythonic::numpy, fromiter);
-
-    }
-
+    PROXY_DECL(pythonic::numpy, fromiter);
+  }
 }
 
 #endif

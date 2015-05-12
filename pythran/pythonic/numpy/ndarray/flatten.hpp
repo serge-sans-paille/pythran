@@ -6,24 +6,24 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 
-namespace pythonic {
-    
-    namespace numpy  {
+namespace pythonic
+{
 
-        namespace ndarray {
-            template<class T, size_t N>
-                types::ndarray<T, 1> flatten(types::ndarray<T,N> const& a)
-                {
-                    return {a.mem, types::array<long, 1>{{a.flat_size()}}};
-                }
+  namespace numpy
+  {
 
-            NUMPY_EXPR_TO_NDARRAY0_IMPL(flatten);
-            PROXY_IMPL(pythonic::numpy::ndarray, flatten);
+    namespace ndarray
+    {
+      template <class T, size_t N>
+      types::ndarray<T, 1> flatten(types::ndarray<T, N> const &a)
+      {
+        return {a.mem, types::array<long, 1>{{a.flat_size()}}};
+      }
 
-        }
-
+      NUMPY_EXPR_TO_NDARRAY0_IMPL(flatten);
+      PROXY_IMPL(pythonic::numpy::ndarray, flatten);
     }
-
+  }
 }
 
 #endif

@@ -3,19 +3,19 @@
 
 #include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __dispatch__ {
-        template<class Any>
-            auto clear(Any&& any) -> decltype(any.clear())
-            {
-                return any.clear();
-            }
-
-        PROXY_DECL(pythonic::__dispatch__, clear);
-
+  namespace __dispatch__
+  {
+    template <class Any>
+    auto clear(Any &&any) -> decltype(any.clear())
+    {
+      return any.clear();
     }
 
+    PROXY_DECL(pythonic::__dispatch__, clear);
+  }
 }
 
 #endif

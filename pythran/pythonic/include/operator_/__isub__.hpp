@@ -3,14 +3,13 @@
 
 #include "pythonic/operator_/isub.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
-        FPROXY_DECL(pythonic::operator_, __isub__, isub);
-
-    }
-
+  namespace operator_
+  {
+    FPROXY_DECL(pythonic::operator_, __isub__, isub);
+  }
 }
 
 #endif
-

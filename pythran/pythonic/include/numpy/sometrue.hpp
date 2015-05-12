@@ -3,14 +3,14 @@
 
 #include "pythonic/numpy/any.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
+  namespace numpy
+  {
 
-        FPROXY_DECL(pythonic::numpy, sometrue, any);
-
-    }
-
+    FPROXY_DECL(pythonic::numpy, sometrue, any);
+  }
 }
 
 #endif

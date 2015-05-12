@@ -3,16 +3,17 @@
 
 #include "pythonic/include/utils/fwd.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace utils {
+  namespace utils
+  {
 
-        template<typename... Types>
-            void fwd(Types const&... types)
-            {}
-
+    template <typename... Types>
+    void fwd(Types const &... types)
+    {
     }
-
+  }
 }
 
 #endif

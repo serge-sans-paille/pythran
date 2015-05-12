@@ -6,21 +6,21 @@
 
 #include <sys/time.h>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace time {
+  namespace time
+  {
 
-        double time()
-        {
-            struct timeval t;
-            gettimeofday(&t, nullptr);
-            return t.tv_sec + t.tv_usec * 1e-6;
-        }    
-
-        PROXY_IMPL(pythonic::time, time)
-
+    double time()
+    {
+      struct timeval t;
+      gettimeofday(&t, nullptr);
+      return t.tv_sec + t.tv_usec * 1e-6;
     }
 
+    PROXY_IMPL(pythonic::time, time)
+  }
 }
 
 #endif

@@ -8,32 +8,30 @@
 
 #include "pythonic/types/list.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace random {
-        template<class Iterable>
-            types::list<
-                typename std::remove_cv<
-                    typename std::remove_reference<Iterable>::type
-                    >::type::iterator::value_type
-                >
-            sample(Iterable&& s, size_t k)
-            {
-                using value_type = typename std::remove_cv<typename std::remove_reference<Iterable>::type>::type::iterator::value_type;
-                types::list<value_type> tmp(s);
-                std::vector<size_t> indices(tmp.size());
-                std::iota(indices.begin(), indices.end(), 0);
-                std::random_shuffle(indices.begin(), indices.end());
-                types::list<value_type> out(k);
-                for(size_t i=0; i<k; i++)
-                    out[i] = tmp[ indices[i] ];
-                return out;
-            }
-
-        PROXY_IMPL(pythonic::random, sample);
-
+  namespace random
+  {
+    template <class Iterable>
+    types::list<typename std::remove_cv<typename std::remove_reference<
+        Iterable>::type>::type::iterator::value_type>
+    sample(Iterable &&s, size_t k)
+    {
+      using value_type = typename std::remove_cv<typename std::remove_reference<
+          Iterable>::type>::type::iterator::value_type;
+      types::list<value_type> tmp(s);
+      std::vector<size_t> indices(tmp.size());
+      std::iota(indices.begin(), indices.end(), 0);
+      std::random_shuffle(indices.begin(), indices.end());
+      types::list<value_type> out(k);
+      for (size_t i = 0; i < k; i++)
+        out[i] = tmp[indices[i]];
+      return out;
     }
 
+    PROXY_IMPL(pythonic::random, sample);
+  }
 }
 
 #endif

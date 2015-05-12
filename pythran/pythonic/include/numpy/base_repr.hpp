@@ -4,16 +4,16 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
+  namespace numpy
+  {
 
-        types::str base_repr(long number, long base=2, long padding=0);
+    types::str base_repr(long number, long base = 2, long padding = 0);
 
-        PROXY_DECL(pythonic::numpy, base_repr);
-
-    }
-
+    PROXY_DECL(pythonic::numpy, base_repr);
+  }
 }
 
 #endif

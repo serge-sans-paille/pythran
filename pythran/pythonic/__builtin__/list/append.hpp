@@ -6,37 +6,37 @@
 #include "pythonic/__builtin__/None.hpp"
 #include "pythonic/include/__builtin__/list/append.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace list {
+    namespace list
+    {
 
-            template<class T, class F>
-                types::none_type append(types::list<T> &seq, F const& value)
-                {
-                    seq.push_back(value);
-                    return __builtin__::None;
-                }
+      template <class T, class F>
+      types::none_type append(types::list<T> &seq, F const &value)
+      {
+        seq.push_back(value);
+        return __builtin__::None;
+      }
 
-            template<class T, class F>
-                types::none_type append(types::list<T> &seq, F&& value)
-                {
-                    seq.push_back(value);
-                    return __builtin__::None;
-                }
+      template <class T, class F>
+      types::none_type append(types::list<T> &seq, F &&value)
+      {
+        seq.push_back(value);
+        return __builtin__::None;
+      }
 
-            template<class F>
-                types::none_type append(types::empty_list &seq, F&& value)
-                {
-                    return __builtin__::None;
-                }
+      template <class F>
+      types::none_type append(types::empty_list &seq, F &&value)
+      {
+        return __builtin__::None;
+      }
 
-            PROXY_IMPL(pythonic::__builtin__::list, append);
-
-        }
-
+      PROXY_IMPL(pythonic::__builtin__::list, append);
     }
-
+  }
 }
 #endif

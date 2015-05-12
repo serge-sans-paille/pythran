@@ -6,14 +6,14 @@
 
 #include <cmath>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace cmath {
-        ALIAS(acosh, std::acosh);
-        PROXY_IMPL(pythonic::cmath, acosh);
-    }
-
+  namespace cmath
+  {
+    ALIAS(acosh, std::acosh);
+    PROXY_IMPL(pythonic::cmath, acosh);
+  }
 }
 
 #endif
-

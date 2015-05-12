@@ -5,16 +5,16 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/str.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
-        template<class E>
-            types::str array2string(E && a);
+  namespace numpy
+  {
+    template <class E>
+    types::str array2string(E &&a);
 
-        PROXY_DECL(pythonic::numpy, array2string);
-
-    }
-
+    PROXY_DECL(pythonic::numpy, array2string);
+  }
 }
 
 #endif

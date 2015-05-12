@@ -3,16 +3,17 @@
 
 #include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
+  namespace operator_
+  {
 
-        template <class A, class B>
-            long indexOf(A const& a, B const& b);
+    template <class A, class B>
+    long indexOf(A const &a, B const &b);
 
-        PROXY_DECL(pythonic::operator_, indexOf);
-    }
-
+    PROXY_DECL(pythonic::operator_, indexOf);
+  }
 }
 
 #endif

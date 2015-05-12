@@ -6,24 +6,24 @@
 #include "pythonic/utils/numpy_conversion.hpp"
 #include "pythonic/numpy/asarray.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
-        template<class T>
-            types::ndarray<T,1> diag(types::ndarray<T,2> const &a, long k=0);
+  namespace numpy
+  {
+    template <class T>
+    types::ndarray<T, 1> diag(types::ndarray<T, 2> const &a, long k = 0);
 
-        template<class T>
-            types::ndarray<T,2> diag(types::ndarray<T,1> const &a, long k=0);
+    template <class T>
+    types::ndarray<T, 2> diag(types::ndarray<T, 1> const &a, long k = 0);
 
-        template<class T>
-            auto diag(types::list<T> const &a, long k=0) 
-            -> decltype(diag(asarray(a), k));
+    template <class T>
+    auto diag(types::list<T> const &a, long k = 0)
+        -> decltype(diag(asarray(a), k));
 
-        NUMPY_EXPR_TO_NDARRAY0_DECL(diag);
-        PROXY_DECL(pythonic::numpy, diag);
-
-    }
-
+    NUMPY_EXPR_TO_NDARRAY0_DECL(diag);
+    PROXY_DECL(pythonic::numpy, diag);
+  }
 }
 
 #endif

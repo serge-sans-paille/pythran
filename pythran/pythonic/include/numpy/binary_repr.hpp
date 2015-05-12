@@ -3,19 +3,19 @@
 
 #include "pythonic/numpy/base_repr.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
+  namespace numpy
+  {
 
-        types::str
-        binary_repr(long number, types::none_type width=__builtin__::None);
+    types::str binary_repr(long number,
+                           types::none_type width = __builtin__::None);
 
-        types::str binary_repr(long number, long width);
+    types::str binary_repr(long number, long width);
 
-        PROXY_DECL(pythonic::numpy, binary_repr);
-
-    }
-
+    PROXY_DECL(pythonic::numpy, binary_repr);
+  }
 }
 
 #endif

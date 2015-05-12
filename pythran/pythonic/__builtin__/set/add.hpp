@@ -6,29 +6,29 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/set.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace set {
+    namespace set
+    {
 
-            template<class T, class F>
-                void add(types::set<T> &s, F const& value)
-                {
-                    s.add(value);
-                }
+      template <class T, class F>
+      void add(types::set<T> &s, F const &value)
+      {
+        s.add(value);
+      }
 
-            template<class T, class F>
-                void add(types::set<T> &&s, F const& value)
-                {
-                    // nothing have to be done as we work on rvalue
-                }
+      template <class T, class F>
+      void add(types::set<T> &&s, F const &value)
+      {
+        // nothing have to be done as we work on rvalue
+      }
 
-            PROXY_IMPL(pythonic::__builtin__::set, add);
-
-        }
-
+      PROXY_IMPL(pythonic::__builtin__::set, add);
     }
-
+  }
 }
-#endif 
+#endif

@@ -6,27 +6,27 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/file.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace file {
+    namespace file
+    {
 
-            void flush(types::file &f)
-            {
-                f.flush();
-            }
+      void flush(types::file &f)
+      {
+        f.flush();
+      }
 
-            void flush(types::file &&f)
-            {
-                f.flush();
-            }
+      void flush(types::file &&f)
+      {
+        f.flush();
+      }
 
-            PROXY_IMPL(pythonic::__builtin__::file, flush);
-
-        }
-
+      PROXY_IMPL(pythonic::__builtin__::file, flush);
     }
-
+  }
 }
 #endif

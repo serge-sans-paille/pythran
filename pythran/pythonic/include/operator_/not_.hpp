@@ -3,15 +3,16 @@
 
 #include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
-        template<class T>
-            decltype(!std::declval<T const&>()) not_(T const& a);
+  namespace operator_
+  {
+    template <class T>
+    decltype(!std::declval<T const &>()) not_(T const &a);
 
-        PROXY_DECL(pythonic::operator_, not_);
-    }
-
+    PROXY_DECL(pythonic::operator_, not_);
+  }
 }
 
 #endif

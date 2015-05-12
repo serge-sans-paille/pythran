@@ -4,16 +4,16 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/random/randrange.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace random {
+  namespace random
+  {
 
-        long randint(long a, long b);
+    long randint(long a, long b);
 
-        PROXY_DECL(pythonic::random, randint);
-
-    }
-
+    PROXY_DECL(pythonic::random, randint);
+  }
 }
 
 #endif

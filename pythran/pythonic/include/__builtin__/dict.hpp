@@ -5,27 +5,29 @@
 
 #include "pythonic/types/dict.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        namespace anonymous {
-            inline types::empty_dict dict();
+    namespace anonymous
+    {
+      inline types::empty_dict dict();
 
-            template<class Iterable>
-                inline
-                types::dict<
-                    typename std::tuple_element<0, typename std::remove_reference<Iterable>::type::iterator::value_type>::type,
-                    typename std::tuple_element<1, typename std::remove_reference<Iterable>::type::iterator::value_type>::type
-                    >
-                    dict(Iterable&& iterable);
-        }
-
-        PROXY_DECL(pythonic::__builtin__::anonymous, dict);
-
+      template <class Iterable>
+      inline types::dict<
+          typename std::tuple_element<
+              0, typename std::remove_reference<
+                     Iterable>::type::iterator::value_type>::type,
+          typename std::tuple_element<
+              1, typename std::remove_reference<
+                     Iterable>::type::iterator::value_type>::type>
+      dict(Iterable &&iterable);
     }
 
+    PROXY_DECL(pythonic::__builtin__::anonymous, dict);
+  }
 }
 
 #endif
-

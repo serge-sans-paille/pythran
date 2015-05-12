@@ -7,22 +7,22 @@
 
 #include <sstream>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        template <class T>
-            types::str hex(T const & v)
-            {
-                std::ostringstream oss;
-                oss << "0x" << std::hex << v;
-                return oss.str();
-            }
-
-        PROXY_IMPL(pythonic::__builtin__, hex);
-
+    template <class T>
+    types::str hex(T const &v)
+    {
+      std::ostringstream oss;
+      oss << "0x" << std::hex << v;
+      return oss.str();
     }
 
+    PROXY_IMPL(pythonic::__builtin__, hex);
+  }
 }
 
 #endif

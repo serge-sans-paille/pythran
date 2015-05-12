@@ -4,17 +4,20 @@
 #include "pythonic/__dispatch__/copy.hpp"
 #include "pythonic/include/__builtin__/dict/copy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        namespace dict {
+    namespace dict
+    {
 
-            ALIAS(copy, pythonic::__dispatch__::copy);
+      ALIAS(copy, pythonic::__dispatch__::copy);
 
-            PROXY_IMPL(pythonic::__builtin__::dict, copy);
-        }
+      PROXY_IMPL(pythonic::__builtin__::dict, copy);
     }
+  }
 }
 
 #endif

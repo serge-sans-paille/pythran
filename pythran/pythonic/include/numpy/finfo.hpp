@@ -5,17 +5,17 @@
 #include "pythonic/types/numpy_type.hpp"
 #include "pythonic/types/finfo.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
-        template<class dtype=double>
-            types::finfo<typename types::numpy_type<dtype>::type>
-            finfo(dtype d=dtype());
+  namespace numpy
+  {
+    template <class dtype = double>
+    types::finfo<typename types::numpy_type<dtype>::type>
+    finfo(dtype d = dtype());
 
-        PROXY_DECL(pythonic::numpy, finfo)
-
-    }
-
+    PROXY_DECL(pythonic::numpy, finfo)
+  }
 }
 
 #endif

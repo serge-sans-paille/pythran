@@ -4,17 +4,19 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/str.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace str {
+    namespace str
+    {
 
-            bool isdigit(types::str const& s);
+      bool isdigit(types::str const &s);
 
-            PROXY_DECL(pythonic::__builtin__::str, isdigit);
-
-        }
+      PROXY_DECL(pythonic::__builtin__::str, isdigit);
     }
+  }
 }
 #endif

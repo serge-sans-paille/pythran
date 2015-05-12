@@ -4,14 +4,15 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/numpy/sort.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
+  namespace numpy
+  {
 
-            ALIAS_DECL(sort_complex, sort)
-            PROXY_DECL(pythonic::numpy, sort_complex);
-
-    }
+    ALIAS_DECL(sort_complex, sort)
+    PROXY_DECL(pythonic::numpy, sort_complex);
+  }
 }
 
 #endif

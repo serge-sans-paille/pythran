@@ -7,26 +7,26 @@
 #include "pythonic/types/str.hpp"
 #include "pythonic/types/file.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace file {
+    namespace file
+    {
 
-            types::str read(types::file &f, int size)
-            {
-                return f.read(size);
-            }
-            types::str read(types::file &&f, int size)
-            {
-                return f.read(size);
-            }
+      types::str read(types::file &f, int size)
+      {
+        return f.read(size);
+      }
+      types::str read(types::file &&f, int size)
+      {
+        return f.read(size);
+      }
 
-            PROXY_IMPL(pythonic::__builtin__::file, read);
-
-        }
-
+      PROXY_IMPL(pythonic::__builtin__::file, read);
     }
-
+  }
 }
 #endif

@@ -6,18 +6,19 @@
 #include <omp.h>
 #include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace omp {
+  namespace omp
+  {
 
-        void set_nested(long val)
-        {
-            return omp_set_nested(val);
-        }
-
-        PROXY_IMPL(pythonic::omp, set_nested);
+    void set_nested(long val)
+    {
+      return omp_set_nested(val);
     }
 
+    PROXY_IMPL(pythonic::omp, set_nested);
+  }
 }
 
 #endif

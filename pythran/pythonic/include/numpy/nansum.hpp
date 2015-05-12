@@ -6,23 +6,22 @@
 #include "pythonic/types/numpy_type.hpp"
 #include "pythonic/numpy/isnan.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
-        template<class E, class F>
-            void _nansum(E begin, E end, F& sum, utils::int_<1>);
+  namespace numpy
+  {
+    template <class E, class F>
+    void _nansum(E begin, E end, F &sum, utils::int_<1>);
 
-        template<class E, class F, size_t N>
-            void _nansum(E begin, E end, F& sum, utils::int_<N>);
+    template <class E, class F, size_t N>
+    void _nansum(E begin, E end, F &sum, utils::int_<N>);
 
-        template<class E>
-            typename types::numpy_expr_to_ndarray<E>::T
-            nansum(E const& expr);
+    template <class E>
+    typename types::numpy_expr_to_ndarray<E>::T nansum(E const &expr);
 
-        PROXY_DECL(pythonic::numpy, nansum);
-
-    }
-
+    PROXY_DECL(pythonic::numpy, nansum);
+  }
 }
 
 #endif

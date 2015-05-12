@@ -9,19 +9,20 @@
 
 #include <type_traits>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
-        template<class E>
-            constexpr bool isscalar(E const&)
-            {
-                return std::is_scalar<E>::value or types::is_complex<E>::value or std::is_same<E, types::str>::value;
-            }
-
-        PROXY_IMPL(pythonic::numpy, isscalar);
-
+  namespace numpy
+  {
+    template <class E>
+    constexpr bool isscalar(E const &)
+    {
+      return std::is_scalar<E>::value or types::is_complex<E>::value or
+             std::is_same<E, types::str>::value;
     }
 
+    PROXY_IMPL(pythonic::numpy, isscalar);
+  }
 }
 
 #endif

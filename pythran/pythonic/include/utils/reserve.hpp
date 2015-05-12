@@ -1,14 +1,15 @@
 #ifndef PYTHONIC_INCLUDE_UTILS_RESERVE_HPP
 #define PYTHONIC_INCLUDE_UTILS_RESERVE_HPP
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace utils {
+  namespace utils
+  {
 
-        template <class Container, class From>
-            void reserve(Container & , From &&); //do nothing unless specialized
-    }
-
+    template <class Container, class From>
+    void reserve(Container &, From &&); // do nothing unless specialized
+  }
 }
 
 #endif

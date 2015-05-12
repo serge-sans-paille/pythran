@@ -6,21 +6,21 @@
 #include "pythonic/numpy/asarray.hpp"
 #include <algorithm>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
-        template<class T, size_t N>
-            decltype(std::declval<T>()+1.) median(types::ndarray<T,N> const& arr);
+  namespace numpy
+  {
+    template <class T, size_t N>
+    decltype(std::declval<T>() + 1.) median(types::ndarray<T, N> const &arr);
 
-        template<class T, size_t N>
-            decltype(std::declval<T>()+1.) median(types::ndarray<T,N> && arr);
+    template <class T, size_t N>
+    decltype(std::declval<T>() + 1.) median(types::ndarray<T, N> &&arr);
 
-        NUMPY_EXPR_TO_NDARRAY0_DECL(median);
+    NUMPY_EXPR_TO_NDARRAY0_DECL(median);
 
-        PROXY_DECL(pythonic::numpy, median);
-
-    }
-
+    PROXY_DECL(pythonic::numpy, median);
+  }
 }
 
 #endif

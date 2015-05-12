@@ -5,14 +5,13 @@
 
 #include "pythonic/operator_/invert.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
-        FPROXY_IMPL(pythonic::operator_, __inv__, invert);
-
-    }
-
+  namespace operator_
+  {
+    FPROXY_IMPL(pythonic::operator_, __inv__, invert);
+  }
 }
 
 #endif
-

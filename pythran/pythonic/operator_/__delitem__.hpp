@@ -5,14 +5,14 @@
 
 #include "pythonic/operator_/delitem.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
+  namespace operator_
+  {
 
-        FPROXY_IMPL(pythonic::operator_, __delitem__, delitem);
-
-    }
-
+    FPROXY_IMPL(pythonic::operator_, __delitem__, delitem);
+  }
 }
 
 #endif

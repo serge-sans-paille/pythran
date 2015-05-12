@@ -3,15 +3,14 @@
 
 #include "pythonic/operator_/iand.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
+  namespace operator_
+  {
 
-        FPROXY_DECL(pythonic::operator_, __iand__, iand);
-
-    }
-
+    FPROXY_DECL(pythonic::operator_, __iand__, iand);
+  }
 }
 
 #endif
-

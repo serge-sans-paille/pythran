@@ -6,22 +6,22 @@
 #include "pythonic/__builtin__/ValueError.hpp"
 #include "pythonic/numpy/isnan.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace numpy {
-        template<class E, class F>
-            void _nanmin(E begin, E end, F& min, utils::int_<1>);
+  namespace numpy
+  {
+    template <class E, class F>
+    void _nanmin(E begin, E end, F &min, utils::int_<1>);
 
-        template<class E, class F, size_t N>
-            void _nanmin(E begin, E end, F& min, utils::int_<N>);
+    template <class E, class F, size_t N>
+    void _nanmin(E begin, E end, F &min, utils::int_<N>);
 
-        template<class E>
-            typename types::numpy_expr_to_ndarray<E>::T nanmin(E const& expr);
+    template <class E>
+    typename types::numpy_expr_to_ndarray<E>::T nanmin(E const &expr);
 
-        PROXY_DECL(pythonic::numpy, nanmin);
-
-    }
-
+    PROXY_DECL(pythonic::numpy, nanmin);
+  }
 }
 
 #endif

@@ -1,10 +1,12 @@
 #ifndef PYTHONIC_BISECT_BISECT_HPP
 #define PYTHONIC_BISECT_BISECT_HPP
 
-#include "pythonic/utils/proxy.hpp"
 #include "pythonic/include/bisect/bisect.hpp"
+#include "pythonic/types/exceptions.hpp"
 
-#include <algorithm>
+#include "pythonic/utils/proxy.hpp"
+
+#include <iterator>
 
 namespace pythonic
 {
@@ -12,11 +14,21 @@ namespace pythonic
   namespace bisect
   {
     template <class X, class A>
-    size_t bisect(X const &x, A const &a, long lo, long hi)
+    long bisect(X const &x, A const &a, long lo,
+                details::bisect_fun<X, A> const &fun)
     {
-      if (hi < 0)
-        hi = x.end() - x.begin();
-      return std::upper_bound(x.begin() + lo, x.begin() + hi, a) - x.begin();
+      if (lo < 0)
+        throw types::ValueError("lo must be non-negative");
+      return std::distance(x.begin(), fun(x.begin() + lo, x.end(), a));
+    }
+
+    template <class X, class A>
+    long bisect(X const &x, A const &a, long lo, long hi,
+                details::bisect_fun<X, A> const &fun)
+    {
+      if (lo < 0)
+        throw types::ValueError("lo must be non-negative");
+      return std::distance(x.begin(), fun(x.begin() + lo, x.begin() + hi, a));
     }
 
     PROXY_IMPL(pythonic::bisect, bisect);

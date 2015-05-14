@@ -2,8 +2,13 @@ from __future__ import print_function
 from distutils.command.build import build
 from distutils.core import setup, Command
 from subprocess import check_call, check_output
+from urllib import urlopen
+from zipfile import ZipFile
+from StringIO import StringIO
+
 import logging
 import os
+import re
 import shutil
 import sys
 import time
@@ -52,41 +57,65 @@ class BuildWithPly(build):
         SpecParser()  # this forces the generation of the parsetab file
         sys.path.pop(0)
 
+    def patch_nt2(self, nt2_path, version):
+        """
+        NT2 version gets override by pythran's git version if any
+        So force it here...
+        """
+        cmakelists = os.path.join(nt2_path, 'CMakeLists.txt')
+        with open(cmakelists, 'r') as cm:
+            print("patching nt2 version in" + cmakelists)
+            data = cm.read()
+            data = re.sub(r'(nt2_parse_version\()',
+                          r'set(NT2_VERSION_STRING "{}")\n\1'.format(version),
+                          data)
+        with open(cmakelists, 'w') as cm:
+            cm.write(data)
+
+        with open(os.path.join(nt2_path, 'tagname'), 'w') as tn:
+            tn.write(version)
+
     def build_nt2(self):
+        """
+        Install NT2 from the github-generated archive
+        """
         nt2_dir = 'nt2'
-        if not os.path.isdir(nt2_dir):
-            print('nt2 git repository not setup, cloning it')
-            cmd = 'git clone https://github.com/NumScale/nt2.git -b release'
-            check_call(cmd.split())
-        else:
-            cmd = 'git fetch && git checkout origin/release'
-            check_call(cmd, shell=True, cwd=nt2_dir)
-            print('nt2 git repository updated')
+        nt2_version = '1.2.3-pythran'  # fake!
+        cwd = os.getcwd()
+        nt2_src_dir = os.path.join(cwd, self.build_temp, nt2_dir + '_src')
+        if not os.path.isdir(nt2_src_dir):
+            print('nt2 archive needed, downloading it')
+            url = 'https://github.com/NumScale/nt2/archive/release.zip'
+            location = urlopen(url)
+            zipfile = ZipFile(StringIO(location.read()))
+            zipfile.extractall(self.build_temp)
+            extracted = os.path.dirname(zipfile.namelist()[0])
+            shutil.move(os.path.join(self.build_temp, extracted), nt2_src_dir)
+            self.patch_nt2(nt2_src_dir, nt2_version)
+            assert os.path.isdir(nt2_src_dir), "download & unzip ok"
 
         nt2_build_dir = os.path.join(self.build_temp, nt2_dir)
         if not os.path.isdir(nt2_build_dir):
             os.makedirs(nt2_build_dir)
 
         if not os.path.exists(os.path.join(nt2_build_dir, 'Makefile')):
-            print('nt2 not already configured, configuring it')
+            print('nt2 not configured, configuring it')
 
-            cwd = os.getcwd()
-            abs_nt2_dir = os.path.join(cwd, nt2_dir)
             os.chdir(nt2_build_dir)
             build_cmd = ['cmake',
-                         abs_nt2_dir,
-                         '-DCMAKE_INSTALL_PREFIX=.',
-                         '-DNT2_FIND_REPOSITORIES='
-                         'git://github.com/MetaScale/nt2-modules.git']
+                         nt2_src_dir,
+                         '-DNT2_VERSION_STRING={}'.format(nt2_version),
+                         '-DCMAKE_INSTALL_PREFIX=.']
             try:
-            	check_call(build_cmd)
+                check_call(build_cmd)
             except Exception:
                 print("configure failed upon: " + " " .join(build_cmd))
                 raise
             os.chdir(cwd)
 
         print('Compile and install nt2')
-        check_output(['make', '-C', nt2_build_dir, 'install', '-j'])
+        check_output(['cmake', '--build', nt2_build_dir,
+                      '--target', 'install'])
         for d in ('nt2', 'boost'):
             src = os.path.join(nt2_build_dir, 'include', d)
 
@@ -170,8 +199,7 @@ class TestCommand(Command):
                         "--cov-report", "annotate",
                         "--cov", "pythran"] + args
             except ImportError:
-                print('W: Skipping coverage analysis, pytest_cov'
-                       'not found')
+                print('W: Skipping coverage analysis, pytest_cov not found')
         if pytest.main(args) == 0:
             print('\\_o<')
 
@@ -263,13 +291,14 @@ class BenchmarkCommand(Command):
                     print('std :', numpy.std(timing))
                     del sys.modules[modname]
                 else:
-                    print('* Skip ', candidate, ', no ',end='')
+                    print('* Skip ', candidate, ', no ', end='')
                     print(BenchmarkCommand.runas_marker, ' directive')
 
 
 # Cannot use glob here, as the files may not be generated yet
 nt2_headers = (['nt2/' + '*/' * i + '*.hpp' for i in range(1, 20)] +
                ['boost/' + '*/' * i + '*.hpp' for i in range(1, 20)])
+pythonic_headers = ['*/' * i + '*.hpp' for i in range(9)] + ['patch/*']
 
 setup(name='pythran',
       version=__version__,
@@ -281,19 +310,20 @@ setup(name='pythran',
                 'pythran.optimizations', 'omp', 'pythran/pythonic',
                 'pythran.types'],
       package_data={'pythran': ['pythran*.cfg'] + nt2_headers,
-                    'pythran/pythonic': ['*/' * i + '*.hpp' for i in range(9)]
-                                        + ['patch/*']},
+                    'pythran/pythonic': pythonic_headers},
       scripts=['scripts/pythran', 'scripts/pythran-config'],
-      classifiers=['Development Status :: 4 - Beta',
-                   'Environment :: Console',
-                   'Intended Audience :: Developers',
-                   'License :: OSI Approved :: BSD License',
-                   'Natural Language :: English',
-                   'Operating System :: POSIX :: Linux',
-                   'Programming Language :: Python :: 2.7',
-                   'Programming Language :: Python :: Implementation :: CPython',
-                   'Programming Language :: C++',
-                   'Topic :: Software Development :: Code Generators'],
+      classifiers=[
+          'Development Status :: 4 - Beta',
+          'Environment :: Console',
+          'Intended Audience :: Developers',
+          'License :: OSI Approved :: BSD License',
+          'Natural Language :: English',
+          'Operating System :: POSIX :: Linux',
+          'Programming Language :: Python :: 2.7',
+          'Programming Language :: Python :: Implementation :: CPython',
+          'Programming Language :: C++',
+          'Topic :: Software Development :: Code Generators'
+      ],
       license="BSD 3-Clause",
       cmdclass={'build': BuildWithPly,
                 'test': TestCommand,

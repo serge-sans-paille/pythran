@@ -1,10 +1,10 @@
 #ifndef PYTHONIC_BUILTIN_ID_HPP
 #define PYTHONIC_BUILTIN_ID_HPP
 
-#include <cstdint>
+#include "pythonic/include/__builtin__/id.hpp"
+
 #include "pythonic/types/long.hpp"
 #include "pythonic/utils/proxy.hpp"
-#include "pythonic/include/__builtin__/id.hpp"
 
 namespace pythonic
 {
@@ -13,29 +13,29 @@ namespace pythonic
   {
 
     template <class T>
-    intptr_t id(T const &t)
+    long id(T const &t)
     {
       return t.id();
     }
 
-    intptr_t id(pythran_long_t const &t)
+    long id(pythran_long_t const &t)
     {
-      return reinterpret_cast<intptr_t>(&t);
+      return reinterpret_cast<long>(&t);
     }
 
-    intptr_t id(long const &t)
+    long id(long const &t)
     {
-      return reinterpret_cast<intptr_t>(&t);
+      return reinterpret_cast<long>(&t);
     }
 
-    intptr_t id(double const &t)
+    long id(double const &t)
     {
-      return reinterpret_cast<intptr_t>(&t);
+      return reinterpret_cast<long>(&t);
     }
 
-    intptr_t id(bool const &t)
+    long id(bool const &t)
     {
-      return reinterpret_cast<intptr_t>(&t);
+      return reinterpret_cast<long>(&t);
     }
 
     PROXY_IMPL(pythonic::__builtin__, id);

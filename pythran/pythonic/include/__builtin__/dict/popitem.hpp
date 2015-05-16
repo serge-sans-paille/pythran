@@ -1,9 +1,10 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_DICT_POPITEM_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_DICT_POPITEM_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/dict.hpp"
-#include "pythonic/types/tuple.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/types/dict.hpp"
+
+#include <tuple>
 
 namespace pythonic
 {
@@ -15,7 +16,10 @@ namespace pythonic
     {
 
       template <class K, class V>
-      std::tuple<K, V> popitem(types::dict<K, V> d);
+      std::tuple<K, V> popitem(types::dict<K, V> &d);
+
+      template <class K, class V>
+      std::tuple<K, V> popitem(types::dict<K, V> &&d);
 
       PROXY_DECL(pythonic::__builtin__::dict, popitem);
     }

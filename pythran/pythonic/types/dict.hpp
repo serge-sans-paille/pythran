@@ -436,9 +436,9 @@ namespace pythonic
       if (b == data->end())
         throw std::range_error("KeyError");
       else {
-        auto r = *b;
+        std::tuple<K, V> r = *b;
         data->erase(b);
-        return std::make_tuple(r.first, r.second);
+        return r;
       }
     }
 

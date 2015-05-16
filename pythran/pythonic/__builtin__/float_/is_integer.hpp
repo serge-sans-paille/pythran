@@ -1,8 +1,9 @@
 #ifndef PYTHONIC_BUILTIN_FLOAT_ISINTEGER_HPP
 #define PYTHONIC_BUILTIN_FLOAT_ISINTEGER_HPP
 
-#include "pythonic/utils/proxy.hpp"
 #include "pythonic/include/__builtin__/float_/is_integer.hpp"
+
+#include "pythonic/utils/proxy.hpp"
 
 #include <cmath>
 
@@ -17,8 +18,7 @@ namespace pythonic
 
       bool is_integer(double d)
       {
-        double intpart;
-        return std::modf(d, &intpart) == d;
+        return std::trunc(d) == d;
       }
 
       PROXY_IMPL(pythonic::__builtin__::float_, is_integer);

@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_FLOAT_ISINTEGER_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_FLOAT_ISINTEGER_HPP
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 
 namespace pythonic
 {

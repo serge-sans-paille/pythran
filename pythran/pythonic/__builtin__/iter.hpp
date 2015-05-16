@@ -1,8 +1,9 @@
 #ifndef PYTHONIC_BUILTIN_ITER_HPP
 #define PYTHONIC_BUILTIN_ITER_HPP
 
-#include "pythonic/utils/proxy.hpp"
 #include "pythonic/include/__builtin__/iter.hpp"
+
+#include "pythonic/utils/proxy.hpp"
 
 namespace pythonic
 {
@@ -10,46 +11,50 @@ namespace pythonic
   namespace __builtin__
   {
 
-    /// _iter implementation
-
-    template <class T>
-    _iter<T>::_iter()
+    namespace details
     {
-    }
+      /// details iter implementation
 
-    template <class T>
-    _iter<T>::_iter(T data)
-        : iterator(data.begin()), _end(data.end()), data(data)
-    {
-    }
+      template <class T>
+      iter<T>::iter()
+      {
+      }
 
-    template <class T>
-    typename _iter<T>::iterator &_iter<T>::begin()
-    {
-      return *this;
-    }
+      // FIXME : There is a dangling reference as data.begin() is not the one
+      // from data "saved" in the "iter" struct
+      template <class T>
+      iter<T>::iter(T data)
+          : iterator(data.begin()), _end(data.end()), data(data)
+      {
+      }
 
-    template <class T>
-    typename _iter<T>::iterator const &_iter<T>::begin() const
-    {
-      return *this;
-    }
+      template <class T>
+      typename iter<T>::iterator &iter<T>::begin()
+      {
+        return *this;
+      }
 
-    template <class T>
-    typename _iter<T>::iterator const &_iter<T>::end() const
-    {
-      return _end;
+      template <class T>
+      typename iter<T>::iterator const &iter<T>::begin() const
+      {
+        return *this;
+      }
+
+      template <class T>
+      typename iter<T>::iterator const &iter<T>::end() const
+      {
+        return _end;
+      }
     }
 
     /// iter implementation
 
     template <class T>
-    _iter<
+    details::iter<
         typename std::remove_cv<typename std::remove_reference<T>::type>::type>
     iter(T &&t)
     {
-      return _iter<typename std::remove_cv<
-          typename std::remove_reference<T>::type>::type>(std::forward<T>(t));
+      return {std::forward<T>(t)};
     }
 
     PROXY_IMPL(pythonic::__builtin__, iter);

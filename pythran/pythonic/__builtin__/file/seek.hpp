@@ -3,8 +3,8 @@
 
 #include "pythonic/include/__builtin__/file/seek.hpp"
 
-#include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/file.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 namespace pythonic
 {
@@ -22,7 +22,7 @@ namespace pythonic
 
       void seek(types::file &&f, long offset)
       {
-        f.seek(offset);
+        // Nothing have to be done as it is a lvalue
       }
 
       void seek(types::file &f, long offset, long whence)
@@ -32,7 +32,7 @@ namespace pythonic
 
       void seek(types::file &&f, long offset, long whence)
       {
-        f.seek(offset, whence);
+        // Nothing have to be done as it is a lvalue
       }
 
       PROXY_IMPL(pythonic::__builtin__::file, seek);

@@ -302,6 +302,7 @@ namespace pythonic
       operator bool() const;
       template <class T>
       operator list<T>() const;
+      static constexpr long size();
     };
 
     std::ostream &operator<<(std::ostream &os, empty_list const &);

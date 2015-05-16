@@ -1,7 +1,6 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_GENERATOR_HPP
 #define PYTHONIC_INCLUDE_TYPES_GENERATOR_HPP
 
-#include "pythonic/__builtin__/StopIteration.hpp"
 #include <iterator>
 
 namespace pythonic

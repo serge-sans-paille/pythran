@@ -800,17 +800,6 @@ namespace pythonic
       return *this;
     }
   }
-
-  /* make sure the size method from ndarray is not used */
-  namespace __builtin__
-  {
-    template <class T, size_t N, class I>
-    long _len<types::ndarray<T, N>, I, true>::
-    operator()(types::ndarray<T, N> const &t)
-    {
-      return t.shape()[0];
-    }
-  }
 }
 
 /* std::get overloads */

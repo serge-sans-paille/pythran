@@ -1,9 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_LIST_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_LIST_HPP
 
-#include "pythonic/types/list.hpp"
-
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/include/types/list.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 
 #include <iterator>
 #include <type_traits>

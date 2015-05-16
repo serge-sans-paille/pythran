@@ -1,10 +1,10 @@
 #ifndef PYTHONIC_BUILTIN_SET_HPP
 #define PYTHONIC_BUILTIN_SET_HPP
 
-#include "pythonic/types/set.hpp"
-
-#include "pythonic/utils/proxy.hpp"
 #include "pythonic/include/__builtin__/set.hpp"
+
+#include "pythonic/types/set.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 namespace pythonic
 {
@@ -25,8 +25,7 @@ namespace pythonic
           typename std::remove_reference<Iterable>::type::iterator::value_type>
       set(Iterable &&t)
       {
-        return types::set<typename std::remove_reference<
-            Iterable>::type::iterator::value_type>(t.begin(), t.end());
+        return {t.begin(), t.end()};
       }
     }
 

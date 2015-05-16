@@ -1,10 +1,10 @@
 #ifndef PYTHONIC_BUILTIN_DICT_POP_HPP
 #define PYTHONIC_BUILTIN_DICT_POP_HPP
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/include/__builtin__/dict/pop.hpp"
 
 #include "pythonic/__dispatch__/pop.hpp"
-#include "pythonic/include/__builtin__/dict/pop.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 namespace pythonic
 {

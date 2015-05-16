@@ -1,10 +1,10 @@
 #ifndef PYTHONIC_BUILTIN_BIN_HPP
 #define PYTHONIC_BUILTIN_BIN_HPP
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/include/__builtin__/bin.hpp"
 
 #include "pythonic/types/str.hpp"
-#include "pythonic/include/__builtin__/bin.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 #include <sstream>
 

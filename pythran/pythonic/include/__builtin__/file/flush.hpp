@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_FILE_FLUSH_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_FILE_FLUSH_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/file.hpp"
+#include "pythonic/include/types/file.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 
 namespace pythonic
 {

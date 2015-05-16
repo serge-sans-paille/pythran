@@ -4,6 +4,7 @@
 #include "pythonic/include/__builtin__/set/update.hpp"
 
 #include "pythonic/__dispatch__/update.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 namespace pythonic
 {

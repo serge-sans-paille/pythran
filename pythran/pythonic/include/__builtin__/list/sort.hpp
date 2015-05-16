@@ -1,9 +1,9 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_LIST_SORT_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_LIST_SORT_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/list.hpp"
-#include "pythonic/types/none.hpp"
+#include "pythonic/include/types/list.hpp"
+#include "pythonic/include/types/none.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 
 namespace pythonic
 {

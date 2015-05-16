@@ -4,6 +4,7 @@
 #include "pythonic/include/__builtin__/list/pop.hpp"
 
 #include "pythonic/__dispatch__/pop.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 namespace pythonic
 {

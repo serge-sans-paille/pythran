@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_SET_SYMMETRICDIFFERENCE_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_SET_SYMMETRICDIFFERENCE_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/set.hpp"
+#include "pythonic/include/types/set.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 
 namespace pythonic
 {
@@ -23,6 +23,7 @@ namespace pythonic
        * >>> a.symmetric_difference(b)
        * set([1.0, 4.0])
        */
+
       // combiner is used as other may be list but return is a set
       template <typename U>
       typename __combined<types::empty_set, U>::type

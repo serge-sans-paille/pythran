@@ -1,10 +1,10 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_FLOAT_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_FLOAT_HPP
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 
 #ifdef USE_GMP
-#include "pythonic/types/long.hpp"
+#include "pythonic/include/types/long.hpp"
 #endif
 
 namespace pythonic

@@ -3,12 +3,11 @@
 
 #include "pythonic/include/__builtin__/str/split.hpp"
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/str.hpp"
+#include "pythonic/__builtin__/str/strip.hpp"
 #include "pythonic/types/list.hpp"
 #include "pythonic/types/none.hpp"
-
-#include "pythonic/__builtin__/str/strip.hpp"
+#include "pythonic/types/str.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 namespace pythonic
 {

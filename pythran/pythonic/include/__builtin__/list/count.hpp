@@ -1,7 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_LIST_COUNT_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_LIST_COUNT_HPP
 
-#include "pythonic/__dispatch__/count.hpp"
+#include "pythonic/include/__dispatch__/count.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 
 namespace pythonic
 {

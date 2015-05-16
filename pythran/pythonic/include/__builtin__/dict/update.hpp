@@ -1,7 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_DICT_UPDATE_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_DICT_UPDATE_HPP
 
-#include "pythonic/__dispatch__/update.hpp"
+#include "pythonic/include/__dispatch__/update.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 
 namespace pythonic
 {

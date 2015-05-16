@@ -3,9 +3,10 @@
 
 #include "pythonic/include/__builtin__/list/sort.hpp"
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/list.hpp"
 #include "pythonic/__builtin__/None.hpp"
+#include "pythonic/types/list.hpp"
+#include "pythonic/types/none.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 namespace pythonic
 {

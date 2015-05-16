@@ -1,10 +1,12 @@
 #ifndef PYTHONIC_BUILTIN_DICT_FROMKEYS_HPP
 #define PYTHONIC_BUILTIN_DICT_FROMKEYS_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/dict.hpp"
-#include "pythonic/types/none.hpp"
 #include "pythonic/include/__builtin__/dict/fromkeys.hpp"
+
+#include "pythonic/types/dict.hpp"
+#include "pythonic/utils/proxy.hpp"
+
+#include <type_traits>
 
 namespace pythonic
 {

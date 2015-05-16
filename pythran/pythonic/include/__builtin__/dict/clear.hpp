@@ -1,7 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_DICT_CLEAR_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_DICT_CLEAR_HPP
 
-#include "pythonic/__dispatch__/clear.hpp"
+#include "pythonic/include/__dispatch__/clear.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 
 namespace pythonic
 {

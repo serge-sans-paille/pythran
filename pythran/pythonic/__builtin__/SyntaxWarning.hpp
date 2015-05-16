@@ -1,8 +1,9 @@
 #ifndef PYTHONIC_BUILTIN_SYNTAXWARNING_HPP
 #define PYTHONIC_BUILTIN_SYNTAXWARNING_HPP
 
-#include "pythonic/types/exceptions.hpp"
 #include "pythonic/include/__builtin__/SyntaxWarning.hpp"
+
+#include "pythonic/types/exceptions.hpp"
 
 namespace pythonic
 {

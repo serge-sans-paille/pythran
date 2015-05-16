@@ -1,9 +1,10 @@
 #ifndef PYTHONIC_BUILTIN_DIVMOD_HPP
 #define PYTHONIC_BUILTIN_DIVMOD_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/tuple.hpp"
 #include "pythonic/include/__builtin__/divmod.hpp"
+
+#include "pythonic/types/tuple.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 namespace pythonic
 {

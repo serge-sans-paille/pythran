@@ -3,8 +3,8 @@
 
 #include "pythonic/include/__builtin__/set/discard.hpp"
 
-#include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/set.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 namespace pythonic
 {

@@ -4,6 +4,7 @@
 #include "pythonic/include/__builtin__/list/remove.hpp"
 
 #include "pythonic/__dispatch__/remove.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 namespace pythonic
 {

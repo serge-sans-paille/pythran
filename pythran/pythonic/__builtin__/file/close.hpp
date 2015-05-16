@@ -3,8 +3,8 @@
 
 #include "pythonic/include/__builtin__/file/close.hpp"
 
-#include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/file.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 namespace pythonic
 {
@@ -19,6 +19,7 @@ namespace pythonic
       {
         f.close();
       }
+
       void close(types::file &&f)
       {
         f.close();

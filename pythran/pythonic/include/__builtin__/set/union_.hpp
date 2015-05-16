@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_SET_UNION_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_SET_UNION_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/set.hpp"
+#include "pythonic/include/types/set.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 
 namespace pythonic
 {
@@ -18,17 +18,14 @@ namespace pythonic
       union_(types::set<T> const &set, Types const &... others);
 
       template <typename... Types>
-      auto union_(types::empty_set const &init, Types const &... others)
-          -> decltype(union_(others...));
+      typename __combined<types::empty_set, Types...>::type
+      union_(types::empty_set const &init, Types const &... others);
 
       template <typename T>
       types::set<T> union_(types::set<T> const &set);
 
       template <typename T>
       typename __combined<types::empty_set, T>::type union_(T const &set);
-
-      template <typename T>
-      types::set<T> union_(types::set<T> &&set);
 
       types::empty_set union_(types::empty_set const &init);
 

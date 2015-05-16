@@ -1,10 +1,11 @@
 #ifndef PYTHONIC_BUILTIN_DICT_VALUES_HPP
 #define PYTHONIC_BUILTIN_DICT_VALUES_HPP
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/include/__builtin__/dict/values.hpp"
+
 #include "pythonic/types/dict.hpp"
 #include "pythonic/types/list.hpp"
-#include "pythonic/include/__builtin__/dict/values.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 namespace pythonic
 {

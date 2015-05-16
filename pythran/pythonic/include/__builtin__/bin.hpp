@@ -1,9 +1,9 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_BIN_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_BIN_HPP
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 
-#include "pythonic/types/str.hpp"
+#include "pythonic/include/types/str.hpp"
 
 namespace pythonic
 {

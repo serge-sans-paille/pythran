@@ -1,9 +1,10 @@
 #ifndef PYTHONIC_BUILTIN_STR_HPP
 #define PYTHONIC_BUILTIN_STR_HPP
 
+#include "pythonic/include/__builtin__/str.hpp"
+
 #include "pythonic/types/str.hpp"
 #include "pythonic/utils/proxy.hpp"
-#include "pythonic/include/__builtin__/str.hpp"
 
 #include <sstream>
 

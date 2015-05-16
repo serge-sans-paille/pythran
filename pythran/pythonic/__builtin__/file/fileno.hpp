@@ -3,8 +3,8 @@
 
 #include "pythonic/include/__builtin__/file/fileno.hpp"
 
-#include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/file.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 namespace pythonic
 {
@@ -15,7 +15,7 @@ namespace pythonic
     namespace file
     {
 
-      int fileno(types::file const &f)
+      long fileno(types::file const &f)
       {
         return f.fileno();
       }

@@ -1,10 +1,10 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_STR_SPLIT_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_STR_SPLIT_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/str.hpp"
-#include "pythonic/types/list.hpp"
-#include "pythonic/types/none.hpp"
+#include "pythonic/include/types/list.hpp"
+#include "pythonic/include/types/none.hpp"
+#include "pythonic/include/types/str.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 
 namespace pythonic
 {

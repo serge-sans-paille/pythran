@@ -1,11 +1,12 @@
 #ifndef PYTHONIC_BUILTIN_DICT_HPP
 #define PYTHONIC_BUILTIN_DICT_HPP
 
-#include "pythonic/utils/proxy.hpp"
-
-#include "pythonic/types/dict.hpp"
 #include "pythonic/include/__builtin__/dict.hpp"
 
+#include "pythonic/types/dict.hpp"
+#include "pythonic/utils/proxy.hpp"
+
+#include <tuple>
 #include <utility>
 
 namespace pythonic

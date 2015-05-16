@@ -3,8 +3,8 @@
 
 #include "pythonic/include/__builtin__/str/replace.hpp"
 
-#include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/str.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 namespace pythonic
 {
@@ -25,7 +25,7 @@ namespace pythonic
 
         char const *haystack_next = strstr(haystack, needle);
         if (not count or not haystack_next) {
-          return types::str(haystack);
+          return {haystack};
         } else {
           size_t n =
               1 + std::max(self.size(), self.size() * (1 + new_pattern.size()) /
@@ -35,7 +35,7 @@ namespace pythonic
           do {
             iter = std::copy(haystack, haystack_next, iter);
             iter = std::copy(new_needle, new_needle_end, iter);
-            count -= 1;
+            --count;
             haystack = haystack_next + old_pattern.size();
             assert(size_t(iter - buffer) < n);
           } while (count and (haystack_next = strstr(haystack, needle)));

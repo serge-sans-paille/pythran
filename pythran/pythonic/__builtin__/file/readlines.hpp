@@ -3,10 +3,10 @@
 
 #include "pythonic/include/__builtin__/file/readlines.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/types/file.hpp"
 #include "pythonic/types/list.hpp"
 #include "pythonic/types/str.hpp"
-#include "pythonic/types/file.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 namespace pythonic
 {
@@ -24,7 +24,7 @@ namespace pythonic
       }
 
       template <class F>
-      types::list<types::str> readlines(F &&f, int sizehint)
+      types::list<types::str> readlines(F &&f, long sizehint)
       {
         return f.readlines(sizehint);
       }

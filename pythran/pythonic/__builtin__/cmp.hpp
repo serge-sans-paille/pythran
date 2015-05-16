@@ -1,8 +1,9 @@
 #ifndef PYTHONIC_BUILTIN_CMP_HPP
 #define PYTHONIC_BUILTIN_CMP_HPP
 
-#include "pythonic/utils/proxy.hpp"
 #include "pythonic/include/__builtin__/cmp.hpp"
+
+#include "pythonic/utils/proxy.hpp"
 
 namespace pythonic
 {

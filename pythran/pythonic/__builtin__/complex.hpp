@@ -1,9 +1,10 @@
 #ifndef PYTHONIC_BUILTIN_COMPLEX_HPP
 #define PYTHONIC_BUILTIN_COMPLEX_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/complex.hpp"
 #include "pythonic/include/__builtin__/complex.hpp"
+
+#include "pythonic/types/complex.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 namespace pythonic
 {
@@ -13,10 +14,9 @@ namespace pythonic
 
     namespace anonymous
     {
-      template <class T0, class T1> // do not handle string as first argument
-      std::complex<double> complex(T0 const &v0, T1 const &v1)
+      std::complex<double> complex(double v0, double v1)
       {
-        return std::complex<double>(v0, v1);
+        return {v0, v1};
       }
     }
 

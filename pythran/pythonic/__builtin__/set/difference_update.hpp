@@ -3,8 +3,8 @@
 
 #include "pythonic/include/__builtin__/set/difference_update.hpp"
 
-#include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/set.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 namespace pythonic
 {
@@ -26,6 +26,7 @@ namespace pythonic
       {
         // nothing to be done as we work on rvalue
       }
+
       template <typename... Types>
       void difference_update(types::empty_set const &set,
                              Types const &... others)

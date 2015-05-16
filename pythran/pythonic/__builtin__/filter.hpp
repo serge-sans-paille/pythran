@@ -1,9 +1,10 @@
 #ifndef PYTHONIC_BUILTIN_FILTER_HPP
 #define PYTHONIC_BUILTIN_FILTER_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/list.hpp"
 #include "pythonic/include/__builtin__/filter.hpp"
+
+#include "pythonic/types/list.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 namespace pythonic
 {
@@ -15,7 +16,7 @@ namespace pythonic
     types::list<typename Iterable::iterator::value_type>
     filter(F const &f, Iterable const &iterable)
     {
-      /* does not implement the full standard */
+      /* TODO: it does not implement the full standard (for string and tuple)*/
       types::list<typename Iterable::iterator::value_type> out =
           types::empty_list();
       std::copy_if(iterable.begin(), iterable.end(), std::back_inserter(out),

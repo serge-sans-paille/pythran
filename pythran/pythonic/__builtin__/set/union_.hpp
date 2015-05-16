@@ -3,8 +3,8 @@
 
 #include "pythonic/include/__builtin__/set/union_.hpp"
 
-#include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/set.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 namespace pythonic
 {
@@ -23,8 +23,8 @@ namespace pythonic
       }
 
       template <typename... Types>
-      auto union_(types::empty_set const &init, Types const &... others)
-          -> decltype(union_(others...))
+      typename __combined<types::empty_set, Types...>::type
+      union_(types::empty_set const &init, Types const &... others)
       {
         return union_(others...);
       }
@@ -39,11 +39,6 @@ namespace pythonic
       typename __combined<types::empty_set, T>::type union_(T const &set)
       {
         return {set};
-      }
-      template <typename T>
-      types::set<T> union_(types::set<T> &&set)
-      {
-        return std::forward(set);
       }
 
       types::empty_set union_(types::empty_set const &init)

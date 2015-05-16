@@ -1,9 +1,10 @@
 #ifndef PYTHONIC_BUILTIN_DICT_HASKEY_HPP
 #define PYTHONIC_BUILTIN_DICT_HASKEY_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/dict.hpp"
 #include "pythonic/include/__builtin__/dict/has_key.hpp"
+
+#include "pythonic/types/dict.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 namespace pythonic
 {
@@ -18,6 +19,7 @@ namespace pythonic
       {
         return d.find(k) != d.item_end();
       }
+
       PROXY_IMPL(pythonic::__builtin__::dict, has_key);
     }
   }

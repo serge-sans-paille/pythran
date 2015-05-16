@@ -1,8 +1,9 @@
 #ifndef PYTHONIC_BUILTIN_SYNTAXERROR_HPP
 #define PYTHONIC_BUILTIN_SYNTAXERROR_HPP
 
-#include "pythonic/types/exceptions.hpp"
 #include "pythonic/include/__builtin__/SyntaxError.hpp"
+
+#include "pythonic/types/exceptions.hpp"
 
 namespace pythonic
 {

@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_FILE_FILENO_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_FILE_FILENO_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/file.hpp"
+#include "pythonic/include/types/file.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 
 namespace pythonic
 {
@@ -13,7 +13,7 @@ namespace pythonic
     namespace file
     {
 
-      int fileno(types::file const &f);
+      long fileno(types::file const &f);
 
       PROXY_DECL(pythonic::__builtin__::file, fileno);
     }

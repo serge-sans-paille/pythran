@@ -3,9 +3,9 @@
 
 #include "pythonic/include/__builtin__/file/read.hpp"
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/str.hpp"
 #include "pythonic/types/file.hpp"
+#include "pythonic/types/str.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 namespace pythonic
 {
@@ -16,11 +16,11 @@ namespace pythonic
     namespace file
     {
 
-      types::str read(types::file &f, int size)
+      types::str read(types::file &f, long size)
       {
         return f.read(size);
       }
-      types::str read(types::file &&f, int size)
+      types::str read(types::file &&f, long size)
       {
         return f.read(size);
       }

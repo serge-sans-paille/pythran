@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_LONG_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_LONG_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/long.hpp"
+#include "pythonic/include/types/long.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 
 namespace pythonic
 {

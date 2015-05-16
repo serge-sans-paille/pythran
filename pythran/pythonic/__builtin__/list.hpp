@@ -33,9 +33,7 @@ namespace pythonic
           typename std::remove_reference<Iterable>::type::iterator>::value_type>
       list(Iterable &&t)
       {
-        return types::list<
-            typename std::iterator_traits<typename std::remove_reference<
-                Iterable>::type::iterator>::value_type>(t.begin(), t.end());
+        return {t.begin(), t.end()};
       }
     }
 

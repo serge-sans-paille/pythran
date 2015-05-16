@@ -4,6 +4,7 @@
 #include "pythonic/include/__builtin__/str/count.hpp"
 
 #include "pythonic/__dispatch__/count.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 namespace pythonic
 {

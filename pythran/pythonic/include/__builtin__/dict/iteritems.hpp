@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_DICT_ITERITEMS_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_DICT_ITERITEMS_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/dict.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/types/dict.hpp"
 
 namespace pythonic
 {

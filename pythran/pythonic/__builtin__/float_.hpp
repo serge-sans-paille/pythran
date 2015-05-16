@@ -6,7 +6,7 @@
 #include "pythonic/utils/proxy.hpp"
 
 #ifdef USE_GMP
-#include "pythonic/types/long.hpp"
+#include "pythonic/include/types/long.hpp"
 #endif
 
 namespace pythonic

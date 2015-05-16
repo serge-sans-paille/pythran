@@ -423,15 +423,6 @@ namespace pythonic
     operator<<(std::ostream &os, E const &e);
     /* } */
   }
-
-  /* make sure the size method from ndarray is not used */
-  namespace __builtin__
-  {
-    template <class T, size_t N, class I>
-    struct _len<types::ndarray<T, N>, I, true> {
-      long operator()(types::ndarray<T, N> const &t);
-    };
-  }
 }
 
 /* std::get overloads */

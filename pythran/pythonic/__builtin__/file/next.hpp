@@ -4,6 +4,7 @@
 #include "pythonic/include/__builtin__/file/next.hpp"
 
 #include "pythonic/__dispatch__/next.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 namespace pythonic
 {

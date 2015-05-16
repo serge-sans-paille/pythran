@@ -1,8 +1,9 @@
 #ifndef PYTHONIC_BUILTIN_ANY_HPP
 #define PYTHONIC_BUILTIN_ANY_HPP
 
-#include "pythonic/utils/proxy.hpp"
 #include "pythonic/include/__builtin__/any.hpp"
+
+#include "pythonic/utils/proxy.hpp"
 
 namespace pythonic
 {

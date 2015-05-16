@@ -1,8 +1,9 @@
 #ifndef PYTHONIC_BUILTIN_BOOL_HPP
 #define PYTHONIC_BUILTIN_BOOL_HPP
 
-#include "pythonic/utils/proxy.hpp"
 #include "pythonic/include/__builtin__/bool_.hpp"
+
+#include "pythonic/utils/proxy.hpp"
 
 #ifdef USE_GMP
 #include "pythonic/types/long.hpp"

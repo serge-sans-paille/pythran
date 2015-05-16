@@ -1,8 +1,9 @@
 #ifndef PYTHONIC_BUILTIN_INT_HPP
 #define PYTHONIC_BUILTIN_INT_HPP
 
-#include "pythonic/utils/proxy.hpp"
 #include "pythonic/include/__builtin__/int_.hpp"
+
+#include "pythonic/utils/proxy.hpp"
 
 #include <cassert>
 

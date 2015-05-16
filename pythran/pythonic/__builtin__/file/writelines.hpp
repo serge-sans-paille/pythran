@@ -3,8 +3,8 @@
 
 #include "pythonic/include/__builtin__/file/writelines.hpp"
 
-#include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/file.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 namespace pythonic
 {

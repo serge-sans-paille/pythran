@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_DICT_ITERVALUES_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_DICT_ITERVALUES_HPP
 
-#include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/dict.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 namespace pythonic
 {

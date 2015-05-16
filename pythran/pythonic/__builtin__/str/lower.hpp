@@ -3,8 +3,8 @@
 
 #include "pythonic/include/__builtin__/str/lower.hpp"
 
-#include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/str.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 namespace pythonic
 {

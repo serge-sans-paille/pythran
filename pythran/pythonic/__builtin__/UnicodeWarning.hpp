@@ -1,8 +1,9 @@
 #ifndef PYTHONIC_BUILTIN_UNICODEWARNING_HPP
 #define PYTHONIC_BUILTIN_UNICODEWARNING_HPP
 
-#include "pythonic/types/exceptions.hpp"
 #include "pythonic/include/__builtin__/UnicodeWarning.hpp"
+
+#include "pythonic/types/exceptions.hpp"
 
 namespace pythonic
 {

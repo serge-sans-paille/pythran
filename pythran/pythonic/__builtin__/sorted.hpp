@@ -1,9 +1,10 @@
 #ifndef PYTHONIC_BUILTIN_SORTED_HPP
 #define PYTHONIC_BUILTIN_SORTED_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/list.hpp"
 #include "pythonic/include/__builtin__/sorted.hpp"
+
+#include "pythonic/types/list.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 #include <algorithm>
 

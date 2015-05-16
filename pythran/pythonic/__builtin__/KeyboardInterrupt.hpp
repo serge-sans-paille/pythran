@@ -1,8 +1,9 @@
 #ifndef PYTHONIC_BUILTIN_KEYBOARDINTERRUPT_HPP
 #define PYTHONIC_BUILTIN_KEYBOARDINTERRUPT_HPP
 
-#include "pythonic/types/exceptions.hpp"
 #include "pythonic/include/__builtin__/KeyboardInterrupt.hpp"
+
+#include "pythonic/types/exceptions.hpp"
 
 namespace pythonic
 {

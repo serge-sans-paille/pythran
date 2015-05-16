@@ -1,10 +1,9 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_DICT_KEYS_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_DICT_KEYS_HPP
 
-#include "pythonic/utils/proxy.hpp"
-
-#include "pythonic/types/dict.hpp"
-#include "pythonic/types/list.hpp"
+#include "pythonic/include/types/dict.hpp"
+#include "pythonic/include/types/list.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 
 namespace pythonic
 {

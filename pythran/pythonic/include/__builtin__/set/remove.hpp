@@ -1,7 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_SET_REMOVE_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_SET_REMOVE_HPP
 
-#include "pythonic/__dispatch__/remove.hpp"
+#include "pythonic/include/__dispatch__/remove.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 
 namespace pythonic
 {

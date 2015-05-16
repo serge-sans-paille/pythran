@@ -5,7 +5,7 @@
  * This contains base class for yielders
  */
 
-#include "pythonic/types/generator.hpp"
+#include "pythonic/include/types/generator.hpp"
 
 namespace pythonic
 {

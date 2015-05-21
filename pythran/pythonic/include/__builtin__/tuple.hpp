@@ -1,10 +1,9 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_TUPLE_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_TUPLE_HPP
 
-#include "pythonic/utils/proxy.hpp"
-
-#include "pythonic/types/tuple.hpp"
-#include "pythonic/types/list.hpp"
+#include "pythonic/include/types/list.hpp"
+#include "pythonic/include/types/tuple.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 
 namespace pythonic
 {
@@ -14,16 +13,6 @@ namespace pythonic
 
     template <class... Types>
     std::tuple<Types...> tuple(std::tuple<Types...> const &t);
-
-    template <class Iterable>
-    struct _tuple {
-      types::list<typename Iterable::value_type> operator()(Iterable i);
-    };
-
-    template <class T>
-    struct _tuple<types::list<T>> {
-      types::list<T> operator()(types::list<T> const &i);
-    };
 
     template <
         class Iterable> /* this is far from perfect, but how to cope with the

@@ -1,11 +1,11 @@
 #ifndef PYTHONIC_BUILTIN_TUPLE_HPP
 #define PYTHONIC_BUILTIN_TUPLE_HPP
 
-#include "pythonic/utils/proxy.hpp"
-
-#include "pythonic/types/tuple.hpp"
-#include "pythonic/types/list.hpp"
 #include "pythonic/include/__builtin__/tuple.hpp"
+
+#include "pythonic/types/list.hpp"
+#include "pythonic/types/tuple.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 namespace pythonic
 {
@@ -20,21 +20,8 @@ namespace pythonic
     }
 
     template <class Iterable>
-    types::list<typename Iterable::value_type> _tuple<Iterable>::
-    operator()(Iterable i)
-    {
-      return types::list<typename Iterable::value_type>(i.begin(), i.end());
-    }
-
-    template <class T>
-    types::list<T> _tuple<types::list<T>>::operator()(types::list<T> const &i)
-    {
-      return types::list<T>(i.begin(), i.end());
-    }
-
-    template <
-        class Iterable> /* this is far from perfect, but how to cope with the
-                           difference between python tuples and c++ ones ? */
+        /* this is far from perfect, but how to cope with the
+           difference between python tuples and c++ ones ? */
         typename std::enable_if <
         types::len_of<typename std::remove_cv<
             typename std::remove_reference<Iterable>::type>::type>::
@@ -44,14 +31,12 @@ namespace pythonic
                           Iterable>::type>::type::iterator>::value_type>>::type
             tuple(Iterable &&i)
     {
-      return _tuple<typename std::remove_cv<
-          typename std::remove_reference<Iterable>::type>::type>()(
-          std::forward<Iterable>(i));
+      return {i.begin(), i.end()};
     }
 
-    template <
-        class StaticIterable> /* specialization if we are capable to statically
-                                 compute the size of the input */
+    template <class StaticIterable>
+    /* specialization if we are capable to statically compute the size of the
+       input */
     typename std::enable_if<
         types::len_of<typename std::remove_cv<typename std::remove_reference<
             StaticIterable>::type>::type>::value >= 0,

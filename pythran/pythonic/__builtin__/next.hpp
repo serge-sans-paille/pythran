@@ -1,9 +1,12 @@
 #ifndef PYTHONIC_BUILTIN_NEXT_HPP
 #define PYTHONIC_BUILTIN_NEXT_HPP
 
-#include "pythonic/utils/proxy.hpp"
 #include "pythonic/include/__builtin__/next.hpp"
+
 #include "pythonic/__builtin__/StopIteration.hpp"
+#include "pythonic/utils/proxy.hpp"
+
+#include <utility>
 
 namespace pythonic
 {
@@ -12,13 +15,12 @@ namespace pythonic
   {
 
     template <class T>
-    typename std::remove_reference<decltype(*std::declval<T>())>::type
-    next(T &&y)
+    auto next(T &&y) -> decltype(*y)
     {
       if ((decltype(y.begin()))y != y.end()) {
-        auto out = *y;
+        auto &&tmp = *y;
         ++y;
-        return out;
+        return tmp;
       } else
         throw types::StopIteration();
     }

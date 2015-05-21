@@ -13,7 +13,6 @@ namespace pythonic
     namespace list
     {
 
-      // TODO: have to raise a valueError
       template <class T>
       long index(types::list<T> &seq, T const &x);
 

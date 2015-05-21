@@ -474,7 +474,6 @@ namespace pythonic
     }
 
     // Misc
-    // TODO: have to raise a valueError
     template <class T>
     long list<T>::index(T const &x) const
     {

@@ -3,8 +3,10 @@
 
 #include "pythonic/include/__builtin__/list/index.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/__builtin__/str.hpp"
+#include "pythonic/types/exceptions.hpp"
 #include "pythonic/types/list.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 namespace pythonic
 {
@@ -14,17 +16,24 @@ namespace pythonic
 
     namespace list
     {
-      // TODO: have to raise a valueError
       template <class T>
       long index(types::list<T> &seq, T const &x)
       {
-        return seq.index(x);
+        long index_value = seq.index(x);
+        if (index_value == seq.size())
+          throw types::ValueError(__builtin__::anonymous::str(x) +
+                                  " is not in list");
+        return index_value;
       }
 
       template <class T>
       long index(types::list<T> &&seq, T const &x)
       {
-        return seq.index(x);
+        long index_value = seq.index(x);
+        if (index_value == seq.size())
+          throw types::ValueError(__builtin__::anonymous::str(x) +
+                                  " is not in list");
+        return index_value;
       }
 
       PROXY_IMPL(pythonic::__builtin__::list, index);

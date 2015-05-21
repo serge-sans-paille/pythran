@@ -4,6 +4,7 @@
 #include "pythonic/include/__builtin__/set/clear.hpp"
 
 #include "pythonic/__dispatch__/clear.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 namespace pythonic
 {

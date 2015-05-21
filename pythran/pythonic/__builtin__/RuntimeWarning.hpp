@@ -1,8 +1,9 @@
 #ifndef PYTHONIC_BUILTIN_RUNTIMEWARNING_HPP
 #define PYTHONIC_BUILTIN_RUNTIMEWARNING_HPP
 
-#include "pythonic/types/exceptions.hpp"
 #include "pythonic/include/__builtin__/RuntimeWarning.hpp"
+
+#include "pythonic/types/exceptions.hpp"
 
 namespace pythonic
 {

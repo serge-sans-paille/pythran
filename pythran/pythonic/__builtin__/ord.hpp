@@ -1,12 +1,11 @@
 #ifndef PYTHONIC_BUILTIN_ORD_HPP
 #define PYTHONIC_BUILTIN_ORD_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/str.hpp"
 #include "pythonic/include/__builtin__/ord.hpp"
 
-#include "pythonic/__builtin__/TypeError.hpp"
-#include <sstream>
+#include "pythonic/types/exceptions.hpp"
+#include "pythonic/types/str.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 namespace pythonic
 {
@@ -16,12 +15,10 @@ namespace pythonic
 
     long ord(types::str const &v)
     {
-      if (v.size() != 1) {
-        std::ostringstream oss;
-        oss << "ord() expected a character, but string of length " << v.size()
-            << " found";
-        throw types::TypeError(oss.str());
-      }
+      if (v.size() != 1)
+        throw types::TypeError(
+            "ord() expected a character, but string of length " +
+            std::to_string(v.size()) + " found");
       return (long)v[0];
     }
 

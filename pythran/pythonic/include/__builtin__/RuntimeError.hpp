@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_RUNTIMEERROR_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_RUNTIMEERROR_HPP
 
-#include "pythonic/types/exceptions.hpp"
+#include "pythonic/include/types/exceptions.hpp"
 
 namespace pythonic
 {

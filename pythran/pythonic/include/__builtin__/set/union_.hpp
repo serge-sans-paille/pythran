@@ -14,8 +14,8 @@ namespace pythonic
     {
 
       template <typename T, typename... Types>
-      auto union_(types::set<T> const &set, Types const &... others)
-          -> decltype(set.union_(others...));
+      typename __combined<types::set<T>, Types...>::type
+      union_(types::set<T> const &set, Types const &... others);
 
       template <typename... Types>
       auto union_(types::empty_set const &init, Types const &... others)

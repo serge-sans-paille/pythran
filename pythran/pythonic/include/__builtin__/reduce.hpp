@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_REDUCE_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_REDUCE_HPP
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 
 #include <algorithm>
 #include <utility>

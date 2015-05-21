@@ -16,8 +16,8 @@ namespace pythonic
     {
 
       template <typename T, typename U>
-      auto symmetric_difference(types::set<T> const &set, U const &other)
-          -> decltype(set.symmetric_difference(other))
+      typename __combined<types::set<T>, U>::type
+      symmetric_difference(types::set<T> const &set, U const &other)
       {
         return set.symmetric_difference(other);
       }

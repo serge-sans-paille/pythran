@@ -1,8 +1,9 @@
 #ifndef PYTHONIC_BUILTIN_NOTIMPLEMENTEDERROR_HPP
 #define PYTHONIC_BUILTIN_NOTIMPLEMENTEDERROR_HPP
 
-#include "pythonic/types/exceptions.hpp"
 #include "pythonic/include/__builtin__/NotImplementedError.hpp"
+
+#include "pythonic/types/exceptions.hpp"
 
 namespace pythonic
 {

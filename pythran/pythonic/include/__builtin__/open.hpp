@@ -1,8 +1,9 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_OPEN_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_OPEN_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/file.hpp"
+#include "pythonic/include/types/file.hpp"
+#include "pythonic/include/types/str.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 
 namespace pythonic
 {

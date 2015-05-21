@@ -1,12 +1,13 @@
 #ifndef PYTHONIC_BUILTIN_REDUCE_HPP
 #define PYTHONIC_BUILTIN_REDUCE_HPP
 
-#include "pythonic/utils/proxy.hpp"
 #include "pythonic/include/__builtin__/reduce.hpp"
 
+#include "pythonic/utils/proxy.hpp"
+
 #include <algorithm>
-#include <utility>
 #include <numeric>
+#include <utility>
 
 namespace pythonic
 {
@@ -27,6 +28,7 @@ namespace pythonic
       else
         return r;
     }
+
     template <class Iterable, class Operator, class T>
     auto reduce(Operator op, Iterable s, T const &init)
         -> decltype(std::accumulate(
@@ -44,6 +46,7 @@ namespace pythonic
               init),
           op);
     }
+
     PROXY_IMPL(pythonic::__builtin__, reduce);
   }
 }

@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_SET_ADD_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_SET_ADD_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/set.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/types/set.hpp"
 
 namespace pythonic
 {

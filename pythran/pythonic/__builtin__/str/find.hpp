@@ -18,6 +18,8 @@ namespace pythonic
       long find(types::str const &s, types::str const &value, long start,
                 long end)
       {
+        if (end < 0)
+          end += s.size();
         long a = s.find(value, start);
         return (a > end) ? -1 : a;
       }

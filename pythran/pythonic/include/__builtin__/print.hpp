@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_PRINT_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_PRINT_HPP
 
-#include <iostream>
+#include <ostream>
 
 namespace pythonic
 {
@@ -9,7 +9,7 @@ namespace pythonic
   namespace __builtin__
   {
 
-    namespace detail
+    namespace details
     {
       template <class T>
       std::ostream &print(std::ostream &os, T const &t);

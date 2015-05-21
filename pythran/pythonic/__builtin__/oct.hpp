@@ -1,9 +1,10 @@
 #ifndef PYTHONIC_BUILTIN_OCT_HPP
 #define PYTHONIC_BUILTIN_OCT_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/str.hpp"
 #include "pythonic/include/__builtin__/oct.hpp"
+
+#include "pythonic/types/str.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 #include <sstream>
 

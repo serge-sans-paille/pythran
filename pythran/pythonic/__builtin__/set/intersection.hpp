@@ -16,8 +16,8 @@ namespace pythonic
     {
 
       template <typename T, typename... Types>
-      auto intersection(types::set<T> const &set, Types const &... others)
-          -> decltype(set.intersection(others...))
+      typename __combined<types::set<T>, Types...>::type
+      intersection(types::set<T> const &set, Types const &... others)
       {
         return set.intersection(others...);
       }

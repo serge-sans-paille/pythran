@@ -18,24 +18,18 @@ namespace pythonic
 
     namespace details
     {
+      template <class Tuple, size_t N>
+      auto tuple_sum<Tuple, N>::operator()(Tuple const &t)
+          -> decltype(std::get<N>(t) + tuple_sum<Tuple, N - 1>()(t))
+      {
+        return std::get<N>(t) + tuple_sum<Tuple, N - 1>()(t);
+      }
+
       template <class Tuple>
-      auto tuple_sum(Tuple const &t, utils::int_<0>) -> decltype(std::get<0>(t))
+      auto tuple_sum<Tuple, 0>::operator()(Tuple const &t)
+          -> decltype(std::get<0>(t))
       {
         return std::get<0>(t);
-      }
-
-      template <class Tuple>
-      auto tuple_sum(Tuple const &t, utils::int_<1>)
-          -> decltype(std::get<0>(t) + std::get<1>(t))
-      {
-        return std::get<0>(t) + std::get<1>(t);
-      }
-
-      template <class Tuple, size_t I>
-      auto tuple_sum(Tuple const &t, utils::int_<I>)
-          -> decltype(std::get<I>(t) + tuple_sum(t, utils::int_<I - 1>()))
-      {
-        return std::get<I>(t) + tuple_sum(t, utils::int_<I - 1>());
       }
     }
 
@@ -58,10 +52,10 @@ namespace pythonic
     }
 
     template <class... Types>
-    auto sum(std::tuple<Types...> const &t)
-        -> decltype(details::tuple_sum(t, utils::int_<sizeof...(Types)-1>()))
+    auto sum(std::tuple<Types...> const &t) -> decltype(
+        details::tuple_sum<std::tuple<Types...>, sizeof...(Types)-1>()(t))
     {
-      return details::tuple_sum(t, utils::int_<sizeof...(Types)-1>());
+      return details::tuple_sum<std::tuple<Types...>, sizeof...(Types)-1>()(t);
     }
 
     PROXY_IMPL(pythonic::__builtin__, sum);

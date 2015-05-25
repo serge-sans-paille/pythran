@@ -58,28 +58,6 @@ namespace pythonic
 
     struct slice;
 
-    // Static array (tuple with same types) to tuple (tuple with different
-    // types)
-    template <size_t I>
-    struct to_tuple_impl {
-      template <class T, size_t N>
-      auto operator()(types::array<T, N> const &l) const
-          -> decltype(std::tuple_cat(to_tuple_impl<I - 1>()(l),
-                                     std::tuple<T>(l[I - 1])));
-    };
-
-    template <>
-    struct to_tuple_impl<1> {
-      template <class T, size_t N>
-      std::tuple<T> operator()(types::array<T, N> const &l) const;
-    };
-
-    template <>
-    struct to_tuple_impl<0> {
-      template <class T, size_t N>
-      std::tuple<> operator()(types::array<T, N> const &l) const;
-    };
-
     /* helper to extract the tail of a tuple, and pop the head */
     template <int Offset, class T, int... N>
     auto make_tuple_tail(T const &t, utils::seq<N...>)
@@ -103,9 +81,9 @@ namespace pythonic
             t, typename utils::gens<sizeof...(
                    Stail)-count_trailing_long<Stail...>::value>::type{}));
 
-    template <class A, int... I>
-    auto array_to_tuple(A const &a, utils::seq<I...>)
-        -> decltype(std::make_tuple(a[I - 1]...));
+    template <class A, int... I, class... Types>
+    std::tuple<Types...> array_to_tuple(A const &a, utils::seq<I...>,
+                                        utils::type_seq<Types...>);
 
     /* inspired by std::array implementation */
     template <typename T, size_t N>
@@ -208,8 +186,8 @@ namespace pythonic
       operator std::tuple<Types...>() const;
 
       auto to_tuple() const
-          -> decltype(array_to_tuple(*this,
-                                     typename utils::gens<N + 1>::type{}));
+          -> decltype(array_to_tuple(*this, typename utils::gens<N>::type{},
+                                     typename utils::gen_type<N, T>::type{}));
 
       list<T> operator[](slice const &s); // definition in list.hpp
 

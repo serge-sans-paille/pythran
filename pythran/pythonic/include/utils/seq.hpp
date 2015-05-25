@@ -29,6 +29,21 @@ namespace pythonic
       using type = seq<>;
     };
 
+    // Gens multiple time the same type. gen_type<A, 3> => type_seq<A, A, A>
+    //
+    template <class... Types>
+    struct type_seq {
+    };
+
+    template <size_t N, class A, class... Types>
+    struct gen_type : gen_type<N - 1, A, A, Types...> {
+    };
+
+    template <class A, class... Types>
+    struct gen_type<0, A, Types...> {
+      using type = type_seq<Types...>;
+    };
+
     // rgens<N>::type = seq<N-1, ..., 0>
 
     template <int N, int... S>

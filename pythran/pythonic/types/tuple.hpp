@@ -109,11 +109,11 @@ namespace pythonic
                  Stail)-count_trailing_long<Stail...>::value>::type{});
     }
 
-    template <class A, int... I>
-    auto array_to_tuple(A const &a, utils::seq<I...>)
-        -> decltype(std::make_tuple(a[I - 1]...))
+    template <class A, int... I, class... Types>
+    std::tuple<Types...> array_to_tuple(A const &a, utils::seq<I...>,
+                                        utils::type_seq<Types...>)
     {
-      return std::make_tuple(a[I - 1]...);
+      return std::tuple<Types...>(a[I]...);
     }
 
     /* inspired by std::array implementation */
@@ -364,14 +364,17 @@ namespace pythonic
     template <class... Types>
     array<T, N>::operator std::tuple<Types...>() const
     {
-      return array_to_tuple(*this, typename utils::gens<N + 1>::type{});
+      return array_to_tuple(*this, typename utils::gens<N>::type{},
+                            typename utils::type_seq<Types...>{});
     }
 
     template <typename T, size_t N>
     auto array<T, N>::to_tuple() const
-        -> decltype(array_to_tuple(*this, typename utils::gens<N + 1>::type{}))
+        -> decltype(array_to_tuple(*this, typename utils::gens<N>::type{},
+                                   typename utils::gen_type<N, T>::type{}))
     {
-      return array_to_tuple(*this, typename utils::gens<N + 1>::type{});
+      return array_to_tuple(*this, typename utils::gens<N>::type{},
+                            typename utils::gen_type<N, T>::type{});
     }
 
     /* array */

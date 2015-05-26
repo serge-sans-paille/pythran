@@ -2,7 +2,9 @@
 #define PYTHONIC_CMATH_TAN_HPP
 
 #include "pythonic/include/cmath/tan.hpp"
+
 #include "pythonic/utils/proxy.hpp"
+
 #include <cmath>
 
 namespace pythonic

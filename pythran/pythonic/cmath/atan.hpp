@@ -2,7 +2,9 @@
 #define PYTHONIC_CMATH_ATAN_HPP
 
 #include "pythonic/include/cmath/atan.hpp"
+
 #include "pythonic/utils/proxy.hpp"
+
 #include <cmath>
 
 namespace pythonic

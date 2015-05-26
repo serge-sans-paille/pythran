@@ -2,7 +2,9 @@
 #define PYTHONIC_CMATH_EXP_HPP
 
 #include "pythonic/include/cmath/exp.hpp"
+
 #include "pythonic/utils/proxy.hpp"
+
 #include <cmath>
 
 namespace pythonic

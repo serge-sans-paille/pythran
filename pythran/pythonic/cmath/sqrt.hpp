@@ -2,7 +2,9 @@
 #define PYTHONIC_CMATH_SQRT_HPP
 
 #include "pythonic/include/cmath/sqrt.hpp"
+
 #include "pythonic/utils/proxy.hpp"
+
 #include <cmath>
 
 namespace pythonic

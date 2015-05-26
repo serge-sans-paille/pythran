@@ -2,7 +2,9 @@
 #define PYTHONIC_CMATH_ACOS_HPP
 
 #include "pythonic/include/cmath/acos.hpp"
+
 #include "pythonic/utils/proxy.hpp"
+
 #include <cmath>
 
 namespace pythonic

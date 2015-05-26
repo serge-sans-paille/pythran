@@ -2,7 +2,9 @@
 #define PYTHONIC_CMATH_ISNAN_HPP
 
 #include "pythonic/include/cmath/isnan.hpp"
+
 #include "pythonic/utils/proxy.hpp"
+
 #include <cmath>
 
 namespace pythonic

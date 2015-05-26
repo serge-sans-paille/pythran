@@ -2,7 +2,9 @@
 #define PYTHONIC_CMATH_COS_HPP
 
 #include "pythonic/include/cmath/cos.hpp"
+
 #include "pythonic/utils/proxy.hpp"
+
 #include <cmath>
 
 namespace pythonic

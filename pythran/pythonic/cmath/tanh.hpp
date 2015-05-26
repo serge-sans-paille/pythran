@@ -2,7 +2,9 @@
 #define PYTHONIC_CMATH_TANH_HPP
 
 #include "pythonic/include/cmath/tanh.hpp"
+
 #include "pythonic/utils/proxy.hpp"
+
 #include <cmath>
 
 namespace pythonic

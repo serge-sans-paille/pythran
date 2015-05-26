@@ -2,7 +2,9 @@
 #define PYTHONIC_CMATH_LOG10_HPP
 
 #include "pythonic/include/cmath/log10.hpp"
+
 #include "pythonic/utils/proxy.hpp"
+
 #include <cmath>
 
 namespace pythonic

@@ -1,11 +1,32 @@
+""" Tests for part of the numpy module. """
+
 import unittest
-from test_env import TestEnv
+
 import numpy
+
+from test_env import TestEnv
 
 
 @TestEnv.module
 class TestNumpyFunc3(TestEnv):
 
+    """
+    This module includes tests for multiple numpy module function.
+
+    Tested functions are:
+    - numpy.dot
+    - numpy.digitize
+    - numpy.diff
+    - numpy.trace
+    - numpy.tri
+    - numpy.trim_zeros
+    - numpy.triu
+    - numpy.tril
+    - numpy.unique
+    - numpy.unwrap
+
+    and various combinations of +/-/** and trigonometric operations.
+    """
 
     def test_dot0(self):
         self.run_test("def np_dot0(x, y): from numpy import dot ; return dot(x,y)", 2, 3, np_dot0=[int, int])
@@ -29,8 +50,8 @@ class TestNumpyFunc3(TestEnv):
         def np_dot5(x, y):
             from numpy import dot
             return dot(x,y)""",
-                      numpy.arange(9).reshape(3, 3).tolist(),
-                      numpy.arange(9, 18).reshape(3, 3).tolist(),
+                      [[1, 2, 3], [4, 5, 6], [7, 8, 9]],
+                      [[10, 11, 12], [13, 14, 15], [16, 17, 18]],
                       np_dot5=[[[float]], [[float]]])
 
     def test_dot6(self):
@@ -50,8 +71,8 @@ class TestNumpyFunc3(TestEnv):
         def np_dot7(x, y):
             from numpy import dot
             return dot(x,y)""",
-                      numpy.arange(6).reshape(3, 2).tolist(),
-                      numpy.arange(6, 12).reshape(2, 3).tolist(),
+                      [[1, 2, 3], [4, 5, 6], [7, 8, 9]],
+                      [[10, 11, 12], [13, 14, 15], [16, 17, 18]],
                       np_dot7=[[[float]], [[float]]])
 
     def test_dot8(self):

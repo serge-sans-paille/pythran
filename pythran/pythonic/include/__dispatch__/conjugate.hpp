@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_DISPATCH_CONJUGATE_HPP
 #define PYTHONIC_INCLUDE_DISPATCH_CONJUGATE_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/numpy/conjugate.hpp"
+#include "pythonic/include/numpy/conjugate.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 
 namespace pythonic
 {

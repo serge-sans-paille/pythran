@@ -2,6 +2,7 @@
 #define PYTHONIC_DISPATCH_CLEAR_HPP
 
 #include "pythonic/include/__dispatch__/clear.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 
 namespace pythonic

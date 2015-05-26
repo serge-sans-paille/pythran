@@ -2,8 +2,9 @@
 #define PYTHONIC_DISPATCH_CONJUGATE_HPP
 
 #include "pythonic/include/__dispatch__/conjugate.hpp"
-#include "pythonic/utils/proxy.hpp"
+
 #include "pythonic/numpy/conjugate.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 namespace pythonic
 {

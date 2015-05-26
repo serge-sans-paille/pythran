@@ -1,4 +1,5 @@
 import unittest
+from distutils.errors import CompileError
 from test_env import TestFromDir
 import os
 import pythran
@@ -22,7 +23,7 @@ try:
     pythran.compile_cxxcode('#include <omp.h>', extra_compile_args=['-fopenmp'], extra_link_args=['-fopenmp'])
     TestOpenMP.populate(TestOpenMP)
     TestOpenMPLegacy.populate(TestOpenMPLegacy)
-except SystemExit:
+except CompileError:
     pass
 
 

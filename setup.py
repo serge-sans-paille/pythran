@@ -134,8 +134,8 @@ class BuildWithPly(build):
         # regular build done by parent class
         build.run(self, *args, **kwargs)
         if not self.dry_run:  # compatibility with the parent options
-            self.build_ply()
             self.build_nt2()
+            self.build_ply()
 
 
 class TestCommand(Command):

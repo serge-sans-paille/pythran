@@ -4,18 +4,18 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/random/random.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace random {
-        template <class T>
-        void shuffle(T & seq);
-        template <class T, class function>
-        void shuffle(T &seq, function && randf);
-        
-        PROXY_DECL(pythonic::random, shuffle)
+  namespace random
+  {
+    template <class T>
+    void shuffle(T &seq);
+    template <class T, class function>
+    void shuffle(T &seq, function &&randf);
 
-    }
-
+    PROXY_DECL(pythonic::random, shuffle)
+  }
 }
 
 #endif

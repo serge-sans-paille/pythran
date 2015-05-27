@@ -698,6 +698,7 @@ MODULES = {
         "expovariate": FunctionIntr(global_effects=True),
         "sample": FunctionIntr(global_effects=True),
         "choice": FunctionIntr(global_effects=True),
+        "shuffle": FunctionIntr(global_effects=True),
         },
     "omp": {
         "set_num_threads": FunctionIntr(global_effects=True),

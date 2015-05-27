@@ -2,6 +2,7 @@
 #define PYTHONIC_FUNCTOOLS_PARTIAL_HPP
 
 #include "pythonic/include/functools/partial.hpp"
+
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/utils/seq.hpp"
 
@@ -13,7 +14,7 @@ namespace pythonic
   namespace functools
   {
 
-    namespace
+    namespace details
     {
 
       template <typename... ClosureTypes>
@@ -23,7 +24,7 @@ namespace pythonic
       }
 
       template <typename... ClosureTypes>
-      task<ClosureTypes...>::task(ClosureTypes... types)
+      task<ClosureTypes...>::task(ClosureTypes const &... types)
           : closure(types...)
       {
       }
@@ -53,13 +54,11 @@ namespace pythonic
 
     template <typename... Types>
     // remove references as closure capture the env by copy
-    task<typename std::remove_cv<
+    details::task<typename std::remove_cv<
         typename std::remove_reference<Types>::type>::type...>
     partial(Types &&... types)
     {
-      return task<typename std::remove_cv<
-          typename std::remove_reference<Types>::type>::type...>(
-          std::forward<Types>(types)...);
+      return {std::forward<Types>(types)...};
     }
 
     PROXY_IMPL(pythonic::functools, partial);

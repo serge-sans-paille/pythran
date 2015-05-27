@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_FUNCTOOLS_PARTIAL_HPP
 #define PYTHONIC_INCLUDE_FUNCTOOLS_PARTIAL_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/utils/seq.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/seq.hpp"
 
 #include <utility>
 
@@ -12,7 +12,7 @@ namespace pythonic
   namespace functools
   {
 
-    namespace
+    namespace details
     {
 
       /* a task that captures its environnment for later call */
@@ -26,7 +26,7 @@ namespace pythonic
                                                      // const
 
         task();
-        task(ClosureTypes... types);
+        task(ClosureTypes const &... types);
 
         template <int... S, typename... Types>
         auto call(utils::seq<S...>, Types &&... types) const
@@ -42,7 +42,7 @@ namespace pythonic
 
     template <typename... Types>
     // remove references as closure capture the env by copy
-    task<typename std::remove_cv<
+    details::task<typename std::remove_cv<
         typename std::remove_reference<Types>::type>::type...>
     partial(Types &&... types);
 

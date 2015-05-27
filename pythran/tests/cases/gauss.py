@@ -1,5 +1,7 @@
 #pythran export gauss(int, float list list, float list)
-#pythran export gauss(int, complex list list, complex list)
+# FIXME Pythran is not able to select the best signature (always use complex if
+# enabled)
+##pythran export gauss(int, complex list list, complex list)
 #runas gauss(4,[[10.0,-6.0,3.5,3.2],[6.7,2.8,-.65,1.2],[9.2,3.0,5.4,1.3],[1.6,8.3,2.5,5.2]],[33.4,4.5,-5.4,-13.4])
 def pivot(n,i,a,b):
     i0=i

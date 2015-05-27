@@ -1,11 +1,12 @@
 """ Base file for all Pythran tests. """
 
 from imp import load_dynamic
-from numpy import int8, int16, int32, int64, uint8, uint16, uint32, uint64
 from numpy import float32, float64
+from numpy import int8, int16, int32, int64, uint8, uint16, uint32, uint64
 from numpy import ndarray, isnan, isinf, isneginf, complex128, complex64, bool_
 from textwrap import dedent
 import copy
+import math
 import glob
 import numpy.testing as npt
 import os
@@ -43,7 +44,8 @@ class TestEnv(unittest.TestCase):
                          (long, (int, long)),
                          (bool, (bool, bool_)),
                          # FIXME combiner for boolean doesn't work
-                         (int, (int, bool, bool_, int8, int16, int32, int64, uint8, uint16, uint32, uint64)))
+                         (int, (int, bool, bool_, int8, int16, int32, int64,
+                                uint8, uint16, uint32, uint64)))
         if isinstance(ref, ndarray):
             # res can be an ndarray of dim 0 because of isneginf call
             if ref.ndim == 0 and (not isinstance(res, ndarray)
@@ -78,10 +80,23 @@ class TestEnv(unittest.TestCase):
         elif isinstance(ref, ndarray):
             npt.assert_array_almost_equal(ref, res)
         elif isinstance(ref, float):
-            if isinf(ref) and isinf(res):
-                self.assertAlmostEqual(isneginf(ref), isneginf(res))
-            else:
+            if isinf(ref) or isinf(res):
+                self.assertEqual(isinf(ref), isinf(res))
+                self.assertEqual(isneginf(ref), isneginf(res))
+            elif isnan(ref) or isnan(res):
                 self.assertEqual(isnan(ref), isnan(res))
+            elif ref == res:
+                pass
+            else:
+                # Check float equality using upl :
+                # http://numscale.github.io/nstest/design_rationale.html
+                (m_ref, e_ref) = math.frexp(ref)
+                (m_res, e_res) = math.frexp(res)
+                expo = max(e_ref, e_res)
+                n_ref = math.ldexp(ref, -expo)
+                n_res = math.ldexp(res, -expo)
+                e = (m_ref - m_res) if e_ref == e_res else (n_ref - n_res)
+                self.assertLessEqual(abs(e) / sys.float_info.epsilon, 3.)
         elif isinstance(ref, (complex, complex64, complex128)):
             self.assertAlmostEqual(ref.real, res.real)
             self.assertAlmostEqual(ref.imag, res.imag)

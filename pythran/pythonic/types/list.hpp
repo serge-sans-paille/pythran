@@ -144,7 +144,12 @@ namespace pythonic
     list<T>::list(InputIterator start, InputIterator stop)
         : data()
     {
-      data->reserve(DEFAULT_LIST_CAPACITY);
+      if (std::is_same<
+              typename std::iterator_traits<InputIterator>::iterator_category,
+              std::random_access_iterator_tag>::value)
+        data->reserve(std::distance(start, stop));
+      else
+        data->reserve(DEFAULT_LIST_CAPACITY);
       std::copy(start, stop, std::back_inserter(*data));
     }
     template <class T>

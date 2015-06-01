@@ -26,6 +26,12 @@ namespace pythonic
     {
       return (*this) != other;
     }
+
+    template <class T>
+    iterator_reminder<T>::iterator_reminder(T const &v)
+        : value(v)
+    {
+    }
   }
 }
 

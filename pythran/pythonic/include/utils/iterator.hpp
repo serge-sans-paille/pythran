@@ -13,6 +13,14 @@ namespace pythonic
       comparable_iterator(T const &t);
       bool operator<(comparable_iterator<T> other);
     };
+
+    // Utility class to remind sequence we are iterating on to avoid dangling
+    // reference
+    template <class T>
+    struct iterator_reminder {
+      T value;
+      iterator_reminder(T const &v);
+    };
   }
 }
 

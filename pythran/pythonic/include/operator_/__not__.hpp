@@ -3,14 +3,13 @@
 
 #include "pythonic/operator_/not_.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
-        FPROXY_DECL(pythonic::operator_, __not__, not_);
-
-    }
-
+  namespace operator_
+  {
+    FPROXY_DECL(pythonic::operator_, __not__, not_);
+  }
 }
 
 #endif
-

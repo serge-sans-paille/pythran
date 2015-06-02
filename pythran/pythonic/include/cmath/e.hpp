@@ -2,15 +2,16 @@
 #define PYTHONIC_INCLUDE_CMATH_E_HPP
 
 #include "pythonic/utils/proxy.hpp"
+
 #include <cmath>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace cmath {
-        double const e = std::exp(1);
-    }
-
+  namespace cmath
+  {
+    double constexpr e = std::exp(1);
+  }
 }
 
 #endif
-

@@ -5,17 +5,18 @@
 
 #include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
-        bool truth(bool const& a)
-        {
-            return a;
-        }
-
-        PROXY_IMPL(pythonic::operator_, truth);
+  namespace operator_
+  {
+    bool truth(bool const &a)
+    {
+      return a;
     }
 
+    PROXY_IMPL(pythonic::operator_, truth);
+  }
 }
 
 #endif

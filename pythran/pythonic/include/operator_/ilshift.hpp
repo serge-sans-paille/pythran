@@ -3,16 +3,17 @@
 
 #include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
+  namespace operator_
+  {
 
-        template <class A, class B>
-            A ilshift(A a, B const& b);
+    template <class A, class B>
+    A ilshift(A a, B const &b);
 
-        PROXY_DECL(pythonic::operator_, ilshift);
-    }
-
+    PROXY_DECL(pythonic::operator_, ilshift);
+  }
 }
 
 #endif

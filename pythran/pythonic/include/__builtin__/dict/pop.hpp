@@ -1,21 +1,23 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_DICT_POP_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_DICT_POP_HPP
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/include/__dispatch__/pop.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 
-#include "pythonic/__dispatch__/pop.hpp"
+namespace pythonic
+{
 
-namespace pythonic {
+  namespace __builtin__
+  {
 
-    namespace __builtin__ {
+    namespace dict
+    {
 
-        namespace dict {
+      ALIAS_DECL(pop, pythonic::__dispatch__::pop);
 
-            ALIAS_DECL(pop, pythonic::__dispatch__::pop);
-
-            PROXY_DECL(pythonic::__builtin__::dict, pop);
-        }
+      PROXY_DECL(pythonic::__builtin__::dict, pop);
     }
+  }
 }
 
 #endif

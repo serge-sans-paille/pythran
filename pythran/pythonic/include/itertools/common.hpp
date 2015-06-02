@@ -1,15 +1,15 @@
 #ifndef PYTHONIC_INCLUDE_ITERTOOLS_COMMON_HPP
 #define PYTHONIC_INCLUDE_ITERTOOLS_COMMON_HPP
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace itertools {
+  namespace itertools
+  {
 
-        struct npos
-        {};
-
-    }
-
+    struct npos {
+    };
+  }
 }
 
 #endif

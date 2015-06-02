@@ -3,14 +3,13 @@
 
 #include "pythonic/operator_/itruediv.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
-        FPROXY_DECL(pythonic::operator_, __itruediv__, itruediv);
-
-    }
-
+  namespace operator_
+  {
+    FPROXY_DECL(pythonic::operator_, __itruediv__, itruediv);
+  }
 }
 
 #endif
-

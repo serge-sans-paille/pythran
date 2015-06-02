@@ -3,11 +3,13 @@
 
 #include "pythonic/types/str.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace string {
-        types::str constexpr digits("0123456789"); 
-    }
+  namespace string
+  {
+    types::str constexpr digits("0123456789");
+  }
 }
 
 #endif

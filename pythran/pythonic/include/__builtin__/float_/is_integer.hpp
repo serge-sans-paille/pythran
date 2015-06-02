@@ -1,21 +1,22 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_FLOAT_ISINTEGER_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_FLOAT_ISINTEGER_HPP
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        namespace float_ {
+    namespace float_
+    {
 
-            bool is_integer(double d);
+      bool is_integer(double d);
 
-            PROXY_DECL(pythonic::__builtin__::float_, is_integer);
-
-        }
+      PROXY_DECL(pythonic::__builtin__::float_, is_integer);
     }
-
+  }
 }
 
 #endif

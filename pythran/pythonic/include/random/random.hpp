@@ -4,18 +4,18 @@
 #include "pythonic/utils/proxy.hpp"
 #include <random>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace random {
+  namespace random
+  {
 
-        static std::mt19937 __random_generator;
+    static std::mt19937 __random_generator;
 
-        double random();
+    double random();
 
-        PROXY_DECL(pythonic::random, random);
-
-    }
-
+    PROXY_DECL(pythonic::random, random);
+  }
 }
 
 #endif

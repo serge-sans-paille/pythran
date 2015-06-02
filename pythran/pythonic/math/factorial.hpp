@@ -5,23 +5,22 @@
 
 #include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace math {
+  namespace math
+  {
 
-        template<class T>
-            T factorial(T x)
-            {
-                long res = 1;
-                for(long i=2;i<=x;i++)
-                    res *= i;
-                return res;
-            }
-        PROXY_IMPL(pythonic::math,factorial);
-
+    template <class T>
+    T factorial(T x)
+    {
+      long res = 1;
+      for (long i = 2; i <= x; i++)
+        res *= i;
+      return res;
     }
-
+    PROXY_IMPL(pythonic::math, factorial);
+  }
 }
 
 #endif
-

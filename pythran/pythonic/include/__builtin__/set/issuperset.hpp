@@ -1,26 +1,26 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_SET_ISSUPERSET_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_SET_ISSUPERSET_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/set.hpp"
+#include "pythonic/include/types/set.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace set {
+    namespace set
+    {
 
-            template<class T, class U>
-                bool issuperset(types::set<T> const& set, U const& other);
+      template <class T, class U>
+      bool issuperset(types::set<T> const &set, U const &other);
 
-            template<class U>
-                bool issuperset(types::empty_set const& set, U const& other);
+      template <class U>
+      bool issuperset(types::empty_set const &set, U const &other);
 
-            PROXY_DECL(pythonic::__builtin__::set, issuperset);
-
-        }
-
+      PROXY_DECL(pythonic::__builtin__::set, issuperset);
     }
-
+  }
 }
-#endif 
+#endif

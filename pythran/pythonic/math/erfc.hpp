@@ -6,14 +6,14 @@
 #include "pythonic/utils/proxy.hpp"
 #include <cmath>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace math {
-        ALIAS(erfc, std::erfc);
-        PROXY_IMPL(pythonic::math, erfc);
-    }
-
+  namespace math
+  {
+    ALIAS(erfc, std::erfc);
+    PROXY_IMPL(pythonic::math, erfc);
+  }
 }
 
 #endif
-

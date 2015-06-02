@@ -3,43 +3,34 @@
 
 #include "pythonic/include/__builtin__/list/insert.hpp"
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/list.hpp"
 #include "pythonic/__builtin__/None.hpp"
+#include "pythonic/types/list.hpp"
+#include "pythonic/types/none.hpp"
+#include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace list {
+    namespace list
+    {
 
-            template<class T, class F>
-                types::none_type
-                insert(types::list<T> &seq, long n, F const& value)
-                {
-                    n = n % (1 + seq.size());
-                    if (n < 0)
-                        n += seq.size();
-                    seq.insert(n, value);
-                    return __builtin__::None;
-                }
+      // TODO : range_analysis may be use to have a "fast insert" function.
+      template <class T, class F>
+      types::none_type insert(types::list<T> &seq, long n, F &&value)
+      {
+        n = n % (1 + seq.size()); // +1 because we want to be able to insert at
+                                  // the end of seq
+        if (n < 0)
+          n += seq.size();
+        seq.insert(n, std::forward<F>(value));
+        return __builtin__::None;
+      }
 
-            template<class T, class F>
-                types::none_type
-                insert(types::list<T> &seq, long n, F && value)
-                {
-                    n = n % (1 + seq.size()); // +1 because we want to be able to insert at the end of seq
-                    if (n < 0)
-                        n+=seq.size();
-                    seq.insert(n, value);
-                    return __builtin__::None;
-                }
-
-            PROXY_IMPL(pythonic::__builtin__::list, insert);
-
-        }
-
+      PROXY_IMPL(pythonic::__builtin__::list, insert);
     }
-
+  }
 }
 #endif

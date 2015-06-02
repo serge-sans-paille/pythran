@@ -5,19 +5,19 @@
 
 #include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
-        template <class A, class B>
-            A idiv(A a, B const& b)
-            {
-                return a /= b;
-            }
-
-        PROXY_IMPL(pythonic::operator_, idiv);
-
+  namespace operator_
+  {
+    template <class A, class B>
+    A idiv(A a, B const &b)
+    {
+      return a /= b;
     }
 
+    PROXY_IMPL(pythonic::operator_, idiv);
+  }
 }
 
 #endif

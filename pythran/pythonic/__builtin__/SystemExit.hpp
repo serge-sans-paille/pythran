@@ -1,18 +1,18 @@
 #ifndef PYTHONIC_BUILTIN_SYSTEMEXIT_HPP
 #define PYTHONIC_BUILTIN_SYSTEMEXIT_HPP
 
-#include "pythonic/types/exceptions.hpp"
 #include "pythonic/include/__builtin__/SystemExit.hpp"
 
-namespace pythonic {
+#include "pythonic/types/exceptions.hpp"
 
-    namespace __builtin__ {
+namespace pythonic
+{
 
-        PYTHONIC_EXCEPTION_IMPL(SystemExit)
+  namespace __builtin__
+  {
 
-    }
-
+    PYTHONIC_EXCEPTION_IMPL(SystemExit)
+  }
 }
 
 #endif
-

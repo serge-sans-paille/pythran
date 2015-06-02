@@ -24,6 +24,7 @@ from tempfile import mkstemp
 import ast
 import logging
 import networkx as nx
+import numpy.distutils.system_info as numpy_sys
 import os.path
 import shutil
 import sys
@@ -33,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 
 def _format_cmdline(cmd):
-    """No comma when printing a command line allows for copy/paste"""
+    """No comma when printing a command line allows for copy/paste. """
     return "'" + "' '".join(cmd) + "'"
 
 
@@ -44,12 +45,17 @@ def _extract_all_constructed_types(v):
 
 
 def _extract_specs_dependencies(specs):
+    """ Extract types dependencies from specs for each exported signature. """
     deps = set()
-    for _, signatures in specs.iteritems():
-        for _, signature in enumerate(signatures):
+    # for each function
+    for signatures in specs.values():
+        # for each signature
+        for signature in signatures:
+            # for each argument
             for t in signature:
                 deps.update(pytype_to_deps(t))
-    return deps
+    # Keep "include" first
+    return sorted(deps, key=lambda x: "include" not in x)
 
 
 def _parse_optimization(optimization):
@@ -85,8 +91,10 @@ def _pythran_cppflags():
 
 def _python_ldflags():
     pylibs = sysconfig.get_config_var('LIBS').split()
-    return (["-L" + sysconfig.get_config_var("LIBPL")] +
-            pylibs +
+    numpy_blas = numpy_sys.get_info("blas")
+    return (["-L" + sysconfig.get_config_var("LIBPL")] + pylibs +
+            ["-L{}".format(lib) for lib in numpy_blas['library_dirs']] +
+            ["-l{}".format(lib) for lib in numpy_blas['libraries']] +
             ["-lpython" + sysconfig.get_config_var('VERSION')])
 
 

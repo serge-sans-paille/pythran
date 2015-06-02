@@ -5,14 +5,13 @@
 
 #include "pythonic/operator_/neg.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
-        FPROXY_IMPL(pythonic::operator_, __neg__, neg);
-
-    }
-
+  namespace operator_
+  {
+    FPROXY_IMPL(pythonic::operator_, __neg__, neg);
+  }
 }
 
 #endif
-

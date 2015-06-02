@@ -3,18 +3,17 @@
 
 #include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace math {
+  namespace math
+  {
 
-        template<class T>
-            T factorial(T x);
+    template <class T>
+    T factorial(T x);
 
-        PROXY_DECL(pythonic::math,factorial);
-
-    }
-
+    PROXY_DECL(pythonic::math, factorial);
+  }
 }
 
 #endif
-

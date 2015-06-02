@@ -25,6 +25,7 @@ from pythran import metadata, unparse
 from math import isnan, isinf
 import ast
 import cStringIO
+import os
 
 
 class Python(Backend):
@@ -136,6 +137,8 @@ class Cxx(Backend):
     >>> pm = passmanager.PassManager('test')
     >>> r = pm.dump(Cxx, node)
     >>> print r
+    #include <pythonic/include/__builtin__/print.hpp>
+    #include <pythonic/include/__builtin__/str.hpp>
     #include <pythonic/__builtin__/print.hpp>
     #include <pythonic/__builtin__/str.hpp>
     namespace __pythran_test
@@ -178,10 +181,12 @@ class Cxx(Backend):
 
     # mod
     def visit_Module(self, node):
+        """ Build a compilation unit. """
         # build all types
-        def gen_include(t):
-            return "/".join(("pythonic",) + t) + ".hpp"
-        headers = map(Include, sorted(map(gen_include, self.dependencies)))
+        headers = [Include(os.path.join("pythonic", "include",  *t) + ".hpp")
+                   for t in self.dependencies]
+        headers += [Include(os.path.join("pythonic", *t) + ".hpp")
+                    for t in self.dependencies]
 
         body = map(self.visit, node.body)
 

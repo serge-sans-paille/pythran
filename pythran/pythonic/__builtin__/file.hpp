@@ -1,26 +1,28 @@
 #ifndef PYTHONIC_BUILTIN_FILE_HPP
 #define PYTHONIC_BUILTIN_FILE_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/file.hpp"
-#include "pythonic/types/str.hpp"
 #include "pythonic/include/__builtin__/file.hpp"
 
-namespace pythonic {
+#include "pythonic/types/file.hpp"
+#include "pythonic/types/str.hpp"
+#include "pythonic/utils/proxy.hpp"
 
-    namespace __builtin__ {
+namespace pythonic
+{
 
-        namespace {
-            types::file file(types::str const& filename, types::str const& strmode)
-            {
-                return types::file(filename, strmode);
-            } 
-        }
+  namespace __builtin__
+  {
 
-        PROXY_IMPL(pythonic::__builtin__, file);
-
+    namespace anonymous
+    {
+      types::file file(types::str const &filename, types::str const &strmode)
+      {
+        return {filename, strmode};
+      }
     }
 
+    PROXY_IMPL(pythonic::__builtin__::anonymous, file);
+  }
 }
 
 #endif

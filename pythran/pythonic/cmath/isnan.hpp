@@ -2,17 +2,19 @@
 #define PYTHONIC_CMATH_ISNAN_HPP
 
 #include "pythonic/include/cmath/isnan.hpp"
+
 #include "pythonic/utils/proxy.hpp"
+
 #include <cmath>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace cmath {
-        ALIAS(isnan ,std::isnan);
-        PROXY_IMPL(pythonic::cmath, isnan);
-    }
-
+  namespace cmath
+  {
+    ALIAS(isnan, std::isnan);
+    PROXY_IMPL(pythonic::cmath, isnan);
+  }
 }
 
 #endif
-

@@ -4,19 +4,21 @@
 #include "pythonic/include/__builtin__/file/next.hpp"
 
 #include "pythonic/__dispatch__/next.hpp"
+#include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace file {
+    namespace file
+    {
 
-            ALIAS(next, pythonic::__dispatch__::next);
+      ALIAS(next, pythonic::__dispatch__::next);
 
-            PROXY_IMPL(pythonic::__builtin__::file, next);
-        }
-
+      PROXY_IMPL(pythonic::__builtin__::file, next);
     }
-
+  }
 }
 #endif

@@ -8,13 +8,13 @@
 
 #include "pythonic/operator_/invert.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
-        FPROXY_IMPL(pythonic::operator_, inv, invert);
-    }
-
+  namespace operator_
+  {
+    FPROXY_IMPL(pythonic::operator_, inv, invert);
+  }
 }
 
 #endif
-

@@ -2,17 +2,19 @@
 #define PYTHONIC_CMATH_SQRT_HPP
 
 #include "pythonic/include/cmath/sqrt.hpp"
+
 #include "pythonic/utils/proxy.hpp"
+
 #include <cmath>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace cmath {
-        ALIAS(sqrt, std::sqrt);
-        PROXY_IMPL(pythonic::cmath, sqrt);
-    }
-
+  namespace cmath
+  {
+    ALIAS(sqrt, std::sqrt);
+    PROXY_IMPL(pythonic::cmath, sqrt);
+  }
 }
 
 #endif
-

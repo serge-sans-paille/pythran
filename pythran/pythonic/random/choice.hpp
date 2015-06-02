@@ -6,20 +6,20 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/random/random.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace random {
+  namespace random
+  {
 
-        template<class Seq>
-            typename Seq::value_type choice(Seq const& seq)
-            {
-                return seq[long(random() * seq.size())];
-            }
-
-        PROXY_IMPL(pythonic::random, choice);
-
+    template <class Seq>
+    typename Seq::value_type choice(Seq const &seq)
+    {
+      return seq[long(random() * seq.size())];
     }
 
+    PROXY_IMPL(pythonic::random, choice);
+  }
 }
 
 #endif

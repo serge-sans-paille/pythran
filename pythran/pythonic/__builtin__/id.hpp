@@ -1,45 +1,45 @@
 #ifndef PYTHONIC_BUILTIN_ID_HPP
 #define PYTHONIC_BUILTIN_ID_HPP
 
-#include <cstdint>
-#include "pythonic/types/long.hpp"
-#include "pythonic/utils/proxy.hpp"
 #include "pythonic/include/__builtin__/id.hpp"
 
-namespace pythonic {
+#include "pythonic/types/long.hpp"
+#include "pythonic/utils/proxy.hpp"
 
-    namespace __builtin__ {
+namespace pythonic
+{
 
-        template <class T>
-            intptr_t id(T const & t)
-            {
-                return t.id();
-            }
+  namespace __builtin__
+  {
 
-        intptr_t id(pythran_long_t const &t)
-        {
-            return reinterpret_cast<intptr_t>(&t);
-        }
-
-        intptr_t id(long const &t)
-        {
-            return reinterpret_cast<intptr_t>(&t);
-        }
-
-        intptr_t id(double const &t)
-        {
-            return reinterpret_cast<intptr_t>(&t);
-        }
-
-        intptr_t id(bool const &t)
-        {
-            return reinterpret_cast<intptr_t>(&t);
-        }
-
-        PROXY_IMPL(pythonic::__builtin__, id);
-
+    template <class T>
+    long id(T const &t)
+    {
+      return t.id();
     }
 
+    long id(pythran_long_t const &t)
+    {
+      return reinterpret_cast<long>(&t);
+    }
+
+    long id(long const &t)
+    {
+      return reinterpret_cast<long>(&t);
+    }
+
+    long id(double const &t)
+    {
+      return reinterpret_cast<long>(&t);
+    }
+
+    long id(bool const &t)
+    {
+      return reinterpret_cast<long>(&t);
+    }
+
+    PROXY_IMPL(pythonic::__builtin__, id);
+  }
 }
 
 #endif

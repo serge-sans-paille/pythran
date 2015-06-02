@@ -5,14 +5,13 @@
 
 #include "pythonic/operator_/lshift.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
-        FPROXY_IMPL(pythonic::operator_, __lshift__, lshift);
-
-    }
-
+  namespace operator_
+  {
+    FPROXY_IMPL(pythonic::operator_, __lshift__, lshift);
+  }
 }
 
 #endif
-

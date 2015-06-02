@@ -7,16 +7,16 @@
 
 #include <ctime>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace random {
-        types::none_type seed(long s);
-        types::none_type seed();
+  namespace random
+  {
+    types::none_type seed(long s);
+    types::none_type seed();
 
-        PROXY_DECL(pythonic::random, seed);
-
-    }
-
+    PROXY_DECL(pythonic::random, seed);
+  }
 }
 
 #endif

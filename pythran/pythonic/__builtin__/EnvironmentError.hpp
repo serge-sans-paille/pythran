@@ -1,18 +1,18 @@
 #ifndef PYTHONIC_BUILTIN_ENVIRONMENTERROR_HPP
 #define PYTHONIC_BUILTIN_ENVIRONMENTERROR_HPP
 
-#include "pythonic/types/exceptions.hpp"
 #include "pythonic/include/__builtin__/EnvironmentError.hpp"
 
-namespace pythonic {
+#include "pythonic/types/exceptions.hpp"
 
-    namespace __builtin__ {
+namespace pythonic
+{
 
-        PYTHONIC_EXCEPTION_IMPL(EnvironmentError)
+  namespace __builtin__
+  {
 
-    }
-
+    PYTHONIC_EXCEPTION_IMPL(EnvironmentError)
+  }
 }
 
 #endif
-

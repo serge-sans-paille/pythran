@@ -5,14 +5,13 @@
 
 #include "pythonic/operator_/ipow.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
-        FPROXY_IMPL(pythonic::operator_, __ipow__, ipow);
-
-    }
-
+  namespace operator_
+  {
+    FPROXY_IMPL(pythonic::operator_, __ipow__, ipow);
+  }
 }
 
 #endif
-

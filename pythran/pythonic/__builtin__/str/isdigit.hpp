@@ -3,23 +3,26 @@
 
 #include "pythonic/include/__builtin__/str/isdigit.hpp"
 
-#include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/str.hpp"
+#include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace str {
+    namespace str
+    {
 
-            bool isdigit(types::str const& s)
-            {
-                return not s.empty() and std::all_of(s.begin(), s.end(), (int (*)(int))std::isdigit);
-            }
+      bool isdigit(types::str const &s)
+      {
+        return not s.empty() and
+               std::all_of(s.begin(), s.end(), (int (*)(int))std::isdigit);
+      }
 
-            PROXY_IMPL(pythonic::__builtin__::str, isdigit);
-
-        }
+      PROXY_IMPL(pythonic::__builtin__::str, isdigit);
     }
+  }
 }
 #endif

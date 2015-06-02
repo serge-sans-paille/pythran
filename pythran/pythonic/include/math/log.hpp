@@ -4,15 +4,15 @@
 #include "pythonic/utils/proxy.hpp"
 #include <cmath>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace math {
-        ALIAS_DECL(log, std::log);
-        double log(double x, double base);
-        PROXY_DECL(pythonic::math, log);
-    }
-
+  namespace math
+  {
+    ALIAS_DECL(log, std::log);
+    double log(double x, double base);
+    PROXY_DECL(pythonic::math, log);
+  }
 }
 
 #endif
-

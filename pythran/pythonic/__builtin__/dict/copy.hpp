@@ -1,20 +1,25 @@
 #ifndef PYTHONIC_BUILTIN_DICT_COPY_HPP
 #define PYTHONIC_BUILTIN_DICT_COPY_HPP
 
-#include "pythonic/__dispatch__/copy.hpp"
 #include "pythonic/include/__builtin__/dict/copy.hpp"
 
-namespace pythonic {
+#include "pythonic/__dispatch__/copy.hpp"
+#include "pythonic/utils/proxy.hpp"
 
-    namespace __builtin__ {
+namespace pythonic
+{
 
-        namespace dict {
+  namespace __builtin__
+  {
 
-            ALIAS(copy, pythonic::__dispatch__::copy);
+    namespace dict
+    {
 
-            PROXY_IMPL(pythonic::__builtin__::dict, copy);
-        }
+      ALIAS(copy, pythonic::__dispatch__::copy);
+
+      PROXY_IMPL(pythonic::__builtin__::dict, copy);
     }
+  }
 }
 
 #endif

@@ -3,14 +3,13 @@
 
 #include "pythonic/operator_/getitem.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
-        FPROXY_DECL(pythonic::operator_, __getitem__, getitem);
-
-    }
-
+  namespace operator_
+  {
+    FPROXY_DECL(pythonic::operator_, __getitem__, getitem);
+  }
 }
 
 #endif
-

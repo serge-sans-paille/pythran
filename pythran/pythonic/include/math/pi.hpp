@@ -4,15 +4,14 @@
 #include "pythonic/utils/proxy.hpp"
 #include <cmath>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace math {
+  namespace math
+  {
 
-        double const pi = std::atan(1)*4;
-
-    }
-
+    double const pi = std::atan(1) * 4;
+  }
 }
 
 #endif
-

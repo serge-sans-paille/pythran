@@ -3,40 +3,40 @@
 
 #include "pythonic/include/__builtin__/file/seek.hpp"
 
-#include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/file.hpp"
+#include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace file {
+    namespace file
+    {
 
-            void seek(types::file &f, long offset)
-            {
-                f.seek(offset);
-            }
+      void seek(types::file &f, long offset)
+      {
+        f.seek(offset);
+      }
 
-            void seek(types::file &&f, long offset)
-            {
-                f.seek(offset);
-            }
+      void seek(types::file &&f, long offset)
+      {
+        // Nothing have to be done as it is a lvalue
+      }
 
-            void seek(types::file &f, long offset, long whence)
-            {
-                f.seek(offset, whence);
-            }
+      void seek(types::file &f, long offset, long whence)
+      {
+        f.seek(offset, whence);
+      }
 
-            void seek(types::file &&f, long offset, long whence)
-            {
-                f.seek(offset, whence);
-            }
+      void seek(types::file &&f, long offset, long whence)
+      {
+        // Nothing have to be done as it is a lvalue
+      }
 
-            PROXY_IMPL(pythonic::__builtin__::file, seek);
-
-        }
-
+      PROXY_IMPL(pythonic::__builtin__::file, seek);
     }
-
+  }
 }
 #endif

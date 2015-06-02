@@ -4,19 +4,22 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/numpy/minimum.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
+  namespace operator_
+  {
 
-        template <class A, class B>
-            auto imin(A const& a, B&& b) -> decltype(numpy::proxy::minimum{}(a, std::forward<B>(b)));
+    template <class A, class B>
+    auto imin(A const &a, B &&b)
+        -> decltype(numpy::proxy::minimum{}(a, std::forward<B>(b)));
 
-        template <class A, class B>
-            auto imin(A& a, B&& b) -> decltype( a = numpy::proxy::minimum{}(a, std::forward<B>(b)));
+    template <class A, class B>
+    auto imin(A &a, B &&b)
+        -> decltype(a = numpy::proxy::minimum{}(a, std::forward<B>(b)));
 
-        PROXY_DECL(pythonic::operator_, imin);
-    }
-
+    PROXY_DECL(pythonic::operator_, imin);
+  }
 }
 
 #endif

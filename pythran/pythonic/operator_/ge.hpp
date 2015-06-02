@@ -5,19 +5,19 @@
 
 #include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
-        template <class A, class B>
-            auto ge(A const& a, B const& b) -> decltype(a>=b)
-            {
-                return a>=b;
-            }
-
-        PROXY_IMPL(pythonic::operator_, ge);
-
+  namespace operator_
+  {
+    template <class A, class B>
+    auto ge(A const &a, B const &b) -> decltype(a >= b)
+    {
+      return a >= b;
     }
 
+    PROXY_IMPL(pythonic::operator_, ge);
+  }
 }
 
 #endif

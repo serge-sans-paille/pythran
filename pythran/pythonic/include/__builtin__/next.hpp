@@ -1,19 +1,21 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_NEXT_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_NEXT_HPP
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 
-namespace pythonic {
+#include <utility>
 
-    namespace __builtin__ {
+namespace pythonic
+{
 
-        template <class T>
-            typename std::remove_reference<decltype(*std::declval<T>())>::type
-            next(T&& y);
+  namespace __builtin__
+  {
 
-        PROXY_DECL(pythonic::__builtin__, next);
-    }
+    template <class T>
+    auto next(T &&y) -> decltype(*y);
 
+    PROXY_DECL(pythonic::__builtin__, next);
+  }
 }
 
 #endif

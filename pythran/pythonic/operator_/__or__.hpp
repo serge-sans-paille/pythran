@@ -5,14 +5,13 @@
 
 #include "pythonic/operator_/or_.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
-        FPROXY_IMPL(pythonic::operator_, __or__, or_);
-
-    }
-
+  namespace operator_
+  {
+    FPROXY_IMPL(pythonic::operator_, __or__, or_);
+  }
 }
 
 #endif
-

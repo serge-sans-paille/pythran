@@ -3,16 +3,17 @@
 
 #include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
+  namespace operator_
+  {
 
-        template <class A>
-            decltype(~std::declval<A const&>()) invert(A const& a);
+    template <class A>
+    decltype(~std::declval<A const &>()) invert(A const &a);
 
-        PROXY_DECL(pythonic::operator_, invert);
-    }
-
+    PROXY_DECL(pythonic::operator_, invert);
+  }
 }
 
 #endif

@@ -1,18 +1,18 @@
 #ifndef PYTHONIC_BUILTIN_STOPITERATION_HPP
 #define PYTHONIC_BUILTIN_STOPITERATION_HPP
 
-#include "pythonic/types/exceptions.hpp"
 #include "pythonic/include/__builtin__/StopIteration.hpp"
 
-namespace pythonic {
+#include "pythonic/types/exceptions.hpp"
 
-    namespace __builtin__ {
+namespace pythonic
+{
 
-        PYTHONIC_EXCEPTION_IMPL(StopIteration)
+  namespace __builtin__
+  {
 
-    }
-
+    PYTHONIC_EXCEPTION_IMPL(StopIteration)
+  }
 }
 
 #endif
-

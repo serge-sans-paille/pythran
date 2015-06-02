@@ -16,7 +16,7 @@ def deriv(n,sig,alp,dg,dh1,dh3,bin,nu):
         exp2=exp2-1.0
         dh3[i]=-nu*dh3[i-1]*exp3
         exp3=exp3-1.0
-    dg[0]=1.0
+    dg[0]=complex(1.0)
     dg[1]=dh1[0]+dh2[0]+dh3[0]
     for i in range(2,n+1):
         dg[i]=dh1[i-1]+dh2[i-1]+dh3[i-1]

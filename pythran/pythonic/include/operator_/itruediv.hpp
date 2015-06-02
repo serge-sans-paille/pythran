@@ -4,15 +4,16 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/operator_/truediv.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
-        template <class A, class B>
-            auto itruediv(A  a, B const& b) ->decltype(truediv(a,b));
+  namespace operator_
+  {
+    template <class A, class B>
+    auto itruediv(A a, B const &b) -> decltype(truediv(a, b));
 
-        PROXY_DECL(pythonic::operator_, itruediv);
-    }
-
+    PROXY_DECL(pythonic::operator_, itruediv);
+  }
 }
 
 #endif

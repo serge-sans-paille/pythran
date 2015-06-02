@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_UTILS_SHARED_REF_HPP
 #define PYTHONIC_UTILS_SHARED_REF_HPP
 
+#include "pythonic/include/utils/shared_ref.hpp"
+
 #include <memory>
 #include <utility>
 #include <unordered_map>
@@ -11,142 +13,138 @@
 #include <boost/python/object.hpp>
 #endif
 
-namespace pythonic {
-#ifdef ENABLE_PYTHON_MODULE
-    typedef PyObject* extern_type;
-#else
-    typedef void* extern_type;
-#endif
+namespace pythonic
+{
 
-#ifdef _OPENMP
-    typedef std::atomic_size_t atomic_size_t;
-#else
-    typedef size_t atomic_size_t;
-#endif
+  namespace utils
+  {
 
-
-    namespace utils {
-
-        // Force construction of an uninitialized shared_ref
-        struct no_memory{};
-
-        /** Light-weight shared_ptr like-class
-         *
-         *  Unlike std::shared_ptr, it allocates the memory itself using new.
-         */
-        template <class T>
-            class shared_ref
-            {
-                private:
-                    struct memory {
-                        T ptr;
-                        atomic_size_t count;
-                        extern_type foreign;
-                        template<class... Types>
-                            memory(Types&&... args):
-                                ptr( std::forward<Types>(args)... ), count(1),
-                                foreign(nullptr)
-                            {}
-                    } *mem;
-
-                public:
-                    //This attributs exists for non-Python code to avoid #ifdef everywhere
-
-                    // Uninitialized ctor
-                    shared_ref(no_memory const&) noexcept
-                        : mem(nullptr)
-                        {}
-                    // Uninitialized ctor (rvalue ref)
-                    shared_ref(no_memory &&) noexcept
-                        : mem(nullptr)
-                        {}
-
-                    // Ctor allocate T and forward all arguments to T ctor
-                    template<class... Types>
-                        shared_ref(Types&&... args)
-                        : mem( new memory(std::forward<Types>(args)...) )
-                        {}
-
-                    // Move Ctor
-                    shared_ref(shared_ref<T>&& p) noexcept
-                        : mem(p.mem)
-                        {p.mem=nullptr;}
-
-                    // Copy Ctor
-                    shared_ref(shared_ref<T> const& p) noexcept
-                        : mem(p.mem)
-                        {if(mem) acquire();}
-
-                    // Copy Ctor, again
-                    // Without a non-const copy-ctor here, the greedy variadic template ctor takes over
-                    shared_ref(shared_ref<T> & p) noexcept
-                        : mem(p.mem)
-                        {if(mem) acquire();}
-
-                    ~shared_ref() noexcept
-                    {dispose();}
-
-                    // Magic swapperator, help for assignment operators
-                    void swap(shared_ref<T> & rhs) noexcept {
-                        using std::swap;
-                        swap(mem, rhs.mem);
-                    }
-
-                    // Takes by copy so that acquire/release is handle by ctor
-                    shared_ref<T>& operator=(shared_ref<T> p) noexcept
-                    {
-                        swap(p);
-                        return *this;
-                    }
-
-                    T& operator*() const noexcept
-                    {return mem->ptr;}
-
-                    T* operator->() const noexcept
-                    {return &mem->ptr;}
-
-                    bool operator!=(shared_ref<T> const & other) const noexcept {
-                        return mem != other.mem;
-                    }
-
-                    // Save pointer to the external object to decref once we doesn't
-                    // use it anymore
-                    void external(extern_type obj_ptr) {
-                        mem->foreign = obj_ptr;
-                    }
-
-                    // FIXME The interface is screwed, you won't be able to delete
-                    // T since it was a member of the struct allocated with new
-                    T* forget() {
-                        T *ptr = &mem->ptr;
-                        mem = nullptr;
-                        return ptr;
-                    }
-
-                    inline extern_type get_foreign() {
-                        return mem->foreign;
-                    }
-
-                private:
-                    void dispose()
-                    {
-                        if(mem and --mem->count == 0)
-                        {
-                            if(mem->foreign){
-#ifdef ENABLE_PYTHON_MODULE
-                                Py_DECREF(mem->foreign);
-#endif
-                            } else
-                                delete mem;
-                            mem = nullptr;
-                        }
-                    }
-                    void acquire() {
-                        ++mem->count;
-                    }
-            };
-
+    /** Light-weight shared_ptr like-class
+     *
+     *  Unlike std::shared_ptr, it allocates the memory itself using new.
+     */
+    template <class T>
+    template <class... Types>
+    shared_ref<T>::memory::memory(Types &&... args)
+        : ptr(std::forward<Types>(args)...), count(1), foreign(nullptr)
+    {
     }
+
+    template <class T>
+    shared_ref<T>::shared_ref(no_memory const &) noexcept : mem(nullptr)
+    {
+    }
+
+    template <class T>
+    shared_ref<T>::shared_ref(no_memory &&) noexcept : mem(nullptr)
+    {
+    }
+
+    template <class T>
+    template <class... Types>
+    shared_ref<T>::shared_ref(Types &&... args)
+        : mem(new memory(std::forward<Types>(args)...))
+    {
+    }
+
+    template <class T>
+    shared_ref<T>::shared_ref(shared_ref<T> &&p) noexcept : mem(p.mem)
+    {
+      p.mem = nullptr;
+    }
+
+    template <class T>
+    shared_ref<T>::shared_ref(shared_ref<T> const &p) noexcept : mem(p.mem)
+    {
+      if (mem)
+        acquire();
+    }
+
+    template <class T>
+    shared_ref<T>::shared_ref(shared_ref<T> &p) noexcept : mem(p.mem)
+    {
+      if (mem)
+        acquire();
+    }
+
+    template <class T>
+    shared_ref<T>::~shared_ref() noexcept
+    {
+      dispose();
+    }
+
+    template <class T>
+    void shared_ref<T>::swap(shared_ref<T> &rhs) noexcept
+    {
+      using std::swap;
+      swap(mem, rhs.mem);
+    }
+
+    template <class T>
+    shared_ref<T> &shared_ref<T>::operator=(shared_ref<T> p) noexcept
+    {
+      swap(p);
+      return *this;
+    }
+
+    template <class T>
+    T &shared_ref<T>::operator*() const noexcept
+    {
+      return mem->ptr;
+    }
+
+    template <class T>
+    T *shared_ref<T>::operator->() const noexcept
+    {
+      return &mem->ptr;
+    }
+
+    template <class T>
+    bool shared_ref<T>::operator!=(shared_ref<T> const &other) const noexcept
+    {
+      return mem != other.mem;
+    }
+
+    template <class T>
+    void shared_ref<T>::external(extern_type obj_ptr)
+    {
+      mem->foreign = obj_ptr;
+    }
+
+    template <class T>
+    T *shared_ref<T>::forget()
+    {
+      T *ptr = &mem->ptr;
+      mem = nullptr;
+      return ptr;
+    }
+
+    template <class T>
+    inline extern_type shared_ref<T>::get_foreign()
+    {
+      return mem->foreign;
+    }
+
+    template <class T>
+    void shared_ref<T>::dispose()
+    {
+      if (mem and --mem->count == 0) {
+        if (mem->foreign) {
+#ifdef ENABLE_PYTHON_MODULE
+          Py_DECREF(mem->foreign);
+#endif
+        } else
+          delete mem;
+        mem = nullptr;
+      }
+    }
+
+    template <class T>
+    void shared_ref<T>::acquire()
+    {
+      ++mem->count;
+    }
+  }
 }
 
 #endif

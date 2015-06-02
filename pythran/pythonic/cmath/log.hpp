@@ -2,24 +2,26 @@
 #define PYTHONIC_CMATH_LOG_HPP
 
 #include "pythonic/include/cmath/log.hpp"
+
 #include "pythonic/utils/proxy.hpp"
+
 #include <cmath>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace cmath {
+  namespace cmath
+  {
 
-        ALIAS(log ,std::log);
+    ALIAS(log, std::log);
 
-        double log(double x, double base)
-        {
-            return log(x)/log(base);
-        }
-
-        PROXY_IMPL(pythonic::cmath, log);
+    double log(double x, double base)
+    {
+      return log(x) / log(base);
     }
 
+    PROXY_IMPL(pythonic::cmath, log);
+  }
 }
 
 #endif
-

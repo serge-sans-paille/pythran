@@ -5,14 +5,14 @@
 
 #include "pythonic/operator_/concat.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
+  namespace operator_
+  {
 
-        FPROXY_IMPL(pythonic::operator_, __concat__, concat);
-
-    }
-
+    FPROXY_IMPL(pythonic::operator_, __concat__, concat);
+  }
 }
 
 #endif

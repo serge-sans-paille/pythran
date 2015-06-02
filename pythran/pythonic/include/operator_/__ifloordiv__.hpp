@@ -3,14 +3,14 @@
 
 #include "pythonic/operator_/ifloordiv.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
+  namespace operator_
+  {
 
-        FPROXY_DECL(pythonic::operator_, __ifloordiv__, ifloordiv);
-    }
-
+    FPROXY_DECL(pythonic::operator_, __ifloordiv__, ifloordiv);
+  }
 }
 
 #endif
-

@@ -8,22 +8,21 @@
 
 #include <cmath>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace math {
+  namespace math
+  {
 
-        std::tuple<double,double> modf(double x)
-        {
-            double i;
-            double frac = std::modf(x,&i);
-            return std::make_tuple(frac,i);
-        }
-
-        PROXY_IMPL(pythonic::math,modf);
-
+    std::tuple<double, double> modf(double x)
+    {
+      double i;
+      double frac = std::modf(x, &i);
+      return std::make_tuple(frac, i);
     }
 
+    PROXY_IMPL(pythonic::math, modf);
+  }
 }
 
 #endif
-

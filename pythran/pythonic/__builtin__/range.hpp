@@ -1,39 +1,31 @@
 #ifndef PYTHONIC_BUILTIN_RANGE_HPP
 #define PYTHONIC_BUILTIN_RANGE_HPP
 
-#include "pythonic/__builtin__/xrange.hpp"
-#include "pythonic/__builtin__/len.hpp"
-
-#include "pythonic/types/list.hpp"
 #include "pythonic/include/__builtin__/range.hpp"
 
-namespace pythonic {
+#include "pythonic/__builtin__/xrange.hpp"
+#include "pythonic/types/list.hpp"
 
-    namespace __builtin__ {
+namespace pythonic
+{
 
-        types::list<long> _range(xrange & xr)
-        {
-            types::list<long> s(len(xr));
-            std::copy(xr.begin(), xr.end(), s.begin());
-            return s;
-        }
+  namespace __builtin__
+  {
 
-        types::list<long> range(long e)
-        {
-            xrange xr(e);
-            return _range(xr);
-        }
-
-        types::list<long> range(long b, long e, long s)
-        {
-            xrange xr(b, e, s);
-            return _range(xr);
-        }
-
-        PROXY_IMPL(pythonic::__builtin__,range);
-
+    types::list<long> range(long e)
+    {
+      xrange xr(e);
+      return {xr.begin(), xr.end()};
     }
 
+    types::list<long> range(long b, long e, long s)
+    {
+      xrange xr(b, e, s);
+      return {xr.begin(), xr.end()};
+    }
+
+    PROXY_IMPL(pythonic::__builtin__, range);
+  }
 }
 
 #endif

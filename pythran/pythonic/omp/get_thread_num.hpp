@@ -6,18 +6,19 @@
 #include <omp.h>
 #include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace omp {
+  namespace omp
+  {
 
-        long get_thread_num()
-        {
-            return omp_get_thread_num();
-        }
-
-        PROXY_IMPL(pythonic::omp, get_thread_num);
+    long get_thread_num()
+    {
+      return omp_get_thread_num();
     }
 
+    PROXY_IMPL(pythonic::omp, get_thread_num);
+  }
 }
 
 #endif

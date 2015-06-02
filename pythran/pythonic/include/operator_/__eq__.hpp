@@ -3,15 +3,14 @@
 
 #include "pythonic/operator_/eq.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
+  namespace operator_
+  {
 
-        FPROXY_DECL(pythonic::operator_, __eq__, eq);
-
-    }
-
+    FPROXY_DECL(pythonic::operator_, __eq__, eq);
+  }
 }
 
 #endif
-

@@ -3,26 +3,29 @@
 
 #include "pythonic/types/str.hpp"
 
-namespace pythonic {
-  namespace os {
-    namespace path {
+namespace pythonic
+{
+  namespace os
+  {
+    namespace path
+    {
 
-      template<class T>
-        size_t sizeof_string(T const& s);
+      template <class T>
+      size_t sizeof_string(T const &s);
 
-      template<class T, class... Types>
-        size_t sizeof_string(T const& s, Types&&... tail);
+      template <class T, class... Types>
+      size_t sizeof_string(T const &s, Types &&... tail);
 
-      void _join(types::str& buffer);
+      void _join(types::str &buffer);
 
-      template<class T, class... Types>
-        void _join(types::str& buffer, T&& head, Types&&... tail);
+      template <class T, class... Types>
+      void _join(types::str &buffer, T &&head, Types &&... tail);
 
-      template<class T>
-        T join(T&& head);
+      template <class T>
+      T join(T &&head);
 
-      template<class T, class... Types>
-        types::str join(T&& head, Types&&... tail);
+      template <class T, class... Types>
+      types::str join(T &&head, Types &&... tail);
 
       PROXY_DECL(pythonic::os::path, join);
     }

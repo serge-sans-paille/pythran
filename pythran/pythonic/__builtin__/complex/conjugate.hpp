@@ -1,23 +1,24 @@
 #ifndef PYTHONIC_BUILTIN_COMPLEX_CONJUGATE_HPP
 #define PYTHONIC_BUILTIN_COMPLEX_CONJUGATE_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/numpy/conjugate.hpp"
 #include "pythonic/include/__builtin__/complex/conjugate.hpp"
 
-namespace pythonic {
+#include "pythonic/utils/proxy.hpp"
+#include "pythonic/numpy/conjugate.hpp"
 
-    namespace __builtin__  {
+namespace pythonic
+{
 
-        namespace complex {
+  namespace __builtin__
+  {
 
-            ALIAS(conjugate, numpy::proxy::conjugate{});
+    namespace complex
+    {
 
-            PROXY_IMPL(pythonic::__builtin__::complex, conjugate);
-        }
+      ALIAS(conjugate, numpy::proxy::conjugate{});
 
+      PROXY_IMPL(pythonic::__builtin__::complex, conjugate);
     }
-
+  }
 }
 #endif
-

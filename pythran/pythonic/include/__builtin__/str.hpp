@@ -1,24 +1,26 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_STR_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_STR_HPP
 
-#include "pythonic/types/str.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/include/types/str.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        namespace {
-            template <class T>
-                types::str str(T&& t);
+    namespace anonymous
+    {
+      template <class T>
+      types::str str(T &&t);
 
-            inline types::str str(long value);
-            inline types::str str(double l);
-        }
-
-        PROXY_DECL(pythonic::__builtin__, str);
+      inline types::str str(long value);
+      inline types::str str(double l);
     }
 
+    PROXY_DECL(pythonic::__builtin__::anonymous, str);
+  }
 }
 
 #endif

@@ -1,24 +1,24 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_FILE_READ_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_FILE_READ_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/file.hpp"
-#include "pythonic/types/str.hpp"
+#include "pythonic/include/types/file.hpp"
+#include "pythonic/include/types/str.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace file {
+    namespace file
+    {
 
-            types::str read(types::file &f, int size=-1);
-            types::str read(types::file &&f, int size=-1);
+      types::str read(types::file &f, long size = -1);
+      types::str read(types::file &&f, long size = -1);
 
-            PROXY_DECL(pythonic::__builtin__::file, read);
-
-        }
-
+      PROXY_DECL(pythonic::__builtin__::file, read);
     }
-
+  }
 }
 #endif

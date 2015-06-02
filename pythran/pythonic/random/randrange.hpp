@@ -8,28 +8,28 @@
 
 #include <cmath>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace random {
-        long randrange(long stop)
-        {
-            return long(random() * stop);
-        }
-
-        long randrange(long start, long stop)
-        {
-            return start + long(random() * (stop - start));
-        }
-
-        long randrange(long start, long stop, long step)
-        {
-            return start + step * long((random() * (stop - start)) / std::abs(step));
-        }
-
-        PROXY_IMPL(pythonic::random, randrange)
-
+  namespace random
+  {
+    long randrange(long stop)
+    {
+      return long(random() * stop);
     }
 
+    long randrange(long start, long stop)
+    {
+      return start + long(random() * (stop - start));
+    }
+
+    long randrange(long start, long stop, long step)
+    {
+      return start + step * long((random() * (stop - start)) / std::abs(step));
+    }
+
+    PROXY_IMPL(pythonic::random, randrange)
+  }
 }
 
 #endif

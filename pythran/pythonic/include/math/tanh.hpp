@@ -4,14 +4,14 @@
 #include "pythonic/utils/proxy.hpp"
 #include <cmath>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace math {
-        ALIAS_DECL(tanh, std::tanh);
-        PROXY_DECL(pythonic::math, tanh);
-    }
-
+  namespace math
+  {
+    ALIAS_DECL(tanh, std::tanh);
+    PROXY_DECL(pythonic::math, tanh);
+  }
 }
 
 #endif
-

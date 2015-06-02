@@ -3,24 +3,25 @@
 
 #include "pythonic/include/__builtin__/file/isatty.hpp"
 
-#include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/file.hpp"
+#include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace file {
+    namespace file
+    {
 
-            bool isatty(types::file const& f)
-            {
-                return f.isatty();
-            }
+      bool isatty(types::file const &f)
+      {
+        return f.isatty();
+      }
 
-            PROXY_IMPL(pythonic::__builtin__::file, isatty);
-        }
-
+      PROXY_IMPL(pythonic::__builtin__::file, isatty);
     }
-
+  }
 }
 #endif

@@ -4,16 +4,19 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/operator_/overloads.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
+  namespace operator_
+  {
 
-        template <class A, class B>
-            auto sub(A const& a, B const& b) -> decltype(a-b);
+    template <class A, class B>
+    auto sub(A const &a, B const &b) -> decltype(a - b);
 
-        PROXY_DECL(pythonic::operator_, sub);
-    }
+    DEFINE_ALL_OPERATOR_OVERLOADS_DECL(sub, -)
 
+    PROXY_DECL(pythonic::operator_, sub);
+  }
 }
 
 #endif

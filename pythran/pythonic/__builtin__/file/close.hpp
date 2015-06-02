@@ -3,29 +3,30 @@
 
 #include "pythonic/include/__builtin__/file/close.hpp"
 
-#include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/file.hpp"
+#include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace file {
+    namespace file
+    {
 
-            void close(types::file &f)
-            {
-                f.close();
-            }
-            void close(types::file &&f)
-            {
-                f.close();
-            }
+      void close(types::file &f)
+      {
+        f.close();
+      }
 
-            PROXY_IMPL(pythonic::__builtin__::file, close);
+      void close(types::file &&f)
+      {
+        f.close();
+      }
 
-        }
-
+      PROXY_IMPL(pythonic::__builtin__::file, close);
     }
-
+  }
 }
 #endif

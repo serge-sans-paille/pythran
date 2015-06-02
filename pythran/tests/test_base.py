@@ -1,4 +1,5 @@
 from test_env import TestEnv
+import numpy
 
 class TestBase(TestEnv):
     def test_pass(self):
@@ -388,7 +389,19 @@ def nested_def(a):
         self.run_test("def local_import_(): import math;return math.cos(1)", local_import_=[])
 
     def test_abs(self):
-        self.run_test("def abs_(a): return abs(a)", -1.3, abs_=[float])
+        """ Check __builtin__.abs behavior with float. """
+        self.run_test("""
+        def abs_(a):
+            return abs(a)""",
+                      -1.3, abs_=[float])
+
+    def test_npabs(self):
+        """ Check __builtin__.abs behavior with numpy.array. """
+        self.run_test("""
+        def npabs_(a):
+            return abs(a)""",
+                      numpy.array([-1.3, 2.3, -4]),
+                      npabs_=[numpy.array([float])])
 
     def test_all(self):
         self.run_test("def all_(a): return all(a)", [True, False, True], all_=[[bool]])

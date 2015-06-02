@@ -4,18 +4,20 @@ python:
 
 before_install:
   - sudo apt-add-repository -y "deb http://llvm.org/apt/precise/ llvm-toolchain-precise-3.5 main"
+  - sudo add-apt-repository -y 'deb http://llvm.org/apt/precise/ llvm-toolchain-precise-3.6 main'
   - wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key|sudo apt-key add -
   - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
   - sudo add-apt-repository -y ppa:apokluda/boost1.53
   - sudo apt-get update -qq
 
 install:
-    - sudo apt-get install --allow-unauthenticated -qq clang-3.5
+    - sudo apt-get install --allow-unauthenticated -qq clang-3.5 clang-format-3.6
     - sudo apt-get install -qq g++-4.8 gcc-4.8
 
     - sudo apt-get install -qq libboost-python1.53-dev libgmp-dev libboost1.53-dev git cmake
 
     - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 80 --slave /usr/bin/g++ g++ /usr/bin/g++-4.8
+    - sudo apt-get install gfortran libopenblas-dev liblapack-dev
 
     - "pip install ply"
     - "pip install networkx"
@@ -264,6 +266,7 @@ env:
   - PEP8=false TESTCASE=pythran/tests/test_user_defined_import.py CXX=clang++-3.5 CXXFLAGS="-DUSE_BOOST_SIMD -march=native"
   - PEP8=false TESTCASE=pythran/tests/test_user_defined_import.py CXX=clang++-3.5 CXXFLAGS="-fopenmp"
   - PEP8=false TESTCASE=pythran/tests/test_user_defined_import.py CXX=clang++-3.5 CXXFLAGS="-DUSE_BOOST_SIMD -march=native -fopenmp"
+  - PEP8=false TESTCASE=pythran/tests/test_format.py CXX=clang++-3.5
   - PEP8=true
 
 script:

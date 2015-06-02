@@ -1,11 +1,32 @@
+""" Tests for part of the numpy module. """
+
 import unittest
-from test_env import TestEnv
+
 import numpy
+
+from test_env import TestEnv
 
 
 @TestEnv.module
 class TestNumpyFunc3(TestEnv):
 
+    """
+    This module includes tests for multiple numpy module function.
+
+    Tested functions are:
+    - numpy.dot
+    - numpy.digitize
+    - numpy.diff
+    - numpy.trace
+    - numpy.tri
+    - numpy.trim_zeros
+    - numpy.triu
+    - numpy.tril
+    - numpy.unique
+    - numpy.unwrap
+
+    and various combinations of +/-/** and trigonometric operations.
+    """
 
     def test_dot0(self):
         self.run_test("def np_dot0(x, y): from numpy import dot ; return dot(x,y)", 2, 3, np_dot0=[int, int])
@@ -21,6 +42,128 @@ class TestNumpyFunc3(TestEnv):
 
     def test_dot4(self):
         self.run_test("def np_dot4(x): from numpy import dot ; y = [2, 3] ; return dot(x,y)", numpy.array([2, 3]), np_dot4=[numpy.array([int])])
+
+    @unittest.skip("Illegal instruction on Travis")
+    def test_dot5(self):
+        """ Check for dgemm version of dot. """
+        self.run_test("""
+        def np_dot5(x, y):
+            from numpy import dot
+            return dot(x,y)""",
+                      [[1, 2, 3], [4, 5, 6], [7, 8, 9]],
+                      [[10, 11, 12], [13, 14, 15], [16, 17, 18]],
+                      np_dot5=[[[float]], [[float]]])
+
+    def test_dot6(self):
+        """ Check for dot with "no blas type". """
+        self.run_test("""
+        def np_dot6(x, y):
+            from numpy import dot
+            return dot(x,y)""",
+                      numpy.arange(9).reshape(3, 3),
+                      numpy.arange(9, 18).reshape(3, 3),
+                      np_dot6=[numpy.array([[int]]), numpy.array([[int]])])
+
+    @unittest.skip("Illegal instruction on Travis")
+    def test_dot7(self):
+        """ Check for dgemm version of dot with rectangular shape. """
+        self.run_test("""
+        def np_dot7(x, y):
+            from numpy import dot
+            return dot(x,y)""",
+                      [[1, 2, 3], [4, 5, 6], [7, 8, 9]],
+                      [[10, 11, 12], [13, 14, 15], [16, 17, 18]],
+                      np_dot7=[[[float]], [[float]]])
+
+    def test_dot8(self):
+        """ Check for dot with "no blas type" with rectangulare shape. """
+        self.run_test("""
+        def np_dot8(x, y):
+            from numpy import dot
+            return dot(x,y)""",
+                      numpy.arange(6).reshape(3, 2),
+                      numpy.arange(6, 12).reshape(2, 3),
+                      np_dot8=[numpy.array([[int]]), numpy.array([[int]])])
+
+    def test_dot9(self):
+        """ Check for gemv version of dot. """
+        self.run_test("""
+        def np_dot9(x, y):
+            from numpy import dot
+            return dot(x,y)""",
+                      numpy.arange(9).reshape(3, 3).tolist(),
+                      range(9, 12),
+                      np_dot9=[[[float]], [float]])
+
+    def test_dot10(self):
+        """ Check for dot gemv with "no blas type". """
+        self.run_test("""
+        def np_dot10(x, y):
+            from numpy import dot
+            return dot(x,y)""",
+                      numpy.arange(9).reshape(3, 3),
+                      numpy.arange(9, 12),
+                      np_dot10=[numpy.array([[int]]), numpy.array([int])])
+
+    def test_dot11(self):
+        """ Check for gemv version of dot with rectangular shape. """
+        self.run_test("""
+        def np_dot11(x, y):
+            from numpy import dot
+            return dot(x,y)""",
+                      numpy.arange(6).reshape(3, 2).tolist(),
+                      range(6, 8),
+                      np_dot11=[[[float]], [float]])
+
+    def test_dot12(self):
+        """ Check for dot gemv with "no blas type" with rectangulare shape. """
+        self.run_test("""
+        def np_dot12(x, y):
+            from numpy import dot
+            return dot(x,y)""",
+                      numpy.arange(6).reshape(3, 2),
+                      numpy.arange(6, 8),
+                      np_dot12=[numpy.array([[int]]), numpy.array([int])])
+
+    def test_dot13(self):
+        """ Check for gevm version of dot. """
+        self.run_test("""
+        def np_dot13(x, y):
+            from numpy import dot
+            return dot(x,y)""",
+                      range(9, 12),
+                      numpy.arange(9).reshape(3, 3).tolist(),
+                      np_dot13=[[float], [[float]]])
+
+    def test_dot14(self):
+        """ Check for dot gevm with "no blas type". """
+        self.run_test("""
+        def np_dot14(x, y):
+            from numpy import dot
+            return dot(x,y)""",
+                      numpy.arange(9, 12),
+                      numpy.arange(9).reshape(3, 3),
+                      np_dot14=[numpy.array([int]), numpy.array([[int]])])
+
+    def test_dot15(self):
+        """ Check for gevm version of dot with rectangular shape. """
+        self.run_test("""
+        def np_dot15(x, y):
+            from numpy import dot
+            return dot(x,y)""",
+                      range(6, 9),
+                      numpy.arange(6).reshape(3, 2).tolist(),
+                      np_dot15=[[float], [[float]]])
+
+    def test_dot16(self):
+        """ Check for dot gevm with "no blas type" with rectangulare shape. """
+        self.run_test("""
+        def np_dot16(x, y):
+            from numpy import dot
+            return dot(x,y)""",
+                      numpy.arange(6, 9),
+                      numpy.arange(6).reshape(3, 2),
+                      np_dot16=[numpy.array([int]), numpy.array([[int]])])
 
     def test_digitize0(self):
         self.run_test("def np_digitize0(x): from numpy import array, digitize ; bins = array([0.0, 1.0, 2.5, 4.0, 10.0]) ; return digitize(x, bins)", numpy.array([0.2, 6.4, 3.0, 1.6]), np_digitize0=[numpy.array([float])])

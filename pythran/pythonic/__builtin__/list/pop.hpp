@@ -4,18 +4,21 @@
 #include "pythonic/include/__builtin__/list/pop.hpp"
 
 #include "pythonic/__dispatch__/pop.hpp"
+#include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace list {
+    namespace list
+    {
 
-            ALIAS(pop, pythonic::__dispatch__::pop);
+      ALIAS(pop, pythonic::__dispatch__::pop);
 
-            PROXY_IMPL(pythonic::__builtin__::list, pop);
-        }
+      PROXY_IMPL(pythonic::__builtin__::list, pop);
     }
-
+  }
 }
 #endif

@@ -30,7 +30,7 @@ def CROTG(CA,CB,C=0,S=0):
         C = abs(CA)/NORM
         S = ALPHA*(CB.conjugate())/NORM
         CA = ALPHA*NORM
-    return [CA,CB,C,S]
+    return (CA,CB,C,S)
 
 
 

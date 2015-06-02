@@ -4,16 +4,16 @@
 #include "pythonic/utils/proxy.hpp"
 #include <algorithm>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
-        template <class A, class B>
-            long countOf(A const& a, B const& b);
+  namespace operator_
+  {
+    template <class A, class B>
+    long countOf(A const &a, B const &b);
 
-        PROXY_DECL(pythonic::operator_, countOf);
-
-    }
-
+    PROXY_DECL(pythonic::operator_, countOf);
+  }
 }
 
 #endif

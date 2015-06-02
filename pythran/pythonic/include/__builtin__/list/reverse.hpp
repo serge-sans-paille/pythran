@@ -1,24 +1,24 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_LIST_REVERSE_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_LIST_REVERSE_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/list.hpp"
-#include "pythonic/types/none.hpp"
+#include "pythonic/include/types/list.hpp"
+#include "pythonic/include/types/none.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace list {
+    namespace list
+    {
 
-            template<class T>
-                types::none_type reverse(types::list<T> &seq);
+      template <class T>
+      types::none_type reverse(types::list<T> &seq);
 
-            PROXY_DECL(pythonic::__builtin__::list,reverse);
-
-        }
-
+      PROXY_DECL(pythonic::__builtin__::list, reverse);
     }
-
+  }
 }
 #endif

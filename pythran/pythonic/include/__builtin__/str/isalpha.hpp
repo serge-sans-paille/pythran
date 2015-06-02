@@ -1,20 +1,22 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_STR_ISALPHA_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_STR_ISALPHA_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/str.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/types/str.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace str {
+    namespace str
+    {
 
-            bool isalpha(types::str const& s);
+      bool isalpha(types::str const &s);
 
-            PROXY_DECL(pythonic::__builtin__::str, isalpha);
-
-        }
+      PROXY_DECL(pythonic::__builtin__::str, isalpha);
     }
+  }
 }
 #endif

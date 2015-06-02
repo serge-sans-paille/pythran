@@ -5,14 +5,13 @@
 
 #include "pythonic/operator_/mul.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace operator_ {
-        FPROXY_IMPL(pythonic::operator_, __mul__, mul);
-
-    }
-
+  namespace operator_
+  {
+    FPROXY_IMPL(pythonic::operator_, __mul__, mul);
+  }
 }
 
 #endif
-

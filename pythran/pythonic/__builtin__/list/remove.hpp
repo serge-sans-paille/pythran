@@ -4,18 +4,21 @@
 #include "pythonic/include/__builtin__/list/remove.hpp"
 
 #include "pythonic/__dispatch__/remove.hpp"
+#include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace list {
+    namespace list
+    {
 
-            ALIAS(remove, pythonic::__dispatch__::remove);
+      ALIAS(remove, pythonic::__dispatch__::remove);
 
-            PROXY_IMPL(pythonic::__builtin__::list, remove);
-        }
+      PROXY_IMPL(pythonic::__builtin__::list, remove);
     }
-
+  }
 }
 #endif

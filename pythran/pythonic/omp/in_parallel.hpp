@@ -6,18 +6,19 @@
 #include <omp.h>
 #include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace omp {
+  namespace omp
+  {
 
-        bool in_parallel()
-        {
-            return omp_in_parallel();
-        }
-
-        PROXY_IMPL(pythonic::omp, in_parallel);
+    bool in_parallel()
+    {
+      return omp_in_parallel();
     }
 
+    PROXY_IMPL(pythonic::omp, in_parallel);
+  }
 }
 
 #endif

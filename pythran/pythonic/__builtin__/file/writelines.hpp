@@ -3,25 +3,26 @@
 
 #include "pythonic/include/__builtin__/file/writelines.hpp"
 
-#include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/file.hpp"
+#include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace file {
+    namespace file
+    {
 
-            template<class F, class T>
-                void writelines(F&& f, T const& sequence)
-                {
-                    f.writelines(sequence);
-                }
+      template <class F, class T>
+      void writelines(F &&f, T const &sequence)
+      {
+        f.writelines(sequence);
+      }
 
-            PROXY_IMPL(pythonic::__builtin__::file, writelines);
-        }
-
+      PROXY_IMPL(pythonic::__builtin__::file, writelines);
     }
-
+  }
 }
 #endif

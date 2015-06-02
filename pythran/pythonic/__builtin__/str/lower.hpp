@@ -3,27 +3,27 @@
 
 #include "pythonic/include/__builtin__/str/lower.hpp"
 
-#include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/str.hpp"
+#include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace str {
+    namespace str
+    {
 
-            types::str lower(types::str const & s)
-            {
-                types::str copy = s;
-                std::transform(s.begin(),s.end(), copy.begin(), ::tolower);
-                return copy;
-            }
+      types::str lower(types::str const &s)
+      {
+        types::str copy = s;
+        std::transform(s.begin(), s.end(), copy.begin(), ::tolower);
+        return copy;
+      }
 
-            PROXY_IMPL(pythonic::__builtin__::str, lower);
-
-        }
-
+      PROXY_IMPL(pythonic::__builtin__::str, lower);
     }
-
+  }
 }
 #endif

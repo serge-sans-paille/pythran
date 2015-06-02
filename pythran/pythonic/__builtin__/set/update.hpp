@@ -4,18 +4,21 @@
 #include "pythonic/include/__builtin__/set/update.hpp"
 
 #include "pythonic/__dispatch__/update.hpp"
+#include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace set {
+    namespace set
+    {
 
-            ALIAS(update, pythonic::__dispatch__::update);
+      ALIAS(update, pythonic::__dispatch__::update);
 
-            PROXY_IMPL(pythonic::__builtin__::set, update);
-        }
+      PROXY_IMPL(pythonic::__builtin__::set, update);
     }
-
+  }
 }
-#endif 
+#endif

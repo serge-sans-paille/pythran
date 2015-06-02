@@ -4,18 +4,21 @@
 #include "pythonic/include/__builtin__/str/count.hpp"
 
 #include "pythonic/__dispatch__/count.hpp"
+#include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace str {
+    namespace str
+    {
 
-            ALIAS(count, pythonic::__dispatch__::count);
+      ALIAS(count, pythonic::__dispatch__::count);
 
-            PROXY_IMPL(pythonic::__builtin__::str, count);
-        }
+      PROXY_IMPL(pythonic::__builtin__::str, count);
     }
-
+  }
 }
 #endif

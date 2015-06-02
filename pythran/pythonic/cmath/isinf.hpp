@@ -2,17 +2,19 @@
 #define PYTHONIC_CMATH_ISINF_HPP
 
 #include "pythonic/include/cmath/isinf.hpp"
+
 #include "pythonic/utils/proxy.hpp"
+
 #include <cmath>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace cmath {
-        ALIAS(isinf, std::isinf);
-        PROXY_IMPL(pythonic::cmath, isinf);
-    }
-
+  namespace cmath
+  {
+    ALIAS(isinf, std::isinf);
+    PROXY_IMPL(pythonic::cmath, isinf);
+  }
 }
 
 #endif
-

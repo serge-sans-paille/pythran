@@ -6,20 +6,20 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/random/randrange.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace random {
+  namespace random
+  {
 
-        long randint(long a, long b)
-        {
-            // TODO: It should be implemented with an uniform_int_distribution
-            return randrange(a, b+1);
-        }
-
-        PROXY_IMPL(pythonic::random, randint);
-
+    long randint(long a, long b)
+    {
+      // TODO: It should be implemented with an uniform_int_distribution
+      return randrange(a, b + 1);
     }
 
+    PROXY_IMPL(pythonic::random, randint);
+  }
 }
 
 #endif

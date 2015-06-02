@@ -2,17 +2,19 @@
 #define PYTHONIC_CMATH_ASIN_HPP
 
 #include "pythonic/include/cmath/asin.hpp"
+
 #include "pythonic/utils/proxy.hpp"
+
 #include <cmath>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace cmath {
-        ALIAS(asin, std::asin);
-        PROXY_IMPL(pythonic::cmath, asin);
-    }
-
+  namespace cmath
+  {
+    ALIAS(asin, std::asin);
+    PROXY_IMPL(pythonic::cmath, asin);
+  }
 }
 
 #endif
-

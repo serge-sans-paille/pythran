@@ -1,28 +1,31 @@
 #ifndef PYTHONIC_BUILTIN_FILTER_HPP
 #define PYTHONIC_BUILTIN_FILTER_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/list.hpp"
 #include "pythonic/include/__builtin__/filter.hpp"
 
-namespace pythonic {
+#include "pythonic/types/list.hpp"
+#include "pythonic/utils/proxy.hpp"
 
-    namespace __builtin__ {
+namespace pythonic
+{
 
-        template<class F, class Iterable>
-            types::list<typename Iterable::iterator::value_type>
-            filter(F const& f, Iterable const& iterable)
-            {
-                /* does not implement the full standard */
-                types::list<typename Iterable::iterator::value_type> out = types::empty_list();
-                std::copy_if(iterable.begin(), iterable.end(), std::back_inserter(out), f);
-                return out;
-            }
+  namespace __builtin__
+  {
 
-        PROXY_IMPL(pythonic::__builtin__, filter);
-
+    template <class F, class Iterable>
+    types::list<typename Iterable::iterator::value_type>
+    filter(F const &f, Iterable const &iterable)
+    {
+      /* TODO: it does not implement the full standard (for string and tuple)*/
+      types::list<typename Iterable::iterator::value_type> out =
+          types::empty_list();
+      std::copy_if(iterable.begin(), iterable.end(), std::back_inserter(out),
+                   f);
+      return out;
     }
 
+    PROXY_IMPL(pythonic::__builtin__, filter);
+  }
 }
 
 #endif

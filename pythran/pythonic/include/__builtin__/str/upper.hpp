@@ -1,21 +1,22 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_STR_UPPER_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_STR_UPPER_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/str.hpp"
+#include "pythonic/include/types/str.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__  {
+  namespace __builtin__
+  {
 
-        namespace str {
+    namespace str
+    {
 
-            types::str upper(types::str const & s);
+      types::str upper(types::str const &s);
 
-            PROXY_DECL(pythonic::__builtin__::str, upper);
-        }
-
+      PROXY_DECL(pythonic::__builtin__::str, upper);
     }
-
+  }
 }
 #endif

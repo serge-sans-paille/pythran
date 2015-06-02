@@ -6,21 +6,20 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/math/pi.hpp"
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace math {
+  namespace math
+  {
 
-        template<class T>
-            double degrees(T x)
-            {
-                return (x * 360.) / (2. * pi);
-            }
-
-        PROXY_IMPL(pythonic::math,degrees);
-
+    template <class T>
+    double degrees(T x)
+    {
+      return (x * 360.) / (2. * pi);
     }
 
+    PROXY_IMPL(pythonic::math, degrees);
+  }
 }
 
 #endif
-

@@ -8,58 +8,62 @@
 #include <complex>
 #include <nt2/sdk/complex/complex.hpp>
 
-namespace std {
-    std::complex<double> operator+(std::complex<double> self, long other)
-    {
-        return self + double(other);
-    }
+namespace std
+{
+  std::complex<double> operator+(std::complex<double> self, long other)
+  {
+    return self + double(other);
+  }
 
-    std::complex<double> operator+(long self, std::complex<double> other)
-    {
-        return double(self) + other;
-    }
+  std::complex<double> operator+(long self, std::complex<double> other)
+  {
+    return double(self) + other;
+  }
 
-    std::complex<double> operator-(std::complex<double> self, long other)
-    {
-        return self - double(other);
-    }
+  std::complex<double> operator-(std::complex<double> self, long other)
+  {
+    return self - double(other);
+  }
 
-    std::complex<double> operator-(long self, std::complex<double> other)
-    {
-        return double(self) - other;
-    }
+  std::complex<double> operator-(long self, std::complex<double> other)
+  {
+    return double(self) - other;
+  }
 
-    std::complex<double> operator*(std::complex<double> self, long other)
-    {
-        return self * double(other);
-    }
+  std::complex<double> operator*(std::complex<double> self, long other)
+  {
+    return self * double(other);
+  }
 
-    std::complex<double> operator*(long self, std::complex<double> other)
-    {
-        return double(self) * other;
-    }
+  std::complex<double> operator*(long self, std::complex<double> other)
+  {
+    return double(self) * other;
+  }
 
-    std::complex<double> operator/(std::complex<double> self, long other)
-    {
-        return self / double(other);
-    }
+  std::complex<double> operator/(std::complex<double> self, long other)
+  {
+    return self / double(other);
+  }
 
-    std::complex<double> operator/(long self, std::complex<double> other)
-    {
-        return double(self) / other;
-    }
+  std::complex<double> operator/(long self, std::complex<double> other)
+  {
+    return double(self) / other;
+  }
 }
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        template <size_t AttributeID>
-            double getattr(std::complex<double> const &self)
-            {
-                return AttributeID == pythonic::types::attr::REAL ? std::real(self) : std::imag(self);
-            }
+    template <size_t AttributeID>
+    double getattr(std::complex<double> const &self)
+    {
+      return AttributeID == pythonic::types::attr::REAL ? std::real(self)
+                                                        : std::imag(self);
     }
+  }
 }
 
 #endif

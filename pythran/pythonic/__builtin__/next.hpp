@@ -1,31 +1,32 @@
 #ifndef PYTHONIC_BUILTIN_NEXT_HPP
 #define PYTHONIC_BUILTIN_NEXT_HPP
 
-#include "pythonic/utils/proxy.hpp"
 #include "pythonic/include/__builtin__/next.hpp"
+
 #include "pythonic/__builtin__/StopIteration.hpp"
+#include "pythonic/utils/proxy.hpp"
 
-namespace pythonic {
+#include <utility>
 
-    namespace __builtin__ {
+namespace pythonic
+{
 
-        template <class T>
-            typename std::remove_reference<decltype(*std::declval<T>())>::type
-            next(T&& y)
-            {
-                if((decltype(y.begin()))y != y.end())
-                {
-                    auto out = *y;
-                    ++y;
-                    return out ;
-                } else
-                    throw types::StopIteration();
-            }
+  namespace __builtin__
+  {
 
-        PROXY_IMPL(pythonic::__builtin__, next);
-
+    template <class T>
+    auto next(T &&y) -> decltype(*y)
+    {
+      if ((decltype(y.begin()))y != y.end()) {
+        auto &&tmp = *y;
+        ++y;
+        return tmp;
+      } else
+        throw types::StopIteration();
     }
 
+    PROXY_IMPL(pythonic::__builtin__, next);
+  }
 }
 
 #endif

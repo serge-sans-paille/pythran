@@ -7,21 +7,25 @@
 
 #include <set>
 
-namespace pythonic {
+namespace pythonic
+{
 
-    namespace __builtin__ {
+  namespace __builtin__
+  {
 
-        namespace pythran {
+    namespace pythran
+    {
 
-            template <class Iterable>
-                long len_set(Iterable const& s)
-                {
-                    return std::set<typename Iterable::iterator::value_type>(s.begin(), s.end()).size();
-                }
+      template <class Iterable>
+      long len_set(Iterable const &s)
+      {
+        return std::set<typename Iterable::iterator::value_type>(
+                   s.begin(), s.end()).size();
+      }
 
-            PROXY_IMPL(pythonic::__builtin__::pythran, len_set);
-        }
+      PROXY_IMPL(pythonic::__builtin__::pythran, len_set);
     }
+  }
 }
 
 #endif

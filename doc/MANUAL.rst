@@ -102,10 +102,10 @@ First Steps
 To begin with, you need... a python function in a module. Something like::
 
 	<<dprod.py>>
-	def dprod(l0,l1):
-		return sum([x*y for x,y in zip(l0,l1)])
+	def dprod(arr0, arr1):
+		return sum([x*y for x,y in zip(arr0, arr1)])
 
-is perfect. But due to \_o< typing, ``l0`` and ``l1`` can be of any type,
+is perfect. But due to \_o< typing, ``arr0`` and ``arr1`` can be of any type,
 so Pythran needs a small hint there. Add the following line somewhere in your
 file, say at the top head, or right before the function definition::
 

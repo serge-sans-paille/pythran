@@ -32,6 +32,12 @@ namespace pythonic
         : value(v)
     {
     }
+
+    template <class T, class... Others>
+    iterator_reminder<T, Others...>::iterator_reminder(T const &v, Others const&... others)
+        : value(v, others...)
+    {
+    }
   }
 }
 

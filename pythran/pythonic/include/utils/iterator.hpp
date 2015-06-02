@@ -16,8 +16,14 @@ namespace pythonic
 
     // Utility class to remind sequence we are iterating on to avoid dangling
     // reference
-    template <class T>
+    template <class T, class... Others>
     struct iterator_reminder {
+      std::tuple<T, Others...> value;
+      iterator_reminder(T const &v, Others const&... o);
+    };
+
+    template <class T>
+    struct iterator_reminder<T> {
       T value;
       iterator_reminder(T const &v);
     };

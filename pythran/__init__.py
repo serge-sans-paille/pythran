@@ -32,7 +32,7 @@ Higher level entry points includes:
 
 from pythran.toolchain import (generate_cxx, compile_cxxfile, compile_cxxcode,
                                compile_pythrancode, compile_pythranfile,
-                               test_compile, CompileError)
+                               test_compile)
 from pythran.spec import spec_parser
 from pythran.dist import PythranExtension
 from pythran.version import __version__

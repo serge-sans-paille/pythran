@@ -28,7 +28,7 @@ namespace pythonic
       static const bool is_strided = false;
       using dtype = typename T::dtype;
       using value_type = typename T::value_type;
-      static constexpr size_t value = T::value + 1;
+      static PYTHONIC_CONSTEXPR size_t value = T::value + 1;
 
       T const &ref;
       array<long, value> _shape;
@@ -91,7 +91,7 @@ namespace pythonic
       static const bool is_vectorizable = types::is_vectorizable<dtype>::value;
       static const bool is_strided = false;
       using value_type = dtype;
-      static constexpr size_t value = 0;
+      static PYTHONIC_CONSTEXPR size_t value = 0;
 
       broadcast_base<dtype, is_vectorizable> _base;
 

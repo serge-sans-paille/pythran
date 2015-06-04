@@ -13,7 +13,7 @@
 // nt2 does not handle bool specialization, which is indeed a corner case...
 namespace nt2
 {
-  constexpr bool is_nan(bool)
+  PYTHONIC_CONSTEXPR bool is_nan(bool)
   {
     return false;
   }

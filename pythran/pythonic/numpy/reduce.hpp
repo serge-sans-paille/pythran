@@ -68,7 +68,7 @@ namespace pythonic
     template <class Op, class E>
     reduce_result_type<E> reduce(E const &expr, types::none_type)
     {
-      bool constexpr is_vectorizable =
+      bool PYTHONIC_CONSTEXPR is_vectorizable =
           E::is_vectorizable and
           not std::is_same<typename E::dtype, bool>::value;
       reduce_result_type<E> p = utils::neutral<Op, typename E::dtype>::value;

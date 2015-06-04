@@ -26,7 +26,7 @@ namespace pythonic
 
     /* Recursion stops on bool */
     template <class F>
-    constexpr size_t nested_container_size<bool>::flat_size(F)
+    PYTHONIC_CONSTEXPR size_t nested_container_size<bool>::flat_size(F)
     {
       return 1;
     }

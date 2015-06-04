@@ -6,7 +6,7 @@
 template <bool C, class... Types>
 struct static_assert_check {
   static_assert(C, "Assertion failed <see below for more information>");
-  static constexpr bool value = C;
+  static PYTHONIC_CONSTEXPR bool value = C;
 };
 
 #define pythran_static_assert(value, str, ...)                                 \

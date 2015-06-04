@@ -618,7 +618,7 @@ namespace pythonic
       return list<T>(0);
     }
 
-    constexpr long empty_list::size()
+    PYTHONIC_CONSTEXPR long empty_list::size()
     {
       return 0;
     }

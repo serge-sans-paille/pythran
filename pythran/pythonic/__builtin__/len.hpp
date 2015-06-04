@@ -20,7 +20,7 @@ namespace pythonic
       return sizeof...(Types);
     }
 
-    constexpr long len(char)
+    PYTHONIC_CONSTEXPR long len(char)
     {
       return 1;
     }

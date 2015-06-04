@@ -20,17 +20,17 @@ namespace pythonic
 
     template <>
     struct count_new_axis<types::none_type> {
-      static constexpr size_t value = 1;
+      static PYTHONIC_CONSTEXPR size_t value = 1;
     };
 
     template <class T>
     struct count_new_axis<T> {
-      static constexpr size_t value = 0;
+      static PYTHONIC_CONSTEXPR size_t value = 0;
     };
 
     template <class T0, class... T>
     struct count_new_axis<T0, T...> {
-      static constexpr size_t value =
+      static PYTHONIC_CONSTEXPR size_t value =
           count_new_axis<T0>::value + count_new_axis<T...>::value;
     };
 
@@ -39,14 +39,14 @@ namespace pythonic
     template <class T>
     struct to_slice {
       using type = T;
-      static constexpr bool is_new_axis = false;
+      static PYTHONIC_CONSTEXPR bool is_new_axis = false;
       T operator()(T value);
     };
 
     template <>
     struct to_slice<none_type> {
       using type = contiguous_slice;
-      static constexpr bool is_new_axis = true;
+      static PYTHONIC_CONSTEXPR bool is_new_axis = true;
       contiguous_slice operator()(none_type);
     };
 
@@ -113,28 +113,28 @@ namespace pythonic
 
     template <>
     struct count_long<long> {
-      static constexpr size_t value = 1;
+      static PYTHONIC_CONSTEXPR size_t value = 1;
     };
 
     template <>
     struct count_long<slice> {
-      static constexpr size_t value = 0;
+      static PYTHONIC_CONSTEXPR size_t value = 0;
     };
 
     template <>
     struct count_long<contiguous_slice> {
-      static constexpr size_t value = 0;
+      static PYTHONIC_CONSTEXPR size_t value = 0;
     };
 
     template <class T, class... Types>
     struct count_long<T, Types...> {
-      static constexpr size_t value =
+      static PYTHONIC_CONSTEXPR size_t value =
           count_long<T>::value + count_long<Types...>::value;
     };
 
     template <>
     struct count_long<> {
-      static constexpr size_t value = 0;
+      static PYTHONIC_CONSTEXPR size_t value = 0;
     };
 
     /* helper to get the type of the nth element of an array
@@ -331,7 +331,7 @@ namespace pythonic
       // and compacted values as we know that first S is a slice.
 
       using dtype = typename std::remove_reference<Arg>::type::dtype;
-      static constexpr size_t value =
+      static PYTHONIC_CONSTEXPR size_t value =
           std::remove_reference<Arg>::type::value - count_long<S...>::value;
 
       // It is not possible to vectorize everything. We only vectorize if the

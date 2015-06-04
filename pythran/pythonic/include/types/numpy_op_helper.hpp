@@ -13,31 +13,31 @@ namespace pythonic
 
     template <class T0, class... Types>
     struct all_valid_arg {
-      static constexpr bool value =
+      static PYTHONIC_CONSTEXPR bool value =
           all_valid_arg<T0>::value and all_valid_arg<Types...>::value;
     };
 
     template <class T>
     struct all_valid_arg<T> {
-      static constexpr bool value =
+      static PYTHONIC_CONSTEXPR bool value =
           (is_numexpr_arg<T>::value or is_complex<T>::value or
            std::is_scalar<T>::value);
     };
 
     template <class T0, class... Types>
     struct any_numexpr_arg {
-      static constexpr bool value =
+      static PYTHONIC_CONSTEXPR bool value =
           is_numexpr_arg<T0>::value or any_numexpr_arg<Types...>::value;
     };
 
     template <class T>
     struct any_numexpr_arg<T> {
-      static constexpr bool value = is_numexpr_arg<T>::value;
+      static PYTHONIC_CONSTEXPR bool value = is_numexpr_arg<T>::value;
     };
 
     template <class... Types>
     struct valid_numexpr_parameters {
-      static constexpr bool value =
+      static PYTHONIC_CONSTEXPR bool value =
           any_numexpr_arg<Types...>::value and all_valid_arg<Types...>::value;
     };
 
@@ -117,7 +117,7 @@ namespace pythonic
     template <class T, class... OtherTypes>
     struct adapt_type {
       using ctype = typename common_type<T, OtherTypes...>::type;
-      static constexpr bool isdtype =
+      static PYTHONIC_CONSTEXPR bool isdtype =
           std::is_scalar<T>::value or is_complex<T>::value;
       using type =
           typename adapated_type<T, ctype, std::is_same<T, ctype>::value,
@@ -149,7 +149,7 @@ namespace pythonic
     template <class T, class... OtherTypes>
     struct reshape_type {
       using ctype = typename common_type<T, OtherTypes...>::type;
-      static constexpr bool isdtype =
+      static PYTHONIC_CONSTEXPR bool isdtype =
           std::is_scalar<T>::value or is_complex<T>::value;
       using type =
           typename reshaped_type<T, ctype, std::is_same<T, ctype>::value,

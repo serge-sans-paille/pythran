@@ -16,8 +16,9 @@ namespace pythonic
         std::declval<long[types::numpy_expr_to_ndarray<typename std::remove_cv<
             typename std::remove_reference<T>::type>::type>::N]>()))
     {
-      constexpr long N = types::numpy_expr_to_ndarray<typename std::remove_cv<
-          typename std::remove_reference<T>::type>::type>::N;
+      PYTHONIC_CONSTEXPR long N =
+          types::numpy_expr_to_ndarray<typename std::remove_cv<
+              typename std::remove_reference<T>::type>::type>::N;
       long t[N];
       for (unsigned long i = 0; i < N; ++i)
         t[i] = i;

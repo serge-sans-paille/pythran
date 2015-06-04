@@ -11,7 +11,7 @@ namespace pythonic
   namespace numpy
   {
     template <class E>
-    constexpr bool isrealobj(E const &expr);
+    PYTHONIC_CONSTEXPR bool isrealobj(E const &expr);
 
     PROXY_DECL(pythonic::numpy, isrealobj);
   }

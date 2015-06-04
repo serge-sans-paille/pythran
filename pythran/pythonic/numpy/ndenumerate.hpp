@@ -27,7 +27,7 @@ namespace pythonic
                typename types::numpy_expr_to_ndarray<E>::type::dtype>
         ndenumerate_iterator<E>::operator*()
     {
-      constexpr long N = types::numpy_expr_to_ndarray<E>::N;
+      PYTHONIC_CONSTEXPR long N = types::numpy_expr_to_ndarray<E>::N;
       types::array<long, N> out;
       auto &&shape = expr.shape();
       long mult = 1;

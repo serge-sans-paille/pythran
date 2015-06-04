@@ -3,5 +3,4 @@
 
 #include "pythonic/include/types/traits.hpp"
 
-
 #endif

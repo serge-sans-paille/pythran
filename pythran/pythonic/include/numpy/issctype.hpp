@@ -10,7 +10,7 @@ namespace pythonic
   namespace numpy
   {
     template <class E>
-    constexpr bool issctype(E const &expr);
+    PYTHONIC_CONSTEXPR bool issctype(E const &expr);
 
     PROXY_DECL(pythonic::numpy, issctype);
   }

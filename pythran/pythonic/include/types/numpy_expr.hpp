@@ -32,7 +32,7 @@ namespace pythonic
       static const bool is_strided = utils::any_of<
           std::remove_reference<Args>::type::is_strided...>::value;
       using iterator = const_nditerator<numpy_expr>;
-      static constexpr size_t value = utils::max_element<
+      static PYTHONIC_CONSTEXPR size_t value = utils::max_element<
           std::remove_reference<Args>::type::value...>::value;
       using value_type = decltype(Op()(std::declval<
           typename std::remove_reference<Args>::type::value_type>()...));

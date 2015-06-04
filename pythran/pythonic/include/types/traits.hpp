@@ -12,13 +12,13 @@ namespace pythonic
     /* could overload is_scalar to consider complex has scalar types */
     template <class T>
     struct is_complex {
-      static constexpr bool value = false;
+      static PYTHONIC_CONSTEXPR bool value = false;
       using type = T;
     };
 
     template <class T>
     struct is_complex<std::complex<T>> {
-      static constexpr bool value = true;
+      static PYTHONIC_CONSTEXPR bool value = true;
       using type = T;
     };
 
@@ -83,7 +83,7 @@ namespace pythonic
     /* trait to check if the type has a static size */
     template <class T>
     struct len_of {
-      static long constexpr value = -1;
+      static long PYTHONIC_CONSTEXPR value = -1;
     };
   }
 }

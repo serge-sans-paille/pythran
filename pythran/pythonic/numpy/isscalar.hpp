@@ -15,7 +15,7 @@ namespace pythonic
   namespace numpy
   {
     template <class E>
-    constexpr bool isscalar(E const &)
+    PYTHONIC_CONSTEXPR bool isscalar(E const &)
     {
       return std::is_scalar<E>::value or types::is_complex<E>::value or
              std::is_same<E, types::str>::value;

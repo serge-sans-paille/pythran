@@ -14,7 +14,7 @@ namespace pythonic
   {
 
     template <class E>
-    constexpr bool isscalar(E const &);
+    PYTHONIC_CONSTEXPR bool isscalar(E const &);
 
     PROXY_DECL(pythonic::numpy, isscalar);
   }

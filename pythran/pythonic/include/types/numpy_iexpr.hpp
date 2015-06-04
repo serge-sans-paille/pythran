@@ -32,7 +32,7 @@ namespace pythonic
     struct numpy_iexpr {
       // wrapper around another numpy expression to skip first dimension using a
       // given value.
-      static constexpr size_t value =
+      static PYTHONIC_CONSTEXPR size_t value =
           std::remove_reference<Arg>::type::value - 1;
       static const bool is_vectorizable =
           std::remove_reference<Arg>::type::is_vectorizable;
@@ -41,7 +41,7 @@ namespace pythonic
           numpy_iexpr_helper<numpy_iexpr, value>::get(
               std::declval<numpy_iexpr>(), 0L))>::type;
 
-      static constexpr bool is_strided =
+      static PYTHONIC_CONSTEXPR bool is_strided =
           std::remove_reference<Arg>::type::is_strided;
 
       using iterator =

@@ -61,7 +61,7 @@ namespace pythonic
 
     struct contiguous_normalized_slice {
       long lower, upper;
-      static constexpr long step = 1;
+      static PYTHONIC_CONSTEXPR long step = 1;
       contiguous_normalized_slice();
       contiguous_normalized_slice(long lower, long upper);
 

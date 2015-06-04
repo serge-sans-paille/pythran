@@ -8,7 +8,7 @@ namespace pythonic
 
   namespace string
   {
-    types::str constexpr digits("0123456789");
+    types::str PYTHONIC_CONSTEXPR digits("0123456789");
   }
 }
 

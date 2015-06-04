@@ -10,7 +10,7 @@ namespace pythonic
 
   namespace cmath
   {
-    double constexpr e = std::exp(1);
+    double PYTHONIC_CONSTEXPR e = std::exp(1);
   }
 }
 

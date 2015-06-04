@@ -170,17 +170,17 @@ namespace pythonic
 
     template <class O, class Op, class Iter>
     struct len_of<pythonic::itertools::_imap<O, Op, Iter>> {
-      static constexpr long value = len_of<typename std::remove_cv<
+      static PYTHONIC_CONSTEXPR long value = len_of<typename std::remove_cv<
           typename std::remove_reference<Iter>::type>::type>::value;
     };
 
     template <class O, class Op, class I0, class I1, class... Iter>
     struct len_of<pythonic::itertools::_imap<O, Op, I0, I1, Iter...>> {
-      static constexpr long _head = len_of<typename std::remove_cv<
+      static PYTHONIC_CONSTEXPR long _head = len_of<typename std::remove_cv<
           typename std::remove_reference<I0>::type>::type>::value;
-      static constexpr long _tail =
+      static PYTHONIC_CONSTEXPR long _tail =
           len_of<pythonic::itertools::_imap<O, Op, I1, Iter...>>::value;
-      static constexpr long value =
+      static PYTHONIC_CONSTEXPR long value =
           (_head < _tail ? _head : _tail); // take the minimal value. If one is
                                            // negative, it will be automatically
                                            // selected

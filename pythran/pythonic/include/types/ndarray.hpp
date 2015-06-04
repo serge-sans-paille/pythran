@@ -133,7 +133,7 @@ namespace pythonic
       static T *initialize_from_iterable(S &shape, T *from, Iter &&iter);
 
       static type get(ndarray<T, 1> &&self, long i);
-      static constexpr long step(ndarray<T, 1> const &);
+      static PYTHONIC_CONSTEXPR long step(ndarray<T, 1> const &);
     };
 
     template <class T>
@@ -151,7 +151,7 @@ namespace pythonic
       template <class S, class Iter>
       static T *initialize_from_iterable(S &shape, T *from, Iter &&iter);
       static type &get(ndarray<T, 1> const &self, long i);
-      static constexpr long step(ndarray<T, 1> const &);
+      static PYTHONIC_CONSTEXPR long step(ndarray<T, 1> const &);
     };
 
     /* recursively return the value at the position given by `indices' in
@@ -202,7 +202,7 @@ namespace pythonic
       static const bool is_strided = false;
 
       /* types */
-      static constexpr size_t value = N;
+      static PYTHONIC_CONSTEXPR size_t value = N;
       using dtype = T;
       using value_type = typename type_helper<ndarray>::type;
       using reference = value_type &;
@@ -655,9 +655,9 @@ namespace pythonic
 
   namespace details
   {
-    constexpr int signed_int_types[] = {0, NPY_INT8, NPY_INT16, 0, NPY_INT32, 0,
-                                        0, 0,        NPY_INT64};
-    constexpr int unsigned_int_types[] = {
+    PYTHONIC_CONSTEXPR int signed_int_types[] = {
+        0, NPY_INT8, NPY_INT16, 0, NPY_INT32, 0, 0, 0, NPY_INT64};
+    PYTHONIC_CONSTEXPR int unsigned_int_types[] = {
         0, NPY_UINT8, NPY_UINT16, 0, NPY_UINT32, 0, 0, 0, NPY_UINT64};
   }
 
@@ -788,7 +788,7 @@ namespace pythonic
   struct python_to_pythran<types::numpy_texpr<E>>
       : basic_array_checks<typename E::dtype, E::value> {
     using T = typename E::dtype;
-    static constexpr size_t N = E::value;
+    static PYTHONIC_CONSTEXPR size_t N = E::value;
 
     python_to_pythran();
     static void *convertible(PyObject *obj_ptr);

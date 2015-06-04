@@ -222,20 +222,21 @@ namespace pythonic
 
     // Capacity.
     template <typename T, size_t N>
-    constexpr typename array<T, N>::size_type array<T, N>::size() const noexcept
-    {
-      return N;
-    }
-
-    template <typename T, size_t N>
-    constexpr typename array<T, N>::size_type array<T, N>::max_size() const
+    PYTHONIC_CONSTEXPR typename array<T, N>::size_type array<T, N>::size() const
         noexcept
     {
       return N;
     }
 
     template <typename T, size_t N>
-    constexpr bool array<T, N>::empty() const noexcept
+    PYTHONIC_CONSTEXPR typename array<T, N>::size_type
+    array<T, N>::max_size() const noexcept
+    {
+      return N;
+    }
+
+    template <typename T, size_t N>
+    PYTHONIC_CONSTEXPR bool array<T, N>::empty() const noexcept
     {
       return size() == 0;
     }
@@ -248,7 +249,7 @@ namespace pythonic
     }
 
     template <typename T, size_t N>
-    constexpr typename array<T, N>::const_reference
+    PYTHONIC_CONSTEXPR typename array<T, N>::const_reference
     array<T, N>::fast(long n) const noexcept
     {
       return buffer[n];
@@ -287,14 +288,14 @@ namespace pythonic
     }
 
     template <typename T, size_t N>
-    constexpr typename array<T, N>::const_reference array<T, N>::
+    PYTHONIC_CONSTEXPR typename array<T, N>::const_reference array<T, N>::
     operator[](typename array<T, N>::size_type __n) const noexcept
     {
       return buffer[__n];
     }
 
     template <typename T, size_t N>
-    constexpr typename array<T, N>::const_reference
+    PYTHONIC_CONSTEXPR typename array<T, N>::const_reference
     array<T, N>::fast(typename array<T, N>::size_type __n) const noexcept
     {
       return buffer[__n];

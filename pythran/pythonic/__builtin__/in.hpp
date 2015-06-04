@@ -38,7 +38,8 @@ namespace pythonic
   {
     using RT =
         typename std::remove_cv<typename std::remove_reference<T>::type>::type;
-    static bool constexpr has_contains = types::has_contains<RT, V>::value;
+    static bool PYTHONIC_CONSTEXPR has_contains =
+        types::has_contains<RT, V>::value;
     return details::in<has_contains>()(std::forward<T>(t), v);
   }
 }

@@ -35,7 +35,7 @@ namespace pythonic
       using iterator = nditerator<numpy_texpr_2<Arg>>;
       using const_iterator = const_nditerator<numpy_texpr_2<Arg>>;
 
-      static constexpr size_t value = Arg::value;
+      static PYTHONIC_CONSTEXPR size_t value = Arg::value;
       using value_type = numpy_gexpr<Arg, contiguous_slice, long>;
       using dtype = typename E::dtype;
 

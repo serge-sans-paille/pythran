@@ -169,7 +169,8 @@ namespace pythonic
     }
 
     template <class T>
-    constexpr long type_helper<ndarray<T, 1>>::step(ndarray<T, 1> const &)
+    PYTHONIC_CONSTEXPR long
+        type_helper<ndarray<T, 1>>::step(ndarray<T, 1> const &)
     {
       return 1;
     }
@@ -208,7 +209,7 @@ namespace pythonic
     }
 
     template <class T>
-    constexpr long
+    PYTHONIC_CONSTEXPR long
         type_helper<ndarray<T, 1> const &>::step(ndarray<T, 1> const &)
     {
       return 1;

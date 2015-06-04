@@ -9,8 +9,8 @@ namespace pythonic
   namespace string
   {
 
-    types::str constexpr ascii_letters(
-        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    types::str PYTHONIC_CONSTEXPR
+        ascii_letters("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
   }
 }
 

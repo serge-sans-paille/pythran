@@ -8,7 +8,7 @@ namespace pythonic
 
   namespace string
   {
-    types::str constexpr ascii_lowercase("abcdefghijklmnopqrstuvwxyz");
+    types::str PYTHONIC_CONSTEXPR ascii_lowercase("abcdefghijklmnopqrstuvwxyz");
   }
 }
 

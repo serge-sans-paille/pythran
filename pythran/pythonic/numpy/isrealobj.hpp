@@ -13,7 +13,7 @@ namespace pythonic
   namespace numpy
   {
     template <class E>
-    constexpr bool isrealobj(E const &expr)
+    PYTHONIC_CONSTEXPR bool isrealobj(E const &expr)
     {
       return not types::is_complex<
                  typename types::numpy_expr_to_ndarray<E>::type::dtype>::value;

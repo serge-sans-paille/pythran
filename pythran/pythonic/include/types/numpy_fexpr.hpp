@@ -31,7 +31,7 @@ namespace pythonic
       //        [20, 21, 22, 23]]])
       //>>> a[[0,1],[0,1], [0, 0]]
       // array([ 0, 16])
-      static constexpr size_t value = 1;
+      static PYTHONIC_CONSTEXPR size_t value = 1;
       using value_type = typename std::remove_reference<Arg>::type::dtype;
       using dtype = typename std::remove_reference<Arg>::type::dtype;
 

@@ -11,7 +11,7 @@
 // nt2 does not handle bool specialization, which is indeed a corner case...
 namespace nt2
 {
-  constexpr bool abs(bool v);
+  PYTHONIC_CONSTEXPR bool abs(bool v);
 }
 
 namespace pythonic

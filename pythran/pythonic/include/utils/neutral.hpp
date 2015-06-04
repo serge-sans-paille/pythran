@@ -19,23 +19,24 @@ namespace pythonic
       static const T value;
     };
 
-    // FIXME clang doesn't accept it as a static constexpr value for neutral
+    // FIXME clang doesn't accept it as a static PYTHONIC_CONSTEXPR value for
+    // neutral
     template <class T>
     T const neutral<operator_::proxy::iadd, T>::value = 0;
 
     template <class T>
     struct neutral<operator_::proxy::imul, T> {
-      static constexpr T value = 1;
+      static PYTHONIC_CONSTEXPR T value = 1;
     };
 
     template <class T>
     struct neutral<operator_::proxy::imax, T> {
-      static constexpr T value = std::numeric_limits<T>::lowest();
+      static PYTHONIC_CONSTEXPR T value = std::numeric_limits<T>::lowest();
     };
 
     template <class T>
     struct neutral<operator_::proxy::imin, T> {
-      static constexpr T value = std::numeric_limits<T>::max();
+      static PYTHONIC_CONSTEXPR T value = std::numeric_limits<T>::max();
     };
   }
 }

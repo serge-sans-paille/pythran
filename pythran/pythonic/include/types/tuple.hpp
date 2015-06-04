@@ -141,13 +141,13 @@ namespace pythonic
       const_reverse_iterator crend() const noexcept;
 
       // Capacity.
-      constexpr size_type size() const noexcept;
-      constexpr size_type max_size() const noexcept;
-      constexpr bool empty() const noexcept;
+      PYTHONIC_CONSTEXPR size_type size() const noexcept;
+      PYTHONIC_CONSTEXPR size_type max_size() const noexcept;
+      PYTHONIC_CONSTEXPR bool empty() const noexcept;
 
       // Element access.
       reference fast(long n);
-      constexpr const_reference fast(long n) const noexcept;
+      PYTHONIC_CONSTEXPR const_reference fast(long n) const noexcept;
 #ifdef USE_BOOST_SIMD
       auto load(long i) const -> decltype(boost::simd::load<
           boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>>(&buffer[0], i));
@@ -159,8 +159,9 @@ namespace pythonic
       reference operator[](size_type __n);
       reference fast(size_type __n);
 
-      constexpr const_reference operator[](size_type __n) const noexcept;
-      constexpr const_reference fast(size_type __n) const noexcept;
+      PYTHONIC_CONSTEXPR const_reference operator[](size_type __n) const
+          noexcept;
+      PYTHONIC_CONSTEXPR const_reference fast(size_type __n) const noexcept;
 
       reference front();
       const_reference front() const;
@@ -508,12 +509,12 @@ namespace pythonic
 
     template <class T, size_t N>
     struct len_of<array<T, N>> {
-      static constexpr long value = N;
+      static PYTHONIC_CONSTEXPR long value = N;
     };
 
     template <class... Types>
     struct len_of<std::tuple<Types...>> {
-      static constexpr long value = sizeof...(Types);
+      static PYTHONIC_CONSTEXPR long value = sizeof...(Types);
     };
   }
 }

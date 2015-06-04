@@ -35,12 +35,12 @@ namespace pythonic
 
     template <class T>
     struct is_ndarray {
-      static constexpr bool value = false;
+      static PYTHONIC_CONSTEXPR bool value = false;
     };
 
     template <class T, size_t N>
     struct is_ndarray<ndarray<T, N>> {
-      static constexpr bool value = true;
+      static PYTHONIC_CONSTEXPR bool value = true;
     };
 
     /* Type trait that checks if a type is a potential numpy expression
@@ -50,42 +50,42 @@ namespace pythonic
      */
     template <class T>
     struct is_array {
-      static constexpr bool value = false;
+      static PYTHONIC_CONSTEXPR bool value = false;
     };
 
     template <class T, size_t N>
     struct is_array<ndarray<T, N>> {
-      static constexpr bool value = true;
+      static PYTHONIC_CONSTEXPR bool value = true;
     };
 
     template <class A>
     struct is_array<numpy_iexpr<A>> {
-      static constexpr bool value = true;
+      static PYTHONIC_CONSTEXPR bool value = true;
     };
 
     template <class A, class F>
     struct is_array<numpy_fexpr<A, F>> {
-      static constexpr bool value = true;
+      static PYTHONIC_CONSTEXPR bool value = true;
     };
 
     template <class A, class... S>
     struct is_array<numpy_gexpr<A, S...>> {
-      static constexpr bool value = true;
+      static PYTHONIC_CONSTEXPR bool value = true;
     };
 
     template <class A>
     struct is_array<numpy_texpr<A>> {
-      static constexpr bool value = true;
+      static PYTHONIC_CONSTEXPR bool value = true;
     };
 
     template <class A>
     struct is_array<numpy_texpr_2<A>> {
-      static constexpr bool value = true;
+      static PYTHONIC_CONSTEXPR bool value = true;
     };
 
     template <class O, class... Args>
     struct is_array<numpy_expr<O, Args...>> {
-      static constexpr bool value = true;
+      static PYTHONIC_CONSTEXPR bool value = true;
     };
 
     template <class T>
@@ -94,12 +94,12 @@ namespace pythonic
 
     template <class T>
     struct is_numexpr_arg<list<T>> {
-      static constexpr bool value = true;
+      static PYTHONIC_CONSTEXPR bool value = true;
     };
 
     template <class T, size_t N>
     struct is_numexpr_arg<array<T, N>> {
-      static constexpr bool value = true;
+      static PYTHONIC_CONSTEXPR bool value = true;
     };
   }
 }

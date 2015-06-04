@@ -12,7 +12,7 @@ namespace pythonic
   namespace numpy
   {
     template <class E>
-    constexpr bool issctype(E const &expr)
+    PYTHONIC_CONSTEXPR bool issctype(E const &expr)
     {
       return not isscalar(expr) and
              isscalar(typename types::numpy_type<E>::type());

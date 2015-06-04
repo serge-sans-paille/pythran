@@ -10,7 +10,7 @@ namespace pythonic
 
   namespace cmath
   {
-    double constexpr pi = std::atan(1) * 4;
+    double PYTHONIC_CONSTEXPR pi = std::atan(1) * 4;
   }
 }
 

@@ -6,7 +6,7 @@ namespace pythonic
 
   namespace numpy
   {
-    double constexpr e = 2.718281828459045235360287471352662498;
+    double PYTHONIC_CONSTEXPR e = 2.718281828459045235360287471352662498;
   }
 }
 

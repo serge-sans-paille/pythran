@@ -20,7 +20,7 @@ namespace pythonic
       iscomplex(I const &a);
 
       template <class I>
-      constexpr
+      PYTHONIC_CONSTEXPR
           typename std::enable_if<not types::is_complex<I>::value, bool>::type
           iscomplex(I const &a);
     }

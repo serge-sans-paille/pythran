@@ -54,7 +54,7 @@ namespace pythonic
     };
 
     /* Get the size of a container, using recursion on inner container if any
-     * FIXME: should be a constexpr?
+     * FIXME: should be a PYTHONIC_CONSTEXPR?
      * FIXME: why a class and not a function?
      */
     template <class T>
@@ -68,7 +68,7 @@ namespace pythonic
     template <>
     struct nested_container_size<bool> {
       template <class F>
-      constexpr static size_t flat_size(F);
+      PYTHONIC_CONSTEXPR static size_t flat_size(F);
     };
 
     /* Statically define (by recursion) the type of element inside nested

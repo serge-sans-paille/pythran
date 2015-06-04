@@ -51,7 +51,7 @@ namespace pythonic
         E::value != 1, types::ndarray<typename E::dtype, E::value - 1>>::type
     any(E const &array, long axis)
     {
-      constexpr long N = E::value;
+      PYTHONIC_CONSTEXPR long N = E::value;
       using T = typename E::dtype;
       if (axis < 0 || axis >= long(N))
         throw types::ValueError("axis out of bounds");

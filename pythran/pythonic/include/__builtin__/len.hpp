@@ -16,7 +16,7 @@ namespace pythonic
     template <class... Types>
     long len(std::tuple<Types...> const &);
 
-    constexpr long len(char);
+    PYTHONIC_CONSTEXPR long len(char);
 
     template <class T>
     typename std::enable_if<types::has_size<T>::value, long>::type

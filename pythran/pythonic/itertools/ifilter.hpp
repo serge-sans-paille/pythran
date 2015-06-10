@@ -40,8 +40,8 @@ namespace pythonic
       }
 
       template <typename Operator, typename List0>
-      ifilter_iterator<Operator, List0>::ifilter_iterator(
-          npos, Operator _op, List0 &_seq)
+      ifilter_iterator<Operator, List0>::ifilter_iterator(npos, Operator _op,
+                                                          List0 &_seq)
           : op(_op), iter(_seq.end()), iter_end(_seq.end())
       {
       }
@@ -54,9 +54,8 @@ namespace pythonic
       }
 
       template <typename Operator, typename List0>
-      ifilter_iterator<Operator, List0> &
-          ifilter_iterator<Operator, List0>::
-          operator++()
+      ifilter_iterator<Operator, List0> &ifilter_iterator<Operator, List0>::
+      operator++()
       {
         next_value();
         return *this;
@@ -94,8 +93,8 @@ namespace pythonic
 
       template <typename Operator, typename List0>
       ifilter<Operator, List0>::ifilter(Operator _op, List0 const &_seq)
-          : utils::iterator_reminder<List0>(_seq), iterator(_op, this->value),
-            end_iter(npos(), _op, this->value)
+          : utils::iterator_reminder<false, List0>(_seq),
+            iterator(_op, this->value), end_iter(npos(), _op, this->value)
       {
       }
 
@@ -122,8 +121,10 @@ namespace pythonic
     }
 
     template <typename Operator, typename List0>
-    details::ifilter<typename std::remove_cv<typename std::remove_reference<Operator>::type>::type,
-      typename std::remove_cv<typename std::remove_reference<List0>::type>::type>
+    details::ifilter<typename std::remove_cv<
+                         typename std::remove_reference<Operator>::type>::type,
+                     typename std::remove_cv<
+                         typename std::remove_reference<List0>::type>::type>
     ifilter(Operator &&_op, List0 &&_seq)
     {
       return {std::forward<Operator>(_op), std::forward<List0>(_seq)};

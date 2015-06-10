@@ -28,13 +28,20 @@ namespace pythonic
     }
 
     template <class T>
-    iterator_reminder<T>::iterator_reminder(T const &v)
+    iterator_reminder<false, T>::iterator_reminder(T const &v)
+        : value(v)
+    {
+    }
+
+    template <class T>
+    iterator_reminder<true, T>::iterator_reminder(T const &v)
         : value(v)
     {
     }
 
     template <class T, class... Others>
-    iterator_reminder<T, Others...>::iterator_reminder(T const &v, Others const&... others)
+    iterator_reminder<true, T, Others...>::iterator_reminder(
+        T const &v, Others const &... others)
         : value(v, others...)
     {
     }

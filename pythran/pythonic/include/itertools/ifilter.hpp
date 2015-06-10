@@ -18,8 +18,8 @@ namespace pythonic
     {
 
       template <typename Operator, typename List0>
-      struct ifilter_iterator
-          : std::iterator<std::forward_iterator_tag, typename List0::value_type> {
+      struct ifilter_iterator : std::iterator<std::forward_iterator_tag,
+                                              typename List0::value_type> {
         using sequence_type = typename std::remove_cv<
             typename std::remove_reference<List0>::type>::type;
 
@@ -53,7 +53,7 @@ namespace pythonic
       // typing is not good enough for this as arguments have
       // remove_cv/remove_ref
       template <typename Operator, typename List0>
-      struct ifilter : utils::iterator_reminder<List0>,
+      struct ifilter : utils::iterator_reminder<false, List0>,
                        ifilter_iterator<Operator, List0> {
 
         using value_type = typename List0::value_type;
@@ -71,8 +71,10 @@ namespace pythonic
     }
 
     template <typename Operator, typename List0>
-    details::ifilter<typename std::remove_cv<typename std::remove_reference<Operator>::type>::type,
-      typename std::remove_cv<typename std::remove_reference<List0>::type>::type>
+    details::ifilter<typename std::remove_cv<
+                         typename std::remove_reference<Operator>::type>::type,
+                     typename std::remove_cv<
+                         typename std::remove_reference<List0>::type>::type>
     ifilter(Operator &&_op, List0 &&_seq);
 
     PROXY_DECL(pythonic::itertools, ifilter);

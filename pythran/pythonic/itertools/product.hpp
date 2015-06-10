@@ -20,31 +20,29 @@ namespace pythonic
 
       template <typename... Iters>
       template <int... I>
-      product_iterator<Iters...>::product_iterator(
-          std::tuple<Iters...> &_iters, utils::seq<I...> const &)
+      product_iterator<Iters...>::product_iterator(std::tuple<Iters...> &_iters,
+                                                   utils::seq<I...> const &)
           : it_begin(std::get<I>(_iters).begin()...),
             it_end(std::get<I>(_iters).end()...),
-            it(std::get<I>(_iters).begin()...),
-            end(false)
+            it(std::get<I>(_iters).begin()...), end(false)
       {
       }
 
       template <typename... Iters>
       template <int... I>
-      product_iterator<Iters...>::product_iterator(
-          npos, std::tuple<Iters...> &_iters, utils::seq<I...> const &)
+      product_iterator<Iters...>::product_iterator(npos,
+                                                   std::tuple<Iters...> &_iters,
+                                                   utils::seq<I...> const &)
           : it_begin(std::get<I>(_iters).end()...),
             it_end(std::get<I>(_iters).end()...),
-            it(std::get<I>(_iters).end()...),
-            end(true)
+            it(std::get<I>(_iters).end()...), end(true)
       {
       }
 
       template <typename... Iters>
       template <int... I>
       std::tuple<typename Iters::value_type...>
-      product_iterator<Iters...>::get_value(
-          utils::seq<I...> const &) const
+      product_iterator<Iters...>::get_value(utils::seq<I...> const &) const
       {
         return std::tuple<typename Iters::value_type...>(*std::get<I>(it)...);
       }
@@ -74,11 +72,9 @@ namespace pythonic
       }
 
       template <typename... Iters>
-      product_iterator<Iters...> &
-          product_iterator<Iters...>::
-          operator++()
+      product_iterator<Iters...> &product_iterator<Iters...>::operator++()
       {
-        advance(utils::int_<sizeof...(Iters) - 1>{});
+        advance(utils::int_<sizeof...(Iters)-1>{});
         return *this;
       }
 
@@ -109,8 +105,9 @@ namespace pythonic
       // times
       template <typename... Iters>
       product<Iters...>::product(Iters const &... _iters)
-          : utils::iterator_reminder<Iters...>(_iters...),
-            iterator(this->value, typename utils::gens<sizeof...(Iters)>::type{}),
+          : utils::iterator_reminder<true, Iters...>(_iters...),
+            iterator(this->value,
+                     typename utils::gens<sizeof...(Iters)>::type{}),
             end_iter(npos(), this->value,
                      typename utils::gens<sizeof...(Iters)>::type{})
       {

@@ -18,7 +18,8 @@ namespace pythonic
       // FIXME : should be a combined_iterator_tag
       template <typename... Iters>
       struct product_iterator
-          : std::iterator<std::forward_iterator_tag, std::tuple<typename Iters::value_type...>> {
+          : std::iterator<std::forward_iterator_tag,
+                          std::tuple<typename Iters::value_type...>> {
 
         std::tuple<typename Iters::iterator...> const it_begin;
         std::tuple<typename Iters::iterator...> const it_end;
@@ -48,9 +49,8 @@ namespace pythonic
       };
 
       template <typename... Iters>
-      struct product
-          : utils::iterator_reminder<Iters...>,
-            product_iterator<Iters...> {
+      struct product : utils::iterator_reminder<true, Iters...>,
+                       product_iterator<Iters...> {
 
         using value_type = std::tuple<typename Iters::value_type...>;
         using iterator = product_iterator<Iters...>;

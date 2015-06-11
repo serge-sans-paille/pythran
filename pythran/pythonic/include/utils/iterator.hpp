@@ -22,18 +22,23 @@ namespace pythonic
     template <class T, class... Others>
     struct iterator_reminder<true, T, Others...> {
       std::tuple<T, Others...> value;
+      // FIXME : It works only because template arguments are not references
+      // so it trigger a copy.
+      iterator_reminder() = default;
       iterator_reminder(T const &v, Others const &... o);
     };
 
     template <class T>
     struct iterator_reminder<false, T> {
       T value;
+      iterator_reminder() = default;
       iterator_reminder(T const &v);
     };
 
     template <class T>
     struct iterator_reminder<true, T> {
       std::tuple<T> value;
+      iterator_reminder() = default;
       iterator_reminder(T const &v);
     };
 

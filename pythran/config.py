@@ -46,13 +46,14 @@ def make_extension(**extra):
         else:
             return define[:index], define[index + 1:]
     extension = {
-        "define_macros": cfg.get('compiler', 'defines').split(),
-        "undef_macros": cfg.get('compiler', 'undefs').split(),
-        "include_dirs": cfg.get('compiler', 'include_dirs').split(),
-        "library_dirs": cfg.get('compiler', 'library_dirs').split(),
-        "libraries": cfg.get('compiler', 'libs').split(),
-        "extra_compile_args": cfg.get('compiler', 'cflags').split(),
-        "extra_link_args": cfg.get('compiler', 'ldflags').split(),
+        # forcing str conversion to handle Unicode case (the default on MS)
+        "define_macros": map(str, cfg.get('compiler', 'defines').split()),
+        "undef_macros": map(str, cfg.get('compiler', 'undefs').split()),
+        "include_dirs": map(str, cfg.get('compiler', 'include_dirs').split()),
+        "library_dirs": map(str, cfg.get('compiler', 'library_dirs').split()),
+        "libraries": map(str, cfg.get('compiler', 'libs').split()),
+        "extra_compile_args": map(str, cfg.get('compiler', 'cflags').split()),
+        "extra_link_args": map(str, cfg.get('compiler', 'ldflags').split()),
     }
 
     extension['define_macros'].append('ENABLE_PYTHON_MODULE')

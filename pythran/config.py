@@ -46,13 +46,13 @@ def make_extension(**extra):
         else:
             return define[:index], define[index + 1:]
     extension = {
-        "define_macros": cfg.get('compiler', 'defines').split(),
-        "undef_macros": cfg.get('compiler', 'undefs').split(),
-        "include_dirs": cfg.get('compiler', 'include_dirs').split(),
-        "library_dirs": cfg.get('compiler', 'library_dirs').split(),
-        "libraries": cfg.get('compiler', 'libs').split(),
-        "extra_compile_args": cfg.get('compiler', 'cflags').split(),
-        "extra_link_args": cfg.get('compiler', 'ldflags').split(),
+        "define_macros": map(str, cfg.get('compiler', 'defines').split()),
+        "undef_macros": map(str, cfg.get('compiler', 'undefs').split()),
+        "include_dirs": map(str, cfg.get('compiler', 'include_dirs').split()),
+        "library_dirs": map(str, cfg.get('compiler', 'library_dirs').split()),
+        "libraries": map(str, cfg.get('compiler', 'libs').split()),
+        "extra_compile_args": map(str, cfg.get('compiler', 'cflags').split()),
+        "extra_link_args": map(str, cfg.get('compiler', 'ldflags').split()),
     }
 
     extension['define_macros'].append('ENABLE_PYTHON_MODULE')
@@ -69,8 +69,8 @@ def make_extension(**extra):
 
     # blas dependency
     numpy_blas = numpy_sys.get_info("blas")
-    extension['libraries'].extend(numpy_blas['libraries'])
-    extension['library_dirs'].extend(numpy_blas['library_dirs'])
+    extension['libraries'].extend(numpy_blas.get('libraries', []))
+    extension['library_dirs'].extend(numpy_blas.get('library_dirs', []))
     return extension
 
 

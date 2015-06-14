@@ -20,6 +20,7 @@ namespace pythonic
       generator_iterator &operator++();
       typename T::result_type operator*() const;
       bool operator!=(generator_iterator<T> const &other) const;
+      bool operator==(generator_iterator<T> const &other) const;
       bool operator<(generator_iterator<T> const &other) const;
     };
   }

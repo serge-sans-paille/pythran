@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_ITERTOOLS_IFILTER_HPP
 #define PYTHONIC_INCLUDE_ITERTOOLS_IFILTER_HPP
 
-#include "pythonic/types/none.hpp"
+#include "pythonic/include/utils/iterator.hpp"
 #include "pythonic/types/list.hpp"
 #include "pythonic/itertools/common.hpp"
 
@@ -14,66 +14,68 @@ namespace pythonic
   namespace itertools
   {
 
-    template <typename ResultType, typename Operator, typename List0>
-    struct ifilter_iterator
-        : std::iterator<std::forward_iterator_tag, ResultType> {
-      using sequence_type = typename std::remove_cv<
-          typename std::remove_reference<List0>::type>::type;
+    namespace details
+    {
 
-      Operator op;
-      typename List0::iterator iter;
-      typename List0::iterator iter_end;
+      template <typename Operator, typename List0>
+      struct ifilter_iterator : std::iterator<std::forward_iterator_tag,
+                                              typename List0::value_type> {
+        using sequence_type = typename std::remove_cv<
+            typename std::remove_reference<List0>::type>::type;
 
-      bool test_filter(std::false_type);
-      bool test_filter(std::true_type);
+        Operator op;
+        typename List0::iterator iter;
+        // FIXME : iter_end should be const because ifilter should be evaluate
+        // only once. Some tests doesn't work with it for now because of
+        // uncorrect itertools.product implementation
+        typename List0::iterator iter_end;
 
-      ifilter_iterator();
-      ifilter_iterator(Operator _op, List0 _seq);
-      ifilter_iterator(npos, Operator _op, List0 _seq);
+        bool test_filter(std::true_type);
+        bool test_filter(std::false_type);
 
-      ResultType operator*() const;
+        ifilter_iterator() = default;
+        ifilter_iterator(Operator _op, List0 &_seq);
+        ifilter_iterator(npos, Operator _op, List0 &_seq);
 
-      ifilter_iterator &operator++();
-      void next_value();
+        typename List0::value_type operator*() const;
 
-      bool operator==(ifilter_iterator const &other) const;
-      bool operator!=(ifilter_iterator const &other) const;
-      bool operator<(ifilter_iterator const &other) const;
-      int operator-(ifilter_iterator const &other) const;
-    };
+        ifilter_iterator &operator++();
+        void next_value();
 
-    template <typename ResultType, typename Operator, typename List0>
-    struct _ifilter : ifilter_iterator<ResultType, Operator, List0> {
+        bool operator==(ifilter_iterator const &other) const;
+        bool operator!=(ifilter_iterator const &other) const;
+        bool operator<(ifilter_iterator const &other) const;
+      };
 
-      using iterator = ifilter_iterator<ResultType, Operator, List0>;
-      using value_type = ResultType;
+      // Inherit from iterator_reminder to keep a reference on the iterator
+      // and avoid a dangling reference
+      // FIXME: It would be better to have a copy only if needed but Pythran
+      // typing is not good enough for this as arguments have
+      // remove_cv/remove_ref
+      template <typename Operator, typename List0>
+      struct ifilter : utils::iterator_reminder<false, List0>,
+                       ifilter_iterator<Operator, List0> {
 
-      List0 seq; // to make sure we keep a reference on all the containers
-      iterator end_iter;
+        using value_type = typename List0::value_type;
+        using iterator = ifilter_iterator<Operator, List0>;
 
-      _ifilter();
-      _ifilter(Operator _op, List0 _seq);
+        iterator end_iter;
 
-      iterator &begin();
-      iterator const &begin() const;
-      iterator const &end() const;
-    };
+        ifilter() = default;
+        ifilter(Operator _op, List0 const &_seq);
 
-    template <typename List0>
-    _ifilter<typename std::remove_cv<
-                 typename std::remove_reference<List0>::type>::type::value_type,
-             types::none_type,
-             typename std::remove_cv<
-                 typename std::remove_reference<List0>::type>::type>
-    ifilter(types::none_type _op, List0 &&_seq);
+        iterator &begin();
+        iterator const &begin() const;
+        iterator const &end() const;
+      };
+    }
 
     template <typename Operator, typename List0>
-    auto ifilter(Operator &&_op, List0 &&_seq)
-        -> _ifilter<typename std::remove_cv<typename std::remove_reference<
-                        decltype(*_seq.begin())>::type>::type,
-                    Operator,
-                    typename std::remove_cv<
-                        typename std::remove_reference<List0>::type>::type>;
+    details::ifilter<typename std::remove_cv<
+                         typename std::remove_reference<Operator>::type>::type,
+                     typename std::remove_cv<
+                         typename std::remove_reference<List0>::type>::type>
+    ifilter(Operator &&_op, List0 &&_seq);
 
     PROXY_DECL(pythonic::itertools, ifilter);
   }

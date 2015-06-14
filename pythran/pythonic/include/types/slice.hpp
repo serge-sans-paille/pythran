@@ -3,10 +3,6 @@
 
 #include "pythonic/__builtin__/None.hpp"
 
-#ifndef NDEBUG
-#include <nt2/include/functions/bitofsign.hpp>
-#endif
-
 #include <cassert>
 #include <stdexcept>
 #include <iostream>

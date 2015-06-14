@@ -248,16 +248,12 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
     return mod
 
 
-def compile_cxxfile(cxxfile, module_so=None, **kwargs):
+def compile_cxxfile(module_name, cxxfile, module_so=None, **kwargs):
     '''c++ file -> native module
     Return the filename of the produced shared library
     Raises CompileError on failure
 
     '''
-    if module_so:
-        module_name, _ = os.path.splitext(os.path.basename(module_so))
-    else:
-        module_name, _ = os.path.splitext(os.path.basename(cxxfile))
 
     builddir = mkdtemp()
     buildtmp = mkdtemp()
@@ -289,8 +285,9 @@ def compile_cxxfile(cxxfile, module_so=None, **kwargs):
     if module_so:
         shutil.move(target, module_so)
     else:
-        shutil.move(target, os.getcwd())
-        module_so = os.path.join(os.getcwd(), os.path.basename(target))
+        module_so = os.path.join(os.getcwd(),
+                                 module_name + os.path.splitext(target)[1])
+        shutil.move(target, module_so)
     shutil.rmtree(builddir)
     shutil.rmtree(buildtmp)
 
@@ -300,7 +297,7 @@ def compile_cxxfile(cxxfile, module_so=None, **kwargs):
     return module_so
 
 
-def compile_cxxcode(cxxcode, module_so=None, keep_temp=False,
+def compile_cxxcode(module_name, cxxcode, module_so=None, keep_temp=False,
                     **kwargs):
     '''c++ code (string) -> temporary file -> native module.
     Returns the generated .so.
@@ -309,7 +306,7 @@ def compile_cxxcode(cxxcode, module_so=None, keep_temp=False,
 
     # Get a temporary C++ file to compile
     fd, fdpath = _get_temp(cxxcode)
-    module_so = compile_cxxfile(fdpath, module_so, **kwargs)
+    module_so = compile_cxxfile(module_name, fdpath, module_so, **kwargs)
     if not keep_temp:
         # remove tempfile
         os.remove(fdpath)
@@ -337,14 +334,17 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
 
     if cpponly:
         # User wants only the C++ code
-        _, output_file = _get_temp(str(module))
+        _, tmp_file = _get_temp(str(module))
         if module_so:
-            shutil.move(output_file, module_so)
             output_file = module_so
+        else:
+            output_file = module_name + ".cpp"
+        shutil.move(tmp_file, output_file)
         logger.info("Generated C++ source file: " + output_file)
     else:
         # Compile to binary
-        output_file = compile_cxxcode(str(module.generate()),
+        output_file = compile_cxxcode(module_name,
+                                      str(module.generate()),
                                       module_so=module_so,
                                       **kwargs)
 
@@ -364,8 +364,6 @@ def compile_pythranfile(file_path, module_so=None, module_name=None,
         basedir, basename = os.path.split(file_path)
         module_name = module_name or os.path.splitext(basename)[0]
 
-        # derive destination from file name
-        module_so = os.path.join(basedir, module_name + ".so")
     else:
         # derive module name from destination module_so name
         _, basename = os.path.split(module_so)
@@ -374,8 +372,11 @@ def compile_pythranfile(file_path, module_so=None, module_name=None,
     # Add compiled module path to search for imported modules
     sys.path.append(os.path.dirname(file_path))
 
-    compile_pythrancode(module_name, file(file_path).read(),
-                        module_so=module_so, cpponly=cpponly, **kwargs)
+    module_so = compile_pythrancode(module_name, file(file_path).read(),
+                                    module_so=module_so,
+                                    cpponly=cpponly,
+                                    **kwargs)
+
     return module_so
 
 
@@ -384,8 +385,10 @@ def test_compile():
     May raises CompileError Exception.
 
     '''
-    module_so = compile_cxxcode("\n".join([
-        "#define BOOST_PYTHON_MAX_ARITY 4",
-        "#include <pythonic/core.hpp>"
-        ]))
+    code = '''
+#define BOOST_PYTHON_MAX_ARITY 4
+#include <pythonic/core.hpp>
+'''
+
+    module_so = compile_cxxcode('test', code)
     module_so and os.remove(module_so)

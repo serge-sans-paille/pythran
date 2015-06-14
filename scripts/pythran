@@ -127,15 +127,12 @@ try:
     if ext not in ['.cpp', '.py']:  # FIXME: do we support other ext than .cpp?
         raise SyntaxError("Unsupported file extension: '{0}'".format(ext))
 
-    if not args.output_file:  # build the output file from the input name
-        args.output_file = '{0}.{1}'.format(module_name, 'cpp' if
-                                            args.translate_only else 'so')
-
     if ext == '.cpp':
         if args.translate_only:
             raise ValueError("Do you really ask for Python-to-C++ on this C++ "
                              "input file: '{0}'?".format(args.input_file))
-        pythran.compile_cxxfile(args.input_file, args.output_file,
+        pythran.compile_cxxfile(module_name,
+	                        args.input_file, args.output_file,
                                 **compile_flags(args))
 
     else:  # assume we have a .py input file here

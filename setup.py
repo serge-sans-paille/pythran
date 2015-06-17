@@ -3,7 +3,7 @@ from distutils.command.build import build
 from distutils.command.install import install
 from distutils.core import setup, Command
 from subprocess import check_call, check_output
-from urllib import urlopen
+from urllib2 import urlopen
 from zipfile import ZipFile
 from StringIO import StringIO
 
@@ -86,6 +86,8 @@ class BuildWithPly(build):
             print('nt2 archive needed, downloading it')
             url = 'https://github.com/pbrunet/nt2/archive/gemv_release.zip'
             location = urlopen(url)
+            http_code_prefix = location.getcode() / 100
+            assert http_code_prefix not in [4, 5], "Failed to download nt2."
             zipfile = ZipFile(StringIO(location.read()))
             zipfile.extractall(self.build_temp)
             extracted = os.path.dirname(zipfile.namelist()[0])

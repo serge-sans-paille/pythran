@@ -99,7 +99,7 @@ class BuildWithPly(build):
         if not os.path.isdir(nt2_build_dir):
             os.makedirs(nt2_build_dir)
 
-        if not os.path.exists(os.path.join(nt2_build_dir, 'doc')):
+        if not os.path.exists(os.path.join(nt2_build_dir, 'modules')):
             print('nt2 not configured, configuring it')
             # remove any remaining artifacts
             shutil.rmtree(nt2_build_dir, True)

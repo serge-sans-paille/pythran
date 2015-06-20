@@ -6,6 +6,7 @@ import sys
 import os
 import argparse
 import logging
+import pythran
 
 from distutils.errors import CompileError
 
@@ -33,7 +34,6 @@ except ImportError:
     logging.basicConfig(format='%(levelname)s: %(message)s')
     logger.warn("Disabling color, you really want to install colorlog.")
 
-import pythran
 
 def convert_arg_line_to_args(arg_line):
     """Read argument from file in a prettier way."""
@@ -132,7 +132,7 @@ try:
             raise ValueError("Do you really ask for Python-to-C++ on this C++ "
                              "input file: '{0}'?".format(args.input_file))
         pythran.compile_cxxfile(module_name,
-	                        args.input_file, args.output_file,
+                                args.input_file, args.output_file,
                                 **compile_flags(args))
 
     else:  # assume we have a .py input file here

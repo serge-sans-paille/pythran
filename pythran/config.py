@@ -46,6 +46,7 @@ def make_extension(**extra):
         else:
             return define[:index], define[index + 1:]
     extension = {
+        # forcing str conversion to handle Unicode case (the default on MS)
         "define_macros": map(str, cfg.get('compiler', 'defines').split()),
         "undef_macros": map(str, cfg.get('compiler', 'undefs').split()),
         "include_dirs": map(str, cfg.get('compiler', 'include_dirs').split()),

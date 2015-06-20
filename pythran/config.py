@@ -70,8 +70,8 @@ def make_extension(**extra):
 
     # blas dependency
     numpy_blas = numpy_sys.get_info("blas")
-    extension['libraries'].extend(numpy_blas.get('libraries', []))
-    extension['library_dirs'].extend(numpy_blas.get('library_dirs', []))
+    extension['libraries'].extend(numpy_blas['libraries'])
+    extension['library_dirs'].extend(numpy_blas['library_dirs'])
     return extension
 
 

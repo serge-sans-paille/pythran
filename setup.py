@@ -190,5 +190,4 @@ setup(name='pythran',
                     },
       tests_require=['pytest', 'pytest-pep8'],
       test_suite="pythran/test",
-      cmdclass={'build_py': BuildWithPly, 'test': PyTest}
-      )
+      cmdclass={'build_py': BuildWithPly, 'test': PyTest})

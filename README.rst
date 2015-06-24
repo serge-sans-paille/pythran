@@ -75,6 +75,8 @@ Using `yaourt`::
 
     $> yaourt -S python2-pythran-git
 
+
+
 Other Platform
 ==============
 

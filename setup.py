@@ -2,6 +2,7 @@ from __future__ import print_function
 from distutils.command.build import build
 from distutils.command.install import install
 from setuptools import setup, Command
+from setuptools.command.test import test as TestCommand
 from subprocess import check_call, check_output
 from urllib2 import urlopen
 from zipfile import ZipFile
@@ -19,17 +20,24 @@ logger.addHandler(logging.StreamHandler())
 
 execfile(os.path.join('pythran', 'version.py'))
 
+class PyTest(TestCommand):
+    user_options = [('pytest-args=', 'a', "Arguments to pass to py.test")]
 
-def _exclude_current_dir_from_import():
-    """ Prevents Python loading from current directory, so that
-    `import pythran` lookup the PYTHONPATH.
+    def initialize_options(self):
+        TestCommand.initialize_options(self)
+        self.pytest_args = []
 
-    Returns current_dir
+    def finalize_options(self):
+        TestCommand.finalize_options(self)
+        self.test_args = []
+        self.test_suite = True
 
-    """
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    sys.path = filter(lambda p: p != current_dir, sys.path)
-    return current_dir
+    def run_tests(self):
+        #import here, cause outside the eggs aren't loaded
+        import pytest
+        sys.path.append(os.getcwd())
+        errno = pytest.main(self.pytest_args)
+        sys.exit(errno)
 
 
 class BuildWithPly(build):
@@ -179,5 +187,7 @@ setup(name='pythran',
           'decorator',
       ],
       entry_points={'console_scripts': ['pythran = pythran:run', ],},
-      cmdclass={'build': BuildWithPly}
+      tests_require=['pytest'],
+      test_suite="pythran/test",
+      cmdclass={'build': BuildWithPly, 'test': PyTest}
       )

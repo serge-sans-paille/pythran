@@ -139,7 +139,7 @@ def run():
         else:  # assume we have a .py input file here
 
             pythran.compile_pythranfile(args.input_file,
-                                        module_so=args.output_file,
+                                        output_file=args.output_file,
                                         cpponly=args.translate_only,
                                         **compile_flags(args))
 

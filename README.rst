@@ -89,8 +89,9 @@ Using WinPython (http://winpython.github.io), installed in ``E:\WinPython-32bit-
         cd boost_1_58
         .\bootstrap.bat
         .\b2 toolset=gcc link=shared --with-python
-        copy boost E:\WinPython-32bit-2.7.9.5\include\boost
-        copy stage\lib E:\WinPython-32bit-2.7.9.5\python-2.7.9
+        xcopy /E boost E:\WinPython-32bit-2.7.9.5\python-2.7.9\include\
+        copy stage\lib E:\WinPython-32bit-2.7.9.5\python-2.7.9\libs
+        copy stage\lib E:\WinPython-32bit-2.7.9.5\python-2.7.9\DLLs
 
 Then ``cd`` to the Pythran source, and run::
 

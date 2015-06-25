@@ -63,6 +63,7 @@ def compile_flags(args):
 
     return compiler_options
 
+
 def run():
     parser = argparse.ArgumentParser(prog='pythran',
                                      description='pythran: a python to C++ '
@@ -71,8 +72,8 @@ def run():
                                      fromfile_prefix_chars="@")
 
     parser.add_argument('input_file', type=str,
-                        help='the pythran module to compile, either a .py or a '
-                        '.cpp file')
+                        help='the pythran module to compile, '
+                             'either a .py or a .cpp file')
 
     parser.add_argument('-o', dest='output_file', type=str,
                         help='path to generated file')
@@ -81,7 +82,8 @@ def run():
                         help='only run the translator, do not compile')
 
     parser.add_argument('-e', dest='raw_translate_only', action='store_true',
-                        help='similar to -E, but does not generate python glue')
+                        help='similar to -E, '
+                             'but does not generate python glue')
 
     parser.add_argument('-v', dest='verbose', action='store_true',
                         help='be verbose')
@@ -105,8 +107,8 @@ def run():
 
     parser.add_argument('-D', dest='defines', metavar='macro_definition',
                         action='append',
-                        help='any macro definition relevant to the underlying C++ '
-                        'compiler',
+                        help='any macro definition relevant to '
+                             'the underlying C++ compiler',
                         default=list())
 
     parser.convert_arg_line_to_args = convert_arg_line_to_args
@@ -121,17 +123,20 @@ def run():
 
     try:
         if not os.path.exists(args.input_file):
-            raise ValueError("input file `{0}' not found".format(args.input_file))
+            raise ValueError("input file `{0}' not found".format(
+                args.input_file))
 
         module_name, ext = os.path.splitext(os.path.basename(args.input_file))
 
-        if ext not in ['.cpp', '.py']:  # FIXME: do we support other ext than .cpp?
+        # FIXME: do we want to support other ext than .cpp?
+        if ext not in ['.cpp', '.py']:
             raise SyntaxError("Unsupported file extension: '{0}'".format(ext))
 
         if ext == '.cpp':
             if args.translate_only:
-                raise ValueError("Do you really ask for Python-to-C++ on this C++ "
-                                 "input file: '{0}'?".format(args.input_file))
+                raise ValueError("Do you really ask for Python-to-C++ "
+                                 "on this C++ input file: '{0}'?".format(
+                                     args.input_file))
             pythran.compile_cxxfile(module_name,
                                     args.input_file, args.output_file,
                                     **compile_flags(args))
@@ -142,7 +147,6 @@ def run():
                                         output_file=args.output_file,
                                         cpponly=args.translate_only,
                                         **compile_flags(args))
-
 
     except IOError as e:
         logger.critical("I've got a bad feeling about this...\n"
@@ -172,3 +176,6 @@ def run():
                         "to provide all what we need\n"
                         "E: " + str(e))
         sys.exit(1)
+
+if __name__ == '__main__':
+    run()

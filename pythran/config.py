@@ -58,7 +58,7 @@ def make_extension(**extra):
 
     extension['define_macros'].append('ENABLE_PYTHON_MODULE')
 
-    here = os.path.dirname(os.path.dirname(__file__))
+    here = os.path.dirname(os.path.dirname(__file__)) or '.'
     # using / as separator as advised in the distutils doc
     extension["include_dirs"].append(here + '/pythran')
     for k, w in extra.items():

@@ -20,6 +20,7 @@ logger.addHandler(logging.StreamHandler())
 
 execfile(os.path.join('pythran', 'version.py'))
 
+
 class PyTest(TestCommand):
     user_options = [('pytest-args=', 'a', "Arguments to pass to py.test")]
 
@@ -33,7 +34,7 @@ class PyTest(TestCommand):
         self.test_suite = True
 
     def run_tests(self):
-        #import here, cause outside the eggs aren't loaded
+        # import here, cause outside the eggs aren't loaded
         import pytest
         sys.path.append(os.getcwd())
         errno = pytest.main(self.pytest_args)
@@ -186,7 +187,7 @@ setup(name='pythran',
           'colorlog',
           'decorator',
       ],
-      entry_points={'console_scripts': ['pythran = pythran:run', ],},
+      entry_points={'console_scripts': ['pythran = pythran.run:run', ], },
       tests_require=['pytest'],
       test_suite="pythran/test",
       cmdclass={'build': BuildWithPly, 'test': PyTest}

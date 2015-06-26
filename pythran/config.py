@@ -7,7 +7,7 @@ import numpy.distutils.system_info as numpy_sys
 import os
 import sys
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('pythran')
 
 
 def init_cfg(sys_file, platform_file, user_file):

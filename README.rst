@@ -96,7 +96,6 @@ Using WinPython (http://winpython.github.io), installed in ``E:\WinPython-32bit-
 Then ``cd`` to the Pythran source, and run::
 
     set BOOST_ROOT=E:\boost_1_58
-    pip install -r requirements.txt
     python setup.py install
 
 

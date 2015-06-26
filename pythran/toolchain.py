@@ -34,7 +34,7 @@ import sys
 import sysconfig
 import glob
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('pythran')
 
 
 # hook taken from numpy.distutils.compiler

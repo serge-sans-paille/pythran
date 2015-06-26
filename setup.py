@@ -26,7 +26,7 @@ class PyTest(TestCommand):
 
     def initialize_options(self):
         TestCommand.initialize_options(self)
-        self.pytest_args = []
+        self.pytest_args = ['--pep8']
 
     def finalize_options(self):
         TestCommand.finalize_options(self)
@@ -188,7 +188,7 @@ setup(name='pythran',
           'decorator',
       ],
       entry_points={'console_scripts': ['pythran = pythran.run:run', ], },
-      tests_require=['pytest'],
+      tests_require=['pytest', 'pytest-pep8'],
       test_suite="pythran/test",
       cmdclass={'build': BuildWithPly, 'test': PyTest}
       )

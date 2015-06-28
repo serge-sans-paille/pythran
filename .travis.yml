@@ -60,6 +60,7 @@ env:
     #  'TESTCASE=pythran/tests/test_numpy_func1.py',
     #  'TESTCASE=pythran/tests/test_numpy_func2.py',
     #  'TESTCASE=pythran/tests/test_numpy_func3.py',
+    #  'TESTCASE=pythran/tests/test_numpy_random.py',
     #  'TESTCASE=pythran/tests/test_numpy_ufunc_unary.py',
     #  'TESTCASE=pythran/tests/test_numpy_ufunc_binary.py',
     #  'TESTCASE=pythran/tests/test_openmp.py',
@@ -198,6 +199,10 @@ env:
   - PEP8=false TESTCASE=pythran/tests/test_numpy_func3.py CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS="-DUSE_BOOST_SIMD -march=native"
   - PEP8=false TESTCASE=pythran/tests/test_numpy_func3.py CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS="-fopenmp"
   - PEP8=false TESTCASE=pythran/tests/test_numpy_func3.py CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS="-DUSE_BOOST_SIMD -march=native -fopenmp"
+  - PEP8=false TESTCASE=pythran/tests/test_numpy_random.py CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS="-g"
+  - PEP8=false TESTCASE=pythran/tests/test_numpy_random.py CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS="-DUSE_BOOST_SIMD -march=native"
+  - PEP8=false TESTCASE=pythran/tests/test_numpy_random.py CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS="-fopenmp"
+  - PEP8=false TESTCASE=pythran/tests/test_numpy_random.py CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS="-DUSE_BOOST_SIMD -march=native -fopenmp"
   - PEP8=false TESTCASE=pythran/tests/test_numpy_ufunc_unary.py CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS="-g"
   - PEP8=false TESTCASE=pythran/tests/test_numpy_ufunc_unary.py CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS="-DUSE_BOOST_SIMD -march=native"
   - PEP8=false TESTCASE=pythran/tests/test_numpy_ufunc_unary.py CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS="-fopenmp"

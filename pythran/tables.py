@@ -554,6 +554,8 @@ MODULES = {
         "random": {
             "random": FunctionIntr(args=('size',),
                                    global_effects=True),
+            "binomial": FunctionIntr(args=('n', 'p', 'size'),
+                                     global_effects=True),
         },
         "rank": ConstFunctionIntr(),
         "ravel": ConstFunctionIntr(),

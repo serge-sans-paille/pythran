@@ -4,7 +4,7 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/numpy_expr.hpp"
 
-#include <random>
+#include "pythonic/include/numpy/random/generator.hpp"
 
 namespace pythonic
 {
@@ -12,12 +12,6 @@ namespace pythonic
   {
     namespace random
     {
-
-      namespace details
-      {
-        std::default_random_engine generator;
-      }
-
       template <size_t N>
       types::ndarray<double, N> random(types::array<long, N> const &shape);
 

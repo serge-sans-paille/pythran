@@ -1,7 +1,6 @@
 from __future__ import print_function
-from distutils.command.build import build
-from distutils.command.install import install
-from setuptools import setup, Command
+from setuptools.command.build_py import build_py
+from setuptools import setup
 from setuptools.command.test import test as TestCommand
 from subprocess import check_call, check_output
 from urllib2 import urlopen
@@ -13,7 +12,6 @@ import os
 import re
 import shutil
 import sys
-import time
 
 logger = logging.getLogger("pythran")
 logger.addHandler(logging.StreamHandler())
@@ -41,7 +39,7 @@ class PyTest(TestCommand):
         sys.exit(errno)
 
 
-class BuildWithPly(build):
+class BuildWithPly(build_py):
 
     """
     Set up Pythran dependencies.
@@ -90,7 +88,8 @@ class BuildWithPly(build):
         nt2_dir = 'nt2'
         nt2_version = '1.2.3-pythran'  # fake!
         cwd = os.getcwd()
-        nt2_src_dir = os.path.join(cwd, self.build_temp, nt2_dir + '_src')
+        build_temp = os.path.join(os.path.dirname(__file__), "build")
+        nt2_src_dir = os.path.join(cwd, build_temp, nt2_dir + '_src')
         if not os.path.isdir(nt2_src_dir):
             print('nt2 archive needed, downloading it')
             url = 'https://github.com/pbrunet/nt2/archive/gemv_release.zip'
@@ -98,13 +97,13 @@ class BuildWithPly(build):
             http_code_prefix = location.getcode() / 100
             assert http_code_prefix not in [4, 5], "Failed to download nt2."
             zipfile = ZipFile(StringIO(location.read()))
-            zipfile.extractall(self.build_temp)
+            zipfile.extractall(build_temp)
             extracted = os.path.dirname(zipfile.namelist()[0])
-            shutil.move(os.path.join(self.build_temp, extracted), nt2_src_dir)
+            shutil.move(os.path.join(build_temp, extracted), nt2_src_dir)
             self.patch_nt2(nt2_src_dir, nt2_version)
             assert os.path.isdir(nt2_src_dir), "download & unzip ok"
 
-        nt2_build_dir = os.path.join(self.build_temp, nt2_dir)
+        nt2_build_dir = os.path.join(build_temp, nt2_dir)
         if not os.path.isdir(nt2_build_dir):
             os.makedirs(nt2_build_dir)
 
@@ -144,7 +143,7 @@ class BuildWithPly(build):
 
     def run(self, *args, **kwargs):
         # regular build done by parent class
-        build.run(self, *args, **kwargs)
+        build_py.run(self, *args, **kwargs)
         if not self.dry_run:  # compatibility with the parent options
             self.build_nt2()
             self.build_ply()
@@ -190,5 +189,5 @@ setup(name='pythran',
       entry_points={'console_scripts': ['pythran = pythran.run:run', ], },
       tests_require=['pytest', 'pytest-pep8'],
       test_suite="pythran/test",
-      cmdclass={'build': BuildWithPly, 'test': PyTest}
+      cmdclass={'build_py': BuildWithPly, 'test': PyTest}
       )

@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_OPERATOR_CONTAINS_HPP
 
 #include "pythonic/utils/proxy.hpp"
-#include "pythonic/__builtin__/in.hpp"
+#include "pythonic/builtins/in.hpp"
 
 namespace pythonic
 {

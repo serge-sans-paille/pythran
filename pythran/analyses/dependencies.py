@@ -7,6 +7,7 @@ from pythran.tables import MODULES
 
 import ast
 import math
+import sys
 
 
 class Dependencies(ModuleAnalysis):
@@ -15,41 +16,41 @@ class Dependencies(ModuleAnalysis):
         super(Dependencies, self).__init__()
 
     def visit_List(self, node):
-        self.result.add(('__builtin__', 'list'))
+        self.result.add(('builtins', 'list'))
         self.generic_visit(node)
 
     def visit_Tuple(self, node):
-        self.result.add(('__builtin__', 'tuple'))
+        self.result.add(('builtins', 'tuple'))
         self.generic_visit(node)
 
     def visit_Set(self, node):
-        self.result.add(('__builtin__', 'set'))
+        self.result.add(('builtins', 'set'))
         self.generic_visit(node)
 
     def visit_Dict(self, node):
-        self.result.add(('__builtin__', 'dict'))
+        self.result.add(('builtins', 'dict'))
         self.generic_visit(node)
 
     def visit_Str(self, node):
-        self.result.add(('__builtin__', 'str'))
+        self.result.add(('builtins', 'str'))
         self.generic_visit(node)
 
     def visit_Pow(self, node):
-        self.result.add(('__builtin__', 'pow'))
+        self.result.add(('builtins', 'pow'))
         self.generic_visit(node)
 
     def visit_In(self, node):
-        self.result.add(('__builtin__', 'in'))
+        self.result.add(('builtins', 'in'))
         self.generic_visit(node)
 
     visit_NotIn = visit_In
 
     def visit_Is(self, node):
-        self.result.add(('__builtin__', 'id'))
+        self.result.add(('builtins', 'id'))
         self.generic_visit(node)
 
     def visit_IfExp(self, node):
-        self.result.add(('__builtin__', 'bool_'))
+        self.result.add(('builtins', 'bool_'))
         self.generic_visit(node)
 
     visit_And = visit_Or = visit_IfExp
@@ -57,11 +58,11 @@ class Dependencies(ModuleAnalysis):
     visit_IsNot = visit_Is
 
     def visit_Print(self, node):
-        self.result.add(('__builtin__', 'print'))
+        self.result.add(('builtins', 'print'))
         self.generic_visit(node)
 
     def visit_Assert(self, node):
-        self.result.add(('__builtin__', 'assert'))
+        self.result.add(('builtins', 'assert'))
         self.generic_visit(node)
 
     def visit_Yield(self, node):
@@ -77,7 +78,7 @@ class Dependencies(ModuleAnalysis):
     def visit_Num(self, node):
         if type(node.n) is complex:
             self.result.add(('types', 'complex'))
-        elif type(node.n) is long:
+        elif sys.version_info[0] < 3 and type(node.n) is long:
             self.result.add(('types', 'long'))
         elif math.isnan(node.n):
             self.result.add(('numpy', 'nan'))
@@ -94,4 +95,5 @@ class Dependencies(ModuleAnalysis):
                 return rec(w, n.value) + (n.attr,)
         attr = rec(MODULES, node)
 
-        attr and self.result.add(attr)
+        if attr:
+            self.result.add(attr)

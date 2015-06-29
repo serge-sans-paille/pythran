@@ -8,6 +8,7 @@ import pythran.intrinsic as intrinsic
 
 import ast
 import networkx as nx
+from functools import reduce
 
 
 class GlobalEffects(ModuleAnalysis):
@@ -28,7 +29,7 @@ class GlobalEffects(ModuleAnalysis):
             elif isinstance(node, intrinsic.Class):
                 self.global_effect = False
             else:
-                print type(node), node
+                print(type(node), node)
                 raise NotImplementedError
 
     def __init__(self):
@@ -47,7 +48,7 @@ class GlobalEffects(ModuleAnalysis):
 
         def register_node(module):
             """ Recursively save globals effect for all functions. """
-            for v in module.itervalues():
+            for v in module.values():
                 if isinstance(v, dict):  # Submodule case
                     register_node(v)
                 else:
@@ -58,7 +59,7 @@ class GlobalEffects(ModuleAnalysis):
                         register_node(v.fields)
 
         register_node(self.global_declarations)
-        for module in MODULES.itervalues():
+        for module in MODULES.values():
             register_node(module)
 
     def run(self, node, ctx):

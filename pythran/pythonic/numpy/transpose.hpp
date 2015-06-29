@@ -8,7 +8,7 @@
 #include "pythonic/utils/nested_container.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/numpy_type.hpp"
-#include "pythonic/__builtin__/ValueError.hpp"
+#include "pythonic/builtins/ValueError.hpp"
 
 namespace pythonic
 {
@@ -32,7 +32,7 @@ namespace pythonic
       for (unsigned long i = 0; i < N; ++i)
         shp[i] = shape[l[i]];
 
-      types::ndarray<T, N> new_array(shp, __builtin__::None);
+      types::ndarray<T, N> new_array(shp, builtins::None);
 
       types::array<long, N> new_strides;
       new_strides[N - 1] = 1;

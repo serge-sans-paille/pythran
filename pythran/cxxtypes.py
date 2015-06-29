@@ -25,7 +25,7 @@ class Type(object):
     one attribute per key with the associated value
     """
     def __init__(self, **kwargs):
-        for k, v in kwargs.iteritems():
+        for k, v in kwargs.items():
             setattr(self, k, v)
         self.qualifiers = self.qualifiers.copy()  # avoid sharing
         self.fields = tuple(sorted(kwargs.keys()))
@@ -307,7 +307,7 @@ typename std::remove_reference<str>::type::iterator>::value_type>::type
     def generate(self, ctx):
         # special hook to avoid delegating this trivial computation to c++
         if type(self.of) is ReturnType and type(self.of.ftype) is DeclType:
-            if self.of.ftype.repr == '__builtin__::proxy::xrange()':
+            if self.of.ftype.repr == 'builtins::proxy::xrange()':
                 return ctx(NamedType('long')).generate(ctx)
         iterator_value_type = ctx(self.of).generate(ctx)
         return 'typename std::remove_cv<{0}>::type'.format(
@@ -323,7 +323,7 @@ class GetAttr(Type):
     Type of a named attribute
 
     >>> GetAttr(NamedType('complex'), 'real')
-    decltype(pythonic::__builtin__::getattr<pythonic::types::attr::REAL>\
+    decltype(pythonic::builtins::getattr<pythonic::types::attr::REAL>\
 (std::declval<complex>()))
     '''
     def __init__(self, param, attr):
@@ -333,7 +333,7 @@ class GetAttr(Type):
             attr=attr)
 
     def generate(self, ctx):
-        return ('decltype(pythonic::__builtin__::getattr<{}>({}))'
+        return ('decltype(pythonic::builtins::getattr<{}>({}))'
                 .format('pythonic::types::attr::' + self.attr.upper(),
                         'std::declval<' + self.param.generate(ctx) + '>()'))
 

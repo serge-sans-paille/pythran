@@ -24,7 +24,7 @@ class Reorder(Transformation):
         super(Reorder, self).prepare(node, ctx)
         none_successors = self.type_dependencies.successors(
             TypeDependencies.NoDeps)
-        candidates = sorted(none_successors)
+        candidates = none_successors
         # We first select function which may have a result without calling any
         # others functions.
         # Then we check if no loops type dependencies exists. If it exists, we

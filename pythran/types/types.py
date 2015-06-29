@@ -19,6 +19,7 @@ from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE, pytype_to_ctype
 from pythran.types.reorder import Reorder
 
 from collections import defaultdict
+from functools import reduce
 from numpy import ndarray
 import ast
 import operator
@@ -73,7 +74,7 @@ class Types(ModuleAnalysis):
 
         def register(name, module):
             """ Recursively save function typing and combiners for Pythonic."""
-            for fname, function in module.iteritems():
+            for fname, function in module.items():
                 if isinstance(function, dict):
                     register(name + "::" + fname, function)
                 else:
@@ -83,14 +84,14 @@ class Types(ModuleAnalysis):
                     if isinstance(function, Class):
                         register(name + "::" + fname, function.fields)
 
-        for mname, module in MODULES.iteritems():
+        for mname, module in MODULES.items():
             register(mname, module)
         super(Types, self).prepare(node, ctx)
 
     def run(self, node, ctx):
         super(Types, self).run(node, ctx)
         final_types = self.result.copy()
-        for head in self.current_global_declarations.itervalues():
+        for head in self.current_global_declarations.values():
             if head not in final_types:
                 final_types[head] = "void"
         return final_types
@@ -252,7 +253,7 @@ class Types(ModuleAnalysis):
             self.generic_visit(node)
 
         # propagate type information through all aliases
-        for name, nodes in self.name_to_nodes.iteritems():
+        for name, nodes in self.name_to_nodes.items():
             final_node = ast.Name("__fake__" + name, ast.Load())
             for n in nodes:
                 self.combine(final_node, n)
@@ -323,8 +324,10 @@ class Types(ModuleAnalysis):
         self.visit(node.iter)
         self.combine(node.target, node.iter, unary_op=IteratorContentType,
                      aliasing_type=True, register=True)
-        node.body and map(self.visit, node.body)
-        node.orelse and map(self.visit, node.orelse)
+        for s in node.body:
+            self.visit(s)
+        for s in node.orelse:
+            self.visit(s)
 
     def visit_BoolOp(self, node):
         """
@@ -553,7 +556,8 @@ class Types(ModuleAnalysis):
                 self.result[node.type] = tname
                 self.combine(node.name, node.type, aliasing_type=True,
                              register=True)
-        map(self.visit, node.body)
+        for s in node.body:
+            self.visit(s)
 
     def visit_Tuple(self, node):
         self.generic_visit(node)
@@ -570,4 +574,5 @@ class Types(ModuleAnalysis):
     def visit_arguments(self, node):
         for i, arg in enumerate(node.args):
             self.result[arg] = ArgumentType(i)
-        map(self.visit, node.defaults)
+        for d in node.defaults:
+            self.visit(d)

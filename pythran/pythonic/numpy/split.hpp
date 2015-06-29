@@ -4,7 +4,7 @@
 #include "pythonic/include/numpy/split.hpp"
 
 #include "pythonic/numpy/array_split.hpp"
-#include "pythonic/__builtin__/ValueError.hpp"
+#include "pythonic/builtins/ValueError.hpp"
 
 namespace pythonic
 {

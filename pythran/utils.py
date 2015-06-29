@@ -1,6 +1,7 @@
 """ Common function use for AST manipulation. """
 
 import ast
+from functools import reduce
 
 
 def path_to_attr(path):
@@ -8,10 +9,10 @@ def path_to_attr(path):
     Transform path to ast.Attribute.
 
     >>> import ast
-    >>> path = ('__builtin__', 'my', 'constant')
+    >>> path = ('builtins', 'my', 'constant')
     >>> value = path_to_attr(path)
     >>> ref = ast.Attribute(
-    ...     value=ast.Attribute(value=ast.Name(id="__builtin__",
+    ...     value=ast.Attribute(value=ast.Name(id="builtins",
     ...                                        ctx=ast.Load()),
     ...                         attr="my", ctx=ast.Load()),
     ...     attr="constant", ctx=ast.Load())

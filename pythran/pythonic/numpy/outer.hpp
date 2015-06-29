@@ -5,7 +5,7 @@
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
-#include "pythonic/__builtin__/None.hpp"
+#include "pythonic/builtins/None.hpp"
 #include "pythonic/numpy/asarray.hpp"
 
 namespace pythonic
@@ -19,7 +19,7 @@ namespace pythonic
     {
       types::ndarray<decltype(std::declval<T0>() + std::declval<T1>()), 2> out(
           types::array<long, 2>{{a.flat_size(), b.flat_size()}},
-          __builtin__::None);
+          builtins::None);
       auto iter = out.fbegin();
       for (auto iter_a = a.fbegin(), end_a = a.fend(); iter_a != end_a;
            ++iter_a) {

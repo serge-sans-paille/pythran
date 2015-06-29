@@ -4,7 +4,7 @@
 #include "pythonic/types/str.hpp"
 #include "pythonic/types/list.hpp"
 #include "pythonic/types/attr.hpp"
-#include "pythonic/__builtin__/str.hpp"
+#include "pythonic/builtins/str.hpp"
 
 #include <stdexcept>
 
@@ -112,7 +112,7 @@ namespace pythonic
   template <typename... Types>                                                 \
   types::name name(Types... args);                                             \
                                                                                \
-  PROXY_DECL(pythonic::__builtin__, name);
+  PROXY_DECL(pythonic::builtins, name);
 
 /* pythran attribute system { */
 #define DECLARE_EXCEPTION_GETATTR(name)                                        \
@@ -131,7 +131,7 @@ namespace pythonic
         };                                                                     \
       }                                                                        \
     }                                                                          \
-    namespace __builtin__                                                      \
+    namespace builtins                                                         \
     {                                                                          \
       template <int I>                                                         \
       auto getattr(types::name const &f)                                       \
@@ -167,7 +167,7 @@ namespace pythonic
         };                                                                     \
       }                                                                        \
     }                                                                          \
-    namespace __builtin__                                                      \
+    namespace builtins                                                         \
     {                                                                          \
       template <int I>                                                         \
       auto getattr(types::name const &f)                                       \

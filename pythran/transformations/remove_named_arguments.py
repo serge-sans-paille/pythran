@@ -82,7 +82,7 @@ class RemoveNamedArguments(Transformation):
                 # candidate, or nothing structural typing issues would have
                 # raised an exception in handle_keywords
                 if replacements:
-                    for index, value in replacements.iteritems():
+                    for index, value in replacements.items():
                         node.args[index] = value
                     node.keywords = []
 

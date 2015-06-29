@@ -19,8 +19,8 @@ class ExtractTopLevelStmts(Transformation):
                 module_body.append(stmt)
             else:
                 init_body.append(stmt)
-        init = ast.FunctionDef('__init__',
-                               ast.arguments([], None, None, []),
+        init = ast.make_FunctionDef('__init__',
+                               ast.make_arguments([], None, None, []),
                                init_body,
                                [])
         module_body.append(init)

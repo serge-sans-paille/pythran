@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_NUMPY_EYE_HPP
 
 #include "pythonic/numpy/zeros.hpp"
-#include "pythonic/__builtin__/None.hpp"
+#include "pythonic/builtins/None.hpp"
 
 namespace pythonic
 {
@@ -16,7 +16,7 @@ namespace pythonic
 
     template <class dtype = double>
     types::ndarray<typename types::numpy_type<dtype>::type, 2>
-    eye(long N, types::none_type M = __builtin__::None, long k = 0,
+    eye(long N, types::none_type M = builtins::None, long k = 0,
         dtype d = dtype());
 
     PROXY_DECL(pythonic::numpy, eye);

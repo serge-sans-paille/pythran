@@ -5,6 +5,7 @@ from pythran.analyses import ImportedIds
 from pythran.passmanager import Transformation
 
 import ast
+from functools import reduce
 
 
 class RemoveComprehension(Transformation):
@@ -19,9 +20,9 @@ class RemoveComprehension(Transformation):
     >>> print pm.dump(backend.Python, node)
     list_comprehension0()
     def list_comprehension0():
-        __target = __builtin__.list()
+        __target = builtins.list()
         for x in (1, 2, 3):
-            __builtin__.list.append(__target, (x * x))
+            builtins.list.append(__target, (x * x))
         return __target
     """
 
@@ -99,7 +100,7 @@ class RemoveComprehension(Transformation):
             [ast.Name(starget, ast.Store())],
             ast.Call(
                 ast.Attribute(
-                    ast.Name('__builtin__', ast.Load()),
+                    ast.Name("builtins", ast.Load()),
                     comp_type,
                     ast.Load()
                     ),
@@ -122,10 +123,10 @@ class RemoveComprehension(Transformation):
 
     def visit_ListComp(self, node):
         return self.visit_AnyComp(node, "list",
-                                  "__builtin__", "list", "append")
+                                  "builtins", "list", "append")
 
     def visit_SetComp(self, node):
-        return self.visit_AnyComp(node, "set", "__builtin__", "set", "add")
+        return self.visit_AnyComp(node, "set", "builtins", "set", "add")
 
     def visit_DictComp(self, node):
         # this is a quickfix to match visit_AnyComp signature

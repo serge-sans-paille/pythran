@@ -1,0 +1,30 @@
+#ifndef PYTHONIC_BUILTIN_LONG_HPP
+#define PYTHONIC_BUILTIN_LONG_HPP
+
+#include "pythonic/include/builtins/long_.hpp"
+
+#include "pythonic/types/long.hpp"
+#include "pythonic/utils/proxy.hpp"
+
+namespace pythonic
+{
+
+  namespace builtins
+  {
+
+    template <class T>
+    pythran_long_t long_(T &&t)
+    {
+      return t;
+    }
+
+    pythran_long_t long_()
+    {
+      return 0;
+    }
+
+    PROXY_IMPL(pythonic::builtins, long_);
+  }
+}
+
+#endif

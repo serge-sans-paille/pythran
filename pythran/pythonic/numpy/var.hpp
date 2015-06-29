@@ -5,8 +5,8 @@
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
-#include "pythonic/__builtin__/None.hpp"
-#include "pythonic/__builtin__/ValueError.hpp"
+#include "pythonic/builtins/None.hpp"
+#include "pythonic/builtins/ValueError.hpp"
 #include "pythonic/numpy/add.hpp"
 #include "pythonic/numpy/mean.hpp"
 #include "pythonic/numpy/reshape.hpp"
@@ -67,7 +67,7 @@ namespace pythonic
         shp[axis] = 1;
         auto mp = m.reshape(shp);
 
-        typename assignable<E>::type t{expr_shape, __builtin__::None};
+        typename assignable<E>::type t{expr_shape, builtins::None};
         _enlarge_copy_minus(t, expr, mp, axis, utils::int_<E::value>());
         return sum(t * t, axis) /= var_type<E>(expr_shape[axis] - ddof);
       }

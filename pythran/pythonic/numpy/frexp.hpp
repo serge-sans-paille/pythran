@@ -49,9 +49,9 @@ namespace pythonic
     {
       auto &&arr_shape = arr.shape();
       typename types::numpy_expr_to_ndarray<E>::type significands(
-          arr_shape, __builtin__::None);
+          arr_shape, builtins::None);
       types::ndarray<int, types::numpy_expr_to_ndarray<E>::N> exps(
-          arr_shape, __builtin__::None);
+          arr_shape, builtins::None);
       _frexp(arr.begin(), arr.end(), significands.begin(), exps.begin(),
              utils::int_<E::value>());
       return std::make_tuple(significands, exps);

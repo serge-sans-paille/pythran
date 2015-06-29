@@ -3,7 +3,7 @@
 
 #include "pythonic/include/types/generator.hpp"
 
-#include "pythonic/__builtin__/StopIteration.hpp"
+#include "pythonic/builtins/StopIteration.hpp"
 #include <iterator>
 
 namespace pythonic

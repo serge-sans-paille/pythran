@@ -17,7 +17,7 @@ namespace pythonic
                                 long new_shape)
     {
       types::ndarray<T, 1> out(types::array<long, N>{{new_shape}},
-                               __builtin__::None);
+                               builtins::None);
       auto n = expr.flat_size();
       if (n < new_shape) {
         auto iter = std::copy(expr.fbegin(), expr.fend(), out.fbegin());
@@ -42,7 +42,7 @@ namespace pythonic
                                                std::multiplies<long>());
         return resize(expr, auto_shape);
       }
-      types::ndarray<T, M> out(new_shape, __builtin__::None);
+      types::ndarray<T, M> out(new_shape, builtins::None);
       auto nshape = out.flat_size();
       auto n = expr.flat_size();
       if (n < nshape) {

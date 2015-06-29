@@ -47,15 +47,15 @@ cxx_keywords = {
 
 operator_to_lambda = {
     # boolop
-    ast.And: "(pythonic::__builtin__::bool_({0})?({1}):({0}))".format,
-    ast.Or: "(pythonic::__builtin__::bool_({0})?({0}):({1}))".format,
+    ast.And: "(pythonic::builtins::bool_({0})?({1}):({0}))".format,
+    ast.Or: "(pythonic::builtins::bool_({0})?({0}):({1}))".format,
     # operator
     ast.Add: "({0} + {1})".format,
     ast.Sub: "({0} - {1})".format,
     ast.Mult: "({0} * {1})".format,
     ast.Div: "({0} / {1})".format,
     ast.Mod: "(pythonic::operator_::mod({0}, {1}))".format,
-    ast.Pow: "(pythonic::__builtin__::pow({0}, {1}))".format,
+    ast.Pow: "(pythonic::builtins::pow({0}, {1}))".format,
     ast.LShift: "({0} << {1})".format,
     ast.RShift: "({0} >> {1})".format,
     ast.BitOr: "({0} | {1})".format,
@@ -75,10 +75,10 @@ operator_to_lambda = {
     ast.LtE: "({0} <= {1})".format,
     ast.Gt: "({0} > {1})".format,
     ast.GtE: "({0} >= {1})".format,
-    ast.Is: ("(pythonic::__builtin__::id({0}) == "
-             "pythonic::__builtin__::id({1}))").format,
-    ast.IsNot: ("(pythonic::__builtin__::id({0}) != "
-                "pythonic::__builtin__::id({1}))").format,
+    ast.Is: ("(pythonic::builtins::id({0}) == "
+             "pythonic::builtins::id({1}))").format,
+    ast.IsNot: ("(pythonic::builtins::id({0}) != "
+                "pythonic::builtins::id({1}))").format,
     ast.In: "(pythonic::in({1}, {0}))".format,
     ast.NotIn: "(not pythonic::in({1}, {0}))".format,
 }
@@ -269,7 +269,7 @@ CLASSES = {
 
 # each module consist in a module_name <> set of symbols
 MODULES = {
-    "__builtin__": {
+    "builtins": {
         "pythran": {
             "len_set": ConstFunctionIntr()
         },
@@ -280,7 +280,6 @@ MODULES = {
         "GeneratorExit": ConstExceptionIntr(),
         "Exception": ExceptionClass(CLASSES["Exception"]),
         "StopIteration": ConstExceptionIntr(),
-        "StandardError": ConstExceptionIntr(),
         "Warning": ConstExceptionIntr(),
         "BytesWarning": ConstExceptionIntr(),
         "UnicodeWarning": ConstExceptionIntr(),
@@ -327,12 +326,10 @@ MODULES = {
         "bin": ConstFunctionIntr(),
         "bool_": ConstFunctionIntr(return_range=prange.bool_values),
         "chr": ConstFunctionIntr(),
-        "cmp": ConstFunctionIntr(return_range=prange.cmp_values),
         "complex": ClassWithConstConstructor(CLASSES['complex']),
         "dict": ClassWithReadOnceConstructor(CLASSES['dict']),
         "divmod": ConstFunctionIntr(),
         "enumerate": ReadOnceFunctionIntr(),
-        "file": ClassWithConstConstructor(CLASSES['file']),
         "filter": ReadOnceFunctionIntr(),
         "float_": ClassWithConstConstructor(CLASSES['float']),
         "getattr": ConstFunctionIntr(),
@@ -342,7 +339,6 @@ MODULES = {
         "iter": FunctionIntr(),  # not const
         "len": ConstFunctionIntr(return_range=prange.positive_values),
         "list": ClassWithReadOnceConstructor(CLASSES['list']),
-        "long_": ConstFunctionIntr(),
         "map": ReadOnceFunctionIntr(),
         "max": ReadOnceFunctionIntr(return_range=prange.max_values),
         "min": ReadOnceFunctionIntr(return_range=prange.min_values),
@@ -352,7 +348,6 @@ MODULES = {
         "open": ConstFunctionIntr(),
         "pow": ConstFunctionIntr(),
         "range": ConstFunctionIntr(return_range_content=prange.range_values),
-        "reduce": ReadOnceFunctionIntr(),
         "reversed": ReadOnceFunctionIntr(),
         "round": ConstFunctionIntr(),
         "set": ClassWithReadOnceConstructor(CLASSES['set']),
@@ -360,7 +355,6 @@ MODULES = {
         "str": ClassWithConstConstructor(CLASSES['str']),
         "sum": ReadOnceFunctionIntr(),
         "tuple": ReadOnceFunctionIntr(),
-        "xrange": ConstFunctionIntr(return_range_content=prange.range_values),
         "zip": ReadOnceFunctionIntr(),
         "False": ConstantIntr(return_range=lambda args: prange.Range(0, 0)),
         "None": ConstantIntr(),
@@ -662,6 +656,7 @@ MODULES = {
         },
     "functools": {
         "partial": FunctionIntr(),
+        "reduce": ReadOnceFunctionIntr(),
         },
     "bisect": {
         "bisect_left": ConstFunctionIntr(return_range=prange.positive_values),
@@ -680,11 +675,8 @@ MODULES = {
         },
     "itertools": {
         "count": ReadOnceFunctionIntr(),
-        "imap": ReadOnceFunctionIntr(),
-        "ifilter": ReadOnceFunctionIntr(),
         "islice": ReadOnceFunctionIntr(),
         "product": ConstFunctionIntr(),
-        "izip": ReadOnceFunctionIntr(),
         "combinations": ConstFunctionIntr(),
         "permutations": ConstFunctionIntr(),
         },
@@ -757,8 +749,6 @@ MODULES = {
         "__add__": ConstFunctionIntr(),
         "and_": ConstFunctionIntr(),
         "__and__": ConstFunctionIntr(),
-        "div": ConstFunctionIntr(),
-        "__div__": ConstFunctionIntr(),
         "floordiv": ConstFunctionIntr(),
         "__floordiv__": ConstFunctionIntr(),
         "inv": ConstFunctionIntr(),
@@ -792,8 +782,6 @@ MODULES = {
         "__iand__": MethodIntr(update_effects),
         "iconcat": MethodIntr(update_effects),
         "__iconcat__": MethodIntr(update_effects),
-        "idiv": MethodIntr(update_effects),
-        "__idiv__": MethodIntr(update_effects),
         "ifloordiv": MethodIntr(update_effects),
         "__ifloordiv__": MethodIntr(update_effects),
         "ilshift": MethodIntr(update_effects),
@@ -836,7 +824,6 @@ MODULES = {
         "ascii_uppercase": ConstantIntr(),
         "ascii_letters": ConstantIntr(),
         "digits": ConstantIntr(),
-        "find": ConstFunctionIntr(),
         "hexdigits": ConstantIntr(),
         "octdigits": ConstantIntr(),
         },
@@ -858,14 +845,34 @@ MODULES = {
         },
     }
 
+if sys.version_info[0] < 3:
+
+    sys.modules['builtins'] = sys.modules['__builtin__']
+
+    MODULES['builtins']['xrange'] = MODULES['builtins']['range']
+    MODULES['builtins']['range'] = ConstFunctionIntr(return_range_content=prange.range_values)
+    MODULES['builtins']["long_"] = ConstFunctionIntr()
+    MODULES['builtins']["reduce"] = MODULES['functools']['reduce']
+    MODULES['builtins']["file"] = ClassWithConstConstructor(CLASSES['file'])
+    MODULES['builtins']["StandardError"] = ConstExceptionIntr()
+    MODULES['builtins']["cmp"] = ConstFunctionIntr(return_range=prange.cmp_values)
+    MODULES['string']["find"] = ConstFunctionIntr()
+    MODULES['itertools']["ifilter"] = ReadOnceFunctionIntr()
+    MODULES['itertools']["izip"] = ReadOnceFunctionIntr()
+    MODULES['itertools']["imap"] = ReadOnceFunctionIntr()
+    MODULES['operator_']["div"] = ConstFunctionIntr()
+    MODULES['operator_']["__div__"] = ConstFunctionIntr()
+    MODULES['operator_']["idiv"] = MethodIntr(update_effects)
+    MODULES['operator_']["__idiv__"] = MethodIntr(update_effects)
+
 
 # VMSError is only available on VMS
-if 'VMSError' in sys.modules['__builtin__'].__dict__:
-    MODULES['__builtin__']['VMSError'] = ConstExceptionIntr()
+if 'VMSError' in sys.modules['builtins'].__dict__:
+    MODULES['builtins']['VMSError'] = ConstExceptionIntr()
 
 # WindowsError is only available on Windows
-if 'WindowsError' in sys.modules['__builtin__'].__dict__:
-    MODULES['__builtin__']['WindowsError'] = ConstExceptionIntr()
+if 'WindowsError' in sys.modules['builtins'].__dict__:
+    MODULES['builtins']['WindowsError'] = ConstExceptionIntr()
 
 # detect and prune unsupported modules
 try:
@@ -885,7 +892,7 @@ for method in MODULES['numpy'].keys():
 # populate argument description through introspection
 def save_arguments(module_name, elements):
     """ Recursively save arguments name and default value. """
-    for elem, signature in elements.iteritems():
+    for elem, signature in elements.items():
         if isinstance(signature, dict):  # Submodule case
             save_arguments(module_name + (elem,), signature)
         else:
@@ -898,7 +905,7 @@ def save_arguments(module_name, elements):
                 signature.args.args = [ast.Name(arg, ast.Param())
                                        for arg in spec.args]
                 if spec.defaults:
-                    signature.args.defaults = map(to_ast, spec.defaults)
+                    signature.args.defaults = [to_ast(d) for d in spec.defaults]
             except (AttributeError, ImportError, TypeError, ToNotEval):
                 pass
 
@@ -908,7 +915,7 @@ save_arguments((), MODULES)
 # Fill return_type field for constants
 def fill_constants_types(module_name, elements):
     """ Recursively save arguments name and default value. """
-    for elem, intrinsic in elements.iteritems():
+    for elem, intrinsic in elements.items():
         if isinstance(intrinsic, dict):  # Submodule case
             fill_constants_types(module_name + (elem,), intrinsic)
         elif isinstance(intrinsic, ConstantIntr):
@@ -924,7 +931,7 @@ methods = {}
 
 def save_method(elements, module_path):
     """ Recursively save methods with module name and signature. """
-    for elem, signature in elements.iteritems():
+    for elem, signature in elements.items():
         if isinstance(signature, dict):  # Submodule case
             save_method(signature, module_path + (elem,))
         elif isinstance(signature, Class):
@@ -948,7 +955,7 @@ functions = {}
 
 def save_function(elements, module_path):
     """ Recursively save functions with module name and signature. """
-    for elem, signature in elements.iteritems():
+    for elem, signature in elements.items():
         if isinstance(signature, dict):  # Submodule case
             save_function(signature, module_path + (elem,))
         elif signature.isstaticfunction():
@@ -965,7 +972,7 @@ attributes = {}
 
 def save_attribute(elements, module_path):
     """ Recursively save attributes with module name and signature. """
-    for elem, signature in elements.iteritems():
+    for elem, signature in elements.items():
         if isinstance(signature, dict):  # Submodule case
             save_attribute(signature, module_path + (elem,))
         elif signature.isattribute():

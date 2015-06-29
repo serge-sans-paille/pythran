@@ -54,24 +54,24 @@ namespace pythonic
 
     template <class E>
     auto numpy_texpr_2<E>::fast(long i) const
-        -> decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
-                                               pythonic::__builtin__::None),
+        -> decltype(this->arg(contiguous_slice(pythonic::builtins::None,
+                                               pythonic::builtins::None),
                               i))
     {
-      return arg(contiguous_slice(pythonic::__builtin__::None,
-                                  pythonic::__builtin__::None),
-                 i);
+      return arg(
+          contiguous_slice(pythonic::builtins::None, pythonic::builtins::None),
+          i);
     }
 
     template <class E>
     auto numpy_texpr_2<E>::fast(long i)
-        -> decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
-                                               pythonic::__builtin__::None),
+        -> decltype(this->arg(contiguous_slice(pythonic::builtins::None,
+                                               pythonic::builtins::None),
                               i))
     {
-      return arg(contiguous_slice(pythonic::__builtin__::None,
-                                  pythonic::__builtin__::None),
-                 i);
+      return arg(
+          contiguous_slice(pythonic::builtins::None, pythonic::builtins::None),
+          i);
     }
 
 #ifdef USE_BOOST_SIMD
@@ -129,46 +129,46 @@ namespace pythonic
 
     template <class E>
     auto numpy_texpr_2<E>::operator()(contiguous_slice const &s0) const
-        -> decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
-                                               pythonic::__builtin__::None),
+        -> decltype(this->arg(contiguous_slice(pythonic::builtins::None,
+                                               pythonic::builtins::None),
                               s0))
     {
-      return arg(contiguous_slice(pythonic::__builtin__::None,
-                                  pythonic::__builtin__::None),
-                 s0);
+      return arg(
+          contiguous_slice(pythonic::builtins::None, pythonic::builtins::None),
+          s0);
     }
 
     template <class E>
     auto numpy_texpr_2<E>::operator()(contiguous_slice const &s0)
-        -> decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
-                                               pythonic::__builtin__::None),
+        -> decltype(this->arg(contiguous_slice(pythonic::builtins::None,
+                                               pythonic::builtins::None),
                               s0))
     {
-      return arg(contiguous_slice(pythonic::__builtin__::None,
-                                  pythonic::__builtin__::None),
-                 s0);
+      return arg(
+          contiguous_slice(pythonic::builtins::None, pythonic::builtins::None),
+          s0);
     }
 
     template <class E>
     auto numpy_texpr_2<E>::operator()(slice const &s0) const
-        -> decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
-                                               pythonic::__builtin__::None),
+        -> decltype(this->arg(contiguous_slice(pythonic::builtins::None,
+                                               pythonic::builtins::None),
                               s0))
     {
-      return arg(contiguous_slice(pythonic::__builtin__::None,
-                                  pythonic::__builtin__::None),
-                 s0);
+      return arg(
+          contiguous_slice(pythonic::builtins::None, pythonic::builtins::None),
+          s0);
     }
 
     template <class E>
     auto numpy_texpr_2<E>::operator()(slice const &s0)
-        -> decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
-                                               pythonic::__builtin__::None),
+        -> decltype(this->arg(contiguous_slice(pythonic::builtins::None,
+                                               pythonic::builtins::None),
                               s0))
     {
-      return arg(contiguous_slice(pythonic::__builtin__::None,
-                                  pythonic::__builtin__::None),
-                 s0);
+      return arg(
+          contiguous_slice(pythonic::builtins::None, pythonic::builtins::None),
+          s0);
     }
 
     template <class E>

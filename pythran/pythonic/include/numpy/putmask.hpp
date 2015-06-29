@@ -4,7 +4,7 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/asarray.hpp"
-#include "pythonic/__builtin__/None.hpp"
+#include "pythonic/builtins/None.hpp"
 
 namespace pythonic
 {

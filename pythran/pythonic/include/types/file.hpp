@@ -7,10 +7,10 @@
 #include "pythonic/types/list.hpp"
 #include "pythonic/types/none.hpp"
 #include "pythonic/types/attr.hpp"
-#include "pythonic/__builtin__/IOError.hpp"
-#include "pythonic/__builtin__/ValueError.hpp"
-#include "pythonic/__builtin__/RuntimeError.hpp"
-#include "pythonic/__builtin__/StopIteration.hpp"
+#include "pythonic/builtins/IOError.hpp"
+#include "pythonic/builtins/ValueError.hpp"
+#include "pythonic/builtins/RuntimeError.hpp"
+#include "pythonic/builtins/StopIteration.hpp"
 
 #include <fstream>
 #include <iterator>
@@ -158,7 +158,7 @@ namespace pythonic
     }
   }
 
-  namespace __builtin__
+  namespace builtins
   {
     template <int I>
     auto getattr(pythonic::types::file const &f)

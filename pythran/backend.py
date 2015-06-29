@@ -24,8 +24,10 @@ from pythran import metadata, unparse
 
 from math import isnan, isinf
 import ast
-import cStringIO
+from six import StringIO
 import os
+import sys
+from functools import reduce
 
 
 class Python(Backend):
@@ -44,7 +46,7 @@ class Python(Backend):
         super(Python, self).__init__()
 
     def visit(self, node):
-        output = cStringIO.StringIO()
+        output = StringIO()
         unparse.Unparser(node, output)
         self.result = output.getvalue()
 
@@ -109,7 +111,7 @@ def cxx_loop(fun):
 
         # handle the body of the for loop
         if break_handler:
-            orelse = map(self.visit, node.orelse)
+            orelse = [self.visit(n) for n in node.orelse]
             orelse_label = Statement("{0}:".format(break_handler))
             return Block([res] + orelse + [orelse_label])
         else:
@@ -137,10 +139,10 @@ class Cxx(Backend):
     >>> pm = passmanager.PassManager('test')
     >>> r = pm.dump(Cxx, node)
     >>> print r
-    #include <pythonic/include/__builtin__/print.hpp>
-    #include <pythonic/include/__builtin__/str.hpp>
-    #include <pythonic/__builtin__/print.hpp>
-    #include <pythonic/__builtin__/str.hpp>
+    #include <pythonic/include/builtins/str.hpp>
+    #include <pythonic/include/builtins/print.hpp>
+    #include <pythonic/builtins/str.hpp>
+    #include <pythonic/builtins/print.hpp>
     namespace __pythran_test
     {
       ;
@@ -157,7 +159,7 @@ class Cxx(Backend):
       }  ;
       typename foo::type::result_type foo::operator()() const
       {
-        pythonic::__builtin__::print("hello world");
+        pythonic::builtins::print("hello world");
       }
     }
     """
@@ -188,7 +190,7 @@ class Cxx(Backend):
         headers += [Include(os.path.join("pythonic", *t) + ".hpp")
                     for t in self.dependencies]
 
-        body = map(self.visit, node.body)
+        body = [self.visit(n) for n in node.body]
 
         nsbody = body + self.declarations + self.definitions
         ns = Namespace(pythran_ward + self.passmanager.module_name, nsbody)
@@ -224,7 +226,7 @@ class Cxx(Backend):
         if omp_directives:
             directives = list()
             for directive in reversed(omp_directives):
-                directive.deps = map(self.visit, directive.deps)
+                directive.deps = [self.visit(n) for n in directive.deps]
                 directives.append(directive)
             if index is None:
                 stmt = AnnotatedStatement(stmt, directives)
@@ -280,7 +282,7 @@ class Cxx(Backend):
         fargs = node.args.args
 
         formal_args = [arg.id for arg in fargs]
-        formal_types = ["argument_type" + str(i) for i in xrange(len(fargs))]
+        formal_types = ["argument_type" + str(i) for i in range(len(fargs))]
 
         self.ldecls = set(self.passmanager.gather(LocalDeclarations, node))
 
@@ -293,14 +295,14 @@ class Cxx(Backend):
         self.local_types.update((n.id, t) for n, t in self.local_types.items())
 
         # choose one node among all the ones with the same name for each name
-        self.ldecls = set({n.id: n for n in self.ldecls}.itervalues())
+        self.ldecls = set({n.id: n for n in self.ldecls}.values())
 
         # 0 is used as initial_state, thus the +1
         self.yields = {k: (1 + v, "yield_point{0}".format(1 + v)) for (v, k) in
                        enumerate(self.passmanager.gather(YieldPoints, node))}
 
         # gather body dump
-        operator_body = map(self.visit, node.body)
+        operator_body = [self.visit(n) for n in node.body]
 
         # compute arg dump
         default_arg_values = (
@@ -374,7 +376,7 @@ class Cxx(Backend):
                                               formal_args, default_arg_values),
                     Line(": {0} {{ }}".format(
                         ", ".join(["pythonic::yielder()"] +
-                                  map("{0}({0})".format, formal_args))))
+                                  ["{0}({0})".format(n) for n in formal_args])))
                     ))
 
             next_iterator = [
@@ -425,7 +427,7 @@ class Cxx(Backend):
                 Cxx.generator_state_holder,
                 " ".join("case {0}: goto {1};".format(num, where)
                          for (num, where) in sorted(
-                             self.yields.itervalues(),
+                             self.yields.values(),
                              key=lambda x: x[0])))))
 
             ctx = CachedTypeVisitor(lctx)
@@ -643,7 +645,7 @@ class Cxx(Backend):
 
     def visit_Print(self, node):
         values = [self.visit(n) for n in node.values]
-        stmt = Statement("pythonic::__builtin__::print{0}({1})".format(
+        stmt = Statement("pythonic::builtins::print{0}({1})".format(
             "" if node.nl else "_nonl",
             ", ".join(values))
             )
@@ -889,7 +891,7 @@ class Cxx(Backend):
 
         """
         assert isinstance(node.target, ast.Name)
-        pattern = ast.Call(func=ast.Attribute(value=ast.Name(id='__builtin__',
+        pattern = ast.Call(func=ast.Attribute(value=ast.Name(id='builtins',
                                                              ctx=ast.Load()),
                                               attr='xrange', ctx=ast.Load()),
                            args=AST_any(), keywords=[], starargs=None,
@@ -922,8 +924,8 @@ class Cxx(Backend):
 
         Becomes
 
-        >> typename returnable<decltype(__builtin__.xrange(10))>::type __iterX
-           = __builtin__.xrange(10);
+        >> typename returnable<decltype(builtins.xrange(10))>::type __iterX
+           = builtins.xrange(10);
         >> ... possible container size reservation ...
         >> for (typename decltype(__iterX)::iterator::reference i: __iterX)
         >>     ... the work ...
@@ -943,7 +945,7 @@ class Cxx(Backend):
         target = self.visit(node.target)
 
         # Handle the body of the for loop
-        loop_body = Block(map(self.visit, node.body))
+        loop_body = Block([self.visit(n) for n in node.body])
 
         # Declare local variables at the top of the loop body
         loop_body = self.process_locals(node, loop_body, node.target.id)
@@ -1111,13 +1113,13 @@ class Cxx(Backend):
         test = self.visit(node.test)
         body = self.visit(node.body)
         orelse = self.visit(node.orelse)
-        return "(pythonic::__builtin__::bool_({0}) ? {1} : {2})".format(test,
+        return "(pythonic::builtins::bool_({0}) ? {1} : {2})".format(test,
                                                                         body,
                                                                         orelse)
 
     def visit_List(self, node):
         if not node.elts:  # empty list
-            return "pythonic::__builtin__::proxy::list{}()"
+            return "pythonic::builtins::proxy::list{}()"
         else:
             elts = [self.visit(n) for n in node.elts]
             # constructor disambiguation, clang++ workaround
@@ -1133,7 +1135,7 @@ class Cxx(Backend):
 
     def visit_Set(self, node):
         if not node.elts:  # empty set
-            return "pythonic::__builtin__::proxy::set{}()"
+            return "pythonic::builtins::proxy::set{}()"
         else:
             elts = [self.visit(n) for n in node.elts]
             return "{0}({{ {1} }})".format(
@@ -1142,7 +1144,7 @@ class Cxx(Backend):
 
     def visit_Dict(self, node):
         if not node.keys:  # empty dict
-            return "pythonic::__builtin__::proxy::dict{}()"
+            return "pythonic::builtins::proxy::dict{}()"
         else:
             keys = [self.visit(n) for n in node.keys]
             values = [self.visit(n) for n in node.values]
@@ -1152,7 +1154,7 @@ class Cxx(Backend):
                           for k, v in zip(keys, values)))
 
     def visit_Tuple(self, node):
-        elts = map(self.visit, node.elts or ())
+        elts = [self.visit(n) for n in node.elts or ()]
         return "pythonic::types::make_tuple({0})".format(", ".join(elts))
 
     def visit_Compare(self, node):
@@ -1172,8 +1174,8 @@ class Cxx(Backend):
         args = [self.visit(n) for n in node.args]
         func = self.visit(node.func)
         # special hook for getattr, as we cannot represent it in C++
-        if func == 'pythonic::__builtin__::proxy::getattr{}':
-            return ('pythonic::__builtin__::getattr<{}>({})'
+        if func == 'pythonic::builtins::proxy::getattr{}':
+            return ('pythonic::builtins::getattr<{}>({})'
                     .format('pythonic::types::attr::' + node.args[1].s.upper(),
                             args[0]))
         else:
@@ -1185,7 +1187,7 @@ class Cxx(Backend):
                 PYTYPE_TO_CTYPE_TABLE[complex],
                 repr(node.n.real),
                 repr(node.n.imag))
-        elif type(node.n) == long:
+        elif sys.version_info[0] < 3 and type(node.n) == long:
             return 'pythran_long({0})'.format(node.n)
         elif isnan(node.n):
             return 'pythonic::numpy::nan'
@@ -1253,14 +1255,14 @@ class Cxx(Backend):
 
     # other
     def visit_ExtSlice(self, node):
-        return map(self.visit, node.dims)
+        return [self.visit(n) for n in node.dims]
 
     def visit_Slice(self, node):
         args = []
         for field in ('lower', 'upper', 'step'):
             nfield = getattr(node, field)
             arg = (self.visit(nfield) if nfield
-                   else 'pythonic::__builtin__::None')
+                   else 'pythonic::builtins::None')
             args.append(arg)
         if node.step is None or (type(node.step) is ast.Num and
                                  node.step.n == 1):

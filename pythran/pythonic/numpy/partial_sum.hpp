@@ -6,7 +6,7 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/numpy_type.hpp"
 #include "pythonic/utils/neutral.hpp"
-#include "pythonic/__builtin__/ValueError.hpp"
+#include "pythonic/builtins/ValueError.hpp"
 
 namespace pythonic
 {
@@ -41,7 +41,7 @@ namespace pythonic
     {
       const long count = expr.flat_size();
       types::ndarray<typename types::numpy_type<dtype>::type, 1>
-          the_partial_sum{types::make_tuple(count), __builtin__::None};
+          the_partial_sum{types::make_tuple(count), builtins::None};
       auto const p = utils::neutral<Op, typename E::dtype>::value;
       auto iter = the_partial_sum.begin();
       _partial_sum<Op, types::numpy_expr_to_ndarray<E>::N>{}(expr, iter, p);
@@ -66,7 +66,7 @@ namespace pythonic
         throw types::ValueError("axis out of bounds");
 
       auto shape = expr.shape();
-      partial_sum_type<E, dtype> the_partial_sum{shape, __builtin__::None};
+      partial_sum_type<E, dtype> the_partial_sum{shape, builtins::None};
       if (axis == 0) {
         auto iter = the_partial_sum.begin();
         _partial_sum<Op, 1>{}(

@@ -7,7 +7,7 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/asarray.hpp"
 #include "pythonic/utils/numpy_conversion.hpp"
-#include "pythonic/__builtin__/ValueError.hpp"
+#include "pythonic/builtins/ValueError.hpp"
 
 namespace pythonic
 {
@@ -27,7 +27,7 @@ namespace pythonic
           throw types::ValueError("indice out of bound");
         *(expr.fbegin() + val) = *(vv.fbegin() + i % vv.flat_size());
       }
-      return __builtin__::None;
+      return builtins::None;
     }
 
     template <class T, size_t N>
@@ -36,7 +36,7 @@ namespace pythonic
       if (ind >= expr.flat_size() || ind < 0)
         throw types::ValueError("indice out of bound");
       *(expr.fbegin() + ind) = v;
-      return __builtin__::None;
+      return builtins::None;
     }
 
     template <class E, class M, class V>

@@ -75,7 +75,7 @@ subset of Python AST) into a C++ AST::
   >>> from pythran import backend
   >>> cxx = pm.dump(backend.Cxx, tree)
   >>> str(cxx)
-  '#include <pythonic/include/__builtin__/bool_.hpp>\n#include <pythonic/__builtin__/bool_.hpp>\nnamespace __pythran_tutorial_module\n{\n  ;\n  struct fib\n  {\n    typedef void callable;\n    typedef void pure;\n    template <typename argument_type0 >\n    struct type\n    {\n      typedef typename pythonic::returnable<typename std::remove_cv<typename std::remove_reference<argument_type0>::type>::type>::type result_type;\n    }  \n    ;\n    template <typename argument_type0 >\n    typename type<argument_type0>::result_type operator()(argument_type0 const & n) const\n    ;\n  }  ;\n  template <typename argument_type0 >\n  typename fib::type<argument_type0>::result_type fib::operator()(argument_type0 const & n) const\n  {\n    return (pythonic::__builtin__::bool_((n < 2L)) ? n : (fib()((n - 1L)) + fib()((n - 2L))));\n  }\n}'
+  '#include <pythonic/include/builtins/bool_.hpp>\n#include <pythonic/builtins/bool_.hpp>\nnamespace __pythran_tutorial_module\n{\n  ;\n  struct fib\n  {\n    typedef void callable;\n    typedef void pure;\n    template <typename argument_type0 >\n    struct type\n    {\n      typedef typename pythonic::returnable<typename std::remove_cv<typename std::remove_reference<argument_type0>::type>::type>::type result_type;\n    }  \n    ;\n    template <typename argument_type0 >\n    typename type<argument_type0>::result_type operator()(argument_type0 const & n) const\n    ;\n  }  ;\n  template <typename argument_type0 >\n  typename fib::type<argument_type0>::result_type fib::operator()(argument_type0 const & n) const\n  {\n    return (pythonic::builtins::bool_((n < 2L)) ? n : (fib()((n - 1L)) + fib()((n - 2L))));\n  }\n}'
 
 The above string is understandable by a C++11 compiler, but it quickly reaches the limit of our developer brain, so most of the time, we are more comfortable with the Python backend::
 
@@ -114,7 +114,7 @@ There are many small passes used iteratively to produce the Pythran AST. For ins
   >>> print pm.dump(backend.Python, tree)
   def foo():
       pass
-      return __builtin__.None
+      return builtins.None
 
 There are many other passes in Pythran. For instance one can prevent clashes with C++ keywords::
 
@@ -126,7 +126,7 @@ There are many other passes in Pythran. For instance one can prevent clashes wit
 
 More complex ones rely on introspection to implement constant folding::
 
-  >>> code = [fib_src, 'def foo(): print __builtin__.map(fib, [1,2,3])']
+  >>> code = [fib_src, 'def foo(): print builtins.map(fib, [1,2,3])']
   >>> fib_call = '\n'.join(code)
   >>> tree = ast.parse(fib_call)
   >>> from pythran import optimizations as optim
@@ -192,7 +192,7 @@ One can also computes the state of ``globals()``::
   >>> code += 'def foo(a): b = math.cos(a) ; return [b] * 3'
   >>> tree = ast.parse(code)
   >>> pm.gather(analyses.Globals, tree)
-  set(['foo', '__dispatch__', '__builtin__', 'math'])
+  set(['foo', 'builtins', '__dispatch__', '__builtin__', 'math'])
 
 One can also compute the state of ``locals()`` at any point of the program::
 
@@ -252,7 +252,7 @@ Pure functions are also interesting in the context of ``map``, as the
 application of a pure functions using a map results in a parallel ``map``::
 
   >>> code = 'def foo(x): return x*x\n'
-  >>> code += '__builtin__.map(foo, __builtin__.range(100))'
+  >>> code += 'builtins.map(foo, builtins.range(100))'
   >>> tree = ast.parse(code)
   >>> pmaps = pm.gather(analyses.ParallelMaps, tree)
   >>> len(pmaps)

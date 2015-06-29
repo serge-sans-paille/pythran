@@ -8,6 +8,9 @@ from pythran.analyses.ast_matcher import DamnTooLongPattern
 
 import ast
 import numpy
+import logging
+
+logger = logging.getLogger('pythran')
 
 
 class ConstantFolding(Transformation):
@@ -30,7 +33,7 @@ class ConstantFolding(Transformation):
 
     def prepare(self, node, ctx):
         assert isinstance(node, ast.Module)
-        self.env = {'__builtin__': __import__('__builtin__')}
+        self.env = {'builtins': __import__('builtins')}
 
         for module_name in MODULES:
             # __dispatch__ is the only fake top-level module
@@ -48,8 +51,8 @@ class ConstantFolding(Transformation):
                     if fun in ("__theitemgetter__", "pythran"):
                         # these ones do not exist in Python
                         continue
-                    # Set attributs pointing to another for C++ keyword
-                    # case of __builtin__.int_ that point on __builtin__.int
+                    # Set attributes pointing to another for C++ keyword
+                    # case of builtins.int_ that point on builtins.int
                     if not hasattr(self.env[module_name], fun):
                         setattr(self.env[module_name], fun,
                                 getattr(self.env[module_name], fun.strip("_")))
@@ -78,11 +81,11 @@ class ConstantFolding(Transformation):
                     if not ASTMatcher(node).search(new_node):
                         self.update = True
                 except DamnTooLongPattern as e:
-                    print "W: ", e, " Assume no update happened."
+                    logger.warn(str(e) + " Assume no update happened.")
                 return new_node
             except ConversionError as e:
-                print ast.dump(node)
-                print 'error in constant folding: ', e
+                logger.error(ast.dump(node))
+                logger.error('error in constant folding: ' + str(e))
                 raise
             except ToNotEval:
                 return Transformation.generic_visit(self, node)

@@ -6,7 +6,7 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/utils/numpy_conversion.hpp"
 #include "pythonic/types/ndarray.hpp"
-#include "pythonic/__builtin__/None.hpp"
+#include "pythonic/builtins/None.hpp"
 
 namespace pythonic
 {
@@ -17,8 +17,7 @@ namespace pythonic
     types::ndarray<T, 1> repeat(types::ndarray<T, N> const &expr, int repeats)
     {
       types::ndarray<T, 1> out(
-          types::array<long, 1>{{expr.flat_size() * repeats}},
-          __builtin__::None);
+          types::array<long, 1>{{expr.flat_size() * repeats}}, builtins::None);
       auto out_iter = out.fbegin();
       for (auto iter = expr.fbegin(), end = expr.fend(); iter != end; ++iter)
         for (int i = 0; i < repeats; ++i)

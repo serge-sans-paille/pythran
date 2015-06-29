@@ -18,7 +18,7 @@ namespace pythonic
       while (shift < 0)
         shift += expr.flat_size();
       shift %= expr.flat_size();
-      types::ndarray<T, N> out(expr.shape(), __builtin__::None);
+      types::ndarray<T, N> out(expr.shape(), builtins::None);
       std::copy(expr.fbegin(), expr.fend() - shift,
                 std::copy(expr.fend() - shift, expr.fend(), out.fbegin()));
       return out;
@@ -59,7 +59,7 @@ namespace pythonic
       auto &&expr_shape = expr.shape();
       while (shift < 0)
         shift += expr_shape[axis];
-      types::ndarray<T, N> out(expr_shape, __builtin__::None);
+      types::ndarray<T, N> out(expr_shape, builtins::None);
       _roll(out.fbegin(), expr.fbegin(), shift, axis, expr_shape,
             utils::int_<N>());
       return out;

@@ -47,13 +47,13 @@ def make_extension(**extra):
             return define[:index], define[index + 1:]
     extension = {
         # forcing str conversion to handle Unicode case (the default on MS)
-        "define_macros": map(str, cfg.get('compiler', 'defines').split()),
-        "undef_macros": map(str, cfg.get('compiler', 'undefs').split()),
-        "include_dirs": map(str, cfg.get('compiler', 'include_dirs').split()),
-        "library_dirs": map(str, cfg.get('compiler', 'library_dirs').split()),
-        "libraries": map(str, cfg.get('compiler', 'libs').split()),
-        "extra_compile_args": map(str, cfg.get('compiler', 'cflags').split()),
-        "extra_link_args": map(str, cfg.get('compiler', 'ldflags').split()),
+        "define_macros": [str(c) for c in cfg.get('compiler', 'defines').split()],
+        "undef_macros": [str(c) for c in cfg.get('compiler', 'undefs').split()],
+        "include_dirs": [str(c) for c in cfg.get('compiler', 'include_dirs').split()],
+        "library_dirs": [str(c) for c in cfg.get('compiler', 'library_dirs').split()],
+        "libraries": [str(c) for c in cfg.get('compiler', 'libs').split()],
+        "extra_compile_args": [str(c) for c in cfg.get('compiler', 'cflags').split()],
+        "extra_link_args": [str(c) for c in cfg.get('compiler', 'ldflags').split()],
     }
 
     extension['define_macros'].append('ENABLE_PYTHON_MODULE')
@@ -63,7 +63,7 @@ def make_extension(**extra):
     extension["include_dirs"].append(here + '/pythran')
     for k, w in extra.items():
         extension[k].extend(w)
-    extension["define_macros"] = map(parse_define, extension["define_macros"])
+    extension["define_macros"] = [parse_define(d) for d in extension["define_macros"]]
     if cfg.getboolean('pythran', 'complex_hook'):
         # the patch is *not* portable
         extension["include_dirs"].append(here + '/pythran/pythonic/patch')

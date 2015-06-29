@@ -20,8 +20,7 @@ namespace pythonic
       auto shape = expr.shape();
       --shape[types::numpy_expr_to_ndarray<E>::N - 1];
 
-      typename types::numpy_expr_to_ndarray<E>::type out(shape,
-                                                         __builtin__::None);
+      typename types::numpy_expr_to_ndarray<E>::type out(shape, builtins::None);
       auto slice = expr.shape()[types::numpy_expr_to_ndarray<E>::N - 1];
       auto iter = arr.fbegin();
       auto out_iter = out.fbegin();

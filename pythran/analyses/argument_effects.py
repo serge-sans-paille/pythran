@@ -8,6 +8,7 @@ import pythran.intrinsic as intrinsic
 
 import ast
 import networkx as nx
+from functools import reduce
 
 
 class ArgumentEffects(ModuleAnalysis):
@@ -47,14 +48,14 @@ class ArgumentEffects(ModuleAnalysis):
         user defined functions.
         """
         super(ArgumentEffects, self).prepare(node, ctx)
-        for n in self.global_declarations.itervalues():
+        for n in self.global_declarations.values():
             fe = ArgumentEffects.FunctionEffects(n)
             self.node_to_functioneffect[n] = fe
             self.result.add_node(fe)
 
         def save_function_effect(module):
             """ Recursively save function effect for pythonic functions. """
-            for intr in module.itervalues():
+            for intr in module.values():
                 if isinstance(intr, dict):  # Submodule case
                     save_function_effect(intr)
                 else:
@@ -64,7 +65,7 @@ class ArgumentEffects(ModuleAnalysis):
                     if isinstance(intr, intrinsic.Class):
                         save_function_effect(intr.fields)
 
-        for module in MODULES.itervalues():
+        for module in MODULES.values():
             save_function_effect(module)
 
     def run(self, node, ctx):

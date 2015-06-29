@@ -30,12 +30,14 @@ class ImportedIds(NodeAnalysis):
         self.current_locals.add(node.name)
         current_locals = self.current_locals.copy()
         self.current_locals.update(arg.id for arg in node.args.args)
-        map(self.visit, node.body)
+        for s in node.body:
+            self.visit(s)
         self.current_locals = current_locals
 
     def visit_AnyComp(self, node):
         current_locals = self.current_locals.copy()
-        map(self.visit, node.generators)
+        for generator in node.generators:
+            self.visit(generator)
         self.visit(node.elt)
         self.current_locals = current_locals
 
@@ -49,7 +51,8 @@ class ImportedIds(NodeAnalysis):
         # is evaluted before being assigned
         md.visit(self, node)
         self.visit(node.value)
-        map(self.visit, node.targets)
+        for target in node.targets:
+            self.visit(target)
 
     def visit_AugAssign(self, node):
         self.in_augassign = True

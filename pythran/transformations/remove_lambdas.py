@@ -86,5 +86,5 @@ class RemoveLambdas(Transformation):
     def visit_FunctionDef(self, node):
         lr = _LambdaRemover(self.passmanager, node.name, self.ctx,
                             self.lambda_functions, self.imports)
-        node.body = map(lr.visit, node.body)
+        node.body = [lr.visit(s) for s in node.body]
         return node

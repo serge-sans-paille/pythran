@@ -6,8 +6,8 @@
 #include "pythonic/utils/int_.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/str.hpp"
-#include "pythonic/__builtin__/None.hpp"
-#include "pythonic/__builtin__/ValueError.hpp"
+#include "pythonic/builtins/None.hpp"
+#include "pythonic/builtins/ValueError.hpp"
 #include "pythonic/numpy/asarray.hpp"
 
 #include <algorithm>

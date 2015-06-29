@@ -12,7 +12,7 @@ This package provides several entry points
 Basic scenario is to turn a Python AST into C++ code:
 >>> code = "def foo(x): return x * 2"
 >>> cxx = generate_cxx('my_module', code) # gets a BoostPythonModule
->>> print cxx.generate()
+>>> cxx_code = cxx.generate()
 
 To generate a native module, one need to add type information:
 >>> cxx = generate_cxx('my_module', code, {'foo':([[int]],)})
@@ -22,13 +22,15 @@ Eventually, the type information can be translated from a string:
 >>> cxx = generate_cxx('my_module', code, spec)
 
 Higher level entry points includes:
+>>> open("my_python_file.py", "w").write("def bar(): pass")
 >>> dll_file = compile_pythranfile("my_python_file.py")
->>> cpp_file = compile_pythranfile("my_python_file.py",cpponly=True)
->>> dll_file = compile_pythrancode("... /* python code here */ ...")
->>> dll_file = compile_cxxfile("my_cpp_file.cpp")
+>>> cpp_file = compile_pythranfile("my_python_file.py", cpponly=True)
+>>> dll_file = compile_pythrancode("my_module", "def foo(): pass")
+>>> dll_file = compile_cxxfile("my_module", "my_python_file.cpp")
 
 '''
 
+import pythran.compat
 import pythran.log
 from pythran.toolchain import (generate_cxx, compile_cxxfile, compile_cxxcode,
                                compile_pythrancode, compile_pythranfile,

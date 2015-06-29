@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_TIME_SLEEP_HPP
 
 #include "pythonic/utils/proxy.hpp"
-#include "pythonic/__builtin__/None.hpp"
+#include "pythonic/builtins/None.hpp"
 
 namespace pythonic
 {

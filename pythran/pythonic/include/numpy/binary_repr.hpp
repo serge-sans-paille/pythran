@@ -10,7 +10,7 @@ namespace pythonic
   {
 
     types::str binary_repr(long number,
-                           types::none_type width = __builtin__::None);
+                           types::none_type width = builtins::None);
 
     types::str binary_repr(long number, long width);
 

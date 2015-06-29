@@ -16,7 +16,7 @@ class ListCompToMap(Transformation):
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(ListCompToMap, node)
     >>> print pm.dump(backend.Python, node)
-    __builtin__.map((lambda x: (x * x)), range(10))
+    builtins.map((lambda x: (x * x)), range(10))
     '''
 
     def __init__(self):
@@ -62,7 +62,7 @@ class ListCompToMap(Transformation):
                                        None, None, [])
 
             mapName = ast.Attribute(
-                value=ast.Name(id='__builtin__', ctx=ast.Load()),
+                value=ast.Name(id='builtins', ctx=ast.Load()),
                 attr='map', ctx=ast.Load())
 
             ldBodymap = node.elt

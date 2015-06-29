@@ -26,7 +26,7 @@
 #include "pythonic/types/numpy_gexpr.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
 
-#include "pythonic/__builtin__/len.hpp"
+#include "pythonic/builtins/len.hpp"
 
 #include <cassert>
 #include <iostream>
@@ -584,7 +584,7 @@ namespace pythonic
       };
     }
   }
-  namespace __builtin__
+  namespace builtins
   {
     template <int I, class T, size_t N>
     auto getattr(types::ndarray<T, N> const &f)

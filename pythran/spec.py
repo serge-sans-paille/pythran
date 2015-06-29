@@ -171,7 +171,7 @@ class SpecParser:
         self.input_file = None
         if os.path.isfile(path):
             self.input_file = path
-            with file(path) as fd:
+            with open(path) as fd:
                 data = fd.read()
         else:
             data = path

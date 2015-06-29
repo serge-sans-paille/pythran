@@ -3,8 +3,8 @@
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
-#include "pythonic/__builtin__/None.hpp"
-#include "pythonic/__builtin__/ValueError.hpp"
+#include "pythonic/builtins/None.hpp"
+#include "pythonic/builtins/ValueError.hpp"
 #include "pythonic/numpy/add.hpp"
 #include "pythonic/numpy/mean.hpp"
 #include "pythonic/numpy/reshape.hpp"
@@ -23,9 +23,9 @@ namespace pythonic
                                   double, typename E::dtype>::type;
 
     template <class E>
-    auto var(E const &expr, types::none_type axis = __builtin__::None,
-             types::none_type dtype = __builtin__::None,
-             types::none_type out = __builtin__::None, long ddof = 0)
+    auto var(E const &expr, types::none_type axis = builtins::None,
+             types::none_type dtype = builtins::None,
+             types::none_type out = builtins::None, long ddof = 0)
         -> decltype(var_type<E>(mean(expr)));
 
     // this is a workaround for the lack of efficient support for broadcasting
@@ -39,9 +39,8 @@ namespace pythonic
                              utils::int_<N>);
 
     template <class E>
-    auto var(E const &expr, long axis,
-             types::none_type dtype = __builtin__::None,
-             types::none_type out = __builtin__::None, long ddof = 0) ->
+    auto var(E const &expr, long axis, types::none_type dtype = builtins::None,
+             types::none_type out = builtins::None, long ddof = 0) ->
         typename assignable<decltype(var_type<E>() * mean(expr, axis))>::type;
 
     PROXY_DECL(pythonic::numpy, var);

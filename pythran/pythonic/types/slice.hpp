@@ -3,7 +3,7 @@
 
 #include "pythonic/include/types/slice.hpp"
 
-#include "pythonic/__builtin__/None.hpp"
+#include "pythonic/builtins/None.hpp"
 
 #ifndef NDEBUG
 #include <nt2/include/functions/bitofsign.hpp>

@@ -45,7 +45,7 @@ namespace pythonic
         dot(types::ndarray<E, 2> const &f, types::ndarray<E, 1> const &e)
     {
       types::ndarray<E, 1> out(types::array<long, 1>{{f.shape()[0]}},
-                               __builtin__::None);
+                               builtins::None);
       E al = 1, be = 0;
       const int m = f.shape()[1], n = f.shape()[0], inc = 1;
       nt2::details::gemv("T", &m, &n, &al, f.buffer, &m, e.buffer, &inc, &be,
@@ -59,7 +59,7 @@ namespace pythonic
         dot(types::ndarray<E, 1> const &e, types::ndarray<E, 2> const &f)
     {
       types::ndarray<E, 1> out(types::array<long, 1>{{f.shape()[1]}},
-                               __builtin__::None);
+                               builtins::None);
       E al = 1, be = 0;
       const int m = f.shape()[1], n = f.shape()[0], inc = 1;
       nt2::details::gemv("N", &m, &n, &al, f.buffer, &m, e.buffer, &inc, &be,
@@ -175,8 +175,7 @@ namespace pythonic
     {
       E al = 1, be = 0;
       int m = b.shape()[1], n = a.shape()[0], k = b.shape()[0];
-      types::ndarray<E, 2> out(types::array<long, 2>{{m, n}},
-                               __builtin__::None);
+      types::ndarray<E, 2> out(types::array<long, 2>{{m, n}}, builtins::None);
       nt2::details::gemm("N", "N", &m, &n, &k, &al, b.buffer, &m, a.buffer, &k,
                          &be, out.buffer, &m);
       return out;

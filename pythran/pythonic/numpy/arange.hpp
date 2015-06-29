@@ -18,7 +18,7 @@ namespace pythonic
     {
       using R = typename types::numpy_type<dtype>::type;
       size_t size = std::max(R(0), R(std::ceil((end - begin) / step)));
-      types::ndarray<R, 1> a(types::make_tuple((long)size), __builtin__::None);
+      types::ndarray<R, 1> a(types::make_tuple((long)size), builtins::None);
       if (size) {
         auto prev = a.fbegin(), end = a.fend();
         *prev = begin;

@@ -6,7 +6,7 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/traits.hpp"
-#include "pythonic/__builtin__/None.hpp"
+#include "pythonic/builtins/None.hpp"
 
 #include <algorithm>
 
@@ -26,7 +26,7 @@ namespace pythonic
       types::ndarray<T, 1> out(
           types::make_tuple(long(in.flat_size() + std::min(indices.flat_size(),
                                                            data.flat_size()))),
-          __builtin__::None);
+          builtins::None);
       auto out_iter = out.fbegin();
       auto in_iter = in.fbegin();
       auto data_iter = data.begin();

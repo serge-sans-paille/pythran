@@ -52,7 +52,7 @@ class Aliases(ModuleAnalysis):
         return values
 
     def visit_BoolOp(self, node):
-        return self.add(node, set.union(*map(self.visit, node.values)))
+        return self.add(node, set.union(*[self.visit(v) for v in node.values]))
 
     def visit_UnaryOp(self, node):
         self.generic_visit(node)
@@ -63,7 +63,7 @@ class Aliases(ModuleAnalysis):
 
     def visit_IfExp(self, node):
         self.visit(node.test)
-        rec = map(self.visit, [node.body, node.orelse])
+        rec = [self.visit(node.body), self.visit(node.orelse)]
         return self.add(node, set.union(*rec))
 
     def visit_Dict(self, node):
@@ -157,7 +157,8 @@ class Aliases(ModuleAnalysis):
         self.generic_visit(node)
 
     def visit_ListComp(self, node):
-        map(self.visit_comprehension, node.generators)
+        for generator in node.generators:
+            self.visit_comprehension(generator)
         self.visit(node.elt)
         return self.add(node)
 
@@ -166,7 +167,8 @@ class Aliases(ModuleAnalysis):
     visit_GeneratorExp = visit_ListComp
 
     def visit_DictComp(self, node):
-        map(self.visit_comprehension, node.generators)
+        for generator in node.generators:
+            self.visit_comprehension(generator)
         self.visit(node.key)
         self.visit(node.value)
         return self.add(node)
@@ -186,7 +188,7 @@ class Aliases(ModuleAnalysis):
 
         def save_intrinsic_alias(module):
             """ Recursively save default aliases for pythonic functions. """
-            for v in module.itervalues():
+            for v in module.values():
                 if isinstance(v, dict):  # Submodules case
                     save_intrinsic_alias(v)
                 else:
@@ -194,10 +196,10 @@ class Aliases(ModuleAnalysis):
                     if isinstance(v, Class):
                         save_intrinsic_alias(v.fields)
 
-        for module in MODULES.itervalues():
+        for module in MODULES.values():
             save_intrinsic_alias(module)
         self.aliases.update((f.name, {f})
-                            for f in self.global_declarations.itervalues())
+                            for f in self.global_declarations.values())
         self.aliases.update((arg.id, {arg})
                             for arg in node.args.args)
         self.generic_visit(node)
@@ -233,20 +235,23 @@ class Aliases(ModuleAnalysis):
     def visit_If(self, node):
         md.visit(self, node)
         self.visit(node.test)
-        false_aliases = {k: v.copy() for k, v in self.aliases.iteritems()}
+        false_aliases = {k: v.copy() for k, v in self.aliases.items()}
         try:  # first try the true branch
-            map(self.visit, node.body)
+            for s in node.body:
+                self.visit(s)
             true_aliases, self.aliases = self.aliases, false_aliases
         except PythranSyntaxError:  # it failed, try the false branch
-            map(self.visit, node.orelse)
+            for s in node.orelse:
+                self.visit(s)
             raise  # but still throw the exception, maybe we are in a For
         try:  # then try the false branch
-            map(self.visit, node.orelse)
+            for s in node.orelse:
+                self.visit(s)
         except PythranSyntaxError:  # it failed
             # we still get some info from the true branch, validate them
             self.aliases = true_aliases
             raise  # and let other visit_ handle the issue
-        for k, v in true_aliases.iteritems():
+        for k, v in true_aliases.items():
             if k in self.aliases:
                 self.aliases[k].update(v)
             else:

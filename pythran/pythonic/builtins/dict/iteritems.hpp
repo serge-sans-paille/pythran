@@ -1,0 +1,30 @@
+#ifndef PYTHONIC_BUILTIN_DICT_ITERITEMS_HPP
+#define PYTHONIC_BUILTIN_DICT_ITERITEMS_HPP
+
+#include "pythonic/include/builtins/dict/iteritems.hpp"
+
+#include "pythonic/types/dict.hpp"
+#include "pythonic/utils/proxy.hpp"
+
+namespace pythonic
+{
+
+  namespace builtins
+  {
+
+    namespace dict
+    {
+
+      // See iterkeys for copy explication and TODOs
+      template <class K, class V>
+      auto iteritems(types::dict<K, V> d) -> decltype(d.iteritems())
+      {
+        return d.iteritems();
+      }
+
+      PROXY_IMPL(pythonic::builtins::dict, iteritems);
+    }
+  }
+}
+
+#endif

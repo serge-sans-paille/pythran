@@ -8,7 +8,7 @@ from pythran.utils import path_to_attr
 import ast
 
 EQUIVALENT_ITERATORS = {
-    "range": ("__builtin__", "xrange"),
+    "range": ('builtins', "xrange"),
     "filter": ("itertools", "ifilter"),
     "map": ("itertools", "imap"),
     "zip": ("itertools", "izip")
@@ -24,18 +24,18 @@ class IterTransformation(Transformation):
     >>> from pythran import passmanager, backend
     >>> node = ast.parse('''
     ... def foo(l):
-    ...     return __builtin__.sum(l)
+    ...     return builtins.sum(l)
     ... def bar(n):
-    ...     return foo(__builtin__.range(n))
+    ...     return foo(builtins.range(n))
     ... ''')
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(IterTransformation, node)
     >>> print pm.dump(backend.Python, node)
     import itertools
     def foo(l):
-        return __builtin__.sum(l)
+        return builtins.sum(l)
     def bar(n):
-        return foo(__builtin__.xrange(n))
+        return foo(builtins.xrange(n))
     """
 
     def __init__(self):
@@ -48,8 +48,8 @@ class IterTransformation(Transformation):
 
         If the node alias on a correct keyword (and only it), it matchs.
         """
-        for keyword in EQUIVALENT_ITERATORS.iterkeys():
-            correct_alias = set([MODULES["__builtin__"][keyword]])
+        for keyword in EQUIVALENT_ITERATORS.keys():
+            correct_alias = set([MODULES['builtins'][keyword]])
             if self.aliases[node.func].aliases == correct_alias:
                 return keyword
 

@@ -5,6 +5,7 @@ from pythran.analyses.global_declarations import GlobalDeclarations
 from pythran.passmanager import ModuleAnalysis
 
 import ast
+from functools import reduce
 
 
 class OrderedGlobalDeclarations(ModuleAnalysis):
@@ -36,11 +37,11 @@ class OrderedGlobalDeclarations(ModuleAnalysis):
         new_count = 0
         # iteratively propagate weights
         while new_count != old_count:
-            for k, v in self.result.iteritems():
+            for k, v in self.result.items():
                 [v.update(self.result[f]) for f in list(v)]
             old_count = new_count
             new_count = reduce(lambda acc, s: acc + len(s),
-                               self.result.itervalues(), 0)
+                               self.result.values(), 0)
         # return functions, the one with the greatest weight first
-        return sorted(self.result.iterkeys(), reverse=True,
+        return sorted(self.result.keys(), reverse=True,
                       key=lambda s: len(self.result[s]))

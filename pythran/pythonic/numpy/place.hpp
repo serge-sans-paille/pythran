@@ -5,7 +5,7 @@
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
-#include "pythonic/__builtin__/None.hpp"
+#include "pythonic/builtins/None.hpp"
 #include "pythonic/numpy/asarray.hpp"
 
 namespace pythonic
@@ -32,7 +32,7 @@ namespace pythonic
             *iter = *first;
         }
       }
-      return __builtin__::None;
+      return builtins::None;
     }
 
     template <class T, size_t N, class M, class F>

@@ -16,7 +16,7 @@ namespace pythonic
     types::ndarray<T, 2> tril(types::ndarray<T, 2> const &expr, int k)
     {
       auto &&expr_shape = expr.shape();
-      types::ndarray<T, 2> out(expr_shape, __builtin__::None);
+      types::ndarray<T, 2> out(expr_shape, builtins::None);
       for (int i = 0; i < expr_shape[0]; ++i) {
         auto out_i = out[i];
         auto expr_i = expr[i];

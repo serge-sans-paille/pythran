@@ -16,7 +16,7 @@ namespace pythonic
     types::ndarray<typename types::numpy_type<dtype>::type, N>
     empty(types::array<long, N> const &shape, dtype d)
     {
-      return {shape, __builtin__::None};
+      return {shape, builtins::None};
     }
 
     template <class dtype>

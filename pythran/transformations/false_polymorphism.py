@@ -28,7 +28,7 @@ class FalsePolymorphism(Transformation):
         if not self.use_omp:
             self.identifiers = self.passmanager.gather(Identifiers, node,
                                                        self.ctx)
-            for name, udgraph in self.use_def_chain.iteritems():
+            for name, udgraph in self.use_def_chain.items():
                 group_variable = list()
                 while udgraph:
                     e = udgraph.nodes_iter().next()

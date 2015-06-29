@@ -19,7 +19,7 @@ class NormalizeReturn(Transformation):
     >>> print pm.dump(backend.Python, node)
     def foo(y):
         print y
-        return __builtin__.None
+        return builtins.None
     '''
 
     def __init__(self):
@@ -27,14 +27,15 @@ class NormalizeReturn(Transformation):
 
     def visit_FunctionDef(self, node):
         self.yield_points = self.passmanager.gather(YieldPoints, node)
-        map(self.visit, node.body)
+        for s in node.body:
+            self.visit(s)
         # Look for nodes that have no successors
         for n in self.cfg.predecessors(None):
             if type(n) not in (ast.Return, ast.Raise):
                 if self.yield_points:
                     node.body.append(ast.Return(None))
                 else:
-                    none = ast.Attribute(ast.Name("__builtin__", ast.Load()),
+                    none = ast.Attribute(ast.Name('builtins', ast.Load()),
                                          'None', ast.Load())
                     node.body.append(ast.Return(none))
                 break
@@ -43,7 +44,7 @@ class NormalizeReturn(Transformation):
 
     def visit_Return(self, node):
         if not node.value and not self.yield_points:
-            none = ast.Attribute(ast.Name("__builtin__", ast.Load()),
+            none = ast.Attribute(ast.Name('builtins', ast.Load()),
                                  'None', ast.Load())
             node.value = none
         return node

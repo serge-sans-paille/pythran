@@ -10,7 +10,7 @@
 #include "pythonic/utils/iterator.hpp"
 #include "pythonic/utils/reserve.hpp"
 
-#include "pythonic/__builtin__/None.hpp"
+#include "pythonic/builtins/None.hpp"
 
 #include <memory>
 #include <utility>

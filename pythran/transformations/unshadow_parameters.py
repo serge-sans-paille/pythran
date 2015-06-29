@@ -32,7 +32,7 @@ class UnshadowParameters(Transformation):
         [self.visit(n) for n in node.body]
         # do it twice to make sure all renaming are done
         [self.visit(n) for n in node.body]
-        for k, v in self.renaming.iteritems():
+        for k, v in self.renaming.items():
             node.body.insert(
                 0,
                 ast.Assign(
@@ -51,7 +51,8 @@ class UnshadowParameters(Transformation):
                 self.renaming[node.id] = new_name
 
     def visit_Assign(self, node):
-        map(self.update_name, node.targets)
+        for target in node.targets:
+            self.update_name(target)
         try:
             self.generic_visit(node)
         except AttributeError:

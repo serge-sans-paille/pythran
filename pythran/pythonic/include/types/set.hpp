@@ -8,7 +8,7 @@
 #include "pythonic/utils/shared_ref.hpp"
 #include "pythonic/utils/iterator.hpp"
 
-#include "pythonic/__builtin__/in.hpp"
+#include "pythonic/builtins/in.hpp"
 
 #include <set>
 #include <memory>

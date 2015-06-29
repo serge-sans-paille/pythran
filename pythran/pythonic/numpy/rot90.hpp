@@ -23,7 +23,7 @@ namespace pythonic
       std::copy(expr_shape.begin(), expr_shape.end(), shape.begin());
       if (k % 4 != 2)
         std::swap(shape[0], shape[1]);
-      types::ndarray<T, N> out(shape, __builtin__::None);
+      types::ndarray<T, N> out(shape, builtins::None);
       auto &&out_shape = out.shape();
       if (k % 4 == 1) {
         for (int i = 0; i < out_shape[1]; ++i)

@@ -36,14 +36,14 @@ class SyntaxChecker(ast.NodeVisitor):
 
         def save_attribute(module):
             """ Recursively save Pythonic keywords as possible attributes. """
-            self.attributes.update(module.iterkeys())
-            for signature in module.itervalues():
+            self.attributes.update(module.keys())
+            for signature in module.values():
                 if isinstance(signature, dict):
                     save_attribute(signature)
                 elif isinstance(signature, Class):
                     save_attribute(signature.fields)
 
-        for module in MODULES.itervalues():
+        for module in MODULES.values():
             save_attribute(module)
 
     def visit_Module(self, node):
@@ -98,7 +98,8 @@ class SyntaxChecker(ast.NodeVisitor):
 
     def visit_Raise(self, node):
         self.generic_visit(node)
-        if node.tback:
+        # tback is not in py3
+        if hasattr(node, 'tback') and node.tback:
             raise PythranSyntaxError(
                 "Traceback in raise statements not supported",
                 node)

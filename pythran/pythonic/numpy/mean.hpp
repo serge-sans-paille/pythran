@@ -5,7 +5,7 @@
 
 #include "pythonic/numpy/sum.hpp"
 #include "pythonic/types/numpy_type.hpp"
-#include "pythonic/__builtin__/None.hpp"
+#include "pythonic/builtins/None.hpp"
 
 namespace pythonic
 {

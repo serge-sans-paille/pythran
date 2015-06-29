@@ -16,7 +16,7 @@ namespace pythonic
                                  types::none_type axis)
     {
       types::ndarray<T, 1> out(types::make_tuple(long(a.flat_size()) - 1),
-                               __builtin__::None);
+                               builtins::None);
       long n = a.flat_size();
       index = std::min(n, index);
       std::copy(a.buffer + index + 1, a.buffer + n,
@@ -32,7 +32,7 @@ namespace pythonic
     {
       types::ndarray<T, 1> out(
           types::make_tuple(long(in.flat_size()) - indices.flat_size()),
-          __builtin__::None);
+          builtins::None);
       auto out_iter = out.buffer;
       auto in_iter = in.buffer;
       for (long index : indices) {

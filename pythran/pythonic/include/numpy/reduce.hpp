@@ -2,8 +2,8 @@
 #define PYTHONIC_INCLUDE_NUMPY_REDUCE_HPP
 
 #include "pythonic/types/ndarray.hpp"
-#include "pythonic/__builtin__/None.hpp"
-#include "pythonic/__builtin__/ValueError.hpp"
+#include "pythonic/builtins/None.hpp"
+#include "pythonic/builtins/ValueError.hpp"
 #include "pythonic/utils/neutral.hpp"
 
 #ifdef USE_BOOST_SIMD

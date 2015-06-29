@@ -8,7 +8,7 @@
 
 namespace pythonic
 {
-  namespace __builtin__
+  namespace builtins
   {
     template <size_t AttributeID>
     double getattr(double self)

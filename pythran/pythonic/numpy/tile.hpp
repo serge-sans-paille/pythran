@@ -29,7 +29,7 @@ namespace pythonic
     {
       size_t n = expr.flat_size();
       typename types::numpy_expr_to_ndarray<E>::type out(
-          types::array<long, 1>{{long(n * reps)}}, __builtin__::None);
+          types::array<long, 1>{{long(n * reps)}}, builtins::None);
       auto out_iter = out.fbegin();
       _tile(expr.begin(), expr.end(), out_iter,
             utils::int_<types::numpy_expr_to_ndarray<E>::N>());
@@ -49,7 +49,7 @@ namespace pythonic
         shape[N - i - 1] =
             reps[N - i - 1] * ((E::value > i) ? expr_shape[i] : 1);
       types::ndarray<typename types::numpy_expr_to_ndarray<E>::T, N> out(
-          shape, __builtin__::None);
+          shape, builtins::None);
       auto out_iter = out.fbegin();
       _tile(expr.begin(), expr.end(), out_iter,
             utils::int_<types::numpy_expr_to_ndarray<E>::N>());

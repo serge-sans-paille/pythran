@@ -4,8 +4,8 @@
 #include "pythonic/include/numpy/reduce.hpp"
 
 #include "pythonic/types/ndarray.hpp"
-#include "pythonic/__builtin__/None.hpp"
-#include "pythonic/__builtin__/ValueError.hpp"
+#include "pythonic/builtins/None.hpp"
+#include "pythonic/builtins/ValueError.hpp"
 #include "pythonic/utils/neutral.hpp"
 
 #ifdef USE_BOOST_SIMD
@@ -103,7 +103,7 @@ namespace pythonic
         types::array<long, E::value - 1> shp;
         auto next = std::copy(shape.begin(), shape.begin() + axis, shp.begin());
         std::copy(shape.begin() + axis + 1, shape.end(), next);
-        reduced_type<E> sumy{shp, __builtin__::None};
+        reduced_type<E> sumy{shp, builtins::None};
         std::transform(array.begin(), array.end(), sumy.begin(),
                        [axis](typename E::iterator::value_type other) {
                          return reduce<Op>(other, axis - 1);

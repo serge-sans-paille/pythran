@@ -5,7 +5,9 @@ RangeLoopUnfolding turns unfolded range of non unrolled loops back to range.
 from pythran.passmanager import Transformation
 
 import ast
+import sys
 
+RangeBuiltin = 'xrange' if sys.version_info[0] < 3 else 'range'
 
 class RangeLoopUnfolding(Transformation):
     """
@@ -17,9 +19,10 @@ class RangeLoopUnfolding(Transformation):
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(RangeLoopUnfolding, node)
     >>> print pm.dump(backend.Python, node)
-    for i in __builtin__.xrange(1, 4, 1):
+    for i in builtins.{}(1, 4, 1):
         print i
-    """
+    """.format(RangeBuiltin)
+
 
     def isrange(self, elts):
         if not elts:
@@ -44,10 +47,10 @@ class RangeLoopUnfolding(Transformation):
             range_params = self.isrange(node.iter.elts)
             if range_params:
                 node.iter = ast.Call(ast.Attribute(
-                    ast.Name('__builtin__', ast.Load()),
-                    'xrange',
+                    ast.Name('builtins', ast.Load()),
+                    RangeBuiltin,
                     node.iter.ctx),
-                    map(ast.Num, range_params),
+                    [ast.Num(p) for p in range_params],
                     [], None, None)
                 self.update = True
         return self.generic_visit(node)

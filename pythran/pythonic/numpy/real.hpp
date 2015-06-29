@@ -12,10 +12,10 @@ namespace pythonic
   namespace numpy
   {
     template <class E>
-    auto real(E &&expr) -> decltype(
-        __builtin__::getattr<types::attr::REAL>(std::forward<E>(expr)))
+    auto real(E &&expr)
+        -> decltype(builtins::getattr<types::attr::REAL>(std::forward<E>(expr)))
     {
-      return __builtin__::getattr<types::attr::REAL>(std::forward<E>(expr));
+      return builtins::getattr<types::attr::REAL>(std::forward<E>(expr));
     }
 
     PROXY_IMPL(pythonic::numpy, real);

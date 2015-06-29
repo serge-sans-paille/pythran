@@ -5,7 +5,7 @@
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
-#include "pythonic/__builtin__/sum.hpp"
+#include "pythonic/builtins/sum.hpp"
 
 namespace pythonic
 {
@@ -78,7 +78,7 @@ namespace pythonic
       size_t concatenate_size(std::tuple<Types...> const &args,
                               utils::seq<I...>)
       {
-        return __builtin__::sum(std::make_tuple(
+        return builtins::sum(std::make_tuple(
             first_dim<std::tuple_element<0, std::tuple<Types...>>::type::value>(
                 std::get<I>(args).shape())...));
       }

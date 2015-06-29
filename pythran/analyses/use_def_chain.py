@@ -102,7 +102,8 @@ class UseDefChain(FunctionAnalysis):
         # in assignation, left expression is compute before the assignation
         # to the right expression
         self.visit(node.value)
-        map(self.visit, node.targets)
+        for target in node.targets:
+            self.visit(target)
 
     def visit_AugAssign(self, node):
         md.visit(self, node)
@@ -133,13 +134,15 @@ class UseDefChain(FunctionAnalysis):
             swap = True
 
         # body
-        old_node = {i: set(j) for i, j in self.current_node.iteritems()}
-        map(self.visit, node.body)
+        old_node = {i: set(j) for i, j in self.current_node.items()}
+        for s in node.body:
+            self.visit(s)
 
         # orelse
         new_node = self.current_node
         self.current_node = old_node
-        map(self.visit, node.orelse)
+        for s in node.orelse:
+            self.visit(s)
 
         if swap:
             node.body, node.orelse = node.orelse, node.body
@@ -160,7 +163,7 @@ class UseDefChain(FunctionAnalysis):
             swap = True
 
         # body
-        old_node = {i: set(j) for i, j in self.current_node.iteritems()}
+        old_node = {i: set(j) for i, j in self.current_node.items()}
         self.visit(node.body)
 
         # orelse
@@ -184,19 +187,21 @@ class UseDefChain(FunctionAnalysis):
 
     def visit_While(self, node):
         md.visit(self, node)
-        prev_node = {i: set(j) for i, j in self.current_node.iteritems()}
+        prev_node = {i: set(j) for i, j in self.current_node.items()}
         self.visit(node.test)
         # body
         self.in_loop = True
-        old_node = {i: set(j) for i, j in self.current_node.iteritems()}
-        map(self.visit, node.body)
+        old_node = {i: set(j) for i, j in self.current_node.items()}
+        for s in node.body:
+            self.visit(s)
         self.add_loop_edges(prev_node)
         self.in_loop = False
 
         # orelse
         new_node = self.current_node
         self.merge_dict_set(self.current_node, old_node)
-        map(self.visit, node.orelse)
+        for s in node.orelse:
+            self.visit(s)
 
         # merge result
         self.merge_dict_set(self.current_node, new_node)
@@ -209,16 +214,18 @@ class UseDefChain(FunctionAnalysis):
 
         # body
         self.in_loop = True
-        old_node = {i: set(j) for i, j in self.current_node.iteritems()}
+        old_node = {i: set(j) for i, j in self.current_node.items()}
         self.visit(node.target)
-        map(self.visit, node.body)
+        for s in node.body:
+            self.visit(s)
         self.add_loop_edges(old_node)
         self.in_loop = False
 
         # orelse
         new_node = self.current_node
         self.merge_dict_set(self.current_node, old_node)
-        map(self.visit, node.orelse)
+        for s in node.orelse:
+            self.visit(s)
 
         # merge result
         self.merge_dict_set(self.current_node, new_node)
@@ -232,7 +239,7 @@ class UseDefChain(FunctionAnalysis):
         all_node = dict()
         for stmt in node.body:
             self.visit(stmt)
-            for k, i in self.current_node.iteritems():
+            for k, i in self.current_node.items():
                 if k not in all_node:
                     all_node[k] = i
                 else:

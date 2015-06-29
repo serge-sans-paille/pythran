@@ -19,9 +19,9 @@ def mangle_imported_function_name(module_name, func_name):
 
 def is_builtin_function(func_name):
     """Test if a function is a builtin (like len(), map(), ...)."""
-    return (func_name in MODULES["__builtin__"] or
+    return (func_name in MODULES['builtins'] or
             (func_name in cxx_keywords and
-             func_name + "_" in MODULES["__builtin__"]))
+             func_name + "_" in MODULES['builtins']))
 
 
 def is_builtin_module_name(module_name):

@@ -3,7 +3,7 @@
 
 #include "pythonic/include/types/list.hpp"
 #include "pythonic/types/tuple.hpp"
-#include "pythonic/__builtin__/len.hpp"
+#include "pythonic/builtins/len.hpp"
 
 #include <cassert>
 #include <algorithm>
@@ -647,7 +647,7 @@ namespace pythonic
     void reserve(types::list<T> &l, From const &f,
                  typename From::const_iterator *p)
     {
-      l.reserve(__builtin__::len(f));
+      l.reserve(builtins::len(f));
     }
   }
 }

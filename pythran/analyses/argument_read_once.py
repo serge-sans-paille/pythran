@@ -7,6 +7,7 @@ from pythran.tables import MODULES
 import pythran.intrinsic as intrinsic
 
 import ast
+from functools import reduce
 
 
 class ArgumentReadOnce(ModuleAnalysis):
@@ -65,7 +66,7 @@ class ArgumentReadOnce(ModuleAnalysis):
         """
         super(ArgumentReadOnce, self).prepare(node, ctx)
         # global functions init
-        for n in self.global_declarations.itervalues():
+        for n in self.global_declarations.values():
             fe = ArgumentReadOnce.FunctionEffects(n)
             self.node_to_functioneffect[n] = fe
             self.result.add(fe)
@@ -73,7 +74,7 @@ class ArgumentReadOnce(ModuleAnalysis):
         # Pythonic functions init
         def save_effect(module):
             """ Recursively save read once effect for Pythonic functions. """
-            for intr in module.itervalues():
+            for intr in module.values():
                 if isinstance(intr, dict):  # Submodule case
                     save_effect(intr)
                 else:
@@ -83,13 +84,13 @@ class ArgumentReadOnce(ModuleAnalysis):
                     if isinstance(intr, intrinsic.Class):  # Class case
                         save_effect(intr.fields)
 
-        for module in MODULES.itervalues():
+        for module in MODULES.values():
             save_effect(module)
 
     def run(self, node, ctx):
         ModuleAnalysis.run(self, node, ctx)
         for fun in self.result:
-            for i in xrange(len(fun.read_effects)):
+            for i in range(len(fun.read_effects)):
                 self.recursive_weight(fun, i, set())
         return {f.func: f.read_effects for f in self.result}
 
@@ -127,7 +128,7 @@ class ArgumentReadOnce(ModuleAnalysis):
         return lambda ctx: effect if index == ctx.index else 0
 
     def generic_visit(self, node):
-        lambdas = map(self.visit, ast.iter_child_nodes(node))
+        lambdas = [self.visit(n) for n in ast.iter_child_nodes(node)]
         if lambdas:
             return lambda ctx: sum(l(ctx) for l in lambdas)
         else:
@@ -160,22 +161,22 @@ class ArgumentReadOnce(ModuleAnalysis):
     def visit_For(self, node):
         iter_local = self.local_effect(node.iter, 1)
         iter_deps = self.visit(node.iter)
-        body_deps = map(self.visit, node.body)
-        else_deps = map(self.visit, node.orelse)
+        body_deps = [self.visit(n) for n in node.body]
+        else_deps = [self.visit(n) for n in node.orelse]
         return lambda ctx: iter_local(ctx) + iter_deps(ctx) + 2 * sum(
             l(ctx) for l in body_deps) + sum(l(ctx) for l in else_deps)
 
     def visit_While(self, node):
         test_deps = self.visit(node.test)
-        body_deps = map(self.visit, node.body)
-        else_deps = map(self.visit, node.orelse)
+        body_deps = [self.visit(n) for n in node.body]
+        else_deps = [self.visit(n) for n in node.orelse]
         return lambda ctx: test_deps(ctx) + 2 * sum(
             l(ctx) for l in body_deps) + sum(l(ctx) for l in else_deps)
 
     def visit_If(self, node):
         test_deps = self.visit(node.test)
-        body_deps = map(self.visit, node.body)
-        else_deps = map(self.visit, node.orelse)
+        body_deps = [self.visit(n) for n in node.body]
+        else_deps = [self.visit(n) for n in node.orelse]
         return lambda ctx: test_deps(ctx) + max(sum(
             l(ctx) for l in body_deps), sum(l(ctx) for l in else_deps))
 

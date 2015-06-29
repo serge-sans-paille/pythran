@@ -22,5 +22,7 @@ class LocalDeclarations(NodeAnalysis):
     def visit_For(self, node):
         assert isinstance(node.target, ast.Name)
         self.result.add(node.target)
-        map(self.visit, node.body)
-        map(self.visit, node.orelse)
+        for s in node.body:
+            self.visit(s)
+        for s in node.orelse:
+            self.visit(s)

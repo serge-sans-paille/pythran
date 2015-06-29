@@ -1,12 +1,13 @@
-from __future__ import print_function
+import six
+
 from distutils.command.build import build
 from distutils.command.install import install
 from setuptools import setup, Command
 from setuptools.command.test import test as TestCommand
 from subprocess import check_call, check_output
-from urllib2 import urlopen
+from six.moves.urllib.request import urlopen
 from zipfile import ZipFile
-from StringIO import StringIO
+from io import BytesIO
 
 import logging
 import os
@@ -18,7 +19,8 @@ import time
 logger = logging.getLogger("pythran")
 logger.addHandler(logging.StreamHandler())
 
-execfile(os.path.join('pythran', 'version.py'))
+versionfile = os.path.join('pythran', 'version.py')
+exec(compile(open(versionfile).read(), versionfile, 'exec'))
 
 
 class PyTest(TestCommand):
@@ -97,7 +99,7 @@ class BuildWithPly(build):
             location = urlopen(url)
             http_code_prefix = location.getcode() / 100
             assert http_code_prefix not in [4, 5], "Failed to download nt2."
-            zipfile = ZipFile(StringIO(location.read()))
+            zipfile = ZipFile(BytesIO(location.read()))
             zipfile.extractall(self.build_temp)
             extracted = os.path.dirname(zipfile.namelist()[0])
             shutil.move(os.path.join(self.build_temp, extracted), nt2_src_dir)

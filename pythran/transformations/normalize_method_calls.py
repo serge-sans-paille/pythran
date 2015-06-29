@@ -6,6 +6,8 @@ from pythran.syntax import PythranSyntaxError
 from pythran.tables import attributes, functions, methods, MODULES
 
 import ast
+import sys
+from functools import reduce
 
 
 class NormalizeMethodCalls(Transformation):
@@ -18,7 +20,7 @@ class NormalizeMethodCalls(Transformation):
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(NormalizeMethodCalls, node)
     >>> print pm.dump(backend.Python, node)
-    __builtin__.list.append(l, 12)
+    builtins.list.append(l, 12)
     '''
 
     def __init__(self):
@@ -84,6 +86,9 @@ class NormalizeMethodCalls(Transformation):
             return node
         # imported module -> not a getattr
         elif type(node.value) is ast.Name and node.value.id in self.imports:
+            if sys.version_info[0] < 3 and node.value.id == '__builtin__':
+                node.value.id = 'builtins'
+                return node
             if node.attr not in MODULES[node.value.id]:
                 msg = ("`" + node.attr + "' is not a member of " +
                        node.value.id + " or Pythran does not support it")
@@ -94,7 +99,7 @@ class NormalizeMethodCalls(Transformation):
             return node
         # A getattr !
         else:
-            return ast.Call(ast.Attribute(ast.Name('__builtin__', ast.Load()),
+            return ast.Call(ast.Attribute(ast.Name('builtins', ast.Load()),
                                           'getattr',
                                           ast.Load()),
                             [node.value, ast.Str(node.attr)],
@@ -128,11 +133,11 @@ class NormalizeMethodCalls(Transformation):
 
 
         For functions:
-        >> __builtin__.dict.fromkeys([1, 2, 3])
+        >> builtins.dict.fromkeys([1, 2, 3])
 
         Becomes
 
-        >> __builtin__.__dict__.fromkeys([1, 2, 3])
+        >> builtins.__dict__.fromkeys([1, 2, 3])
         """
         node = self.generic_visit(node)
         # Only attributes function can be Pythonic and should be normalized

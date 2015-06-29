@@ -11,7 +11,7 @@ namespace pythonic
   {
     template <class E>
     auto imag(E &&expr) -> decltype(
-        __builtin__::getattr<types::attr::IMAG>(std::forward<E>(expr)));
+        builtins::getattr<types::attr::IMAG>(std::forward<E>(expr)));
 
     PROXY_DECL(pythonic::numpy, imag);
   }

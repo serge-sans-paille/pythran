@@ -4,6 +4,7 @@ from pythran.analyses import Identifiers
 from pythran.passmanager import Transformation
 
 import ast
+from functools import reduce
 
 
 class _ConvertToTuple(ast.NodeTransformer):
@@ -128,7 +129,7 @@ class NormalizeTuples(Transformation):
                 if renamings:
                     gtarget = self.get_new_id()
                     node.targets[i] = ast.Name(gtarget, node.targets[i].ctx)
-                    for rename, state in sorted(renamings.iteritems()):
+                    for rename, state in sorted(renamings.items()):
                         nnode = reduce(
                             lambda x, y: ast.Subscript(
                                 x,
@@ -153,7 +154,7 @@ class NormalizeTuples(Transformation):
             if renamings:
                 gtarget = self.get_new_id()
                 node.target = ast.Name(gtarget, node.target.ctx)
-                for rename, state in sorted(renamings.iteritems()):
+                for rename, state in sorted(renamings.items()):
                     nnode = reduce(
                         lambda x, y: ast.Subscript(
                             x,

@@ -4,7 +4,7 @@
 #include "pythonic/include/itertools/permutations.hpp"
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/list.hpp"
-#include "pythonic/__builtin__/range.hpp"
+#include "pythonic/builtins/range.hpp"
 
 #include <iterator>
 #include <vector>
@@ -25,7 +25,7 @@ namespace pythonic
     permutations_iterator<T>::permutations_iterator(
         std::vector<typename T::value_type> const &iter, size_t num_elts,
         bool end)
-        : pool(iter), curr_permut(__builtin__::range(pool.size())),
+        : pool(iter), curr_permut(builtins::range(pool.size())),
           _size(num_elts), end(end)
     {
       if (num_elts > iter.size()) {

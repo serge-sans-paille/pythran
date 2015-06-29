@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_NUMPY_SPLIT_HPP
 
 #include "pythonic/numpy/array_split.hpp"
-#include "pythonic/__builtin__/ValueError.hpp"
+#include "pythonic/builtins/ValueError.hpp"
 
 namespace pythonic
 {

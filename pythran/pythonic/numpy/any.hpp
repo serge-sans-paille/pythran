@@ -5,7 +5,7 @@
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
-#include "pythonic/__builtin__/ValueError.hpp"
+#include "pythonic/builtins/ValueError.hpp"
 #include "pythonic/numpy/add.hpp"
 
 namespace pythonic
@@ -66,7 +66,7 @@ namespace pythonic
       } else {
         types::array<long, N - 1> shp;
         std::copy(shape.begin(), shape.end() - 1, shp.begin());
-        types::ndarray<bool, N - 1> anyy(shp, __builtin__::None);
+        types::ndarray<bool, N - 1> anyy(shp, builtins::None);
         std::transform(array.begin(), array.end(), anyy.begin(),
                        [=](types::ndarray<T, N - 1> const &other) {
                          return any(other, axis - 1);

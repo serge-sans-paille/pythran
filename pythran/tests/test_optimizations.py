@@ -225,9 +225,9 @@ def foo():
     'omp parallel'
     if 1:
         print a
-    return __builtin__.None
+    return builtins.None
 def __init__():
-    return __builtin__.None
+    return builtins.None
 __init__()"""
         self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution"])
 
@@ -245,9 +245,9 @@ def foo():
     if 1:
         pass
         print 2
-    return __builtin__.None
+    return builtins.None
 def __init__():
-    return __builtin__.None
+    return builtins.None
 __init__()"""
         self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution"])
 
@@ -265,9 +265,9 @@ def foo():
     if 1:
         a = 2
     print a
-    return __builtin__.None
+    return builtins.None
 def __init__():
-    return __builtin__.None
+    return builtins.None
 __init__()"""
         self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution"])
 
@@ -284,18 +284,18 @@ def full_unroll0():
     __tuple0 = (1, 4)
     j = __tuple0[1]
     i = __tuple0[0]
-    __builtin__.list.append(k, (i, j))
+    builtins.list.append(k, (i, j))
     __tuple0 = (2, 5)
     j = __tuple0[1]
     i = __tuple0[0]
-    __builtin__.list.append(k, (i, j))
+    builtins.list.append(k, (i, j))
     __tuple0 = (3, 6)
     j = __tuple0[1]
     i = __tuple0[0]
-    __builtin__.list.append(k, (i, j))
+    builtins.list.append(k, (i, j))
     return k
 def __init__():
-    return __builtin__.None
+    return builtins.None
 __init__()'''
 
         self.check_ast(init, ref, ["pythran.optimizations.ConstantFolding", "pythran.optimizations.LoopFullUnrolling"])
@@ -330,7 +330,7 @@ def foo(a):
     (1 < bar(a))
     return 2
 def __init__():
-    return __builtin__.None
+    return builtins.None
 __init__()"""
         self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution", "pythran.optimizations.DeadCodeElimination"])
 
@@ -345,7 +345,7 @@ def foo(a):
     pass
     return 2
 def __init__():
-    return __builtin__.None
+    return builtins.None
 __init__()"""
         self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution", "pythran.optimizations.DeadCodeElimination"])
 
@@ -365,7 +365,7 @@ def foo(a):
     pass
     return 2
 def __init__():
-    return __builtin__.None
+    return builtins.None
 __init__()"""
         self.check_ast(init, ref, ["pythran.optimizations.DeadCodeElimination"])
 
@@ -375,9 +375,9 @@ def foo(a):
     return len(set(range(len(set(a)))))"""
         ref = """import itertools
 def foo(a):
-    return __builtin__.pythran.len_set(__builtin__.range(__builtin__.pythran.len_set(a)))
+    return builtins.pythran.len_set(builtins.range(builtins.pythran.len_set(a)))
 def __init__():
-    return __builtin__.None
+    return builtins.None
 __init__()"""
         self.check_ast(init, ref, ["pythran.optimizations.PatternTransform"])
 
@@ -387,9 +387,9 @@ def foo(a):
     return reversed(xrange(len(set(a))))"""
         ref = """import itertools
 def foo(a):
-    return __builtin__.xrange((__builtin__.pythran.len_set(a) - 1), (-1), (-1))
+    return builtins.xrange((builtins.pythran.len_set(a) - 1), (-1), (-1))
 def __init__():
-    return __builtin__.None
+    return builtins.None
 __init__()"""
         self.check_ast(init, ref, ["pythran.optimizations.PatternTransform"])
 
@@ -401,6 +401,6 @@ def foo(a):
 def foo(a):
     return (a ** 2)
 def __init__():
-    return __builtin__.None
+    return builtins.None
 __init__()"""
         self.check_ast(init, ref, ["pythran.optimizations.PatternTransform"])

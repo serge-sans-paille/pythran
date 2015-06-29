@@ -8,8 +8,8 @@
 #include "pythonic/utils/int_.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/str.hpp"
-#include "pythonic/__builtin__/None.hpp"
-#include "pythonic/__builtin__/ValueError.hpp"
+#include "pythonic/builtins/None.hpp"
+#include "pythonic/builtins/ValueError.hpp"
 #include "pythonic/numpy/asarray.hpp"
 
 #include <algorithm>
@@ -60,7 +60,7 @@ namespace pythonic
                     "Not Implemented : searchsorted for dimension != 1");
 
       types::ndarray<long, types::numpy_expr_to_ndarray<E>::N> out(
-          asarray(v).shape(), __builtin__::None);
+          asarray(v).shape(), builtins::None);
       _search_sorted(a, v.begin(), v.end(), out.begin(), side,
                      utils::int_<types::numpy_expr_to_ndarray<E>::N>());
       return out;

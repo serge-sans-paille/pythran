@@ -5,6 +5,7 @@ from pythran.analyses import HasBreak, HasContinue, NodeCount
 from pythran.openmp import OMPDirective
 from pythran.passmanager import Transformation
 
+from functools import reduce
 from copy import deepcopy
 import ast
 

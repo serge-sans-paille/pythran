@@ -3,7 +3,7 @@
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/itertools/common.hpp"
-#include "pythonic/__builtin__/xrange.hpp"
+#include "pythonic/builtins/xrange.hpp"
 #include <iterator>
 
 namespace pythonic
@@ -20,14 +20,14 @@ namespace pythonic
       typename std::remove_reference<
           typename std::remove_cv<Iterable>::type>::type::iterator iterable;
 
-      __builtin__::xrange xr_ref;
-      __builtin__::xrange_iterator state;
-      __builtin__::xrange_iterator::value_type prev;
+      builtins::xrange xr_ref;
+      builtins::xrange_iterator state;
+      builtins::xrange_iterator::value_type prev;
 
       islice_iterator();
-      islice_iterator(Iterable const &iterable, __builtin__::xrange const &xr);
+      islice_iterator(Iterable const &iterable, builtins::xrange const &xr);
       islice_iterator(npos const &n, Iterable const &iterable,
-                      __builtin__::xrange const &xr);
+                      builtins::xrange const &xr);
 
       typename Iterable::value_type operator*() const;
       islice_iterator &operator++();
@@ -46,7 +46,7 @@ namespace pythonic
       iterator end_iter;
 
       _islice();
-      _islice(Iterable const &iterable, __builtin__::xrange const &xr);
+      _islice(Iterable const &iterable, builtins::xrange const &xr);
 
       iterator &begin();
       iterator const &begin() const;

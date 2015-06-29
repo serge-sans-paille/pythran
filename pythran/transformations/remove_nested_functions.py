@@ -88,10 +88,11 @@ class RemoveNestedFunctions(Transformation):
     """
 
     def visit_Module(self, node):
-        map(self.visit, node.body)
+        for s in node.body:
+            self.visit(s)
         return node
 
     def visit_FunctionDef(self, node):
         nfr = _NestedFunctionRemover(self.passmanager, self.ctx)
-        node.body = map(nfr.visit, node.body)
+        node.body = [nfr.visit(s) for s in node.body]
         return node

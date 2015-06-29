@@ -5,7 +5,7 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/asarray.hpp"
 #include "pythonic/utils/numpy_conversion.hpp"
-#include "pythonic/__builtin__/ValueError.hpp"
+#include "pythonic/builtins/ValueError.hpp"
 
 namespace pythonic
 {

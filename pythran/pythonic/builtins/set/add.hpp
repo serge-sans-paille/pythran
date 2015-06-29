@@ -1,0 +1,34 @@
+#ifndef PYTHONIC_BUILTIN_SET_ADD_HPP
+#define PYTHONIC_BUILTIN_SET_ADD_HPP
+
+#include "pythonic/include/builtins/set/add.hpp"
+
+#include "pythonic/utils/proxy.hpp"
+#include "pythonic/types/set.hpp"
+
+namespace pythonic
+{
+
+  namespace builtins
+  {
+
+    namespace set
+    {
+
+      template <class T, class F>
+      void add(types::set<T> &s, F const &value)
+      {
+        s.add(value);
+      }
+
+      template <class T, class F>
+      void add(types::set<T> &&s, F const &value)
+      {
+        // nothing have to be done as we work on rvalue
+      }
+
+      PROXY_IMPL(pythonic::builtins::set, add);
+    }
+  }
+}
+#endif

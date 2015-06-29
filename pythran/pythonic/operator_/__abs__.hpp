@@ -4,7 +4,7 @@
 #include "pythonic/include/operator_/__abs__.hpp"
 
 #include "pythonic/utils/proxy.hpp"
-#include "pythonic/__builtin__/abs.hpp"
+#include "pythonic/builtins/abs.hpp"
 
 namespace pythonic
 {
@@ -13,9 +13,9 @@ namespace pythonic
   {
 
     template <class A>
-    auto __abs__(A const &a) -> decltype(__builtin__::abs(a))
+    auto __abs__(A const &a) -> decltype(builtins::abs(a))
     {
-      return __builtin__::abs(a);
+      return builtins::abs(a);
     }
 
     PROXY_IMPL(pythonic::operator_, __abs__);

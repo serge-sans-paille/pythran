@@ -2,10 +2,14 @@
 
 from __future__ import absolute_import
 
+import six
+
 import ast
 import itertools
 import numpy
 import types
+import sys
+
 
 # Maximum length of folded sequences
 # Containers larger than this are not unfolded to limit code size growth
@@ -34,14 +38,14 @@ def size_container_folding(value):
     """
     if len(value) < MAX_LEN:
         if isinstance(value, list):
-            return ast.List(map(to_ast, value), ast.Load())
+            return ast.List([to_ast(v) for v in value], ast.Load())
         elif isinstance(value, tuple):
-            return ast.Tuple(map(to_ast, value), ast.Load())
+            return ast.Tuple([to_ast(v) for v in value], ast.Load())
         elif isinstance(value, set):
-            return ast.Set(map(to_ast, value))
+            return ast.Set([to_ast(v) for v in value])
         elif isinstance(value, dict):
-            keys = map(to_ast, value.iterkeys())
-            values = map(to_ast, value.itervalues())
+            keys = [to_ast(k) for k in value.keys()]
+            values = [to_ast(v) for v in value.values()]
             return ast.Dict(keys, values)
         elif isinstance(value, numpy.ndarray):
             return ast.Call(func=ast.Attribute(ast.Name('numpy', ast.Load()),
@@ -63,7 +67,7 @@ def builtin_folding(value):
         name = value.__name__ + "_"
     else:
         name = value.__name__
-    return ast.Attribute(ast.Name('__builtin__', ast.Load()),
+    return ast.Attribute(ast.Name('builtins', ast.Load()),
                          name, ast.Load())
 
 
@@ -85,21 +89,24 @@ def to_ast(value):
                   numpy.int64, numpy.intp, numpy.intc, numpy.int_,
                   numpy.bool_)
     itertools_t = [getattr(itertools, fun) for fun in dir(itertools)
-                   if isinstance(getattr(itertools, fun), types.TypeType)]
+                   if isinstance(getattr(itertools, fun), type)]
     unfolded_type = (types.BuiltinFunctionType, types.BuiltinMethodType,
-                     types.FunctionType, types.TypeType, types.XRangeType,
-                     numpy.ufunc, type(list.append), types.FileType,
+                     types.FunctionType, numpy.ufunc, type(list.append),
                      BaseException, types.GeneratorType) + tuple(itertools_t)
-    if type(value) in (int, long, float, complex):
+    if sys.version_info[0] < 3:
+        unfolded_type += (types.TypeType, types.XRangeType, types.FileType)
+    else:
+        unfolded_type += (type, range)
+    if type(value) in six.integer_types + (float, complex):
         return ast.Num(value)
-    elif isinstance(value, (types.NoneType, bool)):
-        return ast.Attribute(ast.Name('__builtin__', ast.Load()),
+    elif isinstance(value, (type(None), bool)):
+        return ast.Attribute(ast.Name('builtins', ast.Load()),
                              str(value), ast.Load())
     elif isinstance(value, str):
         return ast.Str(value)
     elif isinstance(value, (list, tuple, set, dict, numpy.ndarray)):
         return size_container_folding(value)
-    elif hasattr(value, "__module__") and value.__module__ == "__builtin__":
+    elif hasattr(value, "__module__") and value.__module__ == 'builtins':
         # TODO Can be done the same way for others modules
         return builtin_folding(value)
     elif isinstance(value, numpy_type):

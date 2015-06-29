@@ -109,7 +109,7 @@ class DeclSpecifier(NestedDeclarator):
         def add_spec(sub_it):
             it = iter(sub_it)
             try:
-                yield "%s%s%s" % (self.spec, self.sep, it.next())
+                yield "%s%s%s" % (self.spec, self.sep, next(it))
             except StopIteration:
                 pass
 

@@ -12,10 +12,11 @@ namespace pythonic
   namespace numpy
   {
     template <class E>
-    auto imag(E &&expr) -> decltype(
-        __builtin__::getattr<types::attr::IMAG>(std::forward<E>(expr)))
+    auto imag(E &&expr)
+        -> decltype(builtins::getattr<types::attr::IMAG>(std::forward<E>(expr)))
+
     {
-      return __builtin__::getattr<types::attr::IMAG>(std::forward<E>(expr));
+      return builtins::getattr<types::attr::IMAG>(std::forward<E>(expr));
     }
 
     PROXY_IMPL(pythonic::numpy, imag);

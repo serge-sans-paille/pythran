@@ -111,7 +111,7 @@ class Check(NodeVisitor):
             return False
         if len(pattern.keys) > MAX_UNORDERED_LENGTH:
             raise DamnTooLongPattern("Pattern for Dict is too long")
-        for permutation in permutations(xrange(len(self.node.keys))):
+        for permutation in permutations(range(len(self.node.keys))):
             for i, value in enumerate(permutation):
                 if not self.field_match(self.node.keys[i],
                                         pattern.keys[value]):

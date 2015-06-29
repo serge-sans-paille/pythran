@@ -4,7 +4,7 @@
 #include "pythonic/include/operator_/delitem.hpp"
 
 #include "pythonic/utils/proxy.hpp"
-#include "pythonic/__builtin__/None.hpp"
+#include "pythonic/builtins/None.hpp"
 
 namespace pythonic
 {
@@ -16,7 +16,7 @@ namespace pythonic
     types::none_type delitem(A &&a, B const &b)
     {
       a.remove(b);
-      return __builtin__::None;
+      return builtins::None;
     }
 
     PROXY_IMPL(pythonic::operator_, delitem);

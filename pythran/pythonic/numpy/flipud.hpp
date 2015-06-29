@@ -12,11 +12,11 @@ namespace pythonic
   namespace numpy
   {
     template <class E>
-    auto flipud(E &&expr) -> decltype(std::forward<E>(
-        expr)[types::slice{__builtin__::None, __builtin__::None, -1}])
+    auto flipud(E &&expr) -> decltype(
+        std::forward<E>(expr)[types::slice{builtins::None, builtins::None, -1}])
     {
       return std::forward<E>(
-          expr)[types::slice{__builtin__::None, __builtin__::None, -1}];
+          expr)[types::slice{builtins::None, builtins::None, -1}];
     }
 
     PROXY_IMPL(pythonic::numpy, flipud);

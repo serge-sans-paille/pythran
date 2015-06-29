@@ -46,10 +46,10 @@ class Intrinsic(object):
         self.global_effects = kwargs.get('global_effects', False)
         self.return_alias = kwargs.get('return_alias', lambda x: {NewMem()})
         self.return_type = kwargs.get('return_type', None)
-        self.args = ast.arguments([ast.Name(n, ast.Param())
-                                   for n in kwargs.get('args', [])],
-                                  None, None,
-                                  map(to_ast, kwargs.get('defaults', [])))
+        self.args = ast.make_arguments([ast.Name(n, ast.Param())
+                                       for n in kwargs.get('args', [])],
+                                       None, None,
+                                       [to_ast(d) for d in kwargs.get('defaults', [])])
         self.return_range = kwargs.get("return_range",
                                        lambda call: UNKNOWN_RANGE)
         self.return_range_content = kwargs.get("return_ange_content",

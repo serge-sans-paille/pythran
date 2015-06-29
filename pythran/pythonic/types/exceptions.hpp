@@ -6,7 +6,7 @@
 #include "pythonic/types/str.hpp"
 #include "pythonic/types/list.hpp"
 #include "pythonic/types/attr.hpp"
-#include "pythonic/__builtin__/str.hpp"
+#include "pythonic/builtins/str.hpp"
 
 #include <stdexcept>
 
@@ -125,7 +125,7 @@ namespace pythonic
     return types::name(args...);                                               \
   }                                                                            \
                                                                                \
-  PROXY_IMPL(pythonic::__builtin__, name);
+  PROXY_IMPL(pythonic::builtins, name);
 
 /* pythran attribute system { */
 #define IMPL_EXCEPTION_GETATTR(name)                                           \
@@ -142,7 +142,7 @@ namespace pythonic
         }                                                                      \
       }                                                                        \
     }                                                                          \
-    namespace __builtin__                                                      \
+    namespace builtins                                                         \
     {                                                                          \
       template <int I>                                                         \
       auto getattr(types::name const &f)                                       \
@@ -171,27 +171,27 @@ namespace pythonic
         none<str> getattr<attr::ERRNO>::operator()(name const &e)              \
         {                                                                      \
           if (e.args.size() > 3 || e.args.size() < 2)                          \
-            return __builtin__::None;                                          \
+            return builtins::None;                                             \
           else                                                                 \
             return e.args[0];                                                  \
         }                                                                      \
         none<str> getattr<attr::STRERROR>::operator()(name const &e)           \
         {                                                                      \
           if (e.args.size() > 3 || e.args.size() < 2)                          \
-            return __builtin__::None;                                          \
+            return builtins::None;                                             \
           else                                                                 \
             return e.args[1];                                                  \
         }                                                                      \
         none<str> getattr<attr::FILENAME>::operator()(name const &e)           \
         {                                                                      \
           if (e.args.size() != 3)                                              \
-            return __builtin__::None;                                          \
+            return builtins::None;                                             \
           else                                                                 \
             return e.args[2];                                                  \
         }                                                                      \
       }                                                                        \
     }                                                                          \
-    namespace __builtin__                                                      \
+    namespace builtins                                                         \
     {                                                                          \
       template <int I>                                                         \
       auto getattr(types::name const &f)                                       \
@@ -299,7 +299,7 @@ namespace pythonic
 #define REGISTER_EXCEPTION_TRANSLATOR_IMPL(name)                               \
   void translate_##name(types::name const &e)                                  \
   {                                                                            \
-    PyErr_SetString(PyExc_##name, __builtin__::proxy::str{}(e.args).c_str());  \
+    PyErr_SetString(PyExc_##name, builtins::proxy::str{}(e.args).c_str());     \
   }
 
 namespace pythonic

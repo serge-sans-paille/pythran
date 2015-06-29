@@ -55,13 +55,13 @@ namespace pythonic
       iterator end();
 
       auto fast(long i) const
-          -> decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
-                                                 pythonic::__builtin__::None),
+          -> decltype(this->arg(contiguous_slice(pythonic::builtins::None,
+                                                 pythonic::builtins::None),
                                 i));
 
       auto fast(long i)
-          -> decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
-                                                 pythonic::__builtin__::None),
+          -> decltype(this->arg(contiguous_slice(pythonic::builtins::None,
+                                                 pythonic::builtins::None),
                                 i));
 
 #ifdef USE_BOOST_SIMD
@@ -79,20 +79,20 @@ namespace pythonic
           -> decltype(arg[array<long, 2>{{indices[1], indices[0]}}]);
 
       auto operator()(contiguous_slice const &s0) const
-          -> decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
-                                                 pythonic::__builtin__::None),
+          -> decltype(this->arg(contiguous_slice(pythonic::builtins::None,
+                                                 pythonic::builtins::None),
                                 s0));
       auto operator()(contiguous_slice const &s0)
-          -> decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
-                                                 pythonic::__builtin__::None),
+          -> decltype(this->arg(contiguous_slice(pythonic::builtins::None,
+                                                 pythonic::builtins::None),
                                 s0));
       auto operator()(slice const &s0) const
-          -> decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
-                                                 pythonic::__builtin__::None),
+          -> decltype(this->arg(contiguous_slice(pythonic::builtins::None,
+                                                 pythonic::builtins::None),
                                 s0));
       auto operator()(slice const &s0)
-          -> decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
-                                                 pythonic::__builtin__::None),
+          -> decltype(this->arg(contiguous_slice(pythonic::builtins::None,
+                                                 pythonic::builtins::None),
                                 s0));
       auto operator[](contiguous_slice const &s0) const
           -> decltype(this->operator()(s0));

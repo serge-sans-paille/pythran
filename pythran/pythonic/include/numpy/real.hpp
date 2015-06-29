@@ -11,7 +11,7 @@ namespace pythonic
   {
     template <class E>
     auto real(E &&expr) -> decltype(
-        __builtin__::getattr<types::attr::REAL>(std::forward<E>(expr)));
+        builtins::getattr<types::attr::REAL>(std::forward<E>(expr)));
 
     PROXY_DECL(pythonic::numpy, real);
   }

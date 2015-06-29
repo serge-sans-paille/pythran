@@ -5,7 +5,7 @@
 
 #include "pythonic/types/assignable.hpp"
 #include "pythonic/types/complex.hpp"
-#include "pythonic/__builtin__/id.hpp"
+#include "pythonic/builtins/id.hpp"
 
 #include <iterator>
 #include <cassert>
@@ -66,7 +66,7 @@ namespace pythonic
     template <class T>
     intptr_t none<T>::id() const
     {
-      return is_none ? NONE_ID : __builtin__::id(*static_cast<T *>(this));
+      return is_none ? NONE_ID : builtins::id(*static_cast<T *>(this));
     }
 
 /* specialization of none for integral types we cannot derive from */

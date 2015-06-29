@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_RANDOM_SEED_HPP
 
 #include "pythonic/utils/proxy.hpp"
-#include "pythonic/__builtin__/None.hpp"
+#include "pythonic/builtins/None.hpp"
 #include "pythonic/random/random.hpp"
 
 #include <ctime>

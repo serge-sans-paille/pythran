@@ -17,7 +17,7 @@ namespace pythonic
       auto arr = asarray(expr);
       long n = arr.flat_size() - 1;
       types::ndarray<typename types::numpy_expr_to_ndarray<E>::T, 1> out(
-          types::make_tuple(n), __builtin__::None);
+          types::make_tuple(n), builtins::None);
       // Compute adjacent difference except for the first element
       std::adjacent_difference(arr.fbegin() + 1, arr.fend(), out.fbegin());
       // First element can be done now

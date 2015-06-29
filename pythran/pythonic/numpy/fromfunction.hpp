@@ -5,7 +5,7 @@
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
-#include "pythonic/__builtin__/None.hpp"
+#include "pythonic/builtins/None.hpp"
 #include "pythonic/utils/tags.hpp"
 
 namespace pythonic
@@ -24,7 +24,7 @@ namespace pythonic
     {
       types::ndarray<typename std::remove_cv<typename std::remove_reference<
                          typename std::result_of<F(dtype)>::type>::type>::type,
-                     1> out(shape, __builtin__::None);
+                     1> out(shape, builtins::None);
       long n = out.shape()[0];
 #ifdef _OPENMP
       if (std::is_same<purity_tag, purity::pure_tag>::value and
@@ -49,7 +49,7 @@ namespace pythonic
       types::ndarray<
           typename std::remove_cv<typename std::remove_reference<
               typename std::result_of<F(dtype, dtype)>::type>::type>::type,
-          2> out(shape, __builtin__::None);
+          2> out(shape, builtins::None);
       auto &&out_shape = out.shape();
       long n = out_shape[0];
       long m = out_shape[1];

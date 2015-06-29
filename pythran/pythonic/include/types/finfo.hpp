@@ -34,7 +34,7 @@ namespace pythonic
       };
     }
   }
-  namespace __builtin__
+  namespace builtins
   {
     template <int I, class T>
     auto getattr(pythonic::types::finfo<T> const &f)

@@ -3,7 +3,7 @@
 
 #include "pythonic/include/time/sleep.hpp"
 #include "pythonic/utils/proxy.hpp"
-#include "pythonic/__builtin__/None.hpp"
+#include "pythonic/builtins/None.hpp"
 
 #include <cmath>
 #include <sys/time.h>
@@ -20,7 +20,7 @@ namespace pythonic
       t.tv_sec = std::fabs(value);
       t.tv_nsec = std::fabs((value - t.tv_sec) * 1e+9);
       nanosleep(&t, nullptr);
-      return __builtin__::None;
+      return builtins::None;
     }
 
     PROXY_IMPL(pythonic::time, sleep)

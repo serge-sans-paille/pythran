@@ -52,7 +52,8 @@ class RangeValues(FunctionAnalysis):
         for attr in node.args.args:
             self.result[attr.id] = UNKNOWN_RANGE
 
-        map(self.visit, node.body)
+        for s in node.body:
+            self.visit(s)
 
     def visit_Assign(self, node):
         """
@@ -101,7 +102,7 @@ class RangeValues(FunctionAnalysis):
         >>> node = ast.parse('''
         ... def foo():
         ...     a = b = c = 2
-        ...     for i in __builtin__.range(1):
+        ...     for i in builtins.range(1):
         ...         a -= 1
         ...         b += 1''')
         >>> pm = passmanager.PassManager("test")
@@ -118,8 +119,8 @@ class RangeValues(FunctionAnalysis):
             for alias in self.aliases[node.iter.func].aliases:
                 if isinstance(alias, Intrinsic):
                     self.add(node.target.id,
-                             alias.return_range_content(map(self.visit,
-                                                            node.iter.args)))
+                             alias.return_range_content([self.visit(arg) for arg in
+                                                            node.iter.args]))
                 else:
                     self.add(node.target.id, UNKNOWN_RANGE)
         else:
@@ -148,10 +149,12 @@ class RangeValues(FunctionAnalysis):
         Range(low=2, high=2)
         """
         old_range = copy.deepcopy(self.result)
-        map(self.visit, node.body)
-        for name, range_ in old_range.iteritems():
+        for s in node.body:
+            self.visit(s)
+        for name, range_ in old_range.items():
             self.result[name].widen(range_)
-        map(self.visit, node.orelse)
+        for s in node.orelse:
+            self.visit(s)
 
     visit_While = visit_loop
 
@@ -172,7 +175,7 @@ class RangeValues(FunctionAnalysis):
         >>> res['d']
         Range(low=2, high=3)
         """
-        res = zip(*map(self.visit, node.values))
+        res = zip(*[self.visit(v) for v in node.values])
         return Range(min(res[0]), max(res[1]))
 
     def visit_BinOp(self, node):
@@ -275,7 +278,7 @@ class RangeValues(FunctionAnalysis):
         >>> from pythran import passmanager, backend
         >>> node = ast.parse('''
         ... def foo():
-        ...     a = __builtin__.range(10)''')
+        ...     a = builtins.range(10)''')
         >>> pm = passmanager.PassManager("test")
         >>> res = pm.gather(RangeValues, node)
         >>> res['a']
@@ -284,7 +287,7 @@ class RangeValues(FunctionAnalysis):
         result = None
         for alias in self.aliases[node.func].aliases:
             if isinstance(alias, Intrinsic):
-                alias_range = alias.return_range(map(self.visit, node.args))
+                alias_range = alias.return_range([self.visit(arg) for arg in node.args])
                 result = result.update(alias_range) if result else alias_range
             else:
                 return UNKNOWN_RANGE
@@ -311,7 +314,7 @@ class RangeValues(FunctionAnalysis):
         ... def foo():
         ...     try:
         ...         pass
-        ...     except __builtin__.RuntimeError as e:
+        ...     except builtins.RuntimeError as e:
         ...         pass''')
         >>> pm = passmanager.PassManager("test")
         >>> res = pm.gather(RangeValues, node)
@@ -320,7 +323,8 @@ class RangeValues(FunctionAnalysis):
         """
         if node.name:
             self.result[node.name.id] = UNKNOWN_RANGE
-        map(self.visit, node.body)
+        for s in node.body:
+            self.visit(s)
 
     def generic_visit(self, node):
         """ Other nodes are not known and range value neither. """

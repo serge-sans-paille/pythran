@@ -18,7 +18,8 @@ class PureExpressions(ModuleAnalysis):
                                               Aliases)
 
     def visit_FunctionDef(self, node):
-        map(self.visit, node.body)
+        for s in node.body:
+            self.visit(s)
         # Pure functions are already compute, we don't need to add them again
         return False
 
@@ -43,7 +44,7 @@ class PureExpressions(ModuleAnalysis):
     def run(self, node, ctx):
         super(PureExpressions, self).prepare(node, ctx)
         no_arg_effect = set()
-        for func, ae in self.argument_effects.iteritems():
+        for func, ae in self.argument_effects.items():
             if not any(ae):
                 no_arg_effect.add(func)
         self.result = no_arg_effect.difference(self.global_effects)

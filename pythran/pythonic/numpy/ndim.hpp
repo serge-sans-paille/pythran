@@ -13,10 +13,9 @@ namespace pythonic
   {
 
     template <class E>
-    auto ndim(E const &e)
-        -> decltype(__builtin__::getattr<types::attr::NDIM>(e))
+    auto ndim(E const &e) -> decltype(builtins::getattr<types::attr::NDIM>(e))
     {
-      return __builtin__::getattr<types::attr::NDIM>(e);
+      return builtins::getattr<types::attr::NDIM>(e);
     }
 
     PROXY_IMPL(pythonic::numpy, ndim)

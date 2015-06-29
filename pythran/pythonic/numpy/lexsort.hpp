@@ -32,7 +32,7 @@ namespace pythonic
     types::ndarray<long, 1> lexsort(types::array<T, N> const &keys)
     {
       long n = keys[0].size();
-      types::ndarray<long, 1> out(types::make_tuple(n), __builtin__::None);
+      types::ndarray<long, 1> out(types::make_tuple(n), builtins::None);
       // fill with the original indices
       std::iota(out.buffer, out.buffer + n, 0L);
       // then sort using keys as the comparator

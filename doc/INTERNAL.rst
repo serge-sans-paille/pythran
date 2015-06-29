@@ -60,7 +60,7 @@ Now let's see what happen if we add a loop to the function::
 
     >>> def foo(n):
     ...     s = 0
-    ...     for i in __builtin__.range(n):
+    ...     for i in builtins.range(n):
     ...         if i:
     ...             a = 1
     ...         else:
@@ -86,7 +86,7 @@ this whenever possible::
     >>> def foo(n):
     ...     s = 0
     ...     "omp parallel for reduction(*:s)"
-    ...     for i in __builtin__.range(n):
+    ...     for i in builtins.range(n):
     ...         if i:
     ...             a = 1
     ...         else:
@@ -108,7 +108,7 @@ But if one adds a
     ...     s = 0
     ...     a = 0
     ...     "omp parallel for reduction(*:s) lastprivate(a)"
-    ...     for i in __builtin__.range(n):
+    ...     for i in builtins.range(n):
     ...         if i:
     ...             a = 1
     ...         else:
@@ -138,7 +138,7 @@ When the scope can be attached to an assignment, Pythran uses this piece of info
     >>> def foo(n):
     ...     s = 0
     ...     "omp parallel for reduction(*:s)"
-    ...     for i in __builtin__.range(n):
+    ...     for i in builtins.range(n):
     ...         a = 2
     ...         s *= a
     ...     return s

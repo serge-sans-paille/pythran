@@ -18,7 +18,7 @@ namespace pythonic
       types::array<long, N + 1> oshape;
       oshape[0] = N;
       std::copy(shape.begin(), shape.end(), oshape.begin() + 1);
-      types::ndarray<dtype, N + 1> out(oshape, __builtin__::None);
+      types::ndarray<dtype, N + 1> out(oshape, builtins::None);
       dtype *iters[N];
       for (size_t n = 0; n < N; ++n)
         iters[n] = out[n].buffer;

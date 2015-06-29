@@ -4,6 +4,9 @@ from pythran.analyses.aliases import Aliases
 from pythran.analyses.pure_expressions import PureExpressions
 from pythran.passmanager import ModuleAnalysis
 from pythran.tables import MODULES
+import logging
+
+logger = logging.getLogger('pythran')
 
 
 class ParallelMaps(ModuleAnalysis):
@@ -15,7 +18,7 @@ class ParallelMaps(ModuleAnalysis):
         super(ParallelMaps, self).__init__(PureExpressions, Aliases)
 
     def visit_Call(self, node):
-        if all(alias == MODULES['__builtin__']['map']
+        if all(alias == MODULES['builtins']['map']
                for alias in self.aliases[node.func].aliases):
             if all(self.pure_expressions.__contains__(f)
                     for f in self.aliases[node.args[0]].aliases):
@@ -23,7 +26,7 @@ class ParallelMaps(ModuleAnalysis):
 
     def display(self, data):
         for node in data:
-            print "I:", "{0} {1}".format(
-                "call to the `map' intrinsic could be parallel",
+            logger.info("{0} {1}".format(
+                "Call to the `map' intrinsic could be parallel",
                 "(line {0})".format(node.lineno)
-                )
+            ))

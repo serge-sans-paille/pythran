@@ -2,6 +2,7 @@
 
 from pythran.analyses.global_declarations import GlobalDeclarations
 from pythran.passmanager import ModuleAnalysis
+import sys
 
 
 class Globals(ModuleAnalysis):
@@ -14,5 +15,7 @@ class Globals(ModuleAnalysis):
 
     def run(self, node, ctx):
         super(Globals, self).run(node, ctx)
-        return {'__builtin__',
-                '__dispatch__'}.union(self.global_declarations.keys())
+        default = {'builtins', '__dispatch__'}
+        if sys.version_info[0] < 3:
+            default.add('__builtin__')
+        return default.union(self.global_declarations.keys())

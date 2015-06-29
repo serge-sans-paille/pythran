@@ -14,7 +14,7 @@ from pythran.tables import pythran_ward, functions
 from pythran.types.types import extract_constructed_types
 from pythran.types.type_dependencies import pytype_to_deps
 from pythran.types.conversion import pytype_to_ctype
-from pythran.spec import expand_specs
+from pythran.spec import expand_specs, spec_parser
 from pythran.syntax import check_specs
 import pythran.frontend as frontend
 
@@ -23,6 +23,7 @@ from numpy.distutils.core import setup
 from numpy.distutils.extension import Extension
 import numpy.distutils.ccompiler
 
+from functools import reduce
 from subprocess import check_output, STDOUT, CalledProcessError
 from tempfile import mkstemp, mkdtemp
 import ast
@@ -156,14 +157,14 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
         mod.use_private_namespace = False
         # very low value for max_arity leads to various bugs
         min_val = 2
-        specs_max = [max(map(len, s)) for s in specs.itervalues()]
+        specs_max = [max(map(len, s)) for s in specs.values()]
         max_arity = max([min_val] + specs_max)
         mod.add_to_preamble([Define("BOOST_PYTHON_MAX_ARITY", max_arity)])
         mod.add_to_preamble([Define("BOOST_SIMD_NO_STRICT_ALIASING", "1")])
         mod.add_to_preamble([Include("pythonic/core.hpp")])
         mod.add_to_preamble([Include("pythonic/python/core.hpp")])
         mod.add_to_preamble([Line("#ifdef _OPENMP\n#include <omp.h>\n#endif")])
-        mod.add_to_preamble(map(Include, _extract_specs_dependencies(specs)))
+        mod.add_to_preamble([Include(d) for d in _extract_specs_dependencies(specs)])
         mod.add_to_preamble(content.body)
         mod.add_to_init([
             Line('#ifdef PYTHONIC_TYPES_NDARRAY_HPP\nimport_array()\n#endif')])
@@ -174,7 +175,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
         # (first valid exception is selected)
         # Inheritance has to be taken into account in the registration order.
         exceptions = nx.DiGraph()
-        for function_name, v in functions.iteritems():
+        for function_name, v in functions.items():
             for mname, symbol in v:
                 if isinstance(symbol, ConstExceptionIntr):
                     exceptions.add_node(
@@ -202,7 +203,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
                  'omp_set_max_active_levels(1);\n'
                  '#endif')])
 
-        for function_name, signatures in specs.iteritems():
+        for function_name, signatures in specs.items():
             internal_func_name = renamings.get(function_name,
                                                function_name)
             for sigid, signature in enumerate(signatures):
@@ -211,7 +212,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
                 arguments_types = [pytype_to_ctype(t) for t in signature]
                 has_arguments = HasArgument(internal_func_name).visit(ir)
                 arguments = ["a{0}".format(i)
-                             for i in xrange(len(arguments_types))]
+                             for i in range(len(arguments_types))]
                 name_fmt = pythran_ward + "{0}::{1}::type{2}"
                 args_list = ", ".join(arguments_types)
                 specialized_fname = name_fmt.format(module_name,
@@ -324,7 +325,6 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
     '''
 
     # Autodetect the Pythran spec if not given as parameter
-    from spec import spec_parser
     if specs is None:
         specs = spec_parser(pythrancode)
 
@@ -369,7 +369,7 @@ def compile_pythranfile(file_path, output_file=None, module_name=None,
     # Add compiled module path to search for imported modules
     sys.path.append(os.path.dirname(file_path))
 
-    output_file = compile_pythrancode(module_name, file(file_path).read(),
+    output_file = compile_pythrancode(module_name, open(file_path).read(),
                                       output_file=output_file,
                                       cpponly=cpponly,
                                       **kwargs)

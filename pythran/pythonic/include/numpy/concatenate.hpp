@@ -3,7 +3,7 @@
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
-#include "pythonic/__builtin__/sum.hpp"
+#include "pythonic/builtins/sum.hpp"
 
 namespace pythonic
 {

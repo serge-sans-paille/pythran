@@ -8,7 +8,7 @@
 
 #include "pythonic/utils/iterator.hpp"
 
-#include "pythonic/__builtin__/None.hpp"
+#include "pythonic/builtins/None.hpp"
 
 #include <memory>
 #include <utility>
@@ -364,7 +364,7 @@ namespace pythonic
       if (ivalue != data->end())
         return ivalue->second;
       else
-        return __builtin__::None;
+        return builtins::None;
     }
 
     template <class K, class V>
@@ -385,7 +385,7 @@ namespace pythonic
       if (ivalue != data->end())
         return ivalue->second;
       else
-        return (*data)[key] = __builtin__::None;
+        return (*data)[key] = builtins::None;
     }
 
     template <class K, class V>

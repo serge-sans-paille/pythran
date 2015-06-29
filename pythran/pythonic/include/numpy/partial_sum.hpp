@@ -4,7 +4,7 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/numpy_type.hpp"
 #include "pythonic/utils/neutral.hpp"
-#include "pythonic/__builtin__/ValueError.hpp"
+#include "pythonic/builtins/ValueError.hpp"
 
 namespace pythonic
 {

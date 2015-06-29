@@ -28,7 +28,7 @@
 #include "pythonic/types/numpy_gexpr.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
 
-#include "pythonic/__builtin__/len.hpp"
+#include "pythonic/builtins/len.hpp"
 
 #include <cassert>
 #include <iostream>
@@ -710,7 +710,7 @@ namespace pythonic
     template <class T, size_t N>
     ndarray<T, N> ndarray<T, N>::copy() const
     {
-      ndarray<T, N> res(_shape, __builtin__::None);
+      ndarray<T, N> res(_shape, builtins::None);
       std::copy(fbegin(), fend(), res.fbegin());
       return res;
     }
@@ -898,7 +898,7 @@ namespace pythonic
                                               std::forward<S>(slices)...))
         {
           return _build_gexpr<N - 1>{}(
-              a, contiguous_slice(__builtin__::None, __builtin__::None),
+              a, contiguous_slice(builtins::None, builtins::None),
               std::forward<S>(slices)...);
         }
 
@@ -1004,7 +1004,7 @@ namespace pythonic
       }
     }
   }
-  namespace __builtin__
+  namespace builtins
   {
     template <int I, class T, size_t N>
     auto getattr(types::ndarray<T, N> const &f)

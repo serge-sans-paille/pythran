@@ -27,7 +27,7 @@ namespace pythonic
               std::declval<T>() +
               std::declval<typename utils::nested_container_value_type<
                   F>::type>())>::type>::type,
-          1> out(types::make_tuple(nsize), __builtin__::None);
+          1> out(types::make_tuple(nsize), builtins::None);
       auto out_back = std::copy(nto.fbegin(), nto.fend(), out.fbegin());
       std::copy(ndata.fbegin(), ndata.fend(), out_back);
       return out;

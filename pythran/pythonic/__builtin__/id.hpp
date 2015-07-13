@@ -6,6 +6,13 @@
 #include "pythonic/types/long.hpp"
 #include "pythonic/utils/proxy.hpp"
 
+/*
+ * We use uintptr_t conversion because on windows 64 bits, sizeof(void*) == 8
+ * and sizeof(long) == 4. Because of this, void* to long is forbidden but
+ * void* -> uintptr_t -> long is allowed
+ * Occuracy is lost this way...
+ */
+
 namespace pythonic
 {
 
@@ -20,22 +27,22 @@ namespace pythonic
 
     long id(pythran_long_t const &t)
     {
-      return reinterpret_cast<long>(&t);
+      return reinterpret_cast<uintptr_t>(&t);
     }
 
     long id(long const &t)
     {
-      return reinterpret_cast<long>(&t);
+      return reinterpret_cast<uintptr_t>(&t);
     }
 
     long id(double const &t)
     {
-      return reinterpret_cast<long>(&t);
+      return reinterpret_cast<uintptr_t>(&t);
     }
 
     long id(bool const &t)
     {
-      return reinterpret_cast<long>(&t);
+      return reinterpret_cast<uintptr_t>(&t);
     }
 
     PROXY_IMPL(pythonic::__builtin__, id);

@@ -43,16 +43,18 @@ class TestNumpyFunc1(TestEnv):
         self.run_test("def np_sum11_(a): import numpy as np ; return np.sum(a+a,2)", numpy.arange(12).reshape(2,3,2), np_sum11_=[numpy.array([[[int]]])])
 
     def test_prod_(self):
-        self.run_test("def np_prod_(a): return a.prod()", numpy.arange(10), np_prod_=[numpy.array([int])])
+        """ Check prod function for numpy array. """
+        self.run_test("""
+            def np_prod_(a):
+                return a.prod()""",
+                      numpy.arange(10),
+                      np_prod_=[numpy.array([int])])
 
     def test_prod_bool(self):
         self.run_test("def np_prod_bool(a): return (a > 2).prod()", numpy.arange(10), np_prod_bool=[numpy.array([int])])
 
     def test_prod_bool2(self):
         self.run_test("def np_prod_bool2(a): return a.prod()", numpy.ones(10,dtype=bool).reshape(2,5), np_prod_bool2=[numpy.array([[bool]])])
-
-    def test_prod_expr(self):
-        self.run_test("def np_prod_expr(a):\n from numpy import ones\n return (a + ones(10)).prod()", numpy.arange(10), np_prod_expr=[numpy.array([int])])
 
     def test_prod2_(self):
         self.run_test("def np_prod2_(a): return a.prod()", numpy.arange(10).reshape(2,5), np_prod2_=[numpy.array([[int]])])
@@ -84,47 +86,8 @@ class TestNumpyFunc1(TestEnv):
     def test_prod11_(self):
         self.run_test("def np_prod11_(a): import numpy as np ; return np.prod(a+a,2)", numpy.arange(12).reshape(2,3,2), np_prod11_=[numpy.array([[[int]]])])
 
-    def test_prod_(self):
-        self.run_test("def np_prod_(a): return a.prod()", numpy.arange(10), np_prod_=[numpy.array([int])])
-
-    def test_prod_bool(self):
-        self.run_test("def np_prod_bool(a): return (a > 2).prod()", numpy.arange(10), np_prod_bool=[numpy.array([int])])
-
-    def test_prod_bool2(self):
-        self.run_test("def np_prod_bool2(a): return a.prod()", numpy.ones(10,dtype=bool).reshape(2,5), np_prod_bool2=[numpy.array([[bool]])])
-
     def test_prod_expr(self):
         self.run_test("def np_prod_expr(a):\n from numpy import ones\n return (a + ones(10)).prod()", numpy.arange(10), np_prod_expr=[numpy.array([int])])
-
-    def test_prod2_(self):
-        self.run_test("def np_prod2_(a): return a.prod()", numpy.arange(10).reshape(2,5), np_prod2_=[numpy.array([[int]])])
-
-    def test_prod3_(self):
-        self.run_test("def np_prod3_(a): return a.prod(1)", numpy.arange(10).reshape(2,5), np_prod3_=[numpy.array([[int]])])
-
-    def test_prod4_(self):
-        self.run_test("def np_prod4_(a): return a.prod(0)", numpy.arange(10).reshape(2,5), np_prod4_=[numpy.array([[int]])])
-
-    def test_prod5_(self):
-        self.run_test("def np_prod5_(a): return a.prod(0)", numpy.arange(10), np_prod5_=[numpy.array([int])])
-
-    def test_prod6_(self):
-        self.run_test("def np_prod6_(a): return a.prod(0)", numpy.arange(12).reshape(2,3,2), np_prod6_=[numpy.array([[[int]]])])
-
-    def test_prod7_(self):
-        self.run_test("def np_prod7_(a): return a.prod(1)", numpy.arange(12).reshape(2,3,2), np_prod7_=[numpy.array([[[int]]])])
-
-    def test_prod8_(self):
-        self.run_test("def np_prod8_(a): return a.prod(2)", numpy.arange(12).reshape(2,3,2), np_prod8_=[numpy.array([[[int]]])])
-
-    def test_prod9_(self):
-        self.run_test("def np_prod9_(a): import numpy as np ; return np.prod(a*a,0)", numpy.arange(12).reshape(2,3,2), np_prod9_=[numpy.array([[[int]]])])
-
-    def test_prod10_(self):
-        self.run_test("def np_prod10_(a): import numpy as np ; return np.prod(a-a,1)", numpy.arange(12).reshape(2,3,2), np_prod10_=[numpy.array([[[int]]])])
-
-    def test_prod11_(self):
-        self.run_test("def np_prod11_(a): import numpy as np ; return np.prod(a+a,2)", numpy.arange(12).reshape(2,3,2), np_prod11_=[numpy.array([[[int]]])])
 
     def test_amin_amax(self):
         self.run_test("def np_amin_amax(a):\n from numpy import amin,amax\n return amin(a), amax(a)",numpy.arange(10),  np_amin_amax=[numpy.array([int])])
@@ -220,7 +183,14 @@ class TestNumpyFunc1(TestEnv):
         self.run_test("def np_allclose3(a): from numpy import allclose; return allclose(a, a)", [1.0, numpy.nan], np_allclose3=[[float]])
 
     def test_allclose4(self):
-        self.run_test("def np_allclose2(a): from numpy import array, allclose; return allclose(array([-float('inf'),float('inf'),-float('inf')]), a)", numpy.array([float("inf"),float("inf"),-float('inf')]), np_allclose2=[numpy.array([float])])
+        """ Check allclose behavior with infinity values. """
+        self.run_test("""
+            def np_allclose4(a):
+                from numpy import array, allclose
+                return allclose(array([-float('inf'), float('inf'),
+                                       -float('inf')]), a)""",
+                      numpy.array([float("inf"), float("inf"), -float('inf')]),
+                      np_allclose4=[numpy.array([float])])
 
     def test_alltrue0(self):
         self.run_test("def np_alltrue0(b): from numpy import alltrue ; return alltrue(b)", numpy.array([True, False, True, True]), np_alltrue0=[numpy.array([bool])])

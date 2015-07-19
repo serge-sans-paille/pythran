@@ -122,12 +122,12 @@ class TestRandom(TestEnv):
     def test_shuffle3(self):
         """ Check shuffling with random function. """
         self.run_test("""
-        def shuffle2(n):
+        def shuffle3(n):
             from random import shuffle, random
             r = range(n)
             shuffle(r, random)
             return r != range(n) and sorted(r) == range(n)""",
-                      10 ** 4, shuffle2=[int])
+                      10 ** 4, shuffle3=[int])
 
     def test_choice(self):
         """ Check choice picked values distribution. """

@@ -16,6 +16,7 @@ import unittest
 import pytest
 
 from pythran import compile_pythrancode, spec_parser, frontend
+from pythran.config import have_gmp_support
 from pythran.backend import Python
 from pythran.middlend import refine
 from pythran.passmanager import PassManager
@@ -211,8 +212,8 @@ class TestEnv(unittest.TestCase):
             modname = (module_name or ("test_" + name)) + str(i)
 
             # Compile the code using pythran
-            cxx_compiled = compile_pythrancode(modname, code, None,
-                                               extra_compile_args=self.PYTHRAN_CXX_FLAGS)
+            cxx_compiled = compile_pythrancode(
+                modname, code, None, extra_compile_args=self.PYTHRAN_CXX_FLAGS)
 
             if not runas:
                 continue
@@ -257,8 +258,8 @@ class TestEnv(unittest.TestCase):
 
         code = dedent(code)
 
-        cxx_compiled = compile_pythrancode(modname, code, interface,
-                                           extra_compile_args=self.PYTHRAN_CXX_FLAGS)
+        cxx_compiled = compile_pythrancode(
+            modname, code, interface, extra_compile_args=self.PYTHRAN_CXX_FLAGS)
 
         # FIXME Check should be done on input parameters after function call
         python_ref = self.run_python(code, (name, copy.deepcopy(params)),
@@ -374,6 +375,11 @@ class TestFromDir(TestEnv):
 
         def __call__(self):
             if "unittest.skip" in self.module_code:
+                return self.test_env.skipTest("Marked as skippable")
+
+            if ("unittest.gmp.skip" in self.module_code
+                    and not have_gmp_support(
+                        extra_compile_args=self.test_env.PYTHRAN_CXX_FLAGS)):
                 return self.test_env.skipTest("Marked as skippable")
 
             # resolve import locally to where the tests are located

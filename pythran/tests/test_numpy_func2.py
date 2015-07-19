@@ -318,7 +318,11 @@ def test_copy0(x):
         self.run_test("def np_around1(x): from numpy import around ; return around(x, 1)", [0.37, 1.64], np_around1=[[float]])
 
     def test_around2(self):
-        self.run_test("def np_around2(x): from numpy import  around ; return around(x, -1)", [0.37, 1.64], np_around2=[[float]])
+        """ Check rounding on the left side of comma. """
+        self.run_test("""
+            def np_around2(x):
+                from numpy import around
+                return around(x, -1)""", [37.4, 164.65], np_around2=[[float]])
 
     def test_around3(self):
         self.run_test("def np_around3(x): from numpy import around ; return around(x)", [.5, 1.5, 2.5, 3.5, 4.5], np_around3=[[float]])
@@ -402,7 +406,13 @@ def test_copy0(x):
         self.run_test("import numpy\n\ndef input_array_(a):\n return a.shape", numpy.array([[1,2],[3,4]]), input_array_=[numpy.array([[int]])])
 
     def test_change_array1D_(self):
-        self.run_test("def np_change_array1D_(a):\n a[0,0,0] = 36\n return a", numpy.array([[[1,2],[3,4]],[[5,6],[7,8]]]), np_change_array1D_=[numpy.array([[[int]]])])
+        """ Assign to lowest dimension of an array. """
+        self.run_test("""
+            def np_change_array1D_(a):
+                a[0, 0, 0] = 36
+                return a""",
+                      numpy.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]]]),
+                      np_change_array1D_=[numpy.array([[[int]]])])
 
     def test_str_(self):
         self.run_test("def np_str_(a): return str(a)", numpy.array([[[1,2],[3,4]],[[5,6],[7,8]]]), np_str_=[numpy.array([[[int]]])])
@@ -485,32 +495,32 @@ def test_copy0(x):
     def test_empty_like_1(self):
         """ Check empty_like numpy function without specified dtype. """
         code = """
-def np_empty_like_(a):
-    from numpy import empty_like
-    b = empty_like(a)
-    for i in xrange(2):
-        for j in xrange(3):
-            for k in xrange(4):
-                b[i, j, k] = i + j + k
-    return b"""
+            def np_empty_like_1(a):
+                from numpy import empty_like
+                b = empty_like(a)
+                for i in xrange(2):
+                    for j in xrange(3):
+                        for k in xrange(4):
+                            b[i, j, k] = i + j + k
+                return b"""
         self.run_test(code,
                       numpy.arange(2 * 3 * 4).reshape(2, 3, 4),
-                      np_empty_like_=[numpy.array([[[int]]])])
+                      np_empty_like_1=[numpy.array([[[int]]])])
 
     def test_empty_like_2(self):
         """ Check empty_like numpy function with specific dtype argument. """
         code = """
-def np_empty_like_(a):
-    from numpy import empty_like
-    b = empty_like(a, dtype=float)
-    for i in xrange(2):
-        for j in xrange(3):
-            for k in xrange(4):
-                b[i, j, k] = i + j + k
-    return b"""
+            def np_empty_like_2(a):
+                from numpy import empty_like
+                b = empty_like(a, dtype=float)
+                for i in xrange(2):
+                    for j in xrange(3):
+                        for k in xrange(4):
+                            b[i, j, k] = i + j + k
+                return b"""
         self.run_test(code,
                       numpy.arange(2 * 3 * 4).reshape(2, 3, 4),
-                      np_empty_like_=[numpy.array([[[int]]])])
+                      np_empty_like_2=[numpy.array([[[int]]])])
 
     def test_reshape0(self):
         self.run_test("def np_reshape0(a): return a.reshape((2,5))", numpy.arange(10), np_reshape0=[numpy.array([int])])

@@ -1,27 +1,39 @@
-import unittest
 import doctest
-import pythran
-from pythran import transformations, analyses, optimizations, types
 import inspect
 import os
+import pytest
+import sys
+import unittest
+
+import pythran
+from pythran import transformations, analyses, optimizations, types
+
 
 class TestDoctest(unittest.TestCase):
-    '''
-    Enable automatic doctest integration to unittest
+
+    """
+    Enable automatic doctest integration to unittest.
 
     Every module in the pythran package is scanned for doctests
     and one test per module is created
-    '''
+    """
+
+    @pytest.mark.skipif(sys.platform == "win32",
+                        reason="We should create a file for windows.")
     def test_tutorial(self):
         failed, _ = doctest.testfile('../../doc/TUTORIAL.rst')
         self.assertEqual(failed, 0)
 
+    @pytest.mark.skipif(sys.platform == "win32",
+                        reason="We should create a file for windows.")
     def test_internal(self):
         tmpfile = self.adapt_rst('../../doc/INTERNAL.rst')
         failed, _ = doctest.testfile(tmpfile, False)
         self.assertEqual(failed, 0)
         os.remove(tmpfile)
 
+    @pytest.mark.skipif(sys.platform == "win32",
+                        reason="We should create a file for windows.")
     def test_cli(self):
         tmpfile = self.adapt_rst('../../doc/CLI.rst')
         failed, _ = doctest.testfile(tmpfile, False)

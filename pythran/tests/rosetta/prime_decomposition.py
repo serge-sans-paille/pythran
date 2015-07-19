@@ -1,8 +1,8 @@
 #from http://rosettacode.org/wiki/Prime_decomposition#Python
 #pythran export fac(int)
-#runas fac(2**59 - 1)
+#runas fac(2**30 - 1)
 #pythran export test_decompose(int)
-#runas test_decompose(2**59 - 1)
+#runas test_decompose(2**30 - 1)
 import math
 
 def decompose(n):

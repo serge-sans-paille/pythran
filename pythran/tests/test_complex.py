@@ -1,12 +1,22 @@
-from test_env import TestEnv
-from unittest import skip
 import numpy as np
+
+from pythran.config import cfg
+from test_env import TestEnv
+
 
 class TestComplex(TestEnv):
 
+    """ Check complex support in Pythran. """
+
     def test_complex_limited_range(self):
-        #see -fcx-limited-range
-        self.run_test('def test_complex_limited_range(a,b): return a*b', complex(-4, np.nan), complex(4, -np.inf), test_complex_limited_range=[complex, complex])
+        """ Check complex computation is the same as numpy for corner case. """
+        # see -fcx-limited-range
+        if cfg.getboolean('pythran', 'complex_hook'):
+            self.run_test("""
+                def test_complex_limited_range(a, b):
+                    return a * b""",
+                          complex(-4, np.nan), complex(4, -np.inf),
+                          test_complex_limited_range=[complex, complex])
 
     def test_complex_number_conj_fun(self):
         self.run_test('def test_complex_number_conj_fun(a): import numpy as np ; return np.conj(a)',
@@ -53,10 +63,6 @@ class TestComplex(TestEnv):
                       np.array([[3 + 2j]]),
                       test_complex_array_sqr=[np.array([[complex]])])
 
-    def test_complex_array_mul_i(self):
-        self.run_test('def test_complex_array_mul_i(e): return e + 1j * e',
-                      np.array([[3.,2.,4.]]),
-                      test_complex_array_mul_i=[np.array([[float]])])
     def test_complex_array_mul_i(self):
         self.run_test('def test_complex_array_mul_i(e): return e + 1j * e',
                       np.array([[3.,2.,4.]]),

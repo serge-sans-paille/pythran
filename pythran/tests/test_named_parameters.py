@@ -46,11 +46,11 @@ def call_with_default_and_named_arguments(n, m):
     return foo(m, b=n)""", 1, 2, call_with_default_and_named_arguments=[int, int])
 
     def test_intrinsic_named_argument(self):
-        self.run_test('def intrinsic_named_argument(n): import numpy; return numpy.ones(n, dtype=numpy.uint8).nbytes',
-                      4, intrinsic_named_argument=[int])
-
-    def test_native_intrinsic_named_argument(self):
-        self.run_test('def intrinsic_named_argument(n): import numpy; return numpy.zeros(n, dtype=numpy.uint8).nbytes',
+        """ Check named arguments with attributes as value. """
+        self.run_test("""
+            def intrinsic_named_argument(n):
+                import numpy
+                return numpy.ones(n, dtype=numpy.uint8).nbytes""",
                       4, intrinsic_named_argument=[int])
 
     def test_nested_function_with_named_arguments(self):
@@ -73,14 +73,14 @@ def nested_function_with_several_named_arguments(a):
 
     def test_aliasing_functions_with_named_arguments(self):
         self.run_test('''
-def intrinsic_named_argument(n):
-    import numpy
-    if n > 10:
-        my = numpy.ones
-    else:
-        my = numpy.zeros
-    return my(n, dtype=numpy.uint8).nbytes''',
-        4, intrinsic_named_argument=[int])
+            def aliasing_functions_with_named_arguments(n):
+                import numpy
+                if n > 10:
+                    my = numpy.ones
+                else:
+                    my = numpy.zeros
+                return my(n, dtype=numpy.uint8).nbytes''',
+                      4, aliasing_functions_with_named_arguments=[int])
 
     def test_aliasing_functions_with_different_structural_types(self):
         with self.assertRaises(PythranSyntaxError):

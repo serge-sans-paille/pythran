@@ -41,14 +41,14 @@ class TestEnv(unittest.TestCase):
         print "Type of Pythran res : ", type(res)
         print "Type of Python ref : ", type(ref)
         type_matching = (((list, tuple), (list, tuple)),
-                         (float, (int, float, float32, float64)),
-                         (float32, (int, float, float32)),
-                         (float64, (int, float, float32, float64)),
-                         (long, (int, long)),
+                         ((float, float64), (int, long, float, float32,
+                                             float64)),
+                         (float32, (int, long, float, float32)),
+                         ((uint64, int64, long), (int, long, uint64, int64)),
                          (bool, (bool, bool_)),
                          # FIXME combiner for boolean doesn't work
                          (int, (int, bool, bool_, int8, int16, int32, int64,
-                                uint8, uint16, uint32, uint64)))
+                                uint8, uint16, uint32, uint64, long)))
         if isinstance(ref, ndarray):
             # res can be an ndarray of dim 0 because of isneginf call
             if ref.ndim == 0 and (not isinstance(res, ndarray)
@@ -165,7 +165,11 @@ class TestEnv(unittest.TestCase):
             return type(e)
         finally:
             # Clean temporary DLL
-            os.remove(module_path)
+            #FIXME: We can't remove this file while it is used in an import
+            # through the exec statement (Windows constraints...)
+            if sys.platform != "win32":
+                os.remove(module_path)
+            pass
 
     def run_test_case(self, code, module_name, runas, **interface):
         """
@@ -202,9 +206,9 @@ class TestEnv(unittest.TestCase):
 
         # We run test for each exported function (not for each possible
         # signature.
-        for name in sorted(interface.keys()):
+        for i, name in enumerate(sorted(interface.keys())):
             # If no module name was provided, create one
-            modname = module_name or ("test_" + name)
+            modname = (module_name or ("test_" + name)) + str(i)
 
             # Compile the code using pythran
             cxx_compiled = compile_pythrancode(modname, code, None,

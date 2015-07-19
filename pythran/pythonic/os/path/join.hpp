@@ -1,6 +1,12 @@
 #ifndef PYTHONIC_OS_PATH_JOIN_HPP
 #define PYTHONIC_OS_PATH_JOIN_HPP
 
+#ifdef WIN32
+#define OS_SEP '\\'
+#else
+#define OS_SEP '/'
+#endif
+
 #include "pythonic/include/os/path/join.hpp"
 
 #include "pythonic/types/str.hpp"
@@ -33,10 +39,11 @@ namespace pythonic
       {
         if (head[0] == '/')
           buffer = head;
-        else if (not buffer or *buffer.rbegin() == '/')
+        else if (not buffer or *buffer.rbegin() == OS_SEP or
+                 *buffer.rbegin() == '/')
           buffer += head;
         else
-          buffer += "/" + head;
+          buffer += types::str(OS_SEP) + head;
         _join(buffer, std::forward<Types>(tail)...);
       }
 

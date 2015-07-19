@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_TIME_SLEEP_HPP
 #define PYTHONIC_INCLUDE_TIME_SLEEP_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/__builtin__/None.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/types/none.hpp"
 
 namespace pythonic
 {

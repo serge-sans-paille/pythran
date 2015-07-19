@@ -5,8 +5,8 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/__builtin__/None.hpp"
 
-#include <cmath>
-#include <sys/time.h>
+#include <thread>
+#include <chrono>
 
 namespace pythonic
 {
@@ -16,10 +16,7 @@ namespace pythonic
 
     types::none_type sleep(double const value)
     {
-      struct timespec t;
-      t.tv_sec = std::fabs(value);
-      t.tv_nsec = std::fabs((value - t.tv_sec) * 1e+9);
-      nanosleep(&t, nullptr);
+      std::this_thread::sleep_for(std::chrono::duration<double>(value));
       return __builtin__::None;
     }
 

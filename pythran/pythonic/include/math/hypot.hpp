@@ -4,6 +4,10 @@
 #include "pythonic/utils/proxy.hpp"
 #include <cmath>
 
+#undef hypot
+// This is a windows defined macro that clash with std::hypot and our hypot
+// function
+
 namespace pythonic
 {
 

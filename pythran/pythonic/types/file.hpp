@@ -29,13 +29,13 @@ namespace pythonic
 
     /// _file implementation
 
-    _file::_file() : f(nullptr), _buffer(nullptr), _buffer_size(0)
+    _file::_file() : f(nullptr)
     {
     }
 
+    // TODO : no check on file existance?
     _file::_file(types::str const &filename, types::str const &strmode)
-        : f(fopen(filename.c_str(), strmode.c_str())), _buffer(nullptr),
-          _buffer_size(0)
+        : f(fopen(filename.c_str(), strmode.c_str()))
     {
     }
 
@@ -48,8 +48,6 @@ namespace pythonic
     {
       if (f)
         fclose(f);
-      if (_buffer)
-        free(_buffer);
     }
 
     /// file implementation
@@ -178,25 +176,24 @@ namespace pythonic
       return res;
     }
 
-    types::str file::readline(ssize_t size)
+    types::str file::readline(long size)
     {
       if (not is_open)
         throw ValueError("I/O operation on closed file");
       if (mode.find_first_of("r+") == -1)
         throw IOError("File not open for reading");
-      if (size == 0)
-        return types::str();
-      // if(size < 0) return readline(); // Already checked in module/file.h
-      // Getline will always realloc content to store full string.
-      // => Emulating expected behaviour
-      ssize_t real_size = getline(&data->_buffer, &data->_buffer_size, **data);
-      if (real_size > size)
-        fseek(**data, -(long)(real_size - size), SEEK_CUR);
-      // This part needs a new implementation of types::str(char*, size_t) to
-      // avoid unnecessary copy.
-      if (real_size > 0)
-        return types::str(data->_buffer, std::min(real_size, size));
-      return types::str();
+      constexpr static long BUFFER_SIZE = 1024;
+      types::str res;
+      char read_str[BUFFER_SIZE];
+
+      for (long i = 0; i < size; i += BUFFER_SIZE) {
+        // +1 because we read the last chunk so we don't want to count \0
+        if (fgets(read_str, std::min(BUFFER_SIZE - 1, size - i) + 1, **data))
+          res += read_str;
+        if (feof(**data) or res[-1] == '\n')
+          break;
+      }
+      return res;
     }
 
     types::list<types::str> file::readlines(int sizehint)
@@ -257,6 +254,10 @@ namespace pythonic
     }
 
     /// file_iterator implementation
+    // TODO : What if the file disappears before the end?
+    // Like in :
+    // for line in open("myfile"):
+    //     print line
     file_iterator::file_iterator(file &ref)
         : f(ref), curr(ref.readline()), position(ref.tell())
     {

@@ -51,8 +51,6 @@ namespace pythonic
 
     struct _file {
       FILE *f;
-      char *_buffer; // Buffer used by file.readline()
-      size_t _buffer_size;
       _file();
       _file(types::str const &filename, types::str const &strmode = "r");
       FILE *operator*() const;
@@ -106,7 +104,7 @@ namespace pythonic
 
       types::str read(int size = -1);
 
-      types::str readline(ssize_t size = std::numeric_limits<ssize_t>::max());
+      types::str readline(long size = std::numeric_limits<long>::max());
 
       types::list<types::str> readlines(int sizehint = -1);
 

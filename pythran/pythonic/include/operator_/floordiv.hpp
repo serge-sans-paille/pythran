@@ -10,9 +10,11 @@ namespace pythonic
   namespace operator_
   {
     long floordiv(long a, long b);
-    double floordiv(double a, long b);
-    double floordiv(long a, double b);
-    double floordiv(double a, double b);
+    long floordiv(long long a, long b);
+    long floordiv(long long a, long long b);
+    long floordiv(long a, long long b);
+    template <class T, class U>
+    double floordiv(T a, U b);
 
     PROXY_DECL(pythonic::operator_, floordiv);
   }

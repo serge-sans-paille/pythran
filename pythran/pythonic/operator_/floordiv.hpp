@@ -11,21 +11,29 @@ namespace pythonic
 
   namespace operator_
   {
+
     long floordiv(long a, long b)
     {
       return std::floor(static_cast<double>(a) / b);
     }
-    double floordiv(double a, long b)
+
+    long floordiv(long long a, long b)
     {
-      return std::floor(a / b);
+      return std::floor(static_cast<double>(a) / b);
     }
 
-    double floordiv(long a, double b)
+    long floordiv(long long a, long long b)
     {
-      return std::floor(a / b);
+      return std::floor(static_cast<double>(a) / b);
     }
 
-    double floordiv(double a, double b)
+    long floordiv(long a, long long b)
+    {
+      return std::floor(static_cast<double>(a) / b);
+    }
+
+    template <class T, class U>
+    double floordiv(T a, U b)
     {
       return std::floor(a / b);
     }

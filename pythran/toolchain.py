@@ -16,8 +16,10 @@ from pythran.types.type_dependencies import pytype_to_deps
 from pythran.types.conversion import pytype_to_ctype
 from pythran.spec import expand_specs
 from pythran.syntax import check_specs
+from pythran.version import __version__
 import pythran.frontend as frontend
 
+from datetime import datetime
 from distutils.errors import CompileError
 from numpy.distutils.core import setup
 from numpy.distutils.extension import Extension
@@ -33,6 +35,7 @@ import shutil
 import sys
 import sysconfig
 import glob
+import hashlib
 
 logger = logging.getLogger(__name__)
 
@@ -245,6 +248,20 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
         # call __init__() to execute top-level statements
         init_call = '::'.join([pythran_ward + module_name, '__init__()()'])
         mod.add_to_init([Statement(init_call)])
+
+        # register the __pythran__ global.
+        # pythran_to_python converters not available at that point
+        metainfo = {'hash': hashlib.sha256(code).hexdigest(),
+                    'version': __version__,
+                    'date': datetime.now(),
+                    }
+        metafields = ('Py_BuildValue("(sss)", "{version}", "{date}", "{hash}")'
+                      .format(**metainfo))
+
+        mod.add_to_init([
+            Statement('boost::python::scope().attr("__pythran__") = '
+                      'boost::python::handle<>({})'.format(metafields))])
+
     return mod
 
 

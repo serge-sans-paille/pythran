@@ -5,7 +5,7 @@
 from pythran.openmp import GatherOMPData
 from pythran.syntax import check_syntax
 from pythran.transformations import ExtractTopLevelStmts, NormalizeIdentifiers
-from pythran.transformations import HandleImport
+from pythran.transformations import ExtractDocStrings, HandleImport
 
 import ast
 import re
@@ -18,16 +18,19 @@ def parse(pm, code):
     # front end
     ir = ast.parse(code)
 
+    # parse openmp directive
+    pm.apply(GatherOMPData, ir)
+
+    # extract docstrings
+    _, docstrings = pm.apply(ExtractDocStrings, ir)
+
     # remove top - level statements
     pm.apply(ExtractTopLevelStmts, ir)
 
     # Handle user-defined import
     pm.apply(HandleImport, ir)
 
-    # parse openmp directive
-    pm.apply(GatherOMPData, ir)
-
     # avoid conflicts with cxx keywords
     _, renamings = pm.apply(NormalizeIdentifiers, ir)
     check_syntax(ir)
-    return ir, renamings
+    return ir, renamings, docstrings

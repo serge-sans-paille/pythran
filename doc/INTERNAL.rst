@@ -326,3 +326,17 @@ about aliased values::
     >>> lazyness = pm.gather(analyses.LazynessAnalysis, foo_tree)
     >>> lazyness
     {'a': 2, 'array': 1, 'b': 1, 'a_': 1}
+
+
+Doc Strings
+-----------
+
+Pythran preserves docstrings::
+
+    $> printf '#pythran export foo()\n\"top-level-docstring\"\n\ndef foo():\n  \"function-level-docstring\"\n  return 2' > docstrings.py
+    $> pythran docstrings.py
+    $> python -c 'import docstrings; print(docstrings.__doc__); print(docstrings.foo.__doc__)'
+    top-level-docstring
+    <BLANKLINE>
+    function-level-docstring
+    $> rm -f docstrings.*

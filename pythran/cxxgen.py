@@ -28,6 +28,7 @@ Generator for C/C++.
 #
 
 from __future__ import division
+from textwrap import dedent
 
 __copyright__ = "Copyright (C) 2008 Andreas Kloeckner"
 
@@ -471,32 +472,50 @@ class Namespace(Block):
 #
 
 class BoostPythonModule(object):
-    def __init__(self, name="module", max_arity=None):
+    def __init__(self, name="module", docstrings=None):
         self.name = name
         self.preamble = []
-        self.mod_body = []
         self.init_body = []
+        self.mod_body = []
+        self.docstrings = docstrings or {}
 
-    def add_to_init(self, body):
+        moduledoc = self.docstrings.get(None, "")
+        if moduledoc:
+            self.add_to_init(
+                Statement('boost::python::scope().attr("__doc__") = ' +
+                          self.docstring(moduledoc)))
+
+        self.add_to_preamble(
+            Include("boost/python/docstring_options.hpp"))
+        self.add_to_init(
+            Statement('boost::python::docstring_options '
+                      'pythran_docstring_options(true, false, false)'))
+
+    def docstring(self, doc):
+        return '"%s"' % (dedent(doc).replace('"', '\\"')
+                                    .replace('\n', '\\n')
+                                    .replace('\r', '\\r'))
+
+    def add_to_init(self, *body):
         """Add the blocks or statements contained in the iterable *body* to the
         module initialization function.
         """
         self.init_body.extend(body)
 
-    def add_to_preamble(self, pa):
+    def add_to_preamble(self, *pa):
         self.preamble.extend(pa)
 
-    def add_function(self, func, name=None):
+    def add_function(self, func, name):
         """Add a function to be exposed. *func* is expected to be a
         :class:`cgen.FunctionBody`.
         """
-        if not name:
-            name = func.fdecl.name
+        doc = self.docstrings.get(name, '')
+        bpdef = "boost::python::def(\"%s\", &%s, %s)" % (name,
+                                                         func.fdecl.name,
+                                                         self.docstring(doc))
 
         self.mod_body.append(func)
-        self.init_body.append(
-            Statement("boost::python::def(\"%s\", &%s)" % (name,
-                                                           func.fdecl.name)))
+        self.init_body.append(Statement(bpdef))
 
     def generate(self):
         """Generate (i.e. yield) the source code of the

@@ -274,6 +274,20 @@ runs the ``ConstantFolding`` optimization from ``pythran.optimizations``
 followed by a custom optimization found in the ``my_package`` package, loaded
 from ``PYTHONPATH``.
 
+When importing a Python module, one can check for the presence of the
+``__pythran__`` variable at module scope to see if the module has been
+pythranized::
+
+    import foo
+    if hasattr(foo, '__pythran__'):
+        print(r'\_o<')
+
+This variable is a tuble that holds three fields:
+
+1. pythran's version
+2. compilation date
+3. sha256 value of the input code
+
 
 Adding OpenMP directives
 ------------------------

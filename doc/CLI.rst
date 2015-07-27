@@ -25,6 +25,11 @@ The generated native ``.so`` module can then be called with the Python interpret
   $> python -c 'import cli_foo ; cli_foo.foo()'
   hello world
 
+The module-level ``__pythran__`` variable indicates that the module loaded has been pythranized::
+
+  $> python -c 'import cli_foo ; print(hasattr(cli_foo, \"__pythran__\"))'
+  True
+
 You can choose your optimization level by using ``-O`` flag::
 
   $> rm cli_foo.so

@@ -1054,12 +1054,7 @@ class Cxx(Backend):
         assert False, "should be filtered out by the expand_import pass"
 
     def visit_Expr(self, node):
-        # turn docstring into comments
-        if type(node.value) is ast.Str:
-            stmt = Line("//" + node.value.s.replace('\n', '\n//'))
-        # other expressions are processed normally
-        else:
-            stmt = Statement(self.visit(node.value))
+        stmt = Statement(self.visit(node.value))
         return self.process_locals(node,
                                    self.process_omp_attachements(node, stmt))
 

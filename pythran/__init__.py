@@ -29,7 +29,7 @@ Higher level entry points includes:
 
 '''
 
-
+import pythran.log
 from pythran.toolchain import (generate_cxx, compile_cxxfile, compile_cxxcode,
                                compile_pythrancode, compile_pythranfile,
                                test_compile)

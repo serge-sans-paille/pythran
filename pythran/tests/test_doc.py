@@ -38,9 +38,13 @@ class TestDoctest(unittest.TestCase):
         filepath = os.path.join(os.path.dirname(__file__), relative_path)
         rst_doc = file(filepath).read()
         rst_doc = re.sub(r'\.\.(\s+>>>)', r'\1', rst_doc)  # hidden doctest
+        sp = re.sub(r'\$>\s*pythran\s+(.*?)$',
+                    r'>>> import subprocess ; print subprocess.check_output("python -m pythran.run \1", shell=True),',
+                    rst_doc,
+                    flags=re.MULTILINE)
         sp = re.sub(r'\$>(.*?)$',
                     r'>>> import subprocess ; print subprocess.check_output("\1", shell=True),',
-                    rst_doc,
+                    sp,
                     flags=re.MULTILINE)
         f = NamedTemporaryFile(delete=False)
         f.write(sp)

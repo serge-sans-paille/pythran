@@ -7,7 +7,7 @@ import numpy.distutils.system_info as numpy_sys
 import os
 from sys import platform
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('pythran')
 
 
 def init_cfg(sys_file, platform_file, user_file):
@@ -46,18 +46,19 @@ def make_extension(**extra):
         else:
             return define[:index], define[index + 1:]
     extension = {
-        "define_macros": cfg.get('compiler', 'defines').split(),
-        "undef_macros": cfg.get('compiler', 'undefs').split(),
-        "include_dirs": cfg.get('compiler', 'include_dirs').split(),
-        "library_dirs": cfg.get('compiler', 'library_dirs').split(),
-        "libraries": cfg.get('compiler', 'libs').split(),
-        "extra_compile_args": cfg.get('compiler', 'cflags').split(),
-        "extra_link_args": cfg.get('compiler', 'ldflags').split(),
+        # forcing str conversion to handle Unicode case (the default on MS)
+        "define_macros": map(str, cfg.get('compiler', 'defines').split()),
+        "undef_macros": map(str, cfg.get('compiler', 'undefs').split()),
+        "include_dirs": map(str, cfg.get('compiler', 'include_dirs').split()),
+        "library_dirs": map(str, cfg.get('compiler', 'library_dirs').split()),
+        "libraries": map(str, cfg.get('compiler', 'libs').split()),
+        "extra_compile_args": map(str, cfg.get('compiler', 'cflags').split()),
+        "extra_link_args": map(str, cfg.get('compiler', 'ldflags').split()),
     }
 
     extension['define_macros'].append('ENABLE_PYTHON_MODULE')
 
-    here = os.path.dirname(os.path.dirname(__file__))
+    here = os.path.dirname(os.path.dirname(__file__)) or '.'
     # using / as separator as advised in the distutils doc
     extension["include_dirs"].append(here + '/pythran')
     for k, w in extra.items():
@@ -69,8 +70,8 @@ def make_extension(**extra):
 
     # blas dependency
     numpy_blas = numpy_sys.get_info("blas")
-    extension['libraries'].extend(numpy_blas['libraries'])
-    extension['library_dirs'].extend(numpy_blas['library_dirs'])
+    extension['libraries'].extend(numpy_blas.get('libraries', []))
+    extension['library_dirs'].extend(numpy_blas.get('library_dirs', []))
     return extension
 
 

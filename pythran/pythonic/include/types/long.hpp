@@ -214,6 +214,18 @@ namespace pythonic
   };
 }
 
+/* type inference stuff  {*/
+#include "pythonic/include/types/combined.hpp"
+
+template <>
+struct __combined<mpz_class, long int> {
+  using type = mpz_class;
+};
+
+template <>
+struct __combined<long int, mpz_class> {
+  using type = mpz_class;
+};
 #endif
 
 #endif

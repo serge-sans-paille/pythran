@@ -162,13 +162,13 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
         specs_max = [max(map(len, s)) for s in specs.itervalues()]
         max_arity = max([min_val] + specs_max)
         mod.add_to_preamble(Define("BOOST_PYTHON_MAX_ARITY", max_arity),
-                            Define("BOOST_SIMD_NO_STRICT_ALIASING", "1"),
-                            Include("pythonic/core.hpp"),
+                            Define("BOOST_SIMD_NO_STRICT_ALIASING", "1"))
+        mod.add_to_includes(Include("pythonic/core.hpp"),
                             Include("pythonic/python/core.hpp"),
                             Line("#ifdef _OPENMP\n#include <omp.h>\n#endif")
                             )
-        mod.add_to_preamble(*map(Include, _extract_specs_dependencies(specs)))
-        mod.add_to_preamble(*content.body)
+        mod.add_to_includes(*map(Include, _extract_specs_dependencies(specs)))
+        mod.add_to_includes(*content.body)
         mod.add_to_init(
             Line('#ifdef PYTHONIC_TYPES_NDARRAY_HPP\nimport_array()\n#endif'))
 

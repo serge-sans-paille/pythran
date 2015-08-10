@@ -475,6 +475,7 @@ class BoostPythonModule(object):
     def __init__(self, name="module", docstrings=None):
         self.name = name
         self.preamble = []
+        self.includes = []
         self.init_body = []
         self.mod_body = []
         self.docstrings = docstrings or {}
@@ -485,7 +486,7 @@ class BoostPythonModule(object):
                 Statement('boost::python::scope().attr("__doc__") = ' +
                           self.docstring(moduledoc)))
 
-        self.add_to_preamble(
+        self.add_to_includes(
             Include("boost/python/docstring_options.hpp"))
         self.add_to_init(
             Statement('boost::python::docstring_options '
@@ -503,7 +504,10 @@ class BoostPythonModule(object):
         self.init_body.extend(body)
 
     def add_to_preamble(self, *pa):
-        self.preamble.extend(pa)
+            self.preamble.extend(pa)
+
+    def add_to_includes(self, *incl):
+            self.includes.extend(incl)
 
     def add_function(self, func, name):
         """Add a function to be exposed. *func* is expected to be a
@@ -521,9 +525,9 @@ class BoostPythonModule(object):
         """Generate (i.e. yield) the source code of the
         module line-by-line.
         """
-        body = (self.preamble + [Line()] +
+        body = (self.preamble + self.includes +
                 self.mod_body +
-                [Line(), Line("BOOST_PYTHON_MODULE(%s)" % self.name)] +
+                [Line("BOOST_PYTHON_MODULE(%s)" % self.name)] +
                 [Block(self.init_body)])
 
         return Module(body)

@@ -184,14 +184,13 @@ namespace pythonic
         throw IOError("File not open for reading");
       constexpr static long BUFFER_SIZE = 1024;
       types::str res;
-      char readed_str[BUFFER_SIZE];
+      char read_str[BUFFER_SIZE];
 
       for (long i = 0; i < size; i += BUFFER_SIZE) {
         // +1 because we read the last chunk so we don't want to count \0
-        if (fgets(readed_str, std::min(BUFFER_SIZE - 1, size - i) + 1, **data))
-          res += readed_str;
-        // This strlen call is certainly not really efficient
-        if (feof(**data) or readed_str[strlen(readed_str) - 1] == '\n')
+        if (fgets(read_str, std::min(BUFFER_SIZE, size - i + 1), **data))
+          res += read_str;
+        if (feof(**data) or res[-1] == '\n')
           break;
       }
       return res;
@@ -255,7 +254,7 @@ namespace pythonic
     }
 
     /// file_iterator implementation
-    // TODO : What if the file disapear before the end?
+    // TODO : What if the file disappears before the end?
     // Like in :
     // for line in open("myfile"):
     //     print line

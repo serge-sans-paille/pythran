@@ -10,16 +10,14 @@ class TestFile(TestEnv):
 
     def tempfile(self):
         filename=mkstemp()[1]
-        f=open(filename,"w")
-        f.write(self.file_content)
-        f.close()
+        with open(filename,"w") as f:
+            f.write(self.file_content)
         self.filename = filename
         return filename
 
     def reinit_file(self):
-        f=open(self.filename,"w")
-        f.write(self.file_content)
-        f.close()
+        with open(self.filename,"w") as f:
+            f.write(self.file_content)
         return self.filename
 
     def test_filename_only_constructor(self):

@@ -229,74 +229,75 @@ class TestNumpyFunc1(TestEnv):
         self.run_test("def np_alltrue1(a): from numpy import alltrue ; return alltrue(a >= 5)", numpy.array([1, 5, 2, 7]), np_alltrue1=[numpy.array([int])])
 
     def test_count_nonzero0(self):
-        self.run_test("def np_count_nonzero(a): from numpy import count_nonzero; return count_nonzero(a)",
-                      numpy.array([[-1, -5, -2, 7], [9, 3, 0, -0]]), np_count_nonzero=[numpy.array([[int]])])
+        self.run_test("def np_count_nonzero0(a): from numpy import count_nonzero; return count_nonzero(a)",
+                      numpy.array([[-1, -5, -2, 7], [9, 3, 0, -0]]), np_count_nonzero0=[numpy.array([[int]])])
 
     def test_count_nonzero1(self):
-        self.run_test("def np_count_nonzero(a): from numpy import count_nonzero; return count_nonzero(a)",
-                       numpy.array([-1, 5, -2, 0]), np_count_nonzero=[numpy.array([int])])
+        self.run_test("def np_count_nonzero1(a): from numpy import count_nonzero; return count_nonzero(a)",
+                       numpy.array([-1, 5, -2, 0]), np_count_nonzero1=[numpy.array([int])])
 
     def test_count_nonzero2(self):
-        self.run_test("def np_count_nonzero(a): from numpy import count_nonzero; return count_nonzero(a)",
-                      numpy.array([-1., 0., -2., -1e-20]), np_count_nonzero=[numpy.array([float])])
+        self.run_test("def np_count_nonzero2(a): from numpy import count_nonzero; return count_nonzero(a)",
+                      numpy.array([-1., 0., -2., -1e-20]), np_count_nonzero2=[numpy.array([float])])
 
     def test_count_nonzero3(self):
-        self.run_test("def np_count_nonzero(a): from numpy import count_nonzero; return count_nonzero(a)",
-                      numpy.array([[0, 2, 0., 4 + 1j], [0.+0.j, 0.+4j, 1.+0j, 1j]]), np_count_nonzero=[numpy.array([[complex]])])
+        self.run_test("def np_count_nonzero3(a): from numpy import count_nonzero; return count_nonzero(a)",
+                      numpy.array([[0, 2, 0., 4 + 1j], [0.+0.j, 0.+4j, 1.+0j, 1j]]), np_count_nonzero3=[numpy.array([[complex]])])
 
     def test_count_nonzero4(self):
-        self.run_test("def np_count_nonzero(a): from numpy import count_nonzero; return count_nonzero(a)",
-                      numpy.array([[True, False], [False, False]]), np_count_nonzero=[numpy.array([[bool]])])
+        self.run_test("def np_count_nonzero4(a): from numpy import count_nonzero; return count_nonzero(a)",
+                      numpy.array([[True, False], [False, False]]), np_count_nonzero4=[numpy.array([[bool]])])
 
     def test_count_nonzero5(self):
-        self.run_test("def np_count_nonzero(a): from numpy import count_nonzero; return count_nonzero(a*2)",
-                      numpy.array([[-1, -5, -2, 7], [9, 3, 0, -0]]), np_count_nonzero=[numpy.array([[int]])])
+        self.run_test("def np_count_nonzero5(a): from numpy import count_nonzero; return count_nonzero(a*2)",
+                      numpy.array([[-1, -5, -2, 7], [9, 3, 0, -0]]), np_count_nonzero5=[numpy.array([[int]])])
+
 
     def test_isclose0(self):
-        self.run_test("def np_isclose(u): from numpy import isclose; return isclose(u, u)",
+        self.run_test("def np_isclose0(u): from numpy import isclose; return isclose(u, u)",
                       numpy.array([[-1.01, 1e-10+1e-11, -0, 7., float('NaN')], [-1.0, 1e-10, 0., 7., float('NaN')]]),
-                      np_isclose=[numpy.array([[float]])])
+                      np_isclose0=[numpy.array([[float]])])
 
     def test_isclose1(self):
-        self.run_test("def np_isclose(u, v): from numpy import isclose; return isclose(u, v, 1e-19, 1e-16)",
+        self.run_test("def np_isclose1(u, v): from numpy import isclose; return isclose(u, v, 1e-19, 1e-16)",
                       numpy.array([-1.01, 1e-10+1e-11, float("inf"), 7.]),
                       numpy.array([9., 1e-10, float("inf"), float('NaN')]),
-                      np_isclose=[numpy.array([float]), numpy.array([float])])
+                      np_isclose1=[numpy.array([float]), numpy.array([float])])
 
     def test_isclose2(self):
-        self.run_test("def np_isclose(u,v): from numpy import isclose; return isclose(u, v, 1e-16, 1e-19)",
+        self.run_test("def np_isclose2(u,v): from numpy import isclose; return isclose(u, v, 1e-16, 1e-19)",
                       numpy.array([-1.01, 1e-10+1e-11, -0, 7., float('NaN')]),
                       numpy.array([-1., 1e-10+2e-11, -0, 7.1, float('NaN')]),
-                      np_isclose=[numpy.array([float]), numpy.array([float])])
+                      np_isclose2=[numpy.array([float]), numpy.array([float])])
 
     def test_isclose3(self):
-        self.run_test("def np_isclose(u): from numpy import isclose; return isclose(u, u)",
+        self.run_test("def np_isclose3(u): from numpy import isclose; return isclose(u, u)",
                       numpy.array([9.+3j, 1e-10, 1.1j, float('NaN')]),
-                      np_isclose=[numpy.array([complex])])
+                      np_isclose3=[numpy.array([complex])])
 
     def test_isclose4(self):
-        self.run_test("def np_isclose(u,v): from numpy import isclose; return isclose(u, v)",
+        self.run_test("def np_isclose4(u,v): from numpy import isclose; return isclose(u, v)",
                       numpy.array([True, False, True, True, False]),
                       numpy.array([True, False, False, True, True]),
-                      np_isclose=[numpy.array([bool]), numpy.array([bool])])
+                      np_isclose4=[numpy.array([bool]), numpy.array([bool])])
 
     @unittest.expectedFailure
     def test_isclose5(self):
-        self.run_test("def np_isclose(u,v): from numpy import isclose; return isclose(u, v)",
+        self.run_test("def np_isclose5(u,v): from numpy import isclose; return isclose(u, v)",
                       1e-10,
                       1e-10+1e-11,
-                      np_isclose=[float, float])
+                      np_isclose5=[float, float])
 
     @unittest.expectedFailure
     def test_isclose6(self):
-        self.run_test("def np_isclose(u, v): from numpy import isclose; return isclose(u, v, 1e-19, 1e-16)",
+        self.run_test("def np_isclose6(u, v): from numpy import isclose; return isclose(u, v, 1e-19, 1e-16)",
                       numpy.array([[-float("inf"), 1e-10+1e-11, -0, 7.],[9., 1e-10, 0., float('NaN')]]),
                       numpy.array([float("inf"), 1e-10, 0., float('NaN')]),
-                      np_isclose=[numpy.array([[float]]), numpy.array([float])])
+                      np_isclose6=[numpy.array([[float]]), numpy.array([float])])
 
     @unittest.expectedFailure
     def test_isclose7(self):
-        self.run_test("def np_isclose(u, v): from numpy import isclose; return isclose(u, v, 1e-19, 1e-16)",
+        self.run_test("def np_isclose7(u, v): from numpy import isclose; return isclose(u, v, 1e-19, 1e-16)",
                       numpy.array([9., 1e-10, 0., float('NaN')]),
                       numpy.array([[-1.01, 1e-10+1e-11, -0, 7.],[9., 1e-10, 0., float('NaN')]]),
-                      np_isclose=[numpy.array([float]), numpy.array([[float]])])
+                      np_isclose7=[numpy.array([float]), numpy.array([[float]])])

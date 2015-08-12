@@ -37,10 +37,20 @@ class TestDoctest(unittest.TestCase):
         from tempfile import NamedTemporaryFile
         filepath = os.path.join(os.path.dirname(__file__), relative_path)
         rst_doc = file(filepath).read()
-        rst_doc = re.sub(r'\.\.(\s+>>>)', r'\1', rst_doc)  # hidden doctest
+        sp = re.sub(r'\.\.(\s+>>>)', r'\1', rst_doc)  # hidden doctest
+
+        # hack to support setuptools-generated pythran / pythran-config scripts
+        for tool, sub in (('pythran-config', 'python -m pythran.config'),
+                          ('pythran', 'python -m pythran.run')):
+            sp = re.sub(r'(\$>.*?[^#])\b' + tool + r'\b([^-.].*)$',
+                        r'\1' + sub + r'\2',
+                        sp,
+                        flags=re.MULTILINE)
+
+        # convert shell doctest into python ones
         sp = re.sub(r'\$>(.*?)$',
                     r'>>> import subprocess ; print subprocess.check_output("\1", shell=True),',
-                    rst_doc,
+                    sp,
                     flags=re.MULTILINE)
         f = NamedTemporaryFile(delete=False)
         f.write(sp)

@@ -37,7 +37,7 @@ import sysconfig
 import glob
 import hashlib
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('pythran')
 
 
 # hook taken from numpy.distutils.compiler
@@ -162,13 +162,13 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
         specs_max = [max(map(len, s)) for s in specs.itervalues()]
         max_arity = max([min_val] + specs_max)
         mod.add_to_preamble(Define("BOOST_PYTHON_MAX_ARITY", max_arity),
-                            Define("BOOST_SIMD_NO_STRICT_ALIASING", "1"),
-                            Include("pythonic/core.hpp"),
+                            Define("BOOST_SIMD_NO_STRICT_ALIASING", "1"))
+        mod.add_to_includes(Include("pythonic/core.hpp"),
                             Include("pythonic/python/core.hpp"),
                             Line("#ifdef _OPENMP\n#include <omp.h>\n#endif")
                             )
-        mod.add_to_preamble(*map(Include, _extract_specs_dependencies(specs)))
-        mod.add_to_preamble(*content.body)
+        mod.add_to_includes(*map(Include, _extract_specs_dependencies(specs)))
+        mod.add_to_includes(*content.body)
         mod.add_to_init(
             Line('#ifdef PYTHONIC_TYPES_NDARRAY_HPP\nimport_array()\n#endif'))
 
@@ -266,16 +266,12 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
     return mod
 
 
-def compile_cxxfile(cxxfile, module_so=None, **kwargs):
+def compile_cxxfile(module_name, cxxfile, output_binary=None, **kwargs):
     '''c++ file -> native module
     Return the filename of the produced shared library
     Raises CompileError on failure
 
     '''
-    if module_so:
-        module_name, _ = os.path.splitext(os.path.basename(module_so))
-    else:
-        module_name, _ = os.path.splitext(os.path.basename(cxxfile))
 
     builddir = mkdtemp()
     buildtmp = mkdtemp()
@@ -304,21 +300,20 @@ def compile_cxxfile(cxxfile, module_so=None, **kwargs):
         raise CompileError(e.args)
 
     [target] = glob.glob(os.path.join(builddir, module_name + "*"))
-    if module_so:
-        shutil.move(target, module_so)
-    else:
-        shutil.move(target, os.getcwd())
-        module_so = os.path.join(os.getcwd(), os.path.basename(target))
+    if not output_binary:
+        output_binary = os.path.join(os.getcwd(),
+                                     module_name + os.path.splitext(target)[1])
+    shutil.move(target, output_binary)
     shutil.rmtree(builddir)
     shutil.rmtree(buildtmp)
 
     logger.info("Generated module: " + module_name)
-    logger.info("Output: " + module_so)
+    logger.info("Output: " + output_binary)
 
-    return module_so
+    return output_binary
 
 
-def compile_cxxcode(cxxcode, module_so=None, keep_temp=False,
+def compile_cxxcode(module_name, cxxcode, output_binary=None, keep_temp=False,
                     **kwargs):
     '''c++ code (string) -> temporary file -> native module.
     Returns the generated .so.
@@ -327,18 +322,19 @@ def compile_cxxcode(cxxcode, module_so=None, keep_temp=False,
 
     # Get a temporary C++ file to compile
     fd, fdpath = _get_temp(cxxcode)
-    module_so = compile_cxxfile(fdpath, module_so, **kwargs)
+    output_binary = compile_cxxfile(module_name, fdpath,
+                                    output_binary, **kwargs)
     if not keep_temp:
         # remove tempfile
         os.remove(fdpath)
     else:
         logger.warn("Keeping temporary generated file:" + fdpath)
 
-    return module_so
+    return output_binary
 
 
 def compile_pythrancode(module_name, pythrancode, specs=None,
-                        opts=None, cpponly=False, module_so=None,
+                        opts=None, cpponly=False, output_file=None,
                         **kwargs):
     '''Pythran code (string) -> c++ code -> native module
     Returns the generated .so (or .cpp if `cpponly` is set to true).
@@ -355,21 +351,22 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
 
     if cpponly:
         # User wants only the C++ code
-        _, output_file = _get_temp(str(module))
-        if module_so:
-            shutil.move(output_file, module_so)
-            output_file = module_so
+        _, tmp_file = _get_temp(str(module))
+        if not output_file:
+            output_file = module_name + ".cpp"
+        shutil.move(tmp_file, output_file)
         logger.info("Generated C++ source file: " + output_file)
     else:
         # Compile to binary
-        output_file = compile_cxxcode(str(module.generate()),
-                                      module_so=module_so,
+        output_file = compile_cxxcode(module_name,
+                                      str(module.generate()),
+                                      output_binary=output_file,
                                       **kwargs)
 
     return output_file
 
 
-def compile_pythranfile(file_path, module_so=None, module_name=None,
+def compile_pythranfile(file_path, output_file=None, module_name=None,
                         cpponly=False, **kwargs):
     """
     Pythran file -> c++ file -> native module.
@@ -377,24 +374,25 @@ def compile_pythranfile(file_path, module_so=None, module_name=None,
     Returns the generated .so (or .cpp if `cpponly` is set to true).
 
     """
-    if not module_so:
+    if not output_file:
         # derive module name from input file name
         basedir, basename = os.path.split(file_path)
         module_name = module_name or os.path.splitext(basename)[0]
 
-        # derive destination from file name
-        module_so = os.path.join(basedir, module_name + ".so")
     else:
-        # derive module name from destination module_so name
-        _, basename = os.path.split(module_so)
+        # derive module name from destination output_file name
+        _, basename = os.path.split(output_file)
         module_name = module_name or os.path.splitext(basename)[0]
 
     # Add compiled module path to search for imported modules
     sys.path.append(os.path.dirname(file_path))
 
-    compile_pythrancode(module_name, file(file_path).read(),
-                        module_so=module_so, cpponly=cpponly, **kwargs)
-    return module_so
+    output_file = compile_pythrancode(module_name, file(file_path).read(),
+                                      output_file=output_file,
+                                      cpponly=cpponly,
+                                      **kwargs)
+
+    return output_file
 
 
 def test_compile():
@@ -402,8 +400,10 @@ def test_compile():
     May raises CompileError Exception.
 
     '''
-    module_so = compile_cxxcode("\n".join([
-        "#define BOOST_PYTHON_MAX_ARITY 4",
-        "#include <pythonic/core.hpp>"
-        ]))
-    module_so and os.remove(module_so)
+    code = '''
+        #define BOOST_PYTHON_MAX_ARITY 4
+        #include <pythonic/core.hpp>
+    '''
+
+    output_file = compile_cxxcode('test', code)
+    output_file and os.remove(output_file)

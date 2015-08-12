@@ -38,12 +38,15 @@ namespace pythonic
       void _join(types::str &buffer, T &&head, Types &&... tail)
       {
         if (head[0] == '/')
-          buffer = head;
+          buffer = std::forward<T>(head);
         else if (not buffer or *buffer.rbegin() == OS_SEP or
                  *buffer.rbegin() == '/')
-          buffer += head;
-        else
-          buffer += types::str(OS_SEP) + head;
+          // SG->PB: I don't understand why you still need this last check (*buffer.rbegin() == '/')
+          buffer += std::forward<T>(head);
+        else {
+          buffer += OS_SEP; // SG->PB: better this than an extra call to types::str(...) ?
+          buffer += std::forward<T>(head);
+        }
         _join(buffer, std::forward<Types>(tail)...);
       }
 

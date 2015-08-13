@@ -168,7 +168,8 @@ class TestEnv(unittest.TestCase):
             # Clean temporary DLL
             #FIXME: We can't remove this file while it is used in an import
             # through the exec statement (Windows constraints...)
-            # os.remove(module_path)
+            if sys.platform != "win32":
+                os.remove(module_path)
             pass
 
     def run_test_case(self, code, module_name, runas, **interface):

@@ -141,12 +141,34 @@ class BuildWithPly(build_py):
             shutil.rmtree(target, True)
             shutil.copytree(src, target)
 
+    def specialize_cfg(self):
+        # if BOOST_ROOT is specified by the user, save it in the cfg
+        # ** NOT TESTED **
+        # SG->PB: maybe it's better to patch all cfgs ?
+        boost_root = os.environ.get('BOOST_ROOT')
+        if boost_root:
+            try:
+                import configparser
+            except:
+                import ConfigParser as configparser
+            cfg_path = os.path.join(self.build_lib,
+                                    'pythran', 'pythran-win32.cfg')
+            cfg = configparser.SafeConfigParser()
+            cfg.read(cfg_path)
+            cfg.set('compiler', 'include_dirs',
+                    cfg.get('compiler', 'include_dirs') + ' ' + boost_root)
+            cfg.set('compiler', 'library_dirs',
+                    cfg.get('compiler', 'library_dirs') + ' ' +
+                    os.path.join(boost_root, 'DLLs'))
+            cfg.write(open(cfg_path, 'w'))
+
     def run(self, *args, **kwargs):
         # regular build done by parent class
         build_py.run(self, *args, **kwargs)
         if not self.dry_run:  # compatibility with the parent options
             self.build_nt2()
             self.build_ply()
+            self.specialize_cfg()
 
 
 # Cannot use glob here, as the files may not be generated yet

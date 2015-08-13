@@ -10,7 +10,7 @@
  * We use uintptr_t conversion because on windows 64 bits, sizeof(void*) == 8
  * and sizeof(long) == 4. Because of this, void* to long is forbidden but
  * void* -> uintptr_t -> long is allowed
- * Occuracy is lost this way...
+ * Accuracy is lost this way...
  */
 
 namespace pythonic

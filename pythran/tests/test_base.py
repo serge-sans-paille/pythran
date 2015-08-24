@@ -172,6 +172,9 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
     def test_print(self):
         self.run_test("def print_(a,b,c,d): print a,b,c,d,'e',1.5,", [1,2,3.1],3,True, "d", print_=[[float], int, bool, str])
 
+    def test_print_tuple(self):
+        self.run_test("def print_tuple(a,b,c,d): print (a,b,c,d,'e',1.5,)", [1,2,3.1],3,True, "d", print_tuple=[[float], int, bool, str])
+
     def test_assign(self):
         self.run_test("def assign(a): b=2*a ; return b", 1, assign=[int])
 

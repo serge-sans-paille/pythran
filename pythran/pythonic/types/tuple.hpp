@@ -538,29 +538,30 @@ namespace pythonic
 
   namespace types
   {
-    template <class Ch, class Tr, class Tuple, size_t I>
-    void print_tuple(std::basic_ostream<Ch, Tr> &os, Tuple const &t,
-                     utils::int_<I>)
+    template <class Tuple, size_t I>
+    void print_tuple(std::ostream &os, Tuple const &t, utils::int_<I>)
     {
       print_tuple(os, t, utils::int_<I - 1>());
       os << ", " << std::get<I>(t);
     }
 
-    template <class Ch, class Tr, class Tuple>
-    void print_tuple(std::basic_ostream<Ch, Tr> &os, Tuple const &t,
-                     utils::int_<0>)
+    template <class Tuple>
+    void print_tuple(std::ostream &os, Tuple const &t, utils::int_<0>)
     {
       os << std::get<0>(t);
     }
+  }
+}
 
-    template <class Ch, class Traits, class... Args>
-    std::ostream &operator<<(std::basic_ostream<Ch, Traits> &os,
-                             std::tuple<Args...> const &t)
-    {
-      os << '(';
-      print_tuple(os, t, utils::int_<sizeof...(Args)-1>());
-      return os << ')';
-    }
+namespace std
+{
+  template <class... Args>
+  ostream &operator<<(ostream &os, tuple<Args...> const &t)
+  {
+    os << '(';
+    pythonic::types::print_tuple(os, t,
+                                 pythonic::utils::int_<sizeof...(Args)-1>());
+    return os << ')';
   }
 }
 

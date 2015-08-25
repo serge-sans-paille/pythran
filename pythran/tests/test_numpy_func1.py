@@ -192,6 +192,12 @@ class TestNumpyFunc1(TestEnv):
     def test_all5_(self):
         self.run_test("def np_all5_(a): return a.all(0)", numpy.arange(10), np_all5_=[numpy.array([int])])
 
+    def test_all6_(self):
+        self.run_test("def np_all6_(a): return a.all().all()", numpy.arange(10), np_all6_=[numpy.array([int])])
+
+    def test_all7_(self):
+        self.run_test("def np_all7_(a): return a.all().all(0)", numpy.arange(10), np_all7_=[numpy.array([int])])
+
     def test_transpose_(self):
         self.run_test("def np_transpose_(a): return a.transpose()", numpy.arange(24).reshape(2,3,4), np_transpose_=[numpy.array([[[int]]])])
 

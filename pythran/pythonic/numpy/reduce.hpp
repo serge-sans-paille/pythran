@@ -20,53 +20,61 @@ namespace pythonic
 
   namespace numpy
   {
+    template <class Op, size_t N, bool vector_form>
+    struct _reduce {
+      template <class E, class F>
+      F operator()(E e, F acc)
+      {
+        for (auto const &value : e)
+          acc = _reduce<Op, N - 1, vector_form>{}(value, acc);
+        return acc;
+      }
+    };
 
     template <class Op, bool vector_form>
-    template <class E, class F>
-    F _reduce<Op, 1, vector_form>::operator()(E e, F acc)
-    {
-      for (auto const &value : e)
-        Op{}(acc, value);
-      return acc;
-    }
+    struct _reduce<Op, 1, vector_form> {
+      template <class E, class F>
+      F operator()(E e, F acc)
+      {
+        for (auto const &value : e)
+          Op{}(acc, value);
+        return acc;
+      }
+    };
 
 #ifdef USE_BOOST_SIMD
     template <class Op>
-    template <class E, class F>
-    F _reduce<Op, 1, true>::operator()(E e, F acc)
-    {
-      using T = typename E::dtype;
-      using vT = typename boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>;
-      static const size_t vN = boost::simd::meta::cardinal_of<vT>::value;
-      const long n = e.shape()[0];
-      const long bound = n / vN * vN;
-      long i = 0;
-      if (bound > 0) {
-        vT vacc = e.load(i);
-        for (i = vN; i < bound; i += vN)
-          Op{}(vacc, e.load(i));
-        alignas(sizeof(vT)) T stored[vN];
-        boost::simd::store(vacc, &stored[0]);
-        for (size_t j = 0; j < vN; ++j)
-          Op{}(acc, stored[j]);
+    struct _reduce<Op, 1, true> {
+      template <class E, class F>
+      F operator()(E e, F acc)
+      {
+        using T = typename E::dtype;
+        using vT =
+            typename boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>;
+        static const size_t vN = boost::simd::meta::cardinal_of<vT>::value;
+        const long n = e.shape()[0];
+        const long bound = n / vN * vN;
+        long i = 0;
+        if (bound > 0) {
+          vT vacc = e.load(i);
+          for (i = vN; i < bound; i += vN)
+            Op{}(vacc, e.load(i));
+          alignas(sizeof(vT)) T stored[vN];
+          boost::simd::store(vacc, &stored[0]);
+          for (size_t j = 0; j < vN; ++j)
+            Op{}(acc, stored[j]);
+        }
+        for (; i < n; ++i)
+          Op{}(acc, e.fast(i));
+        return acc;
       }
-      for (; i < n; ++i)
-        Op{}(acc, e.fast(i));
-      return acc;
-    }
+    };
 #endif
 
-    template <class Op, size_t N, bool vector_form>
-    template <class E, class F>
-    F _reduce<Op, N, vector_form>::operator()(E e, F acc)
-    {
-      for (auto const &value : e)
-        acc = _reduce<Op, N - 1, vector_form>{}(value, acc);
-      return acc;
-    }
-
     template <class Op, class E>
-    reduce_result_type<E> reduce(E const &expr, types::none_type)
+    typename std::enable_if<types::is_numexpr_arg<E>::value,
+                            reduce_result_type<E>>::type
+    reduce(E const &expr, types::none_type)
     {
       bool constexpr is_vectorizable =
           E::is_vectorizable and
@@ -74,6 +82,25 @@ namespace pythonic
       reduce_result_type<E> p = utils::neutral<Op, typename E::dtype>::value;
       return _reduce<Op, types::numpy_expr_to_ndarray<E>::N, is_vectorizable>{}(
           expr, p);
+    }
+
+    template <class Op, class E>
+    typename std::enable_if<
+        std::is_scalar<E>::value or types::is_complex<E>::value, E>::type
+    reduce(E const &expr, types::none_type)
+    {
+      return expr;
+    }
+
+    template <class Op, class E>
+    auto reduce(E const &array, long axis) ->
+        typename std::enable_if<std::is_scalar<E>::value or
+                                    types::is_complex<E>::value,
+                                decltype(reduce<Op>(array))>::type
+    {
+      if (axis != 0)
+        throw types::ValueError("axis out of bounds");
+      return reduce<Op>(array);
     }
 
     template <class Op, class E>

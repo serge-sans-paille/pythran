@@ -19,6 +19,7 @@ from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE, pytype_to_ctype
 from pythran.types.reorder import Reorder
 
 from collections import defaultdict
+from functools import partial
 from numpy import ndarray
 import ast
 import operator
@@ -371,16 +372,19 @@ class Types(ModuleAnalysis):
     def visit_Compare(self, node):
         self.generic_visit(node)
         all_compare = zip(node.ops, node.comparators)
+
+        def unary_op(x, op=None):
+            return ExpressionType(
+                operator_to_lambda[type(op)],
+                [self.result[node.left], x])
         for op, comp in all_compare:
             self.combine(node, comp,
-                         unary_op=lambda x: ExpressionType(
-                             operator_to_lambda[type(op)],
-                             [self.result[node.left], x])
-                         )
+                         unary_op=partial(unary_op, op=op))
 
     def visit_Call(self, node):
         self.generic_visit(node)
-        for alias in self.strict_aliases[node.func].aliases:
+        func = node.func
+        for alias in self.strict_aliases[func].aliases:
             # this comes from a bind
             if isinstance(alias, ast.Call):
                 a0 = alias.args[0]
@@ -393,7 +397,7 @@ class Types(ModuleAnalysis):
                                      [], None, None)
                 self.combiners[bounded_function].combiner(self, fake_node)
                 # force recombination of binded call
-                for n in self.name_to_nodes[node.func.id]:
+                for n in self.name_to_nodes[func.id]:
                     self.result[n] = ReturnType(self.result[alias.func],
                                                 [self.result[arg]
                                                  for arg in alias.args])
@@ -402,26 +406,26 @@ class Types(ModuleAnalysis):
                 self.combiners[alias].combiner(self, node)
 
         # recurring nightmare
-        isweak = any(self.result[n].isweak() for n in node.args + [node.func])
+        isweak = any(self.result[n].isweak() for n in node.args + [func])
         if self.stage == 0 and isweak:
             # maybe we can get saved if we have a hint about
             # the called function return type
-            for alias in self.strict_aliases[node.func].aliases:
+            for alias in self.strict_aliases[func].aliases:
                 if alias is self.current and alias in self.result:
                     # great we have a (partial) type information
                     self.result[node] = self.result[alias]
                     return
 
         # special handler for getattr: use the attr name as an enum member
-        if type(node.func) is (ast.Attribute) and node.func.attr == 'getattr':
-            def F(f):
+        if (isinstance(func, ast.Attribute) and func.attr == 'getattr'):
+            def F(_):
                 return GetAttr(self.result[node.args[0]], node.args[1].s)
         # default behavior
         else:
             def F(f):
                 return ReturnType(f, [self.result[arg] for arg in node.args])
         # op is used to drop previous value there
-        self.combine(node, node.func, op=lambda x, y: y, unary_op=F)
+        self.combine(node, func, op=lambda x, y: y, unary_op=F)
 
     def visit_Num(self, node):
         """
@@ -481,8 +485,8 @@ class Types(ModuleAnalysis):
                     return "{0}({1})".format(a, ", ".join(b))
                 dim_types = [self.result[d] for d in node.slice.dims]
                 return ExpressionType(et, [t] + dim_types)
-        elif (type(node.slice) is (ast.Index) and
-              type(node.slice.value) is ast.Num and
+        elif (isinstance(node.slice, ast.Index) and
+              isinstance(node.slice.value, ast.Num) and
               node.slice.value.n >= 0):
             # type of a[2] is the type of an elements of a
             # this special case is to make type inference easier
@@ -494,18 +498,18 @@ class Types(ModuleAnalysis):
             self.visit(node.slice)
 
             def f(x):
-                return ExpressionType(lambda a, b: "{0}[{1}]".format(a, b),
+                return ExpressionType("{0}[{1}]".format,
                                       [x, self.result[node.slice]])
         f and self.combine(node, node.value, unary_op=f)
 
     def visit_AssignedSubscript(self, node):
-        if type(node.slice) not in (ast.Slice, ast.ExtSlice):
+        if isinstance(node.slice, (ast.Slice, ast.ExtSlice)):
+            return False
+        else:
             self.visit(node.slice)
             self.combine(node.value, node.slice, unary_op=IndexableType,
                          aliasing_type=True, register=True)
             return True
-        else:
-            return False
 
     def visit_Name(self, node):
         if node.id in self.name_to_nodes:
@@ -539,9 +543,9 @@ class Types(ModuleAnalysis):
         self.generic_visit(node)
         if node.keys:
             for key, value in zip(node.keys, node.values):
+                value_type = self.result[value]
                 self.combine(node, key,
-                             unary_op=lambda x: DictType(x,
-                                                         self.result[value]))
+                             unary_op=partial(DictType, of_value=value_type))
         else:
             self.result[node] = NamedType("pythonic::types::empty_dict")
 
@@ -557,11 +561,8 @@ class Types(ModuleAnalysis):
 
     def visit_Tuple(self, node):
         self.generic_visit(node)
-        try:
-            types = [self.result[elt] for elt in node.elts]
-            self.result[node] = TupleType(types)
-        except:
-            pass  # not very harmonious with the combine method ...
+        types = [self.result[elt] for elt in node.elts]
+        self.result[node] = TupleType(types)
 
     def visit_Index(self, node):
         self.generic_visit(node)

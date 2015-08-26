@@ -11,7 +11,6 @@ class Weak:
 
     When a weak type is combined with another type, the weak type is suppressed
     """
-    pass
 
 
 class Type(object):
@@ -68,11 +67,13 @@ class NamedType(Type):
     >>> NamedType('long long')
     long long
     """
-    def __init__(self, repr, qualifiers=set()):
-        super(NamedType, self).__init__(repr=repr, qualifiers=qualifiers)
+    def __init__(self, srepr, qualifiers=None):
+        if qualifiers is None:
+            qualifiers = set()
+        super(NamedType, self).__init__(srepr=srepr, qualifiers=qualifiers)
 
-    def generate(self, ctx):
-        return self.repr
+    def generate(self, _):
+        return self.srepr
 
 
 class PType(Type):
@@ -83,10 +84,10 @@ class PType(Type):
     prefix = "__ptype{0}"
     count = 0
 
-    def __init__(self, fun, type):
+    def __init__(self, fun, ptype):
         super(PType, self).__init__(fun=fun,
-                                    type=type,
-                                    qualifiers=type.qualifiers,
+                                    type=ptype,
+                                    qualifiers=ptype.qualifiers,
                                     name=PType.prefix.format(PType.count))
         PType.count += 1
 
@@ -164,10 +165,10 @@ class CombinedTypes(Type):
         all_types = self.all_types()
 
         def fot0(t):
-            return type(t) is IndexableType
+            return isinstance(t, IndexableType)
 
         def fot1(t):
-            return type(t) is ContainerType
+            return isinstance(t, ContainerType)
 
         def fit(t):
             return not fot0(t) and not fot1(t)
@@ -195,11 +196,13 @@ class ArgumentType(Type):
     typename std::remove_cv<\
 typename std::remove_reference<argument_type4>::type>::type
     """
-    def __init__(self, num, qualifiers=set()):
+    def __init__(self, num, qualifiers=None):
+        if qualifiers is None:
+            qualifiers = set()
         super(ArgumentType, self).__init__(num=num,
                                            qualifiers=qualifiers)
 
-    def generate(self, ctx):
+    def generate(self, _):
         argtype = "argument_type{0}".format(self.num)
         noref = "typename std::remove_reference<{0}>::type".format(argtype)
         return "typename std::remove_cv<{0}>::type".format(noref)
@@ -272,10 +275,10 @@ class DeclType(NamedType):
 typename std::remove_reference<decltype(toto)>::type>::type
     """
 
-    def generate(self, ctx):
+    def generate(self, _):
         return ('typename std::remove_cv<'
                 'typename std::remove_reference<'
-                'decltype({0})>::type>::type'.format(self.repr))
+                'decltype({0})>::type>::type'.format(self.srepr))
 
 
 class ContentType(DependentType):
@@ -289,7 +292,7 @@ typename std::remove_reference<decltype(l)>::type>::type>::type
 
     def generate(self, ctx):
         # the content of a container can be inferred directly
-        if type(self.of) in (ListType, SetType, ContainerType):
+        if isinstance(self.of, (ListType, SetType, ContainerType)):
             return self.of.of.generate(ctx)
         return 'typename pythonic::types::content_of<{0}>::type'.format(
             ctx(self.of).generate(ctx))
@@ -305,10 +308,6 @@ typename std::remove_reference<str>::type::iterator>::value_type>::type
     '''
 
     def generate(self, ctx):
-        # special hook to avoid delegating this trivial computation to c++
-        if type(self.of) is ReturnType and type(self.of.ftype) is DeclType:
-            if self.of.ftype.repr == '__builtin__::proxy::xrange()':
-                return ctx(NamedType('long')).generate(ctx)
         iterator_value_type = ctx(self.of).generate(ctx)
         return 'typename std::remove_cv<{0}>::type'.format(
             'typename std::iterator_traits<{0}>::value_type'.format(

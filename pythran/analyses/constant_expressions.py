@@ -99,7 +99,7 @@ class ConstantExpressions(NodeAnalysis):
     visit_Tuple = visit_List
     visit_Set = visit_List
 
-    def visit_Slice(self, node):
+    def visit_Slice(self, _):
         # ultra-conservative, indeed
         return False
 

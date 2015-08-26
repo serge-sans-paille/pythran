@@ -80,15 +80,15 @@ class ForwardSubstitution(Transformation):
                  self.lazyness_analysis[name] == 1) or
                     (self.lazyness_analysis[name] != float('inf') and
                      name in self.literals)):
-                def get(action):
+                def get(udgraph, action):
                     """ Return list of used/def variables. """
                     return [udgraph.node[n]['name'] for n in udgraph.nodes()
                             if udgraph.node[n]['action'] == action]
-                U = get("U")
-                D = get("D")
+                U = get(udgraph, "U")
+                D = get(udgraph, "D")
                 # we can't forward if multiple definition for a variable are
                 # possible or if this variable is a parameter from a function
-                if (len(D) == 1 and len(get("UD")) == 0 and
+                if (len(D) == 1 and len(get(udgraph, "UD")) == 0 and
                         not isinstance(D[0].ctx, ast.Param)):
                     node = _LazyRemover(self.ctx, U, D[0]).visit(node)
                     self.update = True

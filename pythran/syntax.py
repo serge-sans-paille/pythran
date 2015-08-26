@@ -68,7 +68,7 @@ class SyntaxChecker(ast.NodeVisitor):
         raise PythranSyntaxError(
             "Suites are specific to Jython and not supported", node)
 
-    def visit_ClassDef(self, node):
+    def visit_ClassDef(self, _):
         raise PythranSyntaxError("Classes not supported")
 
     def visit_Print(self, node):
@@ -77,7 +77,7 @@ class SyntaxChecker(ast.NodeVisitor):
             raise PythranSyntaxError(
                 "Printing to a specific stream not supported", node.dest)
 
-    def visit_With(self, node):
+    def visit_With(self, _):
         raise PythranSyntaxError("With statements not supported")
 
     def visit_Call(self, node):

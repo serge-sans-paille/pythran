@@ -77,13 +77,14 @@ class NormalizeMethodCalls(Transformation):
     def visit_Attribute(self, node):
         node = self.generic_visit(node)
         # storing in an attribute -> not a getattr
-        if type(node.ctx) is not ast.Load:
+        if not isinstance(node.ctx, ast.Load):
             return node
         # method name -> not a getattr
         elif node.attr in methods:
             return node
         # imported module -> not a getattr
-        elif type(node.value) is ast.Name and node.value.id in self.imports:
+        elif (isinstance(node.value, ast.Name) and
+              node.value.id in self.imports):
             if node.attr not in MODULES[node.value.id]:
                 msg = ("`" + node.attr + "' is not a member of " +
                        node.value.id + " or Pythran does not support it")

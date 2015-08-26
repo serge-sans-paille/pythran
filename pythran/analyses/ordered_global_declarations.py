@@ -36,7 +36,7 @@ class OrderedGlobalDeclarations(ModuleAnalysis):
         new_count = 0
         # iteratively propagate weights
         while new_count != old_count:
-            for k, v in self.result.iteritems():
+            for v in self.result.itervalues():
                 [v.update(self.result[f]) for f in list(v)]
             old_count = new_count
             new_count = reduce(lambda acc, s: acc + len(s),

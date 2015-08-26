@@ -22,14 +22,14 @@ class Scope(FunctionAnalysis):
     '''
 
     def __init__(self):
-        self.result = defaultdict(lambda: set())
+        self.result = defaultdict(set)
         self.decl_holders = (ast.FunctionDef, ast.For,
                              ast.While, ast.TryExcept, ast.If)
         super(Scope, self).__init__(Ancestors, UseDefChain)
 
     def visit_OMPDirective(self, node):
         for dep in node.deps:
-            if type(dep) is ast.Name:
+            if isinstance(dep, ast.Name):
                 self.openmp_deps.setdefault(dep.id, []).append(dep)
 
     def visit_FunctionDef(self, node):
@@ -48,12 +48,12 @@ class Scope(FunctionAnalysis):
             # get their ancestors
             ancestors = map(self.ancestors.__getitem__, refs)
             # common ancestors
-            prefixes = filter(lambda x: len(set(x)) == 1, zip(*ancestors))
+            prefixes = [p for p in zip(*ancestors) if len(set(p)) == 1]
             common = prefixes[-1][0]  # the last common ancestor
 
             # now try to attach the scope to an assignment.
             # This will be the first assignment found in the bloc
-            if type(common) in self.decl_holders:
+            if isinstance(common, self.decl_holders):
                 # get all refs that define that name
                 refs = [udgraph.node[n]['name']
                         for n in udgraph if udgraph.node[n]['action'] == 'D']
@@ -61,7 +61,7 @@ class Scope(FunctionAnalysis):
                 # get their parent
                 prefs = set()
                 for r in refs:
-                    if type(self.ancestors[r][-1]) is openmp.OMPDirective:
+                    if isinstance(self.ancestors[r][-1], openmp.OMPDirective):
                         # point to the parent of the stmt holding the metadata
                         prefs.add(self.ancestors[r][-4])
                     else:
@@ -72,7 +72,7 @@ class Scope(FunctionAnalysis):
                 if common not in prefs:
                     for c in common.body:
                         if c in prefs:
-                            if type(c) is ast.Assign:
+                            if isinstance(c, ast.Assign):
                                 common = c
                             break
             self.result[common].add(name)

@@ -239,7 +239,7 @@ class Cxx(Backend):
                 def __init__(self, s):
                     self.s = s
 
-                def generate(self, ctx):
+                def generate(self, _):
                     return self.s
 
             def __init__(self, other=None):
@@ -318,9 +318,11 @@ class Cxx(Backend):
                      if node in self.pure_expressions else EmptyStatement())
 
         def make_function_declaration(rtype, name, ftypes, fargs,
-                                      defaults=None, attributes=[]):
+                                      defaults=None, attributes=None):
             if defaults is None:
                 defaults = [None] * len(ftypes)
+            if attributes is None:
+                attributes = []
             arguments = list()
             for i, (t, a, d) in enumerate(zip(ftypes, fargs, defaults)):
                 if self.yields:
@@ -581,7 +583,7 @@ class Cxx(Backend):
             stmt = ReturnStatement(self.visit(node.value))
             return self.process_omp_attachements(node, stmt)
 
-    def visit_Delete(self, node):
+    def visit_Delete(self, _):
         return EmptyStatement()
 
     def visit_Yield(self, node):
@@ -635,7 +637,7 @@ class Cxx(Backend):
         value = self.visit(node.value)
         target = self.visit(node.target)
         l = operator_to_lambda[type(node.op)]
-        if type(node.op) in (ast.FloorDiv, ast.Mod, ast.Pow):
+        if isinstance(node.op, (ast.FloorDiv, ast.Mod, ast.Pow)):
             stmt = Assign(target, l(target, value))
         else:
             stmt = Statement(l(target, '')[1:-2] + '= {0}'.format(value))
@@ -649,7 +651,7 @@ class Cxx(Backend):
             )
         return self.process_omp_attachements(node, stmt)
 
-    def gen_for(self, node, target, local_iter, local_iter_decl, loop_body):
+    def gen_for(self, node, target, local_iter, loop_body):
         """
         Create For representation on iterator for Cxx generation.
 
@@ -871,7 +873,7 @@ class Cxx(Backend):
         TODO : Yield should block only if it is use in the for loop, not in the
                whole function.
         """
-        auto_for = (type(node.target) is ast.Name and
+        auto_for = (isinstance(node.target, ast.Name) and
                     node.target.id in self.scope[node])
         auto_for &= not self.yields
         auto_for &= not metadata.get(node, OMPDirective)
@@ -975,8 +977,7 @@ class Cxx(Backend):
                 autofor = AutoFor(target, local_iter, loop_body)
                 loop = [self.process_omp_attachements(node, autofor)]
             else:
-                loop = self.gen_for(node, target, local_iter,
-                                    local_iter_decl, loop_body)
+                loop = self.gen_for(node, target, local_iter, loop_body)
 
         # For xxxComprehension, it is replaced by a for loop. In this case,
         # pre-allocate size of container.
@@ -1003,7 +1004,7 @@ class Cxx(Backend):
         body = [self.visit(n) for n in node.body]
         except_ = list()
         [except_.extend(self.visit(n)) for n in node.handlers]
-        return TryExcept(Block(body), except_, None)
+        return TryExcept(Block(body), except_)
 
     def visit_ExceptHandler(self, node):
         name = self.visit(node.name) if node.name else None
@@ -1029,7 +1030,7 @@ class Cxx(Backend):
                                    self.process_omp_attachements(node, stmt))
 
     def visit_Raise(self, node):
-        type = node.type and self.visit(node.type)
+        type_ = node.type and self.visit(node.type)
         if node.inst:
             if isinstance(node.inst, ast.Tuple):
                 inst = ['"{0}"'.format(e.s) for e in node.inst.elts]
@@ -1038,19 +1039,19 @@ class Cxx(Backend):
         else:
             inst = None
         if inst:
-            return Statement("throw {0}({1})".format(type, ", ".join(inst)))
+            return Statement("throw {0}({1})".format(type_, ", ".join(inst)))
         else:
-            return Statement("throw {0}".format(type or ""))
+            return Statement("throw {0}".format(type_ or ""))
 
     def visit_Assert(self, node):
         params = [self.visit(node.test), node.msg and self.visit(node.msg)]
         sparams = ", ".join(map(strip_exp, filter(None, params)))
         return Statement("pythonic::pythran_assert({0})".format(sparams))
 
-    def visit_Import(self, node):
+    def visit_Import(self, _):
         return EmptyStatement()  # everything is already #included
 
-    def visit_ImportFrom(self, node):
+    def visit_ImportFrom(self, _):
         assert False, "should be filtered out by the expand_import pass"
 
     def visit_Expr(self, node):
@@ -1062,7 +1063,7 @@ class Cxx(Backend):
         stmt = EmptyStatement()
         return self.process_omp_attachements(node, stmt)
 
-    def visit_Break(self, node):
+    def visit_Break(self, _):
         """
         Generate break statement in most case and goto for orelse clause.
 
@@ -1073,7 +1074,7 @@ class Cxx(Backend):
         else:
             return Statement("break")
 
-    def visit_Continue(self, node):
+    def visit_Continue(self, _):
         return Statement("continue")
 
     # expr
@@ -1175,12 +1176,12 @@ class Cxx(Backend):
             return "{}({})".format(func, ", ".join(args))
 
     def visit_Num(self, node):
-        if type(node.n) == complex:
+        if isinstance(node.n, complex):
             return "{0}({1}, {2})".format(
                 PYTYPE_TO_CTYPE_TABLE[complex],
                 repr(node.n.real),
                 repr(node.n.imag))
-        elif type(node.n) == long:
+        elif isinstance(node.n, long):
             return 'pythran_long({0})'.format(node.n)
         elif isnan(node.n):
             return 'pythonic::numpy::nan'
@@ -1221,22 +1222,22 @@ class Cxx(Backend):
         elif (isinstance(node.slice, ast.Slice) and
               (isinstance(node.ctx, ast.Store) or
                node not in self.bounded_expressions)):
-            slice = self.visit(node.slice)
-            return "{1}({0})".format(slice, value)
+            slice_ = self.visit(node.slice)
+            return "{1}({0})".format(slice_, value)
         # extended slice case
         elif isinstance(node.slice, ast.ExtSlice):
-            slice = self.visit(node.slice)
-            return "{1}({0})".format(','.join(slice), value)
+            slice_ = self.visit(node.slice)
+            return "{1}({0})".format(','.join(slice_), value)
         # positive indexing case
         elif (isinstance(node.slice, ast.Index) and
               isinstance(node.slice.value, ast.Name) and
               self.range_values[node.slice.value.id].low >= 0):
-            slice = self.visit(node.slice)
-            return "{1}.fast({0})".format(slice, value)
+            slice_ = self.visit(node.slice)
+            return "{1}.fast({0})".format(slice_, value)
         # standard case
         else:
-            slice = self.visit(node.slice)
-            return "{1}[{0}]".format(slice, value)
+            slice_ = self.visit(node.slice)
+            return "{1}[{0}]".format(slice_, value)
 
     def visit_Name(self, node):
         if node.id in self.local_names:
@@ -1257,7 +1258,7 @@ class Cxx(Backend):
             arg = (self.visit(nfield) if nfield
                    else 'pythonic::__builtin__::None')
             args.append(arg)
-        if node.step is None or (type(node.step) is ast.Num and
+        if node.step is None or (isinstance(node.step, ast.Num) and
                                  node.step.n == 1):
             return "pythonic::types::contiguous_slice({},{})".format(args[0],
                                                                      args[1])

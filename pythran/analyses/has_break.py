@@ -11,8 +11,8 @@ class HasBreak(NodeAnalysis):
         self.result = False
         super(HasBreak, self).__init__()
 
-    def visit_For(self, node):
+    def visit_For(self, _):
         return
 
-    def visit_Break(self, node):
+    def visit_Break(self, _):
         self.result = True

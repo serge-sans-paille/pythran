@@ -1,4 +1,4 @@
-""" Module with faicilities to represente range values. """
+""" Module with facilities to represent range values. """
 
 from math import isinf
 import ast
@@ -59,17 +59,17 @@ def range_values(args):
             return (args[0].low, args[1].high)
 
 
-def bool_values(args):
+def bool_values(_):
     """ Return boolean value return range. """
     return Range(0, 1)
 
 
-def cmp_values(args):
+def cmp_values(_):
     """ Return Possible range for cmp function. """
     return Range(-1, 1)
 
 
-def positive_values(args):
+def positive_values(_):
     """ Return positive range with an upper bound. """
     return Range(0, float("inf"))
 
@@ -84,7 +84,7 @@ def min_values(args):
     return Range(min([x.low for x in args]), min([x.high for x in args]))
 
 
-def ord_values(args):
+def ord_values(_):
     """ Return possible range for ord function. """
     return Range(0, 255)
 
@@ -163,7 +163,7 @@ def combine_floordiv(range1, range2):
     return Range(numpy.min(res), numpy.max(res))
 
 
-def combine_unknown(range1, range2):
+def combine_unknown(*_):
     """
     Combiner for operation with unknown range result.
 

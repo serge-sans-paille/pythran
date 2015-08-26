@@ -4,10 +4,6 @@ This module provides a dummy parser for pythran annotations.
 '''
 
 from numpy import array, ndarray
-from numpy import complex64, complex128
-from numpy import float32, float64
-from numpy import int8, int16, int32, int64
-from numpy import uint8, uint16, uint32, uint64
 
 import os.path
 import ply.lex as lex
@@ -150,6 +146,12 @@ class SpecParser:
                 | FLOAT64
                 | COMPLEX64
                 | COMPLEX128'''
+        # these imports are used indirectly by the eval
+        from numpy import complex64, complex128
+        from numpy import float32, float64
+        from numpy import int8, int16, int32, int64
+        from numpy import uint8, uint16, uint32, uint64
+
         p[0] = eval(p[1])
 
     def p_error(self, p):
@@ -160,7 +162,7 @@ class SpecParser:
             err.filename = self.input_file
         raise err
 
-    def __init__(self, **kwargs):
+    def __init__(self):
         self.lexer = lex.lex(module=self, debug=0)
         self.parser = yacc.yacc(module=self,
                                 debug=0,
@@ -223,5 +225,5 @@ def expand_specs(specs):
     return all_specs
 
 
-def spec_parser(input):
-    return SpecParser()(input)
+def spec_parser(path):
+    return SpecParser()(path)

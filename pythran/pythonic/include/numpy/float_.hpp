@@ -9,7 +9,7 @@ namespace pythonic
   namespace numpy
   {
 
-    float float_();
+    double float_();
 
     PROXY_DECL(pythonic::numpy, float_);
   }

@@ -25,7 +25,7 @@ namespace pythonic
 
       double float_()
       {
-        return 0.f;
+        return 0.;
       }
 
 #ifdef USE_GMP

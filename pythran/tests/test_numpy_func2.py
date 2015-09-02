@@ -544,6 +544,25 @@ def np_broadcast():
     return a, a"""
         self.run_test(code, np_broadcast=[])
 
+    def test_broadcast_slice(self):
+        """Check that slicing an expression involving a broadcast works. """
+        code = """
+            def np_broadcast_slice(n):
+                import numpy
+                a = numpy.arange(n).reshape(2, n/2)
+                return (a + 1)[:,1:]"""
+        self.run_test(code, 20, np_broadcast_slice=[int])
+
+    def test_broadcast_slice_again(self):
+        """Check that slicing an expression involving a broadcast works. """
+        code = """
+            def np_broadcast_slice_again(n):
+                import numpy
+                a = numpy.arange(n).reshape(2, n/2)
+                b = numpy.arange(n/2)
+                return (a + b)[:,1:]"""
+        self.run_test(code, 20, np_broadcast_slice_again=[int])
+
     def test_broadcast_dup(self):
         """Check that ndarray returned twice doesn't double free (reshaping)."""
         code = """

@@ -405,3 +405,6 @@ def np_trim_zeros2(x):
     def test_binary_op_array2(self):
         self.run_test("def np_binary_op_array2(n): return ((1,2,3),) + n", numpy.array([[4,5,6]]), np_binary_op_array2=[numpy.array([[int]])])
 
+    def test_round_method(self):
+        self.run_test("def np_round_method(a): return a.round()", numpy.array([[4.3,5.5,6.1]]), np_round_method=[numpy.array([[float]])])
+

@@ -15,7 +15,8 @@ namespace pythonic
     empty(types::array<long, N> const &shape, dtype d = dtype());
 
     template <class dtype = double>
-    types::ndarray<dtype, 1> empty(long size, dtype d = dtype());
+    types::ndarray<typename types::numpy_type<dtype>::type, 1>
+    empty(long size, dtype d = dtype());
 
     PROXY_DECL(pythonic::numpy, empty);
   }

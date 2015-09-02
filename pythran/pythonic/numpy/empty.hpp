@@ -20,7 +20,8 @@ namespace pythonic
     }
 
     template <class dtype>
-    types::ndarray<dtype, 1> empty(long size, dtype d)
+    types::ndarray<typename types::numpy_type<dtype>::type, 1> empty(long size,
+                                                                     dtype d)
     {
       return empty(types::make_tuple(size), d);
     }

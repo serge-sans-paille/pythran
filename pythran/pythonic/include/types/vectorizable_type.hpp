@@ -56,8 +56,7 @@ namespace pythonic
 
     /* trait to check if is T is an array-like type that supports vectorization
     */
-    template <class T,
-              bool scalar = std::is_scalar<T>::value or is_complex<T>::value>
+    template <class T, bool scalar = is_dtype<T>::value>
     struct is_vectorizable_array;
 
     template <class T>

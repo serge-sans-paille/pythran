@@ -45,11 +45,10 @@ namespace pythonic
     struct valid_numexpr_parameters<> : std::false_type {
     };
 
-    template <
-        class T0, class T1,
-        bool numexprarg = valid_numexpr_parameters<T0, T1>::value,
-        bool T0_scalar = std::is_scalar<T0>::value or is_complex<T0>::value,
-        bool T1_scalar = std::is_scalar<T1>::value or is_complex<T1>::value>
+    template <class T0, class T1,
+              bool numexprarg = valid_numexpr_parameters<T0, T1>::value,
+              bool T0_number = is_dtype<T0>::value,
+              bool T1_number = is_dtype<T1>::value>
     struct the_common_type {
       using type =
           typename std::conditional < T0::value<T1::value, T1, T0>::type;
@@ -117,8 +116,7 @@ namespace pythonic
     template <class T, class... OtherTypes>
     struct adapt_type {
       using ctype = typename common_type<T, OtherTypes...>::type;
-      static constexpr bool isdtype =
-          std::is_scalar<T>::value or is_complex<T>::value;
+      static constexpr bool isdtype = is_dtype<T>::value;
       using type =
           typename adapated_type<T, ctype, std::is_same<T, ctype>::value,
                                  isdtype>::type;
@@ -149,8 +147,7 @@ namespace pythonic
     template <class T, class... OtherTypes>
     struct reshape_type {
       using ctype = typename common_type<T, OtherTypes...>::type;
-      static constexpr bool isdtype =
-          std::is_scalar<T>::value or is_complex<T>::value;
+      static constexpr bool isdtype = is_dtype<T>::value;
       using type =
           typename reshaped_type<T, ctype, std::is_same<T, ctype>::value,
                                  isdtype>::type;

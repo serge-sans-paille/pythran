@@ -277,8 +277,7 @@ namespace pythonic
 
     template <class E>
     struct may_overlap_gexpr
-        : std::integral_constant<bool, not std::is_scalar<E>::value and
-                                           not is_complex<E>::value> {
+        : std::integral_constant<bool, not is_dtype<E>::value> {
     };
 
     template <class E>

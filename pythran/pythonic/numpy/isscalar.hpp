@@ -17,8 +17,7 @@ namespace pythonic
     template <class E>
     constexpr bool isscalar(E const &)
     {
-      return std::is_scalar<E>::value or types::is_complex<E>::value or
-             std::is_same<E, types::str>::value;
+      return types::is_dtype<E>::value or std::is_same<E, types::str>::value;
     }
 
     PROXY_IMPL(pythonic::numpy, isscalar);

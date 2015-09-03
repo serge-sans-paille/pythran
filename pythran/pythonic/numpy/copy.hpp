@@ -16,8 +16,7 @@ namespace pythonic
     // list case
     template <class E>
     typename std::enable_if<
-        !types::is_array<E>::value and !std::is_scalar<E>::value and
-            !types::is_complex<E>::value,
+        !types::is_array<E>::value and !types::is_dtype<E>::value,
         typename types::numpy_expr_to_ndarray<E>::type>::type
     copy(E const &v)
     {
@@ -26,8 +25,8 @@ namespace pythonic
 
     // scalar / complex case
     template <class E>
-    auto copy(E const &v) -> typename std::enable_if<
-        std::is_scalar<E>::value or types::is_complex<E>::value, E>::type
+    auto copy(E const &v) ->
+        typename std::enable_if<types::is_dtype<E>::value, E>::type
     {
       return v;
     }

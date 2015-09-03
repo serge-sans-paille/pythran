@@ -41,7 +41,7 @@ namespace pythonic
 
     template <class E>
     typename std::enable_if<
-        not std::is_scalar<E>::value and not types::is_complex<E>::value,
+        not types::is_dtype<E>::value,
         std::tuple<typename types::numpy_expr_to_ndarray<E>::type,
                    types::ndarray<int, types::numpy_expr_to_ndarray<E>::N>>>::
         type

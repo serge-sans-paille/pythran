@@ -5,9 +5,6 @@
 
 #include "pythonic/types/attr.hpp"
 
-#include <complex>
-#include <nt2/sdk/complex/complex.hpp>
-
 namespace std
 {
   std::complex<double> operator+(std::complex<double> self, long other)

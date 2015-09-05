@@ -31,10 +31,30 @@ namespace pythonic
     }
 
     template <class E>
-    bool any(E const &expr, types::none_type)
+    typename std::enable_if<types::is_numexpr_arg<E>::value, bool>::type
+    any(E const &expr, types::none_type)
     {
       return _any(expr.begin(), expr.end(),
                   utils::int_<types::numpy_expr_to_ndarray<E>::N>());
+    }
+
+    template <class E>
+    typename std::enable_if<
+        std::is_scalar<E>::value or types::is_complex<E>::value, bool>::type
+    any(E const &expr, types::none_type)
+    {
+      return expr;
+    }
+
+    template <class E>
+    auto any(E const &array, long axis) ->
+        typename std::enable_if<std::is_scalar<E>::value or
+                                    types::is_complex<E>::value,
+                                decltype(any(array))>::type
+    {
+      if (axis != 0)
+        throw types::ValueError("axis out of bounds");
+      return any(array);
     }
 
     template <class E>

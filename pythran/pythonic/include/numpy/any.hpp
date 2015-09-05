@@ -12,13 +12,19 @@ namespace pythonic
   namespace numpy
   {
     template <class E>
-    bool _any(E begin, E end, utils::int_<1>);
-
-    template <class E, size_t N>
-    bool _any(E begin, E end, utils::int_<N>);
+    typename std::enable_if<types::is_numexpr_arg<E>::value, bool>::type
+    any(E const &expr, types::none_type _ = types::none_type());
 
     template <class E>
-    bool any(E const &expr, types::none_type _ = types::none_type());
+    typename std::enable_if<
+        std::is_scalar<E>::value or types::is_complex<E>::value, bool>::type
+    any(E const &expr, types::none_type _ = types::none_type());
+
+    template <class E>
+    auto any(E const &array, long axis) ->
+        typename std::enable_if<std::is_scalar<E>::value or
+                                    types::is_complex<E>::value,
+                                decltype(any(array))>::type;
 
     template <class E>
     auto any(E const &array, long axis) ->

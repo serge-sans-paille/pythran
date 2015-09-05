@@ -377,6 +377,9 @@ def test_copy0(x):
     def test_any2(self):
         self.run_test("def np_any2(a): from numpy import any ; return any(a)", [-1, 0, 5], np_any2=[[int]])
 
+    def test_any3(self):
+        self.run_test("def np_any3(a): from numpy import any ; return any(a).any(0)", [-1, 0, 5], np_any3=[[int]])
+
     def test_array1D_(self):
         self.run_test("def np_array1D_(a):\n from numpy import array\n return array(a)", [1,2,3], np_array1D_=[[int]])
 
@@ -570,5 +573,11 @@ def np_broadcast_dup():
 
     def test_sum_bool(self):
         self.run_test("def np_sum_bool(a): return (a > 2).sum()", numpy.arange(10), np_sum_bool=[numpy.array([int])])
+
+    def test_sum_scalar0(self):
+        self.run_test("def np_sum_scalar0(a): return a.sum().sum()", numpy.arange(10), np_sum_scalar0=[numpy.array([int])])
+
+    def test_sum_scalar1(self):
+        self.run_test("def np_sum_scalar1(a): return a.sum().sum(0)", numpy.arange(10), np_sum_scalar1=[numpy.array([int])])
 
 

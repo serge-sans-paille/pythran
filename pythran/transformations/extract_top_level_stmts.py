@@ -15,7 +15,7 @@ class ExtractTopLevelStmts(Transformation):
         module_body = list()
         init_body = list()
         for stmt in node.body:
-            if type(stmt) in ExtractTopLevelStmts.TYPEDEFS:
+            if isinstance(stmt, ExtractTopLevelStmts.TYPEDEFS):
                 module_body.append(stmt)
             else:
                 init_body.append(stmt)

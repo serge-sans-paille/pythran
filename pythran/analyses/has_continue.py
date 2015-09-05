@@ -11,8 +11,8 @@ class HasContinue(NodeAnalysis):
         self.result = False
         super(HasContinue, self).__init__()
 
-    def visit_For(self, node):
+    def visit_For(self, _):
         return
 
-    def visit_Continue(self, node):
+    def visit_Continue(self, _):
         self.result = True

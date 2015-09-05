@@ -25,7 +25,6 @@ from numpy.distutils.core import setup
 from numpy.distutils.extension import Extension
 import numpy.distutils.ccompiler
 
-from subprocess import check_output, STDOUT, CalledProcessError
 from tempfile import mkstemp, mkdtemp
 import ast
 import logging
@@ -33,7 +32,6 @@ import networkx as nx
 import os.path
 import shutil
 import sys
-import sysconfig
 import glob
 import hashlib
 
@@ -42,8 +40,8 @@ logger = logging.getLogger('pythran')
 
 # hook taken from numpy.distutils.compiler
 # with useless steps  and warning removed
-def CCompiler_customize(self, dist, need_cxx=0):
-    logger.info('customize %s' % (self.__class__.__name__))
+def CCompiler_customize(self, _, need_cxx=0):
+    logger.info('customize %s', self.__class__.__name__)
     numpy.distutils.ccompiler.customize_compiler(self)
     if need_cxx:
         # In general, distutils uses -Wstrict-prototypes, but this option is
@@ -105,7 +103,7 @@ class HasArgument(ast.NodeVisitor):
 
     def visit_Module(self, node):
         for n in node.body:
-            if type(n) is ast.FunctionDef and n.name == self.fname:
+            if isinstance(n, ast.FunctionDef) and n.name == self.fname:
                 return len(n.args.args) > 0
         return False
 
@@ -321,7 +319,7 @@ def compile_cxxcode(module_name, cxxcode, output_binary=None, keep_temp=False,
     '''
 
     # Get a temporary C++ file to compile
-    fd, fdpath = _get_temp(cxxcode)
+    _, fdpath = _get_temp(cxxcode)
     output_binary = compile_cxxfile(module_name, fdpath,
                                     output_binary, **kwargs)
     if not keep_temp:
@@ -342,7 +340,7 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
     '''
 
     # Autodetect the Pythran spec if not given as parameter
-    from spec import spec_parser
+    from pythran.spec import spec_parser
     if specs is None:
         specs = spec_parser(pythrancode)
 
@@ -376,7 +374,7 @@ def compile_pythranfile(file_path, output_file=None, module_name=None,
     """
     if not output_file:
         # derive module name from input file name
-        basedir, basename = os.path.split(file_path)
+        _, basename = os.path.split(file_path)
         module_name = module_name or os.path.splitext(basename)[0]
 
     else:

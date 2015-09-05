@@ -10,6 +10,7 @@ from ast import AST  # so that metadata are walkable as regular ast nodes
 
 class Metadata(AST):
     def __init__(self):
+        super(Metadata, self).__init__()
         self.data = list()
         self._fields = ('data',)
 
@@ -27,6 +28,7 @@ class Lazy(AST):
 
 class Comprehension(AST):
     def __init__(self, *args):  # no positional argument to be deep copyable
+        super(Comprehension, self).__init__()
         if args:
             self.target = args[0]
 

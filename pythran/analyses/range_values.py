@@ -251,7 +251,7 @@ class RangeValues(FunctionAnalysis):
                      max(orelse_res.high, body_res.high))
 
     @staticmethod
-    def visit_Compare(node):
+    def visit_Compare(_):
         """ Boolean are possible index.
 
         >>> import ast

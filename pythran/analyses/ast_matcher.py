@@ -88,7 +88,7 @@ class Check(NodeVisitor):
             return True
 
     @staticmethod
-    def visit_AST_any(pattern):
+    def visit_AST_any(_):
         """ Every node match with it. """
         return True
 

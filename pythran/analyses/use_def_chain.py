@@ -43,19 +43,17 @@ class UseDefChain(FunctionAnalysis):
 
     def add_loop_edges(self, prev_node):
         self.merge_dict_set(self.continue_, self.current_node)
-        for id in self.continue_:
-            if id in self.result:
-                graph = self.result[id]
+        for nid in self.continue_:
+            if nid in self.result:
+                graph = self.result[nid]
             else:
-                graph = self.use_only[id]
-            if id in prev_node and prev_node[id] != self.continue_[id]:
-                entering_node = [i for j in prev_node[id]
+                graph = self.use_only[nid]
+            if nid in prev_node and prev_node[nid] != self.continue_[nid]:
+                entering_node = [i for j in prev_node[nid]
                                  for i in graph.successors_iter(j)]
             else:
-                def cond(x):
-                    return graph.in_degree(x) == 0
-                entering_node = filter(cond, graph)
-            graph.add_edges_from(product(self.continue_[id],
+                entering_node = [n for n in graph if graph.in_degree(n) == 0]
+            graph.add_edges_from(product(self.continue_[nid],
                                  entering_node))
         self.continue_ = dict()
 

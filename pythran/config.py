@@ -1,4 +1,5 @@
 try:
+    # python3 vs. python2
     import configparser
 except:
     import ConfigParser as configparser
@@ -20,22 +21,22 @@ def init_cfg(sys_file, platform_file, user_file):
     user_config_path = os.path.expanduser(
         os.path.join(user_config_dir, user_file))
 
-    cfg = configparser.SafeConfigParser()
+    cfgp = configparser.SafeConfigParser()
     for required in (sys_config_path, platform_config_path):
-        cfg.readfp(open(required))
-    cfg.read([user_config_path])
+        cfgp.readfp(open(required))
+    cfgp.read([user_config_path])
 
     for key in ('CC', 'CXX'):
-        value = cfg.get('compiler', key)
+        value = cfgp.get('compiler', key)
         if value:
             os.environ[key] = value
 
     for obsolete_section in ('user', 'sys'):
-        if cfg.has_section(obsolete_section):
-            logger.warn("Your pythranrc has an obsolete `{}' section".format(
-                obsolete_section))
+        if cfgp.has_section(obsolete_section):
+            logger.warn("Your pythranrc has an obsolete `%s' section",
+                        obsolete_section)
 
-    return cfg
+    return cfgp
 
 
 def make_extension(**extra):

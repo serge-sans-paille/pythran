@@ -64,7 +64,7 @@ class NormalizeTuples(Transformation):
         elif isinstance(node, ast.Tuple) or isinstance(node, ast.List):
             [self.traverse_tuples(n, state + (i,), renamings)
              for i, n in enumerate(node.elts)]
-        elif type(node) in (ast.Subscript, ast.Attribute):
+        elif isinstance(node, (ast.Subscript, ast.Attribute)):
             if state:
                 renamings[node] = state
         else:

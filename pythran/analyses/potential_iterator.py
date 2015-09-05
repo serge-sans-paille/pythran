@@ -20,17 +20,17 @@ class PotentialIterator(NodeAnalysis):
         self.generic_visit(node)
 
     def visit_Compare(self, node):
-        if type(node.ops[0]) in [ast.In, ast.NotIn]:
+        if isinstance(node.ops[0], (ast.In, ast.NotIn)):
             self.result.update(node.comparators)
         self.generic_visit(node)
 
     def visit_Call(self, node):
         for i, arg in enumerate(node.args):
 
-            def isReadOnce(f):
+            def isReadOnce(f, i):
                 return (f in self.argument_read_once and
                         self.argument_read_once[f][i] <= 1)
-            if all(isReadOnce(alias)
+            if all(isReadOnce(alias, i)
                    for alias in self.aliases[node.func].aliases):
                 self.result.add(arg)
         self.generic_visit(node)

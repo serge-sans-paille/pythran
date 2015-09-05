@@ -3,7 +3,6 @@
 """ Script to run Pythran file compilation with specified g++ like flags. """
 
 import argparse
-import distutils.sysconfig
 import logging
 import os
 import sys

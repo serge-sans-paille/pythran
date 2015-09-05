@@ -78,7 +78,7 @@ class GlobalEffects(ModuleAnalysis):
         assert self.current_function in self.result
         self.generic_visit(node)
 
-    def visit_Print(self, node):
+    def visit_Print(self, _):
         self.current_function.global_effect = True
 
     def visit_Call(self, node):

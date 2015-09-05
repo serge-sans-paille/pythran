@@ -90,11 +90,11 @@ def to_ast(value):
                      types.FunctionType, types.TypeType, types.XRangeType,
                      numpy.ufunc, type(list.append), types.FileType,
                      BaseException, types.GeneratorType) + tuple(itertools_t)
-    if type(value) in (int, long, float, complex):
-        return ast.Num(value)
-    elif isinstance(value, (types.NoneType, bool)):
+    if isinstance(value, (types.NoneType, bool)):
         return ast.Attribute(ast.Name('__builtin__', ast.Load()),
                              str(value), ast.Load())
+    elif isinstance(value, (int, long, float, complex)):
+        return ast.Num(value)
     elif isinstance(value, str):
         return ast.Str(value)
     elif isinstance(value, (list, tuple, set, dict, numpy.ndarray)):

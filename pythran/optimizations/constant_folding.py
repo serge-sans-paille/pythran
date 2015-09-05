@@ -7,7 +7,6 @@ from pythran.conversion import to_ast, ConversionError, ToNotEval
 from pythran.analyses.ast_matcher import DamnTooLongPattern
 
 import ast
-import numpy
 
 
 class ConstantFolding(Transformation):

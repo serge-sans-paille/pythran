@@ -159,7 +159,7 @@ class ImportedModule(object):
             # Not main module, parse now the imported module
             self.is_main_module = False
             imported_module = importlib.import_module(name)
-            self.node = ast.parse(inspect.getsource(eval("imported_module")))
+            self.node = ast.parse(inspect.getsource(imported_module))
             assert isinstance(self.node, ast.Module)
 
         # Recursively add filename information to all nodes, for debug msg
@@ -271,7 +271,7 @@ class BuiltinModule(object):
         self.exported_functions = dict()
         self.dependent_modules = dict()
 
-    def call_function(self, registry, func_name):
+    def call_function(self, _, func_name):
         # There was a direct call to a function from this builtin. It means it
         # was imported in the caller module in the form: from builtin import
         # foo. We need to add such node to be imported
@@ -282,7 +282,7 @@ class BuiltinModule(object):
         self.exported_functions[func_name] = importFrom
         return func_name
 
-    def import_function(self, registry, func_name):
+    def import_function(self, _, func_name):
         # We could check if the function is supported by Pythran here...
         return func_name
 

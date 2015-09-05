@@ -11,5 +11,5 @@ class UseOMP(FunctionAnalysis):
         self.result = False
         super(UseOMP, self).__init__()
 
-    def visit_OMPDirective(self, node):
+    def visit_OMPDirective(self, _):
         self.result = True

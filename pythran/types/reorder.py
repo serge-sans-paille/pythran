@@ -76,7 +76,7 @@ class Reorder(Transformation):
                 self.ordered_global_declarations)
             newdef = [f for f in newdef if isinstance(f, ast.FunctionDef)]
         except nx.exception.NetworkXUnfeasible:
-            raise PythranSyntaxError("Infinite function recursion", stmt)
+            raise PythranSyntaxError("Infinite function recursion")
 
         assert set(newdef) == set(olddef), "A function have been lost..."
         node.body = newbody + newdef

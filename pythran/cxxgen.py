@@ -67,7 +67,7 @@ class Declarator(Generable):
         making up the bulk of the declarator syntax.
         """
 
-    def inline(self, with_semicolon=True):
+    def inline(self):
         """Return the declarator as a single line."""
         tp_lines, tp_decl = self.get_decl_pair()
         tp_lines = " ".join(tp_lines)
@@ -198,8 +198,8 @@ class Struct(Declarator):
 # template --------------------------------------------------------------------
 class Template(NestedDeclarator):
     def __init__(self, template_spec, subdecl):
+        super(Template, self).__init__(subdecl)
         self.template_spec = template_spec
-        self.subdecl = subdecl
 
     def generate(self, with_semicolon=False):
         yield "template <%s>" % ", ".join(self.template_spec)
@@ -229,7 +229,7 @@ class ExceptHandler(Generable):
 
 
 class TryExcept(Generable):
-    def __init__(self, try_, except_, else_=None):
+    def __init__(self, try_, except_):
         self.try_ = try_
         assert isinstance(try_, Generable)
         self.except_ = except_
@@ -273,6 +273,7 @@ class If(Generable):
 
 class Loop(Generable):
     def __init__(self, body):
+        assert isinstance(body, Generable)
         self.body = body
 
     def generate(self):
@@ -285,11 +286,10 @@ class Loop(Generable):
 
 class While(Loop):
     def __init__(self, condition, body):
+        super(While, self).__init__(body)
         if condition[0] == '(' and condition[-1] == ')':
             condition = condition[1:-1]
         self.condition = condition
-        assert isinstance(body, Generable)
-        self.body = body
 
     def intro_line(self):
         return "while (%s)" % self.condition
@@ -297,24 +297,20 @@ class While(Loop):
 
 class For(Loop):
     def __init__(self, start, condition, update, body):
+        super(For, self).__init__(body)
         self.start = start
         self.condition = condition
         self.update = update
-
-        assert isinstance(body, Generable)
-        self.body = body
 
     def intro_line(self):
         return "for (%s; %s; %s)" % (self.start, self.condition, self.update)
 
 
 class AutoFor(Loop):
-    def __init__(self, target, iter, body):
+    def __init__(self, target, iter_, body):
+        super(AutoFor, self).__init__(body)
         self.target = target
-        self.iter = iter
-
-        assert isinstance(body, Generable)
-        self.body = body
+        self.iter = iter_
 
     def intro_line(self):
         return ("for (typename decltype({1})::iterator::reference "
@@ -411,8 +407,11 @@ class FunctionBody(Generable):
 
 # block -----------------------------------------------------------------------
 class Block(Generable):
-    def __init__(self, contents=[]):
-        self.contents = contents[:]
+    def __init__(self, contents=None):
+        if contents is None:
+            self.contents = []
+        else:
+            self.contents = contents[:]
         for item in self.contents:
             assert isinstance(item, Generable), item
 
@@ -432,7 +431,9 @@ class Module(Block):
 
 
 class Namespace(Block):
-    def __init__(self, name, contents=[]):
+    def __init__(self, name, contents=None):
+        if contents is None:
+            contents = []
         Block.__init__(self, contents)
         self.name = name
 
@@ -504,10 +505,10 @@ class BoostPythonModule(object):
         self.init_body.extend(body)
 
     def add_to_preamble(self, *pa):
-            self.preamble.extend(pa)
+        self.preamble.extend(pa)
 
     def add_to_includes(self, *incl):
-            self.includes.extend(incl)
+        self.includes.extend(incl)
 
     def add_function(self, func, name):
         """Add a function to be exposed. *func* is expected to be a

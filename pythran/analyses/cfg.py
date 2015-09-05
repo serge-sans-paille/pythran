@@ -42,7 +42,7 @@ class CFG(FunctionAnalysis):
     visit_Expr = visit_Print = visit_ImportFrom = visit_Pass
     visit_Yield = visit_Delete = visit_Pass
 
-    def visit_Return(self, node):
+    def visit_Return(self, _):
         """OUT = (), RAISES = ()"""
         return (), ()
 
@@ -61,9 +61,9 @@ class CFG(FunctionAnalysis):
                 self.result.add_edge(curr, n)
             currs, nraises = self.visit(n)
             for nraise in nraises:
-                if type(nraise) is ast.Break:
+                if isinstance(nraise, ast.Break):
                     break_currs += (nraise,)
-                elif type(nraise) is ast.Continue:
+                elif isinstance(nraise, ast.Continue):
                     self.result.add_edge(nraise, node)
                 else:
                     raises += (nraise,)
@@ -133,7 +133,7 @@ class CFG(FunctionAnalysis):
                 self.result.add_edge(curr, n)
             currs, nraises = self.visit(n)
             for nraise in nraises:
-                if type(nraise) is ast.Raise:
+                if isinstance(nraise, ast.Raise):
                     for handler in node.handlers:
                         self.result.add_edge(nraise, handler)
                 else:

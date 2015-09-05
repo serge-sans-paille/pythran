@@ -69,6 +69,7 @@ class OMPDirective(AST):
     '''
 
     def __init__(self, *args):  # no positional argument to be deep copyable
+        super(OMPDirective, self).__init__()
         if not args:
             return
 
@@ -82,7 +83,7 @@ class OMPDirective(AST):
             curr_index = 0
             in_reserved_context = False
             while curr_index < len(s):
-                m = re.match('^([a-zA-Z_]\w*)', s[curr_index:])
+                m = re.match(r'^([a-zA-Z_]\w*)', s[curr_index:])
                 if m:
                     word = m.group(0)
                     curr_index += len(word)
@@ -131,7 +132,7 @@ class GatherOMPData(Transformation):
         Transformation.__init__(self)
         # Remap self.visit_XXXX() to self.attach_data() generic method
         for s in GatherOMPData.statements:
-            setattr(self, "visit_" + s, lambda node_: self.attach_data(node_))
+            setattr(self, "visit_" + s, self.attach_data)
         self.current = list()
 
     def isompdirective(self, node):

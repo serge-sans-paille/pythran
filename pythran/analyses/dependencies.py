@@ -68,16 +68,16 @@ class Dependencies(ModuleAnalysis):
         self.result.add(('utils', 'yield'))
         self.generic_visit(node)
 
-    def visit_Mod(self, node):
+    def visit_Mod(self, _):
         self.result.add(('operator_', 'mod'))
 
-    def visit_FloorDiv(self, node):
+    def visit_FloorDiv(self, _):
         self.result.add(('operator_', 'floordiv'))
 
     def visit_Num(self, node):
-        if type(node.n) is complex:
+        if isinstance(node.n, complex):
             self.result.add(('types', 'complex'))
-        elif type(node.n) is long:
+        elif isinstance(node.n, long):
             self.result.add(('types', 'long'))
         elif math.isnan(node.n):
             self.result.add(('numpy', 'nan'))

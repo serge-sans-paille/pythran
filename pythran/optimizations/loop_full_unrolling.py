@@ -43,7 +43,7 @@ class LoopFullUnrolling(Transformation):
         # do not unroll too much to prevent code growth
         node_count = self.passmanager.gather(NodeCount, node, self.ctx)
 
-        if type(node.iter) is ast.List:
+        if isinstance(node.iter, ast.List):
             isvalid = not(has_omp or has_break or has_cont)
             total_count = node_count * len(node.iter.elts)
             issmall = total_count < LoopFullUnrolling.MAX_NODE_COUNT

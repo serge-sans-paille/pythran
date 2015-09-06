@@ -10,12 +10,12 @@ namespace pythonic
   {
 
     template <class T>
-    struct is_complex : std::integral_constant<bool, false> {
+    struct is_complex : std::false_type {
       using type = T;
     };
 
     template <class T>
-    struct is_complex<std::complex<T>> : std::integral_constant<bool, true> {
+    struct is_complex<std::complex<T>> : std::true_type {
       using type = T;
     };
 

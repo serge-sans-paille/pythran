@@ -14,11 +14,11 @@ struct is_blas_type : pythonic::types::is_complex<T> {
 };
 
 template <>
-struct is_blas_type<float> : std::integral_constant<bool, true> {
+struct is_blas_type<float> : std::true_type {
 };
 
 template <>
-struct is_blas_type<double> : std::integral_constant<bool, true> {
+struct is_blas_type<double> : std::true_type {
 };
 
 namespace pythonic

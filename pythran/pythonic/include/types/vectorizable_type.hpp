@@ -60,8 +60,7 @@ namespace pythonic
     struct is_vectorizable_array;
 
     template <class T>
-    struct is_vectorizable_array<T, true>
-        : std::integral_constant<bool, false> {
+    struct is_vectorizable_array<T, true> : std::false_type {
     };
 
     template <class T>

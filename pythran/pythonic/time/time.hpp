@@ -4,7 +4,7 @@
 #include "pythonic/include/time/time.hpp"
 #include "pythonic/utils/proxy.hpp"
 
-#include <sys/time.h>
+#include <chrono>
 
 namespace pythonic
 {
@@ -14,9 +14,11 @@ namespace pythonic
 
     double time()
     {
-      struct timeval t;
-      gettimeofday(&t, nullptr);
-      return t.tv_sec + t.tv_usec * 1e-6;
+      std::chrono::time_point<std::chrono::steady_clock> tp =
+          std::chrono::steady_clock::now();
+      return std::chrono::duration_cast<std::chrono::milliseconds>(
+                 tp.time_since_epoch()).count() /
+             1000.;
     }
 
     PROXY_IMPL(pythonic::time, time)

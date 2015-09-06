@@ -16,6 +16,7 @@ import unittest
 import pytest
 
 from pythran import compile_pythrancode, spec_parser, frontend
+from pythran.config import have_gmp_support
 from pythran.backend import Python
 from pythran.middlend import refine
 from pythran.passmanager import PassManager
@@ -30,7 +31,10 @@ class TestEnv(unittest.TestCase):
     # default options used for the c++ compiler
     PYTHRAN_CXX_FLAGS = ['-O0', '-Wall', '-Wno-unknown-pragmas',
                          '-Wno-mismatched-tags', '-Wno-unused-local-typedefs',
-                         '-Wno-unknown-warning-option', '-Werror']
+                         '-Wno-unknown-warning-option'] +\
+        ([] if sys.platform != "win32" else ["-Werrror"])
+    # -Werror can't be use because of boost.Python warning for Windows version
+
     TEST_RETURNVAL = "TEST_RETURNVAL"
 
     def check_type(self, ref, res):
@@ -38,14 +42,14 @@ class TestEnv(unittest.TestCase):
         print "Type of Pythran res : ", type(res)
         print "Type of Python ref : ", type(ref)
         type_matching = (((list, tuple), (list, tuple)),
-                         (float, (int, float, float32, float64)),
-                         (float32, (int, float, float32)),
-                         (float64, (int, float, float32, float64)),
-                         (long, (int, long)),
+                         ((float, float64), (int, long, float, float32,
+                                             float64)),
+                         (float32, (int, long, float, float32)),
+                         ((uint64, int64, long), (int, long, uint64, int64)),
                          (bool, (bool, bool_)),
                          # FIXME combiner for boolean doesn't work
                          (int, (int, bool, bool_, int8, int16, int32, int64,
-                                uint8, uint16, uint32, uint64)))
+                                uint8, uint16, uint32, uint64, long)))
         if isinstance(ref, ndarray):
             # res can be an ndarray of dim 0 because of isneginf call
             if ref.ndim == 0 and (not isinstance(res, ndarray)
@@ -162,7 +166,11 @@ class TestEnv(unittest.TestCase):
             return type(e)
         finally:
             # Clean temporary DLL
-            os.remove(module_path)
+            #FIXME: We can't remove this file while it is used in an import
+            # through the exec statement (Windows constraints...)
+            if sys.platform != "win32":
+                os.remove(module_path)
+            pass
 
     def run_test_case(self, code, module_name, runas, **interface):
         """
@@ -199,13 +207,13 @@ class TestEnv(unittest.TestCase):
 
         # We run test for each exported function (not for each possible
         # signature.
-        for name in sorted(interface.keys()):
+        for i, name in enumerate(sorted(interface.keys())):
             # If no module name was provided, create one
-            modname = module_name or ("test_" + name)
+            modname = (module_name or ("test_" + name)) + str(i)
 
             # Compile the code using pythran
-            cxx_compiled = compile_pythrancode(modname, code, None,
-                                               extra_compile_args=self.PYTHRAN_CXX_FLAGS)
+            cxx_compiled = compile_pythrancode(
+                modname, code, None, extra_compile_args=self.PYTHRAN_CXX_FLAGS)
 
             if not runas:
                 continue
@@ -250,8 +258,8 @@ class TestEnv(unittest.TestCase):
 
         code = dedent(code)
 
-        cxx_compiled = compile_pythrancode(modname, code, interface,
-                                           extra_compile_args=self.PYTHRAN_CXX_FLAGS)
+        cxx_compiled = compile_pythrancode(
+            modname, code, interface, extra_compile_args=self.PYTHRAN_CXX_FLAGS)
 
         # FIXME Check should be done on input parameters after function call
         python_ref = self.run_python(code, (name, copy.deepcopy(params)),
@@ -367,6 +375,11 @@ class TestFromDir(TestEnv):
 
         def __call__(self):
             if "unittest.skip" in self.module_code:
+                return self.test_env.skipTest("Marked as skippable")
+
+            if ("unittest.gmp.skip" in self.module_code
+                    and not have_gmp_support(
+                        extra_compile_args=self.test_env.PYTHRAN_CXX_FLAGS)):
                 return self.test_env.skipTest("Marked as skippable")
 
             # resolve import locally to where the tests are located

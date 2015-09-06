@@ -1,5 +1,7 @@
-from test_env import TestEnv
 import numpy
+
+from test_env import TestEnv
+from pythran.config import have_gmp_support
 
 class TestBase(TestEnv):
     def test_pass(self):
@@ -538,10 +540,11 @@ def forelse():
 
     def test_long_square(self):
         """ Check square function on gmp number. """
-        self.run_test("""
-def _long_square(a):
-    return a ** 2
-        """, 111111111111111L, _long_square=[long])
+        if have_gmp_support(extra_compile_args=self.PYTHRAN_CXX_FLAGS):
+            self.run_test("""
+                def _long_square(a):
+                    return a ** 2
+                          """, 111111111111111L, _long_square=[long])
 
     def test_reversed_slice(self):
         self.run_test("def reversed_slice(l): return l[::-2]", [0,1,2,3,4], reversed_slice=[[int]])

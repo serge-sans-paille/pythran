@@ -8,6 +8,7 @@
 #include "pythonic/types/numexpr_to_ndarray.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
 #include "pythonic/numpy/arctan.hpp"
+#include "pythonic/numpy/pi.hpp"
 
 /* NOTE: angle_in_rad is not part of the official Numpy API,
  * this file is here only to split the angle function in two parts
@@ -27,7 +28,7 @@ namespace pythonic
         if (std::real(t))
           return nt2::atan(std::imag(t) / std::real(t));
         else
-          return M_PI / 2;
+          return pythonic::numpy::pi / 2;
       }
     }
 

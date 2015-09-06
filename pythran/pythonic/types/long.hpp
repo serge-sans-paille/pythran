@@ -11,6 +11,12 @@ typedef long long pythran_long_t;
 typedef mpz_class pythran_long_t;
 #define pythran_long(a) pythran_long_t(#a)
 
+template <class T, class U>
+bool operator!(__gmp_expr<T, U> const &t0)
+{
+  return t0 == 0;
+}
+
 namespace pythonic
 {
 

@@ -233,9 +233,13 @@ class TestNdarray(TestEnv):
                       numpy_uint64=[int])
 
     def test_numpy_np_float(self):
-        self.run_test("def numpy_float(n): import numpy ; return numpy.ones(n, numpy.float)",
+        """ Check dtype == numpy.float for numpy array. """
+        self.run_test("""
+            def numpy_np_float(n):
+                import numpy
+                return numpy.ones(n, numpy.float)""",
                       5,
-                      numpy_float=[int])
+                      numpy_np_float=[int])
 
     def test_numpy_complex(self):
         self.run_test("def numpy_complex(n): import numpy ; return numpy.ones(n, numpy.complex)",
@@ -387,9 +391,6 @@ def assign_ndarray(t):
 
     def test_shape_(self):
         self.run_test("def np_shape_(a): return a.shape", numpy.array([[[1,2],[3,4]],[[5,6],[7,8]]]), np_shape_=[numpy.array([[[int]]])])
-
-    def test_change_array1D_(self):
-        self.run_test("def np_change_array1D_(a):\n a[0,0,0] = 36\n return a", numpy.array([[[1,2],[3,4]],[[5,6],[7,8]]]), np_change_array1D_=[numpy.array([[[int]]])])
 
     def test_change_arrayND_(self):
         self.run_test("def np_change_arrayND_(a):\n from numpy import array\n a[0,0] = array([99,99])\n return a", numpy.array([[[1,2],[3,4]],[[5,6],[7,8]]]), np_change_arrayND_=[numpy.array([[[int]]])])

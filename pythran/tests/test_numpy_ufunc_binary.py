@@ -1,6 +1,8 @@
-import unittest
-from test_env import TestEnv
+""" Check unary functions for the numpy module. """
+
 import numpy
+
+from test_env import TestEnv
 
 
 @TestEnv.module
@@ -10,22 +12,23 @@ class TestNumpyUFuncBinary(TestEnv):
 
 # automatic generation of basic test cases for ufunc
 binary_ufunc = (
-        'add','arctan2',
-        'bitwise_and', 'bitwise_or', 'bitwise_xor',
-        'copysign',
-        'divide',
-        'equal',
-        'floor_divide', 'fmax', 'fmin', 'fmod',
-        'greater', 'greater_equal',
-        'hypot',
-        'ldexp', 'left_shift', 'less', 'less_equal', 'logaddexp', 'logaddexp2', "logical_and", "logical_or", "logical_xor",
-        'maximum', 'minimum', 'mod','multiply',
-        'nextafter','not_equal',
-        'power',
-        'remainder','right_shift',
-        'subtract',
-        'true_divide',
-        )
+    'add', 'arctan2',
+    'bitwise_and', 'bitwise_or', 'bitwise_xor',
+    'copysign',
+    'divide',
+    'equal',
+    'floor_divide', 'fmax', 'fmin', 'fmod',
+    'greater', 'greater_equal',
+    'hypot',
+    'ldexp', 'left_shift', 'less', 'less_equal', 'logaddexp', 'logaddexp2',
+    "logical_and", "logical_or", "logical_xor",
+    'maximum', 'minimum', 'mod', 'multiply',
+    'not_equal',  # 'nextafter', TODO : Why?
+    'power',
+    'remainder', 'right_shift',
+    'subtract',
+    'true_divide',
+)
 
 for f in binary_ufunc:
     if 'bitwise_' in f or 'ldexp' in f or '_shift' in f :

@@ -132,11 +132,11 @@ class Cxx(Backend):
         no jump are requiered.
         (else in loop means : don't execute if loop is terminated with a break)
 
-    >>> import ast, passmanager
+    >>> import ast, passmanager, os
     >>> node = ast.parse("def foo(): print 'hello world'")
     >>> pm = passmanager.PassManager('test')
     >>> r = pm.dump(Cxx, node)
-    >>> print r
+    >>> print str(r).replace(os.sep, '/')
     #include <pythonic/include/__builtin__/print.hpp>
     #include <pythonic/include/__builtin__/str.hpp>
     #include <pythonic/__builtin__/print.hpp>

@@ -4,7 +4,7 @@
 #runas decode('MMVIII')
 #runas decode('MDCLXVI')
 
-def decode( roman ):
+def decode(roman):
     _rdecode = dict(zip('MDCLXVI', (1000, 500, 100, 50, 10, 5, 1)))
     result = 0
     for r, r1 in zip(roman, roman[1:]):

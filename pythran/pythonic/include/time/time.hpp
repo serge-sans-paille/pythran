@@ -1,9 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_TIME_TIME_HPP
 #define PYTHONIC_INCLUDE_TIME_TIME_HPP
 
-#include "pythonic/utils/proxy.hpp"
-
-#include <sys/time.h>
+#include "pythonic/include/utils/proxy.hpp"
 
 namespace pythonic
 {

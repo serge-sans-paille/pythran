@@ -364,24 +364,6 @@ def np_rosen_der(x):
     def test_product(self):
         self.run_test("def np_product(x):\n from numpy import product\n return product(x)", numpy.arange(1, 10), np_product=[numpy.array([int])])
 
-    def test_prod_(self):
-        self.run_test("def np_prod_(x):\n from numpy import prod\n return x.prod()", numpy.arange(1, 10), np_prod_=[numpy.array([int])])
-
-    def test_prod_expr(self):
-        self.run_test("def np_prod_expr(x):\n from numpy import ones, prod\n return (x + ones(10)).prod()", numpy.arange(10), np_prod_expr=[numpy.array([int])])
-
-    def test_prod2_(self):
-        self.run_test("def np_prod2_(x):\n from numpy import prod\n return x.prod()", numpy.arange(1, 11).reshape((2,5)), np_prod2_=[numpy.array([[int]])])
-
-    def test_prod3_(self):
-        self.run_test("def np_prod3_(x):\n from numpy import prod\n return x.prod(1)", numpy.arange(1, 11).reshape((2,5)), np_prod3_=[numpy.array([[int]])])
-
-    def test_prod4_(self):
-        self.run_test("def np_prod4_(x):\n from numpy import prod\n return x.prod(0)", numpy.arange(1, 11).reshape((2,5)), np_prod4_=[numpy.array([[int]])])
-
-    def test_prod5_(self):
-        self.run_test("def np_prod5_(x):\n from numpy import prod\n return x.prod(0)", numpy.arange(1, 11), np_prod5_=[numpy.array([int])])
-
     def test_ptp0(self):
         self.run_test("def np_ptp0(x): from numpy import ptp ; return ptp(x)", numpy.arange(4).reshape((2,2)), np_ptp0=[numpy.array([[int]])])
 

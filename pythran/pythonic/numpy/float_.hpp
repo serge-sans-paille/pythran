@@ -11,9 +11,9 @@ namespace pythonic
   namespace numpy
   {
 
-    float float_()
+    double float_()
     {
-      return float();
+      return 0.;
     }
 
     PROXY_IMPL(pythonic::numpy, float_);

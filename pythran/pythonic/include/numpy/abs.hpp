@@ -6,6 +6,7 @@
 #include "pythonic/types/numexpr_to_ndarray.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
 
+#include <nt2/sdk/complex/complex.hpp>
 #include <nt2/include/functions/abs.hpp>
 
 // nt2 does not handle bool specialization, which is indeed a corner case...

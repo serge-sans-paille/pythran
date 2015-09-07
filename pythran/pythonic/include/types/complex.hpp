@@ -2,7 +2,6 @@
 #define PYTHONIC_INCLUDE_TYPES_COMPLEX_HPP
 
 #include <complex>
-#include <nt2/sdk/complex/complex.hpp>
 
 namespace std
 {

@@ -57,6 +57,14 @@ namespace pythonic
 #endif
 
     template <class T>
+    template <class Arg0, class... Args>
+    auto broadcasted<T>::operator()(Arg0 &&arg0, Args &&... args) const
+        -> decltype(ref(std::forward<Args>(args)...))
+    {
+      return ref(std::forward<Args>(args)...);
+    }
+
+    template <class T>
     long broadcasted<T>::flat_size() const
     {
       return 0;
@@ -119,6 +127,13 @@ namespace pythonic
     auto broadcast<T, B>::load(I i) const -> decltype(this->_base.load(i))
     {
       return _base.load(i);
+    }
+    template <class T, class B>
+    template <class... Args>
+    typename broadcast<T, B>::dtype broadcast<T, B>::
+    operator()(Args &&... args) const
+    {
+      return _base._value;
     }
 
     template <class T, class B>

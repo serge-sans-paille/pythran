@@ -18,8 +18,7 @@ namespace pythonic
   {
     template <class E, class F>
     typename std::enable_if<
-        (std::is_scalar<E>::value or types::is_complex<E>::value) and
-            (std::is_scalar<F>::value or types::is_complex<F>::value),
+        types::is_dtype<E>::value and types::is_dtype<F>::value,
         decltype(std::declval<E>() * std::declval<F>())>::type
     dot(E const &e, F const &f)
     {

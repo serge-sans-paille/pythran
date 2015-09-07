@@ -30,7 +30,7 @@ namespace pythonic
       using value_type = typename T::value_type;
       static constexpr size_t value = T::value + 1;
 
-      T const &ref;
+      T const ref;
       array<long, value> _shape;
       array<long, value> const &shape() const;
 
@@ -43,6 +43,10 @@ namespace pythonic
       // declaration is still needed
       void load(I) const;
 #endif
+
+      template <class Arg0, class... Args>
+      auto operator()(Arg0 &&arg0, Args &&... args) const
+          -> decltype(ref(std::forward<Args>(args)...));
 
       long flat_size() const;
     };
@@ -103,6 +107,8 @@ namespace pythonic
       dtype fast(long) const;
       template <class I>
       auto load(I i) const -> decltype(this->_base.load(i));
+      template <class... Args>
+      dtype operator()(Args &&...) const;
       long flat_size() const;
     };
   }

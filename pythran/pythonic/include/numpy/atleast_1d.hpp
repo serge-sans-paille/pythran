@@ -9,14 +9,13 @@ namespace pythonic
   namespace numpy
   {
     template <class T>
-    typename std::enable_if<std::is_scalar<T>::value or
-                                types::is_complex<T>::value,
+    typename std::enable_if<types::is_dtype<T>::value,
                             types::ndarray<T, 1>>::type
     atleast_1d(T t);
 
     template <class T>
     auto atleast_1d(T const &t) -> typename std::enable_if<
-        not(std::is_scalar<T>::value or types::is_complex<T>::value),
+        not(types::is_dtype<T>::value),
         typename types::numpy_expr_to_ndarray<T>::type>::type;
 
     PROXY_DECL(pythonic::numpy, atleast_1d);

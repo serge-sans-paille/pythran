@@ -9,21 +9,20 @@ namespace pythonic
   namespace numpy
   {
     template <class T>
-    typename std::enable_if<std::is_scalar<T>::value or
-                                types::is_complex<T>::value,
+    typename std::enable_if<types::is_dtype<T>::value,
                             types::ndarray<T, 3>>::type
     atleast_3d(T t);
 
     template <class T>
     auto atleast_3d(T const &t) -> typename std::enable_if<
-        not(std::is_scalar<T>::value or types::is_complex<T>::value) and
+        (not types::is_dtype<T>::value) and
             (types::numpy_expr_to_ndarray<T>::type::value < 3),
         types::ndarray<typename types::numpy_expr_to_ndarray<T>::type::dtype,
                        3>>::type;
 
     template <class T>
     auto atleast_3d(T const &t) -> typename std::enable_if<
-        not(std::is_scalar<T>::value or types::is_complex<T>::value) and
+        (not types::is_dtype<T>::value) and
             types::numpy_expr_to_ndarray<T>::type::value >= 3,
         decltype(asarray(t))>::type;
 

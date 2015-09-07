@@ -429,6 +429,9 @@ def test_copy0(x):
     def test_empty_kwargs(self):
         self.run_test("def np_empty_kwargs(a):\n from numpy import empty\n a = empty(a, dtype=int)\n return a.strides, len(a)", (3, 2), np_empty_kwargs=[(int, int)])
 
+    def test_empty_kwargs2(self):
+        self.run_test("def np_empty_kwargs2(a):\n from numpy import empty, float\n a = empty(a, dtype=float)\n return a.strides, a.shape", 3, np_empty_kwargs2=[int])
+
     def test_arange(self):
         self.run_test("def np_arange_(a):\n from numpy import arange\n return arange(a)", 10, np_arange_=[int])
 
@@ -467,6 +470,9 @@ def test_copy0(x):
 
     def test_arange12(self):
         self.run_test("def np_arange12_(a):\n from numpy import arange, float32\n return arange(a, 25, 1., float32)", 0, np_arange12_=[int])
+
+    def test_arange13(self):
+        self.run_test("def np_arange12_(a):\n from numpy import arange, float32\n return arange(a, 25, dtype=float32)", 0, np_arange12_=[int])
 
     def test_linspace(self):
         self.run_test("def np_linspace_(a):\n from numpy import linspace\n return linspace(a,4,32)", 1, np_linspace_=[int])
@@ -550,6 +556,25 @@ def np_broadcast():
     a = numpy.arange(3)
     return a, a"""
         self.run_test(code, np_broadcast=[])
+
+    def test_broadcast_slice(self):
+        """Check that slicing an expression involving a broadcast works. """
+        code = """
+            def np_broadcast_slice(n):
+                import numpy
+                a = numpy.arange(n).reshape(2, n/2)
+                return (a + 1)[:,1:]"""
+        self.run_test(code, 20, np_broadcast_slice=[int])
+
+    def test_broadcast_slice_again(self):
+        """Check that slicing an expression involving a broadcast works. """
+        code = """
+            def np_broadcast_slice_again(n):
+                import numpy
+                a = numpy.arange(n).reshape(2, n/2)
+                b = numpy.arange(n/2)
+                return (a + b)[:,1:]"""
+        self.run_test(code, 20, np_broadcast_slice_again=[int])
 
     def test_broadcast_dup(self):
         """Check that ndarray returned twice doesn't double free (reshaping)."""

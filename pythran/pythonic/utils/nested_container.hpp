@@ -19,9 +19,8 @@ namespace pythonic
              nested_container_size<typename std::conditional<
                  // If we have a scalar of a complex, we want to stop
                  // recursion, and then dispatch to bool specialization
-                 std::is_scalar<typename Type::value_type>::value or
-                     types::is_complex<typename Type::value_type>::value,
-                 bool, typename Type::value_type>::type>::flat_size(*t.begin());
+                 types::is_dtype<typename Type::value_type>::value, bool,
+                 typename Type::value_type>::type>::flat_size(*t.begin());
     }
 
     /* Recursion stops on bool */

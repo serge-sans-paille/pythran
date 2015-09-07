@@ -14,11 +14,11 @@ struct is_blas_type : pythonic::types::is_complex<T> {
 };
 
 template <>
-struct is_blas_type<float> : std::integral_constant<bool, true> {
+struct is_blas_type<float> : std::true_type {
 };
 
 template <>
-struct is_blas_type<double> : std::integral_constant<bool, true> {
+struct is_blas_type<double> : std::true_type {
 };
 
 namespace pythonic
@@ -28,8 +28,7 @@ namespace pythonic
   {
     template <class E, class F>
     typename std::enable_if<
-        (std::is_scalar<E>::value or types::is_complex<E>::value) and
-            (std::is_scalar<F>::value or types::is_complex<F>::value),
+        types::is_dtype<E>::value and types::is_dtype<F>::value,
         decltype(std::declval<E>() * std::declval<F>())>::type
     dot(E const &e, F const &f);
 

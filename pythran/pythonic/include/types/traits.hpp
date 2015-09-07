@@ -9,17 +9,20 @@ namespace pythonic
   namespace types
   {
 
-    /* could overload is_scalar to consider complex has scalar types */
     template <class T>
-    struct is_complex {
-      static constexpr bool value = false;
+    struct is_complex : std::false_type {
       using type = T;
     };
 
     template <class T>
-    struct is_complex<std::complex<T>> {
-      static constexpr bool value = true;
+    struct is_complex<std::complex<T>> : std::true_type {
       using type = T;
+    };
+
+    template <class T>
+    struct is_dtype {
+      static constexpr bool value =
+          std::is_scalar<T>::value or is_complex<T>::value;
     };
 
 #define MEMBER_TYPE_TRAIT(check_struct, member)                                \

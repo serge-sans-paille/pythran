@@ -504,6 +504,10 @@ MODULES = {
         "less": ConstFunctionIntr(),
         "less_equal": ConstFunctionIntr(),
         "lexsort": ConstFunctionIntr(),
+        "linalg": {
+            "norm": FunctionIntr(args=('x', 'ord', 'axis'),
+                                 defaults=(None, None)),
+        },
         "linspace": ConstFunctionIntr(),
         "log": ConstFunctionIntr(),
         "log10": ConstFunctionIntr(),

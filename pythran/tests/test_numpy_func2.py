@@ -615,4 +615,7 @@ def np_broadcast_dup():
     def test_sum_scalar1(self):
         self.run_test("def np_sum_scalar1(a): return a.sum().sum(0)", numpy.arange(10), np_sum_scalar1=[numpy.array([int])])
 
+    def test_sum_neg_shape(self):
+        self.run_test("def np_sum_neg_shape(a): return a.sum(axis=-1)", numpy.arange(10).reshape(5,2), np_sum_neg_shape=[numpy.array([[int]])])
+
 

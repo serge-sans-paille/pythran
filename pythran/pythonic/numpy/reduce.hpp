@@ -117,6 +117,8 @@ namespace pythonic
     typename std::enable_if<E::value != 1, reduced_type<E>>::type
     reduce(E const &array, long axis)
     {
+      if (axis < 0)
+        axis += E::value;
       if (axis < 0 || size_t(axis) >= E::value)
         throw types::ValueError("axis out of bounds");
       auto shape = array.shape();

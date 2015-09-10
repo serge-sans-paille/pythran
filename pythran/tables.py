@@ -404,6 +404,7 @@ MODULES = {
         "asarray_chkfinite": ConstFunctionIntr(
             return_range=prange.bool_values),
         "ascontiguousarray": ConstFunctionIntr(),
+        "asfarray": ConstFunctionIntr(),
         "asscalar": ConstFunctionIntr(),
         "atleast_1d": ConstFunctionIntr(),
         "atleast_2d": ConstFunctionIntr(),

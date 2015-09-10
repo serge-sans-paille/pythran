@@ -10,7 +10,7 @@ namespace pythonic
 
   namespace numpy
   {
-    template <class E>
+    template <class E, class dtype>
     struct _asarray {
       template <class... Types>
       auto operator()(Types &&... args)
@@ -18,16 +18,22 @@ namespace pythonic
     };
 
     template <class T, size_t N>
-    struct _asarray<types::ndarray<T, N>> {
-      template <class F>
-      types::ndarray<T, N> operator()(F &&a);
+    struct _asarray<types::ndarray<T, N>, T> {
+      template <class F, class dtype>
+      F &&operator()(F &&a, dtype);
     };
 
-    template <class E, class... Types>
-    auto asarray(E &&e, Types &&... args)
-        -> decltype(_asarray<typename std::remove_cv<
-            typename std::remove_reference<E>::type>::type>()(
-            std::forward<E>(e), std::forward<Types>(args)...));
+    template <class E>
+    auto asarray(E &&e, types::none_type d = types::none_type())
+        -> decltype(_asarray<typename std::decay<E>::type,
+                             typename utils::nested_container_value_type<
+                                 typename std::decay<E>::type>::type>{}(
+            std::forward<E>(e), typename utils::nested_container_value_type<
+                                    typename std::decay<E>::type>::type{}));
+
+    template <class E, class dtype>
+    auto asarray(E &&e, dtype d) -> decltype(
+        _asarray<typename std::decay<E>::type, dtype>{}(std::forward<E>(e), d));
 
     PROXY_DECL(pythonic::numpy, asarray);
   }

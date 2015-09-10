@@ -13,30 +13,42 @@ namespace pythonic
   namespace numpy
   {
 
-    template <class E>
+    template <class E, class dtype>
     template <class... Types>
-    auto _asarray<E>::operator()(Types &&... args)
+    auto _asarray<E, dtype>::operator()(Types &&... args)
         -> decltype(array(std::forward<Types>(args)...))
     {
       return array(std::forward<Types>(args)...);
     }
 
     template <class T, size_t N>
-    template <class F>
-    types::ndarray<T, N> _asarray<types::ndarray<T, N>>::operator()(F &&a)
+    template <class F, class dtype>
+    F &&_asarray<types::ndarray<T, N>, T>::operator()(F &&a, dtype)
     {
-      return a;
+      return std::forward<F>(a);
     }
 
-    template <class E, class... Types>
-    auto asarray(E &&e, Types &&... args)
-        -> decltype(_asarray<typename std::remove_cv<
-            typename std::remove_reference<E>::type>::type>()(
-            std::forward<E>(e), std::forward<Types>(args)...))
+    template <class E>
+    auto asarray(E &&e, types::none_type d)
+        -> decltype(_asarray<typename std::decay<E>::type,
+                             typename utils::nested_container_value_type<
+                                 typename std::decay<E>::type>::type>{}(
+            std::forward<E>(e), typename utils::nested_container_value_type<
+                                    typename std::decay<E>::type>::type{}))
     {
-      return _asarray<typename std::remove_cv<
-          typename std::remove_reference<E>::type>::type>()(
-          std::forward<E>(e), std::forward<Types>(args)...);
+      return _asarray<typename std::decay<E>::type,
+                      typename utils::nested_container_value_type<
+                          typename std::decay<E>::type>::type>{}(
+          std::forward<E>(e), typename utils::nested_container_value_type<
+                                  typename std::decay<E>::type>::type{});
+    }
+
+    template <class E, class dtype>
+    auto asarray(E &&e, dtype d) -> decltype(
+        _asarray<typename std::decay<E>::type, dtype>{}(std::forward<E>(e), d))
+    {
+      return _asarray<typename std::decay<E>::type, dtype>{}(std::forward<E>(e),
+                                                             d);
     }
 
     PROXY_IMPL(pythonic::numpy, asarray);

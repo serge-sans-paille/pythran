@@ -257,6 +257,12 @@ def test_copy0(x):
     def test_asarray3(self):
         self.run_test("def np_asarray3(a):\n from numpy import asarray; b = asarray(a) ; return a is b", numpy.arange(3), np_asarray3=[numpy.array([int])])
 
+    def test_asfarray0(self):
+        self.run_test("def np_asfarray0(a):\n from numpy import asfarray; b = asfarray(a) ; return a is b", numpy.arange(3.), np_asfarray0=[numpy.array([float])])
+
+    def test_asfarray1(self):
+        self.run_test("def np_asfarray1(a):\n from numpy import asfarray; b = asfarray(a) ; return a is not b", numpy.arange(3), np_asfarray1=[numpy.array([int])])
+
     def test_array_str0(self):
         self.run_test("def np_array_str0(x): from numpy import array_str ; return array_str(x)", numpy.arange(3), np_array_str0=[numpy.array([int])])
 

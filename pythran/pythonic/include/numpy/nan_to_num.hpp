@@ -1,11 +1,11 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_NANTONUM_HPP
 #define PYTHONIC_INCLUDE_NUMPY_NANTONUM_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/ndarray.hpp"
-#include "pythonic/types/numexpr_to_ndarray.hpp"
-#include "pythonic/utils/numpy_traits.hpp"
-#include "pythonic/numpy/isnan.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/types/ndarray.hpp"
+#include "pythonic/include/types/numexpr_to_ndarray.hpp"
+#include "pythonic/include/utils/numpy_traits.hpp"
+#include "pythonic/include/numpy/isnan.hpp"
 
 #include <limits>
 #include <nt2/include/functions/is_inf.hpp>

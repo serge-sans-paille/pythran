@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_ABSOLUTE_HPP
 #define PYTHONIC_INCLUDE_NUMPY_ABSOLUTE_HPP
 
-#include "pythonic/numpy/abs.hpp"
+#include "pythonic/include/numpy/abs.hpp"
 
 namespace pythonic
 {

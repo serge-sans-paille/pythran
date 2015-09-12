@@ -5,6 +5,7 @@
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/numpy/reduce.hpp"
+#include "pythonic/operator_/imax.hpp"
 
 namespace pythonic
 {

@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_XOR__HPP
 #define PYTHONIC_INCLUDE_OPERATOR_XOR__HPP
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 
 namespace pythonic
 {

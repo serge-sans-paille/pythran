@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_EYE_HPP
 #define PYTHONIC_INCLUDE_NUMPY_EYE_HPP
 
-#include "pythonic/numpy/zeros.hpp"
-#include "pythonic/__builtin__/None.hpp"
+#include "pythonic/include/numpy/zeros.hpp"
+#include "pythonic/include/__builtin__/None.hpp"
 
 namespace pythonic
 {

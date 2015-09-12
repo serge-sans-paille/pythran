@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_ITERTOOLS_IZIP_HPP
 #define PYTHONIC_INCLUDE_ITERTOOLS_IZIP_HPP
 
-#include "pythonic/__builtin__/None.hpp"
-#include "pythonic/itertools/imap.hpp"
+#include "pythonic/include/__builtin__/None.hpp"
+#include "pythonic/include/itertools/imap.hpp"
 
 namespace pythonic
 {

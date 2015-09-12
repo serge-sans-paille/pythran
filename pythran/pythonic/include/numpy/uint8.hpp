@@ -1,10 +1,10 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_UINT8_HPP
 #define PYTHONIC_INCLUDE_NUMPY_UINT8_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/utils/meta.hpp"
-#include "pythonic/utils/numpy_traits.hpp"
-#include "pythonic/types/numpy_op_helper.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/meta.hpp"
+#include "pythonic/include/utils/numpy_traits.hpp"
+#include "pythonic/include/types/numpy_op_helper.hpp"
 
 namespace pythonic
 {

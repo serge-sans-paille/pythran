@@ -1,11 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_SLICE_HPP
 #define PYTHONIC_INCLUDE_TYPES_SLICE_HPP
 
-#include "pythonic/__builtin__/None.hpp"
-
-#include <cassert>
-#include <stdexcept>
-#include <iostream>
+#include "pythonic/include/types/none.hpp"
 
 namespace pythonic
 {

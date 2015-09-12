@@ -1,9 +1,9 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_ASARRAY_HPP
 #define PYTHONIC_INCLUDE_NUMPY_ASARRAY_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/ndarray.hpp"
-#include "pythonic/numpy/array.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/types/ndarray.hpp"
+#include "pythonic/include/numpy/array.hpp"
 
 namespace pythonic
 {

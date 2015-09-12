@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_SORTCOMPLEX_HPP
 #define PYTHONIC_INCLUDE_NUMPY_SORTCOMPLEX_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/numpy/sort.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/numpy/sort.hpp"
 
 namespace pythonic
 {

@@ -2,6 +2,7 @@
 #define PYTHONIC_INCLUDE_TYPES_NUMPY_TEXPR_HPP
 
 #include "pythonic/include/types/ndarray.hpp"
+#include "pythonic/include/__builtin__/None.hpp"
 
 namespace pythonic
 {
@@ -150,7 +151,7 @@ namespace pythonic
 }
 
 /* type inference stuff  {*/
-#include "pythonic/types/combined.hpp"
+#include "pythonic/include/types/combined.hpp"
 template <class E, class K>
 struct __combined<pythonic::types::numpy_texpr<E>, K> {
   using type = pythonic::types::numpy_texpr<E>;

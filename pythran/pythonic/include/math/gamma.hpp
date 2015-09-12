@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_MATH_GAMMA_HPP
 #define PYTHONIC_INCLUDE_MATH_GAMMA_HPP
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 #include <cmath>
 
 namespace pythonic

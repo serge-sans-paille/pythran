@@ -26,7 +26,7 @@ namespace pythonic
 
 /* for type inference { */
 
-#include "pythonic/types/combined.hpp"
+#include "pythonic/include/types/combined.hpp"
 template <class K>
 struct __combined<indexable<K>, std::complex<double>> {
   using type = std::complex<double>;

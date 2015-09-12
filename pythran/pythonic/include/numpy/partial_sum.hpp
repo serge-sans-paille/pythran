@@ -1,10 +1,10 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_PARTIAL_SUM_HPP
 #define PYTHONIC_INCLUDE_NUMPY_PARTIAL_SUM_HPP
 
-#include "pythonic/types/ndarray.hpp"
-#include "pythonic/types/numpy_type.hpp"
-#include "pythonic/utils/neutral.hpp"
-#include "pythonic/__builtin__/ValueError.hpp"
+#include "pythonic/include/types/ndarray.hpp"
+#include "pythonic/include/types/numpy_type.hpp"
+#include "pythonic/include/utils/neutral.hpp"
+#include "pythonic/include/__builtin__/ValueError.hpp"
 
 namespace pythonic
 {

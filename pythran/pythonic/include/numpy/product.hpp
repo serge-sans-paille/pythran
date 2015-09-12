@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_PRODUCT_HPP
 #define PYTHONIC_INCLUDE_NUMPY_PRODUCT_HPP
 
-#include "pythonic/numpy/prod.hpp"
+#include "pythonic/include/numpy/prod.hpp"
 
 namespace pythonic
 {

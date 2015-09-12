@@ -1,32 +1,32 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_NDARRAY_HPP
 #define PYTHONIC_INCLUDE_TYPES_NDARRAY_HPP
 
-#include "pythonic/types/assignable.hpp"
-#include "pythonic/types/empty_iterator.hpp"
-#include "pythonic/types/attr.hpp"
+#include "pythonic/include/types/assignable.hpp"
+#include "pythonic/include/types/empty_iterator.hpp"
+#include "pythonic/include/types/attr.hpp"
 
-#include "pythonic/utils/nested_container.hpp"
-#include "pythonic/utils/shared_ref.hpp"
-#include "pythonic/utils/reserve.hpp"
-#include "pythonic/utils/int_.hpp"
-#include "pythonic/utils/broadcast_copy.hpp"
+#include "pythonic/include/utils/nested_container.hpp"
+#include "pythonic/include/utils/shared_ref.hpp"
+#include "pythonic/include/utils/reserve.hpp"
+#include "pythonic/include/utils/int_.hpp"
+#include "pythonic/include/utils/broadcast_copy.hpp"
 
-#include "pythonic/types/slice.hpp"
-#include "pythonic/types/tuple.hpp"
-#include "pythonic/types/list.hpp"
-#include "pythonic/types/raw_array.hpp"
+#include "pythonic/include/types/slice.hpp"
+#include "pythonic/include/types/tuple.hpp"
+#include "pythonic/include/types/list.hpp"
+#include "pythonic/include/types/raw_array.hpp"
 
-#include "pythonic/types/vectorizable_type.hpp"
-#include "pythonic/types/numexpr_to_ndarray.hpp"
-#include "pythonic/types/numpy_op_helper.hpp"
-#include "pythonic/types/numpy_fexpr.hpp"
-#include "pythonic/types/numpy_expr.hpp"
+#include "pythonic/include/types/vectorizable_type.hpp"
+#include "pythonic/include/types/numexpr_to_ndarray.hpp"
+#include "pythonic/include/types/numpy_op_helper.hpp"
+#include "pythonic/include/types/numpy_fexpr.hpp"
+#include "pythonic/include/types/numpy_expr.hpp"
 #include "pythonic/include/types/numpy_texpr.hpp"
-#include "pythonic/types/numpy_iexpr.hpp"
-#include "pythonic/types/numpy_gexpr.hpp"
-#include "pythonic/utils/numpy_traits.hpp"
+#include "pythonic/include/types/numpy_iexpr.hpp"
+#include "pythonic/include/types/numpy_gexpr.hpp"
+#include "pythonic/include/utils/numpy_traits.hpp"
 
-#include "pythonic/__builtin__/len.hpp"
+#include "pythonic/include/__builtin__/len.hpp"
 
 #include <cassert>
 #include <iostream>
@@ -615,7 +615,7 @@ namespace pythonic
 /* } */
 
 /* type inference stuff  {*/
-#include "pythonic/types/combined.hpp"
+#include "pythonic/include/types/combined.hpp"
 
 template <class T1, class T2, size_t N, size_t M>
 struct __combined<pythonic::types::ndarray<T1, N>,

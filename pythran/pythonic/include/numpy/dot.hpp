@@ -1,10 +1,10 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_DOT_HPP
 #define PYTHONIC_INCLUDE_NUMPY_DOT_HPP
 
-#include "pythonic/types/ndarray.hpp"
-#include "pythonic/numpy/sum.hpp"
-#include "pythonic/types/numpy_expr.hpp"
-#include "pythonic/types/traits.hpp"
+#include "pythonic/include/types/ndarray.hpp"
+#include "pythonic/include/numpy/sum.hpp"
+#include "pythonic/include/types/numpy_expr.hpp"
+#include "pythonic/include/types/traits.hpp"
 
 #include <nt2/linalg/details/blas/mm.hpp>
 #include <nt2/linalg/details/blas/mv.hpp>

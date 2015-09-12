@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_FLOORDIV_HPP
 #define PYTHONIC_INCLUDE_OPERATOR_FLOORDIV_HPP
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 #include <nt2/include/functions/divfloor.hpp>
 
 namespace pythonic

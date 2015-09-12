@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_POS__HPP
 #define PYTHONIC_INCLUDE_OPERATOR_POS__HPP
 
-#include "pythonic/operator_/pos.hpp"
+#include "pythonic/include/operator_/pos.hpp"
 
 namespace pythonic
 {

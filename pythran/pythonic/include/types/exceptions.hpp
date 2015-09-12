@@ -1,10 +1,10 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_EXCEPTIONS_HPP
 #define PYTHONIC_INCLUDE_TYPES_EXCEPTIONS_HPP
 
-#include "pythonic/types/str.hpp"
-#include "pythonic/types/list.hpp"
-#include "pythonic/types/attr.hpp"
-#include "pythonic/__builtin__/str.hpp"
+#include "pythonic/include/types/str.hpp"
+#include "pythonic/include/types/list.hpp"
+#include "pythonic/include/types/attr.hpp"
+#include "pythonic/include/__builtin__/str.hpp"
 
 #include <stdexcept>
 
@@ -107,7 +107,7 @@ namespace pythonic
   }
 }
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 #define PYTHONIC_EXCEPTION_DECL(name)                                          \
   template <typename... Types>                                                 \
   types::name name(Types... args);                                             \

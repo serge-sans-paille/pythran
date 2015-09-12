@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_MATH_EXPM1_HPP
 #define PYTHONIC_INCLUDE_MATH_EXPM1_HPP
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 #include <cmath>
 
 namespace pythonic

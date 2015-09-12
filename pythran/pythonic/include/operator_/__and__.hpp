@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_AND__HPP
 #define PYTHONIC_INCLUDE_OPERATOR_AND__HPP
 
-#include "pythonic/operator_/and_.hpp"
+#include "pythonic/include/operator_/and_.hpp"
 
 namespace pythonic
 {

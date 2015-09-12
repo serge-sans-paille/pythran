@@ -5,10 +5,10 @@
 
 #include "pythonic/types/tuple.hpp"
 #include "pythonic/types/empty_iterator.hpp"
-
 #include "pythonic/utils/iterator.hpp"
-
+#include "pythonic/utils/reserve.hpp"
 #include "pythonic/__builtin__/None.hpp"
+#include "pythonic/utils/shared_ref.hpp"
 
 #include <memory>
 #include <utility>

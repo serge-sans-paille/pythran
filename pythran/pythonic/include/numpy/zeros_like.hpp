@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_ZEROSLIKE_HPP
 #define PYTHONIC_INCLUDE_NUMPY_ZEROSLIKE_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/numpy/zeros.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/numpy/zeros.hpp"
 
 namespace pythonic
 {

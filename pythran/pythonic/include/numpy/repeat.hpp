@@ -1,10 +1,10 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_REPEAT_HPP
 #define PYTHONIC_INCLUDE_NUMPY_REPEAT_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/utils/numpy_conversion.hpp"
-#include "pythonic/types/ndarray.hpp"
-#include "pythonic/__builtin__/None.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/numpy_conversion.hpp"
+#include "pythonic/include/types/ndarray.hpp"
+#include "pythonic/include/__builtin__/None.hpp"
 
 namespace pythonic
 {

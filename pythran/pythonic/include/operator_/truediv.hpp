@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_TRUEDIV_HPP
 #define PYTHONIC_INCLUDE_OPERATOR_TRUEDIV_HPP
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 
 namespace pythonic
 {

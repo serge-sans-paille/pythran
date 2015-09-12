@@ -1,11 +1,11 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_BITWISE_XOR_HPP
 #define PYTHONIC_INCLUDE_NUMPY_BITWISE_XOR_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/ndarray.hpp"
-#include "pythonic/types/numpy_broadcast.hpp"
-#include "pythonic/utils/numpy_traits.hpp"
-#include "pythonic/operator_/__xor__.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/types/ndarray.hpp"
+#include "pythonic/include/types/numpy_broadcast.hpp"
+#include "pythonic/include/utils/numpy_traits.hpp"
+#include "pythonic/include/operator_/__xor__.hpp"
 
 namespace pythonic
 {

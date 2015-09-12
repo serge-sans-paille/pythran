@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_PTP_HPP
 #define PYTHONIC_INCLUDE_NUMPY_PTP_HPP
 
-#include "pythonic/numpy/min.hpp"
-#include "pythonic/numpy/max.hpp"
+#include "pythonic/include/numpy/min.hpp"
+#include "pythonic/include/numpy/max.hpp"
 
 namespace pythonic
 {

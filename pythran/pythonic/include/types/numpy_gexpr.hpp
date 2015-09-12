@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_NUMPY_GEXPR_HPP
 #define PYTHONIC_INCLUDE_TYPES_NUMPY_GEXPR_HPP
 
-#include "pythonic/utils/meta.hpp"
+#include "pythonic/include/utils/meta.hpp"
 #ifdef USE_BOOST_SIMD
 #include <boost/simd/sdk/simd/native.hpp>
 #include <boost/simd/include/functions/store.hpp>
@@ -667,7 +667,7 @@ namespace pythonic
   };
 }
 /* type inference stuff  {*/
-#include "pythonic/types/combined.hpp"
+#include "pythonic/include/types/combined.hpp"
 
 template <class Arg, class... S>
 struct __combined<pythonic::types::numpy_gexpr<Arg, S...>,

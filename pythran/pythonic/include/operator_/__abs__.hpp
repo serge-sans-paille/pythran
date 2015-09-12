@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_ABS_HPP
 #define PYTHONIC_INCLUDE_OPERATOR_ABS_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/__builtin__/abs.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/__builtin__/abs.hpp"
 
 namespace pythonic
 {

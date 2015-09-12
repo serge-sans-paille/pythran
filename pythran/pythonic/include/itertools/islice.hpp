@@ -1,9 +1,9 @@
 #ifndef PYTHONIC_INCLUDE_ITERTOOLS_ISLICE_HPP
 #define PYTHONIC_INCLUDE_ITERTOOLS_ISLICE_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/itertools/common.hpp"
-#include "pythonic/__builtin__/xrange.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/itertools/common.hpp"
+#include "pythonic/include/__builtin__/xrange.hpp"
 #include <iterator>
 
 namespace pythonic

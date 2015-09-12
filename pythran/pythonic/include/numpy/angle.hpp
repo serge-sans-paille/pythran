@@ -1,9 +1,9 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_ANGLE_HPP
 #define PYTHONIC_INCLUDE_NUMPY_ANGLE_HPP
 
-#include "pythonic/numpy/angle_in_deg.hpp"
-#include "pythonic/numpy/angle_in_rad.hpp"
-#include "pythonic/types/assignable.hpp"
+#include "pythonic/include/numpy/angle_in_deg.hpp"
+#include "pythonic/include/numpy/angle_in_rad.hpp"
+#include "pythonic/include/types/assignable.hpp"
 
 namespace pythonic
 {

@@ -1,8 +1,9 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_CUMPROD_HPP
 #define PYTHONIC_INCLUDE_NUMPY_CUMPROD_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/numpy/partial_sum.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/numpy/partial_sum.hpp"
+#include "pythonic/include/operator_/imul.hpp"
 
 namespace pythonic
 {

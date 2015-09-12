@@ -3,9 +3,9 @@
 
 #include <algorithm>
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/numexpr_to_ndarray.hpp"
-#include "pythonic/types/ndarray.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/types/numexpr_to_ndarray.hpp"
+#include "pythonic/include/types/ndarray.hpp"
 
 namespace pythonic
 {

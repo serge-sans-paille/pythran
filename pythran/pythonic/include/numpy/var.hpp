@@ -1,14 +1,14 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_VAR_HPP
 #define PYTHONIC_INCLUDE_NUMPY_VAR_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/ndarray.hpp"
-#include "pythonic/__builtin__/None.hpp"
-#include "pythonic/__builtin__/ValueError.hpp"
-#include "pythonic/numpy/add.hpp"
-#include "pythonic/numpy/mean.hpp"
-#include "pythonic/numpy/reshape.hpp"
-#include "pythonic/numpy/sum.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/types/ndarray.hpp"
+#include "pythonic/include/__builtin__/None.hpp"
+#include "pythonic/include/__builtin__/ValueError.hpp"
+#include "pythonic/include/numpy/add.hpp"
+#include "pythonic/include/numpy/mean.hpp"
+#include "pythonic/include/numpy/reshape.hpp"
+#include "pythonic/include/numpy/sum.hpp"
 
 #include <algorithm>
 

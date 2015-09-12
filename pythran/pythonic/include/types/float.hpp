@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_FLOAT_HPP
 #define PYTHONIC_INCLUDE_TYPES_FLOAT_HPP
 
-#include "pythonic/types/attr.hpp"
+#include "pythonic/include/types/attr.hpp"
 #include <cstddef>
 
 namespace pythonic

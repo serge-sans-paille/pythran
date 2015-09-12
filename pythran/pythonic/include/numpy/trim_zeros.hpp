@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_TRIMZEROS_HPP
 #define PYTHONIC_INCLUDE_NUMPY_TRIMZEROS_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/numpy_gexpr.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/types/numpy_gexpr.hpp"
 
 namespace pythonic
 {

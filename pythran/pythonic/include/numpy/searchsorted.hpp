@@ -1,14 +1,14 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_SEARCHSORTED_HPP
 #define PYTHONIC_INCLUDE_NUMPY_SEARCHSORTED_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/utils/numpy_conversion.hpp"
-#include "pythonic/utils/int_.hpp"
-#include "pythonic/types/ndarray.hpp"
-#include "pythonic/types/str.hpp"
-#include "pythonic/__builtin__/None.hpp"
-#include "pythonic/__builtin__/ValueError.hpp"
-#include "pythonic/numpy/asarray.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/numpy_conversion.hpp"
+#include "pythonic/include/utils/int_.hpp"
+#include "pythonic/include/types/ndarray.hpp"
+#include "pythonic/include/types/str.hpp"
+#include "pythonic/include/__builtin__/None.hpp"
+#include "pythonic/include/__builtin__/ValueError.hpp"
+#include "pythonic/include/numpy/asarray.hpp"
 
 #include <algorithm>
 

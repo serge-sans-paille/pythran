@@ -1,10 +1,10 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_ANY_HPP
 #define PYTHONIC_INCLUDE_NUMPY_ANY_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/ndarray.hpp"
-#include "pythonic/__builtin__/ValueError.hpp"
-#include "pythonic/numpy/add.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/types/ndarray.hpp"
+#include "pythonic/include/__builtin__/ValueError.hpp"
+#include "pythonic/include/numpy/add.hpp"
 
 namespace pythonic
 {

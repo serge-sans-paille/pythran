@@ -1,13 +1,13 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_LIST_HPP
 #define PYTHONIC_INCLUDE_TYPES_LIST_HPP
 
-#include "pythonic/types/assignable.hpp"
-#include "pythonic/types/empty_iterator.hpp"
-#include "pythonic/utils/shared_ref.hpp"
-#include "pythonic/utils/reserve.hpp"
-#include "pythonic/utils/nested_container.hpp"
-#include "pythonic/utils/int_.hpp"
-#include "pythonic/types/slice.hpp"
+#include "pythonic/include/types/assignable.hpp"
+#include "pythonic/include/types/empty_iterator.hpp"
+#include "pythonic/include/utils/shared_ref.hpp"
+#include "pythonic/include/utils/reserve.hpp"
+#include "pythonic/include/utils/nested_container.hpp"
+#include "pythonic/include/utils/int_.hpp"
+#include "pythonic/include/types/slice.hpp"
 
 #include <iostream>
 #include <vector>
@@ -347,7 +347,7 @@ namespace std
 }
 
 /* type inference stuff  {*/
-#include "pythonic/types/combined.hpp"
+#include "pythonic/include/types/combined.hpp"
 
 template <class A>
 struct __combined<container<A>, pythonic::types::empty_list> {

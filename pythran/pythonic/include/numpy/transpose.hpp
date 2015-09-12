@@ -1,12 +1,12 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_TRANSPOSE_HPP
 #define PYTHONIC_INCLUDE_NUMPY_TRANSPOSE_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/utils/numpy_conversion.hpp"
-#include "pythonic/utils/nested_container.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/numpy_conversion.hpp"
+#include "pythonic/include/utils/nested_container.hpp"
 #include "pythonic/include/types/ndarray.hpp"
-#include "pythonic/types/numpy_type.hpp"
-#include "pythonic/__builtin__/ValueError.hpp"
+#include "pythonic/include/types/numpy_type.hpp"
+#include "pythonic/include/__builtin__/ValueError.hpp"
 
 namespace pythonic
 {

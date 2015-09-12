@@ -1,10 +1,10 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_ARRAY_HPP
 #define PYTHONIC_INCLUDE_NUMPY_ARRAY_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/utils/nested_container.hpp"
-#include "pythonic/types/ndarray.hpp"
-#include "pythonic/types/numpy_type.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/nested_container.hpp"
+#include "pythonic/include/types/ndarray.hpp"
+#include "pythonic/include/types/numpy_type.hpp"
 
 namespace pythonic
 {

@@ -3,4 +3,6 @@
 
 #include "pythonic/include/types/combined.hpp"
 
+#include "pythonic/types/variant.hpp"
+
 #endif

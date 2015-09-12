@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_LE__HPP
 #define PYTHONIC_INCLUDE_OPERATOR_LE__HPP
 
-#include "pythonic/operator_/le.hpp"
+#include "pythonic/include/operator_/le.hpp"
 
 namespace pythonic
 {

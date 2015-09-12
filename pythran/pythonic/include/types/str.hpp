@@ -1,13 +1,13 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_STR_HPP
 #define PYTHONIC_INCLUDE_TYPES_STR_HPP
 
-#include "pythonic/types/slice.hpp"
-#include "pythonic/types/long.hpp"
-#include "pythonic/types/tuple.hpp"
+#include "pythonic/include/types/slice.hpp"
+#include "pythonic/include/types/long.hpp"
+#include "pythonic/include/types/tuple.hpp"
 
-#include "pythonic/utils/shared_ref.hpp"
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/utils/int_.hpp"
+#include "pythonic/include/utils/shared_ref.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/int_.hpp"
 
 #include <boost/format.hpp>
 #include <cassert>
@@ -295,7 +295,7 @@ namespace pythonic
   };
 }
 /* type inference stuff  {*/
-#include "pythonic/types/combined.hpp"
+#include "pythonic/include/types/combined.hpp"
 
 template <>
 struct __combined<char const *, pythonic::types::str> {

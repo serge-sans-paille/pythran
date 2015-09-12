@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_DIAGONAL_HPP
 #define PYTHONIC_INCLUDE_NUMPY_DIAGONAL_HPP
 
-#include "pythonic/numpy/diag.hpp"
+#include "pythonic/include/numpy/diag.hpp"
 
 namespace pythonic
 {

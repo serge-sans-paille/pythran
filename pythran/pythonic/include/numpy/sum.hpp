@@ -1,14 +1,13 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_SUM_HPP
 #define PYTHONIC_INCLUDE_NUMPY_SUM_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/numpy/reduce.hpp"
+#include "pythonic/include/numpy/reduce.hpp"
+#include "pythonic/include/operator_/iadd.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 
 #ifdef USE_BOOST_SIMD
 #include <boost/simd/include/functions/sum.hpp>
 #endif
-
-#include <algorithm>
 
 namespace pythonic
 {

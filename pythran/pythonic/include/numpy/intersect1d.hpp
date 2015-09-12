@@ -1,10 +1,10 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_INTERSECT1D_HPP
 #define PYTHONIC_INCLUDE_NUMPY_INTERSECT1D_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/ndarray.hpp"
-#include "pythonic/types/combined.hpp"
-#include "pythonic/numpy/asarray.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/types/ndarray.hpp"
+#include "pythonic/include/types/combined.hpp"
+#include "pythonic/include/numpy/asarray.hpp"
 
 #include <algorithm>
 

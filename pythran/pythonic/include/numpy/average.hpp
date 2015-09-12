@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_AVERAGE_HPP
 #define PYTHONIC_INCLUDE_NUMPY_AVERAGE_HPP
 
-#include "pythonic/numpy/asarray.hpp"
-#include "pythonic/numpy/sum.hpp"
+#include "pythonic/include/numpy/asarray.hpp"
+#include "pythonic/include/numpy/sum.hpp"
 
 namespace pythonic
 {

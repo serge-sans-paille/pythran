@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_RAVEL_HPP
 #define PYTHONIC_INCLUDE_NUMPY_RAVEL_HPP
 
-#include "pythonic/numpy/reshape.hpp"
-#include "pythonic/utils/numpy_conversion.hpp"
+#include "pythonic/include/numpy/reshape.hpp"
+#include "pythonic/include/utils/numpy_conversion.hpp"
 
 namespace pythonic
 {

@@ -2,8 +2,11 @@
 #define PYTHONIC_TYPES_LIST_HPP
 
 #include "pythonic/include/types/list.hpp"
-#include "pythonic/types/tuple.hpp"
+
 #include "pythonic/__builtin__/len.hpp"
+#include "pythonic/types/slice.hpp"
+#include "pythonic/types/tuple.hpp"
+#include "pythonic/utils/shared_ref.hpp"
 
 #include <cassert>
 #include <algorithm>

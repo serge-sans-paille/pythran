@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_GETITEM__HPP
 #define PYTHONIC_INCLUDE_OPERATOR_GETITEM__HPP
 
-#include "pythonic/operator_/getitem.hpp"
+#include "pythonic/include/operator_/getitem.hpp"
 
 namespace pythonic
 {

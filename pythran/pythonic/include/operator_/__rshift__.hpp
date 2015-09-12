@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_RSHIFT__HPP
 #define PYTHONIC_INCLUDE_OPERATOR_RSHIFT__HPP
 
-#include "pythonic/operator_/rshift.hpp"
+#include "pythonic/include/operator_/rshift.hpp"
 
 namespace pythonic
 {

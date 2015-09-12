@@ -1,9 +1,9 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_WHERE_HPP
 #define PYTHONIC_INCLUDE_NUMPY_WHERE_HPP
 
-#include "pythonic/numpy/asarray.hpp"
-#include "pythonic/numpy/nonzero.hpp"
-#include "pythonic/numpy/copy.hpp"
+#include "pythonic/include/numpy/asarray.hpp"
+#include "pythonic/include/numpy/nonzero.hpp"
+#include "pythonic/include/numpy/copy.hpp"
 
 namespace pythonic
 {

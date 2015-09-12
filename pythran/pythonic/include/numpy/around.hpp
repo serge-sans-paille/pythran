@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_AROUND_HPP
 #define PYTHONIC_INCLUDE_NUMPY_AROUND_HPP
 
-#include "pythonic/numpy/rint.hpp"
+#include "pythonic/include/numpy/rint.hpp"
 #include <nt2/include/functions/pow.hpp>
 
 namespace pythonic

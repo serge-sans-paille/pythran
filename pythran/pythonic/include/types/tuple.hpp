@@ -1,12 +1,12 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_TUPLE_HPP
 #define PYTHONIC_INCLUDE_TYPES_TUPLE_HPP
 
-#include "pythonic/types/assignable.hpp"
-#include "pythonic/types/content_of.hpp"
-#include "pythonic/types/traits.hpp"
-#include "pythonic/utils/int_.hpp"
-#include "pythonic/utils/seq.hpp"
-#include "pythonic/utils/nested_container.hpp"
+#include "pythonic/include/types/assignable.hpp"
+#include "pythonic/include/types/content_of.hpp"
+#include "pythonic/include/types/traits.hpp"
+#include "pythonic/include/utils/int_.hpp"
+#include "pythonic/include/utils/seq.hpp"
+#include "pythonic/include/utils/nested_container.hpp"
 
 #ifdef USE_BOOST_SIMD
 #include <boost/simd/sdk/simd/native.hpp>
@@ -399,7 +399,7 @@ namespace pythonic
 }
 
 /* type inference stuff  {*/
-#include "pythonic/types/combined.hpp"
+#include "pythonic/include/types/combined.hpp"
 template <class K, class... Types>
 struct __combined<indexable<K>, std::tuple<Types...>> {
   using type = std::tuple<Types...>;
@@ -522,8 +522,8 @@ namespace std
 
 #include "pythonic/python/register_once.hpp"
 #include "pythonic/python/extract.hpp"
-#include "pythonic/utils/seq.hpp"
-#include "pythonic/utils/fwd.hpp"
+#include "pythonic/include/utils/seq.hpp"
+#include "pythonic/include/utils/fwd.hpp"
 
 namespace pythonic
 {

@@ -1,9 +1,9 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_ANGLEINDEG_HPP
 #define PYTHONIC_INCLUDE_NUMPY_ANGLEINDEG_HPP
 
-#include "pythonic/numpy/angle_in_rad.hpp"
-#include "pythonic/types/numexpr_to_ndarray.hpp"
-#include "pythonic/utils/numpy_traits.hpp"
+#include "pythonic/include/numpy/angle_in_rad.hpp"
+#include "pythonic/include/types/numexpr_to_ndarray.hpp"
+#include "pythonic/include/utils/numpy_traits.hpp"
 #include <nt2/include/functions/indeg.hpp>
 
 /* NOTE: angle_in_deg is not part of the official Numpy API,

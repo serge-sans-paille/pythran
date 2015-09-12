@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_SUB_HPP
 #define PYTHONIC_INCLUDE_OPERATOR_SUB_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/operator_/overloads.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/operator_/overloads.hpp"
 
 namespace pythonic
 {

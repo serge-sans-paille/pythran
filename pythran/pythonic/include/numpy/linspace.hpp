@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_LINSPACE_HPP
 #define PYTHONIC_INCLUDE_NUMPY_LINSPACE_HPP
 
-#include "pythonic/numpy/arange.hpp"
+#include "pythonic/include/numpy/arange.hpp"
 
 namespace pythonic
 {

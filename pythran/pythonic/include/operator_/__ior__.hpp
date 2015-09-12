@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_IOR__HPP
 #define PYTHONIC_INCLUDE_OPERATOR_IOR__HPP
 
-#include "pythonic/operator_/ior.hpp"
+#include "pythonic/include/operator_/ior.hpp"
 
 namespace pythonic
 {

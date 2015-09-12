@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_MATH_HYPOT_HPP
 #define PYTHONIC_INCLUDE_MATH_HYPOT_HPP
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 #include <cmath>
 
 #undef hypot

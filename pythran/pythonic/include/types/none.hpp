@@ -1,9 +1,9 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_NONE_HPP
 #define PYTHONIC_INCLUDE_TYPES_NONE_HPP
 
-#include "pythonic/types/assignable.hpp"
-#include "pythonic/types/complex.hpp"
-#include "pythonic/__builtin__/id.hpp"
+#include "pythonic/include/types/assignable.hpp"
+#include "pythonic/include/types/complex.hpp"
+#include "pythonic/include/__builtin__/id.hpp"
 
 #include <iterator>
 #include <cassert>
@@ -148,7 +148,7 @@ namespace pythonic
 }
 
 /* type inference stuff { */
-#include "pythonic/types/combined.hpp"
+#include "pythonic/include/types/combined.hpp"
 
 template <class T0, class T1>
 struct __combined<pythonic::types::none<T0>, T1>

@@ -1,10 +1,10 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_REDUCE_HPP
 #define PYTHONIC_INCLUDE_NUMPY_REDUCE_HPP
 
-#include "pythonic/types/ndarray.hpp"
-#include "pythonic/__builtin__/None.hpp"
-#include "pythonic/__builtin__/ValueError.hpp"
-#include "pythonic/utils/neutral.hpp"
+#include "pythonic/include/types/ndarray.hpp"
+#include "pythonic/include/__builtin__/None.hpp"
+#include "pythonic/include/__builtin__/ValueError.hpp"
+#include "pythonic/include/utils/neutral.hpp"
 
 #ifdef USE_BOOST_SIMD
 #include <boost/simd/include/functions/broadcast.hpp>

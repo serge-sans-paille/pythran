@@ -1,9 +1,9 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_TRIU_HPP
 #define PYTHONIC_INCLUDE_NUMPY_TRIU_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/utils/numpy_conversion.hpp"
-#include "pythonic/types/ndarray.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/numpy_conversion.hpp"
+#include "pythonic/include/types/ndarray.hpp"
 
 namespace pythonic
 {

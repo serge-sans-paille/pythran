@@ -1,9 +1,9 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_MEAN_HPP
 #define PYTHONIC_INCLUDE_NUMPY_MEAN_HPP
 
-#include "pythonic/numpy/sum.hpp"
-#include "pythonic/types/numpy_type.hpp"
-#include "pythonic/__builtin__/None.hpp"
+#include "pythonic/include/numpy/sum.hpp"
+#include "pythonic/include/types/numpy_type.hpp"
+#include "pythonic/include/__builtin__/None.hpp"
 
 namespace pythonic
 {

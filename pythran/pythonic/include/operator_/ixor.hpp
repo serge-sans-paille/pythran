@@ -1,19 +1,9 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_IXOR_HPP
 #define PYTHONIC_INCLUDE_OPERATOR_IXOR_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
-
-namespace pythonic
-{
-
-  namespace operator_
-  {
-
-    template <class A, class B>
-    A ixor(A a, B const &b);
-
-    PROXY_DECL(pythonic::operator_, ixor);
-  }
-}
+#define OPERATOR_NAME ixor
+#define OPERATOR_SYMBOL ^
+#define OPERATOR_ISYMBOL ^=
+#include "pythonic/include/operator_/icommon.hpp"
 
 #endif

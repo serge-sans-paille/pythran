@@ -3,21 +3,10 @@
 
 #include "pythonic/include/operator_/ilshift.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#define OPERATOR_NAME ilshift
+#define OPERATOR_SYMBOL <<
+#define OPERATOR_ISYMBOL <<=
 
-namespace pythonic
-{
-
-  namespace operator_
-  {
-
-    template <class A, class B>
-    A ilshift(A a, B const &b)
-    {
-      return a <<= b;
-    }
-    PROXY_IMPL(pythonic::operator_, ilshift);
-  }
-}
+#include "pythonic/operator_/icommon.hpp"
 
 #endif

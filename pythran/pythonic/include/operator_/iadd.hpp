@@ -12,34 +12,19 @@ namespace pythonic
   namespace operator_
   {
 
-    namespace proxy
-    {
+    template <class A>
+    auto iadd(types::empty_list, types::list<A> const &b) -> decltype(b);
 
-      struct iadd {
-        template <class A, class B>
-        auto operator()(A const &a, B &&b) -> decltype(a + std::forward<B>(b));
+    template <class K, class V>
+    auto iadd(types::empty_dict, types::dict<K, V> const &b) -> decltype(b);
 
-        template <class A, class B>
-        auto operator()(A &a, B &&b) -> decltype(a += std::forward<B>(b));
-
-        template <class A>
-        auto operator()(types::empty_list, types::list<A> const &b)
-            -> decltype(b);
-
-        template <class K, class V>
-        auto operator()(types::empty_dict, types::dict<K, V> const &b)
-            -> decltype(b);
-
-        template <class A>
-        auto operator()(types::empty_set, types::set<A> const &b)
-            -> decltype(b);
-      };
-    }
-
-    template <class A, class B>
-    auto iadd(A &&a, B &&b)
-        -> decltype(proxy::iadd{}(std::forward<A>(a), std::forward<B>(b)));
+    template <class A>
+    auto iadd(types::empty_set, types::set<A> const &b) -> decltype(b);
   }
 }
+#define OPERATOR_NAME iadd
+#define OPERATOR_SYMBOL +
+#define OPERATOR_ISYMBOL +=
+#include "pythonic/include/operator_/icommon.hpp"
 
 #endif

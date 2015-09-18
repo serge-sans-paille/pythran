@@ -660,7 +660,7 @@ namespace pythonic
     numpy_gexpr_helper<Arg, S0, S1, S...>::get(
         numpy_gexpr<Arg, S0, S1, S...> const &e, long i)
     {
-      return type(e, numpy_iexpr<Arg>(e.arg, i));
+      return type(e, numpy_iexpr<Arg const &>(e.arg, i));
     }
 
     template <class Arg, class S0, class S1, class... S>
@@ -668,7 +668,7 @@ namespace pythonic
     numpy_gexpr_helper<Arg, S0, S1, S...>::get(
         numpy_gexpr<Arg, S0, S1, S...> &e, long i)
     {
-      return type(e, numpy_iexpr<Arg>(e.arg, i));
+      return type(e, numpy_iexpr<Arg const &>(e.arg, i));
     }
 
     // Compute forwarding of "long" index to iexpr until we reach a new slice in
@@ -701,24 +701,27 @@ namespace pythonic
       template <class E, class F>
       auto finalize_numpy_gexpr_helper<N, Arg, long, S...>::get(E const &e,
                                                                 F &&f)
-          -> decltype(
-              finalize_numpy_gexpr_helper<N + 1, numpy_iexpr<Arg>, S...>::get(
-                  e, std::declval<numpy_iexpr<Arg>>()))
+          -> decltype(finalize_numpy_gexpr_helper<
+              N + 1, numpy_iexpr<Arg const &>,
+              S...>::get(e, std::declval<numpy_iexpr<Arg const &>>()))
       {
-        return finalize_numpy_gexpr_helper<N + 1, numpy_iexpr<Arg>, S...>::get(
-            e, numpy_iexpr<Arg>(std::forward<F>(f), e.indices[N]));
+        return finalize_numpy_gexpr_helper<N + 1, numpy_iexpr<Arg const &>,
+                                           S...>::get(e,
+                                                      numpy_iexpr<Arg const &>(
+                                                          std::forward<F>(f),
+                                                          e.indices[N]));
       }
 
       template <size_t N, class Arg, class... S>
       template <class E, class F>
       auto finalize_numpy_gexpr_helper<N, Arg, long, S...>::get(E &e, F &&f)
-          -> decltype(
-              finalize_numpy_gexpr_helper<N + 1, numpy_iexpr<Arg>, S...>::get(
-                  e, std::declval<numpy_iexpr<Arg> &>()))
+          -> decltype(finalize_numpy_gexpr_helper<
+              N + 1, numpy_iexpr<Arg const &>,
+              S...>::get(e, std::declval<numpy_iexpr<Arg const &> &>()))
       {
-        numpy_iexpr<Arg> iexpr(std::forward<F>(f), e.indices[N]);
-        return finalize_numpy_gexpr_helper<N + 1, numpy_iexpr<Arg>, S...>::get(
-            e, iexpr);
+        numpy_iexpr<Arg const &> iexpr(std::forward<F>(f), e.indices[N]);
+        return finalize_numpy_gexpr_helper<N + 1, numpy_iexpr<Arg const &>,
+                                           S...>::get(e, iexpr);
       }
 
       // If it was a single sliced array, we can return the matching iexpr.
@@ -745,23 +748,27 @@ namespace pythonic
     template <class Arg, class S0, class... S>
     auto numpy_gexpr_helper<Arg, S0, long, S...>::get(
         numpy_gexpr<Arg, S0, long, S...> const &e, long i)
-        -> decltype(
-            finalize_numpy_gexpr_helper<0, numpy_iexpr<Arg>, long, S...>::get(
-                e, std::declval<numpy_iexpr<Arg>>()))
+        -> decltype(finalize_numpy_gexpr_helper<
+            0, numpy_iexpr<Arg const &>, long,
+            S...>::get(e, std::declval<numpy_iexpr<Arg const &>>()))
     {
-      return finalize_numpy_gexpr_helper<0, numpy_iexpr<Arg>, long, S...>::get(
-          e, numpy_iexpr<Arg>(e.arg, i));
+      return finalize_numpy_gexpr_helper<0, numpy_iexpr<Arg const &>, long,
+                                         S...>::get(e,
+                                                    numpy_iexpr<Arg const &>(
+                                                        e.arg, i));
     }
 
     template <class Arg, class S0, class... S>
     auto numpy_gexpr_helper<Arg, S0, long, S...>::get(
         numpy_gexpr<Arg, S0, long, S...> &e, long i)
-        -> decltype(
-            finalize_numpy_gexpr_helper<0, numpy_iexpr<Arg>, long, S...>::get(
-                e, std::declval<numpy_iexpr<Arg> &>()))
+        -> decltype(finalize_numpy_gexpr_helper<
+            0, numpy_iexpr<Arg const &>, long,
+            S...>::get(e, std::declval<numpy_iexpr<Arg const &> &>()))
     {
-      return finalize_numpy_gexpr_helper<0, numpy_iexpr<Arg>, long, S...>::get(
-          e, numpy_iexpr<Arg>(e.arg, i));
+      return finalize_numpy_gexpr_helper<0, numpy_iexpr<Arg const &>, long,
+                                         S...>::get(e,
+                                                    numpy_iexpr<Arg const &>(
+                                                        e.arg, i));
     }
 
     // If we have no more slice later, we can say it is an iexpr (We look only
@@ -769,24 +776,28 @@ namespace pythonic
     template <class Arg, class S>
     auto numpy_gexpr_helper<Arg, S, long>::get(
         numpy_gexpr<Arg, S, long> const &e, long i)
-        -> decltype(
-            numpy_iexpr_helper<numpy_iexpr<Arg>, numpy_iexpr<Arg>::value>::get(
-                std::declval<numpy_iexpr<Arg>>(), 0))
+        -> decltype(numpy_iexpr_helper<numpy_iexpr<Arg const &>,
+                                       numpy_iexpr<Arg const &>::value>::
+                        get(std::declval<numpy_iexpr<Arg const &>>(), 0))
     {
-      return numpy_iexpr_helper<numpy_iexpr<Arg>, numpy_iexpr<Arg>::value>::get(
-          numpy_iexpr<Arg>(e.arg, i), e.indices[0]);
+      return numpy_iexpr_helper<
+          numpy_iexpr<Arg const &>,
+          numpy_iexpr<Arg const &>::value>::get(numpy_iexpr<Arg const &>(e.arg,
+                                                                         i),
+                                                e.indices[0]);
     }
 
     template <class Arg, class S>
     auto numpy_gexpr_helper<Arg, S, long>::get(numpy_gexpr<Arg, S, long> &e,
                                                long i)
-        -> decltype(
-            numpy_iexpr_helper<numpy_iexpr<Arg>, numpy_iexpr<Arg>::value>::get(
-                std::declval<numpy_iexpr<Arg> &>(), 0))
+        -> decltype(numpy_iexpr_helper<numpy_iexpr<Arg const &>,
+                                       numpy_iexpr<Arg const &>::value>::
+                        get(std::declval<numpy_iexpr<Arg const &> &>(), 0))
     {
-      numpy_iexpr<Arg> iexpr(e.arg, i);
-      return numpy_iexpr_helper<numpy_iexpr<Arg>, numpy_iexpr<Arg>::value>::get(
-          iexpr, e.indices[0]);
+      numpy_iexpr<Arg const &> iexpr(e.arg, i);
+      return numpy_iexpr_helper<
+          numpy_iexpr<Arg const &>,
+          numpy_iexpr<Arg const &>::value>::get(iexpr, e.indices[0]);
     }
   }
 }

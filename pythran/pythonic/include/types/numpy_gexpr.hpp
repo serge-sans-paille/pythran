@@ -551,7 +551,7 @@ namespace pythonic
     // to an iexpr until the value in S... is a slice again.
     template <class Arg, class S0, class S1, class... S>
     struct numpy_gexpr_helper<Arg, S0, S1, S...> {
-      using type = numpy_gexpr<numpy_iexpr<Arg>, S1, S...>;
+      using type = numpy_gexpr<numpy_iexpr<Arg const &>, S1, S...>;
       static type get(numpy_gexpr<Arg, S0, S1, S...> const &e, long i);
       static type get(numpy_gexpr<Arg, S0, S1, S...> &e, long i);
     };
@@ -586,14 +586,15 @@ namespace pythonic
       template <size_t N, class Arg, class... S>
       struct finalize_numpy_gexpr_helper<N, Arg, long, S...> {
         template <class E, class F>
-        static auto get(E const &e, F &&f) -> decltype(
-            finalize_numpy_gexpr_helper<N + 1, numpy_iexpr<Arg>, S...>::get(
-                e, std::declval<numpy_iexpr<Arg>>()));
+        static auto get(E const &e, F &&f)
+            -> decltype(finalize_numpy_gexpr_helper<
+                N + 1, numpy_iexpr<Arg const &>,
+                S...>::get(e, std::declval<numpy_iexpr<Arg const &>>()));
 
         template <class E, class F>
-        static auto get(E &e, F &&f) -> decltype(
-            finalize_numpy_gexpr_helper<N + 1, numpy_iexpr<Arg>, S...>::get(
-                e, std::declval<numpy_iexpr<Arg> &>()));
+        static auto get(E &e, F &&f) -> decltype(finalize_numpy_gexpr_helper<
+            N + 1, numpy_iexpr<Arg const &>,
+            S...>::get(e, std::declval<numpy_iexpr<Arg const &> &>()));
       };
 
       // If it was a single sliced array, we can return the matching iexpr.
@@ -614,26 +615,29 @@ namespace pythonic
     template <class Arg, class S0, class... S>
     struct numpy_gexpr_helper<Arg, S0, long, S...> {
       static auto get(numpy_gexpr<Arg, S0, long, S...> const &e, long i)
-          -> decltype(
-              finalize_numpy_gexpr_helper<0, numpy_iexpr<Arg>, long, S...>::get(
-                  e, std::declval<numpy_iexpr<Arg>>()));
+          -> decltype(finalize_numpy_gexpr_helper<
+              0, numpy_iexpr<Arg const &>, long,
+              S...>::get(e, std::declval<numpy_iexpr<Arg const &>>()));
 
-      static auto get(numpy_gexpr<Arg, S0, long, S...> &e, long i) -> decltype(
-          finalize_numpy_gexpr_helper<0, numpy_iexpr<Arg>, long, S...>::get(
-              e, std::declval<numpy_iexpr<Arg> &>()));
+      static auto get(numpy_gexpr<Arg, S0, long, S...> &e, long i)
+          -> decltype(finalize_numpy_gexpr_helper<
+              0, numpy_iexpr<Arg const &>, long,
+              S...>::get(e, std::declval<numpy_iexpr<Arg const &> &>()));
     };
 
     // If we have no more slice later, we can say it is an iexpr (We look only
     // for one last long? Not many last long?)
     template <class Arg, class S>
     struct numpy_gexpr_helper<Arg, S, long> {
-      static auto get(numpy_gexpr<Arg, S, long> const &e, long i) -> decltype(
-          numpy_iexpr_helper<numpy_iexpr<Arg>, numpy_iexpr<Arg>::value>::get(
-              std::declval<numpy_iexpr<Arg>>(), 0));
+      static auto get(numpy_gexpr<Arg, S, long> const &e, long i)
+          -> decltype(numpy_iexpr_helper<numpy_iexpr<Arg const &>,
+                                         numpy_iexpr<Arg const &>::value>::
+                          get(std::declval<numpy_iexpr<Arg const &>>(), 0));
 
-      static auto get(numpy_gexpr<Arg, S, long> &e, long i) -> decltype(
-          numpy_iexpr_helper<numpy_iexpr<Arg>, numpy_iexpr<Arg>::value>::get(
-              std::declval<numpy_iexpr<Arg> &>(), 0));
+      static auto get(numpy_gexpr<Arg, S, long> &e, long i)
+          -> decltype(numpy_iexpr_helper<numpy_iexpr<Arg const &>,
+                                         numpy_iexpr<Arg const &>::value>::
+                          get(std::declval<numpy_iexpr<Arg const &> &>(), 0));
     };
 
     template <class Arg, class S>

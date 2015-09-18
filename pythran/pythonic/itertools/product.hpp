@@ -24,7 +24,7 @@ namespace pythonic
                                                    utils::seq<I...> const &)
           : it_begin(std::get<I>(_iters).begin()...),
             it_end(std::get<I>(_iters).end()...),
-            it(std::get<I>(_iters).begin()...), end(false)
+            it(std::get<I>(_iters).begin()...), end(it_begin == it_end)
       {
       }
 

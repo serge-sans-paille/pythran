@@ -185,6 +185,9 @@ namespace pythonic
       template <class... Types>
       operator std::tuple<Types...>() const;
 
+      template <class Tp>
+      operator array<Tp, N>() const;
+
       auto to_tuple() const
           -> decltype(array_to_tuple(*this, typename utils::gens<N>::type{},
                                      typename utils::gen_type<N, T>::type{}));

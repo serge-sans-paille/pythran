@@ -115,6 +115,11 @@ namespace pythonic
     {
       return std::tuple<Types...>(a[I]...);
     }
+    template <class T, size_t N, class A, int... I>
+    array<T, N> array_to_array(A const &a, utils::seq<I...>)
+    {
+      return {a[I]...};
+    }
 
     /* inspired by std::array implementation */
     template <typename T, size_t N>
@@ -366,6 +371,12 @@ namespace pythonic
     {
       return array_to_tuple(*this, typename utils::gens<N>::type{},
                             typename utils::type_seq<Types...>{});
+    }
+    template <typename T, size_t N>
+    template <typename Tp>
+    array<T, N>::operator array<Tp, N>() const
+    {
+      return array_to_array<Tp, N>(*this, typename utils::gens<N>::type{});
     }
 
     template <typename T, size_t N>

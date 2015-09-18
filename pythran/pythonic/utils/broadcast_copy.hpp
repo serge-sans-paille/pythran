@@ -66,7 +66,7 @@ namespace pythonic
     {
       self.fast(0) = other;
 #ifdef _OPENMP
-      long n = self.shape[0];
+      long n = self.shape()[0];
       if (n >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
 #pragma omp parallel for
         for (long i = 1; i < n; ++i)

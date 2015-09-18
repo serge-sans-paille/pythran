@@ -575,3 +575,18 @@ def assign_ndarray(t):
                       numpy.arange(16).reshape(8,2), numpy.arange(16).reshape(8,2),
                       gexpr_copy0=[numpy.array([[int]]), numpy.array([[int]])])
 
+    def test_ndarray_iter0(self):
+        self.run_test("def ndarray_iter0(a): return map(str, a)",
+                      numpy.arange(16),
+                      ndarray_iter0=[numpy.array([int])])
+
+    def test_ndarray_iter1(self):
+        self.run_test("""
+                      def ndarray_iter1(a):
+                        s = 0
+                        for v in a:
+                            s *= v
+                        return s""",
+                      numpy.arange(16),
+                      ndarray_iter1=[numpy.array([int])])
+

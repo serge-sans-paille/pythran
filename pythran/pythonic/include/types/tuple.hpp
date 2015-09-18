@@ -58,6 +58,9 @@ namespace pythonic
 
     struct slice;
 
+    template <class Arg, class... S>
+    struct numpy_gexpr;
+
     /* helper to extract the tail of a tuple, and pop the head */
     template <int Offset, class T, int... N>
     auto make_tuple_tail(T const &t, utils::seq<N...>)
@@ -221,6 +224,11 @@ namespace pythonic
         static bool const value = true;
         using type = typename std::remove_cv<
             typename std::remove_reference<T>::type>::type;
+      };
+      template <class A, class... S>
+      struct alike<numpy_gexpr<A, S...>, numpy_gexpr<A const &, S...>> {
+        static bool const value = true;
+        using type = numpy_gexpr<A, S...>;
       };
 
       template <class T0, class T1>

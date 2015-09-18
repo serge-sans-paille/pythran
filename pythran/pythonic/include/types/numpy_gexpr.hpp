@@ -80,8 +80,16 @@ namespace pythonic
           -> decltype(a[s0](s...));
 
       template <class T, size_t N, class... S>
+      numpy_gexpr<ndarray<T, N>, slice, S...>
+      operator()(ndarray<T, N> &&a, slice const &s0, S const &... s);
+
+      template <class T, size_t N, class... S>
       numpy_gexpr<ndarray<T, N> const &, slice, S...>
       operator()(ndarray<T, N> const &a, slice const &s0, S const &... s);
+
+      template <class T, size_t N, class... S>
+      numpy_gexpr<ndarray<T, N>, contiguous_slice, S...>
+      operator()(ndarray<T, N> &&a, contiguous_slice const &s0, S const &... s);
 
       template <class T, size_t N, class... S>
       numpy_gexpr<ndarray<T, N> const &, contiguous_slice, S...>

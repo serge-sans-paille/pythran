@@ -87,10 +87,24 @@ namespace pythonic
     }
 
     template <class T, size_t N, class... S>
+    numpy_gexpr<ndarray<T, N>, slice, S...> extended_slice<0>::
+    operator()(ndarray<T, N> &&a, slice const &s0, S const &... s)
+    {
+      return numpy_gexpr<ndarray<T, N>, slice, S...>(std::move(a), s0, s...);
+    }
+
+    template <class T, size_t N, class... S>
     numpy_gexpr<ndarray<T, N> const &, slice, S...> extended_slice<0>::
     operator()(ndarray<T, N> const &a, slice const &s0, S const &... s)
     {
       return numpy_gexpr<ndarray<T, N> const &, slice, S...>(a, s0, s...);
+    }
+
+    template <class T, size_t N, class... S>
+    numpy_gexpr<ndarray<T, N>, contiguous_slice, S...> extended_slice<0>::
+    operator()(ndarray<T, N> &&a, contiguous_slice const &s0, S const &... s)
+    {
+      return make_gexpr(std::move(a), s0, s...);
     }
 
     template <class T, size_t N, class... S>

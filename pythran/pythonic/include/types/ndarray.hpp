@@ -282,6 +282,8 @@ namespace pythonic
       ndarray(numpy_fexpr<Arg, F> const &expr);
 
       /* update operators */
+      template <class Op, class Expr>
+      ndarray &update_(Expr const &expr);
       template <class Expr>
       ndarray &operator+=(Expr const &expr);
 

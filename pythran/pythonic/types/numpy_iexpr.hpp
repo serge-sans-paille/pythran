@@ -125,6 +125,31 @@ namespace pythonic
     }
 
     template <class Arg>
+    template <class E>
+    numpy_iexpr<Arg> &numpy_iexpr<Arg>::operator&=(E const &expr)
+    {
+      return (*this) = (*this) & expr;
+    }
+
+    template <class Arg>
+    numpy_iexpr<Arg> &numpy_iexpr<Arg>::operator&=(numpy_iexpr<Arg> const &expr)
+    {
+      return (*this) = (*this) & expr;
+    }
+    template <class Arg>
+    template <class E>
+    numpy_iexpr<Arg> &numpy_iexpr<Arg>::operator|=(E const &expr)
+    {
+      return (*this) = (*this) | expr;
+    }
+
+    template <class Arg>
+    numpy_iexpr<Arg> &numpy_iexpr<Arg>::operator|=(numpy_iexpr<Arg> const &expr)
+    {
+      return (*this) = (*this) | expr;
+    }
+
+    template <class Arg>
     typename numpy_iexpr<Arg>::const_iterator numpy_iexpr<Arg>::begin() const
     {
       return make_const_nditerator < is_strided or value != 1 > ()(*this, 0);

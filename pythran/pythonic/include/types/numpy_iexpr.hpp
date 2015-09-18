@@ -74,28 +74,31 @@ namespace pythonic
 
       template <class E>
       numpy_iexpr &operator=(E const &expr);
-
       numpy_iexpr &operator=(numpy_iexpr const &expr);
 
       template <class E>
       numpy_iexpr &operator+=(E const &expr);
-
       numpy_iexpr &operator+=(numpy_iexpr const &expr);
 
       template <class E>
       numpy_iexpr &operator-=(E const &expr);
-
       numpy_iexpr &operator-=(numpy_iexpr const &expr);
 
       template <class E>
       numpy_iexpr &operator*=(E const &expr);
-
       numpy_iexpr &operator*=(numpy_iexpr const &expr);
 
       template <class E>
       numpy_iexpr &operator/=(E const &expr);
-
       numpy_iexpr &operator/=(numpy_iexpr const &expr);
+
+      template <class E>
+      numpy_iexpr &operator&=(E const &expr);
+      numpy_iexpr &operator&=(numpy_iexpr const &expr);
+
+      template <class E>
+      numpy_iexpr &operator|=(E const &expr);
+      numpy_iexpr &operator|=(numpy_iexpr const &expr);
 
       const_iterator begin() const;
       const_iterator end() const;

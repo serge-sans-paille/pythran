@@ -4,6 +4,10 @@
 #include "pythonic/include/types/numpy_gexpr.hpp"
 
 #include "pythonic/utils/meta.hpp"
+#include "pythonic/operator_/iadd.hpp"
+#include "pythonic/operator_/isub.hpp"
+#include "pythonic/operator_/imul.hpp"
+#include "pythonic/operator_/idiv.hpp"
 #ifdef USE_BOOST_SIMD
 #include <boost/simd/sdk/simd/native.hpp>
 #include <boost/simd/include/functions/store.hpp>
@@ -488,61 +492,111 @@ namespace pythonic
     {
       return _copy(expr);
     }
+    template <class Arg, class... S>
+    template <class Op, class E>
+    typename std::enable_if<not may_overlap_gexpr<E>::value,
+                            numpy_gexpr<Arg, S...> &>::type
+    numpy_gexpr<Arg, S...>::update_(E const &expr)
+    {
+      using BExpr =
+          typename std::conditional<std::is_scalar<E>::value,
+                                    broadcast<E, dtype>, E const &>::type;
+      BExpr bexpr = expr;
+      // 100% sure there's no overlap
+      return utils::broadcast_update < Op, numpy_gexpr &, BExpr, value,
+             value - (std::is_scalar<E>::value + utils::dim_of<E>::value),
+             is_vectorizable and types::is_vectorizable<E>::value and
+                 std::is_same<dtype,
+                              typename std::decay<BExpr>::type::dtype>::value >
+                     (*this, bexpr);
+    }
+
+    template <class Arg, class... S>
+    template <class Op, class E>
+    typename std::enable_if<may_overlap_gexpr<E>::value,
+                            numpy_gexpr<Arg, S...> &>::type
+    numpy_gexpr<Arg, S...>::update_(E const &expr)
+    {
+      using BExpr =
+          typename std::conditional<std::is_scalar<E>::value,
+                                    broadcast<E, dtype>, E const &>::type;
+      BExpr bexpr = expr;
+
+      if (may_overlap(*this, expr)) {
+        using NBExpr =
+            ndarray<typename std::remove_reference<BExpr>::type::dtype,
+                    std::remove_reference<BExpr>::type::value>;
+        return utils::broadcast_update < Op, numpy_gexpr &, NBExpr, value,
+               value - (std::is_scalar<E>::value + utils::dim_of<E>::value),
+               is_vectorizable and types::is_vectorizable<E>::value and
+                   std::is_same<
+                       dtype, typename std::decay<BExpr>::type::dtype>::value >
+                       (*this, NBExpr(bexpr));
+      } else {
+        // 100% sure there's no overlap
+        return utils::broadcast_update < Op, numpy_gexpr &, BExpr, value,
+               value - (std::is_scalar<E>::value + utils::dim_of<E>::value),
+               is_vectorizable and types::is_vectorizable<E>::value and
+                   std::is_same<
+                       dtype, typename std::decay<BExpr>::type::dtype>::value >
+                       (*this, bexpr);
+      }
+    }
 
     template <class Arg, class... S>
     template <class E>
     numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::operator+=(E const &expr)
     {
-      return (*this) = (*this) + expr;
+      return update_<pythonic::operator_::proxy::iadd>(expr);
     }
 
     template <class Arg, class... S>
     numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::
     operator+=(numpy_gexpr<Arg, S...> const &expr)
     {
-      return (*this) = (*this) + expr;
+      return update_<pythonic::operator_::proxy::iadd>(expr);
     }
 
     template <class Arg, class... S>
     template <class E>
     numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::operator-=(E const &expr)
     {
-      return (*this) = (*this) - expr;
+      return update_<pythonic::operator_::proxy::isub>(expr);
     }
 
     template <class Arg, class... S>
     numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::
     operator-=(numpy_gexpr<Arg, S...> const &expr)
     {
-      return (*this) = (*this) - expr;
+      return update_<pythonic::operator_::proxy::isub>(expr);
     }
 
     template <class Arg, class... S>
     template <class E>
     numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::operator*=(E const &expr)
     {
-      return (*this) = (*this) * expr;
+      return update_<pythonic::operator_::proxy::imul>(expr);
     }
 
     template <class Arg, class... S>
     numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::
     operator*=(numpy_gexpr<Arg, S...> const &expr)
     {
-      return (*this) = (*this) * expr;
+      return update_<pythonic::operator_::proxy::imul>(expr);
     }
 
     template <class Arg, class... S>
     template <class E>
     numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::operator/=(E const &expr)
     {
-      return (*this) = (*this) / expr;
+      return update_<pythonic::operator_::proxy::idiv>(expr);
     }
 
     template <class Arg, class... S>
     numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::
     operator/=(numpy_gexpr<Arg, S...> const &expr)
     {
-      return (*this) = (*this) / expr;
+      return update_<pythonic::operator_::proxy::idiv>(expr);
     }
 
     template <class Arg, class... S>

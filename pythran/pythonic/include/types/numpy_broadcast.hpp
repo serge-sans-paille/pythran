@@ -84,6 +84,64 @@ namespace pythonic
     };
 #endif
 
+    template <class T>
+    struct const_broadcast_iterator
+        : public std::iterator<std::random_access_iterator_tag, T> {
+      T value;
+      const_broadcast_iterator(T data) : value{data}
+      {
+      }
+
+      T operator*() const
+      {
+        return value;
+      }
+      const_broadcast_iterator &operator++()
+      {
+        return *this;
+      }
+      const_broadcast_iterator &operator--()
+      {
+        return *this;
+      }
+      const_broadcast_iterator &operator+=(long i)
+      {
+        return *this;
+      }
+      const_broadcast_iterator &operator-=(long i)
+      {
+        return *this;
+      }
+      const_broadcast_iterator operator+(long i) const
+      {
+        return *this;
+      }
+      const_broadcast_iterator operator-(long i) const
+      {
+        return *this;
+      }
+      long operator-(const_broadcast_iterator const &other) const
+      {
+        return 1;
+      }
+      bool operator!=(const_broadcast_iterator const &other) const
+      {
+        return false;
+      }
+      bool operator==(const_broadcast_iterator const &other) const
+      {
+        return true;
+      }
+      bool operator<(const_broadcast_iterator const &other) const
+      {
+        return false;
+      }
+      const_broadcast_iterator &operator=(const_broadcast_iterator const &other)
+      {
+        return *this;
+      }
+    };
+
     template <class T, class B>
     struct broadcast {
       // Perform the type conversion here if it seems valid (although it is not
@@ -95,6 +153,7 @@ namespace pythonic
       static const bool is_vectorizable = types::is_vectorizable<dtype>::value;
       static const bool is_strided = false;
       using value_type = dtype;
+      using iterator = const_broadcast_iterator<dtype>;
       static constexpr size_t value = 0;
 
       broadcast_base<dtype, is_vectorizable> _base;
@@ -110,6 +169,14 @@ namespace pythonic
       template <class... Args>
       dtype operator()(Args &&...) const;
       long flat_size() const;
+      iterator begin() const
+      {
+        return {_base._value};
+      }
+      iterator end() const
+      {
+        return {_base._value};
+      }
     };
   }
 }

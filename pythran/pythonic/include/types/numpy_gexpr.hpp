@@ -461,6 +461,15 @@ namespace pythonic
 
       numpy_gexpr &operator=(numpy_gexpr const &expr);
 
+      template <class Op, class E>
+      typename std::enable_if<may_overlap_gexpr<E>::value, numpy_gexpr &>::type
+      update_(E const &expr);
+
+      template <class Op, class E>
+      typename std::enable_if<not may_overlap_gexpr<E>::value,
+                              numpy_gexpr &>::type
+      update_(E const &expr);
+
       template <class E>
       numpy_gexpr &operator+=(E const &expr);
 

@@ -180,3 +180,27 @@ class TestNumpyRandom(TestEnv):
             assert(abs(mean(a)) < .05 and abs(var(a) - 1) < .05)
         """
         self.run_test(code, 10 ** 3, numpy_standard_normal2=[int])
+
+    ###########################################################################
+    # Tests for numpy.random.randn
+    ###########################################################################
+
+    def test_numpy_randn0(self):
+        """ Check numpy randn without arguments. """
+        self.run_test("""
+            def numpy_randn0(n):
+                from numpy.random import randn
+                from numpy import mean, var
+                a = [randn() for x in range(n)]
+                assert(abs(mean(a)) < .05 and abs(var(a) - 1) < .05)""",
+                      10 ** 5, numpy_randn0=[int])
+
+    def test_numpy_randn1(self):
+        """ Check numpy randn with multiple arguments. """
+        self.run_test("""
+            def numpy_randn1(n):
+                from numpy.random import randn
+                from numpy import mean, var
+                a = randn(n, n)
+                assert(abs(mean(a)) < .05 and abs(var(a) - 1) < .05)""",
+                      10 ** 3, numpy_randn1=[int])

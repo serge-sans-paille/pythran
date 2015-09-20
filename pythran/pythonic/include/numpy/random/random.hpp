@@ -1,10 +1,10 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_RANDOM_RANDOM_HPP
 #define PYTHONIC_INCLUDE_NUMPY_RANDOM_RANDOM_HPP
 
-#include "pythonic/types/ndarray.hpp"
-#include "pythonic/types/numpy_expr.hpp"
-
-#include "pythonic/include/numpy/random/generator.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/types/ndarray.hpp"
+#include "pythonic/include/types/none.hpp"
+#include "pythonic/include/types/tuple.hpp"
 
 namespace pythonic
 {

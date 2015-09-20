@@ -2,11 +2,15 @@
 #define PYTHONIC_NUMPY_RANDOM_RANDOM_HPP
 
 #include "pythonic/include/numpy/random/random.hpp"
+#include "pythonic/include/numpy/random/generator.hpp"
 
 #include "pythonic/types/ndarray.hpp"
-#include "pythonic/types/numpy_expr.hpp"
+#include "pythonic/types/none.hpp"
+#include "pythonic/types/tuple.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 #include <random>
+#include <algorithm>
 
 namespace pythonic
 {

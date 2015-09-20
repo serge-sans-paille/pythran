@@ -562,6 +562,8 @@ MODULES = {
                                    global_effects=True),
             "random_sample": FunctionIntr(args=('size',),
                                           global_effects=True),
+            "standard_normal": FunctionIntr(args=('size',),
+                                            global_effects=True),
         },
         "rank": ConstFunctionIntr(),
         "ravel": ConstFunctionIntr(),

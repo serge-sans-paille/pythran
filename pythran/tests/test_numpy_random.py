@@ -140,3 +140,43 @@ class TestNumpyRandom(TestEnv):
          return c
         """
         self.run_test(code, numpy_binomial_exception=[])
+
+    ###########################################################################
+    # Tests for numpy.random.standard_normal
+    ###########################################################################
+
+    def test_numpy_standard_normal0(self):
+        """ Check standard_normal without argument with mean and variance. """
+        code = """
+        def numpy_standard_normal0(size):
+            from numpy.random import standard_normal
+            from numpy import var, mean
+            a = [standard_normal() for x in range(size)]
+            print mean(a)
+            assert(abs(mean(a)) < .05 and abs(var(a) - 1) < .05)
+        """
+        self.run_test(code, 10 ** 5, numpy_standard_normal0=[int])
+
+    def test_numpy_standard_normal1(self):
+        """ Check standard_normal with size argument with mean and variance."""
+        code = """
+        def numpy_standard_normal1(size):
+            from numpy.random import standard_normal
+            from numpy import var, mean
+            a = standard_normal(size)
+            print mean(a)
+            assert(abs(mean(a)) < .05 and abs(var(a) - 1) < .05)
+        """
+        self.run_test(code, 10 ** 5, numpy_standard_normal1=[int])
+
+    def test_numpy_standard_normal2(self):
+        """Check standard_normal with shape argument with mean and variance."""
+        code = """
+        def numpy_standard_normal2(size):
+            from numpy.random import standard_normal
+            from numpy import mean, var
+            a = standard_normal((size, size))
+            print mean(a)
+            assert(abs(mean(a)) < .05 and abs(var(a) - 1) < .05)
+        """
+        self.run_test(code, 10 ** 3, numpy_standard_normal2=[int])

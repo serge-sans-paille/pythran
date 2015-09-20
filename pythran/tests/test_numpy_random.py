@@ -4,6 +4,10 @@ from test_env import TestEnv
 @TestEnv.module
 class TestNumpyRandom(TestEnv):
 
+    ###########################################################################
+    # Tests for numpy.random.random
+    ###########################################################################
+
     def test_numpy_random0(self):
         """ Check numpy random without arguments. """
         self.run_test("""
@@ -32,6 +36,10 @@ class TestNumpyRandom(TestEnv):
                 assert(abs(s / (n * n) - .5) < 5e-3)""",
                       10 ** 3, numpy_random2=[int])
 
+    ###########################################################################
+    # Tests for numpy.random.random_sample
+    ###########################################################################
+
     def test_numpy_random_sample0(self):
         """ Check numpy random_sample without arguments. """
         self.run_test("""
@@ -59,6 +67,33 @@ class TestNumpyRandom(TestEnv):
                 s = sum(random_sample((n, n)))
                 assert(abs(s / (n * n) - .5) < 5e-3)""",
                       10 ** 3, numpy_random_sample2=[int])
+
+    ###########################################################################
+    # Tests for numpy.random.rand
+    ###########################################################################
+
+    def test_numpy_rand0(self):
+        """ Check numpy rand without arguments. """
+        self.run_test("""
+            def numpy_rand0(n):
+                from numpy.random import rand
+                s = sum(rand() for x in range(n))
+                assert(abs(s / n - .5) < .05)""",
+                      10 ** 5, numpy_rand0=[int])
+
+    def test_numpy_rand1(self):
+        """ Check numpy rand with multiple arguments. """
+        self.run_test("""
+            def numpy_rand1(n):
+                from numpy.random import rand
+                from numpy import sum
+                s = sum(rand(n, n))
+                assert(abs(s / (n * n) - .5) < 5e-3)""",
+                      10 ** 3, numpy_rand1=[int])
+
+    ###########################################################################
+    # Tests for numpy.random.binomial
+    ###########################################################################
 
     def test_numpy_binomial0(self):
         code = """

@@ -556,6 +556,8 @@ MODULES = {
         "random": {
             "random": FunctionIntr(args=('size',),
                                    global_effects=True),
+            "random_sample": FunctionIntr(args=('size',),
+                                          global_effects=True),
             "binomial": FunctionIntr(args=('n', 'p', 'size'),
                                      global_effects=True),
         },

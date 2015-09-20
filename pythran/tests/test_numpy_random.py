@@ -5,13 +5,60 @@ from test_env import TestEnv
 class TestNumpyRandom(TestEnv):
 
     def test_numpy_random0(self):
-        self.run_test("def numpy_random0(n): from numpy.random import random ; s= sum(random() for x in range(n)) ; assert(abs(s/n -.5) < .05)", 10**5, numpy_random0=[int])
+        """ Check numpy random without arguments. """
+        self.run_test("""
+            def numpy_random0(n):
+                from numpy.random import random
+                s = sum(random() for x in range(n))
+                assert(abs(s / n - .5) < .05)""",
+                      10 ** 5, numpy_random0=[int])
 
     def test_numpy_random1(self):
-        self.run_test("def numpy_random1(n): from numpy.random import random ; s= sum(random(size=n)) ; assert(abs(s/n -.5) < .05)", 10**5, numpy_random1=[int])
+        """ Check numpy random with size argument. """
+        self.run_test("""
+            def numpy_random1(n):
+                from numpy.random import random
+                s = sum(random(size=n))
+                assert(abs(s / n - .5) < .05)""",
+                      10 ** 5, numpy_random1=[int])
 
     def test_numpy_random2(self):
-        self.run_test("def numpy_random2(n): from numpy.random import random ; from numpy import sum; s=sum(random((n,n))); assert(abs(s/(n*n) - .5) < 5e-3)", 10**3, numpy_random2=[int])
+        """ Check numpy random with shape argument. """
+        self.run_test("""
+            def numpy_random2(n):
+                from numpy.random import random
+                from numpy import sum
+                s = sum(random((n, n)))
+                assert(abs(s / (n * n) - .5) < 5e-3)""",
+                      10 ** 3, numpy_random2=[int])
+
+    def test_numpy_random_sample0(self):
+        """ Check numpy random_sample without arguments. """
+        self.run_test("""
+            def numpy_random_sample0(n):
+                from numpy.random import random_sample
+                s = sum(random_sample() for x in range(n))
+                assert(abs(s / n - .5) < .05)""",
+                      10 ** 5, numpy_random_sample0=[int])
+
+    def test_numpy_random_sample1(self):
+        """ Check numpy random_sample with size argument. """
+        self.run_test("""
+            def numpy_random_sample1(n):
+                from numpy.random import random_sample
+                s = sum(random_sample(size=n))
+                assert(abs(s / n - .5) < .05)""",
+                      10 ** 5, numpy_random_sample1=[int])
+
+    def test_numpy_random_sample2(self):
+        """ Check numpy random_sample with shape argument. """
+        self.run_test("""
+            def numpy_random_sample2(n):
+                from numpy.random import random_sample
+                from numpy import sum
+                s = sum(random_sample((n, n)))
+                assert(abs(s / (n * n) - .5) < 5e-3)""",
+                      10 ** 3, numpy_random_sample2=[int])
 
     def test_numpy_binomial0(self):
         code = """

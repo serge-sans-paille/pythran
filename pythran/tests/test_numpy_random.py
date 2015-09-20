@@ -248,3 +248,47 @@ class TestNumpyRandom(TestEnv):
                 a = randint(10, 21, (n, n))
                 assert(abs(mean(a) - 15) < .05)""",
                       10 ** 3, numpy_randint3=[int])
+
+    ###########################################################################
+    # Tests for numpy.random.random_integer
+    ###########################################################################
+
+    def test_numpy_random_integers0(self):
+        """ Check numpy random_integers with one argument. """
+        self.run_test("""
+            def numpy_random_integers0(n):
+                from numpy.random import random_integers
+                from numpy import mean, var
+                a = [random_integers(9) for x in range(n)]
+                assert(abs(mean(a) - 5) < .05)""",
+                      10 ** 5, numpy_random_integers0=[int])
+
+    def test_numpy_random_integers1(self):
+        """ Check numpy random_integers with min/max argument. """
+        self.run_test("""
+            def numpy_random_integers1(n):
+                from numpy.random import random_integers
+                from numpy import mean, var
+                a = [random_integers(10, 20) for x in range(n)]
+                assert(abs(mean(a) - 15) < .05)""",
+                      10 ** 5, numpy_random_integers1=[int])
+
+    def test_numpy_random_integers2(self):
+        """ Check numpy random_integers with size argument. """
+        self.run_test("""
+            def numpy_random_integers2(n):
+                from numpy.random import random_integers
+                from numpy import mean, var
+                a = random_integers(10, 20, n)
+                assert(abs(mean(a) - 15) < .05)""",
+                      10 ** 5, numpy_random_integers2=[int])
+
+    def test_numpy_random_integers3(self):
+        """ Check numpy random_integers with shape argument. """
+        self.run_test("""
+            def numpy_random_integers3(n):
+                from numpy.random import random_integers
+                from numpy import mean, var
+                a = random_integers(10, 20, (n, n))
+                assert(abs(mean(a) - 15) < .05)""",
+                      10 ** 3, numpy_random_integers3=[int])

@@ -204,3 +204,47 @@ class TestNumpyRandom(TestEnv):
                 a = randn(n, n)
                 assert(abs(mean(a)) < .05 and abs(var(a) - 1) < .05)""",
                       10 ** 3, numpy_randn1=[int])
+
+    ###########################################################################
+    # Tests for numpy.random.randint
+    ###########################################################################
+
+    def test_numpy_randint0(self):
+        """ Check numpy randint with one argument. """
+        self.run_test("""
+            def numpy_randint0(n):
+                from numpy.random import randint
+                from numpy import mean, var
+                a = [randint(11) for x in range(n)]
+                assert(abs(mean(a) - 5) < .05)""",
+                      10 ** 5, numpy_randint0=[int])
+
+    def test_numpy_randint1(self):
+        """ Check numpy randint with min/max argument. """
+        self.run_test("""
+            def numpy_randint1(n):
+                from numpy.random import randint
+                from numpy import mean, var
+                a = [randint(10, 21) for x in range(n)]
+                assert(abs(mean(a) - 15) < .05)""",
+                      10 ** 5, numpy_randint1=[int])
+
+    def test_numpy_randint2(self):
+        """ Check numpy randint with size argument. """
+        self.run_test("""
+            def numpy_randint2(n):
+                from numpy.random import randint
+                from numpy import mean, var
+                a = randint(10, 21, n)
+                assert(abs(mean(a) - 15) < .05)""",
+                      10 ** 5, numpy_randint2=[int])
+
+    def test_numpy_randint3(self):
+        """ Check numpy randint with shape argument. """
+        self.run_test("""
+            def numpy_randint3(n):
+                from numpy.random import randint
+                from numpy import mean, var
+                a = randint(10, 21, (n, n))
+                assert(abs(mean(a) - 15) < .05)""",
+                      10 ** 3, numpy_randint3=[int])

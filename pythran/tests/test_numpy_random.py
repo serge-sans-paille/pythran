@@ -103,6 +103,40 @@ class TestNumpyRandom(TestEnv):
                       10 ** 3, numpy_ranf2=[int])
 
     ###########################################################################
+    # Tests for numpy.random.sample
+    ###########################################################################
+
+    def test_numpy_sample0(self):
+        """ Check numpy sample without arguments. """
+        self.run_test("""
+            def numpy_sample0(n):
+                from numpy.random import sample
+                from numpy import mean
+                s = [sample() for x in range(n)]
+                assert(abs(mean(s) - .5) < .05)""",
+                      10 ** 5, numpy_sample0=[int])
+
+    def test_numpy_sample1(self):
+        """ Check numpy sample with size argument. """
+        self.run_test("""
+            def numpy_sample1(n):
+                from numpy.random import sample
+                from numpy import mean
+                s = sample(size=n)
+                assert(abs(mean(s) - .5) < .05)""",
+                      10 ** 5, numpy_sample1=[int])
+
+    def test_numpy_sample2(self):
+        """ Check numpy sample with shape argument. """
+        self.run_test("""
+            def numpy_sample2(n):
+                from numpy.random import sample
+                from numpy import mean
+                s = sample((n, n))
+                assert(abs(mean(s) - .5) < 5e-3)""",
+                      10 ** 3, numpy_sample2=[int])
+
+    ###########################################################################
     # Tests for numpy.random.rand
     ###########################################################################
 

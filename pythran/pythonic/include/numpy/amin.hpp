@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_AMIN_HPP
 #define PYTHONIC_INCLUDE_NUMPY_AMIN_HPP
 
-#include "pythonic/numpy/min.hpp"
+#include "pythonic/include/numpy/min.hpp"
 
 namespace pythonic
 {

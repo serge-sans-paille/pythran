@@ -3,8 +3,9 @@
 
 #include "pythonic/include/numpy/min.hpp"
 
-#include "pythonic/utils/proxy.hpp"
 #include "pythonic/numpy/reduce.hpp"
+#include "pythonic/operator_/imin.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 namespace pythonic
 {

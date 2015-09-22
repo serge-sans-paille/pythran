@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_ARRAYEQUIV_HPP
 #define PYTHONIC_INCLUDE_NUMPY_ARRAYEQUIV_HPP
 
-#include "pythonic/numpy/array_equal.hpp"
-#include "pythonic/numpy/asarray.hpp"
+#include "pythonic/include/numpy/array_equal.hpp"
+#include "pythonic/include/numpy/asarray.hpp"
 
 namespace pythonic
 {

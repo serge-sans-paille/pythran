@@ -1,10 +1,10 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_FREXP_HPP
 #define PYTHONIC_INCLUDE_NUMPY_FREXP_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/utils/numpy_conversion.hpp"
-#include "pythonic/types/traits.hpp"
-#include "pythonic/types/ndarray.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/numpy_conversion.hpp"
+#include "pythonic/include/types/traits.hpp"
+#include "pythonic/include/types/ndarray.hpp"
 
 namespace pythonic
 {

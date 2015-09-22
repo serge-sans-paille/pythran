@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_EMPTYLIKE_HPP
 #define PYTHONIC_INCLUDE_NUMPY_EMPTYLIKE_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/numpy/empty.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/numpy/empty.hpp"
 
 namespace pythonic
 {

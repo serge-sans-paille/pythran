@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_IXOR__HPP
 #define PYTHONIC_INCLUDE_OPERATOR_IXOR__HPP
 
-#include "pythonic/operator_/ixor.hpp"
+#include "pythonic/include/operator_/ixor.hpp"
 
 namespace pythonic
 {

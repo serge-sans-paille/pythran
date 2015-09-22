@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_EQ__HPP
 #define PYTHONIC_INCLUDE_OPERATOR_EQ__HPP
 
-#include "pythonic/operator_/eq.hpp"
+#include "pythonic/include/operator_/eq.hpp"
 
 namespace pythonic
 {

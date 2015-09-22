@@ -1,9 +1,9 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_UNIQUE_HPP
 #define PYTHONIC_INCLUDE_NUMPY_UNIQUE_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/ndarray.hpp"
-#include "pythonic/types/tuple.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/types/ndarray.hpp"
+#include "pythonic/include/types/tuple.hpp"
 
 namespace pythonic
 {

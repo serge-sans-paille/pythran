@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_RANDOM_RANDOM_HPP
 #define PYTHONIC_INCLUDE_RANDOM_RANDOM_HPP
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 #include <random>
 
 namespace pythonic

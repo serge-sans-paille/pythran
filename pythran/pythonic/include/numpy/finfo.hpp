@@ -1,9 +1,9 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_FINFO_HPP
 #define PYTHONIC_INCLUDE_NUMPY_FINFO_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/numpy_type.hpp"
-#include "pythonic/types/finfo.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/types/numpy_type.hpp"
+#include "pythonic/include/types/finfo.hpp"
 
 namespace pythonic
 {

@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_ITRUEDIV_HPP
 #define PYTHONIC_INCLUDE_OPERATOR_ITRUEDIV_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/operator_/truediv.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/operator_/truediv.hpp"
 
 namespace pythonic
 {

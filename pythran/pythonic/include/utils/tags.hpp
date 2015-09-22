@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_UTILS_TAGS_HPP
 #define PYTHONIC_INCLUDE_UTILS_TAGS_HPP
 
-#include "pythonic/types/traits.hpp"
+#include "pythonic/include/types/traits.hpp"
 
 namespace pythonic
 {

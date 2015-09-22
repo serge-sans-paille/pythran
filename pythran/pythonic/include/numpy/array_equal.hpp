@@ -1,9 +1,9 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_ARRAYEQUAL_HPP
 #define PYTHONIC_INCLUDE_NUMPY_ARRAYEQUAL_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/ndarray.hpp"
-#include "pythonic/numpy/all.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/types/ndarray.hpp"
+#include "pythonic/include/numpy/all.hpp"
 
 namespace pythonic
 {

@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_BINARYREPR_HPP
 #define PYTHONIC_INCLUDE_NUMPY_BINARYREPR_HPP
 
-#include "pythonic/numpy/base_repr.hpp"
+#include "pythonic/include/numpy/base_repr.hpp"
 
 namespace pythonic
 {

@@ -1,9 +1,9 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_ITEMGETTER_HPP
 #define PYTHONIC_INCLUDE_OPERATOR_ITEMGETTER_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/tuple.hpp"
-#include "pythonic/utils/int_.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/types/tuple.hpp"
+#include "pythonic/include/utils/int_.hpp"
 
 namespace pythonic
 {

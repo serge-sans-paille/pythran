@@ -1,10 +1,10 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_DIGITIZE_HPP
 #define PYTHONIC_INCLUDE_NUMPY_DIGITIZE_HPP
 
-#include "pythonic/numpy/asarray.hpp"
-#include "pythonic/__builtin__/None.hpp"
-#include "pythonic/operator_/gt.hpp"
-#include "pythonic/operator_/lt.hpp"
+#include "pythonic/include/numpy/asarray.hpp"
+#include "pythonic/include/__builtin__/None.hpp"
+#include "pythonic/include/operator_/gt.hpp"
+#include "pythonic/include/operator_/lt.hpp"
 
 namespace pythonic
 {

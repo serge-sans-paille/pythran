@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_LOGSPACE_HPP
 #define PYTHONIC_INCLUDE_NUMPY_LOGSPACE_HPP
 
-#include "pythonic/numpy/linspace.hpp"
-#include "pythonic/numpy/power.hpp"
+#include "pythonic/include/numpy/linspace.hpp"
+#include "pythonic/include/numpy/power.hpp"
 
 namespace pythonic
 {

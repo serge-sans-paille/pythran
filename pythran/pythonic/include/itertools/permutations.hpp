@@ -1,9 +1,9 @@
 #ifndef PYTHONIC_INCLUDE_ITERTOOLS_PERMUTATIONS_HPP
 #define PYTHONIC_INCLUDE_ITERTOOLS_PERMUTATIONS_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/list.hpp"
-#include "pythonic/__builtin__/range.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/types/list.hpp"
+#include "pythonic/include/__builtin__/range.hpp"
 
 #include <iterator>
 #include <vector>

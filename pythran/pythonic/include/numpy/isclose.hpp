@@ -1,11 +1,11 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_ISCLOSE_HPP
 #define PYTHONIC_INCLUDE_NUMPY_ISCLOSE_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/ndarray.hpp"
-#include "pythonic/numpy/abs.hpp"
-#include "pythonic/numpy/isfinite.hpp"
-#include "pythonic/numpy/isnan.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/types/ndarray.hpp"
+#include "pythonic/include/numpy/abs.hpp"
+#include "pythonic/include/numpy/isfinite.hpp"
+#include "pythonic/include/numpy/isnan.hpp"
 
 namespace pythonic
 {

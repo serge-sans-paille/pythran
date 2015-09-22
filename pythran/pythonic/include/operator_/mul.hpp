@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_MUL_HPP
 #define PYTHONIC_INCLUDE_OPERATOR_MUL_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/operator_/overloads.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/operator_/overloads.hpp"
 #ifdef USE_BOOST_SIMD
 #include <nt2/include/functions/multiplies.hpp>
 #endif

@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_OMP_GET_THREAD_NUM_HPP
 
 #include <omp.h>
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 
 namespace pythonic
 {

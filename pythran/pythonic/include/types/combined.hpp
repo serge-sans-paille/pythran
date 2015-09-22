@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_COMBINED_HPP
 #define PYTHONIC_INCLUDE_TYPES_COMBINED_HPP
 
-#include "pythonic/types/traits.hpp"
-#include "pythonic/types/variant.hpp"
+#include "pythonic/include/types/traits.hpp"
+#include "pythonic/include/types/variant.hpp"
 
 /* special handling for functors { */
 template <class T0, class T1>

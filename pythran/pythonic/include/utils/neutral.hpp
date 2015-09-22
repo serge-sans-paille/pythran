@@ -1,10 +1,10 @@
 #ifndef PYTHONIC_INCLUDE_UTILS_NEUTRAL_HPP
 #define PYTHONIC_INCLUDE_UTILS_NEUTRAL_HPP
 
-#include "pythonic/operator_/iadd.hpp"
-#include "pythonic/operator_/imul.hpp"
-#include "pythonic/operator_/imax.hpp"
-#include "pythonic/operator_/imin.hpp"
+#include "pythonic/include/operator_/iadd.hpp"
+#include "pythonic/include/operator_/imul.hpp"
+#include "pythonic/include/operator_/imax.hpp"
+#include "pythonic/include/operator_/imin.hpp"
 
 namespace pythonic
 {

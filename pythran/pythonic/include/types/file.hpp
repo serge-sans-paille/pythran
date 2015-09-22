@@ -1,16 +1,16 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_FILE_HPP
 #define PYTHONIC_INCLUDE_TYPES_FILE_HPP
 
-#include "pythonic/types/assignable.hpp"
-#include "pythonic/utils/shared_ref.hpp"
-#include "pythonic/types/str.hpp"
-#include "pythonic/types/list.hpp"
-#include "pythonic/types/none.hpp"
-#include "pythonic/types/attr.hpp"
-#include "pythonic/__builtin__/IOError.hpp"
-#include "pythonic/__builtin__/ValueError.hpp"
-#include "pythonic/__builtin__/RuntimeError.hpp"
-#include "pythonic/__builtin__/StopIteration.hpp"
+#include "pythonic/include/types/assignable.hpp"
+#include "pythonic/include/utils/shared_ref.hpp"
+#include "pythonic/include/types/str.hpp"
+#include "pythonic/include/types/list.hpp"
+#include "pythonic/include/types/none.hpp"
+#include "pythonic/include/types/attr.hpp"
+#include "pythonic/include/__builtin__/IOError.hpp"
+#include "pythonic/include/__builtin__/ValueError.hpp"
+#include "pythonic/include/__builtin__/RuntimeError.hpp"
+#include "pythonic/include/__builtin__/StopIteration.hpp"
 
 #include <fstream>
 #include <iterator>

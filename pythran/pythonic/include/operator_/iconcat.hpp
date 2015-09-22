@@ -1,10 +1,10 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_ICONCAT_HPP
 #define PYTHONIC_INCLUDE_OPERATOR_ICONCAT_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/list.hpp"
-#include "pythonic/types/set.hpp"
-#include "pythonic/types/dict.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/types/list.hpp"
+#include "pythonic/include/types/set.hpp"
+#include "pythonic/include/types/dict.hpp"
 
 namespace pythonic
 {

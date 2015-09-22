@@ -1,10 +1,10 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_ROT90_HPP
 #define PYTHONIC_INCLUDE_NUMPY_ROT90_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/utils/numpy_conversion.hpp"
-#include "pythonic/types/ndarray.hpp"
-#include "pythonic/numpy/copy.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/numpy_conversion.hpp"
+#include "pythonic/include/types/ndarray.hpp"
+#include "pythonic/include/numpy/copy.hpp"
 
 namespace pythonic
 {

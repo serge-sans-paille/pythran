@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_ONESLIKE_HPP
 #define PYTHONIC_INCLUDE_NUMPY_ONESLIKE_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/numpy/ones.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/numpy/ones.hpp"
 
 namespace pythonic
 {

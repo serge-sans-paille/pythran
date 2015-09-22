@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_NUMPY_FEXPR_HPP
 #define PYTHONIC_INCLUDE_TYPES_NUMPY_FEXPR_HPP
 
-#include "pythonic/types/nditerator.hpp"
-#include "pythonic/types/numexpr_to_ndarray.hpp"
+#include "pythonic/include/types/nditerator.hpp"
+#include "pythonic/include/types/numexpr_to_ndarray.hpp"
 
 namespace pythonic
 {

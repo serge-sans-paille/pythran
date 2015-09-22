@@ -5,6 +5,7 @@
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/numpy/partial_sum.hpp"
+#include "pythonic/operator_/imul.hpp"
 
 namespace pythonic
 {

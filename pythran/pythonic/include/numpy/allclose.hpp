@@ -1,10 +1,10 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_ALLCLOSE_HPP
 #define PYTHONIC_INCLUDE_NUMPY_ALLCLOSE_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/ndarray.hpp"
-#include "pythonic/numpy/abs.hpp"
-#include "pythonic/numpy/isfinite.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/types/ndarray.hpp"
+#include "pythonic/include/numpy/abs.hpp"
+#include "pythonic/include/numpy/isfinite.hpp"
 
 namespace pythonic
 {

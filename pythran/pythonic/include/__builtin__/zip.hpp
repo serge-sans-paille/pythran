@@ -1,9 +1,9 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_ZIP_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_ZIP_HPP
 
-#include "pythonic/types/list.hpp"
-#include "pythonic/types/tuple.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/include/types/list.hpp"
+#include "pythonic/include/types/tuple.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 
 namespace pythonic
 {

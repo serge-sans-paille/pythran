@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_ARGSORT_HPP
 #define PYTHONIC_INCLUDE_NUMPY_ARGSORT_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/ndarray.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/types/ndarray.hpp"
 
 namespace pythonic
 {

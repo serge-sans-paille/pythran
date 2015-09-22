@@ -1,12 +1,12 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_RIGHTSHIFT_HPP
 #define PYTHONIC_INCLUDE_NUMPY_RIGHTSHIFT_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/ndarray.hpp"
-#include "pythonic/types/numpy_broadcast.hpp"
-#include "pythonic/utils/numpy_traits.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/types/ndarray.hpp"
+#include "pythonic/include/types/numpy_broadcast.hpp"
+#include "pythonic/include/utils/numpy_traits.hpp"
 
-#include "pythonic/operator_/rshift.hpp"
+#include "pythonic/include/operator_/rshift.hpp"
 
 namespace pythonic
 {

@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_IMIN_HPP
 #define PYTHONIC_INCLUDE_OPERATOR_IMIN_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/numpy/minimum.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/numpy/minimum.hpp"
 
 namespace pythonic
 {

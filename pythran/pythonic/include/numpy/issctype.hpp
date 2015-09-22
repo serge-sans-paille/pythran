@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_ISSCTYPE_HPP
 #define PYTHONIC_INCLUDE_NUMPY_ISSCTYPE_HPP
 
-#include "pythonic/numpy/isscalar.hpp"
-#include "pythonic/types/numpy_type.hpp"
+#include "pythonic/include/numpy/isscalar.hpp"
+#include "pythonic/include/types/numpy_type.hpp"
 
 namespace pythonic
 {

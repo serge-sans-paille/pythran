@@ -1,9 +1,9 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_MOD_HPP
 #define PYTHONIC_INCLUDE_NUMPY_MOD_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/assignable.hpp"
-#include "pythonic/operator_/mod.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/types/assignable.hpp"
+#include "pythonic/include/operator_/mod.hpp"
 
 namespace pythonic
 {

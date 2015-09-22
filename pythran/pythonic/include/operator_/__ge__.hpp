@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_GE__HPP
 #define PYTHONIC_INCLUDE_OPERATOR_GE__HPP
 
-#include "pythonic/operator_/ge.hpp"
+#include "pythonic/include/operator_/ge.hpp"
 
 namespace pythonic
 {

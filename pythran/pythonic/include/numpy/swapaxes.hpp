@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_SWAPAXES_HPP
 #define PYTHONIC_INCLUDE_NUMPY_SWAPAXES_HPP
 
-#include "pythonic/numpy/transpose.hpp"
+#include "pythonic/include/numpy/transpose.hpp"
 
 namespace pythonic
 {

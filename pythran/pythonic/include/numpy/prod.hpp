@@ -1,8 +1,9 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_PROD_HPP
 #define PYTHONIC_INCLUDE_NUMPY_PROD_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/numpy/reduce.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/numpy/reduce.hpp"
+#include "pythonic/include/operator_/imul.hpp"
 
 namespace pythonic
 {

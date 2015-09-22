@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_ROLLAXIS_HPP
 #define PYTHONIC_INCLUDE_NUMPY_ROLLAXIS_HPP
 
-#include "pythonic/numpy/transpose.hpp"
-#include "pythonic/numpy/copy.hpp"
+#include "pythonic/include/numpy/transpose.hpp"
+#include "pythonic/include/numpy/copy.hpp"
 
 namespace pythonic
 {

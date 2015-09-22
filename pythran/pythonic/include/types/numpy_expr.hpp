@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_NUMPY_EXPR_HPP
 #define PYTHONIC_INCLUDE_TYPES_NUMPY_EXPR_HPP
 
-#include "pythonic/utils/meta.hpp"
+#include "pythonic/include/utils/meta.hpp"
 
 namespace pythonic
 {
@@ -113,7 +113,7 @@ namespace pythonic
   };
 }
 /* type inference stuff  {*/
-#include "pythonic/types/combined.hpp"
+#include "pythonic/include/types/combined.hpp"
 template <class Op, class K, class... Args>
 struct __combined<pythonic::types::numpy_expr<Op, Args...>, indexable<K>> {
   using type = pythonic::types::numpy_expr<Op, Args...>;

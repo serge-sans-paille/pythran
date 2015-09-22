@@ -1,9 +1,9 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_ISSCALAR_HPP
 #define PYTHONIC_INCLUDE_NUMPY_ISSCALAR_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/traits.hpp"
-#include "pythonic/types/str.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/types/traits.hpp"
+#include "pythonic/include/types/str.hpp"
 
 #include <type_traits>
 

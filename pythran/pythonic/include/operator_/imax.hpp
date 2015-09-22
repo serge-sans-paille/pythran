@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_IMAX_HPP
 #define PYTHONIC_INCLUDE_OPERATOR_IMAX_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/numpy/maximum.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/numpy/maximum.hpp"
 
 namespace pythonic
 {

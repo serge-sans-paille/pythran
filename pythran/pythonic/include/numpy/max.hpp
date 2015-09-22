@@ -1,8 +1,9 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_MAX_HPP
 #define PYTHONIC_INCLUDE_NUMPY_MAX_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/numpy/reduce.hpp"
+#include "pythonic/include/numpy/reduce.hpp"
+#include "pythonic/include/operator_/imax.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 
 namespace pythonic
 {

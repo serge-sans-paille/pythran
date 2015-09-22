@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_OMP_IN_PARALLEL_HPP
 
 #include <omp.h>
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 
 namespace pythonic
 {

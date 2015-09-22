@@ -1,16 +1,16 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_DICT_HPP
 #define PYTHONIC_INCLUDE_TYPES_DICT_HPP
 
-#include "pythonic/types/assignable.hpp"
-#include "pythonic/types/tuple.hpp"
-#include "pythonic/types/empty_iterator.hpp"
-#include "pythonic/types/content_of.hpp"
+#include "pythonic/include/types/assignable.hpp"
+#include "pythonic/include/types/tuple.hpp"
+#include "pythonic/include/types/empty_iterator.hpp"
+#include "pythonic/include/types/content_of.hpp"
 
-#include "pythonic/utils/shared_ref.hpp"
-#include "pythonic/utils/iterator.hpp"
-#include "pythonic/utils/reserve.hpp"
+#include "pythonic/include/utils/shared_ref.hpp"
+#include "pythonic/include/utils/iterator.hpp"
+#include "pythonic/include/utils/reserve.hpp"
 
-#include "pythonic/__builtin__/None.hpp"
+#include "pythonic/include/__builtin__/None.hpp"
 
 #include <memory>
 #include <utility>
@@ -278,8 +278,8 @@ namespace std
 }
 
 /* type inference stuff  {*/
-#include "pythonic/types/combined.hpp"
-#include "pythonic/types/list.hpp"
+#include "pythonic/include/types/combined.hpp"
+#include "pythonic/include/types/list.hpp"
 
 template <class A>
 struct __combined<container<A>, pythonic::types::empty_dict> {

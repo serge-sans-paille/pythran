@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_NUMEXPR_TO_NDARRAY_HPP
 #define PYTHONIC_INCLUDE_TYPES_NUMEXPR_TO_NDARRAY_HPP
 
-#include "pythonic/utils/nested_container.hpp"
+#include "pythonic/include/utils/nested_container.hpp"
 
 namespace pythonic
 {

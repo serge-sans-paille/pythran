@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_COUNTOF_HPP
 #define PYTHONIC_INCLUDE_OPERATOR_COUNTOF_HPP
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 #include <algorithm>
 
 namespace pythonic

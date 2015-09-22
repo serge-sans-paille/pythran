@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_LSHIFT__HPP
 #define PYTHONIC_INCLUDE_OPERATOR_LSHIFT__HPP
 
-#include "pythonic/operator_/lshift.hpp"
+#include "pythonic/include/operator_/lshift.hpp"
 
 namespace pythonic
 {

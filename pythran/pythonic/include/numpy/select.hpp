@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_SELECT_HPP
 #define PYTHONIC_INCLUDE_NUMPY_SELECT_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/utils/int_.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/int_.hpp"
 
 namespace pythonic
 {

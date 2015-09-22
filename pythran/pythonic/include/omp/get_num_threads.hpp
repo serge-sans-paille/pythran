@@ -3,7 +3,7 @@
 
 #include <omp.h>
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 
 namespace pythonic
 {

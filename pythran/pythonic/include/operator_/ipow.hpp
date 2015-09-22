@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_IPOW_HPP
 #define PYTHONIC_INCLUDE_OPERATOR_IPOW_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/__builtin__/pow.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/__builtin__/pow.hpp"
 
 namespace pythonic
 {

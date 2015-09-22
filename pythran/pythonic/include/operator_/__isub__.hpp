@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_ISUB__HPP
 #define PYTHONIC_INCLUDE_OPERATOR_ISUB__HPP
 
-#include "pythonic/operator_/isub.hpp"
+#include "pythonic/include/operator_/isub.hpp"
 
 namespace pythonic
 {

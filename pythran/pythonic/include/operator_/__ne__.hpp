@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_NE__HPP
 #define PYTHONIC_INCLUDE_OPERATOR_NE__HPP
 
-#include "pythonic/operator_/ne.hpp"
+#include "pythonic/include/operator_/ne.hpp"
 
 namespace pythonic
 {

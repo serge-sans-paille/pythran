@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_ALLTRUE_HPP
 #define PYTHONIC_INCLUDE_NUMPY_ALLTRUE_HPP
 
-#include "pythonic/numpy/all.hpp"
+#include "pythonic/include/numpy/all.hpp"
 
 namespace pythonic
 {

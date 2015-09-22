@@ -2,8 +2,8 @@
 #define PYTHONIC_INCLUDE_UTILS_NESTED_CONTAINER_HPP
 
 #include <limits>
-#include "pythonic/types/traits.hpp"
-#include "pythonic/utils/numpy_traits.hpp"
+#include "pythonic/include/types/traits.hpp"
+#include "pythonic/include/utils/numpy_traits.hpp"
 
 namespace pythonic
 {

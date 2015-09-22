@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_COMPLEX64_HPP
 #define PYTHONIC_INCLUDE_NUMPY_COMPLEX64_HPP
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/complex.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/types/complex.hpp"
 
 namespace pythonic
 {

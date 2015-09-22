@@ -1,14 +1,14 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_SET_HPP
 #define PYTHONIC_INCLUDE_TYPES_SET_HPP
 
-#include "pythonic/types/assignable.hpp"
-#include "pythonic/types/empty_iterator.hpp"
-#include "pythonic/types/list.hpp"
+#include "pythonic/include/types/assignable.hpp"
+#include "pythonic/include/types/empty_iterator.hpp"
+#include "pythonic/include/types/list.hpp"
 
-#include "pythonic/utils/shared_ref.hpp"
-#include "pythonic/utils/iterator.hpp"
+#include "pythonic/include/utils/shared_ref.hpp"
+#include "pythonic/include/utils/iterator.hpp"
 
-#include "pythonic/__builtin__/in.hpp"
+#include "pythonic/include/__builtin__/in.hpp"
 
 #include <set>
 #include <memory>
@@ -30,7 +30,7 @@ namespace pythonic
 }
 
 /* type inference stuff  {*/
-#include "pythonic/types/combined.hpp"
+#include "pythonic/include/types/combined.hpp"
 template <class A, class B>
 struct __combined<container<A>, pythonic::types::set<B>> {
   using type = pythonic::types::set<typename __combined<A, B>::type>;

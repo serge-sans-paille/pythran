@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_TAKE_HPP
 #define PYTHONIC_INCLUDE_NUMPY_TAKE_HPP
 
-#include "pythonic/types/numpy_fexpr.hpp"
+#include "pythonic/include/types/numpy_fexpr.hpp"
 
 namespace pythonic
 {

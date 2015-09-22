@@ -2,9 +2,9 @@
 #define PYTHONIC_NUMPY_SUM_HPP
 
 #include "pythonic/include/numpy/sum.hpp"
-
-#include "pythonic/utils/proxy.hpp"
 #include "pythonic/numpy/reduce.hpp"
+#include "pythonic/operator_/iadd.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 #ifdef USE_BOOST_SIMD
 #include <boost/simd/include/functions/sum.hpp>

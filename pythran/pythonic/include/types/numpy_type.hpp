@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_NUMPYTYPE_HPP
 #define PYTHONIC_INCLUDE_TYPES_NUMPYTYPE_HPP
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 
 namespace pythonic
 {

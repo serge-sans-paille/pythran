@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_ASCONTIGUOUSARRAY_HPP
 #define PYTHONIC_INCLUDE_NUMPY_ASCONTIGUOUSARRAY_HPP
 
-#include "pythonic/numpy/asarray.hpp"
+#include "pythonic/include/numpy/asarray.hpp"
 
 namespace pythonic
 {

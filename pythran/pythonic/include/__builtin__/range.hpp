@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_RANGE_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_RANGE_HPP
 
-#include "pythonic/types/list.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/include/types/list.hpp"
+#include "pythonic/include/utils/proxy.hpp"
 
 namespace pythonic
 {

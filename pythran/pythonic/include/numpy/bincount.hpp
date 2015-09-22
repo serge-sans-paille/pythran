@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_BINCOUNT_HPP
 #define PYTHONIC_INCLUDE_NUMPY_BINCOUNT_HPP
 
-#include "pythonic/numpy/max.hpp"
+#include "pythonic/include/numpy/max.hpp"
 
 namespace pythonic
 {

@@ -9,7 +9,7 @@
 #include <boost/simd/include/functions/store.hpp>
 #endif
 
-#include "pythonic/types/vectorizable_type.hpp"
+#include "pythonic/include/types/vectorizable_type.hpp"
 
 namespace pythonic
 {

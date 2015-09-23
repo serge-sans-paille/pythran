@@ -360,3 +360,117 @@ class TestNumpyRandom(TestEnv):
                 a = random_integers(10, 20, (n, n))
                 assert(abs(mean(a) - 15) < .05)""",
                       10 ** 3, numpy_random_integers3=[int])
+
+    ###########################################################################
+    # Tests for numpy.random.choice
+    ###########################################################################
+
+    def test_numpy_random_choice0(self):
+        """ Check numpy.random.choice with one int argument. """
+        self.run_test("""
+            def numpy_random_choice0(n):
+                from numpy.random import choice
+                from numpy import mean, var
+                a = [choice(11) for _ in range(n)]
+                assert(abs(mean(a) - 5) < .05)""",
+                      10 ** 5, numpy_random_choice0=[int])
+
+    def test_numpy_random_choice1(self):
+        """ Check numpy.random.choice with one ndarray argument. """
+        self.run_test("""
+            def numpy_random_choice1(n):
+                from numpy.random import choice
+                from numpy import mean, var, arange
+                a = [choice(arange(11)) for _ in range(n)]
+                assert(abs(mean(a) - 5) < .05)""",
+                      10 ** 5, numpy_random_choice1=[int])
+
+    def test_numpy_random_choice2(self):
+        """ Check numpy.random.choice with one numpy_expr argument. """
+        self.run_test("""
+            def numpy_random_choice2(n):
+                from numpy.random import choice
+                from numpy import mean, var, arange
+                a = [choice(arange(11) + n) for _ in range(n)]
+                assert(abs(mean(a) - (5 + n)) < .05)""",
+                      10 ** 5, numpy_random_choice2=[int])
+
+    def test_numpy_random_choice3(self):
+        """ Check numpy.random.choice with int and int argument. """
+        self.run_test("""
+            def numpy_random_choice3(n):
+                from numpy.random import choice
+                from numpy import mean, var, arange
+                a = choice(11, n)
+                assert(abs(mean(a) - 5) < .05)""",
+                      10 ** 5, numpy_random_choice3=[int])
+
+    def test_numpy_random_choice4(self):
+        """ Check numpy.random.choice with int and tuple argument. """
+        self.run_test("""
+            def numpy_random_choice4(n):
+                from numpy.random import choice
+                from numpy import mean, var, arange
+                a = choice(11, (n, n))
+                assert(abs(mean(a) - 5) < .05)""",
+                      10 ** 3, numpy_random_choice4=[int])
+
+    def test_numpy_random_choice5(self):
+        """ Check numpy.random.choice with int, tuple and proba argument. """
+        self.run_test("""
+            def numpy_random_choice5(n):
+                from numpy.random import choice
+                from numpy import mean, var, arange
+                a = choice(5, (n, n), True, [0.3, 0.3, 0.2, 0.1, 0.1])
+                assert(abs(mean(a) - 1.4) < .05)""",
+                      10 ** 3, numpy_random_choice5=[int])
+
+    def test_numpy_random_choice6(self):
+        """ Check numpy.random.choice with int, int and proba argument. """
+        self.run_test("""
+            def numpy_random_choice6(n):
+                from numpy.random import choice
+                from numpy import mean, var, arange
+                a = choice(5, n, True, [0.3, 0.3, 0.2, 0.1, 0.1])
+                assert(abs(mean(a) - 1.4) < .05)""",
+                      10 ** 5, numpy_random_choice6=[int])
+
+    def test_numpy_random_choice7(self):
+        """ Check numpy.random.choice with ndarray and int argument. """
+        self.run_test("""
+            def numpy_random_choice7(n):
+                from numpy.random import choice
+                from numpy import mean, var, arange
+                a = choice(arange(11), n)
+                assert(abs(mean(a) - 5) < .05)""",
+                      10 ** 5, numpy_random_choice7=[int])
+
+    def test_numpy_random_choice8(self):
+        """ Check numpy.random.choice with ndarray and tuple argument. """
+        self.run_test("""
+            def numpy_random_choice8(n):
+                from numpy.random import choice
+                from numpy import mean, var, arange
+                a = choice(arange(11), (n, n))
+                assert(abs(mean(a) - 5) < .05)""",
+                      10 ** 3, numpy_random_choice8=[int])
+
+    def test_numpy_random_choice9(self):
+        """Check numpy.random.choice with ndarray, tuple and proba argument."""
+        self.run_test("""
+            def numpy_random_choice9(n):
+                from numpy.random import choice
+                from numpy import mean, var, arange
+                a = choice(arange(5), (n, n), True, [0.3, 0.3, 0.2, 0.1, 0.1])
+                assert(abs(mean(a) - 1.4) < .05)""",
+                      10 ** 3, numpy_random_choice9=[int])
+
+    def test_numpy_random_choice10(self):
+        """ Check numpy.random.choice with ndarray, int and proba argument. """
+        self.run_test("""
+            def numpy_random_choice10(n):
+                from numpy.random import choice
+                from numpy import mean, var, arange
+                a = choice(arange(5), n, True, [0.3, 0.3, 0.2, 0.1, 0.1])
+                assert(abs(mean(a) - 1.4) < .05)""",
+                      10 ** 5, numpy_random_choice10=[int])

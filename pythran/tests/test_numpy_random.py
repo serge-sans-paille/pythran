@@ -474,3 +474,17 @@ class TestNumpyRandom(TestEnv):
                 a = choice(arange(5), n, True, [0.3, 0.3, 0.2, 0.1, 0.1])
                 assert(abs(mean(a) - 1.4) < .05)""",
                       10 ** 5, numpy_random_choice10=[int])
+
+    ###########################################################################
+    # Tests for numpy.random.bytes
+    ###########################################################################
+
+    def test_numpy_random_bytes1(self):
+        """ Check numpy.random.bytes. """
+        self.run_test("""
+            def numpy_random_bytes1(n):
+                from numpy.random import bytes
+                from numpy import mean, fromstring, uint8
+                a = bytes(n)
+                assert(abs(mean(fromstring(a, uint8)) - 127.5) < .05)""",
+                      10 ** 8, numpy_random_bytes1=[int])

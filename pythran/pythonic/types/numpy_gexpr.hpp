@@ -14,6 +14,70 @@ namespace pythonic
 
   namespace types
   {
+    template <class S0, class S1>
+    bool slices_may_overlap(S0 const &s0, S1 const &s1)
+    {
+      return s0.lower > s1.lower;
+    }
+    template <class S>
+    bool slices_may_overlap(S const &s, long const &i)
+    {
+      return s.lower <= i and i < s.upper;
+    }
+    template <class S>
+    bool slices_may_overlap(long const &i, S const &s)
+    {
+      return s.lower <= i and i < s.upper;
+    }
+    template <class E0, class E1>
+    bool may_overlap(E0 const &, E1 const &)
+    {
+      return true;
+    }
+    template <class E0, class T0, class T1>
+    bool may_overlap(E0 const &, broadcast<T0, T1> const &)
+    {
+      return false;
+    }
+    template <class Arg, class E1, class... S>
+    typename std::enable_if<std::is_scalar<E1>::value, bool>::type
+    may_overlap(numpy_gexpr<Arg, S...> const &gexpr, E1 const &)
+    {
+      return false;
+    }
+    template <class Arg, class Tuple, class... S, int... I>
+    bool may_overlap_helper(numpy_gexpr<Arg, S...> const &gexpr,
+                            Tuple const &args, utils::seq<I...>)
+    {
+      bool overlaps[] = {may_overlap(gexpr, std::get<I>(args))...};
+      return std::any_of(std::begin(overlaps), std::end(overlaps),
+                         [](bool b) { return b; });
+    }
+    template <class Arg, class... E, class... S>
+    bool may_overlap(numpy_gexpr<Arg, S...> const &gexpr,
+                     numpy_expr<E...> const &expr)
+    {
+      return may_overlap_helper(gexpr, expr.args,
+                                typename utils::gens<sizeof...(E)-1>::type{});
+    }
+    template <class T, size_t N, class Tp, size_t Np, class... S, class... Sp>
+    bool may_overlap(numpy_gexpr<ndarray<T, N> const &, S...> const &gexpr,
+                     numpy_gexpr<ndarray<Tp, Np> const &, Sp...> const &expr)
+    {
+      if (not std::is_same<T, Tp>::value) {
+        return false;
+      }
+      if (N != Np) {
+        return false;
+      }
+      if (gexpr.arg.id() != expr.arg.id()) {
+        return false;
+      }
+      if (not slices_may_overlap(std::get<0>(gexpr.slices),
+                                 std::get<0>(expr.slices)))
+        return false;
+      return true;
+    }
 
     template <class T>
     T to_slice<T>::operator()(T value)
@@ -379,10 +443,23 @@ namespace pythonic
     numpy_gexpr<Arg, S...>::_copy(E const &expr)
     {
       static_assert(value >= utils::dim_of<E>::value, "dimensions match");
-      return utils::broadcast_copy<
-          numpy_gexpr &, ndarray<typename E::dtype, E::value>, value,
-          value - utils::dim_of<E>::value, is_vectorizable>(
-          *this, ndarray<typename E::dtype, E::value>{expr});
+      /* at this point, we could not statically check that there is not an
+       * aliasing issue that would require an extra copy because of the vector
+       * assignment
+       * perform a fuzzy alias check dynamically!
+       */
+      if (may_overlap(*this, expr)) {
+        return utils::broadcast_copy<
+            numpy_gexpr &, ndarray<typename E::dtype, E::value>, value,
+            value - utils::dim_of<E>::value, is_vectorizable>(
+            *this, ndarray<typename E::dtype, E::value>{expr});
+      } else {
+        // 100% sure there's no overlap
+        return utils::broadcast_copy < numpy_gexpr &, E, value,
+               value - utils::dim_of<E>::value,
+               is_vectorizable and
+                   is_vectorizable_array<E>::value > (*this, expr);
+      }
     }
 
     template <class Arg, class... S>

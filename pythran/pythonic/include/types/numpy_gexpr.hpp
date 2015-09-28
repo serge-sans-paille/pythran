@@ -309,7 +309,8 @@ namespace pythonic
     };
 
     template <class E>
-    struct may_overlap_gexpr<list<E>> : may_overlap_gexpr<E> {
+    struct may_overlap_gexpr<list<E>>
+        : std::integral_constant<bool, not is_dtype<E>::value> {
     };
 
     template <class E, size_t N>

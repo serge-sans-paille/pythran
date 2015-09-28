@@ -693,6 +693,11 @@ namespace pythonic
       return std::accumulate(_shape.begin(), _shape.end(), 1,
                              std::multiplies<long>());
     }
+    template <class T, size_t N>
+    bool ndarray<T, N>::may_overlap(ndarray const &expr) const
+    {
+      return id() == expr.id();
+    }
 
     template <class T, size_t N>
     template <size_t M>

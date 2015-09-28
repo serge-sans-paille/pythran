@@ -404,6 +404,7 @@ namespace pythonic
 
       /* member functions */
       long flat_size() const;
+      bool may_overlap(ndarray const &) const;
 
       template <size_t M>
       ndarray<T, M> reshape(array<long, M> const &shape) const;

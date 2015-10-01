@@ -204,7 +204,7 @@ namespace pythonic
       union_(U &&other, Types &&... others) const;
 
       template <typename... Types>
-      void update(Types &&... others);
+      none_type update(Types &&... others);
 
       set<T> intersection() const;
 
@@ -301,7 +301,7 @@ namespace pythonic
       set<T> operator^(set<T> const &s);
 
       template <class... Types>
-      void update(Types &&...);
+      none_type update(Types &&...);
 
       operator bool();
       iterator begin() const;
@@ -316,42 +316,27 @@ namespace pythonic
     using type = types::set<typename assignable<T>::type>;
   };
 }
-
 #ifdef ENABLE_PYTHON_MODULE
 
-#include "pythonic/python/register_once.hpp"
-#include "pythonic/python/extract.hpp"
-#include <boost/python/object.hpp>
+#include "pythonic/python/core.hpp"
 
 namespace pythonic
 {
 
   template <typename T>
-  struct python_to_pythran<types::set<T>> {
-    python_to_pythran();
-    static void *convertible(PyObject *obj_ptr);
-    static void
-    construct(PyObject *obj_ptr,
-              boost::python::converter::rvalue_from_python_stage1_data *data);
-  };
-
-  template <typename T>
-  struct custom_pythran_set_to_set {
-    static PyObject *convert(const types::set<T> &v);
-  };
-
-  template <typename T>
-  struct pythran_to_python<types::set<T>> {
-    pythran_to_python();
-  };
-
-  struct custom_empty_set_to_set {
-    static PyObject *convert(types::empty_set const &);
+  struct to_python<types::set<T>> {
+    static PyObject *convert(types::set<T> const &v);
   };
 
   template <>
-  struct pythran_to_python<types::empty_set> {
-    pythran_to_python();
+  struct to_python<types::empty_set> {
+    static PyObject *convert(types::empty_set);
+  };
+
+  template <class T>
+  struct from_python<types::set<T>> {
+    static bool is_convertible(PyObject *obj);
+    static types::set<T> convert(PyObject *obj);
   };
 }
 

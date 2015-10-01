@@ -40,7 +40,7 @@ Prerequisite
 
 Pythran depends on the following packages:
 
-- boost (including boost python): http://www.boost.org/
+- boost: http://www.boost.org/
 - GMP: https://gmplib.org/
 - git: http://git-scm.com/
 - cmake: http://www.cmake.org/
@@ -373,8 +373,7 @@ These sections contains compiler flags configuration. For education purpose, the
 
 :``libs``:
 
-    Libraries to use during the link process. It should at least contain a way
-    to link to `Boost.Python`, tyically ``boost_python``. A typical extension
+    Libraries to use during the link process. A typical extension
     is to add ``tcmalloc_minimal`` to use the allocator from
     https://code.google.com/p/gperftools/.
 

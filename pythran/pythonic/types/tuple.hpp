@@ -522,8 +522,6 @@ namespace std
   }
 }
 
-#include <boost/functional/hash/extensions.hpp>
-
 /* and boost's */
 namespace pythonic
 {
@@ -575,163 +573,123 @@ namespace std
     return os << ')';
   }
 }
-
 #ifdef ENABLE_PYTHON_MODULE
 
-#include "pythonic/python/register_once.hpp"
-#include "pythonic/python/extract.hpp"
-#include "pythonic/utils/seq.hpp"
-#include "pythonic/utils/fwd.hpp"
+#include "pythonic/include/utils/seq.hpp"
+#include "pythonic/include/utils/fwd.hpp"
+#include "pythonic/python/core.hpp"
 
 namespace pythonic
 {
 
-  template <typename... Types>
-  python_to_pythran<std::tuple<Types...>>::python_to_pythran()
-  {
-    static bool registered = false;
-    utils::fwd(python_to_pythran<Types>()...);
-    if (not registered) {
-      registered = true;
-      boost::python::converter::registry::push_back(
-          &convertible, &construct,
-          boost::python::type_id<std::tuple<Types...>>());
-    }
-  }
-
-  template <typename... Types>
-  void *python_to_pythran<std::tuple<Types...>>::convertible(PyObject *obj_ptr)
-  {
-    if (!PyTuple_Check(obj_ptr) || !PyObject_HasAttrString(obj_ptr, "__len__"))
-      return 0;
-    return obj_ptr;
-  }
-
-  template <typename... Types>
-  template <int... S>
-  void python_to_pythran<std::tuple<Types...>>::do_construct(
-      PyObject *obj_ptr,
-      boost::python::converter::rvalue_from_python_stage1_data *data,
-      utils::seq<S...>)
-  {
-    void *storage = ((boost::python::converter::rvalue_from_python_storage<
-                         std::tuple<Types...>> *)(data))->storage.bytes;
-    new (storage) std::tuple<Types...>(boost::python::extract<
-        typename std::tuple_element<S, std::tuple<Types...>>::type>(
-        PyTuple_GetItem(obj_ptr, S))...);
-    data->convertible = storage;
-  }
-
-  template <typename... Types>
-  void python_to_pythran<std::tuple<Types...>>::construct(
-      PyObject *obj_ptr,
-      boost::python::converter::rvalue_from_python_stage1_data *data)
-  {
-    do_construct(obj_ptr, data,
-                 typename utils::gens<
-                     std::tuple_size<std::tuple<Types...>>::value>::type());
-  }
-
-  template <typename T, size_t N>
-  python_to_pythran<types::array<T, N>>::python_to_pythran()
-  {
-    static bool registered = false;
-    python_to_pythran<T>();
-    if (not registered) {
-      registered = true;
-      boost::python::converter::registry::push_back(
-          &convertible, &construct,
-          boost::python::type_id<types::array<T, N>>());
-    }
-  }
-
-  template <typename T, size_t N>
-  void *python_to_pythran<types::array<T, N>>::convertible(PyObject *obj_ptr)
-  {
-    if (!PyTuple_Check(obj_ptr) || !PyObject_HasAttrString(obj_ptr, "__len__"))
-      return 0;
-    return obj_ptr;
-  }
-
-  template <typename T, size_t N>
-  template <int... S>
-  void python_to_pythran<types::array<T, N>>::do_construct(
-      PyObject *obj_ptr,
-      boost::python::converter::rvalue_from_python_stage1_data *data,
-      utils::seq<S...>)
-  {
-    void *storage = ((boost::python::converter::rvalue_from_python_storage<
-                         types::array<T, N>> *)(data))->storage.bytes;
-    new (storage) types::array<T, N>{
-        {boost::python::extract<T>(PyTuple_GetItem(obj_ptr, S))...}};
-    data->convertible = storage;
-  }
-
-  template <typename T, size_t N>
-  void python_to_pythran<types::array<T, N>>::construct(
-      PyObject *obj_ptr,
-      boost::python::converter::rvalue_from_python_stage1_data *data)
-  {
-    do_construct(obj_ptr, data, typename utils::gens<N>::type());
-  }
-
   template <typename K, typename V>
-  PyObject *custom_pair_to_tuple<K, V>::convert(std::pair<K, V> const &t)
+  PyObject *to_python<std::pair<K, V>>::convert(std::pair<K, V> const &t)
   {
-    return PyTuple_Pack(
-        2, boost::python::incref(boost::python::object(t.first).ptr()),
-        boost::python::incref(boost::python::object(t.second).ptr()));
-  }
-
-  template <typename K, typename V>
-  pythran_to_python<std::pair<K, V>>::pythran_to_python()
-  {
-    pythran_to_python<K>();
-    pythran_to_python<V>();
-    register_once<std::pair<K, V>, custom_pair_to_tuple<K, V>>();
+    return PyTuple_Pack(2, ::to_python(std::get<0>(t)),
+                        ::to_python(std::get<1>(t)));
   }
 
   template <typename... Types>
   template <int... S>
-  PyObject *
-  custom_tuple_to_tuple<Types...>::do_convert(std::tuple<Types...> const &t,
-                                              utils::seq<S...>)
+  PyObject *to_python<std::tuple<Types...>>::
+
+      do_convert(std::tuple<Types...> const &t, utils::seq<S...>)
   {
-    return PyTuple_Pack(
-        sizeof...(Types),
-        boost::python::incref(boost::python::object(std::get<S>(t)).ptr())...);
+    return PyTuple_Pack(sizeof...(Types), ::to_python(std::get<S>(t))...);
   }
 
   template <typename... Types>
   PyObject *
-  custom_tuple_to_tuple<Types...>::convert(std::tuple<Types...> const &t)
+  to_python<std::tuple<Types...>>::convert(std::tuple<Types...> const &t)
   {
     return do_convert(t, typename utils::gens<sizeof...(Types)>::type());
   }
 
+  template <typename T, size_t N>
+  template <int... S>
+  PyObject *
+  to_python<types::array<T, N>>::do_convert(types::array<T, N> const &t,
+                                            utils::seq<S...>)
+  {
+    return PyTuple_Pack(N, ::to_python(std::get<S>(t))...);
+  }
+
+  template <typename T, size_t N>
+  PyObject *to_python<types::array<T, N>>::convert(types::array<T, N> const &t)
+  {
+    return do_convert(t, typename utils::gens<N>::type());
+  }
+
   template <typename... Types>
-  pythran_to_python<std::tuple<Types...>>::pythran_to_python()
+  template <int... S>
+  bool from_python<std::tuple<Types...>>
+
+      ::do_is_convertible(PyObject *obj, typename utils::seq<S...>)
   {
-    utils::fwd(pythran_to_python<Types>()...);
-    register_once<std::tuple<Types...>, custom_tuple_to_tuple<Types...>>();
+    bool checks[] = {::is_convertible<
+        typename std::tuple_element<S, std::tuple<Types...>>::type>(
+        PyTuple_GET_ITEM(obj, S))...};
+    return std::find(std::begin(checks), std::end(checks), false) ==
+           std::end(checks);
+  }
+
+  template <typename... Types>
+  bool from_python<std::tuple<Types...>>::is_convertible(PyObject *obj)
+  {
+    if (PyTuple_Check(obj)) {
+      auto n = PyTuple_GET_SIZE(obj);
+      if (n == sizeof...(Types)) {
+        return do_is_convertible(
+            obj, typename utils::gens<sizeof...(Types)>::type());
+      }
+    }
+    return false;
+  }
+
+  template <typename... Types>
+  template <int... S>
+  std::tuple<Types...>
+  from_python<std::tuple<Types...>>::do_convert(PyObject *obj,
+                                                typename utils::seq<S...>)
+  {
+    return std::tuple<Types...>{::from_python<
+        typename std::tuple_element<S, std::tuple<Types...>>::type>(
+        PyTuple_GET_ITEM(obj, S))...};
+  }
+  template <typename... Types>
+  std::tuple<Types...> from_python<std::tuple<Types...>>::convert(PyObject *obj)
+  {
+    return do_convert(obj, typename utils::gens<sizeof...(Types)>::type());
   }
 
   template <typename T, size_t N>
-  PyObject *custom_array_to_tuple<T, N>::convert(types::array<T, N> const &t)
+  bool from_python<types::array<T, N>>::
+
+      is_convertible(PyObject *obj)
   {
-    size_t n = t.size();
-    PyObject *obj = PyTuple_New(n);
-    for (size_t i = 0; i < n; ++i)
-      PyTuple_SET_ITEM(
-          obj, i, boost::python::incref(boost::python::object(t[i]).ptr()));
-    return obj;
+    if (PyTuple_Check(obj)) {
+      auto n = PyTuple_GET_SIZE(obj);
+      if (n == N) {
+        return ::is_convertible<T>(PyTuple_GET_ITEM(obj, 0));
+      }
+    }
+    return false;
   }
 
   template <typename T, size_t N>
-  pythran_to_python<types::array<T, N>>::pythran_to_python()
+  template <int... S>
+  types::array<T, N>
+  from_python<types::array<T, N>>::do_convert(PyObject *obj,
+                                              typename utils::seq<S...>)
   {
-    pythran_to_python<T>();
-    register_once<types::array<T, N>, custom_array_to_tuple<T, N>>();
+    return {::from_python<T>(PyTuple_GET_ITEM(obj, S))...};
+  }
+  template <typename T, size_t N>
+  types::array<T, N> from_python<types::array<T, N>>::
+
+      convert(PyObject *obj)
+  {
+    return do_convert(obj, typename utils::gens<N>::type());
   }
 }
 #endif

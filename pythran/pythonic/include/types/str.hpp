@@ -258,42 +258,6 @@ namespace std
   };
 }
 
-#ifdef ENABLE_PYTHON_MODULE
-
-#include "pythonic/python/register_once.hpp"
-
-namespace pythonic
-{
-
-  template <>
-  struct python_to_pythran<types::str> {
-    python_to_pythran();
-    static void *convertible(PyObject *obj_ptr);
-    static void
-    construct(PyObject *obj_ptr,
-              boost::python::converter::rvalue_from_python_stage1_data *data);
-  };
-
-  struct custom_pythran_string_to_str {
-    static PyObject *convert(const types::str &v);
-  };
-
-  template <>
-  struct pythran_to_python<types::str> {
-    pythran_to_python();
-  };
-
-  struct custom_pythran_sliced_str_to_str {
-    static PyObject *
-    convert(const types::sliced_str<types::contiguous_slice> &v);
-    static PyObject *convert(const types::sliced_str<types::slice> &v);
-  };
-
-  template <class S>
-  struct pythran_to_python<types::sliced_str<S>> {
-    pythran_to_python();
-  };
-}
 /* type inference stuff  {*/
 #include "pythonic/include/types/combined.hpp"
 
@@ -308,6 +272,33 @@ struct __combined<pythonic::types::str, char const *> {
 };
 
 /* } */
+#ifdef ENABLE_PYTHON_MODULE
+
+#include "pythonic/python/core.hpp"
+
+namespace pythonic
+{
+
+  template <>
+  struct to_python<types::str> {
+    static PyObject *convert(types::str const &v);
+  };
+
+  template <class S>
+  struct to_python<types::sliced_str<S>> {
+    static PyObject *convert(types::sliced_str<S> const &v);
+  };
+  template <>
+  struct to_python<char> {
+    static PyObject *convert(char l);
+  };
+
+  template <>
+  struct from_python<types::str> {
+    static bool is_convertible(PyObject *obj);
+    static types::str convert(PyObject *obj);
+  };
+}
 
 #endif
 

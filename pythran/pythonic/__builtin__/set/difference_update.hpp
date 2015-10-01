@@ -16,22 +16,27 @@ namespace pythonic
     {
 
       template <typename T, typename... Types>
-      void difference_update(types::set<T> &set, Types const &... others)
+      types::none_type difference_update(types::set<T> &set,
+                                         Types const &... others)
       {
         set.difference_update(others...);
+        return {};
       }
 
       template <typename T, typename... Types>
-      void difference_update(types::set<T> &&set, Types const &... others)
+      types::none_type difference_update(types::set<T> &&set,
+                                         Types const &... others)
       {
         // nothing to be done as we work on rvalue
+        return {};
       }
 
       template <typename... Types>
-      void difference_update(types::empty_set const &set,
-                             Types const &... others)
+      types::none_type difference_update(types::empty_set const &set,
+                                         Types const &... others)
       {
         // nothing can be removed in set
+        return {};
       }
 
       PROXY_IMPL(pythonic::__builtin__::set, difference_update);

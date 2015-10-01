@@ -442,40 +442,27 @@ struct __combined<container<V>, indexable_dict<K>> {
 /* } */
 #ifdef ENABLE_PYTHON_MODULE
 
-#include "pythonic/python/register_once.hpp"
-#include "pythonic/python/extract.hpp"
-#include <boost/python/dict.hpp>
-#include <boost/python/object.hpp>
+#include "pythonic/python/core.hpp"
 
 namespace pythonic
 {
 
   template <typename K, typename V>
-  struct python_to_pythran<types::dict<K, V>> {
-    python_to_pythran();
-    static void *convertible(PyObject *obj_ptr);
-    static void
-    construct(PyObject *obj_ptr,
-              boost::python::converter::rvalue_from_python_stage1_data *data);
-  };
-
-  template <typename K, typename V>
-  struct custom_pythran_dict_to_dict {
-    static PyObject *convert(const types::dict<K, V> &v);
-  };
-
-  template <typename K, typename V>
-  struct pythran_to_python<types::dict<K, V>> {
-    pythran_to_python();
-  };
-
-  struct custom_empty_dict_to_dict {
-    static PyObject *convert(types::empty_dict const &);
+  struct to_python<types::dict<K, V>> {
+    static PyObject *convert(types::dict<K, V> const &v);
   };
 
   template <>
-  struct pythran_to_python<types::empty_dict> {
-    pythran_to_python();
+  struct to_python<types::empty_dict> {
+    static PyObject *convert(types::empty_dict);
+  };
+
+  template <typename K, typename V>
+  struct from_python<types::dict<K, V>> {
+
+    static bool is_convertible(PyObject *obj);
+
+    static types::dict<K, V> convert(PyObject *obj);
   };
 }
 

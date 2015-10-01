@@ -3,7 +3,6 @@
 
 #include "pythonic/include/__builtin__/id.hpp"
 
-#include "pythonic/types/long.hpp"
 #include "pythonic/utils/proxy.hpp"
 
 /*
@@ -23,11 +22,6 @@ namespace pythonic
     long id(T const &t)
     {
       return t.id();
-    }
-
-    long id(pythran_long_t const &t)
-    {
-      return reinterpret_cast<uintptr_t>(&t);
     }
 
     long id(long const &t)

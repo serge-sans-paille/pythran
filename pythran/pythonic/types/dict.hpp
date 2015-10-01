@@ -609,92 +609,52 @@ namespace std
     return d[I];
   }
 }
-
 #ifdef ENABLE_PYTHON_MODULE
 
-#include "pythonic/python/register_once.hpp"
-#include "pythonic/python/extract.hpp"
-#include <boost/python/dict.hpp>
-#include <boost/python/object.hpp>
+#include "pythonic/python/core.hpp"
 
 namespace pythonic
 {
 
   template <typename K, typename V>
-  python_to_pythran<types::dict<K, V>>::python_to_pythran()
-  {
-    python_to_pythran<K>();
-    python_to_pythran<V>();
-    static bool registered = false;
-    if (not registered) {
-      registered = true;
-      boost::python::converter::registry::push_back(
-          &convertible, &construct,
-          boost::python::type_id<types::dict<K, V>>());
-    }
-  }
-
-  template <typename K, typename V>
-  void *python_to_pythran<types::dict<K, V>>::convertible(PyObject *obj_ptr)
-  {
-    // the second condition is important, for some reason otherwise there were
-    // attempted conversions of Body to list which failed afterwards.
-    if (!PyDict_Check(obj_ptr) || !PyObject_HasAttrString(obj_ptr, "__len__"))
-      return 0;
-    return obj_ptr;
-  }
-
-  template <typename K, typename V>
-  void python_to_pythran<types::dict<K, V>>::construct(
-      PyObject *obj_ptr,
-      boost::python::converter::rvalue_from_python_stage1_data *data)
-  {
-    void *storage = ((boost::python::converter::rvalue_from_python_storage<
-                         types::dict<K, V>> *)(data))->storage.bytes;
-    new (storage) types::dict<K, V>(types::empty_dict());
-    types::dict<K, V> &v = *(types::dict<K, V> *)(storage);
-
-    PyObject *key, *value;
-    Py_ssize_t pos = 0;
-    /* first round use boost version that performs a lot of check
-     * then we rely on faster but less secure version
-     */
-    if (PyDict_Next(obj_ptr, &pos, &key, &value)) {
-      v[boost::python::extract<K>(key)] = boost::python::extract<V>(value);
-      while (PyDict_Next(obj_ptr, &pos, &key, &value))
-        v[extract<K>(key)] = extract<V>(value);
-    }
-    data->convertible = storage;
-  }
-
-  template <typename K, typename V>
-  PyObject *
-  custom_pythran_dict_to_dict<K, V>::convert(const types::dict<K, V> &v)
+  PyObject *to_python<types::dict<K, V>>::convert(types::dict<K, V> const &v)
   {
     PyObject *ret = PyDict_New();
     for (auto kv = v.item_begin(); kv != v.item_end(); ++kv)
-      PyDict_SetItem(
-          ret, boost::python::incref(boost::python::object(kv->first).ptr()),
-          boost::python::incref(boost::python::object(kv->second).ptr()));
+      PyDict_SetItem(ret, ::to_python(kv->first), ::to_python(kv->second));
     return ret;
   }
 
-  template <typename K, typename V>
-  pythran_to_python<types::dict<K, V>>::pythran_to_python()
-  {
-    pythran_to_python<K>();
-    pythran_to_python<V>();
-    register_once<types::dict<K, V>, custom_pythran_dict_to_dict<K, V>>();
-  }
-
-  PyObject *custom_empty_dict_to_dict::convert(types::empty_dict const &)
+  PyObject *to_python<types::empty_dict>::convert(types::empty_dict)
   {
     return PyDict_New();
   }
 
-  pythran_to_python<types::empty_dict>::pythran_to_python()
+  template <typename K, typename V>
+  bool from_python<types::dict<K, V>>::
+
+      is_convertible(PyObject *obj)
   {
-    register_once<types::empty_dict, custom_empty_dict_to_dict>();
+    if (PyDict_Check(obj)) {
+      PyObject *key, *value;
+      Py_ssize_t pos = 0;
+      if (PyDict_Next(obj, &pos, &key, &value)) {
+        return ::is_convertible<K>(key) and ::is_convertible<V>(value);
+      } else
+        return true;
+    }
+    return false;
+  }
+
+  template <typename K, typename V>
+  types::dict<K, V> from_python<types::dict<K, V>>::convert(PyObject *obj)
+  {
+    types::dict<K, V> v = types::empty_dict();
+    PyObject *key, *value;
+    Py_ssize_t pos = 0;
+    while (PyDict_Next(obj, &pos, &key, &value))
+      v[ ::from_python<K>(key)] = ::from_python<V>(value);
+    return v;
   }
 }
 

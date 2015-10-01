@@ -9,6 +9,7 @@
 #include "pythonic/numpy/asarray.hpp"
 
 #include <algorithm>
+#include <set>
 
 namespace pythonic
 {

@@ -93,7 +93,7 @@ class Types(ModuleAnalysis):
         final_types = self.result.copy()
         for head in self.current_global_declarations.itervalues():
             if head not in final_types:
-                final_types[head] = "void"
+                final_types[head] = "pythonic::types::none_type"
         return final_types
 
     def register(self, ptype):
@@ -261,7 +261,8 @@ class Types(ModuleAnalysis):
                 self.result[n] = self.result[final_node]
         self.current_global_declarations[node.name] = node
         # return type may be unset if the function always raises
-        return_type = self.result.get(node, NamedType("void"))
+        return_type = self.result.get(node,
+                                      NamedType("pythonic::types::none_type"))
         self.result[node] = (Returnable(return_type), self.typedefs)
         for k in self.passmanager.gather(LocalDeclarations, node):
             self.result[k] = self.get_qualifier(k)(self.result[k])

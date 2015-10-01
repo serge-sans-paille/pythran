@@ -14,14 +14,16 @@ namespace pythonic
     {
 
       template <typename T, typename... Types>
-      void difference_update(types::set<T> &set, Types const &... others);
+      types::none_type difference_update(types::set<T> &set,
+                                         Types const &... others);
 
       template <typename T, typename... Types>
-      void difference_update(types::set<T> &&set, Types const &... others);
+      types::none_type difference_update(types::set<T> &&set,
+                                         Types const &... others);
 
       template <typename... Types>
-      void difference_update(types::empty_set const &set,
-                             Types const &... others);
+      types::none_type difference_update(types::empty_set const &set,
+                                         Types const &... others);
 
       PROXY_DECL(pythonic::__builtin__::set, difference_update);
     }

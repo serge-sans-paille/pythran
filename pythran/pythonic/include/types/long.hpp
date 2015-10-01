@@ -189,31 +189,6 @@ template <class T, class U>
 std::size_t hash_value(__gmp_expr<T, U> const &x);
 
 /* } */
-#ifdef ENABLE_PYTHON_MODULE
-#include "pythonic/python/register_once.hpp"
-
-namespace pythonic
-{
-
-  template <>
-  struct python_to_pythran<mpz_class> {
-    python_to_pythran();
-    static void *convertible(PyObject *obj_ptr);
-    static void
-    construct(PyObject *obj_ptr,
-              boost::python::converter::rvalue_from_python_stage1_data *data);
-  };
-
-  struct custom_mpz_to_long {
-    static PyObject *convert(const mpz_class &v);
-  };
-
-  template <>
-  struct pythran_to_python<mpz_class> {
-    pythran_to_python();
-  };
-}
-
 /* type inference stuff  {*/
 #include "pythonic/include/types/combined.hpp"
 
@@ -226,6 +201,25 @@ template <>
 struct __combined<long int, mpz_class> {
   using type = mpz_class;
 };
+/* } */
+
+#ifdef ENABLE_PYTHON_MODULE
+
+namespace pythonic
+{
+
+  template <>
+  struct from_python<mpz_class> {
+    static bool is_convertible(PyObject *obj);
+    static mpz_class convert(PyObject *obj);
+  };
+
+  template <>
+  struct to_python<mpz_class> {
+    static PyObject *convert(mpz_class const &v);
+  };
+}
+
 #endif
 
 #endif

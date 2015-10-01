@@ -1,4 +1,4 @@
-#pythran export QuickSort(float list)
+#pythran export QuickSort(int list)
 #runas QuickSort(range(10))
 #bench a = range(200000); QuickSort(a)
 

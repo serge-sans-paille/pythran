@@ -704,64 +704,37 @@ namespace std
     return pythonic::types::str(t[I]);
   }
 }
+#ifdef ENABLE_PYTHON_MODULE
 
 namespace pythonic
 {
-  python_to_pythran<types::str>::python_to_pythran()
-  {
-    static bool registered = false;
-    if (not registered) {
-      registered = true;
-      boost::python::converter::registry::insert(
-          &convertible, &construct, boost::python::type_id<types::str>());
-    }
-  }
 
-  void *python_to_pythran<types::str>::convertible(PyObject *obj_ptr)
-  {
-    if (!PyString_Check(obj_ptr))
-      return 0;
-    return obj_ptr;
-  }
-
-  void python_to_pythran<types::str>::construct(
-      PyObject *obj_ptr,
-      boost::python::converter::rvalue_from_python_stage1_data *data)
-  {
-    void *storage = ((boost::python::converter::rvalue_from_python_storage<
-                         types::str> *)(data))->storage.bytes;
-    char *s = PyString_AS_STRING(obj_ptr);
-    new (storage) types::str(s, PyString_GET_SIZE(obj_ptr));
-    data->convertible = storage;
-  }
-
-  PyObject *custom_pythran_string_to_str::convert(const types::str &v)
+  PyObject *to_python<types::str>::convert(types::str const &v)
   {
     return PyString_FromStringAndSize(v.c_str(), v.size());
   }
 
-  pythran_to_python<types::str>::pythran_to_python()
-  {
-    register_once<types::str, custom_pythran_string_to_str>();
-  }
-
-  PyObject *custom_pythran_sliced_str_to_str::convert(
-      const types::sliced_str<types::contiguous_slice> &v)
-  {
-    return custom_pythran_string_to_str().convert(v);
-  }
-
-  PyObject *custom_pythran_sliced_str_to_str::convert(
-      const types::sliced_str<types::slice> &v)
-  {
-    return custom_pythran_string_to_str().convert(v);
-  }
-
   template <class S>
-  pythran_to_python<types::sliced_str<S>>::pythran_to_python()
+  PyObject *
+  to_python<types::sliced_str<S>>::convert(types::sliced_str<S> const &v)
   {
-    register_once<types::sliced_str<S>, custom_pythran_sliced_str_to_str>();
+    return ::to_python(types::str(v));
+  }
+  PyObject *to_python<char>::convert(char l)
+  {
+    return PyString_FromStringAndSize(&l, 1);
+  }
+
+  bool from_python<types::str>::is_convertible(PyObject *obj)
+  {
+    return PyString_Check(obj);
+  }
+  types::str from_python<types::str>::convert(PyObject *obj)
+  {
+    return {PyString_AS_STRING(obj), (size_t)PyString_GET_SIZE(obj)};
   }
 }
+
+#endif
 
 #endif

@@ -39,4 +39,24 @@ struct __combined<std::complex<double>, indexable<K>> {
 
 /* } */
 
+#ifdef ENABLE_PYTHON_MODULE
+
+#include "pythonic/python/core.hpp"
+
+namespace pythonic
+{
+
+  template <class T>
+  struct to_python<std::complex<T>> {
+    static PyObject *convert(std::complex<T> const &c);
+  };
+
+  template <class T>
+  struct from_python<std::complex<T>> {
+    static bool is_convertible(PyObject *obj);
+    static std::complex<T> convert(PyObject *obj);
+  };
+}
+#endif
+
 #endif

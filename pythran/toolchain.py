@@ -5,12 +5,12 @@ a dynamic library, see __init__.py for exported interfaces.
 
 from pythran.backend import Cxx
 from pythran.config import cfg, make_extension
-from pythran.cxxgen import BoostPythonModule, Define, Include, Line, Statement
+from pythran.cxxgen import PythonModule, Define, Include, Line, Statement
 from pythran.cxxgen import FunctionBody, FunctionDeclaration, Value, Block
 from pythran.intrinsic import ConstExceptionIntr
 from pythran.middlend import refine
 from pythran.passmanager import PassManager
-from pythran.tables import pythran_ward, functions
+from pythran.tables import pythran_ward
 from pythran.types.types import extract_constructed_types
 from pythran.types.type_dependencies import pytype_to_deps
 from pythran.types.conversion import pytype_to_ctype
@@ -112,7 +112,7 @@ class HasArgument(ast.NodeVisitor):
 
 def generate_cxx(module_name, code, specs=None, optimizations=None):
     '''python + pythran spec -> c++ code
-    returns a BoostPythonModule object
+    returns a PythonModule object
 
     '''
     pm = PassManager(module_name)
@@ -153,56 +153,22 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
         specs = expand_specs(specs)
         check_specs(ir, specs, renamings)
 
-        mod = BoostPythonModule(module_name, docstrings)
-        mod.use_private_namespace = False
-        # very low value for max_arity leads to various bugs
-        min_val = 2
-        specs_max = [max(map(len, s)) for s in specs.itervalues()]
-        max_arity = max([min_val] + specs_max)
-        mod.add_to_preamble(Define("BOOST_PYTHON_MAX_ARITY", max_arity),
-                            Define("BOOST_SIMD_NO_STRICT_ALIASING", "1"))
+        metainfo = {'hash': hashlib.sha256(code).hexdigest(),
+                    'version': __version__,
+                    'date': datetime.now(),
+                    }
+
+        mod = PythonModule(module_name, docstrings, metainfo)
+        mod.add_to_preamble(Define("BOOST_SIMD_NO_STRICT_ALIASING", "1"))
         mod.add_to_includes(Include("pythonic/core.hpp"),
                             Include("pythonic/python/core.hpp"),
+                            # FIXME: only include these when needed
+                            Include("pythonic/types/bool.hpp"),
+                            Include("pythonic/types/int.hpp"),
                             Line("#ifdef _OPENMP\n#include <omp.h>\n#endif")
                             )
         mod.add_to_includes(*map(Include, _extract_specs_dependencies(specs)))
         mod.add_to_includes(*content.body)
-        mod.add_to_init(
-            Line('#ifdef PYTHONIC_TYPES_NDARRAY_HPP\nimport_array()\n#endif'))
-
-        # topologically sorted exceptions based on the inheritance hierarchy.
-        # needed because otherwise boost python register_exception handlers
-        # do not catch exception type in the right way
-        # (first valid exception is selected)
-        # Inheritance has to be taken into account in the registration order.
-        exceptions = nx.DiGraph()
-        for function_name, v in functions.iteritems():
-            for mname, symbol in v:
-                if isinstance(symbol, ConstExceptionIntr):
-                    exceptions.add_node(
-                        getattr(sys.modules[".".join(mname)], function_name))
-
-        # add edges based on class relationships
-        for n in exceptions:
-            if n.__base__ in exceptions:
-                exceptions.add_edge(n.__base__, n)
-
-        sorted_exceptions = nx.topological_sort(exceptions)
-        mod.add_to_init(*[
-            # register exception only if they can be raise from C++ world to
-            # Python world. Preprocessors variables are set only if deps
-            # analysis detect that this exception can be raised
-            Line('#ifdef PYTHONIC_BUILTIN_%s_HPP\n'
-                 'boost::python::register_exception_translator<'
-                 'pythonic::types::%s>(&pythonic::translate_%s);\n'
-                 '#endif' % (n.__name__.upper(), n.__name__, n.__name__)
-                 ) for n in sorted_exceptions])
-
-        mod.add_to_init(
-            # make sure we get no nested parallelism that wreaks havoc in perf
-            Line('#ifdef _OPENMP\n'
-                 'omp_set_max_active_levels(1);\n'
-                 '#endif'))
 
         for function_name, signatures in specs.iteritems():
             internal_func_name = renamings.get(function_name,
@@ -220,15 +186,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
                                                     internal_func_name,
                                                     "<{0}>".format(args_list)
                                                     if has_arguments else "")
-                result_type = ("typename std::remove_cv<"
-                               "typename std::remove_reference"
-                               "<typename {0}::result_type>::type"
-                               ">::type").format(specialized_fname)
-                mod.add_to_init(
-                    *[Statement("pythonic::python_to_pythran<{0}>()".format(t))
-                      for t in _extract_all_constructed_types(signature)])
-                mod.add_to_init(Statement(
-                    "pythonic::pythran_to_python<{0}>()".format(result_type)))
+                result_type = "typename %s::result_type" % specialized_fname
                 mod.add_function(
                     FunctionBody(
                         FunctionDeclaration(
@@ -242,25 +200,9 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
                                 module_name, internal_func_name),
                             ', '.join(arguments)))])
                     ),
-                    function_name
+                    function_name,
+                    arguments_types
                 )
-        # call __init__() to execute top-level statements
-        init_call = '::'.join([pythran_ward + module_name, '__init__()()'])
-        mod.add_to_init(Statement(init_call))
-
-        # register the __pythran__ global.
-        # pythran_to_python converters not available at that point
-        metainfo = {'hash': hashlib.sha256(code).hexdigest(),
-                    'version': __version__,
-                    'date': datetime.now(),
-                    }
-        metafields = ('Py_BuildValue("(sss)", "{version}", "{date}", "{hash}")'
-                      .format(**metainfo))
-
-        mod.add_to_init(
-            Statement('boost::python::scope().attr("__pythran__") = '
-                      'boost::python::handle<>({})'.format(metafields)))
-
     return mod
 
 
@@ -344,7 +286,7 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
     if specs is None:
         specs = spec_parser(pythrancode)
 
-    # Generate C++, get a BoostPythonModule object
+    # Generate C++, get a PythonModule object
     module = generate_cxx(module_name, pythrancode, specs, opts)
 
     if cpponly:

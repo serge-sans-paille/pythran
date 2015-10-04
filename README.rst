@@ -50,6 +50,15 @@ Debian/Ubuntu
 		$> sudo apt-get update
 		$> sudo apt-get install pythran
 
+**or**
+
+1. Install ``conda``, following the instruction given in
+   http://conda.pydata.org/docs/install/quick.html
+
+2. Run::
+
+       $> conda install -c serge-sans-paille pythran
+
 Mac OSX
 =======
 

@@ -98,6 +98,8 @@ namespace pythonic
       long _flat_size(utils::seq<I...>) const;
 
       long flat_size() const;
+
+      long size() const;
     };
   }
 

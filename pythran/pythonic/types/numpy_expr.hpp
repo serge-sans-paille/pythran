@@ -153,6 +153,12 @@ namespace pythonic
     {
       return _flat_size(typename utils::gens<sizeof...(Args)>::type{});
     }
+
+    template <class Op, class... Args>
+    long numpy_expr<Op, Args...>::size() const
+    {
+      return _shape[0];
+    }
   }
 }
 

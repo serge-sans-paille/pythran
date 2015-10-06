@@ -1,6 +1,6 @@
 #pythran export approximated_callgraph(int)
-#runas approximated_callgraph(1000)
-#bench approximated_callgraph(2500)
+#runas approximated_callgraph(100)
+#bench approximated_callgraph(250)
 def call(i, j):
     return i+j
 

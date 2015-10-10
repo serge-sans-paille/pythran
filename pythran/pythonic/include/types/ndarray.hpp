@@ -282,6 +282,8 @@ namespace pythonic
       ndarray(numpy_fexpr<Arg, F> const &expr);
 
       /* update operators */
+      template <class Op, class Expr>
+      ndarray &update_(Expr const &expr);
       template <class Expr>
       ndarray &operator+=(Expr const &expr);
 
@@ -404,6 +406,7 @@ namespace pythonic
 
       /* member functions */
       long flat_size() const;
+      bool may_overlap(ndarray const &) const;
 
       template <size_t M>
       ndarray<T, M> reshape(array<long, M> const &shape) const;

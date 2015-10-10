@@ -313,7 +313,7 @@ class AutoFor(Loop):
         self.iter = iter_
 
     def intro_line(self):
-        return ("for (typename decltype({1})::iterator::reference "
+        return ("for (auto&& "
                 "{0}: {1})".format(self.target,
                                    self.iter))
 

@@ -3,21 +3,10 @@
 
 #include "pythonic/include/operator_/idiv.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#define OPERATOR_NAME idiv
+#define OPERATOR_SYMBOL /
+#define OPERATOR_ISYMBOL /=
 
-namespace pythonic
-{
-
-  namespace operator_
-  {
-    template <class A, class B>
-    A idiv(A a, B const &b)
-    {
-      return a /= b;
-    }
-
-    PROXY_IMPL(pythonic::operator_, idiv);
-  }
-}
+#include "pythonic/operator_/icommon.hpp"
 
 #endif

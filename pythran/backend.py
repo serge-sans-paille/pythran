@@ -666,7 +666,7 @@ class Cxx(Backend):
         >> "omp parallel for shared(__iterX)"
         >> for(decltype(__iterX)::iterator __targetX = __iterX.begin();
                __targetX < __iterX.end(); ++__targetX)
-        >>         typename decltype(__targetX)::reference i = *__targetX;
+        >>         auto&& i = *__targetX;
         >>     ... do things ...
 
         It the case of not local variable, typing for `i` disappear and typing
@@ -687,7 +687,7 @@ class Cxx(Backend):
         if node.target.id in self.scope[node] and not self.yields:
             self.ldecls = {d for d in self.ldecls
                            if d.id != node.target.id}
-            local_type = "typename decltype({})::reference ".format(
+            local_type = "auto&& ".format(
                 local_target)
         else:
             local_type = ""
@@ -927,7 +927,7 @@ class Cxx(Backend):
         >> typename returnable<decltype(__builtin__.xrange(10))>::type __iterX
            = __builtin__.xrange(10);
         >> ... possible container size reservation ...
-        >> for (typename decltype(__iterX)::iterator::reference i: __iterX)
+        >> for (auto&& i: __iterX)
         >>     ... the work ...
 
         This function also handle assignment for local variables.

@@ -106,6 +106,37 @@ namespace pythonic
 
     template <class E, class F, size_t N, size_t D, bool vector_form>
     E &broadcast_copy(E &self, F const &other);
+
+    template <class Op, bool vector_form>
+    struct _broadcast_update {
+
+      template <class E, class F, size_t N>
+      void operator()(E &&self, F const &other, utils::int_<N>, utils::int_<0>);
+
+      // ``D'' is not ``0'' so we should broadcast
+      template <class E, class F, size_t N, size_t D>
+      void operator()(E &&self, F const &other, utils::int_<N>, utils::int_<D>);
+    };
+
+#ifdef USE_BOOST_SIMD
+    // specialize for SIMD only if available
+    // otherwise use the std::copy fallback
+    template <class Op>
+    struct _broadcast_update<Op, true> {
+      template <class E, class F>
+      void operator()(E &&self, F const &other, utils::int_<1>, utils::int_<0>);
+
+      template <class E, class F, size_t N>
+      void operator()(E &&self, F const &other, utils::int_<N>, utils::int_<0>);
+
+      // ``D'' is not ``0'' so we should broadcast
+      template <class E, class F, size_t N, size_t D>
+      void operator()(E &&self, F const &other, utils::int_<N>, utils::int_<D>);
+    };
+#endif
+
+    template <class Op, class E, class F, size_t N, size_t D, bool vector_form>
+    E &broadcast_update(E &self, F const &other);
   }
 }
 

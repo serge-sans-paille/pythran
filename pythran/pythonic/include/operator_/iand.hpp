@@ -1,18 +1,9 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_IAND_HPP
 #define PYTHONIC_INCLUDE_OPERATOR_IAND_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
-
-namespace pythonic
-{
-
-  namespace operator_
-  {
-    template <class A, class B>
-    A iand(A a, B const &b);
-
-    PROXY_DECL(pythonic::operator_, iand);
-  }
-}
+#define OPERATOR_NAME iand
+#define OPERATOR_SYMBOL &
+#define OPERATOR_ISYMBOL &=
+#include "pythonic/include/operator_/icommon.hpp"
 
 #endif

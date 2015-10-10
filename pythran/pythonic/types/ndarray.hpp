@@ -29,6 +29,12 @@
 #include "pythonic/utils/numpy_traits.hpp"
 
 #include "pythonic/__builtin__/len.hpp"
+#include "pythonic/operator_/iadd.hpp"
+#include "pythonic/operator_/iand.hpp"
+#include "pythonic/operator_/idiv.hpp"
+#include "pythonic/operator_/imul.hpp"
+#include "pythonic/operator_/ior.hpp"
+#include "pythonic/operator_/isub.hpp"
 
 #include <cassert>
 #include <iostream>
@@ -380,46 +386,66 @@ namespace pythonic
     }
 
     /* update operators */
+
+    template <class T, size_t N>
+    template <class Op, class Expr>
+    ndarray<T, N> &ndarray<T, N>::update_(Expr const &expr)
+    {
+      using BExpr =
+          typename std::conditional<std::is_scalar<Expr>::value,
+                                    broadcast<Expr, T>, Expr const &>::type;
+      BExpr bexpr = expr;
+      utils::broadcast_update<
+          Op, ndarray &, BExpr, value,
+          value - (std::is_scalar<Expr>::value + utils::dim_of<Expr>::value),
+          is_vectorizable and
+              std::remove_reference<BExpr>::type::is_vectorizable and
+              std::is_same<dtype,
+                           typename std::decay<BExpr>::type::dtype>::value>(
+          *this, bexpr);
+      return *this;
+    }
+
     template <class T, size_t N>
     template <class Expr>
     ndarray<T, N> &ndarray<T, N>::operator+=(Expr const &expr)
     {
-      return (*this) = (*this) + expr;
+      return update_<pythonic::operator_::proxy::iadd>(expr);
     }
 
     template <class T, size_t N>
     template <class Expr>
     ndarray<T, N> &ndarray<T, N>::operator-=(Expr const &expr)
     {
-      return (*this) = (*this) - expr;
+      return update_<pythonic::operator_::proxy::isub>(expr);
     }
 
     template <class T, size_t N>
     template <class Expr>
     ndarray<T, N> &ndarray<T, N>::operator*=(Expr const &expr)
     {
-      return (*this) = (*this) * expr;
+      return update_<pythonic::operator_::proxy::imul>(expr);
     }
 
     template <class T, size_t N>
     template <class Expr>
     ndarray<T, N> &ndarray<T, N>::operator/=(Expr const &expr)
     {
-      return (*this) = (*this) / expr;
+      return update_<pythonic::operator_::proxy::idiv>(expr);
     }
 
     template <class T, size_t N>
     template <class Expr>
     ndarray<T, N> &ndarray<T, N>::operator&=(Expr const &expr)
     {
-      return (*this) = (*this) & expr;
+      return update_<pythonic::operator_::proxy::iand>(expr);
     }
 
     template <class T, size_t N>
     template <class Expr>
     ndarray<T, N> &ndarray<T, N>::operator|=(Expr const &expr)
     {
-      return (*this) = (*this) | expr;
+      return update_<pythonic::operator_::proxy::ior>(expr);
     }
 
     /* element indexing
@@ -692,6 +718,11 @@ namespace pythonic
     {
       return std::accumulate(_shape.begin(), _shape.end(), 1,
                              std::multiplies<long>());
+    }
+    template <class T, size_t N>
+    bool ndarray<T, N>::may_overlap(ndarray const &expr) const
+    {
+      return id() == expr.id();
     }
 
     template <class T, size_t N>

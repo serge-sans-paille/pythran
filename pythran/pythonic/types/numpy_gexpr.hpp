@@ -4,6 +4,10 @@
 #include "pythonic/include/types/numpy_gexpr.hpp"
 
 #include "pythonic/utils/meta.hpp"
+#include "pythonic/operator_/iadd.hpp"
+#include "pythonic/operator_/isub.hpp"
+#include "pythonic/operator_/imul.hpp"
+#include "pythonic/operator_/idiv.hpp"
 #ifdef USE_BOOST_SIMD
 #include <boost/simd/sdk/simd/native.hpp>
 #include <boost/simd/include/functions/store.hpp>
@@ -14,6 +18,70 @@ namespace pythonic
 
   namespace types
   {
+    template <class S0, class S1>
+    bool slices_may_overlap(S0 const &s0, S1 const &s1)
+    {
+      return s0.lower > s1.lower;
+    }
+    template <class S>
+    bool slices_may_overlap(S const &s, long const &i)
+    {
+      return s.lower <= i and i < s.upper;
+    }
+    template <class S>
+    bool slices_may_overlap(long const &i, S const &s)
+    {
+      return s.lower <= i and i < s.upper;
+    }
+    template <class E0, class E1>
+    bool may_overlap(E0 const &, E1 const &)
+    {
+      return true;
+    }
+    template <class E0, class T0, class T1>
+    bool may_overlap(E0 const &, broadcast<T0, T1> const &)
+    {
+      return false;
+    }
+    template <class Arg, class E1, class... S>
+    typename std::enable_if<std::is_scalar<E1>::value, bool>::type
+    may_overlap(numpy_gexpr<Arg, S...> const &gexpr, E1 const &)
+    {
+      return false;
+    }
+    template <class Arg, class Tuple, class... S, int... I>
+    bool may_overlap_helper(numpy_gexpr<Arg, S...> const &gexpr,
+                            Tuple const &args, utils::seq<I...>)
+    {
+      bool overlaps[] = {may_overlap(gexpr, std::get<I>(args))...};
+      return std::any_of(std::begin(overlaps), std::end(overlaps),
+                         [](bool b) { return b; });
+    }
+    template <class Arg, class... E, class... S>
+    bool may_overlap(numpy_gexpr<Arg, S...> const &gexpr,
+                     numpy_expr<E...> const &expr)
+    {
+      return may_overlap_helper(gexpr, expr.args,
+                                typename utils::gens<sizeof...(E)-1>::type{});
+    }
+    template <class T, size_t N, class Tp, size_t Np, class... S, class... Sp>
+    bool may_overlap(numpy_gexpr<ndarray<T, N> const &, S...> const &gexpr,
+                     numpy_gexpr<ndarray<Tp, Np> const &, Sp...> const &expr)
+    {
+      if (not std::is_same<T, Tp>::value) {
+        return false;
+      }
+      if (N != Np) {
+        return false;
+      }
+      if (gexpr.arg.id() != expr.arg.id()) {
+        return false;
+      }
+      if (not slices_may_overlap(std::get<0>(gexpr.slices),
+                                 std::get<0>(expr.slices)))
+        return false;
+      return true;
+    }
 
     template <class T>
     T to_slice<T>::operator()(T value)
@@ -87,10 +155,24 @@ namespace pythonic
     }
 
     template <class T, size_t N, class... S>
+    numpy_gexpr<ndarray<T, N>, slice, S...> extended_slice<0>::
+    operator()(ndarray<T, N> &&a, slice const &s0, S const &... s)
+    {
+      return numpy_gexpr<ndarray<T, N>, slice, S...>(std::move(a), s0, s...);
+    }
+
+    template <class T, size_t N, class... S>
     numpy_gexpr<ndarray<T, N> const &, slice, S...> extended_slice<0>::
     operator()(ndarray<T, N> const &a, slice const &s0, S const &... s)
     {
       return numpy_gexpr<ndarray<T, N> const &, slice, S...>(a, s0, s...);
+    }
+
+    template <class T, size_t N, class... S>
+    numpy_gexpr<ndarray<T, N>, contiguous_slice, S...> extended_slice<0>::
+    operator()(ndarray<T, N> &&a, contiguous_slice const &s0, S const &... s)
+    {
+      return make_gexpr(std::move(a), s0, s...);
     }
 
     template <class T, size_t N, class... S>
@@ -365,10 +447,23 @@ namespace pythonic
     numpy_gexpr<Arg, S...>::_copy(E const &expr)
     {
       static_assert(value >= utils::dim_of<E>::value, "dimensions match");
-      return utils::broadcast_copy<
-          numpy_gexpr &, ndarray<typename E::dtype, E::value>, value,
-          value - utils::dim_of<E>::value, is_vectorizable>(
-          *this, ndarray<typename E::dtype, E::value>{expr});
+      /* at this point, we could not statically check that there is not an
+       * aliasing issue that would require an extra copy because of the vector
+       * assignment
+       * perform a fuzzy alias check dynamically!
+       */
+      if (may_overlap(*this, expr)) {
+        return utils::broadcast_copy<
+            numpy_gexpr &, ndarray<typename E::dtype, E::value>, value,
+            value - utils::dim_of<E>::value, is_vectorizable>(
+            *this, ndarray<typename E::dtype, E::value>{expr});
+      } else {
+        // 100% sure there's no overlap
+        return utils::broadcast_copy < numpy_gexpr &, E, value,
+               value - utils::dim_of<E>::value,
+               is_vectorizable and
+                   is_vectorizable_array<E>::value > (*this, expr);
+      }
     }
 
     template <class Arg, class... S>
@@ -397,61 +492,111 @@ namespace pythonic
     {
       return _copy(expr);
     }
+    template <class Arg, class... S>
+    template <class Op, class E>
+    typename std::enable_if<not may_overlap_gexpr<E>::value,
+                            numpy_gexpr<Arg, S...> &>::type
+    numpy_gexpr<Arg, S...>::update_(E const &expr)
+    {
+      using BExpr =
+          typename std::conditional<std::is_scalar<E>::value,
+                                    broadcast<E, dtype>, E const &>::type;
+      BExpr bexpr = expr;
+      // 100% sure there's no overlap
+      return utils::broadcast_update < Op, numpy_gexpr &, BExpr, value,
+             value - (std::is_scalar<E>::value + utils::dim_of<E>::value),
+             is_vectorizable and types::is_vectorizable<E>::value and
+                 std::is_same<dtype,
+                              typename std::decay<BExpr>::type::dtype>::value >
+                     (*this, bexpr);
+    }
+
+    template <class Arg, class... S>
+    template <class Op, class E>
+    typename std::enable_if<may_overlap_gexpr<E>::value,
+                            numpy_gexpr<Arg, S...> &>::type
+    numpy_gexpr<Arg, S...>::update_(E const &expr)
+    {
+      using BExpr =
+          typename std::conditional<std::is_scalar<E>::value,
+                                    broadcast<E, dtype>, E const &>::type;
+      BExpr bexpr = expr;
+
+      if (may_overlap(*this, expr)) {
+        using NBExpr =
+            ndarray<typename std::remove_reference<BExpr>::type::dtype,
+                    std::remove_reference<BExpr>::type::value>;
+        return utils::broadcast_update < Op, numpy_gexpr &, NBExpr, value,
+               value - (std::is_scalar<E>::value + utils::dim_of<E>::value),
+               is_vectorizable and types::is_vectorizable<E>::value and
+                   std::is_same<
+                       dtype, typename std::decay<BExpr>::type::dtype>::value >
+                       (*this, NBExpr(bexpr));
+      } else {
+        // 100% sure there's no overlap
+        return utils::broadcast_update < Op, numpy_gexpr &, BExpr, value,
+               value - (std::is_scalar<E>::value + utils::dim_of<E>::value),
+               is_vectorizable and types::is_vectorizable<E>::value and
+                   std::is_same<
+                       dtype, typename std::decay<BExpr>::type::dtype>::value >
+                       (*this, bexpr);
+      }
+    }
 
     template <class Arg, class... S>
     template <class E>
     numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::operator+=(E const &expr)
     {
-      return (*this) = (*this) + expr;
+      return update_<pythonic::operator_::proxy::iadd>(expr);
     }
 
     template <class Arg, class... S>
     numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::
     operator+=(numpy_gexpr<Arg, S...> const &expr)
     {
-      return (*this) = (*this) + expr;
+      return update_<pythonic::operator_::proxy::iadd>(expr);
     }
 
     template <class Arg, class... S>
     template <class E>
     numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::operator-=(E const &expr)
     {
-      return (*this) = (*this) - expr;
+      return update_<pythonic::operator_::proxy::isub>(expr);
     }
 
     template <class Arg, class... S>
     numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::
     operator-=(numpy_gexpr<Arg, S...> const &expr)
     {
-      return (*this) = (*this) - expr;
+      return update_<pythonic::operator_::proxy::isub>(expr);
     }
 
     template <class Arg, class... S>
     template <class E>
     numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::operator*=(E const &expr)
     {
-      return (*this) = (*this) * expr;
+      return update_<pythonic::operator_::proxy::imul>(expr);
     }
 
     template <class Arg, class... S>
     numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::
     operator*=(numpy_gexpr<Arg, S...> const &expr)
     {
-      return (*this) = (*this) * expr;
+      return update_<pythonic::operator_::proxy::imul>(expr);
     }
 
     template <class Arg, class... S>
     template <class E>
     numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::operator/=(E const &expr)
     {
-      return (*this) = (*this) / expr;
+      return update_<pythonic::operator_::proxy::idiv>(expr);
     }
 
     template <class Arg, class... S>
     numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::
     operator/=(numpy_gexpr<Arg, S...> const &expr)
     {
-      return (*this) = (*this) / expr;
+      return update_<pythonic::operator_::proxy::idiv>(expr);
     }
 
     template <class Arg, class... S>
@@ -646,7 +791,7 @@ namespace pythonic
     numpy_gexpr_helper<Arg, S0, S1, S...>::get(
         numpy_gexpr<Arg, S0, S1, S...> const &e, long i)
     {
-      return type(e, numpy_iexpr<Arg>(e.arg, i));
+      return type(e, numpy_iexpr<Arg const &>(e.arg, i));
     }
 
     template <class Arg, class S0, class S1, class... S>
@@ -654,7 +799,7 @@ namespace pythonic
     numpy_gexpr_helper<Arg, S0, S1, S...>::get(
         numpy_gexpr<Arg, S0, S1, S...> &e, long i)
     {
-      return type(e, numpy_iexpr<Arg>(e.arg, i));
+      return type(e, numpy_iexpr<Arg const &>(e.arg, i));
     }
 
     // Compute forwarding of "long" index to iexpr until we reach a new slice in
@@ -687,24 +832,27 @@ namespace pythonic
       template <class E, class F>
       auto finalize_numpy_gexpr_helper<N, Arg, long, S...>::get(E const &e,
                                                                 F &&f)
-          -> decltype(
-              finalize_numpy_gexpr_helper<N + 1, numpy_iexpr<Arg>, S...>::get(
-                  e, std::declval<numpy_iexpr<Arg>>()))
+          -> decltype(finalize_numpy_gexpr_helper<
+              N + 1, numpy_iexpr<Arg const &>,
+              S...>::get(e, std::declval<numpy_iexpr<Arg const &>>()))
       {
-        return finalize_numpy_gexpr_helper<N + 1, numpy_iexpr<Arg>, S...>::get(
-            e, numpy_iexpr<Arg>(std::forward<F>(f), e.indices[N]));
+        return finalize_numpy_gexpr_helper<N + 1, numpy_iexpr<Arg const &>,
+                                           S...>::get(e,
+                                                      numpy_iexpr<Arg const &>(
+                                                          std::forward<F>(f),
+                                                          e.indices[N]));
       }
 
       template <size_t N, class Arg, class... S>
       template <class E, class F>
       auto finalize_numpy_gexpr_helper<N, Arg, long, S...>::get(E &e, F &&f)
-          -> decltype(
-              finalize_numpy_gexpr_helper<N + 1, numpy_iexpr<Arg>, S...>::get(
-                  e, std::declval<numpy_iexpr<Arg> &>()))
+          -> decltype(finalize_numpy_gexpr_helper<
+              N + 1, numpy_iexpr<Arg const &>,
+              S...>::get(e, std::declval<numpy_iexpr<Arg const &> &>()))
       {
-        numpy_iexpr<Arg> iexpr(std::forward<F>(f), e.indices[N]);
-        return finalize_numpy_gexpr_helper<N + 1, numpy_iexpr<Arg>, S...>::get(
-            e, iexpr);
+        numpy_iexpr<Arg const &> iexpr(std::forward<F>(f), e.indices[N]);
+        return finalize_numpy_gexpr_helper<N + 1, numpy_iexpr<Arg const &>,
+                                           S...>::get(e, iexpr);
       }
 
       // If it was a single sliced array, we can return the matching iexpr.
@@ -731,23 +879,27 @@ namespace pythonic
     template <class Arg, class S0, class... S>
     auto numpy_gexpr_helper<Arg, S0, long, S...>::get(
         numpy_gexpr<Arg, S0, long, S...> const &e, long i)
-        -> decltype(
-            finalize_numpy_gexpr_helper<0, numpy_iexpr<Arg>, long, S...>::get(
-                e, std::declval<numpy_iexpr<Arg>>()))
+        -> decltype(finalize_numpy_gexpr_helper<
+            0, numpy_iexpr<Arg const &>, long,
+            S...>::get(e, std::declval<numpy_iexpr<Arg const &>>()))
     {
-      return finalize_numpy_gexpr_helper<0, numpy_iexpr<Arg>, long, S...>::get(
-          e, numpy_iexpr<Arg>(e.arg, i));
+      return finalize_numpy_gexpr_helper<0, numpy_iexpr<Arg const &>, long,
+                                         S...>::get(e,
+                                                    numpy_iexpr<Arg const &>(
+                                                        e.arg, i));
     }
 
     template <class Arg, class S0, class... S>
     auto numpy_gexpr_helper<Arg, S0, long, S...>::get(
         numpy_gexpr<Arg, S0, long, S...> &e, long i)
-        -> decltype(
-            finalize_numpy_gexpr_helper<0, numpy_iexpr<Arg>, long, S...>::get(
-                e, std::declval<numpy_iexpr<Arg> &>()))
+        -> decltype(finalize_numpy_gexpr_helper<
+            0, numpy_iexpr<Arg const &>, long,
+            S...>::get(e, std::declval<numpy_iexpr<Arg const &> &>()))
     {
-      return finalize_numpy_gexpr_helper<0, numpy_iexpr<Arg>, long, S...>::get(
-          e, numpy_iexpr<Arg>(e.arg, i));
+      return finalize_numpy_gexpr_helper<0, numpy_iexpr<Arg const &>, long,
+                                         S...>::get(e,
+                                                    numpy_iexpr<Arg const &>(
+                                                        e.arg, i));
     }
 
     // If we have no more slice later, we can say it is an iexpr (We look only
@@ -755,24 +907,28 @@ namespace pythonic
     template <class Arg, class S>
     auto numpy_gexpr_helper<Arg, S, long>::get(
         numpy_gexpr<Arg, S, long> const &e, long i)
-        -> decltype(
-            numpy_iexpr_helper<numpy_iexpr<Arg>, numpy_iexpr<Arg>::value>::get(
-                std::declval<numpy_iexpr<Arg>>(), 0))
+        -> decltype(numpy_iexpr_helper<numpy_iexpr<Arg const &>,
+                                       numpy_iexpr<Arg const &>::value>::
+                        get(std::declval<numpy_iexpr<Arg const &>>(), 0))
     {
-      return numpy_iexpr_helper<numpy_iexpr<Arg>, numpy_iexpr<Arg>::value>::get(
-          numpy_iexpr<Arg>(e.arg, i), e.indices[0]);
+      return numpy_iexpr_helper<
+          numpy_iexpr<Arg const &>,
+          numpy_iexpr<Arg const &>::value>::get(numpy_iexpr<Arg const &>(e.arg,
+                                                                         i),
+                                                e.indices[0]);
     }
 
     template <class Arg, class S>
     auto numpy_gexpr_helper<Arg, S, long>::get(numpy_gexpr<Arg, S, long> &e,
                                                long i)
-        -> decltype(
-            numpy_iexpr_helper<numpy_iexpr<Arg>, numpy_iexpr<Arg>::value>::get(
-                std::declval<numpy_iexpr<Arg> &>(), 0))
+        -> decltype(numpy_iexpr_helper<numpy_iexpr<Arg const &>,
+                                       numpy_iexpr<Arg const &>::value>::
+                        get(std::declval<numpy_iexpr<Arg const &> &>(), 0))
     {
-      numpy_iexpr<Arg> iexpr(e.arg, i);
-      return numpy_iexpr_helper<numpy_iexpr<Arg>, numpy_iexpr<Arg>::value>::get(
-          iexpr, e.indices[0]);
+      numpy_iexpr<Arg const &> iexpr(e.arg, i);
+      return numpy_iexpr_helper<
+          numpy_iexpr<Arg const &>,
+          numpy_iexpr<Arg const &>::value>::get(iexpr, e.indices[0]);
     }
   }
 }

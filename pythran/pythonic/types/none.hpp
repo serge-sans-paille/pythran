@@ -293,38 +293,21 @@ namespace pythonic
 
 #ifdef ENABLE_PYTHON_MODULE
 
-#include "pythonic/python/register_once.hpp"
-#include <boost/python/object.hpp>
-
 namespace pythonic
 {
-  PyObject *custom_none_type_to_none::convert(types::none_type const &)
+  PyObject *to_python<types::none_type>::convert(types::none_type)
   {
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
   }
 
-  pythran_to_python<types::none_type>::pythran_to_python()
-  {
-    register_once<types::none_type, custom_none_type_to_none>();
-  }
-
-  template <typename T>
-  PyObject *custom_none_to_any<T>::convert(types::none<T> const &n)
+  template <class T>
+  PyObject *to_python<types::none<T>>::convert(types::none<T> const &n)
   {
     if (n.is_none) {
-      Py_INCREF(Py_None);
-      return Py_None;
-    } else
-      return boost::python::incref(
-          boost::python::object(static_cast<T const &>(n)).ptr());
-  }
-
-  template <typename T>
-  pythran_to_python<types::none<T>>::pythran_to_python()
-  {
-    pythran_to_python<T>();
-    register_once<types::none<T>, custom_none_to_any<T>>();
+      Py_RETURN_NONE;
+    } else {
+      return ::to_python(static_cast<T const &>(n));
+    }
   }
 }
 

@@ -7,6 +7,8 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/tuple.hpp"
 
+#include <set>
+
 namespace pythonic
 {
 

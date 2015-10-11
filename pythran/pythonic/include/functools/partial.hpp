@@ -5,6 +5,7 @@
 #include "pythonic/include/utils/seq.hpp"
 
 #include <utility>
+#include <tuple>
 
 namespace pythonic
 {

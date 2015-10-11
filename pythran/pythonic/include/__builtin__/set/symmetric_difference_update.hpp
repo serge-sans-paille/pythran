@@ -14,14 +14,16 @@ namespace pythonic
     {
 
       template <typename T, typename U>
-      void symmetric_difference_update(types::set<T> &set, U const &other);
+      types::none_type symmetric_difference_update(types::set<T> &set,
+                                                   U const &other);
 
       template <typename T, typename U>
-      void symmetric_difference_update(types::set<T> &&set, U const &other);
+      types::none_type symmetric_difference_update(types::set<T> &&set,
+                                                   U const &other);
 
       template <typename U>
-      void symmetric_difference_update(types::empty_set const &set,
-                                       U const &other);
+      types::none_type symmetric_difference_update(types::empty_set const &set,
+                                                   U const &other);
 
       PROXY_DECL(pythonic::__builtin__::set, symmetric_difference_update);
     }

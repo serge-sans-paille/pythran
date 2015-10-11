@@ -46,8 +46,6 @@
 #ifdef ENABLE_PYTHON_MODULE
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include "numpy/arrayobject.h"
-
-#include <boost/python/object.hpp>
 #endif
 
 #include <boost/simd/sdk/simd/logical.hpp>
@@ -1086,279 +1084,104 @@ namespace pythonic
 #include "pythonic/types/numpy_operators.hpp"
 
 #ifdef ENABLE_PYTHON_MODULE
-#include "pythonic/python/register_once.hpp"
 
 namespace pythonic
 {
 
-  template <typename T, size_t N>
-  PyArrayObject *
-  basic_array_checks<T, N>::check_array_type_and_dims(PyObject *obj_ptr)
+  namespace details
   {
-    if (!PyArray_Check(obj_ptr))
-      return nullptr;
-    // the array must have the same dtype and the same number of dimensions
-    PyArrayObject *arr_ptr = reinterpret_cast<PyArrayObject *>(obj_ptr);
-    if (PyArray_TYPE(arr_ptr) != c_type_to_numpy_type<T>::value)
-      return nullptr;
-    if (PyArray_NDIM(arr_ptr) != N)
-      return nullptr;
-    return arr_ptr;
+    constexpr int signed_int_types[] = {0, NPY_INT8, NPY_INT16, 0, NPY_INT32, 0,
+                                        0, 0,        NPY_INT64};
+    constexpr int unsigned_int_types[] = {
+        0, NPY_UINT8, NPY_UINT16, 0, NPY_UINT32, 0, 0, 0, NPY_UINT64};
   }
 
-  template <typename T, size_t N>
-  python_to_pythran<types::ndarray<T, N>>::python_to_pythran()
-  {
-    static bool registered = false;
-    python_to_pythran<T>();
-    if (not registered) {
-      registered = true;
-      boost::python::converter::registry::push_back(
-          &convertible, &construct,
-          boost::python::type_id<types::ndarray<T, N>>());
-    }
-  }
+  template <class T>
+  struct c_type_to_numpy_type
+      : c_type_to_numpy_type<decltype(std::declval<T>()())> {
+  };
 
-  // reinterpret_cast needed to fit BOOST Python API. Check is done by template
-  // and PyArray_Check
-  template <typename T, size_t N>
-  void *python_to_pythran<types::ndarray<T, N>>::convertible(PyObject *obj_ptr)
-  {
-    PyArrayObject *arr_ptr =
-        python_to_pythran::check_array_type_and_dims(obj_ptr);
-    if (not arr_ptr)
-      return nullptr;
-    auto const *stride = PyArray_STRIDES(arr_ptr);
-    auto const *dims = PyArray_DIMS(arr_ptr);
-    long current_stride = PyArray_ITEMSIZE(arr_ptr);
-    for (long i = N - 1; i >= 0; i--) {
-      if (stride[i] != current_stride)
-        return nullptr;
-      current_stride *= dims[i];
-    }
-    // this is supposed to be a texpr
-    if (PyArray_FLAGS(arr_ptr) & NPY_ARRAY_F_CONTIGUOUS && N > 1)
-      return nullptr;
-    else
-      return obj_ptr;
-  }
+  template <>
+  struct c_type_to_numpy_type<double>
+      : std::integral_constant<int, NPY_DOUBLE> {
+  };
 
-  template <typename T, size_t N>
-  void python_to_pythran<types::ndarray<T, N>>::construct(
-      PyObject *obj_ptr,
-      boost::python::converter::rvalue_from_python_stage1_data *data)
-  {
-    void *storage = ((boost::python::converter::rvalue_from_python_storage<
-                         types::ndarray<T, N>> *)(data))->storage.bytes;
-    PyArrayObject *arr_ptr = reinterpret_cast<PyArrayObject *>(obj_ptr);
-    new (storage) types::ndarray<T, N>((T *)PyArray_BYTES(arr_ptr),
-                                       PyArray_DIMS(arr_ptr), obj_ptr);
-    Py_INCREF(obj_ptr);
-    data->convertible = storage;
-  }
+  template <>
+  struct c_type_to_numpy_type<float> : std::integral_constant<int, NPY_FLOAT> {
+  };
 
-  template <class T, class S>
-  std::tuple<types::slice> make_slices(long const *strides, long const *offsets,
-                                       S const *dims, utils::int_<1>)
-  {
-    return std::tuple<types::slice>(types::slice(
-        *offsets, *offsets + *dims * *strides, *strides / sizeof(T)));
-  }
+  template <>
+  struct c_type_to_numpy_type<std::complex<float>>
+      : std::integral_constant<int, NPY_CFLOAT> {
+  };
 
-  template <class T, class S, size_t N>
-  auto make_slices(long const *strides, long const *offsets, S const *dims,
-                   utils::int_<N>)
-      -> decltype(std::tuple_cat(
-          make_slices<T>(strides, offsets, dims, utils::int_<1>()),
-          make_slices<T>(strides + 1, offsets + 1, dims + 1,
-                         utils::int_<N - 1>())))
-  {
-    return std::tuple_cat(
-        make_slices<T>(strides, offsets, dims, utils::int_<1>()),
-        make_slices<T>(strides + 1, offsets + 1, dims + 1,
-                       utils::int_<N - 1>()));
-  }
+  template <>
+  struct c_type_to_numpy_type<std::complex<double>>
+      : std::integral_constant<int, NPY_CDOUBLE> {
+  };
 
-  template <typename T, size_t N, class... S>
-  python_to_pythran<
-      types::numpy_gexpr<types::ndarray<T, N>, S...>>::python_to_pythran()
-  {
-    static bool registered = false;
-    python_to_pythran<T>();
-    if (not registered) {
-      registered = true;
-      boost::python::converter::registry::push_back(
-          &convertible, &construct,
-          boost::python::type_id<
-              types::numpy_gexpr<types::ndarray<T, N>, S...>>());
-    }
-  }
+  template <>
+  struct c_type_to_numpy_type<signed long long> {
+    static const int value =
+        details::signed_int_types[sizeof(signed long long)];
+  };
 
-  // reinterpret_cast needed to fit BOOST Python API. Check is done by template
-  // and PyArray_Check
-  template <typename T, size_t N, class... S>
-  void *
-  python_to_pythran<types::numpy_gexpr<types::ndarray<T, N>,
-                                       S...>>::convertible(PyObject *obj_ptr)
-  {
-    PyArrayObject *arr_ptr =
-        python_to_pythran::check_array_type_and_dims(obj_ptr);
-    if (not arr_ptr)
-      return nullptr;
+  template <>
+  struct c_type_to_numpy_type<unsigned long long> {
+    static const int value =
+        details::unsigned_int_types[sizeof(unsigned long long)];
+  };
 
-    PyObject *base_obj_ptr = PyArray_BASE(arr_ptr);
-    if (!base_obj_ptr or !PyArray_Check(base_obj_ptr))
-      return nullptr;
-    PyArrayObject *base_arr_ptr =
-        reinterpret_cast<PyArrayObject *>(base_obj_ptr);
+  template <>
+  struct c_type_to_numpy_type<signed long> {
+    static const int value = details::signed_int_types[sizeof(signed long)];
+  };
 
-    auto const *stride = PyArray_STRIDES(arr_ptr);
-    auto const *dims = PyArray_DIMS(arr_ptr);
+  template <>
+  struct c_type_to_numpy_type<unsigned long> {
+    static const int value = details::unsigned_int_types[sizeof(unsigned long)];
+  };
 
-    /* FIXME If we have at least one stride, we convert the whole
-     * array to a numpy_gexpr, without trying to be smarter with
-     * contiguous slices
-     */
-    long current_stride = PyArray_ITEMSIZE(arr_ptr);
-    bool at_least_one_stride = false;
-    for (long i = N - 1; i >= 0; i--) {
-      if (stride[i] < 0) {
-        std::cerr << "array with negative strides are not supported"
-                  << std::endl;
-        return nullptr;
-      } else if (stride[i] != current_stride) {
-        at_least_one_stride = true;
-        break;
-      }
-      current_stride *= dims[i];
-    }
-    if (at_least_one_stride) {
-      if (PyArray_NDIM(base_arr_ptr) != N) {
-        std::cerr << "reshaped array are not supported" << std::endl;
-        return nullptr;
-      }
-      return obj_ptr;
-    } else
-      return nullptr;
-  }
+  template <>
+  struct c_type_to_numpy_type<signed int> {
+    static const int value = details::signed_int_types[sizeof(signed int)];
+  };
 
-  template <typename T, size_t N, class... S>
-  void
-  python_to_pythran<types::numpy_gexpr<types::ndarray<T, N>, S...>>::construct(
-      PyObject *obj_ptr,
-      boost::python::converter::rvalue_from_python_stage1_data *data)
-  {
-    void *storage = ((boost::python::converter::rvalue_from_python_storage<
-                         types::ndarray<T, N>> *)(data))->storage.bytes;
-    PyArrayObject *arr_ptr = reinterpret_cast<PyArrayObject *>(obj_ptr);
-    PyArrayObject *base_arr_ptr =
-        reinterpret_cast<PyArrayObject *>(PyArray_BASE(arr_ptr));
+  template <>
+  struct c_type_to_numpy_type<unsigned int> {
+    static const int value = details::unsigned_int_types[sizeof(unsigned int)];
+  };
 
-    /* from the base array pointer and this array pointer, we can recover the
-     * full slice informations
-     * unfortunately, the PyArray representation is different from our.
-     * - PyArray_BYTES gives the start of the base pointer
-     * - PyArray_Dims give the dimension array (the shape)
-     * - PyArray_STRIDES gives the stride information, but relative to the base
-     * pointer and not relative to the lower dimension
-     */
-    long offsets[N];
-    long strides[N];
-    auto const *base_dims = PyArray_DIMS(base_arr_ptr);
+  template <>
+  struct c_type_to_numpy_type<signed short> {
+    static const int value = details::signed_int_types[sizeof(signed short)];
+  };
 
-    auto full_offset = PyArray_BYTES(arr_ptr) - PyArray_BYTES(base_arr_ptr);
-    auto const *arr_strides = PyArray_STRIDES(arr_ptr);
-    long accumulated_dim = 1;
-    offsets[N - 1] = full_offset % base_dims[N - 1];
-    strides[N - 1] = arr_strides[N - 1];
-    for (ssize_t i = N - 2; i >= 0; --i) {
-      accumulated_dim *= base_dims[i + 1];
-      offsets[i] = full_offset / accumulated_dim;
-      strides[i] = arr_strides[i] / accumulated_dim;
-    }
+  template <>
+  struct c_type_to_numpy_type<unsigned short> {
+    static const int value =
+        details::unsigned_int_types[sizeof(unsigned short)];
+  };
 
-    types::ndarray<T, N> base_array((T *)PyArray_BYTES(base_arr_ptr),
-                                    PyArray_DIMS(base_arr_ptr), obj_ptr);
-    auto slices = make_slices<T>(strides, offsets, PyArray_DIMS(arr_ptr),
-                                 utils::int_<N>());
-    new (storage)
-        types::numpy_gexpr<types::ndarray<T, N>, S...>(base_array, slices);
+  template <>
+  struct c_type_to_numpy_type<signed char> {
+    static const int value = details::signed_int_types[sizeof(signed char)];
+  };
 
-    Py_INCREF(obj_ptr);
-    data->convertible = storage;
-  }
+  template <>
+  struct c_type_to_numpy_type<unsigned char> {
+    static const int value = details::unsigned_int_types[sizeof(unsigned char)];
+  };
 
-  template <typename E>
-  python_to_pythran<types::numpy_texpr<E>>::python_to_pythran()
-  {
-    static bool registered = false;
-    python_to_pythran<T>();
-    if (not registered) {
-      registered = true;
-      boost::python::converter::registry::push_back(
-          &convertible, &construct,
-          boost::python::type_id<types::numpy_texpr<E>>());
-    }
-  }
+  template <>
+  struct c_type_to_numpy_type<bool> {
+    static const int value = NPY_BOOL;
+  };
 
-  // reinterpret_cast needed to fit BOOST Python API. Check is done by template
-  // and PyArray_Check
-  template <typename E>
-  void *python_to_pythran<types::numpy_texpr<E>>::convertible(PyObject *obj_ptr)
-  {
-    PyArrayObject *arr_ptr =
-        python_to_pythran::check_array_type_and_dims(obj_ptr);
-    if (not arr_ptr)
-      return nullptr;
-
-    // check strides. Note that because it's a texpr, the check is done in the
-    // opposite direction compared to ndarrays
-    auto const *stride = PyArray_STRIDES(arr_ptr);
-    auto const *dims = PyArray_DIMS(arr_ptr);
-    long current_stride = PyArray_ITEMSIZE(arr_ptr);
-    for (size_t i = 0; i < N; i++) {
-      if (stride[i] != current_stride)
-        return nullptr;
-      current_stride *= dims[i];
-    }
-
-    if (PyArray_FLAGS(arr_ptr) & NPY_ARRAY_F_CONTIGUOUS && N > 1)
-      return obj_ptr;
-    else
-      return nullptr;
-  }
-
-  template <typename E>
-  void python_to_pythran<types::numpy_texpr<E>>::construct(
-      PyObject *obj_ptr,
-      boost::python::converter::rvalue_from_python_stage1_data *data)
-  {
-    void *storage = ((boost::python::converter::rvalue_from_python_storage<
-                         types::ndarray<T, N>> *)(data))->storage.bytes;
-    PyArrayObject *arr_ptr = reinterpret_cast<PyArrayObject *>(obj_ptr);
-    std::array<long, N> shape;
-    auto const *dims = PyArray_DIMS(arr_ptr);
-    for (size_t i = 0; i < N; ++i)
-      shape[i] = dims[N - 1 - i];
-    types::ndarray<T, N> base_array((T *)PyArray_BYTES(arr_ptr), shape.data(),
-                                    obj_ptr);
-    new (storage) types::numpy_texpr<types::ndarray<T, N>>(base_array);
-    Py_INCREF(obj_ptr);
-    data->convertible = storage;
-  }
-
-  template <typename T>
-  PyObject *
-  custom_boost_simd_logical<T>::convert(boost::simd::logical<T> const &n)
-  {
-    return boost::python::incref(boost::python::object((T)n).ptr());
-  }
-
-  template <typename T>
-  pythran_to_python<boost::simd::logical<T>>::pythran_to_python()
-  {
-    register_once<boost::simd::logical<T>, custom_boost_simd_logical<T>>();
-  }
+  template <class T>
+  struct c_type_to_numpy_type<boost::simd::logical<T>> {
+    static const int value = NPY_BOOL;
+  };
 
   /* wrapper around Python array creation
    * its purpose is to hide the difference between the shape stored in pythran
@@ -1367,43 +1190,45 @@ namespace pythonic
    * on 64 bits architecture
    */
   template <class T, size_t N>
-  PyObject *pyarray_new<T, N>::from_descr(PyTypeObject *subtype,
-                                          PyArray_Descr *descr, T *dims,
-                                          void *data, int flags, PyObject *obj)
-  {
-    npy_intp shape[N];
-    std::copy(dims, dims + N, shape);
-    return pyarray_new<npy_intp, N>{}.from_descr(subtype, descr, shape, data,
-                                                 flags, obj);
-  }
+  struct pyarray_new {
 
-  template <class T, size_t N>
-  PyObject *pyarray_new<T, N>::from_data(T *dims, int typenum, void *data)
-  {
-    npy_intp shape[N];
-    std::copy(dims, dims + N, shape);
-    return pyarray_new<npy_intp, N>{}.from_data(shape, typenum, data);
-  }
+    static_assert(!std::is_same<T, npy_intp>::value, "correctly specialized");
 
-  template <size_t N>
-  PyObject *pyarray_new<npy_intp, N>::from_descr(PyTypeObject *subtype,
-                                                 PyArray_Descr *descr,
-                                                 npy_intp *dims, void *data,
-                                                 int flags, PyObject *obj)
-  {
-    return PyArray_NewFromDescr(subtype, descr, N, dims, nullptr, data, flags,
-                                obj);
-  }
+    PyObject *from_descr(PyTypeObject *subtype, PyArray_Descr *descr, T *dims,
+                         void *data, int flags, PyObject *obj)
+    {
+      npy_intp shape[N];
+      std::copy(dims, dims + N, shape);
+      return pyarray_new<npy_intp, N>{}.from_descr(subtype, descr, shape, data,
+                                                   flags, obj);
+    }
+    PyObject *from_data(T *dims, int typenum, void *data)
+    {
+      npy_intp shape[N];
+      std::copy(dims, dims + N, shape);
+      return pyarray_new<npy_intp, N>{}.from_data(shape, typenum, data);
+    }
+  };
 
   template <size_t N>
-  PyObject *pyarray_new<npy_intp, N>::from_data(npy_intp *dims, int typenum,
-                                                void *data)
-  {
-    return PyArray_SimpleNewFromData(N, dims, typenum, data);
-  }
+  struct pyarray_new<npy_intp, N> {
+
+    PyObject *from_descr(PyTypeObject *subtype, PyArray_Descr *descr,
+                         npy_intp *dims, void *data, int flags, PyObject *obj)
+    {
+      return PyArray_NewFromDescr(subtype, descr, N, dims, nullptr, data, flags,
+                                  obj);
+    }
+
+    PyObject *from_data(npy_intp *dims, int typenum, void *data)
+    {
+
+      return PyArray_SimpleNewFromData(N, dims, typenum, data);
+    }
+  };
 
   template <class T, size_t N>
-  PyObject *custom_array_to_ndarray<T, N>::convert(types::ndarray<T, N> n)
+  PyObject *to_python<types::ndarray<T, N>>::convert(types::ndarray<T, N> n)
   {
     if (n.mem.get_foreign()) {
       PyObject *p = n.mem.get_foreign();
@@ -1432,32 +1257,218 @@ namespace pythonic
     }
   }
 
-  template <class E>
-  PyObject *custom_expr_to_ndarray<E>::convert(E n)
-  {
-    return custom_array_to_ndarray<
-        typename types::numpy_expr_to_ndarray<E>::T,
-        types::numpy_expr_to_ndarray<E>::N>::convert(n);
-  }
-
-  template <class T, size_t N>
-  pythran_to_python<types::ndarray<T, N>>::pythran_to_python()
-  {
-    register_once<types::ndarray<T, N>, custom_array_to_ndarray<T, N>>();
-  }
-
   template <class Arg>
-  pythran_to_python<types::numpy_iexpr<Arg>>::pythran_to_python()
+  PyObject *
+  to_python<types::numpy_iexpr<Arg>>::convert(types::numpy_iexpr<Arg> const &v)
   {
-    register_once<types::numpy_iexpr<Arg>,
-                  custom_expr_to_ndarray<types::numpy_iexpr<Arg>>>();
+    return ::to_python(types::ndarray<typename types::numpy_iexpr<Arg>::dtype,
+                                      types::numpy_iexpr<Arg>::value>(v));
   }
 
   template <class Arg, class... S>
-  pythran_to_python<types::numpy_gexpr<Arg, S...>>::pythran_to_python()
+  PyObject *to_python<types::numpy_gexpr<Arg, S...>>::convert(
+      types::numpy_gexpr<Arg, S...> const &v)
   {
-    register_once<types::numpy_gexpr<Arg, S...>,
-                  custom_expr_to_ndarray<types::numpy_gexpr<Arg, S...>>>();
+    return ::to_python(
+        types::ndarray<typename types::numpy_gexpr<Arg, S...>::dtype,
+                       types::numpy_gexpr<Arg, S...>::value>{v});
+  }
+
+  namespace impl
+  {
+    template <typename T, size_t N>
+    PyArrayObject *check_array_type_and_dims(PyObject *obj)
+    {
+      if (!PyArray_Check(obj))
+        return nullptr;
+      // the array must have the same dtype and the same number of dimensions
+      PyArrayObject *arr = reinterpret_cast<PyArrayObject *>(obj);
+      if (PyArray_TYPE(arr) != c_type_to_numpy_type<T>::value)
+        return nullptr;
+      if (PyArray_NDIM(arr) != N)
+        return nullptr;
+      return arr;
+    }
+
+    template <class T, class S>
+    std::tuple<types::slice> make_slices(long const *strides,
+                                         long const *offsets, S const *dims,
+                                         utils::int_<1>)
+    {
+      return std::tuple<types::slice>(types::slice(
+          *offsets, *offsets + *dims * *strides, *strides / sizeof(T)));
+    }
+
+    template <class T, class S, size_t N>
+    auto make_slices(long const *strides, long const *offsets, S const *dims,
+                     utils::int_<N>)
+        -> decltype(std::tuple_cat(
+            make_slices<T>(strides, offsets, dims, utils::int_<1>()),
+            make_slices<T>(strides + 1, offsets + 1, dims + 1,
+                           utils::int_<N - 1>())))
+    {
+      return std::tuple_cat(
+          make_slices<T>(strides, offsets, dims, utils::int_<1>()),
+          make_slices<T>(strides + 1, offsets + 1, dims + 1,
+                         utils::int_<N - 1>()));
+    }
+  }
+
+  template <typename T, size_t N>
+  bool from_python<types::ndarray<T, N>>::is_convertible(PyObject *obj)
+  {
+    PyArrayObject *arr = impl::check_array_type_and_dims<T, N>(obj);
+    if (not arr)
+      return false;
+    auto const *stride = PyArray_STRIDES(arr);
+    auto const *dims = PyArray_DIMS(arr);
+    long current_stride = PyArray_ITEMSIZE(arr);
+    for (long i = N - 1; i >= 0; i--) {
+      if (stride[i] != current_stride)
+        return false;
+      current_stride *= dims[i];
+    }
+    // this is supposed to be a texpr
+    if (PyArray_FLAGS(arr) & NPY_ARRAY_F_CONTIGUOUS && N > 1)
+      return false;
+    else
+      return true;
+  }
+  template <typename T, size_t N>
+  types::ndarray<T, N> from_python<types::ndarray<T, N>>::convert(PyObject *obj)
+  {
+    PyArrayObject *arr = reinterpret_cast<PyArrayObject *>(obj);
+    types::ndarray<T, N> r((T *)PyArray_BYTES(arr), PyArray_DIMS(arr), obj);
+    Py_INCREF(obj);
+    return r;
+  }
+
+  template <typename T, size_t N, class... S>
+  bool
+  from_python<types::numpy_gexpr<types::ndarray<T, N>, S...>>::is_convertible(
+      PyObject *obj)
+  {
+    PyArrayObject *arr = impl::check_array_type_and_dims<T, N>(obj);
+    if (not arr)
+      return false;
+
+    PyObject *base_obj = PyArray_BASE(arr);
+    if (!base_obj or !PyArray_Check(base_obj))
+      return false;
+    PyArrayObject *base_arr = reinterpret_cast<PyArrayObject *>(base_obj);
+
+    auto const *stride = PyArray_STRIDES(arr);
+    auto const *dims = PyArray_DIMS(arr);
+
+    /* FIXME If we have at least one stride, we convert the whole
+     * array to a numpy_gexpr, without trying to be smarter with
+     * contiguous slices
+     */
+    long current_stride = PyArray_ITEMSIZE(arr);
+    bool at_least_one_stride = false;
+    for (long i = N - 1; i >= 0; i--) {
+      if (stride[i] < 0) {
+        std::cerr << "array with negative strides are not supported"
+                  << std::endl;
+        return false;
+      } else if (stride[i] != current_stride) {
+        at_least_one_stride = true;
+        break;
+      }
+      current_stride *= dims[i];
+    }
+    if (at_least_one_stride) {
+      if (PyArray_NDIM(base_arr) != N) {
+        std::cerr << "reshaped array are not supported" << std::endl;
+        return false;
+      }
+      return true;
+    } else
+      return false;
+  }
+
+  template <typename T, size_t N, class... S>
+  types::numpy_gexpr<types::ndarray<T, N>, S...>
+  from_python<types::numpy_gexpr<types::ndarray<T, N>, S...>>::convert(
+      PyObject *obj)
+  {
+    PyArrayObject *arr = reinterpret_cast<PyArrayObject *>(obj);
+    PyArrayObject *base_arr =
+        reinterpret_cast<PyArrayObject *>(PyArray_BASE(arr));
+
+    /* from the base array pointer and this array pointer, we can recover the
+     * full slice informations
+     * unfortunately, the PyArray representation is different from our.
+     * - PyArray_BYTES gives the start of the base pointer
+     * - PyArray_Dims give the dimension array (the shape)
+     * - PyArray_STRIDES gives the stride information, but relative to the
+     * base
+     * pointer and not relative to the lower dimension
+     */
+    long offsets[N];
+    long strides[N];
+    auto const *base_dims = PyArray_DIMS(base_arr);
+
+    auto full_offset = PyArray_BYTES(arr) - PyArray_BYTES(base_arr);
+    auto const *arr_strides = PyArray_STRIDES(arr);
+    long accumulated_dim = 1;
+    offsets[N - 1] = full_offset % base_dims[N - 1];
+    strides[N - 1] = arr_strides[N - 1];
+    for (ssize_t i = N - 2; i >= 0; --i) {
+      accumulated_dim *= base_dims[i + 1];
+      offsets[i] = full_offset / accumulated_dim;
+      strides[i] = arr_strides[i] / accumulated_dim;
+    }
+
+    types::ndarray<T, N> base_array((T *)PyArray_BYTES(base_arr),
+                                    PyArray_DIMS(base_arr), obj);
+    auto slices = impl::make_slices<T>(strides, offsets, PyArray_DIMS(arr),
+                                       utils::int_<N>());
+    types::numpy_gexpr<types::ndarray<T, N>, S...> r(base_array, slices);
+
+    Py_INCREF(obj);
+    return r;
+  }
+
+  template <typename E>
+  bool from_python<types::numpy_texpr<E>>::
+
+      is_convertible(PyObject *obj)
+  {
+    constexpr auto N = E::value;
+    PyArrayObject *arr =
+        impl::check_array_type_and_dims<typename E::dtype, E::value>(obj);
+    if (not arr)
+      return false;
+    // check strides. Note that because it's a texpr, the check is done in the
+    // opposite direction compared to ndarrays
+    auto const *stride = PyArray_STRIDES(arr);
+    auto const *dims = PyArray_DIMS(arr);
+    long current_stride = PyArray_ITEMSIZE(arr);
+    for (size_t i = 0; i < N; i++) {
+      if (stride[i] != current_stride)
+        return false;
+      current_stride *= dims[i];
+    }
+
+    return PyArray_FLAGS(arr) & NPY_ARRAY_F_CONTIGUOUS && N > 1;
+  }
+
+  template <typename E>
+  types::numpy_texpr<E>
+  from_python<types::numpy_texpr<E>>::convert(PyObject *obj)
+  {
+    constexpr size_t N = E::value;
+    using T = typename E::dtype;
+    PyArrayObject *arr = reinterpret_cast<PyArrayObject *>(obj);
+    std::array<long, N> shape;
+    auto const *dims = PyArray_DIMS(arr);
+    for (size_t i = 0; i < N; ++i)
+      shape[i] = dims[N - 1 - i];
+    types::ndarray<T, N> base_array((T *)PyArray_BYTES(arr), shape.data(), obj);
+    types::numpy_texpr<types::ndarray<T, N>> r(base_array);
+    Py_INCREF(obj);
+    return r;
   }
 }
 

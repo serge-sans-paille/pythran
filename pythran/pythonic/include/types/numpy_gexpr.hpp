@@ -421,11 +421,11 @@ namespace pythonic
       template <class _Arg, class... _S>
       friend struct details::make_gexpr;
 
-      template <class E>
-      friend struct ::pythonic::python_to_pythran;
-
       template <size_t C>
       friend struct extended_slice;
+
+      template <typename T>
+      friend struct ::pythonic::from_python;
 
       // When we create a new numpy_gexpr, we deduce step, lower and shape from
       // slices

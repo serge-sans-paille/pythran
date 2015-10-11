@@ -150,7 +150,8 @@ class Cxx(Backend):
         ;
         struct type
         {
-          typedef typename pythonic::returnable<void>::type result_type;
+          typedef typename pythonic::returnable<\
+pythonic::types::none_type>::type result_type;
         }  ;
         typename type::result_type operator()() const;
         ;

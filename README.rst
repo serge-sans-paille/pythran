@@ -33,7 +33,7 @@ Debian/Ubuntu
 
    Pythran depends on a few Python modules and several C++ libraries. On a debian-like platform, run::
 
-        $> sudo apt-get install libboost-python-dev libgmp-dev libboost-dev cmake libblas-dev
+        $> sudo apt-get install libgmp-dev libboost-dev cmake libblas-dev
         $> sudo apt-get install python-dev python-ply python-networkx python-numpy
 
 2. Use ``easy_install`` or ``pip``::
@@ -64,7 +64,6 @@ Mac OSX
 
 Using brew (http://brew.sh/)::
 
-    $> brew install boost-python
     $> brew install gmp
     $> brew install cmake
 
@@ -97,10 +96,8 @@ Using WinPython (http://winpython.github.io), installed in ``E:\WinPython-32bit-
 
         cd boost_1_58
         .\bootstrap.bat
-        .\b2 toolset=gcc link=shared --with-python
+        .\b2 toolset=gcc link=shared
         xcopy /E boost E:\WinPython-32bit-2.7.9.5\python-2.7.9\include\boost
-        copy stage\lib E:\WinPython-32bit-2.7.9.5\python-2.7.9\libs
-        copy stage\lib E:\WinPython-32bit-2.7.9.5\python-2.7.9\DLLs
 
 The python-2.7.9 directory may be python-2.7.9-amd64.
 

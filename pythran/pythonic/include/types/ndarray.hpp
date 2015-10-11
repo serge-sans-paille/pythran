@@ -38,8 +38,6 @@
 #ifdef ENABLE_PYTHON_MODULE
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include "numpy/arrayobject.h"
-
-#include <boost/python/object.hpp>
 #endif
 
 #include <boost/simd/sdk/simd/logical.hpp>
@@ -245,7 +243,7 @@ namespace pythonic
 
 #ifdef ENABLE_PYTHON_MODULE
       template <class S>
-      ndarray(T *data, S const *pshape, PyObject *obj_ptr);
+      ndarray(T *data, S const *pshape, PyObject *obj);
 #endif
 
       template <
@@ -649,214 +647,48 @@ struct __combined<container<C>, pythonic::types::ndarray<T, N>> {
 /* } */
 
 #include "pythonic/include/types/numpy_operators.hpp"
-
 #ifdef ENABLE_PYTHON_MODULE
-#include "pythonic/python/register_once.hpp"
+
+#include "pythonic/python/core.hpp"
 
 namespace pythonic
 {
 
-  namespace details
-  {
-    constexpr int signed_int_types[] = {0, NPY_INT8, NPY_INT16, 0, NPY_INT32, 0,
-                                        0, 0,        NPY_INT64};
-    constexpr int unsigned_int_types[] = {
-        0, NPY_UINT8, NPY_UINT16, 0, NPY_UINT32, 0, 0, 0, NPY_UINT64};
-  }
-
-  template <class T>
-  struct c_type_to_numpy_type
-      : c_type_to_numpy_type<decltype(std::declval<T>()())> {
-  };
-
-  template <>
-  struct c_type_to_numpy_type<double>
-      : std::integral_constant<int, NPY_DOUBLE> {
-  };
-
-  template <>
-  struct c_type_to_numpy_type<float> : std::integral_constant<int, NPY_FLOAT> {
-  };
-
-  template <>
-  struct c_type_to_numpy_type<std::complex<float>>
-      : std::integral_constant<int, NPY_CFLOAT> {
-  };
-
-  template <>
-  struct c_type_to_numpy_type<std::complex<double>>
-      : std::integral_constant<int, NPY_CDOUBLE> {
-  };
-
-  template <>
-  struct c_type_to_numpy_type<signed long long> {
-    static const int value =
-        details::signed_int_types[sizeof(signed long long)];
-  };
-
-  template <>
-  struct c_type_to_numpy_type<unsigned long long> {
-    static const int value =
-        details::unsigned_int_types[sizeof(unsigned long long)];
-  };
-
-  template <>
-  struct c_type_to_numpy_type<signed long> {
-    static const int value = details::signed_int_types[sizeof(signed long)];
-  };
-
-  template <>
-  struct c_type_to_numpy_type<unsigned long> {
-    static const int value = details::unsigned_int_types[sizeof(unsigned long)];
-  };
-
-  template <>
-  struct c_type_to_numpy_type<signed int> {
-    static const int value = details::signed_int_types[sizeof(signed int)];
-  };
-
-  template <>
-  struct c_type_to_numpy_type<unsigned int> {
-    static const int value = details::unsigned_int_types[sizeof(unsigned int)];
-  };
-
-  template <>
-  struct c_type_to_numpy_type<signed short> {
-    static const int value = details::signed_int_types[sizeof(signed short)];
-  };
-
-  template <>
-  struct c_type_to_numpy_type<unsigned short> {
-    static const int value =
-        details::unsigned_int_types[sizeof(unsigned short)];
-  };
-
-  template <>
-  struct c_type_to_numpy_type<signed char> {
-    static const int value = details::signed_int_types[sizeof(signed char)];
-  };
-
-  template <>
-  struct c_type_to_numpy_type<unsigned char> {
-    static const int value = details::unsigned_int_types[sizeof(unsigned char)];
-  };
-
-  template <>
-  struct c_type_to_numpy_type<bool> {
-    static const int value = NPY_BOOL;
-  };
-
-  template <class T>
-  struct c_type_to_numpy_type<boost::simd::logical<T>> {
-    static const int value = NPY_BOOL;
-  };
-
-  template <typename T, size_t N>
-  struct basic_array_checks {
-    static PyArrayObject *check_array_type_and_dims(PyObject *obj_ptr);
-  };
-
-  template <typename T, size_t N>
-  struct python_to_pythran<types::ndarray<T, N>> : basic_array_checks<T, N> {
-    python_to_pythran();
-    static void *convertible(PyObject *obj_ptr);
-    static void
-    construct(PyObject *obj_ptr,
-              boost::python::converter::rvalue_from_python_stage1_data *data);
-  };
-
-  template <class T, class S>
-  std::tuple<types::slice> make_slices(long const *strides, long const *offsets,
-                                       S const *dims, utils::int_<1>);
-
-  template <class T, class S, size_t N>
-  auto make_slices(long const *strides, long const *offsets, S const *dims,
-                   utils::int_<N>)
-      -> decltype(std::tuple_cat(
-          make_slices<T>(strides, offsets, dims, utils::int_<1>()),
-          make_slices<T>(strides + 1, offsets + 1, dims + 1,
-                         utils::int_<N - 1>())));
-
-  template <typename T, size_t N, class... S>
-  struct python_to_pythran<types::numpy_gexpr<types::ndarray<T, N>, S...>>
-      : basic_array_checks<T, N> {
-    python_to_pythran();
-    static void *convertible(PyObject *obj_ptr);
-    static void
-    construct(PyObject *obj_ptr,
-              boost::python::converter::rvalue_from_python_stage1_data *data);
-  };
-
-  template <typename E>
-  struct python_to_pythran<types::numpy_texpr<E>>
-      : basic_array_checks<typename E::dtype, E::value> {
-    using T = typename E::dtype;
-    static constexpr size_t N = E::value;
-
-    python_to_pythran();
-    static void *convertible(PyObject *obj_ptr);
-    static void
-    construct(PyObject *obj_ptr,
-              boost::python::converter::rvalue_from_python_stage1_data *data);
-  };
-
-  template <typename T>
-  struct custom_boost_simd_logical {
-    static PyObject *convert(boost::simd::logical<T> const &n);
-  };
-
-  template <typename T>
-  struct pythran_to_python<boost::simd::logical<T>> {
-    pythran_to_python();
-  };
-
-  /* wrapper around Python array creation
-   * its purpose is to hide the difference between the shape stored in pythran
-   * (aka long) and the shape stored in numpy (aka npy_intp)
-   * it should work (with an extra copy) on 32 bit architecture and without copy
-   * on 64 bits architecture
-   */
   template <class T, size_t N>
-  struct pyarray_new {
-
-    static_assert(!std::is_same<T, npy_intp>::value, "correctly specialized");
-
-    PyObject *from_descr(PyTypeObject *subtype, PyArray_Descr *descr, T *dims,
-                         void *data, int flags, PyObject *obj);
-    PyObject *from_data(T *dims, int typenum, void *data);
-  };
-
-  template <size_t N>
-  struct pyarray_new<npy_intp, N> {
-
-    PyObject *from_descr(PyTypeObject *subtype, PyArray_Descr *descr,
-                         npy_intp *dims, void *data, int flags, PyObject *obj);
-    PyObject *from_data(npy_intp *dims, int typenum, void *data);
-  };
-
-  template <class T, size_t N>
-  struct custom_array_to_ndarray {
+  struct to_python<types::ndarray<T, N>> {
     static PyObject *convert(types::ndarray<T, N> n);
   };
 
-  template <class E>
-  struct custom_expr_to_ndarray {
-    static PyObject *convert(E n);
-  };
-
-  template <class T, size_t N>
-  struct pythran_to_python<types::ndarray<T, N>> {
-    pythran_to_python();
-  };
-
   template <class Arg>
-  struct pythran_to_python<types::numpy_iexpr<Arg>> {
-    pythran_to_python();
+  struct to_python<types::numpy_iexpr<Arg>> {
+    static PyObject *convert(types::numpy_iexpr<Arg> const &v);
   };
 
   template <class Arg, class... S>
-  struct pythran_to_python<types::numpy_gexpr<Arg, S...>> {
-    pythran_to_python();
+  struct to_python<types::numpy_gexpr<Arg, S...>> {
+    static PyObject *convert(types::numpy_gexpr<Arg, S...> const &v);
+  };
+
+  template <typename T, size_t N>
+  struct from_python<types::ndarray<T, N>> {
+    static bool is_convertible(PyObject *obj);
+    static types::ndarray<T, N> convert(PyObject *obj);
+  };
+
+  template <typename T, size_t N, class... S>
+  struct from_python<types::numpy_gexpr<types::ndarray<T, N>, S...>> {
+    static bool is_convertible(PyObject *obj);
+
+    static types::numpy_gexpr<types::ndarray<T, N>, S...>
+    convert(PyObject *obj);
+  };
+
+  template <typename E>
+  struct from_python<types::numpy_texpr<E>> {
+
+    static bool is_convertible(PyObject *obj);
+
+    static types::numpy_texpr<E> convert(PyObject *obj);
   };
 }
 

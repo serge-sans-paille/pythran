@@ -4,6 +4,7 @@
 #include "pythonic/include/itertools/count.hpp"
 
 #include "pythonic/utils/proxy.hpp"
+#include <limits>
 
 namespace pythonic
 {

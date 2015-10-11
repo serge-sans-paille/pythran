@@ -6,6 +6,8 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
 
+#include <set>
+
 namespace pythonic
 {
 

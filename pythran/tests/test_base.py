@@ -8,7 +8,7 @@ class TestBase(TestEnv):
         self.run_test("def pass_(a):pass", 1, pass_=[int])
 
     def test_empty_return(self):
-        self.run_test("def empty_return(a,b,c):return", 1,1,True, empty_return=[int,float,bool])
+        self.run_test("def empty_return(a,b,c):return", 1,1.,True, empty_return=[int,float,bool])
 
     def test_identity(self):
         self.run_test("def identity(a): return a", 1.5, identity=[float])
@@ -43,7 +43,7 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
 def fibo(n): return n if n <2 else fibo(n-1) + fibo(n-2)
 def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
 """
-        self.run_test(code, 4, fibo2=[float])
+        self.run_test(code, 4., fibo2=[float])
 
     def test_manual_list_comprehension(self):
         self.run_test("def f(l):\n ll=list()\n for k in l:\n  ll+=[k]\n return ll\ndef manual_list_comprehension(l): return f(l)", [1,2,3], manual_list_comprehension=[[int]])
@@ -70,16 +70,16 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
         self.run_test("def multizip(l0,l1): return zip(l0,zip(l0,l1))", [1,2,3],["one", "two", "three"], multizip=[[int], [str]])
 
     def test_reduce(self):
-        self.run_test("def reduce_(l): return reduce(lambda x,y:x+y, l)", [0,1.1,2.2,3.3], reduce_=[[float]])
+        self.run_test("def reduce_(l): return reduce(lambda x,y:x+y, l)", [0.,1.1,2.2,3.3], reduce_=[[float]])
 
     def test_another_reduce(self):
-        self.run_test("def another_reduce(l0,l1): return reduce(lambda x,(y,z):x+y+z, zip(l0, l1),0)", [0.4,1.4,2.4,3.4], [0,1.1,2.2,3.3], another_reduce=[[float],[float]])
+        self.run_test("def another_reduce(l0,l1): return reduce(lambda x,(y,z):x+y+z, zip(l0, l1),0)", [0.4,1.4,2.4,3.4], [0.,1.1,2.2,3.3], another_reduce=[[float],[float]])
 
     def test_sum(self):
-        self.run_test("def sum_(l): return sum(l)", [0,1.1,2.2,3.3], sum_=[[float]])
+        self.run_test("def sum_(l): return sum(l)", [0.,1.1,2.2,3.3], sum_=[[float]])
 
     def test_multisum(self):
-        self.run_test("def multisum(l0, l1): return sum(l0) + sum(l1)", [0,1.1,2.2,3.3],[1,2,3], multisum=[[float],[int]])
+        self.run_test("def multisum(l0, l1): return sum(l0) + sum(l1)", [0.,1.1,2.2,3.3],[1,2,3], multisum=[[float],[int]])
 
     def test_max(self):
         self.run_test("def max_(l):return max(l)", [ 1.1, 2.2 ], max_=[[float]])
@@ -100,10 +100,10 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
         self.run_test("def map_none2(l0): return map(None, l0, l0)", [0,1,2], map_none2=[[int]])
 
     def test_map(self):
-        self.run_test("def map_(l0, l1, v): return map(lambda x,y:x*v+y, l0, l1)", [0,1,2], [0,1.1,2.2], 2, map_=[[int], [float], int])
+        self.run_test("def map_(l0, l1, v): return map(lambda x,y:x*v+y, l0, l1)", [0,1,2], [0.,1.1,2.2], 2, map_=[[int], [float], int])
 
     def test_multimap(self):
-        self.run_test("def multimap(l0, l1, v): return map(lambda x,y:x*v+y, l0, map(lambda z:z+1,l1))", [0,1,2], [0,1.1,2.2], 2, multimap=[[int], [float], int])
+        self.run_test("def multimap(l0, l1, v): return map(lambda x,y:x*v+y, l0, map(lambda z:z+1,l1))", [0,1,2], [0.,1.1,2.2], 2, multimap=[[int], [float], int])
 
     def test_intrinsic_map(self):
         self.run_test("def intrinsic_map(l): return map(max,l)",[[0,1,2],[2,0,1]], intrinsic_map=[[[int]]])
@@ -172,10 +172,10 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
         self.run_test("def multixrange(i): return map(lambda x,y:y*x/2, xrange(1,i), xrange(i,1,-1))", 3, multixrange=[int])
 
     def test_print(self):
-        self.run_test("def print_(a,b,c,d): print a,b,c,d,'e',1.5,", [1,2,3.1],3,True, "d", print_=[[float], int, bool, str])
+        self.run_test("def print_(a,b,c,d): print a,b,c,d,'e',1.5,", [1.,2.,3.1],3,True, "d", print_=[[float], int, bool, str])
 
     def test_print_tuple(self):
-        self.run_test("def print_tuple(a,b,c,d): print (a,b,c,d,'e',1.5,)", [1,2,3.1],3,True, "d", print_tuple=[[float], int, bool, str])
+        self.run_test("def print_tuple(a,b,c,d): print (a,b,c,d,'e',1.5,)", [1.,2.,3.1],3,True, "d", print_tuple=[[float], int, bool, str])
 
     def test_assign(self):
         self.run_test("def assign(a): b=2*a ; return b", 1, assign=[int])
@@ -193,7 +193,7 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
         self.run_test("def while_(a):\n while(a>0): a-=1\n return a", 8, while_=[int])
 
     def test_for(self):
-        self.run_test("def for_(l):\n s=0\n for i in l:\n  s+=i\n return s", [0,1,2], for_=[[float]])
+        self.run_test("def for_(l):\n s=0\n for i in l:\n  s+=i\n return s", [0,1,2], for_=[[int]])
 
     def test_declarations(self):
         code = """
@@ -457,7 +457,7 @@ def nested_def(a):
         self.run_test("def sorted_(l): return [x for x in sorted(l)]", [1,2,3], sorted_=[[int]])
 
     def test_str(self):
-        self.run_test("def str_(l): return str(l)", [1,2,3.5], str_=[[float]])
+        self.run_test("def str_(l): return str(l)", [1,2,3], str_=[[int]])
 
     def test_append(self):
         self.run_test("def append(): l=[] ; l.append(1) ; return l", append=[])

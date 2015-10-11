@@ -189,33 +189,23 @@ struct __combined<pythonic::types::none_type, pythonic::types::none_type> {
 };
 
 /* } */
+
 #ifdef ENABLE_PYTHON_MODULE
 
-#include "pythonic/python/register_once.hpp"
-#include <boost/python/object.hpp>
+#include "pythonic/python/core.hpp"
 
 namespace pythonic
 {
-  struct custom_none_type_to_none {
-    static PyObject *convert(types::none_type const &);
-  };
-
   template <>
-  struct pythran_to_python<types::none_type> {
-    pythran_to_python();
+  struct to_python<types::none_type> {
+    static PyObject *convert(types::none_type);
   };
 
-  template <typename T>
-  struct custom_none_to_any {
+  template <class T>
+  struct to_python<types::none<T>> {
     static PyObject *convert(types::none<T> const &n);
-  };
-
-  template <typename T>
-  struct pythran_to_python<types::none<T>> {
-    pythran_to_python();
   };
 }
 
 #endif
-
 #endif

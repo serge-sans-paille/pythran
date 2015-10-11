@@ -20,6 +20,15 @@ bool operator!(__gmp_expr<T, U> const &t0)
 namespace pythonic
 {
 
+  namespace __builtin__
+  {
+
+    long id(pythran_long_t const &t)
+    {
+      return reinterpret_cast<uintptr_t>(&t);
+    }
+  }
+
   /* some math overloads { */
 
   namespace operator_
@@ -63,52 +72,30 @@ std::size_t hash_value(__gmp_expr<T, U> const &x)
 }
 
 /* } */
+
 #ifdef ENABLE_PYTHON_MODULE
-#include "pythonic/python/register_once.hpp"
 
 namespace pythonic
 {
 
-  python_to_pythran<mpz_class>::python_to_pythran()
+  bool from_python<mpz_class>::is_convertible(PyObject *obj)
   {
-    static bool registered = false;
-    if (not registered) {
-      registered = true;
-      boost::python::converter::registry::push_back(
-          &convertible, &construct, boost::python::type_id<mpz_class>());
-    }
+    return PyLong_Check(obj);
   }
-
-  void *python_to_pythran<mpz_class>::convertible(PyObject *obj_ptr)
+  mpz_class from_python<mpz_class>::convert(PyObject *obj)
   {
-    if (!PyLong_Check(obj_ptr))
-      return 0;
-    return obj_ptr;
-  }
-
-  void python_to_pythran<mpz_class>::construct(
-      PyObject *obj_ptr,
-      boost::python::converter::rvalue_from_python_stage1_data *data)
-  {
-    void *storage = ((boost::python::converter::rvalue_from_python_storage<
-                         mpz_class> *)(data))->storage.bytes;
-    auto s = PyObject_Str(obj_ptr);
-    new (storage) mpz_class(PyString_AsString(s));
+    auto s = PyObject_Str(obj);
+    mpz_class r(PyString_AsString(s));
     Py_DECREF(s);
-    data->convertible = storage;
+    return r;
   }
 
-  PyObject *custom_mpz_to_long::convert(const mpz_class &v)
+  PyObject *to_python<mpz_class>::convert(mpz_class const &v)
   {
     auto s = PyString_FromString(v.get_str().c_str());
     auto l = PyNumber_Long(s);
     Py_DECREF(s);
     return l;
-  }
-
-  pythran_to_python<mpz_class>::pythran_to_python()
-  {
-    register_once<mpz_class, custom_mpz_to_long>();
   }
 }
 

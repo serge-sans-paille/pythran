@@ -238,9 +238,10 @@ namespace pythonic
 
     template <class T>
     template <typename... Types>
-    void set<T>::update(Types &&... others)
+    none_type set<T>::update(Types &&... others)
     {
       *this = union_(std::forward<Types>(others)...);
+      return {};
     }
 
     template <class T>
@@ -397,7 +398,7 @@ namespace pythonic
     template <class U>
     void set<T>::operator|=(set<U> const &other)
     {
-      return update(other);
+      update(other);
     }
 
     template <class T>
@@ -493,8 +494,9 @@ namespace pythonic
     set<T> empty_set::operator^(set<T> const &s) { return s; }
 
     template <class... Types>
-    void empty_set::update(Types &&...)
+    none_type empty_set::update(Types &&...)
     {
+      return {};
     }
 
     empty_set::operator bool()
@@ -519,90 +521,54 @@ namespace pythonic
     }
   }
 }
-
 #ifdef ENABLE_PYTHON_MODULE
-
-#include "pythonic/python/register_once.hpp"
-#include "pythonic/python/extract.hpp"
-#include <boost/python/object.hpp>
 
 namespace pythonic
 {
 
   template <typename T>
-  python_to_pythran<types::set<T>>::python_to_pythran()
+  PyObject *to_python<types::set<T>>::convert(types::set<T> const &v)
   {
-    python_to_pythran<T>();
-    static bool registered = false;
-    if (not registered) {
-      registered = true;
-      boost::python::converter::registry::push_back(
-          &convertible, &construct, boost::python::type_id<types::set<T>>());
-    }
+    PyObject *obj = PySet_New(nullptr);
+    for (auto const &e : v)
+      PySet_Add(obj, ::to_python(e));
+    return obj;
   }
 
-  template <typename T>
-  void *python_to_pythran<types::set<T>>::convertible(PyObject *obj_ptr)
+  PyObject *to_python<types::empty_set>::convert(types::empty_set)
   {
-    // the second condition is important, for some reason otherwise there were
-    // attempted conversions of Body to list which failed afterwards.
-    if (!PySet_Check(obj_ptr) || !PyObject_HasAttrString(obj_ptr, "__len__"))
-      return 0;
-    return obj_ptr;
+    return PySet_New(nullptr);
   }
 
-  template <typename T>
-  void python_to_pythran<types::set<T>>::construct(
-      PyObject *obj_ptr,
-      boost::python::converter::rvalue_from_python_stage1_data *data)
+  template <class T>
+  bool from_python<types::set<T>>::is_convertible(PyObject *obj)
   {
-    void *storage = ((boost::python::converter::rvalue_from_python_storage<
-                         types::set<T>> *)(data))->storage.bytes;
-    new (storage) types::set<T>(types::empty_set());
-    types::set<T> &v = *(types::set<T> *)(storage);
-    // may be useful to reserve more space ?
-    PyObject *iterator = PyObject_GetIter(obj_ptr);
-
-    /* first round use boost extractor that performs a lot of checks
-     * next we use our cutom one that goes faster
-     */
-    if (PyObject *item = PyIter_Next(iterator)) {
-      v.add(boost::python::extract<T>(item));
-      Py_DECREF(item);
-      while ((item = PyIter_Next(iterator))) {
-        v.add(extract<T>(item));
+    if (PySet_Check(obj)) {
+      PyObject *iterator = PyObject_GetIter(obj);
+      if (PyObject *item = PyIter_Next(iterator)) {
+        bool res = ::is_convertible<T>(item);
         Py_DECREF(item);
+        Py_DECREF(iterator);
+        return res;
+      } else {
+        Py_DECREF(iterator);
+        return true;
       }
     }
+    return false;
+  }
+  template <class T>
+  types::set<T> from_python<types::set<T>>::convert(PyObject *obj)
+  {
+    types::set<T> v = types::empty_set();
+    // may be useful to reserve more space ?
+    PyObject *iterator = PyObject_GetIter(obj);
+    while (PyObject *item = PyIter_Next(iterator)) {
+      v.add(::from_python<T>(item));
+      Py_DECREF(item);
+    }
     Py_DECREF(iterator);
-    data->convertible = storage;
-  }
-
-  template <typename T>
-  PyObject *custom_pythran_set_to_set<T>::convert(const types::set<T> &v)
-  {
-    PyObject *obj = PySet_New(nullptr);
-    for (const T &e : v)
-      PySet_Add(obj, boost::python::incref(boost::python::object(e).ptr()));
-    return obj;
-  }
-
-  template <typename T>
-  pythran_to_python<types::set<T>>::pythran_to_python()
-  {
-    pythran_to_python<T>();
-    register_once<types::set<T>, custom_pythran_set_to_set<T>>();
-  }
-
-  PyObject *custom_empty_set_to_set::convert(types::empty_set const &)
-  {
-    PyObject *obj = PySet_New(nullptr);
-    return obj;
-  }
-
-  pythran_to_python<types::empty_set>::pythran_to_python()
-  {
-    register_once<types::empty_set, custom_empty_set_to_set>();
+    return v;
   }
 }
 

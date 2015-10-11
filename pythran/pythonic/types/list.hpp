@@ -687,98 +687,39 @@ namespace std
 
 namespace pythonic
 {
-
-  template <typename T>
-  PyObject *custom_pythran_list_to_list<T>::convert(const types::list<T> &v)
-  {
-    Py_ssize_t n = v.size();
-    PyObject *ret = PyList_New(n);
-    for (Py_ssize_t i = 0; i < n; i++)
-      PyList_SET_ITEM(ret, i,
-                      boost::python::incref(boost::python::object(v[i]).ptr()));
-    return ret;
-  }
-
-  /*
-   This specialization is a workaround for a boost::python bug triggered when
-   using std::vector<bool> and libc++.
-   Indeed v[i] returns a wrapper class to keep a reference to the bit in the
-   bitset. The issue is that operator& is overloaded and prevent taking the
-   address of the wrapper class.
-   This is a copy paste of the generic case, plus a cast to (bool) to get rid
-   of the wrapper.
-   The cast can't be added to the generic version because casting may trigger
-   an extra copy that is not what we want for heavy objects
-   */
-  PyObject *
-  custom_pythran_list_to_list<bool>::convert(const types::list<bool> &v)
-  {
-    Py_ssize_t n = v.size();
-    PyObject *ret = PyList_New(n);
-    for (Py_ssize_t i = 0; i < n; i++)
-      PyList_SET_ITEM(ret, i, boost::python::incref(
-                                  boost::python::object((bool)v[i]).ptr()));
-    return ret;
-  }
-
-  template <typename T>
-  pythran_to_python<types::list<T>>::pythran_to_python()
-  {
-    pythran_to_python<T>();
-    register_once<types::list<T>, custom_pythran_list_to_list<T>>();
-  }
-
-  template <typename T>
-  python_to_pythran<types::list<T>>::python_to_pythran()
-  {
-    python_to_pythran<T>();
-    static bool registered = false;
-    if (not registered) {
-      registered = true;
-      boost::python::converter::registry::push_back(
-          &convertible, &construct, boost::python::type_id<types::list<T>>());
-    }
-  }
-  template <typename T>
-  void *python_to_pythran<types::list<T>>::convertible(PyObject *obj_ptr)
-  {
-    // the second condition is important, for some reason otherwise there were
-    // attempted conversions of Body to list which failed afterwards.
-    if (!PySequence_Check(obj_ptr) ||
-        !PyObject_HasAttrString(obj_ptr, "__len__"))
-      return 0;
-    return obj_ptr;
-  }
   template <class T>
-  void python_to_pythran<types::list<T>>::construct(
-      PyObject *obj_ptr,
-      boost::python::converter::rvalue_from_python_stage1_data *data)
+  PyObject *to_python<types::list<T>>::convert(types::list<T> const &v)
   {
-    void *storage = ((boost::python::converter::rvalue_from_python_storage<
-                         types::list<T>> *)(data))->storage.bytes;
-    Py_ssize_t l = PySequence_Fast_GET_SIZE(obj_ptr);
-    types::list<T> &v = *(new (storage) types::list<T>(l));
-    PyObject **core = PySequence_Fast_ITEMS(obj_ptr);
-    /* Perform extraction using boost version first, has it does more checks
-     * then go wild and use our custom & faster extractor
-     */
-    auto iter = v.begin(), end = v.end();
-    if (iter != end) {
-      *iter = boost::python::extract<T>(*core++);
-      while (++iter != end) {
-        *iter = extract<T>(*core++);
-      }
-    }
-    data->convertible = storage;
+    Py_ssize_t n = v.size();
+    PyObject *ret = PyList_New(n);
+    for (Py_ssize_t i = 0; i < n; i++)
+      PyList_SET_ITEM(ret, i, ::to_python(v[i]));
+    return ret;
   }
-
-  PyObject *custom_empty_list_to_list::convert(types::empty_list const &)
+  PyObject *to_python<types::empty_list>::convert(types::empty_list const &)
   {
     return PyList_New(0);
   }
-  pythran_to_python<types::empty_list>::pythran_to_python()
+
+  template <class T>
+  bool from_python<types::list<T>>::is_convertible(PyObject *obj)
   {
-    register_once<types::empty_list, custom_empty_list_to_list>();
+    return PyList_Check(obj) and
+           (PyObject_Not(obj) or
+            ::is_convertible<T>(PySequence_Fast_GET_ITEM(obj, 0)));
+  }
+
+  template <class T>
+  types::list<T> from_python<types::list<T>>::convert(PyObject *obj)
+  {
+    Py_ssize_t l = PySequence_Fast_GET_SIZE(obj);
+    types::list<T> v(l);
+
+    PyObject **core = PySequence_Fast_ITEMS(obj);
+    std::transform(core, core + l, v.begin(),
+                   [](PyObject *o) { return ::from_python<T>(o); });
+
+    return v;
   }
 }
 

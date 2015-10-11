@@ -4,7 +4,6 @@
 #include "pythonic/include/numpy/trace.hpp"
 
 #include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/numexpr_to_ndarray.hpp"
 
 namespace pythonic
 {
@@ -13,12 +12,12 @@ namespace pythonic
   {
 
     template <class T>
-    typename types::numpy_expr_to_ndarray<T>::T trace(T const &expr, int offset)
+    typename T::dtype trace(T const &expr, int offset)
     {
-      static_assert(types::numpy_expr_to_ndarray<T>::N == 2,
+      static_assert(T::value == 2,
                     "Not Implemented : Trace for dimension != 2");
 
-      typename types::numpy_expr_to_ndarray<T>::T res = 0;
+      typename T::dtype res = 0;
       long y_offset = std::max(-offset, 0);
       long x_offset = std::max(0, offset);
       long size = std::min(expr.flat_size() - y_offset,

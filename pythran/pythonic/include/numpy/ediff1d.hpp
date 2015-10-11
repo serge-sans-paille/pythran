@@ -9,8 +9,7 @@ namespace pythonic
   namespace numpy
   {
     template <class E>
-    types::ndarray<typename types::numpy_expr_to_ndarray<E>::T, 1>
-    ediff1d(E const &expr);
+    types::ndarray<typename E::dtype, 1> ediff1d(E const &expr);
 
     template <class E>
     auto ediff1d(types::list<E> const &expr)

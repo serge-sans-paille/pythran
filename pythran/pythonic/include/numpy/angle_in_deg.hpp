@@ -2,7 +2,6 @@
 #define PYTHONIC_INCLUDE_NUMPY_ANGLEINDEG_HPP
 
 #include "pythonic/include/numpy/angle_in_rad.hpp"
-#include "pythonic/include/types/numexpr_to_ndarray.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
 #include <nt2/include/functions/indeg.hpp>
 

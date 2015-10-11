@@ -17,8 +17,7 @@ namespace pythonic
     void _unique1(I begin, I end, O &out, utils::int_<N>);
 
     template <class E>
-    types::ndarray<typename types::numpy_expr_to_ndarray<E>::T, 1>
-    unique(E const &expr);
+    types::ndarray<typename E::dtype, 1> unique(E const &expr);
 
     template <class I, class O0, class O1>
     void _unique2(I begin, I end, O0 &out0, O1 &out1, long &i, utils::int_<1>);
@@ -27,8 +26,7 @@ namespace pythonic
     void _unique2(I begin, I end, O0 &out0, O1 &out1, long &i, utils::int_<N>);
 
     template <class E>
-    std::tuple<types::ndarray<typename types::numpy_expr_to_ndarray<E>::T, 1>,
-               types::ndarray<long, 1>>
+    std::tuple<types::ndarray<typename E::dtype, 1>, types::ndarray<long, 1>>
     unique(E const &expr, bool return_index);
 
     template <class I, class O0, class O1, class O2>
@@ -40,8 +38,8 @@ namespace pythonic
                   utils::int_<N>);
 
     template <class E>
-    std::tuple<types::ndarray<typename types::numpy_expr_to_ndarray<E>::T, 1>,
-               types::ndarray<long, 1>, types::ndarray<long, 1>>
+    std::tuple<types::ndarray<typename E::dtype, 1>, types::ndarray<long, 1>,
+               types::ndarray<long, 1>>
     unique(E const &expr, bool return_index, bool return_inverse);
 
     PROXY_DECL(pythonic::numpy, unique)

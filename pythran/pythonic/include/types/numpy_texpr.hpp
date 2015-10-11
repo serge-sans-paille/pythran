@@ -140,8 +140,7 @@ namespace pythonic
 
   template <class Arg>
   struct assignable<types::numpy_texpr<Arg>> {
-    using type =
-        typename types::numpy_expr_to_ndarray<types::numpy_texpr<Arg>>::type;
+    using type = types::ndarray<typename Arg::dtype, Arg::value>;
   };
 
   template <class Arg>

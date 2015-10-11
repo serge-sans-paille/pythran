@@ -12,8 +12,7 @@ namespace pythonic
   {
 
     template <class E>
-    typename types::numpy_expr_to_ndarray<E>::type diff(E const &expr,
-                                                        long n = 1);
+    types::ndarray<typename E::dtype, E::value> diff(E const &expr, long n = 1);
 
     PROXY_DECL(pythonic::numpy, diff);
   }

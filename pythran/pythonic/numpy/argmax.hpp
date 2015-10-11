@@ -46,11 +46,11 @@ namespace pythonic
     {
       if (not expr.flat_size())
         throw types::ValueError("empty sequence");
-      using elt_type = typename types::numpy_expr_to_ndarray<E>::T;
+      using elt_type = typename E::dtype;
       elt_type argmax_value = std::numeric_limits<elt_type>::lowest();
       ;
       return _argmax(expr.begin(), expr.end(), argmax_value,
-                     utils::int_<types::numpy_expr_to_ndarray<E>::N>());
+                     utils::int_<E::value>());
     }
 
     PROXY_IMPL(pythonic::numpy, argmax);

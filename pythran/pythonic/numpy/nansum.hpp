@@ -30,11 +30,10 @@ namespace pythonic
     }
 
     template <class E>
-    typename types::numpy_expr_to_ndarray<E>::T nansum(E const &expr)
+    typename E::dtype nansum(E const &expr)
     {
-      typename types::numpy_expr_to_ndarray<E>::T s = 0;
-      _nansum(expr.begin(), expr.end(), s,
-              utils::int_<types::numpy_expr_to_ndarray<E>::N>());
+      typename E::dtype s = 0;
+      _nansum(expr.begin(), expr.end(), s, utils::int_<E::value>());
       return s;
     }
 

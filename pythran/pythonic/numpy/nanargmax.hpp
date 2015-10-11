@@ -36,15 +36,14 @@ namespace pythonic
     }
 
     template <class E>
-    typename types::numpy_expr_to_ndarray<E>::T nanargmax(E const &expr)
+    typename E::dtype nanargmax(E const &expr)
     {
-      typename types::numpy_expr_to_ndarray<E>::T max =
-          -std::numeric_limits<
-              typename types::numpy_expr_to_ndarray<E>::T>::infinity();
+      typename E::dtype max =
+          -std::numeric_limits<typename E::dtype>::infinity();
       long where = -1;
       long index = 0;
       _nanargmax(expr.begin(), expr.end(), max, index, where,
-                 utils::int_<types::numpy_expr_to_ndarray<E>::N>());
+                 utils::int_<E::value>());
       if (where >= 0)
         return where;
       else

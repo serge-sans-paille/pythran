@@ -16,11 +16,10 @@ namespace pythonic
     void _tile(I begin, I end, O &out, utils::int_<N>);
 
     template <class E>
-    typename types::numpy_expr_to_ndarray<E>::type tile(E const &expr,
-                                                        int reps);
+    types::ndarray<typename E::dtype, E::value> tile(E const &expr, int reps);
 
     template <class E, size_t N>
-    types::ndarray<typename types::numpy_expr_to_ndarray<E>::T, N>
+    types::ndarray<typename E::dtype, N>
     tile(E const &expr, types::array<long, N> const &reps);
 
     PROXY_DECL(pythonic::numpy, tile);

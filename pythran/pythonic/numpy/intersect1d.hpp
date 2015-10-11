@@ -18,14 +18,10 @@ namespace pythonic
   {
     template <class E, class F>
     types::ndarray<
-        typename __combined<typename types::numpy_expr_to_ndarray<E>::T,
-                            typename types::numpy_expr_to_ndarray<F>::T>::type,
-        1>
+        typename __combined<typename E::dtype, typename F::dtype>::type, 1>
     intersect1d(E const &e, F const &f)
     {
-      using T = typename __combined<
-          typename types::numpy_expr_to_ndarray<E>::T,
-          typename types::numpy_expr_to_ndarray<F>::T>::type;
+      using T = typename __combined<typename E::dtype, typename F::dtype>::type;
       auto ae = asarray(e);
       auto af = asarray(f);
       std::set<T> sae(ae.fbegin(), ae.fend());

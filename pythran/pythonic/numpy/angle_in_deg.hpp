@@ -4,7 +4,6 @@
 #include "pythonic/include/numpy/angle_in_deg.hpp"
 
 #include "pythonic/numpy/angle_in_rad.hpp"
-#include "pythonic/types/numexpr_to_ndarray.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
 #include <nt2/include/functions/indeg.hpp>
 

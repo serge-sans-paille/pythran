@@ -31,14 +31,12 @@ namespace pythonic
 
       // only for compatibility purpose, very bad impl
       template <class E>
-      typename types::numpy_expr_to_ndarray<
-          typename std::remove_reference<E>::type>::type::dtype
-      item(E &&expr, long i)
+      typename std::decay<E>::type::dtype item(E &&expr, long i)
       {
         if (i < 0)
           i += expr.flat_size();
-        return typename types::numpy_expr_to_ndarray<
-                   typename std::remove_reference<E>::type>::type{
+        return types::ndarray<typename std::decay<E>::type::dtype,
+                              std::decay<E>::type::value>{
             std::forward<E>(expr)}.flat()[i];
       }
 

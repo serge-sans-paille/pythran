@@ -18,7 +18,7 @@ namespace pythonic
     void _nanmax(E begin, E end, F &max, utils::int_<N>);
 
     template <class E>
-    typename types::numpy_expr_to_ndarray<E>::T nanmax(E const &expr);
+    typename E::dtype nanmax(E const &expr);
 
     PROXY_DECL(pythonic::numpy, nanmax);
   }

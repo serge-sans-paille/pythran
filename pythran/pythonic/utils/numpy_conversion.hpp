@@ -8,10 +8,10 @@
   auto fname(E const &expr, Types &&... others)                                \
       ->typename std::enable_if<                                               \
           not types::is_ndarray<E>::value and types::is_array<E>::value,       \
-          decltype(fname(typename types::numpy_expr_to_ndarray<E>::type(expr), \
+          decltype(fname(types::ndarray<typename E::dtype, E::value>{expr},    \
                          std::forward<Types>(others)...))>::type               \
   {                                                                            \
-    return fname(typename types::numpy_expr_to_ndarray<E>::type(expr),         \
+    return fname(types::ndarray<typename E::dtype, E::value>{expr},            \
                  std::forward<Types>(others)...);                              \
   }
 

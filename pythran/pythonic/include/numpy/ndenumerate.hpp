@@ -13,19 +13,15 @@ namespace pythonic
     struct ndenumerate_iterator
         : std::iterator<
               std::random_access_iterator_tag,
-              std::tuple<
-                  types::array<long, types::numpy_expr_to_ndarray<E>::N>,
-                  typename types::numpy_expr_to_ndarray<E>::type::dtype>> {
+              std::tuple<types::array<long, E::value>, typename E::dtype>> {
       long index;
       E const &expr;
-      typename types::numpy_expr_to_ndarray<E>::type::dtype *iter;
+      typename E::dtype *iter;
 
       ndenumerate_iterator();
       ndenumerate_iterator(E const &expr, long first);
 
-      std::tuple<types::array<long, types::numpy_expr_to_ndarray<E>::N>,
-                 typename types::numpy_expr_to_ndarray<E>::type::dtype>
-      operator*();
+      std::tuple<types::array<long, E::value>, typename E::dtype> operator*();
 
       ndenumerate_iterator &operator++();
       ndenumerate_iterator &operator+=(long n);

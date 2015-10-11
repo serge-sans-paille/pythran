@@ -20,8 +20,7 @@ namespace pythonic
     void _unwrap(I0 ibegin, I0 iend, I1 obegin, double discont, utils::int_<N>);
 
     template <class E>
-    types::ndarray<double, types::numpy_expr_to_ndarray<E>::N>
-    unwrap(E const &expr, double discont = pi);
+    types::ndarray<double, E::value> unwrap(E const &expr, double discont = pi);
 
     PROXY_DECL(pythonic::numpy, unwrap)
   }

@@ -16,7 +16,7 @@ namespace pythonic
     template <class T>
     auto atleast_1d(T const &t) -> typename std::enable_if<
         not(types::is_dtype<T>::value),
-        typename types::numpy_expr_to_ndarray<T>::type>::type;
+        types::ndarray<typename T::dtype, T::value>>::type;
 
     PROXY_DECL(pythonic::numpy, atleast_1d);
   }

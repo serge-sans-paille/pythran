@@ -31,9 +31,8 @@ namespace pythonic
                         types::str const &side, utils::int_<N>);
 
     template <class E, class T>
-    typename std::enable_if<
-        types::is_numexpr_arg<E>::value,
-        types::ndarray<long, types::numpy_expr_to_ndarray<E>::N>>::type
+    typename std::enable_if<types::is_numexpr_arg<E>::value,
+                            types::ndarray<long, E::value>>::type
     searchsorted(T const &a, E const &v, types::str const &side = "left");
 
     PROXY_DECL(pythonic::numpy, searchsorted);

@@ -38,14 +38,12 @@ namespace pythonic
     }
 
     template <class E>
-    types::ndarray<double, types::numpy_expr_to_ndarray<E>::N>
-    unwrap(E const &expr, double discont)
+    types::ndarray<double, E::value> unwrap(E const &expr, double discont)
     {
       discont = nt2::max(discont, pi);
-      types::ndarray<double, types::numpy_expr_to_ndarray<E>::N> out(
-          expr.shape(), __builtin__::None);
+      types::ndarray<double, E::value> out(expr.shape(), __builtin__::None);
       _unwrap(expr.begin(), expr.end(), out.begin(), discont,
-              utils::int_<types::numpy_expr_to_ndarray<E>::N>());
+              utils::int_<E::value>());
       return out;
     }
 

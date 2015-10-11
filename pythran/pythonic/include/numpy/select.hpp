@@ -22,9 +22,9 @@ namespace pythonic
                  Icond cbegin, long size, utils::int_<N>);
 
     template <class T, class U>
-    typename types::numpy_expr_to_ndarray<U>::type
+    types::ndarray<typename U::dtype, U::value>
     select(types::list<T> const &condlist, types::list<U> const &choicelist,
-           typename types::numpy_expr_to_ndarray<U>::T _default = 0);
+           typename U::dtype _default = 0);
 
     template <class T, size_t N, class U>
     types::ndarray<T, N>

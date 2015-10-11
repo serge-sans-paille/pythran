@@ -42,9 +42,8 @@ namespace pythonic
     size_t count_nonzero(E const &array)
     {
       size_t count(0);
-      _count_nonzero<typename E::dtype>(
-          array.begin(), array.end(), count,
-          utils::int_<types::numpy_expr_to_ndarray<E>::N>());
+      _count_nonzero<typename E::dtype>(array.begin(), array.end(), count,
+                                        utils::int_<E::value>());
       return count;
     }
 

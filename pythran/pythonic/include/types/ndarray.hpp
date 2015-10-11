@@ -17,7 +17,6 @@
 #include "pythonic/include/types/raw_array.hpp"
 
 #include "pythonic/include/types/vectorizable_type.hpp"
-#include "pythonic/include/types/numexpr_to_ndarray.hpp"
 #include "pythonic/include/types/numpy_op_helper.hpp"
 #include "pythonic/include/types/numpy_fexpr.hpp"
 #include "pythonic/include/types/numpy_expr.hpp"
@@ -443,8 +442,7 @@ namespace std
 
   template <size_t I, class Op, class... Args>
   struct tuple_element<I, pythonic::types::numpy_expr<Op, Args...>> {
-    using type = typename pythonic::types::numpy_expr_to_ndarray<
-        pythonic::types::numpy_expr<Op, Args...>>::type::value_type;
+    using type = typename pythonic::types::numpy_expr<Op, Args...>::dtype;
   };
 
   template <size_t I, class E>
@@ -488,7 +486,7 @@ namespace pythonic
 
       template <class E>
       struct getattr<attr::STRIDES, E> {
-        array<long, numpy_expr_to_ndarray<E>::N> operator()(E const &a);
+        array<long, E::value> operator()(E const &a);
       };
 
       template <class E>
@@ -513,7 +511,7 @@ namespace pythonic
 
       template <class E>
       struct getattr<attr::DTYPE, E> {
-        typename numpy_expr_to_ndarray<E>::T operator()(E const &a);
+        typename E::dtype operator()(E const &a);
       };
 
       template <class E>
@@ -564,8 +562,8 @@ namespace pythonic
       template <class E>
       struct getattr<attr::IMAG, E> {
 
-        typename numpy_expr_to_ndarray<E>::type make_imag(E const &a,
-                                                          utils::int_<0>);
+        types::ndarray<typename E::dtype, E::value> make_imag(E const &a,
+                                                              utils::int_<0>);
 
         auto make_imag(E const &a, utils::int_<1>)
             -> decltype(_build_gexpr<E::value>{}(

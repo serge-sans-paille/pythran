@@ -18,7 +18,7 @@ namespace pythonic
     void _nanmin(E begin, E end, F &min, utils::int_<N>);
 
     template <class E>
-    typename types::numpy_expr_to_ndarray<E>::T nanmin(E const &expr);
+    typename E::dtype nanmin(E const &expr);
 
     PROXY_DECL(pythonic::numpy, nanmin);
   }

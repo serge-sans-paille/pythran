@@ -26,10 +26,9 @@ namespace pythonic
     template <class E>
     typename std::enable_if<
         not types::is_dtype<E>::value,
-        std::tuple<typename types::numpy_expr_to_ndarray<E>::type,
-                   types::ndarray<int, types::numpy_expr_to_ndarray<E>::N>>>::
-        type
-        frexp(E const &arr);
+        std::tuple<types::ndarray<typename E::dtype, E::value>,
+                   types::ndarray<int, E::value>>>::type
+    frexp(E const &arr);
 
     PROXY_DECL(pythonic::numpy, frexp);
   }

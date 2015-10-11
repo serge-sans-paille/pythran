@@ -80,8 +80,7 @@ namespace pythonic
           E::is_vectorizable and
           not std::is_same<typename E::dtype, bool>::value;
       reduce_result_type<E> p = utils::neutral<Op, typename E::dtype>::value;
-      return _reduce<Op, types::numpy_expr_to_ndarray<E>::N, is_vectorizable>{}(
-          expr, p);
+      return _reduce<Op, E::value, is_vectorizable>{}(expr, p);
     }
 
     template <class Op, class E>

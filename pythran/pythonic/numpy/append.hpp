@@ -20,7 +20,7 @@ namespace pythonic
         1>
     append(types::ndarray<T, N> const &nto, F const &data)
     {
-      typename types::numpy_expr_to_ndarray<F>::type ndata(data);
+      types::ndarray<typename F::dtype, F::value> ndata(data);
       long nsize = nto.flat_size() + ndata.flat_size();
       types::ndarray<
           typename std::remove_cv<typename std::remove_reference<decltype(
@@ -44,7 +44,8 @@ namespace pythonic
     append(types::list<T> const &to, F const &data)
     {
       return append(
-          typename types::numpy_expr_to_ndarray<types::list<T>>::type(to),
+          types::ndarray<typename types::list<T>::dtype, types::list<T>::value>(
+              to),
           data);
     }
 

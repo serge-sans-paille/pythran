@@ -44,7 +44,7 @@ namespace pythonic
     bool allclose(U const &u, V const &v, double rtol, double atol)
     {
       return _allclose(u.begin(), u.end(), v.begin(), rtol, atol,
-                       utils::int_<types::numpy_expr_to_ndarray<U>::N>());
+                       utils::int_<U::value>());
     }
 
     PROXY_IMPL(pythonic::numpy, allclose);

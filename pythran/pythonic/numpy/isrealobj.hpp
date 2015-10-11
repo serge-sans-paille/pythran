@@ -15,8 +15,7 @@ namespace pythonic
     template <class E>
     constexpr bool isrealobj(E const &expr)
     {
-      return not types::is_complex<
-                 typename types::numpy_expr_to_ndarray<E>::type::dtype>::value;
+      return not types::is_complex<typename E::dtype>::value;
     }
 
     PROXY_IMPL(pythonic::numpy, isrealobj);

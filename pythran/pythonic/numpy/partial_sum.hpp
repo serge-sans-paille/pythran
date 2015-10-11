@@ -44,7 +44,7 @@ namespace pythonic
           the_partial_sum{types::make_tuple(count), __builtin__::None};
       auto const p = utils::neutral<Op, typename E::dtype>::value;
       auto iter = the_partial_sum.begin();
-      _partial_sum<Op, types::numpy_expr_to_ndarray<E>::N>{}(expr, iter, p);
+      _partial_sum<Op, E::value>{}(expr, iter, p);
       return the_partial_sum;
     }
 

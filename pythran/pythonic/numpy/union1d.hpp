@@ -29,18 +29,13 @@ namespace pythonic
 
     template <class E, class F>
     types::ndarray<
-        decltype(std::declval<typename types::numpy_expr_to_ndarray<E>::T>() +
-                 std::declval<typename types::numpy_expr_to_ndarray<F>::T>()),
-        1>
+        typename __combined<typename E::dtype, typename F::dtype>::type, 1>
     union1d(E const &e, F const &f)
     {
-      std::set<decltype(
-          std::declval<typename types::numpy_expr_to_ndarray<E>::T>() +
-          std::declval<typename types::numpy_expr_to_ndarray<F>::T>())> res;
-      _union1d(e.begin(), e.end(), res,
-               utils::int_<types::numpy_expr_to_ndarray<E>::N>());
-      _union1d(f.begin(), f.end(), res,
-               utils::int_<types::numpy_expr_to_ndarray<F>::N>());
+      std::set<typename __combined<typename E::dtype, typename F::dtype>::type>
+          res;
+      _union1d(e.begin(), e.end(), res, utils::int_<E::value>());
+      _union1d(f.begin(), f.end(), res, utils::int_<F::value>());
       return res;
     }
 

@@ -3,7 +3,6 @@
 
 #include "pythonic/include/utils/proxy.hpp"
 #include "pythonic/include/types/ndarray.hpp"
-#include "pythonic/include/types/numexpr_to_ndarray.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
 #include <nt2/include/functions/log2.hpp>
 

@@ -18,7 +18,7 @@ namespace pythonic
     void _nansum(E begin, E end, F &sum, utils::int_<N>);
 
     template <class E>
-    typename types::numpy_expr_to_ndarray<E>::T nansum(E const &expr);
+    typename E::dtype nansum(E const &expr);
 
     PROXY_DECL(pythonic::numpy, nansum);
   }

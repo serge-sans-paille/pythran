@@ -40,11 +40,10 @@ namespace pythonic
 
     template <class E>
     auto nonzero(E const &expr)
-        -> types::array<types::ndarray<long, 1>,
-                        types::numpy_expr_to_ndarray<E>::N>
+        -> types::array<types::ndarray<long, 1>, E::value>
     {
-      constexpr long N = types::numpy_expr_to_ndarray<E>::N;
-      typedef types::array<types::ndarray<long, 1>, N> out_type;
+      constexpr long N = E::value;
+      typedef types::array<types::ndarray<long, 1>, E::value> out_type;
       long sz = expr.flat_size();
 
       types::array<long *, N> out_buffers;

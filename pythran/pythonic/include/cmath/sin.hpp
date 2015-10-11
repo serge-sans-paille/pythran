@@ -2,6 +2,7 @@
 #define PYTHONIC_INCLUDE_CMATH_SIN_HPP
 
 #include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/types/complex.hpp"
 
 #include <cmath>
 

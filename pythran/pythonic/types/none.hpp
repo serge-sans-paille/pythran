@@ -4,11 +4,7 @@
 #include "pythonic/include/types/none.hpp"
 
 #include "pythonic/types/assignable.hpp"
-#include "pythonic/types/complex.hpp"
 #include "pythonic/__builtin__/id.hpp"
-
-#include <iterator>
-#include <cassert>
 
 namespace pythonic
 {

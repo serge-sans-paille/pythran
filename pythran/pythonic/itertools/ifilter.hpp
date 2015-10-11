@@ -6,6 +6,7 @@
 #include "pythonic/types/none.hpp"
 #include "pythonic/types/list.hpp"
 #include "pythonic/itertools/common.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 #include <iterator>
 #include <type_traits>

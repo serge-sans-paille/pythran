@@ -2,11 +2,6 @@
 #define PYTHONIC_INCLUDE_TYPES_NONE_HPP
 
 #include "pythonic/include/types/assignable.hpp"
-#include "pythonic/include/types/complex.hpp"
-#include "pythonic/include/__builtin__/id.hpp"
-
-#include <iterator>
-#include <cassert>
 
 namespace pythonic
 {

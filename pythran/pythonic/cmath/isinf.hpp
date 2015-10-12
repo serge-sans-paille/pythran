@@ -4,6 +4,7 @@
 #include "pythonic/include/cmath/isinf.hpp"
 
 #include "pythonic/utils/proxy.hpp"
+#include "pythonic/types/complex.hpp"
 
 #include <cmath>
 

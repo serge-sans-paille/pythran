@@ -4,6 +4,7 @@
 #include "pythonic/include/itertools/product.hpp"
 #include "pythonic/utils/iterator.hpp"
 #include "pythonic/itertools/common.hpp"
+#include "pythonic/utils/proxy.hpp"
 
 #include <iterator>
 #include <type_traits>

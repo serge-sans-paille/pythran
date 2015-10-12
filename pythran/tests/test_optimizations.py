@@ -225,10 +225,7 @@ def foo():
     'omp parallel'
     if 1:
         print a
-    return __builtin__.None
-def __init__():
-    return __builtin__.None
-__init__()"""
+    return __builtin__.None"""
         self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution"])
 
     def test_omp_forwarding2(self):
@@ -245,10 +242,7 @@ def foo():
     if 1:
         pass
         print 2
-    return __builtin__.None
-def __init__():
-    return __builtin__.None
-__init__()"""
+    return __builtin__.None"""
         self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution"])
 
     def test_omp_forwarding3(self):
@@ -265,10 +259,7 @@ def foo():
     if 1:
         a = 2
     print a
-    return __builtin__.None
-def __init__():
-    return __builtin__.None
-__init__()"""
+    return __builtin__.None"""
         self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution"])
 
     def test_full_unroll0(self):
@@ -293,10 +284,7 @@ def full_unroll0():
     j = __tuple0[1]
     i = __tuple0[0]
     __builtin__.list.append(k, (i, j))
-    return k
-def __init__():
-    return __builtin__.None
-__init__()'''
+    return k'''
 
         self.check_ast(init, ref, ["pythran.optimizations.ConstantFolding", "pythran.optimizations.LoopFullUnrolling"])
 
@@ -328,10 +316,7 @@ def bar(a):
     return 10
 def foo(a):
     (1 < bar(a))
-    return 2
-def __init__():
-    return __builtin__.None
-__init__()"""
+    return 2"""
         self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution", "pythran.optimizations.DeadCodeElimination"])
 
     def test_deadcodeelimination2(self):
@@ -343,10 +328,7 @@ def foo(a):
         ref = """import itertools
 def foo(a):
     pass
-    return 2
-def __init__():
-    return __builtin__.None
-__init__()"""
+    return 2"""
         self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution", "pythran.optimizations.DeadCodeElimination"])
 
     def test_deadcodeelimination3(self):
@@ -363,10 +345,7 @@ def bar(a):
 def foo(a):
     'omp flush'
     pass
-    return 2
-def __init__():
-    return __builtin__.None
-__init__()"""
+    return 2"""
         self.check_ast(init, ref, ["pythran.optimizations.DeadCodeElimination"])
 
     def test_patternmatching(self):
@@ -375,10 +354,7 @@ def foo(a):
     return len(set(range(len(set(a)))))"""
         ref = """import itertools
 def foo(a):
-    return __builtin__.pythran.len_set(__builtin__.range(__builtin__.pythran.len_set(a)))
-def __init__():
-    return __builtin__.None
-__init__()"""
+    return __builtin__.pythran.len_set(__builtin__.range(__builtin__.pythran.len_set(a)))"""
         self.check_ast(init, ref, ["pythran.optimizations.PatternTransform"])
 
     def test_patternmatching2(self):
@@ -387,10 +363,7 @@ def foo(a):
     return reversed(xrange(len(set(a))))"""
         ref = """import itertools
 def foo(a):
-    return __builtin__.xrange((__builtin__.pythran.len_set(a) - 1), (-1), (-1))
-def __init__():
-    return __builtin__.None
-__init__()"""
+    return __builtin__.xrange((__builtin__.pythran.len_set(a) - 1), (-1), (-1))"""
         self.check_ast(init, ref, ["pythran.optimizations.PatternTransform"])
 
     def test_patternmatching3(self):
@@ -399,8 +372,5 @@ def foo(a):
     return a * a"""
         ref = """import itertools
 def foo(a):
-    return (a ** 2)
-def __init__():
-    return __builtin__.None
-__init__()"""
+    return (a ** 2)"""
         self.check_ast(init, ref, ["pythran.optimizations.PatternTransform"])

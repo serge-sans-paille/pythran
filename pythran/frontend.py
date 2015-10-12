@@ -25,7 +25,7 @@ def parse(pm, code):
     _, docstrings = pm.apply(ExtractDocStrings, ir)
 
     # remove top - level statements
-    pm.apply(ExtractTopLevelStmts, ir)
+    _, has_init = pm.apply(ExtractTopLevelStmts, ir)
 
     # Handle user-defined import
     pm.apply(HandleImport, ir)
@@ -33,4 +33,4 @@ def parse(pm, code):
     # avoid conflicts with cxx keywords
     _, renamings = pm.apply(NormalizeIdentifiers, ir)
     check_syntax(ir)
-    return ir, renamings, docstrings
+    return ir, renamings, docstrings, has_init

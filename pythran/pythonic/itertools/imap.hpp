@@ -9,6 +9,7 @@
 #include "pythonic/utils/fwd.hpp"
 #include "pythonic/utils/int_.hpp"
 #include "pythonic/utils/iterator.hpp"
+#include "pythonic/utils/proxy.hpp"
 #include "pythonic/utils/seq.hpp"
 
 #include <iterator>

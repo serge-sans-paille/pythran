@@ -1,3 +1,41 @@
+2015-10-13 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+
+	* Significantly decrease compilation time
+
+	* Faster execution of numpy generalized slicing
+
+	* Tentative conda support
+
+	* Tentative Windows support (using Win Python)
+
+	* Preserve original docstrings
+
+	* Add __pythran__ global variable to pythran generated modules
+
+	* Faster implementation of various itertools functions
+
+	* Rely on distutils for module code compilation
+
+	* Support most of numpy.random
+
+	* Remove git and make dependency to install nt2
+
+	* Proper pip support instead of distuils
+
+	* Remove dependency to boost.python
+
+	* Remove dependency to tcmalloc
+
+	* Pythonic library cleaning (less dependencies / header / splitting / mrpropering)
+
+	* More lazy computations
+
+	* More numpy function support (including dot on matrices, linalg.norm, mean)
+
+	* Lot of code cleaning / refactoring (both in Python and C++)
+
+	* Many bugfixes, thanks to all the bug reporters!
+
 2015-04-06 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Various numpy.* function implementation improvement (incl. concatenate,

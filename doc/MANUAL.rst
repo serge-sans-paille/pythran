@@ -2,17 +2,17 @@
 User Manual
 ===========
 
-So you want to write algorithms that are easy to maintain as in python and
+So you want to write algorithms that are easy to maintain as in Python and
 you want performance as in FORTRAN or C++? Let give a try to Pythran!
-Pythran is a python-to-c++ translator that turns python module into native
+Pythran is a Python-to-c++ translator that turns Python module into native
 c++11 module. From a user point of view, you still ``import`` your module, but
 under the hood... There is much more happening!
 
 Disclaimer
 ----------
 
-Pythran is *not* a full python-to-c++ converter, as in *shedskin*. Instead it
-takes a subset of the python language and turns it into heavily templatized c++
+Pythran is *not* a full Python-to-c++ converter, as in *shedskin*. Instead it
+takes a subset of the Python language and turns it into heavily templatized c++
 code instantiated for your particular types.
 
 Say hello to:
@@ -48,12 +48,12 @@ Pythran depends on the following packages:
 - networkx: https://networkx.github.io/
 - numpy: http://www.numpy.org/
 
-You also need a modern C++11 enabled compiler (e.g. g++>=4.8), that supports
+You also need a modern C++11 enabled compiler (e.g. g++>=4.9), that supports
 for instance atomic operations (N3290) or variadic template (N2555).
 
 
-Installation
-------------
+Manual Installation
+-------------------
 
 First get the sources::
 
@@ -76,12 +76,8 @@ The ``setup.py`` scripts automates this. The ``test`` target, as in::
 
     python setup.py test
 
-runs a whole (and long) validation suite (you will need to install the ``pytest`` module first to use it).
-The ``bench`` target, as in::
-
-    python setup.py bench
-
-compares the performance of Pythran-generated code with CPython.
+runs a whole (and long) validation suite (you will need to install the
+``pytest`` module first to use it).
 
 If these tests fail, you are likely missing some of the requirements. You can
 set site specific flags in your ``~/.pythranrc``, read the doc a bit further!
@@ -89,7 +85,7 @@ set site specific flags in your ``~/.pythranrc``, read the doc a bit further!
 First Steps
 -----------
 
-To begin with, you need... a python function in a module. Something like::
+To begin with, you need... a Python function in a module. Something like::
 
 	<<dprod.py>>
 	def dprod(arr0, arr1):
@@ -109,8 +105,14 @@ Afterwards, frenetically type::
 	$> pythran dprod.py
 
 \o/ a ``dprod.so`` native module has been created and you can play with it
-right *now*. The speedup will not be terrific because of the conversion cost
-from python to C++.
+right *now*, as if it where a normal module::
+
+    >>> import dprod # this imports the native version if available
+    >>> dprod.dprod([1,2], [3,4])
+    11
+
+The speedup will not be terrific because of the conversion cost
+from Python to C++.
 
 So let's try again with a well-known example. Let me
 introduce the almighty *matrix multiply*!::
@@ -134,7 +136,7 @@ just add::
 	#pythran export matrix_multiply(float list list, float list list)
 
 to the source file. Note how Pythran can combine different types and infers the
-resulting type. It also respects the nested list structure of python, so you
+resulting type. It also respects the nested list structure of Python, so you
 are not limited to matrices...
 
 Enough talk, run::
@@ -191,7 +193,7 @@ There is currently only one Pythran command, the ``export`` command. Its syntax 
 where ``function_name`` is the name of a function defined in the module, and
 ``argument_type*`` is a comma separated list of argument types, composed of any
 combination of basic types and constructed types. What is a basic type?
-Anything that looks like a python basic type! Constructed types are either
+Anything that looks like a Python basic type! Constructed types are either
 tuples, introduced by parenthesis, like ``(int, (float, str))`` or lists (resp.
 set), introduced by the ``list`` (resp. ``set``) keyword::
 
@@ -323,8 +325,8 @@ Be careful with the indentation. It has to be correct.
 Getting Pure C++
 ----------------
 
-Pythran can be used to generate raw templated C++ code, without any python
-glue. To do so use the ``-e`` switch. It will turn the python code into c++
+Pythran can be used to generate raw templated C++ code, without any Python
+glue. To do so use the ``-e`` switch. It will turn the Python code into c++
 code you can call from a C++ code. In that case there is **no** need for a
 particular Pythran specification.
 
@@ -429,9 +431,9 @@ F.A.Q.
 
 1. Supported compiler versions:
 
-   - `g++` version 4.8
+   - `g++` version 4.9
 
-   - `clang++` version 3.1-8
+   - `clang++` version 3.5
 
 Troubleshooting
 ---------------

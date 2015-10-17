@@ -77,12 +77,13 @@ Using brew (http://brew.sh/)::
 
     $> easy_install pip
 
-    $> pip install pythran
+    $> pip install numpy pythran
 
 Depending on your setup, you may need to add the following to your \\~/.pythranrc`` file::
 
-    [user]
-    cxx=g++-4.9
+    [compiler]
+    CXX=g++-4.9
+    CC=gcc-4.9
 
 ArchLinux
 =========

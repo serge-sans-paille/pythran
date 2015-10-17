@@ -1,6 +1,5 @@
-======================
 Command Line Interface
-======================
+######################
 
 This file shows some use case of Pythran on the command line.
 

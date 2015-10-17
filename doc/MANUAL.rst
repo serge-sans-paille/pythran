@@ -1,6 +1,5 @@
-===========
 User Manual
-===========
+###########
 
 So you want to write algorithms that are easy to maintain as in Python and
 you want performance as in FORTRAN or C++? Let give a try to Pythran!
@@ -59,13 +58,17 @@ First get the sources::
 
     $> git clone https://github.com/serge-sans-paille/pythran
 
+Install *cough* numpy manually::
+
+    $> pip install --user numpy
+
 The from the source directory, run::
 
-	$> python setup.py install --prefix=<my_prefix>
+    $> python setup.py install --user
 
 And set your path to::
 
-	$> export PATH=$PATH:<my_prefix>/bin
+    $> export PATH=$PATH:$HOME/.local/bin
 
 It makes the ``pythran`` command available to you.
 
@@ -87,22 +90,22 @@ First Steps
 
 To begin with, you need... a Python function in a module. Something like::
 
-	<<dprod.py>>
-	def dprod(arr0, arr1):
-		return sum([x*y for x,y in zip(arr0, arr1)])
+    <<dprod.py>>
+    def dprod(arr0, arr1):
+        return sum([x*y for x,y in zip(arr0, arr1)])
 
 is perfect. But due to \_o< typing, ``arr0`` and ``arr1`` can be of any type,
 so Pythran needs a small hint there. Add the following line somewhere in your
 file, say at the top head, or right before the function definition::
 
-	#pythran export dprod(int list, int list)
+    #pythran export dprod(int list, int list)
 
 This basically tells Pythran the type of the forthcoming arguments.
 
 
 Afterwards, frenetically type::
 
-	$> pythran dprod.py
+    $> pythran dprod.py
 
 \o/ a ``dprod.so`` native module has been created and you can play with it
 right *now*, as if it where a normal module::
@@ -117,15 +120,15 @@ from Python to C++.
 So let's try again with a well-known example. Let me
 introduce the almighty *matrix multiply*!::
 
-	<<mm.py>>
-	def zero(n,m): return [[0]*n for col in range(m)]
-	def matrix_multiply(m0, m1):
-		new_matrix = zero(len(m0),len(m1[0]))
-		for i in range(len(m0)):
-			for j in range(len(m1[0])):
-				for k in range(len(m1)):
-					new_matrix[i][j] += m0[i][k]*m1[k][j]
-		return new_matrix
+    <<mm.py>>
+    def zero(n,m): return [[0]*n for col in range(m)]
+    def matrix_multiply(m0, m1):
+        new_matrix = zero(len(m0),len(m1[0]))
+        for i in range(len(m0)):
+            for j in range(len(m1[0])):
+                for k in range(len(m1)):
+                    new_matrix[i][j] += m0[i][k]*m1[k][j]
+        return new_matrix
 
 This a slightly more complex example, as a few intrinsics such as ``range`` or
 ``len`` are used, with a function call and even nested list comprehension. But
@@ -133,7 +136,7 @@ Pythran can make its way through this. As you only want to export the
 ``matrix_multiply`` function, you can safely ignore the ``zero`` function and
 just add::
 
-	#pythran export matrix_multiply(float list list, float list list)
+    #pythran export matrix_multiply(float list list, float list list)
 
 to the source file. Note how Pythran can combine different types and infers the
 resulting type. It also respects the nested list structure of Python, so you
@@ -141,7 +144,7 @@ are not limited to matrices...
 
 Enough talk, run::
 
-	$> pythran mm.py
+    $> pythran mm.py
 
 One touch of magic wand and you have your native binary. Be amazed by the
 generation of a ``mm.so`` native module that run around 20x faster than the
@@ -149,7 +152,7 @@ original one. ``timeit`` approved!
 
 But scientific computing in Python usually means Numpy. Here is a well-known Numpy snippet::
 
-	<<arc_distance.py>>
+    <<arc_distance.py>>
     import numpy as np
     def arc_distance(theta_1, phi_1, theta_2, phi_2):
         """
@@ -165,7 +168,7 @@ This example uses a lot of Numpy `ufunc`. Pythran is reasonably good at
 handling such expressions. As you already now, you need to **export** it, giving its
 argument type by adding::
 
-	#pythran export arc_distance(float[], float[], float[], float[])
+    #pythran export arc_distance(float[], float[], float[], float[])
 
 To the input file. You can compile it as the previous code::
 
@@ -188,7 +191,7 @@ these complex language!
 
 There is currently only one Pythran command, the ``export`` command. Its syntax is::
 
-	#pythran export function_name(argument_type*)
+    #pythran export function_name(argument_type*)
 
 where ``function_name`` is the name of a function defined in the module, and
 ``argument_type*`` is a comma separated list of argument types, composed of any
@@ -197,15 +200,15 @@ Anything that looks like a Python basic type! Constructed types are either
 tuples, introduced by parenthesis, like ``(int, (float, str))`` or lists (resp.
 set), introduced by the ``list`` (resp. ``set``) keyword::
 
-	argument_type = basic_type
-				  | (argument_type+)	# this is a tuple
-				  | argument_type list	# this is a list
-				  | argument_type set	# this is a set
-				  | argument_type []+	# this is a ndarray
-				  | argument_type [::]+	# this is a strided ndarray
-				  | argument_type:argument_type dict	# this is a dictionary
+    argument_type = basic_type
+                  | (argument_type+)    # this is a tuple
+                  | argument_type list    # this is a list
+                  | argument_type set    # this is a set
+                  | argument_type []+    # this is a ndarray
+                  | argument_type [::]+    # this is a strided ndarray
+                  | argument_type:argument_type dict    # this is a dictionary
 
-	basic_type = bool | int | long | float | str
+    basic_type = bool | int | long | float | str
                | uint8 | uint16 | uint32 | uint64
                | int8 | int16 | int32 | int64
                | float32 | float64

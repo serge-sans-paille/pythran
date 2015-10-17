@@ -13,6 +13,18 @@ import re
 import shutil
 import sys
 
+# See https://gist.github.com/kejbaly2/71517b08536776399198
+# Turns out installing numpy as a dep with setuptools is tricky
+try:
+    import numpy
+except ImportError:
+    print()
+    print("******************************************************************")
+    print("* Numpy must be installed before running setup, sorry about this *")
+    print("******************************************************************")
+    print()
+    raise
+
 logger = logging.getLogger("pythran")
 logger.addHandler(logging.StreamHandler())
 
@@ -44,26 +56,9 @@ class BuildWithPly(build_py):
     """
     Set up Pythran dependencies.
 
-    * generate parsetab file for ply module
     * install nt2
     * install boost.simd
     """
-
-    def build_ply(self):
-        """
-        Generate parsing file for the Pythran grammar.
-
-        Yacc have to generate a parsetab.py file to quicken futher parsing.
-        This file have to be generated before the first use as it is generated
-        in the pythran package so it could be a root folder.
-
-        Also, it has to be generated from the "in build" module as we don't
-        want create a parsetab file for the "already installed" module.
-        """
-        sys.path.insert(0, os.path.abspath(self.build_lib))
-        from pythran.spec import SpecParser
-        SpecParser()  # this forces the generation of the parsetab file
-        sys.path.pop(0)
 
     def patch_nt2(self, nt2_path, version):
         """
@@ -146,7 +141,6 @@ class BuildWithPly(build_py):
         build_py.run(self, *args, **kwargs)
         if not self.dry_run:  # compatibility with the parent options
             self.build_nt2()
-            self.build_ply()
 
 
 # Cannot use glob here, as the files may not be generated yet
@@ -179,9 +173,8 @@ setup(name='pythran',
       ],
       license="BSD 3-Clause",
       install_requires=[
-          'ply>=3.6',
+          'ply>=3.4',
           'networkx>=1.5',
-          'numpy',
           'colorlog',
           'decorator',
       ],

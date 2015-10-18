@@ -32,7 +32,7 @@ before_install:
     - pip install pytest-pep8
     - pip install pytest-xdist
 
-    - python setup.py install 1> /dev/null
+    - python setup.py install --user 1> /dev/null
 
 env:
     - PEP8=false TESTCASE=pythran/tests/test_advanced.py CC=gcc-4.9 CXX=g++-4.9 CXXFLAGS="-g"

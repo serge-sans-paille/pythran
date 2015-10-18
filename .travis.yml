@@ -24,7 +24,8 @@ addons:
             - liblapack-dev
 
 before_install:
-    - brew install python
+    - brew update
+    - brew install gcc49 python
     - pip install ply
     - pip install networkx
     - pip install colorlog

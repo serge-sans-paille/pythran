@@ -24,7 +24,7 @@ addons:
             - liblapack-dev
 
 before_install:
-    - brew update && brew install gmp cmake
+    - brew update && brew install gmp && brew install python --universal --framework
     - pip install ply
     - pip install networkx
     - pip install colorlog

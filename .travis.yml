@@ -24,7 +24,7 @@ addons:
             - liblapack-dev
 
 before_install:
-    - brew install python --universal --framework
+    - brew install python
     - pip install ply
     - pip install networkx
     - pip install colorlog

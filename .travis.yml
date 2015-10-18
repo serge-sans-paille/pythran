@@ -25,7 +25,8 @@ addons:
 
 before_install:
     - brew update
-    - brew install gcc49 python
+    - brew install gcc49
+    - brew install python
     - pip install ply
     - pip install networkx
     - pip install colorlog
@@ -36,7 +37,8 @@ before_install:
     - python setup.py install --user 1> /dev/null
 
 env:
-    - PEP8=false TESTCASE=pythran/tests/test_advanced.py CC=gcc-4.9 CXX=g++-4.9 CXXFLAGS="-g"
+    - gcc-4.9 --version
+      #- PEP8=false TESTCASE=pythran/tests/test_advanced.py CC=gcc-4.9 CXX=g++-4.9 CXXFLAGS="-g"
       #    - PEP8=false TESTCASE=pythran/tests/test_advanced.py CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS="-DUSE_BOOST_SIMD -march=native"
       #    - PEP8=false TESTCASE=pythran/tests/test_advanced.py CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS="-fopenmp"
       #    - PEP8=false TESTCASE=pythran/tests/test_advanced.py CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS="-DUSE_BOOST_SIMD -march=native -fopenmp"

@@ -15,9 +15,7 @@ namespace pythonic
     bool _array_equiv(I0 vbegin, I0 vend, U const &uu);
 
     template <class U, class V>
-    typename std::enable_if<types::numpy_expr_to_ndarray<U>::N ==
-                                types::numpy_expr_to_ndarray<V>::N,
-                            bool>::type
+    typename std::enable_if<U::value == V::value, bool>::type
     array_equiv(U const &u, V const &v)
     {
       return array_equal(u, v);
@@ -25,9 +23,7 @@ namespace pythonic
 
     template <class U, class V>
         typename std::enable_if <
-        types::numpy_expr_to_ndarray<U>::N<types::numpy_expr_to_ndarray<V>::N,
-                                           bool>::type
-        array_equiv(U const &u, V const &v)
+        U::value<V::value, bool>::type array_equiv(U const &u, V const &v)
     {
       if (v.flat_size() % u.flat_size() == 0)
         // requires allocation for u' as it is used multiple times.
@@ -36,9 +32,7 @@ namespace pythonic
     }
 
     template <class U, class V>
-    typename std::enable_if<(types::numpy_expr_to_ndarray<U>::N >
-                             types::numpy_expr_to_ndarray<V>::N),
-                            bool>::type
+    typename std::enable_if<(U::value > V::value), bool>::type
     array_equiv(U const &u, V const &v)
     {
       return array_equiv(v, u);

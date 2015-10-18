@@ -19,7 +19,6 @@
 #include "pythonic/types/raw_array.hpp"
 
 #include "pythonic/types/vectorizable_type.hpp"
-#include "pythonic/types/numexpr_to_ndarray.hpp"
 #include "pythonic/types/numpy_op_helper.hpp"
 #include "pythonic/types/numpy_fexpr.hpp"
 #include "pythonic/types/numpy_expr.hpp"
@@ -818,7 +817,7 @@ namespace pythonic
     typename std::enable_if<is_array<E>::value, std::ostream &>::type
     operator<<(std::ostream &os, E const &e)
     {
-      return os << typename numpy_expr_to_ndarray<E>::type(e);
+      return os << typename E::dtype(e);
     }
 
     /* } */
@@ -864,16 +863,14 @@ namespace pythonic
       template <class E>
       long getattr<attr::NDIM, E>::operator()(E const &a)
       {
-        return numpy_expr_to_ndarray<E>::N;
+        return E::value;
       }
 
       template <class E>
-      array<long, numpy_expr_to_ndarray<E>::N> getattr<attr::STRIDES, E>::
-      operator()(E const &a)
+      array<long, E::value> getattr<attr::STRIDES, E>::operator()(E const &a)
       {
-        array<long, numpy_expr_to_ndarray<E>::N> strides;
-        strides[numpy_expr_to_ndarray<E>::N - 1] =
-            sizeof(typename numpy_expr_to_ndarray<E>::T);
+        array<long, E::value> strides;
+        strides[E::value - 1] = sizeof(typename E::dtype);
         auto shape = a.shape();
         std::transform(strides.rbegin(), strides.rend() - 1, shape.rbegin(),
                        strides.rbegin() + 1, std::multiplies<long>());
@@ -889,13 +886,13 @@ namespace pythonic
       template <class E>
       long getattr<attr::ITEMSIZE, E>::operator()(E const &a)
       {
-        return sizeof(typename numpy_expr_to_ndarray<E>::T);
+        return sizeof(typename E::dtype);
       }
 
       template <class E>
       long getattr<attr::NBYTES, E>::operator()(E const &a)
       {
-        return a.flat_size() * sizeof(typename numpy_expr_to_ndarray<E>::T);
+        return a.flat_size() * sizeof(typename E::dtype);
       }
 
       template <class E>
@@ -905,10 +902,9 @@ namespace pythonic
       }
 
       template <class E>
-      typename numpy_expr_to_ndarray<E>::T getattr<attr::DTYPE, E>::
-      operator()(E const &a)
+      typename E::dtype getattr<attr::DTYPE, E>::operator()(E const &a)
       {
-        return typename numpy_expr_to_ndarray<E>::T();
+        return typename E::dtype();
       }
 
       template <class E>
@@ -984,12 +980,11 @@ namespace pythonic
       }
 
       template <class E>
-      typename numpy_expr_to_ndarray<E>::type
+      types::ndarray<typename E::dtype, E::value>
       getattr<attr::IMAG, E>::make_imag(E const &a, utils::int_<0>)
       {
         // cannot use numpy.zero: forward declaration issue
-        using T = typename numpy_expr_to_ndarray<E>::type;
-        return T((typename T::dtype *)calloc(a.flat_size(),
+        return E((typename E::dtype *)calloc(a.flat_size(),
                                              sizeof(typename E::dtype)),
                  a.shape().data());
       }

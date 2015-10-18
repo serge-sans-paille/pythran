@@ -28,14 +28,11 @@ namespace pythonic
     }
 
     template <class E>
-    types::ndarray<typename types::numpy_expr_to_ndarray<E>::T, 1>
-    unique(E const &expr)
+    types::ndarray<typename E::dtype, 1> unique(E const &expr)
     {
-      std::set<typename types::numpy_expr_to_ndarray<E>::T> res;
-      _unique1(expr.begin(), expr.end(), res,
-               utils::int_<types::numpy_expr_to_ndarray<E>::N>());
-      return types::ndarray<typename types::numpy_expr_to_ndarray<E>::T, 1>(
-          res);
+      std::set<typename E::dtype> res;
+      _unique1(expr.begin(), expr.end(), res, utils::int_<E::value>());
+      return types::ndarray<typename E::dtype, 1>(res);
     }
 
     template <class I, class O0, class O1>
@@ -57,18 +54,16 @@ namespace pythonic
     }
 
     template <class E>
-    std::tuple<types::ndarray<typename types::numpy_expr_to_ndarray<E>::T, 1>,
-               types::ndarray<long, 1>>
+    std::tuple<types::ndarray<typename E::dtype, 1>, types::ndarray<long, 1>>
     unique(E const &expr, bool return_index)
     {
-      std::set<typename types::numpy_expr_to_ndarray<E>::T> res;
+      std::set<typename E::dtype> res;
       std::vector<long> return_index_res;
       long i = 0;
       _unique2(expr.begin(), expr.end(), res, return_index_res, i,
-               utils::int_<types::numpy_expr_to_ndarray<E>::N>());
-      return std::make_tuple(
-          types::ndarray<typename types::numpy_expr_to_ndarray<E>::T, 1>(res),
-          types::ndarray<long, 1>(return_index_res));
+               utils::int_<E::value>());
+      return std::make_tuple(types::ndarray<typename E::dtype, 1>(res),
+                             types::ndarray<long, 1>(return_index_res));
     }
 
     template <class I, class O0, class O1, class O2>
@@ -92,21 +87,20 @@ namespace pythonic
     }
 
     template <class E>
-    std::tuple<types::ndarray<typename types::numpy_expr_to_ndarray<E>::T, 1>,
-               types::ndarray<long, 1>, types::ndarray<long, 1>>
+    std::tuple<types::ndarray<typename E::dtype, 1>, types::ndarray<long, 1>,
+               types::ndarray<long, 1>>
     unique(E const &expr, bool return_index, bool return_inverse)
     {
-      std::set<typename types::numpy_expr_to_ndarray<E>::T> res;
+      std::set<typename E::dtype> res;
       std::vector<long> return_index_res;
       types::ndarray<long, 1> return_inverse_res(
           types::array<long, 1>{{expr.flat_size()}}, __builtin__::None);
       long i = 0;
       _unique3(expr.begin(), expr.end(), res, return_index_res,
-               return_inverse_res, i,
-               utils::int_<types::numpy_expr_to_ndarray<E>::N>());
-      return std::make_tuple(
-          types::ndarray<typename types::numpy_expr_to_ndarray<E>::T, 1>(res),
-          types::ndarray<long, 1>(return_index_res), return_inverse_res);
+               return_inverse_res, i, utils::int_<E::value>());
+      return std::make_tuple(types::ndarray<typename E::dtype, 1>(res),
+                             types::ndarray<long, 1>(return_index_res),
+                             return_inverse_res);
     }
 
     PROXY_IMPL(pythonic::numpy, unique)

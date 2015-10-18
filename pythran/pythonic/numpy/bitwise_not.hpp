@@ -4,7 +4,6 @@
 #include "pythonic/include/numpy/bitwise_not.hpp"
 
 #include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/numexpr_to_ndarray.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
 #include "pythonic/types/numpy_op_helper.hpp"
 

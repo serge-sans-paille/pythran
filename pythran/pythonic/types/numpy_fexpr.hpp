@@ -4,7 +4,6 @@
 #include "pythonic/include/types/numpy_fexpr.hpp"
 
 #include "pythonic/types/nditerator.hpp"
-#include "pythonic/types/numexpr_to_ndarray.hpp"
 
 namespace pythonic
 {

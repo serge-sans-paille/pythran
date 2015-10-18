@@ -2,7 +2,6 @@
 #define PYTHONIC_INCLUDE_TYPES_NUMPY_FEXPR_HPP
 
 #include "pythonic/include/types/nditerator.hpp"
-#include "pythonic/include/types/numexpr_to_ndarray.hpp"
 
 namespace pythonic
 {
@@ -123,8 +122,8 @@ namespace pythonic
 
   template <class Arg, class F>
   struct assignable<types::numpy_fexpr<Arg, F>> {
-    using type =
-        typename types::numpy_expr_to_ndarray<types::numpy_fexpr<Arg, F>>::type;
+    using type = types::ndarray<typename types::numpy_fexpr<Arg, F>::dtype,
+                                types::numpy_fexpr<Arg, F>::value>;
   };
 
   template <class Arg, class F>

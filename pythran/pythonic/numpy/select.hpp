@@ -44,11 +44,11 @@ namespace pythonic
     }
 
     template <class T, class U>
-    typename types::numpy_expr_to_ndarray<U>::type
+    types::ndarray<typename U::type, U::value>
     select(types::list<T> const &condlist, types::list<U> const &choicelist,
-           typename types::numpy_expr_to_ndarray<U>::T _default)
+           typename U::dtype _default)
     {
-      constexpr size_t N = types::numpy_expr_to_ndarray<U>::N;
+      constexpr size_t N = U::value;
       auto &&choicelist0_shape = choicelist[0].shape();
       types::ndarray<T, N> out(choicelist0_shape, _default);
       types::ndarray<T, N> selected(choicelist0_shape(), false);

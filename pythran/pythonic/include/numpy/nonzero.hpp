@@ -19,8 +19,7 @@ namespace pythonic
 
     template <class E>
     auto nonzero(E const &expr)
-        -> types::array<types::ndarray<long, 1>,
-                        types::numpy_expr_to_ndarray<E>::N>;
+        -> types::array<types::ndarray<long, 1>, E::value>;
 
     PROXY_DECL(pythonic::numpy, nonzero)
   }

@@ -36,14 +36,14 @@ namespace pythonic
     }
 
     template <class E>
-    typename types::numpy_expr_to_ndarray<E>::T nanargmin(E const &expr)
+    typename E::dtype nanargmin(E const &expr)
     {
-      typename types::numpy_expr_to_ndarray<E>::T min = std::numeric_limits<
-          typename types::numpy_expr_to_ndarray<E>::T>::infinity();
+      typename E::dtype min =
+          std::numeric_limits<typename E::dtype>::infinity();
       long where = -1;
       long index = 0;
       _nanargmin(expr.begin(), expr.end(), min, index, where,
-                 utils::int_<types::numpy_expr_to_ndarray<E>::N>());
+                 utils::int_<E::value>());
       if (where >= 0)
         return where;
       else

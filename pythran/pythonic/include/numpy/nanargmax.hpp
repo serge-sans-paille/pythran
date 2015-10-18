@@ -20,7 +20,7 @@ namespace pythonic
                     utils::int_<N>);
 
     template <class E>
-    typename types::numpy_expr_to_ndarray<E>::T nanargmax(E const &expr);
+    typename E::dtype nanargmax(E const &expr);
 
     PROXY_DECL(pythonic::numpy, nanargmax);
   }

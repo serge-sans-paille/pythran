@@ -17,9 +17,7 @@ namespace pythonic
 
     template <class E, class F>
     types::ndarray<
-        decltype(std::declval<typename types::numpy_expr_to_ndarray<E>::T>() +
-                 std::declval<typename types::numpy_expr_to_ndarray<F>::T>()),
-        1>
+        typename __combined<typename E::dtype, typename F::dtype>::type, 1>
     union1d(E const &e, F const &f);
 
     PROXY_DECL(pythonic::numpy, union1d)

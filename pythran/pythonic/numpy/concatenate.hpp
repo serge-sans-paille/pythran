@@ -44,8 +44,9 @@ namespace pythonic
                       typename __combined<Types...>::type>::type::dtype *iter,
                   utils::int_<1>)
       {
-        typename types::numpy_expr_to_ndarray<typename std::tuple_element<
-            sizeof...(Types)-1, std::tuple<Types...>>::type>::type t =
+        using arr = typename std::tuple_element<sizeof...(Types)-1,
+                                                std::tuple<Types...>>::type;
+        types::ndarray<typename arr::dtype, arr::value> t =
             std::get<sizeof...(Types)-1>(
                 a); // We force evaluation of the ndarray
         std::copy(t.fbegin(), t.fend(), iter);
@@ -58,8 +59,9 @@ namespace pythonic
                       typename __combined<Types...>::type>::type::dtype *iter,
                   utils::int_<M>)
       {
-        typename types::numpy_expr_to_ndarray<typename std::tuple_element<
-            sizeof...(Types)-M, std::tuple<Types...>>::type>::type t =
+        using arr = typename std::tuple_element<sizeof...(Types)-M,
+                                                std::tuple<Types...>>::type;
+        types::ndarray<typename arr::dtype, arr::value> t =
             std::get<sizeof...(Types)-M>(
                 a); // We force evaluation of the ndarray
         iter = std::copy(t.fbegin(), t.fend(), iter);

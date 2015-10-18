@@ -103,10 +103,11 @@ namespace pythonic
     };
   }
 
-  template <class Op, class... Arg>
-  struct assignable<types::numpy_expr<Op, Arg...>> {
-    using type = typename types::numpy_expr_to_ndarray<
-        types::numpy_expr<Op, Arg...>>::type;
+  template <class Op, class... Args>
+  struct assignable<types::numpy_expr<Op, Args...>> {
+    using type =
+        types::ndarray<typename pythonic::types::numpy_expr<Op, Args...>::dtype,
+                       pythonic::types::numpy_expr<Op, Args...>::value>;
   };
 
   template <class Op, class... Arg>
@@ -151,8 +152,9 @@ struct __combined<pythonic::types::numpy_expr<Op, Args...>, container<K>> {
 template <class Op, class Op2, class... Args, class... Args2>
 struct __combined<pythonic::types::numpy_expr<Op, Args...>,
                   pythonic::types::numpy_expr<Op2, Args2...>> {
-  using type = typename pythonic::types::numpy_expr_to_ndarray<
-      pythonic::types::numpy_expr<Op, Args...>>::type;
+  using type = pythonic::types::ndarray<
+      typename pythonic::types::numpy_expr<Op, Args...>::dtype,
+      pythonic::types::numpy_expr<Op, Args...>::value>;
 };
 
 /*}*/

@@ -42,12 +42,10 @@ namespace pythonic
       auto out_iter = out.fbegin();
       if (is_increasing)
         _digitize(expr.begin(), expr.end(), out_iter, bins,
-                  operator_::proxy::lt(),
-                  utils::int_<types::numpy_expr_to_ndarray<E>::N>());
+                  operator_::proxy::lt(), utils::int_<E::value>());
       else
         _digitize(expr.begin(), expr.end(), out_iter, bins,
-                  operator_::proxy::gt(),
-                  utils::int_<types::numpy_expr_to_ndarray<E>::N>());
+                  operator_::proxy::gt(), utils::int_<E::value>());
       return out;
     }
 

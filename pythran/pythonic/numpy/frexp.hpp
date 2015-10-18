@@ -42,16 +42,14 @@ namespace pythonic
     template <class E>
     typename std::enable_if<
         not types::is_dtype<E>::value,
-        std::tuple<typename types::numpy_expr_to_ndarray<E>::type,
-                   types::ndarray<int, types::numpy_expr_to_ndarray<E>::N>>>::
-        type
-        frexp(E const &arr)
+        std::tuple<types::ndarray<typename E::dtype, E::value>,
+                   types::ndarray<int, E::value>>>::type
+    frexp(E const &arr)
     {
       auto &&arr_shape = arr.shape();
-      typename types::numpy_expr_to_ndarray<E>::type significands(
+      types::ndarray<typename E::dtype, E::value> significands(
           arr_shape, __builtin__::None);
-      types::ndarray<int, types::numpy_expr_to_ndarray<E>::N> exps(
-          arr_shape, __builtin__::None);
+      types::ndarray<int, E::value> exps(arr_shape, __builtin__::None);
       _frexp(arr.begin(), arr.end(), significands.begin(), exps.begin(),
              utils::int_<E::value>());
       return std::make_tuple(significands, exps);

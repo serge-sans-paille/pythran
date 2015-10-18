@@ -16,7 +16,7 @@ namespace pythonic
     typename types::ndarray<long, 2> argwhere(E const &expr)
     {
       using out_type = typename types::ndarray<long, 2>;
-      constexpr long N = types::numpy_expr_to_ndarray<E>::N;
+      constexpr long N = E::value;
       auto arr = asarray(expr);
       long sz = arr.flat_size();
       auto eshape = arr.shape();

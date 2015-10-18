@@ -21,9 +21,7 @@ namespace pythonic
 
       // only for compatibility purpose, very bad impl
       template <class E>
-      typename types::numpy_expr_to_ndarray<
-          typename std::remove_reference<E>::type>::type::dtype
-      item(E &&expr, long i);
+      typename std::decay<E>::dtype item(E &&expr, long i);
 
       PROXY_DECL(pythonic::numpy::ndarray, item);
     }

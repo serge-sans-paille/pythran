@@ -30,12 +30,10 @@ namespace pythonic
     }
 
     template <class E>
-    typename types::numpy_expr_to_ndarray<E>::T nanmax(E const &expr)
+    typename E::dtype nanmax(E const &expr)
     {
-      typename types::numpy_expr_to_ndarray<E>::T max = std::numeric_limits<
-          typename types::numpy_expr_to_ndarray<E>::T>::lowest();
-      _nanmax(expr.begin(), expr.end(), max,
-              utils::int_<types::numpy_expr_to_ndarray<E>::N>());
+      typename E::dtype max = std::numeric_limits<typename E::dtype>::lowest();
+      _nanmax(expr.begin(), expr.end(), max, utils::int_<E::value>());
       return max;
     }
 

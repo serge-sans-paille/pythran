@@ -23,22 +23,19 @@ namespace pythonic
     }
 
     template <class E>
-    std::tuple<types::array<long, types::numpy_expr_to_ndarray<E>::N>,
-               typename types::numpy_expr_to_ndarray<E>::type::dtype>
+    std::tuple<types::array<long, E::value>, typename E::dtype>
         ndenumerate_iterator<E>::operator*()
     {
-      constexpr long N = types::numpy_expr_to_ndarray<E>::N;
-      types::array<long, N> out;
+      types::array<long, E::value> out;
       auto &&shape = expr.shape();
       long mult = 1;
-      for (long j = N - 1; j > 0; j--) {
+      for (long j = E::value - 1; j > 0; j--) {
         out[j] = (index / mult) % shape[j];
         mult *= shape[j];
       }
       out[0] = index / mult;
-      return std::tuple<types::array<long, types::numpy_expr_to_ndarray<E>::N>,
-                        typename types::numpy_expr_to_ndarray<E>::type::dtype>(
-          out, *iter);
+      return std::tuple<types::array<long, E::value>, typename E::dtype>{out,
+                                                                         *iter};
     }
 
     template <class E>

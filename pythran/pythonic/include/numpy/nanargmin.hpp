@@ -20,7 +20,7 @@ namespace pythonic
                     utils::int_<N>);
 
     template <class E>
-    typename types::numpy_expr_to_ndarray<E>::T nanargmin(E const &expr);
+    typename E::dtype nanargmin(E const &expr);
 
     PROXY_DECL(pythonic::numpy, nanargmin);
   }

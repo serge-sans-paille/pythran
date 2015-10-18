@@ -34,8 +34,7 @@ namespace pythonic
     typename std::enable_if<types::is_numexpr_arg<E>::value, bool>::type
     any(E const &expr, types::none_type)
     {
-      return _any(expr.begin(), expr.end(),
-                  utils::int_<types::numpy_expr_to_ndarray<E>::N>());
+      return _any(expr.begin(), expr.end(), utils::int_<E::value>());
     }
 
     template <class E>

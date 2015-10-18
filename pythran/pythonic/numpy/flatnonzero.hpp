@@ -33,8 +33,7 @@ namespace pythonic
       long *buffer = (long *)malloc(sizeof(long) * n);
       long *iter = buffer;
       long i = 0;
-      _flatnonzero(expr.begin(), expr.end(), iter, i,
-                   utils::int_<types::numpy_expr_to_ndarray<E>::N>());
+      _flatnonzero(expr.begin(), expr.end(), iter, i, utils::int_<E::value>());
       long shape[1] = {iter - buffer};
       return types::ndarray<long, 1>(buffer, shape);
     }

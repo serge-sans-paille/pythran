@@ -19,11 +19,10 @@ namespace pythonic
     }
 
     template <class T>
-    auto atleast_3d(T const &t) -> typename std::enable_if<
-        (not types::is_dtype<T>::value) and
-            (types::numpy_expr_to_ndarray<T>::type::value < 3),
-        types::ndarray<typename types::numpy_expr_to_ndarray<T>::type::dtype,
-                       3>>::type
+    auto atleast_3d(T const &t) ->
+        typename std::enable_if<(not types::is_dtype<T>::value) and
+                                    (T::value < 3),
+                                types::ndarray<typename T::dtype, 3>>::type
     {
       auto r = asarray(t);
       auto shape = r.shape();
@@ -34,10 +33,10 @@ namespace pythonic
     }
 
     template <class T>
-    auto atleast_3d(T const &t) -> typename std::enable_if<
-        (not types::is_dtype<T>::value) and
-            types::numpy_expr_to_ndarray<T>::type::value >= 3,
-        decltype(asarray(t))>::type
+    auto atleast_3d(T const &t) ->
+        typename std::enable_if<(not types::is_dtype<T>::value) and
+                                    T::value >= 3,
+                                decltype(asarray(t))>::type
     {
       return asarray(t);
     }

@@ -1,6 +1,6 @@
 language:
-    - python
     - objective-c
+
 sudo: false
 
 python:
@@ -24,7 +24,7 @@ addons:
             - liblapack-dev
 
 before_install:
-    - test "$TRAVIS_OS_NAME" == "linux" || { brew update && brew install gmp cmake }
+    - brew update && brew install gmp cmake
     - pip install ply
     - pip install networkx
     - pip install colorlog

@@ -164,9 +164,10 @@ class SpecParser:
 
     def __init__(self):
         self.lexer = lex.lex(module=self, debug=0)
+        # Do not write the table for better compatibility across ply version
         self.parser = yacc.yacc(module=self,
                                 debug=0,
-                                tabmodule='pythran.parsetab')
+                                write_tables=False)
 
     def __call__(self, path):
         self.exports = dict()

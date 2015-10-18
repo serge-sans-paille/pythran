@@ -1,6 +1,5 @@
-=========
 Internals
-=========
+#########
 
 This document describes some internals of Pythran compiler.
 

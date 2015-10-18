@@ -1,6 +1,5 @@
-===============
 Developer Guide
-===============
+###############
 
 Do not hang around in Pythran code base without your developer guide! It is
 the compass that will guide you in the code jungle!

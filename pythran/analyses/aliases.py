@@ -9,6 +9,60 @@ import pythran.metadata as md
 
 import ast
 
+IntrinsicAliases = dict()
+
+
+def save_intrinsic_alias(module):
+    """ Recursively save default aliases for pythonic functions. """
+    for v in module.itervalues():
+        if isinstance(v, dict):  # Submodules case
+            save_intrinsic_alias(v)
+        else:
+            IntrinsicAliases[v] = {v}
+            if isinstance(v, Class):
+                save_intrinsic_alias(v.fields)
+
+for module in MODULES.itervalues():
+    save_intrinsic_alias(module)
+
+
+class CopyOnWriteAliasesMap(object):
+
+    def __init__(self, *args, **kwargs):
+        self.src = kwargs.get('src', None)
+        if self.src is None:
+            self.data = dict(*args)
+        else:
+            assert not args, "cannot use a src and positional arguments"
+            self.data = self.src
+
+    def _copy_on_write(self):
+        if self.src is not None:
+            # need to do a copy
+            assert self.data is self.src
+            self.data = self.src.copy()
+            self.src = None
+
+    def __setitem__(self, k, v):
+        self._copy_on_write()
+        return self.data.__setitem__(k, v)
+
+    def update(self, *values):
+        self._copy_on_write()
+        return self.data.update(*values)
+
+    def copy(self):
+        return CopyOnWriteAliasesMap(src=self.data)
+
+    def __iter__(self):
+        return self.data.__iter__()
+
+    def __getitem__(self, k):
+        return self.data.__getitem__(k)
+
+    def __getattr__(self, name):
+        return getattr(self.data, name)
+
 
 class Aliases(ModuleAnalysis):
     """Gather aliasing informations across nodes."""
@@ -19,7 +73,7 @@ class Aliases(ModuleAnalysis):
 
     def __init__(self):
         self.result = dict()
-        self.aliases = dict()
+        self.aliases = None
         super(Aliases, self).__init__(GlobalDeclarations)
 
     def expand_unknown(self, node):
@@ -182,24 +236,14 @@ class Aliases(ModuleAnalysis):
             - globals declarations
             - current function arguments
         """
-        self.aliases = dict()
+        self.aliases = CopyOnWriteAliasesMap(IntrinsicAliases.iteritems())
 
-        def save_intrinsic_alias(module):
-            """ Recursively save default aliases for pythonic functions. """
-            for v in module.itervalues():
-                if isinstance(v, dict):  # Submodules case
-                    save_intrinsic_alias(v)
-                else:
-                    self.aliases[v] = {v}
-                    if isinstance(v, Class):
-                        save_intrinsic_alias(v.fields)
-
-        for module in MODULES.itervalues():
-            save_intrinsic_alias(module)
         self.aliases.update((f.name, {f})
                             for f in self.global_declarations.itervalues())
+
         self.aliases.update((arg.id, {arg})
                             for arg in node.args.args)
+
         self.generic_visit(node)
 
     def visit_Assign(self, node):

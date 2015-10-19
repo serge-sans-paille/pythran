@@ -10,14 +10,14 @@ import ast
 
 class _LambdaRemover(Transformation):
 
-    def __init__(self, pm, name, ctx, lambda_functions, imports):
+    def __init__(self, pm, name, ctx, lambdas, imports, global_decls):
         Transformation.__init__(self)
         self.passmanager = pm
         self.ctx = ctx
         self.prefix = name
-        self.lambda_functions = lambda_functions
+        self.lambda_functions = lambdas
         self.imports = imports
-        self.global_declarations = pm.gather(GlobalDeclarations, ctx.module)
+        self.global_declarations = global_decls
 
     def visit_Lambda(self, node):
         if MODULES['functools'] not in self.global_declarations.values():
@@ -42,6 +42,7 @@ class _LambdaRemover(Transformation):
             [ast.Return(node.body)],
             [])
         self.lambda_functions.append(forged_fdef)
+        self.global_declarations[forged_name] = forged_fdef
         proxy_call = ast.Name(forged_name, ast.Load())
         if binded_args:
             return ast.Call(
@@ -76,15 +77,20 @@ class RemoveLambdas(Transformation):
         return (y + x)
     """
 
+    def __init__(self):
+        super(RemoveLambdas, self).__init__(GlobalDeclarations)
+
     def visit_Module(self, node):
         self.lambda_functions = list()
         self.imports = list()
         self.generic_visit(node)
         node.body = self.imports + node.body + self.lambda_functions
+        self.update |= bool(self.imports) or bool(self.lambda_functions)
         return node
 
     def visit_FunctionDef(self, node):
         lr = _LambdaRemover(self.passmanager, node.name, self.ctx,
-                            self.lambda_functions, self.imports)
+                            self.lambda_functions, self.imports,
+                            self.global_declarations)
         node.body = map(lr.visit, node.body)
         return node

@@ -76,9 +76,10 @@ class ConstantFolding(Transformation):
                 try:
                     if not ASTMatcher(node).search(new_node):
                         self.update = True
+                        return new_node
                 except DamnTooLongPattern as e:
                     print "W: ", e, " Assume no update happened."
-                return new_node
+                return Transformation.generic_visit(self, node)
             except ConversionError as e:
                 print ast.dump(node)
                 print 'error in constant folding: ', e

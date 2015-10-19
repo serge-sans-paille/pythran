@@ -354,7 +354,9 @@ class HandleImport(Transformation):
         self.generic_visit(module)
 
         # Patch module body: prepend all imported function and import nodes
-        module.body = self.registry.generate_ImportList() + module.body
+        imported = self.registry.generate_ImportList()
+        module.body = imported + module.body
+        self.update |= bool(imported)
         return module
 
     @staticmethod

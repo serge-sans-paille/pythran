@@ -21,6 +21,7 @@ class ExtractTopLevelStmts(Transformation):
                 init_body.append(stmt)
 
         if init_body:
+            self.update = True
             init = ast.FunctionDef('__init__',
                                    ast.arguments([], None, None, []),
                                    init_body,

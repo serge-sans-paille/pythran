@@ -61,12 +61,14 @@ class NormalizeTuples(Transformation):
         if isinstance(node, ast.Name):
             if state:
                 renamings[node.id] = state
+                self.update = True
         elif isinstance(node, ast.Tuple) or isinstance(node, ast.List):
             [self.traverse_tuples(n, state + (i,), renamings)
              for i, n in enumerate(node.elts)]
         elif isinstance(node, (ast.Subscript, ast.Attribute)):
             if state:
                 renamings[node] = state
+                self.update = True
         else:
             raise NotImplementedError
 
@@ -74,6 +76,7 @@ class NormalizeTuples(Transformation):
         renamings = dict()
         self.traverse_tuples(node.target, (), renamings)
         if renamings:
+            self.update = True
             return self.get_new_id(), renamings
         else:
             return node
@@ -90,6 +93,7 @@ class NormalizeTuples(Transformation):
                     gtarget,
                     nnode.generators[i].target.ctx)
                 nnode = _ConvertToTuple(gtarget, g[1]).visit(nnode)
+                self.update = True
         for field in fields:
             setattr(node, field, getattr(nnode, field))
         node.generators = nnode.generators

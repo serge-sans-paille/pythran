@@ -56,6 +56,7 @@ class RemoveNamedArguments(Transformation):
 
     def visit_Call(self, node):
         if node.keywords:
+            self.update = True
 
             aliases = self.aliases[node.func].aliases
             assert aliases, "at least one alias"

@@ -38,7 +38,7 @@ class ListCompToMap(Transformation):
     def visit_ListComp(self, node):
 
         if node in self.optimizable_comprehension:
-
+            self.update = True
             self.generic_visit(node)
 
             iterList = []

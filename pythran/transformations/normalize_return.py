@@ -31,6 +31,7 @@ class NormalizeReturn(Transformation):
         # Look for nodes that have no successors
         for n in self.cfg.predecessors(None):
             if not isinstance(n, (ast.Return, ast.Raise)):
+                self.update = True
                 if self.yield_points:
                     node.body.append(ast.Return(None))
                 else:
@@ -46,4 +47,5 @@ class NormalizeReturn(Transformation):
             none = ast.Attribute(ast.Name("__builtin__", ast.Load()),
                                  'None', ast.Load())
             node.value = none
+            self.update = True
         return node

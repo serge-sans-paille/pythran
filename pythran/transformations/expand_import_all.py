@@ -25,6 +25,7 @@ lgamma, erf, erfc, modf, degrees, acos, pi, log1p, sin, gamma
     def visit_ImportFrom(self, node):
         for alias in node.names:
             if alias.name == '*':
+                self.update = True
                 node.names.pop()
                 node.names.extend(ast.alias(fname, None)
                                   for fname in MODULES[node.module])

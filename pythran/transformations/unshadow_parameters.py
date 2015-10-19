@@ -40,6 +40,7 @@ class UnshadowParameters(Transformation):
                     ast.Name(k, ast.Load())
                     )
                 )
+        self.update |= bool(self.renaming)
         return node
 
     def update_name(self, node):

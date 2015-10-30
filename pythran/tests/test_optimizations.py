@@ -1,11 +1,16 @@
 from test_env import TestEnv
-
+import pythran
 
 class TestOptimization(TestEnv):
 
     def test_constant_fold_nan(self):
         code = "def constant_fold_nan(a): from numpy import nan; a[0] = nan; return a"
         self.run_test(code, [1., 2.], constant_fold_nan=[[float]])
+
+    def test_constant_fold_divide_by_zero(self):
+        code = "def constant_fold_divide_by_zero(): return 1/0"
+        with self.assertRaises(pythran.syntax.PythranSyntaxError):
+            self.check_ast(code, "syntax error anyway", ["pythran.optimizations.ConstantFolding"])
 
     def test_genexp(self):
         self.run_test("def test_genexp(n): return sum((x*x for x in xrange(n)))", 5, test_genexp=[int])

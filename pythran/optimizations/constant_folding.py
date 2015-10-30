@@ -5,6 +5,7 @@ from pythran.passmanager import Transformation
 from pythran.tables import MODULES, cxx_keywords
 from pythran.conversion import to_ast, ConversionError, ToNotEval
 from pythran.analyses.ast_matcher import DamnTooLongPattern
+from pythran.syntax import PythranSyntaxError
 
 import ast
 
@@ -100,5 +101,7 @@ class ConstantFolding(Transformation):
                 if "__dispatch__" in e.args[0]:
                     return Transformation.generic_visit(self, node)
                 raise
+            except Exception as e:
+                raise PythranSyntaxError(str(e), node)
         else:
             return Transformation.generic_visit(self, node)

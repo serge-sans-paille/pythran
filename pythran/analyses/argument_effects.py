@@ -10,33 +10,49 @@ import ast
 import networkx as nx
 
 
+class FunctionEffects(object):
+    def __init__(self, node):
+        self.func = node
+        if isinstance(node, ast.FunctionDef):
+            self.update_effects = [False] * len(node.args.args)
+        elif isinstance(node, intrinsic.Intrinsic):
+            self.update_effects = [isinstance(x, intrinsic.UpdateEffect)
+                                   for x in node.argument_effects]
+        elif isinstance(node, ast.alias):
+            self.update_effects = []
+        elif isinstance(node, intrinsic.Class):
+            self.update_effects = []
+        else:
+            raise NotImplementedError
+
+# Compute the intrinsic effects only once
+IntrinsicArgumentEffects = {}
+
+
+def save_function_effect(module):
+    """ Recursively save function effect for pythonic functions. """
+    for intr in module.itervalues():
+        if isinstance(intr, dict):  # Submodule case
+            save_function_effect(intr)
+        else:
+            fe = FunctionEffects(intr)
+            IntrinsicArgumentEffects[intr] = fe
+            if isinstance(intr, intrinsic.Class):
+                save_function_effect(intr.fields)
+
+for module in MODULES.itervalues():
+    save_function_effect(module)
+
+
 class ArgumentEffects(ModuleAnalysis):
 
     """Gathers inter-procedural effects on function arguments."""
 
-    class FunctionEffects(object):
-        def __init__(self, node):
-            self.func = node
-            if isinstance(node, ast.FunctionDef):
-                self.update_effects = [False] * len(node.args.args)
-            elif isinstance(node, intrinsic.Intrinsic):
-                self.update_effects = [isinstance(x, intrinsic.UpdateEffect)
-                                       for x in node.argument_effects]
-            elif isinstance(node, ast.alias):
-                self.update_effects = []
-            elif isinstance(node, intrinsic.Class):
-                self.update_effects = []
-            else:
-                raise NotImplementedError
-
-    class ConstructorEffects(object):
-        def __init__(self, node):
-            self.func = node
-            self.update_effects = [False]
-
     def __init__(self):
         self.result = nx.DiGraph()
-        self.node_to_functioneffect = dict()
+        self.node_to_functioneffect = IntrinsicArgumentEffects.copy()
+        for fe in IntrinsicArgumentEffects.itervalues():
+            self.result.add_node(fe)
         super(ArgumentEffects, self).__init__(Aliases, GlobalDeclarations)
 
     def prepare(self, node, ctx):
@@ -48,24 +64,9 @@ class ArgumentEffects(ModuleAnalysis):
         """
         super(ArgumentEffects, self).prepare(node, ctx)
         for n in self.global_declarations.itervalues():
-            fe = ArgumentEffects.FunctionEffects(n)
+            fe = FunctionEffects(n)
             self.node_to_functioneffect[n] = fe
             self.result.add_node(fe)
-
-        def save_function_effect(module):
-            """ Recursively save function effect for pythonic functions. """
-            for intr in module.itervalues():
-                if isinstance(intr, dict):  # Submodule case
-                    save_function_effect(intr)
-                else:
-                    fe = ArgumentEffects.FunctionEffects(intr)
-                    self.node_to_functioneffect[intr] = fe
-                    self.result.add_node(fe)
-                    if isinstance(intr, intrinsic.Class):
-                        save_function_effect(intr.fields)
-
-        for module in MODULES.itervalues():
-            save_function_effect(module)
 
     def run(self, node, ctx):
         super(ArgumentEffects, self).run(node, ctx)

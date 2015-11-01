@@ -35,6 +35,7 @@ class ExtractDocStrings(Transformation):
             first_stmt = node.body[0]
             if isinstance(first_stmt, ast.Expr):
                 if isinstance(first_stmt.value, ast.Str):
+                    self.update = True
                     self.docstrings[key] = first_stmt.value.s
                     node.body.pop(0)
         return self.generic_visit(node)

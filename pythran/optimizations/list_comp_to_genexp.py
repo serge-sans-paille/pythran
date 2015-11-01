@@ -33,6 +33,7 @@ def bar(n):                                       \\n\
     def visit_ListComp(self, node):
         self.generic_visit(node)
         if node in self.potential_iterator:
+            self.update = True
             return ast.GeneratorExp(node.elt, node.generators)
         else:
             return node

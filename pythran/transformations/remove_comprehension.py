@@ -71,6 +71,7 @@ class RemoveComprehension(Transformation):
         return ast.For(g.target, g.iter, [wrap_in_ifs(x, g.ifs)], [])
 
     def visit_AnyComp(self, node, comp_type, *path):
+        self.update = True
         node.elt = self.visit(node.elt)
         name = "{0}_comprehension{1}".format(comp_type, self.count)
         self.count += 1
@@ -137,6 +138,7 @@ class RemoveComprehension(Transformation):
         return self.visit_AnyComp(node, "dict", "__dispatch__", "update")
 
     def visit_GeneratorExp(self, node):
+        self.update = True
         node.elt = self.visit(node.elt)
         name = "generator_expression{0}".format(self.count)
         self.count += 1

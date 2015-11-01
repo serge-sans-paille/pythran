@@ -3,6 +3,8 @@
 from pythran.passmanager import Transformation
 from pythran.analyses import UseDefChain, UseOMP, Identifiers
 
+import networkx as nx
+
 
 class FalsePolymorphism(Transformation):
 
@@ -26,10 +28,11 @@ class FalsePolymorphism(Transformation):
     def visit_FunctionDef(self, node):
         # function using openmp are ignored
         if not self.use_omp:
-            self.identifiers = self.passmanager.gather(Identifiers, node,
-                                                       self.ctx)
-            for name, udgraph in self.use_def_chain.iteritems():
+            identifiers = self.passmanager.gather(Identifiers, node, self.ctx)
+            for name, udgraph_ in self.use_def_chain.iteritems():
+                udgraph = nx.DiGraph(udgraph_)  # Shallow copy
                 group_variable = list()
+                # changing the result of an analyse disturbs caching -> COPY
                 while udgraph:
                     e = udgraph.nodes_iter().next()
                     to_change = set()
@@ -56,12 +59,14 @@ class FalsePolymorphism(Transformation):
                                        for k in to_change]
                     group_variable.append(nodes_to_change)
                     udgraph.remove_nodes_from(to_change)
+
                 if len(group_variable) > 1:
-                    self.identifiers.remove(name)
+                    identifiers.remove(name)
                     for group in group_variable:
-                        while name in self.identifiers:
+                        while name in identifiers:
                             name += "_"
                         for var in group:
+                            self.update |= var.id != name
                             var.id = name
-                        self.identifiers.add(name)
+                        identifiers.add(name)
         return node

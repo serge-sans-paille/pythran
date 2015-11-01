@@ -80,4 +80,5 @@ class Reorder(Transformation):
 
         assert set(newdef) == set(olddef), "A function have been lost..."
         node.body = newbody + newdef
+        self.update = True
         return node

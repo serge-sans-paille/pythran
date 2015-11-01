@@ -37,6 +37,7 @@ class NormalizeCompare(Transformation):
         self.compare_functions = list()
         self.generic_visit(node)
         node.body.extend(self.compare_functions)
+        self.update |= bool(self.compare_functions)
         return node
 
     def visit_FunctionDef(self, node):

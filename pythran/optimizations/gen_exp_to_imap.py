@@ -46,7 +46,7 @@ class GenExpToImap(Transformation):
     def visit_GeneratorExp(self, node):
 
         if node in self.optimizable_comprehension:
-
+            self.update = True
             self.generic_visit(node)
 
             iters = [self.make_Iterator(gen) for gen in node.generators]

@@ -34,6 +34,7 @@ class ExpandBuiltins(Transformation):
            s in MODULES['__builtin__']):
             if s == 'getattr':
                 raise PythranSyntaxError("You fool! Trying a getattr?", node)
+            self.update = True
             return ast.Attribute(
                 ast.Name('__builtin__', ast.Load()),
                 s,

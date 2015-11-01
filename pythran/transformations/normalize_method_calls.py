@@ -44,6 +44,7 @@ class NormalizeMethodCalls(Transformation):
         imports = [ast.Import(names=[ast.alias(name=mod, asname=None)])
                    for mod in new_imports]
         node.body = imports + node.body
+        self.update |= bool(imports)
         return node
 
     def visit_FunctionDef(self, node):
@@ -95,6 +96,7 @@ class NormalizeMethodCalls(Transformation):
             return node
         # A getattr !
         else:
+            self.update = True
             return ast.Call(ast.Attribute(ast.Name('__builtin__', ast.Load()),
                                           'getattr',
                                           ast.Load()),
@@ -149,6 +151,7 @@ class NormalizeMethodCalls(Transformation):
                                  obj.id not in self.imports)
 
                 if is_not_module:
+                    self.update = True
                     # As it was a methods call, push targeted object as first
                     # arguments and add correct module prefix
                     node.args.insert(0, lhs)
@@ -184,5 +187,6 @@ class NormalizeMethodCalls(Transformation):
 
                 # Rename module path to avoid naming issue.
                 node.func.value, _ = rec(node.func.value, MODULES)
+                self.update = True
 
         return node

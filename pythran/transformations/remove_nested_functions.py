@@ -8,13 +8,14 @@ import ast
 
 
 class _NestedFunctionRemover(Transformation):
-    def __init__(self, pm, ctx):
+    def __init__(self, pm, ctx, global_declarations):
         Transformation.__init__(self)
         self.ctx = ctx
         self.passmanager = pm
-        self.global_declarations = pm.gather(GlobalDeclarations, ctx.module)
+        self.global_declarations = global_declarations
 
     def visit_FunctionDef(self, node):
+        self.update = True
         if MODULES['functools'] not in self.global_declarations.values():
             import_ = ast.Import([ast.alias('functools', None)])
             self.ctx.module.body.insert(0, import_)
@@ -44,6 +45,7 @@ class _NestedFunctionRemover(Transformation):
         Renamer().visit(node)
 
         node.name = new_name
+        self.global_declarations[node.name] = node
         proxy_call = ast.Name(new_name, ast.Load())
 
         new_node = ast.Assign(
@@ -86,12 +88,16 @@ class RemoveNestedFunctions(Transformation):
     def pythran_bar(x, y):
         return (x + y)
     """
+    def __init__(self):
+        super(RemoveNestedFunctions, self).__init__(GlobalDeclarations)
 
     def visit_Module(self, node):
         map(self.visit, node.body)
         return node
 
     def visit_FunctionDef(self, node):
-        nfr = _NestedFunctionRemover(self.passmanager, self.ctx)
+        nfr = _NestedFunctionRemover(self.passmanager, self.ctx,
+                                     self.global_declarations)
         node.body = map(nfr.visit, node.body)
+        self.update |= nfr.update
         return node

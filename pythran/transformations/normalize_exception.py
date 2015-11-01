@@ -34,11 +34,13 @@ class NormalizeException(Transformation):
                     )
                 )
             node.orelse = []
+            self.update = True
         return node
 
     def visit_TryFinally(self, node):
         node.body.extend(node.finalbody)
         node.finalbody.append(ast.Raise(None, None, None))
+        self.update = True
         return ast.TryExcept(
             node.body,
             [ast.ExceptHandler(None, None, node.finalbody)],

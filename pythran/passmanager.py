@@ -47,8 +47,20 @@ class ContextManager(object):
     def __init__(self, *dependencies):
         """ Create default context and save all dependencies. """
         self.deps = dependencies
+        self.verify_dependencies()
         self.ctx = AnalysisContext()
         super(ContextManager, self).__init__()
+
+    def verify_dependencies(self):
+        """
+        Checks no analysis are called before a transformation,
+        as the transformation could invalidate the analysis.
+        """
+
+        for i in range(1, len(self.deps)):
+            assert(not (isinstance(self.deps[i], Transformation) and
+                   isinstance(self.deps[i - 1], Analysis))
+                   ), "invalid dep order for %s" % self
 
     def visit(self, node):
         if isinstance(node, ast.Module):
@@ -57,10 +69,14 @@ class ContextManager(object):
             self.ctx.function = node
             for D in self.deps:
                 if issubclass(D, FunctionAnalysis):
-                    d = D()
-                    d.passmanager = self.passmanager
-                    d.ctx = self.ctx
-                    setattr(self, uncamel(D.__name__), d.run(node, self.ctx))
+                    key = D, node
+                    if key not in self.passmanager._cache:
+                        d = D()
+                        d.passmanager = self.passmanager
+                        d.ctx = self.ctx
+                        self.passmanager._cache[key] = d.run(node, self.ctx)
+                    setattr(self, uncamel(D.__name__),
+                            self.passmanager._cache[key])
         return super(ContextManager, self).visit(node)
 
     def prepare(self, node, ctx):
@@ -79,9 +95,18 @@ class ContextManager(object):
                     continue
             else:
                 rnode = node
-            d = D()
-            d.passmanager = self.passmanager
-            setattr(self, uncamel(D.__name__), d.run(rnode, ctx))
+            key = node, D
+            if key in self.passmanager._cache:
+                result = self.passmanager._cache[key]
+            else:
+                d = D()
+                d.passmanager = self.passmanager
+                result = d.run(rnode, ctx)
+                if getattr(d, 'update', False):
+                    self.passmanager._cache.clear()
+                else:
+                    self.passmanager._cache[key] = result
+            setattr(self, uncamel(D.__name__), result)
 
     def run(self, node, ctx):
         """Override this to add special pre or post processing handlers."""
@@ -159,6 +184,7 @@ class PassManager(object):
     '''
     def __init__(self, module_name):
         self.module_name = module_name
+        self._cache = {}
 
     def gather(self, analysis, node, ctx=None):
         '''High-level function to call an `analysis' on a `node', eventually
@@ -186,4 +212,12 @@ class PassManager(object):
         assert issubclass(transformation, (Transformation, Analysis))
         a = transformation()
         a.passmanager = self
-        return a.apply(node, ctx)
+        res = a.apply(node, ctx)
+
+        # the transformation updated the AST, so analyse may need to be rerun
+        # we could use a finer-grain caching system, and provide a way to flag
+        # some analyses as `unmodified' by the transformation, as done in LLVM
+        # (and PIPS ;-)
+        if a.update:
+            self._cache.clear()
+        return res

@@ -30,6 +30,7 @@ class NormalizeIdentifiers(Transformation):
             while new_name in self.identifiers:
                 new_name += "_"
             self.renamings[name] = new_name
+        self.update = True
         return self.renamings[name]
 
     def run(self, node, ctx):

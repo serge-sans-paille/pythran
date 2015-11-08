@@ -1,0 +1,4 @@
+NT2_URL=https://github.com/pbrunet/nt2/archive/gemv_release.zip
+BOOST_URL='http://sourceforge.net/projects/boost/files/boost/1.58.0/boost_1_58_0.tar.bz2/download?use_mirror=freefr'
+
+BOOSTDEPS="concept intrusive parameter proto fusion predef smart_ptr exception detail core dispatch function_types utility control serialization tuple iterator atomic move format align range mpl pending config type_traits container random simd preprocessor typeof integer accumulators lexical_cast numeric math functional unordered optional"

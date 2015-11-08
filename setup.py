@@ -51,80 +51,22 @@ class PyTest(TestCommand):
         sys.exit(errno)
 
 
-class BuildWithPly(build_py):
+class BuildWithThirdParty(build_py):
 
     """
     Set up Pythran dependencies.
 
     * install nt2
     * install boost.simd
+    * install boost dependencies
     """
 
-    def patch_nt2(self, nt2_path, version):
-        """
-        NT2 version gets override by pythran's git version if any
-        So force it here...
-        """
-        cmakelists = os.path.join(nt2_path, 'CMakeLists.txt')
-        with open(cmakelists, 'r') as cm:
-            print("patching nt2 version in" + cmakelists)
-            data = cm.read()
-            data = re.sub(r'(nt2_parse_version\()',
-                          r'set(NT2_VERSION_STRING "{}")\n\1'.format(version),
-                          data)
-        with open(cmakelists, 'w') as cm:
-            cm.write(data)
+    def copy_nt2(self):
+        """ Install NT2 and boost deps from the third_party directory """
 
-        with open(os.path.join(nt2_path, 'tagname'), 'w') as tn:
-            tn.write(version)
-
-    def build_nt2(self):
-        """ Install NT2 from the github-generated archive. """
-        nt2_dir = 'nt2'
-        nt2_version = '1.2.3-pythran'  # fake!
-        cwd = os.getcwd()
-        build_temp = os.path.join(os.path.dirname(__file__), "build")
-        nt2_src_dir = os.path.join(cwd, build_temp, nt2_dir + '_src')
-        if not os.path.isdir(nt2_src_dir):
-            print('nt2 archive needed, downloading it')
-            url = 'https://github.com/pbrunet/nt2/archive/gemv_release.zip'
-            location = urlopen(url)
-            http_code_prefix = location.getcode() / 100
-            assert http_code_prefix not in [4, 5], "Failed to download nt2."
-            zipfile = ZipFile(StringIO(location.read()))
-            zipfile.extractall(build_temp)
-            extracted = os.path.dirname(zipfile.namelist()[0])
-            shutil.move(os.path.join(build_temp, extracted), nt2_src_dir)
-            self.patch_nt2(nt2_src_dir, nt2_version)
-            assert os.path.isdir(nt2_src_dir), "download & unzip ok"
-
-        nt2_build_dir = os.path.join(build_temp, nt2_dir)
-        if not os.path.isdir(nt2_build_dir):
-            os.makedirs(nt2_build_dir)
-
-        if not os.path.exists(os.path.join(nt2_build_dir, 'modules')):
-            print('nt2 not configured, configuring it')
-            # remove any remaining artifacts
-            shutil.rmtree(nt2_build_dir, True)
-            os.makedirs(nt2_build_dir)
-
-            os.chdir(nt2_build_dir)
-            build_cmd = ['cmake',
-                         nt2_src_dir,
-                         '-DNT2_VERSION_STRING={}'.format(nt2_version),
-                         '-DCMAKE_INSTALL_PREFIX=.']
-            try:
-                check_call(build_cmd)
-            except Exception:
-                print("configure failed upon: " + " " .join(build_cmd))
-                raise
-            os.chdir(cwd)
-
-        print('Compile and install nt2')
-        check_output(['cmake', '--build', nt2_build_dir,
-                      '--target', 'install'])
+        print('Copying nt2 and its dependencies')
         for d in ('nt2', 'boost'):
-            src = os.path.join(nt2_build_dir, 'include', d)
+            src = os.path.join('third_party', d)
 
             # copy to the build tree
             target = os.path.join(self.build_lib, 'pythran', d)
@@ -140,7 +82,7 @@ class BuildWithPly(build_py):
         # regular build done by parent class
         build_py.run(self, *args, **kwargs)
         if not self.dry_run:  # compatibility with the parent options
-            self.build_nt2()
+            self.copy_nt2()
 
 
 # Cannot use glob here, as the files may not be generated yet
@@ -183,4 +125,4 @@ setup(name='pythran',
                     },
       tests_require=['pytest', 'pytest-pep8'],
       test_suite="pythran/test",
-      cmdclass={'build_py': BuildWithPly, 'test': PyTest})
+      cmdclass={'build_py': BuildWithThirdParty, 'test': PyTest})

@@ -1,0 +1,6 @@
+#ifndef BOOST_SIMD_INCLUDE_FUNCTIONS_SIMD_INTERLEAVE_SECOND_HPP_INCLUDED
+#define BOOST_SIMD_INCLUDE_FUNCTIONS_SIMD_INTERLEAVE_SECOND_HPP_INCLUDED
+
+#include <boost/simd/swar/include/functions/simd/interleave_second.hpp>
+
+#endif

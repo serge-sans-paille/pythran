@@ -1,0 +1,43 @@
+#ifndef NT2_IEEE_FUNCTIONS_HPP_INCLUDED
+#define NT2_IEEE_FUNCTIONS_HPP_INCLUDED
+
+#include <nt2/ieee/include/functions/bitfloating.hpp>
+#include <nt2/ieee/include/functions/bitinteger.hpp>
+#include <nt2/ieee/include/functions/bitofsign.hpp>
+#include <nt2/ieee/include/functions/copysign.hpp>
+#include <nt2/ieee/include/functions/eps.hpp>
+#include <nt2/ieee/include/functions/exponent.hpp>
+#include <nt2/ieee/include/functions/exponentbits.hpp>
+#include <nt2/ieee/include/functions/fast_frexp.hpp>
+#include <nt2/ieee/include/functions/fast_ldexp.hpp>
+#include <nt2/ieee/include/functions/frac.hpp>
+#include <nt2/ieee/include/functions/frexp.hpp>
+#include <nt2/ieee/include/functions/ilogb.hpp>
+#include <nt2/ieee/include/functions/ldexp.hpp>
+#include <nt2/ieee/include/functions/mantissa.hpp>
+#include <nt2/ieee/include/functions/maxmag.hpp>
+#include <nt2/ieee/include/functions/maxnum.hpp>
+#include <nt2/ieee/include/functions/maxnummag.hpp>
+#include <nt2/ieee/include/functions/minmag.hpp>
+#include <nt2/ieee/include/functions/minnum.hpp>
+#include <nt2/ieee/include/functions/minnummag.hpp>
+#include <nt2/ieee/include/functions/modf.hpp>
+#include <nt2/ieee/include/functions/negate.hpp>
+#include <nt2/ieee/include/functions/negatenz.hpp>
+#include <nt2/ieee/include/functions/next.hpp>
+#include <nt2/ieee/include/functions/nextafter.hpp>
+#include <nt2/ieee/include/functions/nextpow2.hpp>
+#include <nt2/ieee/include/functions/predecessor.hpp>
+#include <nt2/ieee/include/functions/prev.hpp>
+#include <nt2/ieee/include/functions/safe_max.hpp>
+#include <nt2/ieee/include/functions/safe_min.hpp>
+#include <nt2/ieee/include/functions/saturate.hpp>
+#include <nt2/ieee/include/functions/saturate_at.hpp>
+#include <nt2/ieee/include/functions/sbits.hpp>
+#include <nt2/ieee/include/functions/sign.hpp>
+#include <nt2/ieee/include/functions/signnz.hpp>
+#include <nt2/ieee/include/functions/successor.hpp>
+#include <nt2/ieee/include/functions/ulp.hpp>
+#include <nt2/ieee/include/functions/ulpdist.hpp>
+
+#endif

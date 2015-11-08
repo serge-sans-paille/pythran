@@ -39,15 +39,12 @@ Prerequisite
 
 Pythran depends on the following packages:
 
-- boost: http://www.boost.org/
 - GMP: https://gmplib.org/
-- git: http://git-scm.com/
-- cmake: http://www.cmake.org/
 - ply: http://www.dabeaz.com/ply/
 - networkx: https://networkx.github.io/
 - numpy: http://www.numpy.org/
 
-You also need a modern C++11 enabled compiler (e.g. g++>=4.9), that supports
+You also need a modern C++11 enabled compiler (e.g. g++>=4.9, clang>=3.5), that supports
 for instance atomic operations (N3290) or variadic template (N2555).
 
 

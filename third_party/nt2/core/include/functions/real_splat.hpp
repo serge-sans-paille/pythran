@@ -1,0 +1,6 @@
+#ifndef NT2_CORE_INCLUDE_FUNCTIONS_REAL_SPLAT_HPP_INCLUDED
+#define NT2_CORE_INCLUDE_FUNCTIONS_REAL_SPLAT_HPP_INCLUDED
+
+#include <nt2/core/functions/real_splat.hpp>
+
+#endif

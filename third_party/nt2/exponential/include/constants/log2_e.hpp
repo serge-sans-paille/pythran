@@ -1,0 +1,6 @@
+#ifndef NT2_EXPONENTIAL_INCLUDE_CONSTANTS_LOG2_E_HPP_INCLUDED
+#define NT2_EXPONENTIAL_INCLUDE_CONSTANTS_LOG2_E_HPP_INCLUDED
+
+#include <nt2/exponential/constants/log2_e.hpp>
+
+#endif

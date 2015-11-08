@@ -1,0 +1,6 @@
+#ifndef NT2_CORE_INCLUDE_FUNCTIONS_LOG2_EM1_HPP_INCLUDED
+#define NT2_CORE_INCLUDE_FUNCTIONS_LOG2_EM1_HPP_INCLUDED
+
+#include <nt2/core/functions/log2_em1.hpp>
+
+#endif

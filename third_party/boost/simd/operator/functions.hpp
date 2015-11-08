@@ -1,0 +1,40 @@
+#ifndef BOOST_SIMD_OPERATOR_FUNCTIONS_HPP_INCLUDED
+#define BOOST_SIMD_OPERATOR_FUNCTIONS_HPP_INCLUDED
+
+#include <boost/simd/operator/include/functions/bitwise_and.hpp>
+#include <boost/simd/operator/include/functions/bitwise_or.hpp>
+#include <boost/simd/operator/include/functions/bitwise_xor.hpp>
+#include <boost/simd/operator/include/functions/comma.hpp>
+#include <boost/simd/operator/include/functions/complement.hpp>
+#include <boost/simd/operator/include/functions/divides.hpp>
+#include <boost/simd/operator/include/functions/eq.hpp>
+#include <boost/simd/operator/include/functions/fast_divides.hpp>
+#include <boost/simd/operator/include/functions/ge.hpp>
+#include <boost/simd/operator/include/functions/gt.hpp>
+#include <boost/simd/operator/include/functions/if_else.hpp>
+#include <boost/simd/operator/include/functions/is_equal.hpp>
+#include <boost/simd/operator/include/functions/is_greater.hpp>
+#include <boost/simd/operator/include/functions/is_greater_equal.hpp>
+#include <boost/simd/operator/include/functions/is_less.hpp>
+#include <boost/simd/operator/include/functions/is_less_equal.hpp>
+#include <boost/simd/operator/include/functions/is_not_equal.hpp>
+#include <boost/simd/operator/include/functions/le.hpp>
+#include <boost/simd/operator/include/functions/logical_and.hpp>
+#include <boost/simd/operator/include/functions/logical_not.hpp>
+#include <boost/simd/operator/include/functions/logical_or.hpp>
+#include <boost/simd/operator/include/functions/lt.hpp>
+#include <boost/simd/operator/include/functions/map.hpp>
+#include <boost/simd/operator/include/functions/minus.hpp>
+#include <boost/simd/operator/include/functions/modulo.hpp>
+#include <boost/simd/operator/include/functions/multiplies.hpp>
+#include <boost/simd/operator/include/functions/ne.hpp>
+#include <boost/simd/operator/include/functions/plus.hpp>
+#include <boost/simd/operator/include/functions/shift_left.hpp>
+#include <boost/simd/operator/include/functions/shift_right.hpp>
+#include <boost/simd/operator/include/functions/times.hpp>
+#include <boost/simd/operator/include/functions/uminus.hpp>
+#include <boost/simd/operator/include/functions/unary_minus.hpp>
+#include <boost/simd/operator/include/functions/unary_plus.hpp>
+#include <boost/simd/operator/include/functions/uplus.hpp>
+
+#endif

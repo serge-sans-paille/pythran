@@ -16,8 +16,6 @@ addons:
             - clang-3.5
             - clang-format-3.6
             - libgmp-dev
-            - libboost1.55-dev
-            - cmake
             - gfortran
             - libopenblas-dev
             - liblapack-dev

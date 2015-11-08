@@ -1,0 +1,6 @@
+#ifndef NT2_INCLUDE_FUNCTIONS_IS_VECTORIZABLE_INDEXER_HPP_INCLUDED
+#define NT2_INCLUDE_FUNCTIONS_IS_VECTORIZABLE_INDEXER_HPP_INCLUDED
+
+#include <nt2/core/include/functions/is_vectorizable_indexer.hpp>
+
+#endif

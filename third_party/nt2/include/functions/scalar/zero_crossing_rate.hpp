@@ -1,0 +1,6 @@
+#ifndef NT2_INCLUDE_FUNCTIONS_SCALAR_ZERO_CROSSING_RATE_HPP_INCLUDED
+#define NT2_INCLUDE_FUNCTIONS_SCALAR_ZERO_CROSSING_RATE_HPP_INCLUDED
+
+#include <nt2/signal/include/functions/scalar/zero_crossing_rate.hpp>
+
+#endif

@@ -1,0 +1,6 @@
+#ifndef NT2_SWAR_INCLUDE_FUNCTIONS_SCALAR_ALL_REDUCE_HPP_INCLUDED
+#define NT2_SWAR_INCLUDE_FUNCTIONS_SCALAR_ALL_REDUCE_HPP_INCLUDED
+
+#include <nt2/swar/functions/all_reduce.hpp>
+
+#endif

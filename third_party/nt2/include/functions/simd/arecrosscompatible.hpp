@@ -1,0 +1,6 @@
+#ifndef NT2_INCLUDE_FUNCTIONS_SIMD_ARECROSSCOMPATIBLE_HPP_INCLUDED
+#define NT2_INCLUDE_FUNCTIONS_SIMD_ARECROSSCOMPATIBLE_HPP_INCLUDED
+
+#include <nt2/predicates/include/functions/simd/arecrosscompatible.hpp>
+
+#endif

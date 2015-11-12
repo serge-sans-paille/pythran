@@ -1,0 +1,6 @@
+#ifndef NT2_CORE_INCLUDE_FUNCTIONS_FIVEO_8_HPP_INCLUDED
+#define NT2_CORE_INCLUDE_FUNCTIONS_FIVEO_8_HPP_INCLUDED
+
+#include <nt2/core/functions/fiveo_8.hpp>
+
+#endif

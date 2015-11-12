@@ -39,7 +39,7 @@ Using ``pip``
 
    Pythran depends on a few Python modules and several C++ libraries. On a debian-like platform, run::
 
-        $> sudo apt-get install libgmp-dev libboost-dev cmake libblas-dev
+        $> sudo apt-get install libgmp-dev libblas-dev
         $> sudo apt-get install python-dev python-ply python-networkx python-numpy
 
 2. Use ``easy_install`` or ``pip``::
@@ -95,25 +95,9 @@ Using `yaourt`::
 Windows
 =======
 
-Using WinPython (http://winpython.github.io), installed in ``E:\WinPython-32bit-2.7.9.5``
+Using WinPython (http://winpython.github.io), start the WinPython prompt and run::
 
-1. Install the binary version of CMake (http://www.cmake.org/download), and
-   make sure to check to check the box to add cmake to the PATH.
-
-2. Install Boost (http://www.boost.org/users/download/): Once the archive is
-   extracted, use the *WinPython Command Prompt* and run the following::
-
-        cd boost_1_58
-        .\bootstrap.bat
-        .\b2 toolset=gcc link=shared
-        xcopy /E boost E:\WinPython-32bit-2.7.9.5\python-2.7.9\include\boost
-
-The python-2.7.9 directory may be python-2.7.9-amd64.
-
-Then ``cd`` to the Pythran source, and run::
-
-    set BOOST_ROOT=E:\boost_1_58
-    python setup.py install
+    % pip install pythran
 
 
 Other Platform

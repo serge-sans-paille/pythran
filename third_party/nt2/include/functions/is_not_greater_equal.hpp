@@ -1,0 +1,6 @@
+#ifndef NT2_INCLUDE_FUNCTIONS_IS_NOT_GREATER_EQUAL_HPP_INCLUDED
+#define NT2_INCLUDE_FUNCTIONS_IS_NOT_GREATER_EQUAL_HPP_INCLUDED
+
+#include <nt2/predicates/include/functions/is_not_greater_equal.hpp>
+
+#endif

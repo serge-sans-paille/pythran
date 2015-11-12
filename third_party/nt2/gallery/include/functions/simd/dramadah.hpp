@@ -1,0 +1,6 @@
+#ifndef NT2_GALLERY_INCLUDE_FUNCTIONS_SIMD_DRAMADAH_HPP_INCLUDED
+#define NT2_GALLERY_INCLUDE_FUNCTIONS_SIMD_DRAMADAH_HPP_INCLUDED
+
+#include <nt2/gallery/functions/dramadah.hpp>
+
+#endif

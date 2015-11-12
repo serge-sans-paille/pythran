@@ -1,0 +1,6 @@
+#ifndef NT2_EULER_INCLUDE_CONSTANTS_STIRLINGLARGELIM_HPP_INCLUDED
+#define NT2_EULER_INCLUDE_CONSTANTS_STIRLINGLARGELIM_HPP_INCLUDED
+
+#include <nt2/euler/constants/stirlinglargelim.hpp>
+
+#endif

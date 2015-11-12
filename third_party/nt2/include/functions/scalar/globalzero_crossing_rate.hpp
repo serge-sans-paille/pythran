@@ -1,0 +1,6 @@
+#ifndef NT2_INCLUDE_FUNCTIONS_SCALAR_GLOBALZERO_CROSSING_RATE_HPP_INCLUDED
+#define NT2_INCLUDE_FUNCTIONS_SCALAR_GLOBALZERO_CROSSING_RATE_HPP_INCLUDED
+
+#include <nt2/signal/include/functions/scalar/globalzero_crossing_rate.hpp>
+
+#endif

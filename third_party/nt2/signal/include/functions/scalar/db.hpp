@@ -1,0 +1,6 @@
+#ifndef NT2_SIGNAL_INCLUDE_FUNCTIONS_SCALAR_DB_HPP_INCLUDED
+#define NT2_SIGNAL_INCLUDE_FUNCTIONS_SCALAR_DB_HPP_INCLUDED
+
+#include <nt2/signal/functions/db.hpp>
+
+#endif

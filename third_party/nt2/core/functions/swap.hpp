@@ -1,0 +1,40 @@
+//==============================================================================
+//         Copyright 2003 - 2012   LASMEA UMR 6602 CNRS/Univ. Clermont II
+//         Copyright 2009 - 2013   LRI    UMR 8623 CNRS/Univ Paris Sud XI
+//
+//          Distributed under the Boost Software License, Version 1.0.
+//                 See accompanying file LICENSE.txt or copy at
+//                     http://www.boost.org/LICENSE_1_0.txt
+//==============================================================================
+#ifndef NT2_CORE_FUNCTIONS_SWAP_HPP_INCLUDED
+#define NT2_CORE_FUNCTIONS_SWAP_HPP_INCLUDED
+
+#include <nt2/include/functor.hpp>
+
+namespace nt2
+{
+  namespace tag
+  {
+    /// @brief Defines swap function tag
+    struct swap_ : boost::dispatch::tag::formal_
+    {
+      /// INTERNAL ONLY
+      typedef boost::dispatch::tag::formal_  parent;
+    };
+  }
+
+  /*!
+    @brief Swap values
+
+    Swap values between expression of same number of element.
+
+    @param First expression to swap
+    @param Second expression to swap
+  **/
+  NT2_FUNCTION_IMPLEMENTATION_TPL(tag::swap_, swap, (A0&)(A1&)            , 2);
+  NT2_FUNCTION_IMPLEMENTATION_TPL(tag::swap_, swap, (A0 const&)(A1&)      , 2);
+  NT2_FUNCTION_IMPLEMENTATION_TPL(tag::swap_, swap, (A0 &)(A1 const&)     , 2);
+  NT2_FUNCTION_IMPLEMENTATION_TPL(tag::swap_, swap, (A0 const&)(A1 const&), 2);
+}
+
+#endif

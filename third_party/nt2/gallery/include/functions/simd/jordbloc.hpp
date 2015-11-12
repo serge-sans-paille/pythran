@@ -1,0 +1,6 @@
+#ifndef NT2_GALLERY_INCLUDE_FUNCTIONS_SIMD_JORDBLOC_HPP_INCLUDED
+#define NT2_GALLERY_INCLUDE_FUNCTIONS_SIMD_JORDBLOC_HPP_INCLUDED
+
+#include <nt2/gallery/functions/jordbloc.hpp>
+
+#endif

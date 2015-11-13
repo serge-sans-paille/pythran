@@ -18,40 +18,25 @@ class TestComplex(TestEnv):
                           complex(-4, np.nan), complex(4, -np.inf),
                           test_complex_limited_range=[complex, complex])
 
-    def test_complex_number_conj_fun(self):
-        self.run_test('def test_complex_number_conj_fun(a): import numpy as np ; return np.conj(a)',
-                      3 + 2j,
-                      test_complex_number_conj_fun=[np.complex128])
+    def test_conjugate(self):
+        """
+        Check complex conjugate.
 
-    def test_complex_array_conj_fun(self):
-        self.run_test('def test_complex_array_conj_fun(a): import numpy as np ; return np.conj(a)',
-                      np.array([3 + 2j]),
-                      test_complex_array_conj_fun=[np.array([np.complex128])])
-
-    def test_complex_array_conj_method(self):
-        self.run_test('def test_complex_array_conj_method(a): return a.conj()',
-                      np.array([[3 + 2j]]),
-                      test_complex_array_conj_method=[np.array([[complex]])])
-
-    def test_complex_number_conjugate_fun(self):
-        self.run_test('def test_complex_number_conjugate_fun(a): import numpy as np ; return np.conjugate(a)',
-                      3 + 2j,
-                      test_complex_number_conjugate_fun=[np.complex128])
-
-    def test_complex_number_conjugate_method(self):
-        self.run_test('def test_complex_number_conjugate_method(a): import numpy as np ; return a.conjugate()',
-                      3 + 2j,
-                      test_complex_number_conjugate_method=[np.complex128])
-
-    def test_complex_array_conjugate_fun(self):
-        self.run_test('def test_complex_array_conjugate_fun(a): import numpy as np ; return np.conjugate(a)',
-                      np.array([3 + 2j]),
-                      test_complex_array_conjugate_fun=[np.array([np.complex128])])
-
-    def test_complex_array_conjugate_method(self):
-        self.run_test('def test_complex_array_conjugate_method(a): return a.conjugate()',
-                      np.array([[3 + 2j]]),
-                      test_complex_array_conjugate_method=[np.array([[complex]])])
+        Checked for:
+            * Method and numpy function call
+            * conj and conjugate for each of them
+            * complex and array (1 and 2 D)
+        """
+        self.run_test("""
+            def test_conjugate(c, a, a2d):
+                import numpy as np
+                return (np.conj(c), np.conj(a), a2d.conj(),
+                        np.conjugate(c), np.conjugate(a), a2d.conjugate())
+                      """,
+                      3 + 2j, np.array([3 + 2j]), np.array([[3 + 2j]]),
+                      test_conjugate=[np.complex128,
+                                      np.array([np.complex128]),
+                                      np.array([[complex]])])
 
     def test_complex_array_abs(self):
         self.run_test('def test_complex_array_abs(a): import numpy as np ; return np.abs(a)',
@@ -59,7 +44,7 @@ class TestComplex(TestEnv):
                       test_complex_array_abs=[np.array([[complex]])])
 
     def test_complex_array_sqr(self):
-        self.run_test('def test_complex_array_sqr(a): import numpy as np ; return a ** 2',
+        self.run_test('def test_complex_array_sqr(a): return a ** 2',
                       np.array([[3 + 2j]]),
                       test_complex_array_sqr=[np.array([[complex]])])
 

@@ -4,8 +4,8 @@
 #include "pythonic/include/numpy/conjugate.hpp"
 
 #include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/ndarray.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
+
 #include <nt2/include/functions/conj.hpp>
 
 namespace pythonic

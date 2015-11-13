@@ -281,23 +281,6 @@ typename std::remove_reference<decltype(toto)>::type>::type
                 'decltype({0})>::type>::type'.format(self.srepr))
 
 
-class ContentType(DependentType):
-    '''
-    Type of the object in a container
-
-    >>> ContentType(DeclType('l'))
-    typename pythonic::types::content_of<typename std::remove_cv<\
-typename std::remove_reference<decltype(l)>::type>::type>::type
-    '''
-
-    def generate(self, ctx):
-        # the content of a container can be inferred directly
-        if isinstance(self.of, (ListType, SetType, ContainerType)):
-            return self.of.of.generate(ctx)
-        return 'typename pythonic::types::content_of<{0}>::type'.format(
-            ctx(self.of).generate(ctx))
-
-
 class IteratorContentType(DependentType):
     '''
     Type of an iterator over the content of a container

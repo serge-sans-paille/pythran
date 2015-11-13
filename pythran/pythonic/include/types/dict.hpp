@@ -4,7 +4,6 @@
 #include "pythonic/include/types/assignable.hpp"
 #include "pythonic/include/types/tuple.hpp"
 #include "pythonic/include/types/empty_iterator.hpp"
-#include "pythonic/include/types/content_of.hpp"
 
 #include "pythonic/include/utils/shared_ref.hpp"
 #include "pythonic/include/utils/iterator.hpp"
@@ -240,11 +239,6 @@ namespace pythonic
 
     template <class K, class V>
     dict<K, V> operator+(dict<K, V> const &d, empty_dict);
-
-    template <class K, class V>
-    struct content_of<dict<K, V>> {
-      using type = V;
-    };
   }
 
   template <class K, class V>

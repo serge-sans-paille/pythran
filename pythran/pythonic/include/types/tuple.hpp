@@ -2,7 +2,6 @@
 #define PYTHONIC_INCLUDE_TYPES_TUPLE_HPP
 
 #include "pythonic/include/types/assignable.hpp"
-#include "pythonic/include/types/content_of.hpp"
 #include "pythonic/include/types/traits.hpp"
 #include "pythonic/include/utils/int_.hpp"
 #include "pythonic/include/utils/seq.hpp"
@@ -479,30 +478,11 @@ struct __combined<std::pair<t00, t01>, std::pair<t10, t11>> {
 
 /* } */
 
-// specialize content_of
 namespace pythonic
 {
 
   namespace types
   {
-
-    template <class T>
-    struct content_of<std::tuple<T>> {
-      using type = T;
-    };
-
-    template <class T, size_t N>
-    struct content_of<array<T, N>> {
-      using type = T;
-    };
-
-    template <class T, class... Types>
-    struct content_of<std::tuple<T, Types...>> {
-      using type = typename std::enable_if<
-          std::is_same<T,
-                       typename content_of<std::tuple<Types...>>::type>::value,
-          T>::type;
-    };
 
     template <class Tuple, size_t I>
     void print_tuple(std::ostream &os, Tuple const &t, utils::int_<I>);

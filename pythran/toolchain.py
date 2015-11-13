@@ -7,7 +7,6 @@ from pythran.backend import Cxx
 from pythran.config import cfg, make_extension
 from pythran.cxxgen import PythonModule, Define, Include, Line, Statement
 from pythran.cxxgen import FunctionBody, FunctionDeclaration, Value, Block
-from pythran.intrinsic import ConstExceptionIntr
 from pythran.middlend import refine
 from pythran.passmanager import PassManager
 from pythran.tables import pythran_ward
@@ -28,7 +27,6 @@ import numpy.distutils.ccompiler
 from tempfile import mkstemp, mkdtemp
 import ast
 import logging
-import networkx as nx
 import os.path
 import shutil
 import sys
@@ -132,7 +130,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
     # instanciate the meta program
     if specs is None:
 
-        class Generable:
+        class Generable(object):
             def __init__(self, content):
                 self.content = content
 
@@ -155,8 +153,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
 
         metainfo = {'hash': hashlib.sha256(code).hexdigest(),
                     'version': __version__,
-                    'date': datetime.now(),
-                    }
+                    'date': datetime.now()}
 
         mod = PythonModule(module_name, docstrings, metainfo, has_init)
         mod.add_to_preamble(Define("BOOST_SIMD_NO_STRICT_ALIASING", "1"))

@@ -2,7 +2,6 @@
 #define PYTHONIC_INCLUDE_TYPES_NUMPY_OP_HELPER_HPP
 
 #include "pythonic/include/types/numpy_broadcast.hpp"
-#include "pythonic/include/types/tuple.hpp"
 #include "pythonic/include/utils/meta.hpp"
 
 namespace pythonic

@@ -1,8 +1,6 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_NUMPY_BROADCAST_HPP
 #define PYTHONIC_INCLUDE_TYPES_NUMPY_BROADCAST_HPP
 
-#include <array>
-
 #ifdef USE_BOOST_SIMD
 #include <boost/simd/sdk/simd/native.hpp>
 #include <boost/simd/include/functions/load.hpp>
@@ -10,6 +8,7 @@
 #endif
 
 #include "pythonic/include/types/vectorizable_type.hpp"
+#include "pythonic/include/types/tuple.hpp"
 
 namespace pythonic
 {
@@ -31,8 +30,8 @@ namespace pythonic
       static constexpr size_t value = T::value + 1;
 
       T const ref;
-      array<long, value> _shape;
-      array<long, value> const &shape() const;
+      types::array<long, value> _shape;
+      types::array<long, value> const &shape() const;
 
       broadcasted(T const &ref);
 

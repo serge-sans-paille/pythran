@@ -4,9 +4,9 @@
 #include "pythonic/include/types/assignable.hpp"
 #include "pythonic/include/types/empty_iterator.hpp"
 #include "pythonic/include/utils/shared_ref.hpp"
-#include "pythonic/include/utils/reserve.hpp"
 #include "pythonic/include/utils/nested_container.hpp"
 #include "pythonic/include/utils/int_.hpp"
+#include "pythonic/include/utils/reserve.hpp"
 #include "pythonic/include/types/slice.hpp"
 
 #include <iostream>
@@ -310,6 +310,12 @@ namespace pythonic
 
   namespace utils
   {
+    /**
+     * Reserve enough space to save all values generated from f.
+     *
+     * We use a dummy arguments (p) to reserve only when f have a
+     * const_iterator type.
+     */
     template <class T, class From>
     void reserve(types::list<T> &l, From const &f,
                  typename From::const_iterator *p = nullptr);

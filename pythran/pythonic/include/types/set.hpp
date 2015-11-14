@@ -5,8 +5,9 @@
 #include "pythonic/include/types/empty_iterator.hpp"
 #include "pythonic/include/types/list.hpp"
 
-#include "pythonic/include/utils/shared_ref.hpp"
 #include "pythonic/include/utils/iterator.hpp"
+#include "pythonic/include/utils/reserve.hpp"
+#include "pythonic/include/utils/shared_ref.hpp"
 
 #include "pythonic/include/__builtin__/in.hpp"
 

@@ -2,15 +2,27 @@
 #define PYTHONIC_INCLUDE_NUMPY_ISSCTYPE_HPP
 
 #include "pythonic/include/numpy/isscalar.hpp"
-#include "pythonic/include/types/numpy_type.hpp"
 
 namespace pythonic
 {
+  namespace types
+  {
+    struct str;
+  }
 
   namespace numpy
   {
     template <class E>
-    constexpr bool issctype(E const &expr);
+    constexpr auto issctype(E const &expr) ->
+        typename std::enable_if<not types::is_dtype<E>::value and
+                                    not std::is_same<E, types::str>::value,
+                                bool>::type;
+
+    template <class E>
+    constexpr auto issctype(E const &expr) ->
+        typename std::enable_if<types::is_dtype<E>::value or
+                                    std::is_same<E, types::str>::value,
+                                bool>::type;
 
     PROXY_DECL(pythonic::numpy, issctype);
   }

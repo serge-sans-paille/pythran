@@ -10,13 +10,15 @@ namespace pythonic
   namespace __builtin__
   {
 
-    namespace anonymous
+    namespace proxy
     {
-      // TODO: do not handle string as first argument
-      std::complex<double> complex(double v0 = 0, double v1 = 0);
+      struct complex {
+        using callable = void;
+        using type = std::complex<double>;
+        // TODO: do not handle string as first argument
+        type operator()(double v0 = 0, double v1 = 0);
+      };
     }
-
-    PROXY_DECL(pythonic::__builtin__::anonymous, complex);
   }
 }
 

@@ -4,7 +4,6 @@
 #include "pythonic/include/numpy/arange.hpp"
 
 #include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/numpy_type.hpp"
 #include "pythonic/types/ndarray.hpp"
 
 namespace pythonic
@@ -13,10 +12,10 @@ namespace pythonic
   namespace numpy
   {
     template <class T, class U, class S, class dtype>
-    types::ndarray<typename types::numpy_type<dtype>::type, 1>
-    arange(T begin, U end, S step, dtype d)
+    types::ndarray<typename dtype::type, 1> arange(T begin, U end, S step,
+                                                   dtype d)
     {
-      using R = typename types::numpy_type<dtype>::type;
+      using R = typename dtype::type;
       size_t size = std::max(R(0), R(std::ceil((end - begin) / step)));
       types::ndarray<R, 1> a(types::make_tuple((long)size), __builtin__::None);
       if (size) {

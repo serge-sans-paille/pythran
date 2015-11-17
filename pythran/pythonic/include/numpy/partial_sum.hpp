@@ -2,9 +2,6 @@
 #define PYTHONIC_INCLUDE_NUMPY_PARTIAL_SUM_HPP
 
 #include "pythonic/include/types/ndarray.hpp"
-#include "pythonic/include/types/numpy_type.hpp"
-#include "pythonic/include/utils/neutral.hpp"
-#include "pythonic/include/__builtin__/ValueError.hpp"
 
 namespace pythonic
 {
@@ -27,21 +24,23 @@ namespace pythonic
       A operator()(E e, F &o, A acc);
     };
 
-    template <class Op, class E, class dtype = typename E::dtype>
-    types::ndarray<typename types::numpy_type<dtype>::type, 1>
-    partial_sum(E const &expr, dtype d = dtype());
+    template <class Op, class E,
+              class dtype = types::dtype_t<typename E::dtype>>
+    types::ndarray<typename dtype::type, 1> partial_sum(E const &expr,
+                                                        dtype d = dtype());
 
     template <class Op, class E,
-              class dtype = typename std::remove_reference<E>::type::dtype>
+              class dtype = types::dtype_t<
+                  typename std::remove_reference<E>::type::dtype>>
     auto partial_sum(E const &expr, long axis, dtype d = dtype()) ->
         typename std::enable_if<
             E::value == 1, decltype(partial_sum<Op, E, dtype>(expr))>::type;
 
-    template <class E, class dtype = typename E::dtype>
-    using partial_sum_type =
-        types::ndarray<typename types::numpy_type<dtype>::type, E::value>;
+    template <class E, class dtype = types::dtype_t<typename E::dtype>>
+    using partial_sum_type = types::ndarray<typename dtype::type, E::value>;
 
-    template <class Op, class E, class dtype = typename E::dtype>
+    template <class Op, class E,
+              class dtype = types::dtype_t<typename E::dtype>>
     typename std::enable_if<E::value != 1, partial_sum_type<E, dtype>>::type
     partial_sum(E const &expr, long axis, dtype d = dtype());
   }

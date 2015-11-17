@@ -590,3 +590,12 @@ def assign_ndarray(t):
                       numpy.arange(16),
                       ndarray_iter1=[numpy.array([int])])
 
+    def test_ndarray_str_dtype0(self):
+        self.run_test("def ndarray_str_dtype0(a): return str(a.dtype)",
+                      numpy.arange(16),
+                      ndarray_str_dtype0=[numpy.array([int])])
+
+    def test_ndarray_str_dtype1(self):
+        self.run_test("def ndarray_str_dtype1(a): return str(a.dtype)",
+                      numpy.arange(16.),
+                      ndarray_str_dtype1=[numpy.array([float])])

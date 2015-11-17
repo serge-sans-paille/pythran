@@ -13,20 +13,27 @@ namespace pythonic
   namespace __builtin__
   {
 
-    bool bool_();
+    namespace proxy
+    {
 
-    template <class T>
-    bool bool_(T &&val);
+      struct bool_ {
+        using callable = void;
+        using type = bool;
+
+        bool operator()();
+
+        template <class T>
+        bool operator()(T &&val);
 
 #ifdef USE_GMP
-    template <class T, class U>
-    bool bool_(__gmp_expr<T, U> const &a);
+        template <class T, class U>
+        bool operator()(__gmp_expr<T, U> const &a);
 
-    template <class T, class U>
-    bool bool_(__gmp_expr<T, U> &&a);
+        template <class T, class U>
+        bool operator()(__gmp_expr<T, U> &&a);
 #endif
-
-    PROXY_DECL(pythonic::__builtin__, bool_);
+      };
+    }
   }
 }
 

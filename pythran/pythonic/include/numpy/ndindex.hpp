@@ -2,7 +2,6 @@
 #define PYTHONIC_INCLUDE_NUMPY_NDINDEX_HPP
 
 #include "pythonic/include/utils/proxy.hpp"
-#include "pythonic/include/types/numpy_type.hpp"
 #include "pythonic/include/types/tuple.hpp"
 
 #include <numeric>

@@ -13,20 +13,23 @@ namespace pythonic
   namespace __builtin__
   {
 
-    namespace anonymous
+    namespace proxy
     {
-      template <class T>
-      double float_(T &&t);
+      struct float_ {
+        using callable = void;
+        using type = double;
 
-      double float_();
+        template <class T>
+        type operator()(T &&t);
+
+        type operator()();
 
 #ifdef USE_GMP
-      template <class T, class U>
-      double float_(__gmp_expr<T, U> const &a);
+        template <class T, class U>
+        type operator()(__gmp_expr<T, U> const &a);
 #endif
+      };
     }
-
-    PROXY_DECL(pythonic::__builtin__::anonymous, float_);
   }
 }
 

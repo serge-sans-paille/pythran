@@ -18,10 +18,10 @@ namespace pythonic
     }
 
     template <class E>
-    auto empty_like(E const &expr, types::none_type d)
-        -> decltype(empty(expr.shape(), typename E::dtype()))
+    auto empty_like(E const &expr, types::none_type)
+        -> decltype(empty(expr.shape(), types::dtype_t<typename E::dtype>()))
     {
-      return empty(expr.shape(), typename E::dtype());
+      return empty(expr.shape(), types::dtype_t<typename E::dtype>());
     }
 
     PROXY_IMPL(pythonic::numpy, empty_like)

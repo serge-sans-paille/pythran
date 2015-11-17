@@ -175,3 +175,7 @@ def combiner_on_empty_list():
         self.run_test('def list_to_tuple(t): return tuple([1, t])',
                       2,
                       list_to_tuple=[int])
+
+    def test_print_intrinsic(self):
+        self.run_test('def print_intrinsic(): print(len)',
+                      print_intrinsic=[])

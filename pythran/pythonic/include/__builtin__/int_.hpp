@@ -9,14 +9,19 @@ namespace pythonic
   namespace __builtin__
   {
 
-    template <class T>
-    long int_(T &&t);
+    namespace proxy
+    {
 
-    long int_(char t);
+      struct int_ {
+        using callable = void;
+        using type = long;
 
-    long int_();
-
-    PROXY_DECL(pythonic::__builtin__, int_);
+        template <class T>
+        type operator()(T &&t);
+        type operator()(char t);
+        type operator()();
+      };
+    }
   }
 }
 

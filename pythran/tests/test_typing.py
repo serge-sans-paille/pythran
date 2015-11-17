@@ -131,3 +131,22 @@ def recursive_interprocedural_typing1():
     l = [1,2,3]
     return s_perm(l)'''
         self.run_test(code, recursive_interprocedural_typing1=[])
+
+    def test_print_numpy_types(self):
+        self.run_test('''
+            import numpy
+            def print_type(t): print(t)
+            def print_numpy_types(n):
+                print_type(numpy.ones(n, dtype=bool).dtype)
+                print_type(numpy.ones(n, dtype=int).dtype)
+                print_type(numpy.ones(n, dtype=complex).dtype)
+                print_type(numpy.ones(n, dtype=float).dtype)
+                print_type(numpy.ones(n, dtype=numpy.uint8).dtype)
+                print_type(numpy.ones(n, dtype=numpy.uint16).dtype)
+                print_type(numpy.ones(n, dtype=numpy.uint64).dtype)
+                print_type(numpy.ones(n, dtype=numpy.double).dtype)
+                print_type(numpy.ones(n, dtype=numpy.complex).dtype)
+            ''',
+            3,
+            print_numpy_types=[int])
+

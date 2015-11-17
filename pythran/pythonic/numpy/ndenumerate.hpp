@@ -4,7 +4,6 @@
 #include "pythonic/include/numpy/ndenumerate.hpp"
 
 #include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/numpy_type.hpp"
 
 namespace pythonic
 {

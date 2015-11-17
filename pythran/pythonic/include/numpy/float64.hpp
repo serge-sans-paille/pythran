@@ -21,6 +21,7 @@ namespace pythonic
 
 #define NUMPY_NARY_FUNC_NAME float64
 #define NUMPY_NARY_FUNC_SYM details::float64
+#define NUMPY_NARY_EXTRA_METHOD using type = double;
 #include "pythonic/include/types/numpy_nary_expr.hpp"
   }
 }

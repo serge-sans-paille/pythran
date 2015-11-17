@@ -12,14 +12,15 @@ namespace pythonic
   namespace numpy
   {
     template <size_t N, class dtype>
-    types::ndarray<dtype, N + 1> indices(types::array<long, N> const &shape,
-                                         dtype d)
+    types::ndarray<typename dtype::type, N + 1>
+    indices(types::array<long, N> const &shape, dtype)
     {
       types::array<long, N + 1> oshape;
       oshape[0] = N;
       std::copy(shape.begin(), shape.end(), oshape.begin() + 1);
-      types::ndarray<dtype, N + 1> out(oshape, __builtin__::None);
-      dtype *iters[N];
+      types::ndarray<typename dtype::type, N + 1> out(oshape,
+                                                      __builtin__::None);
+      typename dtype::type *iters[N];
       for (size_t n = 0; n < N; ++n)
         iters[n] = out[n].buffer;
       size_t lens[N];

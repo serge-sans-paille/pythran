@@ -14,6 +14,9 @@
 #define NUMPY_NARY_EXTRA_METHOD
 #endif
 
+#define STR_(a) #a
+#define STR(a) STR_(a)
+
 namespace proxy
 {
 
@@ -36,6 +39,10 @@ namespace proxy
             NUMPY_NARY_FUNC_NAME,
             typename types::NUMPY_NARY_RESHAPE_MODE<E, E...>::type...>>::type
     operator()(E const &... args) const;
+    friend std::ostream &operator<<(std::ostream &os, NUMPY_NARY_FUNC_NAME)
+    {
+      return os << STR(NUMPY_NARY_FUNC_NAME);
+    }
   };
 }
 
@@ -43,3 +50,5 @@ namespace proxy
 #undef NUMPY_NARY_FUNC_SYM
 #undef NUMPY_NARY_RESHAPE_MODE
 #undef NUMPY_NARY_EXTRA_METHOD
+#undef STR
+#undef STR_

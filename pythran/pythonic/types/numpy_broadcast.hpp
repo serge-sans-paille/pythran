@@ -3,8 +3,6 @@
 
 #include "pythonic/include/types/numpy_broadcast.hpp"
 
-#include <array>
-
 #ifdef USE_BOOST_SIMD
 #include <boost/simd/sdk/simd/native.hpp>
 #include <boost/simd/include/functions/load.hpp>
@@ -12,6 +10,7 @@
 #endif
 
 #include "pythonic/types/vectorizable_type.hpp"
+#include "pythonic/types/tuple.hpp"
 
 namespace pythonic
 {
@@ -20,7 +19,8 @@ namespace pythonic
   {
 
     template <class T>
-    array<long, broadcasted<T>::value> const &broadcasted<T>::shape() const
+    types::array<long, broadcasted<T>::value> const &
+    broadcasted<T>::shape() const
     {
       return _shape;
     }

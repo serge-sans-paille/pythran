@@ -2,7 +2,6 @@
 #define PYTHONIC_INCLUDE_OPERATOR_MOD_HPP
 
 #include "pythonic/include/utils/proxy.hpp"
-#include "pythonic/include/types/str.hpp"
 
 namespace pythonic
 {

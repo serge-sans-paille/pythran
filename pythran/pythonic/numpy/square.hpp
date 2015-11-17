@@ -3,9 +3,9 @@
 
 #include "pythonic/include/numpy/square.hpp"
 
-#include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/ndarray.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
+#include "pythonic/utils/proxy.hpp"
+
 #include <nt2/include/functions/sqr.hpp>
 
 #ifdef USE_GMP

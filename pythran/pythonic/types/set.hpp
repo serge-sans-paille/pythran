@@ -7,8 +7,9 @@
 #include "pythonic/types/empty_iterator.hpp"
 #include "pythonic/types/list.hpp"
 
-#include "pythonic/utils/shared_ref.hpp"
 #include "pythonic/utils/iterator.hpp"
+#include "pythonic/utils/reserve.hpp"
+#include "pythonic/utils/shared_ref.hpp"
 
 #include "pythonic/__builtin__/in.hpp"
 

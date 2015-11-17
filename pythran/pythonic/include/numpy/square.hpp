@@ -1,9 +1,11 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_SQUARE_HPP
 #define PYTHONIC_INCLUDE_NUMPY_SQUARE_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
-#include "pythonic/include/types/ndarray.hpp"
+#include "pythonic/include/types/numpy_op_helper.hpp"
+#include "pythonic/include/utils/meta.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
+#include "pythonic/include/utils/proxy.hpp"
+
 #include <nt2/include/functions/sqr.hpp>
 
 #ifdef USE_GMP

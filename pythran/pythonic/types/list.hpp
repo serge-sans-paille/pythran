@@ -7,6 +7,7 @@
 #include "pythonic/types/slice.hpp"
 #include "pythonic/types/tuple.hpp"
 #include "pythonic/utils/shared_ref.hpp"
+#include "pythonic/utils/reserve.hpp"
 
 #include <cassert>
 #include <algorithm>
@@ -648,7 +649,7 @@ namespace pythonic
 
     template <class T, class From>
     void reserve(types::list<T> &l, From const &f,
-                 typename From::const_iterator *p)
+                 typename From::const_iterator *)
     {
       l.reserve(__builtin__::len(f));
     }

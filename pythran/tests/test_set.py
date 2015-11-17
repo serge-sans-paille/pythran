@@ -1,4 +1,3 @@
-import unittest
 from test_env import TestEnv
 
 class TestSet(TestEnv):
@@ -115,9 +114,14 @@ def are_equal(s1):
     def test_operator_intersection_update(self):
         self.run_test("def _operator_intersection_update(b, c):\n a={1.}\n a &= b & c\n return a", {1,3,4,5,6}, {1.,2.,4.}, _operator_intersection_update=[{int},{float}])
 
-    @unittest.skip("pythran -E + pythran success")
     def test_operator_intersection_update_empty_set(self):
-        self.run_test("def _operator_intersection_update_empty_set(b, c):\n a=set()\n a &= b & c\n return a", {1,3,4,5,6}, {1.,2.,4.}, _operator_intersection_update_empty_set=[{int},{float}])
+        """ Check intersection update on an empty set. """
+        self.run_test("""
+            def _operator_intersection_update_empty_set(b, c):
+                a = set()
+                a &= b & c
+                return a""", {1, 3, 4, 5, 6}, {1., 2., 4.},
+                      _operator_intersection_update_empty_set=[{int}, {float}])
 
     def test_fct_difference(self):
         self.run_test("def _fct_difference(b, c):\n a={1.,5.,10.}\n return a.difference(b,c)", {1,3,4,5,6}, {1.,2.,4.}, _fct_difference=[{int},{float}])

@@ -4,7 +4,6 @@
 #include "pythonic/include/operator_/mod.hpp"
 
 #include "pythonic/utils/proxy.hpp"
-#include "pythonic/types/str.hpp"
 
 namespace pythonic
 {

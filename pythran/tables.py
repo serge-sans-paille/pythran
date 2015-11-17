@@ -424,6 +424,7 @@ MODULES = {
         "concatenate": ConstFunctionIntr(),
         "complex": ConstFunctionIntr(),
         "complex64": ConstFunctionIntr(),
+        "complex128": ConstFunctionIntr(),
         "conj": ConstMethodIntr(),
         "conjugate": ConstMethodIntr(),
         "copy": ConstMethodIntr(),

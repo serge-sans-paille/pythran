@@ -52,7 +52,7 @@ namespace pythonic
                                     const_nditerator<numpy_iexpr>,
                                     dtype const *>::type;
 
-      Arg arg;
+      Arg const &arg;
       dtype *buffer;
       array<long, value> _shape;
 

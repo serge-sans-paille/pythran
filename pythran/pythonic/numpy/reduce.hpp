@@ -23,22 +23,21 @@ namespace pythonic
     template <class Op, size_t N, bool vector_form>
     struct _reduce {
       template <class E, class F>
-      F operator()(E e, F acc)
+      void operator()(E const &e, F &acc)
       {
         for (auto const &value : e)
-          acc = _reduce<Op, N - 1, vector_form>{}(value, acc);
-        return acc;
+          _reduce<Op, N - 1, vector_form>{}(value, acc);
       }
     };
 
     template <class Op, bool vector_form>
     struct _reduce<Op, 1, vector_form> {
       template <class E, class F>
-      F operator()(E e, F acc)
+      void operator()(E const &e, F &acc)
       {
-        for (auto const &value : e)
+        for (auto const &value : e) {
           Op{}(acc, value);
-        return acc;
+        }
       }
     };
 
@@ -46,7 +45,7 @@ namespace pythonic
     template <class Op>
     struct _reduce<Op, 1, true> {
       template <class E, class F>
-      F operator()(E e, F acc)
+      void operator()(E const &e, F &acc)
       {
         using T = typename E::dtype;
         using vT =
@@ -66,7 +65,6 @@ namespace pythonic
         }
         for (; i < n; ++i)
           Op{}(acc, e.fast(i));
-        return acc;
       }
     };
 #endif
@@ -80,7 +78,8 @@ namespace pythonic
           E::is_vectorizable and
           not std::is_same<typename E::dtype, bool>::value;
       reduce_result_type<E> p = utils::neutral<Op, typename E::dtype>::value;
-      return _reduce<Op, E::value, is_vectorizable>{}(expr, p);
+      _reduce<Op, E::value, is_vectorizable>{}(expr, p);
+      return p;
     }
 
     template <class Op, class E>
@@ -118,22 +117,22 @@ namespace pythonic
     {
       if (axis < 0)
         axis += E::value;
-      if (axis < 0 || size_t(axis) >= E::value)
+      if (size_t(axis) >= E::value)
         throw types::ValueError("axis out of bounds");
-      auto shape = array.shape();
+      auto &&shape = array.shape();
       if (axis == 0) {
         types::array<long, E::value - 1> shp;
         std::copy(shape.begin() + 1, shape.end(), shp.begin());
-        return _reduce<Op, 1, false /* not on scalars*/>{}(
-            array,
-            reduced_type<E>{shp, utils::neutral<Op, typename E::dtype>::value});
+        reduced_type<E> a{shp, utils::neutral<Op, typename E::dtype>::value};
+        _reduce<Op, 1, false /* not on scalars*/>{}(array, a);
+        return a;
       } else {
         types::array<long, E::value - 1> shp;
         auto next = std::copy(shape.begin(), shape.begin() + axis, shp.begin());
         std::copy(shape.begin() + axis + 1, shape.end(), next);
         reduced_type<E> sumy{shp, __builtin__::None};
         std::transform(array.begin(), array.end(), sumy.begin(),
-                       [axis](typename E::iterator::value_type other) {
+                       [axis](typename E::iterator::value_type const &other) {
                          return reduce<Op>(other, axis - 1);
                        });
         return sumy;

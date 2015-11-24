@@ -7,7 +7,7 @@
 #include "pythonic/operator_/add.hpp"
 #include "pythonic/operator_/and_.hpp"
 #include "pythonic/operator_/or_.hpp"
-#include "pythonic/operator_/__xor__.hpp"
+#include "pythonic/operator_/xor_.hpp"
 #include "pythonic/operator_/div.hpp"
 #include "pythonic/operator_/eq.hpp"
 #include "pythonic/operator_/gt.hpp"
@@ -48,7 +48,7 @@ namespace pythonic
 #include "pythonic/types/numpy_binary_op.hpp"
 
 #define NUMPY_BINARY_FUNC_NAME operator^
-#define NUMPY_BINARY_FUNC_SYM operator_::functor::__xor__
+#define NUMPY_BINARY_FUNC_SYM operator_::functor::xor_
 #include "pythonic/types/numpy_binary_op.hpp"
 
 #define NUMPY_BINARY_FUNC_NAME operator/

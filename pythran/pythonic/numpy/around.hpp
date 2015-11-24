@@ -16,10 +16,10 @@ namespace pythonic
     template <class E>
     auto around(E const &a, long decimals) -> typename std::enable_if<
         !std::is_integral<typename E::dtype>::value,
-        decltype(proxy::rint()(a *nt2::pow(typename E::dtype(10), decimals)) /
+        decltype(functor::rint()(a *nt2::pow(typename E::dtype(10), decimals)) /
                  nt2::pow(typename E::dtype(10), decimals))>::type
     {
-      return proxy::rint()(a * nt2::pow(typename E::dtype(10), decimals)) /
+      return functor::rint()(a * nt2::pow(typename E::dtype(10), decimals)) /
              nt2::pow(typename E::dtype(10), decimals);
     }
 
@@ -37,7 +37,7 @@ namespace pythonic
              (long)nt2::pow(typename E::dtype(10), std::max(0L, -decimals));
     }
 
-    PROXY_IMPL(pythonic::numpy, around);
+    DEFINE_FUNCTOR(pythonic::numpy, around);
   }
 }
 

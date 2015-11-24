@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_FLOAT_ISINTEGER_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_FLOAT_ISINTEGER_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -14,7 +14,7 @@ namespace pythonic
 
       bool is_integer(double d);
 
-      PROXY_DECL(pythonic::__builtin__::float_, is_integer);
+      DECLARE_FUNCTOR(pythonic::__builtin__::float_, is_integer);
     }
   }
 }

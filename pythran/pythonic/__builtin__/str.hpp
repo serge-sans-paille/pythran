@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/str.hpp"
 
 #include "pythonic/types/str.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 #include <sstream>
 
@@ -71,7 +71,7 @@ namespace pythonic
       }
     }
 
-    PROXY_IMPL(pythonic::__builtin__::anonymous, str);
+    DEFINE_FUNCTOR(pythonic::__builtin__::anonymous, str);
   }
 }
 

@@ -4,7 +4,7 @@
 #include "pythonic/include/types/assignable.hpp"
 #include "pythonic/include/types/tuple.hpp"
 #include "pythonic/include/utils/int_.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 #include <algorithm>
 
@@ -41,7 +41,7 @@ namespace pythonic
     auto sum(std::tuple<Types...> const &t) -> decltype(
         details::tuple_sum<std::tuple<Types...>, sizeof...(Types)-1>()(t));
 
-    PROXY_DECL(pythonic::__builtin__, sum);
+    DECLARE_FUNCTOR(pythonic::__builtin__, sum);
   }
 }
 

@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_DISPATCH_COPY_HPP
 #define PYTHONIC_INCLUDE_DISPATCH_COPY_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -11,7 +11,7 @@ namespace pythonic
     template <class Any>
     auto copy(Any const &any) -> decltype(any.copy());
 
-    PROXY_DECL(pythonic::__dispatch__, copy);
+    DECLARE_FUNCTOR(pythonic::__dispatch__, copy);
   }
 }
 

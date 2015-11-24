@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_DICT_HPP
 
 #include "pythonic/include/types/dict.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 #include <tuple>
 #include <utility>
@@ -28,7 +28,7 @@ namespace pythonic
       dict(Iterable &&iterable);
     }
 
-    PROXY_DECL(pythonic::__builtin__::anonymous, dict);
+    DECLARE_FUNCTOR(pythonic::__builtin__::anonymous, dict);
   }
 }
 

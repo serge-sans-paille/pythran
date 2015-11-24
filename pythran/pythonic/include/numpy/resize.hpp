@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_RESIZE_HPP
 #define PYTHONIC_INCLUDE_NUMPY_RESIZE_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/utils/numpy_conversion.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 
@@ -19,7 +19,7 @@ namespace pythonic
                                 types::array<long, M> const &new_shape);
 
     NUMPY_EXPR_TO_NDARRAY0_DECL(resize);
-    PROXY_DECL(pythonic::numpy, resize);
+    DECLARE_FUNCTOR(pythonic::numpy, resize);
   }
 }
 

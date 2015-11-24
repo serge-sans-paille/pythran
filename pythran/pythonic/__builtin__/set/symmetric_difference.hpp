@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/set/symmetric_difference.hpp"
 
 #include "pythonic/types/set.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -35,7 +35,7 @@ namespace pythonic
         return other;
       }
 
-      PROXY_IMPL(pythonic::__builtin__::set, symmetric_difference);
+      DEFINE_FUNCTOR(pythonic::__builtin__::set, symmetric_difference);
     }
   }
 }

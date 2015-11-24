@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_NDENUMERATE_HPP
 #define PYTHONIC_INCLUDE_NUMPY_NDENUMERATE_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -47,7 +47,7 @@ namespace pythonic
     ndenumerate(types::ndarray<T, N> const &expr);
 
     NUMPY_EXPR_TO_NDARRAY0_DECL(ndenumerate);
-    PROXY_DECL(pythonic::numpy, ndenumerate);
+    DECLARE_FUNCTOR(pythonic::numpy, ndenumerate);
   }
 }
 

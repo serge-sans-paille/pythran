@@ -20,7 +20,7 @@ namespace pythonic
     bincount(types::ndarray<T, N> const &expr, E const &weights,
              types::none<long> minlength = __builtin__::None);
 
-    PROXY_DECL(pythonic::numpy, bincount);
+    DECLARE_FUNCTOR(pythonic::numpy, bincount);
   }
 }
 

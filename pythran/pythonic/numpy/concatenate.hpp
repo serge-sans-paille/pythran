@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/concatenate.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/__builtin__/sum.hpp"
 
@@ -106,7 +106,7 @@ namespace pythonic
       return types::ndarray<T, return_type::value>(buffer, shape);
     }
 
-    PROXY_IMPL(pythonic::numpy, concatenate);
+    DEFINE_FUNCTOR(pythonic::numpy, concatenate);
   }
 }
 

@@ -3,7 +3,7 @@
 
 #include "pythonic/include/__dispatch__/remove.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -16,7 +16,7 @@ namespace pythonic
       return any.remove(arg0);
     }
 
-    PROXY_IMPL(pythonic::__dispatch__, remove);
+    DEFINE_FUNCTOR(pythonic::__dispatch__, remove);
   }
 }
 

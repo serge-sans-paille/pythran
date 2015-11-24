@@ -3,7 +3,7 @@
 
 #include "pythonic/include/random/uniform.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/random/random.hpp"
 
 namespace pythonic
@@ -16,7 +16,7 @@ namespace pythonic
       return a + (b - a) * random();
     }
 
-    PROXY_IMPL(pythonic::random, uniform);
+    DEFINE_FUNCTOR(pythonic::random, uniform);
   }
 }
 

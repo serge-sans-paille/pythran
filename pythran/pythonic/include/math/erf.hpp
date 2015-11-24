@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_MATH_ERF_HPP
 #define PYTHONIC_INCLUDE_MATH_ERF_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include <cmath>
 
 namespace pythonic
@@ -9,8 +9,7 @@ namespace pythonic
 
   namespace math
   {
-    ALIAS_DECL(erf, std::erf);
-    PROXY_DECL(pythonic::math, erf);
+    DECLARE_FUNCTOR_2(erf, std::erf);
   }
 }
 

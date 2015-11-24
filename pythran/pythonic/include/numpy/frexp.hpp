@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_FREXP_HPP
 #define PYTHONIC_INCLUDE_NUMPY_FREXP_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/utils/numpy_conversion.hpp"
 #include "pythonic/include/types/traits.hpp"
 #include "pythonic/include/types/ndarray.hpp"
@@ -30,7 +30,7 @@ namespace pythonic
                    types::ndarray<int, E::value>>>::type
     frexp(E const &arr);
 
-    PROXY_DECL(pythonic::numpy, frexp);
+    DECLARE_FUNCTOR(pythonic::numpy, frexp);
   }
 }
 

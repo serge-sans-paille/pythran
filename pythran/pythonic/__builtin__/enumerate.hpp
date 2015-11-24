@@ -3,7 +3,7 @@
 
 #include "pythonic/include/__builtin__/enumerate.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 #include <tuple>
 
@@ -123,7 +123,7 @@ namespace pythonic
       return {std::forward<Iterable>(seq), first};
     }
 
-    PROXY_IMPL(pythonic::__builtin__, enumerate);
+    DEFINE_FUNCTOR(pythonic::__builtin__, enumerate);
   }
 }
 

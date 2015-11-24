@@ -3,7 +3,7 @@
 
 #include "pythonic/include/math/cos.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include <cmath>
 
 namespace pythonic
@@ -11,8 +11,7 @@ namespace pythonic
 
   namespace math
   {
-    ALIAS(cos, std::cos);
-    PROXY_IMPL(pythonic::math, cos);
+    DEFINE_FUNCTOR_2(cos, std::cos);
   }
 }
 

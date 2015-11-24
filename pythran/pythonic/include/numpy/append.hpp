@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_APPEND_HPP
 #define PYTHONIC_INCLUDE_NUMPY_APPEND_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 
 namespace pythonic
@@ -28,7 +28,7 @@ namespace pythonic
         1>
     append(types::list<T> const &to, F const &data);
 
-    PROXY_DECL(pythonic::numpy, append);
+    DECLARE_FUNCTOR(pythonic::numpy, append);
   }
 }
 

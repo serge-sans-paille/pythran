@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/rot90.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/numpy_conversion.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/copy.hpp"
@@ -42,7 +42,7 @@ namespace pythonic
     }
 
     NUMPY_EXPR_TO_NDARRAY0_IMPL(rot90)
-    PROXY_IMPL(pythonic::numpy, rot90);
+    DEFINE_FUNCTOR(pythonic::numpy, rot90);
   }
 }
 

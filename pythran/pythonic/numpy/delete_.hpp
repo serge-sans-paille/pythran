@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/delete_.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 
 namespace pythonic
@@ -44,7 +44,7 @@ namespace pythonic
     }
 
     NUMPY_EXPR_TO_NDARRAY0_IMPL(delete_);
-    PROXY_IMPL(pythonic::numpy, delete_);
+    DEFINE_FUNCTOR(pythonic::numpy, delete_);
   }
 }
 

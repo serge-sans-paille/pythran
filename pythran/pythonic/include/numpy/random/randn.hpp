@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/random/generator.hpp"
 #include "pythonic/include/types/ndarray.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -16,7 +16,7 @@ namespace pythonic
 
       double randn();
 
-      PROXY_DECL(pythonic::numpy::random, randn);
+      DECLARE_FUNCTOR(pythonic::numpy::random, randn);
     }
   }
 }

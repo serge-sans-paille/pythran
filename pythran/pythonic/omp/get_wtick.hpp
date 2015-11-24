@@ -4,7 +4,7 @@
 #include "pythonic/include/omp/get_wtick.hpp"
 
 #include <omp.h>
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -16,7 +16,7 @@ namespace pythonic
       return omp_get_wtick();
     }
 
-    PROXY_IMPL(pythonic::omp, get_wtick);
+    DEFINE_FUNCTOR(pythonic::omp, get_wtick);
   }
 }
 

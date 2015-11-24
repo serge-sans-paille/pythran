@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/filter.hpp"
 
 #include "pythonic/types/list.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -24,7 +24,7 @@ namespace pythonic
       return out;
     }
 
-    PROXY_IMPL(pythonic::__builtin__, filter);
+    DEFINE_FUNCTOR(pythonic::__builtin__, filter);
   }
 }
 

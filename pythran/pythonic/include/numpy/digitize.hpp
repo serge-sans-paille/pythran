@@ -22,7 +22,7 @@ namespace pythonic
     template <class E, class F>
     types::ndarray<long, 1> digitize(E const &expr, F const &b);
 
-    PROXY_DECL(pythonic::numpy, digitize);
+    DECLARE_FUNCTOR(pythonic::numpy, digitize);
   }
 }
 

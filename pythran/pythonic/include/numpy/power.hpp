@@ -4,7 +4,7 @@
 #include "pythonic/include/types/numpy_op_helper.hpp"
 #include "pythonic/include/utils/meta.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 #include <nt2/include/functions/pow.hpp>
 

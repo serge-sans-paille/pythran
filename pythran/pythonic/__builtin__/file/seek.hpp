@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/file/seek.hpp"
 
 #include "pythonic/types/file.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -35,7 +35,7 @@ namespace pythonic
         // Nothing have to be done as it is a lvalue
       }
 
-      PROXY_IMPL(pythonic::__builtin__::file, seek);
+      DEFINE_FUNCTOR(pythonic::__builtin__::file, seek);
     }
   }
 }

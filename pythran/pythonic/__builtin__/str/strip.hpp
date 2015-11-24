@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/str/strip.hpp"
 
 #include "pythonic/types/str.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -26,7 +26,7 @@ namespace pythonic
                             self.begin() + self.find_last_not_of(to_del) + 1);
       }
 
-      PROXY_IMPL(pythonic::__builtin__::str, strip);
+      DEFINE_FUNCTOR(pythonic::__builtin__::str, strip);
     }
   }
 }

@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_MATH_ACOS_HPP
 #define PYTHONIC_INCLUDE_MATH_ACOS_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include <cmath>
 
 namespace pythonic
@@ -9,8 +9,7 @@ namespace pythonic
 
   namespace math
   {
-    ALIAS_DECL(acos, std::acos);
-    PROXY_DECL(pythonic::math, acos);
+    DECLARE_FUNCTOR_2(acos, std::acos);
   }
 }
 

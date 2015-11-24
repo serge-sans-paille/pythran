@@ -15,7 +15,7 @@ namespace pythonic
     auto ediff1d(types::list<E> const &expr)
         -> decltype(ediff1d(asarray(expr)));
 
-    PROXY_DECL(pythonic::numpy, ediff1d);
+    DECLARE_FUNCTOR(pythonic::numpy, ediff1d);
   }
 }
 

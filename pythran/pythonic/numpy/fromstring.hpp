@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/fromstring.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/list.hpp"
 
@@ -52,7 +52,7 @@ namespace pythonic
       }
     }
 
-    PROXY_IMPL(pythonic::numpy, fromstring);
+    DEFINE_FUNCTOR(pythonic::numpy, fromstring);
   }
 }
 

@@ -24,7 +24,7 @@ namespace pythonic
                                     std::is_same<E, types::str>::value,
                                 bool>::type;
 
-    PROXY_DECL(pythonic::numpy, issctype);
+    DECLARE_FUNCTOR(pythonic::numpy, issctype);
   }
 }
 

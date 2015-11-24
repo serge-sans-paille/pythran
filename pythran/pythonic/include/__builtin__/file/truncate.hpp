@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_FILE_TRUNCATE_HPP
 
 #include "pythonic/include/types/file.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -18,7 +18,7 @@ namespace pythonic
       void truncate(types::file &f, long size);
       void truncate(types::file &&f, long size);
 
-      PROXY_DECL(pythonic::__builtin__::file, truncate);
+      DECLARE_FUNCTOR(pythonic::__builtin__::file, truncate);
     }
   }
 }

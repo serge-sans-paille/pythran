@@ -4,7 +4,7 @@
 #include "pythonic/include/omp/get_wtime.hpp"
 
 #include <omp.h>
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -17,7 +17,7 @@ namespace pythonic
       return omp_get_wtime();
     }
 
-    PROXY_IMPL(pythonic::omp, get_wtime);
+    DEFINE_FUNCTOR(pythonic::omp, get_wtime);
   }
 }
 

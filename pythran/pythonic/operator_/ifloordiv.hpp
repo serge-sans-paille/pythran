@@ -3,7 +3,7 @@
 
 #include "pythonic/include/operator_/ifloordiv.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -19,7 +19,7 @@ namespace pythonic
       return tmp;
     }
 
-    PROXY_IMPL(pythonic::operator_, ifloordiv);
+    DEFINE_FUNCTOR(pythonic::operator_, ifloordiv);
   }
 }
 

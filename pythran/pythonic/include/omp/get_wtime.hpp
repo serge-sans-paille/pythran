@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_OMP_GET_WTIME_HPP
 
 #include <omp.h>
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -12,7 +12,7 @@ namespace pythonic
 
     long get_wtime();
 
-    PROXY_DECL(pythonic::omp, get_wtime);
+    DECLARE_FUNCTOR(pythonic::omp, get_wtime);
   }
 }
 

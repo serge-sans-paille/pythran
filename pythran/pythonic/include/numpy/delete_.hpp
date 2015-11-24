@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_DELETE_HPP
 #define PYTHONIC_INCLUDE_NUMPY_DELETE_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 
 namespace pythonic
@@ -20,7 +20,7 @@ namespace pythonic
             types::none_type axis = __builtin__::None);
 
     NUMPY_EXPR_TO_NDARRAY0_DECL(delete_);
-    PROXY_DECL(pythonic::numpy, delete_);
+    DECLARE_FUNCTOR(pythonic::numpy, delete_);
   }
 }
 

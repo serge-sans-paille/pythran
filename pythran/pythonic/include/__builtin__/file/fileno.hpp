@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_FILE_FILENO_HPP
 
 #include "pythonic/include/types/file.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -15,7 +15,7 @@ namespace pythonic
 
       long fileno(types::file const &f);
 
-      PROXY_DECL(pythonic::__builtin__::file, fileno);
+      DECLARE_FUNCTOR(pythonic::__builtin__::file, fileno);
     }
   }
 }

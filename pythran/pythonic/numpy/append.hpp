@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/append.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 
 namespace pythonic
@@ -49,7 +49,7 @@ namespace pythonic
           data);
     }
 
-    PROXY_IMPL(pythonic::numpy, append);
+    DEFINE_FUNCTOR(pythonic::numpy, append);
   }
 }
 

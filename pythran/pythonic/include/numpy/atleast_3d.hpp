@@ -25,7 +25,7 @@ namespace pythonic
                                     T::value >= 3,
                                 decltype(asarray(t))>::type;
 
-    PROXY_DECL(pythonic::numpy, atleast_3d);
+    DECLARE_FUNCTOR(pythonic::numpy, atleast_3d);
   }
 }
 

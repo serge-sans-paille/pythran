@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_STR_CAPITALIZE_HPP
 
 #include "pythonic/include/types/str.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -15,7 +15,7 @@ namespace pythonic
 
       types::str capitalize(types::str const &s);
 
-      PROXY_DECL(pythonic::__builtin__::str, capitalize);
+      DECLARE_FUNCTOR(pythonic::__builtin__::str, capitalize);
     }
   }
 }

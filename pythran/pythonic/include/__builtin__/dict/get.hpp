@@ -3,7 +3,7 @@
 
 #include "pythonic/include/types/dict.hpp"
 #include "pythonic/include/types/none.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -28,7 +28,7 @@ namespace pythonic
       template <class T, class I, class J>
       typename __combined<T, J>::type get(::dict_container<T>, I, J);
 
-      PROXY_DECL(pythonic::__builtin__::dict, get);
+      DECLARE_FUNCTOR(pythonic::__builtin__::dict, get);
     }
   }
 }

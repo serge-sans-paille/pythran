@@ -3,7 +3,7 @@
 
 #include "pythonic/include/math/sinh.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include <cmath>
 
 namespace pythonic
@@ -11,8 +11,7 @@ namespace pythonic
 
   namespace math
   {
-    ALIAS(sinh, std::sinh);
-    PROXY_IMPL(pythonic::math, sinh);
+    DEFINE_FUNCTOR_2(sinh, std::sinh);
   }
 }
 

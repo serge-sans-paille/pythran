@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_POS_HPP
 #define PYTHONIC_INCLUDE_OPERATOR_POS_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -12,7 +12,7 @@ namespace pythonic
     template <class A>
     auto pos(A const &a) -> decltype(+a);
 
-    PROXY_DECL(pythonic::operator_, pos);
+    DECLARE_FUNCTOR(pythonic::operator_, pos);
   }
 }
 

@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_LONG_HPP
 
 #include "pythonic/include/types/long.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -15,7 +15,7 @@ namespace pythonic
 
     pythran_long_t long_();
 
-    PROXY_DECL(pythonic::__builtin__, long_);
+    DECLARE_FUNCTOR(pythonic::__builtin__, long_);
   }
 }
 

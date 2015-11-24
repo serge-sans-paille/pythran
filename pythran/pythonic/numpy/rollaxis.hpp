@@ -29,7 +29,7 @@ namespace pythonic
     }
 
     NUMPY_EXPR_TO_NDARRAY0_IMPL(rollaxis);
-    PROXY_IMPL(pythonic::numpy, rollaxis);
+    DEFINE_FUNCTOR(pythonic::numpy, rollaxis);
   }
 }
 

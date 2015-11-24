@@ -13,7 +13,7 @@ namespace pythonic
         -> decltype(types::numpy_fexpr<T, F>(std::forward<T>(expr),
                                              std::forward<F>(indices)));
 
-    PROXY_DECL(pythonic::numpy, take);
+    DECLARE_FUNCTOR(pythonic::numpy, take);
   }
 }
 

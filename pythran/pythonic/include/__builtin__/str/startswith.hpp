@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_STR_STARTSWITH_HPP
 
 #include "pythonic/include/types/str.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -16,7 +16,7 @@ namespace pythonic
       bool startswith(types::str const &s, types::str const &prefix,
                       long start = 0, long end = -1);
 
-      PROXY_DECL(pythonic::__builtin__::str, startswith);
+      DECLARE_FUNCTOR(pythonic::__builtin__::str, startswith);
     }
   }
 }

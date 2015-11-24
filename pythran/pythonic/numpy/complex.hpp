@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/complex.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/complex.hpp"
 
 namespace pythonic
@@ -17,7 +17,7 @@ namespace pythonic
       return std::complex<double>();
     }
 
-    PROXY_IMPL(pythonic::numpy, complex);
+    DEFINE_FUNCTOR(pythonic::numpy, complex);
   }
 }
 

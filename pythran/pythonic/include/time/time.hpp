@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_TIME_TIME_HPP
 #define PYTHONIC_INCLUDE_TIME_TIME_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -11,7 +11,7 @@ namespace pythonic
 
     double time();
 
-    PROXY_DECL(pythonic::time, time)
+    DECLARE_FUNCTOR(pythonic::time, time)
   }
 }
 

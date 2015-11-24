@@ -9,7 +9,7 @@ namespace pythonic
   namespace numpy
   {
 
-    FPROXY_DECL(pythonic::numpy, ascontiguousarray, asarray);
+    USING_FUNCTOR(ascontiguousarray, asarray);
   }
 }
 

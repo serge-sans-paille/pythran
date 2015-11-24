@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_NONZERO_HPP
 #define PYTHONIC_INCLUDE_NUMPY_NONZERO_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 
 namespace pythonic
@@ -21,7 +21,7 @@ namespace pythonic
     auto nonzero(E const &expr)
         -> types::array<types::ndarray<long, 1>, E::value>;
 
-    PROXY_DECL(pythonic::numpy, nonzero)
+    DECLARE_FUNCTOR(pythonic::numpy, nonzero)
   }
 }
 

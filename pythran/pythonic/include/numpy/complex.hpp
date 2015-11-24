@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_COMPLEX_HPP
 #define PYTHONIC_INCLUDE_NUMPY_COMPLEX_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/complex.hpp"
 
 namespace pythonic
@@ -12,7 +12,7 @@ namespace pythonic
 
     std::complex<double> complex();
 
-    PROXY_DECL(pythonic::numpy, complex);
+    DECLARE_FUNCTOR(pythonic::numpy, complex);
   }
 }
 

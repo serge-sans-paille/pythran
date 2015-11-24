@@ -3,7 +3,7 @@
 
 #include "pythonic/include/math/gamma.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include <cmath>
 
 namespace pythonic
@@ -16,7 +16,7 @@ namespace pythonic
       return std::tgamma(x);
     }
 
-    PROXY_IMPL(pythonic::math, gamma);
+    DEFINE_FUNCTOR(pythonic::math, gamma);
   }
 }
 

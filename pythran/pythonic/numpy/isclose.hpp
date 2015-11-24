@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/isclose.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/abs.hpp"
 #include "pythonic/numpy/isfinite.hpp"
@@ -20,9 +20,9 @@ namespace pythonic
       bool isclose(T0 const &u, T1 const &v, double rtol, double atol,
                    bool equal_nan)
       {
-        if (proxy::isfinite()(u) && proxy::isfinite()(v))
-          return proxy::abs()(u - v) <= (atol + rtol * proxy::abs()(v));
-        else if (proxy::isnan()(u) && proxy::isnan()(v))
+        if (functor::isfinite()(u) && functor::isfinite()(v))
+          return functor::abs()(u - v) <= (atol + rtol * functor::abs()(v));
+        else if (functor::isnan()(u) && functor::isnan()(v))
           return equal_nan;
         else
           return (u == v);

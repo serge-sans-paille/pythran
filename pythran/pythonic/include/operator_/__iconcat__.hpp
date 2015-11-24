@@ -9,7 +9,7 @@ namespace pythonic
   namespace operator_
   {
 
-    FPROXY_DECL(pythonic::operator_, __iconcat__, iconcat);
+    USING_FUNCTOR(__iconcat__, iconcat);
   }
 }
 

@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_ITERTOOLS_PERMUTATIONS_HPP
 #define PYTHONIC_INCLUDE_ITERTOOLS_PERMUTATIONS_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/list.hpp"
 #include "pythonic/include/__builtin__/range.hpp"
 
@@ -86,7 +86,7 @@ namespace pythonic
     template <typename T0>
     _permutations<T0> permutations(T0 iter);
 
-    PROXY_DECL(pythonic::itertools, permutations);
+    DECLARE_FUNCTOR(pythonic::itertools, permutations);
   }
 }
 

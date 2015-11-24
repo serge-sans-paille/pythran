@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_SET_SYMMETRICDIFFERENCE_HPP
 
 #include "pythonic/include/types/set.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -29,7 +29,7 @@ namespace pythonic
       typename __combined<types::empty_set, U>::type
       symmetric_difference(types::empty_set const &set, U const &other);
 
-      PROXY_DECL(pythonic::__builtin__::set, symmetric_difference);
+      DECLARE_FUNCTOR(pythonic::__builtin__::set, symmetric_difference);
     }
   }
 }

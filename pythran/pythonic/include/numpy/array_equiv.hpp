@@ -27,7 +27,7 @@ namespace pythonic
     template <class I0, class U>
     bool _array_equiv(I0 vbegin, I0 vend, U const &uu);
 
-    PROXY_DECL(pythonic::numpy, array_equiv);
+    DECLARE_FUNCTOR(pythonic::numpy, array_equiv);
   }
 }
 

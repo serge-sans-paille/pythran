@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_SORTED_HPP
 
 #include "pythonic/include/types/list.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -20,7 +20,7 @@ namespace pythonic
         typename std::remove_cv<typename Iterable::iterator::value_type>::type>
     sorted(Iterable const &seq, C const &cmp);
 
-    PROXY_DECL(pythonic::__builtin__, sorted);
+    DECLARE_FUNCTOR(pythonic::__builtin__, sorted);
   }
 }
 

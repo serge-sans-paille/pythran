@@ -22,7 +22,7 @@ namespace pythonic
       return _transpose(std::forward<T>(a), t);
     }
 
-    PROXY_IMPL(pythonic::numpy, swapaxes);
+    DEFINE_FUNCTOR(pythonic::numpy, swapaxes);
   }
 }
 

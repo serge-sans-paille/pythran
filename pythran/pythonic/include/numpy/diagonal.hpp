@@ -8,8 +8,7 @@ namespace pythonic
 
   namespace numpy
   {
-
-    FPROXY_DECL(pythonic::numpy, diagonal, diag);
+    USING_FUNCTOR(diagonal, diag);
   }
 }
 

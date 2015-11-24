@@ -3,7 +3,7 @@
 
 #include "pythonic/include/functools/partial.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/seq.hpp"
 
 #include <utility>
@@ -61,7 +61,7 @@ namespace pythonic
       return {std::forward<Types>(types)...};
     }
 
-    PROXY_IMPL(pythonic::functools, partial);
+    DEFINE_FUNCTOR(pythonic::functools, partial);
   }
 }
 

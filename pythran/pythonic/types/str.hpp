@@ -8,7 +8,7 @@
 #include "pythonic/types/tuple.hpp"
 
 #include "pythonic/utils/shared_ref.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/int_.hpp"
 
 #include <boost/format.hpp>

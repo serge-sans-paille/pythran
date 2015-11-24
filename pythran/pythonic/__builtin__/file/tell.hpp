@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/file/tell.hpp"
 
 #include "pythonic/types/file.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -20,7 +20,7 @@ namespace pythonic
         return f.tell();
       }
 
-      PROXY_IMPL(pythonic::__builtin__::file, tell);
+      DEFINE_FUNCTOR(pythonic::__builtin__::file, tell);
     }
   }
 }

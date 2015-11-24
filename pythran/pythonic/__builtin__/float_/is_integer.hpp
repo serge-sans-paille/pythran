@@ -3,7 +3,7 @@
 
 #include "pythonic/include/__builtin__/float_/is_integer.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 #include <cmath>
 
@@ -21,7 +21,7 @@ namespace pythonic
         return std::trunc(d) == d;
       }
 
-      PROXY_IMPL(pythonic::__builtin__::float_, is_integer);
+      DEFINE_FUNCTOR(pythonic::__builtin__::float_, is_integer);
     }
   }
 }

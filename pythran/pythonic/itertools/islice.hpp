@@ -2,7 +2,7 @@
 #define PYTHONIC_ITERTOOLS_ISLICE_HPP
 
 #include "pythonic/include/itertools/islice.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/itertools/common.hpp"
 #include "pythonic/__builtin__/xrange.hpp"
 #include <iterator>
@@ -124,7 +124,7 @@ namespace pythonic
       return {iterable, __builtin__::xrange(0, stop, 1)};
     }
 
-    PROXY_IMPL(pythonic::itertools, islice);
+    DEFINE_FUNCTOR(pythonic::itertools, islice);
   }
 }
 

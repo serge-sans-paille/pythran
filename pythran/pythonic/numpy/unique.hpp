@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/unique.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/tuple.hpp"
 
@@ -103,7 +103,7 @@ namespace pythonic
                              return_inverse_res);
     }
 
-    PROXY_IMPL(pythonic::numpy, unique)
+    DEFINE_FUNCTOR(pythonic::numpy, unique)
   }
 }
 

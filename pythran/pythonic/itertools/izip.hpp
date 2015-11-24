@@ -18,7 +18,7 @@ namespace pythonic
       return imap(__builtin__::None, std::forward<Iter>(iters)...);
     }
 
-    PROXY_IMPL(pythonic::itertools, izip);
+    DEFINE_FUNCTOR(pythonic::itertools, izip);
   }
 }
 

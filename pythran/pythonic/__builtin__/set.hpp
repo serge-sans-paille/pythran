@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/set.hpp"
 
 #include "pythonic/types/set.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -29,7 +29,7 @@ namespace pythonic
       }
     }
 
-    PROXY_IMPL(pythonic::__builtin__::anonymous, set);
+    DEFINE_FUNCTOR(pythonic::__builtin__::anonymous, set);
   }
 }
 #endif

@@ -30,7 +30,7 @@ namespace pythonic
       return ediff1d(asarray(expr));
     }
 
-    PROXY_IMPL(pythonic::numpy, ediff1d);
+    DEFINE_FUNCTOR(pythonic::numpy, ediff1d);
   }
 }
 

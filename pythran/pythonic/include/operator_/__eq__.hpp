@@ -9,7 +9,7 @@ namespace pythonic
   namespace operator_
   {
 
-    FPROXY_DECL(pythonic::operator_, __eq__, eq);
+    USING_FUNCTOR(__eq__, eq);
   }
 }
 

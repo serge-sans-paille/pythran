@@ -3,7 +3,7 @@
 
 #include "pythonic/include/string/find.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/str.hpp"
 
 namespace pythonic
@@ -18,7 +18,7 @@ namespace pythonic
       return s.find(std::forward<T>(val));
     }
 
-    PROXY_IMPL(pythonic::string, find);
+    DEFINE_FUNCTOR(pythonic::string, find);
   }
 }
 

@@ -3,7 +3,7 @@
 
 #include "pythonic/include/cmath/acos.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/complex.hpp"
 
 #include <cmath>
@@ -13,8 +13,7 @@ namespace pythonic
 
   namespace cmath
   {
-    ALIAS(acos, std::acos);
-    PROXY_IMPL(pythonic::cmath, acos);
+    DEFINE_FUNCTOR_2(acos, std::acos);
   }
 }
 

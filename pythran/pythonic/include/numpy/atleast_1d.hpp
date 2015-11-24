@@ -18,7 +18,7 @@ namespace pythonic
         not(types::is_dtype<T>::value),
         types::ndarray<typename T::dtype, T::value>>::type;
 
-    PROXY_DECL(pythonic::numpy, atleast_1d);
+    DECLARE_FUNCTOR(pythonic::numpy, atleast_1d);
   }
 }
 

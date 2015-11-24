@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_IFLOORDIV_HPP
 #define PYTHONIC_INCLUDE_OPERATOR_IFLOORDIV_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -12,7 +12,7 @@ namespace pythonic
     template <class A, class B>
     A ifloordiv(A a, B const &b);
 
-    PROXY_DECL(pythonic::operator_, ifloordiv);
+    DECLARE_FUNCTOR(pythonic::operator_, ifloordiv);
   }
 }
 

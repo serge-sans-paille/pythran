@@ -48,9 +48,9 @@ cxx_keywords = {
 operator_to_lambda = {
     # boolop
     ast.And:
-        "(pythonic::__builtin__::proxy::bool_{{}}({0})?({1}):({0}))".format,
+        "(pythonic::__builtin__::functor::bool_{{}}({0})?({1}):({0}))".format,
     ast.Or:
-        "(pythonic::__builtin__::proxy::bool_{{}}({0})?({0}):({1}))".format,
+        "(pythonic::__builtin__::functor::bool_{{}}({0})?({0}):({1}))".format,
     # operator
     ast.Add: "({0} + {1})".format,
     ast.Sub: "({0} - {1})".format,

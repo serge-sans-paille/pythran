@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/tri.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 
 namespace pythonic
@@ -25,7 +25,7 @@ namespace pythonic
       return out;
     }
 
-    PROXY_IMPL(pythonic::numpy, tri)
+    DEFINE_FUNCTOR(pythonic::numpy, tri)
   }
 }
 

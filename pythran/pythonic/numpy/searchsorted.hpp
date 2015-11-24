@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/searchsorted.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/numpy_conversion.hpp"
 #include "pythonic/utils/int_.hpp"
 #include "pythonic/types/ndarray.hpp"
@@ -64,7 +64,7 @@ namespace pythonic
       return out;
     }
 
-    PROXY_IMPL(pythonic::numpy, searchsorted);
+    DEFINE_FUNCTOR(pythonic::numpy, searchsorted);
   }
 }
 

@@ -420,42 +420,42 @@ namespace pythonic
     template <class Expr>
     ndarray<T, N> &ndarray<T, N>::operator+=(Expr const &expr)
     {
-      return update_<pythonic::operator_::proxy::iadd>(expr);
+      return update_<pythonic::operator_::functor::iadd>(expr);
     }
 
     template <class T, size_t N>
     template <class Expr>
     ndarray<T, N> &ndarray<T, N>::operator-=(Expr const &expr)
     {
-      return update_<pythonic::operator_::proxy::isub>(expr);
+      return update_<pythonic::operator_::functor::isub>(expr);
     }
 
     template <class T, size_t N>
     template <class Expr>
     ndarray<T, N> &ndarray<T, N>::operator*=(Expr const &expr)
     {
-      return update_<pythonic::operator_::proxy::imul>(expr);
+      return update_<pythonic::operator_::functor::imul>(expr);
     }
 
     template <class T, size_t N>
     template <class Expr>
     ndarray<T, N> &ndarray<T, N>::operator/=(Expr const &expr)
     {
-      return update_<pythonic::operator_::proxy::idiv>(expr);
+      return update_<pythonic::operator_::functor::idiv>(expr);
     }
 
     template <class T, size_t N>
     template <class Expr>
     ndarray<T, N> &ndarray<T, N>::operator&=(Expr const &expr)
     {
-      return update_<pythonic::operator_::proxy::iand>(expr);
+      return update_<pythonic::operator_::functor::iand>(expr);
     }
 
     template <class T, size_t N>
     template <class Expr>
     ndarray<T, N> &ndarray<T, N>::operator|=(Expr const &expr)
     {
-      return update_<pythonic::operator_::proxy::ior>(expr);
+      return update_<pythonic::operator_::functor::ior>(expr);
     }
 
     /* element indexing

@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/nansum.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/isnan.hpp"
 
@@ -17,7 +17,7 @@ namespace pythonic
     {
       for (; begin != end; ++begin) {
         auto curr = *begin;
-        if (not proxy::isnan()(curr))
+        if (not functor::isnan()(curr))
           sum += curr;
       }
     }
@@ -36,7 +36,7 @@ namespace pythonic
       return s;
     }
 
-    PROXY_IMPL(pythonic::numpy, nansum);
+    DEFINE_FUNCTOR(pythonic::numpy, nansum);
   }
 }
 

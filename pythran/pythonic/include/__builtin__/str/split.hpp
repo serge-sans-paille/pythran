@@ -4,7 +4,7 @@
 #include "pythonic/include/types/list.hpp"
 #include "pythonic/include/types/none.hpp"
 #include "pythonic/include/types/str.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -22,7 +22,7 @@ namespace pythonic
       types::list<types::str>
       split(types::str const &s, types::none_type const &, long maxsplit = -1);
 
-      PROXY_DECL(pythonic::__builtin__::str, split);
+      DECLARE_FUNCTOR(pythonic::__builtin__::str, split);
     }
   }
 }

@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/asarray.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/array.hpp"
 
@@ -54,7 +54,7 @@ namespace pythonic
                                                              d);
     }
 
-    PROXY_IMPL(pythonic::numpy, asarray);
+    DEFINE_FUNCTOR(pythonic::numpy, asarray);
   }
 }
 

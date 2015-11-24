@@ -3,7 +3,7 @@
 
 #include "pythonic/include/__builtin__/max.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 #include <utility>
 #include <algorithm>
@@ -53,7 +53,7 @@ namespace pythonic
           std::forward<Types>(values)...);
     }
 
-    PROXY_IMPL(pythonic::__builtin__, max);
+    DEFINE_FUNCTOR(pythonic::__builtin__, max);
   }
 }
 

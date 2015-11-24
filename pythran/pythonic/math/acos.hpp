@@ -3,7 +3,7 @@
 
 #include "pythonic/include/math/acos.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include <cmath>
 
 namespace pythonic
@@ -11,8 +11,7 @@ namespace pythonic
 
   namespace math
   {
-    ALIAS(acos, std::acos);
-    PROXY_IMPL(pythonic::math, acos);
+    DEFINE_FUNCTOR_2(acos, std::acos);
   }
 }
 

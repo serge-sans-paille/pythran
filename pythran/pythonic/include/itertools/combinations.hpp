@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_ITERTOOLS_COMBINATIONS_HPP
 
 #include "pythonic/include/types/list.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 #include <vector>
 #include <iterator>
@@ -62,7 +62,7 @@ namespace pythonic
         typename std::remove_cv<typename std::remove_reference<T0>::type>::type>
     combinations(T0 &&iter, long num_elts);
 
-    PROXY_DECL(pythonic::itertools, combinations);
+    DECLARE_FUNCTOR(pythonic::itertools, combinations);
   }
 }
 

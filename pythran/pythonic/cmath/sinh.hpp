@@ -3,7 +3,7 @@
 
 #include "pythonic/include/cmath/sinh.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/complex.hpp"
 
 #include <cmath>
@@ -13,8 +13,7 @@ namespace pythonic
 
   namespace cmath
   {
-    ALIAS(sinh, std::sinh);
-    PROXY_IMPL(pythonic::cmath, sinh);
+    DEFINE_FUNCTOR_2(sinh, std::sinh);
   }
 }
 

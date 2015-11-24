@@ -3,7 +3,7 @@
 
 #include "pythonic/include/math/fmod.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include <cmath>
 
 namespace pythonic
@@ -11,8 +11,7 @@ namespace pythonic
 
   namespace math
   {
-    ALIAS(fmod, std::fmod);
-    PROXY_IMPL(pythonic::math, fmod);
+    DEFINE_FUNCTOR_2(fmod, std::fmod);
   }
 }
 

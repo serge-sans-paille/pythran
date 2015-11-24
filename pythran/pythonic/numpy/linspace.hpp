@@ -17,7 +17,7 @@ namespace pythonic
       return arange(start, stop + (endpoint ? step * .5 : 0), step);
     }
 
-    PROXY_IMPL(pythonic::numpy, linspace);
+    DEFINE_FUNCTOR(pythonic::numpy, linspace);
   }
 }
 

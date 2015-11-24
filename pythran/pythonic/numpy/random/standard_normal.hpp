@@ -7,7 +7,7 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/none.hpp"
 #include "pythonic/types/tuple.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 #include <random>
 #include <algorithm>
@@ -41,7 +41,7 @@ namespace pythonic
         return std::normal_distribution<double>{0., 1.}(details::generator);
       }
 
-      PROXY_IMPL(pythonic::numpy::random, standard_normal);
+      DEFINE_FUNCTOR(pythonic::numpy::random, standard_normal);
     }
   }
 }

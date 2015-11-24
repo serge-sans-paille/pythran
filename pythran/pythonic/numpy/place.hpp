@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/place.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/__builtin__/None.hpp"
 #include "pythonic/numpy/asarray.hpp"
@@ -48,7 +48,7 @@ namespace pythonic
       throw std::runtime_error("place only partially implemented");
     }
 
-    PROXY_IMPL(pythonic::numpy, place);
+    DEFINE_FUNCTOR(pythonic::numpy, place);
   }
 }
 

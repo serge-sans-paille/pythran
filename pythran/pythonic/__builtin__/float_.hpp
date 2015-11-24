@@ -3,7 +3,7 @@
 
 #include "pythonic/include/__builtin__/float_.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 #ifdef USE_GMP
 #include "pythonic/include/types/long.hpp"
@@ -15,7 +15,7 @@ namespace pythonic
   namespace __builtin__
   {
 
-    namespace proxy
+    namespace functor
     {
       template <class T>
       float_::type float_::operator()(T &&t)

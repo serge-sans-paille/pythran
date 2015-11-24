@@ -51,7 +51,7 @@ namespace pythonic
         return std::binomial_distribution<long>{(long)n, p}(details::generator);
       }
 
-      PROXY_IMPL(pythonic::numpy::random, binomial);
+      DEFINE_FUNCTOR(pythonic::numpy::random, binomial);
     }
   }
 }

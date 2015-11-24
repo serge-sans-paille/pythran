@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_CONCATENATE_HPP
 #define PYTHONIC_INCLUDE_NUMPY_CONCATENATE_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/__builtin__/sum.hpp"
 
@@ -18,7 +18,7 @@ namespace pythonic
     typename assignable<typename __combined<Types...>::type>::type
     concatenate(std::tuple<Types...> const &args);
 
-    PROXY_DECL(pythonic::numpy, concatenate);
+    DECLARE_FUNCTOR(pythonic::numpy, concatenate);
   }
 }
 

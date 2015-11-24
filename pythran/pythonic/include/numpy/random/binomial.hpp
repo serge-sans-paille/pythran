@@ -22,7 +22,7 @@ namespace pythonic
       long binomial(double n, double p,
                     types::none_type d = types::none_type());
 
-      PROXY_DECL(pythonic::numpy::random, binomial);
+      DECLARE_FUNCTOR(pythonic::numpy::random, binomial);
     }
   }
 }

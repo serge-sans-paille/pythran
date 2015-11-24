@@ -3,7 +3,7 @@
 
 #include "pythonic/include/cmath/exp.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/complex.hpp"
 
 #include <cmath>
@@ -13,8 +13,7 @@ namespace pythonic
 
   namespace cmath
   {
-    ALIAS(exp, std::exp);
-    PROXY_IMPL(pythonic::cmath, exp);
+    DEFINE_FUNCTOR_2(exp, std::exp);
   }
 }
 

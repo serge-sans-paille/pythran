@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/file/close.hpp"
 
 #include "pythonic/types/file.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -25,7 +25,7 @@ namespace pythonic
         f.close();
       }
 
-      PROXY_IMPL(pythonic::__builtin__::file, close);
+      DEFINE_FUNCTOR(pythonic::__builtin__::file, close);
     }
   }
 }

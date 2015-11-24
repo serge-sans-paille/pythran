@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_FILE_WRITELINES_HPP
 
 #include "pythonic/include/types/file.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -16,7 +16,7 @@ namespace pythonic
       template <class F, class T>
       void writelines(F &&f, T const &sequence);
 
-      PROXY_DECL(pythonic::__builtin__::file, writelines);
+      DECLARE_FUNCTOR(pythonic::__builtin__::file, writelines);
     }
   }
 }

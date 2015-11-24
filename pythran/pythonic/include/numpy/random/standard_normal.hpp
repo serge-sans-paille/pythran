@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_RANDOM_STANDARD_NORMAL_HPP
 #define PYTHONIC_INCLUDE_NUMPY_RANDOM_STANDARD_NORMAL_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/types/none.hpp"
 #include "pythonic/include/types/tuple.hpp"
@@ -21,7 +21,7 @@ namespace pythonic
 
       double standard_normal(types::none_type d = {});
 
-      PROXY_DECL(pythonic::numpy::random, standard_normal);
+      DECLARE_FUNCTOR(pythonic::numpy::random, standard_normal);
     }
   }
 }

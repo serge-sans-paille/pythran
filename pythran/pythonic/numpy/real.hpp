@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/real.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 
 namespace pythonic
@@ -18,7 +18,7 @@ namespace pythonic
       return __builtin__::getattr<types::attr::REAL>(std::forward<E>(expr));
     }
 
-    PROXY_IMPL(pythonic::numpy, real);
+    DEFINE_FUNCTOR(pythonic::numpy, real);
   }
 }
 

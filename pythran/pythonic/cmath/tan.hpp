@@ -3,7 +3,7 @@
 
 #include "pythonic/include/cmath/tan.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/complex.hpp"
 
 #include <cmath>
@@ -13,8 +13,7 @@ namespace pythonic
 
   namespace cmath
   {
-    ALIAS(tan, std::tan);
-    PROXY_IMPL(pythonic::cmath, tan);
+    DEFINE_FUNCTOR_2(tan, std::tan);
   }
 }
 

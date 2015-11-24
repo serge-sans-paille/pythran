@@ -16,7 +16,7 @@ namespace pythonic
                     "expected a floating point type");
       return asarray(std::forward<E>(e), d);
     }
-    PROXY_IMPL(pythonic::numpy, asfarray);
+    DEFINE_FUNCTOR(pythonic::numpy, asfarray);
   }
 }
 

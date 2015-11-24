@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_PUTMASK_HPP
 #define PYTHONIC_INCLUDE_NUMPY_PUTMASK_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/numpy/asarray.hpp"
 #include "pythonic/include/__builtin__/None.hpp"
@@ -18,7 +18,7 @@ namespace pythonic
     template <class E, class M, class F>
     types::none_type putmask(E &, M const &, F const &);
 
-    PROXY_DECL(pythonic::numpy, putmask);
+    DECLARE_FUNCTOR(pythonic::numpy, putmask);
   }
 }
 

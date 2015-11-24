@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/fliplr.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 
 namespace pythonic
@@ -21,7 +21,7 @@ namespace pythonic
           types::slice{__builtin__::None, __builtin__::None, -1});
     }
 
-    PROXY_IMPL(pythonic::numpy, fliplr);
+    DEFINE_FUNCTOR(pythonic::numpy, fliplr);
   }
 }
 

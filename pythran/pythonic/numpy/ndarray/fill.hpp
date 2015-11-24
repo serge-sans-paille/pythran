@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/ndarray/fill.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/__builtin__/None.hpp"
 
@@ -29,7 +29,7 @@ namespace pythonic
         return __builtin__::None;
       }
 
-      PROXY_IMPL(pythonic::numpy::ndarray, fill);
+      DEFINE_FUNCTOR(pythonic::numpy::ndarray, fill);
     }
   }
 }

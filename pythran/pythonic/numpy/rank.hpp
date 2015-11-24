@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/rank.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 
 namespace pythonic
@@ -17,7 +17,7 @@ namespace pythonic
       return E::value;
     }
 
-    PROXY_IMPL(pythonic::numpy, rank);
+    DEFINE_FUNCTOR(pythonic::numpy, rank);
   }
 }
 

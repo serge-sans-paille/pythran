@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_DICT_SETDEFAULT_HPP
 
 #include "pythonic/include/types/dict.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -25,7 +25,7 @@ namespace pythonic
       template <class K, class V, class W>
       V setdefault(types::dict<K, V> &&d, W const &k);
 
-      PROXY_DECL(pythonic::__builtin__::dict, setdefault);
+      DECLARE_FUNCTOR(pythonic::__builtin__::dict, setdefault);
     }
   }
 }

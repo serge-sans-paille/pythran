@@ -3,7 +3,7 @@
 
 #include "pythonic/include/operator_/countOf.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include <algorithm>
 
 namespace pythonic
@@ -17,7 +17,7 @@ namespace pythonic
       return std::count(a.begin(), a.end(), b);
     }
 
-    PROXY_IMPL(pythonic::operator_, countOf);
+    DEFINE_FUNCTOR(pythonic::operator_, countOf);
   }
 }
 

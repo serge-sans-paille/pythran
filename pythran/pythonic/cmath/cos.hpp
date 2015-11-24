@@ -3,7 +3,7 @@
 
 #include "pythonic/include/cmath/cos.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/complex.hpp"
 
 #include <cmath>
@@ -25,7 +25,7 @@ namespace pythonic
       return std::cos(v);
     }
 
-    PROXY_IMPL(pythonic::cmath, cos);
+    DEFINE_FUNCTOR(pythonic::cmath, cos);
   }
 }
 

@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/intersect1d.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/combined.hpp"
 #include "pythonic/numpy/asarray.hpp"
@@ -39,7 +39,7 @@ namespace pythonic
       return types::ndarray<T, 1>(lout);
     }
 
-    PROXY_IMPL(pythonic::numpy, intersect1d);
+    DEFINE_FUNCTOR(pythonic::numpy, intersect1d);
   }
 }
 

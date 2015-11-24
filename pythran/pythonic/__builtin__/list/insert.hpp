@@ -6,7 +6,7 @@
 #include "pythonic/__builtin__/None.hpp"
 #include "pythonic/types/list.hpp"
 #include "pythonic/types/none.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -29,7 +29,7 @@ namespace pythonic
         return __builtin__::None;
       }
 
-      PROXY_IMPL(pythonic::__builtin__::list, insert);
+      DEFINE_FUNCTOR(pythonic::__builtin__::list, insert);
     }
   }
 }

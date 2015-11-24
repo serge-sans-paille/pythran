@@ -3,7 +3,7 @@
 
 #include "pythonic/include/math/erfc.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include <cmath>
 
 namespace pythonic
@@ -11,8 +11,7 @@ namespace pythonic
 
   namespace math
   {
-    ALIAS(erfc, std::erfc);
-    PROXY_IMPL(pythonic::math, erfc);
+    DEFINE_FUNCTOR_2(erfc, std::erfc);
   }
 }
 

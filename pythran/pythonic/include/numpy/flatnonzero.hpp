@@ -17,7 +17,7 @@ namespace pythonic
     template <class E>
     types::ndarray<long, 1> flatnonzero(E const &expr);
 
-    PROXY_DECL(pythonic::numpy, flatnonzero);
+    DECLARE_FUNCTOR(pythonic::numpy, flatnonzero);
   }
 }
 

@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/invert.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
 #include "pythonic/operator_/invert.hpp"

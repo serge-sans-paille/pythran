@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_ROUND_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_ROUND_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -14,7 +14,7 @@ namespace pythonic
     template <class T>
     double round(T const &v);
 
-    PROXY_DECL(pythonic::__builtin__, round);
+    DECLARE_FUNCTOR(pythonic::__builtin__, round);
   }
 }
 

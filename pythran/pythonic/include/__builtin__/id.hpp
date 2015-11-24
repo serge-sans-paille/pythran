@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_ID_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_ID_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -16,7 +16,7 @@ namespace pythonic
     long id(double const &t);
     long id(bool const &t);
 
-    PROXY_DECL(pythonic::__builtin__, id);
+    DECLARE_FUNCTOR(pythonic::__builtin__, id);
   }
 }
 

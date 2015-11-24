@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_COPY_HPP
 #define PYTHONIC_INCLUDE_NUMPY_COPY_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/utils/numpy_conversion.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/types/ndarray.hpp"
@@ -33,7 +33,7 @@ namespace pythonic
     template <class T, size_t N>
     types::ndarray<T, N> copy(types::ndarray<T, N> const &a);
 
-    PROXY_DECL(pythonic::numpy, copy);
+    DECLARE_FUNCTOR(pythonic::numpy, copy);
   }
 }
 

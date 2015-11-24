@@ -5,7 +5,7 @@
 
 #include "pythonic/types/list.hpp"
 #include "pythonic/types/tuple.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -58,7 +58,7 @@ namespace pythonic
       return res;
     }
 
-    PROXY_IMPL(pythonic::__builtin__, tuple);
+    DEFINE_FUNCTOR(pythonic::__builtin__, tuple);
   }
 }
 

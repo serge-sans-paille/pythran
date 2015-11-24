@@ -3,7 +3,7 @@
 
 #include "pythonic/include/math/ceil.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include <cmath>
 
 namespace pythonic
@@ -11,8 +11,7 @@ namespace pythonic
 
   namespace math
   {
-    ALIAS(ceil, std::ceil);
-    PROXY_IMPL(pythonic::math, ceil);
+    DEFINE_FUNCTOR_2(ceil, std::ceil);
   }
 }
 

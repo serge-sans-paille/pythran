@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/ndindex.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 #include <numeric>
 
@@ -112,7 +112,7 @@ namespace pythonic
       return {args};
     }
 
-    PROXY_IMPL(pythonic::numpy, ndindex);
+    DEFINE_FUNCTOR(pythonic::numpy, ndindex);
   }
 }
 

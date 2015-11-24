@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/nanmin.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/__builtin__/ValueError.hpp"
 #include "pythonic/numpy/isnan.hpp"
@@ -18,7 +18,7 @@ namespace pythonic
     {
       for (; begin != end; ++begin) {
         auto curr = *begin;
-        if (not proxy::isnan()(curr) and curr < min)
+        if (not functor::isnan()(curr) and curr < min)
           min = curr;
       }
     }
@@ -38,7 +38,7 @@ namespace pythonic
       return min;
     }
 
-    PROXY_IMPL(pythonic::numpy, nanmin);
+    DEFINE_FUNCTOR(pythonic::numpy, nanmin);
   }
 }
 

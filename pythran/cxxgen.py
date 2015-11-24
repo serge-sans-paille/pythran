@@ -526,7 +526,7 @@ class PythonModule(object):
             #ifdef PYTHONIC_BUILTIN_{uname}_HPP
                 catch(pythonic::types::{name} & e) {{
                     PyErr_SetString(PyExc_{name},
-                       pythonic::__builtin__::proxy::str{{}}(e.args).c_str());
+                        pythonic::__builtin__::functor::str{{}}(e.args).c_str());
                 }}
             #endif
                 '''.format(name=n.__name__,

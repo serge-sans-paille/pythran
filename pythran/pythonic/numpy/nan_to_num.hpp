@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/nan_to_num.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
 #include "pythonic/numpy/isnan.hpp"
@@ -28,7 +28,7 @@ namespace pythonic
             return std::numeric_limits<I>::max();
           else
             return std::numeric_limits<I>::lowest();
-        } else if (proxy::isnan()(a))
+        } else if (functor::isnan()(a))
           return 0;
         else
           return a;

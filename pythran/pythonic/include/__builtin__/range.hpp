@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_RANGE_HPP
 
 #include "pythonic/include/types/list.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -13,7 +13,7 @@ namespace pythonic
 
     types::list<long> range(long b, long e, long s = 1);
 
-    PROXY_DECL(pythonic::__builtin__, range);
+    DECLARE_FUNCTOR(pythonic::__builtin__, range);
   }
 }
 

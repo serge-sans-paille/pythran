@@ -33,7 +33,7 @@ namespace pythonic
       return eye(N, N, k, d);
     }
 
-    PROXY_IMPL(pythonic::numpy, eye);
+    DEFINE_FUNCTOR(pythonic::numpy, eye);
   }
 }
 

@@ -9,7 +9,7 @@ namespace pythonic
   namespace numpy
   {
 
-    FPROXY_DECL(pythonic::numpy, amax, max);
+    USING_FUNCTOR(amax, max);
   }
 }
 

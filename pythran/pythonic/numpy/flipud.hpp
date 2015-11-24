@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/flipud.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 
 namespace pythonic
@@ -19,7 +19,7 @@ namespace pythonic
           expr)[types::slice{__builtin__::None, __builtin__::None, -1}];
     }
 
-    PROXY_IMPL(pythonic::numpy, flipud);
+    DEFINE_FUNCTOR(pythonic::numpy, flipud);
   }
 }
 

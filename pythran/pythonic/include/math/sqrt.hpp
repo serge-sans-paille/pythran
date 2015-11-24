@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_MATH_SQRT_HPP
 #define PYTHONIC_INCLUDE_MATH_SQRT_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include <cmath>
 
 namespace pythonic
@@ -9,8 +9,7 @@ namespace pythonic
 
   namespace math
   {
-    ALIAS_DECL(sqrt, std::sqrt);
-    PROXY_DECL(pythonic::math, sqrt);
+    DECLARE_FUNCTOR_2(sqrt, std::sqrt);
   }
 }
 

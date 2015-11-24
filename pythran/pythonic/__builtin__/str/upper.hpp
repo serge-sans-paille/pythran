@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/str/upper.hpp"
 
 #include "pythonic/types/str.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -22,7 +22,7 @@ namespace pythonic
         return copy;
       }
 
-      PROXY_IMPL(pythonic::__builtin__::str, upper);
+      DEFINE_FUNCTOR(pythonic::__builtin__::str, upper);
     }
   }
 }

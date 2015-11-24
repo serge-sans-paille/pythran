@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_ENUMERATE_HPP
 
 #include "pythonic/include/types/tuple.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 #include <iterator>
 
@@ -58,7 +58,7 @@ namespace pythonic
         typename std::remove_reference<Iterable>::type>::type>
     enumerate(Iterable &&seq, long first = 0L);
 
-    PROXY_DECL(pythonic::__builtin__, enumerate);
+    DECLARE_FUNCTOR(pythonic::__builtin__, enumerate);
   }
 }
 

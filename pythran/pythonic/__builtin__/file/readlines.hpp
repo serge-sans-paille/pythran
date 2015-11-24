@@ -6,7 +6,7 @@
 #include "pythonic/types/file.hpp"
 #include "pythonic/types/list.hpp"
 #include "pythonic/types/str.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -29,7 +29,7 @@ namespace pythonic
         return f.readlines(sizehint);
       }
 
-      PROXY_IMPL(pythonic::__builtin__::file, readlines);
+      DEFINE_FUNCTOR(pythonic::__builtin__::file, readlines);
     }
   }
 }

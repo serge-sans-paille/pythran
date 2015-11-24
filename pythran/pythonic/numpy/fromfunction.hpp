@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/fromfunction.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/__builtin__/None.hpp"
 #include "pythonic/utils/tags.hpp"
@@ -80,7 +80,7 @@ namespace pythonic
     }
 
     /* TODO: must specialize for higher order */
-    PROXY_IMPL(pythonic::numpy, fromfunction);
+    DEFINE_FUNCTOR(pythonic::numpy, fromfunction);
   }
 }
 

@@ -5,7 +5,7 @@
 #include "pythonic/include/numpy/random/generator.hpp"
 
 #include "pythonic/types/str.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 #include <random>
 #include <string>
@@ -28,7 +28,7 @@ namespace pythonic
         return result;
       }
 
-      PROXY_IMPL(pythonic::numpy::random, bytes);
+      DEFINE_FUNCTOR(pythonic::numpy::random, bytes);
     }
   }
 }

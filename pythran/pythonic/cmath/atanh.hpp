@@ -3,7 +3,7 @@
 
 #include "pythonic/include/cmath/atanh.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/complex.hpp"
 
 #include <cmath>
@@ -13,8 +13,7 @@ namespace pythonic
 
   namespace cmath
   {
-    ALIAS(atanh, std::atanh);
-    PROXY_IMPL(pythonic::cmath, atanh);
+    DEFINE_FUNCTOR_2(atanh, std::atanh);
   }
 }
 

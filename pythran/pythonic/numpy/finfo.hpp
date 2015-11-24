@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/finfo.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/finfo.hpp"
 
 namespace pythonic
@@ -17,7 +17,7 @@ namespace pythonic
       return types::finfo<typename dtype::type>();
     }
 
-    PROXY_IMPL(pythonic::numpy, finfo)
+    DEFINE_FUNCTOR(pythonic::numpy, finfo)
   }
 }
 

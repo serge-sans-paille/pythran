@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_OMP_GET_WTICK_HPP
 
 #include <omp.h>
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -11,7 +11,7 @@ namespace pythonic
   {
     long get_wtick();
 
-    PROXY_DECL(pythonic::omp, get_wtick);
+    DECLARE_FUNCTOR(pythonic::omp, get_wtick);
   }
 }
 

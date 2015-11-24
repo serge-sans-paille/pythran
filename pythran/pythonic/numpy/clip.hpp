@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/clip.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 
 namespace pythonic

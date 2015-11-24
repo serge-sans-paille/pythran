@@ -10,7 +10,7 @@
 #error OPERATOR_ISYMBOL not defined
 #endif
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 #ifdef USE_BOOST_SIMD
 #include <boost/simd/sdk/simd/native.hpp>
@@ -66,7 +66,7 @@ namespace pythonic
         not std::is_const<A>::value and std::is_assignable<A, B>::value,
         decltype(std::forward<A>(a) OPERATOR_ISYMBOL std::forward<B>(b))>::type;
 
-    PROXY_DECL(pythonic::operator_, OPERATOR_NAME);
+    DECLARE_FUNCTOR(pythonic::operator_, OPERATOR_NAME);
   }
 }
 

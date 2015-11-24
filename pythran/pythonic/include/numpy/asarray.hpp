@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_ASARRAY_HPP
 #define PYTHONIC_INCLUDE_NUMPY_ASARRAY_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/numpy/array.hpp"
 
@@ -36,7 +36,7 @@ namespace pythonic
     auto asarray(E &&e, dtype d) -> decltype(
         _asarray<typename std::decay<E>::type, dtype>{}(std::forward<E>(e), d));
 
-    PROXY_DECL(pythonic::numpy, asarray);
+    DECLARE_FUNCTOR(pythonic::numpy, asarray);
   }
 }
 

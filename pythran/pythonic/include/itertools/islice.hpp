@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_ITERTOOLS_ISLICE_HPP
 #define PYTHONIC_INCLUDE_ITERTOOLS_ISLICE_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/itertools/common.hpp"
 #include "pythonic/include/__builtin__/xrange.hpp"
 #include <iterator>
@@ -63,7 +63,7 @@ namespace pythonic
         typename std::remove_reference<Iterable>::type>::type>
     islice(Iterable &&iterable, long stop);
 
-    PROXY_DECL(pythonic::itertools, islice);
+    DECLARE_FUNCTOR(pythonic::itertools, islice);
   }
 }
 

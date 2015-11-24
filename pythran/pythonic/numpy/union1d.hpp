@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/union1d.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 
 #include <set>
@@ -39,7 +39,7 @@ namespace pythonic
       return res;
     }
 
-    PROXY_IMPL(pythonic::numpy, union1d)
+    DEFINE_FUNCTOR(pythonic::numpy, union1d)
   }
 }
 

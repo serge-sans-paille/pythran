@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/set/discard.hpp"
 
 #include "pythonic/types/set.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -32,7 +32,7 @@ namespace pythonic
         // nothing to remove in an empty_set
       }
 
-      PROXY_IMPL(pythonic::__builtin__::set, discard);
+      DEFINE_FUNCTOR(pythonic::__builtin__::set, discard);
     }
   }
 }

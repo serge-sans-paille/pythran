@@ -3,7 +3,7 @@
 
 #include "pythonic/include/types/list.hpp"
 #include "pythonic/include/types/none.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -20,7 +20,7 @@ namespace pythonic
       template <class F>
       types::none_type append(types::empty_list &seq, F &&value);
 
-      PROXY_DECL(pythonic::__builtin__::list, append);
+      DECLARE_FUNCTOR(pythonic::__builtin__::list, append);
     }
   }
 }

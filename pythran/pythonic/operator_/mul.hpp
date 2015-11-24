@@ -3,7 +3,7 @@
 
 #include "pythonic/include/operator_/mul.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/operator_/overloads.hpp"
 #ifdef USE_BOOST_SIMD
 #include <nt2/include/functions/multiplies.hpp>
@@ -23,7 +23,7 @@ namespace pythonic
 
     DEFINE_ALL_OPERATOR_OVERLOADS_IMPL(mul, *)
 
-    PROXY_IMPL(pythonic::operator_, mul);
+    DEFINE_FUNCTOR(pythonic::operator_, mul);
   }
 }
 

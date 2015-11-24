@@ -18,7 +18,7 @@ namespace pythonic
     }
 
     NUMPY_EXPR_TO_NDARRAY0_IMPL(ravel);
-    PROXY_IMPL(pythonic::numpy, ravel);
+    DEFINE_FUNCTOR(pythonic::numpy, ravel);
   }
 }
 

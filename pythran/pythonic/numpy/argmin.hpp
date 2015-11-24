@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/argmin.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/asarray.hpp"
 #include "pythonic/__builtin__/ValueError.hpp"
@@ -52,7 +52,7 @@ namespace pythonic
                      utils::int_<E::value>());
     }
 
-    PROXY_IMPL(pythonic::numpy, argmin);
+    DEFINE_FUNCTOR(pythonic::numpy, argmin);
   }
 }
 

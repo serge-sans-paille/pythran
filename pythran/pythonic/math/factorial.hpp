@@ -3,7 +3,7 @@
 
 #include "pythonic/include/math/factorial.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -19,7 +19,7 @@ namespace pythonic
         res *= i;
       return res;
     }
-    PROXY_IMPL(pythonic::math, factorial);
+    DEFINE_FUNCTOR(pythonic::math, factorial);
   }
 }
 

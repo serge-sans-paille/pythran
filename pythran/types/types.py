@@ -17,6 +17,7 @@ from pythran.passmanager import ModuleAnalysis
 from pythran.tables import operator_to_lambda, MODULES
 from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE, pytype_to_ctype
 from pythran.types.reorder import Reorder
+from pythran.utils import attr_to_path
 
 from collections import defaultdict
 from functools import partial
@@ -78,7 +79,7 @@ class Types(ModuleAnalysis):
                 if isinstance(function, dict):
                     register(name + "::" + fname, function)
                 else:
-                    tname = 'pythonic::{0}::proxy::{1}'.format(name, fname)
+                    tname = 'pythonic::{0}::functor::{1}'.format(name, fname)
                     self.result[function] = NamedType(tname)
                     self.combiners[function] = function
                     if isinstance(function, Class):
@@ -443,24 +444,13 @@ class Types(ModuleAnalysis):
 
     def visit_Attribute(self, node):
         """ Compute typing for an attribute node. """
-        def get_intrinsic_path(modules, attr):
-            """ Get function path and intrinsic from an ast.Attributs.  """
-            if isinstance(attr, ast.Name):
-                return modules[attr.id], (attr.id,)
-            elif isinstance(attr, ast.Attribute):
-                module, path = get_intrinsic_path(modules, attr.value)
-                return module[attr.attr], path + (attr.attr,)
-        # Get the intrinsic object and its path as path is use in Pythonic
-        # hierarchy and obj may give additional information
-        obj, path = get_intrinsic_path(MODULES, node)
-        path = ('pythonic',) + path
+        obj, path = attr_to_path(node)
         assert not obj.isliteral() or obj.return_type, "Constants are known."
         # If no type is given, use a decltype
         if obj.return_type:
             self.result[node] = obj.return_type
         else:
-            self.result[node] = DeclType(
-                '::'.join(path[:-1]) + '::proxy::' + path[-1] + '()')
+            self.result[node] = DeclType('::'.join(path) + '{}')
 
     def visit_Slice(self, node):
         """

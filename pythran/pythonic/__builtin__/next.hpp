@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/next.hpp"
 
 #include "pythonic/__builtin__/StopIteration.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 #include <utility>
 
@@ -25,7 +25,7 @@ namespace pythonic
         throw types::StopIteration();
     }
 
-    PROXY_IMPL(pythonic::__builtin__, next);
+    DEFINE_FUNCTOR(pythonic::__builtin__, next);
   }
 }
 

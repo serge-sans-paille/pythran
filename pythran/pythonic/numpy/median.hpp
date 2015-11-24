@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/median.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/asarray.hpp"
 #include <algorithm>
@@ -37,7 +37,7 @@ namespace pythonic
 
     NUMPY_EXPR_TO_NDARRAY0_IMPL(median);
 
-    PROXY_IMPL(pythonic::numpy, median);
+    DEFINE_FUNCTOR(pythonic::numpy, median);
   }
 }
 

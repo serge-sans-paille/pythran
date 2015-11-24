@@ -3,7 +3,7 @@
 
 #include "pythonic/include/operator_/ne.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -17,7 +17,7 @@ namespace pythonic
       return a != b;
     }
 
-    PROXY_IMPL(pythonic::operator_, ne);
+    DEFINE_FUNCTOR(pythonic::operator_, ne);
   }
 }
 

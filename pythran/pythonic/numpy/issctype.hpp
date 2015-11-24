@@ -28,7 +28,7 @@ namespace pythonic
       return false;
     }
 
-    PROXY_IMPL(pythonic::numpy, issctype);
+    DEFINE_FUNCTOR(pythonic::numpy, issctype);
   }
 }
 

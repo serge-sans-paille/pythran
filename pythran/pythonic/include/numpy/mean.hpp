@@ -10,16 +10,16 @@ namespace pythonic
 
   namespace numpy
   {
-    template <class E, class dtype = proxy::float64>
+    template <class E, class dtype = functor::float64>
     auto mean(E const &expr, types::none_type axis = __builtin__::None,
               dtype d = dtype())
         -> decltype(sum(expr) / typename dtype::type(expr.flat_size()));
 
-    template <class E, class dtype = proxy::float64>
+    template <class E, class dtype = functor::float64>
     auto mean(E const &expr, long axis, dtype d = dtype())
         -> decltype(sum(expr, axis));
 
-    PROXY_DECL(pythonic::numpy, mean);
+    DECLARE_FUNCTOR(pythonic::numpy, mean);
   }
 }
 

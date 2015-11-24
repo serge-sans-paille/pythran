@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/oct.hpp"
 
 #include "pythonic/types/str.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 #include <sstream>
 
@@ -22,7 +22,7 @@ namespace pythonic
       return oss.str();
     }
 
-    PROXY_IMPL(pythonic::__builtin__, oct);
+    DEFINE_FUNCTOR(pythonic::__builtin__, oct);
   }
 }
 

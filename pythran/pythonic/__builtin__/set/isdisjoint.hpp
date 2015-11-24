@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/set/isdisjoint.hpp"
 
 #include "pythonic/types/set.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -27,7 +27,7 @@ namespace pythonic
         return true;
       }
 
-      PROXY_IMPL(pythonic::__builtin__::set, isdisjoint);
+      DEFINE_FUNCTOR(pythonic::__builtin__::set, isdisjoint);
     }
   }
 }

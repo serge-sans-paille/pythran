@@ -3,7 +3,7 @@
 
 #include "pythonic/include/random/shuffle.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/random/random.hpp"
 
 #include <limits>
@@ -55,7 +55,7 @@ namespace pythonic
                    details::URG<function>(std::forward<function>(randf)));
     }
 
-    PROXY_IMPL(pythonic::random, shuffle)
+    DEFINE_FUNCTOR(pythonic::random, shuffle)
   }
 }
 

@@ -491,56 +491,56 @@ namespace pythonic
       // FIXME: use another type?
       template <>
       struct dtype_helper<bool> {
-        using type = pythonic::numpy::proxy::uint8;
+        using type = pythonic::numpy::functor::uint8;
       };
 
       template <>
       struct dtype_helper<uint8_t> {
-        using type = pythonic::numpy::proxy::uint8;
+        using type = pythonic::numpy::functor::uint8;
       };
       template <>
       struct dtype_helper<int8_t> {
-        using type = pythonic::numpy::proxy::int8;
+        using type = pythonic::numpy::functor::int8;
       };
       template <>
       struct dtype_helper<uint16_t> {
-        using type = pythonic::numpy::proxy::uint16;
+        using type = pythonic::numpy::functor::uint16;
       };
       template <>
       struct dtype_helper<int16_t> {
-        using type = pythonic::numpy::proxy::int16;
+        using type = pythonic::numpy::functor::int16;
       };
       template <>
       struct dtype_helper<uint32_t> {
-        using type = pythonic::numpy::proxy::uint32;
+        using type = pythonic::numpy::functor::uint32;
       };
       template <>
       struct dtype_helper<int32_t> {
-        using type = pythonic::numpy::proxy::int32;
+        using type = pythonic::numpy::functor::int32;
       };
       template <>
       struct dtype_helper<uint64_t> {
-        using type = pythonic::numpy::proxy::uint64;
+        using type = pythonic::numpy::functor::uint64;
       };
       template <>
       struct dtype_helper<int64_t> {
-        using type = pythonic::numpy::proxy::int64;
+        using type = pythonic::numpy::functor::int64;
       };
       template <>
       struct dtype_helper<float> {
-        using type = pythonic::numpy::proxy::float32;
+        using type = pythonic::numpy::functor::float32;
       };
       template <>
       struct dtype_helper<double> {
-        using type = pythonic::numpy::proxy::float64;
+        using type = pythonic::numpy::functor::float64;
       };
       template <>
       struct dtype_helper<std::complex<float>> {
-        using type = pythonic::numpy::proxy::complex64;
+        using type = pythonic::numpy::functor::complex64;
       };
       template <>
       struct dtype_helper<std::complex<double>> {
-        using type = pythonic::numpy::proxy::complex128;
+        using type = pythonic::numpy::functor::complex128;
       };
     }
     template <class T>

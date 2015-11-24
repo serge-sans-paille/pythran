@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/dict/viewkeys.hpp"
 
 #include "pythonic/types/dict.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -21,7 +21,7 @@ namespace pythonic
         return d.viewkeys();
       }
 
-      PROXY_IMPL(pythonic::__builtin__::dict, viewkeys);
+      DEFINE_FUNCTOR(pythonic::__builtin__::dict, viewkeys);
     }
   }
 }

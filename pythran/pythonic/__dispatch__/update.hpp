@@ -3,7 +3,7 @@
 
 #include "pythonic/include/__dispatch__/update.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -18,7 +18,7 @@ namespace pythonic
       return any.update(std::forward<Arg0>(arg0)...);
     }
 
-    PROXY_IMPL(pythonic::__dispatch__, update);
+    DEFINE_FUNCTOR(pythonic::__dispatch__, update);
   }
 }
 

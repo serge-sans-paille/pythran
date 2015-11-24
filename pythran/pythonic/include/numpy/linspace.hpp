@@ -12,7 +12,7 @@ namespace pythonic
     types::ndarray<double, 1> linspace(double start, double stop, long num = 50,
                                        bool endpoint = true);
 
-    PROXY_DECL(pythonic::numpy, linspace);
+    DECLARE_FUNCTOR(pythonic::numpy, linspace);
   }
 }
 

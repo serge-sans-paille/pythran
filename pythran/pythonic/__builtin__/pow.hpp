@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/pow.hpp"
 
 #include "pythonic/numpy/power.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 #ifdef USE_GMP
 #include "pythonic/types/long.hpp"
@@ -15,9 +15,12 @@ namespace pythonic
 
   namespace __builtin__
   {
-
-    ALIAS(pow, numpy::proxy::power{});
-
+    template <class... Types>
+    auto pow(Types &&... args)
+        -> decltype(numpy::functor::power{}(std::forward<Types>(args)...))
+    {
+      return numpy::functor::power{}(std::forward<Types>(args)...);
+    }
 #ifdef USE_GMP
     template <class T, class U>
     pythran_long_t pow(__gmp_expr<T, U> const &a, long b)
@@ -27,8 +30,7 @@ namespace pythonic
       return rop;
     }
 #endif
-
-    PROXY_IMPL(pythonic::__builtin__, pow);
+    DEFINE_FUNCTOR(pythonic::__builtin__, pow);
   }
 }
 

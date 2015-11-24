@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_DIV_HPP
 #define PYTHONIC_INCLUDE_OPERATOR_DIV_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/operator_/overloads.hpp"
 #ifdef USE_BOOST_SIMD
 #include <nt2/include/functions/divides.hpp>
@@ -17,7 +17,7 @@ namespace pythonic
 
     DEFINE_ALL_OPERATOR_OVERLOADS_DECL(div, / )
 
-    PROXY_DECL(pythonic::operator_, div);
+    DECLARE_FUNCTOR(pythonic::operator_, div);
   }
 }
 

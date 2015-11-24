@@ -4,7 +4,7 @@
 #include "pythonic/include/itertools/combinations.hpp"
 
 #include "pythonic/types/list.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 #include <numeric>
 
@@ -131,7 +131,7 @@ namespace pythonic
       return {std::forward<T0>(iter), num_elts};
     }
 
-    PROXY_IMPL(pythonic::itertools, combinations);
+    DEFINE_FUNCTOR(pythonic::itertools, combinations);
   }
 }
 

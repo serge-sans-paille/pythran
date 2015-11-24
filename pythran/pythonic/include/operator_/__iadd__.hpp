@@ -8,7 +8,7 @@ namespace pythonic
 
   namespace operator_
   {
-    FPROXY_DECL(pythonic::operator_, __iadd__, iadd);
+    USING_FUNCTOR(__iadd__, iadd);
   }
 }
 

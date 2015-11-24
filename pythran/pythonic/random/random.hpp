@@ -3,7 +3,7 @@
 
 #include "pythonic/include/random/random.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include <random>
 
 namespace pythonic
@@ -18,7 +18,7 @@ namespace pythonic
       return uniform_distrib(__random_generator);
     }
 
-    PROXY_IMPL(pythonic::random, random);
+    DEFINE_FUNCTOR(pythonic::random, random);
   }
 }
 

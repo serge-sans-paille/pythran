@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/fromiter.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 
 namespace pythonic
@@ -31,7 +31,7 @@ namespace pythonic
       }
     }
 
-    PROXY_IMPL(pythonic::numpy, fromiter);
+    DEFINE_FUNCTOR(pythonic::numpy, fromiter);
   }
 }
 

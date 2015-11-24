@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_TRACE_HPP
 #define PYTHONIC_INCLUDE_NUMPY_TRACE_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -12,7 +12,7 @@ namespace pythonic
     template <class T>
     typename T::dtype trace(T const &expr, int offset = 0);
 
-    PROXY_DECL(pythonic::numpy, trace)
+    DECLARE_FUNCTOR(pythonic::numpy, trace)
   }
 }
 

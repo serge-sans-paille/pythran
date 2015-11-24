@@ -11,16 +11,16 @@ namespace pythonic
   namespace numpy
   {
 
-    template <class dtype = proxy::float64>
+    template <class dtype = functor::float64>
     types::ndarray<typename dtype::type, 2> eye(long N, long M, long k = 0,
                                                 dtype d = dtype());
 
-    template <class dtype = proxy::float64>
+    template <class dtype = functor::float64>
     types::ndarray<typename dtype::type, 2>
     eye(long N, types::none_type M = __builtin__::None, long k = 0,
         dtype d = dtype());
 
-    PROXY_DECL(pythonic::numpy, eye);
+    DECLARE_FUNCTOR(pythonic::numpy, eye);
   }
 }
 

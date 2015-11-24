@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/frexp.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/numpy_conversion.hpp"
 #include "pythonic/types/traits.hpp"
 #include "pythonic/types/ndarray.hpp"
@@ -55,7 +55,7 @@ namespace pythonic
       return std::make_tuple(significands, exps);
     }
 
-    PROXY_IMPL(pythonic::numpy, frexp);
+    DEFINE_FUNCTOR(pythonic::numpy, frexp);
   }
 }
 

@@ -4,7 +4,7 @@
 #include "pythonic/include/numpy/random/random_integers.hpp"
 
 #include "pythonic/numpy/random/randint.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -29,7 +29,7 @@ namespace pythonic
         return randint(min, max + 1);
       }
 
-      PROXY_IMPL(pythonic::numpy::random, random_integers);
+      DEFINE_FUNCTOR(pythonic::numpy::random, random_integers);
     }
   }
 }

@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/outer.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/__builtin__/None.hpp"
 #include "pythonic/numpy/asarray.hpp"
@@ -51,7 +51,7 @@ namespace pythonic
       return outer(asarray(a), asarray(b));
     }
 
-    PROXY_IMPL(pythonic::numpy, outer);
+    DEFINE_FUNCTOR(pythonic::numpy, outer);
   }
 }
 

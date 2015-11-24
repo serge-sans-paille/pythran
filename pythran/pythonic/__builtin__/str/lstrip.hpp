@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/str/lstrip.hpp"
 
 #include "pythonic/types/str.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -20,7 +20,7 @@ namespace pythonic
         return {self.begin() + self.find_first_not_of(to_del), self.end()};
       }
 
-      PROXY_IMPL(pythonic::__builtin__::str, lstrip);
+      DEFINE_FUNCTOR(pythonic::__builtin__::str, lstrip);
     }
   }
 }

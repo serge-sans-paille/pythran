@@ -161,7 +161,7 @@ namespace pythonic
     }
 
     // clang++ is not happy with PROXY
-    namespace proxy
+    namespace functor
     {
       template <class... Types>
       pythonic::__builtin__::xrange xrange::operator()(Types &&... args)

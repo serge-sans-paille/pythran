@@ -6,7 +6,7 @@
 
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/tuple.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 #include <random>
 
@@ -46,7 +46,7 @@ namespace pythonic
                                                    max - 1}(details::generator);
       }
 
-      PROXY_IMPL(pythonic::numpy::random, randint);
+      DEFINE_FUNCTOR(pythonic::numpy::random, randint);
     }
   }
 }

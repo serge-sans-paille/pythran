@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/dict.hpp"
 
 #include "pythonic/types/dict.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 #include <tuple>
 #include <utility>
@@ -45,7 +45,7 @@ namespace pythonic
       }
     }
 
-    PROXY_IMPL(pythonic::__builtin__::anonymous, dict);
+    DEFINE_FUNCTOR(pythonic::__builtin__::anonymous, dict);
   }
 }
 

@@ -3,7 +3,7 @@
 
 #include "pythonic/include/types/list.hpp"
 #include "pythonic/include/types/tuple.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -18,7 +18,7 @@ namespace pythonic
 
     types::empty_list zip();
 
-    PROXY_DECL(pythonic::__builtin__, zip);
+    DECLARE_FUNCTOR(pythonic::__builtin__, zip);
   }
 }
 

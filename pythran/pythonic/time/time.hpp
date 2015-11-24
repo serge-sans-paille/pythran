@@ -2,7 +2,7 @@
 #define PYTHONIC_TIME_TIME_HPP
 
 #include "pythonic/include/time/time.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 #include <chrono>
 
@@ -21,7 +21,7 @@ namespace pythonic
              1000.;
     }
 
-    PROXY_IMPL(pythonic::time, time)
+    DEFINE_FUNCTOR(pythonic::time, time)
   }
 }
 

@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_FROMFUNCTION_HPP
 #define PYTHONIC_INCLUDE_NUMPY_FROMFUNCTION_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/__builtin__/None.hpp"
 #include "pythonic/include/utils/tags.hpp"
@@ -40,7 +40,7 @@ namespace pythonic
             std::forward<F>(f), shape));
 
     /* TODO: must specialize for higher order */
-    PROXY_DECL(pythonic::numpy, fromfunction);
+    DECLARE_FUNCTOR(pythonic::numpy, fromfunction);
   }
 }
 

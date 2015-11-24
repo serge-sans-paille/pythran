@@ -1,6 +1,23 @@
 """ Common function use for AST manipulation. """
 
 import ast
+from pythran.tables import MODULES
+
+
+def attr_to_path(node):
+    """ Compute path and final object for an attribute node """
+
+    def get_intrinsic_path(modules, attr):
+        """ Get function path and intrinsic from an ast.Attribute.  """
+        if isinstance(attr, ast.Name):
+            return modules[attr.id], (attr.id,)
+        elif isinstance(attr, ast.Attribute):
+            module, path = get_intrinsic_path(modules, attr.value)
+            return module[attr.attr], path + (attr.attr,)
+    obj, path = get_intrinsic_path(MODULES, node)
+    if not obj.isliteral():
+        path = path[:-1] + ('functor', path[-1])
+    return obj, ('pythonic', ) + path
 
 
 def path_to_attr(path):

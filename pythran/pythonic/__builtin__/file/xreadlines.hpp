@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/file/xreadlines.hpp"
 
 #include "pythonic/types/file.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -25,7 +25,7 @@ namespace pythonic
         return std::forward<types::file>(f);
       }
 
-      PROXY_IMPL(pythonic::__builtin__::file, xreadlines);
+      DEFINE_FUNCTOR(pythonic::__builtin__::file, xreadlines);
     }
   }
 }

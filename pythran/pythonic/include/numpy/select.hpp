@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_SELECT_HPP
 #define PYTHONIC_INCLUDE_NUMPY_SELECT_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/utils/int_.hpp"
 
 namespace pythonic
@@ -31,7 +31,7 @@ namespace pythonic
     select(types::list<types::ndarray<U, N>> const &condlist,
            types::list<types::ndarray<T, N>> const &choicelist, T _default = 0);
 
-    PROXY_DECL(pythonic::numpy, select);
+    DECLARE_FUNCTOR(pythonic::numpy, select);
   }
 }
 

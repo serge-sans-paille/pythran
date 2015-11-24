@@ -12,7 +12,7 @@ namespace pythonic
     auto alltrue(Types &&... types)
         -> decltype(all(std::forward<Types>(types)...));
 
-    PROXY_DECL(pythonic::numpy, alltrue);
+    DECLARE_FUNCTOR(pythonic::numpy, alltrue);
   }
 }
 

@@ -12,13 +12,13 @@ namespace pythonic
   {
     template <class T>
     auto angle(T const &t, bool in_deg) ->
-        typename assignable<decltype(proxy::angle_in_rad()(t))>::type;
+        typename assignable<decltype(functor::angle_in_rad()(t))>::type;
 
     // Numpy_expr can be use if only the first argument is given.
     template <class T>
-    auto angle(T const &t) -> decltype(proxy::angle_in_rad()(t));
+    auto angle(T const &t) -> decltype(functor::angle_in_rad()(t));
 
-    PROXY_DECL(pythonic::numpy, angle);
+    DECLARE_FUNCTOR(pythonic::numpy, angle);
   }
 }
 

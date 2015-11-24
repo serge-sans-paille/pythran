@@ -4,7 +4,7 @@
 #include "pythonic/include/bisect/bisect_right.hpp"
 
 #include "pythonic/bisect/bisect.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -24,7 +24,7 @@ namespace pythonic
       return bisect(x, a, lo, hi);
     }
 
-    PROXY_IMPL(pythonic::bisect, bisect_right);
+    DEFINE_FUNCTOR(pythonic::bisect, bisect_right);
   }
 }
 

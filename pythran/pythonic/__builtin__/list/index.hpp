@@ -6,7 +6,7 @@
 #include "pythonic/__builtin__/str.hpp"
 #include "pythonic/types/exceptions.hpp"
 #include "pythonic/types/list.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -36,7 +36,7 @@ namespace pythonic
         return index_value;
       }
 
-      PROXY_IMPL(pythonic::__builtin__::list, index);
+      DEFINE_FUNCTOR(pythonic::__builtin__::list, index);
     }
   }
 }

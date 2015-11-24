@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/alen.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 
 namespace pythonic
@@ -17,7 +17,7 @@ namespace pythonic
       return expr.shape()[0];
     }
 
-    PROXY_IMPL(pythonic::numpy, alen);
+    DEFINE_FUNCTOR(pythonic::numpy, alen);
   }
 }
 

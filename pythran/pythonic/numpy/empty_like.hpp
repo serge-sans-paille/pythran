@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/empty_like.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/numpy/empty.hpp"
 
 namespace pythonic
@@ -24,7 +24,7 @@ namespace pythonic
       return empty(expr.shape(), types::dtype_t<typename E::dtype>());
     }
 
-    PROXY_IMPL(pythonic::numpy, empty_like)
+    DEFINE_FUNCTOR(pythonic::numpy, empty_like)
   }
 }
 

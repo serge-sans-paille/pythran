@@ -3,7 +3,7 @@
 
 #include "pythonic/include/math/isnan.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include <cmath>
 
 namespace pythonic
@@ -11,8 +11,7 @@ namespace pythonic
 
   namespace math
   {
-    ALIAS(isnan, std::isnan);
-    PROXY_IMPL(pythonic::math, isnan);
+    DEFINE_FUNCTOR_2(isnan, std::isnan);
   }
 }
 

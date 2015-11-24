@@ -3,7 +3,7 @@
 
 #include "pythonic/include/__builtin__/bool_.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 #ifdef USE_GMP
 #include "pythonic/types/long.hpp"
@@ -14,7 +14,7 @@ namespace pythonic
 
   namespace __builtin__
   {
-    namespace proxy
+    namespace functor
     {
 
       template <class T>

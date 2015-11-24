@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_ITERTOOLS_COUNT_HPP
 #define PYTHONIC_INCLUDE_ITERTOOLS_COUNT_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/combined.hpp"
 
 #include <iterator>
@@ -48,7 +48,7 @@ namespace pythonic
 
     details::count<long> count();
 
-    PROXY_DECL(pythonic::itertools, count);
+    DECLARE_FUNCTOR(pythonic::itertools, count);
   }
 }
 

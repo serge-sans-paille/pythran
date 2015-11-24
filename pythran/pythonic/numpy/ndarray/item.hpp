@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/ndarray/item.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 
 namespace pythonic
@@ -40,7 +40,7 @@ namespace pythonic
             std::forward<E>(expr)}.flat()[i];
       }
 
-      PROXY_IMPL(pythonic::numpy::ndarray, item);
+      DEFINE_FUNCTOR(pythonic::numpy::ndarray, item);
     }
   }
 }

@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/imag.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 
 namespace pythonic
@@ -18,7 +18,7 @@ namespace pythonic
       return __builtin__::getattr<types::attr::IMAG>(std::forward<E>(expr));
     }
 
-    PROXY_IMPL(pythonic::numpy, imag);
+    DEFINE_FUNCTOR(pythonic::numpy, imag);
   }
 }
 

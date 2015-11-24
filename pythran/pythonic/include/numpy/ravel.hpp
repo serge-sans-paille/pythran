@@ -13,7 +13,7 @@ namespace pythonic
     types::ndarray<T, 1> ravel(types::ndarray<T, N> const &expr);
 
     NUMPY_EXPR_TO_NDARRAY0_DECL(ravel);
-    PROXY_DECL(pythonic::numpy, ravel);
+    DECLARE_FUNCTOR(pythonic::numpy, ravel);
   }
 }
 

@@ -9,7 +9,7 @@
 #include "pythonic/utils/fwd.hpp"
 #include "pythonic/utils/int_.hpp"
 #include "pythonic/utils/iterator.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/seq.hpp"
 
 #include <iterator>
@@ -219,7 +219,7 @@ namespace pythonic
       return {std::forward<Operator>(_op), std::forward<Iter>(iters)...};
     }
 
-    PROXY_IMPL(pythonic::itertools, imap);
+    DEFINE_FUNCTOR(pythonic::itertools, imap);
   }
 }
 

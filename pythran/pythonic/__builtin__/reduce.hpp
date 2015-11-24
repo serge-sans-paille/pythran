@@ -3,7 +3,7 @@
 
 #include "pythonic/include/__builtin__/reduce.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 #include <algorithm>
 #include <numeric>
@@ -47,7 +47,7 @@ namespace pythonic
           op);
     }
 
-    PROXY_IMPL(pythonic::__builtin__, reduce);
+    DEFINE_FUNCTOR(pythonic::__builtin__, reduce);
   }
 }
 

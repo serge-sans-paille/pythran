@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/long_.hpp"
 
 #include "pythonic/types/long.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -23,7 +23,7 @@ namespace pythonic
       return 0;
     }
 
-    PROXY_IMPL(pythonic::__builtin__, long_);
+    DEFINE_FUNCTOR(pythonic::__builtin__, long_);
   }
 }
 

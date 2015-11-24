@@ -3,7 +3,7 @@
 
 #include "pythonic/include/operator_/add.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/operator_/overloads.hpp"
 
 namespace pythonic
@@ -19,7 +19,7 @@ namespace pythonic
 
     DEFINE_ALL_OPERATOR_OVERLOADS_IMPL(add, +)
 
-    PROXY_IMPL(pythonic::operator_, add);
+    DEFINE_FUNCTOR(pythonic::operator_, add);
   }
 }
 

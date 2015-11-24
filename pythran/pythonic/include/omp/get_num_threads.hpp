@@ -3,7 +3,7 @@
 
 #include <omp.h>
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -13,7 +13,7 @@ namespace pythonic
 
     long get_num_threads();
 
-    PROXY_DECL(pythonic::omp, get_num_threads);
+    DECLARE_FUNCTOR(pythonic::omp, get_num_threads);
   }
 }
 

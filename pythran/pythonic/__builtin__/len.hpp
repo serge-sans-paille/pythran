@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/len.hpp"
 
 #include "pythonic/types/traits.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 #include <tuple>
 #include <iterator>
@@ -44,7 +44,7 @@ namespace pythonic
       return std::distance(t.begin(), t.end());
     }
 
-    PROXY_IMPL(pythonic::__builtin__, len);
+    DEFINE_FUNCTOR(pythonic::__builtin__, len);
   }
 }
 #endif

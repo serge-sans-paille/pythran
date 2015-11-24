@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/str/isalpha.hpp"
 
 #include "pythonic/types/str.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -21,7 +21,7 @@ namespace pythonic
                std::all_of(s.begin(), s.end(), (int (*)(int))std::isalpha);
       }
 
-      PROXY_IMPL(pythonic::__builtin__::str, isalpha)
+      DEFINE_FUNCTOR(pythonic::__builtin__::str, isalpha)
     }
   }
 }

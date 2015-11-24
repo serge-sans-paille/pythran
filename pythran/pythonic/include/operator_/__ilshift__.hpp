@@ -9,7 +9,7 @@ namespace pythonic
   namespace operator_
   {
 
-    FPROXY_DECL(pythonic::operator_, __ilshift__, ilshift);
+    USING_FUNCTOR(__ilshift__, ilshift);
   }
 }
 

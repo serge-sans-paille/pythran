@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_SET_INTERSECTION_HPP
 
 #include "pythonic/include/types/set.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -27,7 +27,7 @@ namespace pythonic
       types::empty_set intersection(types::empty_set const &set,
                                     Types const &... others);
 
-      PROXY_DECL(pythonic::__builtin__::set, intersection);
+      DECLARE_FUNCTOR(pythonic::__builtin__::set, intersection);
     }
   }
 }

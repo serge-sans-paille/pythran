@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_DICT_VIEWVALUES_HPP
 
 #include "pythonic/include/types/dict.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -17,7 +17,7 @@ namespace pythonic
       types::dict_values<types::dict<K, V>>
       viewvalues(types::dict<K, V> const &d);
 
-      PROXY_DECL(pythonic::__builtin__::dict, viewvalues);
+      DECLARE_FUNCTOR(pythonic::__builtin__::dict, viewvalues);
     }
   }
 }

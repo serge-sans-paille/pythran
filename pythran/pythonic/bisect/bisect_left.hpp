@@ -4,7 +4,7 @@
 #include "pythonic/include/bisect/bisect_left.hpp"
 
 #include "pythonic/bisect/bisect.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 #include <algorithm>
 
@@ -26,7 +26,7 @@ namespace pythonic
                     std::lower_bound<typename X::const_iterator, A>);
     }
 
-    PROXY_IMPL(pythonic::bisect, bisect_left);
+    DEFINE_FUNCTOR(pythonic::bisect, bisect_left);
   }
 }
 

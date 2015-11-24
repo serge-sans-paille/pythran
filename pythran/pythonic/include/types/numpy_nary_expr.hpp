@@ -17,7 +17,7 @@
 #define STR_(a) #a
 #define STR(a) STR_(a)
 
-namespace proxy
+namespace functor
 {
 
   struct NUMPY_NARY_FUNC_NAME {

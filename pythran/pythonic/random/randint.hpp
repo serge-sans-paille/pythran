@@ -3,7 +3,7 @@
 
 #include "pythonic/include/random/randint.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/random/randrange.hpp"
 
 namespace pythonic
@@ -18,7 +18,7 @@ namespace pythonic
       return randrange(a, b + 1);
     }
 
-    PROXY_IMPL(pythonic::random, randint);
+    DEFINE_FUNCTOR(pythonic::random, randint);
   }
 }
 

@@ -64,7 +64,7 @@ namespace pythonic
         return p;
       }
 
-      PROXY_IMPL(pythonic::os::path, join);
+      DEFINE_FUNCTOR(pythonic::os::path, join);
     }
   }
 }

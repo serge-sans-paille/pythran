@@ -3,7 +3,7 @@
 
 #include "pythonic/include/__builtin__/set/add.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/set.hpp"
 
 namespace pythonic
@@ -27,7 +27,7 @@ namespace pythonic
         // nothing have to be done as we work on rvalue
       }
 
-      PROXY_IMPL(pythonic::__builtin__::set, add);
+      DEFINE_FUNCTOR(pythonic::__builtin__::set, add);
     }
   }
 }

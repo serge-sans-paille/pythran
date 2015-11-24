@@ -26,7 +26,7 @@ namespace pythonic
       return asarray(t);
     }
 
-    PROXY_IMPL(pythonic::numpy, atleast_1d);
+    DEFINE_FUNCTOR(pythonic::numpy, atleast_1d);
   }
 }
 

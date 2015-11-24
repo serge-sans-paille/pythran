@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_SET_DIFFERENCE_HPP
 
 #include "pythonic/include/types/set.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -32,7 +32,7 @@ namespace pythonic
 
       types::empty_set difference(types::empty_set const &set);
 
-      PROXY_DECL(pythonic::__builtin__::set, difference);
+      DECLARE_FUNCTOR(pythonic::__builtin__::set, difference);
     }
   }
 }

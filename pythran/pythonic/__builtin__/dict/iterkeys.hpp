@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/dict/iterkeys.hpp"
 
 #include "pythonic/types/dict.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -26,7 +26,7 @@ namespace pythonic
         return d.iterkeys();
       }
 
-      PROXY_IMPL(pythonic::__builtin__::dict, iterkeys);
+      DEFINE_FUNCTOR(pythonic::__builtin__::dict, iterkeys);
     }
   }
 }

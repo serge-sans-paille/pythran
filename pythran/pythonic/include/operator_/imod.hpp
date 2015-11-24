@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_IMOD_HPP
 #define PYTHONIC_INCLUDE_OPERATOR_IMOD_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -12,7 +12,7 @@ namespace pythonic
     template <class A, class B>
     A imod(A a, B const &b);
 
-    PROXY_DECL(pythonic::operator_, imod);
+    DECLARE_FUNCTOR(pythonic::operator_, imod);
   }
 }
 

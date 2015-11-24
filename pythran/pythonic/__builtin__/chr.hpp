@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/chr.hpp"
 
 #include "pythonic/types/str.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -17,7 +17,7 @@ namespace pythonic
       return {(char)v};
     }
 
-    PROXY_IMPL(pythonic::__builtin__, chr);
+    DEFINE_FUNCTOR(pythonic::__builtin__, chr);
   }
 }
 

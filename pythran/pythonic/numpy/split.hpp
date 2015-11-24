@@ -36,7 +36,7 @@ namespace pythonic
       throw std::runtime_error("split only partially implemented");
     }
 
-    PROXY_IMPL(pythonic::numpy, split);
+    DEFINE_FUNCTOR(pythonic::numpy, split);
   }
 }
 

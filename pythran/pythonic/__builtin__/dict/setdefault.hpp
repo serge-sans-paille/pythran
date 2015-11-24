@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/dict/setdefault.hpp"
 
 #include "pythonic/types/dict.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -39,7 +39,7 @@ namespace pythonic
         return d.get(k);
       }
 
-      PROXY_IMPL(pythonic::__builtin__::dict, setdefault);
+      DEFINE_FUNCTOR(pythonic::__builtin__::dict, setdefault);
     }
   }
 }

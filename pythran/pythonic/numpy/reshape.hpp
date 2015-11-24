@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/reshape.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/numpy_conversion.hpp"
 #include "pythonic/types/ndarray.hpp"
 
@@ -39,7 +39,7 @@ namespace pythonic
 
     NUMPY_EXPR_TO_NDARRAY0_IMPL(reshape);
 
-    PROXY_IMPL(pythonic::numpy, reshape);
+    DEFINE_FUNCTOR(pythonic::numpy, reshape);
   }
 }
 

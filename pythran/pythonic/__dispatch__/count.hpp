@@ -3,7 +3,7 @@
 
 #include "pythonic/include/__dispatch__/count.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -18,7 +18,7 @@ namespace pythonic
       return any.count(std::forward<Value>(value));
     }
 
-    PROXY_IMPL(pythonic::__dispatch__, count);
+    DEFINE_FUNCTOR(pythonic::__dispatch__, count);
   }
 }
 

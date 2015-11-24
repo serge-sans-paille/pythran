@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/bitwise_or.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/operator_/or_.hpp"
 #include "pythonic/types/numpy_broadcast.hpp"

@@ -3,7 +3,7 @@
 
 #include "pythonic/include/random/seed.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/__builtin__/None.hpp"
 #include "pythonic/random/random.hpp"
 
@@ -26,7 +26,7 @@ namespace pythonic
       return __builtin__::None;
     }
 
-    PROXY_IMPL(pythonic::random, seed);
+    DEFINE_FUNCTOR(pythonic::random, seed);
   }
 }
 

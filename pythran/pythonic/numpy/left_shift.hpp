@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/left_shift.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/operator_/lshift.hpp"
 #include "pythonic/types/numpy_broadcast.hpp"

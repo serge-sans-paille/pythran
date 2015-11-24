@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_UNION1D_HPP
 #define PYTHONIC_INCLUDE_NUMPY_UNION1D_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 
 namespace pythonic
@@ -20,7 +20,7 @@ namespace pythonic
         typename __combined<typename E::dtype, typename F::dtype>::type, 1>
     union1d(E const &e, F const &f);
 
-    PROXY_DECL(pythonic::numpy, union1d)
+    DECLARE_FUNCTOR(pythonic::numpy, union1d)
   }
 }
 

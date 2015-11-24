@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/power.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
 
 #include <nt2/include/functions/pow.hpp>

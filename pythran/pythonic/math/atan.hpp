@@ -3,7 +3,7 @@
 
 #include "pythonic/include/math/atan.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include <cmath>
 
 namespace pythonic
@@ -11,8 +11,7 @@ namespace pythonic
 
   namespace math
   {
-    ALIAS(atan, std::atan);
-    PROXY_IMPL(pythonic::math, atan);
+    DEFINE_FUNCTOR_2(atan, std::atan);
   }
 }
 

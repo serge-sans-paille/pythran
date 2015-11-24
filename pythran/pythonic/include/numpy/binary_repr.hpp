@@ -14,7 +14,7 @@ namespace pythonic
 
     types::str binary_repr(long number, long width);
 
-    PROXY_DECL(pythonic::numpy, binary_repr);
+    DECLARE_FUNCTOR(pythonic::numpy, binary_repr);
   }
 }
 

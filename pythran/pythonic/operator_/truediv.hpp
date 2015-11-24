@@ -3,7 +3,7 @@
 
 #include "pythonic/include/operator_/truediv.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -16,7 +16,7 @@ namespace pythonic
       return a / ((double)b);
     }
 
-    PROXY_IMPL(pythonic::operator_, truediv);
+    DEFINE_FUNCTOR(pythonic::operator_, truediv);
   }
 }
 

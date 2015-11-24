@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_ARANGE_HPP
 #define PYTHONIC_INCLUDE_NUMPY_ARANGE_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 
 namespace pythonic
@@ -17,7 +17,7 @@ namespace pythonic
     template <class T>
     types::ndarray<T, 1> arange(T end);
 
-    PROXY_DECL(pythonic::numpy, arange);
+    DECLARE_FUNCTOR(pythonic::numpy, arange);
   }
 }
 

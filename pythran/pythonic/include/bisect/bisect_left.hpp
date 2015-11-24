@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_BISECT_BISECTLEFT_HPP
 #define PYTHONIC_INCLUDE_BISECT_BISECTLEFT_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -14,7 +14,7 @@ namespace pythonic
     template <class X, class A>
     long bisect_left(X const &x, A const &a, long lo, long hi);
 
-    PROXY_DECL(pythonic::bisect, bisect_left);
+    DECLARE_FUNCTOR(pythonic::bisect, bisect_left);
   }
 }
 

@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_PYTHRAN_LEN_SET_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_PYTHRAN_LEN_SET_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -15,7 +15,7 @@ namespace pythonic
       template <class Iterable>
       long len_set(Iterable const &s);
 
-      PROXY_DECL(pythonic::__builtin__::pythran, len_set);
+      DECLARE_FUNCTOR(pythonic::__builtin__::pythran, len_set);
     }
   }
 }

@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_DISPATCH_CONJUGATE_HPP
 
 #include "pythonic/include/numpy/conjugate.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -10,9 +10,10 @@ namespace pythonic
   namespace __dispatch__
   {
     template <class Any>
-    auto conjugate(Any const &any) -> decltype(numpy::proxy::conjugate{}(any));
+    auto conjugate(Any const &any)
+        -> decltype(numpy::functor::conjugate{}(any));
 
-    PROXY_DECL(pythonic::__dispatch__, conjugate);
+    DECLARE_FUNCTOR(pythonic::__dispatch__, conjugate);
   }
 }
 

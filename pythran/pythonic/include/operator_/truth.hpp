@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_TRUTH_HPP
 #define PYTHONIC_INCLUDE_OPERATOR_TRUTH_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -10,7 +10,7 @@ namespace pythonic
   {
     bool truth(bool const &a);
 
-    PROXY_DECL(pythonic::operator_, truth);
+    DECLARE_FUNCTOR(pythonic::operator_, truth);
   }
 }
 

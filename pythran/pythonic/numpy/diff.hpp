@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/diff.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/asarray.hpp"
 
@@ -39,7 +39,7 @@ namespace pythonic
             out, n - 1); // TODO: inplace modification to avoid n-1 allocations
     }
 
-    PROXY_IMPL(pythonic::numpy, diff);
+    DEFINE_FUNCTOR(pythonic::numpy, diff);
   }
 }
 

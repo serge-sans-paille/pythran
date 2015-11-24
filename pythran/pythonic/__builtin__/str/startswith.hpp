@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/str/startswith.hpp"
 
 #include "pythonic/types/str.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -24,7 +24,7 @@ namespace pythonic
                s.compare(start, prefix.size(), prefix) == 0;
       }
 
-      PROXY_IMPL(pythonic::__builtin__::str, startswith);
+      DEFINE_FUNCTOR(pythonic::__builtin__::str, startswith);
     }
   }
 }

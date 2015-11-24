@@ -38,7 +38,7 @@ namespace pythonic
       return types::ndarray<long, 1>(buffer, shape);
     }
 
-    PROXY_IMPL(pythonic::numpy, flatnonzero);
+    DEFINE_FUNCTOR(pythonic::numpy, flatnonzero);
   }
 }
 

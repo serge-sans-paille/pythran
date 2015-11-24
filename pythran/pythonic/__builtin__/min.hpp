@@ -3,7 +3,7 @@
 
 #include "pythonic/include/__builtin__/min.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 #include <algorithm>
 #include <utility>
@@ -53,7 +53,7 @@ namespace pythonic
           std::forward<Types>(values)...);
     }
 
-    PROXY_IMPL(pythonic::__builtin__, min);
+    DEFINE_FUNCTOR(pythonic::__builtin__, min);
   }
 }
 

@@ -16,7 +16,7 @@ namespace pythonic
       return eye(n, n, 0, d);
     }
 
-    PROXY_IMPL(pythonic::numpy, identity);
+    DEFINE_FUNCTOR(pythonic::numpy, identity);
   }
 }
 

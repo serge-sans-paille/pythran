@@ -27,7 +27,7 @@ namespace pythonic
       template <class T, class... Types>
       types::str join(T &&head, Types &&... tail);
 
-      PROXY_DECL(pythonic::os::path, join);
+      DECLARE_FUNCTOR(pythonic::os::path, join);
     }
   }
 }

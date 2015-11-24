@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_MATH_FLOOR_HPP
 #define PYTHONIC_INCLUDE_MATH_FLOOR_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include <cmath>
 
 namespace pythonic
@@ -9,8 +9,7 @@ namespace pythonic
 
   namespace math
   {
-    ALIAS_DECL(floor, std::floor);
-    PROXY_DECL(pythonic::math, floor);
+    DECLARE_FUNCTOR_2(floor, std::floor);
   }
 }
 

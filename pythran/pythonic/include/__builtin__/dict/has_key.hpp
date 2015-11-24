@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_DICT_HASKEY_HPP
 
 #include "pythonic/include/types/dict.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -16,7 +16,7 @@ namespace pythonic
       template <class K, class V, class W>
       bool has_key(types::dict<K, V> const &d, W const &k);
 
-      PROXY_DECL(pythonic::__builtin__::dict, has_key);
+      DECLARE_FUNCTOR(pythonic::__builtin__::dict, has_key);
     }
   }
 }

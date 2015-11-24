@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_NDINDEX_HPP
 #define PYTHONIC_INCLUDE_NUMPY_NDINDEX_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/tuple.hpp"
 
 #include <numeric>
@@ -49,7 +49,7 @@ namespace pythonic
     template <size_t N>
     _ndindex<N> ndindex(types::array<long, N> const &args);
 
-    PROXY_DECL(pythonic::numpy, ndindex);
+    DECLARE_FUNCTOR(pythonic::numpy, ndindex);
   }
 }
 

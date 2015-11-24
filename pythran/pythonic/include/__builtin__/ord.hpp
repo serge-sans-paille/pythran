@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_ORD_HPP
 
 #include "pythonic/include/types/str.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -13,7 +13,7 @@ namespace pythonic
 
     long ord(char v);
 
-    PROXY_DECL(pythonic::__builtin__, ord);
+    DECLARE_FUNCTOR(pythonic::__builtin__, ord);
   }
 }
 

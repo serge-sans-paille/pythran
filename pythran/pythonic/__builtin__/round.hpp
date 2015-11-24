@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/round.hpp"
 
 #include "pythonic/__builtin__/pow.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 #include <cmath>
 
@@ -17,7 +17,7 @@ namespace pythonic
     template <class T>
     double round(T const &v, size_t n)
     {
-      T p = proxy::pow()(10, n);
+      T p = functor::pow()(10, n);
       return std::lround(v * p) / p;
     }
 
@@ -27,7 +27,7 @@ namespace pythonic
       return std::lround(v);
     }
 
-    PROXY_IMPL(pythonic::__builtin__, round);
+    DEFINE_FUNCTOR(pythonic::__builtin__, round);
   }
 }
 

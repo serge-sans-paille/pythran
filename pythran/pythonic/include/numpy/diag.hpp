@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_DIAG_HPP
 #define PYTHONIC_INCLUDE_NUMPY_DIAG_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/utils/numpy_conversion.hpp"
 #include "pythonic/include/numpy/asarray.hpp"
@@ -22,7 +22,7 @@ namespace pythonic
         -> decltype(diag(asarray(a), k));
 
     NUMPY_EXPR_TO_NDARRAY0_DECL(diag);
-    PROXY_DECL(pythonic::numpy, diag);
+    DECLARE_FUNCTOR(pythonic::numpy, diag);
   }
 }
 

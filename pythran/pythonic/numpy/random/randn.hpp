@@ -6,7 +6,7 @@
 #include "pythonic/numpy/random/standard_normal.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/tuple.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -26,7 +26,7 @@ namespace pythonic
         return standard_normal();
       }
 
-      PROXY_IMPL(pythonic::numpy::random, randn);
+      DEFINE_FUNCTOR(pythonic::numpy::random, randn);
     }
   }
 }

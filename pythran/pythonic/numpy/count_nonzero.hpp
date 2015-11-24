@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/count_nonzero.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 
 namespace pythonic
@@ -47,7 +47,7 @@ namespace pythonic
       return count;
     }
 
-    PROXY_IMPL(pythonic::numpy, count_nonzero);
+    DEFINE_FUNCTOR(pythonic::numpy, count_nonzero);
   }
 }
 

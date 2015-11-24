@@ -3,7 +3,7 @@
 
 #include "pythonic/include/random/sample.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/random/random.hpp"
 
 #include "pythonic/types/list.hpp"
@@ -30,7 +30,7 @@ namespace pythonic
       return out;
     }
 
-    PROXY_IMPL(pythonic::random, sample);
+    DEFINE_FUNCTOR(pythonic::random, sample);
   }
 }
 

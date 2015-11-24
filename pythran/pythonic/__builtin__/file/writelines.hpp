@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/file/writelines.hpp"
 
 #include "pythonic/types/file.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -21,7 +21,7 @@ namespace pythonic
         f.writelines(sequence);
       }
 
-      PROXY_IMPL(pythonic::__builtin__::file, writelines);
+      DEFINE_FUNCTOR(pythonic::__builtin__::file, writelines);
     }
   }
 }

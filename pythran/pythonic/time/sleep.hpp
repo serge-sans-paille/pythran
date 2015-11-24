@@ -2,7 +2,7 @@
 #define PYTHONIC_TIME_SLEEP_HPP
 
 #include "pythonic/include/time/sleep.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/__builtin__/None.hpp"
 
 #include <thread>
@@ -20,7 +20,7 @@ namespace pythonic
       return __builtin__::None;
     }
 
-    PROXY_IMPL(pythonic::time, sleep)
+    DEFINE_FUNCTOR(pythonic::time, sleep)
   }
 }
 

@@ -8,7 +8,7 @@
 #include "pythonic/numpy/random/randint.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/tuple.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 #include <random>
 #include <algorithm>
@@ -119,7 +119,7 @@ namespace pythonic
                       replace, std::forward<P>(p));
       }
 
-      PROXY_IMPL(pythonic::numpy::random, choice);
+      DEFINE_FUNCTOR(pythonic::numpy::random, choice);
     }
   }
 }

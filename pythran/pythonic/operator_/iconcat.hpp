@@ -3,7 +3,7 @@
 
 #include "pythonic/include/operator_/iconcat.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/list.hpp"
 #include "pythonic/types/set.hpp"
 #include "pythonic/types/dict.hpp"
@@ -37,7 +37,7 @@ namespace pythonic
       return b;
     }
 
-    PROXY_IMPL(pythonic::operator_, iconcat);
+    DEFINE_FUNCTOR(pythonic::operator_, iconcat);
   }
 }
 

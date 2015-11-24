@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_STR_ISALPHA_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_STR_ISALPHA_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/str.hpp"
 
 namespace pythonic
@@ -15,7 +15,7 @@ namespace pythonic
 
       bool isalpha(types::str const &s);
 
-      PROXY_DECL(pythonic::__builtin__::str, isalpha);
+      DECLARE_FUNCTOR(pythonic::__builtin__::str, isalpha);
     }
   }
 }

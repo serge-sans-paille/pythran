@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_MAP_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_MAP_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/list.hpp"
 #include "pythonic/include/types/none.hpp"
 #include "pythonic/include/types/tuple.hpp"
@@ -36,7 +36,7 @@ namespace pythonic
         -> decltype(details::map(op, std::forward<List0>(seq),
                                  lists.begin()...));
 
-    PROXY_DECL(pythonic::__builtin__, map);
+    DECLARE_FUNCTOR(pythonic::__builtin__, map);
   }
 }
 

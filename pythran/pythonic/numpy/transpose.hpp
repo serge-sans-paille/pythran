@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/transpose.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/numpy_conversion.hpp"
 #include "pythonic/utils/nested_container.hpp"
 #include "pythonic/types/ndarray.hpp"
@@ -77,7 +77,7 @@ namespace pythonic
     }
 
     NUMPY_EXPR_TO_NDARRAY0_IMPL(transpose);
-    PROXY_IMPL(pythonic::numpy, transpose);
+    DEFINE_FUNCTOR(pythonic::numpy, transpose);
   }
 }
 

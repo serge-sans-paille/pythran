@@ -4,7 +4,7 @@
 #include "pythonic/include/bisect/bisect.hpp"
 #include "pythonic/types/exceptions.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 #include <iterator>
 
@@ -31,7 +31,7 @@ namespace pythonic
       return std::distance(x.begin(), fun(x.begin() + lo, x.begin() + hi, a));
     }
 
-    PROXY_IMPL(pythonic::bisect, bisect);
+    DEFINE_FUNCTOR(pythonic::bisect, bisect);
   }
 }
 

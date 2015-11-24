@@ -3,7 +3,7 @@
 
 #include "pythonic/include/operator_/__xor__.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -16,7 +16,7 @@ namespace pythonic
       return a ^ b;
     }
 
-    PROXY_IMPL(pythonic::operator_, __xor__);
+    DEFINE_FUNCTOR(pythonic::operator_, __xor__);
   }
 }
 

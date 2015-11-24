@@ -34,7 +34,7 @@ namespace pythonic
       return average(weighted_expr);
     }
 
-    PROXY_IMPL(pythonic::numpy, average);
+    DEFINE_FUNCTOR(pythonic::numpy, average);
   }
 }
 

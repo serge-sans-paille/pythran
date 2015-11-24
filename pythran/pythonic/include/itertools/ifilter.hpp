@@ -4,7 +4,7 @@
 #include "pythonic/include/utils/iterator.hpp"
 #include "pythonic/include/types/list.hpp"
 #include "pythonic/include/itertools/common.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 #include <iterator>
 #include <type_traits>
@@ -78,7 +78,7 @@ namespace pythonic
                          typename std::remove_reference<List0>::type>::type>
     ifilter(Operator &&_op, List0 &&_seq);
 
-    PROXY_DECL(pythonic::itertools, ifilter);
+    DECLARE_FUNCTOR(pythonic::itertools, ifilter);
   }
 }
 #endif

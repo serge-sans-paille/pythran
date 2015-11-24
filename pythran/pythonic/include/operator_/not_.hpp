@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_NOT_HPP
 #define PYTHONIC_INCLUDE_OPERATOR_NOT_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -11,7 +11,7 @@ namespace pythonic
     template <class T>
     decltype(!std::declval<T const &>()) not_(T const &a);
 
-    PROXY_DECL(pythonic::operator_, not_);
+    DECLARE_FUNCTOR(pythonic::operator_, not_);
   }
 }
 

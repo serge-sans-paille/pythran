@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/putmask.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/asarray.hpp"
 #include "pythonic/__builtin__/None.hpp"
@@ -33,7 +33,7 @@ namespace pythonic
       throw std::runtime_error("putmask only partially implemented");
     }
 
-    PROXY_IMPL(pythonic::numpy, putmask);
+    DEFINE_FUNCTOR(pythonic::numpy, putmask);
   }
 }
 

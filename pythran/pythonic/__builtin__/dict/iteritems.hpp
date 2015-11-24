@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/dict/iteritems.hpp"
 
 #include "pythonic/types/dict.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -22,7 +22,7 @@ namespace pythonic
         return d.iteritems();
       }
 
-      PROXY_IMPL(pythonic::__builtin__::dict, iteritems);
+      DEFINE_FUNCTOR(pythonic::__builtin__::dict, iteritems);
     }
   }
 }

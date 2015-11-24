@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_MATH_DEGREES_HPP
 #define PYTHONIC_INCLUDE_MATH_DEGREES_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -12,7 +12,7 @@ namespace pythonic
     template <class T>
     double degrees(T x);
 
-    PROXY_DECL(pythonic::math, degrees);
+    DECLARE_FUNCTOR(pythonic::math, degrees);
   }
 }
 

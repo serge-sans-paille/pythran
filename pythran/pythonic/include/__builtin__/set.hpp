@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_SET_HPP
 
 #include "pythonic/include/types/set.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -20,7 +20,7 @@ namespace pythonic
       set(Iterable &&t);
     }
 
-    PROXY_DECL(pythonic::__builtin__::anonymous, set);
+    DECLARE_FUNCTOR(pythonic::__builtin__::anonymous, set);
   }
 }
 #endif

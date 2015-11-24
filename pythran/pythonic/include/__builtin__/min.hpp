@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_MIN_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_MIN_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 #include <utility>
 
@@ -46,7 +46,7 @@ namespace pythonic
     typename details::min<sizeof...(Types) == 1, Types...>::result_type
     min(Types &&... values);
 
-    PROXY_DECL(pythonic::__builtin__, min);
+    DECLARE_FUNCTOR(pythonic::__builtin__, min);
   }
 }
 

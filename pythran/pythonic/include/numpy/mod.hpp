@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_MOD_HPP
 #define PYTHONIC_INCLUDE_NUMPY_MOD_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/assignable.hpp"
 #include "pythonic/include/operator_/mod.hpp"
 
@@ -16,7 +16,7 @@ namespace pythonic
      */
 
     using operator_::mod;
-    PROXY_DECL(pythonic::numpy, mod);
+    DECLARE_FUNCTOR(pythonic::numpy, mod);
   }
 }
 

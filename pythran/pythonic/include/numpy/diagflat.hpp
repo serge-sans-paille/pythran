@@ -8,8 +8,7 @@ namespace pythonic
 
   namespace numpy
   {
-
-    FPROXY_DECL(pythonic::numpy, diagflat, diag);
+    USING_FUNCTOR(diagflat, diag);
   }
 }
 

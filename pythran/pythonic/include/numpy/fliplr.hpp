@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_FLIPLR_HPP
 #define PYTHONIC_INCLUDE_NUMPY_FLIPLR_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 
 namespace pythonic
@@ -14,7 +14,7 @@ namespace pythonic
         types::contiguous_slice{__builtin__::None, __builtin__::None},
         types::slice{__builtin__::None, __builtin__::None, -1}));
 
-    PROXY_DECL(pythonic::numpy, fliplr);
+    DECLARE_FUNCTOR(pythonic::numpy, fliplr);
   }
 }
 

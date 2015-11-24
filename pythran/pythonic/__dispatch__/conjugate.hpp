@@ -4,7 +4,7 @@
 #include "pythonic/include/__dispatch__/conjugate.hpp"
 
 #include "pythonic/numpy/conjugate.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -12,12 +12,12 @@ namespace pythonic
   namespace __dispatch__
   {
     template <class Any>
-    auto conjugate(Any const &any) -> decltype(numpy::proxy::conjugate{}(any))
+    auto conjugate(Any const &any) -> decltype(numpy::functor::conjugate{}(any))
     {
-      return numpy::proxy::conjugate{}(any);
+      return numpy::functor::conjugate{}(any);
     }
 
-    PROXY_IMPL(pythonic::__dispatch__, conjugate);
+    DEFINE_FUNCTOR(pythonic::__dispatch__, conjugate);
   }
 }
 

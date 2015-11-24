@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/isscalar.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/traits.hpp"
 #include "pythonic/types/str.hpp"
 
@@ -20,7 +20,7 @@ namespace pythonic
       return types::is_dtype<E>::value or std::is_same<E, types::str>::value;
     }
 
-    PROXY_IMPL(pythonic::numpy, isscalar);
+    DEFINE_FUNCTOR(pythonic::numpy, isscalar);
   }
 }
 

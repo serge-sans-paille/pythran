@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_BOOL_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_BOOL_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 #ifdef USE_GMP
 #include "pythonic/include/types/long.hpp"
@@ -13,7 +13,7 @@ namespace pythonic
   namespace __builtin__
   {
 
-    namespace proxy
+    namespace functor
     {
 
       struct bool_ {

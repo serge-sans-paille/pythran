@@ -3,7 +3,7 @@
 
 #include "pythonic/include/math/sqrt.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include <cmath>
 
 namespace pythonic
@@ -11,8 +11,7 @@ namespace pythonic
 
   namespace math
   {
-    ALIAS(sqrt, std::sqrt);
-    PROXY_IMPL(pythonic::math, sqrt);
+    DEFINE_FUNCTOR_2(sqrt, std::sqrt);
   }
 }
 

@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_FILTER_HPP
 
 #include "pythonic/include/types/list.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -14,7 +14,7 @@ namespace pythonic
     types::list<typename Iterable::iterator::value_type>
     filter(F const &f, Iterable const &iterable);
 
-    PROXY_DECL(pythonic::__builtin__, filter);
+    DECLARE_FUNCTOR(pythonic::__builtin__, filter);
   }
 }
 

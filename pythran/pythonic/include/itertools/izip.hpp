@@ -14,7 +14,7 @@ namespace pythonic
     auto izip(Iter &&... iters)
         -> decltype(imap(__builtin__::None, std::forward<Iter>(iters)...));
 
-    PROXY_DECL(pythonic::itertools, izip);
+    DECLARE_FUNCTOR(pythonic::itertools, izip);
   }
 }
 

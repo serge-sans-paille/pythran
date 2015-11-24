@@ -3,7 +3,7 @@
 
 #include "pythonic/include/random/choice.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/random/random.hpp"
 
 namespace pythonic
@@ -18,7 +18,7 @@ namespace pythonic
       return seq[long(random() * seq.size())];
     }
 
-    PROXY_IMPL(pythonic::random, choice);
+    DEFINE_FUNCTOR(pythonic::random, choice);
   }
 }
 

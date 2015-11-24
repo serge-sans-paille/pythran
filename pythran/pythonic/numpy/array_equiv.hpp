@@ -47,7 +47,7 @@ namespace pythonic
       return true;
     }
 
-    PROXY_IMPL(pythonic::numpy, array_equiv);
+    DEFINE_FUNCTOR(pythonic::numpy, array_equiv);
   }
 }
 

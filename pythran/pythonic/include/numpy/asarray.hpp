@@ -24,12 +24,13 @@ namespace pythonic
     };
 
     template <class E>
-    auto asarray(E &&e, types::none_type d = types::none_type())
-        -> decltype(_asarray<typename std::decay<E>::type,
-                             typename utils::nested_container_value_type<
-                                 typename std::decay<E>::type>::type>{}(
-            std::forward<E>(e), typename utils::nested_container_value_type<
-                                    typename std::decay<E>::type>::type{}));
+    auto asarray(E &&e, types::none_type d = types::none_type()) -> decltype(
+        _asarray<typename std::decay<E>::type,
+                 types::dtype_t<typename utils::nested_container_value_type<
+                     typename std::decay<E>::type>::type>>{}(
+            std::forward<E>(e),
+            types::dtype_t<typename utils::nested_container_value_type<
+                typename std::decay<E>::type>::type>{}));
 
     template <class E, class dtype>
     auto asarray(E &&e, dtype d) -> decltype(

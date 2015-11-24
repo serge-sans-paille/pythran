@@ -106,5 +106,7 @@ def to_ast(value):
         return to_ast(numpy.asscalar(value))
     elif isinstance(value, unfolded_type):
         raise ToNotEval()
+    elif value in numpy_type:
+        raise ToNotEval()
     else:
         raise ConversionError()

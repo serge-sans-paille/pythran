@@ -4,7 +4,6 @@
 #include "pythonic/include/numpy/partial_sum.hpp"
 
 #include "pythonic/types/ndarray.hpp"
-#include "pythonic/types/numpy_type.hpp"
 #include "pythonic/utils/neutral.hpp"
 #include "pythonic/__builtin__/ValueError.hpp"
 
@@ -36,12 +35,11 @@ namespace pythonic
     }
 
     template <class Op, class E, class dtype>
-    types::ndarray<typename types::numpy_type<dtype>::type, 1>
-    partial_sum(E const &expr, dtype d)
+    types::ndarray<typename dtype::type, 1> partial_sum(E const &expr, dtype d)
     {
       const long count = expr.flat_size();
-      types::ndarray<typename types::numpy_type<dtype>::type, 1>
-          the_partial_sum{types::make_tuple(count), __builtin__::None};
+      types::ndarray<typename dtype::type, 1> the_partial_sum{
+          types::make_tuple(count), __builtin__::None};
       auto const p = utils::neutral<Op, typename E::dtype>::value;
       auto iter = the_partial_sum.begin();
       _partial_sum<Op, E::value>{}(expr, iter, p);
@@ -70,9 +68,9 @@ namespace pythonic
       if (axis == 0) {
         auto iter = the_partial_sum.begin();
         _partial_sum<Op, 1>{}(
-            expr, iter,
-            types::ndarray<dtype, 1>{types::make_tuple(shape[E::value - 1]),
-                                     utils::neutral<Op, dtype>::value});
+            expr, iter, types::ndarray<typename dtype::type, 1>{
+                            types::make_tuple(shape[E::value - 1]),
+                            utils::neutral<Op, typename dtype::type>::value});
       } else {
         std::transform(expr.begin(), expr.end(), the_partial_sum.begin(),
                        [axis, d](typename E::iterator::value_type other) {

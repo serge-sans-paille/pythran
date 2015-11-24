@@ -22,6 +22,7 @@ namespace pythonic
 
 #define NUMPY_NARY_FUNC_NAME int16
 #define NUMPY_NARY_FUNC_SYM details::int16
+#define NUMPY_NARY_EXTRA_METHOD using type = int16_t;
 #include "pythonic/include/types/numpy_nary_expr.hpp"
   }
 }

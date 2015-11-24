@@ -1108,9 +1108,8 @@ pythonic::types::none_type>::type result_type;
         test = self.visit(node.test)
         body = self.visit(node.body)
         orelse = self.visit(node.orelse)
-        return "(pythonic::__builtin__::bool_({0}) ? {1} : {2})".format(test,
-                                                                        body,
-                                                                        orelse)
+        return ("(pythonic::__builtin__::proxy::bool_{{}}"
+                "({0}) ? {1} : {2})".format(test, body, orelse))
 
     def visit_List(self, node):
         if not node.elts:  # empty list

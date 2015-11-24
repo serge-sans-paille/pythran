@@ -3,8 +3,6 @@
 
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/__builtin__/None.hpp"
-#include "pythonic/include/__builtin__/ValueError.hpp"
-#include "pythonic/include/utils/neutral.hpp"
 
 #ifdef USE_BOOST_SIMD
 #include <boost/simd/include/functions/broadcast.hpp>

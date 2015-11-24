@@ -22,6 +22,7 @@ namespace pythonic
 
 #define NUMPY_NARY_FUNC_NAME uint32
 #define NUMPY_NARY_FUNC_SYM details::uint32
+#define NUMPY_NARY_EXTRA_METHOD using type = uint32_t;
 #include "pythonic/include/types/numpy_nary_expr.hpp"
   }
 }

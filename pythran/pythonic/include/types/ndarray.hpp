@@ -16,6 +16,19 @@
 #include "pythonic/include/types/list.hpp"
 #include "pythonic/include/types/raw_array.hpp"
 
+#include "pythonic/include/numpy/uint8.hpp"
+#include "pythonic/include/numpy/int8.hpp"
+#include "pythonic/include/numpy/uint16.hpp"
+#include "pythonic/include/numpy/int16.hpp"
+#include "pythonic/include/numpy/uint32.hpp"
+#include "pythonic/include/numpy/int32.hpp"
+#include "pythonic/include/numpy/uint64.hpp"
+#include "pythonic/include/numpy/int64.hpp"
+#include "pythonic/include/numpy/float32.hpp"
+#include "pythonic/include/numpy/float64.hpp"
+#include "pythonic/include/numpy/complex64.hpp"
+#include "pythonic/include/numpy/complex128.hpp"
+
 #include "pythonic/include/types/vectorizable_type.hpp"
 #include "pythonic/include/types/numpy_op_helper.hpp"
 #include "pythonic/include/types/numpy_fexpr.hpp"
@@ -466,8 +479,73 @@ namespace std
 #include "pythonic/include/numpy/transpose.hpp"
 namespace pythonic
 {
+
   namespace types
   {
+
+    namespace details
+    {
+      template <class T>
+      struct dtype_helper;
+
+      // FIXME: use another type?
+      template <>
+      struct dtype_helper<bool> {
+        using type = pythonic::numpy::proxy::uint8;
+      };
+
+      template <>
+      struct dtype_helper<uint8_t> {
+        using type = pythonic::numpy::proxy::uint8;
+      };
+      template <>
+      struct dtype_helper<int8_t> {
+        using type = pythonic::numpy::proxy::int8;
+      };
+      template <>
+      struct dtype_helper<uint16_t> {
+        using type = pythonic::numpy::proxy::uint16;
+      };
+      template <>
+      struct dtype_helper<int16_t> {
+        using type = pythonic::numpy::proxy::int16;
+      };
+      template <>
+      struct dtype_helper<uint32_t> {
+        using type = pythonic::numpy::proxy::uint32;
+      };
+      template <>
+      struct dtype_helper<int32_t> {
+        using type = pythonic::numpy::proxy::int32;
+      };
+      template <>
+      struct dtype_helper<uint64_t> {
+        using type = pythonic::numpy::proxy::uint64;
+      };
+      template <>
+      struct dtype_helper<int64_t> {
+        using type = pythonic::numpy::proxy::int64;
+      };
+      template <>
+      struct dtype_helper<float> {
+        using type = pythonic::numpy::proxy::float32;
+      };
+      template <>
+      struct dtype_helper<double> {
+        using type = pythonic::numpy::proxy::float64;
+      };
+      template <>
+      struct dtype_helper<std::complex<float>> {
+        using type = pythonic::numpy::proxy::complex64;
+      };
+      template <>
+      struct dtype_helper<std::complex<double>> {
+        using type = pythonic::numpy::proxy::complex128;
+      };
+    }
+    template <class T>
+    using dtype_t = typename details::dtype_helper<T>::type;
+
     namespace __ndarray
     {
 
@@ -511,7 +589,7 @@ namespace pythonic
 
       template <class E>
       struct getattr<attr::DTYPE, E> {
-        typename E::dtype operator()(E const &a);
+        dtype_t<typename E::dtype> operator()(E const &);
       };
 
       template <class E>

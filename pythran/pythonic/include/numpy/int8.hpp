@@ -22,6 +22,7 @@ namespace pythonic
 
 #define NUMPY_NARY_FUNC_NAME int8
 #define NUMPY_NARY_FUNC_SYM details::int8
+#define NUMPY_NARY_EXTRA_METHOD using type = int8_t;
 #include "pythonic/include/types/numpy_nary_expr.hpp"
   }
 }

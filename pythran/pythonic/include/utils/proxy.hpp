@@ -12,6 +12,10 @@
       template <typename... Types>                                             \
       auto operator()(Types && ... types) const                                \
           -> decltype(ns::f(std::forward<Types>(types)...));                   \
+      friend std::ostream &operator<<(std::ostream &os, s)                     \
+      {                                                                        \
+        return os << #s;                                                       \
+      }                                                                        \
     };                                                                         \
   }
 

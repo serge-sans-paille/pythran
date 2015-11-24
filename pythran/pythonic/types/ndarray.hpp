@@ -18,6 +18,19 @@
 #include "pythonic/types/list.hpp"
 #include "pythonic/types/raw_array.hpp"
 
+#include "pythonic/numpy/uint8.hpp"
+#include "pythonic/numpy/int8.hpp"
+#include "pythonic/numpy/uint16.hpp"
+#include "pythonic/numpy/int16.hpp"
+#include "pythonic/numpy/uint32.hpp"
+#include "pythonic/numpy/int32.hpp"
+#include "pythonic/numpy/uint64.hpp"
+#include "pythonic/numpy/int64.hpp"
+#include "pythonic/numpy/float32.hpp"
+#include "pythonic/numpy/float64.hpp"
+#include "pythonic/numpy/complex64.hpp"
+#include "pythonic/numpy/complex128.hpp"
+
 #include "pythonic/types/vectorizable_type.hpp"
 #include "pythonic/types/numpy_op_helper.hpp"
 #include "pythonic/types/numpy_fexpr.hpp"
@@ -902,9 +915,9 @@ namespace pythonic
       }
 
       template <class E>
-      typename E::dtype getattr<attr::DTYPE, E>::operator()(E const &a)
+      dtype_t<typename E::dtype> getattr<attr::DTYPE, E>::operator()(E const &a)
       {
-        return typename E::dtype();
+        return {};
       }
 
       template <class E>

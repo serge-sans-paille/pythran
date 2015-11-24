@@ -2,6 +2,7 @@
 #define PYTHONIC_INCLUDE_NUMPY_FROMITER_HPP
 
 #include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/numpy/float64.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 
 namespace pythonic
@@ -9,7 +10,7 @@ namespace pythonic
 
   namespace numpy
   {
-    template <class Iterable, class dtype = double>
+    template <class Iterable, class dtype = proxy::float64>
     types::ndarray<typename std::remove_cv<typename std::remove_reference<
                        Iterable>::type>::type::value_type,
                    1>

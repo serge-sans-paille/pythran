@@ -13,24 +13,26 @@ namespace pythonic
   namespace __builtin__
   {
 
-    template <class T>
-    long int_(T &&t)
+    namespace proxy
     {
-      return t;
-    }
 
-    long int_(char t)
-    {
-      assert(t >= '0' and t <= '9');
-      return t - '0';
-    }
+      template <class T>
+      int_::type int_::operator()(T &&t)
+      {
+        return t;
+      }
 
-    long int_()
-    {
-      return 0L;
-    }
+      int_::type int_::operator()(char t)
+      {
+        assert(t >= '0' and t <= '9');
+        return t - '0';
+      }
 
-    PROXY_IMPL(pythonic::__builtin__, int_);
+      int_::type int_::operator()()
+      {
+        return 0L;
+      }
+    }
   }
 }
 

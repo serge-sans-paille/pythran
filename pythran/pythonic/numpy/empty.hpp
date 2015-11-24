@@ -5,7 +5,6 @@
 
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/types/ndarray.hpp"
-#include "pythonic/types/numpy_type.hpp"
 
 namespace pythonic
 {
@@ -13,15 +12,14 @@ namespace pythonic
   namespace numpy
   {
     template <size_t N, class dtype>
-    types::ndarray<typename types::numpy_type<dtype>::type, N>
-    empty(types::array<long, N> const &shape, dtype d)
+    types::ndarray<typename dtype::type, N>
+    empty(types::array<long, N> const &shape, dtype)
     {
       return {shape, __builtin__::None};
     }
 
     template <class dtype>
-    types::ndarray<typename types::numpy_type<dtype>::type, 1> empty(long size,
-                                                                     dtype d)
+    types::ndarray<typename dtype::type, 1> empty(long size, dtype d)
     {
       return empty(types::make_tuple(size), d);
     }

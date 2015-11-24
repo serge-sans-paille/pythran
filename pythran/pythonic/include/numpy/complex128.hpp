@@ -1,5 +1,5 @@
-#ifndef PYTHONIC_INCLUDE_NUMPY_COMPLEX64_HPP
-#define PYTHONIC_INCLUDE_NUMPY_COMPLEX64_HPP
+#ifndef PYTHONIC_INCLUDE_NUMPY_COMPLEX128_HPP
+#define PYTHONIC_INCLUDE_NUMPY_COMPLEX128_HPP
 
 #include "pythonic/include/utils/proxy.hpp"
 #include "pythonic/include/types/complex.hpp"
@@ -16,14 +16,14 @@ namespace pythonic
   {
     namespace details
     {
-      std::complex<float> complex64();
+      std::complex<double> complex128();
       template <class V>
-      std::complex<float> complex64(V v);
+      std::complex<double> complex128(V v);
     }
 
-#define NUMPY_NARY_FUNC_NAME complex64
-#define NUMPY_NARY_FUNC_SYM details::complex64
-#define NUMPY_NARY_EXTRA_METHOD using type = std::complex<float>;
+#define NUMPY_NARY_FUNC_NAME complex128
+#define NUMPY_NARY_FUNC_SYM details::complex128
+#define NUMPY_NARY_EXTRA_METHOD using type = std::complex<double>;
 #include "pythonic/include/types/numpy_nary_expr.hpp"
   }
 }

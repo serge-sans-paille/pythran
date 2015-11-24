@@ -6,7 +6,6 @@
 #include "pythonic/utils/proxy.hpp"
 #include "pythonic/utils/nested_container.hpp"
 #include "pythonic/types/ndarray.hpp"
-#include "pythonic/types/numpy_type.hpp"
 
 namespace pythonic
 {
@@ -14,7 +13,7 @@ namespace pythonic
   namespace numpy
   {
     template <class T, class dtype>
-    types::ndarray<typename types::numpy_type<dtype>::type,
+    types::ndarray<typename dtype::type,
                    utils::nested_container_depth<typename std::remove_cv<
                        typename std::remove_reference<T>::type>::type>::value>
     array(T &&iterable, dtype d)

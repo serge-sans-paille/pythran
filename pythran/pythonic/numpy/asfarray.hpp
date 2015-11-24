@@ -3,7 +3,6 @@
 
 #include "pythonic/include/numpy/asfarray.hpp"
 #include "pythonic/numpy/asarray.hpp"
-#include "pythonic/types/numpy_type.hpp"
 
 namespace pythonic
 {
@@ -13,8 +12,7 @@ namespace pythonic
     template <class E, class dtype>
     auto asfarray(E &&e, dtype d) -> decltype(asarray(std::forward<E>(e), d))
     {
-      static_assert(std::is_floating_point<
-                        typename types::numpy_type<dtype>::type>::value,
+      static_assert(std::is_floating_point<typename dtype::type>::value,
                     "expected a floating point type");
       return asarray(std::forward<E>(e), d);
     }

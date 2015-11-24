@@ -579,7 +579,8 @@ class PythonModule(object):
                 {wname}(PyObject *self, PyObject *args)
                 {{
                     PyObject* args_obj[{size}+1];
-                    PyArg_ParseTuple(args, "{fmt}", {objs});
+                    if(! PyArg_ParseTuple(args, "{fmt}", {objs}))
+                        return nullptr;
                     if({checks})
                         return to_python({name}({args}));
                     else {{
@@ -640,8 +641,8 @@ class PythonModule(object):
                 try {{
                 {tryall}
                 PyErr_SetString(PyExc_TypeError,
-                    "Invalid argument type for pythranized function `{name}'."
-                    "Candidates were:\\n{candidates}\\n"
+                  "Invalid argument type for pythranized function `{name}'.\\n"
+                  "Candidates are:\\n{candidates}\\n"
                 );
                 return nullptr;
                 }}

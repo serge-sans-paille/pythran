@@ -12,15 +12,13 @@ namespace pythonic
   namespace __builtin__
   {
 
-    namespace anonymous
+    namespace proxy
     {
-      std::complex<double> complex(double v0, double v1)
+      complex::type complex::operator()(double v0, double v1)
       {
         return {v0, v1};
       }
     }
-
-    PROXY_IMPL(pythonic::__builtin__::anonymous, complex);
   }
 }
 

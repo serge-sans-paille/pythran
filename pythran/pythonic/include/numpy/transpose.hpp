@@ -5,7 +5,6 @@
 #include "pythonic/include/utils/numpy_conversion.hpp"
 #include "pythonic/include/utils/nested_container.hpp"
 #include "pythonic/include/types/ndarray.hpp"
-#include "pythonic/include/types/numpy_type.hpp"
 #include "pythonic/include/__builtin__/ValueError.hpp"
 
 namespace pythonic

@@ -5,7 +5,7 @@
 
 #include "pythonic/types/dict.hpp"
 #include "pythonic/types/none.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -34,7 +34,7 @@ namespace pythonic
         return default_;
       }
 
-      PROXY_IMPL(pythonic::__builtin__::dict, get);
+      DEFINE_FUNCTOR(pythonic::__builtin__::dict, get);
     }
   }
 }

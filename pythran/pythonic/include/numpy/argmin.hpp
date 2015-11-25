@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_ARGMIN_HPP
 #define PYTHONIC_INCLUDE_NUMPY_ARGMIN_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/numpy/asarray.hpp"
 #include "pythonic/include/__builtin__/ValueError.hpp"
@@ -20,7 +20,7 @@ namespace pythonic
     template <class E>
     long argmin(E const &expr);
 
-    PROXY_DECL(pythonic::numpy, argmin);
+    DECLARE_FUNCTOR(pythonic::numpy, argmin);
   }
 }
 

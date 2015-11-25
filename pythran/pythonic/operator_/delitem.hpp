@@ -3,7 +3,7 @@
 
 #include "pythonic/include/operator_/delitem.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/__builtin__/None.hpp"
 
 namespace pythonic
@@ -19,7 +19,7 @@ namespace pythonic
       return __builtin__::None;
     }
 
-    PROXY_IMPL(pythonic::operator_, delitem);
+    DEFINE_FUNCTOR(pythonic::operator_, delitem);
   }
 }
 

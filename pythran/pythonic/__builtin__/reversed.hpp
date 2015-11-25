@@ -3,7 +3,7 @@
 
 #include "pythonic/include/__builtin__/reversed.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -57,7 +57,7 @@ namespace pythonic
       return {iterable};
     }
 
-    PROXY_IMPL(pythonic::__builtin__, reversed);
+    DEFINE_FUNCTOR(pythonic::__builtin__, reversed);
   }
 }
 

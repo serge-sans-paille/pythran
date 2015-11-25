@@ -12,7 +12,7 @@ namespace pythonic
     auto swapaxes(T &&a, int axis1, int axis2) -> decltype(_transpose(
         std::forward<T>(a), std::declval<long[std::decay<T>::type::value]>()));
 
-    PROXY_DECL(pythonic::numpy, swapaxes);
+    DECLARE_FUNCTOR(pythonic::numpy, swapaxes);
   }
 }
 

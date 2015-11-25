@@ -547,56 +547,56 @@ namespace pythonic
     template <class E>
     numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::operator+=(E const &expr)
     {
-      return update_<pythonic::operator_::proxy::iadd>(expr);
+      return update_<pythonic::operator_::functor::iadd>(expr);
     }
 
     template <class Arg, class... S>
     numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::
     operator+=(numpy_gexpr<Arg, S...> const &expr)
     {
-      return update_<pythonic::operator_::proxy::iadd>(expr);
+      return update_<pythonic::operator_::functor::iadd>(expr);
     }
 
     template <class Arg, class... S>
     template <class E>
     numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::operator-=(E const &expr)
     {
-      return update_<pythonic::operator_::proxy::isub>(expr);
+      return update_<pythonic::operator_::functor::isub>(expr);
     }
 
     template <class Arg, class... S>
     numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::
     operator-=(numpy_gexpr<Arg, S...> const &expr)
     {
-      return update_<pythonic::operator_::proxy::isub>(expr);
+      return update_<pythonic::operator_::functor::isub>(expr);
     }
 
     template <class Arg, class... S>
     template <class E>
     numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::operator*=(E const &expr)
     {
-      return update_<pythonic::operator_::proxy::imul>(expr);
+      return update_<pythonic::operator_::functor::imul>(expr);
     }
 
     template <class Arg, class... S>
     numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::
     operator*=(numpy_gexpr<Arg, S...> const &expr)
     {
-      return update_<pythonic::operator_::proxy::imul>(expr);
+      return update_<pythonic::operator_::functor::imul>(expr);
     }
 
     template <class Arg, class... S>
     template <class E>
     numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::operator/=(E const &expr)
     {
-      return update_<pythonic::operator_::proxy::idiv>(expr);
+      return update_<pythonic::operator_::functor::idiv>(expr);
     }
 
     template <class Arg, class... S>
     numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::
     operator/=(numpy_gexpr<Arg, S...> const &expr)
     {
-      return update_<pythonic::operator_::proxy::idiv>(expr);
+      return update_<pythonic::operator_::functor::idiv>(expr);
     }
 
     template <class Arg, class... S>

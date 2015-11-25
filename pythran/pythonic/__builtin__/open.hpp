@@ -5,7 +5,7 @@
 
 #include "pythonic/types/file.hpp"
 #include "pythonic/types/str.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -18,7 +18,7 @@ namespace pythonic
       return {filename, strmode};
     }
 
-    PROXY_IMPL(pythonic::__builtin__, open);
+    DEFINE_FUNCTOR(pythonic::__builtin__, open);
   }
 }
 

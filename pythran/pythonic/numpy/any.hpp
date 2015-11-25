@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/any.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/__builtin__/ValueError.hpp"
 #include "pythonic/numpy/add.hpp"
@@ -81,7 +81,7 @@ namespace pythonic
         std::copy(shape.begin() + 1, shape.end(), shp.begin() + 1);
         types::ndarray<bool, N> out(shp, false);
         return std::accumulate(array.begin(), array.end(), *out.begin(),
-                               numpy::proxy::add());
+                               numpy::functor::add());
       } else {
         types::array<long, N - 1> shp;
         std::copy(shape.begin(), shape.end() - 1, shp.begin());
@@ -94,7 +94,7 @@ namespace pythonic
       }
     }
 
-    PROXY_IMPL(pythonic::numpy, any);
+    DEFINE_FUNCTOR(pythonic::numpy, any);
   }
 }
 

@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/insert.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/traits.hpp"
 #include "pythonic/__builtin__/None.hpp"
@@ -76,7 +76,7 @@ namespace pythonic
       throw std::runtime_error("insert only partially supported");
     }
 
-    PROXY_IMPL(pythonic::numpy, insert);
+    DEFINE_FUNCTOR(pythonic::numpy, insert);
   }
 }
 

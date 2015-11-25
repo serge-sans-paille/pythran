@@ -8,8 +8,7 @@ namespace pythonic
 
   namespace operator_
   {
-
-    FPROXY_DECL(pythonic::operator_, __ifloordiv__, ifloordiv);
+    USING_FUNCTOR(__ifloordiv__, ifloordiv);
   }
 }
 

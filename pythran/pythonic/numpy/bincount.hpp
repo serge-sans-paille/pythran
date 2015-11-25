@@ -45,7 +45,7 @@ namespace pythonic
       return out;
     }
 
-    PROXY_IMPL(pythonic::numpy, bincount);
+    DEFINE_FUNCTOR(pythonic::numpy, bincount);
   }
 }
 

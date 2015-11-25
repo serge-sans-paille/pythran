@@ -3,7 +3,7 @@
 
 #include "pythonic/include/math/log10.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include <cmath>
 
 namespace pythonic
@@ -11,8 +11,7 @@ namespace pythonic
 
   namespace math
   {
-    ALIAS(log10, std::log10);
-    PROXY_IMPL(pythonic::math, log10);
+    DEFINE_FUNCTOR_2(log10, std::log10);
   }
 }
 

@@ -3,7 +3,7 @@
 
 #include "pythonic/include/utils/iterator.hpp"
 #include "pythonic/include/itertools/common.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 #include <iterator>
 #include <type_traits>
@@ -72,7 +72,7 @@ namespace pythonic
         typename std::remove_reference<Iter>::type>::type...>
     product(Iter &&... iters);
 
-    PROXY_DECL(pythonic::itertools, product);
+    DECLARE_FUNCTOR(pythonic::itertools, product);
   }
 }
 

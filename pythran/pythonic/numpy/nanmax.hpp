@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/nanmax.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/__builtin__/ValueError.hpp"
 #include "pythonic/numpy/isnan.hpp"
@@ -18,7 +18,7 @@ namespace pythonic
     {
       for (; begin != end; ++begin) {
         auto curr = *begin;
-        if (not proxy::isnan()(curr) and curr > max)
+        if (not functor::isnan()(curr) and curr > max)
           max = curr;
       }
     }
@@ -37,7 +37,7 @@ namespace pythonic
       return max;
     }
 
-    PROXY_IMPL(pythonic::numpy, nanmax);
+    DEFINE_FUNCTOR(pythonic::numpy, nanmax);
   }
 }
 

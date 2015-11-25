@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_FILE_XREADLINES_HPP
 
 #include "pythonic/include/types/file.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -16,7 +16,7 @@ namespace pythonic
       types::file &xreadlines(types::file &f);
       types::file &&xreadlines(types::file &&f);
 
-      PROXY_DECL(pythonic::__builtin__::file, xreadlines);
+      DECLARE_FUNCTOR(pythonic::__builtin__::file, xreadlines);
     }
   }
 }

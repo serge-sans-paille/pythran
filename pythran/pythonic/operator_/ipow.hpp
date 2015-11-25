@@ -3,7 +3,7 @@
 
 #include "pythonic/include/operator_/ipow.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/__builtin__/pow.hpp"
 
 namespace pythonic
@@ -18,7 +18,7 @@ namespace pythonic
       return a = __builtin__::pow(a, b);
     }
 
-    PROXY_IMPL(pythonic::operator_, ipow);
+    DEFINE_FUNCTOR(pythonic::operator_, ipow);
   }
 }
 

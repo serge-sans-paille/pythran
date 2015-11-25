@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/argwhere.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/asarray.hpp"
 
@@ -43,7 +43,7 @@ namespace pythonic
       return out_type(buffer, shape);
     }
 
-    PROXY_IMPL(pythonic::numpy, argwhere);
+    DEFINE_FUNCTOR(pythonic::numpy, argwhere);
   }
 }
 

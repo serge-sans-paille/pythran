@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/allclose.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/abs.hpp"
 #include "pythonic/numpy/isfinite.hpp"
@@ -20,9 +20,9 @@ namespace pythonic
       for (; begin != end; ++begin, ++ibegin) {
         auto u = *begin;
         auto v = *ibegin;
-        if (((!proxy::isfinite()(u) || !proxy::isfinite()(v)) &&
+        if (((!functor::isfinite()(u) || !functor::isfinite()(v)) &&
              u != v) || // Infinite and NaN cases
-            proxy::abs()(u - v) > (atol + rtol * proxy::abs()(v))) {
+            functor::abs()(u - v) > (atol + rtol * functor::abs()(v))) {
           return false;
         }
       }
@@ -47,7 +47,7 @@ namespace pythonic
                        utils::int_<U::value>());
     }
 
-    PROXY_IMPL(pythonic::numpy, allclose);
+    DEFINE_FUNCTOR(pythonic::numpy, allclose);
   }
 }
 

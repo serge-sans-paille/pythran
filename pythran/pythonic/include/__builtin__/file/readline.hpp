@@ -3,7 +3,7 @@
 
 #include "pythonic/include/types/file.hpp"
 #include "pythonic/include/types/str.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -17,7 +17,7 @@ namespace pythonic
       types::str readline(types::file &f, long size = -1);
       types::str readline(types::file &&f, long size = -1);
 
-      PROXY_DECL(pythonic::__builtin__::file, readline);
+      DECLARE_FUNCTOR(pythonic::__builtin__::file, readline);
     }
   }
 }

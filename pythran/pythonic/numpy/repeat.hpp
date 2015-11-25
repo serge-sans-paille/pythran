@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/repeat.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/numpy_conversion.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/__builtin__/None.hpp"
@@ -27,7 +27,7 @@ namespace pythonic
     }
 
     NUMPY_EXPR_TO_NDARRAY0_IMPL(repeat);
-    PROXY_IMPL(pythonic::numpy, repeat);
+    DEFINE_FUNCTOR(pythonic::numpy, repeat);
   }
 }
 

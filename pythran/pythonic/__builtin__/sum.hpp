@@ -6,7 +6,7 @@
 #include "pythonic/types/assignable.hpp"
 #include "pythonic/types/tuple.hpp"
 #include "pythonic/utils/int_.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 #include <algorithm>
 
@@ -58,7 +58,7 @@ namespace pythonic
       return details::tuple_sum<std::tuple<Types...>, sizeof...(Types)-1>()(t);
     }
 
-    PROXY_IMPL(pythonic::__builtin__, sum);
+    DEFINE_FUNCTOR(pythonic::__builtin__, sum);
   }
 }
 

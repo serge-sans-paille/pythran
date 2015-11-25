@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_ANY_HPP
 #define PYTHONIC_INCLUDE_NUMPY_ANY_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/__builtin__/ValueError.hpp"
 #include "pythonic/include/numpy/add.hpp"
@@ -35,7 +35,7 @@ namespace pythonic
         E::value != 1, types::ndarray<typename E::dtype, E::value - 1>>::type
     any(E const &array, long axis);
 
-    PROXY_DECL(pythonic::numpy, any);
+    DECLARE_FUNCTOR(pythonic::numpy, any);
   }
 }
 

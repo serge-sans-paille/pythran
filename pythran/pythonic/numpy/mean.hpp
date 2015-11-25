@@ -24,7 +24,7 @@ namespace pythonic
       return sum(expr, axis) /= typename dtype::type(expr.shape()[axis]);
     }
 
-    PROXY_IMPL(pythonic::numpy, mean);
+    DEFINE_FUNCTOR(pythonic::numpy, mean);
   }
 }
 

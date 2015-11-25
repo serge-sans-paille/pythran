@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_NDARRAY_TOSTRING_HPP
 #define PYTHONIC_INCLUDE_NUMPY_NDARRAY_TOSTRING_HPP
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/numpy_conversion.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/str.hpp"
@@ -18,7 +18,7 @@ namespace pythonic
       types::str tostring(types::ndarray<T, N> const &expr);
 
       NUMPY_EXPR_TO_NDARRAY0_DECL(tostring);
-      PROXY_DECL(pythonic::numpy::ndarray, tostring);
+      DECLARE_FUNCTOR(pythonic::numpy::ndarray, tostring);
     }
   }
 }

@@ -68,7 +68,7 @@ namespace pythonic
     };
 
     // clang++ is not happy with PROXY
-    namespace proxy
+    namespace functor
     {
 
       struct xrange {

@@ -3,7 +3,7 @@
 
 #include "pythonic/include/math/degrees.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/math/pi.hpp"
 
 namespace pythonic
@@ -18,7 +18,7 @@ namespace pythonic
       return (x * 360.) / (2. * pi);
     }
 
-    PROXY_IMPL(pythonic::math, degrees);
+    DEFINE_FUNCTOR(pythonic::math, degrees);
   }
 }
 

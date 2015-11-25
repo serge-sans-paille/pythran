@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_RANDOM_SEED_HPP
 #define PYTHONIC_INCLUDE_RANDOM_SEED_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/__builtin__/None.hpp"
 #include "pythonic/include/random/random.hpp"
 
@@ -15,7 +15,7 @@ namespace pythonic
     types::none_type seed(long s);
     types::none_type seed();
 
-    PROXY_DECL(pythonic::random, seed);
+    DECLARE_FUNCTOR(pythonic::random, seed);
   }
 }
 

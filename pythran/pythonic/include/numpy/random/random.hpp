@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_RANDOM_RANDOM_HPP
 #define PYTHONIC_INCLUDE_NUMPY_RANDOM_RANDOM_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/types/none.hpp"
 #include "pythonic/include/types/tuple.hpp"
@@ -19,7 +19,7 @@ namespace pythonic
 
       double random(types::none_type d = types::none_type());
 
-      PROXY_DECL(pythonic::numpy::random, random);
+      DECLARE_FUNCTOR(pythonic::numpy::random, random);
     }
   }
 }

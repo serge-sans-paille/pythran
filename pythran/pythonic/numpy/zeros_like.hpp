@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/zeros_like.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/numpy/zeros.hpp"
 
 namespace pythonic
@@ -18,7 +18,7 @@ namespace pythonic
       return zeros(expr.shape());
     }
 
-    PROXY_IMPL(pythonic::numpy, zeros_like)
+    DEFINE_FUNCTOR(pythonic::numpy, zeros_like)
   }
 }
 

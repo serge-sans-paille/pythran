@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_NEGATIVE_HPP
 #define PYTHONIC_INCLUDE_NUMPY_NEGATIVE_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
 #include "pythonic/include/operator_/neg.hpp"

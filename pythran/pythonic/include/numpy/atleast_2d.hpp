@@ -25,7 +25,7 @@ namespace pythonic
             std::decay<T>::type::value >= 2,
         decltype(std::forward<T>(t))>::type;
 
-    PROXY_DECL(pythonic::numpy, atleast_2d);
+    DECLARE_FUNCTOR(pythonic::numpy, atleast_2d);
   }
 }
 

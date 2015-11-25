@@ -11,10 +11,10 @@ namespace pythonic
   {
     auto logspace(double start, double stop, long num = 50,
                   bool endpoint = true, double base = 10.0)
-        -> decltype(proxy::power()(base, proxy::linspace()(start, stop, num,
-                                                           endpoint)));
+        -> decltype(functor::power()(base, functor::linspace()(start, stop, num,
+                                                               endpoint)));
 
-    PROXY_DECL(pythonic::numpy, logspace);
+    DECLARE_FUNCTOR(pythonic::numpy, logspace);
   }
 }
 

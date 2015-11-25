@@ -19,7 +19,7 @@ namespace pythonic
                                       std::forward<F>(indices));
     }
 
-    PROXY_IMPL(pythonic::numpy, take);
+    DEFINE_FUNCTOR(pythonic::numpy, take);
   }
 }
 

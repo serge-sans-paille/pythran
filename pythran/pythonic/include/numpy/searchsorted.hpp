@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_SEARCHSORTED_HPP
 #define PYTHONIC_INCLUDE_NUMPY_SEARCHSORTED_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/utils/numpy_conversion.hpp"
 #include "pythonic/include/utils/int_.hpp"
 #include "pythonic/include/types/ndarray.hpp"
@@ -35,7 +35,7 @@ namespace pythonic
                             types::ndarray<long, E::value>>::type
     searchsorted(T const &a, E const &v, types::str const &side = "left");
 
-    PROXY_DECL(pythonic::numpy, searchsorted);
+    DECLARE_FUNCTOR(pythonic::numpy, searchsorted);
   }
 }
 

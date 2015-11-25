@@ -3,7 +3,7 @@
 
 #include "pythonic/include/__dispatch__/pop.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -17,7 +17,7 @@ namespace pythonic
       return any.pop(std::forward<Arg0>(arg0)...);
     }
 
-    PROXY_IMPL(pythonic::__dispatch__, pop);
+    DEFINE_FUNCTOR(pythonic::__dispatch__, pop);
   }
 }
 

@@ -8,8 +8,7 @@ namespace pythonic
 
   namespace numpy
   {
-
-    FPROXY_DECL(pythonic::numpy, cumproduct, cumprod);
+    USING_FUNCTOR(cumproduct, cumprod);
   }
 }
 

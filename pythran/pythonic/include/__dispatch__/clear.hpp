@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_DISPATCH_CLEAR_HPP
 #define PYTHONIC_INCLUDE_DISPATCH_CLEAR_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -14,7 +14,7 @@ namespace pythonic
       return any.clear();
     }
 
-    PROXY_DECL(pythonic::__dispatch__, clear);
+    DECLARE_FUNCTOR(pythonic::__dispatch__, clear);
   }
 }
 

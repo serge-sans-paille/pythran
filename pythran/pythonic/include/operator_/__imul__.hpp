@@ -8,8 +8,7 @@ namespace pythonic
 
   namespace operator_
   {
-
-    FPROXY_DECL(pythonic::operator_, __imul__, imul);
+    USING_FUNCTOR(__imul__, imul);
   }
 }
 

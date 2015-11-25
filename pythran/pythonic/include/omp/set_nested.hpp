@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_OMP_SET_NESTED_HPP
 
 #include <omp.h>
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -12,7 +12,7 @@ namespace pythonic
 
     void set_nested(long val);
 
-    PROXY_DECL(pythonic::omp, set_nested);
+    DECLARE_FUNCTOR(pythonic::omp, set_nested);
   }
 }
 

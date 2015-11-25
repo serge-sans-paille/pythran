@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_STR_ENDSWITH_HPP
 
 #include "pythonic/include/types/str.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -17,7 +17,7 @@ namespace pythonic
       bool endswith(types::str const &s, types::str const &suffix,
                     long start = 0, long end = -1);
 
-      PROXY_DECL(pythonic::__builtin__::str, endswith);
+      DECLARE_FUNCTOR(pythonic::__builtin__::str, endswith);
     }
   }
 }

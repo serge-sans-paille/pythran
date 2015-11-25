@@ -13,14 +13,14 @@ namespace pythonic
   {
     auto logspace(double start, double stop, long num, bool endpoint,
                   double base)
-        -> decltype(proxy::power()(base, proxy::linspace()(start, stop, num,
-                                                           endpoint)))
+        -> decltype(functor::power()(base, functor::linspace()(start, stop, num,
+                                                               endpoint)))
     {
-      return proxy::power()(base,
-                            proxy::linspace()(start, stop, num, endpoint));
+      return functor::power()(base,
+                              functor::linspace()(start, stop, num, endpoint));
     }
 
-    PROXY_IMPL(pythonic::numpy, logspace);
+    DEFINE_FUNCTOR(pythonic::numpy, logspace);
   }
 }
 

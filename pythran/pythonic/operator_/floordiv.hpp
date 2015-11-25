@@ -3,7 +3,7 @@
 
 #include "pythonic/include/operator_/floordiv.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include <nt2/include/functions/divfloor.hpp>
 
 namespace pythonic
@@ -38,7 +38,7 @@ namespace pythonic
       return std::floor(a / b);
     }
 
-    PROXY_IMPL(pythonic::operator_, floordiv);
+    DEFINE_FUNCTOR(pythonic::operator_, floordiv);
   }
 }
 

@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_IADD_HPP
 #define PYTHONIC_INCLUDE_OPERATOR_IADD_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/list.hpp"
 #include "pythonic/include/types/set.hpp"
 #include "pythonic/include/types/dict.hpp"

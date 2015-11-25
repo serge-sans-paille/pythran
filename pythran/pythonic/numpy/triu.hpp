@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/triu.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/numpy_conversion.hpp"
 #include "pythonic/types/ndarray.hpp"
 
@@ -27,7 +27,7 @@ namespace pythonic
     }
 
     NUMPY_EXPR_TO_NDARRAY0_IMPL(triu)
-    PROXY_IMPL(pythonic::numpy, triu)
+    DEFINE_FUNCTOR(pythonic::numpy, triu)
   }
 }
 

@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/divmod.hpp"
 
 #include "pythonic/types/tuple.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -19,7 +19,7 @@ namespace pythonic
       return types::make_tuple(t0 / t1, t0 % t1);
     }
 
-    PROXY_IMPL(pythonic::__builtin__, divmod);
+    DEFINE_FUNCTOR(pythonic::__builtin__, divmod);
   }
 }
 

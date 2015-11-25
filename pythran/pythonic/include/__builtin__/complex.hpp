@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_COMPLEX_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_COMPLEX_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/complex.hpp"
 
 namespace pythonic
@@ -10,7 +10,7 @@ namespace pythonic
   namespace __builtin__
   {
 
-    namespace proxy
+    namespace functor
     {
       struct complex {
         using callable = void;

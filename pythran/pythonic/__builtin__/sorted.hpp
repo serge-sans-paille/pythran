@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/sorted.hpp"
 
 #include "pythonic/types/list.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 #include <algorithm>
 
@@ -37,7 +37,7 @@ namespace pythonic
       return out;
     }
 
-    PROXY_IMPL(pythonic::__builtin__, sorted);
+    DEFINE_FUNCTOR(pythonic::__builtin__, sorted);
   }
 }
 

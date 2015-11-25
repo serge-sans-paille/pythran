@@ -5,10 +5,9 @@
 
 namespace pythonic
 {
-
   namespace numpy
   {
-    FPROXY_DECL(pythonic::numpy, product, prod);
+    USING_FUNCTOR(product, prod);
   }
 }
 

@@ -8,7 +8,7 @@ namespace pythonic
 
   namespace operator_
   {
-    FPROXY_DECL(pythonic::operator_, __gt__, gt);
+    USING_FUNCTOR(__gt__, gt);
   }
 }
 

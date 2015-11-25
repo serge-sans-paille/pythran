@@ -14,7 +14,7 @@ namespace pythonic
                                   long start = 0);
 
     NUMPY_EXPR_TO_NDARRAY0_DECL(rollaxis);
-    PROXY_DECL(pythonic::numpy, rollaxis);
+    DECLARE_FUNCTOR(pythonic::numpy, rollaxis);
   }
 }
 

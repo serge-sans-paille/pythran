@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_INSERT_HPP
 #define PYTHONIC_INCLUDE_NUMPY_INSERT_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/types/traits.hpp"
 #include "pythonic/include/__builtin__/None.hpp"
@@ -45,7 +45,7 @@ namespace pythonic
     template <class E, class... Args>
     E insert(E, Args const &...);
 
-    PROXY_DECL(pythonic::numpy, insert);
+    DECLARE_FUNCTOR(pythonic::numpy, insert);
   }
 }
 

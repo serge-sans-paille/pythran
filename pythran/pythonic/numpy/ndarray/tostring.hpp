@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/ndarray/tostring.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/numpy_conversion.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/str.hpp"
@@ -23,7 +23,7 @@ namespace pythonic
                           expr.flat_size() * sizeof(T));
       }
       NUMPY_EXPR_TO_NDARRAY0_IMPL(tostring);
-      PROXY_IMPL(pythonic::numpy::ndarray, tostring);
+      DEFINE_FUNCTOR(pythonic::numpy::ndarray, tostring);
     }
   }
 }

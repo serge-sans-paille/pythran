@@ -14,7 +14,7 @@
 #define NUMPY_NARY_EXTRA_METHOD
 #endif
 
-namespace proxy
+namespace functor
 {
 
   template <typename... T>

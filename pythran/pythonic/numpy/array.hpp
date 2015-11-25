@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/array.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/nested_container.hpp"
 #include "pythonic/types/ndarray.hpp"
 
@@ -21,7 +21,7 @@ namespace pythonic
       return {std::forward<T>(iterable)};
     }
 
-    PROXY_IMPL(pythonic::numpy, array);
+    DEFINE_FUNCTOR(pythonic::numpy, array);
   }
 }
 

@@ -3,7 +3,7 @@
 
 #include "pythonic/include/__builtin__/dict/items.hpp"
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/dict.hpp"
 #include "pythonic/include/types/list.hpp"
 
@@ -24,7 +24,7 @@ namespace pythonic
         return {d.item_begin(), d.item_end()};
       }
 
-      PROXY_IMPL(pythonic::__builtin__::dict, items);
+      DEFINE_FUNCTOR(pythonic::__builtin__::dict, items);
     }
   }
 }

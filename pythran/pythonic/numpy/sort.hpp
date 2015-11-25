@@ -5,7 +5,7 @@
 
 #include <algorithm>
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 
 namespace pythonic
@@ -67,7 +67,7 @@ namespace pythonic
     }
 
     NUMPY_EXPR_TO_NDARRAY0_IMPL(sort);
-    PROXY_IMPL(pythonic::numpy, sort);
+    DEFINE_FUNCTOR(pythonic::numpy, sort);
   }
 }
 

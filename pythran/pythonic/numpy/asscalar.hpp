@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/asscalar.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/asarray.hpp"
 #include "pythonic/__builtin__/ValueError.hpp"
@@ -22,7 +22,7 @@ namespace pythonic
       return *asarray(expr).fbegin();
     }
 
-    PROXY_IMPL(pythonic::numpy, asscalar);
+    DEFINE_FUNCTOR(pythonic::numpy, asscalar);
   }
 }
 

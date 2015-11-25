@@ -3,7 +3,7 @@
 
 #include "pythonic/include/__builtin__/None.hpp"
 #include "pythonic/include/types/dict.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 #include <type_traits>
 
@@ -20,7 +20,7 @@ namespace pythonic
       types::dict<typename std::remove_reference<Iterable>::type::value_type, V>
       fromkeys(Iterable &&iter, V const &v = __builtin__::None);
 
-      PROXY_DECL(pythonic::__builtin__::dict, fromkeys);
+      DECLARE_FUNCTOR(pythonic::__builtin__::dict, fromkeys);
     }
   }
 }

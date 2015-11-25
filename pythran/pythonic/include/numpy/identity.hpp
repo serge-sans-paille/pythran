@@ -10,10 +10,10 @@ namespace pythonic
   namespace numpy
   {
 
-    template <class dtype = proxy::float64>
+    template <class dtype = functor::float64>
     auto identity(long n, dtype d = dtype()) -> decltype(eye(n, n, 0, d));
 
-    PROXY_DECL(pythonic::numpy, identity);
+    DECLARE_FUNCTOR(pythonic::numpy, identity);
   }
 }
 

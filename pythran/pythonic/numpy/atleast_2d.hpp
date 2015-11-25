@@ -36,7 +36,7 @@ namespace pythonic
       return std::forward<T>(t);
     }
 
-    PROXY_IMPL(pythonic::numpy, atleast_2d);
+    DEFINE_FUNCTOR(pythonic::numpy, atleast_2d);
   }
 }
 

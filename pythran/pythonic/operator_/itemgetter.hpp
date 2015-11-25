@@ -3,7 +3,7 @@
 
 #include "pythonic/include/operator_/itemgetter.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/tuple.hpp"
 #include "pythonic/utils/int_.hpp"
 
@@ -75,7 +75,7 @@ namespace pythonic
       return {item1, item2, items...};
     }
 
-    PROXY_IMPL(pythonic::operator_, itemgetter);
+    DEFINE_FUNCTOR(pythonic::operator_, itemgetter);
   }
 }
 

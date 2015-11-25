@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/ndim.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 
 namespace pythonic
@@ -19,7 +19,7 @@ namespace pythonic
       return __builtin__::getattr<types::attr::NDIM>(e);
     }
 
-    PROXY_IMPL(pythonic::numpy, ndim)
+    DEFINE_FUNCTOR(pythonic::numpy, ndim)
   }
 }
 

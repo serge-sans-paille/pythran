@@ -7,7 +7,7 @@
 #include "pythonic/types/none.hpp"
 #include "pythonic/types/tuple.hpp"
 #include "pythonic/utils/fwd.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/reserve.hpp"
 
 #include <utility>
@@ -70,7 +70,7 @@ namespace pythonic
       return details::map(op, std::forward<List0>(seq), lists.begin()...);
     }
 
-    PROXY_IMPL(pythonic::__builtin__, map);
+    DEFINE_FUNCTOR(pythonic::__builtin__, map);
   }
 }
 

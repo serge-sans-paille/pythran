@@ -4,7 +4,7 @@
 #include "pythonic/include/types/file.hpp"
 #include "pythonic/include/types/list.hpp"
 #include "pythonic/include/types/str.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -20,7 +20,7 @@ namespace pythonic
       template <class F>
       types::list<types::str> readlines(F &&f, long sizehint);
 
-      PROXY_DECL(pythonic::__builtin__::file, readlines);
+      DECLARE_FUNCTOR(pythonic::__builtin__::file, readlines);
     }
   }
 }

@@ -4,7 +4,7 @@
 #include "pythonic/include/omp/get_thread_num.hpp"
 
 #include <omp.h>
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -17,7 +17,7 @@ namespace pythonic
       return omp_get_thread_num();
     }
 
-    PROXY_IMPL(pythonic::omp, get_thread_num);
+    DEFINE_FUNCTOR(pythonic::omp, get_thread_num);
   }
 }
 

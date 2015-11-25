@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_LIST_INSERT_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_LIST_INSERT_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/list.hpp"
 #include "pythonic/include/types/none.hpp"
 
@@ -17,7 +17,7 @@ namespace pythonic
       template <class T, class F>
       types::none_type insert(types::list<T> &seq, long n, F &&value);
 
-      PROXY_DECL(pythonic::__builtin__::list, insert);
+      DECLARE_FUNCTOR(pythonic::__builtin__::list, insert);
     }
   }
 }

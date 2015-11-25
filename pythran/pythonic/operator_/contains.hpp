@@ -3,7 +3,7 @@
 
 #include "pythonic/include/operator_/contains.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/__builtin__/in.hpp"
 
 namespace pythonic
@@ -17,7 +17,7 @@ namespace pythonic
       return in(a, b);
     }
 
-    PROXY_IMPL(pythonic::operator_, contains);
+    DEFINE_FUNCTOR(pythonic::operator_, contains);
   }
 }
 

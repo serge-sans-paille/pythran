@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/nanargmax.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/__builtin__/ValueError.hpp"
 #include "pythonic/numpy/isnan.hpp"
@@ -19,7 +19,7 @@ namespace pythonic
     {
       for (; begin != end; ++begin, ++index) {
         auto curr = *begin;
-        if (not proxy::isnan()(curr) and curr > max) {
+        if (not functor::isnan()(curr) and curr > max) {
           max = curr;
           where = index;
         }
@@ -50,7 +50,7 @@ namespace pythonic
         throw types::ValueError("empty sequence");
     }
 
-    PROXY_IMPL(pythonic::numpy, nanargmax);
+    DEFINE_FUNCTOR(pythonic::numpy, nanargmax);
   }
 }
 

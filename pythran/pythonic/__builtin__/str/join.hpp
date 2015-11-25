@@ -5,7 +5,7 @@
 
 #include "pythonic/__builtin__/len.hpp"
 #include "pythonic/types/str.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -109,7 +109,7 @@ namespace pythonic
         return out;
       }
 
-      PROXY_IMPL(pythonic::__builtin__::str, join);
+      DEFINE_FUNCTOR(pythonic::__builtin__::str, join);
     }
   }
 }

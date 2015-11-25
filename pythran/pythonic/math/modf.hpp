@@ -3,7 +3,7 @@
 
 #include "pythonic/include/math/modf.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/tuple.hpp"
 
 #include <cmath>
@@ -21,7 +21,7 @@ namespace pythonic
       return std::make_tuple(frac, i);
     }
 
-    PROXY_IMPL(pythonic::math, modf);
+    DEFINE_FUNCTOR(pythonic::math, modf);
   }
 }
 

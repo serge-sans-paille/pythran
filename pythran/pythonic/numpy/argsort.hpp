@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/argsort.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 
 namespace pythonic
@@ -34,7 +34,7 @@ namespace pythonic
 
     NUMPY_EXPR_TO_NDARRAY0_IMPL(argsort);
 
-    PROXY_IMPL(pythonic::numpy, argsort);
+    DEFINE_FUNCTOR(pythonic::numpy, argsort);
   }
 }
 

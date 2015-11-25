@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_REDUCE_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_REDUCE_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 #include <algorithm>
 #include <utility>
@@ -27,7 +27,7 @@ namespace pythonic
                 init),
             op));
 
-    PROXY_DECL(pythonic::__builtin__, reduce);
+    DECLARE_FUNCTOR(pythonic::__builtin__, reduce);
   }
 }
 

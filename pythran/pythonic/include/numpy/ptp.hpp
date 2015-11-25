@@ -16,7 +16,7 @@ namespace pythonic
     template <class E>
     auto ptp(E const &expr) -> decltype(max(expr) - min(expr));
 
-    PROXY_DECL(pythonic::numpy, ptp);
+    DECLARE_FUNCTOR(pythonic::numpy, ptp);
   }
 }
 

@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_PUT_HPP
 #define PYTHONIC_INCLUDE_NUMPY_PUT_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/numpy/asarray.hpp"
 #include "pythonic/include/utils/numpy_conversion.hpp"
@@ -23,7 +23,7 @@ namespace pythonic
     template <class E, class M, class V>
     types::none_type put(E &, M const &, V const &);
 
-    PROXY_DECL(pythonic::numpy, put);
+    DECLARE_FUNCTOR(pythonic::numpy, put);
   }
 }
 

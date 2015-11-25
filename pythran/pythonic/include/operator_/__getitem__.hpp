@@ -8,7 +8,7 @@ namespace pythonic
 
   namespace operator_
   {
-    FPROXY_DECL(pythonic::operator_, __getitem__, getitem);
+    USING_FUNCTOR(__getitem__, getitem);
   }
 }
 

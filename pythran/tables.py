@@ -48,9 +48,9 @@ cxx_keywords = {
 operator_to_lambda = {
     # boolop
     ast.And:
-        "(pythonic::__builtin__::proxy::bool_{{}}({0})?({1}):({0}))".format,
+        "(pythonic::__builtin__::functor::bool_{{}}({0})?({1}):({0}))".format,
     ast.Or:
-        "(pythonic::__builtin__::proxy::bool_{{}}({0})?({0}):({1}))".format,
+        "(pythonic::__builtin__::functor::bool_{{}}({0})?({0}):({1}))".format,
     # operator
     ast.Add: "({0} + {1})".format,
     ast.Sub: "({0} - {1})".format,
@@ -784,6 +784,7 @@ MODULES = {
         "truth": ConstFunctionIntr(),
         "is_": ConstFunctionIntr(),
         "is_not": ConstFunctionIntr(),
+        "abs": ConstFunctionIntr(),
         "__abs__": ConstFunctionIntr(),
         "add": ConstFunctionIntr(),
         "__add__": ConstFunctionIntr(),
@@ -815,6 +816,7 @@ MODULES = {
         "__sub__": ConstFunctionIntr(),
         "truediv": ConstFunctionIntr(),
         "__truediv__": ConstFunctionIntr(),
+        "xor_": ConstFunctionIntr(),
         "__xor__": ConstFunctionIntr(),
         "concat": ConstFunctionIntr(),
         "__concat__": ConstFunctionIntr(),

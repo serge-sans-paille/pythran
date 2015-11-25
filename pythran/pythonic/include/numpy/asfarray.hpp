@@ -9,10 +9,10 @@ namespace pythonic
 
   namespace numpy
   {
-    template <class E, class dtype = proxy::float64>
+    template <class E, class dtype = functor::float64>
     auto asfarray(E &&e, dtype d = dtype())
         -> decltype(asarray(std::forward<E>(e), d));
-    PROXY_DECL(pythonic::numpy, asfarray);
+    DECLARE_FUNCTOR(pythonic::numpy, asfarray);
   }
 }
 

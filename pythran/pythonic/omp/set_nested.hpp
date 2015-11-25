@@ -4,7 +4,7 @@
 #include "pythonic/include/omp/set_nested.hpp"
 
 #include <omp.h>
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -17,7 +17,7 @@ namespace pythonic
       return omp_set_nested(val);
     }
 
-    PROXY_IMPL(pythonic::omp, set_nested);
+    DEFINE_FUNCTOR(pythonic::omp, set_nested);
   }
 }
 

@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_TRANSPOSE_HPP
 #define PYTHONIC_INCLUDE_NUMPY_TRANSPOSE_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/utils/numpy_conversion.hpp"
 #include "pythonic/include/utils/nested_container.hpp"
 #include "pythonic/include/types/ndarray.hpp"
@@ -29,7 +29,7 @@ namespace pythonic
                                    types::array<long, M> const &t);
 
     NUMPY_EXPR_TO_NDARRAY0_DECL(transpose);
-    PROXY_DECL(pythonic::numpy, transpose);
+    DECLARE_FUNCTOR(pythonic::numpy, transpose);
   }
 }
 

@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_ICONCAT_HPP
 #define PYTHONIC_INCLUDE_OPERATOR_ICONCAT_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/list.hpp"
 #include "pythonic/include/types/set.hpp"
 #include "pythonic/include/types/dict.hpp"
@@ -23,7 +23,7 @@ namespace pythonic
     template <class A>
     auto iconcat(types::empty_set a, types::set<A> b) -> decltype(b);
 
-    PROXY_DECL(pythonic::operator_, iconcat);
+    DECLARE_FUNCTOR(pythonic::operator_, iconcat);
   }
 }
 

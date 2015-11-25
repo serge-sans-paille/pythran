@@ -3,7 +3,7 @@
 
 #include "pythonic/include/operator_/truth.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -15,7 +15,7 @@ namespace pythonic
       return a;
     }
 
-    PROXY_IMPL(pythonic::operator_, truth);
+    DEFINE_FUNCTOR(pythonic::operator_, truth);
   }
 }
 

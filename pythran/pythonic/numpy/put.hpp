@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/put.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/asarray.hpp"
 #include "pythonic/utils/numpy_conversion.hpp"
@@ -45,7 +45,7 @@ namespace pythonic
       throw std::runtime_error("put only partially implemented");
     }
 
-    PROXY_IMPL(pythonic::numpy, put);
+    DEFINE_FUNCTOR(pythonic::numpy, put);
   }
 }
 

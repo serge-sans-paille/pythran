@@ -17,7 +17,7 @@ namespace pythonic
       return all(std::forward<Types>(types)...);
     }
 
-    PROXY_IMPL(pythonic::numpy, alltrue);
+    DEFINE_FUNCTOR(pythonic::numpy, alltrue);
   }
 }
 

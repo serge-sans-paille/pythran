@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_ARGSORT_HPP
 #define PYTHONIC_INCLUDE_NUMPY_ARGSORT_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 
 namespace pythonic
@@ -14,7 +14,7 @@ namespace pythonic
 
     NUMPY_EXPR_TO_NDARRAY0_DECL(argsort);
 
-    PROXY_DECL(pythonic::numpy, argsort);
+    DECLARE_FUNCTOR(pythonic::numpy, argsort);
   }
 }
 

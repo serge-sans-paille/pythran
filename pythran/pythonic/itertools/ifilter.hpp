@@ -6,7 +6,7 @@
 #include "pythonic/types/none.hpp"
 #include "pythonic/types/list.hpp"
 #include "pythonic/itertools/common.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 #include <iterator>
 #include <type_traits>
@@ -131,7 +131,7 @@ namespace pythonic
       return {std::forward<Operator>(_op), std::forward<List0>(_seq)};
     }
 
-    PROXY_IMPL(pythonic::itertools, ifilter);
+    DEFINE_FUNCTOR(pythonic::itertools, ifilter);
   }
 }
 #endif

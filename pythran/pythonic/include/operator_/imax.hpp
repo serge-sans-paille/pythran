@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_IMAX_HPP
 #define PYTHONIC_INCLUDE_OPERATOR_IMAX_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/numpy/maximum.hpp"
 
 namespace pythonic
@@ -11,13 +11,13 @@ namespace pythonic
   {
     template <class A, class B>
     auto imax(A const &a, B &&b)
-        -> decltype(numpy::proxy::maximum{}(a, std::forward<B>(b)));
+        -> decltype(numpy::functor::maximum{}(a, std::forward<B>(b)));
 
     template <class A, class B>
     auto imax(A &a, B &&b)
-        -> decltype(a = numpy::proxy::maximum{}(a, std::forward<B>(b)));
+        -> decltype(a = numpy::functor::maximum{}(a, std::forward<B>(b)));
 
-    PROXY_DECL(pythonic::operator_, imax);
+    DECLARE_FUNCTOR(pythonic::operator_, imax);
   }
 }
 

@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/roll.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/numpy_conversion.hpp"
 #include "pythonic/types/ndarray.hpp"
 
@@ -66,7 +66,7 @@ namespace pythonic
     }
 
     NUMPY_EXPR_TO_NDARRAY0_IMPL(roll);
-    PROXY_IMPL(pythonic::numpy, roll);
+    DEFINE_FUNCTOR(pythonic::numpy, roll);
   }
 }
 

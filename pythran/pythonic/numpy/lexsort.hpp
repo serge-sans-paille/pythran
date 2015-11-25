@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/lexsort.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 
 namespace pythonic
@@ -40,7 +40,7 @@ namespace pythonic
       return out;
     }
 
-    PROXY_IMPL(pythonic::numpy, lexsort)
+    DEFINE_FUNCTOR(pythonic::numpy, lexsort)
   }
 }
 

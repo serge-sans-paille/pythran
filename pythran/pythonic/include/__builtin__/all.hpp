@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_ALL_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_ALL_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -12,7 +12,7 @@ namespace pythonic
     template <class Iterable>
     bool all(Iterable &&s);
 
-    PROXY_DECL(pythonic::__builtin__, all);
+    DECLARE_FUNCTOR(pythonic::__builtin__, all);
   }
 }
 

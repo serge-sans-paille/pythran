@@ -20,6 +20,7 @@ from pythran.syntax import PythranSyntaxError
 from pythran.tables import operator_to_lambda, MODULES, pythran_ward
 from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE, TYPE_TO_SUFFIX
 from pythran.types.types import Types
+from pythran.utils import attr_to_path
 from pythran import metadata, unparse
 
 from math import isnan, isinf
@@ -1108,12 +1109,12 @@ pythonic::types::none_type>::type result_type;
         test = self.visit(node.test)
         body = self.visit(node.body)
         orelse = self.visit(node.orelse)
-        return ("(pythonic::__builtin__::proxy::bool_{{}}"
+        return ("(pythonic::__builtin__::functor::bool_{{}}"
                 "({0}) ? {1} : {2})".format(test, body, orelse))
 
     def visit_List(self, node):
         if not node.elts:  # empty list
-            return "pythonic::__builtin__::proxy::list{}()"
+            return "pythonic::__builtin__::functor::list{}()"
         else:
             elts = [self.visit(n) for n in node.elts]
             # constructor disambiguation, clang++ workaround
@@ -1129,7 +1130,7 @@ pythonic::types::none_type>::type result_type;
 
     def visit_Set(self, node):
         if not node.elts:  # empty set
-            return "pythonic::__builtin__::proxy::set{}()"
+            return "pythonic::__builtin__::functor::set{}()"
         else:
             elts = [self.visit(n) for n in node.elts]
             return "{0}({{ {1} }})".format(
@@ -1138,7 +1139,7 @@ pythonic::types::none_type>::type result_type;
 
     def visit_Dict(self, node):
         if not node.keys:  # empty dict
-            return "pythonic::__builtin__::proxy::dict{}()"
+            return "pythonic::__builtin__::functor::dict{}()"
         else:
             keys = [self.visit(n) for n in node.keys]
             values = [self.visit(n) for n in node.values]
@@ -1168,7 +1169,7 @@ pythonic::types::none_type>::type result_type;
         args = [self.visit(n) for n in node.args]
         func = self.visit(node.func)
         # special hook for getattr, as we cannot represent it in C++
-        if func == 'pythonic::__builtin__::proxy::getattr{}':
+        if func == 'pythonic::__builtin__::functor::getattr{}':
             return ('pythonic::__builtin__::getattr<{}>({})'
                     .format('pythonic::types::attr::' + node.args[1].s.upper(),
                             args[0]))
@@ -1195,16 +1196,11 @@ pythonic::types::none_type>::type result_type;
         return '"' + quoted + '"'
 
     def visit_Attribute(self, node):
-        def rec(w, n):
-            if isinstance(n, ast.Name):
-                return w[n.id], (n.id,)
-            elif isinstance(n, ast.Attribute):
-                r = rec(w, n.value)
-                return r[0][n.attr], r[1] + (n.attr,)
-        obj, path = rec(MODULES, node)
-        path = ('pythonic',) + path
-        return ('::'.join(path) if obj.isliteral()
-                else ('::'.join(path[:-1]) + '::proxy::' + path[-1] + '{}'))
+        obj, path = attr_to_path(node)
+        sattr = '::'.join(path)
+        if not obj.isliteral():
+            sattr += '{}'
+        return sattr
 
     def visit_Subscript(self, node):
         value = self.visit(node.value)

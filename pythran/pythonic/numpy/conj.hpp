@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/conj.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
 #include <nt2/include/functions/conj.hpp>

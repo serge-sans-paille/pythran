@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_TILE_HPP
 #define PYTHONIC_INCLUDE_NUMPY_TILE_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 
 namespace pythonic
@@ -22,7 +22,7 @@ namespace pythonic
     types::ndarray<typename E::dtype, N>
     tile(E const &expr, types::array<long, N> const &reps);
 
-    PROXY_DECL(pythonic::numpy, tile);
+    DECLARE_FUNCTOR(pythonic::numpy, tile);
   }
 }
 

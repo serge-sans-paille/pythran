@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/dict/popitem.hpp"
 
 #include "pythonic/types/dict.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 #include <tuple>
 
@@ -29,7 +29,7 @@ namespace pythonic
         return d.popitem();
       }
 
-      PROXY_IMPL(pythonic::__builtin__::dict, popitem);
+      DEFINE_FUNCTOR(pythonic::__builtin__::dict, popitem);
     }
   }
 }

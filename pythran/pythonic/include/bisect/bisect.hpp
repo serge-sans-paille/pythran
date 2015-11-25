@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_BISECT_BISECT_HPP
 #define PYTHONIC_INCLUDE_BISECT_BISECT_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 #include <algorithm>
 
@@ -27,7 +27,7 @@ namespace pythonic
                 details::bisect_fun<X, A> const &fun =
                     std::upper_bound<typename X::const_iterator, A>);
 
-    PROXY_DECL(pythonic::bisect, bisect);
+    DECLARE_FUNCTOR(pythonic::bisect, bisect);
   }
 }
 

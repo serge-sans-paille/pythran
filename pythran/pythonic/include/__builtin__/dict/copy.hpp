@@ -2,20 +2,15 @@
 #define PYTHONIC_INCLUDE_BUILTIN_DICT_COPY_HPP
 
 #include "pythonic/include/__dispatch__/copy.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
-
   namespace __builtin__
   {
-
     namespace dict
     {
-
-      ALIAS_DECL(copy, pythonic::__dispatch__::copy);
-
-      PROXY_DECL(pythonic::__builtin__::dict, copy);
+      USING_FUNCTOR(copy, pythonic::__dispatch__::functor::copy);
     }
   }
 }

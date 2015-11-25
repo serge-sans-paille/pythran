@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_ITER_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_ITER_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -31,7 +31,7 @@ namespace pythonic
         typename std::remove_cv<typename std::remove_reference<T>::type>::type>
     iter(T &&t);
 
-    PROXY_DECL(pythonic::__builtin__, iter);
+    DECLARE_FUNCTOR(pythonic::__builtin__, iter);
   }
 }
 

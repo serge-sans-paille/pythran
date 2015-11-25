@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_MATH_RADIANS_HPP
 #define PYTHONIC_INCLUDE_MATH_RADIANS_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/math/pi.hpp"
 
 namespace pythonic
@@ -11,7 +11,7 @@ namespace pythonic
   {
     template <class T>
     double radians(T x);
-    PROXY_DECL(pythonic::math, radians);
+    DECLARE_FUNCTOR(pythonic::math, radians);
   }
 }
 

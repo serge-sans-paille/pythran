@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_OUTER_HPP
 #define PYTHONIC_INCLUDE_NUMPY_OUTER_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/__builtin__/None.hpp"
 #include "pythonic/include/numpy/asarray.hpp"
@@ -27,7 +27,7 @@ namespace pythonic
     auto outer(E0 const &a, E1 const &b)
         -> decltype(outer(asarray(a), asarray(b)));
 
-    PROXY_DECL(pythonic::numpy, outer);
+    DECLARE_FUNCTOR(pythonic::numpy, outer);
   }
 }
 

@@ -33,7 +33,7 @@ namespace pythonic
         typename __combined<typename E::dtype, typename F::dtype>::type>::type
     dot(E const &e, F const &f)
     {
-      return sum(types::numpy_expr<operator_::proxy::mul, E, F>(e, f));
+      return sum(types::numpy_expr<operator_::functor::mul, E, F>(e, f));
     }
 
     /// Matrice / Vector multiplication
@@ -232,7 +232,7 @@ namespace pythonic
       return out;
     }
 
-    PROXY_IMPL(pythonic::numpy, dot);
+    DEFINE_FUNCTOR(pythonic::numpy, dot);
   }
 }
 

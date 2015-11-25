@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_ADD_HPP
 #define PYTHONIC_INCLUDE_OPERATOR_ADD_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/operator_/overloads.hpp"
 
 namespace pythonic
@@ -14,7 +14,7 @@ namespace pythonic
 
     DEFINE_ALL_OPERATOR_OVERLOADS_DECL(add, +)
 
-    PROXY_DECL(pythonic::operator_, add);
+    DECLARE_FUNCTOR(pythonic::operator_, add);
   }
 }
 

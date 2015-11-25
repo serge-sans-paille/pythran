@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/diag.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/utils/numpy_conversion.hpp"
 #include "pythonic/numpy/asarray.hpp"
@@ -52,7 +52,7 @@ namespace pythonic
     }
 
     NUMPY_EXPR_TO_NDARRAY0_IMPL(diag);
-    PROXY_IMPL(pythonic::numpy, diag);
+    DEFINE_FUNCTOR(pythonic::numpy, diag);
   }
 }
 

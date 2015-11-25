@@ -3,7 +3,7 @@
 
 #include "pythonic/include/random/expovariate.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/random/random.hpp"
 
 namespace pythonic
@@ -16,7 +16,7 @@ namespace pythonic
       return std::exponential_distribution<>(l)(__random_generator);
     }
 
-    PROXY_IMPL(pythonic::random, expovariate);
+    DEFINE_FUNCTOR(pythonic::random, expovariate);
   }
 }
 

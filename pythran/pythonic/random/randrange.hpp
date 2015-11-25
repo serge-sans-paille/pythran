@@ -3,7 +3,7 @@
 
 #include "pythonic/include/random/randrange.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/random/random.hpp"
 
 #include <cmath>
@@ -28,7 +28,7 @@ namespace pythonic
       return start + step * long((random() * (stop - start)) / std::abs(step));
     }
 
-    PROXY_IMPL(pythonic::random, randrange)
+    DEFINE_FUNCTOR(pythonic::random, randrange)
   }
 }
 

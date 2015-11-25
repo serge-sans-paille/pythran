@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_DISPATCH_COUNT_HPP
 #define PYTHONIC_INCLUDE_DISPATCH_COUNT_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -12,7 +12,7 @@ namespace pythonic
     auto count(Any &&any, Value &&value)
         -> decltype(any.count(std::forward<Value>(value)));
 
-    PROXY_DECL(pythonic::__dispatch__, count);
+    DECLARE_FUNCTOR(pythonic::__dispatch__, count);
   }
 }
 

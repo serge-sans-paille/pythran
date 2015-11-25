@@ -22,7 +22,7 @@ namespace pythonic
     types::list<types::ndarray<typename E::dtype, E::value>> split(E const &a,
                                                                    I const &);
 
-    PROXY_DECL(pythonic::numpy, split);
+    DECLARE_FUNCTOR(pythonic::numpy, split);
   }
 }
 

@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_INVERT_HPP
 #define PYTHONIC_INCLUDE_OPERATOR_INVERT_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -12,7 +12,7 @@ namespace pythonic
     template <class A>
     decltype(~std::declval<A const &>()) invert(A const &a);
 
-    PROXY_DECL(pythonic::operator_, invert);
+    DECLARE_FUNCTOR(pythonic::operator_, invert);
   }
 }
 

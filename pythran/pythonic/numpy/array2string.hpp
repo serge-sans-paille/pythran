@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/array2string.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/str.hpp"
 
@@ -20,7 +20,7 @@ namespace pythonic
       return oss.str();
     }
 
-    PROXY_IMPL(pythonic::numpy, array2string);
+    DEFINE_FUNCTOR(pythonic::numpy, array2string);
   }
 }
 

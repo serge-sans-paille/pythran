@@ -9,7 +9,7 @@
 #ifndef OPERATOR_ISYMBOL
 #error OPERATOR_ISYMBOL not defined
 #endif
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 #ifdef USE_BOOST_SIMD
 #include <boost/simd/sdk/simd/native.hpp>
@@ -92,7 +92,7 @@ namespace pythonic
       return std::forward<A>(a) OPERATOR_ISYMBOL std::forward<B>(b);
     }
 
-    PROXY_IMPL(pythonic::operator_, OPERATOR_NAME);
+    DEFINE_FUNCTOR(pythonic::operator_, OPERATOR_NAME);
   }
 }
 #undef OPERATOR_NAME

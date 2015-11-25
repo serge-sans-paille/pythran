@@ -3,7 +3,7 @@
 
 #include "pythonic/include/operator_/itruediv.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/operator_/truediv.hpp"
 
 namespace pythonic
@@ -19,7 +19,7 @@ namespace pythonic
       return truediv(tmp, b);
     }
 
-    PROXY_IMPL(pythonic::operator_, itruediv);
+    DEFINE_FUNCTOR(pythonic::operator_, itruediv);
   }
 }
 

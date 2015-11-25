@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/dict/has_key.hpp"
 
 #include "pythonic/types/dict.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -20,7 +20,7 @@ namespace pythonic
         return d.find(k) != d.item_end();
       }
 
-      PROXY_IMPL(pythonic::__builtin__::dict, has_key);
+      DEFINE_FUNCTOR(pythonic::__builtin__::dict, has_key);
     }
   }
 }

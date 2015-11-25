@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_DISPATCH_NEXT_HPP
 #define PYTHONIC_INCLUDE_DISPATCH_NEXT_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -12,7 +12,7 @@ namespace pythonic
     template <class Any>
     auto next(Any &&any) -> decltype(any.next());
 
-    PROXY_DECL(pythonic::__dispatch__, next);
+    DECLARE_FUNCTOR(pythonic::__dispatch__, next);
   }
 }
 

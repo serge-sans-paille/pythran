@@ -8,8 +8,7 @@ namespace pythonic
 
   namespace operator_
   {
-
-    FPROXY_DECL(pythonic::operator_, __contains__, contains);
+    USING_FUNCTOR(__contains__, contains);
   }
 }
 

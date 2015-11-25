@@ -3,7 +3,7 @@
 
 #include "pythonic/include/__builtin__/hex.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/str.hpp"
 
 #include <sstream>
@@ -22,7 +22,7 @@ namespace pythonic
       return oss.str();
     }
 
-    PROXY_IMPL(pythonic::__builtin__, hex);
+    DEFINE_FUNCTOR(pythonic::__builtin__, hex);
   }
 }
 

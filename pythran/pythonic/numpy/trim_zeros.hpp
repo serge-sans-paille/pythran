@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/trim_zeros.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/numpy_gexpr.hpp"
 
 namespace pythonic
@@ -30,7 +30,7 @@ namespace pythonic
       return make_gexpr(expr, types::contiguous_slice(begin, end));
     }
 
-    PROXY_IMPL(pythonic::numpy, trim_zeros)
+    DEFINE_FUNCTOR(pythonic::numpy, trim_zeros)
   }
 }
 

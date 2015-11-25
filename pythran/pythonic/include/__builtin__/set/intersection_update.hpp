@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_SET_INTERSECTIONUPDATE_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_SET_INTERSECTIONUPDATE_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/set.hpp"
 
 namespace pythonic
@@ -25,7 +25,7 @@ namespace pythonic
       types::none_type intersection_update(types::empty_set &&set,
                                            Types const &... others);
 
-      PROXY_DECL(pythonic::__builtin__::set, intersection_update);
+      DECLARE_FUNCTOR(pythonic::__builtin__::set, intersection_update);
     }
   }
 }

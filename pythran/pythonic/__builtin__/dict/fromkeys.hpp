@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/dict/fromkeys.hpp"
 
 #include "pythonic/types/dict.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 #include <type_traits>
 
@@ -29,7 +29,7 @@ namespace pythonic
         return D;
       }
 
-      PROXY_IMPL(pythonic::__builtin__::dict, fromkeys);
+      DEFINE_FUNCTOR(pythonic::__builtin__::dict, fromkeys);
     }
   }
 }

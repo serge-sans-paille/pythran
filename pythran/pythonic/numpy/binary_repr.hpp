@@ -45,7 +45,7 @@ namespace pythonic
       }
     }
 
-    PROXY_IMPL(pythonic::numpy, binary_repr);
+    DEFINE_FUNCTOR(pythonic::numpy, binary_repr);
   }
 }
 

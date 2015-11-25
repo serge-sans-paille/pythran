@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_STR_HPP
 
 #include "pythonic/include/types/str.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -19,7 +19,7 @@ namespace pythonic
       inline types::str str(double l);
     }
 
-    PROXY_DECL(pythonic::__builtin__::anonymous, str);
+    DECLARE_FUNCTOR(pythonic::__builtin__::anonymous, str);
   }
 }
 

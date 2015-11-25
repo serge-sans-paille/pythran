@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/var.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/__builtin__/None.hpp"
 #include "pythonic/__builtin__/ValueError.hpp"
@@ -73,7 +73,7 @@ namespace pythonic
       }
     }
 
-    PROXY_IMPL(pythonic::numpy, var);
+    DEFINE_FUNCTOR(pythonic::numpy, var);
   }
 }
 

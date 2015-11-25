@@ -22,7 +22,7 @@ namespace pythonic
         -> decltype(average(expr *asarray(weights) /
                             average(asarray(weights))));
 
-    PROXY_DECL(pythonic::numpy, average);
+    DECLARE_FUNCTOR(pythonic::numpy, average);
   }
 }
 

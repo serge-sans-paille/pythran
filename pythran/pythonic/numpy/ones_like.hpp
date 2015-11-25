@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/ones_like.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/numpy/ones.hpp"
 
 namespace pythonic
@@ -17,7 +17,7 @@ namespace pythonic
       return ones(expr.shape());
     }
 
-    PROXY_IMPL(pythonic::numpy, ones_like)
+    DEFINE_FUNCTOR(pythonic::numpy, ones_like)
   }
 }
 

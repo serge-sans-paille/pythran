@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_COUNTOF_HPP
 #define PYTHONIC_INCLUDE_OPERATOR_COUNTOF_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include <algorithm>
 
 namespace pythonic
@@ -12,7 +12,7 @@ namespace pythonic
     template <class A, class B>
     long countOf(A const &a, B const &b);
 
-    PROXY_DECL(pythonic::operator_, countOf);
+    DECLARE_FUNCTOR(pythonic::operator_, countOf);
   }
 }
 

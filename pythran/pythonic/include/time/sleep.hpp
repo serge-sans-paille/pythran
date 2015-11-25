@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_TIME_SLEEP_HPP
 #define PYTHONIC_INCLUDE_TIME_SLEEP_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/none.hpp"
 
 namespace pythonic
@@ -11,7 +11,7 @@ namespace pythonic
   {
     types::none_type sleep(double const value);
 
-    PROXY_DECL(pythonic::time, sleep)
+    DECLARE_FUNCTOR(pythonic::time, sleep)
   }
 }
 

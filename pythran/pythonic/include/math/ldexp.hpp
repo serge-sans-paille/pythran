@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_MATH_LDEXP_HPP
 #define PYTHONIC_INCLUDE_MATH_LDEXP_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include <cmath>
 
 namespace pythonic
@@ -9,8 +9,7 @@ namespace pythonic
 
   namespace math
   {
-    ALIAS_DECL(ldexp, std::ldexp);
-    PROXY_DECL(pythonic::math, ldexp);
+    DECLARE_FUNCTOR_2(ldexp, std::ldexp);
   }
 }
 

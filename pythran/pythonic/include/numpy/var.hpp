@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_VAR_HPP
 #define PYTHONIC_INCLUDE_NUMPY_VAR_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/__builtin__/None.hpp"
 #include "pythonic/include/__builtin__/ValueError.hpp"
@@ -44,7 +44,7 @@ namespace pythonic
              types::none_type out = __builtin__::None, long ddof = 0) ->
         typename assignable<decltype(var_type<E>() * mean(expr, axis))>::type;
 
-    PROXY_DECL(pythonic::numpy, var);
+    DECLARE_FUNCTOR(pythonic::numpy, var);
   }
 }
 

@@ -3,7 +3,7 @@
 
 #include "pythonic/include/math/frexp.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/tuple.hpp"
 
 #include <cmath>
@@ -19,7 +19,7 @@ namespace pythonic
       double sig = std::frexp(x, &exp);
       return std::tuple<double, long>(sig, exp);
     }
-    PROXY_IMPL(pythonic::math, frexp);
+    DEFINE_FUNCTOR(pythonic::math, frexp);
   }
 }
 

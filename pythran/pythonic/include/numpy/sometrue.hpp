@@ -8,8 +8,7 @@ namespace pythonic
 
   namespace numpy
   {
-
-    FPROXY_DECL(pythonic::numpy, sometrue, any);
+    USING_FUNCTOR(sometrue, any);
   }
 }
 

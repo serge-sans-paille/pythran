@@ -152,7 +152,7 @@ namespace pythonic
             2>>::type
     dot(E const &e, F const &f);
 
-    PROXY_DECL(pythonic::numpy, dot);
+    DECLARE_FUNCTOR(pythonic::numpy, dot);
   }
 }
 

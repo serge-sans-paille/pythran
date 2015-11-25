@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/list.hpp"
 
 #include "pythonic/types/list.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 #include <iterator>
 #include <type_traits>
@@ -37,7 +37,7 @@ namespace pythonic
       }
     }
 
-    PROXY_IMPL(pythonic::__builtin__::anonymous, list);
+    DEFINE_FUNCTOR(pythonic::__builtin__::anonymous, list);
   }
 }
 

@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/ndarray/flatten.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 
 namespace pythonic
@@ -21,7 +21,7 @@ namespace pythonic
       }
 
       NUMPY_EXPR_TO_NDARRAY0_IMPL(flatten);
-      PROXY_IMPL(pythonic::numpy::ndarray, flatten);
+      DEFINE_FUNCTOR(pythonic::numpy::ndarray, flatten);
     }
   }
 }

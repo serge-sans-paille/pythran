@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/array_split.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 
 namespace pythonic
@@ -49,7 +49,7 @@ namespace pythonic
     }
 
     NUMPY_EXPR_TO_NDARRAY0_IMPL(array_split);
-    PROXY_IMPL(pythonic::numpy, array_split);
+    DEFINE_FUNCTOR(pythonic::numpy, array_split);
   }
 }
 

@@ -3,7 +3,7 @@
 
 #include "pythonic/include/__builtin__/cmp.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -16,7 +16,7 @@ namespace pythonic
       return v0 == v1 ? 0 : (v0 < v1 ? -1 : 1);
     }
 
-    PROXY_IMPL(pythonic::__builtin__, cmp);
+    DEFINE_FUNCTOR(pythonic::__builtin__, cmp);
   }
 }
 

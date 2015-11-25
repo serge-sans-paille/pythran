@@ -3,7 +3,7 @@
 
 #include "pythonic/include/types/file.hpp"
 #include "pythonic/include/types/str.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -14,7 +14,7 @@ namespace pythonic
     types::file open(types::str const &filename,
                      types::str const &strmode = "r");
 
-    PROXY_DECL(pythonic::__builtin__, open);
+    DECLARE_FUNCTOR(pythonic::__builtin__, open);
   }
 }
 

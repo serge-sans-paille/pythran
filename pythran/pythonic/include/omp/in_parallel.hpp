@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_OMP_IN_PARALLEL_HPP
 
 #include <omp.h>
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -11,7 +11,7 @@ namespace pythonic
   {
     bool in_parallel();
 
-    PROXY_DECL(pythonic::omp, in_parallel);
+    DECLARE_FUNCTOR(pythonic::omp, in_parallel);
   }
 }
 

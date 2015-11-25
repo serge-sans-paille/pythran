@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/size.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 
 namespace pythonic
@@ -18,7 +18,7 @@ namespace pythonic
       return e.flat_size();
     }
 
-    PROXY_IMPL(pythonic::numpy, size)
+    DEFINE_FUNCTOR(pythonic::numpy, size)
   }
 }
 

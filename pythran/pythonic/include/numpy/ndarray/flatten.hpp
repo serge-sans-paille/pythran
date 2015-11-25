@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_NDARRAY_FLATTEN_HPP
 #define PYTHONIC_INCLUDE_NUMPY_NDARRAY_FLATTEN_HPP
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 
 namespace pythonic
@@ -16,7 +16,7 @@ namespace pythonic
       types::ndarray<T, 1> flatten(types::ndarray<T, N> const &a);
 
       NUMPY_EXPR_TO_NDARRAY0_DECL(flatten);
-      PROXY_DECL(pythonic::numpy::ndarray, flatten);
+      DECLARE_FUNCTOR(pythonic::numpy::ndarray, flatten);
     }
   }
 }

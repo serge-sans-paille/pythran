@@ -5,7 +5,7 @@
 
 #include <nt2/include/functions/max.hpp>
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/numpy_broadcast.hpp"
 #include "pythonic/utils/numpy_traits.hpp"

@@ -5,7 +5,7 @@
 
 #include "pythonic/types/exceptions.hpp"
 #include "pythonic/types/str.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -27,7 +27,7 @@ namespace pythonic
       return v;
     }
 
-    PROXY_IMPL(pythonic::__builtin__, ord);
+    DEFINE_FUNCTOR(pythonic::__builtin__, ord);
   }
 }
 

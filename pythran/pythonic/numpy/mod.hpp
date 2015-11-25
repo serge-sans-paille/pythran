@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/mod.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/assignable.hpp"
 #include "pythonic/operator_/mod.hpp"
 
@@ -18,7 +18,7 @@ namespace pythonic
      */
 
     using operator_::mod;
-    PROXY_IMPL(pythonic::numpy, mod);
+    DEFINE_FUNCTOR(pythonic::numpy, mod);
   }
 }
 

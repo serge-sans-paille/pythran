@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_UNIQUE_HPP
 #define PYTHONIC_INCLUDE_NUMPY_UNIQUE_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/types/tuple.hpp"
 
@@ -42,7 +42,7 @@ namespace pythonic
                types::ndarray<long, 1>>
     unique(E const &expr, bool return_index, bool return_inverse);
 
-    PROXY_DECL(pythonic::numpy, unique)
+    DECLARE_FUNCTOR(pythonic::numpy, unique)
   }
 }
 

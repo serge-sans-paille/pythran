@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/unwrap.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/int_.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/pi.hpp"
@@ -47,7 +47,7 @@ namespace pythonic
       return out;
     }
 
-    PROXY_IMPL(pythonic::numpy, unwrap)
+    DEFINE_FUNCTOR(pythonic::numpy, unwrap)
   }
 }
 

@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_ARRAYSPLIT_HPP
 #define PYTHONIC_INCLUDE_NUMPY_ARRAYSPLIT_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 
 namespace pythonic
@@ -19,7 +19,7 @@ namespace pythonic
     array_split(types::ndarray<T, N> const &a, I const &split_mask);
 
     NUMPY_EXPR_TO_NDARRAY0_DECL(array_split);
-    PROXY_DECL(pythonic::numpy, array_split);
+    DECLARE_FUNCTOR(pythonic::numpy, array_split);
   }
 }
 

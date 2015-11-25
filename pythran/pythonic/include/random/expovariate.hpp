@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_RANDOM_EXPOVARIATE_HPP
 #define PYTHONIC_INCLUDE_RANDOM_EXPOVARIATE_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/random/random.hpp"
 
 namespace pythonic
@@ -11,7 +11,7 @@ namespace pythonic
   {
     double expovariate(double l);
 
-    PROXY_DECL(pythonic::random, expovariate);
+    DECLARE_FUNCTOR(pythonic::random, expovariate);
   }
 }
 

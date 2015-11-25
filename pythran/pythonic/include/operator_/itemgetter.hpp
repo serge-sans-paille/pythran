@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_ITEMGETTER_HPP
 #define PYTHONIC_INCLUDE_OPERATOR_ITEMGETTER_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/tuple.hpp"
 #include "pythonic/include/utils/int_.hpp"
 
@@ -44,7 +44,7 @@ namespace pythonic
     itemgetter_tuple_return<long, long, L...>
     itemgetter(long const &item1, long const &item2, L... items);
 
-    PROXY_DECL(pythonic::operator_, itemgetter);
+    DECLARE_FUNCTOR(pythonic::operator_, itemgetter);
   }
 }
 

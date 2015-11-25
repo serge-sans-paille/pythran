@@ -3,7 +3,7 @@
 
 #include "pythonic/include/operator_/imin.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/numpy/minimum.hpp"
 
 namespace pythonic
@@ -14,19 +14,19 @@ namespace pythonic
 
     template <class A, class B>
     auto imin(A const &a, B &&b)
-        -> decltype(numpy::proxy::minimum{}(a, std::forward<B>(b)))
+        -> decltype(numpy::functor::minimum{}(a, std::forward<B>(b)))
     {
-      return numpy::proxy::minimum{}(a, std::forward<B>(b));
+      return numpy::functor::minimum{}(a, std::forward<B>(b));
     }
 
     template <class A, class B>
     auto imin(A &a, B &&b)
-        -> decltype(a = numpy::proxy::minimum{}(a, std::forward<B>(b)))
+        -> decltype(a = numpy::functor::minimum{}(a, std::forward<B>(b)))
     {
-      return a = numpy::proxy::minimum{}(a, std::forward<B>(b));
+      return a = numpy::functor::minimum{}(a, std::forward<B>(b));
     }
 
-    PROXY_IMPL(pythonic::operator_, imin);
+    DEFINE_FUNCTOR(pythonic::operator_, imin);
   }
 }
 

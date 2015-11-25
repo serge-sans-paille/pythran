@@ -3,7 +3,7 @@
 
 #include "pythonic/include/types/list.hpp"
 #include "pythonic/include/types/tuple.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -40,7 +40,7 @@ namespace pythonic
                              StaticIterable>::type>::type>::value>>::type
     tuple(StaticIterable &&i);
 
-    PROXY_DECL(pythonic::__builtin__, tuple);
+    DECLARE_FUNCTOR(pythonic::__builtin__, tuple);
   }
 }
 

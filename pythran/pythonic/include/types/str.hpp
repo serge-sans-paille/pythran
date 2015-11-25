@@ -6,7 +6,7 @@
 #include "pythonic/include/types/tuple.hpp"
 
 #include "pythonic/include/utils/shared_ref.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/utils/int_.hpp"
 
 #include <boost/format.hpp>

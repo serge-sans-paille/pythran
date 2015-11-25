@@ -4,7 +4,7 @@
 #include "pythonic/include/numpy/square.hpp"
 
 #include "pythonic/utils/numpy_traits.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 #include <nt2/include/functions/sqr.hpp>
 

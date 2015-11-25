@@ -24,7 +24,7 @@ namespace pythonic
       return max(expr) - min(expr);
     }
 
-    PROXY_IMPL(pythonic::numpy, ptp);
+    DEFINE_FUNCTOR(pythonic::numpy, ptp);
   }
 }
 

@@ -4,7 +4,7 @@
 #include "pythonic/include/omp/in_parallel.hpp"
 
 #include <omp.h>
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -17,7 +17,7 @@ namespace pythonic
       return omp_in_parallel();
     }
 
-    PROXY_IMPL(pythonic::omp, in_parallel);
+    DEFINE_FUNCTOR(pythonic::omp, in_parallel);
   }
 }
 

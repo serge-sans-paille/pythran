@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_FUNCTOOLS_PARTIAL_HPP
 #define PYTHONIC_INCLUDE_FUNCTOOLS_PARTIAL_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/utils/seq.hpp"
 
 #include <utility>
@@ -47,7 +47,7 @@ namespace pythonic
         typename std::remove_reference<Types>::type>::type...>
     partial(Types &&... types);
 
-    PROXY_DECL(pythonic::functools, partial);
+    DECLARE_FUNCTOR(pythonic::functools, partial);
   }
 }
 

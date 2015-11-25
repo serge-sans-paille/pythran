@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/ones.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 
 namespace pythonic
@@ -25,7 +25,7 @@ namespace pythonic
       return ones(types::make_tuple(size), d);
     }
 
-    PROXY_IMPL(pythonic::numpy, ones);
+    DEFINE_FUNCTOR(pythonic::numpy, ones);
   }
 }
 

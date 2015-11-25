@@ -3,7 +3,7 @@
 
 #include "pythonic/include/math/fabs.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include <cmath>
 
 namespace pythonic
@@ -11,8 +11,7 @@ namespace pythonic
 
   namespace math
   {
-    ALIAS(fabs, std::fabs);
-    PROXY_IMPL(pythonic::math, fabs);
+    DEFINE_FUNCTOR_2(fabs, std::fabs);
   }
 }
 

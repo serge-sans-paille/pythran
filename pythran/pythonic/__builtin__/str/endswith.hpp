@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/str/endswith.hpp"
 
 #include "pythonic/types/str.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -25,7 +25,7 @@ namespace pythonic
                s.compare(rstart, suffix.size(), suffix) == 0;
       }
 
-      PROXY_IMPL(pythonic::__builtin__::str, endswith);
+      DEFINE_FUNCTOR(pythonic::__builtin__::str, endswith);
     }
   }
 }

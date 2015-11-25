@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_SET_ISSUPERSET_HPP
 
 #include "pythonic/include/types/set.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -19,7 +19,7 @@ namespace pythonic
       template <class U>
       bool issuperset(types::empty_set const &set, U const &other);
 
-      PROXY_DECL(pythonic::__builtin__::set, issuperset);
+      DECLARE_FUNCTOR(pythonic::__builtin__::set, issuperset);
     }
   }
 }

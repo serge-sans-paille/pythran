@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/angle_in_rad.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
 #include "pythonic/numpy/arctan.hpp"

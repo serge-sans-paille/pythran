@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_MOD_HPP
 #define PYTHONIC_INCLUDE_OPERATOR_MOD_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -25,7 +25,7 @@ namespace pythonic
                                        not std::is_fundamental<B>::value,
                                    decltype(a % b)>::type;
 
-    PROXY_DECL(pythonic::operator_, mod);
+    DECLARE_FUNCTOR(pythonic::operator_, mod);
   }
 }
 

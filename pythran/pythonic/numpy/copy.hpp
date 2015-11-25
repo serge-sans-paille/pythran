@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/copy.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/numpy_conversion.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/ndarray.hpp"
@@ -47,7 +47,7 @@ namespace pythonic
       return a.copy();
     }
 
-    PROXY_IMPL(pythonic::numpy, copy);
+    DEFINE_FUNCTOR(pythonic::numpy, copy);
   }
 }
 

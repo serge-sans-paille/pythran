@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_OCT_HPP
 
 #include "pythonic/include/types/str.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -12,7 +12,7 @@ namespace pythonic
     template <class T>
     types::str oct(T const &v);
 
-    PROXY_DECL(pythonic::__builtin__, oct);
+    DECLARE_FUNCTOR(pythonic::__builtin__, oct);
   }
 }
 

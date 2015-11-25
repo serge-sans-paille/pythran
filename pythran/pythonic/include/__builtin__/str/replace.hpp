@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_STR_REPLACE_HPP
 
 #include "pythonic/include/types/str.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -17,7 +17,7 @@ namespace pythonic
                          types::str const &new_pattern,
                          long count = std::numeric_limits<long>::max());
 
-      PROXY_DECL(pythonic::__builtin__::str, replace);
+      DECLARE_FUNCTOR(pythonic::__builtin__::str, replace);
     }
   }
 }

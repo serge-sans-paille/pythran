@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_ROLL_HPP
 #define PYTHONIC_INCLUDE_NUMPY_ROLL_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/utils/numpy_conversion.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 
@@ -26,7 +26,7 @@ namespace pythonic
                               long axis);
 
     NUMPY_EXPR_TO_NDARRAY0_DECL(roll);
-    PROXY_DECL(pythonic::numpy, roll);
+    DECLARE_FUNCTOR(pythonic::numpy, roll);
   }
 }
 

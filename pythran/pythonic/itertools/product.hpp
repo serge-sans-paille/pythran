@@ -4,7 +4,7 @@
 #include "pythonic/include/itertools/product.hpp"
 #include "pythonic/utils/iterator.hpp"
 #include "pythonic/itertools/common.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 #include <iterator>
 #include <type_traits>
@@ -142,7 +142,7 @@ namespace pythonic
       return {std::forward<Iter>(iters)...};
     }
 
-    PROXY_IMPL(pythonic::itertools, product);
+    DEFINE_FUNCTOR(pythonic::itertools, product);
   }
 }
 

@@ -3,7 +3,7 @@
 
 #include "pythonic/include/__builtin__/id.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 /*
  * We use uintptr_t conversion because on windows 64 bits, sizeof(void*) == 8
@@ -39,7 +39,7 @@ namespace pythonic
       return reinterpret_cast<uintptr_t>(&t);
     }
 
-    PROXY_IMPL(pythonic::__builtin__, id);
+    DEFINE_FUNCTOR(pythonic::__builtin__, id);
   }
 }
 

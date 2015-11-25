@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/empty.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 
 namespace pythonic
@@ -24,7 +24,7 @@ namespace pythonic
       return empty(types::make_tuple(size), d);
     }
 
-    PROXY_IMPL(pythonic::numpy, empty);
+    DEFINE_FUNCTOR(pythonic::numpy, empty);
   }
 }
 

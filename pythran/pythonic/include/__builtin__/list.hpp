@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_LIST_HPP
 
 #include "pythonic/include/types/list.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 #include <iterator>
 #include <type_traits>
@@ -25,7 +25,7 @@ namespace pythonic
       list(Iterable &&t);
     }
 
-    PROXY_DECL(pythonic::__builtin__::anonymous, list);
+    DECLARE_FUNCTOR(pythonic::__builtin__::anonymous, list);
   }
 }
 

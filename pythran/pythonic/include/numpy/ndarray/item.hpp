@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_NDARRAY_ITEM_HPP
 #define PYTHONIC_INCLUDE_NUMPY_NDARRAY_ITEM_HPP
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 
 namespace pythonic
@@ -23,7 +23,7 @@ namespace pythonic
       template <class E>
       typename std::decay<E>::dtype item(E &&expr, long i);
 
-      PROXY_DECL(pythonic::numpy::ndarray, item);
+      DECLARE_FUNCTOR(pythonic::numpy::ndarray, item);
     }
   }
 }

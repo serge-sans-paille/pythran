@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/trace.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -34,7 +34,7 @@ namespace pythonic
       return res;
     }
 
-    PROXY_IMPL(pythonic::numpy, trace)
+    DEFINE_FUNCTOR(pythonic::numpy, trace)
   }
 }
 

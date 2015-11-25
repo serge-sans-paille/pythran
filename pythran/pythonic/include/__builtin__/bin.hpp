@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_BIN_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_BIN_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 #include "pythonic/include/types/str.hpp"
 
@@ -13,7 +13,7 @@ namespace pythonic
     template <class T>
     types::str bin(T const &v);
 
-    PROXY_DECL(pythonic::__builtin__, bin);
+    DECLARE_FUNCTOR(pythonic::__builtin__, bin);
   }
 }
 

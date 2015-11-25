@@ -19,7 +19,7 @@ namespace pythonic
               ptrdiff_t, typename std::remove_reference<decltype(
                              std::declval<E &>().fast(0))>::type *,
               typename std::remove_reference<decltype(std::declval<E &>().fast(
-                  0))>::type /* no ref here, becasue we return a proxy object */
+                  0))>::type /* no ref here, because we return a proxy object */
               > {
       E &data;
       long index;

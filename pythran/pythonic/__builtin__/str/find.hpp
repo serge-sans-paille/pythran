@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/str/find.hpp"
 
 #include "pythonic/types/str.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -34,7 +34,7 @@ namespace pythonic
         return find(s, value, 0, s.size());
       }
 
-      PROXY_IMPL(pythonic::__builtin__::str, find);
+      DEFINE_FUNCTOR(pythonic::__builtin__::str, find);
     }
   }
 }

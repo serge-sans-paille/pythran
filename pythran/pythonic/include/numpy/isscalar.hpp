@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_ISSCALAR_HPP
 #define PYTHONIC_INCLUDE_NUMPY_ISSCALAR_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/traits.hpp"
 #include "pythonic/include/types/str.hpp"
 
@@ -16,7 +16,7 @@ namespace pythonic
     template <class E>
     constexpr bool isscalar(E const &);
 
-    PROXY_DECL(pythonic::numpy, isscalar);
+    DECLARE_FUNCTOR(pythonic::numpy, isscalar);
   }
 }
 

@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_NANARGMIN_HPP
 #define PYTHONIC_INCLUDE_NUMPY_NANARGMIN_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/__builtin__/ValueError.hpp"
 #include "pythonic/include/numpy/isnan.hpp"
@@ -22,7 +22,7 @@ namespace pythonic
     template <class E>
     typename E::dtype nanargmin(E const &expr);
 
-    PROXY_DECL(pythonic::numpy, nanargmin);
+    DECLARE_FUNCTOR(pythonic::numpy, nanargmin);
   }
 }
 

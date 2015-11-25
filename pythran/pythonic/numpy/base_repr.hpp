@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/base_repr.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 
 namespace pythonic
@@ -51,7 +51,7 @@ namespace pythonic
       return res;
     }
 
-    PROXY_IMPL(pythonic::numpy, base_repr);
+    DEFINE_FUNCTOR(pythonic::numpy, base_repr);
   }
 }
 

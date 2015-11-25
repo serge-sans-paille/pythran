@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/complex.hpp"
 
 #include "pythonic/types/complex.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -12,7 +12,7 @@ namespace pythonic
   namespace __builtin__
   {
 
-    namespace proxy
+    namespace functor
     {
       complex::type complex::operator()(double v0, double v1)
       {

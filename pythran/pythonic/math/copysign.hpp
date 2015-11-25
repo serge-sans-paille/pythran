@@ -3,7 +3,7 @@
 
 #include "pythonic/include/math/copysign.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include <cmath>
 
 namespace pythonic
@@ -11,8 +11,7 @@ namespace pythonic
 
   namespace math
   {
-    ALIAS(copysign, std::copysign);
-    PROXY_IMPL(pythonic::math, copysign);
+    DEFINE_FUNCTOR_2(copysign, std::copysign);
   }
 }
 

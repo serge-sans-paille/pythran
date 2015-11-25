@@ -3,7 +3,7 @@
 
 #include "pythonic/include/itertools/count.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include <limits>
 
 namespace pythonic
@@ -100,7 +100,7 @@ namespace pythonic
       return {0, 1};
     }
 
-    PROXY_IMPL(pythonic::itertools, count);
+    DEFINE_FUNCTOR(pythonic::itertools, count);
   }
 }
 

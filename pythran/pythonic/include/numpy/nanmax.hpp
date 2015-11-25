@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_NANMAX_HPP
 #define PYTHONIC_INCLUDE_NUMPY_NANMAX_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/__builtin__/ValueError.hpp"
 #include "pythonic/include/numpy/isnan.hpp"
@@ -20,7 +20,7 @@ namespace pythonic
     template <class E>
     typename E::dtype nanmax(E const &expr);
 
-    PROXY_DECL(pythonic::numpy, nanmax);
+    DECLARE_FUNCTOR(pythonic::numpy, nanmax);
   }
 }
 

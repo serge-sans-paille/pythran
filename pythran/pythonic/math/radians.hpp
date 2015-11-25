@@ -3,7 +3,7 @@
 
 #include "pythonic/include/math/radians.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/math/pi.hpp"
 
 namespace pythonic
@@ -17,7 +17,7 @@ namespace pythonic
       return (x * 2. * pi) / 360.;
     }
 
-    PROXY_IMPL(pythonic::math, radians);
+    DEFINE_FUNCTOR(pythonic::math, radians);
   }
 }
 

@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_MATH_HYPOT_HPP
 #define PYTHONIC_INCLUDE_MATH_HYPOT_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include <cmath>
 
 #undef hypot
@@ -13,8 +13,7 @@ namespace pythonic
 
   namespace math
   {
-    ALIAS_DECL(hypot, std::hypot);
-    PROXY_DECL(pythonic::math, hypot);
+    DECLARE_FUNCTOR_2(hypot, std::hypot);
   }
 }
 

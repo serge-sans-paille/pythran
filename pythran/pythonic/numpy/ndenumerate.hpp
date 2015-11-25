@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/ndenumerate.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -110,7 +110,7 @@ namespace pythonic
     }
 
     NUMPY_EXPR_TO_NDARRAY0_IMPL(ndenumerate);
-    PROXY_IMPL(pythonic::numpy, ndenumerate);
+    DEFINE_FUNCTOR(pythonic::numpy, ndenumerate);
   }
 }
 

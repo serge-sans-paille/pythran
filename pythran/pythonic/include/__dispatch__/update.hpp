@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_DISPATCH_UPDATE_HPP
 #define PYTHONIC_INCLUDE_DISPATCH_UPDATE_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -13,7 +13,7 @@ namespace pythonic
     auto update(Any &&any, Arg0 &&... arg0)
         -> decltype(any.update(std::forward<Arg0>(arg0)...));
 
-    PROXY_DECL(pythonic::__dispatch__, update);
+    DECLARE_FUNCTOR(pythonic::__dispatch__, update);
   }
 }
 

@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_GREATEREQUAL_HPP
 #define PYTHONIC_INCLUDE_NUMPY_GREATEREQUAL_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/operator_/ge.hpp"
 #include "pythonic/include/types/numpy_broadcast.hpp"

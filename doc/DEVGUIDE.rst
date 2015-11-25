@@ -151,11 +151,12 @@ and function definition it needs. This helps keeping compilation time low.
 All Pythran functions and types live in the ``pythonic`` namespace. Each extra
 module defines a new namespace, like ``pythonic::math`` or
 ``pythonic::random``, and each type is defined in the ``pythonic::types``
-namespace. The ``PROXY`` macro from ``pythonic/utils/proxy.hpp`` is commonly
-used to convert functions into functors.
+namespace. The ``DECLARE_FUNCTOR`` and ``DEFINE_FUNCTOR`` macros from
+``pythonic/utils/functor.hpp`` is commonly used to convert functions into
+functors and put them into the mandatory ``functor`` namespace.
 
 The pythonic runtime can be used without Python support, so it is important to
-protect all Python-specific stuff inside ``USE_BOOST_PYTHON`` guard.
+protect all Python-specific stuff inside ``ENABLE_PYTHON_MODULE`` guard.
 
 All methods are represented by functions in Pythran. The associated
 pseudo-modules are prefixed and suffixed by a double underscore ``__``, as in

@@ -6,7 +6,7 @@
 #include "pythonic/include/types/tuple.hpp"
 #include "pythonic/include/utils/int_.hpp"
 #include "pythonic/include/utils/iterator.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/utils/seq.hpp"
 
 #include <iterator>
@@ -114,7 +114,7 @@ namespace pythonic
         typename std::remove_cv<
             typename std::remove_reference<Iter>::type>::type...>;
 
-    PROXY_DECL(pythonic::itertools, imap);
+    DECLARE_FUNCTOR(pythonic::itertools, imap);
   }
 
   namespace types

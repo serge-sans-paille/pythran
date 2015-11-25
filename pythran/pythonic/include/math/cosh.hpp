@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_MATH_COSH_HPP
 #define PYTHONIC_INCLUDE_MATH_COSH_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include <cmath>
 
 namespace pythonic
@@ -9,8 +9,7 @@ namespace pythonic
 
   namespace math
   {
-    ALIAS_DECL(cosh, std::cosh);
-    PROXY_DECL(pythonic::math, cosh);
+    DECLARE_FUNCTOR_2(cosh, std::cosh);
   }
 }
 

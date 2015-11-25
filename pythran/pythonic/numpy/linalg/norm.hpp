@@ -21,15 +21,16 @@ namespace pythonic
     {
       template <class Array>
       auto norm(Array &&array, types::none_type ord, types::none_type axis)
-          -> decltype(pythonic::numpy::proxy::sqrt{}(
-              pythonic::numpy::proxy::sum{}(pythonic::numpy::proxy::square{}(
-                  pythonic::numpy::proxy::abs{}(
-                      pythonic::numpy::proxy::asfarray{}(
-                          std::forward<Array>(array)))))))
+          -> decltype(
+              pythonic::numpy::functor::sqrt{}(pythonic::numpy::functor::sum{}(
+                  pythonic::numpy::functor::square{}(
+                      pythonic::numpy::functor::abs{}(
+                          pythonic::numpy::functor::asfarray{}(
+                              std::forward<Array>(array)))))))
       {
-        return pythonic::numpy::proxy::sqrt{}(pythonic::numpy::proxy::sum{}(
-            pythonic::numpy::proxy::square{}(pythonic::numpy::proxy::abs{}(
-                pythonic::numpy::proxy::asfarray{}(
+        return pythonic::numpy::functor::sqrt{}(pythonic::numpy::functor::sum{}(
+            pythonic::numpy::functor::square{}(pythonic::numpy::functor::abs{}(
+                pythonic::numpy::functor::asfarray{}(
                     std::forward<Array>(array))))));
       }
 
@@ -51,28 +52,29 @@ namespace pythonic
       template <class Array>
       norm_t<Array> norm(Array &&x, double ord, long axis)
       {
-        auto &&y = pythonic::numpy::proxy::asfarray{}(x);
+        auto &&y = pythonic::numpy::functor::asfarray{}(x);
         if (ord == inf)
-          return pythonic::numpy::proxy::max{}(pythonic::numpy::proxy::abs{}(y),
-                                               axis);
+          return pythonic::numpy::functor::max{}(
+              pythonic::numpy::functor::abs{}(y), axis);
         else if (ord == -inf)
-          return pythonic::numpy::proxy::min{}(pythonic::numpy::proxy::abs{}(y),
-                                               axis);
+          return pythonic::numpy::functor::min{}(
+              pythonic::numpy::functor::abs{}(y), axis);
         else if (ord == 0.)
-          return pythonic::numpy::proxy::sum{}(y != 0., axis);
+          return pythonic::numpy::functor::sum{}(y != 0., axis);
         else if (ord == 1.)
-          return pythonic::numpy::proxy::sum{}(pythonic::numpy::proxy::abs{}(y),
-                                               axis);
+          return pythonic::numpy::functor::sum{}(
+              pythonic::numpy::functor::abs{}(y), axis);
         else if (ord == 2.)
-          return pythonic::numpy::proxy::sqrt{}(pythonic::numpy::proxy::sum{}(
-              pythonic::numpy::proxy::real{}(
-                  pythonic::numpy::proxy::conj{}(y)*y),
-              axis));
+          return pythonic::numpy::functor::sqrt{}(
+              pythonic::numpy::functor::sum{}(
+                  pythonic::numpy::functor::real{}(
+                      pythonic::numpy::functor::conj{}(y)*y),
+                  axis));
         else {
-          return pythonic::numpy::proxy::power{}(
-              pythonic::numpy::proxy::sum{}(
-                  pythonic::numpy::proxy::power{}(
-                      pythonic::numpy::proxy::abs{}(y), ord),
+          return pythonic::numpy::functor::power{}(
+              pythonic::numpy::functor::sum{}(
+                  pythonic::numpy::functor::power{}(
+                      pythonic::numpy::functor::abs{}(y), ord),
                   axis),
               1. / ord);
         }
@@ -93,7 +95,7 @@ namespace pythonic
         throw pythonic::__builtin__::NotImplementedError("We need more dev!");
       }
 
-      PROXY_IMPL(pythonic::numpy::linalg, norm);
+      DEFINE_FUNCTOR(pythonic::numpy::linalg, norm);
     }
   }
 }

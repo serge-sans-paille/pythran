@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_SET_ISDISJOINT_HPP
 
 #include "pythonic/include/types/set.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -18,7 +18,7 @@ namespace pythonic
       template <class U>
       bool isdisjoint(types::empty_set const &calling_set, U const &arg_set);
 
-      PROXY_DECL(pythonic::__builtin__::set, isdisjoint);
+      DECLARE_FUNCTOR(pythonic::__builtin__::set, isdisjoint);
     }
   }
 }

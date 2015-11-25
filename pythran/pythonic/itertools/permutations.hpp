@@ -2,7 +2,7 @@
 #define PYTHONIC_ITERTOOLS_PERMUTATIONS_HPP
 
 #include "pythonic/include/itertools/permutations.hpp"
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/list.hpp"
 #include "pythonic/__builtin__/range.hpp"
 
@@ -143,7 +143,7 @@ namespace pythonic
       return _permutations<T0>(iter, std::distance(iter.begin(), iter.end()));
     }
 
-    PROXY_IMPL(pythonic::itertools, permutations);
+    DEFINE_FUNCTOR(pythonic::itertools, permutations);
   }
 }
 

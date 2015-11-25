@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_EMPTYLIKE_HPP
 #define PYTHONIC_INCLUDE_NUMPY_EMPTYLIKE_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/numpy/empty.hpp"
 
 namespace pythonic
@@ -17,7 +17,7 @@ namespace pythonic
     auto empty_like(E const &expr, types::none_type d = __builtin__::None)
         -> decltype(empty(expr.shape(), types::dtype_t<typename E::dtype>()));
 
-    PROXY_DECL(pythonic::numpy, empty_like)
+    DECLARE_FUNCTOR(pythonic::numpy, empty_like)
   }
 }
 

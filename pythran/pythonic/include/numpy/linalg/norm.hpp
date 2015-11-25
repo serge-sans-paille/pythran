@@ -16,11 +16,12 @@ namespace pythonic
       template <class Array>
       auto norm(Array &&array, types::none_type ord = {},
                 types::none_type axis = {})
-          -> decltype(pythonic::numpy::proxy::sqrt{}(
-              pythonic::numpy::proxy::sum{}(pythonic::numpy::proxy::square{}(
-                  pythonic::numpy::proxy::abs{}(
-                      pythonic::numpy::proxy::asfarray{}(
-                          std::forward<Array>(array)))))));
+          -> decltype(
+              pythonic::numpy::functor::sqrt{}(pythonic::numpy::functor::sum{}(
+                  pythonic::numpy::functor::square{}(
+                      pythonic::numpy::functor::abs{}(
+                          pythonic::numpy::functor::asfarray{}(
+                              std::forward<Array>(array)))))));
 
       template <class Array>
       using norm_dtype_t = typename std::conditional<
@@ -48,7 +49,7 @@ namespace pythonic
 
       template <class Array>
       norm_t<Array> norm(Array &&array, double ord, types::array<long, 2> axis);
-      PROXY_DECL(pythonic::numpy::linalg, norm);
+      DECLARE_FUNCTOR(pythonic::numpy::linalg, norm);
     }
   }
 }

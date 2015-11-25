@@ -8,7 +8,7 @@ namespace pythonic
 
   namespace operator_
   {
-    FPROXY_DECL(pythonic::operator_, __lshift__, lshift);
+    USING_FUNCTOR(__lshift__, lshift);
   }
 }
 

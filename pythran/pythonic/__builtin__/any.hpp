@@ -3,7 +3,7 @@
 
 #include "pythonic/include/__builtin__/any.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -20,7 +20,7 @@ namespace pythonic
       return false;
     }
 
-    PROXY_IMPL(pythonic::__builtin__, any);
+    DEFINE_FUNCTOR(pythonic::__builtin__, any);
   }
 }
 

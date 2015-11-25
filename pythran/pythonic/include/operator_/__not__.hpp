@@ -8,7 +8,7 @@ namespace pythonic
 
   namespace operator_
   {
-    FPROXY_DECL(pythonic::operator_, __not__, not_);
+    USING_FUNCTOR(__not__, not_);
   }
 }
 

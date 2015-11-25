@@ -24,7 +24,7 @@ namespace pythonic
       return {xr.begin(), xr.end()};
     }
 
-    PROXY_IMPL(pythonic::__builtin__, range);
+    DEFINE_FUNCTOR(pythonic::__builtin__, range);
   }
 }
 

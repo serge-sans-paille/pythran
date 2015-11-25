@@ -3,7 +3,7 @@
 
 #include "pythonic/include/math/expm1.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include <cmath>
 
 namespace pythonic
@@ -11,8 +11,7 @@ namespace pythonic
 
   namespace math
   {
-    ALIAS(expm1, std::expm1);
-    PROXY_IMPL(pythonic::math, expm1);
+    DEFINE_FUNCTOR_2(expm1, std::expm1);
   }
 }
 

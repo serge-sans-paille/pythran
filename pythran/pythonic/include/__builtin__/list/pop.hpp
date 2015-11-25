@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_LIST_POP_HPP
 
 #include "pythonic/include/__dispatch__/pop.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -12,10 +12,7 @@ namespace pythonic
 
     namespace list
     {
-
-      ALIAS_DECL(pop, pythonic::__dispatch__::pop);
-
-      PROXY_DECL(pythonic::__builtin__::list, pop);
+      USING_FUNCTOR(pop, pythonic::__dispatch__::functor::pop);
     }
   }
 }

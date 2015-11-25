@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/isrealobj.hpp"
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/traits.hpp"
 
@@ -18,7 +18,7 @@ namespace pythonic
       return not types::is_complex<typename E::dtype>::value;
     }
 
-    PROXY_IMPL(pythonic::numpy, isrealobj);
+    DEFINE_FUNCTOR(pythonic::numpy, isrealobj);
   }
 }
 

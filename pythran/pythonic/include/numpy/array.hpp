@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_ARRAY_HPP
 #define PYTHONIC_INCLUDE_NUMPY_ARRAY_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/utils/nested_container.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 
@@ -20,7 +20,7 @@ namespace pythonic
                        typename std::remove_reference<T>::type>::type>::value>
     array(T &&iterable, dtype d = dtype());
 
-    PROXY_DECL(pythonic::numpy, array);
+    DECLARE_FUNCTOR(pythonic::numpy, array);
   }
 }
 

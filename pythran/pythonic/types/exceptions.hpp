@@ -117,7 +117,7 @@ namespace pythonic
   }
 }
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #define PYTHONIC_EXCEPTION_IMPL(name)                                          \
   template <typename... Types>                                                 \
   types::name name(Types... args)                                              \
@@ -125,7 +125,7 @@ namespace pythonic
     return types::name(args...);                                               \
   }                                                                            \
                                                                                \
-  PROXY_IMPL(pythonic::__builtin__, name);
+  DEFINE_FUNCTOR(pythonic::__builtin__, name);
 
 /* pythran attribute system { */
 #define IMPL_EXCEPTION_GETATTR(name)                                           \

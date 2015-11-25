@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_NDARRAY_TOLIST_HPP
 #define PYTHONIC_INCLUDE_NUMPY_NDARRAY_TOLIST_HPP
 
-#include "pythonic/utils/proxy.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/numpy_conversion.hpp"
 #include "pythonic/types/ndarray.hpp"
 
@@ -30,7 +30,7 @@ namespace pythonic
       typename tolist_type<T, N>::type tolist(types::ndarray<T, N> const &expr);
 
       NUMPY_EXPR_TO_NDARRAY0_DECL(tolist);
-      PROXY_DECL(pythonic::numpy::ndarray, tolist);
+      DECLARE_FUNCTOR(pythonic::numpy::ndarray, tolist);
     }
   }
 }

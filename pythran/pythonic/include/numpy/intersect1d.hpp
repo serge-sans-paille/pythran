@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_INTERSECT1D_HPP
 #define PYTHONIC_INCLUDE_NUMPY_INTERSECT1D_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/types/combined.hpp"
 #include "pythonic/include/numpy/asarray.hpp"
@@ -18,7 +18,7 @@ namespace pythonic
         typename __combined<typename E::dtype, typename F::dtype>::type, 1>
     intersect1d(E const &e, F const &f);
 
-    PROXY_DECL(pythonic::numpy, intersect1d);
+    DECLARE_FUNCTOR(pythonic::numpy, intersect1d);
   }
 }
 

@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_FLOORDIV_HPP
 #define PYTHONIC_INCLUDE_OPERATOR_FLOORDIV_HPP
 
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 #include <nt2/include/functions/divfloor.hpp>
 
 namespace pythonic
@@ -16,7 +16,7 @@ namespace pythonic
     template <class T, class U>
     double floordiv(T a, U b);
 
-    PROXY_DECL(pythonic::operator_, floordiv);
+    DECLARE_FUNCTOR(pythonic::operator_, floordiv);
   }
 }
 

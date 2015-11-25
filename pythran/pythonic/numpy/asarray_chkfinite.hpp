@@ -19,7 +19,7 @@ namespace pythonic
       template <class I>
       I asarray_chkfinite(I const &a)
       {
-        if (not proxy::isfinite()(a))
+        if (not functor::isfinite()(a))
           throw types::ValueError("array must not contain infs or NaNs");
         return a;
       }

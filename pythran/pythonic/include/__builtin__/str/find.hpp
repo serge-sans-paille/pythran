@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_STR_FIND_HPP
 
 #include "pythonic/include/types/str.hpp"
-#include "pythonic/include/utils/proxy.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -20,7 +20,7 @@ namespace pythonic
 
       long find(types::str const &s, types::str const &value);
 
-      PROXY_DECL(pythonic::__builtin__::str, find);
+      DECLARE_FUNCTOR(pythonic::__builtin__::str, find);
     }
   }
 }

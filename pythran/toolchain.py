@@ -13,7 +13,7 @@ from pythran.tables import pythran_ward
 from pythran.types.types import extract_constructed_types
 from pythran.types.type_dependencies import pytype_to_deps
 from pythran.types.conversion import pytype_to_ctype
-from pythran.spec import expand_specs
+from pythran.spec import expand_specs, specs_to_docstrings
 from pythran.syntax import check_specs
 from pythran.version import __version__
 import pythran.frontend as frontend
@@ -150,6 +150,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
         # verify the pythran export are compatible with the code
         specs = expand_specs(specs)
         check_specs(ir, specs, renamings)
+        specs_to_docstrings(specs, docstrings)
 
         metainfo = {'hash': hashlib.sha256(code).hexdigest(),
                     'version': __version__,

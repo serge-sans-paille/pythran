@@ -1,16 +1,16 @@
 from __future__ import print_function
 from setuptools.command.build_py import build_py
 from setuptools import setup
+from distutils import ccompiler
 from setuptools.command.test import test as TestCommand
-from subprocess import check_call, check_output
-from urllib2 import urlopen
-from zipfile import ZipFile
-from StringIO import StringIO
+from subprocess import check_call
 
 import logging
+import glob
 import os
 import re
 import shutil
+from tempfile import NamedTemporaryFile
 import sys
 
 # See https://gist.github.com/kejbaly2/71517b08536776399198
@@ -78,10 +78,45 @@ class BuildWithThirdParty(build_py):
             shutil.rmtree(target, True)
             shutil.copytree(src, target)
 
+    def detect_gmp(self):
+        # It's far from perfect, but we try to compile a code that uses
+        # Python long. If it fails, _whatever the reason_ we just disable gmp
+        print('Trying to compile GMP dependencies.')
+
+        cc = ccompiler.new_compiler(verbose=False)
+        # try to compile a code that requires gmp support
+        with NamedTemporaryFile(suffix='.cpp', delete=False) as temp:
+            temp.write('''
+                #include <gmpxx.h>
+                int main() {
+                    mpz_class a(1);
+                    return a == 0;
+                };
+            ''')
+            srcs = [temp.name]
+        exe = "a.out"
+        try:
+            objs = cc.compile(srcs)
+            cc.link(ccompiler.CCompiler.EXECUTABLE,
+                    objs, exe,
+                    libraries=['gmp', 'gmpxx'])
+        except Exception:
+            # failure: remove the gmp dependency
+            print('Failed to compile GMP source, disabling long support.')
+            for cfg in glob.glob(os.path.join(pythrandir, "pythran-*.cfg")):
+                with open(cfg, "r+") as cfg:
+                    content = cfg.read()
+                    content = content.replace('USE_GMP', '')
+                    content = content.replace('gmp gmpxx', '')
+                    cfg.seek(0)
+                    cfg.write(content)
+        map(os.remove, objs + srcs + [exe])
+
     def run(self, *args, **kwargs):
         # regular build done by parent class
         build_py.run(self, *args, **kwargs)
         if not self.dry_run:  # compatibility with the parent options
+            self.detect_gmp()
             self.copy_nt2()
 
 

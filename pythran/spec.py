@@ -3,6 +3,8 @@ This module provides a dummy parser for pythran annotations.
     * spec_parser reads the specs from a python module and returns them.
 '''
 
+from pythran.types.conversion import pytype_to_pretty_type
+
 from numpy import array, ndarray
 
 import os.path
@@ -224,6 +226,22 @@ def expand_specs(specs):
             expanded_signatures.extend(spec_expander(signature))
         all_specs[function] = tuple(expanded_signatures)
     return all_specs
+
+
+def specs_to_docstrings(specs, docstrings):
+    for function_name, signatures in specs.iteritems():
+        sigdocs = []
+        for sigid, signature in enumerate(signatures):
+            arguments_types = [pytype_to_pretty_type(t) for t in signature]
+            function_signatures = '{}({})'.format(
+                function_name,
+                ', '.join(arguments_types)
+            )
+            sigdocs.append(function_signatures)
+        docstrings[function_name] = "Supported prototypes:{}\n{}".format(
+            "".join("\n    - " + sigdoc for sigdoc in sigdocs),
+            docstrings.get(function_name, '')
+        )
 
 
 def spec_parser(path):

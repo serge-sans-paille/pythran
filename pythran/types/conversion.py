@@ -62,3 +62,34 @@ def pytype_to_ctype(t):
         return PYTYPE_TO_CTYPE_TABLE[t]
     else:
         raise NotImplementedError("{0}:{1}".format(type(t), t))
+
+
+def pytype_to_pretty_type(t):
+    """ Python -> docstring type. """
+    if isinstance(t, list):
+        return '{0} list'.format(pytype_to_pretty_type(t[0]))
+    elif isinstance(t, set):
+        return '{0} set'.format(pytype_to_pretty_type(list(t)[0]))
+    elif isinstance(t, dict):
+        tkey, tvalue = t.items()[0]
+        return '{0}:{1} dict'.format(pytype_to_pretty_type(tkey),
+                                     pytype_to_pretty_type(tvalue))
+    elif isinstance(t, tuple):
+        return '({0})'.format(
+            ", ".join(map(pytype_to_pretty_type, t)))
+    elif isinstance(t, ndarray):
+        dtype = pytype_to_pretty_type(t.flat[0])
+        ndim = t.ndim
+        arr = '{0}{1}'.format(dtype, '[]' * ndim)
+        # cannot use f_contiguous as one element arrays are both c_ and f_
+        # the trick is to use transposed array of two elements for texpr
+        if t.flags.f_contiguous and not t.flags.c_contiguous and ndim == 2:
+            return '{}.T'.format(arr)
+        elif any(x < 0 for x in t.strides):
+            return '{0}{1}'.format(dtype, '[::]' * ndim)
+        else:
+            return arr
+    elif t in PYTYPE_TO_CTYPE_TABLE:
+        return t.__name__
+    else:
+        raise NotImplementedError("{0}:{1}".format(type(t), t))

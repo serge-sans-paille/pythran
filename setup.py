@@ -1,4 +1,29 @@
 from __future__ import print_function
+
+# Preliminary checks that cannot be done by setuptools
+# like... the setuptools dependency itself!
+try:
+    import setuptools
+except ImportError:
+    print()
+    print("*****************************************************")
+    print("* Setuptools must be installed before running setup *")
+    print("*****************************************************")
+    print()
+    raise
+
+# See https://gist.github.com/kejbaly2/71517b08536776399198
+# Turns out installing numpy as a dep with setuptools is tricky
+try:
+    import numpy
+except ImportError:
+    print()
+    print("******************************************************************")
+    print("* Numpy must be installed before running setup, sorry about this *")
+    print("******************************************************************")
+    print()
+    raise
+
 from setuptools.command.build_py import build_py
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
@@ -13,17 +38,22 @@ import re
 import shutil
 import sys
 
-# See https://gist.github.com/kejbaly2/71517b08536776399198
-# Turns out installing numpy as a dep with setuptools is tricky
-try:
-    import numpy
-except ImportError:
+# It appears old versions of setuptools are not supported, see
+#   https://github.com/serge-sans-paille/pythran/issues/489
+
+from distutils.version import LooseVersion
+MinimalSetuptoolsVersion = LooseVersion("12.0.5")
+if LooseVersion(setuptools.__version__) < MinimalSetuptoolsVersion:
+    msg = "Setuptools version is {}, but must be at least {}".format(
+        setuptools.__version__,
+        MinimalSetuptoolsVersion)
     print()
-    print("******************************************************************")
-    print("* Numpy must be installed before running setup, sorry about this *")
-    print("******************************************************************")
+    print("*" * (len(msg) + 4))
+    print("*", msg, "*")
+    print("*" * (len(msg) + 4))
     print()
-    raise
+    raise ImportError("setuptools")
+
 
 logger = logging.getLogger("pythran")
 logger.addHandler(logging.StreamHandler())

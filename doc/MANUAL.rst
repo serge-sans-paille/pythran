@@ -216,6 +216,14 @@ Easy enough, isn't it?
 
 .. note::
 
+    Multiline export are supported, just use comments to protect them, as in::
+
+        #pythran export river_boa(int,
+        #                         float,
+        #                         bool)
+
+.. note::
+
     It is in fact possible to analyse a code without specifications, but you
     cannot go further that generic (a.k.a. heavily templated) c++ code. Use the
     ``-e`` switch!

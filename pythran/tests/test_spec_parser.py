@@ -50,3 +50,47 @@ class TestSpecParser(unittest.TestCase):
         code = '#pythran export bar(int)\ndef foo(): pass'
         with self.assertRaises(pythran.syntax.PythranSyntaxError):
             pythran.compile_pythrancode("dumber", code)
+
+    def test_multiline_spec0(self):
+        code = '''
+#pythran export foo(
+              # )
+def foo(): return
+            '''
+        pythran.spec_parser(code)
+
+    def test_multiline_spec1(self):
+        code = '''
+#pythran export foo(int
+  #, int
+              # )
+def foo(i,j): return
+            '''
+        pythran.spec_parser(code)
+
+    def test_multiline_spec2(self):
+        code = '''
+#      pythran export foo(int,
+
+# float
+  #, int
+              # )
+def foo(i,j,k): return
+            '''
+        pythran.spec_parser(code)
+
+    def test_crappy_spec0(self):
+        code = '''
+#      pythran export foo(int) this is a pythran test
+def foo(i,j,k): return
+            '''
+        pythran.spec_parser(code)
+
+    def test_crappy_spec1(self):
+        code = '''
+#      pythran export foo(int)
+#this is a pythran export test
+def foo(i,j,k): return
+            '''
+        pythran.spec_parser(code)
+

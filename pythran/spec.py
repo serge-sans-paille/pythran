@@ -7,6 +7,7 @@ from pythran.types.conversion import pytype_to_pretty_type
 
 from numpy import array, ndarray
 
+import re
 import os.path
 import ply.lex as lex
 import ply.yacc as yacc
@@ -50,18 +51,24 @@ class SpecParser:
         'complex64': 'COMPLEX64',
         'complex128': 'COMPLEX128',
         }
-    tokens = (['IDENTIFIER', 'SHARP', 'COMMA', 'COLUMN', 'LPAREN', 'RPAREN'] +
+    tokens = (['IDENTIFIER', 'COMMA', 'COLUMN', 'LPAREN', 'RPAREN', 'CRAP'] +
               list(reserved.values()) +
               ['LARRAY', 'RARRAY'])
 
     # token <> regexp binding
-    t_SHARP = r'\#'
+    t_CRAP = r'.'
     t_COMMA = r','
     t_COLUMN = r':'
     t_LPAREN = r'\('
     t_RPAREN = r'\)'
     t_RARRAY = r'\]'
     t_LARRAY = r'\['
+
+    # regexp to extract pythran specs from comments
+    # the first part matches lines with a comment and the pythran keyword
+    # the second part matches lines with comments following the pythran ones
+    FILTER = re.compile(r'^#\s*pythran[^\n\r]*[\n\r]'
+                        r'(?:\s*#[^\n\r]*[\n\r])*')
 
     def t_IDENTIFER(self, t):
         r'[a-zA-Z_][a-zA-Z_0-9]*'
@@ -84,14 +91,56 @@ class SpecParser:
 
     def p_exports(self, p):
         '''exports :
-                   | export exports'''
+                   | export opt_craps exports'''
         p[0] = self.exports
 
     def p_export(self, p):
-        '''export : SHARP PYTHRAN EXPORT IDENTIFIER LPAREN opt_types RPAREN
-                  | SHARP PYTHRAN EXPORT EXPORT LPAREN opt_types RPAREN'''
-        # handle the unlikely case where a function name is ... export :-)
-        self.exports[p[4]] = self.exports.get(p[4], ()) + (p[6],)
+        '''export : PYTHRAN EXPORT IDENTIFIER LPAREN opt_types RPAREN
+                  | PYTHRAN EXPORT EXPORT LPAREN opt_types RPAREN
+                  | PYTHRAN EXPORT PYTHRAN LPAREN opt_types RPAREN'''
+        # handle the unlikely case where the IDENTIIFER is ...
+        # export or pythran :-)
+        self.exports[p[3]] = self.exports.get(p[3], ()) + (p[5],)
+
+    def p_opt_craps(self, p):
+        '''opt_craps :
+                     | craps'''
+
+    def p_craps(self, p):
+        '''craps : crap
+                 | crap craps'''
+
+    def p_crap(self, p):
+        '''crap : CRAP
+                | IDENTIFIER
+                | EXPORT
+                | LPAREN
+                | RPAREN
+                | LARRAY
+                | RARRAY
+                | COLUMN
+                | COMMA
+                | DICT
+                | SET
+                | LIST
+                | STR
+                | BOOL
+                | COMPLEX
+                | INT
+                | LONG
+                | FLOAT
+                | UINT8
+                | UINT16
+                | UINT32
+                | UINT64
+                | INT8
+                | INT16
+                | INT32
+                | INT64
+                | FLOAT32
+                | FLOAT64
+                | COMPLEX64
+                | COMPLEX128'''
 
     def p_opt_types(self, p):
         '''opt_types :
@@ -171,22 +220,18 @@ class SpecParser:
                                 debug=0,
                                 write_tables=False)
 
-    def __call__(self, path):
+    def __call__(self, path_or_text):
         self.exports = dict()
         self.input_file = None
-        if os.path.isfile(path):
-            self.input_file = path
-            with file(path) as fd:
+        if os.path.isfile(path_or_text):
+            self.input_file = path_or_text
+            with file(path_or_text) as fd:
                 data = fd.read()
         else:
-            data = path
+            data = path_or_text
 
-        # filter out everything that does not start with:
-        # #pythran or # pythran
-        def is_pythran_spec(x):
-            return (x.startswith('#pythran') or
-                    x.startswith('# pythran'))
-        pythran_data = "\n".join(filter(is_pythran_spec, data.split('\n')))
+        with_sharp = "\n".join(SpecParser.FILTER.findall(data))
+        pythran_data = with_sharp.replace('#', '')
         self.parser.parse(pythran_data, lexer=self.lexer)
         if not self.exports:
             import logging

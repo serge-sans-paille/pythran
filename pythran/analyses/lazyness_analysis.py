@@ -6,6 +6,7 @@ from pythran.analyses.identifiers import Identifiers
 from pythran.analyses.pure_expressions import PureExpressions
 from pythran.passmanager import FunctionAnalysis
 from pythran.syntax import PythranSyntaxError
+from pythran.utils import get_variable
 import pythran.metadata as md
 import pythran.openmp as openmp
 
@@ -160,14 +161,12 @@ class LazynessAnalysis(FunctionAnalysis):
                     self.result[target.id] = LazynessAnalysis.INF
             elif isinstance(target, ast.Subscript):
                 # if we modify just a part of a variable, it can't be lazy
-                var_name = target.value
-                while isinstance(var_name, ast.Subscript):
-                    self.visit(var_name.slice)
-                    var_name = var_name.value
-                # variable is modified so other variables that use it dies
-                self.modify(var_name.id, node.value)
-                # and this variable can't be lazy
-                self.result[var_name.id] = LazynessAnalysis.INF
+                var_name = get_variable(target)
+                if isinstance(var_name, ast.Name):
+                    # variable is modified so other variables that use it dies
+                    self.modify(var_name.id, node.value)
+                    # and this variable can't be lazy
+                    self.result[var_name.id] = LazynessAnalysis.INF
             else:
                 raise PythranSyntaxError("Assign to unknown node", node)
 

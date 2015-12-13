@@ -1,5 +1,6 @@
 """This module turns a python AST into an optimized, pythran compatible ast."""
 
+from pythran.analyses import ExtendedSyntaxCheck
 from pythran.optimizations import GenExpToImap, ListCompToMap, ListCompToGenexp
 from pythran.transformations import (ExpandBuiltins, ExpandImports,
                                      ExpandImportAll, FalsePolymorphism,
@@ -28,6 +29,7 @@ def refine(pm, node, optimizations):
     pm.apply(RemoveLambdas, node)
     pm.apply(NormalizeCompare, node)
     pm.apply(RemoveNestedFunctions, node)
+    pm.gather(ExtendedSyntaxCheck, node)
     pm.apply(ListCompToGenexp, node)
     pm.apply(RemoveComprehension, node)
     pm.apply(RemoveNamedArguments, node)

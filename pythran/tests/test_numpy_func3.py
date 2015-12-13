@@ -408,3 +408,15 @@ def np_trim_zeros2(x):
     def test_round_method(self):
         self.run_test("def np_round_method(a): return a.round()", numpy.array([[4.3,5.5,6.1]]), np_round_method=[numpy.array([[float]])])
 
+    def test_list_imag0(self):
+        self.run_test("def list_imag0(a): import numpy ; return numpy.imag(a)", numpy.array([complex(4.3,5.5),complex(6.1,3.2)]), list_imag0=[numpy.array([complex])])
+
+    def test_list_imag1(self):
+        self.run_test("def list_imag1(a): import numpy ; numpy.imag(a)[0] = 1; return a", numpy.array([complex(4.3,5.5),complex(6.1,3.2)]), list_imag1=[numpy.array([complex])])
+
+    def test_list_real0(self):
+        self.run_test("def list_real0(a): import numpy ; return numpy.real(a)", numpy.array([complex(4.3,5.5),complex(6.1,3.2)]), list_real0=[numpy.array([complex])])
+
+    def test_list_real1(self):
+        self.run_test("def list_real1(a): import numpy ; numpy.real(a)[0] = 1; return a", numpy.array([complex(4.3,5.5),complex(6.1,3.2)]), list_real1=[numpy.array([complex])])
+

@@ -24,6 +24,11 @@ The generated native ``.so`` module can then be called with the Python interpret
   $> python -c 'import cli_foo ; cli_foo.foo()'
   hello world
 
+Pythran version can be dumped through ``--version``::
+
+  $> pythran --version 2>&1
+  0.7.3
+
 The module-level ``__pythran__`` variable indicates that the module loaded has been pythranized::
 
   $> python -c 'import cli_foo ; print(hasattr(cli_foo, \"__pythran__\"))'

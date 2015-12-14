@@ -67,6 +67,10 @@ def run():
     parser.add_argument('-v', dest='verbose', action='store_true',
                         help='be verbose')
 
+    parser.add_argument('-V', '--version',
+                        action='version',
+                        version=pythran.version.__version__)
+
     parser.add_argument('-p', dest='opts', metavar='pass',
                         action='append',
                         help='any pythran optimization to apply before code '
@@ -94,6 +98,7 @@ def run():
 
     args, extra = parser.parse_known_args(sys.argv[1:])
     args.extra_flags = extra
+
     if args.raw_translate_only:
         args.translate_only = True
 

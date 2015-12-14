@@ -685,27 +685,50 @@ class PythonModule(object):
                        catches='\n'.join(self.catches))
 
         module = '''
+            #if PY_MAJOR_VERSION >= 3
+              static struct PyModuleDef moduledef = {{
+                PyModuleDef_HEAD_INIT,
+                "{name}",            /* m_name */
+                {moduledoc},         /* m_doc */
+                -1,                  /* m_size */
+                Methods,             /* m_methods */
+                NULL,                /* m_reload */
+                NULL,                /* m_traverse */
+                NULL,                /* m_clear */
+                NULL,                /* m_free */
+              }};
+            #define PYTHRAN_RETURN return theModule
+            #define PYTHRAN_MODULE_INIT(s) PyInit_##s
+            #else
+            #define PYTHRAN_RETURN return
+            #define PYTHRAN_MODULE_INIT(s) init##s
+            #endif
             PyMODINIT_FUNC
-            init{name}(void) {{
+            PYTHRAN_MODULE_INIT({name})(void) {{
                 #ifdef PYTHONIC_TYPES_NDARRAY_HPP
                     import_array()
                 #endif
+                #if PY_MAJOR_VERSION >= 3
+                PyObject* theModule = PyModule_Create(&moduledef);
+                #else
                 PyObject* theModule = Py_InitModule3("{name}",
                                                      Methods,
                                                      {moduledoc}
                 );
+                #endif
                 if(not theModule)
-                    return;
+                    PYTHRAN_RETURN;
                 PyObject * theDoc = Py_BuildValue("(sss)",
                                                   "{version}",
                                                   "{date}",
                                                   "{hash}");
                 if(not theDoc)
-                    return;
+                    PYTHRAN_RETURN;
                 PyModule_AddObject(theModule,
                                    "__pythran__",
                                    theDoc);
                 {module_init}
+                PYTHRAN_RETURN;
             }}
             '''.format(name=self.name,
                        module_init=module_init,

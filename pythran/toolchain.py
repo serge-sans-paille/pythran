@@ -121,7 +121,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
     # middle-end
     optimizations = (optimizations or
                      cfg.get('pythran', 'optimizations').split())
-    optimizations = map(_parse_optimization, optimizations)
+    optimizations = [_parse_optimization(opt) for opt in optimizations]
     refine(pm, ir, optimizations)
 
     # back-end
@@ -165,7 +165,8 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
                             Include("pythonic/types/int.hpp"),
                             Line("#ifdef _OPENMP\n#include <omp.h>\n#endif")
                             )
-        mod.add_to_includes(*map(Include, _extract_specs_dependencies(specs)))
+        mod.add_to_includes(*[Include(inc) for inc in
+                              _extract_specs_dependencies(specs)])
         mod.add_to_includes(*content.body)
 
         for function_name, signatures in specs.iteritems():

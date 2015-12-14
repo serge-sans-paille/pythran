@@ -41,7 +41,7 @@ class LazynessAnalysis(FunctionAnalysis):
     ...     print k'''
     >>> node = ast.parse(code)
     >>> res = pm.gather(LazynessAnalysis, node)
-    >>> (res['i'], res['k']) == (sys.maxint, 1)
+    >>> (res['i'], res['k']) == (sys.maxsize, 1)
     True
     >>> code = '''
     ... def foo():
@@ -52,7 +52,7 @@ class LazynessAnalysis(FunctionAnalysis):
     ...         print k'''
     >>> node = ast.parse(code)
     >>> res = pm.gather(LazynessAnalysis, node)
-    >>> (res['i'], res['k']) == (sys.maxint, 2)
+    >>> (res['i'], res['k']) == (sys.maxsize, 2)
     True
     >>> code = '''
     ... def foo():
@@ -73,7 +73,7 @@ class LazynessAnalysis(FunctionAnalysis):
     ...         print k'''
     >>> node = ast.parse(code)
     >>> res = pm.gather(LazynessAnalysis, node)
-    >>> res['k'] == sys.maxint
+    >>> res['k'] == sys.maxsize
     True
     >>> code = '''
     ... def foo():
@@ -86,7 +86,7 @@ class LazynessAnalysis(FunctionAnalysis):
     """
 
     INF = float('inf')
-    MANY = sys.maxint
+    MANY = sys.maxsize
 
     def __init__(self):
         # map variable with maximum count of use in the programm

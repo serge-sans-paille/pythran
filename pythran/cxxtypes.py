@@ -24,7 +24,7 @@ class Type(object):
     one attribute per key with the associated value
     """
     def __init__(self, **kwargs):
-        for k, v in kwargs.iteritems():
+        for k, v in kwargs.items():
             setattr(self, k, v)
         self.qualifiers = self.qualifiers.copy()  # avoid sharing
         self.fields = tuple(sorted(kwargs.keys()))

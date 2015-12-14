@@ -1,4 +1,5 @@
 """ ParallelMaps detects parallel map(...).  """
+from __future__ import print_function
 
 from pythran.analyses.aliases import Aliases
 from pythran.analyses.pure_expressions import PureExpressions
@@ -23,7 +24,7 @@ class ParallelMaps(ModuleAnalysis):
 
     def display(self, data):
         for node in data:
-            print "I:", "{0} {1}".format(
+            print("I:", "{0} {1}".format(
                 "call to the `map' intrinsic could be parallel",
                 "(line {0})".format(node.lineno)
-                )
+                ))

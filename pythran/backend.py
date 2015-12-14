@@ -3,6 +3,7 @@ This module contains all pythran backends.
     * Cxx dumps the AST into C++ code
     * Python dumps the AST into Python code
 '''
+from __future__ import print_function
 
 from pythran.analyses import ArgumentEffects, BoundedExpressions, Dependencies
 from pythran.analyses import LocalDeclarations, GlobalDeclarations, Scope
@@ -25,8 +26,13 @@ from pythran import metadata, unparse
 
 from math import isnan, isinf
 import ast
-import cStringIO
 import os
+import sys
+
+if sys.version_info[0] < 3:
+    import cStringIO
+else:
+    from io import StringIO as cStringIO
 
 
 class Python(Backend):
@@ -34,9 +40,9 @@ class Python(Backend):
     Produces a Python representation of the AST.
 
     >>> import ast, passmanager
-    >>> node = ast.parse("print 'hello world'")
+    >>> node = ast.parse("print('hello world')")
     >>> pm = passmanager.PassManager('test')
-    >>> print pm.dump(Python, node)
+    >>> print(pm.dump(Python, node))
     print 'hello world'
     '''
 
@@ -134,10 +140,10 @@ class Cxx(Backend):
         (else in loop means : don't execute if loop is terminated with a break)
 
     >>> import ast, passmanager, os
-    >>> node = ast.parse("def foo(): print 'hello world'")
+    >>> node = ast.parse("def foo(): print('hello world')")
     >>> pm = passmanager.PassManager('test')
     >>> r = pm.dump(Cxx, node)
-    >>> print str(r).replace(os.sep, '/')
+    >>> print(str(r).replace(os.sep, '/'))
     #include <pythonic/include/__builtin__/print.hpp>
     #include <pythonic/include/__builtin__/str.hpp>
     #include <pythonic/__builtin__/print.hpp>

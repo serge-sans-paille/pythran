@@ -13,6 +13,7 @@ Pythran integration into IPython.
 
 import imp
 from IPython.core.magic import Magics, magics_class, cell_magic
+from IPython.core import magic_arguments
 
 import pythran
 
@@ -33,6 +34,19 @@ class PythranMagics(Magics):
             if not k.startswith('__'):
                 self.shell.push({k: v})
 
+
+    @magic_arguments.magic_arguments()
+    @magic_arguments.argument(
+        '-D', action='append', default=[],
+    )
+    @magic_arguments.magic_arguments()
+    @magic_arguments.argument(
+        '-O', action='append', default=[],
+    )
+    @magic_arguments.magic_arguments()
+    @magic_arguments.argument(
+        '-march', action='append', default=[],
+    )
     @cell_magic
     def pythran(self, line, cell):
         """
@@ -43,8 +57,16 @@ class PythranMagics(Magics):
         def foo(x):
             return x + x
         """
+        args = magic_arguments.parse_argstring(self.pythran, line)
+        kwargs = {}
+        if args.D:
+            kwargs['define_macros'] = args.D
+        if args.O:
+            kwargs.setdefault('extra_compile_args', []).extend('-O' + str(x) for x in args.O)
+        if args.march:
+            kwargs.setdefault('extra_compile_args', []).extend('-march=' + str(x) for x in args.march)
         module_name = "pythranized"
-        module_path = pythran.compile_pythrancode(module_name, cell)
+        module_path = pythran.compile_pythrancode(module_name, cell, **kwargs)
         module = imp.load_dynamic(module_name, module_path)
         self._import_all(module)
 

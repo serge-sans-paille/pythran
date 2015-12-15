@@ -27,7 +27,7 @@ class SpecParser:
 
     # lex part
     reserved = {
-        'pythran': 'PYTHRAN',
+        '#pythran': 'PYTHRAN',
         'export': 'EXPORT',
         'list': 'LIST',
         'set': 'SET',
@@ -67,11 +67,11 @@ class SpecParser:
     # regexp to extract pythran specs from comments
     # the first part matches lines with a comment and the pythran keyword
     # the second part matches lines with comments following the pythran ones
-    FILTER = re.compile(r'^#\s*pythran[^\n\r]*[\n\r]'
-                        r'(?:\s*#[^\n\r]*[\n\r])*')
+    FILTER = re.compile(r'^\s*#\s*pythran[^\n\r]*[\n\r]+'
+                        r'^(?:\s*#[^\n\r]*[\n\r]+)*', re.MULTILINE)
 
     def t_IDENTIFER(self, t):
-        r'[a-zA-Z_][a-zA-Z_0-9]*'
+        r'\#?[a-zA-Z_][a-zA-Z_0-9]*'
         t.type = SpecParser.reserved.get(t.value, 'IDENTIFIER')
         return t
 
@@ -96,19 +96,14 @@ class SpecParser:
 
     def p_export(self, p):
         '''export : PYTHRAN EXPORT IDENTIFIER LPAREN opt_types RPAREN
-                  | PYTHRAN EXPORT EXPORT LPAREN opt_types RPAREN
-                  | PYTHRAN EXPORT PYTHRAN LPAREN opt_types RPAREN'''
-        # handle the unlikely case where the IDENTIIFER is ...
+                  | PYTHRAN EXPORT EXPORT LPAREN opt_types RPAREN'''
+        # handle the unlikely case where the IDENTIFIER is ...
         # export or pythran :-)
         self.exports[p[3]] = self.exports.get(p[3], ()) + (p[5],)
 
     def p_opt_craps(self, p):
         '''opt_craps :
-                     | craps'''
-
-    def p_craps(self, p):
-        '''craps : crap
-                 | crap craps'''
+                     | crap opt_craps'''
 
     def p_crap(self, p):
         '''crap : CRAP
@@ -230,8 +225,10 @@ class SpecParser:
         else:
             data = path_or_text
 
-        with_sharp = "\n".join(SpecParser.FILTER.findall(data))
-        pythran_data = with_sharp.replace('#', '')
+        raw = "\n".join(SpecParser.FILTER.findall(data))
+        pythran_data = (re.sub(r'#\s*pythran', '\_o< pythran >o_/', raw)
+                        .replace('#', '')
+                        .replace('\_o< pythran >o_/', '#pythran'))
         self.parser.parse(pythran_data, lexer=self.lexer)
         if not self.exports:
             import logging

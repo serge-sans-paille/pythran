@@ -179,3 +179,23 @@ def combiner_on_empty_list():
     def test_print_intrinsic(self):
         self.run_test('def print_intrinsic(): print(len)',
                       print_intrinsic=[])
+
+    def test_function_redefinition(self):
+        code = 'def function_redefinition(x):pass\ndef function_redefinition():pass'
+        with self.assertRaises(SyntaxError):
+            self.run_test(code, function_redefinition=[])
+
+    def test_invalid_call0(self):
+        code = 'def foo(x):pass\ndef invalid_call0(): return foo()'
+        with self.assertRaises(SyntaxError):
+            self.run_test(code, invalid_call0=[])
+
+    def test_invalid_call1(self):
+        code = 'def foo(x=1):pass\ndef invalid_call1(l): return foo(l,l)'
+        with self.assertRaises(SyntaxError):
+            self.run_test(code, 1, invalid_call1=[int])
+
+    def test_invalid_call2(self):
+        code = 'def foo(x):pass\ndef bar():pass\ndef invalid_call2(l): return (foo if l else bar)(l)'
+        with self.assertRaises(SyntaxError):
+            self.run_test(code, 1, invalid_call2=[int])

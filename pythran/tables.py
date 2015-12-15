@@ -334,7 +334,8 @@ MODULES = {
         "dict": ClassWithReadOnceConstructor(CLASSES['dict']),
         "divmod": ConstFunctionIntr(),
         "enumerate": ReadOnceFunctionIntr(),
-        "file": ClassWithConstConstructor(CLASSES['file']),
+        "file": ClassWithConstConstructor(CLASSES['file'],
+                                          global_effects=True),
         "filter": ReadOnceFunctionIntr(),
         "float_": ClassWithConstConstructor(CLASSES['float']),
         "getattr": ConstFunctionIntr(),
@@ -351,7 +352,7 @@ MODULES = {
         "next": FunctionIntr(),  # not const
         "oct": ConstFunctionIntr(),
         "ord": ConstFunctionIntr(return_range=prange.ord_values),
-        "open": ConstFunctionIntr(),
+        "open": ConstFunctionIntr(global_effects=True),
         "pow": ConstFunctionIntr(),
         "range": ConstFunctionIntr(return_range_content=prange.range_values),
         "reduce": ReadOnceFunctionIntr(),

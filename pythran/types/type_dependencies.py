@@ -311,7 +311,9 @@ class TypeDependencies(ModuleAnalysis):
         """
         value_deps = self.visit(node.value)
         for target in node.targets:
-            self.naming[get_variable(target).id] = value_deps
+            name = get_variable(target)
+            if isinstance(name, ast.Name):
+                self.naming[name.id] = value_deps
 
     def visit_AugAssign(self, node):
         """

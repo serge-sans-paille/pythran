@@ -17,6 +17,7 @@ from .ast_matcher import ASTMatcher, AST_any, AST_or, Placeholder, Check
 from .bounded_expressions import BoundedExpressions
 from .cfg import CFG
 from .constant_expressions import ConstantExpressions
+from .extended_syntax_check import ExtendedSyntaxCheck
 from .dependencies import Dependencies
 from .global_declarations import GlobalDeclarations
 from .global_effects import GlobalEffects

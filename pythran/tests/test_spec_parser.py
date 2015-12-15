@@ -57,7 +57,7 @@ class TestSpecParser(unittest.TestCase):
               # )
 def foo(): return
             '''
-        pythran.spec_parser(code)
+        self.assertTrue(pythran.spec_parser(code))
 
     def test_multiline_spec1(self):
         code = '''
@@ -66,7 +66,7 @@ def foo(): return
               # )
 def foo(i,j): return
             '''
-        pythran.spec_parser(code)
+        self.assertTrue(pythran.spec_parser(code))
 
     def test_multiline_spec2(self):
         code = '''
@@ -77,20 +77,42 @@ def foo(i,j): return
               # )
 def foo(i,j,k): return
             '''
-        pythran.spec_parser(code)
+        self.assertTrue(pythran.spec_parser(code))
 
     def test_crappy_spec0(self):
         code = '''
-#      pythran export foo(int) this is a pythran test
-def foo(i,j,k): return
+#      pythran export foo(int) this is an int test
+def foo(i): return
             '''
-        pythran.spec_parser(code)
+        self.assertTrue(pythran.spec_parser(code))
 
     def test_crappy_spec1(self):
         code = '''
 #      pythran export foo(int)
 #this is a pythran export test
-def foo(i,j,k): return
+def foo(i): return
             '''
-        pythran.spec_parser(code)
+        self.assertTrue(pythran.spec_parser(code))
+
+    def test_middle_spec0(self):
+        code = '''
+def foo(i): return
+#      pythran export foo(int)
+#this is a pythran export test
+def bar(i): return
+            '''
+        self.assertTrue(pythran.spec_parser(code))
+
+
+    def test_middle_spec1(self):
+        code = '''
+def foo(i): return
+#this is a pythran export test
+#      pythran export foo(int)
+#this is an export test
+#      pythran export foo(float)
+def bar(i): return
+            '''
+        self.assertEquals(len(pythran.spec_parser(code)), 1)
+        self.assertEquals(len(pythran.spec_parser(code)['foo']), 2)
 

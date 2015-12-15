@@ -8,6 +8,7 @@
 #include "pythonic/types/none.hpp"
 #include "pythonic/types/tuple.hpp"
 #include "pythonic/utils/functor.hpp"
+#include "pythonic/numpy/random/normal.hpp"
 
 #include <random>
 #include <algorithm>
@@ -23,11 +24,7 @@ namespace pythonic
       types::ndarray<double, N>
       standard_normal(types::array<long, N> const &shape)
       {
-        types::ndarray<double, N> result{shape, types::none_type()};
-        std::normal_distribution<double> distribution{0., 1.};
-        std::generate(result.fbegin(), result.fend(),
-                      [&]() { return distribution(details::generator); });
-        return result;
+        return normal(0., 1., shape);
       }
 
       auto standard_normal(long size)
@@ -38,7 +35,7 @@ namespace pythonic
 
       double standard_normal(types::none_type d)
       {
-        return std::normal_distribution<double>{0., 1.}(details::generator);
+        return normal(0., 1., d);
       }
 
       DEFINE_FUNCTOR(pythonic::numpy::random, standard_normal);

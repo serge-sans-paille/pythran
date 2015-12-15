@@ -250,6 +250,74 @@ class TestNumpyRandom(TestEnv):
         self.run_test(code, 10 ** 3, numpy_standard_normal2=[int])
 
     ###########################################################################
+    # Tests for numpy.random.normal
+    ###########################################################################
+
+    def test_numpy_normal0(self):
+        """ Check normal without argument with mean and variance. """
+        code = """
+        def numpy_normal0(size):
+            from numpy.random import normal
+            from numpy import var, mean
+            a = [normal() for x in range(size)]
+            print mean(a)
+            assert(abs(mean(a)) < .05 and abs(var(a) - 1) < .05)
+        """
+        self.run_test(code, 10 ** 5, numpy_normal0=[int])
+
+    def test_numpy_normal0a(self):
+        """ Check normal with 1 argument with mean and variance. """
+        code = """
+        def numpy_normal0a(size):
+            from numpy.random import normal
+            from numpy import var, mean
+            a = [normal(3.) for x in range(size)]
+            print mean(a)
+            assert(abs(mean(a)) < 3.05 and abs(var(a) - 1) < .05)
+        """
+        self.run_test(code, 10 ** 5, numpy_normal0a=[int])
+
+    def test_numpy_normal0b(self):
+        """ Check normal with 2 argument with mean and variance. """
+        code = """
+        def numpy_normal0b(size):
+            from numpy.random import normal
+            from numpy import var, mean, sqrt
+            mu, sigma = 0, 0.1
+            a = normal(mu, sigma, size)
+            print mean(a)
+            assert(abs(mu - mean(a)) < 0.01 and abs(sigma - sqrt(var(a,ddof=1))) < .01)
+        """
+        self.run_test(code, 10 ** 5, numpy_normal0b=[int])
+
+
+
+    def test_numpy_normal1(self):
+        """ Check normal with size argument with mean and variance."""
+        code = """
+        def numpy_normal1(size):
+            from numpy.random import normal
+            from numpy import var, mean
+            a = normal(size=size)
+            print mean(a)
+            assert(abs(mean(a)) < .05 and abs(var(a) - 1) < .05)
+        """
+        self.run_test(code, 10 ** 5, numpy_normal1=[int])
+
+    def test_numpy_normal2(self):
+        """Check normal with shape argument with mean and variance."""
+        code = """
+        def numpy_normal2(size):
+            from numpy.random import normal
+            from numpy import mean, var
+            a = normal(size=(size, size))
+            print mean(a)
+            assert(abs(mean(a)) < .05 and abs(var(a) - 1) < .05)
+        """
+        self.run_test(code, 10 ** 3, numpy_normal2=[int])
+
+
+    ###########################################################################
     # Tests for numpy.random.randn
     ###########################################################################
 

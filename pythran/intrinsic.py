@@ -4,6 +4,14 @@ from pythran.conversion import to_ast
 from pythran.range import UNKNOWN_RANGE
 
 import ast
+import sys
+
+if sys.version_info[0] > 2:
+    ast3_arguments = ast.arguments
+
+    def make_ast_arguments(*args):
+        return ast3_arguments(args[0], args[1], [], [], args[2], args[3])
+    ast.arguments = make_ast_arguments
 
 
 class NewMem(ast.AST):

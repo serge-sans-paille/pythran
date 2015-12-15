@@ -4,15 +4,19 @@ License.
 
 Usage: unparse.py <path to source file>
 """
-
+from __future__ import print_function
 
 import pythran.metadata as metadata
 import pythran.openmp as openmp
 
 import ast
-import cStringIO
 import os
 import sys
+
+if sys.version_info[0] < 3:
+    import cStringIO
+else:
+    from io import StringIO as cStringIO
 
 
 # Large float and imaginary literals get turned into infinities in the AST.
@@ -75,7 +79,7 @@ class Unparser:
             deps = list()
             for dep in omp.deps:
                 old_file = self.f
-                self.f = cStringIO.StringIO()
+                self.f = StringIO.StringIO()
                 self.dispatch(dep)
                 deps.append(self.f.getvalue())
                 self.f = old_file
@@ -641,12 +645,12 @@ def testdir(a):
         for n in names:
             fullname = os.path.join(a, n)
             if os.path.isfile(fullname):
-                output = cStringIO.StringIO()
-                print 'Testing %s' % fullname
+                output = StringIO.StringIO()
+                print('Testing %s' % fullname)
                 try:
                     roundtrip(fullname, output)
                 except Exception as e:
-                    print '  Failed to compile, exception is %s' % repr(e)
+                    print('  Failed to compile, exception is %s' % repr(e))
             elif os.path.isdir(fullname):
                 testdir(fullname)
 

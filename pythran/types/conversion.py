@@ -1,5 +1,7 @@
 """ Module to convert Python type to Pythonic type. """
 
+import sys
+
 from numpy import ndarray, int8, int16, int32, int64, uint8, uint16, uint32
 from numpy import float64, float32, complex64, complex128, uint64
 
@@ -7,7 +9,6 @@ PYTYPE_TO_CTYPE_TABLE = {
     complex: 'std::complex<double>',
     bool: 'bool',
     int: 'long',
-    long: 'pythran_long_t',
     float: 'double',
     str: 'pythonic::types::str',
     type(None): 'pythonic::types::none_type',
@@ -27,8 +28,11 @@ PYTYPE_TO_CTYPE_TABLE = {
 
 TYPE_TO_SUFFIX = {
     int: "L",
-    long: "LL",
     }
+
+if sys.version_info[0] < 3:
+    PYTYPE_TO_CTYPE_TABLE[long] = 'pythran_long_t'
+    TYPE_TO_SUFFIX[long] = "LL"
 
 
 def pytype_to_ctype(t):

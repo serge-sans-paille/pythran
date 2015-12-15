@@ -14,7 +14,7 @@ IntrinsicAliases = dict()
 
 def save_intrinsic_alias(module):
     """ Recursively save default aliases for pythonic functions. """
-    for v in module.itervalues():
+    for v in module.values():
         if isinstance(v, dict):  # Submodules case
             save_intrinsic_alias(v)
         else:
@@ -22,7 +22,7 @@ def save_intrinsic_alias(module):
             if isinstance(v, Class):
                 save_intrinsic_alias(v.fields)
 
-for module in MODULES.itervalues():
+for module in MODULES.values():
     save_intrinsic_alias(module)
 
 
@@ -236,10 +236,10 @@ class Aliases(ModuleAnalysis):
             - globals declarations
             - current function arguments
         """
-        self.aliases = CopyOnWriteAliasesMap(IntrinsicAliases.iteritems())
+        self.aliases = CopyOnWriteAliasesMap(IntrinsicAliases.items())
 
         self.aliases.update((f.name, {f})
-                            for f in self.global_declarations.itervalues())
+                            for f in self.global_declarations.values())
 
         self.aliases.update((arg.id, {arg})
                             for arg in node.args.args)
@@ -277,7 +277,7 @@ class Aliases(ModuleAnalysis):
     def visit_If(self, node):
         md.visit(self, node)
         self.visit(node.test)
-        false_aliases = {k: v.copy() for k, v in self.aliases.iteritems()}
+        false_aliases = {k: v.copy() for k, v in self.aliases.items()}
         try:  # first try the true branch
             map(self.visit, node.body)
             true_aliases, self.aliases = self.aliases, false_aliases
@@ -290,7 +290,7 @@ class Aliases(ModuleAnalysis):
             # we still get some info from the true branch, validate them
             self.aliases = true_aliases
             raise  # and let other visit_ handle the issue
-        for k, v in true_aliases.iteritems():
+        for k, v in true_aliases.items():
             if k in self.aliases:
                 self.aliases[k].update(v)
             else:

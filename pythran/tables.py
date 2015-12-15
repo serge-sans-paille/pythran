@@ -893,6 +893,8 @@ MODULES = {
         },
     }
 
+if sys.version_info[0] > 2:
+    sys.modules['__builtin__'] = sys.modules['builtins']
 
 # VMSError is only available on VMS
 if 'VMSError' in sys.modules['__builtin__'].__dict__:
@@ -920,7 +922,7 @@ for method in MODULES['numpy'].keys():
 # populate argument description through introspection
 def save_arguments(module_name, elements):
     """ Recursively save arguments name and default value. """
-    for elem, signature in elements.iteritems():
+    for elem, signature in elements.items():
         if isinstance(signature, dict):  # Submodule case
             save_arguments(module_name + (elem,), signature)
         else:
@@ -943,7 +945,7 @@ save_arguments((), MODULES)
 # Fill return_type field for constants
 def fill_constants_types(module_name, elements):
     """ Recursively save arguments name and default value. """
-    for elem, intrinsic in elements.iteritems():
+    for elem, intrinsic in elements.items():
         if isinstance(intrinsic, dict):  # Submodule case
             fill_constants_types(module_name + (elem,), intrinsic)
         elif isinstance(intrinsic, ConstantIntr):
@@ -959,7 +961,7 @@ methods = {}
 
 def save_method(elements, module_path):
     """ Recursively save methods with module name and signature. """
-    for elem, signature in elements.iteritems():
+    for elem, signature in elements.items():
         if isinstance(signature, dict):  # Submodule case
             save_method(signature, module_path + (elem,))
         elif isinstance(signature, Class):
@@ -983,7 +985,7 @@ functions = {}
 
 def save_function(elements, module_path):
     """ Recursively save functions with module name and signature. """
-    for elem, signature in elements.iteritems():
+    for elem, signature in elements.items():
         if isinstance(signature, dict):  # Submodule case
             save_function(signature, module_path + (elem,))
         elif signature.isstaticfunction():
@@ -1000,7 +1002,7 @@ attributes = {}
 
 def save_attribute(elements, module_path):
     """ Recursively save attributes with module name and signature. """
-    for elem, signature in elements.iteritems():
+    for elem, signature in elements.items():
         if isinstance(signature, dict):  # Submodule case
             save_attribute(signature, module_path + (elem,))
         elif signature.isattribute():

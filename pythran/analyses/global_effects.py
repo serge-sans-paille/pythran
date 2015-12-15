@@ -1,4 +1,5 @@
 """ GlobalEffects computes function effect on global state. """
+from __future__ import print_function
 
 from pythran.analyses.aliases import Aliases
 from pythran.analyses.global_declarations import GlobalDeclarations
@@ -28,7 +29,7 @@ class GlobalEffects(ModuleAnalysis):
             elif isinstance(node, intrinsic.Class):
                 self.global_effect = False
             else:
-                print type(node), node
+                print(type(node), node)
                 raise NotImplementedError
 
     def __init__(self):

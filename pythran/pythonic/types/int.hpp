@@ -22,6 +22,12 @@ long getattr<1>(long const &)
 namespace pythonic
 {
 
+#if PY_MAJOR_VERSION >= 3
+#define PyInt_FromLong PyLong_FromLong
+#define PyInt_Check PyLong_Check
+#define PyInt_AsLong PyLong_AsLong
+#endif
+
 #define PYTHONIC_INT_TO_PYTHON(TYPE)                                           \
   PyObject *to_python<TYPE>::convert(TYPE l)                                   \
   {                                                                            \

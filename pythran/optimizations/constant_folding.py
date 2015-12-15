@@ -1,4 +1,5 @@
 """ ConstantFolding performs some kind of partial evaluation.  """
+from __future__ import print_function
 
 from pythran.analyses import ConstantExpressions, Aliases, ASTMatcher
 from pythran.passmanager import Transformation
@@ -20,7 +21,7 @@ class ConstantFolding(Transformation):
     >>> node = ast.parse("def foo(): return 1+3")
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(ConstantFolding, node)
-    >>> print pm.dump(backend.Python, node)
+    >>> print(pm.dump(backend.Python, node))
     def foo():
         return 4
     """
@@ -79,11 +80,11 @@ class ConstantFolding(Transformation):
                         self.update = True
                         return new_node
                 except DamnTooLongPattern as e:
-                    print "W: ", e, " Assume no update happened."
+                    print("W: ", e, " Assume no update happened.")
                 return Transformation.generic_visit(self, node)
             except ConversionError as e:
-                print ast.dump(node)
-                print 'error in constant folding: ', e
+                print(ast.dump(node))
+                print('error in constant folding: ', e)
                 raise
             except ToNotEval:
                 return Transformation.generic_visit(self, node)

@@ -58,7 +58,8 @@ if LooseVersion(setuptools.__version__) < MinimalSetuptoolsVersion:
 logger = logging.getLogger("pythran")
 logger.addHandler(logging.StreamHandler())
 
-execfile(os.path.join('pythran', 'version.py'))
+versionfile = os.path.join('pythran', 'version.py')
+exec(open(versionfile).read())
 
 
 class PyTest(TestCommand):
@@ -122,7 +123,7 @@ class BuildWithThirdParty(build_py):
                     mpz_class a(1);
                     return a == 0;
                 };
-            ''')
+            '''.encode('ascii'))
             srcs = [temp.name]
         exe = "a.out"
         try:
@@ -155,6 +156,12 @@ nt2_headers = (['nt2/' + '*/' * i + '*.hpp' for i in range(1, 20)] +
                ['boost/' + '*/' * i + '*.hpp' for i in range(1, 20)])
 pythonic_headers = ['*/' * i + '*.hpp' for i in range(9)] + ['patch/*']
 
+# rename pythran into pythran3 for python3 version
+if sys.version_info[0] == 3:
+    pythran_cmd = 'pythran3'
+else:
+    pythran_cmd = 'pythran'
+
 setup(name='pythran',
       version=__version__,
       description=__descr__,
@@ -174,6 +181,7 @@ setup(name='pythran',
           'Natural Language :: English',
           'Operating System :: POSIX :: Linux',
           'Programming Language :: Python :: 2.7',
+          'Programming Language :: Python :: 3',
           'Programming Language :: Python :: Implementation :: CPython',
           'Programming Language :: C++',
           'Topic :: Software Development :: Code Generators'

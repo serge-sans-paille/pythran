@@ -29,12 +29,10 @@ from setuptools import setup
 from distutils import ccompiler
 from distutils.errors import CompileError, LinkError
 from setuptools.command.test import test as TestCommand
-from subprocess import check_call
 
 import logging
 import glob
 import os
-import re
 import shutil
 from tempfile import NamedTemporaryFile
 import sys

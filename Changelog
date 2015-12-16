@@ -1,3 +1,23 @@
+2016-01-05 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+
+	* IPython's magic for pythran now supports extra compile flags
+
+	* Pythran's C++ output is compatible with Python3 and pythran3 can compile it!
+
+	* More syntax checks (and less template traceback)
+
+	* Improved UI (multiline pythran exports, better setup.py...)
+
+	* Pythonic leaning / bugfixing (this tends to be a permanent item)
+
+	* More generic support for numpy's dtype
+
+	* Simpler install (no more boost.python deps, nor nt2 configuration)
+
+	* Faster compilation (no more boost.python deps, smarter pass manager)
+
+	* Better testing (gcc + clang)
+
 2015-10-13 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Significantly decrease compilation time

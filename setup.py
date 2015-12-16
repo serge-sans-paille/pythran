@@ -27,6 +27,7 @@ except ImportError:
 from setuptools.command.build_py import build_py
 from setuptools import setup
 from distutils import ccompiler
+from distutils.errors import CompileError, LinkError
 from setuptools.command.test import test as TestCommand
 from subprocess import check_call
 
@@ -114,7 +115,7 @@ class BuildWithThirdParty(build_py):
         # Python long. If it fails, _whatever the reason_ we just disable gmp
         print('Trying to compile GMP dependencies.')
 
-        cc = ccompiler.new_compiler(verbose=False)
+        cc = ccompiler.new_compiler("posix", verbose=False)
         # try to compile a code that requires gmp support
         with NamedTemporaryFile(suffix='.cpp', delete=False) as temp:
             temp.write('''
@@ -126,22 +127,29 @@ class BuildWithThirdParty(build_py):
             '''.encode('ascii'))
             srcs = [temp.name]
         exe = "a.out"
+        objs = []  # Make sure this variable exist in case of fail.
         try:
             objs = cc.compile(srcs)
             cc.link(ccompiler.CCompiler.EXECUTABLE,
                     objs, exe,
                     libraries=['gmp', 'gmpxx'])
-        except Exception:
+        except (LinkError, CompileError):
             # failure: remove the gmp dependency
             print('Failed to compile GMP source, disabling long support.')
-            for cfg in glob.glob(os.path.join(pythrandir, "pythran-*.cfg")):
+            for cfg in glob.glob(os.path.join(self.build_lib, "pythran",
+                                              "pythran-*.cfg")):
                 with open(cfg, "r+") as cfg:
                     content = cfg.read()
                     content = content.replace('USE_GMP', '')
                     content = content.replace('gmp gmpxx', '')
                     cfg.seek(0)
                     cfg.write(content)
-        map(os.remove, objs + srcs + [exe])
+        finally:
+            tmp_files = objs + srcs + [exe]
+            for filename in tmp_files:
+            # file may not exist as it may raise before its creation.
+                if os.path.exists(filename):
+                    os.remove(filename)
 
     def run(self, *args, **kwargs):
         # regular build done by parent class

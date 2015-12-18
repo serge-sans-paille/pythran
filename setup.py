@@ -115,6 +115,7 @@ class BuildWithThirdParty(build_py):
         print('Trying to compile GMP dependencies.')
 
         cc = ccompiler.new_compiler(verbose=False)
+        trash = list()
         # try to compile a code that requires gmp support
         with NamedTemporaryFile(suffix='.cpp', delete=False) as temp:
             temp.write('''
@@ -125,23 +126,30 @@ class BuildWithThirdParty(build_py):
                 };
             '''.encode('ascii'))
             srcs = [temp.name]
+            trash.append(temp.name)
         exe = "a.out"
         try:
             objs = cc.compile(srcs)
+            map(trash.append, objs)
             cc.link(ccompiler.CCompiler.EXECUTABLE,
                     objs, exe,
                     libraries=['gmp', 'gmpxx'])
+            trash.append(exe)
         except Exception:
             # failure: remove the gmp dependency
             print('Failed to compile GMP source, disabling long support.')
-            for cfg in glob.glob(os.path.join(pythrandir, "pythran-*.cfg")):
-                with open(cfg, "r+") as cfg:
-                    content = cfg.read()
-                    content = content.replace('USE_GMP', '')
-                    content = content.replace('gmp gmpxx', '')
-                    cfg.seek(0)
-                    cfg.write(content)
-        map(os.remove, objs + srcs + [exe])
+            for pythrandir in (os.path.join(self.build_lib, "pythran"),
+                               os.path.join(os.path.dirname(__file__),
+                                            "pythran")):
+                for cfg in glob.glob(os.path.join(pythrandir,
+                                                  "pythran-*.cfg")):
+                    with open(cfg, "r+") as cfg:
+                        content = cfg.read()
+                        content = content.replace('USE_GMP', '')
+                        content = content.replace('gmp gmpxx', '')
+                        cfg.seek(0)
+                        cfg.write(content)
+        map(os.remove, trash)
 
     def run(self, *args, **kwargs):
         # regular build done by parent class

@@ -242,7 +242,7 @@ def np_rosen_der(x):
         self.run_test("def np_mean5(a): from numpy import mean ; return mean(a, 2)", numpy.array([[[1, 2], [3, 4.]]]), np_mean5=[numpy.array([[[float]]])])
 
     def test_var0(self):
-        self.run_test("def np_var0(a): from numpy import var ; return var(a)", numpy.array([[1, 2], [3, 4]], dtype=float), np_var0=[numpy.array([[float]])])
+        self.run_test("def np_var0(a): return a.var()", numpy.array([[1, 2], [3, 4]], dtype=float), np_var0=[numpy.array([[float]])])
 
     def test_var1(self):
         self.run_test("def np_var1(a): from numpy import var ; return var(a, 1)", numpy.array([[1, 2], [3, 4.]]), np_var1=[numpy.array([[float]])])
@@ -365,7 +365,7 @@ def np_rosen_der(x):
         self.run_test("def np_product(x):\n from numpy import product\n return product(x)", numpy.arange(1, 10), np_product=[numpy.array([int])])
 
     def test_ptp0(self):
-        self.run_test("def np_ptp0(x): from numpy import ptp ; return ptp(x)", numpy.arange(4).reshape((2,2)), np_ptp0=[numpy.array([[int]])])
+        self.run_test("def np_ptp0(x): return x.ptp()", numpy.arange(4).reshape((2,2)), np_ptp0=[numpy.array([[int]])])
 
     def test_ptp1(self):
         self.run_test("def np_ptp1(x): from numpy import ptp ; return ptp(x,0)", numpy.arange(4).reshape((2,2)), np_ptp1=[numpy.array([[int]])])
@@ -374,7 +374,7 @@ def np_rosen_der(x):
         self.run_test("def np_ptp2(x): from numpy import ptp ; return ptp(x,1)", numpy.arange(4).reshape((2,2)), np_ptp2=[numpy.array([[int]])])
 
     def test_put0(self):
-        self.run_test("def np_put0(x): from numpy import put ; put(x, [0,2], [-44, -55]); return x", numpy.arange(5), np_put0=[numpy.array([int])])
+        self.run_test("def np_put0(x): x.put([0,2], [-44, -55]); return x", numpy.arange(5), np_put0=[numpy.array([int])])
 
     def test_put1(self):
         self.run_test("def np_put1(x): from numpy import put ; put(x, [0,2,3], [57, 58]); return x", numpy.arange(6).reshape((2, 3)), np_put1=[numpy.array([[int]])])
@@ -388,8 +388,11 @@ def np_rosen_der(x):
     def test_putmask1(self):
         self.run_test("def np_putmask1(x): from numpy import putmask; putmask(x, x>1, [57, 58]); return x", numpy.arange(6).reshape((2,3)), np_putmask1=[numpy.array([[int]])])
 
-    def test_ravel(self):
-        self.run_test("def np_ravel(x): from numpy import ravel ; return ravel(x)", numpy.arange(6).reshape((2,3)), np_ravel=[numpy.array([[int]])])
+    def test_ravel0(self):
+        self.run_test("def np_ravel0(x): from numpy import ravel ; return ravel(x)", numpy.arange(6).reshape((2,3)), np_ravel0=[numpy.array([[int]])])
+
+    def test_ravel1(self):
+        self.run_test("def np_ravel1(x): return x.ravel()", numpy.arange(6).reshape((2,3)), np_ravel1=[numpy.array([[int]])])
 
     def test_repeat0(self):
         self.run_test("def np_repeat0(x): from numpy import repeat; return repeat(x, 3)", numpy.arange(3), np_repeat0=[numpy.array([int])])

@@ -29,7 +29,7 @@ class TestNumpyFunc3(TestEnv):
     """
 
     def test_dot0(self):
-        self.run_test("def np_dot0(x, y): from numpy import dot ; return dot(x,y)", 2, 3, np_dot0=[int, int])
+        self.run_test("def np_dot0(x, y): from numpy import dot; return dot(x, y)", 2, 3, np_dot0=[int, int])
 
     def test_dot1(self):
         self.run_test("def np_dot1(x): from numpy import dot ; y = [2, 3] ; return dot(x,y)", [2, 3], np_dot1=[[int]])
@@ -38,7 +38,7 @@ class TestNumpyFunc3(TestEnv):
         self.run_test("def np_dot2(x): from numpy import dot ; y = [2j, 3j] ; return dot(x,y)", [2j, 3j], np_dot2=[[complex]])
 
     def test_dot3(self):
-        self.run_test("def np_dot3(x): from numpy import array, dot ; y = array([2, 3]) ; return dot(x+x,y)", numpy.array([2, 3]), np_dot3=[numpy.array([int])])
+        self.run_test("def np_dot3(x): from numpy import array ; y = array([2, 3]) ; return y.dot(x+x)", numpy.array([2, 3]), np_dot3=[numpy.array([int])])
 
     def test_dot4(self):
         self.run_test("def np_dot4(x): from numpy import dot ; y = [2, 3] ; return dot(x,y)", numpy.array([2, 3]), np_dot4=[numpy.array([int])])
@@ -187,7 +187,7 @@ class TestNumpyFunc3(TestEnv):
         self.run_test("def np_diff4(x): from numpy import diff; return diff(x + x)", numpy.array([1, 2, 4, 7, 0]), np_diff4=[numpy.array([int])])
 
     def test_trace0(self):
-        self.run_test("def np_trace0(x): from numpy import trace; return trace(x)", numpy.arange(9).reshape(3,3), np_trace0=[numpy.array([[int]])])
+        self.run_test("def np_trace0(x): return x.trace()", numpy.arange(9).reshape(3,3), np_trace0=[numpy.array([[int]])])
 
     def test_trace1(self):
         self.run_test("def np_trace1(x): from numpy import trace; return trace(x, 1)", numpy.arange(12).reshape(3,4), np_trace1=[numpy.array([[int]])])

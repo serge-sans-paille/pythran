@@ -7,7 +7,7 @@ import numpy
 class TestNumpyFunc2(TestEnv):
 
     def test_nonzero0(self):
-        self.run_test("def np_nonzero0(x): from numpy import nonzero ; return nonzero(x)", numpy.arange(6), np_nonzero0=[numpy.array([int])])
+        self.run_test("def np_nonzero0(x): return x.nonzero()", numpy.arange(6), np_nonzero0=[numpy.array([int])])
 
     def test_nonzero1(self):
         self.run_test("def np_nonzero1(x): from numpy import nonzero ; return nonzero(x>8)", numpy.arange(6), np_nonzero1=[numpy.array([int])])
@@ -25,7 +25,7 @@ class TestNumpyFunc2(TestEnv):
         self.run_test("def np_diagflat5(a): from numpy import diagflat ; return diagflat(a,-2)", numpy.arange(4), np_diagflat5=[numpy.array([int])])
 
     def test_diagonal0(self):
-        self.run_test("def np_diagonal0(a): from numpy import diagonal ; return diagonal(a)", numpy.arange(10).reshape(2,5), np_diagonal0=[numpy.array([[int]])])
+        self.run_test("def np_diagonal0(a): return a.diagonal()", numpy.arange(10).reshape(2,5), np_diagonal0=[numpy.array([[int]])])
 
     def test_diagonal1(self):
         self.run_test("def np_diagonal1(a): from numpy import diagonal ; return diagonal(a,1)", numpy.arange(9).reshape(3,3), np_diagonal1=[numpy.array([[int]])])
@@ -108,7 +108,7 @@ class TestNumpyFunc2(TestEnv):
     return where(a>5)""", numpy.arange(12).reshape(3,4), np_where7=[numpy.array([[int]])])
 
     def test_cumprod_(self):
-        self.run_test("def np_cumprod_(a):\n from numpy import cumprod\n return a.cumprod()", numpy.arange(10), np_cumprod_=[numpy.array([int])])
+        self.run_test("def np_cumprod_(a):\n return a.cumprod()", numpy.arange(10), np_cumprod_=[numpy.array([int])])
 
     def test_cumprod2_(self):
         self.run_test("def np_cumprod2_(a):\n from numpy import cumprod\n return a.cumprod()", numpy.arange(10).reshape(2,5), np_cumprod2_=[numpy.array([[int]])])
@@ -149,7 +149,7 @@ def test_copy0(x):
         self.run_test(code, 10, test_copy4=[int])
 
     def test_clip0(self):
-        self.run_test("def np_clip0(a): from numpy import clip ; return clip(a,1,8)", numpy.arange(10), np_clip0=[numpy.array([int])])
+        self.run_test("def np_clip0(a): return a.clip(1,8)", numpy.arange(10), np_clip0=[numpy.array([int])])
 
     def test_clip1(self):
         self.run_test("def np_clip1(a): from numpy import  clip ; return clip(a,3,6)", numpy.arange(10), np_clip1=[numpy.array([int])])
@@ -346,13 +346,13 @@ def test_copy0(x):
         self.run_test("def np_argsort1(x): from numpy import argsort ; return argsort(x)", numpy.array([[3, 1, 2], [1 , 2, 3]]), np_argsort1=[numpy.array([[int]])])
 
     def test_argmax0(self):
-        self.run_test("def np_argmax0(a): from numpy import argmax ; return argmax(a)", numpy.arange(6).reshape(2,3), np_argmax0=[numpy.array([[int]])])
+        self.run_test("def np_argmax0(a): return a.argmax()", numpy.arange(6).reshape(2,3), np_argmax0=[numpy.array([[int]])])
 
     def test_argmax1(self):
         self.run_test("def np_argmax1(a): from numpy import argmax ; return argmax(a+a)", numpy.arange(6).reshape(2,3), np_argmax1=[numpy.array([[int]])])
 
     def test_argmin0(self):
-        self.run_test("def np_argmin0(a): from numpy import argmin ; return argmin(a)", numpy.arange(6).reshape(2,3), np_argmin0=[numpy.array([[int]])])
+        self.run_test("def np_argmin0(a): return a.argmin()", numpy.arange(6).reshape(2,3), np_argmin0=[numpy.array([[int]])])
 
     def test_argmin1(self):
         self.run_test("def np_argmin1(a): from numpy import argmin ; return argmin(a)", [1,2,3], np_argmin1=[[int]])

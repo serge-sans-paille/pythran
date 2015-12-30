@@ -30,8 +30,9 @@ namespace pythonic
       }
 
       template <class Iterator>
-      auto enumerate_iterator<Iterator>::operator*()
-          -> decltype(std::make_tuple(value, *iter))
+      typename enumerate_iterator_base<Iterator>::value_type
+          enumerate_iterator<Iterator>::
+          operator*()
       {
         return std::make_tuple(value, *iter);
       }
@@ -76,19 +77,15 @@ namespace pythonic
       }
 
       /// details::enumerate implementation
-
       template <class Iterable>
       enumerate<Iterable>::enumerate()
       {
       }
 
-      // FIXME : Here is a possible dangling reference.
-      // enumerate_iterator take seq.begin while the reference is kept with
-      // another seq.
       template <class Iterable>
       enumerate<Iterable>::enumerate(Iterable seq, long first)
-          : enumerate_iterator<typename Iterable::iterator>(seq.begin(), first),
-            seq(seq), end_iter(seq.end(), -1)
+          : Iterable(seq), iterator(Iterable::begin(), first),
+            end_iter(Iterable::end(), -1)
       {
       }
 
@@ -119,7 +116,6 @@ namespace pythonic
         typename std::remove_reference<Iterable>::type>::type>
     enumerate(Iterable &&seq, long first)
     {
-      // FIXME: Here we forward seq while enumerate signature required a copy
       return {std::forward<Iterable>(seq), first};
     }
 

@@ -12,15 +12,9 @@ namespace pythonic
      */
     template <class E>
     struct nditerator
-        : public std::iterator<
-              std::random_access_iterator_tag,
-              typename std::remove_reference<decltype(
-                  std::declval<E &>().fast(0))>::type,
-              ptrdiff_t, typename std::remove_reference<decltype(
-                             std::declval<E &>().fast(0))>::type *,
-              typename std::remove_reference<decltype(std::declval<E &>().fast(
-                  0))>::type /* no ref here, because we return a proxy object */
-              > {
+        : public std::iterator<std::random_access_iterator_tag,
+                               typename std::remove_reference<decltype(
+                                   std::declval<E &>().fast(0))>::type> {
       E &data;
       long index;
       nditerator(E &data, long index);

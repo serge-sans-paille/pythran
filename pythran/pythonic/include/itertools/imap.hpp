@@ -38,9 +38,7 @@ namespace pythonic
       struct imap_iterator
           : std::iterator<
                 typename utils::iterator_min<typename Iters::iterator...>::type,
-                typename imap_res<Operator, Iters...>::type, ptrdiff_t,
-                typename imap_res<Operator, Iters...>::type *,
-                typename imap_res<Operator, Iters...>::type /* no ref */> {
+                typename imap_res<Operator, Iters...>::type> {
 
         std::tuple<typename Iters::iterator...> it;
         Operator _op;

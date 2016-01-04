@@ -16,21 +16,18 @@ namespace pythonic
     {
       // FIXME return value may be a type::make_tuple
       template <class Iterator>
-      struct enumerate_iterator
-          : public std::iterator<
-                typename std::iterator_traits<Iterator>::iterator_category,
-                std::tuple<long,
-                           typename std::iterator_traits<Iterator>::value_type>,
-                ptrdiff_t, std::tuple<long, typename std::iterator_traits<
-                                                Iterator>::value_type> *,
-                std::tuple<long, typename std::iterator_traits<
-                                     Iterator>::value_type> /* not a ref */
-                > {
+      using enumerate_iterator_base = std::iterator<
+          typename std::iterator_traits<Iterator>::iterator_category,
+          std::tuple<long,
+                     typename std::iterator_traits<Iterator>::value_type>>;
+
+      template <class Iterator>
+      struct enumerate_iterator : public enumerate_iterator_base<Iterator> {
         long value;
         Iterator iter;
         enumerate_iterator();
         enumerate_iterator(Iterator const &iter, long first);
-        auto operator*() -> decltype(std::make_tuple(value, *iter));
+        typename enumerate_iterator_base<Iterator>::value_type operator*();
         enumerate_iterator &operator++();
         enumerate_iterator &operator+=(long n);
         bool operator!=(enumerate_iterator const &other);
@@ -39,10 +36,14 @@ namespace pythonic
       };
 
       template <class Iterable>
-      struct enumerate : enumerate_iterator<typename Iterable::iterator> {
+      struct enumerate
+          : private Iterable, /* to hold a reference on the iterable */
+            public enumerate_iterator<
+                typename Iterable::iterator> /* to be compatible with
+                                                __builtin__.next*/
+            {
         using iterator = enumerate_iterator<typename Iterable::iterator>;
-        // we need to keep one ref over the enumerated sequence alive
-        Iterable seq;
+        using iterator::operator*;
         iterator end_iter;
 
         enumerate();

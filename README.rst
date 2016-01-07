@@ -1,6 +1,5 @@
-﻿=======
-Pythran
-=======
+﻿Pythran
+#######
 
 .. image:: https://travis-ci.org/serge-sans-paille/pythran.png?branch=master
         :target: https://travis-ci.org/serge-sans-paille/pythran

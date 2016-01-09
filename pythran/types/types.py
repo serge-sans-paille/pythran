@@ -11,13 +11,14 @@ from pythran.cxxtypes import NamedType, ContainerType, PType, Assignable, Lazy
 from pythran.cxxtypes import ExpressionType, IteratorContentType, ReturnType
 from pythran.cxxtypes import GetAttr, DeclType, ElementType, IndexableType
 from pythran.cxxtypes import Weak, ListType, SetType, DictType, TupleType
-from pythran.cxxtypes import ArgumentType, Returnable
+from pythran.cxxtypes import ArgumentType, Reference, Returnable
 from pythran.intrinsic import UserFunction, MethodIntr, Class
 from pythran.passmanager import ModuleAnalysis
 from pythran.tables import operator_to_lambda, MODULES
 from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE, pytype_to_ctype
 from pythran.types.reorder import Reorder
 from pythran.utils import attr_to_path
+from pythran import metadata
 
 from collections import defaultdict
 from functools import partial
@@ -264,9 +265,20 @@ class Types(ModuleAnalysis):
         # return type may be unset if the function always raises
         return_type = self.result.get(node,
                                       NamedType("pythonic::types::none_type"))
-        self.result[node] = (Returnable(return_type), self.typedefs)
+
+        # if this function wraps a global, return a reference instead
+        assert node.body
+        if metadata.get(node.body[-1], metadata.StaticReturn):
+            return_type = Reference(return_type)
+        else:
+            return_type = Returnable(return_type)
+
+        self.result[node] = (return_type, self.typedefs)
         for k in self.passmanager.gather(LocalDeclarations, node):
             self.result[k] = self.get_qualifier(k)(self.result[k])
+
+
+
 
     def get_qualifier(self, node):
         lazy_res = self.lazyness_analysis[node.id]

@@ -250,19 +250,6 @@ class Returnable(DependentType):
         return 'typename pythonic::returnable<{0}>::type'.format(
             self.of.generate(ctx))
 
-class Reference(DependentType):
-    """
-    Take a reference on the associated type
-
-    It is used to return a reference to a static object
-
-    >>> Reference(NamedType("long"))
-    long &
-    """
-
-    def generate(self, ctx):
-        return '{0} &'.format(self.of.generate(ctx))
-
 
 class Lazy(DependentType):
     """

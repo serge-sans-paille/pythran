@@ -11,7 +11,7 @@ from pythran.cxxtypes import NamedType, ContainerType, PType, Assignable, Lazy
 from pythran.cxxtypes import ExpressionType, IteratorContentType, ReturnType
 from pythran.cxxtypes import GetAttr, DeclType, ElementType, IndexableType
 from pythran.cxxtypes import Weak, ListType, SetType, DictType, TupleType
-from pythran.cxxtypes import ArgumentType, Reference, Returnable
+from pythran.cxxtypes import ArgumentType, Returnable
 from pythran.intrinsic import UserFunction, MethodIntr, Class
 from pythran.passmanager import ModuleAnalysis
 from pythran.tables import operator_to_lambda, MODULES
@@ -266,19 +266,9 @@ class Types(ModuleAnalysis):
         return_type = self.result.get(node,
                                       NamedType("pythonic::types::none_type"))
 
-        # if this function wraps a global, return a reference instead
-        assert node.body
-        if metadata.get(node.body[-1], metadata.StaticReturn):
-            return_type = Reference(return_type)
-        else:
-            return_type = Returnable(return_type)
-
-        self.result[node] = (return_type, self.typedefs)
+        self.result[node] = (Returnable(return_type), self.typedefs)
         for k in self.passmanager.gather(LocalDeclarations, node):
             self.result[k] = self.get_qualifier(k)(self.result[k])
-
-
-
 
     def get_qualifier(self, node):
         lazy_res = self.lazyness_analysis[node.id]

@@ -480,7 +480,7 @@ class PythonModule(object):
     '''
     Wraps the creation of a Pythran module wrapped a Python native Module
     '''
-    def __init__(self, name, docstrings, metadata, has_init):
+    def __init__(self, name, docstrings, metadata):
         '''
         Builds an empty PythonModule
         '''
@@ -491,7 +491,6 @@ class PythonModule(object):
         self.implems = []
         self.wrappers = []
         self.docstrings = docstrings
-        self.has_init = has_init
 
         self.metadata = metadata
         moduledoc = self.docstring(self.docstrings.get(None, ""))
@@ -673,17 +672,6 @@ class PythonModule(object):
             }};
             '''.format(methods="".join(m + "," for m in themethods))
 
-        module_init = ""
-        if self.has_init:
-            module_init = '''
-                try {{
-                    {ward}{module_name}::__init__()();
-                }}
-                {catches}
-            '''.format(module_name=self.name,
-                       ward=pythran_ward,
-                       catches='\n'.join(self.catches))
-
         module = '''
             #if PY_MAJOR_VERSION >= 3
               static struct PyModuleDef moduledef = {{
@@ -727,11 +715,9 @@ class PythonModule(object):
                 PyModule_AddObject(theModule,
                                    "__pythran__",
                                    theDoc);
-                {module_init}
                 PYTHRAN_RETURN;
             }}
             '''.format(name=self.name,
-                       module_init=module_init,
                        **self.metadata)
 
         body = (self.preamble +

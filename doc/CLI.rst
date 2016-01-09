@@ -27,7 +27,7 @@ The generated native ``.so`` module can then be called with the Python interpret
 Pythran version can be dumped through ``--version``::
 
   $> pythran --version 2>&1
-  0.7.4
+  0.7.4.post1
 
 The module-level ``__pythran__`` variable indicates that the module loaded has been pythranized::
 

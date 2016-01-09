@@ -15,7 +15,6 @@ from .expand_builtins import ExpandBuiltins
 from .expand_globals import ExpandGlobals
 from .expand_import_all import ExpandImportAll
 from .expand_imports import ExpandImports
-from .extract_top_level_stmts import ExtractTopLevelStmts
 from .extract_doc_strings import ExtractDocStrings
 from .false_polymorphism import FalsePolymorphism
 from .handle_import import HandleImport

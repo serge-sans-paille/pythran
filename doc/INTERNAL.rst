@@ -199,28 +199,27 @@ show that Pythran can compile it::
 Assignment and AugAssignment statements at top-level are one of the most common
 cases of Python programs::
 
-    $> printf 'a = 1 + (2 + 2) * 3\nprint a' > internal_top_level_assign.py
+    $> printf 'a = 1 + (2 + 2) * 3\nprint a\na += 1\nprint a' > internal_top_level_assign.py
     $> pythran internal_top_level_assign.py
     $> python -c 'import internal_top_level_assign'
     13
+    14
 
 Then let's test Python's flow control keywords: for, while, if-else:
 
 Loop statement at top-level::
 
-    $> printf 's=0\nfor i in range(2): print s' > internal_top_level_loop.py
+    $> printf 's=0\nfor i in range(10):s+=i\nprint s' > internal_top_level_loop.py
     $> pythran internal_top_level_loop.py
     $> python -c 'import internal_top_level_loop'
-    0
-    0
+    45
 
 While statement at top-level::
 
-    $> printf 'i=0\nwhile True:\n print i\n break\nprint i' > internal_top_level_while.py
+    $> printf 'i=0\nwhile i<10:i+=1\nprint i' > internal_top_level_while.py
     $> pythran internal_top_level_while.py
     $> python -c 'import internal_top_level_while'
-    0
-    0
+    10
 
 If-else statement at top-level::
 

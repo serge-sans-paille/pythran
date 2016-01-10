@@ -4,7 +4,7 @@
 
 from pythran.openmp import GatherOMPData
 from pythran.syntax import check_syntax
-from pythran.transformations import ExtractTopLevelStmts, NormalizeIdentifiers
+from pythran.transformations import NormalizeIdentifiers
 from pythran.transformations import ExtractDocStrings, HandleImport
 
 import ast
@@ -24,13 +24,10 @@ def parse(pm, code):
     # extract docstrings
     _, docstrings = pm.apply(ExtractDocStrings, ir)
 
-    # remove top - level statements
-    _, has_init = pm.apply(ExtractTopLevelStmts, ir)
-
     # Handle user-defined import
     pm.apply(HandleImport, ir)
 
     # avoid conflicts with cxx keywords
     _, renamings = pm.apply(NormalizeIdentifiers, ir)
     check_syntax(ir)
-    return ir, renamings, docstrings, has_init
+    return ir, renamings, docstrings

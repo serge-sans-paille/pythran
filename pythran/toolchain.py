@@ -116,7 +116,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
     pm = PassManager(module_name)
 
     # front end
-    ir, renamings, docstrings, has_init = frontend.parse(pm, code)
+    ir, renamings, docstrings = frontend.parse(pm, code)
 
     # middle-end
     optimizations = (optimizations or
@@ -156,7 +156,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
                     'version': __version__,
                     'date': datetime.now()}
 
-        mod = PythonModule(module_name, docstrings, metainfo, has_init)
+        mod = PythonModule(module_name, docstrings, metainfo)
         mod.add_to_preamble(Define("BOOST_SIMD_NO_STRICT_ALIASING", "1"))
         mod.add_to_includes(Include("pythonic/core.hpp"),
                             Include("pythonic/python/core.hpp"),

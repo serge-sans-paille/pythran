@@ -11,7 +11,7 @@ from pythran.analyses import YieldPoints, IsAssigned, ASTMatcher, AST_any
 from pythran.analyses import RangeValues, PureExpressions
 from pythran.cxxgen import Template, Include, Namespace, CompilationUnit
 from pythran.cxxgen import Statement, Block, AnnotatedStatement, Typedef
-from pythran.cxxgen import Value, FunctionDeclaration, EmptyStatement
+from pythran.cxxgen import Value, FunctionDeclaration, EmptyStatement, Static
 from pythran.cxxgen import FunctionBody, Line, ReturnStatement, Struct, Assign
 from pythran.cxxgen import For, While, TryExcept, ExceptHandler, If, AutoFor
 from pythran.cxxtypes import Assignable, DeclType, NamedType
@@ -588,7 +588,12 @@ pythonic::types::none_type>::type result_type;
                     Cxx.final_statement))
                 ])
         else:
-            stmt = ReturnStatement(self.visit(node.value))
+            value = self.visit(node.value)
+            if metadata.get(node, metadata.StaticReturn):
+                stmt = Block([Assign("static auto tmp_global", value),
+                              ReturnStatement("tmp_global")])
+            else:
+                stmt = ReturnStatement(value)
             return self.process_omp_attachements(node, stmt)
 
     def visit_Delete(self, _):

@@ -47,15 +47,15 @@ class SyntaxChecker(ast.NodeVisitor):
             save_attribute(module)
 
     def visit_Module(self, node):
-        err = ("Top level statements can only be strings, functions, comments"
-               " or imports")
+        err = ("Top level statements can only be assignments, strings,"
+               "functions, comments, or imports")
+        WhiteList = ast.FunctionDef, ast.Import, ast.ImportFrom, ast.Assign
         for n in node.body:
             if isinstance(n, ast.Expr) and isinstance(n.value, ast.Str):
                 continue
-            else:
-                if not any(isinstance(n, getattr(ast, t))
-                           for t in ('FunctionDef', 'Import', 'ImportFrom',)):
-                    raise PythranSyntaxError(err, n)
+            if isinstance(n, WhiteList):
+                continue
+            raise PythranSyntaxError(err, n)
         self.generic_visit(node)
 
     def visit_Interactive(self, node):

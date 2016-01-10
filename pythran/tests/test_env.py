@@ -298,7 +298,7 @@ class TestEnv(unittest.TestCase):
         """
         pm = PassManager("testing")
 
-        ir, _, _, _ = frontend.parse(pm, code)
+        ir, _, _ = frontend.parse(pm, code)
 
         optimizations = map(_parse_optimization, optimizations)
         refine(pm, ir, optimizations)

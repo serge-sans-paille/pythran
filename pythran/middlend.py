@@ -8,12 +8,14 @@ from pythran.transformations import (ExpandBuiltins, ExpandImports,
                                      NormalizeMethodCalls, NormalizeReturn,
                                      NormalizeTuples, RemoveComprehension,
                                      RemoveNestedFunctions, RemoveLambdas,
-                                     UnshadowParameters, RemoveNamedArguments)
+                                     UnshadowParameters, RemoveNamedArguments,
+                                     ExpandGlobals)
 
 
 def refine(pm, node, optimizations):
     """ Refine node in place until it matches pythran's expectations. """
     # Sanitize input
+    pm.apply(ExpandGlobals, node)
     pm.apply(ExpandImportAll, node)
     pm.apply(NormalizeTuples, node)
     pm.apply(ExpandBuiltins, node)

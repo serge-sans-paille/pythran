@@ -1,16 +1,20 @@
-""" LocalDeclarations gathers declarations local to a node. """
+"""
+LocalNameDeclarations gathers name of declarations local to a node.
+LocalNodeDeclarations gathers node of declarations local to a node.
+"""
 
 from pythran.passmanager import NodeAnalysis
 
 import ast
 
 
-class LocalDeclarations(NodeAnalysis):
+class LocalNodeDeclarations(NodeAnalysis):
 
     """
     Gathers all local symbols from a function.
 
-    It should not be use from outside a function.
+    It should not be use from outside a function, but can be used on a function
+    (but in that case, parameters are not taken into account)
 
     >>> import ast
     >>> from pythran import passmanager, backend
@@ -18,22 +22,53 @@ class LocalDeclarations(NodeAnalysis):
     ... def foo(a):
     ...     b = a + 1''')
     >>> pm = passmanager.PassManager("test")
-    >>> [name.id for name in pm.gather(LocalDeclarations, node)]
+    >>> [name.id for name in pm.gather(LocalNodeDeclarations, node)]
     ['b']
     >>> node = ast.parse('''
     ... for c in xrange(n):
     ...     b = a + 1''')
     >>> pm = passmanager.PassManager("test")
-    >>> sorted([name.id for name in pm.gather(LocalDeclarations, node)])
+    >>> sorted([name.id for name in pm.gather(LocalNodeDeclarations, node)])
     ['b', 'c']
     """
 
     def __init__(self):
         """ Initialize empty set as the result. """
         self.result = set()
-        super(LocalDeclarations, self).__init__()
+        super(LocalNodeDeclarations, self).__init__()
 
     def visit_Name(self, node):
         """ Any node with Store context is a new declaration. """
         if isinstance(node.ctx, ast.Store):
             self.result.add(node)
+
+
+class LocalNameDeclarations(NodeAnalysis):
+
+    """
+    Gathers all local identifiers from a node.
+
+    >>> import ast
+    >>> from pythran import passmanager, backend
+    >>> node = ast.parse('''
+    ... def foo(a):
+    ...     b = a + 1''')
+    >>> pm = passmanager.PassManager("test")
+    >>> pm.gather(LocalNameDeclarations, node)
+    set(['a', 'foo', 'b'])
+    """
+
+    def __init__(self):
+        """ Initialize empty set as the result. """
+        self.result = set()
+        super(LocalNameDeclarations, self).__init__()
+
+    def visit_Name(self, node):
+        """ Any node with Store or Param context is a new identifier. """
+        if isinstance(node.ctx, (ast.Store, ast.Param)):
+            self.result.add(node.id)
+
+    def visit_FunctionDef(self, node):
+        """ Function name is a possible identifier. """
+        self.result.add(node.name)
+        self.generic_visit(node)

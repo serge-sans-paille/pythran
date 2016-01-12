@@ -5,7 +5,7 @@ This module performs the return type inference, according to symbolic types,
 '''
 
 from pythran.analyses import (LazynessAnalysis, StrictAliases, YieldPoints,
-                              LocalDeclarations)
+                              LocalNodeDeclarations)
 from pythran.config import cfg
 from pythran.cxxtypes import NamedType, ContainerType, PType, Assignable, Lazy
 from pythran.cxxtypes import ExpressionType, IteratorContentType, ReturnType
@@ -237,7 +237,7 @@ class Types(ModuleAnalysis):
 
     def visit_FunctionDef(self, node):
         self.curr_locals_declaration = self.passmanager.gather(
-            LocalDeclarations,
+            LocalNodeDeclarations,
             node)
         self.current = node
         self.typedefs = list()
@@ -267,7 +267,7 @@ class Types(ModuleAnalysis):
                                       NamedType("pythonic::types::none_type"))
 
         self.result[node] = (Returnable(return_type), self.typedefs)
-        for k in self.passmanager.gather(LocalDeclarations, node):
+        for k in self.passmanager.gather(LocalNodeDeclarations, node):
             self.result[k] = self.get_qualifier(k)(self.result[k])
 
     def get_qualifier(self, node):

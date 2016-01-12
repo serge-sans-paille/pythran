@@ -4,7 +4,7 @@ ExpandGlobals replaces globals variables by function call.
 It also turn globals assignment in function definition.
 """
 
-from pythran.analyses import LocalDecl
+from pythran.analyses import LocalNameDeclarations
 from pythran.passmanager import Transformation
 from pythran import metadata
 
@@ -61,8 +61,9 @@ class ExpandGlobals(Transformation):
                     metadata.add(module_body[-1].body[0],
                                  metadata.StaticReturn())
             else:
-                self.local_decl = self.passmanager.gather(LocalDecl, stmt,
-                                                          self.ctx)
+                self.local_decl = self.passmanager.gather(
+                    LocalNameDeclarations, stmt,
+                    self.ctx)
                 module_body.append(self.visit(stmt))
 
         node.body = module_body

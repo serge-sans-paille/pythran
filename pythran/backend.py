@@ -6,7 +6,7 @@ This module contains all pythran backends.
 from __future__ import print_function
 
 from pythran.analyses import ArgumentEffects, BoundedExpressions, Dependencies
-from pythran.analyses import LocalDeclarations, GlobalDeclarations, Scope
+from pythran.analyses import LocalNodeDeclarations, GlobalDeclarations, Scope
 from pythran.analyses import YieldPoints, IsAssigned, ASTMatcher, AST_any
 from pythran.analyses import RangeValues, PureExpressions
 from pythran.cxxgen import Template, Include, Namespace, CompilationUnit
@@ -290,7 +290,7 @@ pythonic::types::none_type>::type result_type;
         formal_args = [arg.id for arg in fargs]
         formal_types = ["argument_type" + str(i) for i in xrange(len(fargs))]
 
-        self.ldecls = set(self.passmanager.gather(LocalDeclarations, node))
+        self.ldecls = set(self.passmanager.gather(LocalNodeDeclarations, node))
 
         self.local_names = {sym.id for sym in self.ldecls}.union(formal_args)
         self.extra_declarations = []

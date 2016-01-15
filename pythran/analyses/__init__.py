@@ -29,8 +29,7 @@ from .imported_ids import ImportedIds
 from .is_assigned import IsAssigned
 from .lazyness_analysis import LazynessAnalysis
 from .literals import Literals
-from .local_declarations import LocalDeclarations
-from .local_decl import LocalDecl
+from .local_declarations import LocalNodeDeclarations, LocalNameDeclarations
 from .locals_analysis import Locals
 from .node_count import NodeCount
 from .optimizable_comprehension import OptimizableComprehension

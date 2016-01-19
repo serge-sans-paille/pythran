@@ -263,6 +263,12 @@ def test_copy0(x):
     def test_asfarray1(self):
         self.run_test("def np_asfarray1(a):\n from numpy import asfarray; b = asfarray(a) ; return a is not b", numpy.arange(3), np_asfarray1=[numpy.array([int])])
 
+    def test_astype0(self):
+        self.run_test("def np_astype0(a):\n return a.astype(float)", numpy.arange(3), np_astype0=[numpy.array([int])])
+
+    def test_astype1(self):
+        self.run_test("def np_astype1(a):\n import numpy as jumpy; return a.astype(jumpy.uint8)", numpy.arange(257), np_astype1=[numpy.array([int])])
+
     def test_array_str0(self):
         self.run_test("def np_array_str0(x): from numpy import array_str ; return array_str(x)", numpy.arange(3), np_array_str0=[numpy.array([int])])
 

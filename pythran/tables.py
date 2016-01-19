@@ -248,6 +248,7 @@ CLASSES = {
         "eps": AttributeIntr(),
     },
     "ndarray": {
+        "astype": MethodIntr(),
         "dtype": AttributeIntr(),
         "fill": MethodIntr(),
         "flat": AttributeIntr(),

@@ -3,20 +3,26 @@
 
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
-#include "pythonic/include/__builtin__/sum.hpp"
+#include "pythonic/include/numpy/asarray.hpp"
 
 namespace pythonic
 {
 
   namespace numpy
   {
-    template <class T, size_t N, size_t M>
-    types::ndarray<T, N>
-    concatenate(types::array<types::ndarray<T, N>, M> const &ai);
+    template <class E, size_t M>
+    auto concatenate(types::array<E, M> const &args, long axis = 0)
+        -> decltype(asarray(std::get<0>(args)));
 
     template <class... Types>
-    typename assignable<typename __combined<Types...>::type>::type
-    concatenate(std::tuple<Types...> const &args);
+    auto concatenate(std::tuple<Types...> const &args, long axis = 0)
+        -> types::ndarray<typename __combined<
+                              typename std::decay<Types>::type::dtype...>::type,
+                          std::decay<decltype(std::get<0>(args))>::type::value>;
+
+    template <class E>
+    auto concatenate(types::list<E> const &args, long axis = 0)
+        -> decltype(asarray(std::get<0>(args)));
 
     DECLARE_FUNCTOR(pythonic::numpy, concatenate);
   }

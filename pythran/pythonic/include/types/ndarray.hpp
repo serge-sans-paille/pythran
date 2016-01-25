@@ -768,6 +768,28 @@ namespace pythonic
   };
 }
 
+/* specialization of std::copy to avoid the multiple calls implied by the
+ * recursive calls to std::copy */
+namespace std
+{
+  template <class T, size_t N>
+  typename pythonic::types::nditerator<pythonic::types::ndarray<T, N>> copy(
+      typename pythonic::types::const_nditerator<pythonic::types::ndarray<T, N>>
+          begin,
+      typename pythonic::types::const_nditerator<pythonic::types::ndarray<T, N>>
+          end,
+      typename pythonic::types::nditerator<pythonic::types::ndarray<T, N>> out)
+  {
+    auto &&shape = begin.data.shape();
+    const long offset = std::accumulate(shape.begin() + 1, shape.end(), 1L,
+                                        std::multiplies<long>());
+    std::copy(begin.data.buffer + begin.index * offset,
+              end.data.buffer + end.index * offset,
+              out.data.buffer + out.index * offset);
+    return out + (end - begin);
+  }
+}
+
 #endif
 
 #endif

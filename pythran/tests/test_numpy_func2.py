@@ -157,6 +157,33 @@ def test_copy0(x):
     def test_concatenate0(self):
         self.run_test("def np_concatenate0(a): from numpy import array, concatenate ; b = array([[5, 6]]) ; return concatenate((a,b))", numpy.array([[1, 2], [3, 4]]), np_concatenate0=[numpy.array([[int]])])
 
+    def test_concatenate1(self):
+        self.run_test("def np_concatenate1(a): from numpy import array, concatenate ; b = array([[5, 6]]) ; return concatenate([a,b])", numpy.array([[1, 2], [3, 4]]), np_concatenate1=[numpy.array([[int]])])
+
+    def test_hstack0(self):
+        self.run_test("def np_hstack0(a,b): import numpy as np; return np.hstack((a,b))",
+                      numpy.array((1,2,3)),
+                      numpy.array((2,3,4)),
+                      np_hstack0=[numpy.array([int]),numpy.array([int])])
+
+    def test_hstack1(self):
+        self.run_test("def np_hstack1(a,b): import numpy as np; return np.hstack((a+1,b))",
+                      numpy.array(([1],[2],[3])),
+                      numpy.array(([2],[3],[4])),
+                      np_hstack1=[numpy.array([[int]]),numpy.array([[int]])])
+
+    def test_vstack0(self):
+        self.run_test("def np_vstack0(a,b): import numpy as np; return np.vstack((a,b))",
+                      numpy.array((1,2,3)),
+                      numpy.array((2,3,4)),
+                      np_vstack0=[numpy.array([int]),numpy.array([int])])
+
+    def test_vstack1(self):
+        self.run_test("def np_vstack1(a,b): import numpy as np; return np.vstack((a,b+b))",
+                      numpy.array(([1],[2],[3])),
+                      numpy.array(([2],[3],[4])),
+                      np_vstack1=[numpy.array([[int]]),numpy.array([[int]])])
+
     def test_bincount0(self):
         self.run_test("def np_bincount0(a): from numpy import bincount ; return bincount(a)", numpy.arange(5), np_bincount0=[numpy.array([int])])
 

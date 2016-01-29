@@ -41,8 +41,6 @@ namespace pythonic
       struct mod;
       struct nan_to_num;
       struct rint;
-      struct round;
-      struct round_;
       struct signbit;
       struct where;
     }
@@ -67,8 +65,6 @@ namespace pythonic
           not std::is_same<O, numpy::functor::isnan>::value and
           not std::is_same<O, numpy::functor::isposinf>::value and
           not std::is_same<O, numpy::functor::rint>::value and
-          not std::is_same<O, numpy::functor::round>::value and
-          not std::is_same<O, numpy::functor::round_>::value and
           not std::is_same<O, numpy::functor::signbit>::value and
           // conditional processing doesn't permit SIMD
           not std::is_same<O, numpy::functor::nan_to_num>::value and

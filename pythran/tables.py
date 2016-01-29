@@ -623,6 +623,8 @@ MODULES = {
         "split": ConstFunctionIntr(),
         "sqrt": ConstFunctionIntr(),
         "square": ConstFunctionIntr(),
+        "std_": ConstMethodIntr(args=('a', 'axis', 'dtype'),
+                                defaults=(None, None)),
         "subtract": ConstFunctionIntr(),
         "sum": ConstMethodIntr(),
         "swapaxes": ConstMethodIntr(),

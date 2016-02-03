@@ -156,6 +156,16 @@ struct __combined<pythonic::types::numpy_expr<Op, Args...>,
       typename pythonic::types::numpy_expr<Op, Args...>::dtype,
       pythonic::types::numpy_expr<Op, Args...>::value>;
 };
+template <class E, class Op, class... Args>
+struct __combined<pythonic::types::numpy_iexpr<E>,
+                  pythonic::types::numpy_expr<Op, Args...>> {
+  using type = pythonic::types::numpy_iexpr<E>;
+};
+template <class E, class Op, class... Args>
+struct __combined<pythonic::types::numpy_expr<Op, Args...>,
+                  pythonic::types::numpy_iexpr<E>> {
+  using type = pythonic::types::numpy_iexpr<E>;
+};
 
 /*}*/
 #endif

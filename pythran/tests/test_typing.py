@@ -54,20 +54,28 @@ def typing_aliasing_and_update():
     def test_functional_variant_container0(self):
         code='''
 import math
-def functional_variant_container0():
+def functional_variant_container0(i):
     l=[]
     l.append(math.cos)
     l.append(math.sin)
-    return l[0](12)'''
-        self.run_test(code, functional_variant_container0=[])
+    return l[i](12)'''
+        self.run_test(code, 0, functional_variant_container0=[int])
 
     def test_functional_variant_container1(self):
         code='''
 import math
-def functional_variant_container1():
+def functional_variant_container1(i):
     l=[math.cos, math.sin]
-    return l[0](12)'''
-        self.run_test(code, functional_variant_container1=[])
+    return l[i](12)'''
+        self.run_test(code, 1, functional_variant_container1=[int])
+
+    def test_functional_variant_container2(self):
+        code='''
+import math
+l = [math.cos, math.sin, math.asin, math.acos, math.sqrt]
+def functional_variant_container2(i):
+    return l[i](1.)'''
+        self.run_test(code, 4, functional_variant_container2=[int])
 
     @unittest.skip("bad typing: need backward propagation")
     def test_type_set_in_loop(self):
@@ -150,3 +158,26 @@ def recursive_interprocedural_typing1():
             3,
             print_numpy_types=[int])
 
+    def test_constant_argument_variant_functor0(self):
+        self.run_test('''
+            def foo(x): x[0] = 0
+            def bar(x): x[1] = 1
+            l = [foo, bar]
+            def constant_argument_variant_functor0(i):
+                x = [-1, -1]
+                l[i](x)
+                return x''',
+            0,
+            constant_argument_variant_functor0=[int])
+
+    def test_constant_argument_variant_functor1(self):
+        self.run_test('''
+            def foo(x): x[0] = 0
+            def bar(x): x[1] = 1
+            l = [foo, bar]
+            def constant_argument_variant_functor1(i):
+                x = [i, i]
+                [f(x) for f in l]
+                return x''',
+            -1,
+            constant_argument_variant_functor1=[int])

@@ -3,6 +3,6 @@
 
 #include "pythonic/include/types/combined.hpp"
 
-#include "pythonic/types/variant.hpp"
+#include "pythonic/types/variant_functor.hpp"
 
 #endif

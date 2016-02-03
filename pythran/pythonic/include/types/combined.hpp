@@ -2,14 +2,30 @@
 #define PYTHONIC_INCLUDE_TYPES_COMBINED_HPP
 
 #include "pythonic/include/types/traits.hpp"
-#include "pythonic/include/types/variant.hpp"
+#include "pythonic/include/types/variant_functor.hpp"
 
-/* special handling for functors { */
+/* special handling for functors
+ * as it's based on a trait, template specialization cannot be used
+ * so we rely on operator+ specialization
+ * { */
 template <class T0, class T1>
 typename std::enable_if<pythonic::types::is_callable<T0>::value and
                             pythonic::types::is_callable<T1>::value,
-                        pythonic::types::variant<T0, T1>>::type
+                        pythonic::types::variant_functor<T0, T1>>::type
 operator+(T0, T1);
+
+template <class T, class... Types>
+pythonic::types::variant_functor<T, Types...>
+operator+(T, pythonic::types::variant_functor<Types...>);
+
+template <class T, class... Types>
+pythonic::types::variant_functor<T, Types...>
+operator+(pythonic::types::variant_functor<Types...>, T);
+
+template <class... Types0, class... Types1>
+pythonic::types::variant_functor<Types0..., Types1...>
+operator+(pythonic::types::variant_functor<Types0...>,
+          pythonic::types::variant_functor<Types1...>);
 
 template <class T>
 typename std::enable_if<pythonic::types::is_callable<T>::value, T>::type

@@ -125,8 +125,13 @@ class ArgumentEffects(ModuleAnalysis):
         for i, arg in enumerate(node.args):
             n = self.argument_index(arg)
             if n >= 0:
-                func_aliases = self.aliases[node].state[
-                    Aliases.access_path(node.func)]
+                func_aliases = self.aliases[node].state.get(
+                    Aliases.access_path(node.func))
+
+                # pessimistic case: no alias found
+                if func_aliases is None:
+                    self.current_function.update_effects[n] = True
+                    continue
 
                 # expand argument if any
                 func_aliases = reduce(

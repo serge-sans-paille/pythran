@@ -186,8 +186,8 @@ class ArgumentReadOnce(ModuleAnalysis):
         for i, arg in enumerate(node.args):
             n = self.argument_index(arg)
             if n >= 0:
-                func_aliases = self.aliases[node].state[
-                    Aliases.access_path(node.func)]
+                func_aliases = self.aliases[node].state.get(
+                    Aliases.access_path(node.func), [])
 
                 # expand argument if any
                 func_aliases = reduce(

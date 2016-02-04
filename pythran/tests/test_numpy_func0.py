@@ -398,7 +398,13 @@ def np_rosen_der(x):
         self.run_test("def np_repeat0(x): from numpy import repeat; return repeat(x, 3)", numpy.arange(3), np_repeat0=[numpy.array([int])])
 
     def test_repeat1(self):
-        self.run_test("def np_repeat1(x): from numpy import repeat; return repeat(x, 3)", numpy.arange(6).reshape(2,3), np_repeat1=[numpy.array([[int]])])
+        self.run_test("def np_repeat1(x): return x.repeat(3)", numpy.arange(6).reshape(2,3), np_repeat1=[numpy.array([[int]])])
+
+    def test_repeat2(self):
+        self.run_test("def np_repeat2(x): from numpy import repeat; return repeat(x, 4, axis=0)", numpy.arange(6).reshape(2,3), np_repeat2=[numpy.array([[int]])])
+
+    def test_repeat3(self):
+        self.run_test("def np_repeat3(x): from numpy import repeat; return repeat(x, 4, axis=1)", numpy.arange(6).reshape(2,3), np_repeat3=[numpy.array([[int]])])
 
     def test_resize4(self):
         self.run_test("def np_resize4(x): from numpy import resize ; return resize(x, (6,7))", numpy.arange(24).reshape((2,3,4)), np_resize4=[numpy.array([[[int]]])])

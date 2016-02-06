@@ -1,4 +1,6 @@
 from test_env import TestEnv
+from textwrap import dedent
+import pythran
 
 class TestImportAll(TestEnv):
 
@@ -17,3 +19,19 @@ class TestImportAll(TestEnv):
     def test_import_same_name(self):
         self.run_test("from math import *\ndef cos(l): return 100", 0.1, cos=[float])
 
+    def test_import_collections(self):
+        """
+        Check correct error is returned for incorrect module import.
+
+        Check is done for module as .py file.
+        """
+        code = """
+            import collections
+            def unsupported_module():
+                return collections.Counter()"""
+
+        with self.assertRaises(pythran.syntax.PythranSyntaxError) as ex:
+            pythran.compile_pythrancode("flamby", dedent(code))
+
+        self.assertEqual(ex.exception.message,
+                         "Unpythranizable module: collections")

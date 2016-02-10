@@ -20,7 +20,7 @@ class PythranExtension(Extension):
 
     The compilation process ends up in a native Python module.
     '''
-    def __init__(self, name, sources):
+    def __init__(self, name, sources, *args, **kwargs):
         # the goal is to rely on original Extension
         # to do so we convert the .py to .cpp with pythran
         # and register the .cpp in place of the .py
@@ -48,9 +48,14 @@ class PythranExtension(Extension):
 
             # stage-dependant processing
             if stage == 0:
+                # get the last name in the path
+                if '.' in name:
+                    module_name = os.path.splitext(name)[-1][1:]
+                else:
+                    module_name = name
                 tc.compile_pythranfile(source, output_file,
-                                       module_name=name, cpponly=True)
+                                       module_name, cpponly=True)
             cxx_sources.append(output_file)
 
-        extension_args = cfg.make_extension()
-        Extension.__init__(self, name, cxx_sources, **extension_args)
+        kwargs.update(cfg.make_extension())
+        Extension.__init__(self, name, cxx_sources, *args, **kwargs)

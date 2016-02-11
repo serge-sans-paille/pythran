@@ -598,7 +598,7 @@ MODULES = {
         "real": FunctionIntr(),
         "reciprocal": ConstFunctionIntr(),
         "remainder": ConstFunctionIntr(),
-        "repeat": ConstFunctionIntr(),
+        "repeat": ConstMethodIntr(),
         "reshape": ConstMethodIntr(),
         "resize": ConstMethodIntr(),
         "right_shift": ConstFunctionIntr(),

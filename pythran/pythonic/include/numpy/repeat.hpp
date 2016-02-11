@@ -12,7 +12,12 @@ namespace pythonic
   namespace numpy
   {
     template <class T, size_t N>
-    types::ndarray<T, 1> repeat(types::ndarray<T, N> const &expr, int repeats);
+    types::ndarray<T, N> repeat(types::ndarray<T, N> const &expr, long repeats,
+                                long axis);
+
+    template <class T, size_t N>
+    types::ndarray<T, 1> repeat(types::ndarray<T, N> const &expr, long repeats,
+                                types::none_type axis = types::none_type{});
 
     NUMPY_EXPR_TO_NDARRAY0_DECL(repeat);
     DECLARE_FUNCTOR(pythonic::numpy, repeat);

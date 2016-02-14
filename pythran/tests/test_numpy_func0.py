@@ -281,7 +281,10 @@ def np_rosen_der(x):
         self.run_test("def np_lexsort0(surnames): from numpy import lexsort ; first_names = ('Heinrich', 'Galileo', 'Gustav') ; return lexsort((first_names, surnames))", ('Hertz',    'Galilei', 'Hertz'), np_lexsort0=[(str, str, str)])
 
     def test_lexsort1(self):
-        self.run_test("def np_lexsort1(a): from numpy import lexsort ; b = [9,4,0,4,0,2,1] ; return lexsort((a,b))", [1,5,1,4,3,4,4], np_lexsort1=[[int]])
+        self.run_test("def np_lexsort1(a): from numpy import lexsort ; b = [1,5,1,4,3,4,4] ; return lexsort((a,b))", [9,4,0,4,0,2,1], np_lexsort1=[[int]])
+
+    def test_lexsort2(self):
+        self.run_test("def np_lexsort2(a): from numpy import lexsort ; return lexsort((a+1,a-1))", numpy.array([1,5,1,4,3,4,4]), np_lexsort2=[numpy.array([int])])
 
     def test_issctype0(self):
         self.run_test("def np_issctype0(): from numpy import issctype, int32 ; a = int32 ; return issctype(a)", np_issctype0=[])

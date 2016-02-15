@@ -32,13 +32,17 @@ def dict_of_set():
         self.run_test(code, dict_of_set=[])
 
     def test_typing_aliasing_and_indices(self):
-        self.run_test('def typing_aliasing_and_indices(): d={};e={}; f = e or d; f[1]="e"; return d,e,f', typing_aliasing_and_indices=[])
+        self.run_test('def typing_aliasing_and_indices(i): d={};e={}; f = e or d; f[1]=i; return d,e,f', 118, typing_aliasing_and_indices=[int])
 
     def test_typing_aliasing_and_combiner(self):
-        self.run_test('def typing_aliasing_and_combiner(): d=set();e=set(); f = e or d; f.add("e"); return d,e,f', typing_aliasing_and_combiner=[])
+        self.run_test('def typing_aliasing_and_combiner(i): d=set();e=set(); f = e or d; f.add(i); return d,e,f', 117, typing_aliasing_and_combiner=[int])
 
     def test_typing_aliasing_and_combiner_back(self):
-        self.run_test('def typing_aliasing_and_combiner_back(): d=set();e=set(); f = e or d; e.add("e"); return d,e,f', typing_aliasing_and_combiner_back=[])
+        self.run_test('def typing_aliasing_and_combiner_back(i): d=set();e=set(); f = e or d; e.add(i); return d,e,f', 116, typing_aliasing_and_combiner_back=[int])
+
+    def test_typing_aliasing_and_fwd(self):
+        self.run_test('def typing_aliasing_and_fwd(i): fwd = lambda x:x; l = []; fwd(l).append(i); return l', 115, typing_aliasing_and_fwd=[int])
+
 
     def test_typing_aliasing_and_update(self):
         code = '''

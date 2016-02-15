@@ -66,6 +66,9 @@ class CopyOnWriteAliasesMap(object):
 
 class Aliases(ModuleAnalysis):
     """Gather aliasing informations across nodes."""
+
+    RetId = '@'
+
     class Info(object):
         def __init__(self, state, aliases):
             self.state = state
@@ -127,6 +130,15 @@ class Aliases(ModuleAnalysis):
     def visit_Set(self, node):
         self.generic_visit(node)
         return self.add(node)  # not very accurate
+
+    def visit_Return(self, node):
+        if not node.value:
+            return
+        for alias in self.visit(node.value):
+            # FIXME: handle subscript
+            if isinstance(alias, ast.Name):
+                if isinstance(alias.ctx, ast.Param):
+                    self.aliases.setdefault(Aliases.RetId, set()).add(alias.id)
 
     def call_return_alias(self, node):
         func = node.func
@@ -245,6 +257,11 @@ class Aliases(ModuleAnalysis):
                             for arg in node.args.args)
 
         self.generic_visit(node)
+        if Aliases.RetId in self.aliases:
+            param_indices = {i for i, arg in enumerate(node.args.args)
+                             if arg.id in self.aliases}
+            node.return_alias = lambda call: {call.args[i]
+                                              for i in param_indices}
 
     def visit_Assign(self, node):
         md.visit(self, node)

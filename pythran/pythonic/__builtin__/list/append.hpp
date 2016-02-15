@@ -23,6 +23,12 @@ namespace pythonic
         seq.push_back(std::forward<F>(value));
         return __builtin__::None;
       }
+      template <class T, class F>
+      types::none_type append(types::list<T> &&seq, F &&value)
+      {
+        seq.push_back(std::forward<F>(value));
+        return __builtin__::None;
+      }
 
       template <class F>
       types::none_type append(types::empty_list &seq, F &&value)

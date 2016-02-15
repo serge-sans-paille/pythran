@@ -17,6 +17,9 @@ namespace pythonic
       template <class T, class F>
       types::none_type append(types::list<T> &seq, F &&value);
 
+      template <class T, class F>
+      types::none_type append(types::list<T> &&seq, F &&value);
+
       template <class F>
       types::none_type append(types::empty_list &seq, F &&value);
 

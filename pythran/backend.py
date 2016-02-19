@@ -968,28 +968,31 @@ pythonic::types::none_type>::type result_type;
             header, loop = self.gen_c_for(node, target, loop_body)
         else:
 
-            # Iterator declaration
-            local_iter = "__iter{0}".format(len(self.break_handlers))
-            local_iter_decl = Assignable(DeclType(iterable))
-
-            self.handle_omp_for(node, local_iter)
-
-            # For yield function, iterable is globals.
-            if self.yields:
-                self.extra_declarations.append((local_iter, local_iter_decl,))
-                local_iter_decl = ""
-
-            # Assign iterable
-            # For C loop, it avoid issue if upper bound is reassign in the loop
-            header = [Statement("{0} {1} = {2}".format(local_iter_decl,
-                                                       local_iter,
-                                                       iterable))]
             if self.can_use_autofor(node):
+                header = []
                 self.ldecls = {d for d in self.ldecls
                                if d.id != node.target.id}
-                autofor = AutoFor(target, local_iter, loop_body)
+                autofor = AutoFor(target, iterable, loop_body)
                 loop = [self.process_omp_attachements(node, autofor)]
             else:
+                # Iterator declaration
+                local_iter = "__iter{0}".format(len(self.break_handlers))
+                local_iter_decl = Assignable(DeclType(iterable))
+
+                self.handle_omp_for(node, local_iter)
+
+                # For yield function, iterable is globals.
+                if self.yields:
+                    self.extra_declarations.append(
+                        (local_iter, local_iter_decl,))
+                    local_iter_decl = ""
+
+                # Assign iterable
+                # For C loop, it avoids issues
+                # if the upper bound is assigned in the loop
+                header = [Statement("{0} {1} = {2}".format(local_iter_decl,
+                                                           local_iter,
+                                                           iterable))]
                 loop = self.gen_for(node, target, local_iter, loop_body)
 
         # For xxxComprehension, it is replaced by a for loop. In this case,

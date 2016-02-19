@@ -101,6 +101,15 @@ namespace pythonic
     struct is_numexpr_arg<array<T, N>> {
       static constexpr bool value = true;
     };
+
+    template <class E>
+    struct dtype_of {
+      template <class T>
+      static typename T::dtype get(typename T::dtype *);
+      template <class T>
+      static T get(...);
+      using type = decltype(get<E>(nullptr));
+    };
   }
 }
 

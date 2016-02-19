@@ -38,9 +38,8 @@ class NormalizeTuples(Transformation):
     >>> print pm.dump(backend.Python, node)
     def foo():
         a = (1, 2.0)
-        __tuple0 = a
-        i = __tuple0[0]
-        j = __tuple0[1]
+        i = a[0]
+        j = a[1]
     """
     tuple_name = "__tuple"
 
@@ -124,13 +123,16 @@ class NormalizeTuples(Transformation):
 
     def visit_Assign(self, node):
         self.generic_visit(node)
-        extra_assign = [node]
+        # if the rhs is an identifier, we don't need to duplicate it
+        # otherwise, better duplicate it...
+        no_tmp = isinstance(node.value, ast.Name)
+        extra_assign = [] if no_tmp else [node]
         for i, t in enumerate(node.targets):
             if isinstance(t, ast.Tuple) or isinstance(t, ast.List):
                 renamings = dict()
                 self.traverse_tuples(t, (), renamings)
                 if renamings:
-                    gtarget = self.get_new_id()
+                    gtarget = node.value.id if no_tmp else self.get_new_id()
                     node.targets[i] = ast.Name(gtarget, node.targets[i].ctx)
                     for rename, state in sorted(renamings.iteritems()):
                         nnode = reduce(
@@ -147,7 +149,7 @@ class NormalizeTuples(Transformation):
                                     nnode))
                         else:
                             extra_assign.append(ast.Assign([rename], nnode))
-        return extra_assign
+        return extra_assign or node
 
     def visit_For(self, node):
         target = node.target

@@ -215,7 +215,7 @@ pythonic::types::none_type>::type result_type;
 
         locals_visited = []
         for varname in local_vars:
-            vartype = self.local_types[varname]
+            vartype = self.typeof(varname)
             decl = Statement("{} {}".format(vartype, varname))
             locals_visited.append(decl)
         self.ldecls = {ld for ld in self.ldecls if ld.id not in local_vars}
@@ -239,6 +239,12 @@ pythonic::types::none_type>::type result_type;
             else:
                 stmt[index] = AnnotatedStatement(stmt[index], directives)
         return stmt
+
+    def typeof(self, node):
+        if isinstance(node, str):
+            return self.typeof(self.local_names[node])
+        else:
+            return self.types[node].generate(self.lctx)
 
     # stmt
     def visit_FunctionDef(self, node):
@@ -292,13 +298,11 @@ pythonic::types::none_type>::type result_type;
 
         self.ldecls = set(self.passmanager.gather(LocalNodeDeclarations, node))
 
-        self.local_names = {sym.id for sym in self.ldecls}.union(formal_args)
+        self.local_names = {sym.id: sym for sym in self.ldecls}
+        self.local_names.update({arg.id: arg for arg in fargs})
         self.extra_declarations = []
 
-        lctx = CachedTypeVisitor()
-        self.local_types = {n: self.types[n].generate(lctx)
-                            for n in self.ldecls}
-        self.local_types.update((n.id, t) for n, t in self.local_types.items())
+        self.lctx = CachedTypeVisitor()
 
         # choose one node among all the ones with the same name for each name
         self.ldecls = set({n.id: n for n in self.ldecls}.itervalues())
@@ -438,7 +442,7 @@ pythonic::types::none_type>::type result_type;
                              self.yields.itervalues(),
                              key=lambda x: x[0])))))
 
-            ctx = CachedTypeVisitor(lctx)
+            ctx = CachedTypeVisitor(self.lctx)
             next_members = ([Statement("{0} {1}".format(ft, fa))
                              for (ft, fa) in zip(formal_types, formal_args)] +
                             [Statement(
@@ -538,7 +542,7 @@ pythonic::types::none_type>::type result_type;
                 "{0}::operator()".format(node.name),
                 formal_types,
                 formal_args)
-            ctx = CachedTypeVisitor(lctx)
+            ctx = CachedTypeVisitor(self.lctx)
             operator_local_declarations = (
                 [Statement("{0} {1}".format(
                     self.types[k].generate(ctx), k.id)) for k in self.ldecls] +
@@ -641,7 +645,7 @@ pythonic::types::none_type>::type result_type;
             tdecls = {t.id for t in node.targets}
             self.ldecls = {d for d in self.ldecls if d.id not in tdecls}
             # add a local declaration
-            alltargets = '{} {}'.format(self.local_types[node.targets[0]],
+            alltargets = '{} {}'.format(self.typeof(node.targets[0]),
                                         alltargets)
         stmt = Assign(alltargets, value)
         return self.process_omp_attachements(node, stmt)

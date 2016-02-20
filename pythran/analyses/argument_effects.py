@@ -96,15 +96,25 @@ class ArgumentEffects(ModuleAnalysis):
         while isinstance(node, ast.Subscript):
             node = node.value
         for node_alias in self.aliases[node].aliases:
-            try:
-                return self.current_function.func.args.args.index(node_alias)
-            except ValueError:
-                pass
+            if node_alias in self.current_arguments:
+                return self.current_arguments[node_alias]
+            if node_alias in self.current_subscripted_arguments:
+                return self.current_subscripted_arguments[node_alias]
         return -1
 
     def visit_FunctionDef(self, node):
         self.current_function = self.node_to_functioneffect[node]
+        self.current_arguments = {arg: i
+                                  for i, arg
+                                  in enumerate(node.args.args)}
+        self.current_subscripted_arguments = dict()
         assert self.current_function in self.result
+        self.generic_visit(node)
+
+    def visit_For(self, node):
+        ai = self.argument_index(node.iter)
+        if ai >= 0:
+            self.current_subscripted_arguments[node.target] = ai
         self.generic_visit(node)
 
     def visit_AugAssign(self, node):

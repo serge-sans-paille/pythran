@@ -645,3 +645,9 @@ def np_rosen_der(x):
 
     def test_ediff1d1(self):
         self.run_test("def np_ediff1d1(x): from numpy import ediff1d ; return ediff1d(x)", [[1,2,4],[1,6,24]], np_ediff1d1=[[[int]]])
+
+    def test_print_slice(self):
+        self.run_test("def np_print_slice(a): print a[:-1]", numpy.arange(12), np_print_slice=[numpy.array([int])])
+
+    def test_print_expr(self):
+        self.run_test("def np_print_expr(a): print a * 2", numpy.arange(12), np_print_expr=[numpy.array([int])])

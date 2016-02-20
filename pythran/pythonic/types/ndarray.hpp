@@ -830,7 +830,7 @@ namespace pythonic
     typename std::enable_if<is_array<E>::value, std::ostream &>::type
     operator<<(std::ostream &os, E const &e)
     {
-      return os << typename E::dtype(e);
+      return os << ndarray<typename E::dtype, E::value>{e};
     }
 
     /* } */

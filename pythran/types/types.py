@@ -119,11 +119,8 @@ class Types(ModuleAnalysis):
             func = n.func
             for alias in self.strict_aliases[func].aliases:
                 # handle backward type dependencies from method calls
-                signature = None
-                if isinstance(alias, MethodIntr):
-                    signature = alias
-                if signature:
-                    return_alias = signature.return_alias(n)
+                if hasattr(alias, 'return_alias'):
+                    return_alias = alias.return_alias(n)
                     if return_alias:  # else new location -> unboundable
                         return self.node_to_id(list(return_alias)[0], depth)
         raise UnboundableRValue()

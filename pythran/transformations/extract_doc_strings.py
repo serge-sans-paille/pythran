@@ -30,6 +30,12 @@ class ExtractDocStrings(Transformation):
         super(ExtractDocStrings, self).run(node, ctx)
         return self.docstrings
 
+    def visit_Expr(self, node):
+        'Remove other top-level strings'
+        if isinstance(node.value, ast.Str):
+            return None
+        return node
+
     def visit_documented_node(self, key, node):
         if node.body:
             first_stmt = node.body[0]

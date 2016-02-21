@@ -264,8 +264,38 @@ namespace pythonic
 /* type inference stuff  {*/
 #include "pythonic/include/types/combined.hpp"
 template <class E, class K>
-struct __combined<pythonic::types::numpy_iexpr<E>, K> {
+struct __combined<pythonic::types::numpy_iexpr<E>, indexable<K>> {
   using type = pythonic::types::numpy_iexpr<E>;
+};
+
+template <class E, class K>
+struct __combined<indexable<K>, pythonic::types::numpy_iexpr<E>> {
+  using type = pythonic::types::numpy_iexpr<E>;
+};
+
+template <class E, class K, class V>
+struct __combined<pythonic::types::numpy_iexpr<E>, indexable_container<K, V>> {
+  using type = pythonic::types::numpy_iexpr<E>;
+};
+
+template <class E, class K, class V>
+struct __combined<indexable_container<K, V>, pythonic::types::numpy_iexpr<E>> {
+  using type = pythonic::types::numpy_iexpr<E>;
+};
+
+template <class E, class K>
+struct __combined<container<K>, pythonic::types::numpy_iexpr<E>> {
+  using type = pythonic::types::numpy_iexpr<E>;
+};
+
+template <class E, class K>
+struct __combined<pythonic::types::numpy_iexpr<E>, container<K>> {
+  using type = pythonic::types::numpy_iexpr<E>;
+};
+template <class E0, class E1>
+struct __combined<pythonic::types::numpy_iexpr<E0>,
+                  pythonic::types::numpy_iexpr<E1>> {
+  using type = pythonic::types::numpy_iexpr<typename __combined<E0, E1>::type>;
 };
 /*}*/
 #endif

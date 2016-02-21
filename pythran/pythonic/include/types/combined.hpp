@@ -2,25 +2,11 @@
 #define PYTHONIC_INCLUDE_TYPES_COMBINED_HPP
 
 #include "pythonic/include/types/traits.hpp"
-#include "pythonic/include/types/variant.hpp"
-
-/* special handling for functors { */
-template <class T0, class T1>
-typename std::enable_if<pythonic::types::is_callable<T0>::value and
-                            pythonic::types::is_callable<T1>::value,
-                        pythonic::types::variant<T0, T1>>::type
-operator+(T0, T1);
-
-template <class T>
-typename std::enable_if<pythonic::types::is_callable<T>::value, T>::type
-operator+(T, T);
-
-/* } */
+#include "pythonic/include/types/variant_functor.hpp"
 
 /* specialize remove_cv */
 namespace std
 {
-
   template <class K, class V>
   struct remove_cv<std::pair<const K, V>> {
     using type = std::pair<K, V>;
@@ -39,7 +25,18 @@ struct __combined {
 
 template <class T0, class T1>
 struct __combined<T0, T1> {
-  using type = decltype(std::declval<T0>() + std::declval<T1>());
+
+  template <class F0, class F1>
+  static pythonic::types::variant_functor<F0, F1>
+  get(std::integral_constant<bool, true>);
+  template <class F0, class F1>
+  static decltype(std::declval<F0>() + std::declval<F1>())
+  get(std::integral_constant<bool, false>);
+
+  using type = decltype(get<T0, T1>(
+      std::integral_constant<bool,
+                             pythonic::types::is_callable<T0>::value &&
+                                 pythonic::types::is_callable<T1>::value>()));
 };
 
 template <class T0, class T1>
@@ -181,5 +178,27 @@ template <class A, class B>
 struct __combined<container<A>, container<B>> {
   using type = container<typename __combined<A, B>::type>;
 };
+/* special handling for functors
+ * as it's based on a trait, template specialization cannot be used
+ * so we rely on operator+ specialization
+ * { */
+
+template <class T, class... Types>
+struct __combined<T, pythonic::types::variant_functor<Types...>> {
+  using type = pythonic::types::variant_functor<T, Types...>;
+};
+
+template <class T, class... Types>
+struct __combined<pythonic::types::variant_functor<Types...>, T> {
+  using type = pythonic::types::variant_functor<T, Types...>;
+};
+
+template <class... Types0, class... Types1>
+struct __combined<pythonic::types::variant_functor<Types0...>,
+                  pythonic::types::variant_functor<Types1...>> {
+  using type = pythonic::types::variant_functor<Types0..., Types1...>;
+};
+
+/* } */
 
 #endif

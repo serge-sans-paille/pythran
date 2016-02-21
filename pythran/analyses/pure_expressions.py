@@ -33,6 +33,7 @@ class PureExpressions(ModuleAnalysis):
         is_pure = all(self.visit(arg) for arg in node.args)
         # check if all possible function used are Pures
         func_aliases = self.aliases[node.func].aliases
+        is_pure &= bool(func_aliases)  # conservative choice
         is_pure &= func_aliases.issubset(self.result)
         # check for chained call
         is_pure &= self.visit(node.func)

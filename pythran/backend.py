@@ -290,6 +290,8 @@ pythonic::types::none_type>::type result_type;
                         visited.add(v)
                 return L
 
+        self.fname = node.name
+
         # prepare context and visit function body
         fargs = node.args.args
 
@@ -594,7 +596,13 @@ pythonic::types::none_type>::type result_type;
         else:
             value = self.visit(node.value)
             if metadata.get(node, metadata.StaticReturn):
-                stmt = Block([Assign("static auto tmp_global", value),
+                # don't rely on auto because we want to make sure there's no
+                # conversion each time we return
+                # this happens for variant because the variant param
+                # order may differ from the init order (because of the way we
+                # do type inference
+                rtype = "typename {}::type::result_type".format(self.fname)
+                stmt = Block([Assign("static %s tmp_global" % rtype, value),
                               ReturnStatement("tmp_global")])
             else:
                 stmt = ReturnStatement(value)

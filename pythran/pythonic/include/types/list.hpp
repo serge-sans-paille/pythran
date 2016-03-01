@@ -332,15 +332,26 @@ namespace std
 {
   template <size_t I, class T>
   typename pythonic::types::list<T>::reference get(pythonic::types::list<T> &t);
+
   template <size_t I, class T>
   typename pythonic::types::list<T>::const_reference
   get(pythonic::types::list<T> const &t);
+
+  template <size_t I, class T>
+  typename pythonic::types::list<T>::value_type
+  get(pythonic::types::list<T> &&t);
+
   template <size_t I, class T>
   typename pythonic::types::sliced_list<T>::reference
   get(pythonic::types::sliced_list<T> &t);
+
   template <size_t I, class T>
   typename pythonic::types::sliced_list<T>::const_reference
   get(pythonic::types::sliced_list<T> const &t);
+
+  template <size_t I, class T>
+  typename pythonic::types::sliced_list<T>::value_type
+  get(pythonic::types::sliced_list<T> &&t);
 
   template <size_t I, class T>
   struct tuple_element<I, pythonic::types::list<T>> {

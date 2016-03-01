@@ -664,23 +664,40 @@ namespace std
   {
     return t[I];
   }
+
   template <size_t I, class T>
   typename pythonic::types::list<T>::const_reference
   get(pythonic::types::list<T> const &t)
   {
     return t[I];
   }
+
+  template <size_t I, class T>
+  typename pythonic::types::list<T>::value_type
+  get(pythonic::types::list<T> &&t)
+  {
+    return std::move(t)[I];
+  }
+
   template <size_t I, class T>
   typename pythonic::types::sliced_list<T>::reference
   get(pythonic::types::sliced_list<T> &t)
   {
     return t[I];
   }
+
   template <size_t I, class T>
   typename pythonic::types::sliced_list<T>::const_reference
   get(pythonic::types::sliced_list<T> const &t)
   {
     return t[I];
+  }
+
+  template <size_t I, class T>
+  typename pythonic::types::sliced_list<T>::value_type
+  get(pythonic::types::sliced_list<T> &&t)
+  {
+    return std::move(t)[I];
   }
 }
 

@@ -17,6 +17,12 @@ namespace pythonic
       template <class T, class F>
       types::none_type extend(types::list<T> &seq, types::list<F> const &add);
 
+      template <class T, class F>
+      types::none_type extend(types::list<T> &&seq, types::list<F> const &add);
+
+      template <class F>
+      types::none_type extend(types::empty_list, types::list<F> const &);
+
       DECLARE_FUNCTOR(pythonic::__builtin__::list, extend);
     }
   }

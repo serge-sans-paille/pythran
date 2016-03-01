@@ -5,6 +5,7 @@
 #include "pythonic/include/types/long.hpp"
 #include "pythonic/include/types/tuple.hpp"
 
+#include "pythonic/include/types/assignable.hpp"
 #include "pythonic/include/utils/shared_ref.hpp"
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/utils/int_.hpp"
@@ -231,6 +232,23 @@ namespace pythonic
     auto mod(const char(&fmt)[N], Arg &&arg)
         -> decltype(pythonic::types::str(fmt) % std::forward<Arg>(arg));
   }
+
+  template <>
+  struct assignable<char *> {
+    using type = types::str;
+  };
+  template <>
+  struct assignable<char const *> {
+    using type = types::str;
+  };
+  template <size_t N>
+  struct assignable<char[N]> {
+    using type = types::str;
+  };
+  template <size_t N>
+  struct assignable<char const[N]> {
+    using type = types::str;
+  };
 }
 
 pythonic::types::str operator*(pythonic::types::str const &s, long n);
@@ -268,6 +286,11 @@ struct __combined<char const *, pythonic::types::str> {
 
 template <>
 struct __combined<pythonic::types::str, char const *> {
+  using type = pythonic::types::str;
+};
+
+template <size_t N, size_t M>
+struct __combined<char[N], char[M]> {
   using type = pythonic::types::str;
 };
 

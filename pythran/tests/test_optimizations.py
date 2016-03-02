@@ -353,6 +353,13 @@ def foo(a):
     return 2"""
         self.check_ast(init, ref, ["pythran.optimizations.DeadCodeElimination"])
 
+    def test_deadcodeelimination4(self):
+        init = 'def noeffect(i): a=[];b=[a]; __builtin__.list.append(b[0],i); return None'
+        ref = 'import itertools\ndef noeffect(i):\n    pass\n    pass\n    pass\n    return __builtin__.None'
+        self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution",
+                                   "pythran.optimizations.ConstantFolding",
+                                   "pythran.optimizations.DeadCodeElimination"])
+
     def test_patternmatching(self):
         init = """
 def foo(a):

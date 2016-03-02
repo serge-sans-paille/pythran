@@ -259,13 +259,13 @@ def np_trim_zeros2(x):
         self.run_test("def np_unique3(x): from numpy import unique ; return unique(x, True, True)", numpy.array([1,1,2,2,2,1,5]), np_unique3=[numpy.array([int])])
 
     def test_unwrap0(self):
-        self.run_test("def np_unwrap0(x): from numpy import unwrap, pi ; x[:3] += 2*pi; return unwrap(x)", numpy.arange(6), np_unwrap0=[numpy.array([int])])
+        self.run_test("def np_unwrap0(x): from numpy import unwrap, pi ; x[:3] += 2*pi; return unwrap(x)", numpy.arange(6, dtype=float), np_unwrap0=[numpy.array([float])])
 
     def test_unwrap1(self):
-        self.run_test("def np_unwrap1(x): from numpy import unwrap, pi ; x[:3] += 2*pi; return unwrap(x, 4)", numpy.arange(6), np_unwrap1=[numpy.array([int])])
+        self.run_test("def np_unwrap1(x): from numpy import unwrap, pi ; x[:3] += 2*pi; return unwrap(x, 4)", numpy.arange(6, dtype=float), np_unwrap1=[numpy.array([float])])
 
     def test_unwrap2(self):
-        self.run_test("def np_unwrap2(x): from numpy import unwrap, pi ; x[:3] -= 2*pi; return unwrap(x, 4)", numpy.arange(6), np_unwrap2=[numpy.array([int])])
+        self.run_test("def np_unwrap2(x): from numpy import unwrap, pi ; x[:3] -= 2*pi; return unwrap(x, 4)", numpy.arange(6, dtype=float), np_unwrap2=[numpy.array([float])])
 
     def test_numpy_pow0(self):
         self.run_test('def numpy_pow0(a): return a ** 2',

@@ -7,9 +7,17 @@ from pythran.syntax import PythranSyntaxError
 from pythran.tables import functions, methods, MODULES
 import pythran.metadata as md
 
+from itertools import product
+
 import ast
 
 IntrinsicAliases = dict()
+
+
+class ContainerOf(object):
+    def __init__(self, index, containee):
+        self.index = index
+        self.containee = containee
 
 
 def save_intrinsic_alias(module):
@@ -134,33 +142,53 @@ class Aliases(ModuleAnalysis):
     def visit_Return(self, node):
         if not node.value:
             return
-        for alias in self.visit(node.value):
-            # FIXME: handle subscript
-            if isinstance(alias, ast.Name):
-                if isinstance(alias.ctx, ast.Param):
-                    self.aliases.setdefault(Aliases.RetId, set()).add(alias.id)
+        self.aliases.setdefault(Aliases.RetId, set()).update(
+            self.visit(node.value))
 
     def call_return_alias(self, node):
+
+        def interprocedural_aliases(func, args):
+            arg_aliases = [self.result[arg].aliases
+                           for arg in args]
+            return_aliases = set()
+            for args_combination in product(*arg_aliases):
+                return_aliases.update(
+                    func.return_alias(args_combination))
+            return set(map(expand_subscript, return_aliases))
+
+        def expand_subscript(node):
+            if isinstance(node, ast.Subscript):
+                if isinstance(node.value, ContainerOf):
+                    return node.value.containee
+            return node
+
+        def full_args(func, call):
+            args = call.args
+            if isinstance(func, ast.FunctionDef):
+                extra = len(func.args.args) - len(args)
+                args = args + func.args.defaults[extra:]
+            return args
+
         func = node.func
         aliases = set()
-        if isinstance(func, ast.Attribute):
+
+        if node.keywords:
+            # too soon, we don't support keywords in interprocedural_aliases
+            pass
+        elif isinstance(func, ast.Attribute):
             _, signature = methods.get(func.attr,
                                        functions.get(func.attr,
                                                      [(None, None)])[0])
             if signature:
-                aliases = signature.return_alias(node)
+                args = full_args(signature, node)
+                aliases = interprocedural_aliases(signature, args)
+
         elif isinstance(func, ast.Name):
             func_aliases = self.result[func].aliases
             for func_alias in func_aliases:
-                signature = None
-                if isinstance(func_alias, ast.FunctionDef):
-                    _, signature = functions.get(
-                        func_alias.name,
-                        [(None, None)])[0]
-                    if signature:
-                        aliases.update(signature.return_alias(node))
-                elif hasattr(func_alias, 'return_alias'):
-                    aliases.update(func_alias.return_alias(node))
+                if hasattr(func_alias, 'return_alias'):
+                    args = full_args(func_alias, node)
+                    aliases.update(interprocedural_aliases(func_alias, args))
                 else:
                     pass  # better thing to do ?
         [self.add(a) for a in aliases if a not in self.result]
@@ -197,9 +225,26 @@ class Aliases(ModuleAnalysis):
         return self.add(node, {Aliases.access_path(node)})
 
     def visit_Subscript(self, node):
-        self.generic_visit(node)
-        # could be enhanced through better handling of containers
-        return self.add(node)
+        if isinstance(node.slice, ast.Index):
+            aliases = set()
+            self.visit(node.slice)
+            value_aliases = self.visit(node.value)
+            for alias in value_aliases:
+                if isinstance(alias, ContainerOf):
+                    if isinstance(node.slice.value, ast.Slice):
+                        continue
+                    if isinstance(node.slice.value, ast.Num):
+                        if node.slice.value.n != alias.index:
+                            continue
+                    # FIXME: what if the index is a slice variable...
+                    aliases.add(alias.containee)
+                elif isinstance(getattr(alias, 'ctx', None), ast.Param):
+                    aliases.add(ast.Subscript(alias, node.slice, node.ctx))
+        else:
+            # could be enhanced through better handling of containers
+            aliases = None
+            self.generic_visit(node)
+        return self.add(node, aliases)
 
     def visit_Name(self, node):
         if node.id not in self.aliases:
@@ -211,12 +256,17 @@ class Aliases(ModuleAnalysis):
         return self.add(node, self.aliases[node.id].copy())
 
     def visit_List(self, node):
-        self.generic_visit(node)
-        return self.add(node)  # not very accurate
+        if node.elts:
+            elts_aliases = set()
+            for i, elt in enumerate(node.elts):
+                elt_aliases = self.visit(elt)
+                elts_aliases.update(ContainerOf(i, alias)
+                                    for alias in elt_aliases)
+        else:
+            elts_aliases = None
+        return self.add(node, elts_aliases)
 
-    def visit_Tuple(self, node):
-        self.generic_visit(node)
-        return self.add(node)  # not very accurate
+    visit_Tuple = visit_List
 
     def visit_comprehension(self, node):
         self.aliases[node.target.id] = {node.target}
@@ -258,10 +308,37 @@ class Aliases(ModuleAnalysis):
 
         self.generic_visit(node)
         if Aliases.RetId in self.aliases:
-            param_indices = {i for i, arg in enumerate(node.args.args)
-                             if arg.id in self.aliases}
-            node.return_alias = lambda call: {call.args[i]
-                                              for i in param_indices}
+            # multiple return alias not supported... yet!
+            if len(self.aliases[Aliases.RetId]) == 1:
+                ret_alias = next(iter(self.aliases[Aliases.RetId]))
+
+                # parametrize the expression
+                def parametrize(exp):
+                    if isinstance(exp, ast.Index):
+                        return lambda _: {exp}
+                    elif isinstance(exp, ast.Name):
+                        try:
+                            w = node.args.args.index(exp)
+
+                            def return_alias(args):
+                                if w < len(args):
+                                    return {args[w]}
+                                else:
+                                    return {node.args.defaults[w - len(args)]}
+                            return return_alias
+                        except ValueError:
+                            return lambda _: {NewMem}
+                    elif isinstance(exp, ast.Subscript):
+                        values = parametrize(exp.value)
+                        slices = parametrize(exp.slice)
+                        return lambda args: {
+                            ast.Subscript(value, slice, ast.Load())
+                            for value in values(args)
+                            for slice in slices(args)}
+                    else:
+                        return lambda _: {NewMem}
+
+                node.return_alias = parametrize(ret_alias)
 
     def visit_Assign(self, node):
         md.visit(self, node)
@@ -277,6 +354,7 @@ class Aliases(ModuleAnalysis):
                 self.visit(t)
 
     def visit_For(self, node):
+        # FIXME: node.target.id could alias to the content of node.iter
         self.aliases[node.target.id] = {node.target}
         # Error may come from false branch evaluation so we have to try again
         try:

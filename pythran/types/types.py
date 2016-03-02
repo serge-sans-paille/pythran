@@ -11,7 +11,7 @@ from pythran.cxxtypes import NamedType, ContainerType, PType, Assignable, Lazy
 from pythran.cxxtypes import ExpressionType, IteratorContentType, ReturnType
 from pythran.cxxtypes import GetAttr, DeclType, ElementType, IndexableType
 from pythran.cxxtypes import Weak, ListType, SetType, DictType, TupleType
-from pythran.cxxtypes import ArgumentType, Returnable
+from pythran.cxxtypes import ArgumentType, Returnable, CombinedTypes
 from pythran.intrinsic import UserFunction, MethodIntr, Class
 from pythran.passmanager import ModuleAnalysis
 from pythran.tables import operator_to_lambda, MODULES
@@ -120,9 +120,9 @@ class Types(ModuleAnalysis):
             for alias in self.strict_aliases[func].aliases:
                 # handle backward type dependencies from method calls
                 if hasattr(alias, 'return_alias'):
-                    return_alias = alias.return_alias(n)
+                    return_alias = alias.return_alias(n.args)
                     if return_alias:  # else new location -> unboundable
-                        return self.node_to_id(list(return_alias)[0], depth)
+                        return self.node_to_id(next(iter(return_alias)), depth)
         raise UnboundableRValue()
 
     def isargument(self, node):
@@ -163,14 +163,23 @@ class Types(ModuleAnalysis):
                 node_id, depth = self.node_to_id(node)
                 if depth > 0:
                     node = ast.Name(node_id, ast.Load())
+                    former_unary_op = unary_op
+
+                    # update the type to reflect container nesting
+                    def unary_op(x):
+                        return reduce(lambda t, n: ContainerType(t),
+                                      xrange(depth), former_unary_op(x))
+
+                    # patch the op, as we no longer apply op, but infer content
+                    # but it's dangerous to combine with a weakling
+                    def op(*types):
+                        nonweaks = [t for t in types if not t.isweak()]
+                        if len(nonweaks) == 1:
+                            return nonweaks[0]
+                        else:
+                            return CombinedTypes(nonweaks)
+
                 self.name_to_nodes.setdefault(node_id, set()).add(node)
-
-                former_unary_op = unary_op
-
-                # update the type to reflect container nesting
-                def unary_op(x):
-                    return reduce(lambda t, n: ContainerType(t),
-                                  xrange(depth), former_unary_op(x))
 
             if isinstance(othernode, ast.FunctionDef):
                 new_type = NamedType(othernode.name)

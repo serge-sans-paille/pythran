@@ -114,15 +114,15 @@ class Types(ModuleAnalysis):
                 return self.node_to_id(n.value, depth)
             else:
                 return self.node_to_id(n.value, 1 + depth)
-        # use return_alias information if any
+        # use alias information if any
         elif isinstance(n, ast.Call):
-            func = n.func
-            for alias in self.strict_aliases[func].aliases:
-                # handle backward type dependencies from method calls
-                if hasattr(alias, 'return_alias'):
-                    return_alias = alias.return_alias(n.args)
-                    if return_alias:  # else new location -> unboundable
-                        return self.node_to_id(next(iter(return_alias)), depth)
+            for alias in self.strict_aliases[n].aliases:
+                if alias is n:  # no specific alias info
+                    continue
+                try:
+                    return self.node_to_id(alias, depth)
+                except UnboundableRValue:
+                    continue
         raise UnboundableRValue()
 
     def isargument(self, node):

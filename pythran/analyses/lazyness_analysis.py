@@ -325,7 +325,7 @@ class LazynessAnalysis(FunctionAnalysis):
             if isinstance(fun, ast.Call):  # call to partial functions
                 self.func_args_lazyness(fun.args[0], fun.args[1:] + args, node)
             elif fun in self.argument_effects:
-                # when there is an argument effet, we apply "modify" to the arg
+                # when there is an argument effect, apply "modify" to the arg
                 for i, arg in enumerate(self.argument_effects[fun]):
                     # check len of args as default is 11 args
                     if arg and len(args) > i:
@@ -336,7 +336,9 @@ class LazynessAnalysis(FunctionAnalysis):
                 # correctly thanks to aliasing
                 continue
             else:
-                raise PythranSyntaxError("Bad call in LazynessAnalysis", node)
+                # conservative choice
+                for arg in args:
+                    self.modify(arg, node)
 
     def visit_Call(self, node):
         """

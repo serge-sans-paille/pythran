@@ -1158,7 +1158,7 @@ pythonic::types::none_type>::type result_type;
             if len(elts_type) == 1:
                 elts_type = elts_type[0]
             else:
-                elts_type = CombinedTypes(elts_type)
+                elts_type = CombinedTypes(*elts_type)
             node_type = ListType(elts_type)
 
             # constructor disambiguation, clang++ workaround

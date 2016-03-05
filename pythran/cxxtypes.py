@@ -57,7 +57,7 @@ class Type(object):
             return self
         if isinstance(other, CombinedTypes) and self in other.types:
             return other
-        return CombinedTypes([self, other])
+        return CombinedTypes(self, other)
 
     def __repr__(self):
         return self.generate(lambda x: x)
@@ -139,7 +139,7 @@ class CombinedTypes(Type):
     typename __combined<char,long>::type
     """
 
-    def __init__(self, types):
+    def __init__(self, *types):
         super(CombinedTypes, self).__init__(
             types=types,
             qualifiers=set.union(*[t.qualifiers for t in types])
@@ -150,14 +150,14 @@ class CombinedTypes(Type):
 
     def __add__(self, other):
         if isinstance(other, CombinedTypes):
-            return CombinedTypes([self, other])
+            return CombinedTypes(self, other)
         if other in self.types:
             return self
         if other.isweak() and not self.isweak():
             return self
         if self == other:
             return self
-        return CombinedTypes([self, other])
+        return CombinedTypes(self, other)
 
     def all_types(self):
         out = set()

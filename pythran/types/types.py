@@ -177,7 +177,7 @@ class Types(ModuleAnalysis):
                         if len(nonweaks) == 1:
                             return nonweaks[0]
                         else:
-                            return CombinedTypes(nonweaks)
+                            return CombinedTypes(*nonweaks)
 
                 self.name_to_nodes.setdefault(node_id, set()).add(node)
 

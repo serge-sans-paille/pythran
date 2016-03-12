@@ -1,4 +1,4 @@
-#pythran export arc_distance(float [], float[], float[], float[])
+#pythran export arc_distance(float [:], float[], float[], float[])
 #runas import numpy as np; arc_distance(np.array([12.4,0.5,-5.6,12.34,9.21]),np.array([-5.6,3.4,2.3,-23.31,12.6]),np.array([3.45,1.5,55.4,567.0,43.2]),np.array([56.1,3.4,1.34,-56.9,-3.4]))
 #bench import numpy.random; N=5000000; a, b, c, d = numpy.random.rand(N), numpy.random.rand(N), numpy.random.rand(N), numpy.random.rand(N); arc_distance(a, b, c, d)
 

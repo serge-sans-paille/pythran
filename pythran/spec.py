@@ -151,20 +151,18 @@ class SpecParser:
         '''type : term
                 | type LIST
                 | type SET
-                | type LARRAY RARRAY
-                | type LARRAY COLUMN COLUMN RARRAY
+                | type LARRAY array_indices RARRAY
                 | type COLUMN type DICT
                 | LPAREN types RPAREN'''
+
         if len(p) == 2:
             p[0] = p[1]
         elif len(p) == 3 and p[2] == 'list':
             p[0] = [p[1]]
         elif len(p) == 3 and p[2] == 'set':
             p[0] = {p[1]}
-        elif len(p) == 4 and p[3] == ']':
-            p[0] = array([p[1]])
-        elif len(p) == 6 and p[5] == ']':
-            p[0] = array([p[1]])[::-1]
+        elif len(p) == 5 and p[4] == ']':
+            p[0] = reduce(lambda x, y: array([x])[::y], p[3], p[1])
         elif len(p) == 5:
             p[0] = {p[1]: p[3]}
         elif len(p) == 4 and p[3] == ')':
@@ -172,6 +170,23 @@ class SpecParser:
         else:
             raise SyntaxError("Invalid Pythran spec. "
                               "Unknown text '{0}'".format(p.value))
+
+    def p_array_indices(self, p):
+        '''array_indices : array_index
+                         | array_index COMMA array_indices'''
+        if len(p) == 2:
+            p[0] = p[1],
+        else:
+            p[0] = (p[1],) + p[3]
+
+    def p_array_index(self, p):
+        '''array_index :
+                       | COLUMN
+                       | COLUMN COLUMN'''
+        if len(p) == 3:
+            p[0] = -1
+        else:
+            p[0] = 1
 
     def p_term(self, p):
         '''term : STR

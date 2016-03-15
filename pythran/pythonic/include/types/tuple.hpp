@@ -459,6 +459,15 @@ struct __combined<std::tuple<t0...>, std::tuple<t1...>> {
   using type = std::tuple<typename __combined<t0, t1>::type...>; // no further
                                                                  // combination
 };
+template <class t, class... t0>
+struct __combined<std::tuple<t0...>, container<t>> {
+  using type = std::tuple<t0...>;
+};
+
+template <class t, class... t0>
+struct __combined<container<t>, std::tuple<t0...>> {
+  using type = std::tuple<t0...>;
+};
 
 template <class t, size_t n, class... types>
 struct __combined<pythonic::types::array<t, n>, std::tuple<types...>> {

@@ -15,6 +15,10 @@ namespace pythonic
   };
 
   template <class T>
+  struct assignable<T const> : assignable<T> {
+  };
+
+  template <class T>
   struct assignable<T const &> : assignable<T> {
   };
 

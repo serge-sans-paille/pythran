@@ -43,6 +43,17 @@ def dict_of_set():
     def test_typing_aliasing_and_fwd(self):
         self.run_test('def typing_aliasing_and_fwd(i): fwd = lambda x:x; l = []; fwd(l).append(i); return l', 115, typing_aliasing_and_fwd=[int])
 
+    def test_typing_aliasing_and_constant_subscript(self):
+        self.run_test('def typing_aliasing_and_constant_subscript(i): a=[];b=[a];b[0].append(i); return a', 118, typing_aliasing_and_constant_subscript=[int])
+
+    def test_typing_aliasing_and_constant_subscript_and_call(self):
+        self.run_test('def typing_aliasing_and_constant_subscript_and_call(i): a=[];b=[a];(lambda x,y: x[y])(b,i).append(i); return a', 0, typing_aliasing_and_constant_subscript_and_call=[int])
+
+    def test_typing_aliasing_and_variable_subscript(self):
+        self.run_test('def typing_aliasing_and_variable_subscript(i): a=[];b=[a];b[i].append(i); return a', 0, typing_aliasing_and_variable_subscript=[int])
+
+    def test_typing_aliasing_and_variable_subscript_combiner(self):
+        self.run_test('def typing_aliasing_and_variable_subscript_combiner(i): a=[list.append, lambda x,y: x.extend([y])]; b = []; a[i](b, i); return b', 1, typing_aliasing_and_variable_subscript_combiner=[int])
 
     def test_typing_aliasing_and_update(self):
         code = '''

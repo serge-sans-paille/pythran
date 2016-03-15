@@ -33,6 +33,9 @@ class Type(object):
     def isweak(self):
         return Weak in self.qualifiers
 
+    def iscombined(self):
+        return False
+
     def all_types(self):
         return {self}
 
@@ -54,7 +57,7 @@ class Type(object):
             return self
         if isinstance(other, CombinedTypes) and self in other.types:
             return other
-        return CombinedTypes([self, other])
+        return CombinedTypes(self, other)
 
     def __repr__(self):
         return self.generate(lambda x: x)
@@ -136,22 +139,25 @@ class CombinedTypes(Type):
     typename __combined<char,long>::type
     """
 
-    def __init__(self, types):
+    def __init__(self, *types):
         super(CombinedTypes, self).__init__(
             types=types,
             qualifiers=set.union(*[t.qualifiers for t in types])
             )
 
+    def iscombined(self):
+        return True
+
     def __add__(self, other):
         if isinstance(other, CombinedTypes):
-            return CombinedTypes([self, other])
+            return CombinedTypes(self, other)
         if other in self.types:
             return self
         if other.isweak() and not self.isweak():
             return self
         if self == other:
             return self
-        return CombinedTypes([self, other])
+        return CombinedTypes(self, other)
 
     def all_types(self):
         out = set()
@@ -215,6 +221,9 @@ class DependentType(Type):
     def __init__(self, of):
         super(DependentType, self).__init__(of=of,
                                             qualifiers=of.qualifiers)
+
+    def iscombined(self):
+        return self.of.iscombined()
 
 
 class Assignable(DependentType):
@@ -359,6 +368,9 @@ std::declval<str>()))>::type>::type
                                           of=of,
                                           index=index)
 
+    def iscombined(self):
+        return self.of.iscombined()
+
     def generate(self, ctx):
         return 'typename std::tuple_element<{0},{1}>::type'.format(
             self.index,
@@ -408,6 +420,9 @@ std::declval<bool>()))
 
         super(TupleType, self).__init__(ofs=ofs, qualifiers=qualifiers)
 
+    def iscombined(self):
+        return any(of.iscombined() for of in self.ofs)
+
     def generate(self, ctx):
         elts = (ctx(of).generate(ctx) for of in self.ofs)
         telts = ('std::declval<{0}>()'.format(elt) for elt in elts)
@@ -429,6 +444,9 @@ class DictType(Type):
             of_key=of_key,
             of_value=of_value
             )
+
+    def iscombined(self):
+        return any(of.iscombined() for of in (self.of_key, self.of_value))
 
     def generate(self, ctx):
         return 'pythonic::types::dict<{0},{1}>'.format(
@@ -476,6 +494,9 @@ class ExpressionType(Type):
             qualifiers=set.union(*[expr.qualifiers for expr in exprs]),
             op=op,
             exprs=exprs)
+
+    def iscombined(self):
+        return any(expr.iscombined() for expr in self.exprs)
 
     def generate(self, ctx):
         texprs = (ctx(expr).generate(ctx) for expr in self.exprs)

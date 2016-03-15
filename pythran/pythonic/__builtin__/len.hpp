@@ -41,7 +41,7 @@ namespace pythonic
                            typename T::iterator>::iterator_category,
                        std::random_access_iterator_tag>::value,
           "distance is not really efficient without random iterators...");
-      return std::distance(t.begin(), t.end());
+      return std::distance(std::begin(t), std::end(t));
     }
 
     DEFINE_FUNCTOR(pythonic::__builtin__, len);

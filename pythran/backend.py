@@ -14,7 +14,8 @@ from pythran.cxxgen import Statement, Block, AnnotatedStatement, Typedef
 from pythran.cxxgen import Value, FunctionDeclaration, EmptyStatement, Static
 from pythran.cxxgen import FunctionBody, Line, ReturnStatement, Struct, Assign
 from pythran.cxxgen import For, While, TryExcept, ExceptHandler, If, AutoFor
-from pythran.cxxtypes import Assignable, DeclType, NamedType
+from pythran.cxxtypes import (Assignable, DeclType, NamedType,
+                              ListType, CombinedTypes, Lazy)
 from pythran.openmp import OMPDirective
 from pythran.passmanager import Backend
 from pythran.syntax import PythranSyntaxError
@@ -653,8 +654,18 @@ pythonic::types::none_type>::type result_type;
             tdecls = {t.id for t in node.targets}
             self.ldecls = {d for d in self.ldecls if d.id not in tdecls}
             # add a local declaration
-            alltargets = '{} {}'.format(self.typeof(node.targets[0]),
-                                        alltargets)
+            if self.types[node.targets[0]].iscombined():
+                alltargets = '{} {}'.format(self.typeof(node.targets[0]),
+                                            alltargets)
+            elif isinstance(self.types[node.targets[0]], Assignable):
+                alltargets = '{} {}'.format(
+                    Assignable(NamedType('decltype({})'.format(value))),
+                    alltargets)
+            else:
+                assert isinstance(self.types[node.targets[0]], Lazy)
+                alltargets = '{} {}'.format(
+                    Lazy(NamedType('decltype({})'.format(value))),
+                    alltargets)
         stmt = Assign(alltargets, value)
         return self.process_omp_attachements(node, stmt)
 
@@ -1143,16 +1154,20 @@ pythonic::types::none_type>::type result_type;
             return "pythonic::__builtin__::functor::list{}()"
         else:
             elts = [self.visit(n) for n in node.elts]
+            elts_type = [DeclType(elt) for elt in elts]
+            if len(elts_type) == 1:
+                elts_type = elts_type[0]
+            else:
+                elts_type = CombinedTypes(*elts_type)
+            node_type = ListType(elts_type)
+
             # constructor disambiguation, clang++ workaround
             if len(elts) == 1:
                 elts.append('pythonic::types::single_value()')
-                return "{0}({{ {1} }})".format(
-                    Assignable(self.types[node]),
-                    ", ".join(elts))
-            else:
-                return "{0}({{ {1} }})".format(
-                    Assignable(self.types[node]),
-                    ", ".join(elts))
+
+            return "{0}({{ {1} }})".format(
+                Assignable(node_type),
+                ", ".join(elts))
 
     def visit_Set(self, node):
         if not node.elts:  # empty set

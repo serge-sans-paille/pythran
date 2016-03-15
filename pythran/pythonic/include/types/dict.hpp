@@ -403,6 +403,16 @@ struct __combined<indexable_container<K, W>, dict_container<V>> {
   using type = pythonic::types::dict<K, typename __combined<V, W>::type>;
 };
 
+template <class V, class K, class W>
+struct __combined<indexable_dict<V>, indexable_container<K, W>> {
+  using type = pythonic::types::dict<typename __combined<K, V>::type, W>;
+};
+
+template <class V, class K, class W>
+struct __combined<indexable_container<K, W>, indexable_dict<V>> {
+  using type = pythonic::types::dict<typename __combined<K, V>::type, W>;
+};
+
 template <class K, class V, class W>
 struct __combined<pythonic::types::dict<K, V>, dict_container<W>> {
   using type = pythonic::types::dict<K, typename __combined<V, W>::type>;

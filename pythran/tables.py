@@ -209,9 +209,9 @@ CLASSES = {
                     self.result[node.args[2]]),
                 register=True,
                 aliasing_type=True),
-            return_alias=lambda node: {
-                ast.Subscript(node.args[0],
-                              ast.Index(node.args[1]),
+            return_alias=lambda args: {
+                ast.Subscript(args[0],
+                              ast.Index(args[1]),
                               ast.Load())
             }
         ),
@@ -869,7 +869,7 @@ MODULES = {
         "indexOf": ConstFunctionIntr(),
         "__theitemgetter__": ConstFunctionIntr(),
         "itemgetter": MethodIntr(
-            return_alias=lambda node: {
+            return_alias=lambda _: {
                 MODULES['operator_']['__theitemgetter__']}
             ),
 

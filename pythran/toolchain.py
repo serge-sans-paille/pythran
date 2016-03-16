@@ -172,6 +172,13 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
         for function_name, signatures in specs.iteritems():
             internal_func_name = renamings.get(function_name,
                                                function_name)
+            # global variables are functions with no signatures :-)
+            if not signatures:
+                mod.add_global_var(function_name,
+                                   "{}()()".format(
+                                       pythran_ward + '{0}::{1}'.format(
+                                           module_name, internal_func_name)))
+
             for sigid, signature in enumerate(signatures):
                 numbered_function_name = "{0}{1}".format(internal_func_name,
                                                          sigid)

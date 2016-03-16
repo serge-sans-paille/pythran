@@ -212,6 +212,10 @@ set), introduced by the ``list`` (resp. ``set``) keyword::
                | float32 | float64
                | complex64 | complex128
 
+The same syntax can be used to export global variable (in read only mode)::
+
+    #pythran export var_name
+
 
 Easy enough, isn't it?
 

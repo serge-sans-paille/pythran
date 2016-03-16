@@ -488,6 +488,7 @@ class PythonModule(object):
         self.preamble = []
         self.includes = []
         self.functions = {}
+        self.global_vars = []
         self.implems = []
         self.wrappers = []
         self.docstrings = docstrings
@@ -609,12 +610,22 @@ class PythonModule(object):
         func_descriptor = wrapper_name, types
         self.functions.setdefault(name, []).append(func_descriptor)
 
+    def add_global_var(self, name, init):
+        self.global_vars.append(name)
+        self.implems.append(Assign('static PyObject* ' + name,
+                                   'to_python({})'.format(init)))
+
     def generate(self):
         """Generate (i.e. yield) the source code of the
         module line-by-line.
         """
         themethods = []
+        theextraobjects = []
         theoverloads = []
+        for vname in self.global_vars:
+            theextraobjects.append(
+                'PyModule_AddObject(theModule, "{0}", {0});'.format(vname))
+
         for fname, overloads in self.functions.items():
             tryall = []
             candidates = []
@@ -715,9 +726,11 @@ class PythonModule(object):
                 PyModule_AddObject(theModule,
                                    "__pythran__",
                                    theDoc);
+                {extraobjects}
                 PYTHRAN_RETURN;
             }}
             '''.format(name=self.name,
+                       extraobjects='\n'.join(theextraobjects),
                        **self.metadata)
 
         body = (self.preamble +

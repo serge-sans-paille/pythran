@@ -96,10 +96,14 @@ class SpecParser:
 
     def p_export(self, p):
         '''export : PYTHRAN EXPORT IDENTIFIER LPAREN opt_types RPAREN
+                  | PYTHRAN EXPORT IDENTIFIER
                   | PYTHRAN EXPORT EXPORT LPAREN opt_types RPAREN'''
         # handle the unlikely case where the IDENTIFIER is ...
         # export or pythran :-)
-        self.exports[p[3]] = self.exports.get(p[3], ()) + (p[5],)
+        if len(p) > 4:
+            self.exports[p[3]] = self.exports.get(p[3], ()) + (p[5],)
+        else:
+            self.exports[p[3]] = ()
 
     def p_opt_craps(self, p):
         '''opt_craps :

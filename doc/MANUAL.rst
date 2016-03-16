@@ -216,8 +216,13 @@ The same syntax can be used to export global variable (in read only mode)::
 
     #pythran export var_name
 
+In a similar manner to the Python import statement, it's possible to chain the export, as in::
+
+    #pythran export var_name0, var_name1, function_name(argument_type0)
 
 Easy enough, isn't it?
+
+
 
 .. note::
 

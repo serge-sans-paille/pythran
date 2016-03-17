@@ -199,6 +199,59 @@ namespace pythonic
       return (*this)(s0);
     }
 
+    /* element filtering */
+    template <class E>
+    template <class F> // indexing through an array of boolean -- a mask
+    typename std::enable_if<is_numexpr_arg<F>::value and
+                                std::is_same<bool, typename F::dtype>::value,
+                            numpy_fexpr<numpy_texpr_2<E>, F>>::type
+    numpy_texpr_2<E>::fast(F const &filter) const
+    {
+      return {*this, filter};
+    }
+
+    template <class E>
+    template <class F> // indexing through an array of boolean -- a mask
+    typename std::enable_if<is_numexpr_arg<F>::value and
+                                std::is_same<bool, typename F::dtype>::value,
+                            numpy_fexpr<numpy_texpr_2<E>, F>>::type
+        numpy_texpr_2<E>::
+        operator[](F const &filter) const
+    {
+      return fast(filter);
+    }
+
+    template <class E>
+    template <class F> // indexing through an array of indices -- a view
+    typename std::enable_if<
+        is_numexpr_arg<F>::value and
+            not std::is_same<bool, typename F::dtype>::value,
+        ndarray<typename numpy_texpr_2<E>::dtype, 2>>::type numpy_texpr_2<E>::
+    operator[](F const &filter) const
+    {
+      ndarray<typename numpy_texpr_2<E>::dtype, 2> out(
+          array<long, 2>{{filter.flat_size(), shape()[1]}}, none_type());
+      std::transform(
+          filter.begin(), filter.end(), out.begin(),
+          [this](typename F::dtype index) { return operator[](index); });
+      return out;
+    }
+
+    template <class E>
+    template <class F> // indexing through an array of indices -- a view
+    typename std::enable_if<
+        is_numexpr_arg<F>::value and
+            not std::is_same<bool, typename F::dtype>::value,
+        ndarray<typename numpy_texpr_2<E>::dtype, 2>>::type
+    numpy_texpr_2<E>::fast(F const &filter) const
+    {
+      ndarray<typename numpy_texpr_2<E>::dtype, 2> out(
+          array<long, 2>{{filter.flat_size(), shape()[1]}}, none_type());
+      std::transform(filter.begin(), filter.end(), out.begin(),
+                     [this](typename F::dtype index) { return fast(index); });
+      return out;
+    }
+
     template <class E>
     template <class S, int... I>
     auto numpy_texpr_2<E>::_reverse_index(S const &indices,

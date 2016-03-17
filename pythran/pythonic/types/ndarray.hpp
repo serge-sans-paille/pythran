@@ -649,10 +649,12 @@ namespace pythonic
     typename std::enable_if<
         is_numexpr_arg<F>::value and
             not std::is_same<bool, typename F::dtype>::value,
-        ndarray<T, 1>>::type ndarray<T, N>::
+        ndarray<T, N>>::type ndarray<T, N>::
     operator[](F const &filter) const
     {
-      ndarray<T, 1> out(array<long, 1>{{filter.flat_size()}}, none_type());
+      array<long, N> shape = this->shape();
+      shape[0] = filter.flat_size();
+      ndarray<T, N> out(shape, none_type());
       std::transform(
           filter.begin(), filter.end(), out.begin(),
           [this](typename F::dtype index) { return operator[](index); });
@@ -664,10 +666,12 @@ namespace pythonic
     typename std::enable_if<
         is_numexpr_arg<F>::value and
             not std::is_same<bool, typename F::dtype>::value,
-        ndarray<T, 1>>::type
+        ndarray<T, N>>::type
     ndarray<T, N>::fast(F const &filter) const
     {
-      ndarray<T, 1> out(array<long, 1>{{filter.flat_size()}}, none_type());
+      array<long, N> shape = this->shape();
+      shape[0] = filter.flat_size();
+      ndarray<T, N> out(shape, none_type());
       std::transform(filter.begin(), filter.end(), out.begin(),
                      [this](typename F::dtype index) { return fast(index); });
       return out;

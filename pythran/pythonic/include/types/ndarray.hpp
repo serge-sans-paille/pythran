@@ -393,14 +393,14 @@ namespace pythonic
       typename std::enable_if<
           is_numexpr_arg<F>::value and
               not std::is_same<bool, typename F::dtype>::value,
-          ndarray<T, 1>>::type
+          ndarray<T, N>>::type
       operator[](F const &filter) const;
 
       template <class F> // indexing through an array of indices -- a view
       typename std::enable_if<
           is_numexpr_arg<F>::value and
               not std::is_same<bool, typename F::dtype>::value,
-          ndarray<T, 1>>::type
+          ndarray<T, N>>::type
       fast(F const &filter) const;
 
       /* through iterators */

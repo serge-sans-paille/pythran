@@ -7,6 +7,9 @@
 #ifdef _OPENMP
 #include <atomic>
 #endif
+#ifdef ENABLE_PYTHON_MODULE
+#include <Python.h>
+#endif
 
 namespace pythonic
 {

@@ -2,6 +2,7 @@
 #define PYTHONIC_INCLUDE_TYPES_GENERATOR_HPP
 
 #include <iterator>
+#include <cstddef>
 
 namespace pythonic
 {

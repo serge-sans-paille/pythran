@@ -29,10 +29,7 @@ Generator for C/C++.
 
 from __future__ import division
 from textwrap import dedent
-import networkx as nx
-from pythran.tables import pythran_ward, functions
-from pythran.intrinsic import ConstExceptionIntr
-import sys
+from pythran.tables import pythran_ward
 
 __copyright__ = "Copyright (C) 2008 Andreas Kloeckner"
 
@@ -497,49 +494,6 @@ class PythonModule(object):
         moduledoc = self.docstring(self.docstrings.get(None, ""))
         self.metadata['moduledoc'] = moduledoc
 
-        self._init_catches()
-
-    def _init_catches(self):
-        '''
-        Initialize the catch handler used by all pythran-generated functions
-        '''
-        # topologically sorted exceptions based on the inheritance hierarchy.
-        # needed because otherwise boost python register_exception handlers
-        # do not catch exception type in the right way
-        # (first valid exception is selected)
-        # Inheritance has to be taken into account in the registration order.
-        exceptions = nx.DiGraph()
-        for function_name, v in functions.iteritems():
-            for mname, symbol in v:
-                if isinstance(symbol, ConstExceptionIntr):
-                    exceptions.add_node(
-                        getattr(sys.modules[".".join(mname)], function_name))
-
-        # add edges based on class relationships
-        for n in exceptions:
-            if n.__base__ in exceptions:
-                exceptions.add_edge(n.__base__, n)
-
-        sorted_exceptions = nx.topological_sort(exceptions)
-
-        self.catches = ['''
-            #ifdef PYTHONIC_BUILTIN_{uname}_HPP
-                catch(pythonic::types::{name} & e) {{
-                    PyErr_SetString(PyExc_{name},
-                        pythonic::__builtin__::functor::str{{}}(e.args).c_str());
-                }}
-            #endif
-                '''.format(name=n.__name__,
-                           uname=n.__name__.upper())
-                        for n in sorted_exceptions]
-
-        self.catches.append('''
-            catch(...) {
-                PyErr_SetString(PyExc_RuntimeError,
-                    "Something happened on the way to heaven"
-                );
-            }''')
-
     def docstring(self, doc):
         return '"%s"' % (dedent(doc).replace('"', '\\"')
                                     .replace('\n', '\\n')
@@ -574,7 +528,7 @@ class PythonModule(object):
             args_unboxing.append('from_python<{}>(args_obj[{}])'.format(t, i))
             args_checks.append('is_convertible<{}>(args_obj[{}])'.format(t, i))
         if types:
-            wrapper = '''
+            wrapper = dedent('''
                 static PyObject *
                 {wname}(PyObject *self, PyObject *args)
                 {{
@@ -586,14 +540,14 @@ class PythonModule(object):
                     else {{
                         return nullptr;
                     }}
-                }}'''
+                }}''')
         else:
-            wrapper = '''
+            wrapper = dedent('''
                 static PyObject *
                 {wname}(PyObject *self, PyObject *args)
                 {{
                     return to_python({name}({args}));
-                }}'''
+                }}''')
 
         self.wrappers.append(
             wrapper.format(name=func.fdecl.name,
@@ -630,10 +584,10 @@ class PythonModule(object):
             tryall = []
             candidates = []
             for overload, types in overloads:
-                try_ = """
+                try_ = dedent("""
                     if(PyObject* obj = {name}(self, args))
                         return obj;
-                    """.format(name=overload)
+                    """.format(name=overload))
                 tryall.append(try_)
                 theargs = (t.replace("pythonic::types::", "")
                             .replace('::', '.')
@@ -644,46 +598,44 @@ class PythonModule(object):
 
             wrapper_name = pythran_ward + 'wrapall_' + fname
 
-            candidate = '''
+            candidate = dedent('''
             static PyObject *
             {wname}(PyObject *self, PyObject *args)
             {{
-                try {{
+                return pythonic::handle_python_exception([self, args]()
+                -> PyObject* {{
                 {tryall}
                 PyErr_SetString(PyExc_TypeError,
-                  "Invalid argument type for pythranized function `{name}'.\\n"
-                  "Candidates are:\\n{candidates}\\n"
+                "Invalid argument type for pythranized function `{name}'.\\n"
+                "Candidates are:\\n{candidates}\\n"
                 );
                 return nullptr;
-                }}
-                {catches}
-                return nullptr;
+                }});
             }}
             '''.format(name=fname,
                        tryall="\n".join(tryall),
                        candidates="\\n".join("   " + c for c in candidates),
-                       catches='\n'.join(self.catches),
-                       wname=wrapper_name)
+                       wname=wrapper_name))
 
             fdoc = self.docstring(self.docstrings.get(fname, ''))
-            themethod = '''{{
+            themethod = dedent('''{{
                 "{name}",
                 {wname},
                 METH_VARARGS,
                 {doc}}}'''.format(name=fname,
                                   wname=wrapper_name,
-                                  doc=fdoc)
+                                  doc=fdoc))
             themethods.append(themethod)
             theoverloads.append(candidate)
 
-        methods = '''
+        methods = dedent('''
             static PyMethodDef Methods[] = {{
                 {methods}
                 {{NULL, NULL, 0, NULL}}
             }};
-            '''.format(methods="".join(m + "," for m in themethods))
+            '''.format(methods="".join(m + "," for m in themethods)))
 
-        module = '''
+        module = dedent('''
             #if PY_MAJOR_VERSION >= 3
               static struct PyModuleDef moduledef = {{
                 PyModuleDef_HEAD_INIT,
@@ -735,7 +687,7 @@ class PythonModule(object):
             }}
             '''.format(name=self.name,
                        extraobjects='\n'.join(theextraobjects),
-                       **self.metadata)
+                       **self.metadata))
 
         body = (self.preamble +
                 self.includes +

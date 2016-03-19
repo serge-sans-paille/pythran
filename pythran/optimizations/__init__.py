@@ -21,3 +21,4 @@ from .loop_full_unrolling import LoopFullUnrolling
 from .pattern_transform import PatternTransform
 from .range_loop_unfolding import RangeLoopUnfolding
 from .square import Square
+from .inlining import Inlining

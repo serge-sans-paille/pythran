@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_DICT_GET_HPP
 
 #include "pythonic/include/types/dict.hpp"
-#include "pythonic/include/types/none.hpp"
+#include "pythonic/include/types/NoneType.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic

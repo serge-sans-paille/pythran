@@ -241,6 +241,14 @@ namespace pythonic
   struct to_python<types::none<T>> {
     static PyObject *convert(types::none<T> const &n);
   };
+
+  template <>
+  struct from_python<types::none_type> {
+
+    static bool is_convertible(PyObject *obj);
+
+    static types::none_type convert(PyObject *obj);
+  };
 }
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_TYPES_NONE_HPP
 #define PYTHONIC_TYPES_NONE_HPP
 
-#include "pythonic/include/types/none.hpp"
+#include "pythonic/include/types/NoneType.hpp"
 
 #include "pythonic/types/assignable.hpp"
 #include "pythonic/__builtin__/id.hpp"
@@ -323,6 +323,17 @@ namespace pythonic
 
 namespace pythonic
 {
+
+  bool from_python<types::none_type>::is_convertible(PyObject *obj)
+  {
+    return obj == Py_None;
+  }
+
+  types::none_type from_python<types::none_type>::convert(PyObject *obj)
+  {
+    return {};
+  }
+
   PyObject *to_python<types::none_type>::convert(types::none_type)
   {
     Py_RETURN_NONE;

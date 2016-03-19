@@ -5,7 +5,7 @@
 
 #include "pythonic/__builtin__/str/strip.hpp"
 #include "pythonic/types/list.hpp"
-#include "pythonic/types/none.hpp"
+#include "pythonic/types/NoneType.hpp"
 #include "pythonic/types/str.hpp"
 #include "pythonic/utils/functor.hpp"
 

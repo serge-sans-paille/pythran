@@ -5,7 +5,7 @@
 #include "pythonic/include/numpy/random/generator.hpp"
 
 #include "pythonic/types/ndarray.hpp"
-#include "pythonic/types/none.hpp"
+#include "pythonic/types/NoneType.hpp"
 #include "pythonic/types/tuple.hpp"
 #include "pythonic/utils/functor.hpp"
 

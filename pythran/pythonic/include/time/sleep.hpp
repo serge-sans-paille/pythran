@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_TIME_SLEEP_HPP
 
 #include "pythonic/include/utils/functor.hpp"
-#include "pythonic/include/types/none.hpp"
+#include "pythonic/include/types/NoneType.hpp"
 
 namespace pythonic
 {

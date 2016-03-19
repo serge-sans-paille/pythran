@@ -5,7 +5,7 @@
 #include "pythonic/include/utils/shared_ref.hpp"
 #include "pythonic/include/types/str.hpp"
 #include "pythonic/include/types/list.hpp"
-#include "pythonic/include/types/none.hpp"
+#include "pythonic/include/types/NoneType.hpp"
 #include "pythonic/include/types/attr.hpp"
 #include "pythonic/include/__builtin__/IOError.hpp"
 #include "pythonic/include/__builtin__/ValueError.hpp"

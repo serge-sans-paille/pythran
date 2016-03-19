@@ -14,14 +14,16 @@ Firstly lets clear the working space::
 
 One of the most classic use case in Pythran is to generate a native .so module::
 
-  $> printf '#pythran export foo()\ndef foo(): print \"hello world\"' > cli_foo.py
+  $> printf '#pythran export foo()\n#pythran export msg\nmsg = \"hello world\"\ndef foo(): print msg' > cli_foo.py
   $> pythran cli_foo.py
   $> ls cli_foo.so
   cli_foo.so
 
-The generated native ``.so`` module can then be called with the Python interpreter::
+The generated native ``.so`` module can then be used with the Python interpreter::
 
   $> python -c 'import cli_foo ; cli_foo.foo()'
+  hello world
+  $> python -c 'import cli_foo ; print(cli_foo.msg)'
   hello world
 
 Pythran version can be dumped through ``--version``::

@@ -120,3 +120,9 @@ def bar(i): return
         self.assertEquals(len(pythran.spec_parser(code)), 1)
         self.assertEquals(len(pythran.spec_parser(code)['foo']), 2)
 
+    def test_var_export0(self):
+        code = '''
+#      pythran export foo
+foo = 1
+            '''
+        self.assertTrue(pythran.spec_parser(code))

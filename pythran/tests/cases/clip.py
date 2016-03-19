@@ -1,5 +1,4 @@
-#pythran export clip(complex128[], float64)
-#pythran export clip(complex128[::], float64)
+#pythran export clip(complex128[], float64), clip(complex128[::], float64)
 #runas import numpy as np ; a = np.arange(2, dtype=complex); clip(a, .5), clip(a[2::4], .5)
 
 import numpy as np

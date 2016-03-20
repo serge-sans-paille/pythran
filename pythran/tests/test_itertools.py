@@ -114,6 +114,9 @@ def ifiltern_(l0):
     def test_count2(self):
         self.run_test("def count2(n): from itertools import count ; c = count(n,3.2) ; next(c); next(c); return next(c)", 100, count2=[int])
 
+    def test_count3(self):
+        self.run_test("def count3(n):\n from itertools import count\n j = 1\n for i in count(n):\n  if i == 10: return j\n  else: j +=1", 1, count3=[int])
+
     def test_next_enumerate(self):
         self.run_test("def next_enumerate(n): x = enumerate(n) ; next(x) ; return map(None, x)", range(5), next_enumerate=[[int]])
 

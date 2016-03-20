@@ -3,7 +3,7 @@
 
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/list.hpp"
-#include "pythonic/include/types/none.hpp"
+#include "pythonic/include/types/NoneType.hpp"
 
 namespace pythonic
 {

@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_NONE_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_NONE_HPP
 
-#include "pythonic/types/none.hpp"
+#include "pythonic/types/NoneType.hpp"
 
 namespace pythonic
 {

@@ -37,6 +37,7 @@ class SpecParser:
         'complex': 'COMPLEX',
         'int': 'INT',
         'long': 'LONG',
+        'None': 'NONE',
         'float': 'FLOAT',
         'uint8': 'UINT8',
         'uint16': 'UINT16',
@@ -130,6 +131,7 @@ class SpecParser:
                 | COMPLEX
                 | INT
                 | LONG
+                | NONE
                 | FLOAT
                 | UINT8
                 | UINT16
@@ -201,6 +203,7 @@ class SpecParser:
                 | COMPLEX
                 | INT
                 | LONG
+                | NONE
                 | FLOAT
                 | UINT8
                 | UINT16
@@ -221,6 +224,8 @@ class SpecParser:
         from numpy import uint8, uint16, uint32, uint64
 
         p[0] = eval(p[1])
+        if p[0] is None:
+            p[0] = type(None)
 
     def p_error(self, p):
         p_val = p.value if p else ''

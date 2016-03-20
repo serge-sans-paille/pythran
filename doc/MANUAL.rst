@@ -206,7 +206,7 @@ set), introduced by the ``list`` (resp. ``set``) keyword::
                   | argument_type [:,...,:]+ # this is a ndarray, Cython
                   | argument_type:argument_type dict    # this is a dictionary
 
-    basic_type = bool | int | long | float | str
+    basic_type = bool | int | long | float | str | None
                | uint8 | uint16 | uint32 | uint64
                | int8 | int16 | int32 | int64
                | float32 | float64

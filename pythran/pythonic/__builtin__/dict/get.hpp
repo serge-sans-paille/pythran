@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/dict/get.hpp"
 
 #include "pythonic/types/dict.hpp"
-#include "pythonic/types/none.hpp"
+#include "pythonic/types/NoneType.hpp"
 #include "pythonic/utils/functor.hpp"
 
 namespace pythonic

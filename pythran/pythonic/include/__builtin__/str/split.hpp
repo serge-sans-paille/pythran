@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_STR_SPLIT_HPP
 
 #include "pythonic/include/types/list.hpp"
-#include "pythonic/include/types/none.hpp"
+#include "pythonic/include/types/NoneType.hpp"
 #include "pythonic/include/types/str.hpp"
 #include "pythonic/include/utils/functor.hpp"
 

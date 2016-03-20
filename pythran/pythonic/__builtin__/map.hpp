@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/map.hpp"
 
 #include "pythonic/types/list.hpp"
-#include "pythonic/types/none.hpp"
+#include "pythonic/types/NoneType.hpp"
 #include "pythonic/types/tuple.hpp"
 #include "pythonic/utils/fwd.hpp"
 #include "pythonic/utils/functor.hpp"

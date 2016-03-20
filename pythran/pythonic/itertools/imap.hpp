@@ -4,7 +4,7 @@
 #include "pythonic/include/itertools/imap.hpp"
 
 #include "pythonic/itertools/common.hpp"
-#include "pythonic/types/none.hpp"
+#include "pythonic/types/NoneType.hpp"
 #include "pythonic/types/tuple.hpp"
 #include "pythonic/utils/fwd.hpp"
 #include "pythonic/utils/int_.hpp"

@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_NEWAXIS_HPP
 #define PYTHONIC_INCLUDE_NUMPY_NEWAXIS_HPP
 
-#include "pythonic/include/types/none.hpp"
+#include "pythonic/include/types/NoneType.hpp"
 
 namespace pythonic
 {

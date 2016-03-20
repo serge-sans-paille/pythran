@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_ITERTOOLS_IMAP_HPP
 
 #include "pythonic/include/itertools/common.hpp"
-#include "pythonic/include/types/none.hpp"
+#include "pythonic/include/types/NoneType.hpp"
 #include "pythonic/include/types/tuple.hpp"
 #include "pythonic/include/utils/int_.hpp"
 #include "pythonic/include/utils/iterator.hpp"

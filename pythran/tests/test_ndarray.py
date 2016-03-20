@@ -279,6 +279,24 @@ class TestNdarray(TestEnv):
    b[2] = -1;
    return c;""", assign_sliced_array=[])
 
+    def test_index_array_0(self):
+        self.run_test('''
+            def index_array_0(n):
+                import numpy
+                a = numpy.arange(n)
+                return a[numpy.array([1, 0])]''',
+                      10,
+                      index_array_0=[int])
+
+    def test_index_array_1(self):
+        self.run_test('''
+            def index_array_1(n):
+                import numpy
+                a = numpy.arange(n * 3).reshape(3, n)
+                return a[numpy.array([0, 1, 0, 2])]''',
+                      10,
+                      index_array_1=[int])
+
     def test_filter_array_0(self):
         self.run_test('def filter_array_0(n): import numpy ; a = numpy.zeros(n) ; return a[a>1]',
                       10,

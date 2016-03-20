@@ -185,6 +185,11 @@ def combiner_on_empty_list():
         with self.assertRaises(SyntaxError):
             self.run_test(code, function_redefinition=[])
 
+    def test_global_redefinition(self):
+        code = 'foo=0\nfoo=1\ndef global_redefinition(x):pass'
+        with self.assertRaises(SyntaxError):
+            self.run_test(code, global_redefinition=[])
+
     def test_invalid_call0(self):
         code = 'def foo(x):pass\ndef invalid_call0(): return foo()'
         with self.assertRaises(SyntaxError):

@@ -6,7 +6,9 @@ It also turn globals assignment in function definition.
 
 from pythran.analyses import LocalNameDeclarations
 from pythran.passmanager import Transformation
+from pythran.syntax import PythranSyntaxError
 from pythran import metadata
+
 
 import ast
 
@@ -46,6 +48,10 @@ class ExpandGlobals(Transformation):
                 continue
             for target in stmt.targets:
                 assert isinstance(target, ast.Name)
+                if target.id in self.to_expand:
+                    raise PythranSyntaxError(
+                        "Multiple top-level definition of %s." % target.id,
+                        target)
                 self.to_expand.add(target.id)
 
         for stmt in node.body:

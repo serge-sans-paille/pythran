@@ -1,5 +1,5 @@
 #ifndef PYTHONIC_TYPES_VARIANT_FUNCTOR_HPP
-#define PYTHONIC_TYPES_VARIANT_HPP
+#define PYTHONIC_TYPES_VARIANT_FUNCTOR_HPP
 
 #include "pythonic/include/types/variant_functor.hpp"
 

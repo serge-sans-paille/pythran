@@ -1,5 +1,5 @@
 """
-BoundedExpressions gathers temporary objects
+BoundExpressions gathers temporary objects
 """
 
 from pythran.passmanager import ModuleAnalysis
@@ -7,10 +7,10 @@ from pythran.passmanager import ModuleAnalysis
 import ast
 
 
-class BoundedExpressions(ModuleAnalysis):
+class BoundExpressions(ModuleAnalysis):
     '''Gathers all nodes that are bound to an identifier.'''
 
-    Boundable = (
+    Bindable = (
         ast.Name,
         ast.Subscript,
         ast.BoolOp,
@@ -18,20 +18,20 @@ class BoundedExpressions(ModuleAnalysis):
 
     def __init__(self):
         self.result = set()
-        super(BoundedExpressions, self).__init__()
+        super(BoundExpressions, self).__init__()
 
-    def isboundable(self, node):
-        return any(isinstance(node, t) for t in BoundedExpressions.Boundable)
+    def isbindable(self, node):
+        return any(isinstance(node, t) for t in BoundExpressions.Bindable)
 
     def visit_Assign(self, node):
         self.result.add(node.value)
-        if self.isboundable(node.value):
+        if self.isbindable(node.value):
             self.result.add(node.value)
         self.generic_visit(node)
 
     def visit_Call(self, node):
         for n in node.args:
-            if self.isboundable(n):
+            if self.isbindable(n):
                 self.result.add(n)
         self.generic_visit(node)
 
@@ -39,7 +39,7 @@ class BoundedExpressions(ModuleAnalysis):
         node.value and self.visit(node.value)
         if node.value:
             self.result.add(node.value)
-            if self.isboundable(node.value):
+            if self.isbindable(node.value):
                 self.result.add(node.value)
         self.generic_visit(node)
 

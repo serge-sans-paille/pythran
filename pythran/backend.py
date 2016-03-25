@@ -5,7 +5,7 @@ This module contains all pythran backends.
 '''
 from __future__ import print_function
 
-from pythran.analyses import ArgumentEffects, BoundedExpressions, Dependencies
+from pythran.analyses import ArgumentEffects, BoundExpressions, Dependencies
 from pythran.analyses import LocalNodeDeclarations, GlobalDeclarations, Scope
 from pythran.analyses import YieldPoints, IsAssigned, ASTMatcher, AST_any
 from pythran.analyses import RangeValues, PureExpressions
@@ -185,7 +185,7 @@ pythonic::types::none_type>::type result_type;
         self.result = None
         self.ldecls = set()
         super(Cxx, self).__init__(Dependencies, GlobalDeclarations,
-                                  BoundedExpressions, Types, ArgumentEffects,
+                                  BoundExpressions, Types, ArgumentEffects,
                                   Scope, RangeValues, PureExpressions)
 
     # mod
@@ -1119,7 +1119,7 @@ pythonic::types::none_type>::type result_type;
     # expr
     def visit_BoolOp(self, node):
         values = [self.visit(value) for value in node.values]
-        if node in self.bounded_expressions:
+        if node in self.bound_expressions:
             op = operator_to_lambda[type(node.op)]
         elif isinstance(node.op, ast.And):
             def op(l, r):
@@ -1258,7 +1258,7 @@ pythonic::types::none_type>::type result_type;
         # slice optimization case
         elif (isinstance(node.slice, ast.Slice) and
               (isinstance(node.ctx, ast.Store) or
-               node not in self.bounded_expressions)):
+               node not in self.bound_expressions)):
             slice_ = self.visit(node.slice)
             return "{1}({0})".format(slice_, value)
         # extended slice case

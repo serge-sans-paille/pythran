@@ -703,6 +703,10 @@ class PythonModule(object):
             #define PYTHRAN_MODULE_INIT(s) init##s
             #endif
             PyMODINIT_FUNC
+            PYTHRAN_MODULE_INIT({name})(void)
+            __attribute__ ((visibility("default")))
+            __attribute__ ((externally_visible));
+            PyMODINIT_FUNC
             PYTHRAN_MODULE_INIT({name})(void) {{
                 #ifdef PYTHONIC_TYPES_NDARRAY_HPP
                     import_array()

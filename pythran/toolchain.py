@@ -113,6 +113,13 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
     returns a PythonModule object
 
     '''
+    if sys.version_info[0] == 3:
+        raise ValueError(
+            "Pythran does not fully support Python3, "
+            "it can only be used to compile C++ code "
+            "generated with the -E flag with a Python2 version of Pythran. "
+            "Sorry about this :-/")
+
     pm = PassManager(module_name)
 
     # front end
@@ -333,7 +340,7 @@ def compile_pythranfile(file_path, output_file=None, module_name=None,
     # Add compiled module path to search for imported modules
     sys.path.append(os.path.dirname(file_path))
 
-    output_file = compile_pythrancode(module_name, file(file_path).read(),
+    output_file = compile_pythrancode(module_name, open(file_path).read(),
                                       output_file=output_file,
                                       cpponly=cpponly,
                                       **kwargs)

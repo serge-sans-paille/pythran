@@ -477,9 +477,10 @@ namespace pythonic
     }
     // TODO: have to raise a valueError
     template <class T>
-    void list<T>::remove(T const &x)
+    none_type list<T>::remove(T const &x)
     {
       erase(index(x));
+      return {};
     }
 
     // Misc

@@ -250,7 +250,7 @@ namespace pythonic
       T pop(long x = -1);
 
       // TODO: have to raise a valueError
-      void remove(T const &x);
+      none_type remove(T const &x);
 
       // Misc
       // TODO: have to raise a valueError

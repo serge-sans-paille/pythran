@@ -205,7 +205,9 @@ class Aliases(ModuleAnalysis):
             # expand collected aliases
             all_aliases = set()
             for value in return_alias:
-                if isinstance(value, NewMem):
+                # no translation
+                if isinstance(value, (NewMem, ContainerOf,
+                                      ast.FunctionDef, Intrinsic)):
                     all_aliases.add(value)
                 elif value in self.result:
                     all_aliases.update(self.result[value].aliases)
@@ -308,37 +310,57 @@ class Aliases(ModuleAnalysis):
 
         self.generic_visit(node)
         if Aliases.RetId in self.aliases:
-            # multiple return alias not supported... yet!
-            if len(self.aliases[Aliases.RetId]) == 1:
-                ret_alias = next(iter(self.aliases[Aliases.RetId]))
+            # parametrize the expression
+            def parametrize(exp):
+                # constant(?) or global -> no change
+                if isinstance(exp, (ast.Index, Intrinsic, ast.FunctionDef)):
+                    return lambda _: {exp}
+                elif isinstance(exp, ContainerOf):
+                    pcontainee = parametrize(exp.containee)
+                    index = exp.index
+                    return lambda args: {
+                        ContainerOf(index, pc)
+                        for pc in pcontainee(args)
+                        if not isinstance(pc, NewMem)
+                    }
+                elif isinstance(exp, ast.Name):
+                    try:
+                        w = node.args.args.index(exp)
 
-                # parametrize the expression
-                def parametrize(exp):
-                    if isinstance(exp, ast.Index):
-                        return lambda _: {exp}
-                    elif isinstance(exp, ast.Name):
-                        try:
-                            w = node.args.args.index(exp)
-
-                            def return_alias(args):
-                                if w < len(args):
-                                    return {args[w]}
-                                else:
-                                    return {node.args.defaults[w - len(args)]}
-                            return return_alias
-                        except ValueError:
-                            return lambda _: {NewMem}
-                    elif isinstance(exp, ast.Subscript):
-                        values = parametrize(exp.value)
-                        slices = parametrize(exp.slice)
-                        return lambda args: {
-                            ast.Subscript(value, slice, ast.Load())
-                            for value in values(args)
-                            for slice in slices(args)}
-                    else:
+                        def return_alias(args):
+                            if w < len(args):
+                                return {args[w]}
+                            else:
+                                return {node.args.defaults[w - len(args)]}
+                        return return_alias
+                    except ValueError:
                         return lambda _: {NewMem}
+                elif isinstance(exp, ast.Subscript):
+                    values = parametrize(exp.value)
+                    slices = parametrize(exp.slice)
+                    return lambda args: {
+                        ast.Subscript(value, slice, ast.Load())
+                        for value in values(args)
+                        for slice in slices(args)}
+                else:
+                    return lambda _: {NewMem}
 
-                node.return_alias = parametrize(ret_alias)
+            # this is a little tricky: for each returned alias,
+            # parametrize builds a function that, given a list of args,
+            # returns the alias
+            # then as we may have multiple returned alias, we compute the union
+            # of these returned aliases
+            return_aliases = [parametrize(ret_alias)
+                              for ret_alias
+                              in self.aliases[Aliases.RetId]]
+
+            def merge_return_aliases(args):
+                merged_return_aliases = set()
+                for return_alias in return_aliases:
+                    merged_return_aliases.update(return_alias(args))
+                return merged_return_aliases
+
+            node.return_alias = merge_return_aliases
 
     def visit_Assign(self, node):
         md.visit(self, node)

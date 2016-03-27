@@ -46,9 +46,6 @@ def dict_of_set():
     def test_typing_aliasing_and_constant_subscript(self):
         self.run_test('def typing_aliasing_and_constant_subscript(i): a=[];b=[a];b[0].append(i); return a', 118, typing_aliasing_and_constant_subscript=[int])
 
-    def test_typing_aliasing_and_constant_subscript_and_call(self):
-        self.run_test('def typing_aliasing_and_constant_subscript_and_call(i): a=[];b=[a];(lambda x,y: x[y])(b,i).append(i); return a', 0, typing_aliasing_and_constant_subscript_and_call=[int])
-
     def test_typing_aliasing_and_variable_subscript(self):
         self.run_test('def typing_aliasing_and_variable_subscript(i): a=[];b=[a];b[i].append(i); return a', 0, typing_aliasing_and_variable_subscript=[int])
 
@@ -65,6 +62,44 @@ def typing_aliasing_and_update():
     foo(a)
     return a'''
         self.run_test(code, typing_aliasing_and_update=[])
+
+    def test_typing_aliasing_and_update_and_globals(self):
+        code = '''
+def f(l): return len(l)
+def g(l): l.append(1) ; return 0
+foo=[f,g]
+def typing_aliasing_and_update_and_globals(i):
+    h = []
+    return foo[i](h), h'''
+        self.run_test(code, 1, typing_aliasing_and_update_and_globals=[int])
+
+    def test_typing_aliasing_and_update_and_multiple_aliasing0(self):
+        code = '''
+def f(l): return len(l)
+def g(l): l.append(1) ; return 0
+def foo(i):
+    if i < 1:
+        return f
+    else:
+        return g
+def typing_aliasing_and_update_and_multiple_aliasing0(i):
+    h = []
+    return foo(i)(h), h'''
+        self.run_test(code, 1, typing_aliasing_and_update_and_multiple_aliasing0=[int])
+
+    def test_typing_aliasing_and_update_and_multiple_aliasing1(self):
+        code = '''
+def foo(i):
+    if i < 1:
+        return list.remove
+    else:
+        return list.append
+def typing_aliasing_and_update_and_multiple_aliasing1(i):
+    h = []
+    foo(i)(h, 1)
+    return h'''
+        self.run_test(code, 1, typing_aliasing_and_update_and_multiple_aliasing1=[int])
+
 
     def test_functional_variant_container0(self):
         code='''

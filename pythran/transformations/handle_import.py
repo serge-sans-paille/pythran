@@ -1,10 +1,14 @@
 """HandleImport transformation takes care of importing user-defined modules."""
 from pythran.passmanager import Transformation
 from pythran.tables import cxx_keywords, MODULES, pythran_ward
+from pythran.syntax import PythranSyntaxError
 
 import ast
 import importlib
 import inspect
+import logging
+
+logger = logging.getLogger('pythran')
 
 
 def add_filename_field(node, filename):
@@ -39,7 +43,8 @@ def is_builtin_module(module):
 def filter_builtinIn_import(import_node):
     """Filter out import list to keep only builtin modules."""
     import_node.names = filter(is_builtin_module, import_node.names)
-    return import_node
+    # Remove the import statement if no builtin module were present.
+    return import_node if import_node.names else None
 
 
 class ImportFunction(ast.NodeTransformer):
@@ -184,19 +189,22 @@ class ImportedModule(object):
         for decl in self.node.body:
             if isinstance(decl, ast.FunctionDef):  # regular functions
                 self.functions[decl.name] = decl
-
-            if isinstance(decl, ast.Import):  # Module import
+            elif isinstance(decl, ast.Import):  # Module import
                 for alias in decl.names:
                     asname = alias.asname or alias.name
                     self.imported_modules[asname] = alias.name
-
-            if isinstance(decl, ast.ImportFrom):  # Function import
+            elif isinstance(decl, ast.ImportFrom):  # Function import
                 module_name = decl.module
                 for alias in decl.names:
                     func_name = alias.name
                     asname = alias.asname or func_name
                     self.imported_functions[asname] = (module_name, func_name,
                                                        None)
+            elif isinstance(decl, ast.Assign):
+                # FIXME : We ignore import of globals
+                pass
+            else:
+                raise PythranSyntaxError('Unpythranizable module: %s' % name)
 
     def call_function(self, registry, func_name):
         """Direct function call from another function of the current module,
@@ -355,6 +363,17 @@ class HandleImport(Transformation):
 
         # Patch module body: prepend all imported function and import nodes
         imported = self.registry.generate_ImportList()
+        external_modules_name = [f for f in self.module.imported_modules
+                                 if not is_builtin_module_name(f)]
+        if not imported and external_modules_name:
+            # We can't raise an exception as it may just be an unused import.
+            # FIXME : To improve this, we have to handle aliasing so that we
+            # can know sys.stdout is not an attribute of class but a function
+            # call from a module even when the function is not defined (.so
+            # file for example)
+            logger.warn("Module : '" + "', '".join(external_modules_name) +
+                        "' is imported but not used or can't be imported by "
+                        "Pythran.")
         module.body = imported + module.body
         self.update |= bool(imported)
         return module

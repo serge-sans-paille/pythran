@@ -44,13 +44,62 @@ def dict_of_set():
         self.run_test('def typing_aliasing_and_fwd(i): fwd = lambda x:x; l = []; fwd(l).append(i); return l', 115, typing_aliasing_and_fwd=[int])
 
     def test_typing_aliasing_and_constant_subscript(self):
-        self.run_test('def typing_aliasing_and_constant_subscript(i): a=[];b=[a];b[0].append(i); return a', 118, typing_aliasing_and_constant_subscript=[int])
+        code = '''
+        def typing_aliasing_and_constant_subscript(i):
+            a=[]
+            b=(a,)
+            b[0].append(i)
+            return a, b
+        '''
+        self.run_test(code, 118, typing_aliasing_and_constant_subscript=[int])
 
     def test_typing_aliasing_and_variable_subscript(self):
-        self.run_test('def typing_aliasing_and_variable_subscript(i): a=[];b=[a];b[i].append(i); return a', 0, typing_aliasing_and_variable_subscript=[int])
+        code = '''
+        def typing_aliasing_and_variable_subscript(i):
+            a=[]
+            b=[a]
+            b[i].append(i)
+            return a, b
+        '''
+        self.run_test(code, 0, typing_aliasing_and_variable_subscript=[int])
 
     def test_typing_aliasing_and_variable_subscript_combiner(self):
-        self.run_test('def typing_aliasing_and_variable_subscript_combiner(i): a=[list.append, lambda x,y: x.extend([y])]; b = []; a[i](b, i); return b', 1, typing_aliasing_and_variable_subscript_combiner=[int])
+        code = '''
+        def typing_aliasing_and_variable_subscript_combiner(i):
+            a=[list.append, lambda x,y: x.extend([y])]
+            b = []
+            a[i](b, i)
+            return b
+        '''
+        self.run_test(code, 1, typing_aliasing_and_variable_subscript_combiner=[int])
+
+    def test_typing_and_function_dict(self):
+        code = '''
+            def typing_and_function_dict(a):
+                funcs = {
+                    'zero' : lambda x: x.add(0),
+                    'one' : lambda x: x.add(1),
+                }
+                s = set()
+                funcs[a](s)
+                return s
+        '''
+        self.run_test(code, 'one', typing_and_function_dict=[str])
+
+    def test_typing_and_iterate_over_function_list(self):
+        code = '''
+            def typing_and_iterate_over_function_list():
+                funcs = [
+                    lambda x: x.add(0),
+                    lambda x: x.add(2),
+                ]
+                s = set()
+                for f in funcs:
+                    f(s)
+                return s
+        '''
+        self.run_test(code, typing_and_iterate_over_function_list=[])
+
 
     def test_typing_aliasing_and_update(self):
         code = '''

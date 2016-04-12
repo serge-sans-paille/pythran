@@ -21,11 +21,11 @@ class OrderedGlobalDeclarations(ModuleAnalysis):
 
     def visit_Name(self, node):
         if node in self.strict_aliases:
-            for alias in self.strict_aliases[node].aliases:
+            for alias in self.strict_aliases[node]:
                 if isinstance(alias, ast.FunctionDef):
                     self.result[self.curr].add(alias)
                 elif isinstance(alias, ast.Call):  # this is a bind
-                    for alias in self.strict_aliases[alias.args[0]].aliases:
+                    for alias in self.strict_aliases[alias.args[0]]:
                         self.result[self.curr].add(alias)
 
     def run(self, node, ctx):

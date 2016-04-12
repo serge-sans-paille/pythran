@@ -27,6 +27,8 @@ namespace pythonic
 #ifdef USE_GMP
         template <class T, class U>
         type operator()(__gmp_expr<T, U> const &a);
+        template <class T, class U>
+        type operator()(__gmp_expr<T, U> &a);
 #endif
       };
     }

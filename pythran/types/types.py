@@ -116,7 +116,7 @@ class Types(ModuleAnalysis):
                 return self.node_to_id(n.value, 1 + depth)
         # use alias information if any
         elif isinstance(n, ast.Call):
-            for alias in self.strict_aliases[n].aliases:
+            for alias in self.strict_aliases[n]:
                 if alias is n:  # no specific alias info
                     continue
                 try:
@@ -149,7 +149,7 @@ class Types(ModuleAnalysis):
         if aliasing_type:
             self.combine_(node, othernode, op or operator.add,
                           unary_op or (lambda x: x), register)
-            for a in self.strict_aliases[node].aliases:
+            for a in self.strict_aliases[node]:
                 self.combine_(a, othernode, op or operator.add,
                               unary_op or (lambda x: x), register)
         else:
@@ -303,7 +303,7 @@ class Types(ModuleAnalysis):
                 self.result[t] = self.get_qualifier(t)(self.result[t])
             if isinstance(t, ast.Subscript):
                 if self.visit_AssignedSubscript(t):
-                    for alias in self.strict_aliases[t.value].aliases:
+                    for alias in self.strict_aliases[t.value]:
                         fake = ast.Subscript(alias, t.value, ast.Store())
                         self.combine(fake, node.value, register=True)
             else:
@@ -313,7 +313,7 @@ class Types(ModuleAnalysis):
         self.visit(node.value)
         if isinstance(node.target, ast.Subscript):
             if self.visit_AssignedSubscript(node.target):
-                for alias in self.strict_aliases[node.target.value].aliases:
+                for alias in self.strict_aliases[node.target.value]:
                     fake = ast.Subscript(alias, node.target.value, ast.Store())
                     # We don't check more aliasing as it is a fake node.
                     self.combine(fake,
@@ -394,14 +394,14 @@ class Types(ModuleAnalysis):
     def visit_Call(self, node):
         self.generic_visit(node)
         func = node.func
-        for alias in self.strict_aliases[func].aliases:
+        for alias in self.strict_aliases[func]:
             # this comes from a bind
             if isinstance(alias, ast.Call):
                 a0 = alias.args[0]
                 bounded_name = a0.id
                 # by construction of the bind construct
-                assert len(self.strict_aliases[a0].aliases) == 1
-                bounded_function = list(self.strict_aliases[a0].aliases)[0]
+                assert len(self.strict_aliases[a0]) == 1
+                bounded_function = list(self.strict_aliases[a0])[0]
                 fake_name = ast.Name(bounded_name, ast.Load())
                 fake_node = ast.Call(fake_name, alias.args[1:] + node.args,
                                      [], None, None)
@@ -420,7 +420,7 @@ class Types(ModuleAnalysis):
         if self.stage == 0 and isweak:
             # maybe we can get saved if we have a hint about
             # the called function return type
-            for alias in self.strict_aliases[func].aliases:
+            for alias in self.strict_aliases[func]:
                 if alias is self.current and alias in self.result:
                     # great we have a (partial) type information
                     self.result[node] = self.result[alias]

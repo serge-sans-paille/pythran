@@ -34,6 +34,11 @@ namespace pythonic
       {
         return mpz_get_d(a.get_mpz_t());
       }
+      template <class T, class U>
+      float_::type float_::operator()(__gmp_expr<T, U> &a)
+      {
+        return mpz_get_d(a.get_mpz_t());
+      }
 #endif
     }
   }

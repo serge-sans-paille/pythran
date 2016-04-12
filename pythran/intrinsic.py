@@ -14,9 +14,12 @@ if sys.version_info[0] > 2:
     ast.arguments = make_ast_arguments
 
 
-class NewMem(ast.AST):
+class UnboundValueType(object):
+    '''
+    Represents a new location, bound to no identifier
+    '''
 
-    """ Class to represent new location for aliasing. """
+UnboundValue = UnboundValueType()
 
 
 class UpdateEffect(object):
@@ -52,7 +55,8 @@ class Intrinsic(object):
         self.argument_effects = kwargs.get('argument_effects',
                                            (UpdateEffect(),) * 11)
         self.global_effects = kwargs.get('global_effects', False)
-        self.return_alias = kwargs.get('return_alias', lambda x: {NewMem()})
+        self.return_alias = kwargs.get('return_alias',
+                                       lambda x: {UnboundValue})
         self.return_type = kwargs.get('return_type', None)
         self.args = ast.arguments([ast.Name(n, ast.Param())
                                    for n in kwargs.get('args', [])],

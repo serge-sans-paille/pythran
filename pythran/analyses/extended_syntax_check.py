@@ -34,7 +34,7 @@ class ExtendedSyntaxCheck(ModuleAnalysis):
     def visit_Call(self, node):
         self.generic_visit(node)
         func = node.func
-        for alias in self.strict_aliases[func].aliases:
+        for alias in self.strict_aliases[func]:
             if not isinstance(alias, ast.FunctionDef):
                 continue
             ubound = len(alias.args.args)

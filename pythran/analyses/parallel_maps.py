@@ -17,9 +17,9 @@ class ParallelMaps(ModuleAnalysis):
 
     def visit_Call(self, node):
         if all(alias == MODULES['__builtin__']['map']
-               for alias in self.aliases[node.func].aliases):
+               for alias in self.aliases[node.func]):
             if all(self.pure_expressions.__contains__(f)
-                    for f in self.aliases[node.args[0]].aliases):
+                    for f in self.aliases[node.args[0]]):
                 self.result.add(node)
 
     def display(self, data):

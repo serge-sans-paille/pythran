@@ -115,7 +115,7 @@ class RangeValues(FunctionAnalysis):
         """
         assert isinstance(node.target, ast.Name), "For apply on variables."
         if isinstance(node.iter, ast.Call):
-            for alias in self.aliases[node.iter.func].aliases:
+            for alias in self.aliases[node.iter.func]:
                 if isinstance(alias, Intrinsic):
                     self.add(node.target.id,
                              alias.return_range_content(map(self.visit,
@@ -282,7 +282,7 @@ class RangeValues(FunctionAnalysis):
         Range(low=-inf, high=inf)
         """
         result = None
-        for alias in self.aliases[node.func].aliases:
+        for alias in self.aliases[node.func]:
             if isinstance(alias, Intrinsic):
                 alias_range = alias.return_range(map(self.visit, node.args))
                 result = result.update(alias_range) if result else alias_range

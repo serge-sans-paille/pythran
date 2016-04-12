@@ -50,7 +50,7 @@ class IterTransformation(Transformation):
         """
         for keyword in EQUIVALENT_ITERATORS.iterkeys():
             correct_alias = set([MODULES["__builtin__"][keyword]])
-            if self.aliases[node.func].aliases == correct_alias:
+            if self.aliases[node.func] == correct_alias:
                 return keyword
 
     def visit_Module(self, node):

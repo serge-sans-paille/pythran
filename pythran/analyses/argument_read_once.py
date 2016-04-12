@@ -115,7 +115,7 @@ class ArgumentReadOnce(ModuleAnalysis):
         while isinstance(node, ast.Subscript):
             node = node.value
         if node in self.aliases:
-            for n_alias in self.aliases[node].aliases:
+            for n_alias in self.aliases[node]:
                 try:
                     return self.current_function.func.args.args.index(n_alias)
                 except ValueError:
@@ -186,8 +186,7 @@ class ArgumentReadOnce(ModuleAnalysis):
         for i, arg in enumerate(node.args):
             n = self.argument_index(arg)
             if n >= 0:
-                func_aliases = self.aliases[node].state.get(
-                    Aliases.access_path(node.func), [])
+                func_aliases = self.aliases[node.func]
 
                 # expand argument if any
                 func_aliases = reduce(

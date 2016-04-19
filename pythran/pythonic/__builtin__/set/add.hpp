@@ -3,8 +3,10 @@
 
 #include "pythonic/include/__builtin__/set/add.hpp"
 
-#include "pythonic/utils/functor.hpp"
+#include "pythonic/__builtin__/None.hpp"
+#include "pythonic/types/NoneType.hpp"
 #include "pythonic/types/set.hpp"
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -16,15 +18,17 @@ namespace pythonic
     {
 
       template <class T, class F>
-      void add(types::set<T> &s, F const &value)
+      types::none_type add(types::set<T> &s, F const &value)
       {
         s.add(value);
+        return __builtin__::None;
       }
 
       template <class T, class F>
-      void add(types::set<T> &&s, F const &value)
+      types::none_type add(types::set<T> &&s, F const &value)
       {
-        // nothing have to be done as we work on rvalue
+        s.add(value);
+        return __builtin__::None;
       }
 
       DEFINE_FUNCTOR(pythonic::__builtin__::set, add);

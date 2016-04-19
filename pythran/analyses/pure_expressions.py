@@ -35,7 +35,7 @@ class PureExpressions(ModuleAnalysis):
         is_pure = all(self.visit(arg) for arg in node.args)
 
         # check all possible function called
-        func_aliases = self.aliases[node.func].aliases
+        func_aliases = self.aliases[node.func]
         if func_aliases:
             for func_alias in func_aliases:
                 # does the function have a global effect?

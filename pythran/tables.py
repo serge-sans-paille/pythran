@@ -213,7 +213,7 @@ CLASSES = {
                 ast.Subscript(args[0],
                               ast.Index(args[1]),
                               ast.Load())
-            }
+            }.union({args[2]} if len(args) == 3 else set())
         ),
         "update": MethodIntr(update_effects),
         "values": MethodIntr(),

@@ -30,13 +30,6 @@ namespace pythonic
         return __builtin__::None;
       }
 
-      template <class F>
-      types::none_type append(types::empty_list &seq, F &&value)
-      {
-        static_assert(F::this_should_never_happen, "Type inference is wrong.");
-        return __builtin__::None;
-      }
-
       DEFINE_FUNCTOR(pythonic::__builtin__::list, append);
     }
   }

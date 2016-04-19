@@ -206,7 +206,7 @@ variable, and one that computes an under set. ``Aliases`` computes an over-set::
   >>> returned = tree.body[-1].body[-1].value
   >>> print ast.dump(returned)
   Name(id='b', ctx=Load())
-  >>> sorted(a.id for a in al[returned].aliases)
+  >>> sorted(a.id for a in al[returned])
   ['c', 'd']
 
 Pythran also implements an inter-procedural analyse to compute which arguments

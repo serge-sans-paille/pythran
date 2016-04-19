@@ -28,6 +28,8 @@ class GlobalEffects(ModuleAnalysis):
                 self.global_effect = False
             elif isinstance(node, intrinsic.Class):
                 self.global_effect = False
+            elif isinstance(node, intrinsic.UnboundValueType):
+                self.global_effect = True  # conservative choice
             else:
                 print(type(node), node)
                 raise NotImplementedError
@@ -61,6 +63,8 @@ class GlobalEffects(ModuleAnalysis):
         register_node(self.global_declarations)
         for module in MODULES.itervalues():
             register_node(module)
+        self.node_to_functioneffect[intrinsic.UnboundValue] = \
+            GlobalEffects.FunctionEffect(intrinsic.UnboundValue)
 
     def run(self, node, ctx):
         super(GlobalEffects, self).run(node, ctx)
@@ -85,8 +89,7 @@ class GlobalEffects(ModuleAnalysis):
     def visit_Call(self, node):
         # try to get all aliases of the function, if possible
         # else use [] as a fallback
-        ap = Aliases.access_path(node.func)
-        func_aliases = self.aliases[node].state.get(ap, [])
+        func_aliases = self.aliases[node.func]
         # expand argument if any
         func_aliases = reduce(
             lambda x, y: x + (self.node_to_functioneffect.keys()  # all funcs
@@ -94,7 +97,7 @@ class GlobalEffects(ModuleAnalysis):
             func_aliases,
             list())
         for func_alias in func_aliases:
-            # special hook for binded functions
+            # special hook for boundd functions
             if isinstance(func_alias, ast.Call):
                 bound_name = func_alias.args[0].id
                 func_alias = self.global_declarations[bound_name]

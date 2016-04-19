@@ -103,6 +103,7 @@ class LazynessAnalysis(FunctionAnalysis):
         self.pre_loop_count = dict()
         # prevent any form of Forward Substitution at omp frontier
         self.in_omp = set()
+        self.name_to_nodes = dict()
         super(LazynessAnalysis, self).__init__(ArgumentEffects, Aliases,
                                                PureExpressions)
 
@@ -112,11 +113,13 @@ class LazynessAnalysis(FunctionAnalysis):
         dead_vars = [var for var, deps in self.use.iteritems() if name in deps]
         self.dead.update(dead_vars)
         for var in dead_vars:
-            dead_aliases = [alias.id for alias in self.aliases[loc].state[var]
+            dead_aliases = [alias.id for alias in self.name_to_nodes[var]
                             if isinstance(alias, ast.Name)]
             self.dead.update(dead_aliases)
 
     def assign_to(self, node, from_, loc):
+        if isinstance(node, ast.Name):
+            self.name_to_nodes.setdefault(node.id, set()).add(node)
         # a reassigned variable is not dead anymore
         if node.id in self.dead:
             self.dead.remove(node.id)
@@ -196,7 +199,7 @@ class LazynessAnalysis(FunctionAnalysis):
 
             def is_loc_var(x):
                 return isinstance(x, ast.Name) and x.id in self.ids
-            alias_names = filter(is_loc_var, self.aliases[node].aliases)
+            alias_names = filter(is_loc_var, self.aliases[node])
             alias_names = {x.id for x in alias_names}
             alias_names.add(node.id)
             for alias in alias_names:
@@ -321,7 +324,7 @@ class LazynessAnalysis(FunctionAnalysis):
         map(self.visit, node.orelse)
 
     def func_args_lazyness(self, func_name, args, node):
-        for fun in self.aliases[func_name].aliases:
+        for fun in self.aliases[func_name]:
             if isinstance(fun, ast.Call):  # call to partial functions
                 self.func_args_lazyness(fun.args[0], fun.args[1:] + args, node)
             elif fun in self.argument_effects:

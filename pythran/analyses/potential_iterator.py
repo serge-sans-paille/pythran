@@ -30,7 +30,6 @@ class PotentialIterator(NodeAnalysis):
             def isReadOnce(f, i):
                 return (f in self.argument_read_once and
                         self.argument_read_once[f][i] <= 1)
-            if all(isReadOnce(alias, i)
-                   for alias in self.aliases[node.func].aliases):
+            if all(isReadOnce(alias, i) for alias in self.aliases[node.func]):
                 self.result.add(arg)
         self.generic_visit(node)

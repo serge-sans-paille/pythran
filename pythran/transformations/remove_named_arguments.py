@@ -58,7 +58,7 @@ class RemoveNamedArguments(Transformation):
         if node.keywords:
             self.update = True
 
-            aliases = self.aliases[node.func].aliases
+            aliases = self.aliases[node.func]
             assert aliases, "at least one alias"
 
             # all aliases should have the same structural type...
@@ -73,7 +73,7 @@ class RemoveNamedArguments(Transformation):
                         # so we reorder using alias for 'foo'
                         offset = len(func_alias.args) - 1
                         call = func_alias.args[0]
-                        for func_alias in self.aliases[call].aliases:
+                        for func_alias in self.aliases[call]:
                             replacements = self.handle_keywords(func_alias,
                                                                 node, offset)
                     else:

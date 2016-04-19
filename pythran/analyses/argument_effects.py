@@ -95,7 +95,7 @@ class ArgumentEffects(ModuleAnalysis):
     def argument_index(self, node):
         while isinstance(node, ast.Subscript):
             node = node.value
-        for node_alias in self.aliases[node].aliases:
+        for node_alias in self.aliases[node]:
             if node_alias in self.current_arguments:
                 return self.current_arguments[node_alias]
             if node_alias in self.current_subscripted_arguments:
@@ -135,8 +135,7 @@ class ArgumentEffects(ModuleAnalysis):
         for i, arg in enumerate(node.args):
             n = self.argument_index(arg)
             if n >= 0:
-                func_aliases = self.aliases[node].state.get(
-                    Aliases.access_path(node.func))
+                func_aliases = self.aliases[node.func]
 
                 # pessimistic case: no alias found
                 if func_aliases is None:

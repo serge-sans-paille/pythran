@@ -59,7 +59,7 @@ class ConstantExpressions(NodeAnalysis):
             if not isinstance(node.ctx, ast.Load):
                 return False
             # if we can alias on multiple value, it is not constant
-            elif len(self.aliases[node].aliases) > 1:
+            elif len(self.aliases[node]) > 1:
                 return False
             # if it is not a globals, it depends on variable so it is not
             # constant
@@ -76,7 +76,7 @@ class ConstantExpressions(NodeAnalysis):
 
             pure_fun = all(alias in self.pure_expressions and
                            is_function(alias)
-                           for alias in self.aliases[node].aliases)
+                           for alias in self.aliases[node])
             return pure_fun
         else:
             return False

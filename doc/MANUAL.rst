@@ -2,15 +2,15 @@ User Manual
 ###########
 
 So you want to write algorithms that are easy to maintain as in Python and
-you want performance as in FORTRAN or C++? Let give a try to Pythran!
-Pythran is a Python-to-c++ translator that turns Python module into native
-c++11 module. From a user point of view, you still ``import`` your module, but
+you want performance as in FORTRAN or C++? Lets give a try to Pythran!
+Pythran is a Python-to-c++ translator that turns Python modules into native
+c++11 modules. From a user point of view, you still ``import`` your module, but
 under the hood... There is much more happening!
 
 Disclaimer
 ----------
 
-Pythran is *not* a full Python-to-c++ converter, as in *shedskin*. Instead it
+Pythran is *not* a full Python-to-c++ converter, as is *shedskin*. Instead it
 takes a subset of the Python language and turns it into heavily templatized c++
 code instantiated for your particular types.
 
@@ -20,7 +20,7 @@ Say hello to:
 - lambdas
 - list comprehension
 - map, reduce and the like
-- dictionaries, set, list
+- dictionary, set, list
 - exceptions
 - file handling
 - (partial) `numpy` support
@@ -45,7 +45,7 @@ Pythran depends on the following packages:
 - numpy: http://www.numpy.org/
 
 You also need a modern C++11 enabled compiler (e.g. g++>=4.9, clang>=3.5), that supports
-for instance atomic operations (N3290) or variadic template (N2555).
+atomic operations (N3290) or variadic template (N2555).
 
 
 Manual Installation
@@ -59,7 +59,7 @@ Install *cough* numpy manually::
 
     $> pip install --user numpy
 
-The from the source directory, run::
+From the source directory, run::
 
     $> python setup.py install --user
 
@@ -91,7 +91,7 @@ To begin with, you need... a Python function in a module. Something like::
     def dprod(arr0, arr1):
         return sum([x*y for x,y in zip(arr0, arr1)])
 
-is perfect. But due to \_o< typing, ``arr0`` and ``arr1`` can be of any type,
+is perfect. But due to ``\_o<`` typing, ``arr0`` and ``arr1`` can be of any type,
 so Pythran needs a small hint there. Add the following line somewhere in your
 file, say at the top head, or right before the function definition::
 
@@ -104,7 +104,7 @@ Afterwards, frenetically type::
 
     $> pythran dprod.py
 
-\o/ a ``dprod.so`` native module has been created and you can play with it
+``\o/`` a ``dprod.so`` native module has been created and you can play with it
 right *now*, as if it where a normal module::
 
     >>> import dprod # this imports the native version if available
@@ -127,7 +127,7 @@ introduce the almighty *matrix multiply*!::
                     new_matrix[i][j] += m0[i][k]*m1[k][j]
         return new_matrix
 
-This a slightly more complex example, as a few intrinsics such as ``range`` or
+This is a slightly more complex example, as a few intrinsics such as ``range`` and
 ``len`` are used, with a function call and even nested list comprehension. But
 Pythran can make its way through this. As you only want to export the
 ``matrix_multiply`` function, you can safely ignore the ``zero`` function and
@@ -135,7 +135,7 @@ just add::
 
     #pythran export matrix_multiply(float list list, float list list)
 
-to the source file. Note how Pythran can combine different types and infers the
+to the source file. Note how Pythran can combine different types and infer the
 resulting type. It also respects the nested list structure of Python, so you
 are not limited to matrices...
 
@@ -144,7 +144,7 @@ Enough talk, run::
     $> pythran mm.py
 
 One touch of magic wand and you have your native binary. Be amazed by the
-generation of a ``mm.so`` native module that run around 20x faster than the
+generation of a ``mm.so`` native module that runs around 20x faster than the
 original one. ``timeit`` approved!
 
 But scientific computing in Python usually means Numpy. Here is a well-known Numpy snippet::
@@ -162,8 +162,8 @@ But scientific computing in Python usually means Numpy. Here is a well-known Num
         return distance_matrix
 
 This example uses a lot of Numpy `ufunc`. Pythran is reasonably good at
-handling such expressions. As you already now, you need to **export** it, giving its
-argument type by adding::
+handling such expressions. As you already know, you need to **export** it, giving its
+argument types by adding::
 
     #pythran export arc_distance(float[], float[], float[], float[])
 
@@ -171,7 +171,7 @@ To the input file. You can compile it as the previous code::
 
     $> pythran arc_distance.py
 
-and you'll get a decent binary. But what you really wanted to do was::
+and you'll get a decent binary. But what you really want to do is::
 
     $> pythran -fopenmp -march=avx arc_distance.py
 
@@ -184,7 +184,7 @@ Concerning Pythran specifications
 
 The ``#pythran export`` commands are critical to Pythran. In fact if they are
 missing, Pythran will complain loudly (and fail miserably). So let us dive into
-these complex language!
+this complex language!
 
 There is currently only one Pythran command, the ``export`` command. Its syntax is::
 
@@ -226,7 +226,7 @@ Easy enough, isn't it?
 
 .. note::
 
-    Multiline export are supported, just use comments to protect them, as in::
+    Multiline exports are supported, just use comments to protect them, as in::
 
         #pythran export river_boa(int,
         #                         float,
@@ -281,7 +281,7 @@ When distributing a Python application with Pythran modules, you can either:
 Advanced Usage
 --------------
 
-A failing compilation? A lust of c++ tangled code? Give a try to the ``-E``
+A failing compilation? A lust for c++ tangled code? Give a try to the ``-E``
 switch that stops the compilation process right after c++ code generation, so
 that you can inspect it.
 
@@ -305,14 +305,14 @@ followed by a custom optimization found in the ``my_package`` package, loaded
 from ``PYTHONPATH``.
 
 When importing a Python module, one can check for the presence of the
-``__pythran__`` variable at module scope to see if the module has been
+``__pythran__`` variable at the module scope to see if the module has been
 pythranized::
 
     import foo
     if hasattr(foo, '__pythran__'):
         print(r'\_o<')
 
-This variable is a tuble that holds three fields:
+This variable is a tuple that holds three fields:
 
 1. pythran's version
 2. compilation date
@@ -323,16 +323,16 @@ Adding OpenMP directives
 ------------------------
 
 OpenMP is a standard set of directives for C, C++ and FORTRAN that makes it
-somehow easier to turn a sequential program into a multi-threaded one. Pythran
+easier to turn a sequential program into a multi-threaded one. Pythran
 translates OpenMP-like code annotation into OpenMP directives::
 
     r=0
-    "omp parallel for reduction(+:r)"
+    #omp parallel for reduction(+:r)
     for x,y in zip(l1,l2):
         r+=x*y
 
 OpenMP directive parsing is enabled by ``-fopenmp`` when using ``g++`` as the
-back-end compiler.
+back-end compiler. Be careful with the indentation. It has to be correct!
 
 Alternatively, one can run the great::
 
@@ -340,22 +340,14 @@ Alternatively, one can run the great::
 
 which runs a code analyzer that displays extra information concerning parallel ``map`` found in the code.
 
-You may want a more "OpenMP" way to write annotation with::
-
-    r=0
-    #omp parallel for reduction(+:r)
-    for x,y in zip(l1,l2):
-        r+=x*y
-
-Be careful with the indentation. It has to be correct.
 
 
 Getting Pure C++
 ----------------
 
 Pythran can be used to generate raw templated C++ code, without any Python
-glue. To do so use the ``-e`` switch. It will turn the Python code into c++
-code you can call from a C++ code. In that case there is **no** need for a
+glue. To do so use the ``-e`` switch. It will turn the Python code into C++
+code you can call from a C++ program. In that case there is **no** need for a
 particular Pythran specification.
 
 Customizing Your ``.pythranrc``
@@ -368,7 +360,7 @@ configuration. Here are a few tricks!
 ``[compiler]``
 ==============
 
-These sections contains compiler flags configuration. For education purpose, the default linux configuration is
+This section contains compiler flags configuration. For education purpose, the default linux configuration is
 
 .. literalinclude:: ../pythran/pythran-linux2.cfg
 
@@ -385,8 +377,8 @@ These sections contains compiler flags configuration. For education purpose, the
     Preprocessor definitions. Pythran is sensible to ``USE_BOOST_SIMD`` and
     ``PYTHRAN_OPENMP_MIN_ITERATION_COUNT``. The former turns on Boost.simd
     vectorization and the latter controls the mimimal loop trip count to turn a
-    sequential loop in a parallel loop. The default is to set ``USE_GMP``, so
-    that Python's long are represented using GMP.
+    sequential loop into a parallel loop. The default is to set ``USE_GMP``, so
+    that Python's longs are represented using GMP.
 
 :``undefs``:
 
@@ -409,7 +401,7 @@ These sections contains compiler flags configuration. For education purpose, the
 
 :``library_dirs``:
 
-    Extra libraries directories to search for required libraries.
+    Extra directories to search for required libraries.
 
 :``ldflags``:
 
@@ -423,7 +415,7 @@ This one contains internal configuration settings. Play with it at your own risk
 
 :``optimizations``:
 
-    A list of import path pointing to transformation classes. This contains the
+    A list of import paths pointing to transformation classes. This contains the
     optimization pipeline of Pythran! If you design your own optimizations,
     register them here!
 
@@ -467,7 +459,7 @@ Troubleshooting
 ---------------
 
 Plenty of them! Seriously, Pythran is software, so it will crash. You
-must make it abort in unusual ways! And more important, you must provide
+may make it abort in unusual ways! And more importantly, please provide
 feedback to serge_sans_paille using its email serge.guelton@telecom-bretagne.eu,
 the IRC channel ``#pythran`` on FreeNode, or the mailing list ``pythran@freelists.org``
 

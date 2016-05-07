@@ -25,11 +25,10 @@ namespace pythonic
         if (*miter) {
           if (first == expr.fend())
             first = iter;
-          if (viter != vend) {
-            *iter = *viter;
-            ++viter;
-          } else
-            *iter = *first;
+          if (viter == vend)
+            viter = values.begin();
+          *iter = *viter;
+          ++viter;
         }
       }
       return __builtin__::None;

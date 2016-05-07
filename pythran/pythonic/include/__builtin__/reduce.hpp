@@ -3,7 +3,7 @@
 
 #include "pythonic/include/utils/functor.hpp"
 
-#include <algorithm>
+#include <numeric>
 #include <utility>
 
 namespace pythonic

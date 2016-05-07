@@ -34,6 +34,12 @@ namespace pythonic
     struct array;
 
     template <class T>
+    struct broadcasted;
+
+    template <class T, class B>
+    struct broadcast;
+
+    template <class T>
     struct is_ndarray {
       static constexpr bool value = false;
     };
@@ -94,6 +100,16 @@ namespace pythonic
 
     template <class T>
     struct is_numexpr_arg<list<T>> {
+      static constexpr bool value = true;
+    };
+
+    template <class T>
+    struct is_numexpr_arg<broadcasted<T>> {
+      static constexpr bool value = true;
+    };
+
+    template <class T, class Tp>
+    struct is_numexpr_arg<broadcast<T, Tp>> {
       static constexpr bool value = true;
     };
 

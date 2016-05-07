@@ -15,6 +15,48 @@ namespace pythonic
 
   namespace types
   {
+    template <class T>
+    struct broadcasted_iterator
+        : std::iterator<std::random_access_iterator_tag, T> {
+      T value_;
+
+      broadcasted_iterator(T const &value) : value_(value)
+      {
+      }
+
+      T const &operator*() const
+      {
+        return value_;
+      }
+
+      broadcasted_iterator &operator++()
+      {
+        return *this;
+      }
+
+      broadcasted_iterator &operator+=(long i)
+      {
+        return *this;
+      }
+
+      long operator-(broadcasted_iterator const &other) const
+      {
+        return 0;
+      }
+
+      bool operator!=(broadcasted_iterator const &other) const
+      {
+        return false;
+      }
+      bool operator==(broadcasted_iterator const &other) const
+      {
+        return true;
+      }
+      bool operator<(broadcasted_iterator const &other) const
+      {
+        return false;
+      }
+    };
 
     /* Type adaptor for broadcasted array values
      *
@@ -28,12 +70,22 @@ namespace pythonic
       using dtype = typename T::dtype;
       using value_type = typename T::value_type;
       static constexpr size_t value = T::value + 1;
+      using const_iterator = broadcasted_iterator<T>;
+      using iterator = const_iterator;
 
       T const ref;
       types::array<long, value> _shape;
       types::array<long, value> const &shape() const;
 
       broadcasted(T const &ref);
+      const_iterator begin() const
+      {
+        return {ref};
+      }
+      const_iterator end() const
+      {
+        return {ref};
+      }
 
       T const &operator[](long i) const;
       T const &fast(long i) const;
@@ -65,6 +117,8 @@ namespace pythonic
     template <class dtype, bool is_vectorizable>
     struct broadcast_base {
       dtype _value;
+      struct ignored {
+      } _splated;
       template <class V>
       broadcast_base(V v);
       template <class I>
@@ -121,7 +175,7 @@ namespace pythonic
       }
       long operator-(const_broadcast_iterator const &other) const
       {
-        return 1;
+        return 0;
       }
       bool operator!=(const_broadcast_iterator const &other) const
       {
@@ -152,7 +206,8 @@ namespace pythonic
       static const bool is_vectorizable = types::is_vectorizable<dtype>::value;
       static const bool is_strided = false;
       using value_type = dtype;
-      using iterator = const_broadcast_iterator<dtype>;
+      using const_iterator = const_broadcast_iterator<dtype>;
+      using iterator = const_iterator;
       static constexpr size_t value = 0;
 
       broadcast_base<dtype, is_vectorizable> _base;
@@ -167,15 +222,27 @@ namespace pythonic
       auto load(I i) const -> decltype(this->_base.load(i));
       template <class... Args>
       dtype operator()(Args &&...) const;
+      array<long, 1> shape() const;
       long flat_size() const;
-      iterator begin() const
+      const_iterator begin() const
       {
         return {_base._value};
       }
-      iterator end() const
+      const_iterator end() const
       {
         return {_base._value};
       }
+#ifdef USE_BOOST_SIMD
+      using simd_iterator = const_broadcast_iterator<decltype(_base._splated)>;
+      simd_iterator vbegin() const
+      {
+        return {_base._splated};
+      }
+      simd_iterator vend() const
+      {
+        return {_base._splated};
+      }
+#endif
     };
   }
 }

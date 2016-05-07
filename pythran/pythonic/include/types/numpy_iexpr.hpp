@@ -145,6 +145,9 @@ namespace pythonic
               numpy_iexpr_helper<numpy_iexpr, value>::get(std::move(*this), i));
 
 #ifdef USE_BOOST_SIMD
+      using simd_iterator = const_simd_nditerator<numpy_iexpr>;
+      simd_iterator vbegin() const;
+      simd_iterator vend() const;
       template <class I>
       auto load(I i) const -> decltype(boost::simd::load<
           boost::simd::native<dtype, BOOST_SIMD_DEFAULT_EXTENSION>>(

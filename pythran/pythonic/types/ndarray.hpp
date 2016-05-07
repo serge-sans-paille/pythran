@@ -535,6 +535,21 @@ namespace pythonic
 
 #ifdef USE_BOOST_SIMD
     template <class T, size_t N>
+    typename ndarray<T, N>::simd_iterator ndarray<T, N>::vbegin() const
+    {
+      return {*this, 0};
+    }
+
+    template <class T, size_t N>
+    typename ndarray<T, N>::simd_iterator ndarray<T, N>::vend() const
+    {
+      using vector_type =
+          typename boost::simd::native<dtype, BOOST_SIMD_DEFAULT_EXTENSION>;
+      static const std::size_t vector_size =
+          boost::simd::meta::cardinal_of<vector_type>::value;
+      return {*this, long(_shape[0] / vector_size * vector_size)};
+    }
+    template <class T, size_t N>
     auto ndarray<T, N>::load(long i) const -> decltype(
         boost::simd::load<boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>>(
             buffer, i))
@@ -773,6 +788,26 @@ namespace pythonic
     }
 
     /* pretty printing { */
+    namespace impl
+    {
+      template <class T, size_t N>
+      int get_spacing(ndarray<T, N> const &e)
+      {
+        std::ostringstream oss;
+        if (e.flat_size())
+          oss << *std::max_element(e.fbegin(), e.fend());
+        return oss.str().length();
+      }
+      template <class T, size_t N>
+      int get_spacing(ndarray<std::complex<T>, N> const &e)
+      {
+        std::ostringstream oss;
+        if (e.flat_size())
+          oss << *e.fbegin();
+        return oss.str().length() + 2;
+      }
+    }
+
     template <class T, size_t N>
     std::ostream &operator<<(std::ostream &os, ndarray<T, N> const &e)
     {
@@ -785,10 +820,7 @@ namespace pythonic
                      strides.rbegin() + 1, std::multiplies<long>());
       size_t depth = N;
       int step = -1;
-      std::ostringstream oss;
-      if (e.flat_size())
-        oss << *std::max_element(e.fbegin(), e.fend());
-      int size = oss.str().length();
+      int size = impl::get_spacing(e);
       auto iter = e.fbegin();
       int max_modulo = 1000;
 

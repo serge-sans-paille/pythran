@@ -10,6 +10,7 @@ namespace pythonic
 
   namespace types
   {
+    // FIXME: should use the same structure as the numpy_expr iterators
     /* Iterator over whatever provides a fast(long) method to access its element
      */
     template <class E>
@@ -196,6 +197,100 @@ namespace pythonic
       index = other.index;
       return *this;
     }
+#ifdef USE_BOOST_SIMD
+    template <class E>
+    const_simd_nditerator<E>::const_simd_nditerator(E const &data, long index)
+        : data(data), index(index)
+    {
+    }
+
+    template <class E>
+    auto const_simd_nditerator<E>::operator*() const
+        -> decltype(data.load(index))
+    {
+      return data.load(index);
+    }
+
+    template <class E>
+    const_simd_nditerator<E> &const_simd_nditerator<E>::operator++()
+    {
+      index += vector_size;
+      return *this;
+    }
+
+    template <class E>
+    const_simd_nditerator<E> &const_simd_nditerator<E>::operator--()
+    {
+      index -= vector_size;
+      return *this;
+    }
+
+    template <class E>
+    const_simd_nditerator<E> &const_simd_nditerator<E>::operator+=(long i)
+    {
+      index += i * vector_size;
+      return *this;
+    }
+
+    template <class E>
+    const_simd_nditerator<E> &const_simd_nditerator<E>::operator-=(long i)
+    {
+      index -= i * vector_size;
+      return *this;
+    }
+
+    template <class E>
+    const_simd_nditerator<E> const_simd_nditerator<E>::operator+(long i) const
+    {
+      const_simd_nditerator<E> other(*this);
+      other += i;
+      return other;
+    }
+
+    template <class E>
+    const_simd_nditerator<E> const_simd_nditerator<E>::operator-(long i) const
+    {
+      const_simd_nditerator<E> other(*this);
+      other -= i;
+      return other;
+    }
+
+    template <class E>
+    long const_simd_nditerator<E>::
+    operator-(const_simd_nditerator<E> const &other) const
+    {
+      return (index - other.index) / vector_size;
+    }
+
+    template <class E>
+    bool const_simd_nditerator<E>::
+    operator!=(const_simd_nditerator<E> const &other) const
+    {
+      return index != other.index;
+    }
+
+    template <class E>
+    bool const_simd_nditerator<E>::
+    operator==(const_simd_nditerator<E> const &other) const
+    {
+      return index == other.index;
+    }
+
+    template <class E>
+    bool const_simd_nditerator<E>::
+    operator<(const_simd_nditerator<E> const &other) const
+    {
+      return index < other.index;
+    }
+
+    template <class E>
+    const_simd_nditerator<E> &const_simd_nditerator<E>::
+    operator=(const_simd_nditerator const &other)
+    {
+      index = other.index;
+      return *this;
+    }
+#endif
 
     // build an iterator over T, selecting a raw pointer if possible
     template <bool is_strided>

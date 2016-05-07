@@ -342,6 +342,9 @@ namespace pythonic
           -> decltype(nget<M - 1>()(std::move(*this), indices));
 
 #ifdef USE_BOOST_SIMD
+      using simd_iterator = const_simd_nditerator<ndarray>;
+      simd_iterator vbegin() const;
+      simd_iterator vend() const;
       auto load(long i) const -> decltype(boost::simd::load<
           boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>>(buffer, i));
 

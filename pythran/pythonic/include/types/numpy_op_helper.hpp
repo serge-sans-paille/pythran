@@ -95,20 +95,20 @@ namespace pythonic
      * instead
      */
     template <class T, class C, bool same, bool scalar>
-    struct adapated_type;
+    struct adapted_type;
 
     template <class T, class C, bool scalar>
-    struct adapated_type<T, C, true, scalar> {
+    struct adapted_type<T, C, true, scalar> {
       using type = T;
     };
 
     template <class T, class C>
-    struct adapated_type<T, C, false, true> {
+    struct adapted_type<T, C, false, true> {
       using type = broadcast<typename C::dtype, T>;
     };
 
     template <class T, class C>
-    struct adapated_type<T, C, false, false> {
+    struct adapted_type<T, C, false, false> {
       using type = broadcasted<T>;
     };
 
@@ -117,8 +117,12 @@ namespace pythonic
       using ctype = typename common_type<T, OtherTypes...>::type;
       static constexpr bool isdtype = is_dtype<T>::value;
       using type =
-          typename adapated_type<T, ctype, std::is_same<T, ctype>::value,
-                                 isdtype>::type;
+          typename adapted_type<T, ctype, std::is_same<T, ctype>::value,
+                                isdtype>::type;
+    };
+    template <class T, class Tp, class... OtherTypes>
+    struct adapt_type<broadcast<T, Tp>, OtherTypes...> {
+      using type = broadcast<T, Tp>;
     };
 
     /* A reshaped type create a type that has the same shape as C and the same

@@ -193,12 +193,7 @@ setup(name='pythran',
           'Topic :: Software Development :: Code Generators'
       ],
       license="BSD 3-Clause",
-      install_requires=[
-          'ply>=3.4',
-          'networkx>=1.5',
-          'colorlog',
-          'decorator',
-      ],
+      install_requires=open('requirements.txt').read().splitlines(),
       entry_points={'console_scripts': ['pythran = pythran.run:run',
                                         'pythran-config = pythran.config:run'],
                     },

@@ -580,16 +580,23 @@ class Aliases(ModuleAnalysis):
         {c, d, e} => ['|a|', '|a|', '|a|']
 
         Everyone points to the formal parameter 'a' \o/
+
+        >>> module = ast.parse('def foo(a): c = a * 2 ; d = e = c ; {c, d, e}')
+        >>> result = pm.gather(Aliases, module)
+        >>> Aliases.dump(result, filter=ast.Set)
+        {c, d, e} => ['|c|', '|c|', '|c|']
+
+        Here, 'c' is an UnboundValue but it is named so it alias to 'c'.
         '''
         md.visit(self, node)
         value_aliases = self.visit(node.value)
         for t in node.targets:
             if isinstance(t, ast.Name):
-                self.aliases[t.id] = set(value_aliases) or {t}
-                for alias in list(value_aliases):
+                self.aliases[t.id] = value_aliases if value_aliases != set([UnboundValue]) else {t}
+                for alias in value_aliases:
                     if isinstance(alias, ast.Name):
                         a_id = alias.id
-                        self.aliases[a_id] = self.aliases[a_id].union((t,))
+                        self.aliases[a_id] = self.aliases[a_id].union(self.aliases[t.id])
                 self.add(t, self.aliases[t.id])
             else:
                 self.visit(t)

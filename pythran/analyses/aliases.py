@@ -649,9 +649,13 @@ class Aliases(ModuleAnalysis):
         ... def foo(a):
         ...     while(a):
         ...         if a==1: print b
-        ...         else: b=a"""
+        ...         else: b=a
+        ...     return b"""
         >>> module = ast.parse(fun)
         >>> result = pm.gather(Aliases, module)
+        >>> f = module.body[0].return_alias
+        >>> Aliases.dump(f([ast.Name('A', ast.Load())]))
+        ['A']
         '''
         # Error may come from false branch evaluation so we have to try again
         try:

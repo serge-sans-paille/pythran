@@ -26,6 +26,7 @@ from .has_break import HasBreak
 from .has_continue import HasContinue
 from .identifiers import Identifiers
 from .imported_ids import ImportedIds
+from .inlinable import Inlinable
 from .is_assigned import IsAssigned
 from .lazyness_analysis import LazynessAnalysis
 from .literals import Literals

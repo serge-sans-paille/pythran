@@ -256,13 +256,20 @@ The magic function ``%%pythran`` is made available to ``ipython`` users through 
 extension. The extension is located in the ``extensions/`` directory
 and can be loaded using IPython's magic function::
 
-    %load_ext pythranmagic
+    %load_ext pythran.magic
 
 Once done, you can pythranize your code from the IPython shell::
 
     %%pythran
     #pythran export foo()
     def foo(): print 'hello'
+
+You can pass arguments to this magic, as in::
+
+    %%pythran(-O2 -fopenmp)
+    #pythran export foo()
+    def foo(): print 'hello'
+
 
 Distutils Integration
 ---------------------

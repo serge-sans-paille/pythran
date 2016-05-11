@@ -6,7 +6,7 @@
 #include "pythonic/include/utils/int_.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-#include <algorithm>
+#include <numeric>
 
 namespace pythonic
 {

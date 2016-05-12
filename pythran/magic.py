@@ -34,19 +34,11 @@ class PythranMagics(Magics):
             if not k.startswith('__'):
                 self.shell.push({k: v})
 
-
     @magic_arguments.magic_arguments()
-    @magic_arguments.argument(
-        '-D', action='append', default=[],
-    )
-    @magic_arguments.magic_arguments()
-    @magic_arguments.argument(
-        '-O', action='append', default=[],
-    )
-    @magic_arguments.magic_arguments()
-    @magic_arguments.argument(
-        '-march', action='append', default=[],
-    )
+    @magic_arguments.argument('-D', action='append', default=[])
+    @magic_arguments.argument('-O', action='append', default=[])
+    @magic_arguments.argument('-march', action='append', default=[])
+    @magic_arguments.argument('-fopenmp', action='store_true')
     @cell_magic
     def pythran(self, line, cell):
         """
@@ -62,9 +54,14 @@ class PythranMagics(Magics):
         if args.D:
             kwargs['define_macros'] = args.D
         if args.O:
-            kwargs.setdefault('extra_compile_args', []).extend('-O' + str(x) for x in args.O)
+            kwargs.setdefault('extra_compile_args', []).extend(
+                '-O' + str(x) for x in args.O)
         if args.march:
-            kwargs.setdefault('extra_compile_args', []).extend('-march=' + str(x) for x in args.march)
+            kwargs.setdefault('extra_compile_args', []).extend(
+                '-march=' + str(x) for x in args.march)
+        if args.fopenmp:
+            kwargs.setdefault('extra_compile_args', []).append(
+                '-fopenmp')
         module_name = "pythranized"
         module_path = pythran.compile_pythrancode(module_name, cell, **kwargs)
         module = imp.load_dynamic(module_name, module_path)

@@ -12,7 +12,7 @@ class Range(object):
     """ Representation for a range of values. """
 
     def __init__(self, low, high):
-        """ Set initiale bound of the range object. """
+        """ Set initial bound of the range object. """
         self.low = low
         self.high = high
 
@@ -22,7 +22,7 @@ class Range(object):
                                                       high=self.high)
 
     def update(self, new_range):
-        """ Intersect current range with the new_range."""
+        """ Intersect current range with new_range."""
         self.low = min(self.low, new_range.low)
         self.high = max(self.high, new_range.high)
 
@@ -60,28 +60,28 @@ def range_values(args):
 
 
 def bool_values(_):
-    """ Return boolean value return range. """
+    """ Return the range of a boolean value, i.e. [0, 1]. """
     return Range(0, 1)
 
 
 def cmp_values(_):
-    """ Return Possible range for cmp function. """
+    """ Return the range of a comparison value, i.e. [-1, 1]. """
     return Range(-1, 1)
 
 
 def positive_values(_):
-    """ Return positive range with an upper bound. """
+    """ Return a positive range without upper bound. """
     return Range(0, float("inf"))
 
 
 def max_values(args):
     """ Return possible range for max function. """
-    return Range(max([x.low for x in args]), max([x.high for x in args]))
+    return Range(max(x.low for x in args), max(x.high for x in args))
 
 
 def min_values(args):
     """ Return possible range for min function. """
-    return Range(min([x.low for x in args]), min([x.high for x in args]))
+    return Range(min(x.low for x in args), min(x.high for x in args))
 
 
 def ord_values(_):
@@ -91,7 +91,7 @@ def ord_values(_):
 
 def combine_sub(range1, range2):
     """
-    Combiner for Substraction operation.
+    Combiner for Subtraction operation.
 
     >>> import ast
     >>> combine(Range(1, 5), Range(-5, -4), ast.Sub())
@@ -102,7 +102,7 @@ def combine_sub(range1, range2):
 
 def combine_mult(range1, range2):
     """
-    Combiner for Multiply operation.
+    Combiner for Multiplication operation.
 
     >>> import ast
     >>> combine(Range(1, 5), Range(-5, -4), ast.Mult())
@@ -141,6 +141,8 @@ def combine_div(range1, range2):
     """
     if range2.low <= 0 and range2.high >= 0:
         return UNKNOWN_RANGE
+    if 0 in range2:
+        return UNKNOWN_RANGE
     res = [v1 / v2 for v1, v2 in itertools.product(range1, range2)]
     return Range(numpy.min(res), numpy.max(res))
 
@@ -158,6 +160,8 @@ def combine_floordiv(range1, range2):
     Range(low=-inf, high=inf)
     """
     if range2.low <= 0 and range2.high >= 0:
+        return UNKNOWN_RANGE
+    if 0 in range2:
         return UNKNOWN_RANGE
     res = [v1 // v2 for v1, v2 in itertools.product(range1, range2)]
     return Range(numpy.min(res), numpy.max(res))

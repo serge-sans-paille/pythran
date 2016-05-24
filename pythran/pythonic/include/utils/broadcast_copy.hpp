@@ -76,62 +76,58 @@ namespace pythonic
      *to a
      *       value greater than ``0'', some broadcasting is needed
      */
-    template <bool vector_form>
+    template <bool vector_form, size_t N, size_t D>
     struct _broadcast_copy {
-
-      template <class E, class F, size_t N>
-      void operator()(E &&self, F const &other, utils::int_<N>, utils::int_<0>);
-
-      // ``D'' is not ``0'' so we should broadcast
-      template <class E, class F, size_t N, size_t D>
-      void operator()(E &&self, F const &other, utils::int_<N>, utils::int_<D>);
+      template <class E, class F>
+      void operator()(E &&self, F const &other);
+    };
+    template <bool vector_form, size_t N>
+    struct _broadcast_copy<vector_form, N, 0> {
+      template <class E, class F>
+      void operator()(E &&self, F const &other);
     };
 
 #ifdef USE_BOOST_SIMD
     // specialize for SIMD only if available
     // otherwise use the std::copy fallback
     template <>
-    struct _broadcast_copy<true> {
+    struct _broadcast_copy<true, 1, 0> {
       template <class E, class F>
-      void operator()(E &&self, F const &other, utils::int_<1>, utils::int_<0>);
-
-      template <class E, class F, size_t N>
-      void operator()(E &&self, F const &other, utils::int_<N>, utils::int_<0>);
-
-      // ``D'' is not ``0'' so we should broadcast
-      template <class E, class F, size_t N, size_t D>
-      void operator()(E &&self, F const &other, utils::int_<N>, utils::int_<D>);
+      void operator()(E &&self, F const &other);
     };
 #endif
 
     template <class E, class F, size_t N, size_t D, bool vector_form>
     E &broadcast_copy(E &self, F const &other);
 
-    template <class Op, bool vector_form>
+    // ``D'' is not ``0'' so we should broadcast
+    template <class Op, bool vector_form, size_t N, size_t D>
     struct _broadcast_update {
+      template <class E, class F>
+      void operator()(E &&self, F const &other);
+    };
 
-      template <class E, class F, size_t N>
-      void operator()(E &&self, F const &other, utils::int_<N>, utils::int_<0>);
+    template <class Op, bool vector_form, size_t N>
+    struct _broadcast_update<Op, vector_form, N, 0> {
+      template <class E, class F>
+      void operator()(E &&self, F const &other);
 
-      // ``D'' is not ``0'' so we should broadcast
-      template <class E, class F, size_t N, size_t D>
-      void operator()(E &&self, F const &other, utils::int_<N>, utils::int_<D>);
+      template <class E, class F0, class F1>
+      void operator()(E &&self, types::broadcast<F0, F1> const &other);
+      template <class E, class F>
+      void operator()(E &&self, types::broadcasted<F> const &other);
     };
 
 #ifdef USE_BOOST_SIMD
     // specialize for SIMD only if available
-    // otherwise use the std::copy fallback
     template <class Op>
-    struct _broadcast_update<Op, true> {
+    struct _broadcast_update<Op, true, 1, 0> {
       template <class E, class F>
-      void operator()(E &&self, F const &other, utils::int_<1>, utils::int_<0>);
-
-      template <class E, class F, size_t N>
-      void operator()(E &&self, F const &other, utils::int_<N>, utils::int_<0>);
-
-      // ``D'' is not ``0'' so we should broadcast
-      template <class E, class F, size_t N, size_t D>
-      void operator()(E &&self, F const &other, utils::int_<N>, utils::int_<D>);
+      void operator()(E &&self, F const &other);
+      template <class E, class F0, class F1>
+      void operator()(E &&self, types::broadcast<F0, F1> const &other);
+      template <class E, class F>
+      void operator()(E &&self, types::broadcasted<F> const &other);
     };
 #endif
 

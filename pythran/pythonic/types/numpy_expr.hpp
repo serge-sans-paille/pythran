@@ -11,6 +11,21 @@ namespace pythonic
   namespace types
   {
 
+    namespace details
+    {
+      template <size_t value, class... Args>
+      array<long, value> init_shape(Args const &... args)
+      {
+        array<long, value> shape;
+        for (int i = 0; i < value; ++i) {
+          array<long, sizeof...(Args)> IShapes{
+              {(value <= Args::value ? args.shape()[i] : 0)...}};
+          shape[i] = *std::max_element(IShapes.begin(), IShapes.end());
+        }
+        return shape;
+      }
+    }
+
     template <class Op, class... Args>
     numpy_expr<Op, Args...>::numpy_expr()
     {
@@ -18,24 +33,74 @@ namespace pythonic
 
     template <class Op, class... Args>
     numpy_expr<Op, Args...>::numpy_expr(Args const &... args)
-        : args(args...),
-          _shape(std::get<utils::max_element<Args::value...>::index>(this->args)
-                     .shape())
+        : args(args...), _shape(details::init_shape<value>(args...))
     {
     }
 
     template <class Op, class... Args>
-    typename numpy_expr<Op, Args...>::iterator
+    template <int... I>
+    typename numpy_expr<Op, Args...>::const_iterator
+        numpy_expr<Op, Args...>::_begin(utils::seq<I...>) const
+    {
+      return {*this,
+              {(size() == std::get<I>(args).shape()[0])...},
+              std::get<I>(args).begin()...};
+    }
+
+    template <class Op, class... Args>
+    typename numpy_expr<Op, Args...>::const_iterator
     numpy_expr<Op, Args...>::begin() const
     {
-      return {*this, 0};
+      return _begin(typename utils::gens<sizeof...(Args)>::type{});
     }
 
     template <class Op, class... Args>
-    typename numpy_expr<Op, Args...>::iterator
+    template <int... I>
+    typename numpy_expr<Op, Args...>::const_iterator
+        numpy_expr<Op, Args...>::_end(utils::seq<I...>) const
+    {
+      return {*this,
+              {(size() == std::get<I>(args).shape()[0])...},
+              std::get<I>(args).end()...};
+    }
+
+    template <class Op, class... Args>
+    typename numpy_expr<Op, Args...>::const_iterator
     numpy_expr<Op, Args...>::end() const
     {
-      return {*this, _shape[0]};
+      return _end(typename utils::gens<sizeof...(Args)>::type{});
+    }
+
+    template <class Op, class... Args>
+    template <int... I>
+    typename numpy_expr<Op, Args...>::iterator
+        numpy_expr<Op, Args...>::_begin(utils::seq<I...>)
+    {
+      return {*this,
+              {(size() == std::get<I>(args).shape()[0])...},
+              std::get<I>(args).begin()...};
+    }
+
+    template <class Op, class... Args>
+    typename numpy_expr<Op, Args...>::iterator numpy_expr<Op, Args...>::begin()
+    {
+      return _begin(typename utils::gens<sizeof...(Args)>::type{});
+    }
+
+    template <class Op, class... Args>
+    template <int... I>
+    typename numpy_expr<Op, Args...>::iterator
+        numpy_expr<Op, Args...>::_end(utils::seq<I...>)
+    {
+      return {*this,
+              {(size() == std::get<I>(args).shape()[0])...},
+              std::get<I>(args).end()...};
+    }
+
+    template <class Op, class... Args>
+    typename numpy_expr<Op, Args...>::iterator numpy_expr<Op, Args...>::end()
+    {
+      return _end(typename utils::gens<sizeof...(Args)>::type{});
     }
 
     template <class Op, class... Args>
@@ -43,10 +108,7 @@ namespace pythonic
     auto numpy_expr<Op, Args...>::_fast(long i, utils::seq<I...>) const
         -> decltype(Op()(std::get<I>(args).fast(i)...))
     {
-      return Op()(std::get<I>(args).fast(i)...); // FIXME: broadcasting can be
-                                                 // achieved here through a
-                                                 // modulus, but that's terribly
-                                                 // costly
+      return Op()(std::get<I>(args).fast(i)...);
     }
 
     template <class Op, class... Args>
@@ -55,6 +117,27 @@ namespace pythonic
                                 typename utils::gens<sizeof...(Args)>::type{}))
     {
       return _fast(i, typename utils::gens<sizeof...(Args)>::type{});
+    }
+
+    template <class Op, class... Args>
+    template <int... I>
+    auto numpy_expr<Op, Args...>::_map_fast(
+        std::array<long, sizeof...(I)> const &indices, utils::seq<I...>) const
+        -> decltype(Op()(std::get<I>(args).fast(std::get<I>(indices))...))
+    {
+      return Op()(std::get<I>(args).fast(std::get<I>(indices))...);
+    }
+
+    template <class Op, class... Args>
+    template <class... Indices>
+    auto numpy_expr<Op, Args...>::map_fast(Indices... indices) const
+        -> decltype(
+            this->_map_fast(std::array<long, sizeof...(Indices)>{{indices...}},
+                            typename utils::gens<sizeof...(Args)>::type{}))
+    {
+      static_assert(sizeof...(Indices) == sizeof...(Args), "compatible call");
+      return _map_fast(std::array<long, sizeof...(Indices)>{{indices...}},
+                       typename utils::gens<sizeof...(Args)>::type{});
     }
 
     template <class Op, class... Args>
@@ -84,6 +167,23 @@ namespace pythonic
 
 #ifdef USE_BOOST_SIMD
     template <class Op, class... Args>
+    typename numpy_expr<Op, Args...>::simd_iterator
+    numpy_expr<Op, Args...>::vbegin() const
+    {
+      return {*this, 0};
+    }
+    template <class Op, class... Args>
+    typename numpy_expr<Op, Args...>::simd_iterator
+    numpy_expr<Op, Args...>::vend() const
+    {
+      using vector_type =
+          typename boost::simd::native<dtype, BOOST_SIMD_DEFAULT_EXTENSION>;
+      static const std::size_t vector_size =
+          boost::simd::meta::cardinal_of<vector_type>::value;
+      return {*this, long(_shape[0] / vector_size * vector_size)};
+    }
+
+    template <class Op, class... Args>
     template <int... I>
     auto numpy_expr<Op, Args...>::_load(long i, utils::seq<I...>) const
         -> decltype(Op()(std::get<I>(args).load(i)...))
@@ -99,6 +199,26 @@ namespace pythonic
                                 typename utils::gens<sizeof...(Args)>::type{}))
     {
       return _load(i, typename utils::gens<sizeof...(Args)>::type{});
+    }
+
+    template <class Op, class... Args>
+    template <int... I>
+    auto numpy_expr<Op, Args...>::_map_load(
+        std::array<long, sizeof...(I)> const &indices, utils::seq<I...>) const
+        -> decltype(Op()(std::get<I>(args).load(std::get<I>(indices))...))
+    {
+      return Op()(std::get<I>(args).load(std::get<I>(indices))...);
+    }
+
+    template <class Op, class... Args>
+    template <class... Indices>
+    auto numpy_expr<Op, Args...>::map_load(Indices... indices) const
+        -> decltype(
+            this->_map_load(std::array<long, sizeof...(Indices)>{{indices...}},
+                            typename utils::gens<sizeof...(Args)>::type{}))
+    {
+      return _map_load(std::array<long, sizeof...(Indices)>{{indices...}},
+                       typename utils::gens<sizeof...(Args)>::type{});
     }
 #endif
 
@@ -141,17 +261,10 @@ namespace pythonic
     }
 
     template <class Op, class... Args>
-    template <int... I>
-    long numpy_expr<Op, Args...>::_flat_size(utils::seq<I...>) const
-    {
-      long const sizes[] = {std::get<I>(args).flat_size()...};
-      return *std::max_element(std::begin(sizes), std::end(sizes));
-    }
-
-    template <class Op, class... Args>
     long numpy_expr<Op, Args...>::flat_size() const
     {
-      return _flat_size(typename utils::gens<sizeof...(Args)>::type{});
+      return std::accumulate(_shape.begin() + 1, _shape.end(), _shape.front(),
+                             std::multiplies<long>());
     }
 
     template <class Op, class... Args>

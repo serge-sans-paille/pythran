@@ -651,6 +651,23 @@ namespace pythonic
 
 #ifdef USE_BOOST_SIMD
     template <class Arg, class... S>
+    typename numpy_gexpr<Arg, S...>::simd_iterator
+    numpy_gexpr<Arg, S...>::vbegin() const
+    {
+      return {*this, 0};
+    }
+
+    template <class Arg, class... S>
+    typename numpy_gexpr<Arg, S...>::simd_iterator
+    numpy_gexpr<Arg, S...>::vend() const
+    {
+      using vector_type =
+          typename boost::simd::native<dtype, BOOST_SIMD_DEFAULT_EXTENSION>;
+      static const std::size_t vector_size =
+          boost::simd::meta::cardinal_of<vector_type>::value;
+      return {*this, long(_shape[0] / vector_size * vector_size)};
+    }
+    template <class Arg, class... S>
     template <class I>
     auto numpy_gexpr<Arg, S...>::load(I i) const -> decltype(boost::simd::load<
         boost::simd::native<dtype, BOOST_SIMD_DEFAULT_EXTENSION>>(this->buffer,

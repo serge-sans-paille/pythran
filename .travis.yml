@@ -17,14 +17,15 @@ addons:
             - clang-format-3.6
             - libgmp-dev
             - gfortran
-            - libopenblas-dev
             - liblapack-dev
+            - libatlas-base-dev
+            - libatlas-dev
 
 before_install:
     - pip install ply
     - pip install networkx
     - pip install colorlog
-    - pip install numpy
+    - pip install -U numpy
     - pip install pytest-pep8
     - pip install pytest-xdist
 
@@ -57,7 +58,7 @@ env:
     - PEP8=false TESTCASE=pythran/tests/test_cases.py CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS="-g"
     - PEP8=false TESTCASE=pythran/tests/test_cases.py CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS="-DUSE_BOOST_SIMD -march=native"
     - PEP8=false TESTCASE=pythran/tests/test_cases.py CC=gcc-5 CXX=g++-5 CXXFLAGS="-fopenmp"
-#   - PEP8=false TESTCASE=pythran/tests/test_cases.py CC=gcc-5 CXX=g++-5 CXXFLAGS="-DUSE_BOOST_SIMD -march=native -fopenmp"
+    - PEP8=false TESTCASE=pythran/tests/test_cases.py CC=gcc-5 CXX=g++-5 CXXFLAGS="-DUSE_BOOST_SIMD -march=native -fopenmp"
     - PEP8=false TESTCASE=pythran/tests/test_complex.py CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS="-g"
     - PEP8=false TESTCASE=pythran/tests/test_complex.py CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS="-DUSE_BOOST_SIMD -march=native"
     - PEP8=false TESTCASE=pythran/tests/test_complex.py CC=gcc-5 CXX=g++-5 CXXFLAGS="-fopenmp"
@@ -134,6 +135,10 @@ env:
     - PEP8=false TESTCASE=pythran/tests/test_normalize_methods.py CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS="-DUSE_BOOST_SIMD -march=native"
     - PEP8=false TESTCASE=pythran/tests/test_normalize_methods.py CC=gcc-5 CXX=g++-5 CXXFLAGS="-fopenmp"
     - PEP8=false TESTCASE=pythran/tests/test_normalize_methods.py CC=gcc-5 CXX=g++-5 CXXFLAGS="-DUSE_BOOST_SIMD -march=native -fopenmp"
+    - PEP8=false TESTCASE=pythran/tests/test_numpy_broadcasting.py CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS="-g"
+    - PEP8=false TESTCASE=pythran/tests/test_numpy_broadcasting.py CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS="-DUSE_BOOST_SIMD -march=native"
+    - PEP8=false TESTCASE=pythran/tests/test_numpy_broadcasting.py CC=gcc-5 CXX=g++-5 CXXFLAGS="-fopenmp"
+    - PEP8=false TESTCASE=pythran/tests/test_numpy_broadcasting.py CC=gcc-5 CXX=g++-5 CXXFLAGS="-DUSE_BOOST_SIMD -march=native -fopenmp"
     - PEP8=false TESTCASE=pythran/tests/test_numpy_func0.py CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS="-g"
     - PEP8=false TESTCASE=pythran/tests/test_numpy_func0.py CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS="-DUSE_BOOST_SIMD -march=native"
     - PEP8=false TESTCASE=pythran/tests/test_numpy_func0.py CC=gcc-5 CXX=g++-5 CXXFLAGS="-fopenmp"

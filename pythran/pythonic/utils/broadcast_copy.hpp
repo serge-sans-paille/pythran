@@ -24,21 +24,23 @@ namespace pythonic
   namespace utils
   {
 
-    template <bool vector_form>
-    template <class E, class F, size_t N>
-    void _broadcast_copy<vector_form>::
-    operator()(E &&self, F const &other, utils::int_<N>, utils::int_<0>)
+    template <bool vector_form, size_t N>
+    template <class E, class F>
+    void _broadcast_copy<vector_form, N, 0>::operator()(E &&self,
+                                                        F const &other)
     {
       long self_size = std::distance(self.begin(), self.end()),
            other_size = std::distance(other.begin(), other.end());
       if (other_size > 0) // empty array sometimes happen when filtering
       {
 #ifdef _OPENMP
-        if (other_size >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
+        if (other_size >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT) {
+          auto siter = self.begin();
+          auto oiter = other.begin();
 #pragma omp parallel for
           for (long i = 0; i < other_size; ++i)
-            self.fast(i) = other.fast(i);
-        else
+            *(siter + i) = *(oiter + i);
+        } else
 #endif
           std::copy(other.begin(), other.end(), self.begin());
 
@@ -59,29 +61,30 @@ namespace pythonic
     }
 
     // ``D'' is not ``0'' so we should broadcast
-    template <bool vector_form>
-    template <class E, class F, size_t N, size_t D>
-    void _broadcast_copy<vector_form>::
-    operator()(E &&self, F const &other, utils::int_<N>, utils::int_<D>)
+    template <bool vector_form, size_t N, size_t D>
+    template <class E, class F>
+    void _broadcast_copy<vector_form, N, D>::operator()(E &&self,
+                                                        F const &other)
     {
-      self.fast(0) = other;
+      auto sfirst = self.begin();
+      auto siter = sfirst;
+      *sfirst = other;
 #ifdef _OPENMP
       long n = self.shape()[0];
       if (n >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
 #pragma omp parallel for
         for (long i = 1; i < n; ++i)
-          self.fast(i) = self.fast(0);
+          *(siter + i) = *sfirst;
       else
 #endif
-        std::fill(self.begin() + 1, self.end(), self.fast(0));
+        std::fill(self.begin() + 1, self.end(), *sfirst);
     }
 
 #ifdef USE_BOOST_SIMD
     // specialize for SIMD only if available
     // otherwise use the std::copy fallback
     template <class E, class F>
-    void _broadcast_copy<true>::operator()(E &&self, F const &other,
-                                           utils::int_<1>, utils::int_<0>)
+    void _broadcast_copy<true, 1, 0>::operator()(E &&self, F const &other)
     {
       using T = typename F::dtype;
       using vT = typename boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>;
@@ -91,20 +94,26 @@ namespace pythonic
       if (other_size > 0) // empty array sometimes happen when filtering
       {
         static const std::size_t vN = boost::simd::meta::cardinal_of<vT>::value;
-        const long bound = other_size / vN * vN;
+        auto oiter = other.vbegin();
+        const long bound = std::distance(other.vbegin(), other.vend());
 
-        long i;
 #ifdef _OPENMP
         if (bound >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
 #pragma omp parallel for
-          for (i = 0; i < bound; i += vN)
-            self.store(other.load(i), i);
+          for (long i = 0; i < bound; ++i) {
+            self.store(*(oiter + i), i * vN);
+          }
         else
 #endif
-          for (i = 0; i < bound; i += vN)
-            self.store(other.load(i), i);
-        for (; i < other_size; ++i)
-          self.fast(i) = other.fast(i);
+          for (long i = 0; i < bound * vN; i += vN, ++oiter)
+            self.store(*oiter, i);
+        // tail
+        {
+          auto siter = self.begin();
+          auto oiter = other.begin();
+          for (long i = bound * vN; i < other_size; ++i)
+            *(siter + i) = *(oiter + i);
+        }
 
         size_t n = self_size / other_size;
 #ifdef _OPENMP
@@ -119,59 +128,6 @@ namespace pythonic
             std::copy_n(self.begin(), other_size,
                         self.begin() + i * other_size);
       }
-    }
-
-    template <class E, class F, size_t N>
-    void _broadcast_copy<true>::operator()(E &&self, F const &other,
-                                           utils::int_<N>, utils::int_<0>)
-    {
-      long self_size = std::distance(self.begin(), self.end()),
-           other_size = std::distance(other.begin(), other.end());
-      if (other_size > 0) // empty array sometimes happen when filtering
-      {
-#ifdef _OPENMP
-        if (other_size >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
-#pragma omp parallel for
-          for (long i = 0; i < other_size; ++i)
-            (*this)(self.fast(i), other.fast(i), utils::int_<N - 1>(),
-                    utils::int_<0>());
-        else
-#endif
-          for (long i = 0; i < other_size; ++i)
-            (*this)(self.fast(i), other.fast(i), utils::int_<N - 1>(),
-                    utils::int_<0>());
-
-        // eventually repeat the pattern
-        size_t n = self_size / other_size;
-#ifdef _OPENMP
-        if (n >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
-#pragma omp parallel for
-          for (size_t i = 1; i < n; ++i)
-            std::copy_n(self.begin(), other_size,
-                        self.begin() + i * other_size);
-        else
-#endif
-          for (size_t i = 1; i < n; ++i)
-            std::copy_n(self.begin(), other_size,
-                        self.begin() + i * other_size);
-      }
-    }
-
-    // ``D'' is not ``0'' so we should broadcast
-    template <class E, class F, size_t N, size_t D>
-    void _broadcast_copy<true>::operator()(E &&self, F const &other,
-                                           utils::int_<N>, utils::int_<D>)
-    {
-      (*this)(self.fast(0), other, utils::int_<N - 1>(), utils::int_<D - 1>());
-#ifdef _OPENMP
-      long n = self.shape[0];
-      if (n >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
-#pragma omp parallel for
-        for (long i = 1; i < n; ++i)
-          self.fast(i) = self.fast(0);
-      else
-#endif
-        std::fill(self.begin() + 1, self.end(), self.fast(0));
     }
 
 #endif
@@ -179,57 +135,77 @@ namespace pythonic
     template <class E, class F, size_t N, size_t D, bool vector_form>
     E &broadcast_copy(E &self, F const &other)
     {
-      _broadcast_copy<vector_form>{}(self, other, utils::int_<N>(),
-                                     utils::int_<D>());
+      _broadcast_copy<vector_form, N, D>{}(self, other);
       return self;
     }
 
     /* update
      */
-    template <class Op, bool vector_form>
-    template <class E, class F, size_t N>
-    void _broadcast_update<Op, vector_form>::
-    operator()(E &&self, F const &other, utils::int_<N>, utils::int_<0>)
-    {
-      long other_size = std::distance(other.begin(), other.end());
-      if (other_size > 0) // empty array sometimes happen when filtering
-      {
-#ifdef _OPENMP
-        if (other_size >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
-#pragma omp parallel for
-          for (long i = 0; i < other_size; ++i)
-            Op{}(self.fast(i), other.fast(i));
-        else
-#endif
-            if (other_size == 1) {
-          auto value = *other.begin();
-          for (auto self_iter = self.begin(), self_end = self.end();
-               self_iter != self_end; ++self_iter)
-            Op{}(*self_iter, value);
-        } else
-          for (auto self_iter = self.begin(), self_end = self.end();
-               self_iter != self_end; self_iter += other_size)
-            std::transform(self_iter, self_iter + other_size, other.begin(),
-                           self_iter, Op{});
-      }
-    }
 
     // ``D'' is not ``0'' so we should broadcast
-    template <class Op, bool vector_form>
-    template <class E, class F, size_t N, size_t D>
-    void _broadcast_update<Op, vector_form>::
-    operator()(E &&self, F const &other, utils::int_<N>, utils::int_<D>)
+    template <class Op, bool vector_form, size_t N, size_t D>
+    template <class E, class F>
+    void _broadcast_update<Op, vector_form, N, D>::operator()(E &&self,
+                                                              F const &other)
     {
       long n = self.shape()[0];
+      auto siter = self.begin();
 #ifdef _OPENMP
       if (n >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
 #pragma omp parallel for
         for (long i = 0; i < n; ++i)
-          Op{}(self.fast(i), other.fast(0));
+          Op{}(*(siter + i), other);
       else
 #endif
         for (long i = 0; i < n; ++i)
-          Op{}(self.fast(i), other.fast(0));
+          Op{}(*(siter + i), other);
+    }
+
+    template <class Op, bool vector_form, size_t N>
+    template <class E, class F>
+    void _broadcast_update<Op, vector_form, N, 0>::operator()(E &&self,
+                                                              F const &other)
+    {
+      long other_size = std::distance(other.begin(), other.end());
+      if (other_size > 0) // empty array sometimes happen when filtering
+      {
+        auto siter = self.begin();
+        auto oiter = other.begin();
+#ifdef _OPENMP
+        if (other_size >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
+#pragma omp parallel for
+          for (long i = 0; i < other_size; ++i)
+            Op{}(*(siter + i), *(oiter + i));
+        else
+#endif
+            if (other_size == 1) {
+          auto value = *oiter;
+          for (auto send = self.end(); siter != send; ++siter)
+            Op{}(*siter, value);
+        } else
+          for (auto send = self.end(); siter != send; siter += other_size)
+            std::transform(siter, siter + other_size, oiter, siter, Op{});
+      }
+    }
+
+    template <class Op, bool vector_form, size_t N>
+    template <class E, class F0, class F1>
+    void _broadcast_update<Op, vector_form, N, 0>::
+    operator()(E &&self, types::broadcast<F0, F1> const &other)
+    {
+      auto value = *other.begin();
+      for (auto siter = self.begin(), send = self.end(); siter != send; ++siter)
+        Op{}(*siter, value);
+    }
+
+    template <class Op, bool vector_form, size_t N>
+    template <class E, class F>
+    void _broadcast_update<Op, vector_form, N, 0>::
+    operator()(E &&self, types::broadcasted<F> const &other)
+    {
+      auto value = *other.end();
+      for (auto siter = self.begin(), send = self.end(); siter != send; ++siter)
+        Op{}(*siter, value);
     }
 
 #ifdef USE_BOOST_SIMD
@@ -237,104 +213,56 @@ namespace pythonic
     // otherwise use the std::copy fallback
     template <class Op>
     template <class E, class F>
-    void _broadcast_update<Op, true>::operator()(E &&self, F const &other,
-                                                 utils::int_<1>, utils::int_<0>)
+    void _broadcast_update<Op, true, 1, 0>::operator()(E &&self, F const &other)
     {
       using T = typename F::dtype;
       using vT = typename boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>;
       long self_size = std::distance(self.begin(), self.end()),
            other_size = std::distance(other.begin(), other.end());
+
       if (other_size > 0) // empty array sometimes happen when filtering
       {
-
         static const std::size_t vN = boost::simd::meta::cardinal_of<vT>::value;
-        const long bound = other_size / vN * vN;
+        auto oiter = other.vbegin();
+        const long bound = std::distance(other.vbegin(), other.vend());
 
-        long i;
 #ifdef _OPENMP
         if (bound >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
 #pragma omp parallel for
-          for (i = 0; i < bound; i += vN)
-            self.store(Op{}(self.load(i), other.load(i)), i);
+          for (long i = 0; i < bound * vN; i += vN) {
+            self.store(Op{}(self.load(i), *(oiter + i)), i);
+          }
         else
 #endif
-          for (i = 0; i < bound; i += vN)
-            self.store(Op{}(self.load(i), other.load(i)), i);
-        for (; i < other_size; ++i)
-          Op{}(self.fast(i), other.fast(i));
-
-#ifdef _OPENMP
-        if (self_size >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT * other_size)
-#pragma omp parallel for
-          for (size_t i = other_size; i < self_size; i += other_size)
-            std::copy_n(self.begin(), other_size, self.begin() + i);
-        else
-#endif
-            if (other_size == 1) {
-          auto value = *other.begin();
-          for (auto self_iter = self.begin() + other_size,
-                    self_end = self.end();
-               self_iter != self_end; ++self_iter)
-            Op{}(*self_iter, value);
-        } else
-          for (auto self_iter = self.begin() + other_size,
-                    self_end = self.end();
-               self_iter != self_end; self_iter += other_size)
-            std::transform(self_iter, self_iter + other_size, other.begin(),
-                           self_iter, Op{});
+          for (long i = 0; i < bound * vN; i += vN, ++oiter)
+            self.store(Op{}(self.load(i), *oiter), i);
+        // tail
+        {
+          auto siter = self.begin();
+          auto oiter = other.begin();
+          for (long i = bound * vN; i < other_size; ++i)
+            *(siter + i) = Op{}(*(siter + i), *(oiter + i));
+        }
       }
+    }
+    template <class Op>
+    template <class E, class F0, class F1>
+    void _broadcast_update<Op, true, 1, 0>::
+    operator()(E &&self, types::broadcast<F0, F1> const &other)
+    {
+      auto value = *other.begin();
+      for (auto siter = self.begin(), send = self.end(); siter != send; ++siter)
+        Op{}(*siter, value);
     }
 
     template <class Op>
-    template <class E, class F, size_t N>
-    void _broadcast_update<Op, true>::operator()(E &&self, F const &other,
-                                                 utils::int_<N>, utils::int_<0>)
+    template <class E, class F>
+    void _broadcast_update<Op, true, 1, 0>::
+    operator()(E &&self, types::broadcasted<F> const &other)
     {
-      long self_size = std::distance(self.begin(), self.end()),
-           other_size = std::distance(other.begin(), other.end());
-      if (other_size > 0) // empty array sometimes happen when filtering
-      {
-#ifdef _OPENMP
-        if (other_size >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
-#pragma omp parallel for
-          for (long i = 0; i < other_size; ++i)
-            (*this)(self.fast(i), other.fast(i), utils::int_<N - 1>(),
-                    utils::int_<0>());
-        else
-#endif
-          for (long i = 0; i < other_size; ++i)
-            (*this)(self.fast(i), other.fast(i), utils::int_<N - 1>(),
-                    utils::int_<0>());
-
-// eventually repeat the pattern
-#ifdef _OPENMP
-        if (self_size >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT * other_size)
-#pragma omp parallel for
-          for (long i = other_size; i < self_size; i += other_size)
-            std::copy_n(self.begin(), other_size, self.begin() + i);
-        else
-#endif
-          for (long i = other_size; i < self_size; i += other_size)
-            std::copy_n(self.begin(), other_size, self.begin() + i);
-      }
-    }
-
-    // ``D'' is not ``0'' so we should broadcast
-    template <class Op>
-    template <class E, class F, size_t N, size_t D>
-    void _broadcast_update<Op, true>::operator()(E &&self, F const &other,
-                                                 utils::int_<N>, utils::int_<D>)
-    {
-      long n = self.shape()[0];
-#ifdef _OPENMP
-      if (n >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
-#pragma omp parallel for
-        for (long i = 0; i < n; ++i)
-          Op{}(self.fast(i), other.fast(0));
-      else
-#endif
-        for (long i = 0; i < n; ++i)
-          Op{}(self.fast(i), other.fast(0));
+      auto value = *other.end();
+      for (auto siter = self.begin(), send = self.end(); siter != send; ++siter)
+        Op{}(*siter, value);
     }
 
 #endif
@@ -342,8 +270,7 @@ namespace pythonic
     template <class Op, class E, class F, size_t N, size_t D, bool vector_form>
     E &broadcast_update(E &self, F const &other)
     {
-      _broadcast_update<Op, vector_form>{}(self, other, utils::int_<N>(),
-                                           utils::int_<D>());
+      _broadcast_update<Op, vector_form, N, D>{}(self, other);
       return self;
     }
   }

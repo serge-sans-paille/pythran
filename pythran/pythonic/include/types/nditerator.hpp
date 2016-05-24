@@ -2,6 +2,9 @@
 #define PYTHONIC_INCLUDE_TYPES_NDITERATOR_HPP
 
 #include <iterator>
+#ifdef USE_BOOST_SIMD
+#include <boost/simd/sdk/simd/native.hpp>
+#endif
 
 namespace pythonic
 {
@@ -59,6 +62,38 @@ namespace pythonic
       bool operator<(const_nditerator<E> const &other) const;
       const_nditerator &operator=(const_nditerator const &other);
     };
+#ifdef USE_BOOST_SIMD
+    template <class E>
+    struct const_simd_nditerator
+        : public std::iterator<std::random_access_iterator_tag,
+                               typename std::remove_reference<decltype(
+                                   std::declval<E &>().load(0))>::type> {
+
+      E const &data;
+      long index;
+
+      using vector_type =
+          typename boost::simd::native<typename E::dtype,
+                                       BOOST_SIMD_DEFAULT_EXTENSION>;
+      static const std::size_t vector_size =
+          boost::simd::meta::cardinal_of<vector_type>::value;
+
+      const_simd_nditerator(E const &data, long index);
+
+      auto operator*() const -> decltype(data.load(index));
+      const_simd_nditerator &operator++();
+      const_simd_nditerator &operator--();
+      const_simd_nditerator &operator+=(long i);
+      const_simd_nditerator &operator-=(long i);
+      const_simd_nditerator operator+(long i) const;
+      const_simd_nditerator operator-(long i) const;
+      long operator-(const_simd_nditerator const &other) const;
+      bool operator!=(const_simd_nditerator const &other) const;
+      bool operator==(const_simd_nditerator const &other) const;
+      bool operator<(const_simd_nditerator const &other) const;
+      const_simd_nditerator &operator=(const_simd_nditerator const &other);
+    };
+#endif
 
     // build an iterator over T, selecting a raw pointer if possible
     template <bool is_strided>

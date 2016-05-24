@@ -137,6 +137,12 @@ namespace pythonic
     }
 
     template <class T, class B>
+    array<long, 1> broadcast<T, B>::shape() const
+    {
+      return {0};
+    }
+
+    template <class T, class B>
     long broadcast<T, B>::flat_size() const
     {
       return 0;

@@ -133,7 +133,7 @@ namespace pythonic
         std::copy(shape.begin() + axis + 1, shape.end(), next);
         reduced_type<E> sumy{shp, __builtin__::None};
         std::transform(array.begin(), array.end(), sumy.begin(),
-                       [axis](typename E::iterator::value_type other) {
+                       [axis](typename E::const_iterator::value_type other) {
                          return reduce<Op>(other, axis - 1);
                        });
         return sumy;

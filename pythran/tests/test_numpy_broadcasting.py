@@ -119,3 +119,14 @@ class TestBroadcasting(TestEnv):
                       np.arange(100).reshape(1,100),
                       np.arange(100).reshape(100, 1),
                       broadcast_compute_both_dims=[np.array([[int]]), np.array([[int]])])
+
+    def test_broadcast_sum(self):
+        code = '''
+        def broadcast_sum(x, y):
+            n = x.size
+            return (x.reshape(n, 1) * y.reshape(1, n)).sum()
+        '''
+        self.run_test(code,
+                      np.arange(100).reshape(1,100),
+                      np.arange(100).reshape(100, 1),
+                      broadcast_sum=[np.array([[int]]), np.array([[int]])])

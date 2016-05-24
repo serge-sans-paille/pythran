@@ -175,6 +175,23 @@ namespace pythonic
 
 #ifdef USE_BOOST_SIMD
     template <class Arg, class F>
+    typename numpy_fexpr<Arg, F>::simd_iterator
+    numpy_fexpr<Arg, F>::vbegin() const
+    {
+      return {*this, 0};
+    }
+
+    template <class Arg, class F>
+    typename numpy_fexpr<Arg, F>::simd_iterator
+    numpy_fexpr<Arg, F>::vend() const
+    {
+      using vector_type =
+          typename boost::simd::native<dtype, BOOST_SIMD_DEFAULT_EXTENSION>;
+      static const std::size_t vector_size =
+          boost::simd::meta::cardinal_of<vector_type>::value;
+      return {*this, long(_shape[0] / vector_size * vector_size)};
+    }
+    template <class Arg, class F>
     template <class I> // template to prevent automatic instantiation when the
     // type is not vectorizable
     void numpy_fexpr<Arg, F>::load(I) const

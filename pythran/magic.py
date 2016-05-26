@@ -11,6 +11,7 @@ Pythran integration into IPython.
 # The full license is in the file COPYING.txt, distributed with this software.
 # -----------------------------------------------------------------------------
 
+import hashlib
 import imp
 from IPython.core.magic import Magics, magics_class, cell_magic
 from IPython.core import magic_arguments
@@ -62,7 +63,9 @@ class PythranMagics(Magics):
         if args.fopenmp:
             kwargs.setdefault('extra_compile_args', []).append(
                 '-fopenmp')
-        module_name = "pythranized"
+        m = hashlib.md5()
+        m.update(cell)
+        module_name = "pythranized_" + m.hexdigest()
         module_path = pythran.compile_pythrancode(module_name, cell, **kwargs)
         module = imp.load_dynamic(module_name, module_path)
         self._import_all(module)

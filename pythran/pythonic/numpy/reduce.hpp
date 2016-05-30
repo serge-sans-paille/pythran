@@ -52,20 +52,25 @@ namespace pythonic
         using vT =
             typename boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>;
         static const size_t vN = boost::simd::meta::cardinal_of<vT>::value;
-        const long n = e.shape()[0];
-        const long bound = n / vN * vN;
-        long i = 0;
+        const long n = e.size();
+        auto viter = e.vbegin(), vend = e.vend();
+        const long bound = std::distance(viter, vend);
+        ;
         if (bound > 0) {
-          vT vacc = e.load(i);
-          for (i = vN; i < bound; i += vN)
-            Op{}(vacc, e.load(i));
+          auto vacc = *viter;
+          ++viter;
+          for (long i = 1; i < bound; ++i, ++viter)
+            Op{}(vacc, *viter);
           alignas(sizeof(vT)) T stored[vN];
           boost::simd::store(vacc, &stored[0]);
           for (size_t j = 0; j < vN; ++j)
             Op{}(acc, stored[j]);
         }
-        for (; i < n; ++i)
-          Op{}(acc, e.fast(i));
+        auto iter = e.begin() + bound * vN;
+
+        for (long i = bound * vN; i < n; ++i, ++iter) {
+          Op{}(acc, *iter);
+        }
         return acc;
       }
     };

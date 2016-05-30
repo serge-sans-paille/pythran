@@ -10,6 +10,7 @@
 #endif
 
 #include "pythonic/types/vectorizable_type.hpp"
+#include "pythonic/types/nditerator.hpp"
 #include "pythonic/types/tuple.hpp"
 
 namespace pythonic
@@ -47,6 +48,18 @@ namespace pythonic
     }
 
 #ifdef USE_BOOST_SIMD
+    template <class T>
+    typename broadcasted<T>::simd_iterator broadcasted<T>::vbegin() const
+    {
+      return {*this, 0};
+    }
+
+    template <class T>
+    typename broadcasted<T>::simd_iterator broadcasted<T>::vend() const
+    {
+      return {*this, 0}; // should not happen anyway
+    }
+
     template <class T>
     template <class I> // template to prevent automatic instantiation, but the
     // declaration is still needed

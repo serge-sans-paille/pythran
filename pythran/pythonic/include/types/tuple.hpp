@@ -3,6 +3,7 @@
 
 #include "pythonic/include/types/assignable.hpp"
 #include "pythonic/include/types/traits.hpp"
+#include "pythonic/include/types/nditerator.hpp"
 #include "pythonic/include/utils/int_.hpp"
 #include "pythonic/include/utils/seq.hpp"
 #include "pythonic/include/utils/nested_container.hpp"
@@ -152,6 +153,9 @@ namespace pythonic
       reference fast(long n);
       constexpr const_reference fast(long n) const noexcept;
 #ifdef USE_BOOST_SIMD
+      using simd_iterator = const_simd_nditerator<array>;
+      simd_iterator vbegin() const;
+      simd_iterator vend() const;
       auto load(long i) const -> decltype(boost::simd::load<
           boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>>(&buffer[0], i));
 

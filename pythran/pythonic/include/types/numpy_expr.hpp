@@ -2,6 +2,7 @@
 #define PYTHONIC_INCLUDE_TYPES_NUMPY_EXPR_HPP
 
 #include "pythonic/include/utils/meta.hpp"
+#include "pythonic/include/types/nditerator.hpp"
 
 namespace pythonic
 {
@@ -107,7 +108,8 @@ namespace pythonic
       template <size_t I>
       bool _neq(numpy_expr_iterator const &other, utils::int_<I>) const
       {
-        return (std::get<I - 1>(iters_) != std::get<I - 1>(other.iters_)) ||
+        return (steps_[I - 1] &&
+                (std::get<I - 1>(iters_) != std::get<I - 1>(other.iters_))) ||
                _neq(other, utils::int_<I - 1>{});
       }
 
@@ -123,7 +125,8 @@ namespace pythonic
       template <size_t I>
       bool _eq(numpy_expr_iterator const &other, utils::int_<I>) const
       {
-        return (std::get<I - 1>(iters_) == std::get<I - 1>(other.iters_)) &&
+        return (steps_[I - 1] &&
+                (std::get<I - 1>(iters_) == std::get<I - 1>(other.iters_))) &&
                _eq(other, utils::int_<I - 1>{});
       }
 
@@ -140,10 +143,12 @@ namespace pythonic
       template <size_t I>
       bool _lt(numpy_expr_iterator const &other, utils::int_<I>) const
       {
-        if (std::get<I - 1>(iters_) == std::get<I - 1>(other.iters_))
+        if (steps_[I - 1] &&
+            (std::get<I - 1>(iters_) == std::get<I - 1>(other.iters_)))
           return _lt(other, utils::int_<I - 1>{});
         else
-          return (std::get<I - 1>(iters_) < std::get<I - 1>(other.iters_));
+          return steps_[I - 1] &&
+                 (std::get<I - 1>(iters_) < std::get<I - 1>(other.iters_));
       }
 
       bool operator<(numpy_expr_iterator const &other) const
@@ -151,6 +156,155 @@ namespace pythonic
         return _lt(other, utils::int_<sizeof...(Iters)>{});
       }
     };
+#ifdef USE_BOOST_SIMD
+    template <class E, class Op, class SIters, class... Iters>
+    struct numpy_expr_simd_iterator
+        : std::iterator<std::random_access_iterator_tag,
+                        typename std::remove_reference<decltype(std::declval<
+                            Op>()(*std::declval<Iters>()...))>::type> {
+      E const &holder_;
+      std::array<long, sizeof...(Iters)> steps_;
+      std::tuple<Iters...> iters_;
+      SIters siters_;
+
+      numpy_expr_simd_iterator(E const &holder,
+                               std::array<long, sizeof...(Iters)> steps,
+                               SIters const &siters, Iters... iters)
+          : holder_(holder), steps_(steps), siters_(siters), iters_(iters...)
+      {
+      }
+
+      numpy_expr_simd_iterator(numpy_expr_simd_iterator const &other)
+          : holder_{other.holder_}, steps_(other.steps_),
+            siters_(other.siters_), iters_(other.iters_)
+      {
+      }
+
+      numpy_expr_simd_iterator &operator=(numpy_expr_simd_iterator const &other)
+      {
+        iters_ = other.iters_;
+        siters_ = other.siters_;
+        return *this;
+      }
+
+      template <int... I>
+      auto _dereference(utils::seq<I...>) const
+          -> decltype(Op{}(*std::get<I>(iters_)...))
+      {
+        return Op{}(((steps_[I])
+                         ? (*std::get<I>(iters_))
+                         : (boost::simd::splat<decltype(*std::get<I>(iters_))>(
+                               *std::get<I>(siters_))))...);
+      }
+
+      auto operator*() const -> decltype(
+          this->_dereference(typename utils::gens<sizeof...(Iters)>::type{}))
+      {
+        return _dereference(typename utils::gens<sizeof...(Iters)>::type{});
+      }
+
+      template <int... I>
+      void _incr(utils::seq<I...>)
+      {
+        std::initializer_list<bool> __attribute__((unused))
+        _{(std::get<I>(iters_) += steps_[I], true)...};
+      }
+      numpy_expr_simd_iterator &operator++()
+      {
+        _incr(typename utils::gens<sizeof...(Iters)>::type{});
+        return *this;
+      }
+
+      numpy_expr_simd_iterator operator+(long i) const
+      {
+        numpy_expr_simd_iterator other(*this);
+        return other += i;
+      }
+
+      template <int... I>
+      void _update(long i, utils::seq<I...>)
+      {
+        std::initializer_list<bool> __attribute__((unused))
+        _{(std::get<I>(iters_) += steps_[I] * i, true)...};
+      }
+      numpy_expr_simd_iterator &operator+=(long i)
+      {
+        _update(i, typename utils::gens<sizeof...(Iters)>::type{});
+        return *this;
+      }
+
+      template <int... I>
+      long _difference(numpy_expr_simd_iterator const &other,
+                       utils::seq<I...>) const
+      {
+        std::initializer_list<long> distances{
+            (std::get<I>(iters_) - std::get<I>(other.iters_))...};
+        return *std::max_element(distances.begin(), distances.end());
+      }
+
+      long operator-(numpy_expr_simd_iterator const &other) const
+      {
+        return _difference(other,
+                           typename utils::gens<sizeof...(Iters)>::type{});
+      }
+
+      bool _neq(numpy_expr_simd_iterator const &other, utils::int_<0u>) const
+      {
+        return false;
+      }
+
+      template <size_t I>
+      bool _neq(numpy_expr_simd_iterator const &other, utils::int_<I>) const
+      {
+        return (steps_[I - 1] &&
+                (std::get<I - 1>(iters_) != std::get<I - 1>(other.iters_))) ||
+               _neq(other, utils::int_<I - 1>{});
+      }
+
+      bool operator!=(numpy_expr_simd_iterator const &other) const
+      {
+        return _neq(other, utils::int_<sizeof...(Iters)>{});
+      }
+      bool _eq(numpy_expr_simd_iterator const &other, utils::int_<0u>) const
+      {
+        return true;
+      }
+
+      template <size_t I>
+      bool _eq(numpy_expr_simd_iterator const &other, utils::int_<I>) const
+      {
+        return (steps_[I - 1] &&
+                (std::get<I - 1>(iters_) == std::get<I - 1>(other.iters_))) &&
+               _eq(other, utils::int_<I - 1>{});
+      }
+
+      bool operator==(numpy_expr_simd_iterator const &other) const
+      {
+        return _eq(other, utils::int_<sizeof...(Iters)>{});
+      }
+
+      bool _lt(numpy_expr_simd_iterator const &other, utils::int_<0u>) const
+      {
+        return false;
+      }
+
+      template <size_t I>
+      bool _lt(numpy_expr_simd_iterator const &other, utils::int_<I>) const
+      {
+        if (steps_[I - 1] &&
+            (std::get<I - 1>(iters_) == std::get<I - 1>(other.iters_)))
+          return _lt(other, utils::int_<I - 1>{});
+        else
+          return steps_[I - 1] &&
+                 (std::get<I - 1>(iters_) < std::get<I - 1>(other.iters_));
+      }
+
+      bool operator<(numpy_expr_simd_iterator const &other) const
+      {
+        return _lt(other, utils::int_<sizeof...(Iters)>{});
+      }
+    };
+#endif
 
     /* Expression template for numpy expressions - binary operators
      */
@@ -230,8 +384,15 @@ namespace pythonic
       array<long, value> const &shape() const;
 
 #ifdef USE_BOOST_SIMD
-      using simd_iterator = const_simd_nditerator<numpy_expr>;
+      using simd_iterator =
+          numpy_expr_simd_iterator<numpy_expr, Op,
+                                   std::tuple<typename Args::const_iterator...>,
+                                   typename Args::simd_iterator...>;
+      template <int... I>
+      simd_iterator _vbegin(utils::seq<I...>) const;
       simd_iterator vbegin() const;
+      template <int... I>
+      simd_iterator _vend(utils::seq<I...>) const;
       simd_iterator vend() const;
 
       template <int... I>

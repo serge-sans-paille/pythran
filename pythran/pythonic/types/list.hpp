@@ -2,6 +2,7 @@
 #define PYTHONIC_TYPES_LIST_HPP
 
 #include "pythonic/include/types/list.hpp"
+#include "pythonic/types/nditerator.hpp"
 
 #include "pythonic/__builtin__/len.hpp"
 #include "pythonic/types/slice.hpp"
@@ -362,6 +363,21 @@ namespace pythonic
 
 // element access
 #ifdef USE_BOOST_SIMD
+    template <class T>
+    typename list<T>::simd_iterator list<T>::vbegin() const
+    {
+      return {*this, 0};
+    }
+
+    template <class T>
+    typename list<T>::simd_iterator list<T>::vend() const
+    {
+      using vector_type =
+          typename boost::simd::native<dtype, BOOST_SIMD_DEFAULT_EXTENSION>;
+      static const std::size_t vector_size =
+          boost::simd::meta::cardinal_of<vector_type>::value;
+      return {*this, long(size() / vector_size * vector_size)};
+    }
     template <class T>
     auto list<T>::load(long i) const -> decltype(
         boost::simd::load<boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>>(

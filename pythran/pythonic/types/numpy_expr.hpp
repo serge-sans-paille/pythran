@@ -4,6 +4,7 @@
 #include "pythonic/include/types/numpy_expr.hpp"
 
 #include "pythonic/utils/meta.hpp"
+#include "pythonic/types/nditerator.hpp"
 
 namespace pythonic
 {
@@ -167,20 +168,39 @@ namespace pythonic
 
 #ifdef USE_BOOST_SIMD
     template <class Op, class... Args>
+    template <int... I>
+    typename numpy_expr<Op, Args...>::simd_iterator
+        numpy_expr<Op, Args...>::_vbegin(utils::seq<I...>) const
+    {
+      return {*this,
+              {(size() == std::get<I>(args).shape()[0])...},
+              std::make_tuple(std::get<I>(args).begin()...),
+              std::get<I>(args).vbegin()...};
+    }
+
+    template <class Op, class... Args>
     typename numpy_expr<Op, Args...>::simd_iterator
     numpy_expr<Op, Args...>::vbegin() const
     {
-      return {*this, 0};
+      return _vbegin(typename utils::gens<sizeof...(Args)>::type{});
     }
+
+    template <class Op, class... Args>
+    template <int... I>
+    typename numpy_expr<Op, Args...>::simd_iterator
+        numpy_expr<Op, Args...>::_vend(utils::seq<I...>) const
+    {
+      return {*this,
+              {(size() == std::get<I>(args).shape()[0])...},
+              std::make_tuple(std::get<I>(args).end()...),
+              std::get<I>(args).vend()...};
+    }
+
     template <class Op, class... Args>
     typename numpy_expr<Op, Args...>::simd_iterator
     numpy_expr<Op, Args...>::vend() const
     {
-      using vector_type =
-          typename boost::simd::native<dtype, BOOST_SIMD_DEFAULT_EXTENSION>;
-      static const std::size_t vector_size =
-          boost::simd::meta::cardinal_of<vector_type>::value;
-      return {*this, long(_shape[0] / vector_size * vector_size)};
+      return _vend(typename utils::gens<sizeof...(Args)>::type{});
     }
 
     template <class Op, class... Args>

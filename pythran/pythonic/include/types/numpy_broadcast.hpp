@@ -8,6 +8,7 @@
 #endif
 
 #include "pythonic/include/types/vectorizable_type.hpp"
+#include "pythonic/include/types/nditerator.hpp"
 #include "pythonic/include/types/tuple.hpp"
 
 namespace pythonic
@@ -90,6 +91,9 @@ namespace pythonic
       T const &operator[](long i) const;
       T const &fast(long i) const;
 #ifdef USE_BOOST_SIMD
+      using simd_iterator = const_simd_nditerator<broadcasted>;
+      simd_iterator vbegin() const;
+      simd_iterator vend() const;
       template <class I> // template to prevent automatic instantiation, but the
       // declaration is still needed
       void load(I) const;

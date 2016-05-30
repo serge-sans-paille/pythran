@@ -3,6 +3,7 @@
 
 #include "pythonic/include/types/tuple.hpp"
 #include "pythonic/include/types/list.hpp"
+#include "pythonic/types/nditerator.hpp"
 
 #include "pythonic/types/assignable.hpp"
 #include "pythonic/types/traits.hpp"
@@ -260,6 +261,21 @@ namespace pythonic
     }
 
 #ifdef USE_BOOST_SIMD
+    template <class T, size_t N>
+    typename array<T, N>::simd_iterator array<T, N>::vbegin() const
+    {
+      return {*this, 0};
+    }
+
+    template <class T, size_t N>
+    typename array<T, N>::simd_iterator array<T, N>::vend() const
+    {
+      using vector_type =
+          typename boost::simd::native<dtype, BOOST_SIMD_DEFAULT_EXTENSION>;
+      static const std::size_t vector_size =
+          boost::simd::meta::cardinal_of<vector_type>::value;
+      return {*this, long(size() / vector_size * vector_size)};
+    }
     template <typename T, size_t N>
     auto array<T, N>::load(long i) const -> decltype(
         boost::simd::load<boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>>(

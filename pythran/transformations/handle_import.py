@@ -363,8 +363,9 @@ class HandleImport(Transformation):
 
         # Patch module body: prepend all imported function and import nodes
         imported = self.registry.generate_ImportList()
-        external_modules_name = [f for f in self.module.imported_modules
-                                 if not is_builtin_module_name(f)]
+        imported_modules = self.module.imported_modules.items()
+        external_modules_name = [alias for alias, name in imported_modules
+                                 if not is_builtin_module_name(name)]
         if not imported and external_modules_name:
             # We can't raise an exception as it may just be an unused import.
             # FIXME : To improve this, we have to handle aliasing so that we

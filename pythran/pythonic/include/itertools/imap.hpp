@@ -91,6 +91,9 @@ namespace pythonic
                     imap_iterator<Operator, Iters...> {
         using value_type = typename imap_res<Operator, Iters...>::type;
         using iterator = imap_iterator<Operator, Iters...>;
+        using dtype = typename types::dtype_of<value_type>::type;
+        static constexpr bool is_vectorizable = false;
+        static constexpr size_t value = types::list<value_type>::value;
 
         iterator end_iter;
 

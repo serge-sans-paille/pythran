@@ -180,9 +180,10 @@ namespace pythonic
           : utils::iterator_reminder<true, Iters...>(
                 std::forward<Types>(_iters)...),
             imap_iterator<Operator, Iters...>(
-                _op, this->value,
+                _op, utils::iterator_reminder<true, Iters...>::value,
                 typename utils::gens<sizeof...(Iters)>::type{}),
-            end_iter(npos(), _op, this->value,
+            end_iter(npos(), _op,
+                     utils::iterator_reminder<true, Iters...>::value,
                      typename utils::gens<sizeof...(Iters)>::type{})
       {
       }

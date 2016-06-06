@@ -13,7 +13,7 @@ from pythran.intrinsic import ClassWithConstConstructor, ExceptionClass
 from pythran.intrinsic import ClassWithReadOnceConstructor
 from pythran.intrinsic import ConstFunctionIntr, FunctionIntr, UpdateEffect
 from pythran.intrinsic import ConstMethodIntr, MethodIntr, AttributeIntr
-from pythran.intrinsic import ReadEffect, ConstantIntr
+from pythran.intrinsic import ReadEffect, ConstantIntr, ReadOnceEffect
 from pythran.intrinsic import ReadOnceFunctionIntr, ConstExceptionIntr
 from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE
 from pythran import range as prange
@@ -626,7 +626,8 @@ MODULES = {
         "std_": ConstMethodIntr(args=('a', 'axis', 'dtype'),
                                 defaults=(None, None)),
         "subtract": ConstFunctionIntr(),
-        "sum": ConstMethodIntr(),
+        "sum": ConstMethodIntr(argument_effects=(ReadOnceEffect(),
+                                                 ReadOnceEffect())),
         "swapaxes": ConstMethodIntr(),
         "take": ConstMethodIntr(),
         "tan": ConstFunctionIntr(),

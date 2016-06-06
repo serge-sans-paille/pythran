@@ -156,9 +156,10 @@ class MethodIntr(FunctionIntr):
 
 class ConstMethodIntr(MethodIntr):
     def __init__(self, *combiners, **kwargs):
+        kwargs.setdefault('argument_effects',
+                          (ReadEffect(),) * 12)
         super(ConstMethodIntr, self).__init__(
-            *combiners,
-            argument_effects=(ReadEffect(),) * 12, **kwargs)
+            *combiners, **kwargs)
 
 
 class AttributeIntr(Intrinsic):

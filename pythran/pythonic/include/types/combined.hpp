@@ -25,13 +25,26 @@ struct __combined {
 
 template <class T0, class T1>
 struct __combined<T0, T1> {
-
+  // callable -> functor
   template <class F0, class F1>
   static pythonic::types::variant_functor<F0, F1>
   get(std::integral_constant<bool, true>);
+
+  // operator+ exists -> deduce type
   template <class F0, class F1>
   static decltype(std::declval<F0>() + std::declval<F1>())
   get(std::integral_constant<bool, false>);
+
+  // operator+ does not exists -> pick first one, better than error
+  // note that this is needed because broadcasting is too complex to be modeled
+  // by our clusmy type inference scheme
+  // so we sometime endup with __combined<indexable_container<...>, int> which
+  // only makes sense when broadcasting
+  // fortunately, broadcasting is only supported by ndarray, and we already
+  // ignore __combined for ndarray
+  // so the only thing to do in such situations is « not throw an error »
+  template <class F0, class F1>
+  static F0 get(...);
 
   using type = decltype(get<T0, T1>(
       std::integral_constant<bool,

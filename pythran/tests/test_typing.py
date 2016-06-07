@@ -280,3 +280,14 @@ def recursive_interprocedural_typing1():
                 return x''',
             -1,
             constant_argument_variant_functor1=[int])
+
+    def test_slice_assign(self):
+        self.run_test('''
+            import numpy as np
+            def slice_assign (M):
+                errs = np.zeros (M)
+                errs[0] = 1
+                errs[:] = 0
+                return errs''',
+            4,
+            slice_assign=[int])

@@ -1,9 +1,8 @@
 from distutils.core import setup, Extension
-from pythran import PythranExtension
 
-module1 = PythranExtension('demo', sources = ['a.py'])
+module1 = Extension('demo', sources = ['a.py'])
 
 setup(name = 'demo',
       version = '1.0',
       description = 'This is a demo package',
-      ext_modules = [module1])
+      pythran_modules = [module1])

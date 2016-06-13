@@ -63,6 +63,8 @@ class PythranMagics(Magics):
         if args.fopenmp:
             kwargs.setdefault('extra_compile_args', []).append(
                 '-fopenmp')
+            kwargs.setdefault('extra_link_args', []).append(
+                '-fopenmp')
         m = hashlib.md5()
         m.update(cell)
         module_name = "pythranized_" + m.hexdigest()

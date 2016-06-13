@@ -28,7 +28,11 @@ from pythran import metadata, unparse
 from math import isnan, isinf
 import ast
 import os
-import StringIO
+import sys
+if sys.version_info[0] < 3:
+    import cStringIO
+else:
+    from io import StringIO as cStringIO
 
 
 class Python(Backend):
@@ -47,7 +51,7 @@ class Python(Backend):
         super(Python, self).__init__()
 
     def visit(self, node):
-        output = StringIO.StringIO()
+        output = cStringIO.StringIO()
         unparse.Unparser(node, output)
         self.result = output.getvalue()
 

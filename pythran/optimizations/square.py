@@ -5,6 +5,7 @@ from pythran.analyses.ast_matcher import ASTMatcher, AST_any
 
 import ast
 import copy
+import sys
 
 
 class Square(Transformation):
@@ -29,9 +30,10 @@ class Square(Transformation):
     """
 
     POW_PATTERN = ast.BinOp(AST_any(), ast.Pow(), ast.Num(2))
-    POWER_PATTERN = ast.Call(ast.Attribute(ast.Name('numpy', ast.Load()),
-                                           'power', ast.Load()),
-                             [AST_any(), ast.Num(2)], [], None, None)
+    if sys.version_info[0] < 3:
+        POWER_PATTERN = ast.Call(ast.Attribute(ast.Name('numpy', ast.Load()),
+                                               'power', ast.Load()),
+                                 [AST_any(), ast.Num(2)], [], None, None)
 
     def __init__(self):
         Transformation.__init__(self)

@@ -8,10 +8,15 @@ from pythran.tables import functions, methods, MODULES
 from pythran.unparse import Unparser
 import pythran.metadata as md
 
-from itertools import product
-import StringIO
-
 import ast
+from itertools import product
+import sys
+
+if sys.version_info[0] < 3:
+    import cStringIO
+else:
+    from io import StringIO as cStringIO
+
 
 IntrinsicAliases = dict()
 
@@ -62,16 +67,16 @@ class Aliases(ModuleAnalysis):
     @staticmethod
     def dump(result, filter=None):
         def pp(n):
-            output = StringIO.StringIO()
+            output = cStringIO.StringIO()
             Unparser(n, output)
             return output.getvalue().strip()
 
         if isinstance(result, dict):
             for k, v in result.items():
                 if (filter is None) or isinstance(k, filter):
-                    print pp(k), '=>', sorted(map(pp, v))
+                    print('{} => {}'.format(pp(k), sorted(map(pp, v))))
         elif isinstance(result, (frozenset, set)):
-            print sorted(map(pp, result))
+            print(sorted(map(pp, result)))
 
     def expand_unknown(self, node):
         # should include built-ins too?

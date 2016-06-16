@@ -58,6 +58,14 @@ class TestNumpyFunc1(TestEnv):
                 return np.sum(ifilter(lambda x: x % 2, a))
                       """, range(10), np_sum_ifilter=[[int]])
 
+    def test_sum_izip(self):
+        self.run_test("""
+            def np_sum_izip(a):
+                import numpy as np
+                from itertools import izip
+                return np.sum(izip(a, a))
+                      """, range(10), np_sum_izip=[[int]])
+
     def test_prod_(self):
         """ Check prod function for numpy array. """
         self.run_test("""

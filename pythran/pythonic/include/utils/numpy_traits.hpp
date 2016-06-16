@@ -10,6 +10,8 @@ namespace pythonic
     {
       template <class F, class... V>
       struct imap;
+      template <class F, class ... V>
+      struct izip;
       template <class F, class List0>
       struct ifilter;
     }
@@ -136,6 +138,10 @@ namespace pythonic
 
     template <class F, class V>
     struct is_numexpr_arg<itertools::details::ifilter<F, V>> : std::true_type {
+    };
+
+    template <class F, class... V>
+    struct is_numexpr_arg<itertools::details::izip<F, V...>> : std::true_type {
     };
 
     template <class E>

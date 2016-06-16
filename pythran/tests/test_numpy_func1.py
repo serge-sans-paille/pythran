@@ -66,6 +66,13 @@ class TestNumpyFunc1(TestEnv):
                 return np.sum(izip(a, a))
                       """, range(10), np_sum_izip=[[int]])
 
+    def test_sum_xrange(self):
+        self.run_test("""
+            def np_sum_xrange(a):
+                import numpy as np
+                return np.sum(xrange(a))
+                      """, 10, np_sum_xrange=[int])
+
     def test_prod_(self):
         """ Check prod function for numpy array. """
         self.run_test("""

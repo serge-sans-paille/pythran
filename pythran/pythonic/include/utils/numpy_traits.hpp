@@ -17,6 +17,11 @@ namespace pythonic
     }
   }
 
+  namespace __builtin__
+  {
+    struct xrange;
+  }
+
   namespace types
   {
 
@@ -142,6 +147,10 @@ namespace pythonic
 
     template <class F, class... V>
     struct is_numexpr_arg<itertools::details::izip<F, V...>> : std::true_type {
+    };
+
+    template <>
+    struct is_numexpr_arg<__builtin__::xrange> : std::true_type {
     };
 
     template <class E>

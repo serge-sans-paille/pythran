@@ -51,6 +51,9 @@ namespace pythonic
       using const_iterator = xrange_iterator;
       using reverse_iterator = xrange_riterator;
       using const_reverse_iterator = xrange_riterator;
+      using dtype = value_type;
+      static constexpr bool is_vectorizable = false;
+      static constexpr size_t value = 1;
 
       long _begin;
       long _end;

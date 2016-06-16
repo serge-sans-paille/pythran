@@ -50,6 +50,14 @@ class TestNumpyFunc1(TestEnv):
                 return np.sum(imap(lambda x: x + 2, a))
                       """, range(10), np_sum_imap=[[int]])
 
+    def test_sum_ifilter(self):
+        self.run_test("""
+            def np_sum_ifilter(a):
+                import numpy as np
+                from itertools import ifilter
+                return np.sum(ifilter(lambda x: x % 2, a))
+                      """, range(10), np_sum_ifilter=[[int]])
+
     def test_prod_(self):
         """ Check prod function for numpy array. """
         self.run_test("""

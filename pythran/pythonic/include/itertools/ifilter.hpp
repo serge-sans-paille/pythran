@@ -59,6 +59,9 @@ namespace pythonic
 
         using value_type = typename List0::value_type;
         using iterator = ifilter_iterator<Operator, List0>;
+        using dtype = typename types::dtype_of<value_type>::type;
+        static constexpr bool is_vectorizable = false;
+        static constexpr size_t value = types::list<value_type>::value;
 
         iterator end_iter;
 

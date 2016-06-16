@@ -10,6 +10,8 @@ namespace pythonic
     {
       template <class F, class... V>
       struct imap;
+      template <class F, class List0>
+      struct ifilter;
     }
   }
 
@@ -133,8 +135,7 @@ namespace pythonic
     };
 
     template <class F, class V>
-    struct is_numexpr_arg<itertools::details::imap<F, V>> {
-      static constexpr bool value = true;
+    struct is_numexpr_arg<itertools::details::ifilter<F, V>> : std::true_type {
     };
 
     template <class E>

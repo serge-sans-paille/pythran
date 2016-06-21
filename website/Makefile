@@ -53,4 +53,4 @@ Changelog.rst:../Changelog
 	cat $< >> $@
 
 pythran.png:../logo.svg Makefile
-	inkscape -f $< --export-height=80 --export-background-opacity=0 --export-png $@
+	convert -density 1200 -resize x80 -background none $< $@

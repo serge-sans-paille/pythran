@@ -115,13 +115,28 @@ class BuildWithThirdParty(build_py):
 
         cc = ccompiler.new_compiler("posix", verbose=False)
         # try to compile a code that requires gmp support
-        with NamedTemporaryFile(suffix='.cpp', delete=False) as temp:
+        with NamedTemporaryFile(suffix='.c', delete=False) as temp:
             temp.write('''
-                #include <gmpxx.h>
-                int main() {
-                    mpz_class a(1);
-                    return a == 0;
-                };
+                #include <stdio.h>
+                #include <gmp.h>
+
+                int main(void) {
+                 mpz_t x,y,result;
+
+                 mpz_init_set_str(x, "7612058254738945", 10);
+                 mpz_init_set_str(y, "9263591128439081", 10);
+                 mpz_init(result);
+
+                 mpz_mul(result, x, y);
+                 gmp_printf("%Zd * %Zd = %Zd", x, y, result);
+
+                 /* free used memory */
+                 mpz_clear(x);
+                 mpz_clear(y);
+                 mpz_clear(result);
+
+                 return 0;
+                }
             '''.encode('ascii'))
             srcs = [temp.name]
         exe = "a.out"
@@ -130,7 +145,7 @@ class BuildWithThirdParty(build_py):
             objs = cc.compile(srcs)
             cc.link(ccompiler.CCompiler.EXECUTABLE,
                     objs, exe,
-                    libraries=['gmp', 'gmpxx'])
+                    libraries=['gmp'])
         except (LinkError, CompileError):
             # failure: remove the gmp dependency
             print('Failed to compile GMP source, disabling long support.')
@@ -145,7 +160,7 @@ class BuildWithThirdParty(build_py):
         finally:
             tmp_files = objs + srcs + [exe]
             for filename in tmp_files:
-            # file may not exist as it may raise before its creation.
+                # file may not exist as it may raise before its creation.
                 if os.path.exists(filename):
                     os.remove(filename)
 
@@ -153,8 +168,8 @@ class BuildWithThirdParty(build_py):
         # regular build done by parent class
         build_py.run(self, *args, **kwargs)
         if not self.dry_run:  # compatibility with the parent options
-            self.detect_gmp()
             self.copy_nt2()
+            self.detect_gmp()
 
 
 # Cannot use glob here, as the files may not be generated yet

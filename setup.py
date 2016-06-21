@@ -142,10 +142,11 @@ class BuildWithThirdParty(build_py):
                     content = content.replace('gmp gmpxx', '')
                     cfg.seek(0)
                     cfg.write(content)
+                    cfg.truncate(len(content))
         finally:
             tmp_files = objs + srcs + [exe]
             for filename in tmp_files:
-            # file may not exist as it may raise before its creation.
+                # file may not exist as it may raise before its creation.
                 if os.path.exists(filename):
                     os.remove(filename)
 

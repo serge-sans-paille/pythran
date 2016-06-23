@@ -4,7 +4,7 @@ from pythran.analyses import GlobalDeclarations, ImportedIds
 from pythran.passmanager import Transformation
 from pythran.tables import MODULES
 
-import ast
+import gast as ast
 
 
 class _NestedFunctionRemover(Transformation):
@@ -27,8 +27,9 @@ class _NestedFunctionRemover(Transformation):
         new_name = "pythran_{0}".format(former_name)
 
         ii = self.passmanager.gather(ImportedIds, node, self.ctx)
-        binded_args = [ast.Name(iin, ast.Load()) for iin in sorted(ii)]
-        node.args.args = ([ast.Name(iin, ast.Param()) for iin in sorted(ii)] +
+        binded_args = [ast.Name(iin, ast.Load(), None) for iin in sorted(ii)]
+        node.args.args = ([ast.Name(iin, ast.Param(), None)
+                           for iin in sorted(ii)] +
                           node.args.args)
 
         class Renamer(ast.NodeTransformer):
@@ -38,7 +39,8 @@ class _NestedFunctionRemover(Transformation):
                         node.func.id == former_name):
                     node.func.id = new_name
                     node.args = (
-                        [ast.Name(iin, ast.Load()) for iin in sorted(ii)] +
+                        [ast.Name(iin, ast.Load(), None)
+                         for iin in sorted(ii)] +
                         node.args
                         )
                 return node
@@ -46,20 +48,18 @@ class _NestedFunctionRemover(Transformation):
 
         node.name = new_name
         self.global_declarations[node.name] = node
-        proxy_call = ast.Name(new_name, ast.Load())
+        proxy_call = ast.Name(new_name, ast.Load(), None)
 
         new_node = ast.Assign(
-            [ast.Name(former_name, ast.Store())],
+            [ast.Name(former_name, ast.Store(), None)],
             ast.Call(
                 ast.Attribute(
-                    ast.Name('functools', ast.Load()),
+                    ast.Name('functools', ast.Load(), None),
                     "partial",
                     ast.Load()
                     ),
                 [proxy_call] + binded_args,
                 [],
-                None,
-                None
                 )
             )
 
@@ -75,7 +75,7 @@ class RemoveNestedFunctions(Transformation):
     Also add a call to a bind intrinsic that
     generates a local function with some arguments binded.
 
-    >>> import ast
+    >>> import gast as ast
     >>> from pythran import passmanager, backend
     >>> node = ast.parse("def foo(x):\\n def bar(y): return x+y\\n bar(12)")
     >>> pm = passmanager.PassManager("test")
@@ -92,12 +92,14 @@ class RemoveNestedFunctions(Transformation):
         super(RemoveNestedFunctions, self).__init__(GlobalDeclarations)
 
     def visit_Module(self, node):
-        map(self.visit, node.body)
+        # keep original node as it's updated by _NestedFunctionRemover
+        for stmt in node.body:
+            self.visit(stmt)
         return node
 
     def visit_FunctionDef(self, node):
         nfr = _NestedFunctionRemover(self.passmanager, self.ctx,
                                      self.global_declarations)
-        node.body = map(nfr.visit, node.body)
+        node.body = [nfr.visit(stmt) for stmt in node.body]
         self.update |= nfr.update
         return node

@@ -3,7 +3,7 @@ from pythran.passmanager import Transformation
 from pythran.tables import cxx_keywords, MODULES, pythran_ward
 from pythran.syntax import PythranSyntaxError
 
-import ast
+import gast as ast
 import importlib
 import inspect
 import logging
@@ -42,7 +42,8 @@ def is_builtin_module(module):
 
 def filter_builtinIn_import(import_node):
     """Filter out import list to keep only builtin modules."""
-    import_node.names = filter(is_builtin_module, import_node.names)
+    import_node.names = [name for name in import_node.names
+                         if is_builtin_module(name)]
     # Remove the import statement if no builtin module were present.
     return import_node if import_node.names else None
 
@@ -60,7 +61,7 @@ class ImportFunction(ast.NodeTransformer):
     def __init__(self, registry, module, func_name):
         self.registry = registry
         self.module = module
-        self.func_name = func_name
+        self.__name__ = func_name
         self.nested_functions = dict()
 
     def visit_FunctionDef(self, func_node):
@@ -141,7 +142,10 @@ class ImportFunction(ast.NodeTransformer):
             # to tranform calls from main_module.foo() to simply foo()
             if module.to_be_mangled or module.is_main_module:
                 # Patch the call, replace with the mangle name
-                call_node.func = ast.Name(id=mangled_name, ctx=ast.Load())
+                call_node.func = ast.Name(
+                    id=mangled_name,
+                    ctx=ast.Load(),
+                    annotation=None)
 
         return call_node
 
@@ -341,7 +345,7 @@ class ImportRegistry(object):
                 import_list.append(import_node)
             # Here we import the function itself (FunctionDef node)
             # In case of builtin module, it is an ImportFrom node.
-            import_list += mod.exported_functions.values()
+            import_list.extend(mod.exported_functions.values())
         return import_list
 
 
@@ -366,7 +370,7 @@ class HandleImport(Transformation):
 
         # Patch module body: prepend all imported function and import nodes
         imported = self.registry.generate_ImportList()
-        imported_modules = self.module.imported_modules.items()
+        imported_modules = list(self.module.imported_modules.items())
         external_modules_name = [alias for alias, name in imported_modules
                                  if not is_builtin_module_name(name)]
         if not imported and external_modules_name:

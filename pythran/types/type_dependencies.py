@@ -1,7 +1,7 @@
 """ Module to manage dependencies between pythran types. """
 
 from numpy import ndarray
-import ast
+import gast as ast
 import itertools
 import os
 
@@ -19,13 +19,13 @@ def pytype_to_deps_hpp(t):
     if isinstance(t, list):
         return {'list.hpp'}.union(pytype_to_deps_hpp(t[0]))
     elif isinstance(t, set):
-        return {'set.hpp'}.union(pytype_to_deps_hpp(iter(t).next()))
+        return {'set.hpp'}.union(pytype_to_deps_hpp(next(iter(t))))
     elif isinstance(t, dict):
-        tkey, tvalue = t.iteritems().next()
+        tkey, tvalue = next(iter(t.items()))
         return {'dict.hpp'}.union(pytype_to_deps_hpp(tkey),
                                   pytype_to_deps_hpp(tvalue))
     elif isinstance(t, tuple):
-        return {'tuple.hpp'}.union(*map(pytype_to_deps_hpp, t))
+        return {'tuple.hpp'}.union(*[pytype_to_deps_hpp(elt) for elt in t])
     elif isinstance(t, ndarray):
         out = {'ndarray.hpp'}
         # it's a transpose!
@@ -56,7 +56,7 @@ class TypeDependencies(ModuleAnalysis):
     between nodes when a function might call another.
 
     Check usual behavior.
-    >>> import ast
+    >>> import gast as ast
     >>> from pythran import passmanager
     >>> pm = passmanager.PassManager("test")
     >>> node = ast.parse('''
@@ -236,7 +236,7 @@ class TypeDependencies(ModuleAnalysis):
         No edges are added as there are no type builtin type dependencies.
         """
         super(TypeDependencies, self).prepare(node, ctx)
-        for v in self.global_declarations.itervalues():
+        for v in self.global_declarations.values():
             self.result.add_node(v)
         self.result.add_node(TypeDependencies.NoDeps)
 
@@ -247,7 +247,7 @@ class TypeDependencies(ModuleAnalysis):
         Compute correct dependencies on a value as both branch are possible
         path.
         """
-        naming = {k: list(v) for k, v in self.naming.iteritems()}
+        naming = {k: list(v) for k, v in self.naming.items()}
         for expr in node1:
             self.visit(expr)
 
@@ -255,7 +255,7 @@ class TypeDependencies(ModuleAnalysis):
         for expr in node2:
             self.visit(expr)
 
-        for k, v in naming.iteritems():
+        for k, v in naming.items():
             if k not in self.naming:
                 self.naming[k] = v
             else:
@@ -349,7 +349,7 @@ class TypeDependencies(ModuleAnalysis):
 
     def visit_BinOp(self, node):
         """ Return type depend from both operand of the binary operation. """
-        args = map(self.visit, (node.left, node.right))
+        args = [self.visit(arg) for arg in (node.left, node.right)]
         return list({frozenset.union(*x) for x in itertools.product(*args)})
 
     def visit_UnaryOp(self, node):
@@ -378,7 +378,7 @@ class TypeDependencies(ModuleAnalysis):
 
         Return type depend on [foo, bar] or [foo, foobar]
         """
-        args = map(self.visit, node.args)
+        args = [self.visit(arg) for arg in node.args]
         func = self.visit(node.func)
         params = args + [func or []]
         return list({frozenset.union(*p) for p in itertools.product(*params)})
@@ -427,7 +427,7 @@ class TypeDependencies(ModuleAnalysis):
     def visit_List(self, node):
         """ List construction depend on each elements type dependency. """
         if node.elts:
-            return list(set(sum(map(self.visit, node.elts), [])))
+            return list(set(sum([self.visit(elt) for elt in node.elts], [])))
         else:
             return [frozenset()]
 
@@ -437,7 +437,7 @@ class TypeDependencies(ModuleAnalysis):
         """ Dict construction depend on each element/value type dependency."""
         if node.keys:
             items = node.keys + node.values
-            return list(set(sum(map(self.visit, items), [])))
+            return list(set(sum([self.visit(item) for item in items], [])))
         else:
             return [frozenset()]
 

@@ -23,23 +23,25 @@ from pythran import metadata
 from collections import defaultdict
 from functools import partial
 from numpy import ndarray
-import ast
+import gast as ast
 import operator
+from functools import reduce
 
 
 def extract_constructed_types(t):
     if isinstance(t, (list, ndarray)):
         return [pytype_to_ctype(t)] + extract_constructed_types(t[0])
     elif isinstance(t, set):
-        return [pytype_to_ctype(t)] + extract_constructed_types(list(t)[0])
+        return ([pytype_to_ctype(t)] +
+                extract_constructed_types(next(iter((t)))))
     elif isinstance(t, dict):
-        tkey, tvalue = t.items()[0]
+        tkey, tvalue = next(iter(t.items()))
         return ([pytype_to_ctype(t)] +
                 extract_constructed_types(tkey) +
                 extract_constructed_types(tvalue))
     elif isinstance(t, tuple):
         return ([pytype_to_ctype(t)] +
-                sum(map(extract_constructed_types, t), []))
+                sum(list(map(extract_constructed_types, t)), []))
     elif t == long:
         return [pytype_to_ctype(t)]
     elif t == str:
@@ -76,7 +78,7 @@ class Types(ModuleAnalysis):
 
         def register(name, module):
             """ Recursively save function typing and combiners for Pythonic."""
-            for fname, function in module.iteritems():
+            for fname, function in module.items():
                 if isinstance(function, dict):
                     register(name + "::" + fname, function)
                 else:
@@ -86,14 +88,14 @@ class Types(ModuleAnalysis):
                     if isinstance(function, Class):
                         register(name + "::" + fname, function.fields)
 
-        for mname, module in MODULES.iteritems():
+        for mname, module in MODULES.items():
             register(mname, module)
         super(Types, self).prepare(node, ctx)
 
     def run(self, node, ctx):
         super(Types, self).run(node, ctx)
         final_types = self.result.copy()
-        for head in self.current_global_declarations.itervalues():
+        for head in self.current_global_declarations.values():
             if head not in final_types:
                 final_types[head] = "pythonic::types::none_type"
         return final_types
@@ -162,13 +164,13 @@ class Types(ModuleAnalysis):
                             # so we must check where the value is assigned
                 node_id, depth = self.node_to_id(node)
                 if depth > 0:
-                    node = ast.Name(node_id, ast.Load())
+                    node = ast.Name(node_id, ast.Load(), None)
                     former_unary_op = unary_op
 
                     # update the type to reflect container nesting
                     def unary_op(x):
                         return reduce(lambda t, n: ContainerType(t),
-                                      xrange(depth), former_unary_op(x))
+                                      range(depth), former_unary_op(x))
 
                     # patch the op, as we no longer apply op, but infer content
                     # but it's dangerous to combine with a weakling
@@ -203,7 +205,7 @@ class Types(ModuleAnalysis):
                             ''' capture args for translator generation'''
                             def interprocedural_type_translator(s, n):
                                 translated_othernode = ast.Name(
-                                    '__fake__', ast.Load())
+                                    '__fake__', ast.Load(), None)
                                 s.result[translated_othernode] = (
                                     parametric_type.instanciate(
                                         s.current,
@@ -261,8 +263,8 @@ class Types(ModuleAnalysis):
             self.generic_visit(node)
 
         # propagate type information through all aliases
-        for name, nodes in self.name_to_nodes.iteritems():
-            final_node = ast.Name("__fake__" + name, ast.Load())
+        for name, nodes in self.name_to_nodes.items():
+            final_node = ast.Name("__fake__" + name, ast.Load(), None)
             for n in nodes:
                 self.combine(final_node, n)
             for n in nodes:
@@ -334,8 +336,8 @@ class Types(ModuleAnalysis):
         self.visit(node.iter)
         self.combine(node.target, node.iter, unary_op=IteratorContentType,
                      aliasing_type=True, register=True)
-        node.body and map(self.visit, node.body)
-        node.orelse and map(self.visit, node.orelse)
+        node.body and list(map(self.visit, node.body))
+        node.orelse and list(map(self.visit, node.orelse))
 
     def visit_BoolOp(self, node):
         """
@@ -362,7 +364,7 @@ class Types(ModuleAnalysis):
                 return ExpressionType(operator_to_lambda[type(node.op)],
                                       [x, y])
 
-        fake_node = ast.Name("#", ast.Param())
+        fake_node = ast.Name("#", ast.Param(), None)
         self.combine(fake_node, node.left, F)
         self.combine(fake_node, node.right, F)
         self.combine(node, fake_node)
@@ -381,7 +383,7 @@ class Types(ModuleAnalysis):
 
     def visit_Compare(self, node):
         self.generic_visit(node)
-        all_compare = zip(node.ops, node.comparators)
+        all_compare = list(zip(node.ops, node.comparators))
 
         def unary_op(x, op=None):
             return ExpressionType(
@@ -401,10 +403,10 @@ class Types(ModuleAnalysis):
                 bounded_name = a0.id
                 # by construction of the bind construct
                 assert len(self.strict_aliases[a0]) == 1
-                bounded_function = list(self.strict_aliases[a0])[0]
-                fake_name = ast.Name(bounded_name, ast.Load())
+                bounded_function = next(iter((self.strict_aliases[a0])))
+                fake_name = ast.Name(bounded_name, ast.Load(), None)
                 fake_node = ast.Call(fake_name, alias.args[1:] + node.args,
-                                     [], None, None)
+                                     [])
                 self.combiners[bounded_function].combiner(self, fake_node)
                 # force recombination of binded call
                 for n in self.name_to_nodes[func.id]:
@@ -556,7 +558,7 @@ class Types(ModuleAnalysis):
                 self.result[node.type] = tname
                 self.combine(node.name, node.type, aliasing_type=True,
                              register=True)
-        map(self.visit, node.body)
+        list(map(self.visit, node.body))
 
     def visit_Tuple(self, node):
         self.generic_visit(node)
@@ -570,4 +572,4 @@ class Types(ModuleAnalysis):
     def visit_arguments(self, node):
         for i, arg in enumerate(node.args):
             self.result[arg] = ArgumentType(i)
-        map(self.visit, node.defaults)
+        list(map(self.visit, node.defaults))

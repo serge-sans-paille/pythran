@@ -10,7 +10,7 @@ from pythran.utils import get_variable
 import pythran.metadata as md
 import pythran.openmp as openmp
 
-import ast
+import gast as ast
 import sys
 
 
@@ -24,7 +24,7 @@ class LazynessAnalysis(FunctionAnalysis):
     its last use or if it is use in a function call (as it is not an
     interprocedural analysis)
 
-    >>> import ast, sys
+    >>> import gast as ast, sys
     >>> from pythran import passmanager, backend
     >>> code = "def foo(): c = 1; a = c + 2; c = 2; b = c + c + a; return b"
     >>> node = ast.parse(code)
@@ -110,7 +110,7 @@ class LazynessAnalysis(FunctionAnalysis):
     def modify(self, name, loc):
         # if we modify a variable, all variables that needed it
         # to be compute are dead and its aliases too
-        dead_vars = [var for var, deps in self.use.iteritems() if name in deps]
+        dead_vars = [var for var, deps in self.use.items() if name in deps]
         self.dead.update(dead_vars)
         for var in dead_vars:
             dead_aliases = [alias.id for alias in self.name_to_nodes[var]
@@ -199,7 +199,8 @@ class LazynessAnalysis(FunctionAnalysis):
 
             def is_loc_var(x):
                 return isinstance(x, ast.Name) and x.id in self.ids
-            alias_names = filter(is_loc_var, self.aliases[node])
+            alias_names = [var for var in self.aliases[node]
+                           if is_loc_var(var)]
             alias_names = {x.id for x in alias_names}
             alias_names.add(node.id)
             for alias in alias_names:
@@ -233,12 +234,13 @@ class LazynessAnalysis(FunctionAnalysis):
         self.visit(node.test)
         old_count = dict(self.name_count)
         old_dead = set(self.dead)
-        old_deps = {a: set(b) for a, b in self.use.iteritems()}
+        old_deps = {a: set(b) for a, b in self.use.items()}
 
-        if isinstance(node.body, list):
-            map(self.visit, node.body)
-        else:
-            self.visit(node.body)
+        # wrap body in a list if we come from an ifExp
+        body = node.body if isinstance(node.body, list) else [node.body]
+        for stmt in body:
+            self.visit(stmt)
+
         mid_count = self.name_count
         mid_dead = self.dead
         mid_deps = self.use
@@ -246,10 +248,12 @@ class LazynessAnalysis(FunctionAnalysis):
         self.name_count = old_count
         self.dead = old_dead
         self.use = old_deps
-        if isinstance(node.orelse, list):
-            map(self.visit, node.orelse)
-        else:
-            self.visit(node.orelse)
+
+        # wrap orelse in a list if we come from an ifExp
+        orelse = (node.orelse if isinstance(node.orelse, list)
+                  else [node.orelse])
+        for stmt in orelse:
+            self.visit(stmt)
 
         # merge use variable
         for key in self.use:
@@ -260,7 +264,7 @@ class LazynessAnalysis(FunctionAnalysis):
                 self.use[key] = set(mid_deps[key])
 
         # value is the worse case of both branches
-        names = set(self.name_count.keys() + mid_count.keys())
+        names = set(self.name_count.keys()).union(mid_count.keys())
         for name in names:
             val_body = mid_count.get(name, 0)
             val_else = self.name_count.get(name, 0)
@@ -277,16 +281,17 @@ class LazynessAnalysis(FunctionAnalysis):
         self.pre_loop_count = dict()
 
         # do visit body
-        map(self.visit, body)
+        for stmt in body:
+            self.visit(stmt)
 
         # variable use in loop but not assigned are no lazy
-        no_assign = [n for n, (_, a) in self.pre_loop_count.iteritems()
+        no_assign = [n for n, (_, a) in self.pre_loop_count.items()
                      if not a]
         self.result.update(zip(no_assign,
                                [LazynessAnalysis.MANY] * len(no_assign)))
         # lazyness value is the max of previous lazyness and lazyness for one
         # iteration in the loop
-        for k, v in self.pre_loop_count.iteritems():
+        for k, v in self.pre_loop_count.items():
             loop_value = v[0] + self.name_count[k]
             self.result[k] = max(self.result.get(k, 0), loop_value)
         # variable dead at the end of the loop but use at the beginning of it
@@ -294,7 +299,7 @@ class LazynessAnalysis(FunctionAnalysis):
         dead = self.dead.intersection(self.pre_loop_count)
         self.result.update(zip(dead, [LazynessAnalysis.INF] * len(dead)))
         # merge previous count of "use at start of loop" and current state.
-        for k, v in old_pre_count.iteritems():
+        for k, v in old_pre_count.items():
             if v[1] or k not in self.pre_loop_count:
                 self.pre_loop_count[k] = v
             else:
@@ -313,7 +318,8 @@ class LazynessAnalysis(FunctionAnalysis):
 
         self.visit_loop(node.body)
 
-        map(self.visit, node.orelse)
+        for stmt in node.orelse:
+            self.visit(stmt)
 
     def visit_While(self, node):
         md.visit(self, node)
@@ -321,7 +327,8 @@ class LazynessAnalysis(FunctionAnalysis):
 
         self.visit_loop(node.body)
 
-        map(self.visit, node.orelse)
+        for stmt in node.orelse:
+            self.visit(stmt)
 
     def func_args_lazyness(self, func_name, args, node):
         for fun in self.aliases[func_name]:
@@ -352,7 +359,8 @@ class LazynessAnalysis(FunctionAnalysis):
         func_args_lazyness.
         """
         md.visit(self, node)
-        map(self.visit, node.args)
+        for arg in node.args:
+            self.visit(arg)
         self.func_args_lazyness(node.func, node.args, node)
         self.visit(node.func)
 
@@ -360,7 +368,7 @@ class LazynessAnalysis(FunctionAnalysis):
         super(LazynessAnalysis, self).run(node, ctx)
 
         # update result with last name_count values
-        for name, val in self.name_count.iteritems():
+        for name, val in self.name_count.items():
             old_val = self.result.get(name, 0)
             self.result[name] = max(old_val, val)
         return self.result

@@ -707,10 +707,10 @@ namespace std
 #ifdef ENABLE_PYTHON_MODULE
 
 #if PY_MAJOR_VERSION >= 3
-#define PyString_FromStringAndSize PyBytes_FromStringAndSize
-#define PyString_Check PyBytes_Check
-#define PyString_AS_STRING PyBytes_AS_STRING
-#define PyString_GET_SIZE PyBytes_GET_SIZE
+#define PyString_FromStringAndSize PyUnicode_FromStringAndSize
+#define PyString_Check PyUnicode_IS_ASCII
+#define PyString_AS_STRING (char *) _PyUnicode_COMPACT_DATA
+#define PyString_GET_SIZE PyUnicode_GET_SIZE
 #endif
 
 namespace pythonic

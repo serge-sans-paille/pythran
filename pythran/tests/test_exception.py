@@ -258,7 +258,7 @@ class TestException(TestEnv):
         self.run_test("def reraise_exception_():\n try:\n  raise OverflowError('a','b','c')\n except IOError:\n  raise\n except:  return 'ok'", reraise_exception_=[])
 
     def test_raiseinst_exception(self):
-        self.run_test("def raiseinst_exception_():\n try:\n  raise OverflowError, ('a','b','c')\n except OverflowError as e:\n  return e.args", raiseinst_exception_=[])
+        self.run_test("def raiseinst_exception_():\n try:\n  raise OverflowError, 'abc'\n except OverflowError as e:\n  return e.args", raiseinst_exception_=[])
 
     def test_else2_exception(self):
         self.run_test("def else2_exception_():\n try:\n  raise 1\n  return 0,'bad'\n except:\n  a=2\n else:\n  return 0,'bad2'\n return a,'ok'", else2_exception_=[])

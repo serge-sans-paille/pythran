@@ -1,4 +1,6 @@
 import numpy
+import sys
+import unittest
 
 from test_env import TestEnv
 from pythran.config import have_gmp_support
@@ -23,7 +25,7 @@ class TestBase(TestEnv):
         self.run_test("def boolop(a,b,c): return a and b or c", True, True, False, boolop=[bool,bool, bool])
 
     def test_operator(self):
-        self.run_test("def operator_(a,b,c): return (a+b-b*a/(a%b)**(a<<a>>b|b^a&a/b)//c)",1,2,1.5, operator_=[int,int, float])
+        self.run_test("def operator_(a,b,c): return (a+b-b*a//(a%b)**(a<<a>>b|b^a&a//b))/c",1,2,3., operator_=[int,int, float])
 
     def test_unaryop(self):
         self.run_test("def unaryop(a): return not(~(+(-a)))", 1, unaryop=[int])
@@ -73,7 +75,17 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
         self.run_test("def reduce_(l): return reduce(lambda x,y:x+y, l)", [0.,1.1,2.2,3.3], reduce_=[[float]])
 
     def test_another_reduce(self):
-        self.run_test("def another_reduce(l0,l1): return reduce(lambda x,(y,z):x+y+z, zip(l0, l1),0)", [0.4,1.4,2.4,3.4], [0.,1.1,2.2,3.3], another_reduce=[[float],[float]])
+        if sys.version_info.major == 2:
+            code = '''
+            def another_reduce(l0,l1):
+                return reduce(lambda x,(y,z):x+y+z, zip(l0, l1),0)
+            '''
+        else:
+            code = '''
+            def another_reduce(l0,l1):
+                return reduce(lambda x,y:x+y[0]+y[1], zip(l0, l1),0)
+            '''
+        self.run_test(code, [0.4,1.4,2.4,3.4], [0.,1.1,2.2,3.3], another_reduce=[[float],[float]])
 
     def test_sum(self):
         self.run_test("def sum_(l): return sum(l)", [0.,1.1,2.2,3.3], sum_=[[float]])
@@ -93,20 +105,22 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
     def test_multimin(self):
         self.run_test("def multimin(l,v):return min(v,min(l))", [ 1.1, 2.2 ], 3, multimin=[[float],int])
 
+    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_map_none(self):
         self.run_test("def map_none(l0): return map(None, l0)", [0,1,2], map_none=[[int]])
 
+    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_map_none2(self):
         self.run_test("def map_none2(l0): return map(None, l0, l0)", [0,1,2], map_none2=[[int]])
 
     def test_map(self):
-        self.run_test("def map_(l0, l1, v): return map(lambda x,y:x*v+y, l0, l1)", [0,1,2], [0.,1.1,2.2], 2, map_=[[int], [float], int])
+        self.run_test("def map_(l0, l1, v): return list(map(lambda x,y:x*v+y, l0, l1))", [0,1,2], [0.,1.1,2.2], 2, map_=[[int], [float], int])
 
     def test_multimap(self):
-        self.run_test("def multimap(l0, l1, v): return map(lambda x,y:x*v+y, l0, map(lambda z:z+1,l1))", [0,1,2], [0.,1.1,2.2], 2, multimap=[[int], [float], int])
+        self.run_test("def multimap(l0, l1, v): return list(map(lambda x,y:x*v+y, l0, map(lambda z:z+1,l1)))", [0,1,2], [0.,1.1,2.2], 2, multimap=[[int], [float], int])
 
     def test_intrinsic_map(self):
-        self.run_test("def intrinsic_map(l): return map(max,l)",[[0,1,2],[2,0,1]], intrinsic_map=[[[int]]])
+        self.run_test("def intrinsic_map(l): return list(map(max,l))",[[0,1,2],[2,0,1]], intrinsic_map=[[[int]]])
 
     def test_range1(self):
         self.run_test("def range1_(e): return range(e)", 3, range1_=[int])
@@ -151,7 +165,7 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
         self.run_test("def rrange7_(b,e,s): return list(reversed(range(b,e,s)))", 3,9,3, rrange7_=[int,int,int])
 
     def test_multirange(self):
-        self.run_test("def multirange(i): return map(lambda x,y:y*x/2, range(1,i), range(i,1,-1))", 3, multirange=[int])
+        self.run_test("def multirange(i): return list(map(lambda x,y:y*x//2, range(1,i), range(i,1,-1)))", 3, multirange=[int])
 
     def test_xrange1(self):
         self.run_test("def xrange1_(e): return list(xrange(e))", 3, xrange1_=[int])
@@ -169,13 +183,13 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
         self.run_test("def xrange5_(e): return max(xrange(e))", 3, xrange5_=[int])
 
     def test_multixrange(self):
-        self.run_test("def multixrange(i): return map(lambda x,y:y*x/2, xrange(1,i), xrange(i,1,-1))", 3, multixrange=[int])
+        self.run_test("def multixrange(i): return map(lambda x,y:y*x//2, xrange(1,i), xrange(i,1,-1))", 3, multixrange=[int])
 
     def test_print(self):
-        self.run_test("def print_(a,b,c,d): print a,b,c,d,'e',1.5,", [1.,2.,3.1],3,True, "d", print_=[[float], int, bool, str])
+        self.run_test("def print_(a,b,c,d): print a,b,c,d,'e',1.5", [1.,2.,3.1],3,True, "d", print_=[[float], int, bool, str])
 
     def test_print_tuple(self):
-        self.run_test("def print_tuple(a,b,c,d): print (a,b,c,d,'e',1.5,)", [1.,2.,3.1],3,True, "d", print_tuple=[[float], int, bool, str])
+        self.run_test("def print_tuple(a,b,c,d): t = (a,b,c,d,'e',1.5,); print(t)", [1.,2.,3.1],3,True, "d", print_tuple=[[float], int, bool, str])
 
     def test_assign(self):
         self.run_test("def assign(a): b=2*a ; return b", 1, assign=[int])
@@ -420,6 +434,7 @@ def nested_def(a):
     def test_chr(self):
         self.run_test("def chr_(a): return chr(a)", 42, chr_=[int])
 
+    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_cmp(self):
         self.run_test("def cmp_(a,b): return cmp(a,b)", 1, 4.5, cmp_=[int, float])
 
@@ -535,16 +550,18 @@ def forelse():
     def test_long_assign(self):
         self.run_test("def _long_assign():\n b=10L\n c = b + 10\n return c", _long_assign=[])
 
+    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_long(self):
-        self.run_test("def _long(a): return a+34",111111111111111L, _long=[long])
+        self.run_test("def _long(a): return a+34", 1111111111111111111111, _long=[long])
 
+    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_long_square(self):
         """ Check square function on gmp number. """
         if have_gmp_support(extra_compile_args=self.PYTHRAN_CXX_FLAGS):
             self.run_test("""
                 def _long_square(a):
                     return a ** 2
-                          """, 111111111111111L, _long_square=[long])
+                          """, 1111111111111111111111, _long_square=[long])
 
     def test_reversed_slice(self):
         self.run_test("def reversed_slice(l): return l[::-2]", [0,1,2,3,4], reversed_slice=[[int]])
@@ -670,7 +687,7 @@ def import_as():
         self.run_test('''
 def update_empty_list(l):
     p = list()
-    return p + l[:1]''', range(5), update_empty_list=[[int]])
+    return p + l[:1]''', list(range(5)), update_empty_list=[[int]])
 
     def test_update_list_with_slice(self):
         self.run_test('''
@@ -678,7 +695,7 @@ def update_list_with_slice(l):
     p = list()
     for i in xrange(10):
         p += l[:1]
-    return p,i''', range(5), update_list_with_slice=[[int]])
+    return p,i''', list(range(5)), update_list_with_slice=[[int]])
 
     def test_add_slice_to_list(self):
         self.run_test('''
@@ -686,7 +703,7 @@ def add_slice_to_list(l):
     p = list()
     for i in xrange(10):
         p = p + l[:1]
-    return p,i''', range(5), add_slice_to_list=[[int]])
+    return p,i''', list(range(5)), add_slice_to_list=[[int]])
 
     def test_bool_(self):
         self.run_test("def _bool(d): return bool(d)", 3, _bool=[int])

@@ -4,13 +4,13 @@ from pythran.analyses import PotentialIterator
 from pythran.passmanager import Transformation
 from pythran.transformations import NormalizeTuples
 
-import ast
+import gast as ast
 
 
 class ListCompToGenexp(Transformation):
     '''
     Transforms list comprehension into genexp
-    >>> import ast
+    >>> import gast as ast
     >>> from pythran import passmanager, backend
     >>> node = ast.parse("""                      \\n\
 def foo(l):                                       \\n\

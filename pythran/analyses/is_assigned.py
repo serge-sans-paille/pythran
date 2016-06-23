@@ -3,7 +3,7 @@
 from pythran.passmanager import NodeAnalysis
 
 from collections import defaultdict
-import ast
+import gast as ast
 
 
 class IsAssigned(NodeAnalysis):

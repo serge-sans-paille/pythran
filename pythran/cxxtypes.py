@@ -25,8 +25,11 @@ class Type(object):
     """
     def __init__(self, **kwargs):
         for k, v in kwargs.items():
+            if isinstance(v, list):
+                v = tuple(v)
+            elif isinstance(v, set):
+                v = frozenset(v)
             setattr(self, k, v)
-        self.qualifiers = self.qualifiers.copy()  # avoid sharing
         self.fields = tuple(sorted(kwargs.keys()))
         self.iscore = False
 
@@ -38,15 +41,6 @@ class Type(object):
 
     def all_types(self):
         return {self}
-
-    def __eq__(self, other):
-        havesameclass = self.__class__ == other.__class__
-        if havesameclass:
-            def same(x, y):
-                return getattr(self, x) == getattr(other, y)
-            return all(same(x, y) for x, y in zip(self.fields, other.fields))
-        else:
-            return False
 
     def __add__(self, other):
         if self.isweak() and not other.isweak():
@@ -72,7 +66,7 @@ class NamedType(Type):
     """
     def __init__(self, srepr, qualifiers=None):
         if qualifiers is None:
-            qualifiers = set()
+            qualifiers = frozenset()
         super(NamedType, self).__init__(srepr=srepr, qualifiers=qualifiers)
 
     def generate(self, _):
@@ -115,7 +109,7 @@ class InstanciatedType(Type):
                                                arguments=arguments,
                                                qualifiers=qualifiers)
         if fun == caller:
-            self.qualifiers.add(Weak)
+            self.qualifiers = self.qualifiers.union([Weak])
 
     def generate(self, ctx):
         if self.arguments:
@@ -142,7 +136,7 @@ class CombinedTypes(Type):
     def __init__(self, *types):
         super(CombinedTypes, self).__init__(
             types=types,
-            qualifiers=set.union(*[t.qualifiers for t in types])
+            qualifiers=frozenset.union(*[t.qualifiers for t in types])
             )
 
     def iscombined(self):
@@ -179,10 +173,10 @@ class CombinedTypes(Type):
         def fit(t):
             return not fot0(t) and not fot1(t)
 
-        it = filter(fit, all_types)
+        it = [t for t in all_types if fit(t)]
         it = sorted(it, key=lambda t: t.iscore, reverse=True)
-        ot0 = filter(fot0, all_types)
-        ot1 = filter(fot1, all_types)
+        ot0 = [t for t in all_types if fot0(t)]
+        ot1 = [t for t in all_types if fot1(t)]
         icombined = sorted({ctx(t).generate(ctx) for t in it if t.iscore})
         icombined += sorted({ctx(t).generate(ctx) for t in it if not t.iscore})
         lcombined0 = sorted({ctx(t).generate(ctx) for t in ot0})[-mct:]
@@ -204,7 +198,7 @@ typename std::remove_reference<argument_type4>::type>::type
     """
     def __init__(self, num, qualifiers=None):
         if qualifiers is None:
-            qualifiers = set()
+            qualifiers = frozenset()
         super(ArgumentType, self).__init__(num=num,
                                            qualifiers=qualifiers)
 
@@ -414,9 +408,9 @@ std::declval<bool>()))
     '''
     def __init__(self, ofs):
         if ofs:
-            qualifiers = set.union(*[of.qualifiers for of in ofs])
+            qualifiers = frozenset.union(*[of.qualifiers for of in ofs])
         else:
-            qualifiers = set()
+            qualifiers = frozenset()
 
         super(TupleType, self).__init__(ofs=ofs, qualifiers=qualifiers)
 
@@ -491,7 +485,7 @@ class ExpressionType(Type):
 
     def __init__(self, op, exprs):
         super(ExpressionType, self).__init__(
-            qualifiers=set.union(*[expr.qualifiers for expr in exprs]),
+            qualifiers=frozenset.union(*[expr.qualifiers for expr in exprs]),
             op=op,
             exprs=exprs)
 

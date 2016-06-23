@@ -8,7 +8,7 @@ from pythran.intrinsic import FunctionIntr
 from pythran.passmanager import NodeAnalysis
 from pythran.tables import MODULES
 
-import ast
+import gast as ast
 
 
 class ConstantExpressions(NodeAnalysis):

@@ -4,7 +4,7 @@ BoundExpressions gathers temporary objects
 
 from pythran.passmanager import ModuleAnalysis
 
-import ast
+import gast as ast
 
 
 class BoundExpressions(ModuleAnalysis):

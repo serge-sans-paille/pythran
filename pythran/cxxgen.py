@@ -28,6 +28,7 @@ Generator for C/C++.
 #
 
 from __future__ import division
+
 from textwrap import dedent
 from pythran.tables import pythran_ward
 
@@ -111,7 +112,7 @@ class DeclSpecifier(NestedDeclarator):
         def add_spec(sub_it):
             it = iter(sub_it)
             try:
-                yield "%s%s%s" % (self.spec, self.sep, it.next())
+                yield "%s%s%s" % (self.spec, self.sep, next(it))
             except StopIteration:
                 pass
 
@@ -692,7 +693,7 @@ class PythonModule(object):
         body = (self.preamble +
                 self.includes +
                 self.implems +
-                map(Line, self.wrappers + theoverloads) +
+                [Line(code) for code in self.wrappers + theoverloads] +
                 [Line(methods), Line(module)])
 
         return Module(body)

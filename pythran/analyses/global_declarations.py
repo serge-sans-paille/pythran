@@ -7,7 +7,7 @@ class GlobalDeclarations(ModuleAnalysis):
 
     """ Gather all kind of identifier defined at global scope.
 
-    >>> import ast
+    >>> import gast as ast
     >>> from pythran import passmanager
     >>> from pythran.analyses import GlobalDeclarations
     >>> node = ast.parse('''

@@ -1,10 +1,10 @@
 """ This module provides way to convert a Python value into an ast. """
-
 from __future__ import absolute_import
 
-import ast
+import gast as ast
 import itertools
 import numpy
+import sys
 import types
 
 # Maximum length of folded sequences
@@ -34,23 +34,22 @@ def size_container_folding(value):
     """
     if len(value) < MAX_LEN:
         if isinstance(value, list):
-            return ast.List(map(to_ast, value), ast.Load())
+            return ast.List([to_ast(elt) for elt in value], ast.Load())
         elif isinstance(value, tuple):
-            return ast.Tuple(map(to_ast, value), ast.Load())
+            return ast.Tuple([to_ast(elt) for elt in value], ast.Load())
         elif isinstance(value, set):
-            return ast.Set(map(to_ast, value))
+            return ast.Set([to_ast(elt) for elt in value])
         elif isinstance(value, dict):
-            keys = map(to_ast, value.iterkeys())
-            values = map(to_ast, value.itervalues())
+            keys = [to_ast(elt) for elt in value.keys()]
+            values = [to_ast(elt) for elt in value.values()]
             return ast.Dict(keys, values)
         elif isinstance(value, numpy.ndarray):
-            return ast.Call(func=ast.Attribute(ast.Name('numpy', ast.Load()),
-                                               'array',
-                                               ast.Load()),
-                            args=[to_ast(value.tolist())],
-                            keywords=[],
-                            starargs=None,
-                            kwargs=None)
+            return ast.Call(func=ast.Attribute(
+                ast.Name('numpy', ast.Load(), None),
+                'array',
+                ast.Load()),
+                args=[to_ast(value.tolist())],
+                keywords=[])
         else:
             raise ConversionError()
     else:
@@ -63,7 +62,7 @@ def builtin_folding(value):
         name = value.__name__ + "_"
     else:
         name = value.__name__
-    return ast.Attribute(ast.Name('__builtin__', ast.Load()),
+    return ast.Attribute(ast.Name('__builtin__', ast.Load(), None),
                          name, ast.Load())
 
 
@@ -85,14 +84,21 @@ def to_ast(value):
                   numpy.int64, numpy.intp, numpy.intc, numpy.int_,
                   numpy.bool_)
     itertools_t = [getattr(itertools, fun) for fun in dir(itertools)
-                   if isinstance(getattr(itertools, fun), types.TypeType)]
+                   if isinstance(getattr(itertools, fun), type)]
     unfolded_type = (types.BuiltinFunctionType, types.BuiltinMethodType,
-                     types.FunctionType, types.TypeType, types.XRangeType,
-                     numpy.ufunc, type(list.append), types.FileType,
+                     numpy.ufunc, type(list.append),
                      BaseException, types.GeneratorType) + tuple(itertools_t)
-    if isinstance(value, (types.NoneType, bool)):
-        return ast.Attribute(ast.Name('__builtin__', ast.Load()),
+    if sys.version_info.major == 2:
+        unfolded_type += (types.FunctionType, types.FileType,
+                          types.TypeType, types.XRangeType)
+    else:
+        unfolded_type += type, range, type(numpy.array2string)
+
+    if isinstance(value, (type(None), bool)):
+        return ast.Attribute(ast.Name('__builtin__', ast.Load(), None),
                              str(value), ast.Load())
+    elif isinstance(value, numpy_type):
+        return to_ast(numpy.asscalar(value))
     elif isinstance(value, (int, long, float, complex)):
         return ast.Num(value)
     elif isinstance(value, str):
@@ -102,11 +108,12 @@ def to_ast(value):
     elif hasattr(value, "__module__") and value.__module__ == "__builtin__":
         # TODO Can be done the same way for others modules
         return builtin_folding(value)
-    elif isinstance(value, numpy_type):
-        return to_ast(numpy.asscalar(value))
     elif isinstance(value, unfolded_type):
         raise ToNotEval()
     elif value in numpy_type:
         raise ToNotEval()
+    # only meaningful for python3
+    elif isinstance(value, (filter, map, zip)):
+        return to_ast(list(value))
     else:
         raise ConversionError()

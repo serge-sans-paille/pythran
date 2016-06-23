@@ -39,8 +39,8 @@ class TestEnv(unittest.TestCase):
 
     def check_type(self, ref, res):
         """ Check if type between reference and result match. """
-        print "Type of Pythran res : ", type(res)
-        print "Type of Python ref : ", type(ref)
+        print("Type of Pythran res : ", type(res))
+        print("Type of Python ref : ", type(ref))
         type_matching = (((list, tuple), (list, tuple)),
                          ((float, float64), (int, long, float, float32,
                                              float64)),
@@ -124,10 +124,10 @@ class TestEnv(unittest.TestCase):
         err_msg = "Excepected exception but none raise."
         try:
             if isinstance(runas, tuple):
-                exec code in env
+                exec(code, env)
                 ret_val = env[runas[0]](*runas[1])
             else:
-                exec (code + "\n" + runas) in env
+                exec((code + "\n" + runas), env)
                 ret_val = env[self.TEST_RETURNVAL]
             if check_exception:
                 raise AssertionError(err_msg)
@@ -155,7 +155,7 @@ class TestEnv(unittest.TestCase):
                 ret_val = getattr(pymod, runas[0])(*runas[1])
             else:
                 # Produce the pythran result, exec in the loaded module ctx
-                exec runas in pymod.__dict__
+                exec(runas, pymod.__dict__)
                 ret_val = getattr(pymod, self.TEST_RETURNVAL)
             if check_exception:
                 raise AssertionError(err_msg)
@@ -201,7 +201,7 @@ class TestEnv(unittest.TestCase):
             runas_commands = runas.split(";")
             begin = ";".join(runas_commands[:-1])
             # this tests the runas initialisation syntax
-            exec code + "\n" + begin in {}
+            exec(code + "\n" + begin, {})
             last = self.TEST_RETURNVAL + '=' + runas_commands[-1]
             runas = begin + "\n" + last
 
@@ -221,8 +221,8 @@ class TestEnv(unittest.TestCase):
             python_ref = self.run_python(code, runas)
             pythran_res = self.run_pythran(modname, cxx_compiled, runas)
 
-            print "Python result: ", python_ref
-            print "Pythran result: ", pythran_res
+            print("Python result: ", python_ref)
+            print("Pythran result: ", pythran_res)
             self.assertAlmostEqual(python_ref, pythran_res)
 
     def run_test(self, code, *params, **interface):
@@ -253,10 +253,24 @@ class TestEnv(unittest.TestCase):
 
         assert len(interface) == 1
 
-        name = interface.keys()[0]
+        name = next(iter(interface.keys()))
         modname = "test_" + name
 
         code = dedent(code)
+
+        if sys.version_info.major == 3:
+            from tempfile import NamedTemporaryFile
+            from lib2to3 import main as lib2to3
+
+            tmp_py = NamedTemporaryFile(suffix='.py', delete=False)
+            tmp_py.write(code.encode('ascii'))
+            tmp_py.close()
+
+            lib2to3.main('lib2to3.fixes', [tmp_py.name, '-w', '-n'])
+
+            code = open(tmp_py.name).read()
+            os.remove(tmp_py.name)
+
 
         cxx_compiled = compile_pythrancode(
             modname, code, interface, extra_compile_args=self.PYTHRAN_CXX_FLAGS)
@@ -273,8 +287,8 @@ class TestEnv(unittest.TestCase):
                     "expected exception was %s, but received %s" %
                     (python_ref, pythran_res))
 
-        print "Python result: ", python_ref
-        print "Pythran result: ", pythran_res
+        print("Python result: ", python_ref)
+        print("Pythran result: ", pythran_res)
         self.assertAlmostEqual(python_ref, pythran_res)
 
     @staticmethod
@@ -300,7 +314,7 @@ class TestEnv(unittest.TestCase):
 
         ir, _, _ = frontend.parse(pm, code)
 
-        optimizations = map(_parse_optimization, optimizations)
+        optimizations = [_parse_optimization(opt) for opt in optimizations]
         refine(pm, ir, optimizations)
 
         content = pm.dump(Python, ir)
@@ -412,7 +426,7 @@ class TestFromDir(TestEnv):
             # Module name is file name and external interface is default value
             name, _ = os.path.splitext(os.path.basename(filepath))
             specs = target.interface(name, filepath)
-            runas_list = [line for line in file(filepath).readlines()
+            runas_list = [line for line in open(filepath).readlines()
                           if any(line.startswith(marker) for
                                  marker in TestFromDir.runas_markers)]
             runas_list = runas_list or [None]
@@ -432,7 +446,7 @@ class TestFromDir(TestEnv):
                 else:
                     # Second stage, we change dummy function by real one.
                     func = TestFromDir.TestFunctor(
-                        target, name + suffix + str(n), file(filepath).read(),
+                        target, name + suffix + str(n), open(filepath).read(),
                         runas=runas, **specs)
 
                 setattr(target, "test_" + name + suffix + str(n), func)

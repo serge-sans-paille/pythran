@@ -8,14 +8,14 @@ from pythran.tables import functions, methods, MODULES
 from pythran.unparse import Unparser
 import pythran.metadata as md
 
-import ast
+import gast as ast
 from itertools import product
 import sys
 
-if sys.version_info[0] < 3:
-    import cStringIO
+if sys.version_info.major == 2:
+    import StringIO as io
 else:
-    from io import StringIO as cStringIO
+    import io
 
 
 IntrinsicAliases = dict()
@@ -67,7 +67,7 @@ class Aliases(ModuleAnalysis):
     @staticmethod
     def dump(result, filter=None):
         def pp(n):
-            output = cStringIO.StringIO()
+            output = io.StringIO()
             Unparser(n, output)
             return output.getvalue().strip()
 
@@ -128,7 +128,7 @@ class Aliases(ModuleAnalysis):
         >>> Aliases.dump(result, filter=ast.BoolOp)
         (a or 0) => ['<unbound-value>', 'a']
         '''
-        return self.add(node, set.union(*map(self.visit, node.values)))
+        return self.add(node, set.union(*[self.visit(n) for n in node.values]))
 
     def visit_UnaryOp(self, node):
         '''
@@ -159,7 +159,7 @@ class Aliases(ModuleAnalysis):
         (a if c else b) => ['a', 'b']
         '''
         self.visit(node.test)
-        rec = map(self.visit, [node.body, node.orelse])
+        rec = [self.visit(n) for n in (node.body, node.orelse)]
         return self.add(node, set.union(*rec))
 
     def visit_Dict(self, node):
@@ -225,7 +225,7 @@ class Aliases(ModuleAnalysis):
         between its input and output. In our case:
 
         >>> f = module.body[0].return_alias
-        >>> Aliases.dump(f([ast.Name('A', ast.Load()), ast.Num(1)]))
+        >>> Aliases.dump(f([ast.Name('A', ast.Load(), None), ast.Num(1)]))
         ['A']
 
         This also works if the relationship between input and output
@@ -234,8 +234,8 @@ class Aliases(ModuleAnalysis):
         >>> module = ast.parse('def foo(a, b): return a or b[0]')
         >>> result = pm.gather(Aliases, module)
         >>> f = module.body[0].return_alias
-        >>> List = ast.List([ast.Name('L0', ast.Load())], ast.Load())
-        >>> Aliases.dump(f([ast.Name('B', ast.Load()), List]))
+        >>> List = ast.List([ast.Name('L0', ast.Load(), None)], ast.Load())
+        >>> Aliases.dump(f([ast.Name('B', ast.Load(), None), List]))
         ['B', '[L0][0]']
 
         Which actually means that when called with two arguments ``B`` and
@@ -484,7 +484,8 @@ class Aliases(ModuleAnalysis):
         >>> Aliases.dump(result, filter=ast.ListComp)
         [a for i in b] => ['<unbound-value>']
         '''
-        map(self.visit_comprehension, node.generators)
+        for generator in node.generators:
+            self.visit_comprehension(generator)
         self.visit(node.elt)
         return self.add(node)
 
@@ -503,7 +504,8 @@ class Aliases(ModuleAnalysis):
         >>> Aliases.dump(result, filter=ast.DictComp)
         {i: i for i in b} => ['<unbound-value>']
         '''
-        map(self.visit_comprehension, node.generators)
+        for generator in node.generators:
+            self.visit_comprehension(generator)
         self.visit(node.key)
         self.visit(node.value)
         return self.add(node)
@@ -694,13 +696,16 @@ class Aliases(ModuleAnalysis):
         self.visit(node.test)
         false_aliases = self.aliases.copy()
         try:  # first try the true branch
-            map(self.visit, node.body)
+            for stmt in node.body:
+                self.visit(stmt)
             true_aliases, self.aliases = self.aliases, false_aliases
         except PythranSyntaxError:  # it failed, try the false branch
-            map(self.visit, node.orelse)
+            for stmt in node.orelse:
+                self.visit(stmt)
             raise  # but still throw the exception, maybe we are in a For
         try:  # then try the false branch
-            map(self.visit, node.orelse)
+            for stmt in node.orelse:
+                self.visit(stmt)
         except PythranSyntaxError:  # it failed
             # we still get some info from the true branch, validate them
             self.aliases = true_aliases

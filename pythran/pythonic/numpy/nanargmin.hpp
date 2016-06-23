@@ -36,7 +36,7 @@ namespace pythonic
     }
 
     template <class E>
-    typename E::dtype nanargmin(E const &expr)
+    long nanargmin(E const &expr)
     {
       typename E::dtype min =
           std::numeric_limits<typename E::dtype>::infinity();

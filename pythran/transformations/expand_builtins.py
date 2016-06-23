@@ -5,7 +5,7 @@ from pythran.passmanager import Transformation
 from pythran.syntax import PythranSyntaxError
 from pythran.tables import MODULES
 
-import ast
+import gast as ast
 
 
 class ExpandBuiltins(Transformation):
@@ -13,7 +13,7 @@ class ExpandBuiltins(Transformation):
     """
     Expands all builtins into full paths.
 
-    >>> import ast
+    >>> import gast as ast
     >>> from pythran import passmanager, backend
     >>> node = ast.parse("def foo(): return list()")
     >>> pm = passmanager.PassManager("test")
@@ -26,6 +26,13 @@ class ExpandBuiltins(Transformation):
     def __init__(self):
         Transformation.__init__(self, Locals, Globals)
 
+    def visit_NameConstant(self, node):
+        self.update = True
+        return ast.Attribute(
+            ast.Name('__builtin__', ast.Load(), None),
+            str(node.value),
+            ast.Load())
+
     def visit_Name(self, node):
         s = node.id
         if(isinstance(node.ctx, ast.Load) and
@@ -36,7 +43,7 @@ class ExpandBuiltins(Transformation):
                 raise PythranSyntaxError("You fool! Trying a getattr?", node)
             self.update = True
             return ast.Attribute(
-                ast.Name('__builtin__', ast.Load()),
+                ast.Name('__builtin__', ast.Load(), None),
                 s,
                 node.ctx)
         else:

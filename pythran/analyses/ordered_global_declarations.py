@@ -4,7 +4,8 @@ from pythran.analyses.aliases import StrictAliases
 from pythran.analyses.global_declarations import GlobalDeclarations
 from pythran.passmanager import ModuleAnalysis
 
-import ast
+import gast as ast
+from functools import reduce
 
 
 class OrderedGlobalDeclarations(ModuleAnalysis):
@@ -36,11 +37,10 @@ class OrderedGlobalDeclarations(ModuleAnalysis):
         new_count = 0
         # iteratively propagate weights
         while new_count != old_count:
-            for v in self.result.itervalues():
+            for v in self.result.values():
                 [v.update(self.result[f]) for f in list(v)]
             old_count = new_count
-            new_count = reduce(lambda acc, s: acc + len(s),
-                               self.result.itervalues(), 0)
+            new_count = sum(len(value) for value in self.result.values())
         # return functions, the one with the greatest weight first
-        return sorted(self.result.iterkeys(), reverse=True,
+        return sorted(self.result.keys(), reverse=True,
                       key=lambda s: len(self.result[s]))

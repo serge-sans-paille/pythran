@@ -10,7 +10,7 @@ class NormalizeIdentifiers(Transformation):
     Prevents naming conflict with c++ keywords by appending extra '_'
     to conflicting names.
 
-    >>> import ast
+    >>> import gast as ast
     >>> from pythran import passmanager, backend
     >>> node = ast.parse("def namespace(union):pass")
     >>> pm = passmanager.PassManager("test")

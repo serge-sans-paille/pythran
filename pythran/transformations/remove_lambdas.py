@@ -5,7 +5,7 @@ from pythran.passmanager import Transformation
 from pythran.tables import MODULES
 
 from copy import copy
-import ast
+import gast as ast
 
 
 class _LambdaRemover(Transformation):
@@ -33,28 +33,27 @@ class _LambdaRemover(Transformation):
         ii = self.passmanager.gather(ImportedIds, node, self.ctx)
         ii.difference_update(self.lambda_functions)  # remove current lambdas
 
-        binded_args = [ast.Name(iin, ast.Load()) for iin in sorted(ii)]
-        node.args.args = ([ast.Name(iin, ast.Param()) for iin in sorted(ii)] +
+        binded_args = [ast.Name(iin, ast.Load(), None) for iin in sorted(ii)]
+        node.args.args = ([ast.Name(iin, ast.Param(), None)
+                           for iin in sorted(ii)] +
                           node.args.args)
         forged_fdef = ast.FunctionDef(
             forged_name,
             copy(node.args),
             [ast.Return(node.body)],
-            [])
+            [], None)
         self.lambda_functions.append(forged_fdef)
         self.global_declarations[forged_name] = forged_fdef
-        proxy_call = ast.Name(forged_name, ast.Load())
+        proxy_call = ast.Name(forged_name, ast.Load(), None)
         if binded_args:
             return ast.Call(
                 ast.Attribute(
-                    ast.Name('functools', ast.Load()),
+                    ast.Name('functools', ast.Load(), None),
                     "partial",
                     ast.Load()
                     ),
                 [proxy_call] + binded_args,
-                [],
-                None,
-                None)
+                [])
         else:
             return proxy_call
 
@@ -64,7 +63,7 @@ class RemoveLambdas(Transformation):
     """
     Turns lambda into top-level functions.
 
-    >>> import ast
+    >>> import gast as ast
     >>> from pythran import passmanager, backend
     >>> node = ast.parse("def foo(y): lambda x:y+x")
     >>> pm = passmanager.PassManager("test")
@@ -92,5 +91,5 @@ class RemoveLambdas(Transformation):
         lr = _LambdaRemover(self.passmanager, node.name, self.ctx,
                             self.lambda_functions, self.imports,
                             self.global_declarations)
-        node.body = map(lr.visit, node.body)
+        node.body = [lr.visit(n) for n in node.body]
         return node

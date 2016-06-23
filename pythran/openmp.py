@@ -7,8 +7,8 @@ This modules contains OpenMP-related stuff.
 from pythran.passmanager import Transformation
 import pythran.metadata as metadata
 
-from ast import AST
-import ast
+from gast import AST
+import gast as ast
 import re
 
 keywords = {
@@ -64,7 +64,8 @@ class OMPDirective(AST):
     >>> o.s
     'omp for private({},{}) shared({})'
     >>> [ type(dep) for dep in o.deps ]
-    [<class '_ast.Name'>, <class '_ast.Name'>, <class '_ast.Name'>]
+    [<class 'gast.gast.Name'>, <class 'gast.gast.Name'>, \
+<class 'gast.gast.Name'>]
     >>> [ dep.id for dep in o.deps ]
     ['a', 'b', 'c']
     '''
@@ -94,7 +95,7 @@ class OMPDirective(AST):
                         in_reserved_context = word in reserved_contex
                     else:
                         v = '{}'
-                        self.deps.append(ast.Name(word, ast.Load()))
+                        self.deps.append(ast.Name(word, ast.Load(), None))
                         out += v
                 elif s[curr_index] == '(':
                     par_count += 1

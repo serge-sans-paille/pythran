@@ -5,14 +5,14 @@ UnshadowParameters prevents the shadow parameter phenomenon
 from pythran.analyses import Identifiers
 from pythran.passmanager import Transformation
 
-import ast
+import gast as ast
 
 
 class UnshadowParameters(Transformation):
     '''
     Prevents parameter shadowing by creating new variable.
 
-    >>> import ast
+    >>> import gast as ast
     >>> from pythran import passmanager, backend
     >>> node = ast.parse("def foo(a): a=None")
     >>> pm = passmanager.PassManager("test")
@@ -32,12 +32,12 @@ class UnshadowParameters(Transformation):
         [self.visit(n) for n in node.body]
         # do it twice to make sure all renaming are done
         [self.visit(n) for n in node.body]
-        for k, v in self.renaming.iteritems():
+        for k, v in self.renaming.items():
             node.body.insert(
                 0,
                 ast.Assign(
-                    [ast.Name(v, ast.Store())],
-                    ast.Name(k, ast.Load())
+                    [ast.Name(v, ast.Store(), None)],
+                    ast.Name(k, ast.Load(), None)
                     )
                 )
         self.update |= bool(self.renaming)
@@ -52,7 +52,8 @@ class UnshadowParameters(Transformation):
                 self.renaming[node.id] = new_name
 
     def visit_Assign(self, node):
-        map(self.update_name, node.targets)
+        for target in node.targets:
+            self.update_name(target)
         try:
             self.generic_visit(node)
         except AttributeError:

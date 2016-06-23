@@ -4,14 +4,14 @@ from pythran.analyses import Aliases
 from pythran.passmanager import Transformation
 from pythran.syntax import PythranSyntaxError
 
-import ast
+import gast as ast
 
 
 class RemoveNamedArguments(Transformation):
     '''
     Replace call with named arguments to regular calls
 
-    >>> import ast
+    >>> import gast as ast
     >>> from pythran import passmanager, backend
     >>> code = 'def foo(x, y): return x + y\\ndef bar(z): return foo(y=z, x=0)'
     >>> node = ast.parse(code)
@@ -83,7 +83,7 @@ class RemoveNamedArguments(Transformation):
                 # candidate, or nothing structural typing issues would have
                 # raised an exception in handle_keywords
                 if replacements:
-                    for index, value in replacements.iteritems():
+                    for index, value in replacements.items():
                         node.args[index] = value
                     node.keywords = []
 

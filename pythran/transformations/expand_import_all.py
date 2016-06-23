@@ -3,14 +3,14 @@
 from pythran.passmanager import Transformation
 from pythran.tables import MODULES
 
-import ast
+import gast as ast
 
 
 class ExpandImportAll(Transformation):
     '''
     Expands all import when '*' detected
 
-    >>> import ast
+    >>> import gast as ast
     >>> from pythran import passmanager, backend
     >>> node = ast.parse("from math import *")
     >>> pm = passmanager.PassManager("test")

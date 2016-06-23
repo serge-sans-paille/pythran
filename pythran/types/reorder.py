@@ -1,6 +1,6 @@
 """ Reorder top-level functions to prevent circular type dependencies.  """
 
-import ast
+import gast as ast
 
 import networkx as nx
 
@@ -22,9 +22,8 @@ class Reorder(Transformation):
     def prepare(self, node, ctx):
         """ Format type dependencies information to use if for reordering. """
         super(Reorder, self).prepare(node, ctx)
-        none_successors = self.type_dependencies.successors(
+        candidates = self.type_dependencies.successors(
             TypeDependencies.NoDeps)
-        candidates = sorted(none_successors)
         # We first select function which may have a result without calling any
         # others functions.
         # Then we check if no loops type dependencies exists. If it exists, we
@@ -49,7 +48,7 @@ class Reorder(Transformation):
             new_candidates = list()
             for n in candidates:
                 # remove edges that imply a circular dependency
-                for p in sorted(self.type_dependencies.predecessors(n)):
+                for p in self.type_dependencies.predecessors(n):
                     if nx.has_path(self.type_dependencies, n, p):
                         self.type_dependencies.remove_edge(p, n)
                 if n not in self.type_dependencies.successors(n):

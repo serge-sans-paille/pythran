@@ -20,7 +20,7 @@ namespace pythonic
                     utils::int_<N>);
 
     template <class E>
-    typename E::dtype nanargmax(E const &expr);
+    long nanargmax(E const &expr);
 
     DECLARE_FUNCTOR(pythonic::numpy, nanargmax);
   }

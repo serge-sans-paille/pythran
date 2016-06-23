@@ -36,7 +36,7 @@ namespace pythonic
     }
 
     template <class E>
-    typename E::dtype nanargmax(E const &expr)
+    long nanargmax(E const &expr)
     {
       typename E::dtype max =
           -std::numeric_limits<typename E::dtype>::infinity();

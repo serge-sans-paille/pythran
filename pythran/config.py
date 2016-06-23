@@ -65,6 +65,8 @@ def make_extension(**extra):
     }
 
     extension['define_macros'].append('ENABLE_PYTHON_MODULE')
+    extension['define_macros'].append(
+        '__PYTHRAN__={}'.format(sys.version_info.major))
 
     here = os.path.dirname(os.path.dirname(__file__)) or '.'
     # using / as separator as advised in the distutils doc

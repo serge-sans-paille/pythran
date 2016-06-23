@@ -8,7 +8,7 @@ from pythran.conversion import to_ast, ConversionError, ToNotEval
 from pythran.analyses.ast_matcher import DamnTooLongPattern
 from pythran.syntax import PythranSyntaxError
 
-import ast
+import gast as ast
 
 
 class ConstantFolding(Transformation):
@@ -16,7 +16,7 @@ class ConstantFolding(Transformation):
     """
     Replace constant expression by their evaluation.
 
-    >>> import ast
+    >>> import gast as ast
     >>> from pythran import passmanager, backend
     >>> node = ast.parse("def foo(): return 1+3")
     >>> pm = passmanager.PassManager("test")
@@ -60,7 +60,9 @@ class ConstantFolding(Transformation):
         # ImportError (for operator_ for example)
         dummy_module = ast.Module([s for s in node.body
                                    if not isinstance(s, ast.Import)])
-        eval(compile(dummy_module, '<constant_folding>', 'exec'), self.env)
+        eval(compile(ast.gast_to_ast(dummy_module),
+                     '<constant_folding>', 'exec'),
+             self.env)
 
         super(ConstantFolding, self).prepare(node, ctx)
 
@@ -69,7 +71,8 @@ class ConstantFolding(Transformation):
             try:
                 fake_node = ast.Expression(
                     node.value if isinstance(node, ast.Index) else node)
-                code = compile(fake_node, '<constant folding>', 'eval')
+                code = compile(ast.gast_to_ast(fake_node),
+                               '<constant folding>', 'eval')
                 value = eval(code, self.env)
                 new_node = to_ast(value)
                 if(isinstance(node, ast.Index) and
@@ -83,7 +86,6 @@ class ConstantFolding(Transformation):
                     print("W: ", e, " Assume no update happened.")
                 return Transformation.generic_visit(self, node)
             except ConversionError as e:
-                print(ast.dump(node))
                 print('error in constant folding: ', e)
                 raise
             except ToNotEval:

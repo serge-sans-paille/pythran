@@ -11,6 +11,7 @@ import re
 import os.path
 import ply.lex as lex
 import ply.yacc as yacc
+from functools import reduce
 
 
 class SpecParser:
@@ -52,12 +53,11 @@ class SpecParser:
         'complex64': 'COMPLEX64',
         'complex128': 'COMPLEX128',
         }
-    tokens = (['IDENTIFIER', 'COMMA', 'COLUMN', 'LPAREN', 'RPAREN', 'CRAP'] +
-              list(reserved.values()) +
-              ['LARRAY', 'RARRAY'])
+    tokens = ('IDENTIFIER', 'COMMA', 'COLUMN', 'LPAREN', 'RPAREN', 'CRAP',
+              'LARRAY', 'RARRAY') + tuple(reserved.values())
 
     # token <> regexp binding
-    t_CRAP = r'.'
+    t_CRAP = r'[^,:\(\)\[\]]'
     t_COMMA = r','
     t_COLUMN = r':'
     t_LPAREN = r'\('
@@ -298,7 +298,7 @@ def expand_specs(specs):
 
 
 def specs_to_docstrings(specs, docstrings):
-    for function_name, signatures in specs.iteritems():
+    for function_name, signatures in specs.items():
         sigdocs = []
         for sigid, signature in enumerate(signatures):
             arguments_types = [pytype_to_pretty_type(t) for t in signature]

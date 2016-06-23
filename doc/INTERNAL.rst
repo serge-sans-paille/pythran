@@ -16,7 +16,7 @@ is used::
 And to turn source code into an AST(Abstract Syntax tree), Python provides the
 ``ast`` module::
 
-    >>> import ast
+    >>> import gast as ast
     >>> getast = lambda f: ast.parse(getsource(f))
 
 Scoping

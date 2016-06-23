@@ -3,7 +3,7 @@
 from pythran.passmanager import ModuleAnalysis
 from pythran.analyses import Identifiers
 
-import ast
+import gast as ast
 import copy
 
 

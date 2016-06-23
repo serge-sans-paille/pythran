@@ -3,7 +3,7 @@
 from pythran.analyses import Inlinable, Aliases
 from pythran.passmanager import Transformation
 
-import ast
+import gast as ast
 import copy
 
 
@@ -12,7 +12,7 @@ class Inlining(Transformation):
     """
     Inline one line functions.
 
-    >>> import ast
+    >>> import gast as ast
     >>> from pythran import passmanager, backend
     >>> pm = passmanager.PassManager("test")
     >>> node = ast.parse('''
@@ -67,7 +67,7 @@ __pythran_inlinefooa0)) * (__pythran_inlinefoob1 + \
         """
         func_aliases = self.aliases[node.func]
         if len(func_aliases) == 1:
-            function_def = iter(func_aliases).next()
+            function_def = next(iter(func_aliases))
             if (isinstance(function_def, ast.FunctionDef) and
                     function_def.name in self.inlinable):
                 self.update = True
@@ -80,11 +80,14 @@ __pythran_inlinefooa0)) * (__pythran_inlinefoob1 + \
                     v_name = "__pythran_inline{}{}{}".format(function_def.name,
                                                              arg_fun.id,
                                                              self.call_count)
-                    new_var = ast.Name(id=v_name, ctx=ast.Store())
+                    new_var = ast.Name(id=v_name,
+                                       ctx=ast.Store(),
+                                       annotation=None)
                     self.defs.append(ast.Assign(targets=[new_var],
                                                 value=arg_call))
                     arg_to_value[arg_fun.id] = ast.Name(id=v_name,
-                                                        ctx=ast.Load())
+                                                        ctx=ast.Load(),
+                                                        annotation=None)
                 self.call_count += 1
                 return Inliner(arg_to_value).visit(to_inline.body[0])
         return node

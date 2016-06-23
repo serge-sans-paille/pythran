@@ -3,15 +3,8 @@
 from pythran.conversion import to_ast
 from pythran.range import UNKNOWN_RANGE
 
-import ast
+import gast as ast
 import sys
-
-if sys.version_info[0] > 2:
-    ast3_arguments = ast.arguments
-
-    def make_ast_arguments(*args):
-        return ast3_arguments(args[0], args[1], [], [], args[2], args[3])
-    ast.arguments = make_ast_arguments
 
 
 class UnboundValueType(object):
@@ -58,10 +51,10 @@ class Intrinsic(object):
         self.return_alias = kwargs.get('return_alias',
                                        lambda x: {UnboundValue})
         self.return_type = kwargs.get('return_type', None)
-        self.args = ast.arguments([ast.Name(n, ast.Param())
-                                   for n in kwargs.get('args', [])],
-                                  None, None,
-                                  map(to_ast, kwargs.get('defaults', [])))
+        self.args = ast.arguments(
+            [ast.Name(n, ast.Param(), None) for n in kwargs.get('args', [])],
+            None, [], [], None,
+            [to_ast(d) for d in kwargs.get('defaults', [])])
         self.return_range = kwargs.get("return_range",
                                        lambda call: UNKNOWN_RANGE)
         self.return_range_content = kwargs.get("return_ange_content",

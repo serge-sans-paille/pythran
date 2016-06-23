@@ -4,14 +4,15 @@ from pythran import metadata
 from pythran.analyses import ImportedIds
 from pythran.passmanager import Transformation
 
-import ast
+import gast as ast
+from functools import reduce
 
 
 class RemoveComprehension(Transformation):
     """
     Turns all list comprehension from a node into new function calls.
 
-    >>> import ast
+    >>> import gast as ast
     >>> from pythran import passmanager, backend
     >>> node = ast.parse("[x*x for x in (1,2,3)]")
     >>> pm = passmanager.PassManager("test")
@@ -86,39 +87,35 @@ class RemoveComprehension(Transformation):
                               reduce(lambda x, y: ast.Attribute(x, y,
                                                                 ast.Load()),
                                      path[1:],
-                                     ast.Name(path[0], ast.Load())),
-                              [ast.Name(starget, ast.Load()), node.elt],
+                                     ast.Name(path[0], ast.Load(), None)),
+                              [ast.Name(starget, ast.Load(), None), node.elt],
                               [],
-                              None,
-                              None
                               )
                           )
                       )
         # add extra metadata to this node
         metadata.add(body, metadata.Comprehension(starget))
         init = ast.Assign(
-            [ast.Name(starget, ast.Store())],
+            [ast.Name(starget, ast.Store(), None)],
             ast.Call(
                 ast.Attribute(
-                    ast.Name('__builtin__', ast.Load()),
+                    ast.Name('__builtin__', ast.Load(), None),
                     comp_type,
                     ast.Load()
                     ),
-                [], [], None, None)
+                [], [],)
             )
-        result = ast.Return(ast.Name(starget, ast.Load()))
-        sargs = sorted(ast.Name(arg, ast.Param()) for arg in args)
+        result = ast.Return(ast.Name(starget, ast.Load(), None))
+        sargs = sorted(ast.Name(arg, ast.Param(), None) for arg in args)
         fd = ast.FunctionDef(name,
-                             ast.arguments(sargs, None, None, []),
+                             ast.arguments(sargs, None, [], [], None, []),
                              [init, body, result],
-                             [])
+                             [], None)
         self.ctx.module.body.append(fd)
         return ast.Call(
-            ast.Name(name, ast.Load()),
-            [ast.Name(arg.id, ast.Load()) for arg in sargs],
+            ast.Name(name, ast.Load(), None),
+            [ast.Name(arg.id, ast.Load(), None) for arg in sargs],
             [],
-            None,
-            None
             )  # no sharing !
 
     def visit_ListComp(self, node):
@@ -150,16 +147,14 @@ class RemoveComprehension(Transformation):
                       ast.Expr(ast.Yield(node.elt))
                       )
 
-        sargs = sorted(ast.Name(arg, ast.Param()) for arg in args)
+        sargs = sorted(ast.Name(arg, ast.Param(), None) for arg in args)
         fd = ast.FunctionDef(name,
-                             ast.arguments(sargs, None, None, []),
+                             ast.arguments(sargs, None, [], [], None, []),
                              [body],
-                             [])
+                             [], [])
         self.ctx.module.body.append(fd)
         return ast.Call(
-            ast.Name(name, ast.Load()),
-            [ast.Name(arg.id, ast.Load()) for arg in sargs],
+            ast.Name(name, ast.Load(), None),
+            [ast.Name(arg.id, ast.Load(), None) for arg in sargs],
             [],
-            None,
-            None
             )  # no sharing !

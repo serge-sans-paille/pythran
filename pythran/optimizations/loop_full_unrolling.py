@@ -6,14 +6,15 @@ from pythran.openmp import OMPDirective
 from pythran.passmanager import Transformation
 
 from copy import deepcopy
-import ast
+import gast as ast
+from functools import reduce
 
 
 class LoopFullUnrolling(Transformation):
     '''
     Fully unroll loops with static bounds
 
-    >>> import ast
+    >>> import gast as ast
     >>> from pythran import passmanager, backend
     >>> node = ast.parse('for j in [1,2,3]: i += j')
     >>> pm = passmanager.PassManager("test")
@@ -52,5 +53,5 @@ class LoopFullUnrolling(Transformation):
                     return ([ast.Assign([deepcopy(node.target)], elt)] +
                             deepcopy(node.body))
                 self.update = True
-                return reduce(list.__add__, map(unroll, node.iter.elts))
+                return sum([unroll(elt) for elt in node.iter.elts], [])
         return node

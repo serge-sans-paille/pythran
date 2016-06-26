@@ -1,0 +1,58 @@
+euler 14
+========
+
+Euler project is a set of mathematical problem.
+
+The following iterative sequence is defined for the set of positive integers
+n -> n/2 (n is even)
+n -> 3n + 1 (n is odd)
+
+Using the rule above and starting with 13, we generate the following sequence:
+13 -> 40 -> 20 -> 10 -> 5 -> 16 -> 8 -> 4 -> 2 -> 1
+
+It can be seen that this sequence (starting at 13 and fiinishing at 1) contains
+10 terms.
+Although it has not been proved yet (Collatz Problem), it is thought that all
+starting numbers finish at 1.
+
+Which starting number, under one million, produces the longest chain?
+
+NOTE: Once the chain starts the terms are allowed to go above one million.
+
+1) Solve this problem with Python
+
+2) Pythranize your solution, check result and time it.
+
+rbf_network
+===========
+
+Our example function evaluates a Radial Basis Function (RBF) approximation scheme.
+
+So that everybody work with the same kind of data, we will setup env with:
+
+>>> import numpy as np
+>>> D = 5
+>>> N = 1000
+>>> X = np.array([np.random.rand(D) for d in range(N)])
+>>> beta = np.random.rand(N)
+>>> theta = 10
+
+1) Transform origin.py in numpy kernel and timeit.
+
+2) Transform code to Pythran one and timeit
+
+3) Add OpenMP annotation to make it faster and timeit
+
+4) Compare with scipy.interpolate.Rbf
+
+This is inspired from http://nealhughes.net/cython1/
+
+
+Mandelbrot
+==========
+
+Here is a script computing mandelbrot fractal and showing a representation.
+
+1) Transform this script to use Pythran.
+
+Extracted from http://rosettacode.org/

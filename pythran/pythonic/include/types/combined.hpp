@@ -214,4 +214,21 @@ struct __combined<pythonic::types::variant_functor<Types0...>,
 
 /* } */
 
+/* mimic numpy behavior { */
+#define SCALAR_COMBINER(Type)                                                  \
+  template <>                                                                  \
+  struct __combined<Type, Type> {                                              \
+    using type = Type;                                                         \
+  };
+SCALAR_COMBINER(bool)
+SCALAR_COMBINER(uint8_t)
+SCALAR_COMBINER(int8_t)
+SCALAR_COMBINER(uint16_t)
+SCALAR_COMBINER(int16_t)
+SCALAR_COMBINER(uint32_t)
+SCALAR_COMBINER(int32_t)
+SCALAR_COMBINER(uint64_t)
+SCALAR_COMBINER(int64_t)
+#undef SCALAR_COMBINER
+
 #endif

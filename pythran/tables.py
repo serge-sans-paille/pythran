@@ -64,7 +64,8 @@ operator_to_lambda = {
     ast.BitXor: "({0} ^ {1})".format,
     ast.BitAnd: "({0} & {1})".format,
     # assume from __future__ import division
-    ast.FloorDiv: "(pythonic::operator_::floordiv({0}, {1}))".format,
+    ast.FloorDiv:
+        "(pythonic::operator_::functor::floordiv{{}}({0}, {1}))".format,
     # unaryop
     ast.Invert: "(~{0})".format,
     ast.Not: "(not {0})".format,

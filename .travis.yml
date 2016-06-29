@@ -1,5 +1,5 @@
 language: python
-sudo: required
+sudo: false
 python:
     - "2.7"
 
@@ -7,9 +7,13 @@ addons:
     apt:
         sources:
             - ubuntu-toolchain-r-test
+            - llvm-toolchain-precise-3.5
+            - llvm-toolchain-precise-3.6
         packages:
             - gcc-5
             - g++-5
+            - clang-3.5
+            - clang-format-3.6
             - libgmp-dev
             - gfortran
             - liblapack-dev
@@ -17,9 +21,6 @@ addons:
             - libatlas-dev
 
 before_install:
-    - sudo add-apt-repository -y ppa:h-rayflood/llvm-upper
-    - sudo apt-get update
-    - sudo apt-get -qq install clang-3.5 clang-format-3.6
     - pip install -U ply networkx colorlog numpy pytest-pep8 pytest-xdist
     - python setup.py install 1> /dev/null
 

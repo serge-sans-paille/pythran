@@ -27,6 +27,8 @@ namespace pythonic
 
   namespace types
   {
+    template <class T>
+    using container = std::vector<T>;
 
     static const size_t DEFAULT_LIST_CAPACITY = 16;
 
@@ -64,7 +66,7 @@ namespace pythonic
       typedef
           typename std::remove_cv<typename std::remove_reference<T>::type>::type
               _type;
-      typedef std::vector<_type> container_type;
+      typedef container<_type> container_type;
       utils::shared_ref<container_type> data;
 
       template <class U>
@@ -134,7 +136,7 @@ namespace pythonic
       typedef
           typename std::remove_cv<typename std::remove_reference<T>::type>::type
               _type;
-      typedef std::vector<_type> container_type;
+      typedef container<_type> container_type;
       utils::shared_ref<container_type> data;
 
       template <class U, class S>
@@ -328,6 +330,12 @@ namespace pythonic
   template <class T>
   struct assignable<types::list<T>> {
     typedef types::list<typename assignable<T>::type> type;
+  };
+
+  // to cope with std::vector<bool> specialization
+  template <>
+  struct returnable<types::list<bool>::reference> {
+    using type = bool;
   };
 }
 

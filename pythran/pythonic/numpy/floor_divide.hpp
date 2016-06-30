@@ -9,6 +9,26 @@
 #include "pythonic/utils/numpy_traits.hpp"
 #include <nt2/include/functions/divfloor.hpp>
 
+namespace nt2
+{
+
+  template <class F, class I>
+  typename std::enable_if<
+      std::is_floating_point<F>::value && std::is_integral<I>::value, F>::type
+  divfloor(F x, I y)
+  {
+    return divfloor(x, (F)y);
+  }
+
+  template <class F, class I>
+  typename std::enable_if<
+      std::is_floating_point<F>::value && std::is_integral<I>::value, F>::type
+  divfloor(I x, F y)
+  {
+    return divfloor((F)x, y);
+  }
+}
+
 namespace pythonic
 {
 

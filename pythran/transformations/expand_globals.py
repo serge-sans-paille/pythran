@@ -40,14 +40,17 @@ class ExpandGlobals(Transformation):
         super(ExpandGlobals, self).__init__()
 
     def visit_Module(self, node):
-        """Turn globals assignement to functionDef and visit function defs. """
+        """Turn globals assignment to functionDef and visit function defs. """
         module_body = list()
         # Gather top level assigned variables.
         for stmt in node.body:
             if not isinstance(stmt, ast.Assign):
                 continue
             for target in stmt.targets:
-                assert isinstance(target, ast.Name)
+                if not isinstance(target, ast.Name):
+                    raise PythranSyntaxError(
+                        "Top-level assignment to an expression.",
+                        target)
                 if target.id in self.to_expand:
                     raise PythranSyntaxError(
                         "Multiple top-level definition of %s." % target.id,
@@ -79,7 +82,7 @@ class ExpandGlobals(Transformation):
         """
         Turn global variable used not shadows to function call.
 
-        We check it is a name from an assignement as import or functions use
+        We check it is a name from an assignment as import or functions use
         should not be turn into call.
         """
         if (isinstance(node.ctx, ast.Load) and

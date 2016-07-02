@@ -1,5 +1,105 @@
 from test_env import TestEnv
+import __builtin__
 import unittest
+
+exceptions = [i for i in dir(__builtin__)
+              if (isinstance(getattr(__builtin__, i), type) and
+                  issubclass(getattr(__builtin__, i),
+                             __builtin__.BaseException))]
+
+ALL_EXCEPTION_CODE = """
+def {tested_exception}_register(name):
+    if name == "BaseException":
+        raise BaseException('abc')
+    if name == "SystemExit":
+        raise SystemExit('a','b','c')
+    if name == "KeyboardInterrupt":
+        raise KeyboardInterrupt('a','b','c')
+    if name == "GeneratorExit":
+        raise GeneratorExit('a','b','c')
+    if name == "Exception":
+        raise Exception('a','b','c')
+    if name == "StopIteration":
+        raise StopIteration('a','b','c')
+    if name == "StandardError":
+        raise StandardError('a','b','c')
+    if name == "Warning":
+        raise Warning('a','b','c')
+    if name == "BytesWarning":
+        raise BytesWarning('a','b','c')
+    if name == "UnicodeWarning":
+        raise UnicodeWarning('a','b','c')
+    if name == "ImportWarning":
+        raise ImportWarning('a','b','c')
+    if name == "FutureWarning":
+        raise FutureWarning('a','b','c')
+    if name == "UserWarning":
+        raise UserWarning('a','b','c')
+    if name == "SyntaxWarning":
+        raise SyntaxWarning('a','b','c')
+    if name == "RuntimeWarning":
+        raise RuntimeWarning('a','b','c')
+    if name == "PendingDeprecationWarning":
+        raise PendingDeprecationWarning('a','b','c')
+    if name == "DeprecationWarning":
+        raise DeprecationWarning('a','b','c')
+    if name == "BufferError":
+        raise BufferError('a','b','c')
+    if name == "ArithmeticError":
+        raise ArithmeticError('a','b','c')
+    if name == "AssertionError":
+        raise AssertionError('a','b','c')
+    if name == "AttributeError":
+        raise AttributeError('a','b','c')
+    if name == "EnvironmentError":
+        raise EnvironmentError('a','b','c','d')
+    if name == "EOFError":
+        raise EOFError('a','b','c')
+    if name == "ImportError":
+        raise ImportError('a','b','c')
+    if name == "LookupError":
+        raise LookupError('a','b','c')
+    if name == "MemoryError":
+        raise MemoryError('a','b','c')
+    if name == "NameError":
+        raise NameError('a','b','c')
+    if name == "ReferenceError":
+        raise ReferenceError('a','b','c')
+    if name == "RuntimeError":
+        raise RuntimeError('a','b','c')
+    if name == "SyntaxError":
+        raise SyntaxError('a','b','c')
+    if name == "SystemError":
+        raise SystemError('a','b','c')
+    if name == "TypeError":
+        raise TypeError('a','b','c')
+    if name == "ValueError":
+        raise ValueError('a','b','c')
+    if name == "FloatingPointError":
+        raise FloatingPointError('a','b','c')
+    if name == "OverflowError":
+        raise OverflowError('a','b','c')
+    if name == "ZeroDivisionError":
+        raise ZeroDivisionError('a','b','c')
+    if name == "IOError":
+        raise IOError('a','b','c')
+    if name == "OSError":
+        raise OSError('a','b','c')
+    if name == "IndexError":
+        raise IndexError('a','b','c')
+    if name == "KeyError":
+        raise KeyError('a','b','c')
+    if name == "UnboundLocalError":
+        raise UnboundLocalError('a','b','c')
+    if name == "NotImplementedError":
+        raise NotImplementedError('a','b','c')
+    if name == "IndentationError":
+        raise IndentationError('a','b','c')
+    if name == "TabError":
+        raise TabError('a','b','c')
+    if name == "UnicodeError":
+        raise UnicodeError('a','b','c')
+"""
 
 class TestException(TestEnv):
 
@@ -195,73 +295,6 @@ class TestException(TestEnv):
 
 # test if exception translators are registered in pythran
 
-    def test_BaseException_register(self):
-        self.run_test("def BaseException_register(): raise BaseException('abc')", BaseException_register=[], check_exception=True)
-
-    def test_SystemExit_register(self):
-        self.run_test("def SystemExit_register():\n raise SystemExit('a','b','c')", SystemExit_register=[], check_exception=True)
-
-    def test_KeyboardInterrupt_register(self):
-        self.run_test("def KeyboardInterrupt_register():\n raise KeyboardInterrupt('a','b','c')", KeyboardInterrupt_register=[], check_exception=True)
-
-    def test_GeneratorExit_register(self):
-        self.run_test("def GeneratorExit_register():\n raise GeneratorExit('a','b','c')", GeneratorExit_register=[], check_exception=True)
-
-    def test_Exception_register(self):
-        self.run_test("def Exception_register():\n raise Exception('a','b','c')", Exception_register=[], check_exception=True)
-
-    def test_StopIteration_register(self):
-        self.run_test("def StopIteration_register():\n raise StopIteration('a','b','c')", StopIteration_register=[], check_exception=True)
-
-    def test_StandardError_register(self):
-        self.run_test("def StandardError_register():\n raise StandardError('a','b','c')", StandardError_register=[], check_exception=True)
-
-    def test_Warning_register(self):
-        self.run_test("def Warning_register():\n raise Warning('a','b','c')", Warning_register=[], check_exception=True)
-
-    def test_BytesWarning_register(self):
-        self.run_test("def BytesWarning_register():\n raise BytesWarning('a','b','c')", BytesWarning_register=[], check_exception=True)
-
-    def test_UnicodeWarning_register(self):
-        self.run_test("def UnicodeWarning_register():\n raise UnicodeWarning('a','b','c')", UnicodeWarning_register=[], check_exception=True)
-
-    def test_ImportWarning_register(self):
-        self.run_test("def ImportWarning_register():\n raise ImportWarning('a','b','c')", ImportWarning_register=[], check_exception=True)
-
-    def test_FutureWarning_register(self):
-        self.run_test("def FutureWarning_register():\n raise FutureWarning('a','b','c')", FutureWarning_register=[], check_exception=True)
-
-    def test_UserWarning_register(self):
-        self.run_test("def UserWarning_register():\n raise UserWarning('a','b','c')", UserWarning_register=[], check_exception=True)
-
-    def test_SyntaxWarning_register(self):
-        self.run_test("def SyntaxWarning_register():\n raise SyntaxWarning('a','b','c')", SyntaxWarning_register=[], check_exception=True)
-
-    def test_RuntimeWarning_register(self):
-        self.run_test("def RuntimeWarning_register():\n raise RuntimeWarning('a','b','c')", RuntimeWarning_register=[], check_exception=True)
-
-    def test_PendingDeprecationWarning_register(self):
-        self.run_test("def PendingDeprecationWarning_register():\n raise PendingDeprecationWarning('a','b','c')", PendingDeprecationWarning_register=[], check_exception=True)
-
-    def test_DeprecationWarning_register(self):
-        self.run_test("def DeprecationWarning_register():\n raise DeprecationWarning('a','b','c')", DeprecationWarning_register=[], check_exception=True)
-
-    def test_BufferError_register(self):
-        self.run_test("def BufferError_register():\n raise BufferError('a','b','c')", BufferError_register=[], check_exception=True)
-
-    def test_ArithmeticError_register(self):
-        self.run_test("def ArithmeticError_register():\n raise ArithmeticError('a','b','c')", ArithmeticError_register=[], check_exception=True)
-
-    @unittest.skip("incompatible with py.test")
-    def test_AssertionError_register(self):
-        self.run_test("def AssertionError_register():\n raise AssertionError('a','b','c')", AssertionError_register=[], check_exception=True)
-
-    def test_AttributeError_register(self):
-        self.run_test("def AttributeError_register():\n raise AttributeError('a','b','c')", AttributeError_register=[], check_exception=True)
-
-    def test_EnvironmentError4_register(self):
-        self.run_test("def EnvironmentError4_register():\n raise EnvironmentError('a','b','c','d')", EnvironmentError4_register=[], check_exception=True)
-
     def test_EnvironmentError3_register(self):
         self.run_test("def EnvironmentError3_register():\n raise EnvironmentError('a','b','c')", EnvironmentError3_register=[], check_exception=True)
 
@@ -270,75 +303,6 @@ class TestException(TestEnv):
 
     def test_EnvironmentError1_register(self):
         self.run_test("def EnvironmentError1_register():\n raise EnvironmentError('a')", EnvironmentError1_register=[], check_exception=True)
-
-    def test_EOFError_register(self):
-        self.run_test("def EOFError_register():\n raise EOFError('a','b','c')", EOFError_register=[], check_exception=True)
-
-    def test_ImportError_register(self):
-        self.run_test("def ImportError_register():\n raise ImportError('a','b','c')", ImportError_register=[], check_exception=True)
-
-    def test_LookupError_register(self):
-        self.run_test("def LookupError_register():\n raise LookupError('a','b','c')", LookupError_register=[], check_exception=True)
-
-    def test_MemoryError_register(self):
-        self.run_test("def MemoryError_register():\n raise MemoryError('a','b','c')", MemoryError_register=[], check_exception=True)
-
-    def test_NameError_register(self):
-        self.run_test("def NameError_register():\n raise NameError('a','b','c')", NameError_register=[], check_exception=True)
-
-    def test_ReferenceError_register(self):
-        self.run_test("def ReferenceError_register():\n raise ReferenceError('a','b','c')", ReferenceError_register=[], check_exception=True)
-
-    def test_RuntimeError_register(self):
-        self.run_test("def RuntimeError_register():\n raise RuntimeError('a','b','c')", RuntimeError_register=[], check_exception=True)
-
-    def test_SyntaxError_register(self):
-        self.run_test("def SyntaxError_register():\n raise SyntaxError('a','b','c')", SyntaxError_register=[], check_exception=True)
-
-    def test_SystemError_register(self):
-        self.run_test("def SystemError_register():\n raise SystemError('a','b','c')", SystemError_register=[], check_exception=True)
-
-    def test_TypeError_register(self):
-        self.run_test("def TypeError_register():\n raise TypeError('a','b','c')", TypeError_register=[], check_exception=True)
-
-    def test_ValueError_register(self):
-        self.run_test("def ValueError_register():\n raise ValueError('a','b','c')", ValueError_register=[], check_exception=True)
-
-    def test_FloatingPointError_register(self):
-        self.run_test("def FloatingPointError_register():\n raise FloatingPointError('a','b','c')", FloatingPointError_register=[], check_exception=True)
-
-    def test_OverflowError_register(self):
-        self.run_test("def OverflowError_register():\n raise OverflowError('a','b','c')", OverflowError_register=[], check_exception=True)
-
-    def test_ZeroDivisionError_register(self):
-        self.run_test("def ZeroDivisionError_register():\n raise ZeroDivisionError('a','b','c')", ZeroDivisionError_register=[], check_exception=True)
-
-    def test_IOError_register(self):
-        self.run_test("def IOError_register():\n raise IOError('a','b','c')", IOError_register=[], check_exception=True)
-
-    def test_OSError_register(self):
-        self.run_test("def OSError_register():\n raise OSError('a','b','c')", OSError_register=[], check_exception=True)
-
-    def test_IndexError_register(self):
-        self.run_test("def IndexError_register():\n raise IndexError('a','b','c')", IndexError_register=[], check_exception=True)
-
-    def test_KeyError_register(self):
-        self.run_test("def KeyError_register():\n raise KeyError('a','b','c')", KeyError_register=[], check_exception=True)
-
-    def test_UnboundLocalError_register(self):
-        self.run_test("def UnboundLocalError_register():\n raise UnboundLocalError('a','b','c')", UnboundLocalError_register=[], check_exception=True)
-
-    def test_NotImplementedError_register(self):
-        self.run_test("def NotImplementedError_register():\n raise NotImplementedError('a','b','c')", NotImplementedError_register=[], check_exception=True)
-
-    def test_IndentationError_register(self):
-        self.run_test("def IndentationError_register():\n raise IndentationError('a','b','c')", IndentationError_register=[], check_exception=True)
-
-    def test_TabError_register(self):
-        self.run_test("def TabError_register():\n raise TabError('a','b','c')", TabError_register=[], check_exception=True)
-
-    def test_UnicodeError_register(self):
-        self.run_test("def UnicodeError_register():\n raise UnicodeError('a','b','c')", UnicodeError_register=[], check_exception=True)
 
     def test_multiple_exception_register(self):
         self.run_test("def multiple_exception_register():\n raise OverflowError('a','b','c')", multiple_exception_register=[], check_exception=True)
@@ -372,3 +336,13 @@ class TestException(TestEnv):
 
     def test_no_msg_exception_register(self):
         self.run_test("def no_msg_exception_register():\n raise IndexError()", no_msg_exception_register=[], check_exception=True)
+
+for exception in exceptions:
+    # This one is not compatible with pytest
+    if str(exception) in ("AssertionError", "UnicodeDecodeError",
+                          "UnicodeEncodeError", "UnicodeTranslateError"):
+        continue
+    code = ALL_EXCEPTION_CODE.format(tested_exception=exception)
+    setattr(TestException, 'test_' + str(exception) + "_register",
+            eval("""lambda self: self.run_test('''{0}''', '{1}', {1}_register=[str], check_exception=True)""".format(code, exception)))
+

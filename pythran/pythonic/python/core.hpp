@@ -14,7 +14,6 @@ namespace pythonic
 
   template <class T>
   struct from_python;
-
 }
 
 template <class T>

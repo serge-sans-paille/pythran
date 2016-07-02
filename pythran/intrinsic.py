@@ -229,3 +229,7 @@ class ClassWithConstConstructor(Class, ConstFunctionIntr):
 class ExceptionClass(Class, ConstExceptionIntr):
     def __init__(self, d, *args, **kwargs):
         super(ExceptionClass, self).__init__(d, *args, **kwargs)
+
+
+class UFunc(Class, ConstFunctionIntr):
+    """ Reprensation of ufunc from numpy. """

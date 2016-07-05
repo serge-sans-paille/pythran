@@ -41,6 +41,7 @@ keywords = {
     'section',
     'sections',
     'shared',
+    'simd',
     'single',
     'task',
     'taskwait',

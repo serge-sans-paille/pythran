@@ -3,6 +3,7 @@ from distutils.errors import CompileError
 from test_env import TestFromDir
 import os
 import pythran
+from pythran.syntax import PythranSyntaxError
 
 class TestOpenMP(TestFromDir):
     path = os.path.join(os.path.dirname(__file__), "openmp")
@@ -26,6 +27,8 @@ try:
     import omp
     TestOpenMP.populate(TestOpenMP)
     TestOpenMPLegacy.populate(TestOpenMPLegacy)
+except PythranSyntaxError:
+    raise
 except (CompileError, ImportError):
     pass
 

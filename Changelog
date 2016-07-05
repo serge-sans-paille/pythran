@@ -1,3 +1,11 @@
+2016-07-05 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+
+	* Fix install / setup minor issues
+
+	* Restore OpenMP support
+
+	* Fix GMP installation issue
+
 2016-06-13 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Better Jupyter Note book integration

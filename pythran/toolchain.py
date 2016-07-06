@@ -165,16 +165,20 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
 
         mod = PythonModule(module_name, docstrings, metainfo)
         mod.add_to_preamble(Define("BOOST_SIMD_NO_STRICT_ALIASING", "1"))
-        mod.add_to_includes(Include("pythonic/core.hpp"),
-                            Include("pythonic/python/core.hpp"),
-                            # FIXME: only include these when needed
-                            Include("pythonic/types/bool.hpp"),
-                            Include("pythonic/types/int.hpp"),
-                            Line("#ifdef _OPENMP\n#include <omp.h>\n#endif")
-                            )
+        mod.add_to_includes(
+            Include("pythonic/core.hpp"),
+            Include("pythonic/python/core.hpp"),
+            # FIXME: only include these when needed
+            Include("pythonic/types/bool.hpp"),
+            Include("pythonic/types/int.hpp"),
+            Line("#ifdef _OPENMP\n#include <omp.h>\n#endif")
+        )
         mod.add_to_includes(*[Include(inc) for inc in
                               _extract_specs_dependencies(specs)])
         mod.add_to_includes(*content.body)
+        mod.add_to_includes(
+            Include("pythonic/python/exception_handler.hpp"),
+        )
 
         for function_name, signatures in specs.iteritems():
             internal_func_name = renamings.get(function_name,

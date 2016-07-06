@@ -4,6 +4,8 @@
 #ifdef ENABLE_PYTHON_MODULE
 
 #include "Python.h"
+#include <type_traits>
+#include <utility>
 
 namespace pythonic
 {

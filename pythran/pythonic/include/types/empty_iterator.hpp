@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_EMPTY_ITERATOR_HPP
 #define PYTHONIC_INCLUDE_TYPES_EMPTY_ITERATOR_HPP
 
+#include <iterator>
+
 namespace pythonic
 {
 

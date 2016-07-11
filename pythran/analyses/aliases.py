@@ -427,6 +427,13 @@ class Aliases(ModuleAnalysis):
             self.generic_visit(node)
         return self.add(node, aliases)
 
+    def visit_OMPDirective(self, node):
+        '''
+        omp directive may introduce new variables, just register them
+        '''
+        for dep in node.deps:
+            self.add(dep)
+
     def visit_Name(self, node):
         if node.id not in self.aliases:
             err = ("identifier {0} unknown, either because "

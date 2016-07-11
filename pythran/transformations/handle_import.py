@@ -134,6 +134,9 @@ class ImportFunction(ast.NodeTransformer):
                 self.module.dependent_modules[module_alias] = module_name
             # Import the function from the module now, triggers a recursion
             mangled_name = module.import_function(self.registry, func_name)
+
+            if mangled_name is None:
+                return call_node
             # Patch witch mangled name, force it for the main module as we want
             # to tranform calls from main_module.foo() to simply foo()
             if module.to_be_mangled or module.is_main_module:
@@ -227,7 +230,7 @@ class ImportedModule(object):
             return mangle_imported_function_name(module_name, realName)
 
         # Function not imported, hopefully it was locally defined, delegate!
-        return self.import_function(registry, func_name)
+        return self.import_function(registry, func_name) or func_name
 
     def import_function(self, registry, func_name):
         """
@@ -243,7 +246,7 @@ class ImportedModule(object):
         # c()
         # Just give up here and hope for the best!
         if func_name not in self.functions:
-            return func_name
+            return None
 
         func = self.functions[func_name]
 

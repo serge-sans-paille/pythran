@@ -57,6 +57,26 @@ class UseDefChain(FunctionAnalysis):
                                  entering_node))
         self.continue_ = dict()
 
+    def visit_OMPDirective(self, node):
+        '''
+        omp directive may introduce new variables,
+        do the minimal required processing here
+        '''
+        for dep in node.deps:
+            if dep.id not in self.result and dep.id not in self.use_only:
+                # this happens when a local variable is explicitly marked
+                # as shared etc
+                # In that case, it's a define
+                self.result[dep.id] = nx.DiGraph()
+                self.result[dep.id].add_node("D0", action="D", name=dep)
+                self.current_node[dep.id] = set(["D0"])
+            else:
+                # safe (?) guess: if the variable is already defined,
+                # mark it as updated
+                last_node = self.current_node[dep.id].pop()
+                self.result[dep.id].node[last_node]['action'] = "UD"
+                self.current_node[dep.id] = set([last_node])
+
     def visit_Name(self, node):
         if node.id not in self.result and node.id not in self.use_only:
             if not (isinstance(node.ctx, ast.Store) or

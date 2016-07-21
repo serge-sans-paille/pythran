@@ -78,9 +78,13 @@ def make_extension(**extra):
         extension["include_dirs"].append(here + '/pythran/pythonic/patch')
 
     # blas dependency
-    numpy_blas = numpy_sys.get_info("blas")
-    extension['libraries'].extend(numpy_blas.get('libraries', []))
-    extension['library_dirs'].extend(numpy_blas.get('library_dirs', []))
+    user_blas = cfg.get('compiler', 'blas')
+    if user_blas:
+        extension['libraries'].extend(user_blas)
+    else:
+        numpy_blas = numpy_sys.get_info("blas")
+        extension['libraries'].extend(numpy_blas.get('libraries', []))
+        extension['library_dirs'].extend(numpy_blas.get('library_dirs', []))
     return extension
 
 

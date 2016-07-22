@@ -101,7 +101,7 @@ transformation::
       a = __tuple0[0]
       b = __tuple0[1]
 
-Note that Pythran wraps the sequence of assignment into a dummy if condition.
+Pythran transforms the tuple unpacking into an intermediate tuple assignment.
 This ensures that a single instruction from the input code maps to a single
 instruction in the generated code. This property is enforced everywhere in
 Pythran and is used to maintain OpenMP directive semantic without deeply

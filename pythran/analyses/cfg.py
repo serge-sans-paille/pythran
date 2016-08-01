@@ -14,6 +14,13 @@ class CFG(FunctionAnalysis):
     * the OUT nodes, to be linked with the IN nodes of the successor
     * the RAISE nodes, nodes that stop the control flow (exception/break/...)
     """
+
+    #: The sink node in the control flow graph.
+    #:
+    #: The predecessors of this node are those AST nodes that terminate
+    #: control flow without a return statement.
+    NIL = object()
+
     def __init__(self):
         self.result = nx.DiGraph()
         super(CFG, self).__init__()
@@ -27,11 +34,11 @@ class CFG(FunctionAnalysis):
             for curr in currs:
                 self.result.add_edge(curr, n)
             currs, _ = self.visit(n)
-        # add an edge to None for nodes that end the control flow
+        # add an edge to NIL for nodes that end the control flow
         # without a return
-        self.result.add_node(None)
+        self.result.add_node(CFG.NIL)
         for curr in currs:
-            self.result.add_edge(curr, None)
+            self.result.add_edge(curr, CFG.NIL)
 
     def visit_Pass(self, node):
         """OUT = node, RAISES = ()"""

@@ -28,8 +28,10 @@ class NormalizeReturn(Transformation):
     def visit_FunctionDef(self, node):
         self.yield_points = self.passmanager.gather(YieldPoints, node)
         map(self.visit, node.body)
-        # Look for nodes that have no successors
-        for n in self.cfg.predecessors(None):
+        # Look for nodes that have no successors; the predecessors of
+        # the special NIL node are those AST nodes that end control flow
+        # without a return statement.
+        for n in self.cfg.predecessors(CFG.NIL):
             if not isinstance(n, (ast.Return, ast.Raise)):
                 self.update = True
                 if self.yield_points:

@@ -102,10 +102,23 @@ transformation::
       b = __tuple0[1]
 
 Pythran transforms the tuple unpacking into an intermediate tuple assignment.
-This ensures that a single instruction from the input code maps to a single
-instruction in the generated code. This property is enforced everywhere in
-Pythran and is used to maintain OpenMP directive semantic without deeply
-understanding it.
+Note that if the unpacking statement is marked as critical using an OpenMP
+statement, then a temporary variable is used to hold the left hand side
+computation, if any::
+
+  >>> from pythran import transformations
+  >>> tree = ast.parse("""
+  ... def foo(x):
+  ...     #omp critical
+  ...     a,b = bar(x)
+  ...     return a + b""")
+  >>> _ = pm.apply(transformations.NormalizeTuples, tree)  # in-place
+  >>> print pm.dump(backend.Python, tree)
+  def foo(x):
+      __tuple0 = bar(x)
+      a = __tuple0[0]
+      b = __tuple0[1]
+      return (a + b)
 
 There are many small passes used iteratively to produce the Pythran AST. For instance the implicit return at the end of every function is made explicit::
 

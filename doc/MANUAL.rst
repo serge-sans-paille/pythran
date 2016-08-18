@@ -276,12 +276,12 @@ When distributing a Python application with Pythran modules, you can either:
 
 * declare the module as a regular Python module. After all, they are 100% Python compatible.
 
-* declare them as a ``PythranExtension`` and Pythran will compile them::
+* declare them as an ``Extension`` in ``pythran_modules`` and Pythran will compile them::
 
-    from distutils.core import setup
-    from pythran.dist import PythranExtension
+    from distutils.core import setup, Extension
     setup(...,
-          ext_modules=[PythranExtension("mymodule", ["mymodule.py"])])
+          setup_requires=['pythran'],
+          pythran_modules=[Extension("mymodule", ["mymodule.py"])])
 
 Advanced Usage
 --------------

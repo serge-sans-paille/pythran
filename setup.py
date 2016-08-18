@@ -212,6 +212,9 @@ setup(name='pythran',
       install_requires=open('requirements.txt').read().splitlines(),
       entry_points={'console_scripts': ['pythran = pythran.run:run',
                                         'pythran-config = pythran.config:run'],
+                    'distutils.setup_keywords': [
+                        "pythran_modules = pythran.dist:pythran_modules"
+                    ],
                     },
       tests_require=['pytest', 'pytest-pep8'],
       test_suite="pythran/test",

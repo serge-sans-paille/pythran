@@ -279,6 +279,11 @@ When distributing a Python application with Pythran modules, you can either:
 * declare them as a ``PythranExtension`` and Pythran will compile them::
 
     from distutils.core import setup
+
+    # These two lines a re required to be able to use pythran in the setup.py
+    import setuptools
+    setuptools.dist.Distribution(dict(setup_requires='pythran'))
+
     from pythran.dist import PythranExtension
     setup(...,
           ext_modules=[PythranExtension("mymodule", ["mymodule.py"])])

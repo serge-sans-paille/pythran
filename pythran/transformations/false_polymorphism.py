@@ -11,7 +11,7 @@ class FalsePolymorphism(Transformation):
     """
     Rename variable when possible to avoid false polymorphism.
 
-    >>> import ast
+    >>> import gast as ast
     >>> from pythran import passmanager, backend
     >>> node = ast.parse("def foo(): a = 12; a = 'babar'")
     >>> pm = passmanager.PassManager("test")
@@ -29,12 +29,12 @@ class FalsePolymorphism(Transformation):
         # function using openmp are ignored
         if not self.use_omp:
             identifiers = self.passmanager.gather(Identifiers, node, self.ctx)
-            for name, udgraph_ in self.use_def_chain.iteritems():
+            for name, udgraph_ in self.use_def_chain.items():
                 udgraph = nx.DiGraph(udgraph_)  # Shallow copy
                 group_variable = list()
                 # changing the result of an analyse disturbs caching -> COPY
                 while udgraph:
-                    e = udgraph.nodes_iter().next()
+                    e = next(udgraph.nodes_iter())
                     to_change = set()
                     to_analyse_pred = set([e])
                     to_analyse_succ = set()

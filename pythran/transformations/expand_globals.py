@@ -10,7 +10,7 @@ from pythran.syntax import PythranSyntaxError
 from pythran import metadata
 
 
-import ast
+import gast as ast
 
 
 class ExpandGlobals(Transformation):
@@ -18,7 +18,7 @@ class ExpandGlobals(Transformation):
     """
     Expands all builtins into full paths.
 
-    >>> import ast
+    >>> import gast as ast
     >>> from pythran import passmanager, backend
     >>> node = ast.parse('''
     ... a = 1
@@ -65,8 +65,10 @@ class ExpandGlobals(Transformation):
                     assert isinstance(target, ast.Name)
                     module_body.append(
                         ast.FunctionDef(target.id,
-                                        ast.arguments([], None, None, []),
-                                        [ast.Return(value=cst_value)], []))
+                                        ast.arguments([], None,
+                                                      [], [], None, []),
+                                        [ast.Return(value=cst_value)],
+                                        [], None))
                     metadata.add(module_body[-1].body[0],
                                  metadata.StaticReturn())
             else:
@@ -89,5 +91,5 @@ class ExpandGlobals(Transformation):
                 node.id not in self.local_decl and
                 node.id in self.to_expand):
             return ast.Call(func=node,
-                            args=[], keywords=[], starargs=None, kwargs=None)
+                            args=[], keywords=[])
         return node

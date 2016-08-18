@@ -9,14 +9,14 @@ from __future__ import print_function
 import pythran.metadata as metadata
 import pythran.openmp as openmp
 
-import ast
+import gast as ast
 import os
 import sys
 
-if sys.version_info[0] < 3:
-    import cStringIO
+if sys.version_info.major == 2:
+    import StringIO as io
 else:
-    from io import StringIO as cStringIO
+    import io
 
 
 # Large float and imaginary literals get turned into infinities in the AST.
@@ -79,7 +79,7 @@ class Unparser:
             deps = list()
             for dep in omp.deps:
                 old_file = self.f
-                self.f = StringIO.StringIO()
+                self.f = io.StringIO()
                 self.dispatch(dep)
                 deps.append(self.f.getvalue())
                 self.f = old_file
@@ -237,7 +237,7 @@ class Unparser:
             self.write(", ")
             self.dispatch(t.tback)
 
-    def _TryExcept(self, t):
+    def _Try(self, t):
         self.fill("try")
         self.enter()
         self.dispatch(t.body)
@@ -250,21 +250,6 @@ class Unparser:
             self.enter()
             self.dispatch(t.orelse)
             self.leave()
-
-    def _TryFinally(self, t):
-        if len(t.body) == 1 and isinstance(t.body[0], ast.TryExcept):
-            # try-except-finally
-            self.dispatch(t.body)
-        else:
-            self.fill("try")
-            self.enter()
-            self.dispatch(t.body)
-            self.leave()
-
-        self.fill("finally")
-        self.enter()
-        self.dispatch(t.finalbody)
-        self.leave()
 
     def _ExceptHandler(self, t):
         self.fill("except")
@@ -550,21 +535,11 @@ class Unparser:
             else:
                 comma = True
             self.dispatch(e)
-        if t.starargs:
-            if comma:
-                self.write(", ")
-            else:
-                comma = True
-            self.write("*")
-            self.dispatch(t.starargs)
-        if t.kwargs:
-            if comma:
-                self.write(", ")
-            else:
-                comma = True
-            self.write("**")
-            self.dispatch(t.kwargs)
         self.write(")")
+
+    def _Starred(self, t):
+        self.write('*')
+        self.dispatch(self.value)
 
     def _Subscript(self, t):
         self.dispatch(t.value)
@@ -625,7 +600,10 @@ class Unparser:
             self.write("**" + t.kwarg)
 
     def _keyword(self, t):
-        self.write(t.arg)
+        if t.arg:
+            self.write(t.arg)
+        else:
+            self.write('**')
         self.write("=")
         self.dispatch(t.value)
 
@@ -659,7 +637,7 @@ def testdir(a):
         for n in names:
             fullname = os.path.join(a, n)
             if os.path.isfile(fullname):
-                output = StringIO.StringIO()
+                output = io.StringIO()
                 print('Testing %s' % fullname)
                 try:
                     roundtrip(fullname, output)

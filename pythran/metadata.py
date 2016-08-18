@@ -5,7 +5,7 @@ This module provides a way to pass information between passes as metadata.
 * get retrieves all metadata from a particular class attached to a node
 """
 
-from ast import AST  # so that metadata are walkable as regular ast nodes
+from gast import AST  # so that metadata are walkable as regular ast nodes
 
 
 class Metadata(AST):

@@ -5,7 +5,7 @@ from pythran.openmp import OMPDirective
 from pythran.passmanager import Transformation
 import pythran.metadata as metadata
 
-import ast
+import gast as ast
 
 
 class DeadCodeElimination(Transformation):
@@ -15,7 +15,7 @@ class DeadCodeElimination(Transformation):
         - remove alone pure statement
         - remove empty if
 
-    >>> import ast
+    >>> import gast as ast
     >>> from pythran import passmanager, backend
     >>> pm = passmanager.PassManager("test")
     >>> node = ast.parse("def foo(): a = [2, 3]; return 1")
@@ -54,12 +54,13 @@ class DeadCodeElimination(Transformation):
 
             def is_use(x):
                 return udc.node[x]['action'] in ("U", "UD")
-            use_count = len(filter(is_use, udc.nodes()))
+            use_count = len([node for node in udc.nodes() if is_use(node)])
             return use_count != 0
         return True
 
     def visit_Assign(self, node):
-        node.targets = filter(self.used_target, node.targets)
+        node.targets = [target for target in node.targets
+                        if self.used_target(target)]
         if node.targets:
             return node
         self.update = True

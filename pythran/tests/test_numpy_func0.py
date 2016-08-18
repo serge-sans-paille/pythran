@@ -1,6 +1,7 @@
 import unittest
 from test_env import TestEnv
 import numpy
+import sys
 
 
 @TestEnv.module
@@ -544,15 +545,15 @@ def np_rosen_der(x):
     def test_split2(self):
         self.run_test("def np_split2(a): from numpy import split, array2string; return map(array2string,split(a, [0,1,5]))", numpy.arange(12).reshape(6,2), np_split2=[numpy.array([[int]])])
 
-    @unittest.skip("Requier numpy_fexpr for multidim array")
+    @unittest.skip("Require numpy_fexpr for multidim array")
     def test_take0(self):
         self.run_test("def np_take0(a):\n from numpy import take\n return take(a, [0,1])", numpy.arange(24).reshape(2,3,4), np_take0=[numpy.array([[[int]]])])
 
-    @unittest.skip("Requier numpy_fexpr for multidim array")
+    @unittest.skip("Require numpy_fexpr for multidim array")
     def test_take1(self):
         self.run_test("def np_take1(a):\n from numpy import take\n return take(a, [[0,0,2,2],[1,0,1,2]])", numpy.arange(24).reshape(2,3,4), np_take1=[numpy.array([[[int]]])])
 
-    @unittest.skip("Requier numpy_fexpr with indices")
+    @unittest.skip("Require numpy_fexpr with indices")
     def test_take2(self):
         self.run_test("def np_take2(a):\n from numpy import take\n return take(a, [1,0,1,2])", numpy.arange(24), np_take2=[numpy.array([int])])
 
@@ -574,9 +575,11 @@ def np_rosen_der(x):
     def test_tolist2(self):
         self.run_test("def np_tolist2(a): return a.tolist()", numpy.arange(2*3*4*5).reshape(2,3,4,5), np_tolist2=[numpy.array([[[[int]]]])])
 
+    @unittest.skipIf(sys.version_info.major == 3, "Not supported in Pythran3")
     def test_tostring0(self):
         self.run_test("def np_tostring0(a): return a.tostring()", numpy.arange(80, 100), np_tostring0=[numpy.array([int])])
 
+    @unittest.skipIf(sys.version_info.major == 3, "Not supported in Pythran3")
     def test_tostring1(self):
         self.run_test("def np_tostring1(a): return a.tostring()", numpy.arange(500, 600), np_tostring1=[numpy.array([int])])
 

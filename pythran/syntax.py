@@ -7,7 +7,7 @@ constraints.
 from pythran.tables import MODULES
 from pythran.intrinsic import Class
 
-import ast
+import gast as ast
 
 
 class PythranSyntaxError(SyntaxError):
@@ -36,14 +36,14 @@ class SyntaxChecker(ast.NodeVisitor):
 
         def save_attribute(module):
             """ Recursively save Pythonic keywords as possible attributes. """
-            self.attributes.update(module.iterkeys())
-            for signature in module.itervalues():
+            self.attributes.update(module.keys())
+            for signature in module.values():
                 if isinstance(signature, dict):
                     save_attribute(signature)
                 elif isinstance(signature, Class):
                     save_attribute(signature.fields)
 
-        for module in MODULES.itervalues():
+        for module in MODULES.values():
             save_attribute(module)
 
     def visit_Module(self, node):
@@ -80,13 +80,16 @@ class SyntaxChecker(ast.NodeVisitor):
     def visit_With(self, _):
         raise PythranSyntaxError("With statements not supported")
 
+    def visit_Starred(self, _):
+        raise PythranSyntaxError("Call with star arguments not supported",
+                                 node)
+
+    def visit_keyword(self, node):
+        if node.arg is None:
+            raise PythranSyntaxError("Call with kwargs not supported", node)
+
     def visit_Call(self, node):
         self.generic_visit(node)
-        if node.starargs:
-            raise PythranSyntaxError("Call with star arguments not supported",
-                                     node)
-        if node.kwargs:
-            raise PythranSyntaxError("Call with kwargs not supported", node)
 
     def visit_FunctionDef(self, node):
         self.generic_visit(node)
@@ -98,9 +101,9 @@ class SyntaxChecker(ast.NodeVisitor):
 
     def visit_Raise(self, node):
         self.generic_visit(node)
-        if node.tback:
+        if node.cause:
             raise PythranSyntaxError(
-                "Traceback in raise statements not supported",
+                "Cause in raise statements not supported",
                 node)
 
     def visit_Attribute(self, node):

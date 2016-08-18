@@ -2,14 +2,14 @@
 
 from pythran.passmanager import Transformation
 
-import ast
+import gast as ast
 
 
 class NormalizeException(Transformation):
     '''
     Transform else statement in try except block in nested try except.
 
-    >>> import ast
+    >>> import gast as ast
     >>> from pythran import passmanager, backend
     >>> node = ast.parse("try:print 't'\\nexcept: print 'x'\\nelse: print 'e'")
     >>> pm = passmanager.PassManager("test")
@@ -24,24 +24,24 @@ class NormalizeException(Transformation):
     except:
         print 'x'
     '''
-    def visit_TryExcept(self, node):
+    def visit_Try(self, node):
         if node.orelse:
             node.body.append(
-                ast.TryExcept(
+                ast.Try(
                     node.orelse,
                     [ast.ExceptHandler(None, None, [ast.Pass()])],
-                    []
+                    [], []
                     )
                 )
             node.orelse = []
             self.update = True
+        if node.finalbody:
+            node.body.extend(node.finalbody)
+            node.finalbody.append(ast.Raise(None, None))
+            self.update = True
+            node = ast.Try(
+                node.body,
+                [ast.ExceptHandler(None, None, node.finalbody)],
+                [], [])
+            node.finalbody = []
         return node
-
-    def visit_TryFinally(self, node):
-        node.body.extend(node.finalbody)
-        node.finalbody.append(ast.Raise(None, None, None))
-        self.update = True
-        return ast.TryExcept(
-            node.body,
-            [ast.ExceptHandler(None, None, node.finalbody)],
-            [])

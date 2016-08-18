@@ -2,6 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_PRINT_HPP
 
 #include <ostream>
+#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -24,6 +25,7 @@ namespace pythonic
 
     template <typename T, typename... Types>
     void print(T const &value, Types const &... values);
+    DECLARE_FUNCTOR(pythonic::__builtin__, print);
   }
 }
 

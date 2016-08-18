@@ -17,7 +17,7 @@ interface, but (hopefully) faster.
 It is meant to efficiently compile **scientific programs**, and takes advantage
 of multi-cores and SIMD instruction units.
 
-Pythran development is currently done using Python version **2.7**.
+Pythran supports Python **2.7** and also has a beta Python **3** support.
 
 Installation
 ------------

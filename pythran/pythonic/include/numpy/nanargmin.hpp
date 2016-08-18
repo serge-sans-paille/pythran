@@ -20,7 +20,7 @@ namespace pythonic
                     utils::int_<N>);
 
     template <class E>
-    typename E::dtype nanargmin(E const &expr);
+    long nanargmin(E const &expr);
 
     DECLARE_FUNCTOR(pythonic::numpy, nanargmin);
   }

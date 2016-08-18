@@ -5,7 +5,7 @@ LocalNodeDeclarations gathers node of declarations local to a node.
 
 from pythran.passmanager import NodeAnalysis
 
-import ast
+import gast as ast
 
 
 class LocalNodeDeclarations(NodeAnalysis):
@@ -16,7 +16,7 @@ class LocalNodeDeclarations(NodeAnalysis):
     It should not be use from outside a function, but can be used on a function
     (but in that case, parameters are not taken into account)
 
-    >>> import ast
+    >>> import gast as ast
     >>> from pythran import passmanager, backend
     >>> node = ast.parse('''
     ... def foo(a):
@@ -48,7 +48,7 @@ class LocalNameDeclarations(NodeAnalysis):
     """
     Gathers all local identifiers from a node.
 
-    >>> import ast
+    >>> import gast as ast
     >>> from pythran import passmanager, backend
     >>> node = ast.parse('''
     ... def foo(a):

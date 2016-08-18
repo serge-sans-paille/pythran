@@ -3,7 +3,7 @@
 from pythran.passmanager import Transformation
 from pythran.utils import path_to_attr
 
-import ast
+import gast as ast
 
 
 class ExpandImports(Transformation):
@@ -20,7 +20,7 @@ class ExpandImports(Transformation):
 
     Examples
     --------
-    >>> import ast
+    >>> import gast as ast
     >>> from pythran import passmanager, backend
     >>> node = ast.parse("from math import cos ; cos(2)")
     >>> pm = passmanager.PassManager("test")

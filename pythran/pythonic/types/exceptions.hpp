@@ -20,43 +20,24 @@ namespace pythonic
     }
 
     template <typename... Types>
-    BaseException::BaseException(str const &first, Types... types)
+    BaseException::BaseException(Types const &... types)
+        : args({__builtin__::functor::str{}(types)...})
     {
-      args = empty_list();
-      init(first, types...);
-    }
-
-    BaseException::BaseException()
-    {
-      args = empty_list();
     }
 
     BaseException::~BaseException() noexcept
     {
     }
 
-    template <typename T, typename... Types>
-    void BaseException::init(T &first, Types... others)
-    {
-      args.push_back(first);
-      init(others...);
-    }
-
-    template <typename T>
-    void BaseException::init(T &first)
-    {
-      args.push_back(first);
-    }
-
 // Use this to create a python exception class
 #define CLASS_EXCEPTION_IMPL(name, parent)                                     \
-  name::name(const name &e) : parent(e)                                        \
+  name::name(const name &e) : parent(*(parent *)&e)                            \
   {                                                                            \
   }                                                                            \
                                                                                \
   template <class... Types>                                                    \
-  name::name(str const &first, Types... types)                                 \
-      : parent(first, types...)                                                \
+  name::name(Types const &... types)                                           \
+      : parent(types...)                                                       \
   {                                                                            \
   }                                                                            \
                                                                                \
@@ -120,7 +101,7 @@ namespace pythonic
 #include "pythonic/utils/functor.hpp"
 #define PYTHONIC_EXCEPTION_IMPL(name)                                          \
   template <typename... Types>                                                 \
-  types::name name(Types... args)                                              \
+  types::name name(Types const &... args)                                      \
   {                                                                            \
     return types::name(args...);                                               \
   }                                                                            \

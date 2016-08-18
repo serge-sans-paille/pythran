@@ -3,7 +3,7 @@
 from pythran.analyses import CFG, YieldPoints
 from pythran.passmanager import Transformation
 
-import ast
+import gast as ast
 
 
 class NormalizeReturn(Transformation):
@@ -11,7 +11,7 @@ class NormalizeReturn(Transformation):
     Adds Return statement when they are implicit,
     and adds the None return value when not set
 
-    >>> import ast
+    >>> import gast as ast
     >>> from pythran import passmanager, backend
     >>> node = ast.parse("def foo(y): print y")
     >>> pm = passmanager.PassManager("test")
@@ -27,7 +27,8 @@ class NormalizeReturn(Transformation):
 
     def visit_FunctionDef(self, node):
         self.yield_points = self.passmanager.gather(YieldPoints, node)
-        map(self.visit, node.body)
+        for stmt in node.body:
+            self.visit(stmt)
         # Look for nodes that have no successors; the predecessors of
         # the special NIL node are those AST nodes that end control flow
         # without a return statement.
@@ -37,8 +38,10 @@ class NormalizeReturn(Transformation):
                 if self.yield_points:
                     node.body.append(ast.Return(None))
                 else:
-                    none = ast.Attribute(ast.Name("__builtin__", ast.Load()),
-                                         'None', ast.Load())
+                    none = ast.Attribute(
+                        ast.Name("__builtin__", ast.Load(), None),
+                        'None',
+                        ast.Load())
                     node.body.append(ast.Return(none))
                 break
 
@@ -46,7 +49,7 @@ class NormalizeReturn(Transformation):
 
     def visit_Return(self, node):
         if not node.value and not self.yield_points:
-            none = ast.Attribute(ast.Name("__builtin__", ast.Load()),
+            none = ast.Attribute(ast.Name("__builtin__", ast.Load(), None),
                                  'None', ast.Load())
             node.value = none
             self.update = True

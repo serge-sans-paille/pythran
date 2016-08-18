@@ -30,7 +30,7 @@ TYPE_TO_SUFFIX = {
     int: "L",
     }
 
-if sys.version_info[0] < 3:
+if sys.version_info.major == 2:
     PYTYPE_TO_CTYPE_TABLE[long] = 'pythran_long_t'
     TYPE_TO_SUFFIX[long] = "LL"
 
@@ -40,9 +40,10 @@ def pytype_to_ctype(t):
     if isinstance(t, list):
         return 'pythonic::types::list<{0}>'.format(pytype_to_ctype(t[0]))
     elif isinstance(t, set):
-        return 'pythonic::types::set<{0}>'.format(pytype_to_ctype(list(t)[0]))
+        return 'pythonic::types::set<{0}>'.format(
+            pytype_to_ctype(next(iter(t))))
     elif isinstance(t, dict):
-        tkey, tvalue = t.items()[0]
+        tkey, tvalue = next(iter(t.items()))
         return 'pythonic::types::dict<{0},{1}>'.format(pytype_to_ctype(tkey),
                                                        pytype_to_ctype(tvalue))
     elif isinstance(t, tuple):
@@ -73,9 +74,9 @@ def pytype_to_pretty_type(t):
     if isinstance(t, list):
         return '{0} list'.format(pytype_to_pretty_type(t[0]))
     elif isinstance(t, set):
-        return '{0} set'.format(pytype_to_pretty_type(list(t)[0]))
+        return '{0} set'.format(pytype_to_pretty_type(next(iter(t))))
     elif isinstance(t, dict):
-        tkey, tvalue = t.items()[0]
+        tkey, tvalue = next(iter(t.items()))
         return '{0}:{1} dict'.format(pytype_to_pretty_type(tkey),
                                      pytype_to_pretty_type(tvalue))
     elif isinstance(t, tuple):

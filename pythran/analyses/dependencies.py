@@ -5,7 +5,7 @@ Dependencies lists the functions and types required by a function
 from pythran.passmanager import ModuleAnalysis
 from pythran.tables import MODULES
 
-import ast
+import gast as ast
 import math
 
 

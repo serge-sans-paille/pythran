@@ -8,7 +8,7 @@ from pythran.passmanager import FunctionAnalysis
 import pythran.openmp as openmp
 
 from collections import defaultdict
-import ast
+import gast as ast
 
 
 class Scope(FunctionAnalysis):
@@ -24,7 +24,7 @@ class Scope(FunctionAnalysis):
     def __init__(self):
         self.result = defaultdict(set)
         self.decl_holders = (ast.FunctionDef, ast.For,
-                             ast.While, ast.TryExcept, ast.If)
+                             ast.While, ast.Try, ast.If)
         super(Scope, self).__init__(Ancestors, UseDefChain)
 
     def visit_OMPDirective(self, node):
@@ -39,14 +39,14 @@ class Scope(FunctionAnalysis):
 
         # then compute scope informations
         # unlike use-def chains, this takes OpenMP annotations into account
-        for name, udgraph in self.use_def_chain.iteritems():
+        for name, udgraph in self.use_def_chain.items():
             # get all refs to that name
             refs = [udgraph.node[n]['name'] for n in udgraph]
             # add OpenMP refs (well, the parent of the holding stmt)
             refs.extend(self.ancestors[d][-3]   # -3 to get the right parent
                         for d in self.openmp_deps.get(name, []))
             # get their ancestors
-            ancestors = map(self.ancestors.__getitem__, refs)
+            ancestors = [self.ancestors[ref] for ref in refs]
             # common ancestors
             prefixes = [p for p in zip(*ancestors) if len(set(p)) == 1]
             common = prefixes[-1][0]  # the last common ancestor

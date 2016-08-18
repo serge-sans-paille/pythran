@@ -92,7 +92,7 @@ class TestNumpyFunc3(TestEnv):
             from numpy import dot
             return dot(x,y)""",
                       numpy.arange(9).reshape(3, 3).tolist(),
-                      range(9, 12),
+                      [float(x) for x in range(9, 12)],
                       np_dot9=[[[float]], [float]])
 
     def test_dot10(self):
@@ -111,8 +111,8 @@ class TestNumpyFunc3(TestEnv):
         def np_dot11(x, y):
             from numpy import dot
             return dot(x,y)""",
-                      numpy.arange(6).reshape(3, 2).tolist(),
-                      range(6, 8),
+                      numpy.arange(6.).reshape(3, 2).tolist(),
+                      [float(x) for x  in range(6, 8)],
                       np_dot11=[[[float]], [float]])
 
     def test_dot12(self):
@@ -131,8 +131,8 @@ class TestNumpyFunc3(TestEnv):
         def np_dot13(x, y):
             from numpy import dot
             return dot(x,y)""",
-                      range(9, 12),
-                      numpy.arange(9).reshape(3, 3).tolist(),
+                      [float(x) for x in range(9, 12)],
+                      numpy.arange(9.).reshape(3, 3).tolist(),
                       np_dot13=[[float], [[float]]])
 
     def test_dot14(self):
@@ -151,8 +151,8 @@ class TestNumpyFunc3(TestEnv):
         def np_dot15(x, y):
             from numpy import dot
             return dot(x,y)""",
-                      range(6, 9),
-                      numpy.arange(6).reshape(3, 2).tolist(),
+                      [float(x) for x in range(6, 9)],
+                      numpy.arange(6.).reshape(3, 2).tolist(),
                       np_dot15=[[float], [[float]]])
 
     def test_dot16(self):

@@ -7,8 +7,9 @@ from pythran.passmanager import ModuleAnalysis
 from pythran.tables import MODULES
 import pythran.intrinsic as intrinsic
 
-import ast
+import gast as ast
 import networkx as nx
+from functools import reduce
 
 
 class GlobalEffects(ModuleAnalysis):
@@ -50,7 +51,7 @@ class GlobalEffects(ModuleAnalysis):
 
         def register_node(module):
             """ Recursively save globals effect for all functions. """
-            for v in module.itervalues():
+            for v in module.values():
                 if isinstance(v, dict):  # Submodule case
                     register_node(v)
                 else:
@@ -61,7 +62,7 @@ class GlobalEffects(ModuleAnalysis):
                         register_node(v.fields)
 
         register_node(self.global_declarations)
-        for module in MODULES.itervalues():
+        for module in MODULES.values():
             register_node(module)
         self.node_to_functioneffect[intrinsic.UnboundValue] = \
             GlobalEffects.FunctionEffect(intrinsic.UnboundValue)
@@ -92,7 +93,8 @@ class GlobalEffects(ModuleAnalysis):
         func_aliases = self.aliases[node.func]
         # expand argument if any
         func_aliases = reduce(
-            lambda x, y: x + (self.node_to_functioneffect.keys()  # all funcs
+            # all funcs
+            lambda x, y: x + (list(self.node_to_functioneffect.keys())
                               if isinstance(y, ast.Name) else [y]),
             func_aliases,
             list())

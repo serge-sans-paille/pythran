@@ -3,7 +3,8 @@
 from pythran.analyses import Identifiers
 from pythran.passmanager import Transformation
 
-import ast
+import gast as ast
+from functools import reduce
 
 
 class _ConvertToTuple(ast.NodeTransformer):
@@ -19,7 +20,7 @@ class _ConvertToTuple(ast.NodeTransformer):
                     ast.Index(ast.Num(y)),
                     ast.Load()),
                 self.renamings[node.id],
-                ast.Name(self.tuple_id, ast.Load())
+                ast.Name(self.tuple_id, ast.Load(), None)
                 )
             nnode.ctx = node.ctx
             return nnode
@@ -30,7 +31,7 @@ class NormalizeTuples(Transformation):
     """
     Remove implicit tuple -> variable conversion.
 
-    >>> import ast
+    >>> import gast as ast
     >>> from pythran import passmanager, backend
     >>> node = ast.parse("def foo(): a=(1,2.) ; i,j = a")
     >>> pm = passmanager.PassManager("test")
@@ -83,14 +84,14 @@ class NormalizeTuples(Transformation):
     def visit_AnyComp(self, node, *fields):
         for field in fields:
             setattr(node, field, self.visit(getattr(node, field)))
-        generators = map(self.visit, node.generators)
+        generators = [self.visit(generator) for generator in node.generators]
         nnode = node
         for i, g in enumerate(generators):
             if isinstance(g, tuple):
                 gtarget = "{0}{1}".format(g[0], i)
                 nnode.generators[i].target = ast.Name(
                     gtarget,
-                    nnode.generators[i].target.ctx)
+                    nnode.generators[i].target.ctx, None)
                 nnode = _ConvertToTuple(gtarget, g[1]).visit(nnode)
                 self.update = True
         for field in fields:
@@ -117,7 +118,7 @@ class NormalizeTuples(Transformation):
             self.traverse_tuples(arg, (), renamings)
             if renamings:
                 nname = self.get_new_id()
-                node.args.args[i] = ast.Name(nname, ast.Param())
+                node.args.args[i] = ast.Name(nname, ast.Param(), None)
                 node.body = _ConvertToTuple(nname, renamings).visit(node.body)
         return node
 
@@ -133,19 +134,21 @@ class NormalizeTuples(Transformation):
                 self.traverse_tuples(t, (), renamings)
                 if renamings:
                     gtarget = node.value.id if no_tmp else self.get_new_id()
-                    node.targets[i] = ast.Name(gtarget, node.targets[i].ctx)
-                    for rename, state in sorted(renamings.iteritems()):
+                    node.targets[i] = ast.Name(gtarget,
+                                               node.targets[i].ctx,
+                                               None)
+                    for rename, state in sorted(renamings.items()):
                         nnode = reduce(
                             lambda x, y: ast.Subscript(
                                 x,
                                 ast.Index(ast.Num(y)),
                                 ast.Load()),
                             state,
-                            ast.Name(gtarget, ast.Load()))
+                            ast.Name(gtarget, ast.Load(), None))
                         if isinstance(rename, str):
                             extra_assign.append(
                                 ast.Assign(
-                                    [ast.Name(rename, ast.Store())],
+                                    [ast.Name(rename, ast.Store(), None)],
                                     nnode))
                         else:
                             extra_assign.append(ast.Assign([rename], nnode))
@@ -158,19 +161,21 @@ class NormalizeTuples(Transformation):
             self.traverse_tuples(target, (), renamings)
             if renamings:
                 gtarget = self.get_new_id()
-                node.target = ast.Name(gtarget, node.target.ctx)
-                for rename, state in sorted(renamings.iteritems()):
+                node.target = ast.Name(gtarget, node.target.ctx, None)
+                for rename, state in sorted(renamings.items()):
                     nnode = reduce(
                         lambda x, y: ast.Subscript(
                             x,
                             ast.Index(ast.Num(y)),
                             ast.Load()),
                         state,
-                        ast.Name(gtarget, ast.Load()))
+                        ast.Name(gtarget, ast.Load(), None))
                     if isinstance(rename, str):
                         node.body.insert(0,
                                          ast.Assign(
-                                             [ast.Name(rename, ast.Store())],
+                                             [ast.Name(rename,
+                                                       ast.Store(),
+                                                       None)],
                                              nnode)
                                          )
                     else:

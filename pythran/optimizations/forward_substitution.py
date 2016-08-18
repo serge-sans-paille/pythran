@@ -6,7 +6,7 @@ computation code.
 from pythran.analyses import LazynessAnalysis, UseDefChain, Literals
 from pythran.passmanager import Transformation
 
-import ast
+import gast as ast
 
 
 class _LazyRemover(Transformation):
@@ -45,7 +45,7 @@ class ForwardSubstitution(Transformation):
     """
     Replace variable that can be compute later.
 
-    >>> import ast
+    >>> import gast as ast
     >>> from pythran import passmanager, backend
     >>> pm = passmanager.PassManager("test")
     >>> node = ast.parse("def foo(): a = [2, 3]; print a")
@@ -70,7 +70,7 @@ class ForwardSubstitution(Transformation):
 
     def visit_FunctionDef(self, node):
         """ Forward variable in the function when it is possible. """
-        for name, udgraph in self.use_def_chain.iteritems():
+        for name, udgraph in self.use_def_chain.items():
             # 1. check if the usedefchains have only two nodes (a def and an
             # use) and if it can be forwarded (lazyness == 1 means variables
             # used to define the variable are not modified and the variable is

@@ -5,14 +5,19 @@ from pythran.passmanager import Transformation
 from pythran.tables import MODULES
 from pythran.utils import path_to_attr
 
-import ast
+import gast as ast
+import sys
 
-EQUIVALENT_ITERATORS = {
-    "range": ("__builtin__", "xrange"),
-    "filter": ("itertools", "ifilter"),
-    "map": ("itertools", "imap"),
-    "zip": ("itertools", "izip")
-}
+EQUIVALENT_ITERATORS = {}
+
+if sys.version_info.major == 2:
+
+    EQUIVALENT_ITERATORS.update({
+        "range": ("__builtin__", "xrange"),
+        "filter": ("itertools", "ifilter"),
+        "map": ("itertools", "imap"),
+        "zip": ("itertools", "izip")
+    })
 
 
 class IterTransformation(Transformation):
@@ -20,7 +25,7 @@ class IterTransformation(Transformation):
     """
     Replaces expressions by iterators when possible.
 
-    >>> import ast
+    >>> import gast as ast
     >>> from pythran import passmanager, backend
     >>> node = ast.parse('''
     ... def foo(l):
@@ -48,7 +53,7 @@ class IterTransformation(Transformation):
 
         If the node alias on a correct keyword (and only it), it matchs.
         """
-        for keyword in EQUIVALENT_ITERATORS.iterkeys():
+        for keyword in EQUIVALENT_ITERATORS.keys():
             correct_alias = set([MODULES["__builtin__"][keyword]])
             if self.aliases[node.func] == correct_alias:
                 return keyword

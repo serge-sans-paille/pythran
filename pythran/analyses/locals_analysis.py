@@ -5,7 +5,7 @@ Locals computes the value of locals()
 from pythran.passmanager import ModuleAnalysis
 import pythran.metadata as md
 
-import ast
+import gast as ast
 
 
 class Locals(ModuleAnalysis):
@@ -16,7 +16,7 @@ class Locals(ModuleAnalysis):
     *before* this node.
 
     Following snippet illustrates its behavior:
-    >>> import ast
+    >>> import gast as ast
     >>> from pythran import passmanager
     >>> pm = passmanager.PassManager('test')
     >>> code = '''
@@ -52,7 +52,7 @@ class Locals(ModuleAnalysis):
     def visit_Module(self, node):
         self.expr_parent = node
         self.result[node] = self.locals
-        map(self.visit, node.body)
+        self.generic_visit(node)
 
     def visit_FunctionDef(self, node):
         # special case for nested functions
@@ -62,9 +62,11 @@ class Locals(ModuleAnalysis):
         self.expr_parent = node
         self.result[node] = self.locals.copy()
         parent_locals = self.locals.copy()
-        map(self.visit, node.args.defaults)
+        for default in node.args.defaults:
+            self.visit(default)
         self.locals.update(arg.id for arg in node.args.args)
-        map(self.visit, node.body)
+        for stmt in node.body:
+            self.visit(stmt)
         self.locals = parent_locals
         self.nesting -= 1
 
@@ -75,7 +77,8 @@ class Locals(ModuleAnalysis):
         self.visit(node.value)
         self.locals.update(t.id for t in node.targets
                            if isinstance(t, ast.Name))
-        map(self.visit, node.targets)
+        for target in node.targets:
+            self.visit(target)
 
     def visit_For(self, node):
         self.expr_parent = node
@@ -83,8 +86,10 @@ class Locals(ModuleAnalysis):
         md.visit(self, node)
         self.visit(node.iter)
         self.locals.add(node.target.id)
-        map(self.visit, node.body)
-        map(self.visit, node.orelse)
+        for stmt in node.body:
+            self.visit(stmt)
+        for stmt in node.orelse:
+            self.visit(stmt)
 
     def visit_Import(self, node):
         self.result[node] = self.locals.copy()
@@ -100,12 +105,13 @@ class Locals(ModuleAnalysis):
         if node.name:
             self.locals.add(node.name.id)
         node.type and self.visit(node.type)
-        map(self.visit, node.body)
+        for stmt in node.body:
+            self.visit(stmt)
 
     # statements that do not define a new variable
     visit_Return = store_and_visit
     visit_Yield = store_and_visit
-    visit_TryExcept = store_and_visit
+    visit_Try = store_and_visit
     visit_AugAssign = store_and_visit
     visit_Print = store_and_visit
     visit_While = store_and_visit

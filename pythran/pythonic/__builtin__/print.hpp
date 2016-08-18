@@ -2,6 +2,7 @@
 #define PYTHONIC_BUILTIN_PRINT_HPP
 
 #include "pythonic/include/__builtin__/print.hpp"
+#include "pythonic/utils/functor.hpp"
 
 #include <iostream>
 
@@ -46,6 +47,7 @@ namespace pythonic
         std::cout << ' ';
       print(values...);
     }
+    DEFINE_FUNCTOR(pythonic::__builtin__, print);
   }
 }
 

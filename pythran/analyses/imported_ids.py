@@ -5,7 +5,7 @@ from pythran.analyses.locals_analysis import Locals
 from pythran.passmanager import NodeAnalysis
 import pythran.metadata as md
 
-import ast
+import gast as ast
 
 
 class ImportedIds(NodeAnalysis):
@@ -30,12 +30,14 @@ class ImportedIds(NodeAnalysis):
         self.current_locals.add(node.name)
         current_locals = self.current_locals.copy()
         self.current_locals.update(arg.id for arg in node.args.args)
-        map(self.visit, node.body)
+        for stmt in node.body:
+            self.visit(stmt)
         self.current_locals = current_locals
 
     def visit_AnyComp(self, node):
         current_locals = self.current_locals.copy()
-        map(self.visit, node.generators)
+        for generator in node.generators:
+            self.visit(generator)
         self.visit(node.elt)
         self.current_locals = current_locals
 
@@ -46,10 +48,11 @@ class ImportedIds(NodeAnalysis):
 
     def visit_Assign(self, node):
         # order matter as an assignation
-        # is evaluted before being assigned
+        # is evaluated before being assigned
         md.visit(self, node)
         self.visit(node.value)
-        map(self.visit, node.targets)
+        for target in node.targets:
+            self.visit(target)
 
     def visit_AugAssign(self, node):
         self.in_augassign = True

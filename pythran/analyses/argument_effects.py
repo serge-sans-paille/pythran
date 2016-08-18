@@ -6,8 +6,9 @@ from pythran.passmanager import ModuleAnalysis
 from pythran.tables import MODULES
 import pythran.intrinsic as intrinsic
 
-import ast
+import gast as ast
 import networkx as nx
+from functools import reduce
 
 
 class FunctionEffects(object):

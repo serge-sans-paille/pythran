@@ -6,7 +6,7 @@ from pythran.passmanager import ModuleAnalysis
 from pythran.analyses import StrictAliases
 from pythran.syntax import PythranSyntaxError
 
-import ast
+import gast as ast
 
 
 class ExtendedSyntaxCheck(ModuleAnalysis):

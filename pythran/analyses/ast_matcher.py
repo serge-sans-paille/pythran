@@ -1,6 +1,6 @@
 """ Module to looks for a specified pattern in a given AST. """
 
-from ast import AST, iter_fields, NodeVisitor, Dict, Set
+from gast import AST, iter_fields, NodeVisitor, Dict, Set
 from itertools import permutations
 from math import isnan
 
@@ -111,7 +111,7 @@ class Check(NodeVisitor):
             return False
         if len(pattern.keys) > MAX_UNORDERED_LENGTH:
             raise DamnTooLongPattern("Pattern for Dict is too long")
-        for permutation in permutations(xrange(len(self.node.keys))):
+        for permutation in permutations(range(len(self.node.keys))):
             for i, value in enumerate(permutation):
                 if not self.field_match(self.node.keys[i],
                                         pattern.keys[value]):
@@ -165,18 +165,18 @@ class ASTMatcher(NodeVisitor):
 
     Examples
     --------
-    >>> import ast
+    >>> import gast as ast
     >>> code = "[(i, j) for i in xrange(a) for j in xrange(b)]"
-    >>> pattern = ast.Call(func=ast.Name(id='xrange', ctx=ast.Load()),
-    ...                    args=AST_any(), keywords=[],
-    ...                    starargs=None, kwargs=None)
+    >>> pattern = ast.Call(func=ast.Name('xrange', ctx=ast.Load(),
+    ...                                  annotation=None),
+    ...                    args=AST_any(), keywords=[])
     >>> len(ASTMatcher(pattern).search(ast.parse(code)))
     2
     >>> code = "[(i, j) for i in range(a) for j in xrange(b)]"
     >>> pattern = ast.Call(func=ast.Name(id=AST_or('xrange', 'range'),
-    ...                                  ctx=ast.Load()),
-    ...                    args=AST_any(), keywords=[],
-    ...                    starargs=None, kwargs=None)
+    ...                                  ctx=ast.Load(),
+    ...                                  annotation=None),
+    ...                    args=AST_any(), keywords=[])
     >>> len(ASTMatcher(pattern).search(ast.parse(code)))
     2
     >>> code = "{1:2, 3:4}"

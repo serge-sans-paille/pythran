@@ -1,7 +1,7 @@
 """ Module with facilities to represent range values. """
 
 from math import isinf
-import ast
+import gast as ast
 import itertools
 
 import numpy
@@ -93,7 +93,7 @@ def combine_sub(range1, range2):
     """
     Combiner for Subtraction operation.
 
-    >>> import ast
+    >>> import gast as ast
     >>> combine(Range(1, 5), Range(-5, -4), ast.Sub())
     Range(low=5, high=10)
     """
@@ -104,7 +104,7 @@ def combine_mult(range1, range2):
     """
     Combiner for Multiplication operation.
 
-    >>> import ast
+    >>> import gast as ast
     >>> combine(Range(1, 5), Range(-5, -4), ast.Mult())
     Range(low=-25, high=-4)
     >>> combine(Range(-1, 5), Range(-5, 3), ast.Mult())
@@ -120,7 +120,7 @@ def combine_add(range1, range2):
     """
     Combiner for Addition operation.
 
-    >>> import ast
+    >>> import gast as ast
     >>> combine(Range(-12, 5), Range(-5, -3), ast.Add())
     Range(low=-17, high=2)
     """
@@ -131,7 +131,7 @@ def combine_div(range1, range2):
     """
     Combiner for Divide operation.
 
-    >>> import ast
+    >>> import gast as ast
     >>> combine(Range(-1, 5), Range(3, 8), ast.Div())
     Range(low=-1, high=1)
     >>> combine(Range(-1, 5), Range(-5, -4), ast.Div())
@@ -151,7 +151,7 @@ def combine_floordiv(range1, range2):
     """
     Combiner for Floor divide operation.
 
-    >>> import ast
+    >>> import gast as ast
     >>> combine(Range(-1, 5), Range(3, 8), ast.FloorDiv())
     Range(low=-1, high=1)
     >>> combine(Range(-1, 5), Range(-5, -4), ast.FloorDiv())
@@ -171,7 +171,7 @@ def combine_unknown(*_):
     """
     Combiner for operation with unknown range result.
 
-    >>> import ast
+    >>> import gast as ast
     >>> combine(Range(1, 5), Range(3, 8), ast.BitXor())
     Range(low=-inf, high=inf)
     >>> combine(Range(1, 5), Range(3, 8), ast.BitOr())
@@ -186,7 +186,7 @@ def combine_rshift(range1, range2):
     """
     Combiner for Right shift operation.
 
-    >>> import ast
+    >>> import gast as ast
     >>> combine(Range(10, 100), Range(3, 8), ast.RShift())
     Range(low=0, high=12)
     >>> combine(Range(10, float("inf")), Range(3, 8),
@@ -221,7 +221,7 @@ def combine_lshift(range1, range2):
     """
     Combiner for Left shift operation.
 
-    >>> import ast
+    >>> import gast as ast
     >>> combine(Range(1, 5), Range(3, 8), ast.LShift())
     Range(low=8, high=1280)
     >>> combine(Range(1, float("inf")), Range(3, 8),
@@ -245,7 +245,7 @@ def combine_pow(range1, range2):
     """
     Combiner for Power operation.
 
-    >>> import ast
+    >>> import gast as ast
     >>> combine(Range(1, 5), Range(-5, -4), ast.Pow())
     Range(low=1.0, high=1.0)
     >>> combine(Range(-1, 5), Range(-5, 3), ast.Pow())
@@ -260,7 +260,7 @@ def combine_pow(range1, range2):
 def combine_mod(range1, range2):
     """ Combiner for Modulo operation.
 
-    >>> import ast
+    >>> import gast as ast
     >>> combine(Range(-1, 5), Range(1, 13), ast.Mod())
     Range(low=0, high=5)
     >>> combine(Range(-21, 5), Range(1, 13), ast.Mod())

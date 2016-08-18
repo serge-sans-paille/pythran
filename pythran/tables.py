@@ -1,6 +1,6 @@
 """ This modules provides the translation tables from python to c++. """
 
-import ast
+import gast as ast
 import inspect
 import logging
 import sys
@@ -17,6 +17,16 @@ from pythran.intrinsic import ReadEffect, ConstantIntr
 from pythran.intrinsic import ReadOnceFunctionIntr, ConstExceptionIntr
 from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE
 from pythran import range as prange
+
+if sys.version_info.major == 3:
+    sys.modules['__builtin__'] = sys.modules['builtins']
+    sys.modules['__builtin__'].xrange = sys.modules['builtins'].range
+
+    class long(int):
+        pass
+    sys.modules['__builtin__'].long = long
+    import functools
+    sys.modules['__builtin__'].reduce = functools.reduce
 
 logger = logging.getLogger("pythran")
 
@@ -704,6 +714,7 @@ MODULES = {
         },
     "functools": {
         "partial": FunctionIntr(),
+        "reduce": ReadOnceFunctionIntr(),
         },
     "bisect": {
         "bisect_left": ConstFunctionIntr(return_range=prange.positive_values),
@@ -902,8 +913,20 @@ MODULES = {
         },
     }
 
-if sys.version_info[0] > 2:
-    sys.modules['__builtin__'] = sys.modules['builtins']
+if sys.version_info.major == 3:
+    del MODULES['string']['find']
+    del MODULES['itertools']['imap']
+    del MODULES['itertools']['izip']
+    del MODULES['itertools']['ifilter']
+    del MODULES['operator_']['idiv']
+    del MODULES['operator_']['__idiv__']
+    del MODULES['operator_']['div']
+    del MODULES['operator_']['__div__']
+    del MODULES['__builtin__']['cmp']
+    del MODULES['__builtin__']['file']
+    del MODULES['__builtin__']['long_']
+    del MODULES['__builtin__']['StandardError']
+    MODULES['__builtin__']['print'] = FunctionIntr(global_effects=True)
 
 # VMSError is only available on VMS
 if 'VMSError' in sys.modules['__builtin__'].__dict__:
@@ -941,10 +964,11 @@ def save_arguments(module_name, elements):
                 obj = getattr(themodule, elem)
                 spec = inspect.getargspec(obj)
                 assert not signature.args.args
-                signature.args.args = [ast.Name(arg, ast.Param())
+                signature.args.args = [ast.Name(arg, ast.Param(), None)
                                        for arg in spec.args]
                 if spec.defaults:
-                    signature.args.defaults = map(to_ast, spec.defaults)
+                    signature.args.defaults = [to_ast(default)
+                                               for default in spec.defaults]
             except (AttributeError, ImportError, TypeError, ToNotEval):
                 pass
 

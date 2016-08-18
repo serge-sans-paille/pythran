@@ -8,7 +8,7 @@ from pythran.analyses.global_effects import GlobalEffects
 from pythran.passmanager import ModuleAnalysis
 from pythran.intrinsic import Intrinsic
 
-import ast
+import gast as ast
 
 
 class PureExpressions(ModuleAnalysis):
@@ -20,7 +20,9 @@ class PureExpressions(ModuleAnalysis):
                                               Aliases)
 
     def visit_FunctionDef(self, node):
-        map(self.visit, node.body)
+        # do not visit arguments
+        for stmt in node.body:
+            self.visit(stmt)
         # Pure functions are already compute, we don't need to add them again
         return False
 
@@ -52,7 +54,7 @@ class PureExpressions(ModuleAnalysis):
                         if ae:
                             try:
                                 ast.literal_eval(arg)
-                            except ValueError:
+                            except ValueError as ve:
                                 is_pure = False
                 else:
                     is_pure = False
@@ -68,7 +70,7 @@ class PureExpressions(ModuleAnalysis):
     def run(self, node, ctx):
         super(PureExpressions, self).prepare(node, ctx)
         no_arg_effect = set()
-        for func, ae in self.argument_effects.iteritems():
+        for func, ae in self.argument_effects.items():
             if not any(ae):
                 no_arg_effect.add(func)
         self.result = no_arg_effect.difference(self.global_effects)

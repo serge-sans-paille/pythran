@@ -5,14 +5,15 @@ from pythran.passmanager import Transformation
 from pythran.syntax import PythranSyntaxError
 from pythran.tables import attributes, functions, methods, MODULES
 
-import ast
+import gast as ast
+from functools import reduce
 
 
 class NormalizeMethodCalls(Transformation):
     '''
     Turns built in method calls into function calls.
 
-    >>> import ast
+    >>> import gast as ast
     >>> from pythran import passmanager, backend
     >>> node = ast.parse("l.append(12)")
     >>> pm = passmanager.PassManager("test")
@@ -97,11 +98,13 @@ class NormalizeMethodCalls(Transformation):
         # A getattr !
         else:
             self.update = True
-            return ast.Call(ast.Attribute(ast.Name('__builtin__', ast.Load()),
-                                          'getattr',
-                                          ast.Load()),
-                            [node.value, ast.Str(node.attr)],
-                            [], None, None)
+            return ast.Call(
+                ast.Attribute(
+                    ast.Name('__builtin__', ast.Load(), None),
+                    'getattr',
+                    ast.Load()),
+                [node.value, ast.Str(node.attr)],
+                [])
 
     @staticmethod
     def renamer(v, cur_module):
@@ -161,7 +164,7 @@ class NormalizeMethodCalls(Transformation):
                     node.func = reduce(
                         lambda v, o: ast.Attribute(v, o, ast.Load()),
                         mod[1:] + (node.func.attr,),
-                        ast.Name(mod[0], ast.Load())
+                        ast.Name(mod[0], ast.Load(), None)
                         )
                 # else methods have been called using function syntax
             if node.func.attr in methods or node.func.attr in functions:
@@ -183,7 +186,8 @@ class NormalizeMethodCalls(Transformation):
                                 cur_module[new_id])
                     else:
                         new_id = self.renamer(path.id, cur_module)
-                        return ast.Name(new_id, ast.Load()), cur_module[new_id]
+                        return (ast.Name(new_id, ast.Load(), None),
+                                cur_module[new_id])
 
                 # Rename module path to avoid naming issue.
                 node.func.value, _ = rec(node.func.value, MODULES)

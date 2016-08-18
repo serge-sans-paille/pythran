@@ -7,7 +7,7 @@ from pythran.syntax import check_syntax
 from pythran.transformations import NormalizeIdentifiers
 from pythran.transformations import ExtractDocStrings, HandleImport
 
-import ast
+import gast as ast
 import re
 
 

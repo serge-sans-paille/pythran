@@ -7,7 +7,7 @@ from pythran.syntax import PythranSyntaxError
 import pythran.metadata as md
 
 from itertools import product
-import ast
+import gast as ast
 import networkx as nx
 
 
@@ -111,7 +111,7 @@ class UseDefChain(FunctionAnalysis):
             else:
                 return  # Other context are unused and Del is ignored
             prev_nodes = self.current_node.get(node.id, set())
-            edges_list = zip(prev_nodes, [node_name] * len(prev_nodes))
+            edges_list = list(zip(prev_nodes, [node_name] * len(prev_nodes)))
             graph.add_edges_from(edges_list)
             self.current_node[node.id] = set([node_name])
 
@@ -120,7 +120,7 @@ class UseDefChain(FunctionAnalysis):
         # in assignation, left expression is compute before the assignation
         # to the right expression
         self.visit(node.value)
-        map(self.visit, node.targets)
+        list(map(self.visit, node.targets))
 
     def visit_AugAssign(self, node):
         md.visit(self, node)
@@ -151,13 +151,13 @@ class UseDefChain(FunctionAnalysis):
             swap = True
 
         # body
-        old_node = {i: set(j) for i, j in self.current_node.iteritems()}
-        map(self.visit, node.body)
+        old_node = {i: set(j) for i, j in self.current_node.items()}
+        list(map(self.visit, node.body))
 
         # orelse
         new_node = self.current_node
         self.current_node = old_node
-        map(self.visit, node.orelse)
+        list(map(self.visit, node.orelse))
 
         if swap:
             node.body, node.orelse = node.orelse, node.body
@@ -178,7 +178,7 @@ class UseDefChain(FunctionAnalysis):
             swap = True
 
         # body
-        old_node = {i: set(j) for i, j in self.current_node.iteritems()}
+        old_node = {i: set(j) for i, j in self.current_node.items()}
         self.visit(node.body)
 
         # orelse
@@ -202,19 +202,19 @@ class UseDefChain(FunctionAnalysis):
 
     def visit_While(self, node):
         md.visit(self, node)
-        prev_node = {i: set(j) for i, j in self.current_node.iteritems()}
+        prev_node = {i: set(j) for i, j in self.current_node.items()}
         self.visit(node.test)
         # body
         self.in_loop = True
-        old_node = {i: set(j) for i, j in self.current_node.iteritems()}
-        map(self.visit, node.body)
+        old_node = {i: set(j) for i, j in self.current_node.items()}
+        list(map(self.visit, node.body))
         self.add_loop_edges(prev_node)
         self.in_loop = False
 
         # orelse
         new_node = self.current_node
         self.merge_dict_set(self.current_node, old_node)
-        map(self.visit, node.orelse)
+        list(map(self.visit, node.orelse))
 
         # merge result
         self.merge_dict_set(self.current_node, new_node)
@@ -227,30 +227,30 @@ class UseDefChain(FunctionAnalysis):
 
         # body
         self.in_loop = True
-        old_node = {i: set(j) for i, j in self.current_node.iteritems()}
+        old_node = {i: set(j) for i, j in self.current_node.items()}
         self.visit(node.target)
-        map(self.visit, node.body)
+        list(map(self.visit, node.body))
         self.add_loop_edges(old_node)
         self.in_loop = False
 
         # orelse
         new_node = self.current_node
         self.merge_dict_set(self.current_node, old_node)
-        map(self.visit, node.orelse)
+        list(map(self.visit, node.orelse))
 
         # merge result
         self.merge_dict_set(self.current_node, new_node)
         self.merge_dict_set(self.current_node, self.break_)
         self.break_ = dict()
 
-    def visit_TryExcept(self, node):
+    def visit_Try(self, node):
         md.visit(self, node)
 
         # body
         all_node = dict()
-        for stmt in node.body:
+        for stmt in node.body + node.orelse:
             self.visit(stmt)
-            for k, i in self.current_node.iteritems():
+            for k, i in self.current_node.items():
                 if k not in all_node:
                     all_node[k] = i
                 else:
@@ -267,12 +267,3 @@ class UseDefChain(FunctionAnalysis):
             self.merge_dict_set(no_except, self.current_node)
 
         self.current_node = no_except
-
-        if node.orelse:
-            err = ("orelse should have been removed in previous passes")
-            raise PythranSyntaxError(err, node)
-
-    def visit_TryFinally(self, node):
-        """ Assert TryFinally node are already removed before use_def_chain."""
-        err = ("This node should have been removed in previous passes")
-        raise PythranSyntaxError(err, node)

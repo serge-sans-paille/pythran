@@ -11,7 +11,7 @@ There are two kinds of passes: transformations and analysis.
     * apply is used to apply (sic) a transformation on an AST node.
 """
 
-import ast
+import gast as ast
 import re
 
 

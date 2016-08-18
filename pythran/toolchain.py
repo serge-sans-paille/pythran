@@ -25,13 +25,14 @@ from numpy.distutils.extension import Extension
 import numpy.distutils.ccompiler
 
 from tempfile import mkstemp, mkdtemp
-import ast
+import gast as ast
 import logging
 import os.path
 import shutil
 import sys
 import glob
 import hashlib
+from functools import reduce
 
 logger = logging.getLogger('pythran')
 
@@ -113,12 +114,6 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
     returns a PythonModule object
 
     '''
-    if sys.version_info[0] == 3:
-        raise ValueError(
-            "Pythran does not fully support Python3, "
-            "it can only be used to compile C++ code "
-            "generated with the -E flag with a Python2 version of Pythran. "
-            "Sorry about this :-/")
 
     pm = PassManager(module_name)
 
@@ -150,7 +145,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
     else:
 
         # uniform typing
-        for fname, signatures in specs.items():
+        for fname, signatures in list(specs.items()):
             if not isinstance(signatures, tuple):
                 specs[fname] = (signatures,)
 
@@ -159,7 +154,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
         check_specs(ir, specs, renamings)
         specs_to_docstrings(specs, docstrings)
 
-        metainfo = {'hash': hashlib.sha256(code).hexdigest(),
+        metainfo = {'hash': hashlib.sha256(code.encode('ascii')).hexdigest(),
                     'version': __version__,
                     'date': datetime.now()}
 
@@ -180,7 +175,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
             Include("pythonic/python/exception_handler.hpp"),
         )
 
-        for function_name, signatures in specs.iteritems():
+        for function_name, signatures in specs.items():
             internal_func_name = renamings.get(function_name,
                                                function_name)
             # global variables are functions with no signatures :-)
@@ -196,7 +191,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
                 arguments_types = [pytype_to_ctype(t) for t in signature]
                 has_arguments = HasArgument(internal_func_name).visit(ir)
                 arguments = ["a{0}".format(i)
-                             for i in xrange(len(arguments_types))]
+                             for i in range(len(arguments_types))]
                 name_fmt = pythran_ward + "{0}::{1}::type{2}"
                 args_list = ", ".join(arguments_types)
                 specialized_fname = name_fmt.format(module_name,

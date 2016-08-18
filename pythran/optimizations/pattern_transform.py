@@ -3,7 +3,7 @@
 from pythran.analyses import Check, Placeholder
 from pythran.passmanager import Transformation
 
-import ast
+import gast as ast
 
 
 # Tuple of : (pattern, replacement)
@@ -12,46 +12,49 @@ import ast
 know_pattern = [
     # __builtin__.len(__builtin__.set(X)) => __builtin__.pythran.len_set(X)
     (ast.Call(func=ast.Attribute(value=ast.Name(id='__builtin__',
-                                                ctx=ast.Load()),
+                                                ctx=ast.Load(),
+                                                annotation=None),
                                  attr="len", ctx=ast.Load()),
               args=[ast.Call(
                   func=ast.Attribute(
                       value=ast.Name(id='__builtin__',
-                                     ctx=ast.Load()),
+                                     ctx=ast.Load(), annotation=None),
                       attr="set", ctx=ast.Load()),
                   args=[Placeholder(0)],
-                  keywords=[], starargs=None, kwargs=None)],
-              keywords=[], starargs=None, kwargs=None),
+                  keywords=[])],
+              keywords=[]),
      lambda: ast.Call(
          func=ast.Attribute(
              value=ast.Attribute(value=ast.Name(id='__builtin__',
-                                                ctx=ast.Load()),
+                                                ctx=ast.Load(),
+                                                annotation=None),
                                  attr="pythran", ctx=ast.Load()),
              attr="len_set", ctx=ast.Load()),
-         args=[Placeholder(0)], keywords=[], starargs=None, kwargs=None)),
+         args=[Placeholder(0)], keywords=[])),
     # __builtin__.reversed(__builtin__.xrange(X)) =>
     # __builtin__.xrange(X-1, -1, -1)
     # FIXME : We should do it even when begin/end/step are given
     (ast.Call(func=ast.Attribute(value=ast.Name(id='__builtin__',
-                                                ctx=ast.Load()),
+                                                ctx=ast.Load(),
+                                                annotation=None),
                                  attr="reversed", ctx=ast.Load()),
               args=[ast.Call(
                   func=ast.Attribute(
                       value=ast.Name(id='__builtin__',
-                                     ctx=ast.Load()),
+                                     ctx=ast.Load(), annotation=None),
                       attr="xrange", ctx=ast.Load()),
                   args=[Placeholder(0)],
-                  keywords=[], starargs=None, kwargs=None)],
-              keywords=[], starargs=None, kwargs=None),
+                  keywords=[])],
+              keywords=[]),
      lambda: ast.Call(
          func=ast.Attribute(value=ast.Name(id='__builtin__',
-                                           ctx=ast.Load()),
+                                           ctx=ast.Load(), annotation=None),
                             attr="xrange", ctx=ast.Load()),
          args=[ast.BinOp(left=Placeholder(0), op=ast.Sub(),
                          right=ast.Num(n=1)),
                ast.Num(n=-1),
                ast.Num(n=-1)],
-         keywords=[], starargs=None, kwargs=None)),
+         keywords=[])),
     # X * X => X ** 2
     (ast.BinOp(left=Placeholder(0), op=ast.Mult(), right=Placeholder(0)),
      lambda: ast.BinOp(left=Placeholder(0), op=ast.Pow(), right=ast.Num(n=2))),
@@ -62,11 +65,14 @@ know_pattern = [
                op=ast.Add(),
                right=Placeholder(2)),
      lambda: ast.Call(func=ast.Attribute(
-         ast.Attribute(ast.Name('__builtin__', ast.Load()), 'str', ast.Load()),
+         ast.Attribute(
+             ast.Name('__builtin__', ast.Load(), None),
+             'str',
+             ast.Load()),
          'join', ast.Load()),
          args=[ast.Str(Placeholder(1)),
                ast.Tuple([Placeholder(0), Placeholder(2)], ast.Load())],
-         keywords=[], starargs=None, kwargs=None)),
+         keywords=[])),
 ]
 
 

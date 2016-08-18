@@ -33,17 +33,9 @@ namespace pythonic
     public:
       BaseException(const BaseException &e);
       template <typename... Types>
-      BaseException(str const &first, Types... types);
-      BaseException();
+      BaseException(Types const &... types);
       virtual ~BaseException() noexcept;
       list<str> args;
-
-    protected:
-      template <typename T, typename... Types>
-      void init(T &first, Types... others);
-
-      template <typename T>
-      void init(T &first);
     };
 
 // Use this to create a python exception class
@@ -54,7 +46,7 @@ namespace pythonic
     name();                                                                    \
     name(const name &e);                                                       \
     template <class... Types>                                                  \
-    name(str const &first, Types... types);                                    \
+    name(Types const &... types);                                              \
     virtual ~name() noexcept;                                                  \
   };
 
@@ -110,7 +102,7 @@ namespace pythonic
 #include "pythonic/include/utils/functor.hpp"
 #define PYTHONIC_EXCEPTION_DECL(name)                                          \
   template <typename... Types>                                                 \
-  types::name name(Types... args);                                             \
+  types::name name(Types const &... args);                                     \
                                                                                \
   DECLARE_FUNCTOR(pythonic::__builtin__, name);
 

@@ -42,6 +42,37 @@ class TestNumpyFunc1(TestEnv):
     def test_sum11_(self):
         self.run_test("def np_sum11_(a): import numpy as np ; return np.sum(a+a,2)", numpy.arange(12).reshape(2,3,2), np_sum11_=[numpy.array([[[int]]])])
 
+    def test_sum_imap(self):
+        self.run_test("""
+            def np_sum_imap(a):
+                import numpy as np
+                from itertools import imap
+                return np.sum(imap(lambda x: x + 2, a))
+                      """, range(10), np_sum_imap=[[int]])
+
+    def test_sum_ifilter(self):
+        self.run_test("""
+            def np_sum_ifilter(a):
+                import numpy as np
+                from itertools import ifilter
+                return np.sum(ifilter(lambda x: x % 2, a))
+                      """, range(10), np_sum_ifilter=[[int]])
+
+    def test_sum_izip(self):
+        self.run_test("""
+            def np_sum_izip(a):
+                import numpy as np
+                from itertools import izip
+                return np.sum(izip(a, a))
+                      """, range(10), np_sum_izip=[[int]])
+
+    def test_sum_xrange(self):
+        self.run_test("""
+            def np_sum_xrange(a):
+                import numpy as np
+                return np.sum(xrange(a))
+                      """, 10, np_sum_xrange=[int])
+
     def test_prod_(self):
         """ Check prod function for numpy array. """
         self.run_test("""

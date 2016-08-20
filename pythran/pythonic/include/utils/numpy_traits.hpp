@@ -3,6 +3,25 @@
 
 namespace pythonic
 {
+
+  namespace itertools
+  {
+    namespace details
+    {
+      template <class F, class... V>
+      struct imap;
+      template <class F, class ... V>
+      struct izip;
+      template <class F, class List0>
+      struct ifilter;
+    }
+  }
+
+  namespace __builtin__
+  {
+    struct xrange;
+  }
+
   namespace types
   {
 
@@ -116,6 +135,22 @@ namespace pythonic
     template <class T, size_t N>
     struct is_numexpr_arg<array<T, N>> {
       static constexpr bool value = true;
+    };
+
+    template <class F, class... V>
+    struct is_numexpr_arg<itertools::details::imap<F, V...>> : std::true_type {
+    };
+
+    template <class F, class V>
+    struct is_numexpr_arg<itertools::details::ifilter<F, V>> : std::true_type {
+    };
+
+    template <class F, class... V>
+    struct is_numexpr_arg<itertools::details::izip<F, V...>> : std::true_type {
+    };
+
+    template <>
+    struct is_numexpr_arg<__builtin__::xrange> : std::true_type {
     };
 
     template <class E>

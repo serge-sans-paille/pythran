@@ -38,7 +38,6 @@ namespace pythonic
       struct isposinf;
       struct ldexp;
       struct logaddexp2;
-      struct mod;
       struct nan_to_num;
       struct rint;
       struct signbit;
@@ -53,7 +52,6 @@ namespace pythonic
       // vectorize everything but these ops. They require special handling for
       // vectorization, and SG did not invest enough time in those
       static const bool value =
-          not std::is_same<O, numpy::functor::mod>::value and
           not std::is_same<O, operator_::functor::mod>::value and
           not std::is_same<O, numpy::functor::logaddexp2>::value and
           // Return type for generic function should be generic

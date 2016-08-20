@@ -5,6 +5,8 @@
 // clang-format off
 #include INCLUDE_FILE(pythonic/numpy,UFUNC_NAME)
 // clang-format on
+#include <pythonic/numpy/partial_sum.hpp>
+#include "pythonic/utils/functor.hpp"
 
 namespace pythonic
 {
@@ -12,22 +14,12 @@ namespace pythonic
   {
     namespace UFUNC_NAME
     {
-      template <class T>
-      types::ndarray<
-          decltype(std::declval<pythonic::numpy::functor::UFUNC_NAME>()(
-              std::declval<typename T::dtype>(),
-              std::declval<typename T::dtype>())),
-          T::value>
-      accumulate(T const &a)
+      template <class T, class dtype>
+      auto accumulate(T &&a, long axis, dtype d) -> decltype(
+          partial_sum<numpy::functor::UFUNC_NAME>(std::forward<T>(a), axis, d))
       {
-        types::ndarray<decltype(
-                           std::declval<pythonic::numpy::functor::UFUNC_NAME>()(
-                               std::declval<typename T::dtype>(),
-                               std::declval<typename T::dtype>())),
-                       T::value> res(a.shape(), __builtin__::None);
-        std::partial_sum(a.begin(), a.end(), res.begin(),
-                         pythonic::numpy::functor::UFUNC_NAME{});
-        return res;
+        return partial_sum<numpy::functor::UFUNC_NAME>(std::forward<T>(a), axis,
+                                                       d);
       }
       DEFINE_FUNCTOR(pythonic::numpy::UFUNC_NAME, accumulate);
     }

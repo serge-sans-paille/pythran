@@ -16,6 +16,7 @@
 #include "pythonic/include/types/list.hpp"
 #include "pythonic/include/types/raw_array.hpp"
 
+#include "pythonic/include/numpy/bool_.hpp"
 #include "pythonic/include/numpy/uint8.hpp"
 #include "pythonic/include/numpy/int8.hpp"
 #include "pythonic/include/numpy/uint16.hpp"
@@ -491,10 +492,9 @@ namespace pythonic
       template <class T>
       struct dtype_helper;
 
-      // FIXME: use another type?
       template <>
       struct dtype_helper<bool> {
-        using type = pythonic::numpy::functor::uint8;
+        using type = pythonic::numpy::functor::bool_;
       };
 
       template <>

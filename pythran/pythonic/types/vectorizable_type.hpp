@@ -3,6 +3,7 @@
 
 #include "pythonic/include/types/vectorizable_type.hpp"
 
+#include "pythonic/include/numpy/bool_.hpp"
 #include "pythonic/include/numpy/uint8.hpp"
 #include "pythonic/include/numpy/int8.hpp"
 #include "pythonic/include/numpy/uint16.hpp"
@@ -70,6 +71,7 @@ namespace pythonic
           not std::is_same<O, numpy::functor::clip>::value and
           not std::is_same<O, numpy::functor::where>::value and
           // transtyping
+          not std::is_same<O, numpy::functor::bool_>::value and
           not std::is_same<O, numpy::functor::int8>::value and
           not std::is_same<O, numpy::functor::int16>::value and
           not std::is_same<O, numpy::functor::int32>::value and

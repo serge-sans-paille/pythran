@@ -18,6 +18,7 @@
 #include "pythonic/types/list.hpp"
 #include "pythonic/types/raw_array.hpp"
 
+#include "pythonic/numpy/bool_.hpp"
 #include "pythonic/numpy/uint8.hpp"
 #include "pythonic/numpy/int8.hpp"
 #include "pythonic/numpy/uint16.hpp"

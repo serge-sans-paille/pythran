@@ -423,6 +423,7 @@ MODULES = {
         "bitwise_not": ConstFunctionIntr(),
         "bitwise_or": UFunc(BINARY_UFUNC),
         "bitwise_xor": UFunc(BINARY_UFUNC),
+        "bool_": ConstFunctionIntr(),
         "ceil": ConstFunctionIntr(),
         "clip": ConstMethodIntr(),
         "concatenate": ConstFunctionIntr(),

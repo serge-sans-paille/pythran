@@ -15,8 +15,7 @@ namespace pythonic
      * operator% which is correctly overloaded
      */
 
-    using operator_::mod;
-    DECLARE_FUNCTOR(pythonic::numpy, mod);
+    USING_FUNCTOR(mod, operator_::functor::mod);
   }
 }
 

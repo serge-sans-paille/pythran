@@ -1,6 +1,11 @@
 #ifndef PYTHONIC_CORE_HPP
 #define PYTHONIC_CORE_HPP
 
+#define STR_(M) #M
+// clang-format off
+#define INCLUDE_FILE(U, M) STR_(U/M.hpp)
+// clang-format on
+
 #include "pythonic/types/assignable.hpp"
 #include "pythonic/types/combined.hpp"
 

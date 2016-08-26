@@ -9,39 +9,44 @@ namespace pythonic
   namespace numpy
   {
 
-    template <class Op, size_t N>
-    struct _partial_sum;
-
-    template <class Op>
-    struct _partial_sum<Op, 1> {
-      template <class E, class F, class A>
-      A operator()(E e, F &o, A acc);
-    };
-
-    template <class Op, size_t N>
+    template <class Op, size_t N, class A>
     struct _partial_sum {
-      template <class E, class F, class A>
+      template <class E, class F>
+      A operator()(E e, F &o);
+      template <class E, class F>
       A operator()(E e, F &o, A acc);
     };
 
-    template <class Op, class E,
-              class dtype = types::dtype_t<typename E::dtype>>
+    template <class Op, class A>
+    struct _partial_sum<Op, 1, A> {
+      template <class E, class F>
+      A operator()(E e, F &o);
+      template <class E, class F>
+      A operator()(E e, F &o, A acc);
+    };
+
+    template <class Op, class E>
+    using result_dtype = types::dtype_t<decltype(std::declval<Op>()(
+        std::declval<typename std::remove_reference<E>::type::dtype>(),
+        std::declval<typename std::remove_reference<E>::type::dtype>()))>;
+
+    template <class Op, class E, class dtype = result_dtype<Op, E>>
     types::ndarray<typename dtype::type, 1> partial_sum(E const &expr,
                                                         dtype d = dtype());
 
-    template <class Op, class E,
-              class dtype = types::dtype_t<
-                  typename std::remove_reference<E>::type::dtype>>
+    template <class Op, class E, class dtype = result_dtype<Op, E>>
     auto partial_sum(E const &expr, long axis, dtype d = dtype()) ->
         typename std::enable_if<
             E::value == 1, decltype(partial_sum<Op, E, dtype>(expr))>::type;
 
-    template <class E, class dtype = types::dtype_t<typename E::dtype>>
+    template <class Op, class E, class dtype = result_dtype<Op, E>>
     using partial_sum_type = types::ndarray<typename dtype::type, E::value>;
+    template <class Op, class E, class dtype = result_dtype<Op, E>>
+    using partial_sum_type2 =
+        types::ndarray<typename dtype::type, E::value - 1>;
 
-    template <class Op, class E,
-              class dtype = types::dtype_t<typename E::dtype>>
-    typename std::enable_if<E::value != 1, partial_sum_type<E, dtype>>::type
+    template <class Op, class E, class dtype = result_dtype<Op, E>>
+    typename std::enable_if<E::value != 1, partial_sum_type<Op, E, dtype>>::type
     partial_sum(E const &expr, long axis, dtype d = dtype());
   }
 }

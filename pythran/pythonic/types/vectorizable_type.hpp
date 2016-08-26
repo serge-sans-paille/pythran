@@ -3,6 +3,7 @@
 
 #include "pythonic/include/types/vectorizable_type.hpp"
 
+#include "pythonic/include/numpy/bool_.hpp"
 #include "pythonic/include/numpy/uint8.hpp"
 #include "pythonic/include/numpy/int8.hpp"
 #include "pythonic/include/numpy/uint16.hpp"
@@ -38,7 +39,6 @@ namespace pythonic
       struct isposinf;
       struct ldexp;
       struct logaddexp2;
-      struct mod;
       struct nan_to_num;
       struct rint;
       struct signbit;
@@ -53,7 +53,6 @@ namespace pythonic
       // vectorize everything but these ops. They require special handling for
       // vectorization, and SG did not invest enough time in those
       static const bool value =
-          not std::is_same<O, numpy::functor::mod>::value and
           not std::is_same<O, operator_::functor::mod>::value and
           not std::is_same<O, numpy::functor::logaddexp2>::value and
           // Return type for generic function should be generic
@@ -72,6 +71,7 @@ namespace pythonic
           not std::is_same<O, numpy::functor::clip>::value and
           not std::is_same<O, numpy::functor::where>::value and
           // transtyping
+          not std::is_same<O, numpy::functor::bool_>::value and
           not std::is_same<O, numpy::functor::int8>::value and
           not std::is_same<O, numpy::functor::int16>::value and
           not std::is_same<O, numpy::functor::int32>::value and

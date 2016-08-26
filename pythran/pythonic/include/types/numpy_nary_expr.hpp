@@ -14,7 +14,6 @@
 #define NUMPY_NARY_EXTRA_METHOD
 #endif
 
-#define STR_(a) #a
 #define STR(a) STR_(a)
 
 namespace functor
@@ -51,4 +50,3 @@ namespace functor
 #undef NUMPY_NARY_RESHAPE_MODE
 #undef NUMPY_NARY_EXTRA_METHOD
 #undef STR
-#undef STR_

@@ -257,21 +257,18 @@ class TestNumpyFunc1(TestEnv):
                       numpy.array([True, False, False, True, True]),
                       np_isclose4=[numpy.array([bool]), numpy.array([bool])])
 
-    @unittest.expectedFailure
     def test_isclose5(self):
         self.run_test("def np_isclose5(u,v): from numpy import isclose; return isclose(u, v)",
                       1e-10,
                       1e-10+1e-11,
                       np_isclose5=[float, float])
 
-    @unittest.expectedFailure
     def test_isclose6(self):
         self.run_test("def np_isclose6(u, v): from numpy import isclose; return isclose(u, v, 1e-19, 1e-16)",
                       numpy.array([[-float("inf"), 1e-10+1e-11, -0, 7.],[9., 1e-10, 0., float('NaN')]]),
                       numpy.array([float("inf"), 1e-10, 0., float('NaN')]),
                       np_isclose6=[numpy.array([[float]]), numpy.array([float])])
 
-    @unittest.expectedFailure
     def test_isclose7(self):
         self.run_test("def np_isclose7(u, v): from numpy import isclose; return isclose(u, v, 1e-19, 1e-16)",
                       numpy.array([9., 1e-10, 0., float('NaN')]),

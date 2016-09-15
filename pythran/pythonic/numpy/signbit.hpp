@@ -6,7 +6,7 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
-#include <nt2/include/functions/bitofsign.hpp>
+#include <boost/simd/function/bitofsign.hpp>
 
 namespace pythonic
 {
@@ -18,7 +18,7 @@ namespace pythonic
       template <class T>
       bool signbit(T const &v)
       {
-        return nt2::bitofsign(v);
+        return boost::simd::bitofsign(v);
       }
     }
 

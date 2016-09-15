@@ -4,7 +4,7 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
-#include <nt2/include/functions/acosh.hpp>
+#include <boost/simd/function/acosh.hpp>
 
 namespace pythonic
 {
@@ -12,7 +12,7 @@ namespace pythonic
   namespace numpy
   {
 #define NUMPY_NARY_FUNC_NAME arccosh
-#define NUMPY_NARY_FUNC_SYM nt2::acosh
+#define NUMPY_NARY_FUNC_SYM boost::simd::acosh
 #include "pythonic/include/types/numpy_nary_expr.hpp"
   }
 }

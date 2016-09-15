@@ -1,10 +1,10 @@
 /*
- (c) 2014 Glen Joseph Fernandes
- glenjofe at gmail dot com
+(c) 2014-2015 Glen Joseph Fernandes
+<glenjofe -at- gmail.com>
 
- Distributed under the Boost Software
- License, Version 1.0.
- http://boost.org/LICENSE_1_0.txt
+Distributed under the Boost Software
+License, Version 1.0.
+http://boost.org/LICENSE_1_0.txt
 */
 #ifndef BOOST_ALIGN_DETAIL_INTEGRAL_CONSTANT_HPP
 #define BOOST_ALIGN_DETAIL_INTEGRAL_CONSTANT_HPP
@@ -16,31 +16,27 @@
 #endif
 
 namespace boost {
-    namespace alignment {
-        namespace detail {
+namespace alignment {
+namespace detail {
+
 #if !defined(BOOST_NO_CXX11_HDR_TYPE_TRAITS)
-            using std::integral_constant;
+using std::integral_constant;
 #else
-            template<class T, T Value>
-            struct integral_constant {
-                typedef T value_type;
-                typedef integral_constant<T, Value> type;
+template<class T, T Value>
+struct integral_constant {
+    typedef T value_type;
+    typedef integral_constant type;
 
-#if !defined(BOOST_NO_CXX11_CONSTEXPR)
-                constexpr operator value_type() const {
-                    return Value;
-                }
-
-                static constexpr T value = Value;
-#else
-                enum {
-                    value = Value
-                };
-#endif
-            };
-#endif
-        }
+    BOOST_CONSTEXPR operator value_type() const {
+        return Value;
     }
-}
+
+    static BOOST_CONSTEXPR_OR_CONST T value = Value;
+};
+#endif
+
+} /* .detail */
+} /* .alignment */
+} /* .boost */
 
 #endif

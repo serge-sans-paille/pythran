@@ -5,7 +5,7 @@
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/types/numpy_broadcast.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
-#include <nt2/include/functions/nextafter.hpp>
+#include <boost/simd/function/nextafter.hpp>
 
 namespace pythonic
 {
@@ -13,7 +13,7 @@ namespace pythonic
   namespace numpy
   {
 #define NUMPY_NARY_FUNC_NAME nextafter
-#define NUMPY_NARY_FUNC_SYM nt2::nextafter
+#define NUMPY_NARY_FUNC_SYM boost::simd::nextafter
 #include "pythonic/include/types/numpy_nary_expr.hpp"
   }
 }

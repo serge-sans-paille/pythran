@@ -11,9 +11,9 @@
 #include "pythonic/utils/seq.hpp"
 
 #ifdef USE_BOOST_SIMD
-#include <boost/simd/sdk/simd/native.hpp>
-#include <boost/simd/include/functions/load.hpp>
-#include <boost/simd/include/functions/store.hpp>
+#include <boost/simd/pack.hpp>
+#include <boost/simd/function/load.hpp>
+#include <boost/simd/function/store.hpp>
 #endif
 
 #include <tuple>
@@ -270,19 +270,15 @@ namespace pythonic
     template <class T, size_t N>
     typename array<T, N>::simd_iterator array<T, N>::vend() const
     {
-      using vector_type =
-          typename boost::simd::native<dtype, BOOST_SIMD_DEFAULT_EXTENSION>;
-      static const std::size_t vector_size =
-          boost::simd::meta::cardinal_of<vector_type>::value;
+      using vector_type = typename boost::simd::pack<dtype>;
+      static const std::size_t vector_size = vector_type::static_size;
       return {*this, long(size() / vector_size * vector_size)};
     }
     template <typename T, size_t N>
-    auto array<T, N>::load(long i) const -> decltype(
-        boost::simd::load<boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>>(
-            &buffer[0], i))
+    auto array<T, N>::load(long i) const
+        -> decltype(boost::simd::load<boost::simd::pack<T>>(&buffer[0], i))
     {
-      return boost::simd::load<
-          boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>>(&buffer[0], i);
+      return boost::simd::load<boost::simd::pack<T>>(&buffer[0], i);
     }
 
     template <typename T, size_t N>

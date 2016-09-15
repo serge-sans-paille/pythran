@@ -6,16 +6,26 @@
 #include "pythonic/include/utils/numpy_traits.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-#include <nt2/sdk/complex/complex.hpp>
-#include <nt2/include/functions/conj.hpp>
-
 namespace pythonic
 {
 
   namespace numpy
   {
+    namespace wrapper
+    {
+      template <class T>
+      std::complex<T> conjugate(std::complex<T> const &v)
+      {
+        return std::conj(v);
+      }
+      template <class T>
+      T conjugate(T const &v)
+      {
+        return v;
+      }
+    }
 #define NUMPY_NARY_FUNC_NAME conjugate
-#define NUMPY_NARY_FUNC_SYM nt2::conj
+#define NUMPY_NARY_FUNC_SYM wrapper::conjugate
 #include "pythonic/include/types/numpy_nary_expr.hpp"
   }
 }

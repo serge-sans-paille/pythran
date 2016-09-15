@@ -6,7 +6,7 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
-#include <nt2/include/functions/is_inf.hpp>
+#include <boost/simd/function/is_inf.hpp>
 
 namespace pythonic
 {
@@ -18,7 +18,7 @@ namespace pythonic
       template <class T>
       bool isinf(T const &v)
       {
-        return nt2::is_inf(v);
+        return boost::simd::is_inf(v);
       }
     }
 #define NUMPY_NARY_FUNC_NAME isinf

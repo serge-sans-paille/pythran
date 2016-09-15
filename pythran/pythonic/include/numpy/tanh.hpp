@@ -5,7 +5,7 @@
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
 
-#include <nt2/include/functions/tanh.hpp>
+#include <boost/simd/function/tanh.hpp>
 
 namespace pythonic
 {
@@ -13,7 +13,7 @@ namespace pythonic
   namespace numpy
   {
 #define NUMPY_NARY_FUNC_NAME tanh
-#define NUMPY_NARY_FUNC_SYM nt2::tanh
+#define NUMPY_NARY_FUNC_SYM boost::simd::tanh
 #include "pythonic/include/types/numpy_nary_expr.hpp"
   }
 }

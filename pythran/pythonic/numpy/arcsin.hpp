@@ -6,23 +6,26 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
-#include <nt2/include/functions/asin.hpp>
-
-namespace nt2
-{
-  double asin(long l)
-  {
-    return asin(static_cast<double>(l));
-  }
-}
 
 namespace pythonic
 {
 
   namespace numpy
   {
+    namespace wrapper
+    {
+      double arcsin(long const &v)
+      {
+        return arcsin(static_cast<double>(v));
+      }
+      template <class T>
+      auto arcsin(T const &v) -> decltype(boost::simd::asin(v))
+      {
+        return boost::simd::asin(v);
+      }
+    }
 #define NUMPY_NARY_FUNC_NAME arcsin
-#define NUMPY_NARY_FUNC_SYM nt2::asin
+#define NUMPY_NARY_FUNC_SYM wrapper::arcsin
 #include "pythonic/types/numpy_nary_expr.hpp"
   }
 }

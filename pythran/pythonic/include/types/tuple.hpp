@@ -9,9 +9,9 @@
 #include "pythonic/include/utils/nested_container.hpp"
 
 #ifdef USE_BOOST_SIMD
-#include <boost/simd/sdk/simd/native.hpp>
-#include <boost/simd/include/functions/load.hpp>
-#include <boost/simd/include/functions/store.hpp>
+#include <boost/simd/pack.hpp>
+#include <boost/simd/function/load.hpp>
+#include <boost/simd/function/store.hpp>
 #endif
 
 #include <tuple>
@@ -156,8 +156,8 @@ namespace pythonic
       using simd_iterator = const_simd_nditerator<array>;
       simd_iterator vbegin() const;
       simd_iterator vend() const;
-      auto load(long i) const -> decltype(boost::simd::load<
-          boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>>(&buffer[0], i));
+      auto load(long i) const
+          -> decltype(boost::simd::load<boost::simd::pack<T>>(&buffer[0], i));
 
       template <class V>
       void store(V &&v, long i);

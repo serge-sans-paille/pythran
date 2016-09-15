@@ -5,6 +5,8 @@
 
 #include "pythonic/python/core.hpp"
 
+#include "boost/simd/logical.hpp"
+
 namespace pythonic
 {
   template <>
@@ -15,6 +17,11 @@ namespace pythonic
   struct from_python<bool> {
     static bool is_convertible(PyObject *obj);
     static bool convert(PyObject *obj);
+  };
+
+  template <class T>
+  struct to_python<boost::simd::logical<T>> {
+    static PyObject *convert(boost::simd::logical<T> b);
   };
 }
 

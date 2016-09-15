@@ -7,8 +7,8 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
 
-#include <nt2/include/functions/is_inf.hpp>
-#include <nt2/include/functions/is_positive.hpp>
+#include <boost/simd/function/is_inf.hpp>
+#include <boost/simd/function/is_positive.hpp>
 
 namespace pythonic
 {
@@ -20,7 +20,7 @@ namespace pythonic
       template <class T>
       bool isposinf(T const &t)
       {
-        return nt2::is_inf(t) and nt2::is_positive(t);
+        return boost::simd::is_inf(t) and boost::simd::is_positive(t);
       }
     }
 #define NUMPY_NARY_FUNC_NAME isposinf

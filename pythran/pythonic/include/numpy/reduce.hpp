@@ -5,8 +5,8 @@
 #include "pythonic/include/__builtin__/None.hpp"
 
 #ifdef USE_BOOST_SIMD
-#include <boost/simd/include/functions/broadcast.hpp>
-#include <boost/simd/memory/functions/aligned_store.hpp>
+#include <boost/simd/function/broadcast.hpp>
+#include <boost/simd/function/aligned_store.hpp>
 #endif
 
 #include <algorithm>

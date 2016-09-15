@@ -6,8 +6,8 @@
 #include "pythonic/include/types/numpy_broadcast.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
 
-#include <nt2/include/functions/log2.hpp>
-#include <nt2/include/functions/pow.hpp>
+#include <boost/simd/function/log2.hpp>
+#include <boost/simd/function/pow.hpp>
 namespace pythonic
 {
 
@@ -17,7 +17,8 @@ namespace pythonic
     {
       template <class T0, class T1>
       auto logaddexp2(T0 const &t0, T1 const &t1)
-          -> decltype(nt2::log2(nt2::pow(T0(2), t0) + nt2::pow(T1(2), t1)));
+          -> decltype(boost::simd::log2(boost::simd::pow(T0(2), t0) +
+                                        boost::simd::pow(T1(2), t1)));
     }
 
 #define NUMPY_NARY_FUNC_NAME logaddexp2

@@ -12,7 +12,7 @@
 #include "pythonic/utils/functor.hpp"
 
 #ifdef USE_BOOST_SIMD
-#include <boost/simd/sdk/simd/native.hpp>
+#include <boost/simd/pack.hpp>
 #endif
 
 namespace pythonic
@@ -22,6 +22,7 @@ namespace pythonic
   {
 
 #ifdef USE_BOOST_SIMD
+#if 0
     template <class T0, class T1, class T2, class B>
     auto OPERATOR_NAME(boost::simd::native<T0, T1, T2> &a, B &&b)
         -> decltype(a OPERATOR_ISYMBOL std::forward<B>(b))
@@ -75,6 +76,7 @@ namespace pythonic
     {
       return a OPERATOR_ISYMBOL b;
     }
+#endif
 #endif
 
     template <class A, class B>

@@ -4,7 +4,7 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
-#include <nt2/include/functions/atanh.hpp>
+#include <boost/simd/function/atanh.hpp>
 
 namespace pythonic
 {
@@ -12,7 +12,7 @@ namespace pythonic
   namespace numpy
   {
 #define NUMPY_NARY_FUNC_NAME arctanh
-#define NUMPY_NARY_FUNC_SYM nt2::atanh
+#define NUMPY_NARY_FUNC_SYM boost::simd::atanh
 #include "pythonic/include/types/numpy_nary_expr.hpp"
   }
 }

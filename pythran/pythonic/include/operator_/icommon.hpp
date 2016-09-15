@@ -13,7 +13,7 @@
 #include "pythonic/utils/functor.hpp"
 
 #ifdef USE_BOOST_SIMD
-#include <boost/simd/sdk/simd/native.hpp>
+#include <boost/simd/pack.hpp>
 #endif
 
 namespace pythonic
@@ -23,6 +23,7 @@ namespace pythonic
   {
 
 #ifdef USE_BOOST_SIMD
+#if 0
     // Theses overloads are needed because the proper && overloads are not
     // defined in NT2
     template <class T0, class T1, class T2, class B>
@@ -54,6 +55,7 @@ namespace pythonic
     auto OPERATOR_NAME(boost::simd::native<P0, P1, P2> &&a,
                        boost::simd::native<T0, T1, T2> &&b)
         -> decltype(a OPERATOR_ISYMBOL b);
+#endif
 #endif
 
     template <class A, class B>

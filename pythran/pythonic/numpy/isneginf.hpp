@@ -6,8 +6,6 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
-#include <nt2/include/functions/is_inf.hpp>
-#include <nt2/include/functions/is_negative.hpp>
 
 namespace pythonic
 {
@@ -18,9 +16,9 @@ namespace pythonic
     {
       template <class T>
       auto isneginf(T const &t)
-          -> decltype(nt2::is_inf(t) and nt2::is_negative(t))
+          -> decltype(boost::simd::is_inf(t) and boost::simd::is_negative(t))
       {
-        return nt2::is_inf(t) and nt2::is_negative(t);
+        return boost::simd::is_inf(t) and boost::simd::is_negative(t);
       }
     }
 

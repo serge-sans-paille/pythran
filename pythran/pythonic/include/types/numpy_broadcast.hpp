@@ -2,9 +2,9 @@
 #define PYTHONIC_INCLUDE_TYPES_NUMPY_BROADCAST_HPP
 
 #ifdef USE_BOOST_SIMD
-#include <boost/simd/sdk/simd/native.hpp>
-#include <boost/simd/include/functions/load.hpp>
-#include <boost/simd/include/functions/store.hpp>
+#include <boost/simd/pack.hpp>
+#include <boost/simd/function/load.hpp>
+#include <boost/simd/function/store.hpp>
 #endif
 
 #include "pythonic/include/types/vectorizable_type.hpp"
@@ -133,7 +133,7 @@ namespace pythonic
     template <class dtype>
     struct broadcast_base<dtype, true> {
       dtype _value;
-      boost::simd::native<dtype, BOOST_SIMD_DEFAULT_EXTENSION> _splated;
+      boost::simd::pack<dtype> _splated;
       template <class V>
       broadcast_base(V v);
       template <class I>

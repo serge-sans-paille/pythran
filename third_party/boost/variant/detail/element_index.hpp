@@ -16,6 +16,8 @@
 #include "boost/variant/recursive_wrapper_fwd.hpp"
 #include "boost/variant/variant_fwd.hpp"
 
+#include "boost/type_traits/remove_cv.hpp"
+#include "boost/type_traits/remove_reference.hpp"
 #include "boost/mpl/find_if.hpp"
 
 namespace boost { namespace detail { namespace variant {
@@ -42,7 +44,7 @@ struct element_iterator_impl :
 
 template <class Variant, class T>
 struct element_iterator :
-    element_iterator_impl< typename Variant::types, T>
+    element_iterator_impl< typename Variant::types, typename boost::remove_reference<T>::type >
 {};
 
 template <class Variant, class T>

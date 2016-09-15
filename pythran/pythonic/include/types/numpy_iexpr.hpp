@@ -5,8 +5,8 @@
 #include "pythonic/include/types/tuple.hpp"
 
 #ifdef USE_BOOST_SIMD
-#include <boost/simd/sdk/simd/native.hpp>
-#include <boost/simd/include/functions/store.hpp>
+#include <boost/simd/pack.hpp>
+#include <boost/simd/function/store.hpp>
 #endif
 
 #include <numeric>
@@ -149,9 +149,9 @@ namespace pythonic
       simd_iterator vbegin() const;
       simd_iterator vend() const;
       template <class I>
-      auto load(I i) const -> decltype(boost::simd::load<
-          boost::simd::native<dtype, BOOST_SIMD_DEFAULT_EXTENSION>>(
-          this->buffer, i));
+      auto load(I i) const
+          -> decltype(boost::simd::load<boost::simd::pack<dtype>>(this->buffer,
+                                                                  i));
 
       template <class V>
       void store(V &&v, long i);

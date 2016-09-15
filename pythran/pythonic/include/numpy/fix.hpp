@@ -4,7 +4,7 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
-#include <nt2/include/functions/trunc.hpp>
+#include <boost/simd/function/trunc.hpp>
 
 namespace pythonic
 {
@@ -14,7 +14,10 @@ namespace pythonic
     namespace wrapper
     {
       template <class T>
-      double fix(T const &v);
+      double fix(T const &v)
+      {
+        return boost::simd::trunc(v);
+      }
     }
 #define NUMPY_NARY_FUNC_NAME fix
 #define NUMPY_NARY_FUNC_SYM wrapper::fix

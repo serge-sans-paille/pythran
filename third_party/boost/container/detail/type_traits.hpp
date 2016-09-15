@@ -30,7 +30,10 @@ namespace boost {
 namespace container {
 namespace container_detail {
 
+using ::boost::move_detail::enable_if;
+using ::boost::move_detail::enable_if_and;
 using ::boost::move_detail::is_same;
+using ::boost::move_detail::is_different;
 using ::boost::move_detail::is_pointer;
 using ::boost::move_detail::add_reference;
 using ::boost::move_detail::add_const;

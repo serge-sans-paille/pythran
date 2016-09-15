@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/angle_in_rad.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
-#include <nt2/include/functions/indeg.hpp>
+#include <boost/simd/function/indeg.hpp>
 
 /* NOTE: angle_in_deg is not part of the official Numpy API,
  * this file is here only to split the angle function in two parts
@@ -18,7 +18,11 @@ namespace pythonic
     namespace wrapper
     {
       template <class T>
-      auto angle_in_deg(T const &t) -> decltype(nt2::indeg(angle_in_rad(t)));
+      auto angle_in_deg(T const &t)
+          -> decltype(boost::simd::indeg(angle_in_rad(t)))
+      {
+        return boost::simd::indeg(angle_in_rad(t));
+      }
     }
 #define NUMPY_NARY_FUNC_NAME angle_in_deg
 #define NUMPY_NARY_FUNC_SYM wrapper::angle_in_deg

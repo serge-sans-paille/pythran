@@ -8,15 +8,13 @@
 #include "pythonic/types/numpy_broadcast.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
 
-#include <nt2/include/functions/remainder.hpp>
-
 namespace pythonic
 {
 
   namespace numpy
   {
 #define NUMPY_NARY_FUNC_NAME remainder
-#define NUMPY_NARY_FUNC_SYM nt2::remainder
+#define NUMPY_NARY_FUNC_SYM boost::simd::rem
 #include "pythonic/types/numpy_nary_expr.hpp"
   }
 }

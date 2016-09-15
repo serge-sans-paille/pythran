@@ -6,9 +6,6 @@
 #include "pythonic/include/types/numpy_expr.hpp"
 #include "pythonic/include/types/traits.hpp"
 
-#include <nt2/linalg/details/blas/mm.hpp>
-#include <nt2/linalg/details/blas/mv.hpp>
-
 template <class T>
 struct is_blas_type : pythonic::types::is_complex<T> {
 };

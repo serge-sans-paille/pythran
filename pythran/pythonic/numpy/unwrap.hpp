@@ -8,7 +8,8 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/pi.hpp"
 
-#include <nt2/include/functions/max.hpp>
+#include <boost/simd/function/max.hpp>
+#include <boost/simd/function/abs.hpp>
 
 namespace pythonic
 {
@@ -21,7 +22,7 @@ namespace pythonic
       *obegin = *ibegin;
       ++ibegin;
       for (; ibegin != iend; ++ibegin, ++obegin) {
-        if (nt2::abs(*obegin - *ibegin) > discont)
+        if (boost::simd::abs(*obegin - *ibegin) > discont)
           *(obegin + 1) =
               *ibegin + 2 * pi * int((*obegin - *ibegin) / (discont));
         else
@@ -40,7 +41,7 @@ namespace pythonic
     template <class E>
     types::ndarray<double, E::value> unwrap(E const &expr, double discont)
     {
-      discont = nt2::max(discont, pi);
+      discont = boost::simd::max(discont, pi);
       types::ndarray<double, E::value> out(expr.shape(), __builtin__::None);
       _unwrap(expr.begin(), expr.end(), out.begin(), discont,
               utils::int_<E::value>());

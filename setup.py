@@ -86,16 +86,15 @@ class BuildWithThirdParty(build_py):
     """
     Set up Pythran dependencies.
 
-    * install nt2
     * install boost.simd
     * install boost dependencies
     """
 
-    def copy_nt2(self):
-        """ Install NT2 and boost deps from the third_party directory """
+    def copy_boost(self):
+        """ Install boos-simd and boost deps from the third_party directory """
 
-        print('Copying nt2 and its dependencies')
-        for d in ('nt2', 'boost'):
+        print('Copying boost.simd and its dependencies')
+        for d in ('boost',):
             src = os.path.join('third_party', d)
 
             # copy to the build tree
@@ -169,13 +168,12 @@ class BuildWithThirdParty(build_py):
         # regular build done by parent class
         build_py.run(self, *args, **kwargs)
         if not self.dry_run:  # compatibility with the parent options
-            self.copy_nt2()
+            self.copy_boost()
             self.detect_gmp()
 
 
 # Cannot use glob here, as the files may not be generated yet
-nt2_headers = (['nt2/' + '*/' * i + '*.hpp' for i in range(1, 20)] +
-               ['boost/' + '*/' * i + '*.hpp' for i in range(1, 20)])
+boost_headers = (['boost/' + '*/' * i + '*.hpp' for i in range(1, 20)])
 pythonic_headers = ['*/' * i + '*.hpp' for i in range(9)] + ['patch/*']
 
 # rename pythran into pythran3 for python3 version
@@ -193,7 +191,7 @@ setup(name='pythran',
       packages=['pythran', 'pythran.analyses', 'pythran.transformations',
                 'pythran.optimizations', 'omp', 'pythran/pythonic',
                 'pythran.types'],
-      package_data={'pythran': ['pythran*.cfg'] + nt2_headers,
+      package_data={'pythran': ['pythran*.cfg'] + boost_headers,
                     'pythran/pythonic': pythonic_headers},
       classifiers=[
           'Development Status :: 4 - Beta',

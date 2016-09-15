@@ -85,7 +85,7 @@ namespace boost { namespace fusion
             : data(rhs.data) {}
 
         template <typename Sequence>
-        BOOST_CONSTEXPR BOOST_FUSION_GPU_ENABLED
+        BOOST_FUSION_GPU_ENABLED
         map(Sequence const& rhs)
             : data(rhs) {}
 

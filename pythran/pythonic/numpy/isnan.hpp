@@ -7,16 +7,7 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
 
-#include <nt2/include/functions/is_nan.hpp>
-
-// nt2 does not handle bool specialization, which is indeed a corner case...
-namespace nt2
-{
-  constexpr bool is_nan(bool)
-  {
-    return false;
-  }
-}
+#include <boost/simd/function/is_nan.hpp>
 
 namespace pythonic
 {
@@ -26,9 +17,14 @@ namespace pythonic
     namespace wrapper
     {
       template <class T>
+      bool isnan(std::complex<T> const &v)
+      {
+        return boost::simd::is_nan(v.real()) || boost::simd::is_nan(v.imag());
+      }
+      template <class T>
       bool isnan(T const &v)
       {
-        return nt2::is_nan(v);
+        return boost::simd::is_nan(v);
       }
     }
 

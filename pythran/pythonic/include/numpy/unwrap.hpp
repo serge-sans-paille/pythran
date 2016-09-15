@@ -6,8 +6,6 @@
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/numpy/pi.hpp"
 
-#include <nt2/include/functions/max.hpp>
-
 namespace pythonic
 {
 

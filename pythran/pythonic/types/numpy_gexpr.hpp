@@ -8,10 +8,6 @@
 #include "pythonic/operator_/isub.hpp"
 #include "pythonic/operator_/imul.hpp"
 #include "pythonic/operator_/idiv.hpp"
-#ifdef USE_BOOST_SIMD
-#include <boost/simd/sdk/simd/native.hpp>
-#include <boost/simd/include/functions/store.hpp>
-#endif
 
 namespace pythonic
 {
@@ -661,20 +657,18 @@ namespace pythonic
     typename numpy_gexpr<Arg, S...>::simd_iterator
     numpy_gexpr<Arg, S...>::vend() const
     {
-      using vector_type =
-          typename boost::simd::native<dtype, BOOST_SIMD_DEFAULT_EXTENSION>;
-      static const std::size_t vector_size =
-          boost::simd::meta::cardinal_of<vector_type>::value;
+      using vector_type = typename boost::simd::pack<dtype>;
+      static const std::size_t vector_size = vector_type::static_size;
       return {*this, long(_shape[0] / vector_size * vector_size)};
     }
     template <class Arg, class... S>
     template <class I>
-    auto numpy_gexpr<Arg, S...>::load(I i) const -> decltype(boost::simd::load<
-        boost::simd::native<dtype, BOOST_SIMD_DEFAULT_EXTENSION>>(this->buffer,
-                                                                  i))
+    auto numpy_gexpr<Arg, S...>::load(I i) const
+        -> decltype(boost::simd::load<boost::simd::pack<dtype>>(this->buffer,
+                                                                i))
     {
       using T = dtype;
-      using vT = typename boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>;
+      using vT = typename boost::simd::pack<T>;
       return boost::simd::load<vT>(buffer, lower[0] + i);
     }
 
@@ -682,7 +676,7 @@ namespace pythonic
     template <class V>
     void numpy_gexpr<Arg, S...>::store(V &&v, long i)
     {
-      boost::simd::store(v, buffer, lower[0] + i);
+      boost::simd::store(v, buffer + lower[0] + i);
     }
 
 #endif

@@ -9,6 +9,8 @@
 #define FUSION_CONS_07172005_0843
 
 #include <boost/fusion/support/config.hpp>
+#include <boost/fusion/support/void.hpp>
+#include <boost/fusion/support/detail/enabler.hpp>
 #include <boost/fusion/container/list/cons_fwd.hpp>
 #include <boost/fusion/support/detail/access.hpp>
 #include <boost/fusion/sequence/intrinsic/begin.hpp>
@@ -23,6 +25,7 @@
 #include <boost/fusion/container/list/detail/value_at_impl.hpp>
 #include <boost/fusion/container/list/detail/empty_impl.hpp>
 #include <boost/type_traits/is_convertible.hpp>
+#include <boost/type_traits/is_base_of.hpp>
 #include <boost/utility/enable_if.hpp>
 #include <boost/fusion/support/sequence_base.hpp>
 #include <boost/fusion/support/is_sequence.hpp>
@@ -33,7 +36,6 @@
 
 namespace boost { namespace fusion
 {
-    struct void_;
     struct cons_tag;
     struct forward_traversal_tag;
     struct fusion_sequence_tag;
@@ -73,14 +75,16 @@ namespace boost { namespace fusion
             : car(rhs.car), cdr(rhs.cdr) {}
 
         template <typename Sequence>
-        BOOST_CONSTEXPR BOOST_FUSION_GPU_ENABLED
+        BOOST_FUSION_GPU_ENABLED
         cons(
             Sequence const& seq
           , typename boost::enable_if<
                 mpl::and_<
                     traits::is_sequence<Sequence>
+                  , mpl::not_<is_base_of<cons, Sequence> >
                   , mpl::not_<is_convertible<Sequence, Car> > > // use copy to car instead
-            >::type* /*dummy*/ = 0
+              , detail::enabler_
+            >::type = detail::enabler
         )
             : car(*fusion::begin(seq))
             , cdr(fusion::next(fusion::begin(seq)), mpl::true_()) {}

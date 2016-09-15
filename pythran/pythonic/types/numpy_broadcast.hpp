@@ -3,12 +3,6 @@
 
 #include "pythonic/include/types/numpy_broadcast.hpp"
 
-#ifdef USE_BOOST_SIMD
-#include <boost/simd/sdk/simd/native.hpp>
-#include <boost/simd/include/functions/load.hpp>
-#include <boost/simd/include/functions/store.hpp>
-#endif
-
 #include "pythonic/types/vectorizable_type.hpp"
 #include "pythonic/types/nditerator.hpp"
 #include "pythonic/types/tuple.hpp"
@@ -103,8 +97,7 @@ namespace pythonic
     template <class V>
     broadcast_base<dtype, true>::broadcast_base(V v)
         : _value(v),
-          _splated(boost::simd::splat<
-              boost::simd::native<dtype, BOOST_SIMD_DEFAULT_EXTENSION>>(_value))
+          _splated(boost::simd::splat<boost::simd::pack<dtype>>(_value))
     {
     }
 

@@ -7,8 +7,6 @@
 #include "pythonic/include/numpy/isnan.hpp"
 
 #include <limits>
-#include <nt2/include/functions/is_inf.hpp>
-#include <nt2/include/functions/is_positive.hpp>
 
 namespace pythonic
 {

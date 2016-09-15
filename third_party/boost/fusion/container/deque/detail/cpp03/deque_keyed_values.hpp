@@ -24,7 +24,6 @@
 
 #include <boost/mpl/plus.hpp>
 #include <boost/mpl/int.hpp>
-#include <boost/mpl/print.hpp>
 
 #define FUSION_VOID(z, n, _) void_
 

@@ -6,7 +6,7 @@
 #include "pythonic/include/types/numpy_broadcast.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
 
-#include <nt2/include/functions/copysign.hpp>
+#include <boost/simd/function/copysign.hpp>
 
 namespace pythonic
 {
@@ -14,7 +14,7 @@ namespace pythonic
   namespace numpy
   {
 #define NUMPY_NARY_FUNC_NAME copysign
-#define NUMPY_NARY_FUNC_SYM nt2::copysign
+#define NUMPY_NARY_FUNC_SYM boost::simd::copysign
 #include "pythonic/include/types/numpy_nary_expr.hpp"
   }
 }

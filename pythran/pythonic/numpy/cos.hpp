@@ -6,23 +6,27 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
-#include <nt2/include/functions/cos.hpp>
-
-namespace nt2
-{
-  double cos(long l)
-  {
-    return cos(static_cast<double>(l));
-  }
-}
 
 namespace pythonic
 {
 
   namespace numpy
   {
+    namespace wrapper
+    {
+      double cos(long const &v)
+      {
+        return cos(static_cast<double>(v));
+      }
+      template <class T>
+      auto cos(T const &v) -> decltype(boost::simd::cos(v))
+      {
+        return boost::simd::cos(v);
+      }
+    }
+
 #define NUMPY_NARY_FUNC_NAME cos
-#define NUMPY_NARY_FUNC_SYM nt2::cos
+#define NUMPY_NARY_FUNC_SYM wrapper::cos
 #include "pythonic/types/numpy_nary_expr.hpp"
   }
 }

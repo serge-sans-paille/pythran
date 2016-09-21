@@ -6,15 +6,13 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
 
-#include <nt2/include/functions/conj.hpp>
-
 namespace pythonic
 {
 
   namespace numpy
   {
 #define NUMPY_NARY_FUNC_NAME conjugate
-#define NUMPY_NARY_FUNC_SYM nt2::conj
+#define NUMPY_NARY_FUNC_SYM wrapper::conjugate
 #include "pythonic/types/numpy_nary_expr.hpp"
   }
 }

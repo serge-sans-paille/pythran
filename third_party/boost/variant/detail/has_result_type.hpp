@@ -3,7 +3,7 @@
 // See http://www.boost.org for updates, documentation, and revision history.
 //-----------------------------------------------------------------------------
 //
-// Copyright (c) 2014 Antony Polukhin
+// Copyright (c) 2014-2015 Antony Polukhin
 //
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE_1_0.txt or copy at
@@ -13,6 +13,7 @@
 #define BOOST_VARIANT_DETAIL_HAS_RESULT_TYPE_HPP
 
 #include "boost/config.hpp"
+#include "boost/type_traits/remove_reference.hpp"
 
 
 namespace boost { namespace detail { namespace variant {
@@ -23,7 +24,7 @@ private:
     typedef char                      yes;
     typedef struct { char array[2]; } no;
 
-    template<typename C> static yes test(typename C::result_type*);
+    template<typename C> static yes test(typename boost::remove_reference<typename C::result_type>::type*);
     template<typename C> static no  test(...);
 
 public:

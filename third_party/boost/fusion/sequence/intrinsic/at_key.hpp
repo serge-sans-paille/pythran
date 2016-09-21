@@ -11,10 +11,15 @@
 #include <boost/fusion/support/config.hpp>
 #include <boost/type_traits/is_const.hpp>
 #include <boost/fusion/sequence/intrinsic_fwd.hpp>
+#include <boost/fusion/sequence/intrinsic/has_key.hpp>
 #include <boost/fusion/algorithm/query/find.hpp>
 #include <boost/fusion/iterator/deref_data.hpp>
 #include <boost/fusion/support/tag_of.hpp>
+#include <boost/fusion/support/category_of.hpp>
 #include <boost/fusion/support/detail/access.hpp>
+#include <boost/mpl/empty_base.hpp>
+#include <boost/mpl/if.hpp>
+#include <boost/mpl/or.hpp>
 
 namespace boost { namespace fusion
 {
@@ -64,12 +69,26 @@ namespace boost { namespace fusion
         struct at_key_impl<std_pair_tag>;
     }
 
+    namespace detail
+    {
+        template <typename Sequence, typename Key, typename Tag>
+        struct at_key_impl
+            : mpl::if_<
+                  mpl::or_<
+                      typename extension::has_key_impl<Tag>::template apply<Sequence, Key>
+                    , traits::is_unbounded<Sequence>
+                  >
+                , typename extension::at_key_impl<Tag>::template apply<Sequence, Key>
+                , mpl::empty_base
+              >::type
+        {};
+    }
+
     namespace result_of
     {
         template <typename Sequence, typename Key>
         struct at_key
-            : extension::at_key_impl<typename detail::tag_of<Sequence>::type>::
-                template apply<Sequence, Key>
+            : detail::at_key_impl<Sequence, Key, typename detail::tag_of<Sequence>::type>
         {};
     }
 

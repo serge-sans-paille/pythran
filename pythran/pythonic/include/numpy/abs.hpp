@@ -6,24 +6,36 @@
 #include "pythonic/include/utils/numpy_traits.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-#include <nt2/sdk/complex/complex.hpp>
-#include <nt2/include/functions/abs.hpp>
-
-// nt2 does not handle bool specialization, which is indeed a corner case...
-namespace nt2
-{
-  constexpr bool abs(bool v);
-}
+#include <boost/simd/function/abs.hpp>
 
 namespace pythonic
 {
 
   namespace numpy
   {
+    namespace wrapper
+    {
+      // boost simd does not handle bool specialization, which is indeed a
+      // corner case...
+      template <class T>
+      auto abs(T const &v) -> decltype(boost::simd::abs(v))
+      {
+        return boost::simd::abs(v);
+      }
+      constexpr bool abs(bool const &v)
+      {
+        return v;
+      }
+      template <class T>
+      T abs(std::complex<T> const v)
+      {
+        return std::abs(v);
+      }
+    }
 
 #define NUMPY_NARY_FUNC_NAME abs
 #ifdef USE_BOOST_SIMD
-#define NUMPY_NARY_FUNC_SYM nt2::abs
+#define NUMPY_NARY_FUNC_SYM wrapper::abs
 #else
 #define NUMPY_NARY_FUNC_SYM std::abs
 #endif

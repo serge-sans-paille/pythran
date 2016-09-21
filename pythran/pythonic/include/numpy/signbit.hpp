@@ -4,7 +4,6 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
-#include <nt2/include/functions/bitofsign.hpp>
 
 namespace pythonic
 {

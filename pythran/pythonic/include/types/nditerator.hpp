@@ -3,7 +3,7 @@
 
 #include <iterator>
 #ifdef USE_BOOST_SIMD
-#include <boost/simd/sdk/simd/native.hpp>
+#include <boost/simd/pack.hpp>
 #endif
 
 namespace pythonic
@@ -72,11 +72,8 @@ namespace pythonic
       E const &data;
       long index;
 
-      using vector_type =
-          typename boost::simd::native<typename E::dtype,
-                                       BOOST_SIMD_DEFAULT_EXTENSION>;
-      static const std::size_t vector_size =
-          boost::simd::meta::cardinal_of<vector_type>::value;
+      using vector_type = typename boost::simd::pack<typename E::dtype>;
+      static const std::size_t vector_size = vector_type::static_size;
 
       const_simd_nditerator(E const &data, long index);
 

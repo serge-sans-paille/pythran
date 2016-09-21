@@ -6,7 +6,7 @@
 #include "pythonic/include/utils/functor.hpp"
 
 #ifdef USE_BOOST_SIMD
-#include <boost/simd/include/functions/sum.hpp>
+#include <boost/simd/function/sum.hpp>
 #endif
 
 namespace pythonic

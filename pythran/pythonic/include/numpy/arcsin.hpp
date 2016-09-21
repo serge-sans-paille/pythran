@@ -4,20 +4,22 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
-#include <nt2/include/functions/asin.hpp>
-
-namespace nt2
-{
-  double asin(long l);
-}
+#include <boost/simd/function/asin.hpp>
 
 namespace pythonic
 {
 
   namespace numpy
   {
+
+    namespace wrapper
+    {
+      double arcsin(long const &v);
+      template <class T>
+      auto arcsin(T const &v) -> decltype(boost::simd::asin(v));
+    }
 #define NUMPY_NARY_FUNC_NAME arcsin
-#define NUMPY_NARY_FUNC_SYM nt2::asin
+#define NUMPY_NARY_FUNC_SYM wrapper::arcsin
 #include "pythonic/include/types/numpy_nary_expr.hpp"
   }
 }

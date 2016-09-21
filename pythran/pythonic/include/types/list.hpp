@@ -9,6 +9,7 @@
 #include "pythonic/include/utils/int_.hpp"
 #include "pythonic/include/utils/reserve.hpp"
 #include "pythonic/include/types/slice.hpp"
+#include "pythonic/include/types/vectorizable_type.hpp"
 
 #include <iostream>
 #include <vector>
@@ -17,9 +18,9 @@
 #include <iterator>
 
 #ifdef USE_BOOST_SIMD
-#include <boost/simd/sdk/simd/native.hpp>
-#include <boost/simd/include/functions/load.hpp>
-#include <boost/simd/include/functions/store.hpp>
+#include <boost/simd/pack.hpp>
+#include <boost/simd/function/load.hpp>
+#include <boost/simd/function/store.hpp>
 #endif
 
 namespace pythonic
@@ -164,7 +165,7 @@ namespace pythonic
       // minimal ndarray interface
       typedef typename utils::nested_container_value_type<list>::type dtype;
       static const size_t value = utils::nested_container_depth<list>::value;
-      static const bool is_vectorizable = true;
+      static const bool is_vectorizable = types::is_vectorizable<dtype>::value;
       static const bool is_strided = false;
 
       // constructors
@@ -226,9 +227,9 @@ namespace pythonic
       using simd_iterator = const_simd_nditerator<list>;
       simd_iterator vbegin() const;
       simd_iterator vend() const;
-      auto load(long i) const -> decltype(boost::simd::load<
-          boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>>((*this->data),
-                                                                i));
+      auto load(long i) const
+          -> decltype(boost::simd::load<boost::simd::pack<T>>((*this->data),
+                                                              i));
       template <class V>
       void store(V &&v, long i);
 #endif

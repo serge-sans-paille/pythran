@@ -5,9 +5,6 @@
 
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/operator_/overloads.hpp"
-#ifdef USE_BOOST_SIMD
-#include <nt2/include/functions/multiplies.hpp>
-#endif
 
 namespace pythonic
 {

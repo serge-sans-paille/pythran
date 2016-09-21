@@ -4,19 +4,15 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
-#include <nt2/include/functions/sin.hpp>
+#include <boost/simd/function/sin.hpp>
 
-namespace nt2
-{
-  double sin(long l);
-}
 namespace pythonic
 {
 
   namespace numpy
   {
 #define NUMPY_NARY_FUNC_NAME sin
-#define NUMPY_NARY_FUNC_SYM nt2::sin
+#define NUMPY_NARY_FUNC_SYM boost::simd::sin
 #include "pythonic/include/types/numpy_nary_expr.hpp"
   }
 }

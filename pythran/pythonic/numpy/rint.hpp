@@ -6,7 +6,7 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
-#include <nt2/include/functions/iround2even.hpp>
+#include <boost/simd/function/inearbyint.hpp>
 
 namespace pythonic
 {
@@ -15,11 +15,10 @@ namespace pythonic
   {
     namespace wrapper
     {
-
       template <class T>
       T rint(T const &v)
       {
-        return nt2::iround2even(v);
+        return boost::simd::inearbyint(v);
       }
     }
 #define NUMPY_NARY_FUNC_NAME rint

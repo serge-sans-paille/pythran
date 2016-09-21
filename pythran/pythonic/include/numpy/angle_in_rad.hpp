@@ -19,7 +19,7 @@ namespace pythonic
     {
       template <class T>
       auto angle_in_rad(T const &t)
-          -> decltype(nt2::atan(std::imag(t) / std::real(t)));
+          -> decltype(boost::simd::atan(std::imag(t) / std::real(t)));
     }
 #define NUMPY_NARY_FUNC_NAME angle_in_rad
 #define NUMPY_NARY_FUNC_SYM wrapper::angle_in_rad

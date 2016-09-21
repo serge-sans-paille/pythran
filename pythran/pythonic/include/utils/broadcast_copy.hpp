@@ -2,9 +2,6 @@
 #define PYTHONIC_INCLUDE_UTILS_BROADCAST_COPY_HPP
 
 #include "pythonic/include/types/tuple.hpp"
-#ifdef USE_BOOST_SIMD
-#include <boost/simd/sdk/simd/native.hpp>
-#endif
 
 #ifdef _OPENMP
 #include <omp.h>

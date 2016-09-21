@@ -8,8 +8,7 @@
 #include "pythonic/types/numpy_expr.hpp"
 #include "pythonic/types/traits.hpp"
 
-#include <nt2/linalg/details/blas/mm.hpp>
-#include <nt2/linalg/details/blas/mv.hpp>
+#include <cblas.h>
 
 namespace pythonic
 {
@@ -36,33 +35,71 @@ namespace pythonic
       return sum(types::numpy_expr<operator_::functor::mul, E, F>(e, f));
     }
 
-    /// Matrice / Vector multiplication
+/// Matrice / Vector multiplication
 
-    // We transpose the matrix to reflect our C order
+#define MV_DEF(T, L)                                                           \
+  void mv(int m, int n, T *A, T *B, T *C)                                      \
+  {                                                                            \
+    cblas_##L##gemv(CblasRowMajor, CblasNoTrans, n, m, 1, A, m, B, 1, 0, C,    \
+                    1);                                                        \
+  }
+
+    MV_DEF(double, d)
+    MV_DEF(float, s)
+
+#undef MV_DEF
+#define MV_DEF(T, L)                                                           \
+  void mv(int m, int n, T *A, T *B, T *C)                                      \
+  {                                                                            \
+    T alpha = 1, beta = 0;                                                     \
+    cblas_##L##gemv(CblasRowMajor, CblasNoTrans, n, m, &alpha, A, m, B, 1,     \
+                    &beta, C, 1);                                              \
+  }
+    MV_DEF(std::complex<float>, c)
+    MV_DEF(std::complex<double>, z)
+#undef MV_DEF
+
     template <class E>
     typename std::enable_if<is_blas_type<E>::value, types::ndarray<E, 1>>::type
         dot(types::ndarray<E, 2> const &f, types::ndarray<E, 1> const &e)
     {
       types::ndarray<E, 1> out(types::array<long, 1>{{f.shape()[0]}},
                                __builtin__::None);
-      E al = 1, be = 0;
-      const int m = f.shape()[1], n = f.shape()[0], inc = 1;
-      nt2::details::gemv("T", &m, &n, &al, f.buffer, &m, e.buffer, &inc, &be,
-                         out.buffer, &inc);
+      const int m = f.shape()[1], n = f.shape()[0];
+      mv(m, n, f.buffer, e.buffer, out.buffer);
       return out;
     }
 
-    // The trick is to not transpose the matrix so that MV become VM
+// The trick is to not transpose the matrix so that MV become VM
+#define VM_DEF(T, L)                                                           \
+  void vm(int m, int n, T *A, T *B, T *C)                                      \
+  {                                                                            \
+    cblas_##L##gemv(CblasRowMajor, CblasTrans, n, m, 1, A, m, B, 1, 0, C, 1);  \
+  }
+
+    VM_DEF(double, d)
+    VM_DEF(float, s)
+
+#undef VM_DEF
+#define VM_DEF(T, L)                                                           \
+  void vm(int m, int n, T *A, T *B, T *C)                                      \
+  {                                                                            \
+    T alpha = 1, beta = 0;                                                     \
+    cblas_##L##gemv(CblasRowMajor, CblasTrans, n, m, &alpha, A, m, B, 1,       \
+                    &beta, C, 1);                                              \
+  }
+    VM_DEF(std::complex<float>, c)
+    VM_DEF(std::complex<double>, z)
+#undef VM_DEF
+
     template <class E>
     typename std::enable_if<is_blas_type<E>::value, types::ndarray<E, 1>>::type
         dot(types::ndarray<E, 1> const &e, types::ndarray<E, 2> const &f)
     {
       types::ndarray<E, 1> out(types::array<long, 1>{{f.shape()[1]}},
                                __builtin__::None);
-      E al = 1, be = 0;
-      const int m = f.shape()[1], n = f.shape()[0], inc = 1;
-      nt2::details::gemv("N", &m, &n, &al, f.buffer, &m, e.buffer, &inc, &be,
-                         out.buffer, &inc);
+      const int m = f.shape()[1], n = f.shape()[0];
+      vm(m, n, f.buffer, e.buffer, out.buffer);
       return out;
     }
 
@@ -162,22 +199,37 @@ namespace pythonic
       return out;
     }
 
-    /// Matrix / Matrix multiplication
+/// Matrix / Matrix multiplication
 
-    // The trick is to use the transpose arguments to reflect C order.
-    // We want to perform A * B in C order but blas order is F order.
-    // So we compute B'A' == (AB)'. As this equality is perform with F order
-    // We doesn't have to return a texpr because we want a C order matrice!!
+#define MM_DEF(T, L)                                                           \
+  void mm(int m, int n, int k, T *A, T *B, T *C)                               \
+  {                                                                            \
+    cblas_##L##gemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, m, n, k, 1, A,  \
+                    k, B, n, 0, C, n);                                         \
+  }
+    MM_DEF(double, d)
+    MM_DEF(float, s)
+#undef MM_DEF
+#define MM_DEF(T, L)                                                           \
+  void mm(int m, int n, int k, T *A, T *B, T *C)                               \
+  {                                                                            \
+    T alpha = 1, beta = 0;                                                     \
+    cblas_##L##gemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, m, n, k,        \
+                    &alpha, A, k, B, n, &beta, C, n);                          \
+  }
+    MM_DEF(std::complex<float>, c)
+    MM_DEF(std::complex<double>, z)
+#undef MM_DEF
+
     template <class E>
     typename std::enable_if<is_blas_type<E>::value, types::ndarray<E, 2>>::type
         dot(types::ndarray<E, 2> const &a, types::ndarray<E, 2> const &b)
     {
-      E al = 1, be = 0;
       int m = b.shape()[1], n = a.shape()[0], k = b.shape()[0];
+
       types::ndarray<E, 2> out(types::array<long, 2>{{m, n}},
                                __builtin__::None);
-      nt2::details::gemm("N", "N", &m, &n, &k, &al, b.buffer, &m, a.buffer, &k,
-                         &be, out.buffer, &m);
+      mm(m, n, k, a.buffer, b.buffer, out.buffer);
       return out;
     }
 

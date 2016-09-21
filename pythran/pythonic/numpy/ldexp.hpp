@@ -7,7 +7,8 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/numpy_broadcast.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
-#include <nt2/include/functions/ldexp.hpp>
+
+#include <boost/simd/function/ldexp.hpp>
 
 namespace pythonic
 {
@@ -19,7 +20,7 @@ namespace pythonic
       template <class T, class U>
       double ldexp(T const &v, U const &u)
       {
-        return nt2::ldexp(v, u);
+        return boost::simd::ldexp(v, u);
       }
     }
 

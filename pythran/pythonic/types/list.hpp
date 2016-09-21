@@ -372,20 +372,15 @@ namespace pythonic
     template <class T>
     typename list<T>::simd_iterator list<T>::vend() const
     {
-      using vector_type =
-          typename boost::simd::native<dtype, BOOST_SIMD_DEFAULT_EXTENSION>;
-      static const std::size_t vector_size =
-          boost::simd::meta::cardinal_of<vector_type>::value;
+      using vector_type = typename boost::simd::pack<dtype>;
+      static const std::size_t vector_size = vector_type::static_size;
       return {*this, long(size() / vector_size * vector_size)};
     }
     template <class T>
-    auto list<T>::load(long i) const -> decltype(
-        boost::simd::load<boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>>(
-            (*this->data), i))
+    auto list<T>::load(long i) const
+        -> decltype(boost::simd::load<boost::simd::pack<T>>((*this->data), i))
     {
-      return boost::simd::load<
-          boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>>(data->data(),
-                                                                i);
+      return boost::simd::load<boost::simd::pack<T>>(data->data(), i);
     }
     template <class T>
     template <class V>

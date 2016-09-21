@@ -6,7 +6,7 @@
 #include "pythonic/numpy/rint.hpp"
 #include "pythonic/numpy/power.hpp"
 #include "pythonic/numpy/asarray.hpp"
-#include <nt2/include/functions/pow.hpp>
+#include <boost/simd/function/pow.hpp>
 
 namespace pythonic
 {
@@ -28,7 +28,8 @@ namespace pythonic
                      a *std::declval<typename types::dtype_of<E>::type>()) /
                  std::declval<typename types::dtype_of<E>::type>())>::type
     {
-      typename types::dtype_of<E>::type const fact = nt2::pow(10., decimals);
+      typename types::dtype_of<E>::type const fact =
+          boost::simd::pow(10., decimals);
       return functor::rint{}(a * fact) / fact;
     }
 
@@ -40,7 +41,7 @@ namespace pythonic
                  std::declval<typename types::dtype_of<E>::type>())>::type
     {
       typename types::dtype_of<E>::type const fact =
-          nt2::pow(10L, std::max(0L, -decimals));
+          boost::simd::pow(10L, std::max(0L, -decimals));
       return (a / fact) * fact;
     }
     // list version

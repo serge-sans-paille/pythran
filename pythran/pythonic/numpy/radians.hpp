@@ -6,7 +6,6 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
-#include <nt2/include/functions/inrad.hpp>
 
 namespace pythonic
 {
@@ -14,7 +13,7 @@ namespace pythonic
   namespace numpy
   {
 #define NUMPY_NARY_FUNC_NAME radians
-#define NUMPY_NARY_FUNC_SYM nt2::inrad
+#define NUMPY_NARY_FUNC_SYM boost::simd::inrad
 #include "pythonic/types/numpy_nary_expr.hpp"
   }
 }

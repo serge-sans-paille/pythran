@@ -8,9 +8,6 @@
 #include "pythonic/utils/numpy_traits.hpp"
 #include "pythonic/types/numpy_broadcast.hpp"
 
-#include <nt2/include/functions/log.hpp>
-#include <nt2/include/functions/exp.hpp>
-
 namespace pythonic
 {
 
@@ -20,9 +17,10 @@ namespace pythonic
     {
       template <class T0, class T1>
       auto logaddexp(T0 const &t0, T1 const &t1)
-          -> decltype(nt2::log(nt2::exp(t0) + nt2::exp(t1)))
+          -> decltype(boost::simd::log(boost::simd::exp(t0) +
+                                       boost::simd::exp(t1)))
       {
-        return nt2::log(nt2::exp(t0) + nt2::exp(t1));
+        return boost::simd::log(boost::simd::exp(t0) + boost::simd::exp(t1));
       }
     }
 

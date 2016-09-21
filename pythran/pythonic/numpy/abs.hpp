@@ -5,15 +5,6 @@
 
 #include "pythonic/utils/functor.hpp"
 
-// nt2 does not handle bool specialization, which is indeed a corner case...
-namespace nt2
-{
-  constexpr bool abs(bool v)
-  {
-    return v;
-  }
-}
-
 namespace pythonic
 {
 
@@ -22,7 +13,7 @@ namespace pythonic
 
 #define NUMPY_NARY_FUNC_NAME abs
 #ifdef USE_BOOST_SIMD
-#define NUMPY_NARY_FUNC_SYM nt2::abs
+#define NUMPY_NARY_FUNC_SYM wrapper::abs
 #else
 #define NUMPY_NARY_FUNC_SYM std::abs
 #endif

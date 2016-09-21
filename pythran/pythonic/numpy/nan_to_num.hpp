@@ -9,8 +9,8 @@
 #include "pythonic/numpy/isnan.hpp"
 
 #include <limits>
-#include <nt2/include/functions/is_inf.hpp>
-#include <nt2/include/functions/is_positive.hpp>
+#include <boost/simd/function/is_inf.hpp>
+#include <boost/simd/function/is_positive.hpp>
 
 namespace pythonic
 {
@@ -23,8 +23,8 @@ namespace pythonic
       template <class I>
       I nan_to_num(I const &a)
       {
-        if (nt2::is_inf(a)) {
-          if (nt2::is_positive(a))
+        if (boost::simd::is_inf(a)) {
+          if (boost::simd::is_positive(a))
             return std::numeric_limits<I>::max();
           else
             return std::numeric_limits<I>::lowest();

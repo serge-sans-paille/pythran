@@ -6,7 +6,6 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
-#include <nt2/include/functions/log.hpp>
 
 namespace pythonic
 {
@@ -14,7 +13,7 @@ namespace pythonic
   namespace numpy
   {
 #define NUMPY_NARY_FUNC_NAME log
-#define NUMPY_NARY_FUNC_SYM nt2::log
+#define NUMPY_NARY_FUNC_SYM boost::simd::log
 #include "pythonic/types/numpy_nary_expr.hpp"
   }
 }

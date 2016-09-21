@@ -8,11 +8,6 @@
 #include "pythonic/__builtin__/ValueError.hpp"
 #include "pythonic/utils/neutral.hpp"
 
-#ifdef USE_BOOST_SIMD
-#include <boost/simd/include/functions/broadcast.hpp>
-#include <boost/simd/memory/functions/aligned_store.hpp>
-#endif
-
 #include <algorithm>
 
 namespace pythonic
@@ -49,9 +44,8 @@ namespace pythonic
       F operator()(E e, F acc)
       {
         using T = typename E::dtype;
-        using vT =
-            typename boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>;
-        static const size_t vN = boost::simd::meta::cardinal_of<vT>::value;
+        using vT = boost::simd::pack<T>;
+        static const size_t vN = vT::static_size;
         const long n = e.size();
         auto viter = e.vbegin(), vend = e.vend();
         const long bound = std::distance(viter, vend);

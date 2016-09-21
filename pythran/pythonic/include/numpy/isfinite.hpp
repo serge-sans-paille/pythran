@@ -5,13 +5,7 @@
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
 
-#include <nt2/include/functions/is_finite.hpp>
-
-// nt2 does not handle bool specialization, which is indeed a corner case...
-namespace nt2
-{
-  constexpr bool is_finite(bool);
-}
+#include <boost/simd/function/is_finite.hpp>
 
 namespace pythonic
 {
@@ -21,7 +15,15 @@ namespace pythonic
     namespace wrapper
     {
       template <class T>
-      bool isfinite(T const &v);
+      bool isfinite(std::complex<T> const &t)
+      {
+        return std::isfinite(t.real()) and std::isfinite(t.imag());
+      }
+      template <class T>
+      bool isfinite(T const &v)
+      {
+        return boost::simd::is_finite(v);
+      }
     }
 
 #define NUMPY_NARY_FUNC_NAME isfinite

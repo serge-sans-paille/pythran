@@ -22,10 +22,10 @@ namespace pythonic
     {
       template <class T>
       auto angle_in_rad(T const &t)
-          -> decltype(nt2::atan(std::imag(t) / std::real(t)))
+          -> decltype(boost::simd::atan(std::imag(t) / std::real(t)))
       {
         if (std::real(t))
-          return nt2::atan(std::imag(t) / std::real(t));
+          return boost::simd::atan(std::imag(t) / std::real(t));
         else
           return pythonic::numpy::pi / 2;
       }

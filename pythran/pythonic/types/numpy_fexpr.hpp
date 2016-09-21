@@ -185,10 +185,8 @@ namespace pythonic
     typename numpy_fexpr<Arg, F>::simd_iterator
     numpy_fexpr<Arg, F>::vend() const
     {
-      using vector_type =
-          typename boost::simd::native<dtype, BOOST_SIMD_DEFAULT_EXTENSION>;
-      static const std::size_t vector_size =
-          boost::simd::meta::cardinal_of<vector_type>::value;
+      using vector_type = typename boost::simd::pack<dtype>;
+      static const std::size_t vector_size = vector_type::static_size;
       return {*this, long(_shape[0] / vector_size * vector_size)};
     }
     template <class Arg, class F>

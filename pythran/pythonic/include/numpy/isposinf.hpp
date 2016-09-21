@@ -5,9 +5,6 @@
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
 
-#include <nt2/include/functions/is_inf.hpp>
-#include <nt2/include/functions/is_positive.hpp>
-
 namespace pythonic
 {
 

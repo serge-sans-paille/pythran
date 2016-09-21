@@ -23,6 +23,16 @@ namespace pythonic
   {
     return PyInt_AsLong(obj);
   }
+
+  template <class T>
+  PyObject *
+  to_python<boost::simd::logical<T>>::convert(boost::simd::logical<T> b)
+  {
+    if (b)
+      Py_RETURN_TRUE;
+    else
+      Py_RETURN_FALSE;
+  }
 }
 
 #endif

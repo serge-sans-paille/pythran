@@ -4,9 +4,6 @@
 #include "pythonic/include/utils/broadcast_copy.hpp"
 
 #include "pythonic/types/tuple.hpp"
-#ifdef USE_BOOST_SIMD
-#include <boost/simd/sdk/simd/native.hpp>
-#endif
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -87,13 +84,13 @@ namespace pythonic
     void _broadcast_copy<true, 1, 0>::operator()(E &&self, F const &other)
     {
       using T = typename F::dtype;
-      using vT = typename boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>;
+      using vT = typename boost::simd::pack<T>;
       long self_size = std::distance(self.begin(), self.end()),
            other_size = std::distance(other.begin(), other.end());
 
       if (other_size > 0) // empty array sometimes happen when filtering
       {
-        static const std::size_t vN = boost::simd::meta::cardinal_of<vT>::value;
+        static const std::size_t vN = vT::static_size;
         auto oiter = other.vbegin();
         const long bound = std::distance(other.vbegin(), other.vend());
 
@@ -216,13 +213,13 @@ namespace pythonic
     void _broadcast_update<Op, true, 1, 0>::operator()(E &&self, F const &other)
     {
       using T = typename F::dtype;
-      using vT = typename boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>;
+      using vT = typename boost::simd::pack<T>;
       long self_size = std::distance(self.begin(), self.end()),
            other_size = std::distance(other.begin(), other.end());
 
       if (other_size > 0) // empty array sometimes happen when filtering
       {
-        static const std::size_t vN = boost::simd::meta::cardinal_of<vT>::value;
+        static const std::size_t vN = vT::static_size;
         auto oiter = other.vbegin();
         const long bound = std::distance(other.vbegin(), other.vend());
 

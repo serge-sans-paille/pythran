@@ -61,14 +61,6 @@
 #include "numpy/arrayobject.h"
 #endif
 
-#include <boost/simd/sdk/simd/logical.hpp>
-
-#ifdef USE_BOOST_SIMD
-#include <boost/simd/sdk/simd/native.hpp>
-#include <boost/simd/include/functions/load.hpp>
-#include <boost/simd/include/functions/store.hpp>
-#endif
-
 namespace pythonic
 {
 
@@ -344,8 +336,9 @@ namespace pythonic
     void ndarray<T, N>::initialize_from_expr(E const &expr)
     {
       utils::broadcast_copy<ndarray &, E, value, 0,
-                            is_vectorizable and E::is_vectorizable>(*this,
-                                                                    expr);
+                            is_vectorizable and E::is_vectorizable and
+                                std::is_same<dtype, typename E::dtype>::value>(
+          *this, expr);
     }
 
     template <class T, size_t N>
@@ -544,26 +537,22 @@ namespace pythonic
     template <class T, size_t N>
     typename ndarray<T, N>::simd_iterator ndarray<T, N>::vend() const
     {
-      using vector_type =
-          typename boost::simd::native<dtype, BOOST_SIMD_DEFAULT_EXTENSION>;
-      static const std::size_t vector_size =
-          boost::simd::meta::cardinal_of<vector_type>::value;
+      using vector_type = typename boost::simd::pack<dtype>;
+      static const std::size_t vector_size = vector_type::static_size;
       return {*this, long(_shape[0] / vector_size * vector_size)};
     }
     template <class T, size_t N>
-    auto ndarray<T, N>::load(long i) const -> decltype(
-        boost::simd::load<boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>>(
-            buffer, i))
+    auto ndarray<T, N>::load(long i) const
+        -> decltype(boost::simd::load<boost::simd::pack<T>>(buffer, i))
     {
-      return boost::simd::load<
-          boost::simd::native<T, BOOST_SIMD_DEFAULT_EXTENSION>>(buffer, i);
+      return boost::simd::load<boost::simd::pack<T>>(buffer, i);
     }
 
     template <class T, size_t N>
     template <class V>
     void ndarray<T, N>::store(V &&v, long i)
     {
-      boost::simd::store(v, buffer, i);
+      boost::simd::store(v, buffer + i);
     }
 #endif
 

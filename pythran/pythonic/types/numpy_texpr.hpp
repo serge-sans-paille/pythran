@@ -76,13 +76,17 @@ namespace pythonic
 
 #ifdef USE_BOOST_SIMD
     template <class E>
-    typename numpy_texpr_2<E>::simd_iterator numpy_texpr_2<E>::vbegin() const
+    template <class vectorizer>
+    typename numpy_texpr_2<E>::simd_iterator
+        numpy_texpr_2<E>::vbegin(vectorizer) const
     {
       return {*this, 0};
     }
 
     template <class E>
-    typename numpy_texpr_2<E>::simd_iterator numpy_texpr_2<E>::vend() const
+    template <class vectorizer>
+    typename numpy_texpr_2<E>::simd_iterator
+        numpy_texpr_2<E>::vend(vectorizer) const
     {
       return {*this, 0}; // not vectorizable anyway
     }

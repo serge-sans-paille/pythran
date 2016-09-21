@@ -364,13 +364,15 @@ namespace pythonic
 // element access
 #ifdef USE_BOOST_SIMD
     template <class T>
-    typename list<T>::simd_iterator list<T>::vbegin() const
+    template <class vectorizer>
+    typename list<T>::simd_iterator list<T>::vbegin(vectorizer) const
     {
       return {*this, 0};
     }
 
     template <class T>
-    typename list<T>::simd_iterator list<T>::vend() const
+    template <class vectorizer>
+    typename list<T>::simd_iterator list<T>::vend(vectorizer) const
     {
       using vector_type = typename boost::simd::pack<dtype>;
       static const std::size_t vector_size = vector_type::static_size;

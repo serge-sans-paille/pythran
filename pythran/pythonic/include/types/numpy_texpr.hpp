@@ -67,8 +67,11 @@ namespace pythonic
 
 #ifdef USE_BOOST_SIMD
       using simd_iterator = const_simd_nditerator<numpy_texpr_2>;
-      simd_iterator vbegin() const;
-      simd_iterator vend() const;
+      using simd_iterator_nobroadcast = simd_iterator;
+      template <class vectorizer>
+      simd_iterator vbegin(vectorizer) const;
+      template <class vectorizer>
+      simd_iterator vend(vectorizer) const;
       template <class I>
       void load(I) const;
 #endif

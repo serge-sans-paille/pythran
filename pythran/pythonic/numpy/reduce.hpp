@@ -15,7 +15,7 @@ namespace pythonic
 
   namespace numpy
   {
-    template <class Op, size_t N, bool vector_form>
+    template <class Op, size_t N, class vector_form>
     struct _reduce {
       template <class E, class F>
       F operator()(E e, F acc)
@@ -26,7 +26,7 @@ namespace pythonic
       }
     };
 
-    template <class Op, bool vector_form>
+    template <class Op, class vector_form>
     struct _reduce<Op, 1, vector_form> {
       template <class E, class F>
       F operator()(E e, F acc)
@@ -38,37 +38,73 @@ namespace pythonic
     };
 
 #ifdef USE_BOOST_SIMD
+    template <class vectorizer, class Op, class E, class F>
+    F vreduce(E e, F acc)
+    {
+      using T = typename E::dtype;
+      using vT = boost::simd::pack<T>;
+      static const size_t vN = vT::static_size;
+      const long n = e.size();
+      auto viter = vectorizer::vbegin(e), vend = vectorizer::vend(e);
+      const long bound = std::distance(viter, vend);
+      if (bound > 0) {
+        auto vacc = *viter;
+        ++viter;
+        for (long i = 1; i < bound; ++i, ++viter)
+          Op{}(vacc, *viter);
+        alignas(sizeof(vT)) T stored[vN];
+        boost::simd::store(vacc, &stored[0]);
+        for (size_t j = 0; j < vN; ++j)
+          Op{}(acc, stored[j]);
+      }
+      auto iter = e.begin() + bound * vN;
+
+      for (long i = bound * vN; i < n; ++i, ++iter) {
+        Op{}(acc, *iter);
+      }
+      return acc;
+    }
+
     template <class Op>
-    struct _reduce<Op, 1, true> {
+    struct _reduce<Op, 1, types::vectorizer> {
       template <class E, class F>
       F operator()(E e, F acc)
       {
-        using T = typename E::dtype;
-        using vT = boost::simd::pack<T>;
-        static const size_t vN = vT::static_size;
-        const long n = e.size();
-        auto viter = e.vbegin(), vend = e.vend();
-        const long bound = std::distance(viter, vend);
-        ;
-        if (bound > 0) {
-          auto vacc = *viter;
-          ++viter;
-          for (long i = 1; i < bound; ++i, ++viter)
-            Op{}(vacc, *viter);
-          alignas(sizeof(vT)) T stored[vN];
-          boost::simd::store(vacc, &stored[0]);
-          for (size_t j = 0; j < vN; ++j)
-            Op{}(acc, stored[j]);
-        }
-        auto iter = e.begin() + bound * vN;
-
-        for (long i = bound * vN; i < n; ++i, ++iter) {
-          Op{}(acc, *iter);
-        }
-        return acc;
+        return vreduce<types::vectorizer, Op>(e, acc);
+      }
+    };
+    template <class Op>
+    struct _reduce<Op, 1, types::vectorizer_nobroadcast> {
+      template <class E, class F>
+      F operator()(E e, F acc)
+      {
+        return vreduce<types::vectorizer_nobroadcast, Op>(e, acc);
       }
     };
 #endif
+    template <class Op, class E, bool vector_form>
+    struct reduce_helper;
+
+    template <class Op, class E>
+    struct reduce_helper<Op, E, false> {
+      reduce_result_type<E> operator()(E const &expr,
+                                       reduce_result_type<E> p) const
+      {
+        return _reduce<Op, E::value, types::novectorizer>{}(expr, p);
+      }
+    };
+    template <class Op, class E>
+    struct reduce_helper<Op, E, true> {
+      reduce_result_type<E> operator()(E const &expr,
+                                       reduce_result_type<E> p) const
+      {
+        if (utils::no_broadcast(expr))
+          return _reduce<Op, E::value, types::vectorizer_nobroadcast>{}(expr,
+                                                                        p);
+        else
+          return _reduce<Op, E::value, types::vectorizer>{}(expr, p);
+      }
+    };
 
     template <class Op, class E>
     typename std::enable_if<types::is_numexpr_arg<E>::value,
@@ -79,7 +115,7 @@ namespace pythonic
           E::is_vectorizable and
           not std::is_same<typename E::dtype, bool>::value;
       reduce_result_type<E> p = utils::neutral<Op, typename E::dtype>::value;
-      return _reduce<Op, E::value, is_vectorizable>{}(expr, p);
+      return reduce_helper<Op, E, is_vectorizable>{}(expr, p);
     }
 
     template <class Op, class E>
@@ -123,7 +159,7 @@ namespace pythonic
       if (axis == 0) {
         types::array<long, E::value - 1> shp;
         std::copy(shape.begin() + 1, shape.end(), shp.begin());
-        return _reduce<Op, 1, false /* not on scalars*/>{}(
+        return _reduce<Op, 1, types::novectorizer /* not on scalars*/>{}(
             array,
             reduced_type<E>{shp, utils::neutral<Op, typename E::dtype>::value});
       } else {

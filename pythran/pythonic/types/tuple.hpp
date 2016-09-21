@@ -262,13 +262,15 @@ namespace pythonic
 
 #ifdef USE_BOOST_SIMD
     template <class T, size_t N>
-    typename array<T, N>::simd_iterator array<T, N>::vbegin() const
+    template <class vectorizer>
+    typename array<T, N>::simd_iterator array<T, N>::vbegin(vectorizer) const
     {
       return {*this, 0};
     }
 
     template <class T, size_t N>
-    typename array<T, N>::simd_iterator array<T, N>::vend() const
+    template <class vectorizer>
+    typename array<T, N>::simd_iterator array<T, N>::vend(vectorizer) const
     {
       using vector_type = typename boost::simd::pack<dtype>;
       static const std::size_t vector_size = vector_type::static_size;

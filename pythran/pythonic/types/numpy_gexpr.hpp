@@ -647,20 +647,23 @@ namespace pythonic
 
 #ifdef USE_BOOST_SIMD
     template <class Arg, class... S>
+    template <class vectorizer>
     typename numpy_gexpr<Arg, S...>::simd_iterator
-    numpy_gexpr<Arg, S...>::vbegin() const
+        numpy_gexpr<Arg, S...>::vbegin(vectorizer) const
     {
       return {*this, 0};
     }
 
     template <class Arg, class... S>
+    template <class vectorizer>
     typename numpy_gexpr<Arg, S...>::simd_iterator
-    numpy_gexpr<Arg, S...>::vend() const
+        numpy_gexpr<Arg, S...>::vend(vectorizer) const
     {
       using vector_type = typename boost::simd::pack<dtype>;
       static const std::size_t vector_size = vector_type::static_size;
       return {*this, long(_shape[0] / vector_size * vector_size)};
     }
+
     template <class Arg, class... S>
     template <class I>
     auto numpy_gexpr<Arg, S...>::load(I i) const

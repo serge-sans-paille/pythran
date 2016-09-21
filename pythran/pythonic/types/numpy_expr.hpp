@@ -74,6 +74,20 @@ namespace pythonic
 
     template <class Op, class... Args>
     template <int... I>
+    bool numpy_expr<Op, Args...>::_no_broadcast(utils::seq<I...>) const
+    {
+      std::initializer_list<long> nb = {std::get<I>(args).shape()[0]...};
+      return std::all_of(nb.begin(), nb.end(),
+                         [this](long n) { return n == size() || n == 0; });
+    }
+    template <class Op, class... Args>
+    bool numpy_expr<Op, Args...>::no_broadcast() const
+    {
+      return _no_broadcast(typename utils::gens<sizeof...(Args)>::type{});
+    }
+
+    template <class Op, class... Args>
+    template <int... I>
     typename numpy_expr<Op, Args...>::iterator
         numpy_expr<Op, Args...>::_begin(utils::seq<I...>)
     {
@@ -170,37 +184,72 @@ namespace pythonic
     template <class Op, class... Args>
     template <int... I>
     typename numpy_expr<Op, Args...>::simd_iterator
-        numpy_expr<Op, Args...>::_vbegin(utils::seq<I...>) const
+        numpy_expr<Op, Args...>::_vbegin(vectorize, utils::seq<I...>) const
     {
       return {*this,
               {(size() == std::get<I>(args).shape()[0])...},
               std::make_tuple(std::get<I>(args).begin()...),
-              std::get<I>(args).vbegin()...};
+              std::get<I>(args).vbegin(vectorize{})...};
     }
 
     template <class Op, class... Args>
     typename numpy_expr<Op, Args...>::simd_iterator
-    numpy_expr<Op, Args...>::vbegin() const
+        numpy_expr<Op, Args...>::vbegin(vectorize) const
     {
-      return _vbegin(typename utils::gens<sizeof...(Args)>::type{});
+      return _vbegin(vectorize{},
+                     typename utils::gens<sizeof...(Args)>::type{});
     }
 
     template <class Op, class... Args>
     template <int... I>
     typename numpy_expr<Op, Args...>::simd_iterator
-        numpy_expr<Op, Args...>::_vend(utils::seq<I...>) const
+        numpy_expr<Op, Args...>::_vend(vectorize, utils::seq<I...>) const
     {
       return {*this,
               {(size() == std::get<I>(args).shape()[0])...},
               std::make_tuple(std::get<I>(args).end()...),
-              std::get<I>(args).vend()...};
+              std::get<I>(args).vend(vectorize{})...};
     }
 
     template <class Op, class... Args>
     typename numpy_expr<Op, Args...>::simd_iterator
-    numpy_expr<Op, Args...>::vend() const
+        numpy_expr<Op, Args...>::vend(vectorize) const
     {
-      return _vend(typename utils::gens<sizeof...(Args)>::type{});
+      return _vend(vectorize{}, typename utils::gens<sizeof...(Args)>::type{});
+    }
+
+    template <class Op, class... Args>
+    template <int... I>
+    typename numpy_expr<Op, Args...>::simd_iterator_nobroadcast
+        numpy_expr<Op, Args...>::_vbegin(vectorize_nobroadcast,
+                                         utils::seq<I...>) const
+    {
+      return {*this, std::get<I>(args).vbegin(vectorize_nobroadcast{})...};
+    }
+
+    template <class Op, class... Args>
+    typename numpy_expr<Op, Args...>::simd_iterator_nobroadcast
+        numpy_expr<Op, Args...>::vbegin(vectorize_nobroadcast) const
+    {
+      return _vbegin(vectorize_nobroadcast{},
+                     typename utils::gens<sizeof...(Args)>::type{});
+    }
+
+    template <class Op, class... Args>
+    template <int... I>
+    typename numpy_expr<Op, Args...>::simd_iterator_nobroadcast
+        numpy_expr<Op, Args...>::_vend(vectorize_nobroadcast,
+                                       utils::seq<I...>) const
+    {
+      return {*this, std::get<I>(args).vend(vectorize_nobroadcast{})...};
+    }
+
+    template <class Op, class... Args>
+    typename numpy_expr<Op, Args...>::simd_iterator_nobroadcast
+        numpy_expr<Op, Args...>::vend(vectorize_nobroadcast) const
+    {
+      return _vend(vectorize_nobroadcast{},
+                   typename utils::gens<sizeof...(Args)>::type{});
     }
 
     template <class Op, class... Args>

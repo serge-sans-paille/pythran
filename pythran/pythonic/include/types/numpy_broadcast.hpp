@@ -92,8 +92,11 @@ namespace pythonic
       T const &fast(long i) const;
 #ifdef USE_BOOST_SIMD
       using simd_iterator = const_simd_nditerator<broadcasted>;
-      simd_iterator vbegin() const;
-      simd_iterator vend() const;
+      using simd_iterator_nobroadcast = simd_iterator;
+      template <class vectorizer>
+      simd_iterator vbegin(vectorizer) const;
+      template <class vectorizer>
+      simd_iterator vend(vectorizer) const;
       template <class I> // template to prevent automatic instantiation, but the
       // declaration is still needed
       void load(I) const;
@@ -238,11 +241,14 @@ namespace pythonic
       }
 #ifdef USE_BOOST_SIMD
       using simd_iterator = const_broadcast_iterator<decltype(_base._splated)>;
-      simd_iterator vbegin() const
+      using simd_iterator_nobroadcast = simd_iterator;
+      template <class vectorizer>
+      simd_iterator vbegin(vectorizer) const
       {
         return {_base._splated};
       }
-      simd_iterator vend() const
+      template <class vectorizer>
+      simd_iterator vend(vectorizer) const
       {
         return {_base._splated};
       }

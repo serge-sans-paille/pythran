@@ -43,13 +43,17 @@ namespace pythonic
 
 #ifdef USE_BOOST_SIMD
     template <class T>
-    typename broadcasted<T>::simd_iterator broadcasted<T>::vbegin() const
+    template <class vectorizer>
+    typename broadcasted<T>::simd_iterator
+        broadcasted<T>::vbegin(vectorizer) const
     {
       return {*this, 0};
     }
 
     template <class T>
-    typename broadcasted<T>::simd_iterator broadcasted<T>::vend() const
+    template <class vectorizer>
+    typename broadcasted<T>::simd_iterator
+        broadcasted<T>::vend(vectorizer) const
     {
       return {*this, 0}; // should not happen anyway
     }

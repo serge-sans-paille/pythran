@@ -304,6 +304,91 @@ namespace pythonic
         return _lt(other, utils::int_<sizeof...(Iters)>{});
       }
     };
+
+    template <class E, class Op, class... Iters>
+    struct numpy_expr_simd_iterator_nobroadcast
+        : std::iterator<std::random_access_iterator_tag,
+                        typename std::remove_reference<decltype(std::declval<
+                            Op>()(*std::declval<Iters>()...))>::type> {
+      E const &holder_;
+      std::tuple<Iters...> iters_;
+
+      numpy_expr_simd_iterator_nobroadcast(E const &holder, Iters... iters)
+          : holder_(holder), iters_(iters...)
+      {
+      }
+
+      numpy_expr_simd_iterator_nobroadcast(
+          numpy_expr_simd_iterator_nobroadcast const &other)
+          : holder_{other.holder_}, iters_(other.iters_)
+      {
+      }
+
+      numpy_expr_simd_iterator_nobroadcast &
+      operator=(numpy_expr_simd_iterator_nobroadcast const &other)
+      {
+        iters_ = other.iters_;
+        return *this;
+      }
+
+      template <int... I>
+      auto _dereference(utils::seq<I...>) const
+          -> decltype(Op{}(*std::get<I>(iters_)...))
+      {
+        return Op{}((*std::get<I>(iters_))...);
+      }
+
+      auto operator*() const -> decltype(
+          this->_dereference(typename utils::gens<sizeof...(Iters)>::type{}))
+      {
+        return _dereference(typename utils::gens<sizeof...(Iters)>::type{});
+      }
+
+      template <int... I>
+      void _incr(utils::seq<I...>)
+      {
+        std::initializer_list<bool> __attribute__((unused))
+        _{(++std::get<I>(iters_), true)...};
+      }
+      numpy_expr_simd_iterator_nobroadcast &operator++()
+      {
+        _incr(typename utils::gens<sizeof...(Iters)>::type{});
+        return *this;
+      }
+
+      template <int... I>
+      long _difference(numpy_expr_simd_iterator_nobroadcast const &other,
+                       utils::seq<I...>) const
+      {
+        std::initializer_list<long> distances{
+            (std::get<I>(iters_) - std::get<I>(other.iters_))...};
+        return *std::max_element(distances.begin(), distances.end());
+      }
+
+      long operator-(numpy_expr_simd_iterator_nobroadcast const &other) const
+      {
+        return _difference(other,
+                           typename utils::gens<sizeof...(Iters)>::type{});
+      }
+
+      numpy_expr_simd_iterator_nobroadcast operator+(long i) const
+      {
+        numpy_expr_simd_iterator_nobroadcast other(*this);
+        return other += i;
+      }
+
+      template <int... I>
+      void _update(long i, utils::seq<I...>)
+      {
+        std::initializer_list<bool> __attribute__((unused))
+        _{(std::get<I>(iters_) += i, true)...};
+      }
+      numpy_expr_simd_iterator_nobroadcast &operator+=(long i)
+      {
+        _update(i, typename utils::gens<sizeof...(Iters)>::type{});
+        return *this;
+      }
+    };
 #endif
 
     /* Expression template for numpy expressions - binary operators
@@ -382,18 +467,32 @@ namespace pythonic
       auto operator()(long i) const -> decltype(this->fast(i));
 
       array<long, value> const &shape() const;
+      template <int... I>
+      bool _no_broadcast(utils::seq<I...>) const;
+      bool no_broadcast() const;
 
 #ifdef USE_BOOST_SIMD
       using simd_iterator =
           numpy_expr_simd_iterator<numpy_expr, Op,
                                    std::tuple<typename Args::const_iterator...>,
                                    typename Args::simd_iterator...>;
+      using simd_iterator_nobroadcast = numpy_expr_simd_iterator_nobroadcast<
+          numpy_expr, Op, typename Args::simd_iterator_nobroadcast...>;
       template <int... I>
-      simd_iterator _vbegin(utils::seq<I...>) const;
-      simd_iterator vbegin() const;
+      simd_iterator _vbegin(types::vectorize, utils::seq<I...>) const;
+      simd_iterator vbegin(types::vectorize) const;
       template <int... I>
-      simd_iterator _vend(utils::seq<I...>) const;
-      simd_iterator vend() const;
+      simd_iterator _vend(types::vectorize, utils::seq<I...>) const;
+      simd_iterator vend(types::vectorize) const;
+
+      template <int... I>
+      simd_iterator_nobroadcast _vbegin(types::vectorize_nobroadcast,
+                                        utils::seq<I...>) const;
+      simd_iterator_nobroadcast vbegin(types::vectorize_nobroadcast) const;
+      template <int... I>
+      simd_iterator_nobroadcast _vend(types::vectorize_nobroadcast,
+                                      utils::seq<I...>) const;
+      simd_iterator_nobroadcast vend(types::vectorize_nobroadcast) const;
 
       template <int... I>
       auto _load(long i, utils::seq<I...>) const

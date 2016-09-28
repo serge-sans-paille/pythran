@@ -225,8 +225,11 @@ namespace pythonic
 // element access
 #ifdef USE_BOOST_SIMD
       using simd_iterator = const_simd_nditerator<list>;
-      simd_iterator vbegin() const;
-      simd_iterator vend() const;
+      using simd_iterator_nobroadcast = simd_iterator;
+      template <class vectorizer>
+      simd_iterator vbegin(vectorizer) const;
+      template <class vectorizer>
+      simd_iterator vend(vectorizer) const;
       auto load(long i) const
           -> decltype(boost::simd::load<boost::simd::pack<T>>((*this->data),
                                                               i));

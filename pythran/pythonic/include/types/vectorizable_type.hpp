@@ -5,6 +5,42 @@ namespace pythonic
 {
   namespace types
   {
+    /* types used during vectorization specialization
+     */
+    struct novectorizer {
+    };
+    struct vectorize {
+    };
+    struct vectorizer {
+      template <class E>
+      static auto vbegin(E &&expr)
+          -> decltype(std::forward<E>(expr).vbegin(vectorize{}))
+      {
+        return std::forward<E>(expr).vbegin(vectorize{});
+      }
+      template <class E>
+      static auto vend(E &&expr)
+          -> decltype(std::forward<E>(expr).vend(vectorize{}))
+      {
+        return std::forward<E>(expr).vend(vectorize{});
+      }
+    };
+    struct vectorize_nobroadcast {
+    };
+    struct vectorizer_nobroadcast {
+      template <class E>
+      static auto vbegin(E &&expr)
+          -> decltype(std::forward<E>(expr).vbegin(vectorize_nobroadcast{}))
+      {
+        return std::forward<E>(expr).vbegin(vectorize_nobroadcast{});
+      }
+      template <class E>
+      static auto vend(E &&expr)
+          -> decltype(std::forward<E>(expr).vend(vectorize_nobroadcast{}))
+      {
+        return std::forward<E>(expr).vend(vectorize_nobroadcast{});
+      }
+    };
 
     template <class T>
     struct is_vectorizable {
@@ -28,6 +64,23 @@ namespace pythonic
 
     template <class O>
     struct is_vector_op;
+
+    template <class Op, class... Args>
+    struct numpy_expr;
+  }
+
+  namespace utils
+  {
+    template <class Op, class... Args>
+    bool no_broadcast(types::numpy_expr<Op, Args...> const &arg)
+    {
+      return arg.no_broadcast();
+    }
+    template <class Arg>
+    constexpr bool no_broadcast(Arg const &arg)
+    {
+      return true;
+    }
   }
 }
 #endif

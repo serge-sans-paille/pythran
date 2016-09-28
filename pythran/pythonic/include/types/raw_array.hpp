@@ -19,6 +19,7 @@ namespace pythonic
       using pointer_type = T *;
 
       T *data;
+      bool external;
       raw_array();
       raw_array(size_t n);
       raw_array(T *d);

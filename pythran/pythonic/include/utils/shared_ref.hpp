@@ -90,10 +90,6 @@ namespace pythonic
       // use it anymore
       void external(extern_type obj_ptr);
 
-      // FIXME The interface is screwed, you won't be able to delete
-      // T since it was a member of the struct allocated with new
-      T *forget();
-
       inline extern_type get_foreign();
 
     private:

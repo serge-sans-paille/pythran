@@ -14,25 +14,25 @@ namespace pythonic
      */
     template <class T>
     raw_array<T>::raw_array()
-        : data(nullptr)
+        : data(nullptr), external(false)
     {
     }
 
     template <class T>
     raw_array<T>::raw_array(size_t n)
-        : data((T *)malloc(sizeof(T) * n))
+        : data((T *)malloc(sizeof(T) * n)), external(false)
     {
     }
 
     template <class T>
     raw_array<T>::raw_array(T *d)
-        : data(d)
+        : data(d), external(true)
     {
     }
 
     template <class T>
     raw_array<T>::raw_array(raw_array<T> &&d)
-        : data(d.data)
+        : data(d.data), external(d.external)
     {
       d.data = nullptr;
     }
@@ -40,7 +40,7 @@ namespace pythonic
     template <class T>
     raw_array<T>::~raw_array()
     {
-      if (data)
+      if (data && !external)
         free(data);
     }
   }

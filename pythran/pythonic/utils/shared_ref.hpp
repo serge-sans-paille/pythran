@@ -109,14 +109,6 @@ namespace pythonic
     }
 
     template <class T>
-    T *shared_ref<T>::forget()
-    {
-      T *ptr = &mem->ptr;
-      mem = nullptr;
-      return ptr;
-    }
-
-    template <class T>
     inline extern_type shared_ref<T>::get_foreign()
     {
       return mem->foreign;
@@ -126,12 +118,12 @@ namespace pythonic
     void shared_ref<T>::dispose()
     {
       if (mem and --mem->count == 0) {
-        if (mem->foreign) {
 #ifdef ENABLE_PYTHON_MODULE
+        if (mem->foreign) {
           Py_DECREF(mem->foreign);
 #endif
-        } else
-          delete mem;
+        }
+        delete mem;
         mem = nullptr;
       }
     }

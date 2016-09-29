@@ -230,6 +230,12 @@ namespace pythonic
                  // array
       array<long, N> _shape; // shape of the multidimensional array
 
+      /* mem management */
+      void mark_memory_external()
+      {
+        mem->external = true;
+      }
+
       /* constructors */
       ndarray();
       ndarray(ndarray const &) = default;

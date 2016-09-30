@@ -17,9 +17,10 @@ namespace pythonic
     types::ndarray<T, 1> diag(types::ndarray<T, 2> const &a, long k)
     {
       auto &&a_shape = a.shape();
-      T *buffer = (T *)malloc(std::max(a_shape[0], a_shape[1]) * sizeof(T));
-      long shape[1] = {0};
-      auto iter = buffer;
+      utils::shared_ref<types::raw_array<T>> buffer(
+          std::max(a_shape[0], a_shape[1]));
+      types::array<long, 1> shape = {0};
+      auto iter = buffer->data;
       if (k >= 0)
         for (int i = 0, j = k; i < a_shape[0] and j < a_shape[1];
              ++i, ++j, ++shape[0])

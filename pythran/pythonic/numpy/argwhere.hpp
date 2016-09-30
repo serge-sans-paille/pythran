@@ -21,9 +21,9 @@ namespace pythonic
       long sz = arr.flat_size();
       auto eshape = arr.shape();
 
-      long *buffer =
-          (long *)malloc(sz * N * sizeof(long)); // too much memory used
-      long *buffer_iter = buffer;
+      utils::shared_ref<types::raw_array<long>> buffer(
+          sz * N); // too much memory used
+      long *buffer_iter = buffer->data;
 
       long real_sz = 0;
       auto iter = arr.fbegin();
@@ -39,7 +39,7 @@ namespace pythonic
           buffer_iter += N;
         }
       }
-      long shape[2] = {real_sz, N};
+      types::array<long, 2> shape = {real_sz, N};
       return out_type(buffer, shape);
     }
 

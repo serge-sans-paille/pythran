@@ -42,12 +42,12 @@ namespace pythonic
       } else {
         if (count < 0)
           count = string.size();
-        long shape[1] = {count};
-        auto *buffer = (typename dtype::type *)malloc(
-            shape[0] * sizeof(typename dtype::type));
+        types::array<long, 1> shape = {count};
+        utils::shared_ref<types::raw_array<typename dtype::type>> buffer(
+            shape[0]);
         auto const *tstring =
             reinterpret_cast<typename dtype::type const *>(string.c_str());
-        std::copy(tstring, tstring + shape[0], buffer);
+        std::copy(tstring, tstring + shape[0], buffer->data);
         return {buffer, shape};
       }
     }

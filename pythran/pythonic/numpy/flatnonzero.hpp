@@ -30,12 +30,12 @@ namespace pythonic
     types::ndarray<long, 1> flatnonzero(E const &expr)
     {
       long n = expr.flat_size();
-      long *buffer = (long *)malloc(sizeof(long) * n);
-      long *iter = buffer;
+      utils::shared_ref<types::raw_array<long>> buffer(n);
+      long *iter = buffer->data;
       long i = 0;
       _flatnonzero(expr.begin(), expr.end(), iter, i, utils::int_<E::value>());
-      long shape[1] = {iter - buffer};
-      return types::ndarray<long, 1>(buffer, shape);
+      types::array<long, 1> shape = {iter - buffer->data};
+      return types::ndarray<long, 1>(std::move(buffer), shape);
     }
 
     DEFINE_FUNCTOR(pythonic::numpy, flatnonzero);

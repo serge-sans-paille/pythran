@@ -24,9 +24,9 @@ namespace pythonic
         std::copy(iterable.begin(), iterable.end(), std::back_inserter(buffer));
         return {buffer};
       } else {
-        T *buffer = (T *)malloc(count * sizeof(T));
-        std::copy_n(iterable.begin(), count, buffer);
-        long shape[1] = {count};
+        utils::shared_ref<types::raw_array<T>> buffer(count);
+        std::copy_n(iterable.begin(), count, buffer->data);
+        types::array<long, 1> shape = {count};
         return {buffer, shape};
       }
     }

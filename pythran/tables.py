@@ -929,6 +929,8 @@ if sys.version_info.major == 3:
     del MODULES['__builtin__']['long_']
     del MODULES['__builtin__']['StandardError']
     MODULES['__builtin__']['print'] = FunctionIntr(global_effects=True)
+    MODULES['io'] = {'_io': {"TextIOWrapper" : ClassWithConstConstructor(
+        CLASSES['file'], global_effects=True) }}
 
 # VMSError is only available on VMS
 if 'VMSError' in sys.modules['__builtin__'].__dict__:

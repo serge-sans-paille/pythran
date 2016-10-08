@@ -4,7 +4,7 @@
 
 def readconf(fn):
     ret = {}
-    fp = file(fn)
+    fp = open(fn)
     for line in fp:
         # Assume whitespace is ignorable
         line = line.strip()

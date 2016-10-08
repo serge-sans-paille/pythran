@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import doctest
 import inspect
 import os
@@ -48,7 +50,7 @@ class TestDoctest(unittest.TestCase):
         import re
         from tempfile import NamedTemporaryFile
         filepath = os.path.join(os.path.dirname(__file__), relative_path)
-        rst_doc = file(filepath).read()
+        rst_doc = open(filepath).read()
         sp = re.sub(r'\.\.(\s+>>>)', r'\1', rst_doc)  # hidden doctest
 
         # hack to support setuptools-generated pythran / pythran-config scripts
@@ -61,10 +63,10 @@ class TestDoctest(unittest.TestCase):
 
         # convert shell doctest into python ones
         sp = re.sub(r'\$>(.*?)$',
-                    r'>>> import subprocess ; print subprocess.check_output("\1", shell=True),',
+                    r'>>> from __future__ import print_function ; import subprocess ; res = subprocess.check_output("\1", shell=True).decode("ascii").strip() ; print(res, end="")',
                     sp,
                     flags=re.MULTILINE)
-        f = NamedTemporaryFile(delete=False)
+        f = NamedTemporaryFile("w", delete=False)
         f.write(sp)
         f.close()
         return f.name

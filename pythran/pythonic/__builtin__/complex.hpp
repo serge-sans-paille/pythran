@@ -14,7 +14,7 @@ namespace pythonic
 
     namespace functor
     {
-      complex::type complex::operator()(double v0, double v1)
+      complex::type complex::operator()(double v0, double v1) const
       {
         return {v0, v1};
       }

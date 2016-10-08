@@ -18,24 +18,24 @@ namespace pythonic
     namespace functor
     {
       template <class T>
-      float_::type float_::operator()(T &&t)
+      float_::type float_::operator()(T &&t) const
       {
         return t;
       }
 
-      float_::type float_::operator()()
+      float_::type float_::operator()() const
       {
         return 0.;
       }
 
 #ifdef USE_GMP
       template <class T, class U>
-      float_::type float_::operator()(__gmp_expr<T, U> const &a)
+      float_::type float_::operator()(__gmp_expr<T, U> const &a) const
       {
         return mpz_get_d(a.get_mpz_t());
       }
       template <class T, class U>
-      float_::type float_::operator()(__gmp_expr<T, U> &a)
+      float_::type float_::operator()(__gmp_expr<T, U> &a) const
       {
         return mpz_get_d(a.get_mpz_t());
       }

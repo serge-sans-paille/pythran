@@ -20,17 +20,17 @@ namespace pythonic
         using callable = void;
         using type = bool;
 
-        bool operator()();
+        bool operator()() const;
 
         template <class T>
-        bool operator()(T &&val);
+        bool operator()(T &&val) const;
 
 #ifdef USE_GMP
         template <class T, class U>
-        bool operator()(__gmp_expr<T, U> const &a);
+        bool operator()(__gmp_expr<T, U> const &a) const;
 
         template <class T, class U>
-        bool operator()(__gmp_expr<T, U> &&a);
+        bool operator()(__gmp_expr<T, U> &&a) const;
 #endif
       };
     }

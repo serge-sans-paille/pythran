@@ -146,7 +146,7 @@ class ArgumentEffects(ModuleAnalysis):
                 # expand argument if any
                 func_aliases = reduce(
                     lambda x, y: x + (
-                        self.node_to_functioneffect.keys()  # all functions
+                        list(self.node_to_functioneffect.keys())  # all functions
                         if (isinstance(y, ast.Name) and
                             self.argument_index(y) >= 0)
                         else [y]),

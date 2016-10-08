@@ -1,18 +1,25 @@
 from test_env import TestEnv
 
+import sys
+import unittest
+
 
 @TestEnv.module
 class TestItertools(TestEnv):
 
+    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_imap(self):
         self.run_test("def imap_(l0,v): from itertools import imap; return sum(imap(lambda x:x*v, l0))", [0,1,2], 2, imap_=[[int], int])
 
+    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_imap_on_generator(self):
         self.run_test("def imap_on_generator(l,v): from itertools import imap; return sum(imap(lambda x:x*v, (y for x in l for y in xrange(x))))", [2,3,5], 1, imap_on_generator=[[int], int])
 
+    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_imap2(self):
         self.run_test("def imap2_(l0, l1,v): from itertools import imap; return sum(imap(lambda x,y:x*v+y, l0, l1))", [0,1,2], [0,1.1,2.2], 1, imap2_=[[int], [float], int])
 
+    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_imap2_ineq_size(self):
         """ Check imap with different size for the two list operand. """
         self.run_test("""
@@ -22,9 +29,11 @@ class TestItertools(TestEnv):
                       [0, 1, 2, 3], [0, 1.1, 2.2], 1,
                       imap2_ineq_size=[[int], [float], int])
 
+    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_imap2_on_generator(self):
         self.run_test("def imap2_on_generator(l0,l1,v): from itertools import imap; return sum(imap(lambda x,y:x*v+y, (z*z for x in l0 for z in xrange(x)), (z*2 for y in l1 for z in xrange(y))))", [0,1,2,3], [3,2,1,0], 2, imap2_on_generator=[[int], [float], int])
 
+    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_imap_none(self):
         self.run_test("""
 def imap_none(l0):
@@ -35,6 +44,7 @@ def imap_none(l0):
     return t
 """, [0,1,2], imap_none=[[int]])
 
+    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_imap_none2(self):
         self.run_test("""
 def imap_none2(l0):
@@ -45,6 +55,7 @@ def imap_none2(l0):
     return t
 """, [0,1,2], imap_none2=[[int]])
 
+    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_imap_none_on_generators(self):
         self.run_test("""
 def imap_none_g(l0):
@@ -55,6 +66,7 @@ def imap_none_g(l0):
     return t
 """, [0,1,2], imap_none_g=[[int]])
 
+    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_imap_none2_on_generators(self):
         self.run_test("""
 def imap_none2_g(l0):
@@ -65,15 +77,19 @@ def imap_none2_g(l0):
     return t
 """, [0,1,2], imap_none2_g=[[int]])
 
+    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_ifilter_init(self):
         self.run_test("def ifilter_init(l0): from itertools import ifilter; return list(ifilter(lambda x: x > 2 , l0))", [0,1,2,3,4,5], ifilter_init=[[int]])
 
+    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_ifilter_final(self):
         self.run_test("def ifilter_final(l0): from itertools import ifilter; return list(ifilter(lambda x: x < 2, l0))", [0,1,2,3,4,5], ifilter_final=[[int]])
 
+    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_ifilter_on_generator(self):
         self.run_test("def ifilterg_(l0): from itertools import ifilter; return list(ifilter(lambda x: (x % 2) == 1, (y for x in l0 for y in xrange(x))))", [0,1,2,3,4,5], ifilterg_=[[int]])
 
+    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_ifilter_none(self):
         self.run_test("""
 def ifiltern_(l0):
@@ -126,21 +142,26 @@ def ifiltern_(l0):
     def test_next_generator(self):
         self.run_test("def next_generator(n): x = (i for i in xrange(n) for j in xrange(i)) ; next(x) ; return map(None, x)", 5, next_generator=[int])
 
+    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_next_imap(self):
         self.run_test("def next_imap(n): from itertools import imap ; x = imap(abs,n) ; next(x) ; return map(None, x)", range(-5,5), next_imap=[[int]])
 
+    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_next_imap_none(self):
         self.run_test("def next_imap_none(n): from itertools import imap ; x = imap(None,n) ; next(x) ; return map(None, x)", range(-5,5), next_imap_none=[[int]])
 
+    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_next_ifilter(self):
         self.run_test("def next_ifilter(n): from itertools import ifilter ; x = ifilter(abs,n) ; next(x) ; return map(None, x)", range(-5,5), next_ifilter=[[int]])
 
+    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_next_ifilter_none(self):
         self.run_test("def next_ifilter_none(n): from itertools import ifilter ; x = ifilter(None,n) ; next(x) ; return map(None, x)", range(-5,5), next_ifilter_none=[[int]])
 
     def test_next_product(self):
         self.run_test("def next_product(n): from itertools import product ; x = product(n,n) ; next(x) ; return map(None, x)", list(range(-5,5)), next_product=[[int]])
 
+    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_next_izip(self):
         self.run_test("def next_izip(n): from itertools import izip ; x = izip(n,n) ; next(x) ; return map(None, x)", range(-5,5), next_izip=[[int]])
 
@@ -153,6 +174,7 @@ def ifiltern_(l0):
     def test_iter(self):
         self.run_test("def iter_(n): r = iter(range(5,n)) ; next(r) ; return next(r)", 12, iter_=[int])
 
+    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_ifilter_with_nested_lambdas(self):
         code = '''
 def ifilter_with_nested_lambdas(N):
@@ -196,6 +218,7 @@ def ifilter_with_nested_lambdas(N):
                       [0,1,2,3,4,5], 2,
                       permutations_=[[int],int])
 
+    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_imap_over_array(self):
         self.run_test("def imap_over_array(l):"
                       "  from itertools import imap ;"
@@ -205,6 +228,7 @@ def ifilter_with_nested_lambdas(N):
                       3,
                       imap_over_array=[int])
 
+    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_imap_over_several_arrays(self):
         self.run_test("def imap_over_several_arrays(l):"
                       "  from itertools import imap ;"

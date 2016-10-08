@@ -23,6 +23,23 @@ from pythran.passmanager import PassManager
 from pythran.toolchain import _parse_optimization
 
 
+def may_convert_2_to_3(code):
+    """Convert code from 2 to 3 if run with Python3, nothing otherwise."""
+    if sys.version_info.major == 3:
+        from tempfile import NamedTemporaryFile
+        from lib2to3 import main as lib2to3
+
+        tmp_py = NamedTemporaryFile(suffix='.py', delete=False)
+        tmp_py.write(code.encode('ascii'))
+        tmp_py.close()
+
+        lib2to3.main('lib2to3.fixes', [tmp_py.name, '-w', '-n'])
+
+        code = open(tmp_py.name).read()
+        os.remove(tmp_py.name)
+    return code
+
+
 class TestEnv(unittest.TestCase):
 
     """ Test environment to validate a pythran execution against python. """
@@ -166,11 +183,10 @@ class TestEnv(unittest.TestCase):
             return type(e)
         finally:
             # Clean temporary DLL
-            #FIXME: We can't remove this file while it is used in an import
+            # FIXME: We can't remove this file while it is used in an import
             # through the exec statement (Windows constraints...)
             if sys.platform != "win32":
                 os.remove(module_path)
-            pass
 
     def run_test_case(self, code, module_name, runas, **interface):
         """
@@ -257,20 +273,7 @@ class TestEnv(unittest.TestCase):
         modname = "test_" + name
 
         code = dedent(code)
-
-        if sys.version_info.major == 3:
-            from tempfile import NamedTemporaryFile
-            from lib2to3 import main as lib2to3
-
-            tmp_py = NamedTemporaryFile(suffix='.py', delete=False)
-            tmp_py.write(code.encode('ascii'))
-            tmp_py.close()
-
-            lib2to3.main('lib2to3.fixes', [tmp_py.name, '-w', '-n'])
-
-            code = open(tmp_py.name).read()
-            os.remove(tmp_py.name)
-
+        code = may_convert_2_to_3(code)
 
         cxx_compiled = compile_pythrancode(
             modname, code, interface, extra_compile_args=self.PYTHRAN_CXX_FLAGS)
@@ -391,10 +394,16 @@ class TestFromDir(TestEnv):
             if "unittest.skip" in self.module_code:
                 return self.test_env.skipTest("Marked as skippable")
 
-            if ("unittest.gmp.skip" in self.module_code
-                    and not have_gmp_support(
+            if ("unittest.gmp.skip" in self.module_code and
+                    not have_gmp_support(
                         extra_compile_args=self.test_env.PYTHRAN_CXX_FLAGS)):
                 return self.test_env.skipTest("Marked as skippable")
+
+            if (sys.version_info.major == 3 and
+                    "unittest.python3.skip" in self.module_code):
+                return self.test_env.skipTest("Marked as skippable")
+
+            self.module_code = may_convert_2_to_3(self.module_code)
 
             # resolve import locally to where the tests are located
             sys.path.insert(0, self.test_env.path)

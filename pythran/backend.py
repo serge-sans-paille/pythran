@@ -44,7 +44,7 @@ class Python(Backend):
     >>> node = ast.parse("print('hello world')")
     >>> pm = passmanager.PassManager('test')
     >>> print(pm.dump(Python, node))
-    print 'hello world'
+    print('hello world')
     '''
 
     def __init__(self):

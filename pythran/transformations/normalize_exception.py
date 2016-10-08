@@ -16,14 +16,16 @@ class NormalizeException(Transformation):
     >>> _, node = pm.apply(NormalizeException, node)
     >>> print pm.dump(backend.Python, node)
     try:
-        print 't'
+        print('t')
         try:
-            print 'e'
+            print('e')
         except:
             pass
     except:
-        print 'x'
+        print('x')
     '''
+    # FIXME : The transformation is incorrect. Else statement should propagate
+    # exception
     def visit_Try(self, node):
         if node.orelse:
             node.body.append(

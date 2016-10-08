@@ -1,6 +1,7 @@
 from test_env import TestEnv
 import pythran
 
+
 class TestOptimization(TestEnv):
 
     def test_constant_fold_nan(self):
@@ -309,7 +310,7 @@ def full_unroll1():
     def test_deadcodeelimination(self):
         init = """
 def bar(a):
-    print a
+    print(a)
     return 10
 def foo(a):
     if 1 < bar(a):
@@ -317,7 +318,7 @@ def foo(a):
     return b"""
         ref = """import itertools
 def bar(a):
-    print a
+    print(a)
     return 10
 def foo(a):
     (1 < bar(a))

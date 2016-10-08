@@ -90,20 +90,23 @@ def ifiltern_(l0):
     def test_product_on_generator(self):
         self.run_test("def product_g(l0,l1): from itertools import product; return sum(map(lambda (x,y) : x*y, product((y for x in l0 for y in xrange(x)),(y for x in l1 for y in xrange(x)))))", [0,1,2,3,4], [4,3,2,1,0], product_g=[[int],[int]])
 
+    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_itertools(self):
         self.run_test("def test_it(l0,l1): import itertools; return sum(itertools.imap(lambda (x,y) : x*y, itertools.product(itertools.ifilter(lambda x : x > 2, l0), itertools.ifilter(lambda x : x < 12, l1))))", [0,1,2,3,4,5], [10,11,12,13,14,15], test_it=[[int],[int]])
 
+    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_izip(self):
         self.run_test("def izip_(l0,l1): from itertools import izip; return sum(map(lambda (x,y) : x*y, izip(l0,l1)))", [0,1,2], [10,11,12], izip_=[[int],[int]])
 
+    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_izip_on_generator(self):
         self.run_test("def izipg_(l0,l1): from itertools import izip; return sum(map(lambda (x,y) : x*y, izip((z for x in l0 for z in xrange(x)),(z for x in l1 for z in xrange(x)))))", [0,1,2,3], [3,2,1,0], izipg_=[[int],[int]])
 
     def test_islice0(self):
-        self.run_test("def islice0(l): from itertools import islice ; return [x for x in islice(l, 1,30,3)]", range(100), islice0=[[int]])
+        self.run_test("def islice0(l): from itertools import islice ; return [x for x in islice(l, 1,30,3)]", list(range(100)), islice0=[[int]])
 
     def test_islice1(self):
-        self.run_test("def islice1(l): from itertools import islice ; return [x for x in islice(l, 16)]", range(100), islice1=[[int]])
+        self.run_test("def islice1(l): from itertools import islice ; return [x for x in islice(l, 16)]", list(range(100)), islice1=[[int]])
 
     def test_count0(self):
         self.run_test("def count0(): from itertools import count ; c = count() ; next(c); next(c); return next(c)", count0=[])
@@ -118,7 +121,7 @@ def ifiltern_(l0):
         self.run_test("def count3(n):\n from itertools import count\n j = 1\n for i in count(n):\n  if i == 10: return j\n  else: j +=1", 1, count3=[int])
 
     def test_next_enumerate(self):
-        self.run_test("def next_enumerate(n): x = enumerate(n) ; next(x) ; return map(None, x)", range(5), next_enumerate=[[int]])
+        self.run_test("def next_enumerate(n): x = enumerate(n) ; next(x) ; return map(None, x)", list(range(5)), next_enumerate=[[int]])
 
     def test_next_generator(self):
         self.run_test("def next_generator(n): x = (i for i in xrange(n) for j in xrange(i)) ; next(x) ; return map(None, x)", 5, next_generator=[int])
@@ -136,13 +139,13 @@ def ifiltern_(l0):
         self.run_test("def next_ifilter_none(n): from itertools import ifilter ; x = ifilter(None,n) ; next(x) ; return map(None, x)", range(-5,5), next_ifilter_none=[[int]])
 
     def test_next_product(self):
-        self.run_test("def next_product(n): from itertools import product ; x = product(n,n) ; next(x) ; return map(None, x)", range(-5,5), next_product=[[int]])
+        self.run_test("def next_product(n): from itertools import product ; x = product(n,n) ; next(x) ; return map(None, x)", list(range(-5,5)), next_product=[[int]])
 
     def test_next_izip(self):
         self.run_test("def next_izip(n): from itertools import izip ; x = izip(n,n) ; next(x) ; return map(None, x)", range(-5,5), next_izip=[[int]])
 
     def test_next_islice(self):
-        self.run_test("def next_islice(n): from itertools import islice ; x = islice(n,8) ; next(x) ; return map(None, x)", range(-5,5), next_islice=[[int]])
+        self.run_test("def next_islice(n): from itertools import islice ; x = islice(n,8) ; next(x) ; return map(None, x)", list(range(-5,5)), next_islice=[[int]])
 
     def test_next_count(self):
         self.run_test("def next_count(n): from itertools import count ; x = count(n) ; next(x) ; return next(x)", 5, next_count=[int])
@@ -161,7 +164,7 @@ def ifilter_with_nested_lambdas(N):
         self.run_test("def combinations_g(l0,a): from itertools import combinations; return sum(map(lambda (x,y) : x*y, combinations((y for x in l0 for y in xrange(x)),a)))", [0,1,2], 2, combinations_g=[[int],int])
 
     def test_next_combinations(self):
-        self.run_test("def next_combinations(n): from itertools import combinations ; x = combinations(n,2) ; next(x) ; return map(None, x)", range(5), next_combinations=[[int]])
+        self.run_test("def next_combinations(n): from itertools import combinations ; x = combinations(n,2) ; next(x) ; return map(None, x)", list(range(5)), next_combinations=[[int]])
 
     def test_combinations(self):
         self.run_test("def combinations_(l0,a): from itertools import combinations; return sum(map(lambda (x,y) : x*y, combinations(l0,a)))", [0,1,2,3,4,5], 2, combinations_=[[int],int])
@@ -175,7 +178,7 @@ def ifilter_with_nested_lambdas(N):
                       "  x = permutations(n,2) ;"
                       "  next(x) ;"
                       "  return map(None, x)",
-                      range(5),
+                      list(range(5)),
                       next_permutations=[[int]])
 
     def test_permutations(self):

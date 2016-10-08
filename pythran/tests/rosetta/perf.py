@@ -1,8 +1,8 @@
 #from http://rosettacode.org/wiki/Perfect_numbers#Python
 #pythran export perf(int)
 #pythran export perf_(int)
-#runas map(perf, range(20))
-#runas map(perf_, range(20))
+#runas list(map(perf, range(20)))
+#runas list(map(perf_, range(20)))
 
 def perf(n):
     sum = 0

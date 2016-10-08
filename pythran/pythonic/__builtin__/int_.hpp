@@ -17,18 +17,18 @@ namespace pythonic
     {
 
       template <class T>
-      int_::type int_::operator()(T &&t)
+      int_::type int_::operator()(T &&t) const
       {
         return t;
       }
 
-      int_::type int_::operator()(char t)
+      int_::type int_::operator()(char t) const
       {
         assert(t >= '0' and t <= '9');
         return t - '0';
       }
 
-      int_::type int_::operator()()
+      int_::type int_::operator()() const
       {
         return 0L;
       }

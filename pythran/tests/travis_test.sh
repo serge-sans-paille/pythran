@@ -1,4 +1,4 @@
-if [ $PYTHON_VERSION = 2 -a $TRAVIS_PYTHON_VERSION = 3.5 ]
+if [ ${PYTHON_VERSION+x} -eq 2 -a $TRAVIS_PYTHON_VERSION = 3.5 ]
 then
     exit
 fi

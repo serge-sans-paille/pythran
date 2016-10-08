@@ -1,3 +1,4 @@
+#unittest.gmp.skip
 # runas solve()
 # pythran export solve()
 

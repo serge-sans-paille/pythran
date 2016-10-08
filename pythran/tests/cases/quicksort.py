@@ -1,5 +1,5 @@
 #pythran export quicksort(int list, int, int)
-#runas quicksort(range(10),0,9)
+#runas quicksort(list(range(10)),0,9)
 def partition(list, start, end):
     pivot = list[end]                          # Partition around the last value
     bottom = start-1                           # Start outside the area to be partitioned

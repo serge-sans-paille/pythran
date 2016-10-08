@@ -2,6 +2,7 @@
 #runas data = "e"*100 ; key = "f"*3 ; rc4_crypt(data, key)
 #bench data = "e"*2000000 ; key = "f"*3 ; rc4_crypt(data, key)
 #pythran export rc4_crypt(str, str)
+#unittest.python3.skip
 
 #RC4 Implementation
 def rc4_crypt( data , key ):
@@ -23,4 +24,5 @@ def rc4_crypt( data , key ):
         S[i] , S[j] = S[j] , S[i]
         out.append(chr(ord(char) ^ S[(S[i] + S[j]) % 256]))
 
+    print("my out :", len(out), data, len(data))
     return ''.join(out)

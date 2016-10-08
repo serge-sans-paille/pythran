@@ -17,9 +17,9 @@ namespace pythonic
         using type = long;
 
         template <class T>
-        type operator()(T &&t);
-        type operator()(char t);
-        type operator()();
+        type operator()(T &&t) const;
+        type operator()(char t) const;
+        type operator()() const;
       };
     }
   }

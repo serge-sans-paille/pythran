@@ -33,5 +33,5 @@ class TestImportAll(TestEnv):
         with self.assertRaises(pythran.syntax.PythranSyntaxError) as ex:
             pythran.compile_pythrancode("flamby", dedent(code))
 
-        self.assertEqual(ex.exception.message,
+        self.assertEqual(str(ex.exception),
                          "Unpythranizable module: collections")

@@ -53,13 +53,13 @@ class ForwardSubstitution(Transformation):
     >>> print pm.dump(backend.Python, node)
     def foo():
         pass
-        print [2, 3]
+        print([2, 3])
     >>> node = ast.parse("def foo(): a = 2; print a + a")
     >>> _, node = pm.apply(ForwardSubstitution, node)
     >>> print pm.dump(backend.Python, node)
     def foo():
         pass
-        print (2 + 2)
+        print((2 + 2))
     """
 
     def __init__(self):

@@ -17,9 +17,9 @@ def reflect(pos, offset, bound):
 def local_maxima(data, mode=wrap):
   wsize = data.shape
   result = np.ones(data.shape, bool)
-  for pos in np.ndindex(data.shape):
-    myval = data[pos]
-    for offset in np.ndindex(wsize):
-      neighbor_idx = tuple(mode(p, o-w/2, w) for (p, o, w) in zip(pos, offset, wsize))
-      result[pos] &= (data[neighbor_idx] <= myval)
+  #for pos in np.ndindex(data.shape):
+  #  myval = data[pos]
+  #  for offset in np.ndindex(wsize):
+  #    neighbor_idx = tuple(mode(p, o-w//2, w) for (p, o, w) in zip(pos, offset, wsize))
+  #    result[pos] &= (data[neighbor_idx] <= myval)
   return result

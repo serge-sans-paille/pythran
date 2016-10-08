@@ -48,8 +48,8 @@ When computing variable scope, one gets a dictionary binding nodes to variable n
 
 ``n`` is a formal parameter, so it has function scope::
 
-    >>> scopes[foo_tree.body[0]]
-    set(['a', 'n'])
+    >>> scopes[foo_tree.body[0]] == set(['a', 'n'])
+    True
 
 
 ``a`` is used at the function scope (in the ``return`` statement), so even if
@@ -72,8 +72,8 @@ Now let's see what happen if we add a loop to the function::
 Variable ``a`` is only used in the loop body, so one can declare it inside the
 loop::
 
-    >>> scopes[foo_tree.body[0].body[1]]
-    set(['i', 'a'])
+    >>> scopes[foo_tree.body[0].body[1]] == set(['i', 'a'])
+    True
 
 In a similar manner, the iteration variable ``i`` gets a new value at each
 iteration step, and is declared at the loop level.
@@ -97,8 +97,8 @@ Without scoping directive, both ``i`` and ``a`` are private::
 
     >>> foo_tree = getast(foo)
     >>> scopes = pm.gather(analyses.Scope, foo_tree)
-    >>> scopes[foo_tree.body[0].body[2]]  # 3rd element: omp is not parsed
-    set(['i', 'a'])
+    >>> scopes[foo_tree.body[0].body[2]] == set(['i', 'a'])  # 3rd element: omp is not parsed
+    True
 
 But if one adds a
 ``lastprivate`` clause, as in::
@@ -125,10 +125,10 @@ directives, using a dedicated pass::
 Then let's have a look to ::
 
     >>> scopes = pm.gather(analyses.Scope, foo_tree)
-    >>> scopes[foo_tree.body[0].body[2]] # 3nd element: omp got parsed
-    set(['i'])
-    >>> scopes[foo_tree.body[0]]
-    set(['a', 's', 'n'])
+    >>> scopes[foo_tree.body[0].body[2]] == set(['i'])  # 3nd element: omp got parsed
+    True
+    >>> scopes[foo_tree.body[0]] == set(['a', 's', 'n'])
+    True
 
 ``a`` now has function scope, which keeps the OpenMP directive legal.
 
@@ -144,8 +144,8 @@ When the scope can be attached to an assignment, Pythran uses this piece of info
     >>> foo_tree = getast(foo)
     >>> _ = pm.apply(openmp.GatherOMPData, foo_tree)
     >>> scopes = pm.gather(analyses.Scope, foo_tree)
-    >>> scopes[foo_tree.body[0].body[1].body[0]]
-    set(['a'])
+    >>> scopes[foo_tree.body[0].body[1].body[0]] == set(['a'])
+    True
 
 Additionally, some OpenMP directives, when applied to a single statement, are
 treated by Pythran as if they created a bloc, emulated by a dummy
@@ -158,7 +158,7 @@ conditional::
     ...     return s
     >>> foo_tree = getast(foo)
     >>> _ = pm.apply(openmp.GatherOMPData, foo_tree)
-    >>> print pm.dump(backend.Python, foo_tree)
+    >>> print(pm.dump(backend.Python, foo_tree))
     def foo(n):
         if 1:
             'omp parallel'
@@ -170,8 +170,8 @@ However the additional if bloc makes it clear that ``s`` should have function
 scope, and the scope is not attached to the first assignment::
 
     >>> scopes = pm.gather(analyses.Scope, foo_tree)
-    >>> scopes[foo_tree.body[0]]
-    set(['s'])
+    >>> scopes[foo_tree.body[0]] == set(['s'])
+    True
 
 
 Lazyness
@@ -229,8 +229,8 @@ In this case, ``b`` can't be lazy so its values is ``inf``::
 
     >>> foo_tree = getast(foo)
     >>> lazyness = pm.gather(analyses.LazynessAnalysis, foo_tree)
-    >>> lazyness
-    {'a': 1, 'array': 2, 'b': inf}
+    >>> sorted(lazyness.items())
+    [('a', 1), ('array', 2), ('b', inf)]
 
 We can notice that a reassignment reinitializes its value so even if ``a`` is
 used twice, its counters returns ``1``.  ``inf`` also happen in case of
@@ -245,8 +245,9 @@ about aliased values::
     ...     return a_
     >>> foo_tree = getast(foo)
     >>> lazyness = pm.gather(analyses.LazynessAnalysis, foo_tree)
-    >>> lazyness
-    {'a': 1, 'array': 1, 'b': 1, 'a_': 1}
+    >>> sorted(lazyness.items())
+    [('a', 1), ('a_', 1), ('array', 1), ('b', 1)]
+
 
 
 Doc Strings

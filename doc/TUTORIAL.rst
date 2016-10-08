@@ -16,9 +16,10 @@ Parsing Python Code
 Python ships a standard module, ``ast`` to turn Python code into an AST. For instance::
 
   >>> import gast as ast
+  >>> from __future__ import print_function
   >>> code = "a=1"
   >>> tree = ast.parse(code)  # turn the code into an AST
-  >>> print ast.dump(tree)  # view it as a string
+  >>> print(ast.dump(tree))  # view it as a string
   Module(body=[Assign(targets=[Name(id='a', ctx=Store(), annotation=None)], value=Num(n=1))])
 
 Deciphering the above line, one learns that the single assignment is parsed as
@@ -31,7 +32,7 @@ Eventually, one needs to parse more complex codes, and things get a bit more cry
   ... def fib(n):
   ...     return n if n< 2 else fib(n-1) + fib(n-2)"""
   >>> tree = ast.parse(fib_src)
-  >>> print ast.dump(tree)
+  >>> print(ast.dump(tree))
   Module(body=[FunctionDef(name='fib', args=arguments(args=[Name(id='n', ctx=Param(), annotation=None)], vararg=None, kwonlyargs=[], kw_defaults=[], kwarg=None, defaults=[]), body=[Return(value=IfExp(test=Compare(left=Name(id='n', ctx=Load(), annotation=None), ops=[Lt()], comparators=[Num(n=2)]), body=Name(id='n', ctx=Load(), annotation=None), orelse=BinOp(left=Call(func=Name(id='fib', ctx=Load(), annotation=None), args=[BinOp(left=Name(id='n', ctx=Load(), annotation=None), op=Sub(), right=Num(n=1))], keywords=[]), op=Add(), right=Call(func=Name(id='fib', ctx=Load(), annotation=None), args=[BinOp(left=Name(id='n', ctx=Load(), annotation=None), op=Sub(), right=Num(n=2))], keywords=[]))))], decorator_list=[], returns=None)])
 
 The idea remains the same. The whole Python syntax is described in
@@ -80,7 +81,7 @@ subset of Python AST) into a C++ AST::
 The above string is understandable by a C++11 compiler, but it quickly reaches the limit of our developer brain, so most of the time, we are more comfortable with the Python backend::
 
   >>> py = pm.dump(backend.Python, tree)
-  >>> print py
+  >>> print(py)
   def fib(n):
       return (n if (n < 2) else (fib((n - 1)) + fib((n - 2))))
 
@@ -95,7 +96,7 @@ transformation::
   >>> from pythran import transformations
   >>> tree = ast.parse("def foo(): a,b = 1,3.5")
   >>> _ = pm.apply(transformations.NormalizeTuples, tree)  # in-place
-  >>> print pm.dump(backend.Python, tree)
+  >>> print(pm.dump(backend.Python, tree))
   def foo():
       __tuple0 = (1, 3.5)
       a = __tuple0[0]
@@ -113,7 +114,7 @@ computation, if any::
   ...     a,b = bar(x)
   ...     return a + b""")
   >>> _ = pm.apply(transformations.NormalizeTuples, tree)  # in-place
-  >>> print pm.dump(backend.Python, tree)
+  >>> print(pm.dump(backend.Python, tree))
   def foo(x):
       __tuple0 = bar(x)
       a = __tuple0[0]
@@ -124,7 +125,7 @@ There are many small passes used iteratively to produce the Pythran AST. For ins
 
   >>> tree = ast.parse('def foo():pass')
   >>> _ = pm.apply(transformations.NormalizeReturn, tree)
-  >>> print pm.dump(backend.Python, tree)
+  >>> print(pm.dump(backend.Python, tree))
   def foo():
       pass
       return __builtin__.None
@@ -133,29 +134,30 @@ There are many other passes in Pythran. For instance one can prevent clashes wit
 
   >>> tree = ast.parse('namespace_ = new = 1\nnamespace = namespace_ + new')
   >>> _ = pm.apply(transformations.NormalizeIdentifiers, tree)  # out is a renaming table
-  >>> print pm.dump(backend.Python, tree)
+  >>> print(pm.dump(backend.Python, tree))
   namespace_ = new_ = 1
   namespace__ = (namespace_ + new_)
 
 More complex ones rely on introspection to implement constant folding::
 
-  >>> code = [fib_src, 'def foo(): print __builtin__.map(fib, [1,2,3])']
+  >>> from __future__ import print_function
+  >>> code = [fib_src, 'def foo(): print(__builtin__.map(fib, [1,2,3]))']
   >>> fib_call = '\n'.join(code)
   >>> tree = ast.parse(fib_call)
   >>> from pythran import optimizations as optim
   >>> _ = pm.apply(optim.ConstantFolding, tree)
-  >>> print pm.dump(backend.Python, tree)
+  >>> print(pm.dump(backend.Python, tree))
   def fib(n):
       return (n if (n < 2) else (fib((n - 1)) + fib((n - 2))))
   def foo():
-      print [1, 1, 2]
+      print([1, 1, 2])
 
 One can also detect some common generator expression patterns to call the itertool module::
 
   >>> norm = 'def norm(l): return sum(n*n for n in l)'
   >>> tree = ast.parse(norm)
   >>> _ = pm.apply(optim.GenExpToImap, tree)
-  >>> print pm.dump(backend.Python, tree)
+  >>> print(pm.dump(backend.Python, tree))
   import itertools
   def norm(l):
       return sum(itertools.imap((lambda n: (n * n)), l))
@@ -217,7 +219,7 @@ variable, and one that computes an under set. ``Aliases`` computes an over-set::
   >>> tree = ast.parse(code)
   >>> al = pm.gather(analyses.Aliases, tree)
   >>> returned = tree.body[-1].body[-1].value
-  >>> print ast.dump(returned)
+  >>> print(ast.dump(returned))
   Name(id='b', ctx=Load(), annotation=None)
   >>> sorted(a.id for a in al[returned])
   ['c', 'd']
@@ -237,7 +239,7 @@ are updated, for instance using an augmented assign, or the ``append`` method::
 From this analyse and the ``GlobalEffects`` analyse, one can compute the set of
 pure functions, i.e. functions that have no side effects::
 
-  >>> code = 'def foo():pass\ndef bar(l): print l'
+  >>> code = 'def foo():pass\ndef bar(l): print(l)'
   >>> tree = ast.parse(code)
   >>> pf = pm.gather(analyses.PureExpressions, tree)
   >>> foo = tree.body[0]

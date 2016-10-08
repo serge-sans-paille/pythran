@@ -1,6 +1,9 @@
-import unittest
 from test_env import TestEnv
+
 import numpy
+
+import unittest
+import sys
 
 
 @TestEnv.module
@@ -62,6 +65,7 @@ class TestNdarray(TestEnv):
                       numpy.arange(100).reshape((10, 10)),
                       numpy_augassign2=[numpy.array([numpy.array([int])])])
 
+    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_numpy_augassign3(self):
         self.run_test('def numpy_augassign3(a): a/=2; return a',
                       numpy.arange(100).reshape((10, 10)),
@@ -92,6 +96,7 @@ class TestNdarray(TestEnv):
                       numpy.arange(100),
                       numpy_faugassign2=[numpy.array([int])])
 
+    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_numpy_faugassign3(self):
         self.run_test('def numpy_faugassign3(a): a[a<40]/=2; return a',
                       numpy.arange(100),

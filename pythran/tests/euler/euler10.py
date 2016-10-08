@@ -1,3 +1,4 @@
+#unittest.gmp.skip
 #runas solve(2000000)
 #pythran export solve(int)
 def solve(max):

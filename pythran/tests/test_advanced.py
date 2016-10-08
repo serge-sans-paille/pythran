@@ -1,5 +1,9 @@
 from test_env import TestEnv
-from unittest import skip
+
+from pythran.config import have_gmp_support
+
+from unittest import skip, skipIf
+import sys
 
 class TestAdvanced(TestEnv):
 
@@ -16,7 +20,7 @@ def generator_enumeration(begin, end):
                 2, 5, augassign_floordiv=[int, int])
 
     def test_builtin_constructors(self):
-        self.run_test("def builtin_constructors(l): return map(int,l)",
+        self.run_test("def builtin_constructors(l): return list(map(int,l))",
                 [1.5, 2.5], builtin_constructors=[[float]])
 
     def test_tuple_sum(self):
@@ -27,32 +31,34 @@ def generator_enumeration(begin, end):
 
     def test_bool_op_casting(self):
         self.run_test('''
-def bool_op_casting():
-    l=[]
-    L=[1]
-    M=[2]
-    if (l and L) or M:
-        return (l and L) or M
-    else:
-        return M''', bool_op_casting=[])
+        def bool_op_casting():
+            l=[]
+            L=[1]
+            M=[2]
+            if (l and L) or M:
+                return (l and L) or M
+            else:
+                return M''', bool_op_casting=[])
 
     def test_map_on_generator(self):
-        self.run_test('def map_on_generator(l): return map(float,(x*x for x in l))', [1,2,3], map_on_generator=[[int]])
+        self.run_test('def map_on_generator(l): return list(map(float,(x*x for x in l)))', [1,2,3], map_on_generator=[[int]])
 
     def test_map2_on_generator(self):
-        self.run_test('def map2_on_generator(l): return map(lambda x,y : x*y, l, (y for x in l for y in l if x < 1))', [0,1,2,3], map2_on_generator=[[int]])
+        self.run_test('def map2_on_generator(l): return list(map(lambda x,y : x*y, l, (y for x in l for y in l if x < 1)))', [0,1,2,3], map2_on_generator=[[int]])
 
+    @skipIf(sys.version_info.major == 3, "None is not callable in Python3")
     def test_map_none_on_generator(self):
-        self.run_test('def map_none_on_generator(l): return map(None,(x*x for x in l))', [1,2,3], map_none_on_generator=[[int]])
+        self.run_test('def map_none_on_generator(l): return list(map(None,(x*x for x in l)))', [1,2,3], map_none_on_generator=[[int]])
 
     def test_enumerate_on_generator(self):
-        self.run_test("def enumerate_on_generator(n): return map(lambda (x,y) : x, enumerate((y for x in xrange(n) for y in xrange(x))))", 5, enumerate_on_generator=[int])
+        self.run_test("def enumerate_on_generator(n): return list(map(lambda (x,y) : x, enumerate((y for x in xrange(n) for y in xrange(x)))))", 5, enumerate_on_generator=[int])
 
+    @skipIf(sys.version_info.major == 3, "None is not callable in Python3")
     def test_map_none2_on_generator(self):
         self.run_test('def map_none2_on_generator(l): return map(None,(x*x for x in l), (2*x for x in l))', [1,2,3], map_none2_on_generator=[[int]])
 
     def test_max_interface_arity(self):
-        self.run_test('def max_interface_arity({0}):pass'.format(*['_'+str(i) for i in xrange(42)]), range(42), max_interface_arity=[[int]*42])
+        self.run_test('def max_interface_arity({0}):pass'.format(*['_'+str(i) for i in range(42)]), list(range(42)), max_interface_arity=[[int]*42])
 
     def test_multiple_max(self):
         self.run_test('def multiple_max(i,j,k): return max(i,j,k)', 1, 1.5, False, multiple_max=[int, float, bool])
@@ -61,7 +67,7 @@ def bool_op_casting():
         self.run_test('def zip_on_generator(n): return zip((i for i in xrange(n)), (i*2 for i in xrange(1,n+1)))', 5, zip_on_generator=[int])
 
     def test_parallel_enumerate(self):
-        self.run_test('def parallel_enumerate(l):\n k = [0]*(len(l) + 1)\n "omp parallel for"\n for i,j in enumerate(l):\n  k[i+1] = j\n return k', range(1000), parallel_enumerate=[[int]])
+        self.run_test('def parallel_enumerate(l):\n k = [0]*(len(l) + 1)\n "omp parallel for"\n for i,j in enumerate(l):\n  k[i+1] = j\n return k', list(range(1000)), parallel_enumerate=[[int]])
 
     def test_ultra_nested_functions(self):
         code = '''
@@ -76,7 +82,7 @@ def ultra_nested_function(n):
         code = '''
 def generator_sum(l0,l1):
     return sum(x*y for x,y in zip(l0,l1))'''
-        self.run_test(code, range(10), range(10), generator_sum=[[int],[int]])
+        self.run_test(code, list(range(10)), list(range(10)), generator_sum=[[int],[int]])
 
     def test_tuple_to_list(self):
         self.run_test('def tuple_to_list(t): return list(t)', (1,2,3), tuple_to_list=[(int, int, int)])
@@ -128,7 +134,7 @@ def combiner_on_empty_list():
         self.run_test('def dict_comprehension_with_tuple(n): return { x:y for x,y in zip(range(n), range(1+n)) }', 10, dict_comprehension_with_tuple=[int])
 
     def test_nested_comprehension_with_tuple(self):
-        self.run_test('def nested_comprehension_with_tuple(l): return [[ x+y for x,y in sqrpoints ] for sqrpoints in l]', [[(x,x)]*5 for x in range(10)], nested_comprehension_with_tuple=[[[(int,int)]]])
+        self.run_test('def nested_comprehension_with_tuple(l): return [[ x+y for x,y in sqrpoints ] for sqrpoints in l]', [[(x,x)]*5 for x in list(range(10))], nested_comprehension_with_tuple=[[[(int,int)]]])
 
     def test_hashable_tuple(self):
         self.run_test('def hashable_tuple(): return { (1,"e", 2.5) : "r" }', hashable_tuple=[])
@@ -151,8 +157,15 @@ def combiner_on_empty_list():
     def test_default_arg3(self):
         self.run_test('def default_arg3(m,n=12): return m+n', 1, 2, default_arg3=[int,int])
 
+    @skipIf(
+        not have_gmp_support(extra_compile_args=TestEnv.PYTHRAN_CXX_FLAGS),
+        "Require big int support")
     def test_long_to_float_conversion(self):
-        self.run_test('def long_to_float_conversion(l): return float(l)', 123456789123456789120, long_to_float_conversion=[long])
+        """Check long to float conversion."""
+        self.run_test("""
+            def long_to_float_conversion(l):
+                return float(l)""",
+                      123456789123456789120, long_to_float_conversion=[long])
 
     @skip("lists as zeros parameter are not supported")
     def test_list_as_zeros_parameter(self):

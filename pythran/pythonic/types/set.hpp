@@ -455,13 +455,24 @@ namespace pythonic
     template <class T>
     std::ostream &operator<<(std::ostream &os, set<T> const &v)
     {
+#if PY_MAJOR_VERSION >= 3
+      if(v.size() == 0) {
+        return os << "set()";
+      }
+      os << "{";
+#else
       os << "set([";
+#endif
       const char *commaSeparator = "";
       for (const auto &e : v) {
         os << commaSeparator << e;
         commaSeparator = ", ";
       }
+#if PY_MAJOR_VERSION >= 3
+      return os << "}";
+#else
       return os << "])";
+#endif
     }
 
     /// empty_set implementation

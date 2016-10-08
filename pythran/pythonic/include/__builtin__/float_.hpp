@@ -20,15 +20,15 @@ namespace pythonic
         using type = double;
 
         template <class T>
-        type operator()(T &&t);
+        type operator()(T &&t) const;
 
-        type operator()();
+        type operator()() const;
 
 #ifdef USE_GMP
         template <class T, class U>
-        type operator()(__gmp_expr<T, U> const &a);
+        type operator()(__gmp_expr<T, U> const &a) const;
         template <class T, class U>
-        type operator()(__gmp_expr<T, U> &a);
+        type operator()(__gmp_expr<T, U> &a) const;
 #endif
       };
     }

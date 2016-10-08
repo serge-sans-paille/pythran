@@ -396,6 +396,23 @@ class TestFromDir(TestEnv):
                         extra_compile_args=self.test_env.PYTHRAN_CXX_FLAGS)):
                 return self.test_env.skipTest("Marked as skippable")
 
+            if sys.version_info.major == 3:
+
+                if "unittest.python3.skip" in self.module_code:
+                    return self.test_env.skipTest("Marked as skippable")
+
+                from tempfile import NamedTemporaryFile
+                from lib2to3 import main as lib2to3
+
+                tmp_py = NamedTemporaryFile(suffix='.py', delete=False)
+                tmp_py.write(self.module_code.encode('ascii'))
+                tmp_py.close()
+
+                lib2to3.main('lib2to3.fixes', [tmp_py.name, '-w', '-n'])
+
+                self.module_code = open(tmp_py.name).read()
+                os.remove(tmp_py.name)
+
             # resolve import locally to where the tests are located
             sys.path.insert(0, self.test_env.path)
 

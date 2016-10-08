@@ -32,7 +32,7 @@ namespace pythonic
       template <class Iterator>
       typename enumerate_iterator_base<Iterator>::value_type
           enumerate_iterator<Iterator>::
-          operator*()
+          operator*() const
       {
         return std::make_tuple(value, *iter);
       }
@@ -55,23 +55,33 @@ namespace pythonic
         return *this;
       }
 
+      // Comparison operators can't use value as end() doesn't have a valid value content
+      // du to the lake of size information for generator
+      // TODO : We could handle case with and without size if there is a performances benefits
       template <class Iterator>
       bool enumerate_iterator<Iterator>::operator!=(typename enumerate_iterator<
-          Iterator>::enumerate_iterator const &other)
+          Iterator>::enumerate_iterator const &other) const
       {
-        return iter != other.iter;
+        return not(*this == other);
       }
 
       template <class Iterator>
       bool enumerate_iterator<Iterator>::operator<(typename enumerate_iterator<
-          Iterator>::enumerate_iterator const &other)
+          Iterator>::enumerate_iterator const &other) const
       {
         return iter < other.iter;
       }
 
       template <class Iterator>
+      bool enumerate_iterator<Iterator>::operator==(typename enumerate_iterator<
+          Iterator>::enumerate_iterator const &other) const
+      {
+        return iter == other.iter;
+      }
+
+      template <class Iterator>
       long enumerate_iterator<Iterator>::operator-(typename enumerate_iterator<
-          Iterator>::enumerate_iterator const &other)
+          Iterator>::enumerate_iterator const &other) const
       {
         return iter - other.iter;
       }

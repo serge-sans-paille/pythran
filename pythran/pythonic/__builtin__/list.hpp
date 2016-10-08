@@ -4,6 +4,7 @@
 #include "pythonic/include/__builtin__/list.hpp"
 
 #include "pythonic/types/list.hpp"
+#include "pythonic/types/str.hpp"
 #include "pythonic/utils/functor.hpp"
 
 #include <iterator>

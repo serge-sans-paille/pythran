@@ -199,7 +199,7 @@ class Unparser:
             self.dispatch(t.locals)
 
     def _Print(self, t):
-        self.fill("print ")
+        self.fill("print(")
         do_comma = False
         if t.dest:
             self.write(">>")
@@ -212,7 +212,8 @@ class Unparser:
                 do_comma = True
             self.dispatch(e)
         if not t.nl:
-            self.write(",")
+            self.write(", end=''")
+        self.write(")")
 
     def _Global(self, t):
         self.fill("global ")

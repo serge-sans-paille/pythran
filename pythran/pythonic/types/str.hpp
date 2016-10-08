@@ -734,6 +734,7 @@ namespace pythonic
 
   bool from_python<types::str>::is_convertible(PyObject *obj)
   {
+    std::cout << PyString_Check(obj) << std::endl;
     return PyString_Check(obj);
   }
   types::str from_python<types::str>::convert(PyObject *obj)

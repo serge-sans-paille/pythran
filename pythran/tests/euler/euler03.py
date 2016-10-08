@@ -1,3 +1,4 @@
+#unittest.gmp.skip
 #pythran export solve(long)
 #runas solve(600851475143L)
 def solve(n):

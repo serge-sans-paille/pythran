@@ -9,10 +9,10 @@ class TestAdvanced(TestEnv):
 
     def test_generator_enumeration(self):
         code = '''
-def dummy_generator(l):
-    for i in l: yield i
-def generator_enumeration(begin, end):
-    return [i for i in enumerate(dummy_generator(range(begin,end)))]'''
+            def dummy_generator(l):
+                for i in l: yield i
+            def generator_enumeration(begin, end):
+                return [i for i in enumerate(dummy_generator(range(begin,end)))]'''
         self.run_test(code, 2, 10, generator_enumeration=[int, int])
 
     def test_augassign_floordiv(self):
@@ -31,14 +31,14 @@ def generator_enumeration(begin, end):
 
     def test_bool_op_casting(self):
         self.run_test('''
-def bool_op_casting():
-    l=[]
-    L=[1]
-    M=[2]
-    if (l and L) or M:
-        return (l and L) or M
-    else:
-        return M''', bool_op_casting=[])
+            def bool_op_casting():
+                l=[]
+                L=[1]
+                M=[2]
+                if (l and L) or M:
+                    return (l and L) or M
+                else:
+                    return M''', bool_op_casting=[])
 
     def test_map_on_generator(self):
         self.run_test('def map_on_generator(l): return list(map(float,(x*x for x in l)))', [1,2,3], map_on_generator=[[int]])
@@ -46,12 +46,15 @@ def bool_op_casting():
     def test_map2_on_generator(self):
         self.run_test('def map2_on_generator(l): return list(map(lambda x,y : x*y, l, (y for x in l for y in l if x < 1)))', [0,1,2,3], map2_on_generator=[[int]])
 
+
+    @skipIf(sys.version_info.major == 3, "None is not callable in Python3")
     def test_map_none_on_generator(self):
-        self.run_test('def map_none_on_generator(l): return list(map(None,(x*x for x in l)))', [1,2,3], map_none_on_generator=[[int]])
+        self.run_test('def map_none_on_generator(l): return map(None,(x*x for x in l))', [1,2,3], map_none_on_generator=[[int]])
 
     def test_enumerate_on_generator(self):
         self.run_test("def enumerate_on_generator(n): return list(map(lambda (x,y) : x, enumerate((y for x in xrange(n) for y in xrange(x)))))", 5, enumerate_on_generator=[int])
 
+    @skipIf(sys.version_info.major == 3, "None is not callable in Python3")
     def test_map_none2_on_generator(self):
         self.run_test('def map_none2_on_generator(l): return map(None,(x*x for x in l), (2*x for x in l))', [1,2,3], map_none2_on_generator=[[int]])
 

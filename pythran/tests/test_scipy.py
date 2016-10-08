@@ -47,7 +47,7 @@ def binary_search(seq, t):
     while 1:
         if max < min:
             return -1
-        m = (min + max) / 2
+        m = (min + max) // 2
         if seq[m] < t:
             min = m + 1
         elif seq[m] > t:
@@ -62,7 +62,7 @@ def binary_search(seq, t):
 def ramp(result, start, end):
     size=len(result)
     assert size > 1
-    step = (end-start)/(size-1)
+    step = (end-start)//(size-1)
     for i in xrange(size):
         result[i] = start + step*i
 """

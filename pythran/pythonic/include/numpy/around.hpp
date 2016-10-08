@@ -2,6 +2,7 @@
 #define PYTHONIC_INCLUDE_NUMPY_AROUND_HPP
 
 #include "pythonic/include/numpy/rint.hpp"
+#include "pythonic/include/numpy/floor_divide.hpp"
 #include "pythonic/include/numpy/asarray.hpp"
 
 namespace pythonic
@@ -25,7 +26,7 @@ namespace pythonic
     template <class E>
     auto around(E const &a, long decimals) -> typename std::enable_if<
         std::is_integral<typename types::dtype_of<E>::type>::value,
-        decltype((a / std::declval<typename types::dtype_of<E>::type>()) *
+        decltype(numpy::functor::floor_divide{}(a, std::declval<typename types::dtype_of<E>::type>()) *
                  std::declval<types::dtype_of<E>::type>())>::type;
     // list version
     template <class E>

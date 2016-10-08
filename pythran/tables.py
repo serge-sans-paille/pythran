@@ -65,7 +65,7 @@ operator_to_lambda = {
     ast.Add: "({0} + {1})".format,
     ast.Sub: "({0} - {1})".format,
     ast.Mult: "({0} * {1})".format,
-    ast.Div: "({0} / {1})".format,
+    ast.Div: "(pythonic::operator_::div({0}, {1}))".format,
     ast.Mod: "(pythonic::operator_::mod({0}, {1}))".format,
     ast.Pow: "(pythonic::__builtin__::pow({0}, {1}))".format,
     ast.LShift: "({0} << {1})".format,

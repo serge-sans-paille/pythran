@@ -48,13 +48,13 @@ class Dependencies(ModuleAnalysis):
         self.result.add(('__builtin__', 'id'))
         self.generic_visit(node)
 
+    visit_IsNot = visit_Is
+
     def visit_IfExp(self, node):
         self.result.add(('__builtin__', 'bool_'))
         self.generic_visit(node)
 
     visit_And = visit_Or = visit_IfExp
-
-    visit_IsNot = visit_Is
 
     def visit_Print(self, node):
         self.result.add(('__builtin__', 'print'))
@@ -70,6 +70,9 @@ class Dependencies(ModuleAnalysis):
 
     def visit_Mod(self, _):
         self.result.add(('operator_', 'mod'))
+
+    def visit_Div(self, _):
+        self.result.add(('operator_', 'div'))
 
     def visit_FloorDiv(self, _):
         self.result.add(('operator_', 'floordiv'))

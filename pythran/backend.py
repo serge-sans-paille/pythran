@@ -674,7 +674,7 @@ pythonic::types::none_type>::type result_type;
         value = self.visit(node.value)
         target = self.visit(node.target)
         l = operator_to_lambda[type(node.op)]
-        if isinstance(node.op, (ast.FloorDiv, ast.Mod, ast.Pow)):
+        if isinstance(node.op, (ast.FloorDiv, ast.Mod, ast.Pow, ast.Div)):
             stmt = Assign(target, l(target, value))
         else:
             stmt = Statement(l(target, '')[1:-2] + '= {0}'.format(value))

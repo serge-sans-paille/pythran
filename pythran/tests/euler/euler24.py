@@ -18,7 +18,7 @@ def permutation(orig_nums, n):
      perm = []
      while len(nums):
          divider = fact(len(nums)-1)
-         pos = n / divider
+         pos = n // divider
          n = n % divider
          perm.append(nums[pos])
          nums = nums[0:pos] + nums[pos+1:]

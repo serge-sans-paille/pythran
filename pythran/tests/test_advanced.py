@@ -1,5 +1,9 @@
 from test_env import TestEnv
-from unittest import skip
+
+from pythran.config import have_gmp_support
+
+from unittest import skip, skipIf
+import sys
 
 class TestAdvanced(TestEnv):
 
@@ -151,8 +155,15 @@ def combiner_on_empty_list():
     def test_default_arg3(self):
         self.run_test('def default_arg3(m,n=12): return m+n', 1, 2, default_arg3=[int,int])
 
+    @skipIf(
+        not have_gmp_support(extra_compile_args=TestEnv.PYTHRAN_CXX_FLAGS),
+        "Require big int support")
     def test_long_to_float_conversion(self):
-        self.run_test('def long_to_float_conversion(l): return float(l)', 123456789123456789120, long_to_float_conversion=[long])
+        """Check long to float conversion."""
+        self.run_test("""
+            def long_to_float_conversion(l):
+                return float(l)""",
+                      123456789123456789120, long_to_float_conversion=[long])
 
     @skip("lists as zeros parameter are not supported")
     def test_list_as_zeros_parameter(self):

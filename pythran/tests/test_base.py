@@ -554,14 +554,15 @@ def forelse():
     def test_long(self):
         self.run_test("def _long(a): return a+34", 1111111111111111111111, _long=[long])
 
-    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
+    @unittest.skipIf(
+        not have_gmp_support(extra_compile_args=TestEnv.PYTHRAN_CXX_FLAGS),
+        "Require big int support")
     def test_long_square(self):
-        """ Check square function on gmp number. """
-        if have_gmp_support(extra_compile_args=self.PYTHRAN_CXX_FLAGS):
-            self.run_test("""
-                def _long_square(a):
-                    return a ** 2
-                          """, 1111111111111111111111, _long_square=[long])
+        """Check square function on gmp number."""
+        self.run_test("""
+            def _long_square(a):
+                return a ** 2
+                      """, 1111111111111111111111, _long_square=[long])
 
     def test_reversed_slice(self):
         self.run_test("def reversed_slice(l): return l[::-2]", [0,1,2,3,4], reversed_slice=[[int]])

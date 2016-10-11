@@ -929,8 +929,12 @@ if sys.version_info.major == 3:
     del MODULES['__builtin__']['long_']
     del MODULES['__builtin__']['StandardError']
     MODULES['__builtin__']['print'] = FunctionIntr(global_effects=True)
-    MODULES['io'] = {'_io': {"TextIOWrapper" : ClassWithConstConstructor(
-        CLASSES['file'], global_effects=True) }}
+    MODULES['io'] = {
+        '_io': {
+            "TextIOWrapper": ClassWithConstConstructor(
+                CLASSES['file'], global_effects=True)
+        }
+    }
 
 # VMSError is only available on VMS
 if 'VMSError' in sys.modules['__builtin__'].__dict__:
@@ -951,7 +955,7 @@ except ImportError:
 for method in MODULES['numpy'].keys():
     if (method not in sys.modules['numpy'].__dict__ and not
             (method[-1:] == '_' and method[:-1] in cxx_keywords and
-                method[:-1] in sys.modules['numpy'].__dict__)):
+             method[:-1] in sys.modules['numpy'].__dict__)):
         del MODULES['numpy'][method]
 
 

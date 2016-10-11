@@ -71,9 +71,10 @@ class IterTransformation(Transformation):
             # Special handling for map which can't be turn to imap with None as
             # a parameter as map(None, [1, 2]) == [1, 2] while
             # list(imap(None, [1, 2])) == [(1,), (2,)]
-            if match_keyword == "map":
-                if MODULES["__builtin__"]["None"] in self.aliases[node.args[0]]:
-                    return self.generic_visit(node)
+            if (match_keyword == "map" and
+                    MODULES["__builtin__"]["None"] in
+                    self.aliases[node.args[0]]):
+                return self.generic_visit(node)
             if match_keyword:
                 node.func = path_to_attr(EQUIVALENT_ITERATORS[match_keyword])
                 self.update = True

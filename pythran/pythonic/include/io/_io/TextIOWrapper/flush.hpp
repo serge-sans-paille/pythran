@@ -11,7 +11,8 @@ namespace pythonic
 
     namespace _io
     {
-      namespace TextIOWrapper {
+      namespace TextIOWrapper
+      {
         USING_FUNCTOR(flush, __builtin__::file::functor::flush);
       }
     }

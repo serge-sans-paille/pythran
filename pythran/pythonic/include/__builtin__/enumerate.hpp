@@ -27,13 +27,14 @@ namespace pythonic
         Iterator iter;
         enumerate_iterator();
         enumerate_iterator(Iterator const &iter, long first);
-        typename enumerate_iterator_base<Iterator>::value_type operator*() const;
+        typename enumerate_iterator_base<Iterator>::value_type
+        operator*() const;
         enumerate_iterator &operator++();
         enumerate_iterator &operator+=(long n);
         bool operator!=(enumerate_iterator const &other) const;
         bool operator<(enumerate_iterator const &other) const;
         long operator-(enumerate_iterator const &other) const;
-        bool operator==(enumerate_iterator const&it) const;
+        bool operator==(enumerate_iterator const &it) const;
       };
 
       template <class Iterable>

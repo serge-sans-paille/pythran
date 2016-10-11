@@ -26,7 +26,8 @@ namespace pythonic
     template <class E>
     auto around(E const &a, long decimals) -> typename std::enable_if<
         std::is_integral<typename types::dtype_of<E>::type>::value,
-        decltype(numpy::functor::floor_divide{}(a, std::declval<typename types::dtype_of<E>::type>()) *
+        decltype(numpy::functor::floor_divide{}(
+                     a, std::declval<typename types::dtype_of<E>::type>()) *
                  std::declval<types::dtype_of<E>::type>())>::type;
     // list version
     template <class E>

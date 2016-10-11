@@ -221,7 +221,7 @@ env:
     - PYTHON_VERSION=2 PEP8=false TESTCASE=pythran/tests/test_user_defined_import.py CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS="-DUSE_BOOST_SIMD -march=native"
     - PYTHON_VERSION=2 PEP8=false TESTCASE=pythran/tests/test_user_defined_import.py CC=gcc-5 CXX=g++-5 CXXFLAGS="-fopenmp"
     - PYTHON_VERSION=2 PEP8=false TESTCASE=pythran/tests/test_user_defined_import.py CC=gcc-5 CXX=g++-5 CXXFLAGS="-DUSE_BOOST_SIMD -march=native -fopenmp"
-    - PYTHON_VERSION=2 PEP8=false TESTCASE=pythran/tests/test_format.py CC=gcc-5 CXX=g++-5
+    - PEP8=false TESTCASE=pythran/tests/test_format.py CC=gcc-5 CXX=g++-5
     - PEP8=true
 
 script:

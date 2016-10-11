@@ -456,7 +456,7 @@ namespace pythonic
     std::ostream &operator<<(std::ostream &os, set<T> const &v)
     {
 #if PY_MAJOR_VERSION >= 3
-      if(v.size() == 0) {
+      if (v.size() == 0) {
         return os << "set()";
       }
       os << "{";

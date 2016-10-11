@@ -10,11 +10,11 @@ namespace pythonic
 
     namespace _io
     {
-      namespace TextIOWrapper {
+      namespace TextIOWrapper
+      {
         USING_FUNCTOR(write, __builtin__::file::functor::write);
       }
     }
   }
-
 }
 #endif

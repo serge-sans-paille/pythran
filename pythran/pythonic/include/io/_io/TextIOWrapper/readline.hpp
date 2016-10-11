@@ -10,7 +10,8 @@ namespace pythonic
 
     namespace _io
     {
-      namespace TextIOWrapper {
+      namespace TextIOWrapper
+      {
         USING_FUNCTOR(readline, __builtin__::file::functor::readline);
       }
     }

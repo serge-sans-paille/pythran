@@ -55,9 +55,11 @@ namespace pythonic
         return *this;
       }
 
-      // Comparison operators can't use value as end() doesn't have a valid value content
+      // Comparison operators can't use value as end() doesn't have a valid
+      // value content
       // du to the lake of size information for generator
-      // TODO : We could handle case with and without size if there is a performances benefits
+      // TODO : We could handle case with and without size if there is a
+      // performances benefits
       template <class Iterator>
       bool enumerate_iterator<Iterator>::operator!=(typename enumerate_iterator<
           Iterator>::enumerate_iterator const &other) const

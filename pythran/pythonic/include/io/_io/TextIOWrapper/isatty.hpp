@@ -11,7 +11,8 @@ namespace pythonic
 
     namespace _io
     {
-      namespace TextIOWrapper {
+      namespace TextIOWrapper
+      {
         USING_FUNCTOR(isatty, __builtin__::file::functor::isatty);
       }
     }

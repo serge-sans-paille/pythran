@@ -84,11 +84,9 @@ def add_module_doctest(base, module_name):
 
 # doctest does not goes through imported variables,
 # so manage the tests manually here
-list(map(lambda x: add_module_doctest(pythran, x), dir(pythran)))
-list(map(lambda x: add_module_doctest(transformations, x), dir(transformations)))
-list(map(lambda x: add_module_doctest(analyses, x), dir(analyses)))
-list(map(lambda x: add_module_doctest(optimizations, x), dir(optimizations)))
-list(map(lambda x: add_module_doctest(types, x), dir(types)))
+for module in (pythran, transformations, analyses, optimizations, types):
+    for submodule in dir(module):
+        add_module_doctest(module, submodule)
 
 if __name__ == '__main__':
     unittest.main()

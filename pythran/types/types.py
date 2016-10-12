@@ -41,7 +41,7 @@ def extract_constructed_types(t):
                 extract_constructed_types(tvalue))
     elif isinstance(t, tuple):
         return ([pytype_to_ctype(t)] +
-                sum(list(map(extract_constructed_types, t)), []))
+                sum((extract_constructed_types(v) for v in t), []))
     elif t == long:
         return [pytype_to_ctype(t)]
     elif t == str:
@@ -336,8 +336,8 @@ class Types(ModuleAnalysis):
         self.visit(node.iter)
         self.combine(node.target, node.iter, unary_op=IteratorContentType,
                      aliasing_type=True, register=True)
-        node.body and list(map(self.visit, node.body))
-        node.orelse and list(map(self.visit, node.orelse))
+        for n in node.body + node.orelse:
+            self.visit(n)
 
     def visit_BoolOp(self, node):
         """
@@ -558,7 +558,8 @@ class Types(ModuleAnalysis):
                 self.result[node.type] = tname
                 self.combine(node.name, node.type, aliasing_type=True,
                              register=True)
-        list(map(self.visit, node.body))
+        for n in node.body:
+            self.visit(n)
 
     def visit_Tuple(self, node):
         self.generic_visit(node)
@@ -572,4 +573,5 @@ class Types(ModuleAnalysis):
     def visit_arguments(self, node):
         for i, arg in enumerate(node.args):
             self.result[arg] = ArgumentType(i)
-        list(map(self.visit, node.defaults))
+        for n in node.defaults:
+            self.visit(n)

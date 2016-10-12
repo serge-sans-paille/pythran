@@ -120,7 +120,8 @@ class UseDefChain(FunctionAnalysis):
         # in assignation, left expression is compute before the assignation
         # to the right expression
         self.visit(node.value)
-        list(map(self.visit, node.targets))
+        for n in node.targets:
+            self.visit(n)
 
     def visit_AugAssign(self, node):
         md.visit(self, node)
@@ -152,12 +153,14 @@ class UseDefChain(FunctionAnalysis):
 
         # body
         old_node = {i: set(j) for i, j in self.current_node.items()}
-        list(map(self.visit, node.body))
+        for n in node.body:
+            self.visit(n)
 
         # orelse
         new_node = self.current_node
         self.current_node = old_node
-        list(map(self.visit, node.orelse))
+        for n in node.orelse:
+            self.visit(n)
 
         if swap:
             node.body, node.orelse = node.orelse, node.body
@@ -207,14 +210,16 @@ class UseDefChain(FunctionAnalysis):
         # body
         self.in_loop = True
         old_node = {i: set(j) for i, j in self.current_node.items()}
-        list(map(self.visit, node.body))
+        for n in node.body:
+            self.visit(n)
         self.add_loop_edges(prev_node)
         self.in_loop = False
 
         # orelse
         new_node = self.current_node
         self.merge_dict_set(self.current_node, old_node)
-        list(map(self.visit, node.orelse))
+        for n in node.orelse:
+            self.visit(n)
 
         # merge result
         self.merge_dict_set(self.current_node, new_node)
@@ -229,14 +234,16 @@ class UseDefChain(FunctionAnalysis):
         self.in_loop = True
         old_node = {i: set(j) for i, j in self.current_node.items()}
         self.visit(node.target)
-        list(map(self.visit, node.body))
+        for n in node.body:
+            self.visit(n)
         self.add_loop_edges(old_node)
         self.in_loop = False
 
         # orelse
         new_node = self.current_node
         self.merge_dict_set(self.current_node, old_node)
-        list(map(self.visit, node.orelse))
+        for n in node.orelse:
+            self.visit(n)
 
         # merge result
         self.merge_dict_set(self.current_node, new_node)

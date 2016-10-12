@@ -1075,7 +1075,7 @@ pythonic::types::none_type>::type result_type;
 
     def visit_Assert(self, node):
         params = [self.visit(node.test), node.msg and self.visit(node.msg)]
-        sparams = ", ".join(map(strip_exp, [_f for _f in params if _f]))
+        sparams = ", ".join(strip_exp(_f) for _f in params if _f)
         return Statement("pythonic::pythran_assert({0})".format(sparams))
 
     def visit_Import(self, _):

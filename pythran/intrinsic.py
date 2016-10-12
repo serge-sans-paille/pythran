@@ -57,7 +57,7 @@ class Intrinsic(object):
             [to_ast(d) for d in kwargs.get('defaults', [])])
         self.return_range = kwargs.get("return_range",
                                        lambda call: UNKNOWN_RANGE)
-        self.return_range_content = kwargs.get("return_ange_content",
+        self.return_range_content = kwargs.get("return_range_content",
                                                lambda c: UNKNOWN_RANGE)
 
     def isliteral(self):

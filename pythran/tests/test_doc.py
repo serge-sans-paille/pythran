@@ -50,8 +50,9 @@ class TestDoctest(unittest.TestCase):
         import re
         from tempfile import NamedTemporaryFile
         filepath = os.path.join(os.path.dirname(__file__), relative_path)
-        rst_doc = open(filepath).read()
-        sp = re.sub(r'\.\.(\s+>>>)', r'\1', rst_doc)  # hidden doctest
+        with open(filepath) as rst_doc:
+            # hidden doctest
+            sp = re.sub(r'\.\.(\s+>>>)', r'\1', rst_doc.read())
 
         # hack to support setuptools-generated pythran / pythran-config scripts
         for tool, sub in (('pythran-config', 'python -m pythran.config'),
@@ -83,11 +84,11 @@ def add_module_doctest(base, module_name):
 
 # doctest does not goes through imported variables,
 # so manage the tests manually here
-map(lambda x: add_module_doctest(pythran, x), dir(pythran))
-map(lambda x: add_module_doctest(transformations, x), dir(transformations))
-map(lambda x: add_module_doctest(analyses, x), dir(analyses))
-map(lambda x: add_module_doctest(optimizations, x), dir(optimizations))
-map(lambda x: add_module_doctest(types, x), dir(types))
+list(map(lambda x: add_module_doctest(pythran, x), dir(pythran)))
+list(map(lambda x: add_module_doctest(transformations, x), dir(transformations)))
+list(map(lambda x: add_module_doctest(analyses, x), dir(analyses)))
+list(map(lambda x: add_module_doctest(optimizations, x), dir(optimizations)))
+list(map(lambda x: add_module_doctest(types, x), dir(types)))
 
 if __name__ == '__main__':
     unittest.main()

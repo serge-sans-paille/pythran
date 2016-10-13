@@ -966,11 +966,19 @@ def save_arguments(module_name, elements):
                 obj = getattr(themodule, elem)
                 spec = inspect.getargspec(obj)
                 assert not signature.args.args
-                signature.args.args = [ast.Name(arg, ast.Param(), None)
-                                       for arg in spec.args]
-                if spec.defaults:
-                    signature.args.defaults = [to_ast(default)
-                                               for default in spec.defaults]
+
+                signature.args.args
+
+                args = [ast.Name(arg, ast.Param(), None) for arg in spec.args]
+                defaults = spec.defaults
+
+                # Avoid use of comprehesion to fill "as much args/defauls" as
+                # possible
+                signature.args.args = args[:-len(defaults)]
+                signature.args.defaults = []
+                for arg, value in zip(args[-len(defaults):], defaults):
+                    signature.args.defaults.append(to_ast(value))
+                    signature.args.args.append(arg)
             except (AttributeError, ImportError, TypeError, ToNotEval):
                 pass
 

@@ -11,6 +11,30 @@ class TestBase(TestEnv):
     def test_normalize_methods0(self):
         self.run_test("def normalize_methods0(): c = complex(1) ; return complex.conjugate(c)", normalize_methods0=[])
 
+    def test_module_alias0(self):
+        self.run_test("def module_alias0(c): import math ; m = math; return m.cos(c)", 1., module_alias0=[float])
+
+    def test_module_alias1(self):
+        self.run_test("def module_alias1(c): import math as ma; m = ma; return m.cos(c)", 1., module_alias1=[float])
+
+    def test_module_alias2(self):
+        self.run_test("import math as ma\ndef module_alias2(c): m = ma; return m.cos(c)", 1., module_alias2=[float])
+
+    def test_module_alias3(self):
+        self.run_test("import math as ma; m = ma\ndef module_alias3(c): return m.cos(c)", 1., module_alias3=[float])
+
+    def test_module_alias4(self):
+        self.run_test("""
+                      import math as ma
+                      def module_alias4(c):
+                        import math as ma2
+                        m = ma
+                        def mab():
+                            return m.cos(c) + ma2.cos(c)
+                        return mab()""",
+                      1.,
+                      module_alias4=[float])
+
     def test_shadow_import0(self):
         self.run_test("def shadow_import0(math): math.add(1)", {1,2}, shadow_import0=[{int}])
 

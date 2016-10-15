@@ -24,7 +24,7 @@ class NormalizeMethodCalls(Transformation):
 
     def __init__(self):
         Transformation.__init__(self, Globals)
-        self.imports = set()
+        self.imports = {'__builtin__': '__builtin__'}
         self.to_import = set()
 
     def visit_Module(self, node):
@@ -40,6 +40,9 @@ class NormalizeMethodCalls(Transformation):
 
             so we have to import numpy.
         """
+        self.skip_functions = True
+        self.generic_visit(node)
+        self.skip_functions = False
         self.generic_visit(node)
         new_imports = self.to_import - self.globals
         imports = [ast.Import(names=[ast.alias(name=mod, asname=None)])
@@ -49,27 +52,42 @@ class NormalizeMethodCalls(Transformation):
         return node
 
     def visit_FunctionDef(self, node):
-        self.imports = self.globals.copy()
-        [self.imports.discard(arg.id) for arg in node.args.args]
+        if self.skip_functions:
+            return node
+        old_imports = self.imports
+        self.imports = old_imports.copy()
+        for arg in node.args.args:
+            self.imports.pop(arg.id, None)
         self.generic_visit(node)
+
+        self.imports = old_imports
+
         return node
 
     def visit_Import(self, node):
         for alias in node.names:
-            self.imports.add(alias.asname or alias.name)
+            name = alias.asname or alias.name
+            self.imports[name] = name
         return node
 
     def visit_Assign(self, node):
-        n = self.generic_visit(node)
-        for t in node.targets:
-            if isinstance(t, ast.Name):
-                self.imports.discard(t.id)
-        return n
+        # aliasing between modules
+        if isinstance(node.value, ast.Name) and node.value.id in self.imports:
+            for t in node.targets:
+                if isinstance(t, ast.Name):
+                    self.imports[t.id] = self.imports[node.value.id]
+            return None
+        else:
+            n = self.generic_visit(node)
+            for t in node.targets:
+                if isinstance(t, ast.Name):
+                    self.imports.pop(t.id, None)
+            return n
 
     def visit_For(self, node):
         node.iter = self.visit(node.iter)
         if isinstance(node.target, ast.Name):
-            self.imports.discard(node.target.id)
+            self.imports.pop(node.target.id, None)
         if node.body:
             node.body = [self.visit(n) for n in node.body]
         if node.orelse:
@@ -87,10 +105,13 @@ class NormalizeMethodCalls(Transformation):
         # imported module -> not a getattr
         elif (isinstance(node.value, ast.Name) and
               node.value.id in self.imports):
-            if node.attr not in MODULES[node.value.id]:
+            module_id = self.imports[node.value.id]
+            if node.attr not in MODULES[module_id]:
                 msg = ("`" + node.attr + "' is not a member of " +
-                       node.value.id + " or Pythran does not support it")
+                       module_id + " or Pythran does not support it")
                 raise PythranSyntaxError(msg, node)
+            node.value.id = module_id  # patch module aliasing
+            self.update = True
             return node
         # not listed as attributed -> not a getattr
         elif node.attr not in attributes:

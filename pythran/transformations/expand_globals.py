@@ -9,7 +9,6 @@ from pythran.passmanager import Transformation
 from pythran.syntax import PythranSyntaxError
 from pythran import metadata
 
-
 import gast as ast
 
 
@@ -42,10 +41,24 @@ class ExpandGlobals(Transformation):
     def visit_Module(self, node):
         """Turn globals assignment to functionDef and visit function defs. """
         module_body = list()
+        symbols = set()
         # Gather top level assigned variables.
         for stmt in node.body:
+            if isinstance(stmt, (ast.Import, ast.ImportFrom)):
+                for alias in stmt.names:
+                    name = alias.asname or alias.name
+                    symbols.add(name)  # no warning here
+            elif isinstance(stmt, ast.FunctionDef):
+                if stmt.name in symbols:
+                    raise PythranSyntaxError(
+                        "Multiple top-level definition of %s." % stmt.name,
+                        stmt)
+                else:
+                    symbols.add(stmt.name)
+
             if not isinstance(stmt, ast.Assign):
                 continue
+
             for target in stmt.targets:
                 if not isinstance(target, ast.Name):
                     raise PythranSyntaxError(
@@ -55,10 +68,19 @@ class ExpandGlobals(Transformation):
                     raise PythranSyntaxError(
                         "Multiple top-level definition of %s." % target.id,
                         target)
+                if isinstance(stmt.value, ast.Name):
+                    if stmt.value.id in symbols:
+                        continue  # create aliasing between top level symbols
                 self.to_expand.add(target.id)
 
         for stmt in node.body:
             if isinstance(stmt, ast.Assign):
+                # that's not a global var, but a module/function aliasing
+                if all(isinstance(t, ast.Name) and t.id not in self.to_expand
+                       for t in stmt.targets):
+                    module_body.append(stmt)
+                    continue
+
                 self.local_decl = set()
                 cst_value = self.visit(stmt.value)
                 for target in stmt.targets:

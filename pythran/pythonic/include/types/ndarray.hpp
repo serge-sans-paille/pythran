@@ -49,7 +49,11 @@
 #include <numeric>
 
 #ifdef ENABLE_PYTHON_MODULE
+// Cython still uses the deprecated API, so we can't set this macro in this
+// case!
+#ifndef CYTHON_ABI
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+#endif
 #include "numpy/arrayobject.h"
 #endif
 

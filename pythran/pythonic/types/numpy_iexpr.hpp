@@ -15,7 +15,8 @@ namespace pythonic
   {
 
     template <class Arg>
-    numpy_iexpr<Arg>::numpy_iexpr()
+    numpy_iexpr<Arg>::numpy_iexpr():
+      buffer(nullptr)
     {
     }
 
@@ -54,6 +55,7 @@ namespace pythonic
     template <class E>
     numpy_iexpr<Arg> &numpy_iexpr<Arg>::operator=(E const &expr)
     {
+      assert(buffer);
       return utils::broadcast_copy<numpy_iexpr &, E, value,
                                    value - utils::dim_of<E>::value,
                                    false /*NIY*/>(*this, expr);
@@ -62,6 +64,7 @@ namespace pythonic
     template <class Arg>
     numpy_iexpr<Arg> &numpy_iexpr<Arg>::operator=(numpy_iexpr<Arg> const &expr)
     {
+      assert(buffer);
       return utils::broadcast_copy<numpy_iexpr &, numpy_iexpr const &, value,
                                    value - utils::dim_of<numpy_iexpr>::value,
                                    false /*NIY*/>(*this, expr);

@@ -323,6 +323,7 @@ namespace pythonic
 
     template <class Arg, class... S>
     numpy_gexpr<Arg, S...>::numpy_gexpr()
+        : buffer(nullptr)
     {
     }
 
@@ -448,6 +449,7 @@ namespace pythonic
        * assignment
        * perform a fuzzy alias check dynamically!
        */
+      assert(buffer);
       if (may_overlap(*this, expr)) {
         return utils::broadcast_copy<
             numpy_gexpr &, ndarray<typename E::dtype, E::value>, value,
@@ -469,6 +471,7 @@ namespace pythonic
     numpy_gexpr<Arg, S...>::_copy(E const &expr)
     {
       static_assert(value >= utils::dim_of<E>::value, "dimensions match");
+      assert(buffer);
       return utils::broadcast_copy < numpy_gexpr &, E, value,
              value - utils::dim_of<E>::value,
              is_vectorizable and
@@ -488,6 +491,7 @@ namespace pythonic
     {
       return _copy(expr);
     }
+
     template <class Arg, class... S>
     template <class Op, class E>
     typename std::enable_if<not may_overlap_gexpr<E>::value,
@@ -763,9 +767,8 @@ namespace pythonic
     }
 
     template <class Arg, class... S>
-        template <size_t M>
-        auto numpy_gexpr<Arg, S...>::
-        operator[](array<long, M> const &indices) &&
+    template <size_t M>
+    auto numpy_gexpr<Arg, S...>::operator[](array<long, M> const &indices) &&
         -> decltype(nget<M - 1>()(std::move(*this), indices))
     {
       return nget<M - 1>()(std::move(*this), indices);
@@ -847,8 +850,8 @@ namespace pythonic
       auto finalize_numpy_gexpr_helper<N, Arg, long, S...>::get(E const &e,
                                                                 F &&f)
           -> decltype(finalize_numpy_gexpr_helper<
-              N + 1, numpy_iexpr<Arg const &>,
-              S...>::get(e, std::declval<numpy_iexpr<Arg const &>>()))
+                      N + 1, numpy_iexpr<Arg const &>,
+                      S...>::get(e, std::declval<numpy_iexpr<Arg const &>>()))
       {
         return finalize_numpy_gexpr_helper<N + 1, numpy_iexpr<Arg const &>,
                                            S...>::get(e,
@@ -861,8 +864,8 @@ namespace pythonic
       template <class E, class F>
       auto finalize_numpy_gexpr_helper<N, Arg, long, S...>::get(E &e, F &&f)
           -> decltype(finalize_numpy_gexpr_helper<
-              N + 1, numpy_iexpr<Arg const &>,
-              S...>::get(e, std::declval<numpy_iexpr<Arg const &> &>()))
+                      N + 1, numpy_iexpr<Arg const &>,
+                      S...>::get(e, std::declval<numpy_iexpr<Arg const &> &>()))
       {
         numpy_iexpr<Arg const &> iexpr(std::forward<F>(f), e.indices[N]);
         return finalize_numpy_gexpr_helper<N + 1, numpy_iexpr<Arg const &>,
@@ -894,8 +897,8 @@ namespace pythonic
     auto numpy_gexpr_helper<Arg, S0, long, S...>::get(
         numpy_gexpr<Arg, S0, long, S...> const &e, long i)
         -> decltype(finalize_numpy_gexpr_helper<
-            0, numpy_iexpr<Arg const &>, long,
-            S...>::get(e, std::declval<numpy_iexpr<Arg const &>>()))
+                    0, numpy_iexpr<Arg const &>, long,
+                    S...>::get(e, std::declval<numpy_iexpr<Arg const &>>()))
     {
       return finalize_numpy_gexpr_helper<0, numpy_iexpr<Arg const &>, long,
                                          S...>::get(e,
@@ -907,8 +910,8 @@ namespace pythonic
     auto numpy_gexpr_helper<Arg, S0, long, S...>::get(
         numpy_gexpr<Arg, S0, long, S...> &e, long i)
         -> decltype(finalize_numpy_gexpr_helper<
-            0, numpy_iexpr<Arg const &>, long,
-            S...>::get(e, std::declval<numpy_iexpr<Arg const &> &>()))
+                    0, numpy_iexpr<Arg const &>, long,
+                    S...>::get(e, std::declval<numpy_iexpr<Arg const &> &>()))
     {
       return finalize_numpy_gexpr_helper<0, numpy_iexpr<Arg const &>, long,
                                          S...>::get(e,

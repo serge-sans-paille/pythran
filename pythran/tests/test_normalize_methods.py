@@ -11,6 +11,39 @@ class TestBase(TestEnv):
     def test_normalize_methods0(self):
         self.run_test("def normalize_methods0(): c = complex(1) ; return complex.conjugate(c)", normalize_methods0=[])
 
+    def test_function_alias0(self):
+        self.run_test("""
+                      def function_alias0():
+                        def p(): return 0
+                        g = p
+                        return g()""",
+                      function_alias0=[])
+
+    def test_function_alias1(self):
+        self.run_test("""
+                      def function_alias1(n):
+                        def p(): return 0
+                        def q(): return 1
+                        g = p if n else q
+                        return g()
+                      """,
+                      1,
+                      function_alias1=[int])
+
+    def test_function_alias2(self):
+        self.run_test("""
+                      def function_alias2(n):
+                        def p(): return 0
+                        def q(): return 1
+                        if n:
+                            g = p
+                        else:
+                            g = q
+                        return g()
+                      """,
+                      1,
+                      function_alias2=[int])
+
     def test_module_alias0(self):
         self.run_test("def module_alias0(c): import math ; m = math; return m.cos(c)", 1., module_alias0=[float])
 

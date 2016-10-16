@@ -37,7 +37,7 @@ struct __combined<T0, T1> {
 
   // operator+ does not exists -> pick first one, better than error
   // note that this is needed because broadcasting is too complex to be modeled
-  // by our clusmy type inference scheme
+  // by our clumsy type inference scheme
   // so we sometime endup with __combined<indexable_container<...>, int> which
   // only makes sense when broadcasting
   // fortunately, broadcasting is only supported by ndarray, and we already

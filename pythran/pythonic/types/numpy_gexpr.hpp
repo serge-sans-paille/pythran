@@ -323,6 +323,7 @@ namespace pythonic
 
     template <class Arg, class... S>
     numpy_gexpr<Arg, S...>::numpy_gexpr()
+        : buffer(nullptr)
     {
     }
 
@@ -448,6 +449,7 @@ namespace pythonic
        * assignment
        * perform a fuzzy alias check dynamically!
        */
+      assert(buffer);
       if (may_overlap(*this, expr)) {
         return utils::broadcast_copy<
             numpy_gexpr &, ndarray<typename E::dtype, E::value>, value,
@@ -469,6 +471,7 @@ namespace pythonic
     numpy_gexpr<Arg, S...>::_copy(E const &expr)
     {
       static_assert(value >= utils::dim_of<E>::value, "dimensions match");
+      assert(buffer);
       return utils::broadcast_copy < numpy_gexpr &, E, value,
              value - utils::dim_of<E>::value,
              is_vectorizable and
@@ -488,6 +491,7 @@ namespace pythonic
     {
       return _copy(expr);
     }
+
     template <class Arg, class... S>
     template <class Op, class E>
     typename std::enable_if<not may_overlap_gexpr<E>::value,

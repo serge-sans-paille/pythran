@@ -25,6 +25,15 @@ auto to_python(T &&value) -> decltype(pythonic::to_python<
       typename std::remove_cv<typename std::remove_reference<T>::type>::type>::
       convert(std::forward<T>(value));
 }
+
+template <class T>
+auto to_python_from_expr(T &&value) -> decltype(to_python(
+      typename pythonic::returnable<typename std::remove_cv<typename std::remove_reference<T>::type>::type>::type{std::forward<T>(value)}))
+{
+  using returnable_type = typename pythonic::returnable<typename std::remove_cv<typename std::remove_reference<T>::type>::type>::type;
+  return to_python(returnable_type{std::forward<T>(value)});
+}
+
 template <class T>
 T from_python(PyObject *obj)
 {

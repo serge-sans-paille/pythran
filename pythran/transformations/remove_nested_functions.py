@@ -13,6 +13,7 @@ class _NestedFunctionRemover(Transformation):
         self.ctx = ctx
         self.passmanager = pm
         self.global_declarations = global_declarations
+        self.identifiers = set(self.global_declarations.keys())
 
     def visit_FunctionDef(self, node):
         self.update = True
@@ -24,7 +25,14 @@ class _NestedFunctionRemover(Transformation):
         self.ctx.module.body.append(node)
 
         former_name = node.name
-        new_name = "pythran_{0}".format(former_name)
+        seed = 0
+        new_name = "pythran_{}{}"
+
+        while new_name.format(former_name, seed) in self.identifiers:
+            seed += 1
+
+        new_name = new_name.format(former_name, seed)
+        self.identifiers.add(new_name)
 
         ii = self.passmanager.gather(ImportedIds, node, self.ctx)
         binded_args = [ast.Name(iin, ast.Load(), None) for iin in sorted(ii)]
@@ -83,9 +91,9 @@ class RemoveNestedFunctions(Transformation):
     >>> print pm.dump(backend.Python, node)
     import functools
     def foo(x):
-        bar = functools.partial(pythran_bar, x)
+        bar = functools.partial(pythran_bar0, x)
         bar(12)
-    def pythran_bar(x, y):
+    def pythran_bar0(x, y):
         return (x + y)
     """
     def __init__(self):

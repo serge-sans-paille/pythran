@@ -63,3 +63,13 @@ class TestComplex(TestEnv):
         self.run_test('def test_complex_array_real_imag(e): return e.real + e.imag',
                       np.array([[3.,2.,4.]], dtype=complex),
                       test_complex_array_real_imag=[NDArray[complex, :, :]])
+
+    def test_complex_sum_different_types(self):
+        self.run_test('def test_complex_different_types(a,b): return a + b',
+                      np.array([[3 + 2j]],dtype=np.complex64),np.array([[8 + 1j]],dtype=np.complex128),
+                      test_complex_different_types=[NDArray[np.complex64, :, :],NDArray[np.complex128, :, :]])
+
+    def test_complex_sum_same_types(self):
+        self.run_test('def test_complex_same_types(a): return a + a',
+                      np.array([[3 + 2j]],dtype=np.complex64),
+                      test_complex_same_types=[NDArray[np.complex64, :, :]])

@@ -39,6 +39,20 @@ struct __combined<std::complex<double>, indexable<K>> {
 
 /* } */
 
+#define STD_COMPLEX_IMPLICT_OPERATOR_CAST(op)                                  \
+  template <class T, class U>                                                  \
+  auto operator op(std::complex<T> const &lhs, std::complex<U> const &rhs)     \
+      ->std::complex<typename std::common_type<T, U>::type>                    \
+  {                                                                            \
+    using ctype = std::complex<typename std::common_type<T, U>::type>;         \
+    return ctype{lhs} + ctype{rhs};                                            \
+  }
+
+STD_COMPLEX_IMPLICT_OPERATOR_CAST(+)
+STD_COMPLEX_IMPLICT_OPERATOR_CAST(-)
+STD_COMPLEX_IMPLICT_OPERATOR_CAST(*)
+STD_COMPLEX_IMPLICT_OPERATOR_CAST(/ )
+
 #ifdef ENABLE_PYTHON_MODULE
 
 #include "pythonic/python/core.hpp"

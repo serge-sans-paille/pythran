@@ -28,7 +28,6 @@ from setuptools.command.build_py import build_py
 from setuptools import setup
 from distutils import ccompiler
 from distutils.errors import CompileError, LinkError
-from setuptools.command.test import test as TestCommand
 
 import logging
 import glob
@@ -59,26 +58,6 @@ logger.addHandler(logging.StreamHandler())
 
 versionfile = os.path.join('pythran', 'version.py')
 exec(open(versionfile).read())
-
-
-class PyTest(TestCommand):
-    user_options = [('pytest-args=', 'a', "Arguments to pass to py.test")]
-
-    def initialize_options(self):
-        TestCommand.initialize_options(self)
-        self.pytest_args = []
-
-    def finalize_options(self):
-        TestCommand.finalize_options(self)
-        self.test_args = ['--pep8']
-        self.test_suite = True
-
-    def run_tests(self):
-        # import here, cause outside the eggs aren't loaded
-        import pytest
-        sys.path.append(os.getcwd())
-        errno = pytest.main(self.pytest_args)
-        sys.exit(errno)
 
 
 class BuildWithThirdParty(build_py):
@@ -208,9 +187,10 @@ setup(name='pythran',
       ],
       license="BSD 3-Clause",
       install_requires=open('requirements.txt').read().splitlines(),
-      entry_points={'console_scripts': ['pythran = pythran.run:run',
-                                        'pythran-config = pythran.config:run'],
-                    },
+      entry_points={'console_scripts':
+                    ['pythran = pythran.run:run',
+                     'pythran-config = pythran.config:run']},
+      setup_requires=["pytest-runner"],
       tests_require=['pytest', 'pytest-pep8'],
       test_suite="pythran/test",
-      cmdclass={'build_py': BuildWithThirdParty, 'test': PyTest})
+      cmdclass={'build_py': BuildWithThirdParty})

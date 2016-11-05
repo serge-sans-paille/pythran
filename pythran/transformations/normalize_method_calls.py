@@ -4,6 +4,7 @@ from pythran.analyses import Globals
 from pythran.passmanager import Transformation
 from pythran.syntax import PythranSyntaxError
 from pythran.tables import attributes, functions, methods, MODULES
+from pythran.conversion import mangle, demangle
 
 import gast as ast
 from functools import reduce
@@ -45,7 +46,7 @@ class NormalizeMethodCalls(Transformation):
         self.skip_functions = False
         self.generic_visit(node)
         new_imports = self.to_import - self.globals
-        imports = [ast.Import(names=[ast.alias(name=mod, asname=None)])
+        imports = [ast.Import(names=[ast.alias(name=mod[17:], asname=mod)])
                    for mod in new_imports]
         node.body = imports + node.body
         self.update |= bool(imports)
@@ -106,7 +107,7 @@ class NormalizeMethodCalls(Transformation):
         elif (isinstance(node.value, ast.Name) and
               node.value.id in self.imports):
             module_id = self.imports[node.value.id]
-            if node.attr not in MODULES[module_id]:
+            if node.attr not in MODULES[self.renamer(module_id, MODULES)[1]]:
                 msg = ("`" + node.attr + "' is not a member of " +
                        module_id + " or Pythran does not support it")
                 raise PythranSyntaxError(msg, node)
@@ -132,11 +133,13 @@ class NormalizeMethodCalls(Transformation):
         """
         Rename function path to fit Pythonic naming.
         """
+        mname = demangle(v)
+
         name = v + '_'
         if name in cur_module:
-            return name
+            return name, mname
         else:
-            return v
+            return v, mname
 
     def visit_Call(self, node):
         """
@@ -181,11 +184,11 @@ class NormalizeMethodCalls(Transformation):
                     node.args.insert(0, lhs)
                     mod = methods[node.func.attr][0]
                     # Submodules import full module
-                    self.to_import.add(mod[0])
+                    self.to_import.add(mangle(mod[0]))
                     node.func = reduce(
                         lambda v, o: ast.Attribute(v, o, ast.Load()),
                         mod[1:] + (node.func.attr,),
-                        ast.Name(mod[0], ast.Load(), None)
+                        ast.Name(mangle(mod[0]), ast.Load(), None)
                         )
                 # else methods have been called using function syntax
             if node.func.attr in methods or node.func.attr in functions:
@@ -202,13 +205,13 @@ class NormalizeMethodCalls(Transformation):
                     assert isinstance(path, (ast.Name, ast.Attribute)), err
                     if isinstance(path, ast.Attribute):
                         new_node, cur_module = rec(path.value, cur_module)
-                        new_id = self.renamer(path.attr, cur_module)
+                        new_id, mname = self.renamer(path.attr, cur_module)
                         return (ast.Attribute(new_node, new_id, ast.Load()),
-                                cur_module[new_id])
+                                cur_module[mname])
                     else:
-                        new_id = self.renamer(path.id, cur_module)
+                        new_id, mname = self.renamer(path.id, cur_module)
                         return (ast.Name(new_id, ast.Load(), None),
-                                cur_module[new_id])
+                                cur_module[mname])
 
                 # Rename module path to avoid naming issue.
                 node.func.value, _ = rec(node.func.value, MODULES)

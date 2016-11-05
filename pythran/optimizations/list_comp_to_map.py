@@ -3,15 +3,19 @@
 from pythran.analyses import OptimizableComprehension
 from pythran.passmanager import Transformation
 from pythran.transformations import NormalizeTuples
+from pythran.conversion import mangle
+
 
 import gast as ast
 import sys
 
 if sys.version_info.major == 2:
     MODULE = 'itertools'
+    ASMODULE = mangle(MODULE)
     IFILTER = 'ifilter'
 else:
     MODULE = '__builtin__'
+    ASMODULE = MODULE
     IFILTER = 'filter'
 
 
@@ -35,8 +39,9 @@ class ListCompToMap(Transformation):
         self.use_itertools = False
         self.generic_visit(node)
         if self.use_itertools:
-            importIt = ast.Import(
-                names=[ast.alias(name='itertools', asname=None)])
+            import_alias = ast.alias(name='itertools',
+                                     asname=mangle('itertools'))
+            importIt = ast.Import(names=[import_alias])
             node.body.insert(0, importIt)
         return node
 
@@ -49,7 +54,7 @@ class ListCompToMap(Transformation):
                 if len(gen.ifs) > 1 else gen.ifs[0])
             self.use_itertools |= MODULE == 'itertools'
             ifilterName = ast.Attribute(
-                value=ast.Name(id=MODULE,
+                value=ast.Name(id=ASMODULE,
                                ctx=ast.Load(),
                                annotation=None),
                 attr=IFILTER, ctx=ast.Load())
@@ -77,7 +82,7 @@ class ListCompToMap(Transformation):
             else:
                 self.use_itertools = True
                 prodName = ast.Attribute(
-                    value=ast.Name(id='itertools',
+                    value=ast.Name(id=mangle('itertools'),
                                    ctx=ast.Load(),
                                    annotation=None),
                     attr='product', ctx=ast.Load())

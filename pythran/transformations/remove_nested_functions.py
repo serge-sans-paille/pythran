@@ -3,6 +3,7 @@
 from pythran.analyses import GlobalDeclarations, ImportedIds
 from pythran.passmanager import Transformation
 from pythran.tables import MODULES
+from pythran.conversion import mangle
 
 import gast as ast
 
@@ -18,9 +19,10 @@ class _NestedFunctionRemover(Transformation):
     def visit_FunctionDef(self, node):
         self.update = True
         if MODULES['functools'] not in self.global_declarations.values():
-            import_ = ast.Import([ast.alias('functools', None)])
+            import_ = ast.Import([ast.alias('functools', mangle('functools'))])
             self.ctx.module.body.insert(0, import_)
-            self.global_declarations['functools'] = MODULES['functools']
+            functools_module = MODULES['functools']
+            self.global_declarations[mangle('functools')] = functools_module
 
         self.ctx.module.body.append(node)
 
@@ -62,7 +64,7 @@ class _NestedFunctionRemover(Transformation):
             [ast.Name(former_name, ast.Store(), None)],
             ast.Call(
                 ast.Attribute(
-                    ast.Name('functools', ast.Load(), None),
+                    ast.Name(mangle('functools'), ast.Load(), None),
                     "partial",
                     ast.Load()
                     ),
@@ -89,9 +91,9 @@ class RemoveNestedFunctions(Transformation):
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(RemoveNestedFunctions, node)
     >>> print pm.dump(backend.Python, node)
-    import functools
+    import functools as __pythran_import_functools
     def foo(x):
-        bar = functools.partial(pythran_bar0, x)
+        bar = __pythran_import_functools.partial(pythran_bar0, x)
         bar(12)
     def pythran_bar0(x, y):
         return (x + y)

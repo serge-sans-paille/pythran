@@ -35,3 +35,15 @@ class TestImportAll(TestEnv):
 
         self.assertEqual(str(ex.exception),
                          "Unpythranizable module: collections")
+
+    def test_complex_import_manipulation(self):
+        """
+        Check correct error is returned for incorrect module manipulation.
+        """
+        code = """
+            import math
+            def unsupported_module():
+                return math"""
+
+        with self.assertRaises(pythran.syntax.PythranSyntaxError) as ex:
+            pythran.compile_pythrancode("flamby", dedent(code))

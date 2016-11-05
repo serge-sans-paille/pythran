@@ -19,7 +19,7 @@ from pythran.cxxtypes import (Assignable, DeclType, NamedType,
 from pythran.openmp import OMPDirective
 from pythran.passmanager import Backend
 from pythran.syntax import PythranSyntaxError
-from pythran.tables import operator_to_lambda, MODULES, pythran_ward, make_lazy
+from pythran.tables import operator_to_lambda, pythran_ward, make_lazy
 from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE, TYPE_TO_SUFFIX
 from pythran.types.types import Types
 from pythran.utils import attr_to_path

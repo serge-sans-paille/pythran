@@ -2,6 +2,7 @@
 
 from pythran.passmanager import Transformation
 from pythran.analyses.ast_matcher import ASTMatcher, AST_any
+from pythran.conversion import mangle
 
 import gast as ast
 import copy
@@ -19,19 +20,19 @@ class Square(Transformation):
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(Square, node)
     >>> print pm.dump(backend.Python, node)
-    import numpy
-    numpy.square(a)
-    >>> node = ast.parse('numpy.power(a,2)')
+    import numpy as __pythran_import_numpy
+    __pythran_import_numpy.square(a)
+    >>> node = ast.parse('__pythran_import_numpy.power(a,2)')
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(Square, node)
     >>> print pm.dump(backend.Python, node)
-    import numpy
-    numpy.square(a)
+    import numpy as __pythran_import_numpy
+    __pythran_import_numpy.square(a)
     """
 
     POW_PATTERN = ast.BinOp(AST_any(), ast.Pow(), ast.Num(2))
     POWER_PATTERN = ast.Call(
-        ast.Attribute(ast.Name('numpy', ast.Load(), None),
+        ast.Attribute(ast.Name(mangle('numpy'), ast.Load(), None),
                       'power',
                       ast.Load()),
         [AST_any(), ast.Num(2)],
@@ -42,15 +43,16 @@ class Square(Transformation):
 
     def replace(self, value):
         self.update = self.need_import = True
-        return ast.Call(ast.Attribute(ast.Name('numpy', ast.Load(), None),
-                                      'square', ast.Load()),
+        module_name = ast.Name(mangle('numpy'), ast.Load(), None)
+        return ast.Call(ast.Attribute(module_name, 'square', ast.Load()),
                         [value], [])
 
     def visit_Module(self, node):
         self.need_import = False
         self.generic_visit(node)
         if self.need_import:
-            importIt = ast.Import(names=[ast.alias(name='numpy', asname=None)])
+            import_alias = ast.alias(name='numpy', asname=mangle('numpy'))
+            importIt = ast.Import(names=[import_alias])
             node.body.insert(0, importIt)
         return node
 

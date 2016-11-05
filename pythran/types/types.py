@@ -402,7 +402,7 @@ class Types(ModuleAnalysis):
                 bounded_name = a0.id
                 # by construction of the bind construct
                 assert len(self.strict_aliases[a0]) == 1
-                bounded_function = list(self.strict_aliases[a0])[0]
+                bounded_function = next(iter(self.strict_aliases[a0]))
                 fake_name = ast.Name(bounded_name, ast.Load(), None)
                 fake_node = ast.Call(fake_name, alias.args[1:] + node.args,
                                      [])

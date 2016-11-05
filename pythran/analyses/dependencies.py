@@ -4,6 +4,7 @@ Dependencies lists the functions and types required by a function
 
 from pythran.passmanager import ModuleAnalysis
 from pythran.tables import MODULES
+from pythran.conversion import demangle
 
 import gast as ast
 import math
@@ -98,7 +99,7 @@ class Dependencies(ModuleAnalysis):
     def visit_Attribute(self, node):
         def rec(w, n):
             if isinstance(n, ast.Name):
-                return (n.id,)
+                return demangle(n.id),
             elif isinstance(n, ast.Attribute):
                 return rec(w, n.value) + (n.attr,)
         attr = rec(MODULES, node)

@@ -68,11 +68,14 @@ class TestBase(TestEnv):
                       1.,
                       module_alias4=[float])
 
+    def test_module_alias5(self):
+        self.run_test("import math as m2\ndef module_alias5(math): m = m2 ; return m.cos(math)", 1., module_alias5=[float])
+
     def test_shadow_import0(self):
         self.run_test("def shadow_import0(math): math.add(1)", {1,2}, shadow_import0=[{int}])
 
     def test_shadow_import1(self):
-        self.run_test("def shadow_import1(): math={ 1 } ; math.add(1)", shadow_import1=[])
+        self.run_test("def shadow_import1(v): math={ v } ; math.add(1)", 1, shadow_import1=[int])
 
     def test_shadow_import2(self):
         self.run_test("def shadow_import2(s):\n for set in s : set.add(1)", [{1},{2}], shadow_import2=[[{int}]])

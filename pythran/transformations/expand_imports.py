@@ -1,7 +1,10 @@
 """ ExpandImports replaces imports by their full paths. """
 
 from pythran.passmanager import Transformation
-from pythran.utils import path_to_attr
+from pythran.utils import path_to_attr, path_to_node
+from pythran.conversion import mangle
+from pythran.syntax import PythranSyntaxError
+from pythran.analyses import Ancestors
 
 import gast as ast
 
@@ -26,18 +29,17 @@ class ExpandImports(Transformation):
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(ExpandImports, node)
     >>> print pm.dump(backend.Python, node)
-    import math
-    math.cos(2)
+    import math as __pythran_import_math
+    __pythran_import_math.cos(2)
     >>> node = ast.parse("from os.path import join ; join('a', 'b')")
     >>> _, node = pm.apply(ExpandImports, node)
     >>> print pm.dump(backend.Python, node)
-    import os
-    os.path.join('a', 'b')
+    import os as __pythran_import_os
+    __pythran_import_os.path.join('a', 'b')
     """
 
     def __init__(self):
-        """ Basic initialiser. """
-        Transformation.__init__(self)
+        super(ExpandImports, self).__init__(Ancestors)
         self.imports = set()
         self.symbols = dict()
 
@@ -53,7 +55,7 @@ class ExpandImports(Transformation):
 
         """
         node.body = [k for k in (self.visit(n) for n in node.body) if k]
-        imports = [ast.Import([ast.alias(i, None)]) for i in self.imports]
+        imports = [ast.Import([ast.alias(i, mangle(i))]) for i in self.imports]
         node.body = imports + node.body
         ast.fix_missing_locations(node)
         return node
@@ -63,7 +65,10 @@ class ExpandImports(Transformation):
         for alias in node.names:
             alias_name = tuple(alias.name.split('.'))
             self.imports.add(alias_name[0])
-            self.symbols[alias.asname or alias.name] = alias_name
+            if alias.asname:
+                self.symbols[alias.asname] = alias_name
+            else:
+                self.symbols[alias_name[0]] = alias_name[:1]
             self.update = True
         return None
 
@@ -72,8 +77,8 @@ class ExpandImports(Transformation):
         module_path = tuple(node.module.split('.'))
         self.imports.add(module_path[0])
         for alias in node.names:
-            self.symbols[alias.asname or
-                         alias.name] = module_path + (alias.name,)
+            path = module_path + (alias.name,)
+            self.symbols[alias.asname or alias.name] = path
         self.update = True
         return None
 
@@ -94,7 +99,7 @@ class ExpandImports(Transformation):
         self.symbols.pop(node.name, None)
         gsymbols = self.symbols.copy()
         [self.symbols.pop(arg.id, None) for arg in node.args.args]
-        node.body = [k for k in (self.visit(n) for n in node.body) if k]
+        self.generic_visit(node)
         self.symbols = gsymbols
         return node
 
@@ -111,6 +116,15 @@ class ExpandImports(Transformation):
 
         In this case, foo can't be used after assign.
         """
+        if isinstance(node.value, ast.Name) and node.value.id in self.symbols:
+            symbol = path_to_node(self.symbols[node.value.id])
+            if not getattr(symbol, 'isliteral', lambda: False)():
+                for target in node.targets:
+                    if not isinstance(target, ast.Name):
+                        err = "Unsupported module aliasing"
+                        raise PythranSyntaxError(err, target)
+                    self.symbols[target.id] = self.symbols[node.value.id]
+                return None  # this assignment is no longer needed
         new_node = self.generic_visit(node)
         # no problem if targets contains a subscript, it is not a new assign.
         [self.symbols.pop(t.id, None)
@@ -132,6 +146,17 @@ class ExpandImports(Transformation):
         >> numpy.linalg.det(a)
         """
         if node.id in self.symbols:
+            symbol = path_to_node(self.symbols[node.id])
+            if not getattr(symbol, 'isliteral', lambda: False)():
+                parent = self.ancestors[node][-1]
+                blacklist = (ast.Tuple,
+                             ast.List,
+                             ast.Set,
+                             ast.Return)
+                if isinstance(parent, blacklist):
+                    raise PythranSyntaxError(
+                        "Unsupported module identifier manipulation",
+                        node)
             new_node = path_to_attr(self.symbols[node.id])
             new_node.ctx = node.ctx
             ast.copy_location(new_node, node)

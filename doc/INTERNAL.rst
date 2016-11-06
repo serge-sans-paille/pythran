@@ -246,7 +246,7 @@ about aliased values::
     >>> foo_tree = getast(foo)
     >>> lazyness = pm.gather(analyses.LazynessAnalysis, foo_tree)
     >>> lazyness
-    {'a': 1, 'array': 1, 'b': 1, 'a_': 1}
+    {'a': 2, 'array': 1, 'b': 1, 'a_': 1}
 
 
 Doc Strings

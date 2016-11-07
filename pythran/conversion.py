@@ -82,7 +82,7 @@ def to_ast(value):
                   numpy.float_, numpy.uint8, numpy.uint16, numpy.uint32,
                   numpy.uint64, numpy.int8, numpy.int16, numpy.int32,
                   numpy.int64, numpy.intp, numpy.intc, numpy.int_,
-                  numpy.bool_)
+                  numpy.bool_, numpy._globals._NoValue)
     itertools_t = [getattr(itertools, fun) for fun in dir(itertools)
                    if isinstance(getattr(itertools, fun), type)]
     unfolded_type = (types.BuiltinFunctionType, types.BuiltinMethodType,

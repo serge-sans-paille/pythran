@@ -1,3 +1,4 @@
+#unittest.gmp.skip
 #runas solve(2, 100)
 #pythran export solve(int, int)
 '''

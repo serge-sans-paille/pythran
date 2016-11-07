@@ -597,21 +597,21 @@ def np_broadcast():
         self.run_test(code, np_broadcast=[])
 
     def test_broadcast_slice(self):
-        """Check that slicing an expression involving a broadcast works. """
+        """Check that slicing an expression involving a broadcast works."""
         code = """
             def np_broadcast_slice(n):
                 import numpy
-                a = numpy.arange(n).reshape(2, n/2)
+                a = numpy.arange(n).reshape(2, n//2)
                 return (a + 1)[:,1:]"""
         self.run_test(code, 20, np_broadcast_slice=[int])
 
     def test_broadcast_slice_again(self):
-        """Check that slicing an expression involving a broadcast works. """
+        """Check that slicing an expression involving a broadcast works."""
         code = """
             def np_broadcast_slice_again(n):
                 import numpy
-                a = numpy.arange(n).reshape(2, n/2)
-                b = numpy.arange(n/2)
+                a = numpy.arange(n).reshape(2, n//2)
+                b = numpy.arange(n//2)
                 return (a + b)[:,1:]"""
         self.run_test(code, 20, np_broadcast_slice_again=[int])
 

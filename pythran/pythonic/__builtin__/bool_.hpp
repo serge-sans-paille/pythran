@@ -18,24 +18,24 @@ namespace pythonic
     {
 
       template <class T>
-      bool bool_::operator()(T &&val)
+      bool bool_::operator()(T &&val) const
       {
         return (bool)val;
       }
 
-      bool bool_::operator()()
+      bool bool_::operator()() const
       {
         return false;
       }
 
 #ifdef USE_GMP
       template <class T, class U>
-      bool bool_::operator()(__gmp_expr<T, U> const &a)
+      bool bool_::operator()(__gmp_expr<T, U> const &a) const
       {
         return a != 0;
       }
       template <class T, class U>
-      bool bool_::operator()(__gmp_expr<T, U> &&a)
+      bool bool_::operator()(__gmp_expr<T, U> &&a) const
       {
         return a != 0;
       }

@@ -27,14 +27,14 @@ class PureExpressions(ModuleAnalysis):
         return False
 
     def generic_visit(self, node):
-        is_pure = all(map(self.visit, ast.iter_child_nodes(node)))
+        is_pure = all([self.visit(x) for x in ast.iter_child_nodes(node)])
         if is_pure:
             self.result.add(node)
         return is_pure
 
     def visit_Call(self, node):
         # check if all arguments are Pures
-        is_pure = all(self.visit(arg) for arg in node.args)
+        is_pure = all([self.visit(arg) for arg in node.args])
 
         # check all possible function called
         func_aliases = self.aliases[node.func]
@@ -54,7 +54,7 @@ class PureExpressions(ModuleAnalysis):
                         if ae:
                             try:
                                 ast.literal_eval(arg)
-                            except ValueError as ve:
+                            except ValueError:
                                 is_pure = False
                 else:
                     is_pure = False

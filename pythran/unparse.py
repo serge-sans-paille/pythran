@@ -199,20 +199,22 @@ class Unparser:
             self.dispatch(t.locals)
 
     def _Print(self, t):
-        self.fill("print ")
+        # Assume from __future__ import print_function
+        self.fill("print")
         do_comma = False
-        if t.dest:
-            self.write(">>")
-            self.dispatch(t.dest)
-            do_comma = True
+        self.write("(")
         for e in t.values:
             if do_comma:
                 self.write(", ")
             else:
                 do_comma = True
             self.dispatch(e)
+        if t.dest:
+            self.write(", file=")
+            self.dispatch(t.dest)
         if not t.nl:
-            self.write(",")
+            self.write(", end=''")
+        self.write(")")
 
     def _Global(self, t):
         self.fill("global ")

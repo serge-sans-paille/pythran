@@ -13,12 +13,12 @@ class RangeLoopUnfolding(Transformation):
 
     >>> import gast as ast
     >>> from pythran import passmanager, backend
-    >>> node = ast.parse("for i in [1,2,3]: print i")
+    >>> node = ast.parse("for i in [1,2,3]: print(i)")
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(RangeLoopUnfolding, node)
-    >>> print pm.dump(backend.Python, node)
+    >>> print(pm.dump(backend.Python, node))
     for i in __builtin__.xrange(1, 4, 1):
-        print i
+        print(i)
     """
 
     def isrange(self, elts):

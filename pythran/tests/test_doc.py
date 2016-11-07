@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import doctest
 import inspect
 import os
@@ -48,8 +50,9 @@ class TestDoctest(unittest.TestCase):
         import re
         from tempfile import NamedTemporaryFile
         filepath = os.path.join(os.path.dirname(__file__), relative_path)
-        rst_doc = file(filepath).read()
-        sp = re.sub(r'\.\.(\s+>>>)', r'\1', rst_doc)  # hidden doctest
+        with open(filepath) as rst_doc:
+            # hidden doctest
+            sp = re.sub(r'\.\.(\s+>>>)', r'\1', rst_doc.read())
 
         # hack to support setuptools-generated pythran / pythran-config scripts
         for tool, sub in (('pythran-config', 'python -m pythran.config'),
@@ -61,10 +64,10 @@ class TestDoctest(unittest.TestCase):
 
         # convert shell doctest into python ones
         sp = re.sub(r'\$>(.*?)$',
-                    r'>>> import subprocess ; print subprocess.check_output("\1", shell=True),',
+                    r'>>> from __future__ import print_function ; import subprocess ; res = subprocess.check_output("\1", shell=True).decode("ascii").strip() ; print(res, end="")',
                     sp,
                     flags=re.MULTILINE)
-        f = NamedTemporaryFile(delete=False)
+        f = NamedTemporaryFile("w", delete=False)
         f.write(sp)
         f.close()
         return f.name
@@ -81,11 +84,9 @@ def add_module_doctest(base, module_name):
 
 # doctest does not goes through imported variables,
 # so manage the tests manually here
-map(lambda x: add_module_doctest(pythran, x), dir(pythran))
-map(lambda x: add_module_doctest(transformations, x), dir(transformations))
-map(lambda x: add_module_doctest(analyses, x), dir(analyses))
-map(lambda x: add_module_doctest(optimizations, x), dir(optimizations))
-map(lambda x: add_module_doctest(types, x), dir(types))
+for module in (pythran, transformations, analyses, optimizations, types):
+    for submodule in dir(module):
+        add_module_doctest(module, submodule)
 
 if __name__ == '__main__':
     unittest.main()

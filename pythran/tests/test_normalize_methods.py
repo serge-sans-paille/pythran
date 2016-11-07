@@ -1,6 +1,10 @@
 from test_env import TestEnv
+
 import numpy
+
 from tempfile import mkstemp
+import sys
+import unittest
 
 class TestBase(TestEnv):
 
@@ -45,6 +49,7 @@ class TestBase(TestEnv):
                       "1", [1],
                       dispatch_count=[str, [int]])
 
+    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_dispatch_next(self):
         filename = mkstemp()[1]
         with open(filename,"w") as f:

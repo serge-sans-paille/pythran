@@ -345,7 +345,7 @@ class ImportRegistry(object):
                 import_list.append(import_node)
             # Here we import the function itself (FunctionDef node)
             # In case of builtin module, it is an ImportFrom node.
-            import_list.extend(mod.exported_functions.values())
+            import_list.extend(list(mod.exported_functions.values()))
         return import_list
 
 

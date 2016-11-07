@@ -14,7 +14,7 @@ Firstly lets clear the working space::
 
 One of the most classic use case in Pythran is to generate a native .so module::
 
-  $> printf '#pythran export foo()\n#pythran export msg\nmsg = \"hello world\"\ndef foo(): print msg' > cli_foo.py
+  $> printf '#pythran export foo()\n#pythran export msg\nmsg = \"hello world\"\ndef foo(): print(msg)' > cli_foo.py
   $> pythran cli_foo.py
   $> ls cli_foo.so
   cli_foo.so

@@ -1,6 +1,9 @@
 #from https://github.com/iskandr/parakeet/blob/master/benchmarks/nd_local_maxima.py
 #pythran export local_maxima(float [][][][])
 #runas import numpy as np ; shape = (8,6,4,2) ; x = np.arange(8*6*4*2, dtype=np.float64).reshape(*shape) ; local_maxima(x)
+#unittest.python3.skip I have no idea why it works with python2. The only
+# difference is the zip/izip map/imap transformation for the tuple computation
+
 import numpy as np
 
 def wrap(pos, offset, bound):

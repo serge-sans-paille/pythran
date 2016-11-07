@@ -36,7 +36,7 @@ class TestList(TestEnv):
         self.run_test("def insertneg_(a,b):\n c=[1,3,5,4,2]\n c.insert(a,b)\n return c",-1,-2, insertneg_=[int,int])
 
     def test_subscripted_slice(self):
-        self.run_test("def subscripted_slice(l): a=l[2:6:2] ; return a[1]", range(10), subscripted_slice=[[int]])
+        self.run_test("def subscripted_slice(l): a=l[2:6:2] ; return a[1]", list(range(10)), subscripted_slice=[[int]])
 
     def test_list_comparison(self):
         self.run_test("def list_comparison(l): return max(l)", [[1,2,3],[1,4,1],[1,4,8,9]], list_comparison=[[[int]]])

@@ -1,3 +1,4 @@
+#unittest.python3.skip string.find not available anymore.
 #pythran export score_text(str, str:int dict)
 #runas score_text("e", { "d": 1 })
 import string

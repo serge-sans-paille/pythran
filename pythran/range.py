@@ -45,18 +45,18 @@ UNKNOWN_RANGE = Range(-float("inf"), float("inf"))
 def range_values(args):
     """ Function used to compute returned range value of [x]range function. """
     if len(args) == 1:
-        return (0, args[0].high)
+        return Range(0, args[0].high)
     elif len(args) == 2:
-        return (args[0].low, args[1].high)
+        return Range(args[0].low, args[1].high)
     elif len(args) == 3:
         is_neg = args[2].low < 0
         is_pos = args[2].high > 0
         if is_neg and is_pos:
             return UNKNOWN_RANGE
         elif is_neg:
-            return (args[1].low, args[0].high)
+            return Range(args[1].low, args[0].high)
         else:
-            return (args[0].low, args[1].high)
+            return Range(args[0].low, args[1].high)
 
 
 def bool_values(_):

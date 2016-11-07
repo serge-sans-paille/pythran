@@ -17,6 +17,17 @@ class RangeValues(FunctionAnalysis):
 
     It is flow insensitif and aliasing is not taken into account as integer
     doesn't create aliasing in Python.
+
+    >>> import gast as ast
+    >>> from pythran import passmanager, backend
+    >>> node = ast.parse('''
+    ... def foo(a):
+    ...     for i in __builtin__.range(1, 10):
+    ...         c = i // 2''')
+    >>> pm = passmanager.PassManager("test")
+    >>> res = pm.gather(RangeValues, node)
+    >>> res['c'], res['i']
+    (Range(low=0, high=5), Range(low=1, high=10))
     """
 
     def __init__(self):

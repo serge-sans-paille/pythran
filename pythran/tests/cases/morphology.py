@@ -12,8 +12,8 @@ def dilate_decompose_loops(x, k):
   y = empty_like(x)
   for i in xrange(m):
     for j in xrange(n):
-      left_idx = max(0, i-k/2)
-      right_idx = min(m, i+k/2+1)
+      left_idx = max(0, i-k//2)
+      right_idx = min(m, i+k//2+1)
       currmax = x[left_idx, j]
       for ii in xrange(left_idx+1, right_idx):
         elt = x[ii, j]
@@ -23,8 +23,8 @@ def dilate_decompose_loops(x, k):
   z = empty_like(x)
   for i in xrange(m):
     for j in xrange(n):
-      left_idx = max(0, j-k/2)
-      right_idx = min(n, j+k/2+1)
+      left_idx = max(0, j-k//2)
+      right_idx = min(n, j+k//2+1)
       currmax = y[i,left_idx]
       for jj in xrange(left_idx+1, right_idx):
         elt = y[i,jj]
@@ -35,12 +35,12 @@ def dilate_decompose_loops(x, k):
 
 #def dilate_1d_naive(x_strip,  k):
 #  """
-#  Given a 1-dimensional input and 1-dimensional output, 
-#  fill output with 1d dilation of input 
+#  Given a 1-dimensional input and 1-dimensional output,
+#  fill output with 1d dilation of input
 #  """
 #  nelts = len(x_strip)
 #  y_strip = empty_like(x_strip)
-#  half = k / 2 
+#  half = k / 2
 #  for idx in xrange(nelts):
 #    left_idx = max(idx-half,0)
 #    right_idx = min(idx+half+1, nelts)
@@ -49,24 +49,24 @@ def dilate_decompose_loops(x, k):
 #      elt = x_strip[j]
 #      if elt > currmax:
 #        currmax = elt
-#    y_strip[idx] = currmax 
+#    y_strip[idx] = currmax
 #  return y_strip
 #
-#def dilate_decompose(x, k): 
+#def dilate_decompose(x, k):
 #  import numpy as np
 #  m,n = x.shape
 #  y = np.array([dilate_1d_naive(x[row_idx, :], k) for row_idx in xrange(m)])
 #  return np.array([dilate_1d_naive(y[:, col_idx], k) for col_idx in xrange(n)]).T
 #
 #def dilate_1d_interior(x_strip, k):
-#  
+#
 #  nelts = len(x_strip)
 #  y_strip = empty_like(x_strip)
-#  half = k / 2 
-#  
+#  half = k / 2
+#
 #  interior_start = half+1
 #  interior_stop = max(nelts-half, interior_start)
-#  
+#
 #  # left boundary
 #  for i in xrange(min(half+1, nelts)):
 #    left_idx = max(i-half,0)
@@ -76,9 +76,9 @@ def dilate_decompose_loops(x, k):
 #      elt = x_strip[j]
 #      if elt > currmax:
 #        currmax = elt
-#    y_strip[i] = currmax 
-#    
-#  #interior 
+#    y_strip[i] = currmax
+#
+#  #interior
 #  for i in xrange(interior_start, interior_stop):
 #    left_idx = i-half
 #    right_idx = i+half+1
@@ -87,8 +87,8 @@ def dilate_decompose_loops(x, k):
 #      elt = x_strip[j]
 #      if elt > currmax:
 #        currmax = elt
-#    y_strip[i] = currmax 
-#  
+#    y_strip[i] = currmax
+#
 #  # right boundary
 #  for i in xrange(interior_stop, nelts):
 #    left_idx = max(i-half, 0)
@@ -98,10 +98,10 @@ def dilate_decompose_loops(x, k):
 #      elt = x_strip[j]
 #      if elt > currmax:
 #        currmax = elt
-#    y_strip[i] = currmax 
-#  return y_strip 
+#    y_strip[i] = currmax
+#  return y_strip
 #
-#def dilate_decompose_interior(x, k): 
+#def dilate_decompose_interior(x, k):
 #  m,n = x.shape
 #  y = np.array([dilate_1d_interior(x[row_idx, :],k) for row_idx in xrange(m)])
 #  return np.array([dilate_1d_interior(y[:, col_idx],k) for col_idx in xrange(n)]).T

@@ -1,6 +1,6 @@
 #from http://rosettacode.org/wiki/Price_fraction#Python
 #pythran export pricerounder(float)
-#runas map(pricerounder, [0.3793, 0.4425, 0.0746, 0.6918, 0.2993, 0.5486, 0.7848, 0.9383, 0.2292, 0.9560])
+#runas list(map(pricerounder, [0.3793, 0.4425, 0.0746, 0.6918, 0.2993, 0.5486, 0.7848, 0.9383, 0.2292, 0.9560]))
 
 import bisect
 def pricerounder(pricein):

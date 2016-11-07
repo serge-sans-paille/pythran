@@ -91,13 +91,15 @@ def make_extension(**extra):
 
 
 def compiler():
+    """Get compiler to use for C++ to binary process."""
     return os.environ.get('CXX', 'c++')
 
 
 def have_gmp_support(**extra):
-    """ Check if the USE_GMP macro is defined. """
-    return any("USE_GMP" == name
-               for name, _ in make_extension(**extra)["define_macros"])
+    """Check if the USE_GMP macro is defined."""
+    return (sys.version_info.major != 3 and
+            any("USE_GMP" == name
+                for name, _ in make_extension(**extra)["define_macros"]))
 
 # load platform specific configuration then user configuration
 cfg = init_cfg('pythran.cfg',

@@ -81,7 +81,7 @@ def pytype_to_pretty_type(t):
                                      pytype_to_pretty_type(tvalue))
     elif isinstance(t, tuple):
         return '({0})'.format(
-            ", ".join(map(pytype_to_pretty_type, t)))
+            ", ".join((pytype_to_pretty_type(v) for v in t)))
     elif isinstance(t, ndarray):
         dtype = pytype_to_pretty_type(t.flat[0])
         ndim = t.ndim

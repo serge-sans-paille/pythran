@@ -25,32 +25,32 @@ class ConstantExpressions(NodeAnalysis):
         return True
 
     def visit_BoolOp(self, node):
-        return all(map(self.visit, node.values)) and self.add(node)
+        return all([self.visit(x) for x in node.values]) and self.add(node)
 
     def visit_BinOp(self, node):
-        rec = all(map(self.visit, (node.left, node.right)))
+        rec = all([self.visit(x) for x in (node.left, node.right)])
         return rec and self.add(node)
 
     def visit_UnaryOp(self, node):
         return self.visit(node.operand) and self.add(node)
 
     def visit_IfExp(self, node):
-        rec = all(map(self.visit, (node.test, node.body, node.orelse)))
+        rec = all([self.visit(x) for x in (node.test, node.body, node.orelse)])
         return rec and self.add(node)
 
     def visit_Compare(self, node):
-        rec = all(map(self.visit, [node.left] + node.comparators))
+        rec = all([self.visit(x) for x in ([node.left] + node.comparators)])
         return rec and self.add(node)
 
     def visit_Call(self, node):
-        rec = all(map(self.visit, node.args + [node.func]))
+        rec = all([self.visit(x) for x in (node.args + [node.func])])
         return rec and self.add(node)
 
     visit_Num = add
     visit_Str = add
 
     def visit_Subscript(self, node):
-        rec = all(map(self.visit, (node.value, node.slice)))
+        rec = all([self.visit(x) for x in (node.value, node.slice)])
         return rec and self.add(node)
 
     def visit_Name(self, node):
@@ -90,11 +90,11 @@ class ConstantExpressions(NodeAnalysis):
         return rec(MODULES, node).isconst() and self.add(node)
 
     def visit_Dict(self, node):
-        rec = all(map(self.visit, node.keys + node.values))
+        rec = all([self.visit(x) for x in (node.keys + node.values)])
         return rec and self.add(node)
 
     def visit_List(self, node):
-        return all(map(self.visit, node.elts)) and self.add(node)
+        return all([self.visit(x) for x in node.elts]) and self.add(node)
 
     visit_Tuple = visit_List
     visit_Set = visit_List

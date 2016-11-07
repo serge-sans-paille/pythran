@@ -13,12 +13,12 @@ class NormalizeReturn(Transformation):
 
     >>> import gast as ast
     >>> from pythran import passmanager, backend
-    >>> node = ast.parse("def foo(y): print y")
+    >>> node = ast.parse("def foo(y): print(y)")
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(NormalizeReturn, node)
     >>> print pm.dump(backend.Python, node)
     def foo(y):
-        print y
+        print(y)
         return __builtin__.None
     '''
 

@@ -106,7 +106,7 @@ class RemoveComprehension(Transformation):
                 [], [],)
             )
         result = ast.Return(ast.Name(starget, ast.Load(), None))
-        sargs = sorted(ast.Name(arg, ast.Param(), None) for arg in args)
+        sargs = [ast.Name(arg, ast.Param(), None) for arg in args]
         fd = ast.FunctionDef(name,
                              ast.arguments(sargs, None, [], [], None, []),
                              [init, body, result],
@@ -147,11 +147,10 @@ class RemoveComprehension(Transformation):
                       ast.Expr(ast.Yield(node.elt))
                       )
 
-        sargs = sorted(ast.Name(arg, ast.Param(), None) for arg in args)
+        sargs = [ast.Name(arg, ast.Param(), None) for arg in args]
         fd = ast.FunctionDef(name,
                              ast.arguments(sargs, None, [], [], None, []),
-                             [body],
-                             [], [])
+                             [body], [], None)
         self.ctx.module.body.append(fd)
         return ast.Call(
             ast.Name(name, ast.Load(), None),

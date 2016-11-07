@@ -9,7 +9,7 @@
  Evaluate the sum of all the amicable numbers under 10000.
 '''
 
-def divisors(n): return list(i for i in xrange(1, n/2+1) if n % i == 0)
+def divisors(n): return list(i for i in xrange(1, n//2+1) if n % i == 0)
 def solve(m):
 	pair = dict( ((n, sum(divisors(n))) for n in xrange(1, m)) )
 	return sum(n for n in xrange(1, m) if pair.get(pair[n], 0) == n and pair[n] != n)

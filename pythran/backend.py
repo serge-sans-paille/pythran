@@ -44,7 +44,7 @@ class Python(Backend):
     >>> node = ast.parse("print('hello world')")
     >>> pm = passmanager.PassManager('test')
     >>> print(pm.dump(Python, node))
-    print 'hello world'
+    print('hello world')
     '''
 
     def __init__(self):
@@ -674,7 +674,7 @@ pythonic::types::none_type>::type result_type;
         value = self.visit(node.value)
         target = self.visit(node.target)
         l = operator_to_lambda[type(node.op)]
-        if isinstance(node.op, (ast.FloorDiv, ast.Mod, ast.Pow)):
+        if isinstance(node.op, (ast.FloorDiv, ast.Mod, ast.Pow, ast.Div)):
             stmt = Assign(target, l(target, value))
         else:
             stmt = Statement(l(target, '')[1:-2] + '= {0}'.format(value))
@@ -1075,7 +1075,7 @@ pythonic::types::none_type>::type result_type;
 
     def visit_Assert(self, node):
         params = [self.visit(node.test), node.msg and self.visit(node.msg)]
-        sparams = ", ".join(map(strip_exp, [_f for _f in params if _f]))
+        sparams = ", ".join(strip_exp(_f) for _f in params if _f)
         return Statement("pythonic::pythran_assert({0})".format(sparams))
 
     def visit_Import(self, _):

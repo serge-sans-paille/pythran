@@ -1,5 +1,9 @@
 from test_env import TestEnv
 
+import sys
+import unittest
+
+
 class TestStr(TestEnv):
 
     def test_str_startswith0(self):
@@ -83,6 +87,7 @@ class TestStr(TestEnv):
     def test_str_join1(self):
         self.run_test("def str_join1(): a = ['l', 'l'] ; return 'o'.join(a)", str_join1=[])
 
+    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_str_join2(self):
         self.run_test("def str_join2(a): from itertools import ifilter; return 'o'.join(ifilter(len, a))", ['l', 'l'], str_join2=[[str]])
 

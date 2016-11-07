@@ -1,9 +1,19 @@
-import unittest
-import os
 from subprocess import check_call
+import os
 import shutil
+import sys
+import sysconfig
+import unittest
 
 cwd = os.path.dirname(__file__)
+python_version = "python{}.{}".format(sys.version_info.major,
+                                      sys.version_info.minor)
+if sys.version_info.major == 3:
+    so_version = ".{}m-{}".format(sys.implementation.cache_tag,
+                                  sysconfig.get_config_var('MULTIARCH'))
+else:
+    so_version = ""
+
 
 class TestDistutils(unittest.TestCase):
 
@@ -14,12 +24,11 @@ class TestDistutils(unittest.TestCase):
                    cwd=os.path.join(cwd, 'test_distutils'))
         check_call(['python', '-c', 'import demo'],
                    cwd=os.path.join(cwd, 'test_distutils', 'demo_install',
-                                    'lib', 'python2.7', 'site-packages'))
+                                    'lib', python_version, 'site-packages'))
         check_call(['python', 'setup.py', 'clean'],
                    cwd=os.path.join(cwd, 'test_distutils'))
         shutil.rmtree(os.path.join(cwd, 'test_distutils', 'demo_install'))
         shutil.rmtree(os.path.join(cwd, 'test_distutils', 'build'))
-
 
     def test_setup_sdist_install(self):
         check_call(['python', 'setup.py', 'sdist', "--dist-dir=sdist"],
@@ -41,7 +50,7 @@ class TestDistutils(unittest.TestCase):
             for root, dirs, files in os.walk(path):
                 if name in files:
                     return os.path.join(root, name)
-        demo_so = find("demo.so", dist_path)
+        demo_so = find("demo{}.so".format(so_version), dist_path)
         self.assertIsNotNone(demo_so)
         shutil.rmtree(dist_path)
 
@@ -52,7 +61,7 @@ class TestDistutils(unittest.TestCase):
                    cwd=os.path.join(cwd, 'test_distutils_packaged'))
         check_call(['python', '-c', 'import demo2.a'],
                    cwd=os.path.join(cwd, 'test_distutils_packaged', 'demo_install2',
-                                    'lib', 'python2.7', 'site-packages'))
+                                    'lib', python_version, 'site-packages'))
         check_call(['python', 'setup.py', 'clean'],
                    cwd=os.path.join(cwd, 'test_distutils_packaged'))
         shutil.rmtree(os.path.join(cwd, 'test_distutils_packaged', 'demo_install2'))
@@ -79,6 +88,6 @@ class TestDistutils(unittest.TestCase):
             for root, dirs, files in os.walk(path):
                 if name in files:
                     return os.path.join(root, name)
-        demo_so = find("a.so", dist_path)
+        demo_so = find("a{}.so".format(so_version), dist_path)
         self.assertIsNotNone(demo_so)
         shutil.rmtree(dist_path)

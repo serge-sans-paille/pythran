@@ -86,8 +86,10 @@ namespace pythonic
       long size() const;
 
       // accessor
-      char const &operator[](long i) const;
+      char operator[](long i) const;
       char &operator[](long i);
+      char fast(long i) const;
+      char &fast(long i);
       sliced_str<slice> operator[](slice const &s) const;
       sliced_str<contiguous_slice> operator[](contiguous_slice const &s) const;
 
@@ -183,12 +185,16 @@ namespace pythonic
 
       char operator[](long i) const;
       char &operator[](long i);
+      char fast(long i) const;
+      char &fast(long i);
 
       sliced_str<slice> operator[](slice const &s) const;
       sliced_str<contiguous_slice> operator[](contiguous_slice const &s) const;
 #ifdef USE_GMP
       char operator[](pythran_long_t const &m) const;
       char &operator[](pythran_long_t const &m);
+      char fast(pythran_long_t const &m) const;
+      char &fast(pythran_long_t const &m);
 #endif
 
       explicit operator bool() const;

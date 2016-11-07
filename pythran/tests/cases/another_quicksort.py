@@ -1,6 +1,6 @@
 #pythran export QuickSort(int list)
-#runas QuickSort(range(10))
-#bench a = range(200000); QuickSort(a)
+#runas QuickSort(list(range(10)))
+#bench a = list(range(200000)); QuickSort(a)
 
 # swap two value of the list
 def swap (l, idx1, idx2):
@@ -14,7 +14,7 @@ def swap (l, idx1, idx2):
 def partition (l):
     size = len (l)
     # the pivot indfex
-    pivot_idx = size / 2
+    pivot_idx = size // 2
     # the pivot value
     val = l[pivot_idx]
     # the idx of last unsorted elemet

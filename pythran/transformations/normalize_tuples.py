@@ -5,6 +5,7 @@ from pythran.passmanager import Transformation
 
 import gast as ast
 from functools import reduce
+from collections import OrderedDict
 
 
 class _ConvertToTuple(ast.NodeTransformer):
@@ -73,7 +74,7 @@ class NormalizeTuples(Transformation):
             raise NotImplementedError
 
     def visit_comprehension(self, node):
-        renamings = dict()
+        renamings = OrderedDict()
         self.traverse_tuples(node.target, (), renamings)
         if renamings:
             self.update = True
@@ -114,7 +115,7 @@ class NormalizeTuples(Transformation):
     def visit_Lambda(self, node):
         self.generic_visit(node)
         for i, arg in enumerate(node.args.args):
-            renamings = dict()
+            renamings = OrderedDict()
             self.traverse_tuples(arg, (), renamings)
             if renamings:
                 nname = self.get_new_id()
@@ -130,14 +131,14 @@ class NormalizeTuples(Transformation):
         extra_assign = [] if no_tmp else [node]
         for i, t in enumerate(node.targets):
             if isinstance(t, ast.Tuple) or isinstance(t, ast.List):
-                renamings = dict()
+                renamings = OrderedDict()
                 self.traverse_tuples(t, (), renamings)
                 if renamings:
                     gtarget = node.value.id if no_tmp else self.get_new_id()
                     node.targets[i] = ast.Name(gtarget,
                                                node.targets[i].ctx,
                                                None)
-                    for rename, state in sorted(renamings.items()):
+                    for rename, state in renamings.items():
                         nnode = reduce(
                             lambda x, y: ast.Subscript(
                                 x,
@@ -157,12 +158,12 @@ class NormalizeTuples(Transformation):
     def visit_For(self, node):
         target = node.target
         if isinstance(target, ast.Tuple) or isinstance(target, ast.List):
-            renamings = dict()
+            renamings = OrderedDict()
             self.traverse_tuples(target, (), renamings)
             if renamings:
                 gtarget = self.get_new_id()
                 node.target = ast.Name(gtarget, node.target.ctx, None)
-                for rename, state in sorted(renamings.items()):
+                for rename, state in renamings.items():
                     nnode = reduce(
                         lambda x, y: ast.Subscript(
                             x,

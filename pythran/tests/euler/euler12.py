@@ -34,14 +34,13 @@ def solve(nfact):
             c = 1
             while not n % prime(x):
                 c = c + 1
-                n = n / prime(x)
+                n = n // prime(x)
             x = x + 1
             div = div * c
         return div
 
     for i in xrange(1, 1000000000):
-        n = i * (i+1) / 2
+        n = i * (i+1) // 2
         if num_factors(n) > nfact:
             return n
             break
-

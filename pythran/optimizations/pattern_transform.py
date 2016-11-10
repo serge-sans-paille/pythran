@@ -31,6 +31,16 @@ know_pattern = [
                                  attr="pythran", ctx=ast.Load()),
              attr="len_set", ctx=ast.Load()),
          args=[Placeholder(0)], keywords=[])),
+
+    # __builtin__.tuple([X, ..., Z]) => (X, ..., Z)
+    (ast.Call(func=ast.Attribute(value=ast.Name(id='__builtin__',
+                                                ctx=ast.Load(),
+                                                annotation=None),
+                                 attr="tuple", ctx=ast.Load()),
+              args=[ast.List(Placeholder(0), ast.Load())],
+              keywords=[]),
+     lambda: ast.Tuple(Placeholder(0), ast.Load())),
+
     # __builtin__.reversed(__builtin__.xrange(X)) =>
     # __builtin__.xrange(X-1, -1, -1)
     # FIXME : We should do it even when begin/end/step are given
@@ -55,9 +65,11 @@ know_pattern = [
                ast.Num(n=-1),
                ast.Num(n=-1)],
          keywords=[])),
+
     # X * X => X ** 2
     (ast.BinOp(left=Placeholder(0), op=ast.Mult(), right=Placeholder(0)),
      lambda: ast.BinOp(left=Placeholder(0), op=ast.Pow(), right=ast.Num(n=2))),
+
     # a + "..." + b => "...".join((a, b))
     (ast.BinOp(left=ast.BinOp(left=Placeholder(0),
                               op=ast.Add(),

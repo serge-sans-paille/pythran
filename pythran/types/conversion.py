@@ -4,6 +4,7 @@ import sys
 
 from numpy import ndarray, int8, int16, int32, int64, uint8, uint16, uint32
 from numpy import float64, float32, complex64, complex128, uint64
+from pythran.typing import List, Dict, Set, Tuple, NDArray, NDArray
 
 PYTYPE_TO_CTYPE_TABLE = {
     complex: 'std::complex<double>',
@@ -37,28 +38,30 @@ if sys.version_info.major == 2:
 
 def pytype_to_ctype(t):
     """ Python -> pythonic type binding. """
-    if isinstance(t, list):
-        return 'pythonic::types::list<{0}>'.format(pytype_to_ctype(t[0]))
-    elif isinstance(t, set):
+    if isinstance(t, List):
+        return 'pythonic::types::list<{0}>'.format(
+            pytype_to_ctype(t.__args__[0])
+        )
+    elif isinstance(t, Set):
         return 'pythonic::types::set<{0}>'.format(
-            pytype_to_ctype(next(iter(t))))
-    elif isinstance(t, dict):
-        tkey, tvalue = next(iter(t.items()))
+            pytype_to_ctype(t.__args__[0])
+        )
+    elif isinstance(t, Dict):
+        tkey, tvalue = t.__args__
         return 'pythonic::types::dict<{0},{1}>'.format(pytype_to_ctype(tkey),
                                                        pytype_to_ctype(tvalue))
-    elif isinstance(t, tuple):
+    elif isinstance(t, Tuple):
         return 'decltype(pythonic::types::make_tuple({0}))'.format(
-            ", ".join('std::declval<{}>()'.format(
-                pytype_to_ctype(_)) for _ in t))
-    elif isinstance(t, ndarray):
-        dtype = pytype_to_ctype(t.flat[0])
-        ndim = t.ndim
+            ", ".join('std::declval<{}>()'.format(pytype_to_ctype(p))
+                      for p in t.__args__)
+        )
+    elif isinstance(t, NDArray):
+        dtype = pytype_to_ctype(t.__args__[0])
+        ndim = len(t.__args__) - 1
         arr = 'pythonic::types::ndarray<{0},{1}>'.format(dtype, ndim)
-        # cannot use f_contiguous as one element arrays are both c_ and f_
-        # the trick is to use transposed array of two elements for texpr
-        if t.flags.f_contiguous and not t.flags.c_contiguous and ndim == 2:
+        if t.__args__[1].start == -1:
             return 'pythonic::types::numpy_texpr<{0}>'.format(arr)
-        elif any(x < 0 for x in t.strides):
+        elif any(s.step is not None and s.step < 0 for s in t.__args__[1:]):
             slices = ", ".join(['pythonic::types::slice'] * ndim)
             return 'pythonic::types::numpy_gexpr<{0},{1}>'.format(arr, slices)
         else:
@@ -71,26 +74,26 @@ def pytype_to_ctype(t):
 
 def pytype_to_pretty_type(t):
     """ Python -> docstring type. """
-    if isinstance(t, list):
-        return '{0} list'.format(pytype_to_pretty_type(t[0]))
-    elif isinstance(t, set):
-        return '{0} set'.format(pytype_to_pretty_type(next(iter(t))))
-    elif isinstance(t, dict):
-        tkey, tvalue = next(iter(t.items()))
+    if isinstance(t, List):
+        return '{0} list'.format(pytype_to_pretty_type(t.__args__[0]))
+    elif isinstance(t, Set):
+        return '{0} set'.format(pytype_to_pretty_type(t.__args__[0]))
+    elif isinstance(t, Dict):
+        tkey, tvalue = t.__args__
         return '{0}:{1} dict'.format(pytype_to_pretty_type(tkey),
                                      pytype_to_pretty_type(tvalue))
-    elif isinstance(t, tuple):
+    elif isinstance(t, Tuple):
         return '({0})'.format(
-            ", ".join((pytype_to_pretty_type(v) for v in t)))
-    elif isinstance(t, ndarray):
-        dtype = pytype_to_pretty_type(t.flat[0])
-        ndim = t.ndim
+            ", ".join(pytype_to_pretty_type(p) for p in t.__args__)
+        )
+    elif isinstance(t, NDArray):
+        dtype = pytype_to_pretty_type(t.__args__[0])
+        ndim = len(t.__args__) - 1
         arr = '{0}{1}'.format(dtype, '[]' * ndim)
-        # cannot use f_contiguous as one element arrays are both c_ and f_
-        # the trick is to use transposed array of two elements for texpr
-        if t.flags.f_contiguous and not t.flags.c_contiguous and ndim == 2:
+        # it's a transpose!
+        if t.__args__[1].start == -1:
             return '{}.T'.format(arr)
-        elif any(x < 0 for x in t.strides):
+        elif any(s.step is not None and s.step < 0 for s in t.__args__[1:]):
             return '{0}{1}'.format(dtype, '[::]' * ndim)
         else:
             return arr

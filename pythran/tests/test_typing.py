@@ -2,12 +2,15 @@ from test_env import TestEnv
 import unittest
 import numpy as np
 import pythran
+from textwrap import dedent
+
+from pythran.typing import List, Dict
 
 class TestTyping(TestEnv):
 
     def test_index_dict_with_constant(self):
         code = 'def index_dict_with_constant(d): return d[0]'
-        return self.run_test(code, {0:2}, index_dict_with_constant=[{int:int}])
+        return self.run_test(code, {0:2}, index_dict_with_constant=[Dict[int,int]])
 
     def test_module_bad_attribute(self):
         code = 'def module_bad_attribute(): import random as m; return m.real'
@@ -291,3 +294,107 @@ def recursive_interprocedural_typing1():
                 return errs''',
             4,
             slice_assign=[int])
+
+
+
+    def test_type_inference0(self):
+        code = '''
+        def wc(content):
+            d = {}
+
+            for word in content.split():
+                d[word] = d.get(word, 0) + 1
+
+            # Use list comprehension
+            l = [(freq, word) for word, freq in d.items()]
+
+            return sorted(l)
+        '''
+        self.run_test(code, "cha-la head cha-la", wc=[str])
+
+        code_bis = code.replace("1", "'1'")
+
+
+        with self.assertRaises(pythran.types.tog.PythranTypeError):
+            pythran.compile_pythrancode("dumbo", dedent(code_bis))
+
+        code_ter = code.replace("0", "None")
+
+
+        with self.assertRaises(pythran.types.tog.PythranTypeError):
+            pythran.compile_pythrancode("dumbo", dedent(code_ter))
+
+    def test_type_inference1(self):
+        code = '''
+            def invalid_augassign(n):
+                s = n + "1"
+                s += 2
+                return s'''
+        with self.assertRaises(pythran.types.tog.PythranTypeError):
+            pythran.compile_pythrancode("dumbo", dedent(code))
+
+
+    def test_type_inference2(self):
+        code = '''
+            def invalid_ifexp(n):
+                return 1 if n else "1"'''
+        with self.assertRaises(pythran.types.tog.PythranTypeError):
+            pythran.compile_pythrancode("dumbo", dedent(code))
+
+
+    def test_type_inference3(self):
+        code = '''
+            def invalid_unary_op(n):
+                return -(n + 'n')'''
+        with self.assertRaises(pythran.types.tog.PythranTypeError):
+            pythran.compile_pythrancode("dumbo", dedent(code))
+
+
+    def test_type_inference4(self):
+        code = '''
+            def invalid_list(n):
+                return [n, len(n)]'''
+        with self.assertRaises(pythran.types.tog.PythranTypeError):
+            pythran.compile_pythrancode("dumbo", dedent(code))
+
+
+    def test_type_inference5(self):
+        code = '''
+            def invalid_set(n):
+                return {n, len(n)}'''
+        with self.assertRaises(pythran.types.tog.PythranTypeError):
+            pythran.compile_pythrancode("dumbo", dedent(code))
+
+    def test_type_inference6(self):
+        code = '''
+            def invalid_dict_key(n):
+                return {n:1, len(n):2}'''
+        with self.assertRaises(pythran.types.tog.PythranTypeError):
+            pythran.compile_pythrancode("dumbo", dedent(code))
+
+
+    def test_type_inference7(self):
+        code = '''
+            def invalid_dict_value(n):
+                return {1:n, 2:len(n)}'''
+        with self.assertRaises(pythran.types.tog.PythranTypeError):
+            pythran.compile_pythrancode("dumbo", dedent(code))
+
+    def test_type_inference8(self):
+        code = '''
+            def invalid_multi_return(n):
+                for i in n:
+                    return [n]
+                return {n}'''
+        with self.assertRaises(pythran.types.tog.PythranTypeError):
+            pythran.compile_pythrancode("dumbo", dedent(code))
+
+    def test_type_inference9(self):
+        code = '''
+            def invalid_multi_yield(n):
+                for i in n:
+                    yield [n]
+                yield n'''
+        with self.assertRaises(pythran.types.tog.PythranTypeError):
+            pythran.compile_pythrancode("dumbo", dedent(code))
+

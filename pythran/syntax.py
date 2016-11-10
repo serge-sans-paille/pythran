@@ -174,44 +174,32 @@ def check_syntax(node):
     SyntaxChecker().visit(node)
 
 
-class SpecsChecker(ast.NodeVisitor):
-    '''
-    Verify the arity of each function (incl. defaults)
-    and raise a PythranSyntaxError if they are incompatible with the
-    #pythran export specs
-    '''
-
-    def __init__(self, specs, renamings):
-        self.specs = {renamings.get(k, k): v for k, v in specs.items()}
-        self.funcs = set()
-
-    def visit_FunctionDef(self, node):
-        fname = node.name
-        self.funcs.add(fname)
-        max_arg_count = len(node.args.args)
-        min_arg_count = max_arg_count - len(node.args.defaults)
-
-        signatures = self.specs.get(fname, ())
-        for signature in signatures:
-            # just verify the arity
-            arg_count = len(signature)
-            if min_arg_count <= arg_count <= max_arg_count:
-                pass
-            else:
-                msg = 'export for function {} incompatible with its definition'
-                raise PythranSyntaxError(msg.format(node.name), node)
-
-    def visit_Module(self, node):
-        self.generic_visit(node)
-        for fname, _ in self.specs.items():
-            if fname not in self.funcs:
-                msg = 'exporting undefined function {}'
-                raise PythranSyntaxError(msg.format(fname))
-
-
-def check_specs(mod, specs, renamings):
+def check_specs(mod, specs, renamings, types):
     '''
     Does nothing but raising PythranSyntaxError if specs
     are incompatible with the actual code
     '''
-    SpecsChecker(specs, renamings).visit(mod)
+    from pythran.types.tog import unify, clone, tr
+    from pythran.types.tog import Function, TypeVariable, InferenceError
+
+    specs = {renamings.get(k, k): v for k, v in specs.items()}
+    for fname, signatures in specs.items():
+        try:
+            ftype = types[fname]
+        except KeyError:
+            raise PythranSyntaxError(
+                "Invalid spec: exporting undefined function `{}`"
+                .format(fname))
+        for signature in signatures:
+            sig_type = Function([tr(p) for p in signature], TypeVariable())
+            try:
+                unify(clone(sig_type), clone(ftype))
+            except InferenceError:
+                raise PythranSyntaxError(
+                    "Specification for `{}` does not match inferred type:\n"
+                    "expected `{}`\n"
+                    "got `Callable[[{}], ...]`".format(
+                        fname,
+                        ftype,
+                        ", ".join(map(str, sig_type.types[:-1])))
+                )

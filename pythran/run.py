@@ -140,7 +140,11 @@ def run():
         logger.critical("Chair to keyboard interface error\n"
                         "E: " + str(e))
         sys.exit(1)
-    except SyntaxError as e:
+    except pythran.types.tog.PythranTypeError as e:
+        logger.critical("You shall not pass!\n"
+                        "E: " + str(e))
+        sys.exit(1)
+    except pythran.syntax.PythranSyntaxError as e:
         logger.critical("I am in trouble. Your input file does not seem "
                         "to match Pythran's constraints...\n"
                         "E: " + str(e))

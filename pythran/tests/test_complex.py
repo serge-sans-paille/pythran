@@ -2,6 +2,7 @@ import numpy as np
 
 from pythran.config import cfg
 from test_env import TestEnv
+from pythran.typing import NDArray
 
 
 class TestComplex(TestEnv):
@@ -35,30 +36,30 @@ class TestComplex(TestEnv):
                       """,
                       3 + 2j, np.array([3 + 2j]), np.array([[3 + 2j]]),
                       test_conjugate=[np.complex128,
-                                      np.array([np.complex128]),
-                                      np.array([[complex]])])
+                                      NDArray[np.complex128, :],
+                                      NDArray[complex, :, :]])
 
     def test_complex_array_abs(self):
         self.run_test('def test_complex_array_abs(a): import numpy as np ; return np.abs(a)',
                       np.array([[3 + 2j]]),
-                      test_complex_array_abs=[np.array([[complex]])])
+                      test_complex_array_abs=[NDArray[complex, :, :]])
 
     def test_complex_array_sqr(self):
         self.run_test('def test_complex_array_sqr(a): return a ** 2',
                       np.array([[3 + 2j]]),
-                      test_complex_array_sqr=[np.array([[complex]])])
+                      test_complex_array_sqr=[NDArray[complex, :, :]])
 
     def test_complex_array_mul_i(self):
         self.run_test('def test_complex_array_mul_i(e): return e + 1j * e',
                       np.array([[3.,2.,4.]]),
-                      test_complex_array_mul_i=[np.array([[float]])])
+                      test_complex_array_mul_i=[NDArray[float, :, :]])
 
     def test_non_complex_array_real_imag(self):
         self.run_test('def test_non_complex_array_real_imag(e): return e.real + e.imag',
                       np.array([[3.,2.,4.]]),
-                      test_non_complex_array_real_imag=[np.array([[float]])])
+                      test_non_complex_array_real_imag=[NDArray[float, :, :]])
 
     def test_complex_array_real_imag(self):
         self.run_test('def test_complex_array_real_imag(e): return e.real + e.imag',
                       np.array([[3.,2.,4.]], dtype=complex),
-                      test_complex_array_real_imag=[np.array([[complex]])])
+                      test_complex_array_real_imag=[NDArray[complex, :, :]])

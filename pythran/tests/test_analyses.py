@@ -1,5 +1,6 @@
 from test_env import TestEnv
 import unittest
+from pythran.typing import List
 
 class TestAnalyses(TestEnv):
 
@@ -10,7 +11,7 @@ class TestAnalyses(TestEnv):
         self.run_test("def shadowed_variables(a): b=1 ; b+=a ; a= 2 ; b+=a ; return a,b", 18, shadowed_variables=[int])
 
     def test_decl_shadow_intrinsic(self):
-        self.run_test("def decl_shadow_intrinsic(l): len=lambda l:1 ; return len(l)", [1,2,3], decl_shadow_intrinsic=[[int]])
+        self.run_test("def decl_shadow_intrinsic(l): len=lambda l:1 ; return len(l)", [1,2,3], decl_shadow_intrinsic=[List[int]])
 
     def test_used_def_chains(self):
         self.run_test("def use_def_chain(a):\n i=a\n for i in xrange(4):\n  print i\n  i=5.4\n  print i\n  break\n  i = 4\n return i", 3, use_def_chain=[int])

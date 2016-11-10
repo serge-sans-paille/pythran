@@ -13,6 +13,8 @@ import ply.lex as lex
 import ply.yacc as yacc
 from functools import reduce
 
+from pythran.typing import List, Set, Dict, NDArray, Tuple
+
 
 class SpecParser:
 
@@ -154,7 +156,7 @@ class SpecParser:
     def p_types(self, p):
         '''types : type
                  | type COMMA types'''
-        p[0] = [p[1]] + ([] if len(p) == 2 else p[3])
+        p[0] = (p[1],) + (tuple() if len(p) == 2 else p[3])
 
     def p_type(self, p):
         '''type : term
@@ -167,15 +169,18 @@ class SpecParser:
         if len(p) == 2:
             p[0] = p[1]
         elif len(p) == 3 and p[2] == 'list':
-            p[0] = [p[1]]
+            p[0] = List[p[1]]
         elif len(p) == 3 and p[2] == 'set':
-            p[0] = {p[1]}
+            p[0] = Set[p[1]]
         elif len(p) == 5 and p[4] == ']':
-            p[0] = reduce(lambda x, y: array([x])[::y], p[3], p[1])
+            if isinstance(p[1], NDArray):
+                p[0] = NDArray[p[1].__args__ + p[3]]
+            else:
+                p[0] = NDArray[(p[1],) + p[3]]
         elif len(p) == 5:
-            p[0] = {p[1]: p[3]}
+            p[0] = Dict[p[1], p[3]]
         elif len(p) == 4 and p[3] == ')':
-            p[0] = tuple(p[2])
+            p[0] = Tuple[p[2]]
         else:
             raise SyntaxError("Invalid Pythran spec. "
                               "Unknown text '{0}'".format(p.value))
@@ -193,9 +198,9 @@ class SpecParser:
                        | COLUMN
                        | COLUMN COLUMN'''
         if len(p) == 3:
-            p[0] = -1
+            p[0] = slice(0, -1, -1)
         else:
-            p[0] = 1
+            p[0] = slice(0, -1, 1)
 
     def p_term(self, p):
         '''term : STR
@@ -281,13 +286,14 @@ def expand_specs(specs):
             # currently only supported by pythonic for 2D matrices :-/
             # the trick is to use an array of two elements and transpose it
             # so that its storage becomes f_contiguous only
-            if isinstance(arg, ndarray) and arg.ndim == 2:
-                return [[arg], [arg.repeat(2, axis=0).T]]
+            if isinstance(arg, NDArray) and len(arg.__args__) - 1 == 2:
+                return [[arg], [NDArray[arg.__args__[0], -1::, -1::]]]
             else:
                 return [[arg]]
         else:
             return [x + y for x in spec_expander(args[:1])
                     for y in spec_expander(args[1:])]
+
     all_specs = {}
     for function, signatures in specs.items():
         expanded_signatures = []

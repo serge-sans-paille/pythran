@@ -1,4 +1,4 @@
-# unittest.skip Uncorrect values computed on windows ...
+# unittest.skip Incorrect values computed on windows ...
 # pythran export run(float, float, float, float, float, float, int, int, float[][])
 # bench import numpy ; run(0,0,90,90, 1, 100, 80, 80, numpy.array([ [i/10., i/10., i/20.] for i in xrange(160)],dtype=numpy.double))
 # runas import numpy ; run(0,0,90,90, 1, 100, 80, 80, numpy.array([ [i/10., i/10., i/20.] for i in xrange(80)],dtype=numpy.double))
@@ -18,5 +18,5 @@ def run(xmin, ymin, xmax, ymax, step, range_, range_x, range_y, t):
                                         + np.sin(xmin + step * i)
                                         * np.sin(k[0]))
                 if tmp < range_:
-                    pt[i][j] += k[2] / (1+tmp)
+                    pt[i, j] += k[2] / (1+tmp)
     return pt

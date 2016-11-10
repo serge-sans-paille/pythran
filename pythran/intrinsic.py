@@ -1,7 +1,11 @@
 """ This module contains all classes used to model intrinsics behavior.  """
 
 from pythran.conversion import to_ast
-from pythran.range import UNKNOWN_RANGE
+from pythran.range import UNKNOWN_RANGE, bool_values
+from pythran.types.signature import extract_combiner
+from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE
+from pythran.cxxtypes import NamedType
+from pythran.typing import Any, Union, Fun, Generator
 
 import gast as ast
 import sys
@@ -50,7 +54,6 @@ class Intrinsic(object):
         self.global_effects = kwargs.get('global_effects', False)
         self.return_alias = kwargs.get('return_alias',
                                        lambda x: {UnboundValue})
-        self.return_type = kwargs.get('return_type', None)
         self.args = ast.arguments(
             [ast.Name(n, ast.Param(), None) for n in kwargs.get('args', [])],
             None, [], [], None,
@@ -92,6 +95,24 @@ class FunctionIntr(Intrinsic):
         kwargs.setdefault('combiners', ())
         super(FunctionIntr, self).__init__(**kwargs)
         self.combiners = kwargs['combiners']
+        if 'signature' in kwargs:
+            self.signature = kwargs['signature']
+            deduced_combiner = extract_combiner(self.signature)
+            if deduced_combiner is not None:
+                self.combiners += deduced_combiner,
+            if 'return_range' not in kwargs:
+                if isinstance(self.signature, Union):
+                    if all(r.__args__[-1] is bool
+                           for r in self.signature.__args__):
+                        self.return_range = bool_values
+                elif isinstance(self.signature, Generator):
+                    if self.signature.__args__[0] is bool:
+                        self.return_range = bool_values
+                elif isinstance(self.signature, Fun):
+                    if self.signature.__args__[-1] is bool:
+                        self.return_range = bool_values
+        else:
+            self.signature = Any
 
     def isfunction(self):
         return True
@@ -167,6 +188,10 @@ class AttributeIntr(Intrinsic):
     def __init__(self, **kwargs):
         """ Forward arguments. """
         super(AttributeIntr, self).__init__(**kwargs)
+        if 'signature' in kwargs:
+            self.signature = kwargs['signature']
+        else:
+            self.signature = Any
 
     def isattribute(self):
         """ Mark this intrinsic as an attribute. """
@@ -225,4 +250,4 @@ class ExceptionClass(Class, ConstExceptionIntr):
 
 
 class UFunc(Class, ConstFunctionIntr):
-    """ Reprensation of ufunc from numpy. """
+    """ Representation of ufunc from numpy. """

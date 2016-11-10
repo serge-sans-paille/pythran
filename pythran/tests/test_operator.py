@@ -2,6 +2,7 @@ from test_env import TestEnv
 
 import sys
 import unittest
+from pythran.typing import List
 
 
 @TestEnv.module
@@ -169,10 +170,10 @@ class TestOperator(TestEnv):
         self.run_test("def iadd2(b):\n a = -1\n from operator import iadd\n iadd(a,b)\n return a", 3, iadd2=[int])
 
     def test_iadd_argument_modification_mutable(self):
-        self.run_test("def iadd3(b):\n a = []\n from operator import iadd\n iadd(a,b)\n return a", [3], iadd3=[[int]])
+        self.run_test("def iadd3(b):\n a = []\n from operator import iadd\n iadd(a,b)\n return a", [3], iadd3=[List[int]])
 
     def test_iadd_argument_modification_mutable2(self):
-        self.run_test("def iadd4(b):\n from operator import iadd\n return iadd([],b)", [3], iadd4=[[int]])
+        self.run_test("def iadd4(b):\n from operator import iadd\n return iadd([],b)", [3], iadd4=[List[int]])
 
     def test___iadd__(self):
         self.run_test("def __iadd__(a,b):\n from operator import __iadd__\n return __iadd__(a,b)", 1, -4, __iadd__=[int,int])
@@ -181,10 +182,10 @@ class TestOperator(TestEnv):
         self.run_test("def __iadd2__(b):\n a = -1\n from operator import __iadd__\n __iadd__(a,b)\n return a", 3, __iadd2__=[int])
 
     def test___iadd___argument_modification_mutable(self):
-        self.run_test("def __iadd3__(b):\n a = []\n from operator import __iadd__\n __iadd__(a,b)\n return a", [3], __iadd3__=[[int]])
+        self.run_test("def __iadd3__(b):\n a = []\n from operator import __iadd__\n __iadd__(a,b)\n return a", [3], __iadd3__=[List[int]])
 
     def test___iadd___argument_modification_mutable2(self):
-        self.run_test("def __iadd4__(b):\n from operator import __iadd__\n return __iadd__([],b)", [3], __iadd4__=[[int]])
+        self.run_test("def __iadd4__(b):\n from operator import __iadd__\n return __iadd__([],b)", [3], __iadd4__=[List[int]])
 
 
     def test_iand(self):
@@ -200,22 +201,22 @@ class TestOperator(TestEnv):
         self.run_test("def __iand__(a,b):\n from operator import __iand__\n return __iand__(a,b)", 0x10, 0xFF, __iand__=[int,int])
 
     def test_iconcat(self):
-        self.run_test("def iconcat(a,b):\n from operator import iconcat\n return iconcat(a,b)", [3], [4], iconcat=[[int],[int]])
+        self.run_test("def iconcat(a,b):\n from operator import iconcat\n return iconcat(a,b)", [3], [4], iconcat=[List[int],List[int]])
 
     def test_iconcat2(self):
-        self.run_test("def iconcat2(b):\n from operator import iconcat\n a=[3]\n return iconcat(a,b)", [4], iconcat2=[[int]])
+        self.run_test("def iconcat2(b):\n from operator import iconcat\n a=[3]\n return iconcat(a,b)", [4], iconcat2=[List[int]])
 
     def test_iconcat3(self):
-        self.run_test("def iconcat3(b):\n from operator import iconcat\n a=[3]\n iconcat(a,b)\n return a", [4], iconcat3=[[int]])
+        self.run_test("def iconcat3(b):\n from operator import iconcat\n a=[3]\n iconcat(a,b)\n return a", [4], iconcat3=[List[int]])
 
     def test_iconcat4(self):
-        self.run_test("def iconcat4(b):\n from operator import iconcat\n a=[]\n iconcat(a,b)\n return a", [4], iconcat4=[[int]])
+        self.run_test("def iconcat4(b):\n from operator import iconcat\n a=[]\n iconcat(a,b)\n return a", [4], iconcat4=[List[int]])
 
     def test_iconcat5(self):
-        self.run_test("def iconcat5(b):\n from operator import iconcat\n return iconcat([],b)", [4], iconcat5=[[int]])
+        self.run_test("def iconcat5(b):\n from operator import iconcat\n return iconcat([],b)", [4], iconcat5=[List[int]])
 
     def test___iconcat__(self):
-        self.run_test("def __iconcat__(a,b):\n from operator import __iconcat__\n return __iconcat__(a,b)", [3], [4], __iconcat__=[[int],[int]])
+        self.run_test("def __iconcat__(a,b):\n from operator import __iconcat__\n return __iconcat__(a,b)", [3], [4], __iconcat__=[List[int],List[int]])
 
     @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_idiv(self):
@@ -300,40 +301,40 @@ class TestOperator(TestEnv):
         self.run_test("def __ixor__(a,b):\n from operator import __ixor__\n return __ixor__(a,b)", 0x02, 0x02, __ixor__=[int,int])
 
     def test_concat(self):
-        self.run_test("def concat(a,b):\n from operator import concat\n return concat(a,b)", [3], [4], concat=[[int],[int]])
+        self.run_test("def concat(a,b):\n from operator import concat\n return concat(a,b)", [3], [4], concat=[List[int],List[int]])
 
     def test___concat__(self):
-        self.run_test("def __concat__(a,b):\n from operator import __concat__\n return __concat__(a,b)", [], [1], __concat__=[[int],[int]])
+        self.run_test("def __concat__(a,b):\n from operator import __concat__\n return __concat__(a,b)", [], [1], __concat__=[List[int],List[int]])
 
     def test_contains(self):
-        self.run_test("def contains(a,b):\n from operator import contains\n return contains(a,b)", [1,2,3,4], 2, contains=[[int],int])
+        self.run_test("def contains(a,b):\n from operator import contains\n return contains(a,b)", [1,2,3,4], 2, contains=[List[int],int])
 
     def test___contains__(self):
-        self.run_test("def __contains__(a,b):\n from operator import __contains__\n return __contains__(a,b)", [1,2,3,4], 5, __contains__=[[int],int])
+        self.run_test("def __contains__(a,b):\n from operator import __contains__\n return __contains__(a,b)", [1,2,3,4], 5, __contains__=[List[int],int])
 
     def test_countOf(self):
-        self.run_test("def countOf(a,b):\n from operator import countOf\n return countOf(a,b)", [1,2,3,4,3,3,3,2,3,1], 3, countOf=[[int],int])
+        self.run_test("def countOf(a,b):\n from operator import countOf\n return countOf(a,b)", [1,2,3,4,3,3,3,2,3,1], 3, countOf=[List[int],int])
 
     def test_delitem(self):
-        self.run_test("def delitem(a,b):\n from operator import delitem\n return delitem(a,b)", [1,2,3,4], 3, delitem=[[int],int])
+        self.run_test("def delitem(a,b):\n from operator import delitem\n return delitem(a,b)", [1,2,3,4], 3, delitem=[List[int],int])
 
     def test___delitem__(self):
-        self.run_test("def __delitem__(a,b):\n from operator import __delitem__\n return __delitem__(a,b)", [1,2,3,4], 2, __delitem__=[[int],int])
+        self.run_test("def __delitem__(a,b):\n from operator import __delitem__\n return __delitem__(a,b)", [1,2,3,4], 2, __delitem__=[List[int],int])
 
     def test_getitem(self):
-        self.run_test("def getitem(a,b):\n from operator import getitem\n return getitem(a,b)", [4,3,2,1], 1, getitem=[[int],int])
+        self.run_test("def getitem(a,b):\n from operator import getitem\n return getitem(a,b)", [4,3,2,1], 1, getitem=[List[int],int])
 
     def test___getitem__(self):
-        self.run_test("def __getitem__(a,b):\n from operator import __getitem__\n return __getitem__(a,b)", [4,3,2,1], 2, __getitem__=[[int],int])
+        self.run_test("def __getitem__(a,b):\n from operator import __getitem__\n return __getitem__(a,b)", [4,3,2,1], 2, __getitem__=[List[int],int])
 
     def test_indexOf(self):
-        self.run_test("def indexOf(a,b):\n from operator import indexOf\n return indexOf(a,b)", [4,3,2,1], 4, indexOf=[[int],int])
+        self.run_test("def indexOf(a,b):\n from operator import indexOf\n return indexOf(a,b)", [4,3,2,1], 4, indexOf=[List[int],int])
 
     def test_itemgetter(self):
-        self.run_test("def itemgetter(i,a):\n from operator import itemgetter\n g = itemgetter(i)\n return g(a)", 2, [4,3,2,1], itemgetter=[int,[int]])
+        self.run_test("def itemgetter(i,a):\n from operator import itemgetter\n g = itemgetter(i)\n return g(a)", 2, [4,3,2,1], itemgetter=[int,List[int]])
 
     def test_itemgetter2(self):
        self.run_test("def foo():\n from operator import itemgetter\n g = itemgetter(1)", foo=[])
 
     def test_itemgetter3(self):
-        self.run_test("def itemgetter3(i,j,k,a):\n from operator import itemgetter\n g = itemgetter(i,j,k)\n return g(a)", 2, 3, 4, [4,3,2,1,0], itemgetter3=[int,int,int,[int]])
+        self.run_test("def itemgetter3(i,j,k,a):\n from operator import itemgetter\n g = itemgetter(i,j,k)\n return g(a)", 2, 3, 4, [4,3,2,1,0], itemgetter3=[int,int,int,List[int]])

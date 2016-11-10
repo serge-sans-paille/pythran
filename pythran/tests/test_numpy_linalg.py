@@ -1,34 +1,35 @@
 import unittest
 from test_env import TestEnv
 import numpy
+from pythran.typing import NDArray
 
 
 @TestEnv.module
 class TestNumpyLinalg(TestEnv):
 
     def test_linalg_norm0(self):
-        self.run_test("def linalg_norm0(x): from numpy.linalg import norm ; return norm(x)", numpy.arange(6.), linalg_norm0=[numpy.array([float])])
+        self.run_test("def linalg_norm0(x): from numpy.linalg import norm ; return norm(x)", numpy.arange(6.), linalg_norm0=[NDArray[float,:]])
 
     def test_linalg_norm1(self):
-        self.run_test("def linalg_norm1(x): from numpy.linalg import norm ; return norm(x)", numpy.arange(6.).reshape(2,3), linalg_norm1=[numpy.array([[float]])])
+        self.run_test("def linalg_norm1(x): from numpy.linalg import norm ; return norm(x)", numpy.arange(6.).reshape(2,3), linalg_norm1=[NDArray[float,:,:]])
 
     def test_linalg_norm2(self):
-        self.run_test("def linalg_norm2(x): from numpy.linalg import norm ; from numpy import inf ; return norm(x, inf)", numpy.arange(6.), linalg_norm2=[numpy.array([float])])
+        self.run_test("def linalg_norm2(x): from numpy.linalg import norm ; from numpy import inf ; return norm(x, inf)", numpy.arange(6.), linalg_norm2=[NDArray[float,:]])
 
     def test_linalg_norm3(self):
-        self.run_test("def linalg_norm3(x): from numpy.linalg import norm ; from numpy import inf ; return norm(x, -inf)", numpy.arange(6.), linalg_norm3=[numpy.array([float])])
+        self.run_test("def linalg_norm3(x): from numpy.linalg import norm ; from numpy import inf ; return norm(x, -inf)", numpy.arange(6.), linalg_norm3=[NDArray[float,:]])
 
     def test_linalg_norm4(self):
-        self.run_test("def linalg_norm4(x): from numpy.linalg import norm ; from numpy import inf ; return norm(x, 0)", numpy.arange(6.), linalg_norm4=[numpy.array([float])])
+        self.run_test("def linalg_norm4(x): from numpy.linalg import norm ; from numpy import inf ; return norm(x, 0)", numpy.arange(6.), linalg_norm4=[NDArray[float,:]])
 
     def test_linalg_norm5(self):
-        self.run_test("def linalg_norm5(x): from numpy.linalg import norm ; from numpy import inf ; return norm(x, ord=inf, axis=1)", (numpy.arange(9) - 4).reshape((3,3)), linalg_norm5=[numpy.array([[int]])])
+        self.run_test("def linalg_norm5(x): from numpy.linalg import norm ; from numpy import inf ; return norm(x, ord=inf, axis=1)", (numpy.arange(9) - 4).reshape((3,3)), linalg_norm5=[NDArray[int,:,:]])
 
     def test_linalg_norm6(self):
-        self.run_test("def linalg_norm6(x): from numpy.linalg import norm ; from numpy import inf ; return norm(x, ord=5, axis=(0,))", (numpy.arange(9) - 4).reshape((3,3)), linalg_norm6=[numpy.array([[int]])])
+        self.run_test("def linalg_norm6(x): from numpy.linalg import norm ; from numpy import inf ; return norm(x, ord=5, axis=(0,))", (numpy.arange(9) - 4).reshape((3,3)), linalg_norm6=[NDArray[int,:,:]])
 
     def test_linalg_norm7(self):
-        self.run_test("def linalg_norm7(x): from numpy.linalg import norm ; return norm(x)", numpy.arange(6).reshape(2,3), linalg_norm7=[numpy.array([[int]])])
+        self.run_test("def linalg_norm7(x): from numpy.linalg import norm ; return norm(x)", numpy.arange(6).reshape(2,3), linalg_norm7=[NDArray[int,:,:]])
 
     def test_linalg_norm_pydoc(self):
         self.run_test('''

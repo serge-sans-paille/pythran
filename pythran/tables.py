@@ -55,12 +55,23 @@ cxx_keywords = {
     }
 
 
+def make_lazy(exp):
+    return '[&] () {{ return {0}; }}'.format(exp)
+
+
+def make_and(x, y):
+    lx, ly = make_lazy(x), make_lazy(y)
+    return 'pythonic::__builtin__::pythran::and_({0}, {1})'.format(lx, ly)
+
+
+def make_or(x, y):
+    lx, ly = make_lazy(x), make_lazy(y)
+    return 'pythonic::__builtin__::pythran::or_({0}, {1})'.format(lx, ly)
+
 operator_to_lambda = {
     # boolop
-    ast.And:
-        "(pythonic::__builtin__::functor::bool_{{}}({0})?({1}):({0}))".format,
-    ast.Or:
-        "(pythonic::__builtin__::functor::bool_{{}}({0})?({0}):({1}))".format,
+    ast.And: make_and,
+    ast.Or: make_or,
     # operator
     ast.Add: "({0} + {1})".format,
     ast.Sub: "({0} - {1})".format,

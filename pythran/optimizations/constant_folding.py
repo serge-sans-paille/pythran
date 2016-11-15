@@ -4,7 +4,7 @@ from __future__ import print_function
 from pythran.analyses import ConstantExpressions, Aliases, ASTMatcher
 from pythran.passmanager import Transformation
 from pythran.tables import MODULES, cxx_keywords
-from pythran.conversion import to_ast, ConversionError, ToNotEval
+from pythran.conversion import to_ast, ConversionError, ToNotEval, mangle
 from pythran.analyses.ast_matcher import DamnTooLongPattern
 from pythran.syntax import PythranSyntaxError
 
@@ -31,7 +31,9 @@ class ConstantFolding(Transformation):
 
     def prepare(self, node, ctx):
         assert isinstance(node, ast.Module)
-        self.env = {'__builtin__': __import__('__builtin__')}
+        self.env = {
+            '__builtin__': __import__('__builtin__'),
+        }
 
         for module_name in MODULES:
             # __dispatch__ is the only fake top-level module
@@ -42,7 +44,8 @@ class ConstantFolding(Transformation):
                 if(module_name.endswith("_") and
                    module_name[:-1] in cxx_keywords):
                     import_name = module_name[:-1]
-                self.env[module_name] = __import__(import_name)
+                alias_module_name = mangle(module_name)
+                self.env[alias_module_name] = __import__(import_name)
 
                 # handle functions conflicting with c++ keywords
                 for fun in MODULES[module_name]:
@@ -51,9 +54,10 @@ class ConstantFolding(Transformation):
                         continue
                     # Set attributs pointing to another for C++ keyword
                     # case of __builtin__.int_ that point on __builtin__.int
-                    if not hasattr(self.env[module_name], fun):
-                        setattr(self.env[module_name], fun,
-                                getattr(self.env[module_name], fun.strip("_")))
+                    if not hasattr(self.env[alias_module_name], fun):
+                        setattr(self.env[alias_module_name], fun,
+                                getattr(self.env[alias_module_name],
+                                        fun.strip("_")))
 
         # we need to parse the whole code to be able to apply user-defined pure
         # function but import are resolved before so we remove them to avoid

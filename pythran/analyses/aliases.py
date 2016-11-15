@@ -6,6 +6,7 @@ from pythran.passmanager import ModuleAnalysis
 from pythran.syntax import PythranSyntaxError
 from pythran.tables import functions, methods, MODULES
 from pythran.unparse import Unparser
+from pythran.conversion import demangle
 import pythran.metadata as md
 
 import gast as ast
@@ -88,11 +89,12 @@ class Aliases(ModuleAnalysis):
 
     @staticmethod
     def access_path(node):
+
         def rec(w, n):
             if isinstance(n, ast.Name):
-                return w.get(n.id, n.id)
+                return w.get(demangle(n.id), n.id)
             elif isinstance(n, ast.Attribute):
-                return rec(w, n.value)[n.attr]
+                return rec(w, n.value)[demangle(n.attr)]
             elif isinstance(n, ast.FunctionDef):
                 return node.name
             else:

@@ -12,13 +12,14 @@ class GlobalDeclarations(ModuleAnalysis):
     >>> from pythran.analyses import GlobalDeclarations
     >>> node = ast.parse('''
     ... import math
+    ... import math as maths
     ... from math import cos
     ... c = 12
     ... def foo(a):
     ...     b = a + 1''')
     >>> pm = passmanager.PassManager("test")
-    >>> pm.gather(GlobalDeclarations, node).keys()
-    ['cos', 'foo', 'c', 'math']
+    >>> sorted(pm.gather(GlobalDeclarations, node).keys())
+    ['c', 'cos', 'foo', 'math', 'maths']
 
     """
 
@@ -29,7 +30,7 @@ class GlobalDeclarations(ModuleAnalysis):
 
     def visit_Import(self, node):
         """ Import module define a new variable name. """
-        self.result.update((a.name, a) for a in node.names)
+        self.result.update((a.asname or a.name, a) for a in node.names)
 
     def visit_ImportFrom(self, node):
         """ Imported functions define a new variable name. """

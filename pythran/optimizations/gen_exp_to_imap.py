@@ -3,6 +3,7 @@
 from pythran.analyses import OptimizableComprehension
 from pythran.passmanager import Transformation
 from pythran.transformations import NormalizeTuples
+from pythran.conversion import mangle
 
 import gast as ast
 import sys
@@ -15,6 +16,7 @@ else:
     MODULE = '__builtin__'
     IMAP = 'map'
     IFILTER = 'filter'
+ASMODULE = mangle(MODULE)
 
 
 class GenExpToImap(Transformation):
@@ -27,8 +29,8 @@ class GenExpToImap(Transformation):
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(GenExpToImap, node)
     >>> print pm.dump(backend.Python, node)
-    import itertools
-    itertools.imap((lambda x: (x * x)), range(10))
+    import itertools as __pythran_import_itertools
+    __pythran_import_itertools.imap((lambda x: (x * x)), range(10))
     '''
 
     def __init__(self):
@@ -37,9 +39,8 @@ class GenExpToImap(Transformation):
 
     def visit_Module(self, node):
         self.generic_visit(node)
-        if MODULE != '__builtin__':
-            importIt = ast.Import(names=[ast.alias(name=MODULE, asname=None)])
-            node.body.insert(0, importIt)
+        importIt = ast.Import(names=[ast.alias(name=MODULE, asname=ASMODULE)])
+        node.body.insert(0, importIt)
         return node
 
     def make_Iterator(self, gen):
@@ -50,7 +51,7 @@ class GenExpToImap(Transformation):
                 ast.BoolOp(ast.And(), gen.ifs)
                 if len(gen.ifs) > 1 else gen.ifs[0])
             ifilterName = ast.Attribute(
-                value=ast.Name(id=MODULE,
+                value=ast.Name(id=ASMODULE,
                                ctx=ast.Load(),
                                annotation=None),
                 attr=IFILTER, ctx=ast.Load())
@@ -74,7 +75,7 @@ class GenExpToImap(Transformation):
                 varAST = ast.arguments([variables[0]], None, [], [], None, [])
             else:
                 prodName = ast.Attribute(
-                    value=ast.Name(id='itertools',
+                    value=ast.Name(id=mangle('itertools'),
                                    ctx=ast.Load(),
                                    annotation=None),
                     attr='product', ctx=ast.Load())
@@ -84,7 +85,7 @@ class GenExpToImap(Transformation):
                                        None, [], [], None, [])
 
             imapName = ast.Attribute(
-                value=ast.Name(id=MODULE,
+                value=ast.Name(id=ASMODULE,
                                ctx=ast.Load(),
                                annotation=None),
                 attr=IMAP, ctx=ast.Load())

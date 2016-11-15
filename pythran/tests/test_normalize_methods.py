@@ -11,11 +11,71 @@ class TestBase(TestEnv):
     def test_normalize_methods0(self):
         self.run_test("def normalize_methods0(): c = complex(1) ; return complex.conjugate(c)", normalize_methods0=[])
 
+    def test_function_alias0(self):
+        self.run_test("""
+                      def function_alias0():
+                        def p(): return 0
+                        g = p
+                        return g()""",
+                      function_alias0=[])
+
+    def test_function_alias1(self):
+        self.run_test("""
+                      def function_alias1(n):
+                        def p(): return 0
+                        def q(): return 1
+                        g = p if n else q
+                        return g()
+                      """,
+                      1,
+                      function_alias1=[int])
+
+    def test_function_alias2(self):
+        self.run_test("""
+                      def function_alias2(n):
+                        def p(): return 0
+                        def q(): return 1
+                        if n:
+                            g = p
+                        else:
+                            g = q
+                        return g()
+                      """,
+                      1,
+                      function_alias2=[int])
+
+    def test_module_alias0(self):
+        self.run_test("def module_alias0(c): import math ; m = math; return m.cos(c)", 1., module_alias0=[float])
+
+    def test_module_alias1(self):
+        self.run_test("def module_alias1(c): import math as ma; m = ma; return m.cos(c)", 1., module_alias1=[float])
+
+    def test_module_alias2(self):
+        self.run_test("import math as ma\ndef module_alias2(c): m = ma; return m.cos(c)", 1., module_alias2=[float])
+
+    def test_module_alias3(self):
+        self.run_test("import math as ma; m = ma\ndef module_alias3(c): return m.cos(c)", 1., module_alias3=[float])
+
+    def test_module_alias4(self):
+        self.run_test("""
+                      import math as ma
+                      def module_alias4(c):
+                        import math as ma2
+                        m = ma
+                        def mab():
+                            return m.cos(c) + ma2.cos(c)
+                        return mab()""",
+                      1.,
+                      module_alias4=[float])
+
+    def test_module_alias5(self):
+        self.run_test("import math as m2\ndef module_alias5(math): m = m2 ; return m.cos(math)", 1., module_alias5=[float])
+
     def test_shadow_import0(self):
         self.run_test("def shadow_import0(math): math.add(1)", {1,2}, shadow_import0=[{int}])
 
     def test_shadow_import1(self):
-        self.run_test("def shadow_import1(): math={ 1 } ; math.add(1)", shadow_import1=[])
+        self.run_test("def shadow_import1(v): math={ v } ; math.add(1)", 1, shadow_import1=[int])
 
     def test_shadow_import2(self):
         self.run_test("def shadow_import2(s):\n for set in s : set.add(1)", [{1},{2}], shadow_import2=[[{int}]])

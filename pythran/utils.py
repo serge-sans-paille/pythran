@@ -2,6 +2,7 @@
 
 import gast as ast
 from pythran.tables import MODULES
+from pythran.conversion import mangle, demangle
 from functools import reduce
 
 
@@ -11,7 +12,7 @@ def attr_to_path(node):
     def get_intrinsic_path(modules, attr):
         """ Get function path and intrinsic from an ast.Attribute.  """
         if isinstance(attr, ast.Name):
-            return modules[attr.id], (attr.id,)
+            return modules[demangle(attr.id)], (demangle(attr.id),)
         elif isinstance(attr, ast.Attribute):
             module, path = get_intrinsic_path(modules, attr.value)
             return module[attr.attr], path + (attr.attr,)
@@ -38,7 +39,23 @@ def path_to_attr(path):
     True
     """
     return reduce(lambda hpath, last: ast.Attribute(hpath, last, ast.Load()),
-                  path[1:], ast.Name(path[0], ast.Load(), None))
+                  path[1:], ast.Name(mangle(path[0]), ast.Load(), None))
+
+
+def path_to_node(path):
+    """
+    Retrieve a symbol in MODULES based on its path
+    >>> path = ('math', 'pi')
+    >>> path_to_node(path) #doctest: +ELLIPSIS
+    <pythran.intrinsic.ConstantIntr object at 0x...>
+    """
+    def rec(modules, path):
+        if len(path) == 1:
+            return modules[path[0]]
+
+        return rec(modules[path[0]], path[1:])
+
+    return rec(MODULES, path)
 
 
 def get_variable(assignable):

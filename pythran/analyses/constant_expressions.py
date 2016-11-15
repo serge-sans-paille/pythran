@@ -7,6 +7,7 @@ from pythran.analyses.pure_expressions import PureExpressions
 from pythran.intrinsic import FunctionIntr
 from pythran.passmanager import NodeAnalysis
 from pythran.tables import MODULES
+from pythran.conversion import demangle
 
 import gast as ast
 
@@ -84,7 +85,7 @@ class ConstantExpressions(NodeAnalysis):
     def visit_Attribute(self, node):
         def rec(w, n):
             if isinstance(n, ast.Name):
-                return w[n.id]
+                return w[demangle(n.id)]
             elif isinstance(n, ast.Attribute):
                 return rec(w, n.value)[n.attr]
         return rec(MODULES, node).isconst() and self.add(node)

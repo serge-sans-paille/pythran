@@ -218,3 +218,15 @@ def combiner_on_empty_list():
         code = 'def foo(x):pass\ndef bar():pass\ndef invalid_call2(l): return (foo if l else bar)(l)'
         with self.assertRaises(SyntaxError):
             self.run_test(code, 1, invalid_call2=[int])
+
+    def test_multiple_lambda(self):
+        code = '''
+            def multiple_lambda(x):
+                g = lambda : x
+                return foo(g)
+            def foo(t):
+                g = lambda : 1
+                return t() + g()
+            '''
+        self.run_test(code, 1, multiple_lambda=[int])
+

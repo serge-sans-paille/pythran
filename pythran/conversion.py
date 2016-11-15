@@ -7,6 +7,7 @@ import numpy
 import sys
 import types
 
+
 # Maximum length of folded sequences
 # Containers larger than this are not unfolded to limit code size growth
 MAX_LEN = 2 ** 8
@@ -45,7 +46,7 @@ def size_container_folding(value):
             return ast.Dict(keys, values)
         elif isinstance(value, numpy.ndarray):
             return ast.Call(func=ast.Attribute(
-                ast.Name('numpy', ast.Load(), None),
+                ast.Name(mangle('numpy'), ast.Load(), None),
                 'array',
                 ast.Load()),
                 args=[to_ast(value.tolist())],
@@ -117,3 +118,33 @@ def to_ast(value):
         return to_ast(list(value))
     else:
         raise ConversionError()
+
+PYTHRAN_IMPORT_MANGLING = '__pythran_import_'
+
+
+def mangle(name):
+    '''
+    Mangle a module name, except the __builtin__ module
+    >>> mangle('numpy')
+    __pythran_import_numpy
+    >>> mangle('__builtin__')
+    __builtin__
+    '''
+    if name == '__builtin__':
+        return name
+    else:
+        return PYTHRAN_IMPORT_MANGLING + name
+
+
+def demangle(name):
+    '''
+    Demangle a module name, if needed
+    >>> demangle('__pythran_import_numpy')
+    numpy
+    >>> mangle('numpy')
+    numpy
+    '''
+    if name.startswith(PYTHRAN_IMPORT_MANGLING):
+        return name[len(PYTHRAN_IMPORT_MANGLING):]
+    else:
+        return name

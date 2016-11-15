@@ -16,9 +16,15 @@ namespace pythonic
     namespace details
     {
 
-      /* a task that captures its environnment for later call */
+      /* a task that captures its environment for later call */
       template <typename... ClosureTypes>
       struct task {
+
+        using callable = void;
+        friend std::ostream &operator<<(std::ostream &os, task)
+        {
+          return os << "partial_function_wrapper";
+        }
 
         mutable std::tuple<ClosureTypes...> closure; // closure associated to
                                                      // the task, mutable

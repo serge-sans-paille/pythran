@@ -4,6 +4,7 @@ Dependencies lists the functions and types required by a function
 
 from pythran.passmanager import ModuleAnalysis
 from pythran.tables import MODULES
+from pythran.conversion import demangle
 
 import gast as ast
 import math
@@ -51,10 +52,16 @@ class Dependencies(ModuleAnalysis):
     visit_IsNot = visit_Is
 
     def visit_IfExp(self, node):
-        self.result.add(('__builtin__', 'bool_'))
+        self.result.add(('__builtin__', 'pythran', 'ifexp'))
         self.generic_visit(node)
 
-    visit_And = visit_Or = visit_IfExp
+    def visit_And(self, node):
+        self.result.add(('__builtin__', 'pythran', 'and_'))
+        self.generic_visit(node)
+
+    def visit_Or(self, node):
+        self.result.add(('__builtin__', 'pythran', 'or_'))
+        self.generic_visit(node)
 
     def visit_Print(self, node):
         self.result.add(('__builtin__', 'print'))
@@ -92,7 +99,7 @@ class Dependencies(ModuleAnalysis):
     def visit_Attribute(self, node):
         def rec(w, n):
             if isinstance(n, ast.Name):
-                return (n.id,)
+                return demangle(n.id),
             elif isinstance(n, ast.Attribute):
                 return rec(w, n.value) + (n.attr,)
         attr = rec(MODULES, node)

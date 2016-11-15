@@ -3,6 +3,7 @@
 from pythran.analyses import GlobalDeclarations, ImportedIds
 from pythran.passmanager import Transformation
 from pythran.tables import MODULES
+from pythran.conversion import mangle
 
 from copy import copy
 import gast as ast
@@ -21,9 +22,10 @@ class _LambdaRemover(Transformation):
 
     def visit_Lambda(self, node):
         if MODULES['functools'] not in self.global_declarations.values():
-            import_ = ast.Import([ast.alias('functools', None)])
+            import_ = ast.Import([ast.alias('functools', mangle('functools'))])
             self.imports.append(import_)
-            self.global_declarations['functools'] = MODULES['functools']
+            functools_module = MODULES['functools']
+            self.global_declarations[mangle('functools')] = functools_module
 
         self.generic_visit(node)
         forged_name = "{0}_lambda{1}".format(
@@ -48,7 +50,7 @@ class _LambdaRemover(Transformation):
         if binded_args:
             return ast.Call(
                 ast.Attribute(
-                    ast.Name('functools', ast.Load(), None),
+                    ast.Name(mangle('functools'), ast.Load(), None),
                     "partial",
                     ast.Load()
                     ),
@@ -69,9 +71,9 @@ class RemoveLambdas(Transformation):
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(RemoveLambdas, node)
     >>> print pm.dump(backend.Python, node)
-    import functools
+    import functools as __pythran_import_functools
     def foo(y):
-        functools.partial(foo_lambda0, y)
+        __pythran_import_functools.partial(foo_lambda0, y)
     def foo_lambda0(y, x):
         return (y + x)
     """

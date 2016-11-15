@@ -23,7 +23,7 @@ def solve(m):
     fact_c = {0: 1L, 1: 1L}
 
     def fact(n):
-        return fact_c.has_key(n) and fact_c[n] or fact_c.setdefault(n, n * fact(n-1))
+        return fact_c[n] if fact_c.has_key(n) else fact_c.setdefault(n, n * fact(n-1))
 
     count = 0
     for n in xrange(1, 101):

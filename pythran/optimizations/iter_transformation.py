@@ -4,6 +4,7 @@ from pythran.analyses import PotentialIterator, Aliases
 from pythran.passmanager import Transformation
 from pythran.tables import MODULES
 from pythran.utils import path_to_attr
+from pythran.conversion import mangle
 
 import gast as ast
 import sys
@@ -36,7 +37,7 @@ class IterTransformation(Transformation):
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(IterTransformation, node)
     >>> print pm.dump(backend.Python, node)
-    import itertools
+    import itertools as __pythran_import_itertools
     def foo(l):
         return __builtin__.sum(l)
     def bar(n):
@@ -51,7 +52,7 @@ class IterTransformation(Transformation):
         """
         Return matched keyword.
 
-        If the node alias on a correct keyword (and only it), it matchs.
+        If the node alias on a correct keyword (and only it), it matches.
         """
         for keyword in EQUIVALENT_ITERATORS.keys():
             correct_alias = set([MODULES["__builtin__"][keyword]])
@@ -61,7 +62,8 @@ class IterTransformation(Transformation):
     def visit_Module(self, node):
         """Add itertools import for imap, izip or ifilter iterator."""
         self.generic_visit(node)
-        importIt = ast.Import(names=[ast.alias(name='itertools', asname=None)])
+        import_alias = ast.alias(name='itertools', asname=mangle('itertools'))
+        importIt = ast.Import(names=[import_alias])
         return ast.Module(body=([importIt] + node.body))
 
     def visit_Call(self, node):

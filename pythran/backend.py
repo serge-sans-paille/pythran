@@ -19,7 +19,7 @@ from pythran.cxxtypes import (Assignable, DeclType, NamedType,
 from pythran.openmp import OMPDirective
 from pythran.passmanager import Backend
 from pythran.syntax import PythranSyntaxError
-from pythran.tables import operator_to_lambda, MODULES, pythran_ward
+from pythran.tables import operator_to_lambda, pythran_ward, make_lazy
 from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE, TYPE_TO_SUFFIX
 from pythran.types.types import Types
 from pythran.utils import attr_to_path
@@ -1137,8 +1137,11 @@ pythonic::types::none_type>::type result_type;
         test = self.visit(node.test)
         body = self.visit(node.body)
         orelse = self.visit(node.orelse)
-        return ("(pythonic::__builtin__::functor::bool_{{}}"
-                "({0}) ? {1} : {2})".format(test, body, orelse))
+
+        return ("pythonic::__builtin__::pythran::ifexp((bool){0}, {1}, {2})"
+                .format(test,
+                        make_lazy(body),
+                        make_lazy(orelse)))
 
     def visit_List(self, node):
         if not node.elts:  # empty list

@@ -81,13 +81,13 @@ class UseDefChain(FunctionAnalysis):
         if node.id not in self.result and node.id not in self.use_only:
             if not (isinstance(node.ctx, ast.Store) or
                     isinstance(node.ctx, ast.Param)):
-                if node.id not in self.globals:
+                nid = node.id
+                if nid not in self.globals:
                     err = "identifier {0} is used before assignment"
-                    raise PythranSyntaxError(err.format(node.id), node)
+                    raise PythranSyntaxError(err.format(nid), node)
                 else:
-                    self.use_only[node.id] = nx.DiGraph()
-                    self.use_only[node.id].add_node("D0",
-                                                    action="D", name=node)
+                    self.use_only[nid] = nx.DiGraph()
+                    self.use_only[nid].add_node("D0", action="D", name=node)
             else:
                 self.result[node.id] = nx.DiGraph()
                 self.result[node.id].add_node("D0", action="D", name=node)

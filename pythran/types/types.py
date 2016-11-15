@@ -32,8 +32,7 @@ def extract_constructed_types(t):
     if isinstance(t, (list, ndarray)):
         return [pytype_to_ctype(t)] + extract_constructed_types(t[0])
     elif isinstance(t, set):
-        return ([pytype_to_ctype(t)] +
-                extract_constructed_types(next(iter((t)))))
+        return [pytype_to_ctype(t)] + extract_constructed_types(next(iter(t)))
     elif isinstance(t, dict):
         tkey, tvalue = next(iter(t.items()))
         return ([pytype_to_ctype(t)] +
@@ -403,13 +402,13 @@ class Types(ModuleAnalysis):
                 bounded_name = a0.id
                 # by construction of the bind construct
                 assert len(self.strict_aliases[a0]) == 1
-                bounded_function = next(iter((self.strict_aliases[a0])))
+                bounded_function = next(iter(self.strict_aliases[a0]))
                 fake_name = ast.Name(bounded_name, ast.Load(), None)
                 fake_node = ast.Call(fake_name, alias.args[1:] + node.args,
                                      [])
                 self.combiners[bounded_function].combiner(self, fake_node)
                 # force recombination of binded call
-                for n in self.name_to_nodes[func.id]:
+                for n in self.strict_aliases[func]:
                     self.result[n] = ReturnType(self.result[alias.func],
                                                 [self.result[arg]
                                                  for arg in alias.args])

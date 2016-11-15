@@ -4,6 +4,7 @@ from pythran.analyses import Globals
 from pythran.passmanager import Transformation
 from pythran.syntax import PythranSyntaxError
 from pythran.tables import attributes, functions, methods, MODULES
+from pythran.conversion import mangle, demangle
 
 import gast as ast
 from functools import reduce
@@ -24,7 +25,7 @@ class NormalizeMethodCalls(Transformation):
 
     def __init__(self):
         Transformation.__init__(self, Globals)
-        self.imports = set()
+        self.imports = {'__builtin__': '__builtin__'}
         self.to_import = set()
 
     def visit_Module(self, node):
@@ -40,36 +41,54 @@ class NormalizeMethodCalls(Transformation):
 
             so we have to import numpy.
         """
+        self.skip_functions = True
+        self.generic_visit(node)
+        self.skip_functions = False
         self.generic_visit(node)
         new_imports = self.to_import - self.globals
-        imports = [ast.Import(names=[ast.alias(name=mod, asname=None)])
+        imports = [ast.Import(names=[ast.alias(name=mod[17:], asname=mod)])
                    for mod in new_imports]
         node.body = imports + node.body
         self.update |= bool(imports)
         return node
 
     def visit_FunctionDef(self, node):
-        self.imports = self.globals.copy()
-        [self.imports.discard(arg.id) for arg in node.args.args]
+        if self.skip_functions:
+            return node
+        old_imports = self.imports
+        self.imports = old_imports.copy()
+        for arg in node.args.args:
+            self.imports.pop(arg.id, None)
         self.generic_visit(node)
+
+        self.imports = old_imports
+
         return node
 
     def visit_Import(self, node):
         for alias in node.names:
-            self.imports.add(alias.asname or alias.name)
+            name = alias.asname or alias.name
+            self.imports[name] = name
         return node
 
     def visit_Assign(self, node):
-        n = self.generic_visit(node)
-        for t in node.targets:
-            if isinstance(t, ast.Name):
-                self.imports.discard(t.id)
-        return n
+        # aliasing between modules
+        if isinstance(node.value, ast.Name) and node.value.id in self.imports:
+            for t in node.targets:
+                if isinstance(t, ast.Name):
+                    self.imports[t.id] = self.imports[node.value.id]
+            return None
+        else:
+            n = self.generic_visit(node)
+            for t in node.targets:
+                if isinstance(t, ast.Name):
+                    self.imports.pop(t.id, None)
+            return n
 
     def visit_For(self, node):
         node.iter = self.visit(node.iter)
         if isinstance(node.target, ast.Name):
-            self.imports.discard(node.target.id)
+            self.imports.pop(node.target.id, None)
         if node.body:
             node.body = [self.visit(n) for n in node.body]
         if node.orelse:
@@ -87,10 +106,13 @@ class NormalizeMethodCalls(Transformation):
         # imported module -> not a getattr
         elif (isinstance(node.value, ast.Name) and
               node.value.id in self.imports):
-            if node.attr not in MODULES[node.value.id]:
+            module_id = self.imports[node.value.id]
+            if node.attr not in MODULES[self.renamer(module_id, MODULES)[1]]:
                 msg = ("`" + node.attr + "' is not a member of " +
-                       node.value.id + " or Pythran does not support it")
+                       module_id + " or Pythran does not support it")
                 raise PythranSyntaxError(msg, node)
+            node.value.id = module_id  # patch module aliasing
+            self.update = True
             return node
         # not listed as attributed -> not a getattr
         elif node.attr not in attributes:
@@ -111,11 +133,13 @@ class NormalizeMethodCalls(Transformation):
         """
         Rename function path to fit Pythonic naming.
         """
+        mname = demangle(v)
+
         name = v + '_'
         if name in cur_module:
-            return name
+            return name, mname
         else:
-            return v
+            return v, mname
 
     def visit_Call(self, node):
         """
@@ -160,11 +184,11 @@ class NormalizeMethodCalls(Transformation):
                     node.args.insert(0, lhs)
                     mod = methods[node.func.attr][0]
                     # Submodules import full module
-                    self.to_import.add(mod[0])
+                    self.to_import.add(mangle(mod[0]))
                     node.func = reduce(
                         lambda v, o: ast.Attribute(v, o, ast.Load()),
                         mod[1:] + (node.func.attr,),
-                        ast.Name(mod[0], ast.Load(), None)
+                        ast.Name(mangle(mod[0]), ast.Load(), None)
                         )
                 # else methods have been called using function syntax
             if node.func.attr in methods or node.func.attr in functions:
@@ -181,13 +205,13 @@ class NormalizeMethodCalls(Transformation):
                     assert isinstance(path, (ast.Name, ast.Attribute)), err
                     if isinstance(path, ast.Attribute):
                         new_node, cur_module = rec(path.value, cur_module)
-                        new_id = self.renamer(path.attr, cur_module)
+                        new_id, mname = self.renamer(path.attr, cur_module)
                         return (ast.Attribute(new_node, new_id, ast.Load()),
-                                cur_module[new_id])
+                                cur_module[mname])
                     else:
-                        new_id = self.renamer(path.id, cur_module)
+                        new_id, mname = self.renamer(path.id, cur_module)
                         return (ast.Name(new_id, ast.Load(), None),
-                                cur_module[new_id])
+                                cur_module[mname])
 
                 # Rename module path to avoid naming issue.
                 node.func.value, _ = rec(node.func.value, MODULES)

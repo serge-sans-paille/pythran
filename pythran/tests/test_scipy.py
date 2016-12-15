@@ -1,4 +1,5 @@
 from test_env import TestEnv
+from pythran.typing import List
 # from http://www.scipy.org/Download , weave/example directory
 
 class TestScipy(TestEnv):
@@ -12,7 +13,7 @@ def laplace(u,dx, dy):
             u[i][j] = ((u[i-1][j] + u[i+1][j])*dy**2 +
                       (u[i][j-1] + u[i][j+1])*dx**2)/(2.0*(dx**2 + dy**2))
 """
-        self.run_test(code, [[0.1,0.2,0.3],[0.1,0.2,0.3],[0.1,0.2,0.3]], 0.01, 0.02, laplace=[[[float]], float, float])
+        self.run_test(code, [[0.1,0.2,0.3],[0.1,0.2,0.3],[0.1,0.2,0.3]], 0.01, 0.02, laplace=[List[List[float]], float, float])
 
     def test_recursive_fibonnaci(self):
         code="""
@@ -55,7 +56,7 @@ def binary_search(seq, t):
         else:
             return m
 """
-        self.run_test(code,[1,2,3,4,5,6,7,8,9], 4, binary_search=[[int], int])
+        self.run_test(code,[1,2,3,4,5,6,7,8,9], 4, binary_search=[List[int], int])
 
     def test_ramp(self):
         code="""
@@ -66,4 +67,4 @@ def ramp(result, start, end):
     for i in xrange(size):
         result[i] = start + step*i
 """
-        self.run_test(code,[0 for x in xrange(10)], 1.5, 9.5, ramp=[[float], float, float])
+        self.run_test(code,[0 for x in xrange(10)], 1.5, 9.5, ramp=[List[float], float, float])

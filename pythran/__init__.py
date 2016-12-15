@@ -15,10 +15,10 @@ Basic scenario is to turn a Python AST into C++ code:
 >>> cxx = cxx_generator.generate()
 
 To generate a native module, one need to add type information:
->>> cxx = generate_cxx('my_module', code, {'foo':([[int]],)})
+>>> cxx = generate_cxx('my_module', code, {'foo':([int],)})
 
 Eventually, the type information can be translated from a string:
->>> spec = spec_parser('#pythran export foo(int list)')
+>>> spec = spec_parser('#pythran export foo(int)')
 >>> cxx = generate_cxx('my_module', code, spec)
 
 Higher level entry points include:

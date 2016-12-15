@@ -50,19 +50,19 @@ namespace pythonic
     template <class O>
     bool none<T, false>::operator==(O const &t) const
     {
-      return not is_none and static_cast<T &>(*this) == t;
+      return not is_none and static_cast<const T &>(*this) == t;
     }
 
     template <class T>
     none<T, false>::operator bool() const
     {
-      return not is_none and static_cast<T &>(*this);
+      return not is_none and static_cast<const T &>(*this);
     }
 
     template <class T>
     intptr_t none<T, false>::id() const
     {
-      return is_none ? NONE_ID : __builtin__::id(*static_cast<T *>(this));
+      return is_none ? NONE_ID : __builtin__::id(static_cast<const T &>(*this));
     }
 
     /* specialization of none for integral types we cannot derive from */

@@ -1,6 +1,7 @@
 """ Module to test slice implementation. """
 
 import numpy
+from pythran.typing import List, NDArray
 
 from test_env import TestEnv
 
@@ -43,7 +44,7 @@ def slice_combination1(a):
             a[:-3:4][begin:end:step])
         """.format(begin=None, end=None, step=None)
         self.run_test(code, numpy.arange(90),
-                      slice_combination1=[numpy.array([int])])
+                      slice_combination1=[NDArray[int,:]])
 
     def test_slice_combination2(self):
         """ Check for positive step combination. """
@@ -73,7 +74,7 @@ def slice_combination2(a):
             a[:-3:4][begin:end:step])
         """.format(begin=None, end=None, step=2)
         self.run_test(code, numpy.arange(90),
-                      slice_combination2=[numpy.array([int])])
+                      slice_combination2=[NDArray[int, :]])
 
     def test_slice_combination3(self):
         """ Check for negative step combination. """
@@ -104,7 +105,7 @@ def slice_combination3(a):
 #            a[:-3:4][begin:end:step])
         """.format(begin=None, end=None, step=-2)
         self.run_test(code, numpy.arange(90),
-                      slice_combination3=[numpy.array([int])])
+                      slice_combination3=[NDArray[int, :]])
 
     def test_slice_combination4(self):
         """ Check for pos step/no begin/pos end combination. """
@@ -133,7 +134,7 @@ def slice_combination4(a):
             a[:-3:4][begin:end:step])
         """.format(begin=None, end=7, step=2)
         self.run_test(code, numpy.arange(90),
-                      slice_combination4=[numpy.array([int])])
+                      slice_combination4=[NDArray[int, :]])
 
     def test_slice_combination5(self):
         """ Check for pos step/no begin/neg end combination. """
@@ -163,7 +164,7 @@ def slice_combination5(a):
 #            a[:-3:4][begin:end:step])
         """.format(begin=None, end=-3, step=2)
         self.run_test(code, numpy.arange(90),
-                      slice_combination5=[numpy.array([int])])
+                      slice_combination5=[NDArray[int, :]])
 
     def test_slice_combination6(self):
         """ Check for pos step/pos begin/no end combination. """
@@ -192,7 +193,7 @@ def slice_combination6(a):
             a[:-3:4][begin:end:step])
         """.format(begin=2, end=None, step=2)
         self.run_test(code, numpy.arange(90),
-                      slice_combination6=[numpy.array([int])])
+                      slice_combination6=[NDArray[int, :]])
 
     def test_slice_combination7(self):
         """ Check for pos step/pos begin/pos end combination. """
@@ -221,7 +222,7 @@ def slice_combination7(a):
             a[:-3:4][begin:end:step])
         """.format(begin=2, end=9, step=2)
         self.run_test(code, numpy.arange(90),
-                      slice_combination7=[numpy.array([int])])
+                      slice_combination7=[NDArray[int, :]])
 
     def test_slice_combination8(self):
         """ Check for pos step/neg begin/no end combination. """
@@ -251,7 +252,7 @@ def slice_combination8(a):
 #            a[:-3:4][begin:end:step])
         """.format(begin=-10, end=None, step=2)
         self.run_test(code, numpy.arange(90),
-                      slice_combination8=[numpy.array([int])])
+                      slice_combination8=[NDArray[int, :]])
 
     def test_step1slice_combination1(self):
         """ Check for "all none" combination. """
@@ -281,7 +282,7 @@ def step1slice_combination1(a):
             a[:-3:1][begin:end:step])
         """.format(begin=None, end=None, step=None)
         self.run_test(code, numpy.arange(90),
-                      step1slice_combination1=[numpy.array([int])])
+                      step1slice_combination1=[NDArray[int, :]])
 
     def test_step1slice_combination2(self):
         """ Check for positive step combination. """
@@ -311,7 +312,7 @@ def step1slice_combination2(a):
             a[:-3:1][begin:end:step])
         """.format(begin=None, end=None, step=2)
         self.run_test(code, numpy.arange(90),
-                      step1slice_combination2=[numpy.array([int])])
+        step1slice_combination2=[NDArray[int, :]])
 
     def test_step1slice_combination3(self):
         """ Check for negative step combination. """
@@ -342,7 +343,7 @@ def step1slice_combination3(a):
             a[:-3:1][begin:end:step])
         """.format(begin=None, end=None, step=-2)
         self.run_test(code, numpy.arange(90),
-                      step1slice_combination3=[numpy.array([int])])
+        step1slice_combination3=[NDArray[int, :]])
 
     def test_step1slice_combination4(self):
         """ Check for pos step/no begin/pos end combination. """
@@ -371,7 +372,7 @@ def step1slice_combination4(a):
            a[:-3:1][begin:end:step])
         """.format(begin=None, end=7, step=2)
         self.run_test(code, numpy.arange(90),
-                      step1slice_combination4=[numpy.array([int])])
+        step1slice_combination4=[NDArray[int, :]])
 
     def test_step1slice_combination5(self):
         """ Check for pos step/no begin/neg end combination. """
@@ -400,7 +401,7 @@ def step1slice_combination5(a):
             a[:-3:1][begin:end:step])
         """.format(begin=None, end=-3, step=2)
         self.run_test(code, numpy.arange(90),
-                      step1slice_combination5=[numpy.array([int])])
+        step1slice_combination5=[NDArray[int, :]])
 
     def test_step1slice_combination6(self):
         """ Check for pos step/pos begin/no end combination. """
@@ -429,7 +430,7 @@ def step1slice_combination6(a):
             a[:-3:1][begin:end:step])
         """.format(begin=2, end=None, step=2)
         self.run_test(code, numpy.arange(90),
-                      step1slice_combination6=[numpy.array([int])])
+        step1slice_combination6=[NDArray[int, :]])
 
     def test_step1slice_combination7(self):
         """ Check for pos step/pos begin/pos end combination. """
@@ -458,7 +459,7 @@ def step1slice_combination7(a):
             a[:-3:1][begin:end:step])
         """.format(begin=2, end=9, step=2)
         self.run_test(code, numpy.arange(90),
-                      step1slice_combination7=[numpy.array([int])])
+        step1slice_combination7=[NDArray[int, :]])
 
     def test_step1slice_combination8(self):
         """ Check for pos step/neg begin/no end combination. """
@@ -487,7 +488,7 @@ def step1slice_combination8(a):
             a[:-3:1][begin:end:step])
         """.format(begin=-10, end=None, step=2)
         self.run_test(code, numpy.arange(90),
-                      step1slice_combination8=[numpy.array([int])])
+        step1slice_combination8=[NDArray[int, :]])
 
     def test_step1slice_combination9(self):
         """ Check for neg step/no begin/pos end combination. """
@@ -516,7 +517,7 @@ def step1slice_combination9(a):
             a[:-3:1][begin:end:step])
         """.format(begin=None, end=2, step=-2)
         self.run_test(code, numpy.arange(90),
-                      step1slice_combination9=[numpy.array([int])])
+        step1slice_combination9=[NDArray[int, :]])
 
     def test_step1slice_combination10(self):
         """ Check for neg step/no begin/neg end combination. """
@@ -545,7 +546,7 @@ def step1slice_combination10(a):
             a[:-3:1][begin:end:step])
         """.format(begin=None, end=-10, step=-2)
         self.run_test(code, numpy.arange(90),
-                      step1slice_combination10=[numpy.array([int])])
+        step1slice_combination10=[NDArray[int, :]])
 
     def test_step1slice_combination11(self):
         """ Check for neg step/pos begin/neg end combination. """
@@ -574,7 +575,7 @@ def step1slice_combination11(a):
             a[:-3:1][begin:end:step])
         """.format(begin=85, end=-10, step=-2)
         self.run_test(code, numpy.arange(90),
-                      step1slice_combination11=[numpy.array([int])])
+        step1slice_combination11=[NDArray[int, :]])
 
     def test_step1slice_combination12(self):
         """ Check for neg step/pos begin/no end combination. """
@@ -603,7 +604,7 @@ def step1slice_combination12(a):
             a[:-3:1][begin:end:step])
         """.format(begin=85, end=None, step=-2)
         self.run_test(code, numpy.arange(90),
-                      step1slice_combination12=[numpy.array([int])])
+        step1slice_combination12=[NDArray[int, :]])
 
     def test_step1slice_combination13(self):
         """ Check for neg step/pos begin/pos end combination. """
@@ -632,7 +633,7 @@ def step1slice_combination13(a):
             a[:-3:1][begin:end:step])
         """.format(begin=85, end=3, step=-2)
         self.run_test(code, numpy.arange(90),
-                      step1slice_combination13=[numpy.array([int])])
+        step1slice_combination13=[NDArray[int, :]])
 
     def test_step1slice_combination14(self):
         """ Check for pos step/neg begin/no end combination. """
@@ -661,7 +662,7 @@ def step1slice_combination14(a):
             a[:-3:1][begin:end:step])
         """.format(begin=-3, end=None, step=-2)
         self.run_test(code, numpy.arange(90),
-                      step1slice_combination14=[numpy.array([int])])
+        step1slice_combination14=[NDArray[int, :]])
 
     def test_step1slice_combination15(self):
         """ Check for neg step/neg begin/pos end combination. """
@@ -690,7 +691,7 @@ def step1slice_combination15(a):
             a[:-3:1][begin:end:step])
         """.format(begin=-3, end=4, step=-2)
         self.run_test(code, numpy.arange(90),
-                      step1slice_combination15=[numpy.array([int])])
+        step1slice_combination15=[NDArray[int, :]])
 
     def test_step1slice_combination16(self):
         """ Check for neg step/neg begin/neg end combination. """
@@ -719,7 +720,7 @@ def step1slice_combination16(a):
             a[:-3:1][begin:end:step])
         """.format(begin=-3, end=-10, step=-2)
         self.run_test(code, numpy.arange(90),
-                      step1slice_combination16=[numpy.array([int])])
+        step1slice_combination16=[NDArray[int, :]])
 
     def test_step1slice_combination17(self):
         """ Check for pos step/pos begin/neg end combination. """
@@ -748,7 +749,7 @@ def step1slice_combination17(a):
             a[:-3:1][begin:end:step])
         """.format(begin=3, end=-10, step=2)
         self.run_test(code, numpy.arange(90),
-                      step1slice_combination17=[numpy.array([int])])
+        step1slice_combination17=[NDArray[int, :]])
 
     def test_step1slice_combination18(self):
         """ Check for pos step/pos begin/neg end combination. """
@@ -777,7 +778,7 @@ def step1slice_combination18(a):
             a[:-3:1][begin:end:step])
         """.format(begin=-80, end=80, step=2)
         self.run_test(code, numpy.arange(90),
-                      step1slice_combination18=[numpy.array([int])])
+        step1slice_combination18=[NDArray[int, :]])
 
     def test_step1slice_combination19(self):
         """ Check for pos step/neg begin/neg end combination. """
@@ -806,4 +807,4 @@ def step1slice_combination19(a):
             a[:-3:1][begin:end:step])
         """.format(begin=-80, end=-2, step=2)
         self.run_test(code, numpy.arange(90),
-                      step1slice_combination19=[numpy.array([int])])
+        step1slice_combination19=[NDArray[int, :]])

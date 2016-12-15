@@ -4,6 +4,7 @@ import unittest
 
 from test_env import TestEnv
 from pythran.config import have_gmp_support
+from pythran.typing import *
 
 class TestBase(TestEnv):
     def test_pass(self):
@@ -48,31 +49,31 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
         self.run_test(code, 4., fibo2=[float])
 
     def test_manual_list_comprehension(self):
-        self.run_test("def f(l):\n ll=list()\n for k in l:\n  ll+=[k]\n return ll\ndef manual_list_comprehension(l): return f(l)", [1,2,3], manual_list_comprehension=[[int]])
+        self.run_test("def f(l):\n ll=list()\n for k in l:\n  ll+=[k]\n return ll\ndef manual_list_comprehension(l): return f(l)", [1,2,3], manual_list_comprehension=[List[int]])
 
     def test_list_comprehension(self):
-        self.run_test("def list_comprehension(l): return [ x*x for x in l ]", [1,2,3], list_comprehension=[[int]])
+        self.run_test("def list_comprehension(l): return [ x*x for x in l ]", [1,2,3], list_comprehension=[List[int]])
 
     def test_dict_comprehension(self):
-        self.run_test("def dict_comprehension(l): return { i: 1 for i in l if len(i)>1 }", ["1","12","123"], dict_comprehension=[[str]])
+        self.run_test("def dict_comprehension(l): return { i: 1 for i in l if len(i)>1 }", ["1","12","123"], dict_comprehension=[List[str]])
 
     def test_filtered_list_comprehension(self):
-        self.run_test("def filtered_list_comprehension(l): return [ x*x for x in l if x > 1 if x <10]", [1,2,3], filtered_list_comprehension=[[int]])
+        self.run_test("def filtered_list_comprehension(l): return [ x*x for x in l if x > 1 if x <10]", [1,2,3], filtered_list_comprehension=[List[int]])
 
     def test_multilist_comprehension(self):
-        self.run_test("def multilist_comprehension(l): return [ x*y for x in l for y in l]", [1,2,3], multilist_comprehension=[[int]])
+        self.run_test("def multilist_comprehension(l): return [ x*y for x in l for y in l]", [1,2,3], multilist_comprehension=[List[int]])
 
     def test_zipped_list_comprehension(self):
-        self.run_test("def zipped_list_comprehension(l): return [ x*y for x,y in zip(l,l) ]", [1,2,3], zipped_list_comprehension=[[int]])
+        self.run_test("def zipped_list_comprehension(l): return [ x*y for x,y in zip(l,l) ]", [1,2,3], zipped_list_comprehension=[List[int]])
 
     def test_zip(self):
-        self.run_test("def zip_(l0,l1): return zip(l0,l1)", [1,2,3],["one", "two", "three"], zip_=[[int], [str]])
+        self.run_test("def zip_(l0,l1): return zip(l0,l1)", [1,2,3],["one", "two", "three"], zip_=[List[int], List[str]])
 
     def test_multizip(self):
-        self.run_test("def multizip(l0,l1): return zip(l0,zip(l0,l1))", [1,2,3],["one", "two", "three"], multizip=[[int], [str]])
+        self.run_test("def multizip(l0,l1): return zip(l0,zip(l0,l1))", [1,2,3],["one", "two", "three"], multizip=[List[int], List[str]])
 
     def test_reduce(self):
-        self.run_test("def reduce_(l): return reduce(lambda x,y:x+y, l)", [0.,1.1,2.2,3.3], reduce_=[[float]])
+        self.run_test("def reduce_(l): return reduce(lambda x,y:x+y, l)", [0.,1.1,2.2,3.3], reduce_=[List[float]])
 
     def test_another_reduce(self):
         if sys.version_info.major == 2:
@@ -85,42 +86,42 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
             def another_reduce(l0,l1):
                 return reduce(lambda x,y:x+y[0]+y[1], zip(l0, l1),0)
             '''
-        self.run_test(code, [0.4,1.4,2.4,3.4], [0.,1.1,2.2,3.3], another_reduce=[[float],[float]])
+        self.run_test(code, [0.4,1.4,2.4,3.4], [0.,1.1,2.2,3.3], another_reduce=[List[float], List[float]])
 
     def test_sum(self):
-        self.run_test("def sum_(l): return sum(l)", [0.,1.1,2.2,3.3], sum_=[[float]])
+        self.run_test("def sum_(l): return sum(l)", [0.,1.1,2.2,3.3], sum_=[List[float]])
 
     def test_multisum(self):
-        self.run_test("def multisum(l0, l1): return sum(l0) + sum(l1)", [0.,1.1,2.2,3.3],[1,2,3], multisum=[[float],[int]])
+        self.run_test("def multisum(l0, l1): return sum(l0) + sum(l1)", [0.,1.1,2.2,3.3],[1,2,3], multisum=[List[float], List[int]])
 
     def test_max(self):
-        self.run_test("def max_(l):return max(l)", [ 1.1, 2.2 ], max_=[[float]])
+        self.run_test("def max_(l):return max(l)", [ 1.1, 2.2 ], max_=[List[float]])
 
     def test_multimax(self):
-        self.run_test("def multimax(l,v):return max(v,max(l))", [ 1.1, 2.2 ], 3, multimax=[[float],int])
+        self.run_test("def multimax(l,v):return max(v,max(l))", [ 1.1, 2.2 ], 3, multimax=[List[float],int])
 
     def test_min(self):
-        self.run_test("def min_(l):return min(l)", [ 1.1, 2.2 ], min_=[[float]])
+        self.run_test("def min_(l):return min(l)", [ 1.1, 2.2 ], min_=[List[float]])
 
     def test_multimin(self):
-        self.run_test("def multimin(l,v):return min(v,min(l))", [ 1.1, 2.2 ], 3, multimin=[[float],int])
+        self.run_test("def multimin(l,v):return min(v,min(l))", [ 1.1, 2.2 ], 3, multimin=[List[float],int])
 
     @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_map_none(self):
-        self.run_test("def map_none(l0): return map(None, l0)", [0,1,2], map_none=[[int]])
+        self.run_test("def map_none(l0): return map(None, l0)", [0,1,2], map_none=[List[int]])
 
     @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_map_none2(self):
-        self.run_test("def map_none2(l0): return map(None, l0, l0)", [0,1,2], map_none2=[[int]])
+        self.run_test("def map_none2(l0): return map(None, l0, l0)", [0,1,2], map_none2=[List[int]])
 
     def test_map(self):
-        self.run_test("def map_(l0, l1, v): return list(map(lambda x,y:x*v+y, l0, l1))", [0,1,2], [0.,1.1,2.2], 2, map_=[[int], [float], int])
+        self.run_test("def map_(l0, l1, v): return list(map(lambda x,y:x*v+y, l0, l1))", [0,1,2], [0.,1.1,2.2], 2, map_=[List[int], List[float], int])
 
     def test_multimap(self):
-        self.run_test("def multimap(l0, l1, v): return list(map(lambda x,y:x*v+y, l0, map(lambda z:z+1,l1)))", [0,1,2], [0.,1.1,2.2], 2, multimap=[[int], [float], int])
+        self.run_test("def multimap(l0, l1, v): return list(map(lambda x,y:x*v+y, l0, map(lambda z:z+1,l1)))", [0,1,2], [0.,1.1,2.2], 2, multimap=[List[int], List[float], int])
 
     def test_intrinsic_map(self):
-        self.run_test("def intrinsic_map(l): return list(map(max,l))",[[0,1,2],[2,0,1]], intrinsic_map=[[[int]]])
+        self.run_test("def intrinsic_map(l): return list(map(max,l))",[[0,1,2],[2,0,1]], intrinsic_map=[List[List[int]]])
 
     def test_range1(self):
         self.run_test("def range1_(e): return range(e)", 3, range1_=[int])
@@ -186,16 +187,16 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
         self.run_test("def multixrange(i): return map(lambda x,y:y*x//2, xrange(1,i), xrange(i,1,-1))", 3, multixrange=[int])
 
     def test_print(self):
-        self.run_test("def print_(a,b,c,d): print a,b,c,d,'e',1.5", [1.,2.,3.1],3,True, "d", print_=[[float], int, bool, str])
+        self.run_test("def print_(a,b,c,d): print a,b,c,d,'e',1.5", [1.,2.,3.1],3,True, "d", print_=[List[float], int, bool, str])
 
     def test_print_tuple(self):
-        self.run_test("def print_tuple(a,b,c,d): t = (a,b,c,d,'e',1.5,); print(t)", [1.,2.,3.1],3,True, "d", print_tuple=[[float], int, bool, str])
+        self.run_test("def print_tuple(a,b,c,d): t = (a,b,c,d,'e',1.5,); print(t)", [1.,2.,3.1],3,True, "d", print_tuple=[List[float], int, bool, str])
 
     def test_assign(self):
         self.run_test("def assign(a): b=2*a ; return b", 1, assign=[int])
 
     def test_multiassign(self):
-        self.run_test("def multiassign(a):\n c=b=a\n return c", [1], multiassign=[[int]])
+        self.run_test("def multiassign(a):\n c=b=a\n return c", [1], multiassign=[List[int]])
 
     def test_list(self):
         self.run_test("def list_(a): b=2*a;c=b/2;return max(c,b)", 1, list_=[int])
@@ -207,7 +208,7 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
         self.run_test("def while_(a):\n while(a>0): a-=1\n return a", 8, while_=[int])
 
     def test_for(self):
-        self.run_test("def for_(l):\n s=0\n for i in l:\n  s+=i\n return s", [0,1,2], for_=[[int]])
+        self.run_test("def for_(l):\n s=0\n for i in l:\n  s+=i\n return s", [0,1,2], for_=[List[int]])
 
     def test_declarations(self):
         code = """
@@ -244,7 +245,7 @@ def lambda_():
        self.run_test("def def41(): return def40()\ndef def40(): return 1", def41=[])
 
     def test_tuple(self):
-        self.run_test("def tuple_(t): return t[0]+t[1]", (0,1), tuple_=[(int, int)])
+        self.run_test("def tuple_(t): return t[0]+t[1]", (0,1), tuple_=[Tuple[int, int]])
 
     def test_nested_list_comprehension(self):
         self.run_test("def nested_list_comprehension(): return [ [ x+y for x in xrange(10) ] for y in xrange(20) ]", nested_list_comprehension=[])
@@ -268,7 +269,7 @@ def lambda_():
         self.run_test("def import_from(): from math import cos ; return cos(1.)", import_from=[])
 
     def test_len(self):
-        self.run_test("def len_(i,j,k): return len(i)+len(j)+len(k)", "youpi", [1,2],[], len_=[str,[int], [float]])
+        self.run_test("def len_(i,j,k): return len(i)+len(j)+len(k)", "youpi", [1,2],[], len_=[str,List[int], List[float]])
 
     def test_in_string(self):
         self.run_test("def in_string(i,j): return i in j", "yo", "youpi", in_string=[str,str])
@@ -277,19 +278,19 @@ def lambda_():
         self.run_test("def not_in_string(i,j): return i not in j", "yo", "youpi", not_in_string=[str,str])
 
     def test_in_list(self):
-        self.run_test("def in_list(i,j): return i in j", 1, [1,2,3], in_list=[int,[int]])
+        self.run_test("def in_list(i,j): return i in j", 1, [1,2,3], in_list=[int,List[int]])
 
     def test_not_in_list(self):
-        self.run_test("def not_in_list(i,j): return i not in j", False, [True, True, True], not_in_list=[bool,[bool]])
+        self.run_test("def not_in_list(i,j): return i not in j", False, [True, True, True], not_in_list=[bool,List[bool]])
 
     def test_subscript(self):
-        self.run_test("def subscript(l,i): l[0]=l[0]+l[i]", [1], 0, subscript=[[int], int])
+        self.run_test("def subscript(l,i): l[0]=l[0]+l[i]", [1], 0, subscript=[List[int], int])
 
     def test_nested_lists(self):
-        self.run_test("def nested_lists(l,i): return l[0][i]", [[1]], 0, nested_lists=[[[int]],int])
+        self.run_test("def nested_lists(l,i): return l[0][i]", [[1]], 0, nested_lists=[List[List[int]],int])
 
     def test_nested_tuples(self):
-        self.run_test("def nested_tuples(l,i): return l[i][1]", [(0.1,1,)], 0, nested_tuples=[[(float,int)],int])
+        self.run_test("def nested_tuples(l,i): return l[i][1]", [(0.1,1,)], 0, nested_tuples=[List[Tuple[float,int]],int])
 
     def test_return_empty_list(self):
         self.run_test("def return_empty_list(): return list()", return_empty_list=[])
@@ -343,7 +344,7 @@ def lambda_():
         self.run_test("def augmented_assignB(a):\n a&=1\n return a", 12, augmented_assignB=[int])
 
     def test_augmented_list_assign(self):
-        self.run_test("def augmented_list_assign(l):\n a=list()\n a+=l\n return a", [1,2], augmented_list_assign=[[int]])
+        self.run_test("def augmented_list_assign(l):\n a=list()\n a+=l\n return a", [1,2], augmented_list_assign=[List[int]])
 
     def test_initialization_list(self):
         self.run_test("def initialization_list(): return [1, 2.3]", initialization_list=[])
@@ -361,13 +362,13 @@ def lambda_():
         self.run_test("def multiple_return3(a):\n if True:return 1\n else:\n  b=a\n  return a+b", 2,  multiple_return3=[int])
 
     def test_id(self):
-        self.run_test("def id_(a):\n c=a\n return id(a)==id(c)", [1,2,3], id_=[[int]])
+        self.run_test("def id_(a):\n c=a\n return id(a)==id(c)", [1,2,3], id_=[List[int]])
 
     def test_delayed_max(self):
         self.run_test("def delayed_max(a,b,c):\n m=max\n return m(a,b) + m(b,c)", 1, 2, 3.5, delayed_max=[int, int, float])
 
     def test_slicing(self):
-        self.run_test("def slicing(l): return l[0:1] + l[:-1]",[1,2,3,4], slicing=[[int]])
+        self.run_test("def slicing(l): return l[0:1] + l[:-1]",[1,2,3,4], slicing=[List[int]])
 
     def test_not_so_deep_recursive_calls(self):
         code="""
@@ -399,7 +400,7 @@ def nested_def(a):
         self.run_test(code,3, nested_def=[int])
 
     def test_none(self):
-        self.run_test("def none_(l):\n if len(l)==0: return\n else: return l", [], none_=[[int]])
+        self.run_test("def none_(l):\n if len(l)==0: return\n else: return l", [], none_=[List[int]])
 
     def test_import(self):
         self.run_test("import math\ndef import_(): return math.cos(1)", import_=[])
@@ -420,13 +421,13 @@ def nested_def(a):
         def npabs_(a):
             return abs(a)""",
                       numpy.array([-1.3, 2.3, -4]),
-                      npabs_=[numpy.array([float])])
+                      npabs_=[NDArray[float, :]])
 
     def test_all(self):
-        self.run_test("def all_(a): return all(a)", [True, False, True], all_=[[bool]])
+        self.run_test("def all_(a): return all(a)", [True, False, True], all_=[List[bool]])
 
     def test_any(self):
-        self.run_test("def any_(a): return any(a)", [0, 1, 2], any_=[[int]])
+        self.run_test("def any_(a): return any(a)", [0, 1, 2], any_=[List[int]])
 
     def test_bin(self):
         self.run_test("def bin_(a): return bin(a)", 54321, bin_=[int])
@@ -445,13 +446,13 @@ def nested_def(a):
         self.run_test("def divmod_(a,b): return divmod(a,b)", 5, 2, divmod_=[int,int])
 
     def test_enumerate(self):
-        self.run_test("def enumerate_(l): return [ x for x in enumerate(l) ]", ["a","b","c"], enumerate_=[[str]])
+        self.run_test("def enumerate_(l): return [ x for x in enumerate(l) ]", ["a","b","c"], enumerate_=[List[str]])
 
     def test_enumerat2(self):
-        self.run_test("def enumerate2_(l): return [ x for x in enumerate(l, 3) ]", ["a","b","c"], enumerate2_=[[str]])
+        self.run_test("def enumerate2_(l): return [ x for x in enumerate(l, 3) ]", ["a","b","c"], enumerate2_=[List[str]])
 
     def test_filter(self):
-        self.run_test("def filter_(l): return filter(lambda x:x%2, l)", [1,2,3], filter_=[[int]])
+        self.run_test("def filter_(l): return filter(lambda x:x%2, l)", [1,2,3], filter_=[List[int]])
 
     def test_hex(self):
         self.run_test("def hex_(a): return hex(a)", 18, hex_=[int])
@@ -463,16 +464,16 @@ def nested_def(a):
         self.run_test("def pow_(a): return pow(a,5)", 18, pow_=[int])
 
     def test_reversed(self):
-        self.run_test("def reversed_(l): return [x for x in reversed(l)]", [1,2,3], reversed_=[[int]])
+        self.run_test("def reversed_(l): return [x for x in reversed(l)]", [1,2,3], reversed_=[List[int]])
 
     def test_round(self):
         self.run_test("def round_(v): return round(v) + round(v,2)", 0.1234, round_=[float])
 
     def test_sorted(self):
-        self.run_test("def sorted_(l): return [x for x in sorted(l)]", [1,2,3], sorted_=[[int]])
+        self.run_test("def sorted_(l): return [x for x in sorted(l)]", [1,2,3], sorted_=[List[int]])
 
     def test_str(self):
-        self.run_test("def str_(l): return str(l)", [1,2,3], str_=[[int]])
+        self.run_test("def str_(l): return str(l)", [1,2,3], str_=[List[int]])
 
     def test_append(self):
         self.run_test("def append(): l=[] ; l.append(1) ; return l", append=[])
@@ -491,7 +492,7 @@ def complex_append_in_call(l1,l2):
 	for x in l1:
 		if not x in l2:
 			foo(b,x)"""
-        self.run_test(code, [1,2,3],[2],complex_append_in_call=[[int],[int]])
+        self.run_test(code, [1,2,3],[2],complex_append_in_call=[List[int],List[int]])
 
     def test_complex_number(self):
         code="""
@@ -504,7 +505,7 @@ def complex_number():
         self.run_test("def raise_():\n raise RuntimeError('pof')", raise_=[], check_exception=True)
 
     def test_complex_number_serialization(self):
-        self.run_test("def complex_number_serialization(l): return [x+y for x in l for y in l]", [complex(1,0), complex(1,0)], complex_number_serialization=[[complex]])
+        self.run_test("def complex_number_serialization(l): return [x+y for x in l for y in l]", [complex(1,0), complex(1,0)], complex_number_serialization=[List[complex]])
 
     def test_complex_conj(self):
         self.run_test("def complex_conjugate(c): return c.conjugate()", complex(0,1), complex_conjugate=[complex])
@@ -526,7 +527,7 @@ def subscript_assignment ():
         code="""
 def export(template):
     return [ new*new for new in template ]"""
-        self.run_test(code, [1], export=[[int]])
+        self.run_test(code, [1], export=[List[int]])
 
     def test_forelse(self):
         code="""
@@ -565,14 +566,14 @@ def forelse():
                       """, 1111111111111111111111, _long_square=[long])
 
     def test_reversed_slice(self):
-        self.run_test("def reversed_slice(l): return l[::-2]", [0,1,2,3,4], reversed_slice=[[int]])
+        self.run_test("def reversed_slice(l): return l[::-2]", [0,1,2,3,4], reversed_slice=[List[int]])
 
     def test_shadow_parameters(self):
         code="""
 def shadow_parameters(l):
     if False:l=None
     return l"""
-        self.run_test(code, [1], shadow_parameters=[[int]])
+        self.run_test(code, [1], shadow_parameters=[List[int]])
 
     def test_yielder(self):
         code="""
@@ -615,32 +616,32 @@ def in_set(a):
         self.run_test(code, 1.5, in_set=[float])
 
     def test_return_set(self):
-        self.run_test("def return_set(l): return set(l)", [1,2,3,3], return_set=[[int]])
+        self.run_test("def return_set(l): return set(l)", [1,2,3,3], return_set=[List[int]])
 
     def test_import_set(self):
-        self.run_test("def import_set(l): l.add(1) ; return l", {0,2}, import_set=[{int}])
+        self.run_test("def import_set(l): l.add(1) ; return l", {0,2}, import_set=[Set[int]])
 
     def test_raw_set(self):
         self.run_test("def raw_set(): return { 1, 1., 2 }", raw_set=[])
 
     def test_iter_set(self):
-        self.run_test("def iter_set(s):\n l=0\n for k in s: l+=k\n return l", { 1, 2, 3 } , iter_set=[{int}])
+        self.run_test("def iter_set(s):\n l=0\n for k in s: l+=k\n return l", { 1, 2, 3 } , iter_set=[Set[int]])
 
     def test_set_comprehension(self):
-        self.run_test("def set_comprehension(l): return { i*i for i in l }", [1 , 2, 1, 3], set_comprehension=[[int]])
+        self.run_test("def set_comprehension(l): return { i*i for i in l }", [1 , 2, 1, 3], set_comprehension=[List[int]])
 
     def test_slicer(self):
         code="""
 def slicer(l):
     l[2:5]=[1,2]
     return l"""
-        self.run_test(code,[1,2,3,4,5,6,7,8,9], slicer=[[int]])
+        self.run_test(code,[1,2,3,4,5,6,7,8,9], slicer=[List[int]])
 
     def test_generator_expression(self):
         code="""
 def generator_expression(l):
     return sum(x for x in l if x == 1)"""
-        self.run_test(code,[1,1,1,2], generator_expression=[[int]])
+        self.run_test(code,[1,1,1,2], generator_expression=[List[int]])
 
     def test_default_parameters(self):
         code="""
@@ -664,10 +665,10 @@ def import_as():
         self.run_test(code, import_as=[])
 
     def test_tuple_unpacking(self):
-        self.run_test("def tuple_unpacking(t): a,b = t ; return a, b", (1,"e"), tuple_unpacking=[(int, str)])
+        self.run_test("def tuple_unpacking(t): a,b = t ; return a, b", (1,"e"), tuple_unpacking=[Tuple[int, str]])
 
     def test_list_unpacking(self):
-        self.run_test("def list_unpacking(t): [a,b] = t ; return a, b", (1,2), list_unpacking=[(int, int)])
+        self.run_test("def list_unpacking(t): [a,b] = t ; return a, b", (1,2), list_unpacking=[Tuple[int, int]])
 
     def test_recursive_attr(self):
         self.run_test("def recursive_attr(): return {1,2,3}.union({1,2}).union({5})", recursive_attr=[])
@@ -688,7 +689,7 @@ def import_as():
         self.run_test('''
 def update_empty_list(l):
     p = list()
-    return p + l[:1]''', list(range(5)), update_empty_list=[[int]])
+    return p + l[:1]''', list(range(5)), update_empty_list=[List[int]])
 
     def test_update_list_with_slice(self):
         self.run_test('''
@@ -696,7 +697,7 @@ def update_list_with_slice(l):
     p = list()
     for i in xrange(10):
         p += l[:1]
-    return p,i''', list(range(5)), update_list_with_slice=[[int]])
+    return p,i''', list(range(5)), update_list_with_slice=[List[int]])
 
     def test_add_slice_to_list(self):
         self.run_test('''
@@ -704,7 +705,7 @@ def add_slice_to_list(l):
     p = list()
     for i in xrange(10):
         p = p + l[:1]
-    return p,i''', list(range(5)), add_slice_to_list=[[int]])
+    return p,i''', list(range(5)), add_slice_to_list=[List[int]])
 
     def test_bool_(self):
         self.run_test("def _bool(d): return bool(d)", 3, _bool=[int])

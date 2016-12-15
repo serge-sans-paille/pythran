@@ -1,6 +1,8 @@
 from tempfile import mkstemp
 from test_env import TestEnv
 
+from pythran.typing import List
+
 
 class TestFile(TestEnv):
 
@@ -61,7 +63,7 @@ class TestFile(TestEnv):
     def test_writelines(self):
         self.filename=mkstemp()[1]
         content=["""azerty""", "qsdfgh", "12345524"]
-        self.run_test("""def _writelines(filename,_content):\n f=open(filename,'a+')\n f.writelines(_content)\n f.close()""", self.filename, content, _writelines=[str, [str]])
+        self.run_test("""def _writelines(filename,_content):\n f=open(filename,'a+')\n f.writelines(_content)\n f.close()""", self.filename, content, _writelines=[str, List[str]])
         assert(open(self.filename).read()==str().join(content)*2)
 
     def test_close(self):

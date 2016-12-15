@@ -10,6 +10,7 @@ from pythran.cxxgen import FunctionBody, FunctionDeclaration, Value, Block
 from pythran.middlend import refine
 from pythran.passmanager import PassManager
 from pythran.tables import pythran_ward
+from pythran.types import tog
 from pythran.types.types import extract_constructed_types
 from pythran.types.type_dependencies import pytype_to_deps
 from pythran.types.conversion import pytype_to_ctype
@@ -126,10 +127,13 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
     optimizations = [_parse_optimization(opt) for opt in optimizations]
     refine(pm, ir, optimizations)
 
+    # type check
+    types = tog.typecheck(ir)
+
     # back-end
     content = pm.dump(Cxx, ir)
 
-    # instanciate the meta program
+    # instantiate the meta program
     if specs is None:
 
         class Generable(object):
@@ -151,7 +155,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
 
         # verify the pythran export are compatible with the code
         specs = expand_specs(specs)
-        check_specs(ir, specs, renamings)
+        check_specs(ir, specs, renamings, types)
         specs_to_docstrings(specs, docstrings)
 
         metainfo = {'hash': hashlib.sha256(code.encode('ascii')).hexdigest(),

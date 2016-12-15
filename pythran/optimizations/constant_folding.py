@@ -27,7 +27,7 @@ class ConstantFolding(Transformation):
     """
 
     def __init__(self):
-        Transformation.__init__(self, ConstantExpressions, Aliases)
+        Transformation.__init__(self, ConstantExpressions)
 
     def prepare(self, node, ctx):
         assert isinstance(node, ast.Module)

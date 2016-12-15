@@ -15,10 +15,11 @@ from pythran.cxxtypes import ArgumentType, Returnable, CombinedTypes
 from pythran.intrinsic import UserFunction, MethodIntr, Class
 from pythran.passmanager import ModuleAnalysis
 from pythran.tables import operator_to_lambda, MODULES
-from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE, pytype_to_ctype
+from pythran.types.conversion import pytype_to_ctype
 from pythran.types.reorder import Reorder
 from pythran.utils import attr_to_path
 from pythran import metadata
+from pythran.syntax import PythranSyntaxError
 
 from collections import defaultdict
 from functools import partial
@@ -182,63 +183,58 @@ class Types(ModuleAnalysis):
 
                 self.name_to_nodes.setdefault(node_id, set()).add(node)
 
-            if isinstance(othernode, ast.FunctionDef):
-                new_type = NamedType(othernode.name)
+            # only perform inter procedural combination upon stage 0
+            if register and self.isargument(node) and self.stage == 0:
+                node_id, _ = self.node_to_id(node)
+                if node not in self.result:
+                    self.result[node] = unary_op(self.result[othernode])
+                assert self.result[node], "found an alias with a type"
+
+                parametric_type = PType(self.current,
+                                        self.result[othernode])
+                if self.register(parametric_type):
+
+                    current_function = self.combiners[self.current]
+
+                    def translator_generator(args, op, unary_op):
+                        ''' capture args for translator generation'''
+                        def interprocedural_type_translator(s, n):
+                            translated_othernode = ast.Name(
+                                '__fake__', ast.Load(), None)
+                            s.result[translated_othernode] = (
+                                parametric_type.instanciate(
+                                    s.current,
+                                    [s.result[arg] for arg in n.args]))
+                            # look for modified argument
+                            for p, effective_arg in enumerate(n.args):
+                                formal_arg = args[p]
+                                if formal_arg.id == node_id:
+                                    translated_node = effective_arg
+                                    break
+                            try:
+                                s.combine(translated_node,
+                                          translated_othernode,
+                                          op, unary_op, register=True,
+                                          aliasing_type=True)
+                            except NotImplementedError:
+                                pass
+                                # this may fail when the effective
+                                # parameter is an expression
+                            except UnboundLocalError:
+                                pass
+                                # this may fail when translated_node
+                                # is a default parameter
+                        return interprocedural_type_translator
+                    translator = translator_generator(
+                        self.current.args.args,
+                        op, unary_op)  # deferred combination
+                    current_function.add_combiner(translator)
+            else:
+                new_type = unary_op(self.result[othernode])
                 if node not in self.result:
                     self.result[node] = new_type
-            else:
-                # only perform inter procedural combination upon stage 0
-                if register and self.isargument(node) and self.stage == 0:
-                    node_id, _ = self.node_to_id(node)
-                    if node not in self.result:
-                        self.result[node] = unary_op(self.result[othernode])
-                    assert self.result[node], "found an alias with a type"
-
-                    parametric_type = PType(self.current,
-                                            self.result[othernode])
-                    if self.register(parametric_type):
-
-                        current_function = self.combiners[self.current]
-
-                        def translator_generator(args, op, unary_op):
-                            ''' capture args for translator generation'''
-                            def interprocedural_type_translator(s, n):
-                                translated_othernode = ast.Name(
-                                    '__fake__', ast.Load(), None)
-                                s.result[translated_othernode] = (
-                                    parametric_type.instanciate(
-                                        s.current,
-                                        [s.result[arg] for arg in n.args]))
-                                # look for modified argument
-                                for p, effective_arg in enumerate(n.args):
-                                    formal_arg = args[p]
-                                    if formal_arg.id == node_id:
-                                        translated_node = effective_arg
-                                        break
-                                try:
-                                    s.combine(translated_node,
-                                              translated_othernode,
-                                              op, unary_op, register=True,
-                                              aliasing_type=True)
-                                except NotImplementedError:
-                                    pass
-                                    # this may fail when the effective
-                                    # parameter is an expression
-                                except UnboundLocalError:
-                                    pass
-                                    # this may fail when translated_node
-                                    # is a default parameter
-                            return interprocedural_type_translator
-                        translator = translator_generator(
-                            self.current.args.args,
-                            op, unary_op)  # deferred combination
-                        current_function.add_combiner(translator)
                 else:
-                    new_type = unary_op(self.result[othernode])
-                    if node not in self.result:
-                        self.result[node] = new_type
-                    else:
-                        self.result[node] = op(self.result[node], new_type)
+                    self.result[node] = op(self.result[node], new_type)
         except UnboundableRValue:
             pass
 
@@ -352,6 +348,7 @@ class Types(ModuleAnalysis):
 
     def visit_BinOp(self, node):
         self.generic_visit(node)
+
         wl, wr = [self.result[x].isweak() for x in (node.left, node.right)]
         if(isinstance(node.op, ast.Add) and any([wl, wr]) and
            not all([wl, wr])):
@@ -395,6 +392,7 @@ class Types(ModuleAnalysis):
     def visit_Call(self, node):
         self.generic_visit(node)
         func = node.func
+
         for alias in self.strict_aliases[func]:
             # this comes from a bind
             if isinstance(alias, ast.Call):
@@ -445,19 +443,20 @@ class Types(ModuleAnalysis):
         It could be int, long or float so we use the default python to pythonic
         type converter.
         """
-        self.result[node] = NamedType(PYTYPE_TO_CTYPE_TABLE[type(node.n)])
+        ty = type(node.n)
+        self.result[node] = NamedType(pytype_to_ctype(ty))
 
     def visit_Str(self, node):
         """ Set the pythonic string type. """
-        self.result[node] = NamedType(PYTYPE_TO_CTYPE_TABLE[str])
+        self.result[node] = NamedType(pytype_to_ctype(str))
 
     def visit_Attribute(self, node):
         """ Compute typing for an attribute node. """
         obj, path = attr_to_path(node)
-        assert not obj.isliteral() or obj.return_type, "Constants are known."
         # If no type is given, use a decltype
-        if obj.return_type:
-            self.result[node] = obj.return_type
+        if obj.isliteral():
+            typename = pytype_to_ctype(obj.signature)
+            self.result[node] = NamedType(typename)
         else:
             self.result[node] = DeclType('::'.join(path) + '{}')
 
@@ -516,7 +515,9 @@ class Types(ModuleAnalysis):
             for n in self.name_to_nodes[node.id]:
                 self.combine(node, n)
         elif node.id in self.current_global_declarations:
-            self.combine(node, self.current_global_declarations[node.id])
+            newtype = NamedType(self.current_global_declarations[node.id].name)
+            if node not in self.result:
+                self.result[node] = newtype
         else:
             self.result[node] = NamedType(node.id, {Weak})
 

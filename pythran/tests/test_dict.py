@@ -1,4 +1,5 @@
 from test_env import TestEnv
+from pythran.typing import Dict, List
 
 class TestDict(TestEnv):
 
@@ -27,16 +28,16 @@ class TestDict(TestEnv):
         self.run_test("def emptydict_contains(v): return v in dict()", "e", emptydict_contains=[str])
 
     def test_dict_get_item(self):
-        self.run_test("def dict_get_item(a): return a['e']", {'e':1, 'f':2}, dict_get_item=[{str:int}])
+        self.run_test("def dict_get_item(a): return a['e']", {'e':1, 'f':2}, dict_get_item=[Dict[str, int]])
 
     def test_dict_len(self):
-        self.run_test("def dict_len(d): return len(d)", {1:'e', 2:'f'}, dict_len=[{int:str}])
+        self.run_test("def dict_len(d): return len(d)", {1:'e', 2:'f'}, dict_len=[Dict[int, str]])
     def test_dict_set_item(self):
         self.run_test("def dict_set_item():\n a= dict() ; a[1.5]='s'\n return a", dict_set_item=[])
     def test_dict_set_item_bis(self):
         self.run_test("def dict_set_item_bis():\n a= dict() ; a[1]='s'\n return a", dict_set_item_bis=[])
     def test_dict_clear(self):
-        self.run_test("def dict_clear(a):\n a.clear()\n return a", {'e':'E' }, dict_clear=[{str:str}])
+        self.run_test("def dict_clear(a):\n a.clear()\n return a", {'e':'E' }, dict_clear=[Dict[str, str]])
     def test_dict_copy(self):
         code="""
 def dict_copy(a):
@@ -44,70 +45,70 @@ def dict_copy(a):
     c = a
     a.clear()
     return c,b"""
-        self.run_test(code,  {1:2 }, dict_copy=[{int:int}])
+        self.run_test(code,  {1:2 }, dict_copy=[Dict[int, int]])
 
     def test_dict_from_keys(self):
-        return self.run_test("def dict_from_keys(a): return dict.fromkeys(a), dict.fromkeys(a,1)", [1.5,2.5,3.5], dict_from_keys=[[float]])
+        return self.run_test("def dict_from_keys(a): return dict.fromkeys(a), dict.fromkeys(a,1)", [1.5,2.5,3.5], dict_from_keys=[List[float]])
 
     def test_dict_get(self):
-        return self.run_test("def dict_get(a): return a.get(1.5) + a.get(2, 18)", {1.5:2 }, dict_get=[{float:int}])
+        return self.run_test("def dict_get(a): return a.get(1.5), a.get(2, 18) + 1", {1.5:2 }, dict_get=[Dict[float, int]])
 
     def test_dict_get_none(self):
-        return self.run_test("def dict_get_none(a): return a.get(1)", {1.5:2 }, dict_get_none=[{float:int}])
+        return self.run_test("def dict_get_none(a): return a.get(1)", {1.5:2 }, dict_get_none=[Dict[float, int]])
 
     def test_dict_has_key(self):
-        return self.run_test("def dict_has_key(a): return (a.has_key(False), a.has_key(True))", {False:2}, dict_has_key=[{bool:int}])
+        return self.run_test("def dict_has_key(a): return (a.has_key(False), a.has_key(True))", {False:2}, dict_has_key=[Dict[bool, int]])
 
     def test_dict_items(self):
-        return self.run_test("def dict_items(a): return sorted(a.items())", { 'a':1, 'e': 2 }, dict_items=[{str:int}])
+        return self.run_test("def dict_items(a): return sorted(a.items())", { 'a':1, 'e': 2 }, dict_items=[Dict[str, int]])
 
     def test_dict_for(self):
-        return self.run_test("def dict_for(a): return sorted([x for x in a])", { 'a':1, 'e': 2 }, dict_for=[{str:int}])
+        return self.run_test("def dict_for(a): return sorted([x for x in a])", { 'a':1, 'e': 2 }, dict_for=[Dict[str, int]])
 
     def test_dict_iteritems(self):
-        return self.run_test("def dict_iteritems(a): return sorted([ x for x in a.iteritems()])", { 'a':1, 'e': 2 }, dict_iteritems=[{str:int}])
+        return self.run_test("def dict_iteritems(a): return sorted([ x for x in a.iteritems()])", { 'a':1, 'e': 2 }, dict_iteritems=[Dict[str, int]])
 
     def test_dict_iterkeys(self):
-        return self.run_test("def dict_iterkeys(a): return sorted([ x*2 for x in a.iterkeys()])", { 1:'a', 2:'b' }, dict_iterkeys=[{int:str}])
+        return self.run_test("def dict_iterkeys(a): return sorted([ x*2 for x in a.iterkeys()])", { 1:'a', 2:'b' }, dict_iterkeys=[Dict[int, str]])
 
     def test_dict_itervalues(self):
-        return self.run_test("def dict_itervalues(a): return sorted([ x*2 for x in a.itervalues()])", { 1:'a', 2:'b' }, dict_itervalues=[{int:str}])
+        return self.run_test("def dict_itervalues(a): return sorted([ x*2 for x in a.itervalues()])", { 1:'a', 2:'b' }, dict_itervalues=[Dict[int, str]])
 
     def test_dict_keys(self):
-        return self.run_test("def dict_keys(a): return sorted([ x*2 for x in a.keys()])", { 1:'a', 2:'b' }, dict_keys=[{int:str}])
+        return self.run_test("def dict_keys(a): return sorted([ x*2 for x in a.keys()])", { 1:'a', 2:'b' }, dict_keys=[Dict[int, str]])
 
     def test_dict_values(self):
-        return self.run_test("def dict_values(a): return sorted([ x*2 for x in a.values()])", { 1:'a', 2:'b' }, dict_values=[{int:str}])
+        return self.run_test("def dict_values(a): return sorted([ x*2 for x in a.values()])", { 1:'a', 2:'b' }, dict_values=[Dict[int, str]])
 
     def test_dict_pop(self):
-        return self.run_test("def dict_pop(a): return a.pop(1), a.pop(3,'e'), a", { 1:'a', 2:'b' }, dict_pop=[{int:str}])
+        return self.run_test("def dict_pop(a): return a.pop(1), a.pop(3,'e'), a", { 1:'a', 2:'b' }, dict_pop=[Dict[int, str]])
 
     def test_dict_popitem(self):
-        return self.run_test("def dict_popitem(a): return a.popitem(), a", { 1:'a' }, dict_popitem=[{int:str}])
+        return self.run_test("def dict_popitem(a): return a.popitem(), a", { 1:'a' }, dict_popitem=[Dict[int, str]])
 
     def test_dict_setdefault(self):
         return self.run_test("def dict_setdefault():\n a={1.5:2 }\n return a.setdefault(1.5) + a.setdefault(2, 18)", dict_setdefault=[])
 
     def test_dict_update(self):
-        return self.run_test("def dict_update(a):\n a.update([(1,'e')])\n a.update({2:'c'})\n return a", { 1:'a', 2:'b' }, dict_update=[{int:str}])
+        return self.run_test("def dict_update(a):\n a.update([(1,'e')])\n a.update({2:'c'})\n return a", { 1:'a', 2:'b' }, dict_update=[Dict[int, str]])
 
     def test_dict_viewitems(self):
-        return self.run_test("def dict_viewitems(a):\n d=a.viewitems()\n return sorted(d)", { 1:'a', 2:'b' }, dict_viewitems=[{int:str}])
+        return self.run_test("def dict_viewitems(a):\n d=a.viewitems()\n return sorted(d)", { 1:'a', 2:'b' }, dict_viewitems=[Dict[int, str]])
 
     def test_dict_viewkeys(self):
-        return self.run_test("def dict_viewkeys(a):\n d=a.viewkeys()\n return sorted(d)", { 1:'a', 2:'b' }, dict_viewkeys=[{int:str}])
+        return self.run_test("def dict_viewkeys(a):\n d=a.viewkeys()\n return sorted(d)", { 1:'a', 2:'b' }, dict_viewkeys=[Dict[int, str]])
 
     def test_dict_viewvalues(self):
-        return self.run_test("def dict_viewvalues(a):\n d=a.viewvalues()\n return sorted(d)", { 1:'a', 2:'b' }, dict_viewvalues=[{int:str}])
+        return self.run_test("def dict_viewvalues(a):\n d=a.viewvalues()\n return sorted(d)", { 1:'a', 2:'b' }, dict_viewvalues=[Dict[int, str]])
 
     def test_dict_viewitems_contains(self):
-        return self.run_test("def dict_viewitems_contains(a):\n d=a.viewitems()\n return (1,'a') in d, (2,'e') in d", { 1:'a', 2:'b' }, dict_viewitems_contains=[{int:str}])
+        return self.run_test("def dict_viewitems_contains(a):\n d=a.viewitems()\n return (1,'a') in d, (2,'e') in d", { 1:'a', 2:'b' }, dict_viewitems_contains=[Dict[int, str]])
 
     def test_dict_viewkeys_contains(self):
-        return self.run_test("def dict_viewkeys_contains(a):\n d=a.viewkeys()\n return 1 in d, 3 in d", { 1:'a', 2:'b' }, dict_viewkeys_contains=[{int:str}])
+        return self.run_test("def dict_viewkeys_contains(a):\n d=a.viewkeys()\n return 1 in d, 3 in d", { 1:'a', 2:'b' }, dict_viewkeys_contains=[Dict[int, str]])
 
     def test_dict_viewvalues_contains(self):
-        return self.run_test("def dict_viewvalues_contains(a):\n d=a.viewvalues()\n return 'a' in d, 'e' in d", { 1:'a', 2:'b' }, dict_viewvalues_contains=[{int:str}])
+        return self.run_test("def dict_viewvalues_contains(a):\n d=a.viewvalues()\n return 'a' in d, 'e' in d", { 1:'a', 2:'b' }, dict_viewvalues_contains=[Dict[int, str]])
 
     def test_dict_update_combiner(self):
         return self.run_test("def dict_update_combiner():\n a=dict()\n a.update({1:'e'})\n return a", dict_update_combiner=[])

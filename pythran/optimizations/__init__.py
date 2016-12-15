@@ -22,3 +22,4 @@ from .pattern_transform import PatternTransform
 from .range_loop_unfolding import RangeLoopUnfolding
 from .square import Square
 from .inlining import Inlining
+from .inline_builtins import InlineBuiltins

@@ -55,7 +55,7 @@ def fndrt(a,n):
     z=[complex(0,0) for k in xrange(n) ]
     if n==1:
         z[0]=-a[0]/a[1]
-        return None
+        return z
     if n>2:
         for k in range(n,2,-1):
 #   Obtain an approximate root.

@@ -6,6 +6,15 @@ import gast as ast
 import networkx as nx
 
 
+def is_true_predicate(node):
+    # FIXME: there may be more patterns here
+    if isinstance(node, ast.Num) and node.n:
+        return True
+    if isinstance(node, ast.Attribute) and node.attr == 'True':
+        return True
+    return False
+
+
 class CFG(FunctionAnalysis):
     """
     Computes the Control Flow Graph of a function.
@@ -59,7 +68,7 @@ class CFG(FunctionAnalysis):
         RAISES = body's that are not break or continue
         """
         currs = (node,)
-        break_currs = (node,)
+        break_currs = tuple()
         raises = ()
         # handle body
         for n in node.body:
@@ -84,6 +93,10 @@ class CFG(FunctionAnalysis):
                 for curr in currs:
                     self.result.add_edge(curr, n)
                 currs, nraises = self.visit(n)
+        # while only
+        if hasattr(node, 'test') and is_true_predicate(node.test):
+            return break_currs, raises
+
         return break_currs + currs, raises
 
     visit_While = visit_For
@@ -95,6 +108,7 @@ class CFG(FunctionAnalysis):
         """
         currs = (node,)
         raises = ()
+
         # true branch
         for n in node.body:
             self.result.add_node(n)
@@ -102,8 +116,11 @@ class CFG(FunctionAnalysis):
                 self.result.add_edge(curr, n)
             currs, nraises = self.visit(n)
             raises += nraises
-        tcurrs = currs
+        if is_true_predicate(node.test):
+            return currs, raises
+
         # false branch
+        tcurrs = currs
         currs = (node,)
         for n in node.orelse:
             self.result.add_node(n)

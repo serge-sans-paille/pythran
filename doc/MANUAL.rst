@@ -246,6 +246,14 @@ Pythran now supports Python3 and can be installed as a regular Python3 program.
 Note however that Python3 support is still in early stage and compilation
 failure may happen. Report them!
 
+GIL Interaction
+---------------
+
+As Pythran translates the Python code in native code that only depends on
+``libpython`` for data translation, it can release the GIL during the actual
+function run. And that's what it does :-) Put an another way, you can rip some
+speedup at the Python level just by spawning multiple ``threading.Thread``.
+
 
 IPython Integration
 -------------------

@@ -5,6 +5,7 @@ from numpy import float32, float64
 from numpy import int8, int16, int32, int64, uint8, uint16, uint32, uint64
 from numpy import ndarray, isnan, isinf, isneginf, complex128, complex64, bool_
 from textwrap import dedent
+from threading import Thread
 import copy
 import math
 import glob
@@ -266,6 +267,7 @@ class TestEnv(unittest.TestCase):
         # Extract special keys from interface.
         prelude = interface.pop('prelude', None)
         check_exception = interface.pop('check_exception', False)
+        thread_count = interface.pop('thread_count', 1)
 
         assert len(interface) == 1
 
@@ -281,8 +283,10 @@ class TestEnv(unittest.TestCase):
         # FIXME Check should be done on input parameters after function call
         python_ref = self.run_python(code, (name, copy.deepcopy(params)),
                                      prelude, check_exception)
-        pythran_res = self.run_pythran(modname, cxx_compiled, (name, params),
-                                       prelude, check_exception)
+
+        run_pythran_args = (modname, cxx_compiled, (name, params),
+                            prelude, check_exception)
+        pythran_res = self.run_pythran(*run_pythran_args)
 
         if check_exception:
             if pythran_res != python_ref:
@@ -293,6 +297,16 @@ class TestEnv(unittest.TestCase):
         print("Python result: ", python_ref)
         print("Pythran result: ", pythran_res)
         self.assertAlmostEqual(python_ref, pythran_res)
+
+        if thread_count > 1:
+            threads = [Thread(target=self.run_pythran,
+                              args=run_pythran_args)
+                       for _ in range(1, thread_count)]
+            for thread in threads:
+                thread.start()
+            for thread in threads:
+                thread.join()
+
 
     @staticmethod
     def check_ast(code, ref, optimizations):

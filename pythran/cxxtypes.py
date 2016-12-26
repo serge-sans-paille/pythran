@@ -138,6 +138,7 @@ class CombinedTypes(Type):
             types=types,
             qualifiers=frozenset.union(*[t.qualifiers for t in types])
             )
+        self._all_types = None  # cached, much faster
 
     def iscombined(self):
         return True
@@ -154,10 +155,10 @@ class CombinedTypes(Type):
         return CombinedTypes(self, other)
 
     def all_types(self):
-        out = set()
-        for t in self.types:
-            out.update(t.all_types())
-        return out
+        if self._all_types is None:
+            self._all_types = set()
+            self._all_types.update(*[t.all_types() for t in self.types])
+        return self._all_types
 
     def generate(self, ctx):
         # gather all underlying types and make sure they do not appear twice

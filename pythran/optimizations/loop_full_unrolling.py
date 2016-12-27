@@ -28,7 +28,7 @@ class LoopFullUnrolling(Transformation):
     i += j
     '''
 
-    MAX_NODE_COUNT = 1024
+    MAX_NODE_COUNT = 4096
 
     def visit_For(self, node):
         # first unroll children if needed or possible

@@ -1,4 +1,3 @@
-import sys
 from six import with_metaclass
 
 

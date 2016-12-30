@@ -12,14 +12,12 @@ from pythran.cxxtypes import ExpressionType, IteratorContentType, ReturnType
 from pythran.cxxtypes import GetAttr, DeclType, ElementType, IndexableType
 from pythran.cxxtypes import Weak, ListType, SetType, DictType, TupleType
 from pythran.cxxtypes import ArgumentType, Returnable, CombinedTypes
-from pythran.intrinsic import UserFunction, MethodIntr, Class
+from pythran.intrinsic import UserFunction, Class
 from pythran.passmanager import ModuleAnalysis
 from pythran.tables import operator_to_lambda, MODULES
 from pythran.types.conversion import pytype_to_ctype
 from pythran.types.reorder import Reorder
 from pythran.utils import attr_to_path
-from pythran import metadata
-from pythran.syntax import PythranSyntaxError
 
 from collections import defaultdict
 from functools import partial

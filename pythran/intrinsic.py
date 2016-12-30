@@ -3,12 +3,9 @@
 from pythran.conversion import to_ast
 from pythran.range import UNKNOWN_RANGE, bool_values
 from pythran.types.signature import extract_combiner
-from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE
-from pythran.cxxtypes import NamedType
 from pythran.typing import Any, Union, Fun, Generator
 
 import gast as ast
-import sys
 
 
 class UnboundValueType(object):

@@ -4,11 +4,6 @@
 
 from __future__ import print_function
 import gast
-import itertools
-from collections import defaultdict
-from functools import reduce
-import unittest
-from textwrap import dedent
 from copy import deepcopy
 
 from numpy import floating, integer, complexfloating

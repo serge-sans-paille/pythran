@@ -1,7 +1,5 @@
 from pythran.typing import List, Dict, Set, Fun, TypeVar, Set
 from pythran.typing import Union, Iterable
-from operator import add
-from functools import reduce
 
 from pythran import cxxtypes
 

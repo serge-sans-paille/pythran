@@ -5,13 +5,10 @@ This module provides a dummy parser for pythran annotations.
 
 from pythran.types.conversion import pytype_to_pretty_type
 
-from numpy import array, ndarray
-
 import re
 import os.path
 import ply.lex as lex
 import ply.yacc as yacc
-from functools import reduce
 
 from pythran.typing import List, Set, Dict, NDArray, Tuple
 

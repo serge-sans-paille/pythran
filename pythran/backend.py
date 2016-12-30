@@ -11,7 +11,7 @@ from pythran.analyses import YieldPoints, IsAssigned, ASTMatcher, AST_any
 from pythran.analyses import RangeValues, PureExpressions
 from pythran.cxxgen import Template, Include, Namespace, CompilationUnit
 from pythran.cxxgen import Statement, Block, AnnotatedStatement, Typedef
-from pythran.cxxgen import Value, FunctionDeclaration, EmptyStatement, Static
+from pythran.cxxgen import Value, FunctionDeclaration, EmptyStatement
 from pythran.cxxgen import FunctionBody, Line, ReturnStatement, Struct, Assign
 from pythran.cxxgen import For, While, TryExcept, ExceptHandler, If, AutoFor
 from pythran.cxxtypes import (Assignable, DeclType, NamedType,

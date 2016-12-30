@@ -1,6 +1,5 @@
 """ Module to manage dependencies between pythran types. """
 
-from numpy import ndarray
 import gast as ast
 import itertools
 import os

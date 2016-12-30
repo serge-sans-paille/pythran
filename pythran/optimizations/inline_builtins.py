@@ -5,7 +5,6 @@ from pythran.analyses.pure_expressions import PureExpressions
 from pythran.analyses.constant_expressions import ConstantExpressions
 from pythran.passmanager import Transformation
 from pythran.tables import MODULES
-from pythran.utils import attr_to_path
 from pythran.intrinsic import FunctionIntr
 
 import gast as ast

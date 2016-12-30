@@ -6,7 +6,6 @@ from pythran.conversion import mangle
 
 import gast as ast
 import copy
-import sys
 
 
 class Square(Transformation):

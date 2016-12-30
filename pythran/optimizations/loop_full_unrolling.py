@@ -7,7 +7,6 @@ from pythran.passmanager import Transformation
 
 from copy import deepcopy
 import gast as ast
-from functools import reduce
 
 
 class LoopFullUnrolling(Transformation):

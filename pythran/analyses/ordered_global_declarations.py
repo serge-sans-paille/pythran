@@ -5,7 +5,6 @@ from pythran.analyses.global_declarations import GlobalDeclarations
 from pythran.passmanager import ModuleAnalysis
 
 import gast as ast
-from functools import reduce
 
 
 class OrderedGlobalDeclarations(ModuleAnalysis):

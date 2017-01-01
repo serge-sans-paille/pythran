@@ -1,7 +1,7 @@
 """ ConstantFolding performs some kind of partial evaluation.  """
 from __future__ import print_function
 
-from pythran.analyses import ConstantExpressions, Aliases, ASTMatcher
+from pythran.analyses import ConstantExpressions, ASTMatcher
 from pythran.passmanager import Transformation
 from pythran.tables import MODULES, cxx_keywords
 from pythran.conversion import to_ast, ConversionError, ToNotEval, mangle

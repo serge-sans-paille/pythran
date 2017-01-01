@@ -77,10 +77,10 @@ class SyntaxChecker(ast.NodeVisitor):
             raise PythranSyntaxError(
                 "Printing to a specific stream not supported", node.dest)
 
-    def visit_With(self, _):
-        raise PythranSyntaxError("With statements not supported")
+    def visit_With(self, node):
+        raise PythranSyntaxError("With statements not supported", node)
 
-    def visit_Starred(self, _):
+    def visit_Starred(self, node):
         raise PythranSyntaxError("Call with star arguments not supported",
                                  node)
 

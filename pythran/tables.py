@@ -8,7 +8,6 @@ import sys
 from pythran.typing import Dict, Set, List, TypeVar, Union, Optional, NDArray
 from pythran.typing import Generator, Fun, Tuple, Iterable, Sized, File
 
-from pythran import cxxtypes
 from pythran.conversion import to_ast, ToNotEval
 from pythran.intrinsic import Class
 from pythran.intrinsic import ClassWithConstConstructor, ExceptionClass
@@ -17,7 +16,6 @@ from pythran.intrinsic import ConstFunctionIntr, FunctionIntr, UpdateEffect
 from pythran.intrinsic import ConstMethodIntr, MethodIntr, AttributeIntr
 from pythran.intrinsic import ReadEffect, ConstantIntr, UFunc
 from pythran.intrinsic import ReadOnceFunctionIntr, ConstExceptionIntr
-from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE
 from pythran import range as prange
 
 if sys.version_info.major == 3:

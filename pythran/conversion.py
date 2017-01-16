@@ -6,6 +6,7 @@ import itertools
 import numpy
 import sys
 import types
+import numbers
 
 
 # Maximum length of folded sequences
@@ -78,29 +79,12 @@ def to_ast(value):
     >>> print ast.dump(to_ast(a))
     List(elts=[Num(n=1), Num(n=2), Num(n=3)], ctx=Load())
     """
-    numpy_type = (numpy.float64, numpy.float32, numpy.float16,
-                  numpy.complex_, numpy.complex64, numpy.complex128,
-                  numpy.float_, numpy.uint8, numpy.uint16, numpy.uint32,
-                  numpy.uint64, numpy.int8, numpy.int16, numpy.int32,
-                  numpy.int64, numpy.intp, numpy.intc, numpy.int_,
-                  numpy.bool_, numpy._globals._NoValue)
-    itertools_t = [getattr(itertools, fun) for fun in dir(itertools)
-                   if isinstance(getattr(itertools, fun), type)]
-    unfolded_type = (types.BuiltinFunctionType, types.BuiltinMethodType,
-                     numpy.ufunc, type(list.append),
-                     BaseException, types.GeneratorType) + tuple(itertools_t)
-    if sys.version_info.major == 2:
-        unfolded_type += (types.FunctionType, types.FileType,
-                          types.TypeType, types.XRangeType)
-    else:
-        unfolded_type += type, range, type(numpy.array2string)
-
     if isinstance(value, (type(None), bool)):
         return ast.Attribute(ast.Name('__builtin__', ast.Load(), None),
                              str(value), ast.Load())
-    elif isinstance(value, numpy_type):
+    elif isinstance(value, numpy.generic):
         return to_ast(numpy.asscalar(value))
-    elif isinstance(value, (int, long, float, complex)):
+    elif isinstance(value, numbers.Number):
         return ast.Num(value)
     elif isinstance(value, str):
         return ast.Str(value)
@@ -109,15 +93,11 @@ def to_ast(value):
     elif hasattr(value, "__module__") and value.__module__ == "__builtin__":
         # TODO Can be done the same way for others modules
         return builtin_folding(value)
-    elif isinstance(value, unfolded_type):
-        raise ToNotEval()
-    elif value in numpy_type:
-        raise ToNotEval()
     # only meaningful for python3
-    elif isinstance(value, (filter, map, zip)):
-        return to_ast(list(value))
-    else:
-        raise ConversionError()
+    elif sys.version_info.major == 3:
+        if isinstance(value, (filter, map, zip)):
+            return to_ast(list(value))
+    raise ToNotEval()
 
 PYTHRAN_IMPORT_MANGLING = '__pythran_import_'
 

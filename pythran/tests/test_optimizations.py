@@ -1,5 +1,7 @@
 from test_env import TestEnv
 from pythran.typing import List
+import unittest
+
 
 import pythran
 
@@ -401,3 +403,61 @@ def foo(a):
         if sys.version_info.major == 2:
             ref = "import itertools as __pythran_import_itertools\n" + ref
         self.check_ast(init, ref, ["pythran.optimizations.PatternTransform"])
+
+
+class TestConstantUnfolding(TestEnv):
+
+    def test_constant_folding_int_literals(self):
+        self.run_test("def constant_folding_int_literals(): return 1+2*3.5", constant_folding_int_literals=[])
+
+    def test_constant_folding_str_literals(self):
+        self.run_test("def constant_folding_str_literals(): return \"1\"+'2'*3", constant_folding_str_literals=[])
+
+    def test_constant_folding_list_literals(self):
+        self.run_test("def constant_folding_list_literals(): return [1]+[2]*3", constant_folding_list_literals=[])
+
+    def test_constant_folding_set_literals(self):
+        self.run_test("def constant_folding_set_literals(): return {1,2,3,3}", constant_folding_set_literals=[])
+
+    def test_constant_folding_builtins(self):
+        self.run_test("def constant_folding_builtins(): return map(len,zip(range(2), range(2)))", constant_folding_builtins=[])
+
+    def test_constant_folding_imported_functions(self):
+        self.run_test("def constant_folding_imported_functions(): from math import cos ; return float(int(10*cos(1)))", constant_folding_imported_functions=[])
+
+    def test_constant_folding_list_method_calls(self):
+        self.run_test("def foo(n): l=[] ; l.append(n) ; return l\ndef constant_folding_list_method_calls(n): return foo(n)", 1, constant_folding_list_method_calls=[int])
+
+    def test_constant_folding_complex_calls(self):
+        self.run_test("def constant_folding_complex_calls(): return complex(1,1)", constant_folding_complex_calls=[])
+
+    def test_constant_folding_expansive_calls(self):
+        self.run_test("def constant_folding_expansive_calls(): return range(2**6)", constant_folding_expansive_calls=[])
+
+    def test_constant_folding_too_expansive_calls(self):
+        self.run_test("def constant_folding_too_expansive_calls(): return range(2**16)", constant_folding_too_expansive_calls=[])
+
+
+class TestAnalyses(TestEnv):
+
+    def test_imported_ids_shadow_intrinsic(self):
+        self.run_test("def imported_ids_shadow_intrinsic(range): return [ i*range for i in [1,2,3] ]", 2, imported_ids_shadow_intrinsic=[int])
+
+    def test_shadowed_variables(self):
+        self.run_test("def shadowed_variables(a): b=1 ; b+=a ; a= 2 ; b+=a ; return a,b", 18, shadowed_variables=[int])
+
+    def test_decl_shadow_intrinsic(self):
+        self.run_test("def decl_shadow_intrinsic(l): len=lambda l:1 ; return len(l)", [1,2,3], decl_shadow_intrinsic=[List[int]])
+
+    def test_used_def_chains(self):
+        self.run_test("def use_def_chain(a):\n i=a\n for i in xrange(4):\n  print i\n  i=5.4\n  print i\n  break\n  i = 4\n return i", 3, use_def_chain=[int])
+
+    def test_used_def_chains2(self):
+        self.run_test("def use_def_chain2(a):\n i=a\n for i in xrange(4):\n  print i\n  i='lala'\n  print i\n  i = 4\n return i", 3, use_def_chain2=[int])
+
+    @unittest.skip("Variable defined in a branch in loops are not accepted.")
+    def test_importedids(self):
+        self.run_test("def importedids(a):\n i=a\n for i in xrange(4):\n  if i==0:\n   b = []\n  else:\n   b.append(i)\n return b", 3, importedids=[int])
+
+    def test_falsepoly(self):
+        self.run_test("def falsepoly():\n i = 2\n if i:\n  i='ok'\n else:\n  i='lolo'\n return i", falsepoly=[])

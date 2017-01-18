@@ -192,8 +192,8 @@ One can also computes the state of ``globals()``::
   >>> code = 'import math\n'
   >>> code += 'def foo(a): b = math.cos(a) ; return [b] * 3'
   >>> tree = ast.parse(code)
-  >>> pm.gather(analyses.Globals, tree)
-  set(['foo', '__dispatch__', '__builtin__', 'math'])
+  >>> sorted(list(pm.gather(analyses.Globals, tree)))
+  ['__builtin__', '__dispatch__', 'foo', 'math']
 
 One can also compute the state of ``locals()`` at any point of the program::
 

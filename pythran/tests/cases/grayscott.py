@@ -10,8 +10,9 @@ def GrayScott(counts, Du, Dv, F, k):
 
     r = 20
     u[:] = 1.0
-    U[n/2-r:n/2+r,n/2-r:n/2+r] = 0.50
-    V[n/2-r:n/2+r,n/2-r:n/2+r] = 0.25
+    nd2 = int(n/2)
+    U[nd2-r:nd2+r,nd2-r:nd2+r] = 0.50
+    V[nd2-r:nd2+r,nd2-r:nd2+r] = 0.25
     # commented out because non-reproductible
     if 0:
         u += 0.15*np.random.random((n,n))

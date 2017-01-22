@@ -1361,7 +1361,8 @@ namespace pythonic
       current_stride *= dims[i];
     }
     // this is supposed to be a texpr
-    if (PyArray_FLAGS(arr) & NPY_ARRAY_F_CONTIGUOUS && N > 1)
+    if ((PyArray_FLAGS(arr) & NPY_ARRAY_F_CONTIGUOUS) &&
+        ((PyArray_FLAGS(arr) & NPY_ARRAY_C_CONTIGUOUS) == 0) && (N > 1))
       return false;
     else
       return true;

@@ -78,8 +78,12 @@ std::size_t hash_value(__gmp_expr<T, U> const &x)
 #ifdef ENABLE_PYTHON_MODULE
 
 #if PY_MAJOR_VERSION >= 3
+#ifndef PyString_AsString
 #define PyString_AsString PyBytes_AsString
+#endif
+#ifndef PyString_FromString
 #define PyString_FromString PyBytes_FromString
+#endif
 #endif
 
 namespace pythonic

@@ -23,9 +23,15 @@ namespace pythonic
 {
 
 #if PY_MAJOR_VERSION >= 3
+#ifndef PyInt_FromLong
 #define PyInt_FromLong PyLong_FromLong
+#endif
+#ifndef PyInt_Check
 #define PyInt_Check PyLong_Check
+#endif
+#ifndef PyInt_AsLong
 #define PyInt_AsLong PyLong_AsLong
+#endif
 #endif
 
 #define PYTHONIC_INT_TO_PYTHON(TYPE)                                           \

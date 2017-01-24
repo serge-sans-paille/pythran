@@ -2,6 +2,7 @@
 #define PYTHONIC_OPERATOR_AND_HPP
 
 #include "pythonic/include/operator_/and_.hpp"
+#include "pythonic/operator_/overloads.hpp"
 
 #include "pythonic/utils/functor.hpp"
 
@@ -15,6 +16,8 @@ namespace pythonic
     {
       return a & b;
     }
+
+    DEFINE_ALL_OPERATOR_OVERLOADS_IMPL(and_, &)
 
     DEFINE_FUNCTOR(pythonic::operator_, and_);
   }

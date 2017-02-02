@@ -15,8 +15,8 @@ namespace pythonic
   {
 
     template <class Arg>
-    numpy_iexpr<Arg>::numpy_iexpr():
-      buffer(nullptr)
+    numpy_iexpr<Arg>::numpy_iexpr()
+        : buffer(nullptr)
     {
     }
 

@@ -3586,6 +3586,15 @@ MODULES = {
         "expm1": ConstFunctionIntr(),
         "eye": ConstFunctionIntr(),
         "fabs": ConstFunctionIntr(),
+        "fill_diagonal": FunctionIntr(
+            argument_effects=[UpdateEffect(), ReadEffect()],
+            signature=Union[
+                Fun[[NDArray[T0, :], bool], None],
+                Fun[[NDArray[T0, :], int], None],
+                Fun[[NDArray[T0, :], float], None],
+                Fun[[NDArray[T0, :], complex], None],
+            ]
+        ),
         "finfo": ClassWithConstConstructor(CLASSES['finfo']),
         "fix": ConstFunctionIntr(),
         "flatnonzero": ConstFunctionIntr(),

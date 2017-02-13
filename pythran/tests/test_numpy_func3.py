@@ -421,3 +421,14 @@ def np_trim_zeros2(x):
     def test_list_real1(self):
         self.run_test("def list_real1(a): import numpy ; numpy.real(a)[0] = 1; return a", numpy.array([complex(4.3,5.5),complex(6.1,3.2)]), list_real1=[NDArray[complex,:]])
 
+    def test_fill_diagonal_0(self):
+        self.run_test("def fill_diagonal_0(a): import numpy ; numpy.fill_diagonal(a, 0); return a", numpy.ones((4,4)), fill_diagonal_0=[NDArray[float,:,:]])
+
+    def test_fill_diagonal_1(self):
+        self.run_test("def fill_diagonal_1(a): import numpy ; numpy.fill_diagonal(a, 0); return a", numpy.ones((4,6)), fill_diagonal_1=[NDArray[float,:,:]])
+
+    def test_fill_diagonal_2(self):
+        self.run_test("def fill_diagonal_2(n): import numpy ; a = numpy.ones((n,n, 5));numpy.fill_diagonal(a[0], 0); return a", 4, fill_diagonal_2=[int])
+
+    def test_fill_diagonal_3(self):
+        self.run_test("def fill_diagonal_3(n): import numpy ; a = numpy.ones((n, n, 2, 2));numpy.fill_diagonal(a[0,1:3], 0); return a", 4, fill_diagonal_3=[int])

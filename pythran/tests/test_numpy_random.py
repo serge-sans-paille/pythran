@@ -316,6 +316,72 @@ class TestNumpyRandom(TestEnv):
         """
         self.run_test(code, 10 ** 3, numpy_normal2=[int])
 
+    ###########################################################################
+    # Tests for numpy.random.poisson
+    ###########################################################################
+
+    def test_numpy_poisson0(self):
+        """ Check poisson without argument with mean and variance. """
+        code = """
+        def numpy_poisson0(size):
+            from numpy.random import poisson
+            from numpy import var, mean
+            a = [poisson() for x in range(size)]
+            print mean(a)
+            assert(abs(mean(a)) < 1.05 and abs(var(a) - 1) < .05)
+        """
+        self.run_test(code, 10 ** 5, numpy_poisson0=[int])
+
+    def test_numpy_poisson0a(self):
+        """ Check poisson with 1 argument with mean and variance. """
+        code = """
+        def numpy_poisson0a(size):
+            from numpy.random import poisson
+            from numpy import var, mean
+            a = [poisson(3.) for x in range(size)]
+            print mean(a)
+            assert(abs(mean(a)) < 3.05 and abs(var(a) - 3) < .05)
+        """
+        self.run_test(code, 10 ** 5, numpy_poisson0a=[int])
+
+    def test_numpy_poisson0b(self):
+        """ Check poisson with 2 argument with mean and variance. """
+        code = """
+        def numpy_poisson0b(size):
+            from numpy.random import poisson
+            from numpy import var, mean, sqrt
+            lam = 10
+            a = poisson(lam, size)
+            print mean(a)
+            assert(abs(mean(a)) < (lam + 0.05) and abs(sqrt(lam) - sqrt(var(a,ddof=1))) < .01)
+        """
+        self.run_test(code, 10 ** 5, numpy_poisson0b=[int])
+
+
+
+    def test_numpy_poisson1(self):
+        """ Check poisson with size argument with mean and variance."""
+        code = """
+        def numpy_poisson1(size):
+            from numpy.random import poisson
+            from numpy import var, mean
+            a = poisson(size=size)
+            print mean(a)
+            assert(abs(mean(a)) < 1.05 and abs(var(a) - 1) < .05)
+        """
+        self.run_test(code, 10 ** 5, numpy_poisson1=[int])
+
+    def test_numpy_poisson2(self):
+        """Check poisson with shape argument with mean and variance."""
+        code = """
+        def numpy_poisson2(size):
+            from numpy.random import poisson
+            from numpy import mean, var
+            a = poisson(size=(size, size))
+            print mean(a)
+            assert(abs(mean(a)) < 1.05 and abs(var(a) - 1) < .05)
+        """
+        self.run_test(code, 10 ** 3, numpy_poisson2=[int])
 
     ###########################################################################
     # Tests for numpy.random.randn

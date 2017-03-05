@@ -169,7 +169,8 @@ class Transformation(ContextManager, ast.NodeTransformer):
     def run(self, node, ctx):
         """ Apply transformation and dependencies and fix new node location."""
         n = super(Transformation, self).run(node, ctx)
-        ast.fix_missing_locations(n)
+        if self.update:
+            ast.fix_missing_locations(n)
         return n
 
     def apply(self, node, ctx):

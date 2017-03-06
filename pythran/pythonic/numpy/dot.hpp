@@ -233,6 +233,105 @@ namespace pythonic
       return out;
     }
 
+#define TM_DEF(T, L)                                                           \
+  void tm(int m, int n, int k, T *A, T *B, T *C)                               \
+  {                                                                            \
+    cblas_##L##gemm(CblasRowMajor, CblasTrans, CblasNoTrans, m, n, k, 1, A, m, \
+                    B, n, 0, C, n);                                            \
+  }
+    TM_DEF(double, d)
+    TM_DEF(float, s)
+#undef TM_DEF
+#define TM_DEF(T, L)                                                           \
+  void tm(int m, int n, int k, T *A, T *B, T *C)                               \
+  {                                                                            \
+    T alpha = 1, beta = 0;                                                     \
+    cblas_##L##gemm(CblasRowMajor, CblasTrans, CblasNoTrans, m, n, k, &alpha,  \
+                    A, m, B, n, &beta, C, n);                                  \
+  }
+    TM_DEF(std::complex<float>, c)
+    TM_DEF(std::complex<double>, z)
+#undef TM_DEF
+
+    template <class E>
+    typename std::enable_if<is_blas_type<E>::value, types::ndarray<E, 2>>::type
+        dot(types::numpy_texpr<types::ndarray<E, 2>> const &a,
+            types::ndarray<E, 2> const &b)
+    {
+      int n = b.shape()[1], m = a.shape()[0], k = a.shape()[1];
+
+      types::ndarray<E, 2> out(types::array<long, 2>{{m, n}},
+                               __builtin__::None);
+      tm(m, n, k, a.arg.buffer, b.buffer, out.buffer);
+      return out;
+    }
+
+#define MT_DEF(T, L)                                                           \
+  void mt(int m, int n, int k, T *A, T *B, T *C)                               \
+  {                                                                            \
+    cblas_##L##gemm(CblasRowMajor, CblasNoTrans, CblasTrans, m, n, k, 1, A, k, \
+                    B, k, 0, C, n);                                            \
+  }
+    MT_DEF(double, d)
+    MT_DEF(float, s)
+#undef MT_DEF
+#define MT_DEF(T, L)                                                           \
+  void mt(int m, int n, int k, T *A, T *B, T *C)                               \
+  {                                                                            \
+    T alpha = 1, beta = 0;                                                     \
+    cblas_##L##gemm(CblasRowMajor, CblasNoTrans, CblasTrans, m, n, k, &alpha,  \
+                    A, k, B, k, &beta, C, n);                                  \
+  }
+    MT_DEF(std::complex<float>, c)
+    MT_DEF(std::complex<double>, z)
+#undef MT_DEF
+
+    template <class E>
+    typename std::enable_if<is_blas_type<E>::value, types::ndarray<E, 2>>::type
+        dot(types::ndarray<E, 2> const &a,
+            types::numpy_texpr<types::ndarray<E, 2>> const &b)
+    {
+      int n = b.shape()[1], m = a.shape()[0], k = b.shape()[0];
+
+      types::ndarray<E, 2> out(types::array<long, 2>{{m, n}},
+                               __builtin__::None);
+      mt(m, n, k, a.buffer, b.arg.buffer, out.buffer);
+      return out;
+    }
+
+#define TT_DEF(T, L)                                                           \
+  void tt(int m, int n, int k, T *A, T *B, T *C)                               \
+  {                                                                            \
+    cblas_##L##gemm(CblasRowMajor, CblasTrans, CblasTrans, m, n, k, 1, A, m,   \
+                    B, k, 0, C, n);                                            \
+  }
+    TT_DEF(double, d)
+    TT_DEF(float, s)
+#undef TT_DEF
+#define TT_DEF(T, L)                                                           \
+  void tt(int m, int n, int k, T *A, T *B, T *C)                               \
+  {                                                                            \
+    T alpha = 1, beta = 0;                                                     \
+    cblas_##L##gemm(CblasRowMajor, CblasTrans, CblasTrans, m, n, k, &alpha, A, \
+                    m, B, k, &beta, C, n);                                     \
+  }
+    TT_DEF(std::complex<float>, c)
+    TT_DEF(std::complex<double>, z)
+#undef TT_DEF
+
+    template <class E>
+    typename std::enable_if<is_blas_type<E>::value, types::ndarray<E, 2>>::type
+        dot(types::numpy_texpr<types::ndarray<E, 2>> const &a,
+            types::numpy_texpr<types::ndarray<E, 2>> const &b)
+    {
+      int n = b.shape()[1], m = a.shape()[0], k = b.shape()[0];
+
+      types::ndarray<E, 2> out(types::array<long, 2>{{m, n}},
+                               __builtin__::None);
+      tt(m, n, k, a.arg.buffer, b.arg.buffer, out.buffer);
+      return out;
+    }
+
     // If arguments could be use with blas, we evaluate them as we need pointer
     // on array for blas
     template <class E, class F>

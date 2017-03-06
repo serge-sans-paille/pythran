@@ -158,7 +158,7 @@ class TestNumpyFunc3(TestEnv):
 
 
     def test_dot16(self):
-        """ Check for dot gevm with "no blas type" with rectangulare shape. """
+        """ Check for dot gevm with "no blas type" with rectangular shape. """
         self.run_test("""
         def np_dot16(x, y):
             from numpy import dot
@@ -166,6 +166,45 @@ class TestNumpyFunc3(TestEnv):
                       numpy.arange(6.).reshape(2, 3),
                       numpy.arange(18.).reshape(3,6),
                       np_dot16=[NDArray[float,:,:], NDArray[float,:,:]])
+
+
+    def test_dot17(self):
+        """ Check for dot gevm with "no blas type" with rectangular shape,
+        first arg transposed."""
+        self.run_test("""
+        def np_dot17(x, y):
+            from numpy import dot
+            return dot(x.T,y)""",
+                      numpy.arange(6.).reshape(3, 2),
+                      numpy.arange(18.).reshape(3,6),
+                      np_dot17=[NDArray[float,:,:], NDArray[float,:,:]])
+
+
+
+    def test_dot18(self):
+        """ Check for dot gevm with "no blas type" with rectangular shape,
+        second arg transposed"""
+        self.run_test("""
+        def np_dot18(x, y):
+            from numpy import dot
+            return dot(x,y.T)""",
+                      numpy.arange(6.).reshape(2, 3),
+                      numpy.arange(18.).reshape(6,3),
+                      np_dot18=[NDArray[float,:,:], NDArray[float,:,:]])
+
+
+
+    def test_dot19(self):
+        """ Check for dot gevm with "no blas type" with rectangular shape,
+        both args transposed"""
+        self.run_test("""
+        def np_dot19(x, y):
+            from numpy import dot
+            return dot(x.T,y.T)""",
+                      numpy.array(numpy.arange(6.).reshape(3, 2)),
+                      numpy.array(numpy.arange(18.).reshape(6,3)),
+                      np_dot19=[NDArray[float,:,:], NDArray[float,:,:]])
+
 
 
     def test_digitize0(self):

@@ -156,15 +156,17 @@ class TestNumpyFunc3(TestEnv):
                       numpy.arange(6.).reshape(3, 2).tolist(),
                       np_dot15=[List[float], List[List[float]]])
 
+
     def test_dot16(self):
         """ Check for dot gevm with "no blas type" with rectangulare shape. """
         self.run_test("""
         def np_dot16(x, y):
             from numpy import dot
             return dot(x,y)""",
-                      numpy.arange(6, 9),
-                      numpy.arange(6).reshape(3, 2),
-                      np_dot16=[NDArray[int,:], NDArray[int,:,:]])
+                      numpy.arange(6.).reshape(2, 3),
+                      numpy.arange(18.).reshape(3,6),
+                      np_dot16=[NDArray[float,:,:], NDArray[float,:,:]])
+
 
     def test_digitize0(self):
         self.run_test("def np_digitize0(x): from numpy import array, digitize ; bins = array([0.0, 1.0, 2.5, 4.0, 10.0]) ; return digitize(x, bins)", numpy.array([0.2, 6.4, 3.0, 1.6]), np_digitize0=[NDArray[float,:]])

@@ -225,7 +225,7 @@ namespace pythonic
     typename std::enable_if<is_blas_type<E>::value, types::ndarray<E, 2>>::type
         dot(types::ndarray<E, 2> const &a, types::ndarray<E, 2> const &b)
     {
-      int m = b.shape()[1], n = a.shape()[0], k = b.shape()[0];
+      int n = b.shape()[1], m = a.shape()[0], k = b.shape()[0];
 
       types::ndarray<E, 2> out(types::array<long, 2>{{m, n}},
                                __builtin__::None);
@@ -233,7 +233,7 @@ namespace pythonic
       return out;
     }
 
-    // If arguments could be sue with blas, we evaluate them as we need pointer
+    // If arguments could be use with blas, we evaluate them as we need pointer
     // on array for blas
     template <class E, class F>
     typename std::enable_if<

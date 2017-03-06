@@ -82,7 +82,7 @@ def make_extension(**extra):
     # blas dependency
     user_blas = cfg.get('compiler', 'blas')
     if user_blas:
-        extension['libraries'].extend(user_blas)
+        extension['libraries'].append(user_blas)
     else:
         numpy_blas = numpy_sys.get_info("blas")
         extension['libraries'].extend(numpy_blas.get('libraries', []))

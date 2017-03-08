@@ -48,15 +48,15 @@ namespace pythonic
     MV_DEF(float, s)
 
 #undef MV_DEF
-#define MV_DEF(T, L)                                                           \
+#define MV_DEF(T, K, L)                                                        \
   void mv(int m, int n, T *A, T *B, T *C)                                      \
   {                                                                            \
     T alpha = 1, beta = 0;                                                     \
-    cblas_##L##gemv(CblasRowMajor, CblasNoTrans, n, m, &alpha, A, m, B, 1,     \
-                    &beta, C, 1);                                              \
+    cblas_##L##gemv(CblasRowMajor, CblasNoTrans, n, m, (K *)&alpha, (K *)A, m, \
+                    (K *)B, 1, (K *)&beta, (K *)C, 1);                         \
   }
-    MV_DEF(std::complex<float>, c)
-    MV_DEF(std::complex<double>, z)
+    MV_DEF(std::complex<float>, float, c)
+    MV_DEF(std::complex<double>, double, z)
 #undef MV_DEF
 
     template <class E>
@@ -81,15 +81,15 @@ namespace pythonic
     VM_DEF(float, s)
 
 #undef VM_DEF
-#define VM_DEF(T, L)                                                           \
+#define VM_DEF(T, K, L)                                                        \
   void vm(int m, int n, T *A, T *B, T *C)                                      \
   {                                                                            \
     T alpha = 1, beta = 0;                                                     \
-    cblas_##L##gemv(CblasRowMajor, CblasTrans, n, m, &alpha, A, m, B, 1,       \
-                    &beta, C, 1);                                              \
+    cblas_##L##gemv(CblasRowMajor, CblasTrans, n, m, (K *)&alpha, (K *)A, m,   \
+                    (K *)B, 1, (K *)&beta, (K *)C, 1);                         \
   }
-    VM_DEF(std::complex<float>, c)
-    VM_DEF(std::complex<double>, z)
+    VM_DEF(std::complex<float>, float, c)
+    VM_DEF(std::complex<double>, double, z)
 #undef VM_DEF
 
     template <class E>
@@ -210,22 +210,22 @@ namespace pythonic
     MM_DEF(double, d)
     MM_DEF(float, s)
 #undef MM_DEF
-#define MM_DEF(T, L)                                                           \
+#define MM_DEF(T, K, L)                                                        \
   void mm(int m, int n, int k, T *A, T *B, T *C)                               \
   {                                                                            \
     T alpha = 1, beta = 0;                                                     \
     cblas_##L##gemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, m, n, k,        \
-                    &alpha, A, k, B, n, &beta, C, n);                          \
+                    (K *)&alpha, (K *)A, k, (K *)B, n, (K *)&beta, (K *)C, n); \
   }
-    MM_DEF(std::complex<float>, c)
-    MM_DEF(std::complex<double>, z)
+    MM_DEF(std::complex<float>, float, c)
+    MM_DEF(std::complex<double>, double, z)
 #undef MM_DEF
 
     template <class E>
     typename std::enable_if<is_blas_type<E>::value, types::ndarray<E, 2>>::type
         dot(types::ndarray<E, 2> const &a, types::ndarray<E, 2> const &b)
     {
-      int m = b.shape()[1], n = a.shape()[0], k = b.shape()[0];
+      int n = b.shape()[1], m = a.shape()[0], k = b.shape()[0];
 
       types::ndarray<E, 2> out(types::array<long, 2>{{m, n}},
                                __builtin__::None);

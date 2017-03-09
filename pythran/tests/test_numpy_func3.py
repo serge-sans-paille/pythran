@@ -156,15 +156,56 @@ class TestNumpyFunc3(TestEnv):
                       numpy.arange(6.).reshape(3, 2).tolist(),
                       np_dot15=[List[float], List[List[float]]])
 
+
     def test_dot16(self):
-        """ Check for dot gevm with "no blas type" with rectangulare shape. """
+        """ Check for dot gevm with "no blas type" with rectangular shape. """
         self.run_test("""
         def np_dot16(x, y):
             from numpy import dot
             return dot(x,y)""",
-                      numpy.arange(6, 9),
-                      numpy.arange(6).reshape(3, 2),
-                      np_dot16=[NDArray[int,:], NDArray[int,:,:]])
+                      numpy.arange(6.).reshape(2, 3),
+                      numpy.arange(18.).reshape(3,6),
+                      np_dot16=[NDArray[float,:,:], NDArray[float,:,:]])
+
+
+    def test_dot17(self):
+        """ Check for dot gevm with "no blas type" with rectangular shape,
+        first arg transposed."""
+        self.run_test("""
+        def np_dot17(x, y):
+            from numpy import dot
+            return dot(x.T,y)""",
+                      numpy.arange(6.).reshape(3, 2),
+                      numpy.arange(18.).reshape(3,6),
+                      np_dot17=[NDArray[float,:,:], NDArray[float,:,:]])
+
+
+
+    def test_dot18(self):
+        """ Check for dot gevm with "no blas type" with rectangular shape,
+        second arg transposed"""
+        self.run_test("""
+        def np_dot18(x, y):
+            from numpy import dot
+            return dot(x,y.T)""",
+                      numpy.arange(6.).reshape(2, 3),
+                      numpy.arange(18.).reshape(6,3),
+                      np_dot18=[NDArray[float,:,:], NDArray[float,:,:]])
+
+
+
+    def test_dot19(self):
+        """ Check for dot gevm with "no blas type" with rectangular shape,
+        both args transposed"""
+        self.run_test("""
+        def np_dot19(x, y):
+            from numpy import dot
+            return dot(x.T,y.T)""",
+                      numpy.array(numpy.arange(6.).reshape(3, 2)),
+                      numpy.array(numpy.arange(18.).reshape(6,3)),
+                      np_dot19=[NDArray[float,:,:], NDArray[float,:,:]])
+
+
 
     def test_digitize0(self):
         self.run_test("def np_digitize0(x): from numpy import array, digitize ; bins = array([0.0, 1.0, 2.5, 4.0, 10.0]) ; return digitize(x, bins)", numpy.array([0.2, 6.4, 3.0, 1.6]), np_digitize0=[NDArray[float,:]])

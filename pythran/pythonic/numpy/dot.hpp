@@ -242,15 +242,15 @@ namespace pythonic
     TM_DEF(double, d)
     TM_DEF(float, s)
 #undef TM_DEF
-#define TM_DEF(T, L)                                                           \
+#define TM_DEF(T, K, L)                                                        \
   void tm(int m, int n, int k, T *A, T *B, T *C)                               \
   {                                                                            \
     T alpha = 1, beta = 0;                                                     \
-    cblas_##L##gemm(CblasRowMajor, CblasTrans, CblasNoTrans, m, n, k, &alpha,  \
-                    A, m, B, n, &beta, C, n);                                  \
+    cblas_##L##gemm(CblasRowMajor, CblasTrans, CblasNoTrans, m, n, k,          \
+                    (K *)&alpha, (K *)A, m, (K *)B, n, (K *)&beta, (K *)C, n); \
   }
-    TM_DEF(std::complex<float>, c)
-    TM_DEF(std::complex<double>, z)
+    TM_DEF(std::complex<float>, float, c)
+    TM_DEF(std::complex<double>, double, z)
 #undef TM_DEF
 
     template <class E>
@@ -275,15 +275,15 @@ namespace pythonic
     MT_DEF(double, d)
     MT_DEF(float, s)
 #undef MT_DEF
-#define MT_DEF(T, L)                                                           \
+#define MT_DEF(T, K, L)                                                        \
   void mt(int m, int n, int k, T *A, T *B, T *C)                               \
   {                                                                            \
     T alpha = 1, beta = 0;                                                     \
-    cblas_##L##gemm(CblasRowMajor, CblasNoTrans, CblasTrans, m, n, k, &alpha,  \
-                    A, k, B, k, &beta, C, n);                                  \
+    cblas_##L##gemm(CblasRowMajor, CblasNoTrans, CblasTrans, m, n, k,          \
+                    (K *)&alpha, (K *)A, k, (K *)B, k, (K *)&beta, (K *)C, n); \
   }
-    MT_DEF(std::complex<float>, c)
-    MT_DEF(std::complex<double>, z)
+    MT_DEF(std::complex<float>, float, c)
+    MT_DEF(std::complex<double>, double, z)
 #undef MT_DEF
 
     template <class E>
@@ -308,15 +308,15 @@ namespace pythonic
     TT_DEF(double, d)
     TT_DEF(float, s)
 #undef TT_DEF
-#define TT_DEF(T, L)                                                           \
+#define TT_DEF(T, K, L)                                                        \
   void tt(int m, int n, int k, T *A, T *B, T *C)                               \
   {                                                                            \
     T alpha = 1, beta = 0;                                                     \
-    cblas_##L##gemm(CblasRowMajor, CblasTrans, CblasTrans, m, n, k, &alpha, A, \
-                    m, B, k, &beta, C, n);                                     \
+    cblas_##L##gemm(CblasRowMajor, CblasTrans, CblasTrans, m, n, k,            \
+                    (K *)&alpha, (K *)A, m, (K *)B, k, (K *)&beta, (K *)C, n); \
   }
-    TT_DEF(std::complex<float>, c)
-    TT_DEF(std::complex<double>, z)
+    TT_DEF(std::complex<float>, float, c)
+    TT_DEF(std::complex<double>, double, z)
 #undef TT_DEF
 
     template <class E>

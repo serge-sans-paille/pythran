@@ -38,7 +38,7 @@ class TestSpecParser(unittest.TestCase):
 
     def test_parser(self):
         real_path = os.path.splitext(os.path.realpath(__file__))[0]+".py"
-        print(pythran.spec_parser(real_path))
+        print(pythran.pyspec_parser(real_path))
 
     def test_invalid_specs0(self):
         code = '#pythran export foo()\ndef foo(n): return n'
@@ -61,7 +61,7 @@ class TestSpecParser(unittest.TestCase):
               # )
 def foo(): return
             '''
-        self.assertTrue(pythran.spec_parser(code))
+        self.assertTrue(pythran.pyspec_parser(code))
 
     def test_multiline_spec1(self):
         code = '''
@@ -70,7 +70,7 @@ def foo(): return
               # )
 def foo(i,j): return
             '''
-        self.assertTrue(pythran.spec_parser(code))
+        self.assertTrue(pythran.pyspec_parser(code))
 
     def test_multiline_spec2(self):
         code = '''
@@ -81,14 +81,14 @@ def foo(i,j): return
               # )
 def foo(i,j,k): return
             '''
-        self.assertTrue(pythran.spec_parser(code))
+        self.assertTrue(pythran.pyspec_parser(code))
 
     def test_crappy_spec0(self):
         code = '''
 #      pythran export foo(int) this is an int test
 def foo(i): return
             '''
-        self.assertTrue(pythran.spec_parser(code))
+        self.assertTrue(pythran.pyspec_parser(code))
 
     def test_crappy_spec1(self):
         code = '''
@@ -96,7 +96,7 @@ def foo(i): return
 #this is a pythran export test
 def foo(i): return
             '''
-        self.assertTrue(pythran.spec_parser(code))
+        self.assertTrue(pythran.pyspec_parser(code))
 
     def test_middle_spec0(self):
         code = '''
@@ -105,7 +105,7 @@ def foo(i): return
 #this is a pythran export test
 def bar(i): return
             '''
-        self.assertTrue(pythran.spec_parser(code))
+        self.assertTrue(pythran.pyspec_parser(code))
 
 
     def test_middle_spec1(self):
@@ -117,12 +117,12 @@ def foo(i): return
 #      pythran export foo(float)
 def bar(i): return
             '''
-        self.assertEquals(len(pythran.spec_parser(code)), 1)
-        self.assertEquals(len(pythran.spec_parser(code)['foo']), 2)
+        self.assertEquals(len(pythran.pyspec_parser(code)), 1)
+        self.assertEquals(len(pythran.pyspec_parser(code)['foo']), 2)
 
     def test_var_export0(self):
         code = '''
 #      pythran export foo
 foo = 1
             '''
-        self.assertTrue(pythran.spec_parser(code))
+        self.assertTrue(pythran.pyspec_parser(code))

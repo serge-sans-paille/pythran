@@ -309,9 +309,9 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
     '''
 
     # Autodetect the Pythran spec if not given as parameter
-    from pythran.spec import spec_parser
+    from pythran.spec import pyspec_parser
     if specs is None:
-        specs = spec_parser(pythrancode)
+        specs = pyspec_parser(pythrancode)
 
     # Generate C++, get a PythonModule object
     module = generate_cxx(module_name, pythrancode, specs, opts)
@@ -354,7 +354,13 @@ def compile_pythranfile(file_path, output_file=None, module_name=None,
     # Add compiled module path to search for imported modules
     sys.path.append(os.path.dirname(file_path))
 
-    output_file = compile_pythrancode(module_name, open(file_path).read(),
+    specs = None
+    spec_file = os.path.join(os.path.dirname(file_path), os.path.splitext(file_path)[0] + ".pythran")
+    if os.path.isfile(spec_file):
+        from pythran.spec import spec_parser
+        specs = spec_parser(open(spec_file).read())
+
+    output_file = compile_pythrancode(module_name, open(file_path).read(), specs,
                                       output_file=output_file,
                                       cpponly=cpponly,
                                       **kwargs)

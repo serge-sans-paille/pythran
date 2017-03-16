@@ -27,7 +27,7 @@ class build_ext(Command):
                 module = pythran.cxx_generator(
                         extension.name,
                         content,
-                        pythran.spec_parser(content),
+                        pythran.pyspec_parser(content),
                         []
                         )
 

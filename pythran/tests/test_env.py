@@ -16,7 +16,7 @@ import unittest
 
 import pytest
 
-from pythran import compile_pythrancode, spec_parser, frontend
+from pythran import compile_pythrancode, pyspec_parser, frontend
 from pythran.config import have_gmp_support
 from pythran.backend import Python
 from pythran.middlend import refine
@@ -375,7 +375,7 @@ class TestFromDir(TestEnv):
     def interface(name=None, file_=None):
         """ Return Pythran specs."""
         default_value = {name: []}
-        return spec_parser(open(file_).read()) if file_ else default_value
+        return pyspec_parser(open(file_).read()) if file_ else default_value
 
     def __init__(self, *args, **kwargs):
         """ Dynamically add methods for unittests, second stage. """

@@ -18,7 +18,7 @@ To generate a native module, one need to add type information:
 >>> cxx = generate_cxx('my_module', code, {'foo':([int],)})
 
 Eventually, the type information can be translated from a string:
->>> spec = spec_parser('#pythran export foo(int)')
+>>> spec = pyspec_parser('#pythran export foo(int)')
 >>> cxx = generate_cxx('my_module', code, spec)
 
 Higher level entry points include:
@@ -39,7 +39,7 @@ import pythran.log
 from pythran.toolchain import (generate_cxx, compile_cxxfile, compile_cxxcode,
                                compile_pythrancode, compile_pythranfile,
                                test_compile)
-from pythran.spec import spec_parser
+from pythran.spec import spec_parser, pyspec_parser
 from pythran.dist import PythranExtension
 from pythran.version import __version__
 

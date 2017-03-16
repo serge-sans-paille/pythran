@@ -1,0 +1,2 @@
+# This is a pythran file
+export zero(int, int)

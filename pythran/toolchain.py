@@ -300,7 +300,7 @@ def compile_cxxcode(module_name, cxxcode, output_binary=None, keep_temp=False,
     return output_binary
 
 
-def compile_pythrancode(module_name, pythrancode, specs=None,
+def compile_pythrancode(module_name, path_or_text, specs=None,
                         opts=None, cpponly=False, output_file=None,
                         **kwargs):
     '''Pythran code (string) -> c++ code -> native module
@@ -311,7 +311,13 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
     # Autodetect the Pythran spec if not given as parameter
     from pythran.spec import pyspec_parser
     if specs is None:
-        specs = pyspec_parser(pythrancode)
+        specs = pyspec_parser(path_or_text)
+
+    if os.path.isfile(path_or_text):
+        with open(path_or_text) as fd:
+            pythrancode = fd.read()
+    else:
+        pythrancode = path_or_text
 
     # Generate C++, get a PythonModule object
     module = generate_cxx(module_name, pythrancode, specs, opts)
@@ -358,9 +364,9 @@ def compile_pythranfile(file_path, output_file=None, module_name=None,
     spec_file = os.path.join(os.path.dirname(file_path), os.path.splitext(file_path)[0] + ".pythran")
     if os.path.isfile(spec_file):
         from pythran.spec import spec_parser
-        specs = spec_parser(open(spec_file).read())
+        specs = spec_parser(spec_file)
 
-    output_file = compile_pythrancode(module_name, open(file_path).read(), specs,
+    output_file = compile_pythrancode(module_name, file_path, specs,
                                       output_file=output_file,
                                       cpponly=cpponly,
                                       **kwargs)

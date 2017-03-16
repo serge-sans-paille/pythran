@@ -375,7 +375,7 @@ class TestFromDir(TestEnv):
     def interface(name=None, file_=None):
         """ Return Pythran specs."""
         default_value = {name: []}
-        return pyspec_parser(open(file_).read()) if file_ else default_value
+        return pyspec_parser(file_) if file_ else default_value
 
     def __init__(self, *args, **kwargs):
         """ Dynamically add methods for unittests, second stage. """

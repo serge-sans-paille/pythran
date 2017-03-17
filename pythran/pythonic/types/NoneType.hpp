@@ -98,31 +98,7 @@ namespace pythonic
     }
 
     template <class T>
-    none<T, true>::operator bool() const
-    {
-      return not is_none and data;
-    }
-
-    template <class T>
-    none<T, true>::operator size_t() const
-    {
-      return data;
-    }
-
-    template <class T>
-    none<T, true>::operator long() const
-    {
-      return data;
-    }
-
-    template <class T>
-    none<T, true>::operator long long() const
-    {
-      return data;
-    }
-
-    template <class T>
-    none<T, true>::operator double() const
+    none<T, true>::operator T() const
     {
       return data;
     }
@@ -337,6 +313,23 @@ namespace pythonic
   PyObject *to_python<types::none_type>::convert(types::none_type)
   {
     Py_RETURN_NONE;
+  }
+
+  template <class T>
+  bool from_python<types::none<T>>::is_convertible(PyObject *obj)
+  {
+    return obj == Py_None || from_python<T>::is_convertible(obj);
+  }
+
+  template <class T>
+  types::none<T> from_python<types::none<T>>::convert(PyObject *obj)
+  {
+    if (obj == Py_None) {
+      return {};
+    }
+    else {
+      return {from_python<T>::convert(obj)};
+    }
   }
 
   template <class T>

@@ -220,6 +220,17 @@ In a similar manner to the Python import statement, it's possible to chain the e
 
     #pythran export var_name0, var_name1, function_name(argument_type0)
 
+If you want to specify multiple overloads, instead of listing them, you can use the ``or`` operator to list the alteranives, as in::
+
+    #pythran export function_name(type0 or type1, type2, type3 or type4)
+
+which is exactly equivalent to::
+
+    #pythran export function_name(type0, type2, type3)
+    #pythran export function_name(type0, type2, type4)
+    #pythran export function_name(type1, type2, type3)
+    #pythran export function_name(type1, type2, type4)
+
 Easy enough, isn't it?
 
 

@@ -5,6 +5,7 @@ This module provides a dummy parser for pythran annotations.
 
 from pythran.types.conversion import pytype_to_pretty_type
 
+import itertools
 import re
 import os.path
 import ply.lex as lex
@@ -29,6 +30,7 @@ class SpecParser:
     reserved = {
         '#pythran': 'PYTHRAN',
         'export': 'EXPORT',
+        'or': 'OR',
         'list': 'LIST',
         'set': 'SET',
         'dict': 'DICT',
@@ -104,7 +106,13 @@ class SpecParser:
         # handle the unlikely case where the IDENTIFIER is ...
         # export :-)
         if len(p) > 2:
-            self.exports[p[1]] = self.exports.get(p[1], ()) + (p[3],)
+            if p[3]:
+                for ts in p[3]:
+                    prev_exports = self.exports.get(p[1], ())
+                    self.exports[p[1]] = prev_exports + (ts,)
+            else:
+                prev_exports = self.exports.get(p[1], ())
+                self.exports[p[1]] = prev_exports + ((),)
         else:
             self.exports[p[1]] = ()
 
@@ -122,6 +130,7 @@ class SpecParser:
                 | RARRAY
                 | COLUMN
                 | COMMA
+                | OR
                 | DICT
                 | SET
                 | LIST
@@ -148,12 +157,15 @@ class SpecParser:
     def p_opt_types(self, p):
         '''opt_types :
                      | types'''
-        p[0] = p[1] if len(p) == 2 else []
+        p[0] = p[1] if len(p) == 2 else tuple()
 
     def p_types(self, p):
         '''types : type
                  | type COMMA types'''
-        p[0] = (p[1],) + (tuple() if len(p) == 2 else p[3])
+        if len(p) == 2:
+            p[0] = tuple((t,) for t in p[1])
+        else:
+            p[0] = tuple((t,) + ts for t in p[1] for ts in p[3])
 
     def p_type(self, p):
         '''type : term
@@ -161,23 +173,29 @@ class SpecParser:
                 | type SET
                 | type LARRAY array_indices RARRAY
                 | type COLUMN type DICT
-                | LPAREN types RPAREN'''
+                | LPAREN types RPAREN
+                | LARRAY type RARRAY
+                | type OR type
+                '''
 
         if len(p) == 2:
-            p[0] = p[1]
+            p[0] = p[1],
         elif len(p) == 3 and p[2] == 'list':
-            p[0] = List[p[1]]
+            p[0] = tuple(List[t] for t in p[1])
         elif len(p) == 3 and p[2] == 'set':
-            p[0] = Set[p[1]]
+            p[0] = tuple(Set[t] for t in p[1])
         elif len(p) == 5 and p[4] == ']':
-            if isinstance(p[1], NDArray):
-                p[0] = NDArray[p[1].__args__ + p[3]]
-            else:
-                p[0] = NDArray[(p[1],) + p[3]]
+            def args(t):
+                return t.__args__ if isinstance(t, NDArray) else (t,)
+            p[0] = tuple(NDArray[args(t) + p[3]] for t in p[1])
         elif len(p) == 5:
-            p[0] = Dict[p[1], p[3]]
+            p[0] = tuple(Dict[k, v] for k in p[1] for v in p[3])
+        elif len(p) == 4 and p[2] == 'or':
+            p[0] = p[1] + p[3]
         elif len(p) == 4 and p[3] == ')':
-            p[0] = Tuple[p[2]]
+            p[0] = tuple(Tuple[t] for t in p[2])
+        elif len(p) == 4 and p[3] == ']':
+            p[0] = p[2]
         else:
             raise SyntaxError("Invalid Pythran spec. "
                               "Unknown text '{0}'".format(p.value))

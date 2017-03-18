@@ -31,6 +31,19 @@ class ContainerOf(object):
     '''
     UnknownIndex = float('nan')
 
+    __slots__ = 'index', 'containee'
+
+    cache = {}
+
+    def __new__(cls, *args, **kwargs):
+        # cache the creation of new objects, so that same keys give same id
+        # thus great hashing
+        key = tuple(args), tuple(kwargs.items())
+        if key not in ContainerOf.cache:
+            new_obj = super(ContainerOf, cls).__new__(cls)
+            ContainerOf.cache[key] = new_obj
+        return ContainerOf.cache[key]
+
     def __init__(self, containee, index=UnknownIndex):
         self.index = index
         self.containee = containee
@@ -63,6 +76,7 @@ class Aliases(ModuleAnalysis):
     def __init__(self):
         self.result = dict()
         self.aliases = None
+        ContainerOf.cache.clear()
         super(Aliases, self).__init__(GlobalDeclarations)
 
     @staticmethod
@@ -201,10 +215,9 @@ class Aliases(ModuleAnalysis):
         where the |id| notation means something that may contain ``id``.
         '''
         if node.elts:
-            elts_aliases = set()
-            for elt in node.elts:
-                elt_aliases = self.visit(elt)
-                elts_aliases.update(map(ContainerOf, elt_aliases))
+            elts_aliases = {ContainerOf(alias)
+                            for elt in node.elts
+                            for alias in self.visit(elt)}
         else:
             elts_aliases = None
         return self.add(node, elts_aliases)
@@ -593,7 +606,7 @@ class Aliases(ModuleAnalysis):
         >>> module = ast.parse('def foo(a): c = a ; d = e = c ; {c, d, e}')
         >>> result = pm.gather(Aliases, module)
         >>> Aliases.dump(result, filter=ast.Set)
-        {c, d, e} => ['|a|', '|a|', '|a|']
+        {c, d, e} => ['|a|']
 
         Everyone points to the formal parameter 'a' \o/
         '''

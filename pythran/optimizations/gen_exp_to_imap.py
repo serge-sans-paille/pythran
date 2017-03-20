@@ -2,7 +2,7 @@
 
 from pythran.analyses import OptimizableComprehension
 from pythran.passmanager import Transformation
-from pythran.transformations import NormalizeTuples
+from pythran.transformations.normalize_tuples import ConvertToTuple
 from pythran.conversion import mangle
 
 import gast as ast
@@ -34,8 +34,7 @@ class GenExpToImap(Transformation):
     '''
 
     def __init__(self):
-        Transformation.__init__(self, NormalizeTuples,
-                                OptimizableComprehension)
+        Transformation.__init__(self, OptimizableComprehension)
 
     def visit_Module(self, node):
         self.generic_visit(node)
@@ -80,8 +79,11 @@ class GenExpToImap(Transformation):
                                    annotation=None),
                     attr='product', ctx=ast.Load())
 
+                varid = variables[0].id  # retarget this id, it's free
+                renamings = {v.id: (i,) for i, v in enumerate(variables)}
+                node.elt = ConvertToTuple(varid, renamings).visit(node.elt)
                 iterAST = ast.Call(prodName, iters, [])
-                varAST = ast.arguments([ast.Tuple(variables, ast.Store())],
+                varAST = ast.arguments([ast.Name(varid, ast.Param(), None)],
                                        None, [], [], None, [])
 
             imapName = ast.Attribute(

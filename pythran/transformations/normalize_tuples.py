@@ -8,7 +8,7 @@ from functools import reduce
 from collections import OrderedDict
 
 
-class _ConvertToTuple(ast.NodeTransformer):
+class ConvertToTuple(ast.NodeTransformer):
     def __init__(self, tuple_id, renamings):
         self.tuple_id = tuple_id
         self.renamings = renamings
@@ -74,6 +74,7 @@ class NormalizeTuples(Transformation):
             raise NotImplementedError
 
     def visit_comprehension(self, node):
+        node = self.generic_visit(node)
         renamings = OrderedDict()
         self.traverse_tuples(node.target, (), renamings)
         if renamings:
@@ -93,7 +94,7 @@ class NormalizeTuples(Transformation):
                 nnode.generators[i].target = ast.Name(
                     gtarget,
                     nnode.generators[i].target.ctx, None)
-                nnode = _ConvertToTuple(gtarget, g[1]).visit(nnode)
+                nnode = ConvertToTuple(gtarget, g[1]).visit(nnode)
                 self.update = True
         for field in fields:
             setattr(node, field, getattr(nnode, field))
@@ -120,7 +121,7 @@ class NormalizeTuples(Transformation):
             if renamings:
                 nname = self.get_new_id()
                 node.args.args[i] = ast.Name(nname, ast.Param(), None)
-                node.body = _ConvertToTuple(nname, renamings).visit(node.body)
+                node.body = ConvertToTuple(nname, renamings).visit(node.body)
         return node
 
     def visit_Assign(self, node):

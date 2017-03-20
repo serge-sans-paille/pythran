@@ -27,18 +27,15 @@ def refine(pm, node, optimizations):
     pm.apply(ListCompToMap, node)
     pm.apply(GenExpToImap, node)
 
-    pm.apply(NormalizeTuples, node)
     pm.apply(RemoveLambdas, node)
-    pm.apply(NormalizeCompare, node)
     pm.apply(RemoveNestedFunctions, node)
+    pm.apply(NormalizeCompare, node)
     pm.gather(ExtendedSyntaxCheck, node)
     pm.apply(ListCompToGenexp, node)
     pm.apply(RemoveComprehension, node)
     pm.apply(RemoveNamedArguments, node)
 
     # sanitize input
-    pm.apply(NormalizeTuples, node)
-    pm.apply(RemoveNestedFunctions, node)
     pm.apply(NormalizeReturn, node)
     pm.apply(UnshadowParameters, node)
     pm.apply(FalsePolymorphism, node)

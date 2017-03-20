@@ -2,7 +2,7 @@
 
 from pythran.analyses import OptimizableComprehension
 from pythran.passmanager import Transformation
-from pythran.transformations import NormalizeTuples
+from pythran.transformations.normalize_tuples import ConvertToTuple
 from pythran.conversion import mangle
 
 
@@ -32,8 +32,7 @@ class ListCompToMap(Transformation):
     '''
 
     def __init__(self):
-        Transformation.__init__(self, NormalizeTuples,
-                                OptimizableComprehension)
+        Transformation.__init__(self, OptimizableComprehension)
 
     def visit_Module(self, node):
         self.use_itertools = False
@@ -87,8 +86,11 @@ class ListCompToMap(Transformation):
                                    annotation=None),
                     attr='product', ctx=ast.Load())
 
+                varid = varList[0].id  # retarget this id, it's free
+                renamings = {v.id: (i,) for i, v in enumerate(varList)}
+                node.elt = ConvertToTuple(varid, renamings).visit(node.elt)
                 iterAST = ast.Call(prodName, iterList, [])
-                varAST = ast.arguments([ast.Tuple(varList, ast.Store())],
+                varAST = ast.arguments([ast.Name(varid, ast.Param(), None)],
                                        None, [], [], None, [])
 
             mapName = ast.Attribute(

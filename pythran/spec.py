@@ -10,7 +10,7 @@ import os.path
 import ply.lex as lex
 import ply.yacc as yacc
 
-from pythran.typing import List, Set, Dict, NDArray, Tuple
+from pythran.typing import List, Set, Dict, NDArray, Optional, Tuple
 
 
 class SpecParser:
@@ -29,6 +29,7 @@ class SpecParser:
     reserved = {
         '#pythran': 'PYTHRAN',
         'export': 'EXPORT',
+        'optional': 'OPTIONAL',
         'list': 'LIST',
         'set': 'SET',
         'dict': 'DICT',
@@ -56,7 +57,7 @@ class SpecParser:
               'LARRAY', 'RARRAY') + tuple(reserved.values())
 
     # token <> regexp binding
-    t_CRAP = r'[^,:\(\)\[\]]'
+    t_CRAP = r'[^,:\(\)\[\]\*]'
     t_COMMA = r','
     t_COLUMN = r':'
     t_LPAREN = r'\('
@@ -124,6 +125,7 @@ class SpecParser:
                 | COMMA
                 | DICT
                 | SET
+                | OPTIONAL
                 | LIST
                 | STR
                 | BOOL
@@ -157,6 +159,7 @@ class SpecParser:
 
     def p_type(self, p):
         '''type : term
+                | type OPTIONAL
                 | type LIST
                 | type SET
                 | type LARRAY array_indices RARRAY
@@ -165,6 +168,8 @@ class SpecParser:
 
         if len(p) == 2:
             p[0] = p[1]
+        elif len(p) == 3 and p[2] == '*':
+            p[0] = Optional[p[1]]
         elif len(p) == 3 and p[2] == 'list':
             p[0] = List[p[1]]
         elif len(p) == 3 and p[2] == 'set':

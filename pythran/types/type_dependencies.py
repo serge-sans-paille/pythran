@@ -11,7 +11,7 @@ from pythran.errors import PythranInternalError
 from pythran.passmanager import ModuleAnalysis
 from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE
 from pythran.utils import get_variable
-from pythran.typing import List, Set, Dict, NDArray, Tuple
+from pythran.typing import List, Set, Dict, Optional, NDArray, Tuple
 
 
 def pytype_to_deps_hpp(t):
@@ -27,6 +27,8 @@ def pytype_to_deps_hpp(t):
     elif isinstance(t, Tuple):
         return {'tuple.hpp'}.union(*[pytype_to_deps_hpp(elt)
                                      for elt in t.__args__])
+    elif isinstance(t, Optional):
+        return {'NoneType.hpp'}
     elif isinstance(t, NDArray):
         out = {'ndarray.hpp'}
         # it's a transpose!

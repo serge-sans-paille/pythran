@@ -70,18 +70,29 @@ class ConstantFolding(Transformation):
 
         super(ConstantFolding, self).prepare(node, ctx)
 
+    def skip(self, node):
+        return node
+
+    visit_Num = visit_Name = skip
+
+    visit_List = visit_Set = Transformation.generic_visit
+    visit_Dict = visit_Tuple = Transformation.generic_visit
+
+    def visit_Index(self, node):
+        value = self.visit(node.value)
+        if value is not node.value:
+            return ast.Index(value)
+        else:
+            return node
+
     def generic_visit(self, node):
-        if node in self.constant_expressions:
+        if isinstance(node, ast.expr) and node in self.constant_expressions:
+            fake_node = ast.Expression(node)
+            code = compile(ast.gast_to_ast(fake_node),
+                           '<constant folding>', 'eval')
             try:
-                fake_node = ast.Expression(
-                    node.value if isinstance(node, ast.Index) else node)
-                code = compile(ast.gast_to_ast(fake_node),
-                               '<constant folding>', 'eval')
                 value = eval(code, self.env)
                 new_node = to_ast(value)
-                if(isinstance(node, ast.Index) and
-                   not isinstance(new_node, ast.Index)):
-                    new_node = ast.Index(new_node)
                 try:
                     if not ASTMatcher(node).search(new_node):
                         self.update = True

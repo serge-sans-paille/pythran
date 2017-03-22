@@ -116,13 +116,12 @@ class Aliases(ModuleAnalysis):
         return rec(MODULES, node)
 
     # aliasing created by expressions
-    def add(self, node, values=set()):
-        if not values:  # no given target for the alias
+    def add(self, node, values=None):
+        if values is None:  # no given target for the alias
             if isinstance(node, Intrinsic):
                 values = {node}  # an Intrinsic always aliases to itself
             else:
                 values = self.get_unbound_value_set()
-        assert isinstance(values, (frozenset, set))
         self.result[node] = values
         return values
 

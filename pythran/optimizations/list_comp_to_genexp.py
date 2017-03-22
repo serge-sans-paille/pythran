@@ -2,7 +2,6 @@
 
 from pythran.analyses import PotentialIterator
 from pythran.passmanager import Transformation
-from pythran.transformations import NormalizeTuples
 
 import gast as ast
 
@@ -27,8 +26,7 @@ def bar(n):                                       \\n\
         return foo((x for x in __builtin__.range(n)))
     '''
     def __init__(self):
-        Transformation.__init__(self, NormalizeTuples,
-                                PotentialIterator)
+        Transformation.__init__(self, PotentialIterator)
 
     def visit_ListComp(self, node):
         self.generic_visit(node)

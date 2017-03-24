@@ -10,7 +10,6 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/utils/int_.hpp"
 
-#include <boost/format.hpp>
 #include <cassert>
 #include <string>
 #include <cstring>
@@ -198,20 +197,7 @@ namespace pythonic
 #endif
 
       explicit operator bool() const;
-      template <class A>
-      types::str operator%(A const &a) const;
-      template <class... A>
-      types::str operator%(std::tuple<A...> const &a) const;
-      template <size_t N, class T>
-      types::str operator%(types::array<T, N> const &a) const;
-
       long count(types::str const &sub) const;
-
-    private:
-      template <class Tuple, size_t I>
-      void fmt(boost::format &f, Tuple const &a, utils::int_<I>) const;
-      template <class Tuple>
-      void fmt(boost::format &f, Tuple const &a, utils::int_<1>) const;
     };
 
     size_t hash_value(str const &x);

@@ -218,3 +218,25 @@ class NormalizeMethodCalls(Transformation):
                 self.update = True
 
         return node
+
+    def visit_BinOp(self, node):
+        # replace "str" % (...) by __builtin__.str.__mod__(...)
+        # the reason why we do this is that % formatting is handled by
+        # a third party library that's relatively costly to load, so using a
+        # function name instead of an operator overload makes it possible to
+        # load it only when needed. The drawback is that % formatting is no
+        # longer supported when lhs is not a literal
+        self.generic_visit(node)
+        if isinstance(node.op, ast.Mod) and isinstance(node.left, ast.Str):
+            self.update = True
+            return ast.Call(
+                ast.Attribute(
+                    ast.Attribute(
+                        ast.Name('__builtin__', ast.Load(), None),
+                        'str',
+                        ast.Load()),
+                    '__mod__',
+                    ast.Load()),
+                [node.left, node.right],
+                [])
+        return node

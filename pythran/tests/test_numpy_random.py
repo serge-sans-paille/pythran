@@ -353,7 +353,7 @@ class TestNumpyRandom(TestEnv):
             lam = 10
             a = poisson(lam, size)
             print mean(a)
-            assert(abs(mean(a)) < (lam + 0.05) and abs(sqrt(lam) - sqrt(var(a,ddof=1))) < .01)
+            assert(abs(mean(a)) < (lam + 0.05) and abs(sqrt(lam) - sqrt(var(a,ddof=1))) < .05)
         """
         self.run_test(code, 10 ** 5, numpy_poisson0b=[int])
 

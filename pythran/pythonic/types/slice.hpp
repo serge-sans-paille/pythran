@@ -11,7 +11,7 @@
 
 #include <cassert>
 #include <stdexcept>
-#include <iostream>
+#include <ostream>
 
 namespace pythonic
 {

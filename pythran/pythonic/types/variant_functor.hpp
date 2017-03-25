@@ -4,7 +4,7 @@
 #include "pythonic/include/types/variant_functor.hpp"
 
 #include <utility>
-#include <iostream>
+#include <ostream>
 
 namespace pythonic
 {

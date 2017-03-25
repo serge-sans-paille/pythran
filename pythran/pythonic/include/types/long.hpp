@@ -184,10 +184,6 @@ namespace std
   };
 }
 
-#include <boost/functional/hash_fwd.hpp>
-template <class T, class U>
-std::size_t hash_value(__gmp_expr<T, U> const &x);
-
 /* } */
 /* type inference stuff  {*/
 #include "pythonic/include/types/combined.hpp"

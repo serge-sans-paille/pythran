@@ -16,7 +16,7 @@
 #include <limits>
 #include <algorithm>
 #include <iterator>
-#include <boost/unordered_map.hpp>
+#include <unordered_map>
 
 namespace pythonic
 {
@@ -97,7 +97,7 @@ namespace pythonic
           typename std::remove_reference<K>::type>::type;
       using _value_type = typename std::remove_cv<
           typename std::remove_reference<V>::type>::type;
-      using container_type = boost::unordered_map<_key_type, _value_type>;
+      using container_type = std::unordered_map<_key_type, _value_type>;
 
       utils::shared_ref<container_type> data;
 

@@ -31,7 +31,7 @@ def may_convert_2_to_3(code):
         from lib2to3 import main as lib2to3
 
         tmp_py = NamedTemporaryFile(suffix='.py', delete=False)
-        tmp_py.write(code.encode('ascii'))
+        tmp_py.write(code.encode('utf8'))
         tmp_py.close()
 
         lib2to3.main('lib2to3.fixes', [tmp_py.name, '-w', '-n'])

@@ -4,7 +4,7 @@ import sys
 
 from numpy import int8, int16, int32, int64, uint8, uint16, uint32
 from numpy import float64, float32, complex64, complex128, uint64
-from pythran.typing import List, Dict, Set, Tuple, NDArray, NDArray
+from pythran.typing import List, Dict, Set, Tuple, Optional, NDArray
 
 PYTYPE_TO_CTYPE_TABLE = {
     complex: 'std::complex<double>',
@@ -42,6 +42,10 @@ def pytype_to_ctype(t):
         return 'pythonic::types::list<{0}>'.format(
             pytype_to_ctype(t.__args__[0])
         )
+    elif isinstance(t, Optional):
+        return 'pythonic::types::none<{0}, true>'.format(
+            pytype_to_ctype(t.__args__[0])
+        )
     elif isinstance(t, Set):
         return 'pythonic::types::set<{0}>'.format(
             pytype_to_ctype(t.__args__[0])
@@ -76,6 +80,8 @@ def pytype_to_pretty_type(t):
     """ Python -> docstring type. """
     if isinstance(t, List):
         return '{0} list'.format(pytype_to_pretty_type(t.__args__[0]))
+    elif isinstance(t, Optional):
+        return '{0} optional'.format(pytype_to_pretty_type(t.__args__[0]))
     elif isinstance(t, Set):
         return '{0} set'.format(pytype_to_pretty_type(t.__args__[0]))
     elif isinstance(t, Dict):

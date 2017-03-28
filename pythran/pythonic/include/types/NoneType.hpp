@@ -107,11 +107,7 @@ namespace pythonic
       bool operator==(none_type const &) const;
       template <class O>
       bool operator==(O const &t) const;
-      operator bool() const;
-      operator size_t() const;
-      operator long() const;
-      operator long long() const;
-      operator double() const;
+      operator T() const;
       T &operator=(T const &t);
       intptr_t id() const;
     };
@@ -248,6 +244,14 @@ namespace pythonic
     static bool is_convertible(PyObject *obj);
 
     static types::none_type convert(PyObject *obj);
+  };
+
+  template <class T>
+  struct from_python<types::none<T>> {
+
+    static bool is_convertible(PyObject *obj);
+
+    static types::none<T> convert(PyObject *obj);
   };
 }
 

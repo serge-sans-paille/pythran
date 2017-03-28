@@ -1,6 +1,7 @@
 from test_env import TestEnv
 from unittest import skip
-from pythran.typing import List
+from pythran.typing import List, Optional
+from numpy import float64
 
 class TestNone(TestEnv):
 
@@ -36,3 +37,15 @@ def returned_none_member(a):
                     return l[a:8]
             """
         self.run_test(code, None, none_input=[type(None)])
+
+
+    def test_use_optional(self):
+        code = """
+            def none_input(a):
+                if a is None:
+                  return 0.0
+                else:
+                  return a
+            """
+        self.run_test(code, 2.0, none_input=[Optional(float64)])
+        self.run_test(code, None, none_input=[Optional(float64)])

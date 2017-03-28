@@ -5,6 +5,8 @@ This module provides a dummy parser for pythran annotations.
 
 from pythran.types.conversion import pytype_to_pretty_type
 
+from future.utils import iteritems
+import itertools
 import re
 import os.path
 import ply.lex as lex
@@ -29,6 +31,7 @@ class SpecParser:
     reserved = {
         '#pythran': 'PYTHRAN',
         'export': 'EXPORT',
+        'or': 'OR',
         'list': 'LIST',
         'set': 'SET',
         'dict': 'DICT',
@@ -122,6 +125,7 @@ class SpecParser:
                 | RARRAY
                 | COLUMN
                 | COMMA
+                | OR
                 | DICT
                 | SET
                 | LIST
@@ -151,8 +155,13 @@ class SpecParser:
         p[0] = p[1] if len(p) == 2 else []
 
     def p_types(self, p):
-        '''types : type
-                 | type COMMA types'''
+        '''types : multitype
+                 | multitype COMMA types'''
+        p[0] = (p[1],) + (tuple() if len(p) == 2 else p[3])
+
+    def p_multitype(self, p):
+        '''multitype : type
+                     | type OR multitype'''
         p[0] = (p[1],) + (tuple() if len(p) == 2 else p[3])
 
     def p_type(self, p):
@@ -263,7 +272,10 @@ class SpecParser:
             import logging
             logging.warn("No pythran specification, "
                          "no function will be exported")
-        return self.exports
+
+        # Create multiple definitions from multi-types
+        exports = dict((k, tuple(list(itertools.chain.from_iterable(itertools.product(*v2) for v2 in v)))) for k,v in iteritems(self.exports))
+        return exports
 
 
 def expand_specs(specs):

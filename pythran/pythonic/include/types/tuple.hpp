@@ -400,20 +400,6 @@ namespace std
   };
 }
 
-/* and boost's */
-namespace pythonic
-{
-  namespace types
-  {
-#ifdef BOOST_NO_CXX11_HDR_TUPLE
-    template <class... Types>
-    std::size_t hash_value(std::tuple<Types...> const &x);
-#endif
-    template <class T, size_t N>
-    std::size_t hash_value(pythonic::types::array<T, N> const &x);
-  }
-}
-
 /* type inference stuff  {*/
 #include "pythonic/include/types/combined.hpp"
 template <class K, class... Types>

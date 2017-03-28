@@ -15,7 +15,6 @@
 #include <limits>
 #include <algorithm>
 #include <iterator>
-#include <boost/unordered_map.hpp>
 
 namespace pythonic
 {

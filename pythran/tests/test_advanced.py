@@ -1,3 +1,4 @@
+#encoding: utf8
 from test_env import TestEnv
 
 from pythran.config import have_gmp_support
@@ -232,3 +233,9 @@ def combiner_on_empty_list():
             '''
         self.run_test(code, 1, multiple_lambda=[int])
 
+    def test_function_with_non_ascii_docstring(self):
+        code = '''
+            def function_with_non_ascii_docstring():
+                'éàea'
+        '''
+        self.run_test(code, function_with_non_ascii_docstring=[])

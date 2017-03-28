@@ -42,7 +42,7 @@
 #include "pythonic/include/__builtin__/len.hpp"
 
 #include <cassert>
-#include <iostream>
+#include <ostream>
 #include <iterator>
 #include <array>
 #include <initializer_list>

@@ -4,7 +4,7 @@
 #include "pythonic/include/__builtin__/print.hpp"
 #include "pythonic/utils/functor.hpp"
 
-#include <iostream>
+#include <ostream>
 
 namespace pythonic
 {

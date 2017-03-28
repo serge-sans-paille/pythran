@@ -50,7 +50,7 @@
 #include "pythonic/operator_/isub.hpp"
 
 #include <cassert>
-#include <iostream>
+#include <ostream>
 #include <iterator>
 #include <array>
 #include <initializer_list>

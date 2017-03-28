@@ -11,7 +11,7 @@
 #include "pythonic/include/types/slice.hpp"
 #include "pythonic/include/types/vectorizable_type.hpp"
 
-#include <iostream>
+#include <ostream>
 #include <vector>
 #include <utility>
 #include <algorithm>

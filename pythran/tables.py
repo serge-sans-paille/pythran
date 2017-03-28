@@ -179,6 +179,17 @@ CLASSES = {
         "insert": MethodIntr(signature=Fun[[List[T0], int, T0], None]),
     },
     "str": {
+        "__mod__": ConstMethodIntr(
+            signature=Union[
+                Fun[[str, T0], str],
+                Fun[[str, T0, T1], str],
+                Fun[[str, T0, T1, T2], str],
+                Fun[[str, T0, T1, T2, T3, T4], str],
+                Fun[[str, T0, T1, T2, T3, T4, T5], str],
+                Fun[[str, T0, T1, T2, T3, T4, T5, T6], str],
+            ],
+        ),
+
         "capitalize": ConstMethodIntr(signature=Fun[[str], str]),
         "count": ConstMethodIntr(signature=Union[
             Fun[[str, str], int],

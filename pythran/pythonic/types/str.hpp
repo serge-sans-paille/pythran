@@ -11,7 +11,6 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/int_.hpp"
 
-#include <boost/format.hpp>
 #include <cassert>
 #include <string>
 #include <cstring>
@@ -593,29 +592,6 @@ namespace pythonic
       return not data->empty();
     }
 
-    template <class A>
-    str str::operator%(A const &a) const
-    {
-      const boost::format fmter(*data);
-      return (boost::format(fmter) % a).str();
-    }
-
-    template <class... A>
-    types::str str::operator%(std::tuple<A...> const &a) const
-    {
-      boost::format fmter(*data);
-      fmt(fmter, a, utils::int_<sizeof...(A)>());
-      return fmter.str();
-    }
-
-    template <size_t N, class T>
-    str str::operator%(types::array<T, N> const &a) const
-    {
-      boost::format fmter(*data);
-      fmt(fmter, a, utils::int_<N>());
-      return fmter.str();
-    }
-
     long str::count(types::str const &sub) const
     {
       long counter = 0;
@@ -626,19 +602,6 @@ namespace pythonic
         ++counter;
       }
       return counter;
-    }
-
-    template <class Tuple, size_t I>
-    void str::fmt(boost::format &f, Tuple const &a, utils::int_<I>) const
-    {
-      fmt(f % std::get<std::tuple_size<Tuple>::value - I>(a), a,
-          utils::int_<I - 1>());
-    }
-
-    template <class Tuple>
-    void str::fmt(boost::format &f, Tuple const &a, utils::int_<1>) const
-    {
-      f % std::get<std::tuple_size<Tuple>::value - 1>(a);
     }
 
     str operator+(str const &self, str const &other)

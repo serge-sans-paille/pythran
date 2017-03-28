@@ -158,7 +158,11 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
         check_specs(ir, specs, renamings, types)
         specs_to_docstrings(specs, docstrings)
 
-        metainfo = {'hash': hashlib.sha256(code.encode('ascii')).hexdigest(),
+        if isinstance(code, bytes):
+            code_bytes = code
+        else:
+            code_bytes = code.encode('ascii', 'ignore')
+        metainfo = {'hash': hashlib.sha256(code_bytes).hexdigest(),
                     'version': __version__,
                     'date': datetime.now()}
 

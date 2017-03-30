@@ -28,7 +28,6 @@ class SpecParser:
 
     # lex part
     reserved = {
-        '#pythran': 'PYTHRAN',
         'export': 'EXPORT',
         'or': 'OR',
         'list': 'LIST',
@@ -66,11 +65,7 @@ class SpecParser:
     t_RARRAY = r'\]'
     t_LARRAY = r'\['
 
-    # regexp to extract pythran specs from comments
-    # the first part matches lines with a comment and the pythran keyword
-    # the second part matches lines with comments following the pythran ones
-    FILTER = re.compile(r'^\s*#\s*pythran[^\n\r]*[\n\r]+'
-                        r'^(?:\s*#[^\n\r]*[\n\r]+)*', re.MULTILINE)
+    COMMENT_REGEX = re.compile(r'^\s*(#|//).*\n?', re.MULTILINE)
 
     def t_IDENTIFER(self, t):
         r'\#?[a-zA-Z_][a-zA-Z_0-9]*'
@@ -93,11 +88,11 @@ class SpecParser:
 
     def p_exports(self, p):
         '''exports :
-                   | PYTHRAN EXPORT export_list opt_craps exports'''
+                   | EXPORT export_list opt_craps exports'''
 
     def p_export_list(self, p):
         '''export_list : export
-                  | export COMMA export_list'''
+                       | export COMMA export_list'''
 
     def p_export(self, p):
         '''export : IDENTIFIER LPAREN opt_types RPAREN
@@ -123,7 +118,6 @@ class SpecParser:
     def p_crap(self, p):
         '''crap : CRAP
                 | IDENTIFIER
-                | EXPORT
                 | LPAREN
                 | RPAREN
                 | LARRAY
@@ -263,7 +257,6 @@ class SpecParser:
                                 write_tables=False)
 
     def __call__(self, path_or_text):
-        self.exports = dict()
         self.input_file = None
         if os.path.isfile(path_or_text):
             self.input_file = path_or_text
@@ -272,16 +265,45 @@ class SpecParser:
         else:
             data = path_or_text
 
-        raw = "\n".join(SpecParser.FILTER.findall(data))
-        pythran_data = (re.sub(r'#\s*pythran', '\_o< pythran >o_/', raw)
-                        .replace('#', '')
-                        .replace('\_o< pythran >o_/', '#pythran'))
-        self.parser.parse(pythran_data, lexer=self.lexer)
+        return self._parse(data)
+
+    def _parse(self, data):
+        data = SpecParser.COMMENT_REGEX.sub(r'\n', data)
+
+        self.exports = dict()
+        self.parser.parse(data, lexer=self.lexer)
         if not self.exports:
             import logging
             logging.warn("No pythran specification, "
                          "no function will be exported")
         return self.exports
+
+
+class PySpecParser(SpecParser):
+
+    # regexp to extract pythran specs from comments
+    # the first part matches lines with a comment and the pythran keyword
+    # the second part matches lines with comments following the pythran ones
+    FILTER = re.compile(r'^\s*#\s*pythran[^\n\r]*[\n\r]+'
+                        r'^(?:\s*#[^\n\r]*[\n\r]+)*', re.MULTILINE)
+    def __init__(self):
+        SpecParser.__init__(self)
+
+    def _parse(self, data):
+        # Keep only pythran comment directives
+        i = 0
+        pythran_data = ""
+        for match in PySpecParser.FILTER.finditer(data):
+            begin, end = match.span()
+            pythran_data += '\n' * data[i:begin].count('\n') + data[begin:end]
+            i = end
+        pythran_data += '\n' * data[i:len(data)].count('\n')
+
+        # Remove #pythran python prefix
+        pythran_data = (re.sub(r'#\s*pythran', '', pythran_data)
+                        .replace('#', ''))
+
+        return SpecParser._parse(self, pythran_data)
 
 
 def expand_specs(specs):
@@ -336,3 +358,7 @@ def specs_to_docstrings(specs, docstrings):
 
 def spec_parser(path):
     return SpecParser()(path)
+
+
+def pyspec_parser(path):
+    return PySpecParser()(path)

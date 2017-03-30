@@ -13,7 +13,7 @@ import ply.yacc as yacc
 from pythran.typing import List, Set, Dict, NDArray, Tuple
 
 
-class SpecParser:
+class SpecParser(object):
 
     """
     A parser that scans a file lurking for lines such as the one below.
@@ -244,15 +244,20 @@ class SpecParser:
                                 debug=0,
                                 write_tables=False)
 
-    def __call__(self, path_or_text):
-        self.exports = dict()
-        self.input_file = None
+    def read_path_or_text(self, path_or_text):
         if os.path.isfile(path_or_text):
             self.input_file = path_or_text
             with open(path_or_text) as fd:
                 data = fd.read()
         else:
             data = path_or_text
+        return data
+
+    def __call__(self, path_or_text):
+        self.exports = dict()
+        self.input_file = None
+
+        data = self.read_path_or_text(path_or_text)
 
         raw = "\n".join(SpecParser.FILTER.findall(data))
         pythran_data = (re.sub(r'#\s*pythran', '\_o< pythran >o_/', raw)
@@ -264,6 +269,19 @@ class SpecParser:
             logging.warn("No pythran specification, "
                          "no function will be exported")
         return self.exports
+
+
+class ExtraSpecParser(SpecParser):
+    '''
+    Extension of SpecParser that works on extra .pythran files
+    '''
+
+    def read_path_or_text(self, path_or_text):
+        data = super(ExtraSpecParser, self).read_path_or_text(path_or_text)
+        # make the code looks like a regular pythran file
+        data = re.sub(r'^\s*export', '#pythran export', data,
+                      flags=re.MULTILINE)
+        return data
 
 
 def expand_specs(specs):
@@ -316,5 +334,9 @@ def specs_to_docstrings(specs, docstrings):
         )
 
 
-def spec_parser(path):
-    return SpecParser()(path)
+def spec_parser(path_or_text):
+    return SpecParser()(path_or_text)
+
+
+def load_specfile(path_or_text):
+    return ExtraSpecParser()(path_or_text)

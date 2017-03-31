@@ -250,6 +250,18 @@ Easy enough, isn't it?
     ``-e`` switch!
 
 
+.pythran files
+**************
+
+Instead of writing the export lines in the ``.py`` file, it is possible to
+write them, **without the #pythran** prefix, inside a file that has the same
+path has the ``.py`` file, but with the ``.pythran`` extension. For instance,
+file ``I_love.py`` can have its export lines in the ``I_love.pythran`` file, using the syntax::
+
+    export function_name(argument_type*)
+
+
+
 Python3 Compatibility
 ---------------------
 

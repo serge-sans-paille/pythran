@@ -14,7 +14,7 @@ from pythran.types import tog
 from pythran.types.types import extract_constructed_types
 from pythran.types.type_dependencies import pytype_to_deps
 from pythran.types.conversion import pytype_to_ctype
-from pythran.spec import expand_specs, specs_to_docstrings
+from pythran.spec import expand_specs, specs_to_docstrings, load_specfile
 from pythran.syntax import check_specs
 from pythran.version import __version__
 import pythran.frontend as frontend
@@ -357,6 +357,12 @@ def compile_pythranfile(file_path, output_file=None, module_name=None,
 
     # Add compiled module path to search for imported modules
     sys.path.append(os.path.dirname(file_path))
+
+    # Look for an extra spec file
+    spec_file = os.path.splitext(file_path)[0] + '.pythran'
+    if os.path.isfile(spec_file):
+        specs = load_specfile(open(spec_file).read())
+        kwargs.setdefault('specs', {}).update(specs)
 
     output_file = compile_pythrancode(module_name, open(file_path).read(),
                                       output_file=output_file,

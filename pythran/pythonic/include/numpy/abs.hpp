@@ -34,11 +34,7 @@ namespace pythonic
     }
 
 #define NUMPY_NARY_FUNC_NAME abs
-#ifdef USE_BOOST_SIMD
 #define NUMPY_NARY_FUNC_SYM wrapper::abs
-#else
-#define NUMPY_NARY_FUNC_SYM std::abs
-#endif
 #include "pythonic/include/types/numpy_nary_expr.hpp"
   }
 }

@@ -11,12 +11,13 @@ import transformations.xxxxx
 """
 
 
+from .denone import Denone
 from .expand_builtins import ExpandBuiltins
 from .expand_globals import ExpandGlobals
 from .expand_import_all import ExpandImportAll
 from .expand_imports import ExpandImports
 from .extract_doc_strings import ExtractDocStrings
-from .false_polymorphism import FalsePolymorphism
+from .scalar_renaming import ScalarRenaming, PhiInsertion
 from .handle_import import HandleImport
 from .normalize_compare import NormalizeCompare
 from .normalize_exception import NormalizeException

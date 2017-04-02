@@ -2524,7 +2524,8 @@ _numpy_array_signature = Union[
 MODULES = {
     "__builtin__": {
         "pythran": {
-            "len_set": ConstFunctionIntr(signature=Fun[[Iterable[T0]], int])
+            "denone": ConstFunctionIntr(),
+            "len_set": ConstFunctionIntr(signature=Fun[[Iterable[T0]], int]),
         },
         "abs": ConstFunctionIntr(
             signature=Union[
